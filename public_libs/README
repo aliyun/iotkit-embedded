@@ -1,0 +1,2 @@
+paho.mqtt.c是适用于标准平台系统，如linux、windows等
+paho.mqtt.embedded是适用于embed系统，如嵌入式linux，freertos，mbed等。其只有TCP实现，使用tls的功能需要另行封装。
