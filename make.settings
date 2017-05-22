@@ -1,21 +1,9 @@
-PLATFORM                = windows
-PLATFORM_CC             = gcc
-PLATFORM_AR             = ar
-SSL_LIB_NAME			= mbedtls
+BUILD_TYPE                = debug
+PLATFORM_CC               = gcc
+PLATFORM_AR               = ar
+PLATFORM_OS               = linux
+PLATFORM_NETWORK          = linuxsock
+PLATFORM_SSL              = mbedtls
 
-MBEDTLS_LIB_ENABLE      = y
-MQTT_MBED_LIB_ENABLE    = y
-CCP_LIB_ENABLE          = n
-
-MQTTMBED_LIB_NAME       = libmqtt_mbed
-CCP_LIB_NAME            = libccp
-IOT_SDK_LIB_NAME        = libiotsdk
-
-PORTING_INCLUDE         =
-
-
-CFLAGS = -DCN_HZ
-
-DEBUG = 1
-WINDOWS = 1
-WINDOWS_BUILD = 1
+ALIOT_SDK_LIB_NAME        = libaliot_sdk
+ALIOT_PLATFORM_LIB_NAME   = libaliot_platform
