@@ -76,3 +76,38 @@ int32_t aliyun_iot_timer_interval(ALIYUN_IOT_TIME_TYPE_S *start,ALIYUN_IOT_TIME_
 {
     return (end->time - start->time);
 }
+
+
+
+uint32_t aliot_platform_time_get_ms(void)
+{
+    return (uint32_t)(GetTickCount());
+}
+
+
+uint64_t aliot_time_get_ms_64b(void)
+{
+    static uint32_t overflow_cnt = 0;
+    static uint32_t last;
+
+    uint32_t new = aliot_platform_time_get_ms();
+
+    //#BUG: it may lose if this interface is not called over 49.7 days
+    if (new < last) {
+        ++overflow_cnt;
+    }
+
+    return ((uint64_t)overflow_cnt << 32) | (new);
+}
+
+
+uint32_t aliot_time_get_ms(void)
+{
+    return (uint32_t)aliot_time_get_ms_64b();
+}
+
+
+uint32_t aliot_time_get_s(void)
+{
+    return (uint32_t)(aliot_time_get_ms_64b()/1000);
+}

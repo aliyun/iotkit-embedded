@@ -5,10 +5,8 @@ SSL_LIB_NAME			= mbedtls
 
 MBEDTLS_LIB_ENABLE      = y
 MQTT_MBED_LIB_ENABLE    = y
-CCP_LIB_ENABLE          = n
 
 MQTTMBED_LIB_NAME       = libmqtt_mbed
-CCP_LIB_NAME            = libccp
 IOT_SDK_LIB_NAME        = libiotsdk
 
 PORTING_INCLUDE         =

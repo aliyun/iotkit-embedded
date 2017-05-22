@@ -796,7 +796,7 @@ int decodePacket(MQTTClient_t* c, int* value, int timeout)
 * 返 回  值: 0：成功  非0：失败
 * 说      明:
 ************************************************************/
-int readPacket(MQTTClient_t* c, aliot_timer_t* timer,unsigned int *packet_type)
+int readPacket(MQTTClient_t* c, aliot_timer_t* timer, unsigned int *packet_type)
 {
     MQTTHeader header = {0};
     int len = 0;
@@ -1294,7 +1294,7 @@ int cycle(MQTTClient_t* c, aliot_timer_t* timer)
     }
 
     // read the socket, see what work is due
-    rc = readPacket(c, timer,&packetType);
+    rc = readPacket(c, timer, &packetType);
     if(rc != SUCCESS_RETURN)
     {
         aliyun_iot_mqtt_set_client_state(c, CLIENT_STATE_DISCONNECTED);
@@ -1628,7 +1628,7 @@ int aliyun_iot_mqtt_publish(MQTTClient_t* c, const char* topicName, MQTTMessage*
         message->id = getNextPacketId(c);
     }
     
-    rc = MQTTPublish(c,topicName, message);
+    rc = MQTTPublish(c, topicName, message);
     if (rc != SUCCESS_RETURN) // send the subscribe packet
     {
         if(rc == MQTT_NETWORK_ERROR)
@@ -1759,7 +1759,7 @@ int aliyun_iot_mqtt_init(MQTTClient_t *pClient,
 
 	int rc = FAIL_RETURN, i = 0;
 
-	memset(pClient,0x0,sizeof(MQTTClient_t));
+	memset(pClient, 0x0, sizeof(MQTTClient_t));
 
 	MQTTPacket_connectData connectdata = MQTTPacket_connectData_initializer;
 
@@ -1772,7 +1772,6 @@ int aliyun_iot_mqtt_init(MQTTClient_t *pClient,
     connectdata.clientID.cstring = puser_info->client_id;
     connectdata.username.cstring = puser_info->user_name;
     connectdata.password.cstring = puser_info->password;
-
 
     for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i)
 	{
@@ -2028,6 +2027,10 @@ void* aliyun_iot_keepalive_thread(void * param)
                  else
                  {
                      WRITE_IOT_NOTICE_LOG("network is reconnected!");
+
+                     aliyun_iot_mutex_lock(&pClient->pingMarkLock);
+                     pClient->pingMark = 0;
+                     aliyun_iot_mutex_unlock(&pClient->pingMarkLock);
 
                      //重连成功调用网络恢复回调函数
                      aliyun_iot_mqtt_reconnect_callback(pClient);
@@ -2451,6 +2454,13 @@ int aliyun_iot_mqtt_handle_reconnect(MQTTClient_t *pClient)
     }
 	
 	WRITE_IOT_INFO_LOG("start reconnect");
+
+	//REDO AUTH before each reconnection
+    if (0 != aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info()))
+    {
+        printf("run aliyun_iot_auth() error!\n");
+        return -1;
+    }
 
 	int rc = FAIL_RETURN;
     rc = aliyun_iot_mqtt_attempt_reconnect(pClient);

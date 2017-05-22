@@ -2,6 +2,7 @@
 #include "aliyun_iot_auth.h"
 #include "aliyun_iot_device.h"
 #include "aliyun_iot_common_httpclient.h"
+#include "shadow/aliyun_iot_shadow.h"
 #include <windows.h>
 #include <pthread.h>
 
@@ -9,9 +10,14 @@
 
 //用户需要根据设备信息完善以下宏定义中的四元组内容
 #define PRODUCT_KEY         "4eViBFJ2QGH"
-#define DEVICE_NAME         "device_xikan_1"
-#define DEVICE_ID           "mwYSQBQq0svKOUb1MZCx"
-#define DEVICE_SECRET       "GkQjaEAZh7jZW4XIQ6LOT2yM9aOWAdZP"
+#define DEVICE_NAME         "device_xikan_3"
+#define DEVICE_ID           "xItJzEDpi6Tv184UIkH7"
+#define DEVICE_SECRET       "TR1gdwnRVN0nIRttfeEqmp1v3nUYWHDi"
+
+//#define PRODUCT_KEY         "1000184547"
+//#define DEVICE_NAME         "hz_xk_device5"
+//#define DEVICE_ID           "0tbDEmqCPn20zAkjn"
+//#define DEVICE_SECRET       "IYcxAiegcDbOwkUi"
 
 //以下三个TOPIC的宏定义不需要用户修改，可以直接使用
 //IOT HUB为设备建立三个TOPIC：update用于设备发布消息，error用于设备发布错误，get用于订阅消息
@@ -19,7 +25,7 @@
 #define TOPIC_ERROR          "/4eViBFJ2QGH/device_xikan_1/update/error"
 #define TOPIC_GET            "/4eViBFJ2QGH/device_xikan_1/get"
 
-#define MSG_LEN_MAX     (256)
+#define MSG_LEN_MAX         (2048)
 
 /**********************************************************************
  *            接收消息的回调函数
@@ -165,6 +171,99 @@ int singleThreadDemo(unsigned char *msg_buf,unsigned char *msg_readbuf)
 }
 
 
+static void device_shadow_cb(aliot_shadow_attr_pt pattr)
+{
+    printf("attribute name=%s, attribute value = %d \r\n", pattr->pattr_name, pattr->pattr_data);
+}
+
+int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
+
+    char buf[1024];
+
+    aliot_err_t rc;
+    aliot_shadow_t shadow;
+    aliot_shadow_para_t shadaw_para;
+
+    aliyun_iot_device_init();
+
+    if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET))
+    {
+        printf("run aliyun_iot_set_device_info() error!\n");
+        return -1;
+    }
+
+
+    rc = aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info());
+    if (SUCCESS_RETURN != rc)
+    {
+        printf("run aliyun_iot_auth() error!\n");
+        return rc;
+    }
+
+    memset(&shadow, 0, sizeof(aliot_shadow_t));
+    memset(&shadaw_para, 0, sizeof(aliot_shadow_para_t));
+
+    shadaw_para.mqtt.mqttCommandTimeout_ms = 10000;
+    shadaw_para.mqtt.pReadBuf = msg_readbuf;
+    shadaw_para.mqtt.readBufSize = MSG_LEN_MAX;
+    shadaw_para.mqtt.pWriteBuf = msg_buf;
+    shadaw_para.mqtt.writeBufSize = MSG_LEN_MAX;
+    shadaw_para.mqtt.disconnectHandler = NULL;
+    shadaw_para.mqtt.disconnectHandlerData = (void*)&shadow.mqtt;
+    shadaw_para.mqtt.deliveryCompleteFun = publishComplete;
+    shadaw_para.mqtt.subAckTimeOutFun = subAckTimeout;
+
+    shadaw_para.mqtt.cleansession      = 0;
+    shadaw_para.mqtt.MQTTVersion       = 4;
+    shadaw_para.mqtt.keepAliveInterval = 180;
+    shadaw_para.mqtt.willFlag          = 0;
+
+
+    rc = aliyun_iot_shadow_construct(&shadow, &shadaw_para);
+    if (SUCCESS_RETURN != rc) {
+        printf("run aliyun_iot_auth() error!\n");
+        return rc;
+    }
+
+    int32_t sw, temperature;
+    aliot_shadow_attr_t attr_switch, attr_temperature;
+
+    memset(&attr_switch, 0, sizeof(aliot_shadow_attr_t));
+    memset(&attr_temperature, 0, sizeof(aliot_shadow_attr_t));
+
+
+    attr_switch.attr_type = ALIOT_SHADOW_INT32;
+    attr_switch.mode = ALIOT_SHADOW_RW;
+    attr_switch.pattr_name = "switch";
+    attr_switch.pattr_data = &sw;
+    attr_switch.callback = device_shadow_cb;
+
+    attr_temperature.attr_type = ALIOT_SHADOW_INT32;
+    attr_temperature.mode = ALIOT_SHADOW_READONLY;
+    attr_temperature.pattr_name = "temperature";
+    attr_temperature.pattr_data = &temperature;
+    attr_temperature.callback = device_shadow_cb;
+
+    aliyun_iot_shadow_register_attribute(&shadow, &attr_switch);
+    aliyun_iot_shadow_register_attribute(&shadow, &attr_temperature);
+
+    aliyun_iot_shadow_sync(&shadow);
+
+    while(1) {
+        format_data_t format;
+
+        aliyun_iot_shadow_update_format_init(&format, buf, 1024);
+        aliyun_iot_shadow_update_format_add(&format, &attr_temperature);
+        aliyun_iot_shadow_update_format_add(&format, &attr_switch);
+        aliyun_iot_shadow_update_format_finalize(&format);
+
+        aliyun_iot_shadow_update(&shadow, format.buf, format.offset, 10);
+
+        Sleep(1000);
+    }
+}
+
+
 //#define IOT_MQTT_SERVER_PUB_KEY
 
 const char iot_auth_ca_crt[] = {
@@ -218,23 +317,17 @@ int main()
 
 
 
-
     unsigned char *msg_buf = (unsigned char *)malloc(MSG_LEN_MAX);
     unsigned char *msg_readbuf = (unsigned char *)malloc(MSG_LEN_MAX);
 
-    //sdk初始化,初始化日志等
-    if (0 != aliyun_iot_auth_init())
-    {
-        printf("run aliyun_iot_auth_init error!\n");
-        return -1;
-    }
 
-    singleThreadDemo(msg_buf,msg_readbuf);
+    demo_device_shadow(msg_buf, msg_readbuf);
+
+
+    //singleThreadDemo(msg_buf, msg_readbuf);
 
     free(msg_buf);
     free(msg_readbuf);
-
-    (void) aliyun_iot_auth_release();
 
     printf("out of demo!\n");
 

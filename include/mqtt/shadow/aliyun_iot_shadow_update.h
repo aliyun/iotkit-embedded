@@ -31,7 +31,5 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
             char *json_doc,
             size_t json_doc_len);
 
-aliot_err_t aliyun_iot_shadow_publish2update(aliot_shadow_pt pshadow, char *data);
-
 
 #endif /* _MQTT_SHADOW_ALIYUN_IOT_SHADOW_UPDATE_H_ */

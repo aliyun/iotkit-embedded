@@ -58,7 +58,7 @@ enum JSON_PARSE_RESULT {
 };
 
 #define JSON_DEBUG 0
-typedef int (*json_parse_cb)(char* p_cName, int iNameLen, char* p_cValue, int iValueLen, int iValueType, void* p_Result);
+typedef int (*json_parse_cb)(const char* p_cName, int iNameLen, const char* p_cValue, int iValueLen, int iValueType, void* p_Result);
 
 /**
 * @brief Parse the JSON string, and iterate through all keys and values,
@@ -72,7 +72,7 @@ typedef int (*json_parse_cb)(char* p_cName, int iNameLen, char* p_cValue, int iV
 * @see None.
 * @note None.
 **/
-int json_parse_name_value(char* p_cJsonStr, int iStrLen, json_parse_cb pfnCB, void* p_CBData);
+int json_parse_name_value(const char* p_cJsonStr, int iStrLen, json_parse_cb pfnCB, void* p_CBData);
 
 /**
 * @brief Get the value by a specified key from a json string
@@ -86,7 +86,7 @@ int json_parse_name_value(char* p_cJsonStr, int iStrLen, json_parse_cb pfnCB, vo
 * @see None.
 * @note None.
 **/
-char* json_get_value_by_name(char* p_cJsonStr, int iStrLen, char* p_cName, int* p_iValueLen, int* p_iValueType);
+const char* json_get_value_by_name(const char* p_cJsonStr, int iStrLen, const char* p_cName, int* p_iValueLen, int* p_iValueType);
 
 
 /**
@@ -104,7 +104,7 @@ char* json_get_value_by_name(char* p_cJsonStr, int iStrLen, char* p_cName, int* 
 * @see None.
 * @note None.
 **/
-char *json_get_value_by_fullname(char *p_cJsonStr, int iStrLen, char *p_cName, int *p_iValueLen, int *p_iValueType);
+const char *json_get_value_by_fullname(const char *p_cJsonStr, int iStrLen, const char *p_cName, int *p_iValueLen, int *p_iValueType);
 
 
 /**
@@ -116,7 +116,7 @@ char *json_get_value_by_fullname(char *p_cJsonStr, int iStrLen, char *p_cName, i
 * @see None.
 * @note None.
 **/
-int json_get_array_size(char *json_str, int str_len);
+int json_get_array_size(const char *json_str, int str_len);
 
 /**
  * @brief Get the JSON object point associate with a given type.
@@ -127,8 +127,8 @@ int json_get_array_size(char *json_str, int str_len);
  * @see None.
  * @note None.
  */
-char* json_get_object(int type, char* str);
-char* json_get_next_object(int type, char* str, char** key, int* key_len, char** val, int* val_len, int* val_type);
+const char *json_get_object(const char *pjson, size_t json_len, int type);
+const char *json_get_next_object(const char *pjson, size_t json_len, int type, const char *str, const char **key, int *key_len, const char **val, int *val_len, int *val_type);
 /**
  * @brief retrieve each key&value pair from the json string
  *
@@ -142,9 +142,9 @@ char* json_get_next_object(int type, char* str, char** key, int* key_len, char**
  * @see None.
  * @note None.
  */
-#define json_object_for_each_kv(str, pos, key, klen, val, vlen, vtype) \
-    for (pos = json_get_object(JOBJECT, str); \
-         pos!=0 && *pos!=0 && (pos=json_get_next_object(JOBJECT, pos, &key, &klen, &val, &vlen, &vtype))!=0; )
+#define json_object_for_each_kv(json, json_len, pos, key, klen, val, vlen, vtype) \
+    for (pos = json_get_object(json, json_len, JOBJECT); \
+         (pos != 0) && (*pos != 0) && ((pos - json) < json_len) && (pos = json_get_next_object(json, json_len, JOBJECT, pos, &key, &klen, &val, &vlen, &vtype))!=0; )
 
 /**
  * @brief retrieve each entry from the json array
@@ -157,8 +157,8 @@ char* json_get_next_object(int type, char* str, char** key, int* key_len, char**
  * @see None.
  * @note None.
  */
-#define json_array_for_each_entry(str, pos, entry, len, type) \
-    for (pos = json_get_object(JARRAY, str); \
-         pos!=0 && *pos!=0 && (pos=json_get_next_object(JARRAY, ++pos, 0, 0, &entry, &len, &type))!=0; )
+#define json_array_for_each_entry(json, json_len, pos, entry, len, type) \
+    for (pos = json_get_object(json, json_len, JARRAY); \
+        (pos != 0) && (*pos != 0) && ((pos - json) < json_len) && (pos = json_get_next_object(json, json_len, JARRAY, ++pos, 0, 0, &entry, &len, &type))!=0; )
 
 #endif

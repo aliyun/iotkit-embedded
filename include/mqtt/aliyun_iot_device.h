@@ -13,7 +13,7 @@
 #define MQTT_SDK_VERSION  "1.0.0"
 
 //SD, device system
-#define PRODUCT_KEY_LEN     (10)
+#define PRODUCT_KEY_LEN     (11)
 #define DEVICE_NAME_LEN     (32)
 #define DEVICE_ID_LEN       (20)
 #define DEVICE_SECRET_LEN   (32)
@@ -42,7 +42,7 @@ typedef struct ALIYUN_IOT_USER_INFO
     char client_id[CLIENT_ID_LEN + 1];
     char user_name[USER_NAME_LEN + 1];
     char password[PASSWORD_LEN + 1];
-    char *pubKey;
+    const char *pubKey;
 }aliot_user_info_t, *aliot_user_info_pt;
 
 

@@ -10,15 +10,13 @@
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_jsonparser.h"
 
+#include "aliyun_iot_mqtt_client.h"
 #include "aliyun_iot_platform_pthread.h"
 
 #include "shadow/aliyun_iot_shadow.h"
 #include "shadow/aliyun_iot_shadow_update.h"
 #include "shadow/aliyun_iot_shadow_delta.h"
 
-
-#define UPDATE_JSON_STR_HEAD         "{\"method\":\"update\",\"state\":{\"reported\":{"
-#define UPDATE_JSON_STR_TAIL         "}},\"clientToken\":\"%s-%d\",\"version\":%d}"
 
 //check return code
 #define CHECK_RETURN_CODE(ret_code) \
@@ -40,256 +38,149 @@
     }while(0);
 
 
-aliot_shadow_pt pshadow_g = NULL;
-
-
-static aliot_err_t convert_data2string(
-        char *buf,
-        size_t buf_len,
-        aliot_shadow_datatype type,
-        void *pData) {
-
-    int32_t ret = 0;
-
-    if((NULL == buf) || (buf_len == 0)) {
-        return ERROR_NULL_VALUE;
-    }
-
-    if(type == ALIOT_SHADOW_INT32) {
-        ret = snprintf(buf, buf_len, "%" PRIi32",", *(int32_t *)(pData));
-    } else if(type == ALIOT_SHADOW_INT16) {
-        ret = snprintf(buf, buf_len, "%" PRIi16",", *(int16_t *)(pData));
-    } else if(type == ALIOT_SHADOW_INT8) {
-        ret = snprintf(buf, buf_len, "%" PRIi8",", *(int8_t *)(pData));
-    } else if(type == ALIOT_SHADOW_UINT32) {
-        ret = snprintf(buf, buf_len, "%" PRIu32",", *(uint32_t *)(pData));
-    } else if(type == ALIOT_SHADOW_UINT16) {
-        ret = snprintf(buf, buf_len, "%" PRIu16",", *(uint16_t *)(pData));
-    } else if(type == ALIOT_SHADOW_UINT8) {
-        ret = snprintf(buf, buf_len, "%" PRIu8",", *(uint8_t *)(pData));
-    } else if(type == ALIOT_SHADOW_DOUBLE) {
-        ret = snprintf(buf, buf_len, "%f,", *(double *)(pData));
-    } else if(type == ALIOT_SHADOW_FLOAT) {
-        ret = snprintf(buf, buf_len, "%f,", *(float *)(pData));
-    } else if(type == ALIOT_SHADOW_BOOL) {
-        ret = snprintf(buf, buf_len, "%s,", *(bool *)(pData) ? "true" : "false");
-    } else if(type == ALIOT_SHADOW_STRING) {
-        ret = snprintf(buf, buf_len, "\"%s\",", (char *)(pData));
-    }
-
-    CHECK_SNPRINTF_RET(ret, buf_len);
-
-    return ret;
-}
 
 
 static void aliyun_iot_shadow_handle_expire(void)
 {
-
-    aliyun_iot_shadow_update_wait_ack_list_handle_expire(pshadow_g);
-
+    aliyun_iot_shadow_update_wait_ack_list_handle_expire( ads_common_get_ads() );
 }
-
-
 
 
 
 //当服务端通过/shadow/get下发时指令时，回调该函数。
 static void aliyun_iot_shadow_callback_get(MessageData *msg)
 {
-    char *pmethod;
+    const char *pname;
     int val_len, val_type;
+    aliot_shadow_pt pshadow;
 
     WRITE_IOT_DEBUG_LOG("topic=%s", msg->topicName->cstring);
-    WRITE_IOT_DEBUG_LOG("data of topic=%s", msg->message->payload);
+    //WRITE_IOT_DEBUG_LOG("data of topic=%s", msg->message->payload);
 
-    if (pshadow_g == NULL) {
+    if (NULL == (pshadow = ads_common_get_ads())) {
         WRITE_IOT_ERROR_LOG("Error Flow! Please call 'aliyun_iot_shadow_construct()'");
         return;
     }
 
-    pmethod = json_get_value_by_name(msg->message->payload,
+    pname = json_get_value_by_name(msg->message->payload,
                     msg->message->payloadlen,
                     "method",
-                    &val_len, &val_type);
+                    &val_len,
+                    &val_type);
 
-    if (NULL == pmethod) {
+    if (NULL == pname) {
         WRITE_IOT_ERROR_LOG("Invalid JSON document: not 'method' key");
     }
 
-    if ((strlen("control") == val_len) && strcmp(pmethod, "control")) {
+    if ((strlen("control") == val_len) && strcmp(pname, "control")) {
         //call delta handle function
         aliyun_iot_shadow_delta_entry(
-                pshadow_g,
+                pshadow,
                 msg->message->payload,
                 msg->message->payloadlen);
 
-    } else if ((strlen("reply") == val_len) && strcmp(pmethod, "reply")) {
+    } else if ((strlen("reply") == val_len) && strcmp(pname, "reply")) {
         //call update ACK handle function.
         aliyun_iot_shadow_update_wait_ack_list_handle_response(
-                pshadow_g,
+                pshadow,
                 msg->message->payload,
                 msg->message->payloadlen);
     } else {
         WRITE_IOT_ERROR_LOG("Invalid 'method' key");
     }
-}
 
+    //update time if there is 'timestamp' key in JSON string.
+    pname = json_get_value_by_name(msg->message->payload,
+                    msg->message->payloadlen,
+                    "timestamp",
+                    &val_len,
+                    &val_type);
+    if (NULL != pname) {
+        ads_common_update_time(pshadow, atoi(pname));
+    }
+
+    pname = json_get_value_by_name(msg->message->payload,
+                        msg->message->payloadlen,
+                        "version",
+                        &val_len,
+                        &val_type);
+    if (NULL != pname) {
+        ads_common_update_version(pshadow, atoi(pname));
+    }
+}
 
 static aliot_err_t aliyun_iot_shadow_subcribe_get(aliot_shadow_pt pshadow)
 {
-#define SHADOW_TOPIC_GET_FMT         "/shadow/get/%s/%s"
-///< The fixed length of GET topic
-#define SHADOW_TOPIC_GET_LEN         (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 14)
-
-    int rc;
-    char *shadow_get_topic = NULL;
-    aliot_device_info_pt pdevice_info = aliyun_iot_get_device_info();
-    aliot_user_info_pt puser_info = aliyun_iot_get_user_info();
-
-
-    shadow_get_topic = aliyun_iot_memory_malloc(SHADOW_TOPIC_GET_LEN + 1);
-    if (NULL == shadow_get_topic) {
-        return ERROR_NO_MEM;
+    if (NULL == pshadow->inner_data.ptopic_get) {
+        pshadow->inner_data.ptopic_get = ads_common_generate_topic_name(pshadow, "get");
+        if (NULL == pshadow->inner_data.ptopic_get) {
+            return FAIL_RETURN;
+        }
     }
 
-    rc = snprintf(shadow_get_topic,
-            SHADOW_TOPIC_GET_LEN + 1,
-            SHADOW_TOPIC_GET_FMT,
-            pdevice_info->product_key,
-            pdevice_info->device_name );
-    if (rc < 0) {
-        rc = FAIL_RETURN;
-        goto do_exit;
-    } else if (rc >= SHADOW_TOPIC_GET_LEN + 1) {
-        rc = ERROR_NO_ENOUGH_MEM;
-        goto do_exit;
-    }
-
-    rc = aliyun_iot_mqtt_subscribe(&pshadow->mqtt, shadow_get_topic, QOS1, aliyun_iot_shadow_callback_get);
-    if (SUCCESS_RETURN != rc) {
-        goto do_exit;
-    }
-
-
-do_exit:
-    if (NULL == shadow_get_topic) {
-        aliyun_iot_memory_free(shadow_get_topic);
-    }
-
-    return SUCCESS_RETURN;
+    return aliyun_iot_mqtt_subscribe(&pshadow->mqtt,
+                pshadow->inner_data.ptopic_get,
+                QOS1,
+                aliyun_iot_shadow_callback_get);
 }
 
+
 //return handle of format data.
-int aliyun_iot_shadow_format_init(format_data_pt pformat, aliot_shadow_pt pshadow, char *buf, uint16_t size)
+aliot_err_t aliyun_iot_shadow_update_format_init(format_data_pt pformat,
+                char *buf,
+                uint16_t size)
 {
-    int ret;
-    memset(pformat, 0, sizeof(format_data_t));
+    return ads_common_format_init(pformat, buf, size, "update", ",\"state\":{\"reported\":{");
 
-    pformat->pshadow = pshadow;
-    pformat->buf = buf;
-    pformat->buf_size = size;
-
-    //copy the JOSN head
-    ret = snprintf(pformat->buf, pformat->buf_size, "%s", UPDATE_JSON_STR_HEAD);
-    CHECK_SNPRINTF_RET(ret, pformat->buf_size);
-
-    pformat->offset = ret;
-    return 0;
+#undef UPDATE_JSON_STR_HEAD
 }
 
 
 //加入需要上报的数据属性
-int aliyun_iot_shadow_format_add(format_data_pt pformat, aliot_shadow_attr_pt pattr)
+aliot_err_t aliyun_iot_shadow_update_format_add(format_data_pt pformat, aliot_shadow_attr_pt pattr)
 {
-    int ret;
-    uint16_t size_free_space = pformat->buf_size - pformat->offset;
-
-    //add the string: "${pattr->pattr_name}":"
-    ret = snprintf(pformat->buf + pformat->offset,
-            size_free_space,
-            "\"%s\":\"",
-            pattr->pattr_name);
-
-    CHECK_SNPRINTF_RET(ret, size_free_space);
-
-    pformat->offset += ret;
-    size_free_space = pformat->buf_size - pformat->offset;
-
-    //convert attribute data to JSON string, and add to buffer
-    ret = convert_data2string(pformat->buf + pformat->offset,
-            size_free_space,
-            pattr->attr_type,
-            pattr->pattr_data);
-    if (ret < 0) {
-        return ret;
-    }
-    pformat->offset += ret;
-
-    size_free_space = pformat->buf_size - pformat->offset;
-
-    if (ret <= 0) {
-        return ERROR_NO_ENOUGH_MEM;
-    }
-
-    //add the last character: "
-    pformat->buf[pformat->offset] = '\"';
-    ++pformat->offset;
-
-    return 0;
+    return ads_common_format_add(pformat, pattr->pattr_name, pattr->pattr_data, pattr->attr_type);
 }
 
 
 //返回格式化后的数
-aliot_err_t aliyun_iot_shadow_format_finalize(format_data_pt pformat)
+aliot_err_t aliyun_iot_shadow_update_format_finalize(format_data_pt pformat)
 {
-    int ret;
-    uint16_t size_free_space = pformat->buf_size - pformat->offset;
-
-    ret = snprintf(pformat->buf + pformat->offset,
-            size_free_space,
-            UPDATE_JSON_STR_TAIL,
-            aliyun_iot_get_user_info()->client_id,
-            pformat->pshadow->token_num,
-            pformat->pshadow->version);
-
-    CHECK_SNPRINTF_RET(ret, size_free_space);
-
-    return SUCCESS_RETURN;
+    return ads_common_format_finalize(pformat, "}}");
 }
 
 
 aliot_err_t aliyun_iot_shadow_update_asyn(
                 aliot_shadow_pt pshadow,
                 char *data,
+                size_t data_len,
                 uint16_t timeout_s,
                 aliot_update_cb_fpt cb_fpt)
 {
     int rc = SUCCESS_RETURN;
     aliot_update_ack_wait_list_pt pelement;
-    char *name;
     int val_len, val_type;
-    char *ptoken;
+    const char *ptoken;
 
     if ((NULL == pshadow) || (NULL == data)) {
             return NULL_VALUE_ERROR;
     }
 
-    if (aliyun_iot_mqtt_is_connected(&pshadow->mqtt)) {
+    if (!aliyun_iot_mqtt_is_connected(&pshadow->mqtt)) {
         WRITE_IOT_ERROR_LOG("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
     /*Add to callback list */
-    ptoken = json_get_value_by_name((char *)data, strlen((char *)data), "clientToken", &val_len, &val_type);
-    ALIOT_ASSERT(NULL != ptoken, NULL, NULL);
+    ptoken = json_get_value_by_name(data, data_len, "clientToken", &val_len, &val_type);
+    ALIOT_ASSERT(NULL != ptoken, "Token should always exit.");
 
     pelement = aliyun_iot_shadow_update_wait_ack_list_add(pshadow, ptoken, val_len, cb_fpt, timeout_s);
     if (NULL == pelement) {
         return ERROR_SHADOW_WAIT_LIST_OVERFLOW;
     }
 
-    if (SUCCESS_RETURN != (rc = aliyun_iot_shadow_publish2update(pshadow, data))) {
+    if (SUCCESS_RETURN != (rc = ads_common_publish2update(pshadow, data, data_len))) {
         aliyun_iot_shadow_update_wait_ack_list_remove(pshadow, pelement);
         return rc;
     }
@@ -298,49 +189,84 @@ aliot_err_t aliyun_iot_shadow_update_asyn(
 }
 
 
+static aliot_shadow_ack_code_t shadow_update_flag_ack = ALIOT_SHADOW_ACK_NONE;
+static void aliot_update_ack_cb(
+                aliot_shadow_ack_code_t ack_code,
+                const char *ack_msg, //NOTE: NOT a string.
+                uint32_t ack_msg_len)
+{
+    WRITE_IOT_DEBUG_LOG("ack_code=%d, ack_msg=%s", ack_code, ack_msg);
+    shadow_update_flag_ack = ack_code;
+}
+
+
 aliot_err_t aliyun_iot_shadow_update(
                 aliot_shadow_pt pshadow,
                 char *data,
+                uint32_t data_len,
                 uint16_t timeout_s)
 {
     if ((NULL == pshadow) || (NULL == data)) {
         return NULL_VALUE_ERROR;
     }
 
-    if (aliyun_iot_mqtt_is_connected(&pshadow->mqtt)) {
+    if (!aliyun_iot_mqtt_is_connected(&pshadow->mqtt)) {
         WRITE_IOT_ERROR_LOG("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
-    //TODO
+    shadow_update_flag_ack = ALIOT_SHADOW_ACK_NONE;
 
-    return SUCCESS_RETURN;
+    //update synchronously
+    aliyun_iot_shadow_update_asyn(pshadow, data, data_len, timeout_s, aliot_update_ack_cb);
+
+    //wait ACK
+    while(ALIOT_SHADOW_ACK_NONE == shadow_update_flag_ack) {
+        aliyun_iot_shadow_yield(pshadow, 200);
+    }
+
+    if (ALIOT_SHADOW_ACK_SUCCESS == shadow_update_flag_ack) {
+        return SUCCESS_RETURN;
+    } else if (ALIOT_SHADOW_ACK_TIMEOUT == shadow_update_flag_ack) {
+        return ERROR_SHADOW_UPDATE_TIMEOUT;
+    } else {
+        return ERROR_SHADOW_UPDATE_NACK;
+    }
 }
 
 
-aliot_err_t aliyun_iot_shadow_sync( aliot_shadow_pt pshadow )
+aliot_err_t aliyun_iot_shadow_sync(aliot_shadow_pt pshadow)
 {
-    return SUCCESS_RETURN;
+#define SHADOW_SYNC_MSG_SIZE      (256)
+
+    aliot_err_t ret;
+    format_data_t format;
+
+    format.buf = aliyun_iot_memory_malloc(SHADOW_SYNC_MSG_SIZE);
+    if (NULL == format.buf) {
+        return ERROR_NO_MEM;
+    }
+
+    ads_common_format_init(&format, format.buf, SHADOW_SYNC_MSG_SIZE, "get", NULL);
+    ads_common_format_finalize(&format, NULL);
+
+    ret = aliyun_iot_shadow_update(pshadow, format.buf, format.offset, 10);
+
+    aliyun_iot_memory_free(format.buf);
+
+    return ret;
+
+#undef SHADOW_SYNC_MSG_SIZE
 }
-
-
 
 
 aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_para_pt pparams)
 {
     int rc = 0;
-    aliot_device_info_pt pdevice_info = aliyun_iot_get_device_info();
     aliot_user_info_pt puser_info = aliyun_iot_get_user_info();
 
-    if (SUCCESS_RETURN != aliyun_iot_auth(pdevice_info, puser_info))
-    {
-        printf("run aliyun_iot_auth() error!\n");
-        return FAIL_RETURN;
-    }
-
-
     //initialize shadow data
-    memset(&pshadow, 0x0, sizeof(aliot_shadow_pt));
+    memset(pshadow, 0x0, sizeof(aliot_shadow_t));
 
     if (0 != aliyun_iot_mutex_init(&(pshadow->mutex))){
         return FAIL_RETURN;
@@ -373,8 +299,15 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
         return rc;
     }
 
-    //Render the global
-    pshadow_g = pshadow;
+    pshadow->inner_data.attr_list = list_new();
+    if (NULL == pshadow->inner_data.attr_list) {
+        return ERROR_NO_MEM;
+    }
+
+    //TODO if failed, release resource.
+
+    //restore shadow variable
+    ads_common_set_ads(pshadow);
 
     return SUCCESS_RETURN;
 }
@@ -382,30 +315,75 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
 
 void aliyun_iot_shadow_yield(aliot_shadow_pt pshadow, uint32_t timeout)
 {
-
     aliyun_iot_mqtt_yield(&pshadow->mqtt, timeout);
     aliyun_iot_shadow_handle_expire();
-
 }
 
 
-aliot_err_t aliyun_iot_shadow_deconstruct(aliot_shadow_pt *pClient)
+aliot_err_t aliyun_iot_shadow_deconstruct(aliot_shadow_pt pshadow)
 {
-    return SUCCESS_RETURN;
-}
 
-
-aliot_err_t aliyun_iot_shadow_register_delta(aliot_shadow_pt pshadow, aliot_shadow_attr_pt attr)
-{
-    //TODO check if already registered
-
-    if (aliyun_iot_shadow_delta_check_existence(attr->pattr_name))
-    {
-        return ERROR_SHADOW_DELTA_REPEAT_ATTR;
+    if (NULL != pshadow->inner_data.ptopic_get) {
+        aliyun_iot_memory_free(pshadow->inner_data.ptopic_get);
     }
 
+    if (NULL != pshadow->inner_data.ptopic_update) {
+        aliyun_iot_memory_free(pshadow->inner_data.ptopic_update);
+    }
 
+    ads_common_set_ads(NULL);
+
+    memset(pshadow, 0, sizeof(aliot_shadow_t));
 
     return SUCCESS_RETURN;
 }
 
+
+aliot_err_t aliyun_iot_shadow_register_attribute(aliot_shadow_pt pshadow, aliot_shadow_attr_pt pattr)
+{
+    //check if already registered
+    if (ads_common_check_attr_existence(pshadow, pattr)) {
+        return ERROR_SHADOW_ATTR_EXIST;
+    }
+
+    if (SUCCESS_RETURN != ads_common_register_attr(pshadow, pattr)) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+
+//Remove attribute from Device Shadow in cloud by delete method.
+aliot_err_t aliyun_iot_shadow_delete_attribute(aliot_shadow_pt pshadow, aliot_shadow_attr_pt pattr)
+{
+#define SHADOW_DELETE_MSG_SIZE      (256)
+
+    aliot_err_t ret;
+    format_data_t format;
+
+    if (!ads_common_check_attr_existence(pshadow, pattr)) {
+        return ERROR_SHADOW_ATTR_NO_EXIST;
+    }
+
+    format.buf = aliyun_iot_memory_malloc(SHADOW_DELETE_MSG_SIZE);
+    if (NULL == format.buf) {
+        return ERROR_NO_MEM;
+    }
+
+    ads_common_format_init(&format, format.buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"reported\":{");
+    ads_common_format_add(&format, pattr->pattr_name, NULL, ALIOT_SHADOW_NULL);
+    ads_common_format_finalize(&format, "}}");
+
+    ret = aliyun_iot_shadow_update(pshadow, format.buf, format.offset, 10);
+    if (SUCCESS_RETURN != ret) {
+        aliyun_iot_memory_free(format.buf);
+        return ret;
+    }
+
+    aliyun_iot_memory_free(format.buf);
+
+    return ads_common_remove_attr(pshadow, pattr);
+
+#undef SHADOW_DELETE_MSG_SIZE
+}

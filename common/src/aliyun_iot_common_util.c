@@ -58,7 +58,7 @@ int aliyun_iot_common_check_rule(char *iterm,ALIYUN_IOT_TOPIC_TYPE_E type)
 *           topicfilter校验时+，#允许存在但必须是单独的一个路径单元，
 *           且#只能存在于最后一个路径单元
 ************************************************************/
-int aliyun_iot_common_check_topic(const char * topicName,ALIYUN_IOT_TOPIC_TYPE_E type)
+int aliyun_iot_common_check_topic(const char * topicName, ALIYUN_IOT_TOPIC_TYPE_E type)
 {
     if(NULL == topicName || '/' != topicName[0])
     {

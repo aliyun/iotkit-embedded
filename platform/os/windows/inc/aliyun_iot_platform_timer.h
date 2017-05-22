@@ -38,5 +38,15 @@ uint32_t aliyun_iot_timer_now();
 
 int32_t aliyun_iot_timer_interval(ALIYUN_IOT_TIME_TYPE_S *start,ALIYUN_IOT_TIME_TYPE_S *end);
 
+
+//since system boot, or EPOCH time in ms
+uint32_t aliot_platform_time_get_ms(void);
+
+uint64_t aliot_time_get_ms_64b(void);
+
+uint32_t aliot_time_get_ms(void);
+
+uint32_t aliot_time_get_s(void);
+
 #endif
 

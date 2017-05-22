@@ -24,6 +24,9 @@
 
 
 
+const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
+//const static char *iot_atuh_host = "https://iot-auth.alibaba.net/auth/devicename";
+
 const static char *iot_mqtt_server_ca_crt =  { \
 "-----BEGIN CERTIFICATE-----\r\n"                                       \
 "MIIEmjCCBAOgAwIBAgIJAKps0iIhwLzrMA0GCSqGSIb3DQEBDQUAMGcxGzAZBgNV\r\n"  \
@@ -55,46 +58,16 @@ const static char *iot_mqtt_server_ca_crt =  { \
 };
 
 
-/***********************************************************
-* 函数名称: aliyun_iot_auth_init
-* 描       述: auth初始化函数
-* 输入参数: VOID
-* 输出参数: VOID
-* 返 回  值: 0 成功，-1 失败
-* 说       明: 初始化日志级别，设备信息，分配authinfo内存，
-*           鉴权信息文件的保存路径
-************************************************************/
-int32_t aliyun_iot_auth_init()
-{
-    WRITE_IOT_NOTICE_LOG("auth init success!");
-    return SUCCESS_RETURN;
-}
-
-
-/***********************************************************
-* 函数名称: aliyun_iot_auth_release
-* 描       述: auth释放函数
-* 输入参数: VOID
-* 输出参数: VOID
-* 返 回  值: 0:成功 -1:失败
-* 说      明: 释放authInfo内存
-************************************************************/
-int32_t aliyun_iot_auth_release()
-{
-    aliyun_iot_common_log_release();
-    return SUCCESS_RETURN;
-}
-
 
 static int aliyun_iot_get_id_token(
-                char *product_key,
-                char *device_name,
-                char *device_secret,
-                char *client_id,
-                char *version,
-                char *timestamp,
-                char *resources,
-
+                const char *auth_host,
+                const char *product_key,
+                const char *device_name,
+                const char *device_secret,
+                const char *client_id,
+                const char *version,
+                const char *timestamp,
+                const char *resources,
                 char *iot_id,
                 char *iot_token,
                 char *host,
@@ -140,6 +113,7 @@ static int aliyun_iot_get_id_token(
     if ((ret < 0) || (ret > SIGN_SOURCE_LEN)) {
         goto do_exit;
     }
+    WRITE_IOT_DEBUG_LOG("sign source=%s", buf);
     aliyun_iot_common_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
     
 
@@ -174,6 +148,7 @@ static int aliyun_iot_get_id_token(
 
     WRITE_IOT_DEBUG_LOG("http content:%s\n\r", post_buf);
 
+    ret = strlen(post_buf);
 
     response_buf = (char *) aliyun_iot_memory_malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
@@ -190,10 +165,10 @@ static int aliyun_iot_get_id_token(
 
     aliyun_iot_common_post(
             &httpclient,
-            "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename",
+            auth_host,
             80,
             NULL,
-            &httpclient_data );
+            &httpclient_data);
 
     WRITE_IOT_DEBUG_LOG("http response:%s\n\r", httpclient_data.response_buf);
 
@@ -201,7 +176,7 @@ static int aliyun_iot_get_id_token(
     //get iot-id and iot-token from response
 
     int type;
-    char *pvalue, *presrc;
+    const char *pvalue, *presrc;
     char port_str[6];
 
     //get iot-id
@@ -292,30 +267,29 @@ do_exit:
     return ret;
 }
 
+aliot_device_info_pt *g_pdevice_info;
+aliot_user_info_pt *g_puser_info;
+
 
 int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_info)
 {
-    int ret;
-    char iot_id[ALIOT_AUTH_IOT_ID], iot_token[ALIOT_AUTH_IOT_TOKEN], host[HOST_ADDRESS_LEN + 1];
+    int ret = 0;
+    char iot_id[ALIOT_AUTH_IOT_ID + 1], iot_token[ALIOT_AUTH_IOT_TOKEN + 1], host[HOST_ADDRESS_LEN + 1];
     uint16_t port;
 
-    ret = snprintf(puser_info->client_id,
-                    CLIENT_ID_LEN + 1,
-                    "%s&%s",
-                    pdevice_info->product_key,
-                    pdevice_info->device_name);
 
-    if ((ret < 0) || (ret >= CLIENT_ID_LEN)) {
-        return -1;
-    }
+    g_pdevice_info = &pdevice_info;
+    g_puser_info = &puser_info;
+
 
     if (0 != aliyun_iot_get_id_token(
+                iot_atuh_host,
                 pdevice_info->product_key,
                 pdevice_info->device_name,
                 pdevice_info->device_secret,
-                puser_info->client_id,
+                pdevice_info->device_id,
                 "default",
-                "1494402930000",
+                "2524608000000", //01 Jan 2050
                 "mqtt",
                 iot_id,
                 iot_token,
@@ -325,23 +299,32 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
        return -1;
     }
 
+
     strncpy(puser_info->user_name, iot_id, USER_NAME_LEN);
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
-    puser_info->pubKey = iot_mqtt_server_ca_crt;
+    //puser_info->pubKey = iot_mqtt_server_ca_crt;
+    puser_info->pubKey = NULL;
 
-    //Append string "::nonesecure::" to client_id if TCP connection be used.
     if (NULL == puser_info->pubKey) {
-        //check if have enough memory
-        if ((CLIENT_ID_LEN - ret) < strlen("::nonesecure::")) {
-            return -1;
-        }
-        strcat(puser_info->client_id, "::nonesecure::");
+        //Append string "::nonesecure::" to client_id if TCP connection be used.
+        ret = snprintf(puser_info->client_id,
+                    CLIENT_ID_LEN,
+                    "%s%s",
+                    pdevice_info->device_id,
+                    "::nonesecure::");
+
+    } else {
+        ret = snprintf(puser_info->client_id,
+                   CLIENT_ID_LEN,
+                   "%s",
+                   pdevice_info->device_id);
     }
 
-    if ((ret < 0) || (ret >= CLIENT_ID_LEN)) {
-        WRITE_IOT_ERROR_LOG("client_id is too long", puser_info->user_name);
+    if (ret >= CLIENT_ID_LEN) {
+        WRITE_IOT_ERROR_LOG("client_id is too long");
+    } else if (ret < 0){
         return -1;
     }
 

@@ -222,7 +222,7 @@ struct SUBSCRIBE_INFO
 {
     enum msgTypes    type;                               //sub消息类型（sub or unsub）
     unsigned int     msgId;                              //sub报文标识符
-    aliot_timer_t            subTime;                            //sub消息时间
+    aliot_timer_t    subTime;                            //sub消息时间
     MQTT_NODE_STATE_E nodeState;                         //node状态
     MessageHandlers  handler;
     int              len;                                //sub消息长度

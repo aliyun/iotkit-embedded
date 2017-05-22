@@ -341,8 +341,8 @@ int TLSConnectNetwork(TLSDataParams *pTlsData, const char *addr, const char *por
     }
 #endif
     mbedtls_ssl_conf_rng( &(pTlsData->conf), mqtt_ssl_random, NULL );
-    //mbedtls_ssl_conf_dbg( &(pTlsData->conf), mqtt_ssl_debug, NULL );
-    mbedtls_ssl_conf_dbg( &(pTlsData->conf), mqtt_ssl_debug, stdout );
+    mbedtls_ssl_conf_dbg( &(pTlsData->conf), mqtt_ssl_debug, NULL );
+    //mbedtls_ssl_conf_dbg( &(pTlsData->conf), mqtt_ssl_debug, stdout );
 
     if ( ( ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf)) ) != 0 )
     {

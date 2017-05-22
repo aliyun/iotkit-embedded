@@ -15,7 +15,7 @@
 #include "aliyun_iot_common_datatype.h"
 #include "aliyun_iot_common_error.h"
 
-#include "shadow/aliyun_iot_shadow.h"
+#include "shadow/aliyun_iot_shadow_common.h"
 #include "shadow/aliyun_iot_shadow_config.h"
 
 /**
@@ -25,13 +25,9 @@
  *
  */
 typedef enum {
-    ALIOT_SHADOW_ACK_TIMEOUT,
-    ALIOT_SHADOW_ACK_RECEIVED
-} aliot_shadow_ack_status_t;
-
-
-typedef enum {
-    ALIOT_SHADOW_ACK_SUCCESS = 0,
+    ALIOT_SHADOW_ACK_TIMEOUT = -1,
+    ALIOT_SHADOW_ACK_NONE = 0,
+    ALIOT_SHADOW_ACK_SUCCESS = 200,
     ALIOT_SHADOW_ACK_ERR_JSON_FMT_IS_INVALID = 400,
     ALIOT_SHADOW_ACK_ERR_METHOD_IS_NULL = 401,
     ALIOT_SHADOW_ACK_ERR_STATE_IS_NULL = 402,
@@ -46,20 +42,11 @@ typedef enum {
 } aliot_shadow_ack_code_t;
 
 
-
 typedef enum {
-    ALIOT_SHADOW_INT32,
-    ALIOT_SHADOW_INT16,
-    ALIOT_SHADOW_INT8,
-    ALIOT_SHADOW_UINT32,
-    ALIOT_SHADOW_UINT16,
-    ALIOT_SHADOW_UINT8,
-    ALIOT_SHADOW_FLOAT,
-    ALIOT_SHADOW_DOUBLE,
-    ALIOT_SHADOW_BOOL,
-    ALIOT_SHADOW_STRING,
-    ALIOT_SHADOW_OBJECT
-} aliot_shadow_datatype;
+    ALIOT_SHADOW_READONLY,
+    ALIOT_SHADOW_WRITEONLY,
+    ALIOT_SHADOW_RW
+} aliot_shadow_datamode_t;
 
 
 /**
@@ -75,19 +62,19 @@ typedef enum {
  *
  */
 typedef void (*aliot_update_cb_fpt)(
-        aliot_shadow_ack_status_t status,
         aliot_shadow_ack_code_t ack_code,
         const char *ack_msg, //NOTE: NOT a string.
         uint32_t ack_msg_len);
 
 typedef struct aliot_shadow_attr_st aliot_shadow_attr_t, *aliot_shadow_attr_pt;
 
-typedef void (*aliot_shadow_attr_cb_t)(const char *pvalue_data, uint32_t value_len, aliot_shadow_attr_pt pattr);
+typedef void (*aliot_shadow_attr_cb_t)(aliot_shadow_attr_pt pattr);
 
 struct aliot_shadow_attr_st {
-    const char *pattr_name;             ///< key
-    void *pattr_data;                   ///< pointer to the data
-    aliot_shadow_datatype attr_type;    ///< data type
+    aliot_shadow_datamode_t mode;       ///< data mode
+    const char *pattr_name;             ///< attribute name
+    void *pattr_data;                   ///< pointer to the attribute data
+    aliot_shadow_attr_datatype_t attr_type;    ///< data type
     uint32_t timestamp;                 ///TODO < timestamp in Epoch & Unix Timestamp format.
     aliot_shadow_attr_cb_t callback;    ///< callback to be executed on receiving the Key value pair
 };
@@ -110,11 +97,20 @@ typedef struct aliot_update_ack_wait_list_st {
 
 
 
+
+
+
 typedef struct aliot_inner_data_st {
+
+    aliot_shadow_time_t time;
 
     aliot_update_ack_wait_list_t update_ack_wait_list[ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM];
     //aliot_shadow_attr_list_pt atrr_list[ALIOT_SHADOW_UPDATE_ATTR_LIST_NUM];
     list_t *attr_list;
+
+    char *ptopic_update;
+    char *ptopic_get;
+
 
 }aliot_inner_data_t, *aliot_inner_data_pt;;
 
@@ -127,23 +123,25 @@ typedef struct {
 
 
 
-typedef struct {
+//typedef struct aliot_shadow_st {
+//
+//    MQTTClient_t mqtt;
+//    uint32_t token_num;
+//    uint32_t version; //todo what will happen if overflow.
+//    aliot_inner_data_t inner_data;
+//    ALIYUN_IOT_MUTEX_S mutex;
+//
+//}aliot_shadow_t, *aliot_shadow_pt;
+
+
+struct aliot_shadow_st{
 
     MQTTClient_t mqtt;
     uint32_t token_num;
     uint32_t version; //todo what will happen if overflow.
     aliot_inner_data_t inner_data;
     ALIYUN_IOT_MUTEX_S mutex;
-
-}aliot_shadow_t, *aliot_shadow_pt;
-
-
-typedef struct {
-    uint16_t buf_size;
-    uint16_t offset;
-    char *buf;
-    aliot_shadow_pt pshadow;
-}format_data_t, *format_data_pt;
+};
 
 
 /**
@@ -194,33 +192,30 @@ void aliyun_iot_shadow_yield(aliot_shadow_pt pshadow, uint32_t timeout);
  * @param pClient   MQTT Client used as the protocol layer
  * @return An IoT Error Type defining successful/failed disconnect status
  */
-aliot_err_t aliyun_iot_shadow_deconstruct(aliot_shadow_pt *pClient);
+aliot_err_t aliyun_iot_shadow_deconstruct(aliot_shadow_pt pshadow);
 
 
 
 //aliot_
 //NOTE: @attr must have enough long life.
 //0, 【】针对云端主动下发时的回调
-//1, 【可选】设备每个属性需要注册一次
+//1, register device attribute
 //2,
-aliot_err_t aliyun_iot_shadow_register_delta(aliot_shadow_pt pshadow, aliot_shadow_attr_pt attr);
+aliot_err_t aliyun_iot_shadow_register_attribute(aliot_shadow_pt pshadow, aliot_shadow_attr_pt pattr);
 
 
+//
+aliot_err_t aliyun_iot_shadow_delete_attribute(aliot_shadow_pt pshadow, aliot_shadow_attr_pt pattr);
 
 
+aliot_err_t aliyun_iot_shadow_update_format_init(format_data_pt pformat,
+                char *buf,
+                uint16_t size);
 
+aliot_err_t aliyun_iot_shadow_update_format_add(format_data_pt pformat, aliot_shadow_attr_pt pattr);
 
-//return handle of format data.
-aliot_err_t aliyun_iot_shadow_format_init(format_data_pt pformat, aliot_shadow_pt pshadow, char *buf, uint16_t size);
-
-
-//加入需要上报的数据属性
-aliot_err_t aliyun_iot_shadow_format_add(format_data_pt pformat, aliot_shadow_attr_pt attr);
-
-
-//返回格式化后的数据
-aliot_err_t aliyun_iot_shadow_format_finalize(format_data_pt pformat);
-
+//返回格式化后的数
+aliot_err_t aliyun_iot_shadow_update_format_finalize(format_data_pt pformat);
 
 
 //同步接口
@@ -233,6 +228,7 @@ aliot_err_t aliyun_iot_shadow_format_finalize(format_data_pt pformat);
 aliot_err_t aliyun_iot_shadow_update(
         aliot_shadow_pt pshadow,
         char *data,
+        uint32_t data_len,
         uint16_t timeout_s);
 
 
@@ -240,6 +236,7 @@ aliot_err_t aliyun_iot_shadow_update(
 aliot_err_t aliyun_iot_shadow_update_asyn(
         aliot_shadow_pt pshadow,
         char *data,
+        size_t data_len,
         uint16_t timeout_s,
         aliot_update_cb_fpt cb_fpt);
 
