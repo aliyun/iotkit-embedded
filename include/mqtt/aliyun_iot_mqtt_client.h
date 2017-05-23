@@ -365,7 +365,7 @@ int aliyun_iot_mqtt_suback_sync(MQTTClient_t* c,const char* topicFilter,messageH
 * 返 回  值: 0：成功  非0：失败
 * 说       明: MQTT发布消息操作，发布成功，即收到pub ack
 ************************************************************/
-int aliyun_iot_mqtt_publish(MQTTClient_t* c, const char* topicName, MQTTMessage* message);
+aliot_err_t aliyun_iot_mqtt_publish(MQTTClient_t* c, const char* topicName, MQTTMessage* message);
 
 
 //check whether MQTT connection is established or not.

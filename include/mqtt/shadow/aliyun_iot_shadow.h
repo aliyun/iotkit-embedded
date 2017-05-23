@@ -102,6 +102,8 @@ typedef struct aliot_update_ack_wait_list_st {
 
 typedef struct aliot_inner_data_st {
 
+    uint32_t token_num;
+    uint32_t version; //todo what will happen if overflow.
     aliot_shadow_time_t time;
 
     aliot_update_ack_wait_list_t update_ack_wait_list[ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM];
@@ -110,7 +112,6 @@ typedef struct aliot_inner_data_st {
 
     char *ptopic_update;
     char *ptopic_get;
-
 
 }aliot_inner_data_t, *aliot_inner_data_pt;;
 
@@ -137,8 +138,7 @@ typedef struct {
 struct aliot_shadow_st{
 
     MQTTClient_t mqtt;
-    uint32_t token_num;
-    uint32_t version; //todo what will happen if overflow.
+
     aliot_inner_data_t inner_data;
     ALIYUN_IOT_MUTEX_S mutex;
 };

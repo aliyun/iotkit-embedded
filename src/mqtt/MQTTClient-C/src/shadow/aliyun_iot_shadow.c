@@ -55,7 +55,7 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
     aliot_shadow_pt pshadow;
 
     WRITE_IOT_DEBUG_LOG("topic=%s", msg->topicName->cstring);
-    //WRITE_IOT_DEBUG_LOG("data of topic=%s", msg->message->payload);
+    WRITE_IOT_DEBUG_LOG("data of topic=%-256.256s", msg->message->payload);
 
     if (NULL == (pshadow = ads_common_get_ads())) {
         WRITE_IOT_ERROR_LOG("Error Flow! Please call 'aliyun_iot_shadow_construct()'");
@@ -195,7 +195,7 @@ static void aliot_update_ack_cb(
                 const char *ack_msg, //NOTE: NOT a string.
                 uint32_t ack_msg_len)
 {
-    WRITE_IOT_DEBUG_LOG("ack_code=%d, ack_msg=%s", ack_code, ack_msg);
+    WRITE_IOT_DEBUG_LOG("ack_code=%d, ack_msg=%-256.256s", ack_code, ack_msg);
     shadow_update_flag_ack = ack_code;
 }
 
@@ -221,11 +221,14 @@ aliot_err_t aliyun_iot_shadow_update(
     aliyun_iot_shadow_update_asyn(pshadow, data, data_len, timeout_s, aliot_update_ack_cb);
 
     //wait ACK
+    //TODO #BUG It NOT support multiple call simultaneously.
     while(ALIOT_SHADOW_ACK_NONE == shadow_update_flag_ack) {
         aliyun_iot_shadow_yield(pshadow, 200);
     }
 
-    if (ALIOT_SHADOW_ACK_SUCCESS == shadow_update_flag_ack) {
+    if ((ALIOT_SHADOW_ACK_SUCCESS == shadow_update_flag_ack)
+          || (ALIOT_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL == shadow_update_flag_ack)) {
+        //It is not the error that device shadow document is null
         return SUCCESS_RETURN;
     } else if (ALIOT_SHADOW_ACK_TIMEOUT == shadow_update_flag_ack) {
         return ERROR_SHADOW_UPDATE_TIMEOUT;
@@ -272,12 +275,11 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
         return FAIL_RETURN;
     }
 
-
     //initialize MQTT
     rc = aliyun_iot_mqtt_init(&pshadow->mqtt, &pparams->mqtt, puser_info);
     if (SUCCESS_RETURN != rc)
     {
-        printf("aliyun_iot_mqtt_init failed ret = %d\n", rc);
+        WRITE_IOT_ERROR_LOG("aliyun_iot_mqtt_init failed ret = %d", rc);
         return rc;
     }
 
@@ -285,7 +287,7 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
     if (SUCCESS_RETURN != rc)
     {
         aliyun_iot_mqtt_release(&pshadow->mqtt);
-        printf("ali_iot_mqtt_connect failed ret = %d\n", rc);
+        WRITE_IOT_ERROR_LOG("ali_iot_mqtt_connect failed ret = %d", rc);
         return rc;
     }
 

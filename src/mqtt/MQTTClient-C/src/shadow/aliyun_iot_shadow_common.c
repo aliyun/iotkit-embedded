@@ -86,6 +86,8 @@ aliot_err_t ads_common_format_init(format_data_pt pformat,
         pformat->offset += ret;
     }
 
+    pformat->flag_new = true;
+
     return SUCCESS_RETURN;
 }
 
@@ -97,7 +99,23 @@ aliot_err_t ads_common_format_add(format_data_pt pformat,
         aliot_shadow_attr_datatype_t datatype)
 {
     int ret;
-    uint32_t size_free_space = pformat->buf_size - pformat->offset;
+    uint32_t size_free_space;
+
+    if (pformat->flag_new) {
+        pformat->flag_new = false;
+    } else {
+        //Add comma char.
+        size_free_space = pformat->buf_size - pformat->offset;
+        if (size_free_space > 1) { //there is enough space to accommodate ',' char.
+            *(pformat->buf + pformat->offset) = ',';
+            *(pformat->buf + pformat->offset + 1) = '\0';
+            ++pformat->offset;
+        } else {
+            return FAIL_RETURN;
+        }
+    }
+
+    size_free_space = pformat->buf_size - pformat->offset;
 
     //add the string: "${pattr->pattr_name}":"
     ret = snprintf(pformat->buf + pformat->offset,
@@ -115,10 +133,15 @@ aliot_err_t ads_common_format_add(format_data_pt pformat,
                 size_free_space,
                 datatype,
                 pvalue);
+    if (ret < 0) {
+        return FAIL_RETURN;
+    }
 
     pformat->offset += ret;
 
-    return ret;
+
+
+    return SUCCESS_RETURN;
 }
 
 
@@ -142,8 +165,8 @@ aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_
             size_free_space,
             UPDATE_JSON_STR_END,
             aliyun_iot_get_user_info()->client_id,
-            ads_common_get_ads()->token_num,
-            ads_common_get_ads()->version);
+            ads_common_get_tokennum(ads_common_get_ads()),
+            ads_common_get_version(ads_common_get_ads()));
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
     pformat->offset += ret;
@@ -154,31 +177,34 @@ aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_
 }
 
 
-aliot_err_t ads_common_convert_data2string(
+int ads_common_convert_data2string(
                 char *buf,
                 size_t buf_len,
                 aliot_shadow_attr_datatype_t type,
                 const void *pData) {
 
-    aliot_err_t ret = 0;
+    int ret = -1;
 
     if ((NULL == buf) || (buf_len == 0) || (NULL == pData)) {
         return ERROR_NULL_VALUE;
     }
 
     if (ALIOT_SHADOW_INT32 == type) {
-        ret = snprintf(buf, buf_len, "%" PRIi32",", *(int32_t *)(pData));
+        ret = snprintf(buf, buf_len, "%" PRIi32, *(int32_t *)(pData));
     } else if (ALIOT_SHADOW_STRING == type) {
-        ret = snprintf(buf, buf_len, "\"%s\",", (char *)(pData));
+        ret = snprintf(buf, buf_len, "\"%s\"", (char *)(pData));
     } else if (ALIOT_SHADOW_NULL == type) {
-        ret = snprintf(buf, buf_len, "%s,", "null");
+        ret = snprintf(buf, buf_len, "%s", "null");
     } else {
         WRITE_IOT_ERROR_LOG("Error data type");
+        ret = -1;
     }
 
-    CHECK_SNPRINTF_RET(ret, buf_len);
+    if ((ret < 0) || (ret >= buf_len)) {
+        return -1;
+    }
 
-    return SUCCESS_RETURN;
+    return ret;
 }
 
 
@@ -279,7 +305,7 @@ aliot_err_t ads_common_remove_attr (
 void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
 {
     aliyun_iot_mutex_lock(&pshadow->mutex);
-    pshadow->version = version;
+    pshadow->inner_data.version = version;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
 }
 
@@ -287,7 +313,7 @@ void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
 void ads_common_increase_version(aliot_shadow_pt pshadow)
 {
     aliyun_iot_mutex_lock(&pshadow->mutex);
-    ++pshadow->version;
+    ++pshadow->inner_data.version;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
 }
 
@@ -296,7 +322,25 @@ uint32_t ads_common_get_version(aliot_shadow_pt pshadow)
 {
     uint32_t ver;
     aliyun_iot_mutex_lock(&pshadow->mutex);
-    ver = pshadow->version;
+    ver = pshadow->inner_data.version;
+    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    return ver;
+}
+
+
+void ads_common_increase_tokennum(aliot_shadow_pt pshadow)
+{
+    aliyun_iot_mutex_lock(&pshadow->mutex);
+    ++pshadow->inner_data.token_num;
+    aliyun_iot_mutex_unlock(&pshadow->mutex);
+}
+
+
+uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow)
+{
+    uint32_t ver;
+    aliyun_iot_mutex_lock(&pshadow->mutex);
+    ver = pshadow->inner_data.token_num;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
     return ver;
 }
@@ -348,7 +392,7 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
         }
     }
 
-    topic_msg.qos        = QOS0;
+    topic_msg.qos        = QOS1;
     topic_msg.retained   = FALSE_IOT;
     topic_msg.dup        = FALSE_IOT;
     topic_msg.payload    = (void *)data;
@@ -356,6 +400,8 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
     topic_msg.id         = 0;
 
     return aliyun_iot_mqtt_publish(&pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
+
+    ads_common_increase_version(pshadow);
 }
 
 

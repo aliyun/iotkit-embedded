@@ -86,7 +86,7 @@ int json_parse_name_value(const char* p_cJsonStr, int iStrLen, json_parse_cb pfn
 * @see None.
 * @note None.
 **/
-const char* json_get_value_by_name(const char* p_cJsonStr, int iStrLen, const char* p_cName, int* p_iValueLen, int* p_iValueType);
+const char *json_get_value_by_name(const char *p_cJsonStr, int iStrLen, const char *p_cName, int *p_iValueLen, int *p_iValueType);
 
 
 /**

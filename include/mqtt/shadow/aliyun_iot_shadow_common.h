@@ -21,6 +21,7 @@ typedef enum {
 } aliot_shadow_attr_datatype_t;
 
 typedef struct {
+    bool flag_new;
     uint32_t buf_size;
     uint32_t offset;
     char *buf;
@@ -48,15 +49,15 @@ aliot_err_t ads_common_format_init(format_data_pt pformat,
                 const char *head_str);
 
 aliot_err_t ads_common_format_add(format_data_pt pformat,
-        const char *name,
-        const void *pvalue,
-        aliot_shadow_attr_datatype_t datatype);
+                const char *name,
+                const void *pvalue,
+                aliot_shadow_attr_datatype_t datatype);
 
 aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_str);
 
 void ads_common_update_time(aliot_shadow_pt pshadow, uint32_t new_timestamp);
 
-aliot_err_t ads_common_convert_data2string(
+int ads_common_convert_data2string(
                 char *buf,
                 size_t buf_len,
                 aliot_shadow_attr_datatype_t type,
@@ -88,5 +89,10 @@ void ads_common_increase_version(aliot_shadow_pt pshadow);
 
 uint32_t ads_common_get_version(aliot_shadow_pt pshadow);
 
+uint32_t ads_common_get_version(aliot_shadow_pt pshadow);
+
+void ads_common_increase_tokennum(aliot_shadow_pt pshadow);
+
+uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow);
 
 #endif /* _MQTT_SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_ */

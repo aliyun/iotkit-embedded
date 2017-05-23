@@ -267,20 +267,12 @@ do_exit:
     return ret;
 }
 
-aliot_device_info_pt *g_pdevice_info;
-aliot_user_info_pt *g_puser_info;
-
 
 int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_info)
 {
     int ret = 0;
     char iot_id[ALIOT_AUTH_IOT_ID + 1], iot_token[ALIOT_AUTH_IOT_TOKEN + 1], host[HOST_ADDRESS_LEN + 1];
     uint16_t port;
-
-
-    g_pdevice_info = &pdevice_info;
-    g_puser_info = &puser_info;
-
 
     if (0 != aliyun_iot_get_id_token(
                 iot_atuh_host,

@@ -804,9 +804,11 @@ int readPacket(MQTTClient_t* c, aliot_timer_t* timer, unsigned int *packet_type)
     int rc = 0;
 
     /* 1. read the header byte.  This has the packet type in it */
-    if (c->ipstack->read(c->ipstack, c->readbuf, 1, left_ms(timer)) != 1)
-    {
-        WRITE_IOT_DEBUG_LOG("mqttread error");
+    rc = c->ipstack->read(c->ipstack, c->readbuf, 1, left_ms(timer));
+    if (0 == rc) {
+        return SUCCESS_RETURN;
+    } else if (1 != rc) {
+        WRITE_IOT_DEBUG_LOG("mqtt read error");
         return FAIL_RETURN;
     }
 
@@ -1254,7 +1256,7 @@ int waitforConnack(MQTTClient_t* c)
     do
     {
         // read the socket, see what work is due
-        rc = readPacket(c, &timer,&packetType);
+        rc = readPacket(c, &timer, &packetType);
         if(rc != SUCCESS_RETURN)
         {
             WRITE_IOT_ERROR_LOG("readPacket error,result = %d",rc);
@@ -1302,6 +1304,11 @@ int cycle(MQTTClient_t* c, aliot_timer_t* timer)
         return MQTT_NETWORK_ERROR;
     }
     
+    if (MQTT_CPT_RESERVED == packetType) {
+        WRITE_IOT_DEBUG_LOG("wait data timeout");
+        return SUCCESS_RETURN;
+    }
+
     //receive any data to renew ping_timer
     countdown_ms(&c->ping_timer, c->connectdata.keepAliveInterval*1000);
 
@@ -1314,15 +1321,18 @@ int cycle(MQTTClient_t* c, aliot_timer_t* timer)
     {
         case CONNACK:
         {
+            WRITE_IOT_DEBUG_LOG("CONNACK");
             break;
         }
         case PUBACK:
         {
             rc = recvPubAckProc(c);
+
             if(SUCCESS_RETURN != rc)
             {
                 WRITE_IOT_ERROR_LOG("recvPubackProc error,result = %d",rc);
             }
+
             break;
         }
         case SUBACK:
@@ -1332,6 +1342,7 @@ int cycle(MQTTClient_t* c, aliot_timer_t* timer)
             {
                 WRITE_IOT_ERROR_LOG("recvSubAckProc error,result = %d",rc);
             }
+            WRITE_IOT_DEBUG_LOG("SUBACK");
             break;
         }
         case PUBLISH:
@@ -1341,6 +1352,7 @@ int cycle(MQTTClient_t* c, aliot_timer_t* timer)
             {
                 WRITE_IOT_ERROR_LOG("recvPublishProc error,result = %d",rc);
             }
+            WRITE_IOT_DEBUG_LOG("PUBLISH");
             break;
         }
         case PUBREC:
@@ -1377,6 +1389,7 @@ int cycle(MQTTClient_t* c, aliot_timer_t* timer)
             break;
         }
         default:
+            WRITE_IOT_ERROR_LOG("INVALID TYPE");
             return FAIL_RETURN;
     }
 
@@ -1528,7 +1541,7 @@ int aliyun_iot_mqtt_suback_sync(MQTTClient_t* c,const char* topicFilter,messageH
                 continue;
             }
 
-            if((0 == strncmp(subInfo->handler.topicFilter,topicFilter,strlen(topicFilter))) && (messageHandler == subInfo->handler.fp))
+            if((0 == strncmp(subInfo->handler.topicFilter, topicFilter, strlen(topicFilter))) && (messageHandler == subInfo->handler.fp))
             {
                 rc = FAIL_RETURN;
                 break;
@@ -1602,7 +1615,7 @@ int aliyun_iot_mqtt_unsubscribe(MQTTClient_t* c, const char* topicFilter)
 * 返 回  值: 0：成功  非0：失败
 * 说       明: MQTT发布消息操作，发布成功，即收到pub ack
 ************************************************************/
-int aliyun_iot_mqtt_publish(MQTTClient_t* c, const char* topicName, MQTTMessage* message)
+aliot_err_t aliyun_iot_mqtt_publish(MQTTClient_t* c, const char* topicName, MQTTMessage* message)
 {
     if(NULL == c || NULL == topicName || NULL == message)
     {
@@ -2227,6 +2240,8 @@ void* aliyun_iot_retrans_thread(void*param)
 ************************************************************/
 int aliyun_iot_create_thread(MQTTClient_t* pClient)
 {
+    int result;
+
     if(0 != pClient->threadRunning)
     {
         return SUCCESS_RETURN;
@@ -2240,13 +2255,13 @@ int aliyun_iot_create_thread(MQTTClient_t* pClient)
     memset(&keepAliveThreadParam, 0x0, sizeof(keepAliveThreadParam));
     memset(&retransThreadParam, 0x0, sizeof(retransThreadParam));
 
-    aliyun_iot_pthread_param_set(&recvThreadParam, "recv_thread", MQTT_RECV_THREAD_STACK_SIZE, 0);
-    int result = aliyun_iot_pthread_create(&pClient->recieveThread,aliyun_iot_receive_thread,pClient,&recvThreadParam);
-    if(0 != result)
-    {
-        WRITE_IOT_ERROR_LOG("run aliyun_iot_pthread_create error!");
-        return FAIL_RETURN;
-    }
+//    aliyun_iot_pthread_param_set(&recvThreadParam, "recv_thread", MQTT_RECV_THREAD_STACK_SIZE, 0);
+//    result = aliyun_iot_pthread_create(&pClient->recieveThread,aliyun_iot_receive_thread,pClient,&recvThreadParam);
+//    if(0 != result)
+//    {
+//        WRITE_IOT_ERROR_LOG("run aliyun_iot_pthread_create error!");
+//        return FAIL_RETURN;
+//    }
 
     aliyun_iot_pthread_param_set(&keepAliveThreadParam, "keepAlive_thread", MQTT_KEEPALIVE_THREAD_STACK_SIZE, 0);
     result = aliyun_iot_pthread_create(&pClient->keepaliveThread,aliyun_iot_keepalive_thread,pClient,&keepAliveThreadParam);
@@ -2690,7 +2705,9 @@ void aliyun_iot_mqtt_yield(MQTTClient_t* pClient, int timeout_ms)
         countdown_ms(&timer, timeout_ms);
 
 		/*acquire package in cycle, such as PINGRESP  PUBLISH*/
+        WRITE_IOT_DEBUG_LOG("cycle start");
 		rc = cycle(pClient, &timer);
+		WRITE_IOT_DEBUG_LOG("cycle end");
 		if(SUCCESS_RETURN != rc)
 		{
 		    WRITE_IOT_DEBUG_LOG("cycle failure,rc=%d",rc);

@@ -9,7 +9,7 @@
 #ifndef ALIYUN_IOT_AUTH_H
 #define ALIYUN_IOT_AUTH_H
 
-#if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
+#if defined(__cplusplus)
 extern "C"
 {
 #endif
@@ -33,7 +33,7 @@ extern "C"
 ************************************************************/
 int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_info);
 
-#if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
+#if defined(__cplusplus)
 }
 #endif
 

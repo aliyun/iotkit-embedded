@@ -8,6 +8,7 @@
 
 #include "aliyun_iot_common_net.h"
 #include "aliyun_iot_common_log.h"
+#include "aliyun_iot_common_hexdump.h"
 #include "aliyun_iot_network_ssl.h"
 #include "aliyun_iot_platform_network.h"
 #include "aliyun_iot_platform_memory.h"
@@ -34,7 +35,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
         WRITE_IOT_DEBUG_LOG("mqtt read left time=%d ms", lefttime);
 
         IOT_NET_FD_ISSET_E result;
-        ret = aliyun_iot_network_select(pNetwork->handle, IOT_NET_TRANS_RECV, lefttime,&result);
+        ret = aliyun_iot_network_select(pNetwork->handle, IOT_NET_TRANS_RECV, lefttime, &result);
         if (ret < 0)
         {
             int32_t err = aliyun_iot_get_errno();
@@ -50,8 +51,8 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
         }
         else if (ret == 0)
         {
-            WRITE_IOT_ERROR_LOG("mqtt read(select) timeout");
-            return -2;
+            WRITE_IOT_DEBUG_LOG("mqtt read(select) timeout");
+            return 0;
         }
         else if (ret == 1)
         {
@@ -73,7 +74,8 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
             else if(rc == 0)
             {
                 WRITE_IOT_ERROR_LOG("The network is broken!,recvlen = %d", recvlen);
-                //return -3;
+
+                aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 16, 1, buffer, recvlen, 1);
                 return recvlen;
             }
             else
@@ -91,6 +93,8 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
             }
         }
     }while(recvlen < len);
+
+    aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 16, 1, buffer, recvlen, 1);
 
     return recvlen;
 }

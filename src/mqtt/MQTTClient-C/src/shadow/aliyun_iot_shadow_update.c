@@ -6,6 +6,7 @@
  */
 
 #include "aliyun_iot_common_log.h"
+#include "aliyun_iot_common_jsonparser.h"
 #include "aliyun_iot_platform_timer.h"
 #include "aliyun_iot_platform_pthread.h"
 #include "aliyun_iot_device.h"
@@ -52,6 +53,8 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add (
     InitTimer(&list[i].timer);
     countdown(&list[i].timer, timeout);
 
+    WRITE_IOT_DEBUG_LOG("Add update ACK list");
+
     return &list[i];
 }
 
@@ -96,64 +99,72 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
             size_t json_doc_len)
 {
     int data_len, payload_len, i;
-    char *pdata, ppayload;
+    const char *pdata, *ppayload;
     aliot_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
 
     //get token
-    pdata = json_get_value_by_name(json_doc, json_doc_len, "clientToken", &data_len, NULL);
+    pdata = json_get_value_by_name(json_doc, (int)json_doc_len, "clientToken", &data_len, NULL);
     if (NULL == pdata) {
         WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'clientToken' key");
         return;
     }
 
-    ppayload = json_get_value_by_fullname(json_doc, json_doc_len, "payload", &payload_len, NULL);
+    ppayload = json_get_value_by_fullname(json_doc, (int)json_doc_len, "payload", &payload_len, NULL);
     if (NULL == ppayload) {
-            WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'payload' key");
-            return;
+        WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'payload' key");
+        return;
     }
 
     aliyun_iot_mutex_lock(&pshadow->mutex);
     for (i = 0; i < ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
 
-        //check the related
-        if (0 == strncmp(pdata, pelement[i].token, ALIOT_SHADOW_TOKEN_LEN)) {
-            aliyun_iot_mutex_unlock(&pshadow->mutex);
+        if (0 != pelement[i].flag_busy) {
+            //check the related
+            if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
 
-            do {
-                pdata = json_get_value_by_fullname(ppayload, payload_len, "status", &data_len, NULL);
-                if (NULL == pdata) {
-                        WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'payload.status' key");
-                        break;
-                }
-
-                if (0 == strncmp(pdata, "success", data_len)) {
-                    pelement[i].callback(ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
-                } else {
-                    aliot_shadow_ack_code_t ack_code;
-
-                    pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errorcode", &data_len, NULL);
+                aliyun_iot_mutex_unlock(&pshadow->mutex);
+                WRITE_IOT_DEBUG_LOG("token=%s", pelement[i].token);
+                do {
+                    pdata = json_get_value_by_fullname(ppayload, payload_len, "status", &data_len, NULL);
                     if (NULL == pdata) {
-                        WRITE_IOT_WARNING_LOG(
-                                "Invalid JSON document: not 'content.errorcode' key");
-                        break;
-                    }
-                    ack_code = atoi(pdata);
-
-                    pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errormessage", &data_len, NULL);
-                    if (NULL == pdata) {
-                        WRITE_IOT_WARNING_LOG(
-                                "Invalid JSON document: not 'content.errormessage' key");
-                        break;
+                            WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'payload.status' key");
+                            break;
                     }
 
-                    pelement[i].callback(ack_code, pdata, data_len);
-                }
-            } while(0);
+                    if (0 == strncmp(pdata, "success", data_len)) {
+                        pelement[i].callback(ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
+                    } else if (0 == strncmp(pdata, "error", data_len)){
+                        aliot_shadow_ack_code_t ack_code;
 
-            aliyun_iot_mutex_lock(&pshadow->mutex);
-            memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));
-            aliyun_iot_mutex_unlock(&pshadow->mutex);
-            return;
+                        pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errorcode", &data_len, NULL);
+                        if (NULL == pdata) {
+                            WRITE_IOT_WARNING_LOG(
+                                    "Invalid JSON document: not 'content.errorcode' key");
+                            break;
+                        }
+                        ack_code = atoi(pdata);
+
+                        pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errormessage", &data_len, NULL);
+                        if (NULL == pdata) {
+                            WRITE_IOT_WARNING_LOG(
+                                    "Invalid JSON document: not 'content.errormessage' key");
+                            break;
+                        }
+
+                        WRITE_IOT_WARNING_LOG("###############1");
+                        pelement[i].callback(ack_code, pdata, data_len);
+                        WRITE_IOT_WARNING_LOG("###############2");
+                    } else {
+                        WRITE_IOT_WARNING_LOG(
+                                "Invalid JSON document: value of 'status' key is invalid.");
+                    }
+                } while(0);
+
+                aliyun_iot_mutex_lock(&pshadow->mutex);
+                memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));
+                aliyun_iot_mutex_unlock(&pshadow->mutex);
+                return;
+            }
         }
     }
 

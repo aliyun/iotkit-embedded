@@ -6,18 +6,18 @@
 #include <windows.h>
 #include <pthread.h>
 
-#define HOST_NAME      "iot-as.aliyuncs.com"
-
 //用户需要根据设备信息完善以下宏定义中的四元组内容
 #define PRODUCT_KEY         "4eViBFJ2QGH"
 #define DEVICE_NAME         "device_xikan_3"
 #define DEVICE_ID           "xItJzEDpi6Tv184UIkH7"
 #define DEVICE_SECRET       "TR1gdwnRVN0nIRttfeEqmp1v3nUYWHDi"
 
+
+
 //#define PRODUCT_KEY         "1000184547"
-//#define DEVICE_NAME         "hz_xk_device5"
-//#define DEVICE_ID           "0tbDEmqCPn20zAkjn"
-//#define DEVICE_SECRET       "IYcxAiegcDbOwkUi"
+//#define DEVICE_NAME         "xk_mydevice"
+//#define DEVICE_ID           "0kGr4DpO0PRvH4mtc"
+//#define DEVICE_SECRET       "1tTFTGasJxCbpcna"
 
 //以下三个TOPIC的宏定义不需要用户修改，可以直接使用
 //IOT HUB为设备建立三个TOPIC：update用于设备发布消息，error用于设备发布错误，get用于订阅消息
@@ -225,7 +225,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
         return rc;
     }
 
-    int32_t sw, temperature;
+    int32_t sw = 1000, temperature = 1001;
     aliot_shadow_attr_t attr_switch, attr_temperature;
 
     memset(&attr_switch, 0, sizeof(aliot_shadow_attr_t));
