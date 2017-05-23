@@ -7,12 +7,9 @@ MBEDTLS_LIB_ENABLE      = y
 MQTT_MBED_LIB_ENABLE    = y
 
 MQTTMBED_LIB_NAME       = libmqtt_mbed
-IOT_SDK_LIB_NAME        = libiotsdk
+ALIIOT_SDK_LIB_NAME     = libaliot_sdk
 
 PORTING_INCLUDE         =
-
-
-CFLAGS = -DCN_HZ
 
 DEBUG = 1
 WINDOWS = 1
