@@ -131,8 +131,6 @@ aliot_err_t aliyun_iot_shadow_update_format_init(format_data_pt pformat,
                 uint16_t size)
 {
     return ads_common_format_init(pformat, buf, size, "update", ",\"state\":{\"reported\":{");
-
-#undef UPDATE_JSON_STR_HEAD
 }
 
 
@@ -332,6 +330,8 @@ aliot_err_t aliyun_iot_shadow_deconstruct(aliot_shadow_pt pshadow)
     if (NULL != pshadow->inner_data.ptopic_update) {
         aliyun_iot_memory_free(pshadow->inner_data.ptopic_update);
     }
+
+    aliyun_iot_mqtt_release(&pshadow->mqtt);
 
     ads_common_set_ads(NULL);
 
