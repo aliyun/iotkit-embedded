@@ -8,9 +8,19 @@ LDFLAGS ?=
 LOCAL_CFLAGS = $(WARNING_CFLAGS) $(PORTING_INCLUDE) -I../configs/$(PLATFORM) -I../include -I../include/mbedtls -I../../../utility/ -I../../../platform/os/$(PLATFORM)/ -D_FILE_OFFSET_BITS=64
 LOCAL_LDFLAGS =
 
+ifeq ($(PLATFORM), windows)
+WINDOWS=1
+$(info build for windows)
+endif
+
+ifeq ($(BUILD_TYPE), debug)
+DEBUG=1
+$(info build for debug)
+endif
+
+
 ifdef DEBUG
 LOCAL_CFLAGS += -g3
-$(info build for debug)
 endif
 
 # MicroBlaze specific options:
@@ -22,7 +32,6 @@ endif
 # if were running on Windows build for Windows
 ifdef WINDOWS
 WINDOWS_BUILD=1
-$(info build for windows)
 endif
 
 # To compile as a shared library:

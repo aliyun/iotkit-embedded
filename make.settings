@@ -1,3 +1,4 @@
+BUILD_TYPE              = debug  #or release
 PLATFORM                = windows
 PLATFORM_CC             = gcc
 PLATFORM_AR             = ar
@@ -5,12 +6,6 @@ SSL_LIB_NAME			= mbedtls
 
 MBEDTLS_LIB_ENABLE      = y
 MQTT_MBED_LIB_ENABLE    = y
-
 MQTTMBED_LIB_NAME       = libmqtt_mbed
+
 ALIIOT_SDK_LIB_NAME     = libaliot_sdk
-
-PORTING_INCLUDE         =
-
-DEBUG = 1
-WINDOWS = 1
-WINDOWS_BUILD = 1
