@@ -151,9 +151,7 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
                             break;
                         }
 
-                        ALIOT_LOG_WARN("###############1");
                         pelement[i].callback(ack_code, pdata, data_len);
-                        ALIOT_LOG_WARN("###############2");
                     } else {
                         ALIOT_LOG_WARN(
                                 "Invalid JSON document: value of 'status' key is invalid.");

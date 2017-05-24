@@ -381,6 +381,7 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
 
 aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint32_t data_len)
 {
+    aliot_err_t rc;
     MQTTMessage topic_msg;
 
     //check if topic name have been generated or not
@@ -399,7 +400,12 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
     topic_msg.payloadlen = data_len;
     topic_msg.id         = 0;
 
-    return aliyun_iot_mqtt_publish(&pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
+    rc = aliyun_iot_mqtt_publish(&pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
 
-    ads_common_increase_version(pshadow);
+    if (SUCCESS_RETURN == rc) {
+        ads_common_increase_version(pshadow);
+        ads_common_increase_tokennum(pshadow);
+    }
+
+    return rc;
 }

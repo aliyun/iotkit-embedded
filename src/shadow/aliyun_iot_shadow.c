@@ -40,13 +40,20 @@
     }while(0);
 
 
+static void aliyun_iot_shadow_publish_success_cb(void* context, unsigned int msgId)
+{
+    ALIOT_LOG_DEBUG("publish message is arrived,id = %d\n", msgId);
+}
 
+static void aliyun_iot_shadow_subscribe_ack_timeout(SUBSCRIBE_INFO_S *subInfo)
+{
+    ALIOT_LOG_DEBUG("msgId = %d, sub ack is timeout\n", subInfo->msgId);
+}
 
 static void aliyun_iot_shadow_handle_expire(void)
 {
     aliyun_iot_shadow_update_wait_ack_list_handle_expire( ads_common_get_ads() );
 }
-
 
 
 //当服务端通过/shadow/get下发时指令时，回调该函数。
@@ -279,6 +286,9 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
     if (0 != aliyun_iot_mutex_init(&(pshadow->mutex))){
         return FAIL_RETURN;
     }
+
+    pshadow->mqtt.deliveryCompleteFun = aliyun_iot_shadow_publish_success_cb;
+    pshadow->mqtt.subAckTimeOutFun = aliyun_iot_shadow_subscribe_ack_timeout;
 
     //initialize MQTT
     rc = aliyun_iot_mqtt_init(&pshadow->mqtt, &pparams->mqtt, puser_info);

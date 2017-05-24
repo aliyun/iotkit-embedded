@@ -1,4 +1,4 @@
-PLATFORM                = linux
+PLATFORM                = windows
 PLATFORM_CC             = gcc
 PLATFORM_AR             = ar
 SSL_LIB_NAME			= mbedtls

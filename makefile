@@ -5,8 +5,10 @@ include ./make.settings
 all:
 	$(info make aliot-sdk)
 	make -C ./src/
-	$(info make sample)
-	make -C ./sample/
+	$(info make mqtt sample)
+	make -C ./sample/mqtt/
+	$(info make device shadow sample)
+	make -C ./sample/deviceshadow/
 
 
 clean:

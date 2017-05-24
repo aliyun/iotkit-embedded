@@ -35,10 +35,6 @@ static aliot_err_t aliyun_iot_shadow_delta_response(aliot_shadow_pt pshadow)
     }
 
     rc = ads_common_publish2update(pshadow, resp_data, rc);
-    if (SUCCESS_RETURN == rc) {
-        ads_common_increase_version(pshadow);
-        ads_common_increase_tokennum(pshadow);
-    }
 
     return rc;
 }
