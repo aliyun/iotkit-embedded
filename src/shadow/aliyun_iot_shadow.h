@@ -15,8 +15,10 @@
 #include "aliyun_iot_platform_datatype.h"
 #include "aliyun_iot_common_error.h"
 
-#include "aliyun_iot_shadow_common.h"
 #include "aliyun_iot_shadow_config.h"
+
+//ads, aliot device shadow
+
 
 /**
  * @brief Thing Shadow Acknowledgment enum
@@ -37,7 +39,6 @@ typedef enum {
     ALIOT_SHADOW_ACK_ERR_METHOD_IS_INVALID = 406,
     ALIOT_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL = 407,
     ALIOT_SHADOW_ACK_ERR_ATTRIBUTE_EXCEEDED = 408,
-
     ALIOT_SHADOW_ACK_ERR_SERVER_FAILED = 500,
 } aliot_shadow_ack_code_t;
 
@@ -47,6 +48,27 @@ typedef enum {
     ALIOT_SHADOW_WRITEONLY,
     ALIOT_SHADOW_RW
 } aliot_shadow_datamode_t;
+
+
+typedef enum {
+    ALIOT_SHADOW_NULL,
+    ALIOT_SHADOW_INT32,
+    ALIOT_SHADOW_STRING,
+} aliot_shadow_attr_datatype_t;
+
+
+typedef struct {
+    bool flag_new;
+    uint32_t buf_size;
+    uint32_t offset;
+    char *buf;
+}format_data_t, *format_data_pt;
+
+
+typedef struct {
+    uint32_t base_system_time; //in second
+    uint32_t epoch_time;
+} aliot_shadow_time_t, *aliot_shadow_time_pt;
 
 
 /**
@@ -66,26 +88,18 @@ typedef void (*aliot_update_cb_fpt)(
         const char *ack_msg, //NOTE: NOT a string.
         uint32_t ack_msg_len);
 
-typedef struct aliot_shadow_attr_st aliot_shadow_attr_t, *aliot_shadow_attr_pt;
+struct aliot_shadow_attr_st;
 
-typedef void (*aliot_shadow_attr_cb_t)(aliot_shadow_attr_pt pattr);
+typedef void (*aliot_shadow_attr_cb_t)(struct aliot_shadow_attr_st *pattr);
 
-struct aliot_shadow_attr_st {
+typedef struct aliot_shadow_attr_st {
     aliot_shadow_datamode_t mode;       ///< data mode
     const char *pattr_name;             ///< attribute name
     void *pattr_data;                   ///< pointer to the attribute data
     aliot_shadow_attr_datatype_t attr_type;    ///< data type
     uint32_t timestamp;                 ///TODO < timestamp in Epoch & Unix Timestamp format.
     aliot_shadow_attr_cb_t callback;    ///< callback to be executed on receiving the Key value pair
-};
-
-
-//typedef struct {
-//    bool flag_busy;
-//    const char *pattr_name;
-//    aliot_shadow_attr_pt pattr;
-//    aliot_shadow_attr_cb_t callback;
-//} aliot_shadow_attr_list_t, *aliot_shadow_attr_list_pt;
+}aliot_shadow_attr_t, *aliot_shadow_attr_pt;
 
 
 typedef struct aliot_update_ack_wait_list_st {
@@ -96,18 +110,12 @@ typedef struct aliot_update_ack_wait_list_st {
 }aliot_update_ack_wait_list_t, *aliot_update_ack_wait_list_pt;
 
 
-
-
-
-
 typedef struct aliot_inner_data_st {
-
     uint32_t token_num;
     uint32_t version; //todo what will happen if overflow.
     aliot_shadow_time_t time;
 
     aliot_update_ack_wait_list_t update_ack_wait_list[ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM];
-    //aliot_shadow_attr_list_pt atrr_list[ALIOT_SHADOW_UPDATE_ATTR_LIST_NUM];
     list_t *attr_list;
 
     char *ptopic_update;
@@ -117,31 +125,15 @@ typedef struct aliot_inner_data_st {
 
 
 typedef struct {
-
     aliot_mqtt_param_t mqtt;
-
 }aliot_shadow_para_t, *aliot_shadow_para_pt;
 
 
-
-//typedef struct aliot_shadow_st {
-//
-//    MQTTClient_t mqtt;
-//    uint32_t token_num;
-//    uint32_t version; //todo what will happen if overflow.
-//    aliot_inner_data_t inner_data;
-//    ALIYUN_IOT_MUTEX_S mutex;
-//
-//}aliot_shadow_t, *aliot_shadow_pt;
-
-
-struct aliot_shadow_st{
-
+typedef struct aliot_shadow_st {
     MQTTClient_t mqtt;
-
     aliot_inner_data_t inner_data;
     ALIYUN_IOT_MUTEX_S mutex;
-};
+}aliot_shadow_t, *aliot_shadow_pt;
 
 
 /**

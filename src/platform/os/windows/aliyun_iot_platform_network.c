@@ -116,9 +116,9 @@ int32_t aliyun_iot_network_recv(int32_t sockFd, void *buf, int32_t nbytes, IOT_N
 	return recv(sockFd, buf, nbytes, flag);
 }
 
-int32_t aliyun_iot_network_select(int32_t fd,IOT_NET_TRANS_TYPE_E type,int timeoutMs,IOT_NET_FD_ISSET_E* result)
+int32_t aliyun_iot_network_select(int32_t fd, IOT_NET_TRANS_TYPE_E type, int timeoutMs, IOT_NET_FD_ISSET_E *result)
 {
-    struct timeval *timePointer = NULL;
+    struct timeval timeout, *ptimeout;
     fd_set *rd_set = NULL;
     fd_set *wr_set = NULL;
     fd_set *ep_set = NULL;
@@ -127,46 +127,37 @@ int32_t aliyun_iot_network_select(int32_t fd,IOT_NET_TRANS_TYPE_E type,int timeo
 
     *result = IOT_NET_FD_NO_ISSET;
 
-    if( fd < 0 )
-    {
+    if( fd < 0 ) {
         return NETWORK_FAIL;
     }
 
     FD_ZERO(&sets);
     FD_SET(fd, &sets);
 
-    if(IOT_NET_TRANS_RECV == type)
-    {
+    if(IOT_NET_TRANS_RECV == type) {
         rd_set = &sets;
-    }
-    else
-    {
+    } else {
         wr_set = &sets;
     }
 
-    struct timeval timeout = {timeoutMs/1000, (timeoutMs%1000)*1000};
-    if(0 != timeoutMs)
-    {
-        timePointer = &timeout;
-    }
-    else
-    {
-        timePointer = NULL;
+    if (0 == timeoutMs) {
+        ptimeout = NULL;
+    } else {
+        ptimeout = &timeout;
+        ptimeout->tv_sec = timeoutMs / 1000;
+        ptimeout->tv_usec = (timeoutMs % 1000) * 1000;
     }
 
-    rc = select(fd + 1, rd_set, wr_set, ep_set, timePointer);
-    if(rc > 0)
-    {
-        if( fd < 0 )
-        {
-            return NETWORK_FAIL;
-        }
+    ALIOT_LOG_DEBUG("time_s=%u, time_us=%u.", ptimeout->tv_sec, ptimeout->tv_usec);
 
-        if (0 != FD_ISSET(fd, &sets))
-        {
+    rc = select(fd + 1, rd_set, wr_set, ep_set, ptimeout);
+    if(rc > 0) {
+        if (0 != FD_ISSET(fd, &sets)) {
             *result = IOT_NET_FD_ISSET;
         }
     }
+
+    ALIOT_LOG_DEBUG("select return");
 
     return rc;
 }

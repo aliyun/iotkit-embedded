@@ -7,12 +7,12 @@
 
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_debug.h"
+#include "aliyun_iot_common_timer.h"
+#include "aliyun_iot_platform_pthread.h"
+#include "aliyun_iot_platform_memory.h"
 
 #include "aliyun_iot_shadow.h"
-#include "aliyun_iot_platform_pthread.h"
-
-//ads, aliot device shadow
-
+#include "aliyun_iot_shadow_common.h"
 
 //check return code
 #define CHECK_RETURN_CODE(ret_code) \
@@ -185,7 +185,8 @@ int ads_common_convert_data2string(
 
     int ret = -1;
 
-    if ((NULL == buf) || (buf_len == 0) || (NULL == pData)) {
+    if ((NULL == buf) || (buf_len == 0)
+        || ((ALIOT_SHADOW_NULL != type) && (NULL == pData))) {
         return ERROR_NULL_VALUE;
     }
 
@@ -194,7 +195,7 @@ int ads_common_convert_data2string(
     } else if (ALIOT_SHADOW_STRING == type) {
         ret = snprintf(buf, buf_len, "\"%s\"", (char *)(pData));
     } else if (ALIOT_SHADOW_NULL == type) {
-        ret = snprintf(buf, buf_len, "%s", "null");
+        ret = snprintf(buf, buf_len, "%s", "\"null\"");
     } else {
         ALIOT_LOG_ERROR("Error data type");
         ret = -1;

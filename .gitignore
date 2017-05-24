@@ -1,6 +1,4 @@
-compile
-/AUTHORS
-/COPYING
+make.settings
 *.exe
 .settings/
 *.cproject
@@ -19,4 +17,5 @@ ltmain.sh
 *.kv
 *.bak
 /Default/
-sample/sample
+sample/deviceshadow/deviceshadow
+sample/mqtt/mqtt

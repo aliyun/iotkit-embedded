@@ -88,6 +88,9 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
     aliyun_iot_shadow_register_attribute(&shadow, &attr_switch);
     aliyun_iot_shadow_register_attribute(&shadow, &attr_temperature);
 
+    aliyun_iot_shadow_delete_attribute(&shadow, &attr_temperature);
+    aliyun_iot_shadow_delete_attribute(&shadow, &attr_switch);
+
     aliyun_iot_shadow_sync(&shadow);
 
     while(1) {

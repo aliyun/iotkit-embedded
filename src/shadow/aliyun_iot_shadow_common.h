@@ -5,37 +5,14 @@
  *      Author: qibiao.wqb
  */
 
-#ifndef _MQTT_SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
-#define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
+#ifndef _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
+#define _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
 
 
 #include "aliyun_iot_platform_datatype.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_shadow.h"
 #include "aliyun_iot_shadow_config.h"
-
-typedef enum {
-    ALIOT_SHADOW_NULL,
-    ALIOT_SHADOW_INT32,
-    ALIOT_SHADOW_STRING,
-} aliot_shadow_attr_datatype_t;
-
-typedef struct {
-    bool flag_new;
-    uint32_t buf_size;
-    uint32_t offset;
-    char *buf;
-}format_data_t, *format_data_pt;
-
-
-typedef struct {
-    uint32_t base_system_time; //in second
-    uint32_t epoch_time;
-} aliot_shadow_time_t, *aliot_shadow_time_pt;
-
-
-typedef struct aliot_shadow_st aliot_shadow_t, *aliot_shadow_pt;
-typedef struct aliot_shadow_attr_st aliot_shadow_attr_t, *aliot_shadow_attr_pt;
 
 
 aliot_shadow_pt ads_common_get_ads(void);
@@ -95,4 +72,4 @@ void ads_common_increase_tokennum(aliot_shadow_pt pshadow);
 
 uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow);
 
-#endif /* _MQTT_SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_ */
+#endif /* _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_ */

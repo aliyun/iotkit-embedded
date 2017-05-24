@@ -15,9 +15,10 @@
 
 #include "aliyun_iot_mqtt_client.h"
 
+#include "aliyun_iot_shadow.h"
+#include "aliyun_iot_shadow_common.h"
 #include "aliyun_iot_shadow_update.h"
 #include "aliyun_iot_shadow_delta.h"
-#include "aliyun_iot_shadow.h"
 
 
 //check return code
@@ -64,7 +65,7 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
     aliot_shadow_pt pshadow;
 
     ALIOT_LOG_DEBUG("topic=%s", msg->topicName->cstring);
-    ALIOT_LOG_DEBUG("data of topic=%-256.256s", msg->message->payload);
+    ALIOT_LOG_DEBUG("data of topic=%-128.128s", (char *)msg->message->payload);
 
     if (NULL == (pshadow = ads_common_get_ads())) {
         ALIOT_LOG_ERROR("Error Flow! Please call 'aliyun_iot_shadow_construct()'");
@@ -287,8 +288,8 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
         return FAIL_RETURN;
     }
 
-    pshadow->mqtt.deliveryCompleteFun = aliyun_iot_shadow_publish_success_cb;
-    pshadow->mqtt.subAckTimeOutFun = aliyun_iot_shadow_subscribe_ack_timeout;
+    pparams->mqtt.deliveryCompleteFun = aliyun_iot_shadow_publish_success_cb;
+    pparams->mqtt.subAckTimeOutFun = aliyun_iot_shadow_subscribe_ack_timeout;
 
     //initialize MQTT
     rc = aliyun_iot_mqtt_init(&pshadow->mqtt, &pparams->mqtt, puser_info);
@@ -393,7 +394,7 @@ aliot_err_t aliyun_iot_shadow_delete_attribute(aliot_shadow_pt pshadow, aliot_sh
         return ERROR_NO_MEM;
     }
 
-    ads_common_format_init(&format, format.buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"desired\":{");
+    ads_common_format_init(&format, format.buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"reported\":{");
     ads_common_format_add(&format, pattr->pattr_name, NULL, ALIOT_SHADOW_NULL);
     ads_common_format_finalize(&format, "}}");
 
