@@ -44,7 +44,7 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add (
     list[i].callback = cb;
 
     if (token_len >= ALIOT_SHADOW_TOKEN_LEN) {
-        WRITE_IOT_WARNING_LOG("token is too long.");
+        ALIOT_LOG_WARN("token is too long.");
         token_len = ALIOT_SHADOW_TOKEN_LEN - 1;
     }
     memcpy(list[i].token, ptoken, token_len);
@@ -53,7 +53,7 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add (
     aliyun_iot_timer_init(&list[i].timer);
     aliyun_iot_timer_cutdown(&list[i].timer, timeout);
 
-    WRITE_IOT_DEBUG_LOG("Add update ACK list");
+    ALIOT_LOG_DEBUG("Add update ACK list");
 
     return &list[i];
 }
@@ -105,13 +105,13 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
     //get token
     pdata = json_get_value_by_name(json_doc, (int)json_doc_len, "clientToken", &data_len, NULL);
     if (NULL == pdata) {
-        WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'clientToken' key");
+        ALIOT_LOG_WARN("Invalid JSON document: not 'clientToken' key");
         return;
     }
 
     ppayload = json_get_value_by_fullname(json_doc, (int)json_doc_len, "payload", &payload_len, NULL);
     if (NULL == ppayload) {
-        WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'payload' key");
+        ALIOT_LOG_WARN("Invalid JSON document: not 'payload' key");
         return;
     }
 
@@ -123,11 +123,11 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
 
                 aliyun_iot_mutex_unlock(&pshadow->mutex);
-                WRITE_IOT_DEBUG_LOG("token=%s", pelement[i].token);
+                ALIOT_LOG_DEBUG("token=%s", pelement[i].token);
                 do {
                     pdata = json_get_value_by_fullname(ppayload, payload_len, "status", &data_len, NULL);
                     if (NULL == pdata) {
-                            WRITE_IOT_WARNING_LOG("Invalid JSON document: not 'payload.status' key");
+                            ALIOT_LOG_WARN("Invalid JSON document: not 'payload.status' key");
                             break;
                     }
 
@@ -138,7 +138,7 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
 
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errorcode", &data_len, NULL);
                         if (NULL == pdata) {
-                            WRITE_IOT_WARNING_LOG(
+                            ALIOT_LOG_WARN(
                                     "Invalid JSON document: not 'content.errorcode' key");
                             break;
                         }
@@ -146,16 +146,16 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
 
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errormessage", &data_len, NULL);
                         if (NULL == pdata) {
-                            WRITE_IOT_WARNING_LOG(
+                            ALIOT_LOG_WARN(
                                     "Invalid JSON document: not 'content.errormessage' key");
                             break;
                         }
 
-                        WRITE_IOT_WARNING_LOG("###############1");
+                        ALIOT_LOG_WARN("###############1");
                         pelement[i].callback(ack_code, pdata, data_len);
-                        WRITE_IOT_WARNING_LOG("###############2");
+                        ALIOT_LOG_WARN("###############2");
                     } else {
-                        WRITE_IOT_WARNING_LOG(
+                        ALIOT_LOG_WARN(
                                 "Invalid JSON document: value of 'status' key is invalid.");
                     }
                 } while(0);
@@ -168,5 +168,5 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
         }
     }
 
-    WRITE_IOT_WARNING_LOG("Not match any wait element in list.");
+    ALIOT_LOG_WARN("Not match any wait element in list.");
 }

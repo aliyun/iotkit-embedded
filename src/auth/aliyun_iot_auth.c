@@ -91,7 +91,7 @@ static int aliyun_iot_get_id_token(
     length += 40; //40 chars space for key strings(clientId,deviceName,productKey,timestamp)
 
     if (length > SIGN_SOURCE_LEN) {
-        WRITE_IOT_WARNING_LOG("The total length may be is too long. client_id=%s, product_key=%s, device_name=%s, timestamp= %s",
+        ALIOT_LOG_WARN("The total length may be is too long. client_id=%s, product_key=%s, device_name=%s, timestamp= %s",
             client_id, product_key, device_name, timestamp);
     }
      
@@ -112,7 +112,7 @@ static int aliyun_iot_get_id_token(
     if ((ret < 0) || (ret > SIGN_SOURCE_LEN)) {
         goto do_exit;
     }
-    WRITE_IOT_DEBUG_LOG("sign source=%s", buf);
+    ALIOT_LOG_DEBUG("sign source=%s", buf);
     aliyun_iot_common_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
     
 
@@ -123,7 +123,7 @@ static int aliyun_iot_get_id_token(
 
     post_buf = (char *) aliyun_iot_memory_malloc(HTTP_POST_MAX_LEN);
     if (NULL == post_buf) {
-        WRITE_IOT_ERROR_LOG("malloc http post buf failed!");
+        ALIOT_LOG_ERROR("malloc http post buf failed!");
         return ERROR_MALLOC;
     }
     memset(post_buf, 0, HTTP_POST_MAX_LEN);
@@ -140,18 +140,18 @@ static int aliyun_iot_get_id_token(
             resources );
 
     if ((ret < 0) || (ret >= HTTP_POST_MAX_LEN)) {
-        WRITE_IOT_ERROR_LOG("http message body is too long");
+        ALIOT_LOG_ERROR("http message body is too long");
         ret = -1;
         goto do_exit;
     }
 
-    WRITE_IOT_DEBUG_LOG("http content:%s\n\r", post_buf);
+    ALIOT_LOG_DEBUG("http content:%s\n\r", post_buf);
 
     ret = strlen(post_buf);
 
     response_buf = (char *) aliyun_iot_memory_malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
-        WRITE_IOT_ERROR_LOG("malloc http response buf failed!");
+        ALIOT_LOG_ERROR("malloc http response buf failed!");
         return ERROR_MALLOC;
     }
     memset(response_buf, 0, HTTP_RESP_MAX_LEN);
@@ -169,7 +169,7 @@ static int aliyun_iot_get_id_token(
             NULL,
             &httpclient_data);
 
-    WRITE_IOT_DEBUG_LOG("http response:%s\n\r", httpclient_data.response_buf);
+    ALIOT_LOG_DEBUG("http response:%s\n\r", httpclient_data.response_buf);
 
 
     //get iot-id and iot-token from response
@@ -245,7 +245,7 @@ static int aliyun_iot_get_id_token(
     port_str[length] = '\0';
     *pport = atoi(port_str);
 
-    WRITE_IOT_DEBUG_LOG("\niot-id=%s\niot-token=%s\nhost=%s\nport=%d\r\n",
+    ALIOT_LOG_DEBUG("\niot-id=%s\niot-token=%s\nhost=%s\nport=%d\r\n",
                             iot_id, iot_token, host, *pport);
 
     ret = 0;
@@ -314,7 +314,7 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     }
 
     if (ret >= CLIENT_ID_LEN) {
-        WRITE_IOT_ERROR_LOG("client_id is too long");
+        ALIOT_LOG_ERROR("client_id is too long");
     } else if (ret < 0){
         return -1;
     }

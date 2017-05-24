@@ -5,8 +5,8 @@
 #include "aliyun_iot_platform_datatype.h"
 #include "aliyun_iot_common_error.h"
 
-void* aliyun_iot_memory_malloc(uint32_t size);
+void *aliyun_iot_memory_malloc(uint32_t size);
 
-void aliyun_iot_memory_free(void* ptr);
+void aliyun_iot_memory_free(void *ptr);
 
 #endif

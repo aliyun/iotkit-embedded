@@ -67,7 +67,7 @@ int32_t aliyun_iot_get_errno(void)
 	int32_t result = errno_transform(GetLastError(), &networkErrno, &private);
     if(0 != result)
     {
-        WRITE_IOT_ERROR_LOG("network errno = %d",errno);
+        ALIOT_LOG_ERROR("network errno = %d",errno);
         return NETWORK_FAIL;
     }
 
@@ -184,7 +184,7 @@ int32_t aliyun_iot_network_settimeout(int32_t fd,int timeoutMs,IOT_NET_TRANS_TYP
 
     if(0 != setsockopt(fd, SOL_SOCKET, optname, (char *)&timeout, sizeof(timeout)))
     {
-        WRITE_IOT_ERROR_LOG("setsockopt error, errno = %d",errno);
+        ALIOT_LOG_ERROR("setsockopt error, errno = %d",errno);
         return ERROR_NET_SETOPT_TIMEOUT;
     }
 
@@ -264,7 +264,7 @@ int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET
 	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (rc != 0)
 	{
-		WRITE_IOT_ERROR_LOG("WSAStartup failed: %d", rc);
+		ALIOT_LOG_ERROR("WSAStartup failed: %d", rc);
 		return FAIL_RETURN;
 	}
 
@@ -277,7 +277,7 @@ int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET
 
     if ((rc = getaddrinfo( host, service, &hints, &addrInfoList ))!= 0 )
     {
-        WRITE_IOT_ERROR_LOG("getaddrinfo error! rc = %d, errno = %d",rc,errno);
+        ALIOT_LOG_ERROR("getaddrinfo error! rc = %d, errno = %d",rc,errno);
         return ERROR_NET_UNKNOWN_HOST;
     }
 
@@ -286,7 +286,7 @@ int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET
         //默认只支持IPv4
         if (cur->ai_family != AF_INET)
         {
-            WRITE_IOT_ERROR_LOG("socket type error");
+            ALIOT_LOG_ERROR("socket type error");
             rc = ERROR_NET_SOCKET;
             continue;
         }
@@ -294,7 +294,7 @@ int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET
         fd = (int) socket( cur->ai_family, cur->ai_socktype,cur->ai_protocol );
         if( fd < 0 )
         {
-            WRITE_IOT_ERROR_LOG("create socket error,fd = %d, errno = %d",fd,errno);
+            ALIOT_LOG_ERROR("create socket error,fd = %d, errno = %d",fd,errno);
             rc = ERROR_NET_SOCKET;
             continue;
         }
@@ -306,7 +306,7 @@ int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET
         }
 
         closesocket( fd );
-        WRITE_IOT_ERROR_LOG("connect error,errno = %d",errno);
+        ALIOT_LOG_ERROR("connect error,errno = %d",errno);
         rc = ERROR_NET_CONNECT;
     }
 

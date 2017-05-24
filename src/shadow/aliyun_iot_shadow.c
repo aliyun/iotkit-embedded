@@ -9,15 +9,15 @@
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_jsonparser.h"
 
-#include "aliyun_iot_mqtt_client.h"
 #include "aliyun_iot_platform_pthread.h"
+#include "aliyun_iot_platform_datatype.h"
+#include "aliyun_iot_platform_memory.h"
 
-#include "aliyun_iot_shadow.h"
-
-#include <aliyun_iot_platform_datatype.h>
+#include "aliyun_iot_mqtt_client.h"
 
 #include "aliyun_iot_shadow_update.h"
 #include "aliyun_iot_shadow_delta.h"
+#include "aliyun_iot_shadow.h"
 
 
 //check return code
@@ -56,11 +56,11 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
     int val_len, val_type;
     aliot_shadow_pt pshadow;
 
-    WRITE_IOT_DEBUG_LOG("topic=%s", msg->topicName->cstring);
-    WRITE_IOT_DEBUG_LOG("data of topic=%-256.256s", msg->message->payload);
+    ALIOT_LOG_DEBUG("topic=%s", msg->topicName->cstring);
+    ALIOT_LOG_DEBUG("data of topic=%-256.256s", msg->message->payload);
 
     if (NULL == (pshadow = ads_common_get_ads())) {
-        WRITE_IOT_ERROR_LOG("Error Flow! Please call 'aliyun_iot_shadow_construct()'");
+        ALIOT_LOG_ERROR("Error Flow! Please call 'aliyun_iot_shadow_construct()'");
         return;
     }
 
@@ -71,7 +71,7 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
                     &val_type);
 
     if (NULL == pname) {
-        WRITE_IOT_ERROR_LOG("Invalid JSON document: not 'method' key");
+        ALIOT_LOG_ERROR("Invalid JSON document: not 'method' key");
     }
 
     if ((strlen("control") == val_len) && strcmp(pname, "control")) {
@@ -88,7 +88,7 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
                 msg->message->payload,
                 msg->message->payloadlen);
     } else {
-        WRITE_IOT_ERROR_LOG("Invalid 'method' key");
+        ALIOT_LOG_ERROR("Invalid 'method' key");
     }
 
     //update time if there is 'timestamp' key in JSON string.
@@ -167,7 +167,7 @@ aliot_err_t aliyun_iot_shadow_update_asyn(
     }
 
     if (!aliyun_iot_mqtt_is_connected(&pshadow->mqtt)) {
-        WRITE_IOT_ERROR_LOG("The MQTT connection must be established before UPDATE data.");
+        ALIOT_LOG_ERROR("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
@@ -195,7 +195,7 @@ static void aliot_update_ack_cb(
                 const char *ack_msg, //NOTE: NOT a string.
                 uint32_t ack_msg_len)
 {
-    WRITE_IOT_DEBUG_LOG("ack_code=%d, ack_msg=%-256.256s", ack_code, ack_msg);
+    ALIOT_LOG_DEBUG("ack_code=%d, ack_msg=%-256.256s", ack_code, ack_msg);
     shadow_update_flag_ack = ack_code;
 }
 
@@ -211,7 +211,7 @@ aliot_err_t aliyun_iot_shadow_update(
     }
 
     if (!aliyun_iot_mqtt_is_connected(&pshadow->mqtt)) {
-        WRITE_IOT_ERROR_LOG("The MQTT connection must be established before UPDATE data.");
+        ALIOT_LOG_ERROR("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
@@ -245,8 +245,11 @@ aliot_err_t aliyun_iot_shadow_sync(aliot_shadow_pt pshadow)
     aliot_err_t ret;
     format_data_t format;
 
+    ALIOT_LOG_INFO("Device Shadow sync start.");
+
     format.buf = aliyun_iot_memory_malloc(SHADOW_SYNC_MSG_SIZE);
     if (NULL == format.buf) {
+        ALIOT_LOG_ERROR("Device Shadow sync failed");
         return ERROR_NO_MEM;
     }
 
@@ -256,6 +259,8 @@ aliot_err_t aliyun_iot_shadow_sync(aliot_shadow_pt pshadow)
     ret = aliyun_iot_shadow_update(pshadow, format.buf, format.offset, 10);
 
     aliyun_iot_memory_free(format.buf);
+
+    ALIOT_LOG_INFO("Device Shadow sync success.");
 
     return ret;
 
@@ -279,7 +284,7 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
     rc = aliyun_iot_mqtt_init(&pshadow->mqtt, &pparams->mqtt, puser_info);
     if (SUCCESS_RETURN != rc)
     {
-        WRITE_IOT_ERROR_LOG("aliyun_iot_mqtt_init failed ret = %d", rc);
+        ALIOT_LOG_ERROR("aliyun_iot_mqtt_init failed ret = %d", rc);
         return rc;
     }
 
@@ -287,7 +292,7 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
     if (SUCCESS_RETURN != rc)
     {
         aliyun_iot_mqtt_release(&pshadow->mqtt);
-        WRITE_IOT_ERROR_LOG("ali_iot_mqtt_connect failed ret = %d", rc);
+        ALIOT_LOG_ERROR("ali_iot_mqtt_connect failed ret = %d", rc);
         return rc;
     }
 
@@ -378,7 +383,7 @@ aliot_err_t aliyun_iot_shadow_delete_attribute(aliot_shadow_pt pshadow, aliot_sh
         return ERROR_NO_MEM;
     }
 
-    ads_common_format_init(&format, format.buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"reported\":{");
+    ads_common_format_init(&format, format.buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"desired\":{");
     ads_common_format_add(&format, pattr->pattr_name, NULL, ALIOT_SHADOW_NULL);
     ads_common_format_finalize(&format, "}}");
 

@@ -1,16 +1,14 @@
+#include "aliyun_iot_common_log.h"
 #include "aliyun_iot_mqtt_client.h"
 #include "aliyun_iot_auth.h"
 #include "aliyun_iot_device.h"
 #include "aliyun_iot_shadow.h"
-#include <windows.h>
-#include <pthread.h>
 
 //用户需要根据设备信息完善以下宏定义中的四元组内容
 #define PRODUCT_KEY         "4eViBFJ2QGH"
 #define DEVICE_NAME         "device_xikan_3"
 #define DEVICE_ID           "xItJzEDpi6Tv184UIkH7"
 #define DEVICE_SECRET       "TR1gdwnRVN0nIRttfeEqmp1v3nUYWHDi"
-
 
 
 //#define PRODUCT_KEY         "1000184547"
@@ -40,7 +38,7 @@ static void messageArrived(MessageData *md)
     MQTTMessage *message = md->message;
     if(message->payloadlen > MSG_LEN_MAX - 1)
     {
-        printf("process part of receive message\n");
+        ALIOT_LOG_DEBUG("process part of receive message\n");
         message->payloadlen = MSG_LEN_MAX - 1;
     }
 
@@ -50,17 +48,17 @@ static void messageArrived(MessageData *md)
     //to-do此处可以增加用户自己业务逻辑，例如：开关灯等操作
 
     //打印接收消息
-    printf("Message : %s\n", msg);
+    ALIOT_LOG_DEBUG("Message : %s\n", msg);
 }
 
 static void publishComplete(void* context, unsigned int msgId)
 {
-    printf("publish message is arrived,id = %d\n",msgId);
+    ALIOT_LOG_DEBUG("publish message is arrived,id = %d\n",msgId);
 }
 
 static void subAckTimeout(SUBSCRIBE_INFO_S *subInfo)
 {
-    printf("msgId = %d,sub ack is timeout\n",subInfo->msgId);
+    ALIOT_LOG_DEBUG("msgId = %d,sub ack is timeout\n",subInfo->msgId);
 }
 
 
@@ -74,13 +72,13 @@ int singleThreadDemo(unsigned char *msg_buf,unsigned char *msg_readbuf)
 
     if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET))
     {
-        printf("run aliyun_iot_set_device_info() error!\n");
+        ALIOT_LOG_DEBUG("run aliyun_iot_set_device_info() error!\n");
         return -1;
     }
 
     if (0 != aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info()))
     {
-        printf("run aliyun_iot_auth() error!\n");
+        ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!\n");
         return -1;
     }
 
@@ -107,7 +105,7 @@ int singleThreadDemo(unsigned char *msg_buf,unsigned char *msg_readbuf)
     rc = aliyun_iot_mqtt_init(&client, &initParams, aliyun_iot_get_user_info());
     if (0 != rc)
     {
-        printf("aliyun_iot_mqtt_init failed ret = %d\n", rc);
+        ALIOT_LOG_DEBUG("aliyun_iot_mqtt_init failed ret = %d\n", rc);
         return rc;
     }
 
@@ -115,7 +113,7 @@ int singleThreadDemo(unsigned char *msg_buf,unsigned char *msg_readbuf)
     if (0 != rc)
     {
         aliyun_iot_mqtt_release(&client);
-        printf("ali_iot_mqtt_connect failed ret = %d\n", rc);
+        ALIOT_LOG_DEBUG("ali_iot_mqtt_connect failed ret = %d\n", rc);
         return rc;
     }
 
@@ -123,13 +121,13 @@ int singleThreadDemo(unsigned char *msg_buf,unsigned char *msg_readbuf)
     if (0 != rc)
     {
         aliyun_iot_mqtt_release(&client);
-        printf("ali_iot_mqtt_subscribe failed ret = %d\n", rc);
+        ALIOT_LOG_DEBUG("ali_iot_mqtt_subscribe failed ret = %d\n", rc);
         return rc;
     }
 
     do
     {
-        Sleep(200);
+        aliyun_iot_pthread_taskdelay(200);
         rc = aliyun_iot_mqtt_suback_sync(&client, TOPIC_GET, messageArrived);
     }while(rc != SUCCESS_RETURN);
 
@@ -152,7 +150,7 @@ int singleThreadDemo(unsigned char *msg_buf,unsigned char *msg_readbuf)
     if (SUCCESS_RETURN != rc)
     {
         aliyun_iot_mqtt_release(&client);
-        printf("aliyun_iot_mqtt_publish failed ret = %d\n", rc);
+        ALIOT_LOG_DEBUG("aliyun_iot_mqtt_publish failed ret = %d\n", rc);
         return rc;
     }
 
@@ -160,19 +158,19 @@ int singleThreadDemo(unsigned char *msg_buf,unsigned char *msg_readbuf)
     do
     {
         //ch = getchar();
-        Sleep(500);
+        aliyun_iot_pthread_taskdelay(500);
         rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
     } while (ch != 'Q' && ch != 'q');
 
     aliyun_iot_mqtt_release(&client);
-	Sleep(200);
+    aliyun_iot_pthread_taskdelay(200);
     return 0;
 }
 
 
 static void device_shadow_cb(aliot_shadow_attr_pt pattr)
 {
-    printf("attribute name=%s, attribute value = %d \r\n", pattr->pattr_name, pattr->pattr_data);
+    ALIOT_LOG_DEBUG("attribute name=%s, attribute value=%d\r\n", pattr->pattr_name, *(int32_t *)pattr->pattr_data);
 }
 
 int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
@@ -187,7 +185,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
 
     if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET))
     {
-        printf("run aliyun_iot_set_device_info() error!\n");
+        ALIOT_LOG_DEBUG("run aliyun_iot_set_device_info() error!\n");
         return -1;
     }
 
@@ -195,7 +193,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
     rc = aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info());
     if (SUCCESS_RETURN != rc)
     {
-        printf("run aliyun_iot_auth() error!\n");
+        ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!\n");
         return rc;
     }
 
@@ -220,7 +218,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
 
     rc = aliyun_iot_shadow_construct(&shadow, &shadaw_para);
     if (SUCCESS_RETURN != rc) {
-        printf("run aliyun_iot_auth() error!\n");
+        ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!\n");
         return rc;
     }
 
@@ -258,7 +256,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
 
         aliyun_iot_shadow_update(&shadow, format.buf, format.offset, 10);
 
-        Sleep(1000);
+        aliyun_iot_pthread_taskdelay(1000);
     }
 
     aliyun_iot_shadow_delete_attribute(&shadow, &attr_temperature);
@@ -294,8 +292,8 @@ int main()
 
 
 
-    unsigned char *msg_buf = (unsigned char *)malloc(MSG_LEN_MAX);
-    unsigned char *msg_readbuf = (unsigned char *)malloc(MSG_LEN_MAX);
+    unsigned char *msg_buf = (unsigned char *)aliyun_iot_memory_malloc(MSG_LEN_MAX);
+    unsigned char *msg_readbuf = (unsigned char *)aliyun_iot_memory_malloc(MSG_LEN_MAX);
 
 
     demo_device_shadow(msg_buf, msg_readbuf);
@@ -303,8 +301,8 @@ int main()
 
     //singleThreadDemo(msg_buf, msg_readbuf);
 
-    free(msg_buf);
-    free(msg_readbuf);
+    aliyun_iot_memory_free(msg_buf);
+    aliyun_iot_memory_free(msg_readbuf);
 
     printf("out of demo!\n");
 

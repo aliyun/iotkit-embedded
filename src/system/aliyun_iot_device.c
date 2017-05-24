@@ -5,6 +5,8 @@
  *      Author: qibiao.wqb
  */
 
+#include <string.h>
+
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_device.h"
@@ -18,13 +20,12 @@ static aliot_device_info_t g_deviceInfo;
 
 int aliyun_iot_device_init(void)
 {
-    aliyun_iot_common_set_log_level(DEBUG_IOT_LOG);
-    aliyun_iot_common_log_init();
+    aliyun_iot_common_log_set_level(ALIOT_LOG_LEVEL_DEBUG);
 
     memset(&g_deviceInfo, 0x0, sizeof(aliot_device_info_t));
     memset(&g_userInfo, 0x0, sizeof(aliot_user_info_t));
 
-    WRITE_IOT_NOTICE_LOG("device init success!");
+    ALIOT_LOG_INFO("device init success!");
     return SUCCESS_RETURN;
 }
 
@@ -44,7 +45,7 @@ int32_t aliyun_iot_set_device_info(
             char *device_id,
             char *device_secret)
 {
-    WRITE_IOT_DEBUG_LOG("start to set device info!");
+    ALIOT_LOG_DEBUG("start to set device info!");
     memset(&g_deviceInfo, 0x0, sizeof(g_deviceInfo));
 
     strncpy(g_deviceInfo.product_key, product_key, PRODUCT_KEY_LEN);
@@ -52,7 +53,7 @@ int32_t aliyun_iot_set_device_info(
     strncpy(g_deviceInfo.device_id, device_id, DEVICE_ID_LEN);
     strncpy(g_deviceInfo.device_secret, device_secret, DEVICE_SECRET_LEN);
 
-    WRITE_IOT_DEBUG_LOG("set device info success!");
+    ALIOT_LOG_DEBUG("set device info success!");
 
     return SUCCESS_RETURN;
 }

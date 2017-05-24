@@ -13,115 +13,66 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "aliyun_iot_platform_datatype.h"
-#include "aliyun_iot_common_error.h"
-#define STD_OUT
 
-//日志级别和类型
+
 typedef enum IOT_LOG_LEVEL
 {
-    DEBUG_IOT_LOG = 0,
-    INFO_IOT_LOG,
-    NOTICE_IOT_LOG,
-    WARNING_IOT_LOG,
-    ERROR_IOT_LOG,
-    OFF_IOT_LOG,        //日志关闭标志，放置在枚举类型最后
-}IOT_LOG_LEVEL_E;
+    ALIOT_LOG_LEVEL_DEBUG = 0,
+    ALIOT_LOG_LEVEL_INFO,
+    ALIOT_LOG_LEVEL_WARN,
+    ALIOT_LOG_LEVEL_ERROR,
+    ALIOT_LOG_LEVEL_FATAL,
+    ALIOT_LOG_LEVEL_NONE,
+}aliot_log_level_t;
 
-//全局日志级别标志，当此变量小于等于要输出日志级别时日志输出有效
-extern IOT_LOG_LEVEL_E g_iotLogLevel;
+extern aliot_log_level_t g_iotLogLevel;
 
-void aliyun_iot_common_log_init();
-void aliyun_iot_common_log_release();
-void aliyun_iot_common_set_log_level(IOT_LOG_LEVEL_E iotLogLevel);
-IOT_LOG_LEVEL_E aliyun_iot_common_get_log_level();
-void sdkLog(char* format,char* level,const char* file,int line,const char*function,...);
+void aliyun_iot_common_log_set_level(aliot_log_level_t iotLogLevel);
 
-#ifdef STD_OUT
-#define WRITE_IOT_DEBUG_LOG(format, ...) \
+
+#define ALIOT_LOG_DEBUG(format, ...) \
 {\
-    if(g_iotLogLevel <= DEBUG_IOT_LOG)\
+    if(g_iotLogLevel <= ALIOT_LOG_LEVEL_DEBUG)\
     {\
-        printf("[debug] %s:%d %s()| "format"\n",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
+        printf("[debug] %s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
         fflush(stdout);\
     }\
 }
 
-#define WRITE_IOT_INFO_LOG(format, ...) \
+#define ALIOT_LOG_INFO(format, ...) \
 {\
-    if(g_iotLogLevel <= INFO_IOT_LOG)\
+    if(g_iotLogLevel <= ALIOT_LOG_LEVEL_INFO)\
     {\
-        printf("[info] %s:%d %s()| "format"\n",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
+        printf("[info] %s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
         fflush(stdout);\
     }\
 }
 
-#define WRITE_IOT_NOTICE_LOG(format, ...) \
+#define ALIOT_LOG_WARN(format, ...) \
 {\
-    if(g_iotLogLevel <= NOTICE_IOT_LOG)\
+    if(g_iotLogLevel <= ALIOT_LOG_LEVEL_WARN)\
     {\
-        printf("[notice] %s:%d %s()| "format"\n",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
+        printf("[warn] %s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
         fflush(stdout);\
     }\
 }
 
-#define WRITE_IOT_WARNING_LOG(format, ...) \
+#define ALIOT_LOG_ERROR(format,...) \
 {\
-    if(g_iotLogLevel <= WARNING_IOT_LOG)\
+    if(g_iotLogLevel <= ALIOT_LOG_LEVEL_ERROR)\
     {\
-        printf("[warning] %s:%d %s()| "format"\n",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
+        printf("[error] %s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
         fflush(stdout);\
     }\
 }
 
-#define WRITE_IOT_ERROR_LOG(format,...) \
+#define ALIOT_LOG_FATAL(format, ...) \
 {\
-    if(g_iotLogLevel <= ERROR_IOT_LOG)\
+    if(g_iotLogLevel <= ALIOT_LOG_LEVEL_FATAL)\
     {\
-        printf("[error] %s:%d %s()| "format"\n",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
+        printf("[notice] %s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
         fflush(stdout);\
     }\
 }
-
-#else
-#define WRITE_IOT_DEBUG_LOG(format, ...) \
-{\
-    if(g_iotLogLevel <= DEBUG_IOT_LOG)\
-    {\
-        sdkLog(format,"debug",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
-    }\
-}
-
-#define WRITE_IOT_INFO_LOG(format, ...) \
-{\
-    if(g_iotLogLevel <= INFO_IOT_LOG)\
-    {\
-        sdkLog(format,"info",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
-    }\
-}
-
-#define WRITE_IOT_NOTICE_LOG(format, ...) \
-{\
-    if(g_iotLogLevel <= NOTICE_IOT_LOG)\
-    {\
-        sdkLog(format,"notice",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
-    }\
-}
-
-#define WRITE_IOT_WARNING_LOG(format, ...) \
-{\
-    if(g_iotLogLevel <= WARNING_IOT_LOG)\
-    {\
-        sdkLog(format,"warning",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
-    }\
-}
-
-#define WRITE_IOT_ERROR_LOG(format, ...) \
-{\
-    if(g_iotLogLevel <= ERROR_IOT_LOG)\
-    {\
-        sdkLog(format,"error",__FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__);\
-    }\
-}
-#endif
 
 #endif

@@ -196,7 +196,7 @@ int ads_common_convert_data2string(
     } else if (ALIOT_SHADOW_NULL == type) {
         ret = snprintf(buf, buf_len, "%s", "null");
     } else {
-        WRITE_IOT_ERROR_LOG("Error data type");
+        ALIOT_LOG_ERROR("Error data type");
         ret = -1;
     }
 
@@ -231,7 +231,7 @@ aliot_err_t ads_common_convert_string2data(
     } else if (type == ALIOT_SHADOW_STRING) {
         memcpy(pdata, buf, buf_len);
     } else {
-        WRITE_IOT_ERROR_LOG("Error data type");
+        ALIOT_LOG_ERROR("Error data type");
         return ERROR_SHADOW_UNDEF_TYPE;
     }
 
@@ -292,7 +292,7 @@ aliot_err_t ads_common_remove_attr (
     node = list_find(pshadow->inner_data.attr_list, pattr);
     if (NULL == node) {
         rc = ERROR_SHADOW_NO_ATTRIBUTE;
-        WRITE_IOT_ERROR_LOG("Try to remove a non-existent attribute.");
+        ALIOT_LOG_ERROR("Try to remove a non-existent attribute.");
     } else {
         list_remove(pshadow->inner_data.attr_list, node);
     }
@@ -403,10 +403,3 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
 
     ads_common_increase_version(pshadow);
 }
-
-
-
-
-
-
-

@@ -187,7 +187,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
 	int readLen = 0;
 	int ret = -1;
 
-	WRITE_IOT_DEBUG_LOG("SSL_read len=%d timer=%d ms", len, timeout_ms);
+	ALIOT_LOG_DEBUG("SSL_read len=%d timer=%d ms", len, timeout_ms);
 
 	if(!SSL_pending(pTlsData->pssl)) 
 	{
@@ -198,7 +198,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
 			INT32 err = aliyun_iot_get_errno();
 			if(err == EINTR_IOT)
 			{
-				WRITE_IOT_DEBUG_LOG("continue");
+				ALIOT_LOG_DEBUG("continue");
 			}
 			else
 			{
@@ -214,7 +214,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
 		}
 		else if (ret == 1)
 		{
-			WRITE_IOT_DEBUG_LOG("start to read packet");
+			ALIOT_LOG_DEBUG("start to read packet");
 		}
 	}
 
@@ -237,7 +237,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
 		}
 	}
 
-	WRITE_IOT_DEBUG_LOG("SSL_read readlen=%d", readLen);
+	ALIOT_LOG_DEBUG("SSL_read readlen=%d", readLen);
 	return readLen;
 }
 
@@ -247,7 +247,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams *pTlsData, unsigned char *buffer,
 	int writtenLen = 0;
 	int ret = 0;
 
-	WRITE_IOT_DEBUG_LOG("SSL_write len=%d timer=%d", len, timeout_ms);
+	ALIOT_LOG_DEBUG("SSL_write len=%d timer=%d", len, timeout_ms);
 	while (writtenLen < len) 
 	{
 		ret = SSL_write(pTlsData->pssl, (unsigned char *)(buffer + writtenLen), (len - writtenLen));
@@ -267,7 +267,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams *pTlsData, unsigned char *buffer,
 			return -1; //Connnection error
 		}
 	}
-	WRITE_IOT_DEBUG_LOG("SSL_write write len=%d", writtenLen);
+	ALIOT_LOG_DEBUG("SSL_write write len=%d", writtenLen);
 	return writtenLen;
 }
 
@@ -312,7 +312,7 @@ int aliyun_iot_network_ssl_connect(TLSDataParams *pTlsData, const char *addr, co
 		return -1;
 	}
 
-	WRITE_IOT_DEBUG_LOG("mqtt openssl Connect Success");
+	ALIOT_LOG_DEBUG("mqtt openssl Connect Success");
 	return 0;
 
 }

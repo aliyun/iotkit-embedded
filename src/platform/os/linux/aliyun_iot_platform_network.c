@@ -93,7 +93,7 @@ INT32 aliyun_iot_get_errno(void)
     INT32 result = errno_transform(errno,&networkErrno,&private);
     if(0 != result)
     {
-        WRITE_IOT_ERROR_LOG("network errno = %d",errno);
+        ALIOT_LOG_ERROR("network errno = %d",errno);
         return NETWORK_FAIL;
     }
 
@@ -247,7 +247,7 @@ INT32 aliyun_iot_network_settimeout(INT32 fd,int timeoutMs,IOT_NET_TRANS_TYPE_E 
 
     if(0 != setsockopt(fd, SOL_SOCKET, optname, (char *)&timeout, sizeof(timeout)))
     {
-        WRITE_IOT_ERROR_LOG("setsockopt error, errno = %d",errno);
+        ALIOT_LOG_ERROR("setsockopt error, errno = %d",errno);
         return ERROR_NET_SETOPT_TIMEOUT;
     }
 
@@ -401,7 +401,7 @@ INT32 aliyun_iot_network_create(const INT8*host,const INT8*service,IOT_NET_PROTO
 
     if ((rc = getaddrinfo( host, service, &hints, &addrInfoList ))!= 0 )
     {
-        WRITE_IOT_ERROR_LOG("getaddrinfo error! rc = %d, errno = %d",rc,errno);
+        ALIOT_LOG_ERROR("getaddrinfo error! rc = %d, errno = %d",rc,errno);
         return ERROR_NET_UNKNOWN_HOST;
     }
 
@@ -410,7 +410,7 @@ INT32 aliyun_iot_network_create(const INT8*host,const INT8*service,IOT_NET_PROTO
         //默认只支持IPv4
         if (cur->ai_family != AF_INET)
         {
-            WRITE_IOT_ERROR_LOG("socket type error");
+            ALIOT_LOG_ERROR("socket type error");
             rc = ERROR_NET_SOCKET;
             continue;
         }
@@ -418,7 +418,7 @@ INT32 aliyun_iot_network_create(const INT8*host,const INT8*service,IOT_NET_PROTO
         fd = (int) socket( cur->ai_family, cur->ai_socktype,cur->ai_protocol );
         if( fd < 0 )
         {
-            WRITE_IOT_ERROR_LOG("create socket error,fd = %d, errno = %d",fd,errno);
+            ALIOT_LOG_ERROR("create socket error,fd = %d, errno = %d",fd,errno);
             rc = ERROR_NET_SOCKET;
             continue;
         }
@@ -430,7 +430,7 @@ INT32 aliyun_iot_network_create(const INT8*host,const INT8*service,IOT_NET_PROTO
         }
 
         close( fd );
-        WRITE_IOT_ERROR_LOG("connect error,errno = %d",errno);
+        ALIOT_LOG_ERROR("connect error,errno = %d",errno);
         rc = ERROR_NET_CONNECT;
     }
 

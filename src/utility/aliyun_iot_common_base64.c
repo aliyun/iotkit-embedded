@@ -52,7 +52,7 @@ aliot_err_t aliyun_iot_common_base64encode(const uint8_t *data, uint32_t inputLe
 
     if(NULL == encodedData)
     {
-        WRITE_IOT_ERROR_LOG("pointer of encodedData is NULL!");
+        ALIOT_LOG_ERROR("pointer of encodedData is NULL!");
         return FAIL_RETURN;
     }
 
@@ -60,7 +60,7 @@ aliot_err_t aliyun_iot_common_base64encode(const uint8_t *data, uint32_t inputLe
 
     if(outputLenMax < *outputLength)
     {
-        WRITE_IOT_ERROR_LOG("the length of output memory is not enough!");
+        ALIOT_LOG_ERROR("the length of output memory is not enough!");
         return FAIL_RETURN;
     }
 
@@ -95,7 +95,7 @@ aliot_err_t aliyun_iot_common_base64decode(const uint8_t *data, uint32_t inputLe
 
     if (inputLength % 4 != 0)
     {
-        WRITE_IOT_ERROR_LOG("the input length is error!");
+        ALIOT_LOG_ERROR("the input length is error!");
         return FAIL_RETURN;
     }
 
@@ -114,7 +114,7 @@ aliot_err_t aliyun_iot_common_base64decode(const uint8_t *data, uint32_t inputLe
 
     if(outputLenMax < *outputLength)
     {
-        WRITE_IOT_ERROR_LOG("the length of output memory is not enough!");
+        ALIOT_LOG_ERROR("the length of output memory is not enough!");
         return FAIL_RETURN;
     }
 

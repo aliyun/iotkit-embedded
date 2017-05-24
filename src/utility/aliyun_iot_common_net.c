@@ -29,11 +29,11 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
         int32_t lefttime = aliyun_iot_timer_remain(&endTime);
         if(lefttime <= 0)
         {
-            WRITE_IOT_ERROR_LOG("mqtt read timeout");
+            ALIOT_LOG_ERROR("mqtt read timeout");
             return -2;
         }
 
-        WRITE_IOT_DEBUG_LOG("mqtt read left time=%d ms", lefttime);
+        ALIOT_LOG_DEBUG("mqtt read left time=%d ms", lefttime);
 
         IOT_NET_FD_ISSET_E result;
         ret = aliyun_iot_network_select(pNetwork->handle, IOT_NET_TRANS_RECV, lefttime, &result);
@@ -46,35 +46,35 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
             }
             else
             {
-                WRITE_IOT_ERROR_LOG("mqtt read(select) fail ret=%d", ret);
+                ALIOT_LOG_ERROR("mqtt read(select) fail ret=%d", ret);
                 return -1;
             }
         }
         else if (ret == 0)
         {
-            WRITE_IOT_DEBUG_LOG("mqtt read(select) timeout");
+            ALIOT_LOG_DEBUG("mqtt read(select) timeout");
             return 0;
         }
         else if (ret == 1)
         {
             if(IOT_NET_FD_NO_ISSET == result)
             {
-                WRITE_IOT_DEBUG_LOG("another fd readable!");
+                ALIOT_LOG_DEBUG("another fd readable!");
                 continue;
             }
 
             aliyun_iot_network_settimeout(pNetwork->handle, 50, IOT_NET_TRANS_RECV);
 
-            WRITE_IOT_DEBUG_LOG("mqtt read recv len = %d, recvlen = %d", len, recvlen);
+            ALIOT_LOG_DEBUG("mqtt read recv len = %d, recvlen = %d", len, recvlen);
             rc = aliyun_iot_network_recv(pNetwork->handle, buffer + recvlen, len - recvlen, IOT_NET_FLAGS_DEFAULT);
             if (rc > 0)
             {
                 recvlen += rc;
-                WRITE_IOT_DEBUG_LOG("mqtt read ret=%d, rc = %d, recvlen = %d", ret, rc, recvlen);
+                ALIOT_LOG_DEBUG("mqtt read ret=%d, rc = %d, recvlen = %d", ret, rc, recvlen);
             }
             else if(rc == 0)
             {
-                WRITE_IOT_ERROR_LOG("The network is broken!,recvlen = %d", recvlen);
+                ALIOT_LOG_ERROR("The network is broken!,recvlen = %d", recvlen);
                 return recvlen;
             }
             else
@@ -86,7 +86,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
                 }
                 else
                 {
-                    WRITE_IOT_ERROR_LOG("mqtt read fail: ret=%d, rc = %d, recvlen = %d", ret, rc, recvlen);
+                    ALIOT_LOG_ERROR("mqtt read fail: ret=%d, rc = %d, recvlen = %d", ret, rc, recvlen);
                     return -3;
                 }
             }
@@ -112,7 +112,7 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
         int32_t lefttime = aliyun_iot_timer_remain(&endTime);
         if(lefttime <= 0)
         {
-            WRITE_IOT_ERROR_LOG("mqtt write timeout");
+            ALIOT_LOG_ERROR("mqtt write timeout");
             return -2;
         }
 
@@ -127,20 +127,20 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
             }
             else
             {
-                WRITE_IOT_ERROR_LOG("mqtt write fail");
+                ALIOT_LOG_ERROR("mqtt write fail");
                 return -1;
             }
         }
         else if (ret == 0)
         {
-            WRITE_IOT_ERROR_LOG("mqtt write timeout");
+            ALIOT_LOG_ERROR("mqtt write timeout");
             return -2;
         }
         else if (ret == 1)
         {
             if(IOT_NET_FD_NO_ISSET == result)
             {
-                WRITE_IOT_DEBUG_LOG("another fd readable!");
+                ALIOT_LOG_DEBUG("another fd readable!");
                 continue;
             }
 
@@ -153,7 +153,7 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
             }
             else if(rc == 0)
             {
-                WRITE_IOT_ERROR_LOG("The network is broken!");
+                ALIOT_LOG_ERROR("The network is broken!");
                 return -1;
             }
             else
@@ -165,7 +165,7 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
                 }
                 else
                 {
-                    WRITE_IOT_ERROR_LOG("mqtt read fail: ret=%d, rc = %d, err = %d", ret, rc,err);
+                    ALIOT_LOG_ERROR("mqtt read fail: ret=%d, rc = %d, err = %d", ret, rc,err);
                     return -3;
                 }
             }
@@ -195,7 +195,7 @@ static int connect_tcp(pNetwork_t pNetwork)
 {
     if(NULL == pNetwork)
     {
-        WRITE_IOT_ERROR_LOG("network is null");
+        ALIOT_LOG_ERROR("network is null");
         return 1;
     }
 
@@ -216,7 +216,7 @@ static int read_ssl(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
 {
     if(NULL == pNetwork)
     {
-        WRITE_IOT_ERROR_LOG("network is null");
+        ALIOT_LOG_ERROR("network is null");
         return 1;
     }
 
@@ -227,7 +227,7 @@ static int write_ssl(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
 {
     if(NULL == pNetwork)
     {
-        WRITE_IOT_ERROR_LOG("network is null");
+        ALIOT_LOG_ERROR("network is null");
         return 1;
     }
 
@@ -238,7 +238,7 @@ static int disconnect_ssl(pNetwork_t pNetwork)
 {
     if(NULL == pNetwork)
     {
-        WRITE_IOT_ERROR_LOG("network is null");
+        ALIOT_LOG_ERROR("network is null");
         return 1;
     }
 
@@ -251,7 +251,7 @@ static int connect_ssl(pNetwork_t pNetwork)
 {
     if(NULL == pNetwork)
     {
-        WRITE_IOT_ERROR_LOG("network is null");
+        ALIOT_LOG_ERROR("network is null");
         return 1;
     }
 
