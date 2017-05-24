@@ -166,5 +166,6 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
         }
     }
 
+    aliyun_iot_mutex_unlock(&pshadow->mutex);
     ALIOT_LOG_WARN("Not match any wait element in list.");
 }

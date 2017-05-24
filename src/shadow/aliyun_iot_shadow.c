@@ -84,6 +84,7 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
 
     if ((strlen("control") == val_len) && strcmp(pname, "control")) {
         //call delta handle function
+        ALIOT_LOG_DEBUG("receive 'control' method");
         aliyun_iot_shadow_delta_entry(
                 pshadow,
                 msg->message->payload,
@@ -91,6 +92,7 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
 
     } else if ((strlen("reply") == val_len) && strcmp(pname, "reply")) {
         //call update ACK handle function.
+        ALIOT_LOG_DEBUG("receive 'reply' method");
         aliyun_iot_shadow_update_wait_ack_list_handle_response(
                 pshadow,
                 msg->message->payload,
@@ -98,6 +100,9 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
     } else {
         ALIOT_LOG_ERROR("Invalid 'method' key");
     }
+
+    ALIOT_LOG_DEBUG("End of method handle");
+
 
     //update time if there is 'timestamp' key in JSON string.
     pname = json_get_value_by_name(msg->message->payload,

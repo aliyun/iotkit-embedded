@@ -1088,6 +1088,8 @@ int deliverMessage(MQTTClient_t* c, MQTTString* topicName, MQTTMessage* message)
     {
         if (c->messageHandlers[i].topicFilter != 0 && (MQTTPacket_equals(topicName, (char*)c->messageHandlers[i].topicFilter) || isTopicMatched((char*)c->messageHandlers[i].topicFilter, topicName)))
         {
+            ALIOT_LOG_DEBUG("topic be matched");
+
             if (c->messageHandlers[i].fp != NULL)
             {
                 MessageData md;
@@ -1098,9 +1100,14 @@ int deliverMessage(MQTTClient_t* c, MQTTString* topicName, MQTTMessage* message)
         }
     }
     
+    ALIOT_LOG_DEBUG("End of matching");
+
     if (rc == FAIL_RETURN && c->defaultMessageHandler != NULL)
     {
         MessageData md;
+
+        ALIOT_LOG_DEBUG("NO matching any topic, call default handle function");
+
         NewMessageData(&md, topicName, message);
         c->defaultMessageHandler(&md);
         rc = SUCCESS_RETURN;
@@ -1271,23 +1278,18 @@ int recvPublishProc(MQTTClient_t*c)
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
+    ALIOT_LOG_ERROR("deliver msg");
     deliverMessage(c, &topicName, &msg);
-    if (msg.qos == QOS0)
-    {
-        return SUCCESS_RETURN;
-    }
+    ALIOT_LOG_ERROR("end of delivering msg");
 
-    if (msg.qos == QOS1)
-    {
-        result = MQTTPuback(c,msg.id,PUBACK);
-    }
-    else if (msg.qos == QOS2)
-    {
-        result = MQTTPuback(c,msg.id,PUBREC);
-    }
-    else
-    {
-        ALIOT_LOG_ERROR("Qos is error,qos = %d",msg.qos);
+    if (msg.qos == QOS0) {
+        return SUCCESS_RETURN;
+    } else if (msg.qos == QOS1) {
+        result = MQTTPuback(c, msg.id, PUBACK);
+    } else if (msg.qos == QOS2) {
+        result = MQTTPuback(c, msg.id, PUBREC);
+    } else {
+        ALIOT_LOG_ERROR("Invalid QOS, QOSvalue = %d", msg.qos);
         return MQTT_PUBLISH_QOS_ERROR;
     }
 

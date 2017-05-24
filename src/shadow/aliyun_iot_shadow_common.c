@@ -246,6 +246,8 @@ void ads_common_update_time(aliot_shadow_pt pshadow, uint32_t new_timestamp)
     pshadow->inner_data.time.base_system_time = aliot_time_get_s();
     pshadow->inner_data.time.epoch_time = new_timestamp;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
+
+    ALIOT_LOG_INFO("update system time");
 }
 
 
@@ -308,6 +310,8 @@ void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
     aliyun_iot_mutex_lock(&pshadow->mutex);
     pshadow->inner_data.version = version;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
+
+    ALIOT_LOG_INFO("update shadow version");
 }
 
 
