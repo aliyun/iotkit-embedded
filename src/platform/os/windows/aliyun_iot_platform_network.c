@@ -150,6 +150,8 @@ int32_t aliyun_iot_network_select(int32_t fd, IOT_NET_TRANS_TYPE_E type, int tim
         ALIOT_LOG_DEBUG("time_s=%u, time_us=%u.", ptimeout->tv_sec, ptimeout->tv_usec);
     }
 
+    ALIOT_LOG_DEBUG("fd = %d", fd);
+
     rc = select(fd + 1, rd_set, wr_set, ep_set, ptimeout);
     if(rc > 0) {
         if (0 != FD_ISSET(fd, &sets)) {

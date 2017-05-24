@@ -31,7 +31,6 @@ endif
 
 # if were running on Windows build for Windows
 ifdef WINDOWS
-$(info build for windows2)
 WINDOWS_BUILD=1
 endif
 

@@ -245,6 +245,8 @@ static int disconnect_ssl(pNetwork_t pNetwork)
     }
 
     aliyun_iot_network_ssl_disconnect((void *)pNetwork->handle);
+    aliyun_iot_memory_free(pNetwork->handle);
+    pNetwork->handle = NULL;
 
     return 0;
 }
@@ -270,7 +272,9 @@ static int connect_ssl(pNetwork_t pNetwork)
                 strlen(pNetwork->ca_crt) + 1)) {
         return 0;
     } else {
-        aliyun_iot_memory_free((void *)pNetwork->handle);
+        //TODO SHOLUD not remove this handle space
+        // The space will be freed by calling disconnect_ssl()
+        //aliyun_iot_memory_free((void *)pNetwork->handle);
         return -1;
     }
 }
@@ -304,9 +308,7 @@ int aliyun_iot_net_disconnect(pNetwork_t pNetwork)
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return disconnect_tcp(pNetwork);
     } else { //SSL connection
-        int ret = disconnect_ssl(pNetwork);
-        aliyun_iot_memory_free(pNetwork->handle);
-        return ret;
+        return disconnect_ssl(pNetwork);
     }
 }
 
