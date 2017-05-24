@@ -122,11 +122,11 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
         return rc;
     }
 
-    do
-    {
-        aliyun_iot_pthread_taskdelay(200);
-        rc = aliyun_iot_mqtt_suback_sync(&client, TOPIC_GET, messageArrived);
-    }while(rc != SUCCESS_RETURN);
+//    do
+//    {
+//        aliyun_iot_pthread_taskdelay(200);
+//        rc = aliyun_iot_mqtt_suback_sync(&client, TOPIC_GET, messageArrived);
+//    }while(rc != SUCCESS_RETURN);
 
     MQTTMessage message;
     memset(&message,0x0,sizeof(message));

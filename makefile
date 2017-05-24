@@ -14,6 +14,9 @@ all:
 clean:
 	$(info make clean aliot-sdk)	
 	make -C ./src/ clean
-	$(info make clean sample)
-	make -C ./sample/ clean
+	$(info make clean mqtt sample)
+	make -C ./sample/mqtt clean
+	$(info make clean device shadow sample)
+	make -C ./sample/deviceshadow clean
+
 	

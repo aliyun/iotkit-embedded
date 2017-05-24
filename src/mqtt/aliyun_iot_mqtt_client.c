@@ -45,7 +45,6 @@ typedef struct REPUBLISH_INFO
 int sendPacket(MQTTClient_t* c,unsigned char *buf,int length, aliot_timer_t* timer);
 MQTTClientState aliyun_iot_mqtt_get_client_state(MQTTClient_t *pClient);
 void aliyun_iot_mqtt_set_client_state(MQTTClient_t *pClient, MQTTClientState newState);
-void aliyun_iot_mqtt_yield(MQTTClient_t* pClient, int timeout_ms);
 int aliyun_iot_mqtt_keep_alive(MQTTClient_t *pClient);
 void aliyun_iot_mqtt_disconnect_callback(MQTTClient_t *pClient) ;
 bool whether_mqtt_client_state_normal(MQTTClient_t*c);
@@ -275,7 +274,7 @@ int MQTTConnect(MQTTClient_t*pClient)
     /* send the connect packet*/
     InitTimer(&connectTimer);
     countdown_ms(&connectTimer, pClient->command_timeout_ms);
-    if ((rc = sendPacket(pClient, pClient->buf,len, &connectTimer)) != SUCCESS_RETURN)
+    if ((rc = sendPacket(pClient, pClient->buf, len, &connectTimer)) != SUCCESS_RETURN)
     {
         aliyun_iot_mutex_unlock(&pClient->writebufLock);
         ALIOT_LOG_ERROR("send connect packet failed");
@@ -958,6 +957,7 @@ int readPacket(MQTTClient_t* c, aliot_timer_t* timer, unsigned int *packet_type)
     /* 1. read the header byte.  This has the packet type in it */
     rc = c->ipstack->read(c->ipstack, c->readbuf, 1, left_ms(timer));
     if (0 == rc) {
+        *packet_type = 0;
         return SUCCESS_RETURN;
     } else if (1 != rc) {
         ALIOT_LOG_DEBUG("mqtt read error");
@@ -2862,7 +2862,7 @@ void aliyun_iot_mqtt_yield(MQTTClient_t* pClient, int timeout_ms)
 		ALIOT_LOG_DEBUG("cycle end");
 		if(SUCCESS_RETURN != rc)
 		{
-		    ALIOT_LOG_DEBUG("cycle failure,rc=%d",rc);
+		    ALIOT_LOG_DEBUG("cycle failure, rc=%d",rc);
 			break;
 		}
     } while (!expired(&timer));

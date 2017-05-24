@@ -376,6 +376,8 @@ int aliyun_iot_mqtt_suback_sync(MQTTClient_t* c,const char* topicFilter,messageH
 aliot_err_t aliyun_iot_mqtt_publish(MQTTClient_t* c, const char* topicName, MQTTMessage* message);
 
 
+void aliyun_iot_mqtt_yield(MQTTClient_t* pClient, int timeout_ms);
+
 //check whether MQTT connection is established or not.
 bool aliyun_iot_mqtt_is_connected(MQTTClient_t *pClient);
 

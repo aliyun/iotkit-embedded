@@ -75,6 +75,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
             else if(rc == 0)
             {
                 ALIOT_LOG_ERROR("The network is broken!,recvlen = %d", recvlen);
+                aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 32, 1, buffer, recvlen, 1);
                 return recvlen;
             }
             else
@@ -93,6 +94,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
         }
     }while(recvlen < len);
 
+    aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 32, 1, buffer, recvlen, 1);
     return recvlen;
 }
 

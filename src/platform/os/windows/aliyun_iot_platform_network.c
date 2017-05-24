@@ -154,7 +154,7 @@ int32_t aliyun_iot_network_select(int32_t fd,IOT_NET_TRANS_TYPE_E type,int timeo
         timePointer = NULL;
     }
 
-    rc = select(fd+1,rd_set,wr_set,ep_set,timePointer);
+    rc = select(fd + 1, rd_set, wr_set, ep_set, timePointer);
     if(rc > 0)
     {
         if( fd < 0 )
