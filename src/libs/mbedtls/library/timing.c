@@ -60,11 +60,10 @@ struct _hr_time
 #include <signal.h>
 #include <time.h>
 #include "aliyun_iot_platform_timer.h"
-#include "aliyun_iot_platform_signal.h"
 
 struct _hr_time
 {
-    ALIYUN_IOT_TIME_TYPE_S start;
+    aliot_time_t start;
 //    struct timeval start;
 };
 
@@ -219,11 +218,11 @@ unsigned long mbedtls_timing_hardclock( void )
 
 static int hardclock_init = 0;
 //static struct timeval tv_init;
-ALIYUN_IOT_TIME_TYPE_S tv_init;
+aliot_time_t tv_init;
 
 unsigned long mbedtls_timing_hardclock( void )
 {
-    ALIYUN_IOT_TIME_TYPE_S tv_cur;
+    aliot_time_t tv_cur;
 
     if( hardclock_init == 0 )
     {
@@ -284,7 +283,7 @@ void mbedtls_set_alarm( int seconds )
 unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int reset )
 {
     unsigned long delta;
-    ALIYUN_IOT_TIME_TYPE_S offset;
+    aliot_time_t offset;
     struct _hr_time *t = (struct _hr_time *) val;
 
     aliyun_iot_timer_start_clock(&offset);
