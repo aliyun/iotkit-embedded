@@ -209,7 +209,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
                 return readLen;
             }
 
-            ALIOT_LOG_ERROR("mqtt recv ssl error,ret = %d",ret);
+            ALIOT_LOG_ERROR("ssl recv error,ret = %d",ret);
             return -1; //Connnection error
         }
     }

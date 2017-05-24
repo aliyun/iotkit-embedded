@@ -104,6 +104,7 @@ static int wsa_init_done = 0;
 //#include <time.h>
 
 #include <stdint.h>
+#include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_timer.h"
 #include "aliyun_iot_platform_network.h"
 #include "aliyun_iot_platform_pthread.h"
@@ -459,6 +460,7 @@ int mbedtls_net_recv_timeout( void *ctx, unsigned char *buf, size_t len, uint32_
     ret = aliyun_iot_network_select(fd,IOT_NET_TRANS_RECV,timeout,&result);
     if(ret == 0 )
     {
+        //return 0; //NOT treat timeout as Error
         return( MBEDTLS_ERR_SSL_TIMEOUT );
     }
     else if(ret < 0 )
@@ -509,12 +511,14 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
         lefttime = aliyun_iot_timer_remain(&endTime);
         if(lefttime <= 0)
         {
+            ALIOT_LOG_INFO("timeout:lefttime");
             return MBEDTLS_ERR_SSL_TIMEOUT;
         }
 
         ret = aliyun_iot_network_select(fd,IOT_NET_TRANS_SEND,lefttime,&result);
         if(ret == 0 )
         {
+            ALIOT_LOG_INFO("timeout:select");
             return( MBEDTLS_ERR_SSL_TIMEOUT );
         }
         else if(ret < 0)

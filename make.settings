@@ -1,8 +1,8 @@
-BUILD_TYPE              = debug  #or release
-PLATFORM                = linux
+BUILD_TYPE              = debug
+PLATFORM                = windows
 PLATFORM_CC             = gcc
 PLATFORM_AR             = ar
-SSL_LIB_NAME			= mbedtls
+SSL_LIB_NAME            = mbedtls
 
 MBEDTLS_LIB_ENABLE      = y
 MQTT_MBED_LIB_ENABLE    = y

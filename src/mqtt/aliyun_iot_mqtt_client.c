@@ -960,7 +960,7 @@ int readPacket(MQTTClient_t* c, aliot_timer_t* timer, unsigned int *packet_type)
         *packet_type = 0;
         return SUCCESS_RETURN;
     } else if (1 != rc) {
-        ALIOT_LOG_DEBUG("mqtt read error");
+        ALIOT_LOG_DEBUG("mqtt read error, rc=%d", rc);
         return FAIL_RETURN;
     }
 
