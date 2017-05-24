@@ -28,6 +28,8 @@
 #ifndef MBEDTLS_CONFIG_H
 #define MBEDTLS_CONFIG_H
 
+#define MBEDTLS_DEBUG_C
+
 /* System support */
 #define MBEDTLS_HAVE_ASM
 

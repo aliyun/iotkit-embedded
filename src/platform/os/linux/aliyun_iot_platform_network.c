@@ -14,9 +14,9 @@
 
 typedef struct NETWORK_ERRNO_TRANS
 {
-    INT32 systemData;
+    int32_t systemData;
     ALIYUN_NETWORK_ERROR_E netwokErrno;
-    INT32 privateData;
+    int32_t privateData;
 }NETWORK_ERRNO_TRANS_S;
 
 static NETWORK_ERRNO_TRANS_S g_networkErrnoTrans[]=
@@ -54,17 +54,17 @@ static NETWORK_ERRNO_TRANS_S g_networkErrnoTrans[]=
 /***********************************************************
 * 函数名称: errno_transform
 * 描       述: errno的转换
-* 输入参数: INT32 systemErrno 系统的errno
+* 输入参数: int32_t systemErrno 系统的errno
 *           ALIYUN_NETWORK_ERROR_E *netwokErrno 错误类型
-*           INT32 *privateErrno 转换后的错误编码
+*           int32_t *privateErrno 转换后的错误编码
 * 输出参数:
 * 返 回  值: 自定义errno
 * 说       明: 将linux系统下的errno转换为sdk自定义的errno
 ************************************************************/
-static INT32 errno_transform(INT32 systemErrno,ALIYUN_NETWORK_ERROR_E *netwokErrno,INT32 *privateErrno)
+static int32_t errno_transform(int32_t systemErrno,ALIYUN_NETWORK_ERROR_E *netwokErrno,int32_t *privateErrno)
 {
-    INT32 num = sizeof(g_networkErrnoTrans);
-    INT32 i = 0;
+    int32_t num = sizeof(g_networkErrnoTrans);
+    int32_t i = 0;
     for(i = 0;i<num;i++)
     {
         if(g_networkErrnoTrans[i].systemData == systemErrno)
@@ -86,11 +86,11 @@ static INT32 errno_transform(INT32 systemErrno,ALIYUN_NETWORK_ERROR_E *netwokErr
 * 返 回  值: 自定义errno
 * 说       明: 将linux系统下的errno转换为sdk自定义的errno
 ************************************************************/
-INT32 aliyun_iot_get_errno(void)
+int32_t aliyun_iot_get_errno(void)
 {
     ALIYUN_NETWORK_ERROR_E networkErrno = NETWORK_FAIL;
-    INT32 private = 0;
-    INT32 result = errno_transform(errno,&networkErrno,&private);
+    int32_t private = 0;
+    int32_t result = errno_transform(errno,&networkErrno,&private);
     if(0 != result)
     {
         ALIOT_LOG_ERROR("network errno = %d",errno);
@@ -103,18 +103,18 @@ INT32 aliyun_iot_get_errno(void)
 /***********************************************************
 * 函数名称: aliyun_iot_network_send
 * 描       述: 发送网络数据接口
-* 输入参数: INT32 sockFd socket描述符
+* 输入参数: int32_t sockFd socket描述符
 *           void *buf 数据缓存
-*           INT32 nbytes 缓存区大小
+*           int32_t nbytes 缓存区大小
 *           IOT_NET_TRANS_FLAGS_E flags 操作标志
 * 输出参数:
 * 返 回  值: 同linux系统下标准socket返回值
 * 说       明: 网络数据发送，linux系统下的实现
 *           源码和mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_send(INT32 sockFd, void *buf, INT32 nbytes, IOT_NET_TRANS_FLAGS_E flags)
+int32_t aliyun_iot_network_send(int32_t sockFd, void *buf, int32_t nbytes, IOT_NET_TRANS_FLAGS_E flags)
 {
-    UINT32 flag = 0;
+    uint32_t flag = 0;
 
     if( sockFd < 0 )
     {
@@ -132,18 +132,18 @@ INT32 aliyun_iot_network_send(INT32 sockFd, void *buf, INT32 nbytes, IOT_NET_TRA
 /***********************************************************
 * 函数名称: aliyun_iot_network_recv
 * 描       述: 接收网络数据接口
-* 输入参数: INT32 sockFd socket描述符
+* 输入参数: int32_t sockFd socket描述符
 *           void *buf 数据缓存
-*           INT32 nbytes 缓存区大小
+*           int32_t nbytes 缓存区大小
 *           IOT_NET_TRANS_FLAGS_E flags 操作标志
 * 输出参数:
 * 返 回  值: 同linux系统下标准socket返回值
 * 说       明: 网络数据发送，linux系统下的实现
 *           源码和mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_recv(INT32 sockFd, void *buf, INT32 nbytes, IOT_NET_TRANS_FLAGS_E flags)
+int32_t aliyun_iot_network_recv(int32_t sockFd, void *buf, int32_t nbytes, IOT_NET_TRANS_FLAGS_E flags)
 {
-    UINT32 flag = 0;
+    uint32_t flag = 0;
 
     if( sockFd < 0 )
     {
@@ -165,7 +165,7 @@ INT32 aliyun_iot_network_recv(INT32 sockFd, void *buf, INT32 nbytes, IOT_NET_TRA
 /***********************************************************
 * 函数名称: aliyun_iot_network_select
 * 描       述: 有可读可写事件判断接口
-* 输入参数: INT32 fd socket描述符
+* 输入参数: int32_t fd socket描述符
 *           IOT_NET_TRANS_TYPE_E type 判断读写事件类型
 *           int timeoutMs 超时时间
 * 输出参数: IOT_NET_FD_ISSET_E* result 可读可写事件结果
@@ -173,7 +173,7 @@ INT32 aliyun_iot_network_recv(INT32 sockFd, void *buf, INT32 nbytes, IOT_NET_TRA
 * 说       明: 判断socket是否有可读写事件，使用linux系统下select接口进行实现
 *           源码和mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_select(INT32 fd,IOT_NET_TRANS_TYPE_E type,int timeoutMs,IOT_NET_FD_ISSET_E* result)
+int32_t aliyun_iot_network_select(int32_t fd,IOT_NET_TRANS_TYPE_E type,int timeoutMs,IOT_NET_FD_ISSET_E* result)
 {
     struct timeval *timePointer = NULL;
     fd_set *rd_set = NULL;
@@ -226,7 +226,7 @@ INT32 aliyun_iot_network_select(INT32 fd,IOT_NET_TRANS_TYPE_E type,int timeoutMs
 /***********************************************************
 * 函数名称: aliyun_iot_network_settimeout
 * 描       述: 设置socketopt的超时参数
-* 输入参数: INT32 fd socket描述符
+* 输入参数: int32_t fd socket描述符
 *           int timeoutMs 超时时间
 *           IOT_NET_TRANS_TYPE_E type 读写类型
 * 输出参数:
@@ -234,7 +234,7 @@ INT32 aliyun_iot_network_select(INT32 fd,IOT_NET_TRANS_TYPE_E type,int timeoutMs
 * 说       明: linux系统下通过setsocketopt接口设置收发数据的超时时间
 *           源码和mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_settimeout(INT32 fd,int timeoutMs,IOT_NET_TRANS_TYPE_E type)
+int32_t aliyun_iot_network_settimeout(int32_t fd,int timeoutMs,IOT_NET_TRANS_TYPE_E type)
 {
     struct timeval timeout = {timeoutMs/1000, (timeoutMs%1000)*1000};
 
@@ -257,14 +257,14 @@ INT32 aliyun_iot_network_settimeout(INT32 fd,int timeoutMs,IOT_NET_TRANS_TYPE_E 
 /***********************************************************
 * 函数名称: aliyun_iot_network_get_nonblock
 * 描       述: 获取socket非阻塞状态
-* 输入参数: INT32 fd socket描述符
+* 输入参数: int32_t fd socket描述符
 * 输出参数:
 * 返 回  值: 0：阻塞  非零：非阻塞
 * 说       明: linux系统下通过fcntl接口获取当前socket是否是非阻塞接口
 *           mbedtls会使用此接口
 *           mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_get_nonblock(INT32 fd)
+int32_t aliyun_iot_network_get_nonblock(int32_t fd)
 {
     if( fd < 0 )
     {
@@ -287,20 +287,20 @@ INT32 aliyun_iot_network_get_nonblock(INT32 fd)
 /***********************************************************
 * 函数名称: aliyun_iot_network_set_nonblock
 * 描       述: 设置socket非阻塞状态
-* 输入参数: INT32 fd socket描述符
+* 输入参数: int32_t fd socket描述符
 * 输出参数:
 * 返 回  值: 0：成功  非零：失败
 * 说       明: linux系统下通过fcntl接口设置当前socket为非阻塞接口
 *           mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_set_nonblock(INT32 fd)
+int32_t aliyun_iot_network_set_nonblock(int32_t fd)
 {
     if( fd < 0 )
     {
         return NETWORK_FAIL;
     }
 
-    INT32 flags = fcntl(fd, F_GETFL, 0);
+    int32_t flags = fcntl(fd, F_GETFL, 0);
     if (fcntl(fd, F_SETFL, (flags | O_NONBLOCK)) < 0)
     {
         return NETWORK_FAIL;
@@ -312,20 +312,20 @@ INT32 aliyun_iot_network_set_nonblock(INT32 fd)
 /***********************************************************
 * 函数名称: aliyun_iot_network_set_block
 * 描       述: 设置socket阻塞状态
-* 输入参数: INT32 fd socket描述符
+* 输入参数: int32_t fd socket描述符
 * 输出参数:
 * 返 回  值: 0：成功  非零：失败
 * 说       明: linux系统下通过fcntl接口设置当前socket为阻塞接口
 *           mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_set_block(INT32 fd)
+int32_t aliyun_iot_network_set_block(int32_t fd)
 {
     if( fd < 0 )
     {
         return NETWORK_FAIL;
     }
 
-    INT32 flags = fcntl(fd, F_GETFL, 0);
+    int32_t flags = fcntl(fd, F_GETFL, 0);
     if (fcntl(fd, F_SETFL, (flags & (~O_NONBLOCK))) < 0)
     {
         return NETWORK_FAIL;
@@ -337,13 +337,13 @@ INT32 aliyun_iot_network_set_block(INT32 fd)
 /***********************************************************
 * 函数名称: aliyun_iot_network_close
 * 描       述: 网络socket关闭
-* 输入参数: INT32 fd socket描述符
+* 输入参数: int32_t fd socket描述符
 * 输出参数:
 * 返 回  值: 0：成功  非零：失败
 * 说       明: linux系统socket关闭
 *           mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_close(INT32 fd)
+int32_t aliyun_iot_network_close(int32_t fd)
 {
     return close(fd);
 }
@@ -351,13 +351,13 @@ INT32 aliyun_iot_network_close(INT32 fd)
 /***********************************************************
 * 函数名称: aliyun_iot_network_shutdown
 * 描       述: 网络socket的shutdown
-* 输入参数: INT32 fd socket描述符
+* 输入参数: int32_t fd socket描述符
 * 输出参数:
 * 返 回  值: 0：成功  非零：失败
 * 说       明: linux系统socket的shutdown
 *           mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_shutdown(INT32 fd,INT32 how)
+int32_t aliyun_iot_network_shutdown(int32_t fd,int32_t how)
 {
     return shutdown(fd,how);
 }
@@ -365,8 +365,8 @@ INT32 aliyun_iot_network_shutdown(INT32 fd,INT32 how)
 /***********************************************************
 * 函数名称: aliyun_iot_network_create
 * 描       述: 客户端网络资源创建、连接
-* 输入参数: INT8*host 域名或主机IP
-*           INT8*service 端口或服务名
+* 输入参数: int8_t*host 域名或主机IP
+*           int8_t*service 端口或服务名
 *           IOT_NET_PROTOCOL_TYPE type 协议类型
 * 输出参数:
 * 返 回  值:  0：成功，非零：失败
@@ -374,7 +374,7 @@ INT32 aliyun_iot_network_shutdown(INT32 fd,INT32 how)
 *           并且建立TCP连接
 *           源码以及mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_create(const INT8*host,const INT8*service,IOT_NET_PROTOCOL_TYPE type)
+int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET_PROTOCOL_TYPE type)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -442,8 +442,8 @@ INT32 aliyun_iot_network_create(const INT8*host,const INT8*service,IOT_NET_PROTO
 /***********************************************************
 * 函数名称: aliyun_iot_network_bind
 * 描       述: 服务端网络资源创建、连接
-* 输入参数: INT8*host 域名或主机IP
-*           INT8*service 端口或服务名
+* 输入参数: int8_t*host 域名或主机IP
+*           int8_t*service 端口或服务名
 *           IOT_NET_PROTOCOL_TYPE type 协议类型
 * 输出参数:
 * 返 回  值:  0：成功，非零：失败
@@ -451,7 +451,7 @@ INT32 aliyun_iot_network_create(const INT8*host,const INT8*service,IOT_NET_PROTO
 *           并且建立TCP连接
 *           mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_network_bind(const INT8*host,const INT8*service,IOT_NET_PROTOCOL_TYPE type)
+int32_t aliyun_iot_network_bind(const int8_t*host,const int8_t*service,IOT_NET_PROTOCOL_TYPE type)
 {
     int fd = 0;
     int n = 0;

@@ -1,6 +1,11 @@
 include ../make.settings
 CC=$(PLATFORM_CC)
 CFLAGS += -std=gnu99 -Wall -g
+LDFLAGS = -lm -pthread
+
+ifeq ($(PLATFORM), windows)
+LDFLAGS += -lws2_32
+endif
 
 INCLUD_PATH = -I./../src/auth/
 INCLUD_PATH += -I./../src/mqtt/
@@ -17,10 +22,10 @@ INCLUD_PATH += -I./../src/libs/mbedtls/include/mbedtls/
 INCLUD_PATH += -I./../src/libs/mbedtls/configs/$(PLATFORM)/
 endif
 
-TARGET = demo
+TARGET = sample
 
 all:
-	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) demo.c ../src/libaliot_sdk.a -lm -lpthread -lws2_32
+	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) sample.c ../src/libaliot_sdk.a $(LDFLAGS) 
 	
 clean:
 	 rm -rf $(TARGET)

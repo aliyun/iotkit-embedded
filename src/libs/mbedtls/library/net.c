@@ -126,7 +126,8 @@ static int net_prepare( void )
     }
 #else
 #if !defined(EFIX64) && !defined(EFI32)
-    aliyun_iot_send_SIGPIPE_signal();
+    //aliyun_iot_send_SIGPIPE_signal();
+     signal(SIGPIPE,SIG_IGN);
 #endif
 #endif
     return( 0 );

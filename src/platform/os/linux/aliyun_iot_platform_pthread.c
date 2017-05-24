@@ -22,9 +22,9 @@
 * 说       明: linux系统下互斥锁初始化
 *           源码中使用
 ************************************************************/
-INT32 aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S *mutex)
+int32_t aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S *mutex)
 {
-    return (INT32)pthread_mutex_init(&(mutex->lock),NULL);
+    return (int32_t)pthread_mutex_init(&(mutex->lock),NULL);
 }
 
 /***********************************************************
@@ -36,9 +36,9 @@ INT32 aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S *mutex)
 * 说       明: linux系统下互斥锁上锁
 *           源码中使用
 ************************************************************/
-INT32 aliyun_iot_mutex_lock(ALIYUN_IOT_MUTEX_S *mutex)
+int32_t aliyun_iot_mutex_lock(ALIYUN_IOT_MUTEX_S *mutex)
 {
-    return (INT32)pthread_mutex_lock(&mutex->lock);
+    return (int32_t)pthread_mutex_lock(&mutex->lock);
 }
 
 /***********************************************************
@@ -50,9 +50,9 @@ INT32 aliyun_iot_mutex_lock(ALIYUN_IOT_MUTEX_S *mutex)
 * 说       明: linux系统下解除互斥锁
 *           源码中使用
 ************************************************************/
-INT32 aliyun_iot_mutex_unlock(ALIYUN_IOT_MUTEX_S *mutex)
+int32_t aliyun_iot_mutex_unlock(ALIYUN_IOT_MUTEX_S *mutex)
 {
-    return (INT32)pthread_mutex_unlock(&mutex->lock);
+    return (int32_t)pthread_mutex_unlock(&mutex->lock);
 }
 
 /***********************************************************
@@ -64,12 +64,12 @@ INT32 aliyun_iot_mutex_unlock(ALIYUN_IOT_MUTEX_S *mutex)
 * 说       明: linux系统下销毁一个互斥锁资源
 *           源码中使用
 ************************************************************/
-INT32 aliyun_iot_mutex_destory(ALIYUN_IOT_MUTEX_S *mutex)
+int32_t aliyun_iot_mutex_destory(ALIYUN_IOT_MUTEX_S *mutex)
 {
-    return (INT32)pthread_mutex_destroy(&mutex->lock);
+    return (int32_t)pthread_mutex_destroy(&mutex->lock);
 }
 
-INT32 aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, INT8 *threadName, UINT32 stackSize, UINT32 threadPriority)
+int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *threadName, uint32_t stackSize, uint32_t threadPriority)
 {
     strncpy(param->threadName, threadName, THREAD_NAME_LEN);
     param->stackDepth = stackSize;
@@ -89,7 +89,7 @@ INT32 aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, INT8 *thre
 * 说       明: linux系统下创建一个分离线程的实现
 *           源码中使用
 ************************************************************/
-INT32 aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void*),void *arg,ALIYUN_IOT_PTHREAD_PARAM_S*param)
+int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void*),void *arg,ALIYUN_IOT_PTHREAD_PARAM_S*param)
 {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -107,7 +107,7 @@ INT32 aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void*)
 * 说       明: linux系统下关闭某一个线程的接口
 *           源码中使用
 ************************************************************/
-INT32 aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*threadID)
+int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*threadID)
 {
     if(threadID->threadID != 0)
     {
@@ -126,7 +126,7 @@ INT32 aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*threadID)
 * 说       明: linux系统下的线程睡眠
 *           源码和mbedtls中使用
 ************************************************************/
-INT32 aliyun_iot_pthread_taskdelay(int MsToDelay)
+int32_t aliyun_iot_pthread_taskdelay(int MsToDelay)
 {
     return usleep(MsToDelay*1000);
 }
@@ -140,7 +140,7 @@ INT32 aliyun_iot_pthread_taskdelay(int MsToDelay)
 * 返 回  值:
 * 说       明:
 ************************************************************/
-INT32 aliyun_iot_pthread_setname(char* name)
+int32_t aliyun_iot_pthread_setname(char* name)
 {
     prctl(PR_SET_NAME, name);
     return SUCCESS_RETURN;

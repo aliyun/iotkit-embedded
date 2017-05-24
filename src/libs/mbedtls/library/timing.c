@@ -59,7 +59,7 @@ struct _hr_time
 #include <sys/time.h>
 #include <signal.h>
 #include <time.h>
-#include "aliyun_iot_platform_timer.h"
+#include "aliyun_iot_common_timer.h"
 
 struct _hr_time
 {

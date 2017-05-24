@@ -42,7 +42,7 @@ LIB_STATIC = ${ALIIOT_SDK_LIB_NAME}.a
 CC = $(PLATFORM_CC)
 AR = $(PLATFORM_AR)
 
-CFLAGS +=  -Wall -g -std=c99 ${INCLUD_PATH} 
+CFLAGS +=  -Wall -g ${INCLUD_PATH} 
 ARFLAGS = rcs
 
 

@@ -7,7 +7,7 @@
 
 typedef struct ALIYUN_IOT_SEM
 {
-    INT32           count;
+    int32_t           count;
     pthread_mutex_t lock;
     pthread_cond_t  sem;
 }aliot_platform_sem_t;
@@ -21,7 +21,7 @@ typedef struct ALIYUN_IOT_SEM
 *          FAIL_RETURN：异常
 * 说       明:
 ************************************************************/
-INT32 aliyun_iot_sem_init(aliot_platform_sem_t *semaphore);
+int32_t aliyun_iot_sem_init(aliot_platform_sem_t *semaphore);
 
 /***********************************************************
 * 函数名称: aliyun_iot_sem_destory
@@ -32,19 +32,19 @@ INT32 aliyun_iot_sem_init(aliot_platform_sem_t *semaphore);
 *          FAIL_RETURN：异常
 * 说       明:
 ************************************************************/
-INT32 aliyun_iot_sem_destory(aliot_platform_sem_t *semaphore);
+int32_t aliyun_iot_sem_destory(aliot_platform_sem_t *semaphore);
 
 /***********************************************************
 * 函数名称: aliyun_iot_sem_gettimeout
 * 描       述: 等待同步信号
 * 输入参数: ALIYUN_IOT_SEM_S*semaphore
-*          INT32 timeout_ms
+*          int32_t timeout_ms
 * 输出参数:
 * 返 回  值: 0：成功，
 *          ERROR_NET_TIMEOUT：等待超时，
 * 说       明: 等待同步信号，超时退出
 ************************************************************/
-INT32 aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,UINT32 timeout_ms);
+int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeout_ms);
 
 /***********************************************************
 * 函数名称: aliyun_iot_sem_post
@@ -54,7 +54,7 @@ INT32 aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,UINT32 timeout_ms
 * 返 回  值:
 * 说       明: 发送同步信号
 ************************************************************/
-INT32 aliyun_iot_sem_post(aliot_platform_sem_t*semaphore);
+int32_t aliyun_iot_sem_post(aliot_platform_sem_t*semaphore);
 
 #endif
 
