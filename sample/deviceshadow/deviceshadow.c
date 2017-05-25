@@ -5,7 +5,7 @@
 #include "aliyun_iot_device.h"
 #include "aliyun_iot_shadow.h"
 
-//用户需要根据设备信息完善以下宏定义中的四元组内容
+
 #define PRODUCT_KEY         "4eViBFJ2QGH"
 #define DEVICE_NAME         "sh_xk_device_4"
 #define DEVICE_ID           "gAPvCV7YhFccFMaHmAYh"

@@ -17,15 +17,9 @@
 
 #include "aliyun_iot_shadow_config.h"
 
+
 //ads, aliot device shadow
 
-
-/**
- * @brief Thing Shadow Acknowledgment enum
- *
- * This enum type is use in the callback for the action response
- *
- */
 typedef enum {
     ALIOT_SHADOW_ACK_TIMEOUT = -1,
     ALIOT_SHADOW_ACK_NONE = 0,
@@ -87,6 +81,7 @@ typedef void (*aliot_update_cb_fpt)(
         aliot_shadow_ack_code_t ack_code,
         const char *ack_msg, //NOTE: NOT a string.
         uint32_t ack_msg_len);
+
 
 struct aliot_shadow_attr_st;
 
@@ -150,99 +145,38 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
 
 
 
-/**
- * @brief Connect to the AWS IoT Thing Shadow service over MQTT
- *
- * This function does the TLSv1.2 handshake and establishes the MQTT connection
- *
- * @param pClient   MQTT Client used as the protocol layer
- * @param pParams   Shadow Conenction parameters like TLS cert location
- * @return An IoT Error Type defining successful/failed Connection
- */
-
-
-/**
- * @brief Yield function to let the background tasks of MQTT and Shadow
- *
- * This function could be use in a separate thread waiting for the incoming messages, ensuring the connection is kept alive with the AWS Service.
- * It also ensures the expired requests of Shadow actions are cleared and Timeout callback is executed.
- * @note All callbacks ever used in the SDK will be executed in the context of this function.
- *
- * @param pClient   MQTT Client used as the protocol layer
- * @param timeout   in milliseconds, This is the maximum time the yield function will wait for a message and/or read the messages from the TLS buffer
- * @return An IoT Error Type defining successful/failed Yield
- */
 void aliyun_iot_shadow_yield(aliot_shadow_pt pshadow, uint32_t timeout);
 
-
-
-/**
- * @brief Disconnect from the AWS IoT Thing Shadow service over MQTT
- *
- * This will close the underlying TCP connection, MQTT connection will also be closed
- *
- * @param pClient   MQTT Client used as the protocol layer
- * @return An IoT Error Type defining successful/failed disconnect status
- */
 aliot_err_t aliyun_iot_shadow_deconstruct(aliot_shadow_pt pshadow);
 
-
-
-//aliot_
-//NOTE: @attr must have enough long life.
-//0, 【】针对云端主动下发时的回调
-//1, register device attribute
-//2,
 aliot_err_t aliyun_iot_shadow_register_attribute(aliot_shadow_pt pshadow, aliot_shadow_attr_pt pattr);
 
-
-//
 aliot_err_t aliyun_iot_shadow_delete_attribute(aliot_shadow_pt pshadow, aliot_shadow_attr_pt pattr);
 
-
-aliot_err_t aliyun_iot_shadow_update_format_init(format_data_pt pformat,
-                char *buf,
-                uint16_t size);
+aliot_err_t aliyun_iot_shadow_update_format_init(format_data_pt pformat, char *buf, uint16_t size);
 
 aliot_err_t aliyun_iot_shadow_update_format_add(format_data_pt pformat, aliot_shadow_attr_pt pattr);
 
-//返回格式化后的数
 aliot_err_t aliyun_iot_shadow_update_format_finalize(format_data_pt pformat);
 
 
-//同步接口
 
-//返回值:
-//SHADOW_ACCEPTED, SHADOW_REJECTED
-//
-
-//将会清除
 aliot_err_t aliyun_iot_shadow_update(
-        aliot_shadow_pt pshadow,
-        char *data,
-        uint32_t data_len,
-        uint16_t timeout_s);
+                aliot_shadow_pt pshadow,
+                char *data,
+                uint32_t data_len,
+                uint16_t timeout_s);
 
 
-//异步接口
 aliot_err_t aliyun_iot_shadow_update_asyn(
-        aliot_shadow_pt pshadow,
-        char *data,
-        size_t data_len,
-        uint16_t timeout_s,
-        aliot_update_cb_fpt cb_fpt);
+                aliot_shadow_pt pshadow,
+                char *data,
+                size_t data_len,
+                uint16_t timeout_s,
+                aliot_update_cb_fpt cb_fpt);
 
 
-
-//与云端设备影子同步数据
 aliot_err_t aliyun_iot_shadow_sync( aliot_shadow_pt pshadow );
-
-//TODO: 通过update({"method":"get"}), 触发GET-UPDATE-GET, 以完成全部操作
-//流程:
-//端(update:get)->云
-//云(get:control)->端
-//端(update:update)->云
-//云(get:reply)->端
 
 
 #endif /* INCLUDE_MQTT_ALIYUN_IOT_SHADOW_H_ */

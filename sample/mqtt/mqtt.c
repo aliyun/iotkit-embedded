@@ -132,7 +132,6 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
     message.payloadlen = strlen(msg_pub);
     message.id         = 0;
 
-    //发送消息
     rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
     if (SUCCESS_RETURN != rc)
     {

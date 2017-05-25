@@ -159,7 +159,7 @@ int32_t aliyun_iot_network_select(int32_t fd, IOT_NET_TRANS_TYPE_E type, int tim
         }
     }
 
-    ALIOT_LOG_DEBUG("select return");
+    ALIOT_LOG_DEBUG("select return, rc=%d", rc);
 
     return rc;
 }
