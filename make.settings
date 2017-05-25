@@ -1,9 +1,9 @@
 BUILD_TYPE              = debug
-PLATFORM                = linux
+PLATFORM                = windows
 PLATFORM_CC             = gcc
 PLATFORM_AR             = ar
 SSL_LIB_NAME            = mbedtls
-CHANNEL_ENCRYPT         = TCP
+CHANNEL_ENCRYPT         = SSL
 
 MBEDTLS_LIB_ENABLE      = y
 MQTT_MBED_LIB_ENABLE    = y

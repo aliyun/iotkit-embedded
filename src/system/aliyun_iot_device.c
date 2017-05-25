@@ -1,9 +1,3 @@
-/*
- * aliyun_iot_device.c
- *
- *  Created on: May 16, 2017
- *      Author: qibiao.wqb
- */
 
 #include <string.h>
 

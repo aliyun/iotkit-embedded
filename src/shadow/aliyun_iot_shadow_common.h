@@ -1,9 +1,3 @@
-/*
- * aliyun_iot_shadow_inner.h
- *
- *  Created on: May 17, 2017
- *      Author: qibiao.wqb
- */
 
 #ifndef _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
 #define _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_

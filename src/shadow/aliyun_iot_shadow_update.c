@@ -1,9 +1,3 @@
-/*
- * aliyun_iot_shadow_update.c
- *
- *  Created on: May 17, 2017
- *      Author: qibiao.wqb
- */
 
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_jsonparser.h"

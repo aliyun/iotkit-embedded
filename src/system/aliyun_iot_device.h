@@ -1,9 +1,3 @@
-/*
- * aliyun_mqtt_device.h
- *
- *  Created on: May 16, 2017
- *      Author: qibiao.wqb
- */
 
 #ifndef _MQTT_ALIYUN_MQTT_DEVICE_H_
 #define _MQTT_ALIYUN_MQTT_DEVICE_H_

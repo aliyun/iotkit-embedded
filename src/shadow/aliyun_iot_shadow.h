@@ -1,10 +1,3 @@
-/*
- * aliyun_iot_shadow.h
- *
- *  Created on: May 15, 2017
- *      Author: qibiao.wqb
- */
-
 
 #ifndef _MQTT_ALIYUN_IOT_SHADOW_H_
 #define _MQTT_ALIYUN_IOT_SHADOW_H_

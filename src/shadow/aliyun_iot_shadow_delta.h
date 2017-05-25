@@ -1,9 +1,3 @@
-/*
- * aliyun_iot_shadow_delta.h
- *
- *  Created on: May 17, 2017
- *      Author: qibiao.wqb
- */
 
 #ifndef _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_
 #define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_

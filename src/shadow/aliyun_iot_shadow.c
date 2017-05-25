@@ -1,9 +1,3 @@
-/*
- * aliyun_iot_shadow.c
- *
- *  Created on: May 15, 2017
- *      Author: qibiao.wqb
- */
 
 #include "aliyun_iot_common_debug.h"
 #include "aliyun_iot_common_error.h"
