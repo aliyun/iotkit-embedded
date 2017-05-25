@@ -1459,7 +1459,7 @@ int cycle(MQTTClient_t* c, aliot_timer_t* timer)
     }
     
     if (MQTT_CPT_RESERVED == packetType) {
-        ALIOT_LOG_DEBUG("wait data timeout");
+        //ALIOT_LOG_DEBUG("wait data timeout");
         return SUCCESS_RETURN;
     }
 
@@ -2858,23 +2858,22 @@ void aliyun_iot_mqtt_yield(MQTTClient_t* pClient, int timeout_ms)
 	IOT_FUNC_ENTRY;
     int rc = SUCCESS_RETURN;
     aliot_timer_t timer;
-    InitTimer(&timer);    
+    InitTimer(&timer);
 
+    ALIOT_LOG_DEBUG("mqtt yield start");
     countdown_ms(&timer, timeout_ms);
     do
     {
-        //countdown_ms(&timer, timeout_ms);
-
 		/*acquire package in cycle, such as PINGRESP  PUBLISH*/
-        ALIOT_LOG_DEBUG("cycle start");
 		rc = cycle(pClient, &timer);
-		ALIOT_LOG_DEBUG("cycle end");
 		if(SUCCESS_RETURN != rc)
 		{
 		    ALIOT_LOG_DEBUG("cycle failure, rc=%d",rc);
 			break;
 		}
     } while (!expired(&timer));
+
+    ALIOT_LOG_DEBUG("mqtt yield end");
 
     if(SUCCESS_RETURN != rc)
     {

@@ -12,46 +12,20 @@
 #include <string.h>
 
 #include "aliyun_iot_platform_datatype.h"
+#include "aliyun_iot_platform_memory.h"
+
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_md5.h"
 #include "aliyun_iot_common_hmac.h"
 #include "aliyun_iot_common_httpclient.h"
 #include "aliyun_iot_common_jsonparser.h"
+
+#include "aliyun_iot_ca.h"
 #include "aliyun_iot_auth.h"
-#include "aliyun_iot_platform_memory.h"
 
 
 const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
-//const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
-//const static char *iot_atuh_host = "https://iot-auth.alibaba.net/auth/devicename";
-
-
-const static char *iot_mqtt_server_ca_crt =  { \
-"-----BEGIN CERTIFICATE-----\r\n"
-"MIIDdTCCAl2gAwIBAgILBAAAAAABFUtaw5QwDQYJKoZIhvcNAQEFBQAwVzELMAkG\r\n" \
-"A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv\r\n" \
-"b3QgQ0ExGzAZBgNVBAMTEkdsb2JhbFNpZ24gUm9vdCBDQTAeFw05ODA5MDExMjAw\r\n" \
-"MDBaFw0yODAxMjgxMjAwMDBaMFcxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9i\r\n" \
-"YWxTaWduIG52LXNhMRAwDgYDVQQLEwdSb290IENBMRswGQYDVQQDExJHbG9iYWxT\r\n" \
-"aWduIFJvb3QgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDaDuaZ\r\n" \
-"jc6j40+Kfvvxi4Mla+pIH/EqsLmVEQS98GPR4mdmzxzdzxtIK+6NiY6arymAZavp\r\n" \
-"xy0Sy6scTHAHoT0KMM0VjU/43dSMUBUc71DuxC73/OlS8pF94G3VNTCOXkNz8kHp\r\n" \
-"1Wrjsok6Vjk4bwY8iGlbKk3Fp1S4bInMm/k8yuX9ifUSPJJ4ltbcdG6TRGHRjcdG\r\n" \
-"snUOhugZitVtbNV4FpWi6cgKOOvyJBNPc1STE4U6G7weNLWLBYy5d4ux2x8gkasJ\r\n" \
-"U26Qzns3dLlwR5EiUWMWea6xrkEmCMgZK9FGqkjWZCrXgzT/LCrBbBlDSgeF59N8\r\n" \
-"9iFo7+ryUp9/k5DPAgMBAAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8E\r\n" \
-"BTADAQH/MB0GA1UdDgQWBBRge2YaRQ2XyolQL30EzTSo//z9SzANBgkqhkiG9w0B\r\n" \
-"AQUFAAOCAQEA1nPnfE920I2/7LqivjTFKDK1fPxsnCwrvQmeU79rXqoRSLblCKOz\r\n" \
-"yj1hTdNGCbM+w6DjY1Ub8rrvrTnhQ7k4o+YviiY776BQVvnGCv04zcQLcFGUl5gE\r\n" \
-"38NflNUVyRRBnMRddWQVDf9VMOyGj/8N7yy5Y0b2qvzfvGn9LhJIZJrglfCm7ymP\r\n" \
-"AbEVtQwdpf5pLGkkeB6zpxxxYu7KyJesF12KwvhHhm4qxFYxldBniYUr+WymXUad\r\n" \
-"DKqC5JlR3XC321Y9YeRq4VzW9v493kHMB65jUr9TU/Qr6cf9tveCX4XSQRjbgbME\r\n" \
-"HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==\r\n" \
-"-----END CERTIFICATE-----"
-};
-
-
 
 static int aliyun_iot_get_id_token(
                 const char *auth_host,
@@ -160,9 +134,12 @@ static int aliyun_iot_get_id_token(
     aliyun_iot_common_post(
             &httpclient,
             auth_host,
+#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
+            443,
+#else
             80,
-            iot_mqtt_server_ca_crt,
-            //NULL,
+#endif
+            aliyun_iot_ca_get(),
             &httpclient_data);
 
     ALIOT_LOG_DEBUG("http response:%s\n\r", httpclient_data.response_buf);
@@ -290,8 +267,7 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
-    //puser_info->pubKey = iot_mqtt_server_ca_crt;
-    puser_info->pubKey = NULL;
+    puser_info->pubKey = aliyun_iot_ca_get();
 
     if (NULL == puser_info->pubKey) {
         //Append string "::nonesecure::" to client_id if TCP connection be used.

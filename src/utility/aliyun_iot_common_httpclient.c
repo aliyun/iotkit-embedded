@@ -411,62 +411,6 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
 
     while (readLen < max_len)
     {
-//        buf[readLen] = '\0';
-//        if (client->remote_port != HTTPS_PORT)
-//        {
-//        	ret = aliyun_iot_network_select(client->handle,IOT_NET_TRANS_RECV,500,&result);
-//	        if (ret < 0)
-//	        {
-//	            INT32 err = aliyun_iot_get_errno();
-//	            if(err == EINTR_IOT)
-//	            {
-//	                continue;
-//	            }
-//	            else
-//	            {
-//	                WRITE_IOT_ERROR_LOG("http read(select) fail ret=%d", ret);
-//	                return -1;
-//	            }
-//	        }
-//	        else if (ret == 0)
-//	        {
-//	            ALIOT_LOG_INFO("http read(select) timeout");
-//	            break;
-//	        }
-//	        else if(ret == 1)
-//	        {
-//				if(IOT_NET_FD_NO_ISSET == result)
-//	            {
-//	                WRITE_IOT_DEBUG_LOG("another fd readable!");
-//	                continue;
-//	            }
-//	        }
-//
-//
-//            aliyun_iot_network_settimeout(client->handle,50,IOT_NET_TRANS_RECV);
-//
-//            if (readLen < min_len)
-//            {
-//                ret = aliyun_iot_network_recv(client->handle, buf + readLen, min_len - readLen, IOT_NET_FLAGS_DEFAULT);
-//                WRITE_IOT_DEBUG_LOG("recv [blocking] return:%d", ret);
-//            }
-//            else
-//            {
-//                ret = aliyun_iot_network_recv(client->handle, buf + readLen, max_len - readLen, IOT_NET_FLAGS_DONTWAIT);
-//                WRITE_IOT_DEBUG_LOG("recv [not blocking] return:%d", ret);
-//                if(ret < 0)
-//                {
-//                    INT32 err = aliyun_iot_get_errno();
-//                    if (err == EAGAIN_IOT || err == EWOULDBLOCK_IOT)
-//                    {
-//                        WRITE_IOT_DEBUG_LOG("recv [not blocking], ret = %d",ret);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-
-
         buf[readLen] = '\0';
         if (readLen < min_len)
         {

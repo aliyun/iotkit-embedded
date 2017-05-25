@@ -237,7 +237,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
 		}
 	}
 
-	ALIOT_LOG_DEBUG("SSL_read readlen=%d", readLen);
+	//ALIOT_LOG_DEBUG("SSL_read readlen=%d", readLen);
 	return readLen;
 }
 

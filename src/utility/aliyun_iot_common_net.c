@@ -34,7 +34,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
             break;
         }
 
-        ALIOT_LOG_DEBUG("read left time=%d ms", lefttime);
+        //ALIOT_LOG_DEBUG("read left time=%d ms", lefttime);
 
         ret = aliyun_iot_network_select(pNetwork->handle, IOT_NET_TRANS_RECV, lefttime, &result);
         if (ret < 0) {
@@ -46,7 +46,8 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
                 return -1;
             }
         } else if (ret == 0) {
-            ALIOT_LOG_DEBUG("read select timeout");
+            //select timeout
+            //ALIOT_LOG_DEBUG("read select timeout");
             break;
         } else if (ret == 1) {
             if(IOT_NET_FD_NO_ISSET == result) {
@@ -73,8 +74,8 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
         }
     }while(recvlen < len);
 
-    ALIOT_LOG_INFO("%u bytes be received.", recvlen);
-    aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 32, 1, buffer, recvlen, 1);
+    //ALIOT_LOG_INFO("%u bytes be received.", recvlen);
+    //aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 32, 1, buffer, recvlen, 1);
     return recvlen;
 }
 

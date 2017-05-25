@@ -8,16 +8,16 @@
 
 //用户需要根据设备信息完善以下宏定义中的四元组内容
 #define PRODUCT_KEY         "4eViBFJ2QGH"
-#define DEVICE_NAME         "device_xikan_3"
-#define DEVICE_ID           "xItJzEDpi6Tv184UIkH7"
-#define DEVICE_SECRET       "TR1gdwnRVN0nIRttfeEqmp1v3nUYWHDi"
+#define DEVICE_NAME         "sh_xk_device_mqtt"
+#define DEVICE_ID           "aMJRx7GrR8Ntwh7Wmtcb"
+#define DEVICE_SECRET       "qUEtzRtLlqs4cHWdnRHa0nU8CnferurR"
 
 
 //以下三个TOPIC的宏定义不需要用户修改，可以直接使用
 //IOT HUB为设备建立三个TOPIC：update用于设备发布消息，error用于设备发布错误，get用于订阅消息
-#define TOPIC_UPDATE         "/4eViBFJ2QGH/device_xikan_3/update"
-#define TOPIC_ERROR          "/4eViBFJ2QGH/device_xikan_3/update/error"
-#define TOPIC_GET            "/4eViBFJ2QGH/device_xikan_3/get"
+#define TOPIC_UPDATE         "/4eViBFJ2QGH/sh_xk_device_mqtt/update"
+#define TOPIC_ERROR          "/4eViBFJ2QGH/sh_xk_device_mqtt/update/error"
+#define TOPIC_GET            "/4eViBFJ2QGH/sh_xk_device_mqtt/get"
 
 #define MSG_LEN_MAX         (2048)
 
@@ -113,7 +113,7 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
         return rc;
     }
 
-    rc = aliyun_iot_mqtt_subscribe(&client, TOPIC_GET, QOS0, messageArrived);
+    rc = aliyun_iot_mqtt_subscribe(&client, TOPIC_GET, QOS1, messageArrived);
     if (0 != rc)
     {
         aliyun_iot_mqtt_release(&client);
@@ -156,7 +156,7 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
         message.payloadlen = msg_len;
 
         aliyun_iot_mqtt_yield(&client, 500);
-        //rc = aliyun_iot_mqtt_publish(&client, TOPIC_UPDATE, &message);
+        rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
     } while (ch != 'Q' && ch != 'q');
 
     aliyun_iot_mqtt_release(&client);

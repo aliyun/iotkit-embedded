@@ -42,15 +42,15 @@ LIB_STATIC = ${ALIIOT_SDK_LIB_NAME}.a
 CC = $(PLATFORM_CC)
 AR = $(PLATFORM_AR)
 
+ifeq ($(CHANNEL_ENCRYPT), SSL)
+CFLAGS = -DALIOT_CHANNEL_ENCRYPT_SSL
+endif
 CFLAGS +=  -Wall -g ${INCLUD_PATH} 
 ARFLAGS = rcs
 
-
 BUILD_OUT_PATH = ./Build/
 TLS_LIB_PATH = ./libs/mbedtls/
-#MQTT_LIB_PATH = ./src/mqtt/MQTTClient-C/
 EMBED_TLS_CREATE_PATH = ./libs/mbedtls/library/
-
 
 
 .PHONY:clean libs demo
@@ -59,6 +59,7 @@ all: ${LIB_STATIC}
 
 
 ${LIB_STATIC}: libs ${OBJ}
+${LIB_STATIC}: ${OBJ}
 	$(AR) $(ARFLAGS) $@ $(OBJ) ${BUILD_OUT_PATH}*.o 
 	-rm -rf ${BUILD_OUT_PATH}*.o
 	

@@ -3,6 +3,7 @@ PLATFORM                = windows
 PLATFORM_CC             = gcc
 PLATFORM_AR             = ar
 SSL_LIB_NAME            = mbedtls
+CHANNEL_ENCRYPT         = TCP
 
 MBEDTLS_LIB_ENABLE      = y
 MQTT_MBED_LIB_ENABLE    = y

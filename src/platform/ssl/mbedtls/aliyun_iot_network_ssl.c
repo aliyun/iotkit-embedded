@@ -197,7 +197,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
         else if (ret == 0)
         {
             //WRITE_IOT_ERROR_LOG("mqtt ssl read timeout");
-            return 0; //eof
+            return readLen; //eof
         }
         else
         {
@@ -319,6 +319,10 @@ int TLSConnectNetwork(TLSDataParams *pTlsData, const char *addr, const char *por
         ALIOT_LOG_ERROR( " failed! mbedtls_ssl_config_defaults returned %d", ret );
         return ret;
     }
+
+    mbedtls_ssl_conf_max_version(&pTlsData->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
+    mbedtls_ssl_conf_min_version(&pTlsData->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
+
     ALIOT_LOG_DEBUG( " ok" );
 
     /* OPTIONAL is not optimal for security, but makes interop easier in this simplified example */
