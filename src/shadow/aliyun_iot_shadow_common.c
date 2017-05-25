@@ -324,6 +324,7 @@ uint32_t ads_common_get_version(aliot_shadow_pt pshadow)
 {
     uint32_t ver;
     aliyun_iot_mutex_lock(&pshadow->mutex);
+    ++pshadow->inner_data.version;
     ver = pshadow->inner_data.version;
     ++pshadow->inner_data.version;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
@@ -331,18 +332,11 @@ uint32_t ads_common_get_version(aliot_shadow_pt pshadow)
 }
 
 
-void ads_common_increase_tokennum(aliot_shadow_pt pshadow)
-{
-    aliyun_iot_mutex_lock(&pshadow->mutex);
-    ++pshadow->inner_data.token_num;
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
-}
-
-
 uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow)
 {
     uint32_t ver;
     aliyun_iot_mutex_lock(&pshadow->mutex);
+    ++pshadow->inner_data.token_num;
     ver = pshadow->inner_data.token_num;
     ++pshadow->inner_data.token_num;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
