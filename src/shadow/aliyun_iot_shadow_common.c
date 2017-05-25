@@ -308,19 +308,16 @@ aliot_err_t ads_common_remove_attr (
 void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
 {
     aliyun_iot_mutex_lock(&pshadow->mutex);
-    pshadow->inner_data.version = version;
+
+    //version number always grow up
+    if (version > pshadow->inner_data.version) {
+         pshadow->inner_data.version = version;
+    }
     aliyun_iot_mutex_unlock(&pshadow->mutex);
 
     ALIOT_LOG_INFO("update shadow version");
 }
 
-
-void ads_common_increase_version(aliot_shadow_pt pshadow)
-{
-    aliyun_iot_mutex_lock(&pshadow->mutex);
-    ++pshadow->inner_data.version;
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
-}
 
 
 uint32_t ads_common_get_version(aliot_shadow_pt pshadow)
@@ -328,6 +325,7 @@ uint32_t ads_common_get_version(aliot_shadow_pt pshadow)
     uint32_t ver;
     aliyun_iot_mutex_lock(&pshadow->mutex);
     ver = pshadow->inner_data.version;
+    ++pshadow->inner_data.version;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
     return ver;
 }
@@ -346,6 +344,7 @@ uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow)
     uint32_t ver;
     aliyun_iot_mutex_lock(&pshadow->mutex);
     ver = pshadow->inner_data.token_num;
+    ++pshadow->inner_data.token_num;
     aliyun_iot_mutex_unlock(&pshadow->mutex);
     return ver;
 }
@@ -386,7 +385,6 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
 
 aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint32_t data_len)
 {
-    aliot_err_t rc;
     MQTTMessage topic_msg;
 
     //check if topic name have been generated or not
@@ -407,12 +405,5 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
     topic_msg.payloadlen = data_len;
     topic_msg.id         = 0;
 
-    rc = aliyun_iot_mqtt_publish(&pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
-
-    if (SUCCESS_RETURN == rc) {
-        ads_common_increase_version(pshadow);
-        ads_common_increase_tokennum(pshadow);
-    }
-
-    return rc;
+    return aliyun_iot_mqtt_publish(&pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
 }
