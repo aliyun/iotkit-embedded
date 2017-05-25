@@ -36,7 +36,9 @@ uint32_t aliyun_iot_timer_expired(aliot_time_t *timer)
 {
     uint32_t cur_time = 0;
     cur_time = aliot_platform_time_get_ms();
-    if (timer->time < cur_time || timer->time == cur_time)
+
+    //hanle overflow
+    if ((timer->time <= cur_time) && ((cur_time - timer->time) < 0x80000000))
     {
         return 1;
     }
@@ -53,6 +55,7 @@ void aliyun_iot_timer_init(aliot_time_t *timer)
 
 void aliyun_iot_timer_cutdown(aliot_time_t *timer, uint32_t millisecond)
 {
+    //NOTE it may overflow
     timer->time = aliot_platform_time_get_ms() + millisecond;
 }
 

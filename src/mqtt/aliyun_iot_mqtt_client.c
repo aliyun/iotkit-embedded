@@ -2152,6 +2152,8 @@ int MQTTSubInfoProc(MQTTClient_t *pClient)
 void* aliyun_iot_keepalive_thread(void * param)
 {
     ALIOT_LOG_INFO("start the keep alive thread!");
+
+    uint32_t cnt;
     MQTTClient_t* pClient = (MQTTClient_t* )param;
 
     aliyun_iot_pthread_setname("iot_keepalive_thread");
@@ -2172,6 +2174,8 @@ void* aliyun_iot_keepalive_thread(void * param)
 
     for(;;)
     {
+        ALIOT_LOG_INFO("keepalive_thread:%u", ++cnt);
+
         //set the cycle time
         countdown_ms(&timer, cycTime);
 
@@ -2363,12 +2367,15 @@ int MQTTPubInfoProc(MQTTClient_t *pClient)
 
 void* aliyun_iot_retrans_thread(void*param)
 {
+    uint32_t cnt = 0;
     ALIOT_LOG_INFO("start the retrans thread!");
     MQTTClient_t* pClient = (MQTTClient_t* )param;
     aliyun_iot_pthread_setname("iot_retrans_thread");
 
     for(;;)
     {
+        ALIOT_LOG_INFO("retrans_thread:%u", ++cnt);
+
         if(FAIL_RETURN == aliyun_iot_sem_gettimeout(&pClient->semaphore,500))
         {
             continue;
@@ -2853,10 +2860,10 @@ void aliyun_iot_mqtt_yield(MQTTClient_t* pClient, int timeout_ms)
     aliot_timer_t timer;
     InitTimer(&timer);    
 
-//    countdown_ms(&timer, timeout_ms);
+    countdown_ms(&timer, timeout_ms);
     do
     {
-        countdown_ms(&timer, timeout_ms);
+        //countdown_ms(&timer, timeout_ms);
 
 		/*acquire package in cycle, such as PINGRESP  PUBLISH*/
         ALIOT_LOG_DEBUG("cycle start");

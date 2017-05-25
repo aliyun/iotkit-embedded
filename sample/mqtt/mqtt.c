@@ -113,7 +113,7 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
         return rc;
     }
 
-    rc = aliyun_iot_mqtt_subscribe(&client, TOPIC_GET, QOS1, messageArrived);
+    rc = aliyun_iot_mqtt_subscribe(&client, TOPIC_GET, QOS0, messageArrived);
     if (0 != rc)
     {
         aliyun_iot_mqtt_release(&client);
@@ -123,7 +123,9 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
 
 
     MQTTMessage message;
-    memset(&message,0x0,sizeof(message));
+    memset(&message, 0x0, sizeof(message));
+
+    strcpy(msg_pub, "message: hello! start!");
 
     message.qos        = QOS1;
     message.retained   = FALSE_IOT;
@@ -132,7 +134,7 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
     message.payloadlen = strlen(msg_pub);
     message.id         = 0;
 
-    rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
+    rc = aliyun_iot_mqtt_publish(&client, TOPIC_UPDATE, &message);
     if (SUCCESS_RETURN != rc)
     {
         aliyun_iot_mqtt_release(&client);
@@ -154,7 +156,7 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
         message.payloadlen = msg_len;
 
         aliyun_iot_mqtt_yield(&client, 500);
-        rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
+        //rc = aliyun_iot_mqtt_publish(&client, TOPIC_UPDATE, &message);
     } while (ch != 'Q' && ch != 'q');
 
     aliyun_iot_mqtt_release(&client);

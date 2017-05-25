@@ -398,6 +398,8 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
         }
     }
 
+    ALIOT_LOG_DEBUG("publish msg = %s", data);
+
     topic_msg.qos        = QOS1;
     topic_msg.retained   = FALSE_IOT;
     topic_msg.dup        = FALSE_IOT;

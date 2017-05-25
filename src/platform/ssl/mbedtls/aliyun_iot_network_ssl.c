@@ -88,7 +88,7 @@ static int ssl_parse_crt(mbedtls_x509_crt *crt)
                 }
             }
         }
-        ALIOT_LOG_DEBUG("crt content:%zu\n", strlen(buf));
+        ALIOT_LOG_DEBUG("crt content:%u", strlen(buf));
         local_crt = local_crt->next;
         i++;
     }
@@ -242,7 +242,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams *pTlsData, unsigned char *buffer,
             return -1; //Connnection error
         }
     }
-    ALIOT_LOG_DEBUG("mqtt ssl write len=%zu", writtenLen);
+    ALIOT_LOG_DEBUG("mqtt ssl write len=%u", writtenLen);
     return writtenLen;
 }
 

@@ -72,12 +72,33 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
         return;
     }
 
+    //update time if there is 'timestamp' key in JSON string
+    pname = json_get_value_by_name(msg->message->payload,
+                    msg->message->payloadlen,
+                    "timestamp",
+                    &val_len,
+                    &val_type);
+    if (NULL != pname) {
+        ads_common_update_time(pshadow, atoi(pname));
+    }
+
+    //update 'version' if there is 'version' key in JSON string
+    pname = json_get_value_by_name(msg->message->payload,
+                        msg->message->payloadlen,
+                        "version",
+                        &val_len,
+                        &val_type);
+    if (NULL != pname) {
+        ads_common_update_version(pshadow, atoi(pname));
+    }
+
+
+    //get 'method'
     pname = json_get_value_by_name(msg->message->payload,
                     msg->message->payloadlen,
                     "method",
                     &val_len,
                     &val_type);
-
     if (NULL == pname) {
         ALIOT_LOG_ERROR("Invalid JSON document: not 'method' key");
     }
@@ -102,26 +123,6 @@ static void aliyun_iot_shadow_callback_get(MessageData *msg)
     }
 
     ALIOT_LOG_DEBUG("End of method handle");
-
-
-    //update time if there is 'timestamp' key in JSON string.
-    pname = json_get_value_by_name(msg->message->payload,
-                    msg->message->payloadlen,
-                    "timestamp",
-                    &val_len,
-                    &val_type);
-    if (NULL != pname) {
-        ads_common_update_time(pshadow, atoi(pname));
-    }
-
-    pname = json_get_value_by_name(msg->message->payload,
-                        msg->message->payloadlen,
-                        "version",
-                        &val_len,
-                        &val_type);
-    if (NULL != pname) {
-        ads_common_update_version(pshadow, atoi(pname));
-    }
 }
 
 static aliot_err_t aliyun_iot_shadow_subcribe_get(aliot_shadow_pt pshadow)
