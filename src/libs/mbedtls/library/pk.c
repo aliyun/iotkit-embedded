@@ -64,7 +64,9 @@ void mbedtls_pk_free( mbedtls_pk_context *ctx )
     if( ctx == NULL || ctx->pk_info == NULL )
         return;
 
-    ctx->pk_info->ctx_free_func( ctx->pk_ctx );
+    if (NULL != ctx->pk_info->ctx_free_func) {
+        ctx->pk_info->ctx_free_func( ctx->pk_ctx );
+    }
 
     mbedtls_zeroize( ctx, sizeof( mbedtls_pk_context ) );
 }

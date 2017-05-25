@@ -22,38 +22,32 @@
 #include "aliyun_iot_platform_memory.h"
 
 
-
-const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
+const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
+//const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
 //const static char *iot_atuh_host = "https://iot-auth.alibaba.net/auth/devicename";
 
+
 const static char *iot_mqtt_server_ca_crt =  { \
-"-----BEGIN CERTIFICATE-----\r\n"                                      \
-"MIIEszCCA5ugAwIBAgIGAVrwPKWZMA0GCSqGSIb3DQEBCwUAMIGXMSYwJAYJKoZI\r\n" \
-"hvcNAQkBFhdhbGlsYW5nQGFsaWJhYmEtaW5jLmNvbTEaMBgGA1UEAwwRQWxpbGFu\r\n" \
-"ZyBTZXJ2ZXIgQ0ExDDAKBgNVBAsMA0luYzEQMA4GA1UECgwHQWxpYmFiYTERMA8G\r\n" \
-"A1UEBwwISGFuZ1pob3UxETAPBgNVBAgMCFpoZUppYW5nMQswCQYDVQQGEwJDTjAe\r\n" \
-"Fw0xNzAzMjAwOTM5NTBaFw0xOTAzMjAwOTM5NTBaMIGaMSYwJAYJKoZIhvcNAQkB\r\n" \
-"FhdhbGlsYW5nQGFsaWJhYmEtaW5jLmNvbTEdMBsGA1UEAwwUaW90LWF1dGguYWxp\r\n" \
-"YmFiYS5uZXQxDDAKBgNVBAsMA0luYzEQMA4GA1UECgwHQWxpYmFiYTERMA8GA1UE\r\n" \
-"BwwISGFuZ1pob3UxETAPBgNVBAgMCFpoZUppYW5nMQswCQYDVQQGEwJDTjCCASIw\r\n" \
-"DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIpCZxJE3z40aNnBjAl4MIE3+MGx\r\n" \
-"qwekC3+PG4JUZP+aWg5UlN7Re0Fw80B0DNuvqvMWsx3qa8obxr09huPhTqZiBRro\r\n" \
-"NrSDfbDnL5C5QFu/8LRK6rBiSnMfbu6KK+OUSdHachDAfeozIGK/Pru/g5SV1SLH\r\n" \
-"NK2V9bFx3Ma5Hhn/EqikqlIMhIZceyHRkjRKln60Ip95ei6KxoPWSXuHeDXnPAV6\r\n" \
-"t+nzbzMzj14JazBXyf+3l/FUXVIR6Es989NJ5LK4LDcX3FYjzroxqau9F0CYyE9W\r\n" \
-"D0+XCShgFixZUfT5ImReQmVtU/Kym8gQA/wv+txRqXgnkLWA2yB7j0C0wScCAwEA\r\n" \
-"AaOB/zCB/DARBgYpAQECCx4EBwQFNzEyMTMwGQYGKQEBAhUeBA8EDTE0OTAwODkx\r\n" \
-"OTA3NzMwEwYDVR0lBAwwCgYIKwYBBQUHAwEwHwYDVR0RBBgwFoIUaW90LWF1dGgu\r\n" \
-"YWxpYmFiYS5uZXQwHQYDVR0OBBYEFLUxOu3kvFzb7g3j0CrsWU0It8T6MB8GA1Ud\r\n" \
-"IwQYMBaAFBUiAjS7MOQsazZMAwFAIW93KkyWMAwGA1UdDwQFAwMH/4AwSAYIKwYB\r\n" \
-"BQUHAQEEPDA6MDgGCCsGAQUFBzABhixodHRwOi8vYWxpbGFuZy5hbGliYWJhLWlu\r\n" \
-"Yy5jb20vcnBjL2NlcnQvb2NzcDANBgkqhkiG9w0BAQsFAAOCAQEAUmsDUSz0a/u/\r\n" \
-"U21r5aWFZqwjD2Xs/fT+K+83BCQ533uJ4HRz+bHTUnv7ohF+HY8I6loFhreK4Oig\r\n" \
-"EUWonJx+DdUEI8I9W0KkbhUfZPvWpDriWPAcEamxKln420LW8mee0XCRU8RUMXVy\r\n" \
-"odCibEQCjXld4MxCQeVTgPOKeirtPg83SdsaFdm4KxYvxNbuC6bulZ4H/ZIShthL\r\n" \
-"Z9doOJR5GxljzwDNSZ8PcUTbbI8u+QYPLTeSgLM0Vc+/AzIAhxHpw8hYvXZGtTZ8\r\n" \
-"OHs8TlwPlsHEh2eZN2RzRM+0CmMT2s3cXrd4E+nFPO2jbBCFQ7zkG1fDXEulKvT9\r\n" \
-"UOhKUYndwg==\r\n"                                                     \
+"-----BEGIN CERTIFICATE-----\r\n"
+"MIIDdTCCAl2gAwIBAgILBAAAAAABFUtaw5QwDQYJKoZIhvcNAQEFBQAwVzELMAkG\r\n" \
+"A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv\r\n" \
+"b3QgQ0ExGzAZBgNVBAMTEkdsb2JhbFNpZ24gUm9vdCBDQTAeFw05ODA5MDExMjAw\r\n" \
+"MDBaFw0yODAxMjgxMjAwMDBaMFcxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9i\r\n" \
+"YWxTaWduIG52LXNhMRAwDgYDVQQLEwdSb290IENBMRswGQYDVQQDExJHbG9iYWxT\r\n" \
+"aWduIFJvb3QgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDaDuaZ\r\n" \
+"jc6j40+Kfvvxi4Mla+pIH/EqsLmVEQS98GPR4mdmzxzdzxtIK+6NiY6arymAZavp\r\n" \
+"xy0Sy6scTHAHoT0KMM0VjU/43dSMUBUc71DuxC73/OlS8pF94G3VNTCOXkNz8kHp\r\n" \
+"1Wrjsok6Vjk4bwY8iGlbKk3Fp1S4bInMm/k8yuX9ifUSPJJ4ltbcdG6TRGHRjcdG\r\n" \
+"snUOhugZitVtbNV4FpWi6cgKOOvyJBNPc1STE4U6G7weNLWLBYy5d4ux2x8gkasJ\r\n" \
+"U26Qzns3dLlwR5EiUWMWea6xrkEmCMgZK9FGqkjWZCrXgzT/LCrBbBlDSgeF59N8\r\n" \
+"9iFo7+ryUp9/k5DPAgMBAAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8E\r\n" \
+"BTADAQH/MB0GA1UdDgQWBBRge2YaRQ2XyolQL30EzTSo//z9SzANBgkqhkiG9w0B\r\n" \
+"AQUFAAOCAQEA1nPnfE920I2/7LqivjTFKDK1fPxsnCwrvQmeU79rXqoRSLblCKOz\r\n" \
+"yj1hTdNGCbM+w6DjY1Ub8rrvrTnhQ7k4o+YviiY776BQVvnGCv04zcQLcFGUl5gE\r\n" \
+"38NflNUVyRRBnMRddWQVDf9VMOyGj/8N7yy5Y0b2qvzfvGn9LhJIZJrglfCm7ymP\r\n" \
+"AbEVtQwdpf5pLGkkeB6zpxxxYu7KyJesF12KwvhHhm4qxFYxldBniYUr+WymXUad\r\n" \
+"DKqC5JlR3XC321Y9YeRq4VzW9v493kHMB65jUr9TU/Qr6cf9tveCX4XSQRjbgbME\r\n" \
+"HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==\r\n" \
 "-----END CERTIFICATE-----"
 };
 
@@ -167,7 +161,8 @@ static int aliyun_iot_get_id_token(
             &httpclient,
             auth_host,
             80,
-            NULL,
+            iot_mqtt_server_ca_crt,
+            //NULL,
             &httpclient_data);
 
     ALIOT_LOG_DEBUG("http response:%s\n\r", httpclient_data.response_buf);

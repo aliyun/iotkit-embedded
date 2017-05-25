@@ -19,81 +19,61 @@
 static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     int rc = 0;
-    int recvlen = 0;
     int ret = -1;
+    int32_t recvlen = 0;
+    aliot_time_t time;
+    uint32_t lefttime;
+    IOT_NET_FD_ISSET_E result;
 
-    aliot_time_t endTime;
-    aliyun_iot_timer_cutdown(&endTime,timeout_ms);
+    aliyun_iot_timer_cutdown(&time, timeout_ms);
+
     do
     {
-        int32_t lefttime = aliyun_iot_timer_remain(&endTime);
-        if(lefttime <= 0)
-        {
-            ALIOT_LOG_ERROR("mqtt read timeout");
-            return -2;
+        lefttime = aliyun_iot_timer_remain(&time);
+        if(lefttime <= 0) {
+            break;
         }
 
-        ALIOT_LOG_DEBUG("mqtt read left time=%d ms", lefttime);
+        ALIOT_LOG_DEBUG("read left time=%d ms", lefttime);
 
-        IOT_NET_FD_ISSET_E result;
         ret = aliyun_iot_network_select(pNetwork->handle, IOT_NET_TRANS_RECV, lefttime, &result);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             int32_t err = aliyun_iot_get_errno();
-            if(err == EINTR_IOT)
-            {
+            if(err == EINTR_IOT) {
                 continue;
-            }
-            else
-            {
-                ALIOT_LOG_ERROR("mqtt read(select) fail ret=%d", ret);
+            } else {
+                ALIOT_LOG_ERROR("read select fail ret=%d", ret);
                 return -1;
             }
-        }
-        else if (ret == 0)
-        {
-            ALIOT_LOG_DEBUG("mqtt read(select) timeout");
-            return 0;
-        }
-        else if (ret == 1)
-        {
-            if(IOT_NET_FD_NO_ISSET == result)
-            {
+        } else if (ret == 0) {
+            ALIOT_LOG_DEBUG("read select timeout");
+            break;
+        } else if (ret == 1) {
+            if(IOT_NET_FD_NO_ISSET == result) {
                 ALIOT_LOG_DEBUG("another fd readable!");
                 continue;
             }
 
             aliyun_iot_network_settimeout(pNetwork->handle, 50, IOT_NET_TRANS_RECV);
-
-            ALIOT_LOG_DEBUG("mqtt read recv len = %d, recvlen = %d", len, recvlen);
             rc = aliyun_iot_network_recv(pNetwork->handle, buffer + recvlen, len - recvlen, IOT_NET_FLAGS_DEFAULT);
-            if (rc > 0)
-            {
+            if (rc > 0) {
                 recvlen += rc;
-                ALIOT_LOG_DEBUG("mqtt read ret=%d, rc = %d, recvlen = %d", ret, rc, recvlen);
-            }
-            else if(rc == 0)
-            {
-                ALIOT_LOG_ERROR("The network is broken!,recvlen = %d", recvlen);
-                aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 32, 1, buffer, recvlen, 1);
-                return recvlen;
-            }
-            else
-            {
+            } else if (rc == 0) {
+                ALIOT_LOG_ERROR("The network is broken!");
+                break;
+            } else {
                 int32_t err = aliyun_iot_get_errno();
-                if (err == EINTR_IOT || err == EWOULDBLOCK_IOT || err == EAGAIN_IOT)
-                {
+                if (err == EINTR_IOT || err == EWOULDBLOCK_IOT || err == EAGAIN_IOT) {
                     continue;
-                }
-                else
-                {
-                    ALIOT_LOG_ERROR("mqtt read fail: ret=%d, rc = %d, recvlen = %d", ret, rc, recvlen);
+                } else {
+                    ALIOT_LOG_ERROR("read fail");
                     return -3;
                 }
             }
         }
     }while(recvlen < len);
 
+    ALIOT_LOG_INFO("%u bytes be received.", recvlen);
     aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 32, 1, buffer, recvlen, 1);
     return recvlen;
 }
@@ -104,44 +84,33 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
     int rc = 0;
     int ret = -1;
     int32_t sendlen = 0;
+    aliot_time_t time;
+    uint32_t lefttime;
+    IOT_NET_FD_ISSET_E result;
 
-    int32_t timeout = timeout_ms;
-    aliot_time_t endTime;
-    aliyun_iot_timer_cutdown(&endTime,timeout);
+    aliyun_iot_timer_cutdown(&time, timeout_ms);
 
-    do
-    {
-        int32_t lefttime = aliyun_iot_timer_remain(&endTime);
-        if(lefttime <= 0)
-        {
-            ALIOT_LOG_ERROR("mqtt write timeout");
-            return -2;
+    do {
+        lefttime = aliyun_iot_timer_remain(&time);
+        if (lefttime <= 0) {
+            ALIOT_LOG_ERROR("write timeout");
+            break;
         }
 
-        IOT_NET_FD_ISSET_E result;
         ret = aliyun_iot_network_select(pNetwork->handle, IOT_NET_TRANS_SEND, lefttime, &result);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             int32_t err = aliyun_iot_get_errno();
-            if(err == EINTR_IOT)
-            {
+            if (err == EINTR_IOT) {
                 continue;
-            }
-            else
-            {
-                ALIOT_LOG_ERROR("mqtt write fail");
+            } else {
+                ALIOT_LOG_ERROR("write fail");
                 return -1;
             }
-        }
-        else if (ret == 0)
-        {
-            ALIOT_LOG_ERROR("mqtt write timeout");
-            return -2;
-        }
-        else if (ret == 1)
-        {
-            if(IOT_NET_FD_NO_ISSET == result)
-            {
+        } else if (ret == 0) {
+            ALIOT_LOG_DEBUG("write select timeout");
+            break;
+        } else if (ret == 1) {
+            if (IOT_NET_FD_NO_ISSET == result) {
                 ALIOT_LOG_DEBUG("another fd readable!");
                 continue;
             }
@@ -149,31 +118,25 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
             aliyun_iot_network_settimeout(pNetwork->handle, 50, IOT_NET_TRANS_SEND);
 
             rc = aliyun_iot_network_send(pNetwork->handle, buffer, len, IOT_NET_FLAGS_DEFAULT);
-            if(rc > 0)
-            {
+            if (rc > 0) {
                 sendlen += rc;
-            }
-            else if(rc == 0)
-            {
+            } else if (rc == 0) {
                 ALIOT_LOG_ERROR("The network is broken!");
-                return -1;
-            }
-            else
-            {
+                break;
+            } else {
                 int32_t err = aliyun_iot_get_errno();
-                if(err == EINTR_IOT || err == EWOULDBLOCK_IOT || err == EAGAIN_IOT)
-                {
+                if (err == EINTR_IOT || err == EWOULDBLOCK_IOT
+                        || err == EAGAIN_IOT) {
                     continue;
-                }
-                else
-                {
-                    ALIOT_LOG_ERROR("mqtt read fail: ret=%d, rc = %d, err = %d", ret, rc,err);
+                } else {
+                    ALIOT_LOG_ERROR("write fail:");
                     return -3;
                 }
             }
         }
-    }while(sendlen < len);
+    } while ((sendlen < len) && !aliyun_iot_timer_expired(&time));
 
+    ALIOT_LOG_INFO("%u bytes be sent.", sendlen);
     return sendlen;
 }
 

@@ -383,6 +383,7 @@ int TLSConnectNetwork(TLSDataParams *pTlsData, const char *addr, const char *por
 
 int aliyun_iot_network_ssl_connect(TLSDataParams *pTlsData, const char *addr, const char *port, const char *ca_crt, size_t ca_crt_len)
 {
-    return TLSConnectNetwork(pTlsData, addr, port, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0);
+    //return TLSConnectNetwork(pTlsData, addr, port, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0);
+    return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
 

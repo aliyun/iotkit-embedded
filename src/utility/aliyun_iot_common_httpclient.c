@@ -470,32 +470,26 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
         buf[readLen] = '\0';
         if (readLen < min_len)
         {
-            ret = client->net.read(&client->net, buf + readLen,
-                    min_len - readLen, 10000);
-            ALIOT_LOG_DEBUG("recv [blocking] return:%d", ret);
+            //wait to read HTTP respond data
+            ret = client->net.read(&client->net, buf + readLen, min_len - readLen, 10000);
         } else {
-            ret = client->net.read(&client->net, buf + readLen,
-                    max_len - readLen, 10000);
-            ALIOT_LOG_DEBUG("recv [not blocking] return:%d", ret);
+            //read the rest data in TCP buffer (with little wait time)
+            ret = client->net.read(&client->net, buf + readLen, max_len - readLen, 100);
+
             if (ret < 0) {
                 int32_t err = aliyun_iot_get_errno();
                 if (err == EAGAIN_IOT || err == EWOULDBLOCK_IOT) {
-                    ALIOT_LOG_DEBUG("recv [not blocking], ret = %d", ret);
+                    ALIOT_LOG_ERROR("http recv error");
                     break;
                 }
             }
         }
 
-        if (ret > 0)
-        {
+        if (ret > 0) {
             readLen += ret;
-        }
-        else if(ret == 0)
-        {
+        } else if (ret == 0) {
             break;
-        }
-        else
-        {
+        } else {
             ALIOT_LOG_ERROR("Connection error (recv returned %d)", ret);
             *p_read_len = readLen;
             return ERROR_HTTP_CONN;

@@ -1,9 +1,3 @@
-/*
- * dump.h
- *
- *  Created on: 2016年10月18日
- *      Author: qibiao.wqb
- */
 
 #ifndef ALIOT_DUMP_H_
 #define ALIOT_DUMP_H_
