@@ -6529,8 +6529,12 @@ int mbedtls_ssl_read( mbedtls_ssl_context *ssl, unsigned char *buf, size_t len )
         {
             if( ( ret = mbedtls_ssl_read_record( ssl ) ) != 0 )
             {
-                if( ret == MBEDTLS_ERR_SSL_CONN_EOF )
-                    return( 0 );
+                if ( ret == MBEDTLS_ERR_SSL_CONN_EOF ) {
+                    //return( 0 );
+                    return -1; //TODO
+                } else if  ( ret == MBEDTLS_ERR_SSL_TIMEOUT ) {
+                    return 0; //Treat timeout
+                }
 
                 MBEDTLS_SSL_DEBUG_RET( 1, "mbedtls_ssl_read_record", ret );
                 return( ret );

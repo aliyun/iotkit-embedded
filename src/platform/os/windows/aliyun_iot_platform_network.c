@@ -146,9 +146,11 @@ int32_t aliyun_iot_network_select(int32_t fd, IOT_NET_TRANS_TYPE_E type, int tim
         ptimeout = &timeout;
         ptimeout->tv_sec = timeoutMs / 1000;
         ptimeout->tv_usec = (timeoutMs % 1000) * 1000;
+
+        ALIOT_LOG_DEBUG("time_s=%u, time_us=%u.", ptimeout->tv_sec, ptimeout->tv_usec);
     }
 
-    ALIOT_LOG_DEBUG("time_s=%u, time_us=%u.", ptimeout->tv_sec, ptimeout->tv_usec);
+    ALIOT_LOG_DEBUG("fd = %d", fd);
 
     rc = select(fd + 1, rd_set, wr_set, ep_set, ptimeout);
     if(rc > 0) {

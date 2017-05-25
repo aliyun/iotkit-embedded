@@ -209,7 +209,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
                 return readLen;
             }
 
-            ALIOT_LOG_ERROR("mqtt recv ssl error,ret = %d",ret);
+            ALIOT_LOG_ERROR("ssl recv error,ret = %d",ret);
             return -1; //Connnection error
         }
     }
@@ -222,7 +222,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams *pTlsData, unsigned char *buffer,
     size_t writtenLen = 0;
     int ret = -1;
 
-    ALIOT_LOG_DEBUG("mqtt_ssl_write_all len=%d timer=%d ms", len, timeout_ms);
+    ALIOT_LOG_DEBUG("len=%d timer=%d ms", len, timeout_ms);
     while (writtenLen < len)
     {
         ret = mbedtls_ssl_write(&(pTlsData->ssl), (unsigned char *)(buffer + writtenLen), (len - writtenLen));
@@ -302,7 +302,7 @@ int TLSConnectNetwork(TLSDataParams *pTlsData, const char *addr, const char *por
     /*
      * 1. Start the connection
      */
-    ALIOT_LOG_DEBUG("  . Connecting to tcp/%s/%s...", addr, port);
+    ALIOT_LOG_DEBUG("Connecting to /%s/%s...", addr, port);
     if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP)))
     {
         ALIOT_LOG_ERROR(" failed ! net_connect returned -0x%04x", -ret);
@@ -346,7 +346,7 @@ int TLSConnectNetwork(TLSDataParams *pTlsData, const char *addr, const char *por
 
     if ( ( ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf)) ) != 0 )
     {
-        ALIOT_LOG_ERROR( " failed! mbedtls_ssl_setup returned %d", ret );
+        ALIOT_LOG_ERROR( "failed! mbedtls_ssl_setup returned %d", ret );
         return ret;
     }
     mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
@@ -355,13 +355,13 @@ int TLSConnectNetwork(TLSDataParams *pTlsData, const char *addr, const char *por
     /*
       * 4. Handshake
       */
-    ALIOT_LOG_DEBUG("  . Performing the SSL/TLS handshake...");
+    ALIOT_LOG_DEBUG("Performing the SSL/TLS handshake...");
 
     while ((ret = mbedtls_ssl_handshake(&(pTlsData->ssl))) != 0)
     {
         if ((ret != MBEDTLS_ERR_SSL_WANT_READ) && (ret != MBEDTLS_ERR_SSL_WANT_WRITE))
         {
-        	ALIOT_LOG_ERROR( " failed  ! mbedtls_ssl_handshake returned -0x%04x", -ret);
+        	ALIOT_LOG_ERROR( "failed  ! mbedtls_ssl_handshake returned -0x%04x", -ret);
             return ret;
         }
     }
@@ -383,7 +383,7 @@ int TLSConnectNetwork(TLSDataParams *pTlsData, const char *addr, const char *por
 
 int aliyun_iot_network_ssl_connect(TLSDataParams *pTlsData, const char *addr, const char *port, const char *ca_crt, size_t ca_crt_len)
 {
-    return TLSConnectNetwork(pTlsData, addr, port, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0);
-    //return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+    //return TLSConnectNetwork(pTlsData, addr, port, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0);
+    return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
 

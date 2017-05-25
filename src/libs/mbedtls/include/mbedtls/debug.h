@@ -35,8 +35,6 @@
 #include "ecp.h"
 #endif
 
-//debug
-#define MBEDTLS_DEBUG_C
 
 #if defined(MBEDTLS_DEBUG_C)
 
