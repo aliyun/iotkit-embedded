@@ -67,7 +67,7 @@
 #define MBEDTLS_BASE64_C
 #define MBEDTLS_CERTS_C
 #define MBEDTLS_PEM_PARSE_C
-#define MBEDTLS_SSL_MAX_CONTENT_LEN    (2 * 1024)    /**< Size of the input / output buffer */
+#define MBEDTLS_SSL_MAX_CONTENT_LEN    (8 * 1024)    /**< Size of the input / output buffer */
 
 #include "check_config.h"
 
