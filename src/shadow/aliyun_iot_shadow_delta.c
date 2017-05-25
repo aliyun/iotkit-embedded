@@ -152,8 +152,10 @@ void aliyun_iot_shadow_delta_entry(
                 ALIOT_LOG_WARN("Update attribute value failed.");
             }
 
-            //call related callback function
-            pattr->callback(pattr);
+            if (NULL != pattr->callback) {
+                //call related callback function
+                pattr->callback(pattr);
+            }
         }
     }
 

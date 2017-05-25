@@ -6,66 +6,67 @@
 #include "aliyun_iot_device.h"
 #include "aliyun_iot_shadow.h"
 
-//用户需要根据设备信息完善以下宏定义中的四元组内容
+//The product and device information from IOT console
 #define PRODUCT_KEY         "4eViBFJ2QGH"
 #define DEVICE_NAME         "sh_xk_device_mqtt"
 #define DEVICE_ID           "aMJRx7GrR8Ntwh7Wmtcb"
 #define DEVICE_SECRET       "qUEtzRtLlqs4cHWdnRHa0nU8CnferurR"
 
 
-//以下三个TOPIC的宏定义不需要用户修改，可以直接使用
-//IOT HUB为设备建立三个TOPIC：update用于设备发布消息，error用于设备发布错误，get用于订阅消息
-#define TOPIC_UPDATE         "/4eViBFJ2QGH/sh_xk_device_mqtt/update"
-#define TOPIC_ERROR          "/4eViBFJ2QGH/sh_xk_device_mqtt/update/error"
-#define TOPIC_GET            "/4eViBFJ2QGH/sh_xk_device_mqtt/get"
+//This is the pre-defined topic
+#define TOPIC_UPDATE         "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
+#define TOPIC_ERROR          "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
+#define TOPIC_GET            "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
 
-#define MSG_LEN_MAX         (2048)
+#define MSG_LEN_MAX         (1024)
 
-/**********************************************************************
- *            接收消息的回调函数
+
+static char my_msg[MSG_LEN_MAX];
+
+/**
+ * @brief This is a callback function.
  *
- * 说明：当其它设备的消息到达时，此函数将被执行。
- * 注意：此回调函数中用户在做业务处理时不要使用耗时操作，否则会阻塞接收通道
- **********************************************************************/
+ * @param [in] md: message pointer
+ * @return none
+ * @see none.
+ * @note none.
+ */
 static void messageArrived(MessageData *md)
 {
-    //接收消息缓存
-    char msg[MSG_LEN_MAX] = {0};
-
+    uint32_t msg_len;
     MQTTMessage *message = md->message;
-    if(message->payloadlen > MSG_LEN_MAX - 1)
-    {
-        ALIOT_LOG_DEBUG("process part of receive message");
-        message->payloadlen = MSG_LEN_MAX - 1;
-    }
 
-    //复制接收消息到本地缓存
-    memcpy(msg,message->payload,message->payloadlen);
+   if (message->payloadlen < MSG_LEN_MAX - 1) {
+        msg_len = message->payloadlen;
+   } else {
+       ALIOT_LOG_INFO("message is too long to be stored, truncate it");
+       msg_len = MSG_LEN_MAX - 1;
+   }
 
-    //to-do此处可以增加用户自己业务逻辑，例如：开关灯等操作
+    //copy the message to your buffer
+    memcpy(my_msg, message->payload, msg_len);
 
-    //打印接收消息
-    ALIOT_LOG_DEBUG("Message : %s", msg);
+
+
+    /*
+     * *********** Your Code ***********
+     */
+
+
+
+    //print the message
+    ALIOT_LOG_DEBUG("msg = %s", my_msg);
 }
 
-static void publishComplete(void* context, unsigned int msgId)
-{
-    ALIOT_LOG_DEBUG("publish message is arrived,id = %d",msgId);
-}
-
-static void subAckTimeout(SUBSCRIBE_INFO_S *subInfo)
-{
-    ALIOT_LOG_DEBUG("msgId = %d,sub ack is timeout",subInfo->msgId);
-}
-
-
-int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
+int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
 {
     int rc = 0, ch = 0, msg_len, cnt;
     MQTTClient_t client;
     aliot_mqtt_param_t initParams;
     char msg_pub[128];
 
+
+    /* initialize device info */
     aliyun_iot_device_init();
 
     if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET))
@@ -74,11 +75,14 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
         return -1;
     }
 
+
+    /* Device AUTH */
     if (0 != aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info()))
     {
         ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!");
         return -1;
     }
+
 
     memset(&client, 0x0, sizeof(client));
     memset(&initParams, 0x0, sizeof(initParams));
@@ -90,8 +94,8 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
     initParams.writeBufSize = MSG_LEN_MAX;
     initParams.disconnectHandler = NULL;
     initParams.disconnectHandlerData = (void*) &client;
-    initParams.deliveryCompleteFun = publishComplete;
-    initParams.subAckTimeOutFun = subAckTimeout;
+    initParams.deliveryCompleteFun = NULL;
+    initParams.subAckTimeOutFun = NULL;
 
     initParams.cleansession      = 0;
     initParams.MQTTVersion       = 4;
@@ -124,7 +128,6 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
 
     MQTTMessage message;
     memset(&message, 0x0, sizeof(message));
-
     strcpy(msg_pub, "message: hello! start!");
 
     message.qos        = QOS1;
@@ -155,6 +158,7 @@ int mqtt_client(unsigned char *msg_buf,unsigned char *msg_readbuf)
         message.payload = (void *)msg_pub;
         message.payloadlen = msg_len;
 
+        //handle the MQTT packet received from TCP or SSL connection
         aliyun_iot_mqtt_yield(&client, 500);
         rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
     } while (ch != 'Q' && ch != 'q');
