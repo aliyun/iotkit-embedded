@@ -167,7 +167,7 @@ static int aliyun_iot_get_id_token(
             &httpclient,
             auth_host,
             80,
-            NULL,//iot_mqtt_server_ca_crt,
+            NULL,
             &httpclient_data);
 
     ALIOT_LOG_DEBUG("http response:%s\n\r", httpclient_data.response_buf);
@@ -296,8 +296,8 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
-    puser_info->pubKey = iot_mqtt_server_ca_crt;
-    //puser_info->pubKey = NULL;
+    //puser_info->pubKey = iot_mqtt_server_ca_crt;
+    puser_info->pubKey = NULL;
 
     if (NULL == puser_info->pubKey) {
         //Append string "::nonesecure::" to client_id if TCP connection be used.
