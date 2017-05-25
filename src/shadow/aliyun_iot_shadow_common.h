@@ -62,13 +62,7 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
 
 void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version);
 
-void ads_common_increase_version(aliot_shadow_pt pshadow);
-
 uint32_t ads_common_get_version(aliot_shadow_pt pshadow);
-
-uint32_t ads_common_get_version(aliot_shadow_pt pshadow);
-
-void ads_common_increase_tokennum(aliot_shadow_pt pshadow);
 
 uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow);
 

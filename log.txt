@@ -1,0 +1,747 @@
+[info] system/aliyun_iot_device.c:28 aliyun_iot_device_init()| device init success!
+[debug] system/aliyun_iot_device.c:48 aliyun_iot_set_device_info()| start to set device info!
+[debug] system/aliyun_iot_device.c:56 aliyun_iot_set_device_info()| set device info success!
+[debug] auth/aliyun_iot_auth.c:116 aliyun_iot_get_id_token()| sign source=clientIdxItJzEDpi6Tv184UIkH7deviceNamedevice_xikan_3productKey4eViBFJ2QGHtimestamp2524608000000
+[debug] auth/aliyun_iot_auth.c:149 aliyun_iot_get_id_token()| http content:productKey=4eViBFJ2QGH&deviceName=device_xikan_3&sign=789CA8017A2B555F9F412A124DD3A8E9&version=default&clientId=xItJzEDpi6Tv184UIkH7&timestamp=2524608000000&resources=mqtt
+
+[debug] utility/aliyun_iot_common_httpclient.c:920 httpclient_common()| host:iot-auth-pre.cn-shanghai.aliyuncs.com, port:80
+[debug] utility/aliyun_iot_common_httpclient.c:354 httpclient_send_header()| Trying to write 224 bytes http header:POST /auth/devicename HTTP/1.1
+Host: iot-auth-pre.cn-shanghai.aliyuncs.com
+Accept: text/xml,text/javascript,text/html,application/json
+Content-Length: 171
+Content-Type: application/x-www-form-urlencoded;charset=utf-8
+
+
+[debug] utility/aliyun_iot_common_httpclient.c:360 httpclient_send_header()| Written 224 bytes
+[debug] utility/aliyun_iot_common_httpclient.c:382 httpclient_send_userdata()| client_data->post_buf:productKey=4eViBFJ2QGH&deviceName=device_xikan_3&sign=789CA8017A2B555F9F412A124DD3A8E9&version=default&clientId=xItJzEDpi6Tv184UIkH7&timestamp=2524608000000&resources=mqtt
+[debug] utility/aliyun_iot_common_httpclient.c:388 httpclient_send_userdata()| Written 171 bytes
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=10000 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 48                                                                                               H
+[debug] utility/aliyun_iot_common_httpclient.c:475 httpclient_recv()| recv [blocking] return:1
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=10000 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 510, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 343, recvlen = 343
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=10000 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 510, recvlen = 343
+[error] utility/aliyun_iot_common_net.c:77 read_tcp()| The network is broken!,recvlen = 343
+00000000: 54 54 50 2f 31 2e 31 20 32 30 30 20 4f 4b 0d 0a 53 65 72 76 65 72 3a 20 54 65 6e 67 69 6e 65 0d  TTP/1.1 200 OK..Server: Tengine.
+00000020: 0a 44 61 74 65 3a 20 54 68 75 2c 20 32 35 20 4d 61 79 20 32 30 31 37 20 30 38 3a 30 31 3a 33 30  .Date: Thu, 25 May 2017 08:01:30
+00000040: 20 47 4d 54 0d 0a 43 6f 6e 74 65 6e 74 2d 54 79 70 65 3a 20 61 70 70 6c 69 63 61 74 69 6f 6e 2f   GMT..Content-Type: application/
+00000060: 6a 73 6f 6e 3b 63 68 61 72 73 65 74 3d 55 54 46 2d 38 0d 0a 43 6f 6e 74 65 6e 74 2d 4c 65 6e 67  json;charset=UTF-8..Content-Leng
+00000080: 74 68 3a 20 31 38 35 0d 0a 43 6f 6e 6e 65 63 74 69 6f 6e 3a 20 63 6c 6f 73 65 0d 0a 0d 0a 7b 22  th: 185..Connection: close....{"
+000000a0: 63 6f 64 65 22 3a 32 30 30 2c 22 64 61 74 61 22 3a 7b 22 69 6f 74 49 64 22 3a 22 30 33 6e 6d 67  code":200,"data":{"iotId":"03nmg
+000000c0: 4d 32 65 30 33 31 65 39 62 64 34 33 63 31 36 30 31 61 31 37 64 6b 79 52 41 4b 4a 22 2c 22 69 6f  M2e031e9bd43c1601a17dkyRAKJ","io
+000000e0: 74 54 6f 6b 65 6e 22 3a 22 64 33 61 30 35 36 36 62 64 61 39 37 34 35 34 65 62 61 31 62 32 32 37  tToken":"d3a0566bda97454eba1b227
+00000100: 37 65 63 38 35 38 34 63 61 22 2c 22 72 65 73 6f 75 72 63 65 73 22 3a 7b 22 6d 71 74 74 22 3a 7b  7ec8584ca","resources":{"mqtt":{
+00000120: 22 68 6f 73 74 22 3a 22 31 30 30 2e 36 37 2e 38 30 2e 37 35 22 2c 22 70 6f 72 74 22 3a 38 30 7d  "host":"100.67.80.75","port":80}
+00000140: 7d 7d 2c 22 6d 65 73 73 61 67 65 22 3a 22 73 75 63 63 65 73 73 22 7d                             }},"message":"success"}
+[debug] utility/aliyun_iot_common_httpclient.c:479 httpclient_recv()| recv [not blocking] return:343
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=10000 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 167, recvlen = 0
+[error] utility/aliyun_iot_common_net.c:77 read_tcp()| The network is broken!,recvlen = 0
+[debug] utility/aliyun_iot_common_httpclient.c:479 httpclient_recv()| recv [not blocking] return:0
+[debug] utility/aliyun_iot_common_httpclient.c:505 httpclient_recv()| Read 344 bytes
+[debug] utility/aliyun_iot_common_httpclient.c:892 httpclient_recv_response()| reclen:344, buf:
+[debug] utility/aliyun_iot_common_httpclient.c:893 httpclient_recv_response()| HTTP/1.1 200 OK
+Server: Tengine
+Date: Thu, 25 May 2017 08:01:30 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 185
+Connection: close
+
+{"code":200,"data":{"iotId":"03nmgM2e031e9bd43c1601a17dkyRAKJ","iotToken":"d3a0566bda97454eba1b2277ec8584ca","resources":{"mqtt":{"host":"100.67.80.75","port":80}}},"message":"success"}
+[debug] utility/aliyun_iot_common_httpclient.c:741 httpclient_response_parse()| Reading headersHTTP/1.1 200 OK
+[debug] utility/aliyun_iot_common_httpclient.c:797 httpclient_response_parse()| Read header : Server: Tengine
+[debug] utility/aliyun_iot_common_httpclient.c:797 httpclient_response_parse()| Read header : Date: Thu, 25 May 2017 08:01:30 GMT
+[debug] utility/aliyun_iot_common_httpclient.c:797 httpclient_response_parse()| Read header : Content-Type: application/json;charset=UTF-8
+[debug] utility/aliyun_iot_common_httpclient.c:797 httpclient_response_parse()| Read header : Content-Length: 185
+[debug] utility/aliyun_iot_common_httpclient.c:797 httpclient_response_parse()| Read header : Connection: close
+[debug] utility/aliyun_iot_common_httpclient.c:518 httpclient_retrieve_content()| Receiving data:{"code":200,"data":{"iotId":"03nmgM2e031e9bd43c1601a17dkyRAKJ","iotToken":"d3a0566bda97454eba1b2277ec8584ca","resources":{"mqtt":{"host":"100.67.80.75","port":80}}},"message":"success"}
+[debug] utility/aliyun_iot_common_httpclient.c:633 httpclient_retrieve_content()| Retrieving 185 bytes, len:185
+[debug] utility/aliyun_iot_common_httpclient.c:701 httpclient_retrieve_content()| no more(content-length)
+
+[debug] auth/aliyun_iot_auth.c:173 aliyun_iot_get_id_token()| http response:{"code":200,"data":{"iotId":"03nmgM2e031e9bd43c1601a17dkyRAKJ","iotToken":"d3a0566bda97454eba1b2277ec8584ca","resources":{"mqtt":{"host":"100.67.80.75","port":80}}},"message":"success"}
+
+[debug] auth/aliyun_iot_auth.c:249 aliyun_iot_get_id_token()| 
+iot-id=03nmgM2e031e9bd43c1601a17dkyRAKJ
+iot-token=d3a0566bda97454eba1b2277ec8584ca
+host=100.67.80.75
+port=80
+
+[info] mqtt/aliyun_iot_mqtt_client.c:2026 aliyun_iot_mqtt_init()| mqtt init success!
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=180000 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 20                                                                                                
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=179982 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 02                                                                                               .
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=179981 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 2, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 2, recvlen = 2
+00000000: 00 00                                                                                            ..
+[info] mqtt/aliyun_iot_mqtt_client.c:2154 aliyun_iot_keepalive_thread()| start the keep alive thread!
+[info] mqtt/aliyun_iot_mqtt_client.c:2371 aliyun_iot_retrans_thread()| start the retrans thread!
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:1
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32741
+[info] mqtt/aliyun_iot_mqtt_client.c:2446 aliyun_iot_create_thread()| create recieveThread, keepaliveThread and retransThread!
+[info] mqtt/aliyun_iot_mqtt_client.c:2573 aliyun_iot_mqtt_connect()| mqtt connect success!
+[info] mqtt/aliyun_iot_mqtt_client.c:1647 aliyun_iot_mqtt_subscribe()| mqtt subscribe success,topic = /4eViBFJ2QGH/device_xikan_3/get!
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 90                                                                                               .
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=492 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 03                                                                                               .
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=492 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 3, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 3, recvlen = 3
+00000000: 00 01 01                                                                                         ...
+[debug] mqtt/aliyun_iot_mqtt_client.c:1499 cycle()| SUBACK
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=492 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 40                                                                                               @
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=487 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 02                                                                                               .
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=487 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 2, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 2, recvlen = 2
+00000000: 00 02                                                                                            ..
+[debug] mqtt.c:53 publishComplete()| publish message is arrived,id = 2
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=487 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:2
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:3
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32742
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:4
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:5
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32743
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:6
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:7
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32744
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:8
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:9
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32745
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:10
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:11
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32746
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:12
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:13
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32747
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:14
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:15
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32748
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:16
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:17
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32749
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:18
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:19
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32750
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:20
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:21
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32751
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:22
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:23
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32752
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:24
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:25
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32753
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:26
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:27
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32754
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:28
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:29
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32755
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:30
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:31
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32756
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:32
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:33
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32757
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:34
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:35
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32758
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:36
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:37
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 30                                                                                               0
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=48 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 31                                                                                               1
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=48 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 49, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 49, recvlen = 49
+00000000: 00 1f 2f 34 65 56 69 42 46 4a 32 51 47 48 2f 64 65 76 69 63 65 5f 78 69 6b 61 6e 5f 33 2f 67 65  ../4eViBFJ2QGH/device_xikan_3/ge
+00000020: 74 77 71 62 31 32 33 34 35 36 37 38 39 30 77 71 62                                               twqb1234567890wqb
+[error] mqtt/aliyun_iot_mqtt_client.c:1281 recvPublishProc()| deliver msg
+[debug] mqtt/aliyun_iot_mqtt_client.c:1091 deliverMessage()| topic be matched
+[debug] mqtt.c:48 messageArrived()| Message : wqb1234567890wqb
+[debug] mqtt/aliyun_iot_mqtt_client.c:1103 deliverMessage()| End of matching
+[error] mqtt/aliyun_iot_mqtt_client.c:1283 recvPublishProc()| end of delivering msg
+[debug] mqtt/aliyun_iot_mqtt_client.c:1509 cycle()| PUBLISH
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=48 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32759
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:38
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:39
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32760
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:40
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:41
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32761
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:42
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:43
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32762
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:44
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:45
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32763
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:46
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:47
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32764
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:48
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:49
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32765
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:50
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:51
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32766
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:52
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:53
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32767
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:54
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 30                                                                                               0
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=135 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 24                                                                                               $
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=135 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 36, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 36, recvlen = 36
+00000000: 00 1f 2f 34 65 56 69 42 46 4a 32 51 47 48 2f 64 65 76 69 63 65 5f 78 69 6b 61 6e 5f 33 2f 67 65  ../4eViBFJ2QGH/device_xikan_3/ge
+00000020: 74 77 71 62                                                                                      twqb
+[error] mqtt/aliyun_iot_mqtt_client.c:1281 recvPublishProc()| deliver msg
+[debug] mqtt/aliyun_iot_mqtt_client.c:1091 deliverMessage()| topic be matched
+[debug] mqtt.c:48 messageArrived()| Message : wqb
+[debug] mqtt/aliyun_iot_mqtt_client.c:1103 deliverMessage()| End of matching
+[error] mqtt/aliyun_iot_mqtt_client.c:1283 recvPublishProc()| end of delivering msg
+[debug] mqtt/aliyun_iot_mqtt_client.c:1509 cycle()| PUBLISH
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=135 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:55
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32768
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:56
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:57
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32769
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:58
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:59
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32770
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:60
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:61
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=499 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32771
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:62
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:63
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32772
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:64
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:65
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32773
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:66
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=499 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:67
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32774
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:68
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:69
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32775
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:70
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:71
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32776
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:72
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:73
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32777
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:74
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:75
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32778
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:76
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:77
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32779
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:78
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 32                                                                                               2
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=176 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 1, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 1, recvlen = 1
+00000000: 2d                                                                                               -
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=176 ms
+[debug] utility/aliyun_iot_common_net.c:68 read_tcp()| mqtt read recv len = 45, recvlen = 0
+[debug] utility/aliyun_iot_common_net.c:73 read_tcp()| mqtt read ret=1, rc = 45, recvlen = 45
+00000000: 00 1f 2f 34 65 56 69 42 46 4a 32 51 47 48 2f 64 65 76 69 63 65 5f 78 69 6b 61 6e 5f 33 2f 67 65  ../4eViBFJ2QGH/device_xikan_3/ge
+00000020: 74 04 44 31 32 33 34 35 36 37 38 39 30                                                           t.D1234567890
+[error] mqtt/aliyun_iot_mqtt_client.c:1281 recvPublishProc()| deliver msg
+[debug] mqtt/aliyun_iot_mqtt_client.c:1091 deliverMessage()| topic be matched
+[debug] mqtt.c:48 messageArrived()| Message : 1234567890
+[debug] mqtt/aliyun_iot_mqtt_client.c:1103 deliverMessage()| End of matching
+[error] mqtt/aliyun_iot_mqtt_client.c:1283 recvPublishProc()| end of delivering msg
+[debug] mqtt/aliyun_iot_mqtt_client.c:1509 cycle()| PUBLISH
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=176 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:79
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32780
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:80
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:81
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32781
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:82
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:83
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32782
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:84
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:85
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32783
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:86
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:87
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms
+[info] mqtt/aliyun_iot_mqtt_client.c:2177 aliyun_iot_keepalive_thread()| keepalive_thread:32784
+[info] mqtt/aliyun_iot_mqtt_client.c:2377 aliyun_iot_retrans_thread()| retrans_thread:88
+[debug] utility/aliyun_iot_common_net.c:55 read_tcp()| mqtt read(select) timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:1462 cycle()| wait data timeout
+[debug] mqtt/aliyun_iot_mqtt_client.c:2871 aliyun_iot_mqtt_yield()| cycle end
+[debug] mqtt/aliyun_iot_mqtt_client.c:2869 aliyun_iot_mqtt_yield()| cycle start
+[debug] utility/aliyun_iot_common_net.c:36 read_tcp()| mqtt read left time=500 ms

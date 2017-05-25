@@ -28,9 +28,10 @@ static int mqtt_ssl_random(void *p_rng, unsigned char *output, size_t output_len
 static void mqtt_ssl_debug( void *ctx, int level, const char *file, int line, const char *str )
 {
     ((void) level);
-
-    fprintf( (FILE *) ctx, "%s:%04d: %s", file, line, str );
-    fflush(  (FILE *) ctx  );
+    if (NULL != ctx) {
+        fprintf( (FILE *) ctx, "%s:%04d: %s", file, line, str );
+        fflush(  (FILE *) ctx  );
+    }
 }
 
 int mqtt_real_confirm(int verify_result)
