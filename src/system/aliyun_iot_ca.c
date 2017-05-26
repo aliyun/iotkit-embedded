@@ -1,7 +1,6 @@
 
 #include <stdlib.h>
 
-#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
 
 static const char *aliyun_iot_ca_crt =  { \
 "-----BEGIN CERTIFICATE-----\r\n"
@@ -27,9 +26,6 @@ static const char *aliyun_iot_ca_crt =  { \
 "-----END CERTIFICATE-----"
 };
 
-#else
-static const char *aliyun_iot_ca_crt = NULL;
-#endif
 
 const char *aliyun_iot_ca_get(void)
 {

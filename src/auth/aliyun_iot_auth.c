@@ -127,11 +127,7 @@ static int aliyun_iot_get_id_token(
     aliyun_iot_common_post(
             &httpclient,
             auth_host,
-#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
             443,
-#else
-            80,
-#endif
             aliyun_iot_ca_get(),
             &httpclient_data);
 
@@ -260,8 +256,11 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
+#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
     puser_info->pubKey = aliyun_iot_ca_get();
-
+#else
+    puser_info->pubKey = NULL;
+#endif
     if (NULL == puser_info->pubKey) {
         //Append string "::nonesecure::" to client_id if TCP connection be used.
         ret = snprintf(puser_info->client_id,

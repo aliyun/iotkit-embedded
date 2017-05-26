@@ -7,10 +7,10 @@
 #include "aliyun_iot_shadow.h"
 
 //The product and device information from IOT console
-#define PRODUCT_KEY         "4eViBFJ2QGH"
-#define DEVICE_NAME         "sh_xk_device_mqtt"
-#define DEVICE_ID           "aMJRx7GrR8Ntwh7Wmtcb"
-#define DEVICE_SECRET       "qUEtzRtLlqs4cHWdnRHa0nU8CnferurR"
+#define PRODUCT_KEY         "gaBkPbI3Zgy"
+#define DEVICE_NAME         "shadow_test3"
+#define DEVICE_ID           "gaBkPbI3Zgyshadow_test3"
+#define DEVICE_SECRET       "WXcnOt3Ry1YYnFlMxOm5WLUny81wpbW6"
 
 
 //This is the pre-defined topic
@@ -137,7 +137,7 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
     message.payloadlen = strlen(msg_pub);
     message.id         = 0;
 
-    rc = aliyun_iot_mqtt_publish(&client, TOPIC_UPDATE, &message);
+    rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
     if (SUCCESS_RETURN != rc)
     {
         aliyun_iot_mqtt_release(&client);
@@ -160,7 +160,7 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
 
         //handle the MQTT packet received from TCP or SSL connection
         aliyun_iot_mqtt_yield(&client, 500);
-        rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
+        rc = aliyun_iot_mqtt_publish(&client, TOPIC_UPDATE, &message);
     } while (ch != 'Q' && ch != 'q');
 
     aliyun_iot_mqtt_release(&client);
