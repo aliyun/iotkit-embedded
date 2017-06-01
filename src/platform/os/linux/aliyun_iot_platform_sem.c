@@ -25,15 +25,13 @@ int32_t aliyun_iot_sem_init(aliot_platform_sem_t *semaphore)
 {
     int result = 0;
 
-    result = pthread_mutex_init(&semaphore->lock,NULL);
-    if(0 != result)
-    {
+    result = pthread_mutex_init(&semaphore->lock, NULL);
+    if (0 != result) {
         return FAIL_RETURN;
     }
 
-    result = pthread_cond_init(&semaphore->sem,NULL);
-    if(0 != result)
-    {
+    result = pthread_cond_init(&semaphore->sem, NULL);
+    if (0 != result) {
         return FAIL_RETURN;
     }
 
@@ -56,14 +54,12 @@ int32_t aliyun_iot_sem_destory(aliot_platform_sem_t *semaphore)
     int32_t result = 0;
 
     result = pthread_mutex_destroy(&semaphore->lock);
-    if(0!=result)
-    {
+    if (0 != result) {
         return FAIL_RETURN;
     }
 
     result = pthread_cond_destroy(&semaphore->sem);
-    if(0!=result)
-    {
+    if (0 != result) {
         return FAIL_RETURN;
     }
 
@@ -80,7 +76,7 @@ int32_t aliyun_iot_sem_destory(aliot_platform_sem_t *semaphore)
 *          ERROR_NET_TIMEOUT：等待超时，
 * 说       明: 等待同步信号，超时退出
 ************************************************************/
-int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeout_ms)
+int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t *semaphore, uint32_t timeout_ms)
 {
     int result = 0;
     int rc = 0;
@@ -90,41 +86,30 @@ int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeou
     pthread_mutex_lock(&semaphore->lock);
 
     gettimeofday(&now, NULL);
-    unsigned long nsec = (now.tv_usec + timeout_ms%1000 * 1000)*1000;
-    timeout.tv_sec = now.tv_sec + timeout_ms/1000 + nsec/1000000000;
+    unsigned long nsec = (now.tv_usec + timeout_ms % 1000 * 1000) * 1000;
+    timeout.tv_sec = now.tv_sec + timeout_ms / 1000 + nsec / 1000000000;
     timeout.tv_nsec = nsec % 1000000000;
 
-    while(0 == semaphore->count)
-    {
-        result = pthread_cond_timedwait(&semaphore->sem,&semaphore->lock,&timeout);
-        if(ETIMEDOUT == result)
-        {
+    while (0 == semaphore->count) {
+        result = pthread_cond_timedwait(&semaphore->sem, &semaphore->lock, &timeout);
+        if (ETIMEDOUT == result) {
             //超时则退出等待
             break;
-        }
-        else if(0 == result)
-        {
+        } else if (0 == result) {
             //等到信号
             continue;
-        }
-        else
-        {
+        } else {
             //异常退出
             break;
         }
     }
 
-    if(0 == result)
-    {
+    if (0 == result) {
         rc = SUCCESS_RETURN;
         semaphore->count--;
-    }
-    else if(ETIMEDOUT == result)
-    {
+    } else if (ETIMEDOUT == result) {
         rc = ERROR_NET_TIMEOUT;
-    }
-    else
-    {
+    } else {
         rc = FAIL_RETURN;
     }
 
@@ -141,7 +126,7 @@ int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeou
 * 返 回  值:
 * 说       明: 发送同步信号
 ************************************************************/
-int32_t aliyun_iot_sem_post(aliot_platform_sem_t*semaphore)
+int32_t aliyun_iot_sem_post(aliot_platform_sem_t *semaphore)
 {
     pthread_mutex_lock(&semaphore->lock);
     semaphore->count++;

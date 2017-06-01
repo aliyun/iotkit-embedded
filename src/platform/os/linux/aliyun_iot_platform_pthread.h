@@ -11,19 +11,17 @@
  * SDK抽象的互斥锁句柄类型，
  * linux系统下该结构体元素为pthread_mutex_t
 *******************************************/
-typedef struct ALIYUN_IOT_MUTEX
-{
+typedef struct ALIYUN_IOT_MUTEX {
     pthread_mutex_t lock;
-}ALIYUN_IOT_MUTEX_S;
+} ALIYUN_IOT_MUTEX_S;
 
 /*******************************************
  * SDK抽象的线程句柄类型，
  * linux系统下该结构体元素为pthread_t
 *******************************************/
-typedef struct ALIYUN_IOT_PTHREAD
-{
+typedef struct ALIYUN_IOT_PTHREAD {
     pthread_t threadID;
-}ALIYUN_IOT_PTHREAD_S;
+} ALIYUN_IOT_PTHREAD_S;
 
 #define THREAD_NAME_LEN 64
 
@@ -31,12 +29,11 @@ typedef struct ALIYUN_IOT_PTHREAD
  * SDK抽象的线程属性数据类型，
  * linux系统下可以忽略此参数
 *******************************************/
-typedef struct ALIYUN_IOT_PTHREAD_PARAM
-{
+typedef struct ALIYUN_IOT_PTHREAD_PARAM {
     uint32_t stackDepth;
     uint32_t priority;
     int8_t threadName[THREAD_NAME_LEN];
-}ALIYUN_IOT_PTHREAD_PARAM_S;
+} ALIYUN_IOT_PTHREAD_PARAM_S;
 
 /***********************************************************
 * 函数名称: aliyun_iot_mutex_init
@@ -47,7 +44,7 @@ typedef struct ALIYUN_IOT_PTHREAD_PARAM
 * 说       明: linux系统下互斥锁初始化
 *           源码中使用
 ************************************************************/
-int32_t aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S*mutex);
+int32_t aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S *mutex);
 
 /***********************************************************
 * 函数名称: aliyun_iot_mutex_lock
@@ -58,7 +55,7 @@ int32_t aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S*mutex);
 * 说       明: linux系统下互斥锁上锁
 *           源码中使用
 ************************************************************/
-int32_t aliyun_iot_mutex_lock(ALIYUN_IOT_MUTEX_S*mutex);
+int32_t aliyun_iot_mutex_lock(ALIYUN_IOT_MUTEX_S *mutex);
 
 /***********************************************************
 * 函数名称: aliyun_iot_mutex_unlock
@@ -82,7 +79,8 @@ int32_t aliyun_iot_mutex_unlock(ALIYUN_IOT_MUTEX_S *mutex);
 ************************************************************/
 int32_t aliyun_iot_mutex_destory(ALIYUN_IOT_MUTEX_S *mutex);
 
-int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *threadName, uint32_t stackSize, uint32_t threadPriority);
+int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *threadName, uint32_t stackSize,
+                                     uint32_t threadPriority);
 
 /***********************************************************
 * 函数名称: aliyun_iot_pthread_create
@@ -96,7 +94,8 @@ int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *
 * 说       明: linux系统下创建一个分离线程的实现
 *           源码中使用
 ************************************************************/
-int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void*),void *arg,ALIYUN_IOT_PTHREAD_PARAM_S* param);
+int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S *handle, void *(*func)(void *), void *arg,
+                                  ALIYUN_IOT_PTHREAD_PARAM_S *param);
 
 /***********************************************************
 * 函数名称: aliyun_iot_pthread_cancel
@@ -107,7 +106,7 @@ int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void
 * 说       明: linux系统下关闭某一个线程的接口
 *           源码中使用
 ************************************************************/
-int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*handle);
+int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S *handle);
 
 /***********************************************************
 * 函数名称: aliyun_iot_pthread_taskdelay
@@ -118,7 +117,7 @@ int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*handle);
 * 说       明: linux系统下的线程睡眠
 *           源码和mbedtls中使用
 ************************************************************/
-int32_t aliyun_iot_pthread_taskdelay( int32_t MsToDelay);
+int32_t aliyun_iot_pthread_taskdelay(int32_t MsToDelay);
 
 
 /***********************************************************
@@ -129,7 +128,7 @@ int32_t aliyun_iot_pthread_taskdelay( int32_t MsToDelay);
 * 返 回  值:
 * 说       明:
 ************************************************************/
-int32_t aliyun_iot_pthread_setname(char* name);
+int32_t aliyun_iot_pthread_setname(char *name);
 
 #endif
 

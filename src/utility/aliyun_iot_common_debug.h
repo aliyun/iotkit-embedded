@@ -16,7 +16,7 @@
 
 #define DEBUG_PUTS(fmt, args ...) \
     do{ \
-            printf(fmt, ## args); \
+        printf(fmt, ## args); \
     }while(0)
 
 #define ASSERT_FAILED_DO() \

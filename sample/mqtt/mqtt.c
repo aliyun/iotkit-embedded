@@ -36,12 +36,12 @@ static void messageArrived(MessageData *md)
     uint32_t msg_len;
     MQTTMessage *message = md->message;
 
-   if (message->payloadlen < MSG_LEN_MAX - 1) {
+    if (message->payloadlen < MSG_LEN_MAX - 1) {
         msg_len = message->payloadlen;
-   } else {
-       ALIOT_LOG_INFO("message is too long to be stored, truncate it");
-       msg_len = MSG_LEN_MAX - 1;
-   }
+    } else {
+        ALIOT_LOG_INFO("message is too long to be stored, truncate it");
+        msg_len = MSG_LEN_MAX - 1;
+    }
 
     //copy the message to your buffer
     memcpy(my_msg, message->payload, msg_len);
@@ -69,16 +69,14 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
     /* initialize device info */
     aliyun_iot_device_init();
 
-    if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET))
-    {
+    if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET)) {
         ALIOT_LOG_DEBUG("run aliyun_iot_set_device_info() error!");
         return -1;
     }
 
 
     /* Device AUTH */
-    if (0 != aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info()))
-    {
+    if (0 != aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info())) {
         ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!");
         return -1;
     }
@@ -93,7 +91,7 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
     initParams.pWriteBuf = msg_buf;
     initParams.writeBufSize = MSG_LEN_MAX;
     initParams.disconnectHandler = NULL;
-    initParams.disconnectHandlerData = (void*) &client;
+    initParams.disconnectHandlerData = (void *) &client;
     initParams.deliveryCompleteFun = NULL;
     initParams.subAckTimeOutFun = NULL;
 
@@ -103,23 +101,20 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
     initParams.willFlag          = 0;
 
     rc = aliyun_iot_mqtt_init(&client, &initParams, aliyun_iot_get_user_info());
-    if (0 != rc)
-    {
+    if (0 != rc) {
         ALIOT_LOG_DEBUG("aliyun_iot_mqtt_init failed ret = %d", rc);
         return rc;
     }
 
     rc = aliyun_iot_mqtt_connect(&client);
-    if (0 != rc)
-    {
+    if (0 != rc) {
         aliyun_iot_mqtt_release(&client);
         ALIOT_LOG_DEBUG("ali_iot_mqtt_connect failed ret = %d", rc);
         return rc;
     }
 
     rc = aliyun_iot_mqtt_subscribe(&client, TOPIC_GET, QOS1, messageArrived);
-    if (0 != rc)
-    {
+    if (0 != rc) {
         aliyun_iot_mqtt_release(&client);
         ALIOT_LOG_DEBUG("ali_iot_mqtt_subscribe failed ret = %d", rc);
         return rc;
@@ -138,16 +133,14 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
     message.id         = 0;
 
     rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
-    if (SUCCESS_RETURN != rc)
-    {
+    if (SUCCESS_RETURN != rc) {
         aliyun_iot_mqtt_release(&client);
         ALIOT_LOG_DEBUG("aliyun_iot_mqtt_publish failed ret = %d", rc);
         return rc;
     }
 
     cnt = 0;
-    do
-    {
+    do {
         ++cnt;
         msg_len = snprintf(msg_pub, sizeof(msg_pub), "message: hello, %d!", cnt);
         if (msg_len < 0) {

@@ -5,12 +5,11 @@
 #include "aliyun_iot_platform_datatype.h"
 #include "aliyun_iot_common_error.h"
 
-typedef struct ALIYUN_IOT_SEM
-{
+typedef struct ALIYUN_IOT_SEM {
     int32_t           count;
     pthread_mutex_t lock;
     pthread_cond_t  sem;
-}aliot_platform_sem_t;
+} aliot_platform_sem_t;
 
 /***********************************************************
 * 函数名称: aliyun_iot_sem_init
@@ -44,7 +43,7 @@ int32_t aliyun_iot_sem_destory(aliot_platform_sem_t *semaphore);
 *          ERROR_NET_TIMEOUT：等待超时，
 * 说       明: 等待同步信号，超时退出
 ************************************************************/
-int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeout_ms);
+int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t *semaphore, uint32_t timeout_ms);
 
 /***********************************************************
 * 函数名称: aliyun_iot_sem_post
@@ -54,7 +53,7 @@ int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeou
 * 返 回  值:
 * 说       明: 发送同步信号
 ************************************************************/
-int32_t aliyun_iot_sem_post(aliot_platform_sem_t*semaphore);
+int32_t aliyun_iot_sem_post(aliot_platform_sem_t *semaphore);
 
 #endif
 

@@ -36,7 +36,8 @@ static void device_shadow_cb_light(aliot_shadow_attr_pt pattr)
 
 
 /* Device shadow demo entry */
-int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
+int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf)
+{
 
     char buf[1024];
 
@@ -48,16 +49,14 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
     /* Initialize the device info */
     aliyun_iot_device_init();
 
-    if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET))
-    {
+    if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET)) {
         ALIOT_LOG_DEBUG("run aliyun_iot_set_device_info() error!\n");
         return -1;
     }
 
     /* Device AUTH */
     rc = aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info());
-    if (SUCCESS_RETURN != rc)
-    {
+    if (SUCCESS_RETURN != rc) {
         ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!\n");
         return rc;
     }
@@ -73,7 +72,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
     shadaw_para.mqtt.pWriteBuf = msg_buf;
     shadaw_para.mqtt.writeBufSize = MSG_LEN_MAX;
     shadaw_para.mqtt.disconnectHandler = NULL;
-    shadaw_para.mqtt.disconnectHandlerData = (void*)&shadow.mqtt;
+    shadaw_para.mqtt.disconnectHandlerData = (void *)&shadow.mqtt;
 
     shadaw_para.mqtt.cleansession      = 0;
     shadaw_para.mqtt.MQTTVersion       = 4;
@@ -135,7 +134,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf) {
 
         /* Sleep 1000 ms */
         aliyun_iot_pthread_taskdelay(1000);
-    } while(0);
+    } while (0);
 
 
     /* Delete the two attributes */

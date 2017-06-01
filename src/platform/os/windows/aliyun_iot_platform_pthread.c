@@ -18,9 +18,8 @@
 
 int32_t aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S *mutex)
 {
-    mutex->lock = CreateMutex(NULL,FALSE,NULL);
-    if(mutex->lock <= 0)
-    {
+    mutex->lock = CreateMutex(NULL, FALSE, NULL);
+    if (mutex->lock <= 0) {
         return FAIL_RETURN;
     }
     return 0;
@@ -28,7 +27,7 @@ int32_t aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S *mutex)
 
 int32_t aliyun_iot_mutex_lock(ALIYUN_IOT_MUTEX_S *mutex)
 {
-    return (int32_t)WaitForSingleObject(mutex->lock,INFINITE);
+    return (int32_t)WaitForSingleObject(mutex->lock, INFINITE);
 }
 
 int32_t aliyun_iot_mutex_unlock(ALIYUN_IOT_MUTEX_S *mutex)
@@ -42,7 +41,8 @@ int32_t aliyun_iot_mutex_destory(ALIYUN_IOT_MUTEX_S *mutex)
     return SUCCESS_RETURN;
 }
 
-int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *threadName, uint32_t stackSize, uint32_t threadPriority)
+int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *threadName, uint32_t stackSize,
+                                     uint32_t threadPriority)
 {
     strncpy(param->threadName, threadName, THREAD_NAME_LEN);
     param->stackDepth = stackSize;
@@ -50,24 +50,23 @@ int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *
     return SUCCESS_RETURN;
 }
 
-int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void*),void *arg,ALIYUN_IOT_PTHREAD_PARAM_S*param)
+int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S *handle, void *(*func)(void *), void *arg,
+                                  ALIYUN_IOT_PTHREAD_PARAM_S *param)
 {
-    unsigned ( __stdcall *ThreadFun )( void * );
-	ThreadFun = (unsigned(__stdcall*)(void*))(func);
+    unsigned(__stdcall * ThreadFun)(void *);
+    ThreadFun = (unsigned(__stdcall *)(void *))(func);
 
     handle->threadID = (HANDLE)_beginthreadex(NULL, 0, ThreadFun, arg, 0, NULL);
-	if (handle->threadID < 0)
-	{
-		return FAIL_RETURN;
-	}
+    if (handle->threadID < 0) {
+        return FAIL_RETURN;
+    }
     return SUCCESS_RETURN;
 }
 
-int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*threadID)
+int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S *threadID)
 {
-    if(threadID->threadID != 0)
-    {
-        TerminateThread(threadID->threadID,0);
+    if (threadID->threadID != 0) {
+        TerminateThread(threadID->threadID, 0);
         CloseHandle(threadID->threadID);
     }
 
@@ -76,11 +75,11 @@ int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*threadID)
 
 int32_t aliyun_iot_pthread_taskdelay(int MsToDelay)
 {
-	Sleep(MsToDelay);
-	return  0;
+    Sleep(MsToDelay);
+    return  0;
 }
 
-int32_t aliyun_iot_pthread_setname(char* name)
+int32_t aliyun_iot_pthread_setname(char *name)
 {
     return SUCCESS_RETURN;
 }

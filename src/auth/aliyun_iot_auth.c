@@ -21,18 +21,18 @@
 const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
 
 static int aliyun_iot_get_id_token(
-                const char *auth_host,
-                const char *product_key,
-                const char *device_name,
-                const char *device_secret,
-                const char *client_id,
-                const char *version,
-                const char *timestamp,
-                const char *resources,
-                char *iot_id,
-                char *iot_token,
-                char *host,
-                uint16_t *pport)
+            const char *auth_host,
+            const char *product_key,
+            const char *device_name,
+            const char *device_secret,
+            const char *client_id,
+            const char *version,
+            const char *timestamp,
+            const char *resources,
+            char *iot_id,
+            char *iot_token,
+            char *host,
+            uint16_t *pport)
 {
 #define SIGN_SOURCE_LEN     (256)
 #define HTTP_POST_MAX_LEN   (1024)
@@ -54,29 +54,29 @@ static int aliyun_iot_get_id_token(
 
     if (length > SIGN_SOURCE_LEN) {
         ALIOT_LOG_WARN("The total length may be is too long. client_id=%s, product_key=%s, device_name=%s, timestamp= %s",
-            client_id, product_key, device_name, timestamp);
+                       client_id, product_key, device_name, timestamp);
     }
-     
-    if (NULL == (buf = aliyun_iot_memory_malloc( length ))) {
+
+    if (NULL == (buf = aliyun_iot_memory_malloc(length))) {
         goto do_exit;
     }
-    
+
     //Calculate sign
     memset(sign, 0, sizeof(sign));
 
     ret = snprintf(buf,
-            SIGN_SOURCE_LEN,
-            "clientId%sdeviceName%sproductKey%stimestamp%s",
-            client_id,
-            device_name,
-            product_key,
-            timestamp);
+                   SIGN_SOURCE_LEN,
+                   "clientId%sdeviceName%sproductKey%stimestamp%s",
+                   client_id,
+                   device_name,
+                   product_key,
+                   timestamp);
     if ((ret < 0) || (ret > SIGN_SOURCE_LEN)) {
         goto do_exit;
     }
     ALIOT_LOG_DEBUG("sign source=%s", buf);
     aliyun_iot_common_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
-    
+
 
     memset(&httpclient, 0, sizeof(httpclient_t));
     httpclient.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
@@ -91,15 +91,15 @@ static int aliyun_iot_get_id_token(
     memset(post_buf, 0, HTTP_POST_MAX_LEN);
 
     ret = snprintf(post_buf,
-            HTTP_POST_MAX_LEN,
-            "productKey=%s&deviceName=%s&sign=%s&version=%s&clientId=%s&timestamp=%s&resources=%s",
-            product_key,
-            device_name,
-            sign,
-            version,
-            client_id,
-            timestamp,
-            resources );
+                   HTTP_POST_MAX_LEN,
+                   "productKey=%s&deviceName=%s&sign=%s&version=%s&clientId=%s&timestamp=%s&resources=%s",
+                   product_key,
+                   device_name,
+                   sign,
+                   version,
+                   client_id,
+                   timestamp,
+                   resources);
 
     if ((ret < 0) || (ret >= HTTP_POST_MAX_LEN)) {
         ALIOT_LOG_ERROR("http message body is too long");
@@ -125,11 +125,11 @@ static int aliyun_iot_get_id_token(
     httpclient_data.response_buf_len = HTTP_RESP_MAX_LEN;
 
     aliyun_iot_common_post(
-            &httpclient,
-            auth_host,
-            443,
-            aliyun_iot_ca_get(),
-            &httpclient_data);
+                &httpclient,
+                auth_host,
+                443,
+                aliyun_iot_ca_get(),
+                &httpclient_data);
 
     ALIOT_LOG_DEBUG("http response:%s\n\r", httpclient_data.response_buf);
 
@@ -141,12 +141,11 @@ static int aliyun_iot_get_id_token(
 
     //get iot-id
     if (NULL == (pvalue = json_get_value_by_fullname(
-                            httpclient_data.response_buf,
-                            strlen(httpclient_data.response_buf),
-                            "data.iotId",
-                            &length,
-                            &type)))
-    {
+                                      httpclient_data.response_buf,
+                                      strlen(httpclient_data.response_buf),
+                                      "data.iotId",
+                                      &length,
+                                      &type))) {
         goto do_exit;
     }
     memcpy(iot_id, pvalue, length);
@@ -155,12 +154,11 @@ static int aliyun_iot_get_id_token(
 
     //get iot-token
     if (NULL == (pvalue = json_get_value_by_fullname(
-                            httpclient_data.response_buf,
-                            strlen(httpclient_data.response_buf),
-                            "data.iotToken",
-                            &length,
-                            &type)))
-    {
+                                      httpclient_data.response_buf,
+                                      strlen(httpclient_data.response_buf),
+                                      "data.iotToken",
+                                      &length,
+                                      &type))) {
         goto do_exit;
     }
     memcpy(iot_token, pvalue, length);
@@ -170,23 +168,21 @@ static int aliyun_iot_get_id_token(
     /*get host and port.*/
 
     if (NULL == (presrc = json_get_value_by_fullname(
-                            httpclient_data.response_buf,
-                            strlen(httpclient_data.response_buf),
-                            "data.resources.mqtt",
-                            &length,
-                            &type)))
-    {
+                                      httpclient_data.response_buf,
+                                      strlen(httpclient_data.response_buf),
+                                      "data.resources.mqtt",
+                                      &length,
+                                      &type))) {
         goto do_exit;
     }
 
     //get host
     if (NULL == (pvalue = json_get_value_by_fullname(
-                            presrc,
-                            strlen(presrc),
-                            "host",
-                            &length,
-                            &type)))
-    {
+                                      presrc,
+                                      strlen(presrc),
+                                      "host",
+                                      &length,
+                                      &type))) {
         goto do_exit;
     }
     memcpy(host, pvalue, length);
@@ -194,12 +190,11 @@ static int aliyun_iot_get_id_token(
 
     //get port
     if (NULL == (pvalue = json_get_value_by_fullname(
-                            presrc,
-                            strlen(presrc),
-                            "port",
-                            &length,
-                            &type)))
-    {
+                                      presrc,
+                                      strlen(presrc),
+                                      "port",
+                                      &length,
+                                      &type))) {
         goto do_exit;
     }
     memcpy(port_str, pvalue, length);
@@ -207,7 +202,7 @@ static int aliyun_iot_get_id_token(
     *pport = atoi(port_str);
 
     ALIOT_LOG_DEBUG("\niot-id=%s\niot-token=%s\nhost=%s\nport=%d\r\n",
-                            iot_id, iot_token, host, *pport);
+                    iot_id, iot_token, host, *pport);
 
     ret = 0;
 
@@ -235,20 +230,19 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     uint16_t port;
 
     if (0 != aliyun_iot_get_id_token(
-                iot_atuh_host,
-                pdevice_info->product_key,
-                pdevice_info->device_name,
-                pdevice_info->device_secret,
-                pdevice_info->device_id,
-                "default",
-                "2524608000000", //01 Jan 2050
-                "mqtt",
-                iot_id,
-                iot_token,
-                host,
-                &port))
-    {
-       return -1;
+                    iot_atuh_host,
+                    pdevice_info->product_key,
+                    pdevice_info->device_name,
+                    pdevice_info->device_secret,
+                    pdevice_info->device_id,
+                    "default",
+                    "2524608000000", //01 Jan 2050
+                    "mqtt",
+                    iot_id,
+                    iot_token,
+                    host,
+                    &port)) {
+        return -1;
     }
 
 
@@ -264,21 +258,21 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     if (NULL == puser_info->pubKey) {
         //Append string "::nonesecure::" to client_id if TCP connection be used.
         ret = snprintf(puser_info->client_id,
-                    CLIENT_ID_LEN,
-                    "%s%s",
-                    pdevice_info->device_id,
-                    "::nonesecure::");
+                       CLIENT_ID_LEN,
+                       "%s%s",
+                       pdevice_info->device_id,
+                       "::nonesecure::");
 
     } else {
         ret = snprintf(puser_info->client_id,
-                   CLIENT_ID_LEN,
-                   "%s",
-                   pdevice_info->device_id);
+                       CLIENT_ID_LEN,
+                       "%s",
+                       pdevice_info->device_id);
     }
 
     if (ret >= CLIENT_ID_LEN) {
         ALIOT_LOG_ERROR("client_id is too long");
-    } else if (ret < 0){
+    } else if (ret < 0) {
         return -1;
     }
 

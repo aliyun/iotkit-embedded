@@ -10,8 +10,7 @@
 #ifndef ALIYUN_IOT_COMMON_ERROR_H
 #define ALIYUN_IOT_COMMON_ERROR_H
 
-typedef enum IOT_RETURN_CODES
-{
+typedef enum IOT_RETURN_CODES {
     ERROR_DEVICE_NOT_EXSIT = -311,
     ERROR_NET_TIMEOUT = -310,
     ERROR_CERT_VERIFY_FAIL  = -309,
@@ -36,25 +35,25 @@ typedef enum IOT_RETURN_CODES
     MQTT_CONNACK_BAD_USERDATA_ERROR = -34,/** Connect request failed with the server returning a bad userdata error */
     MQTT_CONNACK_NOT_AUTHORIZED_ERROR = -33,/** Connect request failed with the server failing to authenticate the request */
     MQTT_CONNECT_ERROR = -32,
-    MQTT_CREATE_THREAD_ERROR= -31,
-    MQTT_PING_PACKET_ERROR= -30,
-    MQTT_CONNECT_PACKET_ERROR= -29,
-    MQTT_CONNECT_ACK_PACKET_ERROR= -28,
+    MQTT_CREATE_THREAD_ERROR = -31,
+    MQTT_PING_PACKET_ERROR = -30,
+    MQTT_CONNECT_PACKET_ERROR = -29,
+    MQTT_CONNECT_ACK_PACKET_ERROR = -28,
     MQTT_NETWORK_CONNECT_ERROR = -27,
     MQTT_STATE_ERROR = -26,
-    MQTT_SUBSCRIBE_PACKET_ERROR= -25,
-    MQTT_SUBSCRIBE_ACK_PACKET_ERROR= -24,
-    MQTT_SUBSCRIBE_QOS_ERROR= -23,
+    MQTT_SUBSCRIBE_PACKET_ERROR = -25,
+    MQTT_SUBSCRIBE_ACK_PACKET_ERROR = -24,
+    MQTT_SUBSCRIBE_QOS_ERROR = -23,
     MQTT_UNSUBSCRIBE_PACKET_ERROR = -22,
-    MQTT_PUBLISH_PACKET_ERROR= -21,
-    MQTT_PUBLISH_QOS_ERROR= -20,
-    MQTT_PUBLISH_ACK_PACKET_ERROR= -19,
+    MQTT_PUBLISH_PACKET_ERROR = -21,
+    MQTT_PUBLISH_QOS_ERROR = -20,
+    MQTT_PUBLISH_ACK_PACKET_ERROR = -19,
     MQTT_PUBLISH_COMP_PACKET_ERROR = -18,
-    MQTT_PUBLISH_REC_PACKET_ERROR= -17,
-    MQTT_PUBLISH_REL_PACKET_ERROR= -16,
-    MQTT_UNSUBSCRIBE_ACK_PACKET_ERROR= -15,
+    MQTT_PUBLISH_REC_PACKET_ERROR = -17,
+    MQTT_PUBLISH_REL_PACKET_ERROR = -16,
+    MQTT_UNSUBSCRIBE_ACK_PACKET_ERROR = -15,
     MQTT_NETWORK_ERROR = -14,
-    MQTT_PUBLISH_ACK_TYPE_ERROR= -13,
+    MQTT_PUBLISH_ACK_TYPE_ERROR = -13,
 
     ERROR_SHADOW_NO_METHOD = -2008,
     ERROR_SHADOW_UNDEF_TYPE = -2007,
@@ -74,7 +73,7 @@ typedef enum IOT_RETURN_CODES
     ERROR_NO_SUPPORT = -12,
     ERROR_NO_PERSISTENCE = -11,
     ERROR_HTTP_BREAK = -10,
-	ERROR_NULL_VALUE = -9,
+    ERROR_NULL_VALUE = -9,
     ERROR_HTTP_CONN = -8,                    /**< Connection failed. */
     ERROR_HTTP_PARSE = -7,                   /**< A URL parse error occurred. */
     ERRO_HTTP_UNRESOLVED_DNS = -6,           /**< Could not resolve the hostname. */
@@ -99,16 +98,16 @@ typedef enum IOT_RETURN_CODES
 #ifdef ALI_IOT_TRACE
 #define IOT_FUNC_ENTRY    \
     {\
-    printf("FUNC_ENTRY:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
+        printf("FUNC_ENTRY:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
     }
 #define IOT_FUNC_EXIT    \
     {\
-    printf("FUNC_EXIT:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
+        printf("FUNC_EXIT:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
     }
 #define IOT_FUNC_EXIT_RC(x)    \
     {\
-    printf("FUNC_EXIT:   %s L#%d Return Code : %d \n", __PRETTY_FUNCTION__, __LINE__, x);  \
-    return x; \
+        printf("FUNC_EXIT:   %s L#%d Return Code : %d \n", __PRETTY_FUNCTION__, __LINE__, x);  \
+        return x; \
     }
 #else
 

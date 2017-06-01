@@ -21,9 +21,9 @@ static aliot_err_t aliyun_iot_shadow_delta_response(aliot_shadow_pt pshadow)
     }
 
     rc = snprintf(resp_data,
-            len,
-            ALIOT_SHADOW_DELTA_RESPONSE_FMT,
-            ads_common_get_version(pshadow));
+                  len,
+                  ALIOT_SHADOW_DELTA_RESPONSE_FMT,
+                  ads_common_get_version(pshadow));
     if ((rc < 0) || (rc >= len)) {
         return FAIL_RETURN;
     }
@@ -41,25 +41,25 @@ aliot_err_t aliyun_iot_shadow_delta_init(aliot_shadow_pt pshadow)
 
 
 static uint32_t aliyun_iot_shadow_get_timestamp(const char *pmetadata_desired,
-                    size_t len_metadata_desired,
-                    const char *pname)
+        size_t len_metadata_desired,
+        const char *pname)
 {
     const char *pdata;
     int len;
 
     //attribute be matched, and then get timestamp
     pdata = json_get_value_by_fullname(pmetadata_desired,
-                len_metadata_desired,
-                pname,
-                &len,
-                NULL);
+                                       len_metadata_desired,
+                                       pname,
+                                       &len,
+                                       NULL);
 
     if (NULL != pdata) {
         pdata = json_get_value_by_fullname(pdata,
-                    len,
-                    "timestamp",
-                    &len,
-                    NULL);
+                                           len,
+                                           "timestamp",
+                                           &len,
+                                           NULL);
 
         if (NULL != pdata) {
             return atoi(pdata);
@@ -72,18 +72,18 @@ static uint32_t aliyun_iot_shadow_get_timestamp(const char *pmetadata_desired,
 
 
 static aliot_err_t aliyun_iot_shadow_delta_update_attr_value(
-                        aliot_shadow_attr_pt pattr,
-                        const char *pvalue,
-                        size_t value_len)
+            aliot_shadow_attr_pt pattr,
+            const char *pvalue,
+            size_t value_len)
 {
     return ads_common_convert_string2data(pvalue, value_len, pattr->attr_type, pattr->pattr_data);
 }
 
 //handle response ACK of UPDATE
 void aliyun_iot_shadow_delta_entry(
-        aliot_shadow_pt pshadow,
-        char *json_doc,
-        size_t json_doc_len)
+            aliot_shadow_pt pshadow,
+            char *json_doc,
+            size_t json_doc_len)
 {
     const char *key_metadata;
     const char *pstate, *pmetadata, *pvalue;
@@ -94,26 +94,26 @@ void aliyun_iot_shadow_delta_entry(
 
 
     if (NULL != (pstate = json_get_value_by_fullname(json_doc,
-                                json_doc_len,
-                                "payload.state.desired",
-                                &len_state,
-                                NULL))) {
+                          json_doc_len,
+                          "payload.state.desired",
+                          &len_state,
+                          NULL))) {
         key_metadata = "payload.metadata.desired";
     } else {
         //if have not desired key, get reported key instead.
         key_metadata = "payload.metadata.reported";
         pstate = json_get_value_by_fullname(json_doc,
-                        json_doc_len,
-                        "payload.state.reported",
-                        &len_state,
-                        NULL);
+                                            json_doc_len,
+                                            "payload.state.reported",
+                                            &len_state,
+                                            NULL);
     }
 
     pmetadata = json_get_value_by_fullname(json_doc,
-                    json_doc_len,
-                    key_metadata,
-                    &len_metadata,
-                    NULL);
+                                           json_doc_len,
+                                           key_metadata,
+                                           &len_metadata,
+                                           NULL);
 
     if ((NULL == pstate) || (NULL == pmetadata)) {
         ALIOT_LOG_ERROR("Invalid 'control' JSON Doc");
@@ -137,9 +137,9 @@ void aliyun_iot_shadow_delta_entry(
         if (NULL != pvalue) { //attribute be matched
             //get timestamp
             pattr->timestamp = aliyun_iot_shadow_get_timestamp(
-                                    pmetadata,
-                                    len_metadata,
-                                    pattr->pattr_name);
+                                           pmetadata,
+                                           len_metadata,
+                                           pattr->pattr_name);
 
             //convert string of JSON value according to destination data type.
             if (SUCCESS_RETURN != aliyun_iot_shadow_delta_update_attr_value(pattr, pvalue, len)) {

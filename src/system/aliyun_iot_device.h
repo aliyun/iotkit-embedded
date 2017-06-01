@@ -19,17 +19,15 @@
 #define PASSWORD_LEN        (32)
 
 
-typedef struct IOT_DEVICE_INFO
-{
+typedef struct IOT_DEVICE_INFO {
     char product_key[PRODUCT_KEY_LEN + 1];
     char device_name[DEVICE_NAME_LEN + 1];
     char device_id[DEVICE_ID_LEN + 1];
     char device_secret[DEVICE_SECRET_LEN + 1];
-}aliot_device_info_t, *aliot_device_info_pt;
+} aliot_device_info_t, *aliot_device_info_pt;
 
 
-typedef struct ALIYUN_IOT_USER_INFO
-{
+typedef struct ALIYUN_IOT_USER_INFO {
     uint16_t port;
     char port_str[6]; //todo remove it.
     char host_name[HOST_ADDRESS_LEN + 1];
@@ -37,7 +35,7 @@ typedef struct ALIYUN_IOT_USER_INFO
     char user_name[USER_NAME_LEN + 1];
     char password[PASSWORD_LEN + 1];
     const char *pubKey;
-}aliot_user_info_t, *aliot_user_info_pt;
+} aliot_user_info_t, *aliot_user_info_pt;
 
 
 int aliyun_iot_device_init(void);

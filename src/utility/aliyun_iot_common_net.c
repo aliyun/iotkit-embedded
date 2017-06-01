@@ -27,10 +27,9 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
 
     aliyun_iot_timer_cutdown(&time, timeout_ms);
 
-    do
-    {
+    do {
         lefttime = aliyun_iot_timer_remain(&time);
-        if(lefttime <= 0) {
+        if (lefttime <= 0) {
             break;
         }
 
@@ -39,7 +38,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
         ret = aliyun_iot_network_select(pNetwork->handle, IOT_NET_TRANS_RECV, lefttime, &result);
         if (ret < 0) {
             int32_t err = aliyun_iot_get_errno();
-            if(err == EINTR_IOT) {
+            if (err == EINTR_IOT) {
                 continue;
             } else {
                 ALIOT_LOG_ERROR("read select fail ret=%d", ret);
@@ -50,7 +49,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
             //ALIOT_LOG_DEBUG("read select timeout");
             break;
         } else if (ret == 1) {
-            if(IOT_NET_FD_NO_ISSET == result) {
+            if (IOT_NET_FD_NO_ISSET == result) {
                 ALIOT_LOG_DEBUG("another fd readable!");
                 continue;
             }
@@ -72,7 +71,7 @@ static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
                 }
             }
         }
-    }while(recvlen < len);
+    } while (recvlen < len);
 
     //ALIOT_LOG_INFO("%u bytes be received.", recvlen);
     //aliyun_iot_common_hexdump(ALIOT_HEXDUMP_PREFIX_OFFSET, 32, 1, buffer, recvlen, 1);
@@ -127,7 +126,7 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
             } else {
                 int32_t err = aliyun_iot_get_errno();
                 if (err == EINTR_IOT || err == EWOULDBLOCK_IOT
-                        || err == EAGAIN_IOT) {
+                    || err == EAGAIN_IOT) {
                     continue;
                 } else {
                     ALIOT_LOG_ERROR("write fail:");
@@ -143,7 +142,7 @@ static int write_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
 
 static int disconnect_tcp(pNetwork_t pNetwork)
 {
-    if( pNetwork->handle < 0 ) {
+    if (pNetwork->handle < 0) {
         return -1;
     }
 
@@ -159,16 +158,14 @@ static int disconnect_tcp(pNetwork_t pNetwork)
 
 static int connect_tcp(pNetwork_t pNetwork)
 {
-    if(NULL == pNetwork)
-    {
+    if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return 1;
     }
 
     //todo port should be integer type.
     pNetwork->handle = (intptr_t)aliyun_iot_network_create(pNetwork->pHostAddress, pNetwork->port, IOT_NET_PROTOCOL_TCP);
-    if(pNetwork->handle < 0 )
-    {
+    if (pNetwork->handle < 0) {
         return -1;
     }
 
@@ -180,8 +177,7 @@ static int connect_tcp(pNetwork_t pNetwork)
 
 static int read_ssl(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    if(NULL == pNetwork)
-    {
+    if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return 1;
     }
@@ -191,8 +187,7 @@ static int read_ssl(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t ti
 
 static int write_ssl(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    if(NULL == pNetwork)
-    {
+    if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return 1;
     }
@@ -202,8 +197,7 @@ static int write_ssl(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t t
 
 static int disconnect_ssl(pNetwork_t pNetwork)
 {
-    if(NULL == pNetwork)
-    {
+    if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return 1;
     }
@@ -217,8 +211,7 @@ static int disconnect_ssl(pNetwork_t pNetwork)
 
 static int connect_ssl(pNetwork_t pNetwork)
 {
-    if(NULL == pNetwork)
-    {
+    if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return 1;
     }
@@ -229,11 +222,11 @@ static int connect_ssl(pNetwork_t pNetwork)
     }
 
     if (0 == aliyun_iot_network_ssl_connect(
-                (void *)pNetwork->handle,
-                pNetwork->pHostAddress,
-                pNetwork->port,
-                pNetwork->ca_crt,
-                strlen(pNetwork->ca_crt) + 1)) {
+                    (void *)pNetwork->handle,
+                    pNetwork->pHostAddress,
+                    pNetwork->port,
+                    pNetwork->ca_crt,
+                    strlen(pNetwork->ca_crt) + 1)) {
         return 0;
     } else {
         //TODO SHOLUD not remove this handle space
@@ -295,7 +288,7 @@ int aliyun_iot_net_init(pNetwork_t pNetwork, char *host, char *port, char *ca_cr
 
     pNetwork->handle = -1;
     pNetwork->read = aliyun_iot_net_read;
-    pNetwork->write= aliyun_iot_net_write;
+    pNetwork->write = aliyun_iot_net_write;
     pNetwork->disconnect = aliyun_iot_net_disconnect;
     pNetwork->connect = aliyun_iot_net_connect;
 

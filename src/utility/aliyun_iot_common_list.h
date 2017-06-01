@@ -15,28 +15,28 @@ typedef enum {
  * list_t node struct.
  */
 typedef struct list_node {
-  struct list_node *prev;
-  struct list_node *next;
-  void *val;
+    struct list_node *prev;
+    struct list_node *next;
+    void *val;
 } list_node_t;
 
 /*
  * list_t struct.
  */
 typedef struct {
-  list_node_t *head;
-  list_node_t *tail;
-  unsigned int len;
-  void (*free)(void *val);
-  int (*match)(void *a, void *b);
+    list_node_t *head;
+    list_node_t *tail;
+    unsigned int len;
+    void (*free)(void *val);
+    int (*match)(void *a, void *b);
 } list_t;
 
 /*
  * list_t iterator struct.
  */
 typedef struct {
-  list_node_t *next;
-  list_direction_t direction;
+    list_node_t *next;
+    list_direction_t direction;
 } list_iterator_t;
 
 // Node prototypes.

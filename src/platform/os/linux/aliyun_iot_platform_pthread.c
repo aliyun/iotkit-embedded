@@ -24,7 +24,7 @@
 ************************************************************/
 int32_t aliyun_iot_mutex_init(ALIYUN_IOT_MUTEX_S *mutex)
 {
-    return (int32_t)pthread_mutex_init(&(mutex->lock),NULL);
+    return (int32_t)pthread_mutex_init(&(mutex->lock), NULL);
 }
 
 /***********************************************************
@@ -69,7 +69,8 @@ int32_t aliyun_iot_mutex_destory(ALIYUN_IOT_MUTEX_S *mutex)
     return (int32_t)pthread_mutex_destroy(&mutex->lock);
 }
 
-int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *threadName, uint32_t stackSize, uint32_t threadPriority)
+int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *threadName, uint32_t stackSize,
+                                     uint32_t threadPriority)
 {
     strncpy(param->threadName, threadName, THREAD_NAME_LEN);
     param->stackDepth = stackSize;
@@ -89,13 +90,14 @@ int32_t aliyun_iot_pthread_param_set(ALIYUN_IOT_PTHREAD_PARAM_S *param, int8_t *
 * 说       明: linux系统下创建一个分离线程的实现
 *           源码中使用
 ************************************************************/
-int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void*),void *arg,ALIYUN_IOT_PTHREAD_PARAM_S*param)
+int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S *handle, void *(*func)(void *), void *arg,
+                                  ALIYUN_IOT_PTHREAD_PARAM_S *param)
 {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-    return pthread_create(&handle->threadID,&attr,func,arg);
+    return pthread_create(&handle->threadID, &attr, func, arg);
 }
 
 /***********************************************************
@@ -107,10 +109,9 @@ int32_t aliyun_iot_pthread_create(ALIYUN_IOT_PTHREAD_S* handle,void*(*func)(void
 * 说       明: linux系统下关闭某一个线程的接口
 *           源码中使用
 ************************************************************/
-int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*threadID)
+int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S *threadID)
 {
-    if(threadID->threadID != 0)
-    {
+    if (threadID->threadID != 0) {
         return pthread_cancel(threadID->threadID);
     }
 
@@ -128,7 +129,7 @@ int32_t aliyun_iot_pthread_cancel(ALIYUN_IOT_PTHREAD_S*threadID)
 ************************************************************/
 int32_t aliyun_iot_pthread_taskdelay(int MsToDelay)
 {
-    return usleep(MsToDelay*1000);
+    return usleep(MsToDelay * 1000);
 }
 
 
@@ -140,7 +141,7 @@ int32_t aliyun_iot_pthread_taskdelay(int MsToDelay)
 * 返 回  值:
 * 说       明:
 ************************************************************/
-int32_t aliyun_iot_pthread_setname(char* name)
+int32_t aliyun_iot_pthread_setname(char *name)
 {
     prctl(PR_SET_NAME, name);
     return SUCCESS_RETURN;

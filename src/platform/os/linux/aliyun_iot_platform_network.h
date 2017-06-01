@@ -20,38 +20,34 @@
 /*******************************************
  * socket协议类型
 *******************************************/
-typedef enum IOT_NET_PROTOCOL_TYPE
-{
+typedef enum IOT_NET_PROTOCOL_TYPE {
     IOT_NET_PROTOCOL_TCP = 0,
     IOT_NET_PROTOCOL_UDP = 1,
-}IOT_NET_PROTOCOL_TYPE;
+} IOT_NET_PROTOCOL_TYPE;
 
 /*******************************************
  * 读写类型
 *******************************************/
-typedef enum IOT_NET_TRANS_TYPE
-{
+typedef enum IOT_NET_TRANS_TYPE {
     IOT_NET_TRANS_RECV = 0,
     IOT_NET_TRANS_SEND = 1,
-}IOT_NET_TRANS_TYPE_E;
+} IOT_NET_TRANS_TYPE_E;
 
 /*******************************************
  * select的结果类型，是否可读写
 *******************************************/
-typedef enum IOT_NET_FD_ISSET
-{
+typedef enum IOT_NET_FD_ISSET {
     IOT_NET_FD_NO_ISSET = 0,
     IOT_NET_FD_ISSET = 1,
-}IOT_NET_FD_ISSET_E;
+} IOT_NET_FD_ISSET_E;
 
 /*******************************************
  * send接口标志
 *******************************************/
-typedef enum IOT_NET_TRANS_FLAGS
-{
+typedef enum IOT_NET_TRANS_FLAGS {
     IOT_NET_FLAGS_DEFAULT = 0,  //默认
     IOT_NET_FLAGS_DONTWAIT = 1, //非阻塞调用
-}IOT_NET_TRANS_FLAGS_E;
+} IOT_NET_TRANS_FLAGS_E;
 
 /*******************************************
  * 系统SDK自定义errno的值
@@ -85,8 +81,7 @@ typedef enum IOT_NET_TRANS_FLAGS
 #define ENOMEM_IOT        -28
 #define EMSGSIZE_IOT      -29
 
-typedef enum ALIYUN_NETWORK_ERROR
-{
+typedef enum ALIYUN_NETWORK_ERROR {
     NETWORK_PARAM_ERROR = -31,
     NETWORK_MSG_TOO_LONG = -30,
     NETWORK_OUT_OF_MEMORY = -29,
@@ -120,7 +115,7 @@ typedef enum ALIYUN_NETWORK_ERROR
     NETWORK_FAIL = -1,
     NETWORK_SUCCESS = 0,
 
-}ALIYUN_NETWORK_ERROR_E;
+} ALIYUN_NETWORK_ERROR_E;
 
 /***********************************************************
 * 函数名称: aliyun_iot_network_create
@@ -134,7 +129,7 @@ typedef enum ALIYUN_NETWORK_ERROR
 *           并且建立TCP连接
 *           源码以及mbedtls中使用
 ************************************************************/
-int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET_PROTOCOL_TYPE type);
+int32_t aliyun_iot_network_create(const int8_t *host, const int8_t *service, IOT_NET_PROTOCOL_TYPE type);
 
 /***********************************************************
 * 函数名称: aliyun_iot_network_bind
@@ -148,7 +143,7 @@ int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET
 *           并且建立TCP连接
 *           mbedtls中使用
 ************************************************************/
-int32_t aliyun_iot_network_bind(const int8_t*host,const int8_t*service,IOT_NET_PROTOCOL_TYPE type);
+int32_t aliyun_iot_network_bind(const int8_t *host, const int8_t *service, IOT_NET_PROTOCOL_TYPE type);
 
 /***********************************************************
 * 函数名称: aliyun_iot_network_send
@@ -189,7 +184,7 @@ int32_t aliyun_iot_network_recv(int32_t sockFd, void *buf, int32_t nbytes, uint3
 * 说       明: 判断socket是否有可读写事件，使用linux系统下select接口进行实现
 *           源码和mbedtls中使用
 ************************************************************/
-int32_t aliyun_iot_network_select(int32_t fd,IOT_NET_TRANS_TYPE_E type,int timeoutMs,IOT_NET_FD_ISSET_E* result);
+int32_t aliyun_iot_network_select(int32_t fd, IOT_NET_TRANS_TYPE_E type, int timeoutMs, IOT_NET_FD_ISSET_E *result);
 
 /***********************************************************
 * 函数名称: aliyun_iot_network_settimeout
@@ -202,7 +197,7 @@ int32_t aliyun_iot_network_select(int32_t fd,IOT_NET_TRANS_TYPE_E type,int timeo
 * 说       明: linux系统下通过setsocketopt接口设置收发数据的超时时间
 *           源码和mbedtls中使用
 ************************************************************/
-int32_t aliyun_iot_network_settimeout(int32_t fd,int timeoutMs,IOT_NET_TRANS_TYPE_E type);
+int32_t aliyun_iot_network_settimeout(int32_t fd, int timeoutMs, IOT_NET_TRANS_TYPE_E type);
 
 /***********************************************************
 * 函数名称: aliyun_iot_network_get_nonblock
@@ -258,7 +253,7 @@ int32_t aliyun_iot_network_close(int32_t fd);
 * 说       明: linux系统socket的shutdown
 *           mbedtls中使用
 ************************************************************/
-int32_t aliyun_iot_network_shutdown(int32_t fd,int32_t how);
+int32_t aliyun_iot_network_shutdown(int32_t fd, int32_t how);
 
 /***********************************************************
 * 函数名称: aliyun_iot_get_errno

@@ -3,8 +3,7 @@
 #define ALIYUN_IOT_AUTH_H
 
 #if defined(__cplusplus)
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "aliyun_iot_platform_datatype.h"

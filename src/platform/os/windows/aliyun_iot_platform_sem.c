@@ -41,9 +41,9 @@ int32_t aliyun_iot_sem_destory(aliot_platform_sem_t *semaphore)
 *          ERROR_NET_TIMEOUT：等待超时，
 * 说       明: 等待同步信号，超时退出
 ************************************************************/
-int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeout_ms)
+int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t *semaphore, uint32_t timeout_ms)
 {
-    WaitForSingleObject(semaphore->hSemaphore,timeout_ms);
+    WaitForSingleObject(semaphore->hSemaphore, timeout_ms);
     return SUCCESS_RETURN;
 }
 
@@ -55,7 +55,7 @@ int32_t aliyun_iot_sem_gettimeout(aliot_platform_sem_t*semaphore,uint32_t timeou
 * 返 回  值:
 * 说       明: 发送同步信号
 ************************************************************/
-int32_t aliyun_iot_sem_post(aliot_platform_sem_t*semaphore)
+int32_t aliyun_iot_sem_post(aliot_platform_sem_t *semaphore)
 {
     ReleaseSemaphore(semaphore->hSemaphore, 1, NULL);
     return SUCCESS_RETURN;

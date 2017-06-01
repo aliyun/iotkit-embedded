@@ -10,7 +10,7 @@
 
 //add a new wait element
 //return: NULL, failed; others, pointer of element.
-aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add (
+aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
             aliot_shadow_pt pshadow,
             const char *ptoken, //NOTE: this is NOT a string.
             size_t token_len,
@@ -121,19 +121,19 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
                 do {
                     pdata = json_get_value_by_fullname(ppayload, payload_len, "status", &data_len, NULL);
                     if (NULL == pdata) {
-                            ALIOT_LOG_WARN("Invalid JSON document: not 'payload.status' key");
-                            break;
+                        ALIOT_LOG_WARN("Invalid JSON document: not 'payload.status' key");
+                        break;
                     }
 
                     if (0 == strncmp(pdata, "success", data_len)) {
                         pelement[i].callback(ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
-                    } else if (0 == strncmp(pdata, "error", data_len)){
+                    } else if (0 == strncmp(pdata, "error", data_len)) {
                         aliot_shadow_ack_code_t ack_code;
 
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errorcode", &data_len, NULL);
                         if (NULL == pdata) {
                             ALIOT_LOG_WARN(
-                                    "Invalid JSON document: not 'content.errorcode' key");
+                                        "Invalid JSON document: not 'content.errorcode' key");
                             break;
                         }
                         ack_code = atoi(pdata);
@@ -141,16 +141,16 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errormessage", &data_len, NULL);
                         if (NULL == pdata) {
                             ALIOT_LOG_WARN(
-                                    "Invalid JSON document: not 'content.errormessage' key");
+                                        "Invalid JSON document: not 'content.errormessage' key");
                             break;
                         }
 
                         pelement[i].callback(ack_code, pdata, data_len);
                     } else {
                         ALIOT_LOG_WARN(
-                                "Invalid JSON document: value of 'status' key is invalid.");
+                                    "Invalid JSON document: value of 'status' key is invalid.");
                     }
-                } while(0);
+                } while (0);
 
                 aliyun_iot_mutex_lock(&pshadow->mutex);
                 memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));

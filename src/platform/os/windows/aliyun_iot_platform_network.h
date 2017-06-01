@@ -8,29 +8,25 @@
 #include "aliyun_iot_platform_timer.h"
 #include "aliyun_iot_platform_datatype.h"
 
-typedef enum IOT_NET_PROTOCOL_TYPE
-{
+typedef enum IOT_NET_PROTOCOL_TYPE {
     IOT_NET_PROTOCOL_TCP = 0,
     IOT_NET_PROTOCOL_UDP = 1,
-}IOT_NET_PROTOCOL_TYPE;
+} IOT_NET_PROTOCOL_TYPE;
 
-typedef enum IOT_NET_TRANS_TYPE
-{
+typedef enum IOT_NET_TRANS_TYPE {
     IOT_NET_TRANS_RECV = 0,
     IOT_NET_TRANS_SEND = 1,
-}IOT_NET_TRANS_TYPE_E;
+} IOT_NET_TRANS_TYPE_E;
 
-typedef enum IOT_NET_FD_ISSET
-{
+typedef enum IOT_NET_FD_ISSET {
     IOT_NET_FD_NO_ISSET = 0,
     IOT_NET_FD_ISSET = 1,
-}IOT_NET_FD_ISSET_E;
+} IOT_NET_FD_ISSET_E;
 
-typedef enum IOT_NET_TRANS_FLAGS
-{
+typedef enum IOT_NET_TRANS_FLAGS {
     IOT_NET_FLAGS_DEFAULT = 0,
     IOT_NET_FLAGS_DONTWAIT = 1,
-}IOT_NET_TRANS_FLAGS_E;
+} IOT_NET_TRANS_FLAGS_E;
 
 #define EINTR_IOT              -2
 #define EBADF_IOT              -3
@@ -61,8 +57,7 @@ typedef enum IOT_NET_TRANS_FLAGS
 #define ENOMEM_IOT        -28
 #define EMSGSIZE_IOT      -29
 
-typedef enum ALIYUN_NETWORK_ERROR
-{
+typedef enum ALIYUN_NETWORK_ERROR {
     NETWORK_PARAM_ERROR = -31,
     NETWORK_MSG_TOO_LONG = -30,
     NETWORK_OUT_OF_MEMORY = -29,
@@ -96,19 +91,19 @@ typedef enum ALIYUN_NETWORK_ERROR
     NETWORK_FAIL = -1,
     NETWORK_SUCCESS = 0,
 
-}ALIYUN_NETWORK_ERROR_E;
+} ALIYUN_NETWORK_ERROR_E;
 
-int32_t aliyun_iot_network_create(const int8_t*host,const int8_t*service,IOT_NET_PROTOCOL_TYPE type);
+int32_t aliyun_iot_network_create(const int8_t *host, const int8_t *service, IOT_NET_PROTOCOL_TYPE type);
 
-int32_t aliyun_iot_network_bind(const int8_t*host,const int8_t*service,IOT_NET_PROTOCOL_TYPE type);
+int32_t aliyun_iot_network_bind(const int8_t *host, const int8_t *service, IOT_NET_PROTOCOL_TYPE type);
 
 int32_t aliyun_iot_network_send(int32_t sockFd, void *buf, int32_t nbytes, uint32_t flags);
 
 int32_t aliyun_iot_network_recv(int32_t sockFd, void *buf, int32_t nbytes, uint32_t flags);
 
-int32_t aliyun_iot_network_select(int32_t fd,IOT_NET_TRANS_TYPE_E type,int timeoutMs,IOT_NET_FD_ISSET_E* result);
+int32_t aliyun_iot_network_select(int32_t fd, IOT_NET_TRANS_TYPE_E type, int timeoutMs, IOT_NET_FD_ISSET_E *result);
 
-int32_t aliyun_iot_network_settimeout(int32_t fd,int timeoutMs,IOT_NET_TRANS_TYPE_E type);
+int32_t aliyun_iot_network_settimeout(int32_t fd, int timeoutMs, IOT_NET_TRANS_TYPE_E type);
 
 int32_t aliyun_iot_network_get_nonblock(int32_t fd);
 
@@ -118,7 +113,7 @@ int32_t aliyun_iot_network_set_block(int32_t fd);
 
 int32_t aliyun_iot_network_close(int32_t fd);
 
-int32_t aliyun_iot_network_shutdown(int32_t fd,int32_t how);
+int32_t aliyun_iot_network_shutdown(int32_t fd, int32_t how);
 
 int32_t aliyun_iot_get_errno(void);
 

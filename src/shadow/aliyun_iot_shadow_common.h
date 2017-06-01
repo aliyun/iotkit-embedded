@@ -14,41 +14,41 @@ aliot_shadow_pt ads_common_get_ads(void);
 void ads_common_set_ads(aliot_shadow_pt pshadow);
 
 aliot_err_t ads_common_format_init(format_data_pt pformat,
-                char *buf,
-                uint16_t size,
-                const char *method,
-                const char *head_str);
+                                   char *buf,
+                                   uint16_t size,
+                                   const char *method,
+                                   const char *head_str);
 
 aliot_err_t ads_common_format_add(format_data_pt pformat,
-                const char *name,
-                const void *pvalue,
-                aliot_shadow_attr_datatype_t datatype);
+                                  const char *name,
+                                  const void *pvalue,
+                                  aliot_shadow_attr_datatype_t datatype);
 
 aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_str);
 
 void ads_common_update_time(aliot_shadow_pt pshadow, uint32_t new_timestamp);
 
 int ads_common_convert_data2string(
-                char *buf,
-                size_t buf_len,
-                aliot_shadow_attr_datatype_t type,
-                const void *pData);
+            char *buf,
+            size_t buf_len,
+            aliot_shadow_attr_datatype_t type,
+            const void *pData);
 
 aliot_err_t ads_common_convert_string2data(
-                const char *buf,
-                size_t buf_len,
-                aliot_shadow_attr_datatype_t type,
-                void *pData);
+            const char *buf,
+            size_t buf_len,
+            aliot_shadow_attr_datatype_t type,
+            void *pData);
 
 bool ads_common_check_attr_existence(aliot_shadow_pt pshadow, const aliot_shadow_attr_pt pattr);
 
-aliot_err_t ads_common_register_attr (
-                aliot_shadow_pt pshadow,
-                aliot_shadow_attr_pt pattr);
+aliot_err_t ads_common_register_attr(
+            aliot_shadow_pt pshadow,
+            aliot_shadow_attr_pt pattr);
 
-aliot_err_t ads_common_remove_attr (
-                aliot_shadow_pt pshadow,
-                aliot_shadow_attr_pt pattr);
+aliot_err_t ads_common_remove_attr(
+            aliot_shadow_pt pshadow,
+            aliot_shadow_attr_pt pattr);
 
 char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic);
 

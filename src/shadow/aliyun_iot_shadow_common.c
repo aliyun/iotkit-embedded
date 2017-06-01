@@ -42,10 +42,10 @@ void ads_common_set_ads(aliot_shadow_pt pshadow)
 
 //return handle of format data.
 aliot_err_t ads_common_format_init(format_data_pt pformat,
-                char *buf,
-                uint16_t size,
-                const char *method,
-                const char *head_str)
+                                   char *buf,
+                                   uint16_t size,
+                                   const char *method,
+                                   const char *head_str)
 {
     int ret;
     uint32_t size_free_space;
@@ -61,10 +61,10 @@ aliot_err_t ads_common_format_init(format_data_pt pformat,
     size_free_space = pformat->buf_size;
 
     ret = snprintf(pformat->buf,
-            size_free_space,
-            "{\"%s\":\"%s\"",
-            "method",
-            method);
+                   size_free_space,
+                   "{\"%s\":\"%s\"",
+                   "method",
+                   method);
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
     pformat->offset = ret;
@@ -74,9 +74,9 @@ aliot_err_t ads_common_format_init(format_data_pt pformat,
     size_free_space = pformat->buf_size - pformat->offset;
     if (NULL != head_str) {
         ret = snprintf(pformat->buf + pformat->offset,
-                    size_free_space,
-                    ",%s",
-                    head_str);
+                       size_free_space,
+                       ",%s",
+                       head_str);
         CHECK_SNPRINTF_RET(ret, size_free_space);
         pformat->offset += ret;
     }
@@ -87,11 +87,10 @@ aliot_err_t ads_common_format_init(format_data_pt pformat,
 }
 
 
-//加入需要上报的数据属性
 aliot_err_t ads_common_format_add(format_data_pt pformat,
-        const char *name,
-        const void *pvalue,
-        aliot_shadow_attr_datatype_t datatype)
+                                  const char *name,
+                                  const void *pvalue,
+                                  aliot_shadow_attr_datatype_t datatype)
 {
     int ret;
     uint32_t size_free_space;
@@ -114,9 +113,9 @@ aliot_err_t ads_common_format_add(format_data_pt pformat,
 
     //add the string: "${pattr->pattr_name}":"
     ret = snprintf(pformat->buf + pformat->offset,
-            size_free_space,
-            "\"%s\":",
-            name);
+                   size_free_space,
+                   "\"%s\":",
+                   name);
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
 
@@ -125,22 +124,19 @@ aliot_err_t ads_common_format_add(format_data_pt pformat,
 
     //convert attribute data to JSON string, and add to buffer
     ret = ads_common_convert_data2string(pformat->buf + pformat->offset,
-                size_free_space,
-                datatype,
-                pvalue);
+                                         size_free_space,
+                                         datatype,
+                                         pvalue);
     if (ret < 0) {
         return FAIL_RETURN;
     }
 
     pformat->offset += ret;
 
-
-
     return SUCCESS_RETURN;
 }
 
 
-//返回格式化后的数
 aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_str)
 {
 #define UPDATE_JSON_STR_END         ",\"clientToken\":\"%s-%d\",\"version\":%d}"
@@ -157,11 +153,11 @@ aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_
     size_free_space = pformat->buf_size - pformat->offset;
 
     ret = snprintf(pformat->buf + pformat->offset,
-            size_free_space,
-            UPDATE_JSON_STR_END,
-            aliyun_iot_get_user_info()->client_id,
-            ads_common_get_tokennum(ads_common_get_ads()),
-            ads_common_get_version(ads_common_get_ads()));
+                   size_free_space,
+                   UPDATE_JSON_STR_END,
+                   aliyun_iot_get_user_info()->client_id,
+                   ads_common_get_tokennum(ads_common_get_ads()),
+                   ads_common_get_version(ads_common_get_ads()));
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
     pformat->offset += ret;
@@ -173,10 +169,11 @@ aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_
 
 
 int ads_common_convert_data2string(
-                char *buf,
-                size_t buf_len,
-                aliot_shadow_attr_datatype_t type,
-                const void *pData) {
+            char *buf,
+            size_t buf_len,
+            aliot_shadow_attr_datatype_t type,
+            const void *pData)
+{
 
     int ret = -1;
 
@@ -205,10 +202,10 @@ int ads_common_convert_data2string(
 
 
 aliot_err_t ads_common_convert_string2data(
-                const char *buf,
-                size_t buf_len,
-                aliot_shadow_attr_datatype_t type,
-                void *pdata)
+            const char *buf,
+            size_t buf_len,
+            aliot_shadow_attr_datatype_t type,
+            void *pdata)
 {
     if ((NULL == buf) || (buf_len == 0) || (NULL == pdata)) {
         return ERROR_NULL_VALUE;
@@ -261,11 +258,11 @@ bool ads_common_check_attr_existence(
 
 
 //register attribute to list
-aliot_err_t ads_common_register_attr (
-                aliot_shadow_pt pshadow,
-                aliot_shadow_attr_pt pattr)
+aliot_err_t ads_common_register_attr(
+            aliot_shadow_pt pshadow,
+            aliot_shadow_attr_pt pattr)
 {
-    list_node_t *node = list_node_new( pattr );
+    list_node_t *node = list_node_new(pattr);
     if (NULL == node) {
         return ERROR_NO_MEM;
     }
@@ -279,9 +276,9 @@ aliot_err_t ads_common_register_attr (
 
 
 //remove attribute to list
-aliot_err_t ads_common_remove_attr (
-                aliot_shadow_pt pshadow,
-                aliot_shadow_attr_pt pattr)
+aliot_err_t ads_common_remove_attr(
+            aliot_shadow_pt pshadow,
+            aliot_shadow_attr_pt pattr)
 {
     aliot_err_t rc = SUCCESS_RETURN;
     list_node_t *node;
@@ -306,7 +303,7 @@ void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
 
     //version number always grow up
     if (version > pshadow->inner_data.version) {
-         pshadow->inner_data.version = version;
+        pshadow->inner_data.version = version;
     }
     aliyun_iot_mutex_unlock(&pshadow->mutex);
 
@@ -346,7 +343,7 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
 
     int len, ret;
     char *topic_full = NULL;
-    aliot_device_info_pt pdevice_info = aliyun_iot_get_device_info( );
+    aliot_device_info_pt pdevice_info = aliyun_iot_get_device_info();
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
@@ -356,11 +353,11 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
     }
 
     ret = snprintf(topic_full,
-                len,
-                SHADOW_TOPIC_FMT,
-                topic,
-                pdevice_info->product_key,
-                pdevice_info->device_name);
+                   len,
+                   SHADOW_TOPIC_FMT,
+                   topic,
+                   pdevice_info->product_key,
+                   pdevice_info->device_name);
     if (ret < 0) {
         aliyun_iot_memory_free(topic_full);
         return NULL;

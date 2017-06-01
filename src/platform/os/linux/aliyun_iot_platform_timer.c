@@ -19,5 +19,5 @@ uint32_t aliot_platform_time_get_ms(void)
 
     gettimeofday(&now, NULL);
 
-    return (uint32_t)((now.tv_sec)*1000 + (now.tv_usec)/1000);
+    return (uint32_t)((now.tv_sec) * 1000 + (now.tv_usec) / 1000);
 }

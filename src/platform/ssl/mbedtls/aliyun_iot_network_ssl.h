@@ -15,7 +15,7 @@ typedef struct _TLSDataParams {
     mbedtls_x509_crt cacertl;         /**< mbed TLS CA certification. */
     mbedtls_x509_crt clicert;         /**< mbed TLS Client certification. */
     mbedtls_pk_context pkey;          /**< mbed TLS Client key. */
-}TLSDataParams;
+} TLSDataParams;
 
 int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, int len, int timeout_ms);
 
@@ -23,6 +23,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams *pTlsData, unsigned char *buffer,
 
 void aliyun_iot_network_ssl_disconnect(TLSDataParams *pTlsData);
 
-int aliyun_iot_network_ssl_connect(TLSDataParams *pTlsData, const char *addr, const char *port, const char *ca_crt, size_t ca_crt_len);
+int aliyun_iot_network_ssl_connect(TLSDataParams *pTlsData, const char *addr, const char *port, const char *ca_crt,
+                                   size_t ca_crt_len);
 
 #endif

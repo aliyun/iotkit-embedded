@@ -14,7 +14,7 @@ typedef struct {
     char *pHostAddress;     ///< Pointer to a host name string
     char *pHostPort;        ///< destination port
     char *pPubKey;          ///< Pointer to a ca string
-}ConnectParams;
+} ConnectParams;
 
 
 /**
@@ -25,10 +25,9 @@ typedef struct {
 struct Network;
 
 typedef struct Network Network_t;
-typedef struct Network* pNetwork_t;
+typedef struct Network *pNetwork_t;
 
-struct Network
-{
+struct Network {
     char *port; //todo to integer.
     char *pHostAddress;
     char *ca_crt;       //TCP connection when the value is NULL; SSL connection when the value is NOT NULL
@@ -36,7 +35,8 @@ struct Network
 
     int (*read)(pNetwork_t, char *, uint32_t, uint32_t);      /**< Read data from server function pointer. */
     int (*write)(pNetwork_t, char *, uint32_t, uint32_t);     /**< Send data to server function pointer. */
-    int (*disconnect)(pNetwork_t);                  /**< Disconnect the network function pointer.此函数close socket后需要初始化为-1，如果为-1则不再执行close操作*/
+    int (*disconnect)(
+                pNetwork_t);                  /**< Disconnect the network function pointer.此函数close socket后需要初始化为-1，如果为-1则不再执行close操作*/
     intptr_t (*connect)(pNetwork_t);
 };
 

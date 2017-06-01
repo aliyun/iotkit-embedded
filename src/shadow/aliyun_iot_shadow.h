@@ -56,7 +56,7 @@ typedef struct {
     uint32_t buf_size;
     uint32_t offset;
     char *buf;
-}format_data_t, *format_data_pt;
+} format_data_t, *format_data_pt;
 
 
 typedef struct {
@@ -66,9 +66,9 @@ typedef struct {
 
 
 typedef void (*aliot_update_cb_fpt)(
-        aliot_shadow_ack_code_t ack_code,
-        const char *ack_msg, //NOTE: NOT a string.
-        uint32_t ack_msg_len);
+            aliot_shadow_ack_code_t ack_code,
+            const char *ack_msg, //NOTE: NOT a string.
+            uint32_t ack_msg_len);
 
 
 struct aliot_shadow_attr_st;
@@ -82,7 +82,7 @@ typedef struct aliot_shadow_attr_st {
     aliot_shadow_attr_datatype_t attr_type;    ///< data type
     uint32_t timestamp;                 ///timestamp in Epoch(Unix) format
     aliot_shadow_attr_cb_t callback;    ///< callback when related control message come.
-}aliot_shadow_attr_t, *aliot_shadow_attr_pt;
+} aliot_shadow_attr_t, *aliot_shadow_attr_pt;
 
 
 typedef struct aliot_update_ack_wait_list_st {
@@ -90,7 +90,7 @@ typedef struct aliot_update_ack_wait_list_st {
     char token[ALIOT_SHADOW_TOKEN_LEN];
     aliot_update_cb_fpt callback;
     aliot_time_t timer;
-}aliot_update_ack_wait_list_t, *aliot_update_ack_wait_list_pt;
+} aliot_update_ack_wait_list_t, *aliot_update_ack_wait_list_pt;
 
 
 typedef struct aliot_inner_data_st {
@@ -101,19 +101,19 @@ typedef struct aliot_inner_data_st {
     list_t *attr_list;
     char *ptopic_update;
     char *ptopic_get;
-}aliot_inner_data_t, *aliot_inner_data_pt;;
+} aliot_inner_data_t, *aliot_inner_data_pt;;
 
 
 typedef struct {
     aliot_mqtt_param_t mqtt;
-}aliot_shadow_para_t, *aliot_shadow_para_pt;
+} aliot_shadow_para_t, *aliot_shadow_para_pt;
 
 
 typedef struct aliot_shadow_st {
     MQTTClient_t mqtt;
     aliot_inner_data_t inner_data;
     ALIYUN_IOT_MUTEX_S mutex;
-}aliot_shadow_t, *aliot_shadow_pt;
+} aliot_shadow_t, *aliot_shadow_pt;
 
 
 /**
@@ -152,24 +152,24 @@ aliot_err_t aliyun_iot_shadow_update_format_finalize(format_data_pt pformat);
 
 /* Update data to Cloud. It is a synchronous interface. */
 aliot_err_t aliyun_iot_shadow_update(
-                aliot_shadow_pt pshadow,
-                char *data,
-                uint32_t data_len,
-                uint16_t timeout_s);
+            aliot_shadow_pt pshadow,
+            char *data,
+            uint32_t data_len,
+            uint16_t timeout_s);
 
 
 /* Update data to Cloud. It is a asynchronous interface.
  * The result of this update will be informed by calling the callback function @cb_fpt */
 aliot_err_t aliyun_iot_shadow_update_asyn(
-                aliot_shadow_pt pshadow,
-                char *data,
-                size_t data_len,
-                uint16_t timeout_s,
-                aliot_update_cb_fpt cb_fpt);
+            aliot_shadow_pt pshadow,
+            char *data,
+            size_t data_len,
+            uint16_t timeout_s,
+            aliot_update_cb_fpt cb_fpt);
 
 
 /* Synchronize device shadow data from cloud. It is a synchronous interface. */
-aliot_err_t aliyun_iot_shadow_sync( aliot_shadow_pt pshadow );
+aliot_err_t aliyun_iot_shadow_sync(aliot_shadow_pt pshadow);
 
 
 #endif /* INCLUDE_MQTT_ALIYUN_IOT_SHADOW_H_ */

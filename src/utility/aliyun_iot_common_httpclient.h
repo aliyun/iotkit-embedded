@@ -24,8 +24,7 @@
 #include "aliyun_iot_common_net.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -63,8 +62,7 @@ extern "C"
  *  @{
  */
 /** @brief   This enumeration defines the HTTP request type.  */
-typedef enum
-{
+typedef enum {
     HTTPCLIENT_GET,
     HTTPCLIENT_POST,
     HTTPCLIENT_PUT,
@@ -77,8 +75,7 @@ typedef enum
  * @{
  */
 /** @brief   This structure defines the httpclient_t structure.  */
-typedef struct
-{
+typedef struct {
     //intptr_t handle; /**< handle of TCP connection or SSL connection. */
     int remote_port; /**< HTTP or HTTPS port. */
     Network_t net;
@@ -89,8 +86,7 @@ typedef struct
 } httpclient_t;
 
 /** @brief   This structure defines the HTTP data structure.  */
-typedef struct
-{
+typedef struct {
     bool is_more; /**< Indicates if more data needs to be retrieved. */
     bool is_chunked; /**< Response data is encoded in portions/chunks.*/
     int retrieve_len; /**< Content length to be retrieved. */
@@ -137,11 +133,11 @@ typedef struct
  * @endcode
  */
 aliot_err_t aliyun_iot_common_post(
-        httpclient_t *client,
-        char *url,
-        int port,
-        char *ca_crt,
-        httpclient_data_t *client_data);
+            httpclient_t *client,
+            char *url,
+            int port,
+            char *ca_crt,
+            httpclient_data_t *client_data);
 
 
 #ifdef __cplusplus
