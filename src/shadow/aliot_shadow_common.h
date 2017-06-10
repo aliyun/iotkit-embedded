@@ -4,9 +4,9 @@
 
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_shadow.h"
-#include "aliyun_iot_shadow_config.h"
+#include "aliot_error.h"
+#include "aliot_shadow.h"
+#include "aliot_shadow_config.h"
 
 
 aliot_shadow_pt ads_common_get_ads(void);

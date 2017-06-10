@@ -3,10 +3,10 @@
 #define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_
 
 #include "aliot_platform.h"
-#include "aliyun_iot_shadow.h"
-#include "aliyun_iot_shadow_config.h"
-#include "aliyun_iot_shadow_common.h"
-#include "aliyun_iot_shadow_update.h"
+#include "aliot_shadow.h"
+#include "aliot_shadow_config.h"
+#include "aliot_shadow_common.h"
+#include "aliot_shadow_update.h"
 
 
 aliot_err_t aliyun_iot_shadow_delta_init(aliot_shadow_pt pshadow);

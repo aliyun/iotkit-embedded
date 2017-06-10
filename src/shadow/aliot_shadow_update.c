@@ -1,11 +1,11 @@
 
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_jsonparser.h"
-#include "aliyun_iot_device.h"
+#include "aliot_log.h"
+#include "aliot_jsonparser.h"
+#include "aliot_device.h"
 
-#include "aliyun_iot_shadow_update.h"
+#include "aliot_shadow_update.h"
 
 
 //add a new wait element

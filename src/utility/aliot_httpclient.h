@@ -20,8 +20,8 @@
 #define ALIYUN_IOT_COMMON_HTTPCLIENT_H
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_net.h"
+#include "aliot_error.h"
+#include "aliot_net.h"
 
 #ifdef __cplusplus
 extern "C" {

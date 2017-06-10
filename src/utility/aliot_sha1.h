@@ -2,7 +2,7 @@
 #define ALIYUN_IOT_COMMON_SHA1_H
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
+#include "aliot_error.h"
 
 
 /**

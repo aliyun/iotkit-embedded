@@ -7,7 +7,7 @@
 
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_hexdump.h"
+#include "aliot_hexdump.h"
 
 #define DUMP_PREFIX_ADDRESS ALIOT_HEXDUMP_PREFIX_ADDRESS
 #define DUMP_PREFIX_OFFSET  ALIOT_HEXDUMP_PREFIX_OFFSET

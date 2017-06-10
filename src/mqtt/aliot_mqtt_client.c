@@ -15,9 +15,9 @@
  *******************************************************************************/
 
 #include "aliot_platform.h"
-#include "aliyun_iot_mqtt_client.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_log.h"
+#include "aliot_mqtt_client.h"
+#include "aliot_error.h"
+#include "aliot_log.h"
 
 typedef enum {
     CONNECTION_ACCEPTED = 0,

@@ -12,7 +12,7 @@
 #define ALIYUN_IOT_COMMON_BASE64_H
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
+#include "aliot_error.h"
 
 aliot_err_t aliyun_iot_common_base64encode(const uint8_t *data, uint32_t inputLength, uint32_t outputLenMax,
         uint8_t *encodedData, uint32_t *outputLength);

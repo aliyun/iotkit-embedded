@@ -17,9 +17,9 @@
  */
 #include <string.h>
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_httpclient.h"
+#include "aliot_error.h"
+#include "aliot_log.h"
+#include "aliot_httpclient.h"
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))

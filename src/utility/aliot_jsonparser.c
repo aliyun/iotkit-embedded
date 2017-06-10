@@ -6,7 +6,7 @@
 #include <stdarg.h>
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_jsonparser.h"
+#include "aliot_jsonparser.h"
 
 
 #define JSON_PARSE 0

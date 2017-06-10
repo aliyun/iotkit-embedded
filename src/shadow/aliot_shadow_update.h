@@ -3,11 +3,11 @@
 #define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_UPDATE_H_
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
+#include "aliot_error.h"
 
-#include "aliyun_iot_shadow.h"
-#include "aliyun_iot_shadow_config.h"
-#include "aliyun_iot_shadow_common.h"
+#include "aliot_shadow.h"
+#include "aliot_shadow_config.h"
+#include "aliot_shadow_common.h"
 
 
 aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(

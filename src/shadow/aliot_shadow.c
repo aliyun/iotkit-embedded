@@ -1,15 +1,15 @@
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_debug.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_jsonparser.h"
+#include "aliot_debug.h"
+#include "aliot_error.h"
+#include "aliot_jsonparser.h"
 
-#include "aliyun_iot_mqtt_client.h"
+#include "aliot_mqtt_client.h"
 
-#include "aliyun_iot_shadow.h"
-#include "aliyun_iot_shadow_common.h"
-#include "aliyun_iot_shadow_update.h"
-#include "aliyun_iot_shadow_delta.h"
+#include "aliot_shadow.h"
+#include "aliot_shadow_common.h"
+#include "aliot_shadow_update.h"
+#include "aliot_shadow_delta.h"
 
 
 //check return code

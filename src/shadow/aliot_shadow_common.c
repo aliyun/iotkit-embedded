@@ -1,11 +1,11 @@
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_debug.h"
-#include "aliyun_iot_common_timer.h"
+#include "aliot_log.h"
+#include "aliot_debug.h"
+#include "aliot_timer.h"
 
-#include "aliyun_iot_shadow.h"
-#include "aliyun_iot_shadow_common.h"
+#include "aliot_shadow.h"
+#include "aliot_shadow_common.h"
 
 //check return code
 #define CHECK_RETURN_CODE(ret_code) \

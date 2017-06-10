@@ -12,7 +12,7 @@
 #define ALIYUN_IOT_COMMON_MD5_H
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
+#include "aliot_error.h"
 
 typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */

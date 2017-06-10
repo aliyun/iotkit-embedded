@@ -3,12 +3,12 @@
 #define _MQTT_ALIYUN_IOT_SHADOW_H_
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
+#include "aliot_error.h"
 
-#include "aliyun_iot_mqtt_client.h"
-#include "aliyun_iot_auth.h"
+#include "aliot_mqtt_client.h"
+#include "aliot_auth.h"
 
-#include "aliyun_iot_shadow_config.h"
+#include "aliot_shadow_config.h"
 
 /*
  * IMPORTANT NOTE:

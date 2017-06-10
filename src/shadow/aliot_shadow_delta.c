@@ -1,10 +1,10 @@
 
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_jsonparser.h"
-#include "aliyun_iot_common_list.h"
-#include "aliyun_iot_shadow_delta.h"
+#include "aliot_log.h"
+#include "aliot_jsonparser.h"
+#include "aliot_list.h"
+#include "aliot_shadow_delta.h"
 
 static aliot_err_t aliyun_iot_shadow_delta_response(aliot_shadow_pt pshadow)
 {

@@ -1,6 +1,6 @@
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_list.h"
+#include "aliot_list.h"
 
 
 /*

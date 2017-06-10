@@ -6,15 +6,15 @@
 
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_md5.h"
-#include "aliyun_iot_common_hmac.h"
-#include "aliyun_iot_common_httpclient.h"
-#include "aliyun_iot_common_jsonparser.h"
+#include "aliot_error.h"
+#include "aliot_log.h"
+#include "aliot_md5.h"
+#include "aliot_hmac.h"
+#include "aliot_httpclient.h"
+#include "aliot_jsonparser.h"
 
-#include "aliyun_iot_ca.h"
-#include "aliyun_iot_auth.h"
+#include "aliot_ca.h"
+#include "aliot_auth.h"
 
 
 const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";

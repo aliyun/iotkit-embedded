@@ -7,8 +7,8 @@ extern "C" {
 #endif
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_device.h"
+#include "aliot_error.h"
+#include "aliot_device.h"
 
 #define ALIOT_AUTH_IOT_ID       (USER_NAME_LEN)
 #define ALIOT_AUTH_IOT_TOKEN    (PASSWORD_LEN)

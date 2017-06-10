@@ -1,9 +1,9 @@
 #include "aliot_platform.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_mqtt_client.h"
-#include "aliyun_iot_auth.h"
-#include "aliyun_iot_device.h"
-#include "aliyun_iot_shadow.h"
+#include "aliot_log.h"
+#include "aliot_mqtt_client.h"
+#include "aliot_auth.h"
+#include "aliot_device.h"
+#include "aliot_shadow.h"
 
 
 //The product and device information from IOT console

@@ -10,9 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aliot_platform.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_md5.h"
+#include "aliot_log.h"
+#include "aliot_error.h"
+#include "aliot_md5.h"
 
 #define MD5_DIGEST_SIZE 16
 

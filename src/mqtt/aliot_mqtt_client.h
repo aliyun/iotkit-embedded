@@ -34,11 +34,11 @@ extern "C" {
 
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_net.h"
-#include "aliyun_iot_common_list.h"
-#include "aliyun_iot_common_timer.h"
-#include "aliyun_iot_device.h"
+#include "aliot_error.h"
+#include "aliot_net.h"
+#include "aliot_list.h"
+#include "aliot_timer.h"
+#include "aliot_device.h"
 #include "MQTTPacket/MQTTPacket.h"
 
 #define TOPIC_NAME_MAX_LEN 64

@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aliot_platform.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_sha1.h"
+#include "aliot_log.h"
+#include "aliot_error.h"
+#include "aliot_sha1.h"
 
 /* Implementation that should never be optimized out by the compiler */
 static void aliyun_iot_sha1_zeroize(void *v, size_t n)

@@ -1,7 +1,7 @@
 
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_timer.h"
+#include "aliot_timer.h"
 
 void aliyun_iot_timer_assignment(int32_t millisecond, aliot_time_t *timer)
 {

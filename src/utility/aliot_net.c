@@ -2,9 +2,9 @@
 #include <string.h>
 
 #include "aliot_platform.h"
-#include "aliyun_iot_common_net.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_hexdump.h"
+#include "aliot_net.h"
+#include "aliot_log.h"
+#include "aliot_hexdump.h"
 
 
 /* TCP connection */
@@ -108,7 +108,7 @@ static int connect_ssl(pNetwork_t pNetwork)
                                             pNetwork->pHostAddress,
                                             pNetwork->port,
                                             pNetwork->ca_crt,
-                                            strlen(pNetwork->ca_crt) + 1))) {
+                                            pNetwork->ca_crt_len + 1))) {
         return 0;
     } else {
         //TODO SHOLUD not remove this handle space
@@ -165,11 +165,16 @@ intptr_t aliyun_iot_net_connect(pNetwork_t pNetwork)
 }
 
 
-int aliyun_iot_net_init(pNetwork_t pNetwork, char *host, uint16_t port, char *ca_crt)
+int aliyun_iot_net_init(pNetwork_t pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
     pNetwork->ca_crt = ca_crt;
+    if (NULL == ca_crt) {
+        pNetwork->ca_crt_len = 0;
+    } else {
+        pNetwork->ca_crt_len = strlen(ca_crt);
+    }
 
     pNetwork->handle = -1;
     pNetwork->read = aliyun_iot_net_read;

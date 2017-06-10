@@ -1,9 +1,9 @@
 
 #include <string.h>
 
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_device.h"
+#include "aliot_log.h"
+#include "aliot_error.h"
+#include "aliot_device.h"
 
 
 

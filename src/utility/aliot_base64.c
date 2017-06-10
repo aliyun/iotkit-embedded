@@ -12,9 +12,9 @@
 
 #include "aliot_platform.h"
 
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_base64.h"
+#include "aliot_error.h"
+#include "aliot_log.h"
+#include "aliot_base64.h"
 
 static int8_t g_encodingTable[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',

@@ -1,8 +1,8 @@
 #include <string.h>
-#include "aliyun_iot_common_log.h"
-#include "aliyun_iot_common_md5.h"
-#include "aliyun_iot_common_sha1.h"
-#include "aliyun_iot_common_hmac.h"
+#include "aliot_log.h"
+#include "aliot_md5.h"
+#include "aliot_sha1.h"
+#include "aliot_hmac.h"
 
 #define KEY_IOPAD_SIZE 64
 

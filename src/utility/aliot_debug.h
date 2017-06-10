@@ -8,7 +8,7 @@
 #ifndef COMMON_INC_ALIYUN_IOT_COMMON_DEBUG_H_
 #define COMMON_INC_ALIYUN_IOT_COMMON_DEBUG_H_
 
-#include "aliyun_iot_common_log.h"
+#include "aliot_log.h"
 
 #define DEBUG
 

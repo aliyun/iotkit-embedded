@@ -12,8 +12,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include "aliot_platform.h"
-#include "aliyun_iot_common_error.h"
-#include "aliyun_iot_common_log.h"
+#include "aliot_error.h"
+#include "aliot_log.h"
 
 
 aliot_log_level_t g_iotLogLevel = ALIOT_LOG_LEVEL_DEBUG;
