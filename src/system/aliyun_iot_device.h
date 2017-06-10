@@ -2,7 +2,7 @@
 #ifndef _MQTT_ALIYUN_MQTT_DEVICE_H_
 #define _MQTT_ALIYUN_MQTT_DEVICE_H_
 
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 
 #define MQTT_SDK_VERSION  "1.0.0"
 
@@ -29,7 +29,6 @@ typedef struct IOT_DEVICE_INFO {
 
 typedef struct ALIYUN_IOT_USER_INFO {
     uint16_t port;
-    char port_str[6]; //todo remove it.
     char host_name[HOST_ADDRESS_LEN + 1];
     char client_id[CLIENT_ID_LEN + 1];
     char user_name[USER_NAME_LEN + 1];

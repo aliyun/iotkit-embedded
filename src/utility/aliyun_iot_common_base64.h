@@ -11,7 +11,7 @@
 #ifndef ALIYUN_IOT_COMMON_BASE64_H
 #define ALIYUN_IOT_COMMON_BASE64_H
 
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_error.h"
 
 aliot_err_t aliyun_iot_common_base64encode(const uint8_t *data, uint32_t inputLength, uint32_t outputLenMax,

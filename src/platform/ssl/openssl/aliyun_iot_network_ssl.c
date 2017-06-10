@@ -161,7 +161,7 @@ int platform_ssl_close(SSL *ssl)
     return 0;
 }
 
-int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
 {
     int readLen = 0;
     int ret = -1;
@@ -176,12 +176,12 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
             if (err == EINTR_IOT) {
                 ALIOT_LOG_DEBUG("continue");
             } else {
-                WRITE_IOT_ERROR_LOG("mqtt read(select) fail ret=%d", ret);
+                WRITE_IOT_ERROR_LOG("read(select) fail ret=%d", ret);
                 return -1;
             }
 
         } else if (ret == 0) {
-            WRITE_IOT_ERROR_LOG("mqtt read(select) timeout");
+            WRITE_IOT_ERROR_LOG("read(select) timeout");
             return -2;
         } else if (ret == 1) {
             ALIOT_LOG_DEBUG("start to read packet");
@@ -206,7 +206,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams *pTlsData, unsigned char *buffer, 
 }
 
 
-int aliyun_iot_network_ssl_write(TLSDataParams *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
 {
     int writtenLen = 0;
     int ret = 0;
@@ -229,7 +229,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams *pTlsData, unsigned char *buffer,
     return writtenLen;
 }
 
-void aliyun_iot_network_ssl_disconnect(TLSDataParams *pTlsData)
+void aliyun_iot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
 {
     if (pTlsData->pssl != NULL) {
         platform_ssl_close(pTlsData->pssl);
@@ -242,7 +242,7 @@ void aliyun_iot_network_ssl_disconnect(TLSDataParams *pTlsData)
     }
 }
 
-int aliyun_iot_network_ssl_connect(TLSDataParams *pTlsData, const char *addr, const char *port, const char *ca_crt,
+int aliyun_iot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
                                    size_t ca_crt_len)
 {
     int rc = 0;
@@ -256,17 +256,17 @@ int aliyun_iot_network_ssl_connect(TLSDataParams *pTlsData, const char *addr, co
     if (pTlsData->socketId < 0) {
         pTlsData->socketId = -1;
         pTlsData->pssl = NULL;
-        WRITE_IOT_ERROR_LOG("MQTT TLS network create failed");
+        WRITE_IOT_ERROR_LOG("TLS network create failed");
         return -1;
     }
 
     pTlsData->pssl = platform_ssl_connect(pTlsData->socketId, ca_crt, ca_crt_len);
     if (NULL == pTlsData->pssl) {
-        WRITE_IOT_ERROR_LOG("mqtt openssl Connect failed");
+        WRITE_IOT_ERROR_LOG("openssl Connect failed");
         return -1;
     }
 
-    ALIOT_LOG_DEBUG("mqtt openssl Connect Success");
+    ALIOT_LOG_DEBUG("openssl Connect Success");
     return 0;
 
 }

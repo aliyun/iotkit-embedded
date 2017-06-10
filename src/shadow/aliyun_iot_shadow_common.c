@@ -1,10 +1,8 @@
 
-
+#include "aliot_platform.h"
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_debug.h"
 #include "aliyun_iot_common_timer.h"
-#include "aliyun_iot_platform_pthread.h"
-#include "aliyun_iot_platform_memory.h"
 
 #include "aliyun_iot_shadow.h"
 #include "aliyun_iot_shadow_common.h"
@@ -234,10 +232,10 @@ aliot_err_t ads_common_convert_string2data(
 
 void ads_common_update_time(aliot_shadow_pt pshadow, uint32_t new_timestamp)
 {
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     pshadow->inner_data.time.base_system_time = aliot_time_get_s();
     pshadow->inner_data.time.epoch_time = new_timestamp;
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 
     ALIOT_LOG_INFO("update system time");
 }
@@ -249,9 +247,9 @@ bool ads_common_check_attr_existence(
 {
     list_node_t *node;
 
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     node = list_find(pshadow->inner_data.attr_list, pattr);
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 
     return (NULL != node);
 }
@@ -267,9 +265,9 @@ aliot_err_t ads_common_register_attr(
         return ERROR_NO_MEM;
     }
 
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     list_lpush(pshadow->inner_data.attr_list, node);
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 
     return SUCCESS_RETURN;
 }
@@ -283,7 +281,7 @@ aliot_err_t ads_common_remove_attr(
     aliot_err_t rc = SUCCESS_RETURN;
     list_node_t *node;
 
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     node = list_find(pshadow->inner_data.attr_list, pattr);
     if (NULL == node) {
         rc = ERROR_SHADOW_NO_ATTRIBUTE;
@@ -291,7 +289,7 @@ aliot_err_t ads_common_remove_attr(
     } else {
         list_remove(pshadow->inner_data.attr_list, node);
     }
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 
     return rc;
 }
@@ -299,13 +297,13 @@ aliot_err_t ads_common_remove_attr(
 
 void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
 {
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
 
     //version number always grow up
     if (version > pshadow->inner_data.version) {
         pshadow->inner_data.version = version;
     }
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 
     ALIOT_LOG_INFO("update shadow version");
 }
@@ -315,11 +313,11 @@ void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
 uint32_t ads_common_get_version(aliot_shadow_pt pshadow)
 {
     uint32_t ver;
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     ++pshadow->inner_data.version;
     ver = pshadow->inner_data.version;
     ++pshadow->inner_data.version;
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
     return ver;
 }
 
@@ -327,11 +325,11 @@ uint32_t ads_common_get_version(aliot_shadow_pt pshadow)
 uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow)
 {
     uint32_t ver;
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     ++pshadow->inner_data.token_num;
     ver = pshadow->inner_data.token_num;
     ++pshadow->inner_data.token_num;
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
     return ver;
 }
 
@@ -347,7 +345,7 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
-    topic_full = aliyun_iot_memory_malloc(len + 1);
+    topic_full = aliot_platform_malloc(len + 1);
     if (NULL == topic_full) {
         return NULL;
     }
@@ -359,7 +357,7 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
                    pdevice_info->product_key,
                    pdevice_info->device_name);
     if (ret < 0) {
-        aliyun_iot_memory_free(topic_full);
+        aliot_platform_free(topic_full);
         return NULL;
     }
 
@@ -385,8 +383,8 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
     ALIOT_LOG_DEBUG("publish msg = %s", data);
 
     topic_msg.qos        = QOS1;
-    topic_msg.retained   = FALSE_IOT;
-    topic_msg.dup        = FALSE_IOT;
+    topic_msg.retained   = 0;
+    topic_msg.dup        = 0;
     topic_msg.payload    = (void *)data;
     topic_msg.payloadlen = data_len;
     topic_msg.id         = 0;

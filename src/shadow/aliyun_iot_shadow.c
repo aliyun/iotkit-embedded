@@ -1,11 +1,8 @@
+#include "aliot_platform.h"
 
 #include "aliyun_iot_common_debug.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_jsonparser.h"
-
-#include "aliyun_iot_platform_pthread.h"
-#include "aliyun_iot_platform_datatype.h"
-#include "aliyun_iot_platform_memory.h"
 
 #include "aliyun_iot_mqtt_client.h"
 
@@ -252,7 +249,7 @@ aliot_err_t aliyun_iot_shadow_sync(aliot_shadow_pt pshadow)
 
     ALIOT_LOG_INFO("Device Shadow sync start.");
 
-    format.buf = aliyun_iot_memory_malloc(SHADOW_SYNC_MSG_SIZE);
+    format.buf = aliot_platform_malloc(SHADOW_SYNC_MSG_SIZE);
     if (NULL == format.buf) {
         ALIOT_LOG_ERROR("Device Shadow sync failed");
         return ERROR_NO_MEM;
@@ -263,7 +260,7 @@ aliot_err_t aliyun_iot_shadow_sync(aliot_shadow_pt pshadow)
 
     ret = aliyun_iot_shadow_update(pshadow, format.buf, format.offset, 10);
 
-    aliyun_iot_memory_free(format.buf);
+    aliot_platform_free(format.buf);
 
     ALIOT_LOG_INFO("Device Shadow sync success.");
 
@@ -281,7 +278,7 @@ aliot_err_t aliyun_iot_shadow_construct(aliot_shadow_pt pshadow, aliot_shadow_pa
     //initialize shadow data
     memset(pshadow, 0x0, sizeof(aliot_shadow_t));
 
-    if (0 != aliyun_iot_mutex_init(&(pshadow->mutex))) {
+    if (NULL != (pshadow->mutex = aliot_platform_mutex_create())) {
         return FAIL_RETURN;
     }
 
@@ -340,14 +337,18 @@ aliot_err_t aliyun_iot_shadow_deconstruct(aliot_shadow_pt pshadow)
 {
 
     if (NULL != pshadow->inner_data.ptopic_get) {
-        aliyun_iot_memory_free(pshadow->inner_data.ptopic_get);
+        aliot_platform_free(pshadow->inner_data.ptopic_get);
     }
 
     if (NULL != pshadow->inner_data.ptopic_update) {
-        aliyun_iot_memory_free(pshadow->inner_data.ptopic_update);
+        aliot_platform_free(pshadow->inner_data.ptopic_update);
     }
 
     aliyun_iot_mqtt_release(&pshadow->mqtt);
+
+    if (NULL != pshadow->mutex) {
+        aliot_platform_mutex_destroy(pshadow->mutex);
+    }
 
     ads_common_set_ads(NULL);
 
@@ -384,7 +385,7 @@ aliot_err_t aliyun_iot_shadow_delete_attribute(aliot_shadow_pt pshadow, aliot_sh
         return ERROR_SHADOW_ATTR_NO_EXIST;
     }
 
-    format.buf = aliyun_iot_memory_malloc(SHADOW_DELETE_MSG_SIZE);
+    format.buf = aliot_platform_malloc(SHADOW_DELETE_MSG_SIZE);
     if (NULL == format.buf) {
         return ERROR_NO_MEM;
     }
@@ -395,11 +396,11 @@ aliot_err_t aliyun_iot_shadow_delete_attribute(aliot_shadow_pt pshadow, aliot_sh
 
     ret = aliyun_iot_shadow_update(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN != ret) {
-        aliyun_iot_memory_free(format.buf);
+        aliot_platform_free(format.buf);
         return ret;
     }
 
-    aliyun_iot_memory_free(format.buf);
+    aliot_platform_free(format.buf);
 
     return ads_common_remove_attr(pshadow, pattr);
 

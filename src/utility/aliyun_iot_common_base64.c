@@ -9,7 +9,9 @@
  **********************************************************************************/
 #include <stdint.h>
 #include <stdlib.h>
-#include "aliyun_iot_platform_datatype.h"
+
+#include "aliot_platform.h"
+
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_base64.h"

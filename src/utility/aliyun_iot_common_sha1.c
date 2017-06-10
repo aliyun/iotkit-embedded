@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_sha1.h"

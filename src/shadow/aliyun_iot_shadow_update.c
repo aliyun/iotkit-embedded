@@ -1,8 +1,8 @@
 
+#include "aliot_platform.h"
+
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_jsonparser.h"
-#include "aliyun_iot_platform_timer.h"
-#include "aliyun_iot_platform_pthread.h"
 #include "aliyun_iot_device.h"
 
 #include "aliyun_iot_shadow_update.h"
@@ -20,7 +20,7 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
     int i;
     aliot_update_ack_wait_list_pt list = pshadow->inner_data.update_ack_wait_list;
 
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
 
     for (i = 0; i < ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 == list[i].flag_busy) {
@@ -29,7 +29,7 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
         }
     }
 
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 
     if (i >= ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM) {
         return NULL;
@@ -55,10 +55,10 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
 
 void aliyun_iot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element)
 {
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     element->flag_busy = 0;
     memset(element, 0, sizeof(aliot_update_ack_wait_list_t));
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 }
 
 
@@ -68,7 +68,7 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_expire(aliot_shadow_pt pshado
 
     aliot_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
 
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
 
     for (i = 0; i < ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
@@ -82,7 +82,7 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_expire(aliot_shadow_pt pshado
         }
     }
 
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
 }
 
 
@@ -109,14 +109,14 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
         return;
     }
 
-    aliyun_iot_mutex_lock(&pshadow->mutex);
+    aliot_platform_mutex_lock(pshadow->mutex);
     for (i = 0; i < ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
 
         if (0 != pelement[i].flag_busy) {
             //check the related
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
 
-                aliyun_iot_mutex_unlock(&pshadow->mutex);
+                aliot_platform_mutex_unlock(pshadow->mutex);
                 ALIOT_LOG_DEBUG("token=%s", pelement[i].token);
                 do {
                     pdata = json_get_value_by_fullname(ppayload, payload_len, "status", &data_len, NULL);
@@ -152,14 +152,14 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
                     }
                 } while (0);
 
-                aliyun_iot_mutex_lock(&pshadow->mutex);
+                aliot_platform_mutex_lock(&pshadow->mutex);
                 memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));
-                aliyun_iot_mutex_unlock(&pshadow->mutex);
+                aliot_platform_mutex_unlock(&pshadow->mutex);
                 return;
             }
         }
     }
 
-    aliyun_iot_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(&pshadow->mutex);
     ALIOT_LOG_WARN("Not match any wait element in list.");
 }

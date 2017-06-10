@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "aliyun_iot_platform_memory.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_jsonparser.h"
 
 
@@ -251,12 +251,12 @@ const char *json_get_value_by_fullname(const char *p_cJsonStr, int iStrLen, cons
     do {
         if ((delim = strchr(key_iter, '.')) != NULL) {
             key_len = delim - key_iter;
-            key_next = aliyun_iot_memory_malloc(key_total_len);
+            key_next = aliot_platform_malloc(key_total_len);
             strncpy(key_next, key_iter, key_len);
             key_next[key_len] = '\0';
             value = json_get_value_by_name(src_iter, strlen(src_iter), key_next, &value_len, 0);
             if (value == NULL) {
-                aliyun_iot_memory_free(key_next);
+                aliot_platform_free(key_next);
                 return NULL;
             }
             src_iter = value;

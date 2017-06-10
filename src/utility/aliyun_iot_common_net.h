@@ -8,7 +8,7 @@
 #ifndef ALIYUN_IOT_COMMON_NET_H
 #define ALIYUN_IOT_COMMON_NET_H
 
-#include "aliyun_iot_network_ssl.h"
+#include "aliot_platform.h"
 
 typedef struct {
     char *pHostAddress;     ///< Pointer to a host name string
@@ -28,23 +28,22 @@ typedef struct Network Network_t;
 typedef struct Network *pNetwork_t;
 
 struct Network {
-    char *port; //todo to integer.
+    uint16_t port;
     char *pHostAddress;
     char *ca_crt;       //TCP connection when the value is NULL; SSL connection when the value is NOT NULL
     intptr_t handle;    //connection handle
 
     int (*read)(pNetwork_t, char *, uint32_t, uint32_t);      /**< Read data from server function pointer. */
-    int (*write)(pNetwork_t, char *, uint32_t, uint32_t);     /**< Send data to server function pointer. */
-    int (*disconnect)(
-                pNetwork_t);                  /**< Disconnect the network function pointer.此函数close socket后需要初始化为-1，如果为-1则不再执行close操作*/
+    int (*write)(pNetwork_t, const char *, uint32_t, uint32_t);     /**< Send data to server function pointer. */
+    int (*disconnect)(pNetwork_t);                  /**< Disconnect the network function pointer.此函数close socket后需要初始化为-1，如果为-1则不再执行close操作*/
     intptr_t (*connect)(pNetwork_t);
 };
 
 
 int aliyun_iot_net_read(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliyun_iot_net_write(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
+int aliyun_iot_net_write(pNetwork_t pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
 int aliyun_iot_net_disconnect(pNetwork_t pNetwork);
 intptr_t aliyun_iot_net_connect(pNetwork_t pNetwork);
-int aliyun_iot_net_init(pNetwork_t pNetwork, char *host, char *port, char *ca_crt);
+int aliyun_iot_net_init(pNetwork_t pNetwork, char *host, uint16_t port, char *ca_crt);
 
 #endif /* ALIYUN_IOT_COMMON_NET_H */

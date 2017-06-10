@@ -1,4 +1,4 @@
-#include "aliyun_iot_platform_memory.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_mqtt_client.h"
 #include "aliyun_iot_auth.h"
@@ -133,7 +133,7 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf)
         aliyun_iot_shadow_update(&shadow, format.buf, format.offset, 10);
 
         /* Sleep 1000 ms */
-        aliyun_iot_pthread_taskdelay(1000);
+        aliot_platform_msleep(1000);
     } while (0);
 
 
@@ -149,14 +149,14 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf)
 
 int main()
 {
-    unsigned char *msg_buf = (unsigned char *)aliyun_iot_memory_malloc(MSG_LEN_MAX);
-    unsigned char *msg_readbuf = (unsigned char *)aliyun_iot_memory_malloc(MSG_LEN_MAX);
+    unsigned char *msg_buf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
+    unsigned char *msg_readbuf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
 
 
     demo_device_shadow(msg_buf, msg_readbuf);
 
-    aliyun_iot_memory_free(msg_buf);
-    aliyun_iot_memory_free(msg_readbuf);
+    aliot_platform_free(msg_buf);
+    aliot_platform_free(msg_readbuf);
 
     ALIOT_LOG_DEBUG("out of demo!\n");
 

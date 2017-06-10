@@ -14,11 +14,8 @@
  *    Allan Stockdill-Mander/Ian Craggs - initial API and implementation and/or initial documentation
  *******************************************************************************/
 
+#include "aliot_platform.h"
 #include "aliyun_iot_mqtt_client.h"
-
-#include "aliyun_iot_platform_memory.h"
-#include "aliyun_iot_platform_timer.h"
-#include "aliyun_iot_platform_pthread.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_log.h"
 
@@ -206,22 +203,22 @@ int MQTTKeepalive(MQTTClient_t *pClient)
     int len = 0;
     int rc = 0;
 
-    aliyun_iot_mutex_lock(&pClient->writebufLock);
+    aliot_platform_mutex_lock(pClient->writebufLock);
     len = MQTTSerialize_pingreq(pClient->buf, pClient->buf_size);
     if (len <= 0) {
-        aliyun_iot_mutex_unlock(&pClient->writebufLock);
+        aliot_platform_mutex_unlock(pClient->writebufLock);
         ALIOT_LOG_ERROR("Serialize ping request is error");
         return MQTT_PING_PACKET_ERROR;
     }
 
     rc = sendPacket(pClient, pClient->buf, len, &timer);
     if (SUCCESS_RETURN != rc) {
-        aliyun_iot_mutex_unlock(&pClient->writebufLock);
+        aliot_platform_mutex_unlock(pClient->writebufLock);
         /*ping outstanding , then close socket  unsubcribe topic and handle callback function*/
         ALIOT_LOG_ERROR("ping outstanding is error,result = %d", rc);
         return MQTT_NETWORK_ERROR;
     }
-    aliyun_iot_mutex_unlock(&pClient->writebufLock);
+    aliot_platform_mutex_unlock(pClient->writebufLock);
 
     return SUCCESS_RETURN;
 }
@@ -242,9 +239,9 @@ int MQTTConnect(MQTTClient_t *pClient)
     int len = 0;
     int rc = 0;
 
-    aliyun_iot_mutex_lock(&pClient->writebufLock);
+    aliot_platform_mutex_lock(pClient->writebufLock);
     if ((len = MQTTSerialize_connect(pClient->buf, pClient->buf_size, pConnectParams)) <= 0) {
-        aliyun_iot_mutex_unlock(&pClient->writebufLock);
+        aliot_platform_mutex_unlock(pClient->writebufLock);
         ALIOT_LOG_ERROR("Serialize connect packet failed,len = %d", len);
         return MQTT_CONNECT_PACKET_ERROR;
     }
@@ -253,11 +250,11 @@ int MQTTConnect(MQTTClient_t *pClient)
     InitTimer(&connectTimer);
     countdown_ms(&connectTimer, pClient->command_timeout_ms);
     if ((rc = sendPacket(pClient, pClient->buf, len, &connectTimer)) != SUCCESS_RETURN) {
-        aliyun_iot_mutex_unlock(&pClient->writebufLock);
+        aliot_platform_mutex_unlock(pClient->writebufLock);
         ALIOT_LOG_ERROR("send connect packet failed");
         return MQTT_NETWORK_ERROR;
     }
-    aliyun_iot_mutex_unlock(&pClient->writebufLock);
+    aliot_platform_mutex_unlock(pClient->writebufLock);
 
     return SUCCESS_RETURN;
 }
@@ -283,11 +280,11 @@ int MQTTPublish(MQTTClient_t *c, const char *topicName, MQTTMessage *message)
     InitTimer(&timer);
     countdown_ms(&timer, c->command_timeout_ms);
 
-    aliyun_iot_mutex_lock(&c->writebufLock);
+    aliot_platform_mutex_lock(c->writebufLock);
     len = MQTTSerialize_publish(c->buf, c->buf_size, 0, message->qos, message->retained, message->id, topic,
                                 (unsigned char *)message->payload, message->payloadlen);
     if (len <= 0) {
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         ALIOT_LOG_ERROR("MQTTSerialize_publish is error,rc = %d, buf_size = %ld, payloadlen = %ld", len, c->buf_size,
                         message->payloadlen);
         return MQTT_PUBLISH_PACKET_ERROR;
@@ -298,7 +295,7 @@ int MQTTPublish(MQTTClient_t *c, const char *topicName, MQTTMessage *message)
         //将pub信息保存到pubInfoList中
         if (SUCCESS_RETURN != push_pubInfo_to(c, len, message->id, &node)) {
             ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
-            aliyun_iot_mutex_unlock(&c->writebufLock);
+            aliot_platform_mutex_unlock(c->writebufLock);
             return MQTT_PUSH_TO_LIST_ERROR;
         }
     }
@@ -306,18 +303,18 @@ int MQTTPublish(MQTTClient_t *c, const char *topicName, MQTTMessage *message)
     if (sendPacket(c, c->buf, len, &timer) != SUCCESS_RETURN) { // send the subscribe packet
         if (message->qos > QOS0) {
             //发送失败则删除之前放入pubInfoList链表中的节点
-            aliyun_iot_mutex_lock(&c->pubInfoLock);
+            aliot_platform_mutex_lock(c->pubInfoLock);
             list_remove(c->pubInfoList, node);
-            aliyun_iot_mutex_unlock(&c->pubInfoLock);
+            aliot_platform_mutex_unlock(c->pubInfoLock);
         }
 
         lefttime = left_ms(&timer);
         ALIOT_LOG_ERROR("sendPacket failed,lefttime = %d!", lefttime);
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliyun_iot_mutex_unlock(&c->writebufLock);
+    aliot_platform_mutex_unlock(c->writebufLock);
     return SUCCESS_RETURN;
 }
 
@@ -339,7 +336,7 @@ int MQTTPuback(MQTTClient_t *c, unsigned int msgId, enum msgTypes type)
     InitTimer(&timer);
     countdown_ms(&timer, c->command_timeout_ms);
 
-    aliyun_iot_mutex_lock(&c->writebufLock);
+    aliot_platform_mutex_lock(c->writebufLock);
     if (type == PUBACK) {
         len = MQTTSerialize_ack(c->buf, c->buf_size, PUBACK, 0, msgId);
     } else if (type == PUBREC) {
@@ -347,22 +344,22 @@ int MQTTPuback(MQTTClient_t *c, unsigned int msgId, enum msgTypes type)
     } else if (type == PUBREL) {
         len = MQTTSerialize_ack(c->buf, c->buf_size, PUBREL, 0, msgId);
     } else {
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_PUBLISH_ACK_TYPE_ERROR;
     }
 
     if (len <= 0) {
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_PUBLISH_ACK_PACKET_ERROR;
     }
 
     rc = sendPacket(c, c->buf, len, &timer);
     if (rc != SUCCESS_RETURN) {
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliyun_iot_mutex_unlock(&c->writebufLock);
+    aliot_platform_mutex_unlock(c->writebufLock);
     return SUCCESS_RETURN;
 }
 
@@ -390,11 +387,11 @@ int MQTTSubscribe(MQTTClient_t *c, const char *topicFilter, enum QoS qos, unsign
     InitTimer(&timer);
     countdown_ms(&timer, c->command_timeout_ms);
 
-    aliyun_iot_mutex_lock(&c->writebufLock);
+    aliot_platform_mutex_lock(c->writebufLock);
 
     len = MQTTSerialize_subscribe(c->buf, c->buf_size, 0, (unsigned short)msgId, 1, &topic, (int *)&qos);
     if (len <= 0) {
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_SUBSCRIBE_PACKET_ERROR;
     }
 
@@ -404,21 +401,21 @@ int MQTTSubscribe(MQTTClient_t *c, const char *topicFilter, enum QoS qos, unsign
     list_node_t *node = NULL;
     if (SUCCESS_RETURN != push_subInfo_to(c, len, msgId, SUBSCRIBE, &handler, &node)) {
         ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
 
     if ((rc = sendPacket(c, c->buf, len, &timer)) != SUCCESS_RETURN) { // send the subscribe packet
         //发送失败则删除之前放入subInfoList链表中的节点
-        aliyun_iot_mutex_lock(&c->subInfoLock);
+        aliot_platform_mutex_lock(c->subInfoLock);
         list_remove(c->subInfoList, node);
-        aliyun_iot_mutex_unlock(&c->subInfoLock);
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->subInfoLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         ALIOT_LOG_ERROR("run sendPacket error!");
         return MQTT_NETWORK_ERROR;
     }
 
-    aliyun_iot_mutex_unlock(&c->writebufLock);
+    aliot_platform_mutex_unlock(c->writebufLock);
     return SUCCESS_RETURN;
 }
 
@@ -443,10 +440,10 @@ int MQTTUnsubscribe(MQTTClient_t *c, const char *topicFilter, unsigned int msgId
     InitTimer(&timer);
     countdown_ms(&timer, c->command_timeout_ms);
 
-    aliyun_iot_mutex_lock(&c->writebufLock);
+    aliot_platform_mutex_lock(c->writebufLock);
 
     if ((len = MQTTSerialize_unsubscribe(c->buf, c->buf_size, 0, (unsigned short)msgId, 1, &topic)) <= 0) {
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_UNSUBSCRIBE_PACKET_ERROR;
     }
 
@@ -456,20 +453,20 @@ int MQTTUnsubscribe(MQTTClient_t *c, const char *topicFilter, unsigned int msgId
     list_node_t *node = NULL;
     if (SUCCESS_RETURN != push_subInfo_to(c, len, msgId, UNSUBSCRIBE, &handler, &node)) {
         ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
 
     if ((rc = sendPacket(c, c->buf, len, &timer)) != SUCCESS_RETURN) { // send the subscribe packet
         //发送失败则删除之前放入subInfoList链表中的节点
-        aliyun_iot_mutex_lock(&c->subInfoLock);
+        aliot_platform_mutex_lock(c->subInfoLock);
         list_remove(c->subInfoList, node);
-        aliyun_iot_mutex_unlock(&c->subInfoLock);
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->subInfoLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliyun_iot_mutex_unlock(&c->writebufLock);
+    aliot_platform_mutex_unlock(c->writebufLock);
 
     return SUCCESS_RETURN;
 }
@@ -487,7 +484,7 @@ int MQTTDisconnect(MQTTClient_t *c)
     int rc = FAIL_RETURN;
     aliot_timer_t timer;     // we might wait for incomplete incoming publishes to complete
 
-    aliyun_iot_mutex_lock(&c->writebufLock);
+    aliot_platform_mutex_lock(c->writebufLock);
     int len = MQTTSerialize_disconnect(c->buf, c->buf_size);
 
     InitTimer(&timer);
@@ -497,7 +494,7 @@ int MQTTDisconnect(MQTTClient_t *c)
         rc = sendPacket(c, c->buf, len, &timer);           // send the disconnect packet
     }
 
-    aliyun_iot_mutex_unlock(&c->writebufLock);
+    aliot_platform_mutex_unlock(c->writebufLock);
 
     return rc;
 }
@@ -512,9 +509,13 @@ int MQTTDisconnect(MQTTClient_t *c)
 ************************************************************/
 void sendNetworkRecoverSignal(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecoverSignal)
 {
-    aliyun_iot_mutex_lock(&networkRecoverSignal->signalLock);
+//    aliyun_iot_mutex_lock(&networkRecoverSignal->signalLock);
+//    networkRecoverSignal->signal = 1;
+//    aliyun_iot_mutex_unlock(&networkRecoverSignal->signalLock);
+
+    aliot_platform_mutex_lock(networkRecoverSignal->signalLock);
     networkRecoverSignal->signal = 1;
-    aliyun_iot_mutex_unlock(&networkRecoverSignal->signalLock);
+    aliot_platform_mutex_unlock(networkRecoverSignal->signalLock);
 }
 
 /***********************************************************
@@ -528,9 +529,11 @@ void sendNetworkRecoverSignal(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecoverS
 int waitNetworkRecoverSignal(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecoverSignal)
 {
     int signal = 0;
-    aliyun_iot_mutex_lock(&networkRecoverSignal->signalLock);
+    //aliyun_iot_mutex_lock(&networkRecoverSignal->signalLock);
+    aliot_platform_mutex_lock(networkRecoverSignal->signalLock);
     signal = networkRecoverSignal->signal;
-    aliyun_iot_mutex_unlock(&networkRecoverSignal->signalLock);
+    aliot_platform_mutex_unlock(networkRecoverSignal->signalLock);
+    //aliyun_iot_mutex_unlock(&networkRecoverSignal->signalLock);
 
     if (signal == 0) {
         return FAIL_RETURN;
@@ -550,7 +553,7 @@ int waitNetworkRecoverSignal(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecoverSi
 void networkRecoverSignalInit(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecoverSignal)
 {
     networkRecoverSignal->signal = 0;
-    aliyun_iot_mutex_init(&networkRecoverSignal->signalLock);
+    networkRecoverSignal->signalLock = aliot_platform_mutex_create();
 }
 
 /***********************************************************
@@ -564,7 +567,7 @@ void networkRecoverSignalInit(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecoverS
 void networkRecoverSignalRelease(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecoverSignal)
 {
     networkRecoverSignal->signal = 0;
-    aliyun_iot_mutex_destory(&networkRecoverSignal->signalLock);
+    aliot_platform_mutex_destroy(networkRecoverSignal->signalLock);
 }
 
 /***********************************************************
@@ -578,7 +581,7 @@ void networkRecoverSignalRelease(NETWORK_RECOVER_CALLBACK_SIGNAL_S *networkRecov
 ************************************************************/
 int mask_pubInfo_from(MQTTClient_t *c, unsigned int  msgId)
 {
-    aliyun_iot_mutex_lock(&c->pubInfoLock);
+    aliot_platform_mutex_lock(c->pubInfoLock);
     if (c->pubInfoList->len) {
         list_iterator_t *iter = list_iterator_new(c->pubInfoList, LIST_TAIL);
         list_node_t *node = NULL;
@@ -605,7 +608,7 @@ int mask_pubInfo_from(MQTTClient_t *c, unsigned int  msgId)
 
         list_iterator_destroy(iter);
     }
-    aliyun_iot_mutex_unlock(&c->pubInfoLock);
+    aliot_platform_mutex_unlock(c->pubInfoLock);
 
     return SUCCESS_RETURN;
 }
@@ -626,18 +629,18 @@ int push_pubInfo_to(MQTTClient_t *c, int len, unsigned short msgId, list_node_t 
         return FAIL_RETURN;
     }
 
-    aliyun_iot_mutex_lock(&c->pubInfoLock);
+    aliot_platform_mutex_lock(c->pubInfoLock);
 
     if (c->pubInfoList->len >= MQTT_REPUB_NUM_MAX) {
-        aliyun_iot_mutex_unlock(&c->pubInfoLock);
+        aliot_platform_mutex_unlock(c->pubInfoLock);
         ALIOT_LOG_ERROR("number of repubInfo more than max!,size = %d", c->pubInfoList->len);
         return FAIL_RETURN;
     }
 
     //开辟内存空间
-    REPUBLISH_INFO_S *repubInfo = (REPUBLISH_INFO_S *)aliyun_iot_memory_malloc(sizeof(REPUBLISH_INFO_S) + len);
+    REPUBLISH_INFO_S *repubInfo = (REPUBLISH_INFO_S *)aliot_platform_malloc(sizeof(REPUBLISH_INFO_S) + len);
     if (NULL == repubInfo) {
-        aliyun_iot_mutex_unlock(&c->pubInfoLock);
+        aliot_platform_mutex_unlock(c->pubInfoLock);
         ALIOT_LOG_ERROR("run aliyun_iot_memory_malloc is error!");
         return FAIL_RETURN;
     }
@@ -654,7 +657,7 @@ int push_pubInfo_to(MQTTClient_t *c, int len, unsigned short msgId, list_node_t 
     //创建保存结点
     *node = list_node_new(repubInfo);
     if (NULL == *node) {
-        aliyun_iot_mutex_unlock(&c->pubInfoLock);
+        aliot_platform_mutex_unlock(c->pubInfoLock);
         ALIOT_LOG_ERROR("run list_node_new is error!");
         return FAIL_RETURN;
     }
@@ -662,7 +665,7 @@ int push_pubInfo_to(MQTTClient_t *c, int len, unsigned short msgId, list_node_t 
     //将结点放入链表中
     list_rpush(c->pubInfoList, *node);
 
-    aliyun_iot_mutex_unlock(&c->pubInfoLock);
+    aliot_platform_mutex_unlock(c->pubInfoLock);
 
     return SUCCESS_RETURN;
 }
@@ -678,19 +681,19 @@ int push_pubInfo_to(MQTTClient_t *c, int len, unsigned short msgId, list_node_t 
 int push_subInfo_to(MQTTClient_t *c, int len, unsigned short msgId, enum msgTypes type, MessageHandlers *handler,
                     list_node_t **node)
 {
-    aliyun_iot_mutex_lock(&c->subInfoLock);
+    aliot_platform_mutex_lock(c->subInfoLock);
 
     if (c->subInfoList->len >= MQTT_SUB_NUM_MAX) {
-        aliyun_iot_mutex_unlock(&c->subInfoLock);
+        aliot_platform_mutex_unlock(c->subInfoLock);
         ALIOT_LOG_ERROR("number of subInfo more than max!,size = %d", c->subInfoList->len);
         return FAIL_RETURN;
     }
 
 
     //开辟内存空间
-    SUBSCRIBE_INFO_S *subInfo = (SUBSCRIBE_INFO_S *)aliyun_iot_memory_malloc(sizeof(SUBSCRIBE_INFO_S) + len);
+    SUBSCRIBE_INFO_S *subInfo = (SUBSCRIBE_INFO_S *)aliot_platform_malloc(sizeof(SUBSCRIBE_INFO_S) + len);
     if (NULL == subInfo) {
-        aliyun_iot_mutex_unlock(&c->subInfoLock);
+        aliot_platform_mutex_unlock(c->subInfoLock);
         ALIOT_LOG_ERROR("run aliyun_iot_memory_malloc is error!");
         return FAIL_RETURN;
     }
@@ -709,7 +712,7 @@ int push_subInfo_to(MQTTClient_t *c, int len, unsigned short msgId, enum msgType
     //创建保存结点
     *node = list_node_new(subInfo);
     if (NULL == *node) {
-        aliyun_iot_mutex_unlock(&c->subInfoLock);
+        aliot_platform_mutex_unlock(c->subInfoLock);
         ALIOT_LOG_ERROR("run list_node_new is error!");
         return FAIL_RETURN;
     }
@@ -717,7 +720,7 @@ int push_subInfo_to(MQTTClient_t *c, int len, unsigned short msgId, enum msgType
     //将结点放入链表中
     list_rpush(c->subInfoList, *node);
 
-    aliyun_iot_mutex_unlock(&c->subInfoLock);
+    aliot_platform_mutex_unlock(c->subInfoLock);
 
     return SUCCESS_RETURN;
 }
@@ -734,7 +737,7 @@ int push_subInfo_to(MQTTClient_t *c, int len, unsigned short msgId, enum msgType
 ************************************************************/
 int mask_subInfo_from(MQTTClient_t *c, unsigned int  msgId, MessageHandlers *messageHandler)
 {
-    aliyun_iot_mutex_lock(&c->subInfoLock);
+    aliot_platform_mutex_lock(c->subInfoLock);
     if (c->subInfoList->len) {
         list_iterator_t *iter = list_iterator_new(c->subInfoList, LIST_TAIL);
         list_node_t *node = NULL;
@@ -763,7 +766,7 @@ int mask_subInfo_from(MQTTClient_t *c, unsigned int  msgId, MessageHandlers *mes
 
         list_iterator_destroy(iter);
     }
-    aliyun_iot_mutex_unlock(&c->subInfoLock);
+    aliot_platform_mutex_unlock(c->subInfoLock);
 
     return SUCCESS_RETURN;
 }
@@ -795,10 +798,10 @@ void NewMessageData(MessageData *md, MQTTString *aTopicName, MQTTMessage *aMessg
 int getNextPacketId(MQTTClient_t *c)
 {
     unsigned int id = 0;
-    aliyun_iot_mutex_lock(&c->idLock);
+    aliot_platform_mutex_lock(c->idLock);
     c->next_packetid = (c->next_packetid == MAX_PACKET_ID) ? 1 : c->next_packetid + 1;
     id = c->next_packetid;
-    aliyun_iot_mutex_unlock(&c->idLock);
+    aliot_platform_mutex_unlock(c->idLock);
 
     return id;
 }
@@ -919,7 +922,7 @@ int readPacket(MQTTClient_t *c, aliot_timer_t *timer, unsigned int *packet_type)
 
         /* drop data whitch over the length of mqtt buffer*/
         int remainDataLen = rem_len - needReadLen;
-        unsigned char *remainDataBuf = aliyun_iot_memory_malloc(remainDataLen + 1);
+        unsigned char *remainDataBuf = aliot_platform_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
             ALIOT_LOG_ERROR("malloc remain buffer failed");
             return FAIL_RETURN;
@@ -927,12 +930,12 @@ int readPacket(MQTTClient_t *c, aliot_timer_t *timer, unsigned int *packet_type)
 
         if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, left_ms(timer)) != remainDataLen) {
             ALIOT_LOG_ERROR("mqtt read error");
-            aliyun_iot_memory_free(remainDataBuf);
+            aliot_platform_free(remainDataBuf);
             remainDataBuf = NULL;
             return FAIL_RETURN;
         }
 
-        aliyun_iot_memory_free(remainDataBuf);
+        aliot_platform_free(remainDataBuf);
         remainDataBuf = NULL;
 
         return FAIL_RETURN;
@@ -1100,7 +1103,8 @@ int recvPubAckProc(MQTTClient_t *c)
 
     (void)mask_pubInfo_from(c, mypacketid);
 
-    (void)aliyun_iot_sem_post(&c->semaphore);
+    //TODO
+    //(void)aliyun_iot_sem_post(&c->semaphore);
 
     if (c->deliveryCompleteFun != NULL) {
         c->deliveryCompleteFun(NULL, mypacketid);
@@ -1186,9 +1190,9 @@ int recvPublishProc(MQTTClient_t *c)
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
-    ALIOT_LOG_ERROR("deliver msg");
+    ALIOT_LOG_DEBUG("deliver msg");
     deliverMessage(c, &topicName, &msg);
-    ALIOT_LOG_ERROR("end of delivering msg");
+    ALIOT_LOG_DEBUG("end of delivering msg");
 
     if (msg.qos == QOS0) {
         return SUCCESS_RETURN;
@@ -1225,7 +1229,8 @@ int recvPubRecProc(MQTTClient_t *c)
 
     (void)mask_pubInfo_from(c, mypacketid);
 
-    (void)aliyun_iot_sem_post(&c->semaphore);
+    //TODO
+    //(void)aliyun_iot_sem_post(&c->semaphore);
 
     rc = MQTTPuback(c, mypacketid, PUBREL);
     if (rc == MQTT_NETWORK_ERROR) {
@@ -1364,9 +1369,9 @@ int cycle(MQTTClient_t *c, aliot_timer_t *timer)
     countdown_ms(&c->ping_timer, c->connectdata.keepAliveInterval * 1000);
 
     //接收到任何数据即清除ping消息标志
-    aliyun_iot_mutex_lock(&c->pingMarkLock);
+    aliot_platform_mutex_lock(c->pingMarkLock);
     c->pingMark = 0;
-    aliyun_iot_mutex_unlock(&c->pingMarkLock);
+    aliot_platform_mutex_unlock(c->pingMarkLock);
 
     switch (packetType) {
         case CONNACK: {
@@ -1534,7 +1539,7 @@ int aliyun_iot_mqtt_suback_sync(MQTTClient_t *c, const char *topicFilter, messag
 {
     int rc = SUCCESS_RETURN;
 
-    aliyun_iot_mutex_lock(&c->subInfoLock);
+    aliot_platform_mutex_lock(c->subInfoLock);
     do {
         if (0 == c->subInfoList->len) {
             rc = SUCCESS_RETURN;
@@ -1573,7 +1578,7 @@ int aliyun_iot_mqtt_suback_sync(MQTTClient_t *c, const char *topicFilter, messag
 
     } while (0);
 
-    aliyun_iot_mutex_unlock(&c->subInfoLock);
+    aliot_platform_mutex_unlock(c->subInfoLock);
 
     return rc;
 }
@@ -1678,9 +1683,9 @@ MQTTClientState aliyun_iot_mqtt_get_client_state(MQTTClient_t *pClient)
     IOT_FUNC_ENTRY;
 
     MQTTClientState state;
-    aliyun_iot_mutex_lock(&pClient->stateLock);
+    aliot_platform_mutex_lock(pClient->stateLock);
     state = pClient->clientState;
-    aliyun_iot_mutex_unlock(&pClient->stateLock);
+    aliot_platform_mutex_unlock(pClient->stateLock);
 
     return state;
 }
@@ -1697,9 +1702,9 @@ void aliyun_iot_mqtt_set_client_state(MQTTClient_t *pClient, MQTTClientState new
 {
     IOT_FUNC_ENTRY;
 
-    aliyun_iot_mutex_lock(&pClient->stateLock);
+    aliot_platform_mutex_lock(pClient->stateLock);
     pClient->clientState = newState;
-    aliyun_iot_mutex_unlock(&pClient->stateLock);
+    aliot_platform_mutex_unlock(pClient->stateLock);
 }
 
 bool aliyun_iot_mqtt_is_connected(MQTTClient_t *pClient)
@@ -1795,9 +1800,12 @@ int aliyun_iot_mqtt_init(MQTTClient_t *pClient,
     }
 
     pClient->next_packetid = 0;
-    aliyun_iot_mutex_init(&pClient->idLock);
-    aliyun_iot_mutex_init(&pClient->subInfoLock);
-    aliyun_iot_mutex_init(&pClient->pubInfoLock);
+    pClient->idLock = aliot_platform_mutex_create();
+    pClient->subInfoLock = aliot_platform_mutex_create();
+    pClient->pubInfoLock = aliot_platform_mutex_create();
+//    aliyun_iot_mutex_init(&pClient->idLock);
+//    aliyun_iot_mutex_init(&pClient->subInfoLock);
+//    aliyun_iot_mutex_init(&pClient->pubInfoLock);
 
     //消息发送超时时间
     if (pInitParams->mqttCommandTimeout_ms < ALI_IOT_MQTT_MIN_COMMAND_TIMEOUT
@@ -1814,8 +1822,11 @@ int aliyun_iot_mqtt_init(MQTTClient_t *pClient,
     pClient->defaultMessageHandler = NULL;
     pClient->deliveryCompleteFun = pInitParams->deliveryCompleteFun;
     pClient->subAckTimeOutFun = pInitParams->subAckTimeOutFun;
-    aliyun_iot_mutex_init(&pClient->stateLock);
-    aliyun_iot_mutex_init(&pClient->pingMarkLock);
+
+    pClient->stateLock = aliot_platform_mutex_create();
+    pClient->pingMarkLock = aliot_platform_mutex_create();
+//    aliyun_iot_mutex_init(&pClient->stateLock);
+//    aliyun_iot_mutex_init(&pClient->pingMarkLock);
 
     /*reconnect params init*/
     pClient->reconnectparams.disconnectHandler = pInitParams->disconnectHandler;
@@ -1823,19 +1834,17 @@ int aliyun_iot_mqtt_init(MQTTClient_t *pClient,
     pClient->reconnectparams.reconnectHandler = pInitParams->reconnectHandler;
     pClient->reconnectparams.reconnectHandlerData = pInitParams->reconnectHandlerData;
     pClient->reconnectparams.currentReconnectWaitInterval = ALI_IOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
-    memset(&pClient->recieveThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
-    memset(&pClient->keepaliveThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
-    memset(&pClient->retransThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
 
     pClient->pubInfoList = list_new();
-    pClient->pubInfoList->free = aliyun_iot_memory_free;
+    pClient->pubInfoList->free = aliot_platform_free;
     pClient->subInfoList = list_new();
-    pClient->subInfoList->free = aliyun_iot_memory_free;
+    pClient->subInfoList->free = aliot_platform_free;
 
-    aliyun_iot_mutex_init(&pClient->writebufLock);
-    networkRecoverSignalInit(&pClient->networkRecoverSignal);
+    pClient->writebufLock = aliot_platform_mutex_create();
+    //aliyun_iot_mutex_init(&pClient->writebufLock);
+    //networkRecoverSignalInit(&pClient->networkRecoverSignal);
 
-    (void)aliyun_iot_sem_init(&pClient->semaphore);
+    //(void)aliyun_iot_sem_init(&pClient->semaphore);
 
     /*init mqtt connect params*/
     rc = aliyun_iot_mqtt_set_connect_params(pClient, &connectdata);
@@ -1847,18 +1856,18 @@ int aliyun_iot_mqtt_init(MQTTClient_t *pClient,
     InitTimer(&pClient->ping_timer);
     InitTimer(&pClient->reconnectparams.reconnectDelayTimer);
 
-    pClient->ipstack = (pNetwork_t)aliyun_iot_memory_malloc(sizeof(Network_t));
+    pClient->ipstack = (pNetwork_t)aliot_platform_malloc(sizeof(Network_t));
     if (NULL == pClient->ipstack) {
         ALIOT_LOG_ERROR("malloc Network failed");
         IOT_FUNC_EXIT_RC(FAIL_RETURN);
     }
     memset(pClient->ipstack, 0x0, sizeof(Network_t));
 
-    //rc = aliyun_iot_mqtt_network_init(pClient->ipstack, g_userInfo.hostAddress, g_userInfo.port, g_userInfo.pubKey);
-    //integer to string. todo todo
-    sprintf(puser_info->port_str, "%u", puser_info->port);
 
-    rc = aliyun_iot_net_init(pClient->ipstack, puser_info->host_name, puser_info->port_str, puser_info->pubKey);
+    //TODO
+    //rc = aliyun_iot_mqtt_network_init(pClient->ipstack, g_userInfo.hostAddress, g_userInfo.port, g_userInfo.pubKey);
+
+    rc = aliyun_iot_net_init(pClient->ipstack, puser_info->host_name, puser_info->port, puser_info->pubKey);
     if (SUCCESS_RETURN != rc) {
         aliyun_iot_mqtt_set_client_state(pClient, CLIENT_STATE_INVALID);
         IOT_FUNC_EXIT_RC(rc);
@@ -1878,19 +1887,19 @@ int aliyun_iot_mqtt_init(MQTTClient_t *pClient,
 * 返 回  值: VOID*
 * 说       明:
 ************************************************************/
-void *aliyun_iot_receive_thread(void *param)
-{
-    ALIOT_LOG_INFO("start the receive thread!");
-    aliyun_iot_pthread_setname("iot_receive_thread");
-    MQTTClient_t *pClient = (MQTTClient_t *)param;
-
-    for (;;) {
-        aliyun_iot_mqtt_yield(pClient, pClient->connectdata.keepAliveInterval * 1000 + PINGRSP_TIMEOUT_MS);
-    }
-
-    ALIOT_LOG_INFO("end the receive thread!");
-    return NULL;
-}
+//void *aliyun_iot_receive_thread(void *param)
+//{
+//    ALIOT_LOG_INFO("start the receive thread!");
+//    aliyun_iot_pthread_setname("iot_receive_thread");
+//    MQTTClient_t *pClient = (MQTTClient_t *)param;
+//
+//    for (;;) {
+//        aliyun_iot_mqtt_yield(pClient, pClient->connectdata.keepAliveInterval * 1000 + PINGRSP_TIMEOUT_MS);
+//    }
+//
+//    ALIOT_LOG_INFO("end the receive thread!");
+//    return NULL;
+//}
 
 /***********************************************************
 * 函数名称: MQTTSubInfoProc
@@ -1904,7 +1913,7 @@ int MQTTSubInfoProc(MQTTClient_t *pClient)
 {
     int rc = SUCCESS_RETURN;
 
-    aliyun_iot_mutex_lock(&pClient->subInfoLock);
+    aliot_platform_mutex_lock(pClient->subInfoLock);
     do {
         if (0 == pClient->subInfoList->len) {
             break;
@@ -1952,14 +1961,14 @@ int MQTTSubInfoProc(MQTTClient_t *pClient)
                 continue;
             }
 
-            aliyun_iot_mutex_unlock(&pClient->subInfoLock);
+            aliot_platform_mutex_unlock(pClient->subInfoLock);
 
             //回调函数处理
             if (pClient->subAckTimeOutFun != NULL) {
                 pClient->subAckTimeOutFun(subInfo);
             }
 
-            aliyun_iot_mutex_lock(&pClient->subInfoLock);
+            aliot_platform_mutex_lock(pClient->subInfoLock);
 
             tempNode = node;
         }
@@ -1968,7 +1977,7 @@ int MQTTSubInfoProc(MQTTClient_t *pClient)
 
     } while (0);
 
-    aliyun_iot_mutex_unlock(&pClient->subInfoLock);
+    aliot_platform_mutex_unlock(pClient->subInfoLock);
 
     return rc;
 }
@@ -1981,90 +1990,143 @@ int MQTTSubInfoProc(MQTTClient_t *pClient)
 * 返 回  值: VOID*
 * 说       明:
 ************************************************************/
-void *aliyun_iot_keepalive_thread(void *param)
+//void *aliyun_iot_keepalive_thread(void *param)
+//{
+//    ALIOT_LOG_INFO("start the keep alive thread!");
+//
+//    uint32_t cnt;
+//    MQTTClient_t *pClient = (MQTTClient_t *)param;
+//
+//    aliyun_iot_pthread_setname("iot_keepalive_thread");
+//
+//    //the time of keep alive fail
+//    countdown_ms(&pClient->ping_timer, pClient->connectdata.keepAliveInterval * 1000);
+//
+//    //Cycle time
+//    aliot_timer_t timer;
+//    InitTimer(&timer);
+//    int rc = 0;
+//
+//    unsigned int cycTime = pClient->reconnectparams.currentReconnectWaitInterval;
+//    if (pClient->reconnectparams.currentReconnectWaitInterval > pClient->connectdata.keepAliveInterval * 1000) {
+//        cycTime = pClient->connectdata.keepAliveInterval * 1000;
+//    }
+//
+//    for (;;) {
+//        ALIOT_LOG_INFO("keepalive_thread:%u", ++cnt);
+//
+//        //set the cycle time
+//        countdown_ms(&timer, cycTime);
+//
+//        /*Periodic sending ping packet to detect whether the network is connected*/
+//        (void)aliyun_iot_mqtt_keep_alive(pClient);
+//
+//        MQTTClientState currentState = aliyun_iot_mqtt_get_client_state(pClient);
+//        do {
+//            /*if Exceeds the maximum delay time, then return reconnect timeout*/
+//            if (CLIENT_STATE_DISCONNECTED_RECONNECTING == currentState) {
+//                /*Reconnection is successful, Resume regularly ping packets*/
+//                rc = aliyun_iot_mqtt_handle_reconnect(pClient);
+//                if (SUCCESS_RETURN != rc) {
+//                    //重连失败增加计数
+//                    ALIOT_LOG_DEBUG("reconnect network fail, rc = %d", rc);
+//                } else {
+//                    ALIOT_LOG_INFO("network is reconnected!");
+//
+//                    aliot_platform_mutex_lock(pClient->pingMarkLock);
+//                    pClient->pingMark = 0;
+//                    aliot_platform_mutex_unlock(pClient->pingMarkLock);
+//
+//                    //重连成功调用网络恢复回调函数
+//                    aliyun_iot_mqtt_reconnect_callback(pClient);
+//
+//                    pClient->reconnectparams.currentReconnectWaitInterval = ALI_IOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
+//                }
+//
+//                break;
+//            }
+//
+//            /*If network suddenly interrupted, stop pinging packet,  try to reconnect network immediately*/
+//            if (CLIENT_STATE_DISCONNECTED == currentState) {
+//                ALIOT_LOG_ERROR("network is disconnected!");
+//
+//                //网络异常则调用网络断开连接回调函数
+//                aliyun_iot_mqtt_disconnect_callback(pClient);
+//
+//                pClient->reconnectparams.currentReconnectWaitInterval = ALI_IOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
+//                countdown_ms(&(pClient->reconnectparams.reconnectDelayTimer), pClient->reconnectparams.currentReconnectWaitInterval);
+//
+//                //断开socket
+//                pClient->ipstack->disconnect(pClient->ipstack);
+//
+//                aliyun_iot_mqtt_set_client_state(pClient, CLIENT_STATE_DISCONNECTED_RECONNECTING);
+//
+//                break;
+//            }
+//
+//        } while (0);
+//
+//        int remainTime = left_ms(&timer);
+//        if (remainTime > 0) {
+//            aliot_platform_msleep(remainTime);
+//        }
+//    }
+//
+//    ALIOT_LOG_INFO("end the keep alive thread!");
+//    return NULL;
+//}
+
+static void mqtt_keepalive(MQTTClient_t *pClient)
 {
-    ALIOT_LOG_INFO("start the keep alive thread!");
-
-    uint32_t cnt;
-    MQTTClient_t *pClient = (MQTTClient_t *)param;
-
-    aliyun_iot_pthread_setname("iot_keepalive_thread");
-
-    //the time of keep alive fail
-    countdown_ms(&pClient->ping_timer, pClient->connectdata.keepAliveInterval * 1000);
-
-    //Cycle time
-    aliot_timer_t timer;
-    InitTimer(&timer);
     int rc = 0;
 
-    unsigned int cycTime = pClient->reconnectparams.currentReconnectWaitInterval;
-    if (pClient->reconnectparams.currentReconnectWaitInterval > pClient->connectdata.keepAliveInterval * 1000) {
-        cycTime = pClient->connectdata.keepAliveInterval * 1000;
-    }
+    /*Periodic sending ping packet to detect whether the network is connected*/
+    (void)aliyun_iot_mqtt_keep_alive(pClient);
 
-    for (;;) {
-        ALIOT_LOG_INFO("keepalive_thread:%u", ++cnt);
+    MQTTClientState currentState = aliyun_iot_mqtt_get_client_state(pClient);
+    do {
+        /*if Exceeds the maximum delay time, then return reconnect timeout*/
+        if (CLIENT_STATE_DISCONNECTED_RECONNECTING == currentState) {
+            /*Reconnection is successful, Resume regularly ping packets*/
+            rc = aliyun_iot_mqtt_handle_reconnect(pClient);
+            if (SUCCESS_RETURN != rc) {
+                //重连失败增加计数
+                ALIOT_LOG_DEBUG("reconnect network fail, rc = %d", rc);
+            } else {
+                ALIOT_LOG_INFO("network is reconnected!");
 
-        //set the cycle time
-        countdown_ms(&timer, cycTime);
+                aliot_platform_mutex_lock(pClient->pingMarkLock);
+                pClient->pingMark = 0;
+                aliot_platform_mutex_unlock(pClient->pingMarkLock);
 
-        /*Periodic sending ping packet to detect whether the network is connected*/
-        (void)aliyun_iot_mqtt_keep_alive(pClient);
-
-        MQTTClientState currentState = aliyun_iot_mqtt_get_client_state(pClient);
-        do {
-            /*if Exceeds the maximum delay time, then return reconnect timeout*/
-            if (CLIENT_STATE_DISCONNECTED_RECONNECTING == currentState) {
-                /*Reconnection is successful, Resume regularly ping packets*/
-                rc = aliyun_iot_mqtt_handle_reconnect(pClient);
-                if (SUCCESS_RETURN != rc) {
-                    //重连失败增加计数
-                    ALIOT_LOG_DEBUG("reconnect network fail, rc = %d", rc);
-                } else {
-                    ALIOT_LOG_INFO("network is reconnected!");
-
-                    aliyun_iot_mutex_lock(&pClient->pingMarkLock);
-                    pClient->pingMark = 0;
-                    aliyun_iot_mutex_unlock(&pClient->pingMarkLock);
-
-                    //重连成功调用网络恢复回调函数
-                    aliyun_iot_mqtt_reconnect_callback(pClient);
-
-                    pClient->reconnectparams.currentReconnectWaitInterval = ALI_IOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
-                }
-
-                break;
-            }
-
-            /*If network suddenly interrupted, stop pinging packet,  try to reconnect network immediately*/
-            if (CLIENT_STATE_DISCONNECTED == currentState) {
-                ALIOT_LOG_ERROR("network is disconnected!");
-
-                //网络异常则调用网络断开连接回调函数
-                aliyun_iot_mqtt_disconnect_callback(pClient);
+                //重连成功调用网络恢复回调函数
+                aliyun_iot_mqtt_reconnect_callback(pClient);
 
                 pClient->reconnectparams.currentReconnectWaitInterval = ALI_IOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
-                countdown_ms(&(pClient->reconnectparams.reconnectDelayTimer), pClient->reconnectparams.currentReconnectWaitInterval);
-
-                //断开socket
-                pClient->ipstack->disconnect(pClient->ipstack);
-
-                aliyun_iot_mqtt_set_client_state(pClient, CLIENT_STATE_DISCONNECTED_RECONNECTING);
-
-                break;
             }
 
-        } while (0);
-
-        int remainTime = left_ms(&timer);
-        if (remainTime > 0) {
-            aliyun_iot_pthread_taskdelay(remainTime);
+            break;
         }
-    }
 
-    ALIOT_LOG_INFO("end the keep alive thread!");
-    return NULL;
+        /*If network suddenly interrupted, stop pinging packet,  try to reconnect network immediately*/
+        if (CLIENT_STATE_DISCONNECTED == currentState) {
+            ALIOT_LOG_ERROR("network is disconnected!");
+
+            //网络异常则调用网络断开连接回调函数
+            aliyun_iot_mqtt_disconnect_callback(pClient);
+
+            pClient->reconnectparams.currentReconnectWaitInterval = ALI_IOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
+            countdown_ms(&(pClient->reconnectparams.reconnectDelayTimer), pClient->reconnectparams.currentReconnectWaitInterval);
+
+            //断开socket
+            pClient->ipstack->disconnect(pClient->ipstack);
+
+            aliyun_iot_mqtt_set_client_state(pClient, CLIENT_STATE_DISCONNECTED_RECONNECTING);
+
+            break;
+        }
+
+    } while (0);
 }
 
 /***********************************************************
@@ -2083,14 +2145,14 @@ int MQTTRePublish(MQTTClient_t *c, unsigned char *buf, int len)
     InitTimer(&timer);
     countdown_ms(&timer, c->command_timeout_ms);
 
-    aliyun_iot_mutex_lock(&c->writebufLock);
+    aliot_platform_mutex_lock(c->writebufLock);
 
     if (sendPacket(c, buf, len, &timer) != SUCCESS_RETURN) {
-        aliyun_iot_mutex_unlock(&c->writebufLock);
+        aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliyun_iot_mutex_unlock(&c->writebufLock);
+    aliot_platform_mutex_unlock(c->writebufLock);
     return SUCCESS_RETURN;
 }
 
@@ -2108,7 +2170,7 @@ int MQTTPubInfoProc(MQTTClient_t *pClient)
     int rc = 0;
     MQTTClientState state = CLIENT_STATE_INVALID;
 
-    aliyun_iot_mutex_lock(&pClient->pubInfoLock);
+    aliot_platform_mutex_lock(pClient->pubInfoLock);
     do {
         if (0 == pClient->pubInfoList->len) {
             break;
@@ -2157,10 +2219,10 @@ int MQTTPubInfoProc(MQTTClient_t *pClient)
             }
 
             //以下为超时重发
-            aliyun_iot_mutex_unlock(&pClient->pubInfoLock);
+            aliot_platform_mutex_unlock(pClient->pubInfoLock);
             rc = MQTTRePublish(pClient, repubInfo->buf, repubInfo->len);
             StartTimer(&repubInfo->pubTime);
-            aliyun_iot_mutex_lock(&pClient->pubInfoLock);
+            aliot_platform_mutex_lock(pClient->pubInfoLock);
 
             if (MQTT_NETWORK_ERROR == rc) {
                 aliyun_iot_mqtt_set_client_state(pClient, CLIENT_STATE_DISCONNECTED);
@@ -2172,34 +2234,35 @@ int MQTTPubInfoProc(MQTTClient_t *pClient)
 
     } while (0);
 
-    aliyun_iot_mutex_unlock(&pClient->pubInfoLock);
+    aliot_platform_mutex_unlock(pClient->pubInfoLock);
 
     return SUCCESS_RETURN;
 }
 
-void *aliyun_iot_retrans_thread(void *param)
-{
-    uint32_t cnt = 0;
-    ALIOT_LOG_INFO("start the retrans thread!");
-    MQTTClient_t *pClient = (MQTTClient_t *)param;
-    aliyun_iot_pthread_setname("iot_retrans_thread");
-
-    for (;;) {
-        ALIOT_LOG_INFO("retrans_thread:%u", ++cnt);
-
-        if (FAIL_RETURN == aliyun_iot_sem_gettimeout(&pClient->semaphore, 500)) {
-            continue;
-        }
-
-        //如果是pub ack则删除缓存在pub list中的信息（QOS=1时）
-        (void)MQTTPubInfoProc(pClient);
-
-        //如果是sub ack则删除缓存在sub list中的信息
-        (void)MQTTSubInfoProc(pClient);
-    }
-
-    return NULL;
-}
+//void *aliyun_iot_retrans_thread(void *param)
+//{
+//    uint32_t cnt = 0;
+//    ALIOT_LOG_INFO("start the retrans thread!");
+//    MQTTClient_t *pClient = (MQTTClient_t *)param;
+//    aliyun_iot_pthread_setname("iot_retrans_thread");
+//
+//    for (;;) {
+//        ALIOT_LOG_INFO("retrans_thread:%u", ++cnt);
+//
+//        //TODO
+//        //if (FAIL_RETURN == aliyun_iot_sem_gettimeout(&pClient->semaphore, 500)) {
+//        //    continue;
+//        //}
+//
+//        //如果是pub ack则删除缓存在pub list中的信息（QOS=1时）
+//        (void)MQTTPubInfoProc(pClient);
+//
+//        //如果是sub ack则删除缓存在sub list中的信息
+//        (void)MQTTSubInfoProc(pClient);
+//    }
+//
+//    return NULL;
+//}
 
 /***********************************************************
 * 函数名称: aliyun_iot_create_thread
@@ -2217,13 +2280,13 @@ int aliyun_iot_create_thread(MQTTClient_t *pClient)
         return SUCCESS_RETURN;
     }
 
-    ALIYUN_IOT_PTHREAD_PARAM_S  recvThreadParam;
-    ALIYUN_IOT_PTHREAD_PARAM_S  keepAliveThreadParam;
-    ALIYUN_IOT_PTHREAD_PARAM_S  retransThreadParam;
-
-    memset(&recvThreadParam, 0x0, sizeof(recvThreadParam));
-    memset(&keepAliveThreadParam, 0x0, sizeof(keepAliveThreadParam));
-    memset(&retransThreadParam, 0x0, sizeof(retransThreadParam));
+//    ALIYUN_IOT_PTHREAD_PARAM_S  recvThreadParam;
+//    ALIYUN_IOT_PTHREAD_PARAM_S  keepAliveThreadParam;
+//    ALIYUN_IOT_PTHREAD_PARAM_S  retransThreadParam;
+//
+//    memset(&recvThreadParam, 0x0, sizeof(recvThreadParam));
+//    memset(&keepAliveThreadParam, 0x0, sizeof(keepAliveThreadParam));
+//    memset(&retransThreadParam, 0x0, sizeof(retransThreadParam));
 
     //    aliyun_iot_pthread_param_set(&recvThreadParam, "recv_thread", MQTT_RECV_THREAD_STACK_SIZE, 0);
     //    result = aliyun_iot_pthread_create(&pClient->recieveThread,aliyun_iot_receive_thread,pClient,&recvThreadParam);
@@ -2233,68 +2296,68 @@ int aliyun_iot_create_thread(MQTTClient_t *pClient)
     //        return FAIL_RETURN;
     //    }
 
-    aliyun_iot_pthread_param_set(&keepAliveThreadParam, "keepAlive_thread", MQTT_KEEPALIVE_THREAD_STACK_SIZE, 0);
-    result = aliyun_iot_pthread_create(&pClient->keepaliveThread, aliyun_iot_keepalive_thread, pClient,
-                                       &keepAliveThreadParam);
-    if (0 != result) {
-        ALIOT_LOG_ERROR("run aliyun_iot_pthread_create error!");
-        aliyun_iot_pthread_cancel(&pClient->recieveThread);
-        return FAIL_RETURN;
-    }
-
-    aliyun_iot_pthread_param_set(&retransThreadParam, "retrans_thread", MQTT_RETRANS_THREAD_STACK_SIZE, 0);
-    result = aliyun_iot_pthread_create(&pClient->retransThread, aliyun_iot_retrans_thread, pClient, &retransThreadParam);
-    if (0 != result) {
-        ALIOT_LOG_ERROR("run aliyun_iot_retrans_thread error!");
-        aliyun_iot_pthread_cancel(&pClient->recieveThread);
-        aliyun_iot_pthread_cancel(&pClient->keepaliveThread);
-        return FAIL_RETURN;
-    }
+//    aliyun_iot_pthread_param_set(&keepAliveThreadParam, "keepAlive_thread", MQTT_KEEPALIVE_THREAD_STACK_SIZE, 0);
+//    result = aliyun_iot_pthread_create(&pClient->keepaliveThread, aliyun_iot_keepalive_thread, pClient,
+//                                       &keepAliveThreadParam);
+//    if (0 != result) {
+//        ALIOT_LOG_ERROR("run aliyun_iot_pthread_create error!");
+//        aliyun_iot_pthread_cancel(&pClient->recieveThread);
+//        return FAIL_RETURN;
+//    }
+//
+//    aliyun_iot_pthread_param_set(&retransThreadParam, "retrans_thread", MQTT_RETRANS_THREAD_STACK_SIZE, 0);
+//    result = aliyun_iot_pthread_create(&pClient->retransThread, aliyun_iot_retrans_thread, pClient, &retransThreadParam);
+//    if (0 != result) {
+//        ALIOT_LOG_ERROR("run aliyun_iot_retrans_thread error!");
+//        aliyun_iot_pthread_cancel(&pClient->recieveThread);
+//        aliyun_iot_pthread_cancel(&pClient->keepaliveThread);
+//        return FAIL_RETURN;
+//    }
 
     ALIOT_LOG_INFO("create recieveThread, keepaliveThread and retransThread!");
     pClient->threadRunning = 1;
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: aliyun_iot_delete_thread
-* 描       述: 删除线程
-* 输入参数: Client* pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
-int aliyun_iot_delete_thread(MQTTClient_t *pClient)
-{
-    if (0 == pClient->threadRunning) {
-        return SUCCESS_RETURN;
-    }
-
-    int result = aliyun_iot_pthread_cancel(&pClient->recieveThread);
-    if (0 != result) {
-        ALIOT_LOG_ERROR("run aliyun_iot_pthread_cancel error!");
-        return FAIL_RETURN;
-    }
-    memset(&pClient->recieveThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
-
-    result = aliyun_iot_pthread_cancel(&pClient->keepaliveThread);
-    if (0 != result) {
-        ALIOT_LOG_ERROR("run aliyun_iot_pthread_cancel error!");
-        return FAIL_RETURN;
-    }
-    memset(&pClient->keepaliveThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
-
-    result = aliyun_iot_pthread_cancel(&pClient->retransThread);
-    if (0 != result) {
-        ALIOT_LOG_ERROR("run aliyun_iot_pthread_cancel error!");
-        return FAIL_RETURN;
-    }
-    memset(&pClient->retransThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
-
-    pClient->threadRunning = 0;
-    ALIOT_LOG_INFO("delete recieveThread, keepaliveThread and retransThread!");
-    return SUCCESS_RETURN;
-}
+///***********************************************************
+//* 函数名称: aliyun_iot_delete_thread
+//* 描       述: 删除线程
+//* 输入参数: Client* pClient
+//* 输出参数: VOID
+//* 返 回  值: 0：成功  非0：失败
+//* 说       明:
+//************************************************************/
+//int aliyun_iot_delete_thread(MQTTClient_t *pClient)
+//{
+//    if (0 == pClient->threadRunning) {
+//        return SUCCESS_RETURN;
+//    }
+//
+//    int result = aliyun_iot_pthread_cancel(&pClient->recieveThread);
+//    if (0 != result) {
+//        ALIOT_LOG_ERROR("run aliyun_iot_pthread_cancel error!");
+//        return FAIL_RETURN;
+//    }
+//    memset(&pClient->recieveThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
+//
+//    result = aliyun_iot_pthread_cancel(&pClient->keepaliveThread);
+//    if (0 != result) {
+//        ALIOT_LOG_ERROR("run aliyun_iot_pthread_cancel error!");
+//        return FAIL_RETURN;
+//    }
+//    memset(&pClient->keepaliveThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
+//
+//    result = aliyun_iot_pthread_cancel(&pClient->retransThread);
+//    if (0 != result) {
+//        ALIOT_LOG_ERROR("run aliyun_iot_pthread_cancel error!");
+//        return FAIL_RETURN;
+//    }
+//    memset(&pClient->retransThread, 0x0, sizeof(ALIYUN_IOT_PTHREAD_S));
+//
+//    pClient->threadRunning = 0;
+//    ALIOT_LOG_INFO("delete recieveThread, keepaliveThread and retransThread!");
+//    return SUCCESS_RETURN;
+//}
 
 /***********************************************************
 * 函数名称: aliyun_iot_mqtt_connect
@@ -2426,7 +2489,7 @@ int aliyun_iot_mqtt_handle_reconnect(MQTTClient_t *pClient)
 
     //REDO AUTH before each reconnection
     if (0 != aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info())) {
-        printf("run aliyun_iot_auth() error!\n");
+        ALIOT_LOG_ERROR("run aliyun_iot_auth() error!\n");
         return -1;
     }
 
@@ -2467,27 +2530,27 @@ int aliyun_iot_mqtt_release(MQTTClient_t *pClient)
         IOT_FUNC_EXIT_RC(NULL_VALUE_ERROR);
     }
 
-    aliyun_iot_delete_thread(pClient);
-    aliyun_iot_pthread_taskdelay(100);
+    //aliyun_iot_delete_thread(pClient);
+    aliot_platform_msleep(100);
 
     aliyun_iot_mqtt_disconnect(pClient);
     aliyun_iot_mqtt_set_client_state(pClient, CLIENT_STATE_INVALID);
-    aliyun_iot_pthread_taskdelay(100);
+    aliot_platform_msleep(100);
 
-    aliyun_iot_mutex_destory(&pClient->idLock);
-    aliyun_iot_mutex_destory(&pClient->subInfoLock);
-    aliyun_iot_mutex_destory(&pClient->pubInfoLock);
-    aliyun_iot_mutex_destory(&pClient->stateLock);
-    aliyun_iot_mutex_destory(&pClient->pingMarkLock);
-    aliyun_iot_mutex_destory(&pClient->writebufLock);
-    networkRecoverSignalRelease(&pClient->networkRecoverSignal);
-    (void)aliyun_iot_sem_destory(&pClient->semaphore);
+    aliot_platform_mutex_destroy(pClient->idLock);
+    aliot_platform_mutex_destroy(pClient->subInfoLock);
+    aliot_platform_mutex_destroy(pClient->pubInfoLock);
+    aliot_platform_mutex_destroy(pClient->stateLock);
+    aliot_platform_mutex_destroy(pClient->pingMarkLock);
+    aliot_platform_mutex_destroy(pClient->writebufLock);
+    //networkRecoverSignalRelease(&pClient->networkRecoverSignal);
+    //(void)aliyun_iot_sem_destory(&pClient->semaphore);
 
     list_destroy(pClient->pubInfoList);
     list_destroy(pClient->subInfoList);
 
     if (NULL != pClient->ipstack) {
-        aliyun_iot_memory_free(pClient->ipstack);
+        aliot_platform_free(pClient->ipstack);
     }
 
     ALIOT_LOG_INFO("mqtt release!");
@@ -2589,13 +2652,16 @@ int aliyun_iot_mqtt_keep_alive(MQTTClient_t *pClient)
         return SUCCESS_RETURN;
     }
 
+    //update to next time sending MQTT keep-alive
+    countdown_ms(&pClient->ping_timer, pClient->connectdata.keepAliveInterval * 1000);
+
     //如果已经发送的ping信号没有pong响应则不再重复发送，直接退出
-    aliyun_iot_mutex_lock(&pClient->pingMarkLock);
+    aliot_platform_mutex_lock(pClient->pingMarkLock);
     if (0 != pClient->pingMark) {
-        aliyun_iot_mutex_unlock(&pClient->pingMarkLock);
+        aliot_platform_mutex_unlock(pClient->pingMarkLock);
         return SUCCESS_RETURN;
     }
-    aliyun_iot_mutex_unlock(&pClient->pingMarkLock);
+    aliot_platform_mutex_unlock(&pClient->pingMarkLock);
 
     //保活超时需要记录超时时间判断是否做断网重连处理
     rc = MQTTKeepalive(pClient);
@@ -2607,13 +2673,12 @@ int aliyun_iot_mqtt_keep_alive(MQTTClient_t *pClient)
         return rc;
     }
 
-    static int ii = 0;
-    ALIOT_LOG_INFO("start to send ping packet, %d", ii++);
+    ALIOT_LOG_INFO("send MQTT ping...");
 
     //发送ping信号则设置标志位
-    aliyun_iot_mutex_lock(&pClient->pingMarkLock);
+    aliot_platform_mutex_lock(pClient->pingMarkLock);
     pClient->pingMark = 1;
-    aliyun_iot_mutex_unlock(&pClient->pingMarkLock);
+    aliot_platform_mutex_unlock(pClient->pingMarkLock);
 
     return SUCCESS_RETURN;
 }
@@ -2643,12 +2708,22 @@ void aliyun_iot_mqtt_yield(MQTTClient_t *pClient, int timeout_ms)
             ALIOT_LOG_DEBUG("cycle failure, rc=%d", rc);
             break;
         }
+
+        //TODO
+        //如果是pub ack则删除缓存在pub list中的信息（QOS=1时）
+        (void)MQTTPubInfoProc(pClient);
+
+        //如果是sub ack则删除缓存在sub list中的信息
+        (void)MQTTSubInfoProc(pClient);
+
+        mqtt_keepalive(pClient);
+
     } while (!expired(&timer));
 
     ALIOT_LOG_DEBUG("mqtt yield end");
 
     if (SUCCESS_RETURN != rc) {
-        aliyun_iot_pthread_taskdelay(1000);
+        aliot_platform_msleep(1000);
     }
 }
 

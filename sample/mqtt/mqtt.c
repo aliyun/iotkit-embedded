@@ -1,5 +1,5 @@
 
-#include "aliyun_iot_platform_memory.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_mqtt_client.h"
 #include "aliyun_iot_auth.h"
@@ -7,16 +7,17 @@
 #include "aliyun_iot_shadow.h"
 
 //The product and device information from IOT console
-#define PRODUCT_KEY         "gaBkPbI3Zgy"
-#define DEVICE_NAME         "shadow_test3"
-#define DEVICE_ID           "gaBkPbI3Zgyshadow_test3"
-#define DEVICE_SECRET       "WXcnOt3Ry1YYnFlMxOm5WLUny81wpbW6"
+#define PRODUCT_KEY         "G6xVlhtyQFW"
+#define DEVICE_NAME         "sh_xk_device_sample_mqtt"
+#define DEVICE_ID           "UVUKrHPwSF0N6LfKvjo5"
+#define DEVICE_SECRET       "65YgEXvgtXzLPnbW9xgTiCBddXGTkWlW"
 
 
 //This is the pre-defined topic
 #define TOPIC_UPDATE         "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_ERROR          "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
 #define TOPIC_GET            "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
+#define TOPIC_DATA           "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
 
 #define MSG_LEN_MAX         (1024)
 
@@ -113,7 +114,7 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
         return rc;
     }
 
-    rc = aliyun_iot_mqtt_subscribe(&client, TOPIC_GET, QOS1, messageArrived);
+    rc = aliyun_iot_mqtt_subscribe(&client, TOPIC_DATA, QOS1, messageArrived);
     if (0 != rc) {
         aliyun_iot_mqtt_release(&client);
         ALIOT_LOG_DEBUG("ali_iot_mqtt_subscribe failed ret = %d", rc);
@@ -126,13 +127,13 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
     strcpy(msg_pub, "message: hello! start!");
 
     message.qos        = QOS1;
-    message.retained   = FALSE_IOT;
-    message.dup        = FALSE_IOT;
+    message.retained   = 0;
+    message.dup        = 0;
     message.payload    = (void *)msg_pub;
     message.payloadlen = strlen(msg_pub);
     message.id         = 0;
 
-    rc = aliyun_iot_mqtt_publish(&client, TOPIC_GET, &message);
+    rc = aliyun_iot_mqtt_publish(&client, TOPIC_DATA, &message);
     if (SUCCESS_RETURN != rc) {
         aliyun_iot_mqtt_release(&client);
         ALIOT_LOG_DEBUG("aliyun_iot_mqtt_publish failed ret = %d", rc);
@@ -153,11 +154,11 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
 
         //handle the MQTT packet received from TCP or SSL connection
         aliyun_iot_mqtt_yield(&client, 500);
-        rc = aliyun_iot_mqtt_publish(&client, TOPIC_UPDATE, &message);
+        rc = aliyun_iot_mqtt_publish(&client, TOPIC_DATA, &message);
     } while (ch != 'Q' && ch != 'q');
 
     aliyun_iot_mqtt_release(&client);
-    aliyun_iot_pthread_taskdelay(200);
+    aliot_platform_msleep(200);
     return 0;
 }
 
@@ -165,13 +166,13 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
 
 int main()
 {
-    unsigned char *msg_buf = (unsigned char *)aliyun_iot_memory_malloc(MSG_LEN_MAX);
-    unsigned char *msg_readbuf = (unsigned char *)aliyun_iot_memory_malloc(MSG_LEN_MAX);
+    unsigned char *msg_buf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
+    unsigned char *msg_readbuf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
 
     mqtt_client(msg_buf, msg_readbuf);
 
-    aliyun_iot_memory_free(msg_buf);
-    aliyun_iot_memory_free(msg_readbuf);
+    aliot_platform_free(msg_buf);
+    aliot_platform_free(msg_readbuf);
 
     ALIOT_LOG_DEBUG("out of demo!");
 

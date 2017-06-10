@@ -3,7 +3,7 @@
 #define _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
 
 
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_shadow.h"
 #include "aliyun_iot_shadow_config.h"

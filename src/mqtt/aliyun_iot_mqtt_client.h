@@ -29,12 +29,15 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "aliot_platform.h"
+
+#include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_net.h"
 #include "aliyun_iot_common_list.h"
 #include "aliyun_iot_common_timer.h"
-#include "aliyun_iot_platform_pthread.h"
-#include "aliyun_iot_platform_sem.h"
 #include "aliyun_iot_device.h"
 #include "MQTTPacket/MQTTPacket.h"
 
@@ -232,7 +235,7 @@ struct SUBSCRIBE_INFO {
 *******************************************/
 typedef struct NETWORK_RECOVER_CALLBACK_SIGNAL {
     int                   signal;      //信号标志
-    ALIYUN_IOT_MUTEX_S    signalLock;  //信号锁
+    void *    signalLock;  //信号锁
 } NETWORK_RECOVER_CALLBACK_SIGNAL_S;
 
 /*******************************************
@@ -240,7 +243,7 @@ typedef struct NETWORK_RECOVER_CALLBACK_SIGNAL {
 *******************************************/
 struct Client {
     unsigned int                      next_packetid;                           //MQTT报文标识符
-    ALIYUN_IOT_MUTEX_S                idLock;                                  //MQTT报文标志符锁
+    void *                idLock;                                  //MQTT报文标志符锁
     unsigned int
     command_timeout_ms;                      //MQTT消息传输超时时间，时间内阻塞传输。单位：毫秒
     int                               threadRunning;                           //client的线程运行标志
@@ -256,21 +259,18 @@ struct Client {
     aliot_timer_t
     ping_timer;                              //MQTT保活定时器，时间未到不做保活包发送
     int                               pingMark;                                //ping消息发送标志
-    ALIYUN_IOT_MUTEX_S                pingMarkLock;                            //ping消息发送标志锁
+    void *                pingMarkLock;                            //ping消息发送标志锁
     MQTTClientState                   clientState;                             //MQTT client状态
-    ALIYUN_IOT_MUTEX_S                stateLock;                               //MQTT client状态锁
+    void *                stateLock;                               //MQTT client状态锁
     aliot_mqtt_reconnect_param_t       reconnectparams;                         //MQTT client重连参数
     MQTTPacket_connectData            connectdata;                             //MQTT重连报文数据
     list_t                           *pubInfoList;                             //publish消息信息链表
     list_t                           *subInfoList;                             //subscribe、unsubscribe消息信息链表
-    ALIYUN_IOT_MUTEX_S                pubInfoLock;                             //publish消息信息数组锁
-    ALIYUN_IOT_MUTEX_S                subInfoLock;                             //subscribe消息信息数组锁
-    ALIYUN_IOT_PTHREAD_S              recieveThread;                           //MQTT接收消息线程
-    ALIYUN_IOT_PTHREAD_S              keepaliveThread;                         //MQTT client保活线程
-    ALIYUN_IOT_PTHREAD_S              retransThread;                           //MQTT pub消息重发线程
-    ALIYUN_IOT_MUTEX_S                writebufLock;                            //MQTT消息发送buffer锁
-    NETWORK_RECOVER_CALLBACK_SIGNAL_S networkRecoverSignal;                    //网络恢复信号
-    aliot_platform_sem_t                  semaphore;                               //接收消息同步信号
+    void *                pubInfoLock;                             //publish消息信息数组锁
+    void *                subInfoLock;                             //subscribe消息信息数组锁
+    void *                writebufLock;                            //MQTT消息发送buffer锁
+    //NETWORK_RECOVER_CALLBACK_SIGNAL_S networkRecoverSignal;                    //网络恢复信号
+    //aliot_platform_sem_t                  semaphore;                               //接收消息同步信号
     SubAckTimeoutHandler              *subAckTimeOutFun;                       //sub或unsub消息ack超时回调
 };
 

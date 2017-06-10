@@ -2,11 +2,11 @@
 #ifndef _MQTT_ALIYUN_IOT_SHADOW_H_
 #define _MQTT_ALIYUN_IOT_SHADOW_H_
 
+#include "aliot_platform.h"
+#include "aliyun_iot_common_error.h"
+
 #include "aliyun_iot_mqtt_client.h"
 #include "aliyun_iot_auth.h"
-
-#include "aliyun_iot_platform_datatype.h"
-#include "aliyun_iot_common_error.h"
 
 #include "aliyun_iot_shadow_config.h"
 
@@ -112,7 +112,8 @@ typedef struct {
 typedef struct aliot_shadow_st {
     MQTTClient_t mqtt;
     aliot_inner_data_t inner_data;
-    ALIYUN_IOT_MUTEX_S mutex;
+    //ALIYUN_IOT_MUTEX_S mutex;
+    void *mutex;
 } aliot_shadow_t, *aliot_shadow_pt;
 
 

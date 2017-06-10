@@ -11,7 +11,7 @@
 #ifndef ALIYUN_IOT_COMMON_MD5_H
 #define ALIYUN_IOT_COMMON_MD5_H
 
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_error.h"
 
 typedef struct {

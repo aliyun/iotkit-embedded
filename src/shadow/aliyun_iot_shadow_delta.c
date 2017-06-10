@@ -1,6 +1,6 @@
 
-#include "aliyun_iot_platform_datatype.h"
-#include "aliyun_iot_platform_memory.h"
+#include "aliot_platform.h"
+
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_jsonparser.h"
 #include "aliyun_iot_common_list.h"
@@ -15,7 +15,7 @@ static aliot_err_t aliyun_iot_shadow_delta_response(aliot_shadow_pt pshadow)
     char *resp_data;
     int len = sizeof(ALIOT_SHADOW_DELTA_RESPONSE_FMT) + ALIOT_SHADOW_DELTA_VERSION_LEN;
 
-    resp_data = (char *)aliyun_iot_memory_malloc(len);
+    resp_data = (char *)aliot_platform_malloc(len);
     if (NULL == resp_data) {
         return ERROR_NO_MEM;
     }

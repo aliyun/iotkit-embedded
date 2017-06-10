@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "aliyun_iot_platform_datatype.h"
-#include "aliyun_iot_platform_memory.h"
+#include "aliot_platform.h"
 
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_log.h"
@@ -57,7 +56,7 @@ static int aliyun_iot_get_id_token(
                        client_id, product_key, device_name, timestamp);
     }
 
-    if (NULL == (buf = aliyun_iot_memory_malloc(length))) {
+    if (NULL == (buf = aliot_platform_malloc(length))) {
         goto do_exit;
     }
 
@@ -83,7 +82,7 @@ static int aliyun_iot_get_id_token(
 
     memset(&httpclient_data, 0, sizeof(httpclient_data_t));
 
-    post_buf = (char *) aliyun_iot_memory_malloc(HTTP_POST_MAX_LEN);
+    post_buf = (char *) aliot_platform_malloc(HTTP_POST_MAX_LEN);
     if (NULL == post_buf) {
         ALIOT_LOG_ERROR("malloc http post buf failed!");
         return ERROR_MALLOC;
@@ -111,7 +110,7 @@ static int aliyun_iot_get_id_token(
 
     ret = strlen(post_buf);
 
-    response_buf = (char *) aliyun_iot_memory_malloc(HTTP_RESP_MAX_LEN);
+    response_buf = (char *) aliot_platform_malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
         ALIOT_LOG_ERROR("malloc http response buf failed!");
         return ERROR_MALLOC;
@@ -208,15 +207,15 @@ static int aliyun_iot_get_id_token(
 
 do_exit:
     if (NULL != buf) {
-        aliyun_iot_memory_free(buf);
+        aliot_platform_free(buf);
     }
 
     if (NULL != post_buf) {
-        aliyun_iot_memory_free(post_buf);
+        aliot_platform_free(post_buf);
     }
 
     if (NULL != response_buf) {
-        aliyun_iot_memory_free(response_buf);
+        aliot_platform_free(response_buf);
     }
 
     return ret;
@@ -250,7 +249,7 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
-#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
+#ifdef ALIOT_MQTT_CHANNEL_ENCRYPT_SSL
     puser_info->pubKey = aliyun_iot_ca_get();
 #else
     puser_info->pubKey = NULL;

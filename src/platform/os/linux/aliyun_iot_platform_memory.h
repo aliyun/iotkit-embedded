@@ -9,6 +9,6 @@
 void *aliyun_iot_memory_malloc(uint32_t size);
 
 
-void aliyun_iot_memory_free(void *ptr);
+void aliot_platform_free(void *ptr);
 
 #endif

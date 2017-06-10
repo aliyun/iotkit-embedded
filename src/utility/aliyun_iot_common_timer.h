@@ -3,6 +3,7 @@
 #ifndef _ALIYUN_IOT_COMMON_TIMER_H_
 #define _ALIYUN_IOT_COMMON_TIMER_H_
 
+#include "aliot_platform.h"
 
 typedef struct {
     long time;

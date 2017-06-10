@@ -2,8 +2,7 @@
 #ifndef _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_
 #define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_
 
-#include "aliyun_iot_platform_datatype.h"
-#include "aliyun_iot_common_error.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_shadow.h"
 #include "aliyun_iot_shadow_config.h"
 #include "aliyun_iot_shadow_common.h"

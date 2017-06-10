@@ -11,12 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_log.h"
 
-#include "aliyun_iot_platform_pthread.h"
-#include "aliyun_iot_platform_timer.h"
 
 aliot_log_level_t g_iotLogLevel = ALIOT_LOG_LEVEL_DEBUG;
 

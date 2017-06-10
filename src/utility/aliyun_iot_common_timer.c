@@ -1,6 +1,5 @@
 
-#include "aliyun_iot_platform_datatype.h"
-#include "aliyun_iot_platform_timer.h"
+#include "aliot_platform.h"
 
 #include "aliyun_iot_common_timer.h"
 

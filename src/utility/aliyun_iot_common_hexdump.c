@@ -5,12 +5,14 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "aliot_platform.h"
+
 #include "aliyun_iot_common_hexdump.h"
 
 #define DUMP_PREFIX_ADDRESS ALIOT_HEXDUMP_PREFIX_ADDRESS
 #define DUMP_PREFIX_OFFSET  ALIOT_HEXDUMP_PREFIX_OFFSET
 
-#define DUMP_PRINT printf
+#define DUMP_PRINT aliot_platform_printf
 
 
 const char hex_asc[] = "0123456789abcdef";

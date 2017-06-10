@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 
 
 typedef enum IOT_LOG_LEVEL {

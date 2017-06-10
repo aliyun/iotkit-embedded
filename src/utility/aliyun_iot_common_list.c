@@ -1,5 +1,7 @@
+
+#include "aliot_platform.h"
 #include "aliyun_iot_common_list.h"
-#include "aliyun_iot_platform_memory.h"
+
 
 /*
  * Allocate a new list_t. NULL on failure.
@@ -7,7 +9,7 @@
 list_t *list_new()
 {
     list_t *self;
-    if (!(self = aliyun_iot_memory_malloc(sizeof(list_t)))) {
+    if (!(self = aliot_platform_malloc(sizeof(list_t)))) {
         return NULL;
     }
     self->head = NULL;
@@ -32,11 +34,11 @@ void list_destroy(list_t *self)
         if (self->free) {
             self->free(curr->val);
         }
-        aliyun_iot_memory_free(curr);
+        aliot_platform_free(curr);
         curr = next;
     }
 
-    aliyun_iot_memory_free(self);
+    aliot_platform_free(self);
 }
 
 /*
@@ -195,7 +197,7 @@ void list_remove(list_t *self, list_node_t *node)
         self->free(node->val);
     }
 
-    aliyun_iot_memory_free(node);
+    aliot_platform_free(node);
     --self->len;
 }
 
@@ -216,7 +218,7 @@ list_iterator_t *list_iterator_new(list_t *list, list_direction_t direction)
 list_iterator_t *list_iterator_new_from_node(list_node_t *node, list_direction_t direction)
 {
     list_iterator_t *self;
-    if (!(self = aliyun_iot_memory_malloc(sizeof(list_iterator_t)))) {
+    if (!(self = aliot_platform_malloc(sizeof(list_iterator_t)))) {
         return NULL;
     }
     self->next = node;
@@ -242,7 +244,7 @@ list_node_t *list_iterator_next(list_iterator_t *self)
  */
 void list_iterator_destroy(list_iterator_t *self)
 {
-    aliyun_iot_memory_free(self);
+    aliot_platform_free(self);
     self = NULL;
 }
 
@@ -252,7 +254,7 @@ void list_iterator_destroy(list_iterator_t *self)
 list_node_t *list_node_new(void *val)
 {
     list_node_t *self;
-    if (!(self = aliyun_iot_memory_malloc(sizeof(list_node_t)))) {
+    if (!(self = aliot_platform_malloc(sizeof(list_node_t)))) {
         return NULL;
     }
 

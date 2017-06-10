@@ -19,7 +19,7 @@
 #ifndef ALIYUN_IOT_COMMON_HTTPCLIENT_H
 #define ALIYUN_IOT_COMMON_HTTPCLIENT_H
 
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_net.h"
 

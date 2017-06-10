@@ -16,11 +16,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include <string.h>
-#include "aliyun_iot_platform_datatype.h"
+#include "aliot_platform.h"
 #include "aliyun_iot_common_error.h"
 #include "aliyun_iot_common_log.h"
 #include "aliyun_iot_common_httpclient.h"
-#include "aliyun_iot_platform_network.h"
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))
@@ -235,26 +234,6 @@ int httpclient_send_auth(httpclient_t *client, char *send_buf, int *send_idx)
     return SUCCESS_RETURN;
 }
 
-int httpclient_tcp_send_all(int sock_fd, char *data, int length)
-{
-    int written_len = 0;
-
-    while (written_len < length) {
-        int ret = aliyun_iot_network_send(sock_fd, data + written_len, length - written_len, IOT_NET_FLAGS_DEFAULT);
-        if (ret > 0) {
-            written_len += ret;
-            continue;
-        } else if (ret == 0) {
-            return 0;
-        } else {
-            ALIOT_LOG_ERROR("run aliyun_iot_network_send error,errno = %d", aliyun_iot_get_errno());
-            return -1; /* Connnection error */
-        }
-    }
-
-    return written_len;
-}
-
 int httpclient_send_header(httpclient_t *client, char *url, int method, httpclient_data_t *client_data)
 {
     char scheme[8] = { 0 };
@@ -366,7 +345,8 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len,
 {
     int ret = 0;
     uint32_t readLen = 0;
-    IOT_NET_FD_ISSET_E result = IOT_NET_FD_NO_ISSET;
+
+    *p_read_len = 0;
 
     while (readLen < max_len) {
         buf[readLen] = '\0';
@@ -376,32 +356,26 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len,
         } else {
             //read the rest data in TCP buffer (with little wait time)
             ret = client->net.read(&client->net, buf + readLen, max_len - readLen, 100);
-
-            if (ret < 0) {
-                int32_t err = aliyun_iot_get_errno();
-                if (err == EAGAIN_IOT || err == EWOULDBLOCK_IOT) {
-                    ALIOT_LOG_ERROR("http recv error");
-                    break;
-                }
-            }
         }
 
         if (ret > 0) {
             readLen += ret;
         } else if (ret == 0) {
+            //timeout
             break;
+        } else if (-1 == ret) {
+            ALIOT_LOG_INFO("Connection closed. %u bytes be read");
+            return 0;
         } else {
             ALIOT_LOG_ERROR("Connection error (recv returned %d)", ret);
-            *p_read_len = readLen;
             return ERROR_HTTP_CONN;
         }
     }
 
-    ALIOT_LOG_DEBUG("Read %d bytes", readLen);
+    ALIOT_LOG_INFO("%u bytes be read", readLen);
     *p_read_len = readLen;
-    buf[readLen] = '\0';
-
-    return SUCCESS_RETURN;
+    //buf[readLen] = '\0';
+    return 0;
 }
 
 int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpclient_data_t *client_data)
@@ -411,10 +385,10 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpc
     int crlf_pos;
     /* Receive data */
     ALIOT_LOG_DEBUG("Receiving data:%s", data);
-    client_data->is_more = TRUE_IOT;
+    client_data->is_more = true;
 
-    if (client_data->response_content_len == -1 && client_data->is_chunked == FALSE_IOT) {
-        while (TRUE_IOT) {
+    if (client_data->response_content_len == -1 && client_data->is_chunked == false) {
+        while (true) {
             int ret, max_len;
             if (count + len < client_data->response_buf_len - 1) {
                 memcpy(client_data->response_buf + count, data, len);
@@ -440,13 +414,13 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpc
             if (len == 0) {
                 /* read no more data */
                 ALIOT_LOG_DEBUG("no more len == 0");
-                client_data->is_more = FALSE_IOT;
+                client_data->is_more = false;
                 return SUCCESS_RETURN;
             }
         }
     }
 
-    while (TRUE_IOT) {
+    while (true) {
         uint32_t readLen = 0;
 
         if (client_data->is_chunked && client_data->retrieve_len <= 0) {
@@ -454,13 +428,13 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpc
             bool foundCrlf;
             int n;
             do {
-                foundCrlf = FALSE_IOT;
+                foundCrlf = false;
                 crlf_pos = 0;
                 data[len] = 0;
                 if (len >= 2) {
                     for (; crlf_pos < len - 2; crlf_pos++) {
                         if (data[crlf_pos] == '\r' && data[crlf_pos + 1] == '\n') {
-                            foundCrlf = TRUE_IOT;
+                            foundCrlf = true;
                             break;
                         }
                     }
@@ -495,7 +469,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpc
 
             if (readLen == 0) {
                 /* Last chunk */
-                client_data->is_more = FALSE_IOT;
+                client_data->is_more = false;
                 ALIOT_LOG_DEBUG("no more (last chunk)");
                 break;
             }
@@ -557,7 +531,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpc
             len -= 2;
         } else {
             ALIOT_LOG_DEBUG("no more(content-length)\n");
-            client_data->is_more = FALSE_IOT;
+            client_data->is_more = false;
             break;
         }
 
@@ -598,10 +572,10 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, httpcli
     memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2) + 1); /* Be sure to move NULL-terminating char as well */
     len -= (crlf_pos + 2);
 
-    client_data->is_chunked = FALSE_IOT;
+    client_data->is_chunked = false;
 
     /* Now get headers */
-    while (TRUE_IOT) {
+    while (true) {
         char key[32];
         char value[32];
         int n;
@@ -646,7 +620,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, httpcli
                 client_data->retrieve_len = client_data->response_content_len;
             } else if (!strcmp(key, "Transfer-Encoding")) {
                 if (!strcmp(value, "Chunked") || !strcmp(value, "chunked")) {
-                    client_data->is_chunked = TRUE_IOT;
+                    client_data->is_chunked = true;
                     client_data->response_content_len = 0;
                     client_data->retrieve_len = 0;
                 }
@@ -742,15 +716,12 @@ int httpclient_common(httpclient_t *client, char *url, int port, char *ca_crt, i
                       httpclient_data_t *client_data)
 {
     int ret = ERROR_HTTP_CONN;
-    char port_str[6] = { 0 };
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
     httpclient_parse_host(url, host, sizeof(host));
-    snprintf(port_str, sizeof(port_str), "%d", port);
+    ALIOT_LOG_DEBUG("host:%s, port:%d", host, port);
 
-    ALIOT_LOG_DEBUG("host:%s, port:%s", host, port_str);
-
-    aliyun_iot_net_init(&client->net, host, port_str, ca_crt);
+    aliyun_iot_net_init(&client->net, host, port, ca_crt);
 
     ret = httpclient_connect(client);
     if (0 != ret) {

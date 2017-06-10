@@ -1,12 +1,9 @@
-BUILD_TYPE              = debug
-PLATFORM                = windows
-PLATFORM_CC             = gcc
-PLATFORM_AR             = ar
-SSL_LIB_NAME            = mbedtls
-CHANNEL_ENCRYPT         = SSL
-
-MBEDTLS_LIB_ENABLE      = y
-MQTT_MBED_LIB_ENABLE    = y
-MQTTMBED_LIB_NAME       = libmqtt_mbed
+BUILD_TYPE                = debug
+MQTT_CHANNEL_ENCRYPT_SSL  = no
+PLATFORM_CC               = gcc
+PLATFORM_AR               = ar
+PLATFORM_OS               = windows
+PLATFORM_NETWORK          = winsock
+PLATFORM_SSL              = mbedtls
 
 ALIIOT_SDK_LIB_NAME     = libaliot_sdk

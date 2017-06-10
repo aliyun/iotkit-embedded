@@ -6,7 +6,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define  TRUE_IOT    1
-#define  FALSE_IOT   0
-
 #endif
