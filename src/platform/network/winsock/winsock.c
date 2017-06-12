@@ -21,7 +21,7 @@
                NULL, \
                WSAGetLastError(), \
                MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), \
-               &s, \
+               (LPSTR)&s, \
                0, \
                NULL); \
         printf("WINSOCK LINE=%d FUNC=%s() %s: %s", __LINE__, __FUNCTION__, log, s); \

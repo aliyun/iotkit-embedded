@@ -146,9 +146,7 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
             timeout.tv_sec = t_left / 1000;
             timeout.tv_usec = (t_left % 1000) * 1000;
 
-            PLATFORM_LINUXSOCK_LOG("fd=%d, ret=%d, len=%d, timeout_s=%u, timeout_us=%u", fd, ret, len, timeout.tv_sec, timeout.tv_usec);
             ret = select(fd + 1, NULL, &sets, NULL, &timeout);
-            PLATFORM_LINUXSOCK_LOG("fd=%d, ret=%d, len=%d", fd, ret, len);
             if (ret > 0) {
                if (0 == FD_ISSET(fd, &sets)) {
                     PLATFORM_LINUXSOCK_LOG("Should NOT arrive");
@@ -214,7 +212,6 @@ int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t t
         timeout.tv_sec = t_left / 1000;
         timeout.tv_usec = (t_left % 1000) * 1000;
     
-        PLATFORM_LINUXSOCK_LOG("timeout=%d, s=%d, us=%d", timeout_ms, timeout.tv_sec, timeout.tv_usec);
         ret = select(fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
             rc = recv(fd, buf + len_recv, len - len_recv, 0);

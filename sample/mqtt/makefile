@@ -1,6 +1,9 @@
 
 include ./../../make.settings
 
+LIB_ALIOT_SDK=$(ALIOT_PLATFORM_LIB_NAME).a
+LIB_ALIOT_PLATFORM=$(ALIOT_SDK_LIB_NAME).a
+
 CC=$(PLATFORM_CC)
 CFLAGS += -std=gnu99 -Wall -g
 LDFLAGS = -lm -pthread
@@ -19,7 +22,7 @@ INCLUD_PATH += -I./../../src/platform/
 TARGET = mqtt
 
 all:
-	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) mqtt.c ./../../libs/libaliot_sdk.a ./../../libs/libplatform.a $(LDFLAGS) 
+	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) mqtt.c ../../libs/$(LIB_ALIOT_PLATFORM) ../../libs/$(LIB_ALIOT_SDK) $(LDFLAGS)
 	
 clean:
 	 rm -rf $(TARGET)

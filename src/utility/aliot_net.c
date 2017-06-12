@@ -8,8 +8,7 @@
 
 
 /* TCP connection */
-
-static int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
+int read_tcp(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     return aliot_platform_tcp_read(pNetwork->handle, buffer, len, timeout_ms);
 }

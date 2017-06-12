@@ -1,5 +1,5 @@
 
-LIB_PLATFORM = libplatform.a
+LIB_PLATFORM = $(PLATFORM_LIB_NAME).a
 BUILD_OUT_PATH = ./ssl/build/
 
 INCLUD_PATH = -I./
@@ -33,18 +33,18 @@ CFILE = $(patsubst %.o,%.c, ${OBJ})
 .PHONY:clean all
 
 all: ${LIB_PLATFORM}
+	$(info platform library name is: $(LIB_PLATFORM))
 
-
-${LIB_PLATFORM}: libs ${OBJ}
+${LIB_PLATFORM}: ${OBJ} lib_ssl
 ifeq ($(SSL), mbedtls)
 	$(AR) $(ARFLAGS) $@ $(OBJ) ${BUILD_OUT_PATH}*.o
 else
 	$(AR) $(ARFLAGS) $@ $(OBJ)        
 endif
 	-rm -rf ${BUILD_OUT_PATH}*.o
-	cp ${LIB_PLATFORM} ./../../libs/
+	cp ${LIB_PLATFORM} ../../libs/
 
-libs:
+lib_ssl:
 	mkdir -p ${BUILD_OUT_PATH}
 ifeq ($(SSL), mbedtls)
 	make -C ./ssl/mbedtls/mbedtls lib -e CC=$(CC) AR=$(AR) OS=$(OS)
@@ -64,4 +64,3 @@ clean:
 	-rm -rf ${BUILD_OUT_PATH}
 	-rm ${OBJ} ${LIB_PLATFORM}
 	-make -C ./ssl/mbedtls/mbedtls clean
-		

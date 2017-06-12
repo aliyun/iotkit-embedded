@@ -19,7 +19,7 @@ $(info src_files = $(SRC_FILE))
 OBJ = $(patsubst %.c,%.o, ${SRC_FILE})
 CFILE = $(patsubst %.o,%.c, ${OBJ})
 
-LIB_STATIC = ${ALIIOT_SDK_LIB_NAME}.a
+LIB_STATIC = ${ALIOT_SDK_LIB_NAME}.a
 
 CC = $(PLATFORM_CC)
 AR = $(PLATFORM_AR)

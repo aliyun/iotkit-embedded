@@ -14,7 +14,7 @@ static aliot_device_info_t g_deviceInfo;
 
 int aliyun_iot_device_init(void)
 {
-    aliyun_iot_common_log_set_level(ALIOT_LOG_LEVEL_DEBUG);
+    //aliyun_iot_common_log_set_level(ALIOT_LOG_LEVEL_DEBUG);
 
     memset(&g_deviceInfo, 0x0, sizeof(aliot_device_info_t));
     memset(&g_userInfo, 0x0, sizeof(aliot_user_info_t));
