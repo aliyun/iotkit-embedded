@@ -7,12 +7,27 @@
 #include "aliot_platform_os.h"
 
 
+#define PLATFORM_WINOS_PERROR(log) \
+    do { \
+        char *s = NULL; \
+        FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, \
+               NULL, \
+               WSAGetLastError(), \
+               MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), \
+               (LPSTR)&s, \
+               0, \
+               NULL); \
+        printf("WINOS#LINE=%d#FUNC=%s()#%s: %s", __LINE__, __FUNCTION__, log, s); \
+        fflush(stdout);\
+        LocalFree(s); \
+    }while(0);
+
 void *aliot_platform_mutex_create(void)
 {
     HANDLE mutex;
 
     if (NULL == (mutex = CreateMutex(NULL, FALSE, NULL))) {
-        printf("create mutex error: %u\n", GetLastError());
+        PLATFORM_WINOS_PERROR("create mutex error");
     }
 
     return mutex;
@@ -21,21 +36,21 @@ void *aliot_platform_mutex_create(void)
 void aliot_platform_mutex_destroy(_IN_ void *mutex)
 {
     if (0 == CloseHandle(mutex)) {
-        printf("destroy mutex error: %u\n", GetLastError());
+        PLATFORM_WINOS_PERROR("destroy mutex error");
     }
 }
 
 void aliot_platform_mutex_lock(_IN_ void *mutex)
 {
     if (WAIT_FAILED == WaitForSingleObject(mutex, INFINITE)) {
-        printf("lock mutex error: %u\n", GetLastError());
+        PLATFORM_WINOS_PERROR("lock mutex error");
     }
 }
 
 void aliot_platform_mutex_unlock(_IN_ void *mutex)
 {
     if (0 == ReleaseMutex(mutex)) {
-        printf("unlock mutex error: %u\n", GetLastError());
+        PLATFORM_WINOS_PERROR("unlock mutex error");
     }
 }
 

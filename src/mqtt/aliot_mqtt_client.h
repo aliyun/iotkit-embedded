@@ -246,7 +246,6 @@ struct Client {
     void *                idLock;                                  //MQTT报文标志符锁
     unsigned int
     command_timeout_ms;                      //MQTT消息传输超时时间，时间内阻塞传输。单位：毫秒
-    int                               threadRunning;                           //client的线程运行标志
     size_t                            buf_size, readbuf_size;                  //MQTT消息发送接收buffer的大小
     unsigned char                     *buf;                                    //MQTT消息发送buffer
     unsigned char                     *readbuf;                                //MQTT消息接收buffer
@@ -269,8 +268,6 @@ struct Client {
     void *                pubInfoLock;                             //publish消息信息数组锁
     void *                subInfoLock;                             //subscribe消息信息数组锁
     void *                writebufLock;                            //MQTT消息发送buffer锁
-    //NETWORK_RECOVER_CALLBACK_SIGNAL_S networkRecoverSignal;                    //网络恢复信号
-    //aliot_platform_sem_t                  semaphore;                               //接收消息同步信号
     SubAckTimeoutHandler              *subAckTimeOutFun;                       //sub或unsub消息ack超时回调
 };
 
@@ -344,16 +341,6 @@ int aliyun_iot_mqtt_subscribe(MQTTClient_t *c, const char *topicFilter, enum QoS
 ************************************************************/
 int aliyun_iot_mqtt_unsubscribe(MQTTClient_t *c, const char *topicFilter);
 
-/***********************************************************
-* 函数名称: aliyun_iot_mqtt_sub_sync
-* 描       述: mqtt同步订阅ACK
-* 输入参数: Client* c  mqtt客户端
-*          char* topicFilter 订阅的主题规则
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: 同subscribe
-************************************************************/
-int aliyun_iot_mqtt_suback_sync(MQTTClient_t *c, const char *topicFilter, messageHandler messageHandler);
 
 /***********************************************************
 * 函数名称: aliyun_iot_mqtt_publish
