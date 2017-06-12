@@ -3,7 +3,7 @@
 #ifndef _ALIOT_PLATFORM_NETWORK_H_
 #define _ALIOT_PLATFORM_NETWORK_H_
 
-#include "aliot_platform.h"
+#include "../aliot_platform_datatype.h"
 
 intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port);
 int aliot_platform_tcp_destroy(intptr_t fd);

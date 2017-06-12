@@ -58,7 +58,7 @@ static void messageArrived(MessageData *md)
     ALIOT_LOG_DEBUG("msg = %s", my_msg);
 }
 
-int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
+int mqtt_client(char *msg_buf, char *msg_readbuf)
 {
     int rc = 0, ch = 0, msg_len, cnt;
     MQTTClient_t client;
@@ -165,8 +165,8 @@ int mqtt_client(unsigned char *msg_buf, unsigned char *msg_readbuf)
 
 int main()
 {
-    unsigned char *msg_buf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
-    unsigned char *msg_readbuf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
+    char *msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
+    char *msg_readbuf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
 
     mqtt_client(msg_buf, msg_readbuf);
 

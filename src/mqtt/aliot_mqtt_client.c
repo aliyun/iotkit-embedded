@@ -1,20 +1,8 @@
-/*******************************************************************************
- * Copyright (c) 2014 IBM Corp.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution.
- *
- * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at
- *   http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *    Allan Stockdill-Mander/Ian Craggs - initial API and implementation and/or initial documentation
- *******************************************************************************/
 
+#include <stdlib.h>
+#include <stddef.h>
 #include "aliot_platform.h"
+#include "aliot_auth.h"
 #include "aliot_mqtt_client.h"
 #include "aliot_error.h"
 #include "aliot_log.h"
@@ -34,10 +22,10 @@ typedef struct REPUBLISH_INFO {
     MQTT_NODE_STATE_E nodeState;    //node状态
     unsigned int      msgId;        //pub消息的报文标识符
     int               len;          //pub消息长度
-    unsigned char    *buf;          //pub消息体
+    char    *buf;          //pub消息体
 } REPUBLISH_INFO_S;
 
-static int sendPacket(MQTTClient_t *c, unsigned char *buf, int length, aliot_timer_t *timer);
+static int sendPacket(MQTTClient_t *c, char *buf, int length, aliot_timer_t *timer);
 static MQTTClientState aliyun_iot_mqtt_get_client_state(MQTTClient_t *pClient);
 static void aliyun_iot_mqtt_set_client_state(MQTTClient_t *pClient, MQTTClientState newState);
 static int aliyun_iot_mqtt_keep_alive(MQTTClient_t *pClient);
@@ -204,7 +192,7 @@ int MQTTKeepalive(MQTTClient_t *pClient)
     int rc = 0;
 
     aliot_platform_mutex_lock(pClient->writebufLock);
-    len = MQTTSerialize_pingreq(pClient->buf, pClient->buf_size);
+    len = MQTTSerialize_pingreq((unsigned char *)pClient->buf, pClient->buf_size);
     if (len <= 0) {
         aliot_platform_mutex_unlock(pClient->writebufLock);
         ALIOT_LOG_ERROR("Serialize ping request is error");
@@ -240,7 +228,7 @@ int MQTTConnect(MQTTClient_t *pClient)
     int rc = 0;
 
     aliot_platform_mutex_lock(pClient->writebufLock);
-    if ((len = MQTTSerialize_connect(pClient->buf, pClient->buf_size, pConnectParams)) <= 0) {
+    if ((len = MQTTSerialize_connect((unsigned char *)pClient->buf, pClient->buf_size, pConnectParams)) <= 0) {
         aliot_platform_mutex_unlock(pClient->writebufLock);
         ALIOT_LOG_ERROR("Serialize connect packet failed,len = %d", len);
         return MQTT_CONNECT_PACKET_ERROR;
@@ -281,11 +269,11 @@ int MQTTPublish(MQTTClient_t *c, const char *topicName, MQTTMessage *message)
     countdown_ms(&timer, c->command_timeout_ms);
 
     aliot_platform_mutex_lock(c->writebufLock);
-    len = MQTTSerialize_publish(c->buf, c->buf_size, 0, message->qos, message->retained, message->id, topic,
+    len = MQTTSerialize_publish((unsigned char *)c->buf, c->buf_size, 0, message->qos, message->retained, message->id, topic,
                                 (unsigned char *)message->payload, message->payloadlen);
     if (len <= 0) {
         aliot_platform_mutex_unlock(c->writebufLock);
-        ALIOT_LOG_ERROR("MQTTSerialize_publish is error,rc = %d, buf_size = %ld, payloadlen = %ld", len, c->buf_size,
+        ALIOT_LOG_ERROR("MQTTSerialize_publish is error, len=%d, buf_size=%u, payloadlen=%u", len, c->buf_size,
                         message->payloadlen);
         return MQTT_PUBLISH_PACKET_ERROR;
     }
@@ -338,11 +326,11 @@ static int MQTTPuback(MQTTClient_t *c, unsigned int msgId, enum msgTypes type)
 
     aliot_platform_mutex_lock(c->writebufLock);
     if (type == PUBACK) {
-        len = MQTTSerialize_ack(c->buf, c->buf_size, PUBACK, 0, msgId);
+        len = MQTTSerialize_ack((unsigned char *)c->buf, c->buf_size, PUBACK, 0, msgId);
     } else if (type == PUBREC) {
-        len = MQTTSerialize_ack(c->buf, c->buf_size, PUBREC, 0, msgId);
+        len = MQTTSerialize_ack((unsigned char *)c->buf, c->buf_size, PUBREC, 0, msgId);
     } else if (type == PUBREL) {
-        len = MQTTSerialize_ack(c->buf, c->buf_size, PUBREL, 0, msgId);
+        len = MQTTSerialize_ack((unsigned char *)c->buf, c->buf_size, PUBREL, 0, msgId);
     } else {
         aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_PUBLISH_ACK_TYPE_ERROR;
@@ -389,7 +377,7 @@ static int MQTTSubscribe(MQTTClient_t *c, const char *topicFilter, enum QoS qos,
 
     aliot_platform_mutex_lock(c->writebufLock);
 
-    len = MQTTSerialize_subscribe(c->buf, c->buf_size, 0, (unsigned short)msgId, 1, &topic, (int *)&qos);
+    len = MQTTSerialize_subscribe((unsigned char *)c->buf, c->buf_size, 0, (unsigned short)msgId, 1, &topic, (int *)&qos);
     if (len <= 0) {
         aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_SUBSCRIBE_PACKET_ERROR;
@@ -442,7 +430,7 @@ static int MQTTUnsubscribe(MQTTClient_t *c, const char *topicFilter, unsigned in
 
     aliot_platform_mutex_lock(c->writebufLock);
 
-    if ((len = MQTTSerialize_unsubscribe(c->buf, c->buf_size, 0, (unsigned short)msgId, 1, &topic)) <= 0) {
+    if ((len = MQTTSerialize_unsubscribe((unsigned char *)c->buf, c->buf_size, 0, (unsigned short)msgId, 1, &topic)) <= 0) {
         aliot_platform_mutex_unlock(c->writebufLock);
         return MQTT_UNSUBSCRIBE_PACKET_ERROR;
     }
@@ -485,7 +473,7 @@ static int MQTTDisconnect(MQTTClient_t *c)
     aliot_timer_t timer;     // we might wait for incomplete incoming publishes to complete
 
     aliot_platform_mutex_lock(c->writebufLock);
-    int len = MQTTSerialize_disconnect(c->buf, c->buf_size);
+    int len = MQTTSerialize_disconnect((unsigned char *)c->buf, c->buf_size);
 
     InitTimer(&timer);
     countdown_ms(&timer, c->command_timeout_ms);
@@ -555,7 +543,7 @@ static int mask_pubInfo_from(MQTTClient_t *c, unsigned int  msgId)
 ************************************************************/
 static int push_pubInfo_to(MQTTClient_t *c, int len, unsigned short msgId, list_node_t **node)
 {
-    if (len < 0 || len > c->buf_size) {
+    if ((len < 0) || (len > c->buf_size)) {
         ALIOT_LOG_ERROR("the param of len is error!")
         return FAIL_RETURN;
     }
@@ -580,7 +568,7 @@ static int push_pubInfo_to(MQTTClient_t *c, int len, unsigned short msgId, list_
     repubInfo->msgId = msgId;
     repubInfo->len = len;
     StartTimer(&repubInfo->pubTime);
-    repubInfo->buf = (unsigned char *)repubInfo + sizeof(REPUBLISH_INFO_S);
+    repubInfo->buf = (char *)repubInfo + sizeof(REPUBLISH_INFO_S);
 
     //复制保存的内容
     memcpy(repubInfo->buf, c->buf, len);
@@ -747,7 +735,7 @@ static int getNextPacketId(MQTTClient_t *c)
 * 返 回  值: 0：成功  非0：失败
 * 说      明:
 ************************************************************/
-static int sendPacket(MQTTClient_t *c, unsigned char *buf, int length, aliot_timer_t *timer)
+static int sendPacket(MQTTClient_t *c, char *buf, int length, aliot_timer_t *timer)
 {
     int rc = FAIL_RETURN;
     int sent = 0;
@@ -780,7 +768,7 @@ static int sendPacket(MQTTClient_t *c, unsigned char *buf, int length, aliot_tim
 ************************************************************/
 static int decodePacket(MQTTClient_t *c, int *value, int timeout)
 {
-    unsigned char i;
+    char i;
     int multiplier = 1;
     int len = 0;
     const int MAX_NO_OF_REMAINING_LENGTH_BYTES = 4;
@@ -840,11 +828,11 @@ static int readPacket(MQTTClient_t *c, aliot_timer_t *timer, unsigned int *packe
         return rc;
     }
 
-    len += MQTTPacket_encode(c->readbuf + 1, rem_len); /* put the original remaining length back into the buffer */
+    len += MQTTPacket_encode((unsigned char *)c->readbuf + 1, rem_len); /* put the original remaining length back into the buffer */
 
     /*Check if the received data length exceeds mqtt read buffer length*/
     if ((rem_len > 0) && ((rem_len + len) > c->readbuf_size)) {
-        ALIOT_LOG_ERROR("mqtt read buffer is too short, mqttReadBufLen : %zd, remainDataLen : %d", c->readbuf_size, rem_len);
+        ALIOT_LOG_ERROR("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->readbuf_size, rem_len);
         int needReadLen = c->readbuf_size - len;
         if (c->ipstack->read(c->ipstack, c->readbuf + len, needReadLen, left_ms(timer)) != needReadLen) {
             ALIOT_LOG_ERROR("mqtt read error");
@@ -853,7 +841,7 @@ static int readPacket(MQTTClient_t *c, aliot_timer_t *timer, unsigned int *packe
 
         /* drop data whitch over the length of mqtt buffer*/
         int remainDataLen = rem_len - needReadLen;
-        unsigned char *remainDataBuf = aliot_platform_malloc(remainDataLen + 1);
+        char *remainDataBuf = aliot_platform_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
             ALIOT_LOG_ERROR("malloc remain buffer failed");
             return FAIL_RETURN;
@@ -982,7 +970,7 @@ static int recvConnAckProc(MQTTClient_t *c)
     int rc = SUCCESS_RETURN;
     unsigned char connack_rc = 255;
     char sessionPresent = 0;
-    if (MQTTDeserialize_connack((unsigned char *)&sessionPresent, &connack_rc, c->readbuf, c->readbuf_size) != 1) {
+    if (MQTTDeserialize_connack((unsigned char *)&sessionPresent, &connack_rc, (unsigned char *)c->readbuf, c->readbuf_size) != 1) {
         ALIOT_LOG_ERROR("connect ack is error");
         return MQTT_CONNECT_ACK_PACKET_ERROR;
     }
@@ -1028,7 +1016,7 @@ static int recvPubAckProc(MQTTClient_t *c)
     unsigned char dup = 0;
     unsigned char type = 0;
 
-    if (MQTTDeserialize_ack(&type, &dup, &mypacketid, c->readbuf, c->readbuf_size) != 1) {
+    if (MQTTDeserialize_ack(&type, &dup, &mypacketid, (unsigned char *)c->readbuf, c->readbuf_size) != 1) {
         return MQTT_PUBLISH_ACK_PACKET_ERROR;
     }
 
@@ -1054,10 +1042,9 @@ static int recvPubAckProc(MQTTClient_t *c)
 ************************************************************/
 static int recvSubAckProc(MQTTClient_t *c)
 {
-    int rc = FAIL_RETURN, i;
     unsigned short mypacketid;
-    int count = 0, grantedQoS = -1;
-    if (MQTTDeserialize_suback(&mypacketid, 1, &count, &grantedQoS, c->readbuf, c->readbuf_size) != 1) {
+    int i, count = 0, grantedQoS = -1;
+    if (MQTTDeserialize_suback(&mypacketid, 1, &count, &grantedQoS, (unsigned char *)c->readbuf, c->readbuf_size) != 1) {
         ALIOT_LOG_ERROR("Sub ack packet error");
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
     }
@@ -1116,9 +1103,15 @@ static int recvPublishProc(MQTTClient_t *c)
     MQTTMessage msg;
     memset(&msg, 0x0, sizeof(msg));
 
-    if (MQTTDeserialize_publish((unsigned char *)&msg.dup, (int *)&msg.qos, (unsigned char *)&msg.retained,
-                                (unsigned short *)&msg.id, &topicName,
-                                (unsigned char **)&msg.payload, (int *)&msg.payloadlen, c->readbuf, c->readbuf_size) != 1) {
+    if (1 != MQTTDeserialize_publish((unsigned char *)&msg.dup,
+                                (int *)&msg.qos,
+                                (unsigned char *)&msg.retained,
+                                (unsigned short *)&msg.id,
+                                &topicName,
+                                (unsigned char **)&msg.payload,
+                                (int *)&msg.payloadlen,
+                                (unsigned char *)c->readbuf,
+                                c->readbuf_size)) {
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
@@ -1155,7 +1148,7 @@ static int recvPubRecProc(MQTTClient_t *c)
     unsigned char type = 0;
     int rc = 0;
 
-    if (MQTTDeserialize_ack(&type, &dup, &mypacketid, c->readbuf, c->readbuf_size) != 1) {
+    if (MQTTDeserialize_ack(&type, &dup, &mypacketid, (unsigned char *)c->readbuf, c->readbuf_size) != 1) {
         return MQTT_PUBLISH_REC_PACKET_ERROR;
     }
 
@@ -1187,7 +1180,7 @@ static int recvPubCompProc(MQTTClient_t *c)
     unsigned char dup = 0;
     unsigned char type = 0;
 
-    if (MQTTDeserialize_ack(&type, &dup, &mypacketid, c->readbuf, c->readbuf_size) != 1) {
+    if (MQTTDeserialize_ack(&type, &dup, &mypacketid, (unsigned char *)c->readbuf, c->readbuf_size) != 1) {
         return MQTT_PUBLISH_COMP_PACKET_ERROR;
     }
 
@@ -1209,7 +1202,7 @@ static int recvPubCompProc(MQTTClient_t *c)
 static int recvUnsubAckProc(MQTTClient_t *c)
 {
     unsigned short mypacketid = 0;  // should be the same as the packetid above
-    if (MQTTDeserialize_unsuback(&mypacketid, c->readbuf, c->readbuf_size) != 1) {
+    if (MQTTDeserialize_unsuback(&mypacketid, (unsigned char *)c->readbuf, c->readbuf_size) != 1) {
         return MQTT_UNSUBSCRIBE_ACK_PACKET_ERROR;
     }
 
@@ -1902,7 +1895,7 @@ static void mqtt_keepalive(MQTTClient_t *pClient)
 * 返 回  值: 0成功；非0失败
 * 说       明:
 ************************************************************/
-int MQTTRePublish(MQTTClient_t *c, unsigned char *buf, int len)
+int MQTTRePublish(MQTTClient_t *c, char *buf, int len)
 {
     aliot_timer_t timer;
     InitTimer(&timer);

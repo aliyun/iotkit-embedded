@@ -3,7 +3,7 @@
 #ifndef _ALIOT_PLATFORM_SSL_H_
 #define _ALIOT_PLATFORM_SSL_H_
 
-#include "aliot_platform.h"
+#include "../aliot_platform_datatype.h"
 
 int aliot_platform_ssl_read(void *handle, char *buf, int len, int timeout_ms);
 

@@ -36,7 +36,7 @@ static void device_shadow_cb_light(aliot_shadow_attr_pt pattr)
 
 
 /* Device shadow demo entry */
-int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf)
+int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 {
 
     char buf[1024];
@@ -149,8 +149,8 @@ int demo_device_shadow(unsigned char *msg_buf, unsigned char *msg_readbuf)
 
 int main()
 {
-    unsigned char *msg_buf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
-    unsigned char *msg_readbuf = (unsigned char *)aliot_platform_malloc(MSG_LEN_MAX);
+    char *msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
+    char *msg_readbuf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
 
 
     demo_device_shadow(msg_buf, msg_readbuf);

@@ -166,8 +166,8 @@ libmbedcrypto.dll: $(OBJS_CRYPTO)
 	$(CC) $(LOCAL_CFLAGS) $(CFLAGS) -c $<
 
 clean:
-ifndef WINDOWS
+#ifndef WINDOWS
 	rm -f *.o libmbed*
-else
-	del /Q /F *.o libmbed*
-endif
+#else
+#	del /Q /F *.o libmbed*
+#endif

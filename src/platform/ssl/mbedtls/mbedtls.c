@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/net.h"
 #include "mbedtls/x509_crt.h"
@@ -105,7 +106,7 @@ static int ssl_parse_crt(mbedtls_x509_crt *crt)
                 }
             }
         }
-        SSL_LOG("crt content:%u", strlen(buf));
+        SSL_LOG("crt content:%u", (uint32_t)strlen(buf));
         local_crt = local_crt->next;
         i++;
     }
@@ -190,9 +191,9 @@ int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
 }
 
 
-int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
 {
-    size_t readLen = 0;
+    uint32_t readLen = 0;
     int ret = -1;
 
     SSL_LOG("aliyun_iot_network_ssl_read len=%d timer=%d ms", len, timeout_ms);
@@ -227,9 +228,9 @@ int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer
     return readLen;
 }
 
-int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
 {
-    size_t writtenLen = 0;
+    uint32_t writtenLen = 0;
     int ret = -1;
 
     SSL_LOG("len=%d timer=%d ms", len, timeout_ms);

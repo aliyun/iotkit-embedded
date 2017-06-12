@@ -17,9 +17,9 @@ typedef struct _TLSDataParams {
     int socketId;
 } TLSDataParams_t;
 
-int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms);
+int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms);
 
-int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms);
+int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms);
 
 void aliyun_iot_network_ssl_disconnect(TLSDataParams_t *pTlsData);
 

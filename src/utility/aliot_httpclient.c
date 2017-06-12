@@ -36,10 +36,9 @@
     #define DEBUG_LEVEL 2
 #endif
 
-static int httpclient_parse_host(char *url, char *host, uint32_t maxhost_len);
+static int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len);
 static int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len, char *host,
                                 uint32_t maxhost_len, int *port, char *path, uint32_t max_path_len);
-static int httpclient_tcp_send_all(int sock_fd, char *data, int length);
 static int httpclient_conn(httpclient_t *client);
 static int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len);
 static int httpclient_retrieve_content(httpclient_t *client, char *data, int len, httpclient_data_t *client_data);
@@ -135,9 +134,9 @@ int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len,
     return SUCCESS_RETURN;
 }
 
-int httpclient_parse_host(char *url, char *host, uint32_t maxhost_len)
+int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len)
 {
-    char *host_ptr = (char *) strstr(url, "://");
+    const char *host_ptr = (const char *) strstr(url, "://");
     uint32_t host_len = 0;
     char *path_ptr;
 
@@ -234,7 +233,7 @@ int httpclient_send_auth(httpclient_t *client, char *send_buf, int *send_idx)
     return SUCCESS_RETURN;
 }
 
-int httpclient_send_header(httpclient_t *client, char *url, int method, httpclient_data_t *client_data)
+int httpclient_send_header(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
     char scheme[8] = { 0 };
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
@@ -364,7 +363,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len,
             //timeout
             break;
         } else if (-1 == ret) {
-            ALIOT_LOG_INFO("Connection closed. %u bytes be read");
+            ALIOT_LOG_INFO("Connection closed. %u bytes be read", readLen);
             return 0;
         } else {
             ALIOT_LOG_ERROR("Connection error (recv returned %d)", ret);
@@ -652,7 +651,7 @@ aliot_err_t httpclient_connect(httpclient_t *client)
     return ret;
 }
 
-aliot_err_t httpclient_send_request(httpclient_t *client, char *url, int method, httpclient_data_t *client_data)
+aliot_err_t httpclient_send_request(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
     int ret = ERROR_HTTP_CONN;
 
@@ -712,7 +711,7 @@ void httpclient_close(httpclient_t *client)
     client->net.handle = -1;
 }
 
-int httpclient_common(httpclient_t *client, char *url, int port, char *ca_crt, int method,
+int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method,
                       httpclient_data_t *client_data)
 {
     int ret = ERROR_HTTP_CONN;
@@ -755,9 +754,9 @@ int aliyun_iot_common_get_response_code(httpclient_t *client)
 
 aliot_err_t aliyun_iot_common_post(
             httpclient_t *client,
-            char *url,
+            const char *url,
             int port,
-            char *ca_crt,
+            const char *ca_crt,
             httpclient_data_t *client_data)
 {
     return httpclient_common(client, url, port, ca_crt, HTTPCLIENT_POST, client_data);

@@ -111,7 +111,7 @@ typedef struct MQTTMessage {
     char dup;              //控制报文重复分发标志
     unsigned short id;     //报文标识符
     void *payload;         //报文负载数据,注意：负载数据可以使用二进制数据或字符文本数据
-    size_t payloadlen;     //报文负载数据长度,注意：使用字符文本数据时payloadlen是字符串长度不包含结束符'\0'标志，二进制数据的长度需要用户准确指定.
+    uint32_t payloadlen;     //报文负载数据长度,注意：使用字符文本数据时payloadlen是字符串长度不包含结束符'\0'标志，二进制数据的长度需要用户准确指定.
 } MQTTMessage;
 
 
@@ -179,9 +179,9 @@ typedef struct {
     iot_reconnect_handler  reconnectHandler;        //网络连接恢复回调处理函数，不使用置NULL
     void                   *disconnectHandlerData;  //网络连接丢失回调处理函数的入参
     void                   *reconnectHandlerData;   //网络连接恢复回调处理函数的入参
-    unsigned char          *pWriteBuf;              //MQTT发送buffer
+    char          *pWriteBuf;              //MQTT发送buffer
     unsigned int           writeBufSize;            //MQTT发送buffer的长度,
-    unsigned char          *pReadBuf;               //MQTT接收buffer
+    char          *pReadBuf;               //MQTT接收buffer
     unsigned int           readBufSize;             //MQTT接收buffer的长度
     DeliveryComplete       *deliveryCompleteFun;    //MQTT传输完成回调函数，不使用置NULL
     SubAckTimeoutHandler   *subAckTimeOutFun;       //MQTTSub和unSub消息ACK超时的回调
@@ -244,11 +244,10 @@ typedef struct NETWORK_RECOVER_CALLBACK_SIGNAL {
 struct Client {
     unsigned int                      next_packetid;                           //MQTT报文标识符
     void *                idLock;                                  //MQTT报文标志符锁
-    unsigned int
-    command_timeout_ms;                      //MQTT消息传输超时时间，时间内阻塞传输。单位：毫秒
-    size_t                            buf_size, readbuf_size;                  //MQTT消息发送接收buffer的大小
-    unsigned char                     *buf;                                    //MQTT消息发送buffer
-    unsigned char                     *readbuf;                                //MQTT消息接收buffer
+    unsigned int   command_timeout_ms;                      //MQTT消息传输超时时间，时间内阻塞传输。单位：毫秒
+    uint32_t                            buf_size, readbuf_size;                  //MQTT消息发送接收buffer的大小
+    char                     *buf;                                    //MQTT消息发送buffer
+    char                     *readbuf;                                //MQTT消息接收buffer
     MessageHandlers
     messageHandlers[MAX_MESSAGE_HANDLERS];   //订阅主题对应的消息处理结构数组
     void (*defaultMessageHandler)(MessageData *);                              //主题默认消息处理结构

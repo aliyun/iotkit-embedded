@@ -134,9 +134,9 @@ typedef struct {
  */
 aliot_err_t aliyun_iot_common_post(
             httpclient_t *client,
-            char *url,
+            const char *url,
             int port,
-            char *ca_crt,
+            const char *ca_crt,
             httpclient_data_t *client_data);
 
 

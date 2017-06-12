@@ -2,7 +2,7 @@
 #ifndef _ALIOT_PLATFORM_OS_H_
 #define _ALIOT_PLATFORM_OS_H_
 
-#include "aliot_platform_datatype.h"
+#include "../aliot_platform_datatype.h"
 
 /** @defgroup group_platform platform
  *  @{

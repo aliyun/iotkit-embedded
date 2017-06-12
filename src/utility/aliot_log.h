@@ -42,7 +42,7 @@ void aliyun_iot_common_log_set_level(aliot_log_level_t iotLogLevel);
     {\
         if(g_iotLogLevel <= ALIOT_LOG_LEVEL_INFO)\
         {\
-            printf("[info] %s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
+            printf("[info] %s:%u %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
             fflush(stdout);\
         }\
     }

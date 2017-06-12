@@ -28,5 +28,10 @@ uint32_t aliyun_iot_timer_now();
 
 uint32_t aliyun_iot_timer_interval(aliot_time_t *start, aliot_time_t *end);
 
+uint32_t aliot_time_get_ms(void);
+
+uint64_t aliot_time_get_ms_64b(void);
+
+uint32_t aliot_time_get_s(void);
 
 #endif /* _ALIYUN_IOT_COMMON_TIMER_H_ */
