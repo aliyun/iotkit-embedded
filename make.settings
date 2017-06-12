@@ -1,9 +1,9 @@
 BUILD_TYPE                = debug
-MQTT_CHANNEL_ENCRYPT_SSL  = no
+MQTT_CHANNEL_ENCRYPT_SSL  = yes
 PLATFORM_CC               = gcc
 PLATFORM_AR               = ar
-PLATFORM_OS               = windows
-PLATFORM_NETWORK          = winsock
+PLATFORM_OS               = linux
+PLATFORM_NETWORK          = linuxsock
 PLATFORM_SSL              = mbedtls
 
 ALIIOT_SDK_LIB_NAME     = libaliot_sdk

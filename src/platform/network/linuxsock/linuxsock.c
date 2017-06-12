@@ -23,14 +23,14 @@ static uint64_t linux_get_time_ms(void)
     struct timeval tv = { 0 };
     uint64_t time_ms;
 
-    uint64_t(&tv, NULL);
+    gettimeofday(&tv, NULL);
 
     time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
 
     return time_ms;
 }
 
-static uint64_t time_left(uint64_t t_end, uint64_t t_now)
+static uint64_t linux_time_left(uint64_t t_end, uint64_t t_now)
 {
     uint64_t t_left;
 
@@ -45,7 +45,6 @@ static uint64_t time_left(uint64_t t_end, uint64_t t_now)
 
 intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 {
-    WSADATA wsaData;
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
     struct addrinfo *cur = NULL;
@@ -54,9 +53,10 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
     char service[6];
 
     memset(&hints, 0, sizeof(hints));
+    
+    PLATFORM_LINUXSOCK_LOG("establish tcp connection with server(host=%s port=%u)", host, port);
 
-    //默认支持IPv4的服务
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_INET; //only IPv4
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     sprintf(service, "%u", port);
@@ -67,7 +67,6 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
-        //默认只支持IPv4
         if (cur->ai_family != AF_INET) {
             perror("socket type error");
             rc = 0;
@@ -86,11 +85,16 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
             break;
         }
 
-        closesocket(fd);
+        close(fd);
         perror("connect error");
         rc = -1;
     }
 
+    if (-1 == rc){
+        PLATFORM_LINUXSOCK_LOG("fail to establish tcp");
+    } else {
+        PLATFORM_LINUXSOCK_LOG("success to establish tcp, fd=%d", rc);
+    }
     freeaddrinfo(addrInfoList);
 
     return (intptr_t)rc;
@@ -131,7 +135,7 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
     ret = 1; //send one time if timeout_ms is value 0
 
     do {
-        t_left = time_left(t_end, linux_get_time_ms( ));
+        t_left = linux_time_left(t_end, linux_get_time_ms( ));
 
         if (0 != t_left) {
             struct timeval timeout;
@@ -142,7 +146,9 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
             timeout.tv_sec = t_left / 1000;
             timeout.tv_usec = (t_left % 1000) * 1000;
 
-            ret = select(0, NULL, &sets, NULL, &timeout);
+            PLATFORM_LINUXSOCK_LOG("fd=%d, ret=%d, len=%d, timeout_s=%u, timeout_us=%u", fd, ret, len, timeout.tv_sec, timeout.tv_usec);
+            ret = select(fd + 1, NULL, &sets, NULL, &timeout);
+            PLATFORM_LINUXSOCK_LOG("fd=%d, ret=%d, len=%d", fd, ret, len);
             if (ret > 0) {
                if (0 == FD_ISSET(fd, &sets)) {
                     PLATFORM_LINUXSOCK_LOG("Should NOT arrive");
@@ -151,7 +157,7 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
                     continue;
                 }
             } else if (0 == ret) {
-                PLATFORM_LINUXSOCK_LOG("select-write timeout");
+                PLATFORM_LINUXSOCK_LOG("select-write timeout %d", fd);
                 break;
             } else {
                 if (EINTR == errno) {
@@ -180,7 +186,7 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
                 perror("send fail");
             }
         }
-    } while((len_sent < len) && (time_left(t_end, GetTickCount64()) > 0));
+    } while((len_sent < len) && (linux_time_left(t_end, linux_get_time_ms()) > 0));
 
     return len_sent;
 }
@@ -194,11 +200,11 @@ int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t t
     fd_set sets;
     struct timeval timeout;
 
-    t_end = GetTickCount64( ) + timeout_ms;
+    t_end = linux_get_time_ms( ) + timeout_ms;
     len_recv = rc = 0;
 
     do {
-        t_left = time_left(t_end, GetTickCount64( ));
+        t_left = linux_time_left(t_end, linux_get_time_ms());
         if (0 == t_left) {
             break;
         }
@@ -207,8 +213,9 @@ int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t t
 
         timeout.tv_sec = t_left / 1000;
         timeout.tv_usec = (t_left % 1000) * 1000;
-
-        ret = select(0, &sets, NULL, NULL, &timeout);
+    
+        PLATFORM_LINUXSOCK_LOG("timeout=%d, s=%d, us=%d", timeout_ms, timeout.tv_sec, timeout.tv_usec);
+        ret = select(fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
             rc = recv(fd, buf + len_recv, len - len_recv, 0);
             if (rc > 0) {

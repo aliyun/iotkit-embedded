@@ -19,7 +19,7 @@ INCLUD_PATH += -I./../../src/platform/
 TARGET = mqtt
 
 all:
-	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) mqtt.c ../../libs/libaliot_sdk.a ../../libs/libplatform.a $(LDFLAGS) 
+	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) mqtt.c ./../../libs/libaliot_sdk.a ./../../libs/libplatform.a $(LDFLAGS) 
 	
 clean:
 	 rm -rf $(TARGET)

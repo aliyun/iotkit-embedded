@@ -42,7 +42,7 @@ else
 	$(AR) $(ARFLAGS) $@ $(OBJ)        
 endif
 	-rm -rf ${BUILD_OUT_PATH}*.o
-	cp ${LIB_PLATFORM} ../../libs/
+	cp ${LIB_PLATFORM} ./../../libs/
 
 libs:
 	mkdir -p ${BUILD_OUT_PATH}
