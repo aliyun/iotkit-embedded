@@ -2317,36 +2317,24 @@ void aliyun_iot_mqtt_yield(MQTTClient_t *pClient, int timeout_ms)
     aliot_timer_t timer;
     InitTimer(&timer);
 
-    ALIOT_LOG_DEBUG("mqtt yield start");
     countdown_ms(&timer, timeout_ms);
     do {
         /*acquire package in cycle, such as PINGRESP  PUBLISH*/
         rc = cycle(pClient, &timer);
-        if (SUCCESS_RETURN != rc) {
-            ALIOT_LOG_DEBUG("cycle failure, rc=%d", rc);
-            break;
+        if (SUCCESS_RETURN == rc) {
+            //如果是pub ack则删除缓存在pub list中的信息（QOS=1时）
+            MQTTPubInfoProc(pClient);
+
+            //如果是sub ack则删除缓存在sub list中的信息
+            MQTTSubInfoProc(pClient);
         }
-        
-        ALIOT_LOG_DEBUG("cycle end");
-        //TODO
-        //如果是pub ack则删除缓存在pub list中的信息（QOS=1时）
-        (void)MQTTPubInfoProc(pClient);
-        ALIOT_LOG_DEBUG("pubinfoproc end ");
 
-        //如果是sub ack则删除缓存在sub list中的信息
-        (void)MQTTSubInfoProc(pClient);
-        ALIOT_LOG_DEBUG("subinfoproc");
-
+        //Keep MQTT alive or reconnect if connection abort.
         mqtt_keepalive(pClient);
-        ALIOT_LOG_DEBUG("keepalive end");
 
     } while (!expired(&timer));
 
-    ALIOT_LOG_DEBUG("mqtt yield end");
-
-    if (SUCCESS_RETURN != rc) {
-        aliot_platform_msleep(1000);
-    }
+    //ALIOT_LOG_DEBUG("mqtt yield end");
 }
 
 

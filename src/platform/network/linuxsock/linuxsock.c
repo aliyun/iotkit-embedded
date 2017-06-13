@@ -122,16 +122,16 @@ int aliot_platform_tcp_destroy(intptr_t fd)
 }
 
 
-
 int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int rc, ret;
+    int ret, err_code;
     uint32_t len_sent;
     uint64_t t_end, t_left;
     fd_set sets;
 
     t_end = linux_get_time_ms( ) + timeout_ms;
-    len_sent = rc = 0,
+    len_sent = 0;
+    err_code = 0;
     ret = 1; //send one time if timeout_ms is value 0
 
     do {
@@ -163,16 +163,17 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
                     continue;
                 }
 
+                err_code = -1;
                 perror("select-write fail");
                 break;
             }
         }
 
         if (ret > 0) {
-            rc = send(fd, buf + len_sent, len - len_sent, 0);
-            if (rc > 0) {
-                len_sent += rc;
-            } else if (0 == rc) {
+            ret = send(fd, buf + len_sent, len - len_sent, 0);
+            if (ret > 0) {
+                len_sent += ret;
+            } else if (0 == ret) {
                 PLATFORM_LINUXSOCK_LOG("No data be sent");
             } else {
                 if (EINTR == errno) {
@@ -180,8 +181,9 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
                     continue;
                 }
 
-                //error occur
+                err_code = -1;
                 perror("send fail");
+                break;
             }
         }
     } while((len_sent < len) && (linux_time_left(t_end, linux_get_time_ms()) > 0));
@@ -192,14 +194,15 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
 
 int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int rc, ret;
+    int ret, err_code;
     uint32_t len_recv;
     uint64_t t_end, t_left;
     fd_set sets;
     struct timeval timeout;
 
     t_end = linux_get_time_ms( ) + timeout_ms;
-    len_recv = rc = 0;
+    len_recv = 0;
+    err_code = 0;
 
     do {
         t_left = linux_time_left(t_end, linux_get_time_ms());
@@ -214,11 +217,12 @@ int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t t
     
         ret = select(fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
-            rc = recv(fd, buf + len_recv, len - len_recv, 0);
-            if (rc > 0) {
-                len_recv += rc;
-            } else if (0 == rc) {
+            ret = recv(fd, buf + len_recv, len - len_recv, 0);
+            if (ret > 0) {
+                len_recv += ret;
+            } else if (0 == ret) {
                 perror("connection is closed");
+                err_code = -1;
                 break;
             } else {
                 if (EINTR == errno) {
@@ -226,14 +230,19 @@ int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t t
                     continue;
                 }
                 perror("send fail");
+                err_code = -2;
+                break;
             }
         } else if (0 == ret) {
             break;
         } else {
             perror("select-recv fail");
+            err_code = -2;
             break;
         }
     } while ((len_recv < len));
 
-    return len_recv;
+    //priority to return data bytes if any data be received from TCP connection.
+    //It will get error code on next calling
+    return (0 != len_recv) ? len_recv : err_code;
 }

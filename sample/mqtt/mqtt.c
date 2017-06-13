@@ -120,6 +120,8 @@ int mqtt_client(char *msg_buf, char *msg_readbuf)
         return rc;
     }
 
+    aliot_platform_msleep(1000);
+
 
     MQTTMessage message;
     memset(&message, 0x0, sizeof(message));
