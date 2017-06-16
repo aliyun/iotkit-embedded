@@ -132,7 +132,7 @@ int aliot_platform_tcp_destroy(intptr_t fd)
 
 int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int rc, ret, err_code;
+    int ret, err_code;
     uint32_t len_sent;
     uint64_t t_end, t_left;
     fd_set sets;
@@ -211,9 +211,7 @@ int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t t
 
     do {
         t_left = time_left(t_end, GetTickCount64( ));
-        if (0 == t_left) {
-            break;
-        }
+
         FD_ZERO( &sets );
         FD_SET(fd, &sets);
 
@@ -247,7 +245,7 @@ int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t t
             err_code = -2;
             break;
         }
-    } while ((len_recv < len));
+    } while ((len_recv < len) && (time_left(t_end, GetTickCount64()) > 0));
 
     //priority to return data bytes if any data be received from TCP connection.
     //It will get error code on next calling

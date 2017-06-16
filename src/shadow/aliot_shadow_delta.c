@@ -6,41 +6,31 @@
 #include "aliot_list.h"
 #include "aliot_shadow_delta.h"
 
-static aliot_err_t aliyun_iot_shadow_delta_response(aliot_shadow_pt pshadow)
+static aliot_err_t aliot_shadow_delta_response(aliot_shadow_pt pshadow)
 {
-#define ALIOT_SHADOW_DELTA_VERSION_LEN  (11)
-#define ALIOT_SHADOW_DELTA_RESPONSE_FMT "{\"method\":\"update\",\"state\":{\"desired\":\"null\"},\"version\":%d}"
+#define ALIOT_SHADOW_DELTA_RESPONSE_LEN     (256)
 
     aliot_err_t rc;
-    char *resp_data;
-    int len = sizeof(ALIOT_SHADOW_DELTA_RESPONSE_FMT) + ALIOT_SHADOW_DELTA_VERSION_LEN;
+    format_data_t format;
 
-    resp_data = (char *)aliot_platform_malloc(len);
-    if (NULL == resp_data) {
+    format.buf = aliot_platform_malloc(ALIOT_SHADOW_DELTA_RESPONSE_LEN);
+    if (NULL == format.buf) {
         return ERROR_NO_MEM;
     }
 
-    rc = snprintf(resp_data,
-                  len,
-                  ALIOT_SHADOW_DELTA_RESPONSE_FMT,
-                  ads_common_get_version(pshadow));
-    if ((rc < 0) || (rc >= len)) {
-        return FAIL_RETURN;
-    }
+    ads_common_format_init(pshadow, &format, format.buf, ALIOT_SHADOW_DELTA_RESPONSE_LEN, "update", "\"state\":{\"desired\":\"null\"");
+    ads_common_format_finalize(pshadow, &format, "}");
 
-    rc = ads_common_publish2update(pshadow, resp_data, rc);
+    rc = ads_common_publish2update(pshadow, format.buf, format.offset);
 
-    return rc;
+    aliot_platform_free(format.buf);
+
+    return (rc >= 0) ? SUCCESS_RETURN : rc;
 }
 
 
-aliot_err_t aliyun_iot_shadow_delta_init(aliot_shadow_pt pshadow)
-{
-    return SUCCESS_RETURN;
-}
 
-
-static uint32_t aliyun_iot_shadow_get_timestamp(const char *pmetadata_desired,
+static uint32_t aliot_shadow_get_timestamp(const char *pmetadata_desired,
         size_t len_metadata_desired,
         const char *pname)
 {
@@ -71,7 +61,7 @@ static uint32_t aliyun_iot_shadow_get_timestamp(const char *pmetadata_desired,
 }
 
 
-static aliot_err_t aliyun_iot_shadow_delta_update_attr_value(
+static aliot_err_t aliot_shadow_delta_update_attr_value(
             aliot_shadow_attr_pt pattr,
             const char *pvalue,
             size_t value_len)
@@ -80,7 +70,7 @@ static aliot_err_t aliyun_iot_shadow_delta_update_attr_value(
 }
 
 //handle response ACK of UPDATE
-void aliyun_iot_shadow_delta_entry(
+void aliot_shadow_delta_entry(
             aliot_shadow_pt pshadow,
             char *json_doc,
             size_t json_doc_len)
@@ -121,7 +111,7 @@ void aliyun_iot_shadow_delta_entry(
     }
 
     //Iterate the list and check JSON document according to list_node.val.pattr_name
-    //If the attribute be found, call the function registered by calling aliyun_iot_shadow_delta_register_attr()
+    //If the attribute be found, call the function registered by calling aliot_shadow_delta_register_attr()
 
     iter = list_iterator_new(pshadow->inner_data.attr_list, LIST_TAIL);
     if (NULL == iter) {
@@ -136,13 +126,13 @@ void aliyun_iot_shadow_delta_entry(
         //check if match attribute or not be matched
         if (NULL != pvalue) { //attribute be matched
             //get timestamp
-            pattr->timestamp = aliyun_iot_shadow_get_timestamp(
+            pattr->timestamp = aliot_shadow_get_timestamp(
                                            pmetadata,
                                            len_metadata,
                                            pattr->pattr_name);
 
             //convert string of JSON value according to destination data type.
-            if (SUCCESS_RETURN != aliyun_iot_shadow_delta_update_attr_value(pattr, pvalue, len)) {
+            if (SUCCESS_RETURN != aliot_shadow_delta_update_attr_value(pattr, pvalue, len)) {
                 ALIOT_LOG_WARN("Update attribute value failed.");
             }
 
@@ -156,6 +146,6 @@ void aliyun_iot_shadow_delta_entry(
     list_iterator_destroy(iter);
 
     //generate ACK and publish to @update topic using QOS1
-    aliyun_iot_shadow_delta_response(pshadow);
+    aliot_shadow_delta_response(pshadow);
 }
 

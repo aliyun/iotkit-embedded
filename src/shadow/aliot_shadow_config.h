@@ -1,11 +1,10 @@
 
-#ifndef _MQTT_SHADOW_ALIYUN_IOT_SHADOW_CONFIG_H_
-#define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_CONFIG_H_
+#ifndef _ALIOT_SHADOW_CONFIG_H_
+#define _ALIOT_SHADOW_CONFIG_H_
 
 
-#define ALIOT_SHADOW_TOKEN_LEN                  (128) /**< indicate the maximum length of shadow token in byte. */
+#define ADS_TOKEN_LEN                       (128) /**< indicate the maximum length of shadow token in byte. */
 
-#define ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM    (5)  /**< indicate the maximum element of UPDATE ACK list. */
+#define ADS_UPDATE_WAIT_ACK_LIST_NUM        (5)   /**< indicate the maximum element of UPDATE ACK list. */
 
-
-#endif /* _MQTT_SHADOW_ALIYUN_IOT_SHADOW_CONFIG_H_ */
+#endif /* _ALIOT_SHADOW_CONFIG_H_ */

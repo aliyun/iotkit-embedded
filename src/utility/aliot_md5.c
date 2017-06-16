@@ -1,5 +1,5 @@
 /*********************************************************************************
- * 文件名称: aliyun_iot_common_md5.c
+ * 文件名称: aliot_md5.c
  * 作       者:
  * 版       本:
  * 日       期: 2016-05-30
@@ -18,7 +18,7 @@
 
 
 /* Implementation that should never be optimized out by the compiler */
-static void aliyun_iot_md5_zeroize(void *v, size_t n)
+static void aliot_md5_zeroize(void *v, size_t n)
 {
     volatile unsigned char *p = v;
     while (n--) {
@@ -49,21 +49,21 @@ static void aliyun_iot_md5_zeroize(void *v, size_t n)
     }
 #endif
 
-void aliyun_iot_md5_init(iot_md5_context *ctx)
+void aliot_md5_init(iot_md5_context *ctx)
 {
     memset(ctx, 0, sizeof(iot_md5_context));
 }
 
-void aliyun_iot_md5_free(iot_md5_context *ctx)
+void aliot_md5_free(iot_md5_context *ctx)
 {
     if (ctx == NULL) {
         return;
     }
 
-    aliyun_iot_md5_zeroize(ctx, sizeof(iot_md5_context));
+    aliot_md5_zeroize(ctx, sizeof(iot_md5_context));
 }
 
-void aliyun_iot_md5_clone(iot_md5_context *dst,
+void aliot_md5_clone(iot_md5_context *dst,
                           const iot_md5_context *src)
 {
     *dst = *src;
@@ -72,7 +72,7 @@ void aliyun_iot_md5_clone(iot_md5_context *dst,
 /*
  * MD5 context setup
  */
-void aliyun_iot_md5_starts(iot_md5_context *ctx)
+void aliot_md5_starts(iot_md5_context *ctx)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -83,7 +83,7 @@ void aliyun_iot_md5_starts(iot_md5_context *ctx)
     ctx->state[3] = 0x10325476;
 }
 
-void aliyun_iot_md5_process(iot_md5_context *ctx, const unsigned char data[64])
+void aliot_md5_process(iot_md5_context *ctx, const unsigned char data[64])
 {
     uint32_t X[16], A, B, C, D;
 
@@ -209,7 +209,7 @@ void aliyun_iot_md5_process(iot_md5_context *ctx, const unsigned char data[64])
 /*
  * MD5 process buffer
  */
-void aliyun_iot_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t ilen)
+void aliot_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t ilen)
 {
     size_t fill;
     uint32_t left;
@@ -230,14 +230,14 @@ void aliyun_iot_md5_update(iot_md5_context *ctx, const unsigned char *input, siz
 
     if (left && ilen >= fill) {
         memcpy((void *)(ctx->buffer + left), input, fill);
-        aliyun_iot_md5_process(ctx, ctx->buffer);
+        aliot_md5_process(ctx, ctx->buffer);
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
     while (ilen >= 64) {
-        aliyun_iot_md5_process(ctx, input);
+        aliot_md5_process(ctx, input);
         input += 64;
         ilen  -= 64;
     }
@@ -257,7 +257,7 @@ static const unsigned char iot_md5_padding[64] = {
 /*
  * MD5 final digest
  */
-void aliyun_iot_md5_finish(iot_md5_context *ctx, unsigned char output[16])
+void aliot_md5_finish(iot_md5_context *ctx, unsigned char output[16])
 {
     uint32_t last, padn;
     uint32_t high, low;
@@ -273,8 +273,8 @@ void aliyun_iot_md5_finish(iot_md5_context *ctx, unsigned char output[16])
     last = ctx->total[0] & 0x3F;
     padn = (last < 56) ? (56 - last) : (120 - last);
 
-    aliyun_iot_md5_update(ctx, iot_md5_padding, padn);
-    aliyun_iot_md5_update(ctx, msglen, 8);
+    aliot_md5_update(ctx, iot_md5_padding, padn);
+    aliot_md5_update(ctx, msglen, 8);
 
     IOT_MD5_PUT_UINT32_LE(ctx->state[0], output,  0);
     IOT_MD5_PUT_UINT32_LE(ctx->state[1], output,  4);
@@ -286,43 +286,21 @@ void aliyun_iot_md5_finish(iot_md5_context *ctx, unsigned char output[16])
 /*
  * output = MD5( input buffer )
  */
-void aliyun_iot_md5(const unsigned char *input, size_t ilen, unsigned char output[16])
+void aliot_md5(const unsigned char *input, size_t ilen, unsigned char output[16])
 {
     iot_md5_context ctx;
 
-    aliyun_iot_md5_init(&ctx);
-    aliyun_iot_md5_starts(&ctx);
-    aliyun_iot_md5_update(&ctx, input, ilen);
-    aliyun_iot_md5_finish(&ctx, output);
-    aliyun_iot_md5_free(&ctx);
+    aliot_md5_init(&ctx);
+    aliot_md5_starts(&ctx);
+    aliot_md5_update(&ctx, input, ilen);
+    aliot_md5_finish(&ctx, output);
+    aliot_md5_free(&ctx);
 }
 
-int8_t aliyun_iot_common_hb2hex(uint8_t hb)
+int8_t aliot_hb2hex(uint8_t hb)
 {
     hb = hb & 0xF;
     return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'A');
 }
 
-/***********************************************************
- * 函数名称: aliyun_iot_common_md5
- * 描       述: md5算法接口
- * 输入参数: dat 输入数据指针
- * 输出参数: result
- * 返 回  值: VOID
- * 作       者:
- * 其       它:
- ************************************************************/
-void aliyun_iot_common_md5(const int8_t *dat, int32_t datlen, int8_t *result)
-{
-    uint8_t out[MD5_DIGEST_SIZE];
-    memset(out, 0, MD5_DIGEST_SIZE);
-    uint32_t i = 0;
-
-    aliyun_iot_md5((uint8_t *)dat, datlen, out);
-
-    for (i = 0; i < MD5_DIGEST_SIZE; ++i) {
-        result[i * 2] = aliyun_iot_common_hb2hex(out[i] >> 4);
-        result[i * 2 + 1] = aliyun_iot_common_hb2hex(out[i]);
-    }
-}
 

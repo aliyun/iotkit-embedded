@@ -1,5 +1,5 @@
 /*********************************************************************************
- * 文件名称: aliyun_iot_common_error.h
+ * 文件名称: aliot_error.h
  * 作       者:
  * 版       本:
  * 日       期: 2016-05-30
@@ -24,25 +24,26 @@ typedef enum IOT_RETURN_CODES {
     ERROR_NET_CONN = -301,
     ERROR_NET_UNKNOWN_HOST = -300,
 
-    MQTT_SUB_INFO_NOT_FOUND_ERROR = -42,
-    MQTT_PUSH_TO_LIST_ERROR = -41,
-    MQTT_TOPIC_FORMAT_ERROR = -40,
-    NETWORK_RECONNECT_TIMED_OUT_ERROR = -39,/** Returned when the Network is disconnected and the reconnect attempt has timed out */
-    MQTT_CONNACK_UNKNOWN_ERROR = -38,/** Connect request failed with the server returning an unknown error */
-    MQTT_CONANCK_UNACCEPTABLE_PROTOCOL_VERSION_ERROR = -37,/** Connect request failed with the server returning an unacceptable protocol version error */
-    MQTT_CONNACK_IDENTIFIER_REJECTED_ERROR = -36,/** Connect request failed with the server returning an identifier rejected error */
-    MQTT_CONNACK_SERVER_UNAVAILABLE_ERROR = -35,/** Connect request failed with the server returning an unavailable error */
-    MQTT_CONNACK_BAD_USERDATA_ERROR = -34,/** Connect request failed with the server returning a bad userdata error */
-    MQTT_CONNACK_NOT_AUTHORIZED_ERROR = -33,/** Connect request failed with the server failing to authenticate the request */
-    MQTT_CONNECT_ERROR = -32,
-    MQTT_CREATE_THREAD_ERROR = -31,
-    MQTT_PING_PACKET_ERROR = -30,
-    MQTT_CONNECT_PACKET_ERROR = -29,
-    MQTT_CONNECT_ACK_PACKET_ERROR = -28,
-    MQTT_NETWORK_CONNECT_ERROR = -27,
-    MQTT_STATE_ERROR = -26,
-    MQTT_SUBSCRIBE_PACKET_ERROR = -25,
-    MQTT_SUBSCRIBE_ACK_PACKET_ERROR = -24,
+    MQTT_SUB_INFO_NOT_FOUND_ERROR = -43,
+    MQTT_PUSH_TO_LIST_ERROR = -42,
+    MQTT_TOPIC_FORMAT_ERROR = -41,
+    NETWORK_RECONNECT_TIMED_OUT_ERROR = -40,/** Returned when the Network is disconnected and the reconnect attempt has timed out */
+    MQTT_CONNACK_UNKNOWN_ERROR = -39,/** Connect request failed with the server returning an unknown error */
+    MQTT_CONANCK_UNACCEPTABLE_PROTOCOL_VERSION_ERROR = -38,/** Connect request failed with the server returning an unacceptable protocol version error */
+    MQTT_CONNACK_IDENTIFIER_REJECTED_ERROR = -37,/** Connect request failed with the server returning an identifier rejected error */
+    MQTT_CONNACK_SERVER_UNAVAILABLE_ERROR = -36,/** Connect request failed with the server returning an unavailable error */
+    MQTT_CONNACK_BAD_USERDATA_ERROR = -35,/** Connect request failed with the server returning a bad userdata error */
+    MQTT_CONNACK_NOT_AUTHORIZED_ERROR = -34,/** Connect request failed with the server failing to authenticate the request */
+    MQTT_CONNECT_ERROR = -33,
+    MQTT_CREATE_THREAD_ERROR = -32,
+    MQTT_PING_PACKET_ERROR = -31,
+    MQTT_CONNECT_PACKET_ERROR = -30,
+    MQTT_CONNECT_ACK_PACKET_ERROR = -29,
+    MQTT_NETWORK_CONNECT_ERROR = -28,
+    MQTT_STATE_ERROR = -27,
+    MQTT_SUBSCRIBE_PACKET_ERROR = -26,
+    MQTT_SUBSCRIBE_ACK_PACKET_ERROR = -25,
+    MQTT_SUBSCRIBE_ACK_FAILURE = -24,
     MQTT_SUBSCRIBE_QOS_ERROR = -23,
     MQTT_UNSUBSCRIBE_PACKET_ERROR = -22,
     MQTT_PUBLISH_PACKET_ERROR = -21,
@@ -85,7 +86,9 @@ typedef enum IOT_RETURN_CODES {
     FAIL_RETURN = -1,                        /**< generic error. */
     SUCCESS_RETURN = 0,
 
-    HTTP_RETRIEVE_MORE_DATA = 1              /**< More data needs to be retrieved. */
+
+    /* @value > 0, reserved for other usage */
+
 } aliot_err_t;
 
 
@@ -96,24 +99,24 @@ typedef enum IOT_RETURN_CODES {
  * Macro to print message function entry and exit
  */
 #ifdef ALI_IOT_TRACE
-#define IOT_FUNC_ENTRY    \
+#define ALIOT_FUNC_ENTRY    \
     {\
         printf("FUNC_ENTRY:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
     }
-#define IOT_FUNC_EXIT    \
+#define ALIOT_FUNC_EXIT    \
     {\
         printf("FUNC_EXIT:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
     }
-#define IOT_FUNC_EXIT_RC(x)    \
+#define ALIOT_FUNC_EXIT_RC(x)    \
     {\
         printf("FUNC_EXIT:   %s L#%d Return Code : %d \n", __PRETTY_FUNCTION__, __LINE__, x);  \
         return x; \
     }
 #else
 
-#define IOT_FUNC_ENTRY
-#define IOT_FUNC_EXIT
-#define IOT_FUNC_EXIT_RC(x) { return x; }
+#define ALIOT_FUNC_ENTRY
+#define ALIOT_FUNC_EXIT
+#define ALIOT_FUNC_EXIT_RC(x) { return x; }
 #endif
 
 #endif

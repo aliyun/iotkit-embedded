@@ -1,4 +1,4 @@
-#include "aliyun_iot_network_ssl.h"
+#include "aliot_network_ssl.h"
 
 static SSL_CTX *ssl_ctx = NULL;
 static X509_STORE *ca_store = NULL;
@@ -161,7 +161,7 @@ int platform_ssl_close(SSL *ssl)
     return 0;
 }
 
-int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
 {
     int readLen = 0;
     int ret = -1;
@@ -170,9 +170,9 @@ int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer
 
     if (!SSL_pending(pTlsData->pssl)) {
         IOT_NET_FD_ISSET_E result;
-        ret = aliyun_iot_network_select(pTlsData->socketId, IOT_NET_TRANS_RECV, timeout_ms, &result);
+        ret = aliot_network_select(pTlsData->socketId, IOT_NET_TRANS_RECV, timeout_ms, &result);
         if (ret < 0) {
-            INT32 err = aliyun_iot_get_errno();
+            INT32 err = aliot_get_errno();
             if (err == EINTR_IOT) {
                 ALIOT_LOG_DEBUG("continue");
             } else {
@@ -206,7 +206,7 @@ int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer
 }
 
 
-int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int aliot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
 {
     int writtenLen = 0;
     int ret = 0;
@@ -229,7 +229,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffe
     return writtenLen;
 }
 
-void aliyun_iot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
+void aliot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
 {
     if (pTlsData->pssl != NULL) {
         platform_ssl_close(pTlsData->pssl);
@@ -242,7 +242,7 @@ void aliyun_iot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
     }
 }
 
-int aliyun_iot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
+int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
                                    size_t ca_crt_len)
 {
     int rc = 0;
@@ -252,7 +252,7 @@ int aliyun_iot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, 
         return 1;
     }
 
-    pTlsData->socketId = aliyun_iot_network_create(addr, port, IOT_NET_PROTOCOL_TCP);
+    pTlsData->socketId = aliot_network_create(addr, port, IOT_NET_PROTOCOL_TCP);
     if (pTlsData->socketId < 0) {
         pTlsData->socketId = -1;
         pTlsData->pssl = NULL;

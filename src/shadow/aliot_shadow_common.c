@@ -27,19 +27,9 @@
     }while(0);
 
 
-static aliot_shadow_pt paliot_device_shadow = NULL;
-aliot_shadow_pt ads_common_get_ads(void)
-{
-    return paliot_device_shadow;
-}
-
-void ads_common_set_ads(aliot_shadow_pt pshadow)
-{
-    paliot_device_shadow = pshadow;
-}
-
 //return handle of format data.
-aliot_err_t ads_common_format_init(format_data_pt pformat,
+aliot_err_t ads_common_format_init(aliot_shadow_pt pshadow,
+                                   format_data_pt pformat,
                                    char *buf,
                                    uint16_t size,
                                    const char *method,
@@ -85,7 +75,8 @@ aliot_err_t ads_common_format_init(format_data_pt pformat,
 }
 
 
-aliot_err_t ads_common_format_add(format_data_pt pformat,
+aliot_err_t ads_common_format_add(aliot_shadow_pt pshadow,
+                                  format_data_pt pformat,
                                   const char *name,
                                   const void *pvalue,
                                   aliot_shadow_attr_datatype_t datatype)
@@ -135,7 +126,7 @@ aliot_err_t ads_common_format_add(format_data_pt pformat,
 }
 
 
-aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_str)
+aliot_err_t ads_common_format_finalize(aliot_shadow_pt pshadow, format_data_pt pformat, const char *tail_str)
 {
 #define UPDATE_JSON_STR_END         ",\"clientToken\":\"%s-%d\",\"version\":%d}"
 
@@ -153,9 +144,9 @@ aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_
     ret = snprintf(pformat->buf + pformat->offset,
                    size_free_space,
                    UPDATE_JSON_STR_END,
-                   aliyun_iot_get_user_info()->client_id,
-                   ads_common_get_tokennum(ads_common_get_ads()),
-                   ads_common_get_version(ads_common_get_ads()));
+                   aliot_get_user_info()->client_id,
+                   ads_common_get_tokennum(pshadow),
+                   ads_common_get_version(pshadow));
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
     pformat->offset += ret;
@@ -341,12 +332,13 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
 
     int len, ret;
     char *topic_full = NULL;
-    aliot_device_info_pt pdevice_info = aliyun_iot_get_device_info();
+    aliot_device_info_pt pdevice_info = aliot_get_device_info();
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
     topic_full = aliot_platform_malloc(len + 1);
     if (NULL == topic_full) {
+        ALIOT_LOG_ERROR("Not enough memory");
         return NULL;
     }
 
@@ -369,7 +361,7 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
 
 aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint32_t data_len)
 {
-    MQTTMessage topic_msg;
+    aliot_mqtt_topic_info_t topic_msg;
 
     //check if topic name have been generated or not
     if (NULL == pshadow->inner_data.ptopic_update) {
@@ -380,14 +372,14 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
         }
     }
 
-    ALIOT_LOG_DEBUG("publish msg = %s", data);
+    ALIOT_LOG_DEBUG("publish msg: len=%d, str=%s", data_len, data);
 
-    topic_msg.qos        = QOS1;
-    topic_msg.retained   = 0;
-    topic_msg.dup        = 0;
-    topic_msg.payload    = (void *)data;
-    topic_msg.payloadlen = data_len;
-    topic_msg.id         = 0;
+    topic_msg.qos = ALIOT_MQTT_QOS1;
+    topic_msg.retain = 0;
+    topic_msg.dup = 0;
+    topic_msg.payload = (void *)data;
+    topic_msg.payload_len = data_len;
+    topic_msg.packet_id = 0;
 
-    return aliyun_iot_mqtt_publish(&pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
+    return aliot_mqtt_publish(pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
 }

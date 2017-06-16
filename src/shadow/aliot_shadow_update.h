@@ -10,18 +10,18 @@
 #include "aliot_shadow_common.h"
 
 
-aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
+aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
             aliot_shadow_pt pshadow,
             const char *token,
             size_t token_len,
             aliot_update_cb_fpt cb,
             uint32_t timeout);
 
-void aliyun_iot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element);
+void aliot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element);
 
-void aliyun_iot_shadow_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow);
+void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow);
 
-void aliyun_iot_shadow_update_wait_ack_list_handle_response(
+void aliot_shadow_update_wait_ack_list_handle_response(
             aliot_shadow_pt pshadow,
             char *json_doc,
             size_t json_doc_len);

@@ -9,7 +9,7 @@ INCLUD_PATH += -I./platform/
 
 
 #cacualte source files
-DIRS := $(shell find ./ \( -path "./libs" -o -path "./platform" \) -prune -o -type d)
+DIRS := $(shell find .  \( -path ./platform \) -prune -o -type d -print )
 $(info Src_Dir = $(DIRS))
 
 SRC_FILE = $(foreach dir,$(DIRS),$(wildcard $(dir)/*.c))

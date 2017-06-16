@@ -112,7 +112,7 @@ static int connect_ssl(pNetwork_t pNetwork)
     } else {
         //TODO SHOLUD not remove this handle space
         // The space will be freed by calling disconnect_ssl()
-        //aliyun_iot_memory_free((void *)pNetwork->handle);
+        //aliot_memory_free((void *)pNetwork->handle);
         return -1;
     }
 //#else
@@ -124,7 +124,7 @@ static int connect_ssl(pNetwork_t pNetwork)
 
 /****** network interface ******/
 
-int aliyun_iot_net_read(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
+int aliot_net_read(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return read_tcp(pNetwork, buffer, len, timeout_ms);
@@ -134,7 +134,7 @@ int aliyun_iot_net_read(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_
 }
 
 
-int aliyun_iot_net_write(pNetwork_t pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
+int aliot_net_write(pNetwork_t pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return write_tcp(pNetwork, buffer, len, timeout_ms);
@@ -144,7 +144,7 @@ int aliyun_iot_net_write(pNetwork_t pNetwork, const char *buffer, uint32_t len, 
 }
 
 
-int aliyun_iot_net_disconnect(pNetwork_t pNetwork)
+int aliot_net_disconnect(pNetwork_t pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return disconnect_tcp(pNetwork);
@@ -154,7 +154,7 @@ int aliyun_iot_net_disconnect(pNetwork_t pNetwork)
 }
 
 
-intptr_t aliyun_iot_net_connect(pNetwork_t pNetwork)
+intptr_t aliot_net_connect(pNetwork_t pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return connect_tcp(pNetwork);
@@ -164,7 +164,7 @@ intptr_t aliyun_iot_net_connect(pNetwork_t pNetwork)
 }
 
 
-int aliyun_iot_net_init(pNetwork_t pNetwork, const char *host, uint16_t port, const char *ca_crt)
+int aliot_net_init(pNetwork_t pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
@@ -176,10 +176,10 @@ int aliyun_iot_net_init(pNetwork_t pNetwork, const char *host, uint16_t port, co
     }
 
     pNetwork->handle = -1;
-    pNetwork->read = aliyun_iot_net_read;
-    pNetwork->write = aliyun_iot_net_write;
-    pNetwork->disconnect = aliyun_iot_net_disconnect;
-    pNetwork->connect = aliyun_iot_net_connect;
+    pNetwork->read = aliot_net_read;
+    pNetwork->write = aliot_net_write;
+    pNetwork->disconnect = aliot_net_disconnect;
+    pNetwork->connect = aliot_net_connect;
 
     return 0;
 }

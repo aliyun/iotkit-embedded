@@ -7,10 +7,17 @@
 
 
 //The product and device information from IOT console
-#define PRODUCT_KEY         "4eViBFJ2QGH"
-#define DEVICE_NAME         "sh_xk_device_4"
-#define DEVICE_ID           "gAPvCV7YhFccFMaHmAYh"
-#define DEVICE_SECRET       "qkmOMDccik2HnyCamIqK5gcZnuuwNBXe"
+/* online */
+//#define PRODUCT_KEY         "4eViBFJ2QGH"
+//#define DEVICE_NAME         "sh_xk_device_4"
+//#define DEVICE_ID           "gAPvCV7YhFccFMaHmAYh"
+//#define DEVICE_SECRET       "qkmOMDccik2HnyCamIqK5gcZnuuwNBXe"
+
+/* pre */
+#define PRODUCT_KEY         "6RcIOUafDOm"
+#define DEVICE_NAME         "sh_pre_sample_shadow"
+#define DEVICE_ID           "Z8yLm9VGf2ZgclBddmjx"
+#define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
 
 #define MSG_LEN_MAX         (1024)
 
@@ -38,51 +45,54 @@ static void device_shadow_cb_light(aliot_shadow_attr_pt pattr)
 /* Device shadow demo entry */
 int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 {
-
     char buf[1024];
-
     aliot_err_t rc;
-    aliot_shadow_t shadow;
+    aliot_user_info_pt puser_info;
+    void *h_shadow;
     aliot_shadow_para_t shadaw_para;
 
 
     /* Initialize the device info */
-    aliyun_iot_device_init();
+    aliot_device_init();
 
-    if (0 != aliyun_iot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET)) {
-        ALIOT_LOG_DEBUG("run aliyun_iot_set_device_info() error!\n");
+    if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET)) {
+        ALIOT_LOG_DEBUG("run aliot_set_device_info() error!\n");
         return -1;
     }
 
     /* Device AUTH */
-    rc = aliyun_iot_auth(aliyun_iot_get_device_info(), aliyun_iot_get_user_info());
+    rc = aliot_auth(aliot_get_device_info(), aliot_get_user_info());
     if (SUCCESS_RETURN != rc) {
-        ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!\n");
+        ALIOT_LOG_DEBUG("run aliot_auth() error!\n");
         return rc;
     }
 
+    puser_info = aliot_get_user_info();
 
     /* Construct a device shadow */
-    memset(&shadow, 0, sizeof(aliot_shadow_t));
     memset(&shadaw_para, 0, sizeof(aliot_shadow_para_t));
 
-    shadaw_para.mqtt.mqttCommandTimeout_ms = 10000;
-    shadaw_para.mqtt.pReadBuf = msg_readbuf;
-    shadaw_para.mqtt.readBufSize = MSG_LEN_MAX;
-    shadaw_para.mqtt.pWriteBuf = msg_buf;
-    shadaw_para.mqtt.writeBufSize = MSG_LEN_MAX;
-    shadaw_para.mqtt.disconnectHandler = NULL;
-    shadaw_para.mqtt.disconnectHandlerData = (void *)&shadow.mqtt;
+    shadaw_para.mqtt.port = puser_info->port;
+    shadaw_para.mqtt.host = puser_info->host_name;
+    shadaw_para.mqtt.client_id = puser_info->client_id;
+    shadaw_para.mqtt.user_name = puser_info->user_name;
+    shadaw_para.mqtt.password = puser_info->password;
+    shadaw_para.mqtt.pub_key = puser_info->pubKey;
 
-    shadaw_para.mqtt.cleansession      = 0;
-    shadaw_para.mqtt.MQTTVersion       = 4;
-    shadaw_para.mqtt.keepAliveInterval = 60;
-    shadaw_para.mqtt.willFlag          = 0;
+    shadaw_para.mqtt.request_timeout_ms = 2000;
+    shadaw_para.mqtt.clean_session = 0;
+    shadaw_para.mqtt.keepalive_interval = 120;
+    shadaw_para.mqtt.pread_buf = msg_readbuf;
+    shadaw_para.mqtt.read_buf_size = MSG_LEN_MAX;
+    shadaw_para.mqtt.pwrite_buf = msg_buf;
+    shadaw_para.mqtt.write_buf_size = MSG_LEN_MAX;
 
+    shadaw_para.mqtt.handle_event.h_fp = NULL;
+    shadaw_para.mqtt.handle_event.pcontext = NULL;
 
-    rc = aliyun_iot_shadow_construct(&shadow, &shadaw_para);
-    if (SUCCESS_RETURN != rc) {
-        ALIOT_LOG_DEBUG("run aliyun_iot_auth() error!\n");
+    h_shadow = aliot_shadow_construct(&shadaw_para);
+    if (NULL == h_shadow) {
+        ALIOT_LOG_DEBUG("construct device shadow failed!");
         return rc;
     }
 
@@ -112,25 +122,25 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
     /* Register the attribute */
     /* Note that you must register the attribute you want to synchronize with cloud
-     * before calling aliyun_iot_shadow_sync() */
-    aliyun_iot_shadow_register_attribute(&shadow, &attr_light);
-    aliyun_iot_shadow_register_attribute(&shadow, &attr_temperature);
+     * before calling aliot_shadow_sync() */
+    aliot_shadow_register_attribute(h_shadow, &attr_light);
+    aliot_shadow_register_attribute(h_shadow, &attr_temperature);
 
 
     /* synchronize the device shadow with device shadow cloud */
-    aliyun_iot_shadow_sync(&shadow);
+    aliot_shadow_sync(h_shadow);
 
     do {
         format_data_t format;
 
         /* Format the attribute data */
-        aliyun_iot_shadow_update_format_init(&format, buf, 1024);
-        aliyun_iot_shadow_update_format_add(&format, &attr_temperature);
-        aliyun_iot_shadow_update_format_add(&format, &attr_light);
-        aliyun_iot_shadow_update_format_finalize(&format);
+        aliot_shadow_update_format_init(h_shadow, &format, buf, 1024);
+        aliot_shadow_update_format_add(h_shadow, &format, &attr_temperature);
+        aliot_shadow_update_format_add(h_shadow, &format, &attr_light);
+        aliot_shadow_update_format_finalize(h_shadow, &format);
 
         /* Update attribute data */
-        aliyun_iot_shadow_update(&shadow, format.buf, format.offset, 10);
+        aliot_shadow_update(h_shadow, format.buf, format.offset, 10);
 
         /* Sleep 1000 ms */
         aliot_platform_msleep(1000);
@@ -138,10 +148,10 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
 
     /* Delete the two attributes */
-    //aliyun_iot_shadow_delete_attribute(&shadow, &attr_temperature);
-    //aliyun_iot_shadow_delete_attribute(&shadow, &attr_light);
+    //aliot_shadow_delete_attribute(&shadow, &attr_temperature);
+    //aliot_shadow_delete_attribute(&shadow, &attr_light);
 
-    aliyun_iot_shadow_deconstruct(&shadow);
+    aliot_shadow_deconstruct(h_shadow);
 
     return 0;
 }
@@ -158,7 +168,7 @@ int main()
     aliot_platform_free(msg_buf);
     aliot_platform_free(msg_readbuf);
 
-    ALIOT_LOG_DEBUG("out of demo!\n");
+    ALIOT_LOG_DEBUG("out of demo!");
 
     return 0;
 }

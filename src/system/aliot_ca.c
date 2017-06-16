@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-static const char *aliyun_iot_ca_crt =  { \
+static const char *aliot_ca_crt =  { \
                                           "-----BEGIN CERTIFICATE-----\r\n"
                                           "MIIDdTCCAl2gAwIBAgILBAAAAAABFUtaw5QwDQYJKoZIhvcNAQEFBQAwVzELMAkG\r\n" \
                                           "A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv\r\n" \
@@ -27,7 +27,7 @@ static const char *aliyun_iot_ca_crt =  { \
                                         };
 
 
-const char *aliyun_iot_ca_get(void)
+const char *aliot_ca_get(void)
 {
-    return aliyun_iot_ca_crt;
+    return aliot_ca_crt;
 }

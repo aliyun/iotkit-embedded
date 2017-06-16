@@ -12,9 +12,9 @@ static aliot_device_info_t g_deviceInfo;
 
 
 
-int aliyun_iot_device_init(void)
+int aliot_device_init(void)
 {
-    //aliyun_iot_common_log_set_level(ALIOT_LOG_LEVEL_DEBUG);
+    //aliot_log_set_level(ALIOT_LOG_LEVEL_DEBUG);
 
     memset(&g_deviceInfo, 0x0, sizeof(aliot_device_info_t));
     memset(&g_userInfo, 0x0, sizeof(aliot_user_info_t));
@@ -26,14 +26,14 @@ int aliyun_iot_device_init(void)
 
 
 /***********************************************************
-* 函数名称: aliyun_iot_set_device_info
+* 函数名称: aliot_set_device_info
 * 描       述: 设置设备信息
 * 输入参数: IOT_DEVICEINFO_SHADOW_S*deviceInfo
 * 输出参数: VOID
 * 返 回  值: 0：成功  -1：失败
 * 说       明: 将在aliyun注册的设备信息设置到SDK中的设备变量中
 ************************************************************/
-int32_t aliyun_iot_set_device_info(
+int32_t aliot_set_device_info(
             char *product_key,
             char *device_name,
             char *device_id,
@@ -52,13 +52,13 @@ int32_t aliyun_iot_set_device_info(
     return SUCCESS_RETURN;
 }
 
-aliot_device_info_pt aliyun_iot_get_device_info(void)
+aliot_device_info_pt aliot_get_device_info(void)
 {
     return &g_deviceInfo;
 }
 
 
-aliot_user_info_pt aliyun_iot_get_user_info(void)
+aliot_user_info_pt aliot_get_user_info(void)
 {
     return &g_userInfo;
 }

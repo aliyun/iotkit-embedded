@@ -1,5 +1,5 @@
 /*
- * aliyun_iot_common_net.h
+ * aliot_net.h
  *
  *  Created on: May 5, 2017
  *      Author: qibiao.wqb
@@ -42,10 +42,10 @@ struct Network {
 };
 
 
-int aliyun_iot_net_read(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliyun_iot_net_write(pNetwork_t pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliyun_iot_net_disconnect(pNetwork_t pNetwork);
-intptr_t aliyun_iot_net_connect(pNetwork_t pNetwork);
-int aliyun_iot_net_init(pNetwork_t pNetwork, const char *host, uint16_t port, const char *ca_crt);
+int aliot_net_read(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
+int aliot_net_write(pNetwork_t pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
+int aliot_net_disconnect(pNetwork_t pNetwork);
+intptr_t aliot_net_connect(pNetwork_t pNetwork);
+int aliot_net_init(pNetwork_t pNetwork, const char *host, uint16_t port, const char *ca_crt);
 
 #endif /* ALIYUN_IOT_COMMON_NET_H */

@@ -10,7 +10,7 @@
 
 //add a new wait element
 //return: NULL, failed; others, pointer of element.
-aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
+aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
             aliot_shadow_pt pshadow,
             const char *ptoken, //NOTE: this is NOT a string.
             size_t token_len,
@@ -22,7 +22,7 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
 
     aliot_platform_mutex_lock(pshadow->mutex);
 
-    for (i = 0; i < ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
+    for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 == list[i].flag_busy) {
             list[i].flag_busy = 1;
             break;
@@ -31,21 +31,21 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
 
     aliot_platform_mutex_unlock(pshadow->mutex);
 
-    if (i >= ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM) {
+    if (i >= ADS_UPDATE_WAIT_ACK_LIST_NUM) {
         return NULL;
     }
 
     list[i].callback = cb;
 
-    if (token_len >= ALIOT_SHADOW_TOKEN_LEN) {
+    if (token_len >= ADS_TOKEN_LEN) {
         ALIOT_LOG_WARN("token is too long.");
-        token_len = ALIOT_SHADOW_TOKEN_LEN - 1;
+        token_len = ADS_TOKEN_LEN - 1;
     }
     memcpy(list[i].token, ptoken, token_len);
     list[i].token[token_len] = '\0';
 
-    aliyun_iot_timer_init(&list[i].timer);
-    aliyun_iot_timer_cutdown(&list[i].timer, timeout);
+    aliot_time_init(&list[i].timer);
+    aliot_time_cutdown(&list[i].timer, timeout);
 
     ALIOT_LOG_DEBUG("Add update ACK list");
 
@@ -53,7 +53,7 @@ aliot_update_ack_wait_list_pt aliyun_iot_shadow_update_wait_ack_list_add(
 }
 
 
-void aliyun_iot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element)
+void aliot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element)
 {
     aliot_platform_mutex_lock(pshadow->mutex);
     element->flag_busy = 0;
@@ -62,7 +62,7 @@ void aliyun_iot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, alio
 }
 
 
-void aliyun_iot_shadow_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow)
+void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow)
 {
     size_t i;
 
@@ -70,9 +70,9 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_expire(aliot_shadow_pt pshado
 
     aliot_platform_mutex_lock(pshadow->mutex);
 
-    for (i = 0; i < ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
+    for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
-            if (aliyun_iot_timer_expired(&pelement[i].timer)) {
+            if (aliot_time_is_expired(&pelement[i].timer)) {
                 if (NULL != pelement[i].callback) {
                     pelement[i].callback(ALIOT_SHADOW_ACK_TIMEOUT, NULL, 0);
                 }
@@ -87,7 +87,7 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_expire(aliot_shadow_pt pshado
 
 
 //handle response ACK of UPDATE
-void aliyun_iot_shadow_update_wait_ack_list_handle_response(
+void aliot_shadow_update_wait_ack_list_handle_response(
             aliot_shadow_pt pshadow,
             char *json_doc,
             size_t json_doc_len)
@@ -110,7 +110,7 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
     }
 
     aliot_platform_mutex_lock(pshadow->mutex);
-    for (i = 0; i < ALIOT_SHADOW_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
+    for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
 
         if (0 != pelement[i].flag_busy) {
             //check the related
@@ -132,34 +132,31 @@ void aliyun_iot_shadow_update_wait_ack_list_handle_response(
 
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errorcode", &data_len, NULL);
                         if (NULL == pdata) {
-                            ALIOT_LOG_WARN(
-                                        "Invalid JSON document: not 'content.errorcode' key");
+                            ALIOT_LOG_WARN("Invalid JSON document: not 'content.errorcode' key");
                             break;
                         }
                         ack_code = atoi(pdata);
 
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errormessage", &data_len, NULL);
                         if (NULL == pdata) {
-                            ALIOT_LOG_WARN(
-                                        "Invalid JSON document: not 'content.errormessage' key");
+                            ALIOT_LOG_WARN("Invalid JSON document: not 'content.errormessage' key");
                             break;
                         }
 
                         pelement[i].callback(ack_code, pdata, data_len);
                     } else {
-                        ALIOT_LOG_WARN(
-                                    "Invalid JSON document: value of 'status' key is invalid.");
+                        ALIOT_LOG_WARN("Invalid JSON document: value of 'status' key is invalid.");
                     }
                 } while (0);
 
-                aliot_platform_mutex_lock(&pshadow->mutex);
+                aliot_platform_mutex_lock(pshadow->mutex);
                 memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));
-                aliot_platform_mutex_unlock(&pshadow->mutex);
+                aliot_platform_mutex_unlock(pshadow->mutex);
                 return;
             }
         }
     }
 
-    aliot_platform_mutex_unlock(&pshadow->mutex);
+    aliot_platform_mutex_unlock(pshadow->mutex);
     ALIOT_LOG_WARN("Not match any wait element in list.");
 }

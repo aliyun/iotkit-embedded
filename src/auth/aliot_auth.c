@@ -17,22 +17,27 @@
 #include "aliot_ca.h"
 #include "aliot_auth.h"
 
+//#define _ONLINE
 
+#ifdef _ONLINE
 const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
+#else
+const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
+#endif
 
-static int aliyun_iot_get_id_token(
-            const char *auth_host,
-            const char *product_key,
-            const char *device_name,
-            const char *device_secret,
-            const char *client_id,
-            const char *version,
-            const char *timestamp,
-            const char *resources,
-            char *iot_id,
-            char *iot_token,
-            char *host,
-            uint16_t *pport)
+static int aliot_get_id_token(
+                const char *auth_host,
+                const char *product_key,
+                const char *device_name,
+                const char *device_secret,
+                const char *client_id,
+                const char *version,
+                const char *timestamp,
+                const char *resources,
+                char *iot_id,
+                char *iot_token,
+                char *host,
+                uint16_t *pport)
 {
 #define SIGN_SOURCE_LEN     (256)
 #define HTTP_POST_MAX_LEN   (1024)
@@ -75,7 +80,7 @@ static int aliyun_iot_get_id_token(
         goto do_exit;
     }
     ALIOT_LOG_DEBUG("sign source=%s", buf);
-    aliyun_iot_common_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
+    aliot_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
 
 
     memset(&httpclient, 0, sizeof(httpclient_t));
@@ -111,7 +116,7 @@ static int aliyun_iot_get_id_token(
 
     ret = strlen(post_buf);
 
-    response_buf = (char *) aliot_platform_malloc(HTTP_RESP_MAX_LEN);
+    response_buf = (char *)aliot_platform_malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
         ALIOT_LOG_ERROR("malloc http response buf failed!");
         return ERROR_MALLOC;
@@ -124,12 +129,23 @@ static int aliyun_iot_get_id_token(
     httpclient_data.response_buf = response_buf;
     httpclient_data.response_buf_len = HTTP_RESP_MAX_LEN;
 
-    aliyun_iot_common_post(
-                &httpclient,
+#ifdef _ONLINE
+
+    aliot_post( &httpclient,
                 auth_host,
                 443,
-                aliyun_iot_ca_get(),
+                aliot_ca_get(),
+                10000,
                 &httpclient_data);
+#else
+
+    aliot_post( &httpclient,
+                auth_host,
+                80,
+                NULL,
+                10000,
+                &httpclient_data);
+#endif
 
     ALIOT_LOG_DEBUG("http response:%s\n\r", httpclient_data.response_buf);
 
@@ -223,13 +239,13 @@ do_exit:
 }
 
 
-int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_info)
+int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_info)
 {
     int ret = 0;
     char iot_id[ALIOT_AUTH_IOT_ID + 1], iot_token[ALIOT_AUTH_IOT_TOKEN + 1], host[HOST_ADDRESS_LEN + 1];
     uint16_t port;
 
-    if (0 != aliyun_iot_get_id_token(
+    if (0 != aliot_get_id_token(
                     iot_atuh_host,
                     pdevice_info->product_key,
                     pdevice_info->device_name,
@@ -251,23 +267,26 @@ int32_t aliyun_iot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt pu
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
 #ifdef ALIOT_MQTT_CHANNEL_ENCRYPT_SSL
-    puser_info->pubKey = aliyun_iot_ca_get();
+    puser_info->pubKey = aliot_ca_get();
 #else
     puser_info->pubKey = NULL;
 #endif
     if (NULL == puser_info->pubKey) {
-        //Append string "::nonesecure::" to client_id if TCP connection be used.
+        char pid[16];
+        //Append string "nonesecure" and "pid" to client_id if TCP connection be used.
         ret = snprintf(puser_info->client_id,
                        CLIENT_ID_LEN,
-                       "%s%s",
+                       "%s|securemode=0,pid=%s|",
                        pdevice_info->device_id,
-                       "::nonesecure::");
+                       aliot_platform_module_get_pid(pid));
 
     } else {
+        char pid[16];
         ret = snprintf(puser_info->client_id,
                        CLIENT_ID_LEN,
-                       "%s",
-                       pdevice_info->device_id);
+                       "%s|pid=%s|",
+                       pdevice_info->device_id,
+                       aliot_platform_module_get_pid(pid));
     }
 
     if (ret >= CLIENT_ID_LEN) {

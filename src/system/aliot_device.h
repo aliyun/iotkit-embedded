@@ -12,6 +12,8 @@
 #define DEVICE_ID_LEN       (20)
 #define DEVICE_SECRET_LEN   (32)
 
+#define MODULE_VENDOR_ID    (32) //PID
+
 #define HOST_ADDRESS_LEN    (64)
 #define HOST_PORT_LEN       (8)
 #define CLIENT_ID_LEN       (128)
@@ -24,6 +26,7 @@ typedef struct IOT_DEVICE_INFO {
     char device_name[DEVICE_NAME_LEN + 1];
     char device_id[DEVICE_ID_LEN + 1];
     char device_secret[DEVICE_SECRET_LEN + 1];
+    char module_vendor_id[MODULE_VENDOR_ID + 1];
 } aliot_device_info_t, *aliot_device_info_pt;
 
 
@@ -37,17 +40,17 @@ typedef struct ALIYUN_IOT_USER_INFO {
 } aliot_user_info_t, *aliot_user_info_pt;
 
 
-int aliyun_iot_device_init(void);
+int aliot_device_init(void);
 
-int32_t aliyun_iot_set_device_info(
+int32_t aliot_set_device_info(
             char *product_key,
             char *device_name,
             char *device_id,
             char *device_secret);
 
-aliot_device_info_pt aliyun_iot_get_device_info(void);
+aliot_device_info_pt aliot_get_device_info(void);
 
-aliot_user_info_pt aliyun_iot_get_user_info(void);
+aliot_user_info_pt aliot_get_user_info(void);
 
 
 #endif /* _MQTT_ALIYUN_MQTT_DEVICE_H_ */

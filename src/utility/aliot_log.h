@@ -1,5 +1,5 @@
 /*********************************************************************************
- * 文件名称: aliyun_iot_common_log.h
+ * 文件名称: aliot_log.h
  * 作       者:
  * 版       本:
  * 日       期: 2016-05-30
@@ -26,7 +26,7 @@ typedef enum IOT_LOG_LEVEL {
 
 extern aliot_log_level_t g_iotLogLevel;
 
-void aliyun_iot_common_log_set_level(aliot_log_level_t iotLogLevel);
+void aliot_log_set_level(aliot_log_level_t iotLogLevel);
 
 
 #define ALIOT_LOG_DEBUG(format, ...) \

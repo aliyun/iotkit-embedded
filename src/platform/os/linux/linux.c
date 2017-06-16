@@ -67,7 +67,7 @@ void aliot_platform_free(_IN_ void *ptr)
     return free(ptr);
 }
 
-int aliot_platform_ota_start(void)
+int aliot_platform_ota_start(const char *md5, uint32_t file_size)
 {
     printf("this interface is NOT support yet.");
     return -1;
@@ -113,8 +113,8 @@ void aliot_platform_printf(_IN_ const char *fmt, ...)
     fflush(stdout);
 }
 
-char *aliot_platform_module_get_pid(char pid[])
+char *aliot_platform_module_get_pid(char pid_str[])
 {
-    printf("this interface is NOT support yet.");
-    return NULL;
+    strcpy(pid_str, "123456789");
+    return pid_str;
 }

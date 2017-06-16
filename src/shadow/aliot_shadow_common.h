@@ -8,23 +8,46 @@
 #include "aliot_shadow.h"
 #include "aliot_shadow_config.h"
 
+typedef struct aliot_update_ack_wait_list_st {
+    bool flag_busy; //0, free; 1, busy.
+    char token[ADS_TOKEN_LEN];
+    aliot_update_cb_fpt callback;
+    aliot_time_t timer;
+} aliot_update_ack_wait_list_t, *aliot_update_ack_wait_list_pt;
 
-aliot_shadow_pt ads_common_get_ads(void);
 
-void ads_common_set_ads(aliot_shadow_pt pshadow);
+typedef struct aliot_inner_data_st {
+    uint32_t token_num;
+    uint32_t version; //TODO version overflow.
+    aliot_shadow_time_t time;
+    aliot_update_ack_wait_list_t update_ack_wait_list[ADS_UPDATE_WAIT_ACK_LIST_NUM];
+    list_t *attr_list;
+    char *ptopic_update;
+    char *ptopic_get;
+} aliot_inner_data_t, *aliot_inner_data_pt;;
 
-aliot_err_t ads_common_format_init(format_data_pt pformat,
+
+typedef struct aliot_shadow_st {
+    void *mqtt;
+    void *mutex;
+    aliot_inner_data_t inner_data;
+} aliot_shadow_t, *aliot_shadow_pt;
+
+
+aliot_err_t ads_common_format_init(aliot_shadow_pt pshadow,
+                                   format_data_pt pformat,
                                    char *buf,
                                    uint16_t size,
                                    const char *method,
                                    const char *head_str);
 
-aliot_err_t ads_common_format_add(format_data_pt pformat,
+aliot_err_t ads_common_format_add(aliot_shadow_pt pshadow,
+                                  format_data_pt pformat,
                                   const char *name,
                                   const void *pvalue,
                                   aliot_shadow_attr_datatype_t datatype);
 
-aliot_err_t ads_common_format_finalize(format_data_pt pformat, const char *tail_str);
+aliot_err_t ads_common_format_finalize(aliot_shadow_pt pshadow, format_data_pt pformat, const char *tail_str);
 
 void ads_common_update_time(aliot_shadow_pt pshadow, uint32_t new_timestamp);
 

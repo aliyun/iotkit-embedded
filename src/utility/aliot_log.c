@@ -1,5 +1,5 @@
 /*********************************************************************************
- * 文件名称: aliyun_iot_common_log.c
+ * 文件名称: aliot_log.c
  * 作       者:
  * 版       本:
  * 日       期: 2016-05-30
@@ -19,12 +19,12 @@
 aliot_log_level_t g_iotLogLevel = ALIOT_LOG_LEVEL_DEBUG;
 
 
-void aliyun_iot_common_log_set_level(aliot_log_level_t iotLogLevel)
+void aliot_log_set_level(aliot_log_level_t iotLogLevel)
 {
     g_iotLogLevel = iotLogLevel;
 }
 
-aliot_log_level_t aliyun_iot_common_log_get_level()
+aliot_log_level_t aliot_log_get_level()
 {
     return g_iotLogLevel;
 }

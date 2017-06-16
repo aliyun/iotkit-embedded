@@ -113,7 +113,7 @@ void aliot_platform_free(_IN_ void *ptr);
  * @see None.
  * @note None.
  */
-int aliot_platform_ota_start(void);
+int aliot_platform_ota_start(const char *md5, uint32_t file_size);
 
 
 /**
@@ -181,8 +181,12 @@ void aliot_platform_msleep(_IN_ uint32_t ms);
 void aliot_platform_printf(_IN_ const char *fmt, ...);
 
 
-//TODO
-char *aliot_platform_module_get_pid(char pid[]);
+/**
+ * @brief Get vendor ID of hardware module.
+ *
+ * @return pointer of @pid_str.
+ */
+char *aliot_platform_module_get_pid(char pid_str[]);
 
 /** @} */ //end of group_platform_other
 

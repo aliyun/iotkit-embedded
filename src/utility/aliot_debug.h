@@ -1,5 +1,5 @@
 /*
- * aliyun_iot_common_debug.h
+ * aliot_debug.h
  *
  *  Created on: May 16, 2017
  *      Author: qibiao.wqb

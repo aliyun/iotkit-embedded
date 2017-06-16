@@ -132,11 +132,12 @@ typedef struct {
  *                   printf("Data received: %s\r\n", client_data.response_buf);
  * @endcode
  */
-aliot_err_t aliyun_iot_common_post(
+aliot_err_t aliot_post(
             httpclient_t *client,
             const char *url,
             int port,
             const char *ca_crt,
+            uint32_t timeout,
             httpclient_data_t *client_data);
 
 

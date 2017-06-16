@@ -10,6 +10,9 @@ int aliot_platform_tcp_destroy(intptr_t fd);
 int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
 
 
+
+//@timeout_ms: 0, not wait.
+
 //-2, error;
 //-1, be closed by remote server;
 //0, timeout without any data

@@ -191,17 +191,16 @@ int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
 }
 
 
-int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
+int aliot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
 {
     uint32_t readLen = 0;
     int ret = -1;
 
-    SSL_LOG("aliyun_iot_network_ssl_read len=%d timer=%d ms", len, timeout_ms);
+    SSL_LOG("aliot_network_ssl_read len=%d timer=%d ms", len, timeout_ms);
 
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
     while (readLen < len) {
         ret = mbedtls_ssl_read(&(pTlsData->ssl), (unsigned char *)(buffer + readLen), (len - readLen));
-        //WRITE_IOT_DEBUG_LOG("%s, mbedtls_ssl_read return:%d", __func__, ret);
         if (ret > 0) {
             readLen += ret;
         } else if (ret == 0) {
@@ -221,14 +220,14 @@ int aliyun_iot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len
             }
 
             SSL_LOG("ssl recv error,ret = %d", ret);
-            return -1; //Connnection error
+            return -1; //Connection error
         }
     }
-    SSL_LOG("aliyun_iot_network_ssl_read readlen=%u", readLen);
+    SSL_LOG("aliot_network_ssl_read readlen=%u", readLen);
     return readLen;
 }
 
-int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
+int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
 {
     uint32_t writtenLen = 0;
     int ret = -1;
@@ -251,7 +250,7 @@ int aliyun_iot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, 
     return writtenLen;
 }
 
-void aliyun_iot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
+void aliot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
 {
     mbedtls_ssl_close_notify(&(pTlsData->ssl));
     mbedtls_net_free(&(pTlsData->fd));
@@ -379,7 +378,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
     return 0;
 }
 
-int aliyun_iot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
+int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
                                    size_t ca_crt_len)
 {
     return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
@@ -387,17 +386,17 @@ int aliyun_iot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, 
 
 int aliot_platform_ssl_read(void *handle, char *buf, int len, int timeout_ms)
 {
-    return aliyun_iot_network_ssl_read(handle, buf, len, timeout_ms);
+    return aliot_network_ssl_read(handle, buf, len, timeout_ms);
 }
 
 int aliot_platform_ssl_write(void *handle, const char *buf, int len, int timeout_ms)
 {
-    return aliyun_iot_network_ssl_write(handle, buf, len, timeout_ms);
+    return aliot_network_ssl_write(handle, buf, len, timeout_ms);
 }
 
 void aliot_platform_ssl_disconnect(void *handle)
 {
-    aliyun_iot_network_ssl_disconnect(handle);
+    aliot_network_ssl_disconnect(handle);
 }
 
 void *aliot_platform_ssl_connect(const char *host,
