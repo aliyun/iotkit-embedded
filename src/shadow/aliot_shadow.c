@@ -46,8 +46,8 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
 
     aliot_mqtt_topic_info_pt topic_info = (aliot_mqtt_topic_info_pt)msg->msg;
 
-    ALIOT_LOG_DEBUG("topic=%-64.64s", topic_info->ptopic);
-    ALIOT_LOG_DEBUG("data of topic=%-192.192s", (char *)topic_info->payload);
+    ALIOT_LOG_DEBUG("topic=%.*s", topic_info->topic_len, topic_info->ptopic);
+    ALIOT_LOG_DEBUG("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
 
     //update time if there is 'timestamp' key in JSON string
     pname = json_get_value_by_name(topic_info->payload,
@@ -88,10 +88,15 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
                     topic_info->payload,
                     topic_info->payload_len);
 
+        ads_update_wait_ack_list_handle_response(
+                            pshadow,
+                            topic_info->payload,
+                            topic_info->payload_len);
+
     } else if ((strlen("reply") == val_len) && strcmp(pname, "reply")) {
         //call update ACK handle function.
         ALIOT_LOG_DEBUG("receive 'reply' method");
-        aliot_shadow_update_wait_ack_list_handle_response(
+        ads_update_wait_ack_list_handle_response(
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
@@ -188,7 +193,7 @@ static void aliot_update_ack_cb(
             const char *ack_msg, //NOTE: NOT a string.
             uint32_t ack_msg_len)
 {
-    ALIOT_LOG_DEBUG("ack_code=%d, ack_msg=%-256.256s", ack_code, ack_msg);
+    ALIOT_LOG_DEBUG("ack_code=%d, ack_msg=%.*s", ack_code, ack_msg_len, ack_msg);
     shadow_update_flag_ack = ack_code;
 }
 
@@ -212,7 +217,7 @@ aliot_err_t aliot_shadow_update(
 
     shadow_update_flag_ack = ALIOT_SHADOW_ACK_NONE;
 
-    //update synchronously
+    //update asynchronously
     aliot_shadow_update_asyn(pshadow, data, data_len, timeout_s, aliot_update_ack_cb);
 
     //wait ACK

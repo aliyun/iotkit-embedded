@@ -21,7 +21,7 @@ void aliot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_upd
 
 void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow);
 
-void aliot_shadow_update_wait_ack_list_handle_response(
+void ads_update_wait_ack_list_handle_response(
             aliot_shadow_pt pshadow,
             char *json_doc,
             size_t json_doc_len);

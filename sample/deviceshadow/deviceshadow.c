@@ -144,12 +144,12 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
         /* Sleep 1000 ms */
         aliot_platform_msleep(1000);
-    } while (0);
+    } while (1);
 
 
     /* Delete the two attributes */
-    //aliot_shadow_delete_attribute(&shadow, &attr_temperature);
-    //aliot_shadow_delete_attribute(&shadow, &attr_light);
+    aliot_shadow_delete_attribute(h_shadow, &attr_temperature);
+    aliot_shadow_delete_attribute(h_shadow, &attr_light);
 
     aliot_shadow_deconstruct(h_shadow);
 

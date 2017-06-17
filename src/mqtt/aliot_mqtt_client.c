@@ -1019,6 +1019,9 @@ static void amc_deliver_message(amc_client_t *c, MQTTString *topicName, aliot_mq
 {
     int i, flag_matched = 0;
 
+    topic_msg->ptopic = topicName->lenstring.data;
+    topic_msg->topic_len = topicName->lenstring.len;
+
     // we have to find the right message handler - indexed by topic
     aliot_platform_mutex_lock(c->lock_generic);
     for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i) {
@@ -1240,6 +1243,9 @@ static int amc_handle_recv_PUBLISH(amc_client_t *c)
                                 c->buf_size_read)) {
         return MQTT_PUBLISH_PACKET_ERROR;
     }
+
+    topic_msg.ptopic = NULL;
+    topic_msg.topic_len = 0;
 
     ALIOT_LOG_DEBUG("deliver msg");
     amc_deliver_message(c, &topicName, &topic_msg);
