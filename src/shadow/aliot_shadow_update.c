@@ -114,8 +114,8 @@ void ads_update_wait_ack_list_handle_response(
 
         if (0 != pelement[i].flag_busy) {
             //check the related
-            if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
-
+            if (((NULL == pdata) && (0 == strcmp("get", pelement[i].token)))
+                 || (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token)))) {
                 aliot_platform_mutex_unlock(pshadow->mutex);
                 ALIOT_LOG_DEBUG("token=%s", pelement[i].token);
                 do {

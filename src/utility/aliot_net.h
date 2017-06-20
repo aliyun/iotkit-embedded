@@ -1,20 +1,8 @@
-/*
- * aliot_net.h
- *
- *  Created on: May 5, 2017
- *      Author: qibiao.wqb
- */
 
 #ifndef ALIYUN_IOT_COMMON_NET_H
 #define ALIYUN_IOT_COMMON_NET_H
 
 #include "aliot_platform.h"
-
-typedef struct {
-    char *pHostAddress;     ///< Pointer to a host name string
-    char *pHostPort;        ///< destination port
-    char *pPubKey;          ///< Pointer to a ca string
-} ConnectParams;
 
 
 /**
@@ -22,30 +10,38 @@ typedef struct {
  *   The user has to allocate memory for this structure.
  */
 
-struct Network;
+struct aliot_network;
+typedef struct aliot_network aliot_network_t, *aliot_network_pt;
 
-typedef struct Network Network_t;
-typedef struct Network *pNetwork_t;
-
-struct Network {
+struct aliot_network {
     const char *pHostAddress;
     uint16_t port;
     uint16_t ca_crt_len;
-    const char *ca_crt;       //TCP connection when the value is NULL; SSL connection when the value is NOT NULL
 
-    intptr_t handle;    //connection handle
+    /**< NULL, TCP connection; NOT NULL, SSL connection */
+    const char *ca_crt;
 
-    int (*read)(pNetwork_t, char *, uint32_t, uint32_t);      /**< Read data from server function pointer. */
-    int (*write)(pNetwork_t, const char *, uint32_t, uint32_t);     /**< Send data to server function pointer. */
-    int (*disconnect)(pNetwork_t);                  /**< Disconnect the network function pointer.此函数close socket后需要初始化为-1，如果为-1则不再执行close操作*/
-    intptr_t (*connect)(pNetwork_t);
+    /**< connection handle: 0, NOT connection; NOT 0, handle of the connection */
+    uintptr_t handle;
+
+    /**< Read data from server function pointer. */
+    int (*read)(aliot_network_pt, char *, uint32_t, uint32_t);
+
+    /**< Send data to server function pointer. */
+    int (*write)(aliot_network_pt, const char *, uint32_t, uint32_t);
+
+    /**< Disconnect the network */
+    int (*disconnect)(aliot_network_pt);
+
+    /**< Establish the network */
+    int (*connect)(aliot_network_pt);
 };
 
 
-int aliot_net_read(pNetwork_t pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliot_net_write(pNetwork_t pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliot_net_disconnect(pNetwork_t pNetwork);
-intptr_t aliot_net_connect(pNetwork_t pNetwork);
-int aliot_net_init(pNetwork_t pNetwork, const char *host, uint16_t port, const char *ca_crt);
+int aliot_net_read(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
+int aliot_net_write(aliot_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
+int aliot_net_disconnect(aliot_network_pt pNetwork);
+int aliot_net_connect(aliot_network_pt pNetwork);
+int aliot_net_init(aliot_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt);
 
 #endif /* ALIYUN_IOT_COMMON_NET_H */

@@ -72,7 +72,7 @@ static void httpclient_base64enc(char *out, const char *in)
 int httpclient_conn(httpclient_t *client)
 {
     if (0 != client->net.connect(&client->net)) {
-        ALIOT_LOG_ERROR("httpclient_conn error");
+        ALIOT_LOG_ERROR("establish connection failed");
         return ERROR_HTTP_CONN;
     }
 
@@ -676,7 +676,7 @@ aliot_err_t httpclient_connect(httpclient_t *client)
 {
     int ret = ERROR_HTTP_CONN;
 
-    client->net.handle = -1;
+    client->net.handle = 0;
 
     ret = httpclient_conn(client);
     //    if (0 == ret)
@@ -691,7 +691,8 @@ aliot_err_t httpclient_send_request(httpclient_t *client, const char *url, int m
 {
     int ret = ERROR_HTTP_CONN;
 
-    if (client->net.handle < 0) {
+    if (0 == client->net.handle) {
+        ALIOT_LOG_DEBUG("not connection have been established");
         return ret;
     }
 
@@ -717,7 +718,8 @@ aliot_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, 
     aliot_time_init(&timer);
     aliot_time_cutdown(&timer, timeout_ms);
 
-    if (client->net.handle < 0) {
+    if (0 == client->net.handle) {
+        ALIOT_LOG_DEBUG("not connection have been established");
         return ret;
     }
 
@@ -744,10 +746,10 @@ aliot_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, 
 void httpclient_close(httpclient_t *client)
 {
 
-    if (client->net.handle >= 0) {
+    if (client->net.handle > 0) {
         client->net.disconnect(&client->net);
     }
-    client->net.handle = -1;
+    client->net.handle = 0;
 }
 
 int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method, uint32_t timeout_ms,

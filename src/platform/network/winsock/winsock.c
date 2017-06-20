@@ -42,7 +42,8 @@ static uint64_t time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
+
+uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 {
     WSADATA wsaData;
     struct addrinfo hints;
@@ -56,7 +57,7 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
     rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (rc != 0) {
         PLATFORM_WINSOCK_PERROR("WSAStartup failed");
-        return -1;
+        return 0;
     }
 
     memset(&hints, 0, sizeof(hints));
@@ -69,7 +70,7 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
         PLATFORM_WINSOCK_PERROR("getaddrinfo error");
-        return -1;
+        return 0;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
@@ -83,7 +84,7 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
         fd = (int) socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
             PLATFORM_WINSOCK_PERROR("create socket error");
-            rc = -1;
+            rc = 0;
             continue;
         }
 
@@ -94,16 +95,16 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 
         closesocket(fd);
         PLATFORM_WINSOCK_PERROR("connect error");
-        rc = -1;
+        rc = 0;
     }
 
     freeaddrinfo(addrInfoList);
 
-    return (intptr_t)rc;
+    return (uintptr_t)rc;
 }
 
 
-int aliot_platform_tcp_destroy(intptr_t fd)
+int aliot_platform_tcp_destroy(uintptr_t fd)
 {
     int rc;
 
@@ -130,7 +131,7 @@ int aliot_platform_tcp_destroy(intptr_t fd)
 }
 
 
-int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_sent;
@@ -197,7 +198,7 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
 }
 
 
-int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t aliot_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_recv;

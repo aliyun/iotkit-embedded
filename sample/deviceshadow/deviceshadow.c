@@ -14,10 +14,15 @@
 //#define DEVICE_SECRET       "qkmOMDccik2HnyCamIqK5gcZnuuwNBXe"
 
 /* pre */
+//#define PRODUCT_KEY         "6RcIOUafDOm"
+//#define DEVICE_NAME         "sh_pre_sample_shadow"
+//#define DEVICE_ID           "Z8yLm9VGf2ZgclBddmjx"
+//#define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
+
 #define PRODUCT_KEY         "6RcIOUafDOm"
-#define DEVICE_NAME         "sh_pre_sample_shadow"
-#define DEVICE_ID           "Z8yLm9VGf2ZgclBddmjx"
-#define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
+#define DEVICE_NAME         "test"
+#define DEVICE_ID           "IdeY7PvLVptnqcBgiBo4"
+#define DEVICE_SECRET       "kN7SHmCuILKHSVaYRoSETu77O8Ab23pd"
 
 #define MSG_LEN_MAX         (1024)
 

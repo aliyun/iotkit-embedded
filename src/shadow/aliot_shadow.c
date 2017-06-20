@@ -83,15 +83,11 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
     if ((strlen("control") == val_len) && strcmp(pname, "control")) {
         //call delta handle function
         ALIOT_LOG_DEBUG("receive 'control' method");
+
         aliot_shadow_delta_entry(
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
-
-        ads_update_wait_ack_list_handle_response(
-                            pshadow,
-                            topic_info->payload,
-                            topic_info->payload_len);
 
     } else if ((strlen("reply") == val_len) && strcmp(pname, "reply")) {
         //call update ACK handle function.
@@ -157,7 +153,7 @@ aliot_err_t aliot_shadow_update_asyn(
     int rc = SUCCESS_RETURN;
     aliot_update_ack_wait_list_pt pelement;
     int val_len, val_type;
-    const char *ptoken;
+    const char *ptoken, *pmethod;
     aliot_shadow_pt pshadow = (aliot_shadow_pt)handle;
 
     if ((NULL == handle) || (NULL == data)) {
@@ -170,8 +166,15 @@ aliot_err_t aliot_shadow_update_asyn(
     }
 
     /*Add to callback list */
-    ptoken = json_get_value_by_name(data, data_len, "clientToken", &val_len, &val_type);
-    ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
+    pmethod = json_get_value_by_name(data, data_len, "method", &val_len, &val_type);
+    if (0 == memcmp(pmethod, "get", val_len)) {
+        //Ignore clientToken in GET method
+        ptoken = "get";
+        val_len = 4;
+    } else {
+        ptoken = json_get_value_by_name(data, data_len, "clientToken", &val_len, &val_type);
+        ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
+    }
 
     pelement = aliot_shadow_update_wait_ack_list_add(pshadow, ptoken, val_len, cb_fpt, timeout_s);
     if (NULL == pelement) {
@@ -310,6 +313,7 @@ void *aliot_shadow_construct(aliot_shadow_para_pt pparams)
 
     //TODO
     aliot_platform_msleep(2000);
+
 
 
     pshadow->inner_data.attr_list = list_new();

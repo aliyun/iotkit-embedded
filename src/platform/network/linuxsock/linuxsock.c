@@ -43,7 +43,7 @@ static uint64_t linux_time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
+uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -63,7 +63,7 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
         perror("getaddrinfo error");
-        return -1;
+        return 0;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
@@ -76,7 +76,7 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
             perror("create socket error");
-            rc = -1;
+            rc = 0;
             continue;
         }
 
@@ -87,21 +87,21 @@ intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 
         close(fd);
         perror("connect error");
-        rc = -1;
+        rc = 0;
     }
 
-    if (-1 == rc){
+    if (0 == rc){
         PLATFORM_LINUXSOCK_LOG("fail to establish tcp");
     } else {
         PLATFORM_LINUXSOCK_LOG("success to establish tcp, fd=%d", rc);
     }
     freeaddrinfo(addrInfoList);
 
-    return (intptr_t)rc;
+    return (uintptr_t)rc;
 }
 
 
-int aliot_platform_tcp_destroy(intptr_t fd)
+int aliot_platform_tcp_destroy(uintptr_t fd)
 {
     int rc;
 
@@ -122,7 +122,7 @@ int aliot_platform_tcp_destroy(intptr_t fd)
 }
 
 
-int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_sent;
@@ -192,7 +192,7 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
 }
 
 
-int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t aliot_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_recv;

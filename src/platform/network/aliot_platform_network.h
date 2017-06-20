@@ -5,9 +5,11 @@
 
 #include "../aliot_platform_datatype.h"
 
-intptr_t aliot_platform_tcp_establish(const char *host, uint16_t port);
-int aliot_platform_tcp_destroy(intptr_t fd);
-int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
+//0, failed; > 0, success.
+uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port);
+
+int aliot_platform_tcp_destroy(uintptr_t fd);
+int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
 
 
 
@@ -18,6 +20,6 @@ int32_t aliot_platform_tcp_write(intptr_t fd, const char *buf, uint32_t len, uin
 //0, timeout without any data
 //[1, len), timeout with
 //len, received specific data from server.
-int32_t aliot_platform_tcp_read(intptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t aliot_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
 
 #endif /* _ALIOT_PLATFORM_NETWORK_H_ */

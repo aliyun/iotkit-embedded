@@ -26,7 +26,6 @@ void event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
     uint32_t packet_id = (uint32_t)msg->msg;
     aliot_mqtt_topic_info_pt topic_info = (aliot_mqtt_topic_info_pt)msg->msg;
 
-
     switch (msg->event_type)
     {
     case ALIOT_MQTT_EVENT_UNDEF:
@@ -214,11 +213,13 @@ int mqtt_client(void)
             rc = -1;
             break;
         } else {
-            ALIOT_LOG_DEBUG("error occur when publish");
+            ALIOT_LOG_DEBUG("publish packet-id = %u", rc);
         }
 
         /* handle the MQTT packet received from TCP or SSL connection */
-        aliot_mqtt_yield(pclient, 500);
+        aliot_mqtt_yield(pclient, 100);
+
+        aliot_platform_msleep(1000);
 
     } while (ch != 'Q' && ch != 'q');
 

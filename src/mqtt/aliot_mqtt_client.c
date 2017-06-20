@@ -149,7 +149,7 @@ typedef struct Client {
     char                            *buf_send;                               //MQTT消息发送buffer
     char                            *buf_read;                               //MQTT消息接收buffer
     amc_topic_handle_t              messageHandlers[MAX_MESSAGE_HANDLERS];   //订阅主题对应的消息处理结构数组
-    pNetwork_t                      ipstack;                                 //MQTT使用的网络参数
+    aliot_network_pt                      ipstack;                                 //MQTT使用的网络参数
     aliot_time_t                    ping_timer;                              //MQTT保活定时器，时间未到不做保活包发送
     int                             pingMark;                                //ping消息发送标志
     void *                          pingMarkLock;                            //ping消息发送标志锁
@@ -663,7 +663,7 @@ static int amc_push_pubInfo_to(amc_client_t *c, int len, unsigned short msgId, l
 
     if (c->pubInfoList->len >= MQTT_REPUB_NUM_MAX) {
         aliot_platform_mutex_unlock(c->pubInfoLock);
-        ALIOT_LOG_ERROR("number of repubInfo more than max!,size = %d", c->pubInfoList->len);
+        ALIOT_LOG_ERROR("more than %u elements in republish list. List overflow!", c->pubInfoList->len);
         return FAIL_RETURN;
     }
 
@@ -1772,12 +1772,12 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     aliot_time_init(&pClient->ping_timer);
     aliot_time_init(&pClient->reconnect_params.reconnectDelayTimer);
 
-    pClient->ipstack = (pNetwork_t)aliot_platform_malloc(sizeof(Network_t));
+    pClient->ipstack = (aliot_network_pt)aliot_platform_malloc(sizeof(aliot_network_t));
     if (NULL == pClient->ipstack) {
         ALIOT_LOG_ERROR("malloc Network failed");
         ALIOT_FUNC_EXIT_RC(FAIL_RETURN);
     }
-    memset(pClient->ipstack, 0x0, sizeof(Network_t));
+    memset(pClient->ipstack, 0x0, sizeof(aliot_network_t));
 
 
     //TODO
@@ -2447,7 +2447,7 @@ void aliot_mqtt_yield(void *handle, int timeout_ms)
         //Keep MQTT alive or reconnect if connection abort.
         amc_keepalive(pClient);
 
-    } while (!aliot_time_is_expired(&time));
+    } while (!aliot_time_is_expired(&time) && (SUCCESS_RETURN == rc));
 }
 
 
