@@ -1,10 +1,13 @@
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/prctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
+
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/prctl.h>
+#include <sys/time.h>
+
 #include "aliot_platform_os.h"
 
 #define PLATFORM_LINUX_LOG(format, ...) \
