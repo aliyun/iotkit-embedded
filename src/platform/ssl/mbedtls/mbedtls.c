@@ -194,9 +194,8 @@ int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
 int aliot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
 {
     uint32_t readLen = 0;
+    int net_status = 0;
     int ret = -1;
-
-    SSL_LOG("aliot_network_ssl_read len=%d timer=%d ms", len, timeout_ms);
 
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
     while (readLen < len) {
@@ -204,27 +203,30 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int
         if (ret > 0) {
             readLen += ret;
         } else if (ret == 0) {
-            //WRITE_IOT_ERROR_LOG(" ssl read timeout");
-            return readLen; //eof
+            return readLen;
         } else {
-            if ((MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret)
-                    || (MBEDTLS_ERR_SSL_TIMEOUT == ret)
+            if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
+                net_status = -2; //connection is closed
+            } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret)
                     || (MBEDTLS_ERR_SSL_CONN_EOF == ret)
                     || (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == ret)
                     || (MBEDTLS_ERR_SSL_NON_FATAL == ret)) {
                 //read already complete(if call mbedtls_ssl_read again, it will return 0(eof))
+
+                return readLen;
+            } else {
                 char err_str[33];
                 mbedtls_strerror(ret, err_str, sizeof(err_str));
                 SSL_LOG("%s", err_str);
-                return readLen;
-            }
 
-            SSL_LOG("ssl recv error,ret = %d", ret);
-            return -1; //Connection error
+                SSL_LOG("ssl recv error,ret = %d", ret);
+                net_status = -1;
+                return -1; //Connection error
+            }
         }
     }
-    SSL_LOG("aliot_network_ssl_read readlen=%u", readLen);
-    return readLen;
+
+    return (readLen > 0) ? readLen : net_status;
 }
 
 int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
@@ -232,7 +234,6 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int l
     uint32_t writtenLen = 0;
     int ret = -1;
 
-    SSL_LOG("len=%d timer=%d ms", len, timeout_ms);
     while (writtenLen < len) {
         ret = mbedtls_ssl_write(&(pTlsData->ssl), (unsigned char *)(buffer + writtenLen), (len - writtenLen));
         if (ret > 0) {
@@ -240,13 +241,12 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int l
             continue;
         } else if (ret == 0) {
             SSL_LOG("ssl write timeout");
-            return -2;
+            return 0;
         } else {
-            SSL_LOG("ssl write fail,ret = %d", ret);
+            SSL_LOG("ssl write fail, ret = %d", ret);
             return -1; //Connnection error
         }
     }
-    SSL_LOG("ssl write len=%u", writtenLen);
     return writtenLen;
 }
 
@@ -384,22 +384,23 @@ int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const
     return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
 
-int aliot_platform_ssl_read(void *handle, char *buf, int len, int timeout_ms)
+int aliot_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
-    return aliot_network_ssl_read(handle, buf, len, timeout_ms);
+    return aliot_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);
 }
 
-int aliot_platform_ssl_write(void *handle, const char *buf, int len, int timeout_ms)
+int aliot_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 {
-    return aliot_network_ssl_write(handle, buf, len, timeout_ms);
+    return aliot_network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
 }
 
-void aliot_platform_ssl_disconnect(void *handle)
+int32_t aliot_platform_ssl_destroy(uintptr_t handle)
 {
-    aliot_network_ssl_disconnect(handle);
+    aliot_network_ssl_disconnect((TLSDataParams_t *)handle);
+    return 0;
 }
 
-void *aliot_platform_ssl_connect(const char *host,
+uintptr_t aliot_platform_ssl_establish(const char *host,
                 uint16_t port,
                 const char *ca_crt,
                 size_t ca_crt_len)

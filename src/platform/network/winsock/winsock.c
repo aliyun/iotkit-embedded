@@ -104,7 +104,7 @@ uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 }
 
 
-int aliot_platform_tcp_destroy(uintptr_t fd)
+int32_t aliot_platform_tcp_destroy(uintptr_t fd)
 {
     int rc;
 

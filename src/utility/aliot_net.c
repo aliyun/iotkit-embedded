@@ -86,7 +86,7 @@ static int disconnect_ssl(aliot_network_pt pNetwork)
         return -1;
     }
 
-    aliot_platform_ssl_disconnect((void *)pNetwork->handle);
+    aliot_platform_ssl_destroy((void *)pNetwork->handle);
     pNetwork->handle = 0;
 
     return 0;
@@ -103,7 +103,7 @@ static int connect_ssl(aliot_network_pt pNetwork)
         return 1;
     }
 
-    if (0 != (pNetwork->handle = (intptr_t)aliot_platform_ssl_connect(
+    if (0 != (pNetwork->handle = (intptr_t)aliot_platform_ssl_establish(
                                             pNetwork->pHostAddress,
                                             pNetwork->port,
                                             pNetwork->ca_crt,

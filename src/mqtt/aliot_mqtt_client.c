@@ -908,7 +908,7 @@ static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *p
 
     /* 1. read the header byte.  This has the packet type in it */
     rc = c->ipstack->read(c->ipstack, c->buf_read, 1, aliot_time_left(timer));
-    if (0 == rc) {
+    if (0 == rc) { //timeout
         *packet_type = 0;
         return SUCCESS_RETURN;
     } else if (1 != rc) {
