@@ -77,7 +77,7 @@ void event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
         break;
 
     case ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
-        ALIOT_LOG_INFO("Should NOT arrive here, topic=%.*s, topic_msg=%.*s",
+        ALIOT_LOG_INFO("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                 topic_info->topic_len,
                 topic_info->ptopic,
                 topic_info->payload_len,
@@ -197,7 +197,7 @@ int mqtt_client(void)
     do {
         /* Generate topic message */
         cnt++;
-        msg_len = snprintf(msg_pub, sizeof(msg_pub), "message: hello, %d!", cnt);
+        msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\", \"attr_value\":\"%d\"}", cnt);
         if (msg_len < 0) {
             ALIOT_LOG_DEBUG("Error occur! Exit program");
             rc = -1;
@@ -212,14 +212,13 @@ int mqtt_client(void)
             ALIOT_LOG_DEBUG("error occur when publish");
             rc = -1;
             break;
-        } else {
-            ALIOT_LOG_DEBUG("publish packet-id = %u", rc);
         }
+        ALIOT_LOG_DEBUG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
 
         /* handle the MQTT packet received from TCP or SSL connection */
-        aliot_mqtt_yield(pclient, 100);
+        aliot_mqtt_yield(pclient, 200);
 
-        aliot_platform_msleep(1000);
+        //aliot_platform_msleep(1000);
 
     } while (ch != 'Q' && ch != 'q');
 
