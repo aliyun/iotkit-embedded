@@ -144,7 +144,7 @@ aliot_err_t ads_common_format_finalize(aliot_shadow_pt pshadow, format_data_pt p
     ret = snprintf(pformat->buf + pformat->offset,
                    size_free_space,
                    UPDATE_JSON_STR_END,
-                   aliot_get_user_info()->client_id,
+                   aliot_get_device_info()->device_id,
                    ads_common_get_tokennum(pshadow),
                    ads_common_get_version(pshadow));
 

@@ -266,10 +266,10 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
-#ifdef ALIOT_MQTT_CHANNEL_ENCRYPT_SSL
-    puser_info->pubKey = aliot_ca_get();
-#else
+#ifdef ALIOT_MQTT_TCP
     puser_info->pubKey = NULL;
+#else
+    puser_info->pubKey = aliot_ca_get();
 #endif
     if (NULL == puser_info->pubKey) {
         char pid[16];

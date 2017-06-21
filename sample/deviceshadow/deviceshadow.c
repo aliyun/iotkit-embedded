@@ -60,7 +60,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     /* Initialize the device info */
     aliot_device_init();
 
-    if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET)) {
+    if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
         ALIOT_LOG_DEBUG("run aliot_set_device_info() error!\n");
         return -1;
     }

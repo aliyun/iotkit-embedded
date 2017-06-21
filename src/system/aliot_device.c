@@ -6,61 +6,53 @@
 #include "aliot_device.h"
 
 
-
-static aliot_user_info_t g_userInfo;
-static aliot_device_info_t g_deviceInfo;
-
+static aliot_user_info_t aliot_user_info;
+static aliot_device_info_t aliot_device_info;
 
 
 int aliot_device_init(void)
 {
-    //aliot_log_set_level(ALIOT_LOG_LEVEL_DEBUG);
-
-    memset(&g_deviceInfo, 0x0, sizeof(aliot_device_info_t));
-    memset(&g_userInfo, 0x0, sizeof(aliot_user_info_t));
+    memset(&aliot_device_info, 0x0, sizeof(aliot_device_info_t));
+    memset(&aliot_user_info, 0x0, sizeof(aliot_user_info_t));
 
     ALIOT_LOG_INFO("device init success!");
     return SUCCESS_RETURN;
 }
 
 
-
-/***********************************************************
-* 函数名称: aliot_set_device_info
-* 描       述: 设置设备信息
-* 输入参数: IOT_DEVICEINFO_SHADOW_S*deviceInfo
-* 输出参数: VOID
-* 返 回  值: 0：成功  -1：失败
-* 说       明: 将在aliyun注册的设备信息设置到SDK中的设备变量中
-************************************************************/
 int32_t aliot_set_device_info(
-            char *product_key,
-            char *device_name,
-            char *device_id,
-            char *device_secret)
+            const char *product_key,
+            const char *device_name,
+            const char *device_secret)
 {
+    int ret;
     ALIOT_LOG_DEBUG("start to set device info!");
-    memset(&g_deviceInfo, 0x0, sizeof(g_deviceInfo));
+    memset(&aliot_device_info, 0x0, sizeof(aliot_device_info));
 
-    strncpy(g_deviceInfo.product_key, product_key, PRODUCT_KEY_LEN);
-    strncpy(g_deviceInfo.device_name, device_name, DEVICE_NAME_LEN);
-    strncpy(g_deviceInfo.device_id, device_id, DEVICE_ID_LEN);
-    strncpy(g_deviceInfo.device_secret, device_secret, DEVICE_SECRET_LEN);
+    strncpy(aliot_device_info.product_key, product_key, PRODUCT_KEY_LEN);
+    strncpy(aliot_device_info.device_name, device_name, DEVICE_NAME_LEN);
+    strncpy(aliot_device_info.device_secret, device_secret, DEVICE_SECRET_LEN);
 
-    ALIOT_LOG_DEBUG("set device info success!");
+    //construct device-id(@product_key+@device_name)
+    ret = snprintf(aliot_device_info.device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
+    if ((ret < 0) || (ret >= DEVICE_ID_LEN)) {
+        ALIOT_LOG_ERROR("set device info failed");
+        return FAIL_RETURN;
+    }
 
+    ALIOT_LOG_DEBUG("set device info successfully!");
     return SUCCESS_RETURN;
 }
 
 aliot_device_info_pt aliot_get_device_info(void)
 {
-    return &g_deviceInfo;
+    return &aliot_device_info;
 }
 
 
 aliot_user_info_pt aliot_get_user_info(void)
 {
-    return &g_userInfo;
+    return &aliot_user_info;
 }
 
 

@@ -149,7 +149,7 @@ typedef struct Client {
     char                            *buf_send;                               //MQTT消息发送buffer
     char                            *buf_read;                               //MQTT消息接收buffer
     amc_topic_handle_t              messageHandlers[MAX_MESSAGE_HANDLERS];   //订阅主题对应的消息处理结构数组
-    aliot_network_pt                      ipstack;                                 //MQTT使用的网络参数
+    aliot_network_pt                ipstack;                                 //MQTT使用的网络参数
     aliot_time_t                    ping_timer;                              //MQTT保活定时器，时间未到不做保活包发送
     int                             pingMark;                                //ping消息发送标志
     void *                          pingMarkLock;                            //ping消息发送标志锁

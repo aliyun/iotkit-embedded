@@ -7,6 +7,7 @@ INCLUD_PATH += -I./os/
 INCLUD_PATH += -I./network/
 INCLUD_PATH += -I./ssl/
 
+
 #path of include files of mbedtls
 ifeq ($(SSL), mbedtls)
 INCLUD_PATH += -I./ssl/mbedtls/mbedtls/include/
@@ -14,7 +15,11 @@ INCLUD_PATH += -I./ssl/mbedtls/mbedtls/include/mbedtls/
 INCLUD_PATH += -I./ssl/mbedtls/mbedtls/configs/$(OS)/
 endif
 
-CFLAGS +=  -Wall -g ${INCLUD_PATH} 
+
+CFLAGS =  -Wall -g ${INCLUD_PATH} 
+ifeq ($(BUILD_TYPE), debug)
+CFLAGS += -DALIOT_DEBUG
+endif
 
 #cacualte source files
 SRC_FILE = $(wildcard ./os/$(OS)/*.c)

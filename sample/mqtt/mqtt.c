@@ -128,7 +128,7 @@ int mqtt_client(void)
     /* Initialize device info */
     aliot_device_init();
 
-    if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_ID, DEVICE_SECRET)) {
+    if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
         ALIOT_LOG_DEBUG("set device info failed!");
         rc = -1;
         goto do_exit;

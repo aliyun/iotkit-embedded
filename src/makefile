@@ -1,4 +1,6 @@
-include ./../make.settings
+
+#MQTT_TCP=yes
+
 
 #path of include files
 INCLUD_PATH = -I./auth/
@@ -19,15 +21,19 @@ $(info src_files = $(SRC_FILE))
 OBJ = $(patsubst %.c,%.o, ${SRC_FILE})
 CFILE = $(patsubst %.o,%.c, ${OBJ})
 
-LIB_STATIC = ${ALIOT_SDK_LIB_NAME}.a
+LIB_STATIC = ${SDK_LIB_NAME}.a
 
-CC = $(PLATFORM_CC)
-AR = $(PLATFORM_AR)
 
-ifeq ($(MQTT_CHANNEL_ENCRYPT_SSL), yes)
-CFLAGS = -DALIOT_MQTT_CHANNEL_ENCRYPT_SSL
+CFLAGS = -Wall -g ${INCLUD_PATH}
+
+ifeq ($(MQTT_TCP), yes)
+CFLAGS += -DALIOT_MQTT_TCP
 endif
-CFLAGS +=  -Wall -g ${INCLUD_PATH} 
+
+ifeq ($(BUILD_TYPE), debug)
+CFLAGS += -DALIOT_DEBUG
+endif
+
 ARFLAGS = rcs
 
 

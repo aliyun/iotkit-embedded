@@ -9,7 +9,7 @@
 //SD, device system
 #define PRODUCT_KEY_LEN     (11)
 #define DEVICE_NAME_LEN     (32)
-#define DEVICE_ID_LEN       (20)
+#define DEVICE_ID_LEN       (64)
 #define DEVICE_SECRET_LEN   (32)
 
 #define MODULE_VENDOR_ID    (32) //PID
@@ -43,10 +43,9 @@ typedef struct ALIYUN_IOT_USER_INFO {
 int aliot_device_init(void);
 
 int32_t aliot_set_device_info(
-            char *product_key,
-            char *device_name,
-            char *device_id,
-            char *device_secret);
+            const char *product_key,
+            const char *device_name,
+            const char *device_secret);
 
 aliot_device_info_pt aliot_get_device_info(void);
 
