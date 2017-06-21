@@ -6,7 +6,7 @@
 #include "aliot_platform.h"
 
 typedef struct {
-    long time;
+    uint32_t time;
 } aliot_time_t;
 
 

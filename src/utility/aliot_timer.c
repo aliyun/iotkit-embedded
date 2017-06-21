@@ -37,11 +37,9 @@ uint32_t aliot_time_left(aliot_time_t *end)
 
 uint32_t aliot_time_is_expired(aliot_time_t *timer)
 {
-    uint32_t cur_time = 0;
-    cur_time = aliot_platform_time_get_ms();
+    uint32_t cur_time = aliot_platform_time_get_ms();
 
-    if ((timer->time <= cur_time)
-          && ((cur_time - timer->time) < 0x80000000)) //hanle overflow
+    if ((cur_time - timer->time) < 0x80000000) //hanle overflow
     {
         return 1;
     } else {
