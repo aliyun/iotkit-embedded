@@ -6,6 +6,7 @@
 #include <stdarg.h>
 
 #include "aliot_platform.h"
+#include "aliot_log.h"
 #include "aliot_jsonparser.h"
 
 
@@ -238,11 +239,14 @@ const char *json_get_value_by_fullname(const char *p_cJsonStr, int iStrLen, cons
 {
     const char *value = NULL, *delim = NULL;
     int value_len = -1, value_type = -1, key_len = -1;
-
     const char *key_iter, *src_iter;
     char *key_next;
-
     size_t key_total_len = strlen(p_cName) + 1;
+
+    key_next = aliot_platform_malloc(key_total_len);
+    if (NULL == key_next) {
+        ALIOT_LOG_ERROR("allocate memory failed");
+    }
 
     iStrLen = iStrLen;
 
@@ -251,7 +255,6 @@ const char *json_get_value_by_fullname(const char *p_cJsonStr, int iStrLen, cons
     do {
         if ((delim = strchr(key_iter, '.')) != NULL) {
             key_len = delim - key_iter;
-            key_next = aliot_platform_malloc(key_total_len);
             strncpy(key_next, key_iter, key_len);
             key_next[key_len] = '\0';
             value = json_get_value_by_name(src_iter, strlen(src_iter), key_next, &value_len, 0);
@@ -263,6 +266,8 @@ const char *json_get_value_by_fullname(const char *p_cJsonStr, int iStrLen, cons
             key_iter = delim + 1;
         }
     } while (delim);
+
+    aliot_platform_free(key_next);
 
     value = json_get_value_by_name(src_iter, strlen(src_iter), key_iter, &value_len, &value_type);
     if (NULL == value) {

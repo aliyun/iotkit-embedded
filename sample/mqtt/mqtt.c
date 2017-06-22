@@ -220,7 +220,7 @@ int mqtt_client(void)
 
         //aliot_platform_msleep(1000);
 
-    } while (ch != 'Q' && ch != 'q');
+    } while (cnt < 100);
 
     aliot_mqtt_unsubscribe(pclient, TOPIC_DATA);
 

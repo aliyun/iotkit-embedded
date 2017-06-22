@@ -396,7 +396,13 @@ int aliot_platform_ssl_write(uintptr_t handle, const char *buf, int len, int tim
 
 int32_t aliot_platform_ssl_destroy(uintptr_t handle)
 {
+    if (NULL == handle) {
+        SSL_LOG("handle is NULL");
+        return 0;
+    }
+    
     aliot_network_ssl_disconnect((TLSDataParams_t *)handle);
+    free(handle);
     return 0;
 }
 
