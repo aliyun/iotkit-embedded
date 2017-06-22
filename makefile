@@ -8,7 +8,7 @@ $(info prefix is: $(prefix))
 endif
 
 
-all: libsdk libplatform sample
+all: libsdk libplatform libext sample
 	$(info make all)
 
 libsdk:
@@ -36,6 +36,10 @@ libplatform:
 		SSL=$(PLATFORM_SSL) \
 		PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME) \
 		BUILD_TYPE=$(BUILD_TYPE)
+
+libext:
+	$(info make external library)
+	make -C ./libs/ CC=$(PLATFORM_CC) AR=$(PLATFORM_AR)
 	
 sample:
 	$(info make mqtt sample)
@@ -74,7 +78,8 @@ clean:
 	make -C ./src/ clean 
 	$(info make clean platform library)	
 	make -C ./src/platform clean -e OS=$(PLATFORM_OS) NETWORK=$(PLATFORM_NETWORK) SSL=$(SSL) PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME)
-
+	$(info make clean external library)	
+	make -C ./libs/ clean 
 	$(info make clean mqtt sample)
 	make -C ./sample/mqtt clean
 	$(info make clean device shadow sample)
