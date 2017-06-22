@@ -1,28 +1,21 @@
-/*
- * aliot_debug.h
- *
- *  Created on: May 16, 2017
- *      Author: qibiao.wqb
- */
 
-#ifndef COMMON_INC_ALIYUN_IOT_COMMON_DEBUG_H_
-#define COMMON_INC_ALIYUN_IOT_COMMON_DEBUG_H_
+#ifndef _ALIOT_COMMON_DEBUG_H_
+#define _ALIOT_COMMON_DEBUG_H_
 
 #include "aliot_log.h"
 
-#define DEBUG
-
-#ifdef DEBUG
+#ifdef ALIOT_DEBUG
 
 #define DEBUG_PUTS(fmt, args ...) \
     do{ \
-        printf(fmt, ## args); \
+        aliot_platform_printf(fmt, ## args); \
     }while(0)
 
 #define ASSERT_FAILED_DO() \
     do{ \
         while(1){\
-            ; \
+            aliot_platform_msleep(1000); \
+            aliot_platform_printf("assert failed\r\n"); \
         }\
     }while(0)
 
@@ -30,7 +23,10 @@
     do{ \
         if (!(expr)) { \
             DEBUG_PUTS("###ASSERT FAILED###, file=%s, line=%d\r\n", __FILE__, __LINE__); \
-            DEBUG_PUTS(fmt, ## args); \
+            if (NULL != fmt) { \
+                DEBUG_PUTS(fmt, ## args); \
+                aliot_platform_printf("\r\n"); \
+            } \
             ASSERT_FAILED_DO(); \
         } \
     }while(0)
@@ -46,4 +42,4 @@
 #endif
 
 
-#endif /* COMMON_INC_ALIYUN_IOT_COMMON_DEBUG_H_ */
+#endif /* _ALIOT_COMMON_DEBUG_H_ */

@@ -227,7 +227,7 @@ aliot_err_t ads_common_convert_string2data(
 void ads_common_update_time(aliot_shadow_pt pshadow, uint32_t new_timestamp)
 {
     aliot_platform_mutex_lock(pshadow->mutex);
-    pshadow->inner_data.time.base_system_time = aliot_time_get_s();
+    pshadow->inner_data.time.base_system_time = aliot_time_get_ms();
     pshadow->inner_data.time.epoch_time = new_timestamp;
     aliot_platform_mutex_unlock(pshadow->mutex);
 

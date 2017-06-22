@@ -57,7 +57,7 @@ typedef struct {
 
 
 typedef struct {
-    uint32_t base_system_time; //in second
+    uint32_t base_system_time; //in millisecond
     uint32_t epoch_time;
 } aliot_shadow_time_t, *aliot_shadow_time_pt;
 
