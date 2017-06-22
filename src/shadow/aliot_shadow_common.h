@@ -1,10 +1,12 @@
 
-#ifndef _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
-#define _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_
+#ifndef _SHADOW_ALIOT_SHADOW_COMMON_H_
+#define _SHADOW_ALIOT_SHADOW_COMMON_H_
 
 
 #include "aliot_platform.h"
 #include "aliot_error.h"
+#include "aliot_timer.h"
+#include "aliot_list.h"
 #include "aliot_shadow.h"
 #include "aliot_shadow_config.h"
 
@@ -83,4 +85,4 @@ uint32_t ads_common_get_version(aliot_shadow_pt pshadow);
 
 uint32_t ads_common_get_tokennum(aliot_shadow_pt pshadow);
 
-#endif /* _SHADOW_ALIYUN_IOT_SHADOW_COMMON_H_ */
+#endif /* _SHADOW_ALIOT_SHADOW_COMMON_H_ */

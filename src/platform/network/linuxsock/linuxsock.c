@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <netinet/tcp.h>
@@ -155,7 +156,7 @@ int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, ui
                     continue;
                 }
             } else if (0 == ret) {
-                PLATFORM_LINUXSOCK_LOG("select-write timeout %d", fd);
+                PLATFORM_LINUXSOCK_LOG("select-write timeout %lu", fd);
                 break;
             } else {
                 if (EINTR == errno) {

@@ -72,7 +72,7 @@ static aliot_err_t aliot_shadow_delta_update_attr_value(
 //handle response ACK of UPDATE
 void aliot_shadow_delta_entry(
             aliot_shadow_pt pshadow,
-            char *json_doc,
+            const char *json_doc,
             size_t json_doc_len)
 {
     const char *key_metadata;

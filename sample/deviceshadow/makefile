@@ -24,7 +24,7 @@ INCLUD_PATH += -I./../../src/platform/
 TARGET = deviceshadow
 
 all:
-	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) deviceshadow.c ../../libs/$(LIB_ALIOT_PLATFORM) ../../libs/$(LIB_ALIOT_SDK) $(LDFLAGS) 
+	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) deviceshadow.c ../../build_out/$(LIB_ALIOT_PLATFORM) ../../build_out/$(LIB_ALIOT_SDK) $(LDFLAGS) 
 	
 clean:
 	 rm -rf $(TARGET)

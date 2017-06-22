@@ -13,7 +13,7 @@ bool aliot_shadow_delta_check_existence(aliot_shadow_pt pshadow, const char *att
 
 void aliot_shadow_delta_entry(
             aliot_shadow_pt pshadow,
-            char *json_doc,
+            const char *json_doc,
             size_t json_doc_len);
 
 aliot_err_t aliot_shadow_delta_register_attr(

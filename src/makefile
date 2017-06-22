@@ -43,7 +43,7 @@ all: ${LIB_STATIC}
 
 ${LIB_STATIC}: ${OBJ}
 	$(AR) $(ARFLAGS) $@ $(OBJ)
-	cp ${LIB_STATIC} ../libs/
+	cp ${LIB_STATIC} ../build_out/
 
 ${OBJ}:%.o:%.c
 	$(CC) $(CFLAGS) -c $^ -o $@

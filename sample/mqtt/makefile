@@ -22,7 +22,7 @@ INCLUD_PATH += -I./../../src/platform/
 TARGET = mqtt
 
 all:
-	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) mqtt.c ../../libs/$(LIB_ALIOT_PLATFORM) ../../libs/$(LIB_ALIOT_SDK) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(INCLUD_PATH) -o $(TARGET) mqtt.c ../../build_out/$(LIB_ALIOT_PLATFORM) ../../build_out/$(LIB_ALIOT_SDK) $(LDFLAGS)
 	
 clean:
 	 rm -rf $(TARGET)

@@ -89,7 +89,7 @@ void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow)
 //handle response ACK of UPDATE
 void ads_update_wait_ack_list_handle_response(
             aliot_shadow_pt pshadow,
-            char *json_doc,
+            const char *json_doc,
             size_t json_doc_len)
 {
     int data_len, payload_len, i;

@@ -4,13 +4,8 @@
 
 #include "aliot_platform.h"
 #include "aliot_error.h"
-#include "aliot_list.h"
-#include "aliot_timer.h"
-
 #include "aliot_mqtt_client.h"
-#include "aliot_auth.h"
 
-#include "aliot_shadow_config.h"
 
 /*
  * IMPORTANT NOTE:

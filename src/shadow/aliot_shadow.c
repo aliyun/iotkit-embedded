@@ -1,5 +1,6 @@
 #include "aliot_platform.h"
 
+#include "aliot_list.h"
 #include "aliot_debug.h"
 #include "aliot_error.h"
 #include "aliot_jsonparser.h"

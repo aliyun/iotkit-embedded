@@ -3,6 +3,9 @@
 #include "aliot_log.h"
 #include "aliot_debug.h"
 #include "aliot_timer.h"
+#include "aliot_list.h"
+#include "aliot_device.h"
+#include "aliot_mqtt_client.h"
 
 #include "aliot_shadow.h"
 #include "aliot_shadow_common.h"
