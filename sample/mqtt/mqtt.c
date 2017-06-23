@@ -8,7 +8,6 @@
 //The product and device information from IOT console
 #define PRODUCT_KEY         "6RcIOUafDOm"
 #define DEVICE_NAME         "sh_pre_sample_mqtt"
-#define DEVICE_ID           "SWJgsyw28undlXwyFK4J"
 #define DEVICE_SECRET       "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
 
 

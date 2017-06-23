@@ -20,9 +20,8 @@
 //#define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
 
 #define PRODUCT_KEY         "6RcIOUafDOm"
-#define DEVICE_NAME         "test"
-#define DEVICE_ID           "IdeY7PvLVptnqcBgiBo4"
-#define DEVICE_SECRET       "kN7SHmCuILKHSVaYRoSETu77O8Ab23pd"
+#define DEVICE_NAME         "test2"
+#define DEVICE_SECRET       "k6wFeoqsUStokBSY1We2GEOgTbNvnpyd"
 
 #define MSG_LEN_MAX         (1024)
 
