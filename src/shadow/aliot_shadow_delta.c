@@ -11,19 +11,20 @@ static aliot_err_t aliot_shadow_delta_response(aliot_shadow_pt pshadow)
 #define ALIOT_SHADOW_DELTA_RESPONSE_LEN     (256)
 
     aliot_err_t rc;
+    void *buf;
     format_data_t format;
 
-    format.buf = aliot_platform_malloc(ALIOT_SHADOW_DELTA_RESPONSE_LEN);
-    if (NULL == format.buf) {
+    buf = aliot_platform_malloc(ALIOT_SHADOW_DELTA_RESPONSE_LEN);
+    if (NULL == buf) {
         return ERROR_NO_MEM;
     }
 
-    ads_common_format_init(pshadow, &format, format.buf, ALIOT_SHADOW_DELTA_RESPONSE_LEN, "update", "\"state\":{\"desired\":\"null\"");
+    ads_common_format_init(pshadow, &format, buf, ALIOT_SHADOW_DELTA_RESPONSE_LEN, "update", "\"state\":{\"desired\":\"null\"");
     ads_common_format_finalize(pshadow, &format, "}");
 
     rc = ads_common_publish2update(pshadow, format.buf, format.offset);
 
-    aliot_platform_free(format.buf);
+    aliot_platform_free(buf);
 
     return (rc >= 0) ? SUCCESS_RETURN : rc;
 }

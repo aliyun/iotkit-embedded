@@ -108,6 +108,11 @@ int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len,
     *port = 0;
 
     path_ptr = strchr(host_ptr, '/');
+    if (NULL == path_ptr) {
+        ALIOT_LOG_ERROR("invalid path");
+        return -1;
+    }
+    
     if (host_len == 0) {
         host_len = path_ptr - host_ptr;
     }

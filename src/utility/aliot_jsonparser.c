@@ -246,6 +246,7 @@ const char *json_get_value_by_fullname(const char *p_cJsonStr, int iStrLen, cons
     key_next = aliot_platform_malloc(key_total_len);
     if (NULL == key_next) {
         ALIOT_LOG_ERROR("allocate memory failed");
+        return NULL;
     }
 
     iStrLen = iStrLen;

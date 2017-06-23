@@ -527,9 +527,15 @@ static int amc_mask_pubInfo_from(amc_client_t *c, uint16_t msgId)
 {
     aliot_platform_mutex_lock(c->lock_list_pub);
     if (c->list_pub_wait_ack->len) {
-        list_iterator_t *iter = list_iterator_new(c->list_pub_wait_ack, LIST_TAIL);
+        list_iterator_t *iter;
         list_node_t *node = NULL;
         amc_pub_info_t *repubInfo = NULL;
+
+        if (NULL == (iter = list_iterator_new(c->list_pub_wait_ack, LIST_TAIL))) {
+            aliot_platform_mutex_unlock(c->lock_list_pub);
+            return SUCCESS_RETURN;
+        }
+
 
         for (;;) {
             node = list_iterator_next(iter);
@@ -656,9 +662,14 @@ static int amc_mask_subInfo_from(amc_client_t *c, unsigned int msgId, amc_topic_
 {
     aliot_platform_mutex_lock(c->lock_list_sub);
     if (c->list_sub_wait_ack->len) {
-        list_iterator_t *iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL);
+        list_iterator_t *iter; 
         list_node_t *node = NULL;
         amc_subsribe_info_t *subInfo = NULL;
+
+        if (NULL == (iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL))){
+            aliot_platform_mutex_lock(c->lock_list_sub);
+            return SUCCESS_RETURN;
+        }
 
         for (;;) {
             node = list_iterator_next(iter);
@@ -1542,11 +1553,17 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
             break;
         }
 
-        list_iterator_t *iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL);
+        list_iterator_t *iter;
         list_node_t *node = NULL;
         list_node_t *tempNode = NULL;
         uint16_t packet_id = 0;
         enum msgTypes msg_type;
+
+        if (NULL == (iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL))) {
+            ALIOT_LOG_ERROR("new list failed");
+            aliot_platform_mutex_lock(pClient->lock_list_sub);
+            return SUCCESS_RETURN;
+        }
 
         for (;;) {
             node = list_iterator_next(iter);
@@ -1697,9 +1714,14 @@ static int MQTTPubInfoProc(amc_client_t *pClient)
             break;
         }
 
-        list_iterator_t *iter = list_iterator_new(pClient->list_pub_wait_ack, LIST_TAIL);
+        list_iterator_t *iter;
         list_node_t *node = NULL;
         list_node_t *tempNode = NULL;
+
+        if (NULL == (iter = list_iterator_new(pClient->list_pub_wait_ack, LIST_TAIL))){
+            ALIOT_LOG_ERROR("new list failed");
+            break; 
+        }  
 
         for (;;) {
             node = list_iterator_next(iter);

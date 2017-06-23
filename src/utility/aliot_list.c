@@ -138,8 +138,12 @@ list_node_t *list_lpush(list_t *self, list_node_t *node)
  */
 list_node_t *list_find(list_t *self, void *val)
 {
-    list_iterator_t *it = list_iterator_new(self, LIST_HEAD);
+    list_iterator_t *it;
     list_node_t *node;
+
+    if (NULL == (it = list_iterator_new(self, LIST_HEAD))) {
+        return NULL; 
+    }
 
     while ((node = list_iterator_next(it))) {
         if (self->match) {
@@ -172,8 +176,14 @@ list_node_t *list_at(list_t *self, int index)
     }
 
     if ((unsigned) index < self->len) {
-        list_iterator_t *it = list_iterator_new(self, direction);
-        list_node_t *node = list_iterator_next(it);
+        list_iterator_t *it;
+        list_node_t *node;
+ 
+        if (NULL == (it = list_iterator_new(self, direction))) {
+            return NULL;
+        }
+        node = list_iterator_next(it);
+
         while (index--) {
             node = list_iterator_next(it);
         }

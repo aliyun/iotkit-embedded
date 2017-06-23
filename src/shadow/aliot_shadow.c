@@ -79,9 +79,7 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
                                    &val_type);
     if (NULL == pname) {
         ALIOT_LOG_ERROR("Invalid JSON document: not 'method' key");
-    }
-
-    if ((strlen("control") == val_len) && strcmp(pname, "control")) {
+    } else if ((strlen("control") == val_len) && strcmp(pname, "control")) {
         //call delta handle function
         ALIOT_LOG_DEBUG("receive 'control' method");
 
@@ -244,18 +242,19 @@ aliot_err_t aliot_shadow_sync(void *handle)
 #define SHADOW_SYNC_MSG_SIZE      (256)
 
     aliot_err_t ret;
+    void *buf;
     format_data_t format;
     aliot_shadow_pt pshadow = (aliot_shadow_pt)handle;
 
     ALIOT_LOG_INFO("Device Shadow sync start.");
 
-    format.buf = aliot_platform_malloc(SHADOW_SYNC_MSG_SIZE);
-    if (NULL == format.buf) {
+    buf = aliot_platform_malloc(SHADOW_SYNC_MSG_SIZE);
+    if (NULL == buf) {
         ALIOT_LOG_ERROR("Device Shadow sync failed");
         return ERROR_NO_MEM;
     }
 
-    ads_common_format_init(pshadow, &format, format.buf, SHADOW_SYNC_MSG_SIZE, "get", NULL);
+    ads_common_format_init(pshadow, &format, buf, SHADOW_SYNC_MSG_SIZE, "get", NULL);
     ads_common_format_finalize(pshadow, &format, NULL);
 
     ret = aliot_shadow_update(pshadow, format.buf, format.offset, 10);
@@ -265,7 +264,7 @@ aliot_err_t aliot_shadow_sync(void *handle)
         ALIOT_LOG_INFO("Device Shadow sync failed.");
     }
 
-    aliot_platform_free(format.buf);
+    aliot_platform_free(buf);
     aliot_platform_msleep(1000);
 
     return ret;
@@ -390,6 +389,7 @@ aliot_err_t aliot_shadow_delete_attribute(void *handle, aliot_shadow_attr_pt pat
 #define SHADOW_DELETE_MSG_SIZE      (256)
 
     aliot_err_t ret;
+    void *buf;
     format_data_t format;
     aliot_shadow_pt pshadow = (aliot_shadow_pt) handle;
 
@@ -397,22 +397,22 @@ aliot_err_t aliot_shadow_delete_attribute(void *handle, aliot_shadow_attr_pt pat
         return ERROR_SHADOW_ATTR_NO_EXIST;
     }
 
-    format.buf = aliot_platform_malloc(SHADOW_DELETE_MSG_SIZE);
-    if (NULL == format.buf) {
+    buf = aliot_platform_malloc(SHADOW_DELETE_MSG_SIZE);
+    if (NULL == buf) {
         return ERROR_NO_MEM;
     }
 
-    ads_common_format_init(pshadow, &format, format.buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"reported\":{");
+    ads_common_format_init(pshadow, &format, buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"reported\":{");
     ads_common_format_add(pshadow, &format, pattr->pattr_name, NULL, ALIOT_SHADOW_NULL);
     ads_common_format_finalize(pshadow, &format, "}}");
 
     ret = aliot_shadow_update(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN != ret) {
-        aliot_platform_free(format.buf);
+        aliot_platform_free(buf);
         return ret;
     }
 
-    aliot_platform_free(format.buf);
+    aliot_platform_free(buf);
 
     return ads_common_remove_attr(pshadow, pattr);
 
