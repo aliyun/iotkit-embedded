@@ -1,5 +1,5 @@
-#ifndef ALIYUN_IOT_COMMON_LIST_H
-#define ALIYUN_IOT_COMMON_LIST_H
+#ifndef _ALIOT_COMMON_LIST_H
+#define _ALIOT_COMMON_LIST_H
 
 #include <stdlib.h>
 

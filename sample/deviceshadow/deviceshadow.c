@@ -86,7 +86,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
     shadaw_para.mqtt.request_timeout_ms = 2000;
     shadaw_para.mqtt.clean_session = 0;
-    shadaw_para.mqtt.keepalive_interval = 120;
+    shadaw_para.mqtt.keepalive_interval_ms = 60000;
     shadaw_para.mqtt.pread_buf = msg_readbuf;
     shadaw_para.mqtt.read_buf_size = MSG_LEN_MAX;
     shadaw_para.mqtt.pwrite_buf = msg_buf;

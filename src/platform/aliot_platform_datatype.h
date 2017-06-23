@@ -1,6 +1,6 @@
 
-#ifndef ALIYUN_IOT_COMMON_DATATYPE_H
-#define ALIYUN_IOT_COMMON_DATATYPE_H
+#ifndef _ALIOT_COMMON_DATATYPE_H_
+#define _ALIOT_COMMON_DATATYPE_H_
 
 #include <inttypes.h>
 #include <stdint.h>

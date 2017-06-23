@@ -1,6 +1,6 @@
 
-#ifndef _MQTT_ALIYUN_MQTT_DEVICE_H_
-#define _MQTT_ALIYUN_MQTT_DEVICE_H_
+#ifndef _ALIOT_DEVICE_H_
+#define _ALIOT_DEVICE_H_
 
 #include "aliot_platform.h"
 
@@ -21,7 +21,7 @@
 #define PASSWORD_LEN        (32)
 
 
-typedef struct IOT_DEVICE_INFO {
+typedef struct {
     char product_key[PRODUCT_KEY_LEN + 1];
     char device_name[DEVICE_NAME_LEN + 1];
     char device_id[DEVICE_ID_LEN + 1];
@@ -30,7 +30,7 @@ typedef struct IOT_DEVICE_INFO {
 } aliot_device_info_t, *aliot_device_info_pt;
 
 
-typedef struct ALIYUN_IOT_USER_INFO {
+typedef struct {
     uint16_t port;
     char host_name[HOST_ADDRESS_LEN + 1];
     char client_id[CLIENT_ID_LEN + 1];
@@ -52,4 +52,4 @@ aliot_device_info_pt aliot_get_device_info(void);
 aliot_user_info_pt aliot_get_user_info(void);
 
 
-#endif /* _MQTT_ALIYUN_MQTT_DEVICE_H_ */
+#endif

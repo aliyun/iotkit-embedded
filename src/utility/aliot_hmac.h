@@ -1,11 +1,8 @@
-#ifndef ALIYUN_IOT_COMMON_HMAC_H
-#define ALIYUN_IOT_COMMON_HMAC_H
+
+#ifndef _ALIOT_COMMON_HMAC_H_
+#define _ALIOT_COMMON_HMAC_H_
 
 #include <string.h>
-
-//#include "md5.h"
-//#include "sha1.h"
-
 
 void aliot_hmac_md5(const char *msg, int msg_len, char *digest, const char *key, int key_len);
 

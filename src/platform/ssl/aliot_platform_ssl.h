@@ -3,8 +3,6 @@
 #ifndef _ALIOT_PLATFORM_SSL_H_
 #define _ALIOT_PLATFORM_SSL_H_
 
-#include "aliot_platform_datatype.h"
-
 
 /**
  * @brief Establish a SSL connection.

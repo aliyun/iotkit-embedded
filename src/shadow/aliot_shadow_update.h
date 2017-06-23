@@ -1,6 +1,6 @@
 
-#ifndef _MQTT_SHADOW_ALIYUN_IOT_SHADOW_UPDATE_H_
-#define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_UPDATE_H_
+#ifndef _ALIOT_SHADOW_UPDATE_H_
+#define _ALIOT_SHADOW_UPDATE_H_
 
 #include "aliot_platform.h"
 #include "aliot_error.h"
@@ -27,4 +27,4 @@ void ads_update_wait_ack_list_handle_response(
             size_t json_doc_len);
 
 
-#endif /* _MQTT_SHADOW_ALIYUN_IOT_SHADOW_UPDATE_H_ */
+#endif /* _ALIOT_SHADOW_UPDATE_H_ */

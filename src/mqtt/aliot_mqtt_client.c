@@ -15,42 +15,38 @@
 
 //amc, aliot MQTT client
 
-#define AMC_MQTT_VERSION        (4)
-#define TOPIC_NAME_MAX_LEN      (64)
+/* MQTT client version number */
+#define AMC_MQTT_VERSION                    (4)
 
-#define MAX_PACKET_ID           (65535)
-#define MAX_MESSAGE_HANDLERS    (5)
-#define MQTT_TOPIC_LEN_MAX      (128)
-#define MQTT_REPUB_NUM_MAX      (20)
-#define MQTT_SUB_NUM_MAX        (10)
+/* maximum length of topic name in byte */
+#define AMC_TOPIC_NAME_MAX_LEN              (64)
 
-#define PINGRSP_TIMEOUT_MS      (5000)
+/* maximum MQTT packet-id */
+#define AMC_PACKET_ID_MAX                   (65535)
 
-/*******************************************
- * MQTT自动重连的最小周期时间，单位ms
-*******************************************/
-#define ALIOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL  (1000)
+/* maximum number of successful subscribe */
+#define AMC_SUB_HANDLER_NUM                 (10)
 
-/*******************************************
- * MQTT自动重连的最大周期时间，单位ms
-*******************************************/
-#define ALIOT_MQTT_MAX_RECONNECT_WAIT_INTERVAL  (60000)
+/* maximum republish elements in list */
+#define AMC_REPUB_NUM_MAX                   (20)
 
+/* maximum number of simultaneously invoke subscribe */
+#define AMC_SUB_NUM_MAX                     (10)
 
-/*******************************************
- * MQTT消息发送最小超时时间，单位ms
-*******************************************/
-#define ALIOT_MQTT_MIN_COMMAND_TIMEOUT          (500)
+/* Minimum interval of MQTT reconnect in millisecond */
+#define AMC_RECONNECT_INTERVAL_MIN_MS       (1000)
 
-/*******************************************
- * MQTT消息发送最大超时时间，单位ms
-*******************************************/
-#define ALIOT_MQTT_MAX_COMMAND_TIMEOUT          (5000)
+/* Maximum interval of MQTT reconnect in millisecond */
+#define AMC_RECONNECT_INTERVAL_MAX_MS       (60000)
 
-/*******************************************
- * MQTT消息发送最大超时时间，单位ms
-*******************************************/
-#define ALIOT_MQTT_DEFAULT_COMMAND_TIMEOUT      (2000)
+/* Minimum timeout interval of MQTT request in millisecond */
+#define AMC_REQUEST_TIMEOUT_MIN_MS          (500)
+
+/* Maximum timeout interval of MQTT request in millisecond */
+#define AMC_REQUEST_TIMEOUT_MAX_MS          (5000)
+
+/* Default timeout interval of MQTT request in millisecond */
+#define AMC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
 
 
 typedef enum {
@@ -63,108 +59,82 @@ typedef enum {
 } amc_connect_ack_code_t;
 
 
-/*******************************************
- * mqtt client状态类型
-*******************************************/
+/* State of MQTT client */
 typedef enum {
-    AMC_STATE_INVALID = 0,                    //client无效状态
-    AMC_STATE_INITIALIZED = 1,                //client初始化状态
-    AMC_STATE_CONNECTED = 2,                  //client已经连接状态
-    AMC_STATE_DISCONNECTED = 3,               //client连接丢失状态
-    AMC_STATE_DISCONNECTED_RECONNECTING = 4,  //client正在重连状态
+    AMC_STATE_INVALID = 0,                    //MQTT in invalid state
+    AMC_STATE_INITIALIZED = 1,                //MQTT in initializing state
+    AMC_STATE_CONNECTED = 2,                  //MQTT in connected state
+    AMC_STATE_DISCONNECTED = 3,               //MQTT in disconnected state
+    AMC_STATE_DISCONNECTED_RECONNECTING = 4,  //MQTT in reconnecting state
 } amc_state_t;
 
 
-/*******************************************
- * 网络事件类型（用于网络底层事件回调）
-*******************************************/
-typedef enum {
-    AMC_NETWORK_CONNECTED = 0,          //网络连接
-    AMC_NETWORK_DISCONNECTED = 1,       //网络失去连接
-    AMC_NETWORK_LINK_LOSS = 2,          //网络连接丢失
-    AMC_NETWORK_MAX_NUMBER              //网络连接最大数
-} amc_network_state_t;
-
-
-/*******************************************
- * 节点状态标记
-*******************************************/
 typedef enum MQTT_NODE_STATE {
-    AMC_NODE_NORMANL_STATE = 0,
-    AMC_NODE_INVALID_STATE,
+    AMC_NODE_STATE_NORMANL = 0,
+    AMC_NODE_STATE_INVALID,
 } amc_node_t;
 
 
-/*******************************************
- * 订阅主题对应的消息处理结构
-*******************************************/
+/* Handle structure of subscribed topic */
 typedef struct {
-    const char *topicFilter;
+    const char *topic_filter;
     aliot_mqtt_event_handle_t handle;
 } amc_topic_handle_t;
 
 
-/*******************************************
- *         sub消息的信息记录
-*******************************************/
+/* Information structure of subscribed topic */
 typedef struct SUBSCRIBE_INFO {
-    enum msgTypes     type;                               //sub消息类型（sub or unsub）
-    unsigned int      msgId;                              //sub报文标识符
-    aliot_time_t      subTime;                            //sub消息时间
-    amc_node_t        nodeState;                          //node状态
-    amc_topic_handle_t   handler;
-    int               len;                                //sub消息长度
-    unsigned char     *buf;                               //sub消息体
+    enum msgTypes       type;           //type, (sub or unsub)
+    uint16_t            msg_id;         //packet id of subscribe(unsubcribe)
+    aliot_time_t        sub_start_time; //start time of subscribe request
+    amc_node_t          node_state;     //state of this node
+    amc_topic_handle_t  handler;        //handle of topic subscribed(unsubcribed)
+    uint16_t            len;            //length of subscribe message
+    unsigned char       *buf;           //subscribe message
 }amc_subsribe_info_t, *amc_subsribe_info_pt;
 
 
+/* Information structure of published topic */
 typedef struct REPUBLISH_INFO {
-    aliot_time_t      pubTime;      //pub消息的时间
-    amc_node_t        nodeState;    //node状态
-    uint16_t          msgId;        //pub消息的报文标识符
-    uint32_t          len;          //pub消息长度
-    char              *buf;         //pub消息体
+    aliot_time_t      pub_start_time;   //start time of publish request
+    amc_node_t        node_state;       //state of this node
+    uint16_t          msg_id;           //packet id of publish
+    uint32_t          len;              //length of publish message
+    unsigned char    *buf;              //publish message
 } amc_pub_info_t, *amc_pub_info_pt;
 
 
-/*******************************************
- * mqtt client网络重连参数
-*******************************************/
+/* Reconnected parameter of MQTT client */
 typedef struct {
-    aliot_time_t       reconnectDelayTimer;             //重连定时器，判断是否到重连时间
-    bool               isAutoReconnectEnabled;          //自动重连标志
-    uint32_t           currentReconnectWaitInterval;    //网络重连时间周期，单位ms
+    aliot_time_t       reconnect_next_time;         //the next time point of reconnect
+    uint32_t           reconnect_time_interval_ms;  //time interval of this reconnect
 } amc_reconnect_param_t;
 
 
-/*******************************************
- * MQTT CLIENT数据结构
-*******************************************/
+/* structure of MQTT client */
 typedef struct Client {
-    void *                          lock_generic;                            //MQTT报文标志符锁
-    uint32_t                        next_packetid;                           //MQTT报文标识符
-    uint32_t                        command_timeout_ms;                      //MQTT消息传输超时时间，时间内阻塞传输。单位：毫秒
-    uint32_t                        buf_size_send;                           //MQTT消息发送buffer的大小
-    uint32_t                        buf_size_read;                           //MQTT消息接收buffer的大小
-    char                            *buf_send;                               //MQTT消息发送buffer
-    char                            *buf_read;                               //MQTT消息接收buffer
-    amc_topic_handle_t              messageHandlers[MAX_MESSAGE_HANDLERS];   //订阅主题对应的消息处理结构数组
-    aliot_network_pt                ipstack;                                 //MQTT使用的网络参数
-    aliot_time_t                    ping_timer;                              //MQTT保活定时器，时间未到不做保活包发送
-    int                             pingMark;                                //ping消息发送标志
-    void *                          pingMarkLock;                            //ping消息发送标志锁
-    amc_state_t                     clientState;                             //MQTT client状态
-    void *                          stateLock;                               //MQTT client状态锁
-    amc_reconnect_param_t           reconnect_params;                         //MQTT client重连参数
-    MQTTPacket_connectData          connectdata;                             //MQTT重连报文数据
-    list_t                          *pubInfoList;                            //publish消息信息链表
-    list_t                          *subInfoList;                            //subscribe、unsubscribe消息信息链表
-    void *                          pubInfoLock;                             //publish消息信息数组锁
-    void *                          subInfoLock;                             //subscribe消息信息数组锁
-    void *                          writebufLock;                            //MQTT消息发送buffer锁
-
+    void *                          lock_generic;                            //generic lock
+    uint32_t                        packet_id;                               //packet id
+    uint32_t                        request_timeout_ms;                      //request timeout in millisecond
+    uint32_t                        buf_size_send;                           //send buffer size in byte
+    uint32_t                        buf_size_read;                           //read buffer size in byte
+    char                           *buf_send;                                //pointer of send buffer
+    char                           *buf_read;                                //pointer of read buffer
+    amc_topic_handle_t              sub_handle[AMC_SUB_HANDLER_NUM];         //array of subscribe handle
+    aliot_network_pt                ipstack;                                 //network parameter
+    aliot_time_t                    next_ping_time;                          //next ping time
+    int                             ping_mark;                               //flag of ping
+    amc_state_t                     client_state;                            //state of MQTT client
+    amc_reconnect_param_t           reconnect_param;                         //reconnect parameter
+    MQTTPacket_connectData          connect_data;                            //connection parameter
+    list_t                         *list_pub_wait_ack;                       //list of wait publish ack
+    list_t                         *list_sub_wait_ack;                       //list of subscribe or unsubscribe ack
+    void *                          lock_list_pub;                           //lock of list of wait publish ack
+    void *                          lock_list_sub;                           //lock of list of subscribe or unsubscribe ack
+    void *                          lock_write_buf;                          //lock of write
     aliot_mqtt_event_handle_t       handle_event;                            //event handle
 }amc_client_t, *amc_client_pt;
+
 
 static int amc_send_packet(amc_client_t *c, char *buf, int length, aliot_time_t *timer);
 static amc_state_t amc_get_client_state(amc_client_t *pClient);
@@ -180,12 +150,14 @@ static int amc_push_subInfo_to(amc_client_t *c, int len, unsigned short msgId, e
 static int amc_check_handle_is_identical(amc_topic_handle_t *messageHandlers1, amc_topic_handle_t *messageHandler2);
 
 
-typedef enum ALIYUN_IOT_TOPIC_TYPE {
+typedef enum {
     TOPIC_NAME_TYPE = 0,
     TOPIC_FILTER_TYPE
-} ALIYUN_IOT_TOPIC_TYPE_E;
+} amc_topic_type_t;
 
-static int amc_check_rule(char *iterm, ALIYUN_IOT_TOPIC_TYPE_E type)
+
+//check rule whether is valid or not
+static int amc_check_rule(char *iterm, amc_topic_type_t type)
 {
     if (NULL == iterm) {
         ALIOT_LOG_ERROR("iterm is NULL");
@@ -216,32 +188,24 @@ static int amc_check_rule(char *iterm, ALIYUN_IOT_TOPIC_TYPE_E type)
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: aliot_check_topic
-* 描       述: topic校验
-* 输入参数: const char * topicName
-*          ALIYUN_IOT_TOPIC_TYPE_E type 校验类型
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: topicname校验时不允许有+，#符号
-*           topicfilter校验时+，#允许存在但必须是单独的一个路径单元，
-*           且#只能存在于最后一个路径单元
-************************************************************/
-static int amc_check_topic(const char *topicName, ALIYUN_IOT_TOPIC_TYPE_E type)
+
+//Check topic name
+//0, topic name is valid; NOT 0, topic name is invalid
+static int amc_check_topic(const char *topicName, amc_topic_type_t type)
 {
     if (NULL == topicName || '/' != topicName[0]) {
         return FAIL_RETURN;
     }
 
-    if (strlen(topicName) > TOPIC_NAME_MAX_LEN) {
+    if (strlen(topicName) > AMC_TOPIC_NAME_MAX_LEN) {
         ALIOT_LOG_ERROR("len of topicName exceeds 64");
         return FAIL_RETURN;
     }
 
     int mask = 0;
-    char topicString[TOPIC_NAME_MAX_LEN];
-    memset(topicString, 0x0, TOPIC_NAME_MAX_LEN);
-    strncpy(topicString, topicName, TOPIC_NAME_MAX_LEN);
+    char topicString[AMC_TOPIC_NAME_MAX_LEN];
+    memset(topicString, 0x0, AMC_TOPIC_NAME_MAX_LEN);
+    strncpy(topicString, topicName, AMC_TOPIC_NAME_MAX_LEN);
 
     char *delim = "/";
     char *iterm = NULL;
@@ -259,7 +223,7 @@ static int amc_check_topic(const char *topicName, ALIYUN_IOT_TOPIC_TYPE_E type)
             break;
         }
 
-        //当路径中包含#字符，且不是最后一个路径名时报错
+        //The character '#' is not in the last
         if (1 == mask) {
             ALIOT_LOG_ERROR("the character # is error");
             return FAIL_RETURN;
@@ -279,14 +243,7 @@ static int amc_check_topic(const char *topicName, ALIYUN_IOT_TOPIC_TYPE_E type)
 }
 
 
-/***********************************************************
-* 函数名称: MQTTKeepalive
-* 描       述: mqtt保活打包发送接口
-* 输入参数: Client*pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+//Send keepalive packet
 static int MQTTKeepalive(amc_client_t *pClient)
 {
     /* there is no ping outstanding - send ping packet */
@@ -296,68 +253,57 @@ static int MQTTKeepalive(amc_client_t *pClient)
     int len = 0;
     int rc = 0;
 
-    aliot_platform_mutex_lock(pClient->writebufLock);
+    aliot_platform_mutex_lock(pClient->lock_write_buf);
     len = MQTTSerialize_pingreq((unsigned char *)pClient->buf_send, pClient->buf_size_send);
     if (len <= 0) {
-        aliot_platform_mutex_unlock(pClient->writebufLock);
+        aliot_platform_mutex_unlock(pClient->lock_write_buf);
         ALIOT_LOG_ERROR("Serialize ping request is error");
         return MQTT_PING_PACKET_ERROR;
     }
 
     rc = amc_send_packet(pClient, pClient->buf_send, len, &timer);
     if (SUCCESS_RETURN != rc) {
-        aliot_platform_mutex_unlock(pClient->writebufLock);
-        /*ping outstanding , then close socket  unsubcribe topic and handle callback function*/
+        aliot_platform_mutex_unlock(pClient->lock_write_buf);
+        /*ping outstanding, then close socket unsubscribe topic and handle callback function*/
         ALIOT_LOG_ERROR("ping outstanding is error,result = %d", rc);
         return MQTT_NETWORK_ERROR;
     }
-    aliot_platform_mutex_unlock(pClient->writebufLock);
+    aliot_platform_mutex_unlock(pClient->lock_write_buf);
 
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: MQTTConnect
-* 描       述: mqtt连接打包发送接口
-* 输入参数: Client*pClient
-*           MQTTPacket_connectData* pConnectParams
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
+//MQTT send connect packet
 int MQTTConnect(amc_client_t *pClient)
 {
-    MQTTPacket_connectData *pConnectParams = &pClient->connectdata;
+    MQTTPacket_connectData *pConnectParams = &pClient->connect_data;
     aliot_time_t connectTimer;
     int len = 0;
     int rc = 0;
 
-    aliot_platform_mutex_lock(pClient->writebufLock);
+    aliot_platform_mutex_lock(pClient->lock_write_buf);
     if ((len = MQTTSerialize_connect((unsigned char *)pClient->buf_send, pClient->buf_size_send, pConnectParams)) <= 0) {
-        aliot_platform_mutex_unlock(pClient->writebufLock);
+        aliot_platform_mutex_unlock(pClient->lock_write_buf);
         ALIOT_LOG_ERROR("Serialize connect packet failed,len = %d", len);
         return MQTT_CONNECT_PACKET_ERROR;
     }
 
     /* send the connect packet*/
     aliot_time_init(&connectTimer);
-    aliot_time_cutdown(&connectTimer, pClient->command_timeout_ms);
+    aliot_time_cutdown(&connectTimer, pClient->request_timeout_ms);
     if ((rc = amc_send_packet(pClient, pClient->buf_send, len, &connectTimer)) != SUCCESS_RETURN) {
-        aliot_platform_mutex_unlock(pClient->writebufLock);
+        aliot_platform_mutex_unlock(pClient->lock_write_buf);
         ALIOT_LOG_ERROR("send connect packet failed");
         return MQTT_NETWORK_ERROR;
     }
-    aliot_platform_mutex_unlock(pClient->writebufLock);
+    aliot_platform_mutex_unlock(pClient->lock_write_buf);
 
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: MQTTPublish
-* 描       述: mqtt发布消息打包发送接口
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
+//MQTT send publish packet
 int MQTTPublish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt topic_msg)
 
 {
@@ -368,9 +314,9 @@ int MQTTPublish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt
     int len = 0;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->command_timeout_ms);
+    aliot_time_cutdown(&timer, c->request_timeout_ms);
 
-    aliot_platform_mutex_lock(c->writebufLock);
+    aliot_platform_mutex_lock(c->lock_write_buf);
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
                     c->buf_size_send,
                     0,
@@ -381,7 +327,7 @@ int MQTTPublish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt
                     (unsigned char *)topic_msg->payload,
                     topic_msg->payload_len);
     if (len <= 0) {
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         ALIOT_LOG_ERROR("MQTTSerialize_publish is error, len=%d, buf_size=%u, payloadlen=%u",
                         len,
                         c->buf_size_send,
@@ -390,52 +336,45 @@ int MQTTPublish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt
     }
 
     list_node_t *node = NULL;
+
+    //If the QOS >1, push the information into list of wait publish ACK
     if (topic_msg->qos > ALIOT_MQTT_QOS0) {
-        //将pub信息保存到pubInfoList中
+        //push into list
         if (SUCCESS_RETURN != amc_push_pubInfo_to(c, len, topic_msg->packet_id, &node)) {
             ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
-            aliot_platform_mutex_unlock(c->writebufLock);
+            aliot_platform_mutex_unlock(c->lock_write_buf);
             return MQTT_PUSH_TO_LIST_ERROR;
         }
     }
 
-    if (amc_send_packet(c, c->buf_send, len, &timer) != SUCCESS_RETURN) { // send the subscribe packet
+    //send the publish packet
+    if (amc_send_packet(c, c->buf_send, len, &timer) != SUCCESS_RETURN) {
         if (topic_msg->qos > ALIOT_MQTT_QOS0) {
-            //发送失败则删除之前放入pubInfoList链表中的节点
-            aliot_platform_mutex_lock(c->pubInfoLock);
-            list_remove(c->pubInfoList, node);
-            aliot_platform_mutex_unlock(c->pubInfoLock);
+            //If failed, remove from list
+            aliot_platform_mutex_lock(c->lock_list_pub);
+            list_remove(c->list_pub_wait_ack, node);
+            aliot_platform_mutex_unlock(c->lock_list_pub);
         }
 
-        lefttime = aliot_time_left(&timer);
-        ALIOT_LOG_ERROR("sendPacket failed, lefttime = %d!", lefttime);
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliot_platform_mutex_unlock(c->writebufLock);
+    aliot_platform_mutex_unlock(c->lock_write_buf);
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: MQTTPuback
-* 描       述: mqtt发布消息ACK打包发送接口
-* 输入参数: Client*pClient
-*           unsigned int msgId
-*           enum msgTypes type
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
+//MQTT send publish ACK
 static int MQTTPuback(amc_client_t *c, unsigned int msgId, enum msgTypes type)
 {
     int rc = 0;
     int len = 0;
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->command_timeout_ms);
+    aliot_time_cutdown(&timer, c->request_timeout_ms);
 
-    aliot_platform_mutex_lock(c->writebufLock);
+    aliot_platform_mutex_lock(c->lock_write_buf);
     if (type == PUBACK) {
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBACK, 0, msgId);
     } else if (type == PUBREC) {
@@ -443,37 +382,27 @@ static int MQTTPuback(amc_client_t *c, unsigned int msgId, enum msgTypes type)
     } else if (type == PUBREL) {
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREL, 0, msgId);
     } else {
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_PUBLISH_ACK_TYPE_ERROR;
     }
 
     if (len <= 0) {
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_PUBLISH_ACK_PACKET_ERROR;
     }
 
     rc = amc_send_packet(c, c->buf_send, len, &timer);
     if (rc != SUCCESS_RETURN) {
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliot_platform_mutex_unlock(c->writebufLock);
+    aliot_platform_mutex_unlock(c->lock_write_buf);
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: MQTTSubscribe
-* 描       述: mqtt订阅消息打包发送接口
-* 输入参数: Client*pClient
-*           char* topicFilter
-*           enum QoS qos
-*           unsigned int msgId
-*           messageHandler messageHandler
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
+//MQTT send subscribe packet
 static int MQTTSubscribe(amc_client_t *c, const char *topicFilter, aliot_mqtt_qos_t qos, unsigned int msgId,
                 aliot_mqtt_event_handle_func_fpt messageHandler, void *pcontext)
 {
@@ -484,50 +413,49 @@ static int MQTTSubscribe(amc_client_t *c, const char *topicFilter, aliot_mqtt_qo
 
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->command_timeout_ms);
+    aliot_time_cutdown(&timer, c->request_timeout_ms);
 
-    aliot_platform_mutex_lock(c->writebufLock);
+    aliot_platform_mutex_lock(c->lock_write_buf);
 
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic, (int *)&qos);
     if (len <= 0) {
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_SUBSCRIBE_PACKET_ERROR;
     }
 
     amc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};
 
-    //将sub信息保存到subInfoList中
     list_node_t *node = NULL;
+
+
+    /*
+     * NOTE: It prefer to push the element into list and then remove it when send failed,
+     *       because some of extreme cases
+     * */
+
+    //push the element to list of wait subscribe ACK
     if (SUCCESS_RETURN != amc_push_subInfo_to(c, len, msgId, SUBSCRIBE, &handler, &node)) {
         ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
 
     if ((rc = amc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { // send the subscribe packet
-        //发送失败则删除之前放入subInfoList链表中的节点
-        aliot_platform_mutex_lock(c->subInfoLock);
-        list_remove(c->subInfoList, node);
-        aliot_platform_mutex_unlock(c->subInfoLock);
-        aliot_platform_mutex_unlock(c->writebufLock);
+        //If send failed, remove it
+        aliot_platform_mutex_lock(c->lock_list_sub);
+        list_remove(c->list_sub_wait_ack, node);
+        aliot_platform_mutex_unlock(c->lock_list_sub);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         ALIOT_LOG_ERROR("run sendPacket error!");
         return MQTT_NETWORK_ERROR;
     }
 
-    aliot_platform_mutex_unlock(c->writebufLock);
+    aliot_platform_mutex_unlock(c->lock_write_buf);
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: MQTTUnsubscribe
-* 描       述: mqtt取消订阅消息打包发送接口
-* 输入参数: Client*pClient
-*           const char* topicFilter
-*           unsigned int msgId
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
+//MQTT send unsubscribe packet
 static int MQTTUnsubscribe(amc_client_t *c, const char *topicFilter, unsigned int msgId)
 {
     aliot_time_t timer;
@@ -537,83 +465,69 @@ static int MQTTUnsubscribe(amc_client_t *c, const char *topicFilter, unsigned in
     int rc = 0;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->command_timeout_ms);
+    aliot_time_cutdown(&timer, c->request_timeout_ms);
 
-    aliot_platform_mutex_lock(c->writebufLock);
+    aliot_platform_mutex_lock(c->lock_write_buf);
 
     if ((len = MQTTSerialize_unsubscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic)) <= 0) {
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_UNSUBSCRIBE_PACKET_ERROR;
     }
 
     amc_topic_handle_t handler = {topicFilter, {NULL, NULL}};
 
-    //将sub信息保存到subInfoList中
+    //push into list
     list_node_t *node = NULL;
     if (SUCCESS_RETURN != amc_push_subInfo_to(c, len, msgId, UNSUBSCRIBE, &handler, &node)) {
         ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
 
     if ((rc = amc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { // send the subscribe packet
-        //发送失败则删除之前放入subInfoList链表中的节点
-        aliot_platform_mutex_lock(c->subInfoLock);
-        list_remove(c->subInfoList, node);
-        aliot_platform_mutex_unlock(c->subInfoLock);
-        aliot_platform_mutex_unlock(c->writebufLock);
+        //remove from list
+        aliot_platform_mutex_lock(c->lock_list_sub);
+        list_remove(c->list_sub_wait_ack, node);
+        aliot_platform_mutex_unlock(c->lock_list_sub);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliot_platform_mutex_unlock(c->writebufLock);
+    aliot_platform_mutex_unlock(c->lock_write_buf);
 
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: MQTTDisconnect
-* 描       述: mqtt断开连接消息打包发送接口
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: mqtt协议层断开连接
-************************************************************/
+
+//MQTT send disconnect packet
 static int MQTTDisconnect(amc_client_t *c)
 {
     int rc = FAIL_RETURN;
     aliot_time_t timer;     // we might wait for incomplete incoming publishes to complete
 
-    aliot_platform_mutex_lock(c->writebufLock);
+    aliot_platform_mutex_lock(c->lock_write_buf);
     int len = MQTTSerialize_disconnect((unsigned char *)c->buf_send, c->buf_size_send);
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->command_timeout_ms);
+    aliot_time_cutdown(&timer, c->request_timeout_ms);
 
     if (len > 0) {
         rc = amc_send_packet(c, c->buf_send, len, &timer);           // send the disconnect packet
     }
 
-    aliot_platform_mutex_unlock(c->writebufLock);
+    aliot_platform_mutex_unlock(c->lock_write_buf);
 
     return rc;
 }
 
 
-
-/***********************************************************
-* 函数名称: mask_pubInfo_from
-* 描       述: 标记待删除的pubinfo信息
-* 输入参数: Client* c
-*          unsigned int  msgId
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: 删除对应msgId的pubinfo信息，在接收到puback后调用此接口删除对应pub信息
-************************************************************/
-static int amc_mask_pubInfo_from(amc_client_t *c, unsigned int  msgId)
+//remove the list element specified by @msgId from list of wait publish ACK
+//return: 0, success; NOT 0, fail;
+static int amc_mask_pubInfo_from(amc_client_t *c, uint16_t msgId)
 {
-    aliot_platform_mutex_lock(c->pubInfoLock);
-    if (c->pubInfoList->len) {
-        list_iterator_t *iter = list_iterator_new(c->pubInfoList, LIST_TAIL);
+    aliot_platform_mutex_lock(c->lock_list_pub);
+    if (c->list_pub_wait_ack->len) {
+        list_iterator_t *iter = list_iterator_new(c->list_pub_wait_ack, LIST_TAIL);
         list_node_t *node = NULL;
         amc_pub_info_t *repubInfo = NULL;
 
@@ -630,28 +544,21 @@ static int amc_mask_pubInfo_from(amc_client_t *c, unsigned int  msgId)
                 continue;
             }
 
-            if (repubInfo->msgId == msgId) {
-                //标记无效节点
-                repubInfo->nodeState = AMC_NODE_INVALID_STATE;
+            if (repubInfo->msg_id == msgId) {
+                repubInfo->node_state = AMC_NODE_STATE_INVALID; //mark as invalid node
             }
         }
 
         list_iterator_destroy(iter);
     }
-    aliot_platform_mutex_unlock(c->pubInfoLock);
+    aliot_platform_mutex_unlock(c->lock_list_pub);
 
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: push_pubInfo_to
-* 描       述: 将pubinfo信息放入pubInfoList链表
-* 输入参数: Client* c
-*          PUBLISH_STRUCT_INFO_S *pubInfo
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明: 将pubinfo信息放入，在发送pub消息时调用
-************************************************************/
+
+//push the wait element into list of wait publish ACK
+//return: 0, success; NOT 0, fail;
 static int amc_push_pubInfo_to(amc_client_t *c, int len, unsigned short msgId, list_node_t **node)
 {
     if ((len < 0) || (len > c->buf_size_send)) {
@@ -659,117 +566,97 @@ static int amc_push_pubInfo_to(amc_client_t *c, int len, unsigned short msgId, l
         return FAIL_RETURN;
     }
 
-    aliot_platform_mutex_lock(c->pubInfoLock);
+    aliot_platform_mutex_lock(c->lock_list_pub);
 
-    if (c->pubInfoList->len >= MQTT_REPUB_NUM_MAX) {
-        aliot_platform_mutex_unlock(c->pubInfoLock);
-        ALIOT_LOG_ERROR("more than %u elements in republish list. List overflow!", c->pubInfoList->len);
+    if (c->list_pub_wait_ack->len >= AMC_REPUB_NUM_MAX) {
+        aliot_platform_mutex_unlock(c->lock_list_pub);
+        ALIOT_LOG_ERROR("more than %u elements in republish list. List overflow!", c->list_pub_wait_ack->len);
         return FAIL_RETURN;
     }
 
-    //开辟内存空间
     amc_pub_info_t *repubInfo = (amc_pub_info_t *)aliot_platform_malloc(sizeof(amc_pub_info_t) + len);
     if (NULL == repubInfo) {
-        aliot_platform_mutex_unlock(c->pubInfoLock);
+        aliot_platform_mutex_unlock(c->lock_list_pub);
         ALIOT_LOG_ERROR("run aliot_memory_malloc is error!");
         return FAIL_RETURN;
     }
 
-    repubInfo->nodeState = AMC_NODE_NORMANL_STATE;
-    repubInfo->msgId = msgId;
+    repubInfo->node_state = AMC_NODE_STATE_NORMANL;
+    repubInfo->msg_id = msgId;
     repubInfo->len = len;
-    aliot_time_start(&repubInfo->pubTime);
+    aliot_time_start(&repubInfo->pub_start_time);
     repubInfo->buf = (char *)repubInfo + sizeof(amc_pub_info_t);
 
-    //复制保存的内容
     memcpy(repubInfo->buf, c->buf_send, len);
 
-    //创建保存结点
     *node = list_node_new(repubInfo);
     if (NULL == *node) {
-        aliot_platform_mutex_unlock(c->pubInfoLock);
+        aliot_platform_mutex_unlock(c->lock_list_pub);
         ALIOT_LOG_ERROR("run list_node_new is error!");
         return FAIL_RETURN;
     }
 
-    //将结点放入链表中
-    list_rpush(c->pubInfoList, *node);
+    list_rpush(c->list_pub_wait_ack, *node);
 
-    aliot_platform_mutex_unlock(c->pubInfoLock);
+    aliot_platform_mutex_unlock(c->lock_list_pub);
 
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: push_subInfo_to
-* 描       述: 存放subinfo信息
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明: 将subinfo信息放入，在发送sub消息时调用
-************************************************************/
+
+//push the wait element into list of wait subscribe(unsubscribe) ACK
+//return: 0, success; NOT 0, fail;
 static int amc_push_subInfo_to(amc_client_t *c, int len, unsigned short msgId, enum msgTypes type, amc_topic_handle_t *handler,
                     list_node_t **node)
 {
-    aliot_platform_mutex_lock(c->subInfoLock);
+    aliot_platform_mutex_lock(c->lock_list_sub);
 
-    if (c->subInfoList->len >= MQTT_SUB_NUM_MAX) {
-        aliot_platform_mutex_unlock(c->subInfoLock);
-        ALIOT_LOG_ERROR("number of subInfo more than max!,size = %d", c->subInfoList->len);
+    if (c->list_sub_wait_ack->len >= AMC_SUB_NUM_MAX) {
+        aliot_platform_mutex_unlock(c->lock_list_sub);
+        ALIOT_LOG_ERROR("number of subInfo more than max!,size = %d", c->list_sub_wait_ack->len);
         return FAIL_RETURN;
     }
 
-
-    //开辟内存空间
     amc_subsribe_info_t *subInfo = (amc_subsribe_info_t *)aliot_platform_malloc(sizeof(amc_subsribe_info_t) + len);
     if (NULL == subInfo) {
-        aliot_platform_mutex_unlock(c->subInfoLock);
+        aliot_platform_mutex_unlock(c->lock_list_sub);
         ALIOT_LOG_ERROR("run aliot_memory_malloc is error!");
         return FAIL_RETURN;
     }
 
-    subInfo->nodeState = AMC_NODE_NORMANL_STATE;
-    subInfo->msgId = msgId;
+    subInfo->node_state = AMC_NODE_STATE_NORMANL;
+    subInfo->msg_id = msgId;
     subInfo->len = len;
-    aliot_time_start(&subInfo->subTime);
+    aliot_time_start(&subInfo->sub_start_time);
     subInfo->type = type;
     subInfo->handler = *handler;
     subInfo->buf = (unsigned char *)subInfo + sizeof(amc_subsribe_info_t);
 
-    //复制保存的内容
     memcpy(subInfo->buf, c->buf_send, len);
 
-    //创建保存结点
     *node = list_node_new(subInfo);
     if (NULL == *node) {
-        aliot_platform_mutex_unlock(c->subInfoLock);
+        aliot_platform_mutex_unlock(c->lock_list_sub);
         ALIOT_LOG_ERROR("run list_node_new is error!");
         return FAIL_RETURN;
     }
 
-    //将结点放入链表中
-    list_rpush(c->subInfoList, *node);
+    list_rpush(c->list_sub_wait_ack, *node);
 
-    aliot_platform_mutex_unlock(c->subInfoLock);
+    aliot_platform_mutex_unlock(c->lock_list_sub);
 
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: mask_subInfo_from
-* 描       述: 删除subinfo信息
-* 输入参数: Client* c
-*          unsigned int  msgId
-*          MessageHandlers *messageHandler
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明: 删除对应msgId的subinfo信息，在接收到suback后调用此接口删除对应sub信息
-************************************************************/
+
+//remove the list element specified by @msgId from list of wait subscribe(unsubscribe) ACK
+//and return message handle by @messageHandler
+//return: 0, success; NOT 0, fail;
 static int amc_mask_subInfo_from(amc_client_t *c, unsigned int msgId, amc_topic_handle_t *messageHandler)
 {
-    aliot_platform_mutex_lock(c->subInfoLock);
-    if (c->subInfoList->len) {
-        list_iterator_t *iter = list_iterator_new(c->subInfoList, LIST_TAIL);
+    aliot_platform_mutex_lock(c->lock_list_sub);
+    if (c->list_sub_wait_ack->len) {
+        list_iterator_t *iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL);
         list_node_t *node = NULL;
         amc_subsribe_info_t *subInfo = NULL;
 
@@ -785,52 +672,34 @@ static int amc_mask_subInfo_from(amc_client_t *c, unsigned int msgId, amc_topic_
                 continue;
             }
 
-            if (subInfo->msgId == msgId) {
-                //此处删除的是重复消息，所以messageHandler作为出参值返回一个
-                *messageHandler = subInfo->handler;
-
-                //标记待删除结点
-                subInfo->nodeState = AMC_NODE_INVALID_STATE;
+            if (subInfo->msg_id == msgId) {
+                *messageHandler = subInfo->handler; //return handle
+                subInfo->node_state = AMC_NODE_STATE_INVALID; //mark as invalid node
             }
         }
 
         list_iterator_destroy(iter);
     }
-    aliot_platform_mutex_unlock(c->subInfoLock);
+    aliot_platform_mutex_unlock(c->lock_list_sub);
 
     return SUCCESS_RETURN;
 }
 
 
-/***********************************************************
-* 函数名称: getNextPacketId
-* 描       述: 获取报文标识符
-* 输入参数: Client *c
-* 输出参数: VOID
-* 返 回  值: id
-* 说      明:
-************************************************************/
+//get next packet-id
 static int amc_get_next_packetid(amc_client_t *c)
 {
     unsigned int id = 0;
     aliot_platform_mutex_lock(c->lock_generic);
-    c->next_packetid = (c->next_packetid == MAX_PACKET_ID) ? 1 : c->next_packetid + 1;
-    id = c->next_packetid;
+    c->packet_id = (c->packet_id == AMC_PACKET_ID_MAX) ? 1 : c->packet_id + 1;
+    id = c->packet_id;
     aliot_platform_mutex_unlock(c->lock_generic);
 
     return id;
 }
 
-/***********************************************************
-* 函数名称: sendPacket
-* 描       述: 发送mqtt报文操作
-* 输入参数: Client *c
-*          int length
-*          Timer* timer 发送超时定时器
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//send packet
 static int amc_send_packet(amc_client_t *c, char *buf, int length, aliot_time_t *time)
 {
     int rc = FAIL_RETURN;
@@ -852,16 +721,8 @@ static int amc_send_packet(amc_client_t *c, char *buf, int length, aliot_time_t 
     return rc;
 }
 
-/***********************************************************
-* 函数名称: decodePacket
-* 描       述: 解码接收报文
-* 输入参数: Client *c
-*          int* value,
-*          int timeout
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//decode packet
 static int amc_decode_packet(amc_client_t *c, int *value, int timeout)
 {
     char i;
@@ -889,16 +750,8 @@ static int amc_decode_packet(amc_client_t *c, int *value, int timeout)
     return len;
 }
 
-/***********************************************************
-* 函数名称: readPacket
-* 描       述: 读取报文
-* 输入参数: Client*
-*          Timer* timer
-*          unsigned int *packet_type
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//read packet
 static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *packet_type)
 {
     MQTTHeader header = {0};
@@ -968,15 +821,8 @@ static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *p
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: isTopicMatched
-* 描       述: 主题是否匹配接口
-* 输入参数: char* topicFilter
-*           MQTTString* topicName
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明: 根据主题规则判断是否有主题匹配
-************************************************************/
+
+//check whether the topic is matched or not
 static char amc_is_topic_matched(char *topicFilter, MQTTString *topicName)
 {
     char *curf = topicFilter;
@@ -1008,13 +854,8 @@ static char amc_is_topic_matched(char *topicFilter, MQTTString *topicName)
     return (curn == curn_end) && (*curf == '\0');
 }
 
-/***********************************************************
-* 函数名称: deliverMessage
-* 描       述: 执行pub消息接收回调
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//deliver message
 static void amc_deliver_message(amc_client_t *c, MQTTString *topicName, aliot_mqtt_topic_info_pt topic_msg)
 {
     int i, flag_matched = 0;
@@ -1024,14 +865,14 @@ static void amc_deliver_message(amc_client_t *c, MQTTString *topicName, aliot_mq
 
     // we have to find the right message handler - indexed by topic
     aliot_platform_mutex_lock(c->lock_generic);
-    for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i) {
+    for (i = 0; i < AMC_SUB_HANDLER_NUM; ++i) {
 
-        if ((c->messageHandlers[i].topicFilter != 0)
-             && (MQTTPacket_equals(topicName, (char *)c->messageHandlers[i].topicFilter)
-                 || amc_is_topic_matched((char *)c->messageHandlers[i].topicFilter, topicName))) {
+        if ((c->sub_handle[i].topic_filter != 0)
+             && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
+                 || amc_is_topic_matched((char *)c->sub_handle[i].topic_filter, topicName))) {
             ALIOT_LOG_DEBUG("topic be matched");
 
-            amc_topic_handle_t msg_handle = c->messageHandlers[i];
+            amc_topic_handle_t msg_handle = c->sub_handle[i];
             aliot_platform_mutex_unlock(c->lock_generic);
 
             if (NULL != msg_handle.handle.h_fp) {
@@ -1063,14 +904,8 @@ static void amc_deliver_message(amc_client_t *c, MQTTString *topicName, aliot_mq
     }
 }
 
-/***********************************************************
-* 函数名称: recvConnAckProc
-* 描       述: 接收connect ack报文处理函数
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//handle CONNACK packet received from remote MQTT broker
 static int amc_handle_recv_CONNACK(amc_client_t *c)
 {
     int rc = SUCCESS_RETURN;
@@ -1108,14 +943,8 @@ static int amc_handle_recv_CONNACK(amc_client_t *c)
     return rc;
 }
 
-/***********************************************************
-* 函数名称: recvPubAckProc
-* 描       述: 接收pub ack报文处理函数
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//handle PUBACK packet received from remote MQTT broker
 static int amc_handle_recv_PUBACK(amc_client_t *c)
 {
     unsigned short mypacketid;
@@ -1141,14 +970,8 @@ static int amc_handle_recv_PUBACK(amc_client_t *c)
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: recvSubAckProc
-* 描       述: 接收sub ack报文处理函数
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//handle SUBACK packet received from remote MQTT broker
 static int amc_handle_recv_SUBACK(amc_client_t *c)
 {
     unsigned short mypacketid;
@@ -1174,15 +997,15 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
     memset(&messagehandler, 0, sizeof(amc_topic_handle_t));
     (void)amc_mask_subInfo_from(c, mypacketid, &messagehandler);
 
-    if ((NULL == messagehandler.handle.h_fp) || (NULL == messagehandler.topicFilter)) {
+    if ((NULL == messagehandler.handle.h_fp) || (NULL == messagehandler.topic_filter)) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
 
 
-    for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i) {
+    for (i = 0; i < AMC_SUB_HANDLER_NUM; ++i) {
         /*If subscribe the same topic and callback function, then ignore*/
-        if ((NULL != c->messageHandlers[i].topicFilter)
-            && (0 == amc_check_handle_is_identical(&c->messageHandlers[i], &messagehandler))) {
+        if ((NULL != c->sub_handle[i].topic_filter)
+            && (0 == amc_check_handle_is_identical(&c->sub_handle[i], &messagehandler))) {
             //if subscribe a identical topic and relate callback function, then ignore this subscribe.
             return SUCCESS_RETURN;
         }
@@ -1190,11 +1013,11 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
 
     /*Search a free element to record topic and related callback function*/
     aliot_platform_mutex_lock(c->lock_generic);
-    for (i = 0 ; i < MAX_MESSAGE_HANDLERS; ++i) {
-        if (NULL == c->messageHandlers[i].topicFilter) {
-            c->messageHandlers[i].topicFilter = messagehandler.topicFilter;
-            c->messageHandlers[i].handle.h_fp = messagehandler.handle.h_fp;
-            c->messageHandlers[i].handle.pcontext = messagehandler.handle.pcontext;
+    for (i = 0 ; i < AMC_SUB_HANDLER_NUM; ++i) {
+        if (NULL == c->sub_handle[i].topic_filter) {
+            c->sub_handle[i].topic_filter = messagehandler.topic_filter;
+            c->sub_handle[i].handle.h_fp = messagehandler.handle.h_fp;
+            c->sub_handle[i].handle.pcontext = messagehandler.handle.pcontext;
             aliot_platform_mutex_unlock(c->lock_generic);
 
             //call callback function to notify that SUBSCRIBE is successful.
@@ -1215,14 +1038,8 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
     return FAIL_RETURN;
 }
 
-/***********************************************************
-* 函数名称: recvPublishProc
-* 描       述: 接收pub报文处理函数
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//handle PUBLISH packet received from remote MQTT broker
 static int amc_handle_recv_PUBLISH(amc_client_t *c)
 {
     int result = 0;
@@ -1266,15 +1083,7 @@ static int amc_handle_recv_PUBLISH(amc_client_t *c)
 }
 
 
-
-/***********************************************************
-* 函数名称: recvUnsubAckProc
-* 描       述: 接收unsub ack处理函数
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+//handle UNSUBACK packet received from remote MQTT broker
 static int amc_handle_recv_UNSUBACK(amc_client_t *c)
 {
     unsigned short i, mypacketid = 0;  // should be the same as the packetid above
@@ -1289,10 +1098,10 @@ static int amc_handle_recv_UNSUBACK(amc_client_t *c)
 
     /* Remove from message handler array */
     aliot_platform_mutex_lock(c->lock_generic);
-    for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i) {
-        if ((c->messageHandlers[i].topicFilter != NULL)
-            && (0 == amc_check_handle_is_identical(&c->messageHandlers[i], &messageHandler))) {
-            memset(&c->messageHandlers[i], 0, sizeof(amc_topic_handle_t));
+    for (i = 0; i < AMC_SUB_HANDLER_NUM; ++i) {
+        if ((c->sub_handle[i].topic_filter != NULL)
+            && (0 == amc_check_handle_is_identical(&c->sub_handle[i], &messageHandler))) {
+            memset(&c->sub_handle[i], 0, sizeof(amc_topic_handle_t));
 
             /* NOTE: in case of more than one register(subscribe) with different callback function,
              *       so we must keep continuously searching related message handle. */
@@ -1311,21 +1120,15 @@ static int amc_handle_recv_UNSUBACK(amc_client_t *c)
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: waitforConnack
-* 描       述: 等待connect ack
-* 输入参数: Client* c
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//wait CONNACK packet from remote MQTT broker
 static int amc_wait_CONNACK(amc_client_t *c)
 {
     unsigned int packetType = 0;
     int rc = 0;
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->connectdata.keepAliveInterval * 1000);
+    aliot_time_cutdown(&timer, c->connect_data.keepAliveInterval * 1000);
 
     do {
         // read the socket, see what work is due
@@ -1345,15 +1148,8 @@ static int amc_wait_CONNACK(amc_client_t *c)
     return rc;
 }
 
-/***********************************************************
-* 函数名称: cycle
-* 描       述: 接收循环
-* 输入参数: Client* c
-*          Timer* timer
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说      明:
-************************************************************/
+
+//MQTT cycle to handle packet from remote broker
 static int amc_cycle(amc_client_t *c, aliot_time_t *timer)
 {
     unsigned int packetType;
@@ -1379,12 +1175,12 @@ static int amc_cycle(amc_client_t *c, aliot_time_t *timer)
     }
 
     //receive any data to renew ping_timer
-    aliot_time_cutdown(&c->ping_timer, c->connectdata.keepAliveInterval * 1000);
+    aliot_time_cutdown(&c->next_ping_time, c->connect_data.keepAliveInterval * 1000);
 
-    //接收到任何数据即清除ping消息标志
-    aliot_platform_mutex_lock(c->pingMarkLock);
-    c->pingMark = 0;
-    aliot_platform_mutex_unlock(c->pingMarkLock);
+    //clear ping mark when any data received from MQTT broker
+    aliot_platform_mutex_lock(c->lock_generic);
+    c->ping_mark = 0;
+    aliot_platform_mutex_unlock(c->lock_generic);
 
     switch (packetType) {
         case CONNACK: {
@@ -1452,13 +1248,13 @@ static bool amc_check_state_normal(amc_client_t *c)
 //return: 0, identical; NOT 0, different.
 static int amc_check_handle_is_identical(amc_topic_handle_t *messageHandlers1, amc_topic_handle_t *messageHandler2)
 {
-    int topicNameLen = strlen(messageHandlers1->topicFilter);
+    int topicNameLen = strlen(messageHandlers1->topic_filter);
 
-    if (topicNameLen != strlen(messageHandler2->topicFilter)) {
+    if (topicNameLen != strlen(messageHandler2->topic_filter)) {
         return 1;
     }
 
-    if (0 != strncmp(messageHandlers1->topicFilter, messageHandler2->topicFilter, topicNameLen)) {
+    if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
         return 1;
     }
 
@@ -1474,17 +1270,8 @@ static int amc_check_handle_is_identical(amc_topic_handle_t *messageHandlers1, a
     return 0;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_subscribe
-* 描       述: mqtt订阅消息
-* 输入参数: Client* c                     mqtt客户端
-*          char* topicFilter             订阅的主题规则
-*          enum QoS qos                  消息服务类型
-*          messageHandler messageHandler 消息处理结构
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: MQTT订阅操作，订阅成功，即收到sub ack
-************************************************************/
+
+//subscribe
 static aliot_err_t amc_subscribe(amc_client_t *c,
                         const char *topicFilter,
                         aliot_mqtt_qos_t qos,
@@ -1523,16 +1310,7 @@ static aliot_err_t amc_subscribe(amc_client_t *c,
 }
 
 
-
-/***********************************************************
-* 函数名称: aliot_mqtt_unsubscribe
-* 描       述: mqtt取消订阅
-* 输入参数: Client* c  mqtt客户端
-*          char* topicFilter 订阅的主题规则
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: 同subscribe
-************************************************************/
+//unsubscribe
 static aliot_err_t amc_unsubscribe(amc_client_t *c, const char *topicFilter)
 {
     if (NULL == c || NULL == topicFilter) {
@@ -1567,13 +1345,8 @@ static aliot_err_t amc_unsubscribe(amc_client_t *c, const char *topicFilter)
     return msgId;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_publish
-* 描       述: mqtt发布消息
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: MQTT发布消息操作，发布成功，即收到pub ack
-************************************************************/
+
+//publish
 static aliot_err_t amc_publish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt topic_msg)
 {
     uint16_t msg_id = 0;
@@ -1611,54 +1384,33 @@ static aliot_err_t amc_publish(amc_client_t *c, const char *topicName, aliot_mqt
     return msg_id;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_get_client_state
-* 描       述: 获取mqtt客户端状态
-* 输入参数: Client* c  mqtt客户端
-* 输出参数: VOID
-* 返 回  值: mqtt client状态
-* 说       明:
-************************************************************/
+
+//get state of MQTT client
 static amc_state_t amc_get_client_state(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
 
     amc_state_t state;
-    aliot_platform_mutex_lock(pClient->stateLock);
-    state = pClient->clientState;
-    aliot_platform_mutex_unlock(pClient->stateLock);
+    aliot_platform_mutex_lock(pClient->lock_generic);
+    state = pClient->client_state;
+    aliot_platform_mutex_unlock(pClient->lock_generic);
 
     return state;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_set_client_state
-* 描       述: 设置mqtt客户端状态
-* 输入参数: Client* c  mqtt客户端
-* 输出参数: VOID
-* 返 回  值: mqtt client状态
-* 说       明:
-************************************************************/
+
+//set state of MQTT client
 static void amc_set_client_state(amc_client_t *pClient, amc_state_t newState)
 {
     ALIOT_FUNC_ENTRY;
 
-    aliot_platform_mutex_lock(pClient->stateLock);
-    pClient->clientState = newState;
-    aliot_platform_mutex_unlock(pClient->stateLock);
+    aliot_platform_mutex_lock(pClient->lock_generic);
+    pClient->client_state = newState;
+    aliot_platform_mutex_unlock(pClient->lock_generic);
 }
 
 
-
-/***********************************************************
-* 函数名称: aliot_mqtt_set_connect_params
-* 描       述: 设置mqtt连接参数
-* 输入参数: Client* c  mqtt客户端
-*           MQTTPacket_connectData *pConnectParams
-* 输出参数: VOID
-* 返 回  值: mqtt client状态
-* 说       明:
-************************************************************/
+//set MQTT connection parameter
 static int amc_set_connect_params(amc_client_t *pClient, MQTTPacket_connectData *pConnectParams)
 {
     ALIOT_FUNC_ENTRY;
@@ -1667,41 +1419,34 @@ static int amc_set_connect_params(amc_client_t *pClient, MQTTPacket_connectData 
         ALIOT_FUNC_EXIT_RC(NULL_VALUE_ERROR);
     }
 
-    memcpy(pClient->connectdata.struct_id, pConnectParams->struct_id, 4);
-    pClient->connectdata.struct_version = pConnectParams->struct_version;
-    pClient->connectdata.MQTTVersion = pConnectParams->MQTTVersion;
-    pClient->connectdata.clientID = pConnectParams->clientID;
-    pClient->connectdata.cleansession = pConnectParams->cleansession;
-    pClient->connectdata.willFlag = pConnectParams->willFlag;
-    pClient->connectdata.username = pConnectParams->username;
-    pClient->connectdata.password = pConnectParams->password;
-    memcpy(pClient->connectdata.will.struct_id, pConnectParams->will.struct_id, 4);
-    pClient->connectdata.will.struct_version = pConnectParams->will.struct_version;
-    pClient->connectdata.will.topicName = pConnectParams->will.topicName;
-    pClient->connectdata.will.message = pConnectParams->will.message;
-    pClient->connectdata.will.qos = pConnectParams->will.qos;
-    pClient->connectdata.will.retained = pConnectParams->will.retained;
+    memcpy(pClient->connect_data.struct_id, pConnectParams->struct_id, 4);
+    pClient->connect_data.struct_version = pConnectParams->struct_version;
+    pClient->connect_data.MQTTVersion = pConnectParams->MQTTVersion;
+    pClient->connect_data.clientID = pConnectParams->clientID;
+    pClient->connect_data.cleansession = pConnectParams->cleansession;
+    pClient->connect_data.willFlag = pConnectParams->willFlag;
+    pClient->connect_data.username = pConnectParams->username;
+    pClient->connect_data.password = pConnectParams->password;
+    memcpy(pClient->connect_data.will.struct_id, pConnectParams->will.struct_id, 4);
+    pClient->connect_data.will.struct_version = pConnectParams->will.struct_version;
+    pClient->connect_data.will.topicName = pConnectParams->will.topicName;
+    pClient->connect_data.will.message = pConnectParams->will.message;
+    pClient->connect_data.will.qos = pConnectParams->will.qos;
+    pClient->connect_data.will.retained = pConnectParams->will.retained;
 
     if (pConnectParams->keepAliveInterval < KEEP_ALIVE_INTERVAL_DEFAULT_MIN) {
-        pClient->connectdata.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MIN;
+        pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MIN;
     } else if (pConnectParams->keepAliveInterval > KEEP_ALIVE_INTERVAL_DEFAULT_MAX) {
-        pClient->connectdata.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MAX;
+        pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MAX;
     } else {
-        pClient->connectdata.keepAliveInterval = pConnectParams->keepAliveInterval;
+        pClient->connect_data.keepAliveInterval = pConnectParams->keepAliveInterval;
     }
 
     ALIOT_FUNC_EXIT_RC(SUCCESS_RETURN);
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_init
-* 描       述: mqtt初始化
-* 输入参数: Client *pClient
-*          IOT_CLIENT_INIT_PARAMS *pInitParams
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: 用户创建Client结构，此接口根据用户的初始化参数初始化Client结构
-************************************************************/
+
+//Initialize MQTT client
 static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitParams)
 {
     ALIOT_FUNC_ENTRY;
@@ -1716,28 +1461,26 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     MQTTPacket_connectData connectdata = MQTTPacket_connectData_initializer;
 
     connectdata.MQTTVersion = AMC_MQTT_VERSION;
-    connectdata.keepAliveInterval = pInitParams->keepalive_interval;
+    connectdata.keepAliveInterval = pInitParams->keepalive_interval_ms / 1000;
 
-    //根据用户信息初始化连接参数
     connectdata.clientID.cstring = pInitParams->client_id;
     connectdata.username.cstring = pInitParams->user_name;
     connectdata.password.cstring = pInitParams->password;
 
 
-    memset(pClient->messageHandlers, 0, MAX_MESSAGE_HANDLERS * sizeof(amc_topic_handle_t));
+    memset(pClient->sub_handle, 0, AMC_SUB_HANDLER_NUM * sizeof(amc_topic_handle_t));
 
-    pClient->next_packetid = 0;
+    pClient->packet_id = 0;
     pClient->lock_generic = aliot_platform_mutex_create();
-    pClient->subInfoLock = aliot_platform_mutex_create();
-    pClient->pubInfoLock = aliot_platform_mutex_create();
+    pClient->lock_list_sub = aliot_platform_mutex_create();
+    pClient->lock_list_pub = aliot_platform_mutex_create();
 
-    //消息发送超时时间
-    if (pInitParams->request_timeout_ms < ALIOT_MQTT_MIN_COMMAND_TIMEOUT
-        || pInitParams->request_timeout_ms > ALIOT_MQTT_MAX_COMMAND_TIMEOUT) {
+    if (pInitParams->request_timeout_ms < AMC_REQUEST_TIMEOUT_MIN_MS
+        || pInitParams->request_timeout_ms > AMC_REQUEST_TIMEOUT_MAX_MS) {
 
-        pClient->command_timeout_ms = ALIOT_MQTT_DEFAULT_COMMAND_TIMEOUT;
+        pClient->request_timeout_ms = AMC_REQUEST_TIMEOUT_DEFAULT_MS;
     } else {
-        pClient->command_timeout_ms = pInitParams->request_timeout_ms;
+        pClient->request_timeout_ms = pInitParams->request_timeout_ms;
     }
 
     pClient->buf_send = pInitParams->pwrite_buf;
@@ -1748,29 +1491,26 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     pClient->handle_event.h_fp = pInitParams->handle_event.h_fp;
     pClient->handle_event.pcontext = pInitParams->handle_event.pcontext;
 
-    pClient->stateLock = aliot_platform_mutex_create();
-    pClient->pingMarkLock = aliot_platform_mutex_create();
+    /* Initialize reconnect parameter */
+    pClient->reconnect_param.reconnect_time_interval_ms = AMC_RECONNECT_INTERVAL_MIN_MS;
 
-    /*reconnect params init*/
-    pClient->reconnect_params.currentReconnectWaitInterval = ALIOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
+    pClient->list_pub_wait_ack = list_new();
+    pClient->list_pub_wait_ack->free = aliot_platform_free;
+    pClient->list_sub_wait_ack = list_new();
+    pClient->list_sub_wait_ack->free = aliot_platform_free;
 
-    pClient->pubInfoList = list_new();
-    pClient->pubInfoList->free = aliot_platform_free;
-    pClient->subInfoList = list_new();
-    pClient->subInfoList->free = aliot_platform_free;
-
-    pClient->writebufLock = aliot_platform_mutex_create();
+    pClient->lock_write_buf = aliot_platform_mutex_create();
 
 
-    /*init mqtt connect params*/
+    /* Initialize MQTT connect parameter */
     rc = amc_set_connect_params(pClient, &connectdata);
     if (SUCCESS_RETURN != rc) {
         amc_set_client_state(pClient, AMC_STATE_INVALID);
         ALIOT_FUNC_EXIT_RC(rc);
     }
 
-    aliot_time_init(&pClient->ping_timer);
-    aliot_time_init(&pClient->reconnect_params.reconnectDelayTimer);
+    aliot_time_init(&pClient->next_ping_time);
+    aliot_time_init(&pClient->reconnect_param.reconnect_next_time);
 
     pClient->ipstack = (aliot_network_pt)aliot_platform_malloc(sizeof(aliot_network_t));
     if (NULL == pClient->ipstack) {
@@ -1779,10 +1519,6 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     }
     memset(pClient->ipstack, 0x0, sizeof(aliot_network_t));
 
-
-    //TODO
-    //rc = aliot_mqtt_network_init(pClient->ipstack, g_userInfo.hostAddress, g_userInfo.port, g_userInfo.pubKey);
-
     rc = aliot_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key);
     if (SUCCESS_RETURN != rc) {
         amc_set_client_state(pClient, AMC_STATE_INVALID);
@@ -1790,30 +1526,23 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     }
 
     amc_set_client_state(pClient, AMC_STATE_INITIALIZED);
-    ALIOT_LOG_INFO("mqtt init success!");
+    ALIOT_LOG_INFO("MQTT init success!");
     ALIOT_FUNC_EXIT_RC(SUCCESS_RETURN);
 }
 
 
-/***********************************************************
-* 函数名称: MQTTSubInfoProc
-* 描       述: sub 消息后等待响应的处理
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: VOID*
-* 说       明:
-************************************************************/
+//remove node of list of wait subscribe ACK, which is in invalid state or timeout
 static int MQTTSubInfoProc(amc_client_t *pClient)
 {
     int rc = SUCCESS_RETURN;
 
-    aliot_platform_mutex_lock(pClient->subInfoLock);
+    aliot_platform_mutex_lock(pClient->lock_list_sub);
     do {
-        if (0 == pClient->subInfoList->len) {
+        if (0 == pClient->list_sub_wait_ack->len) {
             break;
         }
 
-        list_iterator_t *iter = list_iterator_new(pClient->subInfoList, LIST_TAIL);
+        list_iterator_t *iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL);
         list_node_t *node = NULL;
         list_node_t *tempNode = NULL;
         uint16_t packet_id = 0;
@@ -1823,13 +1552,12 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
             node = list_iterator_next(iter);
 
             if (NULL != tempNode) {
-                list_remove(pClient->subInfoList, tempNode);
+                list_remove(pClient->list_sub_wait_ack, tempNode);
                 tempNode = NULL;
             }
 
             if (NULL == node) {
-                //轮询结束
-                break;
+                break; //end of list
             }
 
             amc_subsribe_info_t *subInfo = (amc_subsribe_info_t *) node->val;
@@ -1839,30 +1567,27 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
                 continue;
             }
 
-            //无效结点直接删除
-            if (AMC_NODE_INVALID_STATE == subInfo->nodeState) {
+            //remove invalid node
+            if (AMC_NODE_STATE_INVALID == subInfo->node_state) {
                 tempNode = node;
                 continue;
             }
 
-            //状态异常则继续循环
-            amc_state_t state = amc_get_client_state(pClient);
-            if (state != AMC_STATE_CONNECTED) {
+            if (amc_get_client_state(pClient) != AMC_STATE_CONNECTED) {
                 continue;
             }
 
-            //判断节点是否超时
-            if (aliot_time_spend(&subInfo->subTime) <= (pClient->command_timeout_ms * 2)) {
-                //没有超时则继续下一个节点
+            //check the request if timeout or not
+            if (aliot_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * 2)) {
+                //continue to check the next node
                 continue;
             }
 
             /* When arrive here, it means timeout to wait ACK */
-
-            packet_id = subInfo->msgId;
+            packet_id = subInfo->msg_id;
             msg_type = subInfo->type;
 
-            aliot_platform_mutex_unlock(pClient->subInfoLock);
+            aliot_platform_mutex_unlock(pClient->lock_list_sub);
 
             //Wait MQTT SUBSCRIBE ACK timeout
             if (NULL != pClient->handle_event.h_fp) {
@@ -1881,7 +1606,7 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
                 pClient->handle_event.h_fp(pClient->handle_event.pcontext, pClient, &msg);
             }
 
-            aliot_platform_mutex_lock(pClient->subInfoLock);
+            aliot_platform_mutex_lock(pClient->lock_list_sub);
 
             tempNode = node;
         }
@@ -1890,7 +1615,7 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
 
     } while (0);
 
-    aliot_platform_mutex_unlock(pClient->subInfoLock);
+    aliot_platform_mutex_unlock(pClient->lock_list_sub);
 
     return rc;
 }
@@ -1908,96 +1633,71 @@ static void amc_keepalive(amc_client_t *pClient)
         /*if Exceeds the maximum delay time, then return reconnect timeout*/
         if (AMC_STATE_DISCONNECTED_RECONNECTING == currentState) {
             /*Reconnection is successful, Resume regularly ping packets*/
+            aliot_platform_mutex_lock(pClient->lock_generic);
+            pClient->ping_mark = 0;
+            aliot_platform_mutex_unlock(pClient->lock_generic);
             rc = amc_handle_reconnect(pClient);
             if (SUCCESS_RETURN != rc) {
-                //重连失败增加计数
                 ALIOT_LOG_DEBUG("reconnect network fail, rc = %d", rc);
             } else {
                 ALIOT_LOG_INFO("network is reconnected!");
-
-                aliot_platform_mutex_lock(pClient->pingMarkLock);
-                pClient->pingMark = 0;
-                aliot_platform_mutex_unlock(pClient->pingMarkLock);
-
-                //重连成功调用网络恢复回调函数
                 amc_reconnect_callback(pClient);
-
-                pClient->reconnect_params.currentReconnectWaitInterval = ALIOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
+                pClient->reconnect_param.reconnect_time_interval_ms = AMC_RECONNECT_INTERVAL_MIN_MS;
             }
 
             break;
         }
 
-        /*If network suddenly interrupted, stop pinging packet,  try to reconnect network immediately*/
+        /*If network suddenly interrupted, stop pinging packet, try to reconnect network immediately*/
         if (AMC_STATE_DISCONNECTED == currentState) {
             ALIOT_LOG_ERROR("network is disconnected!");
-
-            //网络异常则调用网络断开连接回调函数
             amc_disconnect_callback(pClient);
 
-            pClient->reconnect_params.currentReconnectWaitInterval = ALIOT_MQTT_MIN_RECONNECT_WAIT_INTERVAL;
-            aliot_time_cutdown(&(pClient->reconnect_params.reconnectDelayTimer),
-                        pClient->reconnect_params.currentReconnectWaitInterval);
+            pClient->reconnect_param.reconnect_time_interval_ms = AMC_RECONNECT_INTERVAL_MIN_MS;
+            aliot_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
+                        pClient->reconnect_param.reconnect_time_interval_ms);
 
-            //断开socket
             pClient->ipstack->disconnect(pClient->ipstack);
-
             amc_set_client_state(pClient, AMC_STATE_DISCONNECTED_RECONNECTING);
-
             break;
         }
 
     } while (0);
 }
 
-/***********************************************************
-* 函数名称: MQTTRePublish
-* 描       述: pub消息重发
-* 输入参数: Client*c
-*           unsigned char*buf
-*           int len
-* 输出参数:
-* 返 回  值: 0成功；非0失败
-* 说       明:
-************************************************************/
+
+//republish
 static int MQTTRePublish(amc_client_t *c, char *buf, int len)
 {
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->command_timeout_ms);
+    aliot_time_cutdown(&timer, c->request_timeout_ms);
 
-    aliot_platform_mutex_lock(c->writebufLock);
+    aliot_platform_mutex_lock(c->lock_write_buf);
 
     if (amc_send_packet(c, buf, len, &timer) != SUCCESS_RETURN) {
-        aliot_platform_mutex_unlock(c->writebufLock);
+        aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_NETWORK_ERROR;
     }
 
-    aliot_platform_mutex_unlock(c->writebufLock);
+    aliot_platform_mutex_unlock(c->lock_write_buf);
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: MQTTPubInfoProc
-* 描       述: pub 消息响应后对缓存数据的处理
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: VOID*
-* 说       明: 因为重发的状态未可知，可能阻塞或耗时，所以删除操作
-*          和重传如果在统一线程才能保证删除资源时没有其它线程在使用
-************************************************************/
+
+//remove node of list of wait publish ACK, which is in invalid state or timeout
 static int MQTTPubInfoProc(amc_client_t *pClient)
 {
     int rc = 0;
     amc_state_t state = AMC_STATE_INVALID;
 
-    aliot_platform_mutex_lock(pClient->pubInfoLock);
+    aliot_platform_mutex_lock(pClient->lock_list_pub);
     do {
-        if (0 == pClient->pubInfoList->len) {
+        if (0 == pClient->list_pub_wait_ack->len) {
             break;
         }
 
-        list_iterator_t *iter = list_iterator_new(pClient->pubInfoList, LIST_TAIL);
+        list_iterator_t *iter = list_iterator_new(pClient->list_pub_wait_ack, LIST_TAIL);
         list_node_t *node = NULL;
         list_node_t *tempNode = NULL;
 
@@ -2005,13 +1705,12 @@ static int MQTTPubInfoProc(amc_client_t *pClient)
             node = list_iterator_next(iter);
 
             if (NULL != tempNode) {
-                list_remove(pClient->pubInfoList, tempNode);
+                list_remove(pClient->list_pub_wait_ack, tempNode);
                 tempNode = NULL;
             }
 
             if (NULL == node) {
-                //轮询结束
-                break;
+                break; //end of list
             }
 
             amc_pub_info_t *repubInfo = (amc_pub_info_t *) node->val;
@@ -2021,29 +1720,27 @@ static int MQTTPubInfoProc(amc_client_t *pClient)
                 continue;
             }
 
-            //是无效节点则直接删除
-            if (AMC_NODE_INVALID_STATE == repubInfo->nodeState) {
+            //remove invalid node
+            if (AMC_NODE_STATE_INVALID == repubInfo->node_state) {
                 tempNode = node;
                 continue;
             }
 
-            //状态异常退出循环(状态判断不放在外环的原因是在断网的条件下依然可以删除无效pubInfo结点)
             state = amc_get_client_state(pClient);
             if (state != AMC_STATE_CONNECTED) {
                 continue;
             }
 
-            //判断节点是否超时
-            if (aliot_time_spend(&repubInfo->pubTime) <= (pClient->command_timeout_ms * 2)) {
-                //没有超时则继续下一个节点
+            //check the request if timeout or not
+            if (aliot_time_spend(&repubInfo->pub_start_time) <= (pClient->request_timeout_ms * 2)) {
                 continue;
             }
 
-            //以下为超时重发
-            aliot_platform_mutex_unlock(pClient->pubInfoLock);
+            //If wait ACK timeout, republish
+            aliot_platform_mutex_unlock(pClient->lock_list_pub);
             rc = MQTTRePublish(pClient, repubInfo->buf, repubInfo->len);
-            aliot_time_start(&repubInfo->pubTime);
-            aliot_platform_mutex_lock(pClient->pubInfoLock);
+            aliot_time_start(&repubInfo->pub_start_time);
+            aliot_platform_mutex_lock(pClient->lock_list_pub);
 
             if (MQTT_NETWORK_ERROR == rc) {
                 amc_set_client_state(pClient, AMC_STATE_DISCONNECTED);
@@ -2055,23 +1752,13 @@ static int MQTTPubInfoProc(amc_client_t *pClient)
 
     } while (0);
 
-    aliot_platform_mutex_unlock(pClient->pubInfoLock);
+    aliot_platform_mutex_unlock(pClient->lock_list_pub);
 
     return SUCCESS_RETURN;
 }
 
 
-
-
-/***********************************************************
-* 函数名称: aliot_mqtt_connect
-* 描       述: mqtt协议连接
-* 输入参数: Client *pClient
-*           MQTTPacket_connectData* pConnectParams 连接报文参数
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: 实现网络connect和mqtt协议的connect
-************************************************************/
+//connect
 static int amc_connect(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
@@ -2116,14 +1803,7 @@ static int amc_connect(amc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_attempt_reconnect
-* 描       述: mqtt重连
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
 static int amc_attempt_reconnect(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
@@ -2131,10 +1811,10 @@ static int amc_attempt_reconnect(amc_client_t *pClient)
     int rc;
 
     ALIOT_LOG_INFO("reconnect params:MQTTVersion =%d clientID =%s keepAliveInterval =%d username = %s",
-                   pClient->connectdata.MQTTVersion,
-                   pClient->connectdata.clientID.cstring,
-                   pClient->connectdata.keepAliveInterval,
-                   pClient->connectdata.username.cstring);
+                   pClient->connect_data.MQTTVersion,
+                   pClient->connect_data.clientID.cstring,
+                   pClient->connect_data.keepAliveInterval,
+                   pClient->connect_data.username.cstring);
 
     /* Ignoring return code. failures expected if network is disconnected */
     rc = amc_connect(pClient);
@@ -2147,14 +1827,8 @@ static int amc_attempt_reconnect(amc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_handle_reconnect
-* 描       述: mqtt手动重连接口
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: 用户手动重连接口，在自动重连失败或者没有设置自动重连时使用此接口进行重连
-************************************************************/
+
+//reconnect
 static int amc_handle_reconnect(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
@@ -2163,7 +1837,7 @@ static int amc_handle_reconnect(amc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    if (!aliot_time_is_expired(&(pClient->reconnect_params.reconnectDelayTimer))) {
+    if (!aliot_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         return FAIL_RETURN;
     }
@@ -2184,29 +1858,23 @@ static int amc_handle_reconnect(amc_client_t *pClient)
     } else {
         /*if reconnect network failed, then increase currentReconnectWaitInterval,
         ex: init currentReconnectWaitInterval=1s,  reconnect failed then 2s .4s. 8s*/
-        if (ALIOT_MQTT_MAX_RECONNECT_WAIT_INTERVAL > pClient->reconnect_params.currentReconnectWaitInterval) {
-            pClient->reconnect_params.currentReconnectWaitInterval *= 2;
+        if (AMC_RECONNECT_INTERVAL_MAX_MS > pClient->reconnect_param.reconnect_time_interval_ms) {
+            pClient->reconnect_param.reconnect_time_interval_ms *= 2;
         } else {
-            pClient->reconnect_params.currentReconnectWaitInterval = ALIOT_MQTT_MAX_RECONNECT_WAIT_INTERVAL;
+            pClient->reconnect_param.reconnect_time_interval_ms = AMC_RECONNECT_INTERVAL_MAX_MS;
         }
     }
 
-    aliot_time_cutdown(&(pClient->reconnect_params.reconnectDelayTimer),
-                pClient->reconnect_params.currentReconnectWaitInterval);
+    aliot_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
+                pClient->reconnect_param.reconnect_time_interval_ms);
 
     ALIOT_LOG_ERROR("mqtt reconnect failed rc = %d", rc);
 
     return rc;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_disconnect
-* 描       述: mqtt协议断开连接
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: mqtt协议的disconnect和网络的disconnect
-************************************************************/
+
+//disconnect
 static int amc_disconnect(amc_client_t *pClient)
 {
     if (NULL == pClient) {
@@ -2230,14 +1898,8 @@ static int amc_disconnect(amc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_disconnect_callback
-* 描       述: mqtt断开链接回调处理
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
+
 static void amc_disconnect_callback(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
@@ -2254,14 +1916,7 @@ static void amc_disconnect_callback(amc_client_t *pClient)
 }
 
 
-/***********************************************************
-* 函数名称: aliot_mqtt_release
-* 描       述: mqtt释放
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明: 释放mqtt初始化时创建的资源
-************************************************************/
+//release MQTT resource
 static int amc_release(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
@@ -2278,16 +1933,12 @@ static int amc_release(amc_client_t *pClient)
     aliot_platform_msleep(100);
 
     aliot_platform_mutex_destroy(pClient->lock_generic);
-    aliot_platform_mutex_destroy(pClient->subInfoLock);
-    aliot_platform_mutex_destroy(pClient->pubInfoLock);
-    aliot_platform_mutex_destroy(pClient->stateLock);
-    aliot_platform_mutex_destroy(pClient->pingMarkLock);
-    aliot_platform_mutex_destroy(pClient->writebufLock);
-    //networkRecoverSignalRelease(&pClient->networkRecoverSignal);
-    //(void)aliot_sem_destory(&pClient->semaphore);
+    aliot_platform_mutex_destroy(pClient->lock_list_sub);
+    aliot_platform_mutex_destroy(pClient->lock_list_pub);
+    aliot_platform_mutex_destroy(pClient->lock_write_buf);
 
-    list_destroy(pClient->pubInfoList);
-    list_destroy(pClient->subInfoList);
+    list_destroy(pClient->list_pub_wait_ack);
+    list_destroy(pClient->list_sub_wait_ack);
 
     if (NULL != pClient->ipstack) {
         aliot_platform_free(pClient->ipstack);
@@ -2298,14 +1949,6 @@ static int amc_release(amc_client_t *pClient)
 }
 
 
-/***********************************************************
-* 函数名称: aliot_mqtt_reconnect_callback
-* 描       述: mqtt恢复链接回调处理
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
 static void amc_reconnect_callback(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
@@ -2322,14 +1965,7 @@ static void amc_reconnect_callback(amc_client_t *pClient)
     }
 }
 
-/***********************************************************
-* 函数名称: aliot_mqtt_keep_alive
-* 描       述: mqtt发送保活数据
-* 输入参数: Client *pClient
-* 输出参数: VOID
-* 返 回  值: 0：成功  非0：失败
-* 说       明:
-************************************************************/
+
 static int amc_keepalive_sub(amc_client_t *pClient)
 {
     ALIOT_FUNC_ENTRY;
@@ -2346,22 +1982,22 @@ static int amc_keepalive_sub(amc_client_t *pClient)
     }
 
     /*if there is no ping_timer timeout, then return success*/
-    if (!aliot_time_is_expired(&pClient->ping_timer)) {
+    if (!aliot_time_is_expired(&pClient->next_ping_time)) {
         return SUCCESS_RETURN;
     }
 
     //update to next time sending MQTT keep-alive
-    aliot_time_cutdown(&pClient->ping_timer, pClient->connectdata.keepAliveInterval * 1000);
+    aliot_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
-    //如果已经发送的ping信号没有pong响应则不再重复发送，直接退出
-    aliot_platform_mutex_lock(pClient->pingMarkLock);
-    if (0 != pClient->pingMark) {
-        aliot_platform_mutex_unlock(pClient->pingMarkLock);
-        return SUCCESS_RETURN;
-    }
-    aliot_platform_mutex_unlock(pClient->pingMarkLock);
+//    //Do NOT send this PING, if the PONG of the last ping is not received
+//    aliot_platform_mutex_lock(pClient->lock_generic);
+//    if (0 != pClient->ping_mark) {
+//        aliot_platform_mutex_unlock(pClient->lock_generic);
+//        return SUCCESS_RETURN;
+//    }
+//    aliot_platform_mutex_unlock(pClient->lock_generic);
 
-    //保活超时需要记录超时时间判断是否做断网重连处理
+
     rc = MQTTKeepalive(pClient);
     if (SUCCESS_RETURN != rc) {
         if (rc == MQTT_NETWORK_ERROR) {
@@ -2373,10 +2009,9 @@ static int amc_keepalive_sub(amc_client_t *pClient)
 
     ALIOT_LOG_INFO("send MQTT ping...");
 
-    //发送ping信号则设置标志位
-    aliot_platform_mutex_lock(pClient->pingMarkLock);
-    pClient->pingMark = 1;
-    aliot_platform_mutex_unlock(pClient->pingMarkLock);
+    aliot_platform_mutex_lock(pClient->lock_generic);
+    pClient->ping_mark = 1;
+    aliot_platform_mutex_unlock(pClient->lock_generic);
 
     return SUCCESS_RETURN;
 }
@@ -2437,10 +2072,10 @@ void aliot_mqtt_yield(void *handle, int timeout_ms)
         /*acquire package in cycle, such as PINGRESP  PUBLISH*/
         rc = amc_cycle(pClient, &time);
         if (SUCCESS_RETURN == rc) {
-            //如果是pub ack则删除缓存在pub list中的信息（QOS=1时）
+            //check list of wait publish ACK to remove node that is ACKED or timeout
             MQTTPubInfoProc(pClient);
 
-            //如果是sub ack则删除缓存在sub list中的信息
+            //check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout
             MQTTSubInfoProc(pClient);
         }
 

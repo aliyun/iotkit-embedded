@@ -1,5 +1,5 @@
-#ifndef ALIYUN_IOT_COMMON_SHA1_H
-#define ALIYUN_IOT_COMMON_SHA1_H
+#ifndef _ALIOT_COMMON_SHA1_H_
+#define _ALIOT_COMMON_SHA1_H_
 
 #include "aliot_platform.h"
 #include "aliot_error.h"

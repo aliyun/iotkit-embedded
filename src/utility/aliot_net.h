@@ -1,6 +1,6 @@
 
-#ifndef ALIYUN_IOT_COMMON_NET_H
-#define ALIYUN_IOT_COMMON_NET_H
+#ifndef _ALIOT_COMMON_NET_H_
+#define _ALIOT_COMMON_NET_H_
 
 #include "aliot_platform.h"
 
@@ -44,4 +44,4 @@ int aliot_net_disconnect(aliot_network_pt pNetwork);
 int aliot_net_connect(aliot_network_pt pNetwork);
 int aliot_net_init(aliot_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt);
 
-#endif /* ALIYUN_IOT_COMMON_NET_H */
+#endif /* ALIOT_COMMON_NET_H */

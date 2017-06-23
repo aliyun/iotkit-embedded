@@ -114,8 +114,7 @@ void ads_update_wait_ack_list_handle_response(
 
         if (0 != pelement[i].flag_busy) {
             //check the related
-            if (((NULL == pdata) && (0 == strcmp("get", pelement[i].token)))
-                 || (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token)))) {
+            if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
                 aliot_platform_mutex_unlock(pshadow->mutex);
                 ALIOT_LOG_DEBUG("token=%s", pelement[i].token);
                 do {
@@ -126,6 +125,11 @@ void ads_update_wait_ack_list_handle_response(
                     }
 
                     if (0 == strncmp(pdata, "success", data_len)) {
+                        //If have 'state' keyword in @json_shadow.payload, attribute value should be updated.
+                        if (NULL != json_get_value_by_fullname(ppayload, payload_len, "state", &data_len, NULL)) {
+                            aliot_shadow_delta_entry(pshadow, json_doc, json_doc_len); //update attribute
+                        }
+
                         pelement[i].callback(ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
                     } else if (0 == strncmp(pdata, "error", data_len)) {
                         aliot_shadow_ack_code_t ack_code;

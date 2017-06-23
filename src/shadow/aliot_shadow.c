@@ -168,14 +168,8 @@ aliot_err_t aliot_shadow_update_asyn(
 
     /*Add to callback list */
     pmethod = json_get_value_by_name(data, data_len, "method", &val_len, &val_type);
-    if (0 == memcmp(pmethod, "get", val_len)) {
-        //Ignore clientToken in GET method
-        ptoken = "get";
-        val_len = 4;
-    } else {
-        ptoken = json_get_value_by_name(data, data_len, "clientToken", &val_len, &val_type);
-        ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
-    }
+    ptoken = json_get_value_by_name(data, data_len, "clientToken", &val_len, &val_type);
+    ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
 
     pelement = aliot_shadow_update_wait_ack_list_add(pshadow, ptoken, val_len, cb_fpt, timeout_s);
     if (NULL == pelement) {

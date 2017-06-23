@@ -1,6 +1,6 @@
 
-#ifndef _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_
-#define _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_
+#ifndef _ALIOT_SHADOW_DELTA_H_
+#define _ALIOT_SHADOW_DELTA_H_
 
 #include "aliot_platform.h"
 #include "aliot_shadow.h"
@@ -20,4 +20,4 @@ aliot_err_t aliot_shadow_delta_register_attr(
                 aliot_shadow_pt pshadow,
                 aliot_shadow_attr_pt pattr);
 
-#endif /* _MQTT_SHADOW_ALIYUN_IOT_SHADOW_DELTA_H_ */
+#endif /* _ALIOT_SHADOW_DELTA_H_ */

@@ -1,7 +1,7 @@
 
 
-#ifndef _ALIYUN_IOT_COMMON_TIMER_H_
-#define _ALIYUN_IOT_COMMON_TIMER_H_
+#ifndef _ALIOT_COMMON_TIMER_H_
+#define _ALIOT_COMMON_TIMER_H_
 
 #include "aliot_platform.h"
 

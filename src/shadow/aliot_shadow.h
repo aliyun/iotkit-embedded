@@ -1,6 +1,6 @@
 
-#ifndef _MQTT_ALIYUN_IOT_SHADOW_H_
-#define _MQTT_ALIYUN_IOT_SHADOW_H_
+#ifndef _ALIOT_SHADOW_H_
+#define _ALIOT_SHADOW_H_
 
 #include "aliot_platform.h"
 #include "aliot_error.h"
@@ -153,4 +153,4 @@ aliot_err_t aliot_shadow_update_asyn(
 aliot_err_t aliot_shadow_sync(void *handle);
 
 
-#endif /* _MQTT_ALIOT_SHADOW_H_ */
+#endif /* _ALIOT_SHADOW_H_ */

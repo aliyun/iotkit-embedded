@@ -1,6 +1,6 @@
 
-#ifndef ALIOT_DUMP_H_
-#define ALIOT_DUMP_H_
+#ifndef _ALIOT_DUMP_H_
+#define _ALIOT_DUMP_H_
 
 typedef enum {
     ALIOT_HEXDUMP_PREFIX_NONE,

@@ -69,6 +69,60 @@ static aliot_err_t aliot_shadow_delta_update_attr_value(
     return ads_common_convert_string2data(pvalue, value_len, pattr->attr_type, pattr->pattr_data);
 }
 
+
+static void aliot_shadow_delta_update_attr(aliot_shadow_pt pshadow,
+                const char *json_doc_attr,
+                uint32_t json_doc_attr_len,
+                const char *json_doc_metadata,
+                uint32_t json_doc_metadata_len)
+{
+    const char *pvalue;
+    aliot_shadow_attr_pt pattr;
+    list_iterator_t *iter;
+    list_node_t *node;
+    uint32_t len;
+
+    //Iterate the list and check JSON document according to list_node.val.pattr_name
+    //If the attribute be found, call the function registered by calling aliot_shadow_delta_register_attr()
+
+    aliot_platform_mutex_lock(pshadow->mutex);
+    iter = list_iterator_new(pshadow->inner_data.attr_list, LIST_TAIL);
+    if (NULL == iter) {
+        aliot_platform_mutex_unlock(pshadow->mutex);
+        ALIOT_LOG_WARN("Allocate memory failed");
+        return ;
+    }
+
+    while (node = list_iterator_next(iter), NULL != node) {
+        pattr = (aliot_shadow_attr_pt)node->val;
+        pvalue = json_get_value_by_fullname(json_doc_attr, json_doc_attr_len, pattr->pattr_name, &len, NULL);
+
+        //check if match attribute or not be matched
+        if (NULL != pvalue) { //attribute be matched
+            //get timestamp
+            pattr->timestamp = aliot_shadow_get_timestamp(
+                                    json_doc_metadata,
+                                    json_doc_metadata_len,
+                                    pattr->pattr_name);
+
+            //convert string of JSON value according to destination data type.
+            if (SUCCESS_RETURN != aliot_shadow_delta_update_attr_value(pattr, pvalue, len)) {
+                ALIOT_LOG_WARN("Update attribute value failed.");
+            }
+
+            if (NULL != pattr->callback) {
+                aliot_platform_mutex_unlock(pshadow->mutex);
+                //call related callback function
+                pattr->callback(pattr);
+                aliot_platform_mutex_lock(pshadow->mutex);
+            }
+        }
+    }
+
+    list_iterator_destroy(iter);
+    aliot_platform_mutex_unlock(pshadow->mutex);
+}
+
 //handle response ACK of UPDATE
 void aliot_shadow_delta_entry(
             aliot_shadow_pt pshadow,
@@ -78,9 +132,7 @@ void aliot_shadow_delta_entry(
     const char *key_metadata;
     const char *pstate, *pmetadata, *pvalue;
     int len_state, len_metadata, len;
-    aliot_shadow_attr_pt pattr;
-    list_iterator_t *iter;
-    list_node_t *node;
+
 
 
     if (NULL != (pstate = json_get_value_by_fullname(json_doc,
@@ -106,44 +158,15 @@ void aliot_shadow_delta_entry(
                                            NULL);
 
     if ((NULL == pstate) || (NULL == pmetadata)) {
-        ALIOT_LOG_ERROR("Invalid 'control' JSON Doc");
+        ALIOT_LOG_ERROR("Invalid JSON Doc");
         return;
     }
 
-    //Iterate the list and check JSON document according to list_node.val.pattr_name
-    //If the attribute be found, call the function registered by calling aliot_shadow_delta_register_attr()
-
-    iter = list_iterator_new(pshadow->inner_data.attr_list, LIST_TAIL);
-    if (NULL == iter) {
-        ALIOT_LOG_WARN("Allocate memory failed");
-        return ;
-    }
-
-    while (node = list_iterator_next(iter), NULL != node) {
-        pattr = (aliot_shadow_attr_pt)node->val;
-        pvalue = json_get_value_by_fullname(pstate, len_state, pattr->pattr_name, &len, NULL);
-
-        //check if match attribute or not be matched
-        if (NULL != pvalue) { //attribute be matched
-            //get timestamp
-            pattr->timestamp = aliot_shadow_get_timestamp(
-                                           pmetadata,
-                                           len_metadata,
-                                           pattr->pattr_name);
-
-            //convert string of JSON value according to destination data type.
-            if (SUCCESS_RETURN != aliot_shadow_delta_update_attr_value(pattr, pvalue, len)) {
-                ALIOT_LOG_WARN("Update attribute value failed.");
-            }
-
-            if (NULL != pattr->callback) {
-                //call related callback function
-                pattr->callback(pattr);
-            }
-        }
-    }
-
-    list_iterator_destroy(iter);
+    aliot_shadow_delta_update_attr(pshadow,
+                pstate,
+                len_state,
+                pmetadata,
+                len_metadata);
 
     //generate ACK and publish to @update topic using QOS1
     aliot_shadow_delta_response(pshadow);

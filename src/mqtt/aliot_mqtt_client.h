@@ -1,7 +1,7 @@
 
 
-#ifndef ALIYUN_IOT_MQTT_CLIENT_H
-#define ALIYUN_IOT_MQTT_CLIENT_H
+#ifndef _ALIOT_MQTT_CLIENT_H_
+#define _ALIOT_MQTT_CLIENT_H_
 
 #if defined(__cplusplus)
 extern "C" {
@@ -145,9 +145,9 @@ typedef struct {
      *   @pub_key point to the CA certification */
     const char                 *pub_key;
 
-    uint16_t                    keepalive_interval;       /* Specify MQTT keep-alive interval */
     uint8_t                     clean_session;            /* Specify MQTT clean session or not*/
     uint32_t                    request_timeout_ms;       /* Specify timeout of a MQTT request in millisecond */
+    uint32_t                    keepalive_interval_ms;    /* Specify MQTT keep-alive interval in millisecond */
 
     char                       *pwrite_buf;               /* Specify write-buffer */
     uint32_t                    write_buf_size;           /* Specify size of write-buffer in byte */

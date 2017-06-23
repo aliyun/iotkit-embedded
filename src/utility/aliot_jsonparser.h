@@ -1,6 +1,6 @@
 
-#ifndef JSON_PARSER_H
-#define JSON_PARSER_H
+#ifndef _ALIOT_JSON_PARSER_H
+#define _ALIOT_JSON_PARSER_H
 
 /**
 The descriptions of the json value node type

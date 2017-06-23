@@ -1,14 +1,7 @@
-/*********************************************************************************
- * 文件名称: aliot_error.h
- * 作       者:
- * 版       本:
- * 日       期: 2016-05-30
- * 描       述:
- * 其       它:
- * 历       史:
- **********************************************************************************/
-#ifndef ALIYUN_IOT_COMMON_ERROR_H
-#define ALIYUN_IOT_COMMON_ERROR_H
+
+
+#ifndef _ALIOT_COMMON_ERROR_H_
+#define _ALIOT_COMMON_ERROR_H_
 
 typedef enum IOT_RETURN_CODES {
     ERROR_DEVICE_NOT_EXSIT = -311,
