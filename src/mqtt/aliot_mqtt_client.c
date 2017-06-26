@@ -15,6 +15,7 @@
 
 //amc, aliot MQTT client
 
+
 /* MQTT client version number */
 #define AMC_MQTT_VERSION                    (4)
 
@@ -24,14 +25,8 @@
 /* maximum MQTT packet-id */
 #define AMC_PACKET_ID_MAX                   (65535)
 
-/* maximum number of successful subscribe */
-#define AMC_SUB_HANDLER_NUM                 (10)
-
-/* maximum republish elements in list */
-#define AMC_REPUB_NUM_MAX                   (20)
-
-/* maximum number of simultaneously invoke subscribe */
-#define AMC_SUB_NUM_MAX                     (10)
+/* maximum number of simultaneously invoke subscribe request */
+#define AMC_SUB_REQUEST_NUM_MAX             (10)
 
 /* Minimum interval of MQTT reconnect in millisecond */
 #define AMC_RECONNECT_INTERVAL_MIN_MS       (1000)
@@ -120,7 +115,7 @@ typedef struct Client {
     uint32_t                        buf_size_read;                           //read buffer size in byte
     char                           *buf_send;                                //pointer of send buffer
     char                           *buf_read;                                //pointer of read buffer
-    amc_topic_handle_t              sub_handle[AMC_SUB_HANDLER_NUM];         //array of subscribe handle
+    amc_topic_handle_t              sub_handle[AMC_SUB_NUM_MAX];             //array of subscribe handle
     aliot_network_pt                ipstack;                                 //network parameter
     aliot_time_t                    next_ping_time;                          //next ping time
     int                             ping_mark;                               //flag of ping
@@ -617,7 +612,7 @@ static int amc_push_subInfo_to(amc_client_t *c, int len, unsigned short msgId, e
 {
     aliot_platform_mutex_lock(c->lock_list_sub);
 
-    if (c->list_sub_wait_ack->len >= AMC_SUB_NUM_MAX) {
+    if (c->list_sub_wait_ack->len >= AMC_SUB_REQUEST_NUM_MAX) {
         aliot_platform_mutex_unlock(c->lock_list_sub);
         ALIOT_LOG_ERROR("number of subInfo more than max!,size = %d", c->list_sub_wait_ack->len);
         return FAIL_RETURN;
@@ -876,7 +871,7 @@ static void amc_deliver_message(amc_client_t *c, MQTTString *topicName, aliot_mq
 
     // we have to find the right message handler - indexed by topic
     aliot_platform_mutex_lock(c->lock_generic);
-    for (i = 0; i < AMC_SUB_HANDLER_NUM; ++i) {
+    for (i = 0; i < AMC_SUB_NUM_MAX; ++i) {
 
         if ((c->sub_handle[i].topic_filter != 0)
              && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
@@ -1013,7 +1008,7 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
     }
 
 
-    for (i = 0; i < AMC_SUB_HANDLER_NUM; ++i) {
+    for (i = 0; i < AMC_SUB_NUM_MAX; ++i) {
         /*If subscribe the same topic and callback function, then ignore*/
         if ((NULL != c->sub_handle[i].topic_filter)
             && (0 == amc_check_handle_is_identical(&c->sub_handle[i], &messagehandler))) {
@@ -1024,7 +1019,7 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
 
     /*Search a free element to record topic and related callback function*/
     aliot_platform_mutex_lock(c->lock_generic);
-    for (i = 0 ; i < AMC_SUB_HANDLER_NUM; ++i) {
+    for (i = 0 ; i < AMC_SUB_NUM_MAX; ++i) {
         if (NULL == c->sub_handle[i].topic_filter) {
             c->sub_handle[i].topic_filter = messagehandler.topic_filter;
             c->sub_handle[i].handle.h_fp = messagehandler.handle.h_fp;
@@ -1045,7 +1040,7 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
 
     aliot_platform_mutex_unlock(c->lock_generic);
     /*Not free element be found*/
-    ALIOT_LOG_ERROR("NOT more @messageHandlers space!");
+    ALIOT_LOG_ERROR("NOT more @sub_handle space!");
     return FAIL_RETURN;
 }
 
@@ -1109,7 +1104,7 @@ static int amc_handle_recv_UNSUBACK(amc_client_t *c)
 
     /* Remove from message handler array */
     aliot_platform_mutex_lock(c->lock_generic);
-    for (i = 0; i < AMC_SUB_HANDLER_NUM; ++i) {
+    for (i = 0; i < AMC_SUB_NUM_MAX; ++i) {
         if ((c->sub_handle[i].topic_filter != NULL)
             && (0 == amc_check_handle_is_identical(&c->sub_handle[i], &messageHandler))) {
             memset(&c->sub_handle[i], 0, sizeof(amc_topic_handle_t));
@@ -1479,7 +1474,7 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     connectdata.password.cstring = pInitParams->password;
 
 
-    memset(pClient->sub_handle, 0, AMC_SUB_HANDLER_NUM * sizeof(amc_topic_handle_t));
+    memset(pClient->sub_handle, 0, AMC_SUB_NUM_MAX * sizeof(amc_topic_handle_t));
 
     pClient->packet_id = 0;
     pClient->lock_generic = aliot_platform_mutex_create();

@@ -14,6 +14,13 @@ extern "C" {
 #include "aliot_platform.h"
 
 
+/* maximum number of successful subscribe */
+#define AMC_SUB_NUM_MAX                     (10)
+
+/* maximum republish elements in list */
+#define AMC_REPUB_NUM_MAX                   (20)
+
+
 typedef enum {
     ALIOT_MQTT_QOS0 = 0,
     ALIOT_MQTT_QOS1,

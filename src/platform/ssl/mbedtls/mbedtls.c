@@ -217,9 +217,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int
             } else {
                 char err_str[33];
                 mbedtls_strerror(ret, err_str, sizeof(err_str));
-                SSL_LOG("%s", err_str);
-
-                SSL_LOG("ssl recv error,ret = %d", ret);
+                SSL_LOG("ssl recv error: code=%d, err_str=%s", ret, err_str);
                 net_status = -1;
                 return -1; //Connection error
             }
@@ -243,7 +241,9 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int l
             SSL_LOG("ssl write timeout");
             return 0;
         } else {
-            SSL_LOG("ssl write fail, ret = %d", ret);
+            char err_str[33];
+            mbedtls_strerror(ret, err_str, sizeof(err_str));
+            SSL_LOG("ssl write fail, code=%d, str=%s", ret, err_str);
             return -1; //Connnection error
         }
     }
