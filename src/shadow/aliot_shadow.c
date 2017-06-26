@@ -147,12 +147,13 @@ aliot_err_t aliot_shadow_update_asyn(
                 char *data,
                 size_t data_len,
                 uint16_t timeout_s,
-                aliot_update_cb_fpt cb_fpt)
+                aliot_update_cb_fpt cb_fpt,
+                void *pcontext)
 {
     int rc = SUCCESS_RETURN;
     aliot_update_ack_wait_list_pt pelement;
-    int val_len, val_type;
-    const char *ptoken, *pmethod;
+    int token_len;
+    const char *ptoken;
     aliot_shadow_pt pshadow = (aliot_shadow_pt)handle;
 
     if ((NULL == handle) || (NULL == data)) {
@@ -165,11 +166,10 @@ aliot_err_t aliot_shadow_update_asyn(
     }
 
     /*Add to callback list */
-    pmethod = json_get_value_by_name(data, data_len, "method", &val_len, &val_type);
-    ptoken = json_get_value_by_name(data, data_len, "clientToken", &val_len, &val_type);
+    ptoken = json_get_value_by_name(data, data_len, "clientToken", &token_len, NULL);
     ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
 
-    pelement = aliot_shadow_update_wait_ack_list_add(pshadow, ptoken, val_len, cb_fpt, timeout_s);
+    pelement = aliot_shadow_update_wait_ack_list_add(pshadow, ptoken, token_len, cb_fpt, pcontext, timeout_s);
     if (NULL == pelement) {
         return ERROR_SHADOW_WAIT_LIST_OVERFLOW;
     }
@@ -183,23 +183,26 @@ aliot_err_t aliot_shadow_update_asyn(
 }
 
 
-static aliot_shadow_ack_code_t shadow_update_flag_ack = ALIOT_SHADOW_ACK_NONE;
+
 static void aliot_update_ack_cb(
-            aliot_shadow_ack_code_t ack_code,
-            const char *ack_msg, //NOTE: NOT a string.
-            uint32_t ack_msg_len)
+                void *pcontext,
+                aliot_shadow_ack_code_t ack_code,
+                const char *ack_msg, //NOTE: NOT a string.
+                uint32_t ack_msg_len)
 {
     ALIOT_LOG_DEBUG("ack_code=%d, ack_msg=%.*s", ack_code, ack_msg_len, ack_msg);
-    shadow_update_flag_ack = ack_code;
+
+    *((aliot_shadow_ack_code_t *)pcontext) = ack_code;
 }
 
 
 aliot_err_t aliot_shadow_update(
-            void *handle,
-            char *data,
-            uint32_t data_len,
-            uint16_t timeout_s)
+                void *handle,
+                char *data,
+                uint32_t data_len,
+                uint16_t timeout_s)
 {
+    aliot_shadow_ack_code_t ack_update = ALIOT_SHADOW_ACK_NONE;
     aliot_shadow_pt pshadow = (aliot_shadow_pt)handle;
 
     if ((NULL == pshadow) || (NULL == data)) {
@@ -211,23 +214,20 @@ aliot_err_t aliot_shadow_update(
         return ERROR_SHADOW_INVALID_STATE;
     }
 
-    shadow_update_flag_ack = ALIOT_SHADOW_ACK_NONE;
-
     //update asynchronously
-    aliot_shadow_update_asyn(pshadow, data, data_len, timeout_s, aliot_update_ack_cb);
+    aliot_shadow_update_asyn(pshadow, data, data_len, timeout_s, aliot_update_ack_cb, &ack_update);
 
     //wait ACK
-    //TODO #BUG It NOT support multiple call simultaneously.
-    while (ALIOT_SHADOW_ACK_NONE == shadow_update_flag_ack) {
+    while (ALIOT_SHADOW_ACK_NONE == ack_update) {
         aliot_shadow_yield(pshadow, 200);
     }
 
-    if ((ALIOT_SHADOW_ACK_SUCCESS == shadow_update_flag_ack)
-        || (ALIOT_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL == shadow_update_flag_ack)) {
+    if ((ALIOT_SHADOW_ACK_SUCCESS == ack_update)
+        || (ALIOT_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL == ack_update)) {
         //It is not the error that device shadow document is null
         ALIOT_LOG_INFO("update success.");
         return SUCCESS_RETURN;
-    } else if (ALIOT_SHADOW_ACK_TIMEOUT == shadow_update_flag_ack) {
+    } else if (ALIOT_SHADOW_ACK_TIMEOUT == ack_update) {
         ALIOT_LOG_INFO("update timeout.");
         return ERROR_SHADOW_UPDATE_TIMEOUT;
     } else {
@@ -273,6 +273,49 @@ aliot_err_t aliot_shadow_sync(void *handle)
 }
 
 
+void ads_event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
+{
+    aliot_shadow_pt pshadow = (aliot_shadow_pt)pcontext;
+    uint32_t packet_id = (uint32_t)msg->msg;
+    aliot_mqtt_topic_info_pt topic_info = (aliot_mqtt_topic_info_pt)msg->msg;
+
+    switch (msg->event_type)
+    {
+    case ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS:
+        ALIOT_LOG_INFO("subscribe success, packet-id=%u", packet_id);
+        if (pshadow->inner_data.sync_status == packet_id) {
+            pshadow->inner_data.sync_status = 0;
+        }
+        break;
+
+    case ALIOT_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+        ALIOT_LOG_INFO("subscribe wait ack timeout, packet-id=%u", packet_id);
+        if (pshadow->inner_data.sync_status == packet_id) {
+            pshadow->inner_data.sync_status = -1;
+        }
+        break;
+
+    case ALIOT_MQTT_EVENT_SUBCRIBE_NACK:
+        ALIOT_LOG_INFO("subscribe nack, packet-id=%u", packet_id);
+        if (pshadow->inner_data.sync_status == packet_id) {
+            pshadow->inner_data.sync_status = -1;
+        }
+        break;
+
+    case ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
+        ALIOT_LOG_INFO("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
+                topic_info->topic_len,
+                topic_info->ptopic,
+                topic_info->payload_len,
+                topic_info->payload);
+        break;
+
+    default:
+        //ALIOT_LOG_INFO("Should NOT arrive here.");
+        break;
+    }
+}
+
 void *aliot_shadow_construct(aliot_shadow_para_pt pparams)
 {
     int rc = 0;
@@ -290,8 +333,8 @@ void *aliot_shadow_construct(aliot_shadow_para_pt pparams)
         goto do_exit;
     }
 
-    //TODO
-    //pparams->mqtt.handle_event
+    pparams->mqtt.handle_event.h_fp = ads_event_handle;
+    pparams->mqtt.handle_event.pcontext = pshadow;
 
     //construct MQTT client
     if (NULL == (pshadow->mqtt = aliot_mqtt_construct(&pparams->mqtt))) {
@@ -305,9 +348,17 @@ void *aliot_shadow_construct(aliot_shadow_para_pt pparams)
         goto do_exit;
     }
 
-    //TODO
-    aliot_platform_msleep(2000);
+    pshadow->inner_data.sync_status = rc;
 
+    while(rc == pshadow->inner_data.sync_status) {
+        aliot_shadow_yield(pshadow, 100);
+    }
+
+    if (0 == pshadow->inner_data.sync_status) {
+        ALIOT_LOG_INFO("Sync device data successfully");
+    } else {
+        ALIOT_LOG_INFO("Sync device data failed");
+    }
 
 
     pshadow->inner_data.attr_list = list_new();

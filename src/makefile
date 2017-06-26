@@ -1,5 +1,5 @@
 
-#MQTT_TCP=yes
+MQTT_TCP=yes
 
 
 #path of include files

@@ -104,7 +104,7 @@ void aliot_mqtt_msg_arrived(void *pcontext, void *pclient, aliot_mqtt_event_msg_
 
 int mqtt_client(void)
 {
-    int rc = 0, ch = 0, msg_len, cnt = 0;
+    int rc = 0, msg_len, cnt = 0;
     void *pclient;
     aliot_user_info_pt puser_info;
     aliot_mqtt_param_t mqtt_params;

@@ -15,6 +15,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
             const char *token,
             size_t token_len,
             aliot_update_cb_fpt cb,
+            void *pcontext,
             uint32_t timeout);
 
 void aliot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element);

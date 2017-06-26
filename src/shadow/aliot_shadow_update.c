@@ -15,6 +15,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
             const char *ptoken, //NOTE: this is NOT a string.
             size_t token_len,
             aliot_update_cb_fpt cb,
+            void *pcontext,
             uint32_t timeout)
 {
     int i;
@@ -36,6 +37,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
     }
 
     list[i].callback = cb;
+    list[i].pcontext = pcontext;
 
     if (token_len >= ADS_TOKEN_LEN) {
         ALIOT_LOG_WARN("token is too long.");
@@ -74,7 +76,7 @@ void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow)
         if (0 != pelement[i].flag_busy) {
             if (aliot_time_is_expired(&pelement[i].timer)) {
                 if (NULL != pelement[i].callback) {
-                    pelement[i].callback(ALIOT_SHADOW_ACK_TIMEOUT, NULL, 0);
+                    pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_TIMEOUT, NULL, 0);
                 }
                 //free it.
                 memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));
@@ -130,7 +132,7 @@ void ads_update_wait_ack_list_handle_response(
                             aliot_shadow_delta_entry(pshadow, json_doc, json_doc_len); //update attribute
                         }
 
-                        pelement[i].callback(ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
+                        pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
                     } else if (0 == strncmp(pdata, "error", data_len)) {
                         aliot_shadow_ack_code_t ack_code;
 
@@ -147,7 +149,7 @@ void ads_update_wait_ack_list_handle_response(
                             break;
                         }
 
-                        pelement[i].callback(ack_code, pdata, data_len);
+                        pelement[i].callback(pelement[i].pcontext, ack_code, pdata, data_len);
                     } else {
                         ALIOT_LOG_WARN("Invalid JSON document: value of 'status' key is invalid.");
                     }

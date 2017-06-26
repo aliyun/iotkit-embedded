@@ -14,6 +14,7 @@ typedef struct aliot_update_ack_wait_list_st {
     bool flag_busy; //0, free; 1, busy.
     char token[ADS_TOKEN_LEN];
     aliot_update_cb_fpt callback;
+    void *pcontext;
     aliot_time_t timer;
 } aliot_update_ack_wait_list_t, *aliot_update_ack_wait_list_pt;
 
@@ -26,6 +27,7 @@ typedef struct aliot_inner_data_st {
     list_t *attr_list;
     char *ptopic_update;
     char *ptopic_get;
+    int32_t sync_status;
 } aliot_inner_data_t, *aliot_inner_data_pt;;
 
 

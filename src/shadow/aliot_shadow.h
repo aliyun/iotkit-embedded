@@ -7,15 +7,8 @@
 #include "aliot_mqtt_client.h"
 
 
-/*
- * IMPORTANT NOTE:
- *
- * 1) ads is short from aliot device shadow.
- * 2) All of those interface should NOT call in multiple threads.
- *    Those interface are NOT thread-safe.
- * 3) More detail description is coming soon.
- *
- */
+//ads is an abbreviation for aliot device shadow.
+
 
 typedef enum {
     ALIOT_SHADOW_ACK_TIMEOUT = -1,
@@ -63,6 +56,7 @@ typedef struct {
 
 
 typedef void (*aliot_update_cb_fpt)(
+                void *pcontext,
                 aliot_shadow_ack_code_t ack_code,
                 const char *ack_msg, //NOTE: NOT a string.
                 uint32_t ack_msg_len);
@@ -146,7 +140,8 @@ aliot_err_t aliot_shadow_update_asyn(
                 char *data,
                 size_t data_len,
                 uint16_t timeout_s,
-                aliot_update_cb_fpt cb_fpt);
+                aliot_update_cb_fpt cb_fpt,
+                void *pcontext);
 
 
 /* Synchronize device shadow data from cloud. It is a synchronous interface. */
