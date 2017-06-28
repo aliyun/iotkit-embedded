@@ -21,7 +21,7 @@ typedef struct aliot_update_ack_wait_list_st {
 
 typedef struct aliot_inner_data_st {
     uint32_t token_num;
-    uint32_t version; //TODO version overflow.
+    uint32_t version; 
     aliot_shadow_time_t time;
     aliot_update_ack_wait_list_t update_ack_wait_list[ADS_UPDATE_WAIT_ACK_LIST_NUM];
     list_t *attr_list;

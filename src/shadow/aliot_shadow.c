@@ -39,7 +39,7 @@ static void ads_handle_expire(aliot_shadow_pt pshadow)
 }
 
 
-//当服务端通过/shadow/get下发时指令时，回调该函数。
+//This function will be called back when message published to topic(/shadow/get/) arrives.
 static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, aliot_mqtt_event_msg_pt msg)
 {
     const char *pname;
