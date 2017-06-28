@@ -247,6 +247,7 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int l
             return -1; //Connnection error
         }
     }
+
     return writtenLen;
 }
 
@@ -386,7 +387,7 @@ int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const
 
 int aliot_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
-    return aliot_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);
+    return aliot_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
 }
 
 int aliot_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms)

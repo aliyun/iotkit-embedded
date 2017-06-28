@@ -6,9 +6,14 @@
 #include "aliot_device.h"
 
 //The product and device information from IOT console
-#define PRODUCT_KEY         "6RcIOUafDOm"
-#define DEVICE_NAME         "sh_pre_sample_mqtt"
-#define DEVICE_SECRET       "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
+//#define PRODUCT_KEY         "6RcIOUafDOm"
+//#define DEVICE_NAME         "sh_pre_sample_mqtt"
+//#define DEVICE_SECRET       "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
+
+
+#define PRODUCT_KEY         "OvNmiEYRDSY"
+#define DEVICE_NAME         "sh_online_sample_mqtt"
+#define DEVICE_SECRET       "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
 
 
 //This is the pre-defined topic

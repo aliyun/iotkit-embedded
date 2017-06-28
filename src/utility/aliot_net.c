@@ -52,35 +52,26 @@ static int connect_tcp(aliot_network_pt pNetwork)
 
 static int read_ssl(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-//#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
     if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return -1;
     }
 
     return aliot_platform_ssl_read((void *)pNetwork->handle, buffer, len, timeout_ms);
-//#else
-//    return -1;
-//#endif
 }
 
 static int write_ssl(aliot_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-//#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
     if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return -1;
     }
 
     return aliot_platform_ssl_write((void *)pNetwork->handle, buffer, len, timeout_ms);
-//#else
-//    return -1;
-//#endif
 }
 
 static int disconnect_ssl(aliot_network_pt pNetwork)
 {
-//#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
     if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return -1;
@@ -90,14 +81,10 @@ static int disconnect_ssl(aliot_network_pt pNetwork)
     pNetwork->handle = 0;
 
     return 0;
-//#else
-//    return -1;
-//#endif
 }
 
 static int connect_ssl(aliot_network_pt pNetwork)
 {
-//#ifdef ALIOT_CHANNEL_ENCRYPT_SSL
     if (NULL == pNetwork) {
         ALIOT_LOG_ERROR("network is null");
         return 1;
@@ -115,9 +102,6 @@ static int connect_ssl(aliot_network_pt pNetwork)
         //aliot_memory_free((void *)pNetwork->handle);
         return -1;
     }
-//#else
-//    return -1;
-//#endif
 }
 
 

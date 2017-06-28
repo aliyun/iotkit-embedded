@@ -17,7 +17,7 @@
 #include "aliot_ca.h"
 #include "aliot_auth.h"
 
-//#define _ONLINE
+#define _ONLINE
 
 #ifdef _ONLINE
 const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
@@ -135,7 +135,7 @@ static int aliot_get_id_token(
                 auth_host,
                 443,
                 aliot_ca_get(),
-                10000,
+                5000,
                 &httpclient_data);
 #else
 
