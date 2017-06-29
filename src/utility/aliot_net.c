@@ -7,7 +7,7 @@
 #include "aliot_hexdump.h"
 
 
-/* TCP connection */
+/*** TCP connection ***/
 int read_tcp(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     return aliot_platform_tcp_read(pNetwork->handle, buffer, len, timeout_ms);
@@ -38,7 +38,6 @@ static int connect_tcp(aliot_network_pt pNetwork)
         return 1;
     }
 
-    //todo port should be integer type.
     pNetwork->handle = aliot_platform_tcp_establish(pNetwork->pHostAddress, pNetwork->port);
     if ( 0 == pNetwork->handle ) {
         return -1;
@@ -48,7 +47,7 @@ static int connect_tcp(aliot_network_pt pNetwork)
 }
 
 
-/* SSL connection */
+/*** SSL connection ***/
 
 static int read_ssl(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {

@@ -184,9 +184,10 @@ void aliot_platform_printf(_IN_ const char *fmt, ...);
 /**
  * @brief Get vendor ID of hardware module.
  *
- * @return pointer of @pid_str.
+ * @return NULL, Have NOT PID; NOT NULL, point to pid_str.
  */
 char *aliot_platform_module_get_pid(char pid_str[]);
+
 
 /** @} */ //end of group_platform_other
 

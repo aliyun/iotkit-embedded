@@ -273,20 +273,35 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
 #endif
     if (NULL == puser_info->pubKey) {
         char pid[16];
-        //Append string "nonesecure" and "pid" to client_id if TCP connection be used.
-        ret = snprintf(puser_info->client_id,
+        //Append string "nonesecure" if TCP connection be used.
+        if (NULL == aliot_platform_module_get_pid(pid)) {
+            ret = snprintf(puser_info->client_id,
+                       CLIENT_ID_LEN,
+                       "%s|securemode=0|",
+                       pdevice_info->device_id);
+        } else {
+            //Append "pid" if we have pid
+            ret = snprintf(puser_info->client_id,
                        CLIENT_ID_LEN,
                        "%s|securemode=0,pid=%s|",
                        pdevice_info->device_id,
-                       aliot_platform_module_get_pid(pid));
-
+                       pid);
+        }
     } else {
         char pid[16];
-        ret = snprintf(puser_info->client_id,
+        if (NULL == aliot_platform_module_get_pid(pid)) {
+            ret = snprintf(puser_info->client_id,
+                                   CLIENT_ID_LEN,
+                                   "%s",
+                                   pdevice_info->device_id);
+        } else {
+            //Append "pid" if we have pid
+            ret = snprintf(puser_info->client_id,
                        CLIENT_ID_LEN,
                        "%s|pid=%s|",
                        pdevice_info->device_id,
-                       aliot_platform_module_get_pid(pid));
+                       pid);
+        }
     }
 
     if (ret >= CLIENT_ID_LEN) {

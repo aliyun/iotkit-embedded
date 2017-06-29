@@ -7,17 +7,9 @@
 
 
 //The product and device information from IOT console
-/* online */
-//#define PRODUCT_KEY         "4eViBFJ2QGH"
-//#define DEVICE_NAME         "sh_xk_device_4"
-//#define DEVICE_ID           "gAPvCV7YhFccFMaHmAYh"
-//#define DEVICE_SECRET       "qkmOMDccik2HnyCamIqK5gcZnuuwNBXe"
-
-/* pre */
-#define PRODUCT_KEY         "6RcIOUafDOm"
-#define DEVICE_NAME         "sh_pre_sample_shadow"
-#define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
-
+#define PRODUCT_KEY         "OvNmiEYRDSY"
+#define DEVICE_NAME         "sh_online_sample_shadow"
+#define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
 
 
 #define MSG_LEN_MAX         (1024)
