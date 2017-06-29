@@ -28,7 +28,7 @@
 
 #define HTTPCLIENT_AUTHB_SIZE     128
 
-#define HTTPCLIENT_CHUNK_SIZE     512
+#define HTTPCLIENT_CHUNK_SIZE     256
 #define HTTPCLIENT_SEND_BUF_SIZE  512
 
 #define HTTPCLIENT_MAX_HOST_LEN   64
@@ -542,6 +542,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             if (readLen) {
                 int ret;
                 int max_len = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - count);
+                max_len = HTTPCLIENT_MIN(max_len, readLen);
                 ret = httpclient_recv(client, data, 1, max_len, &len, aliot_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;

@@ -1820,6 +1820,7 @@ static int amc_connect(amc_client_t *pClient)
 
     amc_set_client_state(pClient, AMC_STATE_CONNECTED);
 
+    aliot_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     ALIOT_LOG_INFO("mqtt connect success!");
     return SUCCESS_RETURN;
@@ -2002,7 +2003,7 @@ static int amc_keepalive_sub(amc_client_t *pClient)
     if (!amc_check_state_normal(pClient)) {
         return SUCCESS_RETURN;
     }
-
+ 
     /*if there is no ping_timer timeout, then return success*/
     if (!aliot_time_is_expired(&pClient->next_ping_time)) {
         return SUCCESS_RETURN;
@@ -2010,15 +2011,6 @@ static int amc_keepalive_sub(amc_client_t *pClient)
 
     //update to next time sending MQTT keep-alive
     aliot_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
-
-//    //Do NOT send this PING, if the PONG of the last ping is not received
-//    aliot_platform_mutex_lock(pClient->lock_generic);
-//    if (0 != pClient->ping_mark) {
-//        aliot_platform_mutex_unlock(pClient->lock_generic);
-//        return SUCCESS_RETURN;
-//    }
-//    aliot_platform_mutex_unlock(pClient->lock_generic);
-
 
     rc = MQTTKeepalive(pClient);
     if (SUCCESS_RETURN != rc) {

@@ -187,7 +187,6 @@ int mqtt_client(void)
 
     aliot_platform_msleep(1000);
 
-
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(aliot_mqtt_topic_info_t));
     strcpy(msg_pub, "message: hello! start!");

@@ -135,7 +135,7 @@ static int aliot_get_id_token(
                 auth_host,
                 443,
                 aliot_ca_get(),
-                5000,
+                10000,
                 &httpclient_data);
 #else
 
