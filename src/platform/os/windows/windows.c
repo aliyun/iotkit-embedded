@@ -105,6 +105,5 @@ void aliot_platform_printf(_IN_ const char *fmt, ...)
 
 char *aliot_platform_module_get_pid(char pid_str[])
 {
-    strcpy(pid_str, "123456789");
-    return pid_str;
+    return NULL;
 }

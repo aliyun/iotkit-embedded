@@ -1799,6 +1799,11 @@ static int amc_connect(amc_client_t *pClient)
         }
     }
 
+    ALIOT_LOG_DEBUG("start MQTT connection with parameters: clientid=%s, username=%s, password=%s",
+            pClient->connect_data.clientID.cstring,
+            pClient->connect_data.username.cstring,
+            pClient->connect_data.password.cstring);
+
     rc = MQTTConnect(pClient);
     if (rc  != SUCCESS_RETURN) {
         pClient->ipstack->disconnect(pClient->ipstack);

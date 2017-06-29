@@ -1,6 +1,4 @@
 
-MQTT_TCP=yes
-
 
 #path of include files
 INCLUD_PATH = -I./auth/
