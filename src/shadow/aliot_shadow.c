@@ -190,7 +190,13 @@ static void aliot_update_ack_cb(
                 const char *ack_msg, //NOTE: NOT a string.
                 uint32_t ack_msg_len)
 {
-    ALIOT_LOG_DEBUG("ack_code=%d, ack_msg=%.*s", ack_code, ack_msg_len, ack_msg);
+    ALIOT_LOG_DEBUG("ack_code=%d", ack_code);
+
+    if (NULL != ack_msg) {
+        ALIOT_LOG_DEBUG("ack_msg=%.*s", ack_msg_len, ack_msg);
+    } else {
+        ALIOT_LOG_DEBUG("ack_msg is NULL");
+    }
 
     *((aliot_shadow_ack_code_t *)pcontext) = ack_code;
 }

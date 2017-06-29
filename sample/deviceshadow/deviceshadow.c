@@ -7,10 +7,14 @@
 
 
 //The product and device information from IOT console
-#define PRODUCT_KEY         "OvNmiEYRDSY"
-#define DEVICE_NAME         "sh_online_sample_shadow"
-#define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
+//#define PRODUCT_KEY         "OvNmiEYRDSY"
+//#define DEVICE_NAME         "sh_online_sample_shadow"
+//#define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
 
+
+#define PRODUCT_KEY         "6RcIOUafDOm"
+#define DEVICE_NAME         "sh_pre_sample_shadow"
+#define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
 
 #define MSG_LEN_MAX         (1024)
 
