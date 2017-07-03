@@ -16,7 +16,7 @@ INCLUD_PATH += -I./ssl/mbedtls/mbedtls/configs/$(OS)/
 endif
 
 
-CFLAGS =  -Wall -g ${INCLUD_PATH} 
+CFLAGS +=  -Wall -g ${INCLUD_PATH} 
 ifeq ($(BUILD_TYPE), debug)
 CFLAGS += -DALIOT_DEBUG
 endif

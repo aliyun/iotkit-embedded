@@ -15,7 +15,6 @@ libsdk:
 	mkdir -p ./build_out 
 	$(info make aliot library)
 	make -C ./src/ \
-    	-e \
     	CC=$(PLATFORM_CC) \
     	AR=$(PLATFORM_AR) \
     	OS=$(PLATFORM_OS) \
@@ -28,7 +27,6 @@ libplatform:
 	mkdir -p ./build_out
 	$(info make platform library)
 	make -C ./src/platform/ \
-		-e \
 		CC=$(PLATFORM_CC) \
 		AR=$(PLATFORM_AR) \
 		OS=$(PLATFORM_OS) \

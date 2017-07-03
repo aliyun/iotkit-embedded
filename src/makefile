@@ -22,7 +22,7 @@ CFILE = $(patsubst %.o,%.c, ${OBJ})
 LIB_STATIC = ${SDK_LIB_NAME}.a
 
 
-CFLAGS = -Wall -g ${INCLUD_PATH}
+CFLAGS += -Wall -g ${INCLUD_PATH}
 
 ifeq ($(MQTT_TCP), yes)
 CFLAGS += -DALIOT_MQTT_TCP
