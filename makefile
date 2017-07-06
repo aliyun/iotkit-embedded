@@ -75,7 +75,7 @@ clean:
 	$(info make clean aliot library)	
 	make -C ./src/ clean 
 	$(info make clean platform library)	
-	make -C ./src/platform clean -e OS=$(PLATFORM_OS) NETWORK=$(PLATFORM_NETWORK) SSL=$(SSL) PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME)
+	make -C ./src/platform clean OS=$(PLATFORM_OS) NETWORK=$(PLATFORM_NETWORK) SSL=$(PLATFORM_SSL) PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME)
 	$(info make clean external library)	
 	make -C ./libs/ clean 
 	$(info make clean mqtt sample)
