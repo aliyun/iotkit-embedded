@@ -982,6 +982,7 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
 {
     unsigned short mypacketid;
     int i, count = 0, grantedQoS = -1;
+    int i_free = -1, flag_dup = 0;
     if (MQTTDeserialize_suback(&mypacketid, 1, &count, &grantedQoS, (unsigned char *)c->buf_read, c->buf_size_read) != 1) {
         ALIOT_LOG_ERROR("Sub ack packet error");
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
@@ -1007,41 +1008,45 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
 
+    aliot_platform_mutex_lock(c->lock_generic);
 
     for (i = 0; i < AMC_SUB_NUM_MAX; ++i) {
         /*If subscribe the same topic and callback function, then ignore*/
         if ((NULL != c->sub_handle[i].topic_filter)
             && (0 == amc_check_handle_is_identical(&c->sub_handle[i], &messagehandler))) {
             //if subscribe a identical topic and relate callback function, then ignore this subscribe.
-            return SUCCESS_RETURN;
+            flag_dup = 1;
+            ALIOT_LOG_ERROR("There is a identical topic and related handle in list!");
+            break;
+        } else {
+            if (-1 == i_free) {
+                i_free = i; //record free element
+            }
         }
     }
 
-    /*Search a free element to record topic and related callback function*/
-    aliot_platform_mutex_lock(c->lock_generic);
-    for (i = 0 ; i < AMC_SUB_NUM_MAX; ++i) {
-        if (NULL == c->sub_handle[i].topic_filter) {
-            c->sub_handle[i].topic_filter = messagehandler.topic_filter;
-            c->sub_handle[i].handle.h_fp = messagehandler.handle.h_fp;
-            c->sub_handle[i].handle.pcontext = messagehandler.handle.pcontext;
-            aliot_platform_mutex_unlock(c->lock_generic);
-
-            //call callback function to notify that SUBSCRIBE is successful.
-            if (NULL != c->handle_event.h_fp) {
-                aliot_mqtt_event_msg_t msg;
-                msg.event_type = ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS;
-                msg.msg = (void *)mypacketid;
-                c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
-            }
-
-            return SUCCESS_RETURN;
+    if (0 == flag_dup) {
+        if (-1 == i_free) {
+            ALIOT_LOG_ERROR("NOT more @sub_handle space!");
+            return FAIL_RETURN;
+        } else {
+            c->sub_handle[i_free].topic_filter = messagehandler.topic_filter;
+            c->sub_handle[i_free].handle.h_fp = messagehandler.handle.h_fp;
+            c->sub_handle[i_free].handle.pcontext = messagehandler.handle.pcontext;
         }
     }
 
     aliot_platform_mutex_unlock(c->lock_generic);
-    /*Not free element be found*/
-    ALIOT_LOG_ERROR("NOT more @sub_handle space!");
-    return FAIL_RETURN;
+
+    //call callback function to notify that SUBSCRIBE is successful.
+    if (NULL != c->handle_event.h_fp) {
+        aliot_mqtt_event_msg_t msg;
+        msg.event_type = ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS;
+        msg.msg = (void *)mypacketid;
+        c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+    }
+
+    return SUCCESS_RETURN;
 }
 
 
