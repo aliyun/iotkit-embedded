@@ -141,7 +141,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
         /* Sleep 1000 ms */
         aliot_platform_msleep(1000);
-    } while (1);
+    } while (0);
 
 
     /* Delete the two attributes */

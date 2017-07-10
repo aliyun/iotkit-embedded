@@ -223,7 +223,7 @@ int mqtt_client(void)
 
         //aliot_platform_msleep(1000);
 
-    } while (cnt < 100);
+    } while (0 && cnt < 100);
 
     aliot_mqtt_unsubscribe(pclient, TOPIC_DATA);
 
