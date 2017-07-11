@@ -1,4 +1,3 @@
-
 LIB_PLATFORM = $(PLATFORM_LIB_NAME).a
 BUILD_OUT_PATH = ./ssl/build/
 
@@ -66,6 +65,6 @@ ${OBJ}:%.o:%.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 clean:
-	-rm -rf ${BUILD_OUT_PATH}
-	-rm ${OBJ} ${LIB_PLATFORM}
-	-make -C ./ssl/mbedtls/mbedtls clean
+	rm -rf ${BUILD_OUT_PATH}
+	rm -f ${OBJ} ${LIB_PLATFORM}
+	make -C ./ssl/mbedtls/mbedtls clean

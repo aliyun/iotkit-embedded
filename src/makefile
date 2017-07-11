@@ -1,5 +1,3 @@
-
-
 #path of include files
 INCLUD_PATH = -I./auth/
 INCLUD_PATH += -I./mqtt/
@@ -47,4 +45,4 @@ ${OBJ}:%.o:%.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 clean:
-	-rm ${OBJ} ${LIB_STATIC}
+	find . -name "*.o" -o -name "*.a" -exec rm -vf {} \;
