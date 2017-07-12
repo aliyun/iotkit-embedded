@@ -1,0 +1,2 @@
+CONFIG_ENV_CFLAGS += -g3 -rdynamic --coverage
+CONFIG_LIB_EXPORT := static
