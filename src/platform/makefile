@@ -67,4 +67,4 @@ ${OBJ}:%.o:%.c
 clean:
 	rm -rf ${BUILD_OUT_PATH}
 	rm -f ${OBJ} ${LIB_PLATFORM}
-	make -C ./ssl/mbedtls/mbedtls clean
+	# make -C ./ssl/mbedtls/mbedtls clean

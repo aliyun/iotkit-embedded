@@ -22,7 +22,13 @@ LIB_STATIC = ${SDK_LIB_NAME}.a
 
 CFLAGS += -Wall -g ${INCLUD_PATH}
 
-ifeq ($(MQTT_TCP), yes)
+ifeq (y,$(DIRECT_MQTT))
+CFLAGS += -DDIRECT_MQTT
+endif
+
+# MQTT_TCP = yes
+
+ifeq ($(MQTT_TCP),yes)
 CFLAGS += -DALIOT_MQTT_TCP
 endif
 
@@ -45,4 +51,4 @@ ${OBJ}:%.o:%.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 clean:
-	find . -name "*.o" -o -name "*.a" -exec rm -vf {} \;
+	find . -path ./platform/ssl -prune -o \( -name "*.o" -o -name "*.a" \) -exec rm -vf {} \;

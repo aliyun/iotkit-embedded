@@ -72,7 +72,7 @@ int mqtt_real_confirm(int verify_result)
     }
 
     if ((verify_result & MBEDTLS_X509_BADCERT_CN_MISMATCH) != 0) {
-        SSL_LOG("! fail ! CN mismatch");
+        SSL_LOG("! warn ! CN mismatch");
     }
 
     if ((verify_result & MBEDTLS_X509_BADCERT_NOT_TRUSTED) != 0) {
@@ -401,7 +401,7 @@ int32_t aliot_platform_ssl_destroy(uintptr_t handle)
         SSL_LOG("handle is NULL");
         return 0;
     }
-    
+
     aliot_network_ssl_disconnect((TLSDataParams_t *)handle);
     free(handle);
     return 0;

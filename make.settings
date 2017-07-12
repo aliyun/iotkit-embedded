@@ -7,3 +7,4 @@ PLATFORM_SSL              = mbedtls
 
 ALIOT_SDK_LIB_NAME        = libaliot_sdk
 ALIOT_PLATFORM_LIB_NAME   = libaliot_platform
+ALIOT_DIRECT_MQTT         = y
