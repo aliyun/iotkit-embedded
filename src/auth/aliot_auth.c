@@ -264,7 +264,6 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
 {
     int ret = 0;
     char pid[16];
-    char buf[512];
 
     memset(pid, 0, sizeof(pid));
     aliot_platform_module_get_pid(pid);
@@ -273,6 +272,7 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
 #define DIRECT_MQTT_DOMAIN  "iot-as-mqtt.cn-shanghai.aliyuncs.com"
 
     char sign[33];
+    char buf[512];
     SECURE_MODE mode;
 
     puser_info->port = 1883;

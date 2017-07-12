@@ -18,3 +18,5 @@ ltmain.sh
 /Default/
 sample/deviceshadow/deviceshadow
 sample/mqtt/mqtt
+.O/
+.config
