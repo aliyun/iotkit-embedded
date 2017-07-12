@@ -8,6 +8,10 @@ CC=$(PLATFORM_CC)
 CFLAGS += -std=gnu99 -Wall -g
 LDFLAGS = -lm -pthread
 
+ifeq (y,$(DIRECT_MQTT))
+CFLAGS += -DDIRECT_MQTT
+endif
+
 ifeq ($(PLATFORM_OS), windows)
 LDFLAGS += -lws2_32
 endif

@@ -18,7 +18,10 @@ libsdk:
     	NETWORK=$(PLATFORM_NETWORK) \
     	SSL=$(PLATFORM_SSL) \
     	SDK_LIB_NAME=$(ALIOT_SDK_LIB_NAME) \
-    	BUILD_TYPE=$(BUILD_TYPE)
+    	BUILD_TYPE=$(BUILD_TYPE) \
+    	DIRECT_MQTT=$(ALIOT_DIRECT_MQTT) \
+
+
 	
 libplatform:
 	mkdir -p ./build_out
@@ -30,17 +33,37 @@ libplatform:
 		NETWORK=$(PLATFORM_NETWORK) \
 		SSL=$(PLATFORM_SSL) \
 		PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME) \
-		BUILD_TYPE=$(BUILD_TYPE)
+		BUILD_TYPE=$(BUILD_TYPE) \
+		DIRECT_MQTT=$(ALIOT_DIRECT_MQTT) \
+
 
 libext:
 	$(info make external library)
 	make -C ./libs/ CC=$(PLATFORM_CC) AR=$(PLATFORM_AR)
 	
 sample:
+
 	$(info make mqtt sample)
-	make -C ./sample/mqtt/
+	make -C ./sample/mqtt/ \
+		CC=$(PLATFORM_CC) \
+		AR=$(PLATFORM_AR) \
+		OS=$(PLATFORM_OS) \
+		NETWORK=$(PLATFORM_NETWORK) \
+		SSL=$(PLATFORM_SSL) \
+		PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME) \
+		BUILD_TYPE=$(BUILD_TYPE) \
+		DIRECT_MQTT=$(ALIOT_DIRECT_MQTT) \
+
 	$(info make device shadow sample)
-	make -C ./sample/deviceshadow/
+	make -C ./sample/deviceshadow/ \
+		CC=$(PLATFORM_CC) \
+		AR=$(PLATFORM_AR) \
+		OS=$(PLATFORM_OS) \
+		NETWORK=$(PLATFORM_NETWORK) \
+		SSL=$(PLATFORM_SSL) \
+		PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME) \
+		BUILD_TYPE=$(BUILD_TYPE) \
+		DIRECT_MQTT=$(ALIOT_DIRECT_MQTT) \
 
 
 install:

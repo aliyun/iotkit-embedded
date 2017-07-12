@@ -10,15 +10,15 @@
 #define PRODUCT_KEY_LEN     (11)
 #define DEVICE_NAME_LEN     (32)
 #define DEVICE_ID_LEN       (64)
-#define DEVICE_SECRET_LEN   (32)
+#define DEVICE_SECRET_LEN   (64)
 
 #define MODULE_VENDOR_ID    (32) //PID
 
-#define HOST_ADDRESS_LEN    (64)
+#define HOST_ADDRESS_LEN    (128)
 #define HOST_PORT_LEN       (8)
-#define CLIENT_ID_LEN       (128)
-#define USER_NAME_LEN       (32)
-#define PASSWORD_LEN        (32)
+#define CLIENT_ID_LEN       (256)
+#define USER_NAME_LEN       (128)
+#define PASSWORD_LEN        (128)
 
 
 typedef struct {

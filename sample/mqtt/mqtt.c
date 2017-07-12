@@ -10,11 +10,15 @@
 //#define DEVICE_NAME         "sh_pre_sample_mqtt"
 //#define DEVICE_SECRET       "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
 
-
+#if !defined(DIRECT_MQTT)
 #define PRODUCT_KEY         "OvNmiEYRDSY"
 #define DEVICE_NAME         "sh_online_sample_mqtt"
 #define DEVICE_SECRET       "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
-
+#else
+#define PRODUCT_KEY         "jRCMjOhnScj"
+#define DEVICE_NAME         "dns_test"
+#define DEVICE_SECRET       "OJurfzWl9SsyL6eaxBkMvmHW15KMyn3C"
+#endif
 
 //This is the pre-defined topic
 #define TOPIC_UPDATE         "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
@@ -223,7 +227,7 @@ int mqtt_client(void)
 
         //aliot_platform_msleep(1000);
 
-    } while (0 && cnt < 100);
+    } while (cnt < 3);
 
     aliot_mqtt_unsubscribe(pclient, TOPIC_DATA);
 
