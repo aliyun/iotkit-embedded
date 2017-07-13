@@ -9,13 +9,17 @@ $(foreach d, \
     $(shell [ -d $(IMPORT_DIR)/$(CONFIG_VENDOR) ] && find -L $(IMPORT_DIR)/$(CONFIG_VENDOR)/include -type d), \
     -I$(d) \
 )
-CURMOD := $(shell $(SHELL_DBG) pwd|sed 's!$(OUTPUT_DIR)[/]*!!1')
-INTERNAL_INCLUDES += $(foreach mod, $(CURMOD) $(HDR_REFS), \
+INTERNAL_INCLUDES += $(foreach mod, $(MODULE_NAME) $(HDR_REFS), \
     $(foreach d, \
         $(shell find $(TOP_DIR)/$(mod)/ -type d -a -name "[^.]*"), \
         -I$(d) \
     ) \
 )
+INTERNAL_INCLUDES += \
+    $(foreach d, \
+        $(shell find $(OUTPUT_DIR)/$(MODULE_NAME) -type d -a -name "[^.]*"), \
+        -I$(d) \
+    )
 INTERNAL_INCLUDES := $(strip $(sort $(INTERNAL_INCLUDES)))
 
 EXTERNAL_INCLUDES += \

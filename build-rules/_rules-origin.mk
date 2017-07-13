@@ -29,28 +29,13 @@ endif
 	if [ -f $(STAMP_SHIELD) ]; then true; \
 	elif [ -f $(STAMP_UNPACK) ]; then \
 	    echo -ne $${MESSAGE}; \
-	elif [ -d $(PKG_SOURCE) ] && [ "$$(echo $(PKG_UPDATE)'x')" != "x" ] && \
-	     [ "$$(expr substr $(PKG_UPDATE) 1 4)" = "git@" ]; then \
-	    TMPD=$$(mktemp -d) && \
-	    git clone "$(PKG_UPDATE)" $${TMPD} && \
-	    rm -rf $(PKG_SOURCE)/* && \
-	    cp -rf $${TMPD}/* $(PKG_SOURCE)/ && \
-	    rm -rf $(OUTPUT_DIR)/$(MODULE_NAME)/$(shell basename $(PKG_SOURCE)) && \
-	    cp -rf $(PKG_SOURCE) $(OUTPUT_DIR)/$(MODULE_NAME) && \
-	    rm -rf $${TMPD}; \
 	else \
-	    if [ "$$(expr substr $(PKG_SOURCE) 1 4)" = "git@" ]; then \
-	        git clone "$(PKG_SOURCE)"; \
-	    else \
-	        rm -rf $(PKG_NAME)* && \
-	        if [ -f $(PKG_SOURCE) ]; then \
-	            tar xf $(PKG_SOURCE) -C . && \
-	            for i in $(wildcard *.patch); do \
-	                cd $(PKG_NAME)* && patch -d . -p 1 < ../$${i} && cd $${OLDPWD}; \
-	            done \
-	        else \
-	            cp -rf $(PKG_SOURCE) .; \
-	        fi \
+	    rm -rf $(PKG_NAME)* && \
+	    if [ -f $(PKG_SOURCE) ]; then \
+	        tar xf $(PKG_SOURCE) -C . && \
+	        for i in $(wildcard *.patch); do \
+	            cd $(PKG_NAME)* && patch -d . -p 1 < ../$${i} && cd $${OLDPWD}; \
+	        done \
 	    fi \
 	    && touch $(STAMP_UNPACK); \
 	fi
