@@ -6,5 +6,4 @@ LDFLAGS     := -liot_sdk
 
 ifeq (mbedtls,$(strip $(PLATFORM_SSL)))
 DEPENDS     += src/external/recipes/mbedtls
-LDFLAGS     += -lmbedtls -lmbedcrypto -lmbedx509
 endif

@@ -1,5 +1,7 @@
 ORIGIN  := 1
 
+REF_LDFLAGS := -lmbedtls -lmbedcrypto -lmbedx509
+
 config:
 	true
 
