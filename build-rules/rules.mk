@@ -133,6 +133,9 @@ PKG_RPATH   := $(shell echo $(CURDIR)|sed 's:$(OUTPUT_DIR)/*::g')
 PKG_NAME    ?= $(shell basename $(CURDIR))
 PKG_SOURCE  ?= $(shell find $(PACKAGE_DIR) -name "$(PKG_NAME)*" | head -1)
 
+DEPENDS     += $(DEPENDS_$(MODULE_NAME))
+DEPENDS     := $(sort $(strip $(DEPENDS)))
+
 ifdef CONFIG_SWITCH
 PKG_SWITCH_V = $(CONFIG_SWITCH)
 else
