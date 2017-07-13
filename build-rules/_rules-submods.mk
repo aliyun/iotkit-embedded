@@ -95,7 +95,6 @@ pre-sub-build: $(STAMP_BLD_ENV)
 .PHONY: $(ALL_SUB_DIRS)
 
 $(ALL_SUB_DIRS): ALL_LOG_OPT = $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(COMPILE_LOG))
-$(ALL_SUB_DIRS): DEP_LOG_OPT = $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(DEPENDS_@)/$(COMPILE_LOG))
 $(ALL_SUB_DIRS): SUB_LOG_OPT = $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$@/$(COMPILE_LOG))
 
 $(ALL_SUB_DIRS): $(if $(filter 0,$(MAKELEVEL)),toolchain) $(STAMP_BLD_VAR)
@@ -110,7 +109,9 @@ endif
 	        if  [ ! -f $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)/lib$(shell basename $@).a ] && \
 	            [ ! -f $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)/lib$(shell basename $@).so ]; then \
 	            for i in $(DEPENDS_$@); do \
-	                $(MAKE) --no-print-directory $${i} $(DEP_LOG_OPT) $(ALL_LOG_OPT); \
+	                $(MAKE) --no-print-directory $${i} \
+	                    $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$${i}/$(COMPILE_LOG)) \
+	                    $(ALL_LOG_OPT); \
 	                RETVAL=$$?; \
 	                if [ $${RETVAL} != 0 ]; then exit $${RETVAL}; fi; \
 	            done \

@@ -44,7 +44,7 @@ $(TARGET): $(OBJS) FORCE
 else
 
 $(foreach t,$(sort $(TARGET)),$(t)): FORCE
-	$(Q)$(MAKE) TARGET=$@ OBJS=$(SRCS_$@:.c=.o)
+	$(Q)$(MAKE) TARGET=$@ OBJS="$(SRCS_$@:.c=.o)"
 
 endif
 

@@ -2,7 +2,7 @@
 
 ifeq (,$(COVERAGE_CMD))
 coverage lcov:
-	@echo "COVERAGE_PROG not defined, skip"
+	@echo "COVERAGE_CMD not defined, skip"
 else
 ifeq (,$(filter --coverage,$(CFLAGS)))
 coverage lcov:
