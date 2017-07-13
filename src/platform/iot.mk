@@ -9,3 +9,5 @@ ifeq (mbedtls,$(strip $(PLATFORM_SSL)))
 DEPENDS     += src/external/recipes/mbedtls
 else
 endif
+
+DEPENDS     += src/log

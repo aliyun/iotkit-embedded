@@ -7,3 +7,4 @@ LDFLAGS     := -liot_sdk
 ifeq (mbedtls,$(strip $(PLATFORM_SSL)))
 DEPENDS     += src/external/recipes/mbedtls
 endif
+DEPENDS     += src/log

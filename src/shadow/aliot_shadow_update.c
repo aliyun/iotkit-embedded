@@ -1,7 +1,7 @@
 
 #include "aliot_platform.h"
 
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_jsonparser.h"
 #include "aliot_device.h"
 
@@ -40,7 +40,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
     list[i].pcontext = pcontext;
 
     if (token_len >= ADS_TOKEN_LEN) {
-        ALIOT_LOG_WARN("token is too long.");
+        log_warning("token is too long.");
         token_len = ADS_TOKEN_LEN - 1;
     }
     memcpy(list[i].token, ptoken, token_len);
@@ -49,7 +49,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
     aliot_time_init(&list[i].timer);
     aliot_time_cutdown(&list[i].timer, timeout);
 
-    ALIOT_LOG_DEBUG("Add update ACK list");
+    log_debug("Add update ACK list");
 
     return &list[i];
 }
@@ -101,13 +101,13 @@ void ads_update_wait_ack_list_handle_response(
     //get token
     pdata = json_get_value_by_name(json_doc, (int)json_doc_len, "clientToken", &data_len, NULL);
     if (NULL == pdata) {
-        ALIOT_LOG_WARN("Invalid JSON document: not 'clientToken' key");
+        log_warning("Invalid JSON document: not 'clientToken' key");
         return;
     }
 
     ppayload = json_get_value_by_fullname(json_doc, (int)json_doc_len, "payload", &payload_len, NULL);
     if (NULL == ppayload) {
-        ALIOT_LOG_WARN("Invalid JSON document: not 'payload' key");
+        log_warning("Invalid JSON document: not 'payload' key");
         return;
     }
 
@@ -118,11 +118,11 @@ void ads_update_wait_ack_list_handle_response(
             //check the related
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
                 aliot_platform_mutex_unlock(pshadow->mutex);
-                ALIOT_LOG_DEBUG("token=%s", pelement[i].token);
+                log_debug("token=%s", pelement[i].token);
                 do {
                     pdata = json_get_value_by_fullname(ppayload, payload_len, "status", &data_len, NULL);
                     if (NULL == pdata) {
-                        ALIOT_LOG_WARN("Invalid JSON document: not 'payload.status' key");
+                        log_warning("Invalid JSON document: not 'payload.status' key");
                         break;
                     }
 
@@ -138,20 +138,20 @@ void ads_update_wait_ack_list_handle_response(
 
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errorcode", &data_len, NULL);
                         if (NULL == pdata) {
-                            ALIOT_LOG_WARN("Invalid JSON document: not 'content.errorcode' key");
+                            log_warning("Invalid JSON document: not 'content.errorcode' key");
                             break;
                         }
                         ack_code = atoi(pdata);
 
                         pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errormessage", &data_len, NULL);
                         if (NULL == pdata) {
-                            ALIOT_LOG_WARN("Invalid JSON document: not 'content.errormessage' key");
+                            log_warning("Invalid JSON document: not 'content.errormessage' key");
                             break;
                         }
 
                         pelement[i].callback(pelement[i].pcontext, ack_code, pdata, data_len);
                     } else {
-                        ALIOT_LOG_WARN("Invalid JSON document: value of 'status' key is invalid.");
+                        log_warning("Invalid JSON document: value of 'status' key is invalid.");
                     }
                 } while (0);
 
@@ -164,5 +164,5 @@ void ads_update_wait_ack_list_handle_response(
     }
 
     aliot_platform_mutex_unlock(pshadow->mutex);
-    ALIOT_LOG_WARN("Not match any wait element in list.");
+    log_warning("Not match any wait element in list.");
 }

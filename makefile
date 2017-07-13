@@ -30,6 +30,7 @@ CROSS_PREFIX        := $(shell echo "$(strip $(PLATFORM_CC))"|sed 's:gcc::1')
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
+    src/log \
     src/auth \
     src/mqtt \
     src/system \

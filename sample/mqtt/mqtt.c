@@ -1,6 +1,6 @@
 
 #include "aliot_platform.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_mqtt_client.h"
 #include "aliot_auth.h"
 #include "aliot_device.h"
@@ -37,55 +37,55 @@ void event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
     switch (msg->event_type)
     {
     case ALIOT_MQTT_EVENT_UNDEF:
-        ALIOT_LOG_INFO("undefined event occur.");
+        log_info("undefined event occur.");
         break;
 
     case ALIOT_MQTT_EVENT_DISCONNECT:
-        ALIOT_LOG_INFO("MQTT disconnect.");
+        log_info("MQTT disconnect.");
         break;
 
     case ALIOT_MQTT_EVENT_RECONNECT:
-        ALIOT_LOG_INFO("MQTT reconnect.");
+        log_info("MQTT reconnect.");
         break;
 
     case ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS:
-        ALIOT_LOG_INFO("subscribe success, packet-id=%u", packet_id);
+        log_info("subscribe success, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-        ALIOT_LOG_INFO("subscribe wait ack timeout, packet-id=%u", packet_id);
+        log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_SUBCRIBE_NACK:
-        ALIOT_LOG_INFO("subscribe nack, packet-id=%u", packet_id);
+        log_info("subscribe nack, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
-        ALIOT_LOG_INFO("unsubscribe success, packet-id=%u", packet_id);
+        log_info("unsubscribe success, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
-        ALIOT_LOG_INFO("unsubscribe timeout, packet-id=%u", packet_id);
+        log_info("unsubscribe timeout, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_UNSUBCRIBE_NACK:
-        ALIOT_LOG_INFO("unsubscribe nack, packet-id=%u", packet_id);
+        log_info("unsubscribe nack, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_PUBLISH_SUCCESS:
-        ALIOT_LOG_INFO("publish success, packet-id=%u", packet_id);
+        log_info("publish success, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_PUBLISH_TIMEOUT:
-        ALIOT_LOG_INFO("publish timeout, packet-id=%u", packet_id);
+        log_info("publish timeout, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_PUBLISH_NACK:
-        ALIOT_LOG_INFO("publish nack, packet-id=%u", packet_id);
+        log_info("publish nack, packet-id=%u", packet_id);
         break;
 
     case ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
-        ALIOT_LOG_INFO("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
+        log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                 topic_info->topic_len,
                 topic_info->ptopic,
                 topic_info->payload_len,
@@ -93,7 +93,7 @@ void event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
         break;
 
     default:
-        ALIOT_LOG_INFO("Should NOT arrive here.");
+        log_info("Should NOT arrive here.");
         break;
     }
 }
@@ -104,7 +104,7 @@ void aliot_mqtt_msg_arrived(void *pcontext, void *pclient, aliot_mqtt_event_msg_
     aliot_mqtt_topic_info_pt ptopic_info = (aliot_mqtt_topic_info_pt) msg->msg;
 
     //print topic name and topic message
-    ALIOT_LOG_DEBUG("topic=%.*s, topic_msg=%.*s",
+    log_debug("topic=%.*s, topic_msg=%.*s",
             ptopic_info->topic_len,
             ptopic_info->ptopic,
             ptopic_info->payload_len,
@@ -121,14 +121,17 @@ int mqtt_client(void)
     char msg_pub[128];
     char *msg_buf = NULL, *msg_readbuf = NULL;
 
+    LITE_openlog("mqtt");
+    LITE_set_loglevel(LOG_DEBUG_LEVEL);
+
     if (NULL == (msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX))) {
-        ALIOT_LOG_DEBUG("not enough memory");
+        log_debug("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
     if (NULL == (msg_readbuf = (char *)aliot_platform_malloc(MSG_LEN_MAX))) {
-        ALIOT_LOG_DEBUG("not enough memory");
+        log_debug("not enough memory");
         rc = -1;
         goto do_exit;
     }
@@ -137,14 +140,14 @@ int mqtt_client(void)
     aliot_device_init();
 
     if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        ALIOT_LOG_DEBUG("set device info failed!");
+        log_debug("set device info failed!");
         rc = -1;
         goto do_exit;
     }
 
     /* Device AUTH */
     if (0 != aliot_auth(aliot_get_device_info(), aliot_get_user_info())) {
-        ALIOT_LOG_DEBUG("AUTH request failed!");
+        log_debug("AUTH request failed!");
         rc = -1;
         goto do_exit;
     }
@@ -175,7 +178,7 @@ int mqtt_client(void)
     /* Construct a MQTT client with specify parameter */
     pclient = aliot_mqtt_construct(&mqtt_params);
     if (NULL == pclient) {
-        ALIOT_LOG_DEBUG("MQTT construct failed");
+        log_debug("MQTT construct failed");
         rc = -1;
         goto do_exit;
     }
@@ -184,7 +187,7 @@ int mqtt_client(void)
     rc = aliot_mqtt_subscribe(pclient, TOPIC_DATA, ALIOT_MQTT_QOS1, aliot_mqtt_msg_arrived, NULL);
     if (rc < 0) {
         aliot_mqtt_deconstruct(pclient);
-        ALIOT_LOG_DEBUG("ali_iot_mqtt_subscribe failed, rc = %d", rc);
+        log_debug("ali_iot_mqtt_subscribe failed, rc = %d", rc);
         rc = -1;
         goto do_exit;
     }
@@ -206,7 +209,7 @@ int mqtt_client(void)
         cnt++;
         msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\", \"attr_value\":\"%d\"}", cnt);
         if (msg_len < 0) {
-            ALIOT_LOG_DEBUG("Error occur! Exit program");
+            log_debug("Error occur! Exit program");
             rc = -1;
             break;
         }
@@ -216,11 +219,11 @@ int mqtt_client(void)
 
         rc = aliot_mqtt_publish(pclient, TOPIC_DATA, &topic_msg);
         if (rc < 0) {
-            ALIOT_LOG_DEBUG("error occur when publish");
+            log_debug("error occur when publish");
             rc = -1;
             break;
         }
-        ALIOT_LOG_DEBUG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
+        log_debug("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
 
         /* handle the MQTT packet received from TCP or SSL connection */
         aliot_mqtt_yield(pclient, 200);
@@ -245,6 +248,7 @@ do_exit:
         aliot_platform_free(msg_readbuf);
     }
 
+    LITE_closelog();
     return rc;
 }
 
@@ -254,7 +258,7 @@ int main()
 {
     mqtt_client();
 
-    ALIOT_LOG_DEBUG("out of sample!");
+    log_debug("out of sample!");
 
     return 0;
 }

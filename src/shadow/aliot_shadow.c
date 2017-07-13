@@ -47,8 +47,8 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
 
     aliot_mqtt_topic_info_pt topic_info = (aliot_mqtt_topic_info_pt)msg->msg;
 
-    ALIOT_LOG_DEBUG("topic=%.*s", topic_info->topic_len, topic_info->ptopic);
-    ALIOT_LOG_DEBUG("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
+    log_debug("topic=%.*s", topic_info->topic_len, topic_info->ptopic);
+    log_debug("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
 
     //update time if there is 'timestamp' key in JSON string
     pname = json_get_value_by_name(topic_info->payload,
@@ -78,10 +78,10 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
                                    &val_len,
                                    &val_type);
     if (NULL == pname) {
-        ALIOT_LOG_ERROR("Invalid JSON document: not 'method' key");
+        log_err("Invalid JSON document: not 'method' key");
     } else if ((strlen("control") == val_len) && strcmp(pname, "control")) {
         //call delta handle function
-        ALIOT_LOG_DEBUG("receive 'control' method");
+        log_debug("receive 'control' method");
 
         aliot_shadow_delta_entry(
                     pshadow,
@@ -90,16 +90,16 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
 
     } else if ((strlen("reply") == val_len) && strcmp(pname, "reply")) {
         //call update ACK handle function.
-        ALIOT_LOG_DEBUG("receive 'reply' method");
+        log_debug("receive 'reply' method");
         ads_update_wait_ack_list_handle_response(
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
     } else {
-        ALIOT_LOG_ERROR("Invalid 'method' key");
+        log_err("Invalid 'method' key");
     }
 
-    ALIOT_LOG_DEBUG("End of method handle");
+    log_debug("End of method handle");
 }
 
 static aliot_err_t aliot_shadow_subcribe_get(aliot_shadow_pt pshadow)
@@ -161,7 +161,7 @@ aliot_err_t aliot_shadow_update_asyn(
     }
 
     if (!aliot_mqtt_check_state_normal(pshadow->mqtt)) {
-        ALIOT_LOG_ERROR("The MQTT connection must be established before UPDATE data.");
+        log_err("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
@@ -190,12 +190,12 @@ static void aliot_update_ack_cb(
                 const char *ack_msg, //NOTE: NOT a string.
                 uint32_t ack_msg_len)
 {
-    ALIOT_LOG_DEBUG("ack_code=%d", ack_code);
+    log_debug("ack_code=%d", ack_code);
 
     if (NULL != ack_msg) {
-        ALIOT_LOG_DEBUG("ack_msg=%.*s", ack_msg_len, ack_msg);
+        log_debug("ack_msg=%.*s", ack_msg_len, ack_msg);
     } else {
-        ALIOT_LOG_DEBUG("ack_msg is NULL");
+        log_debug("ack_msg is NULL");
     }
 
     *((aliot_shadow_ack_code_t *)pcontext) = ack_code;
@@ -216,7 +216,7 @@ aliot_err_t aliot_shadow_update(
     }
 
     if (!aliot_mqtt_check_state_normal(pshadow->mqtt)) {
-        ALIOT_LOG_ERROR("The MQTT connection must be established before UPDATE data.");
+        log_err("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
@@ -231,13 +231,13 @@ aliot_err_t aliot_shadow_update(
     if ((ALIOT_SHADOW_ACK_SUCCESS == ack_update)
         || (ALIOT_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL == ack_update)) {
         //It is not the error that device shadow document is null
-        ALIOT_LOG_INFO("update success.");
+        log_info("update success.");
         return SUCCESS_RETURN;
     } else if (ALIOT_SHADOW_ACK_TIMEOUT == ack_update) {
-        ALIOT_LOG_INFO("update timeout.");
+        log_info("update timeout.");
         return ERROR_SHADOW_UPDATE_TIMEOUT;
     } else {
-        ALIOT_LOG_INFO("update negative ack.");
+        log_info("update negative ack.");
         return ERROR_SHADOW_UPDATE_NACK;
     }
 }
@@ -252,11 +252,11 @@ aliot_err_t aliot_shadow_sync(void *handle)
     format_data_t format;
     aliot_shadow_pt pshadow = (aliot_shadow_pt)handle;
 
-    ALIOT_LOG_INFO("Device Shadow sync start.");
+    log_info("Device Shadow sync start.");
 
     buf = aliot_platform_malloc(SHADOW_SYNC_MSG_SIZE);
     if (NULL == buf) {
-        ALIOT_LOG_ERROR("Device Shadow sync failed");
+        log_err("Device Shadow sync failed");
         return ERROR_NO_MEM;
     }
 
@@ -265,9 +265,9 @@ aliot_err_t aliot_shadow_sync(void *handle)
 
     ret = aliot_shadow_update(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN == ret) {
-        ALIOT_LOG_INFO("Device Shadow sync success.");
+        log_info("Device Shadow sync success.");
     } else {
-        ALIOT_LOG_INFO("Device Shadow sync failed.");
+        log_info("Device Shadow sync failed.");
     }
 
     aliot_platform_free(buf);
@@ -288,28 +288,28 @@ void ads_event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg
     switch (msg->event_type)
     {
     case ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS:
-        ALIOT_LOG_INFO("subscribe success, packet-id=%u", packet_id);
+        log_info("subscribe success, packet-id=%u", packet_id);
         if (pshadow->inner_data.sync_status == packet_id) {
             pshadow->inner_data.sync_status = 0;
         }
         break;
 
     case ALIOT_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-        ALIOT_LOG_INFO("subscribe wait ack timeout, packet-id=%u", packet_id);
+        log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
         if (pshadow->inner_data.sync_status == packet_id) {
             pshadow->inner_data.sync_status = -1;
         }
         break;
 
     case ALIOT_MQTT_EVENT_SUBCRIBE_NACK:
-        ALIOT_LOG_INFO("subscribe nack, packet-id=%u", packet_id);
+        log_info("subscribe nack, packet-id=%u", packet_id);
         if (pshadow->inner_data.sync_status == packet_id) {
             pshadow->inner_data.sync_status = -1;
         }
         break;
 
     case ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
-        ALIOT_LOG_INFO("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
+        log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                 topic_info->topic_len,
                 topic_info->ptopic,
                 topic_info->payload_len,
@@ -317,7 +317,7 @@ void ads_event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg
         break;
 
     default:
-        //ALIOT_LOG_INFO("Should NOT arrive here.");
+        //log_info("Should NOT arrive here.");
         break;
     }
 }
@@ -329,13 +329,13 @@ void *aliot_shadow_construct(aliot_shadow_para_pt pparams)
 
     //initialize shadow
     if (NULL == (pshadow = aliot_platform_malloc(sizeof(aliot_shadow_t)))) {
-        ALIOT_LOG_ERROR("Not enough memory");
+        log_err("Not enough memory");
         return NULL;
     }
     memset(pshadow, 0x0, sizeof(aliot_shadow_t));
 
     if (NULL == (pshadow->mutex = aliot_platform_mutex_create())) {
-        ALIOT_LOG_ERROR("create mutex failed");
+        log_err("create mutex failed");
         goto do_exit;
     }
 
@@ -344,13 +344,13 @@ void *aliot_shadow_construct(aliot_shadow_para_pt pparams)
 
     //construct MQTT client
     if (NULL == (pshadow->mqtt = aliot_mqtt_construct(&pparams->mqtt))) {
-        ALIOT_LOG_ERROR("construct MQTT failed");
+        log_err("construct MQTT failed");
         goto do_exit;
     }
 
     rc = aliot_shadow_subcribe_get(pshadow);
     if (rc < 0) {
-        ALIOT_LOG_ERROR("subscribe 'get' topic fialed, rc=%d", rc);
+        log_err("subscribe 'get' topic fialed, rc=%d", rc);
         goto do_exit;
     }
 
@@ -361,15 +361,15 @@ void *aliot_shadow_construct(aliot_shadow_para_pt pparams)
     }
 
     if (0 == pshadow->inner_data.sync_status) {
-        ALIOT_LOG_INFO("Sync device data successfully");
+        log_info("Sync device data successfully");
     } else {
-        ALIOT_LOG_INFO("Sync device data failed");
+        log_info("Sync device data failed");
     }
 
 
     pshadow->inner_data.attr_list = list_new();
     if (NULL == pshadow->inner_data.attr_list) {
-        ALIOT_LOG_ERROR("new list failed");
+        log_err("new list failed");
         goto do_exit;
     }
 

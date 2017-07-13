@@ -166,7 +166,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int
     int readLen = 0;
     int ret = -1;
 
-    ALIOT_LOG_DEBUG("SSL_read len=%d timer=%d ms", len, timeout_ms);
+    log_debug("SSL_read len=%d timer=%d ms", len, timeout_ms);
 
     if (!SSL_pending(pTlsData->pssl)) {
         IOT_NET_FD_ISSET_E result;
@@ -174,7 +174,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int
         if (ret < 0) {
             INT32 err = aliot_get_errno();
             if (err == EINTR_IOT) {
-                ALIOT_LOG_DEBUG("continue");
+                log_debug("continue");
             } else {
                 WRITE_IOT_ERROR_LOG("read(select) fail ret=%d", ret);
                 return -1;
@@ -184,7 +184,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int
             WRITE_IOT_ERROR_LOG("read(select) timeout");
             return -2;
         } else if (ret == 1) {
-            ALIOT_LOG_DEBUG("start to read packet");
+            log_debug("start to read packet");
         }
     }
 
@@ -201,7 +201,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int
         }
     }
 
-    //ALIOT_LOG_DEBUG("SSL_read readlen=%d", readLen);
+    //log_debug("SSL_read readlen=%d", readLen);
     return readLen;
 }
 
@@ -211,7 +211,7 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, in
     int writtenLen = 0;
     int ret = 0;
 
-    ALIOT_LOG_DEBUG("SSL_write len=%d timer=%d", len, timeout_ms);
+    log_debug("SSL_write len=%d timer=%d", len, timeout_ms);
     while (writtenLen < len) {
         ret = SSL_write(pTlsData->pssl, (unsigned char *)(buffer + writtenLen), (len - writtenLen));
         if (ret > 0) {
@@ -225,7 +225,7 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, in
             return -1; //Connnection error
         }
     }
-    ALIOT_LOG_DEBUG("SSL_write write len=%d", writtenLen);
+    log_debug("SSL_write write len=%d", writtenLen);
     return writtenLen;
 }
 
@@ -266,7 +266,7 @@ int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const
         return -1;
     }
 
-    ALIOT_LOG_DEBUG("openssl Connect Success");
+    log_debug("openssl Connect Success");
     return 0;
 
 }
