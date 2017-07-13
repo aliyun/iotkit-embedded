@@ -1,2 +1,5 @@
 CONFIG_ENV_CFLAGS += -g3 -rdynamic --coverage
+CONFIG_ENV_CFLAGS += -D_PLATFORM_IS_LINUX_
+CONFIG_ENV_CFLAGS += -DLITE_LOG_CONFIG_H=\\\"log_config.h\\\"
+
 CONFIG_LIB_EXPORT := static

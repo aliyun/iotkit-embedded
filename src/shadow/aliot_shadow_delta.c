@@ -1,7 +1,7 @@
 
 #include "aliot_platform.h"
 
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_jsonparser.h"
 #include "aliot_list.h"
 #include "aliot_shadow_delta.h"
@@ -57,7 +57,7 @@ static uint32_t aliot_shadow_get_timestamp(const char *pmetadata_desired,
         }
     }
 
-    ALIOT_LOG_ERROR("NOT timestamp in JSON doc");
+    log_err("NOT timestamp in JSON doc");
     return 0;
 }
 
@@ -90,7 +90,7 @@ static void aliot_shadow_delta_update_attr(aliot_shadow_pt pshadow,
     iter = list_iterator_new(pshadow->inner_data.attr_list, LIST_TAIL);
     if (NULL == iter) {
         aliot_platform_mutex_unlock(pshadow->mutex);
-        ALIOT_LOG_WARN("Allocate memory failed");
+        log_warning("Allocate memory failed");
         return ;
     }
 
@@ -108,7 +108,7 @@ static void aliot_shadow_delta_update_attr(aliot_shadow_pt pshadow,
 
             //convert string of JSON value according to destination data type.
             if (SUCCESS_RETURN != aliot_shadow_delta_update_attr_value(pattr, pvalue, len)) {
-                ALIOT_LOG_WARN("Update attribute value failed.");
+                log_warning("Update attribute value failed.");
             }
 
             if (NULL != pattr->callback) {
@@ -159,7 +159,7 @@ void aliot_shadow_delta_entry(
                                            NULL);
 
     if ((NULL == pstate) || (NULL == pmetadata)) {
-        ALIOT_LOG_ERROR("Invalid JSON Doc");
+        log_err("Invalid JSON Doc");
         return;
     }
 

@@ -4,7 +4,7 @@
 #include "aliot_platform.h"
 #include "aliot_auth.h"
 #include "aliot_error.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_net.h"
 #include "aliot_list.h"
 #include "aliot_timer.h"
@@ -155,7 +155,7 @@ typedef enum {
 static int amc_check_rule(char *iterm, amc_topic_type_t type)
 {
     if (NULL == iterm) {
-        ALIOT_LOG_ERROR("iterm is NULL");
+        log_err("iterm is NULL");
         return FAIL_RETURN;
     }
 
@@ -165,13 +165,13 @@ static int amc_check_rule(char *iterm, amc_topic_type_t type)
         if (TOPIC_FILTER_TYPE == type) {
             if ('+' == iterm[i] || '#' == iterm[i]) {
                 if (1 != len) {
-                    ALIOT_LOG_ERROR("the character # and + is error");
+                    log_err("the character # and + is error");
                     return FAIL_RETURN;
                 }
             }
         } else {
             if ('+' == iterm[i] || '#' == iterm[i]) {
-                ALIOT_LOG_ERROR("has character # and + is error");
+                log_err("has character # and + is error");
                 return FAIL_RETURN;
             }
         }
@@ -193,7 +193,7 @@ static int amc_check_topic(const char *topicName, amc_topic_type_t type)
     }
 
     if (strlen(topicName) > AMC_TOPIC_NAME_MAX_LEN) {
-        ALIOT_LOG_ERROR("len of topicName exceeds 64");
+        log_err("len of topicName exceeds 64");
         return FAIL_RETURN;
     }
 
@@ -207,7 +207,7 @@ static int amc_check_topic(const char *topicName, amc_topic_type_t type)
     iterm = strtok(topicString, delim);
 
     if (SUCCESS_RETURN != amc_check_rule(iterm, type)) {
-        ALIOT_LOG_ERROR("run aliot_check_rule error");
+        log_err("run aliot_check_rule error");
         return FAIL_RETURN;
     }
 
@@ -220,12 +220,12 @@ static int amc_check_topic(const char *topicName, amc_topic_type_t type)
 
         //The character '#' is not in the last
         if (1 == mask) {
-            ALIOT_LOG_ERROR("the character # is error");
+            log_err("the character # is error");
             return FAIL_RETURN;
         }
 
         if (SUCCESS_RETURN != amc_check_rule(iterm, type)) {
-            ALIOT_LOG_ERROR("run aliot_check_rule error");
+            log_err("run aliot_check_rule error");
             return FAIL_RETURN;
         }
 
@@ -252,7 +252,7 @@ static int MQTTKeepalive(amc_client_t *pClient)
     len = MQTTSerialize_pingreq((unsigned char *)pClient->buf_send, pClient->buf_size_send);
     if (len <= 0) {
         aliot_platform_mutex_unlock(pClient->lock_write_buf);
-        ALIOT_LOG_ERROR("Serialize ping request is error");
+        log_err("Serialize ping request is error");
         return MQTT_PING_PACKET_ERROR;
     }
 
@@ -260,7 +260,7 @@ static int MQTTKeepalive(amc_client_t *pClient)
     if (SUCCESS_RETURN != rc) {
         aliot_platform_mutex_unlock(pClient->lock_write_buf);
         /*ping outstanding, then close socket unsubscribe topic and handle callback function*/
-        ALIOT_LOG_ERROR("ping outstanding is error,result = %d", rc);
+        log_err("ping outstanding is error,result = %d", rc);
         return MQTT_NETWORK_ERROR;
     }
     aliot_platform_mutex_unlock(pClient->lock_write_buf);
@@ -280,7 +280,7 @@ int MQTTConnect(amc_client_t *pClient)
     aliot_platform_mutex_lock(pClient->lock_write_buf);
     if ((len = MQTTSerialize_connect((unsigned char *)pClient->buf_send, pClient->buf_size_send, pConnectParams)) <= 0) {
         aliot_platform_mutex_unlock(pClient->lock_write_buf);
-        ALIOT_LOG_ERROR("Serialize connect packet failed,len = %d", len);
+        log_err("Serialize connect packet failed,len = %d", len);
         return MQTT_CONNECT_PACKET_ERROR;
     }
 
@@ -289,7 +289,7 @@ int MQTTConnect(amc_client_t *pClient)
     aliot_time_cutdown(&connectTimer, pClient->request_timeout_ms);
     if ((rc = amc_send_packet(pClient, pClient->buf_send, len, &connectTimer)) != SUCCESS_RETURN) {
         aliot_platform_mutex_unlock(pClient->lock_write_buf);
-        ALIOT_LOG_ERROR("send connect packet failed");
+        log_err("send connect packet failed");
         return MQTT_NETWORK_ERROR;
     }
     aliot_platform_mutex_unlock(pClient->lock_write_buf);
@@ -323,7 +323,7 @@ int MQTTPublish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt
                     topic_msg->payload_len);
     if (len <= 0) {
         aliot_platform_mutex_unlock(c->lock_write_buf);
-        ALIOT_LOG_ERROR("MQTTSerialize_publish is error, len=%d, buf_size=%u, payloadlen=%u",
+        log_err("MQTTSerialize_publish is error, len=%d, buf_size=%u, payloadlen=%u",
                         len,
                         c->buf_size_send,
                         topic_msg->payload_len);
@@ -336,7 +336,7 @@ int MQTTPublish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt
     if (topic_msg->qos > ALIOT_MQTT_QOS0) {
         //push into list
         if (SUCCESS_RETURN != amc_push_pubInfo_to(c, len, topic_msg->packet_id, &node)) {
-            ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
+            log_err("push publish into to pubInfolist failed!");
             aliot_platform_mutex_unlock(c->lock_write_buf);
             return MQTT_PUSH_TO_LIST_ERROR;
         }
@@ -430,7 +430,7 @@ static int MQTTSubscribe(amc_client_t *c, const char *topicFilter, aliot_mqtt_qo
 
     //push the element to list of wait subscribe ACK
     if (SUCCESS_RETURN != amc_push_subInfo_to(c, len, msgId, SUBSCRIBE, &handler, &node)) {
-        ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
+        log_err("push publish into to pubInfolist failed!");
         aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
@@ -441,7 +441,7 @@ static int MQTTSubscribe(amc_client_t *c, const char *topicFilter, aliot_mqtt_qo
         list_remove(c->list_sub_wait_ack, node);
         aliot_platform_mutex_unlock(c->lock_list_sub);
         aliot_platform_mutex_unlock(c->lock_write_buf);
-        ALIOT_LOG_ERROR("run sendPacket error!");
+        log_err("run sendPacket error!");
         return MQTT_NETWORK_ERROR;
     }
 
@@ -474,7 +474,7 @@ static int MQTTUnsubscribe(amc_client_t *c, const char *topicFilter, unsigned in
     //push into list
     list_node_t *node = NULL;
     if (SUCCESS_RETURN != amc_push_subInfo_to(c, len, msgId, UNSUBSCRIBE, &handler, &node)) {
-        ALIOT_LOG_ERROR("push publish into to pubInfolist failed!");
+        log_err("push publish into to pubInfolist failed!");
         aliot_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
@@ -541,7 +541,7 @@ static int amc_mask_pubInfo_from(amc_client_t *c, uint16_t msgId)
 
             repubInfo = (amc_pub_info_t *) node->val;
             if (NULL == repubInfo) {
-                ALIOT_LOG_ERROR("node's value is invalid!");
+                log_err("node's value is invalid!");
                 continue;
             }
 
@@ -563,7 +563,7 @@ static int amc_mask_pubInfo_from(amc_client_t *c, uint16_t msgId)
 static int amc_push_pubInfo_to(amc_client_t *c, int len, unsigned short msgId, list_node_t **node)
 {
     if ((len < 0) || (len > c->buf_size_send)) {
-        ALIOT_LOG_ERROR("the param of len is error!")
+        log_err("the param of len is error!");
         return FAIL_RETURN;
     }
 
@@ -571,14 +571,14 @@ static int amc_push_pubInfo_to(amc_client_t *c, int len, unsigned short msgId, l
 
     if (c->list_pub_wait_ack->len >= AMC_REPUB_NUM_MAX) {
         aliot_platform_mutex_unlock(c->lock_list_pub);
-        ALIOT_LOG_ERROR("more than %u elements in republish list. List overflow!", c->list_pub_wait_ack->len);
+        log_err("more than %u elements in republish list. List overflow!", c->list_pub_wait_ack->len);
         return FAIL_RETURN;
     }
 
     amc_pub_info_t *repubInfo = (amc_pub_info_t *)aliot_platform_malloc(sizeof(amc_pub_info_t) + len);
     if (NULL == repubInfo) {
         aliot_platform_mutex_unlock(c->lock_list_pub);
-        ALIOT_LOG_ERROR("run aliot_memory_malloc is error!");
+        log_err("run aliot_memory_malloc is error!");
         return FAIL_RETURN;
     }
 
@@ -593,7 +593,7 @@ static int amc_push_pubInfo_to(amc_client_t *c, int len, unsigned short msgId, l
     *node = list_node_new(repubInfo);
     if (NULL == *node) {
         aliot_platform_mutex_unlock(c->lock_list_pub);
-        ALIOT_LOG_ERROR("run list_node_new is error!");
+        log_err("run list_node_new is error!");
         return FAIL_RETURN;
     }
 
@@ -614,14 +614,14 @@ static int amc_push_subInfo_to(amc_client_t *c, int len, unsigned short msgId, e
 
     if (c->list_sub_wait_ack->len >= AMC_SUB_REQUEST_NUM_MAX) {
         aliot_platform_mutex_unlock(c->lock_list_sub);
-        ALIOT_LOG_ERROR("number of subInfo more than max!,size = %d", c->list_sub_wait_ack->len);
+        log_err("number of subInfo more than max!,size = %d", c->list_sub_wait_ack->len);
         return FAIL_RETURN;
     }
 
     amc_subsribe_info_t *subInfo = (amc_subsribe_info_t *)aliot_platform_malloc(sizeof(amc_subsribe_info_t) + len);
     if (NULL == subInfo) {
         aliot_platform_mutex_unlock(c->lock_list_sub);
-        ALIOT_LOG_ERROR("run aliot_memory_malloc is error!");
+        log_err("run aliot_memory_malloc is error!");
         return FAIL_RETURN;
     }
 
@@ -638,7 +638,7 @@ static int amc_push_subInfo_to(amc_client_t *c, int len, unsigned short msgId, e
     *node = list_node_new(subInfo);
     if (NULL == *node) {
         aliot_platform_mutex_unlock(c->lock_list_sub);
-        ALIOT_LOG_ERROR("run list_node_new is error!");
+        log_err("run list_node_new is error!");
         return FAIL_RETURN;
     }
 
@@ -657,7 +657,7 @@ static int amc_mask_subInfo_from(amc_client_t *c, unsigned int msgId, amc_topic_
 {
     aliot_platform_mutex_lock(c->lock_list_sub);
     if (c->list_sub_wait_ack->len) {
-        list_iterator_t *iter; 
+        list_iterator_t *iter;
         list_node_t *node = NULL;
         amc_subsribe_info_t *subInfo = NULL;
 
@@ -674,7 +674,7 @@ static int amc_mask_subInfo_from(amc_client_t *c, unsigned int msgId, amc_topic_
 
             subInfo = (amc_subsribe_info_t *) node->val;
             if (NULL == subInfo) {
-                ALIOT_LOG_ERROR("node's value is invalid!");
+                log_err("node's value is invalid!");
                 continue;
             }
 
@@ -771,7 +771,7 @@ static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *p
         *packet_type = 0;
         return SUCCESS_RETURN;
     } else if (1 != rc) {
-        ALIOT_LOG_DEBUG("mqtt read error, rc=%d", rc);
+        log_debug("mqtt read error, rc=%d", rc);
         return FAIL_RETURN;
     }
 
@@ -779,7 +779,7 @@ static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *p
 
     /* 2. read the remaining length.  This is variable in itself */
     if ((rc = amc_decode_packet(c, &rem_len, aliot_time_left(timer))) < 0) {
-        ALIOT_LOG_ERROR("decodePacket error,rc = %d", rc);
+        log_err("decodePacket error,rc = %d", rc);
         return rc;
     }
 
@@ -787,10 +787,10 @@ static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *p
 
     /*Check if the received data length exceeds mqtt read buffer length*/
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
-        ALIOT_LOG_ERROR("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
+        log_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         int needReadLen = c->buf_size_read - len;
         if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, aliot_time_left(timer)) != needReadLen) {
-            ALIOT_LOG_ERROR("mqtt read error");
+            log_err("mqtt read error");
             return FAIL_RETURN;
         }
 
@@ -798,12 +798,12 @@ static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *p
         int remainDataLen = rem_len - needReadLen;
         char *remainDataBuf = aliot_platform_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
-            ALIOT_LOG_ERROR("malloc remain buffer failed");
+            log_err("malloc remain buffer failed");
             return FAIL_RETURN;
         }
 
         if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, aliot_time_left(timer)) != remainDataLen) {
-            ALIOT_LOG_ERROR("mqtt read error");
+            log_err("mqtt read error");
             aliot_platform_free(remainDataBuf);
             remainDataBuf = NULL;
             return FAIL_RETURN;
@@ -818,7 +818,7 @@ static int amc_read_packet(amc_client_t *c, aliot_time_t *timer, unsigned int *p
 
     /* 3. read the rest of the buffer using a callback to supply the rest of the data */
     if (rem_len > 0 && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len, aliot_time_left(timer)) != rem_len)) {
-        ALIOT_LOG_ERROR("mqtt read error");
+        log_err("mqtt read error");
         return FAIL_RETURN;
     }
 
@@ -876,7 +876,7 @@ static void amc_deliver_message(amc_client_t *c, MQTTString *topicName, aliot_mq
         if ((c->sub_handle[i].topic_filter != 0)
              && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
                  || amc_is_topic_matched((char *)c->sub_handle[i].topic_filter, topicName))) {
-            ALIOT_LOG_DEBUG("topic be matched");
+            log_debug("topic be matched");
 
             amc_topic_handle_t msg_handle = c->sub_handle[i];
             aliot_platform_mutex_unlock(c->lock_generic);
@@ -897,7 +897,7 @@ static void amc_deliver_message(amc_client_t *c, MQTTString *topicName, aliot_mq
     aliot_platform_mutex_unlock(c->lock_generic);
 
     if (0 == flag_matched) {
-        ALIOT_LOG_DEBUG("NO matching any topic, call default handle function");
+        log_debug("NO matching any topic, call default handle function");
 
         if (NULL != c->handle_event.h_fp) {
             aliot_mqtt_event_msg_t msg;
@@ -918,7 +918,7 @@ static int amc_handle_recv_CONNACK(amc_client_t *c)
     unsigned char connack_rc = 255;
     char sessionPresent = 0;
     if (MQTTDeserialize_connack((unsigned char *)&sessionPresent, &connack_rc, (unsigned char *)c->buf_read, c->buf_size_read) != 1) {
-        ALIOT_LOG_ERROR("connect ack is error");
+        log_err("connect ack is error");
         return MQTT_CONNECT_ACK_PACKET_ERROR;
     }
 
@@ -984,14 +984,14 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
     int i, count = 0, grantedQoS = -1;
     int i_free = -1, flag_dup = 0;
     if (MQTTDeserialize_suback(&mypacketid, 1, &count, &grantedQoS, (unsigned char *)c->buf_read, c->buf_size_read) != 1) {
-        ALIOT_LOG_ERROR("Sub ack packet error");
+        log_err("Sub ack packet error");
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
     }
 
     if (grantedQoS == 0x80) {
         aliot_mqtt_event_msg_t msg;
 
-        ALIOT_LOG_ERROR("MQTT SUBSCRIBE failed, ack code is 0x80");
+        log_err("MQTT SUBSCRIBE failed, ack code is 0x80");
 
         msg.event_type = ALIOT_MQTT_EVENT_SUBCRIBE_NACK;
         msg.msg = (void *)mypacketid;
@@ -1016,7 +1016,7 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
             && (0 == amc_check_handle_is_identical(&c->sub_handle[i], &messagehandler))) {
             //if subscribe a identical topic and relate callback function, then ignore this subscribe.
             flag_dup = 1;
-            ALIOT_LOG_ERROR("There is a identical topic and related handle in list!");
+            log_err("There is a identical topic and related handle in list!");
             break;
         } else {
             if (-1 == i_free) {
@@ -1027,7 +1027,7 @@ static int amc_handle_recv_SUBACK(amc_client_t *c)
 
     if (0 == flag_dup) {
         if (-1 == i_free) {
-            ALIOT_LOG_ERROR("NOT more @sub_handle space!");
+            log_err("NOT more @sub_handle space!");
             return FAIL_RETURN;
         } else {
             c->sub_handle[i_free].topic_filter = messagehandler.topic_filter;
@@ -1075,9 +1075,9 @@ static int amc_handle_recv_PUBLISH(amc_client_t *c)
     topic_msg.ptopic = NULL;
     topic_msg.topic_len = 0;
 
-    ALIOT_LOG_DEBUG("deliver msg");
+    log_debug("deliver msg");
     amc_deliver_message(c, &topicName, &topic_msg);
-    ALIOT_LOG_DEBUG("end of delivering msg");
+    log_debug("end of delivering msg");
 
     if (topic_msg.qos == ALIOT_MQTT_QOS0) {
         return SUCCESS_RETURN;
@@ -1086,7 +1086,7 @@ static int amc_handle_recv_PUBLISH(amc_client_t *c)
     } else if (topic_msg.qos == ALIOT_MQTT_QOS2) {
         result = MQTTPuback(c, topic_msg.packet_id, PUBREC);
     } else {
-        ALIOT_LOG_ERROR("Invalid QOS, QOSvalue = %d", topic_msg.qos);
+        log_err("Invalid QOS, QOSvalue = %d", topic_msg.qos);
         return MQTT_PUBLISH_QOS_ERROR;
     }
 
@@ -1145,7 +1145,7 @@ static int amc_wait_CONNACK(amc_client_t *c)
         // read the socket, see what work is due
         rc = amc_read_packet(c, &timer, &packetType);
         if (rc != SUCCESS_RETURN) {
-            ALIOT_LOG_ERROR("readPacket error,result = %d", rc);
+            log_err("readPacket error,result = %d", rc);
             return MQTT_NETWORK_ERROR;
         }
 
@@ -1153,7 +1153,7 @@ static int amc_wait_CONNACK(amc_client_t *c)
 
     rc = amc_handle_recv_CONNACK(c);
     if (SUCCESS_RETURN != rc) {
-        ALIOT_LOG_ERROR("recvConnackProc error,result = %d", rc);
+        log_err("recvConnackProc error,result = %d", rc);
     }
 
     return rc;
@@ -1168,7 +1168,7 @@ static int amc_cycle(amc_client_t *c, aliot_time_t *timer)
 
     amc_state_t state = amc_get_client_state(c);
     if (state != AMC_STATE_CONNECTED) {
-        ALIOT_LOG_DEBUG("state = %d", state);
+        log_debug("state = %d", state);
         return MQTT_STATE_ERROR;
     }
 
@@ -1176,12 +1176,12 @@ static int amc_cycle(amc_client_t *c, aliot_time_t *timer)
     rc = amc_read_packet(c, timer, &packetType);
     if (rc != SUCCESS_RETURN) {
         amc_set_client_state(c, AMC_STATE_DISCONNECTED);
-        ALIOT_LOG_DEBUG("readPacket error,result = %d", rc);
+        log_debug("readPacket error,result = %d", rc);
         return MQTT_NETWORK_ERROR;
     }
 
     if (MQTT_CPT_RESERVED == packetType) {
-        //ALIOT_LOG_DEBUG("wait data timeout");
+        //log_debug("wait data timeout");
         return SUCCESS_RETURN;
     }
 
@@ -1195,14 +1195,14 @@ static int amc_cycle(amc_client_t *c, aliot_time_t *timer)
 
     switch (packetType) {
         case CONNACK: {
-            ALIOT_LOG_DEBUG("CONNACK");
+            log_debug("CONNACK");
             break;
         }
         case PUBACK: {
             rc = amc_handle_recv_PUBACK(c);
 
             if (SUCCESS_RETURN != rc) {
-                ALIOT_LOG_ERROR("recvPubackProc error,result = %d", rc);
+                log_err("recvPubackProc error,result = %d", rc);
             }
 
             break;
@@ -1210,33 +1210,33 @@ static int amc_cycle(amc_client_t *c, aliot_time_t *timer)
         case SUBACK: {
             rc = amc_handle_recv_SUBACK(c);
             if (SUCCESS_RETURN != rc) {
-                ALIOT_LOG_ERROR("recvSubAckProc error,result = %d", rc);
+                log_err("recvSubAckProc error,result = %d", rc);
             }
-            ALIOT_LOG_DEBUG("SUBACK");
+            log_debug("SUBACK");
             break;
         }
         case PUBLISH: {
             rc = amc_handle_recv_PUBLISH(c);
             if (SUCCESS_RETURN != rc) {
-                ALIOT_LOG_ERROR("recvPublishProc error,result = %d", rc);
+                log_err("recvPublishProc error,result = %d", rc);
             }
-            ALIOT_LOG_DEBUG("PUBLISH");
+            log_debug("PUBLISH");
             break;
         }
         case UNSUBACK: {
             rc = amc_handle_recv_UNSUBACK(c);
             if (SUCCESS_RETURN != rc) {
-                ALIOT_LOG_ERROR("recvUnsubAckProc error,result = %d", rc);
+                log_err("recvUnsubAckProc error,result = %d", rc);
             }
             break;
         }
         case PINGRESP: {
             rc = SUCCESS_RETURN;
-            ALIOT_LOG_INFO("receive ping response!");
+            log_info("receive ping response!");
             break;
         }
         default:
-            ALIOT_LOG_ERROR("INVALID TYPE");
+            log_err("INVALID TYPE");
             return FAIL_RETURN;
     }
 
@@ -1296,12 +1296,12 @@ static aliot_err_t amc_subscribe(amc_client_t *c,
     int rc = FAIL_RETURN;
 
     if (!amc_check_state_normal(c)) {
-        ALIOT_LOG_ERROR("mqtt client state is error,state = %d", amc_get_client_state(c));
+        log_err("mqtt client state is error,state = %d", amc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
 
     if (0 != amc_check_topic(topicFilter, TOPIC_FILTER_TYPE)) {
-        ALIOT_LOG_ERROR("topic format is error,topicFilter = %s", topicFilter);
+        log_err("topic format is error,topicFilter = %s", topicFilter);
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
@@ -1312,11 +1312,11 @@ static aliot_err_t amc_subscribe(amc_client_t *c,
             amc_set_client_state(c, AMC_STATE_DISCONNECTED);
         }
 
-        ALIOT_LOG_ERROR("run MQTTSubscribe error");
+        log_err("run MQTTSubscribe error");
         return rc;
     }
 
-    ALIOT_LOG_INFO("mqtt subscribe success,topic = %s!", topicFilter);
+    log_info("mqtt subscribe success,topic = %s!", topicFilter);
     return msgId;
 }
 
@@ -1329,14 +1329,14 @@ static aliot_err_t amc_unsubscribe(amc_client_t *c, const char *topicFilter)
     }
 
     if (0 != amc_check_topic(topicFilter, TOPIC_FILTER_TYPE)) {
-        ALIOT_LOG_ERROR("topic format is error,topicFilter = %s", topicFilter);
+        log_err("topic format is error,topicFilter = %s", topicFilter);
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
     int rc = FAIL_RETURN;
 
     if (!amc_check_state_normal(c)) {
-        ALIOT_LOG_ERROR("mqtt client state is error,state = %d", amc_get_client_state(c));
+        log_err("mqtt client state is error,state = %d", amc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
 
@@ -1348,11 +1348,11 @@ static aliot_err_t amc_unsubscribe(amc_client_t *c, const char *topicFilter)
             amc_set_client_state(c, AMC_STATE_DISCONNECTED);
         }
 
-        ALIOT_LOG_ERROR("run MQTTUnsubscribe error!");
+        log_err("run MQTTUnsubscribe error!");
         return rc;
     }
 
-    ALIOT_LOG_INFO("mqtt unsubscribe success,topic = %s!", topicFilter);
+    log_info("mqtt unsubscribe success,topic = %s!", topicFilter);
     return msgId;
 }
 
@@ -1367,14 +1367,14 @@ static aliot_err_t amc_publish(amc_client_t *c, const char *topicName, aliot_mqt
     }
 
     if (0 != amc_check_topic(topicName, TOPIC_NAME_TYPE)) {
-        ALIOT_LOG_ERROR("topic format is error,topicFilter = %s", topicName);
+        log_err("topic format is error,topicFilter = %s", topicName);
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
     int rc = FAIL_RETURN;
 
     if (!amc_check_state_normal(c)) {
-        ALIOT_LOG_ERROR("mqtt client state is error,state = %d", amc_get_client_state(c));
+        log_err("mqtt client state is error,state = %d", amc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
 
@@ -1388,7 +1388,7 @@ static aliot_err_t amc_publish(amc_client_t *c, const char *topicName, aliot_mqt
         if (rc == MQTT_NETWORK_ERROR) {
             amc_set_client_state(c, AMC_STATE_DISCONNECTED);
         }
-        ALIOT_LOG_ERROR("MQTTPublish is error, rc = %d", rc);
+        log_err("MQTTPublish is error, rc = %d", rc);
         return rc;
     }
 
@@ -1525,7 +1525,7 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
 
     pClient->ipstack = (aliot_network_pt)aliot_platform_malloc(sizeof(aliot_network_t));
     if (NULL == pClient->ipstack) {
-        ALIOT_LOG_ERROR("malloc Network failed");
+        log_err("malloc Network failed");
         ALIOT_FUNC_EXIT_RC(FAIL_RETURN);
     }
     memset(pClient->ipstack, 0x0, sizeof(aliot_network_t));
@@ -1537,7 +1537,7 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     }
 
     amc_set_client_state(pClient, AMC_STATE_INITIALIZED);
-    ALIOT_LOG_INFO("MQTT init success!");
+    log_info("MQTT init success!");
     ALIOT_FUNC_EXIT_RC(SUCCESS_RETURN);
 }
 
@@ -1560,7 +1560,7 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
         enum msgTypes msg_type;
 
         if (NULL == (iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL))) {
-            ALIOT_LOG_ERROR("new list failed");
+            log_err("new list failed");
             aliot_platform_mutex_lock(pClient->lock_list_sub);
             return SUCCESS_RETURN;
         }
@@ -1579,7 +1579,7 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
 
             amc_subsribe_info_t *subInfo = (amc_subsribe_info_t *) node->val;
             if (NULL == subInfo) {
-                ALIOT_LOG_ERROR("node's value is invalid!");
+                log_err("node's value is invalid!");
                 tempNode = node;
                 continue;
             }
@@ -1655,9 +1655,9 @@ static void amc_keepalive(amc_client_t *pClient)
             aliot_platform_mutex_unlock(pClient->lock_generic);
             rc = amc_handle_reconnect(pClient);
             if (SUCCESS_RETURN != rc) {
-                ALIOT_LOG_DEBUG("reconnect network fail, rc = %d", rc);
+                log_debug("reconnect network fail, rc = %d", rc);
             } else {
-                ALIOT_LOG_INFO("network is reconnected!");
+                log_info("network is reconnected!");
                 amc_reconnect_callback(pClient);
                 pClient->reconnect_param.reconnect_time_interval_ms = AMC_RECONNECT_INTERVAL_MIN_MS;
             }
@@ -1667,7 +1667,7 @@ static void amc_keepalive(amc_client_t *pClient)
 
         /*If network suddenly interrupted, stop pinging packet, try to reconnect network immediately*/
         if (AMC_STATE_DISCONNECTED == currentState) {
-            ALIOT_LOG_ERROR("network is disconnected!");
+            log_err("network is disconnected!");
             amc_disconnect_callback(pClient);
 
             pClient->reconnect_param.reconnect_time_interval_ms = AMC_RECONNECT_INTERVAL_MIN_MS;
@@ -1719,9 +1719,9 @@ static int MQTTPubInfoProc(amc_client_t *pClient)
         list_node_t *tempNode = NULL;
 
         if (NULL == (iter = list_iterator_new(pClient->list_pub_wait_ack, LIST_TAIL))){
-            ALIOT_LOG_ERROR("new list failed");
-            break; 
-        }  
+            log_err("new list failed");
+            break;
+        }
 
         for (;;) {
             node = list_iterator_next(iter);
@@ -1737,7 +1737,7 @@ static int MQTTPubInfoProc(amc_client_t *pClient)
 
             amc_pub_info_t *repubInfo = (amc_pub_info_t *) node->val;
             if (NULL == repubInfo) {
-                ALIOT_LOG_ERROR("node's value is invalid!");
+                log_err("node's value is invalid!");
                 tempNode = node;
                 continue;
             }
@@ -1794,17 +1794,17 @@ static int amc_connect(amc_client_t *pClient)
     rc = pClient->ipstack->connect(pClient->ipstack);
     if (SUCCESS_RETURN != rc) {
         pClient->ipstack->disconnect(pClient->ipstack);
-        ALIOT_LOG_ERROR("TCP or TLS Connection failed");
+        log_err("TCP or TLS Connection failed");
 
         if (ERROR_CERTIFICATE_EXPIRED == rc) {
-            ALIOT_LOG_ERROR("certificate is expired!");
+            log_err("certificate is expired!");
             return ERROR_CERT_VERIFY_FAIL;
         } else {
             return MQTT_NETWORK_CONNECT_ERROR;
         }
     }
 
-    ALIOT_LOG_DEBUG("start MQTT connection with parameters: clientid=%s, username=%s, password=%s",
+    log_debug("start MQTT connection with parameters: clientid=%s, username=%s, password=%s",
             pClient->connect_data.clientID.cstring,
             pClient->connect_data.username.cstring,
             pClient->connect_data.password.cstring);
@@ -1812,14 +1812,14 @@ static int amc_connect(amc_client_t *pClient)
     rc = MQTTConnect(pClient);
     if (rc  != SUCCESS_RETURN) {
         pClient->ipstack->disconnect(pClient->ipstack);
-        ALIOT_LOG_ERROR("send connect packet failed");
+        log_err("send connect packet failed");
         return rc;
     }
 
     if (SUCCESS_RETURN != amc_wait_CONNACK(pClient)) {
         (void)MQTTDisconnect(pClient);
         pClient->ipstack->disconnect(pClient->ipstack);
-        ALIOT_LOG_ERROR("wait connect ACK timeout, or receive a ACK indicating error!");
+        log_err("wait connect ACK timeout, or receive a ACK indicating error!");
         return MQTT_CONNECT_ERROR;
     }
 
@@ -1827,7 +1827,7 @@ static int amc_connect(amc_client_t *pClient)
 
     aliot_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
-    ALIOT_LOG_INFO("mqtt connect success!");
+    log_info("mqtt connect success!");
     return SUCCESS_RETURN;
 }
 
@@ -1838,7 +1838,7 @@ static int amc_attempt_reconnect(amc_client_t *pClient)
 
     int rc;
 
-    ALIOT_LOG_INFO("reconnect params:MQTTVersion =%d clientID =%s keepAliveInterval =%d username = %s",
+    log_info("reconnect params:MQTTVersion =%d clientID =%s keepAliveInterval =%d username = %s",
                    pClient->connect_data.MQTTVersion,
                    pClient->connect_data.clientID.cstring,
                    pClient->connect_data.keepAliveInterval,
@@ -1848,7 +1848,7 @@ static int amc_attempt_reconnect(amc_client_t *pClient)
     rc = amc_connect(pClient);
 
     if (SUCCESS_RETURN != rc) {
-        ALIOT_LOG_ERROR("run aliot_mqtt_connect() error!");
+        log_err("run aliot_mqtt_connect() error!");
         return rc;
     }
 
@@ -1870,11 +1870,11 @@ static int amc_handle_reconnect(amc_client_t *pClient)
         return FAIL_RETURN;
     }
 
-    ALIOT_LOG_INFO("start reconnect");
+    log_info("start reconnect");
 
     //REDO AUTH before each reconnection
     if (0 != aliot_auth(aliot_get_device_info(), aliot_get_user_info())) {
-        ALIOT_LOG_ERROR("run aliot_auth() error!\n");
+        log_err("run aliot_auth() error!\n");
         return -1;
     }
 
@@ -1896,7 +1896,7 @@ static int amc_handle_reconnect(amc_client_t *pClient)
     aliot_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
                 pClient->reconnect_param.reconnect_time_interval_ms);
 
-    ALIOT_LOG_ERROR("mqtt reconnect failed rc = %d", rc);
+    log_err("mqtt reconnect failed rc = %d", rc);
 
     return rc;
 }
@@ -1922,7 +1922,7 @@ static int amc_disconnect(amc_client_t *pClient)
 
     amc_set_client_state(pClient, AMC_STATE_INITIALIZED);
 
-    ALIOT_LOG_INFO("mqtt disconnect!");
+    log_info("mqtt disconnect!");
     return SUCCESS_RETURN;
 }
 
@@ -1972,7 +1972,7 @@ static int amc_release(amc_client_t *pClient)
         aliot_platform_free(pClient->ipstack);
     }
 
-    ALIOT_LOG_INFO("mqtt release!");
+    log_info("mqtt release!");
     ALIOT_FUNC_EXIT_RC(SUCCESS_RETURN);
 }
 
@@ -2008,7 +2008,7 @@ static int amc_keepalive_sub(amc_client_t *pClient)
     if (!amc_check_state_normal(pClient)) {
         return SUCCESS_RETURN;
     }
- 
+
     /*if there is no ping_timer timeout, then return success*/
     if (!aliot_time_is_expired(&pClient->next_ping_time)) {
         return SUCCESS_RETURN;
@@ -2022,11 +2022,11 @@ static int amc_keepalive_sub(amc_client_t *pClient)
         if (rc == MQTT_NETWORK_ERROR) {
             amc_set_client_state(pClient, AMC_STATE_DISCONNECTED);
         }
-        ALIOT_LOG_ERROR("ping outstanding is error,result = %d", rc);
+        log_err("ping outstanding is error,result = %d", rc);
         return rc;
     }
 
-    ALIOT_LOG_INFO("send MQTT ping...");
+    log_info("send MQTT ping...");
 
     aliot_platform_mutex_lock(pClient->lock_generic);
     pClient->ping_mark = 1;
@@ -2043,7 +2043,7 @@ void *aliot_mqtt_construct(aliot_mqtt_param_t *pInitParams)
     aliot_err_t err;
     amc_client_t *pclient = (amc_client_t *)aliot_platform_malloc(sizeof(amc_client_t));
     if (NULL == pclient) {
-        ALIOT_LOG_ERROR("not enough memory.")
+        log_err("not enough memory.");
         return NULL;
     }
 

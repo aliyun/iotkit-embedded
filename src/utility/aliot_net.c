@@ -3,7 +3,7 @@
 
 #include "aliot_platform.h"
 #include "aliot_net.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_hexdump.h"
 
 
@@ -34,7 +34,7 @@ static int disconnect_tcp(aliot_network_pt pNetwork)
 static int connect_tcp(aliot_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        ALIOT_LOG_ERROR("network is null");
+        log_err("network is null");
         return 1;
     }
 
@@ -52,7 +52,7 @@ static int connect_tcp(aliot_network_pt pNetwork)
 static int read_ssl(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        ALIOT_LOG_ERROR("network is null");
+        log_err("network is null");
         return -1;
     }
 
@@ -62,7 +62,7 @@ static int read_ssl(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint3
 static int write_ssl(aliot_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        ALIOT_LOG_ERROR("network is null");
+        log_err("network is null");
         return -1;
     }
 
@@ -72,7 +72,7 @@ static int write_ssl(aliot_network_pt pNetwork, const char *buffer, uint32_t len
 static int disconnect_ssl(aliot_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        ALIOT_LOG_ERROR("network is null");
+        log_err("network is null");
         return -1;
     }
 
@@ -85,7 +85,7 @@ static int disconnect_ssl(aliot_network_pt pNetwork)
 static int connect_ssl(aliot_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        ALIOT_LOG_ERROR("network is null");
+        log_err("network is null");
         return 1;
     }
 

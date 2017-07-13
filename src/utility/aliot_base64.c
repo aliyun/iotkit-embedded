@@ -5,7 +5,7 @@
 #include "aliot_platform.h"
 
 #include "aliot_error.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_base64.h"
 
 static int8_t g_encodingTable[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -45,14 +45,14 @@ aliot_err_t aliot_base64encode(const uint8_t *data, uint32_t inputLength, uint32
     uint32_t j = 0;
 
     if (NULL == encodedData) {
-        ALIOT_LOG_ERROR("pointer of encodedData is NULL!");
+        log_err("pointer of encodedData is NULL!");
         return FAIL_RETURN;
     }
 
     *outputLength = 4 * ((inputLength + 2) / 3);
 
     if (outputLenMax < *outputLength) {
-        ALIOT_LOG_ERROR("the length of output memory is not enough!");
+        log_err("the length of output memory is not enough!");
         return FAIL_RETURN;
     }
 
@@ -85,7 +85,7 @@ aliot_err_t aliot_base64decode(const uint8_t *data, uint32_t inputLength, uint32
     build_decoding_table();
 
     if (inputLength % 4 != 0) {
-        ALIOT_LOG_ERROR("the input length is error!");
+        log_err("the input length is error!");
         return FAIL_RETURN;
     }
 
@@ -101,7 +101,7 @@ aliot_err_t aliot_base64decode(const uint8_t *data, uint32_t inputLength, uint32
     }
 
     if (outputLenMax < *outputLength) {
-        ALIOT_LOG_ERROR("the length of output memory is not enough!");
+        log_err("the length of output memory is not enough!");
         return FAIL_RETURN;
     }
 

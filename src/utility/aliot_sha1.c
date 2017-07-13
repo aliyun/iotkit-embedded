@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aliot_platform.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_error.h"
 #include "aliot_sha1.h"
 

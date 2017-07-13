@@ -2,7 +2,7 @@
 #ifndef _ALIOT_COMMON_DEBUG_H_
 #define _ALIOT_COMMON_DEBUG_H_
 
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 
 #ifdef ALIOT_DEBUG
 

@@ -8,7 +8,7 @@
 #include "aliot_platform.h"
 
 #include "aliot_error.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_md5.h"
 #include "aliot_hmac.h"
 #include "aliot_httpclient.h"
@@ -58,7 +58,7 @@ static int aliot_get_id_token(
     length += 40; //40 chars space for key strings(clientId,deviceName,productKey,timestamp)
 
     if (length > SIGN_SOURCE_LEN) {
-        ALIOT_LOG_WARN("The total length may be is too long. client_id=%s, product_key=%s, device_name=%s, timestamp= %s",
+        log_warning("The total length may be is too long. client_id=%s, product_key=%s, device_name=%s, timestamp= %s",
                        client_id, product_key, device_name, timestamp);
     }
 
@@ -79,7 +79,7 @@ static int aliot_get_id_token(
     if ((ret < 0) || (ret > SIGN_SOURCE_LEN)) {
         goto do_exit;
     }
-    ALIOT_LOG_DEBUG("sign source=%s", buf);
+    log_debug("sign source=%s", buf);
     aliot_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
 
 
@@ -90,7 +90,7 @@ static int aliot_get_id_token(
 
     post_buf = (char *) aliot_platform_malloc(HTTP_POST_MAX_LEN);
     if (NULL == post_buf) {
-        ALIOT_LOG_ERROR("malloc http post buf failed!");
+        log_err("malloc http post buf failed!");
         return ERROR_MALLOC;
     }
     memset(post_buf, 0, HTTP_POST_MAX_LEN);
@@ -107,18 +107,18 @@ static int aliot_get_id_token(
                    resources);
 
     if ((ret < 0) || (ret >= HTTP_POST_MAX_LEN)) {
-        ALIOT_LOG_ERROR("http message body is too long");
+        log_err("http message body is too long");
         ret = -1;
         goto do_exit;
     }
 
-    ALIOT_LOG_DEBUG("http content:%s\n\r", post_buf);
+    log_debug("http content:%s\n\r", post_buf);
 
     ret = strlen(post_buf);
 
     response_buf = (char *)aliot_platform_malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
-        ALIOT_LOG_ERROR("malloc http response buf failed!");
+        log_err("malloc http response buf failed!");
         return ERROR_MALLOC;
     }
     memset(response_buf, 0, HTTP_RESP_MAX_LEN);
@@ -147,7 +147,7 @@ static int aliot_get_id_token(
                 &httpclient_data);
 #endif
 
-    ALIOT_LOG_DEBUG("http response:%s\n\r", httpclient_data.response_buf);
+    log_debug("http response:%s\n\r", httpclient_data.response_buf);
 
 
     //get iot-id and iot-token from response
@@ -218,7 +218,7 @@ static int aliot_get_id_token(
     port_str[length] = '\0';
     *pport = atoi(port_str);
 
-    ALIOT_LOG_DEBUG("\niot-id=%s\niot-token=%s\nhost=%s\nport=%d\r\n",
+    log_debug("\niot-id=%s\niot-token=%s\nhost=%s\nport=%d\r\n",
                     iot_id, iot_token, host, *pport);
 
     ret = 0;
@@ -324,7 +324,7 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
                    pdevice_info->device_name,
                    pdevice_info->product_key);
     assert(ret < sizeof(buf));
-    ALIOT_LOG_DEBUG("sign source=%s (%d)", buf, strlen(buf));
+    log_debug("sign source=%s (%d)", buf, strlen(buf));
 
     aliot_hmac_md5(buf, strlen(buf),
                    sign,
@@ -400,7 +400,7 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
     }
 
     if (ret >= CLIENT_ID_LEN) {
-        ALIOT_LOG_ERROR("client_id is too long");
+        log_err("client_id is too long");
     } else if (ret < 0) {
         return -1;
     }

@@ -1,6 +1,6 @@
 
 #include "aliot_platform.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_debug.h"
 #include "aliot_timer.h"
 #include "aliot_list.h"
@@ -181,7 +181,7 @@ int ads_common_convert_data2string(
     } else if (ALIOT_SHADOW_NULL == type) {
         ret = snprintf(buf, buf_len, "%s", "\"null\"");
     } else {
-        ALIOT_LOG_ERROR("Error data type");
+        log_err("Error data type");
         ret = -1;
     }
 
@@ -216,7 +216,7 @@ aliot_err_t ads_common_convert_string2data(
     } else if (type == ALIOT_SHADOW_STRING) {
         memcpy(pdata, buf, buf_len);
     } else {
-        ALIOT_LOG_ERROR("Error data type");
+        log_err("Error data type");
         return ERROR_SHADOW_UNDEF_TYPE;
     }
 
@@ -231,7 +231,7 @@ void ads_common_update_time(aliot_shadow_pt pshadow, uint32_t new_timestamp)
     pshadow->inner_data.time.epoch_time = new_timestamp;
     aliot_platform_mutex_unlock(pshadow->mutex);
 
-    ALIOT_LOG_INFO("update system time");
+    log_info("update system time");
 }
 
 
@@ -279,7 +279,7 @@ aliot_err_t ads_common_remove_attr(
     node = list_find(pshadow->inner_data.attr_list, pattr);
     if (NULL == node) {
         rc = ERROR_SHADOW_NO_ATTRIBUTE;
-        ALIOT_LOG_ERROR("Try to remove a non-existent attribute.");
+        log_err("Try to remove a non-existent attribute.");
     } else {
         list_remove(pshadow->inner_data.attr_list, node);
     }
@@ -299,7 +299,7 @@ void ads_common_update_version(aliot_shadow_pt pshadow, uint32_t version)
     }
     aliot_platform_mutex_unlock(pshadow->mutex);
 
-    ALIOT_LOG_INFO("update shadow version");
+    log_info("update shadow version");
 }
 
 
@@ -341,7 +341,7 @@ char *ads_common_generate_topic_name(aliot_shadow_pt pshadow, const char *topic)
 
     topic_full = aliot_platform_malloc(len + 1);
     if (NULL == topic_full) {
-        ALIOT_LOG_ERROR("Not enough memory");
+        log_err("Not enough memory");
         return NULL;
     }
 
@@ -375,7 +375,7 @@ aliot_err_t ads_common_publish2update(aliot_shadow_pt pshadow, char *data, uint3
         }
     }
 
-    ALIOT_LOG_DEBUG("publish msg: len=%d, str=%s", data_len, data);
+    log_debug("publish msg: len=%d, str=%s", data_len, data);
 
     topic_msg.qos = ALIOT_MQTT_QOS1;
     topic_msg.retain = 0;

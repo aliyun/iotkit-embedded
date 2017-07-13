@@ -1,5 +1,5 @@
 #include "aliot_platform.h"
-#include "aliot_log.h"
+#include "lite/lite-log.h"
 #include "aliot_mqtt_client.h"
 #include "aliot_auth.h"
 #include "aliot_device.h"
@@ -40,7 +40,7 @@ static void device_shadow_cb_light(aliot_shadow_attr_pt pattr)
      */
 
 
-    ALIOT_LOG_DEBUG("attribute name=%s, attribute value=%d\r\n", pattr->pattr_name, *(int32_t *)pattr->pattr_data);
+    log_debug("attribute name=%s, attribute value=%d\r\n", pattr->pattr_name, *(int32_t *)pattr->pattr_data);
 }
 
 
@@ -58,14 +58,14 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     aliot_device_init();
 
     if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        ALIOT_LOG_DEBUG("run aliot_set_device_info() error!\n");
+        log_debug("run aliot_set_device_info() error!\n");
         return -1;
     }
 
     /* Device AUTH */
     rc = aliot_auth(aliot_get_device_info(), aliot_get_user_info());
     if (SUCCESS_RETURN != rc) {
-        ALIOT_LOG_DEBUG("run aliot_auth() error!\n");
+        log_debug("run aliot_auth() error!\n");
         return rc;
     }
 
@@ -94,7 +94,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
     h_shadow = aliot_shadow_construct(&shadaw_para);
     if (NULL == h_shadow) {
-        ALIOT_LOG_DEBUG("construct device shadow failed!");
+        log_debug("construct device shadow failed!");
         return rc;
     }
 
@@ -170,7 +170,7 @@ int main()
     aliot_platform_free(msg_buf);
     aliot_platform_free(msg_readbuf);
 
-    ALIOT_LOG_DEBUG("out of demo!");
+    log_debug("out of demo!");
 
     return 0;
 }

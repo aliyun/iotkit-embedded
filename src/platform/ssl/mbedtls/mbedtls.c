@@ -24,7 +24,7 @@ typedef struct _TLSDataParams {
 
 #define SSL_LOG(format, ...) \
     do { \
-        printf("%s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
+        printf("[inf] %s(%d): "format"\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);\
         fflush(stdout);\
     }while(0);
 
