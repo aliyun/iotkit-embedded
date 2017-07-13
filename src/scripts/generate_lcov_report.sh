@@ -15,7 +15,7 @@ echo ""
 #      sdk-example / example.c               : [100.00%]  (7/7)            [100.00%]  (1/1)
 #
 echo -ne "\e[1;36m"
-printf "%${DIR_NAME_LENGTH}s   %-${SRC_NAME_LENGTH}s: %-20s \t %-20s\n\n" \
+printf "%${DIR_NAME_LENGTH}s   %-${SRC_NAME_LENGTH}s: %-24s %-20s\n\n" \
     "Directory" \
     "Source File" \
     "Line Coverage" \
@@ -64,7 +64,7 @@ done \
                 else
                     printf("\033[1;31m");
 
-                printf("%" DIR_LEN "s / %-" SRC_LEN "s: [ %-8s] %-8s \t [ %-8s] %-8s\n",
+                printf("%" DIR_LEN "s / %-" SRC_LEN "s: [ %-8s] %-12s [ %-8s] %-12s\n",
                        $1, $3, $6, $8, $10, $12);
 
                 printf("\033[0m");
