@@ -88,7 +88,11 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 pre-sub-build: MOD = $(subst target-,,$(filter-out $@,$(MAKECMDGOALS)))
 pre-sub-build: $(STAMP_BLD_ENV)
 	$(if $(filter 0,$(MAKELEVEL)),,@) \
-	$(strip $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") PKG_SWITCH="$(PKG_SWITCH_$(MOD))") \
+	$(strip $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \
+	    PKG_UPDATE='$(PKG_UPDATE_$(MOD))' \
+	    PKG_SOURCE="$(PKG_SOURCE_$(MOD))" \
+	    PKG_SWITCH="$(PKG_SWITCH_$(MOD))" \
+	) \
 	$(if $(filter 0,$(MAKELEVEL)),VERBOSE_PRE_BLD=1) \
 	    bash $(RULE_DIR)/pre-build.sh $(subst target-,,$(filter-out $@,$(MAKECMDGOALS)))
 
@@ -99,7 +103,7 @@ $(ALL_SUB_DIRS): SUB_LOG_OPT = $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$@/$(COMPILE
 
 $(ALL_SUB_DIRS): $(if $(filter 0,$(MAKELEVEL)),toolchain) $(STAMP_BLD_VAR)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
-	$(TOP_Q)$(MAKE) pre-sub-build target-$@
+	$(TOP_Q)$(MAKE) --no-print-directory pre-sub-build target-$@
 ifeq (0,$(MAKELEVEL))
 	$(TOP_Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
 endif

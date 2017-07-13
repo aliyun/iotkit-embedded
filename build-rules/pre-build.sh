@@ -17,6 +17,34 @@ function Update_Sources()
         return 0
     fi
 
+    Trace "MODULE_NAME:     [${MODULE}]"
+    Trace "SRC_DIR:         [${SRC_DIR}]"
+    Trace "BLD_DIR:         [${BLD_DIR}]"
+    Trace "PKG_SOURCE:      [${PKG_SOURCE}]"
+    Trace "PKG_UPDATE:      [${PKG_UPDATE}]"
+
+    #set -x
+    if [ "${PKG_SOURCE}" != "" ] && [ -d ${PKG_SOURCE} ]; then
+        if  [ "${PKG_UPDATE}" != "" ] && 
+            [ "$(expr substr "${PKG_UPDATE}" 1 4)" = "git@" ] &&
+            [ ! -d ${BLD_DIR}/$(basename ${PKG_SOURCE}) ]; then
+
+                echo ""
+                echo "[${PKG_SOURCE}] <= [${PKG_UPDATE}]"
+                echo ""
+
+                TMPD=$(mktemp -d)
+                git clone ${PKG_UPDATE} ${TMPD} > /dev/null 2>&1
+                rm -rf ${PKG_SOURCE}.backup
+                cp -rf ${PKG_SOURCE}/ ${PKG_SOURCE}.backup
+                rm -rf ${PKG_SOURCE}/*
+                cp -rf ${TMPD}/* ${PKG_SOURCE}/
+                rm -rf ${TMPD}
+        fi
+        rm -rf ${OUTPUT_DIR}/${MODULE}/$(basename ${PKG_SOURCE})
+        cp -rf ${PKG_SOURCE} ${OUTPUT_DIR}/${MODULE}
+    fi
+
     for FILE in \
         $(find ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
         $(find ${SRC_DIR}/ -maxdepth 1 -name "*.patch" -o -name "lib*.a" -o -name "lib*.so") \
@@ -33,12 +61,6 @@ function Update_Sources()
              cp -f ${FILE} ${FILE_COPY}
         fi
     done
-
-    TARBALL=$(find ${PACKAGE_DIR} -type f -name "$(basename ${MODULE})-[0-9]**" \
-                                  -o -name "$(basename ${MODULE}).*"| head -1)
-    if echo ${MODULE}|grep -q "libubox"; then
-        tar xf ${TARBALL} -C ${BLD_DIR}
-    fi
 }
 
 function Update_Makefile()
