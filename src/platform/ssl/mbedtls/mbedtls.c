@@ -265,7 +265,7 @@ void aliot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
 #endif
     mbedtls_ssl_free(&(pTlsData->ssl));
     mbedtls_ssl_config_free(&(pTlsData->conf));
-    SSL_LOG(" ssl_disconnect\n");
+    SSL_LOG("ssl_disconnect");
 }
 
 /**

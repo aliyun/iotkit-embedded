@@ -11,7 +11,7 @@
 //#define DEVICE_NAME         "sh_online_sample_shadow"
 //#define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
 
-#ifdef DIRECT_MQTT
+#ifndef DIRECT_MQTT
 #define PRODUCT_KEY         "6RcIOUafDOm"
 #define DEVICE_NAME         "sh_pre_sample_shadow"
 #define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
@@ -65,7 +65,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     /* Device AUTH */
     rc = aliot_auth(aliot_get_device_info(), aliot_get_user_info());
     if (SUCCESS_RETURN != rc) {
-        log_debug("run aliot_auth() error!\n");
+        log_err("rc = aliot_auth() = %d", rc);
         return rc;
     }
 
@@ -164,6 +164,8 @@ int main()
     char *msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
     char *msg_readbuf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
 
+    LITE_openlog("shadow");
+    LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     demo_device_shadow(msg_buf, msg_readbuf);
 
@@ -171,6 +173,7 @@ int main()
     aliot_platform_free(msg_readbuf);
 
     log_debug("out of demo!");
+    LITE_closelog();
 
     return 0;
 }
