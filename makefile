@@ -32,6 +32,7 @@ COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/log \
     src/auth \
+    src/shadow \
     src/mqtt \
     src/system \
     src/utility \
