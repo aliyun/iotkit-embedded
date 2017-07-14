@@ -6,8 +6,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef LITE_LOG_CONFIG_H
-#include LITE_LOG_CONFIG_H
+#ifdef LITE_LOG_CONFIG_FILE
+#include LITE_LOG_CONFIG_FILE
 #endif
 
 #if defined(__cplusplus)
