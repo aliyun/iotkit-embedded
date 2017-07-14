@@ -44,6 +44,7 @@ SHOW_ENV_VARS   := \
     HOST_ARCH_BITS PREBUILT_LIBDIR RPATH_CFLAGS \
     CROSS_PREFIX DEPENDS CFLAGS CCLD LDFLAGS \
     CC LD AR STRIP OBJCOPY \
+    MAKE_ENV_VARS MAKE_FN_VARS \
     LIBA_TARGET LIBSO_TARGET TARGET KMOD_TARGET \
     SRCS OBJS LIB_SRCS LIB_OBJS LIBHDR_DIR LIB_HEADERS \
     INTERNAL_INCLUDES IMPORT_DIR EXTERNAL_INCLUDES \
@@ -81,40 +82,15 @@ endif
 
 ifdef SUBDIRS
 include $(RULE_DIR)/_rules-top.mk
-
-MAKE_ENV_VARS := $(sort $(foreach v, \
-    $(shell $(SHELL_DBG) grep -o 'CONFIG_ENV_[_A-Z]*' $(CONFIG_TPL) 2>/dev/null), \
-        $(subst CONFIG_ENV_,,$(v)) \
-))
-
-# Disabled
-# $(foreach v, $(MAKE_ENV_VARS), $(eval export $(v) := $(sort $($(v)) $(CONFIG_ENV_$(v)))))
-#
-# $(eval ...) causes '$' in CFLAGS lost
-
-# Disabled
-# $(call Export_Expanding_Vars, CFLAGS LDFLAGS)
-#
-# $(eval ...) causes '$' in CFLAGS lost
-
-export CFLAGS  := $(sort $(CFLAGS) $(CONFIG_ENV_CFLAGS))
-export LDFLAGS := $(sort $(LDFLAGS) $(CONFIG_ENV_LDFLAGS))
+include $(RULE_DIR)/_rules-prefix.mk
 
 CROSS_CANDIDATES := CC CXX AR LD STRIP OBJCOPY
-export CC := $(CROSS_PREFIX)gcc
-export CXX := $(CROSS_PREFIX)g++
-export AR := $(CROSS_PREFIX)ar
-export LD := $(CROSS_PREFIX)ld
-export STRIP := $(CROSS_PREFIX)strip
-export OBJCOPY := $(CROSS_PREFIX)objcopy
-
-# ifneq (,$(shell ls $(STAMP_BLD_VAR) 2>/dev/null))
-# ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
-# ifeq (0,$(shell sed '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l))
-# include $(STAMP_BLD_VAR)
-# endif
-# endif
-# endif
+export CC ?= $(CROSS_PREFIX)gcc
+export CXX ?= $(CROSS_PREFIX)g++
+export AR ?= $(CROSS_PREFIX)ar
+export LD ?= $(CROSS_PREFIX)ld
+export STRIP ?= $(CROSS_PREFIX)strip
+export OBJCOPY ?= $(CROSS_PREFIX)objcopy
 
 include $(RULE_DIR)/_rules-dist.mk
 include $(RULE_DIR)/_rules-complib.mk
