@@ -79,7 +79,7 @@ static int aliot_get_id_token(
     if ((ret < 0) || (ret > SIGN_SOURCE_LEN)) {
         goto do_exit;
     }
-    log_debug("sign source=%s", buf);
+    log_debug("sign source = %.64s ...", buf);
     aliot_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
 
 
@@ -112,7 +112,7 @@ static int aliot_get_id_token(
         goto do_exit;
     }
 
-    log_debug("http content:%s\n\r", post_buf);
+    log_debug("http request: \r\n\r\n%s\r\n", post_buf);
 
     ret = strlen(post_buf);
 
@@ -147,8 +147,7 @@ static int aliot_get_id_token(
                 &httpclient_data);
 #endif
 
-    log_debug("http response:%s\n\r", httpclient_data.response_buf);
-
+    log_debug("http response: \r\n\r\n%s\r\n", httpclient_data.response_buf);
 
     //get iot-id and iot-token from response
 
@@ -218,8 +217,10 @@ static int aliot_get_id_token(
     port_str[length] = '\0';
     *pport = atoi(port_str);
 
-    log_debug("\niot-id=%s\niot-token=%s\nhost=%s\nport=%d\r\n",
-                    iot_id, iot_token, host, *pport);
+    log_debug("%10s: %s", "iotId", iot_id);
+    log_debug("%10s: %s", "iotToken", iot_token);
+    log_debug("%10s: %s", "Host", host);
+    log_debug("%10s: %d", "Port", *pport);
 
     ret = 0;
 

@@ -6,12 +6,12 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef LITE_LOG_CONFIG_FILE
-#include LITE_LOG_CONFIG_FILE
-#endif
-
 #if defined(__cplusplus)
 extern "C" {
+#endif
+
+#ifdef LITE_LOG_CONFIG_FILE
+#include LITE_LOG_CONFIG_FILE
 #endif
 
 #define LOG_MOD_NAME_LEN                (7)
