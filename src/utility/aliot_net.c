@@ -48,7 +48,7 @@ static int connect_tcp(aliot_network_pt pNetwork)
 
 
 /*** SSL connection ***/
-
+#ifndef ALIOT_MQTT_TCP
 static int read_ssl(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
@@ -102,7 +102,7 @@ static int connect_ssl(aliot_network_pt pNetwork)
         return -1;
     }
 }
-
+#endif  /* #ifndef ALIOT_MQTT_TCP */
 
 
 /****** network interface ******/
@@ -111,8 +111,10 @@ int aliot_net_read(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return read_tcp(pNetwork, buffer, len, timeout_ms);
+#ifndef ALIOT_MQTT_TCP
     } else { //SSL connection
         return read_ssl(pNetwork, buffer, len, timeout_ms);
+#endif
     }
 }
 
@@ -121,8 +123,10 @@ int aliot_net_write(aliot_network_pt pNetwork, const char *buffer, uint32_t len,
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return write_tcp(pNetwork, buffer, len, timeout_ms);
+#ifndef ALIOT_MQTT_TCP
     } else { //SSL connection
         return write_ssl(pNetwork, buffer, len, timeout_ms);
+#endif
     }
 }
 
@@ -131,8 +135,10 @@ int aliot_net_disconnect(aliot_network_pt pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return disconnect_tcp(pNetwork);
+#ifndef ALIOT_MQTT_TCP
     } else { //SSL connection
         return disconnect_ssl(pNetwork);
+#endif
     }
 }
 
@@ -141,8 +147,10 @@ int aliot_net_connect(aliot_network_pt pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return connect_tcp(pNetwork);
+#ifndef ALIOT_MQTT_TCP
     } else { //SSL connection
         return connect_ssl(pNetwork);
+#endif
     }
 }
 

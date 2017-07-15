@@ -6,4 +6,5 @@ PLATFORM_OS             = linux
 PLATFORM_NETWORK        = linuxsock
 PLATFORM_SSL            = mbedtls
 
-FEATURE_DIRECT_MQTT     = n
+FEATURE_DIRECT_MQTT         = n
+FEATURE_DIRECT_MQTT_NOTLS   = n
