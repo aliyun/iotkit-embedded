@@ -112,7 +112,7 @@ int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len,
         log_err("invalid path");
         return -1;
     }
-    
+
     if (host_len == 0) {
         host_len = path_ptr - host_ptr;
     }
@@ -307,7 +307,7 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     /* Close headers */
     httpclient_get_info(client, send_buf, &len, "\r\n", 0);
 
-    log_debug("Trying to write %d bytes http header:%s", len, send_buf);
+    log_multi_line(LOG_DEBUG_LEVEL, "REQUEST", "%s", send_buf, ">");
 
     //ret = httpclient_tcp_send_all(client->net.handle, send_buf, len);
     ret = client->net.write(&client->net, send_buf, len, 5000);
@@ -329,7 +329,7 @@ int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_dat
     int ret = 0;
 
     if (client_data->post_buf && client_data->post_buf_len) {
-        log_debug("client_data->post_buf:%s", client_data->post_buf);
+        log_debug("client_data->post_buf: %s", client_data->post_buf);
         {
             //ret = httpclient_tcp_send_all(client->handle, (char *)client_data->post_buf, client_data->post_buf_len);
             ret = client->net.write(&client->net, (char *)client_data->post_buf, client_data->post_buf_len, 5000);
@@ -360,6 +360,8 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     *p_read_len = 0;
 
     ret = client->net.read(&client->net, buf, max_len, aliot_time_left(&timer));
+    log_debug("Recv: | %s", buf);
+
     if (ret > 0) {
         *p_read_len = ret;
     } else if (ret == 0) {
@@ -372,7 +374,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
         log_err("Connection error (recv returned %d)", ret);
         return ERROR_HTTP_CONN;
     }
-    log_info("%u bytes be read", *p_read_len);
+    log_info("%u bytes has been read", *p_read_len);
     return 0;
 
 //    while (readLen <= min_len) {
@@ -415,7 +417,8 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
     aliot_time_cutdown(&timer, timeout_ms);
 
     /* Receive data */
-    log_debug("Receiving data:%s", data);
+    log_debug("Current data: %s", data);
+
     client_data->is_more = true;
 
     if (client_data->response_content_len == -1 && client_data->is_chunked == false) {
@@ -513,7 +516,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             readLen = client_data->retrieve_len;
         }
 
-        log_debug("Retrieving %d bytes, len:%d", readLen, len);
+        log_debug("Total-Payload: %d Bytes; Read: %d Bytes", readLen, len);
 
         do {
             templen = HTTPCLIENT_MIN(len, readLen);
@@ -567,7 +570,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             memmove(data, &data[2], len - 2); /* remove the \r\n */
             len -= 2;
         } else {
-            log_debug("no more(content-length)\n");
+            log_debug("no more (content-length)");
             client_data->is_more = false;
             break;
         }
@@ -741,7 +744,7 @@ aliot_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, 
         buf[reclen] = '\0';
 
         if (reclen) {
-            log_debug("reclen:%d, buf: %s", reclen, buf);
+            log_multi_line(LOG_DEBUG_LEVEL, "RESPONSE", "%s", buf, "<");
             ret = httpclient_response_parse(client, buf, reclen, aliot_time_left(&timer), client_data);
         }
     }
@@ -769,7 +772,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     aliot_time_cutdown(&timer, timeout_ms);
 
     httpclient_parse_host(url, host, sizeof(host));
-    log_debug("host:%s, port:%d", host, port);
+    log_debug("host: '%s', port: %d", host, port);
 
     aliot_net_init(&client->net, host, port, ca_crt);
 

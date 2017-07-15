@@ -138,7 +138,7 @@ int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
      * 0. Initialize certificates
      */
 
-    SSL_LOG("  . Loading the CA root certificate ...");
+    SSL_LOG("Loading the CA root certificate ...");
     if (NULL != ca_crt) {
         if (0 != (ret = mbedtls_x509_crt_parse(crt509_ca, (const unsigned char *)ca_crt, ca_len))) {
             SSL_LOG(" failed ! x509parse_crt returned -0x%04x", -ret);

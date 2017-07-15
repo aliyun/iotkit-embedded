@@ -1,4 +1,5 @@
 BUILD_TYPE              = debug
+
 PLATFORM_CC             = gcc
 PLATFORM_AR             = ar
 PLATFORM_OS             = linux

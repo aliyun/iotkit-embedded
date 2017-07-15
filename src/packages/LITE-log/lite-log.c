@@ -100,7 +100,8 @@ int log_multi_line_internal(const char * f, const int l,
 
     if(LITE_get_loglevel() < level)     return 1;
 
-    LITE_printf("%s(%d): %s (Length: %d Bytes)\r\n", f, l, title, (int)strlen(payload));
+    LITE_printf("[%s] %s(%d): %s (Length: %d Bytes)\r\n",
+                pri_names[LITE_get_loglevel()], f, l, title, (int)strlen(payload));
 
     pos = payload;
     while(pos && *pos) {
