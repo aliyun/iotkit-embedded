@@ -46,10 +46,10 @@ int unittest_string_utils(void)
 
 #define UNITTEST_JSON_FORMAT    \
     "{" \
-        "\"KeyFlt\": \"Float\", " \
-        "\"KeyInt\": \"Integer\", " \
-        "\"KeyStr\": \"String\", " \
-        "\"KeyBool\": \"Boolean\"" \
+    "\"KeyFlt\": \"Float\", " \
+    "\"KeyInt\": \"Integer\", " \
+    "\"KeyStr\": \"String\", " \
+    "\"KeyBool\": \"Boolean\"" \
     "}"
 
     char                source[128];
@@ -72,12 +72,13 @@ int unittest_string_utils(void)
 
 #define UNITTEST_JSON_SAMPLE    \
 \
+" " \
 "{" \
     "\"code\":200," \
     "\"ArrayList\":[ 1, 4, 16 ]," \
     "\"KeyTrue\": true," \
     "\"KeyFalse\": false," \
-    "\"data\":{" \
+    "\"data\":{ " \
         "\"iotId\":\"42Ze0mk3556498a1AlTP\"," \
         "\"iotToken\":\"0d7fdeb9dc1f4344a2cc0d45edcb0bcb\"," \
         "\"resources\":{" \
@@ -139,22 +140,22 @@ int unittest_json_token(void)
 
 int unittest_json_parser(void)
 {
-    char *          val;
-    char **         pkey;
-    char *          keys[] = {
-                                "data.iotToken",
-                                "data.iotId",
-                                "data.resources.mqtt",
-                                "data.resources.mqtt.host",
-                                "data.resources.mqtt.port",
-                                "data.resources.codec",
-                                "data.resources.codec.name",
-                                "data.resources.codec.key",
-                                "message",
-                                0
-                             };
+    char           *val;
+    char          **pkey;
+    char           *keys[] = {
+        "data.iotToken",
+        "data.iotId",
+        "data.resources.mqtt",
+        "data.resources.mqtt.host",
+        "data.resources.mqtt.port",
+        "data.resources.codec",
+        "data.resources.codec.name",
+        "data.resources.codec.key",
+        "message",
+        0
+    };
 
-    for(pkey = keys; *pkey; ++ pkey) {
+    for (pkey = keys; *pkey; ++ pkey) {
         val = LITE_json_value_of(*pkey, UNITTEST_JSON_SAMPLE);
         if (val == NULL) {
             log_err("failed to get value of key: '%s'", *pkey);

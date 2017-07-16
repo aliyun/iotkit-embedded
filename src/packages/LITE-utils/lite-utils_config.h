@@ -5,13 +5,13 @@
 #define LITE_printf     printf
 
 #define LITE_log(fmt, args...) \
-do { \
-    printf(fmt, ##args); \
-    printf("\r\n"); \
-    fflush(stdout); \
-} while (0)
+    do { \
+        printf(fmt, ##args); \
+        printf("\r\n"); \
+        fflush(stdout); \
+    } while (0)
 
-#define log_crit        LITE_log    
+#define log_crit        LITE_log
 #define log_err         LITE_log
 #define log_info        LITE_log
 #define log_warning     LITE_log
