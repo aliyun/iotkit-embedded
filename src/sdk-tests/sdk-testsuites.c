@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     unittest_json_parser();
     unittest_json_token();
 
+    LITE_malloc(1);
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
     return 0;
