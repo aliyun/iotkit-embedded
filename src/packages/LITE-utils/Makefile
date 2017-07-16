@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all lib library
 
 ifeq (cc,$(CC))
 CC          := gcc
@@ -6,7 +6,7 @@ endif
 
 UT_PROG     := lite-utils_prog
 SRCS        := $(wildcard *.c)
-SRCS        := $(filter-out $(UT_SRC),$(SRCS))
+SRCS        := $(filter-out $(UT_PROG).c,$(SRCS))
 OBJS        := $(subst .c,.o,$(SRCS))
 
 LIB_FMT     ?= static
@@ -25,6 +25,7 @@ VARS    := \
     AR \
     LD \
     ALL_TARGET \
+    LIB_TARGET \
     CFLAGS \
     LDFLAGS \
 
@@ -33,9 +34,13 @@ ALL_TARGET := liblite-utils.a
 else
 $(error LIB_FMT must be static!)
 endif
+
+LIB_TARGET := $(ALL_TARGET)
 ALL_TARGET += $(UT_PROG)
 
 all: $(ALL_TARGET)
+
+lib library: $(LIB_TARGET)
 
 $(UT_PROG): $(UT_PROG).c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
@@ -44,11 +49,13 @@ clean:
 	@rm -f *.o *.d *.a *.so $(UT_PROG)
 
 %.a: $(OBJS)
-	$(AR) -rcs $@ $(OBJS)
+	@$(AR) -rcs $@ $(OBJS)
+	@echo "  AR    $@"
 	@rm -f *.o *.d
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
+	@echo "  CC    $<"
 
 # %.d: %.c
 # 	@$(CC) -MM $(CFLAGS) $< > $@.$$$$; \

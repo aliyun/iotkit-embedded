@@ -4,6 +4,7 @@ include src/scripts/parse_make_settings.mk
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/log \
+    src/utils \
     src/auth \
     src/shadow \
     src/mqtt \
