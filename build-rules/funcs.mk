@@ -70,7 +70,7 @@ define Copy_Headers
 	if [ "$(strip $(1))" != "" ]; then \
 	    mkdir -p $(2)/$(3); \
 	    for hdr in $(1); do \
-	        if [ $${hdr} -nt $(2)/$(3)/$${hdr} ]; then \
+	        if [ $${PWD}/$${hdr} -nt $(2)/$(3)/$$(basename $${hdr}) ]; then \
 	            cp -f $${hdr} $(2)/$(3); \
 	        fi; \
 	    done \

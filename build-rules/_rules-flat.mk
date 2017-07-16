@@ -66,7 +66,38 @@ WATCHED_VARS = \
 ALL_TARGETS := $(TARGET) $(LIBSO_TARGET) $(LIBA_TARGET) $(firstword $(KMOD_TARGET))
 
 ifneq (,$(strip $(PKG_SWITCH)))
+ifneq (,$(strip $(OVERRIDE_BUILD)))
+
+$(LIBA_TARGET) $(LIBSO_TARGET) all:
+	$(Q)echo -ne "\r                                              \r"
+	$(Q)$(MAKE) build CFLAGS='$(CFLAGS) -I$(SYSROOT_INC)'
+
+#	$(Q)$(MAKE) install \
+#	    INS_LIBDIR=$(SYSROOT_LIB) \
+#	    INS_INCDIR=$(SYSROOT_INC)/$(LIBHDR_DIR)
+
+ifneq (,$(strip $(OVERRIDE_BUILD)))
+ifneq (,$(strip $(PKG_SOURCE)))
+	$(Q) \
+	SRCDIR=$$(basename $(PKG_SOURCE)); \
+	if [ -d $${SRCDIR} ]; then \
+	    $(MAKE) -C $${SRCDIR} install \
+	        INS_LIBDIR=$(SYSROOT_LIB) \
+	        INS_INCDIR=$(SYSROOT_INC)/$(LIBHDR_DIR) \
+        ; \
+	fi
+
+	$(Q)mkdir -p $(LIBOBJ_TMPDIR)/$(MODULE_NAME)
+	$(Q)cp -f $(SYSROOT_LIB)/$(LIBA_TARGET) $(LIBOBJ_TMPDIR)/$(MODULE_NAME)
+	$(Q)cd $(LIBOBJ_TMPDIR)/$(MODULE_NAME) && ar xf $(LIBA_TARGET)
+	$(Q)rm -f $(LIBOBJ_TMPDIR)/$(MODULE_NAME)/$(LIBA_TARGET)
+
+endif
+endif
+
+else
 all: $(ALL_TARGETS)
+endif
 else
 all:
 	$(Q)true
@@ -74,6 +105,19 @@ endif
 
 clean:
 	$(Q)rm -f $(strip $(ALL_TARGETS) $(OBJS) $(LIB_OBJS)) *.o.e *.d *.o *.a *.so *.log *.gc*
+
+ifneq (,$(strip $(OVERRIDE_BUILD)))
+ifneq (,$(strip $(PKG_SOURCE)))
+	$(Q) \
+	SRCDIR=$$(basename $(PKG_SOURCE)); \
+	if [ -d $${SRCDIR} ]; then \
+	    $(MAKE) -C $${SRCDIR} clean \
+	        INS_LIBDIR=$(SYSROOT_LIB) \
+	        INS_INCDIR=$(SYSROOT_INC)/$(LIBHDR_DIR) \
+        ; \
+	fi
+endif
+endif
 
 %.o: %.c
 	$(call Brief_Log,"CC")
@@ -126,6 +170,8 @@ NODEP_LIST = \
 	sed 's,\($*\)\.o[ :]*,\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$;
 
+ifeq (,$(strip $(OVERRIDE_BUILD)))
 include $(RULE_DIR)/_rules-libs.mk
 include $(RULE_DIR)/_rules-prog.mk
 include $(RULE_DIR)/_rules-kmod.mk
+endif

@@ -1,6 +1,7 @@
 LIBA_TARGET     := liblog.a
 LIBHDR_DIR      := lite
 LIB_HEADERS     := \
+    log_config.h \
     LITE-log/lite-log.h \
     LITE-log/lite-log_disable.h \
 

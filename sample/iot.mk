@@ -9,7 +9,5 @@ DEPENDS     += src/external/recipes/mbedtls
 endif
 endif
 
-DEPENDS     += src/log
-
 SRCS_mqtt-example   := mqtt/mqtt.c
 SRCS_shadow-example := deviceshadow/deviceshadow.c

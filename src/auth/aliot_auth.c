@@ -9,10 +9,10 @@
 
 #include "aliot_error.h"
 #include "lite/lite-log.h"
+#include "lite/lite-utils.h"
 #include "aliot_md5.h"
 #include "aliot_hmac.h"
 #include "aliot_httpclient.h"
-#include "aliot_jsonparser.h"
 
 #include "aliot_ca.h"
 #include "aliot_auth.h"
@@ -147,6 +147,22 @@ static int aliot_get_id_token(
                 &httpclient_data);
 #endif
 
+    /*
+        {
+            "code": 200,
+            "data": {
+                "iotId":"030VCbn30334364bb36997f44cMYTBAR",
+                "iotToken":"e96d15a4d4734a73b13040b1878009bc",
+                "resources": {
+                    "mqtt": {
+                            "host":"iot-as-mqtt.cn-shanghai.aliyuncs.com",
+                            "port":1883
+                        }
+                    }
+            },
+            "message":"success"
+        }
+    */
     log_debug("http response: \r\n\r\n%s\r\n", httpclient_data.response_buf);
 
     //get iot-id and iot-token from response
@@ -156,65 +172,34 @@ static int aliot_get_id_token(
     char port_str[6];
 
     //get iot-id
-    if (NULL == (pvalue = json_get_value_by_fullname(
-                                      httpclient_data.response_buf,
-                                      strlen(httpclient_data.response_buf),
-                                      "data.iotId",
-                                      &length,
-                                      &type))) {
+    pvalue = LITE_json_value_of("data.iotId", httpclient_data.response_buf);
+    if (NULL == pvalue) {
         goto do_exit;
     }
-    memcpy(iot_id, pvalue, length);
-    iot_id[length] = '\0';
+    strcpy(iot_id, pvalue);
 
 
     //get iot-token
-    if (NULL == (pvalue = json_get_value_by_fullname(
-                                      httpclient_data.response_buf,
-                                      strlen(httpclient_data.response_buf),
-                                      "data.iotToken",
-                                      &length,
-                                      &type))) {
+    pvalue = LITE_json_value_of("data.iotToken", httpclient_data.response_buf);
+    if (NULL == pvalue) {
         goto do_exit;
     }
-    memcpy(iot_token, pvalue, length);
-    iot_token[length] = '\0';
+    strcpy(iot_token, pvalue);
 
-
-    //get host and port.
-
-    if (NULL == (presrc = json_get_value_by_fullname(
-                                      httpclient_data.response_buf,
-                                      strlen(httpclient_data.response_buf),
-                                      "data.resources.mqtt",
-                                      &length,
-                                      &type))) {
-        goto do_exit;
-    }
 
     //get host
-    if (NULL == (pvalue = json_get_value_by_fullname(
-                                      presrc,
-                                      strlen(presrc),
-                                      "host",
-                                      &length,
-                                      &type))) {
+    pvalue = LITE_json_value_of("data.resources.mqtt.host", httpclient_data.response_buf);
+    if (NULL == pvalue) {
         goto do_exit;
     }
-    memcpy(host, pvalue, length);
-    host[length] = '\0';
+    strcpy(host, pvalue);
 
     //get port
-    if (NULL == (pvalue = json_get_value_by_fullname(
-                                      presrc,
-                                      strlen(presrc),
-                                      "port",
-                                      &length,
-                                      &type))) {
+    pvalue = LITE_json_value_of("data.resources.mqtt.port", httpclient_data.response_buf);
+    if (NULL == pvalue) {
         goto do_exit;
     }
-    memcpy(port_str, pvalue, length);
-    port_str[length] = '\0';
+    strcpy(port_str, pvalue);
     *pport = atoi(port_str);
 
     log_debug("%10s: %s", "iotId", iot_id);

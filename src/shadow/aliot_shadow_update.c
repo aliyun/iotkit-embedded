@@ -2,7 +2,7 @@
 #include "aliot_platform.h"
 
 #include "lite/lite-log.h"
-#include "aliot_jsonparser.h"
+#include "lite/lite-utils.h"
 #include "aliot_device.h"
 
 #include "aliot_shadow_update.h"
@@ -94,18 +94,18 @@ void ads_update_wait_ack_list_handle_response(
             const char *json_doc,
             size_t json_doc_len)
 {
-    int data_len, payload_len, i;
+    int i;
     const char *pdata, *ppayload;
     aliot_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
 
     //get token
-    pdata = json_get_value_by_name(json_doc, (int)json_doc_len, "clientToken", &data_len, NULL);
+    pdata = LITE_json_value_of("clientToken", json_doc);
     if (NULL == pdata) {
         log_warning("Invalid JSON document: not 'clientToken' key");
         return;
     }
 
-    ppayload = json_get_value_by_fullname(json_doc, (int)json_doc_len, "payload", &payload_len, NULL);
+    ppayload = LITE_json_value_of("payload", json_doc);
     if (NULL == ppayload) {
         log_warning("Invalid JSON document: not 'payload' key");
         return;
@@ -120,36 +120,36 @@ void ads_update_wait_ack_list_handle_response(
                 aliot_platform_mutex_unlock(pshadow->mutex);
                 log_debug("token=%s", pelement[i].token);
                 do {
-                    pdata = json_get_value_by_fullname(ppayload, payload_len, "status", &data_len, NULL);
+                    pdata = LITE_json_value_of("status", ppayload);
                     if (NULL == pdata) {
                         log_warning("Invalid JSON document: not 'payload.status' key");
                         break;
                     }
 
-                    if (0 == strncmp(pdata, "success", data_len)) {
+                    if (0 == strncmp(pdata, "success", strlen(pdata))) {
                         //If have 'state' keyword in @json_shadow.payload, attribute value should be updated.
-                        if (NULL != json_get_value_by_fullname(ppayload, payload_len, "state", &data_len, NULL)) {
+                        if (NULL != LITE_json_value_of("state", ppayload)) {
                             aliot_shadow_delta_entry(pshadow, json_doc, json_doc_len); //update attribute
                         }
 
                         pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
-                    } else if (0 == strncmp(pdata, "error", data_len)) {
+                    } else if (0 == strncmp(pdata, "error", strlen(pdata))) {
                         aliot_shadow_ack_code_t ack_code;
 
-                        pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errorcode", &data_len, NULL);
+                        pdata = LITE_json_value_of("content.errorcode", ppayload);
                         if (NULL == pdata) {
                             log_warning("Invalid JSON document: not 'content.errorcode' key");
                             break;
                         }
                         ack_code = atoi(pdata);
 
-                        pdata = json_get_value_by_fullname(ppayload, payload_len, "content.errormessage", &data_len, NULL);
+                        pdata = LITE_json_value_of("content.errormessage", ppayload);
                         if (NULL == pdata) {
                             log_warning("Invalid JSON document: not 'content.errormessage' key");
                             break;
                         }
 
-                        pelement[i].callback(pelement[i].pcontext, ack_code, pdata, data_len);
+                        pelement[i].callback(pelement[i].pcontext, ack_code, pdata, strlen(pdata));
                     } else {
                         log_warning("Invalid JSON document: value of 'status' key is invalid.");
                     }
