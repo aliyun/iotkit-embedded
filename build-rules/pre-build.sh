@@ -53,7 +53,9 @@ function Update_Sources()
         $([ "" != "${PKG_SOURCE}" ] && [ -d ${PKG_SOURCE} ] && find ${PKG_SOURCE}/ -type f -o -type l) \
     ; \
     do
-        if [ "" != "${PKG_SOURCE}" ] && [ -d ${PKG_SOURCE} ]; then
+        if  [ "" != "${PKG_SOURCE}" ] && \
+            [ -d ${PKG_SOURCE} ] && \
+            [ "$(dirname ${FILE})" != "${TOP_DIR}/${MODULE}" ]; then
             SUBD=$(basename ${PKG_SOURCE})
         else
             SUBD=$(echo $(dirname ${FILE})|sed "s:${SRC_DIR}::")
