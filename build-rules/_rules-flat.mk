@@ -78,13 +78,24 @@ $(LIBA_TARGET) $(LIBSO_TARGET) all:
 
 ifneq (,$(strip $(OVERRIDE_BUILD)))
 ifneq (,$(strip $(PKG_SOURCE)))
+
 	$(Q) \
 	SRCDIR=$$(basename $(PKG_SOURCE)); \
 	if [ -d $${SRCDIR} ]; then \
+	    rm -rf $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache; \
+	    mkdir -p $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache; \
 	    $(MAKE) -C $${SRCDIR} install \
 	        INS_LIBDIR=$(SYSROOT_LIB) \
-	        INS_INCDIR=$(SYSROOT_INC)/$(LIBHDR_DIR) \
+	        INS_INCDIR=$(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache \
         ; \
+	    for iter in \
+	        $$(find $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache -type f); do \
+	        if  [ ! -e $(SYSROOT_INC)/$(LIBHDR_DIR)/$$(basename $${iter}) ] || \
+                ! diff -q $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR)/$$(basename $${iter}); then \
+	            cp -vf $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR); \
+	        fi; \
+	    done; \
+	    rm -rf $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache; \
 	fi
 
 	$(Q)mkdir -p $(LIBOBJ_TMPDIR)/$(MODULE_NAME)

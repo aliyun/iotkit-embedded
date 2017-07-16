@@ -16,8 +16,6 @@ $(foreach v, \
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
 
-CFLAGS  := -Os -Wall # -Werror
-
 ifeq (debug,$(strip $(BUILD_TYPE)))
 CFLAGS  += -DALIOT_DEBUG
 endif
