@@ -16,6 +16,10 @@ LD          ?= ld
 CFLAGS      += -Werror
 LDFLAGS     += -L. -llite-utils
 
+INS_LIBDIR  ?= ./fakeroot/usr/lib
+INS_INCDIR  ?= ./fakeroot/usr/include
+INS_HDRS    := lite-utils.h lite-list.h
+
 VARS    := \
     UT_PROG \
     SRCS \
@@ -28,9 +32,12 @@ VARS    := \
     LIB_TARGET \
     CFLAGS \
     LDFLAGS \
+    INS_HDRS \
+    INS_LIBDIR \
+    INS_INCDIR \
 
 ifeq (static,$(LIB_FMT))
-ALL_TARGET := liblite-utils.a
+ALL_TARGET := libutils.a
 else
 $(error LIB_FMT must be static!)
 endif
@@ -45,8 +52,13 @@ lib library: $(LIB_TARGET)
 $(UT_PROG): $(UT_PROG).c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
+install: $(LIB_TARGET)
+	@mkdir -p $(INS_LIBDIR) $(INS_INCDIR)
+	@cp -f $(INS_HDRS) $(INS_INCDIR)
+	@cp -f $(LIB_TARGET) $(INS_LIBDIR)
+
 clean:
-	@rm -f *.o *.d *.a *.so $(UT_PROG)
+	@rm -f *.o *.d *.a *.so $(UT_PROG) $(foreach H,$(INS_HDRS),$(INS_INCDIR)/$(H)) $(INS_LIBDIR)/$(LIB_TARGET)
 
 %.a: $(OBJS)
 	@$(AR) -rcs $@ $(OBJS)

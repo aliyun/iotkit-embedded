@@ -3,8 +3,6 @@
 #include "aliot_list.h"
 #include "aliot_debug.h"
 #include "aliot_error.h"
-#include "aliot_jsonparser.h"
-
 #include "aliot_mqtt_client.h"
 
 #include "aliot_shadow.h"
@@ -43,7 +41,7 @@ static void ads_handle_expire(aliot_shadow_pt pshadow)
 static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, aliot_mqtt_event_msg_pt msg)
 {
     const char *pname;
-    int val_len, val_type;
+    int val_type;
 
     aliot_mqtt_topic_info_pt topic_info = (aliot_mqtt_topic_info_pt)msg->msg;
 
@@ -51,35 +49,49 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
     log_debug("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
 
     //update time if there is 'timestamp' key in JSON string
+#if 0
     pname = json_get_value_by_name(topic_info->payload,
                                    topic_info->payload_len,
                                    "timestamp",
                                    &val_len,
                                    &val_type);
+#else
+    pname = LITE_json_value_of("timestamp", topic_info->payload);
+#endif
     if (NULL != pname) {
         ads_common_update_time(pshadow, atoi(pname));
     }
 
     //update 'version' if there is 'version' key in JSON string
+#if 0
     pname = json_get_value_by_name(topic_info->payload,
                                    topic_info->payload_len,
                                    "version",
                                    &val_len,
                                    &val_type);
+#else
+    pname = LITE_json_value_of("version", topic_info->payload);
+#endif
     if (NULL != pname) {
         ads_common_update_version(pshadow, atoi(pname));
     }
 
 
     //get 'method'
+#if 0
     pname = json_get_value_by_name(topic_info->payload,
                                    topic_info->payload_len,
                                    "method",
                                    &val_len,
                                    &val_type);
+#else
+    pname = LITE_json_value_of("method", topic_info->payload);
+#endif
+    log_debug("pname(%d) = %s", strlen(pname), pname);
+
     if (NULL == pname) {
         log_err("Invalid JSON document: not 'method' key");
-    } else if ((strlen("control") == val_len) && strcmp(pname, "control")) {
+    } else if ((strlen("control") == strlen(pname)) && !strcmp(pname, "control")) {
         //call delta handle function
         log_debug("receive 'control' method");
 
@@ -88,7 +100,7 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
                     topic_info->payload,
                     topic_info->payload_len);
 
-    } else if ((strlen("reply") == val_len) && strcmp(pname, "reply")) {
+    } else if ((strlen("reply") == strlen(pname)) && !strcmp(pname, "reply")) {
         //call update ACK handle function.
         log_debug("receive 'reply' method");
         ads_update_wait_ack_list_handle_response(
@@ -152,7 +164,6 @@ aliot_err_t aliot_shadow_update_asyn(
 {
     int rc = SUCCESS_RETURN;
     aliot_update_ack_wait_list_pt pelement;
-    int token_len;
     const char *ptoken;
     aliot_shadow_pt pshadow = (aliot_shadow_pt)handle;
 
@@ -166,10 +177,15 @@ aliot_err_t aliot_shadow_update_asyn(
     }
 
     /*Add to callback list */
-    ptoken = json_get_value_by_name(data, data_len, "clientToken", &token_len, NULL);
+
+    log_debug("data(%d) = %s", data_len, data);
+    ptoken = LITE_json_value_of("clientToken", data);
+    log_debug("ptoken = %p", ptoken);
+
+
     ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
 
-    pelement = aliot_shadow_update_wait_ack_list_add(pshadow, ptoken, token_len, cb_fpt, pcontext, timeout_s);
+    pelement = aliot_shadow_update_wait_ack_list_add(pshadow, ptoken, strlen(ptoken), cb_fpt, pcontext, timeout_s);
     if (NULL == pelement) {
         return ERROR_SHADOW_WAIT_LIST_OVERFLOW;
     }

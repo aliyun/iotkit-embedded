@@ -2,7 +2,7 @@
 #include "aliot_platform.h"
 
 #include "lite/lite-log.h"
-#include "aliot_jsonparser.h"
+#include "lite/lite-utils.h"
 #include "aliot_list.h"
 #include "aliot_shadow_delta.h"
 
@@ -36,22 +36,13 @@ static uint32_t aliot_shadow_get_timestamp(const char *pmetadata_desired,
         const char *pname)
 {
     const char *pdata;
-    int len;
 
     //attribute be matched, and then get timestamp
-    pdata = json_get_value_by_fullname(pmetadata_desired,
-                                       len_metadata_desired,
-                                       pname,
-                                       &len,
-                                       NULL);
+
+    pdata = LITE_json_value_of(pname, pmetadata_desired);
 
     if (NULL != pdata) {
-        pdata = json_get_value_by_fullname(pdata,
-                                           len,
-                                           "timestamp",
-                                           &len,
-                                           NULL);
-
+        pdata = LITE_json_value_of("timestamp", pdata);
         if (NULL != pdata) {
             return atoi(pdata);
         }
@@ -81,7 +72,6 @@ static void aliot_shadow_delta_update_attr(aliot_shadow_pt pshadow,
     aliot_shadow_attr_pt pattr;
     list_iterator_t *iter;
     list_node_t *node;
-    uint32_t len;
 
     //Iterate the list and check JSON document according to list_node.val.pattr_name
     //If the attribute be found, call the function registered by calling aliot_shadow_delta_register_attr()
@@ -96,7 +86,7 @@ static void aliot_shadow_delta_update_attr(aliot_shadow_pt pshadow,
 
     while (node = list_iterator_next(iter), NULL != node) {
         pattr = (aliot_shadow_attr_pt)node->val;
-        pvalue = json_get_value_by_fullname(json_doc_attr, json_doc_attr_len, pattr->pattr_name, &len, NULL);
+        pvalue = LITE_json_value_of(pattr->pattr_name, json_doc_attr);
 
         //check if match attribute or not be matched
         if (NULL != pvalue) { //attribute be matched
@@ -107,7 +97,7 @@ static void aliot_shadow_delta_update_attr(aliot_shadow_pt pshadow,
                                     pattr->pattr_name);
 
             //convert string of JSON value according to destination data type.
-            if (SUCCESS_RETURN != aliot_shadow_delta_update_attr_value(pattr, pvalue, len)) {
+            if (SUCCESS_RETURN != aliot_shadow_delta_update_attr_value(pattr, pvalue, strlen(pvalue))) {
                 log_warning("Update attribute value failed.");
             }
 
@@ -132,31 +122,16 @@ void aliot_shadow_delta_entry(
 {
     const char *key_metadata;
     const char *pstate, *pmetadata, *pvalue;
-    int len_state, len_metadata, len;
 
-
-
-    if (NULL != (pstate = json_get_value_by_fullname(json_doc,
-                          json_doc_len,
-                          "payload.state.desired",
-                          &len_state,
-                          NULL))) {
+    if (NULL != (pstate = LITE_json_value_of("payload.state.desired", json_doc))) {
         key_metadata = "payload.metadata.desired";
     } else {
         //if have not desired key, get reported key instead.
         key_metadata = "payload.metadata.reported";
-        pstate = json_get_value_by_fullname(json_doc,
-                                            json_doc_len,
-                                            "payload.state.reported",
-                                            &len_state,
-                                            NULL);
+        pstate = LITE_json_value_of("payload.state.reported", json_doc);
     }
 
-    pmetadata = json_get_value_by_fullname(json_doc,
-                                           json_doc_len,
-                                           key_metadata,
-                                           &len_metadata,
-                                           NULL);
+    pmetadata = LITE_json_value_of(key_metadata, json_doc);
 
     if ((NULL == pstate) || (NULL == pmetadata)) {
         log_err("Invalid JSON Doc");
@@ -165,9 +140,9 @@ void aliot_shadow_delta_entry(
 
     aliot_shadow_delta_update_attr(pshadow,
                 pstate,
-                len_state,
+                strlen(pstate),
                 pmetadata,
-                len_metadata);
+                strlen(pmetadata));
 
     //generate ACK and publish to @update topic using QOS1
     aliot_shadow_delta_response(pshadow);
