@@ -176,7 +176,7 @@ static int aliot_get_id_token(
         goto do_exit;
     }
     strcpy(iot_id, pvalue);
-
+    LITE_free(pvalue);
 
     //get iot-token
     pvalue = LITE_json_value_of("data.iotToken", httpclient_data.response_buf);
@@ -184,7 +184,7 @@ static int aliot_get_id_token(
         goto do_exit;
     }
     strcpy(iot_token, pvalue);
-
+    LITE_free(pvalue);
 
     //get host
     pvalue = LITE_json_value_of("data.resources.mqtt.host", httpclient_data.response_buf);
@@ -192,6 +192,7 @@ static int aliot_get_id_token(
         goto do_exit;
     }
     strcpy(host, pvalue);
+    LITE_free(pvalue);
 
     //get port
     pvalue = LITE_json_value_of("data.resources.mqtt.port", httpclient_data.response_buf);
@@ -199,6 +200,7 @@ static int aliot_get_id_token(
         goto do_exit;
     }
     strcpy(port_str, pvalue);
+    LITE_free(pvalue);
     *pport = atoi(port_str);
 
     log_debug("%10s: %s", "iotId", iot_id);

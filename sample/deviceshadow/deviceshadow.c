@@ -1,5 +1,6 @@
 #include "aliot_platform.h"
 #include "lite/lite-log.h"
+#include "lite/lite-utils.h"
 #include "aliot_mqtt_client.h"
 #include "aliot_auth.h"
 #include "aliot_device.h"
@@ -161,11 +162,11 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
 int main()
 {
-    char *msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
-    char *msg_readbuf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
-
     LITE_openlog("shadow");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
+
+    char *msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
+    char *msg_readbuf = (char *)aliot_platform_malloc(MSG_LEN_MAX);
 
     demo_device_shadow(msg_buf, msg_readbuf);
 
@@ -173,6 +174,7 @@ int main()
     aliot_platform_free(msg_readbuf);
 
     log_debug("out of demo!");
+    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
 
     return 0;

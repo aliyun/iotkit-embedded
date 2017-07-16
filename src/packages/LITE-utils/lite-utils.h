@@ -10,6 +10,7 @@
 #include <assert.h>
 
 #include "lite-list.h"
+#include "lite-utils_config.h"
 
 #define LITE_TRUE                   (1)
 #define LITE_FALSE                  (0)
@@ -23,8 +24,7 @@
 #define LITE_MAXIMUM(a, b)          (((a) >= (b)) ? (a) : (b))
 #define LITE_isdigit(c)             (((c) <= '9' && (c) >= '0') ? (LITE_TRUE) : (LITE_FALSE))
 
-#if defined(WITH_MEM_STATS)
-
+#if WITH_MEM_STATS
 #define LITE_malloc(size)           LITE_malloc_internal(__func__, __LINE__, size)
 #define LITE_realloc(ptr, size)     LITE_realloc_internal(__func__, __LINE__, ptr, size)
 #define LITE_free(ptr)              \
@@ -40,16 +40,25 @@
 
 #else
 
-#define LITE_realloc(ptr, size)             realloc(ptr, size)
-#define LITE_malloc(size)                   malloc(size)
-#define LITE_free(ptr)                      free(ptr)
+#define LITE_realloc(ptr, size)     realloc(ptr, size)
+#define LITE_malloc(size)           malloc(size)
+#define LITE_free(ptr)              \
+    do { \
+        if(!ptr) { \
+            log_err("%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
+            break; \
+        } \
+        \
+        free((void *)ptr); \
+        ptr = NULL; \
+    } while(0)
 
 static inline void LITE_dump_malloc_free_stats(int level)
 {
     return;
 }
 
-#endif  /* defined(WITH_MEM_STATS) */
+#endif  /* #if WITH_MEM_STATS */
 
 char       *LITE_strdup(const char *src);
 char       *LITE_format_string(const char *fmt, ...);

@@ -5,9 +5,6 @@ LIB_SRCS    := $(filter-out LITE-utils/lite-utils_prog.c,$(LIB_SRCS))
 DEPENDS     += src/log
 
 LIBHDR_DIR  := lite
-LIB_HEADERS := \
-    LITE-utils/lite-utils.h \
-    LITE-utils/lite-list.h \
 
 PKG_SOURCE  := src/packages/LITE-utils
 # PKG_UPDATE  := 'git@gitlab.alibaba-inc.com:iot-middleware/LITE-utils.git'

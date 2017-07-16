@@ -4,7 +4,7 @@
 #include "aliot_debug.h"
 #include "aliot_error.h"
 #include "aliot_mqtt_client.h"
-
+#include "lite/lite-utils.h"
 #include "aliot_shadow.h"
 #include "aliot_shadow_common.h"
 #include "aliot_shadow_update.h"
@@ -49,46 +49,22 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
     log_debug("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
 
     //update time if there is 'timestamp' key in JSON string
-#if 0
-    pname = json_get_value_by_name(topic_info->payload,
-                                   topic_info->payload_len,
-                                   "timestamp",
-                                   &val_len,
-                                   &val_type);
-#else
     pname = LITE_json_value_of("timestamp", topic_info->payload);
-#endif
     if (NULL != pname) {
         ads_common_update_time(pshadow, atoi(pname));
     }
+    LITE_free(pname);
 
     //update 'version' if there is 'version' key in JSON string
-#if 0
-    pname = json_get_value_by_name(topic_info->payload,
-                                   topic_info->payload_len,
-                                   "version",
-                                   &val_len,
-                                   &val_type);
-#else
     pname = LITE_json_value_of("version", topic_info->payload);
-#endif
     if (NULL != pname) {
         ads_common_update_version(pshadow, atoi(pname));
+        LITE_free(pname);
     }
 
-
     //get 'method'
-#if 0
-    pname = json_get_value_by_name(topic_info->payload,
-                                   topic_info->payload_len,
-                                   "method",
-                                   &val_len,
-                                   &val_type);
-#else
     pname = LITE_json_value_of("method", topic_info->payload);
-#endif
     log_debug("pname(%d) = %s", strlen(pname), pname);
-
     if (NULL == pname) {
         log_err("Invalid JSON document: not 'method' key");
     } else if ((strlen("control") == strlen(pname)) && !strcmp(pname, "control")) {
@@ -99,7 +75,7 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
-
+        LITE_free(pname);
     } else if ((strlen("reply") == strlen(pname)) && !strcmp(pname, "reply")) {
         //call update ACK handle function.
         log_debug("receive 'reply' method");
@@ -107,8 +83,10 @@ static void aliot_shadow_callback_get(aliot_shadow_pt pshadow, void *pclient, al
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
+        LITE_free(pname);
     } else {
         log_err("Invalid 'method' key");
+        LITE_free(pname);
     }
 
     log_debug("End of method handle");
@@ -180,15 +158,15 @@ aliot_err_t aliot_shadow_update_asyn(
 
     log_debug("data(%d) = %s", data_len, data);
     ptoken = LITE_json_value_of("clientToken", data);
-    log_debug("ptoken = %p", ptoken);
-
 
     ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
 
     pelement = aliot_shadow_update_wait_ack_list_add(pshadow, ptoken, strlen(ptoken), cb_fpt, pcontext, timeout_s);
     if (NULL == pelement) {
+        LITE_free(ptoken);
         return ERROR_SHADOW_WAIT_LIST_OVERFLOW;
     }
+    LITE_free(ptoken);
 
     if ((rc = ads_common_publish2update(pshadow, data, data_len)) < 0) {
         aliot_shadow_update_wait_ack_list_remove(pshadow, pelement);
