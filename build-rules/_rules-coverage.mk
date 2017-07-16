@@ -30,6 +30,8 @@ coverage lcov: all
 	$(Q)genhtml --quiet \
 	    --legend --no-branch-coverage -o $(OUTPUT_DIR)/$(LCOV_DIR) $(OUTPUT_DIR)/final.info
 	$(Q)cp -rf $(OUTPUT_DIR)/$(LCOV_DIR) $(DIST_DIR)/$(LCOV_DIR)
+	$(Q)cd $(DIST_DIR)/$(LCOV_DIR) && \
+	    sed -i 's:\(coverFile.*\)>$(OUTPUT_DIR)/:\1>:g' index.html
 	$(Q)bash $(SCRIPT_DIR)/generate_lcov_report.sh $(DIST_DIR)/$(LCOV_DIR)
 endif
 endif
