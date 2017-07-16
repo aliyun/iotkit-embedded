@@ -12,7 +12,7 @@ int unittest_string_utils(void)
     log_info("hexstr = '%s'", hexstr);
 
     LITE_hexstr_convert(hexstr, outbuf, strlen(hexstr));
-#ifdef CONFIG_CONTAINS_LITE_LOG
+#ifdef LITE_LOG_ENABLED
     HEXDUMP_INFO(outbuf, sizeof(outbuf));
 #else
     int                 i;

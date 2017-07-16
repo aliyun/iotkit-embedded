@@ -3,7 +3,7 @@ set -e
 
 if [ "${OUTPUT_DIR}" = "" ] || [ ! -d ${OUTPUT_DIR} ]; then exit 1; fi
 
-PROGS="./mqtt-example ./shadow-example"
+PROGS="./mqtt-example ./shadow-example ./sdk-testsuites"
 cd ${OUTPUT_DIR}/usr/bin
 
 echo ""

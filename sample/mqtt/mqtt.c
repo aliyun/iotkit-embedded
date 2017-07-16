@@ -1,6 +1,7 @@
 
 #include "aliot_platform.h"
 #include "lite/lite-log.h"
+#include "lite/lite-utils.h"
 #include "aliot_mqtt_client.h"
 #include "aliot_auth.h"
 #include "aliot_device.h"
@@ -120,9 +121,6 @@ int mqtt_client(void)
     aliot_mqtt_topic_info_t topic_msg;
     char msg_pub[128];
     char *msg_buf = NULL, *msg_readbuf = NULL;
-
-    LITE_openlog("mqtt");
-    LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     if (NULL == (msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX))) {
         log_debug("not enough memory");
@@ -248,7 +246,6 @@ do_exit:
         aliot_platform_free(msg_readbuf);
     }
 
-    LITE_closelog();
     return rc;
 }
 
@@ -256,10 +253,16 @@ do_exit:
 
 int main()
 {
+    LITE_openlog("mqtt");
+    LITE_set_loglevel(LOG_DEBUG_LEVEL);
+
     mqtt_client();
 
-    log_debug("out of sample!");
+    unittest_json_parser();
 
+    log_debug("out of sample!");
+    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
+    LITE_closelog();
     return 0;
 }
 

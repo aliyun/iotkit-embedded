@@ -175,11 +175,12 @@ void LITE_free_internal(void *ptr)
     free(ptr);
 }
 
+#if WITH_MEM_STATS
 void LITE_dump_malloc_free_stats(int level)
 {
     OS_malloc_record       *pos;
 
-#if defined(CONFIG_CONTAINS_LITE_LOG)
+#if defined(LITE_LOG_ENABLED)
     if (level > LITE_get_loglevel()) {
         return;
     }
@@ -198,7 +199,7 @@ void LITE_dump_malloc_free_stats(int level)
     LITE_printf(". iterations_max_in_use:    %d\r\n", iterations_max_in_use);
     LITE_printf("---------------------------------------------------\r\n");
 
-#if defined(CONFIG_CONTAINS_LITE_LOG)
+#if defined(LITE_LOG_ENABLED)
     if (LITE_get_loglevel() == level) {
 #else
     {
@@ -252,3 +253,4 @@ void LITE_dump_malloc_free_stats(int level)
 
     return;
 }
+#endif  /* #if WITH_MEM_STATS */

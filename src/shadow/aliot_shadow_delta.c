@@ -123,7 +123,8 @@ void aliot_shadow_delta_entry(
     const char *key_metadata;
     const char *pstate, *pmetadata, *pvalue;
 
-    if (NULL != (pstate = LITE_json_value_of("payload.state.desired", json_doc))) {
+    pstate = LITE_json_value_of("payload.state.desired", json_doc);
+    if (NULL != pstate) {
         key_metadata = "payload.metadata.desired";
     } else {
         //if have not desired key, get reported key instead.
@@ -143,6 +144,9 @@ void aliot_shadow_delta_entry(
                 strlen(pstate),
                 pmetadata,
                 strlen(pmetadata));
+
+    LITE_free(pstate);
+    LITE_free(pmetadata);
 
     //generate ACK and publish to @update topic using QOS1
     aliot_shadow_delta_response(pshadow);

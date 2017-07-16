@@ -18,7 +18,7 @@ LDFLAGS     += -L. -llite-utils
 
 INS_LIBDIR  ?= ./fakeroot/usr/lib
 INS_INCDIR  ?= ./fakeroot/usr/include
-INS_HDRS    := lite-utils.h lite-list.h
+INS_HDRS    := lite-utils.h lite-list.h lite-utils_config.h
 
 VARS    := \
     UT_PROG \
