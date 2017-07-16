@@ -41,24 +41,34 @@ function Update_Sources()
                 cp -rf ${TMPD}/* ${PKG_SOURCE}/
                 rm -rf ${TMPD}
         fi
-        rm -rf ${OUTPUT_DIR}/${MODULE}/$(basename ${PKG_SOURCE})
-        cp -rf ${PKG_SOURCE} ${OUTPUT_DIR}/${MODULE}
+
+        # rm -rf ${OUTPUT_DIR}/${MODULE}/$(basename ${PKG_SOURCE})
+        # cp ${VERB_OPT} -rf ${PKG_SOURCE} ${OUTPUT_DIR}/${MODULE}
+
     fi
 
     for FILE in \
         $(find ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
         $(find ${SRC_DIR}/ -maxdepth 1 -name "*.patch" -o -name "lib*.a" -o -name "lib*.so") \
+        $([ "" != "${PKG_SOURCE}" ] && [ -d ${PKG_SOURCE} ] && find ${PKG_SOURCE}/ -type f -o -type l) \
     ; \
     do
-        FILE_DIR=.$(echo $(dirname ${FILE})|sed "s:${SRC_DIR}::")
-        FILE_BASE=$(basename ${FILE})
-        FILE_COPY=${BLD_DIR}/${FILE_DIR}/${FILE_BASE}
-        Trace "Check: ${FILE_DIR}: ${FILE_BASE}"
+        if [ "" != "${PKG_SOURCE}" ] && [ -d ${PKG_SOURCE} ]; then
+            SUBD=$(basename ${PKG_SOURCE})
+        else
+            SUBD=$(echo $(dirname ${FILE})|sed "s:${SRC_DIR}::")
+        fi
+
+        COPY_DIR=${OUTPUT_DIR}/${MODULE}/${SUBD}
+        mkdir -p ${COPY_DIR}
+        COPY_BASE=$(basename ${FILE})
+        FILE_COPY=${COPY_DIR}/${COPY_BASE}
+        Trace "Check: ${FILE}: ${FILE_COPY}"
 
         if [ ! -e ${FILE_COPY} -o \
              ${FILE} -nt ${FILE_COPY} ]; then
              mkdir -p ${BLD_DIR}/${FILE_DIR}
-             cp -f ${FILE} ${FILE_COPY}
+             cp ${VERB_OPT} -f ${FILE} ${FILE_COPY}
         fi
     done
 }
@@ -119,6 +129,10 @@ if [ ! -d ${SRC_DIR} ]; then
 fi
 
 # [ "${VERBOSE_PRE_BLD}" != "" ] && set -x
+
+if [ "${VERBOSE_PRE_BLD}" != "" ]; then
+    VERB_OPT="-v"
+fi
 
 mkdir -p ${BLD_DIR}
 

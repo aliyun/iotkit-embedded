@@ -4,4 +4,4 @@ PKG_SOURCE  := src/packages/LITE-utils
 # PKG_UPDATE  := 'git@gitlab.alibaba-inc.com:iot-middleware/LITE-utils.git'
 
 build:
-	$(Q)$(MAKE) -C LITE-utils library
+	$(Q)$(MAKE) -s -C LITE-utils library

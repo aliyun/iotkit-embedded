@@ -68,7 +68,7 @@ ALL_TARGETS := $(TARGET) $(LIBSO_TARGET) $(LIBA_TARGET) $(firstword $(KMOD_TARGE
 ifneq (,$(strip $(PKG_SWITCH)))
 ifneq (,$(strip $(OVERRIDE_BUILD)))
 $(LIBA_TARGET) $(LIBSO_TARGET) all:
-	$(Q)echo ""
+	$(Q)echo -ne "\r                                              \r"
 	$(Q)$(MAKE) build
 else
 all: $(ALL_TARGETS)
