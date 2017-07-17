@@ -8,6 +8,8 @@ ifneq (clean,$(MAKECMDGOALS))
 sinclude $(LIB_SRCS:.c=.d)
 endif
 
+$(LIBA_TARGET) :: before-build
+
 $(LIBA_TARGET) :: $(LIB_OBJS)
 	$(call Brief_Log,"AR")
 	$(call Inspect_Env,$(WATCHED_VARS))
@@ -34,6 +36,8 @@ LIB_OBJS ?= $(LIB_SRCS:.c=.o)
 ifneq (clean,$(MAKECMDGOALS))
 sinclude $(LIB_SRCS:.c=.d)
 endif
+
+$(LIBSO_TARGET) :: before-build
 
 $(LIBSO_TARGET) :: SELF_LIBNAME = $(subst lib,,$(subst .so,,$(LIBSO_TARGET)))
 $(LIBSO_TARGET) :: LDFLAGS := $(filter-out -l$(SELF_LIBNAME), $(LDFLAGS))

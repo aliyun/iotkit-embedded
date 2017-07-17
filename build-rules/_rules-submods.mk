@@ -105,7 +105,7 @@ $(ALL_SUB_DIRS): $(if $(filter 0,$(MAKELEVEL)),toolchain) $(STAMP_BLD_VAR)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 	$(TOP_Q)$(MAKE) --no-print-directory pre-sub-build target-$@
 ifeq (0,$(MAKELEVEL))
-	$(TOP_Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
+#	$(TOP_Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
 endif
 	$(TOP_Q) \
 	if [ "$$(echo $(PKG_SWITCH_$@))" != "" ]; then \

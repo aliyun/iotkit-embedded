@@ -76,7 +76,6 @@ $(LIBA_TARGET) $(LIBSO_TARGET) all:
 #	    INS_LIBDIR=$(SYSROOT_LIB) \
 #	    INS_INCDIR=$(SYSROOT_INC)/$(LIBHDR_DIR)
 
-ifneq (,$(strip $(OVERRIDE_BUILD)))
 ifneq (,$(strip $(PKG_SOURCE)))
 
 	$(Q) \
@@ -103,13 +102,24 @@ ifneq (,$(strip $(PKG_SOURCE)))
 	$(Q)cd $(LIBOBJ_TMPDIR)/$(MODULE_NAME) && ar xf $(LIBA_TARGET)
 	$(Q)rm -f $(LIBOBJ_TMPDIR)/$(MODULE_NAME)/$(LIBA_TARGET)
 
-endif
-endif
+endif   # PKG_SOURCE is directory and has its own 'build:'
 
-else
-all: $(ALL_TARGETS)
+else    # PKG_SWITCH is on without OVERRIDE_BUILD
+.PHONY: before-build
+
+all: before-build $(ALL_TARGETS)
+
+before-build:
+ifdef PREP_BUILD_HOOK
+	$(Q)$(RECURSIVE_MAKE) pre-sub-build target-$(MODULE_NAME)
+	$(Q)rm -f $(LIBA_TARGET_$(MODULE_NAME))
+	$(Q)$(MAKE) clean
 endif
-else
+	@$(call $(PREP_BUILD_HOOK))
+
+endif   # End PKG_SWITCH is on Section
+
+else    # PKG_SWITCH = n
 all:
 	$(Q)true
 endif
