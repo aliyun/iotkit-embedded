@@ -7,8 +7,8 @@ int main(int argc, char *argv[])
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
 
     unittest_string_utils();
-    unittest_json_parser();
     unittest_json_token();
+    unittest_crypto();
 
     LITE_malloc(1);
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
