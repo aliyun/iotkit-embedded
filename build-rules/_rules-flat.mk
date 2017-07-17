@@ -94,6 +94,8 @@ ifneq (,$(strip $(PKG_SOURCE)))
 	        if  [ ! -e $(SYSROOT_INC)/$(LIBHDR_DIR)/$$(basename $${iter}) ] || \
 	            ! diff -q $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR)/$$(basename $${iter}); then \
 	            cp -f $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR); \
+	            printf "%-32s%s%s\n" "[CP] $(LIBHDR_DIR)/$$(basename $${iter})" \
+	                   "<= $$(echo $${iter}|sed 's:$(TOP_DIR)/::g')"; \
 	        fi; \
 	    done; \
 	    rm -rf $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache; \
@@ -114,8 +116,6 @@ all: before-build $(ALL_TARGETS)
 before-build:
 ifdef PREP_BUILD_HOOK
 	$(Q)$(RECURSIVE_MAKE) pre-sub-build target-$(MODULE_NAME)
-	$(Q)rm -f $(LIBA_TARGET_$(MODULE_NAME))
-	$(Q)$(MAKE) clean
 endif
 	@$(call $(PREP_BUILD_HOOK))
 
@@ -127,7 +127,7 @@ all:
 endif
 
 clean:
-	$(Q)rm -f $(strip $(ALL_TARGETS) $(OBJS) $(LIB_OBJS)) *.o.e *.d *.o *.a *.so *.log *.gc*
+	$(Q)rm -f $(strip $(ALL_TARGETS) $(OBJS) $(LIB_OBJS) $(OBJS:.o=.d) $(LIB_OBJS:.o=.d)) *.o.e *.d *.o *.a *.so *.log *.gc*
 
 ifneq (,$(strip $(OVERRIDE_BUILD)))
 ifneq (,$(strip $(PKG_SOURCE)))
@@ -169,9 +169,8 @@ NODEP_LIST = \
 	    $(EXTERNAL_INCLUDES) \
 	    $(CFLAGS) \
 	$< > $@.$$$$; \
-	$(foreach D,$(NODEP_LIST),sed -i 's:$(D)::g' $@.$$$$;) \
-	sed 's,\($*\)\.o[ :]*,\1.o $@: ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$;
+	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $@.$$$$; \
+	mv $@.$$$$ $@;
 
 %.o: %.cpp
 	$(call Brief_Log,"CC")

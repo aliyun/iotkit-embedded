@@ -1,4 +1,3 @@
-#include "lite-utils_internal.h"
 #include "mem_stats.h"
 
 LIST_HEAD(mem_recs);
@@ -40,6 +39,7 @@ void LITE_track_malloc_callstack(int state)
 
 void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size)
 {
+#if WITH_MEM_STATS
     void               *temp = NULL;
 
     if (size <= 0) {
@@ -56,10 +56,14 @@ void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size)
     }
 
     return temp;
+#else
+    return realloc(ptr, size);
+#endif
 }
 
 void *LITE_malloc_internal(const char *f, const int l, int size)
 {
+#if WITH_MEM_STATS
     void                   *ptr = NULL;
     OS_malloc_record       *pos;
 
@@ -131,10 +135,14 @@ void *LITE_malloc_internal(const char *f, const int l, int size)
 
     memset(ptr, 0, size);
     return ptr;
+#else
+    return malloc(size);
+#endif
 }
 
 void LITE_free_internal(void *ptr)
 {
+#if WITH_MEM_STATS
     OS_malloc_record       *pos;
 
     if (!ptr) {
@@ -171,13 +179,13 @@ void LITE_free_internal(void *ptr)
         list_del(&pos->list);
         free(pos);
     }
-
+#endif
     free(ptr);
 }
 
-#if WITH_MEM_STATS
 void LITE_dump_malloc_free_stats(int level)
 {
+#if WITH_MEM_STATS
     OS_malloc_record       *pos;
 
 #if defined(LITE_LOG_ENABLED)
@@ -250,7 +258,9 @@ void LITE_dump_malloc_free_stats(int level)
             }
         }
     }
+#else
+    log_err("WITH_MEM_STATS = %d", WITH_MEM_STATS);
+#endif  /* #if WITH_MEM_STATS */
 
     return;
 }
-#endif  /* #if WITH_MEM_STATS */

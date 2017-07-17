@@ -23,7 +23,6 @@
 #define LITE_MAXIMUM(a, b)          (((a) >= (b)) ? (a) : (b))
 #define LITE_isdigit(c)             (((c) <= '9' && (c) >= '0') ? (LITE_TRUE) : (LITE_FALSE))
 
-#if WITH_MEM_STATS
 #define LITE_malloc(size)           LITE_malloc_internal(__func__, __LINE__, size)
 #define LITE_realloc(ptr, size)     LITE_realloc_internal(__func__, __LINE__, ptr, size)
 #define LITE_free(ptr)              \
@@ -37,28 +36,6 @@
         ptr = NULL; \
     } while(0)
 
-#else
-
-#define LITE_realloc(ptr, size)     realloc(ptr, size)
-#define LITE_malloc(size)           malloc(size)
-#define LITE_free(ptr)              \
-    do { \
-        if(!ptr) { \
-            log_err("%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
-            break; \
-        } \
-        \
-        free((void *)ptr); \
-        ptr = NULL; \
-    } while(0)
-
-static inline void LITE_dump_malloc_free_stats(int level)
-{
-    return;
-}
-
-#endif  /* #if WITH_MEM_STATS */
-
 char       *LITE_strdup(const char *src);
 char       *LITE_format_string(const char *fmt, ...);
 char       *LITE_format_nstring(const int len, const char *fmt, ...);
@@ -66,9 +43,6 @@ void        LITE_hexbuf_convert(unsigned char *digest, char *out, int buflen, in
 void        LITE_hexstr_convert(char *hexstr, uint8_t *out_buf, int len);
 void        LITE_replace_substr(char orig[], char key[], char swap[]);
 
-void       *LITE_malloc_internal(const char *f, const int l, int size);
-void       *LITE_realloc_internal(const char *f, const int l, void *ptr, int size);
-void        LITE_free_internal(void *ptr);
 void        LITE_dump_malloc_free_stats(int level);
 void        LITE_track_malloc_callstack(int state);
 
