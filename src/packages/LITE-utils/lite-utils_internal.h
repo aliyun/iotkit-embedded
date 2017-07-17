@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "lite/lite-log.h"
+
 #include "lite-utils_config.h"
 #include "lite-utils.h"
 

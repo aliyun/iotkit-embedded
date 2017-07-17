@@ -72,7 +72,7 @@ int mqtt_real_confirm(int verify_result)
     }
 
     if ((verify_result & MBEDTLS_X509_BADCERT_CN_MISMATCH) != 0) {
-        SSL_LOG("! warn ! CN mismatch");
+        // SSL_LOG("! warn ! CN mismatch");
     }
 
     if ((verify_result & MBEDTLS_X509_BADCERT_NOT_TRUSTED) != 0) {

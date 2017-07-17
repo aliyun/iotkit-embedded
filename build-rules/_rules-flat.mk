@@ -70,7 +70,7 @@ ifneq (,$(strip $(OVERRIDE_BUILD)))
 
 $(LIBA_TARGET) $(LIBSO_TARGET) all:
 	$(Q)echo -ne "\r                                              \r"
-	$(Q)$(MAKE) build CFLAGS='$(CFLAGS) -I$(SYSROOT_INC)'
+	$(Q)$(MAKE) CFLAGS='$(CFLAGS) -I$(SYSROOT_INC)' build
 
 #	$(Q)$(MAKE) install \
 #	    INS_LIBDIR=$(SYSROOT_LIB) \
@@ -84,14 +84,16 @@ ifneq (,$(strip $(PKG_SOURCE)))
 	    rm -rf $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache; \
 	    mkdir -p $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache; \
 	    $(MAKE) -C $${SRCDIR} install \
+	        CFLAGS='$(CFLAGS) -I$(SYSROOT_INC)' \
+	        INS_LIBS=$(LIBA_TARGET) \
 	        INS_LIBDIR=$(SYSROOT_LIB) \
 	        INS_INCDIR=$(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache \
-        ; \
+	    ; \
 	    for iter in \
 	        $$(find $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache -type f); do \
 	        if  [ ! -e $(SYSROOT_INC)/$(LIBHDR_DIR)/$$(basename $${iter}) ] || \
-                ! diff -q $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR)/$$(basename $${iter}); then \
-	            cp -vf $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR); \
+	            ! diff -q $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR)/$$(basename $${iter}); then \
+	            cp -f $${iter} $(SYSROOT_INC)/$(LIBHDR_DIR); \
 	        fi; \
 	    done; \
 	    rm -rf $(SYSROOT_INC)/$(MODULE_NAME)/$(LIBHDR_DIR).cache; \

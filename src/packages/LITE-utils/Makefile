@@ -18,7 +18,8 @@ LDFLAGS     += -L. -llite-utils
 
 INS_LIBDIR  ?= ./fakeroot/usr/lib
 INS_INCDIR  ?= ./fakeroot/usr/include
-INS_HDRS    := lite-utils.h lite-list.h lite-utils_config.h
+INS_HDRS    := lite-utils.h lite-list.h
+INS_LIBS    ?= libutils.a
 
 VARS    := \
     UT_PROG \
@@ -37,7 +38,7 @@ VARS    := \
     INS_INCDIR \
 
 ifeq (static,$(LIB_FMT))
-ALL_TARGET := libutils.a
+ALL_TARGET := $(INS_LIBS)
 else
 $(error LIB_FMT must be static!)
 endif
@@ -73,7 +74,7 @@ clean:
 # 	@$(CC) -MM $(CFLAGS) $< > $@.$$$$; \
 # 	    sed 's,\($*\)\.o[ :]*,\1.o $@: ,g' < $@.$$$$ > $@; \
 # 	    rm -f $@.$$$$
-# 
+#
 # sinclude $(OBJS:.o=.d)
 
 info:
