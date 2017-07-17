@@ -1,4 +1,4 @@
-LIBA_TARGET     := liblog.a
+LIBA_TARGET     := libiot-log.a
 LIBHDR_DIR      := lite
 LIB_HEADERS     := \
     log_config.h \

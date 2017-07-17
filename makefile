@@ -21,4 +21,5 @@ SUBDIRS += src/sdk-tests
 
 COVERAGE_CMD    := $(SCRIPT_DIR)/walk_through_examples.sh
 BUILD_CONFIG    := src/configs/config.desktop.x86
+
 include $(RULE_DIR)/rules.mk

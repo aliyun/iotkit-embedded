@@ -1,4 +1,4 @@
-LIBA_TARGET := libutils.a
+LIBA_TARGET := libiot-utils.a
 LIB_SRCS    := $(wildcard */*.c)
 LIB_SRCS    := $(filter-out LITE-utils/lite-utils_prog.c,$(LIB_SRCS))
 
@@ -11,4 +11,8 @@ PKG_SOURCE  := src/packages/LITE-utils
 
 build:
 	$(Q)cp utils_config.h LITE-utils/lite-utils_config.h
-	$(Q)$(MAKE) -s -C LITE-utils library
+	$(Q)$(MAKE) -C LITE-utils \
+	    $(if $(Q),-s,) \
+	    CFLAGS='$(CFLAGS)' \
+	    INS_LIBS=$(LIBA_TARGET) \
+	    library
