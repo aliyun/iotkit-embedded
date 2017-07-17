@@ -1,0 +1,28 @@
+#ifndef MBEDTLS_CONFIG_H
+#define MBEDTLS_CONFIG_H
+
+#include "lite/lite-log.h"
+
+#define MBEDTLS_HAVE_LONGLONG
+#define MBEDTLS_HAVE_ASM
+
+#define MBEDTLS_PLATFORM_C
+// #define MBEDTLS_PLATFORM_CALLOC_MACRO LITE_calloc
+// #define MBEDTLS_PLATFORM_FREE_MACRO LITE_free
+#define MBEDTLS_PLATFORM_PRINTF_MACRO LITE_printf
+
+#define MBEDTLS_BASE64_C
+
+#define MBEDTLS_AES_C
+#define MBEDTLS_AES_ROM_TABLES
+#define MBEDTLS_CIPHER_MODE_CBC
+
+
+#define MBEDTLS_BIGNUM_C
+
+#define MBEDTLS_MD_C
+#define MBEDTLS_MD5_C
+
+#define MBEDTLS_SHA1_C
+
+#endif  /* MBEDTLS_CONFIG_H */

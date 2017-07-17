@@ -7,6 +7,7 @@ COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/log \
     src/utils \
+    src/crypto \
     src/sdk-impl \
     src/auth \
     src/shadow \

@@ -102,7 +102,6 @@ int unittest_json_token(void)
     json_key_t     *pos;
 
     key_list = LITE_json_keys_of(UNITTEST_JSON_SAMPLE, "");
-    log_err("key_list = %p", key_list);
 
     list_for_each_entry(pos, key_list, list) {
         if (pos->key) {
