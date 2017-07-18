@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     unittest_crypto();
 
     LITE_malloc(1);
+    LITE_calloc(2, 4);
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
     return 0;
