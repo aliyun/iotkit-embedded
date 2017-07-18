@@ -63,8 +63,8 @@ void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size)
 
 void *LITE_malloc_internal(const char *f, const int l, int size)
 {
-#if WITH_MEM_STATS
     void                   *ptr = NULL;
+#if WITH_MEM_STATS
     OS_malloc_record       *pos;
 
     if (size <= 0) {
@@ -136,7 +136,9 @@ void *LITE_malloc_internal(const char *f, const int l, int size)
     memset(ptr, 0, size);
     return ptr;
 #else
-    return malloc(size);
+    ptr = malloc(size);
+    memset(ptr, 0, size);
+    return ptr;
 #endif
 }
 
