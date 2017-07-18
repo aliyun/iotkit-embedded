@@ -26,7 +26,5 @@ MAKE_ENV_VARS := $(sort $(filter-out CFLAGS LDFLAGS,$(MAKE_ENV_VARS)))
 
 $(foreach V, \
     $(MAKE_ENV_VARS), \
-        $(eval \
-            export $(V) := $(sort $(CONFIG_ENV_$(V))) \
-         ) \
+        $(eval export $(V) := $(sort $(CONFIG_ENV_$(V)))) \
 )
