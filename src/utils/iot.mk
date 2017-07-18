@@ -11,8 +11,5 @@ PKG_SOURCE  := src/packages/LITE-utils
 
 PREP_BUILD_HOOK := customize_utils
 define customize_utils
-	$(Q) \
-	if ! diff -q utils_config.h LITE-utils/lite-utils_config.h > /dev/null; then \
-	    cp utils_config.h LITE-utils/lite-utils_config.h; \
-	fi
+    $(call Customize_With, utils_config.h, LITE-utils/lite-utils_config.h)
 endef

@@ -14,8 +14,6 @@ PKG_SOURCE  := src/packages/LITE-crypto
 PREP_BUILD_HOOK := customize_myself
 
 define customize_myself
-    @if ! diff -q iot-crypto_config.h LITE-crypto/lite-crypto_config.h; then \
-        cp -f iot-crypto_config.h LITE-crypto/lite-crypto_config.h; \
-    fi
-    @cp -f iot-mbedtls_config.h LITE-crypto/mbedtls/config.h
+    $(call Customize_With, iot-crypto_config.h, LITE-crypto/lite-crypto_config.h)
+    $(call Customize_With, iot-mbedtls_config.h, LITE-crypto/mbedtls/config.h)
 endef

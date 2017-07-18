@@ -27,6 +27,15 @@ define Inspect_Env
 endef
 endif
 
+define Customize_With
+	if ! diff $(1) $(2) > /dev/null; then \
+	    echo -ne "\e[1;31m"; \
+	    printf "\r%s %-27s%s\n" "[UP]" "$(shell basename $(strip $(2)))" "<= $(strip $(1))"; \
+	    cp -f $(1) $(2); \
+	    echo -ne "\e[0m"; \
+	fi
+endef
+
 # 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white.
 define Brief_Log
 	@if [ "$1" = "CC" ]; then \
