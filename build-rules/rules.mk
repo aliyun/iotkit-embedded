@@ -85,12 +85,12 @@ include $(RULE_DIR)/_rules-top.mk
 include $(RULE_DIR)/_rules-prefix.mk
 
 CROSS_CANDIDATES := CC CXX AR LD STRIP OBJCOPY
-export CC ?= $(CROSS_PREFIX)gcc
-export CXX ?= $(CROSS_PREFIX)g++
-export AR ?= $(CROSS_PREFIX)ar
-export LD ?= $(CROSS_PREFIX)ld
-export STRIP ?= $(CROSS_PREFIX)strip
-export OBJCOPY ?= $(CROSS_PREFIX)objcopy
+export CC := $(CROSS_PREFIX)gcc
+export CXX := $(CROSS_PREFIX)g++
+export AR := $(CROSS_PREFIX)ar
+export LD := $(CROSS_PREFIX)ld
+export STRIP := $(CROSS_PREFIX)strip
+export OBJCOPY := $(CROSS_PREFIX)objcopy
 
 include $(RULE_DIR)/_rules-dist.mk
 include $(RULE_DIR)/_rules-complib.mk

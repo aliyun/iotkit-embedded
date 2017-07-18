@@ -56,7 +56,9 @@ config:
 	    command grep -m 1 "MODEL *:" $(CONFIG_TPL)|cut -c 3- && \
 	    echo ""; \
 	    if [ "$(MAKECMDGOALS)" = "config" ]; then true; else \
-	        touch $(STAMP_PRJ_CFG); \
+	        if [ "$(BUILD_CONFIG)" = "" ]; then \
+	            touch $(STAMP_PRJ_CFG); \
+	        fi; \
 	    fi; \
 	    for i in $(RESET_ENV_VARS); do unset $${i}; done; \
 	    $(MAKE) --no-print-directory -f $(TOP_MAKEFILE) $(STAMP_BLD_VAR); \
