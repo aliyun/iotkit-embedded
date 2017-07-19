@@ -7,12 +7,12 @@
 
 #include "aliot_platform.h"
 
-#include "aliot_error.h"
+#include "utils_error.h"
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
-#include "aliot_md5.h"
-#include "aliot_hmac.h"
-#include "aliot_httpclient.h"
+#include "utils_md5.h"
+#include "utils_hmac.h"
+#include "utils_httpc.h"
 
 #include "aliot_ca.h"
 #include "aliot_auth.h"

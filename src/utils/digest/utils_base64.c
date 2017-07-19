@@ -4,9 +4,9 @@
 
 #include "aliot_platform.h"
 
-#include "aliot_error.h"
+#include "utils_error.h"
 #include "lite/lite-log.h"
-#include "aliot_base64.h"
+#include "utils_base64.h"
 
 static int8_t g_encodingTable[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',

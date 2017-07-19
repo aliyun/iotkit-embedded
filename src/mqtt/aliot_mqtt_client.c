@@ -3,11 +3,11 @@
 #include <stddef.h>
 #include "aliot_platform.h"
 #include "aliot_auth.h"
-#include "aliot_error.h"
+#include "utils_error.h"
 #include "lite/lite-log.h"
-#include "aliot_net.h"
-#include "aliot_list.h"
-#include "aliot_timer.h"
+#include "utils_net.h"
+#include "utils_list.h"
+#include "utils_timer.h"
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "aliot_mqtt_client.h"

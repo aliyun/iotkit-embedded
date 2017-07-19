@@ -57,6 +57,7 @@ function Update_Sources()
             [ -d ${PKG_SOURCE} ] && \
             [ "$(dirname ${FILE})" != "${TOP_DIR}/${MODULE}" ]; then
             SUBD=$(echo $(dirname ${FILE})|sed "s:$(dirname ${PKG_SOURCE})::")
+            SUBD=$(echo ${SUBD}|sed "s:${SRC_DIR}::")
         else
             SUBD=$(echo $(dirname ${FILE})|sed "s:${SRC_DIR}::")
         fi

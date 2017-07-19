@@ -2,9 +2,9 @@
 #include <string.h>
 
 #include "aliot_platform.h"
-#include "aliot_net.h"
+#include "utils_net.h"
 #include "lite/lite-log.h"
-#include "aliot_hexdump.h"
+#include "utils_hexdump.h"
 
 
 /*** TCP connection ***/

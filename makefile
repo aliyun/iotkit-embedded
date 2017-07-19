@@ -13,7 +13,6 @@ COMP_LIB_COMPONENTS := \
     src/shadow \
     src/mqtt \
     src/system \
-    src/utility \
     src/platform \
 
 SUBDIRS := sample

@@ -1,8 +1,8 @@
 #include <string.h>
 #include "lite/lite-log.h"
-#include "aliot_md5.h"
-#include "aliot_sha1.h"
-#include "aliot_hmac.h"
+#include "utils_md5.h"
+#include "utils_sha1.h"
+#include "utils_hmac.h"
 
 #define KEY_IOPAD_SIZE 64
 

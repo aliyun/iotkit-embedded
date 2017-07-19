@@ -1,8 +1,8 @@
 #include "aliot_platform.h"
 
-#include "aliot_list.h"
-#include "aliot_debug.h"
-#include "aliot_error.h"
+#include "utils_list.h"
+#include "utils_debug.h"
+#include "utils_error.h"
 #include "aliot_mqtt_client.h"
 #include "lite/lite-utils.h"
 #include "aliot_shadow.h"

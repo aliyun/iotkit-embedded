@@ -2,7 +2,7 @@
 #define _ALIOT_COMMON_SHA1_H_
 
 #include "aliot_platform.h"
-#include "aliot_error.h"
+#include "utils_error.h"
 
 
 /**

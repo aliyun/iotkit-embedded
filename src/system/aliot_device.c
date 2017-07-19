@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "lite/lite-log.h"
-#include "aliot_error.h"
+#include "utils_error.h"
 #include "aliot_device.h"
 
 
