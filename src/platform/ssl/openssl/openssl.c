@@ -172,7 +172,7 @@ int utils_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int
         IOT_NET_FD_ISSET_E result;
         ret = utils_network_select(pTlsData->socketId, IOT_NET_TRANS_RECV, timeout_ms, &result);
         if (ret < 0) {
-            INT32 err = aliot_get_errno();
+            INT32 err = iotx_get_errno();
             if (err == EINTR_IOT) {
                 log_debug("continue");
             } else {

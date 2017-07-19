@@ -10,20 +10,20 @@
 #include "shadow_common.h"
 
 
-aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
-            aliot_shadow_pt pshadow,
+iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
+            iotx_shadow_pt pshadow,
             const char *token,
             size_t token_len,
-            aliot_update_cb_fpt cb,
+            iotx_update_cb_fpt cb,
             void *pcontext,
             uint32_t timeout);
 
-void aliot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element);
+void iotx_shadow_update_wait_ack_list_remove(iotx_shadow_pt pshadow, iotx_update_ack_wait_list_pt element);
 
-void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow);
+void iotx_ds_update_wait_ack_list_handle_expire(iotx_shadow_pt pshadow);
 
-void ads_update_wait_ack_list_handle_response(
-            aliot_shadow_pt pshadow,
+void iotx_ds_update_wait_ack_list_handle_response(
+            iotx_shadow_pt pshadow,
             const char *json_doc,
             size_t json_doc_len);
 

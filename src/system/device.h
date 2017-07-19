@@ -27,7 +27,7 @@ typedef struct {
     char device_id[DEVICE_ID_LEN + 1];
     char device_secret[DEVICE_SECRET_LEN + 1];
     char module_vendor_id[MODULE_VENDOR_ID + 1];
-} aliot_device_info_t, *aliot_device_info_pt;
+} iotx_device_info_t, *iotx_device_info_pt;
 
 
 typedef struct {
@@ -37,19 +37,19 @@ typedef struct {
     char user_name[USER_NAME_LEN + 1];
     char password[PASSWORD_LEN + 1];
     const char *pubKey;
-} aliot_user_info_t, *aliot_user_info_pt;
+} iotx_user_info_t, *iotx_user_info_pt;
 
 
-int aliot_device_init(void);
+int iotx_device_init(void);
 
-int32_t aliot_set_device_info(
+int32_t iotx_set_device_info(
             const char *product_key,
             const char *device_name,
             const char *device_secret);
 
-aliot_device_info_pt aliot_get_device_info(void);
+iotx_device_info_pt iotx_get_device_info(void);
 
-aliot_user_info_pt aliot_get_user_info(void);
+iotx_user_info_pt iotx_get_user_info(void);
 
 
 #endif

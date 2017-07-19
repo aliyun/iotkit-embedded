@@ -15,7 +15,7 @@
  * @see None.
  * @note None.
  */
-uintptr_t aliot_platform_ssl_establish(
+uintptr_t iotx_platform_ssl_establish(
                 const char *host,
                 uint16_t port,
                 const char *ca_crt,
@@ -29,7 +29,7 @@ uintptr_t aliot_platform_ssl_establish(
  *
  * @return < 0, fail; 0, success.
  */
-int32_t aliot_platform_ssl_destroy(uintptr_t handle);
+int32_t iotx_platform_ssl_destroy(uintptr_t handle);
 
 
 /**
@@ -48,7 +48,7 @@ int32_t aliot_platform_ssl_destroy(uintptr_t handle);
    @endverbatim
  * @see None.
  */
-int32_t aliot_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms);
+int32_t iotx_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms);
 
 
 /**
@@ -68,7 +68,7 @@ int32_t aliot_platform_ssl_write(uintptr_t handle, const char *buf, int len, int
    @endverbatim
  * @see None.
  */
-int32_t aliot_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms);
+int32_t iotx_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms);
 
 
 #endif /* _ALIOT_PLATFORM_SSL_H_ */

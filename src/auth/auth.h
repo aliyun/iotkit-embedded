@@ -14,7 +14,7 @@ extern "C" {
 #define ALIOT_AUTH_IOT_TOKEN    (PASSWORD_LEN)
 
 
-int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_info);
+int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info);
 
 
 #if defined(__cplusplus)

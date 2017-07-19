@@ -352,14 +352,14 @@ int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_dat
 int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len, uint32_t timeout_ms)
 {
     int ret = 0;
-    aliot_time_t timer;
+    iotx_time_t timer;
 
-    aliot_time_init(&timer);
+    iotx_time_init(&timer);
     utils_time_cutdown(&timer, timeout_ms);
 
     *p_read_len = 0;
 
-    ret = client->net.read(&client->net, buf, max_len, aliot_time_left(&timer));
+    ret = client->net.read(&client->net, buf, max_len, iotx_time_left(&timer));
     log_debug("Recv: | %s", buf);
 
     if (ret > 0) {
@@ -411,9 +411,9 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
     int count = 0;
     int templen = 0;
     int crlf_pos;
-    aliot_time_t timer;
+    iotx_time_t timer;
 
-    aliot_time_init(&timer);
+    iotx_time_init(&timer);
     utils_time_cutdown(&timer, timeout_ms);
 
     /* Receive data */
@@ -435,7 +435,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             }
 
             max_len = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - count);
-            ret = httpclient_recv(client, data, 1, max_len, &len, aliot_time_left(&timer));
+            ret = httpclient_recv(client, data, 1, max_len, &len, iotx_time_left(&timer));
 
             /* Receive data */
             log_debug("data len: %d %d", len, count);
@@ -482,7 +482,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
                                     0,
                                     HTTPCLIENT_CHUNK_SIZE - len - 1,
                                     &new_trf_len,
-                                    aliot_time_left(&timer));
+                                    iotx_time_left(&timer));
                         len += new_trf_len;
                         if (ret == ERROR_HTTP_CONN) {
                             return ret;
@@ -546,7 +546,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
                 int ret;
                 int max_len = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - count);
                 max_len = HTTPCLIENT_MIN(max_len, readLen);
-                ret = httpclient_recv(client, data, 1, max_len, &len, aliot_time_left(&timer));
+                ret = httpclient_recv(client, data, 1, max_len, &len, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
@@ -557,7 +557,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             if (len < 2) {
                 int new_trf_len, ret;
                 /* Read missing chars to find end of chunk */
-                ret = httpclient_recv(client, data + len, 2 - len, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, aliot_time_left(&timer));
+                ret = httpclient_recv(client, data + len, 2 - len, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
@@ -583,9 +583,9 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_t timeout_ms, httpclient_data_t *client_data)
 {
     int crlf_pos;
-    aliot_time_t timer;
+    iotx_time_t timer;
 
-    aliot_time_init(&timer);
+    iotx_time_init(&timer);
     utils_time_cutdown(&timer, timeout_ms);
 
     client_data->response_content_len = -1;
@@ -631,7 +631,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
         if (crlf_ptr == NULL) {
             if (len < HTTPCLIENT_CHUNK_SIZE - 1) {
                 int new_trf_len, ret;
-                ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, aliot_time_left(&timer));
+                ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, iotx_time_left(&timer));
                 len += new_trf_len;
                 data[len] = '\0';
                 log_debug("Read %d chars; In buf: [%s]", new_trf_len, data);
@@ -678,10 +678,10 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
         }
     }
 
-    return httpclient_retrieve_content(client, data, len, aliot_time_left(&timer), client_data);
+    return httpclient_retrieve_content(client, data, len, iotx_time_left(&timer), client_data);
 }
 
-aliot_err_t httpclient_connect(httpclient_t *client)
+iotx_err_t httpclient_connect(httpclient_t *client)
 {
     int ret = ERROR_HTTP_CONN;
 
@@ -696,7 +696,7 @@ aliot_err_t httpclient_connect(httpclient_t *client)
     return ret;
 }
 
-aliot_err_t httpclient_send_request(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
+iotx_err_t httpclient_send_request(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
     int ret = ERROR_HTTP_CONN;
 
@@ -718,13 +718,13 @@ aliot_err_t httpclient_send_request(httpclient_t *client, const char *url, int m
     return ret;
 }
 
-aliot_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclient_data_t *client_data)
+iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclient_data_t *client_data)
 {
     int reclen = 0, ret = ERROR_HTTP_CONN;
     char buf[HTTPCLIENT_CHUNK_SIZE] = { 0 };
-    aliot_time_t timer;
+    iotx_time_t timer;
 
-    aliot_time_init(&timer);
+    iotx_time_init(&timer);
     utils_time_cutdown(&timer, timeout_ms);
 
     if (0 == client->net.handle) {
@@ -734,9 +734,9 @@ aliot_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, 
 
     if (client_data->is_more) {
         client_data->response_buf[0] = '\0';
-        ret = httpclient_retrieve_content(client, buf, reclen, aliot_time_left(&timer), client_data);
+        ret = httpclient_retrieve_content(client, buf, reclen, iotx_time_left(&timer), client_data);
     } else {
-        ret = httpclient_recv(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen, aliot_time_left(&timer));
+        ret = httpclient_recv(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen, iotx_time_left(&timer));
         if (ret != 0) {
             return ret;
         }
@@ -745,7 +745,7 @@ aliot_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, 
 
         if (reclen) {
             log_multi_line(LOG_DEBUG_LEVEL, "RESPONSE", "%s", buf, "<");
-            ret = httpclient_response_parse(client, buf, reclen, aliot_time_left(&timer), client_data);
+            ret = httpclient_response_parse(client, buf, reclen, iotx_time_left(&timer), client_data);
         }
     }
 
@@ -764,17 +764,17 @@ void httpclient_close(httpclient_t *client)
 int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method, uint32_t timeout_ms,
                       httpclient_data_t *client_data)
 {
-    aliot_time_t timer;
+    iotx_time_t timer;
     int ret = ERROR_HTTP_CONN;
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
-    aliot_time_init(&timer);
+    iotx_time_init(&timer);
     utils_time_cutdown(&timer, timeout_ms);
 
     httpclient_parse_host(url, host, sizeof(host));
     log_debug("host: '%s', port: %d", host, port);
 
-    aliot_net_init(&client->net, host, port, ca_crt);
+    iotx_net_init(&client->net, host, port, ca_crt);
 
     ret = httpclient_connect(client);
     if (0 != ret) {
@@ -790,7 +790,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
         return ret;
     }
 
-    ret = httpclient_recv_response(client, aliot_time_left(&timer), client_data);
+    ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
     if (0 != ret) {
         log_err("httpclient_recv_response is error,ret = %d", ret);
         httpclient_close(client);
@@ -806,7 +806,7 @@ int utils_get_response_code(httpclient_t *client)
     return client->response_code;
 }
 
-aliot_err_t aliot_post(
+iotx_err_t iotx_post(
             httpclient_t *client,
             const char *url,
             int port,

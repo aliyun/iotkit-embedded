@@ -385,17 +385,17 @@ int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const
     return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
 
-int aliot_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms)
+int iotx_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
     return utils_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
 }
 
-int aliot_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms)
+int iotx_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 {
     return utils_network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
 }
 
-int32_t aliot_platform_ssl_destroy(uintptr_t handle)
+int32_t iotx_platform_ssl_destroy(uintptr_t handle)
 {
     if (NULL == handle) {
         SSL_LOG("handle is NULL");
@@ -407,7 +407,7 @@ int32_t aliot_platform_ssl_destroy(uintptr_t handle)
     return 0;
 }
 
-uintptr_t aliot_platform_ssl_establish(const char *host,
+uintptr_t iotx_platform_ssl_establish(const char *host,
                 uint16_t port,
                 const char *ca_crt,
                 size_t ca_crt_len)

@@ -16,7 +16,7 @@
         fflush(stdout);\
     }while(0);
 
-void *aliot_platform_mutex_create(void)
+void *iotx_platform_mutex_create(void)
 {
     int err_num;
     pthread_mutex_t *mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
@@ -34,7 +34,7 @@ void *aliot_platform_mutex_create(void)
     return mutex;
 }
 
-void aliot_platform_mutex_destroy(_IN_ void *mutex)
+void iotx_platform_mutex_destroy(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
@@ -44,7 +44,7 @@ void aliot_platform_mutex_destroy(_IN_ void *mutex)
     free(mutex);
 }
 
-void aliot_platform_mutex_lock(_IN_ void *mutex)
+void iotx_platform_mutex_lock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
@@ -52,7 +52,7 @@ void aliot_platform_mutex_lock(_IN_ void *mutex)
     }
 }
 
-void aliot_platform_mutex_unlock(_IN_ void *mutex)
+void iotx_platform_mutex_unlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
@@ -60,35 +60,35 @@ void aliot_platform_mutex_unlock(_IN_ void *mutex)
     }
 }
 
-void *aliot_platform_malloc(_IN_ uint32_t size)
+void *iotx_platform_malloc(_IN_ uint32_t size)
 {
     return malloc(size);
 }
 
-void aliot_platform_free(_IN_ void *ptr)
+void iotx_platform_free(_IN_ void *ptr)
 {
     return free(ptr);
 }
 
-int aliot_platform_ota_start(const char *md5, uint32_t file_size)
+int iotx_platform_ota_start(const char *md5, uint32_t file_size)
 {
     printf("this interface is NOT support yet.");
     return -1;
 }
 
-int aliot_platform_ota_write(_IN_ char *buffer, _IN_ uint32_t length)
+int iotx_platform_ota_write(_IN_ char *buffer, _IN_ uint32_t length)
 {
     printf("this interface is NOT support yet.");
     return -1;
 }
 
-int aliot_platform_ota_finalize(_IN_ int stat)
+int iotx_platform_ota_finalize(_IN_ int stat)
 {
     printf("this interface is NOT support yet.");
     return -1;
 }
 
-uint32_t aliot_platform_time_get_ms(void)
+uint32_t iotx_platform_time_get_ms(void)
 {
     struct timeval tv = { 0 };
     uint32_t time_ms;
@@ -100,12 +100,12 @@ uint32_t aliot_platform_time_get_ms(void)
     return time_ms;
 }
 
-void aliot_platform_msleep(_IN_ uint32_t ms)
+void iotx_platform_msleep(_IN_ uint32_t ms)
 {
     usleep( 1000 * ms );
 }
 
-void aliot_platform_printf(_IN_ const char *fmt, ...)
+void iotx_platform_printf(_IN_ const char *fmt, ...)
 {
     va_list args;
 
@@ -116,7 +116,7 @@ void aliot_platform_printf(_IN_ const char *fmt, ...)
     fflush(stdout);
 }
 
-char *aliot_platform_module_get_pid(char pid_str[])
+char *iotx_platform_module_get_pid(char pid_str[])
 {
     return NULL;
 }

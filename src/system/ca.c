@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-static const char *aliot_ca_crt =  { \
+static const char *iotx_ca_crt =  { \
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIIDdTCCAl2gAwIBAgILBAAAAAABFUtaw5QwDQYJKoZIhvcNAQEFBQAwVzELMAkG\r\n" \
 "A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv\r\n" \
@@ -26,7 +26,7 @@ static const char *aliot_ca_crt =  { \
 "-----END CERTIFICATE-----" };
 
 
-const char *aliot_ca_get(void)
+const char *iotx_ca_get(void)
 {
-    return aliot_ca_crt;
+    return iotx_ca_crt;
 }

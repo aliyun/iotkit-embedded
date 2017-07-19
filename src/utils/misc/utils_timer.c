@@ -4,21 +4,21 @@
 #include "utils_timer.h"
 
 
-void aliot_time_start(aliot_time_t *timer)
+void iotx_time_start(iotx_time_t *timer)
 {
-    timer->time = aliot_platform_time_get_ms();
+    timer->time = iotx_platform_time_get_ms();
 }
 
-uint32_t utils_time_spend(aliot_time_t *start)
+uint32_t utils_time_spend(iotx_time_t *start)
 {
     uint32_t now, res;
 
-    now = aliot_platform_time_get_ms();
+    now = iotx_platform_time_get_ms();
     res = now - start->time;
     return res;
 }
 
-uint32_t aliot_time_left(aliot_time_t *end)
+uint32_t iotx_time_left(iotx_time_t *end)
 {
     uint32_t now, res;
 
@@ -26,14 +26,14 @@ uint32_t aliot_time_left(aliot_time_t *end)
         return 0;
     }
 
-    now = aliot_platform_time_get_ms();
+    now = iotx_platform_time_get_ms();
     res = end->time - now;
     return res;
 }
 
-uint32_t utils_time_is_expired(aliot_time_t *timer)
+uint32_t utils_time_is_expired(iotx_time_t *timer)
 {
-    uint32_t cur_time = aliot_platform_time_get_ms();
+    uint32_t cur_time = iotx_platform_time_get_ms();
 
     /*
      *  WARNING: Do NOT change the following code until you know exactly what it do!
@@ -47,19 +47,19 @@ uint32_t utils_time_is_expired(aliot_time_t *timer)
     }
 }
 
-void aliot_time_init(aliot_time_t *timer)
+void iotx_time_init(iotx_time_t *timer)
 {
     timer->time = 0;
 }
 
-void utils_time_cutdown(aliot_time_t *timer, uint32_t millisecond)
+void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond)
 {
     ALIOT_ASSERT(millisecond < (UINT32_MAX / 2), "time should NOT exceed UINT32_MAX/2!");
-    timer->time = aliot_platform_time_get_ms() + millisecond;
+    timer->time = iotx_platform_time_get_ms() + millisecond;
 }
 
 uint32_t utils_time_get_ms(void)
 {
-    return aliot_platform_time_get_ms();
+    return iotx_platform_time_get_ms();
 }
 

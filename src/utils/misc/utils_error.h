@@ -82,7 +82,7 @@ typedef enum IOT_RETURN_CODES {
 
     /* @value > 0, reserved for other usage */
 
-} aliot_err_t;
+} iotx_err_t;
 
 
 //#define ALI_IOT_TRACE

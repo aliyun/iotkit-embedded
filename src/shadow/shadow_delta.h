@@ -9,15 +9,15 @@
 #include "shadow_update.h"
 
 
-bool aliot_shadow_delta_check_existence(aliot_shadow_pt pshadow, const char *attr_name);
+bool iotx_shadow_delta_check_existence(iotx_shadow_pt pshadow, const char *attr_name);
 
-void aliot_shadow_delta_entry(
-            aliot_shadow_pt pshadow,
+void iotx_shadow_delta_entry(
+            iotx_shadow_pt pshadow,
             const char *json_doc,
             size_t json_doc_len);
 
-aliot_err_t aliot_shadow_delta_register_attr(
-                aliot_shadow_pt pshadow,
-                aliot_shadow_attr_pt pattr);
+iotx_err_t iotx_shadow_delta_register_attr(
+                iotx_shadow_pt pshadow,
+                iotx_shadow_attr_pt pattr);
 
 #endif /* _ALIOT_SHADOW_DELTA_H_ */

@@ -25,7 +25,7 @@ const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/aut
 const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
 #endif
 
-static int aliot_get_id_token(
+static int iotx_get_id_token(
                 const char *auth_host,
                 const char *product_key,
                 const char *device_name,
@@ -62,7 +62,7 @@ static int aliot_get_id_token(
                        client_id, product_key, device_name, timestamp);
     }
 
-    if (NULL == (buf = aliot_platform_malloc(length))) {
+    if (NULL == (buf = iotx_platform_malloc(length))) {
         goto do_exit;
     }
 
@@ -88,7 +88,7 @@ static int aliot_get_id_token(
 
     memset(&httpclient_data, 0, sizeof(httpclient_data_t));
 
-    post_buf = (char *) aliot_platform_malloc(HTTP_POST_MAX_LEN);
+    post_buf = (char *) iotx_platform_malloc(HTTP_POST_MAX_LEN);
     if (NULL == post_buf) {
         log_err("malloc http post buf failed!");
         return ERROR_MALLOC;
@@ -116,7 +116,7 @@ static int aliot_get_id_token(
 
     ret = strlen(post_buf);
 
-    response_buf = (char *)aliot_platform_malloc(HTTP_RESP_MAX_LEN);
+    response_buf = (char *)iotx_platform_malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
         log_err("malloc http response buf failed!");
         return ERROR_MALLOC;
@@ -131,15 +131,15 @@ static int aliot_get_id_token(
 
 #ifdef _ONLINE
 
-    aliot_post( &httpclient,
+    iotx_post( &httpclient,
                 auth_host,
                 443,
-                aliot_ca_get(),
+                iotx_ca_get(),
                 10000,
                 &httpclient_data);
 #else
 
-    aliot_post( &httpclient,
+    iotx_post( &httpclient,
                 auth_host,
                 80,
                 NULL,
@@ -212,15 +212,15 @@ static int aliot_get_id_token(
 
 do_exit:
     if (NULL != buf) {
-        aliot_platform_free(buf);
+        iotx_platform_free(buf);
     }
 
     if (NULL != post_buf) {
-        aliot_platform_free(post_buf);
+        iotx_platform_free(post_buf);
     }
 
     if (NULL != response_buf) {
-        aliot_platform_free(response_buf);
+        iotx_platform_free(response_buf);
     }
 
     return ret;
@@ -247,13 +247,13 @@ typedef enum _SECURE_MODE {
     clientId为客户端自标示id不可空，建议使用MAC、SN；
     ||内为扩展参数，域名直连模式下 securemode必须传递，不传递则默认是auth方式。
  */
-int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_info)
+int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info)
 {
     int ret = 0;
     char pid[16];
 
     memset(pid, 0, sizeof(pid));
-    aliot_platform_module_get_pid(pid);
+    iotx_platform_module_get_pid(pid);
 
 #ifdef DIRECT_MQTT
 #define DIRECT_MQTT_DOMAIN  "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -281,7 +281,7 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
     puser_info->pubKey = NULL;
 #else
     mode = MODE_TLS_DIRECT;
-    puser_info->pubKey = aliot_ca_get();
+    puser_info->pubKey = iotx_ca_get();
 #endif
 
     ret = snprintf(puser_info->client_id,
@@ -329,7 +329,7 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
     char iot_id[ALIOT_AUTH_IOT_ID + 1], iot_token[ALIOT_AUTH_IOT_TOKEN + 1], host[HOST_ADDRESS_LEN + 1];
     uint16_t port;
 
-    if (0 != aliot_get_id_token(
+    if (0 != iotx_get_id_token(
                     iot_atuh_host,
                     pdevice_info->product_key,
                     pdevice_info->device_name,
@@ -353,11 +353,11 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
 #ifdef ALIOT_MQTT_TCP
     puser_info->pubKey = NULL;
 #else
-    puser_info->pubKey = aliot_ca_get();
+    puser_info->pubKey = iotx_ca_get();
 #endif
     if (NULL == puser_info->pubKey) {
         //Append string "nonesecure" if TCP connection be used.
-        if (NULL == aliot_platform_module_get_pid(pid)) {
+        if (NULL == iotx_platform_module_get_pid(pid)) {
             ret = snprintf(puser_info->client_id,
                        CLIENT_ID_LEN,
                        "%s|securemode=0|",
@@ -371,7 +371,7 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
                        pid);
         }
     } else {
-        if (NULL == aliot_platform_module_get_pid(pid)) {
+        if (NULL == iotx_platform_module_get_pid(pid)) {
             ret = snprintf(puser_info->client_id,
                                    CLIENT_ID_LEN,
                                    "%s",

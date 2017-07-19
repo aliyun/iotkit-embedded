@@ -30,7 +30,7 @@
  * @see None.
  * @note None.
  */
-void *aliot_platform_mutex_create(void);
+void *iotx_platform_mutex_create(void);
 
 
 
@@ -42,7 +42,7 @@ void *aliot_platform_mutex_create(void);
  * @see None.
  * @note None.
  */
-void aliot_platform_mutex_destroy(_IN_ void *mutex);
+void iotx_platform_mutex_destroy(_IN_ void *mutex);
 
 
 
@@ -54,7 +54,7 @@ void aliot_platform_mutex_destroy(_IN_ void *mutex);
  * @see None.
  * @note None.
  */
-void aliot_platform_mutex_lock(_IN_ void *mutex);
+void iotx_platform_mutex_lock(_IN_ void *mutex);
 
 
 
@@ -66,7 +66,7 @@ void aliot_platform_mutex_lock(_IN_ void *mutex);
  * @see None.
  * @note None.
  */
-void aliot_platform_mutex_unlock(_IN_ void *mutex);
+void iotx_platform_mutex_unlock(_IN_ void *mutex);
 
 
 /** @} */ //end of platform_mutex
@@ -84,7 +84,7 @@ void aliot_platform_mutex_unlock(_IN_ void *mutex);
  * @see None.
  * @note Block value is indeterminate.
  */
-void *aliot_platform_malloc(_IN_ uint32_t size);
+void *iotx_platform_malloc(_IN_ uint32_t size);
 
 
 /**
@@ -95,7 +95,7 @@ void *aliot_platform_malloc(_IN_ uint32_t size);
  * @see None.
  * @note None.
  */
-void aliot_platform_free(_IN_ void *ptr);
+void iotx_platform_free(_IN_ void *ptr);
 
 
 /** @} */ //end of platform_memory_manage
@@ -113,7 +113,7 @@ void aliot_platform_free(_IN_ void *ptr);
  * @see None.
  * @note None.
  */
-int aliot_platform_ota_start(const char *md5, uint32_t file_size);
+int iotx_platform_ota_start(const char *md5, uint32_t file_size);
 
 
 /**
@@ -125,7 +125,7 @@ int aliot_platform_ota_start(const char *md5, uint32_t file_size);
  * @see None.
  * @note None.
  */
-int aliot_platform_ota_write(_IN_ char *buffer, _IN_ uint32_t length);
+int iotx_platform_ota_write(_IN_ char *buffer, _IN_ uint32_t length);
 
 
 /**
@@ -136,7 +136,7 @@ int aliot_platform_ota_write(_IN_ char *buffer, _IN_ uint32_t length);
  * @see None.
  * @note None.
  */
-int aliot_platform_ota_finalize(_IN_ int stat);
+int iotx_platform_ota_finalize(_IN_ int stat);
 
 
 /** @} */ //end of group_platform_ota
@@ -154,7 +154,7 @@ int aliot_platform_ota_finalize(_IN_ int stat);
  * @see None.
  * @note None.
  */
-uint32_t aliot_platform_time_get_ms(void);
+uint32_t iotx_platform_time_get_ms(void);
 
 
 /**
@@ -165,7 +165,7 @@ uint32_t aliot_platform_time_get_ms(void);
  * @see None.
  * @note None.
  */
-void aliot_platform_msleep(_IN_ uint32_t ms);
+void iotx_platform_msleep(_IN_ uint32_t ms);
 
 
 /**
@@ -178,7 +178,7 @@ void aliot_platform_msleep(_IN_ uint32_t ms);
  * @see None.
  * @note None.
  */
-void aliot_platform_printf(_IN_ const char *fmt, ...);
+void iotx_platform_printf(_IN_ const char *fmt, ...);
 
 
 /**
@@ -186,7 +186,7 @@ void aliot_platform_printf(_IN_ const char *fmt, ...);
  *
  * @return NULL, Have NOT PID; NOT NULL, point to pid_str.
  */
-char *aliot_platform_module_get_pid(char pid_str[]);
+char *iotx_platform_module_get_pid(char pid_str[]);
 
 
 /** @} */ //end of group_platform_other

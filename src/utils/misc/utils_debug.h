@@ -8,14 +8,14 @@
 
 #define DEBUG_PUTS(fmt, args ...) \
     do{ \
-        aliot_platform_printf(fmt, ## args); \
+        iotx_platform_printf(fmt, ## args); \
     }while(0)
 
 #define ASSERT_FAILED_DO() \
     do{ \
         while(1){\
-            aliot_platform_msleep(1000); \
-            aliot_platform_printf("assert failed\r\n"); \
+            iotx_platform_msleep(1000); \
+            iotx_platform_printf("assert failed\r\n"); \
         }\
     }while(0)
 
@@ -25,7 +25,7 @@
             DEBUG_PUTS("###ASSERT FAILED###, file=%s, line=%d\r\n", __FILE__, __LINE__); \
             if (NULL != fmt) { \
                 DEBUG_PUTS(fmt, ## args); \
-                aliot_platform_printf("\r\n"); \
+                iotx_platform_printf("\r\n"); \
             } \
             ASSERT_FAILED_DO(); \
         } \

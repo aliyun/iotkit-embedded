@@ -30,10 +30,10 @@
 #define MSG_LEN_MAX         (1024)
 
 
-void event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
+void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     uint32_t packet_id = (uint32_t)msg->msg;
-    aliot_mqtt_topic_info_pt topic_info = (aliot_mqtt_topic_info_pt)msg->msg;
+    iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
     switch (msg->event_type)
     {
@@ -100,9 +100,9 @@ void event_handle(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
 }
 
 
-void aliot_mqtt_msg_arrived(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg)
+void iotx_mqtt_msg_arrived(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    aliot_mqtt_topic_info_pt ptopic_info = (aliot_mqtt_topic_info_pt) msg->msg;
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
 
     // print topic name and topic message
     log_info("----");
@@ -121,40 +121,40 @@ int mqtt_client(void)
 {
     int rc = 0, msg_len, cnt = 0;
     void *pclient;
-    aliot_user_info_pt puser_info;
-    aliot_mqtt_param_t mqtt_params;
-    aliot_mqtt_topic_info_t topic_msg;
+    iotx_user_info_pt puser_info;
+    iotx_mqtt_param_t mqtt_params;
+    iotx_mqtt_topic_info_t topic_msg;
     char msg_pub[128];
     char *msg_buf = NULL, *msg_readbuf = NULL;
 
-    if (NULL == (msg_buf = (char *)aliot_platform_malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_buf = (char *)iotx_platform_malloc(MSG_LEN_MAX))) {
         log_debug("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
-    if (NULL == (msg_readbuf = (char *)aliot_platform_malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_readbuf = (char *)iotx_platform_malloc(MSG_LEN_MAX))) {
         log_debug("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
     /* Initialize device info */
-    aliot_device_init();
+    iotx_device_init();
 
-    if (0 != aliot_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
+    if (0 != iotx_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
         log_debug("set device info failed!");
         rc = -1;
         goto do_exit;
     }
 
     /* Device AUTH */
-    if (0 != aliot_auth(aliot_get_device_info(), aliot_get_user_info())) {
+    if (0 != iotx_auth(iotx_get_device_info(), iotx_get_user_info())) {
         log_debug("AUTH request failed!");
         rc = -1;
         goto do_exit;
     }
-    puser_info = aliot_get_user_info();
+    puser_info = iotx_get_user_info();
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
@@ -179,7 +179,7 @@ int mqtt_client(void)
 
 
     /* Construct a MQTT client with specify parameter */
-    pclient = aliot_mqtt_construct(&mqtt_params);
+    pclient = iotx_mqtt_construct(&mqtt_params);
     if (NULL == pclient) {
         log_debug("MQTT construct failed");
         rc = -1;
@@ -187,18 +187,18 @@ int mqtt_client(void)
     }
 
     /* Subscribe the specific topic */
-    rc = aliot_mqtt_subscribe(pclient, TOPIC_DATA, ALIOT_MQTT_QOS1, aliot_mqtt_msg_arrived, NULL);
+    rc = iotx_mqtt_subscribe(pclient, TOPIC_DATA, ALIOT_MQTT_QOS1, iotx_mqtt_msg_arrived, NULL);
     if (rc < 0) {
-        aliot_mqtt_deconstruct(pclient);
+        iotx_mqtt_deconstruct(pclient);
         log_debug("ali_iot_mqtt_subscribe failed, rc = %d", rc);
         rc = -1;
         goto do_exit;
     }
 
-    aliot_platform_msleep(1000);
+    iotx_platform_msleep(1000);
 
     /* Initialize topic information */
-    memset(&topic_msg, 0x0, sizeof(aliot_mqtt_topic_info_t));
+    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     strcpy(msg_pub, "message: hello! start!");
 
     topic_msg.qos = ALIOT_MQTT_QOS1;
@@ -220,7 +220,7 @@ int mqtt_client(void)
         topic_msg.payload = (void *)msg_pub;
         topic_msg.payload_len = msg_len;
 
-        rc = aliot_mqtt_publish(pclient, TOPIC_DATA, &topic_msg);
+        rc = iotx_mqtt_publish(pclient, TOPIC_DATA, &topic_msg);
         if (rc < 0) {
             log_debug("error occur when publish");
             rc = -1;
@@ -229,26 +229,26 @@ int mqtt_client(void)
         log_debug("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
 
         /* handle the MQTT packet received from TCP or SSL connection */
-        aliot_mqtt_yield(pclient, 200);
+        iotx_mqtt_yield(pclient, 200);
 
-        //aliot_platform_msleep(1000);
+        //iotx_platform_msleep(1000);
 
     } while (cnt < 3);
 
-    aliot_mqtt_unsubscribe(pclient, TOPIC_DATA);
+    iotx_mqtt_unsubscribe(pclient, TOPIC_DATA);
 
-    aliot_platform_msleep(200);
+    iotx_platform_msleep(200);
 
-    aliot_mqtt_deconstruct(pclient);
+    iotx_mqtt_deconstruct(pclient);
 
 
 do_exit:
     if (NULL != msg_buf) {
-        aliot_platform_free(msg_buf);
+        iotx_platform_free(msg_buf);
     }
 
     if (NULL != msg_readbuf) {
-        aliot_platform_free(msg_readbuf);
+        iotx_platform_free(msg_readbuf);
     }
 
     return rc;

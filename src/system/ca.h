@@ -4,7 +4,7 @@
 #define _ALIOT_CA_H_
 
 
-const char *aliot_ca_get(void);
+const char *iotx_ca_get(void);
 
 
 #endif /* _ALIOT_CA_H_ */

@@ -7,20 +7,20 @@
 
 typedef struct {
     uint32_t time;
-} aliot_time_t;
+} iotx_time_t;
 
 
-void aliot_time_start(aliot_time_t *timer);
+void iotx_time_start(iotx_time_t *timer);
 
-uint32_t utils_time_spend(aliot_time_t *start);
+uint32_t utils_time_spend(iotx_time_t *start);
 
-uint32_t aliot_time_left(aliot_time_t *end);
+uint32_t iotx_time_left(iotx_time_t *end);
 
-uint32_t utils_time_is_expired(aliot_time_t *timer);
+uint32_t utils_time_is_expired(iotx_time_t *timer);
 
-void aliot_time_init(aliot_time_t *timer);
+void iotx_time_init(iotx_time_t *timer);
 
-void utils_time_cutdown(aliot_time_t *timer, uint32_t millisecond);
+void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond);
 
 uint32_t utils_time_get_ms(void);
 
