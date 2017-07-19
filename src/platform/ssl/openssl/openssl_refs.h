@@ -24,6 +24,6 @@ int utils_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int l
 void utils_network_ssl_disconnect(TLSDataParams_t *pTlsData);
 
 int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
-                                   size_t ca_crt_len);
+                              size_t ca_crt_len);
 
 #endif

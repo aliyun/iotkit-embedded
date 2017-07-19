@@ -142,7 +142,7 @@ list_node_t *list_find(list_t *self, void *val)
     list_node_t *node;
 
     if (NULL == (it = list_iterator_new(self, LIST_HEAD))) {
-        return NULL; 
+        return NULL;
     }
 
     while ((node = list_iterator_next(it))) {
@@ -178,7 +178,7 @@ list_node_t *list_at(list_t *self, int index)
     if ((unsigned) index < self->len) {
         list_iterator_t *it;
         list_node_t *node;
- 
+
         if (NULL == (it = list_iterator_new(self, direction))) {
             return NULL;
         }

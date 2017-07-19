@@ -11,12 +11,12 @@
     do { \
         char *s = NULL; \
         FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, \
-               NULL, \
-               WSAGetLastError(), \
-               MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), \
-               (LPSTR)&s, \
-               0, \
-               NULL); \
+                       NULL, \
+                       WSAGetLastError(), \
+                       MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), \
+                       (LPSTR)&s, \
+                       0, \
+                       NULL); \
         printf("WINOS#LINE=%d#FUNC=%s()#%s: %s", __LINE__, __FUNCTION__, log, s); \
         fflush(stdout);\
         LocalFree(s); \

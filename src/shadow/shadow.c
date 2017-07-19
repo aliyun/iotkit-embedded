@@ -102,27 +102,28 @@ static iotx_err_t iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
     }
 
     return iotx_mqtt_subscribe(pshadow->mqtt,
-                                 pshadow->inner_data.ptopic_get,
-                                 IOTX_MQTT_QOS1,
-                                 (iotx_mqtt_event_handle_func_fpt)iotx_shadow_callback_get,
-                                 pshadow);
+                               pshadow->inner_data.ptopic_get,
+                               IOTX_MQTT_QOS1,
+                               (iotx_mqtt_event_handle_func_fpt)iotx_shadow_callback_get,
+                               pshadow);
 }
 
 
 iotx_err_t iotx_shadow_update_format_init(void *pshadow,
-                format_data_pt pformat,
-                char *buf,
-                uint16_t size)
+        format_data_pt pformat,
+        char *buf,
+        uint16_t size)
 {
     return iotx_ds_common_format_init((iotx_shadow_pt)pshadow, pformat, buf, size, "update", "\"state\":{\"reported\":{");
 }
 
 
 iotx_err_t iotx_shadow_update_format_add(void *pshadow,
-                format_data_pt pformat,
-                iotx_shadow_attr_pt pattr)
+        format_data_pt pformat,
+        iotx_shadow_attr_pt pattr)
 {
-    return iotx_ds_common_format_add((iotx_shadow_pt)pshadow, pformat, pattr->pattr_name, pattr->pattr_data, pattr->attr_type);
+    return iotx_ds_common_format_add((iotx_shadow_pt)pshadow, pformat, pattr->pattr_name, pattr->pattr_data,
+                                     pattr->attr_type);
 }
 
 
@@ -133,12 +134,12 @@ iotx_err_t iotx_shadow_update_format_finalize(void *pshadow, format_data_pt pfor
 
 
 iotx_err_t iotx_shadow_update_asyn(
-                void *handle,
-                char *data,
-                size_t data_len,
-                uint16_t timeout_s,
-                iotx_update_cb_fpt cb_fpt,
-                void *pcontext)
+            void *handle,
+            char *data,
+            size_t data_len,
+            uint16_t timeout_s,
+            iotx_update_cb_fpt cb_fpt,
+            void *pcontext)
 {
     int rc = SUCCESS_RETURN;
     iotx_update_ack_wait_list_pt pelement;
@@ -179,10 +180,10 @@ iotx_err_t iotx_shadow_update_asyn(
 
 
 static void iotx_update_ack_cb(
-                void *pcontext,
-                iotx_shadow_ack_code_t ack_code,
-                const char *ack_msg, //NOTE: NOT a string.
-                uint32_t ack_msg_len)
+            void *pcontext,
+            iotx_shadow_ack_code_t ack_code,
+            const char *ack_msg, //NOTE: NOT a string.
+            uint32_t ack_msg_len)
 {
     log_debug("ack_code=%d", ack_code);
 
@@ -197,10 +198,10 @@ static void iotx_update_ack_cb(
 
 
 iotx_err_t iotx_shadow_update(
-                void *handle,
-                char *data,
-                uint32_t data_len,
-                uint16_t timeout_s)
+            void *handle,
+            char *data,
+            uint32_t data_len,
+            uint16_t timeout_s)
 {
     iotx_shadow_ack_code_t ack_update = IOTX_SHADOW_ACK_NONE;
     iotx_shadow_pt pshadow = (iotx_shadow_pt)handle;
@@ -279,40 +280,39 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     uint32_t packet_id = (uint32_t)msg->msg;
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
-    switch (msg->event_type)
-    {
-    case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-        log_info("subscribe success, packet-id=%u", packet_id);
-        if (pshadow->inner_data.sync_status == packet_id) {
-            pshadow->inner_data.sync_status = 0;
-        }
-        break;
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
+            log_info("subscribe success, packet-id=%u", packet_id);
+            if (pshadow->inner_data.sync_status == packet_id) {
+                pshadow->inner_data.sync_status = 0;
+            }
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-        log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
-        if (pshadow->inner_data.sync_status == packet_id) {
-            pshadow->inner_data.sync_status = -1;
-        }
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+            log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
+            if (pshadow->inner_data.sync_status == packet_id) {
+                pshadow->inner_data.sync_status = -1;
+            }
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-        log_info("subscribe nack, packet-id=%u", packet_id);
-        if (pshadow->inner_data.sync_status == packet_id) {
-            pshadow->inner_data.sync_status = -1;
-        }
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
+            log_info("subscribe nack, packet-id=%u", packet_id);
+            if (pshadow->inner_data.sync_status == packet_id) {
+                pshadow->inner_data.sync_status = -1;
+            }
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
-        log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
-                topic_info->topic_len,
-                topic_info->ptopic,
-                topic_info->payload_len,
-                topic_info->payload);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+            log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
+                     topic_info->topic_len,
+                     topic_info->ptopic,
+                     topic_info->payload_len,
+                     topic_info->payload);
+            break;
 
-    default:
-        //log_info("Should NOT arrive here.");
-        break;
+        default:
+            //log_info("Should NOT arrive here.");
+            break;
     }
 }
 
@@ -350,7 +350,7 @@ void *iotx_shadow_construct(iotx_shadow_para_pt pparams)
 
     pshadow->inner_data.sync_status = rc;
 
-    while(rc == pshadow->inner_data.sync_status) {
+    while (rc == pshadow->inner_data.sync_status) {
         iotx_shadow_yield(pshadow, 100);
     }
 

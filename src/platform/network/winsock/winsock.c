@@ -18,12 +18,12 @@
     do { \
         char *s = NULL; \
         FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, \
-               NULL, \
-               WSAGetLastError(), \
-               MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), \
-               (LPSTR)&s, \
-               0, \
-               NULL); \
+                       NULL, \
+                       WSAGetLastError(), \
+                       MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), \
+                       (LPSTR)&s, \
+                       0, \
+                       NULL); \
         printf("WINSOCK LINE=%d FUNC=%s() %s: %s", __LINE__, __FUNCTION__, log, s); \
         fflush(stdout);\
         LocalFree(s); \
@@ -138,18 +138,18 @@ int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uin
     uint64_t t_end, t_left;
     fd_set sets;
 
-    t_end = GetTickCount64( ) + timeout_ms;
+    t_end = GetTickCount64() + timeout_ms;
     len_sent = 0;
     err_code = 0;
     ret = 1; //send one time if timeout_ms is value 0
 
     do {
-        t_left = time_left(t_end, GetTickCount64( ));
+        t_left = time_left(t_end, GetTickCount64());
 
         if (0 != t_left) {
             struct timeval timeout;
 
-            FD_ZERO( &sets );
+            FD_ZERO(&sets);
             FD_SET(fd, &sets);
 
             timeout.tv_sec = t_left / 1000;
@@ -157,7 +157,7 @@ int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uin
 
             ret = select(0, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
-               if (0 == FD_ISSET(fd, &sets)) {
+                if (0 == FD_ISSET(fd, &sets)) {
                     //TODO
                     //not this fd, continue;
                     //If timeout in next loop, it will not sent any data
@@ -190,7 +190,7 @@ int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uin
                 break;
             }
         }
-    } while((len_sent < len) && (time_left(t_end, GetTickCount64()) > 0));
+    } while ((len_sent < len) && (time_left(t_end, GetTickCount64()) > 0));
 
     //Priority to return data bytes if any data be sent to TCP connection.
     //It will get error code on next calling
@@ -206,14 +206,14 @@ int32_t iotx_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t t
     fd_set sets;
     struct timeval timeout;
 
-    t_end = GetTickCount64( ) + timeout_ms;
+    t_end = GetTickCount64() + timeout_ms;
     len_recv = 0;
     err_code = 0;
 
     do {
-        t_left = time_left(t_end, GetTickCount64( ));
+        t_left = time_left(t_end, GetTickCount64());
 
-        FD_ZERO( &sets );
+        FD_ZERO(&sets);
         FD_SET(fd, &sets);
 
         timeout.tv_sec = t_left / 1000;

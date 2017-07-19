@@ -53,10 +53,10 @@ typedef struct {
 
 
 typedef void (*iotx_update_cb_fpt)(
-                void *pcontext,
-                iotx_shadow_ack_code_t ack_code,
-                const char *ack_msg, //NOTE: NOT a string.
-                uint32_t ack_msg_len);
+            void *pcontext,
+            iotx_shadow_ack_code_t ack_code,
+            const char *ack_msg, //NOTE: NOT a string.
+            uint32_t ack_msg_len);
 
 
 struct iotx_shadow_attr_st;
@@ -109,36 +109,36 @@ iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
 
 /* Format the attribute name and value for update */
 iotx_err_t iotx_shadow_update_format_init(
-                void *handle,
-                format_data_pt pformat,
-                char *buf,
-                uint16_t size);
+            void *handle,
+            format_data_pt pformat,
+            char *buf,
+            uint16_t size);
 
 iotx_err_t iotx_shadow_update_format_add(
-                void *handle,
-                format_data_pt pformat,
-                iotx_shadow_attr_pt pattr);
+            void *handle,
+            format_data_pt pformat,
+            iotx_shadow_attr_pt pattr);
 
 iotx_err_t iotx_shadow_update_format_finalize(void *handle, format_data_pt pformat);
 
 
 /* Update data to Cloud. It is a synchronous interface. */
 iotx_err_t iotx_shadow_update(
-                void *handle,
-                char *data,
-                uint32_t data_len,
-                uint16_t timeout_s);
+            void *handle,
+            char *data,
+            uint32_t data_len,
+            uint16_t timeout_s);
 
 
 /* Update data to Cloud. It is a asynchronous interface.
  * The result of this update will be informed by calling the callback function @cb_fpt */
 iotx_err_t iotx_shadow_update_asyn(
-                void *handle,
-                char *data,
-                size_t data_len,
-                uint16_t timeout_s,
-                iotx_update_cb_fpt cb_fpt,
-                void *pcontext);
+            void *handle,
+            char *data,
+            size_t data_len,
+            uint16_t timeout_s,
+            iotx_update_cb_fpt cb_fpt,
+            void *pcontext);
 
 
 /* Synchronize device shadow data from cloud. It is a synchronous interface. */

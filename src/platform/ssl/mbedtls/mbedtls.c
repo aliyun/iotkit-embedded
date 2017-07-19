@@ -208,9 +208,9 @@ int utils_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int
             if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
                 net_status = -2; //connection is closed
             } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret)
-                    || (MBEDTLS_ERR_SSL_CONN_EOF == ret)
-                    || (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == ret)
-                    || (MBEDTLS_ERR_SSL_NON_FATAL == ret)) {
+                       || (MBEDTLS_ERR_SSL_CONN_EOF == ret)
+                       || (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == ret)
+                       || (MBEDTLS_ERR_SSL_NON_FATAL == ret)) {
                 //read already complete(if call mbedtls_ssl_read again, it will return 0(eof))
 
                 return readLen;
@@ -380,7 +380,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
 }
 
 int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
-                                   size_t ca_crt_len)
+                              size_t ca_crt_len)
 {
     return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
@@ -408,21 +408,21 @@ int32_t iotx_platform_ssl_destroy(uintptr_t handle)
 }
 
 uintptr_t iotx_platform_ssl_establish(const char *host,
-                uint16_t port,
-                const char *ca_crt,
-                size_t ca_crt_len)
+                                      uint16_t port,
+                                      const char *ca_crt,
+                                      size_t ca_crt_len)
 {
     char port_str[6];
     TLSDataParams_pt pTlsData;
 
-    pTlsData = malloc( sizeof(TLSDataParams_t) );
+    pTlsData = malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return NULL;
     }
 
     sprintf(port_str, "%u", port);
 
-    if (0 != TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)){
+    if (0 != TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
         free(pTlsData);
     }
 

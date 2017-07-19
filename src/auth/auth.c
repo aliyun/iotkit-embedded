@@ -20,24 +20,24 @@
 #define _ONLINE
 
 #ifdef _ONLINE
-const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
+    const static char *iot_atuh_host = "http://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
 #else
-const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
+    const static char *iot_atuh_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
 #endif
 
 static int iotx_get_id_token(
-                const char *auth_host,
-                const char *product_key,
-                const char *device_name,
-                const char *device_secret,
-                const char *client_id,
-                const char *version,
-                const char *timestamp,
-                const char *resources,
-                char *iot_id,
-                char *iot_token,
-                char *host,
-                uint16_t *pport)
+            const char *auth_host,
+            const char *product_key,
+            const char *device_name,
+            const char *device_secret,
+            const char *client_id,
+            const char *version,
+            const char *timestamp,
+            const char *resources,
+            char *iot_id,
+            char *iot_token,
+            char *host,
+            uint16_t *pport)
 {
 #define SIGN_SOURCE_LEN     (256)
 #define HTTP_POST_MAX_LEN   (1024)
@@ -59,7 +59,7 @@ static int iotx_get_id_token(
 
     if (length > SIGN_SOURCE_LEN) {
         log_warning("The total length may be is too long. client_id=%s, product_key=%s, device_name=%s, timestamp= %s",
-                       client_id, product_key, device_name, timestamp);
+                    client_id, product_key, device_name, timestamp);
     }
 
     if (NULL == (buf = iotx_platform_malloc(length))) {
@@ -131,20 +131,20 @@ static int iotx_get_id_token(
 
 #ifdef _ONLINE
 
-    iotx_post( &httpclient,
-                auth_host,
-                443,
-                iotx_ca_get(),
-                10000,
-                &httpclient_data);
+    iotx_post(&httpclient,
+              auth_host,
+              443,
+              iotx_ca_get(),
+              10000,
+              &httpclient_data);
 #else
 
-    iotx_post( &httpclient,
-                auth_host,
-                80,
-                NULL,
-                10000,
-                &httpclient_data);
+    iotx_post(&httpclient,
+              auth_host,
+              80,
+              NULL,
+              10000,
+              &httpclient_data);
 #endif
 
     /*
@@ -273,7 +273,7 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
                    "%s",
                    "10.125.63.74"
 #endif
-                   );
+                  );
     assert(ret < sizeof(puser_info->host_name));
 
 #ifdef IOTX_MQTT_TCP
@@ -287,12 +287,12 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
     ret = snprintf(puser_info->client_id,
                    sizeof(puser_info->client_id),
                    (strlen(pid) ?
-                        "%s|securemode=%d,gw=0,signmethod=hmacmd5,pid=%s,timestamp=2524608000000|" :
-                        "%s|securemode=%d,gw=0,signmethod=hmacmd5%s,timestamp=2524608000000|"),
+                    "%s|securemode=%d,gw=0,signmethod=hmacmd5,pid=%s,timestamp=2524608000000|" :
+                    "%s|securemode=%d,gw=0,signmethod=hmacmd5%s,timestamp=2524608000000|"),
                    pdevice_info->device_id,
                    mode,
                    (strlen(pid) ? pid : "")
-                   );
+                  );
     assert(ret < sizeof(puser_info->client_id));
 
     ret = snprintf(puser_info->user_name,
@@ -359,30 +359,30 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
         //Append string "nonesecure" if TCP connection be used.
         if (NULL == iotx_platform_module_get_pid(pid)) {
             ret = snprintf(puser_info->client_id,
-                       CLIENT_ID_LEN,
-                       "%s|securemode=0|",
-                       pdevice_info->device_id);
+                           CLIENT_ID_LEN,
+                           "%s|securemode=0|",
+                           pdevice_info->device_id);
         } else {
             //Append "pid" if we have pid
             ret = snprintf(puser_info->client_id,
-                       CLIENT_ID_LEN,
-                       "%s|securemode=0,pid=%s|",
-                       pdevice_info->device_id,
-                       pid);
+                           CLIENT_ID_LEN,
+                           "%s|securemode=0,pid=%s|",
+                           pdevice_info->device_id,
+                           pid);
         }
     } else {
         if (NULL == iotx_platform_module_get_pid(pid)) {
             ret = snprintf(puser_info->client_id,
-                                   CLIENT_ID_LEN,
-                                   "%s",
-                                   pdevice_info->device_id);
+                           CLIENT_ID_LEN,
+                           "%s",
+                           pdevice_info->device_id);
         } else {
             //Append "pid" if we have pid
             ret = snprintf(puser_info->client_id,
-                       CLIENT_ID_LEN,
-                       "%s|pid=%s|",
-                       pdevice_info->device_id,
-                       pid);
+                           CLIENT_ID_LEN,
+                           "%s|pid=%s|",
+                           pdevice_info->device_id,
+                           pid);
         }
     }
 

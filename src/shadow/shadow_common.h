@@ -21,7 +21,7 @@ typedef struct iotx_update_ack_wait_list_st {
 
 typedef struct iotx_inner_data_st {
     uint32_t token_num;
-    uint32_t version; 
+    uint32_t version;
     iotx_shadow_time_t time;
     iotx_update_ack_wait_list_t update_ack_wait_list[IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM];
     list_t *attr_list;
@@ -39,17 +39,17 @@ typedef struct iotx_shadow_st {
 
 
 iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
-                                   format_data_pt pformat,
-                                   char *buf,
-                                   uint16_t size,
-                                   const char *method,
-                                   const char *head_str);
+                                      format_data_pt pformat,
+                                      char *buf,
+                                      uint16_t size,
+                                      const char *method,
+                                      const char *head_str);
 
 iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
-                                  format_data_pt pformat,
-                                  const char *name,
-                                  const void *pvalue,
-                                  iotx_shadow_attr_datatype_t datatype);
+                                     format_data_pt pformat,
+                                     const char *name,
+                                     const void *pvalue,
+                                     iotx_shadow_attr_datatype_t datatype);
 
 iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt pformat, const char *tail_str);
 
