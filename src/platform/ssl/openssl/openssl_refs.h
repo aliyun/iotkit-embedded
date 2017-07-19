@@ -17,13 +17,13 @@ typedef struct _TLSDataParams {
     int socketId;
 } TLSDataParams_t;
 
-int aliot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms);
+int utils_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms);
 
-int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms);
+int utils_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms);
 
-void aliot_network_ssl_disconnect(TLSDataParams_t *pTlsData);
+void utils_network_ssl_disconnect(TLSDataParams_t *pTlsData);
 
-int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
+int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
                                    size_t ca_crt_len);
 
 #endif

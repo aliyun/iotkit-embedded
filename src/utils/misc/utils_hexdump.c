@@ -240,7 +240,7 @@ void print_hex_dump(const char *level, const char *prefix_str, int prefix_type,
 }
 
 
-void aliot_hexdump(aliot_hexdump_prefix_type_t prefix_type,
+void utils_hexdump(utils_hexdump_prefix_type_t prefix_type,
                                int rowsize,
                                int groupsize,
                                const void *buf,

@@ -8,18 +8,18 @@
 
 
 /*** TCP connection ***/
-int read_tcp(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
+int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     return aliot_platform_tcp_read(pNetwork->handle, buffer, len, timeout_ms);
 }
 
 
-static int write_tcp(aliot_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
+static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     return aliot_platform_tcp_write(pNetwork->handle, buffer, len, timeout_ms);
 }
 
-static int disconnect_tcp(aliot_network_pt pNetwork)
+static int disconnect_tcp(utils_network_pt pNetwork)
 {
     if ( 0 == pNetwork->handle) {
         return -1;
@@ -31,7 +31,7 @@ static int disconnect_tcp(aliot_network_pt pNetwork)
 }
 
 
-static int connect_tcp(aliot_network_pt pNetwork)
+static int connect_tcp(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
         log_err("network is null");
@@ -49,7 +49,7 @@ static int connect_tcp(aliot_network_pt pNetwork)
 
 /*** SSL connection ***/
 #ifndef ALIOT_MQTT_TCP
-static int read_ssl(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
+static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
         log_err("network is null");
@@ -59,7 +59,7 @@ static int read_ssl(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint3
     return aliot_platform_ssl_read((void *)pNetwork->handle, buffer, len, timeout_ms);
 }
 
-static int write_ssl(aliot_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
+static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
         log_err("network is null");
@@ -69,7 +69,7 @@ static int write_ssl(aliot_network_pt pNetwork, const char *buffer, uint32_t len
     return aliot_platform_ssl_write((void *)pNetwork->handle, buffer, len, timeout_ms);
 }
 
-static int disconnect_ssl(aliot_network_pt pNetwork)
+static int disconnect_ssl(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
         log_err("network is null");
@@ -82,7 +82,7 @@ static int disconnect_ssl(aliot_network_pt pNetwork)
     return 0;
 }
 
-static int connect_ssl(aliot_network_pt pNetwork)
+static int connect_ssl(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
         log_err("network is null");
@@ -98,7 +98,7 @@ static int connect_ssl(aliot_network_pt pNetwork)
     } else {
         //TODO SHOLUD not remove this handle space
         // The space will be freed by calling disconnect_ssl()
-        //aliot_memory_free((void *)pNetwork->handle);
+        //utils_memory_free((void *)pNetwork->handle);
         return -1;
     }
 }
@@ -107,7 +107,7 @@ static int connect_ssl(aliot_network_pt pNetwork)
 
 /****** network interface ******/
 
-int aliot_net_read(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
+int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return read_tcp(pNetwork, buffer, len, timeout_ms);
@@ -119,7 +119,7 @@ int aliot_net_read(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32
 }
 
 
-int aliot_net_write(aliot_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
+int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return write_tcp(pNetwork, buffer, len, timeout_ms);
@@ -131,7 +131,7 @@ int aliot_net_write(aliot_network_pt pNetwork, const char *buffer, uint32_t len,
 }
 
 
-int aliot_net_disconnect(aliot_network_pt pNetwork)
+int aliot_net_disconnect(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return disconnect_tcp(pNetwork);
@@ -143,7 +143,7 @@ int aliot_net_disconnect(aliot_network_pt pNetwork)
 }
 
 
-int aliot_net_connect(aliot_network_pt pNetwork)
+int aliot_net_connect(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return connect_tcp(pNetwork);
@@ -155,7 +155,7 @@ int aliot_net_connect(aliot_network_pt pNetwork)
 }
 
 
-int aliot_net_init(aliot_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
+int aliot_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
@@ -167,8 +167,8 @@ int aliot_net_init(aliot_network_pt pNetwork, const char *host, uint16_t port, c
     }
 
     pNetwork->handle = 0;
-    pNetwork->read = aliot_net_read;
-    pNetwork->write = aliot_net_write;
+    pNetwork->read = utils_net_read;
+    pNetwork->write = utils_net_write;
     pNetwork->disconnect = aliot_net_disconnect;
     pNetwork->connect = aliot_net_connect;
 

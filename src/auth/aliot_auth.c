@@ -80,7 +80,7 @@ static int aliot_get_id_token(
         goto do_exit;
     }
     log_debug("sign source = %.64s ...", buf);
-    aliot_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
+    utils_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
 
 
     memset(&httpclient, 0, sizeof(httpclient_t));
@@ -314,7 +314,7 @@ int32_t aliot_auth(aliot_device_info_pt pdevice_info, aliot_user_info_pt puser_i
     assert(ret < sizeof(buf));
     log_debug("sign source=%s (%d)", buf, strlen(buf));
 
-    aliot_hmac_md5(buf, strlen(buf),
+    utils_hmac_md5(buf, strlen(buf),
                    sign,
                    pdevice_info->device_secret,
                    strlen(pdevice_info->device_secret));
