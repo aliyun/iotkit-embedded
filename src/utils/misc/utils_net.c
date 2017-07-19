@@ -21,7 +21,7 @@ static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len
 
 static int disconnect_tcp(utils_network_pt pNetwork)
 {
-    if ( 0 == pNetwork->handle) {
+    if (0 == pNetwork->handle) {
         return -1;
     }
 
@@ -39,7 +39,7 @@ static int connect_tcp(utils_network_pt pNetwork)
     }
 
     pNetwork->handle = iotx_platform_tcp_establish(pNetwork->pHostAddress, pNetwork->port);
-    if ( 0 == pNetwork->handle ) {
+    if (0 == pNetwork->handle) {
         return -1;
     }
 
@@ -90,10 +90,10 @@ static int connect_ssl(utils_network_pt pNetwork)
     }
 
     if (0 != (pNetwork->handle = (intptr_t)iotx_platform_ssl_establish(
-                                            pNetwork->pHostAddress,
-                                            pNetwork->port,
-                                            pNetwork->ca_crt,
-                                            pNetwork->ca_crt_len + 1))) {
+            pNetwork->pHostAddress,
+            pNetwork->port,
+            pNetwork->ca_crt,
+            pNetwork->ca_crt_len + 1))) {
         return 0;
     } else {
         //TODO SHOLUD not remove this handle space

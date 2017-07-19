@@ -25,7 +25,7 @@ typedef enum {
     IOTX_MQTT_QOS0 = 0,
     IOTX_MQTT_QOS1,
     IOTX_MQTT_QOS2
-}iotx_mqtt_qos_t;
+} iotx_mqtt_qos_t;
 
 
 typedef enum {
@@ -114,7 +114,7 @@ typedef struct {
      *
      * */
     void *msg;
-}iotx_mqtt_event_msg_t, *iotx_mqtt_event_msg_pt;
+} iotx_mqtt_event_msg_t, *iotx_mqtt_event_msg_pt;
 
 
 /**
@@ -228,10 +228,10 @@ bool iotx_mqtt_check_state_normal(void *handle);
    @endverbatim
  */
 int32_t iotx_mqtt_subscribe(void *handle,
-                const char *topic_filter,
-                iotx_mqtt_qos_t qos,
-                iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                void *pcontext);
+                            const char *topic_filter,
+                            iotx_mqtt_qos_t qos,
+                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                            void *pcontext);
 
 
 /**

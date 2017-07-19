@@ -19,7 +19,8 @@ static iotx_err_t iotx_shadow_delta_response(iotx_shadow_pt pshadow)
         return ERROR_NO_MEM;
     }
 
-    iotx_ds_common_format_init(pshadow, &format, buf, IOTX_SHADOW_DELTA_RESPONSE_LEN, "update", "\"state\":{\"desired\":\"null\"");
+    iotx_ds_common_format_init(pshadow, &format, buf, IOTX_SHADOW_DELTA_RESPONSE_LEN, "update",
+                               "\"state\":{\"desired\":\"null\"");
     iotx_ds_common_format_finalize(pshadow, &format, "}");
 
     rc = iotx_ds_common_publish2update(pshadow, format.buf, format.offset);
@@ -63,10 +64,10 @@ static iotx_err_t iotx_shadow_delta_update_attr_value(
 
 
 static void iotx_shadow_delta_update_attr(iotx_shadow_pt pshadow,
-                const char *json_doc_attr,
-                uint32_t json_doc_attr_len,
-                const char *json_doc_metadata,
-                uint32_t json_doc_metadata_len)
+        const char *json_doc_attr,
+        uint32_t json_doc_attr_len,
+        const char *json_doc_metadata,
+        uint32_t json_doc_metadata_len)
 {
     const char *pvalue;
     iotx_shadow_attr_pt pattr;
@@ -92,9 +93,9 @@ static void iotx_shadow_delta_update_attr(iotx_shadow_pt pshadow,
         if (NULL != pvalue) { //attribute be matched
             //get timestamp
             pattr->timestamp = iotx_shadow_get_timestamp(
-                                    json_doc_metadata,
-                                    json_doc_metadata_len,
-                                    pattr->pattr_name);
+                                           json_doc_metadata,
+                                           json_doc_metadata_len,
+                                           pattr->pattr_name);
 
             //convert string of JSON value according to destination data type.
             if (SUCCESS_RETURN != iotx_shadow_delta_update_attr_value(pattr, pvalue, strlen(pvalue))) {
@@ -140,10 +141,10 @@ void iotx_shadow_delta_entry(
     }
 
     iotx_shadow_delta_update_attr(pshadow,
-                pstate,
-                strlen(pstate),
-                pmetadata,
-                strlen(pmetadata));
+                                  pstate,
+                                  strlen(pstate),
+                                  pmetadata,
+                                  strlen(pmetadata));
 
     LITE_free(pstate);
     LITE_free(pmetadata);

@@ -17,7 +17,7 @@ void iotx_shadow_delta_entry(
             size_t json_doc_len);
 
 iotx_err_t iotx_shadow_delta_register_attr(
-                iotx_shadow_pt pshadow,
-                iotx_shadow_attr_pt pattr);
+            iotx_shadow_pt pshadow,
+            iotx_shadow_attr_pt pattr);
 
 #endif /* _IOTX_SHADOW_DELTA_H_ */

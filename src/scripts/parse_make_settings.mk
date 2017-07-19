@@ -23,13 +23,13 @@ include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
 
 ifeq (debug,$(strip $(BUILD_TYPE)))
-CFLAGS  += -DALIOT_DEBUG
+CFLAGS  += -DIOTX_DEBUG
 endif
 
 ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
 CFLAGS  += -DDIRECT_MQTT
 ifeq (y,$(strip $(FEATURE_DIRECT_MQTT_NOTLS)))
-CFLAGS  += -DALIOT_MQTT_TCP
+CFLAGS  += -DIOTX_MQTT_TCP
 endif
 
 else    # ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))

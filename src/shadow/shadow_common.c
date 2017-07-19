@@ -32,11 +32,11 @@
 
 //return handle of format data.
 iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
-                                   format_data_pt pformat,
-                                   char *buf,
-                                   uint16_t size,
-                                   const char *method,
-                                   const char *head_str)
+                                      format_data_pt pformat,
+                                      char *buf,
+                                      uint16_t size,
+                                      const char *method,
+                                      const char *head_str)
 {
     int ret;
     uint32_t size_free_space;
@@ -79,10 +79,10 @@ iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
 
 
 iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
-                                  format_data_pt pformat,
-                                  const char *name,
-                                  const void *pvalue,
-                                  iotx_shadow_attr_datatype_t datatype)
+                                     format_data_pt pformat,
+                                     const char *name,
+                                     const void *pvalue,
+                                     iotx_shadow_attr_datatype_t datatype)
 {
     int ret;
     uint32_t size_free_space;
@@ -116,9 +116,9 @@ iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
 
     //convert attribute data to JSON string, and add to buffer
     ret = iotx_ds_common_convert_data2string(pformat->buf + pformat->offset,
-                                         size_free_space,
-                                         datatype,
-                                         pvalue);
+            size_free_space,
+            datatype,
+            pvalue);
     if (ret < 0) {
         return FAIL_RETURN;
     }

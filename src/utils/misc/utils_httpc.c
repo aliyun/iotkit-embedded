@@ -44,9 +44,12 @@ static int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_l
 static int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len, char *host,
                                 uint32_t maxhost_len, int *port, char *path, uint32_t max_path_len);
 static int httpclient_conn(httpclient_t *client);
-static int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len, uint32_t timeout);
-static int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint32_t timeout, httpclient_data_t *client_data);
-static int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_t timeout, httpclient_data_t *client_data);
+static int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len,
+                           uint32_t timeout);
+static int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint32_t timeout,
+                                       httpclient_data_t *client_data);
+static int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_t timeout,
+                                     httpclient_data_t *client_data);
 
 static void httpclient_base64enc(char *out, const char *in)
 {
@@ -348,7 +351,7 @@ int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_dat
     return SUCCESS_RETURN;
 }
 
- /* 0 on success, err code on failure */
+/* 0 on success, err code on failure */
 int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len, uint32_t timeout_ms)
 {
     int ret = 0;
@@ -377,36 +380,37 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     log_info("%u bytes has been read", *p_read_len);
     return 0;
 
-//    while (readLen <= min_len) {
-//        buf[readLen] = '\0';
-//        if (readLen < min_len) {
-//            //wait to read HTTP respond data
-//            ret = client->net.read(&client->net, buf + readLen, min_len - readLen, utils_timer_remain(&timer));
-//        } else {
-//            //read the rest data in TCP buffer (with little wait time)
-//            ret = client->net.read(&client->net, buf + readLen, max_len - readLen, 100);
-//        }
-//
-//        if (ret > 0) {
-//            readLen += ret;
-//        } else if (ret == 0) {
-//            //timeout
-//            break;
-//        } else if (-1 == ret) {
-//            log_info("Connection closed. %u bytes be read", readLen);
-//            break;
-//        } else {
-//            log_err("Connection error (recv returned %d)", ret);
-//            return ERROR_HTTP_CONN;
-//        }
-//    }
-//
-//    log_info("%u bytes be read", readLen);
-//    *p_read_len = readLen;
-//    return 0;
+    //    while (readLen <= min_len) {
+    //        buf[readLen] = '\0';
+    //        if (readLen < min_len) {
+    //            //wait to read HTTP respond data
+    //            ret = client->net.read(&client->net, buf + readLen, min_len - readLen, utils_timer_remain(&timer));
+    //        } else {
+    //            //read the rest data in TCP buffer (with little wait time)
+    //            ret = client->net.read(&client->net, buf + readLen, max_len - readLen, 100);
+    //        }
+    //
+    //        if (ret > 0) {
+    //            readLen += ret;
+    //        } else if (ret == 0) {
+    //            //timeout
+    //            break;
+    //        } else if (-1 == ret) {
+    //            log_info("Connection closed. %u bytes be read", readLen);
+    //            break;
+    //        } else {
+    //            log_err("Connection error (recv returned %d)", ret);
+    //            return ERROR_HTTP_CONN;
+    //        }
+    //    }
+    //
+    //    log_info("%u bytes be read", readLen);
+    //    *p_read_len = readLen;
+    //    return 0;
 }
 
-int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint32_t timeout_ms, httpclient_data_t *client_data)
+int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint32_t timeout_ms,
+                                httpclient_data_t *client_data)
 {
     int count = 0;
     int templen = 0;
@@ -478,11 +482,11 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
                     if (len < HTTPCLIENT_CHUNK_SIZE) {
                         int new_trf_len, ret;
                         ret = httpclient_recv(client,
-                                    data + len,
-                                    0,
-                                    HTTPCLIENT_CHUNK_SIZE - len - 1,
-                                    &new_trf_len,
-                                    iotx_time_left(&timer));
+                                              data + len,
+                                              0,
+                                              HTTPCLIENT_CHUNK_SIZE - len - 1,
+                                              &new_trf_len,
+                                              iotx_time_left(&timer));
                         len += new_trf_len;
                         if (ret == ERROR_HTTP_CONN) {
                             return ret;
@@ -557,7 +561,8 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             if (len < 2) {
                 int new_trf_len, ret;
                 /* Read missing chars to find end of chunk */
-                ret = httpclient_recv(client, data + len, 2 - len, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, iotx_time_left(&timer));
+                ret = httpclient_recv(client, data + len, 2 - len, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len,
+                                      iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
@@ -580,7 +585,8 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
     return SUCCESS_RETURN;
 }
 
-int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_t timeout_ms, httpclient_data_t *client_data)
+int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_t timeout_ms,
+                              httpclient_data_t *client_data)
 {
     int crlf_pos;
     iotx_time_t timer;
@@ -761,7 +767,8 @@ void httpclient_close(httpclient_t *client)
     client->net.handle = 0;
 }
 
-int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method, uint32_t timeout_ms,
+int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method,
+                      uint32_t timeout_ms,
                       httpclient_data_t *client_data)
 {
     iotx_time_t timer;

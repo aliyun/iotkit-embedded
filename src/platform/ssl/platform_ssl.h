@@ -16,10 +16,10 @@
  * @note None.
  */
 uintptr_t iotx_platform_ssl_establish(
-                const char *host,
-                uint16_t port,
-                const char *ca_crt,
-                size_t ca_crt_len);
+            const char *host,
+            uint16_t port,
+            const char *ca_crt,
+            size_t ca_crt_len);
 
 
 /**

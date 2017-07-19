@@ -83,7 +83,7 @@ typedef struct SUBSCRIBE_INFO {
     iotx_mc_topic_handle_t  handler;        //handle of topic subscribed(unsubcribed)
     uint16_t            len;            //length of subscribe message
     unsigned char       *buf;           //subscribe message
-}iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
+} iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
 
 
 /* Information structure of published topic */
@@ -105,7 +105,7 @@ typedef struct {
 
 /* structure of MQTT client */
 typedef struct Client {
-    void *                          lock_generic;                            //generic lock
+    void                           *lock_generic;                            //generic lock
     uint32_t                        packet_id;                               //packet id
     uint32_t                        request_timeout_ms;                      //request timeout in millisecond
     uint32_t                        buf_size_send;                           //send buffer size in byte
@@ -121,11 +121,11 @@ typedef struct Client {
     MQTTPacket_connectData          connect_data;                            //connection parameter
     list_t                         *list_pub_wait_ack;                       //list of wait publish ack
     list_t                         *list_sub_wait_ack;                       //list of subscribe or unsubscribe ack
-    void *                          lock_list_pub;                           //lock of list of wait publish ack
-    void *                          lock_list_sub;                           //lock of list of subscribe or unsubscribe ack
-    void *                          lock_write_buf;                          //lock of write
+    void                           *lock_list_pub;                           //lock of list of wait publish ack
+    void                           *lock_list_sub;                           //lock of list of subscribe or unsubscribe ack
+    void                           *lock_write_buf;                          //lock of write
     iotx_mqtt_event_handle_t       handle_event;                            //event handle
-}iotx_mc_client_t, *iotx_mc_client_pt;
+} iotx_mc_client_t, *iotx_mc_client_pt;
 
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
@@ -137,9 +137,11 @@ static bool iotx_mc_check_state_normal(iotx_mc_client_t *c);
 static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient);
 static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient);
 static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, list_node_t **node);
-static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type, iotx_mc_topic_handle_t *handler,
-                    list_node_t **node);
-static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1, iotx_mc_topic_handle_t *messageHandler2);
+static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type,
+                                   iotx_mc_topic_handle_t *handler,
+                                   list_node_t **node);
+static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
+        iotx_mc_topic_handle_t *messageHandler2);
 
 
 typedef enum {
@@ -310,20 +312,20 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
     iotx_platform_mutex_lock(c->lock_write_buf);
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
-                    c->buf_size_send,
-                    0,
-                    topic_msg->qos,
-                    topic_msg->retain,
-                    topic_msg->packet_id,
-                    topic,
-                    (unsigned char *)topic_msg->payload,
-                    topic_msg->payload_len);
+                                c->buf_size_send,
+                                0,
+                                topic_msg->qos,
+                                topic_msg->retain,
+                                topic_msg->packet_id,
+                                topic,
+                                (unsigned char *)topic_msg->payload,
+                                topic_msg->payload_len);
     if (len <= 0) {
         iotx_platform_mutex_unlock(c->lock_write_buf);
         log_err("MQTTSerialize_publish is error, len=%d, buf_size=%u, payloadlen=%u",
-                        len,
-                        c->buf_size_send,
-                        topic_msg->payload_len);
+                len,
+                c->buf_size_send,
+                topic_msg->payload_len);
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
@@ -396,7 +398,7 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
 
 //MQTT send subscribe packet
 static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt_qos_t qos, unsigned int msgId,
-                iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext)
+                         iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext)
 {
     int rc = 0;
     int len = 0;
@@ -409,7 +411,8 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 
     iotx_platform_mutex_lock(c->lock_write_buf);
 
-    len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic, (int *)&qos);
+    len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic,
+                                  (int *)&qos);
     if (len <= 0) {
         iotx_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_SUBSCRIBE_PACKET_ERROR;
@@ -461,7 +464,8 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
 
     iotx_platform_mutex_lock(c->lock_write_buf);
 
-    if ((len = MQTTSerialize_unsubscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic)) <= 0) {
+    if ((len = MQTTSerialize_unsubscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1,
+                                         &topic)) <= 0) {
         iotx_platform_mutex_unlock(c->lock_write_buf);
         return MQTT_UNSUBSCRIBE_PACKET_ERROR;
     }
@@ -604,8 +608,9 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 
 //push the wait element into list of wait subscribe(unsubscribe) ACK
 //return: 0, success; NOT 0, fail;
-static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type, iotx_mc_topic_handle_t *handler,
-                    list_node_t **node)
+static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type,
+                                   iotx_mc_topic_handle_t *handler,
+                                   list_node_t **node)
 {
     iotx_platform_mutex_lock(c->lock_list_sub);
 
@@ -615,7 +620,8 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
         return FAIL_RETURN;
     }
 
-    iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)iotx_platform_malloc(sizeof(iotx_mc_subsribe_info_t) + len);
+    iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)iotx_platform_malloc(sizeof(
+            iotx_mc_subsribe_info_t) + len);
     if (NULL == subInfo) {
         iotx_platform_mutex_unlock(c->lock_list_sub);
         log_err("run iotx_memory_malloc is error!");
@@ -658,7 +664,7 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
         list_node_t *node = NULL;
         iotx_mc_subsribe_info_t *subInfo = NULL;
 
-        if (NULL == (iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL))){
+        if (NULL == (iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL))) {
             iotx_platform_mutex_lock(c->lock_list_sub);
             return SUCCESS_RETURN;
         }
@@ -780,7 +786,8 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         return rc;
     }
 
-    len += MQTTPacket_encode((unsigned char *)c->buf_read + 1, rem_len); /* put the original remaining length back into the buffer */
+    len += MQTTPacket_encode((unsigned char *)c->buf_read + 1,
+                             rem_len); /* put the original remaining length back into the buffer */
 
     /*Check if the received data length exceeds mqtt read buffer length*/
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
@@ -871,8 +878,8 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
 
         if ((c->sub_handle[i].topic_filter != 0)
-             && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
-                 || iotx_mc_is_topic_matched((char *)c->sub_handle[i].topic_filter, topicName))) {
+            && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
+                || iotx_mc_is_topic_matched((char *)c->sub_handle[i].topic_filter, topicName))) {
             log_debug("topic be matched");
 
             iotx_mc_topic_handle_t msg_handle = c->sub_handle[i];
@@ -914,7 +921,8 @@ static int iotx_mc_handle_recv_CONNACK(iotx_mc_client_t *c)
     int rc = SUCCESS_RETURN;
     unsigned char connack_rc = 255;
     char sessionPresent = 0;
-    if (MQTTDeserialize_connack((unsigned char *)&sessionPresent, &connack_rc, (unsigned char *)c->buf_read, c->buf_size_read) != 1) {
+    if (MQTTDeserialize_connack((unsigned char *)&sessionPresent, &connack_rc, (unsigned char *)c->buf_read,
+                                c->buf_size_read) != 1) {
         log_err("connect ack is error");
         return MQTT_CONNECT_ACK_PACKET_ERROR;
     }
@@ -1058,14 +1066,14 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     memset(&topicName, 0x0, sizeof(MQTTString));
 
     if (1 != MQTTDeserialize_publish((unsigned char *)&topic_msg.dup,
-                                (int *)&topic_msg.qos,
-                                (unsigned char *)&topic_msg.retain,
-                                (unsigned short *)&topic_msg.packet_id,
-                                &topicName,
-                                (unsigned char **)&topic_msg.payload,
-                                (int *)&topic_msg.payload_len,
-                                (unsigned char *)c->buf_read,
-                                c->buf_size_read)) {
+                                     (int *)&topic_msg.qos,
+                                     (unsigned char *)&topic_msg.retain,
+                                     (unsigned short *)&topic_msg.packet_id,
+                                     &topicName,
+                                     (unsigned char **)&topic_msg.payload,
+                                     (int *)&topic_msg.payload_len,
+                                     (unsigned char *)c->buf_read,
+                                     c->buf_size_read)) {
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
@@ -1113,7 +1121,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 
             /* NOTE: in case of more than one register(subscribe) with different callback function,
              *       so we must keep continuously searching related message handle. */
-       }
+        }
     }
 
     if (NULL != c->handle_event.h_fp) {
@@ -1254,7 +1262,8 @@ static bool iotx_mc_check_state_normal(iotx_mc_client_t *c)
 
 
 //return: 0, identical; NOT 0, different.
-static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1, iotx_mc_topic_handle_t *messageHandler2)
+static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
+        iotx_mc_topic_handle_t *messageHandler2)
 {
     int topicNameLen = strlen(messageHandlers1->topic_filter);
 
@@ -1281,10 +1290,10 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
 
 //subscribe
 static iotx_err_t iotx_mc_subscribe(iotx_mc_client_t *c,
-                        const char *topicFilter,
-                        iotx_mqtt_qos_t qos,
-                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                        void *pcontext)
+                                    const char *topicFilter,
+                                    iotx_mqtt_qos_t qos,
+                                    iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                    void *pcontext)
 {
     if (NULL == c || NULL == topicFilter) {
         return NULL_VALUE_ERROR;
@@ -1611,7 +1620,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                     //subscribe timeout
                     msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT;
                     msg.msg = (void *)packet_id;
-                } else /*if (UNSUBSCRIBE == msg_type)*/ {
+                } else { /*if (UNSUBSCRIBE == msg_type)*/
                     //unsubscribe timeout
                     msg.event_type = IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT;
                     msg.msg = (void *)packet_id;
@@ -1669,7 +1678,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
 
             pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
             utils_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
-                        pClient->reconnect_param.reconnect_time_interval_ms);
+                               pClient->reconnect_param.reconnect_time_interval_ms);
 
             pClient->ipstack->disconnect(pClient->ipstack);
             iotx_mc_set_client_state(pClient, IOTX_MC_STATE_DISCONNECTED_RECONNECTING);
@@ -1715,7 +1724,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
         list_node_t *node = NULL;
         list_node_t *tempNode = NULL;
 
-        if (NULL == (iter = list_iterator_new(pClient->list_pub_wait_ack, LIST_TAIL))){
+        if (NULL == (iter = list_iterator_new(pClient->list_pub_wait_ack, LIST_TAIL))) {
             log_err("new list failed");
             break;
         }
@@ -1802,9 +1811,9 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
     }
 
     log_debug("start MQTT connection with parameters: clientid=%s, username=%s, password=%s",
-            pClient->connect_data.clientID.cstring,
-            pClient->connect_data.username.cstring,
-            pClient->connect_data.password.cstring);
+              pClient->connect_data.clientID.cstring,
+              pClient->connect_data.username.cstring,
+              pClient->connect_data.password.cstring);
 
     rc = MQTTConnect(pClient);
     if (rc  != SUCCESS_RETURN) {
@@ -1836,10 +1845,10 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
     int rc;
 
     log_info("reconnect params:MQTTVersion =%d clientID =%s keepAliveInterval =%d username = %s",
-                   pClient->connect_data.MQTTVersion,
-                   pClient->connect_data.clientID.cstring,
-                   pClient->connect_data.keepAliveInterval,
-                   pClient->connect_data.username.cstring);
+             pClient->connect_data.MQTTVersion,
+             pClient->connect_data.clientID.cstring,
+             pClient->connect_data.keepAliveInterval,
+             pClient->connect_data.username.cstring);
 
     /* Ignoring return code. failures expected if network is disconnected */
     rc = iotx_mc_connect(pClient);
@@ -1891,7 +1900,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     }
 
     utils_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
-                pClient->reconnect_param.reconnect_time_interval_ms);
+                       pClient->reconnect_param.reconnect_time_interval_ms);
 
     log_err("mqtt reconnect failed rc = %d", rc);
 
@@ -2044,7 +2053,7 @@ void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
-    err = iotx_mc_init( pclient, pInitParams );
+    err = iotx_mc_init(pclient, pInitParams);
     if (SUCCESS_RETURN != err) {
         iotx_platform_free(pclient);
         return NULL;
@@ -2110,10 +2119,10 @@ bool iotx_mqtt_check_state_normal(void *handle)
 
 
 int32_t iotx_mqtt_subscribe(void *handle,
-                const char *topic_filter,
-                iotx_mqtt_qos_t qos,
-                iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                void *pcontext)
+                            const char *topic_filter,
+                            iotx_mqtt_qos_t qos,
+                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                            void *pcontext)
 {
     return iotx_mc_subscribe((iotx_mc_client_t *)handle, topic_filter, qos, topic_handle_func, pcontext);
 }

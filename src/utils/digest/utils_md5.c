@@ -57,7 +57,7 @@ void utils_md5_free(iot_md5_context *ctx)
 }
 
 void utils_md5_clone(iot_md5_context *dst,
-                          const iot_md5_context *src)
+                     const iot_md5_context *src)
 {
     *dst = *src;
 }

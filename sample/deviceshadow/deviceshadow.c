@@ -13,13 +13,13 @@
 //#define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
 
 #ifndef DIRECT_MQTT
-#define PRODUCT_KEY         "6RcIOUafDOm"
-#define DEVICE_NAME         "sh_pre_sample_shadow"
-#define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
+    #define PRODUCT_KEY         "6RcIOUafDOm"
+    #define DEVICE_NAME         "sh_pre_sample_shadow"
+    #define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
 #else
-#define PRODUCT_KEY         "jRCMjOhnScj"
-#define DEVICE_NAME         "dns_test"
-#define DEVICE_SECRET       "OJurfzWl9SsyL6eaxBkMvmHW15KMyn3C"
+    #define PRODUCT_KEY         "jRCMjOhnScj"
+    #define DEVICE_NAME         "dns_test"
+    #define DEVICE_SECRET       "OJurfzWl9SsyL6eaxBkMvmHW15KMyn3C"
 #endif
 
 #define MSG_LEN_MAX         (1024)

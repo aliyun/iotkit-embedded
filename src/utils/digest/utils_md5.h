@@ -34,7 +34,7 @@ void utils_md5_free(iot_md5_context *ctx);
  * \param src      The context to be cloned
  */
 void utils_md5_clone(iot_md5_context *dst,
-                          const iot_md5_context *src);
+                     const iot_md5_context *src);
 
 /**
  * \brief          MD5 context setup

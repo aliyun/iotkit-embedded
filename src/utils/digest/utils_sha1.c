@@ -53,7 +53,7 @@ void utils_sha1_free(iot_sha1_context *ctx)
 }
 
 void utils_sha1_clone(iot_sha1_context *dst,
-                           const iot_sha1_context *src)
+                      const iot_sha1_context *src)
 {
     *dst = *src;
 }

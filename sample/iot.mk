@@ -3,7 +3,7 @@ HDR_REFS    := src
 
 LDFLAGS     := -liot_sdk
 
-ifeq (,$(filter -DALIOT_MQTT_TCP,$(CFLAGS)))
+ifeq (,$(filter -DIOTX_MQTT_TCP,$(CFLAGS)))
 ifeq (mbedtls,$(strip $(PLATFORM_SSL)))
 DEPENDS     += src/external/recipes/mbedtls
 endif

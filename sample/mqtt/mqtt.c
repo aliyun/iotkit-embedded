@@ -12,13 +12,13 @@
 //#define DEVICE_SECRET       "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
 
 #if !defined(DIRECT_MQTT)
-#define PRODUCT_KEY         "OvNmiEYRDSY"
-#define DEVICE_NAME         "sh_online_sample_mqtt"
-#define DEVICE_SECRET       "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+    #define PRODUCT_KEY         "OvNmiEYRDSY"
+    #define DEVICE_NAME         "sh_online_sample_mqtt"
+    #define DEVICE_SECRET       "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
 #else
-#define PRODUCT_KEY         "jRCMjOhnScj"
-#define DEVICE_NAME         "dns_test"
-#define DEVICE_SECRET       "OJurfzWl9SsyL6eaxBkMvmHW15KMyn3C"
+    #define PRODUCT_KEY         "jRCMjOhnScj"
+    #define DEVICE_NAME         "dns_test"
+    #define DEVICE_SECRET       "OJurfzWl9SsyL6eaxBkMvmHW15KMyn3C"
 #endif
 
 //This is the pre-defined topic
@@ -35,67 +35,66 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
     uint32_t packet_id = (uint32_t)msg->msg;
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
-    switch (msg->event_type)
-    {
-    case IOTX_MQTT_EVENT_UNDEF:
-        log_info("undefined event occur.");
-        break;
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_UNDEF:
+            log_info("undefined event occur.");
+            break;
 
-    case IOTX_MQTT_EVENT_DISCONNECT:
-        log_info("MQTT disconnect.");
-        break;
+        case IOTX_MQTT_EVENT_DISCONNECT:
+            log_info("MQTT disconnect.");
+            break;
 
-    case IOTX_MQTT_EVENT_RECONNECT:
-        log_info("MQTT reconnect.");
-        break;
+        case IOTX_MQTT_EVENT_RECONNECT:
+            log_info("MQTT reconnect.");
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-        log_info("subscribe success, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
+            log_info("subscribe success, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-        log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+            log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-        log_info("subscribe nack, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
+            log_info("subscribe nack, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
-        log_info("unsubscribe success, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
+            log_info("unsubscribe success, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
-        log_info("unsubscribe timeout, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
+            log_info("unsubscribe timeout, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
-        log_info("unsubscribe nack, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
+            log_info("unsubscribe nack, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
-        log_info("publish success, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
+            log_info("publish success, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
-        log_info("publish timeout, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
+            log_info("publish timeout, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_NACK:
-        log_info("publish nack, packet-id=%u", packet_id);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_NACK:
+            log_info("publish nack, packet-id=%u", packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
-        log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
-                topic_info->topic_len,
-                topic_info->ptopic,
-                topic_info->payload_len,
-                topic_info->payload);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+            log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
+                     topic_info->topic_len,
+                     topic_info->ptopic,
+                     topic_info->payload_len,
+                     topic_info->payload);
+            break;
 
-    default:
-        log_info("Should NOT arrive here.");
-        break;
+        default:
+            log_info("Should NOT arrive here.");
+            break;
     }
 }
 
@@ -107,13 +106,13 @@ void iotx_mqtt_msg_arrived(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt
     // print topic name and topic message
     log_info("----");
     log_info("Topic: '%.*s' (Length: %d)",
-              ptopic_info->topic_len,
-              ptopic_info->ptopic,
-              ptopic_info->topic_len);
+             ptopic_info->topic_len,
+             ptopic_info->ptopic,
+             ptopic_info->topic_len);
     log_info("Payload: '%.*s' (Length: %d)",
-              ptopic_info->payload_len,
-              ptopic_info->payload,
-              ptopic_info->payload_len);
+             ptopic_info->payload_len,
+             ptopic_info->payload,
+             ptopic_info->payload_len);
     log_info("----");
 }
 

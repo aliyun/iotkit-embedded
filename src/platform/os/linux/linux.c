@@ -20,8 +20,7 @@ void *iotx_platform_mutex_create(void)
 {
     int err_num;
     pthread_mutex_t *mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-    if (NULL == mutex)
-    {
+    if (NULL == mutex) {
         return NULL;
     }
 
@@ -102,7 +101,7 @@ uint32_t iotx_platform_time_get_ms(void)
 
 void iotx_platform_msleep(_IN_ uint32_t ms)
 {
-    usleep( 1000 * ms );
+    usleep(1000 * ms);
 }
 
 void iotx_platform_printf(_IN_ const char *fmt, ...)
