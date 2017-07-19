@@ -5,6 +5,7 @@
 #include "auth.h"
 #include "utils_error.h"
 #include "lite/lite-log.h"
+#include "lite/lite-utils.h"
 #include "utils_net.h"
 #include "utils_list.h"
 #include "utils_timer.h"
@@ -576,7 +577,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
         return FAIL_RETURN;
     }
 
-    iotx_mc_pub_info_t *repubInfo = (iotx_mc_pub_info_t *)HAL_Malloc(sizeof(iotx_mc_pub_info_t) + len);
+    iotx_mc_pub_info_t *repubInfo = (iotx_mc_pub_info_t *)LITE_malloc(sizeof(iotx_mc_pub_info_t) + len);
     if (NULL == repubInfo) {
         HAL_MutexUnlock(c->lock_list_pub);
         log_err("run iotx_memory_malloc is error!");
@@ -620,7 +621,7 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
         return FAIL_RETURN;
     }
 
-    iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)HAL_Malloc(sizeof(
+    iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)LITE_malloc(sizeof(
             iotx_mc_subsribe_info_t) + len);
     if (NULL == subInfo) {
         HAL_MutexUnlock(c->lock_list_sub);
@@ -800,7 +801,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
         /* drop data whitch over the length of mqtt buffer*/
         int remainDataLen = rem_len - needReadLen;
-        char *remainDataBuf = HAL_Malloc(remainDataLen + 1);
+        char *remainDataBuf = LITE_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
             log_err("malloc remain buffer failed");
             return FAIL_RETURN;
@@ -808,12 +809,12 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
         if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, iotx_time_left(timer)) != remainDataLen) {
             log_err("mqtt read error");
-            HAL_Free(remainDataBuf);
+            LITE_free(remainDataBuf);
             remainDataBuf = NULL;
             return FAIL_RETURN;
         }
 
-        HAL_Free(remainDataBuf);
+        LITE_free(remainDataBuf);
         remainDataBuf = NULL;
 
         return FAIL_RETURN;
@@ -1512,9 +1513,9 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
     pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
 
     pClient->list_pub_wait_ack = list_new();
-    pClient->list_pub_wait_ack->free = HAL_Free;
+    pClient->list_pub_wait_ack->free = LITE_free_routine;
     pClient->list_sub_wait_ack = list_new();
-    pClient->list_sub_wait_ack->free = HAL_Free;
+    pClient->list_sub_wait_ack->free = LITE_free_routine;
 
     pClient->lock_write_buf = HAL_MutexCreate();
 
@@ -1529,7 +1530,7 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
     iotx_time_init(&pClient->next_ping_time);
     iotx_time_init(&pClient->reconnect_param.reconnect_next_time);
 
-    pClient->ipstack = (utils_network_pt)HAL_Malloc(sizeof(utils_network_t));
+    pClient->ipstack = (utils_network_pt)LITE_malloc(sizeof(utils_network_t));
     if (NULL == pClient->ipstack) {
         log_err("malloc Network failed");
         IOTX_FUNC_EXIT_RC(FAIL_RETURN);
@@ -1975,7 +1976,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
     list_destroy(pClient->list_sub_wait_ack);
 
     if (NULL != pClient->ipstack) {
-        HAL_Free(pClient->ipstack);
+        LITE_free(pClient->ipstack);
     }
 
     log_info("mqtt release!");
@@ -2047,7 +2048,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams)
 {
     iotx_err_t err;
-    iotx_mc_client_t *pclient = (iotx_mc_client_t *)HAL_Malloc(sizeof(iotx_mc_client_t));
+    iotx_mc_client_t *pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
         log_err("not enough memory.");
         return NULL;
@@ -2055,14 +2056,14 @@ void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams)
 
     err = iotx_mc_init(pclient, pInitParams);
     if (SUCCESS_RETURN != err) {
-        HAL_Free(pclient);
+        LITE_free(pclient);
         return NULL;
     }
 
     err = iotx_mc_connect(pclient);
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
-        HAL_Free(pclient);
+        LITE_free(pclient);
         return NULL;
     }
 
@@ -2078,7 +2079,7 @@ iotx_err_t iotx_mqtt_deconstruct(void *handle)
 
     iotx_mc_release((iotx_mc_client_t *)handle);
 
-    HAL_Free(handle);
+    LITE_free(handle);
 
     return SUCCESS_RETURN;
 }

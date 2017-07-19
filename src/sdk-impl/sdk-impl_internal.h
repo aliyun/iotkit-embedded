@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+#include "iot_import.h"
+
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
 

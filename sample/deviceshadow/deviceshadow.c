@@ -167,13 +167,13 @@ int main()
     LITE_openlog("shadow");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
-    char *msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX);
-    char *msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX);
+    char *msg_buf = (char *)LITE_malloc(MSG_LEN_MAX);
+    char *msg_readbuf = (char *)LITE_malloc(MSG_LEN_MAX);
 
     demo_device_shadow(msg_buf, msg_readbuf);
 
-    HAL_Free(msg_buf);
-    HAL_Free(msg_readbuf);
+    LITE_free(msg_buf);
+    LITE_free(msg_readbuf);
 
     log_debug("out of demo!");
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);

@@ -62,7 +62,7 @@ static int iotx_get_id_token(
                     client_id, product_key, device_name, timestamp);
     }
 
-    if (NULL == (buf = HAL_Malloc(length))) {
+    if (NULL == (buf = LITE_malloc(length))) {
         goto do_exit;
     }
 
@@ -88,7 +88,7 @@ static int iotx_get_id_token(
 
     memset(&httpclient_data, 0, sizeof(httpclient_data_t));
 
-    post_buf = (char *) HAL_Malloc(HTTP_POST_MAX_LEN);
+    post_buf = (char *) LITE_malloc(HTTP_POST_MAX_LEN);
     if (NULL == post_buf) {
         log_err("malloc http post buf failed!");
         return ERROR_MALLOC;
@@ -116,7 +116,7 @@ static int iotx_get_id_token(
 
     ret = strlen(post_buf);
 
-    response_buf = (char *)HAL_Malloc(HTTP_RESP_MAX_LEN);
+    response_buf = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
         log_err("malloc http response buf failed!");
         return ERROR_MALLOC;
@@ -212,15 +212,15 @@ static int iotx_get_id_token(
 
 do_exit:
     if (NULL != buf) {
-        HAL_Free(buf);
+        LITE_free(buf);
     }
 
     if (NULL != post_buf) {
-        HAL_Free(post_buf);
+        LITE_free(post_buf);
     }
 
     if (NULL != response_buf) {
-        HAL_Free(response_buf);
+        LITE_free(response_buf);
     }
 
     return ret;

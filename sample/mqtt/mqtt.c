@@ -126,13 +126,13 @@ int mqtt_client(void)
     char msg_pub[128];
     char *msg_buf = NULL, *msg_readbuf = NULL;
 
-    if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_buf = (char *)LITE_malloc(MSG_LEN_MAX))) {
         log_debug("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
-    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_readbuf = (char *)LITE_malloc(MSG_LEN_MAX))) {
         log_debug("not enough memory");
         rc = -1;
         goto do_exit;
@@ -243,11 +243,11 @@ int mqtt_client(void)
 
 do_exit:
     if (NULL != msg_buf) {
-        HAL_Free(msg_buf);
+        LITE_free(msg_buf);
     }
 
     if (NULL != msg_readbuf) {
-        HAL_Free(msg_readbuf);
+        LITE_free(msg_readbuf);
     }
 
     return rc;
