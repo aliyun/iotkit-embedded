@@ -1,3 +1,9 @@
+PLATFORM_CC             = gcc
+PLATFORM_AR             = ar
+PLATFORM_OS             = linux
+PLATFORM_NETWORK        = linuxsock
+PLATFORM_SSL            = mbedtls
+
 SETTING_VARS := \
     BUILD_TYPE \
     PLATFORM_CC \
