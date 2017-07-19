@@ -116,7 +116,7 @@ typedef struct Client {
     char                           *buf_send;                                //pointer of send buffer
     char                           *buf_read;                                //pointer of read buffer
     amc_topic_handle_t              sub_handle[AMC_SUB_NUM_MAX];             //array of subscribe handle
-    aliot_network_pt                ipstack;                                 //network parameter
+    utils_network_pt                ipstack;                                 //network parameter
     aliot_time_t                    next_ping_time;                          //next ping time
     int                             ping_mark;                               //flag of ping
     amc_state_t                     client_state;                            //state of MQTT client
@@ -244,7 +244,7 @@ static int MQTTKeepalive(amc_client_t *pClient)
     /* there is no ping outstanding - send ping packet */
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, 1000);
+    utils_time_cutdown(&timer, 1000);
     int len = 0;
     int rc = 0;
 
@@ -286,7 +286,7 @@ int MQTTConnect(amc_client_t *pClient)
 
     /* send the connect packet*/
     aliot_time_init(&connectTimer);
-    aliot_time_cutdown(&connectTimer, pClient->request_timeout_ms);
+    utils_time_cutdown(&connectTimer, pClient->request_timeout_ms);
     if ((rc = amc_send_packet(pClient, pClient->buf_send, len, &connectTimer)) != SUCCESS_RETURN) {
         aliot_platform_mutex_unlock(pClient->lock_write_buf);
         log_err("send connect packet failed");
@@ -309,7 +309,7 @@ int MQTTPublish(amc_client_t *c, const char *topicName, aliot_mqtt_topic_info_pt
     int len = 0;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_cutdown(&timer, c->request_timeout_ms);
 
     aliot_platform_mutex_lock(c->lock_write_buf);
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
@@ -367,7 +367,7 @@ static int MQTTPuback(amc_client_t *c, unsigned int msgId, enum msgTypes type)
     int len = 0;
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_cutdown(&timer, c->request_timeout_ms);
 
     aliot_platform_mutex_lock(c->lock_write_buf);
     if (type == PUBACK) {
@@ -408,7 +408,7 @@ static int MQTTSubscribe(amc_client_t *c, const char *topicFilter, aliot_mqtt_qo
 
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_cutdown(&timer, c->request_timeout_ms);
 
     aliot_platform_mutex_lock(c->lock_write_buf);
 
@@ -460,7 +460,7 @@ static int MQTTUnsubscribe(amc_client_t *c, const char *topicFilter, unsigned in
     int rc = 0;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_cutdown(&timer, c->request_timeout_ms);
 
     aliot_platform_mutex_lock(c->lock_write_buf);
 
@@ -504,7 +504,7 @@ static int MQTTDisconnect(amc_client_t *c)
     int len = MQTTSerialize_disconnect((unsigned char *)c->buf_send, c->buf_size_send);
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_cutdown(&timer, c->request_timeout_ms);
 
     if (len > 0) {
         rc = amc_send_packet(c, c->buf_send, len, &timer);           // send the disconnect packet
@@ -711,7 +711,7 @@ static int amc_send_packet(amc_client_t *c, char *buf, int length, aliot_time_t 
     int rc = FAIL_RETURN;
     int sent = 0;
 
-    while (sent < length && !aliot_time_is_expired(time)) {
+    while (sent < length && !utils_time_is_expired(time)) {
         rc = c->ipstack->write(c->ipstack, &buf[sent], length, aliot_time_left(time));
         if (rc < 0) { // there was an error writing the data
             break;
@@ -1139,7 +1139,7 @@ static int amc_wait_CONNACK(amc_client_t *c)
     int rc = 0;
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->connect_data.keepAliveInterval * 1000);
+    utils_time_cutdown(&timer, c->connect_data.keepAliveInterval * 1000);
 
     do {
         // read the socket, see what work is due
@@ -1186,7 +1186,7 @@ static int amc_cycle(amc_client_t *c, aliot_time_t *timer)
     }
 
     //receive any data to renew ping_timer
-    aliot_time_cutdown(&c->next_ping_time, c->connect_data.keepAliveInterval * 1000);
+    utils_time_cutdown(&c->next_ping_time, c->connect_data.keepAliveInterval * 1000);
 
     //clear ping mark when any data received from MQTT broker
     aliot_platform_mutex_lock(c->lock_generic);
@@ -1523,12 +1523,12 @@ static aliot_err_t amc_init(amc_client_t *pClient, aliot_mqtt_param_t *pInitPara
     aliot_time_init(&pClient->next_ping_time);
     aliot_time_init(&pClient->reconnect_param.reconnect_next_time);
 
-    pClient->ipstack = (aliot_network_pt)aliot_platform_malloc(sizeof(aliot_network_t));
+    pClient->ipstack = (utils_network_pt)aliot_platform_malloc(sizeof(utils_network_t));
     if (NULL == pClient->ipstack) {
         log_err("malloc Network failed");
         ALIOT_FUNC_EXIT_RC(FAIL_RETURN);
     }
-    memset(pClient->ipstack, 0x0, sizeof(aliot_network_t));
+    memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
 
     rc = aliot_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key);
     if (SUCCESS_RETURN != rc) {
@@ -1595,7 +1595,7 @@ static int MQTTSubInfoProc(amc_client_t *pClient)
             }
 
             //check the request if timeout or not
-            if (aliot_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * 2)) {
+            if (utils_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * 2)) {
                 //continue to check the next node
                 continue;
             }
@@ -1671,7 +1671,7 @@ static void amc_keepalive(amc_client_t *pClient)
             amc_disconnect_callback(pClient);
 
             pClient->reconnect_param.reconnect_time_interval_ms = AMC_RECONNECT_INTERVAL_MIN_MS;
-            aliot_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
+            utils_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
                         pClient->reconnect_param.reconnect_time_interval_ms);
 
             pClient->ipstack->disconnect(pClient->ipstack);
@@ -1688,7 +1688,7 @@ static int MQTTRePublish(amc_client_t *c, char *buf, int len)
 {
     aliot_time_t timer;
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_cutdown(&timer, c->request_timeout_ms);
 
     aliot_platform_mutex_lock(c->lock_write_buf);
 
@@ -1754,7 +1754,7 @@ static int MQTTPubInfoProc(amc_client_t *pClient)
             }
 
             //check the request if timeout or not
-            if (aliot_time_spend(&repubInfo->pub_start_time) <= (pClient->request_timeout_ms * 2)) {
+            if (utils_time_spend(&repubInfo->pub_start_time) <= (pClient->request_timeout_ms * 2)) {
                 continue;
             }
 
@@ -1825,7 +1825,7 @@ static int amc_connect(amc_client_t *pClient)
 
     amc_set_client_state(pClient, AMC_STATE_CONNECTED);
 
-    aliot_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
+    utils_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     log_info("mqtt connect success!");
     return SUCCESS_RETURN;
@@ -1865,7 +1865,7 @@ static int amc_handle_reconnect(amc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    if (!aliot_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
+    if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         return FAIL_RETURN;
     }
@@ -1893,7 +1893,7 @@ static int amc_handle_reconnect(amc_client_t *pClient)
         }
     }
 
-    aliot_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
+    utils_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
                 pClient->reconnect_param.reconnect_time_interval_ms);
 
     log_err("mqtt reconnect failed rc = %d", rc);
@@ -2010,12 +2010,12 @@ static int amc_keepalive_sub(amc_client_t *pClient)
     }
 
     /*if there is no ping_timer timeout, then return success*/
-    if (!aliot_time_is_expired(&pClient->next_ping_time)) {
+    if (!utils_time_is_expired(&pClient->next_ping_time)) {
         return SUCCESS_RETURN;
     }
 
     //update to next time sending MQTT keep-alive
-    aliot_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
+    utils_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     rc = MQTTKeepalive(pClient);
     if (SUCCESS_RETURN != rc) {
@@ -2085,7 +2085,7 @@ void aliot_mqtt_yield(void *handle, int timeout_ms)
     aliot_time_t time;
 
     aliot_time_init(&time);
-    aliot_time_cutdown(&time, timeout_ms);
+    utils_time_cutdown(&time, timeout_ms);
 
     do {
         /*acquire package in cycle, such as PINGRESP  PUBLISH*/
@@ -2101,7 +2101,7 @@ void aliot_mqtt_yield(void *handle, int timeout_ms)
         //Keep MQTT alive or reconnect if connection abort.
         amc_keepalive(pClient);
 
-    } while (!aliot_time_is_expired(&time) && (SUCCESS_RETURN == rc));
+    } while (!utils_time_is_expired(&time) && (SUCCESS_RETURN == rc));
 }
 
 

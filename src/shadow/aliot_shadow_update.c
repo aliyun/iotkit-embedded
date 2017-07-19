@@ -47,7 +47,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
     list[i].token[token_len] = '\0';
 
     aliot_time_init(&list[i].timer);
-    aliot_time_cutdown(&list[i].timer, timeout);
+    utils_time_cutdown(&list[i].timer, timeout);
 
     log_debug("Add update ACK list");
 
@@ -74,7 +74,7 @@ void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow)
 
     for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
-            if (aliot_time_is_expired(&pelement[i].timer)) {
+            if (utils_time_is_expired(&pelement[i].timer)) {
                 if (NULL != pelement[i].callback) {
                     pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_TIMEOUT, NULL, 0);
                 }

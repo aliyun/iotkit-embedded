@@ -355,7 +355,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     aliot_time_t timer;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, timeout_ms);
+    utils_time_cutdown(&timer, timeout_ms);
 
     *p_read_len = 0;
 
@@ -381,7 +381,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
 //        buf[readLen] = '\0';
 //        if (readLen < min_len) {
 //            //wait to read HTTP respond data
-//            ret = client->net.read(&client->net, buf + readLen, min_len - readLen, aliot_timer_remain(&timer));
+//            ret = client->net.read(&client->net, buf + readLen, min_len - readLen, utils_timer_remain(&timer));
 //        } else {
 //            //read the rest data in TCP buffer (with little wait time)
 //            ret = client->net.read(&client->net, buf + readLen, max_len - readLen, 100);
@@ -414,7 +414,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
     aliot_time_t timer;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, timeout_ms);
+    utils_time_cutdown(&timer, timeout_ms);
 
     /* Receive data */
     log_debug("Current data: %s", data);
@@ -586,7 +586,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     aliot_time_t timer;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, timeout_ms);
+    utils_time_cutdown(&timer, timeout_ms);
 
     client_data->response_content_len = -1;
 
@@ -725,7 +725,7 @@ aliot_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, 
     aliot_time_t timer;
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, timeout_ms);
+    utils_time_cutdown(&timer, timeout_ms);
 
     if (0 == client->net.handle) {
         log_debug("not connection have been established");
@@ -769,7 +769,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
     aliot_time_init(&timer);
-    aliot_time_cutdown(&timer, timeout_ms);
+    utils_time_cutdown(&timer, timeout_ms);
 
     httpclient_parse_host(url, host, sizeof(host));
     log_debug("host: '%s', port: %d", host, port);
@@ -801,7 +801,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     return ret;
 }
 
-int aliot_get_response_code(httpclient_t *client)
+int utils_get_response_code(httpclient_t *client)
 {
     return client->response_code;
 }

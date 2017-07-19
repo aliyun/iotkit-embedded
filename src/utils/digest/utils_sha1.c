@@ -7,7 +7,7 @@
 #include "utils_sha1.h"
 
 /* Implementation that should never be optimized out by the compiler */
-static void aliot_sha1_zeroize(void *v, size_t n)
+static void utils_sha1_zeroize(void *v, size_t n)
 {
     volatile unsigned char *p = v;
     while (n--) {
@@ -38,21 +38,21 @@ static void aliot_sha1_zeroize(void *v, size_t n)
     }
 #endif
 
-void aliot_sha1_init(iot_sha1_context *ctx)
+void utils_sha1_init(iot_sha1_context *ctx)
 {
     memset(ctx, 0, sizeof(iot_sha1_context));
 }
 
-void aliot_sha1_free(iot_sha1_context *ctx)
+void utils_sha1_free(iot_sha1_context *ctx)
 {
     if (ctx == NULL) {
         return;
     }
 
-    aliot_sha1_zeroize(ctx, sizeof(iot_sha1_context));
+    utils_sha1_zeroize(ctx, sizeof(iot_sha1_context));
 }
 
-void aliot_sha1_clone(iot_sha1_context *dst,
+void utils_sha1_clone(iot_sha1_context *dst,
                            const iot_sha1_context *src)
 {
     *dst = *src;
@@ -61,7 +61,7 @@ void aliot_sha1_clone(iot_sha1_context *dst,
 /*
  * SHA-1 context setup
  */
-void aliot_sha1_starts(iot_sha1_context *ctx)
+void utils_sha1_starts(iot_sha1_context *ctx)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -73,7 +73,7 @@ void aliot_sha1_starts(iot_sha1_context *ctx)
     ctx->state[4] = 0xC3D2E1F0;
 }
 
-void aliot_sha1_process(iot_sha1_context *ctx, const unsigned char data[64])
+void utils_sha1_process(iot_sha1_context *ctx, const unsigned char data[64])
 {
     uint32_t temp, W[16], A, B, C, D, E;
 
@@ -232,7 +232,7 @@ void aliot_sha1_process(iot_sha1_context *ctx, const unsigned char data[64])
 /*
  * SHA-1 process buffer
  */
-void aliot_sha1_update(iot_sha1_context *ctx, const unsigned char *input, size_t ilen)
+void utils_sha1_update(iot_sha1_context *ctx, const unsigned char *input, size_t ilen)
 {
     size_t fill;
     uint32_t left;
@@ -253,14 +253,14 @@ void aliot_sha1_update(iot_sha1_context *ctx, const unsigned char *input, size_t
 
     if (left && ilen >= fill) {
         memcpy((void *)(ctx->buffer + left), input, fill);
-        aliot_sha1_process(ctx, ctx->buffer);
+        utils_sha1_process(ctx, ctx->buffer);
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
     while (ilen >= 64) {
-        aliot_sha1_process(ctx, input);
+        utils_sha1_process(ctx, input);
         input += 64;
         ilen  -= 64;
     }
@@ -280,7 +280,7 @@ static const unsigned char iot_sha1_padding[64] = {
 /*
  * SHA-1 final digest
  */
-void aliot_sha1_finish(iot_sha1_context *ctx, unsigned char output[20])
+void utils_sha1_finish(iot_sha1_context *ctx, unsigned char output[20])
 {
     uint32_t last, padn;
     uint32_t high, low;
@@ -296,8 +296,8 @@ void aliot_sha1_finish(iot_sha1_context *ctx, unsigned char output[20])
     last = ctx->total[0] & 0x3F;
     padn = (last < 56) ? (56 - last) : (120 - last);
 
-    aliot_sha1_update(ctx, iot_sha1_padding, padn);
-    aliot_sha1_update(ctx, msglen, 8);
+    utils_sha1_update(ctx, iot_sha1_padding, padn);
+    utils_sha1_update(ctx, msglen, 8);
 
     IOT_SHA1_PUT_UINT32_BE(ctx->state[0], output,  0);
     IOT_SHA1_PUT_UINT32_BE(ctx->state[1], output,  4);
@@ -310,14 +310,14 @@ void aliot_sha1_finish(iot_sha1_context *ctx, unsigned char output[20])
 /*
  * output = SHA-1( input buffer )
  */
-void aliot_sha1(const unsigned char *input, size_t ilen, unsigned char output[20])
+void utils_sha1(const unsigned char *input, size_t ilen, unsigned char output[20])
 {
     iot_sha1_context ctx;
 
-    aliot_sha1_init(&ctx);
-    aliot_sha1_starts(&ctx);
-    aliot_sha1_update(&ctx, input, ilen);
-    aliot_sha1_finish(&ctx, output);
-    aliot_sha1_free(&ctx);
+    utils_sha1_init(&ctx);
+    utils_sha1_starts(&ctx);
+    utils_sha1_update(&ctx, input, ilen);
+    utils_sha1_finish(&ctx, output);
+    utils_sha1_free(&ctx);
 }
 

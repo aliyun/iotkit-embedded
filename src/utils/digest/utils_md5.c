@@ -11,7 +11,7 @@
 
 
 /* Implementation that should never be optimized out by the compiler */
-static void aliot_md5_zeroize(void *v, size_t n)
+static void utils_md5_zeroize(void *v, size_t n)
 {
     volatile unsigned char *p = v;
     while (n--) {
@@ -42,21 +42,21 @@ static void aliot_md5_zeroize(void *v, size_t n)
     }
 #endif
 
-void aliot_md5_init(iot_md5_context *ctx)
+void utils_md5_init(iot_md5_context *ctx)
 {
     memset(ctx, 0, sizeof(iot_md5_context));
 }
 
-void aliot_md5_free(iot_md5_context *ctx)
+void utils_md5_free(iot_md5_context *ctx)
 {
     if (ctx == NULL) {
         return;
     }
 
-    aliot_md5_zeroize(ctx, sizeof(iot_md5_context));
+    utils_md5_zeroize(ctx, sizeof(iot_md5_context));
 }
 
-void aliot_md5_clone(iot_md5_context *dst,
+void utils_md5_clone(iot_md5_context *dst,
                           const iot_md5_context *src)
 {
     *dst = *src;
@@ -65,7 +65,7 @@ void aliot_md5_clone(iot_md5_context *dst,
 /*
  * MD5 context setup
  */
-void aliot_md5_starts(iot_md5_context *ctx)
+void utils_md5_starts(iot_md5_context *ctx)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -76,7 +76,7 @@ void aliot_md5_starts(iot_md5_context *ctx)
     ctx->state[3] = 0x10325476;
 }
 
-void aliot_md5_process(iot_md5_context *ctx, const unsigned char data[64])
+void utils_md5_process(iot_md5_context *ctx, const unsigned char data[64])
 {
     uint32_t X[16], A, B, C, D;
 
@@ -202,7 +202,7 @@ void aliot_md5_process(iot_md5_context *ctx, const unsigned char data[64])
 /*
  * MD5 process buffer
  */
-void aliot_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t ilen)
+void utils_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t ilen)
 {
     size_t fill;
     uint32_t left;
@@ -223,14 +223,14 @@ void aliot_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t i
 
     if (left && ilen >= fill) {
         memcpy((void *)(ctx->buffer + left), input, fill);
-        aliot_md5_process(ctx, ctx->buffer);
+        utils_md5_process(ctx, ctx->buffer);
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
     while (ilen >= 64) {
-        aliot_md5_process(ctx, input);
+        utils_md5_process(ctx, input);
         input += 64;
         ilen  -= 64;
     }
@@ -250,7 +250,7 @@ static const unsigned char iot_md5_padding[64] = {
 /*
  * MD5 final digest
  */
-void aliot_md5_finish(iot_md5_context *ctx, unsigned char output[16])
+void utils_md5_finish(iot_md5_context *ctx, unsigned char output[16])
 {
     uint32_t last, padn;
     uint32_t high, low;
@@ -266,8 +266,8 @@ void aliot_md5_finish(iot_md5_context *ctx, unsigned char output[16])
     last = ctx->total[0] & 0x3F;
     padn = (last < 56) ? (56 - last) : (120 - last);
 
-    aliot_md5_update(ctx, iot_md5_padding, padn);
-    aliot_md5_update(ctx, msglen, 8);
+    utils_md5_update(ctx, iot_md5_padding, padn);
+    utils_md5_update(ctx, msglen, 8);
 
     IOT_MD5_PUT_UINT32_LE(ctx->state[0], output,  0);
     IOT_MD5_PUT_UINT32_LE(ctx->state[1], output,  4);
@@ -279,18 +279,18 @@ void aliot_md5_finish(iot_md5_context *ctx, unsigned char output[16])
 /*
  * output = MD5( input buffer )
  */
-void aliot_md5(const unsigned char *input, size_t ilen, unsigned char output[16])
+void utils_md5(const unsigned char *input, size_t ilen, unsigned char output[16])
 {
     iot_md5_context ctx;
 
-    aliot_md5_init(&ctx);
-    aliot_md5_starts(&ctx);
-    aliot_md5_update(&ctx, input, ilen);
-    aliot_md5_finish(&ctx, output);
-    aliot_md5_free(&ctx);
+    utils_md5_init(&ctx);
+    utils_md5_starts(&ctx);
+    utils_md5_update(&ctx, input, ilen);
+    utils_md5_finish(&ctx, output);
+    utils_md5_free(&ctx);
 }
 
-int8_t aliot_hb2hex(uint8_t hb)
+int8_t utils_hb2hex(uint8_t hb)
 {
     hb = hb & 0xF;
     return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'A');

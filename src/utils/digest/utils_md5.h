@@ -18,14 +18,14 @@ typedef struct {
  *
  * \param ctx      MD5 context to be initialized
  */
-void aliot_md5_init(iot_md5_context *ctx);
+void utils_md5_init(iot_md5_context *ctx);
 
 /**
  * \brief          Clear MD5 context
  *
  * \param ctx      MD5 context to be cleared
  */
-void aliot_md5_free(iot_md5_context *ctx);
+void utils_md5_free(iot_md5_context *ctx);
 
 /**
  * \brief          Clone (the state of) an MD5 context
@@ -33,7 +33,7 @@ void aliot_md5_free(iot_md5_context *ctx);
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void aliot_md5_clone(iot_md5_context *dst,
+void utils_md5_clone(iot_md5_context *dst,
                           const iot_md5_context *src);
 
 /**
@@ -41,7 +41,7 @@ void aliot_md5_clone(iot_md5_context *dst,
  *
  * \param ctx      context to be initialized
  */
-void aliot_md5_starts(iot_md5_context *ctx);
+void utils_md5_starts(iot_md5_context *ctx);
 
 /**
  * \brief          MD5 process buffer
@@ -50,7 +50,7 @@ void aliot_md5_starts(iot_md5_context *ctx);
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void aliot_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t ilen);
+void utils_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t ilen);
 
 /**
  * \brief          MD5 final digest
@@ -58,10 +58,10 @@ void aliot_md5_update(iot_md5_context *ctx, const unsigned char *input, size_t i
  * \param ctx      MD5 context
  * \param output   MD5 checksum result
  */
-void aliot_md5_finish(iot_md5_context *ctx, unsigned char output[16]);
+void utils_md5_finish(iot_md5_context *ctx, unsigned char output[16]);
 
 /* Internal use */
-void aliot_md5_process(iot_md5_context *ctx, const unsigned char data[64]);
+void utils_md5_process(iot_md5_context *ctx, const unsigned char data[64]);
 
 /**
  * \brief          Output = MD5( input buffer )
@@ -70,10 +70,10 @@ void aliot_md5_process(iot_md5_context *ctx, const unsigned char data[64]);
  * \param ilen     length of the input data
  * \param output   MD5 checksum result
  */
-void aliot_md5(const unsigned char *input, size_t ilen, unsigned char output[16]);
+void utils_md5(const unsigned char *input, size_t ilen, unsigned char output[16]);
 
 
-int8_t aliot_hb2hex(uint8_t hb);
+int8_t utils_hb2hex(uint8_t hb);
 
 
 #endif

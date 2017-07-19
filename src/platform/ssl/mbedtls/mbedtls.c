@@ -191,7 +191,7 @@ int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
 }
 
 
-int aliot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
+int utils_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
 {
     uint32_t readLen = 0;
     int net_status = 0;
@@ -227,7 +227,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int
     return (readLen > 0) ? readLen : net_status;
 }
 
-int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
+int utils_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
 {
     uint32_t writtenLen = 0;
     int ret = -1;
@@ -251,7 +251,7 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int l
     return writtenLen;
 }
 
-void aliot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
+void utils_network_ssl_disconnect(TLSDataParams_t *pTlsData)
 {
     mbedtls_ssl_close_notify(&(pTlsData->ssl));
     mbedtls_net_free(&(pTlsData->fd));
@@ -379,7 +379,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
     return 0;
 }
 
-int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
+int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
                                    size_t ca_crt_len)
 {
     return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
@@ -387,12 +387,12 @@ int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const
 
 int aliot_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
-    return aliot_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
+    return utils_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
 }
 
 int aliot_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 {
-    return aliot_network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
+    return utils_network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
 }
 
 int32_t aliot_platform_ssl_destroy(uintptr_t handle)
@@ -402,7 +402,7 @@ int32_t aliot_platform_ssl_destroy(uintptr_t handle)
         return 0;
     }
 
-    aliot_network_ssl_disconnect((TLSDataParams_t *)handle);
+    utils_network_ssl_disconnect((TLSDataParams_t *)handle);
     free(handle);
     return 0;
 }

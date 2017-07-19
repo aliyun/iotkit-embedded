@@ -78,7 +78,7 @@ typedef enum {
 typedef struct {
     //intptr_t handle; /**< handle of TCP connection or SSL connection. */
     int remote_port; /**< HTTP or HTTPS port. */
-    aliot_network_t net;
+    utils_network_t net;
     int response_code; /**< Response code. */
     char *header; /**< Custom header. */
     char *auth_user; /**< Username for basic authentication. */

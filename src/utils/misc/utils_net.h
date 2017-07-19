@@ -10,10 +10,10 @@
  *   The user has to allocate memory for this structure.
  */
 
-struct aliot_network;
-typedef struct aliot_network aliot_network_t, *aliot_network_pt;
+struct utils_network;
+typedef struct utils_network utils_network_t, *utils_network_pt;
 
-struct aliot_network {
+struct utils_network {
     const char *pHostAddress;
     uint16_t port;
     uint16_t ca_crt_len;
@@ -25,23 +25,23 @@ struct aliot_network {
     uintptr_t handle;
 
     /**< Read data from server function pointer. */
-    int (*read)(aliot_network_pt, char *, uint32_t, uint32_t);
+    int (*read)(utils_network_pt, char *, uint32_t, uint32_t);
 
     /**< Send data to server function pointer. */
-    int (*write)(aliot_network_pt, const char *, uint32_t, uint32_t);
+    int (*write)(utils_network_pt, const char *, uint32_t, uint32_t);
 
     /**< Disconnect the network */
-    int (*disconnect)(aliot_network_pt);
+    int (*disconnect)(utils_network_pt);
 
     /**< Establish the network */
-    int (*connect)(aliot_network_pt);
+    int (*connect)(utils_network_pt);
 };
 
 
-int aliot_net_read(aliot_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliot_net_write(aliot_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliot_net_disconnect(aliot_network_pt pNetwork);
-int aliot_net_connect(aliot_network_pt pNetwork);
-int aliot_net_init(aliot_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt);
+int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
+int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
+int aliot_net_disconnect(utils_network_pt pNetwork);
+int aliot_net_connect(utils_network_pt pNetwork);
+int aliot_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt);
 
 #endif /* ALIOT_COMMON_NET_H */

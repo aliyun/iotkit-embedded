@@ -1,4 +1,4 @@
-#include "aliot_network_ssl.h"
+#include "utils_network_ssl.h"
 
 static SSL_CTX *ssl_ctx = NULL;
 static X509_STORE *ca_store = NULL;
@@ -161,7 +161,7 @@ int platform_ssl_close(SSL *ssl)
     return 0;
 }
 
-int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int utils_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
 {
     int readLen = 0;
     int ret = -1;
@@ -170,7 +170,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int
 
     if (!SSL_pending(pTlsData->pssl)) {
         IOT_NET_FD_ISSET_E result;
-        ret = aliot_network_select(pTlsData->socketId, IOT_NET_TRANS_RECV, timeout_ms, &result);
+        ret = utils_network_select(pTlsData->socketId, IOT_NET_TRANS_RECV, timeout_ms, &result);
         if (ret < 0) {
             INT32 err = aliot_get_errno();
             if (err == EINTR_IOT) {
@@ -206,7 +206,7 @@ int aliot_network_ssl_read(TLSDataParams_t *pTlsData, unsigned char *buffer, int
 }
 
 
-int aliot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
+int utils_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, int len, int timeout_ms)
 {
     int writtenLen = 0;
     int ret = 0;
@@ -229,7 +229,7 @@ int aliot_network_ssl_write(TLSDataParams_t *pTlsData, unsigned char *buffer, in
     return writtenLen;
 }
 
-void aliot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
+void utils_network_ssl_disconnect(TLSDataParams_t *pTlsData)
 {
     if (pTlsData->pssl != NULL) {
         platform_ssl_close(pTlsData->pssl);
@@ -242,7 +242,7 @@ void aliot_network_ssl_disconnect(TLSDataParams_t *pTlsData)
     }
 }
 
-int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
+int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
                                    size_t ca_crt_len)
 {
     int rc = 0;
@@ -252,7 +252,7 @@ int aliot_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const
         return 1;
     }
 
-    pTlsData->socketId = aliot_network_create(addr, port, IOT_NET_PROTOCOL_TCP);
+    pTlsData->socketId = utils_network_create(addr, port, IOT_NET_PROTOCOL_TCP);
     if (pTlsData->socketId < 0) {
         pTlsData->socketId = -1;
         pTlsData->pssl = NULL;
