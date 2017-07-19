@@ -1,6 +1,6 @@
 
-#ifndef _ALIOT_SHADOW_DELTA_H_
-#define _ALIOT_SHADOW_DELTA_H_
+#ifndef _IOTX_SHADOW_DELTA_H_
+#define _IOTX_SHADOW_DELTA_H_
 
 #include "iot_import.h"
 #include "shadow.h"
@@ -20,4 +20,4 @@ iotx_err_t iotx_shadow_delta_register_attr(
                 iotx_shadow_pt pshadow,
                 iotx_shadow_attr_pt pattr);
 
-#endif /* _ALIOT_SHADOW_DELTA_H_ */
+#endif /* _IOTX_SHADOW_DELTA_H_ */

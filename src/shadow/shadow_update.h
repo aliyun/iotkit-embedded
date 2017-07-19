@@ -1,6 +1,6 @@
 
-#ifndef _ALIOT_SHADOW_UPDATE_H_
-#define _ALIOT_SHADOW_UPDATE_H_
+#ifndef _IOTX_SHADOW_UPDATE_H_
+#define _IOTX_SHADOW_UPDATE_H_
 
 #include "iot_import.h"
 #include "utils_error.h"
@@ -28,4 +28,4 @@ void iotx_ds_update_wait_ack_list_handle_response(
             size_t json_doc_len);
 
 
-#endif /* _ALIOT_SHADOW_UPDATE_H_ */
+#endif /* _IOTX_SHADOW_UPDATE_H_ */

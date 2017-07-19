@@ -37,55 +37,55 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
     switch (msg->event_type)
     {
-    case ALIOT_MQTT_EVENT_UNDEF:
+    case IOTX_MQTT_EVENT_UNDEF:
         log_info("undefined event occur.");
         break;
 
-    case ALIOT_MQTT_EVENT_DISCONNECT:
+    case IOTX_MQTT_EVENT_DISCONNECT:
         log_info("MQTT disconnect.");
         break;
 
-    case ALIOT_MQTT_EVENT_RECONNECT:
+    case IOTX_MQTT_EVENT_RECONNECT:
         log_info("MQTT reconnect.");
         break;
 
-    case ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS:
+    case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
         log_info("subscribe success, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+    case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
         log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_SUBCRIBE_NACK:
+    case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
         log_info("subscribe nack, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
+    case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
         log_info("unsubscribe success, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
+    case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
         log_info("unsubscribe timeout, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_UNSUBCRIBE_NACK:
+    case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
         log_info("unsubscribe nack, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_PUBLISH_SUCCESS:
+    case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
         log_info("publish success, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_PUBLISH_TIMEOUT:
+    case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
         log_info("publish timeout, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_PUBLISH_NACK:
+    case IOTX_MQTT_EVENT_PUBLISH_NACK:
         log_info("publish nack, packet-id=%u", packet_id);
         break;
 
-    case ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
+    case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
         log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                 topic_info->topic_len,
                 topic_info->ptopic,
@@ -187,7 +187,7 @@ int mqtt_client(void)
     }
 
     /* Subscribe the specific topic */
-    rc = iotx_mqtt_subscribe(pclient, TOPIC_DATA, ALIOT_MQTT_QOS1, iotx_mqtt_msg_arrived, NULL);
+    rc = iotx_mqtt_subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, iotx_mqtt_msg_arrived, NULL);
     if (rc < 0) {
         iotx_mqtt_deconstruct(pclient);
         log_debug("ali_iot_mqtt_subscribe failed, rc = %d", rc);
@@ -201,7 +201,7 @@ int mqtt_client(void)
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     strcpy(msg_pub, "message: hello! start!");
 
-    topic_msg.qos = ALIOT_MQTT_QOS1;
+    topic_msg.qos = IOTX_MQTT_QOS1;
     topic_msg.retain = 0;
     topic_msg.dup = 0;
     topic_msg.payload = (void *)msg_pub;

@@ -54,7 +54,7 @@ void iotx_time_init(iotx_time_t *timer)
 
 void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond)
 {
-    ALIOT_ASSERT(millisecond < (UINT32_MAX / 2), "time should NOT exceed UINT32_MAX/2!");
+    IOTX_ASSERT(millisecond < (UINT32_MAX / 2), "time should NOT exceed UINT32_MAX/2!");
     timer->time = iotx_platform_time_get_ms() + millisecond;
 }
 

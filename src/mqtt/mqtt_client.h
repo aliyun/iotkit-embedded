@@ -1,7 +1,7 @@
 
 
-#ifndef _ALIOT_MQTT_CLIENT_H_
-#define _ALIOT_MQTT_CLIENT_H_
+#ifndef _IOTX_MQTT_CLIENT_H_
+#define _IOTX_MQTT_CLIENT_H_
 
 #if defined(__cplusplus)
 extern "C" {
@@ -15,59 +15,59 @@ extern "C" {
 
 
 /* maximum number of successful subscribe */
-#define AMC_SUB_NUM_MAX                     (10)
+#define IOTX_MC_SUB_NUM_MAX                     (10)
 
 /* maximum republish elements in list */
-#define AMC_REPUB_NUM_MAX                   (20)
+#define IOTX_MC_REPUB_NUM_MAX                   (20)
 
 
 typedef enum {
-    ALIOT_MQTT_QOS0 = 0,
-    ALIOT_MQTT_QOS1,
-    ALIOT_MQTT_QOS2
+    IOTX_MQTT_QOS0 = 0,
+    IOTX_MQTT_QOS1,
+    IOTX_MQTT_QOS2
 }iotx_mqtt_qos_t;
 
 
 typedef enum {
 
     /* Undefined event */
-    ALIOT_MQTT_EVENT_UNDEF = 0,
+    IOTX_MQTT_EVENT_UNDEF = 0,
 
     /* MQTT disconnect event */
-    ALIOT_MQTT_EVENT_DISCONNECT = 1,
+    IOTX_MQTT_EVENT_DISCONNECT = 1,
 
     /* MQTT reconnect event */
-    ALIOT_MQTT_EVENT_RECONNECT = 2,
+    IOTX_MQTT_EVENT_RECONNECT = 2,
 
     /* A ACK to the specific subscribe which specify by packet-id be received */
-    ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS = 3,
+    IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS = 3,
 
     /* No ACK to the specific subscribe which specify by packet-id be received in timeout period */
-    ALIOT_MQTT_EVENT_SUBCRIBE_TIMEOUT = 4,
+    IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT = 4,
 
     /* A failed ACK to the specific subscribe which specify by packet-id be received*/
-    ALIOT_MQTT_EVENT_SUBCRIBE_NACK = 5,
+    IOTX_MQTT_EVENT_SUBCRIBE_NACK = 5,
 
     /* A ACK to the specific unsubscribe which specify by packet-id be received */
-    ALIOT_MQTT_EVENT_UNSUBCRIBE_SUCCESS = 6,
+    IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS = 6,
 
     /* No ACK to the specific unsubscribe which specify by packet-id be received in timeout period */
-    ALIOT_MQTT_EVENT_UNSUBCRIBE_TIMEOUT = 7,
+    IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT = 7,
 
     /* A failed ACK to the specific unsubscribe which specify by packet-id be received*/
-    ALIOT_MQTT_EVENT_UNSUBCRIBE_NACK = 8,
+    IOTX_MQTT_EVENT_UNSUBCRIBE_NACK = 8,
 
     /* A ACK to the specific publish which specify by packet-id be received */
-    ALIOT_MQTT_EVENT_PUBLISH_SUCCESS = 9,
+    IOTX_MQTT_EVENT_PUBLISH_SUCCESS = 9,
 
     /* No ACK to the specific publish which specify by packet-id be received in timeout period */
-    ALIOT_MQTT_EVENT_PUBLISH_TIMEOUT = 10,
+    IOTX_MQTT_EVENT_PUBLISH_TIMEOUT = 10,
 
     /* A failed ACK to the specific publish which specify by packet-id be received*/
-    ALIOT_MQTT_EVENT_PUBLISH_NACK = 11,
+    IOTX_MQTT_EVENT_PUBLISH_NACK = 11,
 
     /* MQTT packet published from MQTT remote broker be received */
-    ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED = 12,
+    IOTX_MQTT_EVENT_PUBLISH_RECVEIVED = 12,
 
 } iotx_mqtt_event_type_t;
 
@@ -93,23 +93,23 @@ typedef struct {
     /*
      * Specify the detail event information. @msg means different to different event types:
      *
-     * 1) ALIOT_MQTT_EVENT_UNKNOWN,
-     *    ALIOT_MQTT_EVENT_DISCONNECT,
-     *    ALIOT_MQTT_EVENT_RECONNECT :
+     * 1) IOTX_MQTT_EVENT_UNKNOWN,
+     *    IOTX_MQTT_EVENT_DISCONNECT,
+     *    IOTX_MQTT_EVENT_RECONNECT :
      *      Its data type is string and the value is detail information.
      *
-     * 2) ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS,
-     *    ALIOT_MQTT_EVENT_SUBCRIBE_TIMEOUT,
-     *    ALIOT_MQTT_EVENT_SUBCRIBE_NACK,
-     *    ALIOT_MQTT_EVENT_UNSUBCRIBE_SUCCESS,
-     *    ALIOT_MQTT_EVENT_UNSUBCRIBE_TIMEOUT,
-     *    ALIOT_MQTT_EVENT_UNSUBCRIBE_NACK
-     *    ALIOT_MQTT_EVENT_PUBLISH_SUCCESS,
-     *    ALIOT_MQTT_EVENT_PUBLISH_TIMEOUT,
-     *    ALIOT_MQTT_EVENT_PUBLISH_NACK :
+     * 2) IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS,
+     *    IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT,
+     *    IOTX_MQTT_EVENT_SUBCRIBE_NACK,
+     *    IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS,
+     *    IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT,
+     *    IOTX_MQTT_EVENT_UNSUBCRIBE_NACK
+     *    IOTX_MQTT_EVENT_PUBLISH_SUCCESS,
+     *    IOTX_MQTT_EVENT_PUBLISH_TIMEOUT,
+     *    IOTX_MQTT_EVENT_PUBLISH_NACK :
      *      Its data type is @uint32_t and the value is MQTT packet identifier.
      *
-     * 3) ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
+     * 3) IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
      *      Its data type is @iotx_mqtt_packet_info_t and see detail at the declare of this type.
      *
      * */

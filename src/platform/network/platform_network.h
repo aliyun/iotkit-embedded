@@ -1,7 +1,7 @@
 
 
-#ifndef _ALIOT_PLATFORM_NETWORK_H_
-#define _ALIOT_PLATFORM_NETWORK_H_
+#ifndef _IOTX_PLATFORM_NETWORK_H_
+#define _IOTX_PLATFORM_NETWORK_H_
 
 #include "../platform_datatype.h"
 
@@ -66,4 +66,4 @@ int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uin
 int32_t iotx_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
 
 
-#endif /* _ALIOT_PLATFORM_NETWORK_H_ */
+#endif /* _IOTX_PLATFORM_NETWORK_H_ */

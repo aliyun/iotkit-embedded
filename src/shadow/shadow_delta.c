@@ -8,18 +8,18 @@
 
 static iotx_err_t iotx_shadow_delta_response(iotx_shadow_pt pshadow)
 {
-#define ALIOT_SHADOW_DELTA_RESPONSE_LEN     (256)
+#define IOTX_SHADOW_DELTA_RESPONSE_LEN     (256)
 
     iotx_err_t rc;
     void *buf;
     format_data_t format;
 
-    buf = iotx_platform_malloc(ALIOT_SHADOW_DELTA_RESPONSE_LEN);
+    buf = iotx_platform_malloc(IOTX_SHADOW_DELTA_RESPONSE_LEN);
     if (NULL == buf) {
         return ERROR_NO_MEM;
     }
 
-    iotx_ds_common_format_init(pshadow, &format, buf, ALIOT_SHADOW_DELTA_RESPONSE_LEN, "update", "\"state\":{\"desired\":\"null\"");
+    iotx_ds_common_format_init(pshadow, &format, buf, IOTX_SHADOW_DELTA_RESPONSE_LEN, "update", "\"state\":{\"desired\":\"null\"");
     iotx_ds_common_format_finalize(pshadow, &format, "}");
 
     rc = iotx_ds_common_publish2update(pshadow, format.buf, format.offset);

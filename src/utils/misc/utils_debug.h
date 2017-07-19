@@ -1,10 +1,10 @@
 
-#ifndef _ALIOT_COMMON_DEBUG_H_
-#define _ALIOT_COMMON_DEBUG_H_
+#ifndef _IOTX_COMMON_DEBUG_H_
+#define _IOTX_COMMON_DEBUG_H_
 
 #include "lite/lite-log.h"
 
-#ifdef ALIOT_DEBUG
+#ifdef IOTX_DEBUG
 
 #define DEBUG_PUTS(fmt, args ...) \
     do{ \
@@ -19,7 +19,7 @@
         }\
     }while(0)
 
-#define ALIOT_ASSERT(expr, fmt, args...) \
+#define IOTX_ASSERT(expr, fmt, args...) \
     do{ \
         if (!(expr)) { \
             DEBUG_PUTS("###ASSERT FAILED###, file=%s, line=%d\r\n", __FILE__, __LINE__); \
@@ -33,7 +33,7 @@
 
 
 
-#define ALIOT_TRACE(fmt, args...) \
+#define IOTX_TRACE(fmt, args...) \
     DEBUG_PUTS(fmt, ## args)
 #else
 
@@ -42,4 +42,4 @@
 #endif
 
 
-#endif /* _ALIOT_COMMON_DEBUG_H_ */
+#endif /* _IOTX_COMMON_DEBUG_H_ */

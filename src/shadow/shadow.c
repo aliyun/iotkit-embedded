@@ -103,7 +103,7 @@ static iotx_err_t iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
 
     return iotx_mqtt_subscribe(pshadow->mqtt,
                                  pshadow->inner_data.ptopic_get,
-                                 ALIOT_MQTT_QOS1,
+                                 IOTX_MQTT_QOS1,
                                  (iotx_mqtt_event_handle_func_fpt)iotx_shadow_callback_get,
                                  pshadow);
 }
@@ -159,7 +159,7 @@ iotx_err_t iotx_shadow_update_asyn(
     log_debug("data(%d) = %s", data_len, data);
     ptoken = LITE_json_value_of("clientToken", data);
 
-    ALIOT_ASSERT(NULL != ptoken, "Token should always exist.");
+    IOTX_ASSERT(NULL != ptoken, "Token should always exist.");
 
     pelement = iotx_shadow_update_wait_ack_list_add(pshadow, ptoken, strlen(ptoken), cb_fpt, pcontext, timeout_s);
     if (NULL == pelement) {
@@ -202,7 +202,7 @@ iotx_err_t iotx_shadow_update(
                 uint32_t data_len,
                 uint16_t timeout_s)
 {
-    iotx_shadow_ack_code_t ack_update = ALIOT_SHADOW_ACK_NONE;
+    iotx_shadow_ack_code_t ack_update = IOTX_SHADOW_ACK_NONE;
     iotx_shadow_pt pshadow = (iotx_shadow_pt)handle;
 
     if ((NULL == pshadow) || (NULL == data)) {
@@ -218,16 +218,16 @@ iotx_err_t iotx_shadow_update(
     iotx_shadow_update_asyn(pshadow, data, data_len, timeout_s, iotx_update_ack_cb, &ack_update);
 
     //wait ACK
-    while (ALIOT_SHADOW_ACK_NONE == ack_update) {
+    while (IOTX_SHADOW_ACK_NONE == ack_update) {
         iotx_shadow_yield(pshadow, 200);
     }
 
-    if ((ALIOT_SHADOW_ACK_SUCCESS == ack_update)
-        || (ALIOT_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL == ack_update)) {
+    if ((IOTX_SHADOW_ACK_SUCCESS == ack_update)
+        || (IOTX_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL == ack_update)) {
         //It is not the error that device shadow document is null
         log_info("update success.");
         return SUCCESS_RETURN;
-    } else if (ALIOT_SHADOW_ACK_TIMEOUT == ack_update) {
+    } else if (IOTX_SHADOW_ACK_TIMEOUT == ack_update) {
         log_info("update timeout.");
         return ERROR_SHADOW_UPDATE_TIMEOUT;
     } else {
@@ -281,28 +281,28 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
     switch (msg->event_type)
     {
-    case ALIOT_MQTT_EVENT_SUBCRIBE_SUCCESS:
+    case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
         log_info("subscribe success, packet-id=%u", packet_id);
         if (pshadow->inner_data.sync_status == packet_id) {
             pshadow->inner_data.sync_status = 0;
         }
         break;
 
-    case ALIOT_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+    case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
         log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
         if (pshadow->inner_data.sync_status == packet_id) {
             pshadow->inner_data.sync_status = -1;
         }
         break;
 
-    case ALIOT_MQTT_EVENT_SUBCRIBE_NACK:
+    case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
         log_info("subscribe nack, packet-id=%u", packet_id);
         if (pshadow->inner_data.sync_status == packet_id) {
             pshadow->inner_data.sync_status = -1;
         }
         break;
 
-    case ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
+    case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
         log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                 topic_info->topic_len,
                 topic_info->ptopic,
@@ -454,7 +454,7 @@ iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
     }
 
     iotx_ds_common_format_init(pshadow, &format, buf, SHADOW_DELETE_MSG_SIZE, "delete", ",\"state\":{\"reported\":{");
-    iotx_ds_common_format_add(pshadow, &format, pattr->pattr_name, NULL, ALIOT_SHADOW_NULL);
+    iotx_ds_common_format_add(pshadow, &format, pattr->pattr_name, NULL, IOTX_SHADOW_NULL);
     iotx_ds_common_format_finalize(pshadow, &format, "}}");
 
     ret = iotx_shadow_update(pshadow, format.buf, format.offset, 10);

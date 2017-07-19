@@ -1,6 +1,6 @@
 
-#ifndef _SHADOW_ALIOT_SHADOW_COMMON_H_
-#define _SHADOW_ALIOT_SHADOW_COMMON_H_
+#ifndef _SHADOW_IOTX_SHADOW_COMMON_H_
+#define _SHADOW_IOTX_SHADOW_COMMON_H_
 
 
 #include "iot_import.h"
@@ -12,7 +12,7 @@
 
 typedef struct iotx_update_ack_wait_list_st {
     bool flag_busy; //0, free; 1, busy.
-    char token[ADS_TOKEN_LEN];
+    char token[IOTX_DS_TOKEN_LEN];
     iotx_update_cb_fpt callback;
     void *pcontext;
     iotx_time_t timer;
@@ -23,7 +23,7 @@ typedef struct iotx_inner_data_st {
     uint32_t token_num;
     uint32_t version; 
     iotx_shadow_time_t time;
-    iotx_update_ack_wait_list_t update_ack_wait_list[ADS_UPDATE_WAIT_ACK_LIST_NUM];
+    iotx_update_ack_wait_list_t update_ack_wait_list[IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM];
     list_t *attr_list;
     char *ptopic_update;
     char *ptopic_get;
@@ -87,4 +87,4 @@ uint32_t iotx_ds_common_get_version(iotx_shadow_pt pshadow);
 
 uint32_t iotx_ds_common_get_tokennum(iotx_shadow_pt pshadow);
 
-#endif /* _SHADOW_ALIOT_SHADOW_COMMON_H_ */
+#endif /* _SHADOW_IOTX_SHADOW_COMMON_H_ */

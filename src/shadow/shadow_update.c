@@ -23,7 +23,7 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
 
     iotx_platform_mutex_lock(pshadow->mutex);
 
-    for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
+    for (i = 0; i < IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 == list[i].flag_busy) {
             list[i].flag_busy = 1;
             break;
@@ -32,16 +32,16 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
 
     iotx_platform_mutex_unlock(pshadow->mutex);
 
-    if (i >= ADS_UPDATE_WAIT_ACK_LIST_NUM) {
+    if (i >= IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM) {
         return NULL;
     }
 
     list[i].callback = cb;
     list[i].pcontext = pcontext;
 
-    if (token_len >= ADS_TOKEN_LEN) {
+    if (token_len >= IOTX_DS_TOKEN_LEN) {
         log_warning("token is too long.");
-        token_len = ADS_TOKEN_LEN - 1;
+        token_len = IOTX_DS_TOKEN_LEN - 1;
     }
     memcpy(list[i].token, ptoken, token_len);
     list[i].token[token_len] = '\0';
@@ -72,11 +72,11 @@ void iotx_ds_update_wait_ack_list_handle_expire(iotx_shadow_pt pshadow)
 
     iotx_platform_mutex_lock(pshadow->mutex);
 
-    for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
+    for (i = 0; i < IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
             if (utils_time_is_expired(&pelement[i].timer)) {
                 if (NULL != pelement[i].callback) {
-                    pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_TIMEOUT, NULL, 0);
+                    pelement[i].callback(pelement[i].pcontext, IOTX_SHADOW_ACK_TIMEOUT, NULL, 0);
                 }
                 //free it.
                 memset(&pelement[i], 0, sizeof(iotx_update_ack_wait_list_t));
@@ -116,7 +116,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
     }
 
     iotx_platform_mutex_lock(pshadow->mutex);
-    for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
+    for (i = 0; i < IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
             //check the related
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
@@ -140,7 +140,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
                             LITE_free(temp);
                         }
 
-                        pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
+                        pelement[i].callback(pelement[i].pcontext, IOTX_SHADOW_ACK_SUCCESS, NULL, 0);
                     } else if (0 == strncmp(pdata, "error", strlen(pdata))) {
                         iotx_shadow_ack_code_t ack_code;
 

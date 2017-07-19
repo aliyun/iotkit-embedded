@@ -1,11 +1,11 @@
 
-#ifndef _ALIOT_DUMP_H_
-#define _ALIOT_DUMP_H_
+#ifndef _IOTX_DUMP_H_
+#define _IOTX_DUMP_H_
 
 typedef enum {
-    ALIOT_HEXDUMP_PREFIX_NONE,
-    ALIOT_HEXDUMP_PREFIX_ADDRESS,
-    ALIOT_HEXDUMP_PREFIX_OFFSET
+    IOTX_HEXDUMP_PREFIX_NONE,
+    IOTX_HEXDUMP_PREFIX_ADDRESS,
+    IOTX_HEXDUMP_PREFIX_OFFSET
 } utils_hexdump_prefix_type_t;
 
 
@@ -16,4 +16,4 @@ void utils_hexdump(utils_hexdump_prefix_type_t prefix_type,
                                size_t len,
                                int ascii);
 
-#endif /* ALIOT_DUMP_H_ */
+#endif /* IOTX_DUMP_H_ */

@@ -1,7 +1,7 @@
 
 
-#ifndef _ALIOT_COMMON_ERROR_H_
-#define _ALIOT_COMMON_ERROR_H_
+#ifndef _IOTX_COMMON_ERROR_H_
+#define _IOTX_COMMON_ERROR_H_
 
 typedef enum IOT_RETURN_CODES {
     ERROR_DEVICE_NOT_EXSIT = -311,
@@ -85,31 +85,31 @@ typedef enum IOT_RETURN_CODES {
 } iotx_err_t;
 
 
-//#define ALI_IOT_TRACE
+// #define IOTX_TRACE
 /**
  * @brief Debug level trace logging macro.
  *
  * Macro to print message function entry and exit
  */
-#ifdef ALI_IOT_TRACE
-#define ALIOT_FUNC_ENTRY    \
+#ifdef IOTX_TRACE
+#define IOTX_FUNC_ENTRY    \
     {\
         printf("FUNC_ENTRY:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
     }
-#define ALIOT_FUNC_EXIT    \
+#define IOTX_FUNC_EXIT    \
     {\
         printf("FUNC_EXIT:   %s L#%d \n", __PRETTY_FUNCTION__, __LINE__);  \
     }
-#define ALIOT_FUNC_EXIT_RC(x)    \
+#define IOTX_FUNC_EXIT_RC(x)    \
     {\
         printf("FUNC_EXIT:   %s L#%d Return Code : %d \n", __PRETTY_FUNCTION__, __LINE__, x);  \
         return x; \
     }
 #else
 
-#define ALIOT_FUNC_ENTRY
-#define ALIOT_FUNC_EXIT
-#define ALIOT_FUNC_EXIT_RC(x) { return x; }
+#define IOTX_FUNC_ENTRY
+#define IOTX_FUNC_EXIT
+#define IOTX_FUNC_EXIT_RC(x) { return x; }
 #endif
 
 #endif
