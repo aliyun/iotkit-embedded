@@ -43,7 +43,7 @@ static uint64_t time_left(uint64_t t_end, uint64_t t_now)
 }
 
 
-uintptr_t iotx_platform_tcp_establish(const char *host, uint16_t port)
+uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     WSADATA wsaData;
     struct addrinfo hints;
@@ -104,7 +104,7 @@ uintptr_t iotx_platform_tcp_establish(const char *host, uint16_t port)
 }
 
 
-int32_t iotx_platform_tcp_destroy(uintptr_t fd)
+int32_t HAL_TCP_Destroy(uintptr_t fd)
 {
     int rc;
 
@@ -131,7 +131,7 @@ int32_t iotx_platform_tcp_destroy(uintptr_t fd)
 }
 
 
-int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_sent;
@@ -198,7 +198,7 @@ int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uin
 }
 
 
-int32_t iotx_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_recv;

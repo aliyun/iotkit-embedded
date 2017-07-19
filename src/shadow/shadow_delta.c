@@ -14,7 +14,7 @@ static iotx_err_t iotx_shadow_delta_response(iotx_shadow_pt pshadow)
     void *buf;
     format_data_t format;
 
-    buf = iotx_platform_malloc(IOTX_SHADOW_DELTA_RESPONSE_LEN);
+    buf = HAL_Malloc(IOTX_SHADOW_DELTA_RESPONSE_LEN);
     if (NULL == buf) {
         return ERROR_NO_MEM;
     }
@@ -25,7 +25,7 @@ static iotx_err_t iotx_shadow_delta_response(iotx_shadow_pt pshadow)
 
     rc = iotx_ds_common_publish2update(pshadow, format.buf, format.offset);
 
-    iotx_platform_free(buf);
+    HAL_Free(buf);
 
     return (rc >= 0) ? SUCCESS_RETURN : rc;
 }
@@ -77,10 +77,10 @@ static void iotx_shadow_delta_update_attr(iotx_shadow_pt pshadow,
     //Iterate the list and check JSON document according to list_node.val.pattr_name
     //If the attribute be found, call the function registered by calling iotx_shadow_delta_register_attr()
 
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     iter = list_iterator_new(pshadow->inner_data.attr_list, LIST_TAIL);
     if (NULL == iter) {
-        iotx_platform_mutex_unlock(pshadow->mutex);
+        HAL_MutexUnlock(pshadow->mutex);
         log_warning("Allocate memory failed");
         return ;
     }
@@ -103,16 +103,16 @@ static void iotx_shadow_delta_update_attr(iotx_shadow_pt pshadow,
             }
 
             if (NULL != pattr->callback) {
-                iotx_platform_mutex_unlock(pshadow->mutex);
+                HAL_MutexUnlock(pshadow->mutex);
                 //call related callback function
                 pattr->callback(pattr);
-                iotx_platform_mutex_lock(pshadow->mutex);
+                HAL_MutexLock(pshadow->mutex);
             }
         }
     }
 
     list_iterator_destroy(iter);
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 }
 
 //handle response ACK of UPDATE

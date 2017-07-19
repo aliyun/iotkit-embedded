@@ -11,7 +11,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/debug.h"
 
-#include "platform_ssl.h"
+#include "iot_import.h"
 
 typedef struct _TLSDataParams {
     mbedtls_ssl_context ssl;          /**< mbed TLS control context. */
@@ -36,7 +36,7 @@ unsigned int mqtt_avRandom()
     return (((unsigned int)rand() << 16) + rand());
 }
 
-static int mqtt_ssl_random(void *p_rng, unsigned char *output, size_t output_len)
+static int _mqtt_ssl_random(void *p_rng, unsigned char *output, size_t output_len)
 {
     uint32_t rnglen = output_len;
     uint8_t   rngoffset = 0;
@@ -49,7 +49,7 @@ static int mqtt_ssl_random(void *p_rng, unsigned char *output, size_t output_len
     return 0;
 }
 
-static void mqtt_ssl_debug(void *ctx, int level, const char *file, int line, const char *str)
+static void _mqtt_ssl_debug(void *ctx, int level, const char *file, int line, const char *str)
 {
     ((void) level);
     if (NULL != ctx) {
@@ -82,7 +82,7 @@ int mqtt_real_confirm(int verify_result)
     return 0;
 }
 
-static int ssl_parse_crt(mbedtls_x509_crt *crt)
+static int _ssl_parse_crt(mbedtls_x509_crt *crt)
 {
     char buf[1024];
     mbedtls_x509_crt *local_crt = crt;
@@ -145,7 +145,7 @@ int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
             return ret;
         }
     }
-    ssl_parse_crt(crt509_ca);
+    _ssl_parse_crt(crt509_ca);
     SSL_LOG(" ok (%d skipped)", ret);
 
 
@@ -342,9 +342,9 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
         return ret;
     }
 #endif
-    mbedtls_ssl_conf_rng(&(pTlsData->conf), mqtt_ssl_random, NULL);
-    mbedtls_ssl_conf_dbg(&(pTlsData->conf), mqtt_ssl_debug, NULL);
-    //mbedtls_ssl_conf_dbg( &(pTlsData->conf), mqtt_ssl_debug, stdout );
+    mbedtls_ssl_conf_rng(&(pTlsData->conf), _mqtt_ssl_random, NULL);
+    mbedtls_ssl_conf_dbg(&(pTlsData->conf), _mqtt_ssl_debug, NULL);
+    //mbedtls_ssl_conf_dbg( &(pTlsData->conf), _mqtt_ssl_debug, stdout );
 
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
         SSL_LOG("failed! mbedtls_ssl_setup returned %d", ret);
@@ -385,17 +385,17 @@ int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const
     return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
 
-int iotx_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms)
+int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
     return utils_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
 }
 
-int iotx_platform_ssl_write(uintptr_t handle, const char *buf, int len, int timeout_ms)
+int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 {
     return utils_network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
 }
 
-int32_t iotx_platform_ssl_destroy(uintptr_t handle)
+int32_t HAL_SSL_Destroy(uintptr_t handle)
 {
     if (NULL == handle) {
         SSL_LOG("handle is NULL");
@@ -407,7 +407,7 @@ int32_t iotx_platform_ssl_destroy(uintptr_t handle)
     return 0;
 }
 
-uintptr_t iotx_platform_ssl_establish(const char *host,
+uintptr_t HAL_SSL_Establish(const char *host,
                                       uint16_t port,
                                       const char *ca_crt,
                                       size_t ca_crt_len)

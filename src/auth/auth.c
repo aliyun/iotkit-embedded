@@ -62,7 +62,7 @@ static int iotx_get_id_token(
                     client_id, product_key, device_name, timestamp);
     }
 
-    if (NULL == (buf = iotx_platform_malloc(length))) {
+    if (NULL == (buf = HAL_Malloc(length))) {
         goto do_exit;
     }
 
@@ -88,7 +88,7 @@ static int iotx_get_id_token(
 
     memset(&httpclient_data, 0, sizeof(httpclient_data_t));
 
-    post_buf = (char *) iotx_platform_malloc(HTTP_POST_MAX_LEN);
+    post_buf = (char *) HAL_Malloc(HTTP_POST_MAX_LEN);
     if (NULL == post_buf) {
         log_err("malloc http post buf failed!");
         return ERROR_MALLOC;
@@ -116,7 +116,7 @@ static int iotx_get_id_token(
 
     ret = strlen(post_buf);
 
-    response_buf = (char *)iotx_platform_malloc(HTTP_RESP_MAX_LEN);
+    response_buf = (char *)HAL_Malloc(HTTP_RESP_MAX_LEN);
     if (NULL == response_buf) {
         log_err("malloc http response buf failed!");
         return ERROR_MALLOC;
@@ -212,15 +212,15 @@ static int iotx_get_id_token(
 
 do_exit:
     if (NULL != buf) {
-        iotx_platform_free(buf);
+        HAL_Free(buf);
     }
 
     if (NULL != post_buf) {
-        iotx_platform_free(post_buf);
+        HAL_Free(post_buf);
     }
 
     if (NULL != response_buf) {
-        iotx_platform_free(response_buf);
+        HAL_Free(response_buf);
     }
 
     return ret;
@@ -253,7 +253,7 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
     char pid[16];
 
     memset(pid, 0, sizeof(pid));
-    iotx_platform_module_get_pid(pid);
+    HAL_GetPartnerID(pid);
 
 #ifdef DIRECT_MQTT
 #define DIRECT_MQTT_DOMAIN  "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -357,7 +357,7 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
 #endif
     if (NULL == puser_info->pubKey) {
         //Append string "nonesecure" if TCP connection be used.
-        if (NULL == iotx_platform_module_get_pid(pid)) {
+        if (NULL == HAL_GetPartnerID(pid)) {
             ret = snprintf(puser_info->client_id,
                            CLIENT_ID_LEN,
                            "%s|securemode=0|",
@@ -371,7 +371,7 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
                            pid);
         }
     } else {
-        if (NULL == iotx_platform_module_get_pid(pid)) {
+        if (NULL == HAL_GetPartnerID(pid)) {
             ret = snprintf(puser_info->client_id,
                            CLIENT_ID_LEN,
                            "%s",

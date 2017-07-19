@@ -249,7 +249,7 @@ iotx_err_t iotx_shadow_sync(void *handle)
 
     log_info("Device Shadow sync start.");
 
-    buf = iotx_platform_malloc(SHADOW_SYNC_MSG_SIZE);
+    buf = HAL_Malloc(SHADOW_SYNC_MSG_SIZE);
     if (NULL == buf) {
         log_err("Device Shadow sync failed");
         return ERROR_NO_MEM;
@@ -265,8 +265,8 @@ iotx_err_t iotx_shadow_sync(void *handle)
         log_info("Device Shadow sync failed.");
     }
 
-    iotx_platform_free(buf);
-    iotx_platform_msleep(1000);
+    HAL_Free(buf);
+    HAL_SleepMs(1000);
 
     return ret;
 
@@ -322,13 +322,13 @@ void *iotx_shadow_construct(iotx_shadow_para_pt pparams)
     iotx_shadow_pt pshadow = NULL;
 
     //initialize shadow
-    if (NULL == (pshadow = iotx_platform_malloc(sizeof(iotx_shadow_t)))) {
+    if (NULL == (pshadow = HAL_Malloc(sizeof(iotx_shadow_t)))) {
         log_err("Not enough memory");
         return NULL;
     }
     memset(pshadow, 0x0, sizeof(iotx_shadow_t));
 
-    if (NULL == (pshadow->mutex = iotx_platform_mutex_create())) {
+    if (NULL == (pshadow->mutex = HAL_MutexCreate())) {
         log_err("create mutex failed");
         goto do_exit;
     }
@@ -393,16 +393,16 @@ iotx_err_t iotx_shadow_deconstruct(void *handle)
             iotx_mqtt_unsubscribe(pshadow->mqtt, pshadow->inner_data.ptopic_get);
         }
 
-        iotx_platform_msleep(2000);
+        HAL_SleepMs(2000);
         iotx_mqtt_deconstruct(pshadow->mqtt);
     }
 
     if (NULL != pshadow->inner_data.ptopic_get) {
-        iotx_platform_free(pshadow->inner_data.ptopic_get);
+        HAL_Free(pshadow->inner_data.ptopic_get);
     }
 
     if (NULL != pshadow->inner_data.ptopic_update) {
-        iotx_platform_free(pshadow->inner_data.ptopic_update);
+        HAL_Free(pshadow->inner_data.ptopic_update);
     }
 
     if (NULL != pshadow->inner_data.attr_list) {
@@ -410,10 +410,10 @@ iotx_err_t iotx_shadow_deconstruct(void *handle)
     }
 
     if (NULL != pshadow->mutex) {
-        iotx_platform_mutex_destroy(pshadow->mutex);
+        HAL_MutexDestroy(pshadow->mutex);
     }
 
-    iotx_platform_free(handle);
+    HAL_Free(handle);
 
     return SUCCESS_RETURN;
 }
@@ -448,7 +448,7 @@ iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
         return ERROR_SHADOW_ATTR_NO_EXIST;
     }
 
-    buf = iotx_platform_malloc(SHADOW_DELETE_MSG_SIZE);
+    buf = HAL_Malloc(SHADOW_DELETE_MSG_SIZE);
     if (NULL == buf) {
         return ERROR_NO_MEM;
     }
@@ -459,11 +459,11 @@ iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
 
     ret = iotx_shadow_update(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN != ret) {
-        iotx_platform_free(buf);
+        HAL_Free(buf);
         return ret;
     }
 
-    iotx_platform_free(buf);
+    HAL_Free(buf);
 
     return iotx_ds_common_remove_attr(pshadow, pattr);
 

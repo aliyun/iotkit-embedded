@@ -148,7 +148,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
         iotx_shadow_update(h_shadow, format.buf, format.offset, 10);
 
         /* Sleep 1000 ms */
-        iotx_platform_msleep(1000);
+        HAL_SleepMs(1000);
     } while (0);
 
 
@@ -167,13 +167,13 @@ int main()
     LITE_openlog("shadow");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
-    char *msg_buf = (char *)iotx_platform_malloc(MSG_LEN_MAX);
-    char *msg_readbuf = (char *)iotx_platform_malloc(MSG_LEN_MAX);
+    char *msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX);
+    char *msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX);
 
     demo_device_shadow(msg_buf, msg_readbuf);
 
-    iotx_platform_free(msg_buf);
-    iotx_platform_free(msg_readbuf);
+    HAL_Free(msg_buf);
+    HAL_Free(msg_readbuf);
 
     log_debug("out of demo!");
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);

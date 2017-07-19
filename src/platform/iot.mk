@@ -14,5 +14,6 @@ DEPENDS     += src/external/recipes/mbedtls
 else
 endif
 endif
-
 DEPENDS     += src/log
+
+HDR_REFS    += src/sdk-impl

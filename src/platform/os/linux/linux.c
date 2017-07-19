@@ -8,15 +8,9 @@
 #include <sys/prctl.h>
 #include <sys/time.h>
 
-#include "platform_os.h"
+#include "iot_import.h"
 
-#define PLATFORM_LINUX_LOG(format, ...) \
-    do { \
-        printf("Linux:%s:%d %s()| "format"\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__);\
-        fflush(stdout);\
-    }while(0);
-
-void *iotx_platform_mutex_create(void)
+void *HAL_MutexCreate(void)
 {
     int err_num;
     pthread_mutex_t *mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
@@ -33,7 +27,7 @@ void *iotx_platform_mutex_create(void)
     return mutex;
 }
 
-void iotx_platform_mutex_destroy(_IN_ void *mutex)
+void HAL_MutexDestroy(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
@@ -43,7 +37,7 @@ void iotx_platform_mutex_destroy(_IN_ void *mutex)
     free(mutex);
 }
 
-void iotx_platform_mutex_lock(_IN_ void *mutex)
+void HAL_MutexLock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
@@ -51,7 +45,7 @@ void iotx_platform_mutex_lock(_IN_ void *mutex)
     }
 }
 
-void iotx_platform_mutex_unlock(_IN_ void *mutex)
+void HAL_MutexUnlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
@@ -59,35 +53,35 @@ void iotx_platform_mutex_unlock(_IN_ void *mutex)
     }
 }
 
-void *iotx_platform_malloc(_IN_ uint32_t size)
+void *HAL_Malloc(_IN_ uint32_t size)
 {
     return malloc(size);
 }
 
-void iotx_platform_free(_IN_ void *ptr)
+void HAL_Free(_IN_ void *ptr)
 {
     return free(ptr);
 }
 
-int iotx_platform_ota_start(const char *md5, uint32_t file_size)
+int HAL_OTA_Start(const char *md5, uint32_t file_size)
 {
     printf("this interface is NOT support yet.");
     return -1;
 }
 
-int iotx_platform_ota_write(_IN_ char *buffer, _IN_ uint32_t length)
+int HAL_OTA_Write(_IN_ char *buffer, _IN_ uint32_t length)
 {
     printf("this interface is NOT support yet.");
     return -1;
 }
 
-int iotx_platform_ota_finalize(_IN_ int stat)
+int HAL_OTA_Finalize(_IN_ int stat)
 {
     printf("this interface is NOT support yet.");
     return -1;
 }
 
-uint32_t iotx_platform_time_get_ms(void)
+uint32_t HAL_UptimeMs(void)
 {
     struct timeval tv = { 0 };
     uint32_t time_ms;
@@ -99,12 +93,12 @@ uint32_t iotx_platform_time_get_ms(void)
     return time_ms;
 }
 
-void iotx_platform_msleep(_IN_ uint32_t ms)
+void HAL_SleepMs(_IN_ uint32_t ms)
 {
     usleep(1000 * ms);
 }
 
-void iotx_platform_printf(_IN_ const char *fmt, ...)
+void HAL_Printf(_IN_ const char *fmt, ...)
 {
     va_list args;
 
@@ -115,7 +109,7 @@ void iotx_platform_printf(_IN_ const char *fmt, ...)
     fflush(stdout);
 }
 
-char *iotx_platform_module_get_pid(char pid_str[])
+char *HAL_GetPartnerID(char pid_str[])
 {
     return NULL;
 }

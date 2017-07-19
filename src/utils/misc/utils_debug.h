@@ -8,14 +8,14 @@
 
 #define DEBUG_PUTS(fmt, args ...) \
     do{ \
-        iotx_platform_printf(fmt, ## args); \
+        HAL_Printf(fmt, ## args); \
     }while(0)
 
 #define ASSERT_FAILED_DO() \
     do{ \
         while(1){\
-            iotx_platform_msleep(1000); \
-            iotx_platform_printf("assert failed\r\n"); \
+            HAL_SleepMs(1000); \
+            HAL_Printf("assert failed\r\n"); \
         }\
     }while(0)
 
@@ -25,7 +25,7 @@
             DEBUG_PUTS("###ASSERT FAILED###, file=%s, line=%d\r\n", __FILE__, __LINE__); \
             if (NULL != fmt) { \
                 DEBUG_PUTS(fmt, ## args); \
-                iotx_platform_printf("\r\n"); \
+                HAL_Printf("\r\n"); \
             } \
             ASSERT_FAILED_DO(); \
         } \

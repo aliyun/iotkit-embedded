@@ -12,7 +12,7 @@
 #define DUMP_PREFIX_ADDRESS IOTX_HEXDUMP_PREFIX_ADDRESS
 #define DUMP_PREFIX_OFFSET  IOTX_HEXDUMP_PREFIX_OFFSET
 
-#define DUMP_PRINT iotx_platform_printf
+#define DUMP_PRINT HAL_Printf
 
 
 const char hex_asc[] = "0123456789abcdef";

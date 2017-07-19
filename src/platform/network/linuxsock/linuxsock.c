@@ -10,7 +10,7 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 
-#include "platform_network.h"
+#include "iot_import.h"
 
 #define PLATFORM_LINUXSOCK_LOG(format, ...) \
     do { \
@@ -19,7 +19,7 @@
     }while(0);
 
 
-static uint64_t linux_get_time_ms(void)
+static uint64_t _linux_get_time_ms(void)
 {
     struct timeval tv = { 0 };
     uint64_t time_ms;
@@ -31,7 +31,7 @@ static uint64_t linux_get_time_ms(void)
     return time_ms;
 }
 
-static uint64_t linux_time_left(uint64_t t_end, uint64_t t_now)
+static uint64_t _linux_time_left(uint64_t t_end, uint64_t t_now)
 {
     uint64_t t_left;
 
@@ -44,7 +44,7 @@ static uint64_t linux_time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-uintptr_t iotx_platform_tcp_establish(const char *host, uint16_t port)
+uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -102,7 +102,7 @@ uintptr_t iotx_platform_tcp_establish(const char *host, uint16_t port)
 }
 
 
-int iotx_platform_tcp_destroy(uintptr_t fd)
+int HAL_TCP_Destroy(uintptr_t fd)
 {
     int rc;
 
@@ -123,20 +123,20 @@ int iotx_platform_tcp_destroy(uintptr_t fd)
 }
 
 
-int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_sent;
     uint64_t t_end, t_left;
     fd_set sets;
 
-    t_end = linux_get_time_ms() + timeout_ms;
+    t_end = _linux_get_time_ms() + timeout_ms;
     len_sent = 0;
     err_code = 0;
     ret = 1; //send one time if timeout_ms is value 0
 
     do {
-        t_left = linux_time_left(t_end, linux_get_time_ms());
+        t_left = _linux_time_left(t_end, _linux_get_time_ms());
 
         if (0 != t_left) {
             struct timeval timeout;
@@ -187,13 +187,13 @@ int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uin
                 break;
             }
         }
-    } while ((len_sent < len) && (linux_time_left(t_end, linux_get_time_ms()) > 0));
+    } while ((len_sent < len) && (_linux_time_left(t_end, _linux_get_time_ms()) > 0));
 
     return len_sent;
 }
 
 
-int32_t iotx_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_recv;
@@ -201,12 +201,12 @@ int32_t iotx_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t t
     fd_set sets;
     struct timeval timeout;
 
-    t_end = linux_get_time_ms() + timeout_ms;
+    t_end = _linux_get_time_ms() + timeout_ms;
     len_recv = 0;
     err_code = 0;
 
     do {
-        t_left = linux_time_left(t_end, linux_get_time_ms());
+        t_left = _linux_time_left(t_end, _linux_get_time_ms());
         if (0 == t_left) {
             break;
         }
