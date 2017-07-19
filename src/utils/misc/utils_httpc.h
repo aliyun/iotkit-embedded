@@ -19,7 +19,7 @@
 #ifndef _ALIOT_COMMON_HTTPCLIENT_H_
 #define _ALIOT_COMMON_HTTPCLIENT_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_error.h"
 #include "utils_net.h"
 
@@ -132,7 +132,7 @@ typedef struct {
  *                   printf("Data received: %s\r\n", client_data.response_buf);
  * @endcode
  */
-aliot_err_t aliot_post(
+iotx_err_t iotx_post(
             httpclient_t *client,
             const char *url,
             int port,

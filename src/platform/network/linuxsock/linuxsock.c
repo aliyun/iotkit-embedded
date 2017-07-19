@@ -10,7 +10,7 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 
-#include "aliot_platform_network.h"
+#include "platform_network.h"
 
 #define PLATFORM_LINUXSOCK_LOG(format, ...) \
     do { \
@@ -44,7 +44,7 @@ static uint64_t linux_time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
+uintptr_t iotx_platform_tcp_establish(const char *host, uint16_t port)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -102,7 +102,7 @@ uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port)
 }
 
 
-int aliot_platform_tcp_destroy(uintptr_t fd)
+int iotx_platform_tcp_destroy(uintptr_t fd)
 {
     int rc;
 
@@ -123,7 +123,7 @@ int aliot_platform_tcp_destroy(uintptr_t fd)
 }
 
 
-int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_sent;
@@ -193,7 +193,7 @@ int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, ui
 }
 
 
-int32_t aliot_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t iotx_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_recv;

@@ -3,7 +3,7 @@
 #ifndef _ALIOT_PLATFORM_NETWORK_H_
 #define _ALIOT_PLATFORM_NETWORK_H_
 
-#include "../aliot_platform_datatype.h"
+#include "../platform_datatype.h"
 
 
 /**
@@ -14,7 +14,7 @@
  *
  * @return 0, fail; > 0, success, the value is handle of this TCP connection.
  */
-uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port);
+uintptr_t iotx_platform_tcp_establish(const char *host, uint16_t port);
 
 
 /**
@@ -24,7 +24,7 @@ uintptr_t aliot_platform_tcp_establish(const char *host, uint16_t port);
  *
  * @return < 0, fail; 0, success.
  */
-int32_t aliot_platform_tcp_destroy(uintptr_t fd);
+int32_t iotx_platform_tcp_destroy(uintptr_t fd);
 
 
 /**
@@ -43,7 +43,7 @@ int32_t aliot_platform_tcp_destroy(uintptr_t fd);
    @endverbatim
  * @see None.
  */
-int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t iotx_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
 
 
 /**
@@ -63,7 +63,7 @@ int32_t aliot_platform_tcp_write(uintptr_t fd, const char *buf, uint32_t len, ui
    @endverbatim
  * @see None.
  */
-int32_t aliot_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t iotx_platform_tcp_read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
 
 
 #endif /* _ALIOT_PLATFORM_NETWORK_H_ */

@@ -11,7 +11,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 
 /* maximum number of successful subscribe */
@@ -25,7 +25,7 @@ typedef enum {
     ALIOT_MQTT_QOS0 = 0,
     ALIOT_MQTT_QOS1,
     ALIOT_MQTT_QOS2
-}aliot_mqtt_qos_t;
+}iotx_mqtt_qos_t;
 
 
 typedef enum {
@@ -69,7 +69,7 @@ typedef enum {
     /* MQTT packet published from MQTT remote broker be received */
     ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED = 12,
 
-} aliot_mqtt_event_type_t;
+} iotx_mqtt_event_type_t;
 
 
 /* topic information */
@@ -82,13 +82,13 @@ typedef struct {
     uint16_t payload_len;
     const char *ptopic;
     const char *payload;
-} aliot_mqtt_topic_info_t, *aliot_mqtt_topic_info_pt;
+} iotx_mqtt_topic_info_t, *iotx_mqtt_topic_info_pt;
 
 
 typedef struct {
 
     /* Specify the event type */
-    aliot_mqtt_event_type_t event_type;
+    iotx_mqtt_event_type_t event_type;
 
     /*
      * Specify the detail event information. @msg means different to different event types:
@@ -110,11 +110,11 @@ typedef struct {
      *      Its data type is @uint32_t and the value is MQTT packet identifier.
      *
      * 3) ALIOT_MQTT_EVENT_PUBLISH_RECVEIVED:
-     *      Its data type is @aliot_mqtt_packet_info_t and see detail at the declare of this type.
+     *      Its data type is @iotx_mqtt_packet_info_t and see detail at the declare of this type.
      *
      * */
     void *msg;
-}aliot_mqtt_event_msg_t, *aliot_mqtt_event_msg_pt;
+}iotx_mqtt_event_msg_t, *iotx_mqtt_event_msg_pt;
 
 
 /**
@@ -127,14 +127,14 @@ typedef struct {
  *
  * @return none
  */
-typedef void (*aliot_mqtt_event_handle_func_fpt)(void *pcontext, void *pclient, aliot_mqtt_event_msg_pt msg);
+typedef void (*iotx_mqtt_event_handle_func_fpt)(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
 
 
 /* The structure of MQTT event handle */
 typedef struct {
-    aliot_mqtt_event_handle_func_fpt h_fp;
+    iotx_mqtt_event_handle_func_fpt h_fp;
     void *pcontext; //context pointer for handle
-} aliot_mqtt_event_handle_t, *aliot_mqtt_event_handle_pt;
+} iotx_mqtt_event_handle_t, *iotx_mqtt_event_handle_pt;
 
 
 /* The structure of MQTT initial parameter */
@@ -161,9 +161,9 @@ typedef struct {
     char                       *pread_buf;                /* Specify read-buffer */
     uint32_t                    read_buf_size;            /* Specify size of read-buffer in byte */
 
-    aliot_mqtt_event_handle_t   handle_event;             /* Specify MQTT event handle */
+    iotx_mqtt_event_handle_t   handle_event;             /* Specify MQTT event handle */
 
-} aliot_mqtt_param_t, *aliot_mqtt_param_pt;
+} iotx_mqtt_param_t, *iotx_mqtt_param_pt;
 
 
 /**
@@ -174,7 +174,7 @@ typedef struct {
  *
  * @return NULL, construct failed; NOT NULL, the handle of MQTT client.
  */
-void *aliot_mqtt_construct(aliot_mqtt_param_t *pInitParams);
+void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams);
 
 
 /**
@@ -185,7 +185,7 @@ void *aliot_mqtt_construct(aliot_mqtt_param_t *pInitParams);
  *
  * @return 0, deconstruct success; -1, deconstruct failed.
  */
-int aliot_mqtt_deconstruct(void *handle);
+int iotx_mqtt_deconstruct(void *handle);
 
 
 /**
@@ -197,7 +197,7 @@ int aliot_mqtt_deconstruct(void *handle);
  *
  * @return none.
  */
-void aliot_mqtt_yield(void *handle, int timeout_ms);
+void iotx_mqtt_yield(void *handle, int timeout_ms);
 
 
 /**
@@ -207,7 +207,7 @@ void aliot_mqtt_yield(void *handle, int timeout_ms);
  *
  * @return true, MQTT in normal state; false, MQTT in abnormal state.
  */
-bool aliot_mqtt_check_state_normal(void *handle);
+bool iotx_mqtt_check_state_normal(void *handle);
 
 
 /**
@@ -224,13 +224,13 @@ bool aliot_mqtt_check_state_normal(void *handle);
       -1, subscribe failed.
      >=0, subscribe successful.
           The value is a unique ID of this request.
-          The ID will be passed back when callback @aliot_mqtt_param_t:handle_event.
+          The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
    @endverbatim
  */
-int32_t aliot_mqtt_subscribe(void *handle,
+int32_t iotx_mqtt_subscribe(void *handle,
                 const char *topic_filter,
-                aliot_mqtt_qos_t qos,
-                aliot_mqtt_event_handle_func_fpt topic_handle_func,
+                iotx_mqtt_qos_t qos,
+                iotx_mqtt_event_handle_func_fpt topic_handle_func,
                 void *pcontext);
 
 
@@ -245,10 +245,10 @@ int32_t aliot_mqtt_subscribe(void *handle,
       -1, unsubscribe failed.
      >=0, unsubscribe successful.
           The value is a unique ID of this request.
-          The ID will be passed back when callback @aliot_mqtt_param_t:handle_event.
+          The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
    @endverbatim
  */
-int32_t aliot_mqtt_unsubscribe(void *handle, const char *topic_filter);
+int32_t iotx_mqtt_unsubscribe(void *handle, const char *topic_filter);
 
 
 /**
@@ -264,11 +264,11 @@ int32_t aliot_mqtt_unsubscribe(void *handle, const char *topic_filter);
      0, publish successful, where QoS is 0.
     >0, publish successful, where QoS is >= 0.
         The value is a unique ID of this request.
-        The ID will be passed back when callback @aliot_mqtt_param_t:handle_event.
+        The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
  * @endverbatim
  *
  */
-int32_t aliot_mqtt_publish(void *handle, const char *topic_name, aliot_mqtt_topic_info_pt topic_msg);
+int32_t iotx_mqtt_publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
 
 
 

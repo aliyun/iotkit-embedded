@@ -1,5 +1,5 @@
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_list.h"
 
 
@@ -9,7 +9,7 @@
 list_t *list_new()
 {
     list_t *self;
-    if (!(self = aliot_platform_malloc(sizeof(list_t)))) {
+    if (!(self = iotx_platform_malloc(sizeof(list_t)))) {
         return NULL;
     }
     self->head = NULL;
@@ -34,11 +34,11 @@ void list_destroy(list_t *self)
         if (self->free) {
             self->free(curr->val);
         }
-        aliot_platform_free(curr);
+        iotx_platform_free(curr);
         curr = next;
     }
 
-    aliot_platform_free(self);
+    iotx_platform_free(self);
 }
 
 /*
@@ -207,7 +207,7 @@ void list_remove(list_t *self, list_node_t *node)
         self->free(node->val);
     }
 
-    aliot_platform_free(node);
+    iotx_platform_free(node);
     --self->len;
 }
 
@@ -228,7 +228,7 @@ list_iterator_t *list_iterator_new(list_t *list, list_direction_t direction)
 list_iterator_t *list_iterator_new_from_node(list_node_t *node, list_direction_t direction)
 {
     list_iterator_t *self;
-    if (!(self = aliot_platform_malloc(sizeof(list_iterator_t)))) {
+    if (!(self = iotx_platform_malloc(sizeof(list_iterator_t)))) {
         return NULL;
     }
     self->next = node;
@@ -254,7 +254,7 @@ list_node_t *list_iterator_next(list_iterator_t *self)
  */
 void list_iterator_destroy(list_iterator_t *self)
 {
-    aliot_platform_free(self);
+    iotx_platform_free(self);
     self = NULL;
 }
 
@@ -264,7 +264,7 @@ void list_iterator_destroy(list_iterator_t *self)
 list_node_t *list_node_new(void *val)
 {
     list_node_t *self;
-    if (!(self = aliot_platform_malloc(sizeof(list_node_t)))) {
+    if (!(self = iotx_platform_malloc(sizeof(list_node_t)))) {
         return NULL;
     }
 

@@ -1,27 +1,27 @@
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
-#include "aliot_device.h"
+#include "device.h"
 
-#include "aliot_shadow_update.h"
+#include "shadow_update.h"
 
 
 //add a new wait element
 //return: NULL, failed; others, pointer of element.
-aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
-            aliot_shadow_pt pshadow,
+iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
+            iotx_shadow_pt pshadow,
             const char *ptoken, //NOTE: this is NOT a string.
             size_t token_len,
-            aliot_update_cb_fpt cb,
+            iotx_update_cb_fpt cb,
             void *pcontext,
             uint32_t timeout)
 {
     int i;
-    aliot_update_ack_wait_list_pt list = pshadow->inner_data.update_ack_wait_list;
+    iotx_update_ack_wait_list_pt list = pshadow->inner_data.update_ack_wait_list;
 
-    aliot_platform_mutex_lock(pshadow->mutex);
+    iotx_platform_mutex_lock(pshadow->mutex);
 
     for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 == list[i].flag_busy) {
@@ -30,7 +30,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
         }
     }
 
-    aliot_platform_mutex_unlock(pshadow->mutex);
+    iotx_platform_mutex_unlock(pshadow->mutex);
 
     if (i >= ADS_UPDATE_WAIT_ACK_LIST_NUM) {
         return NULL;
@@ -46,7 +46,7 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
     memcpy(list[i].token, ptoken, token_len);
     list[i].token[token_len] = '\0';
 
-    aliot_time_init(&list[i].timer);
+    iotx_time_init(&list[i].timer);
     utils_time_cutdown(&list[i].timer, timeout);
 
     log_debug("Add update ACK list");
@@ -55,22 +55,22 @@ aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(
 }
 
 
-void aliot_shadow_update_wait_ack_list_remove(aliot_shadow_pt pshadow, aliot_update_ack_wait_list_pt element)
+void iotx_shadow_update_wait_ack_list_remove(iotx_shadow_pt pshadow, iotx_update_ack_wait_list_pt element)
 {
-    aliot_platform_mutex_lock(pshadow->mutex);
+    iotx_platform_mutex_lock(pshadow->mutex);
     element->flag_busy = 0;
-    memset(element, 0, sizeof(aliot_update_ack_wait_list_t));
-    aliot_platform_mutex_unlock(pshadow->mutex);
+    memset(element, 0, sizeof(iotx_update_ack_wait_list_t));
+    iotx_platform_mutex_unlock(pshadow->mutex);
 }
 
 
-void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow)
+void iotx_ds_update_wait_ack_list_handle_expire(iotx_shadow_pt pshadow)
 {
     size_t i;
 
-    aliot_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
+    iotx_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
 
-    aliot_platform_mutex_lock(pshadow->mutex);
+    iotx_platform_mutex_lock(pshadow->mutex);
 
     for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
@@ -79,24 +79,24 @@ void ads_update_wait_ack_list_handle_expire(aliot_shadow_pt pshadow)
                     pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_TIMEOUT, NULL, 0);
                 }
                 //free it.
-                memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));
+                memset(&pelement[i], 0, sizeof(iotx_update_ack_wait_list_t));
             }
         }
     }
 
-    aliot_platform_mutex_unlock(pshadow->mutex);
+    iotx_platform_mutex_unlock(pshadow->mutex);
 }
 
 
 //handle response ACK of UPDATE
-void ads_update_wait_ack_list_handle_response(
-            aliot_shadow_pt pshadow,
+void iotx_ds_update_wait_ack_list_handle_response(
+            iotx_shadow_pt pshadow,
             const char *json_doc,
             size_t json_doc_len)
 {
     int i;
     const char *pdata, *ppayload, *pToken;
-    aliot_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
+    iotx_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
 
     //get token
     pdata = LITE_json_value_of("clientToken", json_doc);
@@ -115,13 +115,13 @@ void ads_update_wait_ack_list_handle_response(
         log_debug("ppayload = %s", ppayload);
     }
 
-    aliot_platform_mutex_lock(pshadow->mutex);
+    iotx_platform_mutex_lock(pshadow->mutex);
     for (i = 0; i < ADS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
             //check the related
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
                 LITE_free(pdata);
-                aliot_platform_mutex_unlock(pshadow->mutex);
+                iotx_platform_mutex_unlock(pshadow->mutex);
                 log_debug("token=%s", pelement[i].token);
                 do {
                     pdata = LITE_json_value_of("status", ppayload);
@@ -136,13 +136,13 @@ void ads_update_wait_ack_list_handle_response(
                         //If have 'state' keyword in @json_shadow.payload, attribute value should be updated.
                         temp = LITE_json_value_of("state", ppayload);
                         if (NULL != temp) {
-                            aliot_shadow_delta_entry(pshadow, json_doc, json_doc_len); //update attribute
+                            iotx_shadow_delta_entry(pshadow, json_doc, json_doc_len); //update attribute
                             LITE_free(temp);
                         }
 
                         pelement[i].callback(pelement[i].pcontext, ALIOT_SHADOW_ACK_SUCCESS, NULL, 0);
                     } else if (0 == strncmp(pdata, "error", strlen(pdata))) {
-                        aliot_shadow_ack_code_t ack_code;
+                        iotx_shadow_ack_code_t ack_code;
 
                         pdata = LITE_json_value_of("content.errorcode", ppayload);
                         if (NULL == pdata) {
@@ -169,9 +169,9 @@ void ads_update_wait_ack_list_handle_response(
                     LITE_free(ppayload);
                 } while (0);
 
-                aliot_platform_mutex_lock(pshadow->mutex);
-                memset(&pelement[i], 0, sizeof(aliot_update_ack_wait_list_t));
-                aliot_platform_mutex_unlock(pshadow->mutex);
+                iotx_platform_mutex_lock(pshadow->mutex);
+                memset(&pelement[i], 0, sizeof(iotx_update_ack_wait_list_t));
+                iotx_platform_mutex_unlock(pshadow->mutex);
                 return;
             }
         }
@@ -179,6 +179,6 @@ void ads_update_wait_ack_list_handle_response(
 
     LITE_free(pToken);
     LITE_free(ppayload);
-    aliot_platform_mutex_unlock(pshadow->mutex);
+    iotx_platform_mutex_unlock(pshadow->mutex);
     log_warning("Not match any wait element in list.");
 }

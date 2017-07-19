@@ -2,7 +2,7 @@
 #ifndef _ALIOT_COMMON_NET_H_
 #define _ALIOT_COMMON_NET_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 
 /**
@@ -40,8 +40,8 @@ struct utils_network {
 
 int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
 int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
-int aliot_net_disconnect(utils_network_pt pNetwork);
-int aliot_net_connect(utils_network_pt pNetwork);
-int aliot_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt);
+int iotx_net_disconnect(utils_network_pt pNetwork);
+int iotx_net_connect(utils_network_pt pNetwork);
+int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt);
 
 #endif /* ALIOT_COMMON_NET_H */
