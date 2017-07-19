@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #include "utils_hexdump.h"
 

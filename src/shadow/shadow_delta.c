@@ -1,10 +1,10 @@
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
 #include "utils_list.h"
-#include "aliot_shadow_delta.h"
+#include "shadow_delta.h"
 
 static aliot_err_t aliot_shadow_delta_response(aliot_shadow_pt pshadow)
 {

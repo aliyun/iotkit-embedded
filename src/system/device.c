@@ -3,7 +3,7 @@
 
 #include "lite/lite-log.h"
 #include "utils_error.h"
-#include "aliot_device.h"
+#include "device.h"
 
 
 static aliot_user_info_t aliot_user_info;

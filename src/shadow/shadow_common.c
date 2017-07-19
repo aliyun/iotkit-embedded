@@ -1,14 +1,14 @@
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "lite/lite-log.h"
 #include "utils_debug.h"
 #include "utils_timer.h"
 #include "utils_list.h"
-#include "aliot_device.h"
-#include "aliot_mqtt_client.h"
+#include "device.h"
+#include "mqtt_client.h"
 
-#include "aliot_shadow.h"
-#include "aliot_shadow_common.h"
+#include "shadow.h"
+#include "shadow_common.h"
 
 //check return code
 #define CHECK_RETURN_CODE(ret_code) \

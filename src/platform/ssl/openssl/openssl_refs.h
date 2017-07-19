@@ -9,7 +9,7 @@
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "aliot_platform_network.h"
+#include "platform_network.h"
 
 
 typedef struct _TLSDataParams {

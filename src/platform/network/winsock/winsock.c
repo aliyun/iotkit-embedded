@@ -6,7 +6,7 @@
 #include <Winbase.h>
 #include <string.h>
 
-#include "aliot_platform_network.h"
+#include "platform_network.h"
 
 #define PLATFORM_WINSOCK_LOG(format, ...) \
     do { \

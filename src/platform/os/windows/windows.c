@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
-#include "aliot_platform_os.h"
+#include "platform_os.h"
 
 
 #define PLATFORM_WINOS_PERROR(log) \

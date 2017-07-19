@@ -3,12 +3,12 @@
 #define _SHADOW_ALIOT_SHADOW_COMMON_H_
 
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_error.h"
 #include "utils_timer.h"
 #include "utils_list.h"
-#include "aliot_shadow.h"
-#include "aliot_shadow_config.h"
+#include "shadow.h"
+#include "shadow_config.h"
 
 typedef struct aliot_update_ack_wait_list_st {
     bool flag_busy; //0, free; 1, busy.

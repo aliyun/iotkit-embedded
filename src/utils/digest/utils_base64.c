@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #include "utils_error.h"
 #include "lite/lite-log.h"

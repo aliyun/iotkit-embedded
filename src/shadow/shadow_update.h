@@ -2,12 +2,12 @@
 #ifndef _ALIOT_SHADOW_UPDATE_H_
 #define _ALIOT_SHADOW_UPDATE_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_error.h"
 
-#include "aliot_shadow.h"
-#include "aliot_shadow_config.h"
-#include "aliot_shadow_common.h"
+#include "shadow.h"
+#include "shadow_config.h"
+#include "shadow_common.h"
 
 
 aliot_update_ack_wait_list_pt aliot_shadow_update_wait_ack_list_add(

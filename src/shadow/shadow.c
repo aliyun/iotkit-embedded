@@ -1,14 +1,14 @@
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #include "utils_list.h"
 #include "utils_debug.h"
 #include "utils_error.h"
-#include "aliot_mqtt_client.h"
+#include "mqtt_client.h"
 #include "lite/lite-utils.h"
-#include "aliot_shadow.h"
-#include "aliot_shadow_common.h"
-#include "aliot_shadow_update.h"
-#include "aliot_shadow_delta.h"
+#include "shadow.h"
+#include "shadow_common.h"
+#include "shadow_update.h"
+#include "shadow_delta.h"
 
 
 //check return code

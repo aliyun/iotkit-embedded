@@ -1,10 +1,10 @@
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
-#include "aliot_mqtt_client.h"
-#include "aliot_auth.h"
-#include "aliot_device.h"
-#include "aliot_shadow.h"
+#include "mqtt_client.h"
+#include "auth.h"
+#include "device.h"
+#include "shadow.h"
 
 
 //The product and device information from IOT console
@@ -40,8 +40,10 @@ static void device_shadow_cb_light(aliot_shadow_attr_pt pattr)
      * ****** Your Code ******
      */
 
-
-    log_debug("attribute name=%s, attribute value=%d\r\n", pattr->pattr_name, *(int32_t *)pattr->pattr_data);
+    log_info("----");
+    log_info("Attrbute Name: '%s'", pattr->pattr_name);
+    log_info("Attrbute Value: %d", *(int32_t *)pattr->pattr_data);
+    log_info("----");
 }
 
 

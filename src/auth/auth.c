@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #include "utils_error.h"
 #include "lite/lite-log.h"
@@ -14,8 +14,8 @@
 #include "utils_hmac.h"
 #include "utils_httpc.h"
 
-#include "aliot_ca.h"
-#include "aliot_auth.h"
+#include "ca.h"
+#include "auth.h"
 
 #define _ONLINE
 

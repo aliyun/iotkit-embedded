@@ -2,9 +2,9 @@
 #ifndef _ALIOT_SHADOW_H_
 #define _ALIOT_SHADOW_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_error.h"
-#include "aliot_mqtt_client.h"
+#include "mqtt_client.h"
 
 
 //ads is an abbreviation for aliot device shadow.

@@ -11,7 +11,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/debug.h"
 
-#include "aliot_platform_ssl.h"
+#include "platform_ssl.h"
 
 typedef struct _TLSDataParams {
     mbedtls_ssl_context ssl;          /**< mbed TLS control context. */

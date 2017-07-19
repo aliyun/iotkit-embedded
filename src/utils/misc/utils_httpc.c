@@ -17,7 +17,7 @@
  */
 #include <string.h>
 #include <stddef.h>
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_timer.h"
 #include "utils_error.h"
 #include "lite/lite-log.h"

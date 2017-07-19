@@ -1,10 +1,10 @@
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
-#include "aliot_mqtt_client.h"
-#include "aliot_auth.h"
-#include "aliot_device.h"
+#include "mqtt_client.h"
+#include "auth.h"
+#include "device.h"
 
 //The product and device information from IOT console
 //#define PRODUCT_KEY         "6RcIOUafDOm"
@@ -104,12 +104,17 @@ void aliot_mqtt_msg_arrived(void *pcontext, void *pclient, aliot_mqtt_event_msg_
 {
     aliot_mqtt_topic_info_pt ptopic_info = (aliot_mqtt_topic_info_pt) msg->msg;
 
-    //print topic name and topic message
-    log_debug("topic=%.*s, topic_msg=%.*s",
-            ptopic_info->topic_len,
-            ptopic_info->ptopic,
-            ptopic_info->payload_len,
-            ptopic_info->payload);
+    // print topic name and topic message
+    log_info("----");
+    log_info("Topic: '%.*s' (Length: %d)",
+              ptopic_info->topic_len,
+              ptopic_info->ptopic,
+              ptopic_info->topic_len);
+    log_info("Payload: '%.*s' (Length: %d)",
+              ptopic_info->payload_len,
+              ptopic_info->payload,
+              ptopic_info->payload_len);
+    log_info("----");
 }
 
 int mqtt_client(void)

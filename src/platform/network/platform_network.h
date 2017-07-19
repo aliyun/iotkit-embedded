@@ -3,7 +3,7 @@
 #ifndef _ALIOT_PLATFORM_NETWORK_H_
 #define _ALIOT_PLATFORM_NETWORK_H_
 
-#include "../aliot_platform_datatype.h"
+#include "../platform_datatype.h"
 
 
 /**

@@ -8,7 +8,7 @@
 #include <sys/prctl.h>
 #include <sys/time.h>
 
-#include "aliot_platform_os.h"
+#include "platform_os.h"
 
 #define PLATFORM_LINUX_LOG(format, ...) \
     do { \

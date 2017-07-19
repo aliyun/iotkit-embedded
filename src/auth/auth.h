@@ -6,9 +6,9 @@
 extern "C" {
 #endif
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_error.h"
-#include "aliot_device.h"
+#include "device.h"
 
 #define ALIOT_AUTH_IOT_ID       (USER_NAME_LEN)
 #define ALIOT_AUTH_IOT_TOKEN    (PASSWORD_LEN)

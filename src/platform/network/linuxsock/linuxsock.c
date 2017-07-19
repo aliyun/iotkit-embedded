@@ -10,7 +10,7 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 
-#include "aliot_platform_network.h"
+#include "platform_network.h"
 
 #define PLATFORM_LINUXSOCK_LOG(format, ...) \
     do { \

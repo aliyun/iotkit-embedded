@@ -3,7 +3,7 @@
 #ifndef _ALIOT_COMMON_TIMER_H_
 #define _ALIOT_COMMON_TIMER_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 typedef struct {
     uint32_t time;

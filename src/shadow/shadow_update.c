@@ -1,11 +1,11 @@
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
-#include "aliot_device.h"
+#include "device.h"
 
-#include "aliot_shadow_update.h"
+#include "shadow_update.h"
 
 
 //add a new wait element

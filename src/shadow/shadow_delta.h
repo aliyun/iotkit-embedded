@@ -2,11 +2,11 @@
 #ifndef _ALIOT_SHADOW_DELTA_H_
 #define _ALIOT_SHADOW_DELTA_H_
 
-#include "aliot_platform.h"
-#include "aliot_shadow.h"
-#include "aliot_shadow_config.h"
-#include "aliot_shadow_common.h"
-#include "aliot_shadow_update.h"
+#include "iot_import.h"
+#include "shadow.h"
+#include "shadow_config.h"
+#include "shadow_common.h"
+#include "shadow_update.h"
 
 
 bool aliot_shadow_delta_check_existence(aliot_shadow_pt pshadow, const char *attr_name);

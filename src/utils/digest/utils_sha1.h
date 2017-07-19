@@ -1,7 +1,7 @@
 #ifndef _ALIOT_COMMON_SHA1_H_
 #define _ALIOT_COMMON_SHA1_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_error.h"
 
 

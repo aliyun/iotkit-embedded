@@ -2,7 +2,7 @@
 #ifndef _ALIOT_DEVICE_H_
 #define _ALIOT_DEVICE_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 
 #define MQTT_SDK_VERSION  "1.0.0"
 

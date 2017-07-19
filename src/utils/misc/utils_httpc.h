@@ -19,7 +19,7 @@
 #ifndef _ALIOT_COMMON_HTTPCLIENT_H_
 #define _ALIOT_COMMON_HTTPCLIENT_H_
 
-#include "aliot_platform.h"
+#include "iot_import.h"
 #include "utils_error.h"
 #include "utils_net.h"
 

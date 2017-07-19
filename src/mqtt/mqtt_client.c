@@ -1,8 +1,8 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "aliot_platform.h"
-#include "aliot_auth.h"
+#include "iot_import.h"
+#include "auth.h"
 #include "utils_error.h"
 #include "lite/lite-log.h"
 #include "utils_net.h"
@@ -10,7 +10,7 @@
 #include "utils_timer.h"
 
 #include "MQTTPacket/MQTTPacket.h"
-#include "aliot_mqtt_client.h"
+#include "mqtt_client.h"
 
 
 //amc, aliot MQTT client
