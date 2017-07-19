@@ -18,10 +18,10 @@
 #include <string.h>
 #include <stddef.h>
 #include "aliot_platform.h"
-#include "aliot_timer.h"
-#include "aliot_error.h"
+#include "utils_timer.h"
+#include "utils_error.h"
 #include "lite/lite-log.h"
-#include "aliot_httpclient.h"
+#include "utils_httpc.h"
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))

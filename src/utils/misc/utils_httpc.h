@@ -20,8 +20,8 @@
 #define _ALIOT_COMMON_HTTPCLIENT_H_
 
 #include "aliot_platform.h"
-#include "aliot_error.h"
-#include "aliot_net.h"
+#include "utils_error.h"
+#include "utils_net.h"
 
 #ifdef __cplusplus
 extern "C" {

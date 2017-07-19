@@ -5,7 +5,7 @@
 #define _ALIOT_COMMON_MD5_H_
 
 #include "aliot_platform.h"
-#include "aliot_error.h"
+#include "utils_error.h"
 
 typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */

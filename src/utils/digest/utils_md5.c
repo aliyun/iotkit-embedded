@@ -4,8 +4,8 @@
 #include <string.h>
 #include "aliot_platform.h"
 #include "lite/lite-log.h"
-#include "aliot_error.h"
-#include "aliot_md5.h"
+#include "utils_error.h"
+#include "utils_md5.h"
 
 #define MD5_DIGEST_SIZE 16
 

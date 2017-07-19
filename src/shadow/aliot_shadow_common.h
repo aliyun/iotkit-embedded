@@ -4,9 +4,9 @@
 
 
 #include "aliot_platform.h"
-#include "aliot_error.h"
-#include "aliot_timer.h"
-#include "aliot_list.h"
+#include "utils_error.h"
+#include "utils_timer.h"
+#include "utils_list.h"
 #include "aliot_shadow.h"
 #include "aliot_shadow_config.h"
 

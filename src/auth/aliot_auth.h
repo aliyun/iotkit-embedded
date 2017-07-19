@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 #include "aliot_platform.h"
-#include "aliot_error.h"
+#include "utils_error.h"
 #include "aliot_device.h"
 
 #define ALIOT_AUTH_IOT_ID       (USER_NAME_LEN)

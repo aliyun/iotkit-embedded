@@ -3,8 +3,8 @@
 #include <string.h>
 #include "aliot_platform.h"
 #include "lite/lite-log.h"
-#include "aliot_error.h"
-#include "aliot_sha1.h"
+#include "utils_error.h"
+#include "utils_sha1.h"
 
 /* Implementation that should never be optimized out by the compiler */
 static void aliot_sha1_zeroize(void *v, size_t n)
