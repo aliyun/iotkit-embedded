@@ -1,5 +1,5 @@
-#ifndef _ALIOT_COMMON_SHA1_H_
-#define _ALIOT_COMMON_SHA1_H_
+#ifndef _IOTX_COMMON_SHA1_H_
+#define _IOTX_COMMON_SHA1_H_
 
 #include "iot_import.h"
 #include "utils_error.h"

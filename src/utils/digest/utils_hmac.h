@@ -1,6 +1,6 @@
 
-#ifndef _ALIOT_COMMON_HMAC_H_
-#define _ALIOT_COMMON_HMAC_H_
+#ifndef _IOTX_COMMON_HMAC_H_
+#define _IOTX_COMMON_HMAC_H_
 
 #include <string.h>
 

@@ -1,5 +1,5 @@
-#ifndef _ALIOT_COMMON_LIST_H
-#define _ALIOT_COMMON_LIST_H
+#ifndef _IOTX_COMMON_LIST_H
+#define _IOTX_COMMON_LIST_H
 
 #include <stdlib.h>
 

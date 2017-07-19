@@ -1,7 +1,7 @@
 
 
-#ifndef _ALIOT_PLATFORM_SSL_H_
-#define _ALIOT_PLATFORM_SSL_H_
+#ifndef _IOTX_PLATFORM_SSL_H_
+#define _IOTX_PLATFORM_SSL_H_
 
 
 /**
@@ -71,4 +71,4 @@ int32_t iotx_platform_ssl_write(uintptr_t handle, const char *buf, int len, int 
 int32_t iotx_platform_ssl_read(uintptr_t handle, char *buf, int len, int timeout_ms);
 
 
-#endif /* _ALIOT_PLATFORM_SSL_H_ */
+#endif /* _IOTX_PLATFORM_SSL_H_ */

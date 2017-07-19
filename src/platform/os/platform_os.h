@@ -1,6 +1,6 @@
 
-#ifndef _ALIOT_PLATFORM_OS_H_
-#define _ALIOT_PLATFORM_OS_H_
+#ifndef _IOTX_PLATFORM_OS_H_
+#define _IOTX_PLATFORM_OS_H_
 
 #include "../platform_datatype.h"
 
@@ -191,4 +191,4 @@ char *iotx_platform_module_get_pid(char pid_str[]);
 
 /** @} */ //end of group_platform_other
 
-#endif /* _ALIOT_PLATFORM_OS_H_ */
+#endif /* _IOTX_PLATFORM_OS_H_ */

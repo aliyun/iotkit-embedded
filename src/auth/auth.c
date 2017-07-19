@@ -276,7 +276,7 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
                    );
     assert(ret < sizeof(puser_info->host_name));
 
-#ifdef ALIOT_MQTT_TCP
+#ifdef IOTX_MQTT_TCP
     mode = MODE_TCP_DIRECT_PLAIN;
     puser_info->pubKey = NULL;
 #else
@@ -326,7 +326,7 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
 
 #else   /* #ifdef DIRECT_MQTT */
 
-    char iot_id[ALIOT_AUTH_IOT_ID + 1], iot_token[ALIOT_AUTH_IOT_TOKEN + 1], host[HOST_ADDRESS_LEN + 1];
+    char iot_id[IOTX_AUTH_IOT_ID + 1], iot_token[IOTX_AUTH_IOT_TOKEN + 1], host[HOST_ADDRESS_LEN + 1];
     uint16_t port;
 
     if (0 != iotx_get_id_token(
@@ -350,7 +350,7 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
     puser_info->port = port;
-#ifdef ALIOT_MQTT_TCP
+#ifdef IOTX_MQTT_TCP
     puser_info->pubKey = NULL;
 #else
     puser_info->pubKey = iotx_ca_get();

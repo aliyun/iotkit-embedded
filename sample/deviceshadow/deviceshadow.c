@@ -111,15 +111,15 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     memset(&attr_temperature, 0, sizeof(iotx_shadow_attr_t));
 
     /* Initialize the @light attribute */
-    attr_light.attr_type = ALIOT_SHADOW_INT32;
-    attr_light.mode = ALIOT_SHADOW_RW;
+    attr_light.attr_type = IOTX_SHADOW_INT32;
+    attr_light.mode = IOTX_SHADOW_RW;
     attr_light.pattr_name = "switch";
     attr_light.pattr_data = &light;
     attr_light.callback = device_shadow_cb_light;
 
     /* Initialize the @temperature attribute */
-    attr_temperature.attr_type = ALIOT_SHADOW_INT32;
-    attr_temperature.mode = ALIOT_SHADOW_READONLY;
+    attr_temperature.attr_type = IOTX_SHADOW_INT32;
+    attr_temperature.mode = IOTX_SHADOW_READONLY;
     attr_temperature.pattr_name = "temperature";
     attr_temperature.pattr_data = &temperature;
     attr_temperature.callback = NULL;

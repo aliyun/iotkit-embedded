@@ -1,7 +1,7 @@
 
 
-#ifndef _ALIOT_COMMON_TIMER_H_
-#define _ALIOT_COMMON_TIMER_H_
+#ifndef _IOTX_COMMON_TIMER_H_
+#define _IOTX_COMMON_TIMER_H_
 
 #include "iot_import.h"
 
@@ -24,4 +24,4 @@ void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond);
 
 uint32_t utils_time_get_ms(void);
 
-#endif /* _ALIOT_COMMON_TIMER_H_ */
+#endif /* _IOTX_COMMON_TIMER_H_ */

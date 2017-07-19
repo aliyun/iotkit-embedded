@@ -1,6 +1,6 @@
 
-#ifndef _ALIOT_COMMON_DATATYPE_H_
-#define _ALIOT_COMMON_DATATYPE_H_
+#ifndef _IOTX_COMMON_DATATYPE_H_
+#define _IOTX_COMMON_DATATYPE_H_
 
 #include <inttypes.h>
 #include <stdint.h>

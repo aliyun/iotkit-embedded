@@ -170,15 +170,15 @@ int iotx_ds_common_convert_data2string(
     int ret = -1;
 
     if ((NULL == buf) || (buf_len == 0)
-        || ((ALIOT_SHADOW_NULL != type) && (NULL == pData))) {
+        || ((IOTX_SHADOW_NULL != type) && (NULL == pData))) {
         return ERROR_NULL_VALUE;
     }
 
-    if (ALIOT_SHADOW_INT32 == type) {
+    if (IOTX_SHADOW_INT32 == type) {
         ret = snprintf(buf, buf_len, "%" PRIi32, *(int32_t *)(pData));
-    } else if (ALIOT_SHADOW_STRING == type) {
+    } else if (IOTX_SHADOW_STRING == type) {
         ret = snprintf(buf, buf_len, "\"%s\"", (char *)(pData));
-    } else if (ALIOT_SHADOW_NULL == type) {
+    } else if (IOTX_SHADOW_NULL == type) {
         ret = snprintf(buf, buf_len, "%s", "\"null\"");
     } else {
         log_err("Error data type");
@@ -203,7 +203,7 @@ iotx_err_t iotx_ds_common_convert_string2data(
         return ERROR_NULL_VALUE;
     }
 
-    if (type == ALIOT_SHADOW_INT32) {
+    if (type == IOTX_SHADOW_INT32) {
         if (0 == strcmp(pdata, "true")) {
             *((int32_t *)pdata) = 1;
         } else if (0 == strcmp(pdata, "false")) {
@@ -213,7 +213,7 @@ iotx_err_t iotx_ds_common_convert_string2data(
         } else {
             *((int32_t *)pdata) = atoi(buf);
         }
-    } else if (type == ALIOT_SHADOW_STRING) {
+    } else if (type == IOTX_SHADOW_STRING) {
         memcpy(pdata, buf, buf_len);
     } else {
         log_err("Error data type");
@@ -356,7 +356,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
         return NULL;
     }
 
-    ALIOT_ASSERT(ret < len, "Memory should always enough.");
+    IOTX_ASSERT(ret < len, "Memory should always enough.");
 
     return topic_full;
 }
@@ -377,7 +377,7 @@ iotx_err_t iotx_ds_common_publish2update(iotx_shadow_pt pshadow, char *data, uin
 
     log_debug("publish msg: len=%d, str=%s", data_len, data);
 
-    topic_msg.qos = ALIOT_MQTT_QOS1;
+    topic_msg.qos = IOTX_MQTT_QOS1;
     topic_msg.retain = 0;
     topic_msg.dup = 0;
     topic_msg.payload = (void *)data;
