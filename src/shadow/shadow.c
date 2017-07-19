@@ -249,7 +249,7 @@ iotx_err_t iotx_shadow_sync(void *handle)
 
     log_info("Device Shadow sync start.");
 
-    buf = HAL_Malloc(SHADOW_SYNC_MSG_SIZE);
+    buf = LITE_malloc(SHADOW_SYNC_MSG_SIZE);
     if (NULL == buf) {
         log_err("Device Shadow sync failed");
         return ERROR_NO_MEM;
@@ -265,7 +265,7 @@ iotx_err_t iotx_shadow_sync(void *handle)
         log_info("Device Shadow sync failed.");
     }
 
-    HAL_Free(buf);
+    LITE_free(buf);
     HAL_SleepMs(1000);
 
     return ret;
@@ -322,7 +322,7 @@ void *iotx_shadow_construct(iotx_shadow_para_pt pparams)
     iotx_shadow_pt pshadow = NULL;
 
     //initialize shadow
-    if (NULL == (pshadow = HAL_Malloc(sizeof(iotx_shadow_t)))) {
+    if (NULL == (pshadow = LITE_malloc(sizeof(iotx_shadow_t)))) {
         log_err("Not enough memory");
         return NULL;
     }
@@ -398,11 +398,11 @@ iotx_err_t iotx_shadow_deconstruct(void *handle)
     }
 
     if (NULL != pshadow->inner_data.ptopic_get) {
-        HAL_Free(pshadow->inner_data.ptopic_get);
+        LITE_free(pshadow->inner_data.ptopic_get);
     }
 
     if (NULL != pshadow->inner_data.ptopic_update) {
-        HAL_Free(pshadow->inner_data.ptopic_update);
+        LITE_free(pshadow->inner_data.ptopic_update);
     }
 
     if (NULL != pshadow->inner_data.attr_list) {
@@ -413,7 +413,7 @@ iotx_err_t iotx_shadow_deconstruct(void *handle)
         HAL_MutexDestroy(pshadow->mutex);
     }
 
-    HAL_Free(handle);
+    LITE_free(handle);
 
     return SUCCESS_RETURN;
 }
@@ -448,7 +448,7 @@ iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
         return ERROR_SHADOW_ATTR_NO_EXIST;
     }
 
-    buf = HAL_Malloc(SHADOW_DELETE_MSG_SIZE);
+    buf = LITE_malloc(SHADOW_DELETE_MSG_SIZE);
     if (NULL == buf) {
         return ERROR_NO_MEM;
     }
@@ -459,11 +459,11 @@ iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
 
     ret = iotx_shadow_update(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN != ret) {
-        HAL_Free(buf);
+        LITE_free(buf);
         return ret;
     }
 
-    HAL_Free(buf);
+    LITE_free(buf);
 
     return iotx_ds_common_remove_attr(pshadow, pattr);
 

@@ -1,6 +1,7 @@
 
 #include "iot_import.h"
 #include "lite/lite-log.h"
+#include "lite/lite-utils.h"
 #include "utils_debug.h"
 #include "utils_timer.h"
 #include "utils_list.h"
@@ -339,7 +340,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
-    topic_full = HAL_Malloc(len + 1);
+    topic_full = LITE_malloc(len + 1);
     if (NULL == topic_full) {
         log_err("Not enough memory");
         return NULL;
@@ -352,7 +353,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
                    pdevice_info->product_key,
                    pdevice_info->device_name);
     if (ret < 0) {
-        HAL_Free(topic_full);
+        LITE_free(topic_full);
         return NULL;
     }
 

@@ -14,7 +14,7 @@ static iotx_err_t iotx_shadow_delta_response(iotx_shadow_pt pshadow)
     void *buf;
     format_data_t format;
 
-    buf = HAL_Malloc(IOTX_SHADOW_DELTA_RESPONSE_LEN);
+    buf = LITE_malloc(IOTX_SHADOW_DELTA_RESPONSE_LEN);
     if (NULL == buf) {
         return ERROR_NO_MEM;
     }
@@ -25,7 +25,7 @@ static iotx_err_t iotx_shadow_delta_response(iotx_shadow_pt pshadow)
 
     rc = iotx_ds_common_publish2update(pshadow, format.buf, format.offset);
 
-    HAL_Free(buf);
+    LITE_free(buf);
 
     return (rc >= 0) ? SUCCESS_RETURN : rc;
 }

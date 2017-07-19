@@ -185,6 +185,16 @@ void LITE_free_internal(void *ptr)
     free(ptr);
 }
 
+void *LITE_malloc_routine(int size)
+{
+    return LITE_malloc(size);
+}
+
+void LITE_free_routine(void *ptr)
+{
+    LITE_free(ptr);
+}
+
 void LITE_dump_malloc_free_stats(int level)
 {
 #if WITH_MEM_STATS

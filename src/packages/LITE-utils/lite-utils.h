@@ -37,6 +37,9 @@
         ptr = NULL; \
     } while(0)
 
+void       *LITE_malloc_routine(int size);
+void        LITE_free_routine(void *ptr);
+
 char       *LITE_strdup(const char *src);
 char       *LITE_format_string(const char *fmt, ...);
 char       *LITE_format_nstring(const int len, const char *fmt, ...);
