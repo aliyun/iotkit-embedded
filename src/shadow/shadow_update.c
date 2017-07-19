@@ -21,7 +21,7 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
     int i;
     iotx_update_ack_wait_list_pt list = pshadow->inner_data.update_ack_wait_list;
 
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
 
     for (i = 0; i < IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 == list[i].flag_busy) {
@@ -30,7 +30,7 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
         }
     }
 
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 
     if (i >= IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM) {
         return NULL;
@@ -57,10 +57,10 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
 
 void iotx_shadow_update_wait_ack_list_remove(iotx_shadow_pt pshadow, iotx_update_ack_wait_list_pt element)
 {
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     element->flag_busy = 0;
     memset(element, 0, sizeof(iotx_update_ack_wait_list_t));
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 }
 
 
@@ -70,7 +70,7 @@ void iotx_ds_update_wait_ack_list_handle_expire(iotx_shadow_pt pshadow)
 
     iotx_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
 
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
 
     for (i = 0; i < IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
@@ -84,7 +84,7 @@ void iotx_ds_update_wait_ack_list_handle_expire(iotx_shadow_pt pshadow)
         }
     }
 
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 }
 
 
@@ -115,13 +115,13 @@ void iotx_ds_update_wait_ack_list_handle_response(
         log_debug("ppayload = %s", ppayload);
     }
 
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     for (i = 0; i < IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
             //check the related
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
                 LITE_free(pdata);
-                iotx_platform_mutex_unlock(pshadow->mutex);
+                HAL_MutexUnlock(pshadow->mutex);
                 log_debug("token=%s", pelement[i].token);
                 do {
                     pdata = LITE_json_value_of("status", ppayload);
@@ -169,9 +169,9 @@ void iotx_ds_update_wait_ack_list_handle_response(
                     LITE_free(ppayload);
                 } while (0);
 
-                iotx_platform_mutex_lock(pshadow->mutex);
+                HAL_MutexLock(pshadow->mutex);
                 memset(&pelement[i], 0, sizeof(iotx_update_ack_wait_list_t));
-                iotx_platform_mutex_unlock(pshadow->mutex);
+                HAL_MutexUnlock(pshadow->mutex);
                 return;
             }
         }
@@ -179,6 +179,6 @@ void iotx_ds_update_wait_ack_list_handle_response(
 
     LITE_free(pToken);
     LITE_free(ppayload);
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
     log_warning("Not match any wait element in list.");
 }

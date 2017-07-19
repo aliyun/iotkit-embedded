@@ -9,7 +9,7 @@
 list_t *list_new()
 {
     list_t *self;
-    if (!(self = iotx_platform_malloc(sizeof(list_t)))) {
+    if (!(self = HAL_Malloc(sizeof(list_t)))) {
         return NULL;
     }
     self->head = NULL;
@@ -34,11 +34,11 @@ void list_destroy(list_t *self)
         if (self->free) {
             self->free(curr->val);
         }
-        iotx_platform_free(curr);
+        HAL_Free(curr);
         curr = next;
     }
 
-    iotx_platform_free(self);
+    HAL_Free(self);
 }
 
 /*
@@ -207,7 +207,7 @@ void list_remove(list_t *self, list_node_t *node)
         self->free(node->val);
     }
 
-    iotx_platform_free(node);
+    HAL_Free(node);
     --self->len;
 }
 
@@ -228,7 +228,7 @@ list_iterator_t *list_iterator_new(list_t *list, list_direction_t direction)
 list_iterator_t *list_iterator_new_from_node(list_node_t *node, list_direction_t direction)
 {
     list_iterator_t *self;
-    if (!(self = iotx_platform_malloc(sizeof(list_iterator_t)))) {
+    if (!(self = HAL_Malloc(sizeof(list_iterator_t)))) {
         return NULL;
     }
     self->next = node;
@@ -254,7 +254,7 @@ list_node_t *list_iterator_next(list_iterator_t *self)
  */
 void list_iterator_destroy(list_iterator_t *self)
 {
-    iotx_platform_free(self);
+    HAL_Free(self);
     self = NULL;
 }
 
@@ -264,7 +264,7 @@ void list_iterator_destroy(list_iterator_t *self)
 list_node_t *list_node_new(void *val)
 {
     list_node_t *self;
-    if (!(self = iotx_platform_malloc(sizeof(list_node_t)))) {
+    if (!(self = HAL_Malloc(sizeof(list_node_t)))) {
         return NULL;
     }
 

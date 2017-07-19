@@ -10,13 +10,13 @@
 /*** TCP connection ***/
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    return iotx_platform_tcp_read(pNetwork->handle, buffer, len, timeout_ms);
+    return HAL_TCP_Read(pNetwork->handle, buffer, len, timeout_ms);
 }
 
 
 static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    return iotx_platform_tcp_write(pNetwork->handle, buffer, len, timeout_ms);
+    return HAL_TCP_Write(pNetwork->handle, buffer, len, timeout_ms);
 }
 
 static int disconnect_tcp(utils_network_pt pNetwork)
@@ -25,7 +25,7 @@ static int disconnect_tcp(utils_network_pt pNetwork)
         return -1;
     }
 
-    iotx_platform_tcp_destroy(pNetwork->handle);
+    HAL_TCP_Destroy(pNetwork->handle);
     pNetwork->handle = 0;
     return 0;
 }
@@ -38,7 +38,7 @@ static int connect_tcp(utils_network_pt pNetwork)
         return 1;
     }
 
-    pNetwork->handle = iotx_platform_tcp_establish(pNetwork->pHostAddress, pNetwork->port);
+    pNetwork->handle = HAL_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
     if (0 == pNetwork->handle) {
         return -1;
     }
@@ -56,7 +56,7 @@ static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint3
         return -1;
     }
 
-    return iotx_platform_ssl_read((void *)pNetwork->handle, buffer, len, timeout_ms);
+    return HAL_SSL_Read((void *)pNetwork->handle, buffer, len, timeout_ms);
 }
 
 static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -66,7 +66,7 @@ static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len
         return -1;
     }
 
-    return iotx_platform_ssl_write((void *)pNetwork->handle, buffer, len, timeout_ms);
+    return HAL_SSL_Write((void *)pNetwork->handle, buffer, len, timeout_ms);
 }
 
 static int disconnect_ssl(utils_network_pt pNetwork)
@@ -76,7 +76,7 @@ static int disconnect_ssl(utils_network_pt pNetwork)
         return -1;
     }
 
-    iotx_platform_ssl_destroy((void *)pNetwork->handle);
+    HAL_SSL_Destroy((void *)pNetwork->handle);
     pNetwork->handle = 0;
 
     return 0;
@@ -89,7 +89,7 @@ static int connect_ssl(utils_network_pt pNetwork)
         return 1;
     }
 
-    if (0 != (pNetwork->handle = (intptr_t)iotx_platform_ssl_establish(
+    if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,
             pNetwork->port,
             pNetwork->ca_crt,

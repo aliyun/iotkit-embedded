@@ -226,10 +226,10 @@ iotx_err_t iotx_ds_common_convert_string2data(
 
 void iotx_ds_common_update_time(iotx_shadow_pt pshadow, uint32_t new_timestamp)
 {
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     pshadow->inner_data.time.base_system_time = utils_time_get_ms();
     pshadow->inner_data.time.epoch_time = new_timestamp;
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 
     log_info("update system time");
 }
@@ -241,9 +241,9 @@ bool iotx_ds_common_check_attr_existence(
 {
     list_node_t *node;
 
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     node = list_find(pshadow->inner_data.attr_list, pattr);
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 
     return (NULL != node);
 }
@@ -259,9 +259,9 @@ iotx_err_t iotx_ds_common_register_attr(
         return ERROR_NO_MEM;
     }
 
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     list_lpush(pshadow->inner_data.attr_list, node);
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 
     return SUCCESS_RETURN;
 }
@@ -275,7 +275,7 @@ iotx_err_t iotx_ds_common_remove_attr(
     iotx_err_t rc = SUCCESS_RETURN;
     list_node_t *node;
 
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     node = list_find(pshadow->inner_data.attr_list, pattr);
     if (NULL == node) {
         rc = ERROR_SHADOW_NO_ATTRIBUTE;
@@ -283,7 +283,7 @@ iotx_err_t iotx_ds_common_remove_attr(
     } else {
         list_remove(pshadow->inner_data.attr_list, node);
     }
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 
     return rc;
 }
@@ -291,13 +291,13 @@ iotx_err_t iotx_ds_common_remove_attr(
 
 void iotx_ds_common_update_version(iotx_shadow_pt pshadow, uint32_t version)
 {
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
 
     //version number always grow up
     if (version > pshadow->inner_data.version) {
         pshadow->inner_data.version = version;
     }
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
 
     log_info("update shadow version");
 }
@@ -307,11 +307,11 @@ void iotx_ds_common_update_version(iotx_shadow_pt pshadow, uint32_t version)
 uint32_t iotx_ds_common_get_version(iotx_shadow_pt pshadow)
 {
     uint32_t ver;
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     ++pshadow->inner_data.version;
     ver = pshadow->inner_data.version;
     ++pshadow->inner_data.version;
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
     return ver;
 }
 
@@ -319,11 +319,11 @@ uint32_t iotx_ds_common_get_version(iotx_shadow_pt pshadow)
 uint32_t iotx_ds_common_get_tokennum(iotx_shadow_pt pshadow)
 {
     uint32_t ver;
-    iotx_platform_mutex_lock(pshadow->mutex);
+    HAL_MutexLock(pshadow->mutex);
     ++pshadow->inner_data.token_num;
     ver = pshadow->inner_data.token_num;
     ++pshadow->inner_data.token_num;
-    iotx_platform_mutex_unlock(pshadow->mutex);
+    HAL_MutexUnlock(pshadow->mutex);
     return ver;
 }
 
@@ -339,7 +339,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
-    topic_full = iotx_platform_malloc(len + 1);
+    topic_full = HAL_Malloc(len + 1);
     if (NULL == topic_full) {
         log_err("Not enough memory");
         return NULL;
@@ -352,7 +352,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
                    pdevice_info->product_key,
                    pdevice_info->device_name);
     if (ret < 0) {
-        iotx_platform_free(topic_full);
+        HAL_Free(topic_full);
         return NULL;
     }
 

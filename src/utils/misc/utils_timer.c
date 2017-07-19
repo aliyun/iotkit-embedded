@@ -6,14 +6,14 @@
 
 void iotx_time_start(iotx_time_t *timer)
 {
-    timer->time = iotx_platform_time_get_ms();
+    timer->time = HAL_UptimeMs();
 }
 
 uint32_t utils_time_spend(iotx_time_t *start)
 {
     uint32_t now, res;
 
-    now = iotx_platform_time_get_ms();
+    now = HAL_UptimeMs();
     res = now - start->time;
     return res;
 }
@@ -26,14 +26,14 @@ uint32_t iotx_time_left(iotx_time_t *end)
         return 0;
     }
 
-    now = iotx_platform_time_get_ms();
+    now = HAL_UptimeMs();
     res = end->time - now;
     return res;
 }
 
 uint32_t utils_time_is_expired(iotx_time_t *timer)
 {
-    uint32_t cur_time = iotx_platform_time_get_ms();
+    uint32_t cur_time = HAL_UptimeMs();
 
     /*
      *  WARNING: Do NOT change the following code until you know exactly what it do!
@@ -55,11 +55,11 @@ void iotx_time_init(iotx_time_t *timer)
 void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond)
 {
     IOTX_ASSERT(millisecond < (UINT32_MAX / 2), "time should NOT exceed UINT32_MAX/2!");
-    timer->time = iotx_platform_time_get_ms() + millisecond;
+    timer->time = HAL_UptimeMs() + millisecond;
 }
 
 uint32_t utils_time_get_ms(void)
 {
-    return iotx_platform_time_get_ms();
+    return HAL_UptimeMs();
 }
 

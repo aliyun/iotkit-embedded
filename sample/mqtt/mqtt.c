@@ -126,13 +126,13 @@ int mqtt_client(void)
     char msg_pub[128];
     char *msg_buf = NULL, *msg_readbuf = NULL;
 
-    if (NULL == (msg_buf = (char *)iotx_platform_malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
         log_debug("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
-    if (NULL == (msg_readbuf = (char *)iotx_platform_malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
         log_debug("not enough memory");
         rc = -1;
         goto do_exit;
@@ -194,7 +194,7 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    iotx_platform_msleep(1000);
+    HAL_SleepMs(1000);
 
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
@@ -230,24 +230,24 @@ int mqtt_client(void)
         /* handle the MQTT packet received from TCP or SSL connection */
         iotx_mqtt_yield(pclient, 200);
 
-        //iotx_platform_msleep(1000);
+        //HAL_SleepMs(1000);
 
     } while (cnt < 3);
 
     iotx_mqtt_unsubscribe(pclient, TOPIC_DATA);
 
-    iotx_platform_msleep(200);
+    HAL_SleepMs(200);
 
     iotx_mqtt_deconstruct(pclient);
 
 
 do_exit:
     if (NULL != msg_buf) {
-        iotx_platform_free(msg_buf);
+        HAL_Free(msg_buf);
     }
 
     if (NULL != msg_readbuf) {
-        iotx_platform_free(msg_readbuf);
+        HAL_Free(msg_readbuf);
     }
 
     return rc;
