@@ -232,7 +232,7 @@ int mqtt_client(void)
 
         //HAL_SleepMs(1000);
 
-    } while (cnt < 3);
+    } while (cnt < 1);
 
     iotx_mqtt_unsubscribe(pclient, TOPIC_DATA);
 

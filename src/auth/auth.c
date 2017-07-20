@@ -25,11 +25,11 @@ static int _hmac_md5_signature(
     memset(hmac_source, 0, sizeof(hmac_source));
     rc = snprintf(hmac_source,
                   sizeof(hmac_source),
-                  "clientId%sdeviceName%sproductKey%stimestamp%s",
+                  "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
                   client_id,
                   device_name,
                   product_key,
-                  timestamp_str ? timestamp_str : "2524608000000");
+                  timestamp_str ? timestamp_str : GUIDER_DEFAULT_TS_STR);
     assert(rc < sizeof(hmac_source));
     log_debug("| source: %s (%d)", hmac_source, strlen(hmac_source));
 
@@ -105,7 +105,11 @@ static int iotx_get_id_token(
 
     iotx_post(&httpclient,
               auth_host,
+#ifdef IOTX_MQTT_TCP
+              80,
+#else
               443,
+#endif
               iotx_ca_get(),
               10000,
               &httpclient_data);
@@ -216,6 +220,54 @@ typedef enum _SECURE_MODE {
     MODE_TLS_ID2                = 5,
 } SECURE_MODE;
 
+static SECURE_MODE _guider_secure_mode(void)
+{
+    int             rc = -1;
+
+#ifdef DIRECT_MQTT
+
+#ifdef IOTX_MQTT_TCP
+    rc = MODE_TCP_DIRECT_PLAIN;
+#else
+    rc = MODE_TLS_DIRECT;
+#endif
+
+#else // DIRECT_MQTT
+    rc = MODE_TCP_TOKEN_PLAIN;
+#endif
+    return  rc;
+}
+
+static void _authenticate_url(char *buf, int len)
+{
+#ifdef DIRECT_MQTT
+    snprintf(buf, len, "%s", "");
+#else
+
+    snprintf(buf, len, "%s", "http://");
+#ifdef _ONLINE
+    strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
+#else
+    strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
+#endif
+    strcat(buf, "/auth/devicename");
+
+#endif  // DIRECT_MQTT
+
+    return;
+}
+
+// TODO: -1 ?
+const char **secmode_str[] = {
+    "TCP + Guider + Plain",
+    "TCP + Guider + ID2-Crypto",
+    "TLS + Direct",
+    "TCP + Direct + Plain",
+    "TCP + Direct + ID2-Crypto",
+    "TLS + Guider + ID2-Authenticate",
+    ""
+};
+
 /*
     struct {
         char            host_name[HOST_ADDRESS_LEN + 1];
@@ -228,11 +280,73 @@ typedef enum _SECURE_MODE {
 */
 int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info)
 {
-    char            partner_id[16];
+    char            conn_host[CONN_HOST_LEN] = {0};
+    char            conn_port[CONN_PORT_LEN] = {0};
+    char            conn_usr[CONN_USR_LEN] = {0};
+    char            conn_pwd[CONN_PWD_LEN] = {0};
+    char            conn_cid[CONN_CID_LEN] = {0};
+
+    char            guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
+    const char     *guider_ca_ptr = NULL;
+    char            guider_url[GUIDER_URL_LEN] = {0};
+    int             guider_portnum = -1;
+    SECURE_MODE     guider_secmode = 0;
+    char            guider_sign[GUIDER_SIGN_LEN] = {0};
+    char            guider_timestamp_str[GUIDER_TS_LEN] = {0};
+
     int             ret = -1;
+    char            partner_id[16];
 
     memset(partner_id, 0, sizeof(partner_id));
     HAL_GetPartnerID(partner_id);
+    if (strlen(partner_id)) {
+        snprintf(guider_pid_buf, sizeof(guider_pid_buf), "partner_id=%s", partner_id);
+    } else {
+        strcpy(guider_pid_buf, "");
+    }
+
+    _authenticate_url(guider_url, sizeof(guider_url));
+#ifdef IOTX_MQTT_TCP
+    guider_ca_ptr = NULL;
+    guider_portnum = 80;
+#else
+    guider_ca_ptr = iotx_ca_get();
+    guider_portnum = 443;
+#endif
+    guider_secmode = _guider_secure_mode();
+
+#ifdef EQUIP_ID2
+    // fetch from network
+#else
+    snprintf(guider_timestamp_str, sizeof(guider_timestamp_str), "%s", GUIDER_DEFAULT_TS_STR);
+#endif
+
+#ifdef EQUIP_ID2
+    // get ID2 + DeviceCode + Signature
+#else
+    _hmac_md5_signature(guider_sign, sizeof(guider_sign),
+                        pdevice_info->device_id,
+                        pdevice_info->device_name,
+                        pdevice_info->product_key,
+                        guider_timestamp_str,
+                        pdevice_info->device_secret);
+#endif
+
+    log_debug("%s", "....................................................");
+    log_debug("%20s : %-s", "ProductKey", pdevice_info->product_key);
+    log_debug("%20s : %-s", "DeviceName", pdevice_info->device_name);
+    log_debug("%20s : %-s", "DeviceID", pdevice_info->device_id);
+    log_debug("%20s : %-s", "DeviceSecret", pdevice_info->device_secret);
+    log_debug("%s", "....................................................");
+    log_debug("%20s : %-s", "PartnerID Buf", guider_pid_buf);
+    log_debug("%20s : %p ('%.16s' ...)", "TLS CA", guider_ca_ptr, guider_ca_ptr);
+    log_debug("%20s : %s", "Guider URL", guider_url);
+    log_debug("%20s : %d", "Guider Port", guider_portnum);
+    log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode, secmode_str[guider_secmode]);
+    log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str);
+    log_debug("%s", "....................................................");
+    log_debug("%20s : %s", "Guider Sign", guider_sign);
+    log_debug("%s", "....................................................");
 
 #ifdef DIRECT_MQTT
 #define DIRECT_MQTT_DOMAIN  "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -313,13 +427,13 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
     char       *reqstr = NULL;
 
     ret = asprintf(&reqstr,
-            "productKey=%s&deviceName=%s&sign=%s&version=default&clientId=%s&timestamp=%s&resources=mqtt",
+            "productKey=%s&" "deviceName=%s&" "sign=%s&"
+            "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt",
             pdevice_info->product_key,
             pdevice_info->device_name,
             sign,
             pdevice_info->device_id,
-            "2524608000000");
-    log_debug("ret = %s/%d", reqstr, ret);
+            GUIDER_DEFAULT_TS_STR);
 
     if (0 != iotx_get_id_token(
                     guider_host,
@@ -380,6 +494,14 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
         return -1;
     }
 #endif
+
+    log_debug("%s", "-----------------------------------------");
+    log_debug("%16s : %-s", "Host", conn_host);
+    log_debug("%16s : %-s", "Port", conn_port);
+    log_debug("%16s : %-s", "UserName", conn_usr);
+    log_debug("%16s : %-s", "PassWord", conn_pwd);
+    log_debug("%16s : %-s", "ClientID", conn_cid);
+    log_debug("%s", "-----------------------------------------");
 
     free(reqstr);
     return 0;
