@@ -85,7 +85,7 @@ void HAL_MutexUnlock(_IN_ void *mutex);
  * @see None.
  * @note Block value is indeterminate.
  */
-void *LITE_malloc(_IN_ uint32_t size);
+void *HAL_Malloc(_IN_ uint32_t size);
 
 
 /**
@@ -96,7 +96,7 @@ void *LITE_malloc(_IN_ uint32_t size);
  * @see None.
  * @note None.
  */
-void LITE_free(_IN_ void *ptr);
+void HAL_Free(_IN_ void *ptr);
 
 
 /** @} */ //end of platform_memory_manage
