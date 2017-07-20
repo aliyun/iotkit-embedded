@@ -8,17 +8,6 @@
     const static char *guider_host = "http://iot-auth-pre.cn-shanghai.aliyuncs.com/auth/devicename";
 #endif
 
-/*
-    struct {
-        char            host_name[HOST_ADDRESS_LEN + 1];
-        uint16_t        port;
-        char            user_name[USER_NAME_LEN + 1];
-        char            password[PASSWORD_LEN + 1];
-        char            client_id[CLIENT_ID_LEN + 1];
-        const char *    pubKey;
-    }
-*/
-
 static int _hmac_md5_signature(
             char *md5_sigbuf,
             const int md5_buflen,
@@ -56,13 +45,7 @@ static int _hmac_md5_signature(
 
 static int iotx_get_id_token(
             const char *auth_host,
-            const char *product_key,
-            const char *device_name,
-            const char *device_secret,
-            const char *client_id,
-            const char *version,
-            const char *timestamp,
-            const char *resources,
+            const char *request_string,
             char *iot_id,
             char *iot_token,
             char *host,
@@ -72,45 +55,11 @@ static int iotx_get_id_token(
 #define HTTP_POST_MAX_LEN   (1024)
 #define HTTP_RESP_MAX_LEN   (1024)
 
-    int ret = -1, length;
-    char sign[33];
-    char *buf = NULL, *post_buf = NULL, *response_buf = NULL;
+    int ret = -1;
+    char *post_buf = NULL, *response_buf = NULL;
 
     httpclient_t httpclient;
     httpclient_data_t httpclient_data;
-
-
-    length = strlen(client_id);
-    length += strlen(product_key);
-    length += strlen(device_name);
-    length += strlen(timestamp);
-    length += 40; //40 chars space for key strings(clientId,deviceName,productKey,timestamp)
-
-    if (length > SIGN_SOURCE_LEN) {
-        log_warning("The total length may be is too long. client_id=%s, product_key=%s, device_name=%s, timestamp= %s",
-                    client_id, product_key, device_name, timestamp);
-    }
-
-    if (NULL == (buf = LITE_malloc(length))) {
-        goto do_exit;
-    }
-
-    //Calculate sign
-    memset(sign, 0, sizeof(sign));
-
-    ret = snprintf(buf,
-                   SIGN_SOURCE_LEN,
-                   "clientId%sdeviceName%sproductKey%stimestamp%s",
-                   client_id,
-                   device_name,
-                   product_key,
-                   timestamp);
-    if ((ret < 0) || (ret > SIGN_SOURCE_LEN)) {
-        goto do_exit;
-    }
-    log_debug("sign source = %.64s ...", buf);
-    utils_hmac_md5(buf, strlen(buf), sign, device_secret, strlen(device_secret));
-
 
     memset(&httpclient, 0, sizeof(httpclient_t));
     httpclient.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
@@ -126,14 +75,8 @@ static int iotx_get_id_token(
 
     ret = snprintf(post_buf,
                    HTTP_POST_MAX_LEN,
-                   "productKey=%s&deviceName=%s&sign=%s&version=%s&clientId=%s&timestamp=%s&resources=%s",
-                   product_key,
-                   device_name,
-                   sign,
-                   version,
-                   client_id,
-                   timestamp,
-                   resources);
+                   "%s",
+                   request_string);
 
     if ((ret < 0) || (ret >= HTTP_POST_MAX_LEN)) {
         log_err("http message body is too long");
@@ -241,10 +184,6 @@ static int iotx_get_id_token(
     ret = 0;
 
 do_exit:
-    if (NULL != buf) {
-        LITE_free(buf);
-    }
-
     if (NULL != post_buf) {
         LITE_free(post_buf);
     }
@@ -361,19 +300,35 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
     char iot_id[GUIDER_IOT_ID_LEN + 1], iot_token[GUIDER_IOT_TOKEN_LEN + 1], host[HOST_ADDRESS_LEN + 1];
     uint16_t port;
 
+    char        sign[40] = {0};
+
+    _hmac_md5_signature(sign, sizeof(sign),
+            pdevice_info->device_id,
+            pdevice_info->device_name,
+            pdevice_info->product_key,
+            0,
+            pdevice_info->device_secret);
+    log_debug("sign = %.64s", sign);
+
+    char       *reqstr = NULL;
+
+    ret = asprintf(&reqstr,
+            "productKey=%s&deviceName=%s&sign=%s&version=default&clientId=%s&timestamp=%s&resources=mqtt",
+            pdevice_info->product_key,
+            pdevice_info->device_name,
+            sign,
+            pdevice_info->device_id,
+            "2524608000000");
+    log_debug("ret = %s/%d", reqstr, ret);
+
     if (0 != iotx_get_id_token(
                     guider_host,
-                    pdevice_info->product_key,
-                    pdevice_info->device_name,
-                    pdevice_info->device_secret,
-                    pdevice_info->device_id,
-                    "default",
-                    "2524608000000", //01 Jan 2050
-                    "mqtt",
+                    reqstr,
                     iot_id,
                     iot_token,
                     host,
                     &port)) {
+        free(reqstr);
         return -1;
     }
 
@@ -421,9 +376,11 @@ int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info
     if (ret >= CLIENT_ID_LEN) {
         log_err("client_id is too long");
     } else if (ret < 0) {
+        free(reqstr);
         return -1;
     }
 #endif
 
+    free(reqstr);
     return 0;
 }
