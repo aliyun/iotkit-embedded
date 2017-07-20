@@ -17,6 +17,7 @@ extern "C" {
 #define CONN_USR_LEN                (128)
 #define CONN_PWD_LEN                (128)
 #define CONN_CID_LEN                (256)
+#define CONN_SECMODE_LEN            (32)
 
 #define GUIDER_SIGN_LEN             (128)
 #define GUIDER_PID_LEN              (64)
