@@ -1,6 +1,4 @@
-
 #include <stdlib.h>
-
 
 static const char *iotx_ca_crt = \
 {
@@ -28,8 +26,11 @@ static const char *iotx_ca_crt = \
     "-----END CERTIFICATE-----"
 };
 
-
 const char *iotx_ca_get(void)
 {
+#ifdef IOTX_MQTT_TCP
+    return NULL;
+#else
     return iotx_ca_crt;
+#endif
 }
