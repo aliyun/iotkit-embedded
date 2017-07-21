@@ -3,7 +3,7 @@
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
 #include "mqtt_client.h"
-#include "auth.h"
+#include "guider.h"
 #include "device.h"
 
 //The product and device information from IOT console
@@ -148,7 +148,7 @@ int mqtt_client(void)
     }
 
     /* Device AUTH */
-    if (0 != iotx_auth(iotx_get_device_info(), iotx_get_user_info())) {
+    if (0 != iotx_guider(iotx_get_device_info(), iotx_get_user_info())) {
         log_debug("AUTH request failed!");
         rc = -1;
         goto do_exit;

@@ -9,7 +9,7 @@ COMP_LIB_COMPONENTS := \
     src/utils \
     src/crypto \
     src/sdk-impl \
-    src/auth \
+    src/guider \
     src/shadow \
     src/mqtt \
     src/system \

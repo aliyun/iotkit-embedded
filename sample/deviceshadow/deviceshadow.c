@@ -2,7 +2,7 @@
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
 #include "mqtt_client.h"
-#include "auth.h"
+#include "guider.h"
 #include "device.h"
 #include "shadow.h"
 
@@ -66,9 +66,9 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     }
 
     /* Device AUTH */
-    rc = iotx_auth(iotx_get_device_info(), iotx_get_user_info());
+    rc = iotx_guider(iotx_get_device_info(), iotx_get_user_info());
     if (SUCCESS_RETURN != rc) {
-        log_err("rc = iotx_auth() = %d", rc);
+        log_err("rc = iotx_guider() = %d", rc);
         return rc;
     }
 
