@@ -80,7 +80,7 @@ static int _http_response(char *payload,
 
     httpc.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
-    requ_payload = (char *) LITE_malloc(HTTP_POST_MAX_LEN);
+    requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
         log_err("Allocate HTTP request buf failed!");
         return ERROR_MALLOC;
@@ -297,24 +297,25 @@ char *_authenticate_string(char sign[], char ts[])
     return ret;
 }
 
-#define _DEBUG_PRINT_INPUT(dev) \
-    do { \
-        log_debug("%s", "...................................................."); \
-        log_debug("%20s : %-s", "ProductKey", dev->product_key); \
-        log_debug("%20s : %-s", "DeviceName", dev->device_name); \
-        log_debug("%20s : %-s", "DeviceID", dev->device_id); \
-        log_debug("%20s : %-s", "DeviceSecret", dev->device_secret); \
-        log_debug("%s", "...................................................."); \
-        log_debug("%20s : %-s", "PartnerID Buf", guider_pid_buf); \
-        log_debug("%20s : %p ('%.16s ...')", "TLS CA", conn_pkey, conn_pkey ? conn_pkey : "N/A"); \
-        log_debug("%20s : %s", "Guider URL", guider_url); \
-        log_debug("%20s : %d", "Guider Port", guider_portnum); \
-        log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode_num, secmode_str[guider_secmode_num]); \
-        log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str); \
-        log_debug("%s", "...................................................."); \
-        log_debug("%20s : %s", "Guider Sign", guider_sign); \
-        log_debug("%s", "...................................................."); \
-    } while(0)
+int _fill_conn_string(char *dst, int len, const char *fmt, ...)
+{
+    int                     rc = -1;
+    va_list                 ap;
+    char                   *ptr = NULL;
+
+    va_start(ap, fmt);
+    rc = vsnprintf(dst, len, fmt, ap);
+    va_end(ap);
+    assert(rc <= len);
+
+    ptr = strstr(dst, "||");
+    if (ptr) {
+        *ptr = '\0';
+    }
+
+    // log_debug("dst(%d) = %s", rc, dst);
+    return 0;
+}
 
 /*
     struct {
@@ -326,18 +327,11 @@ char *_authenticate_string(char sign[], char ts[])
         const char *    pubKey;
     }
 */
-int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info)
+int32_t iotx_guider(iotx_device_info_pt dev, iotx_user_info_pt usr)
 {
-    char            conn_host[CONN_HOST_LEN] = {0};
-    char            conn_port[CONN_PORT_LEN] = {0};
-    char            conn_usr[CONN_USR_LEN] = {0};
-    char            conn_pwd[CONN_PWD_LEN] = {0};
-    char            conn_cid[CONN_CID_LEN] = {0};
-    const char     *conn_pkey = NULL;
-
     char            guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char            guider_url[GUIDER_URL_LEN] = {0};
-    int             guider_portnum = -1;
+    int             guider_portnum = 443;
     SECURE_MODE     guider_secmode_num = 0;
     char            guider_secmode_str[CONN_SECMODE_LEN] = {0};
     char            guider_sign[GUIDER_SIGN_LEN] = {0};
@@ -347,71 +341,42 @@ int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_in
     int             ret = -1;
 
     _secure_mode_str(guider_secmode_str, sizeof(guider_secmode_str));
-    conn_pkey = iotx_ca_get();
 
     _timestamp_string(guider_timestamp_str, sizeof(guider_timestamp_str));
     _ident_partner(guider_pid_buf, sizeof(guider_pid_buf));
     _authenticate_http_url(guider_url, sizeof(guider_url));
 #ifdef IOTX_MQTT_TCP
     guider_portnum = 80;
-#else
-    guider_portnum = 443;
 #endif
     guider_secmode_num = _secure_mode_num();
 
 #ifdef EQUIP_ID2
-    // get ID2 + DeviceCode + Signature
+    // get ID2 Signature, deviceCode fetched meanwhile
 #else
     _hmac_md5_signature(guider_sign, sizeof(guider_sign),
                         guider_timestamp_str);
 #endif
 
-    _DEBUG_PRINT_INPUT(pdevice_info);
+    log_debug("%s", "....................................................");
+    log_debug("%20s : %-s", "ProductKey", dev->product_key);
+    log_debug("%20s : %-s", "DeviceName", dev->device_name);
+    log_debug("%20s : %-s", "DeviceID", dev->device_id);
+    log_debug("%20s : %-s", "DeviceSecret", dev->device_secret);
+    log_debug("%s", "....................................................");
+    log_debug("%20s : %-s", "PartnerID Buf", guider_pid_buf);
+    log_debug("%20s : %s", "Guider URL", guider_url);
+    log_debug("%20s : %d", "Guider Port", guider_portnum);
+    log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode_num, secmode_str[guider_secmode_num]);
+    log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str);
+    log_debug("%s", "....................................................");
+    log_debug("%20s : %s", "Guider Sign", guider_sign);
+    log_debug("%s", "....................................................");
 
-#ifdef DIRECT_MQTT
-    puser_info->pubKey = conn_pkey;
-
-    ret = snprintf(puser_info->host_name,
-                   sizeof(puser_info->host_name),
-#if 0
-                   "%s.%s",
-                   pdevice_info->product_key,
-                   GUIDER_DIRECT_DOMAIN,
-#else
-                   "%s",
-                   "10.125.63.74"
-#endif
-                  );
-    assert(ret < sizeof(puser_info->host_name));
-    puser_info->port = 1883;
-
-    ret = snprintf(puser_info->client_id,
-                   sizeof(puser_info->client_id),
-                   "%s|"
-                   "securemode=%d,gw=0,signmethod=hmacmd5"
-                   "%s,timestamp=%s|",
-                   pdevice_info->device_id,
-                   guider_secmode_num,
-                   guider_pid_buf, guider_timestamp_str);
-    assert(ret < sizeof(puser_info->client_id));
-
-    ret = snprintf(puser_info->user_name,
-                   sizeof(puser_info->user_name),
-                   "%s&%s",
-                   pdevice_info->device_name,
-                   pdevice_info->product_key);
-    assert(ret < sizeof(puser_info->user_name));
-
-    ret = snprintf(puser_info->password,
-                   sizeof(puser_info->password),
-                   "%s",
-                   guider_sign);
-    assert(ret <= strlen(guider_sign));
-
-#else   /* #ifdef DIRECT_MQTT */
-
-    char iot_id[GUIDER_IOT_ID_LEN + 1], iot_token[GUIDER_IOT_TOKEN_LEN + 1], host[HOST_ADDRESS_LEN + 1];
-    uint16_t iotx_conn_port;
+#ifndef DIRECT_MQTT
+    char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
+    char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
+    char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
+    uint16_t        iotx_conn_port = 1883;
 
     req_str = _authenticate_string(guider_sign, guider_timestamp_str);
     assert(req_str);
@@ -419,35 +384,63 @@ int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_in
 
     if (0 != _iotId_iotToken_http(guider_url,
                                   req_str,
-                                  iot_id,
-                                  iot_token,
-                                  host,
+                                  iotx_id,
+                                  iotx_token,
+                                  iotx_conn_host,
                                   &iotx_conn_port)) {
         if (req_str) {
             free(req_str);
         }
         return -1;
     }
-
-    strncpy(puser_info->user_name, iot_id, USER_NAME_LEN);
-    strncpy(puser_info->password, iot_token, PASSWORD_LEN);
-    strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
-    puser_info->port = iotx_conn_port;
-    puser_info->pubKey = conn_pkey;
-    ret = snprintf(puser_info->client_id,
-                   CLIENT_ID_LEN,
-                   "%s|"
-                   "%s" "%s|",
-                   pdevice_info->device_id,
-                   guider_pid_buf, guider_secmode_str);
 #endif
 
+    /* Start Filling Connection Information */
+    usr->pubKey = iotx_ca_get();
+#ifdef DIRECT_MQTT
+
+    usr->port = 1883;
+#if 0
+    _fill_conn_string(usr->host_name, "%s.%s",
+                      dev->product_key,
+                      GUIDER_DIRECT_DOMAIN);
+#else
+    _fill_conn_string(usr->host_name, sizeof(usr->host_name), "%s", "10.125.63.74");
+#endif
+    _fill_conn_string(usr->user_name, sizeof(usr->user_name), "%s&%s",
+                      dev->device_name,
+                      dev->product_key);
+    _fill_conn_string(usr->password, sizeof(usr->password), "%s", guider_sign);
+    _fill_conn_string(usr->client_id, sizeof(usr->client_id),
+                      "%s"
+                      "|securemode=%d,gw=0,signmethod=hmacmd5"
+                      "%s,timestamp=%s|",
+                      dev->device_id,
+                      guider_secmode_num,
+                      guider_pid_buf, guider_timestamp_str);
+
+#else   /* DIRECT_MQTT */
+
+    usr->port = iotx_conn_port;
+    _fill_conn_string(usr->host_name, sizeof(usr->host_name), "%s", iotx_conn_host);
+    _fill_conn_string(usr->user_name, sizeof(usr->user_name), "%s", iotx_id);
+    _fill_conn_string(usr->password, sizeof(usr->password), "%s", iotx_token);
+    _fill_conn_string(usr->client_id, sizeof(usr->client_id),
+                      "%s" "|%s" "%s|",
+                      dev->device_id,
+                      guider_secmode_str, guider_pid_buf);
+
+#endif  /* DIRECT_MQTT */
+
     log_debug("%s", "-----------------------------------------");
-    log_debug("%16s : %-s", "Host", conn_host);
-    log_debug("%16s : %-s", "Port", conn_port);
-    log_debug("%16s : %-s", "UserName", conn_usr);
-    log_debug("%16s : %-s", "PassWord", conn_pwd);
-    log_debug("%16s : %-s", "ClientID", conn_cid);
+    log_debug("%16s : %-s", "Host", usr->host_name);
+    log_debug("%16s : %d",  "Port", usr->port);
+    log_debug("%16s : %-s", "UserName", usr->user_name);
+    log_debug("%16s : %-s", "PassWord", usr->password);
+    log_debug("%16s : %-s", "ClientID", usr->client_id);
+    log_debug("%16s : %p ('%.16s ...')", "TLS PubKey",
+              usr->pubKey ? usr->pubKey : 0xdead,
+              usr->pubKey ? usr->pubKey : "N/A");
     log_debug("%s", "-----------------------------------------");
 
     if (req_str) {

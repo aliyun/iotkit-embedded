@@ -262,8 +262,6 @@ int main()
 
     mqtt_client();
 
-    unittest_json_parser();
-
     log_debug("out of sample!");
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
