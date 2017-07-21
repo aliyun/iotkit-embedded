@@ -1,4 +1,4 @@
-LIBA_TARGET     := libauth.a
+LIBA_TARGET     := libguider.a
 HDR_REFS        := src
 
 DEPENDS         += src/log

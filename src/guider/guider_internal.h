@@ -1,12 +1,22 @@
-#ifndef _IOTX_AUTH_H_
-#define _IOTX_AUTH_H_
+#ifndef __GUIDER_INTERNAL_H__
+#define __GUIDER_INTERNAL_H__
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stddef.h>
 
 #include "iot_import.h"
-#include "device.h"     // for deviceInfo{} + userInfo{}
+
+#include "utils_error.h"
+#include "lite/lite-log.h"
+#include "lite/lite-utils.h"
+#include "utils_md5.h"
+#include "utils_hmac.h"
+#include "utils_httpc.h"
+#include "ca.h"
+#include "guider.h"
 
 #define GUIDER_IOT_ID_LEN           (256)
 #define GUIDER_IOT_TOKEN_LEN        (512)
@@ -24,9 +34,6 @@ extern "C" {
 #define GUIDER_TS_LEN               (16)
 #define GUIDER_URL_LEN              (256)
 
-int32_t iotx_auth(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info);
+#define GUIDER_DIRECT_DOMAIN        "iot-as-mqtt.cn-shanghai.aliyuncs.com"
 
-#if defined(__cplusplus)
-}
-#endif
-#endif
+#endif  /* __GUIDER_INTERNAL_H__ */
