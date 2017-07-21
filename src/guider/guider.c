@@ -57,6 +57,70 @@ static int _hmac_md5_signature(
     return 0;
 }
 
+static int _http_response(char *payload,
+                          const int payload_len,
+                          const char *request_string,
+                          const char *url,
+                          const int port_num,
+                          const char *pkey
+                         )
+{
+#define HTTP_POST_MAX_LEN   (1024)
+#define HTTP_RESP_MAX_LEN   (1024)
+
+    int                     ret = -1;
+    char                   *requ_payload = NULL;
+    char                   *resp_payload = NULL;
+
+    httpclient_t            httpc;
+    httpclient_data_t       httpc_data;
+
+    memset(&httpc, 0, sizeof(httpclient_t));
+    memset(&httpc_data, 0, sizeof(httpclient_data_t));
+
+    httpc.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
+
+    requ_payload = (char *) LITE_malloc(HTTP_POST_MAX_LEN);
+    if (NULL == requ_payload) {
+        log_err("Allocate HTTP request buf failed!");
+        return ERROR_MALLOC;
+    }
+    memset(requ_payload, 0, HTTP_POST_MAX_LEN);
+
+    ret = snprintf(requ_payload,
+                   HTTP_POST_MAX_LEN,
+                   "%s",
+                   request_string);
+    assert(ret < HTTP_POST_MAX_LEN);
+    log_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
+
+    resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
+    assert(resp_payload);
+    memset(resp_payload, 0, HTTP_RESP_MAX_LEN);
+
+    httpc_data.post_content_type = "application/x-www-form-urlencoded;charset=utf-8";
+    httpc_data.post_buf = requ_payload;
+    httpc_data.post_buf_len = strlen(requ_payload);
+    httpc_data.response_buf = resp_payload;
+    httpc_data.response_buf_len = HTTP_RESP_MAX_LEN;
+
+    httpclient_common(&httpc,
+                      url,
+                      port_num,
+                      pkey,
+                      HTTPCLIENT_POST,
+                      10000,
+                      &httpc_data);
+
+    memcpy(payload, httpc_data.response_buf, payload_len);
+    log_debug("PAYLOAD: %s", payload);
+
+    LITE_free(requ_payload);
+    LITE_free(resp_payload);
+
+    return 0;
+}
+
 static int _iotId_iotToken_http(
             const char *guider_addr,
             const char *request_string,
@@ -65,76 +129,12 @@ static int _iotId_iotToken_http(
             char *host,
             uint16_t *pport)
 {
-#define SIGN_SOURCE_LEN     (256)
-#define HTTP_POST_MAX_LEN   (1024)
-#define HTTP_RESP_MAX_LEN   (1024)
+    char            iotx_payload[512] = {0};
+    int             iotx_port = 443;
+    int             ret = -1;
 
-    int ret = -1;
-    char *post_buf = NULL, *response_buf = NULL;
-
-    httpclient_t httpclient;
-    httpclient_data_t httpclient_data;
-
-    memset(&httpclient, 0, sizeof(httpclient_t));
-    httpclient.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
-
-    memset(&httpclient_data, 0, sizeof(httpclient_data_t));
-
-    post_buf = (char *) LITE_malloc(HTTP_POST_MAX_LEN);
-    if (NULL == post_buf) {
-        log_err("malloc http post buf failed!");
-        return ERROR_MALLOC;
-    }
-    memset(post_buf, 0, HTTP_POST_MAX_LEN);
-
-    ret = snprintf(post_buf,
-                   HTTP_POST_MAX_LEN,
-                   "%s",
-                   request_string);
-
-    if ((ret < 0) || (ret >= HTTP_POST_MAX_LEN)) {
-        log_err("http message body is too long");
-        ret = -1;
-        goto do_exit;
-    }
-
-    log_debug("http request: \r\n\r\n%s\r\n", post_buf);
-
-    ret = strlen(post_buf);
-
-    response_buf = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
-    if (NULL == response_buf) {
-        log_err("malloc http response buf failed!");
-        return ERROR_MALLOC;
-    }
-    memset(response_buf, 0, HTTP_RESP_MAX_LEN);
-
-    httpclient_data.post_content_type = "application/x-www-form-urlencoded;charset=utf-8";
-    httpclient_data.post_buf = post_buf;
-    httpclient_data.post_buf_len = ret;
-    httpclient_data.response_buf = response_buf;
-    httpclient_data.response_buf_len = HTTP_RESP_MAX_LEN;
-
-#ifdef _ONLINE
-
-    iotx_post(&httpclient,
-              guider_addr,
 #ifdef IOTX_MQTT_TCP
-              80,
-#else
-              443,
-#endif
-              iotx_ca_get(),
-              10000,
-              &httpclient_data);
-#else
-
-    iotx_post(&httpclient,
-              guider_addr,
-              80,
-              NULL,
-              10000,
-              &httpclient_data);
+    iotx_port = 80;
 #endif
 
     /*
@@ -153,39 +153,39 @@ static int _iotId_iotToken_http(
             "message":"success"
         }
     */
-    log_debug("http response: \r\n\r\n%s\r\n", httpclient_data.response_buf);
+    _http_response(iotx_payload,
+                   sizeof(iotx_payload),
+                   request_string,
+                   guider_addr,
+                   iotx_port,
+                   iotx_ca_get());
+    log_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
-    //get iot-id and iot-token from response
-    int type;
-    const char *pvalue, *presrc;
-    char port_str[6];
+    const char         *pvalue;
+    char                port_str[6];
 
-    //get iot-id
-    pvalue = LITE_json_value_of("data.iotId", httpclient_data.response_buf);
+    pvalue = LITE_json_value_of("data.iotId", iotx_payload);
     if (NULL == pvalue) {
         goto do_exit;
     }
     strcpy(iot_id, pvalue);
     LITE_free(pvalue);
 
-    //get iot-token
-    pvalue = LITE_json_value_of("data.iotToken", httpclient_data.response_buf);
+    pvalue = LITE_json_value_of("data.iotToken", iotx_payload);
     if (NULL == pvalue) {
         goto do_exit;
     }
     strcpy(iot_token, pvalue);
     LITE_free(pvalue);
 
-    //get host
-    pvalue = LITE_json_value_of("data.resources.mqtt.host", httpclient_data.response_buf);
+    pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload);
     if (NULL == pvalue) {
         goto do_exit;
     }
     strcpy(host, pvalue);
     LITE_free(pvalue);
 
-    //get port
-    pvalue = LITE_json_value_of("data.resources.mqtt.port", httpclient_data.response_buf);
+    pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload);
     if (NULL == pvalue) {
         goto do_exit;
     }
@@ -201,18 +201,20 @@ static int _iotId_iotToken_http(
     ret = 0;
 
 do_exit:
-    if (NULL != post_buf) {
-        LITE_free(post_buf);
-    }
-
-    if (NULL != response_buf) {
-        LITE_free(response_buf);
-    }
-
     return ret;
 }
 
-static SECURE_MODE _secure_mode(void)
+void _timestamp_string(char *buf, int len)
+{
+#ifdef EQUIP_ID2
+    // fetch from network
+#else
+    snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
+#endif
+    return;
+}
+
+static SECURE_MODE _secure_mode_num(void)
 {
     int             rc = -1;
 
@@ -230,20 +232,10 @@ static SECURE_MODE _secure_mode(void)
     return  rc;
 }
 
-void _timestamp_string(char *buf, int len)
-{
-#ifdef EQUIP_ID2
-    // fetch from network
-#else
-    snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
-#endif
-    return;
-}
-
-void _securemode_in_clientId(char *buf, int len)
+void _secure_mode_str(char *buf, int len)
 {
     memset(buf, 0, len);
-#ifdef MQTT_TCP
+#ifndef MQTT_TCP
     snprintf(buf, len, "");
 #else
     snprintf(buf, len, "securemode=0");
@@ -317,7 +309,7 @@ char *_authenticate_string(char sign[], char ts[])
         log_debug("%20s : %p ('%.16s ...')", "TLS CA", conn_pkey, conn_pkey ? conn_pkey : "N/A"); \
         log_debug("%20s : %s", "Guider URL", guider_url); \
         log_debug("%20s : %d", "Guider Port", guider_portnum); \
-        log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode, secmode_str[guider_secmode]); \
+        log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode_num, secmode_str[guider_secmode_num]); \
         log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str); \
         log_debug("%s", "...................................................."); \
         log_debug("%20s : %s", "Guider Sign", guider_sign); \
@@ -342,30 +334,30 @@ int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_in
     char            conn_pwd[CONN_PWD_LEN] = {0};
     char            conn_cid[CONN_CID_LEN] = {0};
     const char     *conn_pkey = NULL;
-    char            conn_cid_secmode[CONN_SECMODE_LEN] = {0};
 
     char            guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char            guider_url[GUIDER_URL_LEN] = {0};
     int             guider_portnum = -1;
-    SECURE_MODE     guider_secmode = 0;
+    SECURE_MODE     guider_secmode_num = 0;
+    char            guider_secmode_str[CONN_SECMODE_LEN] = {0};
     char            guider_sign[GUIDER_SIGN_LEN] = {0};
     char            guider_timestamp_str[GUIDER_TS_LEN] = {0};
 
     char           *req_str = NULL;
     int             ret = -1;
 
-    _securemode_in_clientId(conn_cid_secmode, sizeof(conn_cid_secmode));
+    _secure_mode_str(guider_secmode_str, sizeof(guider_secmode_str));
     conn_pkey = iotx_ca_get();
 
-    _ident_partner(guider_pid_buf, sizeof(guider_pid_buf));
     _timestamp_string(guider_timestamp_str, sizeof(guider_timestamp_str));
+    _ident_partner(guider_pid_buf, sizeof(guider_pid_buf));
     _authenticate_http_url(guider_url, sizeof(guider_url));
 #ifdef IOTX_MQTT_TCP
     guider_portnum = 80;
 #else
     guider_portnum = 443;
 #endif
-    guider_secmode = _secure_mode();
+    guider_secmode_num = _secure_mode_num();
 
 #ifdef EQUIP_ID2
     // get ID2 + DeviceCode + Signature
@@ -399,7 +391,7 @@ int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_in
                    "securemode=%d,gw=0,signmethod=hmacmd5"
                    "%s,timestamp=%s|",
                    pdevice_info->device_id,
-                   guider_secmode,
+                   guider_secmode_num,
                    guider_pid_buf, guider_timestamp_str);
     assert(ret < sizeof(puser_info->client_id));
 
@@ -419,7 +411,7 @@ int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_in
 #else   /* #ifdef DIRECT_MQTT */
 
     char iot_id[GUIDER_IOT_ID_LEN + 1], iot_token[GUIDER_IOT_TOKEN_LEN + 1], host[HOST_ADDRESS_LEN + 1];
-    uint16_t port;
+    uint16_t iotx_conn_port;
 
     req_str = _authenticate_string(guider_sign, guider_timestamp_str);
     assert(req_str);
@@ -430,25 +422,24 @@ int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_in
                                   iot_id,
                                   iot_token,
                                   host,
-                                  &port)) {
-        if(req_str) {
+                                  &iotx_conn_port)) {
+        if (req_str) {
             free(req_str);
         }
         return -1;
     }
 
-
     strncpy(puser_info->user_name, iot_id, USER_NAME_LEN);
     strncpy(puser_info->password, iot_token, PASSWORD_LEN);
     strncpy(puser_info->host_name, host, HOST_ADDRESS_LEN);
-    puser_info->port = port;
+    puser_info->port = iotx_conn_port;
     puser_info->pubKey = conn_pkey;
     ret = snprintf(puser_info->client_id,
                    CLIENT_ID_LEN,
                    "%s|"
                    "%s" "%s|",
                    pdevice_info->device_id,
-                   guider_pid_buf, conn_cid_secmode);
+                   guider_pid_buf, guider_secmode_str);
 #endif
 
     log_debug("%s", "-----------------------------------------");
@@ -459,7 +450,7 @@ int32_t iotx_guider(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_in
     log_debug("%16s : %-s", "ClientID", conn_cid);
     log_debug("%s", "-----------------------------------------");
 
-    if(req_str) {
+    if (req_str) {
         free(req_str);
     }
 
