@@ -4,31 +4,35 @@
 char *LITE_format_string(const char *fmt, ...)
 {
     va_list         ap;
-    char            tmp[512] = {0};
-    int             rc = -1;
+    char           *tmp = NULL;
     char           *dst;
+    int             rc = -1;
 
     va_start(ap, fmt);
-    rc = vsnprintf(tmp, sizeof(tmp), fmt, ap);
+    rc = vasprintf(&tmp, fmt, ap);
     va_end(ap);
-    assert(rc < sizeof(tmp));
+    assert(tmp);
 
     dst = LITE_strdup(tmp);
+    free(tmp);
+
     return dst;
 }
 
 char *LITE_format_nstring(const int len, const char *fmt, ...)
 {
     va_list         ap;
-    char            tmp[512];
+    char           *tmp = NULL;
     char           *dst;
 
     va_start(ap, fmt);
-    vsnprintf(tmp, sizeof(tmp), fmt, ap);
+    vasprintf(&tmp, fmt, ap);
     va_end(ap);
+    assert(tmp);
 
     dst = LITE_malloc(len + 1);
     LITE_snprintf(dst, (len + 1), "%s", tmp);
+    free(tmp);
 
     return dst;
 }
