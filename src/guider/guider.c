@@ -373,10 +373,10 @@ int32_t iotx_guider(iotx_device_info_pt dev, iotx_user_info_pt usr)
     log_debug("%s", "....................................................");
 
 #ifndef DIRECT_MQTT
-    char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
-    char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
     char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
     uint16_t        iotx_conn_port = 1883;
+    char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
+    char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
 
     req_str = _authenticate_string(guider_sign, guider_timestamp_str);
     assert(req_str);
