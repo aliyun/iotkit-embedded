@@ -2,7 +2,6 @@
 .settings/
 *.cproject
 *.project
-*.a
 *.o
 *.lo
 *.gcno
