@@ -14,7 +14,7 @@ extern "C" {
 
 #include "tfs/tfs.h"
 
-void tfs_demo(uint64_t ts);
+int unittest_tfs(uint64_t timestamp);
 
 #if defined(__cplusplus)
 }

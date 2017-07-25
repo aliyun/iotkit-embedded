@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#ifndef IOTX_WITHOUT_TLS
 static const char *iotx_ca_crt = \
 {
     \
@@ -25,6 +26,7 @@ static const char *iotx_ca_crt = \
     "HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==\r\n" \
     "-----END CERTIFICATE-----"
 };
+#endif  /* #ifndef IOTX_WITHOUT_TLS */
 
 const char *iotx_ca_get(void)
 {

@@ -161,6 +161,7 @@ static int _calc_id2_signature(
 }
 #endif  /* #ifdef ID2_AUTH */
 
+#ifndef ID2_AUTH
 static int _hmac_md5_signature(
             char *md5_sigbuf,
             const int md5_buflen,
@@ -195,7 +196,9 @@ static int _hmac_md5_signature(
     memcpy(md5_sigbuf, signature, md5_buflen);
     return 0;
 }
+#endif  /* #ifndef ID2_AUTH */
 
+#ifndef DIRECT_MQTT
 static int _http_response(char *payload,
                           const int payload_len,
                           const char *request_string,
@@ -369,6 +372,7 @@ static int _iotId_iotToken_http(
 do_exit:
     return ret;
 }
+#endif  /* #ifndef DIRECT_MQTT */
 
 void _timestamp_string(char *buf, int len)
 {
