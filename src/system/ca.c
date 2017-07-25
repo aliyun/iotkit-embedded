@@ -28,7 +28,7 @@ static const char *iotx_ca_crt = \
 
 const char *iotx_ca_get(void)
 {
-#ifdef IOTX_MQTT_TCP
+#ifdef IOTX_WITHOUT_TLS
     return NULL;
 #else
     return iotx_ca_crt;

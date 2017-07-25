@@ -3,6 +3,6 @@ DEPENDS     += src/log
 
 LDFLAGS     += -liot_sdk
 
-ifeq (y,$(strip $(FEATURE_EQUIP_ID2)))
+ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
 LDFLAGS     += -ltfs -lcrypto
 endif
