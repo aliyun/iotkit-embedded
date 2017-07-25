@@ -264,6 +264,7 @@ static int _iotId_iotToken_http(
     int                 iotx_port = 443;
     int                 ret = -1;
     iotx_user_info_pt   usr = iotx_get_user_info();
+    int                 ret_code = 0;
 
     assert(usr);
 
@@ -495,7 +496,6 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
 {
     char            guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char            guider_url[GUIDER_URL_LEN] = {0};
-    int             guider_portnum = 443;
     SECURE_MODE     guider_secmode_num = 0;
     char            guider_secmode_str[CONN_SECMODE_LEN] = {0};
     char            guider_sign[GUIDER_SIGN_LEN] = {0};
@@ -513,9 +513,6 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     _timestamp_string(guider_timestamp_str, sizeof(guider_timestamp_str));
     _ident_partner(guider_pid_buf, sizeof(guider_pid_buf));
     _authenticate_http_url(guider_url, sizeof(guider_url));
-#ifdef IOTX_MQTT_TCP
-    guider_portnum = 80;
-#endif
     guider_secmode_num = _secure_mode_num();
 
 #ifdef EQUIP_ID2
@@ -538,7 +535,6 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     log_debug("%s", "....................................................");
     log_debug("%20s : %-s", "PartnerID Buf", guider_pid_buf);
     log_debug("%20s : %s", "Guider URL", guider_url);
-    log_debug("%20s : %d", "Guider Port", guider_portnum);
     log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode_num, secmode_str[guider_secmode_num]);
     log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str);
     log_debug("%s", "....................................................");
@@ -575,8 +571,10 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
         }
 
         log_err("_iotId_iotToken_http() failed");
+#ifdef EQUIP_ID2
         LITE_free(guider_id2);
         LITE_free(guider_device_code);
+#endif
         return -1;
     }
 #endif
@@ -636,8 +634,10 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
         free(req_str);
     }
 
+#ifdef EQUIP_ID2
     LITE_free(guider_id2);
     LITE_free(guider_device_code);
+#endif
 
     return 0;
 }

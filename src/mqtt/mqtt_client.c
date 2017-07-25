@@ -77,30 +77,30 @@ typedef struct {
 
 /* Information structure of subscribed topic */
 typedef struct SUBSCRIBE_INFO {
-    enum msgTypes       type;           //type, (sub or unsub)
-    uint16_t            msg_id;         //packet id of subscribe(unsubcribe)
-    iotx_time_t        sub_start_time; //start time of subscribe request
+    enum msgTypes           type;           //type, (sub or unsub)
+    uint16_t                msg_id;         //packet id of subscribe(unsubcribe)
+    iotx_time_t             sub_start_time; //start time of subscribe request
     iotx_mc_node_t          node_state;     //state of this node
     iotx_mc_topic_handle_t  handler;        //handle of topic subscribed(unsubcribed)
-    uint16_t            len;            //length of subscribe message
-    unsigned char       *buf;           //subscribe message
+    uint16_t                len;            //length of subscribe message
+    unsigned char          *buf;            //subscribe message
 } iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
 
 
 /* Information structure of published topic */
 typedef struct REPUBLISH_INFO {
-    iotx_time_t      pub_start_time;   //start time of publish request
-    iotx_mc_node_t        node_state;       //state of this node
-    uint16_t          msg_id;           //packet id of publish
-    uint32_t          len;              //length of publish message
-    unsigned char    *buf;              //publish message
+    iotx_time_t             pub_start_time;     //start time of publish request
+    iotx_mc_node_t          node_state;         //state of this node
+    uint16_t                msg_id;             //packet id of publish
+    uint32_t                len;                //length of publish message
+    unsigned char          *buf;                //publish message
 } iotx_mc_pub_info_t, *iotx_mc_pub_info_pt;
 
 
 /* Reconnected parameter of MQTT client */
 typedef struct {
-    iotx_time_t       reconnect_next_time;         //the next time point of reconnect
-    uint32_t           reconnect_time_interval_ms;  //time interval of this reconnect
+    iotx_time_t         reconnect_next_time;         //the next time point of reconnect
+    uint32_t            reconnect_time_interval_ms;  //time interval of this reconnect
 } iotx_mc_reconnect_param_t;
 
 
@@ -113,19 +113,19 @@ typedef struct Client {
     uint32_t                        buf_size_read;                           //read buffer size in byte
     char                           *buf_send;                                //pointer of send buffer
     char                           *buf_read;                                //pointer of read buffer
-    iotx_mc_topic_handle_t              sub_handle[IOTX_MC_SUB_NUM_MAX];             //array of subscribe handle
+    iotx_mc_topic_handle_t          sub_handle[IOTX_MC_SUB_NUM_MAX];         //array of subscribe handle
     utils_network_pt                ipstack;                                 //network parameter
-    iotx_time_t                    next_ping_time;                          //next ping time
+    iotx_time_t                     next_ping_time;                          //next ping time
     int                             ping_mark;                               //flag of ping
-    iotx_mc_state_t                     client_state;                            //state of MQTT client
-    iotx_mc_reconnect_param_t           reconnect_param;                         //reconnect parameter
+    iotx_mc_state_t                 client_state;                            //state of MQTT client
+    iotx_mc_reconnect_param_t       reconnect_param;                         //reconnect parameter
     MQTTPacket_connectData          connect_data;                            //connection parameter
     list_t                         *list_pub_wait_ack;                       //list of wait publish ack
     list_t                         *list_sub_wait_ack;                       //list of subscribe or unsubscribe ack
     void                           *lock_list_pub;                           //lock of list of wait publish ack
     void                           *lock_list_sub;                           //lock of list of subscribe or unsubscribe ack
     void                           *lock_write_buf;                          //lock of write
-    iotx_mqtt_event_handle_t       handle_event;                            //event handle
+    iotx_mqtt_event_handle_t        handle_event;                            //event handle
 } iotx_mc_client_t, *iotx_mc_client_pt;
 
 
