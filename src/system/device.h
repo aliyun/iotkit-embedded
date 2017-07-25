@@ -19,7 +19,7 @@
 #define CLIENT_ID_LEN       (256)
 #define USER_NAME_LEN       (128)
 #define PASSWORD_LEN        (128)
-
+#define AESKEY_STR_LEN      (32)
 
 typedef struct {
     char product_key[PRODUCT_KEY_LEN + 1];
@@ -29,7 +29,6 @@ typedef struct {
     char module_vendor_id[MODULE_VENDOR_ID + 1];
 } iotx_device_info_t, *iotx_device_info_pt;
 
-
 typedef struct {
     uint16_t port;
     char host_name[HOST_ADDRESS_LEN + 1];
@@ -37,6 +36,9 @@ typedef struct {
     char user_name[USER_NAME_LEN + 1];
     char password[PASSWORD_LEN + 1];
     const char *pubKey;
+#ifdef EQUIP_ID2
+    char aeskey_str[AESKEY_STR_LEN + 1];
+#endif
 } iotx_user_info_t, *iotx_user_info_pt;
 
 

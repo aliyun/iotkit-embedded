@@ -13,6 +13,7 @@ SETTING_VARS := \
     PLATFORM_SSL \
     FEATURE_DIRECT_MQTT \
     FEATURE_DIRECT_MQTT_NOTLS \
+    FEATURE_EQUIP_ID2 \
 
 $(foreach v, \
     $(SETTING_VARS), \
@@ -39,6 +40,10 @@ $(error FEATURE_DIRECT_MQTT_NOTLS = y requires FEATURE_DIRECT_MQTT = y!)
 endif
 
 endif   # ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
+
+ifeq (y,$(strip $(FEATURE_EQUIP_ID2)))
+CFLAGS  += -DEQUIP_ID2
+endif
 
 ifneq ($(subst gcc,,$(PLATFORM_CC)),$(subst ar,,$(PLATFORM_AR)))
 $(error PLATFORM_CC and PLATFORM_AR requires same prefix!)

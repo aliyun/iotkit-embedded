@@ -16,6 +16,7 @@
 #include "utils_hmac.h"
 #include "utils_httpc.h"
 #include "ca.h"
+#include "tfs/tfs.h"
 #include "guider.h"
 
 #define GUIDER_IOT_ID_LEN           (256)
@@ -29,10 +30,14 @@
 #define CONN_CID_LEN                (256)
 #define CONN_SECMODE_LEN            (32)
 
-#define GUIDER_SIGN_LEN             (128)
+#define GUIDER_SIGN_LEN             (256)
 #define GUIDER_PID_LEN              (64)
 #define GUIDER_TS_LEN               (16)
 #define GUIDER_URL_LEN              (256)
+
+#define GUIDER_DEVCODE_LEN          (256)
+#define GUIDER_DIGEST_LEN           (256)
+#define GUIDER_URLENCODE_LEN        (256)
 
 #define GUIDER_DIRECT_DOMAIN        "iot-as-mqtt.cn-shanghai.aliyuncs.com"
 

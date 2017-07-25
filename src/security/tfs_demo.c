@@ -14,7 +14,7 @@ static inline void hexdump(const uint8_t *str, uint32_t len)
 static int demo_tfs_get_ID2(void)
 {
     int ret = 0;
-    uint32_t len = 0;
+    uint32_t len = TFS_ID2_LEN + 1;
     uint8_t id2[TFS_ID2_LEN + 1] = {0};
 
     ret = tfs_get_ID2(id2, &len);
