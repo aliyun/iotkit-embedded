@@ -276,26 +276,26 @@ iotx_err_t iotx_shadow_sync(void *handle)
 void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     iotx_shadow_pt pshadow = (iotx_shadow_pt)pcontext;
-    uint32_t packet_id = (uint32_t)msg->msg;
+    uintptr_t packet_id = (uintptr_t)msg->msg;
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-            log_info("subscribe success, packet-id=%u", packet_id);
+            log_info("subscribe success, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = 0;
             }
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-            log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
+            log_info("subscribe wait ack timeout, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = -1;
             }
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-            log_info("subscribe nack, packet-id=%u", packet_id);
+            log_info("subscribe nack, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = -1;
             }

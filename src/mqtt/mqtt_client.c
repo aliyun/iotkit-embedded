@@ -973,7 +973,7 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
         if (NULL != c->handle_event.h_fp) {
             iotx_mqtt_event_msg_t msg;
             msg.event_type = IOTX_MQTT_EVENT_PUBLISH_SUCCESS;
-            msg.msg = (void *)mypacketid;
+            msg.msg = (void *)(uintptr_t)mypacketid;
             c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
         }
     }
@@ -999,7 +999,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         log_err("MQTT SUBSCRIBE failed, ack code is 0x80");
 
         msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_NACK;
-        msg.msg = (void *)mypacketid;
+        msg.msg = (void *)(uintptr_t)mypacketid;
         c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
 
         return MQTT_SUBSCRIBE_ACK_FAILURE;
@@ -1047,7 +1047,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     if (NULL != c->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS;
-        msg.msg = (void *)mypacketid;
+        msg.msg = (void *)(uintptr_t)mypacketid;
         c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
     }
 
@@ -1127,7 +1127,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     if (NULL != c->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS;
-        msg.msg = (void *)mypacketid;
+        msg.msg = (void *)(uintptr_t)mypacketid;
 
         c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
     }
@@ -1480,9 +1480,9 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
     connectdata.MQTTVersion = IOTX_MC_MQTT_VERSION;
     connectdata.keepAliveInterval = pInitParams->keepalive_interval_ms / 1000;
 
-    connectdata.clientID.cstring = pInitParams->client_id;
-    connectdata.username.cstring = pInitParams->user_name;
-    connectdata.password.cstring = pInitParams->password;
+    connectdata.clientID.cstring = (char *)pInitParams->client_id;
+    connectdata.username.cstring = (char *)pInitParams->user_name;
+    connectdata.password.cstring = (char *)pInitParams->password;
 
 
     memset(pClient->sub_handle, 0, IOTX_MC_SUB_NUM_MAX * sizeof(iotx_mc_topic_handle_t));
@@ -1619,11 +1619,11 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                 if (SUBSCRIBE == msg_type) {
                     //subscribe timeout
                     msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT;
-                    msg.msg = (void *)packet_id;
+                    msg.msg = (void *)(uintptr_t)packet_id;
                 } else { /*if (UNSUBSCRIBE == msg_type)*/
                     //unsubscribe timeout
                     msg.event_type = IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT;
-                    msg.msg = (void *)packet_id;
+                    msg.msg = (void *)(uintptr_t)packet_id;
                 }
 
                 pClient->handle_event.h_fp(pClient->handle_event.pcontext, pClient, &msg);
@@ -1766,7 +1766,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 
             //If wait ACK timeout, republish
             HAL_MutexUnlock(pClient->lock_list_pub);
-            rc = MQTTRePublish(pClient, repubInfo->buf, repubInfo->len);
+            rc = MQTTRePublish(pClient, (char *)repubInfo->buf, repubInfo->len);
             iotx_time_start(&repubInfo->pub_start_time);
             HAL_MutexLock(pClient->lock_list_pub);
 
