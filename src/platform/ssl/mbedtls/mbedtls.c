@@ -397,13 +397,13 @@ int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 
 int32_t HAL_SSL_Destroy(uintptr_t handle)
 {
-    if (NULL == handle) {
+    if ((uintptr_t)NULL == handle) {
         SSL_LOG("handle is NULL");
         return 0;
     }
 
     utils_network_ssl_disconnect((TLSDataParams_t *)handle);
-    free(handle);
+    free((void *)handle);
     return 0;
 }
 
@@ -417,7 +417,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     pTlsData = malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
-        return NULL;
+        return (uintptr_t)NULL;
     }
 
     sprintf(port_str, "%u", port);
@@ -427,5 +427,5 @@ uintptr_t HAL_SSL_Establish(const char *host,
         return 0;
     }
 
-    return pTlsData;
+    return (uintptr_t)pTlsData;
 }

@@ -1,5 +1,6 @@
 #ifndef __GUIDER_INTERNAL_H__
 #define __GUIDER_INTERNAL_H__
+#define _GNU_SOURCE
 
 #include <assert.h>
 #include <stdlib.h>

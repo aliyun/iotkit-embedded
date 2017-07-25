@@ -40,10 +40,10 @@ static uint32_t iotx_shadow_get_timestamp(const char *pmetadata_desired,
 
     //attribute be matched, and then get timestamp
 
-    pdata = LITE_json_value_of(pname, pmetadata_desired);
+    pdata = LITE_json_value_of((char *)pname, (char *)pmetadata_desired);
 
     if (NULL != pdata) {
-        pdata = LITE_json_value_of("timestamp", pdata);
+        pdata = LITE_json_value_of((char *)"timestamp", (char *)pdata);
         if (NULL != pdata) {
             return atoi(pdata);
         }
@@ -87,7 +87,7 @@ static void iotx_shadow_delta_update_attr(iotx_shadow_pt pshadow,
 
     while (node = list_iterator_next(iter), NULL != node) {
         pattr = (iotx_shadow_attr_pt)node->val;
-        pvalue = LITE_json_value_of(pattr->pattr_name, json_doc_attr);
+        pvalue = LITE_json_value_of((char *)pattr->pattr_name, (char *)json_doc_attr);
 
         //check if match attribute or not be matched
         if (NULL != pvalue) { //attribute be matched
@@ -122,18 +122,18 @@ void iotx_shadow_delta_entry(
             size_t json_doc_len)
 {
     const char *key_metadata;
-    const char *pstate, *pmetadata, *pvalue;
+    const char *pstate, *pmetadata;
 
-    pstate = LITE_json_value_of("payload.state.desired", json_doc);
+    pstate = LITE_json_value_of((char *)"payload.state.desired", (char *)json_doc);
     if (NULL != pstate) {
         key_metadata = "payload.metadata.desired";
     } else {
         //if have not desired key, get reported key instead.
         key_metadata = "payload.metadata.reported";
-        pstate = LITE_json_value_of("payload.state.reported", json_doc);
+        pstate = LITE_json_value_of((char *)"payload.state.reported", (char *)json_doc);
     }
 
-    pmetadata = LITE_json_value_of(key_metadata, json_doc);
+    pmetadata = LITE_json_value_of((char *)key_metadata, (char *)json_doc);
 
     if ((NULL == pstate) || (NULL == pmetadata)) {
         log_err("Invalid JSON Doc");

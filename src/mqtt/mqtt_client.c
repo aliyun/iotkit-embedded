@@ -303,7 +303,6 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
 {
     iotx_time_t timer;
-    int32_t lefttime = 0;
     MQTTString topic = MQTTString_initializer;
     topic.cstring = (char *)topicName;
     int len = 0;
@@ -588,7 +587,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     repubInfo->msg_id = msgId;
     repubInfo->len = len;
     iotx_time_start(&repubInfo->pub_start_time);
-    repubInfo->buf = (char *)repubInfo + sizeof(iotx_mc_pub_info_t);
+    repubInfo->buf = (unsigned char *)repubInfo + sizeof(iotx_mc_pub_info_t);
 
     memcpy(repubInfo->buf, c->buf_send, len);
 

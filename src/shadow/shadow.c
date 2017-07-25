@@ -41,7 +41,6 @@ static void iotx_ds_handle_expire(iotx_shadow_pt pshadow)
 static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     const char *pname;
-    int val_type;
 
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
@@ -49,22 +48,22 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
     log_debug("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
 
     //update time if there is 'timestamp' key in JSON string
-    pname = LITE_json_value_of("timestamp", topic_info->payload);
+    pname = LITE_json_value_of((char *)"timestamp", (char *)topic_info->payload);
     if (NULL != pname) {
         iotx_ds_common_update_time(pshadow, atoi(pname));
     }
     LITE_free(pname);
 
     //update 'version' if there is 'version' key in JSON string
-    pname = LITE_json_value_of("version", topic_info->payload);
+    pname = LITE_json_value_of((char *)"version", (char *)topic_info->payload);
     if (NULL != pname) {
         iotx_ds_common_update_version(pshadow, atoi(pname));
         LITE_free(pname);
     }
 
     //get 'method'
-    pname = LITE_json_value_of("method", topic_info->payload);
-    log_debug("pname(%d) = %s", strlen(pname), pname);
+    pname = LITE_json_value_of((char *)"method", (char *)topic_info->payload);
+    log_debug("pname(%d) = %s", (int)strlen(pname), pname);
     if (NULL == pname) {
         log_err("Invalid JSON document: not 'method' key");
     } else if ((strlen("control") == strlen(pname)) && !strcmp(pname, "control")) {
@@ -157,8 +156,8 @@ iotx_err_t iotx_shadow_update_asyn(
 
     /*Add to callback list */
 
-    log_debug("data(%d) = %s", data_len, data);
-    ptoken = LITE_json_value_of("clientToken", data);
+    log_debug("data(%d) = %s", (int)data_len, data);
+    ptoken = LITE_json_value_of((char *)"clientToken", (char *)data);
 
     IOTX_ASSERT(NULL != ptoken, "Token should always exist.");
 

@@ -12,6 +12,7 @@ char *LITE_format_string(const char *fmt, ...)
     rc = vasprintf(&tmp, fmt, ap);
     va_end(ap);
     assert(tmp);
+    assert(rc < 1024);
 
     dst = LITE_strdup(tmp);
     free(tmp);
@@ -24,11 +25,13 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
     va_list         ap;
     char           *tmp = NULL;
     char           *dst;
+    int             rc = -1;
 
     va_start(ap, fmt);
-    vasprintf(&tmp, fmt, ap);
+    rc = vasprintf(&tmp, fmt, ap);
     va_end(ap);
     assert(tmp);
+    assert(rc < 1024);
 
     dst = LITE_malloc(len + 1);
     LITE_snprintf(dst, (len + 1), "%s", tmp);
