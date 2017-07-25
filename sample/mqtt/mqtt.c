@@ -32,7 +32,7 @@
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    uint32_t packet_id = (uint32_t)msg->msg;
+    uintptr_t packet_id = (uintptr_t)msg->msg;
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
     switch (msg->event_type) {
@@ -49,39 +49,39 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-            log_info("subscribe success, packet-id=%u", packet_id);
+            log_info("subscribe success, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-            log_info("subscribe wait ack timeout, packet-id=%u", packet_id);
+            log_info("subscribe wait ack timeout, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-            log_info("subscribe nack, packet-id=%u", packet_id);
+            log_info("subscribe nack, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
-            log_info("unsubscribe success, packet-id=%u", packet_id);
+            log_info("unsubscribe success, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
-            log_info("unsubscribe timeout, packet-id=%u", packet_id);
+            log_info("unsubscribe timeout, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
-            log_info("unsubscribe nack, packet-id=%u", packet_id);
+            log_info("unsubscribe nack, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
-            log_info("publish success, packet-id=%u", packet_id);
+            log_info("publish success, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
-            log_info("publish timeout, packet-id=%u", packet_id);
+            log_info("publish timeout, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_NACK:
-            log_info("publish nack, packet-id=%u", packet_id);
+            log_info("publish nack, packet-id=%u", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
