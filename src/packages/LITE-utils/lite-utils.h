@@ -37,6 +37,9 @@
         ptr = NULL; \
     } while(0)
 
+void       *LITE_malloc_internal(const char *f, const int l, int size);
+void       *LITE_realloc_internal(const char *f, const int l, void *ptr, int size);
+void        LITE_free_internal(void *ptr);
 void       *LITE_malloc_routine(int size);
 void        LITE_free_routine(void *ptr);
 

@@ -1,5 +1,15 @@
 #include "guider_internal.h"
 
+extern int httpclient_common(
+    httpclient_t *client,
+    const char *url,
+    int port,
+    const char *ca_crt,
+    int method,
+    uint32_t timeout_ms,
+    httpclient_data_t *client_data);
+extern uint64_t utils_get_epoch_time(char copy[], int len);
+
 #define _ONLINE
 
 typedef enum _SECURE_MODE {
@@ -12,7 +22,7 @@ typedef enum _SECURE_MODE {
     MODE_TLS_GUIDER_ID2         = 5,
 } SECURE_MODE;
 
-const char **secmode_str[] = {
+const char *secmode_str[] = {
     "TCP + Guider + Plain",
     "TCP + Guider + ID2-Crypto",
     "TLS + Direct",
@@ -22,6 +32,7 @@ const char **secmode_str[] = {
     ""
 };
 
+#ifdef ID2_AUTH
 static uint64_t _timestamp_num(char *str)
 {
     char        backup;
@@ -39,7 +50,6 @@ static uint64_t _timestamp_num(char *str)
     return res;
 }
 
-#ifdef ID2_AUTH
 static bool _is_non_symbol(char c)
 {
     int         c_int = (int)c;
@@ -57,10 +67,8 @@ static int _url_encode(const char *input, char *output)
         return -1;
     }
 
-    int end = strlen(input);
-    size_t final_size = (end * 3) + 1;
-    char encoded[4] = {0};
-    char c;
+    char        encoded[4] = {0};
+    char        c;
 
     while (*input) {
         c = *input;
@@ -86,17 +94,17 @@ static int _url_encode(const char *input, char *output)
 static int _calc_id2_signature(
             char *id2_sigbuf,
             const int sig_buflen,
-            const char *timestamp_str,
+            char *timestamp_str,
             char **id2_str,
             char **device_code_str
 )
 {
     int                     rc = -1;
     uint8_t                 id2[TFS_ID2_LEN + 1] = {0};
-    int                     id2_len = TFS_ID2_LEN + 1;
+    uint32_t                id2_len = TFS_ID2_LEN + 1;
     uint8_t                 dev_code[GUIDER_DEVCODE_LEN] = {0};
-    int                     dev_code_len = 0;
-    int                     sign_len = 0;
+    uint32_t                dev_code_len = 0;
+    uint32_t                sign_len = 0;
     char                    url_encode_buf[GUIDER_URLENCODE_LEN] = {0};
     iotx_device_info_pt     dev = NULL;
     char                   *digest_str = NULL;
@@ -128,9 +136,9 @@ static int _calc_id2_signature(
                                     timestamp_str);
     log_debug("digest_str = %s", digest_str);
     rc = tfs_id2_get_digest_auth_code(ts_val,
-                                      digest_str,
+                                      (uint8_t *)digest_str,
                                       strlen(digest_str),
-                                      id2_sigbuf,
+                                      (uint8_t *)id2_sigbuf,
                                       &sign_len);
     assert(!rc);
     assert(sign_len <= sig_buflen);
@@ -141,17 +149,17 @@ static int _calc_id2_signature(
     _url_encode((const char *)*device_code_str, url_encode_buf);
     LITE_free(*device_code_str);
     *device_code_str = LITE_strdup(url_encode_buf);
-    log_debug("Encoded deviceCode[%d] = '%s'", strlen(*device_code_str), *device_code_str);
+    log_debug("Encoded deviceCode[%d] = '%s'", (int)strlen(*device_code_str), *device_code_str);
 
     /* Get URL-Encoded Signature */
     _url_encode((const char *)id2_sigbuf, url_encode_buf);
     memset(id2_sigbuf, 0, sig_buflen);
     strncpy(id2_sigbuf, url_encode_buf, sig_buflen);
-    log_debug("Encoded id2_sigbuf[%d] = '%s'", strlen(id2_sigbuf), id2_sigbuf);
+    log_debug("Encoded id2_sigbuf[%d] = '%s'", (int)strlen(id2_sigbuf), id2_sigbuf);
 
     return 0;
 }
-#endif
+#endif  /* #ifdef ID2_AUTH */
 
 static int _hmac_md5_signature(
             char *md5_sigbuf,
@@ -176,13 +184,13 @@ static int _hmac_md5_signature(
                   dev->product_key,
                   timestamp_str);
     assert(rc < sizeof(hmac_source));
-    log_debug("| source: %s (%d)", hmac_source, strlen(hmac_source));
+    log_debug("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
 
     utils_hmac_md5(hmac_source, strlen(hmac_source),
                    signature,
                    dev->device_secret,
                    strlen(dev->device_secret));
-    log_debug("| signature: %s (%d)", signature, strlen(signature));
+    log_debug("| signature: %s (%d)", signature, (int)strlen(signature));
 
     memcpy(md5_sigbuf, signature, md5_buflen);
     return 0;
@@ -299,6 +307,17 @@ static int _iotId_iotToken_http(
     const char         *pvalue;
     char                port_str[6];
 
+    pvalue = LITE_json_value_of("code", iotx_payload);
+    assert(pvalue);
+    ret_code = atoi(pvalue);
+    LITE_free(pvalue);
+    if (200 != ret_code) {
+        log_err("++++");
+        log_err("ret_code = %d (!= 200), abort!", ret_code);
+        log_err("++++");
+        goto do_exit;
+    }
+
     pvalue = LITE_json_value_of("data.iotId", iotx_payload);
     if (NULL == pvalue) {
         goto do_exit;
@@ -383,9 +402,9 @@ void _secure_mode_str(char *buf, int len)
 {
     memset(buf, 0, len);
 #ifndef MQTT_TCP
-    snprintf(buf, len, "");
+    snprintf(buf, len, "%s", "");
 #else
-    snprintf(buf, len, "securemode=0");
+    snprintf(buf, len, "%s", "securemode=0");
 #endif
     return;
 }
@@ -438,18 +457,19 @@ char *_authenticate_string(char sign[], char ts[]
 {
     char                   *ret = NULL;
     iotx_device_info_pt     dev = NULL;
+    int                     rc = -1;
 
     dev = iotx_get_device_info();
     assert(dev);
 
 #ifdef ID2_AUTH
-    asprintf(&ret,
+    rc = asprintf(&ret,
              "id2=%s&" "sign=%s&" "deviceCode=%s&" "timestamp=%s&"
              "version=default&" "clientId=%s&" "resources=mqtt,codec",
              id2, sign, dev_code, ts,
              dev->device_id);
 #else
-    asprintf(&ret,
+    rc = asprintf(&ret,
              "productKey=%s&" "deviceName=%s&" "sign=%s&"
              "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt",
              dev->product_key,
@@ -458,6 +478,7 @@ char *_authenticate_string(char sign[], char ts[]
              dev->device_id,
              ts);
 #endif
+    assert(rc < 1024);
 
     return ret;
 }
@@ -506,7 +527,6 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
 #endif
 
     char           *req_str = NULL;
-    int             ret = -1;
 
     _secure_mode_str(guider_secmode_str, sizeof(guider_secmode_str));
 
@@ -623,7 +643,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     log_debug("%16s : %-s", "PassWord", usr->password);
     log_debug("%16s : %-s", "ClientID", usr->client_id);
     log_debug("%16s : %p ('%.16s ...')", "TLS PubKey",
-              usr->pubKey ? usr->pubKey : 0xdead,
+              usr->pubKey ? usr->pubKey : (const char *)0xdead,
               usr->pubKey ? usr->pubKey : "N/A");
 #ifdef ID2_AUTH
     log_debug("%16s : %-s", "AES Key", usr->aeskey_str);

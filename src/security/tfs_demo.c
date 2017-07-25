@@ -1,4 +1,6 @@
 #include "tfs.h"
+#include <stdio.h>
+#include <string.h>
 
 static inline void hexdump(const uint8_t *str, uint32_t len)
 {

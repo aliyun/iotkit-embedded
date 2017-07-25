@@ -125,14 +125,13 @@ int HAL_TCP_Destroy(uintptr_t fd)
 
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int ret, err_code;
+    int ret;
     uint32_t len_sent;
     uint64_t t_end, t_left;
     fd_set sets;
 
     t_end = _linux_get_time_ms() + timeout_ms;
     len_sent = 0;
-    err_code = 0;
     ret = 1; //send one time if timeout_ms is value 0
 
     do {
@@ -164,7 +163,6 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                     continue;
                 }
 
-                err_code = -1;
                 perror("select-write fail");
                 break;
             }
@@ -182,7 +180,6 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                     continue;
                 }
 
-                err_code = -1;
                 perror("send fail");
                 break;
             }

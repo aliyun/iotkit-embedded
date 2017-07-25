@@ -7,6 +7,14 @@
 
 #define HTTP_RESP_CONTENT_LEN   (64)
 
+extern int httpclient_common(httpclient_t *client,
+                             const char *url,
+                             int port,
+                             const char *ca_crt,
+                             int method,
+                             uint32_t timeout_ms,
+                             httpclient_data_t *client_data);
+
 uint64_t utils_get_epoch_time(char copy[], int len)
 {
     int ret;
@@ -23,7 +31,14 @@ uint64_t utils_get_epoch_time(char copy[], int len)
     httpclient_data.response_buf = http_content;
     httpclient_data.response_content_len = HTTP_RESP_CONTENT_LEN;
 
-    ret = httpclient_common(&httpclient, "http://iot-nsauth.alibaba.net/system/time", 80, NULL, HTTPCLIENT_GET, 5000, &httpclient_data);
+    ret = httpclient_common(
+                      &httpclient,
+                      "http://iot-nsauth.alibaba.net/system/time",
+                      80,
+                      NULL,
+                      HTTPCLIENT_GET,
+                      5000,
+                      &httpclient_data);
     if (0 != ret) {
         log_err("request epoch time from remote server failed.");
         return 0;

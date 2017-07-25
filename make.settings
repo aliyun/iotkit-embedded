@@ -2,4 +2,4 @@ BUILD_TYPE              = debug
 
 FEATURE_DIRECT_MQTT         = n
 FEATURE_DIRECT_MQTT_NOTLS   = n
-FEATURE_ID2_AUTH            = y
+FEATURE_ID2_AUTH            = n

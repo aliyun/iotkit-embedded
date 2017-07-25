@@ -1,7 +1,7 @@
 
 #include "iot_import.h"
 #include "lite-log.h"
-#include "lite-utils.h"
+#include "lite-utils_internal.h"
 #include "utils_list.h"
 
 
