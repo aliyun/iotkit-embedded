@@ -28,6 +28,10 @@ CFLAGS  += -DIOTX_DEBUG
 endif
 
 ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
+ifeq (y,$(strip $(FEATURE_EQUIP_ID2)))
+$(error FEATURE_EQUIP_ID2 + FEATURE_DIRECT_MQTT not implemented!)
+endif
+
 CFLAGS  += -DDIRECT_MQTT
 ifeq (y,$(strip $(FEATURE_DIRECT_MQTT_NOTLS)))
 CFLAGS  += -DIOTX_MQTT_TCP
