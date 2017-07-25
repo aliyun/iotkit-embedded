@@ -36,7 +36,7 @@ typedef struct {
     char user_name[USER_NAME_LEN + 1];
     char password[PASSWORD_LEN + 1];
     const char *pubKey;
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     char aeskey_str[AESKEY_STR_LEN + 1];
 #endif
 } iotx_user_info_t, *iotx_user_info_pt;

@@ -13,7 +13,7 @@ SETTING_VARS := \
     PLATFORM_SSL \
     FEATURE_DIRECT_MQTT \
     FEATURE_DIRECT_MQTT_NOTLS \
-    FEATURE_EQUIP_ID2 \
+    FEATURE_ID2_AUTH \
 
 $(foreach v, \
     $(SETTING_VARS), \
@@ -28,13 +28,13 @@ CFLAGS  += -DIOTX_DEBUG
 endif
 
 ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
-ifeq (y,$(strip $(FEATURE_EQUIP_ID2)))
-$(error FEATURE_EQUIP_ID2 + FEATURE_DIRECT_MQTT not implemented!)
+ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
+$(error FEATURE_ID2_AUTH + FEATURE_DIRECT_MQTT not implemented!)
 endif
 
 CFLAGS  += -DDIRECT_MQTT
 ifeq (y,$(strip $(FEATURE_DIRECT_MQTT_NOTLS)))
-CFLAGS  += -DIOTX_MQTT_TCP
+CFLAGS  += -DIOTX_WITHOUT_TLS
 endif
 
 else    # ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
@@ -45,8 +45,8 @@ endif
 
 endif   # ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
 
-ifeq (y,$(strip $(FEATURE_EQUIP_ID2)))
-CFLAGS  += -DEQUIP_ID2
+ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
+CFLAGS  += -DID2_AUTH
 endif
 
 ifneq ($(subst gcc,,$(PLATFORM_CC)),$(subst ar,,$(PLATFORM_AR)))

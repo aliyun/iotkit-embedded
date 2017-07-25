@@ -39,7 +39,7 @@ static uint64_t _timestamp_num(char *str)
     return res;
 }
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
 static bool _is_non_symbol(char c)
 {
     int         c_int = (int)c;
@@ -268,7 +268,7 @@ static int _iotId_iotToken_http(
 
     assert(usr);
 
-#ifdef IOTX_MQTT_TCP
+#ifdef IOTX_WITHOUT_TLS
     iotx_port = 80;
 #endif
 
@@ -328,7 +328,7 @@ static int _iotId_iotToken_http(
     LITE_free(pvalue);
     *pport = atoi(port_str);
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     pvalue = LITE_json_value_of("data.resources.codec.key", iotx_payload);
     if (NULL == pvalue) {
         goto do_exit;
@@ -341,7 +341,7 @@ static int _iotId_iotToken_http(
     log_debug("%10s: %s", "iotToken", iot_token);
     log_debug("%10s: %s", "Host", host);
     log_debug("%10s: %d", "Port", *pport);
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     log_debug("%10s: %s", "AES Key", usr->aeskey_str);
 #endif
 
@@ -353,7 +353,7 @@ do_exit:
 
 void _timestamp_string(char *buf, int len)
 {
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     utils_get_epoch_time(buf, len);
 #else
     snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
@@ -367,7 +367,7 @@ static SECURE_MODE _secure_mode_num(void)
 
 #ifdef DIRECT_MQTT
 
-#ifdef IOTX_MQTT_TCP
+#ifdef IOTX_WITHOUT_TLS
     rc = MODE_TCP_DIRECT_PLAIN;
 #else
     rc = MODE_TLS_DIRECT;
@@ -418,7 +418,7 @@ static void _authenticate_http_url(char *buf, int len)
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
 #endif
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     strcat(buf, "/auth/id2");
 #else
     strcat(buf, "/auth/devicename");
@@ -430,7 +430,7 @@ static void _authenticate_http_url(char *buf, int len)
 }
 
 char *_authenticate_string(char sign[], char ts[]
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     , char id2[]
     , char dev_code[]
 #endif
@@ -442,7 +442,7 @@ char *_authenticate_string(char sign[], char ts[]
     dev = iotx_get_device_info();
     assert(dev);
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     asprintf(&ret,
              "id2=%s&" "sign=%s&" "deviceCode=%s&" "timestamp=%s&"
              "version=default&" "clientId=%s&" "resources=mqtt,codec",
@@ -500,7 +500,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     char            guider_secmode_str[CONN_SECMODE_LEN] = {0};
     char            guider_sign[GUIDER_SIGN_LEN] = {0};
     char            guider_timestamp_str[GUIDER_TS_LEN] = {0};
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     char           *guider_id2 = NULL;
     char           *guider_device_code = NULL;
 #endif
@@ -515,7 +515,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     _authenticate_http_url(guider_url, sizeof(guider_url));
     guider_secmode_num = _secure_mode_num();
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     // get ID2 Signature, deviceCode/ID2 fetched meanwhile
     _calc_id2_signature(guider_sign,
                         sizeof(guider_sign),
@@ -539,7 +539,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str);
     log_debug("%s", "....................................................");
     log_debug("%20s : %s", "Guider Sign", guider_sign);
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     log_debug("%20s : %s", "Guider ID2", guider_id2);
     log_debug("%20s : %s", "Guider DeviceCode", guider_device_code);
 #endif
@@ -551,7 +551,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
     char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     req_str = _authenticate_string(guider_sign, guider_timestamp_str,
                                    guider_id2, guider_device_code);
 #else
@@ -571,7 +571,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
         }
 
         log_err("_iotId_iotToken_http() failed");
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
         LITE_free(guider_id2);
         LITE_free(guider_device_code);
 #endif
@@ -625,7 +625,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     log_debug("%16s : %p ('%.16s ...')", "TLS PubKey",
               usr->pubKey ? usr->pubKey : 0xdead,
               usr->pubKey ? usr->pubKey : "N/A");
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     log_debug("%16s : %-s", "AES Key", usr->aeskey_str);
 #endif
     log_debug("%s", "-----------------------------------------");
@@ -634,7 +634,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
         free(req_str);
     }
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     LITE_free(guider_id2);
     LITE_free(guider_device_code);
 #endif

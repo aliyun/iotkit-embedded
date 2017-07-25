@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     unittest_string_utils();
     unittest_json_token();
 
-#ifdef EQUIP_ID2
+#ifdef ID2_AUTH
     uint64_t    fake_timestamp = 1493274903;
 
     fake_timestamp = fake_timestamp * 1000;

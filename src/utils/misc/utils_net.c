@@ -48,7 +48,7 @@ static int connect_tcp(utils_network_pt pNetwork)
 
 
 /*** SSL connection ***/
-#ifndef IOTX_MQTT_TCP
+#ifndef IOTX_WITHOUT_TLS
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
@@ -102,7 +102,7 @@ static int connect_ssl(utils_network_pt pNetwork)
         return -1;
     }
 }
-#endif  /* #ifndef IOTX_MQTT_TCP */
+#endif  /* #ifndef IOTX_WITHOUT_TLS */
 
 
 /****** network interface ******/
@@ -111,7 +111,7 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return read_tcp(pNetwork, buffer, len, timeout_ms);
-#ifndef IOTX_MQTT_TCP
+#ifndef IOTX_WITHOUT_TLS
     } else { //SSL connection
         return read_ssl(pNetwork, buffer, len, timeout_ms);
 #endif
@@ -123,7 +123,7 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return write_tcp(pNetwork, buffer, len, timeout_ms);
-#ifndef IOTX_MQTT_TCP
+#ifndef IOTX_WITHOUT_TLS
     } else { //SSL connection
         return write_ssl(pNetwork, buffer, len, timeout_ms);
 #endif
@@ -135,7 +135,7 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return disconnect_tcp(pNetwork);
-#ifndef IOTX_MQTT_TCP
+#ifndef IOTX_WITHOUT_TLS
     } else { //SSL connection
         return disconnect_ssl(pNetwork);
 #endif
@@ -147,7 +147,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork->ca_crt) { //TCP connection
         return connect_tcp(pNetwork);
-#ifndef IOTX_MQTT_TCP
+#ifndef IOTX_WITHOUT_TLS
     } else { //SSL connection
         return connect_ssl(pNetwork);
 #endif
