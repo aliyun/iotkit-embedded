@@ -200,11 +200,9 @@ void LITE_dump_malloc_free_stats(int level)
 #if WITH_MEM_STATS
     OS_malloc_record       *pos;
 
-#if defined(LITE_LOG_ENABLED)
-    if (level > LITE_get_loglevel()) {
+    if (LITE_log_enabled() && level > LITE_get_loglevel()) {
         return;
     }
-#endif
 
     LITE_printf("\r\n");
     LITE_printf("---------------------------------------------------\r\n");
@@ -219,16 +217,11 @@ void LITE_dump_malloc_free_stats(int level)
     LITE_printf(". iterations_max_in_use:    %d\r\n", iterations_max_in_use);
     LITE_printf("---------------------------------------------------\r\n");
 
-#if defined(LITE_LOG_ENABLED)
-    if (LITE_get_loglevel() == level) {
-#else
-    {
-#endif
+    if (!LITE_log_enabled() || LITE_get_loglevel() == level) {
         int         j;
         int         cnt = 0;
 
-        list_for_each_entry(pos, &mem_recs, list)
-        {
+        list_for_each_entry(pos, &mem_recs, list) {
             if (pos->buf) {
                 LITE_printf("%4d. %-24s Ln:%-5d @ %p: %4d bytes [",
                 ++cnt,
