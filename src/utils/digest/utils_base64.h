@@ -1,5 +1,3 @@
-
-
 #ifndef _IOTX_COMMON_BASE64_H_
 #define _IOTX_COMMON_BASE64_H_
 

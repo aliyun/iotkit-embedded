@@ -1,13 +1,13 @@
 #include "guider_internal.h"
 
 extern int httpclient_common(
-    httpclient_t *client,
-    const char *url,
-    int port,
-    const char *ca_crt,
-    int method,
-    uint32_t timeout_ms,
-    httpclient_data_t *client_data);
+            httpclient_t *client,
+            const char *url,
+            int port,
+            const char *ca_crt,
+            int method,
+            uint32_t timeout_ms,
+            httpclient_data_t *client_data);
 extern uint64_t utils_get_epoch_time(char copy[], int len);
 
 #define _ONLINE
@@ -283,6 +283,11 @@ static int _iotId_iotToken_http(
     iotx_port = 80;
 #endif
 
+    // special case: ID2 online not ready
+#if defined(ID2_AUTH)
+    iotx_port = 80;
+#endif
+
     /*
         {
             "code": 200,
@@ -304,7 +309,13 @@ static int _iotId_iotToken_http(
                    request_string,
                    guider_addr,
                    iotx_port,
-                   iotx_ca_get());
+                   // special case: ID2 online not ready
+#if defined(ID2_AUTH)
+                   NULL
+#else
+                   iotx_ca_get()
+#endif
+                  );
     log_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
     const char         *pvalue;
@@ -320,6 +331,50 @@ static int _iotId_iotToken_http(
         log_err("++++");
         goto do_exit;
     }
+
+#if defined(ID2_AUTH)
+    uint8_t            *b64_decode = NULL;
+    uint8_t            *id2_decrypt = NULL;
+    int                 id2_rc = -1;
+    uint32_t            src_len = 0;
+    uint32_t            dst_len = 0;
+    uint32_t            dec_len = 0;
+
+    pvalue = LITE_json_value_of("data", iotx_payload);
+    if (NULL == pvalue) {
+        goto do_exit;
+    }
+    src_len = (uint32_t)strlen(pvalue);
+    b64_decode = LITE_malloc(src_len);
+    assert(b64_decode);
+
+    id2_rc = utils_base64decode((const uint8_t *)pvalue,
+                                src_len,
+                                src_len,
+                                b64_decode,
+                                &dst_len);
+    log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
+    assert(!id2_rc);
+    LITE_free(pvalue);
+
+    id2_decrypt = LITE_malloc(dst_len);
+    assert(id2_decrypt);
+    id2_rc = tfs_id2_decrypt((const uint8_t *)b64_decode,
+                             dst_len,
+                             id2_decrypt,
+                             &dec_len);
+    log_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);
+    assert(!id2_rc);
+    LITE_free(b64_decode);
+    log_debug("id2_decrypt = %s", id2_decrypt);
+
+    sprintf(iotx_payload, "{\"data\":");
+    strcat(iotx_payload, (const char *)id2_decrypt);
+    strcat(iotx_payload, "}");
+    log_debug("iotx_payload = %s", iotx_payload);
+
+    LITE_free(id2_decrypt);
+#endif
 
     pvalue = LITE_json_value_of("data.iotId", iotx_payload);
     if (NULL == pvalue) {
@@ -405,7 +460,7 @@ static SECURE_MODE _secure_mode_num(void)
 void _secure_mode_str(char *buf, int len)
 {
     memset(buf, 0, len);
-#ifndef MQTT_TCP
+#ifndef IOTX_WITHOUT_TLS
     snprintf(buf, len, "%s", "");
 #else
     snprintf(buf, len, "%s", "securemode=0");
@@ -436,7 +491,14 @@ static void _authenticate_http_url(char *buf, int len)
 
     snprintf(buf, len, "%s", "http://");
 #ifdef _ONLINE
+
+    // special case: ID2 online not ready
+#if defined(ID2_AUTH)
+    strcat(buf, "iot-auth.alibaba.net");
+#else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
+#endif
+
 #else
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
 #endif
@@ -468,19 +530,19 @@ char *_authenticate_string(char sign[], char ts[]
 
 #ifdef ID2_AUTH
     rc = asprintf(&ret,
-             "id2=%s&" "sign=%s&" "deviceCode=%s&" "timestamp=%s&"
-             "version=default&" "clientId=%s&" "resources=mqtt,codec",
-             id2, sign, dev_code, ts,
-             dev->device_id);
+                  "id2=%s&" "sign=%s&" "deviceCode=%s&" "timestamp=%s&"
+                  "version=default&" "clientId=%s&" "resources=mqtt,codec",
+                  id2, sign, dev_code, ts,
+                  dev->device_id);
 #else
     rc = asprintf(&ret,
-             "productKey=%s&" "deviceName=%s&" "sign=%s&"
-             "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt",
-             dev->product_key,
-             dev->device_name,
-             sign,
-             dev->device_id,
-             ts);
+                  "productKey=%s&" "deviceName=%s&" "sign=%s&"
+                  "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt",
+                  dev->product_key,
+                  dev->device_name,
+                  sign,
+                  dev->device_id,
+                  ts);
 #endif
     assert(rc < 1024);
 

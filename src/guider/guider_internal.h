@@ -14,6 +14,7 @@
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
 #include "utils_md5.h"
+#include "utils_base64.h"
 #include "utils_hmac.h"
 #include "utils_httpc.h"
 #include "ca.h"
