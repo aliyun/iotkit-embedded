@@ -686,17 +686,17 @@ int32_t IOT_Fill_ConnInfo(void)
 #ifdef DIRECT_MQTT
 
     usr->port = 1883;
-#if 0
-    _fill_conn_string(usr->host_name, "%s.%s",
+    _fill_conn_string(usr->host_name, sizeof(usr->host_name),
+                      "%s.%s",
                       dev->product_key,
                       GUIDER_DIRECT_DOMAIN);
-#else
-    _fill_conn_string(usr->host_name, sizeof(usr->host_name), "%s", "10.125.63.74");
 #endif
     _fill_conn_string(usr->username, sizeof(usr->username), "%s&%s",
                       dev->device_name,
                       dev->product_key);
-    _fill_conn_string(usr->password, sizeof(usr->password), "%s", guider_sign);
+    _fill_conn_string(usr->password, sizeof(usr->password),
+                      "%s",
+                      guider_sign);
     _fill_conn_string(usr->client_id, sizeof(usr->client_id),
                       "%s"
                       "|securemode=%d,gw=0,signmethod=hmacmd5"

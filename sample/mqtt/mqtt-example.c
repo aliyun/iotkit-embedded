@@ -1,4 +1,3 @@
-
 #include "iot_import.h"
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
@@ -6,29 +5,17 @@
 #include "guider.h"
 #include "device.h"
 
-//The product and device information from IOT console
-//#define PRODUCT_KEY         "6RcIOUafDOm"
-//#define DEVICE_NAME         "sh_pre_sample_mqtt"
-//#define DEVICE_SECRET       "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
+#define PRODUCT_KEY             "yfTuLfBJTiL"
+#define DEVICE_NAME             "TestDeviceForDemo"
+#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 
-#if !defined(DIRECT_MQTT)
-    #define PRODUCT_KEY         "OvNmiEYRDSY"
-    #define DEVICE_NAME         "sh_online_sample_mqtt"
-    #define DEVICE_SECRET       "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
-#else
-    #define PRODUCT_KEY         "jRCMjOhnScj"
-    #define DEVICE_NAME         "dns_test"
-    #define DEVICE_SECRET       "OJurfzWl9SsyL6eaxBkMvmHW15KMyn3C"
-#endif
+// These are pre-defined topics
+#define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
+#define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
+#define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
+#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
 
-//This is the pre-defined topic
-#define TOPIC_UPDATE         "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
-#define TOPIC_ERROR          "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
-#define TOPIC_GET            "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
-#define TOPIC_DATA           "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
-
-#define MSG_LEN_MAX         (1024)
-
+#define MSG_LEN_MAX             (1024)
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
