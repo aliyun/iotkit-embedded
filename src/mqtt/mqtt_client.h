@@ -1,8 +1,5 @@
-
-
 #ifndef _IOTX_MQTT_CLIENT_H_
 #define _IOTX_MQTT_CLIENT_H_
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -13,20 +10,17 @@ extern "C" {
 
 #include "iot_import.h"
 
-
 /* maximum number of successful subscribe */
 #define IOTX_MC_SUB_NUM_MAX                     (10)
 
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
 
-
 typedef enum {
     IOTX_MQTT_QOS0 = 0,
     IOTX_MQTT_QOS1,
     IOTX_MQTT_QOS2
 } iotx_mqtt_qos_t;
-
 
 typedef enum {
 
@@ -174,7 +168,7 @@ typedef struct {
  *
  * @return NULL, construct failed; NOT NULL, the handle of MQTT client.
  */
-void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams);
+void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
 
 
 /**
@@ -185,7 +179,7 @@ void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams);
  *
  * @return 0, deconstruct success; -1, deconstruct failed.
  */
-int iotx_mqtt_deconstruct(void *handle);
+int IOT_MQTT_Destroy(void *handle);
 
 
 /**
@@ -197,7 +191,7 @@ int iotx_mqtt_deconstruct(void *handle);
  *
  * @return none.
  */
-void iotx_mqtt_yield(void *handle, int timeout_ms);
+void IOT_MQTT_Yield(void *handle, int timeout_ms);
 
 
 /**
@@ -207,7 +201,7 @@ void iotx_mqtt_yield(void *handle, int timeout_ms);
  *
  * @return true, MQTT in normal state; false, MQTT in abnormal state.
  */
-bool iotx_mqtt_check_state_normal(void *handle);
+bool IOT_MQTT_CheckStateNormal(void *handle);
 
 
 /**
@@ -227,7 +221,7 @@ bool iotx_mqtt_check_state_normal(void *handle);
           The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
    @endverbatim
  */
-int32_t iotx_mqtt_subscribe(void *handle,
+int32_t IOT_MQTT_Subscribe(void *handle,
                             const char *topic_filter,
                             iotx_mqtt_qos_t qos,
                             iotx_mqtt_event_handle_func_fpt topic_handle_func,
@@ -248,7 +242,7 @@ int32_t iotx_mqtt_subscribe(void *handle,
           The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
    @endverbatim
  */
-int32_t iotx_mqtt_unsubscribe(void *handle, const char *topic_filter);
+int32_t IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
 
 
 /**
@@ -268,12 +262,9 @@ int32_t iotx_mqtt_unsubscribe(void *handle, const char *topic_filter);
  * @endverbatim
  *
  */
-int32_t iotx_mqtt_publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
-
-
+int32_t IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
 
 #if defined(__cplusplus)
 }
 #endif
-
-#endif
+#endif  /* #ifndef _IOTX_MQTT_CLIENT_H_ */

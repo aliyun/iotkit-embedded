@@ -504,7 +504,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             client_data->response_content_len += client_data->retrieve_len;
             if (n != 1) {
                 log_err("Could not read chunk length");
-                return ERRO_HTTP_UNRESOLVED_DNS;
+                return ERROR_HTTP_UNRESOLVED_DNS;
             }
 
             memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2)); /* Not need to move NULL-terminating char any more */
@@ -570,7 +570,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             }
             if ((data[0] != '\r') || (data[1] != '\n')) {
                 log_err("Format error, %s", data); /* after memmove, the beginning of next chunk */
-                return ERRO_HTTP_UNRESOLVED_DNS;
+                return ERROR_HTTP_UNRESOLVED_DNS;
             }
             memmove(data, &data[2], len - 2); /* remove the \r\n */
             len -= 2;
@@ -599,7 +599,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     char *crlf_ptr = strstr(data, "\r\n");
     if (crlf_ptr == NULL) {
         log_err("\r\n not found");
-        return ERRO_HTTP_UNRESOLVED_DNS;
+        return ERROR_HTTP_UNRESOLVED_DNS;
     }
 
     crlf_pos = crlf_ptr - data;
@@ -609,7 +609,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     if (sscanf(data, "HTTP/%*d.%*d %d %*[^\r\n]", &(client->response_code)) != 1) {
         /* Cannot match string, error */
         log_err("Not a correct HTTP answer : %s\n", data);
-        return ERRO_HTTP_UNRESOLVED_DNS;
+        return ERROR_HTTP_UNRESOLVED_DNS;
     }
 
     if ((client->response_code < 200) || (client->response_code >= 400)) {

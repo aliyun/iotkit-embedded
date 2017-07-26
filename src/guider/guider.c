@@ -110,7 +110,7 @@ static int _calc_id2_signature(
     char                   *digest_str = NULL;
     uint64_t                ts_val = 0;
 
-    dev = iotx_get_device_info();
+    dev = IOT_GetDeviceInfo();
     assert(dev);
 
     /* Get timestamp */
@@ -172,7 +172,7 @@ static int _hmac_md5_signature(
     int                     rc = -1;
     iotx_device_info_pt     dev;
 
-    dev = iotx_get_device_info();
+    dev = IOT_GetDeviceInfo();
     assert(dev);
 
     memset(signature, 0, sizeof(signature));
@@ -274,7 +274,7 @@ static int _iotId_iotToken_http(
     char                iotx_payload[512] = {0};
     int                 iotx_port = 443;
     int                 ret = -1;
-    iotx_user_info_pt   usr = iotx_get_user_info();
+    iotx_conn_info_pt   usr = IOT_GetConnInfo();
     int                 ret_code = 0;
 
     assert(usr);
@@ -463,7 +463,7 @@ char *_authenticate_string(char sign[], char ts[]
     iotx_device_info_pt     dev = NULL;
     int                     rc = -1;
 
-    dev = iotx_get_device_info();
+    dev = IOT_GetDeviceInfo();
     assert(dev);
 
 #ifdef ID2_AUTH
@@ -517,7 +517,7 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
         const char *    pubKey;
     }
 */
-int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
+int32_t IOT_FetchConnInfo(iotx_device_info_pt dev, iotx_conn_info_pt usr)
 {
     char            guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char            guider_url[GUIDER_URL_LEN] = {0};
@@ -604,7 +604,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
 #endif
 
     /* Start Filling Connection Information */
-    usr->pubKey = iotx_ca_get();
+    usr->pub_key = iotx_ca_get();
 #ifdef DIRECT_MQTT
 
     usr->port = 1883;
@@ -615,7 +615,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
 #else
     _fill_conn_string(usr->host_name, sizeof(usr->host_name), "%s", "10.125.63.74");
 #endif
-    _fill_conn_string(usr->user_name, sizeof(usr->user_name), "%s&%s",
+    _fill_conn_string(usr->username, sizeof(usr->username), "%s&%s",
                       dev->device_name,
                       dev->product_key);
     _fill_conn_string(usr->password, sizeof(usr->password), "%s", guider_sign);
@@ -631,7 +631,7 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
 
     usr->port = iotx_conn_port;
     _fill_conn_string(usr->host_name, sizeof(usr->host_name), "%s", iotx_conn_host);
-    _fill_conn_string(usr->user_name, sizeof(usr->user_name), "%s", iotx_id);
+    _fill_conn_string(usr->username, sizeof(usr->username), "%s", iotx_id);
     _fill_conn_string(usr->password, sizeof(usr->password), "%s", iotx_token);
     _fill_conn_string(usr->client_id, sizeof(usr->client_id),
                       "%s" "|%s" "%s|",
@@ -643,12 +643,12 @@ int32_t IOT_Fill_ConnInfo(iotx_device_info_pt dev, iotx_user_info_pt usr)
     log_debug("%s", "-----------------------------------------");
     log_debug("%16s : %-s", "Host", usr->host_name);
     log_debug("%16s : %d",  "Port", usr->port);
-    log_debug("%16s : %-s", "UserName", usr->user_name);
+    log_debug("%16s : %-s", "UserName", usr->username);
     log_debug("%16s : %-s", "PassWord", usr->password);
     log_debug("%16s : %-s", "ClientID", usr->client_id);
     log_debug("%16s : %p ('%.16s ...')", "TLS PubKey",
-              usr->pubKey ? usr->pubKey : (const char *)0xdead,
-              usr->pubKey ? usr->pubKey : "N/A");
+              usr->pub_key ? usr->pub_key : (const char *)0xdead,
+              usr->pub_key ? usr->pub_key : "N/A");
 #ifdef ID2_AUTH
     log_debug("%16s : %-s", "AES Key", usr->aeskey_str);
 #endif

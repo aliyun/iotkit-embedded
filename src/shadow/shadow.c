@@ -100,7 +100,7 @@ static iotx_err_t iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
         }
     }
 
-    return iotx_mqtt_subscribe(pshadow->mqtt,
+    return IOT_MQTT_Subscribe(pshadow->mqtt,
                                pshadow->inner_data.ptopic_get,
                                IOTX_MQTT_QOS1,
                                (iotx_mqtt_event_handle_func_fpt)iotx_shadow_callback_get,
@@ -108,7 +108,7 @@ static iotx_err_t iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
 }
 
 
-iotx_err_t iotx_shadow_update_format_init(void *pshadow,
+iotx_err_t IOT_Shadow_PushFormat_Init(void *pshadow,
         format_data_pt pformat,
         char *buf,
         uint16_t size)
@@ -117,7 +117,7 @@ iotx_err_t iotx_shadow_update_format_init(void *pshadow,
 }
 
 
-iotx_err_t iotx_shadow_update_format_add(void *pshadow,
+iotx_err_t IOT_Shadow_PushFormat_Add(void *pshadow,
         format_data_pt pformat,
         iotx_shadow_attr_pt pattr)
 {
@@ -126,18 +126,18 @@ iotx_err_t iotx_shadow_update_format_add(void *pshadow,
 }
 
 
-iotx_err_t iotx_shadow_update_format_finalize(void *pshadow, format_data_pt pformat)
+iotx_err_t IOT_Shadow_PushFormat_Finalize(void *pshadow, format_data_pt pformat)
 {
     return iotx_ds_common_format_finalize((iotx_shadow_pt)pshadow, pformat, "}}");
 }
 
 
-iotx_err_t iotx_shadow_update_asyn(
+iotx_err_t IOT_Shadow_Push_Async(
             void *handle,
             char *data,
             size_t data_len,
             uint16_t timeout_s,
-            iotx_update_cb_fpt cb_fpt,
+            iotx_push_cb_fpt cb_fpt,
             void *pcontext)
 {
     int rc = SUCCESS_RETURN;
@@ -149,7 +149,7 @@ iotx_err_t iotx_shadow_update_asyn(
         return NULL_VALUE_ERROR;
     }
 
-    if (!iotx_mqtt_check_state_normal(pshadow->mqtt)) {
+    if (!IOT_MQTT_CheckStateNormal(pshadow->mqtt)) {
         log_err("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
@@ -196,7 +196,7 @@ static void iotx_update_ack_cb(
 }
 
 
-iotx_err_t iotx_shadow_update(
+iotx_err_t IOT_Shadow_Push(
             void *handle,
             char *data,
             uint32_t data_len,
@@ -209,17 +209,17 @@ iotx_err_t iotx_shadow_update(
         return NULL_VALUE_ERROR;
     }
 
-    if (!iotx_mqtt_check_state_normal(pshadow->mqtt)) {
+    if (!IOT_MQTT_CheckStateNormal(pshadow->mqtt)) {
         log_err("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
     //update asynchronously
-    iotx_shadow_update_asyn(pshadow, data, data_len, timeout_s, iotx_update_ack_cb, &ack_update);
+    IOT_Shadow_Push_Async(pshadow, data, data_len, timeout_s, iotx_update_ack_cb, &ack_update);
 
     //wait ACK
     while (IOTX_SHADOW_ACK_NONE == ack_update) {
-        iotx_shadow_yield(pshadow, 200);
+        IOT_Shadow_Yield(pshadow, 200);
     }
 
     if ((IOTX_SHADOW_ACK_SUCCESS == ack_update)
@@ -237,7 +237,7 @@ iotx_err_t iotx_shadow_update(
 }
 
 
-iotx_err_t iotx_shadow_sync(void *handle)
+iotx_err_t IOT_Shadow_Pull(void *handle)
 {
 #define SHADOW_SYNC_MSG_SIZE      (256)
 
@@ -257,7 +257,7 @@ iotx_err_t iotx_shadow_sync(void *handle)
     iotx_ds_common_format_init(pshadow, &format, buf, SHADOW_SYNC_MSG_SIZE, "get", NULL);
     iotx_ds_common_format_finalize(pshadow, &format, NULL);
 
-    ret = iotx_shadow_update(pshadow, format.buf, format.offset, 10);
+    ret = IOT_Shadow_Push(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN == ret) {
         log_info("Device Shadow sync success.");
     } else {
@@ -315,7 +315,7 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     }
 }
 
-void *iotx_shadow_construct(iotx_shadow_para_pt pparams)
+void *IOT_Shadow_Construct(iotx_shadow_para_pt pparams)
 {
     int rc = 0;
     iotx_shadow_pt pshadow = NULL;
@@ -336,7 +336,7 @@ void *iotx_shadow_construct(iotx_shadow_para_pt pparams)
     pparams->mqtt.handle_event.pcontext = pshadow;
 
     //construct MQTT client
-    if (NULL == (pshadow->mqtt = iotx_mqtt_construct(&pparams->mqtt))) {
+    if (NULL == (pshadow->mqtt = IOT_MQTT_Construct(&pparams->mqtt))) {
         log_err("construct MQTT failed");
         goto do_exit;
     }
@@ -350,7 +350,7 @@ void *iotx_shadow_construct(iotx_shadow_para_pt pparams)
     pshadow->inner_data.sync_status = rc;
 
     while (rc == pshadow->inner_data.sync_status) {
-        iotx_shadow_yield(pshadow, 100);
+        IOT_Shadow_Yield(pshadow, 100);
     }
 
     if (0 == pshadow->inner_data.sync_status) {
@@ -369,31 +369,31 @@ void *iotx_shadow_construct(iotx_shadow_para_pt pparams)
     return pshadow;
 
 do_exit:
-    iotx_shadow_deconstruct(pshadow);
+    IOT_Shadow_Destroy(pshadow);
 
     return NULL;
 }
 
 
-void iotx_shadow_yield(void *handle, uint32_t timeout)
+void IOT_Shadow_Yield(void *handle, uint32_t timeout)
 {
     iotx_shadow_pt pshadow = (iotx_shadow_pt)handle;
-    iotx_mqtt_yield(pshadow->mqtt, timeout);
+    IOT_MQTT_Yield(pshadow->mqtt, timeout);
     iotx_ds_handle_expire(pshadow);
 }
 
 
-iotx_err_t iotx_shadow_deconstruct(void *handle)
+iotx_err_t IOT_Shadow_Destroy(void *handle)
 {
     iotx_shadow_pt pshadow = (iotx_shadow_pt) handle;
 
     if (NULL != pshadow->mqtt) {
         if (NULL != pshadow->inner_data.ptopic_get) {
-            iotx_mqtt_unsubscribe(pshadow->mqtt, pshadow->inner_data.ptopic_get);
+            IOT_MQTT_Unsubscribe(pshadow->mqtt, pshadow->inner_data.ptopic_get);
         }
 
         HAL_SleepMs(2000);
-        iotx_mqtt_deconstruct(pshadow->mqtt);
+        IOT_MQTT_Destroy(pshadow->mqtt);
     }
 
     if (NULL != pshadow->inner_data.ptopic_get) {
@@ -418,7 +418,7 @@ iotx_err_t iotx_shadow_deconstruct(void *handle)
 }
 
 
-iotx_err_t iotx_shadow_register_attribute(void *handle, iotx_shadow_attr_pt pattr)
+iotx_err_t IOT_Shadow_RegisterAttribute(void *handle, iotx_shadow_attr_pt pattr)
 {
     //check if already registered
     if (iotx_ds_common_check_attr_existence((iotx_shadow_pt)handle, pattr)) {
@@ -434,7 +434,7 @@ iotx_err_t iotx_shadow_register_attribute(void *handle, iotx_shadow_attr_pt patt
 
 
 //Remove attribute from Device Shadow in cloud by delete method.
-iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
+iotx_err_t IOT_Shadow_DeleteAttribute(void *handle, iotx_shadow_attr_pt pattr)
 {
 #define SHADOW_DELETE_MSG_SIZE      (256)
 
@@ -456,7 +456,7 @@ iotx_err_t iotx_shadow_delete_attribute(void *handle, iotx_shadow_attr_pt pattr)
     iotx_ds_common_format_add(pshadow, &format, pattr->pattr_name, NULL, IOTX_SHADOW_NULL);
     iotx_ds_common_format_finalize(pshadow, &format, "}}");
 
-    ret = iotx_shadow_update(pshadow, format.buf, format.offset, 10);
+    ret = IOT_Shadow_Push(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN != ret) {
         LITE_free(buf);
         return ret;

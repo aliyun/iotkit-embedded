@@ -13,5 +13,5 @@ DEPENDS     += src/external/recipes/mbedtls
 endif
 endif
 
-SRCS_mqtt-example   := mqtt/mqtt.c
-SRCS_shadow-example := deviceshadow/deviceshadow.c
+SRCS_mqtt-example   := mqtt/mqtt-example.c
+SRCS_shadow-example := device-shadow/shadow-example.c

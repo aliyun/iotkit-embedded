@@ -13,7 +13,7 @@
 typedef struct iotx_update_ack_wait_list_st {
     bool flag_busy; //0, free; 1, busy.
     char token[IOTX_DS_TOKEN_LEN];
-    iotx_update_cb_fpt callback;
+    iotx_push_cb_fpt callback;
     void *pcontext;
     iotx_time_t timer;
 } iotx_update_ack_wait_list_t, *iotx_update_ack_wait_list_pt;

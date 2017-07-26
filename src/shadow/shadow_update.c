@@ -19,7 +19,7 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
             iotx_shadow_pt pshadow,
             const char *ptoken, //NOTE: this is NOT a string.
             size_t token_len,
-            iotx_update_cb_fpt cb,
+            iotx_push_cb_fpt cb,
             void *pcontext,
             uint32_t timeout)
 {

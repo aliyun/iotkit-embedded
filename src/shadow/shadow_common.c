@@ -148,7 +148,7 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
     ret = snprintf(pformat->buf + pformat->offset,
                    size_free_space,
                    UPDATE_JSON_STR_END,
-                   iotx_get_device_info()->device_id,
+                   IOT_GetDeviceInfo()->device_id,
                    iotx_ds_common_get_tokennum(pshadow),
                    iotx_ds_common_get_version(pshadow));
 
@@ -336,7 +336,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 
     int len, ret;
     char *topic_full = NULL;
-    iotx_device_info_pt pdevice_info = iotx_get_device_info();
+    iotx_device_info_pt pdevice_info = IOT_GetDeviceInfo();
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
@@ -385,5 +385,5 @@ iotx_err_t iotx_ds_common_publish2update(iotx_shadow_pt pshadow, char *data, uin
     topic_msg.payload_len = data_len;
     topic_msg.packet_id = 0;
 
-    return iotx_mqtt_publish(pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
+    return IOT_MQTT_Publish(pshadow->mqtt, pshadow->inner_data.ptopic_update, &topic_msg);
 }
