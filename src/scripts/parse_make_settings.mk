@@ -14,6 +14,7 @@ SETTING_VARS := \
     FEATURE_DIRECT_MQTT \
     FEATURE_DIRECT_MQTT_NOTLS \
     FEATURE_ID2_AUTH \
+    FEATURE_ID2_CRYPTO \
 
 $(foreach v, \
     $(SETTING_VARS), \
@@ -46,8 +47,19 @@ endif
 endif   # ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
 
 ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
+
 CFLAGS  += -DID2_AUTH
+ifeq (y,$(strip $(FEATURE_ID2_CRYPTO)))
+CFLAGS  += -DID2_CRYPTO
 endif
+
+else    # ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
+
+ifeq (y,$(strip $(FEATURE_ID2_CRYPTO)))
+$(error FEATURE_ID2_CRYPTO = y requires FEATURE_ID2_AUTH = y!)
+endif
+
+endif   # ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
 
 ifneq ($(subst gcc,,$(PLATFORM_CC)),$(subst ar,,$(PLATFORM_AR)))
 $(error PLATFORM_CC and PLATFORM_AR requires same prefix!)

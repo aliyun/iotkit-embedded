@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stddef.h>
 #include "iot_import.h"
@@ -7,12 +6,44 @@
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
 #include "utils_net.h"
+#include "utils_hmac.h"
 #include "utils_list.h"
 #include "utils_timer.h"
+#include "security.h"
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
 
+#ifdef ID2_CRYPTO
+/* Macros for accessing the most offset byte of a number */
+#define MQTT_MS(A, OFFSET) ((A << (sizeof(A) - (OFFSET))*8) >> (sizeof(A) - 1) * 8)
+
+void writeUint16(unsigned char **pptr, unsigned short anUint)
+{
+    **pptr = MQTT_MS(anUint, 2);
+    (*pptr)++;
+    **pptr = MQTT_MS(anUint, 1);
+    (*pptr)++;
+}
+
+/**
+ * Writes an integer as 4 bytes to an output buffer.
+ * @param pptr pointer to the output buffer - incremented by the number of bytes used & returned
+ * @param anInt the integer to write
+ */
+void writeUint32(unsigned char **pptr, unsigned int anUint)
+{
+    **pptr = MQTT_MS(anUint, 4);
+    (*pptr)++;
+    **pptr = MQTT_MS(anUint, 3);
+    (*pptr)++;
+    **pptr = MQTT_MS(anUint, 2);
+    (*pptr)++;
+    **pptr = MQTT_MS(anUint, 1);
+    (*pptr)++;
+}
+
+#endif  /* #ifdef ID2_CRYPTO */
 
 /* MQTT client version number */
 #define IOTX_MC_MQTT_VERSION                    (4)
@@ -516,6 +547,136 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
     return rc;
 }
 
+#ifdef ID2_CRYPTO
+#define HASH_SHA1_LEN           (20)
+#define HMAC_MD5_LEN            (16)
+#define MQTT_MAX_TOPIC_LEN      (64)
+
+typedef struct _MQTT_ReplayFender {
+    uint32_t        sequence;
+    uint16_t        hmac_len;
+#ifdef HASH_SHA1
+    char            hmac_str[HASH_SHA1_LEN * 2];
+#else
+    char            hmac_str[HMAC_MD5_LEN * 2];
+#endif
+} __attribute__((packed)) MQTT_ReplayFender;
+
+static void _to_lower(char *upper)
+{
+    int             i;
+    int             len = strlen(upper);
+
+    for (i = 0; i < len; i ++) {
+        if (upper[i] >= 'A' && upper[i] <= 'Z') {
+            upper[i] = upper[i] - 'A' + 'a';
+        }
+    }
+}
+
+static int _fill_replay_fender(
+            iotx_mc_client_t *c,
+            MQTT_ReplayFender *f,
+            const char *topic,
+            uint16_t msg_id,
+            int enc_payloadlen)
+{
+    char                hmac_source[MQTT_MAX_TOPIC_LEN + 32] = {0};
+    int                 hmac_srclen = 0;
+    iotx_conn_info_pt   conn = IOT_GetConnInfo();
+
+    assert(conn);
+
+    uint8_t *ptr = (uint8_t *) & (f->sequence);
+    writeUint32(&ptr, (uint32_t)msg_id);
+    ptr = (uint8_t *) & (f->hmac_len);
+    writeUint16(&ptr, HMAC_MD5_LEN * 2);
+
+    snprintf((char *)hmac_source, sizeof(hmac_source),
+             "%s%d%d",
+             topic, msg_id, enc_payloadlen);
+    hmac_srclen = strlen(hmac_source);
+    log_debug("hmac_source(%d) = '%s'", hmac_srclen, hmac_source);
+
+#ifdef HASH_SHA1
+    uint8_t             sha1_hexbuf[HASH_SHA1_LEN] = {0};
+
+    utils_sha1(hmac_source, hmac_srclen, sha1_hexbuf);
+    LITE_hexbuf_convert(sha1_hexbuf, f->hmac_str, HASH_SHA1_LEN, 0);
+    log_debug("sha1_str(%d) = '%s'", HASH_SHA1_LEN * 2, f->hmac_str);
+#else
+    utils_hmac_md5((const char *)hmac_source,
+                   hmac_srclen,
+                   f->hmac_str,
+                   (const char *)conn->aeskey_hex,
+                   (int)sizeof(conn->aeskey_hex));
+    _to_lower(f->hmac_str);
+    log_debug("hmac_str(%d) = '%s'", HMAC_MD5_LEN * 2, f->hmac_str);
+#endif
+
+    return 0;
+}
+
+static int _create_encoded_payload(
+            iotx_mc_client_t *c,
+            char *topic,
+            iotx_mqtt_topic_info_pt topic_msg)
+{
+    MQTT_ReplayFender       fender;
+    int                     ret = -1;
+    int                     out_buf_len = 0;
+    uint8_t                *out_buf = NULL;
+    uint8_t                 iv[16] = {0};
+    int                     enc_len = 0;
+    iotx_conn_info_pt       conn = IOT_GetConnInfo();
+
+    assert(conn);
+
+    out_buf_len = (topic_msg->payload_len / 16) * 16;
+    if (topic_msg->payload_len % 16 != 0) {
+        out_buf_len += 16;
+    }
+
+    /* get fender (fender is between mqtt header and mqtt message) */
+    memset(&fender, 0, sizeof(MQTT_ReplayFender));
+    _fill_replay_fender(c,
+                        &fender,
+                        topic,
+                        topic_msg->packet_id,
+                        out_buf_len);
+
+    out_buf_len += sizeof(MQTT_ReplayFender);
+    out_buf = (uint8_t *)LITE_malloc(out_buf_len + 1);
+    memset(out_buf, 0, out_buf_len + 1);
+    memcpy(out_buf, &fender, sizeof(MQTT_ReplayFender));
+
+    /* encode MQTT message */
+    ret = tfs_aes128_cbc_enc(conn->aeskey_hex,
+                             iv,
+                             topic_msg->payload_len,
+                             (const uint8_t *)topic_msg->payload,
+                             &enc_len,
+                             out_buf + sizeof(MQTT_ReplayFender),
+                             TFS_AES_ZERO_PADDING);
+    log_debug("rc = tfs_aes128_cbc_enc() = %d, enc_len = %d", ret, enc_len);
+
+    if (ret != 0) {
+        log_err("tfs_aes128_cbc_enc error!");
+        ret = -1;
+        goto exit;
+    }
+    memset((void *)topic_msg->payload, 0, topic_msg->payload_len);
+    memcpy((void *)topic_msg->payload, out_buf, out_buf_len);
+    topic_msg->payload_len = out_buf_len;
+
+    HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
+
+exit:
+    LITE_free(out_buf);
+
+    return ret;
+}
+#endif  /* #ifdef ID2_CRYPTO */
 
 //remove the list element specified by @msgId from list of wait publish ACK
 //return: 0, success; NOT 0, fail;
@@ -1077,6 +1238,43 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
+#ifdef ID2_CRYPTO
+    /* aes decrypt for MQTT payload */
+    int                 ret = -1;
+    uint8_t             iv[16] = {0};
+    int32_t             dec_len = 0;
+    int                 offset = sizeof(MQTT_ReplayFender);
+    uint8_t            *dec_out = NULL;
+    iotx_conn_info_pt   conn = IOT_GetConnInfo();
+
+    dec_out = LITE_malloc(topic_msg.payload_len);
+    assert(conn);
+    assert(dec_out);
+
+    memset(dec_out, 0, topic_msg.payload_len);
+    ret = tfs_aes128_cbc_dec(conn->aeskey_hex,
+                             iv,
+                             topic_msg.payload_len - offset,
+                             (const uint8_t *)topic_msg.payload + offset,
+                             &dec_len,
+                             dec_out,
+                             TFS_AES_ZERO_PADDING);
+    log_debug("rc = tfs_aes128_cbc_dec() = %d, dec_len = %d", ret, dec_len);
+
+    if (ret != 0) {
+        log_err("tfs_aes128_cbc_dec error!");
+        LITE_free(dec_out);
+        return -1;
+    }
+
+    memset((void *)topic_msg.payload, 0, topic_msg.payload_len);
+    memcpy((void *)topic_msg.payload, dec_out, dec_len);
+    topic_msg.payload_len = dec_len;
+
+    log_debug("ID2 decrypt publish[%d]: %s", topic_msg.payload_len, topic_msg.payload);
+    LITE_free(dec_out);
+#endif
+
     topic_msg.ptopic = NULL;
     topic_msg.topic_len = 0;
 
@@ -1362,7 +1560,6 @@ static iotx_err_t iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilt
     return msgId;
 }
 
-
 //publish
 static iotx_err_t iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
@@ -1388,6 +1585,10 @@ static iotx_err_t iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, io
         msg_id = iotx_mc_get_next_packetid(c);
         topic_msg->packet_id = msg_id;
     }
+
+#ifdef ID2_CRYPTO
+    _create_encoded_payload(c, (char *)topicName, topic_msg);
+#endif
 
     rc = MQTTPublish(c, topicName, topic_msg);
     if (rc != SUCCESS_RETURN) { // send the subscribe packet
@@ -2119,10 +2320,10 @@ bool IOT_MQTT_CheckStateNormal(void *handle)
 
 
 int32_t IOT_MQTT_Subscribe(void *handle,
-                            const char *topic_filter,
-                            iotx_mqtt_qos_t qos,
-                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                            void *pcontext)
+                           const char *topic_filter,
+                           iotx_mqtt_qos_t qos,
+                           iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                           void *pcontext)
 {
     return iotx_mc_subscribe((iotx_mc_client_t *)handle, topic_filter, qos, topic_handle_func, pcontext);
 }
