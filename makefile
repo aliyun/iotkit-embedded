@@ -8,7 +8,6 @@ COMP_LIB_COMPONENTS := \
     src/log \
     src/utils \
     src/security \
-    src/crypto \
     src/sdk-impl \
     src/guider \
     src/shadow \

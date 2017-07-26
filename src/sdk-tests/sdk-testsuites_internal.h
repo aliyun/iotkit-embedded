@@ -6,7 +6,6 @@ extern "C" {
 
 #include "lite/lite-log.h"
 #include "lite/lite-utils.h"
-#include "lite/lite-crypto.h"
 #include "security.h"
 
 #if defined(__cplusplus)
