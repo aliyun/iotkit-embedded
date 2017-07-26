@@ -4,8 +4,6 @@
 extern "C" {
 #endif
 
-#include "platform.h"
-
 /**
  * @brief Get epoch time from the remote server(iot-nsauth.alibaba.net/system/time) through http request.
  *        The type of the epoch time is millisecond.
