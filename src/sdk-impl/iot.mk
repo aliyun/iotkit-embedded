@@ -4,5 +4,4 @@ HDR_REFS    := src
 LIBHDR_DIR  := export
 LIB_HEADERS := iot_import.h iot_export.h
 
-DEPENDS     += src/log
 DEPENDS     += src/utils

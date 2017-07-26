@@ -5,7 +5,6 @@ LIBHDR_DIR  := lite
 LIB_HEADERS := LITE-utils/{lite-list,lite-utils}.h
 
 HDR_REFS    := src
-DEPENDS     += src/log
 
 PKG_SOURCE  := src/packages/LITE-utils
 # PKG_UPDATE  := 'git@gitlab.alibaba-inc.com:iot-middleware/LITE-utils.git'

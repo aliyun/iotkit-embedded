@@ -1,5 +1,5 @@
 TARGET      := sdk-testsuites
-DEPENDS     += src/log
+HDR_REFS    := src
 
 LDFLAGS     += -liot_sdk
 
