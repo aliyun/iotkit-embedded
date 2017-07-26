@@ -12,17 +12,7 @@ int unittest_string_utils(void)
     log_info("hexstr = '%s'", hexstr);
 
     LITE_hexstr_convert(hexstr, outbuf, strlen(hexstr));
-#ifdef LITE_LOG_ENABLED
     HEXDUMP_INFO(outbuf, sizeof(outbuf));
-#else
-    int                 i;
-
-    LITE_printf("%s(%d): outbuf = ", __func__, __LINE__);
-    for (i = 0; i < sizeof(outbuf); ++i) {
-        LITE_printf("%02X", outbuf[i]);
-    }
-    LITE_printf("\r\n");
-#endif
 
 #define UNITTEST_STRING_FORMAT      "Integer: %d, String: '%s', Char: %c, Hex: %04x"
 

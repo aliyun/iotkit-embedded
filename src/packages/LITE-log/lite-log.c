@@ -1,42 +1,7 @@
-#include "lite-log.h"
+#include "lite-log_internal.h"
 
-#if defined(LITE_LOG_ENABLED)
-log_client logcb;
-
-char *pri_names[] = {
-    "emg", "crt", "err", "wrn", "inf", "dbg",
-};
-
-void LITE_openlog(const char *ident)
-{
-    strncpy(logcb.name, ident, LOG_MOD_NAME_LEN);
-    logcb.name[LOG_MOD_NAME_LEN] = 0;
-    logcb.priority = 0;
-}
-
-void LITE_closelog(void)
-{
-    strncpy(logcb.name, "", LOG_MOD_NAME_LEN);
-    logcb.name[LOG_MOD_NAME_LEN] = 0;
-    logcb.priority = 0;
-}
-
-char *LITE_getname(void)
-{
-    return logcb.name;
-}
-
-int LITE_get_loglevel(void)
-{
-    return logcb.priority;
-}
-
-void LITE_set_loglevel(int pri)
-{
-    logcb.priority = pri;
-}
-
-#define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    do { \
+#define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    \
+    do { \
         int                     i; \
         \
         LITE_printf("%s", start_mark); \
@@ -92,6 +57,99 @@ int LITE_hexdump(const char *title, void *buff, int len)
     return 0;
 }
 
+#if defined(LITE_LOG_ENABLED)
+static log_client logcb;
+
+static char *lvl_names[] = {
+    "emg", "crt", "err", "wrn", "inf", "dbg",
+};
+
+void LITE_syslog(const char *f, const int l, const int level, const char *fmt, ...)
+{
+    char       *tmpbuf = logcb.text_buf;
+    char       *o = tmpbuf;
+    int         truncated = 0;
+    va_list     ap;
+
+    if (!strlen(LITE_get_logname()) || LITE_get_loglevel() < level || level < LOG_EMERG_LEVEL) {
+        return;
+    }
+
+    LITE_printf(LOG_PREFIX_FMT, lvl_names[level], f, l);
+
+    memset(tmpbuf, 0, sizeof(logcb.text_buf));
+    va_start(ap, fmt);
+    o += vsnprintf(o, LOG_MSG_MAXLEN + 1, fmt, ap);
+    va_end(ap);
+
+    if (o - tmpbuf > LOG_MSG_MAXLEN) {
+        o = tmpbuf + strlen(tmpbuf);
+        truncated = 1;
+    }
+    if (strlen(tmpbuf) == LOG_MSG_MAXLEN) {
+        truncated = 1;
+    }
+
+    LITE_printf("%s", tmpbuf);
+    if (truncated) {
+        LITE_printf(" ...");
+    }
+
+    LITE_printf("\r\n");
+    return;
+}
+
+int LITE_log_enabled(void)
+{
+    return 1;
+}
+
+void LITE_openlog(const char *ident)
+{
+    strncpy(logcb.name, ident, LOG_MOD_NAME_LEN);
+    logcb.name[LOG_MOD_NAME_LEN] = 0;
+    logcb.priority = 0;
+}
+
+void LITE_closelog(void)
+{
+    strncpy(logcb.name, "", LOG_MOD_NAME_LEN);
+    logcb.name[LOG_MOD_NAME_LEN] = 0;
+    logcb.priority = 0;
+}
+
+char *LITE_get_logname(void)
+{
+    return logcb.name;
+}
+
+int LITE_get_loglevel(void)
+{
+    return logcb.priority;
+}
+
+void LITE_set_loglevel(int pri)
+{
+    logcb.priority = pri;
+}
+
+void LITE_rich_hexdump(const char *f, const int l,
+                       const int level,
+                       const char *buf_str,
+                       void *buf_ptr,
+                       int buf_len)
+{
+    if (LITE_get_loglevel() < level) {
+        return;
+    }
+
+    LITE_printf(LOG_PREFIX_FMT, lvl_names[LITE_get_loglevel()], f, l);
+    LITE_printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
+    LITE_hexdump(buf_str, buf_ptr, buf_len);
+
+    return;
+}
+
 int log_multi_line_internal(const char *f, const int l,
                             const char *title, int level, char *payload, const char *mark)
 {
@@ -104,7 +162,7 @@ int log_multi_line_internal(const char *f, const int l,
     }
 
     LITE_printf("[%s] %s(%d): %s (Length: %d Bytes)\r\n",
-                pri_names[LITE_get_loglevel()], f, l, title, (int)strlen(payload));
+                lvl_names[LITE_get_loglevel()], f, l, title, (int)strlen(payload));
 
     pos = payload;
     while (pos && *pos) {
@@ -133,6 +191,70 @@ int log_multi_line_internal(const char *f, const int l,
     }
 
     return 0;
+}
+
+#else   /* defined(LITE_LOG_ENABLED) */
+void LITE_syslog(const char *f, const int l, const int level, const char *fmt, ...)
+{
+    va_list         ap;
+
+    printf("%s/%d: ", f, l);
+    va_start(ap, fmt);
+    vprintf(fmt, ap);
+    va_end(ap);
+    printf("\r\n");
+
+    return;
+}
+
+int log_multi_line_internal(const char *f, const int l,
+                            const char *title,
+                            int level,
+                            char *payload,
+                            const char *mark)
+{
+    printf("%s(%d):\r\n\r\n", f, l);
+    printf("%s\r\n", payload);
+
+    return 0;
+}
+
+
+int LITE_log_enabled(void)
+{
+    return 0;
+}
+void LITE_openlog(const char *ident)
+{
+    return;
+}
+void LITE_closelog(void)
+{
+    return;
+}
+char *LITE_get_logname(void)
+{
+    return NULL;
+}
+int LITE_get_loglevel(void)
+{
+    return -1;
+}
+void LITE_set_loglevel(int lvl)
+{
+    return;
+}
+void LITE_rich_hexdump(const char *f, const int l,
+                       const int level,
+                       const char *buf_str,
+                       void *buf_ptr,
+                       int buf_len)
+{
+    printf("%s/%d: ", f, l);
+    printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
+    LITE_hexdump(buf_str, buf_ptr, buf_len);
+
+    return;
 }
 
 #endif  /* defined(LITE_LOG_ENABLED) */
