@@ -21,6 +21,7 @@ extern "C" {
 #define USER_NAME_LEN       (128)
 #define PASSWORD_LEN        (128)
 #define AESKEY_STR_LEN      (32)
+#define AESKEY_HEX_LEN      (128/8)
 
 typedef struct {
     char        product_key[PRODUCT_KEY_LEN + 1];
@@ -38,7 +39,8 @@ typedef struct {
     char            password[PASSWORD_LEN + 1];
     const char     *pub_key;
 #ifdef ID2_AUTH
-    char            aeskey_str[AESKEY_STR_LEN + 1];
+    char            aeskey_str[AESKEY_STR_LEN];
+    uint8_t         aeskey_hex[AESKEY_HEX_LEN];
 #endif
 } iotx_conn_info_t, *iotx_conn_info_pt;
 

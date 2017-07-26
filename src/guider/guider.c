@@ -412,6 +412,17 @@ static int _iotId_iotToken_http(
     }
     strcpy(usr->aeskey_str, pvalue);
     LITE_free(pvalue);
+
+    src_len = (uint32_t)strlen(usr->aeskey_str);
+    id2_rc = utils_base64decode((const uint8_t *)usr->aeskey_str,
+                                src_len,
+                                dst_len,
+                                usr->aeskey_hex,
+                                &dst_len);
+    log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
+    assert(!id2_rc);
+    HEXDUMP_DEBUG(usr->aeskey_hex, dst_len);
+
 #endif
 
     log_debug("%10s: %s", "iotId", iot_id);
@@ -717,7 +728,10 @@ int32_t IOT_Fill_ConnInfo(void)
               usr->pub_key ? usr->pub_key : (const char *)0xdead,
               usr->pub_key ? usr->pub_key : "N/A");
 #ifdef ID2_AUTH
-    log_debug("%16s : %-s", "AES Key", usr->aeskey_str);
+    char            tmp_str[40] = {0};
+
+    LITE_hexbuf_convert(usr->aeskey_hex, tmp_str, 128 / 8, 1);
+    log_debug("%16s : %-s", "AES Key", tmp_str);
 #endif
     log_debug("%s", "-----------------------------------------");
 
