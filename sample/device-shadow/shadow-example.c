@@ -6,11 +6,12 @@
 #include "device.h"
 #include "shadow.h"
 
-
-//The product and device information from IOT console
-//#define PRODUCT_KEY         "OvNmiEYRDSY"
-//#define DEVICE_NAME         "sh_online_sample_shadow"
-//#define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
+// The product and device information from IOT console
+/*
+    #define PRODUCT_KEY         "OvNmiEYRDSY"
+    #define DEVICE_NAME         "sh_online_sample_shadow"
+    #define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
+*/
 
 #ifndef DIRECT_MQTT
     #define PRODUCT_KEY         "6RcIOUafDOm"
@@ -33,7 +34,7 @@
  * @see none.
  * @note none.
  */
-static void device_shadow_cb_light(iotx_shadow_attr_pt pattr)
+static void _device_shadow_cb_light(iotx_shadow_attr_pt pattr)
 {
 
     /*
@@ -52,27 +53,27 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 {
     char buf[1024];
     iotx_err_t rc;
-    iotx_user_info_pt puser_info;
+    iotx_conn_info_pt puser_info;
     void *h_shadow;
     iotx_shadow_para_t shadaw_para;
 
 
     /* Initialize the device info */
-    iotx_device_init();
+    IOT_CreateDeviceInfo();
 
-    if (0 != iotx_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        log_debug("run iotx_set_device_info() error!\n");
+    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
+        log_debug("run IOT_SetDeviceInfo() error!\n");
         return -1;
     }
 
     /* Device AUTH */
-    rc = IOT_Fill_ConnInfo(iotx_get_device_info(), iotx_get_user_info());
+    rc = IOT_FetchConnInfo(IOT_GetDeviceInfo(), IOT_GetConnInfo());
     if (SUCCESS_RETURN != rc) {
-        log_err("rc = IOT_Fill_ConnInfo() = %d", rc);
+        log_err("rc = IOT_FetchConnInfo() = %d", rc);
         return rc;
     }
 
-    puser_info = iotx_get_user_info();
+    puser_info = IOT_GetConnInfo();
 
     /* Construct a device shadow */
     memset(&shadaw_para, 0, sizeof(iotx_shadow_para_t));
@@ -80,9 +81,9 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     shadaw_para.mqtt.port = puser_info->port;
     shadaw_para.mqtt.host = puser_info->host_name;
     shadaw_para.mqtt.client_id = puser_info->client_id;
-    shadaw_para.mqtt.user_name = puser_info->user_name;
+    shadaw_para.mqtt.user_name = puser_info->username;
     shadaw_para.mqtt.password = puser_info->password;
-    shadaw_para.mqtt.pub_key = puser_info->pubKey;
+    shadaw_para.mqtt.pub_key = puser_info->pub_key;
 
     shadaw_para.mqtt.request_timeout_ms = 2000;
     shadaw_para.mqtt.clean_session = 0;
@@ -95,7 +96,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     shadaw_para.mqtt.handle_event.h_fp = NULL;
     shadaw_para.mqtt.handle_event.pcontext = NULL;
 
-    h_shadow = iotx_shadow_construct(&shadaw_para);
+    h_shadow = IOT_Shadow_Construct(&shadaw_para);
     if (NULL == h_shadow) {
         log_debug("construct device shadow failed!");
         return rc;
@@ -115,7 +116,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     attr_light.mode = IOTX_SHADOW_RW;
     attr_light.pattr_name = "switch";
     attr_light.pattr_data = &light;
-    attr_light.callback = device_shadow_cb_light;
+    attr_light.callback = _device_shadow_cb_light;
 
     /* Initialize the @temperature attribute */
     attr_temperature.attr_type = IOTX_SHADOW_INT32;
@@ -127,25 +128,25 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
     /* Register the attribute */
     /* Note that you must register the attribute you want to synchronize with cloud
-     * before calling iotx_shadow_sync() */
-    iotx_shadow_register_attribute(h_shadow, &attr_light);
-    iotx_shadow_register_attribute(h_shadow, &attr_temperature);
+     * before calling IOT_Shadow_Pull() */
+    IOT_Shadow_RegisterAttribute(h_shadow, &attr_light);
+    IOT_Shadow_RegisterAttribute(h_shadow, &attr_temperature);
 
 
     /* synchronize the device shadow with device shadow cloud */
-    iotx_shadow_sync(h_shadow);
+    IOT_Shadow_Pull(h_shadow);
 
     do {
         format_data_t format;
 
         /* Format the attribute data */
-        iotx_shadow_update_format_init(h_shadow, &format, buf, 1024);
-        iotx_shadow_update_format_add(h_shadow, &format, &attr_temperature);
-        iotx_shadow_update_format_add(h_shadow, &format, &attr_light);
-        iotx_shadow_update_format_finalize(h_shadow, &format);
+        IOT_Shadow_PushFormat_Init(h_shadow, &format, buf, 1024);
+        IOT_Shadow_PushFormat_Add(h_shadow, &format, &attr_temperature);
+        IOT_Shadow_PushFormat_Add(h_shadow, &format, &attr_light);
+        IOT_Shadow_PushFormat_Finalize(h_shadow, &format);
 
         /* Update attribute data */
-        iotx_shadow_update(h_shadow, format.buf, format.offset, 10);
+        IOT_Shadow_Push(h_shadow, format.buf, format.offset, 10);
 
         /* Sleep 1000 ms */
         HAL_SleepMs(1000);
@@ -153,10 +154,10 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
 
     /* Delete the two attributes */
-    iotx_shadow_delete_attribute(h_shadow, &attr_temperature);
-    iotx_shadow_delete_attribute(h_shadow, &attr_light);
+    IOT_Shadow_DeleteAttribute(h_shadow, &attr_temperature);
+    IOT_Shadow_DeleteAttribute(h_shadow, &attr_light);
 
-    iotx_shadow_deconstruct(h_shadow);
+    IOT_Shadow_Destroy(h_shadow);
 
     return 0;
 }

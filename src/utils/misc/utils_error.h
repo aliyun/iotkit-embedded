@@ -70,7 +70,7 @@ typedef enum IOT_RETURN_CODES {
     ERROR_NULL_VALUE = -9,
     ERROR_HTTP_CONN = -8,                    /**< Connection failed. */
     ERROR_HTTP_PARSE = -7,                   /**< A URL parse error occurred. */
-    ERRO_HTTP_UNRESOLVED_DNS = -6,           /**< Could not resolve the hostname. */
+    ERROR_HTTP_UNRESOLVED_DNS = -6,           /**< Could not resolve the hostname. */
     ERROR_HTTP_PRTCL = -5,                   /**< A protocol error occurred. */
     ERROR_HTTP = -4,                         /**< An unknown error occurred. */
     ERROR_HTTP_CLOSED = -3,                  /**< Connection was closed by a remote host. */

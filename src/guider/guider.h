@@ -8,7 +8,7 @@ extern "C" {
 #include "iot_import.h"
 #include "device.h"     // for deviceInfo{} + userInfo{}
 
-int32_t IOT_Fill_ConnInfo(iotx_device_info_pt pdevice_info, iotx_user_info_pt puser_info);
+int32_t IOT_FetchConnInfo(iotx_device_info_pt pdevice_info, iotx_conn_info_pt puser_info);
 
 #if defined(__cplusplus)
 }

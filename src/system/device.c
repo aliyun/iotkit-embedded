@@ -1,4 +1,3 @@
-
 #include <string.h>
 
 #include "lite/lite-log.h"
@@ -6,21 +5,20 @@
 #include "device.h"
 
 
-static iotx_user_info_t iotx_user_info;
-static iotx_device_info_t iotx_device_info;
+static iotx_conn_info_t     iotx_conn_info;
+static iotx_device_info_t   iotx_device_info;
 
 
-int iotx_device_init(void)
+int IOT_CreateDeviceInfo(void)
 {
     memset(&iotx_device_info, 0x0, sizeof(iotx_device_info_t));
-    memset(&iotx_user_info, 0x0, sizeof(iotx_user_info_t));
+    memset(&iotx_conn_info, 0x0, sizeof(iotx_conn_info_t));
 
-    log_info("device init success!");
+    log_info("device_info created successfully!");
     return SUCCESS_RETURN;
 }
 
-
-int32_t iotx_set_device_info(
+int32_t IOT_SetDeviceInfo(
             const char *product_key,
             const char *device_name,
             const char *device_secret)
@@ -40,19 +38,17 @@ int32_t iotx_set_device_info(
         return FAIL_RETURN;
     }
 
-    log_debug("set device info successfully!");
+    log_debug("device_info set successfully!");
     return SUCCESS_RETURN;
 }
 
-iotx_device_info_pt iotx_get_device_info(void)
+iotx_device_info_pt IOT_GetDeviceInfo(void)
 {
     return &iotx_device_info;
 }
 
-
-iotx_user_info_pt iotx_get_user_info(void)
+iotx_conn_info_pt IOT_GetConnInfo(void)
 {
-    return &iotx_user_info;
+    return &iotx_conn_info;
 }
-
 

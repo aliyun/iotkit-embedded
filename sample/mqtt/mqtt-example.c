@@ -98,8 +98,7 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
     }
 }
 
-
-void iotx_mqtt_msg_arrived(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
 
@@ -120,7 +119,7 @@ int mqtt_client(void)
 {
     int rc = 0, msg_len, cnt = 0;
     void *pclient;
-    iotx_user_info_pt puser_info;
+    iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
     iotx_mqtt_topic_info_t topic_msg;
     char msg_pub[128];
@@ -139,31 +138,31 @@ int mqtt_client(void)
     }
 
     /* Initialize device info */
-    iotx_device_init();
+    IOT_CreateDeviceInfo();
 
-    if (0 != iotx_set_device_info(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
+    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
         log_debug("set device info failed!");
         rc = -1;
         goto do_exit;
     }
 
     /* Device AUTH */
-    if (0 != IOT_Fill_ConnInfo(iotx_get_device_info(), iotx_get_user_info())) {
+    if (0 != IOT_FetchConnInfo(IOT_GetDeviceInfo(), IOT_GetConnInfo())) {
         log_debug("AUTH request failed!");
         rc = -1;
         goto do_exit;
     }
-    puser_info = iotx_get_user_info();
+    pconn_info = IOT_GetConnInfo();
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
-    mqtt_params.port = puser_info->port;
-    mqtt_params.host = puser_info->host_name;
-    mqtt_params.client_id = puser_info->client_id;
-    mqtt_params.user_name = puser_info->user_name;
-    mqtt_params.password = puser_info->password;
-    mqtt_params.pub_key = puser_info->pubKey;
+    mqtt_params.port = pconn_info->port;
+    mqtt_params.host = pconn_info->host_name;
+    mqtt_params.client_id = pconn_info->client_id;
+    mqtt_params.user_name = pconn_info->username;
+    mqtt_params.password = pconn_info->password;
+    mqtt_params.pub_key = pconn_info->pub_key;
 
     mqtt_params.request_timeout_ms = 2000;
     mqtt_params.clean_session = 0;
@@ -178,7 +177,7 @@ int mqtt_client(void)
 
 
     /* Construct a MQTT client with specify parameter */
-    pclient = iotx_mqtt_construct(&mqtt_params);
+    pclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == pclient) {
         log_debug("MQTT construct failed");
         rc = -1;
@@ -186,9 +185,9 @@ int mqtt_client(void)
     }
 
     /* Subscribe the specific topic */
-    rc = iotx_mqtt_subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, iotx_mqtt_msg_arrived, NULL);
+    rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
-        iotx_mqtt_deconstruct(pclient);
+        IOT_MQTT_Destroy(pclient);
         log_debug("ali_iot_mqtt_subscribe failed, rc = %d", rc);
         rc = -1;
         goto do_exit;
@@ -219,7 +218,7 @@ int mqtt_client(void)
         topic_msg.payload = (void *)msg_pub;
         topic_msg.payload_len = msg_len;
 
-        rc = iotx_mqtt_publish(pclient, TOPIC_DATA, &topic_msg);
+        rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
         if (rc < 0) {
             log_debug("error occur when publish");
             rc = -1;
@@ -228,17 +227,17 @@ int mqtt_client(void)
         log_debug("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
 
         /* handle the MQTT packet received from TCP or SSL connection */
-        iotx_mqtt_yield(pclient, 200);
+        IOT_MQTT_Yield(pclient, 200);
 
         //HAL_SleepMs(1000);
 
     } while (cnt < 1);
 
-    iotx_mqtt_unsubscribe(pclient, TOPIC_DATA);
+    IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
 
     HAL_SleepMs(200);
 
-    iotx_mqtt_deconstruct(pclient);
+    IOT_MQTT_Destroy(pclient);
 
 
 do_exit:
@@ -252,8 +251,6 @@ do_exit:
 
     return rc;
 }
-
-
 
 int main()
 {

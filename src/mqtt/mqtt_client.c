@@ -1879,8 +1879,8 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     log_info("start reconnect");
 
     //REDO AUTH before each reconnection
-    if (0 != IOT_Fill_ConnInfo(iotx_get_device_info(), iotx_get_user_info())) {
-        log_err("run IOT_Fill_ConnInfo() error!\n");
+    if (0 != IOT_FetchConnInfo(IOT_GetDeviceInfo(), IOT_GetConnInfo())) {
+        log_err("run IOT_FetchConnInfo() error!\n");
         return -1;
     }
 
@@ -2044,7 +2044,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
 
 /************************  Public Interface ************************/
-void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams)
+void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
     iotx_err_t err;
     iotx_mc_client_t *pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
@@ -2070,7 +2070,7 @@ void *iotx_mqtt_construct(iotx_mqtt_param_t *pInitParams)
 }
 
 
-iotx_err_t iotx_mqtt_deconstruct(void *handle)
+iotx_err_t IOT_MQTT_Destroy(void *handle)
 {
     if (NULL == handle) {
         return NULL_VALUE_ERROR;
@@ -2084,7 +2084,7 @@ iotx_err_t iotx_mqtt_deconstruct(void *handle)
 }
 
 
-void iotx_mqtt_yield(void *handle, int timeout_ms)
+void IOT_MQTT_Yield(void *handle, int timeout_ms)
 {
     int rc = SUCCESS_RETURN;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)handle;
@@ -2112,13 +2112,13 @@ void iotx_mqtt_yield(void *handle, int timeout_ms)
 
 
 //check whether MQTT connection is established or not.
-bool iotx_mqtt_check_state_normal(void *handle)
+bool IOT_MQTT_CheckStateNormal(void *handle)
 {
     return iotx_mc_check_state_normal((iotx_mc_client_t *)handle);
 }
 
 
-int32_t iotx_mqtt_subscribe(void *handle,
+int32_t IOT_MQTT_Subscribe(void *handle,
                             const char *topic_filter,
                             iotx_mqtt_qos_t qos,
                             iotx_mqtt_event_handle_func_fpt topic_handle_func,
@@ -2128,13 +2128,13 @@ int32_t iotx_mqtt_subscribe(void *handle,
 }
 
 
-int32_t iotx_mqtt_unsubscribe(void *handle, const char *topic_filter)
+int32_t IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter)
 {
     return iotx_mc_unsubscribe((iotx_mc_client_t *)handle, topic_filter);
 }
 
 
-int32_t iotx_mqtt_publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg)
+int32_t IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg)
 {
     return iotx_mc_publish((iotx_mc_client_t *)handle, topic_name, topic_msg);
 }
