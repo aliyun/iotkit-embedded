@@ -690,7 +690,6 @@ int32_t IOT_Fill_ConnInfo(void)
                       "%s.%s",
                       dev->product_key,
                       GUIDER_DIRECT_DOMAIN);
-#endif
     _fill_conn_string(usr->username, sizeof(usr->username), "%s&%s",
                       dev->device_name,
                       dev->product_key);
