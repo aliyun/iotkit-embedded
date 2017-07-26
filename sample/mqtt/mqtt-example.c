@@ -147,7 +147,7 @@ int mqtt_client(void)
     }
 
     /* Device AUTH */
-    if (0 != IOT_FetchConnInfo(IOT_GetDeviceInfo(), IOT_GetConnInfo())) {
+    if (0 != IOT_Fill_ConnInfo()) {
         log_debug("AUTH request failed!");
         rc = -1;
         goto do_exit;

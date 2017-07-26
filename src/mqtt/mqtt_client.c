@@ -1879,8 +1879,8 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     log_info("start reconnect");
 
     //REDO AUTH before each reconnection
-    if (0 != IOT_FetchConnInfo(IOT_GetDeviceInfo(), IOT_GetConnInfo())) {
-        log_err("run IOT_FetchConnInfo() error!\n");
+    if (0 != IOT_Fill_ConnInfo()) {
+        log_err("run IOT_Fill_ConnInfo() error!\n");
         return -1;
     }
 

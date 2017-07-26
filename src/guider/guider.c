@@ -517,20 +517,25 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
         const char *    pubKey;
     }
 */
-int32_t IOT_FetchConnInfo(iotx_device_info_pt dev, iotx_conn_info_pt usr)
+int32_t IOT_Fill_ConnInfo(void)
 {
-    char            guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
-    char            guider_url[GUIDER_URL_LEN] = {0};
-    SECURE_MODE     guider_secmode_num = 0;
-    char            guider_secmode_str[CONN_SECMODE_LEN] = {0};
-    char            guider_sign[GUIDER_SIGN_LEN] = {0};
-    char            guider_timestamp_str[GUIDER_TS_LEN] = {0};
+    char                guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
+    char                guider_url[GUIDER_URL_LEN] = {0};
+    SECURE_MODE         guider_secmode_num = 0;
+    char                guider_secmode_str[CONN_SECMODE_LEN] = {0};
+    char                guider_sign[GUIDER_SIGN_LEN] = {0};
+    char                guider_timestamp_str[GUIDER_TS_LEN] = {0};
 #ifdef ID2_AUTH
-    char           *guider_id2 = NULL;
-    char           *guider_device_code = NULL;
+    char               *guider_id2 = NULL;
+    char               *guider_device_code = NULL;
 #endif
 
-    char           *req_str = NULL;
+    iotx_device_info_pt dev = IOT_GetDeviceInfo();
+    iotx_conn_info_pt   usr = IOT_GetConnInfo();
+    char               *req_str = NULL;
+
+    assert(dev);
+    assert(usr);
 
     _secure_mode_str(guider_secmode_str, sizeof(guider_secmode_str));
 
