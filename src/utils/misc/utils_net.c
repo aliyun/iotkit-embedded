@@ -165,6 +165,11 @@ int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, co
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
     pNetwork->ca_crt = ca_crt;
+
+#ifdef ID2_CRYPTO
+    pNetwork->ca_crt = NULL;
+#endif
+
     if (NULL == ca_crt) {
         pNetwork->ca_crt_len = 0;
     } else {

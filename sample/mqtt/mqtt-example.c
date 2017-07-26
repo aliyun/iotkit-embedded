@@ -224,7 +224,14 @@ int mqtt_client(void)
             rc = -1;
             break;
         }
+#ifdef ID2_CRYPTO
+        log_debug("packet-id=%u, publish topic msg='0x%02x%02x%02x%02x'...",
+                  (uint32_t)rc,
+                  msg_pub[0], msg_pub[1], msg_pub[2], msg_pub[3]
+                 );
+#else
         log_debug("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
+#endif
 
         /* handle the MQTT packet received from TCP or SSL connection */
         IOT_MQTT_Yield(pclient, 200);
