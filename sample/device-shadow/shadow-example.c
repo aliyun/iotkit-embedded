@@ -67,9 +67,9 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     }
 
     /* Device AUTH */
-    rc = IOT_FetchConnInfo(IOT_GetDeviceInfo(), IOT_GetConnInfo());
+    rc = IOT_Fill_ConnInfo();
     if (SUCCESS_RETURN != rc) {
-        log_err("rc = IOT_FetchConnInfo() = %d", rc);
+        log_err("rc = IOT_Fill_ConnInfo() = %d", rc);
         return rc;
     }
 
