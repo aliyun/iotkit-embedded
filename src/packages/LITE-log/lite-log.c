@@ -11,7 +11,7 @@
         \
     } while(0)
 
-int LITE_hexdump(const char *title, void *buff, int len)
+int LITE_hexdump(const char *title, const void *buff, const int len)
 {
     int                     i, j, written;
     unsigned char           ascii[16 + 1] = {0};
@@ -136,8 +136,8 @@ void LITE_set_loglevel(int pri)
 void LITE_rich_hexdump(const char *f, const int l,
                        const int level,
                        const char *buf_str,
-                       void *buf_ptr,
-                       int buf_len)
+                       const void *buf_ptr,
+                       const int buf_len)
 {
     if (LITE_get_loglevel() < level) {
         return;
@@ -247,8 +247,8 @@ void LITE_set_loglevel(int lvl)
 void LITE_rich_hexdump(const char *f, const int l,
                        const int level,
                        const char *buf_str,
-                       void *buf_ptr,
-                       int buf_len)
+                       const void *buf_ptr,
+                       const int buf_len)
 {
     printf("%s/%d: ", f, l);
     printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
