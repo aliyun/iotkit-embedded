@@ -166,7 +166,7 @@ int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, co
     pNetwork->port = port;
     pNetwork->ca_crt = ca_crt;
 
-#ifdef ID2_CRYPTO
+#ifdef MQTT_ID2_CRYPTO
     pNetwork->ca_crt = NULL;
 #endif
 

@@ -10,10 +10,13 @@ COMP_LIB_COMPONENTS := \
     src/security \
     src/sdk-impl \
     src/guider \
-    src/shadow \
     src/mqtt \
     src/system \
     src/platform \
+
+ifeq (y,$(strip $(FEATURE_MQTT_DEVICE_SHADOW)))
+COMP_LIB_COMPONENTS += src/shadow
+endif
 
 SUBDIRS := sample
 SUBDIRS += src/sdk-tests

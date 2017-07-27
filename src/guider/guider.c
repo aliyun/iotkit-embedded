@@ -10,8 +10,6 @@ extern int httpclient_common(
             httpclient_data_t *client_data);
 extern uint64_t utils_get_epoch_time(char copy[], int len);
 
-#define _ONLINE
-
 typedef enum _SECURE_MODE {
     MODE_TLS_GUIDER             = -1,
     MODE_TCP_GUIDER_PLAIN       = 0,
@@ -32,7 +30,7 @@ const char *secmode_str[] = {
     ""
 };
 
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
 static uint64_t _timestamp_num(char *str)
 {
     char        backup;
@@ -159,9 +157,9 @@ static int _calc_id2_signature(
 
     return 0;
 }
-#endif  /* #ifdef ID2_AUTH */
+#endif  /* #ifdef MQTT_ID2_AUTH */
 
-#ifndef ID2_AUTH
+#ifndef MQTT_ID2_AUTH
 static int _hmac_md5_signature(
             char *md5_sigbuf,
             const int md5_buflen,
@@ -196,9 +194,9 @@ static int _hmac_md5_signature(
     memcpy(md5_sigbuf, signature, md5_buflen);
     return 0;
 }
-#endif  /* #ifndef ID2_AUTH */
+#endif  /* #ifndef MQTT_ID2_AUTH */
 
-#ifndef DIRECT_MQTT
+#ifndef MQTT_DIRECT
 static int _http_response(char *payload,
                           const int payload_len,
                           const char *request_string,
@@ -284,7 +282,7 @@ static int _iotId_iotToken_http(
 #endif
 
     // special case: ID2 online not ready
-#if defined(ID2_AUTH)
+#if defined(MQTT_ID2_AUTH)
     iotx_port = 80;
 #endif
 
@@ -310,7 +308,7 @@ static int _iotId_iotToken_http(
                    guider_addr,
                    iotx_port,
                    // special case: ID2 online not ready
-#if defined(ID2_AUTH)
+#if defined(MQTT_ID2_AUTH)
                    NULL
 #else
                    iotx_ca_get()
@@ -332,7 +330,7 @@ static int _iotId_iotToken_http(
         goto do_exit;
     }
 
-#if defined(ID2_AUTH)
+#if defined(MQTT_ID2_AUTH)
     uint8_t            *b64_decode = NULL;
     uint8_t            *id2_decrypt = NULL;
     int                 id2_rc = -1;
@@ -405,7 +403,7 @@ static int _iotId_iotToken_http(
     LITE_free(pvalue);
     *pport = atoi(port_str);
 
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     pvalue = LITE_json_value_of("data.resources.codec.key", iotx_payload);
     if (NULL == pvalue) {
         goto do_exit;
@@ -429,7 +427,7 @@ static int _iotId_iotToken_http(
     log_debug("%10s: %s", "iotToken", iot_token);
     log_debug("%10s: %s", "Host", host);
     log_debug("%10s: %d", "Port", *pport);
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     log_debug("%10s: %s", "AES Key", usr->aeskey_str);
 #endif
 
@@ -438,11 +436,11 @@ static int _iotId_iotToken_http(
 do_exit:
     return ret;
 }
-#endif  /* #ifndef DIRECT_MQTT */
+#endif  /* #ifndef MQTT_DIRECT */
 
 void _timestamp_string(char *buf, int len)
 {
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     utils_get_epoch_time(buf, len);
 #else
     snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
@@ -454,7 +452,7 @@ static SECURE_MODE _secure_mode_num(void)
 {
     int             rc = -1;
 
-#ifdef DIRECT_MQTT
+#ifdef MQTT_DIRECT
 
 #ifdef IOTX_WITHOUT_TLS
     rc = MODE_TCP_DIRECT_PLAIN;
@@ -462,7 +460,7 @@ static SECURE_MODE _secure_mode_num(void)
     rc = MODE_TLS_DIRECT;
 #endif
 
-#else // DIRECT_MQTT
+#else // MQTT_DIRECT
     rc = MODE_TCP_GUIDER_PLAIN;
 #endif
     return  rc;
@@ -496,37 +494,32 @@ void _ident_partner(char *buf, int len)
 
 static void _authenticate_http_url(char *buf, int len)
 {
-#ifdef DIRECT_MQTT
+#ifdef MQTT_DIRECT
     snprintf(buf, len, "%s", "");
 #else
 
     snprintf(buf, len, "%s", "http://");
-#ifdef _ONLINE
 
     // special case: ID2 online not ready
-#if defined(ID2_AUTH)
+#if defined(MQTT_ID2_AUTH)
     strcat(buf, "iot-auth.alibaba.net");
 #else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
 #endif
 
-#else
-    strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
-#endif
-
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     strcat(buf, "/auth/id2");
 #else
     strcat(buf, "/auth/devicename");
 #endif
 
-#endif  // DIRECT_MQTT
+#endif  // MQTT_DIRECT
 
     return;
 }
 
 char *_authenticate_string(char sign[], char ts[]
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     , char id2[]
     , char dev_code[]
 #endif
@@ -539,7 +532,7 @@ char *_authenticate_string(char sign[], char ts[]
     dev = IOT_GetDeviceInfo();
     assert(dev);
 
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     rc = asprintf(&ret,
                   "id2=%s&" "sign=%s&" "deviceCode=%s&" "timestamp=%s&"
                   "version=default&" "clientId=%s&" "resources=mqtt,codec",
@@ -598,7 +591,7 @@ int32_t IOT_Fill_ConnInfo(void)
     char                guider_secmode_str[CONN_SECMODE_LEN] = {0};
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
     char                guider_timestamp_str[GUIDER_TS_LEN] = {0};
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     char               *guider_id2 = NULL;
     char               *guider_device_code = NULL;
 #endif
@@ -617,7 +610,7 @@ int32_t IOT_Fill_ConnInfo(void)
     _authenticate_http_url(guider_url, sizeof(guider_url));
     guider_secmode_num = _secure_mode_num();
 
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     // get ID2 Signature, deviceCode/ID2 fetched meanwhile
     _calc_id2_signature(guider_sign,
                         sizeof(guider_sign),
@@ -641,19 +634,19 @@ int32_t IOT_Fill_ConnInfo(void)
     log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str);
     log_debug("%s", "....................................................");
     log_debug("%20s : %s", "Guider Sign", guider_sign);
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     log_debug("%20s : %s", "Guider ID2", guider_id2);
     log_debug("%20s : %s", "Guider DeviceCode", guider_device_code);
 #endif
     log_debug("%s", "....................................................");
 
-#ifndef DIRECT_MQTT
+#ifndef MQTT_DIRECT
     char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
     uint16_t        iotx_conn_port = 1883;
     char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
     char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
 
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     req_str = _authenticate_string(guider_sign, guider_timestamp_str,
                                    guider_id2, guider_device_code);
 #else
@@ -673,7 +666,7 @@ int32_t IOT_Fill_ConnInfo(void)
         }
 
         log_err("_iotId_iotToken_http() failed");
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
         LITE_free(guider_id2);
         LITE_free(guider_device_code);
 #endif
@@ -683,7 +676,7 @@ int32_t IOT_Fill_ConnInfo(void)
 
     /* Start Filling Connection Information */
     usr->pub_key = iotx_ca_get();
-#ifdef DIRECT_MQTT
+#ifdef MQTT_DIRECT
 
     usr->port = 1883;
     _fill_conn_string(usr->host_name, sizeof(usr->host_name),
@@ -704,7 +697,7 @@ int32_t IOT_Fill_ConnInfo(void)
                       guider_secmode_num,
                       guider_pid_buf, guider_timestamp_str);
 
-#else   /* DIRECT_MQTT */
+#else   /* MQTT_DIRECT */
 
     usr->port = iotx_conn_port;
     _fill_conn_string(usr->host_name, sizeof(usr->host_name), "%s", iotx_conn_host);
@@ -715,7 +708,7 @@ int32_t IOT_Fill_ConnInfo(void)
                       dev->device_id,
                       guider_secmode_str, guider_pid_buf);
 
-#endif  /* DIRECT_MQTT */
+#endif  /* MQTT_DIRECT */
 
     log_debug("%s", "-----------------------------------------");
     log_debug("%16s : %-s", "Host", usr->host_name);
@@ -726,7 +719,7 @@ int32_t IOT_Fill_ConnInfo(void)
     if (usr->pub_key) {
         log_debug("%16s : %p ('%.16s ...')", "TLS PubKey", usr->pub_key, usr->pub_key);
     }
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     char            tmp_str[40] = {0};
 
     LITE_hexbuf_convert(usr->aeskey_hex, tmp_str, 128 / 8, 1);
@@ -738,7 +731,7 @@ int32_t IOT_Fill_ConnInfo(void)
         free(req_str);
     }
 
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     LITE_free(guider_id2);
     LITE_free(guider_device_code);
 #endif

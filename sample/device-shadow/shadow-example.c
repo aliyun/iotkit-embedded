@@ -13,7 +13,7 @@
     #define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
 */
 
-#ifndef DIRECT_MQTT
+#ifndef MQTT_DIRECT
     #define PRODUCT_KEY         "6RcIOUafDOm"
     #define DEVICE_NAME         "sh_pre_sample_shadow"
     #define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
