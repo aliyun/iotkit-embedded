@@ -20,7 +20,7 @@
 #define _IOTX_COMMON_HTTPCLIENT_H_
 
 #include "iot_import.h"
-#include "utils_error.h"
+#include "iot_export.h"
 #include "utils_net.h"
 
 #ifdef __cplusplus

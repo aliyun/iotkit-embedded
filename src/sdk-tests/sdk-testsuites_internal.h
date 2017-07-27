@@ -4,8 +4,8 @@
 extern "C" {
 #endif
 
-#include "lite/lite-log.h"
-#include "lite/lite-utils.h"
+#include "lite-log.h"
+#include "lite-utils.h"
 #include "security.h"
 
 #if defined(__cplusplus)

@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "iot_import.h"
+#include "iot_export.h"
 #include "guider.h"
 #include "utils_error.h"
-#include "lite/lite-log.h"
-#include "lite/lite-utils.h"
+#include "lite-log.h"
+#include "lite-utils.h"
 #include "utils_net.h"
 #include "utils_hmac.h"
 #include "utils_list.h"
@@ -2080,8 +2081,8 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     log_info("start reconnect");
 
     //REDO AUTH before each reconnection
-    if (0 != IOT_Fill_ConnInfo()) {
-        log_err("run IOT_Fill_ConnInfo() error!\n");
+    if (0 != iotx_guider_authenticate()) {
+        log_err("run iotx_guider_authenticate() error!\n");
         return -1;
     }
 

@@ -1,5 +1,5 @@
 #include <string.h>
-#include "lite/lite-log.h"
+#include "lite-log.h"
 #include "utils_md5.h"
 #include "utils_sha1.h"
 #include "utils_hmac.h"

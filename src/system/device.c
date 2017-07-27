@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "lite/lite-log.h"
+#include "lite-log.h"
 #include "utils_error.h"
 #include "device.h"
 

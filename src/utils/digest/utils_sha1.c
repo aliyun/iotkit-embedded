@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "iot_import.h"
-#include "lite/lite-log.h"
+#include "lite-log.h"
 #include "utils_error.h"
 #include "utils_sha1.h"
 

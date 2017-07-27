@@ -1,5 +1,5 @@
 ifeq (y, $(strip $(FEATURE_MQTT_DEVICE_SHADOW)))
-TARGET      := mqtt-example shadow-example
+TARGET              := mqtt-example shadow-example
 SRCS_mqtt-example   := mqtt/mqtt-example.c
 SRCS_shadow-example := device-shadow/shadow-example.c
 else
@@ -7,7 +7,7 @@ TARGET      := mqtt-example
 SRCS        := mqtt/mqtt-example.c
 endif
 
-HDR_REFS    := src
+HDR_REFS    := src/sdk-impl
 
 LDFLAGS     := -liot_sdk
 

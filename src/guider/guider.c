@@ -583,7 +583,7 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
         const char *    pubKey;
     }
 */
-int32_t IOT_Fill_ConnInfo(void)
+int32_t iotx_guider_authenticate(void)
 {
     char                guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
