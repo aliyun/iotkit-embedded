@@ -10,6 +10,7 @@
 #include <assert.h>
 
 #include "lite-list.h"
+#include "lite-log.h"
 
 #define LITE_TRUE                   (1)
 #define LITE_FALSE                  (0)

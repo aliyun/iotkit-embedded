@@ -1,30 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "iot_import.h"
-#include "lite-log.h"
-#include "lite-utils.h"
-#include "mqtt_client.h"
-#include "guider.h"
-#include "device.h"
-#include "shadow.h"
+#include "iot_export.h"
 
-// The product and device information from IOT console
-/*
-    #define PRODUCT_KEY         "OvNmiEYRDSY"
-    #define DEVICE_NAME         "sh_online_sample_shadow"
-    #define DEVICE_SECRET       "RcS3af0lHnpzNkfcVB1RKc4kSoR84D2n"
-*/
-
-#ifndef MQTT_DIRECT
-    #define PRODUCT_KEY         "6RcIOUafDOm"
-    #define DEVICE_NAME         "sh_pre_sample_shadow"
-    #define DEVICE_SECRET       "DLpwSvgsyjD2jPDusSSjucmVGm9UJCt7"
-#else
-    #define PRODUCT_KEY         "jRCMjOhnScj"
-    #define DEVICE_NAME         "dns_test"
-    #define DEVICE_SECRET       "OJurfzWl9SsyL6eaxBkMvmHW15KMyn3C"
-#endif
+#define PRODUCT_KEY             "yfTuLfBJTiL"
+#define DEVICE_NAME             "TestDeviceForDemo"
+#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 
 #define MSG_LEN_MAX         (1024)
 
+#define SHADOW_TRACE(fmt, args...)  \
+    do { \
+        printf("%s|%03d :: ", __func__, __LINE__); \
+        printf(fmt, ##args); \
+        printf("%s", "\r\n"); \
+    } while(0)
 
 /**
  * @brief This is a callback function when a control value coming from server.
@@ -41,10 +33,10 @@ static void _device_shadow_cb_light(iotx_shadow_attr_pt pattr)
      * ****** Your Code ******
      */
 
-    log_info("----");
-    log_info("Attrbute Name: '%s'", pattr->pattr_name);
-    log_info("Attrbute Value: %d", *(int32_t *)pattr->pattr_data);
-    log_info("----");
+    SHADOW_TRACE("----");
+    SHADOW_TRACE("Attrbute Name: '%s'", pattr->pattr_name);
+    SHADOW_TRACE("Attrbute Value: %d", *(int32_t *)pattr->pattr_data);
+    SHADOW_TRACE("----");
 }
 
 
@@ -62,14 +54,14 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     IOT_CreateDeviceInfo();
 
     if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        log_debug("run IOT_SetDeviceInfo() error!\n");
+        SHADOW_TRACE("run IOT_SetDeviceInfo() error!\n");
         return -1;
     }
 
     /* Device AUTH */
-    rc = IOT_Fill_ConnInfo();
+    rc = IOT_SetupConnInfo();
     if (SUCCESS_RETURN != rc) {
-        log_err("rc = IOT_Fill_ConnInfo() = %d", rc);
+        SHADOW_TRACE("rc = iotx_guider_authenticate() = %d", rc);
         return rc;
     }
 
@@ -98,7 +90,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
     h_shadow = IOT_Shadow_Construct(&shadaw_para);
     if (NULL == h_shadow) {
-        log_debug("construct device shadow failed!");
+        SHADOW_TRACE("construct device shadow failed!");
         return rc;
     }
 
@@ -165,20 +157,20 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
 
 int main()
 {
-    LITE_openlog("shadow");
-    LITE_set_loglevel(LOG_DEBUG_LEVEL);
+    IOT_OpenLog("shadow");
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    char *msg_buf = (char *)LITE_malloc(MSG_LEN_MAX);
-    char *msg_readbuf = (char *)LITE_malloc(MSG_LEN_MAX);
+    char *msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX);
+    char *msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX);
 
     demo_device_shadow(msg_buf, msg_readbuf);
 
-    LITE_free(msg_buf);
-    LITE_free(msg_readbuf);
+    HAL_Free(msg_buf);
+    HAL_Free(msg_readbuf);
 
-    log_debug("out of demo!");
-    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
-    LITE_closelog();
+    SHADOW_TRACE("out of demo!");
+    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
+    IOT_CloseLog();
 
     return 0;
 }

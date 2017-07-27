@@ -5,9 +5,11 @@ extern "C" {
 #endif
 
 #include "iot_import.h"
+#include "iot_export.h"
 
 #include "lite-log.h"
 #include "lite-utils.h"
+#include "guider.h"
 
 #if defined(__cplusplus)
 }

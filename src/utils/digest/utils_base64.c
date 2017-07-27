@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "iot_import.h"
+#include "iot_export.h"
 
 #include "utils_error.h"
 #include "lite-log.h"

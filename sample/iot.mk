@@ -7,7 +7,7 @@ TARGET      := mqtt-example
 SRCS        := mqtt/mqtt-example.c
 endif
 
-HDR_REFS    := src
+HDR_REFS    := src/sdk-impl
 
 LDFLAGS     := -liot_sdk
 
