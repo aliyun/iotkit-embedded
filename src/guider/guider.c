@@ -723,9 +723,9 @@ int32_t IOT_Fill_ConnInfo(void)
     log_debug("%16s : %-s", "UserName", usr->username);
     log_debug("%16s : %-s", "PassWord", usr->password);
     log_debug("%16s : %-s", "ClientID", usr->client_id);
-    log_debug("%16s : %p ('%.16s ...')", "TLS PubKey",
-              usr->pub_key ? usr->pub_key : (const char *)0xdead,
-              usr->pub_key ? usr->pub_key : "N/A");
+    if (usr->pub_key) {
+        log_debug("%16s : %p ('%.16s ...')", "TLS PubKey", usr->pub_key, usr->pub_key);
+    }
 #ifdef ID2_AUTH
     char            tmp_str[40] = {0};
 

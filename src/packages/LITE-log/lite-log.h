@@ -28,7 +28,7 @@ int     LITE_log_enabled(void);
 char   *LITE_get_logname(void);
 int     LITE_get_loglevel(void);
 void    LITE_set_loglevel(int level);
-int     LITE_hexdump(const char *title, void *buf, int len);
+int     LITE_hexdump(const char *title, const void *buf, const int len);
 
 void    LITE_syslog(const char *f, const int l, const int level, const char *fmt, ...);
 #define log_emerg(args...)      LITE_syslog(__FUNCTION__, __LINE__, LOG_EMERG_LEVEL, args)
@@ -46,14 +46,14 @@ int     log_multi_line_internal(const char *f, const int l,
 void    LITE_rich_hexdump(const char *f, const int l,
             const int level,
             const char *buf_str,
-            void *buf_ptr,
-            int buf_len
+            const void *buf_ptr,
+            const int buf_len
 );
 #define HEXDUMP_DEBUG(buf, len) \
-    LITE_rich_hexdump(__func__, __LINE__, LOG_DEBUG_LEVEL, #buf, buf, len)
+    LITE_rich_hexdump(__func__, __LINE__, LOG_DEBUG_LEVEL, #buf, (const void *)buf, (const int)len)
 
 #define HEXDUMP_INFO(buf, len)      \
-    LITE_rich_hexdump(__FUNCTION__, __LINE__, LOG_INFO_LEVEL, #buf, buf, len)
+    LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, (const void *)buf, (const int)len)
 
 
 #if defined(__cplusplus)
