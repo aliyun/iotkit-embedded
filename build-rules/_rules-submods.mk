@@ -43,7 +43,9 @@ CMDLINE_VARS := \
 # When SUB_BUILD_VARS like $(CFLAGS) contains special character '$'
 # simply echo its value into 'Makefile' will cause '$' lost when GNU make read in again
 #
-$(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) $(wildcard $(RULE_DIR)/*.mk)
+$(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
+                  $(wildcard $(RULE_DIR)/*.mk) \
+                  $(shell grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d')
 	$(TOP_Q)rm -f $@
 	$(TOP_Q) \
 	$(foreach V, \

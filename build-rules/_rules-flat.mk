@@ -142,7 +142,7 @@ ifneq (,$(strip $(PKG_SOURCE)))
 endif
 endif
 
-%.o: %.c
+%.o: %.c $(HD_MAKEFILE)
 	$(call Brief_Log,"CC")
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q) \
