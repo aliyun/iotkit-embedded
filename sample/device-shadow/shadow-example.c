@@ -9,7 +9,7 @@
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 
-#define MSG_LEN_MAX         (1024)
+#define MSG_LEN_MAX             (1024)
 
 #define SHADOW_TRACE(fmt, args...)  \
     do { \

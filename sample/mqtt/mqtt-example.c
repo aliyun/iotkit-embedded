@@ -199,6 +199,9 @@ int mqtt_client(void)
     topic_msg.payload = (void *)msg_pub;
     topic_msg.payload_len = strlen(msg_pub);
 
+    rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
+    EXAMPLE_TRACE("rc = IOT_MQTT_Publish() = %d", rc);
+
     do {
         /* Generate topic message */
         cnt++;
@@ -260,9 +263,10 @@ int main()
 
     mqtt_client();
 
-    EXAMPLE_TRACE("out of sample!");
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_CloseLog();
+
+    EXAMPLE_TRACE("out of sample!");
     return 0;
 }
 
