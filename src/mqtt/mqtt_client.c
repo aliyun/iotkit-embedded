@@ -563,10 +563,9 @@ typedef struct _MQTT_ReplayFender {
 #endif
 } __attribute__((packed)) MQTT_ReplayFender;
 
-static void _to_lower(char *upper)
+static void _to_lower(char *upper, int len)
 {
     int             i;
-    int             len = strlen(upper);
 
     for (i = 0; i < len; i ++) {
         if (upper[i] >= 'A' && upper[i] <= 'Z') {
@@ -599,6 +598,7 @@ static int _fill_replay_fender(
     hmac_srclen = strlen(hmac_source);
     log_debug("hmac_source(%d) = '%s'", hmac_srclen, hmac_source);
 
+    memset(f->hmac_str, 0, sizeof(f->hmac_str));
 #ifdef HASH_SHA1
     uint8_t             sha1_hexbuf[HASH_SHA1_LEN] = {0};
 
@@ -611,8 +611,10 @@ static int _fill_replay_fender(
                    f->hmac_str,
                    (const char *)conn->aeskey_hex,
                    (int)sizeof(conn->aeskey_hex));
-    _to_lower(f->hmac_str);
-    log_debug("hmac_str(%d) = '%s'", HMAC_MD5_LEN * 2, f->hmac_str);
+
+    HEXDUMP_DEBUG(f->hmac_str, sizeof(f->hmac_str));
+    _to_lower(f->hmac_str, sizeof(f->hmac_str));
+    HEXDUMP_DEBUG(f->hmac_str, sizeof(f->hmac_str));
 #endif
 
     return 0;
