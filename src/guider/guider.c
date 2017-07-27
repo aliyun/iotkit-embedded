@@ -337,41 +337,54 @@ static int _iotId_iotToken_http(
     uint32_t            src_len = 0;
     uint32_t            dst_len = 0;
     uint32_t            dec_len = 0;
+    int                 cipher_data = 0;
 
-    pvalue = LITE_json_value_of("data", iotx_payload);
+    pvalue = LITE_json_value_of("data.iotId", iotx_payload);
     if (NULL == pvalue) {
-        goto do_exit;
+        cipher_data = 1;
+        log_debug("'data.iotId' NOT found, cipher_data = %d", cipher_data);
+    } else {
+        LITE_free(pvalue);
+        cipher_data = 0;
+        log_debug("'data.iotId' already found, cipher_data = %d", cipher_data);
     }
-    src_len = (uint32_t)strlen(pvalue);
-    b64_decode = LITE_malloc(src_len);
-    assert(b64_decode);
 
-    id2_rc = utils_base64decode((const uint8_t *)pvalue,
-                                src_len,
-                                src_len,
-                                b64_decode,
-                                &dst_len);
-    log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
-    assert(!id2_rc);
-    LITE_free(pvalue);
+    if (cipher_data) {
+        pvalue = LITE_json_value_of("data", iotx_payload);
+        if (NULL == pvalue) {
+            goto do_exit;
+        }
+        src_len = (uint32_t)strlen(pvalue);
+        b64_decode = LITE_malloc(src_len);
+        assert(b64_decode);
 
-    id2_decrypt = LITE_malloc(dst_len);
-    assert(id2_decrypt);
-    id2_rc = tfs_id2_decrypt((const uint8_t *)b64_decode,
-                             dst_len,
-                             id2_decrypt,
-                             &dec_len);
-    log_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);
-    assert(!id2_rc);
-    LITE_free(b64_decode);
-    log_debug("id2_decrypt = %s", id2_decrypt);
+        id2_rc = utils_base64decode((const uint8_t *)pvalue,
+                                    src_len,
+                                    src_len,
+                                    b64_decode,
+                                    &dst_len);
+        log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
+        assert(!id2_rc);
+        LITE_free(pvalue);
 
-    sprintf(iotx_payload, "{\"data\":");
-    strcat(iotx_payload, (const char *)id2_decrypt);
-    strcat(iotx_payload, "}");
-    log_debug("iotx_payload = %s", iotx_payload);
+        id2_decrypt = LITE_malloc(dst_len);
+        assert(id2_decrypt);
+        id2_rc = tfs_id2_decrypt((const uint8_t *)b64_decode,
+                                 dst_len,
+                                 id2_decrypt,
+                                 &dec_len);
+        log_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);
+        assert(!id2_rc);
+        LITE_free(b64_decode);
+        log_debug("id2_decrypt = %s", id2_decrypt);
 
-    LITE_free(id2_decrypt);
+        sprintf(iotx_payload, "{\"data\":");
+        strcat(iotx_payload, (const char *)id2_decrypt);
+        strcat(iotx_payload, "}");
+        log_debug("iotx_payload = %s", iotx_payload);
+
+        LITE_free(id2_decrypt);
+    }
 #endif
 
     pvalue = LITE_json_value_of("data.iotId", iotx_payload);
@@ -414,7 +427,7 @@ static int _iotId_iotToken_http(
     src_len = (uint32_t)strlen(usr->aeskey_str);
     id2_rc = utils_base64decode((const uint8_t *)usr->aeskey_str,
                                 src_len,
-                                dst_len,
+                                src_len,
                                 usr->aeskey_hex,
                                 &dst_len);
     log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
@@ -438,7 +451,7 @@ do_exit:
 }
 #endif  /* #ifndef MQTT_DIRECT */
 
-void _timestamp_string(char *buf, int len)
+static void _timestamp_string(char *buf, int len)
 {
 #ifdef MQTT_ID2_AUTH
     utils_get_epoch_time(buf, len);
@@ -466,7 +479,7 @@ static SECURE_MODE _secure_mode_num(void)
     return  rc;
 }
 
-void _secure_mode_str(char *buf, int len)
+static void _secure_mode_str(char *buf, int len)
 {
     memset(buf, 0, len);
 #ifndef IOTX_WITHOUT_TLS
@@ -477,7 +490,7 @@ void _secure_mode_str(char *buf, int len)
     return;
 }
 
-void _ident_partner(char *buf, int len)
+static void _ident_partner(char *buf, int len)
 {
     char                tmp[GUIDER_PID_LEN] = {0};
 
@@ -518,10 +531,12 @@ static void _authenticate_http_url(char *buf, int len)
     return;
 }
 
-char *_authenticate_string(char sign[], char ts[]
+static char *_authenticate_string(char sign[], char ts[]
 #ifdef MQTT_ID2_AUTH
     , char id2[]
+#ifdef IOTX_WITHOUT_TLS
     , char dev_code[]
+#endif
 #endif
                           )
 {
@@ -534,10 +549,16 @@ char *_authenticate_string(char sign[], char ts[]
 
 #ifdef MQTT_ID2_AUTH
     rc = asprintf(&ret,
-                  "id2=%s&" "sign=%s&" "deviceCode=%s&" "timestamp=%s&"
-                  "version=default&" "clientId=%s&" "resources=mqtt,codec",
-                  id2, sign, dev_code, ts,
-                  dev->device_id);
+                  "id2=%s&" "sign=%s&"
+#ifdef IOTX_WITHOUT_TLS
+                  "deviceCode=%s&"
+#endif
+                  "timestamp=%s&" "version=default&" "clientId=%s&" "resources=mqtt,codec",
+                  id2, sign,
+#ifdef IOTX_WITHOUT_TLS
+                  dev_code,
+#endif
+                  ts, dev->device_id);
 #else
     rc = asprintf(&ret,
                   "productKey=%s&" "deviceName=%s&" "sign=%s&"
@@ -553,7 +574,7 @@ char *_authenticate_string(char sign[], char ts[]
     return ret;
 }
 
-int _fill_conn_string(char *dst, int len, const char *fmt, ...)
+static int _fill_conn_string(char *dst, int len, const char *fmt, ...)
 {
     int                     rc = -1;
     va_list                 ap;
@@ -648,7 +669,11 @@ int32_t iotx_guider_authenticate(void)
 
 #ifdef MQTT_ID2_AUTH
     req_str = _authenticate_string(guider_sign, guider_timestamp_str,
-                                   guider_id2, guider_device_code);
+                                   guider_id2
+#ifdef IOTX_WITHOUT_TLS
+                                   , guider_device_code
+#endif
+                                  );
 #else
     req_str = _authenticate_string(guider_sign, guider_timestamp_str);
 #endif
