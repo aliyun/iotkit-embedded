@@ -6,8 +6,8 @@ extern "C" {
 
 #include "iot_import.h"
 
-#include "lite/lite-log.h"
-#include "lite/lite-utils.h"
+#include "lite-log.h"
+#include "lite-utils.h"
 
 #if defined(__cplusplus)
 }

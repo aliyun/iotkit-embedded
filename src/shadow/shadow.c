@@ -4,7 +4,7 @@
 #include "utils_debug.h"
 #include "utils_error.h"
 #include "mqtt_client.h"
-#include "lite/lite-utils.h"
+#include "lite-utils.h"
 #include "shadow.h"
 #include "shadow_common.h"
 #include "shadow_update.h"

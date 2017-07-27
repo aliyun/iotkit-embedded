@@ -2,7 +2,7 @@
 #ifndef _IOTX_COMMON_DEBUG_H_
 #define _IOTX_COMMON_DEBUG_H_
 
-#include "lite/lite-log.h"
+#include "lite-log.h"
 
 #ifdef IOTX_DEBUG
 

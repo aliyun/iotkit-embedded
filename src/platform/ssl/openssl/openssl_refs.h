@@ -1,7 +1,7 @@
 #ifndef ALIYUN_IOT_NETWORK_SSL_H
 #define ALIYUN_IOT_NETWORK_SSL_H
 
-#include "lite/lite-log.h"
+#include "lite-log.h"
 #include "utils_error.h"
 
 #include <openssl/crypto.h>

@@ -11,8 +11,8 @@
 #include "iot_import.h"
 
 #include "utils_error.h"
-#include "lite/lite-log.h"
-#include "lite/lite-utils.h"
+#include "lite-log.h"
+#include "lite-utils.h"
 #include "utils_md5.h"
 #include "utils_base64.h"
 #include "utils_hmac.h"

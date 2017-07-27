@@ -9,8 +9,8 @@ extern "C" {
 #include <string.h>
 #include <stdint.h>
 
-#include "lite/lite-log.h"
-#include "lite/lite-utils.h"
+#include "lite-log.h"
+#include "lite-utils.h"
 
 #include "tfs/tfs.h"
 

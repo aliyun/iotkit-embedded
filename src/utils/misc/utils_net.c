@@ -3,7 +3,7 @@
 
 #include "iot_import.h"
 #include "utils_net.h"
-#include "lite/lite-log.h"
+#include "lite-log.h"
 #include "utils_hexdump.h"
 
 

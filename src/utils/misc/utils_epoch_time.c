@@ -3,7 +3,7 @@
 
 #include "utils_httpc.h"
 #include "utils_epoch_time.h"
-#include "lite/lite-log.h"
+#include "lite-log.h"
 
 #define HTTP_RESP_CONTENT_LEN   (64)
 

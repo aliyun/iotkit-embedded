@@ -20,7 +20,7 @@
 #include "iot_import.h"
 #include "utils_timer.h"
 #include "utils_error.h"
-#include "lite/lite-log.h"
+#include "lite-log.h"
 #include "utils_httpc.h"
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))

@@ -1,6 +1,6 @@
 #include "iot_import.h"
-#include "lite/lite-log.h"
-#include "lite/lite-utils.h"
+#include "lite-log.h"
+#include "lite-utils.h"
 #include "mqtt_client.h"
 #include "guider.h"
 #include "device.h"

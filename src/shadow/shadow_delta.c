@@ -1,8 +1,8 @@
 
 #include "iot_import.h"
 
-#include "lite/lite-log.h"
-#include "lite/lite-utils.h"
+#include "lite-log.h"
+#include "lite-utils.h"
 #include "utils_list.h"
 #include "shadow_delta.h"
 
