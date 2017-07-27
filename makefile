@@ -2,6 +2,7 @@ include make.settings
 include src/scripts/parse_make_settings.mk
 
 CFLAGS  += -Os -Wall -Werror
+# CFLAGS  += -DTEST_ID2_DAILY
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
