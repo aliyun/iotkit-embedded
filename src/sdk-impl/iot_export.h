@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 typedef enum _IOT_LogLevel {
     IOT_LOG_EMERG = 0,
     IOT_LOG_CRIT,
@@ -23,6 +25,7 @@ int     IOT_SetupConnInfo(void);
 #include "sub_export_mqtt.h"
 #include "sub_export_device.h"
 #include "sub_export_shadow.h"
+#include "sub_export_coap.h"
 
 #if defined(__cplusplus)
 }

@@ -11,6 +11,7 @@ COMP_LIB_COMPONENTS := \
     src/sdk-impl \
     src/guider \
     src/mqtt \
+    src/coap \
     src/system \
     src/platform \
 
