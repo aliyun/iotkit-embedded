@@ -11,14 +11,21 @@ SETTING_VARS := \
     PLATFORM_OS \
     PLATFORM_NETWORK \
     PLATFORM_SSL \
-    FEATURE_DIRECT_MQTT \
-    FEATURE_DIRECT_MQTT_NOTLS \
-    FEATURE_ID2_AUTH \
-    FEATURE_ID2_CRYPTO \
+    FEATURE_MQTT_DEVICE_SHADOW \
+    FEATURE_MQTT_DIRECT \
+    FEATURE_MQTT_DIRECT_NOTLS \
+    FEATURE_MQTT_ID2_AUTH \
+    FEATURE_MQTT_ID2_CRYPTO \
 
 $(foreach v, \
     $(SETTING_VARS), \
     $(eval export $(v)=$($(v))) \
+)
+
+$(foreach v, \
+    $(SETTING_VARS), \
+    $(if $(filter y,$($(v))), \
+        $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 
 include build-rules/settings.mk
@@ -28,38 +35,33 @@ ifeq (debug,$(strip $(BUILD_TYPE)))
 CFLAGS  += -DIOTX_DEBUG
 endif
 
-ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
-ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
-$(error FEATURE_ID2_AUTH + FEATURE_DIRECT_MQTT not implemented!)
+ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
+ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
+$(error FEATURE_MQTT_ID2_AUTH + FEATURE_MQTT_DIRECT not implemented!)
 endif
 
-CFLAGS  += -DDIRECT_MQTT
-ifeq (y,$(strip $(FEATURE_DIRECT_MQTT_NOTLS)))
+ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
 CFLAGS  += -DIOTX_WITHOUT_TLS
 endif
 
-else    # ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
+else    # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
-ifeq (y,$(strip $(FEATURE_DIRECT_MQTT_NOTLS)))
-$(error FEATURE_DIRECT_MQTT_NOTLS = y requires FEATURE_DIRECT_MQTT = y!)
+ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
+$(error FEATURE_MQTT_DIRECT_NOTLS = y requires FEATURE_MQTT_DIRECT = y!)
 endif
 
-endif   # ifeq (y,$(strip $(FEATURE_DIRECT_MQTT)))
+endif   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
-ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
+ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
-CFLAGS  += -DID2_AUTH
-ifeq (y,$(strip $(FEATURE_ID2_CRYPTO)))
-CFLAGS  += -DID2_CRYPTO
+
+else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
+
+ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
+$(error FEATURE_MQTT_ID2_CRYPTO = y requires FEATURE_MQTT_ID2_AUTH = y!)
 endif
 
-else    # ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
-
-ifeq (y,$(strip $(FEATURE_ID2_CRYPTO)))
-$(error FEATURE_ID2_CRYPTO = y requires FEATURE_ID2_AUTH = y!)
-endif
-
-endif   # ifeq (y,$(strip $(FEATURE_ID2_AUTH)))
+endif   # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
 ifneq ($(subst gcc,,$(PLATFORM_CC)),$(subst ar,,$(PLATFORM_AR)))
 $(error PLATFORM_CC and PLATFORM_AR requires same prefix!)

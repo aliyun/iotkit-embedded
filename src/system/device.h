@@ -38,7 +38,7 @@ typedef struct {
     char            username[USER_NAME_LEN + 1];
     char            password[PASSWORD_LEN + 1];
     const char     *pub_key;
-#ifdef ID2_AUTH
+#ifdef MQTT_ID2_AUTH
     char            aeskey_str[AESKEY_STR_LEN];
     uint8_t         aeskey_hex[AESKEY_HEX_LEN];
 #endif

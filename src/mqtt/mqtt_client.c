@@ -14,7 +14,7 @@
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
 
-#ifdef ID2_CRYPTO
+#ifdef MQTT_ID2_CRYPTO
 /* Macros for accessing the most offset byte of a number */
 #define MQTT_MS(A, OFFSET) ((A << (sizeof(A) - (OFFSET))*8) >> (sizeof(A) - 1) * 8)
 
@@ -43,7 +43,7 @@ void writeUint32(unsigned char **pptr, unsigned int anUint)
     (*pptr)++;
 }
 
-#endif  /* #ifdef ID2_CRYPTO */
+#endif  /* #ifdef MQTT_ID2_CRYPTO */
 
 /* MQTT client version number */
 #define IOTX_MC_MQTT_VERSION                    (4)
@@ -547,7 +547,7 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
     return rc;
 }
 
-#ifdef ID2_CRYPTO
+#ifdef MQTT_ID2_CRYPTO
 #define HASH_SHA1_LEN           (20)
 #define HMAC_MD5_LEN            (16)
 #define MQTT_MAX_TOPIC_LEN      (64)
@@ -676,7 +676,7 @@ exit:
 
     return ret;
 }
-#endif  /* #ifdef ID2_CRYPTO */
+#endif  /* #ifdef MQTT_ID2_CRYPTO */
 
 //remove the list element specified by @msgId from list of wait publish ACK
 //return: 0, success; NOT 0, fail;
@@ -1238,7 +1238,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
-#ifdef ID2_CRYPTO
+#ifdef MQTT_ID2_CRYPTO
     /* aes decrypt for MQTT payload */
     int                 ret = -1;
     uint8_t             iv[16] = {0};
@@ -1586,7 +1586,7 @@ static iotx_err_t iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, io
         topic_msg->packet_id = msg_id;
     }
 
-#ifdef ID2_CRYPTO
+#ifdef MQTT_ID2_CRYPTO
     _create_encoded_payload(c, (char *)topicName, topic_msg);
 #endif
 
