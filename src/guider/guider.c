@@ -467,26 +467,38 @@ static SECURE_MODE _secure_mode_num(void)
 
 #ifdef MQTT_DIRECT
 
-#ifdef IOTX_WITHOUT_TLS
+    #ifdef IOTX_WITHOUT_TLS
     rc = MODE_TCP_DIRECT_PLAIN;
-#else
+    #else
     rc = MODE_TLS_DIRECT;
-#endif
+    #endif
 
-#else // MQTT_DIRECT
+#else   // MQTT_DIRECT
+
+    #ifdef IOTX_WITHOUT_TLS
     rc = MODE_TCP_GUIDER_PLAIN;
-#endif
+    #else
+
+        #ifdef MQTT_ID2_AUTH
+            #ifdef MQTT_ID2_CRYPTO
+            rc = MODE_TCP_GUIDER_ID2_ENCRPT;
+            #else
+            rc = MODE_TLS_GUIDER_ID2;
+            #endif
+        #else   // MQTT_ID2_AUTH
+        rc = MODE_TLS_GUIDER;
+        #endif  // MQTT_ID2_AUTH
+    #endif  // IOTX_WITHOUT_TLS
+
+#endif  // MQTT_DIRECT
+
     return  rc;
 }
 
 static void _secure_mode_str(char *buf, int len)
 {
     memset(buf, 0, len);
-#ifndef IOTX_WITHOUT_TLS
-    snprintf(buf, len, "%s", "");
-#else
-    snprintf(buf, len, "%s", "securemode=0");
-#endif
+    snprintf(buf, len, "securemode=%d", _secure_mode_num());
     return;
 }
 
@@ -531,6 +543,7 @@ static void _authenticate_http_url(char *buf, int len)
     return;
 }
 
+#ifndef MQTT_DIRECT
 static char *_authenticate_string(char sign[], char ts[]
 #ifdef MQTT_ID2_AUTH
     , char id2[]
@@ -573,6 +586,7 @@ static char *_authenticate_string(char sign[], char ts[]
 
     return ret;
 }
+#endif  // MQTT_DIRECT
 
 static int _fill_conn_string(char *dst, int len, const char *fmt, ...)
 {
@@ -651,7 +665,9 @@ int32_t iotx_guider_authenticate(void)
     log_debug("%s", "....................................................");
     log_debug("%20s : %-s", "PartnerID Buf", guider_pid_buf);
     log_debug("%20s : %s", "Guider URL", guider_url);
-    log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode_num, secmode_str[guider_secmode_num]);
+    if (guider_secmode_num > 0) {
+        log_debug("%20s : %d (%s)", "Guider SecMode", guider_secmode_num, secmode_str[guider_secmode_num]);
+    }
     log_debug("%20s : %s", "Guider Timestamp", guider_timestamp_str);
     log_debug("%s", "....................................................");
     log_debug("%20s : %s", "Guider Sign", guider_sign);
@@ -714,13 +730,6 @@ int32_t iotx_guider_authenticate(void)
     _fill_conn_string(usr->password, sizeof(usr->password),
                       "%s",
                       guider_sign);
-    _fill_conn_string(usr->client_id, sizeof(usr->client_id),
-                      "%s"
-                      "|securemode=%d,gw=0,signmethod=hmacmd5"
-                      "%s,timestamp=%s|",
-                      dev->device_id,
-                      guider_secmode_num,
-                      guider_pid_buf, guider_timestamp_str);
 
 #else   /* MQTT_DIRECT */
 
@@ -728,12 +737,13 @@ int32_t iotx_guider_authenticate(void)
     _fill_conn_string(usr->host_name, sizeof(usr->host_name), "%s", iotx_conn_host);
     _fill_conn_string(usr->username, sizeof(usr->username), "%s", iotx_id);
     _fill_conn_string(usr->password, sizeof(usr->password), "%s", iotx_token);
-    _fill_conn_string(usr->client_id, sizeof(usr->client_id),
-                      "%s" "|%s" "%s|",
-                      dev->device_id,
-                      guider_secmode_str, guider_pid_buf);
 
 #endif  /* MQTT_DIRECT */
+    _fill_conn_string(usr->client_id, sizeof(usr->client_id),
+                      "%s"
+                      "|%s" ",signmethod=hmacmd5,gw=0" "%s|",
+                      dev->device_id,
+                      guider_secmode_str, guider_pid_buf);
 
     log_debug("%s", "-----------------------------------------");
     log_debug("%16s : %-s", "Host", usr->host_name);
