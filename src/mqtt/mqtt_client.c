@@ -1743,6 +1743,10 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INVALID);
         IOTX_FUNC_EXIT_RC(rc);
     }
+#if defined(MQTT_ID2_CRYPTO)
+    pClient->ipstack->ca_crt = NULL;
+    pClient->ipstack->ca_crt_len = 0;
+#endif
 
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INITIALIZED);
     log_info("MQTT init success!");

@@ -281,8 +281,7 @@ static int _iotId_iotToken_http(
     iotx_port = 80;
 #endif
 
-    // special case: ID2 online not ready
-#if defined(MQTT_ID2_AUTH)
+#if defined(TEST_ID2_DAILY) && defined(MQTT_ID2_AUTH)
     iotx_port = 80;
 #endif
 
@@ -307,8 +306,7 @@ static int _iotId_iotToken_http(
                    request_string,
                    guider_addr,
                    iotx_port,
-                   // special case: ID2 online not ready
-#if defined(MQTT_ID2_AUTH)
+#if defined(TEST_ID2_DAILY) && defined(MQTT_ID2_AUTH)
                    NULL
 #else
                    iotx_ca_get()
@@ -525,8 +523,7 @@ static void _authenticate_http_url(char *buf, int len)
 
     snprintf(buf, len, "%s", "http://");
 
-    // special case: ID2 online not ready
-#if defined(MQTT_ID2_AUTH)
+#if defined(TEST_ID2_DAILY) && defined(MQTT_ID2_AUTH)
     strcat(buf, "iot-auth.alibaba.net");
 #else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
