@@ -5,7 +5,6 @@ LIB_SRCS    := $(filter-out LITE-utils/lite-utils_prog.c,$(LIB_SRCS))
 HDR_REFS    := src
 
 PKG_SOURCE  := src/packages/LITE-utils
-# PKG_UPDATE  := 'git@gitlab.alibaba-inc.com:iot-middleware/LITE-utils.git'
 
 PREP_BUILD_HOOK := customize_utils
 define customize_utils
