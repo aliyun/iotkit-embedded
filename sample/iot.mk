@@ -7,8 +7,6 @@ TARGET      := mqtt-example
 SRCS        := mqtt/mqtt-example.c
 endif
 
-HDR_REFS    := src/sdk-impl
-
 LDFLAGS     := -liot_sdk
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
