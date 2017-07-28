@@ -1,6 +1,6 @@
-.PHONY: config reconfig toolchain sub-mods final-out env
+.PHONY: detect config reconfig toolchain sub-mods final-out env
 
-all: config toolchain sub-mods final-out
+all: detect config toolchain sub-mods final-out
 	$(TOP_Q) \
 	if [ -f $(STAMP_PRJ_CFG) ]; then \
 	    $(RECURSIVE_MAKE) toolchain; \
@@ -13,16 +13,17 @@ RESET_ENV_VARS := \
     HOST \
     LDFLAGS \
 
+detect:
+	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
+	    if [ $$i -nt $(CONFIG_TPL) ]; then \
+	        echo "Re-configure project since '$${i}' updated"|grep --color ".*"; \
+	        $(RECURSIVE_MAKE) reconfig; \
+	    fi; \
+	done
+
 config:
 	@mkdir -p $(OUTPUT_DIR) $(INSTALL_DIR)
 	@mkdir -p $(SYSROOT_BIN) $(SYSROOT_INC) $(SYSROOT_LIB)
-
-#	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
-#	    if [ $$i -nt $(CONFIG_TPL) ]; then \
-#	        echo "Detect $${i} updated! Please run 'make reconfig'!"|grep --color ".*"; \
-#	        exit 1; \
-#	    fi; \
-#	done
 
 	$(TOP_Q) \
 	if [ -f $(STAMP_BLD_VAR) ]; then \

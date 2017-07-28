@@ -1,10 +1,5 @@
 BUILD_TYPE                  = debug
 
-#
-# 注意: 如果在这里改动了 PLATFORM_CC 和 PLATFORM_AR 变量
-# 注意: 必须运行 make reconfig
-# 注意: 否则直接运行 make, 会导致编译失败!
-#
 PLATFORM_CC                 = gcc
 PLATFORM_AR                 = ar
 
