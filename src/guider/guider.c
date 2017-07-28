@@ -13,11 +13,11 @@ extern uint64_t utils_get_epoch_time(char copy[], int len);
 typedef enum _SECURE_MODE {
     MODE_TLS_GUIDER             = -1,
     MODE_TCP_GUIDER_PLAIN       = 0,
-    MODE_TCP_GUIDER_ID2_ENCRPT  = 1,
+    MODE_TCP_GUIDER_ID2_ENCRYPT = 1,
     MODE_TLS_DIRECT             = 2,
     MODE_TCP_DIRECT_PLAIN       = 3,
     MODE_TCP_DIRECT_ID2_ENCRYPT = 4,
-    MODE_TLS_GUIDER_ID2         = 5,
+    MODE_TLS_GUIDER_ID2_ENCRYPT = 5,
 } SECURE_MODE;
 
 const char *secmode_str[] = {
@@ -479,9 +479,9 @@ static SECURE_MODE _secure_mode_num(void)
 
         #ifdef MQTT_ID2_AUTH
             #ifdef MQTT_ID2_CRYPTO
-            rc = MODE_TCP_GUIDER_ID2_ENCRPT;
+            rc = MODE_TCP_GUIDER_ID2_ENCRYPT;
             #else
-            rc = MODE_TLS_GUIDER_ID2;
+            rc = -1;
             #endif
         #else   // MQTT_ID2_AUTH
         rc = MODE_TLS_GUIDER;
