@@ -70,10 +70,6 @@ define Brief_Log
 	@echo -ne "\e[0m"
 endef
 
-define Export_Expanding_Vars
-$(foreach v, $(1), $(eval export $(v)=$($(v)))) 
-endef
-
 define Copy_Headers
 	$(Q) \
 	if [ "$(strip $(1))" != "" ]; then \

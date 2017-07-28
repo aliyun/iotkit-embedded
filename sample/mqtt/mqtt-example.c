@@ -5,9 +5,15 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
+#if defined(TEST_ID2_DAILY)
+#define PRODUCT_KEY             "OvNmiEYRDSY"
+#define DEVICE_NAME             "sh_online_sample_mqtt"
+#define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+#else
 #define PRODUCT_KEY             "yfTuLfBJTiL"
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+#endif
 
 // These are pre-defined topics
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"

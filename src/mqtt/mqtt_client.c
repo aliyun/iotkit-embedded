@@ -563,6 +563,7 @@ typedef struct _MQTT_ReplayFender {
 #endif
 } __attribute__((packed)) MQTT_ReplayFender;
 
+#if 0
 static void _to_lower(char *upper, int len)
 {
     int             i;
@@ -573,6 +574,7 @@ static void _to_lower(char *upper, int len)
         }
     }
 }
+#endif
 
 static int _fill_replay_fender(
             iotx_mc_client_t *c,
@@ -613,7 +615,7 @@ static int _fill_replay_fender(
                    (int)sizeof(conn->aeskey_hex));
 
     HEXDUMP_DEBUG(f->hmac_str, sizeof(f->hmac_str));
-    _to_lower(f->hmac_str, sizeof(f->hmac_str));
+    //_to_lower(f->hmac_str, sizeof(f->hmac_str));
     HEXDUMP_DEBUG(f->hmac_str, sizeof(f->hmac_str));
 #endif
 
@@ -1278,12 +1280,25 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     LITE_free(dec_out);
 #endif
 
+    char       *tmp_topic_name = NULL;
+
+    tmp_topic_name = LITE_malloc(topicName.lenstring.len + 1);
+    memset(tmp_topic_name, 0, topicName.lenstring.len + 1);
+    memcpy(tmp_topic_name, topicName.lenstring.data, topicName.lenstring.len);
+    log_debug("msg.id = | %d |", topic_msg.packet_id);
+    log_debug("topicName = | %s |", tmp_topic_name);
+    LITE_free(tmp_topic_name);
+
+#if defined(INSPECT_MQTT_FLOW)
+    HEXDUMP_DEBUG(topic_msg.payload, topic_msg.payload_len);
+#endif
+
     topic_msg.ptopic = NULL;
     topic_msg.topic_len = 0;
 
-    log_debug("deliver msg");
+    log_debug("delivering msg ...");
+
     iotx_mc_deliver_message(c, &topicName, &topic_msg);
-    log_debug("end of delivering msg");
 
     if (topic_msg.qos == IOTX_MQTT_QOS0) {
         return SUCCESS_RETURN;
@@ -1405,8 +1420,8 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
             break;
         }
         case PUBACK: {
+            log_debug("PUBACK");
             rc = iotx_mc_handle_recv_PUBACK(c);
-
             if (SUCCESS_RETURN != rc) {
                 log_err("recvPubackProc error,result = %d", rc);
             }
@@ -1414,19 +1429,21 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
             break;
         }
         case SUBACK: {
+            log_debug("SUBACK");
             rc = iotx_mc_handle_recv_SUBACK(c);
             if (SUCCESS_RETURN != rc) {
                 log_err("recvSubAckProc error,result = %d", rc);
             }
-            log_debug("SUBACK");
             break;
         }
         case PUBLISH: {
+            log_debug("PUBLISH");
+            // HEXDUMP_DEBUG(c->buf_read, 32);
+
             rc = iotx_mc_handle_recv_PUBLISH(c);
             if (SUCCESS_RETURN != rc) {
                 log_err("recvPublishProc error,result = %d", rc);
             }
-            log_debug("PUBLISH");
             break;
         }
         case UNSUBACK: {
@@ -1591,6 +1608,10 @@ static iotx_err_t iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, io
 
 #ifdef MQTT_ID2_CRYPTO
     _create_encoded_payload(c, (char *)topicName, topic_msg);
+#endif
+
+#if defined(INSPECT_MQTT_FLOW)
+    HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
 #endif
 
     rc = MQTTPublish(c, topicName, topic_msg);
