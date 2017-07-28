@@ -1,5 +1,5 @@
-PLATFORM_CC             = gcc
-PLATFORM_AR             = ar
+PLATFORM_CC            ?= gcc
+PLATFORM_AR            ?= ar
 PLATFORM_OS             = linux
 PLATFORM_NETWORK        = linuxsock
 PLATFORM_SSL            = mbedtls
@@ -63,8 +63,11 @@ endif
 
 endif   # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
-ifneq ($(subst gcc,,$(PLATFORM_CC)),$(subst ar,,$(PLATFORM_AR)))
-$(error PLATFORM_CC and PLATFORM_AR requires same prefix!)
+PREFIX_CC := $(shell echo "$(strip $(PLATFORM_CC))"|sed 's:gcc$$::1')
+PREFIX_AR := $(shell echo "$(strip $(PLATFORM_AR))"|sed 's:ar$$::1')
+
+ifneq ($(strip $(PREFIX_AR)),$(strip $(PREFIX_CC)))
+$(error $(strip $(PREFIX_AR)) != $(strip $(PREFIX_CC)), AR/CC requires same prefix!)
 endif
 
-CROSS_PREFIX        := $(shell echo "$(strip $(PLATFORM_CC))"|sed 's:gcc::1')
+CROSS_PREFIX        := $(shell echo "$(strip $(PLATFORM_CC))"|sed 's:gcc$$::1')

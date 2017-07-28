@@ -155,7 +155,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                     continue;
                 }
             } else if (0 == ret) {
-                PLATFORM_LINUXSOCK_LOG("select-write timeout %lu", fd);
+                PLATFORM_LINUXSOCK_LOG("select-write timeout %d", (int)fd);
                 break;
             } else {
                 if (EINTR == errno) {

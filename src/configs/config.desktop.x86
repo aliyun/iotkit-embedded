@@ -1,3 +1,4 @@
+CONFIG_ENV_CFLAGS += -Wall -Werror
 CONFIG_ENV_CFLAGS += -g3 -rdynamic --coverage
 CONFIG_ENV_CFLAGS += -D_PLATFORM_IS_LINUX_
 
