@@ -1,0 +1,3 @@
+CONFIG_ENV_CFLAGS += -w
+
+CONFIG_LIB_EXPORT := static

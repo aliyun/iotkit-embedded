@@ -1,7 +1,7 @@
 include make.settings
 include src/scripts/parse_make_settings.mk
 
-CFLAGS  += -Os -Wall -Werror
+CFLAGS  += -Os
 CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
@@ -26,5 +26,9 @@ SUBDIRS += src/sdk-tests
 
 COVERAGE_CMD    := $(SCRIPT_DIR)/walk_through_examples.sh
 BUILD_CONFIG    := src/configs/config.desktop.x86
+
+ifneq (gcc,$(strip $(PLATFORM_CC)))
+BUILD_CONFIG    := src/configs/config.generic-linux.embedded
+endif
 
 include $(RULE_DIR)/rules.mk

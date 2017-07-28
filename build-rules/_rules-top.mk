@@ -17,6 +17,13 @@ config:
 	@mkdir -p $(OUTPUT_DIR) $(INSTALL_DIR)
 	@mkdir -p $(SYSROOT_BIN) $(SYSROOT_INC) $(SYSROOT_LIB)
 
+#	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
+#	    if [ $$i -nt $(CONFIG_TPL) ]; then \
+#	        echo "Detect $${i} updated! Please run 'make reconfig'!"|grep --color ".*"; \
+#	        exit 1; \
+#	    fi; \
+#	done
+
 	$(TOP_Q) \
 	if [ -f $(STAMP_BLD_VAR) ]; then \
 	    if [ "$$(sed '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l)" != "0" ]; then \
