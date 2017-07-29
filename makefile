@@ -13,12 +13,15 @@ COMP_LIB_COMPONENTS := \
     src/sdk-impl \
     src/guider \
     src/mqtt \
-    src/coap \
     src/system \
     src/platform \
 
 ifeq (y,$(strip $(FEATURE_MQTT_DEVICE_SHADOW)))
 COMP_LIB_COMPONENTS += src/shadow
+endif
+
+ifeq (y,$(strip $(FEATURE_COAP_COMM)))
+COMP_LIB_COMPONENTS += src/coap
 endif
 
 SUBDIRS := sample

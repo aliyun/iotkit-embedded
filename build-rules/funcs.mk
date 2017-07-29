@@ -93,17 +93,25 @@ define Update_Extra_Srcs
 )
 endef
 
+#
+#	    ($(foreach d,$(COMP_LIB_COMPONENTS), \
+#
+#	        $(RECURSIVE_MAKE) pre-sub-build target-$(d) && \
+#	        $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$(d) $(LIBA_TARGET_$(d)) \
+#	            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(d)/$(COMPILE_LOG)) \
+#	            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(COMPILE_LOG)) \
+#	        ; \
+#
+#	        if [ $$? != 0 ]; then \
+#
+
 ifdef COMP_LIB
 define Build_CompLib
 ( \
 	if  [ "$(strip $(1))" = "FORCE" ] || \
 	    [ "$$(echo $(LDFLAGS_$(strip $(1)))|grep -wo -- '-l$(COMP_LIB_NAME)')" != "" ]; then \
 	    ($(foreach d,$(COMP_LIB_COMPONENTS), \
-	        $(RECURSIVE_MAKE) pre-sub-build target-$(d) && \
-	        $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$(d) $(LIBA_TARGET_$(d)) \
-	            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(d)/$(COMPILE_LOG)) \
-	            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(COMPILE_LOG)) \
-	        ; \
+	        $(MAKE) $(d); \
 	        if [ $$? != 0 ]; then \
 	            echo -e "\rFailed to build $(LIBA_TARGET_$(d)) in $(d)"; \
 	            exit 10; \

@@ -1159,14 +1159,8 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
     }
 
-#if 0
-    /* This is a bug */
-    /* On 64-bit host, grantedQoS will be 0xffff ff80, printed as 128 */
-    /* But it won't == 0x80, which is 0x0000 0080 */
-    if (grantedQoS == 0x80) {
-#else
+    /* In negative case, grantedQoS will be 0xFFFF FF80, which means -128 */
     if ((uint8_t)grantedQoS == 0x80) {
-#endif
         iotx_mqtt_event_msg_t msg;
 
         log_err("MQTT SUBSCRIBE failed, ack code is 0x80");

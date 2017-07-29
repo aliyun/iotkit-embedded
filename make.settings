@@ -6,8 +6,9 @@ PLATFORM_AR                 = ar
 # PLATFORM_CC                 = /home/edward/cached-toolchains/jcg.7620/bin/mipsel-linux-gcc
 # PLATFORM_AR                 = /home/edward/cached-toolchains/jcg.7620/bin/mipsel-linux-ar
 
-FEATURE_MQTT_DEVICE_SHADOW  = y
+FEATURE_MQTT_DEVICE_SHADOW  = n
 FEATURE_MQTT_DIRECT         = n
 FEATURE_MQTT_DIRECT_NOTLS   = n
+FEATURE_COAP_COMM           = n
 FEATURE_MQTT_ID2_AUTH       = n
 FEATURE_MQTT_ID2_CRYPTO     = n
