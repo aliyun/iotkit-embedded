@@ -7,22 +7,19 @@ TARGET              += shadow-example
 SRCS_shadow-example := device-shadow/shadow-example.c
 endif
 
-# if FEATURE_COAP
+LDFLAGS     := -liot_sdk
+
+ifeq (y,$(strip $(FEATURE_COAP_COMM)))
 TARGET              += coap-example
 SRCS_coap-example	:= coap/iotx_coap_client.c
-# endif
-
-LDFLAGS     := -liot_sdk
+DEPENDS             += src/external/recipes/mbedtls
+CFLAGS              := $(filter-out -Werror,$(CFLAGS))
+endif
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 LDFLAGS     += -ltfs -lcrypto
 endif
 
-# For CoAP
-CFLAGS += -w
-
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
-ifeq (mbedtls,$(strip $(PLATFORM_SSL)))
 DEPENDS     += src/external/recipes/mbedtls
-endif
 endif
