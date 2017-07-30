@@ -188,7 +188,7 @@ int mqtt_client(void)
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
         IOT_MQTT_Destroy(pclient);
-        EXAMPLE_TRACE("ali_iot_mqtt_subscribe failed, rc = %d", rc);
+        EXAMPLE_TRACE("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         rc = -1;
         goto do_exit;
     }
