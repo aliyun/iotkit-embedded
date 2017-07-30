@@ -93,11 +93,11 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
 void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-    iotx_mqtt_topic_info_t topic_msg;
-    char msg_pub[MSG_LEN_MAX] = {0};
-    char topic[TOPIC_LEN_MAX] = {0};
-    char msg_id[MSG_ID_LEN_MAX] = {0};
+    iotx_mqtt_topic_info_pt     ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+    iotx_mqtt_topic_info_t      topic_msg;
+    char                        msg_pub[MSG_LEN_MAX] = {0};
+    char                        topic[TOPIC_LEN_MAX] = {0};
+    char                        msg_id[MSG_ID_LEN_MAX] = {0};
 
     // print topic name and topic message
     printf("----\n");
@@ -115,12 +115,13 @@ void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
                  ptopic_info->topic_len - strlen(TOPIC_RRPC_REQ) + 1,
                  "%s",
                  ptopic_info->ptopic + strlen(TOPIC_RRPC_REQ))
-            < (ptopic_info->topic_len - strlen(TOPIC_RRPC_REQ) + 1)) {
-        printf("strncpy error!\n");
+            > sizeof(msg_id)) {
+        printf("snprintf error!\n");
         return;
     }
+
     printf("response msg_id = %s\n", msg_id);
-    if (snprintf(topic, sizeof(topic), "%s%s", TOPIC_RRPC_RSP, msg_id) < 0) {
+    if (snprintf(topic, sizeof(topic), "%s%s", TOPIC_RRPC_RSP, msg_id) > sizeof(topic)) {
         printf("snprintf error!\n");
         return;
     }
@@ -208,10 +209,10 @@ int mqtt_rrpc_client(void)
     }
 
     /* Subscribe the specific topic */
-    rc = IOT_MQTT_Subscribe(pclient, TOPIC_RRPC_REQ"+", IOTX_MQTT_QOS0, mqtt_rrpc_msg_arrive, NULL);
+    rc = IOT_MQTT_Subscribe(pclient, TOPIC_RRPC_REQ "+", IOTX_MQTT_QOS0, mqtt_rrpc_msg_arrive, NULL);
     if (rc < 0) {
         IOT_MQTT_Destroy(pclient);
-        printf("ali_iot_mqtt_subscribe failed, rc = %d\n", rc);
+        printf("IOT_MQTT_Subscribe failed, rc = %d\n", rc);
         rc = -1;
         goto do_exit;
     }
