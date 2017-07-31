@@ -184,6 +184,7 @@ static int _hmac_md5_signature(
                   timestamp_str);
     assert(rc < sizeof(hmac_source));
     log_debug("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
+    log_debug("| secret: %s (%d)", dev->device_secret, (int)strlen(dev->device_secret));
 
     utils_hmac_md5(hmac_source, strlen(hmac_source),
                    signature,
@@ -736,11 +737,23 @@ int32_t iotx_guider_authenticate(void)
     _fill_conn_string(usr->password, sizeof(usr->password), "%s", iotx_token);
 
 #endif  /* MQTT_DIRECT */
+
+#if 1
     _fill_conn_string(usr->client_id, sizeof(usr->client_id),
                       "%s"
-                      "|%s" ",signmethod=hmacmd5,gw=0" "%s|",
-                      dev->device_id,
-                      guider_secmode_str, guider_pid_buf);
+                      "|%s"
+                      ",timestamp=%s,signmethod=hmacmd5,gw=0"
+                      "%s|"
+                      , dev->device_id
+                      , guider_secmode_str
+                      , guider_timestamp_str
+                      , guider_pid_buf);
+#else
+    _fill_conn_string(usr->client_id, sizeof(usr->client_id),
+                      "%s"
+                      , dev->device_id
+                      );
+#endif
 
     log_debug("%s", "-----------------------------------------");
     log_debug("%16s : %-s", "Host", usr->host_name);
