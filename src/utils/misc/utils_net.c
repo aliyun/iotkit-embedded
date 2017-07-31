@@ -90,10 +90,10 @@ static int connect_ssl(utils_network_pt pNetwork)
     }
 
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
-            pNetwork->pHostAddress,
-            pNetwork->port,
-            pNetwork->ca_crt,
-            pNetwork->ca_crt_len + 1))) {
+                                     pNetwork->pHostAddress,
+                                     pNetwork->port,
+                                     pNetwork->ca_crt,
+                                     pNetwork->ca_crt_len + 1))) {
         return 0;
     } else {
         //TODO SHOLUD not remove this handle space
@@ -162,6 +162,10 @@ int iotx_net_connect(utils_network_pt pNetwork)
 
 int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {
+    if (!host || !ca_crt) {
+        log_err("parameter error!");
+        return -1;
+    }
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
     pNetwork->ca_crt = ca_crt;
