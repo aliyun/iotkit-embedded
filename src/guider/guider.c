@@ -335,7 +335,10 @@ static int _iotId_iotToken_http(
     char                port_str[6];
 
     pvalue = LITE_json_value_of("code", iotx_payload);
-    assert(pvalue);
+    if (!pvalue) {
+        goto do_exit;
+    }
+
     ret_code = atoi(pvalue);
     LITE_free(pvalue);
     if (200 != ret_code) {
