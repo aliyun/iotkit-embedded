@@ -10,6 +10,12 @@ extern int httpclient_common(
             httpclient_data_t *client_data);
 extern uint64_t utils_get_epoch_time(char copy[], int len);
 
+#define SHA_METHOD              "hmacsha1"
+#define MD5_METHOD              "hmacmd5"
+
+/* By default we use hmac-sha1 algorithm for hmac in PK/DN/DS case */
+#define USING_SHA1_IN_HMAC      (1)
+
 typedef enum _SECURE_MODE {
     MODE_TLS_GUIDER             = -1,
     MODE_TCP_GUIDER_PLAIN       = 0,
@@ -160,12 +166,12 @@ static int _calc_id2_signature(
 #endif  /* #ifdef MQTT_ID2_AUTH */
 
 #ifndef MQTT_ID2_AUTH
-static int _hmac_md5_signature(
-            char *md5_sigbuf,
-            const int md5_buflen,
+static int _calc_hmac_signature(
+            char *hmac_sigbuf,
+            const int hmac_buflen,
             const char *timestamp_str)
 {
-    char                    signature[40];
+    char                    signature[64];
     char                    hmac_source[512];
     int                     rc = -1;
     iotx_device_info_pt     dev;
@@ -186,13 +192,23 @@ static int _hmac_md5_signature(
     log_debug("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
     log_debug("| secret: %s (%d)", dev->device_secret, (int)strlen(dev->device_secret));
 
+#if USING_SHA1_IN_HMAC
+    log_debug("| method: %s", SHA_METHOD);
+    utils_hmac_sha1(hmac_source, strlen(hmac_source),
+                    signature,
+                    dev->device_secret,
+                    strlen(dev->device_secret));
+#else
+    log_debug("| method: %s", MD5_METHOD);
     utils_hmac_md5(hmac_source, strlen(hmac_source),
                    signature,
                    dev->device_secret,
                    strlen(dev->device_secret));
+#endif
+
     log_debug("| signature: %s (%d)", signature, (int)strlen(signature));
 
-    memcpy(md5_sigbuf, signature, md5_buflen);
+    memcpy(hmac_sigbuf, signature, hmac_buflen);
     return 0;
 }
 #endif  /* #ifndef MQTT_ID2_AUTH */
@@ -282,7 +298,7 @@ static int _iotId_iotToken_http(
     iotx_port = 80;
 #endif
 
-#if defined(TEST_ID2_DAILY) && defined(MQTT_ID2_AUTH)
+#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
     iotx_port = 80;
 #endif
 
@@ -307,7 +323,7 @@ static int _iotId_iotToken_http(
                    request_string,
                    guider_addr,
                    iotx_port,
-#if defined(TEST_ID2_DAILY) && defined(MQTT_ID2_AUTH)
+#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
                    NULL
 #else
                    iotx_ca_get()
@@ -524,7 +540,7 @@ static void _authenticate_http_url(char *buf, int len)
 
     snprintf(buf, len, "%s", "http://");
 
-#if defined(TEST_ID2_DAILY) && defined(MQTT_ID2_AUTH)
+#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
     strcat(buf, "iot-auth.alibaba.net");
 #else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
@@ -651,7 +667,7 @@ int32_t iotx_guider_authenticate(void)
                         &guider_id2,
                         &guider_device_code);
 #else
-    _hmac_md5_signature(guider_sign, sizeof(guider_sign),
+    _calc_hmac_signature(guider_sign, sizeof(guider_sign),
                         guider_timestamp_str);
 #endif
 
@@ -742,7 +758,11 @@ int32_t iotx_guider_authenticate(void)
     _fill_conn_string(usr->client_id, sizeof(usr->client_id),
                       "%s"
                       "|%s"
-                      ",timestamp=%s,signmethod=hmacmd5,gw=0"
+#if USING_SHA1_IN_HMAC
+                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=0"
+#else
+                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=0"
+#endif
                       "%s|"
                       , dev->device_id
                       , guider_secmode_str
