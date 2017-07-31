@@ -588,13 +588,18 @@ static char *_authenticate_string(char sign[], char ts[]
                   ts, dev->device_id);
 #else
     rc = asprintf(&ret,
-                  "productKey=%s&" "deviceName=%s&" "sign=%s&"
-                  "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt",
-                  dev->product_key,
-                  dev->device_name,
-                  sign,
-                  dev->device_id,
-                  ts);
+                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
+                  "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
+                  , dev->product_key
+                  , dev->device_name
+#if USING_SHA1_IN_HMAC
+                  , SHA_METHOD
+#else
+                  , MD5_METHOD
+#endif
+                  , sign
+                  , dev->device_id
+                  , ts);
 #endif
     assert(rc < 1024);
 
