@@ -424,6 +424,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     if (0 != TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
         free(pTlsData);
+        return 0;
     }
 
     return (uintptr_t)pTlsData;
