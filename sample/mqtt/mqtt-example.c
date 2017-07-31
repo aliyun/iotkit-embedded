@@ -30,6 +30,9 @@
         printf("%s", "\r\n"); \
     } while(0)
 
+static int      user_argc;
+static char **  user_argv;
+
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     uintptr_t packet_id = (uintptr_t)msg->msg;
@@ -239,7 +242,11 @@ int mqtt_client(void)
         /* handle the MQTT packet received from TCP or SSL connection */
         IOT_MQTT_Yield(pclient, 200);
 
-        // HAL_SleepMs(1000);
+        /* infinite loop if running with 'loop' argument */
+        if (user_argc >= 2 && !strcmp("loop", user_argv[1])) {
+            HAL_SleepMs(2000);
+            cnt = 0;
+        }
 
     } while (cnt < 1);
 
@@ -262,10 +269,13 @@ do_exit:
     return rc;
 }
 
-int main()
+int main(int argc, char **argv)
 {
     IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
+
+    user_argc = argc;
+    user_argv = argv;
 
     mqtt_client();
 
