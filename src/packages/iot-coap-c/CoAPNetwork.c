@@ -5,7 +5,7 @@
 #include <errno.h>
 
 #include "CoAPExport.h"
-#include "CoAPDtls.h"
+#include "iot_import_dtls.h"
 #include "CoAPNetwork.h"
 
 #ifdef COAP_DTLS_SUPPORT
@@ -96,8 +96,8 @@ unsigned int CoAPNetworkDTLS_read(coap_remote_session_t *p_session,
     {
         /* read dtls application data*/
         err_code = DTLSSession_read(p_session->context, p_data, p_datalen);
-        if(COAP_DTLS_PEER_CLOSE_NOTIFY == err_code
-                || COAP_DTLS_FATAL_ALERT_MESSAGE  == err_code) {
+        if(DTLS_PEER_CLOSE_NOTIFY == err_code
+                || DTLS_FATAL_ALERT_MESSAGE  == err_code) {
             COAP_INFO("dtls session read failed return (0x%04x)\r\n", err_code);
             CoAPNetworkDTLS_freeSession(p_session);
         }
