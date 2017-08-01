@@ -48,24 +48,22 @@ typedef enum {
 
 } iotx_mqtt_event_type_t;
 
-
 /* topic information */
 typedef struct {
-    uint16_t packet_id;
-    uint8_t qos;
-    uint8_t dup;
-    uint8_t retain;
-    uint16_t topic_len;
-    uint16_t payload_len;
-    const char *ptopic;
-    const char *payload;
+    uint16_t        packet_id;
+    uint8_t         qos;
+    uint8_t         dup;
+    uint8_t         retain;
+    uint16_t        topic_len;
+    uint16_t        payload_len;
+    const char     *ptopic;
+    const char     *payload;
 } iotx_mqtt_topic_info_t, *iotx_mqtt_topic_info_pt;
-
 
 typedef struct {
 
     /* Specify the event type */
-    iotx_mqtt_event_type_t event_type;
+    iotx_mqtt_event_type_t  event_type;
 
     /*
      * Specify the detail event information. @msg means different to different event types:
@@ -109,8 +107,8 @@ typedef void (*iotx_mqtt_event_handle_func_fpt)(void *pcontext, void *pclient, i
 
 /* The structure of MQTT event handle */
 typedef struct {
-    iotx_mqtt_event_handle_func_fpt h_fp;
-    void *pcontext; //context pointer for handle
+    iotx_mqtt_event_handle_func_fpt     h_fp;
+    void                               *pcontext;
 } iotx_mqtt_event_handle_t, *iotx_mqtt_event_handle_pt;
 
 
@@ -138,7 +136,7 @@ typedef struct {
     char                       *pread_buf;                /* Specify read-buffer */
     uint32_t                    read_buf_size;            /* Specify size of read-buffer in byte */
 
-    iotx_mqtt_event_handle_t   handle_event;             /* Specify MQTT event handle */
+    iotx_mqtt_event_handle_t    handle_event;             /* Specify MQTT event handle */
 
 } iotx_mqtt_param_t, *iotx_mqtt_param_pt;
 
@@ -184,7 +182,7 @@ void IOT_MQTT_Yield(void *handle, int timeout_ms);
  *
  * @return true, MQTT in normal state; false, MQTT in abnormal state.
  */
-bool IOT_MQTT_CheckStateNormal(void *handle);
+int IOT_MQTT_CheckStateNormal(void *handle);
 
 
 /**
@@ -204,11 +202,11 @@ bool IOT_MQTT_CheckStateNormal(void *handle);
           The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
    @endverbatim
  */
-int32_t IOT_MQTT_Subscribe(void *handle,
-                            const char *topic_filter,
-                            iotx_mqtt_qos_t qos,
-                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                            void *pcontext);
+int IOT_MQTT_Subscribe(void *handle,
+                       const char *topic_filter,
+                       iotx_mqtt_qos_t qos,
+                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                       void *pcontext);
 
 
 /**
@@ -225,7 +223,7 @@ int32_t IOT_MQTT_Subscribe(void *handle,
           The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
    @endverbatim
  */
-int32_t IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
+int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
 
 
 /**
@@ -245,5 +243,5 @@ int32_t IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
  * @endverbatim
  *
  */
-int32_t IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
 /* From mqtt_client.h */
