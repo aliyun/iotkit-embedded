@@ -575,11 +575,11 @@ static void _to_lower(char *upper, int len)
 #endif
 
 static int _fill_replay_fender(
-    iotx_mc_client_t *c,
-    MQTT_ReplayFender *f,
-    const char *topic,
-    uint16_t msg_id,
-    int enc_payloadlen)
+            iotx_mc_client_t *c,
+            MQTT_ReplayFender *f,
+            const char *topic,
+            uint16_t msg_id,
+            int enc_payloadlen)
 {
     char                hmac_source[MQTT_MAX_TOPIC_LEN + 32] = {0};
     int                 hmac_srclen = 0;
@@ -621,9 +621,9 @@ static int _fill_replay_fender(
 }
 
 static int _create_encoded_payload(
-    iotx_mc_client_t *c,
-    char *topic,
-    iotx_mqtt_topic_info_pt topic_msg)
+            iotx_mc_client_t *c,
+            char *topic,
+            iotx_mqtt_topic_info_pt topic_msg)
 {
     MQTT_ReplayFender       fender;
     int                     ret = -1;
@@ -785,7 +785,7 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     }
 
     iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)LITE_malloc(sizeof(
-                                           iotx_mc_subsribe_info_t) + len);
+            iotx_mc_subsribe_info_t) + len);
     if (NULL == subInfo) {
         HAL_MutexUnlock(c->lock_list_sub);
         log_err("run iotx_memory_malloc is error!");
@@ -1042,8 +1042,8 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
 
         if ((c->sub_handle[i].topic_filter != 0)
-                && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
-                    || iotx_mc_is_topic_matched((char *)c->sub_handle[i].topic_filter, topicName))) {
+            && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
+                || iotx_mc_is_topic_matched((char *)c->sub_handle[i].topic_filter, topicName))) {
             log_debug("topic be matched");
 
             iotx_mc_topic_handle_t msg_handle = c->sub_handle[i];
@@ -1092,27 +1092,27 @@ static int iotx_mc_handle_recv_CONNACK(iotx_mc_client_t *c)
     }
 
     switch (connack_rc) {
-    case IOTX_MC_CONNECTION_ACCEPTED:
-        rc = SUCCESS_RETURN;
-        break;
-    case IOTX_MC_CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION:
-        rc = MQTT_CONANCK_UNACCEPTABLE_PROTOCOL_VERSION_ERROR;
-        break;
-    case IOTX_MC_CONNECTION_REFUSED_IDENTIFIER_REJECTED:
-        rc = MQTT_CONNACK_IDENTIFIER_REJECTED_ERROR;
-        break;
-    case IOTX_MC_CONNECTION_REFUSED_SERVER_UNAVAILABLE:
-        rc = MQTT_CONNACK_SERVER_UNAVAILABLE_ERROR;
-        break;
-    case IOTX_MC_CONNECTION_REFUSED_BAD_USERDATA:
-        rc = MQTT_CONNACK_BAD_USERDATA_ERROR;
-        break;
-    case IOTX_MC_CONNECTION_REFUSED_NOT_AUTHORIZED:
-        rc = MQTT_CONNACK_NOT_AUTHORIZED_ERROR;
-        break;
-    default:
-        rc = MQTT_CONNACK_UNKNOWN_ERROR;
-        break;
+        case IOTX_MC_CONNECTION_ACCEPTED:
+            rc = SUCCESS_RETURN;
+            break;
+        case IOTX_MC_CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION:
+            rc = MQTT_CONANCK_UNACCEPTABLE_PROTOCOL_VERSION_ERROR;
+            break;
+        case IOTX_MC_CONNECTION_REFUSED_IDENTIFIER_REJECTED:
+            rc = MQTT_CONNACK_IDENTIFIER_REJECTED_ERROR;
+            break;
+        case IOTX_MC_CONNECTION_REFUSED_SERVER_UNAVAILABLE:
+            rc = MQTT_CONNACK_SERVER_UNAVAILABLE_ERROR;
+            break;
+        case IOTX_MC_CONNECTION_REFUSED_BAD_USERDATA:
+            rc = MQTT_CONNACK_BAD_USERDATA_ERROR;
+            break;
+        case IOTX_MC_CONNECTION_REFUSED_NOT_AUTHORIZED:
+            rc = MQTT_CONNACK_NOT_AUTHORIZED_ERROR;
+            break;
+        default:
+            rc = MQTT_CONNACK_UNKNOWN_ERROR;
+            break;
     }
 
     return rc;
@@ -1183,7 +1183,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
         /*If subscribe the same topic and callback function, then ignore*/
         if ((NULL != c->sub_handle[i].topic_filter)
-                && (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler))) {
+            && (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler))) {
             //if subscribe a identical topic and relate callback function, then ignore this subscribe.
             flag_dup = 1;
             log_err("There is a identical topic and related handle in list!");
@@ -1331,7 +1331,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     HAL_MutexLock(c->lock_generic);
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
         if ((c->sub_handle[i].topic_filter != NULL)
-                && (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messageHandler))) {
+            && (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messageHandler))) {
             memset(&c->sub_handle[i], 0, sizeof(iotx_mc_topic_handle_t));
 
             /* NOTE: in case of more than one register(subscribe) with different callback function,
@@ -1414,52 +1414,52 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     HAL_MutexUnlock(c->lock_generic);
 
     switch (packetType) {
-    case CONNACK: {
-        log_debug("CONNACK");
-        break;
-    }
-    case PUBACK: {
-        log_debug("PUBACK");
-        rc = iotx_mc_handle_recv_PUBACK(c);
-        if (SUCCESS_RETURN != rc) {
-            log_err("recvPubackProc error,result = %d", rc);
+        case CONNACK: {
+            log_debug("CONNACK");
+            break;
         }
+        case PUBACK: {
+            log_debug("PUBACK");
+            rc = iotx_mc_handle_recv_PUBACK(c);
+            if (SUCCESS_RETURN != rc) {
+                log_err("recvPubackProc error,result = %d", rc);
+            }
 
-        break;
-    }
-    case SUBACK: {
-        log_debug("SUBACK");
-        rc = iotx_mc_handle_recv_SUBACK(c);
-        if (SUCCESS_RETURN != rc) {
-            log_err("recvSubAckProc error,result = %d", rc);
+            break;
         }
-        break;
-    }
-    case PUBLISH: {
-        log_debug("PUBLISH");
-        // HEXDUMP_DEBUG(c->buf_read, 32);
+        case SUBACK: {
+            log_debug("SUBACK");
+            rc = iotx_mc_handle_recv_SUBACK(c);
+            if (SUCCESS_RETURN != rc) {
+                log_err("recvSubAckProc error,result = %d", rc);
+            }
+            break;
+        }
+        case PUBLISH: {
+            log_debug("PUBLISH");
+            // HEXDUMP_DEBUG(c->buf_read, 32);
 
-        rc = iotx_mc_handle_recv_PUBLISH(c);
-        if (SUCCESS_RETURN != rc) {
-            log_err("recvPublishProc error,result = %d", rc);
+            rc = iotx_mc_handle_recv_PUBLISH(c);
+            if (SUCCESS_RETURN != rc) {
+                log_err("recvPublishProc error,result = %d", rc);
+            }
+            break;
         }
-        break;
-    }
-    case UNSUBACK: {
-        rc = iotx_mc_handle_recv_UNSUBACK(c);
-        if (SUCCESS_RETURN != rc) {
-            log_err("recvUnsubAckProc error,result = %d", rc);
+        case UNSUBACK: {
+            rc = iotx_mc_handle_recv_UNSUBACK(c);
+            if (SUCCESS_RETURN != rc) {
+                log_err("recvUnsubAckProc error,result = %d", rc);
+            }
+            break;
         }
-        break;
-    }
-    case PINGRESP: {
-        rc = SUCCESS_RETURN;
-        log_info("receive ping response!");
-        break;
-    }
-    default:
-        log_err("INVALID TYPE");
-        return FAIL_RETURN;
+        case PINGRESP: {
+            rc = SUCCESS_RETURN;
+            log_info("receive ping response!");
+            break;
+        }
+        default:
+            log_err("INVALID TYPE");
+            return FAIL_RETURN;
     }
 
     return rc;
@@ -1735,7 +1735,7 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
     pClient->lock_list_pub = HAL_MutexCreate();
 
     if (pInitParams->request_timeout_ms < IOTX_MC_REQUEST_TIMEOUT_MIN_MS
-            || pInitParams->request_timeout_ms > IOTX_MC_REQUEST_TIMEOUT_MAX_MS) {
+        || pInitParams->request_timeout_ms > IOTX_MC_REQUEST_TIMEOUT_MAX_MS) {
 
         pClient->request_timeout_ms = IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS;
     } else {

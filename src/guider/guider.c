@@ -563,12 +563,12 @@ static void _authenticate_http_url(char *buf, int len)
 #ifndef MQTT_DIRECT
 static char *_authenticate_string(char sign[], char ts[]
 #ifdef MQTT_ID2_AUTH
-    , char id2[]
+                                  , char id2[]
 #ifdef IOTX_WITHOUT_TLS
-    , char dev_code[]
+                                  , char dev_code[]
 #endif
 #endif
-                          )
+                                 )
 {
     char                   *ret = NULL;
     iotx_device_info_pt     dev = NULL;
@@ -676,7 +676,7 @@ int32_t iotx_guider_authenticate(void)
                         &guider_device_code);
 #else
     _calc_hmac_signature(guider_sign, sizeof(guider_sign),
-                        guider_timestamp_str);
+                         guider_timestamp_str);
 #endif
 
     log_debug("%s", "....................................................");
@@ -780,7 +780,7 @@ int32_t iotx_guider_authenticate(void)
     _fill_conn_string(usr->client_id, sizeof(usr->client_id),
                       "%s"
                       , dev->device_id
-                      );
+                     );
 #endif
 
     log_debug("%s", "-----------------------------------------");
