@@ -21,11 +21,11 @@ void    IOT_SetLogLevel(IOT_LogLevel level);
 void    IOT_DumpMemoryStats(IOT_LogLevel level);
 int     IOT_SetupConnInfo(void);
 
-#include "sub_export_errno.h"
-#include "sub_export_mqtt.h"
-#include "sub_export_device.h"
-#include "sub_export_shadow.h"
-#include "iot_export_coap.h"
+#include "exports/iot_export_errno.h"
+#include "exports/iot_export_mqtt.h"
+#include "exports/iot_export_device.h"
+#include "exports/iot_export_shadow.h"
+#include "exports/iot_export_coap.h"
 
 #if defined(__cplusplus)
 }
