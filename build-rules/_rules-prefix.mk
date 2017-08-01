@@ -12,8 +12,8 @@ $(foreach V, \
          ) \
 )
 
-export CFLAGS  := $(sort $(CFLAGS) $(CONFIG_ENV_CFLAGS))
-export LDFLAGS := $(sort $(LDFLAGS) $(CONFIG_ENV_LDFLAGS))
+CFLAGS  := $(sort $(CFLAGS) $(CONFIG_ENV_CFLAGS))
+LDFLAGS := $(sort $(LDFLAGS) $(CONFIG_ENV_LDFLAGS))
 
 MAKE_ENV_VARS := \
 $(foreach v, \

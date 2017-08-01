@@ -1,6 +1,9 @@
 include make.settings
 include src/scripts/parse_make_settings.mk
 
+SUBDIRS := sample
+SUBDIRS += src/sdk-tests
+
 CFLAGS  += -Os
 CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
@@ -23,9 +26,6 @@ endif
 ifeq (y,$(strip $(FEATURE_COAP_COMM)))
 COMP_LIB_COMPONENTS += src/coap
 endif
-
-SUBDIRS := sample
-SUBDIRS += src/sdk-tests
 
 COVERAGE_CMD    := $(SCRIPT_DIR)/walk_through_examples.sh
 BUILD_CONFIG    := src/configs/config.desktop.x86
