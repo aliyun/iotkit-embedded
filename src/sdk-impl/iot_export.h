@@ -25,7 +25,7 @@ int     IOT_SetupConnInfo(void);
 #include "sub_export_mqtt.h"
 #include "sub_export_device.h"
 #include "sub_export_shadow.h"
-#include "sub_export_coap.h"
+#include "iot_export_coap.h"
 
 #if defined(__cplusplus)
 }

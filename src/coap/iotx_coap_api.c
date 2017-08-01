@@ -28,7 +28,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#include "CoAPPlatform.h"
+//#include "CoAPPlatform.h"
 #include "lite-utils.h"
 #include "CoAPExport.h"
 

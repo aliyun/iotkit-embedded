@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "CoAPDtls.h"
-#include "CoAPExport.h"
+#include "iot_import_dtls.h"
 #ifdef COAP_DTLS_SUPPORT
 
 typedef struct
@@ -45,7 +44,7 @@ static  void DTLSFree_wrapper(void *ptr)
 static unsigned int DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
         unsigned char    *p_ca_cert_pem)
 {
-    unsigned int err_code = COAP_SUCCESS;
+    unsigned int err_code = DTLS_SUCCESS;
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     if (p_ca_cert_pem != NULL)
@@ -61,7 +60,7 @@ static unsigned int DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
         DTLS_TRC("mbedtls_x509_crt_parse result %08lx\r\n", result);
         if( result < 0 )
         {
-            err_code = COAP_DTLS_INVALID_CA_CERTIFICATE;
+            err_code = DTLS_INVALID_CA_CERTIFICATE;
         }
         else
         {
@@ -150,7 +149,7 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
         DTLS_TRC("mbedtls_ssl_handshake result %08lx\r\n", result);
     }
 
-    return (result ? COAP_DTLS_HANDSHAKE_FAILED : COAP_SUCCESS);
+    return (result ? DTLS_HANDSHAKE_FAILED : DTLS_SUCCESS);
 }
 
 unsigned int DTLSSession_free(DTLSContext *context)
@@ -161,7 +160,7 @@ unsigned int DTLSSession_free(DTLSContext *context)
         p_dtls_session = (dtls_session_t *)context;
         mbedtls_ssl_close_notify(&p_dtls_session->context);
         p_dtls_session->network.socket_id = -1;
-        memset(p_dtls_session->network.remote_addr, 0x00, sizeof(coap_address_t));
+        memset(p_dtls_session->network.remote_addr, 0x00, sizeof(dtls_network_t));
         p_dtls_session->network.remote_port = 0;
         p_dtls_session->recv_fn = NULL;
         p_dtls_session->send_fn = NULL;
@@ -179,7 +178,7 @@ unsigned int DTLSSession_free(DTLSContext *context)
         mbedtls_entropy_free(&p_dtls_session->entropy);
     }
 
-    return COAP_SUCCESS;
+    return DTLS_SUCCESS;
 }
 
 DTLSContext *DTLSSession_init()
@@ -217,7 +216,7 @@ DTLSContext *DTLSSession_init()
 
 unsigned int DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_options)
 {
-    unsigned int result = COAP_SUCCESS;
+    unsigned int result = DTLS_SUCCESS;
     dtls_session_t *p_dtls_session = (dtls_session_t *)context;
 
     if(NULL != p_dtls_session){
@@ -252,7 +251,7 @@ unsigned int DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_op
                                       mbedtls_ssl_cookie_check, &p_dtls_session->cookie_ctx);
 
 
-        if (result == COAP_SUCCESS)
+        if (result == DTLS_SUCCESS)
         {
             result = DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
 
@@ -260,7 +259,7 @@ unsigned int DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_op
         }
 
 #ifdef MBEDTLS_SSL_PROTO_DTLS
-        if (result == COAP_SUCCESS)
+        if (result == DTLS_SUCCESS)
         {
             if (p_dtls_session->conf.transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM)
             {
@@ -278,17 +277,17 @@ unsigned int DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_op
             }
         }
 #endif
-        if(COAP_SUCCESS == result) {
+        if(DTLS_SUCCESS == result) {
             result = DTLSContext_setup(p_dtls_session, p_options);
         }
-        if(COAP_SUCCESS != result) {
+        if(DTLS_SUCCESS != result) {
             //DTLSSession_free(p_dtls_session);
         }
 
         return result;
     }
     else{
-        return COAP_ERROR_INVALID_PARAM;
+        return DTLS_INVALID_PARAM;
     }
 }
 
@@ -296,7 +295,7 @@ unsigned int DTLSSession_write(DTLSContext *context,
                                 unsigned char   *p_data,
                                 unsigned int    *p_datalen)
 {
-    unsigned int err_code = COAP_ERROR_INTERNAL;
+    unsigned int err_code = DTLS_SUCCESS;
     dtls_session_t *p_dtls_session = (dtls_session_t *)context;
 
     if (NULL != p_dtls_session && NULL != p_data && p_datalen != NULL)
@@ -307,20 +306,18 @@ unsigned int DTLSSession_write(DTLSContext *context,
 
         if (actual_len < 0)
         {
-            err_code = COAP_ERROR_INTERNAL;
-
             if (actual_len == MBEDTLS_ERR_SSL_CONN_EOF)
             {
                 if (p_dtls_session->context.state < MBEDTLS_SSL_HANDSHAKE_OVER)
                 {
-                    err_code = COAP_DTLS_HANDSHAKE_IN_PROGRESS;
+                    err_code = DTLS_HANDSHAKE_IN_PROGRESS;
                 }
             }
         }
         else
         {
             (* p_datalen) = actual_len;
-            err_code      = COAP_SUCCESS;
+            err_code      = DTLS_SUCCESS;
         }
     }
 
@@ -332,7 +329,7 @@ unsigned int DTLSSession_read(DTLSContext *context,
                                unsigned int    *p_datalen)
 {
     int len = 0;
-    unsigned int err_code = COAP_DTLS_READ_DATA_FAILED;
+    unsigned int err_code = DTLS_READ_DATA_FAILED;
     dtls_session_t *p_dtls_session = (dtls_session_t *)context;
 
     if (NULL != p_dtls_session && NULL != p_data && p_datalen != NULL)
@@ -341,17 +338,17 @@ unsigned int DTLSSession_read(DTLSContext *context,
     }
     if(0  <  len) {
         *p_datalen = len;
-        err_code = COAP_SUCCESS;
+        err_code = DTLS_SUCCESS;
         DTLS_TRC("mbedtls_ssl_read len %d bytes\r\n",len);
     }
     else {
         *p_datalen = 0;
         if(MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE == len) {
-            err_code = COAP_DTLS_FATAL_ALERT_MESSAGE;
+            err_code = DTLS_FATAL_ALERT_MESSAGE;
             DTLS_INFO("Recv peer fatal alert message\r\n");
         }
         if(MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
-            err_code = COAP_DTLS_PEER_CLOSE_NOTIFY;
+            err_code = DTLS_PEER_CLOSE_NOTIFY;
             DTLS_INFO("The DTLS session was closed by peer\r\n");
         }
         DTLS_TRC("mbedtls_ssl_read result(len) (-0x%04x)\r\n", len);

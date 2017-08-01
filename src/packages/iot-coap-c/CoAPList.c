@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "CoAPPlatform.h"
+#include "iot_import_coap.h"
 #include "CoAPList.h"
 
 int CoAPList_Init(CoAPSendList *list, unsigned char maxcount)

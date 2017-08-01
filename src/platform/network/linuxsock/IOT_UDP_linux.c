@@ -8,7 +8,14 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "CoAPNetwork.h"
+
+#define NETWORK_ADDR_LEN      (16)
+
+typedef struct
+{
+    unsigned char        addr[NETWORK_ADDR_LEN];
+    unsigned short       port;
+} coap_address_t;
 
 
 int HAL_UDP_create(void *p_socket)
@@ -112,7 +119,7 @@ int HAL_UDP_read(void                *p_socket,
     if (from.sa_family == AF_INET)
     {
         struct sockaddr_in *sin = (struct sockaddr_in *)&from;
-        inet_ntop(AF_INET, &sin->sin_addr, p_remote->addr, TRANSPORT_ADDR_LEN);
+        inet_ntop(AF_INET, &sin->sin_addr, p_remote->addr, NETWORK_ADDR_LEN);
         p_remote->port = ntohs(sin->sin_port);
     }
     return count;
@@ -162,7 +169,7 @@ int HAL_UDP_readTimeout( void *p_socket,
 }
 
 
-int HAL_UDP_resolveAddress(const char *p_host, unsigned char addr[TRANSPORT_ADDR_LEN])
+int HAL_UDP_resolveAddress(const char *p_host, unsigned char addr[NETWORK_ADDR_LEN])
 {
     struct addrinfo *res, *ainfo;
     struct addrinfo hints;
@@ -188,7 +195,7 @@ int HAL_UDP_resolveAddress(const char *p_host, unsigned char addr[TRANSPORT_ADDR
             case AF_INET:
                 len = ainfo->ai_addrlen;
                 sa = (struct sockaddr_in *)ainfo->ai_addr;
-                inet_ntop(AF_INET, &sa->sin_addr, addr, TRANSPORT_ADDR_LEN);
+                inet_ntop(AF_INET, &sa->sin_addr, addr, NETWORK_ADDR_LEN);
                 break;
             default:
                 ;

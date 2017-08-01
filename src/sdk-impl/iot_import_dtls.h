@@ -1,4 +1,4 @@
-#include "CoAPPlatform.h"
+#include "iot_import_coap.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/sha256.h"
@@ -14,11 +14,31 @@
 
 #define TRANSPORT_ADDR_LEN 16
 
-#define DTLS_TRC   COAP_TRC
-#define DTLS_DUMP  COAP_DUMP
-#define DTLS_DEBUG COAP_DEBUG
-#define DTLS_INFO  COAP_INFO
-#define DTLS_ERR   COAP_ERR
+#define dtls_log_print(level, ...) \
+    {\
+    fprintf(stderr, "%s [%s #%d]   ",level, __FILE__, __LINE__); \
+    fprintf(stderr, __VA_ARGS__);\
+    }
+
+#define DTLS_TRC(fmt,  args...)  dtls_log_print("<TRACE>", fmt, ##args)
+#define DTLS_DUMP(fmt, args...)  dtls_log_print("<DUMP> ", fmt, ##args)
+#define DTLS_DEBUG(fmt,args...)  dtls_log_print("<DEBUG>", fmt, ##args)
+#define DTLS_INFO(fmt, args...)  dtls_log_print("<INFO> ", fmt, ##args)
+#define DTLS_ERR(fmt,  args...)  dtls_log_print("<ERROR>", fmt, ##args)
+
+#define DTLS_ERROR_BASE       (1<<24)
+
+
+#define DTLS_SUCCESS                        0
+#define DTLS_INVALID_PARAM             (DTLS_ERROR_BASE | 1)
+#define DTLS_INVALID_CA_CERTIFICATE    (DTLS_ERROR_BASE | 2)
+#define DTLS_HANDSHAKE_IN_PROGRESS     (DTLS_ERROR_BASE | 3)
+#define DTLS_HANDSHAKE_FAILED          (DTLS_ERROR_BASE | 4)
+#define DTLS_FATAL_ALERT_MESSAGE       (DTLS_ERROR_BASE | 5)
+#define DTLS_PEER_CLOSE_NOTIFY         (DTLS_ERROR_BASE | 6)
+#define DTLS_SESSION_CREATE_FAILED     (DTLS_ERROR_BASE | 7)
+#define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
+
 
 typedef  int (*coap_dtls_send_t)(void *socket_id,
                                  unsigned char  *p_data,

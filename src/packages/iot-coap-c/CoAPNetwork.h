@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "CoAPDtls.h"
+#include "iot_import_dtls.h"
 
 #ifndef COAP_TRANSPORT_H__
 #define COAP_TRANSPORT_H__
