@@ -1676,8 +1676,22 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
     pClient->connect_data.will.retained = pConnectParams->will.retained;
 
     if (pConnectParams->keepAliveInterval < KEEP_ALIVE_INTERVAL_DEFAULT_MIN) {
+        log_warning("Input heartbeat interval(%d ms) < Allowed minimun(%d ms)",
+                    (pConnectParams->keepAliveInterval * 1000),
+                    (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
+                   );
+        log_warning("Reset heartbeat interval => %d Millisecond",
+                    (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
+                   );
         pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MIN;
     } else if (pConnectParams->keepAliveInterval > KEEP_ALIVE_INTERVAL_DEFAULT_MAX) {
+        log_warning("Input heartbeat interval(%d ms) > Allowed minimun(%d ms)",
+                    (pConnectParams->keepAliveInterval * 1000),
+                    (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
+                   );
+        log_warning("Reset heartbeat interval => %d Millisecond",
+                    (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
+                   );
         pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MAX;
     } else {
         pClient->connect_data.keepAliveInterval = pConnectParams->keepAliveInterval;
@@ -2347,10 +2361,10 @@ int IOT_MQTT_CheckStateNormal(void *handle)
 
 
 int IOT_MQTT_Subscribe(void *handle,
-                           const char *topic_filter,
-                           iotx_mqtt_qos_t qos,
-                           iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                           void *pcontext)
+                       const char *topic_filter,
+                       iotx_mqtt_qos_t qos,
+                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                       void *pcontext)
 {
     return iotx_mc_subscribe((iotx_mc_client_t *)handle, topic_filter, qos, topic_handle_func, pcontext);
 }
