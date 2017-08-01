@@ -120,7 +120,7 @@ distclean:
 	rm -rf \
 	    $(CONFIG_TPL) $(COMPILE_LOG) \
 	    $(STAMP_PRJ_CFG) $(STAMP_BLD_ENV) $(STAMP_BLD_VAR) $(STAMP_POST_RULE) \
-	    $(DIST_DIR)/* \
+	    $(DIST_DIR) \
 
 	$(TOP_Q) \
 	if [ -d $(OUTPUT_DIR) ]; then \

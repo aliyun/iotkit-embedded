@@ -3,6 +3,9 @@ BUILD_TYPE                  = debug
 PLATFORM_CC                 = gcc
 PLATFORM_AR                 = ar
 
+#
+# Uncomment below and specify PATH to your toolchain when cross-compile SDK
+#
 # PLATFORM_CC                 = /home/edward/cached-toolchains/jcg.7620/bin/mipsel-linux-gcc
 # PLATFORM_AR                 = /home/edward/cached-toolchains/jcg.7620/bin/mipsel-linux-ar
 
