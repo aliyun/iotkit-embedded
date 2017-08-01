@@ -9,7 +9,7 @@ endif
 
 LDFLAGS     := -liot_sdk
 
-ifeq (y,$(strip $(FEATURE_COAP_COMM)))
+ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 TARGET              += coap-example
 SRCS_coap-example	:= coap/iotx_coap_client.c
 DEPENDS             += src/external/recipes/mbedtls

@@ -23,7 +23,7 @@ ifeq (y,$(strip $(FEATURE_MQTT_DEVICE_SHADOW)))
 COMP_LIB_COMPONENTS += src/shadow
 endif
 
-ifeq (y,$(strip $(FEATURE_COAP_COMM)))
+ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 COMP_LIB_COMPONENTS += src/coap
 endif
 
