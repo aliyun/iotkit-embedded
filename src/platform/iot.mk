@@ -16,8 +16,6 @@ endif
 endif
 
 # TODO: fix coap warnings
-ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 CFLAGS := $(filter-out -Werror,$(CFLAGS))
-endif
 
 HDR_REFS    += src/sdk-impl
