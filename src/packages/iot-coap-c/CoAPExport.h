@@ -3,7 +3,7 @@
 #ifndef __COAP_EXPORT_H__
 #define __COAP_EXPORT_H__
 
-#define COAP_DTLS_SUPPORT
+//#define COAP_DTLS_SUPPORT
 
 
 #define COAP_MSG_MAX_TOKEN_LEN    8
