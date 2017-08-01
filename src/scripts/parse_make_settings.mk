@@ -38,32 +38,41 @@ CFLAGS  += -DIOTX_DEBUG
 endif
 
 ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
-ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-$(error FEATURE_MQTT_ID2_AUTH + FEATURE_MQTT_DIRECT not implemented!)
-endif
 
-ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-CFLAGS  += -DIOTX_WITHOUT_TLS
-endif
+    ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
+    $(error FEATURE_MQTT_ID2_AUTH + FEATURE_MQTT_DIRECT not implemented!)
+    endif
+
+    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
+    CFLAGS  += -DIOTX_WITHOUT_TLS
+    endif
 
 else    # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
-ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-$(error FEATURE_MQTT_DIRECT_NOTLS = y requires FEATURE_MQTT_DIRECT = y!)
-endif
+    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
+    $(error FEATURE_MQTT_DIRECT_NOTLS = y requires FEATURE_MQTT_DIRECT = y!)
+    endif
 
 endif   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
-
 else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
-ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
-$(error FEATURE_MQTT_ID2_CRYPTO = y requires FEATURE_MQTT_ID2_AUTH = y!)
-endif
+    ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
+    $(error FEATURE_MQTT_ID2_CRYPTO = y requires FEATURE_MQTT_ID2_AUTH = y!)
+    endif
 
 endif   # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
+
+ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+
+    ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
+    $(error FEATURE_COAP_DTLS_SUPPORT = y requires FEATURE_COAP_COMM_ENABLED = y!)
+    endif
+
+endif   # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 
 PREFIX_CC := $(shell echo "$(strip $(PLATFORM_CC))"|sed 's:gcc$$::1')
 PREFIX_AR := $(shell echo "$(strip $(PLATFORM_AR))"|sed 's:ar$$::1')
