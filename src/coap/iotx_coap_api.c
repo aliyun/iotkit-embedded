@@ -36,6 +36,7 @@
 #define IOTX_SIGN_SOURCE_LEN     (256)
 #define IOTX_AUTH_TOKEN_LEN      (192+1)
 #define IOTX_COAP_INIT_TOKEN     (0x01020304)
+#define IOTX_LIST_MAX_ITEM       (10)
 
 
 #define IOTX_AUTH_STR      "auth"
@@ -165,9 +166,9 @@ void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
         case COAP_MSG_CODE_402_BAD_OPTION:
         case COAP_MSG_CODE_401_UNAUTHORIZED:
         {
-            iotx_coap_context_t *p_context = NULL;
+            iotx_coap_t *p_context = NULL;
             if(NULL != message->user){
-                p_context = (iotx_coap_context_t *)message->user;
+                p_context = (iotx_coap_t *)message->user;
                 IOT_CoAP_DeviceNameAuth(p_context);
                 COAP_INFO("IoTx token expired, will reauthenticate\r\n");
             }
@@ -406,6 +407,7 @@ int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code
 
 iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 {
+    CoAPInitParam param;
     iotx_coap_t *p_iotx_coap = NULL;
 
     if(NULL == p_config){
@@ -446,7 +448,10 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;
 
     /*Create coap context*/
-    p_iotx_coap->p_coap_ctx = CoAPContext_Create(p_config->p_uri);
+    memset(&param, 0x00, sizeof(CoAPInitParam));
+    param.url = p_config->p_uri;
+    param.maxcount = IOTX_LIST_MAX_ITEM;
+    p_iotx_coap->p_coap_ctx = CoAPContext_create(&param);
     if(NULL == p_iotx_coap->p_coap_ctx){
         COAP_ERR(" Create coap context failed\r\n");
         goto err;
@@ -466,7 +471,7 @@ err:
         if(NULL != p_iotx_coap->p_auth_token)
             coap_free(p_iotx_coap->p_auth_token);
         if(NULL != p_iotx_coap->p_coap_ctx)
-            CoAPContext_Free(p_iotx_coap->p_coap_ctx);
+            CoAPContext_free(p_iotx_coap->p_coap_ctx);
 
         p_iotx_coap->auth_token_len = 0;
         p_iotx_coap->is_authed = false;
@@ -497,7 +502,7 @@ void IOT_CoAP_Deinit(iotx_coap_context_t *p_context)
 
         if(NULL != p_iotx_coap->p_coap_ctx){
             //coap_free_context(p_iotx_coap->p_coap_ctx);
-            CoAPContext_Free(p_iotx_coap->p_coap_ctx);
+            CoAPContext_free(p_iotx_coap->p_coap_ctx);
             p_iotx_coap->p_coap_ctx = NULL;
         }
         coap_free(p_iotx_coap);

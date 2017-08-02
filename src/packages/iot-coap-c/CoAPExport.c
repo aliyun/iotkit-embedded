@@ -14,7 +14,7 @@
 #define COAP_DEFAULT_SCHEME      "coap" /* the default scheme for CoAP URIs */
 #define COAP_DEFAULT_HOST_LEN    128
 
-unsigned int CoAPUri_Parse(unsigned char *p_uri, coap_address_t *p_addr, coap_endpoint_type *p_endpoint_type)
+unsigned int CoAPUri_parse(unsigned char *p_uri, coap_address_t *p_addr, coap_endpoint_type *p_endpoint_type)
 {
     int len = 0;
     char host[COAP_DEFAULT_HOST_LEN] = {0};
@@ -106,7 +106,7 @@ unsigned int CoAPUri_Parse(unsigned char *p_uri, coap_address_t *p_addr, coap_en
 }
 
 
-CoAPContext *CoAPContext_Create(char        *p_uri)
+CoAPContext *CoAPContext_create(CoAPInitParam *param)
 {
     unsigned int    ret   = COAP_SUCCESS;
     CoAPContext    *p_ctx = NULL;
@@ -125,17 +125,19 @@ CoAPContext *CoAPContext_Create(char        *p_uri)
     p_ctx->recvbuf = coap_malloc(COAP_MAX_PDU_LEN);
 
     /*CoAP message send list*/
-    CoAPList_Init(&p_ctx->list, 10);
+    INIT_LIST_HEAD(&p_ctx->list.sendlist);
+    p_ctx->list.count = 0;
+    p_ctx->list.maxcount = param->maxcount;
 
     /*set the endpoint type by uri schema*/
-    if(NULL != p_uri){
-        ret = CoAPUri_Parse(p_uri, &network_param.remote.addr, &network_param.ep_type);
+    if(NULL != param->url){
+        ret = CoAPUri_parse(param->url, &network_param.remote.addr, &network_param.ep_type);
     }
     else{
 #ifdef COAP_DTLS_SUPPORT
-        ret = CoAPUri_Parse(COAPS_PRE_SERVER_URL, &network_param.remote.addr, &network_param.ep_type);
+        ret = CoAPUri_parse(COAPS_PRE_SERVER_URL, &network_param.remote.addr, &network_param.ep_type);
 #else
-        ret = CoAPUri_Parse(COAP_PRE_SERVER_URL, &network_param.remote.addr, &network_param.ep_type);
+        ret = CoAPUri_parse(COAP_PRE_SERVER_URL, &network_param.remote.addr, &network_param.ep_type);
 #endif
     }
 
@@ -173,9 +175,23 @@ CoAPContext *CoAPContext_Create(char        *p_uri)
 }
 
 
-void CoAPContext_Free(CoAPContext *p_ctx)
+void CoAPContext_free(CoAPContext *p_ctx)
 {
+    CoAPSendNode *cur, *next;
+
     CoAPNetwork_deinit(&p_ctx->network);
+
+    list_for_each_entry_safe(cur, next, &p_ctx->list.sendlist, sendlist){
+        if(NULL != cur){
+            if(NULL != cur->message){
+                coap_free(cur->message);
+                cur->message = NULL;
+            }
+            coap_free(cur);
+            cur = NULL;
+        }
+    }
+
 
     if(NULL != p_ctx){
         coap_free(p_ctx);
