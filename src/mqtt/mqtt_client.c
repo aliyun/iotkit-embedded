@@ -628,7 +628,7 @@ static int _fill_replay_fender(
         return -1;
     }
 
-    if (!(conn = IOT_GetConnInfo()) {
+    if (!(conn = IOT_GetConnInfo())) {
         return -1;
     }
 
@@ -682,7 +682,7 @@ static int _create_encoded_payload(
         return -1;
     }
 
-    if (!(conn = IOT_GetConnInfo()) {
+    if (!(conn = IOT_GetConnInfo())) {
         return -1;
     }
 
