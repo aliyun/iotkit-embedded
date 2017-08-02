@@ -22,6 +22,8 @@
 #define MSG_ID_LEN_MAX      64
 #define TOPIC_LEN_MAX       1024
 
+static int running_unittest = 0;
+
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     uintptr_t packet_id = (uintptr_t)msg->msg;
@@ -223,6 +225,11 @@ int mqtt_rrpc_client(void)
         IOT_MQTT_Yield(pclient, 200);
         HAL_SleepMs(1000);
         printf("Waiting RRPC from Cloud ...\n");
+
+        if (running_unittest) {
+            printf("Break waiting since in unittest mode\n");
+            break;
+        }
     } while (1);
 
 
@@ -265,13 +272,13 @@ void test_mqtt_rrpc_msg_arrive(void)
     mqtt_rrpc_msg_arrive(NULL, NULL, &msg);
 }
 
-
 int main(int argc, char *argv[])
 {
     if (argc == 2 && !strcmp(argv[1], "unittest")) {
         printf("***********unittest start*****************\n");
         test_mqtt_rrpc_msg_arrive();
         printf("***********unittest end*****************\n");
+        running_unittest = 1;
     }
 
     mqtt_rrpc_client();
