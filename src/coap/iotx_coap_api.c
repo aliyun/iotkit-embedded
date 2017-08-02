@@ -504,7 +504,6 @@ void IOT_CoAP_Deinit(iotx_coap_context_t *p_context)
         }
 
         if(NULL != p_iotx_coap->p_coap_ctx){
-            //coap_free_context(p_iotx_coap->p_coap_ctx);
             CoAPContext_free(p_iotx_coap->p_coap_ctx);
             p_iotx_coap->p_coap_ctx = NULL;
         }
@@ -516,9 +515,8 @@ int IOT_CoAP_Yield(iotx_coap_context_t *p_context)
 {
     iotx_coap_t *p_iotx_coap = NULL;
     p_iotx_coap = (iotx_coap_t *)p_context;
-    if(NULL == p_iotx_coap || NULL == p_iotx_coap->p_coap_ctx){
-        COAP_ERR("Invalid paramter p_iotx_coap %p, p_coap_ctx %p\r\n",
-                        p_iotx_coap, p_iotx_coap->p_coap_ctx);
+    if(NULL == p_iotx_coap || (NULL != p_iotx_coap && NULL == p_iotx_coap->p_coap_ctx)){
+        COAP_ERR("Invalid paramter\r\n");
         return IOTX_ERR_INVALID_PARAM;
     }
 
