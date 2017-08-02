@@ -10,7 +10,6 @@ CONFIG_DIR      := $(TOP_DIR)/src/configs
 SCRIPT_DIR      := $(TOP_DIR)/src/scripts
 PACKAGE_DIR     := $(TOP_DIR)/src/packages
 IMPORT_DIR      := $(TOP_DIR)/src/import
-EXPORT_DIR      := $(TOP_DIR)/export
 
 # Settings of output directory
 #

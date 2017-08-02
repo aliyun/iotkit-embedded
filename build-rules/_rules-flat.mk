@@ -22,11 +22,6 @@ INTERNAL_INCLUDES += \
     )
 INTERNAL_INCLUDES := $(strip $(sort $(INTERNAL_INCLUDES)))
 
-EXTERNAL_INCLUDES += \
-$(foreach d, \
-    $(shell [ -d $(EXPORT_DIR) ] && find $(EXPORT_DIR) -type d), \
-    -I$(d) \
-)
 EXTERNAL_INCLUDES += $(foreach mod, $(DEPENDS), \
     $(foreach d, \
         $(shell $(SHELL_DBG) find \
