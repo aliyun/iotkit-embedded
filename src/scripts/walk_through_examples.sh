@@ -3,12 +3,28 @@ set -e
 
 if [ "${OUTPUT_DIR}" = "" ] || [ ! -d ${OUTPUT_DIR} ]; then exit 1; fi
 
-PROGS="./mqtt-example ./shadow-example ./sdk-testsuites"
+PROGS=(
+    "./mqtt-example"
+    "./mqtt_rrpc-example unittest"
+    "./shadow-example"
+    "./sdk-testsuites"
+)
 cd ${OUTPUT_DIR}/usr/bin
 
 echo ""
-for iter in ${PROGS}; do
-    if [ -f ${iter} ]; then
-        ${iter}
-    fi  
+
+iter=0
+while (( iter < ${#PROGS[@]} )); do
+    UT_CMD=$(eval echo '${PROGS['${iter}']}')
+    UT_PROG=$(echo ${UT_CMD}|cut -d' ' -f1)
+
+    echo "[${iter}] RUNNING '${UT_CMD}' with '${UT_PROG}'"|grep --color ".*"
+
+    if [ -f ${UT_PROG} ]; then
+        ${UT_CMD}
+    else
+        echo "${UT_CMD} SPECIFIED BUT ${UT_PROG} NOT FOUND"|grep --color ".*"
+    fi
+
+    iter=$(( iter + 1 ))
 done
