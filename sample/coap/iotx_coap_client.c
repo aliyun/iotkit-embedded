@@ -106,6 +106,7 @@ int main(int argc, char **argv)
             IOT_CoAP_Yield(p_ctx);
             iotx_post_data_to_server((void *)p_ctx);
         }
+        IOT_CoAP_Deinit(&p_ctx);
     }
     else{
         printf("IoTx CoAP init failed\r\n");

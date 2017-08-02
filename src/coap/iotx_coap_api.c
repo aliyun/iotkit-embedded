@@ -28,14 +28,15 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-//#include "CoAPPlatform.h"
 #include "lite-utils.h"
+#include "utils_hmac.h"
 #include "CoAPExport.h"
 
 #define IOTX_SIGN_LENGTH         (33)
 #define IOTX_SIGN_SOURCE_LEN     (256)
 #define IOTX_AUTH_TOKEN_LEN      (192+1)
 #define IOTX_COAP_INIT_TOKEN     (0x01020304)
+#define IOTX_LIST_MAX_ITEM       (10)
 
 
 #define IOTX_AUTH_STR      "auth"
@@ -71,7 +72,9 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
                     p_client_id,
                     p_device_name,
                     p_product_key);
-    iotx_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+    utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+
+    coap_free(p_msg);
     COAP_DEBUG("The device name sign: %s\r\n", sign);
     return IOTX_SUCCESS;
 }
@@ -165,9 +168,9 @@ void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
         case COAP_MSG_CODE_402_BAD_OPTION:
         case COAP_MSG_CODE_401_UNAUTHORIZED:
         {
-            iotx_coap_context_t *p_context = NULL;
+            iotx_coap_t *p_context = NULL;
             if(NULL != message->user){
-                p_context = (iotx_coap_context_t *)message->user;
+                p_context = (iotx_coap_t *)message->user;
                 IOT_CoAP_DeviceNameAuth(p_context);
                 COAP_INFO("IoTx token expired, will reauthenticate\r\n");
             }
@@ -269,6 +272,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     COAP_DEBUG("The payload is: %p\r\n", message.payload);
     COAP_DEBUG("Send authentication message to server\r\n");
     CoAPMessage_send(p_coap_ctx, &message);
+    coap_free(p_payload);
     CoAPMessage_destory(&message);
 
     return IOTX_SUCCESS;
@@ -406,6 +410,7 @@ int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code
 
 iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 {
+    CoAPInitParam param;
     iotx_coap_t *p_iotx_coap = NULL;
 
     if(NULL == p_config){
@@ -446,7 +451,10 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;
 
     /*Create coap context*/
-    p_iotx_coap->p_coap_ctx = CoAPContext_Create(p_config->p_uri);
+    memset(&param, 0x00, sizeof(CoAPInitParam));
+    param.url = p_config->p_uri;
+    param.maxcount = IOTX_LIST_MAX_ITEM;
+    p_iotx_coap->p_coap_ctx = CoAPContext_create(&param);
     if(NULL == p_iotx_coap->p_coap_ctx){
         COAP_ERR(" Create coap context failed\r\n");
         goto err;
@@ -466,7 +474,7 @@ err:
         if(NULL != p_iotx_coap->p_auth_token)
             coap_free(p_iotx_coap->p_auth_token);
         if(NULL != p_iotx_coap->p_coap_ctx)
-            CoAPContext_Free(p_iotx_coap->p_coap_ctx);
+            CoAPContext_free(p_iotx_coap->p_coap_ctx);
 
         p_iotx_coap->auth_token_len = 0;
         p_iotx_coap->is_authed = false;
@@ -475,12 +483,12 @@ err:
     return NULL;
 }
 
-void IOT_CoAP_Deinit(iotx_coap_context_t *p_context)
+void IOT_CoAP_Deinit(iotx_coap_context_t **pp_context)
 {
     iotx_coap_t *p_iotx_coap = NULL;
 
-    if(NULL != p_context){
-        p_iotx_coap = (iotx_coap_t *)p_context;
+    if(NULL != pp_context && NULL != *pp_context){
+        p_iotx_coap = (iotx_coap_t *)*pp_context;
         p_iotx_coap->is_authed = false;
         p_iotx_coap->auth_token_len = 0;
         p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;
@@ -496,11 +504,11 @@ void IOT_CoAP_Deinit(iotx_coap_context_t *p_context)
         }
 
         if(NULL != p_iotx_coap->p_coap_ctx){
-            //coap_free_context(p_iotx_coap->p_coap_ctx);
-            CoAPContext_Free(p_iotx_coap->p_coap_ctx);
+            CoAPContext_free(p_iotx_coap->p_coap_ctx);
             p_iotx_coap->p_coap_ctx = NULL;
         }
         coap_free(p_iotx_coap);
+        *pp_context = NULL;
     }
 }
 
@@ -508,9 +516,8 @@ int IOT_CoAP_Yield(iotx_coap_context_t *p_context)
 {
     iotx_coap_t *p_iotx_coap = NULL;
     p_iotx_coap = (iotx_coap_t *)p_context;
-    if(NULL == p_iotx_coap || NULL == p_iotx_coap->p_coap_ctx){
-        COAP_ERR("Invalid paramter p_iotx_coap %p, p_coap_ctx %p\r\n",
-                        p_iotx_coap, p_iotx_coap->p_coap_ctx);
+    if(NULL == p_iotx_coap || (NULL != p_iotx_coap && NULL == p_iotx_coap->p_coap_ctx)){
+        COAP_ERR("Invalid paramter\r\n");
         return IOTX_ERR_INVALID_PARAM;
     }
 
