@@ -73,6 +73,8 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
                     p_device_name,
                     p_product_key);
     iotx_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+
+    coap_free(p_msg);
     COAP_DEBUG("The device name sign: %s\r\n", sign);
     return IOTX_SUCCESS;
 }
@@ -270,6 +272,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     COAP_DEBUG("The payload is: %p\r\n", message.payload);
     COAP_DEBUG("Send authentication message to server\r\n");
     CoAPMessage_send(p_coap_ctx, &message);
+    coap_free(p_payload);
     CoAPMessage_destory(&message);
 
     return IOTX_SUCCESS;

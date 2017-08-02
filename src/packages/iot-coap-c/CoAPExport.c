@@ -143,6 +143,14 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     if(COAP_SUCCESS != ret){
         if(NULL != p_ctx){
+            if(NULL != p_ctx->recvbuf){
+                coap_free(p_ctx->recvbuf);
+                p_ctx->recvbuf = NULL;
+            }
+            if(NULL != p_ctx->sendbuf){
+                coap_free(p_ctx->sendbuf);
+                p_ctx->sendbuf = NULL;
+            }
             coap_free(p_ctx);
             p_ctx    =  NULL;
         }
@@ -166,6 +174,15 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     if(COAP_SUCCESS != ret){
         if(NULL != p_ctx){
+
+            if(NULL != p_ctx->recvbuf){
+                coap_free(p_ctx->recvbuf);
+                p_ctx->recvbuf = NULL;
+            }
+            if(NULL != p_ctx->sendbuf){
+                coap_free(p_ctx->sendbuf);
+                p_ctx->sendbuf = NULL;
+            }
             coap_free(p_ctx);
             p_ctx    =  NULL;
         }
@@ -190,6 +207,16 @@ void CoAPContext_free(CoAPContext *p_ctx)
             coap_free(cur);
             cur = NULL;
         }
+    }
+
+    if(NULL != p_ctx->recvbuf){
+        coap_free(p_ctx->recvbuf);
+        p_ctx->recvbuf = NULL;
+    }
+
+    if(NULL != p_ctx->sendbuf){
+        coap_free(p_ctx->sendbuf);
+        p_ctx->sendbuf = NULL;
     }
 
 
