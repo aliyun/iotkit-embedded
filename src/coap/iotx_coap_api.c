@@ -28,8 +28,8 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-//#include "CoAPPlatform.h"
 #include "lite-utils.h"
+#include "utils_hmac.h"
 #include "CoAPExport.h"
 
 #define IOTX_SIGN_LENGTH         (33)
@@ -72,7 +72,7 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
                     p_client_id,
                     p_device_name,
                     p_product_key);
-    iotx_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+    utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 
     coap_free(p_msg);
     COAP_DEBUG("The device name sign: %s\r\n", sign);
