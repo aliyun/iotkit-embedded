@@ -101,48 +101,6 @@ void HAL_Free(_IN_ void *ptr);
 
 /** @} */ //end of platform_memory_manage
 
-
-/** @defgroup group_platform_ota ota
- *  @{
- */
-
-/**
- * @brief Initialize a OTA upgrade.
- *
- * @param None
- * @return 0, success; -1, failure.
- * @see None.
- * @note None.
- */
-int HAL_OTA_Start(const char *md5, uint32_t file_size);
-
-
-/**
- * @brief Write OTA data.
- *
- * @param [in] buffer: @n A pointer to a buffer to save data.
- * @param [in] length: @n The length, in bytes, of the data pointed to by the buffer parameter.
- * @return 0, success; -1, failure.
- * @see None.
- * @note None.
- */
-int HAL_OTA_Write(_IN_ char *buffer, _IN_ uint32_t length);
-
-
-/**
- * @brief indicate OTA complete.
- *
- * @param [in] stat: 0, normal termination; -1, abnormal termination (error occur).
- * @return 0: suuccess; -1: failure.
- * @see None.
- * @note None.
- */
-int HAL_OTA_Finalize(_IN_ int stat);
-
-
-/** @} */ //end of group_platform_ota
-
-
 /** @defgroup group_platform_other other
  *  @{
  */
