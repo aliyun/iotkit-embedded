@@ -6,12 +6,20 @@
 
 void iotx_time_start(iotx_time_t *timer)
 {
+    if (!timer) {
+        return;
+    }
+
     timer->time = HAL_UptimeMs();
 }
 
 uint32_t utils_time_spend(iotx_time_t *start)
 {
     uint32_t now, res;
+
+    if (!start) {
+        return 0;
+    }
 
     now = HAL_UptimeMs();
     res = now - start->time;
@@ -21,6 +29,10 @@ uint32_t utils_time_spend(iotx_time_t *start)
 uint32_t iotx_time_left(iotx_time_t *end)
 {
     uint32_t now, res;
+
+    if (!end) {
+        return 0;
+    }
 
     if (utils_time_is_expired(end)) {
         return 0;
@@ -33,8 +45,13 @@ uint32_t iotx_time_left(iotx_time_t *end)
 
 uint32_t utils_time_is_expired(iotx_time_t *timer)
 {
-    uint32_t cur_time = HAL_UptimeMs();
+    uint32_t cur_time;
 
+    if (!timer) {
+        return 1;
+    }
+
+    cur_time = HAL_UptimeMs();
     /*
      *  WARNING: Do NOT change the following code until you know exactly what it do!
      *
@@ -49,11 +66,19 @@ uint32_t utils_time_is_expired(iotx_time_t *timer)
 
 void iotx_time_init(iotx_time_t *timer)
 {
+    if (!timer) {
+        return;
+    }
+
     timer->time = 0;
 }
 
 void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond)
 {
+    if (!timer) {
+        return;
+    }
+
     IOTX_ASSERT(millisecond < (UINT32_MAX / 2), "time should NOT exceed UINT32_MAX/2!");
     timer->time = HAL_UptimeMs() + millisecond;
 }
