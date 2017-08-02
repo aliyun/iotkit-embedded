@@ -91,7 +91,7 @@ typedef void iotx_coap_context_t;
 
 iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config);
 
-void IOT_CoAP_Deinit(iotx_coap_context_t *p_context);
+void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
 
 int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 

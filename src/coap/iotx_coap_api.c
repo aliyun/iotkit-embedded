@@ -483,12 +483,12 @@ err:
     return NULL;
 }
 
-void IOT_CoAP_Deinit(iotx_coap_context_t *p_context)
+void IOT_CoAP_Deinit(iotx_coap_context_t **pp_context)
 {
     iotx_coap_t *p_iotx_coap = NULL;
 
-    if(NULL != p_context){
-        p_iotx_coap = (iotx_coap_t *)p_context;
+    if(NULL != pp_context && NULL != *pp_context){
+        p_iotx_coap = (iotx_coap_t *)*pp_context;
         p_iotx_coap->is_authed = false;
         p_iotx_coap->auth_token_len = 0;
         p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;
@@ -508,6 +508,7 @@ void IOT_CoAP_Deinit(iotx_coap_context_t *p_context)
             p_iotx_coap->p_coap_ctx = NULL;
         }
         coap_free(p_iotx_coap);
+        *pp_context = NULL;
     }
 }
 
