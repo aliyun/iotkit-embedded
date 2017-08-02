@@ -16,4 +16,5 @@ final-out: sub-mods
 	    done; \
 	fi
 
-	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/* $(FINAL_DIR)/lib/*
+	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/*
+	$(TOP_Q)$(STRIP) --strip-debug $(FINAL_DIR)/lib/*
