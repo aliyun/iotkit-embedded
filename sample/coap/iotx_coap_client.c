@@ -12,7 +12,7 @@
 #define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 
-char m_coap_client_running = 1;
+char m_coap_client_running = 0;
 
 
 static void coap_error_handler(unsigned error_code, void * p_message)
@@ -80,10 +80,13 @@ int main(int argc, char **argv)
 
     printf("[COAP-Client]: Enter Coap Client\r\n");
     iotx_coap_config_t config;
-    while ((opt = getopt(argc, argv, "s:")) != -1){
+    while ((opt = getopt(argc, argv, "s:l")) != -1){
         switch(opt){
             case 's':
                 strncpy(secur, optarg, strlen(optarg));
+                break;
+            case 'l':
+                m_coap_client_running = 1;
                 break;
             default:
                 break;
@@ -102,10 +105,11 @@ int main(int argc, char **argv)
     if(NULL != p_ctx){
         iotx_get_well_known(p_ctx);
         IOT_CoAP_DeviceNameAuth(p_ctx);
-        while(m_coap_client_running) {
-            IOT_CoAP_Yield(p_ctx);
+        do{
             iotx_post_data_to_server((void *)p_ctx);
-        }
+            IOT_CoAP_Yield(p_ctx);
+        }while(m_coap_client_running);
+
         IOT_CoAP_Deinit(&p_ctx);
     }
     else{
