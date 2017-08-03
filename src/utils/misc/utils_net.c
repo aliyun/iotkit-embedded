@@ -162,8 +162,8 @@ int iotx_net_connect(utils_network_pt pNetwork)
 
 int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {
-    if (!host) {
-        log_err("parameter error! host = %p", host);
+    if (!pNetwork || !host) {
+        log_err("parameter error! pNetwork=%p, host = %p", pNetwork, host);
         return -1;
     }
     pNetwork->pHostAddress = host;
