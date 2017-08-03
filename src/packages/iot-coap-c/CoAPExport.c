@@ -33,6 +33,7 @@
 
 unsigned int CoAPUri_parse(unsigned char *p_uri, coap_address_t *p_addr, coap_endpoint_type *p_endpoint_type)
 {
+    int ret = -1;
     int len = 0;
     char host[COAP_DEFAULT_HOST_LEN] = {0};
     unsigned char *p = NULL, *q = NULL;
@@ -92,7 +93,10 @@ unsigned int CoAPUri_parse(unsigned char *p_uri, coap_address_t *p_addr, coap_en
         strncpy(host , p, q - p);
     }
     COAP_DEBUG("The host name is: %s\r\n", host);
-    HAL_UDP_resolveAddress(host, p_addr->addr);
+    ret = HAL_UDP_resolveAddress(host, p_addr->addr);
+    if(0 != ret){
+        return COAP_ERROR_DNS_FAILED;
+    }
     COAP_DEBUG("The address is: %s\r\n", p_addr->addr);
 
     if(len && *q == ':'){
