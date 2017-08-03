@@ -74,20 +74,20 @@ typedef struct
 
 typedef void DTLSContext;
 
-DTLSContext *DTLSSession_init();
+DTLSContext *HAL_DTLSSession_init();
 
-unsigned int DTLSSession_create(DTLSContext *conetxt, coap_dtls_options_t  *p_options);
+unsigned int HAL_DTLSSession_create(DTLSContext *conetxt, coap_dtls_options_t  *p_options);
 
-unsigned int DTLSSession_write(DTLSContext *conetxt,
+unsigned int HAL_DTLSSession_write(DTLSContext *conetxt,
                                 unsigned char   *p_data,
                                 unsigned int    *p_datalen);
 
 
-unsigned int DTLSSession_read(DTLSContext *conetxt,
+unsigned int HAL_DTLSSession_read(DTLSContext *conetxt,
                                unsigned char   *p_data,
                                unsigned int    *p_datalen);
 
-unsigned int DTLSSession_free(DTLSContext *conetxt);
+unsigned int HAL_DTLSSession_free(DTLSContext *conetxt);
 
 
 #endif
