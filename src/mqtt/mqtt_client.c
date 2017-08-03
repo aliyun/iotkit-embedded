@@ -1953,7 +1953,7 @@ RETURN :
         }
         if (pClient->lock_list_sub) {
             HAL_MutexDestroy(pClient->lock_list_sub);
-            pClient->lock_list_sub = NULL;    
+            pClient->lock_list_sub = NULL;
         }
         if (pClient->lock_list_pub) {
             HAL_MutexDestroy(pClient->lock_list_pub);
