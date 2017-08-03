@@ -82,6 +82,7 @@
 #define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 7)  /*  Data size exceeds limit */
 #define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 8)  /*  Null Pointer */
 #define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 9)
+#define COAP_ERROR_DNS_FAILED                  (COAP_ERROR_BASE | 10)
 
 /* CoAP Message and Transmission error code*/
 #define COAP_MESSAGE_ERROR_NULL            (COAP_ERROR_MSG_BASE | 0)

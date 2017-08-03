@@ -222,6 +222,6 @@ int HAL_UDP_resolveAddress(const char *p_host, unsigned char addr[NETWORK_ADDR_L
     }
 
     freeaddrinfo(res);
-    return len;
+    return 0;
 }
 

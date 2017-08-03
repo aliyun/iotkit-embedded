@@ -194,6 +194,7 @@ unsigned int HAL_DTLSSession_free(DTLSContext *context)
 
         mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
         mbedtls_entropy_free(&p_dtls_session->entropy);
+        coap_free(context);
     }
 
     return DTLS_SUCCESS;
@@ -353,23 +354,24 @@ unsigned int HAL_DTLSSession_read(DTLSContext *context,
     if (NULL != p_dtls_session && NULL != p_data && p_datalen != NULL)
     {
         len = mbedtls_ssl_read(&p_dtls_session->context, p_data, *p_datalen);
-    }
-    if(0  <  len) {
-        *p_datalen = len;
-        err_code = DTLS_SUCCESS;
-        DTLS_TRC("mbedtls_ssl_read len %d bytes\r\n",len);
-    }
-    else {
-        *p_datalen = 0;
-        if(MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE == len) {
-            err_code = DTLS_FATAL_ALERT_MESSAGE;
-            DTLS_INFO("Recv peer fatal alert message\r\n");
+
+        if(0  <  len) {
+            *p_datalen = len;
+            err_code = DTLS_SUCCESS;
+            DTLS_TRC("mbedtls_ssl_read len %d bytes\r\n",len);
         }
-        if(MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
-            err_code = DTLS_PEER_CLOSE_NOTIFY;
-            DTLS_INFO("The DTLS session was closed by peer\r\n");
+        else {
+            *p_datalen = 0;
+            if(MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE == len) {
+                err_code = DTLS_FATAL_ALERT_MESSAGE;
+                DTLS_INFO("Recv peer fatal alert message\r\n");
+            }
+            if(MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
+                err_code = DTLS_PEER_CLOSE_NOTIFY;
+                DTLS_INFO("The DTLS session was closed by peer\r\n");
+            }
+            DTLS_TRC("mbedtls_ssl_read result(len) (-0x%04x)\r\n", len);
         }
-        DTLS_TRC("mbedtls_ssl_read result(len) (-0x%04x)\r\n", len);
     }
     return err_code;
 }

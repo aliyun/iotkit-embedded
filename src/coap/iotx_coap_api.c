@@ -89,6 +89,7 @@ static int iotx_get_token_from_json(const char *p_str, char *p_token, int len)
         }
         memset(p_token, 0x00, len);
         strncpy(p_token, p_value, strlen(p_value));
+        LITE_free(p_value);
         return IOTX_SUCCESS;
     }
 
@@ -223,16 +224,13 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     char sign[IOTX_SIGN_LENGTH]   = {0};
 
     p_iotx_coap = (iotx_coap_t *)p_context;
-    if(NULL == p_iotx_coap || NULL == p_iotx_coap->p_auth_token
-            || NULL == p_iotx_coap->p_coap_ctx || 0 == p_iotx_coap->auth_token_len){
-        COAP_DEBUG("Invalid paramter p_context %p, p_auth_token %p, p_coap_ctx %p, auth_token_len %d\r\n",
-                 p_iotx_coap, p_iotx_coap->p_auth_token, p_iotx_coap->p_coap_ctx, p_iotx_coap->auth_token_len);
+    if(NULL == p_iotx_coap || (NULL != p_iotx_coap && (NULL == p_iotx_coap->p_auth_token
+            || NULL == p_iotx_coap->p_coap_ctx || 0 == p_iotx_coap->auth_token_len))){
+        COAP_DEBUG("Invalid paramter\r\n");
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    p_iotx_coap = (iotx_coap_t *)p_context;
     p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;
-
 
     CoAPMessage_init(&message);
     CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
@@ -314,6 +312,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
 {
 
     int len = 0;
+    int ret = IOTX_SUCCESS;
     CoAPContext      *p_coap_ctx = NULL;
     iotx_coap_t      *p_iotx_coap = NULL;
     CoAPMessage      message;
@@ -340,7 +339,10 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
         CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
         CoAPMessageHandler_set(&message, p_message->resp_callback);
 
-        iotx_split_path_2_option(p_uri, &message);
+        ret = iotx_split_path_2_option(p_uri, &message);
+        if(IOTX_SUCCESS != ret){
+            return ret;
+        }
 
         if(IOTX_CONTENT_TYPE_CBOR == p_message->content_type){
             CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_CBOR);
