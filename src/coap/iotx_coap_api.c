@@ -328,15 +328,15 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
     unsigned char    token[8] = {0};
 
     p_iotx_coap = (iotx_coap_t *)p_context;
-    p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;
 
-    if(NULL == p_context || NULL == p_uri || NULL == p_message){
+    if(NULL == p_context || NULL == p_uri || NULL == p_message ||
+            (NULL != p_iotx_coap && NULL == p_iotx_coap->p_coap_ctx)){
         COAP_ERR("Invalid paramter p_context %p, p_uri %p, p_message %p\r\n",
                                         p_context, p_uri, p_message);
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    p_iotx_coap = (iotx_coap_t *)p_context;
+    p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;
     if(p_iotx_coap->is_authed){
 
         CoAPMessage_init(&message);
