@@ -1850,6 +1850,7 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
 {
     IOTX_FUNC_ENTRY;
     int rc = FAIL_RETURN;
+    int mc_state;
 
     if ((NULL == pClient) || (NULL == pInitParams)) {
         IOTX_FUNC_EXIT_RC(NULL_VALUE_ERROR);
@@ -1904,8 +1905,8 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
     /* Initialize MQTT connect parameter */
     rc = iotx_mc_set_connect_params(pClient, &connectdata);
     if (SUCCESS_RETURN != rc) {
-        iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INVALID);
-        IOTX_FUNC_EXIT_RC(rc);
+        mc_state = IOTX_MC_STATE_INVALID;
+        goto RETURN;
     }
 
     iotx_time_init(&pClient->next_ping_time);
@@ -1914,23 +1915,58 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
     pClient->ipstack = (utils_network_pt)LITE_malloc(sizeof(utils_network_t));
     if (NULL == pClient->ipstack) {
         log_err("malloc Network failed");
-        IOTX_FUNC_EXIT_RC(FAIL_RETURN);
+        rc = FAIL_RETURN;
+        goto RETURN;
     }
     memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
 
     rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key);
     if (SUCCESS_RETURN != rc) {
-        iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INVALID);
-        IOTX_FUNC_EXIT_RC(rc);
+        mc_state = IOTX_MC_STATE_INVALID;
+        goto RETURN;
     }
 #if defined(MQTT_ID2_CRYPTO)
     pClient->ipstack->ca_crt = NULL;
     pClient->ipstack->ca_crt_len = 0;
 #endif
-
-    iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INITIALIZED);
+    mc_state = IOTX_MC_STATE_INITIALIZED;
+    rc = SUCCESS_RETURN;
     log_info("MQTT init success!");
-    IOTX_FUNC_EXIT_RC(SUCCESS_RETURN);
+
+RETURN :
+    if (rc != SUCCESS_RETURN) {
+        if (pClient->list_pub_wait_ack) {
+            pClient->list_pub_wait_ack->free(pClient->list_pub_wait_ack);
+            pClient->list_pub_wait_ack = NULL;
+        }
+        if (pClient->list_sub_wait_ack) {
+            pClient->list_sub_wait_ack->free(pClient->list_sub_wait_ack);
+            pClient->list_sub_wait_ack = NULL;
+        }
+        if (pClient->ipstack) {
+            LITE_free(pClient->ipstack);
+            pClient->ipstack = NULL;
+        }
+        if (pClient->lock_generic) {
+            HAL_MutexDestroy(pClient->lock_generic);
+            pClient->lock_generic = NULL;
+        }
+        if (pClient->lock_list_sub) {
+            HAL_MutexDestroy(pClient->lock_list_sub);
+            pClient->lock_list_sub = NULL;    
+        }
+        if (pClient->lock_list_pub) {
+            HAL_MutexDestroy(pClient->lock_list_pub);
+            pClient->lock_list_pub = NULL;
+        }
+        if (pClient->lock_write_buf) {
+            HAL_MutexDestroy(pClient->lock_write_buf);
+            pClient->lock_write_buf = NULL;
+        }
+    }
+    iotx_mc_set_client_state(pClient, mc_state);
+
+    return rc;
 }
 
 
