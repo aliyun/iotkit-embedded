@@ -152,7 +152,7 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
     return (result ? DTLS_HANDSHAKE_FAILED : DTLS_SUCCESS);
 }
 
-unsigned int DTLSSession_free(DTLSContext *context)
+unsigned int HAL_DTLSSession_free(DTLSContext *context)
 {
     dtls_session_t *p_dtls_session = NULL;
     if (context != NULL)
@@ -181,7 +181,7 @@ unsigned int DTLSSession_free(DTLSContext *context)
     return DTLS_SUCCESS;
 }
 
-DTLSContext *DTLSSession_init()
+DTLSContext *HAL_DTLSSession_init()
 {
     dtls_session_t *p_dtls_session = NULL;
     p_dtls_session = coap_malloc(sizeof(dtls_session_t));
@@ -206,7 +206,7 @@ DTLSContext *DTLSSession_init()
 #endif
         mbedtls_ctr_drbg_init(&p_dtls_session->ctr_drbg );
         mbedtls_entropy_init( &p_dtls_session->entropy );
-        DTLS_INFO("DTLSSession_init success\r\n");
+        DTLS_INFO("HAL_DTLSSession_init success\r\n");
 
     }
 
@@ -214,7 +214,7 @@ DTLSContext *DTLSSession_init()
 }
 
 
-unsigned int DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_options)
+unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_options)
 {
     unsigned int result = DTLS_SUCCESS;
     dtls_session_t *p_dtls_session = (dtls_session_t *)context;
@@ -281,7 +281,7 @@ unsigned int DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_op
             result = DTLSContext_setup(p_dtls_session, p_options);
         }
         if(DTLS_SUCCESS != result) {
-            //DTLSSession_free(p_dtls_session);
+            //HAL_DTLSSession_free(p_dtls_session);
         }
 
         return result;
@@ -291,7 +291,7 @@ unsigned int DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_op
     }
 }
 
-unsigned int DTLSSession_write(DTLSContext *context,
+unsigned int HAL_DTLSSession_write(DTLSContext *context,
                                 unsigned char   *p_data,
                                 unsigned int    *p_datalen)
 {
@@ -324,7 +324,7 @@ unsigned int DTLSSession_write(DTLSContext *context,
     return err_code;
 }
 
-unsigned int DTLSSession_read(DTLSContext *context,
+unsigned int HAL_DTLSSession_read(DTLSContext *context,
                                unsigned char   *p_data,
                                unsigned int    *p_datalen)
 {
