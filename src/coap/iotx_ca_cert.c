@@ -30,9 +30,3 @@ const char *iotx_coap_get_ca(void)
     return iotx_coap_ca_crt_rsa;
 }
 
-
-int iotx_coap_get_ca_len()
-{
-    return sizeof(iotx_coap_ca_crt_rsa);
-}
-

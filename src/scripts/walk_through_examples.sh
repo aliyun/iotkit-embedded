@@ -8,6 +8,7 @@ PROGS=(
     "./mqtt_rrpc-example unittest"
     "./shadow-example"
     "./sdk-testsuites"
+    "./coap-example -s dtls"
 )
 cd ${OUTPUT_DIR}/usr/bin
 
