@@ -20,7 +20,7 @@ CFLAGS              := $(filter-out -Werror,$(CFLAGS))
 endif
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-LDFLAGS     += -ltfs -lcrypto
+LDFLAGS     += -ltfs -lmbedcrypto
 endif
 
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
