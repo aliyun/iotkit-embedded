@@ -242,6 +242,7 @@ static int _http_response(char *payload,
 #define HTTP_POST_MAX_LEN   (1024)
 #define HTTP_RESP_MAX_LEN   (1024)
 
+    int                     len = 0;
     int                     ret = -1;
     char                   *requ_payload = NULL;
     char                   *resp_payload = NULL;
@@ -261,14 +262,17 @@ static int _http_response(char *payload,
     }
     memset(requ_payload, 0, HTTP_POST_MAX_LEN);
 
-    ret = snprintf(requ_payload,
+    len = snprintf(requ_payload,
                    HTTP_POST_MAX_LEN,
                    "%s",
                    request_string);
-    assert(ret < HTTP_POST_MAX_LEN);
+    assert(len < HTTP_POST_MAX_LEN);
     log_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
     resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
+    if (!resp_payload) {
+        goto RETURN;
+    }
     assert(resp_payload);
     memset(resp_payload, 0, HTTP_RESP_MAX_LEN);
 
@@ -278,19 +282,34 @@ static int _http_response(char *payload,
     httpc_data.response_buf = resp_payload;
     httpc_data.response_buf_len = HTTP_RESP_MAX_LEN;
 
-    httpclient_common(&httpc,
-                      url,
-                      port_num,
-                      pkey,
-                      HTTPCLIENT_POST,
-                      10000,
-                      &httpc_data);
+    ret = httpclient_common(&httpc,
+                        url,
+                        port_num,
+                        pkey,
+                        HTTPCLIENT_POST,
+                        10000,
+                        &httpc_data);
+
+    if (ret != 0) {
+        if (httpc.net.handle) {
+            free((void*)httpc.net.handle);
+            httpc.net.handle = 0;
+            goto RETURN;
+        }
+    }
 
     memcpy(payload, httpc_data.response_buf, payload_len);
     log_debug("PAYLOAD: %s", payload);
 
-    LITE_free(requ_payload);
-    LITE_free(resp_payload);
+RETURN:
+    if (requ_payload) {
+        LITE_free(requ_payload);
+        requ_payload = NULL;
+    }
+    if (resp_payload) {
+        LITE_free(resp_payload);
+        resp_payload = NULL;
+    }
 
     return 0;
 }
