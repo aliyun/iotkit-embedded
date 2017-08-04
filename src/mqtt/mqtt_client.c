@@ -2496,8 +2496,15 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
-    iotx_err_t err;
-    iotx_mc_client_t *pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
+    iotx_err_t          err;
+    iotx_mc_client_t    *pclient;
+
+    if (!pInitParams) {
+        log_err("parameter pInitParams is null!");
+        return NULL;
+    }
+
+    pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
         log_err("not enough memory.");
         return NULL;
