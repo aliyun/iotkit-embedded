@@ -760,7 +760,6 @@ iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, h
 
 void httpclient_close(httpclient_t *client)
 {
-
     if (client->net.handle > 0) {
         client->net.disconnect(&client->net);
     }
