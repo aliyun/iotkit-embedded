@@ -2551,6 +2551,9 @@ void IOT_MQTT_Yield(void *handle, int timeout_ms)
         log_err("parameter handle is NULL!");
         return;
     }
+    if (timeout_ms < 0) {
+        log_err("parameter timeout_ms=%d < 0 !", timeout_ms);
+    }
 
     iotx_time_init(&time);
     utils_time_cutdown(&time, timeout_ms);
