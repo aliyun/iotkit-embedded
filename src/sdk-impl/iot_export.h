@@ -44,6 +44,7 @@ int     IOT_SetupConnInfo(void);
 #include "exports/iot_export_device.h"
 #include "exports/iot_export_shadow.h"
 #include "exports/iot_export_coap.h"
+#include "exports/iot_export_ota.h"
 
 #if defined(__cplusplus)
 }

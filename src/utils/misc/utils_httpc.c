@@ -363,7 +363,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     *p_read_len = 0;
 
     ret = client->net.read(&client->net, buf, max_len, iotx_time_left(&timer));
-    log_debug("Recv: | %s", buf);
+    //log_debug("Recv: | %s", buf);
 
     if (ret > 0) {
         *p_read_len = ret;
@@ -771,39 +771,49 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
                       httpclient_data_t *client_data)
 {
     iotx_time_t timer;
-    int ret = ERROR_HTTP_CONN;
+    int ret = 0;
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
     iotx_time_init(&timer);
     utils_time_cutdown(&timer, timeout_ms);
+    
+    if (0 == client->net.handle) {
+        //Establish connection if no.
+    	httpclient_parse_host(url, host, sizeof(host));
+    	log_debug("host: '%s', port: %d", host, port);
 
-    httpclient_parse_host(url, host, sizeof(host));
-    log_debug("host: '%s', port: %d", host, port);
+    	iotx_net_init(&client->net, host, port, ca_crt);
 
-    iotx_net_init(&client->net, host, port, ca_crt);
+    	ret = httpclient_connect(client);
+    	if (0 != ret) {
+            log_err("httpclient_connect is error,ret = %d", ret);
+            httpclient_close(client);
+            return ret;
+    	}
 
-    ret = httpclient_connect(client);
-    if (0 != ret) {
-        log_err("httpclient_connect is error,ret = %d", ret);
-        goto RETURN;
+        ret = httpclient_send_request(client, url, method, client_data);
+        if (0 != ret) {
+            log_err("httpclient_send_request is error,ret = %d", ret);
+            httpclient_close(client);
+            return ret;
+        }
     }
 
-    ret = httpclient_send_request(client, url, method, client_data);
-    if (0 != ret) {
-        log_err("httpclient_send_request is error,ret = %d", ret);
-        goto RETURN;
+     if ((NULL != client_data->response_buf)
+         || (0 != client_data->response_buf_len)) {
+        ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
+        if (ret < 0) {
+            log_err("httpclient_recv_response is error,ret = %d", ret);
+            httpclient_close(client);
+            return ret;
+        }
     }
-
-    ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
-    if (0 != ret) {
-        log_err("httpclient_recv_response is error,ret = %d", ret);
-        goto RETURN;
+    
+    if (! client_data->is_more) {
+        //Close the HTTP if no more data.
+        httpclient_close(client);
     }
-
-RETURN:
-
-    httpclient_close(client);
-    return ret;
+    return (ret >= 0) ? 0 : -1;
 }
 
 int utils_get_response_code(httpclient_t *client)

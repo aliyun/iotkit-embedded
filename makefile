@@ -5,7 +5,7 @@ SUBDIRS := sample
 SUBDIRS += src/sdk-tests
 
 CFLAGS  += -Os
-CFLAGS  += -DTEST_ID2_DAILY
+CFLAGS  += -DTEST_ID2_DAILY -DTEST_OTA_PRE
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
 COMP_LIB            := libiot_sdk.a
@@ -16,6 +16,7 @@ COMP_LIB_COMPONENTS := \
     src/sdk-impl \
     src/guider \
     src/mqtt \
+    src/ota \
     src/system \
     src/platform \
 
