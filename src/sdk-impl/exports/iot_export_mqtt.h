@@ -15,6 +15,8 @@
   * limitations under the License.
   */
 
+#ifndef _IOT_EXPORT_MQTT_H_
+#define _IOT_EXPORT_MQTT_H_
 
 /* From mqtt_client.h */
 typedef enum {
@@ -263,3 +265,5 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
  */
 int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
 /* From mqtt_client.h */
+
+#endif

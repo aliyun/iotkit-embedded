@@ -9,6 +9,7 @@ PROGS=(
     "./shadow-example"
     "./sdk-testsuites"
     "./coap-example -s dtls"
+    "./ota_mqtt-example"
 )
 cd ${OUTPUT_DIR}/usr/bin
 
