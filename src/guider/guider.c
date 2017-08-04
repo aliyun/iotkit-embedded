@@ -242,6 +242,7 @@ static int _http_response(char *payload,
 #define HTTP_POST_MAX_LEN   (1024)
 #define HTTP_RESP_MAX_LEN   (1024)
 
+    int                     len = 0;
     int                     ret = -1;
     char                   *requ_payload = NULL;
     char                   *resp_payload = NULL;
@@ -261,14 +262,17 @@ static int _http_response(char *payload,
     }
     memset(requ_payload, 0, HTTP_POST_MAX_LEN);
 
-    ret = snprintf(requ_payload,
+    len = snprintf(requ_payload,
                    HTTP_POST_MAX_LEN,
                    "%s",
                    request_string);
-    assert(ret < HTTP_POST_MAX_LEN);
+    assert(len < HTTP_POST_MAX_LEN);
     log_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
     resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
+    if (!resp_payload) {
+        goto RETURN;
+    }
     assert(resp_payload);
     memset(resp_payload, 0, HTTP_RESP_MAX_LEN);
 
@@ -278,19 +282,29 @@ static int _http_response(char *payload,
     httpc_data.response_buf = resp_payload;
     httpc_data.response_buf_len = HTTP_RESP_MAX_LEN;
 
-    httpclient_common(&httpc,
-                      url,
-                      port_num,
-                      pkey,
-                      HTTPCLIENT_POST,
-                      10000,
-                      &httpc_data);
+    ret = httpclient_common(&httpc,
+                        url,
+                        port_num,
+                        pkey,
+                        HTTPCLIENT_POST,
+                        10000,
+                        &httpc_data);
+    if (ret != 0) {
+        goto RETURN;
+    }
 
     memcpy(payload, httpc_data.response_buf, payload_len);
     log_debug("PAYLOAD: %s", payload);
 
-    LITE_free(requ_payload);
-    LITE_free(resp_payload);
+RETURN:
+    if (requ_payload) {
+        LITE_free(requ_payload);
+        requ_payload = NULL;
+    }
+    if (resp_payload) {
+        LITE_free(resp_payload);
+        resp_payload = NULL;
+    }
 
     return 0;
 }
@@ -358,6 +372,8 @@ static int _iotId_iotToken_http(
 
     ret_code = atoi(pvalue);
     LITE_free(pvalue);
+    pvalue = NULL;
+
     if (200 != ret_code) {
         log_err("++++");
         log_err("ret_code = %d (!= 200), abort!", ret_code);
@@ -380,6 +396,7 @@ static int _iotId_iotToken_http(
         log_debug("'data.iotId' NOT found, cipher_data = %d", cipher_data);
     } else {
         LITE_free(pvalue);
+        pvalue = NULL;
         cipher_data = 0;
         log_debug("'data.iotId' already found, cipher_data = %d", cipher_data);
     }
@@ -391,34 +408,44 @@ static int _iotId_iotToken_http(
         }
         src_len = (uint32_t)strlen(pvalue);
         b64_decode = LITE_malloc(src_len);
-        assert(b64_decode);
-
+        if (!b64_decode) {
+            log_err("malloc memory for b64_decode.");
+            goto do_exit;
+        }
         id2_rc = utils_base64decode((const uint8_t *)pvalue,
                                     src_len,
                                     src_len,
                                     b64_decode,
                                     &dst_len);
         log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
-        assert(!id2_rc);
+        if (!id2_rc) {
+            goto do_exit;
+        }
         LITE_free(pvalue);
+        pvalue = NULL;
 
         id2_decrypt = LITE_malloc(dst_len);
-        assert(id2_decrypt);
+        if(!id2_decrypt) {
+            log_err("malloc memory for id2_decrypt error");
+            goto do_exit;
+        }
+
         id2_rc = tfs_id2_decrypt((const uint8_t *)b64_decode,
                                  dst_len,
                                  id2_decrypt,
                                  &dec_len);
         log_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);
-        assert(!id2_rc);
-        LITE_free(b64_decode);
+        if (id2_rc != 0) {
+            log_err("decrypt cipher text with ID2 key error!");
+            goto do_exit;
+        }
+
         log_debug("id2_decrypt = %s", id2_decrypt);
 
         sprintf(iotx_payload, "{\"data\":");
         strcat(iotx_payload, (const char *)id2_decrypt);
         strcat(iotx_payload, "}");
         log_debug("iotx_payload = %s", iotx_payload);
-
-        LITE_free(id2_decrypt);
     }
 #endif
 
@@ -428,6 +455,7 @@ static int _iotId_iotToken_http(
     }
     strcpy(iot_id, pvalue);
     LITE_free(pvalue);
+    pvalue = NULL;
 
     pvalue = LITE_json_value_of("data.iotToken", iotx_payload);
     if (NULL == pvalue) {
@@ -435,6 +463,7 @@ static int _iotId_iotToken_http(
     }
     strcpy(iot_token, pvalue);
     LITE_free(pvalue);
+    pvalue = NULL;
 
     pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload);
     if (NULL == pvalue) {
@@ -442,6 +471,7 @@ static int _iotId_iotToken_http(
     }
     strcpy(host, pvalue);
     LITE_free(pvalue);
+    pvalue = NULL;
 
     pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload);
     if (NULL == pvalue) {
@@ -449,6 +479,7 @@ static int _iotId_iotToken_http(
     }
     strcpy(port_str, pvalue);
     LITE_free(pvalue);
+    pvalue = NULL;
     *pport = atoi(port_str);
 
 #ifdef MQTT_ID2_AUTH
@@ -482,6 +513,21 @@ static int _iotId_iotToken_http(
     ret = 0;
 
 do_exit:
+    if (pvalue) {
+        LITE_free(pvalue);
+        pvalue = NULL;
+    }
+#if defined(MQTT_ID2_AUTH)
+    if (b64_decode) {
+        LITE_free(b64_decode);
+        b64_decode = NULL;
+    }
+    if (id2_decrypt) {
+        LITE_free(id2_decrypt);
+        id2_decrypt = NULL;
+    }
+#endif
+
     return ret;
 }
 #endif  /* #ifndef MQTT_DIRECT */
