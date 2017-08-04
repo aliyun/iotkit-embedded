@@ -786,23 +786,22 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     ret = httpclient_connect(client);
     if (0 != ret) {
         log_err("httpclient_connect is error,ret = %d", ret);
-        httpclient_close(client);
-        return ret;
+        goto RETURN;
     }
 
     ret = httpclient_send_request(client, url, method, client_data);
     if (0 != ret) {
         log_err("httpclient_send_request is error,ret = %d", ret);
-        httpclient_close(client);
-        return ret;
+        goto RETURN;
     }
 
     ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
     if (0 != ret) {
         log_err("httpclient_recv_response is error,ret = %d", ret);
-        httpclient_close(client);
-        return ret;
+        goto RETURN;
     }
+
+RETURN:
 
     httpclient_close(client);
     return ret;

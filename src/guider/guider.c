@@ -289,13 +289,8 @@ static int _http_response(char *payload,
                         HTTPCLIENT_POST,
                         10000,
                         &httpc_data);
-
     if (ret != 0) {
-        if (httpc.net.handle) {
-            free((void*)httpc.net.handle);
-            httpc.net.handle = 0;
-            goto RETURN;
-        }
+        goto RETURN;
     }
 
     memcpy(payload, httpc_data.response_buf, payload_len);
