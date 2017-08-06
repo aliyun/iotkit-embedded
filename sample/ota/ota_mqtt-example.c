@@ -122,30 +122,11 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
     }
 }
 
-static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
-{
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-
-    // print topic name and topic message
-    EXAMPLE_TRACE("----");
-    EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
-             ptopic_info->topic_len,
-             ptopic_info->ptopic,
-             ptopic_info->topic_len);
-    EXAMPLE_TRACE("Payload: '%.*s' (Length: %d)",
-             ptopic_info->payload_len,
-             ptopic_info->payload,
-             ptopic_info->payload_len);
-    EXAMPLE_TRACE("----");
-}
-
-
-
 int mqtt_client(void)
 {
 #define OTA_BUF_LEN        (5000)
 
-    int rc = 0, cnt = 0, ota_over = 0;
+    int rc = 0, ota_over = 0;
     void *pclient = NULL, *h_ota = NULL;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;

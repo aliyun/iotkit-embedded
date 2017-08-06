@@ -22,6 +22,13 @@
 #error "NOT support yet!"
 #endif
 
+extern int httpclient_common(httpclient_t *client,
+                             const char *url,
+                             int port,
+                             const char *ca_crt,
+                             int method,
+                             uint32_t timeout_ms,
+                             httpclient_data_t *client_data);
 
 typedef struct  {
     const char *product_key;    //point to product key
@@ -100,7 +107,8 @@ void *OTA_Init(const char *product_key, const char *device_name, void *ch_signal
 
     if ((NULL == product_key) || (NULL == device_name) || (NULL == ch_signal)) {
         OTA_LOG_ERROR("one or more parameters is invalid");
-        return EOTA_INVALID_PARAM;
+        // return EOTA_INVALID_PARAM;
+        return NULL;
     }
 
     if (NULL == (h_ota = OTA_MALLOC(sizeof(OTA_Struct_t)))) {
