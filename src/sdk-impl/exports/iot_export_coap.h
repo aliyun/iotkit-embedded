@@ -121,6 +121,4 @@ int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int
 
 int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);
 
-int  HAL_GetDeviceInfo(iotx_deviceinfo_t *p_devinfo);
-
 #endif

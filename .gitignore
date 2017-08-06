@@ -20,3 +20,4 @@ sample/mqtt/mqtt
 .O/
 .config
 output/
+ota.bin
