@@ -322,6 +322,17 @@ static int _iotId_iotToken_http(
     int                 ret = -1;
     iotx_conn_info_pt   usr = IOT_GetConnInfo();
     int                 ret_code = 0;
+#if defined(MQTT_ID2_AUTH)
+    uint8_t            *b64_decode = NULL;
+    uint8_t            *id2_decrypt = NULL;
+    int                 id2_rc = -1;
+    uint32_t            src_len = 0;
+    uint32_t            dst_len = 0;
+    uint32_t            dec_len = 0;
+    int                 cipher_data = 0;
+#endif
+    const char         *pvalue;
+    char                port_str[6];
 
     assert(usr);
 
@@ -368,9 +379,6 @@ static int _iotId_iotToken_http(
                   );
     log_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
-    const char         *pvalue;
-    char                port_str[6];
-
     pvalue = LITE_json_value_of("code", iotx_payload);
     if (!pvalue) {
         goto do_exit;
@@ -388,14 +396,6 @@ static int _iotId_iotToken_http(
     }
 
 #if defined(MQTT_ID2_AUTH)
-    uint8_t            *b64_decode = NULL;
-    uint8_t            *id2_decrypt = NULL;
-    int                 id2_rc = -1;
-    uint32_t            src_len = 0;
-    uint32_t            dst_len = 0;
-    uint32_t            dec_len = 0;
-    int                 cipher_data = 0;
-
     pvalue = LITE_json_value_of("data.iotId", iotx_payload);
     if (NULL == pvalue) {
         cipher_data = 1;
