@@ -1,4 +1,3 @@
-
 #ifndef __OTA_FETCH_C_H__
 #define __OTA_FETCH_C_H__
 
@@ -15,6 +14,13 @@ typedef struct {
 
 }otahttp_Struct_t, *otahttp_Struct_pt;
 
+extern int httpclient_common(httpclient_t *client,
+                             const char *url,
+                             int port,
+                             const char *ca_crt,
+                             int method,
+                             uint32_t timeout_ms,
+                             httpclient_data_t *client_data);
 
 void *ofc_Init(const char *url)
 {
