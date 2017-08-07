@@ -62,11 +62,11 @@
 #define FUNC_EXIT_MED_RC(x) StackTrace_exit(__func__, __LINE__, &x, TRACE_MEDIUM)
 #define FUNC_EXIT_MAX_RC(x) StackTrace_exit(__func__, __LINE__, &x, TRACE_MAXIMUM)
 
-void StackTrace_entry(const char* name, int line, int trace);
-void StackTrace_exit(const char* name, int line, void* return_value, int trace);
+void StackTrace_entry(const char *name, int line, int trace);
+void StackTrace_exit(const char *name, int line, void *return_value, int trace);
 
-void StackTrace_printStack(FILE* dest);
-char* StackTrace_get(unsigned long);
+void StackTrace_printStack(FILE *dest);
+char *StackTrace_get(unsigned long);
 
 #endif
 
