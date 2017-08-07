@@ -159,7 +159,7 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
         return -1;
     } else if (ret >= buf_len) {
         OTA_LOG_ERROR("msg is too long");
-        return EOTA_STR_TOO_LONG;
+        return IOT_OTAE_STR_TOO_LONG;
     }
 
     return 0;

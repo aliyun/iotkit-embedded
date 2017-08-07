@@ -22,20 +22,12 @@
 #error "NOT support yet!"
 #endif
 
-extern int httpclient_common(httpclient_t *client,
-                             const char *url,
-                             int port,
-                             const char *ca_crt,
-                             int method,
-                             uint32_t timeout_ms,
-                             httpclient_data_t *client_data);
-
 typedef struct  {
     const char *product_key;    //point to product key
     const char *device_name;    //point to device name
 
     uint32_t id;                //message id
-    OTA_State_t state;          //OTA state
+    IOT_OTA_State_t state;          //OTA state
     uint32_t size_last_fetched; //size of last downloaded
     uint32_t size_fetched;      //size of already downloaded
     uint32_t size_file;         //size of file
@@ -46,17 +38,17 @@ typedef struct  {
     void *ch_signal;            //channel handle of signal exchanged with OTA server
     void *ch_fetch;             //channel handle of download
 
-    OTA_Err_t err;              //last error code
+    IOT_OTA_Err_t err;              //last error code
 
 } OTA_Struct_t, *OTA_Struct_pt;
 
 
 //check whether the progress state is valid or not
 //return: true, valid progress state; false, invalid progress state.
-static bool ota_check_progress(OTA_Progress_t progress)
+static bool ota_check_progress(IOT_OTA_Progress_t progress)
 {
-    return ((progress >= POTA_FETCH_PERCENTAGE_MIN)
-            && (progress <= POTA_FETCH_PERCENTAGE_MAX));
+    return ((progress >= IOT_OTAP_BURN_FAILED)
+            && (progress <= IOT_OTAP_FETCH_PERCENTAGE_MAX));
 }
 
 
@@ -96,18 +88,17 @@ static void ota_callback(void *pcontext, const char *msg, uint32_t msg_len)
         return ;
     }
 
-    h_ota->state = SOTA_FETCHING;
+    h_ota->state = IOT_OTAS_FETCHING;
 }
 
 
 //Initialize OTA module
-void *OTA_Init(const char *product_key, const char *device_name, void *ch_signal)
+void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal)
 {
     OTA_Struct_pt h_ota = NULL;
 
     if ((NULL == product_key) || (NULL == device_name) || (NULL == ch_signal)) {
         OTA_LOG_ERROR("one or more parameters is invalid");
-        // return EOTA_INVALID_PARAM;
         return NULL;
     }
 
@@ -116,7 +107,7 @@ void *OTA_Init(const char *product_key, const char *device_name, void *ch_signal
         return NULL;
     }
     memset(h_ota, 0, sizeof(OTA_Struct_t));
-    h_ota->state = SOTA_UNINITED;
+    h_ota->state = IOT_OTAS_UNINITED;
 
     h_ota->ch_signal = osc_Init(product_key, device_name, ch_signal, ota_callback, h_ota);
     if (NULL == h_ota->ch_signal) {
@@ -126,7 +117,7 @@ void *OTA_Init(const char *product_key, const char *device_name, void *ch_signal
 
     h_ota->product_key = product_key;
     h_ota->device_name = device_name;
-    h_ota->state = SOTA_INITED;
+    h_ota->state = IOT_OTAS_INITED;
     return h_ota;
 
 do_exit:
@@ -141,19 +132,18 @@ do_exit:
 
 
 //deinitialize OTA module
-int OTA_Deinit(void *handle)
+int IOT_OTA_Deinit(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
 
     if (NULL == h_ota) {
         OTA_LOG_ERROR("handle is NULL");
-        h_ota->err = EOTA_INVALID_PARAM;
-        return -1;
+        return IOT_OTAE_INVALID_PARAM;
     }
 
-    if (SOTA_UNINITED == h_ota->state) {
+    if (IOT_OTAS_UNINITED == h_ota->state) {
         OTA_LOG_ERROR("handle is uninitialized");
-        h_ota->err = EOTA_INVALID_STATE;
+        h_ota->err = IOT_OTAE_INVALID_STATE;
         return -1;
     }
 
@@ -173,7 +163,7 @@ int OTA_Deinit(void *handle)
 }
 
 
-int OTA_ReportVersion(void *handle, const char *version)
+int IOT_OTA_ReportVersion(void *handle, const char *version)
 {
 #define MSG_INFORM_LEN  (128)
 
@@ -183,19 +173,18 @@ int OTA_ReportVersion(void *handle, const char *version)
 
     if ((NULL == h_ota) || (NULL == version)) {
         OTA_LOG_ERROR("one or more invalid parameter");
-        h_ota->err = EOTA_INVALID_PARAM;
-        return -1;
+        return IOT_OTAE_INVALID_PARAM;
     }
 
-    if (SOTA_UNINITED == h_ota->state) {
+    if (IOT_OTAS_UNINITED == h_ota->state) {
         OTA_LOG_ERROR("handle is uninitialized");
-        h_ota->err = EOTA_INVALID_STATE;
+        h_ota->err = IOT_OTAE_INVALID_STATE;
         return -1;
     }
 
     if (NULL == (msg_informed = OTA_MALLOC(MSG_INFORM_LEN))) {
         OTA_LOG_ERROR("malloc failed");
-        h_ota->err = EOTA_NOMEM;
+        h_ota->err = IOT_OTAE_NOMEM;
         return -1;
     }
 
@@ -226,7 +215,7 @@ do_exit:
 }
 
 
-int OTA_ReportProgress(void *handle, OTA_Progress_t progress, const char *msg)
+int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg)
 {
 #define MSG_REPORT_LEN  (256)
 
@@ -236,25 +225,24 @@ int OTA_ReportProgress(void *handle, OTA_Progress_t progress, const char *msg)
 
     if (NULL == handle) {
         OTA_LOG_ERROR("handle is NULL");
-        h_ota->err = EOTA_INVALID_PARAM;
-        return -1;
+        return IOT_OTAE_INVALID_PARAM;
     }
 
-    if (SOTA_UNINITED == h_ota->state) {
+    if (IOT_OTAS_UNINITED == h_ota->state) {
         OTA_LOG_ERROR("handle is uninitialized");
-        h_ota->err = EOTA_INVALID_STATE;
+        h_ota->err = IOT_OTAE_INVALID_STATE;
         return -1;
     }
 
     if (!ota_check_progress(progress)){
         OTA_LOG_ERROR("progress is a invalid parameter");
-        h_ota->err = EOTA_INVALID_PARAM;
+        h_ota->err = IOT_OTAE_INVALID_PARAM;
         return -1;
     }
 
     if (NULL == (msg_reported = OTA_MALLOC(MSG_REPORT_LEN))) {
         OTA_LOG_ERROR("malloc failed");
-        h_ota->err = EOTA_NOMEM;
+        h_ota->err = IOT_OTAE_NOMEM;
         return -1;
     }
 
@@ -285,68 +273,65 @@ do_exit:
 
 
 //check whether is downloading
-bool OTA_IsFetching(void *handle)
+bool IOT_OTA_IsFetching(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt)handle;
 
     if (NULL == handle) {
         OTA_LOG_ERROR("handle is NULL");
-        h_ota->err = EOTA_INVALID_PARAM;
         return 0;
     }
 
-    if (SOTA_UNINITED == h_ota->state) {
+    if (IOT_OTAS_UNINITED == h_ota->state) {
         OTA_LOG_ERROR("handle is uninitialized");
-        h_ota->err = EOTA_INVALID_STATE;
+        h_ota->err = IOT_OTAE_INVALID_STATE;
         return 0;
     }
 
-    return (SOTA_FETCHING == h_ota->state);
+    return (IOT_OTAS_FETCHING == h_ota->state);
 }
 
 
 //check whether fetch over
-bool OTA_IsFetchFinish(void *handle)
+bool IOT_OTA_IsFetchFinish(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
 
     if (NULL == handle) {
         OTA_LOG_ERROR("handle is NULL");
-        h_ota->err = EOTA_INVALID_PARAM;
-        return 0;
+        return 0; 
     }
 
-    if (SOTA_UNINITED == h_ota->state) {
+    if (IOT_OTAS_UNINITED == h_ota->state) {
         OTA_LOG_ERROR("handle is uninitialized");
-        h_ota->err = EOTA_INVALID_STATE;
+        h_ota->err = IOT_OTAE_INVALID_STATE;
         return 0;
     }
 
-    return (SOTA_FETCHED == h_ota->state);
+    return (IOT_OTAS_FETCHED == h_ota->state);
 }
 
 
-int OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_ms)
+int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_ms)
 {
     int ret;
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
 
     if ((NULL == handle) || (NULL == buf) || (0 == buf_len)) {
         OTA_LOG_ERROR("invalid parameter");
-        h_ota->err = EOTA_INVALID_PARAM;
-        return EOTA_INVALID_PARAM;
+        return IOT_OTAE_INVALID_PARAM;
     }
 
-    if (SOTA_FETCHING != h_ota->state) {
-        h_ota->err = EOTA_INVALID_STATE;
-        return EOTA_INVALID_STATE;
+    if (IOT_OTAS_FETCHING != h_ota->state) {
+        h_ota->err = IOT_OTAE_INVALID_STATE;
+        return IOT_OTAE_INVALID_STATE;
     }
 
     ret = ofc_Fetch(h_ota->ch_fetch, buf, buf_len, timeout_ms);
     if (ret < 0) {
         OTA_LOG_ERROR("Fetch firmware failed");
-        h_ota->state = SOTA_FETCHED;
-        h_ota->err = EOTA_FETCH_FAILED;
+        h_ota->state = IOT_OTAS_FETCHED;
+        h_ota->err = IOT_OTAE_FETCH_FAILED;
         return -1;
     }
 
@@ -354,33 +339,32 @@ int OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_m
     h_ota->size_fetched += ret;
 
     if (h_ota->size_fetched >= h_ota->size_file) {
-        h_ota->state = SOTA_FETCHED;
+        h_ota->state = IOT_OTAS_FETCHED;
     }
 
     return ret;
 }
 
 
-int OTA_Ioctl(void *handle, OTA_CmdType_t type, void *buf, size_t buf_len)
+int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_len)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
 
     if ((NULL == handle) || (NULL == buf) || (0 == buf_len)) {
         OTA_LOG_ERROR("invalid parameter");
-        h_ota->err = EOTA_INVALID_PARAM;
-        return EOTA_INVALID_PARAM;
+        return IOT_OTAE_INVALID_PARAM;
     }
 
-    if (h_ota->state < SOTA_FETCHING) {
-        h_ota->err = EOTA_INVALID_STATE;
-        return EOTA_INVALID_STATE;
+    if (h_ota->state < IOT_OTAS_FETCHING) {
+        h_ota->err = IOT_OTAE_INVALID_STATE;
+        return IOT_OTAE_INVALID_STATE;
     }
 
     switch( type ) {
-    case OTA_GET_FETCHED_SIZE:
+    case IOT_OTAG_FETCHED_SIZE:
         if ((4 != buf_len) || (0 != ((unsigned long)buf & 0x3))) {
             OTA_LOG_ERROR("Invalid parameter");
-            h_ota->err = EOTA_INVALID_PARAM;
+            h_ota->err = IOT_OTAE_INVALID_PARAM;
             return -1;
         } else {
             *((uint32_t *)buf) = h_ota->size_fetched;
@@ -388,10 +372,10 @@ int OTA_Ioctl(void *handle, OTA_CmdType_t type, void *buf, size_t buf_len)
         }
         break;
 
-    case OTA_GET_FILE_SIZE:
+    case IOT_OTAG_FILE_SIZE:
         if ((4 != buf_len) || (0 != ((unsigned long)buf & 0x3))) {
             OTA_LOG_ERROR("Invalid parameter");
-            h_ota->err = EOTA_INVALID_PARAM;
+            h_ota->err = IOT_OTAE_INVALID_PARAM;
             return -1;
         } else {
             *((uint32_t *)buf) = h_ota->size_file;
@@ -399,19 +383,19 @@ int OTA_Ioctl(void *handle, OTA_CmdType_t type, void *buf, size_t buf_len)
         };
         break;
 
-    case OTA_GET_VERSION:
+    case IOT_OTAG_VERSION:
         strncpy(buf, h_ota->version, buf_len);
         ((char *)buf)[buf_len-1] = '\0';
         break;
 
-    case OTA_GET_MD5SUM:
+    case IOT_OTAG_MD5SUM:
         strncpy(buf, h_ota->md5sum, buf_len);
         ((char *)buf)[buf_len-1] = '\0';
         break;
 
     default:
         OTA_LOG_ERROR("invalid cmd type");
-        h_ota->err = EOTA_INVALID_PARAM;
+        h_ota->err = IOT_OTAE_INVALID_PARAM;
         return -1;
     }
 
@@ -420,14 +404,13 @@ int OTA_Ioctl(void *handle, OTA_CmdType_t type, void *buf, size_t buf_len)
 
 
 //Get last error code
-OTA_Err_t OTA_GetLastError(void *handle)
+IOT_OTA_Err_t IOT_OTA_GetLastError(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
 
     if (NULL == handle) {
         OTA_LOG_ERROR("handle is NULL");
-        h_ota->err = EOTA_INVALID_PARAM;
-        return -1;
+        return  IOT_OTAE_INVALID_PARAM;
     }
 
     return h_ota->err;
