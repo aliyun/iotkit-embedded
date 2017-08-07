@@ -223,16 +223,13 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     char sign[IOTX_SIGN_LENGTH]   = {0};
 
     p_iotx_coap = (iotx_coap_t *)p_context;
-    if(NULL == p_iotx_coap || NULL == p_iotx_coap->p_auth_token
-            || NULL == p_iotx_coap->p_coap_ctx || 0 == p_iotx_coap->auth_token_len){
-        COAP_DEBUG("Invalid paramter p_context %p, p_auth_token %p, p_coap_ctx %p, auth_token_len %d\r\n",
-                 p_iotx_coap, p_iotx_coap->p_auth_token, p_iotx_coap->p_coap_ctx, p_iotx_coap->auth_token_len);
+    if(NULL == p_iotx_coap || (NULL != p_iotx_coap && (NULL == p_iotx_coap->p_auth_token
+            || NULL == p_iotx_coap->p_coap_ctx || 0 == p_iotx_coap->auth_token_len))){
+        COAP_DEBUG("Invalid paramter\r\n");
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    p_iotx_coap = (iotx_coap_t *)p_context;
     p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;
-
 
     CoAPMessage_init(&message);
     CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
