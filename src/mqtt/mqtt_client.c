@@ -1305,12 +1305,13 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
         /*If subscribe the same topic and callback function, then ignore*/
-        if ((NULL != c->sub_handle[i].topic_filter)
-            && (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler))) {
-            //if subscribe a identical topic and relate callback function, then ignore this subscribe.
-            flag_dup = 1;
-            log_err("There is a identical topic and related handle in list!");
-            break;
+        if ((NULL != c->sub_handle[i].topic_filter)) {
+            if (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler)) {
+                //if subscribe a identical topic and relate callback function, then ignore this subscribe.
+                flag_dup = 1;
+                log_err("There is a identical topic and related handle in list!");
+                break;
+            }
         } else {
             if (-1 == i_free) {
                 i_free = i; //record free element
