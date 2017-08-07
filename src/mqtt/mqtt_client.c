@@ -2505,16 +2505,15 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     if (!pInitParams->host || !pInitParams->client_id || !pInitParams->password
-        || !pInitParams->pub_key || !pInitParams->pwrite_buf || !pInitParams->pread_buf) {
+        || !pInitParams->pwrite_buf || !pInitParams->pread_buf) {
         log_err("parameter is error!\n"
                 "pInitParams->host = %p\n"
                 "pInitParams->client_id = %p\n"
                 "pInitParams->password = %p\n"
-                "pInitParams->pub_key = %p\n"
                 "pInitParams->pwrite_buf = %p\n"
                 "pInitParams->pread_buf = %p\n",
                 pInitParams->host, pInitParams->client_id, pInitParams->password,
-                pInitParams->pub_key, pInitParams->pwrite_buf, pInitParams->pread_buf);
+                pInitParams->pwrite_buf, pInitParams->pread_buf);
         return NULL;
     }
     pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
