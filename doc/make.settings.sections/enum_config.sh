@@ -21,6 +21,7 @@ BUILD_TYPE                  = debug
 PLATFORM_CC                 = gcc
 PLATFORM_AR                 = ar
 
+FEATURE_MQTT_DEVICE_SHADOW  = y
 EOB
             PART_A=$(echo "${PARA[1]}"|awk "{ print \$${X} }")
             PART_B=$(echo "${PARA[2]}"|awk "{ print \$${Y} }")
