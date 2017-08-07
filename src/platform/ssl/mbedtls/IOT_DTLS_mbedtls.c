@@ -194,6 +194,7 @@ unsigned int HAL_DTLSSession_free(DTLSContext *context)
 
         mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
         mbedtls_entropy_free(&p_dtls_session->entropy);
+        coap_free(context);
     }
 
     return DTLS_SUCCESS;

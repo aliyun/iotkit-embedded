@@ -89,6 +89,7 @@ static int iotx_get_token_from_json(const char *p_str, char *p_token, int len)
         }
         memset(p_token, 0x00, len);
         strncpy(p_token, p_value, strlen(p_value));
+        LITE_free(p_value);
         return IOTX_SUCCESS;
     }
 
