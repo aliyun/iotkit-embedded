@@ -53,7 +53,6 @@ unsigned int CoAPUri_parse(unsigned char *p_uri, coap_address_t *p_addr, coap_en
     if(*q){
         return COAP_ERROR_INVALID_URI;
     }
-
     if(tolower(*p) == 's'){
         ++p;
         --len;
@@ -174,6 +173,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
             }
             coap_free(p_ctx);
             p_ctx    =  NULL;
+            return NULL;
         }
     }
 
