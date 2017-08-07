@@ -2495,21 +2495,21 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
-{printf("**********************\n");
+{
     iotx_err_t          err;
-    iotx_mc_client_t    *pclient;
+    iotx_mc_client_t   *pclient;
 
     if (!pInitParams
-        || !pInitParams->host || !pInitParams->client_id || !pInitParams->password
+        || !pInitParams->host || !pInitParams->client_id || !pInitParams->password
         || !pInitParams->pub_key || !pInitParams->pwrite_buf || !pInitParams->pread_buf)  {
         log_err("parameter is error!\n"
             "pInitParams = %p\n"
-            "pInitParams->host=%p\n"
-            "pInitParams->client_id=%p\n"
-            "pInitParams->password=%p\n"
-            "pInitParams->pub_key=%p\n"
-            "pInitParams->pwrite_buf=%p\n"
-            "pInitParams->pread_buf=%p\n",
+            "pInitParams->host = %p\n"
+            "pInitParams->client_id = %p\n"
+            "pInitParams->password = %p\n"
+            "pInitParams->pub_key = %p\n"
+            "pInitParams->pwrite_buf = %p\n"
+            "pInitParams->pread_buf = %p\n",
             pInitParams, pInitParams->host, pInitParams->client_id, pInitParams->password,
             pInitParams->pub_key, pInitParams->pwrite_buf, pInitParams->pread_buf);
         return NULL;
