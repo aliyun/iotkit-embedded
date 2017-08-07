@@ -311,6 +311,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
 {
 
     int len = 0;
+    int ret = IOTX_SUCCESS;
     CoAPContext      *p_coap_ctx = NULL;
     iotx_coap_t      *p_iotx_coap = NULL;
     CoAPMessage      message;
@@ -337,7 +338,10 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
         CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
         CoAPMessageHandler_set(&message, p_message->resp_callback);
 
-        iotx_split_path_2_option(p_uri, &message);
+        ret = iotx_split_path_2_option(p_uri, &message);
+        if(IOTX_SUCCESS != ret){
+            return ret;
+        }
 
         if(IOTX_CONTENT_TYPE_CBOR == p_message->content_type){
             CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_CBOR);
