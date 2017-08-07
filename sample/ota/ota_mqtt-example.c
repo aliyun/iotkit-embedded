@@ -198,14 +198,14 @@ int mqtt_client(void)
         rc = -1;
         goto do_exit;
     }
-    h_ota = OTA_Init(PRODUCT_KEY, DEVICE_NAME, pclient);
+    h_ota = IOT_OTA_Init(PRODUCT_KEY, DEVICE_NAME, pclient);
     if (NULL == h_ota) {
         rc = -1;
         EXAMPLE_TRACE("initialize OTA failed");
         goto do_exit;
     }
 
-    if (0 != OTA_ReportVersion(h_ota, "iotx_ver_1.0.0")) {
+    if (0 != IOT_OTA_ReportVersion(h_ota, "iotx_ver_1.0.0")) {
         rc = -1;
         EXAMPLE_TRACE("report OTA version failed");
         goto do_exit;
@@ -220,13 +220,13 @@ int mqtt_client(void)
        /* handle the MQTT packet received from TCP or SSL connection */
         IOT_MQTT_Yield(pclient, 200);
 
-        if (OTA_IsFetching(h_ota)) {
+        if (IOT_OTA_IsFetching(h_ota)) {
             uint32_t last_percent = 0, percent = 0;
             char version[128], md5sum[33];
             uint32_t len, size_downloaded, size_file;
             do {
 
-                len = OTA_FetchYield(h_ota, buf_ota, OTA_BUF_LEN, 10000);
+                len = IOT_OTA_FetchYield(h_ota, buf_ota, OTA_BUF_LEN, 1);
                 if (len > 0) {
                     if (1 != fwrite(buf_ota, len, 1, fp)) {
                         EXAMPLE_TRACE("write data to file failed");
@@ -236,19 +236,19 @@ int mqtt_client(void)
                 }
 
                 /* get OTA information */
-                OTA_Ioctl(h_ota, OTA_GET_FETCHED_SIZE, &size_downloaded, 4);
-                OTA_Ioctl(h_ota, OTA_GET_FILE_SIZE, &size_file, 4);
-                OTA_Ioctl(h_ota, OTA_GET_MD5SUM, md5sum, 33);
-                OTA_Ioctl(h_ota, OTA_GET_VERSION, version, 128);
+                IOT_OTA_Ioctl(h_ota, IOT_OTAG_FETCHED_SIZE, &size_downloaded, 4);
+                IOT_OTA_Ioctl(h_ota, IOT_OTAG_FILE_SIZE, &size_file, 4);
+                IOT_OTA_Ioctl(h_ota, IOT_OTAG_MD5SUM, md5sum, 33);
+                IOT_OTA_Ioctl(h_ota, IOT_OTAG_VERSION, version, 128);
 
                 last_percent = percent;
                 percent = (size_downloaded * 100) / size_file;
                 if (percent - last_percent > 0) {
-                    OTA_ReportProgress(h_ota, percent, NULL);
-                    OTA_ReportProgress(h_ota, percent, "hello");
+                    IOT_OTA_ReportProgress(h_ota, percent, NULL);
+                    IOT_OTA_ReportProgress(h_ota, percent, "hello");
                 }
         	IOT_MQTT_Yield(pclient, 100);
-            }while(!OTA_IsFetchFinish(h_ota));
+            }while(!IOT_OTA_IsFetchFinish(h_ota));
 
                         
             ota_over = 1;
@@ -263,7 +263,7 @@ int mqtt_client(void)
 do_exit:
 
     if (NULL != h_ota) {
-         OTA_Deinit(h_ota);
+         IOT_OTA_Deinit(h_ota);
     }
     
     if(NULL != pclient) {

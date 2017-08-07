@@ -742,6 +742,7 @@ iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, h
         client_data->response_buf[0] = '\0';
         ret = httpclient_retrieve_content(client, buf, reclen, iotx_time_left(&timer), client_data);
     } else {
+        client_data->is_more = 1;
         ret = httpclient_recv(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen, iotx_time_left(&timer));
         if (ret != 0) {
             return ret;
@@ -774,8 +775,6 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     int ret = 0;
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
-    iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
     
     if (0 == client->net.handle) {
         //Establish connection if no.
@@ -799,6 +798,9 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
         }
     }
 
+    iotx_time_init(&timer);
+    utils_time_cutdown(&timer, timeout_ms);
+
      if ((NULL != client_data->response_buf)
          || (0 != client_data->response_buf_len)) {
         ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
@@ -811,6 +813,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     
     if (! client_data->is_more) {
         //Close the HTTP if no more data.
+        log_info("close http channel");
         httpclient_close(client);
     }
     return (ret >= 0) ? 0 : -1;

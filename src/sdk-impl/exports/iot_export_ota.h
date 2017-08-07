@@ -12,62 +12,62 @@
 
 typedef enum {
 
-    EOTA_GENERAL = -1,
-    EOTA_INVALID_PARAM = -2,
-    EOTA_INVALID_STATE = -3,
-    EOTA_STR_TOO_LONG = -4,
-    EOTA_FETCH_FAILED = -5,
-    EOTA_NOMEM = -6,
-    EOTA_MQTT_PUB = -7,
-    EOTA_NONE = 0,
+    IOT_OTAE_GENERAL = -1,
+    IOT_OTAE_INVALID_PARAM = -2,
+    IOT_OTAE_INVALID_STATE = -3,
+    IOT_OTAE_STR_TOO_LONG = -4,
+    IOT_OTAE_FETCH_FAILED = -5,
+    IOT_OTAE_NOMEM = -6,
+    IOT_OTAE_MQTT_PUB = -7,
+    IOT_OTAE_NONE = 0,
 
-} OTA_Err_t;
+} IOT_OTA_Err_t;
 
 
 //State of OTA
 typedef enum {
-    SOTA_UNINITED = 0,  //Uninitialized State
-    SOTA_INITED,        //Initialized State
-    SOTA_FETCHING,      //Fetching firmware
-    SOTA_FETCHED        //Fetching firmware finish
-} OTA_State_t;
+    IOT_OTAS_UNINITED = 0,  //Uninitialized State
+    IOT_OTAS_INITED,        //Initialized State
+    IOT_OTAS_FETCHING,      //Fetching firmware
+    IOT_OTAS_FETCHED        //Fetching firmware finish
+} IOT_OTA_State_t;
 
 
 //Progress of OTA
 typedef enum {
 
     /* Burn firmware file failed */
-    POTA_BURN_FAILED = -4,
+    IOT_OTAP_BURN_FAILED = -4,
 
     /* Check firmware file failed */
-    POTA_CHECK_FALIED = -3,
+    IOT_OTAP_CHECK_FALIED = -3,
 
     /* Fetch firmware file failed */
-    POTA_FETCH_FAILED = -2,
+    IOT_OTAP_FETCH_FAILED = -2,
 
     /* Initialized failed */
-    POTA_GENERAL_FAILED = -1,
+    IOT_OTAP_GENERAL_FAILED = -1,
 
 
     /* [0, 100], percentage of fetch progress */
 
     /* The minimum percentage of fetch progress */
-    POTA_FETCH_PERCENTAGE_MIN = 0,
+    IOT_OTAP_FETCH_PERCENTAGE_MIN = 0,
 
     /* The maximum percentage of fetch progress */
-    POTA_FETCH_PERCENTAGE_MAX = 100
+    IOT_OTAP_FETCH_PERCENTAGE_MAX = 100
 
-} OTA_Progress_t;
+} IOT_OTA_Progress_t;
 
 
 typedef enum {
 
-    OTA_GET_FETCHED_SIZE,     //option for get already fetched size
-    OTA_GET_FILE_SIZE,        //size of file
-    OTA_GET_MD5SUM,           //md5 in string format
-    OTA_GET_VERSION           //version in string format
+    IOT_OTAG_FETCHED_SIZE,     //option for get already fetched size
+    IOT_OTAG_FILE_SIZE,        //size of file
+    IOT_OTAG_MD5SUM,           //md5 in string format
+    IOT_OTAG_VERSION           //version in string format
 
-} OTA_CmdType_t;
+} IOT_OTA_CmdType_t;
 
 
 /**
@@ -80,7 +80,7 @@ typedef enum {
  *
  * @return 0, successful; -1, failed.
  */
-void *OTA_Init(const char *product_key, const char *device_name, void *ch_signal);
+void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal);
 
 
 /**
@@ -91,7 +91,7 @@ void *OTA_Init(const char *product_key, const char *device_name, void *ch_signal
  *
  * @return 0, successful; < 0, failed, the value is error code.
  */
-int OTA_Deinit(void *handle);
+int IOT_OTA_Deinit(void *handle);
 
 
 /**
@@ -103,7 +103,7 @@ int OTA_Deinit(void *handle);
  *
  * @return 0, successful; < 0, failed, the value is error code.
  */
-int OTA_ReportVersion(void *handle, const char *version);
+int IOT_OTA_ReportVersion(void *handle, const char *version);
 
 
 /**
@@ -111,12 +111,12 @@ int OTA_ReportVersion(void *handle, const char *version);
  *        NOTE: please
  *
  * @param [in] handle, specify the OTA module.
- * @param [in] progress, specify the progress defined by @OTA_Progress_t.
+ * @param [in] progress, specify the progress defined by @IOT_OTA_Progress_t.
  * @param [in] msg, detail progress information in string.
  *
  * @return 0, successful; < 0, failed, the value is error code.
  */
-int OTA_ReportProgress(void *handle, OTA_Progress_t progress, const char *msg);
+int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg);
 
 
 /**
@@ -126,7 +126,7 @@ int OTA_ReportProgress(void *handle, OTA_Progress_t progress, const char *msg);
  *
  * @return true, yes; false, no.
  */
-bool OTA_IsFetching(void *handle);
+bool IOT_OTA_IsFetching(void *handle);
 
 
 /**
@@ -136,7 +136,7 @@ bool OTA_IsFetching(void *handle);
  *
  * @return true, yes; -1, false.
  */
-bool OTA_IsFetchFinish(void *handle);
+bool IOT_OTA_IsFetchFinish(void *handle);
 
 
 /**
@@ -146,7 +146,7 @@ bool OTA_IsFetchFinish(void *handle);
  * @param [in] handle, specify the OTA module.
  * @param [out] buf, specify the space for storing firmware data.
  * @param [in] buf_len, specify the length of @buf in bytes.
- * @param [in] timeout_ms, specify the timeout value in millisecond.
+ * @param [in] timeout_s, specify the timeout value in second.
  *
  * @return
    @verbatim
@@ -155,7 +155,7 @@ bool OTA_IsFetchFinish(void *handle);
    (0, len] : The length of data be downloaded in @timeout_ms timeout period in bytes.
    @endverbatim
  */
-int OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_ms);
+int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
 
 
 /**
@@ -163,20 +163,20 @@ int OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_m
  *        By this interface, you can get information like state, size of file, md5 of file, etc.
  *
  * @param [in] handle, handle of the specific OTA
- * @param [in] type, specify what information you want, see detail @OTA_CmdType_t
+ * @param [in] type, specify what information you want, see detail @IOT_OTA_CmdType_t
  * @param [inout] buf, specify buffer for data exchange
  * @param [in] buf_len, specify the length of @buf in byte.
    @verbatim
       NOTE:
-      1) When @type is OTA_GET_DOWNLOADED_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
-      2) When @type is OTA_GET_FILE_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
-      3) When @type is OTA_GET_MD5SUM, @buf should be a buffer, and @buf_len should be 33.
-      4) When @type is OTA_GET_VERSION, @buf should be a buffer, and @buf_len should be OTA_VERSION_LEN_MAX.
+      1) When @type is IOT_OTAG_DOWNLOADED_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
+      2) When @type is IOT_OTAG_FILE_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
+      3) When @type is IOT_OTAG_MD5SUM, @buf should be a buffer, and @buf_len should be 33.
+      4) When @type is IOT_OTAG_VERSION, @buf should be a buffer, and @buf_len should be OTA_VERSION_LEN_MAX.
    @endverbatim
  *
  * @return 0, successful; < 0, failed, the value is error code.
  */
-int OTA_Ioctl(void *handle, OTA_CmdType_t type, void *buf, size_t buf_len);
+int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_len);
 
 
 /**
@@ -186,7 +186,7 @@ int OTA_Ioctl(void *handle, OTA_CmdType_t type, void *buf, size_t buf_len);
  *
  * @return The error code.
  */
-OTA_Err_t OTA_GetLastError(void *handle);
+IOT_OTA_Err_t IOT_OTA_GetLastError(void *handle);
 
 
 #endif /* __OTA_EXPORT_H__ */
