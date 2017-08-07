@@ -1867,7 +1867,7 @@ static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pIn
 {
     IOTX_FUNC_ENTRY;
     int rc = FAIL_RETURN;
-    int mc_state;
+    int mc_state = IOTX_MC_STATE_INVALID;
 
     if ((NULL == pClient) || (NULL == pInitParams)) {
         IOTX_FUNC_EXIT_RC(NULL_VALUE_ERROR);
