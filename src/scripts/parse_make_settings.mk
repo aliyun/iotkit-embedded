@@ -57,6 +57,10 @@ endif   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
+    ifneq (gcc,$(strip $(PLATFORM_CC)))
+    $(error FEATURE_MQTT_ID2_AUTH requires PLATFORM_CC equal gcc!)
+    endif
+
 else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
