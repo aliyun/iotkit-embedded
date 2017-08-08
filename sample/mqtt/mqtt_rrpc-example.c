@@ -180,22 +180,12 @@ int mqtt_rrpc_client(void)
         goto do_exit;
     }
 
-    /* Initialize device info */
-    IOT_CreateDeviceInfo();
-
-    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        printf("set device info failed!\n");
-        rc = -1;
-        goto do_exit;
-    }
-
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo()) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         printf("AUTH request failed!\n");
         rc = -1;
         goto do_exit;
     }
-    pconn_info = IOT_GetConnInfo();
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));

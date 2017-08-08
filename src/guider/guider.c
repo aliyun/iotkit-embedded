@@ -131,7 +131,7 @@ static int _calc_id2_signature(
     char                   *digest_str = NULL;
     uint64_t                ts_val = 0;
 
-    dev = IOT_GetDeviceInfo();
+    dev = iotx_device_info_get();
     assert(dev);
 
     /* Get timestamp */
@@ -193,7 +193,7 @@ static int _calc_hmac_signature(
     int                     rc = -1;
     iotx_device_info_pt     dev;
 
-    dev = IOT_GetDeviceInfo();
+    dev = iotx_device_info_get();
     assert(dev);
 
     memset(signature, 0, sizeof(signature));
@@ -320,7 +320,7 @@ static int _iotId_iotToken_http(
     char                iotx_payload[512] = {0};
     int                 iotx_port = 443;
     int                 ret = -1;
-    iotx_conn_info_pt   usr = IOT_GetConnInfo();
+    iotx_conn_info_pt   usr = iotx_conn_info_get();
     int                 ret_code = 0;
 #if defined(MQTT_ID2_AUTH)
     uint8_t            *b64_decode = NULL;
@@ -645,7 +645,7 @@ static char *_authenticate_string(char sign[], char ts[]
     iotx_device_info_pt     dev = NULL;
     int                     rc = -1;
 
-    dev = IOT_GetDeviceInfo();
+    dev = iotx_device_info_get();
     assert(dev);
 
 #ifdef MQTT_ID2_AUTH
@@ -711,7 +711,7 @@ static int _fill_conn_string(char *dst, int len, const char *fmt, ...)
         const char *    pubKey;
     }
 */
-int32_t iotx_guider_authenticate(void)
+int iotx_guider_authenticate(void)
 {
     char                guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
@@ -724,8 +724,8 @@ int32_t iotx_guider_authenticate(void)
     char               *guider_device_code = NULL;
 #endif
 
-    iotx_device_info_pt dev = IOT_GetDeviceInfo();
-    iotx_conn_info_pt   usr = IOT_GetConnInfo();
+    iotx_device_info_pt dev = iotx_device_info_get();
+    iotx_conn_info_pt   usr = iotx_conn_info_get();
     char               *req_str = NULL;
 
     assert(dev);

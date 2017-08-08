@@ -59,7 +59,24 @@ void IOT_DumpMemoryStats(IOT_LogLevel level)
     return LITE_dump_malloc_free_stats(lvl);
 }
 
-int IOT_SetupConnInfo(void)
+int IOT_SetupConnInfo(const char *product_key,
+            const char *device_name,
+            const char *device_secret,
+            void **info_ptr)
 {
-    return iotx_guider_authenticate();
+    int                 rc = -1;
+
+    iotx_device_info_init();
+    iotx_device_info_set(product_key, device_name, device_secret);
+
+    rc = iotx_guider_authenticate();
+    if (rc == 0) {
+        *info_ptr = (void *)iotx_conn_info_get();
+        return 0;
+    } else {
+        *info_ptr = NULL;
+        return -1;
+    }
+
+    return 0;
 }

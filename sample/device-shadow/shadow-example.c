@@ -66,23 +66,12 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     void *h_shadow;
     iotx_shadow_para_t shadaw_para;
 
-
-    /* Initialize the device info */
-    IOT_CreateDeviceInfo();
-
-    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        SHADOW_TRACE("run IOT_SetDeviceInfo() error!\n");
-        return -1;
-    }
-
     /* Device AUTH */
-    rc = IOT_SetupConnInfo();
+    rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
     if (SUCCESS_RETURN != rc) {
-        SHADOW_TRACE("rc = iotx_guider_authenticate() = %d", rc);
+        SHADOW_TRACE("rc = IOT_SetupConnInfo() = %d", rc);
         return rc;
     }
-
-    puser_info = IOT_GetConnInfo();
 
     /* Construct a device shadow */
     memset(&shadaw_para, 0, sizeof(iotx_shadow_para_t));

@@ -645,7 +645,7 @@ static int _fill_replay_fender(
         return -1;
     }
 
-    if (!(conn = IOT_GetConnInfo())) {
+    if (!(conn = iotx_conn_info_get())) {
         return -1;
     }
 
@@ -699,7 +699,7 @@ static int _create_encoded_payload(
         return -1;
     }
 
-    if (!(conn = IOT_GetConnInfo())) {
+    if (!(conn = iotx_conn_info_get())) {
         return -1;
     }
 
@@ -1379,7 +1379,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     uint8_t            *dec_out = NULL;
     iotx_conn_info_pt   conn = NULL;
 
-    conn = IOT_GetConnInfo();
+    conn = iotx_conn_info_get();
     if (!conn) {
         return -1;
     }
