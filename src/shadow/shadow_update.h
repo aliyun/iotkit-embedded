@@ -21,7 +21,6 @@
 #define _IOTX_SHADOW_UPDATE_H_
 
 #include "iot_import.h"
-#include "utils_error.h"
 
 #include "shadow.h"
 #include "shadow_config.h"

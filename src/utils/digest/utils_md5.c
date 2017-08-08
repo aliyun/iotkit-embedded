@@ -23,7 +23,6 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "lite-log.h"
-#include "utils_error.h"
 #include "utils_md5.h"
 
 #define MD5_DIGEST_SIZE 16

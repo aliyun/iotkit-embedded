@@ -20,7 +20,6 @@
 #include <stddef.h>
 #include "iot_import.h"
 #include "utils_timer.h"
-#include "utils_error.h"
 #include "lite-log.h"
 #include "utils_httpc.h"
 

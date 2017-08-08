@@ -19,7 +19,6 @@
 #include <string.h>
 
 #include "lite-log.h"
-#include "utils_error.h"
 #include "device.h"
 
 static iotx_conn_info_t     iotx_conn_info;

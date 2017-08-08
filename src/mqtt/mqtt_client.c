@@ -21,7 +21,6 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "guider.h"
-#include "utils_error.h"
 #include "lite-log.h"
 #include "lite-utils.h"
 #include "utils_net.h"
@@ -1789,7 +1788,6 @@ static iotx_err_t iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, io
 // get state of MQTT client
 static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
 
     if (!pClient) {
         return -1;
@@ -1807,7 +1805,6 @@ static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient)
 // set state of MQTT client
 static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState)
 {
-    IOTX_FUNC_ENTRY;
 
     HAL_MutexLock(pClient->lock_generic);
     pClient->client_state = newState;
@@ -1818,10 +1815,9 @@ static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t 
 // set MQTT connection parameter
 static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_connectData *pConnectParams)
 {
-    IOTX_FUNC_ENTRY;
 
     if (NULL == pClient || NULL == pConnectParams) {
-        IOTX_FUNC_EXIT_RC(NULL_VALUE_ERROR);
+        return NULL_VALUE_ERROR;
     }
 
     memcpy(pClient->connect_data.struct_id, pConnectParams->struct_id, 4);
@@ -1861,19 +1857,18 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
         pClient->connect_data.keepAliveInterval = pConnectParams->keepAliveInterval;
     }
 
-    IOTX_FUNC_EXIT_RC(SUCCESS_RETURN);
+    return SUCCESS_RETURN;
 }
 
 
 // Initialize MQTT client
 static iotx_err_t iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
 {
-    IOTX_FUNC_ENTRY;
     int rc = FAIL_RETURN;
     int mc_state = IOTX_MC_STATE_INVALID;
 
     if ((NULL == pClient) || (NULL == pInitParams)) {
-        IOTX_FUNC_EXIT_RC(NULL_VALUE_ERROR);
+        return NULL_VALUE_ERROR;
     }
 
     memset(pClient, 0x0, sizeof(iotx_mc_client_t));
@@ -2242,11 +2237,10 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 // connect
 static int iotx_mc_connect(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
     int rc = FAIL_RETURN;
 
     if (NULL == pClient) {
-        IOTX_FUNC_EXIT_RC(NULL_VALUE_ERROR);
+        return NULL_VALUE_ERROR;
     }
 
     /*Establish TCP or TLS connection*/
@@ -2293,7 +2287,6 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
 
 static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
 
     int rc;
 
@@ -2318,7 +2311,6 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 // reconnect
 static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2365,14 +2357,13 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
 {
     if (NULL == pClient) {
-        IOTX_FUNC_EXIT_RC(NULL_VALUE_ERROR);
+        return NULL_VALUE_ERROR;
     }
 
     if (!iotx_mc_check_state_normal(pClient)) {
         return SUCCESS_RETURN;
     }
 
-    IOTX_FUNC_ENTRY;
 
     (void)MQTTDisconnect(pClient);
 
@@ -2389,7 +2380,6 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
 
 static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
 
     if (NULL != pClient->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
@@ -2406,10 +2396,9 @@ static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient)
 // release MQTT resource
 static int iotx_mc_release(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
 
     if (NULL == pClient) {
-        IOTX_FUNC_EXIT_RC(NULL_VALUE_ERROR);
+        return NULL_VALUE_ERROR;
     }
 
     // iotx_delete_thread(pClient);
@@ -2432,13 +2421,12 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
     }
 
     log_info("mqtt release!");
-    IOTX_FUNC_EXIT_RC(SUCCESS_RETURN);
+    return SUCCESS_RETURN;
 }
 
 
 static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
 
     /*handle callback function*/
     if (NULL != pClient->handle_event.h_fp) {
@@ -2455,7 +2443,6 @@ static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient)
 
 static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 {
-    IOTX_FUNC_ENTRY;
 
     int rc = SUCCESS_RETURN;
 
