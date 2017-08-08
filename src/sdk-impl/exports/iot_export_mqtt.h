@@ -177,11 +177,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
  * @brief Deconstruct the MQTT client
  *        This function disconnect MQTT connection and release the related resource.
  *
- * @param handle, specify the MQTT client.
+ * @param pointer of handle, specify the MQTT client.
  *
  * @return 0, deconstruct success; -1, deconstruct failed.
  */
-int IOT_MQTT_Destroy(void *handle);
+int IOT_MQTT_Destroy(void **phandle);
 
 
 /**
