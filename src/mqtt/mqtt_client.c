@@ -2555,7 +2555,7 @@ int IOT_MQTT_Destroy(void **handle)
         return NULL_VALUE_ERROR;
     }
 
-    iotx_mc_release((iotx_mc_client_t *)handle);
+    iotx_mc_release((iotx_mc_client_t *)(*handle));
     LITE_free(*handle);
     *handle = NULL;
 

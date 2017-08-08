@@ -263,7 +263,6 @@ int mqtt_client(void)
     HAL_SleepMs(200);
 
     IOT_MQTT_Destroy(&pclient);
-    IOT_MQTT_Destroy(&pclient);
 
 do_exit:
     if (NULL != msg_buf) {
