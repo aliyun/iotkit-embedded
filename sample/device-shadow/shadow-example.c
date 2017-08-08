@@ -80,7 +80,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     shadaw_para.mqtt.port = puser_info->port;
     shadaw_para.mqtt.host = puser_info->host_name;
     shadaw_para.mqtt.client_id = puser_info->client_id;
-    shadaw_para.mqtt.user_name = puser_info->username;
+    shadaw_para.mqtt.username = puser_info->username;
     shadaw_para.mqtt.password = puser_info->password;
     shadaw_para.mqtt.pub_key = puser_info->pub_key;
 

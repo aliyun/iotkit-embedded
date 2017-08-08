@@ -166,7 +166,7 @@ int mqtt_client(void)
     mqtt_params.port = pconn_info->port;
     mqtt_params.host = pconn_info->host_name;
     mqtt_params.client_id = pconn_info->client_id;
-    mqtt_params.user_name = pconn_info->username;
+    mqtt_params.username = pconn_info->username;
     mqtt_params.password = pconn_info->password;
     mqtt_params.pub_key = pconn_info->pub_key;
 

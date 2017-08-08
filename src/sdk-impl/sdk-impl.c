@@ -72,9 +72,9 @@ int IOT_SetupConnInfo(const char *product_key,
         return -1;
     }
 
-    STRING_PTR_SANITY_CHECK(product_key);
-    STRING_PTR_SANITY_CHECK(device_name);
-    STRING_PTR_SANITY_CHECK(device_secret);
+    STRING_PTR_SANITY_CHECK(product_key, -1);
+    STRING_PTR_SANITY_CHECK(device_name, -1);
+    STRING_PTR_SANITY_CHECK(device_secret, -1);
 
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
