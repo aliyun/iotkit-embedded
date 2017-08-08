@@ -82,24 +82,6 @@ void HAL_Free(_IN_ void *ptr)
     return free(ptr);
 }
 
-int HAL_OTA_Start(const char *md5, uint32_t file_size)
-{
-    printf("this interface is NOT support yet.");
-    return -1;
-}
-
-int HAL_OTA_Write(_IN_ char *buffer, _IN_ uint32_t length)
-{
-    printf("this interface is NOT support yet.");
-    return -1;
-}
-
-int HAL_OTA_Finalize(_IN_ int stat)
-{
-    printf("this interface is NOT support yet.");
-    return -1;
-}
-
 uint32_t HAL_UptimeMs(void)
 {
     struct timeval tv = { 0 };
