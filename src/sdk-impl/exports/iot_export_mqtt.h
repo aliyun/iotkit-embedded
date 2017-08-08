@@ -139,7 +139,7 @@ typedef struct {
     uint16_t                    port;                   /* Specify MQTT broker port */
     const char                 *host;                   /* Specify MQTT broker host */
     const char                 *client_id;              /* Specify MQTT connection client id*/
-    const char                 *user_name;              /* Specify MQTT user name */
+    const char                 *username;               /* Specify MQTT user name */
     const char                 *password;               /* Specify MQTT password */
 
     /* Specify MQTT transport channel and key.
@@ -191,9 +191,9 @@ int IOT_MQTT_Destroy(void **phandle);
  * @param handle, specify the MQTT client.
  * @param timeout, specify the timeout in millisecond in this loop.
  *
- * @return none.
+ * @return status.
  */
-void IOT_MQTT_Yield(void *handle, int timeout_ms);
+int IOT_MQTT_Yield(void *handle, int timeout_ms);
 
 
 /**
