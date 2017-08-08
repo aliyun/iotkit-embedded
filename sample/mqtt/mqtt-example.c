@@ -195,6 +195,10 @@ int mqtt_client(void)
         goto do_exit;
     }
 
+    rc = system("date");
+    rc = IOT_MQTT_Yield(pclient, 0);
+    rc = system("date");
+
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
