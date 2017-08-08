@@ -30,6 +30,18 @@ extern "C" {
 #include "lite-utils.h"
 #include "guider.h"
 
+#define STRING_PTR_SANITY_CHECK(ptr) \
+    do { \
+        if (NULL == ptr) { \
+            log_err("Invalid argument, %s = %p", #ptr, ptr); \
+            return -1; \
+        } \
+        if (0 == strlen(ptr)) { \
+            log_err("Invalid argument, %s = '%s'", #ptr, ptr); \
+            return -1; \
+        } \
+    } while(0)
+
 #if defined(__cplusplus)
 }
 #endif

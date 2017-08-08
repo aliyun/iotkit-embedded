@@ -67,6 +67,15 @@ int IOT_SetupConnInfo(const char *product_key,
 {
     int                 rc = -1;
 
+    if (!info_ptr) {
+        log_err("Invalid argument, info_ptr = %p", info_ptr);
+        return -1;
+    }
+
+    STRING_PTR_SANITY_CHECK(product_key);
+    STRING_PTR_SANITY_CHECK(device_name);
+    STRING_PTR_SANITY_CHECK(device_secret);
+
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
 
