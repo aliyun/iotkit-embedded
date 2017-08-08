@@ -359,7 +359,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     *p_read_len = 0;
 
@@ -419,7 +419,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     /* Receive data */
     log_debug("Current data: %s", data);
@@ -593,7 +593,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     client_data->response_content_len = -1;
 
@@ -732,7 +732,7 @@ iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, h
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     if (0 == client->net.handle) {
         log_debug("not connection have been established");
@@ -776,7 +776,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     int ret = 0;
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
-    
+
     if (0 == client->net.handle) {
         //Establish connection if no.
     	httpclient_parse_host(url, host, sizeof(host));
@@ -800,7 +800,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     }
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
      if ((NULL != client_data->response_buf)
          || (0 != client_data->response_buf_len)) {
@@ -811,7 +811,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
             return ret;
         }
     }
-    
+
     if (! client_data->is_more) {
         //Close the HTTP if no more data.
         log_info("close http channel");

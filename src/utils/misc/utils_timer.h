@@ -38,7 +38,7 @@ uint32_t utils_time_is_expired(iotx_time_t *timer);
 
 void iotx_time_init(iotx_time_t *timer);
 
-void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond);
+void utils_time_countdown_ms(iotx_time_t *timer, uint32_t millisecond);
 
 uint32_t utils_time_get_ms(void);
 

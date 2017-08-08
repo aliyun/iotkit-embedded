@@ -91,7 +91,7 @@ void iotx_time_init(iotx_time_t *timer)
     timer->time = 0;
 }
 
-void utils_time_cutdown(iotx_time_t *timer, uint32_t millisecond)
+void utils_time_countdown_ms(iotx_time_t *timer, uint32_t millisecond)
 {
     if (!timer) {
         return;
