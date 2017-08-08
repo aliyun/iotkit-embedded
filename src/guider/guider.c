@@ -284,12 +284,12 @@ static int _http_response(char *payload,
     httpc_data.response_buf_len = HTTP_RESP_MAX_LEN;
 
     ret = httpclient_common(&httpc,
-                        url,
-                        port_num,
-                        pkey,
-                        HTTPCLIENT_POST,
-                        10000,
-                        &httpc_data);
+                            url,
+                            port_num,
+                            pkey,
+                            HTTPCLIENT_POST,
+                            10000,
+                            &httpc_data);
     if (ret != 0) {
         goto RETURN;
     }
@@ -432,7 +432,7 @@ static int _iotId_iotToken_http(
         pvalue = NULL;
 
         id2_decrypt = LITE_malloc(dst_len);
-        if(!id2_decrypt) {
+        if (!id2_decrypt) {
             log_err("malloc memory for id2_decrypt error");
             goto do_exit;
         }
@@ -635,10 +635,10 @@ static void _authenticate_http_url(char *buf, int len)
 #ifndef MQTT_DIRECT
 static char *_authenticate_string(char sign[], char ts[]
 #ifdef MQTT_ID2_AUTH
-                                  , char id2[]
-#ifdef IOTX_WITHOUT_TLS
-                                  , char dev_code[]
-#endif
+    , char id2[]
+    #ifdef IOTX_WITHOUT_TLS
+        , char dev_code[]
+    #endif
 #endif
                                  )
 {
