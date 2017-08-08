@@ -44,14 +44,14 @@ typedef struct  {
     const char *product_key;    /* point to product key */
     const char *device_name;    /* point to device name */
 
-    uint32_t id;                /* message id */
-    IOT_OTA_State_t state;          /* OTA state */
-    uint32_t size_last_fetched; /* size of last downloaded */
-    uint32_t size_fetched;      /* size of already downloaded */
-    uint32_t size_file;         /* size of file */
-    char *purl;                 /* point to URL */
-    char *version;              /* point to string */
-    char md5sum[33];            /* MD5 string */
+    uint32_t id;                //message id
+    IOT_OTA_State_t state;      //OTA state
+    uint32_t size_last_fetched; //size of last downloaded
+    uint32_t size_fetched;      //size of already downloaded
+    uint32_t size_file;         //size of file
+    char *purl;                 //point to URL
+    char *version;              //point to string
+    char md5sum[33];            //MD5 string
 
     void *md5;                  /* MD5 handle */
     void *ch_signal;            /* channel handle of signal exchanged with OTA server */
@@ -77,6 +77,11 @@ static void ota_callback(void *pcontext, const char *msg, uint32_t msg_len)
     uint32_t val_len;
 
     OTA_Struct_pt h_ota = (OTA_Struct_pt) pcontext;
+
+    if (h_ota->state >= IOT_OTAS_FETCHING) {
+        OTA_LOG_INFO("In downloading or downloaded state");
+        return;
+    }
 
     pvalue = otalib_JsonValueOf(msg, msg_len, "message", &val_len);
     if (NULL == pvalue) {
@@ -243,7 +248,7 @@ int IOT_OTA_ReportVersion(void *handle, const char *version)
 
     ret = osc_ReportVersion(h_ota->ch_signal, msg_informed);
     if (0 != ret) {
-        OTA_LOG_ERROR("Report progress failed");
+        OTA_LOG_ERROR("Report version failed");
         h_ota->err = ret;
         ret = -1;
         goto do_exit;
@@ -378,6 +383,9 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         h_ota->state = IOT_OTAS_FETCHED;
         h_ota->err = IOT_OTAE_FETCH_FAILED;
         return -1;
+    } else if (0 == h_ota->size_fetched) {
+        //force report status in the first
+        IOT_OTA_ReportProgress(h_ota, 0, "Enter in downloading state");
     }
 
     h_ota->size_last_fetched = ret;

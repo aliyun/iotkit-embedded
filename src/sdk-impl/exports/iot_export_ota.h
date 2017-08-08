@@ -23,8 +23,8 @@
 
 #include "iot_import.h"
 
-#define OTA_CH_SIGNAL_MQTT      (1)
-#define OTA_CH_SIGNAL_COAP      (0)
+#define OTA_CH_SIGNAL_MQTT      (0)
+#define OTA_CH_SIGNAL_COAP      (1)
 #define OTA_CH_FETCH_HTTP       (1)
 
 

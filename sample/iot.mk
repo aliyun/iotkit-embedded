@@ -33,6 +33,9 @@ TARGET              += coap-example
     SRCS                := coap/coap-example.c
     endif
 
+TARGET                += ota_coap-example
+SRCS_ota_coap-example := ota/ota_coap-example.c
+
 DEPENDS             += src/external/mbedtls
 endif
 
