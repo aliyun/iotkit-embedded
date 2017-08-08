@@ -2505,15 +2505,18 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
-    if (!pInitParams->host || !pInitParams->client_id || !pInitParams->password
+    if (!pInitParams->host || !pInitParams->client_id
+        || !pInitParams->user_name || !pInitParams->password
         || !pInitParams->pwrite_buf || !pInitParams->pread_buf) {
         log_err("parameter is error!\n"
                 "pInitParams->host = %p\n"
                 "pInitParams->client_id = %p\n"
+                "pInitParams->user_name = %p\n"
                 "pInitParams->password = %p\n"
                 "pInitParams->pwrite_buf = %p\n"
                 "pInitParams->pread_buf = %p\n",
-                pInitParams->host, pInitParams->client_id, pInitParams->password,
+                pInitParams->host, pInitParams->client_id,
+                pInitParams->user_name, pInitParams->password,
                 pInitParams->pwrite_buf, pInitParams->pread_buf);
         return NULL;
     }
