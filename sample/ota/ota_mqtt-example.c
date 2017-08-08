@@ -258,7 +258,7 @@ do_exit:
     }
 
     if(NULL != pclient) {
-        IOT_MQTT_Destroy(pclient);
+        IOT_MQTT_Destroy(&pclient);
     }
 
     if (NULL != msg_buf) {

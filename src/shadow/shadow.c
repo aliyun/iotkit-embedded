@@ -411,7 +411,7 @@ iotx_err_t IOT_Shadow_Destroy(void *handle)
         }
 
         HAL_SleepMs(2000);
-        IOT_MQTT_Destroy(pshadow->mqtt);
+        IOT_MQTT_Destroy(&pshadow->mqtt);
     }
 
     if (NULL != pshadow->inner_data.ptopic_get) {

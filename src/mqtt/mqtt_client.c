@@ -2543,16 +2543,21 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     return pclient;
 }
 
-
-iotx_err_t IOT_MQTT_Destroy(void *handle)
+int IOT_MQTT_Destroy(void **handle)
 {
     if (NULL == handle) {
+        log_err("Invalid argument, handle = %p", handle);
+        return NULL_VALUE_ERROR;
+    }
+
+    if (NULL == *handle) {
+        log_err("Invalid argument, *handle = %p", *handle);
         return NULL_VALUE_ERROR;
     }
 
     iotx_mc_release((iotx_mc_client_t *)handle);
-
-    LITE_free(handle);
+    LITE_free(*handle);
+    *handle = NULL;
 
     return SUCCESS_RETURN;
 }

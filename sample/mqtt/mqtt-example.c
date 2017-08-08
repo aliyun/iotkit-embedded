@@ -198,7 +198,7 @@ int mqtt_client(void)
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
-        IOT_MQTT_Destroy(pclient);
+        IOT_MQTT_Destroy(&pclient);
         EXAMPLE_TRACE("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         rc = -1;
         goto do_exit;
@@ -262,8 +262,8 @@ int mqtt_client(void)
 
     HAL_SleepMs(200);
 
-    IOT_MQTT_Destroy(pclient);
-
+    IOT_MQTT_Destroy(&pclient);
+    IOT_MQTT_Destroy(&pclient);
 
 do_exit:
     if (NULL != msg_buf) {

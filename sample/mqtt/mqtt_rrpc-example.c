@@ -221,7 +221,7 @@ int mqtt_rrpc_client(void)
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_RRPC_REQ "+", IOTX_MQTT_QOS0, mqtt_rrpc_msg_arrive, NULL);
     if (rc < 0) {
-        IOT_MQTT_Destroy(pclient);
+        IOT_MQTT_Destroy(&pclient);
         printf("IOT_MQTT_Subscribe failed, rc = %d\n", rc);
         rc = -1;
         goto do_exit;
@@ -245,7 +245,7 @@ int mqtt_rrpc_client(void)
 
     HAL_SleepMs(200);
 
-    IOT_MQTT_Destroy(pclient);
+    IOT_MQTT_Destroy(&pclient);
 
 
 do_exit:
