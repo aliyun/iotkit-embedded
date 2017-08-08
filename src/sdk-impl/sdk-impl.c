@@ -61,9 +61,9 @@ void IOT_DumpMemoryStats(IOT_LogLevel level)
 }
 
 int IOT_SetupConnInfo(const char *product_key,
-            const char *device_name,
-            const char *device_secret,
-            void **info_ptr)
+                      const char *device_name,
+                      const char *device_secret,
+                      void **info_ptr)
 {
     int                 rc = -1;
 

@@ -24,13 +24,13 @@
 #include "iot_export.h"
 
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
-#define PRODUCT_KEY             "OvNmiEYRDSY"
-#define DEVICE_NAME             "sh_online_sample_mqtt"
-#define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+    #define PRODUCT_KEY             "OvNmiEYRDSY"
+    #define DEVICE_NAME             "sh_online_sample_mqtt"
+    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
 #else
-#define PRODUCT_KEY             "yfTuLfBJTiL"
-#define DEVICE_NAME             "TestDeviceForDemo"
-#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+    #define PRODUCT_KEY             "yfTuLfBJTiL"
+    #define DEVICE_NAME             "TestDeviceForDemo"
+    #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #endif
 
 // These are pre-defined topics
@@ -49,7 +49,7 @@
     } while(0)
 
 static int      user_argc;
-static char **  user_argv;
+static char   **user_argv;
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
@@ -107,10 +107,10 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
             EXAMPLE_TRACE("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
-                     topic_info->topic_len,
-                     topic_info->ptopic,
-                     topic_info->payload_len,
-                     topic_info->payload);
+                          topic_info->topic_len,
+                          topic_info->ptopic,
+                          topic_info->payload_len,
+                          topic_info->payload);
             break;
 
         default:
@@ -126,13 +126,13 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
     // print topic name and topic message
     EXAMPLE_TRACE("----");
     EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
-             ptopic_info->topic_len,
-             ptopic_info->ptopic,
-             ptopic_info->topic_len);
+                  ptopic_info->topic_len,
+                  ptopic_info->ptopic,
+                  ptopic_info->topic_len);
     EXAMPLE_TRACE("Payload: '%.*s' (Length: %d)",
-             ptopic_info->payload_len,
-             ptopic_info->payload,
-             ptopic_info->payload_len);
+                  ptopic_info->payload_len,
+                  ptopic_info->payload,
+                  ptopic_info->payload_len);
     EXAMPLE_TRACE("----");
 }
 
@@ -240,9 +240,9 @@ int mqtt_client(void)
         }
 #ifdef MQTT_ID2_CRYPTO
         EXAMPLE_TRACE("packet-id=%u, publish topic msg='0x%02x%02x%02x%02x'...",
-                  (uint32_t)rc,
-                  msg_pub[0], msg_pub[1], msg_pub[2], msg_pub[3]
-                 );
+                      (uint32_t)rc,
+                      msg_pub[0], msg_pub[1], msg_pub[2], msg_pub[3]
+                     );
 #else
         EXAMPLE_TRACE("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
 #endif
