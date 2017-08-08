@@ -37,7 +37,10 @@ void    IOT_OpenLog(const char *ident);
 void    IOT_CloseLog(void);
 void    IOT_SetLogLevel(IOT_LogLevel level);
 void    IOT_DumpMemoryStats(IOT_LogLevel level);
-int     IOT_SetupConnInfo(void);
+int     IOT_SetupConnInfo(const char *product_key,
+            const char *device_name,
+            const char *device_secret,
+            void **info_ptr);
 
 #include "exports/iot_export_errno.h"
 #include "exports/iot_export_mqtt.h"

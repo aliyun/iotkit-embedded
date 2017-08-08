@@ -52,15 +52,4 @@ typedef struct {
     uint8_t         aeskey_hex[AESKEY_HEX_LEN];
 #endif
 } iotx_conn_info_t, *iotx_conn_info_pt;
-
-int IOT_CreateDeviceInfo(void);
-
-int32_t IOT_SetDeviceInfo(
-            const char *product_key,
-            const char *device_name,
-            const char *device_secret);
-
-iotx_device_info_pt IOT_GetDeviceInfo(void);
-
-iotx_conn_info_pt IOT_GetConnInfo(void);
 /* From device.h */

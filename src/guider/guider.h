@@ -25,7 +25,7 @@ extern "C" {
 #include "iot_import.h"
 #include "device.h"     // for deviceInfo{} + userInfo{}
 
-int32_t iotx_guider_authenticate(void);
+int iotx_guider_authenticate(void);
 
 #if defined(__cplusplus)
 }

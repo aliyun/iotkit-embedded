@@ -157,22 +157,12 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    /* Initialize device info */
-    IOT_CreateDeviceInfo();
-
-    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        EXAMPLE_TRACE("set device info failed!");
-        rc = -1;
-        goto do_exit;
-    }
-
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo()) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
         rc = -1;
         goto do_exit;
     }
-    pconn_info = IOT_GetConnInfo();
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));

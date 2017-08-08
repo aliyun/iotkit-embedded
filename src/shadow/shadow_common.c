@@ -165,7 +165,7 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
     ret = snprintf(pformat->buf + pformat->offset,
                    size_free_space,
                    UPDATE_JSON_STR_END,
-                   IOT_GetDeviceInfo()->device_id,
+                   iotx_device_info_get()->device_id,
                    iotx_ds_common_get_tokennum(pshadow),
                    iotx_ds_common_get_version(pshadow));
 
@@ -353,7 +353,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 
     int len, ret;
     char *topic_full = NULL;
-    iotx_device_info_pt pdevice_info = IOT_GetDeviceInfo();
+    iotx_device_info_pt pdevice_info = iotx_device_info_get();
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 

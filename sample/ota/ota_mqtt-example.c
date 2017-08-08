@@ -30,7 +30,7 @@
 #define PRODUCT_KEY             "6RcIOUafDOm"
 #define DEVICE_NAME             "sh_pre_sample_mqtt"
 #define DEVICE_SECRET           "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
-#else 
+#else
 #define PRODUCT_KEY             "yfTuLfBJTiL"
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
@@ -139,7 +139,7 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    
+
     if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
         EXAMPLE_TRACE("not enough memory");
         rc = -1;
@@ -152,22 +152,12 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    /* Initialize device info */
-    IOT_CreateDeviceInfo();
-
-    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        EXAMPLE_TRACE("set device info failed!");
-        rc = -1;
-        goto do_exit;
-    }
-
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo()) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
         rc = -1;
         goto do_exit;
     }
-    pconn_info = IOT_GetConnInfo();
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
@@ -214,7 +204,7 @@ int mqtt_client(void)
     HAL_SleepMs(1000);
 
     do {
- 
+
        EXAMPLE_TRACE("wait ota upgrade command....");
 
        /* handle the MQTT packet received from TCP or SSL connection */
@@ -250,7 +240,7 @@ int mqtt_client(void)
         	IOT_MQTT_Yield(pclient, 100);
             }while(!IOT_OTA_IsFetchFinish(h_ota));
 
-                        
+
             ota_over = 1;
         }
         HAL_SleepMs(2000);
@@ -265,10 +255,10 @@ do_exit:
     if (NULL != h_ota) {
          IOT_OTA_Deinit(h_ota);
     }
-    
+
     if(NULL != pclient) {
         IOT_MQTT_Destroy(pclient);
-    } 
+    }
 
     if (NULL != msg_buf) {
         HAL_Free(msg_buf);
