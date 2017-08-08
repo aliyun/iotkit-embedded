@@ -18,7 +18,7 @@ typedef enum {
     IOT_OTAE_STR_TOO_LONG = -4,
     IOT_OTAE_FETCH_FAILED = -5,
     IOT_OTAE_NOMEM = -6,
-    IOT_OTAE_MQTT_PUB = -7,
+    IOT_OTAE_OSC_FAILED = -7,
     IOT_OTAE_NONE = 0,
 
 } IOT_OTA_Err_t;
