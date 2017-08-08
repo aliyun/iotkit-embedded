@@ -20,7 +20,6 @@
 #define _IOTX_COMMON_SHA1_H_
 
 #include "iot_import.h"
-#include "utils_error.h"
 
 
 /**

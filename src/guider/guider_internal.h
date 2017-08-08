@@ -28,7 +28,6 @@
 
 #include "iot_import.h"
 
-#include "utils_error.h"
 #include "lite-log.h"
 #include "lite-utils.h"
 #include "utils_md5.h"

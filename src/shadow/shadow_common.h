@@ -22,7 +22,6 @@
 
 
 #include "iot_import.h"
-#include "utils_error.h"
 #include "utils_timer.h"
 #include "utils_list.h"
 #include "shadow.h"

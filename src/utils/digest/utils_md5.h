@@ -23,7 +23,6 @@
 #define _IOTX_COMMON_MD5_H_
 
 #include "iot_import.h"
-#include "utils_error.h"
 
 typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
