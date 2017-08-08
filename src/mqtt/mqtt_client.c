@@ -306,7 +306,7 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
     }
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, 1000);
+    utils_time_countdown_ms(&timer, 1000);
     int len = 0;
     int rc = 0;
 
@@ -353,7 +353,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
 
     /* send the connect packet*/
     iotx_time_init(&connectTimer);
-    utils_time_cutdown(&connectTimer, pClient->request_timeout_ms);
+    utils_time_countdown_ms(&connectTimer, pClient->request_timeout_ms);
     if ((rc = iotx_mc_send_packet(pClient, pClient->buf_send, len, &connectTimer)) != SUCCESS_RETURN) {
         HAL_MutexUnlock(pClient->lock_write_buf);
         log_err("send connect packet failed");
@@ -379,7 +379,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
     topic.cstring = (char *)topicName;
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     HAL_MutexLock(c->lock_write_buf);
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
@@ -442,7 +442,7 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
     }
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     HAL_MutexLock(c->lock_write_buf);
     if (type == PUBACK) {
@@ -487,7 +487,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 
     topic.cstring = (char *)topicFilter;
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     HAL_MutexLock(c->lock_write_buf);
 
@@ -544,7 +544,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
 
     topic.cstring = (char *)topicFilter;
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     HAL_MutexLock(c->lock_write_buf);
 
@@ -593,7 +593,7 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
     int len = MQTTSerialize_disconnect((unsigned char *)c->buf_send, c->buf_size_send);
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     if (len > 0) {
         rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);           // send the disconnect packet
@@ -1503,7 +1503,7 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
     }
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, c->connect_data.keepAliveInterval * 1000);
+    utils_time_countdown_ms(&timer, c->connect_data.keepAliveInterval * 1000);
 
     do {
         // read the socket, see what work is due
@@ -1554,7 +1554,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     }
 
     // receive any data to renew ping_timer
-    utils_time_cutdown(&c->next_ping_time, c->connect_data.keepAliveInterval * 1000);
+    utils_time_countdown_ms(&c->next_ping_time, c->connect_data.keepAliveInterval * 1000);
 
     // clear ping mark when any data received from MQTT broker
     HAL_MutexLock(c->lock_generic);
@@ -2126,7 +2126,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             iotx_mc_disconnect_callback(pClient);
 
             pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
-            utils_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
+            utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time),
                                pClient->reconnect_param.reconnect_time_interval_ms);
 
             pClient->ipstack->disconnect(pClient->ipstack);
@@ -2143,7 +2143,7 @@ static int MQTTRePublish(iotx_mc_client_t *c, char *buf, int len)
 {
     iotx_time_t timer;
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, c->request_timeout_ms);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     HAL_MutexLock(c->lock_write_buf);
 
@@ -2284,7 +2284,7 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
 
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
 
-    utils_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
+    utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     log_info("mqtt connect success!");
     return SUCCESS_RETURN;
@@ -2352,7 +2352,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         }
     }
 
-    utils_time_cutdown(&(pClient->reconnect_param.reconnect_next_time),
+    utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time),
                        pClient->reconnect_param.reconnect_time_interval_ms);
 
     log_err("mqtt reconnect failed rc = %d", rc);
@@ -2474,7 +2474,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
     }
 
     // update to next time sending MQTT keep-alive
-    utils_time_cutdown(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
+    utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     rc = MQTTKeepalive(pClient);
     if (SUCCESS_RETURN != rc) {
@@ -2560,7 +2560,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     }
 
     iotx_time_init(&time);
-    utils_time_cutdown(&time, timeout_ms);
+    utils_time_countdown_ms(&time, timeout_ms);
 
     do {
         // acquire package in cycle, such as PINGRESP or PUBLISH

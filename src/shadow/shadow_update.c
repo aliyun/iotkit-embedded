@@ -70,7 +70,7 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
     list[i].token[token_len] = '\0';
 
     iotx_time_init(&list[i].timer);
-    utils_time_cutdown(&list[i].timer, timeout);
+    utils_time_countdown_ms(&list[i].timer, timeout);
 
     log_debug("Add update ACK list");
 
