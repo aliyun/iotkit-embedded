@@ -15,12 +15,12 @@ TEXT=(
     "WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied."
     "See the License for the specific language governing permissions and"
     "limitations under the License."
+    ""
 )
 
 TOTAL_LINE=${#TEXT[@]}
 i=$(( TOTAL_LINE - 1 ))
 
-sed -i "1i\ " $1
 sed -i "1i\ */" $1
 while (( i >= 0 )); do
     j=$(eval echo '${TEXT['$i']}')
@@ -38,5 +38,3 @@ while (( i >= 0 )); do
     i=$(( i - 1 ))
 done
 sed -i "1i\/*" $1
-
-sed -i "1,$((TOTAL_LINE+3))s:^ *$::g" $1
