@@ -68,7 +68,7 @@ static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, con
     ret = IOT_MQTT_Publish(handle->mqtt, topic_name, &topic_info);
     if (ret < 0) {
         OTA_LOG_ERROR("publish failed");
-        return IOT_OTAE_MQTT_PUB;
+        return IOT_OTAE_OSC_FAILED;
     }
 
     return 0;
