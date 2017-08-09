@@ -1,4 +1,4 @@
-LIBA_TARGET := libplatform.a
+LIBA_TARGET := libiot_platform.a
 LIB_SRCS    := $(wildcard *.c)
 
 LIB_SRCS    += $(wildcard network/$(PLATFORM_NETWORK)/*.c)

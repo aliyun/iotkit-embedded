@@ -10,7 +10,9 @@ TARGET              += shadow-example
 SRCS_shadow-example := device-shadow/shadow-example.c
 endif
 
-LDFLAGS     := -liot_sdk
+DEPENDS             := src/platform
+LDFLAGS             := -liot_sdk
+LDFLAGS             += -liot_platform
 
 ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 TARGET              += coap-example

@@ -20,7 +20,6 @@ COMP_LIB_COMPONENTS := \
     src/mqtt \
     src/ota \
     src/system \
-    src/platform \
 
 ifeq (y,$(strip $(FEATURE_MQTT_DEVICE_SHADOW)))
 COMP_LIB_COMPONENTS += src/shadow
