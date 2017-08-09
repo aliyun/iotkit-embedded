@@ -1,4 +1,5 @@
 include make.settings
+include src/configs/default_settings.mk
 include src/scripts/parse_make_settings.mk
 
 SUBDIRS := sample
