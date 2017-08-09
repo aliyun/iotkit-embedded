@@ -53,7 +53,7 @@ static void iotx_response_handler(void * arg, void * p_response)
 
 static void *iotx_post_data_2_server(void *param)
 {
-    char               uri[IOTX_URI_MAX_LEN+1] = {0};
+    char               path[IOTX_URI_MAX_LEN+1] = {0};
     iotx_message_t     message;
     iotx_deviceinfo_t  devinfo;
 
@@ -63,18 +63,18 @@ static void *iotx_post_data_2_server(void *param)
     message.resp_callback = iotx_response_handler;
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
 
-    snprintf(uri, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", devinfo.product_key,
+    snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", devinfo.product_key,
                                             devinfo.device_name);
 
     while(1){
         sleep(1);
-        IOT_CoAP_SendMessage(p_ctx, uri, &message);
+        IOT_CoAP_SendMessage(p_ctx, path, &message);
     }
 }
 
 static void *iotx_post_data_to_server(void *param)
 {
-    char               uri[IOTX_URI_MAX_LEN+1] = {0};
+    char               path[IOTX_URI_MAX_LEN+1] = {0};
     iotx_message_t     message;
     iotx_deviceinfo_t  devinfo;
     message.p_payload = "{\"name\":\"hello world\"}";
@@ -84,10 +84,10 @@ static void *iotx_post_data_to_server(void *param)
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
 
     HAL_GetDeviceInfo(&devinfo);
-    snprintf(uri, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", devinfo.product_key,
+    snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", devinfo.product_key,
                                             devinfo.device_name);
 
-    IOT_CoAP_SendMessage(p_ctx, uri, &message);
+    IOT_CoAP_SendMessage(p_ctx, path, &message);
 }
 
 int main(int argc, char **argv)

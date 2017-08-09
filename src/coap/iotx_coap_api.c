@@ -301,7 +301,7 @@ static int iotx_split_path_2_option(char *uri, CoAPMessage *message)
         if('\0' == *(ptr + 1) && '\0' != *pstr){
             memset(path, 0x00, sizeof(path));
             strncpy(path, pstr, sizeof(path)-1);
-            COAP_DEBUG("path: %s,len=%d\r\n", path,pstr);
+            COAP_DEBUG("path: %s,len = %d\r\n", path, strlen(path));
             CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
                         (unsigned char *)path, strlen(path));
         }
@@ -310,7 +310,7 @@ static int iotx_split_path_2_option(char *uri, CoAPMessage *message)
     return IOTX_SUCCESS;
 }
 
-int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, iotx_message_t *p_message)
+int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_path, iotx_message_t *p_message)
 {
 
     int len = 0;
@@ -322,10 +322,10 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
 
     p_iotx_coap = (iotx_coap_t *)p_context;
 
-    if(NULL == p_context || NULL == p_uri || NULL == p_message ||
+    if(NULL == p_context || NULL == p_path || NULL == p_message ||
             (NULL != p_iotx_coap && NULL == p_iotx_coap->p_coap_ctx)){
         COAP_ERR("Invalid paramter p_context %p, p_uri %p, p_message %p\r\n",
-                                        p_context, p_uri, p_message);
+                                        p_context, p_path, p_message);
         return IOTX_ERR_INVALID_PARAM;
     }
 
@@ -341,7 +341,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
         CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
         CoAPMessageHandler_set(&message, p_message->resp_callback);
 
-        ret = iotx_split_path_2_option(p_uri, &message);
+        ret = iotx_split_path_2_option(p_path, &message);
         if(IOTX_SUCCESS != ret){
             return ret;
         }
@@ -360,9 +360,11 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, i
 
         CoAPMessagePayload_set(&message, p_message->p_payload, p_message->payload_len);
 
-        CoAPMessage_send(p_coap_ctx, &message);
+        ret = CoAPMessage_send(p_coap_ctx, &message);
         CoAPMessage_destory(&message);
-
+        if(COAP_ERROR_DATA_SIZE == ret){
+            return IOTX_ERR_MSG_TOO_LOOG;
+        }
         return IOTX_SUCCESS;
     }
     else{
