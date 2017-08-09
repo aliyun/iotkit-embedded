@@ -19,12 +19,12 @@ COMP_LIB_COMPONENTS := \
 $(call CompLib_Map, MQTT_COMM_ENABLED, \
     src/guider \
     src/mqtt \
-    src/ota \
     src/system \
 )
-$(call CompLib_Map, MQTT_ID2_AUTH, src/security)
+$(call CompLib_Map, OTA_ENABLED, src/ota)
 $(call CompLib_Map, MQTT_DEVICE_SHADOW, src/shadow)
 $(call CompLib_Map, COAP_COMM_ENABLED, src/coap)
+$(call CompLib_Map, MQTT_ID2_AUTH, src/security)
 
 COVERAGE_CMD    := $(SCRIPT_DIR)/walk_through_examples.sh
 BUILD_CONFIG    := src/configs/config.desktop.x86
