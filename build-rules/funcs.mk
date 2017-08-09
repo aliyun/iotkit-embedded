@@ -1,14 +1,14 @@
 define Dump_Var
-	NUM=`echo "$(strip $($(1)))"|grep -o "^\-\| -"|wc -l`; \
+	NUM=`echo "$(strip $($(1)))"|awk '{ print NF }'`; \
 	if expr $${NUM} \> 1 >/dev/null; then \
 	    printf -- "-----------------------------------------------------------------\n"; \
-	    printf "%-20s| %s\n" ". $(1)" `echo "$(strip $($(1)))"|cut -d' ' -f1|sed 's/^ *//'`; \
+	    printf "%-24s| %s\n" ". $(1)" `echo "$(strip $($(1)))"|cut -d' ' -f1|sed 's/^ *//'`; \
 	    for i in `echo "$(strip $($(1)))"|cut -d' ' -f2-`; do \
-	        printf "%-20s| %s\n" "" "$${i}"; \
+	        printf "%-24s| %s\n" "" "$${i}"; \
 	    done; \
 	    printf -- "-----------------------------------------------------------------\n"; \
 	else \
-	    printf "%-20s| %s\n" ". $(1)" "$(strip $($(1)))"; \
+	    printf "%-24s| %s\n" ". $(1)" "$(strip $($(1)))"; \
 	fi;
 endef
 
