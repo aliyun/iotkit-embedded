@@ -7,8 +7,10 @@ TARGET              += mqtt-example mqtt_rrpc-example
 SRCS_mqtt-example   := mqtt/mqtt-example.c
 SRCS_mqtt_rrpc-example := mqtt/mqtt_rrpc-example.c
 
-TARGET                += ota_mqtt-example
-SRCS_ota_mqtt-example := ota/ota_mqtt-example.c
+    ifeq (y, $(strip $(FEATURE_OTA_ENABLED)))
+    TARGET                += ota_mqtt-example
+    SRCS_ota_mqtt-example := ota/ota_mqtt-example.c
+    endif
 
     ifeq (y, $(strip $(FEATURE_MQTT_DEVICE_SHADOW)))
     TARGET              += shadow-example
