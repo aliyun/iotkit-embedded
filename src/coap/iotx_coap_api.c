@@ -37,6 +37,9 @@
 #define IOTX_SIGN_SRC_STR  "clientId%sdeviceName%sproductKey%s"
 #define IOTX_AUTH_DEVICENAME_STR "{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"clientId\":\"%s\",\"sign\":\"%s\"}"
 
+#define IOTX_COAP_ONLINE_DTLS_SERVER_URL "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
+
+
 typedef struct
 {
     char                *p_auth_token;
@@ -409,6 +412,7 @@ int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code
 iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 {
     CoAPInitParam param;
+    char url[128] = {0};
     iotx_coap_t *p_iotx_coap = NULL;
 
     if(NULL == p_config){
@@ -450,7 +454,16 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 
     /*Create coap context*/
     memset(&param, 0x00, sizeof(CoAPInitParam));
-    param.url = p_config->p_uri;
+
+    if(NULL !=  p_config->p_url){
+        param.url = p_config->p_url;
+    }
+    else
+    {
+        snprintf(url ,sizeof(url), IOTX_COAP_ONLINE_DTLS_SERVER_URL, p_iotx_coap->p_devinfo->product_key);
+        param.url = url;
+        COAP_INFO("Using default CoAP server: %s\r\n", url);
+    }
     param.maxcount = IOTX_LIST_MAX_ITEM;
     p_iotx_coap->p_coap_ctx = CoAPContext_create(&param);
     if(NULL == p_iotx_coap->p_coap_ctx){
