@@ -32,10 +32,10 @@ TARGET              += coap-example
     SRCS                := coap/iotx_coap_client.c
     endif
 
-DEPENDS             += src/external/recipes/mbedtls
+DEPENDS             += src/external/mbedtls
 CFLAGS              := $(filter-out -Werror,$(CFLAGS))
 endif
 
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
-DEPENDS     += src/external/recipes/mbedtls
+DEPENDS             += src/external/mbedtls
 endif

@@ -1,7 +1,7 @@
 ORIGIN  := 1
 
 PKG_SOURCE  := $(PACKAGE_DIR)/mbedtls-2.5.0.tar.bz2
-REF_LDFLAGS := -lmbedtls -lmbedcrypto -lmbedx509
+REF_LDFLAGS := -lmbedtls -lmbedx509 -lmbedcrypto
 
 config:
 	$(Q)true

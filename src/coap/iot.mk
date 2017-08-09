@@ -1,9 +1,7 @@
 LIBA_TARGET := libcoap.a
 HDR_REFS    := src
 
-ifeq (mbedtls,$(strip $(PLATFORM_SSL)))
-DEPENDS     += src/external/recipes/mbedtls
-endif
+DEPENDS     += src/external/mbedtls
 
 # TODO: fix warnings
 CFLAGS := $(filter-out -Werror,$(CFLAGS))
