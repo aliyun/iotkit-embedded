@@ -31,6 +31,8 @@
 #define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 
+#define IOTX_ONLINE_DTLS_SERVER_URL "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
+
 char m_coap_client_running = 0;
 
 
@@ -96,27 +98,47 @@ int main(int argc, char **argv)
     int opt;
     int count = 0;
     char secur[32] = {0};
+    char env[32] = {0};
 
     printf("[COAP-Client]: Enter Coap Client\r\n");
     iotx_coap_config_t config;
-    while ((opt = getopt(argc, argv, "s:l")) != -1){
+    while ((opt = getopt(argc, argv, "e:s:lh")) != -1){
         switch(opt){
             case 's':
                 strncpy(secur, optarg, strlen(optarg));
                 break;
+            case 'e':
+                strncpy(env, optarg, strlen(optarg));
+                break;
             case 'l':
                 m_coap_client_running = 1;
+                break;
+            case 'h':
+                // TODO:
                 break;
             default:
                 break;
         }
     }
 
-    if(0 == strncmp(secur, "dtls", strlen("dtls"))){
-        config.p_uri = IOTX_PRE_DTLS_SERVER_URI;
+    if(0 == strncmp(env, "pre", strlen("pre"))){
+        if(0 == strncmp(secur, "dtls", strlen("dtls"))){
+            config.p_uri = IOTX_PRE_DTLS_SERVER_URI;
+        }
+        else{
+            config.p_uri = IOTX_PRE_NOSEC_SERVER_URI;
+        }
     }
-    else{
-        config.p_uri = IOTX_PRE_NOSEC_SERVER_URI;
+    else if(0 == strncmp(env, "online", strlen("online"))){
+        if(0 == strncmp(secur, "dtls", strlen("dtls"))){
+            char url[256] = {0};
+            snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, "trTceekBd1P");
+            config.p_uri = url;
+        }
+        else{
+            printf("Online environment must access with DTLS\r\n");
+            return -1;
+        }
     }
 
     iotx_coap_context_t *p_ctx = NULL;
