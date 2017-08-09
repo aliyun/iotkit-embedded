@@ -28,7 +28,7 @@ define Post_Distro
     @echo ""
     @echo "o BINARY FOOTPRINT CONSIST:"
     @echo "----"
-    @STAGED=$(LIBOBJ_TMPDIR) $(SCRIPT_DIR)/stats_static_lib.sh $(FINAL_DIR)/lib/$(COMP_LIB)
+    @STAGED=$(LIBOBJ_TMPDIR) STRIP=$(STRIP) $(SCRIPT_DIR)/stats_static_lib.sh $(FINAL_DIR)/lib/$(COMP_LIB)
     @echo "========================================================================="
     @echo ""
 endef

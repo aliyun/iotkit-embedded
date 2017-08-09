@@ -2,7 +2,6 @@ PLATFORM_CC            ?= gcc
 PLATFORM_AR            ?= ar
 PLATFORM_OS             = linux
 PLATFORM_NETWORK        = linuxsock
-PLATFORM_SSL            = mbedtls
 
 FEATURE_OTA_ENABLED         ?= $(FEATURE_MQTT_COMM_ENABLED)
 FEATURE_MQTT_DEVICE_SHADOW  ?= $(FEATURE_MQTT_COMM_ENABLED)

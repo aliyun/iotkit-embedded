@@ -60,11 +60,11 @@ define Brief_Log
 	    fi; \
 	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $$(basename $@) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	else \
-	    printf "\r%-32s%s%s\n" "[$1] $$(expr sbustr $(2) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
+	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $(2) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	fi
 	@for i in $(wordlist 2,100,$(filter-out FORCE,$?)); do \
 	    if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
-	        printf "%-32s%s\n" "" "   $${i}"; \
+	        printf "%-32s%s\n" "" "   $$(basename $${i})"; \
 	    fi \
 	done
 	@echo -ne "\e[0m"

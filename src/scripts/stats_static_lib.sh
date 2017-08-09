@@ -17,7 +17,7 @@ cp ${TARGET} ${TEMPD}
 cd ${TEMPD}
 ar xf $(basename ${TARGET})
 rm -f $(basename ${TARGET})
-strip *.o
+${STRIP} *.o
 
 for obj in $(ls *.o); do
     dir=$(find ${STAGED} -name ${obj}|xargs dirname|xargs basename)
