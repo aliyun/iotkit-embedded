@@ -24,9 +24,6 @@
 #include "CoAPNetwork.h"
 #include "CoAPExport.h"
 
-#define COAP_PRE_SERVER_URL  "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
-#define COAPS_PRE_SERVER_URL "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
-
 #define COAP_DEFAULT_PORT        5683 /* CoAP default UDP port */
 #define COAPS_DEFAULT_PORT       5684 /* CoAP default UDP port for secure transmission */
 
@@ -154,13 +151,6 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     /*set the endpoint type by uri schema*/
     if(NULL != param->url){
         ret = CoAPUri_parse(param->url, &network_param.remote.addr, &network_param.ep_type);
-    }
-    else{
-#ifdef COAP_DTLS_SUPPORT
-        ret = CoAPUri_parse(COAPS_PRE_SERVER_URL, &network_param.remote.addr, &network_param.ep_type);
-#else
-        ret = CoAPUri_parse(COAP_PRE_SERVER_URL, &network_param.remote.addr, &network_param.ep_type);
-#endif
     }
 
     if(COAP_SUCCESS != ret){

@@ -121,19 +121,20 @@ int main(int argc, char **argv)
         }
     }
 
+    memset(&config, 0x00, sizeof(iotx_coap_config_t));
     if(0 == strncmp(env, "pre", strlen("pre"))){
         if(0 == strncmp(secur, "dtls", strlen("dtls"))){
-            config.p_uri = IOTX_PRE_DTLS_SERVER_URI;
+            config.p_url = IOTX_PRE_DTLS_SERVER_URI;
         }
         else{
-            config.p_uri = IOTX_PRE_NOSEC_SERVER_URI;
+            config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
         }
     }
     else if(0 == strncmp(env, "online", strlen("online"))){
         if(0 == strncmp(secur, "dtls", strlen("dtls"))){
             char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, "trTceekBd1P");
-            config.p_uri = url;
+            config.p_url = url;
         }
         else{
             printf("Online environment must access with DTLS\r\n");

@@ -80,7 +80,7 @@ typedef void (*iotx_event_handle_t)(void *context, iotx_coap_event_t event, void
 /* IoTx initializa parameters */
 typedef struct
 {
-    char                 *p_uri;
+    char                 *p_url;
     iotx_event_handle_t   event_handle;
 }iotx_coap_config_t;
 
