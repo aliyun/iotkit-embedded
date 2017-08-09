@@ -447,7 +447,16 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
 
     /*It should be implement by the user*/
-    HAL_GetDeviceInfo(p_iotx_coap->p_devinfo);
+    if(NULL != p_config->p_devinfo){
+        memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
+        strncpy(p_iotx_coap->p_devinfo->device_id,    p_config->p_devinfo->device_id,   IOTX_DEVICE_ID_LEN);
+        strncpy(p_iotx_coap->p_devinfo->product_key,  p_config->p_devinfo->product_key, IOTX_PRODUCT_KEY_LEN);
+        strncpy(p_iotx_coap->p_devinfo->device_secret,p_config->p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
+        strncpy(p_iotx_coap->p_devinfo->device_name,  p_config->p_devinfo->device_name, IOTX_DEVICE_NAME_LEN);
+    }
+    else{
+        HAL_GetDeviceInfo(p_iotx_coap->p_devinfo);
+    }
 
     /*Init coap token*/
     p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;

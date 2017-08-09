@@ -92,6 +92,27 @@ static void *iotx_post_data_to_server(void *param)
     IOT_CoAP_SendMessage(p_ctx, path, &message);
 }
 
+#define IOTX_PRODUCT_KEY         "trTceekBd1P"
+#define IOTX_DEVICE_NAME         "KAW7ihRrroLevlHN1y21"
+#define IOTX_DEVICE_SECRET       "0yscIv4r7cIc3aDu6kKGvyVVEWvobQF6"
+#define IOTX_DEVICE_ID           "trTceekBd1P.KAW7ihRrroLevlHN1y21"
+
+
+int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
+{
+    if(NULL == p_devinfo){
+        return IOTX_ERR_INVALID_PARAM;
+    }
+
+    memset(p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
+    strncpy(p_devinfo->device_id,    IOTX_DEVICE_ID,   IOTX_DEVICE_ID_LEN);
+    strncpy(p_devinfo->product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
+    strncpy(p_devinfo->device_secret,IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
+    strncpy(p_devinfo->device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
+
+    return IOTX_SUCCESS;
+}
+
 int main(int argc, char **argv)
 {
     int ret;
@@ -99,9 +120,10 @@ int main(int argc, char **argv)
     int count = 0;
     char secur[32] = {0};
     char env[32] = {0};
+    iotx_coap_config_t config;
+    iotx_deviceinfo_t deviceinfo;
 
     printf("[COAP-Client]: Enter Coap Client\r\n");
-    iotx_coap_config_t config;
     while ((opt = getopt(argc, argv, "e:s:lh")) != -1){
         switch(opt){
             case 's':
@@ -141,6 +163,9 @@ int main(int argc, char **argv)
             return -1;
         }
     }
+
+    iotx_set_devinfo(&deviceinfo);
+    config.p_devinfo = &deviceinfo;
 
     iotx_coap_context_t *p_ctx = NULL;
     p_ctx = IOT_CoAP_Init(&config);

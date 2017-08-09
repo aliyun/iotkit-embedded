@@ -77,10 +77,21 @@ typedef enum
 /* Callback function to notify the application events.*/
 typedef void (*iotx_event_handle_t)(void *context, iotx_coap_event_t event, void *p_data);
 
+/*IoTx device*/
+typedef struct
+{
+    char     product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char     device_name[IOTX_DEVICE_NAME_LEN + 1];
+    char     device_id[IOTX_DEVICE_ID_LEN + 1];
+    char     device_secret[IOTX_DEVICE_SECRET_LEN + 1];
+} iotx_deviceinfo_t;
+
+
 /* IoTx initializa parameters */
 typedef struct
 {
     char                 *p_url;
+    iotx_deviceinfo_t    *p_devinfo;
     iotx_event_handle_t   event_handle;
 }iotx_coap_config_t;
 
@@ -97,15 +108,6 @@ typedef struct
     void                    *user_data;
     iotx_response_callback_t resp_callback;
 }iotx_message_t;
-
-/*IoTx device*/
-typedef struct
-{
-    char     product_key[IOTX_PRODUCT_KEY_LEN + 1];
-    char     device_name[IOTX_DEVICE_NAME_LEN + 1];
-    char     device_id[IOTX_DEVICE_ID_LEN + 1];
-    char     device_secret[IOTX_DEVICE_SECRET_LEN + 1];
-} iotx_deviceinfo_t;
 
 
 /*iotx coap context definition*/
