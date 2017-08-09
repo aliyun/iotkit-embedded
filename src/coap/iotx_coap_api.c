@@ -332,6 +332,12 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_path, 
         return IOTX_ERR_INVALID_PARAM;
     }
 
+    if(IOTX_MESSAGE_CON >= p_message->msg_type || IOTX_MESSAGE_NON <= p_message->msg_type
+      || IOTX_CONTENT_TYPE_JSON >= p_message->content_type
+      || IOTX_CONTENT_TYPE_CBOR <= p_message->content_type){
+        return IOTX_ERR_INVALID_PARAM;
+    }
+
     p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;
     if(p_iotx_coap->is_authed){
 
