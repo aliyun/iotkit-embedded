@@ -31,6 +31,7 @@
 /*iotx return code definition*/
 typedef enum
 {
+    IOTX_ERR_MSG_TOO_LOOG    =  -7,   /* The payload too loog */
     IOTX_ERR_URI_TOO_LOOG    =  -6,   /* URI length too long */
     IOTX_ERR_NOT_AUTHED      =  -5,   /* Client isn't authed */
     IOTX_ERR_AUTH_FAILED     =  -4,   /* Client authed failed */
@@ -93,6 +94,7 @@ typedef struct
     unsigned short           payload_len;
     iotx_content_type_t      content_type;
     iotx_msg_type_t          msg_type;
+    void                    *user_data;
     iotx_response_callback_t resp_callback;
 }iotx_message_t;
 
@@ -117,7 +119,7 @@ int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 
 int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
-int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, iotx_message_t *p_message);
+int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_path, iotx_message_t *p_message);
 
 int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 

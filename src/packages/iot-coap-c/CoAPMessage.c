@@ -286,6 +286,12 @@ int CoAPMessage_send(CoAPContext *context, CoAPMessage *message)
     }
 
     //TODO: get the message length
+    msglen = CoAPSerialize_MessageLength(message);
+    if(COAP_MAX_PDU_LEN < msglen){
+        COAP_INFO("The message length %d is too loog\r\n", msglen);
+        return COAP_ERROR_DATA_SIZE;
+    }
+
     memset(context->sendbuf, 0x00, COAP_MAX_PDU_LEN);
     msglen = CoAPSerialize_Message(message, context->sendbuf, COAP_MAX_PDU_LEN);
     COAP_DEBUG("----The message length %d-----\r\n", msglen);
