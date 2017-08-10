@@ -24,6 +24,7 @@
 
 #include "lite-utils.h"
 #include "utils_hmac.h"
+#include "CoAPMessage.h"
 #include "CoAPExport.h"
 
 #define IOTX_SIGN_LENGTH         (33)
@@ -89,7 +90,7 @@ static int iotx_get_token_from_json(const char *p_str, char *p_token, int len)
         COAP_DEBUG("The auth token is: %s\r\n", p_value);
         if(len-1 < strlen(p_value)){
             COAP_ERR("The token need %d to store, but the buff only %d\r\n",
-                                strlen(p_value), len);
+                                (int)strlen(p_value), len);
             return IOTX_ERR_BUFF_TOO_SHORT;
         }
         memset(p_token, 0x00, len);
@@ -107,13 +108,13 @@ static void iotx_device_name_auth_callback(void *user, CoAPMessage *message)
     iotx_coap_t *p_iotx_coap = NULL;
 
     if(NULL == user){
-        COAP_ERR("Invalid paramter, p_arg %p\r\n", user, message);
+        COAP_ERR("Invalid paramter, p_arg %p\r\n", user);
         return ;
     }
     p_iotx_coap = (iotx_coap_t *)user;
 
     if( NULL == message){
-        COAP_ERR("Invalid paramter, p_response %p\r\n",  message);
+        COAP_ERR("Invalid paramter, message %p\r\n",  message);
         return;
     }
     COAP_DEBUG("Receive response message:\r\n");
@@ -123,7 +124,7 @@ static void iotx_device_name_auth_callback(void *user, CoAPMessage *message)
     switch(message->header.code){
         case COAP_MSG_CODE_205_CONTENT:
         {
-            ret_code = iotx_get_token_from_json(message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
+            ret_code = iotx_get_token_from_json((const char *)message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
             if(IOTX_SUCCESS == ret_code){
                 p_iotx_coap->is_authed = true;
                 COAP_INFO("CoAP authenticate success!!!\r\n");
@@ -158,7 +159,7 @@ void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
 {
     if(NULL == message){
         COAP_ERR("Invalid paramter, p_arg %p, p_response %p\r\n", message);
-        return IOTX_ERR_INVALID_PARAM;
+        return ;
     }
 
     COAP_DEBUG("Error code: 0x%x, payload: %s\r\n", code, message->payload);
@@ -262,7 +263,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
                         p_iotx_coap->p_devinfo->product_key,
                         p_iotx_coap->p_devinfo->device_name,
                         p_iotx_coap->p_devinfo->device_id,
-                        sign);
+                        (unsigned char *)sign);
     CoAPMessagePayload_set(&message, p_payload, strlen(p_payload));
     COAP_DEBUG("The payload is: %p\r\n", message.payload);
     COAP_DEBUG("Send authentication message to server\r\n");
@@ -338,6 +339,11 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_path, 
         COAP_ERR("The message type %d or content type %d invalid\r\n",
                 p_message->msg_type, p_message->content_type);
         return IOTX_ERR_INVALID_PARAM;
+    }
+
+    if(p_message->payload_len >= COAP_MSG_MAX_PDU_LEN){
+        COAP_ERR("The payload length %d is too loog\r\n", p_message->payload_len);
+        return IOTX_ERR_MSG_TOO_LOOG;
     }
 
     p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;

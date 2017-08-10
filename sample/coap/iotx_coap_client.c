@@ -79,28 +79,6 @@ int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
     return IOTX_SUCCESS;
 }
 
-
-static void *iotx_post_data_2_server(void *param)
-{
-    char               path[IOTX_URI_MAX_LEN+1] = {0};
-    iotx_message_t     message;
-    iotx_deviceinfo_t  devinfo;
-
-    iotx_set_devinfo(&devinfo);
-    message.p_payload = "{\"name\":\"hello world\"}";
-    message.payload_len = strlen("{\"name\":\"hello world\"}");
-    message.resp_callback = iotx_response_handler;
-    iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
-
-    snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", devinfo.product_key,
-                                            devinfo.device_name);
-
-    while(1){
-        sleep(1);
-        IOT_CoAP_SendMessage(p_ctx, path, &message);
-    }
-}
-
 static void *iotx_post_data_to_server(void *param)
 {
     char               path[IOTX_URI_MAX_LEN+1] = {0};
@@ -184,7 +162,6 @@ int main(int argc, char **argv)
         do{
             iotx_post_data_to_server((void *)p_ctx);
             IOT_CoAP_Yield(p_ctx);
-            fprintf(stderr, "run loop\r\n");
         }while(m_coap_client_running);
 
         IOT_CoAP_Deinit(&p_ctx);
