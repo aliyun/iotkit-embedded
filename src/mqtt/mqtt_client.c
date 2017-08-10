@@ -2542,6 +2542,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     if (timeout_ms < 0) {
         log_err("Invalid argument, timeout_ms = %d", timeout_ms);
+        return -1;
     }
     if (timeout_ms == 0) {
         timeout_ms = 10;
