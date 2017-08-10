@@ -332,9 +332,11 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_path, 
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    if(IOTX_MESSAGE_CON >= p_message->msg_type || IOTX_MESSAGE_NON <= p_message->msg_type
-      || IOTX_CONTENT_TYPE_JSON >= p_message->content_type
-      || IOTX_CONTENT_TYPE_CBOR <= p_message->content_type){
+    if(IOTX_MESSAGE_CON > p_message->msg_type || IOTX_MESSAGE_NON < p_message->msg_type
+      || IOTX_CONTENT_TYPE_JSON > p_message->content_type
+      || IOTX_CONTENT_TYPE_CBOR < p_message->content_type){
+        COAP_ERR("The message type %d or content type %d invalid\r\n",
+                p_message->msg_type, p_message->content_type);
         return IOTX_ERR_INVALID_PARAM;
     }
 
