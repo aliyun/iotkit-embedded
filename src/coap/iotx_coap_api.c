@@ -424,7 +424,11 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     iotx_coap_t *p_iotx_coap = NULL;
 
     if(NULL == p_config){
-        COAP_ERR(" Invalid paramter p_config %p\r\n", p_config);
+        COAP_ERR("Invalid paramter p_config %p\r\n", p_config);
+        return NULL;
+    }
+    if(NULL == p_config->p_devinfo){
+        COAP_ERR("Invalid paramter p_devinfo %p\r\n", p_config->p_devinfo);
         return NULL;
     }
 
@@ -461,9 +465,6 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
         strncpy(p_iotx_coap->p_devinfo->product_key,  p_config->p_devinfo->product_key, IOTX_PRODUCT_KEY_LEN);
         strncpy(p_iotx_coap->p_devinfo->device_secret,p_config->p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
         strncpy(p_iotx_coap->p_devinfo->device_name,  p_config->p_devinfo->device_name, IOTX_DEVICE_NAME_LEN);
-    }
-    else{
-        HAL_GetDeviceInfo(p_iotx_coap->p_devinfo);
     }
 
     /*Init coap token*/

@@ -52,6 +52,33 @@ static void iotx_response_handler(void * arg, void * p_response)
     printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
 }
 
+#if 0
+#define IOTX_PRODUCT_KEY         "trTceekBd1P"
+#define IOTX_DEVICE_NAME         "KAW7ihRrroLevlHN1y21"
+#define IOTX_DEVICE_SECRET       "0yscIv4r7cIc3aDu6kKGvyVVEWvobQF6"
+#define IOTX_DEVICE_ID           "trTceekBd1P.KAW7ihRrroLevlHN1y21"
+#else
+#define IOTX_PRODUCT_KEY         "GJ2uoVqx7ka"
+#define IOTX_DEVICE_NAME         "dev1"
+#define IOTX_DEVICE_SECRET       "Rdzq3RkePPcAjX82rz2yANa4BREwIWvW"
+#define IOTX_DEVICE_ID           "dev1.GJ2uoVqx7ka"
+#endif
+
+int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
+{
+    if(NULL == p_devinfo){
+        return IOTX_ERR_INVALID_PARAM;
+    }
+
+    memset(p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
+    strncpy(p_devinfo->device_id,    IOTX_DEVICE_ID,   IOTX_DEVICE_ID_LEN);
+    strncpy(p_devinfo->product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
+    strncpy(p_devinfo->device_secret,IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
+    strncpy(p_devinfo->device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
+
+    return IOTX_SUCCESS;
+}
+
 
 static void *iotx_post_data_2_server(void *param)
 {
@@ -59,7 +86,7 @@ static void *iotx_post_data_2_server(void *param)
     iotx_message_t     message;
     iotx_deviceinfo_t  devinfo;
 
-    HAL_GetDeviceInfo(&devinfo);
+    iotx_set_devinfo(&devinfo);
     message.p_payload = "{\"name\":\"hello world\"}";
     message.payload_len = strlen("{\"name\":\"hello world\"}");
     message.resp_callback = iotx_response_handler;
@@ -83,35 +110,17 @@ static void *iotx_post_data_to_server(void *param)
     message.payload_len = strlen("{\"name\":\"hello world\"}");
     message.resp_callback = iotx_response_handler;
     message.msg_type = IOTX_MESSAGE_CON;
+    message.content_type = IOTX_CONTENT_TYPE_JSON;
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
 
-    HAL_GetDeviceInfo(&devinfo);
+    iotx_set_devinfo(&devinfo);
     snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", devinfo.product_key,
                                             devinfo.device_name);
 
     IOT_CoAP_SendMessage(p_ctx, path, &message);
 }
 
-#define IOTX_PRODUCT_KEY         "trTceekBd1P"
-#define IOTX_DEVICE_NAME         "KAW7ihRrroLevlHN1y21"
-#define IOTX_DEVICE_SECRET       "0yscIv4r7cIc3aDu6kKGvyVVEWvobQF6"
-#define IOTX_DEVICE_ID           "trTceekBd1P.KAW7ihRrroLevlHN1y21"
 
-
-int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
-{
-    if(NULL == p_devinfo){
-        return IOTX_ERR_INVALID_PARAM;
-    }
-
-    memset(p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
-    strncpy(p_devinfo->device_id,    IOTX_DEVICE_ID,   IOTX_DEVICE_ID_LEN);
-    strncpy(p_devinfo->product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
-    strncpy(p_devinfo->device_secret,IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
-    strncpy(p_devinfo->device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
-
-    return IOTX_SUCCESS;
-}
 
 int main(int argc, char **argv)
 {
@@ -155,7 +164,7 @@ int main(int argc, char **argv)
     else if(0 == strncmp(env, "online", strlen("online"))){
         if(0 == strncmp(secur, "dtls", strlen("dtls"))){
             char url[256] = {0};
-            snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, "trTceekBd1P");
+            snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
         }
         else{
@@ -175,6 +184,7 @@ int main(int argc, char **argv)
         do{
             iotx_post_data_to_server((void *)p_ctx);
             IOT_CoAP_Yield(p_ctx);
+            fprintf(stderr, "run loop\r\n");
         }while(m_coap_client_running);
 
         IOT_CoAP_Deinit(&p_ctx);
