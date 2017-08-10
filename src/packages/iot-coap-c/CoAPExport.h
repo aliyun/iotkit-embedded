@@ -25,11 +25,10 @@
 //#define COAP_DTLS_SUPPORT
 
 
-#define COAP_MSG_MAX_TOKEN_LEN    8
-#define COAP_MSG_MAX_OPTION_NUM   8
-#define COAP_PATH_MAX_LEN         32
-#define COAP_MAX_PDU_LEN          1280
-#define COAP_MAX_OPT_NUM          8
+#define COAP_MSG_MAX_TOKEN_LEN    12
+#define COAP_MSG_MAX_OPTION_NUM   12
+#define COAP_MSG_MAX_PATH_LEN     32
+#define COAP_MSG_MAX_PDU_LEN      1280
 
 /*CoAP Content Type*/
 #define COAP_CT_TEXT_PLAIN                 0   /* text/plain (UTF-8) */
@@ -76,8 +75,6 @@
 /* CoAP base error code */
 #define COAP_SUCCESS                           (0)                    /*  Successful */
 #define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 1)  /*  Internal Error */
-#define COAP_ERROR_NO_MEM                      (COAP_ERROR_BASE | 2)  /*  Allocate Memory failed */
-#define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 3)  /*  Not found */
 #define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 4)  /*  Invalid Parameter */
 #define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 5)  /*  Invalid Length */
 #define COAP_ERROR_INVALID_DATA                (COAP_ERROR_BASE | 6)  /*  Invalid Data */

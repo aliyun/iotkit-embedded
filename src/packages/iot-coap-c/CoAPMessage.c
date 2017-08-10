@@ -54,7 +54,7 @@
 int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum, unsigned char *data, unsigned short datalen)
 {
     unsigned char *ptr = NULL;
-    if(COAP_MAX_OPT_NUM <= message->optnum){
+    if(COAP_MSG_MAX_OPTION_NUM <= message->optnum){
         return COAP_ERROR_INVALID_PARAM;
     }
 
@@ -75,7 +75,7 @@ int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum, unsigned char
 int CoAPUintOption_add(CoAPMessage *message, unsigned short  optnum, unsigned int data)
 {
     unsigned char *ptr = NULL;
-    if(COAP_MAX_OPT_NUM <= message->optnum){
+    if(COAP_MSG_MAX_OPTION_NUM <= message->optnum){
         return COAP_ERROR_INVALID_PARAM;
     }
     message->options[message->optnum].num = optnum - message->optdelta;
@@ -287,13 +287,13 @@ int CoAPMessage_send(CoAPContext *context, CoAPMessage *message)
 
     //TODO: get the message length
     msglen = CoAPSerialize_MessageLength(message);
-    if(COAP_MAX_PDU_LEN < msglen){
+    if(COAP_MSG_MAX_PDU_LEN < msglen){
         COAP_INFO("The message length %d is too loog\r\n", msglen);
         return COAP_ERROR_DATA_SIZE;
     }
 
-    memset(context->sendbuf, 0x00, COAP_MAX_PDU_LEN);
-    msglen = CoAPSerialize_Message(message, context->sendbuf, COAP_MAX_PDU_LEN);
+    memset(context->sendbuf, 0x00, COAP_MSG_MAX_PDU_LEN);
+    msglen = CoAPSerialize_Message(message, context->sendbuf, COAP_MSG_MAX_PDU_LEN);
     COAP_DEBUG("----The message length %d-----\r\n", msglen);
 
 
@@ -414,7 +414,7 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
 
     while(1){
         len = CoAPNetwork_read(&context->network, context->recvbuf,
-                COAP_MAX_PDU_LEN, timeout);
+                COAP_MSG_MAX_PDU_LEN, timeout);
         if(len > 0) {
             CoAPMessage_handle(context, context->recvbuf, len);
         }

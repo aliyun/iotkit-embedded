@@ -250,14 +250,14 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_JSON);
     CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
 
-    p_payload = coap_malloc(COAP_MAX_PDU_LEN);
+    p_payload = coap_malloc(COAP_MSG_MAX_PDU_LEN);
     if(NULL == p_payload){
         CoAPMessage_destory(&message);
         return IOTX_ERR_NO_MEM;
     }
     iotx_calc_sign(p_iotx_coap->p_devinfo->device_secret, p_iotx_coap->p_devinfo->device_id,
                 p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, sign);
-    snprintf(p_payload, COAP_MAX_PDU_LEN,
+    snprintf(p_payload, COAP_MSG_MAX_PDU_LEN,
                         IOTX_AUTH_DEVICENAME_STR,
                         p_iotx_coap->p_devinfo->product_key,
                         p_iotx_coap->p_devinfo->device_name,
@@ -277,7 +277,7 @@ static int iotx_split_path_2_option(char *uri, CoAPMessage *message)
 {
     char *ptr     = NULL;
     char *pstr    = NULL;
-    char  path[COAP_PATH_MAX_LEN]  = {0};
+    char  path[COAP_MSG_MAX_PATH_LEN]  = {0};
 
     if(NULL == uri || NULL == message){
         COAP_ERR("Invalid paramter p_path %p, p_message %p\r\n", uri, message);
