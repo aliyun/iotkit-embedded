@@ -1252,14 +1252,12 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 
     (void)iotx_mc_mask_pubInfo_from(c, mypacketid);
 
+    // call callback function to notify that PUBLISH is successful.
     if (NULL != c->handle_event.h_fp) {
-        // call callback function to notify that PUBLISH is successful.
-        if (NULL != c->handle_event.h_fp) {
-            iotx_mqtt_event_msg_t msg;
-            msg.event_type = IOTX_MQTT_EVENT_PUBLISH_SUCCESS;
-            msg.msg = (void *)(uintptr_t)mypacketid;
-            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
-        }
+        iotx_mqtt_event_msg_t msg;
+        msg.event_type = IOTX_MQTT_EVENT_PUBLISH_SUCCESS;
+        msg.msg = (void *)(uintptr_t)mypacketid;
+        c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
     }
 
     return SUCCESS_RETURN;
