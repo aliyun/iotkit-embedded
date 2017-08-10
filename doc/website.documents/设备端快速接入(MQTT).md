@@ -6,12 +6,12 @@
 
    + 创建产品, 可得`ProductKey`, `ProductSecret` (*华东2站点无`ProductSecret`*)
    + 在产品下创建设备, 可得`DeviceName`, `DeviceSecret`
-   + 定义Topic: `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`，并设置权限为: 设备具有发布与订阅 **(此步骤非常重要)**
+   + 定义Topic: `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`, 并设置权限为: 设备具有发布与订阅 **(此步骤非常重要)**
 
 > **注意:**
-> 请根据所选站点 (华东2，杭州) 创建相应的产品与设备。
+> 请根据所选站点 (华东2, 杭州) 创建相应的产品与设备.
 
-具体请参考[控制台使用手册](https://help.aliyun.com/document_detail/42714.html)文档中的`创建产品`, `添加设备`以及`获取设备Topic`部分。
+具体请参考[控制台使用手册](https://help.aliyun.com/document_detail/42714.html)文档中的`创建产品`, `添加设备`以及`获取设备Topic`部分.
 
 ## 第二步: 填充设备参数
 
@@ -44,7 +44,7 @@
     #define DEVICE_SECRET      "控制台申请的deviceSecret"
 
 > **注意：**
-> topic需要以"/"开始，例如"/23298421/deviceName/update"
+> topic需要以"/"开始, 例如"/23298421/deviceName/update"
 
 完成编辑并保存后, 进行下一步
 

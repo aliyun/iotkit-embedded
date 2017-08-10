@@ -1,5 +1,9 @@
-本文档详细描述如何将华东2节点设备端SDK移植到目标硬件平台。
-## SDK简介
+**以下详细描述如何将华东2节点设备端V2.0版本C-SDK移植到目标硬件平台.**
+
+
+
+**以下详细描述如何将华东2节点设备端V1.0.1版本C-SDK移植到目标硬件平台.**
+## V1.0.1设备端C-SDK简介
 SDK基本框架如下图所示：
 
 ![SDK框架](http://docs-aliyun.cn-hangzhou.oss.aliyun-inc.com/assets/pic/56047/cn_zh/1499417498273/iotx-sdk.jpg)
@@ -101,11 +105,11 @@ SDK基本框架如下图所示：
 
 ## 集成编译
 平台移植工作完成之后，修改make.settings文件的相关配置项即可进行编译，具体如下：
-```scala
-PLATFORM_OS        = linux     //OS文件夹名
-PLATFORM_NETWORK   = linuxsock //network文件夹名
-PLATFORM_SSL       = mbedtls   //SSL文件夹名
-```
+
+    PLATFORM_OS        = linux     //OS文件夹名
+    PLATFORM_NETWORK   = linuxsock //network文件夹名
+    PLATFORM_SSL       = mbedtls   //SSL文件夹名
+
 完成配置后，执行make，即可编译目标平台的代码。
 
 ## 移植样例
