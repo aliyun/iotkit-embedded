@@ -253,7 +253,7 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
                 memset(data, 0x00, datalen);
                 len = HAL_UDP_read((void *)&network->socket_id,
                                           &network->remote_endpoint,
-                                          data, COAP_MAX_PDU_LEN);
+                                          data, COAP_MSG_MAX_PDU_LEN);
                 COAP_DEBUG("<< CoAP recv nosecure data from %s:%d\r\n",
                          network->remote_endpoint.addr, network->remote_endpoint.port);
         #ifdef COAP_DTLS_SUPPORT
