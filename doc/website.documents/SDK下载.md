@@ -1,19 +1,29 @@
 华东2站点
 =========
 
-C版本
------
+# 版本V2.0
 
-2017-6-29
+- 发布日期: 2017/XX/YY
+- 开发语言: C语言
+- 开发环境: 64位Linux, GNU Make
+- 下载链接: [IoT-SDK_V2.0.tar.bz2](http://aliyun-iot.oss-cn-hangzhou.aliyuncs.com/iot-sdk-c/IoT-SDK_V2.0.tar.bz2)
+- 更新内容:
+    - **新增MQTT直连:** 支持更快更轻的连接IoT套件, 去掉对HTTPS/HTTP的依赖, 可看[公告](https://help.aliyun.com/document_detail/57164.html?spm=5176.doc53930.6.638.LNVRIp)
+    - **新增CoAP通道:** 基于UDP, 在纯上报数据场景更节省资源, 可看[公告](https://help.aliyun.com/document_detail/57566.html?spm=5176.doc57164.6.637.tXyBoU)
+    - **新增OTA通道:** 提供一系列OTA相关的API, 可查询/触发/下载用户自主上传的固件
+    - **新增ID2功能:** ID2是一种新的安全技术, 支持以具体项目具体对接的方式使用这种技术
+    - **升级构建系统:** 支持更灵活的组织和配置SDK
 
-1 正式发布华东2站点设备端代码
 
-2 设备端目前采用MQTT协议，SDK默认支持linux、windows平台，其它平台需要自行实现
+# 版本V1.0.1
 
-3 支持设备影子，具体请查看[此文档](~~53930~~)
-
-[下载连接](http://aliyun-iot.oss-cn-hangzhou.aliyuncs.com/iot-sdk-c/aliot_sdk_v1.0.1_release.7z)
-
+- 发布日期: 2017/06/29
+- 开发语言: C语言
+- 开发环境: 64位Linux, GNU Make
+- 下载链接: [aliot_sdk_v1.0.1_release.7z](http://aliyun-iot.oss-cn-hangzhou.aliyuncs.com/iot-sdk-c/aliot_sdk_v1.0.1_release.7z)
+- 更新内容:
+    - **华东2站点:** 第一个正式配合华东2站点的设备端SDK, 全源码发布
+    - **新增设备影子功能:** 具体可参看[设备影子介绍页面](https://help.aliyun.com/document_detail/53930.html)
 
 #杭州站点 
 ##C版本
