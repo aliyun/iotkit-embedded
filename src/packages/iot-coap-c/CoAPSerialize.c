@@ -123,9 +123,9 @@ int CoAPSerialize_Options(CoAPMessage *msg,  unsigned char * buf, int buflen)
     return count;
 }
 
-static int CoAPSerialize_OptionLen(CoAPMsgOption *option)
+static unsigned short CoAPSerialize_OptionLen(CoAPMsgOption *option)
 {
-    int  len  = 1;
+    unsigned short  len  = 1;
 
     if(269 <= option->num){
         len += 2;
@@ -150,10 +150,10 @@ static int CoAPSerialize_OptionLen(CoAPMsgOption *option)
 }
 
 
-int CoAPSerialize_OptionsLen(CoAPMessage *msg)
+unsigned short CoAPSerialize_OptionsLen(CoAPMessage *msg)
 {
     int i      = 0;
-    int count  = 0;
+    unsigned short count  = 0;
 
     for (i = 0; i < msg->optnum; i++)
     {
@@ -189,16 +189,17 @@ int CoAPSerialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
 }
 
 
-int CoAPSerialize_MessageLength(CoAPMessage *msg)
+unsigned short CoAPSerialize_MessageLength(CoAPMessage *msg)
 {
-    int msglen = 4;
+    unsigned short msglen = 4;
+
+    msglen += msg->header.tokenlen;
+    msglen += CoAPSerialize_OptionsLen(msg);
 
     if(0 < msg->payloadlen){
         msglen += msg->payloadlen;
         msglen += 1; /*CoAP payload marker*/
     }
-    msglen += msg->header.tokenlen;
-    msglen += CoAPSerialize_OptionsLen(msg);
 
     return msglen;
 }
