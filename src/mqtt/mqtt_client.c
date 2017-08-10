@@ -1634,7 +1634,7 @@ static int iotx_mc_check_state_normal(iotx_mc_client_t *c)
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2)
 {
-    if (!messageHandlers1 || messageHandler2) {
+    if (!messageHandlers1 || !messageHandler2) {
         return 1;
     }
 
