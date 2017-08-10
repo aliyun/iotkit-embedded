@@ -10,6 +10,16 @@ endef
 POST_FINAL_OUT_HOOK := Post_Distro
 define Post_Distro
     @find $(FINAL_DIR) -name "*.[ch]" -exec chmod a-x {} \;
+    @mkdir -p $(FINAL_DIR)/src
+    @cat doc/export.sdk.demo/head.mk >  $(FINAL_DIR)/src/Makefile
+    $(if $(filter y,$(FEATURE_MQTT_COMM_ENABLED)),
+        @cp -f sample/mqtt/mqtt-example.c $(FINAL_DIR)/src/mqtt-example.c
+        @cat doc/export.sdk.demo/mqtt.mk >> $(FINAL_DIR)/src/Makefile)
+    $(if $(filter y,$(FEATURE_COAP_COMM_ENABLED)),
+        @cp -f sample/coap/iotx_coap_client.c $(FINAL_DIR)/src/coap-example.c
+        @cat doc/export.sdk.demo/coap.mk >> $(FINAL_DIR)/src/Makefile)
+    @chmod a-x $(FINAL_DIR)/src/*
+
     @echo ""
     @echo "========================================================================="
     @echo "o BUILD COMPLETE WITH FOLLOWING SWITCHES:"
