@@ -19,6 +19,7 @@
 
 
 #include "CoAPExport.h"
+#include "CoAPSerialize.h"
 #include "CoAPDeserialize.h"
 
 #define COAPAckMsg(header) \
@@ -380,9 +381,9 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
     return COAP_ERROR_NOT_FOUND;
 }
 
-static int CoAPMessage_handle(CoAPContext *context,
-                                 const unsigned char     *buf,
-                                 unsigned short           datalen)
+static void CoAPMessage_handle(CoAPContext *context,
+                                  unsigned char     *buf,
+                                 unsigned short      datalen)
 {
     int    ret  = COAP_SUCCESS;
     CoAPMessage     message;
@@ -433,7 +434,6 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
 int CoAPMessage_cycle(CoAPContext *context)
 {
     unsigned int ret = 0;
-    unsigned int wait_ms;
     CoAPMessage_recv(context, COAP_WAIT_TIME_MS);
 
     CoAPSendNode *node = NULL, *next = NULL;
