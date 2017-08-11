@@ -64,6 +64,8 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
 int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
                       unsigned int datalen, unsigned int timeout);
 
+unsigned int CoAPNetwork_deinit(coap_network_t *p_network);
+
 
 #endif
 

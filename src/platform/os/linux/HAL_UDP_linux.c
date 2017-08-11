@@ -182,7 +182,7 @@ int HAL_UDP_readTimeout( void *p_socket,
 }
 
 
-int HAL_UDP_resolveAddress(const char *p_host, unsigned char addr[NETWORK_ADDR_LEN])
+int HAL_UDP_resolveAddress(const char *p_host,  char addr[NETWORK_ADDR_LEN])
 {
     struct addrinfo *res, *ainfo;
     struct addrinfo hints;

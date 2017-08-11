@@ -212,7 +212,7 @@ typedef struct
 
 typedef struct
 {
-    unsigned char *url;
+             char *url;
     unsigned char  maxcount;  /*list maximal count*/
 }CoAPInitParam;
 
