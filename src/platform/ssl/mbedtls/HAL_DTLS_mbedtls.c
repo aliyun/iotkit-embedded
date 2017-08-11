@@ -17,7 +17,9 @@
  */
 
 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "iot_import_dtls.h"
@@ -72,7 +74,7 @@ static unsigned int DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
         mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_OPTIONAL );
         DTLS_TRC("Call mbedtls_ssl_conf_authmode\r\n");
 
-        DTLS_TRC("x509 ca cert pem len %d\r\n%s\r\n", strlen(p_ca_cert_pem)+1, p_ca_cert_pem);
+        DTLS_TRC("x509 ca cert pem len %d\r\n%s\r\n", strlen((char *)p_ca_cert_pem)+1, p_ca_cert_pem);
         int result = mbedtls_x509_crt_parse(&p_dtls_session->cacert,
                                             p_ca_cert_pem,
                                             strlen(p_ca_cert_pem)+1);
@@ -211,7 +213,7 @@ DTLSContext *HAL_DTLSSession_init()
     mbedtls_platform_set_calloc_free(DTLSCalloc_wrapper, DTLSFree_wrapper);
     if(NULL != p_dtls_session) {
         p_dtls_session->network.socket_id = -1;
-        memset(p_dtls_session->network.remote_addr, 0x00, TRANSPORT_ADDR_LEN);
+        memset(p_dtls_session->network.remote_addr, 0x00, NETWORK_ADDR_LEN);
         p_dtls_session->network.remote_port = 0;
         p_dtls_session->recv_fn = NULL;
         p_dtls_session->send_fn = NULL;
@@ -242,7 +244,7 @@ unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *
 
     if(NULL != p_dtls_session){
         p_dtls_session->network.socket_id = p_options->network.socket_id;
-        memcpy(p_dtls_session->network.remote_addr, p_options->network.remote_addr, TRANSPORT_ADDR_LEN);
+        memcpy(p_dtls_session->network.remote_addr, p_options->network.remote_addr, NETWORK_ADDR_LEN);
         p_dtls_session->network.remote_port = p_options->network.remote_port;
         p_dtls_session->recv_fn = p_options->recv_fn;
         p_dtls_session->send_fn = p_options->send_fn;

@@ -129,6 +129,7 @@ int CoAPMessageId_set(CoAPMessage *message, unsigned short msgid)
         return COAP_ERROR_NULL;
     }
     message->header.msgid = msgid;
+    return COAP_SUCCESS;
 }
 
 int CoAPMessageType_set(CoAPMessage *message, unsigned char type)
@@ -151,6 +152,7 @@ int CoAPMessageCode_set(CoAPMessage *message, CoAPMessageCode code)
         return COAP_ERROR_NULL;
     }
     message->header.code  = code;
+    return COAP_SUCCESS;
 }
 
 int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
@@ -185,6 +187,8 @@ int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
     }
     message->payload = payload;
     message->payloadlen = payloadlen;
+
+    return COAP_SUCCESS;
 }
 
 int CoAPMessageHandler_set(CoAPMessage *message, CoAPRespMsgHandler handler)
@@ -373,6 +377,7 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
             return COAP_SUCCESS;
         }
     }
+    return COAP_ERROR_NOT_FOUND;
 }
 
 static int CoAPMessage_handle(CoAPContext *context,
@@ -422,7 +427,7 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
             return 0;
         }
     }
-
+    return -1;
 }
 
 int CoAPMessage_cycle(CoAPContext *context)

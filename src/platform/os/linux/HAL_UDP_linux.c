@@ -29,15 +29,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
-
-#define NETWORK_ADDR_LEN      (16)
-
-typedef struct
-{
-    unsigned char        addr[NETWORK_ADDR_LEN];
-    unsigned short       port;
-} coap_address_t;
-
+#include "iot_import_coap.h"
 
 int HAL_UDP_create(void *p_socket)
 {
@@ -199,7 +191,8 @@ int HAL_UDP_resolveAddress(const char *p_host, unsigned char addr[NETWORK_ADDR_L
 
     memset ((char *)&hints, 0x00, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET;
+    hints.ai_protocol = IPPROTO_UDP;
 
     error = getaddrinfo(p_host, NULL, &hints, &res);
 
