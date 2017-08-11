@@ -74,12 +74,12 @@ static unsigned int DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
         mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_OPTIONAL );
         DTLS_TRC("Call mbedtls_ssl_conf_authmode\r\n");
 
-        DTLS_TRC("x509 ca cert pem len %d\r\n%s\r\n", strlen((char *)p_ca_cert_pem)+1, p_ca_cert_pem);
+        DTLS_TRC("x509 ca cert pem len %d\r\n%s\r\n", (int)strlen((char *)p_ca_cert_pem)+1, p_ca_cert_pem);
         int result = mbedtls_x509_crt_parse(&p_dtls_session->cacert,
                                             p_ca_cert_pem,
-                                            strlen(p_ca_cert_pem)+1);
+                                            strlen((const char *)p_ca_cert_pem)+1);
 
-        DTLS_TRC("mbedtls_x509_crt_parse result %08lx\r\n", result);
+        DTLS_TRC("mbedtls_x509_crt_parse result %08x\r\n", result);
         if( result < 0 )
         {
             err_code = DTLS_INVALID_CA_CERTIFICATE;
@@ -142,7 +142,7 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
     mbedtls_ssl_init(&p_dtls_session->context);
 
     result = mbedtls_ssl_setup(&p_dtls_session->context, &p_dtls_session->conf);
-    DTLS_TRC("mbedtls_ssl_setup result %08lx\r\n", result);
+    DTLS_TRC("mbedtls_ssl_setup result %08x\r\n", result);
 
     if (result == 0)
     {
@@ -162,13 +162,13 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
                             p_dtls_session->send_fn,
                             p_dtls_session->recv_fn,
                             p_dtls_session->recv_timeout_fn);
-        DTLS_TRC("mbedtls_ssl_set_bio result %08lx\r\n", result);
+        DTLS_TRC("mbedtls_ssl_set_bio result %08x\r\n", result);
 
         do{
             result = mbedtls_ssl_handshake(&p_dtls_session->context);
         }while( result == MBEDTLS_ERR_SSL_WANT_READ ||
                     result == MBEDTLS_ERR_SSL_WANT_WRITE );
-        DTLS_TRC("mbedtls_ssl_handshake result %08lx\r\n", result);
+        DTLS_TRC("mbedtls_ssl_handshake result %08x\r\n", result);
     }
 
     return (result ? DTLS_HANDSHAKE_FAILED : DTLS_SUCCESS);
@@ -254,21 +254,21 @@ unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *
         result = mbedtls_ctr_drbg_seed(&p_dtls_session->ctr_drbg, mbedtls_entropy_func, &p_dtls_session->entropy,
                                        (const unsigned char *)"IoTx",
                                        strlen("IoTx"));
-        DTLS_TRC("mbedtls_ctr_drbg_seed result %08lx\r\n", result);
+        DTLS_TRC("mbedtls_ctr_drbg_seed result %08x\r\n", result);
 
         result = mbedtls_ssl_config_defaults(&p_dtls_session->conf,
                                              MBEDTLS_SSL_IS_CLIENT,
                                              MBEDTLS_SSL_TRANSPORT_DATAGRAM,
                                              MBEDTLS_SSL_PRESET_DEFAULT);
 
-        DTLS_TRC("mbedtls_ssl_config_defaults result %08lx\r\n", result);
+        DTLS_TRC("mbedtls_ssl_config_defaults result %08x\r\n", result);
 
         mbedtls_ssl_conf_rng(&p_dtls_session->conf, mbedtls_ctr_drbg_random, &p_dtls_session->ctr_drbg);
         mbedtls_ssl_conf_dbg(&p_dtls_session->conf, DTLSLog_wrapper, NULL);
 
         result = mbedtls_ssl_cookie_setup(&p_dtls_session->cookie_ctx,
                                           mbedtls_ctr_drbg_random, &p_dtls_session->ctr_drbg);
-        DTLS_TRC("mbedtls_ssl_cookie_setup result %08lx\r\n", result);
+        DTLS_TRC("mbedtls_ssl_cookie_setup result %08x\r\n", result);
 
         mbedtls_ssl_conf_dtls_cookies(&p_dtls_session->conf, mbedtls_ssl_cookie_write,
                                       mbedtls_ssl_cookie_check, &p_dtls_session->cookie_ctx);
@@ -278,7 +278,7 @@ unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *
         {
             result = DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
 
-            DTLS_TRC("DTLSVerifyOptions_set result %08lx\r\n", result);
+            DTLS_TRC("DTLSVerifyOptions_set result %08x\r\n", result);
         }
 
 #ifdef MBEDTLS_SSL_PROTO_DTLS

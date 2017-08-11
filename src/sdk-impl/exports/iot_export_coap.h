@@ -121,7 +121,7 @@ int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 
 int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
-int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_path, iotx_message_t *p_message);
+int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
 
 int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 

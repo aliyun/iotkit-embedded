@@ -238,4 +238,8 @@ typedef struct
 #define COAP_INFO(fmt, args...)  coap_log_print("<INFO> ", fmt, ##args)
 #define COAP_ERR(fmt,  args...)  coap_log_print("<ERROR>", fmt, ##args)
 
+CoAPContext *CoAPContext_create(CoAPInitParam *param);
+void CoAPContext_free(CoAPContext *p_ctx);
+
+
 #endif
