@@ -70,7 +70,8 @@ typedef  int (*coap_dtls_recv_t)(void *socket_id,
 
 typedef  int (*coap_dtls_recv_timeout_t)(void *socket_id,
                               unsigned char   *p_data,
-                              size_t           datalen);
+                              size_t           datalen,
+                              unsigned int     timeout);
 
 
 typedef struct

@@ -53,9 +53,9 @@ int HAL_UDP_create(void *p_socket)
 
     flag = 1;
 #ifdef IP_RECVPKTINFO
-    if(ret = setsockopt(sockfd, IPPROTO_IP, IP_RECVPKTINFO, &flag, sizeof(flag)) < 0)
+    if((ret = setsockopt(sockfd, IPPROTO_IP, IP_RECVPKTINFO, &flag, sizeof(flag))) < 0)
 #else
-    if(ret = setsockopt(sockfd, IPPROTO_IP, IP_PKTINFO, &flag, sizeof(flag)) < 0)
+    if((ret = setsockopt(sockfd, IPPROTO_IP, IP_PKTINFO, &flag, sizeof(flag))) < 0)
 #endif
         if (ret < 0){
             return -1;
@@ -82,7 +82,6 @@ int HAL_UDP_write(void               *p_socket,
 {
     int rc = -1;
     int socket_id = -1;
-    unsigned int index = 0;
     struct sockaddr_in remote_addr;
 
     if(NULL == p_socket) {
@@ -115,7 +114,7 @@ int HAL_UDP_read(void                *p_socket,
     int socket_id = -1;
     struct sockaddr from;
     int count = -1;
-    int addrlen = 0;
+    socklen_t addrlen = 0;
 
     if(NULL == p_remote  || NULL == p_data || NULL == p_socket)
     {
@@ -186,7 +185,7 @@ int HAL_UDP_resolveAddress(const char *p_host,  char addr[NETWORK_ADDR_LEN])
 {
     struct addrinfo *res, *ainfo;
     struct addrinfo hints;
-    int error, len = -1;
+    int error = -1;
     struct sockaddr_in *sa = NULL;
 
     memset ((char *)&hints, 0x00, sizeof(hints));
@@ -207,7 +206,6 @@ int HAL_UDP_resolveAddress(const char *p_host,  char addr[NETWORK_ADDR_LEN])
         switch (ainfo->ai_family)
         {
             case AF_INET:
-                len = ainfo->ai_addrlen;
                 sa = (struct sockaddr_in *)ainfo->ai_addr;
                 inet_ntop(AF_INET, &sa->sin_addr, addr, NETWORK_ADDR_LEN);
                 break;

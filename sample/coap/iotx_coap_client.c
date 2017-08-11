@@ -89,7 +89,7 @@ static void iotx_post_data_to_server(void *param)
     snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", (char *)devinfo.product_key,
                                             (char *)devinfo.device_name);
 
-    IOT_CoAP_SendMessage(p_ctx, (unsigned char *)path, &message);
+    IOT_CoAP_SendMessage(p_ctx, path, &message);
 }
 
 
