@@ -52,7 +52,7 @@ endif
 lib_ssl:
 	mkdir -p ${BUILD_OUT_PATH}
 ifeq ($(SSL), mbedtls)
-	make -C ./ssl/mbedtls/mbedtls lib -e CC=$(CC) AR=$(AR) OS=$(OS)
+	make -C ./ssl/mbedtls/mbedtls lib CC=$(CC) AR=$(AR) OS=$(OS)
 	cp -RP ./ssl/mbedtls/mbedtls/library/libmbedtls.*    $(BUILD_OUT_PATH)
 	cp -RP ./ssl/mbedtls/mbedtls/library/libmbedx509.*   $(BUILD_OUT_PATH)
 	cp -RP ./ssl/mbedtls/mbedtls/library/libmbedcrypto.* $(BUILD_OUT_PATH)

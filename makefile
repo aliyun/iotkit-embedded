@@ -75,10 +75,11 @@ clean:
 	$(info make clean aliot library)	
 	make -C ./src/ clean 
 	$(info make clean platform library)	
-	make -C ./src/platform clean -e OS=$(PLATFORM_OS) NETWORK=$(PLATFORM_NETWORK) SSL=$(SSL) PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME)
+	make -C ./src/platform clean OS=$(PLATFORM_OS) NETWORK=$(PLATFORM_NETWORK) SSL=$(SSL) PLATFORM_LIB_NAME=$(ALIOT_PLATFORM_LIB_NAME)
 	$(info make clean external library)	
 	make -C ./libs/ clean 
 	$(info make clean mqtt sample)
 	make -C ./sample/mqtt clean
 	$(info make clean device shadow sample)
 	make -C ./sample/deviceshadow clean
+	find . -name "*.o" -exec rm -vf {} \;
