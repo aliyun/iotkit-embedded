@@ -47,14 +47,19 @@ static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
 }
 
 //report progress of OTA
-static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, const char *msg)
+static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, int qos, const char *msg)
 {
     int ret;
     char topic_name[OTA_MQTT_TOPIC_LEN];
     iotx_mqtt_topic_info_t topic_info;
 
     memset(&topic_info, 0, sizeof(iotx_mqtt_topic_info_t));
-    topic_info.qos = IOTX_MQTT_QOS1;
+    
+    if (0 == qos) {
+        topic_info.qos = IOTX_MQTT_QOS0;
+    } else {
+        topic_info.qos = IOTX_MQTT_QOS1;
+    }
     topic_info.payload = (void *)msg;
     topic_info.payload_len = strlen(msg);
 
@@ -148,14 +153,14 @@ int osc_Deinit(void *handle)
 //report progress of OTA
 int osc_ReportProgress(void *handle, const char *msg)
 {
-    return otamqtt_Publish(handle, "progress", msg);
+    return otamqtt_Publish(handle, "progress", 0, msg);
 }
 
 
 //report version of OTA firmware
 int osc_ReportVersion(void *handle, const char *msg)
 {
-    return otamqtt_Publish(handle, "inform", msg);
+    return otamqtt_Publish(handle, "inform", 1, msg);
 }
 
 #endif
