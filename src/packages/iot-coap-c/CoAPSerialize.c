@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include "CoAPExport.h"
 
-int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, int buflen)
+int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, unsigned short buflen)
 {
     if(4 > buflen){
         return 0;
@@ -35,7 +35,7 @@ int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, int buflen)
     return 4;
 }
 
-int CoAPSerialize_Token(CoAPMessage *msg, unsigned char * buf, int buflen)
+int CoAPSerialize_Token(CoAPMessage *msg, unsigned char * buf, unsigned short buflen)
 {
     int i = 0;
 
@@ -48,11 +48,9 @@ int CoAPSerialize_Token(CoAPMessage *msg, unsigned char * buf, int buflen)
     return msg->header.tokenlen;
 }
 
-static int CoAPSerialize_Option(CoAPMsgOption *option, unsigned char *buf)
+static unsigned short CoAPSerialize_Option(CoAPMsgOption *option, unsigned char *buf)
 {
-    int  len  = 0;
     unsigned char *ptr   = buf;
-    unsigned short count = 0;
 
     if(269 <= option->num){
         *ptr = ((14 & 0x0F) << 4);
@@ -103,10 +101,10 @@ static int CoAPSerialize_Option(CoAPMsgOption *option, unsigned char *buf)
     return (int)(ptr - buf);
 }
 
-int CoAPSerialize_Options(CoAPMessage *msg,  unsigned char * buf, int buflen)
+unsigned short CoAPSerialize_Options(CoAPMessage *msg,  unsigned char * buf, unsigned short buflen)
 {
     int i      = 0;
-    int count  = 0;
+    unsigned short count  = 0;
 
     for (i = 0; i < msg->optnum; i++)
     {

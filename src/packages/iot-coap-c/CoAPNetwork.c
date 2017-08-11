@@ -24,6 +24,7 @@
 #include <errno.h>
 
 #include "CoAPExport.h"
+#include "iot_import_coap.h"
 #include "iot_import_dtls.h"
 #include "CoAPNetwork.h"
 
@@ -43,7 +44,7 @@ int DTLSNetwork_send( void *ctx, const unsigned char *buf, unsigned int len )
     p_network  = (dtls_network_t *)ctx;
     memset(&remote, 0x00, sizeof(coap_address_t));
     remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, TRANSPORT_ADDR_LEN);
+    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
     ret = HAL_UDP_write((void *)&p_network->socket_id,
                              &remote, buf, len);
     if(-1 == ret) {
@@ -65,7 +66,7 @@ int DTLSNetwork_recv( void *ctx, unsigned char *buf, size_t len )
 
     p_network  = (dtls_network_t *)ctx;
     remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, TRANSPORT_ADDR_LEN);
+    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
     ret = HAL_UDP_read((void *)&p_network->socket_id, &remote,  buf, len);
     if(-1 == ret) {
         return -1;
@@ -85,7 +86,7 @@ int DTLSNetwork_recvTimeout( void *ctx, unsigned char *buf, size_t len, unsigned
 
     p_network  = (dtls_network_t *)ctx;
     remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, TRANSPORT_ADDR_LEN);
+    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
     ret = HAL_UDP_readTimeout((void *)&p_network->socket_id, &remote, buf, len, timeout);
     if(-1 == ret) {
         return -1;
@@ -134,6 +135,7 @@ unsigned int CoAPNetworkDTLS_write(coap_remote_session_t *p_session,
     if(NULL != p_session){
         return HAL_DTLSSession_write(p_session->context, p_data, p_datalen);
     }
+    return COAP_ERROR_INVALID_PARAM;
 }
 
 static void CoAPNetworkDTLS_initSession(coap_remote_session_t * p_session)
@@ -153,7 +155,6 @@ static unsigned int CoAPNetworkDTLS_createSession(int                        soc
                                         unsigned char              *p_ca_cert_pem,
                                         coap_remote_session_t     *p_session)
 {
-    unsigned int index = 0;
     coap_dtls_options_t dtls_options;
     unsigned int err_code = COAP_SUCCESS;
 
@@ -184,7 +185,6 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
                                   unsigned int           datalen)
 {
     unsigned int rc = COAP_ERROR_INTERNAL;
-    unsigned int index = 0;
 
 #ifdef COAP_DTLS_SUPPORT
     if(COAP_ENDPOINT_DTLS == p_network->ep_type){
@@ -280,8 +280,8 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
 
     p_network->ep_type = p_param->ep_type;
     p_network->remote_endpoint.port = p_param->remote.port;
-    memset(p_network->remote_endpoint.addr, 0x00, TRANSPORT_ADDR_LEN);
-    memcpy(p_network->remote_endpoint.addr,  p_param->remote.addr, TRANSPORT_ADDR_LEN);
+    memset(p_network->remote_endpoint.addr, 0x00, NETWORK_ADDR_LEN);
+    memcpy(p_network->remote_endpoint.addr,  p_param->remote.addr, NETWORK_ADDR_LEN);
 
     /*Create udp socket*/
     HAL_UDP_create(&p_network->socket_id);

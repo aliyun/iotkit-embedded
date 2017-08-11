@@ -35,12 +35,6 @@
 
 char m_coap_client_running = 0;
 
-
-static void coap_error_handler(unsigned error_code, void * p_message)
-{
-    printf("coap error code %d\r\n", error_code);
-}
-
 static void iotx_response_handler(void * arg, void * p_response)
 {
     int            len       = 0;
@@ -79,12 +73,12 @@ int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
     return IOTX_SUCCESS;
 }
 
-static void *iotx_post_data_to_server(void *param)
+static void iotx_post_data_to_server(void *param)
 {
     char               path[IOTX_URI_MAX_LEN+1] = {0};
     iotx_message_t     message;
     iotx_deviceinfo_t  devinfo;
-    message.p_payload = "{\"name\":\"hello world\"}";
+    message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
     message.payload_len = strlen("{\"name\":\"hello world\"}");
     message.resp_callback = iotx_response_handler;
     message.msg_type = IOTX_MESSAGE_CON;
@@ -92,19 +86,17 @@ static void *iotx_post_data_to_server(void *param)
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
 
     iotx_set_devinfo(&devinfo);
-    snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", devinfo.product_key,
-                                            devinfo.device_name);
+    snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", (char *)devinfo.product_key,
+                                            (char *)devinfo.device_name);
 
-    IOT_CoAP_SendMessage(p_ctx, path, &message);
+    IOT_CoAP_SendMessage(p_ctx, (unsigned char *)path, &message);
 }
 
 
 
 int main(int argc, char **argv)
 {
-    int ret;
     int opt;
-    int count = 0;
     char secur[32] = {0};
     char env[32] = {0};
     iotx_coap_config_t config;
@@ -157,7 +149,6 @@ int main(int argc, char **argv)
     iotx_coap_context_t *p_ctx = NULL;
     p_ctx = IOT_CoAP_Init(&config);
     if(NULL != p_ctx){
-        iotx_get_well_known(p_ctx);
         IOT_CoAP_DeviceNameAuth(p_ctx);
         do{
             iotx_post_data_to_server((void *)p_ctx);

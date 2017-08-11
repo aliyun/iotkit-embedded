@@ -32,12 +32,6 @@ typedef enum
 
 typedef struct
 {
-    unsigned char        addr[TRANSPORT_ADDR_LEN];
-    unsigned short       port;
-} coap_address_t;
-
-typedef struct
-{
     DTLSContext         *context;
     int                  socket_id;
 } coap_remote_session_t;

@@ -32,7 +32,6 @@
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__
 
-#define TRANSPORT_ADDR_LEN 16
 
 #define dtls_log_print(level, ...) \
     {\
@@ -77,7 +76,7 @@ typedef  int (*coap_dtls_recv_timeout_t)(void *socket_id,
 typedef struct
 {
     int               socket_id;
-    unsigned char     remote_addr[TRANSPORT_ADDR_LEN];
+    unsigned char     remote_addr[NETWORK_ADDR_LEN];
     unsigned short    remote_port;
 } dtls_network_t;
 
