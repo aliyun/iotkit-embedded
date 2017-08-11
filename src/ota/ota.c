@@ -163,17 +163,27 @@ int IOT_OTA_Deinit(void *handle)
 }
 
 
+#define OTA_VERSION_STR_LEN_MIN     (1)
+#define OTA_VERSION_STR_LEN_MAX     (32)
+
 int IOT_OTA_ReportVersion(void *handle, const char *version)
 {
 #define MSG_INFORM_LEN  (128)
 
-    int ret;
+    int ret, len;
     char *msg_informed;
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
 
     if ((NULL == h_ota) || (NULL == version)) {
         OTA_LOG_ERROR("one or more invalid parameter");
         return IOT_OTAE_INVALID_PARAM;
+    }
+
+    len = strlen(version);
+    if ((len < OTA_VERSION_STR_LEN_MIN) || (len > OTA_VERSION_STR_LEN_MAX)) {
+        OTA_LOG_ERROR("version string is invalid: must be [1, 32] chars");
+        h_ota->err = IOT_OTAE_INVALID_PARAM;
+        return -1;
     }
 
     if (IOT_OTAS_UNINITED == h_ota->state) {
