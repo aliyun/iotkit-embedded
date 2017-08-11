@@ -25,7 +25,7 @@
 
 typedef struct
 {
-    unsigned char        addr[NETWORK_ADDR_LEN];
+    char                 addr[NETWORK_ADDR_LEN];
     unsigned short       port;
 } coap_address_t;
 

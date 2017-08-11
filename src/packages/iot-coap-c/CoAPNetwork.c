@@ -129,7 +129,7 @@ unsigned int CoAPNetworkDTLS_read(coap_remote_session_t *p_session,
 }
 
 unsigned int CoAPNetworkDTLS_write(coap_remote_session_t *p_session,
-                                    unsigned char              *p_data,
+                                    const unsigned char        *p_data,
                                     unsigned int               *p_datalen)
 {
     if(NULL != p_session){
@@ -159,9 +159,9 @@ static unsigned int CoAPNetworkDTLS_createSession(int                        soc
     unsigned int err_code = COAP_SUCCESS;
 
     memset(&dtls_options, 0x00, sizeof(coap_dtls_options_t));
-    dtls_options.send_fn           = DTLSNetwork_send;
+    dtls_options.send_fn           = (coap_dtls_send_t)DTLSNetwork_send;
     dtls_options.recv_fn           = DTLSNetwork_recv;
-    dtls_options.recv_timeout_fn   = DTLSNetwork_recvTimeout;
+    dtls_options.recv_timeout_fn   = (coap_dtls_recv_timeout_t)DTLSNetwork_recvTimeout;
     dtls_options.p_ca_cert_pem     = p_ca_cert_pem;
     dtls_options.network.socket_id = socket_id;
     dtls_options.network.remote_port = p_remote->port;
@@ -233,7 +233,7 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
     ret =  select (maxfd + 1, &readfds, 0, 0, &tv);
     if(ret < 0){
         if (errno != EINTR){
-              fprintf(stderr, strerror (errno));
+              fprintf(stderr, "%s\r\n", strerror (errno));
         }
         return -1;
     }
@@ -272,7 +272,6 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
 unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t *p_network)
 {
     unsigned int    err_code = COAP_SUCCESS;
-    unsigned int    index;
 
     if(NULL == p_param || NULL == p_network){
         return COAP_ERROR_INVALID_PARAM;
