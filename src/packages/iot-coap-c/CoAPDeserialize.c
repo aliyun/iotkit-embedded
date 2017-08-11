@@ -41,7 +41,6 @@ int CoAPDeserialize_Token(CoAPMessage *msg, unsigned char * buf)
 static int CoAPDeserialize_Option(CoAPMsgOption *option, unsigned char *buf, unsigned short *predeltas)
 {
     unsigned char  *ptr      = buf;
-    unsigned short count     = 0;
     unsigned short optdelta  = 0;
     unsigned short optlen    = 0;
     unsigned short predelta  = 0;
@@ -125,8 +124,6 @@ int CoAPDeserialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
 
 int CoAPDeserialize_Message(CoAPMessage *msg, unsigned char *buf, int buflen)
 {
-    unsigned char index = 0;
-    unsigned short byte_index = 0;
     int count  = 0;
     int remlen = buflen;
     unsigned char *ptr = buf;
