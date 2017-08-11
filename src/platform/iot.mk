@@ -7,7 +7,4 @@ LIB_SRCS    += $(wildcard product/$(PLATFORM_OS)/*.c)
 
 DEPENDS     += src/external/mbedtls
 
-# TODO: fix coap warnings
-CFLAGS := $(filter-out -Werror,$(CFLAGS))
-
 HDR_REFS    += src/sdk-impl

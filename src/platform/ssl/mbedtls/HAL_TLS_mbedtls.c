@@ -27,6 +27,7 @@
 #include "mbedtls/x509_crt.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/debug.h"
+#include "mbedtls/platform.h"
 
 #include "iot_import.h"
 

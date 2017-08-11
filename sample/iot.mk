@@ -33,7 +33,6 @@ TARGET              += coap-example
     endif
 
 DEPENDS             += src/external/mbedtls
-CFLAGS              := $(filter-out -Werror,$(CFLAGS))
 endif
 
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
