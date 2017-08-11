@@ -16,9 +16,6 @@
  *
  */
 
-
-
-
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
@@ -213,33 +210,39 @@ int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
 
 int utils_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
 {
-    uint32_t readLen = 0;
-    int net_status = 0;
-    int ret = -1;
+    uint32_t        readLen = 0;
+    static int      net_status = 0;
+    int             ret = -1;
+    char            err_str[33];
 
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
     while (readLen < len) {
         ret = mbedtls_ssl_read(&(pTlsData->ssl), (unsigned char *)(buffer + readLen), (len - readLen));
         if (ret > 0) {
             readLen += ret;
+            net_status = 0;
         } else if (ret == 0) {
-            return readLen;
+            /* if ret is 0 and net_status is -2, indicate the connection is closed during last call */
+            return (net_status == -2) ? net_status : readLen;
         } else {
             if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
-                net_status = -2; //connection is closed
+                mbedtls_strerror(ret, err_str, sizeof(err_str));
+                SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
+                net_status = -2; // connection is closed
+                break;
             } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret)
                        || (MBEDTLS_ERR_SSL_CONN_EOF == ret)
                        || (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == ret)
                        || (MBEDTLS_ERR_SSL_NON_FATAL == ret)) {
-                //read already complete(if call mbedtls_ssl_read again, it will return 0(eof))
+                // read already complete
+                // if call mbedtls_ssl_read again, it will return 0 (means EOF)
 
                 return readLen;
             } else {
-                char err_str[33];
                 mbedtls_strerror(ret, err_str, sizeof(err_str));
-                SSL_LOG("ssl recv error: code=%d, err_str=%s", ret, err_str);
+                SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
                 net_status = -1;
-                return -1; //Connection error
+                return -1; // Connection error
             }
         }
     }
@@ -264,7 +267,7 @@ int utils_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int l
             char err_str[33];
             mbedtls_strerror(ret, err_str, sizeof(err_str));
             SSL_LOG("ssl write fail, code=%d, str=%s", ret, err_str);
-            return -1; //Connnection error
+            return -1; // Connnection error
         }
     }
 
@@ -364,7 +367,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
 #endif
     mbedtls_ssl_conf_rng(&(pTlsData->conf), _mqtt_ssl_random, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _mqtt_ssl_debug, NULL);
-    //mbedtls_ssl_conf_dbg( &(pTlsData->conf), _mqtt_ssl_debug, stdout );
+    // mbedtls_ssl_conf_dbg( &(pTlsData->conf), _mqtt_ssl_debug, stdout );
 
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
         SSL_LOG("failed! mbedtls_ssl_setup returned %d", ret);
@@ -393,8 +396,8 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
         SSL_LOG(" failed  ! verify result not confirmed.");
         return ret;
     }
-    //n->my_socket = (int)((n->tlsdataparams.fd).fd);
-    //WRITE_IOT_DEBUG_LOG("my_socket=%d", n->my_socket);
+    // n->my_socket = (int)((n->tlsdataparams.fd).fd);
+    // WRITE_IOT_DEBUG_LOG("my_socket=%d", n->my_socket);
 
     return 0;
 }
