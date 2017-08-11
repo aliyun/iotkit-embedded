@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 
 #include "CoAPNetwork.h"
 #include "CoAPExport.h"
@@ -30,19 +32,19 @@
 #define COAP_DEFAULT_SCHEME      "coap" /* the default scheme for CoAP URIs */
 #define COAP_DEFAULT_HOST_LEN    128
 
-unsigned int CoAPUri_parse(unsigned char *p_uri, coap_address_t *p_addr, coap_endpoint_type *p_endpoint_type)
+unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr, coap_endpoint_type *p_endpoint_type)
 {
     int ret = -1;
     int len = 0;
     char host[COAP_DEFAULT_HOST_LEN] = {0};
-    unsigned char *p = NULL, *q = NULL;
+    char *p = NULL, *q = NULL;
     if(NULL == p_uri || NULL == p_addr || NULL == p_endpoint_type){
         return COAP_ERROR_INVALID_PARAM;
     }
 
     len = strlen(p_uri);
     p = p_uri;
-    q = (unsigned char *)COAP_DEFAULT_SCHEME;
+    q = (char *)COAP_DEFAULT_SCHEME;
     while(len && *q && tolower(*p)==*q){
         ++p;
         ++q;
@@ -64,7 +66,7 @@ unsigned int CoAPUri_parse(unsigned char *p_uri, coap_address_t *p_addr, coap_en
     }
     COAP_DEBUG("The endpoint type is: %d\r\n", *p_endpoint_type);
 
-    q = (unsigned char *)"://";
+    q = (char *)"://";
     while(len && *q && tolower(*p)==*q){
         ++p;
         ++q;
@@ -150,7 +152,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     /*set the endpoint type by uri schema*/
     if(NULL != param->url){
-        ret = CoAPUri_parse(param->url, &network_param.remote.addr, &network_param.ep_type);
+        ret = CoAPUri_parse(param->url, &network_param.remote, &network_param.ep_type);
     }
 
     if(COAP_SUCCESS != ret){
@@ -172,8 +174,8 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 #ifdef COAP_DTLS_SUPPORT
     if(COAP_ENDPOINT_DTLS == network_param.ep_type){
         extern const char *iotx_coap_get_ca(void);
-        network_param.p_ca_cert_pem     =  iotx_coap_get_ca();
-        network_param.ep_type           = COAP_ENDPOINT_DTLS;
+        network_param.p_ca_cert_pem     =  (unsigned char *)iotx_coap_get_ca();
+        network_param.ep_type           =   COAP_ENDPOINT_DTLS;
     }
 #endif
 

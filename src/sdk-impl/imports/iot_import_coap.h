@@ -57,7 +57,7 @@ int HAL_UDP_readTimeout( void *p_socket,
                 coap_address_t *p_remote, unsigned char  *p_data,
                 unsigned int datalen,     unsigned int timeout );
 
-int HAL_UDP_resolveAddress(const char *p_host, unsigned char addr[16]);
+int HAL_UDP_resolveAddress(const char *p_host,  char addr[NETWORK_ADDR_LEN]);
 
 
 #endif
