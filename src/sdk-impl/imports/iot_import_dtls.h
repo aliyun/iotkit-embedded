@@ -60,7 +60,7 @@
 
 
 typedef  int (*coap_dtls_send_t)(void *socket_id,
-                                 unsigned char  *p_data,
+                           const unsigned char  *p_data,
                                  size_t          datalen);
 
 
@@ -98,7 +98,7 @@ DTLSContext *HAL_DTLSSession_init();
 unsigned int HAL_DTLSSession_create(DTLSContext *conetxt, coap_dtls_options_t  *p_options);
 
 unsigned int HAL_DTLSSession_write(DTLSContext *conetxt,
-                                unsigned char   *p_data,
+                          const unsigned char   *p_data,
                                 unsigned int    *p_datalen);
 
 

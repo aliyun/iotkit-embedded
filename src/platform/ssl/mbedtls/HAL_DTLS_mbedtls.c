@@ -315,7 +315,7 @@ unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *
 }
 
 unsigned int HAL_DTLSSession_write(DTLSContext *context,
-                                unsigned char   *p_data,
+                          const unsigned char   *p_data,
                                 unsigned int    *p_datalen)
 {
     unsigned int err_code = DTLS_SUCCESS;
