@@ -1,19 +1,21 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 
 #ifndef __IOTX_COAP_API_H__
@@ -29,6 +31,7 @@
 /*iotx return code definition*/
 typedef enum
 {
+    IOTX_ERR_MSG_TOO_LOOG    =  -7,   /* The payload too loog */
     IOTX_ERR_URI_TOO_LOOG    =  -6,   /* URI length too long */
     IOTX_ERR_NOT_AUTHED      =  -5,   /* Client isn't authed */
     IOTX_ERR_AUTH_FAILED     =  -4,   /* Client authed failed */
@@ -74,10 +77,21 @@ typedef enum
 /* Callback function to notify the application events.*/
 typedef void (*iotx_event_handle_t)(void *context, iotx_coap_event_t event, void *p_data);
 
+/*IoTx device*/
+typedef struct
+{
+    char     product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char     device_name[IOTX_DEVICE_NAME_LEN + 1];
+    char     device_id[IOTX_DEVICE_ID_LEN + 1];
+    char     device_secret[IOTX_DEVICE_SECRET_LEN + 1];
+} iotx_deviceinfo_t;
+
+
 /* IoTx initializa parameters */
 typedef struct
 {
-    char                 *p_uri;
+    char                 *p_url;
+    iotx_deviceinfo_t    *p_devinfo;
     iotx_event_handle_t   event_handle;
 }iotx_coap_config_t;
 
@@ -91,17 +105,9 @@ typedef struct
     unsigned short           payload_len;
     iotx_content_type_t      content_type;
     iotx_msg_type_t          msg_type;
+    void                    *user_data;
     iotx_response_callback_t resp_callback;
 }iotx_message_t;
-
-/*IoTx device*/
-typedef struct
-{
-    char     product_key[IOTX_PRODUCT_KEY_LEN + 1];
-    char     device_name[IOTX_DEVICE_NAME_LEN + 1];
-    char     device_id[IOTX_DEVICE_ID_LEN + 1];
-    char     device_secret[IOTX_DEVICE_SECRET_LEN + 1];
-} iotx_deviceinfo_t;
 
 
 /*iotx coap context definition*/
@@ -115,7 +121,7 @@ int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 
 int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
-int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, unsigned char *p_uri, iotx_message_t *p_message);
+int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
 
 int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 

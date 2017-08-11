@@ -1,14 +1,14 @@
 define Dump_Var
-	NUM=`echo "$(strip $($(1)))"|grep -o "^\-\| -"|wc -l`; \
+	NUM=`echo "$(strip $($(1)))"|awk '{ print NF }'`; \
 	if expr $${NUM} \> 1 >/dev/null; then \
 	    printf -- "-----------------------------------------------------------------\n"; \
-	    printf "%-20s| %s\n" ". $(1)" `echo "$(strip $($(1)))"|cut -d' ' -f1|sed 's/^ *//'`; \
+	    printf "%-24s| %s\n" ". $(1)" `echo "$(strip $($(1)))"|cut -d' ' -f1|sed 's/^ *//'`; \
 	    for i in `echo "$(strip $($(1)))"|cut -d' ' -f2-`; do \
-	        printf "%-20s| %s\n" "" "$${i}"; \
+	        printf "%-24s| %s\n" "" "$${i}"; \
 	    done; \
 	    printf -- "-----------------------------------------------------------------\n"; \
 	else \
-	    printf "%-20s| %s\n" ". $(1)" "$(strip $($(1)))"; \
+	    printf "%-24s| %s\n" ". $(1)" "$(strip $($(1)))"; \
 	fi;
 endef
 
@@ -60,11 +60,11 @@ define Brief_Log
 	    fi; \
 	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $$(basename $@) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	else \
-	    printf "\r%-32s%s%s\n" "[$1] $$(expr sbustr $(2) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
+	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $(2) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	fi
 	@for i in $(wordlist 2,100,$(filter-out FORCE,$?)); do \
 	    if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
-	        printf "%-32s%s\n" "" "   $${i}"; \
+	        printf "%-32s%s\n" "" "   $$(basename $${i})"; \
 	    fi \
 	done
 	@echo -ne "\e[0m"

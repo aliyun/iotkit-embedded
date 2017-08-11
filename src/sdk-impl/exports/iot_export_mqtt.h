@@ -1,19 +1,21 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 #ifndef _IOT_EXPORT_MQTT_H_
 #define _IOT_EXPORT_MQTT_H_
@@ -138,7 +140,7 @@ typedef struct {
     uint16_t                    port;                   /* Specify MQTT broker port */
     const char                 *host;                   /* Specify MQTT broker host */
     const char                 *client_id;              /* Specify MQTT connection client id*/
-    const char                 *user_name;              /* Specify MQTT user name */
+    const char                 *username;               /* Specify MQTT user name */
     const char                 *password;               /* Specify MQTT password */
 
     /* Specify MQTT transport channel and key.
@@ -176,11 +178,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
  * @brief Deconstruct the MQTT client
  *        This function disconnect MQTT connection and release the related resource.
  *
- * @param handle, specify the MQTT client.
+ * @param pointer of handle, specify the MQTT client.
  *
  * @return 0, deconstruct success; -1, deconstruct failed.
  */
-int IOT_MQTT_Destroy(void *handle);
+int IOT_MQTT_Destroy(void **phandle);
 
 
 /**
@@ -190,9 +192,9 @@ int IOT_MQTT_Destroy(void *handle);
  * @param handle, specify the MQTT client.
  * @param timeout, specify the timeout in millisecond in this loop.
  *
- * @return none.
+ * @return status.
  */
-void IOT_MQTT_Yield(void *handle, int timeout_ms);
+int IOT_MQTT_Yield(void *handle, int timeout_ms);
 
 
 /**

@@ -1,19 +1,21 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,13 +25,13 @@
 #include "iot_export.h"
 
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
-#define PRODUCT_KEY             "OvNmiEYRDSY"
-#define DEVICE_NAME             "sh_online_sample_mqtt"
-#define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+    #define PRODUCT_KEY             "OvNmiEYRDSY"
+    #define DEVICE_NAME             "sh_online_sample_mqtt"
+    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
 #else
-#define PRODUCT_KEY             "yfTuLfBJTiL"
-#define DEVICE_NAME             "TestDeviceForDemo"
-#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+    #define PRODUCT_KEY             "yfTuLfBJTiL"
+    #define DEVICE_NAME             "TestDeviceForDemo"
+    #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #endif
 
 // These are pre-defined topics
@@ -48,7 +50,7 @@
     } while(0)
 
 static int      user_argc;
-static char **  user_argv;
+static char   **user_argv;
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
@@ -106,10 +108,10 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
             EXAMPLE_TRACE("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
-                     topic_info->topic_len,
-                     topic_info->ptopic,
-                     topic_info->payload_len,
-                     topic_info->payload);
+                          topic_info->topic_len,
+                          topic_info->ptopic,
+                          topic_info->payload_len,
+                          topic_info->payload);
             break;
 
         default:
@@ -125,13 +127,13 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
     // print topic name and topic message
     EXAMPLE_TRACE("----");
     EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
-             ptopic_info->topic_len,
-             ptopic_info->ptopic,
-             ptopic_info->topic_len);
+                  ptopic_info->topic_len,
+                  ptopic_info->ptopic,
+                  ptopic_info->topic_len);
     EXAMPLE_TRACE("Payload: '%.*s' (Length: %d)",
-             ptopic_info->payload_len,
-             ptopic_info->payload,
-             ptopic_info->payload_len);
+                  ptopic_info->payload_len,
+                  ptopic_info->payload,
+                  ptopic_info->payload_len);
     EXAMPLE_TRACE("----");
 }
 
@@ -157,22 +159,12 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    /* Initialize device info */
-    IOT_CreateDeviceInfo();
-
-    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        EXAMPLE_TRACE("set device info failed!");
-        rc = -1;
-        goto do_exit;
-    }
-
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo()) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
         rc = -1;
         goto do_exit;
     }
-    pconn_info = IOT_GetConnInfo();
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
@@ -180,7 +172,7 @@ int mqtt_client(void)
     mqtt_params.port = pconn_info->port;
     mqtt_params.host = pconn_info->host_name;
     mqtt_params.client_id = pconn_info->client_id;
-    mqtt_params.user_name = pconn_info->username;
+    mqtt_params.username = pconn_info->username;
     mqtt_params.password = pconn_info->password;
     mqtt_params.pub_key = pconn_info->pub_key;
 
@@ -207,7 +199,7 @@ int mqtt_client(void)
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
-        IOT_MQTT_Destroy(pclient);
+        IOT_MQTT_Destroy(&pclient);
         EXAMPLE_TRACE("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         rc = -1;
         goto do_exit;
@@ -249,9 +241,9 @@ int mqtt_client(void)
         }
 #ifdef MQTT_ID2_CRYPTO
         EXAMPLE_TRACE("packet-id=%u, publish topic msg='0x%02x%02x%02x%02x'...",
-                  (uint32_t)rc,
-                  msg_pub[0], msg_pub[1], msg_pub[2], msg_pub[3]
-                 );
+                      (uint32_t)rc,
+                      msg_pub[0], msg_pub[1], msg_pub[2], msg_pub[3]
+                     );
 #else
         EXAMPLE_TRACE("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
 #endif
@@ -271,8 +263,7 @@ int mqtt_client(void)
 
     HAL_SleepMs(200);
 
-    IOT_MQTT_Destroy(pclient);
-
+    IOT_MQTT_Destroy(&pclient);
 
 do_exit:
     if (NULL != msg_buf) {

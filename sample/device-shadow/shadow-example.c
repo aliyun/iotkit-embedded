@@ -1,19 +1,21 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,23 +68,12 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     void *h_shadow;
     iotx_shadow_para_t shadaw_para;
 
-
-    /* Initialize the device info */
-    IOT_CreateDeviceInfo();
-
-    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        SHADOW_TRACE("run IOT_SetDeviceInfo() error!\n");
-        return -1;
-    }
-
     /* Device AUTH */
-    rc = IOT_SetupConnInfo();
+    rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
     if (SUCCESS_RETURN != rc) {
-        SHADOW_TRACE("rc = iotx_guider_authenticate() = %d", rc);
+        SHADOW_TRACE("rc = IOT_SetupConnInfo() = %d", rc);
         return rc;
     }
-
-    puser_info = IOT_GetConnInfo();
 
     /* Construct a device shadow */
     memset(&shadaw_para, 0, sizeof(iotx_shadow_para_t));
@@ -90,7 +81,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     shadaw_para.mqtt.port = puser_info->port;
     shadaw_para.mqtt.host = puser_info->host_name;
     shadaw_para.mqtt.client_id = puser_info->client_id;
-    shadaw_para.mqtt.user_name = puser_info->username;
+    shadaw_para.mqtt.username = puser_info->username;
     shadaw_para.mqtt.password = puser_info->password;
     shadaw_para.mqtt.pub_key = puser_info->pub_key;
 

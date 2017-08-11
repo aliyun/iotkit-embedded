@@ -1,19 +1,21 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,65 +49,65 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
     switch (msg->event_type) {
-    case IOTX_MQTT_EVENT_UNDEF:
-        printf("undefined event occur.\n");
-        break;
+        case IOTX_MQTT_EVENT_UNDEF:
+            printf("undefined event occur.\n");
+            break;
 
-    case IOTX_MQTT_EVENT_DISCONNECT:
-        printf("MQTT disconnect.\n");
-        break;
+        case IOTX_MQTT_EVENT_DISCONNECT:
+            printf("MQTT disconnect.\n");
+            break;
 
-    case IOTX_MQTT_EVENT_RECONNECT:
-        printf("MQTT reconnect.\n");
-        break;
+        case IOTX_MQTT_EVENT_RECONNECT:
+            printf("MQTT reconnect.\n");
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-        printf("subscribe success, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
+            printf("subscribe success, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-        printf("subscribe wait ack timeout, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+            printf("subscribe wait ack timeout, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-        printf("subscribe nack, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
+            printf("subscribe nack, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
-        printf("unsubscribe success, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
+            printf("unsubscribe success, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
-        printf("unsubscribe timeout, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
+            printf("unsubscribe timeout, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
-        printf("unsubscribe nack, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
+            printf("unsubscribe nack, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
-        printf("publish success, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
+            printf("publish success, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
-        printf("publish timeout, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
+            printf("publish timeout, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_NACK:
-        printf("publish nack, packet-id=%u\n", (unsigned int)packet_id);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_NACK:
+            printf("publish nack, packet-id=%u\n", (unsigned int)packet_id);
+            break;
 
-    case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
-        printf("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
-               topic_info->topic_len,
-               topic_info->ptopic,
-               topic_info->payload_len,
-               topic_info->payload);
-        break;
+        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+            printf("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
+                   topic_info->topic_len,
+                   topic_info->ptopic,
+                   topic_info->payload_len,
+                   topic_info->payload);
+            break;
 
-    default:
-        printf("Should NOT arrive here.\n");
-        break;
+        default:
+            printf("Should NOT arrive here.\n");
+            break;
     }
 }
 
@@ -134,7 +136,7 @@ void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
                  ptopic_info->topic_len - strlen(TOPIC_RRPC_REQ) + 1,
                  "%s",
                  ptopic_info->ptopic + strlen(TOPIC_RRPC_REQ))
-            > sizeof(msg_id)) {
+        > sizeof(msg_id)) {
         printf("snprintf error!\n");
         return;
     }
@@ -180,22 +182,12 @@ int mqtt_rrpc_client(void)
         goto do_exit;
     }
 
-    /* Initialize device info */
-    IOT_CreateDeviceInfo();
-
-    if (0 != IOT_SetDeviceInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET)) {
-        printf("set device info failed!\n");
-        rc = -1;
-        goto do_exit;
-    }
-
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo()) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         printf("AUTH request failed!\n");
         rc = -1;
         goto do_exit;
     }
-    pconn_info = IOT_GetConnInfo();
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
@@ -203,7 +195,7 @@ int mqtt_rrpc_client(void)
     mqtt_params.port = pconn_info->port;
     mqtt_params.host = pconn_info->host_name;
     mqtt_params.client_id = pconn_info->client_id;
-    mqtt_params.user_name = pconn_info->username;
+    mqtt_params.username = pconn_info->username;
     mqtt_params.password = pconn_info->password;
     mqtt_params.pub_key = pconn_info->pub_key;
 
@@ -230,7 +222,7 @@ int mqtt_rrpc_client(void)
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_RRPC_REQ "+", IOTX_MQTT_QOS0, mqtt_rrpc_msg_arrive, NULL);
     if (rc < 0) {
-        IOT_MQTT_Destroy(pclient);
+        IOT_MQTT_Destroy(&pclient);
         printf("IOT_MQTT_Subscribe failed, rc = %d\n", rc);
         rc = -1;
         goto do_exit;
@@ -254,7 +246,7 @@ int mqtt_rrpc_client(void)
 
     HAL_SleepMs(200);
 
-    IOT_MQTT_Destroy(pclient);
+    IOT_MQTT_Destroy(&pclient);
 
 
 do_exit:

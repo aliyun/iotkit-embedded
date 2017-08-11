@@ -1,21 +1,17 @@
-PLATFORM_CC            ?= gcc
-PLATFORM_AR            ?= ar
-PLATFORM_OS             = linux
-PLATFORM_NETWORK        = linuxsock
-PLATFORM_SSL            = mbedtls
+include $(CURDIR)/src/scripts/internal_make_funcs.mk
 
 SETTING_VARS := \
     BUILD_TYPE \
     PLATFORM_CC \
     PLATFORM_AR \
     PLATFORM_OS \
-    PLATFORM_NETWORK \
-    PLATFORM_SSL \
+    FEATURE_MQTT_COMM_ENABLED \
     FEATURE_MQTT_DEVICE_SHADOW \
     FEATURE_MQTT_DIRECT \
     FEATURE_MQTT_DIRECT_NOTLS \
     FEATURE_COAP_COMM_ENABLED \
     FEATURE_COAP_DTLS_SUPPORT \
+    FEATURE_OTA_ENABLED \
     FEATURE_MQTT_ID2_AUTH \
     FEATURE_MQTT_ID2_CRYPTO \
 
@@ -35,6 +31,19 @@ sinclude $(CONFIG_TPL)
 
 ifeq (debug,$(strip $(BUILD_TYPE)))
 CFLAGS  += -DIOTX_DEBUG
+endif
+
+ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
+
+    ifneq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+    $(error Either CoAP or MQTT required to be y!)
+    endif
+
+$(foreach V,DEVICE_SHADOW DIRECT DIRECT_NOTLS, \
+    $(if $(filter y,$(strip $(FEATURE_MQTT_$(V)))), \
+        $(error FEATURE_MQTT_$(V) = y requires FEATURE_MQTT_COMM_ENABLED = y!) \
+    ) \
+)
 endif
 
 ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))

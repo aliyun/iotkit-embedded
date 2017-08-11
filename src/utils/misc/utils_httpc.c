@@ -1,25 +1,26 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 #include <string.h>
 #include <stddef.h>
 #include "iot_import.h"
 #include "utils_timer.h"
-#include "utils_error.h"
 #include "lite-log.h"
 #include "utils_httpc.h"
 
@@ -358,7 +359,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     *p_read_len = 0;
 
@@ -418,7 +419,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     /* Receive data */
     log_debug("Current data: %s", data);
@@ -592,7 +593,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     client_data->response_content_len = -1;
 
@@ -731,7 +732,7 @@ iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, h
     iotx_time_t timer;
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
     if (0 == client->net.handle) {
         log_debug("not connection have been established");
@@ -775,7 +776,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     int ret = 0;
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
-    
+
     if (0 == client->net.handle) {
         //Establish connection if no.
     	httpclient_parse_host(url, host, sizeof(host));
@@ -799,7 +800,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     }
 
     iotx_time_init(&timer);
-    utils_time_cutdown(&timer, timeout_ms);
+    utils_time_countdown_ms(&timer, timeout_ms);
 
      if ((NULL != client_data->response_buf)
          || (0 != client_data->response_buf_len)) {
@@ -810,7 +811,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
             return ret;
         }
     }
-    
+
     if (! client_data->is_more) {
         //Close the HTTP if no more data.
         log_info("close http channel");

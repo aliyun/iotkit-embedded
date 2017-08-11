@@ -1,24 +1,27 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 #include <stdio.h>
+#include "CoAPSerialize.h"
 #include "CoAPExport.h"
 
-int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, int buflen)
+int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, unsigned short buflen)
 {
     if(4 > buflen){
         return 0;
@@ -33,7 +36,7 @@ int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, int buflen)
     return 4;
 }
 
-int CoAPSerialize_Token(CoAPMessage *msg, unsigned char * buf, int buflen)
+int CoAPSerialize_Token(CoAPMessage *msg, unsigned char * buf, unsigned short buflen)
 {
     int i = 0;
 
@@ -46,11 +49,9 @@ int CoAPSerialize_Token(CoAPMessage *msg, unsigned char * buf, int buflen)
     return msg->header.tokenlen;
 }
 
-static int CoAPSerialize_Option(CoAPMsgOption *option, unsigned char *buf)
+static unsigned short CoAPSerialize_Option(CoAPMsgOption *option, unsigned char *buf)
 {
-    int  len  = 0;
     unsigned char *ptr   = buf;
-    unsigned short count = 0;
 
     if(269 <= option->num){
         *ptr = ((14 & 0x0F) << 4);
@@ -101,10 +102,10 @@ static int CoAPSerialize_Option(CoAPMsgOption *option, unsigned char *buf)
     return (int)(ptr - buf);
 }
 
-int CoAPSerialize_Options(CoAPMessage *msg,  unsigned char * buf, int buflen)
+unsigned short CoAPSerialize_Options(CoAPMessage *msg,  unsigned char * buf, unsigned short buflen)
 {
     int i      = 0;
-    int count  = 0;
+    unsigned short count  = 0;
 
     for (i = 0; i < msg->optnum; i++)
     {
@@ -121,9 +122,9 @@ int CoAPSerialize_Options(CoAPMessage *msg,  unsigned char * buf, int buflen)
     return count;
 }
 
-static int CoAPSerialize_OptionLen(CoAPMsgOption *option)
+static unsigned short CoAPSerialize_OptionLen(CoAPMsgOption *option)
 {
-    int  len  = 1;
+    unsigned short  len  = 1;
 
     if(269 <= option->num){
         len += 2;
@@ -148,10 +149,10 @@ static int CoAPSerialize_OptionLen(CoAPMsgOption *option)
 }
 
 
-int CoAPSerialize_OptionsLen(CoAPMessage *msg)
+unsigned short CoAPSerialize_OptionsLen(CoAPMessage *msg)
 {
     int i      = 0;
-    int count  = 0;
+    unsigned short count  = 0;
 
     for (i = 0; i < msg->optnum; i++)
     {
@@ -187,16 +188,17 @@ int CoAPSerialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
 }
 
 
-int CoAPSerialize_MessageLength(CoAPMessage *msg)
+unsigned short CoAPSerialize_MessageLength(CoAPMessage *msg)
 {
-    int msglen = 4;
+    unsigned short msglen = 4;
+
+    msglen += msg->header.tokenlen;
+    msglen += CoAPSerialize_OptionsLen(msg);
 
     if(0 < msg->payloadlen){
         msglen += msg->payloadlen;
         msglen += 1; /*CoAP payload marker*/
     }
-    msglen += msg->header.tokenlen;
-    msglen += CoAPSerialize_OptionsLen(msg);
 
     return msglen;
 }

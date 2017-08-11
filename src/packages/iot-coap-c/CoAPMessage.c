@@ -1,22 +1,25 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 
 #include "CoAPExport.h"
+#include "CoAPSerialize.h"
 #include "CoAPDeserialize.h"
 
 #define COAPAckMsg(header) \
@@ -52,7 +55,7 @@
 int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum, unsigned char *data, unsigned short datalen)
 {
     unsigned char *ptr = NULL;
-    if(COAP_MAX_OPT_NUM <= message->optnum){
+    if(COAP_MSG_MAX_OPTION_NUM <= message->optnum){
         return COAP_ERROR_INVALID_PARAM;
     }
 
@@ -73,7 +76,7 @@ int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum, unsigned char
 int CoAPUintOption_add(CoAPMessage *message, unsigned short  optnum, unsigned int data)
 {
     unsigned char *ptr = NULL;
-    if(COAP_MAX_OPT_NUM <= message->optnum){
+    if(COAP_MSG_MAX_OPTION_NUM <= message->optnum){
         return COAP_ERROR_INVALID_PARAM;
     }
     message->options[message->optnum].num = optnum - message->optdelta;
@@ -127,6 +130,7 @@ int CoAPMessageId_set(CoAPMessage *message, unsigned short msgid)
         return COAP_ERROR_NULL;
     }
     message->header.msgid = msgid;
+    return COAP_SUCCESS;
 }
 
 int CoAPMessageType_set(CoAPMessage *message, unsigned char type)
@@ -149,6 +153,7 @@ int CoAPMessageCode_set(CoAPMessage *message, CoAPMessageCode code)
         return COAP_ERROR_NULL;
     }
     message->header.code  = code;
+    return COAP_SUCCESS;
 }
 
 int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
@@ -183,6 +188,8 @@ int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
     }
     message->payload = payload;
     message->payloadlen = payloadlen;
+
+    return COAP_SUCCESS;
 }
 
 int CoAPMessageHandler_set(CoAPMessage *message, CoAPRespMsgHandler handler)
@@ -284,8 +291,14 @@ int CoAPMessage_send(CoAPContext *context, CoAPMessage *message)
     }
 
     //TODO: get the message length
-    memset(context->sendbuf, 0x00, COAP_MAX_PDU_LEN);
-    msglen = CoAPSerialize_Message(message, context->sendbuf, COAP_MAX_PDU_LEN);
+    msglen = CoAPSerialize_MessageLength(message);
+    if(COAP_MSG_MAX_PDU_LEN < msglen){
+        COAP_INFO("The message length %d is too loog\r\n", msglen);
+        return COAP_ERROR_DATA_SIZE;
+    }
+
+    memset(context->sendbuf, 0x00, COAP_MSG_MAX_PDU_LEN);
+    msglen = CoAPSerialize_Message(message, context->sendbuf, COAP_MSG_MAX_PDU_LEN);
     COAP_DEBUG("----The message length %d-----\r\n", msglen);
 
 
@@ -365,11 +378,12 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
             return COAP_SUCCESS;
         }
     }
+    return COAP_ERROR_NOT_FOUND;
 }
 
-static int CoAPMessage_handle(CoAPContext *context,
-                                 const unsigned char     *buf,
-                                 unsigned short           datalen)
+static void CoAPMessage_handle(CoAPContext *context,
+                                  unsigned char     *buf,
+                                 unsigned short      datalen)
 {
     int    ret  = COAP_SUCCESS;
     CoAPMessage     message;
@@ -406,7 +420,7 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
 
     while(1){
         len = CoAPNetwork_read(&context->network, context->recvbuf,
-                COAP_MAX_PDU_LEN, timeout);
+                COAP_MSG_MAX_PDU_LEN, timeout);
         if(len > 0) {
             CoAPMessage_handle(context, context->recvbuf, len);
         }
@@ -414,13 +428,12 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
             return 0;
         }
     }
-
+    return -1;
 }
 
 int CoAPMessage_cycle(CoAPContext *context)
 {
     unsigned int ret = 0;
-    unsigned int wait_ms;
     CoAPMessage_recv(context, COAP_WAIT_TIME_MS);
 
     CoAPSendNode *node = NULL, *next = NULL;

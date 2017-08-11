@@ -1,19 +1,21 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 
 #include "iot_import_coap.h"
@@ -30,7 +32,6 @@
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__
 
-#define TRANSPORT_ADDR_LEN 16
 
 #define dtls_log_print(level, ...) \
     {\
@@ -59,7 +60,7 @@
 
 
 typedef  int (*coap_dtls_send_t)(void *socket_id,
-                                 unsigned char  *p_data,
+                           const unsigned char  *p_data,
                                  size_t          datalen);
 
 
@@ -69,13 +70,14 @@ typedef  int (*coap_dtls_recv_t)(void *socket_id,
 
 typedef  int (*coap_dtls_recv_timeout_t)(void *socket_id,
                               unsigned char   *p_data,
-                              size_t           datalen);
+                              size_t           datalen,
+                              unsigned int     timeout);
 
 
 typedef struct
 {
     int               socket_id;
-    unsigned char     remote_addr[TRANSPORT_ADDR_LEN];
+    unsigned char     remote_addr[NETWORK_ADDR_LEN];
     unsigned short    remote_port;
 } dtls_network_t;
 
@@ -97,7 +99,7 @@ DTLSContext *HAL_DTLSSession_init();
 unsigned int HAL_DTLSSession_create(DTLSContext *conetxt, coap_dtls_options_t  *p_options);
 
 unsigned int HAL_DTLSSession_write(DTLSContext *conetxt,
-                                unsigned char   *p_data,
+                          const unsigned char   *p_data,
                                 unsigned int    *p_datalen);
 
 

@@ -1,19 +1,21 @@
- /*
-  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
-  * License-Identifier: Apache-2.0
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License"); you may
-  * not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+/*
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 
 #include "CoAPNetwork.h"
 #include "lite-utils.h"
@@ -23,11 +25,10 @@
 //#define COAP_DTLS_SUPPORT
 
 
-#define COAP_MSG_MAX_TOKEN_LEN    8
-#define COAP_MSG_MAX_OPTION_NUM   8
-#define COAP_PATH_MAX_LEN         32
-#define COAP_MAX_PDU_LEN          1280
-#define COAP_MAX_OPT_NUM          8
+#define COAP_MSG_MAX_TOKEN_LEN    12
+#define COAP_MSG_MAX_OPTION_NUM   12
+#define COAP_MSG_MAX_PATH_LEN     32
+#define COAP_MSG_MAX_PDU_LEN      1280
 
 /*CoAP Content Type*/
 #define COAP_CT_TEXT_PLAIN                 0   /* text/plain (UTF-8) */
@@ -74,15 +75,14 @@
 /* CoAP base error code */
 #define COAP_SUCCESS                           (0)                    /*  Successful */
 #define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 1)  /*  Internal Error */
-#define COAP_ERROR_NO_MEM                      (COAP_ERROR_BASE | 2)  /*  Allocate Memory failed */
-#define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 3)  /*  Not found */
-#define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 4)  /*  Invalid Parameter */
-#define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 5)  /*  Invalid Length */
-#define COAP_ERROR_INVALID_DATA                (COAP_ERROR_BASE | 6)  /*  Invalid Data */
-#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 7)  /*  Data size exceeds limit */
-#define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 8)  /*  Null Pointer */
-#define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 9)
-#define COAP_ERROR_DNS_FAILED                  (COAP_ERROR_BASE | 10)
+#define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 2)  /*  Invalid Parameter */
+#define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 3)  /*  Invalid Length */
+#define COAP_ERROR_INVALID_DATA                (COAP_ERROR_BASE | 4)  /*  Invalid Data */
+#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 5)  /*  Data size exceeds limit */
+#define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 6)  /*  Null Pointer */
+#define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 7)
+#define COAP_ERROR_DNS_FAILED                  (COAP_ERROR_BASE | 8)
+#define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 9)
 
 /* CoAP Message and Transmission error code*/
 #define COAP_MESSAGE_ERROR_NULL            (COAP_ERROR_MSG_BASE | 0)
@@ -212,7 +212,7 @@ typedef struct
 
 typedef struct
 {
-    unsigned char *url;
+             char *url;
     unsigned char  maxcount;  /*list maximal count*/
 }CoAPInitParam;
 
@@ -237,5 +237,9 @@ typedef struct
 #define COAP_DEBUG(fmt,args...)  coap_log_print("<DEBUG>", fmt, ##args)
 #define COAP_INFO(fmt, args...)  coap_log_print("<INFO> ", fmt, ##args)
 #define COAP_ERR(fmt,  args...)  coap_log_print("<ERROR>", fmt, ##args)
+
+CoAPContext *CoAPContext_create(CoAPInitParam *param);
+void CoAPContext_free(CoAPContext *p_ctx);
+
 
 #endif
