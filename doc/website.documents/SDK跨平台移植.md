@@ -1,6 +1,36 @@
 **以下详细描述如何将华东2节点设备端V2.0版本C-SDK移植到目标硬件平台.**
 
-
+        +---------------------------+            +---------------------------+
+        |                           |            |                           | =>  构建完成后产生:
+        |  IoT SDK Example Program  |            | sample/mqtt|coap|ota/*.c  |
+        |                           |            |                           |     output/release/bin/*-example
+        +---------------------------+            +---------------------------+
+        |                           |            |                           | =>  SDK提供功能的API, 都在这里声明
+        |  IoT SDK Interface Layer  |            | src/sdk-impl/iot_export.h | =>  构建完成后产生:
+        |                           |            |                           |
+        |     IOT_XXX_YYY() APIs    |            |  Has all APIs' prototype  |     output/release/include/iot-sdk/iot_export.h
+        |                           |            |                           |     output/release/include/iot-sdk/exports/*.h
+        +---------------------------+            +---------------------------+
+        |                           |            |                           | =>  SDK提供功能的API, 都在这里实现
+        |                           |            | src/utils: utilities      | =>  构建完成后产生:
+        |                           |   +--->    | src/log: logging          |
+        |  IoT SDK Core Implements  |            | src/guider: authenticate  |     output/release/lib/libiot_sdk.a
+        |  : =>                     |   <---+    | src/system: device mgmt   |
+        |  : You SHOULD NOT Focus   |            | src/mqtt: MQTT client     |
+        |  : on this unless         |            | src/coap: CoAP client     |
+        |  : you're debugging bugs  |            | src/shadow: device shadow |
+        |                           |            | src/ota: OTA channel      |
+        |                           |            |                           |
+        +---------------------------+            +---------------------------+
+        |                           |            |                           | =>  SDK仅含有示例代码, 移植时需二次开发
+        |  Hardware Abstract Layer  |            | src/sdk-impl/iot_import.h | =>  构建完成后产生:
+        |                           |            | : =>                      |
+        |     HAL_XXX_YYY() APIs    |            | : HAL_*() declarations    |     output/release/lib/libiot_platform.a
+        |                           |            |                           |
+        |  : You MUST Implement     |            | src/platform/*/*/*.c      |     output/release/include/iot-sdk/iot_import.h
+        |  : this part for your     |            | : =>                      |     output/release/include/iot-sdk/imports/*.h
+        |  : target device first    |            | : HAL_*() example impls   |
+        +---------------------------+            +---------------------------+
 
 **以下详细描述如何将华东2节点设备端V1.0.1版本C-SDK移植到目标硬件平台.**
 ## V1.0.1设备端C-SDK简介
