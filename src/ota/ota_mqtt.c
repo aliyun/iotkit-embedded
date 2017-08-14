@@ -106,7 +106,7 @@ static void otamqtt_UpgrageCb(void *pcontext, void *pclient, iotx_mqtt_event_msg
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
     OTA_LOG_DEBUG("topic=%.*s", topic_info->topic_len, topic_info->ptopic);
-    OTA_LOG_DEBUG("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
+    OTA_LOG_DEBUG("len=%u, topic_msg=%.*s", topic_info->payload_len, topic_info->payload_len, (char *)topic_info->payload);
 
     OTA_ASSERT(IOTX_MQTT_EVENT_PUBLISH_RECVEIVED == msg->event_type, "invalid event type");
 

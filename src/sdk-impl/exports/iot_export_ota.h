@@ -83,7 +83,8 @@ typedef enum {
     IOT_OTAG_FETCHED_SIZE,     //option for get already fetched size
     IOT_OTAG_FILE_SIZE,        //size of file
     IOT_OTAG_MD5SUM,           //md5 in string format
-    IOT_OTAG_VERSION           //version in string format
+    IOT_OTAG_VERSION,          //version in string format
+    IOT_OTAG_CHECK_FIRMWARE    //Check firmware is valid or not
 
 } IOT_OTA_CmdType_t;
 
@@ -186,10 +187,12 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
  * @param [in] buf_len, specify the length of @buf in byte.
    @verbatim
       NOTE:
-      1) When @type is IOT_OTAG_DOWNLOADED_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
+      1) When @type is IOT_OTAG_FETCHED_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
       2) When @type is IOT_OTAG_FILE_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
       3) When @type is IOT_OTAG_MD5SUM, @buf should be a buffer, and @buf_len should be 33.
       4) When @type is IOT_OTAG_VERSION, @buf should be a buffer, and @buf_len should be OTA_VERSION_LEN_MAX.
+      5) When @type is IOT_OTAG_CHECK_FIRMWARE, @buf should be pointer of uint32_t, and @buf_len should be 4.
+         0, firmware is invalid; 1, firmware is valid. 
    @endverbatim
  *
  * @return 0, successful; < 0, failed, the value is error code.

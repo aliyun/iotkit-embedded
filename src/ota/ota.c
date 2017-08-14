@@ -53,6 +53,7 @@ typedef struct  {
     char *version;              //point to string
     char md5sum[33];            //MD5 string
 
+    void *md5;                  //MD5 handle
     void *ch_signal;            //channel handle of signal exchanged with OTA server
     void *ch_fetch;             //channel handle of download
 
@@ -133,12 +134,27 @@ void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_si
         goto do_exit;
     }
 
+    h_ota->md5 = otalib_MD5Init();
+    if (NULL == h_ota->md5) {
+        OTA_LOG_ERROR("initialize md5 failed");
+        goto do_exit;
+    }
+
     h_ota->product_key = product_key;
     h_ota->device_name = device_name;
     h_ota->state = IOT_OTAS_INITED;
     return h_ota;
 
 do_exit:
+
+    if (NULL != h_ota->ch_signal) {
+        osc_Deinit(h_ota->ch_signal);
+    }
+    
+    if (NULL != h_ota->md5) {
+        otalib_MD5Deinit(h_ota->md5);
+    }
+
     if (NULL != h_ota) {
         OTA_FREE(h_ota);
     }
@@ -167,6 +183,7 @@ int IOT_OTA_Deinit(void *handle)
 
     osc_Deinit(h_ota->ch_signal);
     ofc_Deinit(h_ota->ch_fetch);
+    otalib_MD5Deinit(h_ota->md5);
 
     if (NULL != h_ota->purl) {
         OTA_FREE(h_ota->purl);
@@ -370,6 +387,8 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         h_ota->state = IOT_OTAS_FETCHED;
     }
 
+    otalib_MD5Update(h_ota->md5, buf, ret);
+
     return ret;
 }
 
@@ -420,6 +439,27 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
         strncpy(buf, h_ota->md5sum, buf_len);
         ((char *)buf)[buf_len-1] = '\0';
         break;
+
+    case IOT_OTAG_CHECK_FIRMWARE:
+        if ((4 != buf_len) || (0 != ((unsigned long)buf & 0x3))) {
+            OTA_LOG_ERROR("Invalid parameter");
+            h_ota->err = IOT_OTAE_INVALID_PARAM;
+            return -1;
+        } else if (h_ota->state != IOT_OTAS_FETCHED) {
+            h_ota->err = IOT_OTAE_INVALID_STATE;
+            OTA_LOG_ERROR("Firmware can be checked in IOT_OTAS_FETCHED state only");
+            return -1;
+        } else {
+            char md5_str[33];
+            otalib_MD5Finalize(h_ota->md5, md5_str);
+            OTA_LOG_DEBUG("origin=%s, now=%s", h_ota->md5sum, md5_str);
+            if (0 == strcmp(h_ota->md5sum, md5_str)) {
+                *((uint32_t *)buf) = 1;
+            } else {
+                *((uint32_t *)buf) = 0;
+            }
+            return 0;
+        }
 
     default:
         OTA_LOG_ERROR("invalid cmd type");

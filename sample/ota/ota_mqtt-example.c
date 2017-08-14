@@ -32,6 +32,10 @@
 #define PRODUCT_KEY             "6RcIOUafDOm"
 #define DEVICE_NAME             "sh_pre_sample_mqtt"
 #define DEVICE_SECRET           "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
+#elif defined(TEST_OTA_DAILY)
+#define PRODUCT_KEY             "fR9zCD4oT72"
+#define DEVICE_NAME             "ota_test"
+#define DEVICE_SECRET           "67szT5tQNMIu3sbrd3UwLhs7M73wTHXQ"
 #else
 #define PRODUCT_KEY             "yfTuLfBJTiL"
 #define DEVICE_NAME             "TestDeviceForDemo"
@@ -206,10 +210,11 @@ int mqtt_client(void)
     HAL_SleepMs(1000);
 
     do {
+        uint32_t firmware_valid;
 
-       EXAMPLE_TRACE("wait ota upgrade command....");
+        EXAMPLE_TRACE("wait ota upgrade command....");
 
-       /* handle the MQTT packet received from TCP or SSL connection */
+        /* handle the MQTT packet received from TCP or SSL connection */
         IOT_MQTT_Yield(pclient, 200);
 
         if (IOT_OTA_IsFetching(h_ota)) {
@@ -239,9 +244,15 @@ int mqtt_client(void)
                     IOT_OTA_ReportProgress(h_ota, percent, NULL);
                     IOT_OTA_ReportProgress(h_ota, percent, "hello");
                 }
-        	IOT_MQTT_Yield(pclient, 100);
+                IOT_MQTT_Yield(pclient, 100);
             }while(!IOT_OTA_IsFetchFinish(h_ota));
 
+            IOT_OTA_Ioctl(h_ota, IOT_OTAG_CHECK_FIRMWARE, &firmware_valid, 4);
+            if (0 == firmware_valid) {
+                EXAMPLE_TRACE("The firmware is invalid");
+            } else {
+                EXAMPLE_TRACE("The firmware is valid");
+            }
 
             ota_over = 1;
         }
@@ -255,7 +266,7 @@ int mqtt_client(void)
 do_exit:
 
     if (NULL != h_ota) {
-         IOT_OTA_Deinit(h_ota);
+        IOT_OTA_Deinit(h_ota);
     }
 
     if(NULL != pclient) {
