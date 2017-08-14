@@ -30,10 +30,10 @@
 #define HTTPCLIENT_AUTHB_SIZE     128
 
 #define HTTPCLIENT_CHUNK_SIZE     256
-#define HTTPCLIENT_SEND_BUF_SIZE  512
+#define HTTPCLIENT_SEND_BUF_SIZE  1024
 
 #define HTTPCLIENT_MAX_HOST_LEN   64
-#define HTTPCLIENT_MAX_URL_LEN    512
+#define HTTPCLIENT_MAX_URL_LEN    1024
 
 #define HTTP_RETRIEVE_MORE_DATA   (1)            /**< More data needs to be retrieved. */
 
@@ -123,7 +123,7 @@ int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len,
 
     if (maxhost_len < host_len + 1) {
         /* including NULL-terminating char */
-        log_err("Host str is too small (%d >= %d)", maxhost_len, host_len + 1);
+        log_err("Host str is too long (host_len(%d) >= max_len(%d))", host_len + 1, maxhost_len);
         return ERROR_HTTP_PARSE;
     }
     memcpy(host, host_ptr, host_len);

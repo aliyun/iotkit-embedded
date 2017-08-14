@@ -24,6 +24,7 @@
 #include "iot_export_mqtt.h"
 #include "lite-log.h"
 #include "json_parser.h"
+#include "utils_md5.h"
 #include "utils_debug.h"
 #include "utils_httpc.h"
 

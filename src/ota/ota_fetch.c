@@ -40,6 +40,9 @@ extern int httpclient_common(httpclient_t *client,
                              uint32_t timeout_ms,
                              httpclient_data_t *client_data);
 
+extern const char *iotx_ca_get(void);
+
+
 void *ofc_Init(const char *url)
 {
     otahttp_Struct_pt h_odc;
@@ -70,7 +73,7 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
     h_odc->http_data.response_buf_len = buf_len;
     diff = h_odc->http_data.response_content_len - h_odc->http_data.retrieve_len;;
 
-    if (0 != httpclient_common(&h_odc->http, h_odc->url, 80, NULL, HTTPCLIENT_GET, timeout_s * 1000, &h_odc->http_data)){
+    if (0 != httpclient_common(&h_odc->http, h_odc->url, 443, iotx_ca_get(), HTTPCLIENT_GET, timeout_s * 1000, &h_odc->http_data)){
         OTA_LOG_ERROR("fetch firmware failed");
         return -1;
     }

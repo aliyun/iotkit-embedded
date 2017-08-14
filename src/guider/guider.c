@@ -350,6 +350,11 @@ static int _iotId_iotToken_http(
     iotx_port = 80;
 #endif
 
+#if defined(TEST_OTA_DAILY)
+    iotx_port = 80;
+#endif
+
+
     /*
         {
             "code": 200,
@@ -374,6 +379,8 @@ static int _iotId_iotToken_http(
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
                    NULL
 #elif defined(TEST_OTA_PRE)
+                   NULL
+#elif defined(TEST_OTA_DAILY)
                    NULL
 #else
                    iotx_ca_get()
@@ -618,6 +625,8 @@ static void _authenticate_http_url(char *buf, int len)
     strcat(buf, "iot-auth.alibaba.net");
 #elif defined(TEST_OTA_PRE)
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
+#elif defined(TEST_OTA_DAILY)
+    strcat(buf, "iot-auth.alibaba.net");
 #else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
 #endif

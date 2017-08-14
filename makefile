@@ -8,6 +8,7 @@ SUBDIRS += src/sdk-tests
 CFLAGS  += -Os
 CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
+CFLAGS  += -DTEST_OTA_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
 COMP_LIB            := libiot_sdk.a
@@ -29,7 +30,7 @@ $(call CompLib_Map, MQTT_ID2_AUTH, src/security)
 COVERAGE_CMD    := $(SCRIPT_DIR)/walk_through_examples.sh
 BUILD_CONFIG    := src/configs/config.desktop.x86
 
-POST_FINAL_OUT_HOOK := Post_Distro
+# POST_FINAL_OUT_HOOK := Post_Distro
 
 ifneq (gcc,$(strip $(PLATFORM_CC)))
 BUILD_CONFIG    := src/configs/config.generic-linux.embedded

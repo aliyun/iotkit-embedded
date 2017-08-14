@@ -38,6 +38,44 @@ static const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const
     return val;
 }
 
+static void *otalib_MD5Init(void)
+{
+    iot_md5_context *ctx = OTA_MALLOC(sizeof(iot_md5_context));
+    if (NULL == ctx) {
+        return NULL;
+    }
+
+    utils_md5_init(ctx);
+    utils_md5_starts(ctx);
+
+    return ctx;
+}
+
+static void otalib_MD5Update(void *md5, const char *buf, size_t buf_len)
+{
+    utils_md5_update(md5, (unsigned char *)buf, buf_len);
+}
+
+static void otalib_MD5Finalize(void *md5, char *output_str)
+{
+    int i;
+    unsigned char buf_out[16];
+    utils_md5_finish(md5, buf_out);
+
+    for (i = 0; i < 16; ++i) {
+        output_str[i * 2] = utils_hb2hex(buf_out[i] >> 4);
+        output_str[i * 2 + 1] = utils_hb2hex(buf_out[i]);
+    }
+    output_str[32] = '\0'; 
+}
+
+static void otalib_MD5Deinit(void *md5)
+{
+    if (NULL != md5) {
+        OTA_FREE(md5);
+    } 
+}
+
 //Get the specific @key value, and copy to @dest
 //0, successful; -1, failed
 static int otalib_GetFirmwareFixlenPara(const char *json_doc,
