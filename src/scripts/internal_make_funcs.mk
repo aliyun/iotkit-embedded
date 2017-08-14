@@ -33,7 +33,7 @@ define Post_Distro
     @echo ""
     @echo "o RELEASE PACKAGE LAYOUT:"
     @echo "----"
-    @tree $(FINAL_DIR) --noreport -A -I mbedtls \
+    @tree -A $(FINAL_DIR) --noreport -A -I mbedtls \
         |awk '{ printf ("    %s\n", $$0); }'
     @echo ""
     @echo "o BINARY FOOTPRINT CONSIST:"
