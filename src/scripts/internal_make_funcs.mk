@@ -7,7 +7,6 @@ $(eval \
 )
 endef
 
-POST_FINAL_OUT_HOOK := Post_Distro
 define Post_Distro
     @find $(FINAL_DIR) -name "*.[ch]" -exec chmod a-x {} \;
     @mkdir -p $(FINAL_DIR)/src
