@@ -87,14 +87,17 @@ int mqtt_real_confirm(int verify_result)
 
     if ((verify_result & MBEDTLS_X509_BADCERT_REVOKED) != 0) {
         SSL_LOG("! fail ! server certificate has been revoked");
+        return -1;
     }
 
     if ((verify_result & MBEDTLS_X509_BADCERT_CN_MISMATCH) != 0) {
-        // SSL_LOG("! warn ! CN mismatch");
+        SSL_LOG("! fail ! CN mismatch");
+        return -1;
     }
 
     if ((verify_result & MBEDTLS_X509_BADCERT_NOT_TRUSTED) != 0) {
         SSL_LOG("! fail ! self-signed or not signed by a trusted CA");
+        return -1;
     }
 
     return 0;
