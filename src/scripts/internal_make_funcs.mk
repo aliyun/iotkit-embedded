@@ -32,8 +32,12 @@ define Post_Distro
     @echo ""
     @echo "o RELEASE PACKAGE LAYOUT:"
     @echo "----"
-    @tree -A $(FINAL_DIR) --noreport -A -I mbedtls \
-        |awk '{ printf ("    %s\n", $$0); }'
+    @cd $(FINAL_DIR) && echo -n "    " && pwd && echo "" && \
+     find . -not -path "./include/mbedtls/*" -print | awk '!/\.$$/ { \
+        for (i = 1; i < NF-1; i++) { \
+            printf("|   "); \
+        } \
+        print "+-- "$$NF}' FS='/' | sed 's!\(.*\)!    &!g'
     @echo ""
     @echo "o BINARY FOOTPRINT CONSIST:"
     @echo "----"
