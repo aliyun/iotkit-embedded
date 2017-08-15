@@ -371,12 +371,12 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
 
         if(IOTX_CONTENT_TYPE_CBOR == p_message->content_type){
             CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_CBOR);
-            CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_CBOR);
+            CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_OCTET_STREAM);
         }
         else
         {
             CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
-            CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_JSON);
+            CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_OCTET_STREAM);
         }
         CoAPStrOption_add(&message,  COAP_OPTION_AUTH_TOKEN,
                                 (unsigned char *)p_iotx_coap->p_auth_token, strlen(p_iotx_coap->p_auth_token));
