@@ -6,9 +6,9 @@ SUBDIRS := sample
 SUBDIRS += src/sdk-tests
 
 CFLAGS  += -Os
-CFLAGS  += -DTEST_ID2_DAILY
+# CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
-CFLAGS  += -DTEST_OTA_DAILY
+# CFLAGS  += -DTEST_OTA_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
 COMP_LIB            := libiot_sdk.a
