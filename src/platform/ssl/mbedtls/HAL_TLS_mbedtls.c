@@ -353,7 +353,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
 
     /* OPTIONAL is not optimal for security, but makes interop easier in this simplified example */
     if (ca_crt != NULL) {
-        mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_OPTIONAL);
+        mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_REQUIRED);
     } else {
         mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_NONE);
     }
