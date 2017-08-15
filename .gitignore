@@ -1,3 +1,5 @@
+*.a
+*.so
 *.exe
 .settings/
 *.cproject
