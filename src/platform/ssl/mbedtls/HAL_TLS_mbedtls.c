@@ -49,25 +49,25 @@ typedef struct _TLSDataParams {
 
 #define DEBUG_LEVEL 10
 
-unsigned int mqtt_avRandom()
+static unsigned int _avRandom()
 {
     return (((unsigned int)rand() << 16) + rand());
 }
 
-static int _mqtt_ssl_random(void *p_rng, unsigned char *output, size_t output_len)
+static int _ssl_random(void *p_rng, unsigned char *output, size_t output_len)
 {
     uint32_t rnglen = output_len;
     uint8_t   rngoffset = 0;
 
     while (rnglen > 0) {
-        *(output + rngoffset) = (unsigned char)mqtt_avRandom() ;
+        *(output + rngoffset) = (unsigned char)_avRandom() ;
         rngoffset++;
         rnglen--;
     }
     return 0;
 }
 
-static void _mqtt_ssl_debug(void *ctx, int level, const char *file, int line, const char *str)
+static void _ssl_debug(void *ctx, int level, const char *file, int line, const char *str)
 {
     ((void) level);
     if (NULL != ctx) {
@@ -76,7 +76,7 @@ static void _mqtt_ssl_debug(void *ctx, int level, const char *file, int line, co
     }
 }
 
-int mqtt_real_confirm(int verify_result)
+static int _real_confirm(int verify_result)
 {
     SSL_LOG("certificate verification result: 0x%02x", verify_result);
 
@@ -136,7 +136,7 @@ static int _ssl_parse_crt(mbedtls_x509_crt *crt)
     return i;
 }
 
-int mqtt_ssl_client_init(mbedtls_ssl_context *ssl,
+static int _ssl_client_init(mbedtls_ssl_context *ssl,
                          mbedtls_net_context *tcp_fd,
                          mbedtls_ssl_config *conf,
                          mbedtls_x509_crt *crt509_ca, const char *ca_crt, size_t ca_len,
@@ -323,7 +323,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
     /*
      * 0. Init
      */
-    if (0 != (ret = mqtt_ssl_client_init(&(pTlsData->ssl), &(pTlsData->fd), &(pTlsData->conf),
+    if (0 != (ret = _ssl_client_init(&(pTlsData->ssl), &(pTlsData->fd), &(pTlsData->conf),
                                          &(pTlsData->cacertl), ca_crt, ca_crt_len,
                                          &(pTlsData->clicert), client_crt, client_crt_len,
                                          &(pTlsData->pkey), client_key, client_key_len, client_pwd, client_pwd_len))) {
@@ -375,9 +375,9 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
         return ret;
     }
 #endif
-    mbedtls_ssl_conf_rng(&(pTlsData->conf), _mqtt_ssl_random, NULL);
-    mbedtls_ssl_conf_dbg(&(pTlsData->conf), _mqtt_ssl_debug, NULL);
-    // mbedtls_ssl_conf_dbg( &(pTlsData->conf), _mqtt_ssl_debug, stdout );
+    mbedtls_ssl_conf_rng(&(pTlsData->conf), _ssl_random, NULL);
+    mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, NULL);
+    // mbedtls_ssl_conf_dbg( &(pTlsData->conf), _ssl_debug, stdout );
 
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
         SSL_LOG("failed! mbedtls_ssl_setup returned %d", ret);
@@ -402,7 +402,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
      * 5. Verify the server certificate
      */
     SSL_LOG("  . Verifying peer X.509 certificate..");
-    if (0 != (ret = mqtt_real_confirm(mbedtls_ssl_get_verify_result(&(pTlsData->ssl))))) {
+    if (0 != (ret = _real_confirm(mbedtls_ssl_get_verify_result(&(pTlsData->ssl))))) {
         SSL_LOG(" failed  ! verify result not confirmed.");
         return ret;
     }
