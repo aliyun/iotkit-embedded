@@ -80,6 +80,7 @@ int mqtt_real_confirm(int verify_result)
 {
     SSL_LOG("certificate verification result: 0x%02x", verify_result);
 
+#if defined(FORCE_SSL_VERIFY)
     if ((verify_result & MBEDTLS_X509_BADCERT_EXPIRED) != 0) {
         SSL_LOG("! fail ! ERROR_CERTIFICATE_EXPIRED");
         return -1;
@@ -99,6 +100,7 @@ int mqtt_real_confirm(int verify_result)
         SSL_LOG("! fail ! self-signed or not signed by a trusted CA");
         return -1;
     }
+#endif
 
     return 0;
 }
@@ -356,7 +358,11 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
 
     /* OPTIONAL is not optimal for security, but makes interop easier in this simplified example */
     if (ca_crt != NULL) {
+#if defined(FORCE_SSL_VERIFY)
         mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_REQUIRED);
+#else
+        mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_OPTIONAL);
+#endif
     } else {
         mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_NONE);
     }

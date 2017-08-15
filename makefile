@@ -6,6 +6,7 @@ SUBDIRS := sample
 SUBDIRS += src/sdk-tests
 
 CFLAGS  += -Os
+# CFLAGS  += -DFORCE_SSL_VERIFY
 # CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DTEST_OTA_DAILY
