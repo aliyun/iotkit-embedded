@@ -839,8 +839,7 @@ int iotx_guider_authenticate(void)
 
     usr->port = iotx_conn_port;
     _fill_conn_string(usr->host_name, sizeof(usr->host_name),
-                      "%s.%s",
-                      dev->product_key,
+                      "%s",
                       iotx_conn_host);
     _fill_conn_string(usr->username, sizeof(usr->username), "%s", iotx_id);
     _fill_conn_string(usr->password, sizeof(usr->password), "%s", iotx_token);
