@@ -114,16 +114,16 @@
 
 说明如下:
 
-    文件/目录               | 说明
-    ------------------------|------------------------------------------------------
-    bin/mqtt-example        | 用MQTT协议连接阿里云IoT的样例程序
-    include/iot-sdk         | 使用`libiot_sdk.a`时需要的头文件, 存放在这个目录
-    include/mbedtls         | 使用`libmbed*.a`时需要的头文件, 存放在这个目录
-    lib/libiot_platform.a   | 硬件平台抽象层, `libiot_sdk.a`的工作是建立在它的基础上的
-    lib/libiot_sdk.a        | SDK的核心层, 基于`libiot_platform.a`提供连接云端的能力
-    lib/libmbed*.a          | 开源库`mbedtls-2.5.0`, 也是`libiot_platform.a`的底层基础
-    src/Makefile            | 示例用Makefile, 演示如何在SDK之外链接本SDK提供的库文件
-    src/mqtt-example.c      | 样例对应C代码, 可在此目录下输入make, 编译生成可执行程序
+| 文件/目录               | 说明                                                     |
+|-------------------------|----------------------------------------------------------|
+| bin/mqtt-example        | 用MQTT协议连接阿里云IoT的样例程序                        |
+| include/iot-sdk         | 使用`libiot_sdk.a`时需要的头文件, 存放在这个目录         |
+| include/mbedtls         | 使用`libmbed*.a`时需要的头文件, 存放在这个目录           |
+| lib/libiot_platform.a   | 硬件平台抽象层, `libiot_sdk.a`的工作是建立在它的基础上的 |
+| lib/libiot_sdk.a        | SDK的核心层, 基于`libiot_platform.a`提供连接云端的能力   |
+| lib/libmbed*.a          | 开源库`mbedtls-2.5.0`, 也是`libiot_platform.a`的底层基础 |
+| src/Makefile            | 示例用Makefile, 演示如何在SDK之外链接本SDK提供的库文件   |
+| src/mqtt-example.c      | 样例对应C代码, 可在此目录下输入make, 编译生成可执行程序  |
 
 ### Java版本
 Java版请参考 [JAVA-SDK使用(MQTT)](https://help.aliyun.com/document_detail/42693.html)
