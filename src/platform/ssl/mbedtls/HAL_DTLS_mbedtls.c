@@ -177,11 +177,14 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
 
 unsigned int HAL_DTLSSession_free(DTLSContext *context)
 {
+    int ret;
     dtls_session_t *p_dtls_session = NULL;
     if (context != NULL)
     {
         p_dtls_session = (dtls_session_t *)context;
-        mbedtls_ssl_close_notify(&p_dtls_session->context);
+        do{
+            ret = mbedtls_ssl_close_notify(&p_dtls_session->context);
+        }while(ret == MBEDTLS_ERR_SSL_WANT_WRITE);
         p_dtls_session->network.socket_id = -1;
         memset(p_dtls_session->network.remote_addr, 0x00, sizeof(dtls_network_t));
         p_dtls_session->network.remote_port = 0;
