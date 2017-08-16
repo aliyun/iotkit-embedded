@@ -34,6 +34,7 @@ char *LITE_json_value_of(char *key, char *src)
 
     src_iter = src;
     key_iter = key;
+    fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
 
     do {
         if ((delim = strchr(key_iter, '.')) != NULL) {
@@ -42,30 +43,34 @@ char *LITE_json_value_of(char *key, char *src)
             strncpy(key_next, key_iter, key_len);
             key_next[key_len] = '\0';
             value = json_get_value_by_name(src_iter, strlen(src_iter), key_next, &value_len, 0);
+            fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
 
             if (value == NULL) {
                 LITE_free(key_next);
                 return NULL;
             }
+            fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
 
             src_iter = value;
             key_iter = delim + 1;
             LITE_free(key_next);
+            fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
         }
     } while (delim);
 
+    fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
     value = json_get_value_by_name(src_iter, strlen(src_iter), key_iter, &value_len, 0);
-
+    fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
     if (NULL == value) {
         return NULL;
     }
-
+    fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
     ret = LITE_malloc((value_len + 1) * sizeof(char));
-
+    fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
     if (NULL == ret) {
         return NULL;
     }
-
+    fprintf(stderr, "Segment fault trace %s:%d\r\n", __FILE__, __LINE__);
     LITE_snprintf(ret, value_len + 1, "%s", value);
     return ret;
 }
