@@ -89,6 +89,7 @@ typedef struct
     coap_dtls_recv_t          recv_fn;
     coap_dtls_recv_timeout_t  recv_timeout_fn;
     unsigned char             *p_ca_cert_pem;
+    char                      *p_host;
 } coap_dtls_options_t;
 
 

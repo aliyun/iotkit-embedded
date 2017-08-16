@@ -32,11 +32,11 @@
 #define COAP_DEFAULT_SCHEME      "coap" /* the default scheme for CoAP URIs */
 #define COAP_DEFAULT_HOST_LEN    128
 
-unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr, coap_endpoint_type *p_endpoint_type)
+unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr,
+            coap_endpoint_type *p_endpoint_type, char host[COAP_DEFAULT_HOST_LEN])
 {
     int ret = -1;
     int len = 0;
-    char host[COAP_DEFAULT_HOST_LEN] = {0};
     char *p = NULL, *q = NULL;
     if(NULL == p_uri || NULL == p_addr || NULL == p_endpoint_type){
         return COAP_ERROR_INVALID_PARAM;
@@ -90,6 +90,7 @@ unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr, coap_endpoint_ty
         return COAP_ERROR_INVALID_URI;
     }
     else{
+        memset(host, 0x00, COAP_DEFAULT_HOST_LEN);
         strncpy(host , p, q - p);
     }
     COAP_DEBUG("The host name is: %s\r\n", host);
@@ -132,6 +133,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     unsigned int    ret   = COAP_SUCCESS;
     CoAPContext    *p_ctx = NULL;
     coap_network_init_t network_param;
+    char host[COAP_DEFAULT_HOST_LEN] = {0};
 
     memset(&network_param, 0x00, sizeof(coap_network_init_t));
     p_ctx = coap_malloc(sizeof(CoAPContext));
@@ -152,7 +154,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     /*set the endpoint type by uri schema*/
     if(NULL != param->url){
-        ret = CoAPUri_parse(param->url, &network_param.remote, &network_param.ep_type);
+        ret = CoAPUri_parse(param->url, &network_param.remote, &network_param.ep_type, host);
     }
 
     if(COAP_SUCCESS != ret){
@@ -176,6 +178,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
         extern const char *iotx_coap_get_ca(void);
         network_param.p_ca_cert_pem     =  (unsigned char *)iotx_coap_get_ca();
         network_param.ep_type           =   COAP_ENDPOINT_DTLS;
+        network_param.p_host            =   host;
     }
 #endif
 
