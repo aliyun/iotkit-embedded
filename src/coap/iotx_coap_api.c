@@ -85,7 +85,9 @@ static int iotx_get_token_from_json(char *p_str, char *p_token, int len)
         return IOTX_ERR_INVALID_PARAM;
     }
 
+    COAP_TRC("Segment fault trace\r\n");
     p_value = LITE_json_value_of("token", p_str);
+    COAP_TRC("Segment fault trace\r\n");
     if(NULL != p_value){
         COAP_DEBUG("The auth token is: %s\r\n", p_value);
         if(len-1 < strlen(p_value)){
