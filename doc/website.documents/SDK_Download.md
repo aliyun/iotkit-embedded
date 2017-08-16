@@ -11,7 +11,6 @@
     - **新增MQTT直连:** 支持更快更轻的连接IoT套件, 去掉对HTTPS/HTTP的依赖, 可看[公告](https://help.aliyun.com/document_detail/57164.html?spm=5176.doc53930.6.638.LNVRIp)
     - **新增CoAP通道:** 基于UDP, 在纯上报数据场景更节省资源, 可看[公告](https://help.aliyun.com/document_detail/57566.html?spm=5176.doc57164.6.637.tXyBoU)
     - **新增OTA通道:** 提供一系列OTA相关的API, 可查询/触发/下载用户自主上传的固件
-    - **新增ID2功能:** ID2是一种新的安全技术, 支持以具体项目具体对接的方式使用这种技术
     - **升级构建系统:** 支持更灵活的组织和配置SDK
 
 
