@@ -106,16 +106,17 @@ int DTLSNetwork_recvTimeout( void *ctx, unsigned char *buf, size_t len, unsigned
 
 unsigned int CoAPNetworkDTLS_read(coap_remote_session_t *p_session,
                                       unsigned char              *p_data,
-                                      unsigned int               *p_datalen)
+                                      unsigned int               *p_datalen,
+                                      unsigned int                timeout)
 {
     unsigned int           err_code  = COAP_SUCCESS;
     const unsigned int     read_len  = *p_datalen;
 
-    COAP_TRC("<< secure_datagram_read, read buffer len %d\r\n", read_len);
+    COAP_TRC("<< secure_datagram_read, read buffer len %d, timeout %d\r\n", read_len, timeout);
     if (NULL != p_session)
     {
         /* read dtls application data*/
-        err_code = HAL_DTLSSession_read(p_session->context, p_data, p_datalen);
+        err_code = HAL_DTLSSession_read(p_session->context, p_data, p_datalen, timeout);
         if(DTLS_PEER_CLOSE_NOTIFY == err_code
                 || DTLS_FATAL_ALERT_MESSAGE  == err_code) {
             COAP_INFO("dtls session read failed return (0x%04x)\r\n", err_code);
@@ -213,62 +214,29 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
     return rc;
 }
 
-
 int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
                         unsigned int datalen, unsigned int timeout)
 {
-    fd_set readfds;
-    int ret = -1;
-    int maxfd = -1;
-    struct timeval tv;
+    unsigned int len = 0;
 
-    FD_ZERO(&readfds);
-    if(network->socket_id != 0){
-        FD_SET(network->socket_id, &readfds);
-        if(maxfd < network->socket_id){
-            maxfd = network->socket_id;
+    #ifdef COAP_DTLS_SUPPORT
+        if(COAP_ENDPOINT_DTLS == network->ep_type)  {
+            len = datalen;
+            memset(data, 0x00, datalen);
+            CoAPNetworkDTLS_read(&network->remote_session, data, &len, timeout);
+        } else {
+    #endif
+        memset(data, 0x00, datalen);
+        len = HAL_UDP_readTimeout((void *)&network->socket_id,
+                                  &network->remote_endpoint,
+                                  data, COAP_MSG_MAX_PDU_LEN, timeout);
+        COAP_DEBUG("<< CoAP recv nosecure data from %s:%d\r\n",
+                 network->remote_endpoint.addr, network->remote_endpoint.port);
+    #ifdef COAP_DTLS_SUPPORT
         }
-    }
-
-    tv.tv_usec = timeout%1000*1000;
-    tv.tv_sec = timeout / 1000;
-    ret =  select (maxfd + 1, &readfds, 0, 0, &tv);
-    if(ret < 0){
-        if (errno != EINTR){
-              fprintf(stderr, "%s\r\n", strerror (errno));
-        }
-        return -1;
-    }
-    else if(ret > 0){
-
-        unsigned int len = 0;
-        if(FD_ISSET(network->socket_id, &readfds)){
-            COAP_DEBUG("<< CoAP socket %d is ready to read\r\n", network->socket_id);
-
-        #ifdef COAP_DTLS_SUPPORT
-            if(COAP_ENDPOINT_DTLS == network->ep_type)  {
-                len = datalen;
-                memset(data, 0x00, datalen);
-                CoAPNetworkDTLS_read(&network->remote_session, data, &len);
-            } else {
-        #endif
-                memset(data, 0x00, datalen);
-                len = HAL_UDP_read((void *)&network->socket_id,
-                                          &network->remote_endpoint,
-                                          data, COAP_MSG_MAX_PDU_LEN);
-                COAP_DEBUG("<< CoAP recv nosecure data from %s:%d\r\n",
-                         network->remote_endpoint.addr, network->remote_endpoint.port);
-        #ifdef COAP_DTLS_SUPPORT
-            }
-        #endif
-        }
+    #endif
         COAP_TRC("<< CoAP recv %d bytes data\r\n", len);
         return len;
-    }
-    else {
-        return 0;
-    }
-
 }
 
 unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t *p_network)
@@ -279,6 +247,7 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
         return COAP_ERROR_INVALID_PARAM;
     }
 
+    // TODO : Parse the url here
     p_network->ep_type = p_param->ep_type;
     p_network->remote_endpoint.port = p_param->remote.port;
     memset(p_network->remote_endpoint.addr, 0x00, NETWORK_ADDR_LEN);

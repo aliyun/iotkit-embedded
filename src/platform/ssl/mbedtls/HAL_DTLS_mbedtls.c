@@ -213,7 +213,7 @@ DTLSContext *HAL_DTLSSession_init()
     dtls_session_t *p_dtls_session = NULL;
     p_dtls_session = coap_malloc(sizeof(dtls_session_t));
 
-    mbedtls_debug_set_threshold(1);
+    mbedtls_debug_set_threshold(0);
     mbedtls_platform_set_calloc_free(DTLSCalloc_wrapper, DTLSFree_wrapper);
     if(NULL != p_dtls_session) {
         p_dtls_session->network.socket_id = -1;
@@ -353,7 +353,8 @@ unsigned int HAL_DTLSSession_write(DTLSContext *context,
 
 unsigned int HAL_DTLSSession_read(DTLSContext *context,
                                unsigned char   *p_data,
-                               unsigned int    *p_datalen)
+                               unsigned int    *p_datalen,
+                               unsigned int     timeout)
 {
     int len = 0;
     unsigned int err_code = DTLS_READ_DATA_FAILED;
@@ -361,6 +362,7 @@ unsigned int HAL_DTLSSession_read(DTLSContext *context,
 
     if (NULL != p_dtls_session && NULL != p_data && p_datalen != NULL)
     {
+        mbedtls_ssl_conf_read_timeout(&(p_dtls_session->conf), timeout);
         len = mbedtls_ssl_read(&p_dtls_session->context, p_data, *p_datalen);
 
         if(0  <  len) {
@@ -377,6 +379,9 @@ unsigned int HAL_DTLSSession_read(DTLSContext *context,
             if(MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
                 err_code = DTLS_PEER_CLOSE_NOTIFY;
                 DTLS_INFO("The DTLS session was closed by peer\r\n");
+            }
+            if(MBEDTLS_ERR_SSL_TIMEOUT == len){
+                err_code = DTLS_SUCCESS;
             }
             DTLS_TRC("mbedtls_ssl_read result(len) (-0x%04x)\r\n", len);
         }

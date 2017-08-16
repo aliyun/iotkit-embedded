@@ -106,7 +106,8 @@ unsigned int HAL_DTLSSession_write(DTLSContext *conetxt,
 
 unsigned int HAL_DTLSSession_read(DTLSContext *conetxt,
                                unsigned char   *p_data,
-                               unsigned int    *p_datalen);
+                               unsigned int    *p_datalen,
+                               unsigned int     timeout);
 
 unsigned int HAL_DTLSSession_free(DTLSContext *conetxt);
 
