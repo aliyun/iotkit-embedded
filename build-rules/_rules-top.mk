@@ -21,6 +21,11 @@ detect:
 	    fi; \
 	done
 
+	@if [ ! -d $(OUTPUT_DIR) ]; then \
+	    echo "Re-configure project since '$(OUTPUT_DIR)' non-exist!"|grep --color ".*"; \
+	    $(RECURSIVE_MAKE) reconfig; \
+	fi
+
 config:
 	@mkdir -p $(OUTPUT_DIR) $(INSTALL_DIR)
 	@mkdir -p $(SYSROOT_BIN) $(SYSROOT_INC) $(SYSROOT_LIB)
