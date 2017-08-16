@@ -153,7 +153,8 @@ static  void CoAPNetworkDTLS_freeSession (coap_remote_session_t *p_session)
 static unsigned int CoAPNetworkDTLS_createSession(int                        socket_id,
                                         const coap_address_t       *p_remote,
                                         unsigned char              *p_ca_cert_pem,
-                                        coap_remote_session_t     *p_session)
+                                        coap_remote_session_t     *p_session,
+                                        char *p_host)
 {
     coap_dtls_options_t dtls_options;
     unsigned int err_code = COAP_SUCCESS;
@@ -165,6 +166,7 @@ static unsigned int CoAPNetworkDTLS_createSession(int                        soc
     dtls_options.p_ca_cert_pem     = p_ca_cert_pem;
     dtls_options.network.socket_id = socket_id;
     dtls_options.network.remote_port = p_remote->port;
+    dtls_options.p_host            = p_host;
     memcpy(dtls_options.network.remote_addr, p_remote->addr, strlen(p_remote->addr));
 
     err_code = HAL_DTLSSession_create(p_session->context, &dtls_options);
@@ -289,7 +291,8 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
     if(COAP_ENDPOINT_DTLS == p_param->ep_type){
         CoAPNetworkDTLS_initSession(&p_network->remote_session);
         err_code = CoAPNetworkDTLS_createSession(p_network->socket_id,
-                    &p_param->remote, p_param->p_ca_cert_pem, &p_network->remote_session);
+                    &p_param->remote, p_param->p_ca_cert_pem,
+                    &p_network->remote_session, p_param->p_host);
 
     }
 #endif

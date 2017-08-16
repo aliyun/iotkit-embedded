@@ -51,6 +51,7 @@ typedef struct
     coap_endpoint_type       ep_type;
     coap_address_t           remote;
     unsigned char           *p_ca_cert_pem;
+    char                    *p_host;
 } coap_network_init_t;
 
 
