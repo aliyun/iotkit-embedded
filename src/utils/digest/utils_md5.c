@@ -312,7 +312,7 @@ void utils_md5(const unsigned char *input, size_t ilen, unsigned char output[16]
 int8_t utils_hb2hex(uint8_t hb)
 {
     hb = hb & 0xF;
-    return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'A');
+    return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'a');
 }
 
 
