@@ -37,9 +37,9 @@
 #define DEVICE_NAME             "ota_test"
 #define DEVICE_SECRET           "67szT5tQNMIu3sbrd3UwLhs7M73wTHXQ"
 #else
-#define PRODUCT_KEY             "yfTuLfBJTiL"
-#define DEVICE_NAME             "TestDeviceForDemo"
-#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+#define PRODUCT_KEY             "OvNmiEYRDSY"
+#define DEVICE_NAME             "ota_online"
+#define DEVICE_SECRET           "L3tQyoT6LifswkksFe9uXX2AteFdYgGd"
 #endif
 
 // These are pre-defined topics
