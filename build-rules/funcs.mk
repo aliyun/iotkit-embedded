@@ -112,7 +112,7 @@ define Build_CompLib
 	if  [ "$(strip $(1))" = "FORCE" ] || \
 	    [ "$$(echo $(LDFLAGS_$(strip $(1)))|grep -wo -- '-l$(COMP_LIB_NAME)')" != "" ]; then \
 	    ($(foreach d,$(COMP_LIB_COMPONENTS), \
-	        $(MAKE) $(d); \
+	        $(MAKE) --no-print-directory $(d); \
 	        if [ $$? != 0 ]; then \
 	            echo -e "\rFailed to build $(LIBA_TARGET_$(d)) in $(d)"; \
 	            exit 10; \
