@@ -46,17 +46,10 @@ static void iotx_response_handler(void * arg, void * p_response)
     printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
 }
 
-#if 0
-#define IOTX_PRODUCT_KEY         "trTceekBd1P"
-#define IOTX_DEVICE_NAME         "KAW7ihRrroLevlHN1y21"
-#define IOTX_DEVICE_SECRET       "0yscIv4r7cIc3aDu6kKGvyVVEWvobQF6"
-#define IOTX_DEVICE_ID           "trTceekBd1P.KAW7ihRrroLevlHN1y21"
-#else
-#define IOTX_PRODUCT_KEY         "GJ2uoVqx7ka"
-#define IOTX_DEVICE_NAME         "dev1"
-#define IOTX_DEVICE_SECRET       "Rdzq3RkePPcAjX82rz2yANa4BREwIWvW"
-#define IOTX_DEVICE_ID           "dev1.GJ2uoVqx7ka"
-#endif
+#define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
+#define IOTX_DEVICE_NAME         "IoTxCoAPTestDev"
+#define IOTX_DEVICE_SECRET       "Stk4IUErQUBc1tWRWEKWb5ACra4hFDYF"
+#define IOTX_DEVICE_ID           "IoTxCoAPTestDev.1"
 
 int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
 {
@@ -70,6 +63,10 @@ int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
     strncpy(p_devinfo->device_secret,IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
     strncpy(p_devinfo->device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
 
+    fprintf(stderr, "*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
+    fprintf(stderr, "*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
+    fprintf(stderr, "*****The Device Secret: %s *****\r\n", p_devinfo->device_secret);
+    fprintf(stderr, "*****The Device ID    : %s *****\r\n", p_devinfo->device_id);
     return IOTX_SUCCESS;
 }
 
