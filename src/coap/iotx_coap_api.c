@@ -501,8 +501,6 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     /*Register the event handle to notify the application */
     p_iotx_coap->event_handle = p_config->event_handle;
 
-    /*Register the error code handler*/
-    //coap_register_error_handler(p_iotx_coap->p_coap_ctx, iotx_error_callback);
     return (iotx_coap_context_t *)p_iotx_coap;
 err:
     /*Error, free the memory*/

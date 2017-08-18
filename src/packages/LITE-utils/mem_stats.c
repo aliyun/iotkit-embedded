@@ -113,6 +113,10 @@ void *LITE_malloc_internal(const char *f, const int l, int size)
     iterations_max_in_use = (iterations_in_use > iterations_max_in_use) ? iterations_in_use : iterations_max_in_use;
 
     pos = malloc(sizeof(OS_malloc_record));
+    if(NULL == pos){
+        free(ptr);
+        return NULL;
+    }
     memset(pos, 0, sizeof(OS_malloc_record));
 
     pos->buf = ptr;
@@ -156,6 +160,9 @@ void *LITE_malloc_internal(const char *f, const int l, int size)
     return ptr;
 #else
     ptr = malloc(size);
+    if(NULL == ptr){
+        return NULL;
+    }
     memset(ptr, 0, size);
     return ptr;
 #endif
