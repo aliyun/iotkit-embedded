@@ -21,6 +21,7 @@
 
 LIST_HEAD(mem_recs);
 
+#if WITH_MEM_STATS
 static int bytes_total_allocated;
 static int bytes_total_freed;
 static int bytes_total_in_use;
@@ -30,8 +31,10 @@ static int iterations_allocated;
 static int iterations_freed;
 static int iterations_in_use;
 static int iterations_max_in_use;
+#endif
 
 #if defined(_PLATFORM_IS_LINUX_)
+#if WITH_MEM_STATS
 static int tracking_malloc_callstack = 1;
 
 static int record_backtrace(int *level, char *** trace)
@@ -54,6 +57,7 @@ void LITE_track_malloc_callstack(int state)
 {
     tracking_malloc_callstack = state;
 }
+#endif
 #endif  /* defined(_PLATFORM_IS_LINUX_) */
 
 void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size)
