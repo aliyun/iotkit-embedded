@@ -3,7 +3,7 @@
 
 # 版本V2.0
 
-- 发布日期: 2017/XX/YY
+- 发布日期: 2017/08/21
 - 开发语言: C语言
 - 开发环境: 64位Linux, GNU Make
 - 下载链接: [IoT-SDK_V2.0.tar.bz2](http://aliyun-iot.oss-cn-hangzhou.aliyuncs.com/iot-sdk-c/IoT-SDK_V2.0.tar.bz2)
