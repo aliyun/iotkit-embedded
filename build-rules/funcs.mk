@@ -117,7 +117,9 @@ define Build_CompLib
 	            echo -e "\rFailed to build $(LIBA_TARGET_$(d)) in $(d)"; \
 	            exit 10; \
 	        else \
-	            rm -f $(SYSROOT_LIB)/$(LIBA_TARGET_$(d)); \
+	            if [ "$(LIBA_TARGET_$(d))" != "" ]; then \
+	                rm -f $(SYSROOT_LIB)/$(LIBA_TARGET_$(d)); \
+	            fi; \
 	        fi; \
 	    )); \
 	    if  [ $$? != 0 ]; then \
