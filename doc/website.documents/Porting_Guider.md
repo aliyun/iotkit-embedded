@@ -2,37 +2,38 @@
 
 ## V2.0设备端C-SDK概述
 
-        +---------------------------+            +---------------------------+
-        |                           |            |                           | =>  构建完成后产生:
-        |  IoT SDK Example Program  |            | sample/mqtt|coap|ota/*.c  |
-        |                           |            |                           |     output/release/bin/*-example
-        +---------------------------+            +---------------------------+
-        |                           |            |                           | =>  SDK提供功能的API, 都在这里声明
-        |  IoT SDK Interface Layer  |            | src/sdk-impl/iot_export.h | =>  构建完成后产生:
-        |                           |            |                           |
-        |     IOT_XXX_YYY() APIs    |            |  Has all APIs' prototype  |     output/release/include/iot-sdk/iot_export.h
-        |                           |            |                           |     output/release/include/iot-sdk/exports/*.h
-        +---------------------------+            +---------------------------+
-        |                           |            |                           | =>  SDK提供功能的API, 都在这里实现
-        |                           |            | src/utils: utilities      | =>  构建完成后产生:
-        |                           |   +--->    | src/log: logging          |
-        |  IoT SDK Core Implements  |            | src/guider: authenticate  |     output/release/lib/libiot_sdk.a
-        |  : =>                     |   <---+    | src/system: device mgmt   |
-        |  : You SHOULD NOT Focus   |            | src/mqtt: MQTT client     |
-        |  : on this unless         |            | src/coap: CoAP client     |
-        |  : you're debugging bugs  |            | src/shadow: device shadow |
-        |                           |            | src/ota: OTA channel      |
-        |                           |            |                           |
-        +---------------------------+            +---------------------------+
-        |                           |            |                           | =>  SDK仅含有示例代码, 移植时需二次开发
-        |  Hardware Abstract Layer  |            | src/sdk-impl/iot_import.h | =>  构建完成后产生:
-        |                           |            | : =>                      |
-        |     HAL_XXX_YYY() APIs    |            | : HAL_*() declarations    |     output/release/lib/libiot_platform.a
-        |                           |            |                           |
-        |  : You MUST Implement     |            | src/platform/*/*/*.c      |     output/release/include/iot-sdk/iot_import.h
-        |  : this part for your     |            | : =>                      |     output/release/include/iot-sdk/imports/*.h
-        |  : target device first    |            | : HAL_*() example impls   |
-        +---------------------------+            +---------------------------+
+        +---------------------------+         +---------------------------+
+        |                           |         |                           | =>  构建完成后产生:
+        |  IoT SDK Example Program  |         | sample/mqtt|coap|ota/*.c  |
+        |                           |         |                           |     output/release/bin/*-example
+        +---------------------------+         +---------------------------+
+        |                           |         |                           | =>  SDK提供功能的API, 都在这里声明
+        |  IoT SDK Interface Layer  |         | src/sdk-impl/iot_export.h | =>  构建完成后产生:
+        |                           |         |                           |
+        |     IOT_XXX_YYY() APIs    |         |  Has all APIs' prototype  |     output/release/include/
+        |                           |         |                           |         iot-sdk/iot_export.h
+        |                           |         |                           |         iot-sdk/exports/*.h
+        +---------------------------+         +---------------------------+
+        |                           |         |                           | =>  SDK提供功能的API, 都在这里实现
+        |                           |         | src/utils: utilities      | =>  构建完成后产生:
+        |                           |  +--->  | src/log: logging          |
+        |  IoT SDK Core Implements  |         | src/guider: authenticate  |     output/release/lib/
+        |  : =>                     |  <---+  | src/system: device mgmt   |         libiot_sdk.a
+        |  : You SHOULD NOT Focus   |         | src/mqtt: MQTT client     |
+        |  : on this unless         |         | src/coap: CoAP client     |
+        |  : you're debugging bugs  |         | src/shadow: device shadow |
+        |                           |         | src/ota: OTA channel      |
+        |                           |         |                           |
+        +---------------------------+         +---------------------------+
+        |                           |         |                           | =>  SDK仅含有示例代码, 移植时需二次开发
+        |  Hardware Abstract Layer  |         | src/sdk-impl/iot_import.h | =>  构建完成后产生:
+        |                           |         | : =>                      |
+        |     HAL_XXX_YYY() APIs    |         | : HAL_*() declarations    |     output/release/lib/
+        |                           |         |                           |         libiot_platform.a
+        |  : You MUST Implement     |         | src/platform/*/*/*.c      |     output/release/include/
+        |  : this part for your     |         | : =>                      |         iot-sdk/iot_import.h
+        |  : target device first    |         | : HAL_*() example impls   |         iot-sdk/imports/*.h
+        +---------------------------+         +---------------------------+
 
 2.0版本相对1.0.1版本在结构性方面, 升级了编译系统, 支持后续功能模块的灵活迭代和裁剪, 但是在代码架构方面, 和1.0.1版本保持恒定, 也是分为三层的, 如上图
 
