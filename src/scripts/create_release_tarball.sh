@@ -30,6 +30,9 @@ cd ${WORKDIR}
 sed -i 's:^# PLATFORM_CC.*:# PLATFORM_CC = /path/to/your/cross/gcc:1' make.settings
 sed -i 's:^# PLATFORM_AR.*:# PLATFORM_AR = /path/to/your/cross/ar:1'  make.settings
 sed -i '/CFLAGS.*-DTEST.*/d' makefile
+sed -i '/COVERAGE_CMD/d' makefile
+sed -i 's/^.*WITH_MEM_STATS.*/#define WITH_MEM_STATS  0/g' src/packages/LITE-utils/lite-utils_config.h
+sed -i 's/-rdynamic//g; s/--coverage//g' src/configs/config.desktop.x86
 find . -name "iot.mk" -exec sed -i '/PKG_UPDATE/d' {} \;
 for iter in $(find . -name "*.[ch]"); do
     for REPL in PRODUCT_KEY DEVICE_NAME DEVICE_SECRET DEVICE_ID; do

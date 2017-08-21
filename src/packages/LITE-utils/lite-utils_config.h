@@ -21,7 +21,7 @@
 #define __LITE_UTILS_CONFIG_H__
 
 #ifdef _PLATFORM_IS_LINUX_
-#define WITH_MEM_STATS  0
+#define WITH_MEM_STATS  1
 #else
 #define WITH_MEM_STATS  0
 #endif

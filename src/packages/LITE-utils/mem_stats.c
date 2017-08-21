@@ -39,7 +39,7 @@ static int tracking_malloc_callstack = 1;
 
 static int record_backtrace(int *level, char *** trace)
 {
-#define MAX_BT_LEVEL    20
+#define MAX_BT_LEVEL    8
 
     void       *buffer[MAX_BT_LEVEL];
 
