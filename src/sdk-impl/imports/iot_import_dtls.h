@@ -17,16 +17,9 @@
  */
 
 
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "iot_import_coap.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/platform.h"
-#include "mbedtls/sha256.h"
-#include "mbedtls/debug.h"
-#include "mbedtls/timing.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ssl_cookie.h"
 
 
 #ifndef __COAP_DTLS_H__
