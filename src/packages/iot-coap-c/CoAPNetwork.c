@@ -187,7 +187,7 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
                                   const unsigned char  * p_data,
                                   unsigned int           datalen)
 {
-    unsigned int rc = COAP_ERROR_INTERNAL;
+    int rc = COAP_ERROR_INTERNAL;
 
 #ifdef COAP_DTLS_SUPPORT
     if(COAP_ENDPOINT_DTLS == p_network->ep_type){
@@ -211,7 +211,7 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
 #ifdef COAP_DTLS_SUPPORT
     }
 #endif
-    return rc;
+    return (unsigned int)rc;
 }
 
 int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
