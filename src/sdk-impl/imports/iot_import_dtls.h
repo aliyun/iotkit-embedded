@@ -19,17 +19,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "iot_import_coap.h"
-
 
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__
 
-
 #define dtls_log_print(level, ...) \
     {\
-    fprintf(stderr, "%s [%s #%d]   ",level, __FILE__, __LINE__); \
-    fprintf(stderr, __VA_ARGS__);\
+        fprintf(stderr, "%s [%s #%d]   ",level, __FILE__, __LINE__); \
+        fprintf(stderr, __VA_ARGS__);\
     }
 
 #define DTLS_TRC(fmt,  args...)  dtls_log_print("<TRACE>", fmt, ##args)
@@ -53,7 +52,7 @@
 
 
 typedef  int (*coap_dtls_send_t)(void *socket_id,
-                           const unsigned char  *p_data,
+                                 const unsigned char  *p_data,
                                  size_t          datalen);
 
 
@@ -62,21 +61,19 @@ typedef  int (*coap_dtls_recv_t)(void *socket_id,
                                  size_t           datalen);
 
 typedef  int (*coap_dtls_recv_timeout_t)(void *socket_id,
-                              unsigned char   *p_data,
-                              size_t           datalen,
-                              unsigned int     timeout);
+        unsigned char   *p_data,
+        size_t           datalen,
+        unsigned int     timeout);
 
 
-typedef struct
-{
+typedef struct {
     int               socket_id;
     unsigned char     remote_addr[NETWORK_ADDR_LEN];
     unsigned short    remote_port;
 } dtls_network_t;
 
 
-typedef struct
-{
+typedef struct {
     dtls_network_t            network;
     coap_dtls_send_t          send_fn;
     coap_dtls_recv_t          recv_fn;
@@ -93,14 +90,14 @@ DTLSContext *HAL_DTLSSession_init();
 unsigned int HAL_DTLSSession_create(DTLSContext *conetxt, coap_dtls_options_t  *p_options);
 
 unsigned int HAL_DTLSSession_write(DTLSContext *conetxt,
-                          const unsigned char   *p_data,
-                                unsigned int    *p_datalen);
+                                   const unsigned char   *p_data,
+                                   unsigned int    *p_datalen);
 
 
 unsigned int HAL_DTLSSession_read(DTLSContext *conetxt,
-                               unsigned char   *p_data,
-                               unsigned int    *p_datalen,
-                               unsigned int     timeout);
+                                  unsigned char   *p_data,
+                                  unsigned int    *p_datalen,
+                                  unsigned int     timeout);
 
 unsigned int HAL_DTLSSession_free(DTLSContext *conetxt);
 
