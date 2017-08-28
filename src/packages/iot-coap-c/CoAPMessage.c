@@ -18,9 +18,12 @@
 
 
 
+#include "stdio.h"
 #include "CoAPExport.h"
 #include "CoAPSerialize.h"
 #include "CoAPDeserialize.h"
+#include "iot_import.h"
+
 
 #define COAPAckMsg(header) \
             ((header.code == COAP_MSG_CODE_EMPTY_MESSAGE) \
@@ -390,7 +393,8 @@ static void CoAPMessage_handle(CoAPContext *context,
     memset(&message, 0x00, sizeof(CoAPMessage));
 
     ret = CoAPDeserialize_Message(&message, buf, datalen);
-    COAP_DEBUG("-----payload: %s---\r\n", message.payload);
+    if(NULL != message.payload)
+		COAP_DEBUG("-----payload: %s---\r\n", message.payload);
     COAP_DEBUG("-----code   : 0x%x---\r\n", message.header.code);
     COAP_DEBUG("-----type   : 0x%x---\r\n", message.header.type);
     COAP_DEBUG("-----msgid  : %d---\r\n", message.header.msgid);
@@ -428,7 +432,6 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
             return 0;
         }
     }
-    return -1;
 }
 
 int CoAPMessage_cycle(CoAPContext *context)

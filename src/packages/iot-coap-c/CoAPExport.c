@@ -20,8 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-
+#include "ctype.h"
+#include "iot_import.h"
 
 #include "CoAPNetwork.h"
 #include "CoAPExport.h"

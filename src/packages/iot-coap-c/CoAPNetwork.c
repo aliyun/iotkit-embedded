@@ -23,6 +23,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "iot_import.h"
 #include "CoAPExport.h"
 #include "iot_import_coap.h"
 #include "iot_import_dtls.h"

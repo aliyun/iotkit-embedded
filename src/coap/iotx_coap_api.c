@@ -420,7 +420,7 @@ int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code
         return IOTX_ERR_INVALID_PARAM;
     }
     message = (CoAPMessage *)p_message;
-    *p_resp_code   = message->header.code;
+    *p_resp_code   = (iotx_coap_resp_code_t) message->header.code;
 
     return IOTX_SUCCESS;
 }
