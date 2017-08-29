@@ -20,6 +20,9 @@
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 
+#define typeof __typeof__
+#define inline __inline
+
 typedef struct list_head list_head_t;
 
 struct list_head {

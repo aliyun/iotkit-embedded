@@ -171,8 +171,8 @@ void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
                 IOT_CoAP_DeviceNameAuth(p_context);
                 COAP_INFO("IoTx token expired, will reauthenticate\r\n");
             }
-            // TODO: call event handle to notify application
-            //p_context->event_handle();
+            /* TODO: call event handle to notify application */
+            /* p_context->event_handle(); */
             break;
         }
 
@@ -382,7 +382,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
         return IOTX_SUCCESS;
     }
     else{
-        //COAP_INFO("The client hasn't auth success\r\n");
+        /* COAP_INFO("The client hasn't auth success\r\n"); */
         return IOTX_ERR_NOT_AUTHED;
     }
 }

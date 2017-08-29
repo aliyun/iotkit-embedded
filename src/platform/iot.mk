@@ -8,3 +8,6 @@ LIB_SRCS    += $(wildcard product/$(PLATFORM_OS)/*.c)
 DEPENDS     += src/external/mbedtls
 
 HDR_REFS    += src/sdk-impl
+
+CFLAGS      := $(filter-out -ansi,$(CFLAGS))
+CFLAGS      := $(filter-out -std=c89,$(CFLAGS))
