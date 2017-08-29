@@ -15,11 +15,11 @@
  * limitations under the License.
  *
  */
-
-
 #ifndef __LITE_LOG_INTERNAL_H__
 #define __LITE_LOG_INTERNAL_H__
 
+#include <stdio.h>
+#include <string.h>
 #include <stdarg.h>
 #include "lite-log.h"
 

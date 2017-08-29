@@ -27,8 +27,8 @@
 typedef struct {
 
     const char *url;
-    httpclient_t http;          /* http client */
-    httpclient_data_t http_data;//http client data
+    httpclient_t http;              /* http client */
+    httpclient_data_t http_data;    /* http client data */
 
 }otahttp_Struct_t, *otahttp_Struct_pt;
 

@@ -19,6 +19,7 @@
 
 #include "lite-utils_internal.h"
 #include "string_utils.h"
+#include "iot_import.h"
 
 char *LITE_format_string(const char *fmt, ...)
 {
@@ -28,13 +29,14 @@ char *LITE_format_string(const char *fmt, ...)
     int             rc = -1;
 
     va_start(ap, fmt);
-    rc = vasprintf(&tmp, fmt, ap);
+    tmp = HAL_Malloc(512);
+    rc = vsprintf(tmp, fmt, ap);
     va_end(ap);
     assert(tmp);
     assert(rc < 1024);
 
     dst = LITE_strdup(tmp);
-    free(tmp);
+    HAL_Free(tmp);
 
     return dst;
 }
@@ -47,14 +49,15 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
     int             rc = -1;
 
     va_start(ap, fmt);
-    rc = vasprintf(&tmp, fmt, ap);
+    tmp = HAL_Malloc(512);
+    rc = vsprintf(tmp, fmt, ap);
     va_end(ap);
     assert(tmp);
     assert(rc < 1024);
 
     dst = LITE_malloc(len + 1);
     LITE_snprintf(dst, (len + 1), "%s", tmp);
-    free(tmp);
+    HAL_Free(tmp);
 
     return dst;
 }
