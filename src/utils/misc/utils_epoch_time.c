@@ -76,7 +76,7 @@ uint64_t utils_get_epoch_time(char copy[], int len)
         res += cnv;
         log_debug("res = %ld", res);
 
-        snprintf(copy, len, "%s", http_content);
+        HAL_Snprintf(copy, len, "%s", http_content);
         return res;
     }
 }

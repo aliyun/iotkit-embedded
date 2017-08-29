@@ -173,14 +173,14 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
 int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *version)
 {
     int ret;
-    ret = snprintf(buf,
+    ret = HAL_Snprintf(buf,
             buf_len,
             "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
             id,
             version);
 
     if (ret < 0) {
-        OTA_LOG_ERROR("snprintf failed");
+        OTA_LOG_ERROR("HAL_Snprintf failed");
         return -1;
     }
 
@@ -195,13 +195,13 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
 {
     int ret;
     if (NULL == msg_detail) {
-        ret = snprintf(buf,
+        ret = HAL_Snprintf(buf,
                 buf_len,
                 "{\"id\":%d,\"params\":\{\"step\": \"%d\"}}",
                  id,
                  progress);
     } else {
-        ret = snprintf(buf,
+        ret = HAL_Snprintf(buf,
                 buf_len,
                 "{\"id\":%d,\"params\":\{\"step\": \"%d\",\"desc\":\"%s\"}}",
                  id,
@@ -211,7 +211,7 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
 
 
     if (ret < 0) {
-        OTA_LOG_ERROR("snprintf failed");
+        OTA_LOG_ERROR("HAL_Snprintf failed");
         return -1;
     } else if (ret >= buf_len) {
         OTA_LOG_ERROR("msg is too long");

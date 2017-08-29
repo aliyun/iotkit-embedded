@@ -2,7 +2,6 @@ DEPENDS             := src/platform
 LDFLAGS             := -liot_sdk
 LDFLAGS             += -liot_platform
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
-CFLAGS              := $(filter-out -std=c89,$(CFLAGS))
 
 ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
 TARGET              += mqtt-example mqtt_rrpc-example

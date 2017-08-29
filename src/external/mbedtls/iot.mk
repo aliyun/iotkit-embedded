@@ -2,7 +2,6 @@ ORIGIN  := 1
 
 PKG_SOURCE  := $(PACKAGE_DIR)/mbedtls-2.5.0.tar.bz2
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
-CFLAGS      := $(filter-out -std=c89,$(CFLAGS))
 REF_LDFLAGS := -lmbedtls -lmbedx509 -lmbedcrypto
 
 config:

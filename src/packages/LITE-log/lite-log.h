@@ -31,7 +31,7 @@ extern "C" {
 
 #define LITE_printf                     HAL_Printf
 #define LITE_sprintf                    sprintf
-#define LITE_snprintf                   snprintf
+#define LITE_snprintf                   HAL_Snprintf
 
 typedef enum _LOGLEVEL {
     LOG_EMERG_LEVEL = 0,    /* OS system is unavailable */

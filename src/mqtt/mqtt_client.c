@@ -656,7 +656,7 @@ static int _fill_replay_fender(
     ptr = (uint8_t *) & (f->hmac_len);
     writeUint16(&ptr, HMAC_MD5_LEN * 2);
 
-    snprintf((char *)hmac_source, sizeof(hmac_source),
+    HAL_Snprintf((char *)hmac_source, sizeof(hmac_source),
              "%s%d%d",
              topic, msg_id, enc_payloadlen);
     hmac_srclen = strlen(hmac_source);

@@ -158,7 +158,7 @@ void HAL_SleepMs(_IN_ uint32_t ms);
  * @note None.
  */
 void HAL_Printf(_IN_ const char *fmt, ...);
-
+int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...);
 
 /**
  * @brief Get vendor ID of hardware module.
