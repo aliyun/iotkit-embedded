@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 #include "lite-log_internal.h"
 
 #define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    \
@@ -55,7 +56,7 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
             LITE_printf(" ");
             written += 1;
         }
-        LITE_sprintf((char *__restrict__)ascii + i % 16, "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
+        LITE_sprintf((char *)ascii + i % 16, "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
 
         if (((i + 1) % 16 == 0) || (i == len - 1)) {
             for (j = 0; j < 48 - written; ++j) {

@@ -69,12 +69,12 @@ struct iotx_shadow_attr_st;
 
 typedef void (*iotx_shadow_attr_cb_t)(struct iotx_shadow_attr_st *pattr);
 typedef struct iotx_shadow_attr_st {
-    iotx_shadow_datamode_t mode;       /* /< data mode */
-    const char *pattr_name;             /* /< attribute name */
-    void *pattr_data;                   /* /< pointer to the attribute data */
-    iotx_shadow_attr_datatype_t attr_type;    /* /< data type */
-    uint32_t timestamp;                 /* /timestamp in Epoch(Unix) format */
-    iotx_shadow_attr_cb_t callback;    /* /< callback when related control message come. */
+    iotx_shadow_datamode_t mode;            /* data mode */
+    const char *pattr_name;                 /* attribute name */
+    void *pattr_data;                       /* pointer to the attribute data */
+    iotx_shadow_attr_datatype_t attr_type;  /* data type */
+    uint32_t timestamp;                     /* timestamp in Epoch(Unix) format */
+    iotx_shadow_attr_cb_t callback;         /* callback when related control message come. */
 } iotx_shadow_attr_t, *iotx_shadow_attr_pt;
 
 typedef struct {
