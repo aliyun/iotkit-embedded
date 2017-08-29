@@ -36,7 +36,9 @@
 #include "utils_hmac.h"
 #include "utils_httpc.h"
 #include "ca.h"
+#ifdef MQTT_ID2_AUTH
 #include "tfs/tfs.h"
+#endif
 #include "guider.h"
 
 #define GUIDER_IOT_ID_LEN           (256)

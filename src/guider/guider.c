@@ -16,17 +16,15 @@
  *
  */
 
-
 #include "guider_internal.h"
 
-extern int httpclient_common(
-            httpclient_t *client,
-            const char *url,
-            int port,
-            const char *ca_crt,
-            int method,
-            uint32_t timeout_ms,
-            httpclient_data_t *client_data);
+extern int httpclient_common(httpclient_t *client,
+                             const char *url,
+                             int port,
+                             const char *ca_crt,
+                             int method,
+                             uint32_t timeout_ms,
+                             httpclient_data_t *client_data);
 extern uint64_t utils_get_epoch_time(char copy[], int len);
 
 #define SHA_METHOD              "hmacsha1"
@@ -201,12 +199,12 @@ static int _calc_hmac_signature(
     memset(signature, 0, sizeof(signature));
     memset(hmac_source, 0, sizeof(hmac_source));
     rc = HAL_Snprintf(hmac_source,
-                  sizeof(hmac_source),
-                  "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
-                  dev->device_id,
-                  dev->device_name,
-                  dev->product_key,
-                  timestamp_str);
+                      sizeof(hmac_source),
+                      "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+                      dev->device_id,
+                      dev->device_name,
+                      dev->product_key,
+                      timestamp_str);
     assert(rc < sizeof(hmac_source));
     log_debug("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
     log_debug("| secret: %s (%d)", dev->device_secret, (int)strlen(dev->device_secret));
@@ -265,9 +263,9 @@ static int _http_response(char *payload,
     memset(requ_payload, 0, HTTP_POST_MAX_LEN);
 
     len = HAL_Snprintf(requ_payload,
-                   HTTP_POST_MAX_LEN,
-                   "%s",
-                   request_string);
+                       HTTP_POST_MAX_LEN,
+                       "%s",
+                       request_string);
     assert(len < HTTP_POST_MAX_LEN);
     log_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
@@ -579,7 +577,7 @@ static SECURE_MODE _secure_mode_num(void)
             #ifdef MQTT_ID2_CRYPTO
             rc = MODE_TCP_GUIDER_ID2_ENCRYPT;
             #else
-            rc = -1;
+            rc = MODE_TLS_GUIDER;
             #endif
         #else   /* MQTT_ID2_AUTH */
         rc = MODE_TLS_GUIDER;
@@ -652,6 +650,8 @@ static char *_authenticate_string(char sign[], char ts[]
 #endif
                                  )
 {
+#define AUTH_STRING_MAXLEN  (1024)
+
     char                   *ret = NULL;
     iotx_device_info_pt     dev = NULL;
     int                     rc = -1;
@@ -659,34 +659,38 @@ static char *_authenticate_string(char sign[], char ts[]
     dev = iotx_device_info_get();
     assert(dev);
 
+    ret = HAL_Malloc(AUTH_STRING_MAXLEN);
+    assert(ret);
+    memset(ret, 0, AUTH_STRING_MAXLEN);
+
 #ifdef MQTT_ID2_AUTH
-    rc = asprintf(&ret,
-                  "id2=%s&" "sign=%s&"
+    rc = sprintf(ret,
+                 "id2=%s&" "sign=%s&"
 #ifdef IOTX_WITHOUT_TLS
-                  "deviceCode=%s&"
+                 "deviceCode=%s&"
 #endif
-                  "timestamp=%s&" "version=default&" "clientId=%s&" "resources=mqtt,codec",
-                  id2, sign,
+                 "timestamp=%s&" "version=default&" "clientId=%s&" "resources=mqtt,codec",
+                 id2, sign,
 #ifdef IOTX_WITHOUT_TLS
-                  dev_code,
+                 dev_code,
 #endif
-                  ts, dev->device_id);
+                 ts, dev->device_id);
 #else
-    rc = asprintf(&ret,
-                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
-                  "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
-                  , dev->product_key
-                  , dev->device_name
+    rc = sprintf(ret,
+                 "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
+                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
+                 , dev->product_key
+                 , dev->device_name
 #if USING_SHA1_IN_HMAC
-                  , SHA_METHOD
+                 , SHA_METHOD
 #else
-                  , MD5_METHOD
+                 , MD5_METHOD
 #endif
-                  , sign
-                  , dev->device_id
-                  , ts);
+                 , sign
+                 , dev->device_id
+                 , ts);
 #endif
-    assert(rc < 1024);
+    assert(rc < AUTH_STRING_MAXLEN);
 
     return ret;
 }
@@ -712,21 +716,11 @@ static int _fill_conn_string(char *dst, int len, const char *fmt, ...)
     return 0;
 }
 
-/*
-    struct {
-        char            host_name[HOST_ADDRESS_LEN + 1];
-        uint16_t        port;
-        char            user_name[USER_NAME_LEN + 1];
-        char            password[PASSWORD_LEN + 1];
-        char            client_id[CLIENT_ID_LEN + 1];
-        const char *    pubKey;
-    }
-*/
 int iotx_guider_authenticate(void)
 {
     char                guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
-    SECURE_MODE         guider_secmode_num = 0;
+    SECURE_MODE         guider_secmode_num = MODE_TLS_GUIDER;
     char                guider_secmode_str[CONN_SECMODE_LEN] = {0};
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
     char                guider_timestamp_str[GUIDER_TS_LEN] = {0};
@@ -807,7 +801,7 @@ int iotx_guider_authenticate(void)
                                   iotx_conn_host,
                                   &iotx_conn_port)) {
         if (req_str) {
-            free(req_str);
+            HAL_Free(req_str);
         }
 
         log_err("_iotId_iotToken_http() failed");
@@ -885,7 +879,7 @@ int iotx_guider_authenticate(void)
     log_debug("%s", "-----------------------------------------");
 
     if (req_str) {
-        free(req_str);
+        HAL_Free(req_str);
     }
 
 #ifdef MQTT_ID2_AUTH
