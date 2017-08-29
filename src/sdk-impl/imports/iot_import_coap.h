@@ -17,7 +17,7 @@
  */
 
 
-
+#include "iot_import.h"
 #ifndef __COAP_PLATFORM_H__
 #define __COAP_PLATFORM_H__
 

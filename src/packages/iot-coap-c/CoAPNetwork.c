@@ -32,79 +32,6 @@
 #ifdef COAP_DTLS_SUPPORT
 static void CoAPNetworkDTLS_freeSession (coap_remote_session_t *p_session);
 
-
-
-int DTLSNetwork_send( void *ctx, const unsigned char *buf, unsigned int len )
-{
-    int ret = -1;
-    coap_address_t remote;
-    dtls_network_t *p_network = NULL;
-    if(NULL==ctx || NULL==buf) {
-        return -1;
-    }
-    p_network  = (dtls_network_t *)ctx;
-    memset(&remote, 0x00, sizeof(coap_address_t));
-    remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
-    ret = HAL_UDP_write((void *)&p_network->socket_id,
-                             &remote, buf, len);
-    if(-1 == ret) {
-        return -1;
-    }
-
-    return ret;
-}
-
-int DTLSNetwork_recv( void *ctx, unsigned char *buf, size_t len )
-{
-    int    ret;
-    coap_address_t remote;
-    dtls_network_t *p_network = NULL;
-
-    if(NULL==ctx || NULL==buf) {
-        return -1;
-    }
-
-    p_network  = (dtls_network_t *)ctx;
-    remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
-    ret = HAL_UDP_read((void *)&p_network->socket_id, &remote,  buf, len);
-    if(-1 == ret) {
-        return -1;
-    }
-    return ret;
-}
-
-int DTLSNetwork_recvTimeout( void *ctx, unsigned char *buf, size_t len, unsigned int timeout)
-{
-    int    ret;
-    coap_address_t remote;
-    dtls_network_t *p_network = NULL;
-
-    if(NULL==ctx || NULL==buf) {
-        return -1;
-    }
-
-    p_network  = (dtls_network_t *)ctx;
-    remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
-    ret = HAL_UDP_readTimeout((void *)&p_network->socket_id, &remote, buf, len, timeout);
-    if(-1 == ret) {
-        return -1;
-    }
-    else if(-2 == ret){
-        return  -0x6800; /* MBEDTLS_ERR_SSL_TIMEOUT */
-    }
-    else if(-3 == ret){
-        return -0x6900; /* MBEDTLS_ERR_SSL_WANT_READ */
-    }
-    else if(-4 == ret){
-        return -0x004C; /* MBEDTLS_ERR_NET_RECV_FAILED */
-    }
-    return ret;
-}
-
-
 unsigned int CoAPNetworkDTLS_read(coap_remote_session_t *p_session,
                                       unsigned char              *p_data,
                                       unsigned int               *p_datalen,
@@ -162,9 +89,6 @@ static unsigned int CoAPNetworkDTLS_createSession(int                        soc
     unsigned int err_code = COAP_SUCCESS;
 
     memset(&dtls_options, 0x00, sizeof(coap_dtls_options_t));
-    dtls_options.send_fn           = (coap_dtls_send_t)DTLSNetwork_send;
-    dtls_options.recv_fn           = DTLSNetwork_recv;
-    dtls_options.recv_timeout_fn   = (coap_dtls_recv_timeout_t)DTLSNetwork_recvTimeout;
     dtls_options.p_ca_cert_pem     = p_ca_cert_pem;
     dtls_options.network.socket_id = socket_id;
     dtls_options.network.remote_port = p_remote->port;

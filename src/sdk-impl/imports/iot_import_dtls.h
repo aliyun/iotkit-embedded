@@ -50,23 +50,8 @@
 #define DTLS_SESSION_CREATE_FAILED     (DTLS_ERROR_BASE | 7)
 #define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
 
-
-typedef  int (*coap_dtls_send_t)(void *socket_id,
-                                 const unsigned char  *p_data,
-                                 size_t          datalen);
-
-
-typedef  int (*coap_dtls_recv_t)(void *socket_id,
-                                 unsigned char   *p_data,
-                                 size_t           datalen);
-
-typedef  int (*coap_dtls_recv_timeout_t)(void *socket_id,
-        unsigned char   *p_data,
-        size_t           datalen,
-        unsigned int     timeout);
-
-
-typedef struct {
+typedef struct
+{
     int               socket_id;
     unsigned char     remote_addr[NETWORK_ADDR_LEN];
     unsigned short    remote_port;
@@ -75,9 +60,6 @@ typedef struct {
 
 typedef struct {
     dtls_network_t            network;
-    coap_dtls_send_t          send_fn;
-    coap_dtls_recv_t          recv_fn;
-    coap_dtls_recv_timeout_t  recv_timeout_fn;
     unsigned char             *p_ca_cert_pem;
     char                      *p_host;
 } coap_dtls_options_t;

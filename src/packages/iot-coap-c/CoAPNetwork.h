@@ -33,7 +33,6 @@ typedef enum
 typedef struct
 {
     DTLSContext         *context;
-    int                  socket_id;
 } coap_remote_session_t;
 
 
