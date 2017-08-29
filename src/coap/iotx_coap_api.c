@@ -65,7 +65,7 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
     memset(sign,  0x00, IOTX_SIGN_LENGTH);
     memset(p_msg, 0x00, IOTX_SIGN_SOURCE_LEN);
 
-    snprintf(p_msg, IOTX_SIGN_SOURCE_LEN,
+    HAL_Snprintf(p_msg, IOTX_SIGN_SOURCE_LEN,
                     IOTX_SIGN_SRC_STR,
                     p_client_id,
                     p_device_name,
@@ -261,7 +261,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     }
     iotx_calc_sign(p_iotx_coap->p_devinfo->device_secret, p_iotx_coap->p_devinfo->device_id,
                 p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, sign);
-    snprintf((char *)p_payload, COAP_MSG_MAX_PDU_LEN,
+    HAL_Snprintf((char *)p_payload, COAP_MSG_MAX_PDU_LEN,
                         IOTX_AUTH_DEVICENAME_STR,
                         p_iotx_coap->p_devinfo->product_key,
                         p_iotx_coap->p_devinfo->device_name,
@@ -487,7 +487,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     }
     else
     {
-        snprintf(url ,sizeof(url), IOTX_COAP_ONLINE_DTLS_SERVER_URL, p_iotx_coap->p_devinfo->product_key);
+        HAL_Snprintf(url ,sizeof(url), IOTX_COAP_ONLINE_DTLS_SERVER_URL, p_iotx_coap->p_devinfo->product_key);
         param.url = url;
         COAP_INFO("Using default CoAP server: %s\r\n", url);
     }

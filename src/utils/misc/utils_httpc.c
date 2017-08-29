@@ -283,7 +283,7 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     memset(send_buf, 0, HTTPCLIENT_SEND_BUF_SIZE);
     len = 0; /* Reset send buffer */
 
-    snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
+    HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
     ret = httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
     if (ret) {
         log_err("Could not write request");
@@ -301,11 +301,11 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     }
 
     if (client_data->post_buf != NULL) {
-        snprintf(buf, sizeof(buf), "Content-Length: %d\r\n", client_data->post_buf_len);
+        HAL_Snprintf(buf, sizeof(buf), "Content-Length: %d\r\n", client_data->post_buf_len);
         httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
 
         if (client_data->post_content_type != NULL) {
-            snprintf(buf, sizeof(buf), "Content-Type: %s\r\n", client_data->post_content_type);
+            HAL_Snprintf(buf, sizeof(buf), "Content-Type: %s\r\n", client_data->post_content_type);
             httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
         }
     }

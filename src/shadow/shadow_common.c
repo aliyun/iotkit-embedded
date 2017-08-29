@@ -39,7 +39,7 @@
     }while(0);
 
 
-/* check return code of snprintf */
+/* check return code of HAL_Snprintf */
 #define CHECK_SNPRINTF_RET(ret_code, buf_len) \
     do{ \
         if ((ret_code) < 0) { \
@@ -71,7 +71,7 @@ iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
 
     size_free_space = pformat->buf_size;
 
-    ret = snprintf(pformat->buf,
+    ret = HAL_Snprintf(pformat->buf,
                    size_free_space,
                    "{\"%s\":\"%s\"",
                    "method",
@@ -84,7 +84,7 @@ iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
     /* copy the JOSN head */
     size_free_space = pformat->buf_size - pformat->offset;
     if (NULL != head_str) {
-        ret = snprintf(pformat->buf + pformat->offset,
+        ret = HAL_Snprintf(pformat->buf + pformat->offset,
                        size_free_space,
                        ",%s",
                        head_str);
@@ -124,7 +124,7 @@ iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
     size_free_space = pformat->buf_size - pformat->offset;
 
     /* add the string: "${pattr->pattr_name}":" */
-    ret = snprintf(pformat->buf + pformat->offset,
+    ret = HAL_Snprintf(pformat->buf + pformat->offset,
                    size_free_space,
                    "\"%s\":",
                    name);
@@ -157,14 +157,14 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
     uint16_t size_free_space = pformat->buf_size - pformat->offset;
 
     if (NULL != tail_str) {
-        ret = snprintf(pformat->buf + pformat->offset, size_free_space, "%s", tail_str);
+        ret = HAL_Snprintf(pformat->buf + pformat->offset, size_free_space, "%s", tail_str);
         CHECK_SNPRINTF_RET(ret, size_free_space);
         pformat->offset += ret;
     }
 
     size_free_space = pformat->buf_size - pformat->offset;
 
-    ret = snprintf(pformat->buf + pformat->offset,
+    ret = HAL_Snprintf(pformat->buf + pformat->offset,
                    size_free_space,
                    UPDATE_JSON_STR_END,
                    iotx_device_info_get()->device_id,
@@ -195,11 +195,11 @@ int iotx_ds_common_convert_data2string(
     }
 
     if (IOTX_SHADOW_INT32 == type) {
-        ret = snprintf(buf, buf_len, "%" PRIi32, *(int32_t *)(pData));
+        ret = HAL_Snprintf(buf, buf_len, "%" PRIi32, *(int32_t *)(pData));
     } else if (IOTX_SHADOW_STRING == type) {
-        ret = snprintf(buf, buf_len, "\"%s\"", (char *)(pData));
+        ret = HAL_Snprintf(buf, buf_len, "\"%s\"", (char *)(pData));
     } else if (IOTX_SHADOW_NULL == type) {
-        ret = snprintf(buf, buf_len, "%s", "\"null\"");
+        ret = HAL_Snprintf(buf, buf_len, "%s", "\"null\"");
     } else {
         log_err("Error data type");
         ret = -1;
@@ -365,7 +365,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
         return NULL;
     }
 
-    ret = snprintf(topic_full,
+    ret = HAL_Snprintf(topic_full,
                    len,
                    SHADOW_TOPIC_FMT,
                    topic,

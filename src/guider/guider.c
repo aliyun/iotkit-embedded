@@ -101,7 +101,7 @@ static int _url_encode(const char *input, char *output)
         } else if (_is_non_symbol(c)) {
             *output++ = *input++;
         } else {
-            snprintf(encoded, 4, "%%%02x", c);
+            HAL_Snprintf(encoded, 4, "%%%02x", c);
             *output++ = encoded[0];
             *output++ = encoded[1];
             *output++ = encoded[2];
@@ -200,7 +200,7 @@ static int _calc_hmac_signature(
 
     memset(signature, 0, sizeof(signature));
     memset(hmac_source, 0, sizeof(hmac_source));
-    rc = snprintf(hmac_source,
+    rc = HAL_Snprintf(hmac_source,
                   sizeof(hmac_source),
                   "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
                   dev->device_id,
@@ -264,7 +264,7 @@ static int _http_response(char *payload,
     }
     memset(requ_payload, 0, HTTP_POST_MAX_LEN);
 
-    len = snprintf(requ_payload,
+    len = HAL_Snprintf(requ_payload,
                    HTTP_POST_MAX_LEN,
                    "%s",
                    request_string);
@@ -552,7 +552,7 @@ static void _timestamp_string(char *buf, int len)
 #ifdef MQTT_ID2_AUTH
     utils_get_epoch_time(buf, len);
 #else
-    snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
+    HAL_Snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
 #endif
     return;
 }
@@ -594,7 +594,7 @@ static SECURE_MODE _secure_mode_num(void)
 static void _secure_mode_str(char *buf, int len)
 {
     memset(buf, 0, len);
-    snprintf(buf, len, "securemode=%d", _secure_mode_num());
+    HAL_Snprintf(buf, len, "securemode=%d", _secure_mode_num());
     return;
 }
 
@@ -605,7 +605,7 @@ static void _ident_partner(char *buf, int len)
     memset(tmp, 0, sizeof(tmp));
     HAL_GetPartnerID(tmp);
     if (strlen(tmp)) {
-        snprintf(buf, len, ",partner_id=%s", tmp);
+        HAL_Snprintf(buf, len, ",partner_id=%s", tmp);
     } else {
         strcpy(buf, "");
     }
@@ -616,10 +616,10 @@ static void _ident_partner(char *buf, int len)
 static void _authenticate_http_url(char *buf, int len)
 {
 #ifdef MQTT_DIRECT
-    snprintf(buf, len, "%s", "");
+    HAL_Snprintf(buf, len, "%s", "");
 #else
 
-    snprintf(buf, len, "%s", "http://");
+    HAL_Snprintf(buf, len, "%s", "http://");
 
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
     strcat(buf, "iot-auth.alibaba.net");

@@ -47,7 +47,7 @@ static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
 {
     int ret;
 
-    ret = snprintf(buf,
+    ret = HAL_Snprintf(buf,
             buf_len,
             "/ota/device/%s/%s/%s",
             ota_topic_type,
@@ -57,7 +57,7 @@ static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
     OTA_ASSERT(ret < buf_len, "buffer should always enough");
 
     if (ret < 0) {
-        OTA_LOG_ERROR("snprintf failed");
+        OTA_LOG_ERROR("HAL_Snprintf failed");
         return -1;
     }
 
