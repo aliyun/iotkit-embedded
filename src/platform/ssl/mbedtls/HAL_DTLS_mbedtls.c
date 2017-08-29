@@ -179,37 +179,6 @@ static void DTLSLog_wrapper(void       * p_ctx, int level,
     DTLS_INFO("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
 }
 
-
-static void DTLSTimer_set(void *data, unsigned int int_ms, unsigned int fin_ms)
-{
-    mbedtls_timing_delay_context *ctx = (mbedtls_timing_delay_context *) data;
-
-    ctx->int_ms = int_ms;
-    ctx->fin_ms = fin_ms;
-
-    if( fin_ms != 0 )
-        (void) mbedtls_timing_get_timer(&ctx->timer, 1);
-}
-
-static int DTLSTimer_get(void *data)
-{
-    mbedtls_timing_delay_context *ctx = (mbedtls_timing_delay_context *) data;
-    unsigned long elapsed_ms;
-
-    if( ctx->fin_ms == 0 )
-        return( -1 );
-
-    elapsed_ms = mbedtls_timing_get_timer( &ctx->timer, 0 );
-
-    if( elapsed_ms >= ctx->fin_ms )
-        return( 2 );
-
-    if( elapsed_ms >= ctx->int_ms )
-        return( 1 );
-
-    return( 0 );
-}
-
 static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_options_t  *p_options)
 {
     int   result = 0;
@@ -225,8 +194,8 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
         {
             mbedtls_ssl_set_timer_cb(&p_dtls_session->context,
                                      (void *)&p_dtls_session->timer,
-                                     DTLSTimer_set,
-                                     DTLSTimer_get);
+                                     mbedtls_timing_set_delay,
+                                     mbedtls_timing_get_delay);
         }
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
