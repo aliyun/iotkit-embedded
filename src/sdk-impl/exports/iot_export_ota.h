@@ -42,16 +42,16 @@ typedef enum {
 } IOT_OTA_Err_t;
 
 
-//State of OTA
+/* State of OTA */
 typedef enum {
-    IOT_OTAS_UNINITED = 0,  //Uninitialized State
-    IOT_OTAS_INITED,        //Initialized State
-    IOT_OTAS_FETCHING,      //Fetching firmware
-    IOT_OTAS_FETCHED        //Fetching firmware finish
+    IOT_OTAS_UNINITED = 0,  /* Uninitialized State */
+    IOT_OTAS_INITED,        /* Initialized State */
+    IOT_OTAS_FETCHING,      /* Fetching firmware */
+    IOT_OTAS_FETCHED        /* Fetching firmware finish */
 } IOT_OTA_State_t;
 
 
-//Progress of OTA
+/* Progress of OTA */
 typedef enum {
 
     /* Burn firmware file failed */
@@ -80,11 +80,11 @@ typedef enum {
 
 typedef enum {
 
-    IOT_OTAG_FETCHED_SIZE,     //option for get already fetched size
-    IOT_OTAG_FILE_SIZE,        //size of file
-    IOT_OTAG_MD5SUM,           //md5 in string format
-    IOT_OTAG_VERSION,          //version in string format
-    IOT_OTAG_CHECK_FIRMWARE    //Check firmware is valid or not
+    IOT_OTAG_FETCHED_SIZE,     /* option for get already fetched size */
+    IOT_OTAG_FILE_SIZE,        /* size of file */
+    IOT_OTAG_MD5SUM,           /* md5 in string format */
+    IOT_OTAG_VERSION,          /* version in string format */
+    IOT_OTAG_CHECK_FIRMWARE    /* Check firmware is valid or not */
 
 } IOT_OTA_CmdType_t;
 

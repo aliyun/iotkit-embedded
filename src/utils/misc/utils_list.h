@@ -58,10 +58,10 @@ typedef struct {
     list_direction_t direction;
 } list_iterator_t;
 
-// Node prototypes.
+/* Node prototypes. */
 list_node_t *list_node_new(void *val);
 
-// list_t prototypes.
+/* list_t prototypes. */
 list_t *list_new();
 
 list_node_t *list_rpush(list_t *self, list_node_t *node);
@@ -80,7 +80,7 @@ void list_remove(list_t *self, list_node_t *node);
 
 void list_destroy(list_t *self);
 
-// list_t iterator prototypes.
+/* list_t iterator prototypes. */
 list_iterator_t *list_iterator_new(list_t *list, list_direction_t direction);
 
 list_iterator_t *list_iterator_new_from_node(list_node_t *node, list_direction_t direction);

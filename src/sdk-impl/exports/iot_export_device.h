@@ -24,7 +24,7 @@
 #define DEVICE_ID_LEN       (64)
 #define DEVICE_SECRET_LEN   (64)
 
-#define MODULE_VENDOR_ID    (32) // Partner ID
+#define MODULE_VENDOR_ID    (32) /* Partner ID */
 
 #define HOST_ADDRESS_LEN    (128)
 #define HOST_PORT_LEN       (8)

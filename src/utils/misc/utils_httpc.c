@@ -90,7 +90,7 @@ int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len,
     char *host_ptr = (char *) strstr(url, "://");
     uint32_t host_len = 0;
     uint32_t path_len;
-    //char *port_ptr;
+    /* char *port_ptr; */
     char *path_ptr;
     char *fragment_ptr;
 
@@ -198,12 +198,12 @@ int httpclient_get_info(httpclient_t *client, char *send_buf, int *send_idx, cha
         len -= cp_len;
 
         if (idx == HTTPCLIENT_SEND_BUF_SIZE) {
-            //            if (client->remote_port == HTTPS_PORT)
-            //            {
-            //                WRITE_IOT_ERROR_LOG("send buffer overflow");
-            //                return ERROR_HTTP;
-            //            }
-            //ret = httpclient_tcp_send_all(client->handle, send_buf, HTTPCLIENT_SEND_BUF_SIZE);
+            /*            if (client->remote_port == HTTPS_PORT) */
+            /*            { */
+            /*                WRITE_IOT_ERROR_LOG("send buffer overflow"); */
+            /*                return ERROR_HTTP; */
+            /*            } */
+            /* ret = httpclient_tcp_send_all(client->handle, send_buf, HTTPCLIENT_SEND_BUF_SIZE); */
             ret = client->net.write(&client->net, send_buf, HTTPCLIENT_SEND_BUF_SIZE, 5000);
             if (ret) {
                 return (ret);
@@ -261,21 +261,21 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     int port;
 
     /* First we need to parse the url (http[s]://host[:port][/[path]]) */
-    //int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &(client->remote_port), path, sizeof(path));
+    /* int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &(client->remote_port), path, sizeof(path)); */
     int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &port, path, sizeof(path));
     if (res != SUCCESS_RETURN) {
         log_err("httpclient_parse_url returned %d", res);
         return res;
     }
 
-    //if (client->remote_port == 0)
-    //{
+    /* if (client->remote_port == 0) */
+    /* { */
     if (strcmp(scheme, "http") == 0) {
-        //client->remote_port = HTTP_PORT;
+        /* client->remote_port = HTTP_PORT; */
     } else if (strcmp(scheme, "https") == 0) {
-        //client->remote_port = HTTPS_PORT;
+        /* client->remote_port = HTTPS_PORT; */
     }
-    //}
+    /* } */
 
     /* Send request */
     memset(send_buf, 0, HTTPCLIENT_SEND_BUF_SIZE);
@@ -313,7 +313,7 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
 
     log_multi_line(LOG_DEBUG_LEVEL, "REQUEST", "%s", send_buf, ">");
 
-    //ret = httpclient_tcp_send_all(client->net.handle, send_buf, len);
+    /* ret = httpclient_tcp_send_all(client->net.handle, send_buf, len); */
     ret = client->net.write(&client->net, send_buf, len, 5000);
     if (ret > 0) {
         log_debug("Written %d bytes", ret);
@@ -335,7 +335,7 @@ int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_dat
     if (client_data->post_buf && client_data->post_buf_len) {
         log_debug("client_data->post_buf: %s", client_data->post_buf);
         {
-            //ret = httpclient_tcp_send_all(client->handle, (char *)client_data->post_buf, client_data->post_buf_len);
+            /* ret = httpclient_tcp_send_all(client->handle, (char *)client_data->post_buf, client_data->post_buf_len); */
             ret = client->net.write(&client->net, (char *)client_data->post_buf, client_data->post_buf_len, 5000);
             if (ret > 0) {
                 log_debug("Written %d bytes", ret);
@@ -364,12 +364,12 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     *p_read_len = 0;
 
     ret = client->net.read(&client->net, buf, max_len, iotx_time_left(&timer));
-    //log_debug("Recv: | %s", buf);
+    /* log_debug("Recv: | %s", buf); */
 
     if (ret > 0) {
         *p_read_len = ret;
     } else if (ret == 0) {
-        //timeout
+        /* timeout */
         return 0;
     } else if (-1 == ret) {
         log_info("Connection closed.");
@@ -381,33 +381,33 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     log_info("%u bytes has been read", *p_read_len);
     return 0;
 
-    //    while (readLen <= min_len) {
-    //        buf[readLen] = '\0';
-    //        if (readLen < min_len) {
-    //            //wait to read HTTP respond data
-    //            ret = client->net.read(&client->net, buf + readLen, min_len - readLen, utils_timer_remain(&timer));
-    //        } else {
-    //            //read the rest data in TCP buffer (with little wait time)
-    //            ret = client->net.read(&client->net, buf + readLen, max_len - readLen, 100);
-    //        }
-    //
-    //        if (ret > 0) {
-    //            readLen += ret;
-    //        } else if (ret == 0) {
-    //            //timeout
-    //            break;
-    //        } else if (-1 == ret) {
-    //            log_info("Connection closed. %u bytes be read", readLen);
-    //            break;
-    //        } else {
-    //            log_err("Connection error (recv returned %d)", ret);
-    //            return ERROR_HTTP_CONN;
-    //        }
-    //    }
-    //
-    //    log_info("%u bytes be read", readLen);
-    //    *p_read_len = readLen;
-    //    return 0;
+    /*    while (readLen <= min_len) { */
+    /*        buf[readLen] = '\0'; */
+    /*        if (readLen < min_len) { */
+    /*            //wait to read HTTP respond data */
+    /*            ret = client->net.read(&client->net, buf + readLen, min_len - readLen, utils_timer_remain(&timer)); */
+    /*        } else { */
+    /*            //read the rest data in TCP buffer (with little wait time) */
+    /*            ret = client->net.read(&client->net, buf + readLen, max_len - readLen, 100); */
+    /*        } */
+    /* */
+    /*        if (ret > 0) { */
+    /*            readLen += ret; */
+    /*        } else if (ret == 0) { */
+    /*            //timeout */
+    /*            break; */
+    /*        } else if (-1 == ret) { */
+    /*            log_info("Connection closed. %u bytes be read", readLen); */
+    /*            break; */
+    /*        } else { */
+    /*            log_err("Connection error (recv returned %d)", ret); */
+    /*            return ERROR_HTTP_CONN; */
+    /*        } */
+    /*    } */
+    /* */
+    /*    log_info("%u bytes be read", readLen); */
+    /*    *p_read_len = readLen; */
+    /*    return 0; */
 }
 
 int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint32_t timeout_ms,
@@ -695,10 +695,10 @@ iotx_err_t httpclient_connect(httpclient_t *client)
     client->net.handle = 0;
 
     ret = httpclient_conn(client);
-    //    if (0 == ret)
-    //    {
-    //        client->remote_port = HTTP_PORT;
-    //    }
+    /*    if (0 == ret) */
+    /*    { */
+    /*        client->remote_port = HTTP_PORT; */
+    /*    } */
 
     return ret;
 }
@@ -778,7 +778,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
 
 
     if (0 == client->net.handle) {
-        //Establish connection if no.
+        /* Establish connection if no. */
     	httpclient_parse_host(url, host, sizeof(host));
     	log_debug("host: '%s', port: %d", host, port);
 
@@ -813,7 +813,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     }
 
     if (! client_data->is_more) {
-        //Close the HTTP if no more data.
+        /* Close the HTTP if no more data. */
         log_info("close http channel");
         httpclient_close(client);
     }

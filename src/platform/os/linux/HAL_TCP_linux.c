@@ -77,7 +77,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     PLATFORM_LINUXSOCK_LOG("establish tcp connection with server(host=%s port=%u)", host, port);
 
-    hints.ai_family = AF_INET; //only IPv4
+    hints.ai_family = AF_INET; /* only IPv4 */
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     sprintf(service, "%u", port);
@@ -126,7 +126,7 @@ int HAL_TCP_Destroy(uintptr_t fd)
 {
     int rc;
 
-    //Shutdown both send and receive operations.
+    /* Shutdown both send and receive operations. */
     rc = shutdown((int) fd, 2);
     if (0 != rc) {
         perror("shutdown error");
@@ -152,7 +152,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
 
     t_end = _linux_get_time_ms() + timeout_ms;
     len_sent = 0;
-    ret = 1; //send one time if timeout_ms is value 0
+    ret = 1; /* send one time if timeout_ms is value 0 */
 
     do {
         t_left = _linux_time_left(t_end, _linux_get_time_ms());
@@ -170,7 +170,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             if (ret > 0) {
                 if (0 == FD_ISSET(fd, &sets)) {
                     PLATFORM_LINUXSOCK_LOG("Should NOT arrive");
-                    //If timeout in next loop, it will not sent any data
+                    /* If timeout in next loop, it will not sent any data */
                     ret = 0;
                     continue;
                 }
@@ -260,7 +260,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         }
     } while ((len_recv < len));
 
-    //priority to return data bytes if any data be received from TCP connection.
-    //It will get error code on next calling
+    /* priority to return data bytes if any data be received from TCP connection. */
+    /* It will get error code on next calling */
     return (0 != len_recv) ? len_recv : err_code;
 }

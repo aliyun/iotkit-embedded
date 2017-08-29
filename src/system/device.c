@@ -54,7 +54,7 @@ int iotx_device_info_set(
     strncpy(iotx_device_info.device_name, device_name, DEVICE_NAME_LEN);
     strncpy(iotx_device_info.device_secret, device_secret, DEVICE_SECRET_LEN);
 
-    //construct device-id(@product_key+@device_name)
+    /* construct device-id(@product_key+@device_name) */
     ret = snprintf(iotx_device_info.device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
     if ((ret < 0) || (ret >= DEVICE_ID_LEN)) {
         log_err("set device info failed");

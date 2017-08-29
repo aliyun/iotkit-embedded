@@ -41,7 +41,7 @@ enum errors
 };
 
 
-//CPT, control packet type
+/* CPT, control packet type */
 enum msgTypes
 {
     MQTT_CPT_RESERVED = 0, CONNECT = 1, CONNACK, PUBLISH, PUBACK, PUBREC, PUBREL,

@@ -28,7 +28,7 @@
 #define DEVICE_NAME         "test1"
 #define DEVICE_SECRET       "HQ4AB77MRpAxzgRQAnJdjewGaiEBoJZR"
 
-//These are the pre-defined topics
+/* These are the pre-defined topics */
 #define TOPIC_RRPC_REQ       "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/rrpc/request/"
 #define TOPIC_RRPC_RSP       "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/rrpc/response/"
 
@@ -120,7 +120,7 @@ void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     char                        topic[TOPIC_LEN_MAX] = {0};
     char                        msg_id[MSG_ID_LEN_MAX] = {0};
 
-    // print topic name and topic message
+    /* print topic name and topic message */
     printf("----\n");
     printf("Topic: '%.*s' (Length: %d)\n",
            ptopic_info->topic_len,

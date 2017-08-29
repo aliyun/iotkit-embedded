@@ -114,9 +114,9 @@ static int connect_ssl(utils_network_pt pNetwork)
                                      pNetwork->ca_crt_len + 1))) {
         return 0;
     } else {
-        //TODO SHOLUD not remove this handle space
-        // The space will be freed by calling disconnect_ssl()
-        //utils_memory_free((void *)pNetwork->handle);
+        /* TODO SHOLUD not remove this handle space */
+        /* The space will be freed by calling disconnect_ssl() */
+        /* utils_memory_free((void *)pNetwork->handle); */
         return -1;
     }
 }
@@ -127,10 +127,10 @@ static int connect_ssl(utils_network_pt pNetwork)
 
 int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    if (NULL == pNetwork->ca_crt) { //TCP connection
+    if (NULL == pNetwork->ca_crt) { /* TCP connection */
         return read_tcp(pNetwork, buffer, len, timeout_ms);
 #ifndef IOTX_WITHOUT_TLS
-    } else { //SSL connection
+    } else { /* SSL connection */
         return read_ssl(pNetwork, buffer, len, timeout_ms);
 #endif
     }
@@ -141,10 +141,10 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
 
 int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    if (NULL == pNetwork->ca_crt) { //TCP connection
+    if (NULL == pNetwork->ca_crt) { /* TCP connection */
         return write_tcp(pNetwork, buffer, len, timeout_ms);
 #ifndef IOTX_WITHOUT_TLS
-    } else { //SSL connection
+    } else { /* SSL connection */
         return write_ssl(pNetwork, buffer, len, timeout_ms);
 #endif
     }
@@ -154,10 +154,10 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
 
 int iotx_net_disconnect(utils_network_pt pNetwork)
 {
-    if (NULL == pNetwork->ca_crt) { //TCP connection
+    if (NULL == pNetwork->ca_crt) { /* TCP connection */
         return disconnect_tcp(pNetwork);
 #ifndef IOTX_WITHOUT_TLS
-    } else { //SSL connection
+    } else { /* SSL connection */
         return disconnect_ssl(pNetwork);
 #endif
     }
@@ -167,10 +167,10 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
 
 int iotx_net_connect(utils_network_pt pNetwork)
 {
-    if (NULL == pNetwork->ca_crt) { //TCP connection
+    if (NULL == pNetwork->ca_crt) { /* TCP connection */
         return connect_tcp(pNetwork);
 #ifndef IOTX_WITHOUT_TLS
-    } else { //SSL connection
+    } else { /* SSL connection */
         return connect_ssl(pNetwork);
 #endif
     }

@@ -25,7 +25,7 @@
 #include "iot_import_ota.h"
 #include "ota_internal.h"
 
-//OSC, OTA signal channel
+/* OSC, OTA signal channel */
 
 /* Specify the maximum characters of version */
 #define OTA_MQTT_TOPIC_LEN   (64)
@@ -40,9 +40,9 @@ typedef struct  {
 }otamqtt_Struct_t, *otamqtt_Struct_pt;
 
 
-//Generate topic name according to @ota_topic_type, @product_key, @device_name
-//and then copy to @buf.
-//0, successful; -1, failed
+/* Generate topic name according to @ota_topic_type, @product_key, @device_name */
+/* and then copy to @buf. */
+/* 0, successful; -1, failed */
 static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key, const char *device_name)
 {
     int ret;
@@ -64,7 +64,7 @@ static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
     return 0;
 }
 
-//report progress of OTA
+/* report progress of OTA */
 static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, int qos, const char *msg)
 {
     int ret;
@@ -81,7 +81,7 @@ static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, int
     topic_info.payload = (void *)msg;
     topic_info.payload_len = strlen(msg);
 
-    //inform OTA to topic: "/ota/device/progress/$(product_key)/$(device_name)"
+    /* inform OTA to topic: "/ota/device/progress/$(product_key)/$(device_name)" */
     ret = otamqtt_GenTopicName(topic_name, OTA_MQTT_TOPIC_LEN, topic_type, handle->product_key, handle->device_name);
     if (ret < 0) {
        OTA_LOG_ERROR("generate topic name of info failed");
@@ -98,8 +98,8 @@ static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, int
 }
 
 
-//decode JSON string to get firmware information, like firmware version, URL, file size, MD5.
-//return NONE
+/* decode JSON string to get firmware information, like firmware version, URL, file size, MD5. */
+/* return NONE */
 static void otamqtt_UpgrageCb(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     otamqtt_Struct_pt handle = (otamqtt_Struct_pt) pcontext;
@@ -129,7 +129,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
 
     memset(h_osc, 0, sizeof(otamqtt_Struct_t));
 
-    //subscribe the OTA topic: "/ota/device/upgrade/$(product_key)/$(device_name)"
+    /* subscribe the OTA topic: "/ota/device/upgrade/$(product_key)/$(device_name)" */
     ret = otamqtt_GenTopicName(h_osc->topic_upgrade, OTA_MQTT_TOPIC_LEN, "upgrade", product_key, device_name);
     if (ret < 0) {
         OTA_LOG_ERROR("generate topic name of upgrade failed");
@@ -168,14 +168,14 @@ int osc_Deinit(void *handle)
     return 0;
 }
 
-//report progress of OTA
+/* report progress of OTA */
 int osc_ReportProgress(void *handle, const char *msg)
 {
     return otamqtt_Publish(handle, "progress", 0, msg);
 }
 
 
-//report version of OTA firmware
+/* report version of OTA firmware */
 int osc_ReportVersion(void *handle, const char *msg)
 {
     return otamqtt_Publish(handle, "inform", 1, msg);

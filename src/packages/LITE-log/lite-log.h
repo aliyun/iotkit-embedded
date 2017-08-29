@@ -34,12 +34,12 @@ extern "C" {
 #define LITE_snprintf                   snprintf
 
 typedef enum _LOGLEVEL {
-    LOG_EMERG_LEVEL = 0,    // OS system is unavailable
-    LOG_CRIT_LEVEL,         // current application aborting
-    LOG_ERR_LEVEL,          // current app-module error
-    LOG_WARNING_LEVEL,      // using default parameters
-    LOG_INFO_LEVEL,         // running messages
-    LOG_DEBUG_LEVEL,        // debugging messages
+    LOG_EMERG_LEVEL = 0,    /* OS system is unavailable */
+    LOG_CRIT_LEVEL,         /* current application aborting */
+    LOG_ERR_LEVEL,          /* current app-module error */
+    LOG_WARNING_LEVEL,      /* using default parameters */
+    LOG_INFO_LEVEL,         /* running messages */
+    LOG_DEBUG_LEVEL,        /* debugging messages */
 } LOGLEVEL;
 
 void    LITE_openlog(const char *ident);

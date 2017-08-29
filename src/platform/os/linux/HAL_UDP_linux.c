@@ -166,14 +166,14 @@ int HAL_UDP_readTimeout( void *p_socket,
 
     /* Zero fds ready means we timed out */
     if( ret == 0 )
-      return -2; // receive timeout
+      return -2; /* receive timeout */
 
     if( ret < 0 )
     {
         if( errno == EINTR )
-          return -3; //want read
+          return -3; /* want read */
 
-        return -4; //receive failed
+        return -4; /* receive failed */
     }
 
     /* This call will not block */

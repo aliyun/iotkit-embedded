@@ -76,8 +76,8 @@ static void otalib_MD5Deinit(void *md5)
     } 
 }
 
-//Get the specific @key value, and copy to @dest
-//0, successful; -1, failed
+/* Get the specific @key value, and copy to @dest */
+/* 0, successful; -1, failed */
 static int otalib_GetFirmwareFixlenPara(const char *json_doc,
                 size_t json_doc_len,
                 const char *key,
@@ -103,8 +103,8 @@ static int otalib_GetFirmwareFixlenPara(const char *json_doc,
 }
 
 
-//Get variant length parameter of firmware, and copy to @dest
-//0, successful; -1, failed
+/* Get variant length parameter of firmware, and copy to @dest */
+/* 0, successful; -1, failed */
 static int otalib_GetFirmwareVarlenPara(const char *json_doc,
                 size_t json_doc_len,
                 const char *key,
@@ -135,25 +135,25 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
 #define OTA_FILESIZE_STR_LEN    (16)
     char file_size_str[OTA_FILESIZE_STR_LEN + 1];
 
-    //get version
+    /* get version */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "version", version)) {
         OTA_LOG_ERROR("get value of version key failed");
         return -1;
     }
 
-    //get URL
+    /* get URL */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "url", url)) {
         OTA_LOG_ERROR("get value of url key failed");
         return -1;
     }
 
-    //get md5
+    /* get md5 */
     if (0 != otalib_GetFirmwareFixlenPara(json_doc, json_len, "md5", md5, 32)) {
         OTA_LOG_ERROR("get value of md5 key failed");
         return -1;
     }
 
-    //get file size
+    /* get file size */
     if (0 != otalib_GetFirmwareFixlenPara(json_doc, json_len, "size", file_size_str, OTA_FILESIZE_STR_LEN)) {
         OTA_LOG_ERROR("get value of size key failed");
         return -1;
@@ -167,9 +167,9 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
 }
 
 
-//Generate firmware information according to @id, @version
-//and then copy to @buf.
-//0, successful; -1, failed
+/* Generate firmware information according to @id, @version */
+/* and then copy to @buf. */
+/* 0, successful; -1, failed */
 int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *version)
 {
     int ret;
@@ -188,9 +188,9 @@ int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *versio
 }
 
 
-//Generate report information according to @id, @msg
-//and then copy to @buf.
-//0, successful; -1, failed
+/* Generate report information according to @id, @msg */
+/* and then copy to @buf. */
+/* 0, successful; -1, failed */
 int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, const char *msg_detail)
 {
     int ret;

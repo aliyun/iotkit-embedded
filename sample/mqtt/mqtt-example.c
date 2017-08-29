@@ -34,7 +34,7 @@
     #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #endif
 
-// These are pre-defined topics
+/* These are pre-defined topics */
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
 #define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
@@ -124,7 +124,7 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
 {
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
 
-    // print topic name and topic message
+    /* print topic name and topic message */
     EXAMPLE_TRACE("----");
     EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
                   ptopic_info->topic_len,

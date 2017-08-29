@@ -93,13 +93,13 @@ int DTLSNetwork_recvTimeout( void *ctx, unsigned char *buf, size_t len, unsigned
         return -1;
     }
     else if(-2 == ret){
-        return  -0x6800; //MBEDTLS_ERR_SSL_TIMEOUT
+        return  -0x6800; /* MBEDTLS_ERR_SSL_TIMEOUT */
     }
     else if(-3 == ret){
-        return -0x6900; //MBEDTLS_ERR_SSL_WANT_READ
+        return -0x6900; /* MBEDTLS_ERR_SSL_WANT_READ */
     }
     else if(-4 == ret){
-        return -0x004C; //MBEDTLS_ERR_NET_RECV_FAILED
+        return -0x004C; /* MBEDTLS_ERR_NET_RECV_FAILED */
     }
     return ret;
 }
@@ -248,7 +248,7 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
         return COAP_ERROR_INVALID_PARAM;
     }
 
-    // TODO : Parse the url here
+    /* TODO : Parse the url here */
     p_network->ep_type = p_param->ep_type;
     p_network->remote_endpoint.port = p_param->remote.port;
     memset(p_network->remote_endpoint.addr, 0x00, NETWORK_ADDR_LEN);

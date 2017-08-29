@@ -316,7 +316,7 @@ unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *
             result = DTLSContext_setup(p_dtls_session, p_options);
         }
         if(DTLS_SUCCESS != result) {
-            //HAL_DTLSSession_free(p_dtls_session);
+            /* HAL_DTLSSession_free(p_dtls_session); */
         }
 
         return result;
