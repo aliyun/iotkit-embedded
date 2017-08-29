@@ -16,14 +16,11 @@
  *
  */
 
-
-
 #include <string.h>
 
 #include "iot_import.h"
 #include "utils_net.h"
 #include "lite-log.h"
-
 
 /*** TCP connection ***/
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -48,7 +45,6 @@ static int disconnect_tcp(utils_network_pt pNetwork)
     return 0;
 }
 
-
 static int connect_tcp(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
@@ -63,7 +59,6 @@ static int connect_tcp(utils_network_pt pNetwork)
 
     return 0;
 }
-
 
 /*** SSL connection ***/
 #ifndef IOTX_WITHOUT_TLS
@@ -122,61 +117,66 @@ static int connect_ssl(utils_network_pt pNetwork)
 }
 #endif  /* #ifndef IOTX_WITHOUT_TLS */
 
-
 /****** network interface ******/
-
 int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    if (NULL == pNetwork->ca_crt) { /* TCP connection */
-        return read_tcp(pNetwork, buffer, len, timeout_ms);
+    int     ret = 0;
+
+    if (NULL == pNetwork->ca_crt) {
+        ret = read_tcp(pNetwork, buffer, len, timeout_ms);
 #ifndef IOTX_WITHOUT_TLS
-    } else { /* SSL connection */
-        return read_ssl(pNetwork, buffer, len, timeout_ms);
+    } else {
+        ret = read_ssl(pNetwork, buffer, len, timeout_ms);
 #endif
     }
 
-    return 0;
+    return ret;
 }
-
 
 int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    if (NULL == pNetwork->ca_crt) { /* TCP connection */
-        return write_tcp(pNetwork, buffer, len, timeout_ms);
+    int     ret = 0;
+
+    if (NULL == pNetwork->ca_crt) {
+        ret = write_tcp(pNetwork, buffer, len, timeout_ms);
 #ifndef IOTX_WITHOUT_TLS
-    } else { /* SSL connection */
-        return write_ssl(pNetwork, buffer, len, timeout_ms);
+    } else {
+        ret = write_ssl(pNetwork, buffer, len, timeout_ms);
 #endif
     }
-    return 0;
-}
 
+    return ret;
+}
 
 int iotx_net_disconnect(utils_network_pt pNetwork)
 {
-    if (NULL == pNetwork->ca_crt) { /* TCP connection */
-        return disconnect_tcp(pNetwork);
+    int     ret = 0;
+
+    if (NULL == pNetwork->ca_crt) {
+        ret = disconnect_tcp(pNetwork);
 #ifndef IOTX_WITHOUT_TLS
-    } else { /* SSL connection */
-        return disconnect_ssl(pNetwork);
+    } else {
+       ret =  disconnect_ssl(pNetwork);
 #endif
     }
-    return 0;
-}
 
+    return  ret;
+}
 
 int iotx_net_connect(utils_network_pt pNetwork)
 {
-    if (NULL == pNetwork->ca_crt) { /* TCP connection */
-        return connect_tcp(pNetwork);
+    int     ret = 0;
+
+    if (NULL == pNetwork->ca_crt) {
+        ret = connect_tcp(pNetwork);
 #ifndef IOTX_WITHOUT_TLS
-    } else { /* SSL connection */
-        return connect_ssl(pNetwork);
+    } else {
+        ret = connect_ssl(pNetwork);
 #endif
     }
-    return 0;
-}
 
+    return ret;
+}
 
 int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {

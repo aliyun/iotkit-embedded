@@ -16,8 +16,6 @@
  *
  */
 
-
-
 #ifndef _IOTX_COMMON_HTTPCLIENT_H_
 #define _IOTX_COMMON_HTTPCLIENT_H_
 
@@ -78,27 +76,26 @@ typedef enum {
  */
 /** @brief   This structure defines the httpclient_t structure.  */
 typedef struct {
-    int remote_port; /**< HTTP or HTTPS port. */
-    utils_network_t net;
-    int response_code; /**< Response code. */
-    char *header; /**< Custom header. */
-    char *auth_user; /**< Username for basic authentication. */
-    char *auth_password; /**< Password for basic authentication. */
+    int                 remote_port;    /**< HTTP or HTTPS port. */
+    utils_network_t     net;
+    int                 response_code;  /**< Response code. */
+    char               *header;         /**< Custom header. */
+    char               *auth_user;      /**< Username for basic authentication. */
+    char               *auth_password;  /**< Password for basic authentication. */
 } httpclient_t;
 
 /** @brief   This structure defines the HTTP data structure.  */
 typedef struct {
-    bool is_more; /**< Indicates if more data needs to be retrieved. */
-    bool is_chunked; /**< Response data is encoded in portions/chunks.*/
-    int retrieve_len; /**< Content length to be retrieved. */
-    uint32_t response_content_len; /**< Response content length. */
-    uint32_t post_buf_len; /**< Post data length. */
-    uint32_t response_buf_len; /**< Response buffer length. */
-    char *post_content_type; /**< Content type of the post data. */
-    char *post_buf; /**< User data to be posted. */
-    char *response_buf; /**< Buffer to store the response data. */
+    bool    is_more;                /**< Indicates if more data needs to be retrieved. */
+    bool    is_chunked;             /**< Response data is encoded in portions/chunks.*/
+    int     retrieve_len;           /**< Content length to be retrieved. */
+    int     response_content_len;   /**< Response content length. */
+    int     post_buf_len;           /**< Post data length. */
+    int     response_buf_len;       /**< Response buffer length. */
+    char   *post_content_type;      /**< Content type of the post data. */
+    char   *post_buf;               /**< User data to be posted. */
+    char   *response_buf;           /**< Buffer to store the response data. */
 } httpclient_data_t;
-
 
 
 #if 0
@@ -134,14 +131,12 @@ typedef struct {
  @endcode
 #endif
 
-iotx_err_t iotx_post(
-            httpclient_t *client,
-            const char *url,
-            int port,
-            const char *ca_crt,
-            uint32_t timeout,
-            httpclient_data_t *client_data);
-
+int iotx_post(httpclient_t *client,
+              const char *url,
+              int port,
+              const char *ca_crt,
+              uint32_t timeout,
+              httpclient_data_t *client_data);
 
 #ifdef __cplusplus
 }
