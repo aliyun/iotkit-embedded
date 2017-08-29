@@ -41,29 +41,29 @@
 #endif
 
 typedef struct  {
-    const char *product_key;    //point to product key
-    const char *device_name;    //point to device name
+    const char *product_key;    /* point to product key */
+    const char *device_name;    /* point to device name */
 
-    uint32_t id;                //message id
-    IOT_OTA_State_t state;          //OTA state
-    uint32_t size_last_fetched; //size of last downloaded
-    uint32_t size_fetched;      //size of already downloaded
-    uint32_t size_file;         //size of file
-    char *purl;                 //point to URL
-    char *version;              //point to string
-    char md5sum[33];            //MD5 string
+    uint32_t id;                /* message id */
+    IOT_OTA_State_t state;          /* OTA state */
+    uint32_t size_last_fetched; /* size of last downloaded */
+    uint32_t size_fetched;      /* size of already downloaded */
+    uint32_t size_file;         /* size of file */
+    char *purl;                 /* point to URL */
+    char *version;              /* point to string */
+    char md5sum[33];            /* MD5 string */
 
-    void *md5;                  //MD5 handle
-    void *ch_signal;            //channel handle of signal exchanged with OTA server
-    void *ch_fetch;             //channel handle of download
+    void *md5;                  /* MD5 handle */
+    void *ch_signal;            /* channel handle of signal exchanged with OTA server */
+    void *ch_fetch;             /* channel handle of download */
 
-    IOT_OTA_Err_t err;              //last error code
+    IOT_OTA_Err_t err;              /* last error code */
 
 } OTA_Struct_t, *OTA_Struct_pt;
 
 
-//check whether the progress state is valid or not
-//return: true, valid progress state; false, invalid progress state.
+/* check whether the progress state is valid or not */
+/* return: true, valid progress state; false, invalid progress state. */
 static bool ota_check_progress(IOT_OTA_Progress_t progress)
 {
     return ((progress >= IOT_OTAP_BURN_FAILED)
@@ -84,13 +84,13 @@ static void ota_callback(void *pcontext, const char *msg, uint32_t msg_len)
         return;
     }
 
-    //check whether is positive message
+    /* check whether is positive message */
     if (!((strlen("success") == val_len) && (0 == strncmp(pvalue, "success", val_len)))) {
         OTA_LOG_ERROR("fail state of json doc of OTA");
         return ;
     }
 
-    //get value of 'data' key
+    /* get value of 'data' key */
     pvalue = otalib_JsonValueOf(msg, msg_len, "data", &val_len);
     if (NULL == pvalue) {
         OTA_LOG_ERROR("Not 'data' key in json doc of OTA");
@@ -111,7 +111,7 @@ static void ota_callback(void *pcontext, const char *msg, uint32_t msg_len)
 }
 
 
-//Initialize OTA module
+/* Initialize OTA module */
 void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal)
 {
     OTA_Struct_pt h_ota = NULL;
@@ -165,7 +165,7 @@ do_exit:
 }
 
 
-//deinitialize OTA module
+/* deinitialize OTA module */
 int IOT_OTA_Deinit(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
@@ -317,7 +317,7 @@ do_exit:
 }
 
 
-//check whether is downloading
+/* check whether is downloading */
 bool IOT_OTA_IsFetching(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt)handle;
@@ -337,7 +337,7 @@ bool IOT_OTA_IsFetching(void *handle)
 }
 
 
-//check whether fetch over
+/* check whether fetch over */
 bool IOT_OTA_IsFetchFinish(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
@@ -471,7 +471,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
 }
 
 
-//Get last error code
+/* Get last error code */
 IOT_OTA_Err_t IOT_OTA_GetLastError(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;

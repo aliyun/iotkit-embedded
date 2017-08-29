@@ -22,12 +22,12 @@
 #include <string.h>
 #include "iot_import_ota.h"
 
-//ofc, OTA fetch channel
+/* ofc, OTA fetch channel */
 
 typedef struct {
 
     const char *url;
-    httpclient_t http;          //http client
+    httpclient_t http;          /* http client */
     httpclient_data_t http_data;//http client data
 
 }otahttp_Struct_t, *otahttp_Struct_pt;
@@ -54,7 +54,7 @@ void *ofc_Init(const char *url)
 
     memset(h_odc, 0, sizeof(otahttp_Struct_t));
 
-    //set http request-header parameter
+    /* set http request-header parameter */
     h_odc->http.header = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
                          "Accept-Encoding: gzip, deflate\r\n";
 

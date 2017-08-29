@@ -29,7 +29,7 @@
 #include "shadow_config.h"
 
 typedef struct iotx_update_ack_wait_list_st {
-    bool flag_busy; //0, free; 1, busy.
+    bool flag_busy; /* 0, free; 1, busy. */
     char token[IOTX_DS_TOKEN_LEN];
     iotx_push_cb_fpt callback;
     void *pcontext;

@@ -112,7 +112,7 @@ int main(int argc, char **argv)
                 m_coap_client_running = 1;
                 break;
             case 'h':
-                // TODO:
+                /* TODO: */
                 break;
             default:
                 break;

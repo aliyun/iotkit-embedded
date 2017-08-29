@@ -30,7 +30,7 @@
 #include "shadow.h"
 #include "shadow_common.h"
 
-//check return code
+/* check return code */
 #define CHECK_RETURN_CODE(ret_code) \
     do{ \
         if (ret_code < 0) { \
@@ -39,7 +39,7 @@
     }while(0);
 
 
-//check return code of snprintf
+/* check return code of snprintf */
 #define CHECK_SNPRINTF_RET(ret_code, buf_len) \
     do{ \
         if ((ret_code) < 0) { \
@@ -50,7 +50,7 @@
     }while(0);
 
 
-//return handle of format data.
+/* return handle of format data. */
 iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
                                       format_data_pt pformat,
                                       char *buf,
@@ -81,7 +81,7 @@ iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
     pformat->offset = ret;
 
 
-    //copy the JOSN head
+    /* copy the JOSN head */
     size_free_space = pformat->buf_size - pformat->offset;
     if (NULL != head_str) {
         ret = snprintf(pformat->buf + pformat->offset,
@@ -110,9 +110,9 @@ iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
     if (pformat->flag_new) {
         pformat->flag_new = false;
     } else {
-        //Add comma char.
+        /* Add comma char. */
         size_free_space = pformat->buf_size - pformat->offset;
-        if (size_free_space > 1) { //there is enough space to accommodate ',' char.
+        if (size_free_space > 1) { /* there is enough space to accommodate ',' char. */
             *(pformat->buf + pformat->offset) = ',';
             *(pformat->buf + pformat->offset + 1) = '\0';
             ++pformat->offset;
@@ -123,7 +123,7 @@ iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
 
     size_free_space = pformat->buf_size - pformat->offset;
 
-    //add the string: "${pattr->pattr_name}":"
+    /* add the string: "${pattr->pattr_name}":" */
     ret = snprintf(pformat->buf + pformat->offset,
                    size_free_space,
                    "\"%s\":",
@@ -134,7 +134,7 @@ iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
     pformat->offset += ret;
     size_free_space = pformat->buf_size - pformat->offset;
 
-    //convert attribute data to JSON string, and add to buffer
+    /* convert attribute data to JSON string, and add to buffer */
     ret = iotx_ds_common_convert_data2string(pformat->buf + pformat->offset,
             size_free_space,
             datatype,
@@ -269,7 +269,7 @@ bool iotx_ds_common_check_attr_existence(
 }
 
 
-//register attribute to list
+/* register attribute to list */
 iotx_err_t iotx_ds_common_register_attr(
             iotx_shadow_pt pshadow,
             iotx_shadow_attr_pt pattr)
@@ -287,7 +287,7 @@ iotx_err_t iotx_ds_common_register_attr(
 }
 
 
-//remove attribute to list
+/* remove attribute to list */
 iotx_err_t iotx_ds_common_remove_attr(
             iotx_shadow_pt pshadow,
             iotx_shadow_attr_pt pattr)
@@ -313,7 +313,7 @@ void iotx_ds_common_update_version(iotx_shadow_pt pshadow, uint32_t version)
 {
     HAL_MutexLock(pshadow->mutex);
 
-    //version number always grow up
+    /* version number always grow up */
     if (version > pshadow->inner_data.version) {
         pshadow->inner_data.version = version;
     }
@@ -386,9 +386,9 @@ iotx_err_t iotx_ds_common_publish2update(iotx_shadow_pt pshadow, char *data, uin
 {
     iotx_mqtt_topic_info_t topic_msg;
 
-    //check if topic name have been generated or not
+    /* check if topic name have been generated or not */
     if (NULL == pshadow->inner_data.ptopic_update) {
-        //Have NOT update topic name, generate it.
+        /* Have NOT update topic name, generate it. */
         pshadow->inner_data.ptopic_update = iotx_ds_common_generate_topic_name(pshadow, "update");
         if (NULL == pshadow->inner_data.ptopic_update) {
             return FAIL_RETURN;

@@ -78,7 +78,7 @@ typedef enum {
  */
 /** @brief   This structure defines the httpclient_t structure.  */
 typedef struct {
-    //intptr_t handle; /**< handle of TCP connection or SSL connection. */
+    /* intptr_t handle; /**< handle of TCP connection or SSL connection. */ */
     int remote_port; /**< HTTP or HTTPS port. */
     utils_network_t net;
     int response_code; /**< Response code. */
@@ -124,12 +124,12 @@ typedef struct {
  *                       return;
  *                   }
  *                   memset(buf, 0, sizeof(buf));
- *                   client_data.response_buf = buf;  //Sets a buffer to store the result.
- *                   client_data.response_buf_len = BUF_SIZE;  //Sets the buffer size.
- *                   httpclient_set_custom_header(&client, header);  //Sets the custom header if needed.
- *                   client_data.post_buf = post_data;  //Sets the user data to be posted.
- *                   client_data.post_buf_len = strlen(post_data);  //Sets the post data length.
- *                   client_data.post_content_type = content_type;  //Sets the content type.
+ *                   client_data.response_buf = buf;  /* Sets a buffer to store the result. */
+ *                   client_data.response_buf_len = BUF_SIZE;  /* Sets the buffer size. */
+ *                   httpclient_set_custom_header(&client, header);  /* Sets the custom header if needed. */
+ *                   client_data.post_buf = post_data;  /* Sets the user data to be posted. */
+ *                   client_data.post_buf_len = strlen(post_data);  /* Sets the post data length. */
+ *                   client_data.post_content_type = content_type;  /* Sets the content type. */
  *                   httpclient_post(&client, url, HTTPS_PORT, &client_data);
  *                   printf("Data received: %s\r\n", client_data.response_buf);
  * @endcode

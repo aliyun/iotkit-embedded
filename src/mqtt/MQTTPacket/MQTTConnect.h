@@ -95,7 +95,7 @@ typedef struct
 	  */
 	unsigned char MQTTVersion;
 	MQTTString clientID;
-	unsigned short keepAliveInterval; //单位s
+	unsigned short keepAliveInterval; /* 单位s */
 	unsigned char cleansession;
 	unsigned char willFlag;
 	MQTTPacket_willOptions will;

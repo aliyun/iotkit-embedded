@@ -90,7 +90,7 @@ void HAL_MutexLock(_IN_ void *mutex);
 void HAL_MutexUnlock(_IN_ void *mutex);
 
 
-/** @} */ //end of platform_mutex
+/** @} */ /* end of platform_mutex */
 
 
 /** @defgroup group_platform_memory_manage memory
@@ -119,7 +119,7 @@ void *HAL_Malloc(_IN_ uint32_t size);
 void HAL_Free(_IN_ void *ptr);
 
 
-/** @} */ //end of platform_memory_manage
+/** @} */ /* end of platform_memory_manage */
 
 /** @defgroup group_platform_other other
  *  @{
@@ -168,7 +168,7 @@ void HAL_Printf(_IN_ const char *fmt, ...);
 char *HAL_GetPartnerID(char pid_str[]);
 
 
-/** @} */ //end of group_platform_other
+/** @} */ /* end of group_platform_other */
 
 /**
  * @brief Establish a TCP connection.

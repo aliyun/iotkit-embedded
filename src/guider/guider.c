@@ -569,7 +569,7 @@ static SECURE_MODE _secure_mode_num(void)
     rc = MODE_TLS_DIRECT;
     #endif
 
-#else   // MQTT_DIRECT
+#else   /* MQTT_DIRECT */
 
     #ifdef IOTX_WITHOUT_TLS
     rc = MODE_TCP_GUIDER_PLAIN;
@@ -581,12 +581,12 @@ static SECURE_MODE _secure_mode_num(void)
             #else
             rc = -1;
             #endif
-        #else   // MQTT_ID2_AUTH
+        #else   /* MQTT_ID2_AUTH */
         rc = MODE_TLS_GUIDER;
-        #endif  // MQTT_ID2_AUTH
-    #endif  // IOTX_WITHOUT_TLS
+        #endif  /* MQTT_ID2_AUTH */
+    #endif  /* IOTX_WITHOUT_TLS */
 
-#endif  // MQTT_DIRECT
+#endif  /* MQTT_DIRECT */
 
     return  rc;
 }
@@ -637,7 +637,7 @@ static void _authenticate_http_url(char *buf, int len)
     strcat(buf, "/auth/devicename");
 #endif
 
-#endif  // MQTT_DIRECT
+#endif  /* MQTT_DIRECT */
 
     return;
 }
@@ -690,7 +690,7 @@ static char *_authenticate_string(char sign[], char ts[]
 
     return ret;
 }
-#endif  // MQTT_DIRECT
+#endif  /* MQTT_DIRECT */
 
 static int _fill_conn_string(char *dst, int len, const char *fmt, ...)
 {
@@ -708,7 +708,7 @@ static int _fill_conn_string(char *dst, int len, const char *fmt, ...)
         *ptr = '\0';
     }
 
-    // log_debug("dst(%d) = %s", rc, dst);
+    /* log_debug("dst(%d) = %s", rc, dst); */
     return 0;
 }
 
@@ -750,7 +750,7 @@ int iotx_guider_authenticate(void)
     guider_secmode_num = _secure_mode_num();
 
 #ifdef MQTT_ID2_AUTH
-    // get ID2 Signature, deviceCode/ID2 fetched meanwhile
+    /* get ID2 Signature, deviceCode/ID2 fetched meanwhile */
     _calc_id2_signature(guider_sign,
                         sizeof(guider_sign),
                         guider_timestamp_str,

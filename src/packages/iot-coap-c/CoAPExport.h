@@ -22,7 +22,7 @@
 #ifndef __COAP_EXPORT_H__
 #define __COAP_EXPORT_H__
 
-//#define COAP_DTLS_SUPPORT
+/* #define COAP_DTLS_SUPPORT */
 
 
 #define COAP_MSG_MAX_TOKEN_LEN    12
@@ -73,13 +73,13 @@
 #define COAP_ERROR_DTLS_BASE       (1<<24)
 
 /* CoAP base error code */
-#define COAP_SUCCESS                           (0)                    /*  Successful */
-#define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 1)  /*  Internal Error */
-#define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 2)  /*  Invalid Parameter */
-#define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 3)  /*  Invalid Length */
-#define COAP_ERROR_INVALID_DATA                (COAP_ERROR_BASE | 4)  /*  Invalid Data */
-#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 5)  /*  Data size exceeds limit */
-#define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 6)  /*  Null Pointer */
+#define COAP_SUCCESS                           (0)                    /* Successful */
+#define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 1)  /* Internal Error */
+#define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 2)  /* Invalid Parameter */
+#define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 3)  /* Invalid Length */
+#define COAP_ERROR_INVALID_DATA                (COAP_ERROR_BASE | 4)  /* Invalid Data */
+#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 5)  /* Data size exceeds limit */
+#define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 6)  /* Null Pointer */
 #define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 7)
 #define COAP_ERROR_DNS_FAILED                  (COAP_ERROR_BASE | 8)
 #define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 9)

@@ -290,7 +290,7 @@ int CoAPMessage_send(CoAPContext *context, CoAPMessage *message)
         return (COAP_ERROR_INVALID_PARAM);
     }
 
-    //TODO: get the message length
+    /* TODO: get the message length */
     msglen = CoAPSerialize_MessageLength(message);
     if(COAP_MSG_MAX_PDU_LEN < msglen){
         COAP_INFO("The message length %d is too loog\r\n", msglen);
@@ -353,9 +353,9 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
     }
 
     if(COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code){
-        // TODO:i
+        /* TODO:i */
         if(NULL != context->notifier){
-            //context->notifier();
+            /* context->notifier(); */
         }
     }
 
@@ -398,8 +398,8 @@ static void CoAPMessage_handle(CoAPContext *context,
 
     if(COAP_SUCCESS != ret){
         if(NULL != context->notifier){
-            // TODO:
-            //context->notifier(context, event);
+            /* TODO: */
+            /* context->notifier(context, event); */
         }
     }
 
@@ -449,8 +449,8 @@ int CoAPMessage_cycle(CoAPContext *context)
                     ret = CoAPNetwork_write(&context->network, node->message, node->msglen);
                     if (ret != COAP_SUCCESS){
                         if(NULL != context->notifier){
-                            // TODO:
-                            //context->notifier(context, event);
+                            /* TODO: */
+                            /* context->notifier(context, event); */
                         }
                     }
                 }
@@ -458,8 +458,8 @@ int CoAPMessage_cycle(CoAPContext *context)
                 if ((node->timeout > COAP_MAX_TRANSMISSION_SPAN) ||
                          (node->retrans_count >= COAP_MAX_RERTY_COUNT)){
                      if(NULL != context->notifier){
-                         // TODO:
-                         //context->notifier(context, event);
+                         /* TODO: */
+                         /* context->notifier(context, event); */
                      }
 
                      /*Remove the node from the list*/

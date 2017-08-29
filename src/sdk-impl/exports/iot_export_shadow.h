@@ -55,26 +55,26 @@ typedef struct {
 } format_data_t, *format_data_pt;
 
 typedef struct {
-    uint32_t base_system_time; //in millisecond
+    uint32_t base_system_time; /* in millisecond */
     uint32_t epoch_time;
 } iotx_shadow_time_t, *iotx_shadow_time_pt;
 
 typedef void (*iotx_push_cb_fpt)(
             void *pcontext,
             iotx_shadow_ack_code_t ack_code,
-            const char *ack_msg, // NOTE: NOT a string.
+            const char *ack_msg, /* NOTE: NOT a string. */
             uint32_t ack_msg_len);
 
 struct iotx_shadow_attr_st;
 
 typedef void (*iotx_shadow_attr_cb_t)(struct iotx_shadow_attr_st *pattr);
 typedef struct iotx_shadow_attr_st {
-    iotx_shadow_datamode_t mode;       ///< data mode
-    const char *pattr_name;             ///< attribute name
-    void *pattr_data;                   ///< pointer to the attribute data
-    iotx_shadow_attr_datatype_t attr_type;    ///< data type
-    uint32_t timestamp;                 ///timestamp in Epoch(Unix) format
-    iotx_shadow_attr_cb_t callback;    ///< callback when related control message come.
+    iotx_shadow_datamode_t mode;       /* /< data mode */
+    const char *pattr_name;             /* /< attribute name */
+    void *pattr_data;                   /* /< pointer to the attribute data */
+    iotx_shadow_attr_datatype_t attr_type;    /* /< data type */
+    uint32_t timestamp;                 /* /timestamp in Epoch(Unix) format */
+    iotx_shadow_attr_cb_t callback;    /* /< callback when related control message come. */
 } iotx_shadow_attr_t, *iotx_shadow_attr_pt;
 
 typedef struct {

@@ -32,11 +32,11 @@ extern void iotx_shadow_delta_entry(
             size_t json_doc_len);
 
 
-//add a new wait element
-//return: NULL, failed; others, pointer of element.
+/* add a new wait element */
+/* return: NULL, failed; others, pointer of element. */
 iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
             iotx_shadow_pt pshadow,
-            const char *ptoken, //NOTE: this is NOT a string.
+            const char *ptoken, /* NOTE: this is NOT a string. */
             size_t token_len,
             iotx_push_cb_fpt cb,
             void *pcontext,
@@ -102,7 +102,7 @@ void iotx_ds_update_wait_ack_list_handle_expire(iotx_shadow_pt pshadow)
                 if (NULL != pelement[i].callback) {
                     pelement[i].callback(pelement[i].pcontext, IOTX_SHADOW_ACK_TIMEOUT, NULL, 0);
                 }
-                //free it.
+                /* free it. */
                 memset(&pelement[i], 0, sizeof(iotx_update_ack_wait_list_t));
             }
         }
@@ -112,7 +112,7 @@ void iotx_ds_update_wait_ack_list_handle_expire(iotx_shadow_pt pshadow)
 }
 
 
-//handle response ACK of UPDATE
+/* handle response ACK of UPDATE */
 void iotx_ds_update_wait_ack_list_handle_response(
             iotx_shadow_pt pshadow,
             const char *json_doc,
@@ -122,7 +122,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
     const char *pdata, *ppayload, *pToken;
     iotx_update_ack_wait_list_pt pelement = pshadow->inner_data.update_ack_wait_list;
 
-    //get token
+    /* get token */
     pdata = LITE_json_value_of("clientToken", (char *)json_doc);
     if (NULL == pdata) {
         log_warning("Invalid JSON document: not 'clientToken' key");
@@ -142,7 +142,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
     HAL_MutexLock(pshadow->mutex);
     for (i = 0; i < IOTX_DS_UPDATE_WAIT_ACK_LIST_NUM; ++i) {
         if (0 != pelement[i].flag_busy) {
-            //check the related
+            /* check the related */
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
                 LITE_free(pdata);
                 HAL_MutexUnlock(pshadow->mutex);
@@ -157,10 +157,10 @@ void iotx_ds_update_wait_ack_list_handle_response(
                     if (0 == strncmp(pdata, "success", strlen(pdata))) {
                         char    *temp = NULL;
 
-                        //If have 'state' keyword in @json_shadow.payload, attribute value should be updated.
+                        /* If have 'state' keyword in @json_shadow.payload, attribute value should be updated. */
                         temp = LITE_json_value_of("state", (char *)ppayload);
                         if (NULL != temp) {
-                            iotx_shadow_delta_entry(pshadow, json_doc, json_doc_len); //update attribute
+                            iotx_shadow_delta_entry(pshadow, json_doc, json_doc_len); /* update attribute */
                             LITE_free(temp);
                         }
 
