@@ -48,10 +48,6 @@ endif
 
 ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
-    ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-    $(error FEATURE_MQTT_ID2_AUTH + FEATURE_MQTT_DIRECT not implemented!)
-    endif
-
     ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
     CFLAGS  += -DIOTX_WITHOUT_TLS
     endif

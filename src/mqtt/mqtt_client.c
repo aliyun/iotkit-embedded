@@ -59,7 +59,7 @@ void writeUint16(unsigned char **pptr, unsigned short anUint)
  */
 void writeUint32(unsigned char **pptr, unsigned int anUint)
 {
-    if (pptr) {
+    if (!pptr) {
         return;
     }
 

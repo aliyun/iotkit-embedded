@@ -29,8 +29,16 @@
 #define HOST_ADDRESS_LEN    (128)
 #define HOST_PORT_LEN       (8)
 #define CLIENT_ID_LEN       (256)
+#ifdef MQTT_ID2_AUTH
+#define USER_NAME_LEN       (512)
+#else
 #define USER_NAME_LEN       (128)
+#endif
+#ifdef MQTT_ID2_AUTH
+#define PASSWORD_LEN        (256)
+#else
 #define PASSWORD_LEN        (128)
+#endif
 #define AESKEY_STR_LEN      (32)
 #define AESKEY_HEX_LEN      (128/8)
 

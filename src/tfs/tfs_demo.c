@@ -21,7 +21,9 @@
 #include <stdio.h>
 #include <string.h>
 
-static inline void hexdump(const uint8_t *str, uint32_t len)
+#define BUF_MAX 512
+
+static void hexdump(const uint8_t *str, uint32_t len)
 {
     int i;
     for (i = 0; i < len; i++) {
@@ -41,21 +43,6 @@ static int demo_tfs_get_ID2(void)
     ret = tfs_get_ID2(id2, &len);
 
     printf("tfs_get_ID2: ret = %d, the ID2(%d): %s\n\n", ret, len, id2);
-    return 0;
-}
-
-static int demo_tfs_id2_sign(void)
-{
-    int ret = -1;
-    uint32_t len = 0;
-    const char *in_data = "12345678901234567890";
-    uint8_t sign_out[128] = {0};
-
-    ret = tfs_id2_sign((const uint8_t *)in_data, strlen(in_data), sign_out, &len);
-
-    printf("tfs_id2_sign: ret = %d, sign out(%d):\n", ret, len);
-    hexdump(sign_out, len);
-
     return 0;
 }
 
@@ -84,29 +71,44 @@ static int demo_tfs_id2_decrypt(void)
     return 0;
 }
 
-static int demo_tfs_id2_get_auth_code(uint64_t ts)
+static int demo_tfs_id2_get_challenge_auth_code(void)
 {
     int ret = -1;
-    uint32_t len = 0;
-    uint8_t auth_code[256] = {0};
+    uint32_t len = BUF_MAX;
+    const char *challenge = "55B83408399FA660F05C82E4F25333DC";
+    const char *extra = "abcd1234";
+    uint8_t out_data[BUF_MAX] = {0};
 
-    ret = tfs_id2_get_auth_code(ts, auth_code, &len);
+    memset(out_data, 0, BUF_MAX);
+    ret = tfs_id2_get_challenge_auth_code((const uint8_t *)challenge, NULL, 0, out_data, &len);
+    printf("tfs_id2_get_challenge_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
 
-    printf("tfs_id2_get_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, auth_code);
+    len = BUF_MAX;
+    memset(out_data, 0, BUF_MAX);
+    ret = tfs_id2_get_challenge_auth_code((const uint8_t *)challenge, (uint8_t *)extra, strlen(extra), out_data, &len);
+    printf("tfs_id2_get_challenge_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
 
     return 0;
 }
 
-static int demo_tfs_id2_get_digest_auth_code(uint64_t ts)
+static int demo_tfs_id2_get_timestamp_auth_code(uint64_t ts)
 {
     int ret = -1;
-    uint32_t len = 0;
-    char *digest = "clientId123id2123timestamp123";
-    uint8_t auth_code[256] = {0};
+    uint32_t len = BUF_MAX;
+    uint8_t timestamp_str[20 + 1] = {0};
+    const char *extra = "abcd1234";
+    uint8_t out_data[BUF_MAX] = {0};
 
-    ret = tfs_id2_get_digest_auth_code(ts, (uint8_t *)digest, strlen((char *)digest), auth_code, &len);
+    sprintf((char *)timestamp_str, "%lu", ts);
 
-    printf("tfs_id2_get_digest_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, auth_code);
+    memset(out_data, 0, BUF_MAX);
+    ret = tfs_id2_get_timestamp_auth_code(timestamp_str, NULL, 0, out_data, &len);
+    printf("tfs_id2_get_timestamp_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
+
+    len = BUF_MAX;
+    memset(out_data, 0, BUF_MAX);
+    ret = tfs_id2_get_timestamp_auth_code(timestamp_str, (uint8_t *)extra, strlen(extra), out_data, &len);
+    printf("tfs_id2_get_timestamp_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
 
     return 0;
 }
@@ -138,17 +140,14 @@ void tfs_demo(uint64_t timestamp)
     printf(">>>>>>func: demo_tfs_get_ID2 <<<<<<\n");
     demo_tfs_get_ID2();
 
-    printf(">>>>>>func: demo_tfs_id2_sign <<<<<<\n");
-    demo_tfs_id2_sign();
-
     printf(">>>>>>func: demo_tfs_id2_decrypt <<<<<<\n");
     demo_tfs_id2_decrypt();
 
-    printf(">>>>>>func: demo_tfs_id2_get_auth_code <<<<<<\n");
-    demo_tfs_id2_get_auth_code(timestamp);
+    printf(">>>>>>func: demo_tfs_id2_get_challenge_auth_code <<<<<<\n");
+    demo_tfs_id2_get_challenge_auth_code();
 
-    printf(">>>>>>func: demo_tfs_id2_get_digest_auth_code <<<<<<\n");
-    demo_tfs_id2_get_digest_auth_code(timestamp);
+    printf(">>>>>>func: demo_tfs_id2_get_timestamp_auth_code <<<<<<\n");
+    demo_tfs_id2_get_timestamp_auth_code(timestamp);
 
     printf(">>>>>>func: demo_aes128_enc_dec <<<<<<\n");
     demo_aes128_enc_dec();
