@@ -632,7 +632,6 @@ static void _to_lower(char *upper, int len)
 #endif
 
 static int _fill_replay_fender(
-            iotx_mc_client_t *c,
             MQTT_ReplayFender *f,
             const char *topic,
             uint16_t msg_id,
@@ -642,7 +641,7 @@ static int _fill_replay_fender(
     int                 hmac_srclen = 0;
     iotx_conn_info_pt   conn;
 
-    if (!c || !f || !topic) {
+    if (!f || !topic) {
         return -1;
     }
 
@@ -684,7 +683,6 @@ static int _fill_replay_fender(
 }
 
 static int _create_encoded_payload(
-            iotx_mc_client_t *c,
             char *topic,
             iotx_mqtt_topic_info_pt topic_msg)
 {
@@ -696,7 +694,7 @@ static int _create_encoded_payload(
     int                     enc_len = 0;
     iotx_conn_info_pt       conn;
 
-    if (!c || !topic || !topic_msg) {
+    if (!topic || !topic_msg) {
         return -1;
     }
 
@@ -711,8 +709,7 @@ static int _create_encoded_payload(
 
     /* get fender (fender is between mqtt header and mqtt message) */
     memset(&fender, 0, sizeof(MQTT_ReplayFender));
-    _fill_replay_fender(c,
-                        &fender,
+    _fill_replay_fender(&fender,
                         topic,
                         topic_msg->packet_id,
                         out_buf_len);
@@ -1757,7 +1754,7 @@ static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt
     }
 
 #ifdef MQTT_ID2_CRYPTO
-    _create_encoded_payload(c, (char *)topicName, topic_msg);
+    _create_encoded_payload((char *)topicName, topic_msg);
 #endif
 
 #if defined(INSPECT_MQTT_FLOW)
