@@ -32,6 +32,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ssl_cookie.h"
+#include "mbedtls/net_sockets.h"
 
 typedef struct
 {
@@ -43,7 +44,7 @@ typedef struct
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_x509_crt       cacert;
 #endif
-
+    mbedtls_net_context  fd;
     mbedtls_timing_delay_context timer;
     mbedtls_ssl_cookie_ctx cookie_ctx;
 } dtls_session_t;
@@ -66,76 +67,6 @@ static  void DTLSFree_wrapper(void *ptr)
         coap_free(ptr);
         ptr = NULL;
     }
-}
-
-int DTLSNetwork_send( void *ctx, const unsigned char *buf, size_t len )
-{
-    int ret = -1;
-    coap_address_t remote;
-    dtls_network_t *p_network = NULL;
-    if(NULL==ctx || NULL==buf) {
-        return -1;
-    }
-    p_network  = (dtls_network_t *)ctx;
-    memset(&remote, 0x00, sizeof(coap_address_t));
-    remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
-    ret = HAL_UDP_write((void *)&p_network->socket_id,
-                             &remote, buf, len);
-    if(-1 == ret) {
-        return -1;
-    }
-
-    return ret;
-}
-
-int DTLSNetwork_recv( void *ctx, unsigned char *buf, size_t len )
-{
-    int    ret;
-    coap_address_t remote;
-    dtls_network_t *p_network = NULL;
-
-    if(NULL==ctx || NULL==buf) {
-        return -1;
-    }
-
-    p_network  = (dtls_network_t *)ctx;
-    remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
-    ret = HAL_UDP_read((void *)&p_network->socket_id, &remote,  buf, len);
-    if(-1 == ret) {
-        return -1;
-    }
-    return ret;
-}
-
-int DTLSNetwork_recvTimeout( void *ctx, unsigned char *buf, size_t len, unsigned int timeout)
-{
-    int    ret;
-    coap_address_t remote;
-    dtls_network_t *p_network = NULL;
-
-    if(NULL==ctx || NULL==buf) {
-        return -1;
-    }
-
-    p_network  = (dtls_network_t *)ctx;
-    remote.port = p_network->remote_port;
-    memcpy(remote.addr, p_network->remote_addr, NETWORK_ADDR_LEN);
-    ret = HAL_UDP_readTimeout((void *)&p_network->socket_id, &remote, buf, len, timeout);
-    if(-1 == ret) {
-        return -1;
-    }
-    else if(-2 == ret){
-        return  MBEDTLS_ERR_SSL_TIMEOUT;
-    }
-    else if(-3 == ret){
-        return MBEDTLS_ERR_SSL_WANT_READ;
-    }
-    else if(-4 == ret){
-        return -0x004C;//sMBEDTLS_ERR_NET_RECV_FAILED;
-    }
-    return ret;
 }
 
 static unsigned int DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
@@ -203,10 +134,10 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
         mbedtls_ssl_set_hostname(&p_dtls_session->context, p_options->p_host);
 #endif
         mbedtls_ssl_set_bio(&p_dtls_session->context,
-                            (void *)&p_dtls_session->network,
-                            DTLSNetwork_send,
-                            DTLSNetwork_recv,
-                            DTLSNetwork_recvTimeout);
+                            (void *)&p_dtls_session->fd,
+                            mbedtls_net_send,
+                            mbedtls_net_recv,
+                            mbedtls_net_recv_timeout);
         DTLS_TRC("mbedtls_ssl_set_bio result 0x%04x\r\n", result);
 
         do{
@@ -232,6 +163,8 @@ unsigned int HAL_DTLSSession_free(DTLSContext *context)
         p_dtls_session->network.socket_id = -1;
         memset(p_dtls_session->network.remote_addr, 0x00, sizeof(dtls_network_t));
         p_dtls_session->network.remote_port = 0;
+
+        mbedtls_net_free(&p_dtls_session->fd);
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
         mbedtls_x509_crt_free(&p_dtls_session->cacert);
@@ -263,6 +196,7 @@ DTLSContext *HAL_DTLSSession_init()
 
         mbedtls_ssl_init(&p_dtls_session->context);
         mbedtls_ssl_config_init(&p_dtls_session->conf);
+        mbedtls_net_init( &p_dtls_session->fd );
 
         mbedtls_ssl_cookie_init(&p_dtls_session->cookie_ctx);
 
@@ -281,6 +215,7 @@ DTLSContext *HAL_DTLSSession_init()
 
 unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *p_options)
 {
+    char port[6] = {0};
     unsigned int result = DTLS_SUCCESS;
     dtls_session_t *p_dtls_session = (dtls_session_t *)context;
 
@@ -319,6 +254,10 @@ unsigned int HAL_DTLSSession_create(DTLSContext *context, coap_dtls_options_t  *
 
             DTLS_TRC("DTLSVerifyOptions_set result 0x%04x\r\n", result);
         }
+
+        sprintf(port, "%u", p_options->network.remote_port);
+        mbedtls_net_connect( &p_dtls_session->fd, p_options->p_host,
+                                                 port, MBEDTLS_NET_PROTO_UDP );
 
 #ifdef MBEDTLS_SSL_PROTO_DTLS
         if (result == DTLS_SUCCESS)
