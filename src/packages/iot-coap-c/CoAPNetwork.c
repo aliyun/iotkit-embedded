@@ -30,25 +30,27 @@
 #include "CoAPNetwork.h"
 
 #ifdef COAP_DTLS_SUPPORT
-static void CoAPNetworkDTLS_freeSession (coap_remote_session_t *p_session);
+static void CoAPNetworkDTLS_freeSession (void *p_session);
 
-unsigned int CoAPNetworkDTLS_read(coap_remote_session_t *p_session,
+unsigned int CoAPNetworkDTLS_read(void *p_session,
                                       unsigned char              *p_data,
                                       unsigned int               *p_datalen,
                                       unsigned int                timeout)
 {
     unsigned int           err_code  = COAP_SUCCESS;
     const unsigned int     read_len  = *p_datalen;
+    DTLSContext           *context   = NULL;
 
     COAP_TRC("<< secure_datagram_read, read buffer len %d, timeout %d\r\n", read_len, timeout);
     if (NULL != p_session)
     {
         /* read dtls application data*/
-        err_code = HAL_DTLSSession_read(p_session->context, p_data, p_datalen, timeout);
+        context = (DTLSContext *)p_session;
+        err_code = HAL_DTLSSession_read(context, p_data, p_datalen, timeout);
         if(DTLS_PEER_CLOSE_NOTIFY == err_code
                 || DTLS_FATAL_ALERT_MESSAGE  == err_code) {
             COAP_INFO("dtls session read failed return (0x%04x)\r\n", err_code);
-            CoAPNetworkDTLS_freeSession(p_session);
+            CoAPNetworkDTLS_freeSession(context);
         }
     }
 
@@ -57,53 +59,36 @@ unsigned int CoAPNetworkDTLS_read(coap_remote_session_t *p_session,
     return err_code;
 }
 
-unsigned int CoAPNetworkDTLS_write(coap_remote_session_t *p_session,
+unsigned int CoAPNetworkDTLS_write(void *p_session,
                                     const unsigned char        *p_data,
                                     unsigned int               *p_datalen)
 {
     if(NULL != p_session){
-        return HAL_DTLSSession_write(p_session->context, p_data, p_datalen);
+        return HAL_DTLSSession_write((DTLSContext *)p_session, p_data, p_datalen);
     }
     return COAP_ERROR_INVALID_PARAM;
 }
 
-static void CoAPNetworkDTLS_initSession(coap_remote_session_t * p_session)
-{
-    memset(p_session, 0x00, sizeof(coap_remote_session_t));
-    p_session->context = HAL_DTLSSession_init();
-}
-
-static  void CoAPNetworkDTLS_freeSession (coap_remote_session_t *p_session)
+static  void CoAPNetworkDTLS_freeSession (void *p_session)
 {
     /* Free the session.*/
-    HAL_DTLSSession_free(p_session->context);
+    HAL_DTLSSession_free((DTLSContext *)p_session);
 }
 
-static unsigned int CoAPNetworkDTLS_createSession(int                        socket_id,
-                                        const coap_address_t       *p_remote,
-                                        unsigned char              *p_ca_cert_pem,
-                                        coap_remote_session_t     *p_session,
-                                        char *p_host)
+void *CoAPNetworkDTLS_createSession(char *p_host,
+                                        unsigned short         port,
+                                        unsigned char         *p_ca_cert_pem)
 {
+    DTLSContext *context = NULL;
     coap_dtls_options_t dtls_options;
-    unsigned int err_code = COAP_SUCCESS;
 
     memset(&dtls_options, 0x00, sizeof(coap_dtls_options_t));
     dtls_options.p_ca_cert_pem     = p_ca_cert_pem;
-    dtls_options.network.socket_id = socket_id;
-    dtls_options.network.remote_port = p_remote->port;
     dtls_options.p_host            = p_host;
-    memcpy(dtls_options.network.remote_addr, p_remote->addr, strlen(p_remote->addr));
+    dtls_options.port              = port;
 
-    err_code = HAL_DTLSSession_create(p_session->context, &dtls_options);
-    COAP_TRC("HAL_DTLSSession_create result %08x\r\n", err_code);
-
-    if (COAP_SUCCESS != err_code)
-    {
-        CoAPNetworkDTLS_freeSession(p_session);
-    }
-
-    return err_code;
+    context = HAL_DTLSSession_create(&dtls_options);
+    return  (void *)context;
 }
 
 #endif
@@ -116,7 +101,7 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
 
 #ifdef COAP_DTLS_SUPPORT
     if(COAP_ENDPOINT_DTLS == p_network->ep_type){
-        rc = CoAPNetworkDTLS_write(&p_network->remote_session, p_data, &datalen);
+        rc = CoAPNetworkDTLS_write(p_network->context, p_data, &datalen);
         COAP_DEBUG("[COAP-NWK]: >> Send secure message to %s:%d\r\n",
                                 p_network->remote_endpoint.addr,
                                 p_network->remote_endpoint.port);
@@ -148,7 +133,7 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
         if(COAP_ENDPOINT_DTLS == network->ep_type)  {
             len = datalen;
             memset(data, 0x00, datalen);
-            CoAPNetworkDTLS_read(&network->remote_session, data, &len, timeout);
+            CoAPNetworkDTLS_read(network->context, data, &len, timeout);
         } else {
     #endif
         memset(data, 0x00, datalen);
@@ -178,18 +163,19 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
     memset(p_network->remote_endpoint.addr, 0x00, NETWORK_ADDR_LEN);
     memcpy(p_network->remote_endpoint.addr,  p_param->remote.addr, NETWORK_ADDR_LEN);
 
-    /*Create udp socket*/
-    HAL_UDP_create(&p_network->socket_id);
-
 #ifdef COAP_DTLS_SUPPORT
     if(COAP_ENDPOINT_DTLS == p_param->ep_type){
-        CoAPNetworkDTLS_initSession(&p_network->remote_session);
-        err_code = CoAPNetworkDTLS_createSession(p_network->socket_id,
-                    &p_param->remote, p_param->p_ca_cert_pem,
-                    &p_network->remote_session, p_param->p_host);
-
+        p_network->context = CoAPNetworkDTLS_createSession(p_param->p_host,
+                    p_param->remote.port , p_param->p_ca_cert_pem);
+        if(NULL == p_network->context){
+            return COAP_ERROR_DTLS_INIT_FAILED;
+        }
     }
 #endif
+    if(COAP_ENDPOINT_NOSEC == p_param->ep_type){
+        /*Create udp socket*/
+        HAL_UDP_create(&p_network->socket_id);
+    }
     return err_code;
 }
 
@@ -199,7 +185,7 @@ unsigned int CoAPNetwork_deinit(coap_network_t *p_network)
     unsigned int    err_code = COAP_SUCCESS;
     HAL_UDP_close(&p_network->socket_id);
 #ifdef COAP_DTLS_SUPPORT
-    CoAPNetworkDTLS_freeSession(&p_network->remote_session);
+    CoAPNetworkDTLS_freeSession(&p_network->context);
 #endif
     return err_code;
 }

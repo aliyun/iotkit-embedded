@@ -59,17 +59,15 @@ typedef struct
 
 
 typedef struct {
-    dtls_network_t            network;
     unsigned char             *p_ca_cert_pem;
     char                      *p_host;
+    unsigned short             port;
 } coap_dtls_options_t;
 
 
 typedef void DTLSContext;
 
-DTLSContext *HAL_DTLSSession_init();
-
-unsigned int HAL_DTLSSession_create(DTLSContext *conetxt, coap_dtls_options_t  *p_options);
+DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t  *p_options);
 
 unsigned int HAL_DTLSSession_write(DTLSContext *conetxt,
                                    const unsigned char   *p_data,

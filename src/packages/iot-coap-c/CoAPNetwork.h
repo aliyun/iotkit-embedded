@@ -42,6 +42,7 @@ typedef struct
     coap_endpoint_type       ep_type;
     coap_address_t           remote_endpoint;
     coap_remote_session_t    remote_session;
+    void                    *context;
 }coap_network_t;
 
 
@@ -51,6 +52,7 @@ typedef struct
     coap_address_t           remote;
     unsigned char           *p_ca_cert_pem;
     char                    *p_host;
+    unsigned short           port;
 } coap_network_init_t;
 
 
