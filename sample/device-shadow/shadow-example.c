@@ -66,7 +66,7 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     iotx_err_t rc;
     iotx_conn_info_pt puser_info;
     void *h_shadow;
-    iotx_shadow_para_t shadaw_para;
+    iotx_shadow_para_t shadow_para;
 
     /* Device AUTH */
     rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
@@ -76,27 +76,27 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     }
 
     /* Construct a device shadow */
-    memset(&shadaw_para, 0, sizeof(iotx_shadow_para_t));
+    memset(&shadow_para, 0, sizeof(iotx_shadow_para_t));
 
-    shadaw_para.mqtt.port = puser_info->port;
-    shadaw_para.mqtt.host = puser_info->host_name;
-    shadaw_para.mqtt.client_id = puser_info->client_id;
-    shadaw_para.mqtt.username = puser_info->username;
-    shadaw_para.mqtt.password = puser_info->password;
-    shadaw_para.mqtt.pub_key = puser_info->pub_key;
+    shadow_para.mqtt.port = puser_info->port;
+    shadow_para.mqtt.host = puser_info->host_name;
+    shadow_para.mqtt.client_id = puser_info->client_id;
+    shadow_para.mqtt.username = puser_info->username;
+    shadow_para.mqtt.password = puser_info->password;
+    shadow_para.mqtt.pub_key = puser_info->pub_key;
 
-    shadaw_para.mqtt.request_timeout_ms = 2000;
-    shadaw_para.mqtt.clean_session = 0;
-    shadaw_para.mqtt.keepalive_interval_ms = 60000;
-    shadaw_para.mqtt.pread_buf = msg_readbuf;
-    shadaw_para.mqtt.read_buf_size = MSG_LEN_MAX;
-    shadaw_para.mqtt.pwrite_buf = msg_buf;
-    shadaw_para.mqtt.write_buf_size = MSG_LEN_MAX;
+    shadow_para.mqtt.request_timeout_ms = 2000;
+    shadow_para.mqtt.clean_session = 0;
+    shadow_para.mqtt.keepalive_interval_ms = 60000;
+    shadow_para.mqtt.pread_buf = msg_readbuf;
+    shadow_para.mqtt.read_buf_size = MSG_LEN_MAX;
+    shadow_para.mqtt.pwrite_buf = msg_buf;
+    shadow_para.mqtt.write_buf_size = MSG_LEN_MAX;
 
-    shadaw_para.mqtt.handle_event.h_fp = NULL;
-    shadaw_para.mqtt.handle_event.pcontext = NULL;
+    shadow_para.mqtt.handle_event.h_fp = NULL;
+    shadow_para.mqtt.handle_event.pcontext = NULL;
 
-    h_shadow = IOT_Shadow_Construct(&shadaw_para);
+    h_shadow = IOT_Shadow_Construct(&shadow_para);
     if (NULL == h_shadow) {
         SHADOW_TRACE("construct device shadow failed!");
         return rc;

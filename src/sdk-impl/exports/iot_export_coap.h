@@ -65,12 +65,12 @@ typedef enum
 
 typedef enum
 {
-    IOXT_COAP_RESP_CODE_CONTENT        = 0x45,       /* Mapping to 2.05, Content*/
-    IOXT_COAP_RESP_CODE_BAD_REQUEST    = 0x80,       /* Mapping to 4.00, Bad Request*/
-    IOXT_COAP_RESP_CODE_UNAUTHORIZED   = 0x81,       /* Mapping to 4.01, Token is invalid or expire*/
-    IOXT_COAP_RESP_CODE_NOT_FOUND      = 0x84,       /* Mapping to 4.04, Path or uri is not found*/
-    IOXT_COAP_RESP_CODE_URL_TOO_LONG   = 0x8E,       /* Mapping to 4.14, The request url is too long*/
-    IOXT_COAP_RESP_CODE_INTERNAL_SERVER_ERROR = 0xA0,/* Mapping to 5.00, Internal server error*/
+    IOTX_COAP_RESP_CODE_CONTENT        = 0x45,       /* Mapping to 2.05, Content*/
+    IOTX_COAP_RESP_CODE_BAD_REQUEST    = 0x80,       /* Mapping to 4.00, Bad Request*/
+    IOTX_COAP_RESP_CODE_UNAUTHORIZED   = 0x81,       /* Mapping to 4.01, Token is invalid or expire*/
+    IOTX_COAP_RESP_CODE_NOT_FOUND      = 0x84,       /* Mapping to 4.04, Path or uri is not found*/
+    IOTX_COAP_RESP_CODE_URL_TOO_LONG   = 0x8E,       /* Mapping to 4.14, The request url is too long*/
+    IOTX_COAP_RESP_CODE_INTERNAL_SERVER_ERROR = 0xA0,/* Mapping to 5.00, Internal server error*/
 
 }iotx_coap_resp_code_t;
 
