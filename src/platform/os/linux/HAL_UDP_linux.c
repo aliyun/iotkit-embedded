@@ -31,127 +31,113 @@
 #include <pthread.h>
 #include "iot_import_coap.h"
 
-int HAL_UDP_create(void *p_socket)
+void *HAL_UDP_create(char *host, unsigned short port)
 {
-    int flag = 1;
-    int ret = -1;
-    int sockfd = -1;
+    int rc = -1;
+    long socket_id = -1;
+    char port_ptr[6] = {0};
+    struct addrinfo hints;
+    struct addrinfo *res, *ainfo;
+    struct sockaddr_in *sa = NULL;
+    char addr[NETWORK_ADDR_LEN] = {0};
 
-    if(NULL == p_socket){
-        return -1;
+    if(NULL == host){
+        return (void *)-1;
     }
 
-    if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
-        return -1;
+    sprintf(port_ptr, "%u", port);
+    memset ((char *)&hints, 0x00, sizeof(hints));
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_family = AF_INET;
+    hints.ai_protocol = IPPROTO_UDP;
+
+    rc = getaddrinfo(host, port_ptr, &hints, &res);
+    if(0 != rc){
+        perror("getaddrinfo error");
+        return (void *)-1;
     }
 
-    ret = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
-    if(ret < 0){
-        close(sockfd);
-        return -1;
-    }
+    for (ainfo = res; ainfo != NULL; ainfo = ainfo->ai_next)
+    {
+        if (AF_INET == ainfo->ai_family)
+        {
+            sa = (struct sockaddr_in *)ainfo->ai_addr;
+            inet_ntop(AF_INET, &sa->sin_addr, addr, NETWORK_ADDR_LEN);
+            fprintf(stderr, "The host IP %s, port is %d\r\n", addr, ntohs(sa->sin_port));
 
-    flag = 1;
-#ifdef IP_RECVPKTINFO
-    if((ret = setsockopt(sockfd, IPPROTO_IP, IP_RECVPKTINFO, &flag, sizeof(flag))) < 0)
-#else
-    if((ret = setsockopt(sockfd, IPPROTO_IP, IP_PKTINFO, &flag, sizeof(flag))) < 0)
-#endif
-        if (ret < 0){
-            return -1;
+            socket_id = socket(ainfo->ai_family, ainfo->ai_socktype, ainfo->ai_protocol);
+            if (socket_id < 0) {
+                perror("create socket error");
+                continue;
+            }
+            if(0 == connect(socket_id, ainfo->ai_addr, ainfo->ai_addrlen)){
+                  break;
+            }
+
+            close(socket_id);
         }
+    }
+    freeaddrinfo(res);
 
-    *(int *)p_socket  = sockfd;
-    return 0;
+    return (void *)socket_id;
 }
 
  void HAL_UDP_close(void *p_socket)
 {
-    int socket_id = -1;
+    long socket_id = -1;
 
-    if(NULL != p_socket){
-        socket_id = *(int *)p_socket;
-        close(socket_id);
-    }
+    socket_id = (long)p_socket;
+    close(socket_id);
 }
 
-int HAL_UDP_write(void               *p_socket,
-                       const coap_address_t    *p_remote,
+int HAL_UDP_write(void                        *p_socket,
                        const unsigned char    *p_data,
                        unsigned int            datalen)
 {
     int rc = -1;
-    int socket_id = -1;
-    struct sockaddr_in remote_addr;
+    long socket_id = -1;
 
-    if(NULL == p_socket) {
-        return -1;
-    }
-
-    socket_id = *((int *)p_socket);
-    remote_addr.sin_family = AF_INET;
-    if(1 != (rc = inet_pton(remote_addr.sin_family, p_remote->addr, &remote_addr.sin_addr.s_addr)))
-    {
-        return -1;
-    }
-    remote_addr.sin_port = htons(p_remote->port);
-    rc = sendto(socket_id, p_data, (size_t)datalen, 0,
-                (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
+    socket_id = (long)p_socket;
+    rc = send(socket_id, (char*)p_data, (int)datalen, 0);
     if(-1 == rc)
     {
         return -1;
     }
     return rc;
-
 }
 
 
-int HAL_UDP_read(void                *p_socket,
-                              coap_address_t   *p_remote,
-                              unsigned char   *p_data,
-                              unsigned int     datalen)
+int HAL_UDP_read(void                   *p_socket,
+                        unsigned char   *p_data,
+                        unsigned int     datalen)
 {
-    int socket_id = -1;
-    struct sockaddr from;
+    long socket_id = -1;
     int count = -1;
-    socklen_t addrlen = 0;
 
-    if(NULL == p_remote  || NULL == p_data || NULL == p_socket)
-    {
+    if(NULL == p_data || NULL == p_socket){
         return -1;
     }
 
-    socket_id = *(int *)p_socket;
-    addrlen = sizeof(struct sockaddr);
-    count = recvfrom(socket_id, p_data, (size_t)datalen, 0, &from, &addrlen);
-    if(-1 == count)
-    {
-        return -1;
-    }
-    if (from.sa_family == AF_INET)
-    {
-        struct sockaddr_in *sin = (struct sockaddr_in *)&from;
-        inet_ntop(AF_INET, &sin->sin_addr, p_remote->addr, NETWORK_ADDR_LEN);
-        p_remote->port = ntohs(sin->sin_port);
-    }
+    socket_id = (long)p_socket;
+    count = (int)read(socket_id, p_data, datalen);
+
     return count;
 }
 
 
 
-int HAL_UDP_readTimeout( void *p_socket,
-                              coap_address_t *p_remote, unsigned char  *p_data,
-                              unsigned int datalen,     unsigned int timeout )
+int HAL_UDP_readTimeout( void *p_socket, unsigned char  *p_data,
+                    unsigned int datalen,     unsigned int timeout)
 {
     int ret;
     struct timeval tv;
     fd_set read_fds;
-    int socket_id = -1;
+    long socket_id = -1;
 
     if(NULL == p_socket || NULL == p_data){
         return -1;
     }
-    socket_id = *(int *)p_socket;
+    socket_id = (long)p_socket;
 
     if( socket_id < 0 )
       return -1;
@@ -177,7 +163,7 @@ int HAL_UDP_readTimeout( void *p_socket,
     }
 
     /* This call will not block */
-    return HAL_UDP_read(p_socket, p_remote, p_data, datalen);
+    return HAL_UDP_read(p_socket, p_data, datalen);
 }
 
 

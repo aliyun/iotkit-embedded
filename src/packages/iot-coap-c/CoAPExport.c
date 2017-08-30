@@ -32,13 +32,12 @@
 #define COAP_DEFAULT_SCHEME      "coap" /* the default scheme for CoAP URIs */
 #define COAP_DEFAULT_HOST_LEN    128
 
-unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr,
-            coap_endpoint_type *p_endpoint_type, char host[COAP_DEFAULT_HOST_LEN])
+unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
+                            char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
 {
-    int ret = -1;
     int len = 0;
     char *p = NULL, *q = NULL;
-    if(NULL == p_uri || NULL == p_addr || NULL == p_endpoint_type){
+    if(NULL == p_uri  || NULL == p_endpoint_type){
         return COAP_ERROR_INVALID_PARAM;
     }
 
@@ -58,11 +57,11 @@ unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr,
         ++p;
         --len;
         *p_endpoint_type = COAP_ENDPOINT_DTLS;
-        p_addr->port     = COAPS_DEFAULT_PORT;
+        *port     = COAPS_DEFAULT_PORT;
     }
     else{
         *p_endpoint_type = COAP_ENDPOINT_NOSEC;
-        p_addr->port     = COAP_DEFAULT_PORT;
+        *port     = COAP_DEFAULT_PORT;
     }
     COAP_DEBUG("The endpoint type is: %d\r\n", *p_endpoint_type);
 
@@ -94,12 +93,6 @@ unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr,
         strncpy(host , p, q - p);
     }
     COAP_DEBUG("The host name is: %s\r\n", host);
-    ret = HAL_UDP_resolveAddress(host, p_addr->addr);
-    if(0 != ret){
-        return COAP_ERROR_DNS_FAILED;
-    }
-    COAP_DEBUG("The address is: %s\r\n", p_addr->addr);
-
     if(len && *q == ':'){
         p = ++q;
         --len;
@@ -119,10 +112,10 @@ unsigned int CoAPUri_parse(char *p_uri, coap_address_t *p_addr,
             if(uri_port > 65535){
                 return COAP_ERROR_INVALID_URI;
             }
-            p_addr->port = uri_port;
+            *port = uri_port;
         }
     }
-    COAP_DEBUG("The port is: %d\r\n", p_addr->port);
+    COAP_DEBUG("The port is: %d\r\n", *port);
 
     return COAP_SUCCESS;
 }
@@ -154,7 +147,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     /*set the endpoint type by uri schema*/
     if(NULL != param->url){
-        ret = CoAPUri_parse(param->url, &network_param.remote, &network_param.ep_type, host);
+        ret = CoAPUri_parse(param->url, &network_param.ep_type, host, &network_param.port);
     }
 
     if(COAP_SUCCESS != ret){
@@ -177,15 +170,12 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     if(COAP_ENDPOINT_DTLS == network_param.ep_type){
         extern const char *iotx_coap_get_ca(void);
         network_param.p_ca_cert_pem     =  (unsigned char *)iotx_coap_get_ca();
-        network_param.ep_type           =   COAP_ENDPOINT_DTLS;
-        network_param.p_host            =   host;
     }
 #endif
-
     if(COAP_ENDPOINT_NOSEC == network_param.ep_type){
-        network_param.ep_type = COAP_ENDPOINT_NOSEC;
         network_param.p_ca_cert_pem = NULL;
     }
+    network_param.p_host            =   host;
 
     /*CoAP network init*/
     ret = CoAPNetwork_init(&network_param,  &p_ctx->network);

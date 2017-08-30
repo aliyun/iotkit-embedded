@@ -37,7 +37,7 @@ unsigned int CoAPNetworkDTLS_read(void *p_session,
                                       unsigned int               *p_datalen,
                                       unsigned int                timeout)
 {
-    unsigned int           err_code  = COAP_SUCCESS;
+    unsigned int           err_code  = DTLS_SUCCESS;
     const unsigned int     read_len  = *p_datalen;
     DTLSContext           *context   = NULL;
 
@@ -52,19 +52,30 @@ unsigned int CoAPNetworkDTLS_read(void *p_session,
             COAP_INFO("dtls session read failed return (0x%04x)\r\n", err_code);
             CoAPNetworkDTLS_freeSession(context);
         }
+        if(DTLS_SUCCESS == err_code){
+            return COAP_SUCCESS;
+        }
+        else{
+            return COAP_ERROR_READ_FAILED;
+        }
     }
 
-    COAP_TRC("<< secure_datagram_read process result (0x%04x)\r\n", err_code);
-
-    return err_code;
+    return COAP_ERROR_INVALID_PARAM;
 }
 
 unsigned int CoAPNetworkDTLS_write(void *p_session,
                                     const unsigned char        *p_data,
                                     unsigned int               *p_datalen)
 {
+    unsigned int err_code = DTLS_SUCCESS;
     if(NULL != p_session){
-        return HAL_DTLSSession_write((DTLSContext *)p_session, p_data, p_datalen);
+        err_code =  HAL_DTLSSession_write((DTLSContext *)p_session, p_data, p_datalen);
+        if(DTLS_SUCCESS == err_code){
+            return COAP_SUCCESS;
+        }
+        else{
+            return COAP_ERROR_WRITE_FAILED;
+        }
     }
     return COAP_ERROR_INVALID_PARAM;
 }
@@ -97,24 +108,19 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
                                   const unsigned char  * p_data,
                                   unsigned int           datalen)
 {
-    int rc = COAP_ERROR_INTERNAL;
+    int rc = COAP_ERROR_WRITE_FAILED;
 
 #ifdef COAP_DTLS_SUPPORT
     if(COAP_ENDPOINT_DTLS == p_network->ep_type){
         rc = CoAPNetworkDTLS_write(p_network->context, p_data, &datalen);
-        COAP_DEBUG("[COAP-NWK]: >> Send secure message to %s:%d\r\n",
-                                p_network->remote_endpoint.addr,
-                                p_network->remote_endpoint.port);
     }
     else{
 #endif
-        COAP_DEBUG("[COAP-NWK]: >> Send nosecure message to %s:%d datalen: %d\r\n",
-                   p_network->remote_endpoint.addr, p_network->remote_endpoint.port, datalen);
-        rc = HAL_UDP_write((void *)&p_network->socket_id, &p_network->remote_endpoint, p_data, datalen);
+        rc = HAL_UDP_write((void *)p_network->context, p_data, datalen);
         COAP_DEBUG("[CoAP-NWK]: Network write return %d\r\n", rc);
 
         if(-1 == rc) {
-            rc = COAP_ERROR_INTERNAL;
+            rc = COAP_ERROR_WRITE_FAILED;
         } else {
             rc = COAP_SUCCESS;
         }
@@ -137,11 +143,8 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
         } else {
     #endif
         memset(data, 0x00, datalen);
-        len = HAL_UDP_readTimeout((void *)&network->socket_id,
-                                  &network->remote_endpoint,
+        len = HAL_UDP_readTimeout((void *)network->context,
                                   data, COAP_MSG_MAX_PDU_LEN, timeout);
-        COAP_DEBUG("<< CoAP recv nosecure data from %s:%d\r\n",
-                 network->remote_endpoint.addr, network->remote_endpoint.port);
     #ifdef COAP_DTLS_SUPPORT
         }
     #endif
@@ -159,22 +162,22 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
 
     /* TODO : Parse the url here */
     p_network->ep_type = p_param->ep_type;
-    p_network->remote_endpoint.port = p_param->remote.port;
-    memset(p_network->remote_endpoint.addr, 0x00, NETWORK_ADDR_LEN);
-    memcpy(p_network->remote_endpoint.addr,  p_param->remote.addr, NETWORK_ADDR_LEN);
 
 #ifdef COAP_DTLS_SUPPORT
     if(COAP_ENDPOINT_DTLS == p_param->ep_type){
         p_network->context = CoAPNetworkDTLS_createSession(p_param->p_host,
-                    p_param->remote.port , p_param->p_ca_cert_pem);
+                    p_param->port, p_param->p_ca_cert_pem);
         if(NULL == p_network->context){
-            return COAP_ERROR_DTLS_INIT_FAILED;
+            return COAP_ERROR_NET_INIT_FAILED;
         }
     }
 #endif
     if(COAP_ENDPOINT_NOSEC == p_param->ep_type){
         /*Create udp socket*/
-        HAL_UDP_create(&p_network->socket_id);
+        p_network->context = HAL_UDP_create(p_param->p_host, p_param->port);
+        if((void *)-1 == p_network->context){
+            return COAP_ERROR_NET_INIT_FAILED;
+        }
     }
     return err_code;
 }

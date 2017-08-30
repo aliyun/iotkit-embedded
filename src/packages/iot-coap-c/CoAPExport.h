@@ -69,43 +69,20 @@
 
 /* CoAP module error code base */
 #define COAP_ERROR_BASE            (1<<8)
-#define COAP_ERROR_MSG_BASE        (1<<16)
-#define COAP_ERROR_DTLS_BASE       (1<<24)
+#define COAP_ERROR_DTLS_BASE       (1<<16)
 
 /* CoAP base error code */
 #define COAP_SUCCESS                           (0)                    /* Successful */
-#define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 1)  /* Internal Error */
-#define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 2)  /* Invalid Parameter */
+#define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 1)  /* Invalid Parameter */
+#define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 2)  /* Null Pointer */
 #define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 3)  /* Invalid Length */
-#define COAP_ERROR_INVALID_DATA                (COAP_ERROR_BASE | 4)  /* Invalid Data */
-#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 5)  /* Data size exceeds limit */
-#define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 6)  /* Null Pointer */
-#define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 7)
-#define COAP_ERROR_DNS_FAILED                  (COAP_ERROR_BASE | 8)
-#define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 9)
-#define COAP_ERROR_DTLS_INIT_FAILED            (COAP_ERROR_BASE | 10)
-
-/* CoAP Message and Transmission error code*/
-#define COAP_MESSAGE_ERROR_NULL            (COAP_ERROR_MSG_BASE | 0)
-#define COAP_MESSAGE_ERROR_INVALID_CONF    (COAP_ERROR_MSG_BASE | 1)
-#define COAP_MESSAGE_INVALID_CONTENT       (COAP_ERROR_MSG_BASE | 2)
-#define COAP_TRANSMISSION_RESET_BY_PEER    (COAP_ERROR_MSG_BASE | 3)
-#define COAP_TRANSMISSION_TIMEOUT          (COAP_ERROR_MSG_BASE | 4)
-#define COAP_TRANSPORT_SECURITY_MISSING    (COAP_ERROR_MSG_BASE | 5)
-
-
-/* CoAP DTLS error code */
-#define COAP_DTLS_NEW_SESSION_REQ           (COAP_ERROR_DTLS_BASE | 0)
-#define COAP_DTLS_CONFIGURATION_FAILED      (COAP_ERROR_DTLS_BASE | 1)
-#define COAP_DTLS_CONTEXT_SETUP_FAILED      (COAP_ERROR_DTLS_BASE | 2)
-#define COAP_DTLS_HANDSHAKE_IN_PROGRESS     (COAP_ERROR_DTLS_BASE | 3)
-#define COAP_DTLS_READ_DATA_FAILED          (COAP_ERROR_DTLS_BASE | 4)
-#define COAP_DTLS_INVALID_CA_CERTIFICATE    (COAP_ERROR_DTLS_BASE | 5)
-#define COAP_DTLS_OWN_CERT_SETUP_FAILED     (COAP_ERROR_DTLS_BASE | 6)
-#define COAP_DTLS_FATAL_ALERT_MESSAGE       (COAP_ERROR_DTLS_BASE | 7)
-#define COAP_DTLS_PEER_CLOSE_NOTIFY         (COAP_ERROR_DTLS_BASE | 8)
-#define COAP_DTLS_HANDSHAKE_FAILED          (COAP_ERROR_DTLS_BASE | 9)
-
+#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 4)  /* Data size exceeds limit */
+#define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 5)
+#define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 6)
+#define COAP_ERROR_NET_INIT_FAILED             (COAP_ERROR_BASE | 7)
+#define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 8)  /* Internal Error */
+#define COAP_ERROR_WRITE_FAILED                (COAP_ERROR_BASE | 9)
+#define COAP_ERROR_READ_FAILED                 (COAP_ERROR_BASE | 10)
 
 #define COAP_MSG_CODE_DEF(N) (((N)/100 << 5) | (N)%100)
 
