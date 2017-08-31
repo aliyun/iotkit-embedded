@@ -190,8 +190,9 @@ typedef struct
 
 typedef struct
 {
-             char *url;
-    unsigned char  maxcount;  /*list maximal count*/
+             char       *url;
+    unsigned char        maxcount;  /*list maximal count*/
+    CoAPEventNotifier    notifier;
 }CoAPInitParam;
 
 typedef struct

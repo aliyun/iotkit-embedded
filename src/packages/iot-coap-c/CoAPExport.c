@@ -136,7 +136,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     }
 
     p_ctx->message_id = 1;
-    p_ctx->notifier = NULL;
+    p_ctx->notifier = param->notifier;
     p_ctx->sendbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
     p_ctx->recvbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
 

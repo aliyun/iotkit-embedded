@@ -168,6 +168,7 @@ void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
             iotx_coap_t *p_context = NULL;
             if(NULL != message->user){
                 p_context = (iotx_coap_t *)message->user;
+                p_context->is_authed = false;
                 IOT_CoAP_DeviceNameAuth(p_context);
                 COAP_INFO("IoTx token expired, will reauthenticate\r\n");
             }
@@ -486,6 +487,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
         COAP_INFO("Using default CoAP server: %s\r\n", url);
     }
     param.maxcount = IOTX_LIST_MAX_ITEM;
+    param.notifier = (CoAPEventNotifier)iotx_event_notifyer;
     p_iotx_coap->p_coap_ctx = CoAPContext_create(&param);
     if(NULL == p_iotx_coap->p_coap_ctx){
         COAP_ERR(" Create coap context failed\r\n");

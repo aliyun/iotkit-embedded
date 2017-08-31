@@ -355,18 +355,20 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
         CoAPAckMessage_send(context, message->header.msgid);
     }
 
-    if(COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code){
-        /* TODO:i */
-        if(NULL != context->notifier){
-            /* context->notifier(); */
-        }
-    }
 
     list_for_each_entry(node, &context->list.sendlist, sendlist){
         if(0 != node->tokenlen && node->tokenlen == message->header.tokenlen
                 && 0 == memcmp(node->token, message->token, message->header.tokenlen)){
 
             COAP_DEBUG("Find the node by token\r\n");
+            message->user  = node->user;
+            if(COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code){
+                /* TODO:i */
+                if(NULL != context->notifier){
+                     context->notifier(message->header.code, message);
+                }
+            }
+
             if(NULL != node->handler){
                 node->handler(node->user, message);
             }
@@ -394,7 +396,7 @@ static void CoAPMessage_handle(CoAPContext *context,
 
     ret = CoAPDeserialize_Message(&message, buf, datalen);
     if(NULL != message.payload)
-		COAP_DEBUG("-----payload: %s---\r\n", message.payload);
+	COAP_DEBUG("-----payload: %s---\r\n", message.payload);
     COAP_DEBUG("-----code   : 0x%x---\r\n", message.header.code);
     COAP_DEBUG("-----type   : 0x%x---\r\n", message.header.type);
     COAP_DEBUG("-----msgid  : %d---\r\n", message.header.msgid);
