@@ -6,8 +6,7 @@ SUBDIRS := src/platform
 SUBDIRS += sample
 SUBDIRS += src/sdk-tests
 
-CFLAGS  += -Os
-CFLAGS  += -DTEST_ID2_DAILY
+# CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DTEST_OTA_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
@@ -39,3 +38,10 @@ BUILD_CONFIG    := src/configs/config.generic-linux.embedded
 endif
 
 include $(RULE_DIR)/rules.mk
+
+ifneq (,$(findstring armcc,$(PLATFORM_CC)))
+PKG_SWITCH_src/platform :=
+PKG_SWITCH_src/external/mbedtls :=
+CFLAGS += --gnu
+CFLAGS += --diag_error=warning
+endif
