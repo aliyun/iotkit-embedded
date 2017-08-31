@@ -83,11 +83,6 @@ else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 
 endif   # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 
-PREFIX_CC := $(shell echo "$(strip $(PLATFORM_CC))"|sed 's:gcc$$::1')
-PREFIX_AR := $(shell echo "$(strip $(PLATFORM_AR))"|sed 's:ar$$::1')
-
-ifneq ($(strip $(PREFIX_AR)),$(strip $(PREFIX_CC)))
-$(error $(strip $(PREFIX_AR)) != $(strip $(PREFIX_CC)), AR/CC requires same prefix!)
-endif
-
-CROSS_PREFIX        := $(shell echo "$(strip $(PLATFORM_CC))"|sed 's:gcc$$::1')
+OVERRIDE_CC := $(strip $(PLATFORM_CC))
+OVERRIDE_AR := $(strip $(PLATFORM_AR))
+OVERRIDE_STRIP := $(strip $(PLATFORM_STRIP))

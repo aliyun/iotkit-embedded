@@ -157,6 +157,7 @@ NODEP_LIST = \
     $(SYSROOT_INC)/product.h \
     $(SYSROOT_INC)/product_config.h \
 
+ifneq (,$(findstring gcc,$(CC)))
 %.d: %.c
 	$(Q) \
 	$(CC) -MM -I$(CURDIR) \
@@ -166,6 +167,7 @@ NODEP_LIST = \
 	$< > $@.$$$$; \
 	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $@.$$$$; \
 	mv $@.$$$$ $@;
+endif
 
 %.o: %.cpp
 	$(call Brief_Log,"CC")
@@ -176,6 +178,7 @@ NODEP_LIST = \
 	    $(CFLAGS) \
 	    -c -o $@ $<
 
+ifneq (,$(findstring gcc,$(CC)))
 %.d: %.cpp
 	$(Q) \
 	$(CXX) -MM -I$(CURDIR) \
@@ -186,6 +189,7 @@ NODEP_LIST = \
 	$(foreach D,$(NODEP_LIST),sed -i 's:$(D)::g' $@.$$$$;) \
 	sed 's,\($*\)\.o[ :]*,\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$;
+endif
 
 ifeq (,$(strip $(OVERRIDE_BUILD)))
 include $(RULE_DIR)/_rules-libs.mk
