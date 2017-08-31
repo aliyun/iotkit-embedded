@@ -43,6 +43,10 @@ int     IOT_SetupConnInfo(const char *product_key,
                           const char *device_name,
                           const char *device_secret,
                           void **info_ptr);
+int     IOT_SetupConnInfoSecure(const char *product_key,
+                                const char *device_name,
+                                const char *device_secret,
+                                void **info_ptr);
 
 #include "exports/iot_export_errno.h"
 #include "exports/iot_export_mqtt.h"

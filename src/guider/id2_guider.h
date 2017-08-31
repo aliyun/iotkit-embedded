@@ -17,42 +17,19 @@
  */
 
 
+#ifndef _IOTX_ID2_AUTH_H_
+#define _IOTX_ID2_AUTH_H_
 
-#ifndef __SDK_IMPL_INTERNAL__
-#define __SDK_IMPL_INTERNAL__
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 #include "iot_import.h"
-#include "iot_export.h"
+#include "device.h"     /* for deviceInfo{} + userInfo{} */
 
-#include "lite-log.h"
-#include "lite-utils.h"
-#include "guider.h"
-#include "id2_guider.h"
-
-#define POINTER_SANITY_CHECK(ptr, err) \
-    do { \
-        if (NULL == (ptr)) { \
-            log_err("Invalid argument, %s = %p", #ptr, ptr); \
-            return (err); \
-        } \
-    } while(0)
-
-#define STRING_PTR_SANITY_CHECK(ptr, err) \
-    do { \
-        if (NULL == (ptr)) { \
-            log_err("Invalid argument, %s = %p", #ptr, (ptr)); \
-            return (err); \
-        } \
-        if (0 == strlen((ptr))) { \
-            log_err("Invalid argument, %s = '%s'", #ptr, (ptr)); \
-            return (err); \
-        } \
-    } while(0)
+int iotx_guider_id2_authenticate(void);
 
 #if defined(__cplusplus)
 }
 #endif
-#endif  /* __SDK_IMPL_INTERNAL__ */
+#endif

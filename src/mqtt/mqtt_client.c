@@ -35,6 +35,7 @@
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
+#include "id2_crypto.h"
 
 #ifdef MQTT_ID2_CRYPTO
 /* Macros for accessing the most offset byte of a number */
@@ -164,7 +165,6 @@ typedef struct {
     uint32_t            reconnect_time_interval_ms;  /* time interval of this reconnect */
 } iotx_mc_reconnect_param_t;
 
-
 /* structure of MQTT client */
 typedef struct Client {
     void                           *lock_generic;                            /* generic lock */
@@ -187,6 +187,8 @@ typedef struct Client {
     void                           *lock_list_sub;                           /* lock of list of subscribe or unsubscribe ack */
     void                           *lock_write_buf;                          /* lock of write */
     iotx_mqtt_event_handle_t        handle_event;                            /* event handle */
+    int (*mqtt_up_process)(char *topic, iotx_mqtt_topic_info_pt topic_msg);  /* process function before mqtt publish */
+    int (*mqtt_down_process)(iotx_mqtt_topic_info_pt topic_msg);             /* process function while received mqtt publish */
 } iotx_mc_client_t, *iotx_mc_client_pt;
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
@@ -682,6 +684,7 @@ static int _fill_replay_fender(
     return 0;
 }
 
+/* you can refer to the following code to implement iotx_mqtt_id2_payload_encrypt(). */
 static int _create_encoded_payload(
             char *topic,
             iotx_mqtt_topic_info_pt topic_msg)
@@ -746,6 +749,8 @@ exit:
     return ret;
 }
 #endif  /* #ifdef MQTT_ID2_CRYPTO */
+/* you can refer to the above code to implement iotx_mqtt_id2_payload_encrypt(). */
+
 
 /* remove the list element specified by @msgId from list of wait publish ACK */
 /* return: 0, success; NOT 0, fail; */
@@ -1366,6 +1371,12 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
+    /* payload decrypt by id2_aes */
+    if (c->mqtt_down_process) {
+        c->mqtt_down_process(&topic_msg);
+    }
+
+/* you can refer to the following code to implement iotx_mqtt_id2_payload_decrypt(). */
 #ifdef MQTT_ID2_CRYPTO
     /* aes decrypt for MQTT payload */
     int                 ret = -1;
@@ -1407,6 +1418,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     log_debug("ID2 decrypt publish[%d]: %s", topic_msg.payload_len, topic_msg.payload);
     LITE_free(dec_out);
 #endif
+/* you can refer to the above code to implement iotx_mqtt_id2_payload_decrypt(). */
 
     char       *tmp_topic_name = NULL;
 
@@ -1753,9 +1765,16 @@ static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt
         topic_msg->packet_id = msg_id;
     }
 
+/* TODO: delete _create_encoded_payload */
 #ifdef MQTT_ID2_CRYPTO
     _create_encoded_payload((char *)topicName, topic_msg);
 #endif
+
+/* TODO: add: */
+    /* payload encrypt by id2_aes */
+    if (c->mqtt_up_process) {
+        rc = c->mqtt_up_process((char *)topicName, topic_msg);
+    }
 
 #if defined(INSPECT_MQTT_FLOW)
     HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
@@ -2502,6 +2521,21 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         LITE_free(pclient);
         return NULL;
     }
+
+    return pclient;
+}
+
+void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams)
+{
+    iotx_mc_client_t   *pclient;
+
+    pclient = IOT_MQTT_Construct(pInitParams);
+    if (NULL == pclient) {
+        return NULL;
+    }
+
+    pclient->mqtt_up_process = iotx_mqtt_id2_payload_encrypt;
+    pclient->mqtt_down_process = iotx_mqtt_id2_payload_decrypt;
 
     return pclient;
 }

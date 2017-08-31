@@ -40,6 +40,7 @@
 #include "tfs/tfs.h"
 #endif
 #include "guider.h"
+#include "id2_guider.h"
 
 #define GUIDER_IOT_ID_LEN           (256)
 #define GUIDER_IOT_TOKEN_LEN        (512)

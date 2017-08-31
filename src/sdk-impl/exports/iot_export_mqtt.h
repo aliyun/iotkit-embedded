@@ -173,6 +173,16 @@ typedef struct {
  */
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
 
+/**
+ * @brief Construct the MQTT client by ID2
+ *        This function initialize the data structures, establish MQTT connection.
+ *        And set mqtt up/down process functions.
+ *
+ * @param pInitParams, specify the MQTT client parameter.
+ *
+ * @return NULL, construct failed; NOT NULL, the handle of MQTT client.
+ */
+void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams);
 
 /**
  * @brief Deconstruct the MQTT client
