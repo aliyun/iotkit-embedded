@@ -63,3 +63,4 @@ typedef struct {
 #endif
 } iotx_conn_info_t, *iotx_conn_info_pt;
 /* From device.h */
+

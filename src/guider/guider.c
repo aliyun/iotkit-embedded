@@ -557,7 +557,7 @@ static void _timestamp_string(char *buf, int len)
 
 static SECURE_MODE _secure_mode_num(void)
 {
-    int             rc = -1;
+    SECURE_MODE     rc = MODE_TLS_GUIDER;
 
 #ifdef MQTT_DIRECT
 
