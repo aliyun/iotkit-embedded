@@ -46,7 +46,7 @@ uint64_t utils_get_epoch_time(char copy[], int len)
     httpclient.header = "Accept: text/xml,text/html,\r\n";
 
     httpclient_data.response_buf = http_content;
-    httpclient_data.response_content_len = HTTP_RESP_CONTENT_LEN;
+    httpclient_data.response_buf_len = HTTP_RESP_CONTENT_LEN;
 
     ret = httpclient_common(
                       &httpclient,
