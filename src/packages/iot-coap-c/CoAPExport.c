@@ -33,89 +33,87 @@
 #define COAP_DEFAULT_HOST_LEN    128
 
 unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
-                            char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
+                           char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
 {
     int len = 0;
     char *p = NULL, *q = NULL;
-    if(NULL == p_uri  || NULL == p_endpoint_type){
+    if (NULL == p_uri  || NULL == p_endpoint_type) {
         return COAP_ERROR_INVALID_PARAM;
     }
 
     len = strlen(p_uri);
     p = p_uri;
     q = (char *)COAP_DEFAULT_SCHEME;
-    while(len && *q && tolower(*p)==*q){
+    while (len && *q && tolower(*p) == *q) {
         ++p;
         ++q;
         --len;
     }
 
-    if(*q){
+    if (*q) {
         return COAP_ERROR_INVALID_URI;
     }
-    if(tolower(*p) == 's'){
+    if (tolower(*p) == 's') {
         ++p;
         --len;
         *p_endpoint_type = COAP_ENDPOINT_DTLS;
         *port     = COAPS_DEFAULT_PORT;
-    }
-    else{
+    } else {
         *p_endpoint_type = COAP_ENDPOINT_NOSEC;
         *port     = COAP_DEFAULT_PORT;
     }
-    COAP_DEBUG("The endpoint type is: %d\r\n", *p_endpoint_type);
+    COAP_DEBUG("The endpoint type is: %d", *p_endpoint_type);
 
     q = (char *)"://";
-    while(len && *q && tolower(*p)==*q){
+    while (len && *q && tolower(*p) == *q) {
         ++p;
         ++q;
         --len;
     }
 
-    if(*q){
+    if (*q) {
         return COAP_ERROR_INVALID_URI;
     }
 
     q = p;
-    while(len && *q != ':'){
+    while (len && *q != ':') {
         ++q;
         --len;
     }
-    if(p == q){
+    if (p == q) {
         return COAP_ERROR_INVALID_URI;
     }
 
-    if(COAP_DEFAULT_HOST_LEN-1 < (q-p)){
+    if (COAP_DEFAULT_HOST_LEN - 1 < (q - p)) {
         return COAP_ERROR_INVALID_URI;
-    }
-    else{
+    } else {
         memset(host, 0x00, COAP_DEFAULT_HOST_LEN);
-        strncpy(host , p, q - p);
+        strncpy(host, p, q - p);
     }
-    COAP_DEBUG("The host name is: %s\r\n", host);
-    if(len && *q == ':'){
+    COAP_DEBUG("The host name is: %s", host);
+    if (len && *q == ':') {
         p = ++q;
         --len;
 
-        while (len && isdigit (*q)){
+        while (len && isdigit(*q)) {
             ++q;
             --len;
         }
 
-        if (p < q){
+        if (p < q) {
             int uri_port = 0;
 
-            while (p < q){
+            while (p < q) {
                 uri_port = uri_port * 10 + (*p++ - '0');
             }
 
-            if(uri_port > 65535){
+            if (uri_port > 65535) {
                 return COAP_ERROR_INVALID_URI;
             }
             *port = uri_port;
         }
     }
-    COAP_DEBUG("The port is: %d\r\n", *port);
+    COAP_DEBUG("The port is: %d", *port);
 
     return COAP_SUCCESS;
 }
@@ -130,8 +128,8 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     memset(&network_param, 0x00, sizeof(coap_network_init_t));
     p_ctx = coap_malloc(sizeof(CoAPContext));
-    if(NULL == p_ctx){
-        COAP_ERR("Create coap new context failed\r\n");
+    if (NULL == p_ctx) {
+        COAP_ERR("Create coap new context failed");
         return NULL;
     }
 
@@ -146,17 +144,17 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     p_ctx->list.maxcount = param->maxcount;
 
     /*set the endpoint type by uri schema*/
-    if(NULL != param->url){
+    if (NULL != param->url) {
         ret = CoAPUri_parse(param->url, &network_param.ep_type, host, &network_param.port);
     }
 
-    if(COAP_SUCCESS != ret){
-        if(NULL != p_ctx){
-            if(NULL != p_ctx->recvbuf){
+    if (COAP_SUCCESS != ret) {
+        if (NULL != p_ctx) {
+            if (NULL != p_ctx->recvbuf) {
                 coap_free(p_ctx->recvbuf);
                 p_ctx->recvbuf = NULL;
             }
-            if(NULL != p_ctx->sendbuf){
+            if (NULL != p_ctx->sendbuf) {
                 coap_free(p_ctx->sendbuf);
                 p_ctx->sendbuf = NULL;
             }
@@ -167,12 +165,12 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     }
 
 #ifdef COAP_DTLS_SUPPORT
-    if(COAP_ENDPOINT_DTLS == network_param.ep_type){
+    if (COAP_ENDPOINT_DTLS == network_param.ep_type) {
         extern const char *iotx_coap_get_ca(void);
-        network_param.p_ca_cert_pem     =  (unsigned char *)iotx_coap_get_ca();
+        network_param.p_ca_cert_pem     = (unsigned char *)iotx_coap_get_ca();
     }
 #endif
-    if(COAP_ENDPOINT_NOSEC == network_param.ep_type){
+    if (COAP_ENDPOINT_NOSEC == network_param.ep_type) {
         network_param.p_ca_cert_pem = NULL;
     }
     network_param.p_host            =   host;
@@ -180,14 +178,14 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     /*CoAP network init*/
     ret = CoAPNetwork_init(&network_param,  &p_ctx->network);
 
-    if(COAP_SUCCESS != ret){
-        if(NULL != p_ctx){
+    if (COAP_SUCCESS != ret) {
+        if (NULL != p_ctx) {
 
-            if(NULL != p_ctx->recvbuf){
+            if (NULL != p_ctx->recvbuf) {
                 coap_free(p_ctx->recvbuf);
                 p_ctx->recvbuf = NULL;
             }
-            if(NULL != p_ctx->sendbuf){
+            if (NULL != p_ctx->sendbuf) {
                 coap_free(p_ctx->sendbuf);
                 p_ctx->sendbuf = NULL;
             }
@@ -206,9 +204,9 @@ void CoAPContext_free(CoAPContext *p_ctx)
 
     CoAPNetwork_deinit(&p_ctx->network);
 
-    list_for_each_entry_safe(cur, next, &p_ctx->list.sendlist, sendlist){
-        if(NULL != cur){
-            if(NULL != cur->message){
+    list_for_each_entry_safe(cur, next, &p_ctx->list.sendlist, sendlist) {
+        if (NULL != cur) {
+            if (NULL != cur->message) {
                 coap_free(cur->message);
                 cur->message = NULL;
             }
@@ -217,18 +215,18 @@ void CoAPContext_free(CoAPContext *p_ctx)
         }
     }
 
-    if(NULL != p_ctx->recvbuf){
+    if (NULL != p_ctx->recvbuf) {
         coap_free(p_ctx->recvbuf);
         p_ctx->recvbuf = NULL;
     }
 
-    if(NULL != p_ctx->sendbuf){
+    if (NULL != p_ctx->sendbuf) {
         coap_free(p_ctx->sendbuf);
         p_ctx->sendbuf = NULL;
     }
 
 
-    if(NULL != p_ctx){
+    if (NULL != p_ctx) {
         coap_free(p_ctx);
         p_ctx    =  NULL;
     }

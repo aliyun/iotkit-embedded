@@ -92,11 +92,14 @@ static void iotx_post_data_to_server(void *param)
 
 int main(int argc, char **argv)
 {
-    int opt;
-    char secur[32] = {0};
-    char env[32] = {0};
-    iotx_coap_config_t config;
-    iotx_deviceinfo_t deviceinfo;
+    char                    secur[32] = {0};
+    char                    env[32] = {0};
+    int                     opt;
+    iotx_coap_config_t      config;
+    iotx_deviceinfo_t       deviceinfo;
+
+    IOT_OpenLog("coap");
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     printf("[COAP-Client]: Enter Coap Client\r\n");
     while ((opt = getopt(argc, argv, "e:s:lh")) != -1) {
@@ -132,6 +135,7 @@ int main(int argc, char **argv)
             config.p_url = url;
         } else {
             printf("Online environment must access with DTLS\r\n");
+            IOT_CloseLog();
             return -1;
         }
     }
@@ -153,6 +157,7 @@ int main(int argc, char **argv)
         printf("IoTx CoAP init failed\r\n");
     }
 
+    IOT_CloseLog();
     return 0;
 }
 
