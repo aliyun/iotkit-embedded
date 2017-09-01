@@ -17,7 +17,7 @@ cp ${TARGET} ${TEMPD}
 cd ${TEMPD}
 ar xf $(basename ${TARGET})
 rm -f $(basename ${TARGET})
-${STRIP} *.o
+${STRIP} *.o > /dev/null 2>&1
 
 for obj in $(ls *.o); do
     dir=$(find ${STAGED} -name ${obj}|xargs dirname|xargs basename)
@@ -43,7 +43,7 @@ for mod in ${SMODS}; do
     MSIZE=$(grep "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }')
     OBJS=$(grep "^${mod}" ${TEMPF}|awk '{ print $2 }')
     for obj in ${OBJS}; do
-        FSIZE=$(grep "${obj}" ${TEMPF}|awk '{ print $3 }')
+        FSIZE=$(grep "\<${obj}\>" ${TEMPF}|awk '{ print $3 }')
         printf "     %-8s %28s | %-8s %8s %-8s\n" \
             $(awk -v a=${FSIZE} -v b=${MSIZE} 'BEGIN { printf("%.2f%%\n", a/b*100); }') \
             "${obj}" "${mod}" "${FSIZE} /" "${MSIZE}"

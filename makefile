@@ -3,8 +3,11 @@ include src/configs/default_settings.mk
 include src/scripts/parse_make_settings.mk
 
 SUBDIRS := src/platform
+
+ifeq (gcc,$(strip $(PLATFORM_CC)))
 SUBDIRS += sample
 SUBDIRS += src/sdk-tests
+endif
 
 CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
@@ -43,5 +46,5 @@ ifneq (,$(findstring armcc,$(PLATFORM_CC)))
 PKG_SWITCH_src/platform :=
 PKG_SWITCH_src/external/mbedtls :=
 CFLAGS += --gnu
-CFLAGS += --diag_error=warning
+#CFLAGS += --diag_error=warning
 endif
