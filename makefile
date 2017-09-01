@@ -46,5 +46,5 @@ ifneq (,$(findstring armcc,$(PLATFORM_CC)))
 PKG_SWITCH_src/platform :=
 PKG_SWITCH_src/external/mbedtls :=
 CFLAGS += --gnu
-#CFLAGS += --diag_error=warning
+CFLAGS += --diag_error=warning
 endif

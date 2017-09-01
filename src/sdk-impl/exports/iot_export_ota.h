@@ -192,7 +192,7 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
       3) When @type is IOT_OTAG_MD5SUM, @buf should be a buffer, and @buf_len should be 33.
       4) When @type is IOT_OTAG_VERSION, @buf should be a buffer, and @buf_len should be OTA_VERSION_LEN_MAX.
       5) When @type is IOT_OTAG_CHECK_FIRMWARE, @buf should be pointer of uint32_t, and @buf_len should be 4.
-         0, firmware is invalid; 1, firmware is valid. 
+         0, firmware is invalid; 1, firmware is valid.
    @endverbatim
  *
  * @return 0, successful; < 0, failed, the value is error code.
@@ -207,7 +207,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
  *
  * @return The error code.
  */
-IOT_OTA_Err_t IOT_OTA_GetLastError(void *handle);
+int IOT_OTA_GetLastError(void *handle);
 
 
 #endif /* __OTA_EXPORT_H__ */

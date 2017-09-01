@@ -166,7 +166,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
 
                         pelement[i].callback(pelement[i].pcontext, IOTX_SHADOW_ACK_SUCCESS, NULL, 0);
                     } else if (0 == strncmp(pdata, "error", strlen(pdata))) {
-                        iotx_shadow_ack_code_t ack_code;
+                        int ack_code;
 
                         pdata = LITE_json_value_of("content.errorcode", (char *)ppayload);
                         if (NULL == pdata) {

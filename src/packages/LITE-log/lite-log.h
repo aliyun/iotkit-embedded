@@ -64,17 +64,25 @@ int     log_multi_line_internal(const char *f, const int l,
     log_multi_line_internal(__func__, __LINE__, title, level, payload, mark)
 
 void    LITE_rich_hexdump(const char *f, const int l,
-            const int level,
-            const char *buf_str,
-            const void *buf_ptr,
-            const int buf_len
-);
+                          const int level,
+                          const char *buf_str,
+                          const void *buf_ptr,
+                          const int buf_len
+                         );
+
+#if defined(__GLIBC__)
 #define HEXDUMP_DEBUG(buf, len) \
     LITE_rich_hexdump(__func__, __LINE__, LOG_DEBUG_LEVEL, #buf, (const void *)buf, (const int)len)
 
 #define HEXDUMP_INFO(buf, len)      \
     LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, (const void *)buf, (const int)len)
+#else
+#define HEXDUMP_DEBUG(buf, len) \
+    LITE_rich_hexdump(__func__, __LINE__, LOG_DEBUG_LEVEL, #buf, buf, len)
 
+#define HEXDUMP_INFO(buf, len)      \
+    LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, buf, len)
+#endif
 
 #if defined(__cplusplus)
 }

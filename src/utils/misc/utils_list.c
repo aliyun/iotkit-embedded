@@ -27,7 +27,7 @@
 /*
  * Allocate a new list_t. NULL on failure.
  */
-list_t *list_new()
+list_t *list_new(void)
 {
     list_t *self;
     self = LITE_malloc(sizeof(list_t));

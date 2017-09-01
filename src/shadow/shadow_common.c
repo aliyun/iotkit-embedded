@@ -72,10 +72,10 @@ iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
     size_free_space = pformat->buf_size;
 
     ret = HAL_Snprintf(pformat->buf,
-                   size_free_space,
-                   "{\"%s\":\"%s\"",
-                   "method",
-                   method);
+                       size_free_space,
+                       "{\"%s\":\"%s\"",
+                       "method",
+                       method);
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
     pformat->offset = ret;
@@ -85,9 +85,9 @@ iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
     size_free_space = pformat->buf_size - pformat->offset;
     if (NULL != head_str) {
         ret = HAL_Snprintf(pformat->buf + pformat->offset,
-                       size_free_space,
-                       ",%s",
-                       head_str);
+                           size_free_space,
+                           ",%s",
+                           head_str);
         CHECK_SNPRINTF_RET(ret, size_free_space);
         pformat->offset += ret;
     }
@@ -125,9 +125,9 @@ iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
 
     /* add the string: "${pattr->pattr_name}":" */
     ret = HAL_Snprintf(pformat->buf + pformat->offset,
-                   size_free_space,
-                   "\"%s\":",
-                   name);
+                       size_free_space,
+                       "\"%s\":",
+                       name);
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
 
@@ -165,11 +165,11 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
     size_free_space = pformat->buf_size - pformat->offset;
 
     ret = HAL_Snprintf(pformat->buf + pformat->offset,
-                   size_free_space,
-                   UPDATE_JSON_STR_END,
-                   iotx_device_info_get()->device_id,
-                   iotx_ds_common_get_tokennum(pshadow),
-                   iotx_ds_common_get_version(pshadow));
+                       size_free_space,
+                       UPDATE_JSON_STR_END,
+                       iotx_device_info_get()->device_id,
+                       iotx_ds_common_get_tokennum(pshadow),
+                       iotx_ds_common_get_version(pshadow));
 
     CHECK_SNPRINTF_RET(ret, size_free_space);
     pformat->offset += ret;
@@ -366,11 +366,11 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
     }
 
     ret = HAL_Snprintf(topic_full,
-                   len,
-                   SHADOW_TOPIC_FMT,
-                   topic,
-                   pdevice_info->product_key,
-                   pdevice_info->device_name);
+                       len,
+                       SHADOW_TOPIC_FMT,
+                       topic,
+                       pdevice_info->product_key,
+                       pdevice_info->device_name);
     if (ret < 0) {
         LITE_free(topic_full);
         return NULL;
@@ -382,7 +382,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 }
 
 
-iotx_err_t iotx_ds_common_publish2update(iotx_shadow_pt pshadow, char *data, uint32_t data_len)
+int iotx_ds_common_publish2update(iotx_shadow_pt pshadow, char *data, uint32_t data_len)
 {
     iotx_mqtt_topic_info_t topic_msg;
 

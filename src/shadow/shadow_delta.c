@@ -25,11 +25,11 @@
 #include "utils_list.h"
 #include "shadow_delta.h"
 
-static iotx_err_t iotx_shadow_delta_response(iotx_shadow_pt pshadow)
+static int iotx_shadow_delta_response(iotx_shadow_pt pshadow)
 {
 #define IOTX_SHADOW_DELTA_RESPONSE_LEN     (256)
 
-    iotx_err_t rc;
+    int rc;
     void *buf;
     format_data_t format;
 

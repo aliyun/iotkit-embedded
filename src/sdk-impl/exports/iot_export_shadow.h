@@ -61,7 +61,7 @@ typedef struct {
 
 typedef void (*iotx_push_cb_fpt)(
             void *pcontext,
-            iotx_shadow_ack_code_t ack_code,
+            int ack_code,
             const char *ack_msg, /* NOTE: NOT a string. */
             uint32_t ack_msg_len);
 
@@ -135,7 +135,7 @@ iotx_err_t IOT_Shadow_Push(
 
 /* Update data to Cloud. It is a asynchronous interface.
  * The result of this update will be informed by calling the callback function @cb_fpt */
-iotx_err_t IOT_Shadow_Push_Async(
+int IOT_Shadow_Push_Async(
             void *handle,
             char *data,
             size_t data_len,

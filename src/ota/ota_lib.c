@@ -30,7 +30,7 @@
 static const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const char *key, uint32_t *val_len)
 {
     int length;
-    const char *val;     
+    const char *val;
     val = json_get_value_by_name((char *)json, json_len, (char *)key, &length, NULL);
     if (NULL != val) {
         *val_len = (uint32_t) length;
@@ -66,23 +66,23 @@ static void otalib_MD5Finalize(void *md5, char *output_str)
         output_str[i * 2] = utils_hb2hex(buf_out[i] >> 4);
         output_str[i * 2 + 1] = utils_hb2hex(buf_out[i]);
     }
-    output_str[32] = '\0'; 
+    output_str[32] = '\0';
 }
 
 static void otalib_MD5Deinit(void *md5)
 {
     if (NULL != md5) {
         OTA_FREE(md5);
-    } 
+    }
 }
 
 /* Get the specific @key value, and copy to @dest */
 /* 0, successful; -1, failed */
 static int otalib_GetFirmwareFixlenPara(const char *json_doc,
-                size_t json_doc_len,
-                const char *key,
-                char *dest,
-                size_t dest_len)
+                                        size_t json_doc_len,
+                                        const char *key,
+                                        char *dest,
+                                        size_t dest_len)
 {
     const char *pvalue;
     uint32_t val_len;
@@ -106,9 +106,9 @@ static int otalib_GetFirmwareFixlenPara(const char *json_doc,
 /* Get variant length parameter of firmware, and copy to @dest */
 /* 0, successful; -1, failed */
 static int otalib_GetFirmwareVarlenPara(const char *json_doc,
-                size_t json_doc_len,
-                const char *key,
-                char **dest)
+                                        size_t json_doc_len,
+                                        const char *key,
+                                        char **dest)
 {
     const char *pvalue;
     uint32_t val_len;
@@ -130,7 +130,8 @@ static int otalib_GetFirmwareVarlenPara(const char *json_doc,
 }
 
 
-int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char **version, char *md5, uint32_t *file_size)
+int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char **version, char *md5,
+                     uint32_t *file_size)
 {
 #define OTA_FILESIZE_STR_LEN    (16)
     char file_size_str[OTA_FILESIZE_STR_LEN + 1];
@@ -174,10 +175,10 @@ int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *versio
 {
     int ret;
     ret = HAL_Snprintf(buf,
-            buf_len,
-            "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
-            id,
-            version);
+                       buf_len,
+                       "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
+                       id,
+                       version);
 
     if (ret < 0) {
         OTA_LOG_ERROR("HAL_Snprintf failed");
@@ -196,17 +197,17 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
     int ret;
     if (NULL == msg_detail) {
         ret = HAL_Snprintf(buf,
-                buf_len,
-                "{\"id\":%d,\"params\":\{\"step\": \"%d\"}}",
-                 id,
-                 progress);
+                           buf_len,
+                           "{\"id\":%d,\"params\": {\"step\": \"%d\"}}",
+                           id,
+                           progress);
     } else {
         ret = HAL_Snprintf(buf,
-                buf_len,
-                "{\"id\":%d,\"params\":\{\"step\": \"%d\",\"desc\":\"%s\"}}",
-                 id,
-                 progress,
-                 msg_detail);
+                           buf_len,
+                           "{\"id\":%d,\"params\": {\"step\": \"%d\",\"desc\":\"%s\"}}",
+                           id,
+                           progress,
+                           msg_detail);
     }
 
 

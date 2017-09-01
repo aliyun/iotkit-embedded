@@ -109,7 +109,7 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
     log_debug("End of method handle");
 }
 
-static iotx_err_t iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
+static int iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
 {
     if (NULL == pshadow->inner_data.ptopic_get) {
         pshadow->inner_data.ptopic_get = iotx_ds_common_generate_topic_name(pshadow, "get");
@@ -119,25 +119,25 @@ static iotx_err_t iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
     }
 
     return IOT_MQTT_Subscribe(pshadow->mqtt,
-                               pshadow->inner_data.ptopic_get,
-                               IOTX_MQTT_QOS1,
-                               (iotx_mqtt_event_handle_func_fpt)iotx_shadow_callback_get,
-                               pshadow);
+                              pshadow->inner_data.ptopic_get,
+                              IOTX_MQTT_QOS1,
+                              (iotx_mqtt_event_handle_func_fpt)iotx_shadow_callback_get,
+                              pshadow);
 }
 
 
 iotx_err_t IOT_Shadow_PushFormat_Init(void *pshadow,
-        format_data_pt pformat,
-        char *buf,
-        uint16_t size)
+                                      format_data_pt pformat,
+                                      char *buf,
+                                      uint16_t size)
 {
     return iotx_ds_common_format_init((iotx_shadow_pt)pshadow, pformat, buf, size, "update", "\"state\":{\"reported\":{");
 }
 
 
 iotx_err_t IOT_Shadow_PushFormat_Add(void *pshadow,
-        format_data_pt pformat,
-        iotx_shadow_attr_pt pattr)
+                                     format_data_pt pformat,
+                                     iotx_shadow_attr_pt pattr)
 {
     return iotx_ds_common_format_add((iotx_shadow_pt)pshadow, pformat, pattr->pattr_name, pattr->pattr_data,
                                      pattr->attr_type);
@@ -150,7 +150,7 @@ iotx_err_t IOT_Shadow_PushFormat_Finalize(void *pshadow, format_data_pt pformat)
 }
 
 
-iotx_err_t IOT_Shadow_Push_Async(
+int IOT_Shadow_Push_Async(
             void *handle,
             char *data,
             size_t data_len,
@@ -198,7 +198,7 @@ iotx_err_t IOT_Shadow_Push_Async(
 
 static void iotx_update_ack_cb(
             void *pcontext,
-            iotx_shadow_ack_code_t ack_code,
+            int ack_code,
             const char *ack_msg, /* NOTE: NOT a string. */
             uint32_t ack_msg_len)
 {
@@ -210,7 +210,7 @@ static void iotx_update_ack_cb(
         log_debug("ack_msg is NULL");
     }
 
-    *((iotx_shadow_ack_code_t *)pcontext) = ack_code;
+    *((int *)pcontext) = ack_code;
 }
 
 

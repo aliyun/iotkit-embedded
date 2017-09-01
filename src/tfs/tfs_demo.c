@@ -20,6 +20,7 @@
 #include "tfs.h"
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #define BUF_MAX 512
 
@@ -28,8 +29,9 @@ static void hexdump(const uint8_t *str, uint32_t len)
     int i;
     for (i = 0; i < len; i++) {
         printf("%02X,", *str++);
-        if ((i + 1) % 32 == 0)
+        if ((i + 1) % 32 == 0) {
             printf("\n");
+        }
     }
     printf("\n\n");
 }
@@ -62,7 +64,8 @@ static int demo_tfs_id2_decrypt(void)
                                     0x39, 0xDE, 0x64, 0x81, 0x6E, 0x2E, 0xA5, 0xB5, 0x27, 0x05, 0x8A, 0x57, 0xC1, 0x2F, 0x28, 0x9F,
                                     0x47, 0xE4, 0x14, 0x28, 0xB3, 0x25, 0x82, 0x68, 0x1A, 0x6B, 0xCD, 0x95, 0xA8, 0x09, 0xF3, 0x0B,
                                     0xF8, 0x62, 0x77, 0x90, 0xDD, 0xB8, 0x7B, 0xE3, 0x48, 0x7E, 0xA7, 0xCC, 0xCE, 0xB6, 0x54, 0x68,
-                                    0x52, 0xC4, 0x32, 0xF2, 0x47, 0x5D, 0xCD, 0xDC, 0x86, 0x8A, 0xE7, 0x16, 0xBD, 0x3D, 0x22, 0x32 };
+                                    0x52, 0xC4, 0x32, 0xF2, 0x47, 0x5D, 0xCD, 0xDC, 0x86, 0x8A, 0xE7, 0x16, 0xBD, 0x3D, 0x22, 0x32
+                                  };
     uint8_t dec_out[128] = {0};
 
     ret = tfs_id2_decrypt((uint8_t *)enc_data, enc_len, dec_out, &dec_len);
@@ -99,7 +102,7 @@ static int demo_tfs_id2_get_timestamp_auth_code(uint64_t ts)
     const char *extra = "abcd1234";
     uint8_t out_data[BUF_MAX] = {0};
 
-    sprintf((char *)timestamp_str, "%lu", ts);
+    sprintf((char *)timestamp_str, "%" PRIu64, ts);
 
     memset(out_data, 0, BUF_MAX);
     ret = tfs_id2_get_timestamp_auth_code(timestamp_str, NULL, 0, out_data, &len);

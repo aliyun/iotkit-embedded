@@ -123,7 +123,7 @@ int unittest_json_token(void)
     }
     LITE_json_keys_release(key_list);
 
-
+#if defined(__GLIBC__)
     /* Demo usage without awareness of json_key_t{} and returned list */
 
     char           *sub_objc;
@@ -142,6 +142,7 @@ int unittest_json_token(void)
     }
     LITE_json_keys_release(ret_list);
     LITE_free(sub_objc);
+#endif  /* #if defined(__GLIBC__) */
 
     return 0;
 }
