@@ -205,17 +205,11 @@ typedef struct
     CoAPSendList             list;
 }CoAPContext;
 
-#define coap_log_print(level, ...) \
-    {\
-    fprintf(stderr, "%s [%s #%d]   ",level, __FILE__, __LINE__); \
-    fprintf(stderr, __VA_ARGS__);\
-    }
-
-#define COAP_TRC(fmt,  args...)  coap_log_print("<TRACE>", fmt, ##args)
-#define COAP_DUMP(fmt, args...)  coap_log_print("<DUMP> ", fmt, ##args)
-#define COAP_DEBUG(fmt,args...)  coap_log_print("<DEBUG>", fmt, ##args)
-#define COAP_INFO(fmt, args...)  coap_log_print("<INFO> ", fmt, ##args)
-#define COAP_ERR(fmt,  args...)  coap_log_print("<ERROR>", fmt, ##args)
+#define COAP_TRC     log_debug
+#define COAP_DUMP    log_debug
+#define COAP_DEBUG   log_debug
+#define COAP_INFO    log_info
+#define COAP_ERR     log_err
 
 CoAPContext *CoAPContext_create(CoAPInitParam *param);
 void CoAPContext_free(CoAPContext *p_ctx);
