@@ -28,9 +28,9 @@ ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 TARGET              += coap-example
 
     ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-    SRCS_coap-example	:= coap/iotx_coap_client.c
+    SRCS_coap-example	:= coap/coap-example.c
     else
-    SRCS                := coap/iotx_coap_client.c
+    SRCS                := coap/coap-example.c
     endif
 
 DEPENDS             += src/external/mbedtls

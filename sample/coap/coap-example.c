@@ -34,7 +34,7 @@
 
 char m_coap_client_running = 0;
 
-static void iotx_response_handler(void * arg, void * p_response)
+static void iotx_response_handler(void *arg, void *p_response)
 {
     int            len       = 0;
     unsigned char *p_payload = NULL;
@@ -52,14 +52,14 @@ static void iotx_response_handler(void * arg, void * p_response)
 
 int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
 {
-    if(NULL == p_devinfo){
+    if (NULL == p_devinfo) {
         return IOTX_ERR_INVALID_PARAM;
     }
 
     memset(p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
     strncpy(p_devinfo->device_id,    IOTX_DEVICE_ID,   IOTX_DEVICE_ID_LEN);
     strncpy(p_devinfo->product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
-    strncpy(p_devinfo->device_secret,IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
+    strncpy(p_devinfo->device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
     strncpy(p_devinfo->device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
 
     fprintf(stderr, "*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
@@ -71,7 +71,7 @@ int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
 
 static void iotx_post_data_to_server(void *param)
 {
-    char               path[IOTX_URI_MAX_LEN+1] = {0};
+    char               path[IOTX_URI_MAX_LEN + 1] = {0};
     iotx_message_t     message;
     iotx_deviceinfo_t  devinfo;
     message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
@@ -83,7 +83,7 @@ static void iotx_post_data_to_server(void *param)
 
     iotx_set_devinfo(&devinfo);
     snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", (char *)devinfo.product_key,
-                                            (char *)devinfo.device_name);
+             (char *)devinfo.device_name);
 
     IOT_CoAP_SendMessage(p_ctx, path, &message);
 }
@@ -99,8 +99,8 @@ int main(int argc, char **argv)
     iotx_deviceinfo_t deviceinfo;
 
     printf("[COAP-Client]: Enter Coap Client\r\n");
-    while ((opt = getopt(argc, argv, "e:s:lh")) != -1){
-        switch(opt){
+    while ((opt = getopt(argc, argv, "e:s:lh")) != -1) {
+        switch (opt) {
             case 's':
                 strncpy(secur, optarg, strlen(optarg));
                 break;
@@ -119,21 +119,18 @@ int main(int argc, char **argv)
     }
 
     memset(&config, 0x00, sizeof(iotx_coap_config_t));
-    if(0 == strncmp(env, "pre", strlen("pre"))){
-        if(0 == strncmp(secur, "dtls", strlen("dtls"))){
+    if (0 == strncmp(env, "pre", strlen("pre"))) {
+        if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
             config.p_url = IOTX_PRE_DTLS_SERVER_URI;
-        }
-        else{
+        } else {
             config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
         }
-    }
-    else if(0 == strncmp(env, "online", strlen("online"))){
-        if(0 == strncmp(secur, "dtls", strlen("dtls"))){
+    } else if (0 == strncmp(env, "online", strlen("online"))) {
+        if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
             char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
-        }
-        else{
+        } else {
             printf("Online environment must access with DTLS\r\n");
             return -1;
         }
@@ -144,16 +141,15 @@ int main(int argc, char **argv)
 
     iotx_coap_context_t *p_ctx = NULL;
     p_ctx = IOT_CoAP_Init(&config);
-    if(NULL != p_ctx){
+    if (NULL != p_ctx) {
         IOT_CoAP_DeviceNameAuth(p_ctx);
-        do{
+        do {
             iotx_post_data_to_server((void *)p_ctx);
             IOT_CoAP_Yield(p_ctx);
-        }while(m_coap_client_running);
+        } while (m_coap_client_running);
 
         IOT_CoAP_Deinit(&p_ctx);
-    }
-    else{
+    } else {
         printf("IoTx CoAP init failed\r\n");
     }
 

@@ -15,7 +15,7 @@ define Post_Distro
         @cp -f sample/mqtt/mqtt-example.c $(FINAL_DIR)/src/mqtt-example.c
         @cat doc/export.sdk.demo/mqtt.mk >> $(FINAL_DIR)/src/Makefile)
     $(if $(filter y,$(FEATURE_COAP_COMM_ENABLED)),
-        @cp -f sample/coap/iotx_coap_client.c $(FINAL_DIR)/src/coap-example.c
+        @cp -f sample/coap/coap-example.c $(FINAL_DIR)/src/coap-example.c
         @cat doc/export.sdk.demo/coap.mk >> $(FINAL_DIR)/src/Makefile)
     @chmod a-x $(FINAL_DIR)/src/*
 
