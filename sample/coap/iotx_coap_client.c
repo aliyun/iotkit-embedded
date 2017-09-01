@@ -41,7 +41,7 @@ static void iotx_response_handler(void * arg, void * p_response)
     iotx_coap_resp_code_t resp_code;
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
-    printf("[APPL]: Message response code: %d\r\n", resp_code);
+    printf("[APPL]: Message response code: 0x%x\r\n", resp_code);
     printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
 }
 

@@ -186,10 +186,17 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
 unsigned int CoAPNetwork_deinit(coap_network_t *p_network)
 {
     unsigned int    err_code = COAP_SUCCESS;
-    HAL_UDP_close(&p_network->socket_id);
+
 #ifdef COAP_DTLS_SUPPORT
-    CoAPNetworkDTLS_freeSession(&p_network->context);
+    if(COAP_ENDPOINT_DTLS == p_network->ep_type){
+        CoAPNetworkDTLS_freeSession(p_network->context);
+        p_network->context = NULL;
+    }
 #endif
+    if(COAP_ENDPOINT_NOSEC == p_network->ep_type){
+        HAL_UDP_close(p_network->context);
+    }
+
     return err_code;
 }
 

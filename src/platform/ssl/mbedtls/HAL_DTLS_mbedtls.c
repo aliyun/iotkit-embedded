@@ -349,7 +349,9 @@ unsigned int HAL_DTLSSession_read(DTLSContext *context,
                 err_code = DTLS_SUCCESS;
                 DTLS_TRC("DTLS recv timeout\r\n");
             }
-            DTLS_TRC("mbedtls_ssl_read error result (-0x%04x)\r\n", len);
+            else{
+                DTLS_TRC("mbedtls_ssl_read error result (-0x%04x)\r\n", len);
+            }
         }
     }
     return err_code;
