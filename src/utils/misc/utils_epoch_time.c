@@ -16,6 +16,8 @@
  *
  */
 
+#if defined(__GLIBC__)
+
 #include <stdint.h>
 #include <string.h>
 #include <sys/time.h>
@@ -206,3 +208,4 @@ uint64_t utils_get_epoch_time_from_ntp(char copy[], int len)
 
     return time_in_ms;
 }
+#endif  /* #if defined(__GLIBC__) */
