@@ -50,13 +50,6 @@
 #define DTLS_SESSION_CREATE_FAILED     (DTLS_ERROR_BASE | 7)
 #define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
 
-typedef struct
-{
-    int               socket_id;
-    unsigned char     remote_addr[NETWORK_ADDR_LEN];
-    unsigned short    remote_port;
-} dtls_network_t;
-
 
 typedef struct {
     unsigned char             *p_ca_cert_pem;
