@@ -69,17 +69,17 @@ typedef void DTLSContext;
 
 DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t  *p_options);
 
-unsigned int HAL_DTLSSession_write(DTLSContext *conetxt,
+unsigned int HAL_DTLSSession_write(DTLSContext *context,
                                    const unsigned char   *p_data,
                                    unsigned int    *p_datalen);
 
 
-unsigned int HAL_DTLSSession_read(DTLSContext *conetxt,
+unsigned int HAL_DTLSSession_read(DTLSContext *context,
                                   unsigned char   *p_data,
                                   unsigned int    *p_datalen,
                                   unsigned int     timeout);
 
-unsigned int HAL_DTLSSession_free(DTLSContext *conetxt);
+unsigned int HAL_DTLSSession_free(DTLSContext *context);
 
 
 #endif
