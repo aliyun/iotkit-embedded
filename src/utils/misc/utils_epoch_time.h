@@ -23,15 +23,22 @@
 extern "C" {
 #endif
 
+void *HAL_UDP_create(char *host, unsigned short port);
+void  HAL_UDP_close(void *p_socket);
+int   HAL_UDP_write(void *p_socket, const unsigned char *p_data, unsigned int datalen);
+int   HAL_UDP_read(void *p_socket, unsigned char *p_data, unsigned int datalen);
+int   HAL_UDP_readTimeout(void *p_socket,unsigned char *p_data,
+                                 unsigned int datalen, unsigned int timeout);
+
 /**
- * @brief Get epoch time from the remote server(iot-nsauth.alibaba.net/system/time) through http request.
+ * @brief Get epoch time from the Aliyun NTP(ntp%d.aliyun.com).
  *        The type of the epoch time is millisecond.
  *
  * @param none
  *
  * @return 0, failed to get epoch time; OTHERS, the actual value of epoch time
  */
-uint64_t utils_get_epoch_time(char copy[], int len);
+uint64_t utils_get_epoch_time_from_ntp(char copy[], int len);
 
 #ifdef __cplusplus
 extern "C" {

@@ -25,7 +25,7 @@ extern int httpclient_common(httpclient_t *client,
                              int method,
                              uint32_t timeout_ms,
                              httpclient_data_t *client_data);
-extern uint64_t utils_get_epoch_time(char copy[], int len);
+extern uint64_t utils_get_epoch_time_from_ntp(char copy[], int len);
 
 #define SHA_METHOD              "hmacsha1"
 #define MD5_METHOD              "hmacmd5"
@@ -539,15 +539,15 @@ static void _timestamp_string(char *buf, int len)
     int retry = 0;
 
     do {
-        ret = utils_get_epoch_time(buf, len);
+        ret = utils_get_epoch_time_from_ntp(buf, len);
     } while (ret == 0 && ++retry < 10);
 
     if (retry > 1) {
-        log_err("utils_get_epoch_time() retry = %d.", retry);
+        log_err("utils_get_epoch_time_from_ntp() retry = %d.", retry);
     }
 
     if (ret == 0) {
-        log_err("utils_get_epoch_time() failed!");
+        log_err("utils_get_epoch_time_from_ntp() failed!");
     }
 #else
     HAL_Snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
