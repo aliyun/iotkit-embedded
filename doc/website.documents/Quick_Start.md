@@ -4,12 +4,9 @@
 
 登录[IoT控制台](http://iot.console.aliyun.com), 创建产品及在产品下创建设备和Topic类, 具体步骤如下:
 
-   + 创建产品, 可得`ProductKey`, `ProductSecret` (*华东2站点无`ProductSecret`*)
+   + 创建产品, 可得`ProductKey`
    + 在产品下创建设备, 可得`DeviceName`, `DeviceSecret`
    + 定义Topic: `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`, 并设置权限为: 设备具有发布与订阅 **(此步骤非常重要)**
-
-> **注意:**
-> 请根据所选站点 (华东2, 杭州) 创建相应的产品与设备.
 
 具体请参考[控制台使用手册](https://help.aliyun.com/document_detail/42714.html)文档中的`创建产品`, `添加设备`以及`获取设备Topic`部分.
 
@@ -20,8 +17,7 @@
 
 将sample程序文件中的设备参数替换为您在控制台申请到的设备参数.
 
-### 华东2站点:
-将 `sample/mqtt/mqtt-example.c` 中的以下设备参数替换:
+将 `sample/mqtt/mqtt-example.c` 中以下星号字符串表示的设备参数替换为第一步中获得的值:
 
     #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
         #define PRODUCT_KEY             "*******************"
@@ -34,18 +30,6 @@
         #define DEVICE_SECRET           "*******************"
     #endif
 
-
-### 杭州站点:
-将 `examples/linux/mqtt/demo.c` 中的以下设备参数替换:
-
-    #define PRODUCT_KEY        "控制台上的productKey"
-    #define PRODUCT_SECRET     "控制台上的productSecret"
-    #define DEVICE_NAME        "控制台申请的deviceName"
-    #define DEVICE_SECRET      "控制台申请的deviceSecret"
-
-> **注意：**
-> topic需要以"/"开始, 例如"/23298421/deviceName/update"
-
 完成编辑并保存后, 进行下一步
 
 ## 第三步: 编译SDK
@@ -53,14 +37,13 @@
 * 返回顶层目录
 * 执行make指令, 编译SDK, 命令如下
 
-        make clean
+        make reconfig
         make
 
 编译成功后, 在相应目录生成样例可执行程序.
 
 ## 第四步: 执行样例程序
 
-### 华东2站点
 执行目录 `output/release/bin/` 下的可执行程序:
 
     cd output/release/bin
@@ -71,12 +54,6 @@
 1. 创建一个MQTT客户端
 2. 订阅主题 `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`
 3. 循环向该主题发布消息
-
-### 杭州站点
-
-    ./examples/linux/mqtt/demo
-
-示例代码内有详细connect/pub/sub例子, 请参考代码注释
 
 ## 其它
 ### 编译输出的说明
