@@ -23,11 +23,6 @@
 
 #define NETWORK_ADDR_LEN      (16)
 
-typedef struct
-{
-    char                 addr[NETWORK_ADDR_LEN];
-    unsigned short       port;
-} coap_address_t;
 
 #define coap_malloc(size) HAL_Malloc(size)
 #define coap_free(ptr)    HAL_Free(ptr)

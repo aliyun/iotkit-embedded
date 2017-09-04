@@ -40,7 +40,6 @@ typedef struct
 {
     int                      socket_id;
     coap_endpoint_type       ep_type;
-    coap_address_t           remote_endpoint;
     void                    *context;
 }coap_network_t;
 
