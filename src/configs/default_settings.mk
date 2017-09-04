@@ -13,4 +13,7 @@ FEATURE_HTTP_COMM_ENABLED   ?= y
 #env: daily, pre or online
 FEATURE_MQTT_ID2_ENV        ?= online
 
+#env: daily, pre or online
+FEATURE_MQTT_ID2_ENV        ?= online
+
 CFLAGS  += -DFORCE_SSL_VERIFY

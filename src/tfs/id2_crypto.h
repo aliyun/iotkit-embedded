@@ -25,7 +25,6 @@ extern "C" {
 #endif
 
 int iotx_mqtt_id2_payload_encrypt(char *topic, iotx_mqtt_topic_info_pt topic_msg);
-
 int iotx_mqtt_id2_payload_decrypt(iotx_mqtt_topic_info_pt topic_msg);
 
 #if defined(__cplusplus)

@@ -24,9 +24,14 @@
 extern "C" {
 #endif
 
-#include "iot_import.h"
-#include "device.h"     /* for deviceInfo{} + userInfo{} */
-
+/* func name: iotx_guider_id2_authenticate
+ * description: used for id2 authentication
+ * intput :
+ * output :
+ * return : int
+ *           0   success
+ *          -1   error
+ */
 int iotx_guider_id2_authenticate(void);
 
 #if defined(__cplusplus)

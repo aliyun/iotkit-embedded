@@ -138,6 +138,10 @@ int iotx_post(httpclient_t *client,
               uint32_t timeout,
               httpclient_data_t *client_data);
 
+int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method,
+                      uint32_t timeout_ms,
+                      httpclient_data_t *client_data);
+
 #ifdef __cplusplus
 }
 #endif

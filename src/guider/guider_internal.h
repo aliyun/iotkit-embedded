@@ -36,11 +36,7 @@
 #include "utils_hmac.h"
 #include "utils_httpc.h"
 #include "ca.h"
-#ifdef MQTT_ID2_AUTH
-#include "tfs/tfs.h"
-#endif
 #include "guider.h"
-#include "id2_guider.h"
 
 #define GUIDER_IOT_ID_LEN           (256)
 #define GUIDER_IOT_TOKEN_LEN        (512)
@@ -57,5 +53,46 @@
 #define GUIDER_URLENCODE_LEN        (256)
 
 #define GUIDER_DIRECT_DOMAIN        "iot-as-mqtt.cn-shanghai.aliyuncs.com"
+
+#define SHA_METHOD              "hmacsha1"
+#define MD5_METHOD              "hmacmd5"
+
+/* By default we use hmac-sha1 algorithm for hmac in PK/DN/DS case */
+#define USING_SHA1_IN_HMAC      (1)
+
+typedef enum _SECURE_MODE {
+    MODE_TLS_GUIDER             = -1,
+    MODE_TCP_GUIDER_PLAIN       = 0,
+    MODE_TCP_GUIDER_ID2_ENCRYPT = 1,
+    MODE_TLS_DIRECT             = 2,
+    MODE_TCP_DIRECT_PLAIN       = 3,
+    MODE_TCP_DIRECT_ID2_ENCRYPT = 4,
+    MODE_TLS_GUIDER_ID2_ENCRYPT = 5,
+    MODE_TLS_DIRECT_ID2_ENCRYPT = 7,
+} SECURE_MODE;
+
+extern const char *secmode_str[];
+
+SECURE_MODE _secure_mode_num(void);
+void _ident_partner(char *buf, int len);
+int _fill_conn_string(char *dst, int len, const char *fmt, ...);
+void guider_print_dev_guider_info(iotx_device_info_pt dev,
+                                  char *partner_id,
+                                  char *guider_url,
+                                  int secure_mode,
+                                  char *time_stamp,
+                                  char *guider_sign,
+                                  char *id2,
+                                  char *dev_code);
+void guider_print_conn_info(iotx_conn_info_pt conn);
+
+#ifndef MQTT_DIRECT
+int _http_response(char *payload,
+                   const int payload_len,
+                   const char *request_string,
+                   const char *url,
+                   const int port_num,
+                   const char *pkey);
+#endif
 
 #endif  /* __GUIDER_INTERNAL_H__ */

@@ -17,6 +17,7 @@
  */
 
 #include "sdk-impl_internal.h"
+#include "id2_crypto.h"
 
 void IOT_OpenLog(const char *ident)
 {
@@ -88,16 +89,28 @@ int IOT_SetupConnInfo(const char *product_key,
         return -1;
     }
 }
-
+#ifdef MQTT_ID2_AUTH
 int IOT_SetupConnInfoSecure(const char *product_key,
                             const char *device_name,
                             const char *device_secret,
                             void **info_ptr)
 {
-    /* TODO */
-    /* ... */
-    iotx_guider_id2_authenticate();
-    /* ... */
+    int rc;
 
-    return 0;
+    STRING_PTR_SANITY_CHECK(product_key, -1);
+    STRING_PTR_SANITY_CHECK(device_name, -1);
+    STRING_PTR_SANITY_CHECK(device_secret, -1);
+    POINTER_SANITY_CHECK(info_ptr, -1);
+    iotx_device_info_init();
+    iotx_device_info_set(product_key, device_name, device_secret);
+
+    rc = iotx_guider_id2_authenticate();
+    if (rc == 0) {
+        *info_ptr = (void *)iotx_conn_info_get();
+    } else {
+        *info_ptr = NULL;
+    }
+
+    return rc;
 }
+#endif
