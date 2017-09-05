@@ -12,6 +12,8 @@ SETTING_VARS := \
     FEATURE_COAP_COMM_ENABLED \
     FEATURE_COAP_DTLS_SUPPORT \
     FEATURE_OTA_ENABLED \
+    FEATURE_OTA_SIGNAL_CHANNEL \
+    FEATURE_OTA_FETCH_CHANNEL \
     FEATURE_MQTT_ID2_AUTH \
     FEATURE_MQTT_ID2_CRYPTO \
 
@@ -25,6 +27,24 @@ $(foreach v, \
     $(if $(filter y,$($(v))), \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
+
+ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+CFLAGS += -DOTA_SIGNAL_CHANNEL=1
+else
+ifeq (COAP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+CFLAGS += -DOTA_SIGNAL_CHANNEL=2
+else
+ifeq (HTTP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+CFLAGS += -DOTA_SIGNAL_CHANNEL=4
+else
+$(error FEATURE_OTA_SIGNAL_CHANNEL must be MQTT or COAP or HTTP!)
+endif # HTTP
+endif # COAP
+endif # MQTT
+
+ifneq (HTTP,$(strip $(FEATURE_OTA_FETCH_CHANNEL)))
+$(error FEATURE_OTA_FETCH_CHANNEL must be HTTP!)
+endif
 
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
