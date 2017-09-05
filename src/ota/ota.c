@@ -26,19 +26,15 @@
 
 #include "ota_lib.c"
 
-#if (OTA_CH_SIGNAL_MQTT) != 0
+#if (OTA_SIGNAL_CHANNEL) == 1
     #include "ota_mqtt.c"
-#elif (OTA_CH_SIGNAL_COAP) != 0
+#elif (OTA_SIGNAL_CHANNEL) == 2
     #include "ota_coap.c"
 #else
     #error "NOT support yet!"
 #endif
 
-#if (OTA_CH_FETCH_HTTP) != 0
-    #include "ota_fetch.c"
-#else
-    #error "NOT support yet!"
-#endif
+#include "ota_fetch.c"
 
 typedef struct  {
     const char *product_key;    /* point to product key */
