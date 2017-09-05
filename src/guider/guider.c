@@ -830,10 +830,16 @@ int iotx_guider_authenticate(void)
 #ifdef MQTT_DIRECT
 
     usr->port = 1883;
+#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
+    _fill_conn_string(usr->host_name, sizeof(usr->host_name),
+                      "%s",
+                      "10.125.63.74");
+#else
     _fill_conn_string(usr->host_name, sizeof(usr->host_name),
                       "%s.%s",
                       dev->product_key,
                       GUIDER_DIRECT_DOMAIN);
+#endif
 
     _fill_conn_string(usr->username, sizeof(usr->username),
 #ifdef MQTT_ID2_AUTH

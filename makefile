@@ -14,6 +14,10 @@ CFLAGS  += -DTEST_ID2_DAILY
 # CFLAGS  += -DTEST_OTA_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
+ifneq (,$(filter -DTEST_ID2_DAILY,$(CFLAGS)))
+CFLAGS  := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))
+endif
+
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/log \
