@@ -15,8 +15,7 @@
  * limitations under the License.
  *
  */
-
-#if defined(__GLIBC__)
+#if defined(MQTT_ID2_AUTH)
 
 #include <stdint.h>
 #include <string.h>
@@ -208,4 +207,4 @@ uint64_t utils_get_epoch_time_from_ntp(char copy[], int len)
 
     return time_in_ms;
 }
-#endif  /* #if defined(__GLIBC__) */
+#endif  /* #if defined(MQTT_ID2_AUTH) */
