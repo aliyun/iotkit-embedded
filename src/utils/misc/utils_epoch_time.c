@@ -15,18 +15,21 @@
  * limitations under the License.
  *
  */
-#if defined(MQTT_ID2_AUTH)
 
 #include <stdint.h>
-#include <string.h>
-#include <sys/time.h>
-#include <arpa/inet.h>
 #include "utils_epoch_time.h"
 #include "lite-log.h"
 
 #define HTTP_RESP_CONTENT_LEN   (64)
 #define ALIYUN_NTP_SERVER       "ntp%d.aliyun.com"
 #define ALIYUN_NTP_PORT         (123)
+
+#define LI                      0
+#define VN                      3
+#define MODE                    3
+#define STRATUM                 0
+#define POLL                    4
+#define PREC                   -6
 
 #define JAN_1970                0x83aa7e80 /* 2208988800 1970 - 1900 in seconds */
 
@@ -50,16 +53,14 @@
  */
 #define sec2u(x)                ((x) * 15.2587890625)
 
-#define LI       0
-#define VN       3
-#define MODE     3
-#define STRATUM  0
-#define POLL     4
-#define PREC    -6
+struct timeval_t {
+    uint32_t tv_sec;
+    uint32_t tv_usec;
+};
 
-struct ntptime {
-    unsigned int coarse;
-    unsigned int fine;
+struct ntptime_t {
+    uint32_t coarse;
+    uint32_t fine;
 };
 
 struct ntp_packet_t {
@@ -74,10 +75,40 @@ struct ntp_packet_t {
     int refid;
 };
 
+/**
+ * implement of htonl and ntohl
+ */
+#define BigLittleSwap(A)        ((((uint32_t)(A) & 0xff000000) >> 24) | \
+                                (((uint32_t)(A) & 0x00ff0000) >> 8) | \
+                                (((uint32_t)(A) & 0x0000ff00) << 8) | \
+                                (((uint32_t)(A) & 0x000000ff) << 24))
+
+/* return 1 if big endian */
+static int _check_endian(void)
+{
+    union {
+        uint32_t i;
+        uint8_t c[4];
+    } u;
+
+    u.i = 0x12345678;
+    return (0x12 == u.c[0]);
+}
+
+static uint32_t _htonl(uint32_t h)
+{
+    return _check_endian() ? h : BigLittleSwap(h);
+}
+
+static uint32_t _ntohl(uint32_t n)
+{
+    return _check_endian() ? n : BigLittleSwap(n);
+}
+
 static int _get_packet(unsigned char *packet, int *len)
 {
     uint32_t data[12];
-    struct timeval now = {0, 0};
+    struct timeval_t now = {0, 0};
 
     if (*len < 48) {
         log_err("packet buf too short!\n");
@@ -86,12 +117,12 @@ static int _get_packet(unsigned char *packet, int *len)
 
     memset(packet, 0, *len);
 
-    data[0] = htonl((LI << 30) | (VN << 27) | (MODE << 24) |
-                    (STRATUM << 16) | (POLL << 8) | (PREC & 0xff));
-    data[1] = htonl(1 << 16);  /* Root Delay (seconds) */
-    data[2] = htonl(1 << 16);  /* Root Dispersion (seconds) */
-    data[10] = htonl(now.tv_sec + JAN_1970); /* Transmit Timestamp coarse */
-    data[11] = htonl(NTPFRAC(now.tv_usec));  /* Transmit Timestamp fine */
+    data[0] = _htonl((LI << 30) | (VN << 27) | (MODE << 24) |
+                     (STRATUM << 16) | (POLL << 8) | (PREC & 0xff));
+    data[1] = _htonl(1 << 16);  /* Root Delay (seconds) */
+    data[2] = _htonl(1 << 16);  /* Root Dispersion (seconds) */
+    data[10] = _htonl(now.tv_sec + JAN_1970); /* Transmit Timestamp coarse */
+    data[11] = _htonl(NTPFRAC(now.tv_usec));  /* Transmit Timestamp fine */
 
     memcpy(packet, data, 48);
     *len = 48;
@@ -99,17 +130,17 @@ static int _get_packet(unsigned char *packet, int *len)
     return 0;
 }
 
-static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval *tv)
+static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval_t *tv)
 {
 /* straight out of RFC-1305 Appendix A */
     struct ntp_packet_t ntp_packet;
-    struct ntptime xmttime;
+    struct ntptime_t xmttime;
 #ifdef NTP_DEBUG
-    struct ntptime reftime, orgtime, rectime;
+    struct ntptime_t reftime, orgtime, rectime;
 #endif
     memset(&ntp_packet, 0, sizeof(struct ntp_packet_t));
 
-#define Data(i) ntohl(((unsigned int *)read_buf)[i])
+#define Data(i) _ntohl(((unsigned int *)read_buf)[i])
     ntp_packet.li      = Data(0) >> 30 & 0x03;
     ntp_packet.vn      = Data(0) >> 27 & 0x07;
     ntp_packet.mode    = Data(0) >> 24 & 0x07;
@@ -155,7 +186,7 @@ static uint64_t _get_timestamp_from_ntp(const char *host)
 {
     long fd;  /* socket */
     int ret = -1;
-    struct timeval tv;
+    struct timeval_t tv;
     unsigned char write_buf[48] = {0};
     int write_len = sizeof(write_buf);
     unsigned char read_buf[1500] = {0};
@@ -192,9 +223,9 @@ static uint64_t _get_timestamp_from_ntp(const char *host)
 
 uint64_t utils_get_epoch_time_from_ntp(char copy[], int len)
 {
-    uint64_t        time_in_ms = 0;
-    char            ntp_server[20] = {0};
-    int             ntp_server_index = 1;
+    char ntp_server[20] = {0};
+    int ntp_server_index = 1;
+    uint64_t time_in_ms = 0;
 
     for (ntp_server_index = 1; ntp_server_index <= 7; ntp_server_index ++) {
         HAL_Snprintf(ntp_server, 20, ALIYUN_NTP_SERVER, ntp_server_index);
@@ -207,4 +238,3 @@ uint64_t utils_get_epoch_time_from_ntp(char copy[], int len)
 
     return time_in_ms;
 }
-#endif  /* #if defined(MQTT_ID2_AUTH) */
