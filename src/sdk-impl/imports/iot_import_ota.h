@@ -35,6 +35,6 @@
 #define OTA_LOG_INFO        log_info
 #define OTA_LOG_ERROR       log_err
 #define OTA_ASSERT          IOTX_ASSERT
-
+#define OTA_SNPRINTF        HAL_Snprintf
 
 #endif /* _OTA_IMPORT_H_ */

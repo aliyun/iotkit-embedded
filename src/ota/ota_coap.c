@@ -25,7 +25,7 @@
 #include "iot_import_ota.h"
 #include "ota_internal.h"
 
-//OSC, OTA signal channel
+/* OSC, OTA signal channel */
 
 /* Specify the maximum characters of version */
 #define OSC_COAP_URI_MAX_LEN         (135)  /* IoTx CoAP uri maximal length */
@@ -58,14 +58,14 @@ static void otacoap_response_handler(void *arg, void *p_response)
 }
 
 
-//Generate topic name according to @ota_topic_type, @product_key, @device_name
-//and then copy to @buf.
-//0, successful; -1, failed
+/* Generate topic name according to @ota_topic_type, @product_key, @device_name */
+/* and then copy to @buf. */
+/* 0, successful; -1, failed */
 static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key, const char *device_name)
 {
     int ret;
 
-    ret = snprintf(buf,
+    ret = OTA_SNPRINTF(buf,
             buf_len,
             "/topic/ota/device/%s/%s/%s",
             ota_topic_type,
@@ -82,7 +82,7 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
     return 0;
 }
 
-//report progress of OTA
+/* report progress of OTA */
 static int otacoap_Publish(otacoap_Struct_pt handle, const char *topic_type, const char *msg)
 {
     int ret;
@@ -94,7 +94,7 @@ static int otacoap_Publish(otacoap_Struct_pt handle, const char *topic_type, con
     message.msg_type = IOTX_MESSAGE_CON;
     message.content_type = IOTX_CONTENT_TYPE_JSON; 
 
-    //topic name: /topic/ota/device/${topic_type}/${productKey}/${deviceName}
+    /* topic name: /topic/ota/device/${topic_type}/${productKey}/${deviceName} */
     ret = otacoap_GenTopicName(uri, OSC_COAP_URI_MAX_LEN, topic_type, handle->product_key, handle->device_name);
     if (ret < 0) {
        OTA_LOG_ERROR("generate topic name failed");
@@ -143,20 +143,20 @@ int osc_Deinit(void *handle)
     return 0;
 }
 
-//report progress of OTA
+/* report progress of OTA */
 int osc_ReportProgress(void *handle, const char *msg)
 {
     return otacoap_Publish(handle, "progress", msg);
 }
 
 
-//report version of OTA firmware
+/* report version of OTA firmware */
 int osc_ReportVersion(void *handle, const char *msg)
 {
     static int state = 0;
     int ret;
 
-    if (0 == state) { //report version in initial state
+    if (0 == state) { /* report version in initial state */
         ret = otacoap_Publish(handle, "inform", msg);
         if (0 != ret) {
             return ret;
@@ -164,7 +164,7 @@ int osc_ReportVersion(void *handle, const char *msg)
         state = 1;
     }
 
-    //request new firmware after initial state
+    /* request new firmware after initial state */
     return otacoap_Publish(handle, "request", msg);
 }
 
