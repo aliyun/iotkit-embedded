@@ -28,6 +28,8 @@ $(foreach v, \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 
+ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
+
 ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
 $(error FEATURE_OTA_SIGNAL_CHANNEL = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
@@ -47,6 +49,8 @@ $(error FEATURE_OTA_SIGNAL_CHANNEL must be MQTT or COAP or HTTP!)
 endif # HTTP
 endif # COAP
 endif # MQTT
+
+endif # OTA Enabled
 
 ifneq (HTTP,$(strip $(FEATURE_OTA_FETCH_CHANNEL)))
 $(error FEATURE_OTA_FETCH_CHANNEL must be HTTP!)
