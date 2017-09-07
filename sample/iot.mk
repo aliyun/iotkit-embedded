@@ -19,7 +19,12 @@ SRCS_mqtt_rrpc-example := mqtt/mqtt_rrpc-example.c
     endif
 
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-    LDFLAGS     += -ltfs -lmbedcrypto
+    ifeq (daily,$(strip $(FEATURE_MQTT_ID2_ENV)))
+    LDFLAGS     += -ltfs
+    else
+    LDFLAGS     += -ltfs_online
+    endif
+    LDFLAGS     += -lmbedcrypto
     endif
 
 endif

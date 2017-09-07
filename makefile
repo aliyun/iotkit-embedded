@@ -9,12 +9,18 @@ SUBDIRS += sample
 SUBDIRS += src/sdk-tests
 endif
 
+ifeq (pre,$(strip $(FEATURE_MQTT_ID2_ENV)))
+CFLAGS  += -DTEST_ID2_PRE
+else
+ifeq (daily,$(strip $(FEATURE_MQTT_ID2_ENV)))
 CFLAGS  += -DTEST_ID2_DAILY
+endif
+endif
 # CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DTEST_OTA_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
-ifneq (,$(filter -DTEST_ID2_DAILY,$(CFLAGS)))
+ifneq (,$(filter -DTEST_ID2_DAILY -DTEST_ID2_PRE,$(CFLAGS)))
 CFLAGS  := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))
 endif
 

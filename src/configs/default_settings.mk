@@ -9,4 +9,7 @@ FEATURE_MQTT_ID2_AUTH       ?= n
 FEATURE_MQTT_ID2_CRYPTO     ?= n
 FEATURE_OTA_FETCH_CHANNEL   ?= HTTP
 
+#env: daily, pre or other
+FEATURE_MQTT_ID2_ENV        ?= pre
+
 CFLAGS  += -DFORCE_SSL_VERIFY

@@ -341,6 +341,9 @@ static int _iotId_iotToken_http(
     iotx_port = 80;
 #endif
 
+#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
+    iotx_port = 80;
+#endif
 
     /*
         {
@@ -363,9 +366,9 @@ static int _iotId_iotToken_http(
                    request_string,
                    guider_addr,
                    iotx_port,
-#if defined(TEST_OTA_PRE)
+#if defined(TEST_OTA_DAILY) || defined(TEST_OTA_PRE)
                    NULL
-#elif defined(TEST_OTA_DAILY)
+#elif defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
                    NULL
 #else
                    iotx_ca_get()
@@ -631,6 +634,8 @@ static void _authenticate_http_url(char *buf, int len)
 
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
     strcat(buf, "iot-auth.alibaba.net");
+#elif defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
+    strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
 #elif defined(TEST_OTA_PRE)
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
 #elif defined(TEST_OTA_DAILY)
@@ -829,11 +834,21 @@ int iotx_guider_authenticate(void)
     usr->pub_key = iotx_ca_get();
 #ifdef MQTT_DIRECT
 
+/* direct port is 80 for pre, 1883 for daily and online */
+#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
+    usr->port = 80;
+#else
     usr->port = 1883;
+#endif
+
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
     _fill_conn_string(usr->host_name, sizeof(usr->host_name),
                       "%s",
                       "10.125.63.74");
+#elif defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
+    _fill_conn_string(usr->host_name, sizeof(usr->host_name),
+                      "%s",
+                      "100.67.80.75");
 #else
     _fill_conn_string(usr->host_name, sizeof(usr->host_name),
                       "%s.%s",
