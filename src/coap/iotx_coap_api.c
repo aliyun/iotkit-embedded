@@ -272,13 +272,13 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     coap_free(p_payload);
     CoAPMessage_destory(&message);
 
-    if(COAP_SUCCESS != ret){
+    if (COAP_SUCCESS != ret) {
         COAP_DEBUG("Send authentication message to server failed ret = %d", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
 
     ret = CoAPMessage_recv(p_coap_ctx, 10000, 1);
-    if(0 < ret && !p_iotx_coap->is_authed){
+    if (0 < ret && !p_iotx_coap->is_authed) {
         COAP_INFO("CoAP authenticate failed");
         return IOTX_ERR_AUTH_FAILED;
     }
