@@ -92,6 +92,7 @@ static void iotx_post_data_to_server(void *param)
 
 int main(int argc, char **argv)
 {
+    int                     count = 0;
     char                    secur[32] = {0};
     char                    env[32] = {0};
     int                     opt;
@@ -148,7 +149,11 @@ int main(int argc, char **argv)
     if (NULL != p_ctx) {
         IOT_CoAP_DeviceNameAuth(p_ctx);
         do {
-            iotx_post_data_to_server((void *)p_ctx);
+            count ++;
+            if(count == 11){
+               iotx_post_data_to_server((void *)p_ctx);
+               count = 1;
+            }
             IOT_CoAP_Yield(p_ctx);
         } while (m_coap_client_running);
 
