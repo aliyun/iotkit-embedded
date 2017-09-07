@@ -55,7 +55,7 @@ static int iotx_post_data_to_server(void *param)
 	msg_param.request_payload = (char *)"{\"name\":\"hello world\"}";
 	msg_param.response_payload = request_buf;
 	msg_param.timeout_ms = 5000;
-	msg_param.request_payload_len = sizeof(msg_param.request_payload);
+	msg_param.request_payload_len = strlen(msg_param.request_payload) + 1;
 	msg_param.response_payload_len = 1024;
 	msg_param.topic_path = path;
 	

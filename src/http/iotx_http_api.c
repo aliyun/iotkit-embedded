@@ -34,7 +34,6 @@
 #define IOTX_HTTP_SIGN_LENGTH         (33)
 #define IOTX_HTTP_SIGN_SOURCE_LEN     (256)
 #define IOTX_HTTP_AUTH_TOKEN_LEN      (192+1)
-#define IOTX_HTTP_LIST_MAX_ITEM       (10)
 #define IOTX_HTTP_URL_LEN_MAX (135)
 
 #ifdef IOTX_HTTP_TIMESTAMP_OPTIONAL_ENABLE
@@ -63,8 +62,11 @@
 /* By default we use hmac-md5 algorithm for hmac in PK/DN/DS case */
 #define USING_SHA1_IN_HMAC      (1)
 
+#define IOTX_HTTP_HEADER_KEEPALIVE_STR "Connection: Keep-Alive\r\n"
 #define IOTX_HTTP_HEADER_PASSWORD_STR "password:"
-#define IOTX_HTTP_UPSTREAM_HEADER_STR "password:%s\r\n"
+#define IOTX_HTTP_UPSTREAM_HEADER_STR IOTX_HTTP_HEADER_KEEPALIVE_STR IOTX_HTTP_HEADER_PASSWORD_STR "%s" IOTX_HTTP_HEADER_END_STR
+#define IOTX_HTTP_HEADER_END_STR "\r\n"
+
 
 #define HTTP_AUTH_POST_MAX_LEN   (1024)
 #define HTTP_AUTH_RESP_MAX_LEN   (1024)
@@ -297,6 +299,8 @@ int IOT_Http_DeviceNameAuth(iotx_http_context_t *p_context)
     httpc_data.response_buf = resp_payload;
     httpc_data.response_buf_len = HTTP_AUTH_RESP_MAX_LEN;
 
+	httpc.header = "Connection: Keep-Alive\r\n";
+
 	/*
 	Test Code
     p_iotx_http->p_auth_token = "eyJ0eXBlIjoiSldUIiwiYWxnIjoiaG1hY3NoYTEifQ.eyJleHBpcmUiOjE1MDQ3ODE4MzQ5MDAsInRva2VuIjoiM2EyZTRmYzMyNjk5NDE0Y2E3MDFjNzIzNzI1YjIyNDgifQ.e87AFhkvNKiqF5xdgm1P47f9DwY";
@@ -445,8 +449,8 @@ int IOT_Http_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param
     /* Construct Auth Url */
     construct_full_http_upstream_url(http_url, msg_param->topic_path);
 	
-    httpc.header = LITE_malloc(strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + 1);
-    LITE_snprintf(httpc.header,strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + IOTX_HTTP_AUTH_TOKEN_LEN + 1,
+    httpc.header = LITE_malloc(strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + strlen(IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR) + 1);
+    LITE_snprintf(httpc.header,strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + strlen(IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR) + 1,
     		IOTX_HTTP_UPSTREAM_HEADER_STR,p_iotx_http->p_auth_token);
 	log_info("httpc.header = %s \r\n", httpc.header);
 	
