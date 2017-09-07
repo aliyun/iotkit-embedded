@@ -16,8 +16,6 @@
  *
  */
 
-
-
 #ifndef __IOT_IMPORT_H__
 #define __IOT_IMPORT_H__
 #if defined(__cplusplus)
@@ -158,6 +156,19 @@ void HAL_SleepMs(_IN_ uint32_t ms);
  * @note None.
  */
 void HAL_Printf(_IN_ const char *fmt, ...);
+
+/**
+ * @brief Writes formatted data to string.
+ *
+ * @param [in] str: @n String that holds written text.
+ * @param [in] len: @n Maximum length of character will be written
+ * @param [in] fmt: @n Format that contains the text to be written, it can optionally contain embedded format specifiers
+     that specifies how subsequent arguments are converted for output.
+ * @param [in] ...: @n the variable argument list, for formatted and inserted in the resulting string replacing their respective specifiers.
+ * @return bytes of character successfully written into string.
+ * @see None.
+ * @note None.
+ */
 int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...);
 
 /**
