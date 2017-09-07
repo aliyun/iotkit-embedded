@@ -352,9 +352,9 @@ int IOT_Http_DeviceNameAuth(iotx_http_context_t *p_context)
     LITE_free(pvalue);
     pvalue = NULL;
 
+	log_info("ret_code = %d', message = %s .\r\n", ret_code, response_message);
 	switch (ret_code)
 	{
-		log_info("ret_code = %d', message = %s .\r\n", ret_code, response_message);
 		case IOTX_HTTP__SUCCESS:
 			break;
 		case IOTX_HTTP__COMMON_ERROR:
@@ -508,9 +508,9 @@ int IOT_Http_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param
     LITE_free(pvalue);
     pvalue = NULL;
 
+	log_info("response_code = %d', message = %s .\r\n", response_code, response_message);
 	switch (response_code)
 	{
-		log_info("response_code = %d', message = %s .\r\n", response_code, response_message);
 		case IOTX_HTTP__SUCCESS:
 			break;
 		case IOTX_HTTP__TOKEN_EXPIRED_ERROR:
