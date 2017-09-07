@@ -67,33 +67,32 @@
 
      1  HAL_DTLSSession_create
      2  HAL_DTLSSession_free
-     3  HAL_DTLSSession_init
-     4  HAL_DTLSSession_read
-     5  HAL_DTLSSession_write
-     6  HAL_Free
-     7  HAL_GetPartnerID
-     8  HAL_Malloc
-     9  HAL_MutexCreate
-    10  HAL_MutexDestroy
-    11  HAL_MutexLock
-    12  HAL_MutexUnlock
-    13  HAL_Printf
-    14  HAL_SleepMs
-    15  HAL_SSL_Destroy
-    16  HAL_SSL_Establish
-    17  HAL_SSL_Read
-    18  HAL_SSL_Write
-    19  HAL_TCP_Destroy
-    20  HAL_TCP_Establish
-    21  HAL_TCP_Read
-    22  HAL_TCP_Write
-    23  HAL_UDP_close
-    24  HAL_UDP_create
-    25  HAL_UDP_read
-    26  HAL_UDP_readTimeout
-    27  HAL_UDP_resolveAddress
-    28  HAL_UDP_write
-    29  HAL_UptimeMs
+     3  HAL_DTLSSession_read
+     4  HAL_DTLSSession_write
+     5  HAL_Free
+     6  HAL_GetPartnerID
+     7  HAL_Malloc
+     8  HAL_MutexCreate
+     9  HAL_MutexDestroy
+    10  HAL_MutexLock
+    11  HAL_MutexUnlock
+    12  HAL_Printf
+    13  HAL_SleepMs
+    14  HAL_SSL_Destroy
+    15  HAL_SSL_Establish
+    16  HAL_SSL_Read
+    17  HAL_SSL_Write
+    18  HAL_TCP_Destroy
+    19  HAL_TCP_Establish
+    20  HAL_TCP_Read
+    21  HAL_TCP_Write
+    22  HAL_UDP_close
+    23  HAL_UDP_create
+    24  HAL_UDP_read
+    25  HAL_UDP_readTimeout
+    26  HAL_UDP_resolveAddress
+    27  HAL_UDP_write
+    28  HAL_UptimeMs
 
 对这些函数做实现的时候, 可以参考`src/platform`下已经写好的示例, 这些示例在`Ubuntu16.04`主机上被完善的编写和测试过
 
@@ -114,35 +113,28 @@
 
 | 序号  | 函数名                   | 说明                                                                    |
 |-------|--------------------------|-------------------------------------------------------------------------|
-|     1 | HAL_DTLSSession_create   | 建立一个DTLS连接, 用于CoAP功能                                          |
-|     2 | HAL_DTLSSession_free     | 销毁一个DTLS连接, 用于CoAP功能                                          |
-|     3 | HAL_DTLSSession_init     | 初始化一个DTLS连接需要用到的数据结构, 在HAL_DTLSSession_create之前调用  |
-|     4 | HAL_DTLSSession_read     | 从DTLS连接中读数据, 用于CoAP功能                                        |
-|     5 | HAL_DTLSSession_write    | 向DTLS连接中写数据, 用于CoAP功能                                        |
-|     6 | HAL_Free                 | 释放一片堆上内存                                                        |
-|     7 | HAL_GetPartnerID         | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
-|     8 | HAL_Malloc               | 申请一片堆上内存                                                        |
-|     9 | HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    10 | HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    11 | HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    12 | HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    13 | HAL_Printf               | 打印函数, 用于向串口或其它标准输出打印日志或调试信息                    |
-|    14 | HAL_SleepMs              | 睡眠函数, 使当前执行线程睡眠指定的毫秒数                                |
-|    15 | HAL_SSL_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    16 | HAL_SSL_Establish        | 建立一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    17 | HAL_SSL_Read             | 从一个TLS连接中读数据, 用于MQTT功能, HTTPS功能                          |
-|    18 | HAL_SSL_Write            | 向一个TLS连接中写数据, 用于MQTT功能, HTTPS功能                          |
-|    19 | HAL_TCP_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    20 | HAL_TCP_Establish        | 建立一个TCP连接, 包含了域名解析的动作和TCP连接的建立                    |
-|    21 | HAL_TCP_Read             | 在指定时间内, 从TCP连接读取流数据, 并返回读到的字节数                   |
-|    22 | HAL_TCP_Write            | 在指定时间内, 向TCP连接发送流数据, 并返回发送的字节数                   |
-|    23 | HAL_UDP_close            | 关闭一个UDP连接的socket, 用于CoAP功能                                   |
-|    24 | HAL_UDP_create           | 创建一个UDP连接的socket, 用于CoAP功能                                   |
-|    25 | HAL_UDP_read             | 阻塞的从一个UDP连接中读取数据包, 并返回读到的字节数, 用于CoAP功能       |
-|    26 | HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP连接中读取数据包, 返回读到的字节数, 用于CoAP功能 |
-|    27 | HAL_UDP_resolveAddress   | 解析一个可能是UDP服务器的域名地址为IP地址, 用于CoAP功能                 |
-|    28 | HAL_UDP_write            | 阻塞的向一个UDP连接中发送数据包, 并返回发送的字节数, 用于CoAP功能       |
-|    29 | HAL_UptimeMs             | 时钟函数, 获取本设备从加电以来到目前时间点已经过去的毫秒数              |
+|     1 | HAL_DTLSSession_create   | 初始化DTLS资源并建立一个DTLS会话, 用于CoAP功能                                          |
+|     2 | HAL_DTLSSession_free     | 销毁一个DTLS会话并释放DTLS资源, 用于CoAP功能                                          |
+|     3 | HAL_DTLSSession_read     | 从DTLS会话中读数据, 用于CoAP功能                                        |
+|     4 | HAL_DTLSSession_write    | 向DTLS会话中写数据, 用于CoAP功能                                        |
+|     5 | HAL_Free                 | 释放一片堆上内存                                                        |
+|     6 | HAL_GetPartnerID         | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
+|     7 | HAL_Malloc               | 申请一片堆上内存                                                        |
+|     8 | HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+|     9 | HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+|    10 | HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+|    11 | HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+|    12 | HAL_Printf               | 打印函数, 用于向串口或其它标准输出打印日志或调试信息                    |
+|    13 | HAL_SleepMs              | 睡眠函数, 使当前执行线程睡眠指定的毫秒数                                |
+|    14 | HAL_SSL_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+|    15 | HAL_SSL_Establish        | 建立一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+|    16 | HAL_SSL_Read             | 从一个TLS连接中读数据, 用于MQTT功能, HTTPS功能                          |
+|    17 | HAL_SSL_Write            | 向一个TLS连接中写数据, 用于MQTT功能, HTTPS功能                          |
+|    18 | HAL_TCP_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+|    19 | HAL_TCP_Establish        | 建立一个TCP连接, 包含了域名解析的动作和TCP连接的建立                    |
+|    20 | HAL_TCP_Read             | 在指定时间内, 从TCP连接读取流数据, 并返回读到的字节数                   |
+|    21 | HAL_TCP_Write            | 在指定时间内, 向TCP连接发送流数据, 并返回发送的字节数                   |
+|    28 | HAL_UptimeMs             | 时钟函数, 获取本设备从加电以来到目前时间点已经过去的毫秒数              |
 
 在这些HAL接口中
 
@@ -165,7 +157,12 @@
 |    10 | HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
 |    11 | HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
 |    12 | HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-
+|    22 | HAL_UDP_close            | 关闭一个UDP socket, 用于CoAP功能, 目前SDK要求使用DTLS, 可实现为空函数 |                                   
+|    23 | HAL_UDP_create           | 创建一个UDP socket, 用于CoAP功能, 目前SDK要求使用DTLS, 可实现为空函数  |
+|    24 | HAL_UDP_read             | 阻塞的从一个UDP socket中读取数据包, 并返回读到的字节数, 目前SDK要求使用DTLS, 可实现为空函数 |
+|    25 | HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP socket中读取数据包, 返回读到的字节数, 用于CoAP功能, 目前SDK要求使用DTLS, 可实现为空函数 |
+|    26 | HAL_UDP_resolveAddress   | 解析一个可能是UDP服务器的域名地址为IP地址, 用于CoAP功能, 目前SDK要求使用DTLS, 可实现为空函数|
+|    27 | HAL_UDP_write            | 阻塞的向一个UDP socket中发送数据包, 并返回发送的字节数, 用于CoAP功能, 目前SDK要求使用DTLS, 可实现为空函数|
 **没有MQTT时可实现为空**
 
 | 序号  | 函数名                   | 说明                                                                    |
@@ -183,17 +180,16 @@
 
 | 序号  | 函数名                   | 说明                                                                    |
 |-------|--------------------------|-------------------------------------------------------------------------|
-|     1 | HAL_DTLSSession_create   | 建立一个DTLS连接, 用于CoAP功能                                          |
-|     2 | HAL_DTLSSession_free     | 销毁一个DTLS连接, 用于CoAP功能                                          |
-|     3 | HAL_DTLSSession_init     | 初始化一个DTLS连接需要用到的数据结构, 在HAL_DTLSSession_create之前调用  |
+|     1 | HAL_DTLSSession_create   | 初始化DTLS资源并建立一个DTLS会话, 用于CoAP功能                                          |
+|     2 | HAL_DTLSSession_free     | 销毁一个DTLS会话并释放DTLS资源, 用于CoAP功能                                          |
 |     4 | HAL_DTLSSession_read     | 从DTLS连接中读数据, 用于CoAP功能                                        |
 |     5 | HAL_DTLSSession_write    | 向DTLS连接中写数据, 用于CoAP功能                                        |
-|    23 | HAL_UDP_close            | 关闭一个UDP连接的socket, 用于CoAP功能                                   |
-|    24 | HAL_UDP_create           | 创建一个UDP连接的socket, 用于CoAP功能                                   |
-|    25 | HAL_UDP_read             | 阻塞的从一个UDP连接中读取数据包, 并返回读到的字节数, 用于CoAP功能       |
-|    26 | HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP连接中读取数据包, 返回读到的字节数, 用于CoAP功能 |
+|    23 | HAL_UDP_close            | 关闭一个UDP会话的socket, 用于CoAP功能                                   |
+|    24 | HAL_UDP_create           | 创建一个UDP会话的socket, 用于CoAP功能                                   |
+|    25 | HAL_UDP_read             | 阻塞的从一个UDP socket中读取数据包, 并返回读到的字节数, 用于CoAP功能       |
+|    26 | HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP socket中读取数据包, 返回读到的字节数, 用于CoAP功能 |
 |    27 | HAL_UDP_resolveAddress   | 解析一个可能是UDP服务器的域名地址为IP地址, 用于CoAP功能                 |
-|    28 | HAL_UDP_write            | 阻塞的向一个UDP连接中发送数据包, 并返回发送的字节数, 用于CoAP功能       |
+|    28 | HAL_UDP_write            | 阻塞的向一个UDP 会话中发送数据包, 并返回发送的字节数, 用于CoAP功能       |
 
 ## SDK内核实现层
 
