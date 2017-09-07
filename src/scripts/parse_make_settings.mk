@@ -82,6 +82,10 @@ ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
     CFLAGS  += -DIOTX_WITHOUT_TLS
     endif
 
+    ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
+    $(error FEATURE_MQTT_ID2_CRYPTO + FEATURE_MQTT_DIRECT is not supported!)
+    endif
+
 else    # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
     ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
