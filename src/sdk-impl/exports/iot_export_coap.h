@@ -115,18 +115,91 @@ typedef struct
 /*iotx coap context definition*/
 typedef void iotx_coap_context_t;
 
+
+/**
+ * @brief   Initialize the CoAP client
+ *        This function initialize the data structures and network,
+ *        and create the DTLS session.
+ *
+ * @param p_config  Specify the CoAP client parameter.
+ *
+ * @return NULL, initialize failed; NOT NULL, the contex of CoAP client.
+ */
 iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config);
 
+/**
+ * @brief   De-initialize the CoAP client
+ *        This function free CoAP DTLS session,
+ *        and release the related resource.
+ *
+ * @param p_context  Pointer of contex, specify the CoAP client.
+ *
+ * @return void
+ */
 void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
 
+
+/**
+ * @brief   Handle device name authentication with remote server.
+ *
+ * @param p_context  Pointer of contex, specify the CoAP client.
+ *
+ * @return IOTX_SUCCESS   Authenticate success.
+ *        IOTX_ERR_SEND_MSG_FAILED Send authentication message failed.
+ *        IOTX_ERR_AUTH_FAILED Authenticate failed or timeout.
+ */
 int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 
+
+/**
+ * @brief   Handle CoAP response packet from remote server,
+ *        and process timeout request etc..
+ *
+ * @param p_context  Pointer of contex, specify the CoAP client.
+ *
+ * @return status.
+ */
 int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
+
+/**
+ * @brief   Send a message with specific path to server.
+ *        Client must authentication with server before send message.
+ *
+ * @param p_context     Pointer of contex, specify the CoAP client.
+ * @param p_path      Specify the path name.
+ * @param p_message   Message to be sent.
+ *
+ * @return IOTX_SUCCESS Send the message success
+ *        IOTX_ERR_MSG_TOO_LOOG The message length is too loog
+ *        IOTX_ERR_NOT_AUTHED The client hasn't authenticated with server
+ */
 int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
 
+/**
+* @brief Retrieves the length and payload pointer of specified message.
+*
+* @param  p_message    Pointer to the message to get the payload. Should not be NULL.
+* @param  pp_payload   Pointer to the payload.
+* @param  p_len        Size of the payload.
+*
+* @retval IOTX_SUCCESS              Get the payload success.
+* @retval IOTX_ERR_INVALID_PARAM    Can't get the payload due to invalid parameter.
+*
+**/
 int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 
+/**
+* @brief Get the response code from a CoAP message.
+*
+* @param[inout] p_message    Pointer to the message to add the address information to.
+*                            Should not be NULL.
+* @param[in]    p_resp_code  The response code.
+*
+* @retval  IOTX_SUCCESS              When get the response code to message success.
+* @retval  IOTX_ERR_INVALID_PARAM    Pointer to the message is NULL.
+*
+**/
 int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);
 
 #endif
