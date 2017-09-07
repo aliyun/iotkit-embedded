@@ -9,6 +9,7 @@ PROGS=(
     "./shadow-example"
     "./sdk-testsuites"
     "./coap-example -s dtls"
+    "./http-example"
 )
 cd ${OUTPUT_DIR}/usr/bin
 
