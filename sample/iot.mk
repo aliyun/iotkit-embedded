@@ -48,5 +48,7 @@ ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
 DEPENDS             += src/external/mbedtls
 endif
 
+ifeq (,$(filter -DFEATURE_HTTPS_COMM_ENABLED,$(CFLAGS)))
 TARGET              += http-example
-SRCS_http-example   := http/http_example.c
+SRCS_http-example   := http/http-example.c
+endif

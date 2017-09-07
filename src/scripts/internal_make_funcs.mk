@@ -17,6 +17,9 @@ define Post_Distro
     $(if $(filter y,$(FEATURE_COAP_COMM_ENABLED)),
         @cp -f sample/coap/coap-example.c $(FINAL_DIR)/src/coap-example.c
         @cat doc/export.sdk.demo/coap.mk >> $(FINAL_DIR)/src/Makefile)
+    $(if $(filter y,$(FEATURE_HTTPS_COMM_ENABLED)),
+        @cp -f sample/http/http-example.c $(FINAL_DIR)/src/http-example.c
+        @cat doc/export.sdk.demo/http.mk >> $(FINAL_DIR)/src/Makefile)
     @chmod a-x $(FINAL_DIR)/src/*
 
     @echo ""
