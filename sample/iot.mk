@@ -47,3 +47,6 @@ endif
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
 DEPENDS             += src/external/mbedtls
 endif
+
+TARGET              += http-example
+SRCS_http-example   := http/http_example.c
