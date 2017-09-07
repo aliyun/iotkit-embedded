@@ -222,6 +222,7 @@ int iotx_get_well_known(iotx_coap_context_t *p_context)
 int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
 {
     int len = 0;
+    int ret = COAP_SUCCESS;
     CoAPContext      *p_coap_ctx = NULL;
     iotx_coap_t      *p_iotx_coap = NULL;
     CoAPMessage       message;
@@ -267,9 +268,20 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     CoAPMessagePayload_set(&message, p_payload, strlen((char *)p_payload));
     COAP_DEBUG("The payload is: %p", message.payload);
     COAP_DEBUG("Send authentication message to server");
-    CoAPMessage_send(p_coap_ctx, &message);
+    ret = CoAPMessage_send(p_coap_ctx, &message);
     coap_free(p_payload);
     CoAPMessage_destory(&message);
+
+    if(COAP_SUCCESS != ret){
+        COAP_DEBUG("Send authentication message to server failed ret = %d", ret);
+        return IOTX_ERR_SEND_MSG_FAILED;
+    }
+
+    ret = CoAPMessage_recv(p_coap_ctx, 10000, 1);
+    if(0 < ret && !p_iotx_coap->is_authed){
+        COAP_INFO("CoAP authenticate failed");
+        return IOTX_ERR_AUTH_FAILED;
+    }
 
     return IOTX_SUCCESS;
 }

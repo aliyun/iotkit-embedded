@@ -53,6 +53,8 @@ int CoAPMessage_destory(CoAPMessage *message);
 
 int CoAPMessage_send(CoAPContext *context, CoAPMessage *message);
 
+int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int oneflag);
+
 int CoAPMessage_cycle(CoAPContext *context);
 
 

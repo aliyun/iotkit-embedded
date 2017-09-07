@@ -410,7 +410,7 @@ static void CoAPMessage_handle(CoAPContext *context,
     }
 }
 
-static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
+int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int oneflag)
 {
     int len = 0;
 
@@ -419,6 +419,9 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
                                COAP_MSG_MAX_PDU_LEN, timeout);
         if (len > 0) {
             CoAPMessage_handle(context, context->recvbuf, len);
+            if(oneflag){
+                return len;
+            }
         } else {
             return 0;
         }
@@ -428,7 +431,7 @@ static  int CoAPMessage_recv(CoAPContext *context, unsigned int timeout)
 int CoAPMessage_cycle(CoAPContext *context)
 {
     unsigned int ret = 0;
-    CoAPMessage_recv(context, COAP_WAIT_TIME_MS);
+    CoAPMessage_recv(context, COAP_WAIT_TIME_MS, 0);
 
     CoAPSendNode *node = NULL, *next = NULL;
     list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist) {

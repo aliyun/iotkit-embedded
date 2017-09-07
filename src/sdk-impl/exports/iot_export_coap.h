@@ -31,6 +31,8 @@
 /*iotx return code definition*/
 typedef enum
 {
+    IOTX_ERR_RECV_MSG_TIMEOUT = -9,   /*Receive message timeout */
+    IOTX_ERR_SEND_MSG_FAILED =  -8,   /* Send message failed*/
     IOTX_ERR_MSG_TOO_LOOG    =  -7,   /* The payload too loog */
     IOTX_ERR_URI_TOO_LOOG    =  -6,   /* URI length too long */
     IOTX_ERR_NOT_AUTHED      =  -5,   /* Client isn't authed */
