@@ -28,7 +28,7 @@
     #define PRODUCT_KEY             "OvNmiEYRDSY"
     #define DEVICE_NAME             "sh_online_sample_mqtt"
     #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
-#elif defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
+#elif defined(MQTT_ID2_AUTH)
     #define PRODUCT_KEY             "micKUvuzOps"
     #define DEVICE_NAME             "00AAAAAABBBBBB4B645F5800"
     #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"

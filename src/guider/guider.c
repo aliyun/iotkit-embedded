@@ -310,7 +310,7 @@ static int _iotId_iotToken_http(
             char *host,
             uint16_t *pport)
 {
-    char                iotx_payload[512] = {0};
+    char                iotx_payload[1024] = {0};
     int                 iotx_port = 443;
     int                 ret = -1;
     iotx_conn_info_pt   usr = iotx_conn_info_get();
