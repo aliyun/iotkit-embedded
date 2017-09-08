@@ -56,10 +56,10 @@ typedef enum{
 	IOTX_HTTP__REQUEST_TOO_MANY_ERROR = 40000,
 } iotx_http_upstream_response_t;
 
-iotx_http_context_t * IOT_Http_Init(iotx_device_info_t *p_devinfo);
-void IOT_Http_DeInit(void);
-int IOT_Http_DeviceNameAuth(iotx_http_context_t *p_context);
-int IOT_Http_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param_t *msg_param);
+iotx_http_context_t * IOT_HTTP_Init(iotx_device_info_t *p_devinfo);
+void IOT_HTTP_DeInit(void);
+int IOT_HTTP_DeviceNameAuth(iotx_http_context_t *p_context);
+int IOT_HTTP_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param_t *msg_param);
 
 /*
 TEST MACROS

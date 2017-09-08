@@ -48,36 +48,36 @@ iotx_device_info_t deviceinfo;
 static int iotx_post_data_to_server(void *param)
 {
     char path[IOTX_URI_MAX_LEN+1] = {0};
-	char request_buf[1024];
-		
+    char request_buf[1024];
+
     iotx_http_context_t *p_ctx = (iotx_http_context_t *)param;
-	iotx_http_message_param_t msg_param;
-	msg_param.request_payload = (char *)"{\"name\":\"hello world\"}";
-	msg_param.response_payload = request_buf;
-	msg_param.timeout_ms = 5000;
-	msg_param.request_payload_len = strlen(msg_param.request_payload) + 1;
-	msg_param.response_payload_len = 1024;
-	msg_param.topic_path = path;
-	
+    iotx_http_message_param_t msg_param;
+    msg_param.request_payload = (char *)"{\"name\":\"hello world\"}";
+    msg_param.response_payload = request_buf;
+    msg_param.timeout_ms = 5000;
+    msg_param.request_payload_len = strlen(msg_param.request_payload) + 1;
+    msg_param.response_payload_len = 1024;
+    msg_param.topic_path = path;
+
     HAL_Snprintf(msg_param.topic_path , IOTX_URI_MAX_LEN, "/topic/%s/%s/update", (char *)deviceinfo.product_key,
                                             (char *)deviceinfo.device_name);
-	if(0 == IOT_Http_SendMessage(p_ctx, &msg_param))
-	{
-		HAL_Printf("message response is %s\r\n", msg_param.response_payload);
-	}
-	else
-	{
-		HAL_Printf("error\r\n");
-	}
-	
-	return 0;
+    if(0 == IOT_HTTP_SendMessage(p_ctx, &msg_param))
+    {
+        HAL_Printf("message response is %s\r\n", msg_param.response_payload);
+    }
+    else
+    {
+        HAL_Printf("error\r\n");
+    }
+
+    return 0;
 }
 
 
 int main(int argc, char **argv)
 {
     IOT_OpenLog("http");
-    IOT_SetLogLevel(IOT_LOG_DEBUG); 
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     memset(&deviceinfo, 0x00, sizeof(iotx_device_info_t));
     strncpy(deviceinfo.product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
@@ -88,22 +88,22 @@ int main(int argc, char **argv)
     HAL_Printf("[HTTP-Client]: Enter Http Client\r\n");
 
     void *p_ctx = NULL;
-    p_ctx = IOT_Http_Init(&deviceinfo);
+    p_ctx = IOT_HTTP_Init(&deviceinfo);
     if(NULL != p_ctx)
-	{
-    	IOT_Http_DeviceNameAuth(p_ctx);
-		iotx_post_data_to_server(p_ctx);
-		HAL_Printf("IoTx Http Message Send\r\n");
+    {
+        IOT_HTTP_DeviceNameAuth(p_ctx);
+        iotx_post_data_to_server(p_ctx);
+        HAL_Printf("IoTx Http Message Send\r\n");
     }
     else
-	{
-    	HAL_Printf("IoTx Http init failed\r\n");
+    {
+        HAL_Printf("IoTx Http init failed\r\n");
     }
 
-	IOT_Http_DeInit();
+    IOT_HTTP_DeInit();
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();   
+    IOT_CloseLog();
 
     return 0;
 }

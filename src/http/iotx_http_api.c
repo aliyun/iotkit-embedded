@@ -115,7 +115,7 @@ static int construct_full_http_upstream_url(char *buf, const char *topic_path)
     return 0;
 }
 
-iotx_http_context_t * IOT_Http_Init(iotx_device_info_t *p_devinfo)
+iotx_http_context_t * IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
 {
 	if (NULL == p_devinfo)
 	{
@@ -182,7 +182,7 @@ iotx_http_context_t * IOT_Http_Init(iotx_device_info_t *p_devinfo)
 	    return NULL;
 }
 
-void IOT_Http_DeInit()
+void IOT_HTTP_DeInit()
 {
 	if(NULL != p_iotx_http){
 		if(NULL != p_iotx_http->p_devinfo)
@@ -196,7 +196,7 @@ void IOT_Http_DeInit()
 }
 
 
-int IOT_Http_DeviceNameAuth(iotx_http_context_t *p_context)
+int IOT_HTTP_DeviceNameAuth(iotx_http_context_t *p_context)
 {
     int                 ret = -1;
     int                 ret_code = 0;
@@ -397,7 +397,7 @@ do_exit:
     return ret;
 }
 
-int IOT_Http_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param_t *msg_param)
+int IOT_HTTP_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param_t *msg_param)
 {
     int ret = -1;
     int response_code = 0;
@@ -424,25 +424,25 @@ int IOT_Http_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param
 	
 	if(0 == p_iotx_http->is_authed){
 		log_err("Device is not authed\r\n");
-		/* IOT_Http_DeviceNameAuth(p_iotx_http); */
+		/* IOT_HTTP_DeviceNameAuth(p_iotx_http); */
 		goto do_exit;
 	}
 
 	if(NULL == msg_param->request_payload)
 	{
-		log_err("IOT_Http_SendMessage request_payload NULL!");
+		log_err("IOT_HTTP_SendMessage request_payload NULL!");
 		goto do_exit;		
 	}
 
 	if(NULL == msg_param->response_payload)
 	{
-		log_err("IOT_Http_SendMessage response_payload NULL!");
+		log_err("IOT_HTTP_SendMessage response_payload NULL!");
 		goto do_exit;		
 	}	
 
 	if(NULL == msg_param->topic_path)
 	{
-		log_err("IOT_Http_SendMessage topic_path NULL!");
+		log_err("IOT_HTTP_SendMessage topic_path NULL!");
 		goto do_exit;		
 	}	
 
@@ -515,7 +515,7 @@ int IOT_Http_SendMessage(iotx_http_context_t *p_context, iotx_http_message_param
 			break;
 		case IOTX_HTTP__TOKEN_EXPIRED_ERROR:
 			p_iotx_http->is_authed = false;
-			IOT_Http_DeviceNameAuth((iotx_http_t *)p_iotx_http);
+			IOT_HTTP_DeviceNameAuth((iotx_http_t *)p_iotx_http);
 		case IOTX_HTTP__COMMON_ERROR:
 		case IOTX_HTTP__PARAM_ERROR:
 		case IOTX_HTTP__AUTH_CHECK_ERROR:

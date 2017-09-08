@@ -100,10 +100,10 @@
 
 | 序号  | 函数名                       | 说明                                                                                   |
 |-------|------------------------------|----------------------------------------------------------------------------------------|
-|  1    | IOT_Http_Init                | Https实例的构造函数, 创建一个HTTP会话的句柄并返回                                      |
-|  2    | IOT_Http_DeInit              | Https实例的摧毁函数, 销毁所有相关的数据结构                                            |
-|  3    | IOT_Http_DeviceNameAuth      | 基于控制台申请的`DeviceName`, `DeviceSecret`, `ProductKey`做设备认证                   |
-|  4    | IOT_Http_SendMessage         | Https会话阶段, 组织一个完整的HTTP报文向服务器发送,并同步获取HTTP回复报文               |
+|  1    | IOT_HTTP_Init                | Https实例的构造函数, 创建一个HTTP会话的句柄并返回                                      |
+|  2    | IOT_HTTP_DeInit              | Https实例的摧毁函数, 销毁所有相关的数据结构                                            |
+|  3    | IOT_HTTP_DeviceNameAuth      | 基于控制台申请的`DeviceName`, `DeviceSecret`, `ProductKey`做设备认证                   |
+|  4    | IOT_HTTP_SendMessage         | Https会话阶段, 组织一个完整的HTTP报文向服务器发送,并同步获取HTTP回复报文               |
 
 **设备影子相关(模组实现时的可选功能)**
 
