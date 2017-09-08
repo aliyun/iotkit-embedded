@@ -16,11 +16,11 @@
     # PLATFORM_CC = /path/to/your/cross/gcc
     # PLATFORM_AR = /path/to/your/cross/ar
 
-    FEATURE_MQTT_COMM_ENABLED   = y
-    FEATURE_MQTT_DIRECT         = y
-    FEATURE_MQTT_DIRECT_NOTLS   = n
-    FEATURE_COAP_COMM_ENABLED   = y
-    FEATURE_HTTPS_COMM_ENABLED  = y
+    FEATURE_MQTT_COMM_ENABLED   = y     # 是否打开MQTT通道的总开关
+    FEATURE_MQTT_DIRECT         = y     # 是否打开MQTT直连的分开关
+    FEATURE_MQTT_DIRECT_NOTLS   = n     # 是否打开MQTT直连无TLS的分开关
+    FEATURE_COAP_COMM_ENABLED   = y     # 是否打开CoAP通道的总开关
+    FEATURE_HTTP_COMM_ENABLED   = y     # 是否打开HTTP通道的总开关
 
 具体含义参见下表:
 
@@ -34,7 +34,7 @@
 | FEATURE_MQTT_DIRECT         | 是否用MQTT直连模式代替HTTPS三方认证模式做设备认证               |
 | FEATURE_MQTT_DIRECT_NOTLS   | 使用MQTT直连模式做设备认证时, 是否要关闭MQTT over TLS           |
 | FEATURE_COAP_COMM_ENABLED   | 是否使能CoAP通道功能的总开关                                    |
-| FEATURE_HTTPS_COMM_ENABLED  | 是否使能Https通道功能的总开关                                    |
+| FEATURE_HTTP_COMM_ENABLED   | 是否使能Https通道功能的总开关                                   |
 
 
 ## 编译 & 运行
@@ -96,14 +96,14 @@
 |  8    | IOT_OTA_IsFetching           | OTA下载阶段, 判断固件下载是否仍在进行中, 尚未完成全部固件内容的下载                    |
 |  9    | IOT_OTA_ReportProgress       | 可选API, OTA下载阶段, 调用此函数向服务端汇报已经下载了全部固件内容的百分之多少         |
 
-**HTTPS功能相关**
+**HTTP功能相关**
 
 | 序号  | 函数名                       | 说明                                                                                   |
 |-------|------------------------------|----------------------------------------------------------------------------------------|
-|  1    | IOT_Http_Init                | Https实例的构造函数, 创建一个OTA会话的句柄并返回                                       |
+|  1    | IOT_Http_Init                | Https实例的构造函数, 创建一个HTTP会话的句柄并返回                                      |
 |  2    | IOT_Http_DeInit              | Https实例的摧毁函数, 销毁所有相关的数据结构                                            |
 |  3    | IOT_Http_DeviceNameAuth      | 基于控制台申请的`DeviceName`, `DeviceSecret`, `ProductKey`做设备认证                   |
-|  4    | IOT_Http_SendMessage         | Https会话阶段, 组织一个完整的Https报文向服务器发送,并同步获取Https回复报文             |
+|  4    | IOT_Http_SendMessage         | Https会话阶段, 组织一个完整的HTTP报文向服务器发送,并同步获取HTTP回复报文               |
 
 **设备影子相关(模组实现时的可选功能)**
 
