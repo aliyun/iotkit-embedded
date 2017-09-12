@@ -42,9 +42,9 @@
     "{" \
     "\"version\":\"%s\", \"clientId\":\"%s\"," \
     "\"signmethod\":\"%s\",\"sign\":\"%s\"," \
-    "\"productKey\":\"%s\",\"deviceName\":\"%s\","
-"\"timestamp\":\"%s\"" \
-"}"
+    "\"productKey\":\"%s\",\"deviceName\":\"%s\"," \
+    "\"timestamp\":\"%s\"" \
+    "}"
 #else
 #define IOTX_HTTP_SIGN_SRC_STR          "clientId%sdeviceName%sproductKey%s"
 #define IOTX_HTTP_AUTH_DEVICENAME_STR   \
@@ -73,9 +73,13 @@
 /* By default we use hmac-md5 algorithm for hmac in PK/DN/DS case */
 #define USING_SHA1_IN_HMAC      (1)
 
-#define IOTX_HTTP_HEADER_KEEPALIVE_STR "Connection: Keep-Alive\r\n"
-#define IOTX_HTTP_HEADER_PASSWORD_STR "password:"
-#define IOTX_HTTP_UPSTREAM_HEADER_STR IOTX_HTTP_HEADER_KEEPALIVE_STR IOTX_HTTP_HEADER_PASSWORD_STR "%s" IOTX_HTTP_HEADER_END_STR
+#define IOTX_HTTP_HEADER_KEEPALIVE_STR  "Connection: Keep-Alive\r\n"
+#define IOTX_HTTP_HEADER_PASSWORD_STR   "password:"
+#define IOTX_HTTP_UPSTREAM_HEADER_STR   \
+    IOTX_HTTP_HEADER_KEEPALIVE_STR \
+    IOTX_HTTP_HEADER_PASSWORD_STR \
+    "%s" \
+    IOTX_HTTP_HEADER_END_STR
 #define IOTX_HTTP_HEADER_END_STR "\r\n"
 
 #define HTTP_AUTH_POST_MAX_LEN   (1024)
@@ -205,7 +209,6 @@ void IOT_HTTP_DeInit()
         LITE_free(p_iotx_http);
     }
 }
-
 
 int IOT_HTTP_DeviceNameAuth(void *p_context)
 {
