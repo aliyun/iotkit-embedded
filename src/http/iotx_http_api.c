@@ -365,13 +365,13 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
 
     log_info("ret_code = %d', message = %s .", ret_code, response_message);
     switch (ret_code) {
-        case IOTX_HTTP__SUCCESS:
+        case IOTX_HTTP_SUCCESS:
             break;
-        case IOTX_HTTP__COMMON_ERROR:
-        case IOTX_HTTP__PARAM_ERROR:
-        case IOTX_HTTP__AUTH_CHECK_ERROR:
-        case IOTX_HTTP__UPDATE_SESSION_ERROR:
-        case IOTX_HTTP__REQUEST_TOO_MANY_ERROR:
+        case IOTX_HTTP_COMMON_ERROR:
+        case IOTX_HTTP_PARAM_ERROR:
+        case IOTX_HTTP_AUTH_CHECK_ERROR:
+        case IOTX_HTTP_UPDATE_SESSION_ERROR:
+        case IOTX_HTTP_REQUEST_TOO_MANY_ERROR:
         default:
             goto do_exit;
     }
@@ -519,19 +519,19 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
 
     log_info("response_code = %d, message = '%s'", response_code, response_message);
     switch (response_code) {
-        case IOTX_HTTP__SUCCESS:
+        case IOTX_HTTP_SUCCESS:
             break;
-        case IOTX_HTTP__TOKEN_EXPIRED_ERROR:
+        case IOTX_HTTP_TOKEN_EXPIRED_ERROR:
             p_iotx_http->is_authed = false;
             IOT_HTTP_DeviceNameAuth((iotx_http_t *)p_iotx_http);
-        case IOTX_HTTP__COMMON_ERROR:
-        case IOTX_HTTP__PARAM_ERROR:
-        case IOTX_HTTP__AUTH_CHECK_ERROR:
-        case IOTX_HTTP__TOKEN_NULL_ERROR:
-        case IOTX_HTTP__TOKEN_CHECK_ERROR:
-        case IOTX_HTTP__UPDATE_SESSION_ERROR:
-        case IOTX_HTTP__PUBLISH_MESSAGE_ERROR:
-        case IOTX_HTTP__REQUEST_TOO_MANY_ERROR:
+        case IOTX_HTTP_COMMON_ERROR:
+        case IOTX_HTTP_PARAM_ERROR:
+        case IOTX_HTTP_AUTH_CHECK_ERROR:
+        case IOTX_HTTP_TOKEN_NULL_ERROR:
+        case IOTX_HTTP_TOKEN_CHECK_ERROR:
+        case IOTX_HTTP_UPDATE_SESSION_ERROR:
+        case IOTX_HTTP_PUBLISH_MESSAGE_ERROR:
+        case IOTX_HTTP_REQUEST_TOO_MANY_ERROR:
         default:
             ret = -1;
             goto do_exit;
