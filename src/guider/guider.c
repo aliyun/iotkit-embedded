@@ -205,12 +205,6 @@ void guider_print_conn_info(iotx_conn_info_pt conn)
         log_debug("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
     }
 
-    if (conn->aeskey_hex != 0) {
-        char            tmp_str[40] = {0};
-        LITE_hexbuf_convert(conn->aeskey_hex, tmp_str, 128 / 8, 1);
-        log_debug("%16s : %-s", "AES Key", tmp_str);
-    }
-
     log_debug("%s", "-----------------------------------------");
 }
 
