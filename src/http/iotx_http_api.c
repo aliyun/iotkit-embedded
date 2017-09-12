@@ -100,10 +100,10 @@ static iotx_http_t *p_iotx_http = NULL;
 static int iotx_calc_sign(const char *p_device_secret, const char *p_msg, char *sign)
 {
 #if USING_SHA1_IN_HMAC
-    log_info("| method: %s\r\n", IOTX_SHA_METHOD);
+    log_info("| method: %s", IOTX_SHA_METHOD);
     utils_hmac_sha1(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 #else
-    log_info("| method: %s\r\n", IOTX_MD5_METHOD);
+    log_info("| method: %s", IOTX_MD5_METHOD);
     utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 #endif
     return IOTX_SUCCESS;
@@ -113,7 +113,7 @@ static int construct_full_http_authenticate_url(char *buf)
 {
     LITE_snprintf(buf, IOTX_HTTP_URL_LEN_MAX,
                   "%s/%s", IOTX_HTTP_ONLINE_SERVER_URL, IOTX_HTTP_AUTH_STR);
-    log_info("get_http_authenticate_url is %s\r\n", buf);
+    log_info("get_http_authenticate_url is %s", buf);
     return 0;
 }
 
@@ -121,7 +121,7 @@ static int construct_full_http_upstream_url(char *buf, const char *topic_path)
 {
     LITE_snprintf(buf, IOTX_HTTP_URL_LEN_MAX,
                   "%s%s", IOTX_HTTP_ONLINE_SERVER_URL, topic_path);
-    log_info("construct_full_http_upstream_url is %s\r\n", buf);
+    log_info("construct_full_http_upstream_url is %s", buf);
     return 0;
 }
 
@@ -287,7 +287,7 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
                         timestamp
                        );
     assert(len < HTTP_AUTH_POST_MAX_LEN);
-    log_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
+    log_debug("requ_payload: \r\n\r\n%s", requ_payload);
 
     /* Malloc Http Response Payload */
     resp_payload = (char *)LITE_malloc(HTTP_AUTH_RESP_MAX_LEN);
@@ -387,7 +387,7 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
     LITE_free(pvalue);
     pvalue = NULL;
 
-    log_info("iotToken: %s\r\n", p_iotx_http->p_auth_token);
+    log_info("iotToken: %s", p_iotx_http->p_auth_token);
     ret = 0;
 
 do_exit:
@@ -461,7 +461,7 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     LITE_snprintf(httpc.header, strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + strlen(
                               IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR) + 1,
                   IOTX_HTTP_UPSTREAM_HEADER_STR, p_iotx_http->p_auth_token);
-    log_info("httpc.header = %s \r\n", httpc.header);
+    log_info("httpc.header = %s", httpc.header);
 
     httpc_data.post_content_type = "application/octet-stream";
     httpc_data.post_buf = msg_param->request_payload;
@@ -505,19 +505,19 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     response_code = atoi(pvalue);
     LITE_free(pvalue);
     pvalue = NULL;
-    log_info("response code: %d\r\n", response_code);
+    log_info("response code: %d", response_code);
 
     pvalue = LITE_json_value_of("message", httpc_data.response_buf);
     if (NULL == pvalue) {
         ret = -1;
         goto do_exit;
     }
-    response_message = pvalue;
-    log_info("response_message: %s\r\n", response_message);
+    response_message = LITE_strdup(pvalue);
+    log_info("response_message: %s", response_message);
     LITE_free(pvalue);
     pvalue = NULL;
 
-    log_info("response_code = %d', message = %s .\r\n", response_code, response_message);
+    log_info("response_code = %d, message = '%s'", response_code, response_message);
     switch (response_code) {
         case IOTX_HTTP__SUCCESS:
             break;
@@ -541,19 +541,24 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     pvalue = LITE_json_value_of("info.messageId", httpc_data.response_buf);
     if (NULL == pvalue) {
         ret = -1;
-        log_err("messageId: NULL\r\n");
+        log_err("messageId: NULL");
         goto do_exit;
     }
     messageId = pvalue;
-    log_info("messageId: %s\r\n", messageId);
+    log_info("messageId: %s", messageId);
     LITE_free(pvalue);
     pvalue = NULL;
 
     /* info.data */
     pvalue = LITE_json_value_of("info.data", httpc_data.response_buf);
     user_data = pvalue;
+
     /* Maybe NULL */
-    log_info("user_data: %s\r\n", user_data);
+    if (user_data) {
+        log_info("user_data: %s", user_data);
+    } else {
+        log_info("user_data: %p", user_data);
+    }
     if (NULL != pvalue) {
         LITE_free(pvalue);
     }
@@ -564,6 +569,10 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
 do_exit:
     if (pvalue) {
         LITE_free(pvalue);
+    }
+
+    if (response_message) {
+        LITE_free(response_message);
     }
 
     if (httpc.header) {

@@ -247,7 +247,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                     PLATFORM_LINUXSOCK_LOG("EINTR be caught");
                     continue;
                 }
-                perror("send fail");
+                perror("recv fail");
                 err_code = -2;
                 break;
             }

@@ -80,16 +80,16 @@ int main(int argc, char **argv)
     strncpy(deviceinfo.device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
     strncpy(deviceinfo.device_id,  IOTX_DEVICE_ID, IOTX_DEVICE_ID_LEN);
 
-    HAL_Printf("[HTTP-Client]: Enter Http Client\r\n");
+    HAL_Printf("[HTTP-Client]: Enter HTTP Client\r\n");
 
     void *p_ctx = NULL;
     p_ctx = IOT_HTTP_Init(&deviceinfo);
     if (NULL != p_ctx) {
         IOT_HTTP_DeviceNameAuth(p_ctx);
         iotx_post_data_to_server(p_ctx);
-        HAL_Printf("IoTx Http Message Send\r\n");
+        HAL_Printf("IoTx HTTP Message Sent\r\n");
     } else {
-        HAL_Printf("IoTx Http init failed\r\n");
+        HAL_Printf("IoTx HTTP init failed\r\n");
     }
 
     IOT_HTTP_DeInit();
