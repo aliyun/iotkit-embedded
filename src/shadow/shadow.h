@@ -25,6 +25,5 @@ extern "C" {
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "mqtt_client.h"
 
 #endif /* _IOTX_SHADOW_H_ */

@@ -21,7 +21,6 @@
 
 #include "utils_list.h"
 #include "utils_debug.h"
-#include "mqtt_client.h"
 #include "lite-utils.h"
 #include "shadow.h"
 #include "shadow_common.h"

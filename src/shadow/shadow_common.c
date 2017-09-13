@@ -25,7 +25,6 @@
 #include "utils_timer.h"
 #include "utils_list.h"
 #include "device.h"
-#include "mqtt_client.h"
 
 #include "shadow.h"
 #include "shadow_common.h"
