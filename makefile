@@ -9,13 +9,6 @@ SUBDIRS += sample
 SUBDIRS += src/sdk-tests
 endif
 
-ifeq (pre,$(strip $(FEATURE_MQTT_ID2_ENV)))
-CFLAGS  += -DTEST_ID2_PRE
-else
-ifeq (daily,$(strip $(FEATURE_MQTT_ID2_ENV)))
-CFLAGS  += -DTEST_ID2_DAILY
-endif
-endif
 # CFLAGS  += -DTEST_HTTP_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DTEST_OTA_DAILY

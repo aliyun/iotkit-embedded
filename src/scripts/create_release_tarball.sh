@@ -27,6 +27,7 @@ echo ". Created [${WORKDIR}] as temp work-dir"
 cd ${WORKDIR}
 
 # Modify Section
+sed -i '/armcc/d;/armar/d' make.settings
 sed -i 's:^# PLATFORM_CC.*:# PLATFORM_CC = /path/to/your/cross/gcc:1' make.settings
 sed -i 's:^# PLATFORM_AR.*:# PLATFORM_AR = /path/to/your/cross/ar:1'  make.settings
 sed -i '/CFLAGS.*-DTEST.*/d' makefile

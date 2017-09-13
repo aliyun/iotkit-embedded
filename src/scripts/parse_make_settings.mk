@@ -119,6 +119,14 @@ else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 
 endif   # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 
+ifeq (pre,$(strip $(FEATURE_MQTT_ID2_ENV)))
+CFLAGS  += -DTEST_ID2_PRE
+else
+ifeq (daily,$(strip $(FEATURE_MQTT_ID2_ENV)))
+CFLAGS  += -DTEST_ID2_DAILY
+endif
+endif
+
 OVERRIDE_CC := $(strip $(PLATFORM_CC))
 OVERRIDE_AR := $(strip $(PLATFORM_AR))
 OVERRIDE_STRIP := $(strip $(PLATFORM_STRIP))

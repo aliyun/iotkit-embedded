@@ -9,7 +9,6 @@ PLATFORM_OS                 = linux
 #
 # PLATFORM_CC                 = /home/edward/cached-toolchains/jcg.7620/bin/mipsel-linux-gcc
 # PLATFORM_AR                 = /home/edward/cached-toolchains/jcg.7620/bin/mipsel-linux-ar
-
 # PLATFORM_CC                 = armcc
 # PLATFORM_AR                 = armar
 
