@@ -502,7 +502,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 
     return (iotx_coap_context_t *)p_iotx_coap;
 err:
-    /*Error, free the memory*/
+    /* Error, release the memory */
     if (NULL != p_iotx_coap) {
         if (NULL != p_iotx_coap->p_devinfo) {
             coap_free(p_iotx_coap->p_devinfo);

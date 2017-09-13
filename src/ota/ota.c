@@ -229,7 +229,7 @@ int IOT_OTA_ReportVersion(void *handle, const char *version)
     }
 
     if (NULL == (msg_informed = OTA_MALLOC(MSG_INFORM_LEN))) {
-        OTA_LOG_ERROR("malloc failed");
+        OTA_LOG_ERROR("allocate for msg_informed failed");
         h_ota->err = IOT_OTAE_NOMEM;
         return -1;
     }
@@ -287,7 +287,7 @@ int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char
     }
 
     if (NULL == (msg_reported = OTA_MALLOC(MSG_REPORT_LEN))) {
-        OTA_LOG_ERROR("malloc failed");
+        OTA_LOG_ERROR("allocate for msg_reported failed");
         h_ota->err = IOT_OTAE_NOMEM;
         return -1;
     }

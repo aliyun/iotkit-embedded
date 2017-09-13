@@ -54,7 +54,7 @@ void *HAL_MutexCreate(void);
 
 
 /**
- * @brief Destroy the specified mutex object, it will free related resource.
+ * @brief Destroy the specified mutex object, it will release related resource.
  *
  * @param [in] mutex @n The specified mutex.
  * @return None.

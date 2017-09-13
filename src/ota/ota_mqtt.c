@@ -72,7 +72,7 @@ static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, int
     iotx_mqtt_topic_info_t topic_info;
 
     memset(&topic_info, 0, sizeof(iotx_mqtt_topic_info_t));
-    
+
     if (0 == qos) {
         topic_info.qos = IOTX_MQTT_QOS0;
     } else {
@@ -123,7 +123,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
     otamqtt_Struct_pt h_osc = NULL;
 
     if (NULL == (h_osc = OTA_MALLOC(sizeof(otamqtt_Struct_t)))) {
-        OTA_LOG_ERROR("malloc failed");
+        OTA_LOG_ERROR("allocate for h_osc failed");
         return NULL;
     }
 

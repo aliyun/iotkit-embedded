@@ -362,7 +362,7 @@ static int id2_guider_get_iotId_iotToken(
         src_len = (uint32_t)strlen(pvalue);
         b64_decode = LITE_malloc(src_len);
         if (!b64_decode) {
-            log_err("malloc memory for b64_decode.");
+            log_err("allocate memory for b64_decode failed");
             goto do_exit;
         }
         id2_rc = utils_base64decode((const uint8_t *)pvalue,
@@ -379,7 +379,7 @@ static int id2_guider_get_iotId_iotToken(
 
         id2_decrypt = LITE_malloc(dst_len);
         if (!id2_decrypt) {
-            log_err("malloc memory for id2_decrypt error");
+            log_err("allocate memory for id2_decrypt failed");
             goto do_exit;
         }
 

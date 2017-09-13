@@ -119,7 +119,7 @@ static int otalib_GetFirmwareVarlenPara(const char *json_doc,
     }
 
     if (NULL == (*dest = OTA_MALLOC(val_len + 1))) {
-        OTA_LOG_ERROR("malloc failed");
+        OTA_LOG_ERROR("allocate for dest failed");
         return -1;
     }
 

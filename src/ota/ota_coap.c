@@ -92,7 +92,7 @@ static int otacoap_Publish(otacoap_Struct_pt handle, const char *topic_type, con
     message.payload_len = (unsigned short)strlen(msg);
     message.resp_callback = otacoap_response_handler;
     message.msg_type = IOTX_MESSAGE_CON;
-    message.content_type = IOTX_CONTENT_TYPE_JSON; 
+    message.content_type = IOTX_CONTENT_TYPE_JSON;
 
     /* topic name: /topic/ota/device/${topic_type}/${productKey}/${deviceName} */
     ret = otacoap_GenTopicName(uri, OSC_COAP_URI_MAX_LEN, topic_type, handle->product_key, handle->device_name);
@@ -116,7 +116,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
     otacoap_Struct_pt h_osc = NULL;
 
     if (NULL == (h_osc = OTA_MALLOC(sizeof(otacoap_Struct_t)))) {
-        OTA_LOG_ERROR("malloc failed");
+        OTA_LOG_ERROR("allocate for h_osc failed");
         return NULL;
     }
 

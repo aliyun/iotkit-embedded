@@ -48,7 +48,7 @@ void *ofc_Init(const char *url)
     otahttp_Struct_pt h_odc;
 
     if (NULL == (h_odc = OTA_MALLOC(sizeof(otahttp_Struct_t)))) {
-        OTA_LOG_ERROR("malloc failed");
+        OTA_LOG_ERROR("allocate for h_odc failed");
         return NULL;
     }
 

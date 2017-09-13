@@ -180,7 +180,7 @@ void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
     return (void *)p_iotx_http;
 
 err:
-    /*Error, free the memory*/
+    /* Error, release the memory */
     if (NULL != p_iotx_http) {
         if (NULL != p_iotx_http->p_devinfo) {
             LITE_free(p_iotx_http->p_devinfo);

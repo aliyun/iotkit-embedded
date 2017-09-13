@@ -287,7 +287,7 @@ void utils_network_ssl_disconnect(TLSDataParams_t *pTlsData)
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt_free(&(pTlsData->cacertl));
     if ((pTlsData->pkey).pk_info != NULL) {
-        SSL_LOG("need free client crt&key");
+        SSL_LOG("need release client crt&key");
 #if defined(MBEDTLS_CERTS_C)
         mbedtls_x509_crt_free(&(pTlsData->clicert));
         mbedtls_pk_free(&(pTlsData->pkey));
@@ -438,7 +438,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     }
 
     utils_network_ssl_disconnect((TLSDataParams_t *)handle);
-    free((void *)handle);
+    HAL_Free((void *)handle);
     return 0;
 }
 
@@ -450,7 +450,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     char port_str[6];
     TLSDataParams_pt pTlsData;
 
-    pTlsData = malloc(sizeof(TLSDataParams_t));
+    pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
@@ -464,7 +464,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
             mbedtls_free(pTlsData->ssl.hostname);
             pTlsData->ssl.hostname = NULL;
         }
-        free(pTlsData);
+        HAL_Free(pTlsData);
         return 0;
     }
 

@@ -129,7 +129,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config);
 
 /**
  * @brief   De-initialize the CoAP client
- *        This function free CoAP DTLS session,
+ *        This function release CoAP DTLS session,
  *        and release the related resource.
  *
  * @param p_context  Pointer of contex, specify the CoAP client.

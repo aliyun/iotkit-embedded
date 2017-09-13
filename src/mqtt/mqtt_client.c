@@ -888,7 +888,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         int remainDataLen = rem_len - needReadLen;
         char *remainDataBuf = LITE_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
-            log_err("malloc remain buffer failed");
+            log_err("allocate remain buffer failed");
             return FAIL_RETURN;
         }
 
@@ -1132,7 +1132,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
             }
         } else {
             if (-1 == i_free) {
-                i_free = i; /* record free element */
+                i_free = i; /* record available element */
             }
         }
     }
@@ -1701,7 +1701,7 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
 
     pClient->ipstack = (utils_network_pt)LITE_malloc(sizeof(utils_network_t));
     if (NULL == pClient->ipstack) {
-        log_err("malloc Network failed");
+        log_err("allocate Network struct failed");
         rc = FAIL_RETURN;
         goto RETURN;
     }
