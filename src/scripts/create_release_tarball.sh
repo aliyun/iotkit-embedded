@@ -35,6 +35,7 @@ sed -i '/COVERAGE_CMD/d' makefile
 sed -i 's/^.*WITH_MEM_STATS.*/#define WITH_MEM_STATS  0/g' src/packages/LITE-utils/lite-utils_config.h
 sed -i 's/-rdynamic//g; s/--coverage//g' src/configs/config.desktop.x86
 find . -name "iot.mk" -exec sed -i '/PKG_UPDATE/d' {} \;
+find src -name "*.c" -exec sed -i 's:[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*:10.10.10.10:g' {} \;
 for iter in $(find . -name "*.[ch]"); do
     for REPL in PRODUCT_KEY DEVICE_NAME DEVICE_SECRET DEVICE_ID; do
         sed -i "s!\(#define *[_A-Z]*${REPL} *\)\".*\"!\1\"*******************\"!g" ${iter}
