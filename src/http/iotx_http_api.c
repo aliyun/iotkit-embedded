@@ -357,6 +357,8 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         goto do_exit;
     }
 
+    log_info("ret_code = %d", ret_code);
+
     ret_code = atoi(pvalue);
     LITE_free(pvalue);
     pvalue = NULL;
@@ -370,7 +372,6 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
     LITE_free(pvalue);
     pvalue = NULL;
 
-    log_info("ret_code = %d', message = %s .", ret_code, response_message);
     switch (ret_code) {
         case IOTX_HTTP_SUCCESS:
             break;
@@ -524,7 +525,6 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     LITE_free(pvalue);
     pvalue = NULL;
 
-    log_info("response_code = %d, message = '%s'", response_code, response_message);
     switch (response_code) {
         case IOTX_HTTP_SUCCESS:
             break;
