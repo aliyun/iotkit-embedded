@@ -239,7 +239,7 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         //    }
     */
     if (NULL == p_context){
-        log_err("Parameter is Null,failed!");
+        log_err("p_context parameter is Null,failed!");
         goto do_exit;
     }
     p_iotx_http = (iotx_http_t *)p_context;
@@ -329,14 +329,12 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
     */
 
     /* Send Request and Get Response */
-    ret = iotx_post(&httpc,
-                    http_url,
-                    IOTX_HTTP_ONLINE_SERVER_PORT,
-                    IOTX_HTTP_CA_GET,
-                    5000,
-                    &httpc_data);
-
-    if (ret != 0) {
+    if (0 != iotx_post(&httpc,
+                http_url,
+                IOTX_HTTP_ONLINE_SERVER_PORT,
+                IOTX_HTTP_CA_GET,
+                5000,
+                &httpc_data)){
         goto do_exit;
     }
 
@@ -434,11 +432,22 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         Content-Type: application/octet-stream
         body: ${your_data}
     */
-    p_iotx_http = (iotx_http_t *)p_context;
 
     /* Set httpclient and httpclient_data */
     memset(&httpc, 0, sizeof(httpclient_t));
     memset(&httpc_data, 0, sizeof(httpclient_data_t));
+
+    if (NULL == p_context){
+        log_err("p_context parameter is Null,failed!");
+        goto do_exit;
+    }
+    p_iotx_http = (iotx_http_t *)p_context;
+
+
+    if (NULL == msg_param){
+        log_err("msg_param parameter is Null,failed!");
+        goto do_exit;
+    }
 
     if (0 == p_iotx_http->is_authed) {
         log_err("Device is not authed");
@@ -461,6 +470,21 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         goto do_exit;
     }
 
+    if (msg_param->request_payload_len < 0) {
+        log_err("IOT_HTTP_SendMessage request_payload_len error!");
+        goto do_exit;
+    }
+
+    if (msg_param->response_payload_len < 0) {
+        log_err("IOT_HTTP_SendMessage response_payload_len error!");
+        goto do_exit;
+    }
+
+    if (msg_param->timeout_ms < 0) {
+        log_err("IOT_HTTP_SendMessage timeout_ms error!");
+        goto do_exit;
+    }
+
     /* Construct Auth Url */
     construct_full_http_upstream_url(http_url, msg_param->topic_path);
 
@@ -480,14 +504,12 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     log_info("request_payload: \r\n\r\n%s\r\n", httpc_data.post_buf);
 
     /* Send Request and Get Response */
-    ret = iotx_post(&httpc,
-                    http_url,
-                    IOTX_HTTP_ONLINE_SERVER_PORT,
-                    IOTX_HTTP_CA_GET,
-                    msg_param->timeout_ms,
-                    &httpc_data);
-
-    if (ret != 0) {
+    if(iotx_post(&httpc,
+                http_url,
+                IOTX_HTTP_ONLINE_SERVER_PORT,
+                IOTX_HTTP_CA_GET,
+                msg_param->timeout_ms,
+                &httpc_data)){
         goto do_exit;
     }
 
@@ -506,7 +528,6 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
 
     pvalue = LITE_json_value_of("code", httpc_data.response_buf);
     if (!pvalue) {
-        ret = -1;
         goto do_exit;
     }
 
@@ -517,7 +538,6 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
 
     pvalue = LITE_json_value_of("message", httpc_data.response_buf);
     if (NULL == pvalue) {
-        ret = -1;
         goto do_exit;
     }
     response_message = LITE_strdup(pvalue);
@@ -540,14 +560,12 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         case IOTX_HTTP_PUBLISH_MESSAGE_ERROR:
         case IOTX_HTTP_REQUEST_TOO_MANY_ERROR:
         default:
-            ret = -1;
             goto do_exit;
     }
 
     /* info.messageId */
     pvalue = LITE_json_value_of("info.messageId", httpc_data.response_buf);
     if (NULL == pvalue) {
-        ret = -1;
         log_err("messageId: NULL");
         goto do_exit;
     }
