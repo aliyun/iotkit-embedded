@@ -238,6 +238,10 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         //      "timestamp": "xxxxxx"//选填  13byte
         //    }
     */
+    if (NULL == p_context){
+        log_err("Parameter is Null,failed!");
+        goto do_exit;
+    }
     p_iotx_http = (iotx_http_t *)p_context;
     p_iotx_http->is_authed = 0;
 
