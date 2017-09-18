@@ -152,7 +152,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
 
 do_exit:
     if (NULL != h_osc) {
-         OTA_FREE(topic_name);
+         OTA_FREE(h_osc);
     }
 
     return NULL;

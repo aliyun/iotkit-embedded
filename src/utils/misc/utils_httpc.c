@@ -803,7 +803,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     utils_time_countdown_ms(&timer, timeout_ms);
 
     if ((NULL != client_data->response_buf)
-        || (0 != client_data->response_buf_len)) {
+         && (0 != client_data->response_buf_len)) {
         ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
         if (ret < 0) {
             log_err("httpclient_recv_response is error,ret = %d", ret);

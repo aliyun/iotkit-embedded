@@ -107,7 +107,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     }
 
     memset(topicString, 0x0, IOTX_MC_TOPIC_NAME_MAX_LEN);
-    strncpy(topicString, topicName, IOTX_MC_TOPIC_NAME_MAX_LEN);
+    strncpy(topicString, topicName, IOTX_MC_TOPIC_NAME_MAX_LEN - 1);
 
     iterm = strtok(topicString, delim);
 
@@ -614,7 +614,7 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
         iotx_mc_subsribe_info_t *subInfo = NULL;
 
         if (NULL == (iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL))) {
-            HAL_MutexLock(c->lock_list_sub);
+            HAL_MutexUnlock(c->lock_list_sub);
             return SUCCESS_RETURN;
         }
 
@@ -1020,6 +1020,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     if (0 == flag_dup) {
         if (-1 == i_free) {
             log_err("NOT more @sub_handle space!");
+            HAL_MutexUnlock(c->lock_generic);
             return FAIL_RETURN;
         } else {
             c->sub_handle[i_free].topic_filter = messagehandler.topic_filter;
@@ -1048,6 +1049,8 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     int result = 0;
     MQTTString topicName;
     iotx_mqtt_topic_info_t topic_msg;
+    int qos = 0;
+    int payload_len = 0;
 
     if (!c) {
         return FAIL_RETURN;
@@ -1057,16 +1060,18 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     memset(&topicName, 0x0, sizeof(MQTTString));
 
     if (1 != MQTTDeserialize_publish((unsigned char *)&topic_msg.dup,
-                                     (int *)&topic_msg.qos,
+                                     (int *)&qos,
                                      (unsigned char *)&topic_msg.retain,
                                      (unsigned short *)&topic_msg.packet_id,
                                      &topicName,
                                      (unsigned char **)&topic_msg.payload,
-                                     (int *)&topic_msg.payload_len,
+                                     (int *)&payload_len,
                                      (unsigned char *)c->buf_read,
                                      c->buf_size_read)) {
         return MQTT_PUBLISH_PACKET_ERROR;
     }
+    topic_msg.qos = (unsigned char)qos;
+    topic_msg.payload_len = (unsigned short)payload_len;
 
     /* payload decrypt by id2_aes */
     if (c->mqtt_down_process) {
@@ -1562,9 +1567,13 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
 
     pClient->list_pub_wait_ack = list_new();
-    pClient->list_pub_wait_ack->free = LITE_free_routine;
+    if (pClient->list_pub_wait_ack) {
+        pClient->list_pub_wait_ack->free = LITE_free_routine;
+    }
     pClient->list_sub_wait_ack = list_new();
-    pClient->list_sub_wait_ack->free = LITE_free_routine;
+    if (pClient->list_sub_wait_ack) {
+        pClient->list_sub_wait_ack->free = LITE_free_routine;
+    }
 
     pClient->lock_write_buf = HAL_MutexCreate();
 
@@ -1601,6 +1610,7 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     log_info("MQTT init success!");
 
 RETURN :
+    iotx_mc_set_client_state(pClient, mc_state);
     if (rc != SUCCESS_RETURN) {
         if (pClient->list_pub_wait_ack) {
             pClient->list_pub_wait_ack->free(pClient->list_pub_wait_ack);
@@ -1631,7 +1641,6 @@ RETURN :
             pClient->lock_write_buf = NULL;
         }
     }
-    iotx_mc_set_client_state(pClient, mc_state);
 
     return rc;
 }
@@ -1660,7 +1669,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 
         if (NULL == (iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL))) {
             log_err("new list failed");
-            HAL_MutexLock(pClient->lock_list_sub);
+            HAL_MutexUnlock(pClient->lock_list_sub);
             return SUCCESS_RETURN;
         }
 
