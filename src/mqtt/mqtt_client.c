@@ -1656,6 +1656,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
     }
 
     HAL_MutexLock(pClient->lock_list_sub);
+    HAL_MutexLock(pClient->list_sub_wait_ack);
     do {
         if (0 == pClient->list_sub_wait_ack->len) {
             break;
@@ -1740,6 +1741,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 
     } while (0);
 
+    HAL_MutexUnlock(pClient->list_sub_wait_ack);
     HAL_MutexUnlock(pClient->lock_list_sub);
 
     return rc;
@@ -1824,6 +1826,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
     }
 
     HAL_MutexLock(pClient->lock_list_pub);
+    HAL_MutexLock(pClient->list_pub_wait_ack);
     do {
         if (0 == pClient->list_pub_wait_ack->len) {
             break;
@@ -1889,6 +1892,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 
     } while (0);
 
+    HAL_MutexUnlock(pClient->list_pub_wait_ack);
     HAL_MutexUnlock(pClient->lock_list_pub);
 
     return SUCCESS_RETURN;
