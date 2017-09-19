@@ -38,8 +38,10 @@ TARGET              += coap-example
     SRCS                := coap/coap-example.c
     endif
 
-TARGET                += ota_coap-example
-SRCS_ota_coap-example := ota/ota_coap-example.c
+	ifeq (y, $(strip $(FEATURE_OTA_ENABLED)))
+	TARGET                += ota_coap-example
+	SRCS_ota_coap-example := ota/ota_coap-example.c
+	endif
 
 DEPENDS             += src/external/mbedtls
 endif
