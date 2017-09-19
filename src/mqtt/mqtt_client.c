@@ -1670,6 +1670,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 
         if (NULL == (iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL))) {
             log_err("new list failed");
+            HAL_MutexUnlock(pClient->list_sub_wait_ack);
             HAL_MutexUnlock(pClient->lock_list_sub);
             return SUCCESS_RETURN;
         }
