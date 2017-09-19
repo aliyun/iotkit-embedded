@@ -80,7 +80,7 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
 
     /* get 'method' */
     pname = LITE_json_value_of((char *)"method", (char *)topic_info->payload);
-    // log_debug("pname(%d) = %s", (int)strlen(pname), pname);
+    /* log_debug("pname(%d) = %s", (int)strlen(pname), pname); */
     if (NULL == pname) {
         log_err("Invalid JSON document: not 'method' key");
     } else if ((strlen("control") == strlen(pname)) && !strcmp(pname, "control")) {
