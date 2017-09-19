@@ -82,8 +82,7 @@
     IOTX_HTTP_HEADER_END_STR
 #define IOTX_HTTP_HEADER_END_STR "\r\n"
 
-#define HTTP_AUTH_POST_MAX_LEN   (1024)
-#define HTTP_AUTH_RESP_MAX_LEN   (1024)
+#define HTTP_AUTH_RESP_MAX_LEN   (256)
 
 static iotx_http_t *p_iotx_http = NULL;
 
@@ -111,6 +110,40 @@ static int iotx_calc_sign(const char *p_device_secret, const char *p_msg, char *
     utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 #endif
     return IOTX_SUCCESS;
+}
+
+static int calc_snprintf_string_length(char *fmt,...)
+{
+    va_list args;
+    int     rc = 0;
+	char *p = NULL;
+	char *sval = NULL;
+
+	if (NULL == fmt){
+		return -1;
+	}
+
+    va_start(args, fmt);
+	
+	for (p = fmt; *p; p++) {  
+		 if(*p != '%') {  
+			 rc++;
+			 continue;	
+		 }	
+		 switch(*++p) {  
+		 case 's':	
+			 for (sval = va_arg(args, char *); *sval; sval++)  
+				 rc++;
+			 break;  
+		 default:  
+			 rc++; 
+			break;
+		 }
+	}	
+	
+    va_end(args);
+
+    return rc;	
 }
 
 static int construct_full_http_authenticate_url(char *buf)
@@ -210,6 +243,7 @@ void IOT_HTTP_DeInit()
     }
 }
 
+
 int IOT_HTTP_DeviceNameAuth(void *p_context)
 {
     int                 ret = -1;
@@ -270,16 +304,31 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
 
     iotx_calc_sign(p_iotx_http->p_devinfo->device_secret, p_msg_unsign, sign);
 
-    /* Malloc Http Request Payload */
-    requ_payload = (char *)LITE_malloc(HTTP_AUTH_POST_MAX_LEN);
-    if (NULL == requ_payload) {
-        log_err("Allocate HTTP requ_payload buf failed!");
-        goto do_exit;
-    }
-    memset(requ_payload, 0, HTTP_AUTH_POST_MAX_LEN);
+	/* to save stack memory*/
+	len = calc_snprintf_string_length(IOTX_HTTP_AUTH_DEVICENAME_STR,
+                        "default",
+                        p_iotx_http->p_devinfo->device_id,
+#if USING_SHA1_IN_HMAC
+                        IOTX_SHA_METHOD,
+#else
+                        IOTX_MD5_METHOD,
+#endif
+                        sign,
+                        p_iotx_http->p_devinfo->product_key,
+                        p_iotx_http->p_devinfo->device_name,
+                        timestamp
+                        );
 
-    /* Set Http Request Payload */
-    len = LITE_snprintf(requ_payload, HTTP_AUTH_POST_MAX_LEN,
+	if(len < 0){
+		 goto do_exit;
+	}
+	
+	requ_payload = (char *)LITE_malloc(len + 1);
+	memset(requ_payload, 0, len + 1);
+
+    log_debug("len = %d,requ_payload: \r\n%s\r\n", len,requ_payload);
+
+	len = LITE_snprintf(requ_payload, len + 1,
                         IOTX_HTTP_AUTH_DEVICENAME_STR,
                         "default",
                         p_iotx_http->p_devinfo->device_id,
@@ -293,8 +342,7 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
                         p_iotx_http->p_devinfo->device_name,
                         timestamp
                        );
-    assert(len < HTTP_AUTH_POST_MAX_LEN);
-    log_debug("requ_payload: \r\n\r\n%s", requ_payload);
+	log_debug("len = %d,requ_payload: \r\n%s\r\n", len,requ_payload);
 
     /* Malloc Http Response Payload */
     resp_payload = (char *)LITE_malloc(HTTP_AUTH_RESP_MAX_LEN);
@@ -302,7 +350,7 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         log_err("Allocate HTTP resp_payload buf failed!");
         goto do_exit;
     }
-    memset(resp_payload, 0, HTTP_AUTH_POST_MAX_LEN);
+    memset(resp_payload, 0, HTTP_AUTH_RESP_MAX_LEN);
 
     /* Construct Auth Url */
     construct_full_http_authenticate_url(http_url);
@@ -425,6 +473,7 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     char               *messageId = NULL;
     char               *user_data = NULL;
     char               *response_message = NULL;
+	int len = 0;
     /*
         POST /topic/${topic} HTTP/1.1
         Host: iot-as-http.cn-shanghai.aliyuncs.com
@@ -473,10 +522,10 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     /* Construct Auth Url */
     construct_full_http_upstream_url(http_url, msg_param->topic_path);
 
-    httpc.header = LITE_malloc(strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + strlen(
-                                           IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR) + 1);
-    LITE_snprintf(httpc.header, strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + strlen(
-                              IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR) + 1,
+	len = strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + strlen(
+                                           IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR);
+    httpc.header = LITE_malloc( len + 1);
+    LITE_snprintf(httpc.header, len + 1,
                   IOTX_HTTP_UPSTREAM_HEADER_STR, p_iotx_http->p_auth_token);
     log_info("httpc.header = %s", httpc.header);
 
@@ -591,4 +640,5 @@ do_exit:
 
     return ret;
 }
+
 
