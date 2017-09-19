@@ -470,21 +470,6 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         goto do_exit;
     }
 
-    if (msg_param->request_payload_len < 0) {
-        log_err("IOT_HTTP_SendMessage request_payload_len error!");
-        goto do_exit;
-    }
-
-    if (msg_param->response_payload_len < 0) {
-        log_err("IOT_HTTP_SendMessage response_payload_len error!");
-        goto do_exit;
-    }
-
-    if (msg_param->timeout_ms < 0) {
-        log_err("IOT_HTTP_SendMessage timeout_ms error!");
-        goto do_exit;
-    }
-
     /* Construct Auth Url */
     construct_full_http_upstream_url(http_url, msg_param->topic_path);
 

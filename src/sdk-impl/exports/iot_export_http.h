@@ -21,7 +21,7 @@
 
 typedef struct {
     char               *p_auth_token;
-    int                 auth_token_len;
+    uint32_t           auth_token_len;
     char                is_authed;
     const char         *version;
     const char         *signmethod;
@@ -33,11 +33,11 @@ typedef struct {
 /* IoTx http message definition */
 typedef struct {
     char       *topic_path;
-    int         request_payload_len;
+    uint32_t   request_payload_len;
     char       *request_payload;
-    int         response_payload_len;
+    uint32_t   response_payload_len;
     char       *response_payload;
-    uint32_t    timeout_ms;
+    uint32_t   timeout_ms;
 } iotx_http_message_param_t;
 
 typedef enum {
