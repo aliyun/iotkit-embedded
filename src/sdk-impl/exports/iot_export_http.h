@@ -19,6 +19,7 @@
 #ifndef _IOT_EXPORT_HTTP_H_
 #define _IOT_EXPORT_HTTP_H_
 
+/* IoTx http context */
 typedef struct {
     char               *p_auth_token;
     uint32_t           auth_token_len;
@@ -30,7 +31,10 @@ typedef struct {
     const char         *timestamp;
 } iotx_http_t, *iotx_http_pt;
 
-/* IoTx http message definition */
+/* IoTx http message definition 
+ * request_payload and response_payload need to be allocate in order to save memory.
+ * topic_path specify the topic url you want to publish message.
+ */
 typedef struct {
     char       *topic_path;
     uint32_t   request_payload_len;
@@ -40,6 +44,7 @@ typedef struct {
     uint32_t   timeout_ms;
 } iotx_http_message_param_t;
 
+/* The response code from sever */
 typedef enum {
     IOTX_HTTP_SUCCESS = 0,
     IOTX_HTTP_COMMON_ERROR = 10000,
@@ -53,9 +58,46 @@ typedef enum {
     IOTX_HTTP_REQUEST_TOO_MANY_ERROR = 40000,
 } iotx_http_upstream_response_t;
 
+/**
+ * @brief 	Initialize the HTTP client
+ *        This function initialize the data.
+ *
+ * @param p_devinfo  Specify the device infomation.
+ *
+ * @return NULL, initialize failed; NOT NULL, the contex of HTTP client.
+ */
 void   *IOT_HTTP_Init(iotx_device_info_t *p_devinfo);
+
+/**
+ * @brief   De-initialize the HTTP client
+ *        This function release the related resource.
+ *
+ * @param none
+ *
+ * @return void
+ */
 void    IOT_HTTP_DeInit(void);
+
+/**
+ * @brief   Handle device name authentication with remote server.
+ *
+ * @param p_context  Pointer of contex, specify the HTTP client.
+ *
+ * @return 0   Authenticate success.
+ *        -1   Authenticate failed.
+ */
 int     IOT_HTTP_DeviceNameAuth(void *p_context);
+
+/**
+ * @brief   Send a message with specific path to server.
+ *        Client must authentication with server before send message.
+ *
+ * @param p_context     Pointer of contex, specify the HTTP client.
+ * @param msg_param     Specify the topic path and http payload configuration.
+ *
+ * @return -1 success
+ *			0 failed
+ */
 int     IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param);
 
 /*
