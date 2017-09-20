@@ -36,7 +36,7 @@ typedef enum _IOT_LogLevel {
 } IOT_LogLevel;
 
 /* From device.h */
-#define PRODUCT_KEY_LEN     (11)
+#define PRODUCT_KEY_LEN     (20)
 #define DEVICE_NAME_LEN     (32)
 #define DEVICE_ID_LEN       (64)
 #define DEVICE_SECRET_LEN   (64)

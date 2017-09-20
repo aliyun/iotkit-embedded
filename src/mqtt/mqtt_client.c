@@ -60,11 +60,14 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
 static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 {
     int i = 0;
-    int len = strlen(iterm);
+    int len = 0;
+
     if (NULL == iterm) {
         log_err("iterm is NULL");
         return FAIL_RETURN;
     }
+
+    len = strlen(iterm);
 
     for (i = 0; i < len; i++) {
         if (TOPIC_FILTER_TYPE == type) {

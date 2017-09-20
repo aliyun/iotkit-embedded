@@ -186,6 +186,7 @@ static uint64_t _get_timestamp_from_ntp(const char *host)
 {
     long fd;  /* socket */
     int ret = -1;
+    uint64_t retval = 0;
     struct timeval_t tv;
     unsigned char write_buf[48] = {0};
     int write_len = sizeof(write_buf);
@@ -200,25 +201,26 @@ static uint64_t _get_timestamp_from_ntp(const char *host)
     ret = _get_packet(write_buf, &write_len);
     if (ret < 0) {
         log_err("get_packet error!");
-        return 0;
+        goto do_exit;
     }
 
     ret = HAL_UDP_write((void *)fd, write_buf, write_len);
     if (ret < 0) {
         log_err("udp write error!");
-        return 0;
+        goto do_exit;
     }
 
     ret = HAL_UDP_readTimeout((void *)fd, read_buf, sizeof(read_buf), 3000);
     if (ret < 0) {
         log_err("udp read error!");
-        return 0;
+        goto do_exit;
     }
     _rfc1305_parse_timeval(read_buf, &tv);
+    retval = ((uint64_t)tv.tv_sec) * 1000 + tv.tv_usec / 1000;
 
+do_exit:
     HAL_UDP_close((void *)fd);
-
-    return ((uint64_t)tv.tv_sec) * 1000 + tv.tv_usec / 1000;
+    return retval;
 }
 
 uint64_t utils_get_epoch_time_from_ntp(char copy[], int len)

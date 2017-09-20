@@ -200,6 +200,10 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
 void CoAPContext_free(CoAPContext *p_ctx)
 {
+    if(NULL == p_ctx){
+        return;
+    }
+
     CoAPSendNode *cur, *next;
 
     CoAPNetwork_deinit(&p_ctx->network);

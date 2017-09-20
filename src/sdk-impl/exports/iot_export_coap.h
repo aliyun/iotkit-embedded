@@ -21,10 +21,10 @@
 #ifndef __IOTX_COAP_API_H__
 #define __IOTX_COAP_API_H__
 
-#define IOTX_PRODUCT_KEY_LEN     (11)   /* IoTx product key length  */
-#define IOTX_DEVICE_NAME_LEN     (20)   /* IoTx device name length */
+#define IOTX_PRODUCT_KEY_LEN     (20)   /* IoTx product key length  */
+#define IOTX_DEVICE_NAME_LEN     (32)   /* IoTx device name length */
 #define IOTX_DEVICE_ID_LEN       (64)   /* IoTx device ID length */
-#define IOTX_DEVICE_SECRET_LEN   (32)   /* IoTx device secret length */
+#define IOTX_DEVICE_SECRET_LEN   (64)   /* IoTx device secret length */
 #define IOTX_URI_MAX_LEN         (135)  /* IoTx CoAP uri maximal length */
 
 
