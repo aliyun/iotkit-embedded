@@ -2,9 +2,8 @@ include make.settings
 include src/configs/default_settings.mk
 include src/scripts/parse_make_settings.mk
 
-SUBDIRS := src/platform
-
 ifeq (gcc,$(strip $(PLATFORM_CC)))
+SUBDIRS += src/platform
 SUBDIRS += sample
 SUBDIRS += src/sdk-tests
 endif

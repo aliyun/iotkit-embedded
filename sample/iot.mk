@@ -1,6 +1,7 @@
 DEPENDS             := src/platform
 LDFLAGS             := -liot_sdk
 LDFLAGS             += -liot_platform
+LDFLAGS             += -lmbedtls -lmbedx509 -lmbedcrypto
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
 
 ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
@@ -42,12 +43,6 @@ TARGET              += coap-example
 	TARGET                += ota_coap-example
 	SRCS_ota_coap-example := ota/ota_coap-example.c
 	endif
-
-DEPENDS             += src/external/mbedtls
-endif
-
-ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
-DEPENDS             += src/external/mbedtls
 endif
 
 ifeq (,$(filter -DFEATURE_HTTP_COMM_ENABLED,$(CFLAGS)))

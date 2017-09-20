@@ -1,3 +1,5 @@
+SUBDIRS                := x    # To make sure SUBDIRS not empty
+
 PLATFORM_CC            ?= gcc
 PLATFORM_AR            ?= ar
 PLATFORM_OS             = linux
