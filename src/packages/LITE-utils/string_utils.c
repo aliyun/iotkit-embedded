@@ -32,8 +32,8 @@ char *LITE_format_string(const char *fmt, ...)
     tmp = HAL_Malloc(512);
     rc = vsprintf(tmp, fmt, ap);
     va_end(ap);
-    assert(tmp);
-    assert(rc < 1024);
+    LITE_ASSERT(tmp);
+    LITE_ASSERT(rc < 1024);
 
     dst = LITE_strdup(tmp);
     HAL_Free(tmp);
@@ -52,8 +52,8 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
     tmp = HAL_Malloc(512);
     rc = vsprintf(tmp, fmt, ap);
     va_end(ap);
-    assert(tmp);
-    assert(rc < 1024);
+    LITE_ASSERT(tmp);
+    LITE_ASSERT(rc < 1024);
 
     dst = LITE_malloc(len + 1);
     LITE_snprintf(dst, (len + 1), "%s", tmp);

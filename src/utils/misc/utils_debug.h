@@ -34,7 +34,7 @@
     do{ \
         while(1){\
             HAL_SleepMs(1000); \
-            HAL_Printf("assert failed\r\n"); \
+            HAL_Printf("Assert failed\r\n"); \
         }\
     }while(0)
 

@@ -20,8 +20,9 @@
 #ifndef __GUIDER_INTERNAL_H__
 #define __GUIDER_INTERNAL_H__
 #define _GNU_SOURCE
-
+#if defined(_PLATFORM_IS_LINUX_)
 #include <assert.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

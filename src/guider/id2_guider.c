@@ -83,7 +83,7 @@ static int _calc_id2_signature(
     char                   *digest_str = NULL;
 
     dev = iotx_device_info_get();
-    assert(dev);
+    LITE_ASSERT(dev);
 
     /* Get timestamp */
     log_debug("timestamp_str: %s", timestamp_str);
@@ -92,13 +92,13 @@ static int _calc_id2_signature(
     rc = tfs_id2_get_timestamp_auth_code((uint8_t *)timestamp_str,
                                          NULL, 0, dev_code, &dev_code_len);
 
-    assert(!rc);
+    LITE_ASSERT(!rc);
     *device_code_str = LITE_strdup((const char *)dev_code);
     log_debug("deviceCode[%d] = '%s'", dev_code_len, *device_code_str);
 
     /* Get ID2 */
     rc = tfs_get_ID2(id2, &id2_len);
-    assert(rc >= 0);
+    LITE_ASSERT(rc >= 0);
     *id2_str = LITE_strdup((const char *)id2);
     log_debug("id2[%d] = '%s'", id2_len, *id2_str);
 
@@ -114,8 +114,8 @@ static int _calc_id2_signature(
                                          (uint8_t *)digest_str, strlen(digest_str),
                                          (uint8_t *)id2_sigbuf, &sign_len);
 
-    assert(!rc);
-    assert(sign_len <= sig_buflen);
+    LITE_ASSERT(!rc);
+    LITE_ASSERT(sign_len <= sig_buflen);
     LITE_free(digest_str);
     log_debug("id2_sigbuf[%d] = '%s'", sign_len, id2_sigbuf);
 
@@ -228,10 +228,10 @@ static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
     int                     rc = -1;
 
     dev = iotx_device_info_get();
-    assert(dev);
+    LITE_ASSERT(dev);
 
     ret = HAL_Malloc(AUTH_STRING_MAXLEN);
-    assert(ret);
+    LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
     rc = sprintf(ret,
@@ -247,7 +247,7 @@ static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
 #endif
                  dev->product_key,
                  ts, dev->device_id);
-    assert(rc < AUTH_STRING_MAXLEN);
+    LITE_ASSERT(rc < AUTH_STRING_MAXLEN);
 
     return ret;
 }
@@ -275,7 +275,7 @@ static int id2_guider_get_iotId_iotToken(
     const char         *pvalue;
     char                port_str[6];
 
-    assert(usr);
+    LITE_ASSERT(usr);
 
 #ifdef IOTX_WITHOUT_TLS
     iotx_port = 80;
@@ -449,7 +449,7 @@ static int id2_guider_get_iotId_iotToken(
                                 usr->aeskey_hex,
                                 &dst_len);
     log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
-    assert(!id2_rc);
+    LITE_ASSERT(!id2_rc);
     HEXDUMP_DEBUG(usr->aeskey_hex, dst_len);
 
     log_debug("%10s: %s", "iotId", iot_id);
@@ -492,8 +492,8 @@ int iotx_guider_id2_authenticate(void)
     iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
 
-    assert(dev);
-    assert(conn);
+    LITE_ASSERT(dev);
+    LITE_ASSERT(conn);
 
     id2_guider_get_timestamp_str(time_stamp_str, sizeof(time_stamp_str));
     _ident_partner(partner_id, sizeof(partner_id));
@@ -524,7 +524,7 @@ int iotx_guider_id2_authenticate(void)
 #endif
                                          );
 
-    assert(req_str);
+    LITE_ASSERT(req_str);
     log_debug("req_str = '%s'", req_str);
 
     if (0 != id2_guider_get_iotId_iotToken(guider_url,

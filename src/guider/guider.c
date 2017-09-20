@@ -42,7 +42,7 @@ static int _calc_hmac_signature(
     iotx_device_info_pt     dev;
 
     dev = iotx_device_info_get();
-    assert(dev);
+    LITE_ASSERT(dev);
 
     memset(signature, 0, sizeof(signature));
     memset(hmac_source, 0, sizeof(hmac_source));
@@ -53,7 +53,7 @@ static int _calc_hmac_signature(
                       dev->device_name,
                       dev->product_key,
                       timestamp_str);
-    assert(rc < sizeof(hmac_source));
+    LITE_ASSERT(rc < sizeof(hmac_source));
     log_debug("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
     log_debug("| secret: %s (%d)", dev->device_secret, (int)strlen(dev->device_secret));
 
@@ -113,14 +113,14 @@ int _http_response(char *payload,
                        HTTP_POST_MAX_LEN,
                        "%s",
                        request_string);
-    assert(len < HTTP_POST_MAX_LEN);
+    LITE_ASSERT(len < HTTP_POST_MAX_LEN);
     log_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
     resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
     if (!resp_payload) {
         goto RETURN;
     }
-    assert(resp_payload);
+    LITE_ASSERT(resp_payload);
     memset(resp_payload, 0, HTTP_RESP_MAX_LEN);
 
     httpc_data.post_content_type = "application/x-www-form-urlencoded;charset=utf-8";
@@ -182,7 +182,7 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
     va_start(ap, fmt);
     rc = vsnprintf(dst, len, fmt, ap);
     va_end(ap);
-    assert(rc <= len);
+    LITE_ASSERT(rc <= len);
 
     ptr = strstr(dst, "||");
     if (ptr) {
@@ -305,10 +305,10 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     int                     rc = -1;
 
     dev = iotx_device_info_get();
-    assert(dev);
+    LITE_ASSERT(dev);
 
     ret = HAL_Malloc(AUTH_STRING_MAXLEN);
-    assert(ret);
+    LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
     rc = sprintf(ret,
@@ -324,7 +324,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
                  , sign
                  , dev->device_id
                  , ts);
-    assert(rc < AUTH_STRING_MAXLEN);
+    LITE_ASSERT(rc < AUTH_STRING_MAXLEN);
 
     return ret;
 }
@@ -345,7 +345,7 @@ static int guider_get_iotId_iotToken(
     const char         *pvalue;
     char                port_str[6];
 
-    assert(usr);
+    LITE_ASSERT(usr);
 
 #ifdef IOTX_WITHOUT_TLS
     iotx_port = 80;
@@ -468,8 +468,8 @@ int iotx_guider_authenticate(void)
     iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
 
-    assert(dev);
-    assert(conn);
+    LITE_ASSERT(dev);
+    LITE_ASSERT(conn);
 
     _ident_partner(partner_id, sizeof(partner_id));
     guider_get_url(guider_url, sizeof(guider_url));
@@ -488,7 +488,7 @@ int iotx_guider_authenticate(void)
 
 
     req_str = guider_set_auth_req_str(guider_sign, timestamp_str);
-    assert(req_str);
+    LITE_ASSERT(req_str);
     log_debug("req_str = '%s'", req_str);
 
     if (0 != guider_get_iotId_iotToken(guider_url,

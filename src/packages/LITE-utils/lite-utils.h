@@ -26,7 +26,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stddef.h>
+#if defined(_PLATFORM_IS_LINUX_)
 #include <assert.h>
+#endif
 
 #include "lite-list.h"
 #include "lite-log.h"
@@ -42,6 +44,18 @@
 #define LITE_MINIMUM(a, b)          (((a) <= (b)) ? (a) : (b))
 #define LITE_MAXIMUM(a, b)          (((a) >= (b)) ? (a) : (b))
 #define LITE_isdigit(c)             (((c) <= '9' && (c) >= '0') ? (LITE_TRUE) : (LITE_FALSE))
+
+#if defined(_PLATFORM_IS_LINUX_)
+#define LITE_ASSERT(expr)           assert(expr)
+#else
+#define LITE_ASSERT(expr) \
+    do { \
+        if (!(expr)) { \
+            HAL_Printf("### %s | %s(%d): ASSERT FAILED ###: %s is FALSE\r\n", \
+                        __FILE__, __func__, __LINE__, #expr); \
+        } \
+    } while(0)
+#endif
 
 #define LITE_calloc(num, size)      LITE_malloc_internal(__func__, __LINE__, (num * size))
 #define LITE_malloc(size)           LITE_malloc_internal(__func__, __LINE__, size)
