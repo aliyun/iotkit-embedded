@@ -1547,8 +1547,25 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
 
     pClient->packet_id = 0;
     pClient->lock_generic = HAL_MutexCreate();
+    if (!pClient->lock_generic) {
+        return FAIL_RETURN;
+    }
+
     pClient->lock_list_sub = HAL_MutexCreate();
+    if (!pClient->lock_list_sub) {
+        HAL_MutexDestroy(pClient->lock_generic);
+        pClient->lock_generic = NULL;
+        return FAIL_RETURN;
+    }
+
     pClient->lock_list_pub = HAL_MutexCreate();
+    if (!pClient->lock_list_pub) {
+        HAL_MutexDestroy(pClient->lock_generic);
+        pClient->lock_generic = NULL;
+        HAL_MutexDestroy(pClient->lock_list_sub);
+        pClient->lock_list_sub = NULL;
+        return FAIL_RETURN;
+    }
 
     if (pInitParams->request_timeout_ms < IOTX_MC_REQUEST_TIMEOUT_MIN_MS
         || pInitParams->request_timeout_ms > IOTX_MC_REQUEST_TIMEOUT_MAX_MS) {
@@ -1659,7 +1676,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
     }
 
     HAL_MutexLock(pClient->lock_list_sub);
-    HAL_MutexLock(pClient->list_sub_wait_ack);
     do {
         if (0 == pClient->list_sub_wait_ack->len) {
             break;
@@ -1673,7 +1689,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 
         if (NULL == (iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL))) {
             log_err("new list failed");
-            HAL_MutexUnlock(pClient->list_sub_wait_ack);
             HAL_MutexUnlock(pClient->lock_list_sub);
             return SUCCESS_RETURN;
         }
@@ -1745,7 +1760,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 
     } while (0);
 
-    HAL_MutexUnlock(pClient->list_sub_wait_ack);
     HAL_MutexUnlock(pClient->lock_list_sub);
 
     return rc;
@@ -1830,7 +1844,6 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
     }
 
     HAL_MutexLock(pClient->lock_list_pub);
-    HAL_MutexLock(pClient->list_pub_wait_ack);
     do {
         if (0 == pClient->list_pub_wait_ack->len) {
             break;
@@ -1896,7 +1909,6 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 
     } while (0);
 
-    HAL_MutexUnlock(pClient->list_pub_wait_ack);
     HAL_MutexUnlock(pClient->lock_list_pub);
 
     return SUCCESS_RETURN;
