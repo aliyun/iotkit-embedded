@@ -32,9 +32,9 @@
 
 #define SHADOW_TRACE(fmt, args...)  \
     do { \
-        printf("%s|%03d :: ", __func__, __LINE__); \
-        printf(fmt, ##args); \
-        printf("%s", "\r\n"); \
+        HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
+        HAL_Printf(fmt, ##args); \
+        HAL_Printf("%s", "\r\n"); \
     } while(0)
 
 /**

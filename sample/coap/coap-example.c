@@ -41,8 +41,8 @@ static void iotx_response_handler(void *arg, void *p_response)
     iotx_coap_resp_code_t resp_code;
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
-    printf("[APPL]: Message response code: 0x%x\r\n", resp_code);
-    printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
+    HAL_Printf("[APPL]: Message response code: 0x%x\r\n", resp_code);
+    HAL_Printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
 }
 
 #define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     IOT_OpenLog("coap");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    printf("[COAP-Client]: Enter Coap Client\r\n");
+    HAL_Printf("[COAP-Client]: Enter Coap Client\r\n");
     while ((opt = getopt(argc, argv, "e:s:lh")) != -1) {
         switch (opt) {
             case 's':
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
         } else {
-            printf("Online environment must access with DTLS\r\n");
+            HAL_Printf("Online environment must access with DTLS\r\n");
             IOT_CloseLog();
             return -1;
         }
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
 
         IOT_CoAP_Deinit(&p_ctx);
     } else {
-        printf("IoTx CoAP init failed\r\n");
+        HAL_Printf("IoTx CoAP init failed\r\n");
     }
 
     IOT_CloseLog();
