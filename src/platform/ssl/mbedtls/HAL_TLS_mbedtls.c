@@ -42,7 +42,7 @@ typedef struct _TLSDataParams {
 
 #define SSL_LOG(format, ...) \
     do { \
-        printf("[inf] %s(%d): "format"\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+        HAL_Printf("[inf] %s(%d): "format"\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);\
         fflush(stdout);\
     }while(0);
 
@@ -125,7 +125,7 @@ static int _ssl_parse_crt(mbedtls_x509_crt *crt)
                     memcpy(str, start, len);
                     str[len] = '\0';
                     start = cur + 1;
-                    printf("%s", str);
+                    HAL_Printf("%s", str);
                 }
             }
         }

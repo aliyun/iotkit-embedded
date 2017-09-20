@@ -17,10 +17,12 @@
  */
 
 
-#include "tfs.h"
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+
+#include "tfs.h"
+#include "iot_import.h"
 
 #define BUF_MAX 512
 
@@ -28,12 +30,12 @@ static void hexdump(const uint8_t *str, uint32_t len)
 {
     int i;
     for (i = 0; i < len; i++) {
-        printf("%02X,", *str++);
+        HAL_Printf("%02X,", *str++);
         if ((i + 1) % 32 == 0) {
-            printf("\n");
+            HAL_Printf("\n");
         }
     }
-    printf("\n\n");
+    HAL_Printf("\n\n");
 }
 
 static int demo_tfs_get_ID2(void)
@@ -44,7 +46,7 @@ static int demo_tfs_get_ID2(void)
 
     ret = tfs_get_ID2(id2, &len);
 
-    printf("tfs_get_ID2: ret = %d, the ID2(%d): %s\n\n", ret, len, id2);
+    HAL_Printf("tfs_get_ID2: ret = %d, the ID2(%d): %s\n\n", ret, len, id2);
     return 0;
 }
 
@@ -69,7 +71,7 @@ static int demo_tfs_id2_decrypt(void)
     uint8_t dec_out[128] = {0};
 
     ret = tfs_id2_decrypt((uint8_t *)enc_data, enc_len, dec_out, &dec_len);
-    printf("tfs_id2_decrypt: ret = %d, decrypt out(%d): %s\n\n", ret, dec_len, dec_out);
+    HAL_Printf("tfs_id2_decrypt: ret = %d, decrypt out(%d): %s\n\n", ret, dec_len, dec_out);
 
     return 0;
 }
@@ -84,12 +86,12 @@ static int demo_tfs_id2_get_challenge_auth_code(void)
 
     memset(out_data, 0, BUF_MAX);
     ret = tfs_id2_get_challenge_auth_code((const uint8_t *)challenge, NULL, 0, out_data, &len);
-    printf("tfs_id2_get_challenge_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
+    HAL_Printf("tfs_id2_get_challenge_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
 
     len = BUF_MAX;
     memset(out_data, 0, BUF_MAX);
     ret = tfs_id2_get_challenge_auth_code((const uint8_t *)challenge, (uint8_t *)extra, strlen(extra), out_data, &len);
-    printf("tfs_id2_get_challenge_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
+    HAL_Printf("tfs_id2_get_challenge_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
 
     return 0;
 }
@@ -106,12 +108,12 @@ static int demo_tfs_id2_get_timestamp_auth_code(uint64_t ts)
 
     memset(out_data, 0, BUF_MAX);
     ret = tfs_id2_get_timestamp_auth_code(timestamp_str, NULL, 0, out_data, &len);
-    printf("tfs_id2_get_timestamp_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
+    HAL_Printf("tfs_id2_get_timestamp_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
 
     len = BUF_MAX;
     memset(out_data, 0, BUF_MAX);
     ret = tfs_id2_get_timestamp_auth_code(timestamp_str, (uint8_t *)extra, strlen(extra), out_data, &len);
-    printf("tfs_id2_get_timestamp_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
+    HAL_Printf("tfs_id2_get_timestamp_auth_code: ret = %d, the auth_code(%d): %s\n\n", ret, len, out_data);
 
     return 0;
 }
@@ -129,29 +131,29 @@ static int demo_aes128_enc_dec(void)
     const uint8_t key[16] = "Demo-Test";
 
     ret = tfs_aes128_cbc_enc(key, iv_enc, strlen((char *)in), in, &enc_len, enc_out, TFS_AES_ZERO_PADDING);
-    printf("tfs_aes128_cbc_enc: ret = %d, enc_len = %d, encrypt out(%d):\n", ret, enc_len, 16);
+    HAL_Printf("tfs_aes128_cbc_enc: ret = %d, enc_len = %d, encrypt out(%d):\n", ret, enc_len, 16);
     hexdump(enc_out, 16);
 
     ret = tfs_aes128_cbc_dec(key, iv_dec, 16, enc_out, &dec_len, dec_out, TFS_AES_ZERO_PADDING);
-    printf("tfs_aes128_cbc_dec: ret = %d, dec_len = %d, decrypt out(%d): %s\n", ret, dec_len, 16, (char *)dec_out);
+    HAL_Printf("tfs_aes128_cbc_dec: ret = %d, dec_len = %d, decrypt out(%d): %s\n", ret, dec_len, 16, (char *)dec_out);
 
     return 0;
 }
 
 void tfs_demo(uint64_t timestamp)
 {
-    printf(">>>>>>func: demo_tfs_get_ID2 <<<<<<\n");
+    HAL_Printf(">>>>>>func: demo_tfs_get_ID2 <<<<<<\n");
     demo_tfs_get_ID2();
 
-    printf(">>>>>>func: demo_tfs_id2_decrypt <<<<<<\n");
+    HAL_Printf(">>>>>>func: demo_tfs_id2_decrypt <<<<<<\n");
     demo_tfs_id2_decrypt();
 
-    printf(">>>>>>func: demo_tfs_id2_get_challenge_auth_code <<<<<<\n");
+    HAL_Printf(">>>>>>func: demo_tfs_id2_get_challenge_auth_code <<<<<<\n");
     demo_tfs_id2_get_challenge_auth_code();
 
-    printf(">>>>>>func: demo_tfs_id2_get_timestamp_auth_code <<<<<<\n");
+    HAL_Printf(">>>>>>func: demo_tfs_id2_get_timestamp_auth_code <<<<<<\n");
     demo_tfs_id2_get_timestamp_auth_code(timestamp);
 
-    printf(">>>>>>func: demo_aes128_enc_dec <<<<<<\n");
+    HAL_Printf(">>>>>>func: demo_aes128_enc_dec <<<<<<\n");
     demo_aes128_enc_dec();
 }

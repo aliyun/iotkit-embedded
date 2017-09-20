@@ -116,7 +116,7 @@ typedef struct {
                    char *buf = NULL;
                    buf = pvPortMalloc(BUF_SIZE);
                    if (buf == NULL) {
-                       printf("Malloc failed.\r\n");
+                       HAL_Printf("Malloc failed.\r\n");
                        return;
                    }
                    memset(buf, 0, sizeof(buf));
@@ -127,7 +127,7 @@ typedef struct {
                    client_data.post_buf_len = strlen(post_data);  /* Sets the post data length. */
                    client_data.post_content_type = content_type;  /* Sets the content type. */
                    httpclient_post(&client, url, HTTPS_PORT, &client_data);
-                   printf("Data received: %s\r\n", client_data.response_buf);
+                   HAL_Printf("Data received: %s\r\n", client_data.response_buf);
  @endcode
 #endif
 

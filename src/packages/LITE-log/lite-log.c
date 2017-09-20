@@ -216,11 +216,11 @@ void LITE_syslog(const char *f, const int l, const int level, const char *fmt, .
 {
     va_list         ap;
 
-    printf("%s/%d: ", f, l);
+    HAL_Printf("%s/%d: ", f, l);
     va_start(ap, fmt);
     vprintf(fmt, ap);
     va_end(ap);
-    printf("\r\n");
+    HAL_Printf("\r\n");
 
     return;
 }
@@ -231,8 +231,8 @@ int log_multi_line_internal(const char *f, const int l,
                             char *payload,
                             const char *mark)
 {
-    printf("%s(%d):\r\n\r\n", f, l);
-    printf("%s\r\n", payload);
+    HAL_Printf("%s(%d):\r\n\r\n", f, l);
+    HAL_Printf("%s\r\n", payload);
 
     return 0;
 }
@@ -268,8 +268,8 @@ void LITE_rich_hexdump(const char *f, const int l,
                        const void *buf_ptr,
                        const int buf_len)
 {
-    printf("%s/%d: ", f, l);
-    printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
+    HAL_Printf("%s/%d: ", f, l);
+    HAL_Printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
     LITE_hexdump(buf_str, buf_ptr, buf_len);
 
     return;

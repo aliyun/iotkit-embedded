@@ -34,9 +34,9 @@
 
 #define PLATFORM_LINUXSOCK_LOG(format, ...) \
     do { \
-        printf("LINUXSOCK %u %s() | "format"\n", __LINE__, __FUNCTION__, ##__VA_ARGS__);\
+        HAL_Printf("LINUXSOCK %u %s() | "format"\n", __LINE__, __FUNCTION__, ##__VA_ARGS__);\
         fflush(stdout);\
-    }while(0);
+    } while(0);
 
 
 static uint64_t _linux_get_time_ms(void)
