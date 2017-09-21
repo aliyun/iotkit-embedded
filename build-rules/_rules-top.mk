@@ -14,6 +14,12 @@ RESET_ENV_VARS := \
     LDFLAGS \
 
 detect:
+	@if [ -d .git ]; then \
+	    for i in $(RULE_DIR)/hooks/*; do \
+	        cp -f $$i .git/ && chmod a+x .git/$$(basename $$i); \
+	    done; \
+	fi
+
 	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
 	    if [ $$i -nt $(CONFIG_TPL) ]; then \
 	        echo "Re-configure project since '$${i}' updated"|grep --color ".*"; \
