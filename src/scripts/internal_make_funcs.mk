@@ -12,8 +12,9 @@ define Post_Distro
     @mkdir -p $(FINAL_DIR)/src
     $(if $(filter y,$(FEATURE_MQTT_ID2_AUTH)),
         @cp -f $(OUTPUT_DIR)/src/tfs/$(LIBA_TARGET_src/tfs) $(FINAL_DIR)/lib
-        @cat doc/export.sdk.demo/head_id2.mk >  $(FINAL_DIR)/src/Makefile,
-        @cat doc/export.sdk.demo/head.mk >  $(FINAL_DIR)/src/Makefile)
+        @cat doc/export.sdk.demo/head_id2.mk > $(FINAL_DIR)/src/Makefile,
+        @cat doc/export.sdk.demo/head.mk > $(FINAL_DIR)/src/Makefile
+        @rm -f $(FINAL_DIR)/lib/libtfs*.a)
     $(if $(filter y,$(FEATURE_MQTT_COMM_ENABLED)),
         @cp -f sample/mqtt/mqtt-example.c $(FINAL_DIR)/src/mqtt-example.c
         @cat doc/export.sdk.demo/mqtt.mk >> $(FINAL_DIR)/src/Makefile)

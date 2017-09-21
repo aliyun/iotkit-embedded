@@ -15,7 +15,10 @@ final-out: sub-mods
 	            cp -rf $(OUTPUT_DIR)/usr/$${i} $(FINAL_DIR); \
 	        fi; \
 	    done; \
-	    cp -f $(IMPORT_VDRDIR)/libs/lib* $(FINAL_DIR)/lib; \
+	    VDR_NAME=$$(grep -m 1 "VENDOR *:" $(CONFIG_TPL) 2>/dev/null|awk '{ print $$NF }'); \
+	    if [ -d $(IMPORT_DIR)/$${VDR_NAME}/libs ]; then \
+	        cp -f $(IMPORT_DIR)/$${VDR_NAME}/libs/lib* $(FINAL_DIR)/lib; \
+	    fi; \
 	fi
 
 	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || true

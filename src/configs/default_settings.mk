@@ -1,4 +1,4 @@
-SUBDIRS                := x    # To make sure SUBDIRS not empty
+SUBDIRS                := directory-not-exist-actually
 
 PLATFORM_CC            ?= gcc
 PLATFORM_AR            ?= ar
