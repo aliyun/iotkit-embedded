@@ -27,7 +27,7 @@
 #include "CoAPMessage.h"
 #include "CoAPExport.h"
 
-#define IOTX_SIGN_LENGTH         (33)
+#define IOTX_SIGN_LENGTH         (40+1)
 #define IOTX_SIGN_SOURCE_LEN     (256)
 #define IOTX_AUTH_TOKEN_LEN      (192+1)
 #define IOTX_COAP_INIT_TOKEN     (0x01020304)

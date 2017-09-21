@@ -119,7 +119,6 @@ static void otamqtt_UpgrageCb(void *pcontext, void *pclient, iotx_mqtt_event_msg
 void *osc_Init(const char *product_key, const char *device_name, void *ch_signal, ota_cb_fpt cb, void *context)
 {
     int ret;
-    char topic_name[OTA_MQTT_TOPIC_LEN];
     otamqtt_Struct_pt h_osc = NULL;
 
     if (NULL == (h_osc = OTA_MALLOC(sizeof(otamqtt_Struct_t)))) {
