@@ -15,8 +15,9 @@ RESET_ENV_VARS := \
 
 detect:
 	@if [ -d .git ]; then \
+	    mkdir -p .git/hooks; \
 	    for i in $(RULE_DIR)/hooks/*; do \
-	        cp -f $$i .git/ && chmod a+x .git/$$(basename $$i); \
+	        cp -f $$i .git/hooks && chmod a+x .git/hooks/$$(basename $$i); \
 	    done; \
 	fi
 
