@@ -1732,8 +1732,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             packet_id = subInfo->msg_id;
             msg_type = subInfo->type;
 
-            HAL_MutexUnlock(pClient->lock_list_sub);
-
             /* Wait MQTT SUBSCRIBE ACK timeout */
             if (NULL != pClient->handle_event.h_fp) {
                 iotx_mqtt_event_msg_t msg;
@@ -1750,8 +1748,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 
                 pClient->handle_event.h_fp(pClient->handle_event.pcontext, pClient, &msg);
             }
-
-            HAL_MutexLock(pClient->lock_list_sub);
 
             tempNode = node;
         }
