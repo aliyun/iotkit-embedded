@@ -213,92 +213,6 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     return 0;
 }
 
-
-int utils_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
-{
-    uint32_t        readLen = 0;
-    static int      net_status = 0;
-    int             ret = -1;
-    char            err_str[33];
-
-    mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
-    while (readLen < len) {
-        ret = mbedtls_ssl_read(&(pTlsData->ssl), (unsigned char *)(buffer + readLen), (len - readLen));
-        if (ret > 0) {
-            readLen += ret;
-            net_status = 0;
-        } else if (ret == 0) {
-            /* if ret is 0 and net_status is -2, indicate the connection is closed during last call */
-            return (net_status == -2) ? net_status : readLen;
-        } else {
-            if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
-                mbedtls_strerror(ret, err_str, sizeof(err_str));
-                SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
-                net_status = -2; /* connection is closed */
-                break;
-            } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret)
-                       || (MBEDTLS_ERR_SSL_CONN_EOF == ret)
-                       || (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == ret)
-                       || (MBEDTLS_ERR_SSL_NON_FATAL == ret)) {
-                /* read already complete */
-                /* if call mbedtls_ssl_read again, it will return 0 (means EOF) */
-
-                return readLen;
-            } else {
-                mbedtls_strerror(ret, err_str, sizeof(err_str));
-                SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
-                net_status = -1;
-                return -1; /* Connection error */
-            }
-        }
-    }
-
-    return (readLen > 0) ? readLen : net_status;
-}
-
-int utils_network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
-{
-    uint32_t writtenLen = 0;
-    int ret = -1;
-
-    while (writtenLen < len) {
-        ret = mbedtls_ssl_write(&(pTlsData->ssl), (unsigned char *)(buffer + writtenLen), (len - writtenLen));
-        if (ret > 0) {
-            writtenLen += ret;
-            continue;
-        } else if (ret == 0) {
-            SSL_LOG("ssl write timeout");
-            return 0;
-        } else {
-            char err_str[33];
-            mbedtls_strerror(ret, err_str, sizeof(err_str));
-            SSL_LOG("ssl write fail, code=%d, str=%s", ret, err_str);
-            return -1; /* Connnection error */
-        }
-    }
-
-    return writtenLen;
-}
-
-void utils_network_ssl_disconnect(TLSDataParams_t *pTlsData)
-{
-    mbedtls_ssl_close_notify(&(pTlsData->ssl));
-    mbedtls_net_free(&(pTlsData->fd));
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
-    mbedtls_x509_crt_free(&(pTlsData->cacertl));
-    if ((pTlsData->pkey).pk_info != NULL) {
-        SSL_LOG("need release client crt&key");
-#if defined(MBEDTLS_CERTS_C)
-        mbedtls_x509_crt_free(&(pTlsData->clicert));
-        mbedtls_pk_free(&(pTlsData->pkey));
-#endif
-    }
-#endif
-    mbedtls_ssl_free(&(pTlsData->ssl));
-    mbedtls_ssl_config_free(&(pTlsData->conf));
-    SSL_LOG("ssl_disconnect");
-}
-
 /**
  * @brief This function connects to the specific SSL server with TLS, and returns a value that indicates whether the connection is create successfully or not. Call #NewNetwork() to initialize network structure before calling this function.
  * @param[in] n is the the network structure pointer.
@@ -315,7 +229,7 @@ void utils_network_ssl_disconnect(TLSDataParams_t *pTlsData)
  * @sa #NewNetwork();
  * @return If the return value is 0, the connection is created successfully. If the return value is -1, then calling lwIP #socket() has failed. If the return value is -2, then calling lwIP #connect() has failed. Any other value indicates that calling lwIP #getaddrinfo() has failed.
  */
-int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *port,
+static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *port,
                       const char *ca_crt, size_t ca_crt_len,
                       const char *client_crt,   size_t client_crt_len,
                       const char *client_key,   size_t client_key_len,
@@ -414,20 +328,99 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
     return 0;
 }
 
-int utils_network_ssl_connect(TLSDataParams_t *pTlsData, const char *addr, const char *port, const char *ca_crt,
-                              size_t ca_crt_len)
+static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int timeout_ms)
 {
-    return TLSConnectNetwork(pTlsData, addr, port, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+    uint32_t        readLen = 0;
+    static int      net_status = 0;
+    int             ret = -1;
+    char            err_str[33];
+
+    mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
+    while (readLen < len) {
+        ret = mbedtls_ssl_read(&(pTlsData->ssl), (unsigned char *)(buffer + readLen), (len - readLen));
+        if (ret > 0) {
+            readLen += ret;
+            net_status = 0;
+        } else if (ret == 0) {
+            /* if ret is 0 and net_status is -2, indicate the connection is closed during last call */
+            return (net_status == -2) ? net_status : readLen;
+        } else {
+            if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
+                mbedtls_strerror(ret, err_str, sizeof(err_str));
+                SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
+                net_status = -2; /* connection is closed */
+                break;
+            } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret)
+                       || (MBEDTLS_ERR_SSL_CONN_EOF == ret)
+                       || (MBEDTLS_ERR_SSL_SESSION_TICKET_EXPIRED == ret)
+                       || (MBEDTLS_ERR_SSL_NON_FATAL == ret)) {
+                /* read already complete */
+                /* if call mbedtls_ssl_read again, it will return 0 (means EOF) */
+
+                return readLen;
+            } else {
+                mbedtls_strerror(ret, err_str, sizeof(err_str));
+                SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
+                net_status = -1;
+                return -1; /* Connection error */
+            }
+        }
+    }
+
+    return (readLen > 0) ? readLen : net_status;
+}
+
+static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
+{
+    uint32_t writtenLen = 0;
+    int ret = -1;
+
+    while (writtenLen < len) {
+        ret = mbedtls_ssl_write(&(pTlsData->ssl), (unsigned char *)(buffer + writtenLen), (len - writtenLen));
+        if (ret > 0) {
+            writtenLen += ret;
+            continue;
+        } else if (ret == 0) {
+            SSL_LOG("ssl write timeout");
+            return 0;
+        } else {
+            char err_str[33];
+            mbedtls_strerror(ret, err_str, sizeof(err_str));
+            SSL_LOG("ssl write fail, code=%d, str=%s", ret, err_str);
+            return -1; /* Connnection error */
+        }
+    }
+
+    return writtenLen;
+}
+
+static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
+{
+    mbedtls_ssl_close_notify(&(pTlsData->ssl));
+    mbedtls_net_free(&(pTlsData->fd));
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    mbedtls_x509_crt_free(&(pTlsData->cacertl));
+    if ((pTlsData->pkey).pk_info != NULL) {
+        SSL_LOG("need release client crt&key");
+#if defined(MBEDTLS_CERTS_C)
+        mbedtls_x509_crt_free(&(pTlsData->clicert));
+        mbedtls_pk_free(&(pTlsData->pkey));
+#endif
+    }
+#endif
+    mbedtls_ssl_free(&(pTlsData->ssl));
+    mbedtls_ssl_config_free(&(pTlsData->conf));
+    SSL_LOG("ssl_disconnect");
 }
 
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
-    return utils_network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
+    return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
 }
 
 int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 {
-    return utils_network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
+    return _network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
 }
 
 int32_t HAL_SSL_Destroy(uintptr_t handle)
@@ -437,7 +430,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
         return 0;
     }
 
-    utils_network_ssl_disconnect((TLSDataParams_t *)handle);
+    _network_ssl_disconnect((TLSDataParams_t *)handle);
     HAL_Free((void *)handle);
     return 0;
 }
@@ -457,7 +450,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     sprintf(port_str, "%u", port);
 
-    if (0 != TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
+    if (0 != _TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
         mbedtls_x509_crt_free(&(pTlsData->cacertl));
         mbedtls_x509_crt_free(&(pTlsData->clicert));
         if (pTlsData->ssl.hostname) {
