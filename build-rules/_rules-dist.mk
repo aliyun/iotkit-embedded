@@ -15,6 +15,7 @@ final-out: sub-mods
 	            cp -rf $(OUTPUT_DIR)/usr/$${i} $(FINAL_DIR); \
 	        fi; \
 	    done; \
+	    cp -f $(IMPORT_VDRDIR)/libs/lib* $(FINAL_DIR)/lib; \
 	fi
 
 	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || true
