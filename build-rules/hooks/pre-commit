@@ -8,7 +8,7 @@
 # To enable this hook, rename this file to "pre-commit".
 
 for i in `git status -s | awk '{ print $NF }'`; do
-    j=$(echo $i|cut -d'.' -f2)
+    j=$(echo $(basename $i)|cut -d'.' -f2)
     if [ "$j" = "c" -o "$j" = "h" -o "$j" = "md" -o "$j" = "mk" ]; then
         chmod a-x $i
         echo "[chmod] $i"
