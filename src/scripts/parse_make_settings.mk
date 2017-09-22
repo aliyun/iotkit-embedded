@@ -22,7 +22,7 @@ SWITCH_VARS := \
     FEATURE_HTTP_COMM_ENABLED \
 
 $(foreach v, \
-    $(SETTING_VARS), \
+    $(SETTING_VARS) $(SWITCH_VARS), \
     $(eval export $(v)=$($(v))) \
 )
 
