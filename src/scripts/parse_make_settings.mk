@@ -5,6 +5,8 @@ SETTING_VARS := \
     PLATFORM_CC \
     PLATFORM_AR \
     PLATFORM_OS \
+
+SWITCH_VARS := \
     FEATURE_MQTT_COMM_ENABLED \
     FEATURE_MQTT_DEVICE_SHADOW \
     FEATURE_MQTT_DIRECT \
@@ -25,7 +27,7 @@ $(foreach v, \
 )
 
 $(foreach v, \
-    $(SETTING_VARS), \
+    $(SWITCH_VARS), \
     $(if $(filter y,$($(v))), \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )

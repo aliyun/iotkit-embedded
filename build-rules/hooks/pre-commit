@@ -11,8 +11,8 @@ for i in `git status -s | awk '{ print $NF }'`; do
     j=$(echo $i|cut -d'.' -f2)
     if [ "$j" = "c" -o "$j" = "h" ]; then
         chmod a-x $i
-        echo "chmod $i"
+        echo "[chmod] $i"
     else
-        echo "skip $i"
+        echo "[skip ] $i"
     fi
 done

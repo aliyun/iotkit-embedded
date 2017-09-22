@@ -3,6 +3,6 @@ HDR_REFS    := src
 
 LDFLAGS     += -liot_sdk -liot_platform
 
-ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
+ifneq (,$(filter -DMQTT_ID2_AUTH,$(CFLAGS)))
 LDFLAGS     += -ltfs -lmbedcrypto
 endif

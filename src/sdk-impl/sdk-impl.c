@@ -61,6 +61,7 @@ void IOT_DumpMemoryStats(IOT_LogLevel level)
     return LITE_dump_malloc_free_stats(lvl);
 }
 
+#if defined(MQTT_COMM_ENABLED)
 int IOT_SetupConnInfo(const char *product_key,
                       const char *device_name,
                       const char *device_secret,
@@ -89,6 +90,7 @@ int IOT_SetupConnInfo(const char *product_key,
         return -1;
     }
 }
+
 #ifdef MQTT_ID2_AUTH
 int IOT_SetupConnInfoSecure(const char *product_key,
                             const char *device_name,
@@ -113,4 +115,6 @@ int IOT_SetupConnInfoSecure(const char *product_key,
 
     return rc;
 }
-#endif
+#endif  /* #ifdef MQTT_ID2_AUTH */
+#endif  /* #if defined(MQTT_COMM_ENABLED)   */
+

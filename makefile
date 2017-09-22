@@ -22,12 +22,12 @@ COMP_LIB_COMPONENTS := \
     src/log \
     src/utils \
     src/tfs \
+    src/system \
     src/sdk-impl \
 
 $(call CompLib_Map, MQTT_COMM_ENABLED, \
     src/guider \
     src/mqtt \
-    src/system \
 )
 $(call CompLib_Map, OTA_ENABLED, src/ota)
 $(call CompLib_Map, MQTT_DEVICE_SHADOW, src/shadow)

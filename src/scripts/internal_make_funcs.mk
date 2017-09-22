@@ -31,7 +31,7 @@ define Post_Distro
     @echo "o BUILD COMPLETE WITH FOLLOWING SWITCHES:"
     @echo "----"
     @( \
-    $(foreach V,$(SETTING_VARS), \
+    $(foreach V,$(SWITCH_VARS), \
         $(if $(findstring FEATURE_,$(V)), \
             printf "%-32s : %-s\n" "    $(V)" "$($(V))"; \
         ) \
