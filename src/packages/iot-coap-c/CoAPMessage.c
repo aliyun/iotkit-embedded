@@ -411,17 +411,24 @@ static void CoAPMessage_handle(CoAPContext *context,
     }
 }
 
-int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int oneflag)
+int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int readcount)
 {
     int len = 0;
+    int count = readcount;
 
     while (1) {
         len = CoAPNetwork_read(&context->network, context->recvbuf,
                                COAP_MSG_MAX_PDU_LEN, timeout);
         if (len > 0) {
-            CoAPMessage_handle(context, context->recvbuf, len);
-            if(oneflag){
-                return len;
+            if(0 == readcount){
+                CoAPMessage_handle(context, context->recvbuf, len);
+            }
+            else{
+                count--;
+                CoAPMessage_handle(context, context->recvbuf, len);
+                if(0 == count){
+                    return len;
+                }
             }
         } else {
             return 0;
@@ -467,7 +474,8 @@ int CoAPMessage_cycle(CoAPContext *context)
                     coap_free(node->message);
                     coap_free(node);
                 }
-            } else {
+            }
+             else {
                 node->timeout--;
             }
         }
