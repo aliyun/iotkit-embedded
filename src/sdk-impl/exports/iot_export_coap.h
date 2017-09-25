@@ -92,9 +92,10 @@ typedef struct
 /* IoTx initializa parameters */
 typedef struct
 {
-    char                 *p_url;
-    iotx_deviceinfo_t    *p_devinfo;
-    iotx_event_handle_t   event_handle;
+    char                 *p_url;        /*Can be NULL*/
+    int                   wait_time_ms; /*unit is micro second*/
+    iotx_deviceinfo_t    *p_devinfo;    /*Device info*/
+    iotx_event_handle_t   event_handle; /*TODO, not supported now*/
 }iotx_coap_config_t;
 
 /* Callback function to handle the response message.*/

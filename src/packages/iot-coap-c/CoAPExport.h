@@ -192,6 +192,7 @@ typedef struct
 {
              char       *url;
     unsigned char        maxcount;  /*list maximal count*/
+    unsigned int         waittime;
     CoAPEventNotifier    notifier;
 }CoAPInitParam;
 
@@ -203,6 +204,7 @@ typedef struct
     unsigned char            *sendbuf;
     unsigned char            *recvbuf;
     CoAPSendList             list;
+    unsigned int             waittime;
 }CoAPContext;
 
 #define COAP_TRC     log_debug

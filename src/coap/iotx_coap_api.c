@@ -491,11 +491,13 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     }
     param.maxcount = IOTX_LIST_MAX_ITEM;
     param.notifier = (CoAPEventNotifier)iotx_event_notifyer;
+    param.waittime = p_config->wait_time_ms;
     p_iotx_coap->p_coap_ctx = CoAPContext_create(&param);
     if (NULL == p_iotx_coap->p_coap_ctx) {
         COAP_ERR(" Create coap context failed");
         goto err;
     }
+
 
     /*Register the event handle to notify the application */
     p_iotx_coap->event_handle = p_config->event_handle;

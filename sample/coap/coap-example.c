@@ -143,6 +143,7 @@ int main(int argc, char **argv)
 
     iotx_set_devinfo(&deviceinfo);
     config.p_devinfo = &deviceinfo;
+    config.wait_time_ms = 3000;
 
     iotx_coap_context_t *p_ctx = NULL;
     p_ctx = IOT_CoAP_Init(&config);

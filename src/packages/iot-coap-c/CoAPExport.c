@@ -31,6 +31,7 @@
 
 #define COAP_DEFAULT_SCHEME      "coap" /* the default scheme for CoAP URIs */
 #define COAP_DEFAULT_HOST_LEN    128
+#define COAP_DEFAULT_WAIT_TIME_MS       2000
 
 unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
                            char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
@@ -137,6 +138,13 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     p_ctx->notifier = param->notifier;
     p_ctx->sendbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
     p_ctx->recvbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
+
+    if(0 == param->waittime){
+        p_ctx->waittime = COAP_DEFAULT_WAIT_TIME_MS;
+    }
+    else{
+        p_ctx->waittime = param->waittime;
+    }
 
     /*CoAP message send list*/
     INIT_LIST_HEAD(&p_ctx->list.sendlist);

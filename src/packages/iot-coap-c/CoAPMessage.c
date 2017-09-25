@@ -439,7 +439,7 @@ int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int readcount)
 int CoAPMessage_cycle(CoAPContext *context)
 {
     unsigned int ret = 0;
-    CoAPMessage_recv(context, COAP_WAIT_TIME_MS, 0);
+    CoAPMessage_recv(context, context->waittime, 0);
 
     CoAPSendNode *node = NULL, *next = NULL;
     list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist) {
