@@ -80,7 +80,7 @@ void *HAL_Malloc(_IN_ uint32_t size)
 
 void HAL_Free(_IN_ void *ptr)
 {
-    return free(ptr);
+    free(ptr);
 }
 
 uint32_t HAL_UptimeMs(void)
