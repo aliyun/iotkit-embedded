@@ -10,8 +10,10 @@ SRCS_mqtt-example   := mqtt/mqtt-example.c
 SRCS_mqtt_rrpc-example := mqtt/mqtt_rrpc-example.c
 
     ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
+    ifneq (,$(filter -DOTA_SIGNAL_CHANNEL=1,$(CFLAGS)))
     TARGET                += ota_mqtt-example
     SRCS_ota_mqtt-example := ota/ota_mqtt-example.c
+    endif
     endif
 
     ifneq (,$(filter -DMQTT_DEVICE_SHADOW,$(CFLAGS)))
@@ -37,8 +39,10 @@ SRCS_coap-example   := coap/coap-example.c
 SRCS                += coap/coap-example.c
 
     ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
+    ifneq (,$(filter -DOTA_SIGNAL_CHANNEL=2,$(CFLAGS)))
     TARGET                += ota_coap-example
     SRCS_ota_coap-example := ota/ota_coap-example.c
+    endif
     endif
 endif
 
