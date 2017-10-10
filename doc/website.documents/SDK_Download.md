@@ -1,6 +1,18 @@
 华东2站点
 =========
 
+# 版本V2.01
+
+- 发布日期: 2017/10/10
+- 开发语言: C语言
+- 开发环境: 64位Linux, GNU Make
+- 下载链接: [RELEASED_V2_01_20171010.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V2_01_20171010.zip)
+- 更新内容:
+    - **新增CoAP+OTA:** 允许配置成基于CoAP通知方式的OTA
+    - **新增HTTP+TLS:** 在MQTT/CoAP之外, 新增HTTP的通道
+    - **细化OTA状态:** 优化OTA部分代码, 使云端可以更细化的区分设备的OTA固件下载状态
+    - **ArmCC支持:** 修正了SDK在ArmCC编译器编译时会出现的报错
+
 # 版本V2.0
 
 - 发布日期: 2017/08/21
