@@ -1536,6 +1536,39 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
     return SUCCESS_RETURN;
 }
 
+static int32_t iotx_mc_calc_seed(uint32_t *p_seed)
+{
+    char                   *device_secret;
+    iotx_device_info_pt     pdev = iotx_device_info_get();
+    uint32_t                seed = 0;
+
+    POINTER_SANITY_CHECK(p_seed, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(pdev, NULL_VALUE_ERROR);
+
+    device_secret = pdev->device_secret;
+    STRING_PTR_SANITY_CHECK(device_secret, NULL_VALUE_ERROR);
+
+    while ('\0' != *device_secret) {
+        seed += *device_secret;
+        device_secret++;
+    }
+    seed += (HAL_UptimeMs() / 1000);
+    seed %= UINT32_MAX;
+    *p_seed = seed;
+    return SUCCESS_RETURN;
+}
+
+static int32_t iotx_mc_calc_random_init()
+{
+    uint32_t                seed;
+
+    if (SUCCESS_RETURN != iotx_mc_calc_seed(&seed)) {
+        return FAIL_RETURN;
+    }
+
+    HAL_Srandom(seed);
+    return SUCCESS_RETURN;
+}
 
 /* Initialize MQTT client */
 static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
@@ -1643,6 +1676,12 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     pClient->ipstack->ca_crt = NULL;
     pClient->ipstack->ca_crt_len = 0;
 #endif
+    if (SUCCESS_RETURN != iotx_mc_calc_random_init()) {
+        log_err("iotx_mc_calc_random_init failed");
+        rc = FAIL_RETURN;
+        goto RETURN;
+    }
+
     mc_state = IOTX_MC_STATE_INITIALIZED;
     rc = SUCCESS_RETURN;
     log_info("MQTT init success!");
@@ -1985,7 +2024,7 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 
     int rc;
 
-    log_info("reconnect params:MQTTVersion =%d clientID =%s keepAliveInterval =%d username = %s",
+    log_info("reconnect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
              pClient->connect_data.MQTTVersion,
              pClient->connect_data.clientID.cstring,
              pClient->connect_data.keepAliveInterval,
@@ -2006,11 +2045,12 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 /* reconnect */
 static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
+    int             rc = FAIL_RETURN;
+    uint32_t        interval_ms = 0;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-
     if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         return FAIL_RETURN;
@@ -2018,12 +2058,11 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 
     log_info("start reconnect");
     /* REDO AUTH before each reconnection */
-    if (0 != pClient->mqtt_auth()) {
-        log_err("redo authentication error!\n");
+    if (NULL != pClient->mqtt_auth && SUCCESS_RETURN != pClient->mqtt_auth()) {
+        log_err("redo authentication error!");
         return -1;
     }
 
-    int rc = FAIL_RETURN;
     rc = iotx_mc_attempt_reconnect(pClient);
     if (SUCCESS_RETURN == rc) {
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
@@ -2038,8 +2077,12 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         }
     }
 
-    utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time),
-                            pClient->reconnect_param.reconnect_time_interval_ms);
+    interval_ms = pClient->reconnect_param.reconnect_time_interval_ms;
+    interval_ms += HAL_Random(pClient->reconnect_param.reconnect_time_interval_ms);
+    if (IOTX_MC_RECONNECT_INTERVAL_MAX_MS < interval_ms) {
+        interval_ms = IOTX_MC_RECONNECT_INTERVAL_MAX_MS;
+    }
+    utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time), interval_ms);
 
     log_err("mqtt reconnect failed rc = %d", rc);
 
