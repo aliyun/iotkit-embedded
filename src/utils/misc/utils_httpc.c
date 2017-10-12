@@ -30,7 +30,7 @@
 
 #define HTTPCLIENT_AUTHB_SIZE     128
 
-#define HTTPCLIENT_CHUNK_SIZE     256
+#define HTTPCLIENT_CHUNK_SIZE     1024
 #define HTTPCLIENT_SEND_BUF_SIZE  1024
 
 #define HTTPCLIENT_MAX_HOST_LEN   64
@@ -626,7 +626,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
         log_warning("Response code %d", client->response_code);
     }
 
-    log_debug("Reading headers%s", data);
+    log_debug("Reading headers: %s", data);
 
     memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2) + 1); /* Be sure to move NULL-terminating char as well */
     len -= (crlf_pos + 2);
@@ -644,6 +644,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
         data[len] = '\0';
         if (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
             log_err("parse error: no end of the request body");
+            return -1;
         }
     }
 
