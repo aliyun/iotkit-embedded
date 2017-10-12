@@ -285,8 +285,6 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         goto do_exit;
     }
 
-    /* p_context = NULL; */
-
     p_iotx_http->is_authed = 0;
 
     /* FIXME:some compile error when calling this function. Get TimeStamp */
@@ -480,7 +478,9 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     char               *messageId = NULL;
     char               *user_data = NULL;
     char               *response_message = NULL;
-    int len = 0;
+    int                 len = 0;
+    uint32_t            payload_len = 0;
+
     /*
         POST /topic/${topic} HTTP/1.1
         Host: iot-as-http.cn-shanghai.aliyuncs.com
@@ -526,7 +526,7 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         goto do_exit;
     }
 
-    uint32_t payload_len = strlen(msg_param->request_payload) + 1;
+    payload_len = strlen(msg_param->request_payload) + 1;
     msg_param->request_payload_len = msg_param->request_payload_len > payload_len \
                                     ? payload_len : msg_param->request_payload_len;
 
