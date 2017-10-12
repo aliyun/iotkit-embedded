@@ -82,9 +82,13 @@
     IOTX_HTTP_HEADER_END_STR
 #define IOTX_HTTP_HEADER_END_STR "\r\n"
 
-#define HTTP_AUTH_RESP_MAX_LEN   (256)
+#define HTTP_AUTH_RESP_MAX_LEN      (256)
+#define HTTP_IOTX_INIT_SUCCESS      (1)
+#define HTTP_IOTX_NOT_INITED        (0)
 
 static iotx_http_t *p_iotx_http = NULL;
+
+static int g_iotx_http_initflag = HTTP_IOTX_NOT_INITED;
 
 /*
   Http server url: https://iot-as-http.cn-shanghai.aliyuncs.com
@@ -211,6 +215,8 @@ void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
     iotx_device_info_set(p_iotx_http->p_devinfo->product_key, p_iotx_http->p_devinfo->device_name,
                          p_iotx_http->p_devinfo->device_secret);
 
+    g_iotx_http_initflag = HTTP_IOTX_INIT_SUCCESS;
+
     return (void *)p_iotx_http;
 
 err:
@@ -242,6 +248,7 @@ void IOT_HTTP_DeInit()
         p_iotx_http->auth_token_len = 0;
         LITE_free(p_iotx_http);
     }
+    g_iotx_http_initflag = HTTP_IOTX_NOT_INITED;
 }
 
 
@@ -252,7 +259,6 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
     char               *pvalue = NULL;
     char               *response_message = NULL;
     char                sign[IOTX_HTTP_SIGN_LENGTH]   = {0};
-    iotx_http_t        *p_iotx_http = NULL;
     char                http_url[IOTX_HTTP_URL_LEN_MAX] = {0};
     char                timestamp[14] = {0};
     httpclient_t        httpc;
@@ -273,11 +279,13 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         //      "timestamp": "xxxxxx"//选填  13byte
         //    }
     */
-    if (NULL == p_context) {
-        log_err("p_context parameter is Null,failed!");
+
+    if (HTTP_IOTX_INIT_SUCCESS != g_iotx_http_initflag) {
+        log_err("iotx_http do not inited!\r\n");
         goto do_exit;
     }
-    p_iotx_http = (iotx_http_t *)p_context;
+    p_context = NULL;
+
     p_iotx_http->is_authed = 0;
 
     /* FIXME:some compile error when calling this function. Get TimeStamp */
@@ -465,7 +473,6 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     int                 ret = -1;
     int                 response_code = 0;
     char               *pvalue = NULL;
-    iotx_http_t        *p_iotx_http = NULL;
     char                http_url[IOTX_HTTP_URL_LEN_MAX] = {0};
     httpclient_t        httpc;
     httpclient_data_t   httpc_data;
@@ -485,12 +492,12 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     memset(&httpc, 0, sizeof(httpclient_t));
     memset(&httpc_data, 0, sizeof(httpclient_data_t));
 
-    if (NULL == p_context) {
-        log_err("p_context parameter is Null,failed!");
+    if (HTTP_IOTX_INIT_SUCCESS != g_iotx_http_initflag) {
+        log_err("iotx_http do not inited!\r\n");
         goto do_exit;
     }
-    p_iotx_http = (iotx_http_t *)p_context;
 
+    p_context = NULL;
 
     if (NULL == msg_param) {
         log_err("msg_param parameter is Null,failed!");
