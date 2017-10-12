@@ -19,6 +19,7 @@
 
 #include <string.h>
 #include <stddef.h>
+#include <stdlib.h> 
 #include "iot_import.h"
 #include "utils_timer.h"
 #include "lite-log.h"
@@ -29,7 +30,7 @@
 
 #define HTTPCLIENT_AUTHB_SIZE     128
 
-#define HTTPCLIENT_CHUNK_SIZE     256
+#define HTTPCLIENT_CHUNK_SIZE     1024
 #define HTTPCLIENT_SEND_BUF_SIZE  1024
 
 #define HTTPCLIENT_MAX_HOST_LEN   64
@@ -500,7 +501,12 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
                 }
             } while (!foundCrlf);
             data[crlf_pos] = '\0';
-            n = sscanf(data, "%x", &readLen);/* chunk length */
+
+            /* chunk length */
+            /* n = sscanf(data, "%x", &readLen); */
+
+			readLen = strtoul(data, NULL, 16);
+			n = (0 == readLen)? 0 : 1;
             client_data->retrieve_len = readLen;
             client_data->response_content_len += client_data->retrieve_len;
             if (n != 1) {
@@ -591,6 +597,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
 {
     int crlf_pos;
     iotx_time_t timer;
+    char *tmp_ptr, *ptr_body_end;
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
@@ -607,84 +614,63 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     data[crlf_pos] = '\0';
 
     /* Parse HTTP response */
+#if 0
     if (sscanf(data, "HTTP/%*d.%*d %d %*[^\r\n]", &(client->response_code)) != 1) {
         /* Cannot match string, error */
         log_err("Not a correct HTTP answer : %s\n", data);
         return ERROR_HTTP_UNRESOLVED_DNS;
     }
+#endif
+
+    client->response_code = atoi(data + 9);
 
     if ((client->response_code < 200) || (client->response_code >= 400)) {
         /* Did not return a 2xx code; TODO fetch headers/(&data?) anyway and implement a mean of writing/reading headers */
         log_warning("Response code %d", client->response_code);
     }
 
-    log_debug("Reading headers%s", data);
+    log_debug("Reading headers: %s", data);
 
     memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2) + 1); /* Be sure to move NULL-terminating char as well */
     len -= (crlf_pos + 2);
 
     client_data->is_chunked = false;
 
-    /* Now get headers */
-    while (true) {
-        char key[32];
-        char value[32];
-        int n;
-
-        key[31] = '\0';
-        value[31] = '\0';
-
-        crlf_ptr = strstr(data, "\r\n");
-        if (crlf_ptr == NULL) {
-            if (len < HTTPCLIENT_CHUNK_SIZE - 1) {
-                int new_trf_len, ret;
-                ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, iotx_time_left(&timer));
-                len += new_trf_len;
-                data[len] = '\0';
-                log_debug("Read %d chars; In buf: [%s]", new_trf_len, data);
-                if (ret == ERROR_HTTP_CONN) {
-                    return ret;
-                } else {
-                    continue;
-                }
-            } else {
-                log_debug("header len > chunksize");
-                return ERROR_HTTP;
-            }
+    /*If not ending of response body, try to get more data again */
+    if (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
+        int new_trf_len, ret; 
+        ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, iotx_time_left(&timer));
+        if (ret == ERROR_HTTP_CONN) {
+            return ret;
         }
-
-        crlf_pos = crlf_ptr - data;
-        if (crlf_pos == 0) {
-            /* End of headers */
-            memmove(data, &data[2], len - 2 + 1); /* Be sure to move NULL-terminating char as well */
-            len -= 2;
-            break;
-        }
-
-        data[crlf_pos] = '\0';
-
-        n = sscanf(data, "%31[^:]: %31[^\r\n]", key, value);
-        if (n == 2) {
-            log_debug("Read header : %s: %s", key, value);
-            if (!strcmp(key, "Content-Length")) {
-                sscanf(value, "%d", &(client_data->response_content_len));
-                client_data->retrieve_len = client_data->response_content_len;
-            } else if (!strcmp(key, "Transfer-Encoding")) {
-                if (!strcmp(value, "Chunked") || !strcmp(value, "chunked")) {
-                    client_data->is_chunked = true;
-                    client_data->response_content_len = 0;
-                    client_data->retrieve_len = 0;
-                }
-            }
-            memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2) + 1); /* Be sure to move NULL-terminating char as well */
-            len -= (crlf_pos + 2);
-
-        } else {
-            log_err("Could not parse header");
-            return ERROR_HTTP;
+        len += new_trf_len;
+        data[len] = '\0';
+        if (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
+            log_err("parse error: no end of the request body");
+            return -1;
         }
     }
 
+    if ( NULL != (tmp_ptr = strstr(data, "Content-Length"))) {
+        client_data->response_content_len = atoi(tmp_ptr + strlen("Content-Length: "));
+        client_data->retrieve_len = client_data->response_content_len;
+    } else if (NULL != (tmp_ptr = strstr(data, "Transfer-Encoding"))) {
+        int len_chunk = strlen("Chunked");
+        char *chunk_value = data + strlen("Transfer-Encoding: ");
+
+        if ((! memcmp(chunk_value, "Chunked", len_chunk)) 
+                || (! memcmp(chunk_value, "chunked", len_chunk))) {
+            client_data->is_chunked = true;
+            client_data->response_content_len = 0;
+            client_data->retrieve_len = 0;
+        }
+    } else {
+        log_err("Could not parse header");
+        return ERROR_HTTP;
+    }
+
+    len = len - (ptr_body_end + 4 - data);
+    memmove(data, ptr_body_end + 4, len + 1);
     return httpclient_retrieve_content(client, data, len, iotx_time_left(&timer), client_data);
 }
 
