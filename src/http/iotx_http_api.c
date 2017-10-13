@@ -526,6 +526,10 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         goto do_exit;
     }
 
+    uint32_t payload_len = strlen(msg_param->request_payload) + 1;
+    msg_param->request_payload_len = msg_param->request_payload_len > payload_len \
+                                    ? payload_len : msg_param->request_payload_len;
+
     /* Construct Auth Url */
     construct_full_http_upstream_url(http_url, msg_param->topic_path);
 
