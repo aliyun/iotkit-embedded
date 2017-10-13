@@ -284,7 +284,8 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         log_err("iotx_http do not inited!\r\n");
         goto do_exit;
     }
-    p_context = NULL;
+
+    /* p_context = NULL; */
 
     p_iotx_http->is_authed = 0;
 
@@ -497,7 +498,7 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         goto do_exit;
     }
 
-    p_context = NULL;
+    /* p_context = NULL; */
 
     if (NULL == msg_param) {
         log_err("msg_param parameter is Null,failed!");
