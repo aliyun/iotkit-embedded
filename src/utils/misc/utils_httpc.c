@@ -501,7 +501,10 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
                 }
             } while (!foundCrlf);
             data[crlf_pos] = '\0';
-            //n = sscanf(data, "%x", &readLen);/* chunk length */
+
+            /* chunk length */
+            /* n = sscanf(data, "%x", &readLen); */
+
 			readLen = strtoul(data, NULL, 16);
 			n = (0 == readLen)? 0 : 1;
             client_data->retrieve_len = readLen;
