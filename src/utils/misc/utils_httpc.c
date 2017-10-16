@@ -622,7 +622,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     }
 #endif
 
-    client->response_code = strtoul(data + 9, NULL, 10);
+    client->response_code = atoi(data + 9);
 
     if ((client->response_code < 200) || (client->response_code >= 400)) {
         /* Did not return a 2xx code; TODO fetch headers/(&data?) anyway and implement a mean of writing/reading headers */
@@ -652,7 +652,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     }
 
     if ( NULL != (tmp_ptr = strstr(data, "Content-Length"))) {
-        client_data->response_content_len = strtoul(tmp_ptr + strlen("Content-Length: "), NULL, 10);
+        client_data->response_content_len = atoi(tmp_ptr + strlen("Content-Length: "));
         client_data->retrieve_len = client_data->response_content_len;
     } else if (NULL != (tmp_ptr = strstr(data, "Transfer-Encoding"))) {
         int len_chunk = strlen("Chunked");
