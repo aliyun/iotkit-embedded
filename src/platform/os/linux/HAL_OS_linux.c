@@ -33,7 +33,7 @@
 void *HAL_MutexCreate(void)
 {
     int err_num;
-    pthread_mutex_t *mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+    pthread_mutex_t *mutex = (pthread_mutex_t *)HAL_Malloc(sizeof(pthread_mutex_t));
     if (NULL == mutex) {
         return NULL;
     }

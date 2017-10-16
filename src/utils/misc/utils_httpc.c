@@ -19,7 +19,8 @@
 
 #include <string.h>
 #include <stddef.h>
-#include <stdlib.h> 
+#include <stdlib.h>
+
 #include "iot_import.h"
 #include "utils_timer.h"
 #include "lite-log.h"
@@ -638,7 +639,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
 
     /*If not ending of response body, try to get more data again */
     if (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
-        int new_trf_len, ret; 
+        int new_trf_len, ret;
         ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len, iotx_time_left(&timer));
         if (ret == ERROR_HTTP_CONN) {
             return ret;
@@ -658,7 +659,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
         int len_chunk = strlen("Chunked");
         char *chunk_value = data + strlen("Transfer-Encoding: ");
 
-        if ((! memcmp(chunk_value, "Chunked", len_chunk)) 
+        if ((! memcmp(chunk_value, "Chunked", len_chunk))
                 || (! memcmp(chunk_value, "chunked", len_chunk))) {
             client_data->is_chunked = true;
             client_data->response_content_len = 0;

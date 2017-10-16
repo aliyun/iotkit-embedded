@@ -27,6 +27,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "iot_import.h"
 
 #define LITE_printf                     printf
 #define LITE_sprintf                    sprintf

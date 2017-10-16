@@ -448,7 +448,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     char port_str[6];
     TLSDataParams_pt pTlsData;
 
-    pTlsData = malloc(sizeof(TLSDataParams_t));
+    pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
