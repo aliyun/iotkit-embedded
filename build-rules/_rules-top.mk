@@ -21,19 +21,20 @@ detect:
 	    done; \
 	fi
 
-	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
-	    if [ $$i -nt $(CONFIG_TPL) ]; then \
-	        echo "Re-configure project since '$${i}' updated"|grep --color ".*"; \
-	        $(RECURSIVE_MAKE) reconfig; \
-	    fi; \
-	done
-
-	@if [ ! -d $(OUTPUT_DIR) ]; then \
-	    echo "Re-configure project since '$(OUTPUT_DIR)' non-exist!"|grep --color ".*"; \
-	    $(RECURSIVE_MAKE) reconfig; \
-	fi
+#	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
+#	    if [ $$i -nt $(CONFIG_TPL) ]; then \
+#	        echo "Re-configure project since '$${i}' updated"|grep --color ".*"; \
+#	        $(RECURSIVE_MAKE) reconfig; \
+#	    fi; \
+#	done
+#
+#	@if [ ! -d $(OUTPUT_DIR) ]; then \
+#	    echo "Re-configure project since '$(OUTPUT_DIR)' non-exist!"|grep --color ".*"; \
+#	    $(RECURSIVE_MAKE) reconfig; \
+#	fi
 
 config:
+
 	@mkdir -p $(OUTPUT_DIR) $(INSTALL_DIR)
 	@mkdir -p $(SYSROOT_BIN) $(SYSROOT_INC) $(SYSROOT_LIB)
 
@@ -53,7 +54,7 @@ config:
 	        echo ""; \
 	    fi \
 	else \
-	    if [ "$(BUILD_CONFIG)" != "" ] && [ -f $(BUILD_CONFIG) ]; then \
+	    if [ "$(BUILD_CONFIG)" != "" ] && [ -f $(BUILD_CONFIG) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
 	        printf "# Automatically Generated Section End\n\n" >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "VENDOR :" $$(basename $(BUILD_CONFIG)|cut -d. -f2) >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "MODEL  :" $$(basename $(BUILD_CONFIG)|cut -d. -f3) >> $(CONFIG_TPL); \

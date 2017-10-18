@@ -131,4 +131,3 @@ endif
 
 OVERRIDE_CC := $(strip $(PLATFORM_CC))
 OVERRIDE_AR := $(strip $(PLATFORM_AR))
-OVERRIDE_STRIP := $(strip $(PLATFORM_STRIP))

@@ -24,7 +24,6 @@ define Finalize_CompLib
 \
 	if [ "$${EXIST_OBJS}" != "" ]; then \
 	    $(AR) -rcs $(2)/lib$(3).a $${EXIST_OBJS}; \
-	    $(STRIP) $${EXIST_OBJS} 2>/dev/null || true; \
 	fi \
 )
 endef

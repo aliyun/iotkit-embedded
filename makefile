@@ -2,8 +2,9 @@ include make.settings
 include src/configs/default_settings.mk
 include src/scripts/parse_make_settings.mk
 
-ifeq (gcc,$(strip $(PLATFORM_CC)))
 SUBDIRS += src/platform
+
+ifeq (gcc,$(strip $(PLATFORM_CC)))
 SUBDIRS += sample
 SUBDIRS += src/sdk-tests
 endif
@@ -36,13 +37,9 @@ $(call CompLib_Map, MQTT_ID2_AUTH, src/tfs)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/http)
 
 COVERAGE_CMD    := $(SCRIPT_DIR)/walk_through_examples.sh
-BUILD_CONFIG    := src/configs/config.desktop.x86
+BUILD_CONFIG    := src/configs/config.ubuntu.x86
 
 POST_FINAL_OUT_HOOK := Post_Distro
-
-ifneq (gcc,$(strip $(PLATFORM_CC)))
-BUILD_CONFIG    := src/configs/config.generic-linux.embedded
-endif
 
 include $(RULE_DIR)/rules.mk
 
