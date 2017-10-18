@@ -33,7 +33,10 @@ detect:
 	    $(RECURSIVE_MAKE) reconfig; \
 	fi
 
-config:
+alt-config config:
+
+	# echo "$(MAKECMDGOALS)"
+
 	@mkdir -p $(OUTPUT_DIR) $(INSTALL_DIR)
 	@mkdir -p $(SYSROOT_BIN) $(SYSROOT_INC) $(SYSROOT_LIB)
 
@@ -53,7 +56,7 @@ config:
 	        echo ""; \
 	    fi \
 	else \
-	    if [ "$(BUILD_CONFIG)" != "" ] && [ -f $(BUILD_CONFIG) ]; then \
+	    if [ "$(BUILD_CONFIG)" != "" ] && [ -f $(BUILD_CONFIG) ] && [ "$(MAKECMDGOALS)" = "config" ]; then \
 	        printf "# Automatically Generated Section End\n\n" >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "VENDOR :" $$(basename $(BUILD_CONFIG)|cut -d. -f2) >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "MODEL  :" $$(basename $(BUILD_CONFIG)|cut -d. -f3) >> $(CONFIG_TPL); \
@@ -103,7 +106,7 @@ ifneq ($(CONFIG_TOOLCHAIN_NAME),)
 endif
 
 reconfig: distclean
-	$(TOP_Q)+$(RECURSIVE_MAKE) config
+	$(TOP_Q)+$(RECURSIVE_MAKE) alt-config
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 
 clean:

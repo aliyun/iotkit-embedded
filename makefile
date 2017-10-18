@@ -40,10 +40,6 @@ BUILD_CONFIG    := src/configs/config.desktop.x86
 
 POST_FINAL_OUT_HOOK := Post_Distro
 
-ifneq (gcc,$(strip $(PLATFORM_CC)))
-BUILD_CONFIG    := src/configs/config.generic-linux.embedded
-endif
-
 include $(RULE_DIR)/rules.mk
 
 ifneq (,$(findstring armcc,$(PLATFORM_CC)))
