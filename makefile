@@ -36,7 +36,7 @@ $(call CompLib_Map, MQTT_ID2_AUTH, src/tfs)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/http)
 
 COVERAGE_CMD    := $(SCRIPT_DIR)/walk_through_examples.sh
-BUILD_CONFIG    := src/configs/config.desktop.x86
+BUILD_CONFIG    := src/configs/config.ubuntu.x86
 
 POST_FINAL_OUT_HOOK := Post_Distro
 
