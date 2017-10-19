@@ -134,7 +134,7 @@ int _http_response(char *payload,
                             port_num,
                             pkey,
                             HTTPCLIENT_POST,
-                            10*1000,
+                            10 * 1000,
                             &httpc_data);
     if (ret != 0) {
         goto RETURN;
@@ -166,6 +166,21 @@ void _ident_partner(char *buf, int len)
     HAL_GetPartnerID(tmp);
     if (strlen(tmp)) {
         HAL_Snprintf(buf, len, ",partner_id=%s", tmp);
+    } else {
+        strcpy(buf, "");
+    }
+
+    return;
+}
+
+void _ident_module(char *buf, int len)
+{
+    char                tmp[GUIDER_MID_LEN] = {0};
+
+    memset(tmp, 0, sizeof(tmp));
+    HAL_GetModuleID(tmp);
+    if (strlen(tmp)) {
+        HAL_Snprintf(buf, len, ",module_id=%s", tmp);
     } else {
         strcpy(buf, "");
     }
@@ -210,6 +225,7 @@ void guider_print_conn_info(iotx_conn_info_pt conn)
 
 void guider_print_dev_guider_info(iotx_device_info_pt dev,
                                   char *partner_id,
+                                  char *module_id,
                                   char *guider_url,
                                   int secure_mode,
                                   char *time_stamp,
@@ -224,6 +240,7 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
     log_debug("%20s : %-s", "DeviceSecret", dev->device_secret);
     log_debug("%s", "....................................................");
     log_debug("%20s : %-s", "PartnerID Buf", partner_id);
+    log_debug("%20s : %-s", "ModuleID Buf", module_id);
     log_debug("%20s : %s", "Guider URL", guider_url);
     if (secure_mode > 0) {
         log_debug("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
@@ -455,6 +472,7 @@ do_exit:
 int iotx_guider_authenticate(void)
 {
     char                partner_id[GUIDER_PID_LEN + 16] = {0};
+    char                module_id[GUIDER_MID_LEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
@@ -468,12 +486,13 @@ int iotx_guider_authenticate(void)
     LITE_ASSERT(conn);
 
     _ident_partner(partner_id, sizeof(partner_id));
+    _ident_module(module_id, sizeof(module_id));
     guider_get_url(guider_url, sizeof(guider_url));
     secure_mode = guider_get_secure_mode();
     guider_get_timestamp_str(timestamp_str, sizeof(timestamp_str));
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str);
 
-    guider_print_dev_guider_info(dev, partner_id, guider_url, secure_mode,
+    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
                                  timestamp_str, guider_sign, NULL, NULL);
 
 #ifndef MQTT_DIRECT
@@ -538,11 +557,15 @@ int iotx_guider_authenticate(void)
 #else
                       ",timestamp=%s,signmethod=" MD5_METHOD ",gw=0"
 #endif
-                      "%s|"
+                      "%s"
+                      "%s"
+                      "|"
                       , dev->device_id
                       , secure_mode
                       , timestamp_str
-                      , partner_id);
+                      , partner_id
+                      , module_id
+                     );
 
     guider_print_conn_info(conn);
 

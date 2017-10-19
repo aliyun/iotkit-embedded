@@ -190,6 +190,12 @@ int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *fmt, va_l
  */
 char *HAL_GetPartnerID(char pid_str[]);
 
+/**
+ * @brief Get Module ID of hardware module.
+ *
+ * @return NULL, Have NOT MID; NOT NULL, point to mid_str.
+ */
+char *HAL_GetModuleID(char mid_str[]);
 
 /** @} */ /* end of group_platform_other */
 
