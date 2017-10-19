@@ -44,7 +44,7 @@
 #define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
 #define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
 
-#define MSG_LEN_MAX             (1024)
+#define MQTT_MSGLEN             (1024)
 
 #define EXAMPLE_TRACE(fmt, args...)  \
     do { \
@@ -151,13 +151,13 @@ int mqtt_client(void)
     char msg_pub[128];
     char *msg_buf = NULL, *msg_readbuf = NULL;
 
-    if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_buf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
         EXAMPLE_TRACE("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
-    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
         EXAMPLE_TRACE("not enough memory");
         rc = -1;
         goto do_exit;
@@ -184,9 +184,9 @@ int mqtt_client(void)
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.pread_buf = msg_readbuf;
-    mqtt_params.read_buf_size = MSG_LEN_MAX;
+    mqtt_params.read_buf_size = MQTT_MSGLEN;
     mqtt_params.pwrite_buf = msg_buf;
-    mqtt_params.write_buf_size = MSG_LEN_MAX;
+    mqtt_params.write_buf_size = MQTT_MSGLEN;
 
     mqtt_params.handle_event.h_fp = event_handle;
     mqtt_params.handle_event.pcontext = NULL;
@@ -292,13 +292,13 @@ int mqtt_client_secure()
     char msg_pub[128];
     char *msg_buf = NULL, *msg_readbuf = NULL;
 
-    if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_buf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
         EXAMPLE_TRACE("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
-    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
         EXAMPLE_TRACE("not enough memory");
         rc = -1;
         goto do_exit;
@@ -325,9 +325,9 @@ int mqtt_client_secure()
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.pread_buf = msg_readbuf;
-    mqtt_params.read_buf_size = MSG_LEN_MAX;
+    mqtt_params.read_buf_size = MQTT_MSGLEN;
     mqtt_params.pwrite_buf = msg_buf;
-    mqtt_params.write_buf_size = MSG_LEN_MAX;
+    mqtt_params.write_buf_size = MQTT_MSGLEN;
 
     mqtt_params.handle_event.h_fp = event_handle;
     mqtt_params.handle_event.pcontext = NULL;

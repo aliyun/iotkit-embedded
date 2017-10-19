@@ -28,7 +28,7 @@
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 
-#define MSG_LEN_MAX             (1024)
+#define SHADOW_MQTT_MSGLEN      (1024)
 
 #define SHADOW_TRACE(fmt, args...)  \
     do { \
@@ -89,9 +89,9 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     shadow_para.mqtt.clean_session = 0;
     shadow_para.mqtt.keepalive_interval_ms = 60000;
     shadow_para.mqtt.pread_buf = msg_readbuf;
-    shadow_para.mqtt.read_buf_size = MSG_LEN_MAX;
+    shadow_para.mqtt.read_buf_size = SHADOW_MQTT_MSGLEN;
     shadow_para.mqtt.pwrite_buf = msg_buf;
-    shadow_para.mqtt.write_buf_size = MSG_LEN_MAX;
+    shadow_para.mqtt.write_buf_size = SHADOW_MQTT_MSGLEN;
 
     shadow_para.mqtt.handle_event.h_fp = NULL;
     shadow_para.mqtt.handle_event.pcontext = NULL;
@@ -168,8 +168,8 @@ int main()
     IOT_OpenLog("shadow");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    char *msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX);
-    char *msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX);
+    char *msg_buf = (char *)HAL_Malloc(SHADOW_MQTT_MSGLEN);
+    char *msg_readbuf = (char *)HAL_Malloc(SHADOW_MQTT_MSGLEN);
 
     demo_device_shadow(msg_buf, msg_readbuf);
 

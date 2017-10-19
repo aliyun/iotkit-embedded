@@ -151,9 +151,9 @@ int main(int argc, char **argv)
         IOT_CoAP_DeviceNameAuth(p_ctx);
         do {
             count ++;
-            if(count == 11){
-               iotx_post_data_to_server((void *)p_ctx);
-               count = 1;
+            if (count == 11) {
+                iotx_post_data_to_server((void *)p_ctx);
+                count = 1;
             }
             IOT_CoAP_Yield(p_ctx);
         } while (m_coap_client_running);
