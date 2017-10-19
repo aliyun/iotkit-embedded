@@ -37,9 +37,9 @@
 #define TEST_TOPIC_PAYLOAD    "/sys/lLeATwv18gi/test1/rrpc/request/890192612580343808hello world"
 
 
-#define MSG_LEN_MAX         (1024)
-#define MSG_ID_LEN_MAX      64
-#define TOPIC_LEN_MAX       1024
+#define RRPC_MQTT_MSGLEN    (1024)
+#define MSG_ID_LEN_MAX      (64)
+#define TOPIC_LEN_MAX       (1024)
 
 static int running_unittest = 0;
 
@@ -99,10 +99,10 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
             HAL_Printf("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
-                   topic_info->topic_len,
-                   topic_info->ptopic,
-                   topic_info->payload_len,
-                   topic_info->payload);
+                       topic_info->topic_len,
+                       topic_info->ptopic,
+                       topic_info->payload_len,
+                       topic_info->payload);
             break;
 
         default:
@@ -116,20 +116,20 @@ void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 {
     iotx_mqtt_topic_info_pt     ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
     iotx_mqtt_topic_info_t      topic_msg;
-    char                        msg_pub[MSG_LEN_MAX] = {0};
+    char                        msg_pub[RRPC_MQTT_MSGLEN] = {0};
     char                        topic[TOPIC_LEN_MAX] = {0};
     char                        msg_id[MSG_ID_LEN_MAX] = {0};
 
     /* print topic name and topic message */
     HAL_Printf("----\n");
     HAL_Printf("Topic: '%.*s' (Length: %d)\n",
-           ptopic_info->topic_len,
-           ptopic_info->ptopic,
-           ptopic_info->topic_len);
+               ptopic_info->topic_len,
+               ptopic_info->ptopic,
+               ptopic_info->topic_len);
     HAL_Printf("Payload: '%.*s' (Length: %d)\n",
-           ptopic_info->payload_len,
-           ptopic_info->payload,
-           ptopic_info->payload_len);
+               ptopic_info->payload_len,
+               ptopic_info->payload,
+               ptopic_info->payload_len);
     HAL_Printf("----\n");
 
     if (snprintf(msg_id,
@@ -170,13 +170,13 @@ int mqtt_rrpc_client(void)
     char *msg_buf = NULL, *msg_readbuf = NULL;
 
 
-    if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_buf = (char *)HAL_Malloc(RRPC_MQTT_MSGLEN))) {
         HAL_Printf("not enough memory!\n");
         rc = -1;
         goto do_exit;
     }
 
-    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_readbuf = (char *)HAL_Malloc(RRPC_MQTT_MSGLEN))) {
         HAL_Printf("not enough memory!\n");
         rc = -1;
         goto do_exit;
@@ -203,9 +203,9 @@ int mqtt_rrpc_client(void)
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.pread_buf = msg_readbuf;
-    mqtt_params.read_buf_size = MSG_LEN_MAX;
+    mqtt_params.read_buf_size = RRPC_MQTT_MSGLEN;
     mqtt_params.pwrite_buf = msg_buf;
-    mqtt_params.write_buf_size = MSG_LEN_MAX;
+    mqtt_params.write_buf_size = RRPC_MQTT_MSGLEN;
 
     mqtt_params.handle_event.h_fp = event_handle;
     mqtt_params.handle_event.pcontext = NULL;

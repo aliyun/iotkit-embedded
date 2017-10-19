@@ -25,21 +25,21 @@
 #include "iot_export.h"
 
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
-#define PRODUCT_KEY             "OvNmiEYRDSY"
-#define DEVICE_NAME             "sh_online_sample_mqtt"
-#define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+    #define PRODUCT_KEY             "OvNmiEYRDSY"
+    #define DEVICE_NAME             "sh_online_sample_mqtt"
+    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
 #elif defined(TEST_OTA_PRE)
-#define PRODUCT_KEY             "6RcIOUafDOm"
-#define DEVICE_NAME             "sh_pre_sample_mqtt"
-#define DEVICE_SECRET           "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
+    #define PRODUCT_KEY             "6RcIOUafDOm"
+    #define DEVICE_NAME             "sh_pre_sample_mqtt"
+    #define DEVICE_SECRET           "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
 #elif defined(TEST_OTA_DAILY)
-#define PRODUCT_KEY             "fR9zCD4oT72"
-#define DEVICE_NAME             "ota_test"
-#define DEVICE_SECRET           "67szT5tQNMIu3sbrd3UwLhs7M73wTHXQ"
+    #define PRODUCT_KEY             "fR9zCD4oT72"
+    #define DEVICE_NAME             "ota_test"
+    #define DEVICE_SECRET           "67szT5tQNMIu3sbrd3UwLhs7M73wTHXQ"
 #else
-#define PRODUCT_KEY             "yfTuLfBJTiL"
-#define DEVICE_NAME             "TestDeviceForDemo"
-#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+    #define PRODUCT_KEY             "yfTuLfBJTiL"
+    #define DEVICE_NAME             "TestDeviceForDemo"
+    #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #endif
 
 /* These are pre-defined topics */
@@ -48,7 +48,7 @@
 #define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
 #define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
 
-#define MSG_LEN_MAX             (1024)
+#define OTA_MQTT_MSGLEN         (2048)
 
 #define EXAMPLE_TRACE(fmt, args...)  \
     do { \
@@ -58,7 +58,7 @@
     } while(0)
 
 static int      user_argc;
-static char **  user_argv;
+static char   **user_argv;
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
@@ -116,10 +116,10 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
             EXAMPLE_TRACE("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
-                     topic_info->topic_len,
-                     topic_info->ptopic,
-                     topic_info->payload_len,
-                     topic_info->payload);
+                          topic_info->topic_len,
+                          topic_info->ptopic,
+                          topic_info->payload_len,
+                          topic_info->payload);
             break;
 
         default:
@@ -146,13 +146,13 @@ int mqtt_client(void)
     }
 
 
-    if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_buf = (char *)HAL_Malloc(OTA_MQTT_MSGLEN))) {
         EXAMPLE_TRACE("not enough memory");
         rc = -1;
         goto do_exit;
     }
 
-    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
+    if (NULL == (msg_readbuf = (char *)HAL_Malloc(OTA_MQTT_MSGLEN))) {
         EXAMPLE_TRACE("not enough memory");
         rc = -1;
         goto do_exit;
@@ -179,9 +179,9 @@ int mqtt_client(void)
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.pread_buf = msg_readbuf;
-    mqtt_params.read_buf_size = MSG_LEN_MAX;
+    mqtt_params.read_buf_size = OTA_MQTT_MSGLEN;
     mqtt_params.pwrite_buf = msg_buf;
-    mqtt_params.write_buf_size = MSG_LEN_MAX;
+    mqtt_params.write_buf_size = OTA_MQTT_MSGLEN;
 
     mqtt_params.handle_event.h_fp = event_handle;
     mqtt_params.handle_event.pcontext = NULL;
@@ -245,7 +245,7 @@ int mqtt_client(void)
                     IOT_OTA_ReportProgress(h_ota, percent, "hello");
                 }
                 IOT_MQTT_Yield(pclient, 100);
-            }while(!IOT_OTA_IsFetchFinish(h_ota));
+            } while (!IOT_OTA_IsFetchFinish(h_ota));
 
             IOT_OTA_Ioctl(h_ota, IOT_OTAG_CHECK_FIRMWARE, &firmware_valid, 4);
             if (0 == firmware_valid) {
@@ -269,7 +269,7 @@ do_exit:
         IOT_OTA_Deinit(h_ota);
     }
 
-    if(NULL != pclient) {
+    if (NULL != pclient) {
         IOT_MQTT_Destroy(&pclient);
     }
 
