@@ -35,9 +35,9 @@
 
 #else
     /* Pre-Online or Online Environment */
-    #define IOTX_PRODUCT_KEY         "sKfsu06Xvz4"
-    #define IOTX_DEVICE_NAME         "pq9D2vUSFzVsYvZsoscZ"
-    #define IOTX_DEVICE_SECRET       "6TNWzt2QBDaTqFm2Wi6Zr4scagmx6jJ7"
+    #define IOTX_PRODUCT_KEY         "yfTuLfBJTiL"
+    #define IOTX_DEVICE_NAME         "TestDeviceForDemo"
+    #define IOTX_DEVICE_SECRET       "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
     #define IOTX_DEVICE_ID           "IoTxHttpTestDev_001"
 #endif
 
