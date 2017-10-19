@@ -180,7 +180,7 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
     char                   *ptr = NULL;
 
     va_start(ap, fmt);
-    rc = vsnprintf(dst, len, fmt, ap);
+    rc = HAL_Vsnprintf(dst, len, fmt, ap);
     va_end(ap);
     LITE_ASSERT(rc <= len);
 

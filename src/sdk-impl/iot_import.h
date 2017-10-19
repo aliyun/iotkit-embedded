@@ -172,6 +172,18 @@ void HAL_Printf(_IN_ const char *fmt, ...);
 int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...);
 
 /**
+ * @brief Writes formatted data to string.
+ *
+ * @param [in] str: @n String that holds written text.
+ * @param [in] len: @n Maximum length of character will be written
+ * @param [in] fmt: @n Format that contains the text to be written
+ * @param [in] ap:  @n the variable argument list
+ * @see None.
+ * @note None.
+ */
+int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *fmt, va_list ap);
+
+/**
  * @brief Get vendor ID of hardware module.
  *
  * @return NULL, Have NOT PID; NOT NULL, point to pid_str.
