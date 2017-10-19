@@ -28,6 +28,8 @@
 #include "utils_epoch_time.h"
 #include "sdk-impl_internal.h"
 #include "device.h"
+#include "guider_internal.h"
+
 /*
 #define IOTX_HTTP_TIMESTAMP_OPTIONAL_ENABLE
 */
@@ -165,6 +167,101 @@ static int construct_full_http_upstream_url(char *buf, const char *topic_path)
                   "%s%s", IOTX_HTTP_ONLINE_SERVER_URL, topic_path);
     log_info("construct_full_http_upstream_url is %s", buf);
     return 0;
+}
+
+/* report ModuleID */
+static int iotx_mid_report(iotx_http_t *p_context)
+{
+
+#define MSG_LEN  (62 + GUIDER_PID_LEN +GUIDER_MID_LEN + 32 +1)
+
+    int ret;
+    char topic_name[IOTX_URI_MAX_LEN + 1];
+    char request_buf[1024];
+
+    iotx_http_message_param_t msg_param;
+
+    int requestId = 123456;
+
+    /*iotx_device_info_pt dev  = iotx_device_info_get(); */
+
+    char pid[GUIDER_PID_LEN + 1] = {0};
+    char mid[GUIDER_MID_LEN + 1] = {0};
+
+    memset(pid, 0, sizeof(pid));
+    memset(mid, 0, sizeof(mid));
+
+    if (NULL == HAL_GetPartnerID(pid)) {
+        log_debug("PartnerID is Null.");
+        return SUCCESS_RETURN;
+    }
+    if (NULL == HAL_GetModuleID(mid)) {
+        log_debug("ModuleID is Null.");
+        return SUCCESS_RETURN;
+    }
+
+    log_debug("MID Report starts by HTTP.");
+
+    /* 1,generate json data */
+    char *msg = HAL_Malloc(MSG_LEN);
+    if (NULL == msg) {
+        log_err("allocate mem failed");
+        return FAIL_RETURN;
+    }
+
+    /*topic's json data: {"id":"requestId" ,"params":{"_sys_device_mid":mid,"_sys_device_pid":pid }}*/
+    ret = HAL_Snprintf(msg,
+                       MSG_LEN,
+                       "{\"id\":%d,\"params\":{\"_sys_device_mid\":\"%s\",\"_sys_device_pid\":\"%s\"}}",
+                       requestId,
+                       mid,
+                       pid);
+
+    log_debug("MID Report:json data =%s", msg);
+
+    memset(&msg_param, 0, sizeof(iotx_http_message_param_t));
+
+    msg_param.request_payload = (char *)msg;
+    msg_param.response_payload = request_buf;
+    msg_param.timeout_ms = 5000;
+    msg_param.request_payload_len = strlen(msg) + 1;
+    msg_param.response_payload_len = 1024;
+    msg_param.topic_path = topic_name;
+
+    /* 2,generate topic name */
+
+    /* reported topic name: "/sys/${productKey}/${deviceName}/thing/status/update" */
+    ret = HAL_Snprintf(topic_name,
+                       IOTX_URI_MAX_LEN,
+                       "/topic/sys/%s/%s/thing/status/update",
+                       (char *)p_iotx_http->p_devinfo->product_key,
+                       (char *)p_iotx_http->p_devinfo->device_name);
+
+    /*IOTX_ASSERT(ret < TOPIC_NAME_LEN, "buffer should always enough");*/
+
+    log_debug("MID Report:topic name=%s", topic_name);
+
+    if (ret < 0) {
+        log_err("generate topic name of info failed");
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    if (0 == IOT_HTTP_SendMessage((void *)p_context, &msg_param)) {
+        HAL_Printf("message response is %s\r\n", msg_param.response_payload);
+    } else {
+        HAL_Printf("error\r\n");
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    HAL_Free(msg);
+
+    log_debug("MID Report finished by CoAP.");
+
+    return SUCCESS_RETURN;
+
+#undef MSG_LEN
 }
 
 void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
@@ -450,6 +547,14 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
     pvalue = NULL;
 
     log_info("iotToken: %s", p_iotx_http->p_auth_token);
+
+    /* report module id */
+    ret = iotx_mid_report((iotx_http_t *)p_context);
+    if (SUCCESS_RETURN != ret) {
+        log_err("Send ModuleId message to server(Http) failed ret = %d", ret);
+        goto do_exit;
+    }
+
     ret = 0;
 
 do_exit:
@@ -530,7 +635,7 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
 
     payload_len = strlen(msg_param->request_payload) + 1;
     msg_param->request_payload_len = msg_param->request_payload_len > payload_len \
-                                    ? payload_len : msg_param->request_payload_len;
+                                     ? payload_len : msg_param->request_payload_len;
 
     /* Construct Auth Url */
     construct_full_http_upstream_url(http_url, msg_param->topic_path);

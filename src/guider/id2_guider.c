@@ -475,6 +475,7 @@ do_exit:
 int iotx_guider_id2_authenticate(void)
 {
     char                partner_id[GUIDER_PID_LEN + 16] = {0};
+    char                module_id[GUIDER_MID_LEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
@@ -491,6 +492,7 @@ int iotx_guider_id2_authenticate(void)
 
     id2_guider_get_timestamp_str(time_stamp_str, sizeof(time_stamp_str));
     _ident_partner(partner_id, sizeof(partner_id));
+    _ident_module(module_id, sizeof(module_id));
     id2_guider_get_url(guider_url, sizeof(guider_url));
     secure_mode = id2_guider_get_secure_mode();
 
@@ -501,7 +503,7 @@ int iotx_guider_id2_authenticate(void)
                         &id2,
                         &device_code);
 
-    guider_print_dev_guider_info(dev, partner_id, guider_url, secure_mode,
+    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
                                  time_stamp_str, guider_sign,
                                  id2, device_code);
 

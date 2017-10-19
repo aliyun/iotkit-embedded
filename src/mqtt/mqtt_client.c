@@ -38,6 +38,7 @@
         #include "id2_crypto.h"
     #endif
 #endif
+#include "guider_internal.h"
 
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
@@ -1211,7 +1212,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         return MQTT_STATE_ERROR;
     }
 
-    if(IOTX_MC_KEEPALIVE_PROBE_MAX < c->keepalive_probes){
+    if (IOTX_MC_KEEPALIVE_PROBE_MAX < c->keepalive_probes) {
         iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         c->keepalive_probes = 0;
         log_debug("keepalive_probes more than %u, disconnected\n", IOTX_MC_KEEPALIVE_PROBE_MAX);
@@ -1437,6 +1438,10 @@ static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt
         topic_msg->packet_id = msg_id;
     }
 
+    if (topic_msg->qos == IOTX_MQTT_QOS2) {
+        log_err("MQTTPublish return error,MQTT_QOS2 is now not supported.");
+        return MQTT_PUBLISH_QOS_ERROR;
+    }
     /* payload encrypt by id2_aes */
     if (c->mqtt_up_process) {
         rc = c->mqtt_up_process((char *)topicName, topic_msg);
@@ -2170,7 +2175,98 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
+/* report ModuleID */
+static int iotx_mid_report(iotx_mc_client_t *pclient)
+{
 
+#define MSG_LEN  (62 + GUIDER_PID_LEN +GUIDER_MID_LEN + 32 +1)
+#define TOPIC_NAME_LEN  (26 + PRODUCT_KEY_LEN +DEVICE_NAME_LEN + 1)
+
+    int ret;
+    char topic_name[TOPIC_NAME_LEN];
+    iotx_mqtt_topic_info_t topic_info;
+
+    int requestId = 123456;
+
+    iotx_device_info_pt dev  = iotx_device_info_get();
+
+    char pid[GUIDER_PID_LEN + 1] = {0};
+    char mid[GUIDER_MID_LEN + 1] = {0};
+
+    memset(pid, 0, sizeof(pid));
+    memset(mid, 0, sizeof(mid));
+
+    if (NULL == HAL_GetPartnerID(pid)) {
+        log_debug("PartnerID is Null.");
+        return SUCCESS_RETURN;
+    }
+    if (NULL == HAL_GetModuleID(mid)) {
+        log_debug("ModuleID is Null.");
+        return SUCCESS_RETURN;
+    }
+
+    log_debug("MID Report starts by mqtt.");
+
+    /* 1,generate json data */
+    char *msg = HAL_Malloc(MSG_LEN);
+    if (NULL == msg) {
+        log_err("allocate mem failed");
+        return FAIL_RETURN;
+    }
+
+    /*topic's json data: {"id":"requestId" ,"params":{"_sys_device_mid":mid,"_sys_device_pid":pid }}*/
+    ret = HAL_Snprintf(msg,
+                       MSG_LEN,
+                       "{\"id\":%d,\"params\":{\"_sys_device_mid\":\"%s\",\"_sys_device_pid\":\"%s\"}}",
+                       requestId,
+                       mid,
+                       pid);
+
+    log_debug("MID Report:json data =%s", msg);
+
+    memset(&topic_info, 0, sizeof(iotx_mqtt_topic_info_t));
+
+    topic_info.qos = IOTX_MQTT_QOS0;
+    topic_info.payload = (void *)msg;
+    topic_info.payload_len = strlen(msg);
+    topic_info.retain = 0;
+    topic_info.dup = 0;
+
+    /* 2,generate topic name */
+
+    /* reported topic name: "/sys/${productKey}/${deviceName}/thing/status/update" */
+    ret = HAL_Snprintf(topic_name,
+                       TOPIC_NAME_LEN,
+                       "/sys/%s/%s/thing/status/update",
+                       dev->product_key,
+                       dev->device_name);
+
+    /*IOTX_ASSERT(ret < TOPIC_NAME_LEN, "buffer should always enough");*/
+
+    log_debug("MID Report:topic name=%s", topic_name);
+
+    if (ret < 0) {
+        log_err("generate topic name of info failed");
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    ret = IOT_MQTT_Publish(pclient, topic_name, &topic_info);
+    if (ret < 0) {
+        log_err("publish failed");
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    HAL_Free(msg);
+
+    log_debug("MID Report finished,IOT_MQTT_Publish() = %d.");
+
+    return SUCCESS_RETURN;
+
+#undef MSG_LEN
+#undef TOPIC_NAME_LEN
+}
 
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
@@ -2206,6 +2302,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
     pclient->mqtt_auth = iotx_guider_authenticate;
+
+    /* report module id */
+    err = iotx_mid_report(pclient);
+    if (SUCCESS_RETURN != err) {
+        iotx_mc_release(pclient);
+        LITE_free(pclient);
+        return NULL;
+    }
 
     return pclient;
 }

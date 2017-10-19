@@ -132,3 +132,9 @@ char *HAL_GetPartnerID(char pid_str[])
 {
     return NULL;
 }
+
+char *HAL_GetModuleID(char mid_str[])
+{
+    return NULL;
+}
+

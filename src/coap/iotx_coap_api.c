@@ -24,8 +24,11 @@
 
 #include "lite-utils.h"
 #include "utils_hmac.h"
+#include "json_parser.h"
 #include "CoAPMessage.h"
 #include "CoAPExport.h"
+
+#include "guider_internal.h"
 
 #define IOTX_SIGN_LENGTH         (40+1)
 #define IOTX_SIGN_SOURCE_LEN     (256)
@@ -219,6 +222,114 @@ int iotx_get_well_known(iotx_coap_context_t *p_context)
     return IOTX_SUCCESS;
 }
 
+static void iotx_mid_report_response_handler(void *arg, void *p_response)
+{
+    int len = 0;
+    unsigned char *p_payload = NULL;
+    char *msg = NULL;
+    iotx_coap_resp_code_t resp_code;
+    IOT_CoAP_GetMessageCode(p_response, &resp_code);
+    IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
+    log_debug("CoAP response code = %d", resp_code);
+    log_debug("[CoAP msg_len=%d, msg=%s\r\n", len, p_payload);
+
+    msg = json_get_value_by_name((char *)p_payload, len, "id", &len, 0);
+    log_debug("[CoAP mid_report responseID =%s\r\n", msg);
+}
+
+/* report ModuleID */
+static int iotx_mid_report(iotx_coap_context_t *p_context)
+{
+
+#define MSG_LEN  (62 + GUIDER_PID_LEN +GUIDER_MID_LEN + 32 +1)
+
+    int ret;
+    char topic_name[IOTX_URI_MAX_LEN + 1];
+    iotx_message_t     message;
+
+    int requestId = 123456;
+
+    /*iotx_device_info_pt dev  = iotx_device_info_get(); */
+    iotx_coap_t *p_iotx_coap = (iotx_coap_t *)p_context;
+
+    char pid[GUIDER_PID_LEN + 1] = {0};
+    char mid[GUIDER_MID_LEN + 1] = {0};
+
+    memset(pid, 0, sizeof(pid));
+    memset(mid, 0, sizeof(mid));
+
+    if (NULL == HAL_GetPartnerID(pid)) {
+        log_debug("PartnerID is Null.");
+        return SUCCESS_RETURN;
+    }
+    if (NULL == HAL_GetModuleID(mid)) {
+        log_debug("ModuleID is Null.");
+        return SUCCESS_RETURN;
+    }
+
+    log_debug("MID Report starts by CoAP.");
+
+    /* 1,generate json data */
+    char *msg = HAL_Malloc(MSG_LEN);
+    if (NULL == msg) {
+        log_err("allocate mem failed");
+        return FAIL_RETURN;
+    }
+
+    /*topic's json data: {"id":"requestId" ,"params":{"_sys_device_mid":mid,"_sys_device_pid":pid }}*/
+    ret = HAL_Snprintf(msg,
+                       MSG_LEN,
+                       "{\"id\":%d,\"params\":{\"_sys_device_mid\":\"%s\",\"_sys_device_pid\":\"%s\"}}",
+                       requestId,
+                       mid,
+                       pid);
+
+    log_debug("MID Report:json data =%s", msg);
+
+    memset(&message, 0, sizeof(iotx_message_t));
+
+    message.p_payload = (unsigned char *)msg;
+    message.payload_len = (unsigned short)strlen(msg);
+    message.resp_callback = iotx_mid_report_response_handler;
+    message.msg_type = IOTX_MESSAGE_NON;
+    message.content_type = IOTX_CONTENT_TYPE_JSON;
+
+    /* 2,generate topic name */
+
+    /* reported topic name: "/sys/${productKey}/${deviceName}/thing/status/update" */
+    ret = HAL_Snprintf(topic_name,
+                       IOTX_URI_MAX_LEN,
+                       "/topic/sys/%s/%s/thing/status/update",
+                       p_iotx_coap->p_devinfo->product_key,
+                       p_iotx_coap->p_devinfo->device_name);
+
+    /*IOTX_ASSERT(ret < TOPIC_NAME_LEN, "buffer should always enough");*/
+
+    log_debug("MID Report:topic name=%s", topic_name);
+
+    if (ret < 0) {
+        log_err("generate topic name of info failed");
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    if (IOTX_SUCCESS != (ret = IOT_CoAP_SendMessage(p_context, topic_name, &message))) {
+        log_err("send CoAP msg failed%d", ret);
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    HAL_Free(msg);
+
+    IOT_CoAP_Yield(p_context);
+
+    log_debug("MID Report finished by CoAP.");
+
+    return SUCCESS_RETURN;
+
+#undef MSG_LEN
+}
+
 int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
 {
     int len = 0;
@@ -281,6 +392,13 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     if (0 < ret && !p_iotx_coap->is_authed) {
         COAP_INFO("CoAP authenticate failed");
         return IOTX_ERR_AUTH_FAILED;
+    }
+
+    /* report module id */
+    ret = iotx_mid_report(p_context);
+    if (SUCCESS_RETURN != ret) {
+        COAP_DEBUG("Send ModuleId message to server(CoAP) failed ret = %d", ret);
+        return IOTX_ERR_SEND_MSG_FAILED;
     }
 
     return IOTX_SUCCESS;
