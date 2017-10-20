@@ -25,7 +25,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <stdarg.h>
 #include <inttypes.h>
 
 /** @defgroup group_platform platform
