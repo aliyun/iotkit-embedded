@@ -26,11 +26,11 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
+#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://iot-as-coap.alibaba.net:5684"
+#define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
+#define IOTX_PRE_NOSEC_SERVER_URI       "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 
-#define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
-#define IOTX_PRE_NOSEC_SERVER_URI "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
-
-#define IOTX_ONLINE_DTLS_SERVER_URL "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
+#define IOTX_ONLINE_DTLS_SERVER_URL     "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 
 char m_coap_client_running = 0;
 
@@ -45,10 +45,17 @@ static void iotx_response_handler(void *arg, void *p_response)
     HAL_Printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
 }
 
-#define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
-#define IOTX_DEVICE_NAME         "IoTxCoAPTestDev"
-#define IOTX_DEVICE_SECRET       "Stk4IUErQUBc1tWRWEKWb5ACra4hFDYF"
-#define IOTX_DEVICE_ID           "IoTxCoAPTestDev.1"
+#ifdef TEST_COAP_DAILY
+    #define IOTX_PRODUCT_KEY         "zPygj0yP3UF"
+    #define IOTX_DEVICE_NAME         "device_2"
+    #define IOTX_DEVICE_SECRET       "5FQbVOPWNwhEuCvnVcP1Mvyjmvt8ECQi"
+    #define IOTX_DEVICE_ID           "device_2"
+#else
+    #define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
+    #define IOTX_DEVICE_NAME         "IoTxCoAPTestDev"
+    #define IOTX_DEVICE_SECRET       "Stk4IUErQUBc1tWRWEKWb5ACra4hFDYF"
+    #define IOTX_DEVICE_ID           "IoTxCoAPTestDev.1"
+#endif
 
 int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
 {
@@ -87,8 +94,6 @@ static void iotx_post_data_to_server(void *param)
 
     IOT_CoAP_SendMessage(p_ctx, path, &message);
 }
-
-
 
 int main(int argc, char **argv)
 {
@@ -140,6 +145,10 @@ int main(int argc, char **argv)
             return -1;
         }
     }
+
+#ifdef TEST_COAP_DAILY
+    config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
+#endif
 
     iotx_set_devinfo(&deviceinfo);
     config.p_devinfo = &deviceinfo;
