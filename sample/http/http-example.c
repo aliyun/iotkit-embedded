@@ -28,10 +28,10 @@
 #if defined(TEST_HTTP_DAILY)
 
     /* Daily Environment */
-    #define IOTX_PRODUCT_KEY         "ZG1EvTEa7NN"
-    #define IOTX_DEVICE_NAME         "NlwaSPXsCpTQuh8FxBGH"
-    #define IOTX_DEVICE_SECRET       "MRG3gZwzIdbrSuUpE8D4h9hkkCo7z4py"
-    #define IOTX_DEVICE_ID           "mylight10000021503888519478"
+    #define IOTX_PRODUCT_KEY         "zPygj0yP3UF"
+    #define IOTX_DEVICE_NAME         "device_3"
+    #define IOTX_DEVICE_SECRET       "dTWyCJgBYOGVDcr93ukArCa5cndX3s4D"
+    #define IOTX_DEVICE_ID           "device_3"
 
 #else
     /* Pre-Online or Online Environment */
