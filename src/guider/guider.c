@@ -250,7 +250,7 @@ static void guider_get_url(char *buf, int len)
 
 #if defined(TEST_OTA_PRE)
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
-#elif defined(TEST_OTA_DAILY)
+#elif defined(TEST_OTA_DAILY) || defined(TEST_MQTT_DAILY)
     strcat(buf, "iot-auth.alibaba.net");
 #else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
