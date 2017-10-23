@@ -8,7 +8,7 @@ SETTING_VARS := \
 
 SWITCH_VARS := \
     FEATURE_MQTT_COMM_ENABLED \
-    FEATURE_MQTT_DEVICE_SHADOW \
+    FEATURE_MQTT_SHADOW \
     FEATURE_MQTT_DIRECT \
     FEATURE_MQTT_DIRECT_NOTLS \
     FEATURE_COAP_COMM_ENABLED \
@@ -73,7 +73,7 @@ ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
     $(error Either CoAP or MQTT required to be y!)
     endif
 
-$(foreach V,DEVICE_SHADOW DIRECT DIRECT_NOTLS, \
+$(foreach V,SHADOW DIRECT DIRECT_NOTLS, \
     $(if $(filter y,$(strip $(FEATURE_MQTT_$(V)))), \
         $(error FEATURE_MQTT_$(V) = y requires FEATURE_MQTT_COMM_ENABLED = y!) \
     ) \

@@ -16,7 +16,7 @@ SRCS_mqtt_rrpc-example := mqtt/mqtt_rrpc-example.c
     endif
     endif
 
-    ifneq (,$(filter -DMQTT_DEVICE_SHADOW,$(CFLAGS)))
+    ifneq (,$(filter -DMQTT_SHADOW,$(CFLAGS)))
     TARGET              += shadow-example
     SRCS_shadow-example := device-shadow/shadow-example.c
     endif
