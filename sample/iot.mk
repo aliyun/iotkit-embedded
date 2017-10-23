@@ -1,7 +1,7 @@
 DEPENDS             := src/platform
 LDFLAGS             := -liot_sdk
 LDFLAGS             += -liot_platform
-LDFLAGS             += -lmbedtls -lmbedx509 -lmbedcrypto
+LDFLAGS             += -Bstatic -lmbedtls -lmbedx509 -lmbedcrypto
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
 
 ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))

@@ -28,6 +28,10 @@
     #define PRODUCT_KEY             "OvNmiEYRDSY"
     #define DEVICE_NAME             "sh_online_sample_mqtt"
     #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+#elif defined(TEST_MQTT_DAILY)
+    #define PRODUCT_KEY             "gsYfsxQJgeD"
+    #define DEVICE_NAME             "DailyEnvDN"
+    #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
 #elif defined(MQTT_ID2_AUTH)
     #define PRODUCT_KEY             "micKUvuzOps"
     #define DEVICE_NAME             "00AAAAAABBBBBB4B645F5800"

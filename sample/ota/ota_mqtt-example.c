@@ -32,7 +32,7 @@
     #define PRODUCT_KEY             "6RcIOUafDOm"
     #define DEVICE_NAME             "sh_pre_sample_mqtt"
     #define DEVICE_SECRET           "R0OTtD46DSalSpGW7SFzFDIA6fksTC2c"
-#elif defined(TEST_OTA_DAILY)
+#elif defined(TEST_MQTT_DAILY)
     #define PRODUCT_KEY             "fR9zCD4oT72"
     #define DEVICE_NAME             "ota_test"
     #define DEVICE_SECRET           "67szT5tQNMIu3sbrd3UwLhs7M73wTHXQ"

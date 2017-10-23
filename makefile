@@ -9,20 +9,17 @@ SUBDIRS += sample
 SUBDIRS += src/sdk-tests
 endif
 
+# CFLAGS  += -DTEST_MQTT_DAILY
 # CFLAGS  += -DTEST_HTTP_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
-# CFLAGS  += -DTEST_OTA_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
-ifneq (,$(filter -DTEST_ID2_DAILY -DTEST_ID2_PRE,$(CFLAGS)))
-CFLAGS  := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))
-endif
+include src/scripts/mock_build_options.mk
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/log \
     src/utils \
-    src/tfs \
     src/system \
     src/sdk-impl \
 
