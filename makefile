@@ -12,7 +12,6 @@ endif
 # CFLAGS  += -DTEST_MQTT_DAILY
 # CFLAGS  += -DTEST_HTTP_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
-# CFLAGS  += -DTEST_OTA_DAILY
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
 include src/scripts/mock_build_options.mk

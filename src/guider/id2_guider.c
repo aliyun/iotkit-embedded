@@ -170,7 +170,7 @@ static void id2_guider_get_url(char *buf, int len)
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
 #elif defined(TEST_ID2_PRE)
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
-#elif defined(TEST_OTA_DAILY)
+#elif defined(TEST_MQTT_DAILY)
     strcat(buf, "iot-auth.alibaba.net");
 #else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
@@ -285,10 +285,6 @@ static int id2_guider_get_iotId_iotToken(
     iotx_port = 80;
 #endif
 
-#if defined(TEST_OTA_DAILY)
-    iotx_port = 80;
-#endif
-
 #if defined(TEST_ID2_PRE)
     iotx_port = 80;
 #endif
@@ -315,8 +311,6 @@ static int id2_guider_get_iotId_iotToken(
                    guider_addr,
                    iotx_port,
 #if defined(TEST_OTA_PRE)
-                   NULL
-#elif defined(TEST_OTA_DAILY)
                    NULL
 #elif defined(TEST_ID2_PRE)
                    NULL

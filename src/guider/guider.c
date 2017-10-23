@@ -134,7 +134,7 @@ int _http_response(char *payload,
                             port_num,
                             pkey,
                             HTTPCLIENT_POST,
-                            10000,
+                            10*1000,
                             &httpc_data);
     if (ret != 0) {
         goto RETURN;
@@ -250,7 +250,7 @@ static void guider_get_url(char *buf, int len)
 
 #if defined(TEST_OTA_PRE)
     strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
-#elif defined(TEST_OTA_DAILY) || defined(TEST_MQTT_DAILY)
+#elif defined(TEST_MQTT_DAILY)
     strcat(buf, "iot-auth.alibaba.net");
 #else
     strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
@@ -355,10 +355,6 @@ static int guider_get_iotId_iotToken(
     iotx_port = 80;
 #endif
 
-#if defined(TEST_OTA_DAILY)
-    iotx_port = 80;
-#endif
-
     /*
         {
             "code": 200,
@@ -380,7 +376,7 @@ static int guider_get_iotId_iotToken(
                    request_string,
                    guider_addr,
                    iotx_port,
-#if defined(TEST_OTA_DAILY) || defined(TEST_OTA_PRE)
+#if defined(TEST_OTA_PRE)
                    NULL
 #elif defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
                    NULL
