@@ -31,7 +31,7 @@ $(call CompLib_Map, MQTT_COMM_ENABLED, \
     src/mqtt \
 )
 $(call CompLib_Map, OTA_ENABLED, src/ota)
-$(call CompLib_Map, MQTT_DEVICE_SHADOW, src/shadow)
+$(call CompLib_Map, MQTT_SHADOW, src/shadow)
 $(call CompLib_Map, COAP_COMM_ENABLED, src/coap)
 $(call CompLib_Map, MQTT_ID2_AUTH, src/tfs)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/http)
