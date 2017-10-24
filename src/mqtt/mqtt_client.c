@@ -1211,6 +1211,12 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         return MQTT_STATE_ERROR;
     }
 
+    if(IOTX_MC_KEEPALIVE_PROBE_MAX < c->keepalive_probes){
+        iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
+        c->keepalive_probes = 0;
+        log_debug("keepalive_probes more than %u, disconnected\n", IOTX_MC_KEEPALIVE_PROBE_MAX);
+    }
+
     /* read the socket, see what work is due */
     rc = iotx_mc_read_packet(c, timer, &packetType);
     if (rc != SUCCESS_RETURN) {
@@ -1230,6 +1236,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     /* clear ping mark when any data received from MQTT broker */
     HAL_MutexLock(c->lock_generic);
     c->ping_mark = 0;
+    c->keepalive_probes = 0;
     HAL_MutexUnlock(c->lock_generic);
 
     switch (packetType) {
@@ -1583,6 +1590,8 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     pClient->buf_size_send = pInitParams->write_buf_size;
     pClient->buf_read = pInitParams->pread_buf;
     pClient->buf_size_read = pInitParams->read_buf_size;
+
+    pClient->keepalive_probes = 0;
 
     pClient->handle_event.h_fp = pInitParams->handle_event.h_fp;
     pClient->handle_event.pcontext = pInitParams->handle_event.pcontext;
@@ -2155,6 +2164,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
     HAL_MutexLock(pClient->lock_generic);
     pClient->ping_mark = 1;
+    pClient->keepalive_probes++;
     HAL_MutexUnlock(pClient->lock_generic);
 
     return SUCCESS_RETURN;
