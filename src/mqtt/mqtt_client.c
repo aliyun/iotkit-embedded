@@ -981,6 +981,10 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
     }
 
+    iotx_mc_topic_handle_t messagehandler;
+    memset(&messagehandler, 0, sizeof(iotx_mc_topic_handle_t));
+    (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
+
     /* In negative case, grantedQoS will be 0xFFFF FF80, which means -128 */
     if ((uint8_t)grantedQoS == 0x80) {
         iotx_mqtt_event_msg_t msg;
@@ -993,10 +997,6 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 
         return MQTT_SUBSCRIBE_ACK_FAILURE;
     }
-
-    iotx_mc_topic_handle_t messagehandler;
-    memset(&messagehandler, 0, sizeof(iotx_mc_topic_handle_t));
-    (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
 
     if ((NULL == messagehandler.handle.h_fp) || (NULL == messagehandler.topic_filter)) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
