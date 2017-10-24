@@ -62,6 +62,9 @@ extern "C" {
 /* Default timeout interval of MQTT request in millisecond */
 #define IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
 
+/* Max times of keepalive which has been send and did not received response package */
+#define IOTX_MC_KEEPALIVE_PROBE_MAX             (3)
+
 
 typedef enum {
     IOTX_MC_CONNECTION_ACCEPTED = 0,
@@ -131,6 +134,7 @@ typedef struct Client {
     uint32_t                        request_timeout_ms;                      /* request timeout in millisecond */
     uint32_t                        buf_size_send;                           /* send buffer size in byte */
     uint32_t                        buf_size_read;                           /* read buffer size in byte */
+    uint8_t                         keepalive_probes;                        /* keepalive probes */
     char                           *buf_send;                                /* pointer of send buffer */
     char                           *buf_read;                                /* pointer of read buffer */
     iotx_mc_topic_handle_t          sub_handle[IOTX_MC_SUB_NUM_MAX];         /* array of subscribe handle */
