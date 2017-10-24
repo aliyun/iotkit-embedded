@@ -19,3 +19,4 @@ for i in `git status -s | awk '{ print $NF }'`; do
         echo "[skip ] $i"
     fi
 done
+git commit --amend -m ''
