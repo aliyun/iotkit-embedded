@@ -33,10 +33,10 @@
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
 #ifdef MQTT_ID2_AUTH
-#include "id2_guider.h"
-#ifdef MQTT_ID2_CRYPTO
-#include "id2_crypto.h"
-#endif
+    #include "id2_guider.h"
+    #ifdef MQTT_ID2_CRYPTO
+        #include "id2_crypto.h"
+    #endif
 #endif
 
 
@@ -1081,16 +1081,20 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         c->mqtt_down_process(&topic_msg);
     }
 
-    char       *tmp_topic_name = NULL;
-
-    tmp_topic_name = LITE_malloc(topicName.lenstring.len + 1);
-    memset(tmp_topic_name, 0, topicName.lenstring.len + 1);
-    memcpy(tmp_topic_name, topicName.lenstring.data, topicName.lenstring.len);
-    log_debug("msg.id = | %d |", topic_msg.packet_id);
-    log_debug("topicName = | %s |", tmp_topic_name);
-    LITE_free(tmp_topic_name);
+    log_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
+    log_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
+    log_debug("%20s : %.*s",
+              "Topic Name",
+              topicName.lenstring.len,
+              topicName.lenstring.data);
+    log_debug("%20s : %d / %d", "Payload Len/Room",
+              topic_msg.payload_len,
+              c->buf_read + c->buf_size_read - topic_msg.payload);
+    log_debug("%20s : %d", "Receive Buflen", c->buf_size_read);
 
 #if defined(INSPECT_MQTT_FLOW)
+    log_debug("%20s : %p", "Payload Buffer", topic_msg.payload);
+    log_debug("%20s : %p", "Receive Buffer", c->buf_read);
     HEXDUMP_DEBUG(topic_msg.payload, topic_msg.payload_len);
 #endif
 

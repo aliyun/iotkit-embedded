@@ -12,7 +12,9 @@ for i in `git status -s | awk '{ print $NF }'`; do
     if [ "$j" = "c" -o "$j" = "h" -o "$j" = "md" -o "$j" = "mk" ]; then
         chmod a-x $i
         echo "[chmod] $i"
+        git add $i
     else
         echo "[skip ] $i"
     fi
 done
+git commit --amend -m ''
