@@ -26,12 +26,12 @@
 #include "CoAPNetwork.h"
 #include "CoAPExport.h"
 
-#define COAP_DEFAULT_PORT        5683 /* CoAP default UDP port */
-#define COAPS_DEFAULT_PORT       5684 /* CoAP default UDP port for secure transmission */
+#define COAP_DEFAULT_PORT           5683 /* CoAP default UDP port */
+#define COAPS_DEFAULT_PORT          5684 /* CoAP default UDP port for secure transmission */
 
-#define COAP_DEFAULT_SCHEME      "coap" /* the default scheme for CoAP URIs */
-#define COAP_DEFAULT_HOST_LEN    128
-#define COAP_DEFAULT_WAIT_TIME_MS       2000
+#define COAP_DEFAULT_SCHEME         "coap" /* the default scheme for CoAP URIs */
+#define COAP_DEFAULT_HOST_LEN       128
+#define COAP_DEFAULT_WAIT_TIME_MS   2000
 
 unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
                            char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
@@ -137,12 +137,20 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     p_ctx->message_id = 1;
     p_ctx->notifier = param->notifier;
     p_ctx->sendbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
-    p_ctx->recvbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
-
-    if(0 == param->waittime){
-        p_ctx->waittime = COAP_DEFAULT_WAIT_TIME_MS;
+    if (NULL == p_ctx->sendbuf) {
+        COAP_ERR("not enough memory");
+        return NULL;
     }
-    else{
+
+    p_ctx->recvbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
+    if (NULL == p_ctx->recvbuf) {
+        COAP_ERR("not enough memory");
+        return NULL;
+    }
+
+    if (0 == param->waittime) {
+        p_ctx->waittime = COAP_DEFAULT_WAIT_TIME_MS;
+    } else {
         p_ctx->waittime = param->waittime;
     }
 
@@ -208,7 +216,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
 void CoAPContext_free(CoAPContext *p_ctx)
 {
-    if(NULL == p_ctx){
+    if (NULL == p_ctx) {
         return;
     }
 
