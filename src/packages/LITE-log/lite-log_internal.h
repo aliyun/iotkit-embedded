@@ -35,7 +35,7 @@
 
 #if defined(_PLATFORM_IS_LINUX_)
 #undef  LOG_MSG_MAXLEN
-#define LOG_MSG_MAXLEN                  (1023)
+#define LOG_MSG_MAXLEN                  (512)
 #endif
 
 typedef struct {

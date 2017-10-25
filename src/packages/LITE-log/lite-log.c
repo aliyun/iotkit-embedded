@@ -97,7 +97,8 @@ void LITE_syslog(const char *f, const int l, const int level, const char *fmt, .
 
     memset(tmpbuf, 0, sizeof(logcb.text_buf));
     va_start(ap, fmt);
-    o += vsprintf(o, fmt, ap);
+    o = tmpbuf;
+    o += HAL_Vsnprintf(o, LOG_MSG_MAXLEN + 1, fmt, ap);
     va_end(ap);
 
     if (o - tmpbuf > LOG_MSG_MAXLEN) {

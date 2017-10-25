@@ -10,8 +10,11 @@
 for i in `git status -s | awk '{ print $NF }'`; do
     j=$(echo $(basename $i)|cut -d'.' -f2)
     if [ "$j" = "c" -o "$j" = "h" -o "$j" = "md" -o "$j" = "mk" ]; then
-        chmod a-x $i
-        echo "[chmod] $i"
+        if [ "$(find $i -perm /111)" != "" ]; then
+            chmod a-x $i
+            echo "[chmod] $i"
+            git add $i
+        fi
     else
         echo "[skip ] $i"
     fi
