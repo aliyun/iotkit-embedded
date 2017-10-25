@@ -183,6 +183,8 @@ int json_parse_name_value(char *p_cJsonStr, int iStrLen, json_parse_cb pfnCB, vo
 int json_get_value_by_name_cb(char *p_cName, int iNameLen, char *p_cValue, int iValueLen, int iValueType,
                               void *p_CBData)
 {
+    JSON_NV     *p_stNameValue = (JSON_NV *)p_CBData;
+
 #if (JSON_DEBUG == 1)
     int         i;
 
@@ -201,8 +203,6 @@ int json_get_value_by_name_cb(char *p_cName, int iNameLen, char *p_cValue, int i
     }
 #endif
 
-    JSON_NV     *p_stNameValue = (JSON_NV *)p_CBData;
-
     if (!strncmp(p_cName, p_stNameValue->pN, p_stNameValue->nLen)) {
         p_stNameValue->pV = p_cValue;
         p_stNameValue->vLen = iValueLen;
@@ -215,8 +215,9 @@ int json_get_value_by_name_cb(char *p_cName, int iNameLen, char *p_cValue, int i
 
 char *json_get_value_by_name(char *p_cJsonStr, int iStrLen, char *p_cName, int *p_iValueLen, int *p_iValueType)
 {
-    JSON_NV     stNV = { 0, 0, 0, 0 };
+    JSON_NV     stNV;
 
+    memset(&stNV, 0, sizeof(stNV));
     stNV.pN = p_cName;
     stNV.nLen = strlen(p_cName);
     if (JSON_RESULT_OK == json_parse_name_value(p_cJsonStr, iStrLen, json_get_value_by_name_cb, (void *)&stNV)) {
