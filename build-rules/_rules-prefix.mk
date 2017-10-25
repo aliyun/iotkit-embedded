@@ -15,6 +15,10 @@ $(foreach V, \
 CFLAGS  := $(sort $(CFLAGS) $(CONFIG_ENV_CFLAGS))
 LDFLAGS := $(sort $(LDFLAGS) $(CONFIG_ENV_LDFLAGS))
 
+ifeq (dynamic,$(CONFIG_LIB_EXPORT))
+CFLAGS  := $(filter-out --coverage,$(CFLAGS))
+endif
+
 MAKE_ENV_VARS := \
 $(foreach v, \
     $(shell grep -o 'CONFIG_ENV_[_A-Z]*' $(CONFIG_TPL) 2>/dev/null), \
