@@ -15,4 +15,3 @@ endif
 ifneq (,$(filter $(foreach M,$(SKIP_MQTT_DIRECT_MODES),-DTEST_$(M)),$(CFLAGS)))
 CFLAGS  := $(filter-out -DMQTT_DIRECT,$(CFLAGS))
 endif
-
