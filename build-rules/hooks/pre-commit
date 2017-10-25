@@ -14,7 +14,6 @@ for i in `git status -s | awk '{ print $NF }'`; do
             chmod a-x $i
             echo "[chmod] $i"
             git add $i
-            git commit -s -m "[WARN] fix file permission of $i"
         fi
     else
         echo "[skip ] $i"
