@@ -1,0 +1,15 @@
+CONFIG_ENV_CFLAGS += \
+    --cpu=Cortex-A7 \
+    -O1 --diag_suppress=9931 \
+    --arm_only \
+    --diag_error=warning \
+    --protect_stack \
+
+CONFIG_LIB_EXPORT := static
+
+PLATFORM_CC         := armcc
+PLATFORM_AR         := armar
+
+CONFIG_src/mqtt     :=
+CONFIG_src/coap     :=
+CONFIG_src/ota      :=

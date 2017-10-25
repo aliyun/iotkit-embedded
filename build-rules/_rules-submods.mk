@@ -53,6 +53,12 @@ $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
 	        echo "$(V) := $(sort $($(V)))"|sed 's:\$$:$$$$:g' >> $(STAMP_BLD_ENV); \
 	)
 
+# note:
+#   sed -i "/CONFIG_$${i//\//\\/}.*/d" $(CONFIG_TPL);
+# above
+#   sed -i "1iCONFIG_$${i} = y" $(CONFIG_TPL)
+# was removed since modules will be skipped in some cases
+
 $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_ENV) $(wildcard $(RULE_DIR)/*.mk)
 	$(TOP_Q) \
 ( \
@@ -63,7 +69,6 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 	        if [ ! -L $${i} ]; then \
 	            printf "CONFIGURE .............................. [%s]\n" $${i}; \
 	        fi; \
-	        sed -i "/CONFIG_$${i//\//\\/}.*/d" $(CONFIG_TPL); \
 	        sed -i "1iCONFIG_$${i} = y" $(CONFIG_TPL); \
 	        [ -f $(STAMP_POST_RULE) ] && sed -i "/target-$${i//\//\\/}.*/d" $(STAMP_POST_RULE) || true; \
 	        echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
