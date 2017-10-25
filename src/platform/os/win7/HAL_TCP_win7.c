@@ -28,7 +28,7 @@
 
 #include "iot_import.h"
 
-#define PLATFORM_WINSOCK_LOG	printf
+#define PLATFORM_WINSOCK_LOG    printf
 #define PLATFORM_WINSOCK_PERROR printf
 
 
@@ -49,38 +49,37 @@ static uint64_t time_left(uint64_t t_end, uint64_t t_now)
 uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     uintptr_t sockfd;
-    WSADATA wsaData;  
-    struct hostent *hp;  
-    struct sockaddr_in addrServer;  
+    WSADATA wsaData;
+    struct hostent *hp;
+    struct sockaddr_in addrServer;
 
-    WSAStartup(0x202, &wsaData);  
+    WSAStartup(0x202, &wsaData);
 
-    PLATFORM_WINSOCK_LOG("host : %s, port : %u\n", host, port);  
+    PLATFORM_WINSOCK_LOG("host : %s, port : %u\n", host, port);
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);   //socket  
-    hp = gethostbyname(host); 
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);   //socket
+    hp = gethostbyname(host);
 
 
-    memset(&addrServer, 0, sizeof(addrServer)); 
-    memcpy(&(addrServer.sin_addr), hp->h_addr, hp->h_length); 
+    memset(&addrServer, 0, sizeof(addrServer));
+    memcpy(&(addrServer.sin_addr), hp->h_addr, hp->h_length);
 
-    PLATFORM_WINSOCK_LOG("ip = %u.%u.%u.%u", 
-            addrServer.sin_addr.S_un.S_un_b.s_b1, 
-            addrServer.sin_addr.S_un.S_un_b.s_b2,
-            addrServer.sin_addr.S_un.S_un_b.s_b3,
-            addrServer.sin_addr.S_un.S_un_b.s_b4);
+    PLATFORM_WINSOCK_LOG("ip = %u.%u.%u.%u",
+                         addrServer.sin_addr.S_un.S_un_b.s_b1,
+                         addrServer.sin_addr.S_un.S_un_b.s_b2,
+                         addrServer.sin_addr.S_un.S_un_b.s_b3,
+                         addrServer.sin_addr.S_un.S_un_b.s_b4);
 
-    addrServer.sin_family = AF_INET; 
-    addrServer.sin_port = htons((unsigned short)1883);  
+    addrServer.sin_family = AF_INET;
+    addrServer.sin_port = htons((unsigned short)1883);
 
     PLATFORM_WINSOCK_LOG("connecting to %s", host);
-    if(connect(sockfd, (struct sockaddr *)&addrServer, sizeof(struct sockaddr)))  
-    {  
-        PLATFORM_WINSOCK_LOG("connect failed!\n");  
-        return -1;  
-    }  
+    if (connect(sockfd, (struct sockaddr *)&addrServer, sizeof(struct sockaddr))) {
+        PLATFORM_WINSOCK_LOG("connect failed!\n");
+        return -1;
+    }
 
-    PLATFORM_WINSOCK_LOG("connect successfully!\n");  
+    PLATFORM_WINSOCK_LOG("connect successfully!\n");
 
     return sockfd;
 }
@@ -120,18 +119,18 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     uint64_t t_end, t_left;
     fd_set sets;
 
-    t_end = GetTickCount( ) + timeout_ms;
+    t_end = GetTickCount() + timeout_ms;
     len_sent = 0;
     err_code = 0;
     ret = 1; //send one time if timeout_ms is value 0
 
     do {
-        t_left = time_left(t_end, GetTickCount( ));
+        t_left = time_left(t_end, GetTickCount());
 
         if (0 != t_left) {
             struct timeval timeout;
 
-            FD_ZERO( &sets );
+            FD_ZERO(&sets);
             FD_SET(fd, &sets);
 
             timeout.tv_sec = t_left / 1000;
@@ -172,7 +171,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                 break;
             }
         }
-    } while((len_sent < len) && (time_left(t_end, GetTickCount()) > 0));
+    } while ((len_sent < len) && (time_left(t_end, GetTickCount()) > 0));
 
     //Priority to return data bytes if any data be sent to TCP connection.
     //It will get error code on next calling
@@ -188,14 +187,14 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     fd_set sets;
     struct timeval timeout;
 
-    t_end = GetTickCount( ) + timeout_ms;
+    t_end = GetTickCount() + timeout_ms;
     len_recv = 0;
     err_code = 0;
 
     do {
-        t_left = time_left(t_end, GetTickCount( ));
+        t_left = time_left(t_end, GetTickCount());
 
-        FD_ZERO( &sets );
+        FD_ZERO(&sets);
         FD_SET(fd, &sets);
 
         timeout.tv_sec = t_left / 1000;

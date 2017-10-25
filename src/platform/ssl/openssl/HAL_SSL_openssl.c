@@ -7,7 +7,7 @@
 #include "openssl/ssl.h"
 #include "openssl/err.h"
 
-static SSL_CTX* ssl_ctx = NULL;
+static SSL_CTX *ssl_ctx = NULL;
 static X509_STORE *ca_store = NULL;
 static X509 *ca = NULL;
 
@@ -16,7 +16,7 @@ static X509 *ca = NULL;
 #pragma comment(lib,"ssleay32.lib")
 
 
-#define PLATFORM_WINSOCK_LOG	printf
+#define PLATFORM_WINSOCK_LOG    printf
 #define PLATFORM_WINSOCK_PERROR printf
 
 static X509 *ssl_load_cert(const char *cert_str)
@@ -33,7 +33,7 @@ static X509 *ssl_load_cert(const char *cert_str)
         return NULL;
     }
 
-    cert = PEM_read_bio_X509(in,NULL,NULL,NULL);
+    cert = PEM_read_bio_X509(in, NULL, NULL, NULL);
 
     if (in) {
         BIO_free(in);
@@ -42,7 +42,7 @@ static X509 *ssl_load_cert(const char *cert_str)
 }
 
 
-static int ssl_ca_store_init( const char *my_ca )
+static int ssl_ca_store_init(const char *my_ca)
 {
     int ret;
     if (!ca_store) {
@@ -64,7 +64,7 @@ static int ssl_ca_store_init( const char *my_ca )
 
 
 
-static int ssl_verify_ca(X509* target_cert)
+static int ssl_verify_ca(X509 *target_cert)
 {
     STACK_OF(X509) *ca_stack = NULL;
     X509_STORE_CTX *store_ctx = NULL;
@@ -81,8 +81,8 @@ static int ssl_verify_ca(X509* target_cert)
     ret = X509_verify_cert(store_ctx);
     if (ret != 1) {
         printf("X509_verify_cert fail, ret = %d, error id = %d, %s\n",
-                ret, store_ctx->error,
-                X509_verify_cert_error_string(store_ctx->error));
+               ret, store_ctx->error,
+               X509_verify_cert_error_string(store_ctx->error));
         goto end;
     }
 end:
@@ -90,20 +90,18 @@ end:
         X509_STORE_CTX_free(store_ctx);
     }
 
-    return (ret == 1) ? 0: -1;
+    return (ret == 1) ? 0 : -1;
 
 }
 
 
-static int ssl_init( const char *my_ca )
+static int ssl_init(const char *my_ca)
 {
-    if (ssl_ca_store_init( my_ca ) != 0)
-    {
+    if (ssl_ca_store_init(my_ca) != 0) {
         return -1;
     }
 
-    if (!ssl_ctx)
-    {
+    if (!ssl_ctx) {
         SSL_METHOD *meth;
 
         SSLeay_add_ssl_algorithms();
@@ -112,14 +110,11 @@ static int ssl_init( const char *my_ca )
 
         SSL_load_error_strings();
         ssl_ctx = SSL_CTX_new(meth);
-        if (!ssl_ctx)
-        {
+        if (!ssl_ctx) {
             printf("fail to initialize ssl context \n");
             return -1;
         }
-    }
-    else
-    {
+    } else {
         printf("ssl context already initialized \n");
     }
 
@@ -133,8 +128,7 @@ static int ssl_establish(int sock, SSL **ppssl)
     SSL *ssl_temp;
     X509 *server_cert;
 
-    if (!ssl_ctx)
-    {
+    if (!ssl_ctx) {
         printf("no ssl context to create ssl connection \n");
         return -1;
     }
@@ -144,16 +138,14 @@ static int ssl_establish(int sock, SSL **ppssl)
     SSL_set_fd(ssl_temp, sock);
     err = SSL_connect(ssl_temp);
 
-    if (err == -1)
-    {
+    if (err == -1) {
         printf("failed create ssl connection \n");
         goto err;
     }
 
     server_cert = SSL_get_peer_certificate(ssl_temp);
 
-    if (!server_cert)
-    {
+    if (!server_cert) {
         printf("failed to get server cert");
         goto err;
     }
@@ -172,12 +164,10 @@ static int ssl_establish(int sock, SSL **ppssl)
     return 0;
 
 err:
-    if (ssl_temp)
-    {
+    if (ssl_temp) {
         SSL_free(ssl_temp);
     }
-    if (server_cert)
-    {
+    if (server_cert) {
         X509_free(server_cert);
     }
 
@@ -188,18 +178,16 @@ err:
 
 
 void *platform_ssl_connect(void *tcp_fd,
-        const char *server_cert,
-        int server_cert_len)
+                           const char *server_cert,
+                           int server_cert_len)
 {
     SSL *pssl;
 
-    if (0 != ssl_init( server_cert ))
-    {
+    if (0 != ssl_init(server_cert)) {
         return NULL;
     }
 
-    if (0 != ssl_establish((int)tcp_fd, &pssl))
-    {
+    if (0 != ssl_establish((int)tcp_fd, &pssl)) {
         return NULL;
     }
 
@@ -212,23 +200,20 @@ int platform_ssl_close(void *ssl)
 {
     //SOCKET sock = (SOCKET)SSL_get_fd( ssl );
 
-    SSL_set_shutdown((SSL*)ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-    SSL_free((SSL*)ssl);
+    SSL_set_shutdown((SSL *)ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+    SSL_free((SSL *)ssl);
 
-    if (ssl_ctx)
-    {
+    if (ssl_ctx) {
         SSL_CTX_free(ssl_ctx);
         ssl_ctx = NULL;
     }
 
-    if (ca)
-    {
+    if (ca) {
         X509_free(ca);
         ca = NULL;
     }
 
-    if (ca_store)
-    {
+    if (ca_store) {
         X509_STORE_free(ca_store);
         ca_store = NULL;
     }
@@ -268,11 +253,11 @@ int platform_ssl_recv(void *ssl, char *buf, uint32_t len, int timeout_ms)
 
     if ((uint32_t)SSL_pending(ssl) >= len) {
         len_recv = SSL_read(ssl, buf, len);
-    } else {	
+    } else {
         do {
-            t_left = time_left(t_end, GetTickCount( ));
+            t_left = time_left(t_end, GetTickCount());
 
-            FD_ZERO( &sets );
+            FD_ZERO(&sets);
             FD_SET(fd, &sets);
 
             timeout.tv_sec = t_left / 1000;
@@ -280,7 +265,7 @@ int platform_ssl_recv(void *ssl, char *buf, uint32_t len, int timeout_ms)
 
             ret = select(fd + 1, &sets, NULL, NULL, &timeout);
             if (ret > 0) {
-                ret = SSL_read((SSL*)ssl, buf + len_recv, len - len_recv);
+                ret = SSL_read((SSL *)ssl, buf + len_recv, len - len_recv);
                 if (ret > 0) {
                     len_recv += ret;
                 } else if (0 == ret) {
@@ -288,7 +273,7 @@ int platform_ssl_recv(void *ssl, char *buf, uint32_t len, int timeout_ms)
                     err_code = -1;
                     break;
                 } else {
-                    if (SSL_ERROR_WANT_READ == SSL_get_error(ssl, ret) ) {
+                    if (SSL_ERROR_WANT_READ == SSL_get_error(ssl, ret)) {
                         continue;
                     }
                     PLATFORM_WINSOCK_PERROR("recv fail");
@@ -314,7 +299,7 @@ int platform_ssl_recv(void *ssl, char *buf, uint32_t len, int timeout_ms)
 
 int platform_ssl_send(void *ssl, const char *buf, uint32_t len)
 {
-    int ret = SSL_write((SSL*)ssl, buf, len);
+    int ret = SSL_write((SSL *)ssl, buf, len);
 
     return (ret > 0) ? ret : -1;
 }
@@ -326,9 +311,9 @@ struct ssl_info_st {
 };
 
 uintptr_t HAL_SSL_Establish(const char *host,
-        uint16_t port,
-        const char *ca_crt,
-        size_t ca_crt_len)
+                            uint16_t port,
+                            const char *ca_crt,
+                            size_t ca_crt_len)
 {
     long tmp;
     struct ssl_info_st *handle;
@@ -377,7 +362,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
 
 
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
-{	
+{
     return platform_ssl_recv((void *)(((struct ssl_info_st *)handle)->ssl), buf, len, timeout_ms);
 }
 
