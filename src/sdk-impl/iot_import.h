@@ -28,6 +28,8 @@ extern "C" {
 #include <stdarg.h>
 #include <inttypes.h>
 
+#include "imports/iot_import_config.h"
+
 /** @defgroup group_platform platform
  *  @{
  */
