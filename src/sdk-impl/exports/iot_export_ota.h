@@ -145,7 +145,7 @@ int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char
  *
  * @return true, yes; false, no.
  */
-bool IOT_OTA_IsFetching(void *handle);
+int IOT_OTA_IsFetching(void *handle);
 
 
 /**
@@ -155,7 +155,7 @@ bool IOT_OTA_IsFetching(void *handle);
  *
  * @return true, yes; -1, false.
  */
-bool IOT_OTA_IsFetchFinish(void *handle);
+int IOT_OTA_IsFetchFinish(void *handle);
 
 
 /**

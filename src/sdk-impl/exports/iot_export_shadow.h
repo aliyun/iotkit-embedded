@@ -48,10 +48,10 @@ typedef enum {
 } iotx_shadow_attr_datatype_t;
 
 typedef struct {
-    bool flag_new;
-    uint32_t buf_size;
-    uint32_t offset;
-    char *buf;
+    int         flag_new;
+    uint32_t    buf_size;
+    uint32_t    offset;
+    char       *buf;
 } format_data_t, *format_data_pt;
 
 typedef struct {

@@ -125,7 +125,7 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
         case COAP_MSG_CODE_205_CONTENT: {
             ret_code = iotx_get_token_from_json((char *)message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
             if (IOTX_SUCCESS == ret_code) {
-                p_iotx_coap->is_authed = true;
+                p_iotx_coap->is_authed = IOT_TRUE;
                 COAP_INFO("CoAP authenticate success!!!");
             }
             break;
@@ -167,7 +167,7 @@ void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
             iotx_coap_t *p_context = NULL;
             if (NULL != message->user) {
                 p_context = (iotx_coap_t *)message->user;
-                p_context->is_authed = false;
+                p_context->is_authed = IOT_FALSE;
                 IOT_CoAP_DeviceNameAuth(p_context);
                 COAP_INFO("IoTx token expired, will reauthenticate");
             }
@@ -578,7 +578,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     memset(p_iotx_coap->p_auth_token, 0x00, IOTX_AUTH_TOKEN_LEN);
 
     /*Set the client isn't authed*/
-    p_iotx_coap->is_authed = false;
+    p_iotx_coap->is_authed = IOT_FALSE;
     p_iotx_coap->auth_token_len = IOTX_AUTH_TOKEN_LEN;
 
     /*Get deivce information*/
@@ -639,7 +639,7 @@ err:
         }
 
         p_iotx_coap->auth_token_len = 0;
-        p_iotx_coap->is_authed = false;
+        p_iotx_coap->is_authed = IOT_FALSE;
         coap_free(p_iotx_coap);
     }
     return NULL;
@@ -651,7 +651,7 @@ void IOT_CoAP_Deinit(iotx_coap_context_t **pp_context)
 
     if (NULL != pp_context && NULL != *pp_context) {
         p_iotx_coap = (iotx_coap_t *)*pp_context;
-        p_iotx_coap->is_authed = false;
+        p_iotx_coap->is_authed = IOT_FALSE;
         p_iotx_coap->auth_token_len = 0;
         p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;
 

@@ -29,11 +29,11 @@
 #include "shadow_config.h"
 
 typedef struct iotx_update_ack_wait_list_st {
-    bool flag_busy; /* 0, free; 1, busy. */
-    char token[IOTX_DS_TOKEN_LEN];
-    iotx_push_cb_fpt callback;
-    void *pcontext;
-    iotx_time_t timer;
+    int                 flag_busy; /* 0, free; 1, busy. */
+    char                token[IOTX_DS_TOKEN_LEN];
+    iotx_push_cb_fpt    callback;
+    void               *pcontext;
+    iotx_time_t         timer;
 } iotx_update_ack_wait_list_t, *iotx_update_ack_wait_list_pt;
 
 
@@ -84,7 +84,7 @@ iotx_err_t iotx_ds_common_convert_string2data(
             iotx_shadow_attr_datatype_t type,
             void *pData);
 
-bool iotx_ds_common_check_attr_existence(iotx_shadow_pt pshadow, const iotx_shadow_attr_pt pattr);
+int iotx_ds_common_check_attr_existence(iotx_shadow_pt pshadow, const iotx_shadow_attr_pt pattr);
 
 iotx_err_t iotx_ds_common_register_attr(
             iotx_shadow_pt pshadow,
