@@ -90,10 +90,6 @@ function Update_Makefile()
     echo "MODULE_NAME := ${MODULE}" >> ${BLD_MFILE}
     cat ${STAMP_BLD_ENV} >> ${BLD_MFILE}
 
-    if grep -q 'build *:' ${SRC_DIR}/${MAKE_SEGMENT}; then
-        echo "OVERRIDE_BUILD := yes" >> ${BLD_MFILE}
-    fi
-
     cat << EOB >> ${BLD_MFILE}
 
 include \$(TOP_DIR)/build-rules/settings.mk
