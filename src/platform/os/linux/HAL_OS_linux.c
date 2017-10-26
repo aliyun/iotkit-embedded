@@ -130,11 +130,13 @@ void HAL_Printf(_IN_ const char *fmt, ...)
 
 char *HAL_GetPartnerID(char pid_str[])
 {
-    return NULL;
+    strcpy(pid_str, "abc");
+    return "abc";
 }
 
 char *HAL_GetModuleID(char mid_str[])
 {
-    return NULL;
+    strcpy(mid_str, "xyz");
+    return "xyz";
 }
 

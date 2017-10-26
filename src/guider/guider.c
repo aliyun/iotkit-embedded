@@ -165,7 +165,7 @@ void _ident_partner(char *buf, int len)
     memset(tmp, 0, sizeof(tmp));
     HAL_GetPartnerID(tmp);
     if (strlen(tmp)) {
-        HAL_Snprintf(buf, len, "partner_id = %s", tmp);
+        HAL_Snprintf(buf, len, ",partner_id=%s", tmp);
     } else {
         strcpy(buf, "");
     }
@@ -180,7 +180,7 @@ void _ident_module(char *buf, int len)
     memset(tmp, 0, sizeof(tmp));
     HAL_GetModuleID(tmp);
     if (strlen(tmp)) {
-        HAL_Snprintf(buf, len, "module_id = %s", tmp);
+        HAL_Snprintf(buf, len, ",module_id=%s", tmp);
     } else {
         strcpy(buf, "");
     }
@@ -557,11 +557,15 @@ int iotx_guider_authenticate(void)
 #else
                       ",timestamp=%s,signmethod=" MD5_METHOD ",gw=0"
 #endif
-                      "%s|"
+                      "%s"
+                      "%s"
+                      "|"
                       , dev->device_id
                       , secure_mode
                       , timestamp_str
-                      , partner_id);
+                      , partner_id
+                      , module_id
+                     );
 
     guider_print_conn_info(conn);
 

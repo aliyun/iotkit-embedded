@@ -2176,36 +2176,32 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 }
 
 /* report ModuleID */
-static int iotx_mid_report(iotx_mc_client_t *pclient)
+static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
 {
-
 #define MSG_LEN  (62 + GUIDER_PID_LEN +GUIDER_MID_LEN + 32 +1)
 #define TOPIC_NAME_LEN  (26 + PRODUCT_KEY_LEN +DEVICE_NAME_LEN + 1)
 
-    int ret;
-    char topic_name[TOPIC_NAME_LEN];
-    iotx_mqtt_topic_info_t topic_info;
-
-    int requestId = 123456;
-
-    iotx_device_info_pt dev  = iotx_device_info_get();
-
-    char pid[GUIDER_PID_LEN + 1] = {0};
-    char mid[GUIDER_MID_LEN + 1] = {0};
+    int                         ret;
+    char                        topic_name[TOPIC_NAME_LEN];
+    iotx_mqtt_topic_info_t      topic_info;
+    int                         requestId = 100;
+    iotx_device_info_pt         dev  = iotx_device_info_get();
+    char                        pid[GUIDER_PID_LEN + 1] = {0};
+    char                        mid[GUIDER_MID_LEN + 1] = {0};
 
     memset(pid, 0, sizeof(pid));
     memset(mid, 0, sizeof(mid));
 
     if (NULL == HAL_GetPartnerID(pid)) {
-        log_debug("PartnerID is Null.");
+        log_debug("PartnerID is Null");
         return SUCCESS_RETURN;
     }
     if (NULL == HAL_GetModuleID(mid)) {
-        log_debug("ModuleID is Null.");
+        log_debug("ModuleID is Null");
         return SUCCESS_RETURN;
     }
 
-    log_debug("MID Report starts by mqtt.");
+    log_debug("MID Report: started in MQTT");
 
     /* 1,generate json data */
     char *msg = HAL_Malloc(MSG_LEN);
@@ -2222,7 +2218,7 @@ static int iotx_mid_report(iotx_mc_client_t *pclient)
                        mid,
                        pid);
 
-    log_debug("MID Report:json data =%s", msg);
+    log_debug("MID Report: json data = '%s'", msg);
 
     memset(&topic_info, 0, sizeof(iotx_mqtt_topic_info_t));
 
@@ -2243,7 +2239,7 @@ static int iotx_mid_report(iotx_mc_client_t *pclient)
 
     /*IOTX_ASSERT(ret < TOPIC_NAME_LEN, "buffer should always enough");*/
 
-    log_debug("MID Report:topic name=%s", topic_name);
+    log_debug("MID Report: topic name = '%s'", topic_name);
 
     if (ret < 0) {
         log_err("generate topic name of info failed");
@@ -2260,8 +2256,7 @@ static int iotx_mid_report(iotx_mc_client_t *pclient)
 
     HAL_Free(msg);
 
-    log_debug("MID Report finished,IOT_MQTT_Publish() = %d.");
-
+    log_debug("MID Report: finished, IOT_MQTT_Publish() = %d", ret);
     return SUCCESS_RETURN;
 
 #undef MSG_LEN
@@ -2304,7 +2299,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     pclient->mqtt_auth = iotx_guider_authenticate;
 
     /* report module id */
-    err = iotx_mid_report(pclient);
+    err = iotx_mc_report_mid(pclient);
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         LITE_free(pclient);
