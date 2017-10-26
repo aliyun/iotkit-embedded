@@ -9,3 +9,5 @@ PLATFORM_OS         := win7
 OVERRIDE_LD         := i686-w64-mingw32-ld
 OVERRIDE_STRIP      := i686-w64-mingw32-strip
 OVERRIDE_OBJCOPY    := i686-w64-mingw32-objcopy
+
+CONFIG_src/coap     :=
