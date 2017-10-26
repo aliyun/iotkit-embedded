@@ -86,8 +86,8 @@ typedef struct {
 
 /** @brief   This structure defines the HTTP data structure.  */
 typedef struct {
-    bool    is_more;                /**< Indicates if more data needs to be retrieved. */
-    bool    is_chunked;             /**< Response data is encoded in portions/chunks.*/
+    int     is_more;                /**< Indicates if more data needs to be retrieved. */
+    int     is_chunked;             /**< Response data is encoded in portions/chunks.*/
     int     retrieve_len;           /**< Content length to be retrieved. */
     int     response_content_len;   /**< Response content length. */
     int     post_buf_len;           /**< Post data length. */

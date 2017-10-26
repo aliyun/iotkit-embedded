@@ -248,7 +248,7 @@ int MQTTstrlen(MQTTString mqttstring)
  * Compares an MQTTString to a C string
  * @param a the MQTTString to compare
  * @param bptr the C string to compare
- * @return boolean - equal or not
+ * @return int - equal or not
  */
 int MQTTPacket_equals(MQTTString* a, char* bptr)
 {

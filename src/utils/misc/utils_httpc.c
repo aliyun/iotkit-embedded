@@ -426,10 +426,10 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
     /* Receive data */
     log_debug("Current data: %s", data);
 
-    client_data->is_more = true;
+    client_data->is_more = IOT_TRUE;
 
-    if (client_data->response_content_len == -1 && client_data->is_chunked == false) {
-        while (true) {
+    if (client_data->response_content_len == -1 && client_data->is_chunked == IOT_FALSE) {
+        while (1) {
             int ret, max_len;
             if (count + len < client_data->response_buf_len - 1) {
                 memcpy(client_data->response_buf + count, data, len);
@@ -455,27 +455,27 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             if (len == 0) {
                 /* read no more data */
                 log_debug("no more len == 0");
-                client_data->is_more = false;
+                client_data->is_more = IOT_FALSE;
                 return SUCCESS_RETURN;
             }
         }
     }
 
-    while (true) {
+    while (1) {
         uint32_t readLen = 0;
 
         if (client_data->is_chunked && client_data->retrieve_len <= 0) {
             /* Read chunk header */
-            bool foundCrlf;
+            int foundCrlf;
             int n;
             do {
-                foundCrlf = false;
+                foundCrlf = IOT_FALSE;
                 crlf_pos = 0;
                 data[len] = 0;
                 if (len >= 2) {
                     for (; crlf_pos < len - 2; crlf_pos++) {
                         if (data[crlf_pos] == '\r' && data[crlf_pos + 1] == '\n') {
-                            foundCrlf = true;
+                            foundCrlf = IOT_TRUE;
                             break;
                         }
                     }
@@ -520,7 +520,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 
             if (readLen == 0) {
                 /* Last chunk */
-                client_data->is_more = false;
+                client_data->is_more = IOT_FALSE;
                 log_debug("no more (last chunk)");
                 break;
             }
@@ -584,7 +584,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             len -= 2;
         } else {
             log_debug("no more (content-length)");
-            client_data->is_more = false;
+            client_data->is_more = IOT_FALSE;
             break;
         }
 
@@ -635,7 +635,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2) + 1); /* Be sure to move NULL-terminating char as well */
     len -= (crlf_pos + 2);
 
-    client_data->is_chunked = false;
+    client_data->is_chunked = IOT_FALSE;
 
     /*If not ending of response body, try to get more data again */
     if (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
@@ -661,7 +661,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
 
         if ((! memcmp(chunk_value, "Chunked", len_chunk))
                 || (! memcmp(chunk_value, "chunked", len_chunk))) {
-            client_data->is_chunked = true;
+            client_data->is_chunked = IOT_TRUE;
             client_data->response_content_len = 0;
             client_data->retrieve_len = 0;
         }

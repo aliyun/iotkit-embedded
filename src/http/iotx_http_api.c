@@ -692,7 +692,7 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         case IOTX_HTTP_SUCCESS:
             break;
         case IOTX_HTTP_TOKEN_EXPIRED_ERROR:
-            p_iotx_http->is_authed = false;
+            p_iotx_http->is_authed = IOT_FALSE;
             IOT_HTTP_DeviceNameAuth((iotx_http_t *)p_iotx_http);
         case IOTX_HTTP_COMMON_ERROR:
         case IOTX_HTTP_PARAM_ERROR:

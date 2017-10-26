@@ -28,7 +28,7 @@
 #include "shadow_update.h"
 
 
-bool iotx_shadow_delta_check_existence(iotx_shadow_pt pshadow, const char *attr_name);
+int iotx_shadow_delta_check_existence(iotx_shadow_pt pshadow, const char *attr_name);
 
 void iotx_shadow_delta_entry(
             iotx_shadow_pt pshadow,

@@ -34,9 +34,10 @@ extern "C" {
  *  @{
  */
 
-#define _IN_            /**< indicate that this is an input parameter. */
-#define _OU_            /**< indicate that this is an output parameter. */
-
+#define _IN_                /* indicate that this is an input parameter */
+#define _OU_                /* indicate that this is an output parameter */
+#define IOT_TRUE    (1)     /* indicate boolean value true */
+#define IOT_FALSE   (0)     /* indicate boolean value false */
 
 /*********************************** mutex interface ***********************************/
 

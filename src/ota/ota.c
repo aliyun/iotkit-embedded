@@ -60,7 +60,7 @@ typedef struct  {
 
 /* check whether the progress state is valid or not */
 /* return: true, valid progress state; false, invalid progress state. */
-static bool ota_check_progress(IOT_OTA_Progress_t progress)
+static int ota_check_progress(IOT_OTA_Progress_t progress)
 {
     return ((progress >= IOT_OTAP_BURN_FAILED)
             && (progress <= IOT_OTAP_FETCH_PERCENTAGE_MAX));
@@ -319,7 +319,7 @@ do_exit:
 
 
 /* check whether is downloading */
-bool IOT_OTA_IsFetching(void *handle)
+int IOT_OTA_IsFetching(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt)handle;
 
@@ -339,7 +339,7 @@ bool IOT_OTA_IsFetching(void *handle)
 
 
 /* check whether fetch over */
-bool IOT_OTA_IsFetchFinish(void *handle)
+int IOT_OTA_IsFetchFinish(void *handle)
 {
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
 

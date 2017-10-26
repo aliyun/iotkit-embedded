@@ -91,7 +91,7 @@ iotx_err_t iotx_ds_common_format_init(iotx_shadow_pt pshadow,
         pformat->offset += ret;
     }
 
-    pformat->flag_new = true;
+    pformat->flag_new = IOT_TRUE;
 
     return SUCCESS_RETURN;
 }
@@ -107,7 +107,7 @@ iotx_err_t iotx_ds_common_format_add(iotx_shadow_pt pshadow,
     uint32_t size_free_space;
 
     if (pformat->flag_new) {
-        pformat->flag_new = false;
+        pformat->flag_new = IOT_FALSE;
     } else {
         /* Add comma char. */
         size_free_space = pformat->buf_size - pformat->offset;
@@ -254,7 +254,7 @@ void iotx_ds_common_update_time(iotx_shadow_pt pshadow, uint32_t new_timestamp)
 }
 
 
-bool iotx_ds_common_check_attr_existence(
+int iotx_ds_common_check_attr_existence(
             iotx_shadow_pt pshadow,
             iotx_shadow_attr_pt pattr)
 {

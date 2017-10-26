@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include "iot_import_dtls.h"
 #ifdef COAP_DTLS_SUPPORT
 #include "mbedtls/ssl.h"

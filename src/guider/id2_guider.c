@@ -21,7 +21,7 @@
 #include "tfs.h"
 
 #ifndef MQTT_DIRECT
-static bool _is_non_symbol(char c)
+static int _is_non_symbol(char c)
 {
     int         c_int = (int)c;
 
