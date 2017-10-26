@@ -57,7 +57,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     PLATFORM_WINSOCK_LOG("host : %s, port : %u\n", host, port);
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);   //socket
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);   /* socket */
     hp = gethostbyname(host);
 
 
@@ -89,7 +89,7 @@ int32_t HAL_TCP_Destroy(uintptr_t fd)
 {
     int rc;
 
-    //Shutdown both send and receive operations.
+    /* Shutdown both send and receive operations. */
     rc = shutdown((int) fd, 2);
     if (0 != rc) {
         PLATFORM_WINSOCK_PERROR("shutdown error");
@@ -122,7 +122,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     t_end = GetTickCount() + timeout_ms;
     len_sent = 0;
     err_code = 0;
-    ret = 1; //send one time if timeout_ms is value 0
+    ret = 1; /* send one time if timeout_ms is value 0 */
 
     do {
         t_left = time_left(t_end, GetTickCount());
@@ -139,9 +139,9 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             ret = select(0, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
                 if (0 == FD_ISSET(fd, &sets)) {
-                    //TODO
-                    //not this fd, continue;
-                    //If timeout in next loop, it will not sent any data
+                    /* TODO */
+                    /* not this fd, continue; */
+                    /* If timeout in next loop, it will not sent any data */
                     ret = 0;
                     continue;
                 }
@@ -165,7 +165,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             } else if (0 == ret) {
                 PLATFORM_WINSOCK_LOG("No any data be sent");
             } else {
-                //socket error occur
+                /* socket error occur */
                 PLATFORM_WINSOCK_PERROR("send fail");
                 err_code = -1;
                 break;
@@ -173,8 +173,8 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
         }
     } while ((len_sent < len) && (time_left(t_end, GetTickCount()) > 0));
 
-    //Priority to return data bytes if any data be sent to TCP connection.
-    //It will get error code on next calling
+    /* Priority to return data bytes if any data be sent to TCP connection. */
+    /* It will get error code on next calling */
     return (0 == len_sent) ? err_code : len_sent;
 }
 
@@ -229,7 +229,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         }
     } while ((len_recv < len) && (time_left(t_end, GetTickCount()) > 0));
 
-    //priority to return data bytes if any data be received from TCP connection.
-    //It will get error code on next calling
+    /* priority to return data bytes if any data be received from TCP connection. */
+    /* It will get error code on next calling */
     return (0 != len_recv) ? len_recv : err_code;
 }
