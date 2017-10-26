@@ -134,7 +134,7 @@ int _http_response(char *payload,
                             port_num,
                             pkey,
                             HTTPCLIENT_POST,
-                            10 * 1000,
+                            CONFIG_GUIDER_AUTH_TIMEOUT,
                             &httpc_data);
     if (ret != 0) {
         goto RETURN;

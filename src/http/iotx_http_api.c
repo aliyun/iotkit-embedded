@@ -89,8 +89,7 @@
 #define HTTP_IOTX_NOT_INITED        (0)
 
 static iotx_http_t *p_iotx_http = NULL;
-
-static int g_iotx_http_initflag = HTTP_IOTX_NOT_INITED;
+static int          g_iotx_http_initflag = HTTP_IOTX_NOT_INITED;
 
 /*
   Http server url: https://iot-as-http.cn-shanghai.aliyuncs.com
@@ -217,7 +216,7 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
 
     msg_param.request_payload = (char *)msg;
     msg_param.response_payload = request_buf;
-    msg_param.timeout_ms = 5000;
+    msg_param.timeout_ms = CONFIG_MID_HTTP_TIMEOUT;
     msg_param.request_payload_len = strlen(msg) + 1;
     msg_param.response_payload_len = 1024;
     msg_param.topic_path = topic_name;
@@ -480,7 +479,7 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
                        http_url,
                        IOTX_HTTP_ONLINE_SERVER_PORT,
                        IOTX_HTTP_CA_GET,
-                       5000,
+                       CONFIG_HTTP_AUTH_TIMEOUT,
                        &httpc_data)) {
         goto do_exit;
     }
