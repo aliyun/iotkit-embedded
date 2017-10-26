@@ -375,6 +375,8 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         goto do_exit;
     }
 
+    /* p_context = NULL; */
+
     p_iotx_http->is_authed = 0;
 
     /* FIXME:some compile error when calling this function. Get TimeStamp */

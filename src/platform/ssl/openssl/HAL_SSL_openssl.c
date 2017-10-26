@@ -150,10 +150,10 @@ static int ssl_establish(int sock, SSL **ppssl)
         goto err;
     }
 
-    //if (ssl_verify_ca(server_cert) != 0)
-    //{
-    //    goto err;
-    //}
+    /* if (ssl_verify_ca(server_cert) != 0) */
+    /* { */
+    /*     goto err; */
+    /* } */
 
     X509_free(server_cert);
 
@@ -198,7 +198,7 @@ void *platform_ssl_connect(void *tcp_fd,
 
 int platform_ssl_close(void *ssl)
 {
-    //SOCKET sock = (SOCKET)SSL_get_fd( ssl );
+    /* SOCKET sock = (SOCKET)SSL_get_fd( ssl ); */
 
     SSL_set_shutdown((SSL *)ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
     SSL_free((SSL *)ssl);
@@ -218,7 +218,7 @@ int platform_ssl_close(void *ssl)
         ca_store = NULL;
     }
 
-    //ssl_destroy_net( sock );
+    /* ssl_destroy_net( sock ); */
 
     return 0;
 }
@@ -289,8 +289,8 @@ int platform_ssl_recv(void *ssl, char *buf, uint32_t len, int timeout_ms)
             }
         } while ((len_recv < len) && (time_left(t_end, GetTickCount()) > 0));
     }
-    //priority to return data bytes if any data be received from TCP connection.
-    //It will get error code on next calling
+    /* priority to return data bytes if any data be received from TCP connection. */
+    /* It will get error code on next calling */
 
     return (0 != len_recv) ? len_recv : err_code;
 }
