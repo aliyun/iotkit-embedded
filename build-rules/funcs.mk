@@ -88,7 +88,7 @@ endef
 #
 #	    ($(foreach d,$(COMP_LIB_COMPONENTS), \
 #
-#	        $(RECURSIVE_MAKE) pre-sub-build target-$(d) && \
+#	        $(RECURSIVE_MAKE) pre-build target-$(d) && \
 #	        $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$(d) $(LIBA_TARGET_$(d)) \
 #	            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(d)/$(COMPILE_LOG)) \
 #	            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(COMPILE_LOG)) \
