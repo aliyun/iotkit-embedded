@@ -54,11 +54,11 @@ config:
 	        echo ""; \
 	    fi \
 	else \
-	    if [ "$(BUILD_CONFIG)" != "" ] && [ -f $(BUILD_CONFIG) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
+	    if [ "$(DEFAULT_BLD)" != "" ] && [ -f $(DEFAULT_BLD) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
 	        printf "# Automatically Generated Section End\n\n" >> $(CONFIG_TPL); \
-	        printf "# %-10s %s\n" "VENDOR :" $$(basename $(BUILD_CONFIG)|cut -d. -f2) >> $(CONFIG_TPL); \
-	        printf "# %-10s %s\n" "MODEL  :" $$(basename $(BUILD_CONFIG)|cut -d. -f3) >> $(CONFIG_TPL); \
-	        cat $(BUILD_CONFIG) >> $(CONFIG_TPL); \
+	        printf "# %-10s %s\n" "VENDOR :" $$(basename $(DEFAULT_BLD)|cut -d. -f2) >> $(CONFIG_TPL); \
+	        printf "# %-10s %s\n" "MODEL  :" $$(basename $(DEFAULT_BLD)|cut -d. -f3) >> $(CONFIG_TPL); \
+	        cat $(DEFAULT_BLD) >> $(CONFIG_TPL); \
 	    else \
 	        printf "SELECT A CONFIGURATION:\n\n"; \
 	        LIST=$$(for i in $(CONFIG_DIR)/config.*.*; do basename $${i}; done|sort); \
@@ -77,7 +77,7 @@ config:
 	    command grep -m 1 "MODEL *:" $(CONFIG_TPL)|cut -c 3- && \
 	    echo ""; \
 	    if [ "$(MAKECMDGOALS)" = "config" ]; then true; else \
-	        if [ "$(BUILD_CONFIG)" = "" ]; then \
+	        if [ "$(DEFAULT_BLD)" = "" ]; then \
 	            touch $(STAMP_PRJ_CFG); \
 	        fi; \
 	    fi; \
