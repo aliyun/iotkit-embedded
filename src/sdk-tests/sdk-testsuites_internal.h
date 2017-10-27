@@ -27,6 +27,9 @@ extern "C" {
 #include "lite-utils.h"
 #include "security.h"
 
+void unittest_HAL_OS(void);
+
+
 #if defined(__cplusplus)
 }
 #endif
