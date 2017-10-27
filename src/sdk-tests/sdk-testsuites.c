@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
 
+    unittest_HAL_OS();
     unittest_string_utils();
     unittest_json_token();
 
@@ -40,4 +41,17 @@ int main(int argc, char *argv[])
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
     return 0;
+}
+
+void unittest_HAL_OS(void)
+{
+    log_info("HAL_UptimeMs() = %" PRIu64, HAL_UptimeMs());
+    HAL_SleepMs(100);
+    log_info("HAL_UptimeMs() = %" PRIu64 " (+100)", HAL_UptimeMs());
+    HAL_SleepMs(200);
+    log_info("HAL_UptimeMs() = %" PRIu64 " (+200)", HAL_UptimeMs());
+    HAL_SleepMs(400);
+    log_info("HAL_UptimeMs() = %" PRIu64 " (+400)", HAL_UptimeMs());
+
+    return;
 }

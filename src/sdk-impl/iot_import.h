@@ -134,7 +134,7 @@ void HAL_Free(_IN_ void *ptr);
  * @see None.
  * @note None.
  */
-uint32_t HAL_UptimeMs(void);
+uint64_t HAL_UptimeMs(void);
 
 
 /**
@@ -326,7 +326,6 @@ int32_t HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms
  * @see None.
  */
 int32_t HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
-
 
 #if defined(__cplusplus)
 }

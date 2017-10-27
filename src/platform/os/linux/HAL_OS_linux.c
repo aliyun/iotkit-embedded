@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
-
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/prctl.h>
@@ -83,14 +82,13 @@ void HAL_Free(_IN_ void *ptr)
     free(ptr);
 }
 
-uint32_t HAL_UptimeMs(void)
+uint64_t HAL_UptimeMs(void)
 {
-    struct timeval tv = { 0 };
-    uint32_t time_ms;
+    uint64_t            time_ms;
+    struct timespec     ts;
 
-    gettimeofday(&tv, NULL);
-
-    time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    time_ms = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000 / 1000);
 
     return time_ms;
 }
