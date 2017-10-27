@@ -39,6 +39,9 @@ extern "C" {
 #define IOT_TRUE    (1)     /* indicate boolean value true */
 #define IOT_FALSE   (0)     /* indicate boolean value false */
 
+#define PID_STRLEN_MAX      (64)
+#define MID_STRLEN_MAX      (64)
+
 /*********************************** mutex interface ***********************************/
 
 /** @defgroup group_platform_mutex mutex
@@ -53,8 +56,6 @@ extern "C" {
  * @note None.
  */
 void *HAL_MutexCreate(void);
-
-
 
 /**
  * @brief Destroy the specified mutex object, it will release related resource.
@@ -208,16 +209,16 @@ int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *fmt, va_l
 /**
  * @brief Get vendor ID of hardware module.
  *
- * @return NULL, Have NOT PID; NOT NULL, point to pid_str.
+ * @return the strlen of pid_str[] successfully written into.
  */
-char *HAL_GetPartnerID(char pid_str[]);
+int HAL_GetPartnerID(char pid_str[PID_STRLEN_MAX]);
 
 /**
  * @brief Get Module ID of hardware module.
  *
- * @return NULL, Have NOT MID; NOT NULL, point to mid_str.
+ * @return the strlen of mid_str[] successfully written into.
  */
-char *HAL_GetModuleID(char mid_str[]);
+int HAL_GetModuleID(char mid_str[MID_STRLEN_MAX]);
 
 /** @} */ /* end of group_platform_other */
 

@@ -29,6 +29,7 @@
 #include "utils_list.h"
 #include "utils_timer.h"
 #include "sdk-impl_internal.h"
+#include "report.h"
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
@@ -38,8 +39,6 @@
         #include "id2_crypto.h"
     #endif
 #endif
-#include "guider_internal.h"
-
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
 static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
@@ -2221,45 +2220,42 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 /* report ModuleID */
 static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
 {
-#define MSG_LEN  (62 + GUIDER_PID_LEN +GUIDER_MID_LEN + 32 +1)
-#define TOPIC_NAME_LEN  (26 + PRODUCT_KEY_LEN +DEVICE_NAME_LEN + 1)
-
     int                         ret;
-    char                        topic_name[TOPIC_NAME_LEN];
+    char                        topic_name[IOTX_URI_MAX_LEN + 1];
     iotx_mqtt_topic_info_t      topic_info;
-    int                         requestId = 100;
+    char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
     iotx_device_info_pt         dev  = iotx_device_info_get();
-    char                        pid[GUIDER_PID_LEN + 1] = {0};
-    char                        mid[GUIDER_MID_LEN + 1] = {0};
+    char                        pid[PID_STRLEN_MAX + 1] = {0};
+    char                        mid[MID_STRLEN_MAX + 1] = {0};
 
     memset(pid, 0, sizeof(pid));
     memset(mid, 0, sizeof(mid));
 
-    if (NULL == HAL_GetPartnerID(pid)) {
+    if (0 == HAL_GetPartnerID(pid)) {
         log_debug("PartnerID is Null");
         return SUCCESS_RETURN;
     }
-    if (NULL == HAL_GetModuleID(mid)) {
+    if (0 == HAL_GetModuleID(mid)) {
         log_debug("ModuleID is Null");
         return SUCCESS_RETURN;
     }
 
     log_debug("MID Report: started in MQTT");
 
+    iotx_midreport_reqid(requestId,
+                         dev->product_key,
+                         dev->device_name);
     /* 1,generate json data */
-    char *msg = HAL_Malloc(MSG_LEN);
+    char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
         log_err("allocate mem failed");
         return FAIL_RETURN;
     }
 
-    /*topic's json data: {"id":"requestId" ,"params":{"_sys_device_mid":mid,"_sys_device_pid":pid }}*/
-    ret = HAL_Snprintf(msg,
-                       MSG_LEN,
-                       "{\"id\":%d,\"params\":{\"_sys_device_mid\":\"%s\",\"_sys_device_pid\":\"%s\"}}",
-                       requestId,
-                       mid,
-                       pid);
+    iotx_midreport_payload(msg,
+                           requestId,
+                           mid,
+                           pid);
 
     log_debug("MID Report: json data = '%s'", msg);
 
@@ -2272,15 +2268,10 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     topic_info.dup = 0;
 
     /* 2,generate topic name */
-
-    /* reported topic name: "/sys/${productKey}/${deviceName}/thing/status/update" */
-    ret = HAL_Snprintf(topic_name,
-                       TOPIC_NAME_LEN,
-                       "/sys/%s/%s/thing/status/update",
-                       dev->product_key,
-                       dev->device_name);
-
-    /*IOTX_ASSERT(ret < TOPIC_NAME_LEN, "buffer should always enough");*/
+    ret = iotx_midreport_topic(topic_name,
+                               "",
+                               dev->product_key,
+                               dev->device_name);
 
     log_debug("MID Report: topic name = '%s'", topic_name);
 
@@ -2301,9 +2292,6 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
 
     log_debug("MID Report: finished, IOT_MQTT_Publish() = %d", ret);
     return SUCCESS_RETURN;
-
-#undef MSG_LEN
-#undef TOPIC_NAME_LEN
 }
 
 /************************  Public Interface ************************/

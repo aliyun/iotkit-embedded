@@ -28,7 +28,7 @@
 #include "utils_epoch_time.h"
 #include "sdk-impl_internal.h"
 #include "device.h"
-#include "guider_internal.h"
+#include "report.h"
 
 /*
 #define IOTX_HTTP_TIMESTAMP_OPTIONAL_ENABLE
@@ -171,44 +171,41 @@ static int construct_full_http_upstream_url(char *buf, const char *topic_path)
 /* report ModuleID */
 static int iotx_http_report_mid(iotx_http_t *p_context)
 {
-#define MSG_LEN  (62 + GUIDER_PID_LEN +GUIDER_MID_LEN + 32 +1)
-
     int                         ret;
     char                        topic_name[IOTX_URI_MAX_LEN + 1];
     char                        request_buf[1024];
     iotx_http_message_param_t   msg_param;
-    int                         requestId = 300;
-    char                        pid[GUIDER_PID_LEN + 1] = {0};
-    char                        mid[GUIDER_MID_LEN + 1] = {0};
+    char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
+    char                        pid[PID_STRLEN_MAX + 1] = {0};
+    char                        mid[MID_STRLEN_MAX + 1] = {0};
 
     memset(pid, 0, sizeof(pid));
     memset(mid, 0, sizeof(mid));
 
-    if (NULL == HAL_GetPartnerID(pid)) {
+    if (0 == HAL_GetPartnerID(pid)) {
         log_debug("PartnerID is Null.");
         return SUCCESS_RETURN;
     }
-    if (NULL == HAL_GetModuleID(mid)) {
+    if (0 == HAL_GetModuleID(mid)) {
         log_debug("ModuleID is Null.");
         return SUCCESS_RETURN;
     }
 
     log_debug("MID Report: started in HTTP");
 
+    iotx_midreport_reqid(requestId,
+                         (char *)p_iotx_http->p_devinfo->product_key,
+                         (char *)p_iotx_http->p_devinfo->device_name);
     /* 1,generate json data */
-    char *msg = HAL_Malloc(MSG_LEN);
+    char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
         log_err("allocate mem failed");
         return FAIL_RETURN;
     }
-
-    /*topic's json data: {"id":"requestId" ,"params":{"_sys_device_mid":mid,"_sys_device_pid":pid }}*/
-    ret = HAL_Snprintf(msg,
-                       MSG_LEN,
-                       "{\"id\":%d,\"params\":{\"_sys_device_mid\":\"%s\",\"_sys_device_pid\":\"%s\"}}",
-                       requestId,
-                       mid,
-                       pid);
+    iotx_midreport_payload(msg,
+                           requestId,
+                           mid,
+                           pid);
 
     log_debug("MID Report: json data = '%s'", msg);
 
@@ -222,15 +219,10 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
     msg_param.topic_path = topic_name;
 
     /* 2,generate topic name */
-
-    /* reported topic name: "/sys/${productKey}/${deviceName}/thing/status/update" */
-    ret = HAL_Snprintf(topic_name,
-                       IOTX_URI_MAX_LEN,
-                       "/topic/sys/%s/%s/thing/status/update",
-                       (char *)p_iotx_http->p_devinfo->product_key,
-                       (char *)p_iotx_http->p_devinfo->device_name);
-
-    /* IOTX_ASSERT(ret < TOPIC_NAME_LEN, "buffer should always enough"); */
+    ret = iotx_midreport_topic(topic_name,
+                               "/topic",
+                               (char *)p_iotx_http->p_devinfo->product_key,
+                               (char *)p_iotx_http->p_devinfo->device_name);
 
     log_debug("MID Report: topic name = '%s'", topic_name);
 
@@ -239,7 +231,7 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
         HAL_Free(msg);
         return FAIL_RETURN;
     }
-
+    /*3,send topic */
     ret = IOT_HTTP_SendMessage((void *)p_context, &msg_param);
     if (0 == ret) {
         log_info("message response is '%s'", msg_param.response_payload);
@@ -254,7 +246,6 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
     log_debug("MID Report: finished, IOT_HTTP_SendMessage() = %d", ret);
     return SUCCESS_RETURN;
 
-#undef MSG_LEN
 }
 
 void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
