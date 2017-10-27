@@ -53,5 +53,10 @@ void unittest_HAL_OS(void)
     HAL_SleepMs(400);
     log_info("HAL_UptimeMs() = %" PRIu64 " (+400)", HAL_UptimeMs());
 
+    HAL_Srandom((uint32_t)HAL_UptimeMs());
+    log_info("HAL_Random(100) = %u", HAL_Random(100));
+    log_info("HAL_Random(50) = %u", HAL_Random(50));
+    log_info("HAL_Random(20) = %u", HAL_Random(20));
+
     return;
 }
