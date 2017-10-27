@@ -138,7 +138,7 @@ uint64_t HAL_UptimeMs(void);
 
 
 /**
- * @brief sleep thread itself.
+ * @brief Sleep thread itself.
  *
  * @param [in] ms @n the time interval for which execution is to be suspended, in milliseconds.
  * @return None.
@@ -147,6 +147,25 @@ uint64_t HAL_UptimeMs(void);
  */
 void HAL_SleepMs(_IN_ uint32_t ms);
 
+/**
+ * @brief Set seed for a sequence of pseudo-random integers, which will be returned by HAL_Random()
+ *
+ * @param [in] seed @n A start point for the random number sequence
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+void HAL_Srandom(uint32_t seed);
+
+/**
+ * @brief Get a random integer
+ *
+ * @param [in] region @n Range of generated random numbers
+ * @return Random number
+ * @see None.
+ * @note None.
+ */
+uint32_t HAL_Random(uint32_t region);
 
 /**
  * @brief Writes formatted data to stream.

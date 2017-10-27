@@ -98,6 +98,16 @@ void HAL_SleepMs(_IN_ uint32_t ms)
     usleep(1000 * ms);
 }
 
+void HAL_Srandom(uint32_t seed)
+{
+    srandom(seed);
+}
+
+uint32_t HAL_Random(uint32_t region)
+{
+    return (region > 0) ? (random() % region) : 0;
+}
+
 int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)
 {
     va_list args;
