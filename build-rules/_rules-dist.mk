@@ -24,4 +24,4 @@ final-out: sub-mods
 	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || true
 	$(TOP_Q)$(STRIP) --strip-debug $(FINAL_DIR)/lib/* 2>/dev/null || true
 
-	$(TOP_Q)$(call $(POST_FINAL_OUT_HOOK))
+	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))

@@ -1,9 +1,12 @@
-SUBDIRS                := directory-not-exist-actually
+COVERAGE_CMD            := $(SCRIPT_DIR)/walk_through_examples.sh
+DEFAULT_BLD             := src/configs/config.ubuntu.x86
+POST_FINAL_OUT_HOOK     := Post_Distro
 
-PLATFORM_CC            ?= gcc
-PLATFORM_AR            ?= ar
-PLATFORM_OS             = linux
-PLATFORM_NETWORK        = linuxsock
+SUBDIRS                 := directory-not-exist-actually
+
+PLATFORM_CC             ?= gcc
+PLATFORM_AR             ?= ar
+PLATFORM_OS             ?= linux
 
 FEATURE_MQTT_SHADOW         ?= $(FEATURE_MQTT_COMM_ENABLED)
 FEATURE_COAP_DTLS_SUPPORT   ?= $(FEATURE_COAP_COMM_ENABLED)
