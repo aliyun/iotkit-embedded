@@ -136,15 +136,21 @@ void HAL_Printf(_IN_ const char *fmt, ...)
     fflush(stdout);
 }
 
-char *HAL_GetPartnerID(char pid_str[])
+int HAL_GetPartnerID(char pid_str[PID_STRLEN_MAX])
 {
-    strcpy(pid_str, "abc");
-    return "abc";
+    memset(pid_str, 0x0, PID_STRLEN_MAX);
+#ifdef __UBUNTU_SDK_DEMO__
+    strcpy(pid_str, "example.demo.partner-id");
+#endif
+    return strlen(pid_str);
 }
 
-char *HAL_GetModuleID(char mid_str[])
+int HAL_GetModuleID(char mid_str[MID_STRLEN_MAX])
 {
-    strcpy(mid_str, "xyz");
-    return "xyz";
+    memset(mid_str, 0x0, MID_STRLEN_MAX);
+#ifdef __UBUNTU_SDK_DEMO__
+    strcpy(mid_str, "example.demo.module-id");
+#endif
+    return strlen(mid_str);
 }
 

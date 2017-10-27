@@ -46,8 +46,7 @@
 #define CONN_SECMODE_LEN            (32)
 
 #define GUIDER_SIGN_LEN             (256)
-#define GUIDER_PID_LEN              (64)
-#define GUIDER_MID_LEN              (64)
+
 #define GUIDER_TS_LEN               (16)
 #define GUIDER_URL_LEN              (256)
 
