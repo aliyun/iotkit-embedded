@@ -1,5 +1,6 @@
 CONFIG_ENV_CFLAGS += \
     --cpu=Cortex-A7 \
+    --gnu \
     -O1 --diag_suppress=9931 \
     --arm_only \
     --diag_error=warning \
