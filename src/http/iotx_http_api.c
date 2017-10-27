@@ -268,7 +268,7 @@ void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
         p_iotx_http = LITE_malloc(sizeof(iotx_http_t));
 
         if (NULL == p_iotx_http) {
-            log_err(" Allocate memory for p_iotx_http failed\r\n");
+            log_err("Allocate memory for p_iotx_http failed\r\n");
             return NULL;
         }
     } else {
@@ -279,7 +279,7 @@ void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
 
     p_iotx_http->p_auth_token = LITE_malloc(IOTX_HTTP_AUTH_TOKEN_LEN);
     if (NULL == p_iotx_http->p_auth_token) {
-        log_err(" Allocate memory for auth token failed\r\n");
+        log_err("Allocate memory for auth token failed\r\n");
         goto err;
     }
     memset(p_iotx_http->p_auth_token, 0x00, IOTX_HTTP_AUTH_TOKEN_LEN);
@@ -289,7 +289,7 @@ void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
     /*Get deivce information*/
     p_iotx_http->p_devinfo = LITE_malloc(sizeof(iotx_device_info_t));
     if (NULL == p_iotx_http->p_devinfo) {
-        log_err(" Allocate memory for p_iotx_http->p_devinfo failed\r\n");
+        log_err("Allocate memory for p_iotx_http->p_devinfo failed\r\n");
         goto err;
     }
     memset(p_iotx_http->p_devinfo, 0x00, sizeof(iotx_device_info_t));
