@@ -21,34 +21,42 @@ function Update_Sources()
     Trace "SRC_DIR:         [${SRC_DIR}]"
     Trace "BLD_DIR:         [${BLD_DIR}]"
     Trace "PKG_SOURCE:      [${PKG_SOURCE}]"
-    Trace "PKG_UPDATE:      [${PKG_UPDATE}]"
 
-    #set -x
     if [ "${PKG_SOURCE}" != "" ] && [ -d ${PKG_SOURCE} ]; then
-        if  [ "${PKG_UPDATE}" != "" ] && 
-            [ "$(expr substr "${PKG_UPDATE}" 1 4)" = "git@" ] &&
-            [ ! -d ${BLD_DIR}/$(basename ${PKG_SOURCE}) ]; then
+        GIT_BASENAME=$(basename ${PKG_SOURCE})
+        GIT_NAME_LEN=$(expr length ${GIT_BASENAME})
+        GIT_OFFSET=$(( GIT_NAME_LEN - 3 ))
+        GIT_MOD_NAME=$(expr substr ${GIT_BASENAME} 1 $(( GIT_OFFSET-1 )))
+        GIT_POSTFIX=$(expr substr ${GIT_BASENAME} ${GIT_OFFSET} ${GIT_NAME_LEN})
+        Trace "GIT_POSTFIX:     [${GIT_POSTFIX}]"
+        Trace "GIT_MOD_NAME:    [${GIT_MOD_NAME}]"
+    fi
 
-                echo ""
-                echo "[${PKG_SOURCE}] <= [${PKG_UPDATE}]"
-                echo ""
+    if [ "${GIT_POSTFIX}" = ".git" ]; then
+        GIT_COPY=${MODULE}/${GIT_MOD_NAME}
+        DEV_COPY_BASE=${TOP_DIR}.pkgs
+        Trace "GIT_COPY:        [${GIT_COPY}]"
+        Trace "DEV_COPY_BASE:   [${DEV_COPY_BASE}]"
 
-                TMPD=$(mktemp -d)
-                git clone ${PKG_UPDATE} ${TMPD} > /dev/null 2>&1
-                rm -rf ${PKG_SOURCE}.backup
-                cp -rf ${PKG_SOURCE}/ ${PKG_SOURCE}.backup
-                rm -rf ${PKG_SOURCE}/*
-                cp -rf ${TMPD}/* ${PKG_SOURCE}/
-                rm -rf ${TMPD}
+        eval "${CMDSET_X}"
+        mkdir -p ${DEV_COPY_BASE}
+        cd ${DEV_COPY_BASE}
+        if [ ! -d ${GIT_MOD_NAME} ]; then
+            git clone ${OPTION_Q} ${TOP_DIR}/${PKG_SOURCE} ${GIT_MOD_NAME}
+        else
+            cd ${GIT_MOD_NAME}
+            git pull ${OPTION_Q} || exit 1
         fi
 
-        # rm -rf ${OUTPUT_DIR}/${MODULE}/$(basename ${PKG_SOURCE})
-        # cp ${VERB_OPT} -rf ${PKG_SOURCE} ${OUTPUT_DIR}/${MODULE}
-
+        cd ${TOP_DIR}
+        rm -fr ${SRC_DIR}/${GIT_MOD_NAME}
+        ln -sf ${DEV_COPY_BASE}/${GIT_MOD_NAME} ${SRC_DIR}/${GIT_MOD_NAME}
+        PKG_SOURCE=""
+        set +x
     fi
 
     for FILE in \
-        $(find ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
+        $(find -L ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
         $(find ${SRC_DIR}/ -maxdepth 1 -name "*.patch" -o -name "lib*.a" -o -name "lib*.so") \
         $([ "" != "${PKG_SOURCE}" ] && [ -d ${PKG_SOURCE} ] && find ${PKG_SOURCE}/ -type f -o -type l) \
     ; \
@@ -71,7 +79,7 @@ function Update_Sources()
         if [ ! -e ${FILE_COPY} -o \
              ${FILE} -nt ${FILE_COPY} ]; then
              mkdir -p ${BLD_DIR}/${FILE_DIR}
-             cp ${VERB_OPT} -f ${FILE} ${FILE_COPY}
+             cp ${OPTION_V} -f ${FILE} ${FILE_COPY}
         fi
     done
 }
@@ -127,10 +135,11 @@ if [ ! -d ${SRC_DIR} ]; then
     exit 0
 fi
 
-# [ "${VERBOSE_PRE_BLD}" != "" ] && set -x
-
 if [ "${VERBOSE_PRE_BLD}" != "" ]; then
-    VERB_OPT="-v"
+    OPTION_V="-v"
+    CMDSET_X="set -x"
+else
+    OPTION_Q="-q"
 fi
 
 mkdir -p ${BLD_DIR}

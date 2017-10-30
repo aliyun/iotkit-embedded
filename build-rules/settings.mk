@@ -1,6 +1,6 @@
 # Basic Settings
 #
-SHELL           = /bin/bash
+SHELL           := /bin/bash
 TOP_DIR         ?= $(CURDIR)
 
 # Settings of input directory

@@ -97,7 +97,7 @@ ifneq (,$(findstring gcc,$(CC)))
 	    $(INTERNAL_INCLUDES) \
 	    $(EXTERNAL_INCLUDES) \
 	    $(CFLAGS) \
-	$< > $@.$$$$; \
+	$< > $@.$$$$ 2>/dev/null; \
 	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $@.$$$$; \
 	mv $@.$$$$ $@;
 endif
