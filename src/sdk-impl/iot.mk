@@ -1,5 +1,6 @@
-LIBA_TARGET := libsdk-impl.a
+LIBA_TARGET := libiot-sdkimpl.a
 HDR_REFS    := src
+DEPENDS     := src/utils
 
 LIBHDR_DIR  := iot-sdk
 LIB_HEADERS := iot_import.h iot_export.h

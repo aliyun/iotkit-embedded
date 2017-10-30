@@ -1,2 +1,2 @@
-LIBA_TARGET := libshadow.a
+LIBA_TARGET := libiot-shadow.a
 HDR_REFS    := src
