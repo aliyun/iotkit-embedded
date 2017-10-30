@@ -96,7 +96,6 @@ pre-build: MOD = $(subst target-,,$(filter-out $@,$(MAKECMDGOALS)))
 pre-build: $(STAMP_BLD_ENV)
 	$(if $(filter 0,$(MAKELEVEL)),,@) \
 	$(strip $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \
-	    PKG_UPDATE='$(PKG_UPDATE_$(MOD))' \
 	    PKG_SOURCE="$(PKG_SOURCE_$(MOD))" \
 	    PKG_SWITCH="$(PKG_SWITCH_$(MOD))" \
 	) \

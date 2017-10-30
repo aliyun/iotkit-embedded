@@ -8,6 +8,7 @@ $(eval \
 endef
 
 define Post_Distro
+    @rm -rf $(FINAL_DIR)/include/LITE*
     @find $(FINAL_DIR) -name "*.[ch]" -exec chmod a-x {} \;
     @mkdir -p $(FINAL_DIR)/src
     $(if $(filter y,$(FEATURE_MQTT_ID2_AUTH)),

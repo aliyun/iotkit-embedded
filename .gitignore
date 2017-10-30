@@ -22,3 +22,4 @@ sample/mqtt/mqtt
 .config
 output/
 ota.bin
+src/packages/*.git/hooks/*.sample
