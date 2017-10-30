@@ -57,8 +57,7 @@ function Update_Sources()
     fi
 
     for FILE in \
-        $([ -d ${SRC_DIR}/${GIT_MOD_NAME} ] && find -L ${SRC_DIR}/${GIT_MOD_NAME} -type f -not -path "*/.git/*") \
-        $(find ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
+        $(find -L ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
         $(find ${SRC_DIR}/ -maxdepth 1 -name "*.patch" -o -name "lib*.a" -o -name "lib*.so") \
         $([ "" != "${PKG_SOURCE}" ] && [ -d ${PKG_SOURCE} ] && find ${PKG_SOURCE}/ -type f -o -type l) \
     ; \
