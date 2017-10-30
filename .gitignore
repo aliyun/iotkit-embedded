@@ -9,7 +9,6 @@
 *.gcda
 /INSTALL
 cscope.*
-tags
 *.swp
 *.swo
 ltmain.sh

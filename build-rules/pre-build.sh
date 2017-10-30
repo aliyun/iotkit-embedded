@@ -42,7 +42,6 @@ function Update_Sources()
         mkdir -p ${DEV_COPY_BASE}
         cd ${DEV_COPY_BASE}
         if [ ! -d ${GIT_MOD_NAME} ]; then
-            echo ". Create source code dev-base from scratch"
             git clone ${OPTION_Q} ${TOP_DIR}/${PKG_SOURCE} ${GIT_MOD_NAME}
         else
             cd ${GIT_MOD_NAME}
