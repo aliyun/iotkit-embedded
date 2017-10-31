@@ -230,9 +230,10 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
             DTLS_ERR("mbedtls_ssl_cookie_setup result 0x%04x\r\n", result);
             goto error;
         }
+#if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY) && defined(MBEDTLS_SSL_SRV_C)
         mbedtls_ssl_conf_dtls_cookies(&p_dtls_session->conf, mbedtls_ssl_cookie_write,
                                       mbedtls_ssl_cookie_check, &p_dtls_session->cookie_ctx);
-
+#endif
 
         result = _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
 
