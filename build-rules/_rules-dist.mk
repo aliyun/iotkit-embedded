@@ -16,8 +16,8 @@ final-out: sub-mods
 	        fi; \
 	    done; \
 	    VDR_NAME=$$(grep -m 1 "VENDOR *:" $(CONFIG_TPL) 2>/dev/null|awk '{ print $$NF }'); \
-	    if [ -d $(IMPORT_DIR)/$${VDR_NAME}/libs ]; then \
-	        cp -f $(IMPORT_DIR)/$${VDR_NAME}/libs/lib* $(FINAL_DIR)/lib; \
+	    if [ -d $(IMPORT_DIR)/$${VDR_NAME}/$(PREBUILT_LIBDIR) ]; then \
+	        cp -f $(IMPORT_DIR)/$${VDR_NAME}/$(PREBUILT_LIBDIR)/lib* $(FINAL_DIR)/lib; \
 	    fi; \
 	fi
 
