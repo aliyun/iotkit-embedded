@@ -22,5 +22,6 @@ sample/mqtt/mqtt
 output/
 ota.bin
 src/packages/*.git/hooks/*.sample
+src/tls/mbedtls-in-iotkit
 src/log/LITE-log
 src/utils/LITE-utils
