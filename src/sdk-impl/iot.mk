@@ -1,4 +1,4 @@
-LIBA_TARGET := libiot-sdkimpl.a
+LIBA_TARGET := libiot_sdkimpl.a
 HDR_REFS    := src
 DEPENDS     := src/utils
 

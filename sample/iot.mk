@@ -1,7 +1,7 @@
 DEPENDS             := src/platform
 LDFLAGS             := -liot_sdk
 LDFLAGS             += -liot_platform
-LDFLAGS             += -Bstatic -lmbedtls -lmbedx509 -lmbedcrypto
+LDFLAGS             += -Bstatic -liot_tls
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
 
 ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
@@ -27,7 +27,7 @@ SRCS_mqtt_rrpc-example := mqtt/mqtt_rrpc-example.c
     else
     LDFLAGS     += -ltfs_online
     endif
-    LDFLAGS     += -lmbedcrypto
+    LDFLAGS     += -liot_tls
     endif
 
 endif

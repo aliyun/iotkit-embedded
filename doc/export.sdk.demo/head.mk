@@ -8,6 +8,6 @@ CFLAGS      += -I../include/mbedtls
 
 LDFLAGS     := -L../lib
 LDFLAGS     += -liot_sdk -liot_platform
-LDFLAGS     += -Bstatic -lmbedtls -lmbedx509 -lmbedcrypto
+LDFLAGS     += -Bstatic -liot_tls
 LDFLAGS     += -lgcov
 

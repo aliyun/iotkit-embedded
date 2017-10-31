@@ -1,2 +1,2 @@
-LIBA_TARGET := libiot-system.a
+LIBA_TARGET := libiot_system.a
 HDR_REFS    := src

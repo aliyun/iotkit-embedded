@@ -8,4 +8,4 @@ ifneq (,$(filter -DMQTT_ID2_AUTH,$(CFLAGS)))
 LDFLAGS     += -ltfs
 endif
 
-LDFLAGS     += -Bstatic -lmbedtls -lmbedx509 -lmbedcrypto
+LDFLAGS     += -Bstatic -liot_tls

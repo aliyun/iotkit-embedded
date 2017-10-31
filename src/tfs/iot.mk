@@ -1,2 +1,2 @@
-LIBA_TARGET := libiot-tfs.a
+LIBA_TARGET := libiot_tfs.a
 HDR_REFS    := src

@@ -10,7 +10,7 @@ CFLAGS      += -DMQTT_ID2_AUTH
 LDFLAGS     := -L../lib
 LDFLAGS     += -liot_sdk -liot_platform
 LDFLAGS     += -ltfs_online -liot-tfs
-LDFLAGS     += -Bstatic -lmbedtls -lmbedx509 -lmbedcrypto
+LDFLAGS     += -Bstatic -liot_tls
 LDFLAGS     += -liot_sdk -liot_platform
 LDFLAGS     += -lgcov
 

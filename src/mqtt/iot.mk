@@ -1,2 +1,2 @@
-LIBA_TARGET := libiot-mqtt.a
+LIBA_TARGET := libiot_mqtt.a
 HDR_REFS    := src
