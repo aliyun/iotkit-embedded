@@ -2,6 +2,7 @@ include make.settings
 include src/configs/default_settings.mk
 include src/scripts/parse_make_settings.mk
 
+SUBDIRS += src/tls
 ifeq (gcc,$(strip $(PLATFORM_CC)))
 SUBDIRS += src/platform
 SUBDIRS += sample
@@ -20,7 +21,6 @@ COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/log \
     src/utils \
-    src/tls \
     src/system \
     src/sdk-impl \
 
