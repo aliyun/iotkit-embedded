@@ -1,4 +1,5 @@
 CONFIG_ENV_CFLAGS   += -Os -Wall -Werror
+CONFIG_ENV_CFLAGS   += -D_PLATFORM_IS_WINDOWS_
 
 CONFIG_LIB_EXPORT   := static
 

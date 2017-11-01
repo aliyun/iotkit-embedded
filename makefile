@@ -2,17 +2,6 @@ include make.settings
 include src/configs/default_settings.mk
 include src/scripts/parse_make_settings.mk
 
-SUBDIRS += src/tls
-ifeq (gcc,$(strip $(PLATFORM_CC)))
-SUBDIRS += src/platform
-SUBDIRS += sample
-SUBDIRS += src/sdk-tests
-endif
-ifeq (i686-w64-mingw32-gcc,$(strip $(PLATFORM_CC)))
-SUBDIRS += src/platform
-SUBDIRS += sample
-endif
-
 # CFLAGS  += -DTEST_MQTT_DAILY
 # CFLAGS  += -DTEST_HTTP_DAILY
 # CFLAGS  += -DTEST_COAP_DAILY
