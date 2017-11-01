@@ -1,20 +1,10 @@
+## 详细技术说明文档, 请访问[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
+
 ## 编译配置项说明
 
 **请先下载最新版本设备端C语言SDK** [SDK下载](https://help.aliyun.com/document_detail/42648.html)
 
 解压之后, 打开编译配置文件`make.settings`, 根据需要编辑配置项:
-
-    BUILD_TYPE                  = debug
-
-    PLATFORM_CC                 = gcc
-    PLATFORM_AR                 = ar
-    PLATFORM_OS                 = linux
-
-    #
-    # Uncomment below and specify PATH to your toolchain when cross-compile SDK
-    #
-    # PLATFORM_CC = /path/to/your/cross/gcc
-    # PLATFORM_AR = /path/to/your/cross/ar
 
     FEATURE_MQTT_COMM_ENABLED   = y     # 是否打开MQTT通道的总开关
     FEATURE_MQTT_DIRECT         = y     # 是否打开MQTT直连的分开关
@@ -26,10 +16,6 @@
 
 | 配置选项                    | 含义                                                            |
 |-----------------------------|-----------------------------------------------------------------|
-| BUILD_TYPE                  | 指定编译SDK的版本类型, 支持`debug`, `release`                   |
-| PLATFORM_CC                 | C源码编译器, 若交叉编译, 请保证交叉的`gcc/ar/strip`在同一目录   |
-| PLATFORM_AR                 | 静态库压缩器, 若交叉编译, 请保证交叉的`gcc/ar/strip`在同一目录  |
-| PLATFORM_OS                 | 指定目标平台的操作系统, SDK中有含一份目标平台为桌面linux的示例  |
 | FEATURE_MQTT_COMM_ENABLED   | 是否使能MQTT通道功能的总开关                                    |
 | FEATURE_MQTT_DIRECT         | 是否用MQTT直连模式代替HTTPS三方认证模式做设备认证               |
 | FEATURE_MQTT_DIRECT_NOTLS   | 使用MQTT直连模式做设备认证时, 是否要关闭MQTT over TLS           |
@@ -38,17 +24,70 @@
 
 
 ## 编译 & 运行
-请参考[设备端快速开始](https://help.aliyun.com/document_detail/30530.html)
+请参考[README.md](https://github.com/aliyun/iotkit-embedded/blob/master/README.md)
 
 ## C-SDK提供的功能API说明
 
-以下为华东2站点V2.0版本的C-SDK提供的功能和对应的API, 用于让用户编写业务逻辑, 封装AT命令时, 也是基于这些API
+以下为华东2站点V2.0+版本的C-SDK提供的功能和对应的API, 用于让用户编写业务逻辑, 封装AT命令时, 也是基于这些API
 
 更加准确详细和权威的描述, 以代码`src/sdk-impl/iot_export.h`, 以及`src/sdk-impl/exports/*.h`中的注释为准
 
 如何使用这些API编写应用逻辑, 以代码`sample/*/*.c`的示例程序为准
 
-**必选API**
+### **API列表**
+用如下命令, 可以列出当前SDK代码提供的所有面向用户的API函数:
+
+    $ cd src/sdk-impl
+    $ grep -o "IOT_[A-Z][_a-zA-Z]*[^_]\> *(" iot_export.h exports/*.h|sed 's!.*:\(.*\)(!\1!'|cat -n
+
+     1  IOT_OpenLog
+     2  IOT_CloseLog
+     3  IOT_SetLogLevel
+     4  IOT_DumpMemoryStats
+     5  IOT_SetupConnInfo
+     6  IOT_SetupConnInfoSecure
+     7  IOT_CoAP_Init
+     8  IOT_CoAP_Deinit
+     9  IOT_CoAP_DeviceNameAuth
+    10  IOT_CoAP_Yield
+    11  IOT_CoAP_SendMessage
+    12  IOT_CoAP_GetMessagePayload
+    13  IOT_CoAP_GetMessageCode
+    14  IOT_HTTP_Init
+    15  IOT_HTTP_DeInit
+    16  IOT_HTTP_DeviceNameAuth
+    17  IOT_HTTP_SendMessage
+    18  IOT_HTTP_Disconnect
+    19  IOT_MQTT_Construct
+    20  IOT_MQTT_ConstructSecure
+    21  IOT_MQTT_Destroy
+    22  IOT_MQTT_Yield
+    23  IOT_MQTT_CheckStateNormal
+    24  IOT_MQTT_Subscribe
+    25  IOT_MQTT_Unsubscribe
+    26  IOT_MQTT_Publish
+    27  IOT_OTA_Init
+    28  IOT_OTA_Deinit
+    29  IOT_OTA_ReportVersion
+    30  IOT_OTA_ReportProgress
+    31  IOT_OTA_IsFetching
+    32  IOT_OTA_IsFetchFinish
+    33  IOT_OTA_FetchYield
+    34  IOT_OTA_Ioctl
+    35  IOT_OTA_GetLastError
+    36  IOT_Shadow_Construct
+    37  IOT_Shadow_Destroy
+    38  IOT_Shadow_Yield
+    39  IOT_Shadow_RegisterAttribute
+    40  IOT_Shadow_DeleteAttribute
+    41  IOT_Shadow_PushFormat_Init
+    42  IOT_Shadow_PushFormat_Add
+    43  IOT_Shadow_PushFormat_Finalize
+    44  IOT_Shadow_Push
+    45  IOT_Shadow_Push_Async
+    46  IOT_Shadow_Pull
+
+### **必选API**
 
 | 序号  | 函数名                       | 说明                                                               |
 |-------|------------------------------|--------------------------------------------------------------------|
@@ -57,7 +96,7 @@
 |  3    | IOT_CloseLog                 | 停止打印日志信息(log), 入参为空                                    |
 |  4    | IOT_DumpMemoryStats          | 调试函数, 打印内存的使用统计情况, 入参为1-5, 数字越大, 打印越详细  |
 
-**CoAP功能相关**
+### **CoAP功能相关**
 
 | 序号  | 函数名                       | 说明                                                                           |
 |-------|------------------------------|--------------------------------------------------------------------------------|
@@ -69,7 +108,7 @@
 |  6    | IOT_CoAP_SendMessage         | CoAP会话阶段, 连接已成功建立后调用, 组织一个完整的CoAP报文向服务器发送         |
 |  7    | IOT_CoAP_Yield               | CoAP会话阶段, 连接已成功建立后调用, 检查和收取服务器对`CoAP Request`的回复报文 |
 
-**MQTT功能相关**
+### **MQTT功能相关**
 
 | 序号  | 函数名                       | 说明                                                                           |
 |-------|------------------------------|--------------------------------------------------------------------------------|
@@ -82,7 +121,7 @@
 |  7    | IOT_MQTT_Unsubscribe         | MQTT会话阶段, 组织一个完整的`MQTT UnSubscribe`报文, 向服务端发送取消订阅请求   |
 |  8    | IOT_MQTT_Yield               | MQTT会话阶段, MQTT主循环函数, 内含了心跳的维持, 服务器下行报文的收取等         |
 
-**OTA功能相关(模组实现时的可选功能)**
+### **OTA功能相关(模组实现时的可选功能)**
 
 | 序号  | 函数名                       | 说明                                                                                   |
 |-------|------------------------------|----------------------------------------------------------------------------------------|
@@ -96,7 +135,7 @@
 |  8    | IOT_OTA_IsFetching           | OTA下载阶段, 判断固件下载是否仍在进行中, 尚未完成全部固件内容的下载                    |
 |  9    | IOT_OTA_ReportProgress       | 可选API, OTA下载阶段, 调用此函数向服务端汇报已经下载了全部固件内容的百分之多少         |
 
-**HTTP功能相关**
+### **HTTP功能相关**
 
 | 序号  | 函数名                       | 说明                                                                                   |
 |-------|------------------------------|----------------------------------------------------------------------------------------|
@@ -104,8 +143,9 @@
 |  2    | IOT_HTTP_DeInit              | Https实例的摧毁函数, 销毁所有相关的数据结构                                            |
 |  3    | IOT_HTTP_DeviceNameAuth      | 基于控制台申请的`DeviceName`, `DeviceSecret`, `ProductKey`做设备认证                   |
 |  4    | IOT_HTTP_SendMessage         | Https会话阶段, 组织一个完整的HTTP报文向服务器发送,并同步获取HTTP回复报文               |
+|  5    | IOT_HTTP_Disconnect          | Https会话阶段, 关闭HTTP层面的连接, 但是仍然保持TLS层面的连接                           |
 
-**设备影子相关(模组实现时的可选功能)**
+### **设备影子相关(模组实现时的可选功能)**
 
 | 序号  | 函数名                          | 说明                                                                            |
 |-------|---------------------------------|---------------------------------------------------------------------------------|
@@ -120,4 +160,3 @@
 |  9    | IOT_Shadow_RegisterAttribute    | 创建一个数据类型注册到服务端, 注册时需要`*PushFormat*()`接口创建的数据类型格式  |
 | 10    | IOT_Shadow_DeleteAttribute      | 删除一个已被成功注册的数据属性                                                  |
 | 11    | IOT_Shadow_Yield                | MQTT的主循环函数, 调用后接受服务端的下推消息, 更新本地的数据属性                |
-

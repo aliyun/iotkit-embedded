@@ -1,11 +1,13 @@
 本文以Linux下C语言版SDK为例, 演示如何快速体验让设备连接到阿里云IoT, 并通过MQTT协议的PUB/SUB实现一个简单的M2M通信过程.
 
+## 详细说明请访问[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)和[官方SDK首页](https://github.com/aliyun/iotkit-embedded)
+
 ## 第一步: 在控制台中创建设备
 
 登录[IoT控制台](http://iot.console.aliyun.com), 创建产品及在产品下创建设备和Topic类, 具体步骤如下:
 
-   + 创建产品, 可得`ProductKey`
-   + 在产品下创建设备, 可得`DeviceName`, `DeviceSecret`
+   + 创建产品, 可得到`ProductKey`
+   + 在产品下创建设备, 可得到`DeviceName`, `DeviceSecret`
    + 定义Topic: `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`, 并设置权限为: 设备具有发布与订阅 **(此步骤非常重要)**
 
 具体请参考[控制台使用手册](https://help.aliyun.com/document_detail/42714.html)文档中的`创建产品`, `添加设备`以及`获取设备Topic`部分.
@@ -37,7 +39,7 @@
 * 返回顶层目录
 * 执行make指令, 编译SDK, 命令如下
 
-        make reconfig
+        make distclean
         make
 
 编译成功后, 在相应目录生成样例可执行程序.
@@ -47,13 +49,13 @@
 执行目录 `output/release/bin/` 下的可执行程序:
 
     cd output/release/bin
-    ./mqtt-example loop
+    ./mqtt-example
 
 样例程序的基本逻辑流程为:
 
 1. 创建一个MQTT客户端
 2. 订阅主题 `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`
-3. 循环向该主题发布消息
+3. 向该主题发布消息
 
 ## 其它
 ### 编译输出的说明
@@ -62,30 +64,26 @@
 
     +-- bin
     |   +-- coap-example
+    |   +-- ...
     |   +-- mqtt-example
     +-- include
-    |   +-- iot-sdk
-    |   |   +-- exports
-    |   |   |   +-- iot_export_coap.h
-    |   |   |   ...
-    |   |   |   +-- iot_export_mqtt.h
-    |   |   +-- imports
-    |   |   |   +-- iot_import_coap.h
-    |   |   |   +-- iot_import_dtls.h
-    |   |   +-- iot_export.h
-    |   |   +-- iot_import.h
-    |   +-- mbedtls
-    |       +-- aes.h
-    |       ...
-    |       +-- xtea.h
+    |   +-- exports
+    |   |   +-- iot_export_coap.h
+    |   |   +-- ...
+    |   |   +-- iot_export_shadow.h
+    |   +-- imports
+    |   |   +-- iot_import_coap.h
+    |   |   +-- ...
+    |   |   +-- iot_import_ota.h
+    |   +-- iot_export.h
+    |   +-- iot_import.h
     +-- lib
     |   +-- libiot_platform.a
     |   +-- libiot_sdk.a
-    |   +-- libmbedcrypto.a
-    |   +-- libmbedtls.a
-    |   +-- libmbedx509.a
+    |   +-- libiot_tls.a
     +-- src
         +-- coap-example.c
+        +-- http-example.c
         +-- Makefile
         +-- mqtt-example.c
 
@@ -94,11 +92,9 @@
 | 文件/目录               | 说明                                                     |
 |-------------------------|----------------------------------------------------------|
 | bin/mqtt-example        | 用MQTT协议连接阿里云IoT的样例程序                        |
-| include/iot-sdk         | 使用`libiot_sdk.a`时需要的头文件, 存放在这个目录         |
-| include/mbedtls         | 使用`libmbed*.a`时需要的头文件, 存放在这个目录           |
+| include/                | 使用`libiot_sdk.a`时需要的头文件, 存放在这个目录         |
 | lib/libiot_platform.a   | 硬件平台抽象层, `libiot_sdk.a`的工作是建立在它的基础上的 |
 | lib/libiot_sdk.a        | SDK的核心层, 基于`libiot_platform.a`提供连接云端的能力   |
-| lib/libmbed*.a          | 开源库`mbedtls-2.5.0`, 也是`libiot_platform.a`的底层基础 |
 | src/Makefile            | 示例用Makefile, 演示如何在SDK之外链接本SDK提供的库文件   |
 | src/mqtt-example.c      | 样例对应C代码, 可在此目录下输入make, 编译生成可执行程序  |
 

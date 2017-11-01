@@ -1,4 +1,8 @@
-**以下详细描述如何将华东2节点设备端V2.0+版本C-SDK移植到目标硬件平台.**
+**以下描述如何将华东2节点设备端V2.0+版本C-SDK移植到目标硬件平台.**
+
+## 详细技术文档请访问[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
+
+## IoT套件后续会逐渐增加已适配的平台, 如果您使用的平台未被适配, 请访问[官方Github主页](https://github.com/aliyun/iotkit-embedded/issues), 给我们提出Issue
 
 ## V2.0+设备端C-SDK概述
 
@@ -17,11 +21,13 @@
         |                           |         |                           | =>  SDK提供功能的API, 都在这里实现
         |                           |         | src/utils: utilities      | =>  构建完成后产生:
         |                           |  +--->  | src/log: logging          |
+        |                           |         | src/tls: security         |
         |  IoT SDK Core Implements  |         | src/guider: authenticate  |     output/release/lib/
         |  : =>                     |  <---+  | src/system: device mgmt   |         libiot_sdk.a
         |  : You SHOULD NOT Focus   |         | src/mqtt: MQTT client     |
         |  : on this unless         |         | src/coap: CoAP client     |
-        |  : you're debugging bugs  |         | src/shadow: device shadow |
+        |  : you're debugging bugs  |         | src/http: HTTP client     |
+        |                           |         | src/shadow: device shadow |
         |                           |         | src/ota: OTA channel      |
         |                           |         |                           |
         +---------------------------+         +---------------------------+
@@ -70,134 +76,151 @@
      3  HAL_DTLSSession_read
      4  HAL_DTLSSession_write
      5  HAL_Free
-     6  HAL_GetPartnerID
-     7  HAL_Malloc
-     8  HAL_MutexCreate
-     9  HAL_MutexDestroy
-    10  HAL_MutexLock
-    11  HAL_MutexUnlock
-    12  HAL_Printf
-    13  HAL_SleepMs
-    14  HAL_Snprintf
-    15  HAL_SSL_Destroy
-    16  HAL_SSL_Establish
-    17  HAL_SSL_Read
-    18  HAL_SSL_Write
-    19  HAL_TCP_Destroy
-    20  HAL_TCP_Establish
-    21  HAL_TCP_Read
-    22  HAL_TCP_Write
-    23  HAL_UDP_close
-    24  HAL_UDP_create
-    25  HAL_UDP_read
-    26  HAL_UDP_readTimeout
-    27  HAL_UDP_resolveAddress
-    28  HAL_UDP_write
-    29  HAL_UptimeMs
+     6  HAL_GetModuleID
+     7  HAL_GetPartnerID
+     8  HAL_Malloc
+     9  HAL_MutexCreate
+    10  HAL_MutexDestroy
+    11  HAL_MutexLock
+    12  HAL_MutexUnlock
+    13  HAL_Printf
+    14  HAL_Random
+    15  HAL_SleepMs
+    16  HAL_Snprintf
+    17  HAL_Srandom
+    18  HAL_SSL_Destroy
+    19  HAL_SSL_Establish
+    20  HAL_SSL_Read
+    21  HAL_SSL_Write
+    22  HAL_TCP_Destroy
+    23  HAL_TCP_Establish
+    24  HAL_TCP_Read
+    25  HAL_TCP_Write
+    26  HAL_UDP_close
+    27  HAL_UDP_create
+    28  HAL_UDP_read
+    29  HAL_UDP_readTimeout
+    30  HAL_UDP_write
+    31  HAL_UptimeMs
+    32  HAL_Vsnprintf
 
-对这些函数做实现的时候, 可以参考`src/platform`下已经写好的示例, 这些示例在`Ubuntu16.04`主机上被完善的编写和测试过
+对这些函数做实现的时候, 可以参考`src/platform`下已经写好的示例, 这些示例在`Ubuntu16.04`主机和`Win7`主机上被完善的编写和测试过
 
     src/platform$ tree
     .
     +-- iot.mk
     +-- os
     |   +-- linux
-    |       +-- HAL_OS_linux.c
-    |       +-- HAL_TCP_linux.c
-    |       +-- HAL_UDP_linux.c
+    |   |   +-- HAL_OS_linux.c
+    |   |   +-- HAL_TCP_linux.c
+    |   |   +-- HAL_UDP_linux.c
+    |   +-- ubuntu -> linux
+    |   +-- win7
+    |       +-- HAL_OS_win7.c
+    |       +-- HAL_TCP_win7.c
     +-- ssl
         +-- mbedtls
-            +-- HAL_DTLS_mbedtls.c
-            +-- HAL_TLS_mbedtls.c
+        |   +-- HAL_DTLS_mbedtls.c
+        |   +-- HAL_TLS_mbedtls.c
+        +-- openssl
+            +-- HAL_TLS_openssl.c
 
-以下是这些函数的一个说明表格, 更多详细信息, 请查阅代码中的注释
+以下是这些函数的一个说明表格, 更多详细信息, 请查阅代码中的注释, 或关注[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
 
-| 序号  | 函数名                   | 说明                                                                    |
-|-------|--------------------------|-------------------------------------------------------------------------|
-|     1 | HAL_DTLSSession_create   | 初始化DTLS资源并建立一个DTLS会话, 用于CoAP功能                          |
-|     2 | HAL_DTLSSession_free     | 销毁一个DTLS会话并释放DTLS资源, 用于CoAP功能                            |
-|     3 | HAL_DTLSSession_read     | 从DTLS会话中读数据, 用于CoAP功能                                        |
-|     4 | HAL_DTLSSession_write    | 向DTLS会话中写数据, 用于CoAP功能                                        |
-|     5 | HAL_Free                 | 释放一片堆上内存                                                        |
-|     6 | HAL_GetPartnerID         | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
-|     7 | HAL_Malloc               | 申请一片堆上内存                                                        |
-|     8 | HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|     9 | HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    10 | HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    11 | HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    12 | HAL_Printf               | 打印函数, 用于向串口或其它标准输出打印日志或调试信息                    |
-|    13 | HAL_SleepMs              | 睡眠函数, 使当前执行线程睡眠指定的毫秒数                                |
-|    14 | HAL_Snprintf             | 打印函数, 向内存缓冲区格式化构建一个字符串, 参考C99标准库函数`snprintf` |
-|    15 | HAL_SSL_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    16 | HAL_SSL_Establish        | 建立一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    17 | HAL_SSL_Read             | 从一个TLS连接中读数据, 用于MQTT功能, HTTPS功能                          |
-|    18 | HAL_SSL_Write            | 向一个TLS连接中写数据, 用于MQTT功能, HTTPS功能                          |
-|    19 | HAL_TCP_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    20 | HAL_TCP_Establish        | 建立一个TCP连接, 包含了域名解析的动作和TCP连接的建立                    |
-|    21 | HAL_TCP_Read             | 在指定时间内, 从TCP连接读取流数据, 并返回读到的字节数                   |
-|    22 | HAL_TCP_Write            | 在指定时间内, 向TCP连接发送流数据, 并返回发送的字节数                   |
-|    23 | HAL_UDP_close            | 关闭一个UDP socket                                                      |
-|    24 | HAL_UDP_create           | 创建一个UDP socket                                                      |
-|    25 | HAL_UDP_read             | 阻塞的从一个UDP socket中读取数据包, 并返回读到的字节数                  |
-|    26 | HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP socket中读取数据包, 返回读到的字节数            |
-|    27 | HAL_UDP_resolveAddress   | 解析一个可能是UDP服务器的域名地址为IP地址                               |
-|    28 | HAL_UDP_write            | 阻塞的向一个UDP socket中发送数据包, 并返回发送的字节数                  |
-|    29 | HAL_UptimeMs             | 时钟函数, 获取本设备从加电以来到目前时间点已经过去的毫秒数              |
+| 函数名                   | 说明                                                                    |
+|--------------------------|-------------------------------------------------------------------------|
+| HAL_DTLSSession_create   | 初始化DTLS资源并建立一个DTLS会话, 用于CoAP功能                          |
+| HAL_DTLSSession_free     | 销毁一个DTLS会话并释放DTLS资源, 用于CoAP功能                            |
+| HAL_DTLSSession_read     | 从DTLS会话中读数据, 用于CoAP功能                                        |
+| HAL_DTLSSession_write    | 向DTLS会话中写数据, 用于CoAP功能                                        |
+| HAL_Free                 | 释放一片堆上内存                                                        |
+| HAL_GetModuleID          | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
+| HAL_GetPartnerID         | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
+| HAL_Malloc               | 申请一片堆上内存                                                        |
+| HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_Printf               | 打印函数, 用于向串口或其它标准输出打印日志或调试信息                    |
+| HAL_Random               | 随机数函数, 接受一个无符号数作为范围, 返回0到该数值范围内的随机无符号数 |
+| HAL_SleepMs              | 睡眠函数, 使当前执行线程睡眠指定的毫秒数                                |
+| HAL_Snprintf             | 打印函数, 向内存缓冲区格式化构建一个字符串, 参考C99标准库函数`snprintf` |
+| HAL_Srandom              | 随机数播种函数, 使`HAL_Random`的返回值每个执行序列各不相同, 类似`srand` |
+| HAL_SSL_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+| HAL_SSL_Establish        | 建立一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+| HAL_SSL_Read             | 从一个TLS连接中读数据, 用于MQTT功能, HTTPS功能                          |
+| HAL_SSL_Write            | 向一个TLS连接中写数据, 用于MQTT功能, HTTPS功能                          |
+| HAL_TCP_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+| HAL_TCP_Establish        | 建立一个TCP连接, 包含了域名解析的动作和TCP连接的建立                    |
+| HAL_TCP_Read             | 在指定时间内, 从TCP连接读取流数据, 并返回读到的字节数                   |
+| HAL_TCP_Write            | 在指定时间内, 向TCP连接发送流数据, 并返回发送的字节数                   |
+| HAL_UDP_close            | 关闭一个UDP socket                                                      |
+| HAL_UDP_create           | 创建一个UDP socket                                                      |
+| HAL_UDP_read             | 阻塞的从一个UDP socket中读取数据包, 并返回读到的字节数                  |
+| HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP socket中读取数据包, 返回读到的字节数            |
+| HAL_UDP_write            | 阻塞的向一个UDP socket中发送数据包, 并返回发送的字节数                  |
+| HAL_UptimeMs             | 时钟函数, 获取本设备从加电以来到目前时间点已经过去的毫秒数              |
+| HAL_Vsnprintf            | 字符串打印函数, 将`va_list`类型的变量, 打印到指定目标字符串             |
 
 在这些HAL接口中
 
 **必选实现**
 
-| 序号  | 函数名                   | 说明                                                                    |
-|-------|--------------------------|-------------------------------------------------------------------------|
-|     6 | HAL_Free                 | 释放一片堆上内存                                                        |
-|     8 | HAL_Malloc               | 申请一片堆上内存                                                        |
-|    13 | HAL_Printf               | 打印函数, 用于向串口或其它标准输出打印日志或调试信息                    |
-|    14 | HAL_SleepMs              | 睡眠函数, 使当前执行线程睡眠指定的毫秒数                                |
-|    29 | HAL_UptimeMs             | 时钟函数, 获取本设备从加电以来到目前时间点已经过去的毫秒数              |
+| 函数名                   | 说明                                                                    |
+|--------------------------|-------------------------------------------------------------------------|
+| HAL_Malloc               | 申请一片堆上内存                                                        |
+| HAL_Free                 | 释放一片堆上内存                                                        |
+| HAL_SleepMs              | 睡眠函数, 使当前执行线程睡眠指定的毫秒数                                |
+| HAL_Snprintf             | 打印函数, 向内存缓冲区格式化构建一个字符串, 参考C99标准库函数`snprintf` |
+| HAL_Printf               | 打印函数, 用于向串口或其它标准输出打印日志或调试信息                    |
+| HAL_Vsnprintf            | 字符串打印函数, 将`va_list`类型的变量, 打印到指定目标字符串             |
+| HAL_UptimeMs             | 时钟函数, 获取本设备从加电以来到目前时间点已经过去的毫秒数              |
+
 
 **可实现为空**
 
-| 序号  | 函数名                   | 说明                                                                    |
-|-------|--------------------------|-------------------------------------------------------------------------|
-|     7 | HAL_GetPartnerID         | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
-|     9 | HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    10 | HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    11 | HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-|    12 | HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| 函数名                   | 说明                                                                    |
+|--------------------------|-------------------------------------------------------------------------|
+| HAL_GetPartnerID         | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
+| HAL_GetModuleID          | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
+| HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
 
 **没有MQTT时可实现为空**
 
-| 序号  | 函数名                   | 说明                                                                    |
-|-------|--------------------------|-------------------------------------------------------------------------|
-|    15 | HAL_SSL_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    16 | HAL_SSL_Establish        | 建立一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    17 | HAL_SSL_Read             | 从一个TLS连接中读数据, 用于MQTT功能, HTTPS功能                          |
-|    18 | HAL_SSL_Write            | 向一个TLS连接中写数据, 用于MQTT功能, HTTPS功能                          |
-|    19 | HAL_TCP_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
-|    20 | HAL_TCP_Establish        | 建立一个TCP连接, 包含了域名解析的动作和TCP连接的建立                    |
-|    21 | HAL_TCP_Read             | 在指定时间内, 从TCP连接读取流数据, 并返回读到的字节数                   |
-|    22 | HAL_TCP_Write            | 在指定时间内, 向TCP连接发送流数据, 并返回发送的字节数                   |
+| 函数名                   | 说明                                                                    |
+|--------------------------|-------------------------------------------------------------------------|
+| HAL_SSL_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+| HAL_SSL_Establish        | 建立一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+| HAL_SSL_Read             | 从一个TLS连接中读数据, 用于MQTT功能, HTTPS功能                          |
+| HAL_SSL_Write            | 向一个TLS连接中写数据, 用于MQTT功能, HTTPS功能                          |
+| HAL_TCP_Destroy          | 销毁一个TLS连接, 用于MQTT功能, HTTPS功能                                |
+| HAL_TCP_Establish        | 建立一个TCP连接, 包含了域名解析的动作和TCP连接的建立                    |
+| HAL_TCP_Read             | 在指定时间内, 从TCP连接读取流数据, 并返回读到的字节数                   |
+| HAL_TCP_Write            | 在指定时间内, 向TCP连接发送流数据, 并返回发送的字节数                   |
+| HAL_Random               | 随机数函数, 接受一个无符号数作为范围, 返回0到该数值范围内的随机无符号数 |
+| HAL_Srandom              | 随机数播种函数, 使`HAL_Random`的返回值每个执行序列各不相同, 类似`srand` |
 
 **没有CoAP时可实现为空**
 
-| 序号  | 函数名                   | 说明                                                                    |
-|-------|--------------------------|-------------------------------------------------------------------------|
-|     1 | HAL_DTLSSession_create   | 初始化DTLS资源并建立一个DTLS会话, 用于CoAP功能                          |
-|     2 | HAL_DTLSSession_free     | 销毁一个DTLS会话并释放DTLS资源, 用于CoAP功能                            |
-|     4 | HAL_DTLSSession_read     | 从DTLS连接中读数据, 用于CoAP功能                                        |
-|     5 | HAL_DTLSSession_write    | 向DTLS连接中写数据, 用于CoAP功能                                        |
+| 函数名                   | 说明                                                                    |
+|--------------------------|-------------------------------------------------------------------------|
+| HAL_DTLSSession_create   | 初始化DTLS资源并建立一个DTLS会话, 用于CoAP功能                          |
+| HAL_DTLSSession_free     | 销毁一个DTLS会话并释放DTLS资源, 用于CoAP功能                            |
+| HAL_DTLSSession_read     | 从DTLS连接中读数据, 用于CoAP功能                                        |
+| HAL_DTLSSession_write    | 向DTLS连接中写数据, 用于CoAP功能                                        |
 
 **没有ID2时可实现为空**
 
-| 序号  | 函数名                   | 说明                                                                    |
-|-------|--------------------------|-------------------------------------------------------------------------|
-|    23 | HAL_UDP_close            | 关闭一个UDP socket                                                      |
-|    24 | HAL_UDP_create           | 创建一个UDP socket                                                      |
-|    25 | HAL_UDP_read             | 阻塞的从一个UDP socket中读取数据包, 并返回读到的字节数                  |
-|    26 | HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP socket中读取数据包, 返回读到的字节数            |
-|    27 | HAL_UDP_resolveAddress   | 解析一个可能是UDP服务器的域名地址为IP地址                               |
-|    28 | HAL_UDP_write            | 阻塞的向一个UDP socket中发送数据包, 并返回发送的字节数                  |
+| 函数名                   | 说明                                                                    |
+|--------------------------|-------------------------------------------------------------------------|
+| HAL_UDP_close            | 关闭一个UDP socket                                                      |
+| HAL_UDP_create           | 创建一个UDP socket                                                      |
+| HAL_UDP_read             | 阻塞的从一个UDP socket中读取数据包, 并返回读到的字节数                  |
+| HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP socket中读取数据包, 返回读到的字节数            |
+| HAL_UDP_write            | 阻塞的向一个UDP socket中发送数据包, 并返回发送的字节数                  |
 
 ## SDK内核实现层
 
@@ -208,119 +231,4 @@
 
 ## SDK接口声明层 + 例程
 
-请参考[快速接入页面](https://help.aliyun.com/document_detail/30530.html)
-
-
-**以下详细描述如何将华东2节点设备端V1.0.1版本C-SDK移植到目标硬件平台.**
-## V1.0.1设备端C-SDK简介
-SDK基本框架如下图所示：
-
-![SDK框架](http://docs-aliyun.cn-hangzhou.oss.aliyun-inc.com/assets/pic/56047/cn_zh/1499417498273/iotx-sdk.jpg)
-
-* SDK大致可分为硬件抽象层、SDK内核代码、面向应用的API。
-* 在移植到目标硬件平台时，需要根据硬件平台的情况实现硬件平台抽象接口。
-* 在硬件平台抽象层中，包含OS层、network层、ssl层等3类。其中，OS层主要包括时间、互斥锁以及其它等接口，在目录$(SDK_PATH)/src/platform/os/下；network层主要包括网络相关的接口（目前为TCP接口），在目录$(SDK_PATH)/src/platform/network/下；ssl层包含ssl或tls相关接口，在目录$(SDK_PATH)/src/platform/ssl/下。
-
-## 硬件平台抽象层
-硬件平台抽象层包含数据类型、OS（或硬件）接口、TCPIP网络接口、SSL（TLS）接口等4个部分。下面分别对这4部分进行叙述。
-
-### 数据类型
-
-
-* 表1-自定义数据类型
-
-| 序号  | 数据类型名称  | 说明  |
-| -------------- | ------------ | ------------ |
-| 1  | bool      | bool类型  |
-| 2  | int8_t    | 8比特有符号整型  |
-| 3  | uint8_t   | 8比特无符号整型  |
-| 4  | int16_t   | 16比特有符号整型 |
-| 5  | uint16_t  | 16比特无符号整型  |
-| 6  | int32_t   | 32比特有符号整型  |
-| 7  | uint32_t  | 32比特无符号整型  |
-| 8  | int64_t   | 64比特有符号整型  |
-| 9  | uint64_t  | 64比特无符号整型  |
-| 10 | uintptr_t | 能够容纳指针类型长度的无符号整型 |
-| 11 | intptr_t  | 能够容纳指针类型长度的有符号整型 |
-
-* 表2-自定义关键字
-
-| 序号  | 关键字名称  | 说明  |
-| -------------- | ------------ | ------------ |
-| 1  | true   | bool值：真。如果目标平台无此定义，可宏定义： #define true (1)  |
-| 2  | false  | bool值：假。如果目标平台无此定义，可宏定义： #define false (0) |
-
-* 此部分定义在源文件：$(SDK_PATH)/src/platform/os/aliot_platform_datatype.h。
-* 请根据目标平台情况实现，实现请放置于源文件：$(SDK_PATH)/src/platform/aliot_platform_datatype.h中。
-
-*注： SDK所定义的数据类型是C99标准所定义的数据类型的一部分，如果目标硬件平台完全支持C99标准，则无需修改此部分代码即可满足于目标平台。*
-
-### OS（硬件）接口
-
-* 表3-OS相关接口说明
-
-| 序号  | 接口名称  | 说明  |
-| -------------- | ------------ | ------------ |
-| 1  | aliot_platform_malloc        | 分配内存块  |
-| 2  | aliot_platform_free          | 释放内存块  |
-| 3  | aliot_platform_time_get_ms   | 获取系统时间（单位：ms），允许溢出  |
-| 4  | aliot_platform_printf        | 格式化输出 |
-| 5  | aliot_platform_ota_start     | 启动OTA，由于暂不支持OTA功能，该接口暂无需实现  |
-| 6  | aliot_platform_ota_write     | 写OTA固件，由于暂不支持OTA功能，该接口暂无需实现 |
-| 7  | aliot_platform_ota_finalize  | 完成OTA，由于暂不支持OTA功能，该接口暂无需实现  |
-| 8  | aliot_platform_msleep        | 睡眠指定时间，如果是无OS的平台，将函数实现为延时指定时间即可 |
-| 9  | aliot_platform_mutex_create  | 创建互斥锁，如果是无OS的平台，无需实现该接口 |
-| 10 | aliot_platform_mutex_destroy | 销毁互斥锁，如果是无OS的平台，无需实现该接口 |
-| 11 | aliot_platform_mutex_lock    | 锁住指定互斥锁，如果是无OS的平台，无需实现该接口 |
-| 12 | aliot_platform_mutex_unlock  | 释放指定互斥锁，如果是无OS的平台，无需实现该接口 |
-| 13 | aliot_platform_module_get_pid| 该接口仅用于特定场景，若无涉及，返回NULL即可 |
-
-* 详细的接口输入输出说明请参考源文件：（$(SDK_PATH)/src/platform/os/aliot_platform_os.h）。
-* 实现时，请在路径$(SDK_PATH)/src/platform/os/下创建一个文件夹（请注意这个文件夹名，后续编译将用到这个名字），相应移植实现放置在该文件夹下。
-
-
-***注：如果是无OS平台，所有面向应用的接口都不能被并发调用（包括在中断服务程序中调用）***
-
-
-### TCPIP网络接口
-
-* 表4-TCPIP网络相关接口说明
-
-| 序号  | 接口名称  | 说明  |
-| -------------- | ------------ | ------------ |
-| 1  | aliot_platform_tcp_establish | 建立tcp连接，返回连接句柄 |
-| 2  | aliot_platform_tcp_destroy   | 释放一个tcp连接 |
-| 3  | aliot_platform_tcp_write     | 往TCP通道写入数据。注意实现超时参数 |
-| 4  | aliot_platform_tcp_read      | 从TCP通道读取数据。注意实现超时参数 |
-
-* 详细的接口输入输出说明请参考源文件：（$(SDK_PATH)/src/platform/network/aliot_platform_network.h）。
-* 实现时，请在路径$(SDK_PATH)/src/platform/network/下创建一个文件夹（请注意这个文件夹名，后续编译将用到这个名字），相应移植实现放置在该文件夹下。
-
-
-### SSL接口
-
-* 表5-SSL相关接口说明
-
-| 序号  | 接口名称  | 说明  |
-| -------------- | ------------ | ------------ |
-| 1  | aliot_platform_ssl_establish | 建立经SSL加密的传输通道 |
-| 2  | aliot_platform_ssl_destroy   | 释放一个SSL通道 |
-| 3  | aliot_platform_ssl_write     | 往SSL通道写入数据。注意实现超时参数 |
-| 4  | aliot_platform_ssl_read      | 从SSL通道读取数据。注意实现超时参数 |
-
-* 详细的接口输入输出说明请参考源文件：（$(SDK_PATH)/src/platform/ssl/aliot_platform_ssl.h）。
-* 实现时，请在路径$(SDK_PATH)/src/platform/ssl/下创建一个文件夹（请注意这个文件夹名，后续编译将用到这个名字），相应移植实现放置在该文件夹下。
-
-
-## 集成编译
-平台移植工作完成之后，修改make.settings文件的相关配置项即可进行编译，具体如下：
-
-    PLATFORM_OS        = linux     //OS文件夹名
-    PLATFORM_NETWORK   = linuxsock //network文件夹名
-    PLATFORM_SSL       = mbedtls   //SSL文件夹名
-
-完成配置后，执行make，即可编译目标平台的代码。
-
-## 移植样例
-请参考SDK代码中提供的平台适配代码。
-
+请参考[快速接入页面](https://help.aliyun.com/document_detail/30530.html)和[官方SDK首页](https://github.com/aliyun/iotkit-embedded)
