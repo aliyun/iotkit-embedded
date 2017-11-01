@@ -19,7 +19,7 @@ ifneq (,$(strip $(LIB_OBJS)))
 endif
 	$(Q)mkdir -p $(SYSROOT_LIB)
 	$(Q)cp -f $@ $(SYSROOT_LIB)
-	$(call Copy_Headers, $(LIB_HEADERS),$(SYSROOT_INC),$(LIBHDR_DIR))
+	$(call Copy_Headers, $(LIB_HEADERS),$(SYSROOT_INC),$(LIB_HDRS_DIR))
 
 endif   # ifdef LIBA_TARGET
 
@@ -48,7 +48,7 @@ $(LIBSO_TARGET) :: DynamicLib_Install
 	$(Q)cp -f $(LIB_OBJS) $(LIBOBJ_TMPDIR)/$(shell $(SHELL_DBG) basename $(CURDIR))
 	$(Q)mkdir -p $(SYSROOT_LIB)
 	$(Q)install -m 0755 $@ $(SYSROOT_LIB)
-	$(call Copy_Headers, $(LIB_HEADERS),$(SYSROOT_INC),$(LIBHDR_DIR))
+	$(call Copy_Headers, $(LIB_HEADERS),$(SYSROOT_INC),$(LIB_HDRS_DIR))
 
 endif   # ifdef LIBSO_TARGET
 
