@@ -131,3 +131,15 @@ endif
 
 OVERRIDE_CC := $(strip $(PLATFORM_CC))
 OVERRIDE_AR := $(strip $(PLATFORM_AR))
+
+SUBDIRS += src/tls
+ifeq (gcc,$(strip $(PLATFORM_CC)))
+SUBDIRS += src/platform
+SUBDIRS += sample
+SUBDIRS += src/sdk-tests
+endif
+ifeq (i686-w64-mingw32-gcc,$(strip $(PLATFORM_CC)))
+SUBDIRS += src/platform
+SUBDIRS += sample
+SUBDIRS += src/sdk-tests
+endif
