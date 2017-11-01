@@ -118,10 +118,8 @@ int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)
     va_list args;
 
     va_start(args, fmt);
-    ret = _vsnprintf(str, len, fmt, args);
+    ret = _vsnprintf(str, len-1, fmt, args);
     va_end(args);
-
-    fflush(stdout);
 
     return ret;
 }
@@ -131,8 +129,7 @@ int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *fmt, va_l
 {
     int ret;
 
-    ret = _vsnprintf(str, len, fmt, ap);
-    fflush(stdout);
+    ret = _vsnprintf(str, len-1, fmt, ap);
 
     return ret;
 }
