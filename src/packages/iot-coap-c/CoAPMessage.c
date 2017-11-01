@@ -50,7 +50,7 @@
 #define COAP_CUR_VERSION        1
 #define COAP_WAIT_TIME_MS       2000
 #define COAP_MAX_MESSAGE_ID     65535
-#define COAP_MAX_RERTY_COUNT    4
+#define COAP_MAX_RETRY_COUNT    4
 #define COAP_ACK_TIMEOUT        2
 #define COAP_ACK_RANDOM_FACTOR  1
 #define COAP_MAX_TRANSMISSION_SPAN   10
@@ -256,7 +256,7 @@ static int CoAPMessageList_add(CoAPContext *context, CoAPMessage *message, int l
             node->retrans_count = 0;
         } else {
             node->timeout       = COAP_MAX_TRANSMISSION_SPAN;
-            node->retrans_count = COAP_MAX_RERTY_COUNT;
+            node->retrans_count = COAP_MAX_RETRY_COUNT;
         }
         node->tokenlen     = message->header.tokenlen;
         memcpy(node->token, message->token, message->header.tokenlen);
@@ -445,7 +445,7 @@ int CoAPMessage_cycle(CoAPContext *context)
     list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist) {
         if (NULL != node) {
             if (node->timeout == 0) {
-                if (node->retrans_count < COAP_MAX_RERTY_COUNT && (0 == node->acked)) {
+                if (node->retrans_count < COAP_MAX_RETRY_COUNT && (0 == node->acked)) {
                     node->timeout     = node->timeout_val * 2;
                     node->timeout_val = node->timeout;
                     node->retrans_count++;
@@ -460,7 +460,7 @@ int CoAPMessage_cycle(CoAPContext *context)
                 }
 
                 if ((node->timeout > COAP_MAX_TRANSMISSION_SPAN) ||
-                    (node->retrans_count >= COAP_MAX_RERTY_COUNT)) {
+                    (node->retrans_count >= COAP_MAX_RETRY_COUNT)) {
                     if (NULL != context->notifier) {
                         /* TODO: */
                         /* context->notifier(context, event); */

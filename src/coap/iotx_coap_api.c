@@ -255,6 +255,7 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
     iotx_coap_t            *p_iotx_coap = (iotx_coap_t *)p_context;
     char                    pid[PID_STRLEN_MAX + 1] = {0};
     char                    mid[MID_STRLEN_MAX + 1] = {0};
+    CoAPContext            *p_coap_ctx = NULL;
 
     memset(pid, 0, sizeof(pid));
     memset(mid, 0, sizeof(mid));
@@ -267,8 +268,13 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
         log_debug("ModuleID is Null");
         return SUCCESS_RETURN;
     }
+    if (NULL == p_iotx_coap) {
+        log_err("Invalid param: p_context is NULL");
+        return FAIL_RETURN;
+    }
 
     log_debug("MID Report: started in CoAP");
+    p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;
 
     iotx_midreport_reqid(requestId,
                          p_iotx_coap->p_devinfo->product_key,
@@ -314,12 +320,12 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
         HAL_Free(msg);
         return FAIL_RETURN;
     }
-
     HAL_Free(msg);
+    log_debug("MID Report: IOT_CoAP_SendMessage() = %d", ret);
 
-    IOT_CoAP_Yield(p_context);
+    ret = CoAPMessage_recv(p_coap_ctx, CONFIG_COAP_AUTH_TIMEOUT, 1);
+    log_debug("MID Report: finished, ret = CoAPMessage_recv() = %d", ret);
 
-    log_debug("MID Report: finished, IOT_CoAP_SendMessage() = %d", ret);
     return SUCCESS_RETURN;
 }
 
