@@ -10,6 +10,13 @@ endef
 define Post_Distro
     @rm -rf $(FINAL_DIR)/include/{LITE*,mbed*}
     @rm -rf $(FINAL_DIR)/lib/libiot_{utils,log}.a
+
+    @if [ "$(strip $(CC))" = "i686-w64-mingw32-gcc" ]; then \
+        cd $(FINAL_DIR)/bin; \
+        for i in $$(ls); do mv $${i} $${i}.exe; done; \
+        cd $${OLDPWD}; \
+    fi
+
     @find $(FINAL_DIR) -name "*.[ch]" -exec chmod a-x {} \;
     @mkdir -p $(FINAL_DIR)/src
     $(if $(filter y,$(FEATURE_MQTT_ID2_AUTH)),

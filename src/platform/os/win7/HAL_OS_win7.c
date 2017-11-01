@@ -78,14 +78,26 @@ void HAL_Free(_IN_ void *ptr)
     free(ptr);
 }
 
-uint32_t HAL_UptimeMs(void)
+uint64_t HAL_UptimeMs(void)
 {
-    return (uint32_t)(GetTickCount());
+    return (uint64_t)(GetTickCount());
 }
 
 void HAL_SleepMs(_IN_ uint32_t ms)
 {
     Sleep(ms);
+}
+
+uint32_t orig_seed = 2;
+void HAL_Srandom(uint32_t seed)
+{
+    orig_seed = seed;
+}
+
+uint32_t HAL_Random(uint32_t region)
+{
+    orig_seed = 1664525 * orig_seed + 1013904223;
+    return (region > 0) ? (orig_seed % region) : 0;
 }
 
 void HAL_Printf(_IN_ const char *fmt, ...)

@@ -20,11 +20,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-#include <Winbase.h>
 #include <winsock.h>
 
-
+#ifdef _MSC_BUILD
+#include <Winbase.h>
 #pragma comment(lib,"ws2_32")
+#endif
 
 #include "iot_import.h"
 

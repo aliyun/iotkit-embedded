@@ -1,6 +1,6 @@
-CONFIG_ENV_CFLAGS += -Os -Wall -Werror
+CONFIG_ENV_CFLAGS   += -Os -Wall -Werror
 
-CONFIG_LIB_EXPORT := static
+CONFIG_LIB_EXPORT   := static
 
 PLATFORM_CC         := i686-w64-mingw32-gcc
 PLATFORM_AR         := i686-w64-mingw32-ar

@@ -8,6 +8,10 @@ SUBDIRS += src/platform
 SUBDIRS += sample
 SUBDIRS += src/sdk-tests
 endif
+ifeq (i686-w64-mingw32-gcc,$(strip $(PLATFORM_CC)))
+SUBDIRS += src/platform
+SUBDIRS += sample
+endif
 
 # CFLAGS  += -DTEST_MQTT_DAILY
 # CFLAGS  += -DTEST_HTTP_DAILY
