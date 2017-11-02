@@ -2067,8 +2067,8 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
         return SUCCESS_RETURN;
     } else {
-        /*if reconnect network failed, then increase currentReconnectWaitInterval,
-        ex: init currentReconnectWaitInterval=1s,  reconnect failed then 2s .4s. 8s*/
+        /* if reconnect network failed, then increase currentReconnectWaitInterval */
+        /* e.g. init currentReconnectWaitInterval=1s, reconnect failed, then 2s..4s..8s */
         if (IOTX_MC_RECONNECT_INTERVAL_MAX_MS > pClient->reconnect_param.reconnect_time_interval_ms) {
             pClient->reconnect_param.reconnect_time_interval_ms *= 2;
         } else {
@@ -2088,22 +2088,20 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     return rc;
 }
 
-
-/* disconnect */
 static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
 {
+    int             rc = -1;
+
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
 
-    if (!iotx_mc_check_state_normal(pClient)) {
-        return SUCCESS_RETURN;
+    if (iotx_mc_check_state_normal(pClient)) {
+        rc = MQTTDisconnect(pClient);
+        log_debug("rc = MQTTDisconnect() = %d", rc);
     }
 
-
-    (void)MQTTDisconnect(pClient);
-
-    /*close tcp/ip socket or free tls resources*/
+    /* close tcp/ip socket or free tls resources */
     pClient->ipstack->disconnect(pClient->ipstack);
 
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INITIALIZED);
@@ -2111,8 +2109,6 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
     log_info("mqtt disconnect!");
     return SUCCESS_RETURN;
 }
-
-
 
 static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient)
 {
