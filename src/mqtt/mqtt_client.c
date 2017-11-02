@@ -1230,9 +1230,6 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         return SUCCESS_RETURN;
     }
 
-    /* receive any data to renew ping_timer */
-    utils_time_countdown_ms(&c->next_ping_time, c->connect_data.keepAliveInterval * 1000);
-
     /* clear ping mark when any data received from MQTT broker */
     HAL_MutexLock(c->lock_generic);
     c->ping_mark = 0;
