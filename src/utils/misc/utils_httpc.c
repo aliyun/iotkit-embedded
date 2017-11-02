@@ -372,7 +372,7 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
         *p_read_len = ret;
     } else if (ret == 0) {
         /* timeout */
-        return 0;
+        return FAIL_RETURN;
     } else if (-1 == ret) {
         log_info("Connection closed.");
         return ERROR_HTTP_CONN;
