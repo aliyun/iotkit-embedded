@@ -11,7 +11,10 @@ CONFIG_LIB_EXPORT := static
 PLATFORM_CC         := armcc
 PLATFORM_AR         := armar
 
-CONFIG_src/mqtt     :=
-CONFIG_src/coap     :=
-CONFIG_src/ota      :=
-CONFIG_src/tls      :=
+CONFIG_src/mqtt         :=
+CONFIG_src/coap         :=
+CONFIG_src/ota          :=
+CONFIG_src/tls          :=
+CONFIG_src/platform     :=
+CONFIG_sample           :=
+CONFIG_src/sdk-tests    :=
