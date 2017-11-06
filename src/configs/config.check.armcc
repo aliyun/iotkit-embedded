@@ -5,3 +5,5 @@ CONFIG_LIB_EXPORT := static
 PLATFORM_CC     := armcc
 PLATFORM_AR     := armar
 PLATFORM_OS     := linux
+
+CONFIG_src/tls  :=
