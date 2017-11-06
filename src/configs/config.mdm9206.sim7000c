@@ -14,3 +14,4 @@ PLATFORM_AR         := armar
 CONFIG_src/mqtt     :=
 CONFIG_src/coap     :=
 CONFIG_src/ota      :=
+CONFIG_src/tls      :=
