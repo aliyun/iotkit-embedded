@@ -6,4 +6,7 @@ PLATFORM_CC     := armcc
 PLATFORM_AR     := armar
 PLATFORM_OS     := linux
 
-CONFIG_src/tls  :=
+CONFIG_src/platform     :=
+CONFIG_sample           :=
+CONFIG_src/sdk-tests    :=
+CONFIG_src/tls          :=
