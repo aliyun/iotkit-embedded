@@ -1,5 +1,6 @@
 LIBA_TARGET := libcoap.a
 HDR_REFS    := src
+CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 
 DEPENDS     += src/external/mbedtls
 
