@@ -33,7 +33,6 @@ $(foreach v, \
 )
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
-
 ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
 $(error FEATURE_OTA_SIGNAL_CHANNEL = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
@@ -53,18 +52,18 @@ $(error FEATURE_OTA_SIGNAL_CHANNEL must be MQTT or COAP or HTTP!)
 endif # HTTP
 endif # COAP
 endif # MQTT
-
 endif # OTA Enabled
 
-ifneq (HTTP,$(strip $(FEATURE_OTA_FETCH_CHANNEL)))
-$(error FEATURE_OTA_FETCH_CHANNEL must be HTTP!)
+ifeq (debug,$(strip $(BUILD_TYPE)))
+CFLAGS  += -DIOTX_DEBUG
 endif
 
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
 
-ifeq (debug,$(strip $(BUILD_TYPE)))
-CFLAGS  += -DIOTX_DEBUG
+ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
+ifneq (HTTP,$(strip $(FEATURE_OTA_FETCH_CHANNEL)))
+$(error FEATURE_OTA_FETCH_CHANNEL must be HTTP!)
 endif
 
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
@@ -126,6 +125,7 @@ CFLAGS  += -DTEST_ID2_PRE
 else
 ifeq (daily,$(strip $(FEATURE_MQTT_ID2_ENV)))
 CFLAGS  += -DTEST_ID2_DAILY
+endif
 endif
 endif
 
