@@ -41,6 +41,7 @@ extern "C" {
 
 #define PID_STRLEN_MAX      (64)
 #define MID_STRLEN_MAX      (64)
+#define NETWORK_ADDR_LEN    (16)
 
 #ifdef QAPI_TXM_MODULE
 #include "qapi_ali_iot.h"
@@ -350,6 +351,23 @@ int32_t HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms
  * @see None.
  */
 int32_t HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
+
+void *HAL_UDP_create(char *host, unsigned short port);
+void HAL_UDP_close(void *p_socket);
+int HAL_UDP_write(
+            void *p_socket,
+            const unsigned char *p_data,
+            unsigned int datalen);
+int HAL_UDP_read(
+            void *p_socket,
+            unsigned char *p_data,
+            unsigned int datalen);
+int HAL_UDP_readTimeout(
+            void *p_socket,
+            unsigned char *p_data,
+            unsigned int datalen,
+            unsigned int timeout);
+
 
 #endif  /* QAPI_TXM_MODULE */
 

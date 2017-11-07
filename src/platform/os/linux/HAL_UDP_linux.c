@@ -29,7 +29,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "iot_import_coap.h"
+
+#include "iot_import.h"
 
 void *HAL_UDP_create(char *host, unsigned short port)
 {
@@ -164,43 +165,5 @@ int HAL_UDP_readTimeout( void *p_socket, unsigned char  *p_data,
 
     /* This call will not block */
     return HAL_UDP_read(p_socket, p_data, datalen);
-}
-
-
-int HAL_UDP_resolveAddress(const char *p_host,  char addr[NETWORK_ADDR_LEN])
-{
-    struct addrinfo *res, *ainfo;
-    struct addrinfo hints;
-    int error = -1;
-    struct sockaddr_in *sa = NULL;
-
-    memset ((char *)&hints, 0x00, sizeof(hints));
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_family = AF_INET;
-    hints.ai_protocol = IPPROTO_UDP;
-
-    error = getaddrinfo(p_host, NULL, &hints, &res);
-
-    if (error != 0)
-    {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(error));
-        return error;
-    }
-
-    for (ainfo = res; ainfo != NULL; ainfo = ainfo->ai_next)
-    {
-        switch (ainfo->ai_family)
-        {
-            case AF_INET:
-                sa = (struct sockaddr_in *)ainfo->ai_addr;
-                inet_ntop(AF_INET, &sa->sin_addr, addr, NETWORK_ADDR_LEN);
-                break;
-            default:
-                ;
-        }
-    }
-
-    freeaddrinfo(res);
-    return 0;
 }
 

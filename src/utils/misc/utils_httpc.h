@@ -22,6 +22,8 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "utils_net.h"
+#include "utils_timer.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,50 +99,18 @@ typedef struct {
     char   *response_buf;           /**< Buffer to store the response data. */
 } httpclient_data_t;
 
-
-#if 0
- @brief            This function executes a POST request on a given URL. It blocks until completion.
- @param[in]        client is a pointer to the #httpclient_t.
- @param[in]        url is the URL to run the request.
- @param[in]        port is #HTTP_PORT or #HTTPS_PORT.
- @param[in, out]   client_data is a pointer to the #httpclient_data_t instance to collect the data returned by the request. It also contains the data to be posted.
- @return           Please refer to #HTTPCLIENT_RESULT.
- @par              HttpClient Post Example
- @code
-                   char *url = "https://api.mediatek.com/mcs/v2/devices/D0n2yhrl/datapoints.csv";
-                   char *header = "deviceKey:FZoo0S07CpwUHcrt\r\n";
-                   char *content_type = "text/csv";
-                   char *post_data = "1,,I am string!";
-                   httpclient_t client = {0};
-                   httpclient_data_t client_data = {0};
-                   char *buf = NULL;
-                   buf = pvPortMalloc(BUF_SIZE);
-                   if (buf == NULL) {
-                       HAL_Printf("Malloc failed.\r\n");
-                       return;
-                   }
-                   memset(buf, 0, sizeof(buf));
-                   client_data.response_buf = buf;  /* Sets a buffer to store the result. */
-                   client_data.response_buf_len = BUF_SIZE;  /* Sets the buffer size. */
-                   httpclient_set_custom_header(&client, header);  /* Sets the custom header if needed. */
-                   client_data.post_buf = post_data;  /* Sets the user data to be posted. */
-                   client_data.post_buf_len = strlen(post_data);  /* Sets the post data length. */
-                   client_data.post_content_type = content_type;  /* Sets the content type. */
-                   httpclient_post(&client, url, HTTPS_PORT, &client_data);
-                   HAL_Printf("Data received: %s\r\n", client_data.response_buf);
- @endcode
-#endif
-
 int iotx_post(httpclient_t *client,
               const char *url,
               int port,
               const char *ca_crt,
-              uint32_t timeout,
               httpclient_data_t *client_data);
 
-int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt, int method,
-                      uint32_t timeout_ms,
-                      httpclient_data_t *client_data);
+int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclient_data_t *client_data);
+
+int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt,
+                      HTTPCLIENT_REQUEST_TYPE method, uint32_t timeout_ms, httpclient_data_t *client_data);
+
+void httpclient_close(httpclient_t *client);
 
 #ifdef __cplusplus
 }

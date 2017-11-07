@@ -19,6 +19,12 @@
 #ifndef _IOT_EXPORT_HTTP_H_
 #define _IOT_EXPORT_HTTP_H_
 
+/* IoTx http initial param */
+typedef struct {
+    iotx_device_info_t *device_info;
+    int                 keep_alive;
+} iotx_http_param_t;
+
 /* IoTx http context */
 typedef struct {
     char               *p_auth_token;
@@ -29,9 +35,11 @@ typedef struct {
     const char         *sign;
     iotx_device_info_t *p_devinfo;
     const char         *timestamp;
+    void               *httpc;
+    int                 keep_alive;
 } iotx_http_t, *iotx_http_pt;
 
-/* IoTx http message definition 
+/* IoTx http message definition
  * request_payload and response_payload need to be allocate in order to save memory.
  * topic_path specify the topic url you want to publish message.
  */
@@ -59,46 +67,55 @@ typedef enum {
 } iotx_http_upstream_response_t;
 
 /**
- * @brief 	Initialize the HTTP client
+ * @brief   Initialize the HTTP client
  *        This function initialize the data.
  *
- * @param p_devinfo  Specify the device infomation.
+ * @param pInitParams  Specify the init param infomation.
  *
  * @return NULL, initialize failed; NOT NULL, the contex of HTTP client.
  */
-void   *IOT_HTTP_Init(iotx_device_info_t *p_devinfo);
+void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
 
 /**
  * @brief   De-initialize the HTTP client
  *        This function release the related resource.
  *
- * @param none
+ * @param handle  pointer to http context pointer.
  *
  * @return void
  */
-void    IOT_HTTP_DeInit(void);
+void    IOT_HTTP_DeInit(void **handle);
 
 /**
  * @brief   Handle device name authentication with remote server.
  *
- * @param p_context  Pointer of contex, specify the HTTP client.
+ * @param handle  Pointer of context, specify the HTTP client.
  *
  * @return 0   Authenticate success.
  *        -1   Authenticate failed.
  */
-int     IOT_HTTP_DeviceNameAuth(void *p_context);
+int     IOT_HTTP_DeviceNameAuth(void *handle);
 
 /**
  * @brief   Send a message with specific path to server.
  *        Client must authentication with server before send message.
  *
- * @param p_context     Pointer of contex, specify the HTTP client.
- * @param msg_param     Specify the topic path and http payload configuration.
+ * @param handle       Pointer of contex, specify the HTTP client.
+ * @param msg_param    Specify the topic path and http payload configuration.
  *
- * @return -1 success
- *			0 failed
+ * @return  0 success
+ *         -1 failed
  */
-int     IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param);
+int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param);
+
+/**
+ * @brief   close tcp connection from client to server
+ *
+ * @param handle     Pointer of contex, specify the HTTP client.
+ *
+ */
+
+void     IOT_HTTP_Disconnect(void *handle);
 
 /*
 TEST MACROS

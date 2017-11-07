@@ -17,25 +17,11 @@
  */
 
 
-#include "iot_import.h"
 #ifndef __COAP_PLATFORM_H__
 #define __COAP_PLATFORM_H__
+#include "iot_import.h"
 
-#define NETWORK_ADDR_LEN      (16)
-
-
-#define coap_malloc(size) HAL_Malloc(size)
-#define coap_free(ptr)    HAL_Free(ptr)
-
-
-void *HAL_UDP_create(char *host, unsigned short port);
-void  HAL_UDP_close(void *p_socket);
-int   HAL_UDP_write(void *p_socket, const unsigned char *p_data, unsigned int datalen);
-int   HAL_UDP_read(void         *p_socket, unsigned char   *p_data, unsigned int     datalen);
-int   HAL_UDP_readTimeout( void *p_socket,unsigned char  *p_data,
-                unsigned int datalen,     unsigned int timeout );
-
-int HAL_UDP_resolveAddress(const char *p_host,  char addr[NETWORK_ADDR_LEN]);
-
+#define coap_malloc(size)       HAL_Malloc(size)
+#define coap_free(ptr)          HAL_Free(ptr)
 
 #endif
