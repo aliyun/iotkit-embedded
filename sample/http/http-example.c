@@ -41,25 +41,25 @@
     #define IOTX_DEVICE_ID           "IoTxHttpTestDev_001"
 #endif
 
-static iotx_device_info_t deviceinfo;
-
-static int iotx_post_data_to_server(void *param)
+static int iotx_post_data_to_server(void *handle)
 {
-    char path[IOTX_URI_MAX_LEN + 1] = {0};
-    char request_buf[1024];
+    char         path[IOTX_URI_MAX_LEN + 1] = {0};
+    char         rsp_buf[1024];
+    iotx_http_t *iotx_http_context = (iotx_http_t *)handle;
+    iotx_device_info_t *p_devinfo = iotx_http_context->p_devinfo;
 
-    void *p_ctx = (void *)param;
     iotx_http_message_param_t msg_param;
     msg_param.request_payload = (char *)"{\"name\":\"hello world\"}";
-    msg_param.response_payload = request_buf;
+    msg_param.response_payload = rsp_buf;
     msg_param.timeout_ms = 5000;
     msg_param.request_payload_len = strlen(msg_param.request_payload) + 1;
     msg_param.response_payload_len = 1024;
     msg_param.topic_path = path;
 
-    HAL_Snprintf(msg_param.topic_path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update", (char *)deviceinfo.product_key,
-                 (char *)deviceinfo.device_name);
-    if (0 == IOT_HTTP_SendMessage(p_ctx, &msg_param)) {
+    HAL_Snprintf(msg_param.topic_path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update", p_devinfo->product_key,
+                 p_devinfo->device_name);
+
+    if (0 == IOT_HTTP_SendMessage(iotx_http_context, &msg_param)) {
         HAL_Printf("message response is %s\r\n", msg_param.response_payload);
     } else {
         HAL_Printf("error\r\n");
@@ -68,31 +68,49 @@ static int iotx_post_data_to_server(void *param)
     return 0;
 }
 
-
 int main(int argc, char **argv)
 {
+    int opt;
+    iotx_device_info_t device_info = {0};
+    iotx_http_param_t http_param = {0};
+    void *handle = NULL;
+
     IOT_OpenLog("http");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    memset(&deviceinfo, 0x00, sizeof(iotx_device_info_t));
-    strncpy(deviceinfo.product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
-    strncpy(deviceinfo.device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
-    strncpy(deviceinfo.device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
-    strncpy(deviceinfo.device_id,  IOTX_DEVICE_ID, IOTX_DEVICE_ID_LEN);
+    strncpy(device_info.product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
+    strncpy(device_info.device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
+    strncpy(device_info.device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
+    strncpy(device_info.device_id,  IOTX_DEVICE_ID, IOTX_DEVICE_ID_LEN);
 
     HAL_Printf("[HTTP-Client]: Enter HTTP Client\r\n");
+    while ((opt = getopt(argc, argv, "lh")) != -1) {
+        switch (opt) {
+            case 'l':
+                http_param.keep_alive = 1;
+                break;
+            case 'h':
+                /* TODO: */
+                break;
+            default:
+                break;
+        }
+    }
+    HAL_Printf("[HTTP-Client]: keep_alive=%d\r\n", http_param.keep_alive);
+    http_param.device_info = &device_info;
 
-    void *p_ctx = NULL;
-    p_ctx = IOT_HTTP_Init(&deviceinfo);
-    if (NULL != p_ctx) {
-        IOT_HTTP_DeviceNameAuth(p_ctx);
-        iotx_post_data_to_server(p_ctx);
+    handle = IOT_HTTP_Init(&http_param);
+    if (NULL != handle) {
+        IOT_HTTP_DeviceNameAuth(handle);
+        iotx_post_data_to_server(handle);
         HAL_Printf("IoTx HTTP Message Sent\r\n");
     } else {
         HAL_Printf("IoTx HTTP init failed\r\n");
     }
 
-    IOT_HTTP_DeInit();
+    IOT_HTTP_Disconnect(handle);
+
+    IOT_HTTP_DeInit(&handle);
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_CloseLog();

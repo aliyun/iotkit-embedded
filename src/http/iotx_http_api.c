@@ -85,11 +85,6 @@
 #define IOTX_HTTP_HEADER_END_STR "\r\n"
 
 #define HTTP_AUTH_RESP_MAX_LEN      (256)
-#define HTTP_IOTX_INIT_SUCCESS      (1)
-#define HTTP_IOTX_NOT_INITED        (0)
-
-static iotx_http_t *p_iotx_http = NULL;
-static int          g_iotx_http_initflag = HTTP_IOTX_NOT_INITED;
 
 /*
   Http server url: https://iot-as-http.cn-shanghai.aliyuncs.com
@@ -169,7 +164,7 @@ static int construct_full_http_upstream_url(char *buf, const char *topic_path)
 }
 
 /* report ModuleID */
-static int iotx_http_report_mid(iotx_http_t *p_context)
+static int iotx_http_report_mid(iotx_http_t *handle)
 {
     int                         ret;
     char                        topic_name[IOTX_URI_MAX_LEN + 1];
@@ -178,9 +173,7 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
     char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
     char                        pid[PID_STRLEN_MAX + 1] = {0};
     char                        mid[MID_STRLEN_MAX + 1] = {0};
-
-    memset(pid, 0, sizeof(pid));
-    memset(mid, 0, sizeof(mid));
+    iotx_http_t                *iotx_http_context = handle;
 
     if (0 == HAL_GetPartnerID(pid)) {
         log_debug("PartnerID is Null.");
@@ -194,8 +187,8 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
     log_debug("MID Report: started in HTTP");
 
     iotx_midreport_reqid(requestId,
-                         (char *)p_iotx_http->p_devinfo->product_key,
-                         (char *)p_iotx_http->p_devinfo->device_name);
+                         (char *)iotx_http_context->p_devinfo->product_key,
+                         (char *)iotx_http_context->p_devinfo->device_name);
     /* 1,generate json data */
     char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
@@ -221,8 +214,8 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
     /* 2,generate topic name */
     ret = iotx_midreport_topic(topic_name,
                                "/topic",
-                               (char *)p_iotx_http->p_devinfo->product_key,
-                               (char *)p_iotx_http->p_devinfo->device_name);
+                               (char *)iotx_http_context->p_devinfo->product_key,
+                               (char *)iotx_http_context->p_devinfo->device_name);
 
     log_debug("MID Report: topic name = '%s'", topic_name);
 
@@ -232,7 +225,7 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
         return FAIL_RETURN;
     }
     /*3,send topic */
-    ret = IOT_HTTP_SendMessage((void *)p_context, &msg_param);
+    ret = IOT_HTTP_SendMessage(iotx_http_context, &msg_param);
     if (0 == ret) {
         log_info("message response is '%s'", msg_param.response_payload);
     } else {
@@ -248,92 +241,102 @@ static int iotx_http_report_mid(iotx_http_t *p_context)
 
 }
 
-void *IOT_HTTP_Init(iotx_device_info_t *p_devinfo)
+void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
 {
-    if (NULL == p_devinfo) {
-        log_err("Invalid argument, p_dev_info = %p", p_devinfo);
+    iotx_device_info_t *p_devinfo;
+    iotx_http_t        *iotx_http_context;
+    if (NULL == pInitParams || NULL == pInitParams->device_info) {
+        log_err("Invalid argument: pInitParams or device_info = NULL");
         return NULL;
     }
 
-    if (NULL == p_iotx_http) {
-        p_iotx_http = LITE_malloc(sizeof(iotx_http_t));
+    p_devinfo = pInitParams->device_info;
 
-        if (NULL == p_iotx_http) {
-            log_err("Allocate memory for p_iotx_http failed\r\n");
-            return NULL;
-        }
-    } else {
-        return p_iotx_http;
+    iotx_http_context = (iotx_http_t *)LITE_malloc(sizeof(iotx_http_t));
+
+    if (NULL == iotx_http_context) {
+        log_err("Allocate memory for iotx_http_context failed\r\n");
+        return NULL;
     }
 
-    memset(p_iotx_http, 0x00, sizeof(iotx_http_t));
+    memset(iotx_http_context, 0x00, sizeof(iotx_http_t));
 
-    p_iotx_http->p_auth_token = LITE_malloc(IOTX_HTTP_AUTH_TOKEN_LEN);
-    if (NULL == p_iotx_http->p_auth_token) {
+    iotx_http_context->keep_alive = pInitParams->keep_alive;
+    iotx_http_context->p_auth_token = LITE_malloc(IOTX_HTTP_AUTH_TOKEN_LEN);
+    if (NULL == iotx_http_context->p_auth_token) {
         log_err("Allocate memory for auth token failed\r\n");
         goto err;
     }
-    memset(p_iotx_http->p_auth_token, 0x00, IOTX_HTTP_AUTH_TOKEN_LEN);
-    p_iotx_http->is_authed = 0;
-    p_iotx_http->auth_token_len = IOTX_HTTP_AUTH_TOKEN_LEN;
+    memset(iotx_http_context->p_auth_token, 0x00, IOTX_HTTP_AUTH_TOKEN_LEN);
+    iotx_http_context->is_authed = 0;
+    iotx_http_context->auth_token_len = IOTX_HTTP_AUTH_TOKEN_LEN;
 
     /*Get deivce information*/
-    p_iotx_http->p_devinfo = LITE_malloc(sizeof(iotx_device_info_t));
-    if (NULL == p_iotx_http->p_devinfo) {
-        log_err("Allocate memory for p_iotx_http->p_devinfo failed\r\n");
+    iotx_http_context->p_devinfo = (iotx_device_info_t *)LITE_malloc(sizeof(iotx_device_info_t));
+    if (NULL == iotx_http_context->p_devinfo) {
+        log_err("Allocate memory for iotx_http_context->p_devinfo failed\r\n");
         goto err;
     }
-    memset(p_iotx_http->p_devinfo, 0x00, sizeof(iotx_device_info_t));
+    memset(iotx_http_context->p_devinfo, 0x00, sizeof(iotx_device_info_t));
 
     /*It should be implement by the user*/
-    memset(p_iotx_http->p_devinfo, 0x00, sizeof(iotx_device_info_t));
-    strncpy(p_iotx_http->p_devinfo->device_id,    p_devinfo->device_id,   IOTX_DEVICE_ID_LEN);
-    strncpy(p_iotx_http->p_devinfo->product_key,  p_devinfo->product_key, IOTX_PRODUCT_KEY_LEN);
-    strncpy(p_iotx_http->p_devinfo->device_secret, p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
-    strncpy(p_iotx_http->p_devinfo->device_name,  p_devinfo->device_name, IOTX_DEVICE_NAME_LEN);
+    memset(iotx_http_context->p_devinfo, 0x00, sizeof(iotx_device_info_t));
+    strncpy(iotx_http_context->p_devinfo->device_id,     p_devinfo->device_id,     IOTX_DEVICE_ID_LEN);
+    strncpy(iotx_http_context->p_devinfo->product_key,   p_devinfo->product_key,   IOTX_PRODUCT_KEY_LEN);
+    strncpy(iotx_http_context->p_devinfo->device_secret, p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
+    strncpy(iotx_http_context->p_devinfo->device_name,   p_devinfo->device_name,   IOTX_DEVICE_NAME_LEN);
 
     iotx_device_info_init();
-    iotx_device_info_set(p_iotx_http->p_devinfo->product_key, p_iotx_http->p_devinfo->device_name,
-                         p_iotx_http->p_devinfo->device_secret);
+    iotx_device_info_set(iotx_http_context->p_devinfo->product_key, iotx_http_context->p_devinfo->device_name,
+                         iotx_http_context->p_devinfo->device_secret);
 
-    g_iotx_http_initflag = HTTP_IOTX_INIT_SUCCESS;
+    iotx_http_context->httpc = LITE_malloc(sizeof(httpclient_t));
+    if (NULL == iotx_http_context->httpc) {
+        log_err("Allocate memory for iotx_http_context->httpc failed\r\n");
+        goto err;
+    }
+    memset(iotx_http_context->httpc, 0x00, sizeof(httpclient_t));
 
-    return (void *)p_iotx_http;
+    return iotx_http_context;
 
 err:
     /* Error, release the memory */
-    if (NULL != p_iotx_http) {
-        if (NULL != p_iotx_http->p_devinfo) {
-            LITE_free(p_iotx_http->p_devinfo);
+    if (NULL != iotx_http_context) {
+        if (NULL != iotx_http_context->p_devinfo) {
+            LITE_free(iotx_http_context->p_devinfo);
         }
-        if (NULL != p_iotx_http->p_auth_token) {
-            LITE_free(p_iotx_http->p_auth_token);
+        if (NULL != iotx_http_context->p_auth_token) {
+            LITE_free(iotx_http_context->p_auth_token);
         }
 
-        p_iotx_http->auth_token_len = 0;
-        LITE_free(p_iotx_http);
+        iotx_http_context->auth_token_len = 0;
+        LITE_free(iotx_http_context);
     }
     return NULL;
 }
 
-void IOT_HTTP_DeInit()
+void IOT_HTTP_DeInit(void **handle)
 {
-    if (NULL != p_iotx_http) {
-        if (NULL != p_iotx_http->p_devinfo) {
-            LITE_free(p_iotx_http->p_devinfo);
-        }
-        if (NULL != p_iotx_http->p_auth_token) {
-            LITE_free(p_iotx_http->p_auth_token);
-        }
-
-        p_iotx_http->auth_token_len = 0;
-        LITE_free(p_iotx_http);
+    iotx_http_t *iotx_http_context;
+    if (NULL == handle || NULL == *handle) {
+        log_err("handle or *handle is NULL pointer\r\n");
     }
-    g_iotx_http_initflag = HTTP_IOTX_NOT_INITED;
+    iotx_http_context = *handle;
+    if (NULL != iotx_http_context->p_devinfo) {
+        LITE_free(iotx_http_context->p_devinfo);
+    }
+    if (NULL != iotx_http_context->p_auth_token) {
+        LITE_free(iotx_http_context->p_auth_token);
+    }
+    if (NULL != iotx_http_context->httpc) {
+        LITE_free(iotx_http_context->httpc);
+    }
+
+    iotx_http_context->auth_token_len = 0;
+    LITE_free(iotx_http_context);
 }
 
-
-int IOT_HTTP_DeviceNameAuth(void *p_context)
+int IOT_HTTP_DeviceNameAuth(void *handle)
 {
     int                 ret = -1;
     int                 ret_code = 0;
@@ -342,12 +345,14 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
     char                sign[IOTX_HTTP_SIGN_LENGTH]   = {0};
     char                http_url[IOTX_HTTP_URL_LEN_MAX] = {0};
     char                timestamp[14] = {0};
-    httpclient_t        httpc;
-    httpclient_data_t   httpc_data;
-    char               *requ_payload = NULL;
-    char               *resp_payload = NULL;
+    httpclient_t       *httpc;
+    httpclient_data_t   httpc_data = {0};
+    char               *req_payload = NULL;
+    char               *rsp_payload = NULL;
     int                 len = 0;
     char                p_msg_unsign[IOTX_HTTP_SIGN_SOURCE_LEN] = {0};
+    iotx_time_t         timer;
+    iotx_http_t        *iotx_http_context = (iotx_http_t *)handle;
     /*
         //    body:
         //    {
@@ -360,15 +365,11 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         //      "timestamp": "xxxxxx"//选填  13byte
         //    }
     */
-
-    if (HTTP_IOTX_INIT_SUCCESS != g_iotx_http_initflag) {
-        log_err("iotx_http do not inited!\r\n");
+    if (NULL == iotx_http_context) {
+        log_err("iotx_http_context NULL pointer!\r\n");
         goto do_exit;
     }
-
-    /* p_context = NULL; */
-
-    p_iotx_http->is_authed = 0;
+    iotx_http_context->is_authed = 0;
 
     /* FIXME:some compile error when calling this function. Get TimeStamp */
     /*
@@ -380,33 +381,30 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
     */
 
     /* Calculate Sign */
-    memset(sign,  0x00, IOTX_HTTP_SIGN_LENGTH);
-    memset(p_msg_unsign, 0x00, IOTX_HTTP_SIGN_SOURCE_LEN);
-
     LITE_snprintf(p_msg_unsign, IOTX_HTTP_SIGN_SOURCE_LEN,
-                  IOTX_HTTP_SIGN_SRC_STR
-                  , p_iotx_http->p_devinfo->device_id
-                  , p_iotx_http->p_devinfo->device_name
-                  , p_iotx_http->p_devinfo->product_key
+                  IOTX_HTTP_SIGN_SRC_STR,
+                  iotx_http_context->p_devinfo->device_id,
+                  iotx_http_context->p_devinfo->device_name,
+                  iotx_http_context->p_devinfo->product_key
 #ifdef IOTX_HTTP_TIMESTAMP_OPTIONAL_ENABLE
                   , timestamp
 #endif
                  );
 
-    iotx_calc_sign(p_iotx_http->p_devinfo->device_secret, p_msg_unsign, sign);
+    iotx_calc_sign(iotx_http_context->p_devinfo->device_secret, p_msg_unsign, sign);
 
     /* to save stack memory*/
     len = calc_snprintf_string_length(IOTX_HTTP_AUTH_DEVICENAME_STR,
                                       "default",
-                                      p_iotx_http->p_devinfo->device_id,
+                                      iotx_http_context->p_devinfo->device_id,
 #if USING_SHA1_IN_HMAC
                                       IOTX_SHA_METHOD,
 #else
                                       IOTX_MD5_METHOD,
 #endif
                                       sign,
-                                      p_iotx_http->p_devinfo->product_key,
-                                      p_iotx_http->p_devinfo->device_name,
+                                      iotx_http_context->p_devinfo->product_key,
+                                      iotx_http_context->p_devinfo->device_name,
                                       timestamp
                                      );
 
@@ -414,69 +412,80 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         goto do_exit;
     }
 
-    requ_payload = (char *)LITE_malloc(len + 1);
-    memset(requ_payload, 0, len + 1);
+    req_payload = (char *)LITE_malloc(len + 1);
+    memset(req_payload, 0, len + 1);
 
-    log_debug("len = %d,requ_payload: \r\n%s\r\n", len, requ_payload);
+    log_debug("allocate req_payload: len = %d\r\n", len);
 
-    len = LITE_snprintf(requ_payload, len + 1,
+    len = LITE_snprintf(req_payload, len + 1,
                         IOTX_HTTP_AUTH_DEVICENAME_STR,
                         "default",
-                        p_iotx_http->p_devinfo->device_id,
+                        iotx_http_context->p_devinfo->device_id,
 #if USING_SHA1_IN_HMAC
                         IOTX_SHA_METHOD,
 #else
                         IOTX_MD5_METHOD,
 #endif
                         sign,
-                        p_iotx_http->p_devinfo->product_key,
-                        p_iotx_http->p_devinfo->device_name,
+                        iotx_http_context->p_devinfo->product_key,
+                        iotx_http_context->p_devinfo->device_name,
                         timestamp
                        );
-    log_debug("len = %d,requ_payload: \r\n%s\r\n", len, requ_payload);
+    log_debug("len = %d,req_payload: \r\n%s\r\n", len, req_payload);
 
     /* Malloc Http Response Payload */
-    resp_payload = (char *)LITE_malloc(HTTP_AUTH_RESP_MAX_LEN);
-    if (NULL == resp_payload) {
-        log_err("Allocate HTTP resp_payload buf failed!");
+    rsp_payload = (char *)LITE_malloc(HTTP_AUTH_RESP_MAX_LEN);
+    if (NULL == rsp_payload) {
+        log_err("Allocate HTTP rsp_payload buf failed!");
         goto do_exit;
     }
-    memset(resp_payload, 0, HTTP_AUTH_RESP_MAX_LEN);
+    memset(rsp_payload, 0, HTTP_AUTH_RESP_MAX_LEN);
 
     /* Construct Auth Url */
     construct_full_http_authenticate_url(http_url);
 
     /* Set httpclient and httpclient_data */
-    memset(&httpc, 0, sizeof(httpclient_t));
-    memset(&httpc_data, 0, sizeof(httpclient_data_t));
+    httpc = (httpclient_t *)iotx_http_context->httpc;
 
     httpc_data.post_content_type = "application/json";
-    httpc_data.post_buf = requ_payload;
-    httpc_data.post_buf_len = strlen(requ_payload);
-    httpc_data.response_buf = resp_payload;
+    httpc_data.post_buf = req_payload;
+    httpc_data.post_buf_len = len;
+    httpc_data.response_buf = rsp_payload;
     httpc_data.response_buf_len = HTTP_AUTH_RESP_MAX_LEN;
 
-    httpc.header = "Connection: Keep-Alive\r\n";
+    httpc->header = "Connection: Keep-Alive\r\n";
 
     /*
     Test Code
-    p_iotx_http->p_auth_token = "eyJ0eXBlIjoiSldUIiwiYWxnIjoiaG1hY3NoYTEifQ.eyJleHBpcmUiOjE1MDQ3ODE4MzQ5MDAsInRva2VuIjoiM2EyZTRmYzMyNjk5NDE0Y2E3MDFjNzIzNzI1YjIyNDgifQ.e87AFhkvNKiqF5xdgm1P47f9DwY";
-    p_iotx_http->is_authed = 1;
+    iotx_http_context->p_auth_token = "eyJ0eXBlIjoiSldUIiwiYWxnIjoiaG1hY3NoYTEifQ.eyJleHBpcmUiOjE1MDQ3ODE4MzQ5MDAsInRva2VuIjoiM2EyZTRmYzMyNjk5NDE0Y2E3MDFjNzIzNzI1YjIyNDgifQ.e87AFhkvNKiqF5xdgm1P47f9DwY";
+    iotx_http_context->is_authed = 1;
     ret = 0;
     goto do_exit;
     Test Code
     */
 
     /* Send Request and Get Response */
-    if (0 != iotx_post(&httpc,
+    if (0 != iotx_post(httpc,
                        http_url,
                        IOTX_HTTP_ONLINE_SERVER_PORT,
                        IOTX_HTTP_CA_GET,
-                       CONFIG_HTTP_AUTH_TIMEOUT,
                        &httpc_data)) {
         goto do_exit;
     }
 
+    iotx_time_init(&timer);
+    utils_time_countdown_ms(&timer, CONFIG_HTTP_AUTH_TIMEOUT);
+
+
+    ret = httpclient_recv_response(httpc, iotx_time_left(&timer), &httpc_data);
+    if (ret < 0) {
+        log_err("httpclient_recv_response error, ret = %d", ret);
+        httpclient_close(httpc);
+        return ret;
+    }
+    if (0 == iotx_http_context->keep_alive) {
+        httpclient_close(httpc);
+    }
     /*
     body:
     {
@@ -525,15 +534,15 @@ int IOT_HTTP_DeviceNameAuth(void *p_context)
         goto do_exit;
     }
 
-    strcpy(p_iotx_http->p_auth_token, pvalue);
-    p_iotx_http->is_authed = 1;
+    strcpy(iotx_http_context->p_auth_token, pvalue);
+    iotx_http_context->is_authed = 1;
     LITE_free(pvalue);
     pvalue = NULL;
 
-    log_info("iotToken: %s", p_iotx_http->p_auth_token);
+    log_info("iotToken: %s", iotx_http_context->p_auth_token);
 
     /* report module id */
-    ret = iotx_http_report_mid((iotx_http_t *)p_context);
+    ret = iotx_http_report_mid(iotx_http_context);
     if (SUCCESS_RETURN != ret) {
         log_err("Send ModuleId message to server(Http) failed ret = %d", ret);
         goto do_exit;
@@ -546,32 +555,33 @@ do_exit:
         LITE_free(pvalue);
         pvalue = NULL;
     }
-    if (requ_payload) {
-        LITE_free(requ_payload);
-        requ_payload = NULL;
+    if (req_payload) {
+        LITE_free(req_payload);
+        req_payload = NULL;
     }
-    if (resp_payload) {
-        LITE_free(resp_payload);
-        resp_payload = NULL;
+    if (rsp_payload) {
+        LITE_free(rsp_payload);
+        rsp_payload = NULL;
     }
 
     return ret;
 }
 
-int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
+int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 {
     int                 ret = -1;
     int                 response_code = 0;
     char               *pvalue = NULL;
     char                http_url[IOTX_HTTP_URL_LEN_MAX] = {0};
-    httpclient_t        httpc;
-    httpclient_data_t   httpc_data;
+    httpclient_t       *httpc = NULL;
+    httpclient_data_t   httpc_data = {0};
     char               *messageId = NULL;
     char               *user_data = NULL;
     char               *response_message = NULL;
     int                 len = 0;
     uint32_t            payload_len = 0;
-
+    iotx_time_t         timer;
+    iotx_http_t        *iotx_http_context = (iotx_http_t *)handle;
     /*
         POST /topic/${topic} HTTP/1.1
         Host: iot-as-http.cn-shanghai.aliyuncs.com
@@ -581,24 +591,17 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     */
 
     /* Set httpclient and httpclient_data */
-    memset(&httpc, 0, sizeof(httpclient_t));
-    memset(&httpc_data, 0, sizeof(httpclient_data_t));
-
-    if (HTTP_IOTX_INIT_SUCCESS != g_iotx_http_initflag) {
-        log_err("iotx_http do not inited!\r\n");
+    /* memset(&httpc, 0, sizeof(httpclient_t)); */
+    if (NULL == iotx_http_context || NULL == msg_param) {
+        log_err("iotx_http_context or msg_param NULL pointer!\r\n");
         goto do_exit;
     }
 
-    /* p_context = NULL; */
+    httpc = (httpclient_t *)iotx_http_context->httpc;
 
-    if (NULL == msg_param) {
-        log_err("msg_param parameter is Null,failed!");
-        goto do_exit;
-    }
-
-    if (0 == p_iotx_http->is_authed) {
+    if (0 == iotx_http_context->is_authed) {
         log_err("Device is not authed");
-        /* IOT_HTTP_DeviceNameAuth(p_iotx_http); */
+        /* IOT_HTTP_DeviceNameAuth(iotx_http_context); */
         goto do_exit;
     }
 
@@ -624,12 +627,12 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     /* Construct Auth Url */
     construct_full_http_upstream_url(http_url, msg_param->topic_path);
 
-    len = strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(p_iotx_http->p_auth_token) + strlen(
+    len = strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(iotx_http_context->p_auth_token) + strlen(
                       IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR);
-    httpc.header = LITE_malloc(len + 1);
-    LITE_snprintf(httpc.header, len + 1,
-                  IOTX_HTTP_UPSTREAM_HEADER_STR, p_iotx_http->p_auth_token);
-    log_info("httpc.header = %s", httpc.header);
+    httpc->header = LITE_malloc(len + 1);
+    LITE_snprintf(httpc->header, len + 1,
+                  IOTX_HTTP_UPSTREAM_HEADER_STR, iotx_http_context->p_auth_token);
+    log_info("httpc->header = %s", httpc->header);
 
     httpc_data.post_content_type = "application/octet-stream";
     httpc_data.post_buf = msg_param->request_payload;
@@ -640,13 +643,25 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
     log_info("request_payload: \r\n\r\n%s\r\n", httpc_data.post_buf);
 
     /* Send Request and Get Response */
-    if (iotx_post(&httpc,
+    if (iotx_post(httpc,
                   http_url,
                   IOTX_HTTP_ONLINE_SERVER_PORT,
                   IOTX_HTTP_CA_GET,
-                  msg_param->timeout_ms,
                   &httpc_data)) {
         goto do_exit;
+    }
+    iotx_time_init(&timer);
+    utils_time_countdown_ms(&timer, msg_param->timeout_ms);
+
+    ret = httpclient_recv_response(httpc, iotx_time_left(&timer), &httpc_data);
+    if (ret < 0) {
+        log_err("httpclient_recv_response error, ret = %d", ret);
+        httpclient_close(httpc);
+        return ret;
+    }
+
+    if (0 == iotx_http_context->keep_alive) {
+        httpclient_close(httpc);
     }
 
     /*
@@ -685,8 +700,8 @@ int IOT_HTTP_SendMessage(void *p_context, iotx_http_message_param_t *msg_param)
         case IOTX_HTTP_SUCCESS:
             break;
         case IOTX_HTTP_TOKEN_EXPIRED_ERROR:
-            p_iotx_http->is_authed = IOT_FALSE;
-            IOT_HTTP_DeviceNameAuth((iotx_http_t *)p_iotx_http);
+            iotx_http_context->is_authed = IOT_FALSE;
+            IOT_HTTP_DeviceNameAuth((iotx_http_t *)iotx_http_context);
         case IOTX_HTTP_COMMON_ERROR:
         case IOTX_HTTP_PARAM_ERROR:
         case IOTX_HTTP_AUTH_CHECK_ERROR:
@@ -736,11 +751,15 @@ do_exit:
         LITE_free(response_message);
     }
 
-    if (httpc.header) {
-        LITE_free(httpc.header);
+    if (httpc->header) {
+        LITE_free(httpc->header);
     }
 
     return ret;
 }
 
+void IOT_HTTP_Disconnect(void *handle)
+{
+    httpclient_close(((iotx_http_t *)handle)->httpc);
+}
 
