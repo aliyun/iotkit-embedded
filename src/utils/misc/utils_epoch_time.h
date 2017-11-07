@@ -23,12 +23,7 @@
 extern "C" {
 #endif
 
-void *HAL_UDP_create(char *host, unsigned short port);
-void  HAL_UDP_close(void *p_socket);
-int   HAL_UDP_write(void *p_socket, const unsigned char *p_data, unsigned int datalen);
-int   HAL_UDP_read(void *p_socket, unsigned char *p_data, unsigned int datalen);
-int   HAL_UDP_readTimeout(void *p_socket,unsigned char *p_data,
-                                 unsigned int datalen, unsigned int timeout);
+#include "iot_import.h"
 
 /**
  * @brief Get epoch time from the Aliyun NTP(ntp%d.aliyun.com).
