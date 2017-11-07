@@ -42,6 +42,10 @@ extern "C" {
 #define PID_STRLEN_MAX      (64)
 #define MID_STRLEN_MAX      (64)
 
+#ifdef QAPI_TXM_MODULE
+#include "qapi_ali_iot.h"
+#else
+
 /*********************************** mutex interface ***********************************/
 
 /** @defgroup group_platform_mutex mutex
@@ -346,6 +350,8 @@ int32_t HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms
  * @see None.
  */
 int32_t HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
+
+#endif  /* QAPI_TXM_MODULE */
 
 #if defined(__cplusplus)
 }
