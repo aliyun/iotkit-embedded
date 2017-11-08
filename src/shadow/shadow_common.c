@@ -21,7 +21,6 @@
 #include "iot_import.h"
 #include "lite-log.h"
 #include "lite-utils.h"
-#include "utils_debug.h"
 #include "utils_timer.h"
 #include "utils_list.h"
 #include "device.h"
@@ -375,7 +374,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
         return NULL;
     }
 
-    IOTX_ASSERT(ret < len, "Memory should always enough.");
+    LITE_ASSERT(ret < len);
 
     return topic_full;
 }

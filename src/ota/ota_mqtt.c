@@ -54,7 +54,7 @@ static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
             product_key,
             device_name);
 
-    OTA_ASSERT(ret < buf_len, "buffer should always enough");
+    OTA_ASSERT(ret < buf_len);
 
     if (ret < 0) {
         OTA_LOG_ERROR("HAL_Snprintf failed");
@@ -108,7 +108,7 @@ static void otamqtt_UpgrageCb(void *pcontext, void *pclient, iotx_mqtt_event_msg
     OTA_LOG_DEBUG("topic=%.*s", topic_info->topic_len, topic_info->ptopic);
     OTA_LOG_DEBUG("len=%u, topic_msg=%.*s", topic_info->payload_len, topic_info->payload_len, (char *)topic_info->payload);
 
-    OTA_ASSERT(IOTX_MQTT_EVENT_PUBLISH_RECVEIVED == msg->event_type, "invalid event type");
+    OTA_ASSERT(IOTX_MQTT_EVENT_PUBLISH_RECVEIVED == msg->event_type);
 
     if (NULL != handle->cb) {
         handle->cb(handle->context, topic_info->payload, topic_info->payload_len);

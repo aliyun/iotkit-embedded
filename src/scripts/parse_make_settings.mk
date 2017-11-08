@@ -1,8 +1,5 @@
 include $(CURDIR)/src/scripts/internal_make_funcs.mk
 
-SETTING_VARS := \
-    BUILD_TYPE \
-
 SWITCH_VARS := \
     FEATURE_MQTT_COMM_ENABLED \
     FEATURE_MQTT_SHADOW \
@@ -17,11 +14,6 @@ SWITCH_VARS := \
     FEATURE_MQTT_ID2_CRYPTO \
     FEATURE_MQTT_ID2_ENV \
     FEATURE_HTTP_COMM_ENABLED \
-
-$(foreach v, \
-    $(SETTING_VARS) $(SWITCH_VARS), \
-    $(eval export $(v)=$($(v))) \
-)
 
 $(foreach v, \
     $(SWITCH_VARS), \
@@ -50,10 +42,6 @@ endif # HTTP
 endif # COAP
 endif # MQTT
 endif # OTA Enabled
-
-ifeq (debug,$(strip $(BUILD_TYPE)))
-CFLAGS  += -DIOTX_DEBUG
-endif
 
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
