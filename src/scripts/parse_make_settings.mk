@@ -2,9 +2,6 @@ include $(CURDIR)/src/scripts/internal_make_funcs.mk
 
 SETTING_VARS := \
     BUILD_TYPE \
-    PLATFORM_CC \
-    PLATFORM_AR \
-    PLATFORM_OS \
 
 SWITCH_VARS := \
     FEATURE_MQTT_COMM_ENABLED \
@@ -99,8 +96,8 @@ endif   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
-    ifneq (gcc,$(strip $(PLATFORM_CC)))
-    $(error FEATURE_MQTT_ID2_AUTH requires PLATFORM_CC equal gcc!)
+    ifneq (gcc,$(strip $(CC)))
+    $(error FEATURE_MQTT_ID2_AUTH requires $(CC) equal gcc!)
     endif
 
 else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
@@ -128,9 +125,6 @@ CFLAGS  += -DTEST_ID2_DAILY
 endif
 endif
 endif
-
-OVERRIDE_CC := $(strip $(PLATFORM_CC))
-OVERRIDE_AR := $(strip $(PLATFORM_AR))
 
 SUBDIRS += src/tls
 SUBDIRS += src/platform

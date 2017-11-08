@@ -9,10 +9,8 @@ CONFIG_ENV_CFLAGS += \
     --apcs=/interwork \
     -DQAPI_TXM_MODULE
 
-CONFIG_LIB_EXPORT       := static
-
-PLATFORM_CC             := armcc
-PLATFORM_AR             := armar
+OVERRIDE_CC             := armcc
+OVERRIDE_AR             := armar
 
 CONFIG_src/shadow       :=
 CONFIG_src/coap         :=
