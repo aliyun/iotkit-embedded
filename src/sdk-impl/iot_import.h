@@ -41,7 +41,6 @@ extern "C" {
 
 #define PID_STRLEN_MAX      (64)
 #define MID_STRLEN_MAX      (64)
-#define NETWORK_ADDR_LEN    (16)
 
 #ifdef QAPI_TXM_MODULE
 #include "qapi_ali_iot.h"
