@@ -1,10 +1,7 @@
 CONFIG_ENV_CFLAGS += --gnu --diag_error=warning
 
-CONFIG_LIB_EXPORT := static
-
-PLATFORM_CC     := armcc
-PLATFORM_AR     := armar
-PLATFORM_OS     := linux
+OVERRIDE_CC     := armcc
+OVERRIDE_AR     := armar
 
 CONFIG_src/platform     :=
 CONFIG_sample           :=
