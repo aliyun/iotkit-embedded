@@ -20,7 +20,6 @@
 #include "iot_import.h"
 
 #include "utils_list.h"
-#include "utils_debug.h"
 #include "lite-utils.h"
 #include "shadow.h"
 #include "shadow_common.h"
@@ -176,7 +175,7 @@ int IOT_Shadow_Push_Async(
     log_debug("data(%d) = %s", (int)data_len, data);
     ptoken = LITE_json_value_of((char *)"clientToken", (char *)data);
 
-    IOTX_ASSERT(NULL != ptoken, "Token should always exist.");
+    LITE_ASSERT(NULL != ptoken);
 
     pelement = iotx_shadow_update_wait_ack_list_add(pshadow, ptoken, strlen(ptoken), cb_fpt, pcontext, timeout_s);
     if (NULL == pelement) {

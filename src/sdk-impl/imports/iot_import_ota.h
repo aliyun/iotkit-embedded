@@ -25,7 +25,6 @@
 #include "lite-log.h"
 #include "json_parser.h"
 #include "utils_md5.h"
-#include "utils_debug.h"
 #include "utils_httpc.h"
 
 
@@ -34,7 +33,7 @@
 #define OTA_LOG_DEBUG       log_debug
 #define OTA_LOG_INFO        log_info
 #define OTA_LOG_ERROR       log_err
-#define OTA_ASSERT          IOTX_ASSERT
+#define OTA_ASSERT          LITE_ASSERT
 #define OTA_SNPRINTF        HAL_Snprintf
 
 #endif /* _OTA_IMPORT_H_ */

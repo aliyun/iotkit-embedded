@@ -17,8 +17,6 @@ while (( X <= $(echo "${PARA[1]}"|awk '{ print NF }') )); do
             echo "$X:$Y:$Z"
 #           cat << EOB > make.settings.sample.$X.$Y
             cat << EOB > make.settings.sample.$X.$Y.$Z
-BUILD_TYPE                  = debug
-
 EOB
             PART_A=$(echo "${PARA[1]}"|awk "{ print \$${X} }")
             PART_B=$(echo "${PARA[2]}"|awk "{ print \$${Y} }")
