@@ -70,13 +70,16 @@ static int iotx_post_data_to_server(void *handle)
 
 int main(int argc, char **argv)
 {
-    int opt;
-    iotx_device_info_t device_info = {0};
-    iotx_http_param_t http_param = {0};
-    void *handle = NULL;
+    iotx_device_info_t      device_info;
+    iotx_http_param_t       http_param;
+    int                     opt;
+    void                   *handle = NULL;
 
     IOT_OpenLog("http");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
+
+    memset(&device_info, 0, sizeof(device_info));
+    memset(&http_param, 0, sizeof(http_param));
 
     strncpy(device_info.product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
     strncpy(device_info.device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
