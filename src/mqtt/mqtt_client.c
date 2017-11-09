@@ -1165,16 +1165,19 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 /* wait CONNACK packet from remote MQTT broker */
 static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
 {
-    unsigned int packetType = 0;
-    int rc = 0;
-    iotx_time_t timer;
+#define WAIT_CONNACK_MAX    (10)
+
+    unsigned char       wait_connack = 0;
+    unsigned int        packetType = 0;
+    int                 rc = 0;
+    iotx_time_t         timer;
 
     if (!c) {
         return FAIL_RETURN;
     }
 
     iotx_time_init(&timer);
-    utils_time_countdown_ms(&timer, c->connect_data.keepAliveInterval * 1000);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     do {
         /* read the socket, see what work is due */
@@ -1184,6 +1187,10 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
             return MQTT_NETWORK_ERROR;
         }
 
+        if (++wait_connack > WAIT_CONNACK_MAX) {
+            log_err("wait connack exceeds maximum of %d", WAIT_CONNACK_MAX);
+            return MQTT_NETWORK_ERROR;
+        }
     } while (packetType != CONNACK);
 
     rc = iotx_mc_handle_recv_CONNACK(c);
@@ -1192,6 +1199,8 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
     }
 
     return rc;
+
+#undef WAIT_CONNACK_MAX
 }
 
 
