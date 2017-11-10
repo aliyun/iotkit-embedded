@@ -21,7 +21,7 @@ final-out: sub-mods
 	    fi; \
 	fi
 
-	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || true
-	$(TOP_Q)$(STRIP) --strip-debug $(FINAL_DIR)/lib/* 2>/dev/null || true
+	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/* || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1)
+	$(TOP_Q)$(STRIP) --strip-debug $(FINAL_DIR)/lib/* || (echo "$(STRIP) $(FINAL_DIR)/lib/* failed!" && exit 1)
 
 	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))

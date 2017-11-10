@@ -89,8 +89,17 @@ export CC       := $(if $(OVERRIDE_CC),     $(OVERRIDE_CC),     $(CROSS_PREFIX)g
 export CXX      := $(if $(OVERRIDE_CXX),    $(OVERRIDE_CXX),    $(CROSS_PREFIX)g++)
 export AR       := $(if $(OVERRIDE_AR),     $(OVERRIDE_AR),     $(CROSS_PREFIX)ar)
 export LD       := $(if $(OVERRIDE_LD),     $(OVERRIDE_LD),     $(CROSS_PREFIX)ld)
-export STRIP    := $(if $(OVERRIDE_STRIP),  $(OVERRIDE_STRIP),  $(CROSS_PREFIX)strip)
 export OBJCOPY  := $(if $(OVERRIDE_OBJCOPY),$(OVERRIDE_OBJCOPY),$(CROSS_PREFIX)objcopy)
+
+ifneq (,$(OVERRIDE_STRIP))
+export STRIP    := $(OVERRIDE_STRIP)
+else
+ifneq (,$(CROSS_PREFIX))
+export STRIP    := $(CROSS_PREFIX)strip
+else
+export STRIP    := true
+endif
+endif
 
 include $(RULE_DIR)/_rules-dist.mk
 include $(RULE_DIR)/_rules-complib.mk
