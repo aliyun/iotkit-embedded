@@ -130,22 +130,23 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     memset(&network_param, 0x00, sizeof(coap_network_init_t));
     p_ctx = coap_malloc(sizeof(CoAPContext));
     if (NULL == p_ctx) {
-        COAP_ERR("Create coap new context failed");
-        return NULL;
+        COAP_ERR("malloc for coap context failed");
+        goto err;
     }
 
+    memset(p_ctx, 0, sizeof(CoAPContext));
     p_ctx->message_id = 1;
     p_ctx->notifier = param->notifier;
     p_ctx->sendbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
     if (NULL == p_ctx->sendbuf) {
         COAP_ERR("not enough memory");
-        return NULL;
+        goto err;
     }
 
     p_ctx->recvbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
     if (NULL == p_ctx->recvbuf) {
         COAP_ERR("not enough memory");
-        return NULL;
+        goto err;
     }
 
     if (0 == param->waittime) {
@@ -165,54 +166,48 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     }
 
     if (COAP_SUCCESS != ret) {
-        if (NULL != p_ctx) {
-            if (NULL != p_ctx->recvbuf) {
-                coap_free(p_ctx->recvbuf);
-                p_ctx->recvbuf = NULL;
-            }
-            if (NULL != p_ctx->sendbuf) {
-                coap_free(p_ctx->sendbuf);
-                p_ctx->sendbuf = NULL;
-            }
-            coap_free(p_ctx);
-            p_ctx    =  NULL;
-            return NULL;
-        }
+        goto err;
     }
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_ENDPOINT_DTLS == network_param.ep_type) {
         extern const char *iotx_coap_get_ca(void);
-        network_param.p_ca_cert_pem     = (unsigned char *)iotx_coap_get_ca();
+        network_param.p_ca_cert_pem  = (unsigned char *)iotx_coap_get_ca();
     }
 #endif
     if (COAP_ENDPOINT_NOSEC == network_param.ep_type) {
         network_param.p_ca_cert_pem = NULL;
     }
-    network_param.p_host            =   host;
+    network_param.p_host = host;
 
     /*CoAP network init*/
-    ret = CoAPNetwork_init(&network_param,  &p_ctx->network);
+    ret = CoAPNetwork_init(&network_param, &p_ctx->network);
 
     if (COAP_SUCCESS != ret) {
-        if (NULL != p_ctx) {
-
-            if (NULL != p_ctx->recvbuf) {
-                coap_free(p_ctx->recvbuf);
-                p_ctx->recvbuf = NULL;
-            }
-            if (NULL != p_ctx->sendbuf) {
-                coap_free(p_ctx->sendbuf);
-                p_ctx->sendbuf = NULL;
-            }
-            coap_free(p_ctx);
-            p_ctx    =  NULL;
-        }
+        goto err;
     }
 
     return p_ctx;
-}
+err:
+    if (NULL == p_ctx) {
+        return p_ctx;
+    }
 
+    if (NULL != p_ctx->recvbuf) {
+        coap_free(p_ctx->recvbuf);
+        p_ctx->recvbuf = NULL;
+    }
+
+    if (NULL != p_ctx->sendbuf) {
+        coap_free(p_ctx->sendbuf);
+        p_ctx->sendbuf = NULL;
+    }
+
+    coap_free(p_ctx);
+    p_ctx = NULL;
+
+    return p_ctx;
+}
 
 void CoAPContext_free(CoAPContext *p_ctx)
 {
