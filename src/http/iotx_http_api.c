@@ -590,8 +590,6 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
         body: ${your_data}
     */
 
-    /* Set httpclient and httpclient_data */
-    /* memset(&httpc, 0, sizeof(httpclient_t)); */
     if (NULL == iotx_http_context || NULL == msg_param) {
         log_err("iotx_http_context or msg_param NULL pointer!\r\n");
         goto do_exit;
@@ -599,9 +597,13 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 
     httpc = (httpclient_t *)iotx_http_context->httpc;
 
+    if (NULL == httpc) {
+        log_err("httpc null pointer");
+        goto do_exit;
+    }
+
     if (0 == iotx_http_context->is_authed) {
         log_err("Device is not authed");
-        /* IOT_HTTP_DeviceNameAuth(iotx_http_context); */
         goto do_exit;
     }
 
@@ -751,7 +753,7 @@ do_exit:
         LITE_free(response_message);
     }
 
-    if (httpc->header) {
+    if (httpc != NULL && httpc->header) {
         LITE_free(httpc->header);
     }
 
