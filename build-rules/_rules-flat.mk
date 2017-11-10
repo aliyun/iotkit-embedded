@@ -68,7 +68,13 @@ all:
 endif
 
 clean:
-	$(Q)rm -f $(strip $(ALL_TARGETS) $(OBJS) $(LIB_OBJS) $(OBJS:.o=.d) $(LIB_OBJS:.o=.d)) *.o.e *.d *.o *.a *.so *.log *.gc*
+	$(Q)rm -f \
+        $(strip \
+            $(ALL_TARGETS) $(OBJS) $(LIB_OBJS) \
+            $(OBJS:.o=.d) $(LIB_OBJS:.o=.d) \
+            $(LIB_OBJS:.o=.gcno) $(LIB_OBJS:.o=.gcda) \
+        ) \
+        *.o.e *.d *.o *.a *.so *.log *.gc*
 
 %.o: %.c $(HD_MAKEFILE)
 	$(call Brief_Log,"CC")
