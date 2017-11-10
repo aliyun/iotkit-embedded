@@ -320,7 +320,10 @@ void IOT_HTTP_DeInit(void **handle)
     iotx_http_t *iotx_http_context;
     if (NULL == handle || NULL == *handle) {
         log_err("handle or *handle is NULL pointer\r\n");
+
+        return;
     }
+
     iotx_http_context = *handle;
     if (NULL != iotx_http_context->p_devinfo) {
         LITE_free(iotx_http_context->p_devinfo);
