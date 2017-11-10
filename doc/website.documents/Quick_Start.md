@@ -6,8 +6,8 @@
 
 登录[IoT控制台](http://iot.console.aliyun.com), 创建产品及在产品下创建设备和Topic类, 具体步骤如下:
 
-   + 创建产品, 可得`ProductKey`
-   + 在产品下创建设备, 可得`DeviceName`, `DeviceSecret`
+   + 创建产品, 可得到`ProductKey`
+   + 在产品下创建设备, 可得到`DeviceName`, `DeviceSecret`
    + 定义Topic: `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`, 并设置权限为: 设备具有发布与订阅 **(此步骤非常重要)**
 
 具体请参考[控制台使用手册](https://help.aliyun.com/document_detail/42714.html)文档中的`创建产品`, `添加设备`以及`获取设备Topic`部分.

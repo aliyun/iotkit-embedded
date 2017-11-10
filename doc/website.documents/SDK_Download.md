@@ -12,6 +12,8 @@
     - 汇报缺陷的Issue/Bug Ticket
     - 或者Fork我们的项目
 
+- IoT套件后续会逐渐增加已适配的平台, 如果您使用的平台未被适配, 请访问[官方Github主页](https://github.com/aliyun/iotkit-embedded/issues), 给我们提出Issue
+
 **希望能够看到更多的Contributor, 共同开发设备端SDK的后续版本!**
 
 # 版本V2.02
