@@ -765,6 +765,10 @@ do_exit:
 
 void IOT_HTTP_Disconnect(void *handle)
 {
-    httpclient_close(((iotx_http_t *)handle)->httpc);
+    iotx_http_t *iotx_http_context = (iotx_http_t *)handle;
+
+    if (iotx_http_context != NULL) {
+        httpclient_close(iotx_http_context->httpc);
+    }
 }
 
