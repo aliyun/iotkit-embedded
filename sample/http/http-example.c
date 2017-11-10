@@ -109,6 +109,8 @@ int main(int argc, char **argv)
         HAL_Printf("IoTx HTTP Message Sent\r\n");
     } else {
         HAL_Printf("IoTx HTTP init failed\r\n");
+
+        return 0;
     }
 
     IOT_HTTP_Disconnect(handle);
