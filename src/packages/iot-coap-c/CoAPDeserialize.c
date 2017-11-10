@@ -32,7 +32,7 @@ int CoAPDeserialize_Header(CoAPMessage *msg, unsigned char *buf)
     return 4;
 }
 
-int CoAPDeserialize_Token(CoAPMessage *msg, unsigned char * buf)
+int CoAPDeserialize_Token(CoAPMessage *msg, unsigned char *buf)
 {
     memcpy(msg->token, buf, msg->header.tokenlen);
     return msg->header.tokenlen;
@@ -50,31 +50,27 @@ static int CoAPDeserialize_Option(CoAPMsgOption *option, unsigned char *buf, uns
     ptr++;
 
     predelta = *predeltas;
-    if (13 == optdelta){
+    if (13 == optdelta) {
         predelta += 13 + *ptr;
         ptr ++;
 
-    }
-    else if (14 == optdelta){
+    } else if (14 == optdelta) {
         predelta += 269;
         predelta += (*ptr << 8);
-        predelta +=  *(ptr+1);
+        predelta +=  *(ptr + 1);
         ptr += 2;
-    }
-    else{
+    } else {
         predelta += optdelta;
     }
     option->num = predelta;
 
-    if (13 == optlen){
+    if (13 == optlen) {
         optlen = 13 + *ptr;
         ptr ++;
-    }
-    else if (14 == optlen)
-    {
+    } else if (14 == optlen) {
         optlen = 269;
         optlen += (*ptr << 8);
-        optlen += *(ptr+1);
+        optlen += *(ptr + 1);
         ptr += 2;
     }
     option->len = optlen;
@@ -82,7 +78,7 @@ static int CoAPDeserialize_Option(CoAPMsgOption *option, unsigned char *buf, uns
     option->val = ptr;
     *predeltas = option->num;
 
-    return (ptr-buf+option->len);
+    return (ptr - buf + option->len);
 }
 
 int CoAPDeserialize_Options(CoAPMessage *msg, unsigned char *buf, int buflen)
@@ -94,8 +90,7 @@ int CoAPDeserialize_Options(CoAPMessage *msg, unsigned char *buf, int buflen)
     unsigned short optdeltas = 0;
 
     msg->optnum = 0;
-    while ((count < buflen) && (0xFF != *ptr))
-    {
+    while ((count < buflen) && (0xFF != *ptr)) {
         len = CoAPDeserialize_Option(&msg->options[index], ptr, &optdeltas);
         msg->optnum += 1;
         ptr += len;
@@ -110,13 +105,12 @@ int CoAPDeserialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
 {
     unsigned char *ptr = buf;
 
-    if(0xFF == *ptr){
+    if (0xFF == *ptr) {
         ptr ++;
-    }
-    else{
+    } else {
         return 0;
     }
-    msg->payloadlen = buflen-1;
+    msg->payloadlen = buflen - 1;
     msg->payload = (unsigned char *)ptr;
 
     return buflen;
@@ -128,11 +122,11 @@ int CoAPDeserialize_Message(CoAPMessage *msg, unsigned char *buf, int buflen)
     int remlen = buflen;
     unsigned char *ptr = buf;
 
-    if(NULL == buf || NULL == msg){
+    if (NULL == buf || NULL == msg) {
         return COAP_ERROR_INVALID_PARAM;
     }
 
-    if (buflen < 4){
+    if (buflen < 4) {
         return COAP_ERROR_INVALID_LENGTH;
     }
 
