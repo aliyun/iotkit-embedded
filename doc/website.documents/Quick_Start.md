@@ -39,7 +39,7 @@
 * 返回顶层目录
 * 执行make指令, 编译SDK, 命令如下
 
-        make reconfig
+        make distclean
         make
 
 编译成功后, 在相应目录生成样例可执行程序.
@@ -49,13 +49,13 @@
 执行目录 `output/release/bin/` 下的可执行程序:
 
     cd output/release/bin
-    ./mqtt-example loop
+    ./mqtt-example
 
 样例程序的基本逻辑流程为:
 
 1. 创建一个MQTT客户端
 2. 订阅主题 `$(PRODUCT_KEY)/$(DEVICE_NAME)/data`
-3. 循环向该主题发布消息
+3. 向该主题发布消息
 
 ## 其它
 ### 编译输出的说明

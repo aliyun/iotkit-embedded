@@ -1,9 +1,0 @@
-CONFIG_ENV_CFLAGS += --gnu --diag_error=warning
-
-OVERRIDE_CC     := armcc
-OVERRIDE_AR     := armar
-
-CONFIG_src/platform     :=
-CONFIG_sample           :=
-CONFIG_src/sdk-tests    :=
-CONFIG_src/tls          :=
