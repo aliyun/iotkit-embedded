@@ -412,8 +412,8 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
     /*    return 0; */
 }
 
-int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint32_t timeout_ms,
-                                httpclient_data_t *client_data)
+int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
+                                uint32_t timeout_ms, httpclient_data_t *client_data)
 {
     int count = 0;
     int templen = 0;
@@ -510,6 +510,12 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
             n = (0 == readLen) ? 0 : 1;
             client_data->retrieve_len = readLen;
             client_data->response_content_len += client_data->retrieve_len;
+            if (readLen == 0) {
+                /* Last chunk */
+                client_data->is_more = IOT_FALSE;
+                log_debug("no more (last chunk)");
+            }
+
             if (n != 1) {
                 log_err("Could not read chunk length");
                 return ERROR_HTTP_UNRESOLVED_DNS;
@@ -517,13 +523,6 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 
             memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2)); /* Not need to move NULL-terminating char any more */
             len -= (crlf_pos + 2);
-
-            if (readLen == 0) {
-                /* Last chunk */
-                client_data->is_more = IOT_FALSE;
-                log_debug("no more (last chunk)");
-                break;
-            }
         } else {
             readLen = client_data->retrieve_len;
         }
