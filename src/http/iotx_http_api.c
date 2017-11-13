@@ -86,6 +86,9 @@
 
 #define HTTP_AUTH_RESP_MAX_LEN      (256)
 
+static iotx_http_t *iotx_http_context_bak = NULL;
+
+
 /*
   Http server url: https://iot-as-http.cn-shanghai.aliyuncs.com
   Only https protocal is supported at present.
@@ -241,10 +244,32 @@ static int iotx_http_report_mid(iotx_http_t *handle)
 
 }
 
+static void * verify_iotx_http_context(void *handle)
+{
+    iotx_http_t *iotx_http_context = (iotx_http_t *)handle;
+
+    if (NULL == iotx_http_context ||
+        NULL == iotx_http_context_bak ||
+        iotx_http_context_bak != iotx_http_context) {
+        log_err("iotx_http_context not valid pointer!");
+
+        iotx_http_context =  NULL;
+    }
+
+    return iotx_http_context;
+}
+
 void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
 {
     iotx_device_info_t *p_devinfo;
     iotx_http_t        *iotx_http_context;
+
+    /* currently http is singleton, init twice not allowed. */
+    if (NULL != iotx_http_context_bak) {
+        log_err("Init twice not allowed, please deinit first");
+        return NULL;
+    }
+
     if (NULL == pInitParams || NULL == pInitParams->device_info) {
         log_err("Invalid argument: pInitParams or device_info = NULL");
         return NULL;
@@ -255,7 +280,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     iotx_http_context = (iotx_http_t *)LITE_malloc(sizeof(iotx_http_t));
 
     if (NULL == iotx_http_context) {
-        log_err("Allocate memory for iotx_http_context failed\r\n");
+        log_err("Allocate memory for iotx_http_context failed");
         return NULL;
     }
 
@@ -264,7 +289,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     iotx_http_context->keep_alive = pInitParams->keep_alive;
     iotx_http_context->p_auth_token = LITE_malloc(IOTX_HTTP_AUTH_TOKEN_LEN);
     if (NULL == iotx_http_context->p_auth_token) {
-        log_err("Allocate memory for auth token failed\r\n");
+        log_err("Allocate memory for auth token failed");
         goto err;
     }
     memset(iotx_http_context->p_auth_token, 0x00, IOTX_HTTP_AUTH_TOKEN_LEN);
@@ -274,7 +299,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     /*Get deivce information*/
     iotx_http_context->p_devinfo = (iotx_device_info_t *)LITE_malloc(sizeof(iotx_device_info_t));
     if (NULL == iotx_http_context->p_devinfo) {
-        log_err("Allocate memory for iotx_http_context->p_devinfo failed\r\n");
+        log_err("Allocate memory for iotx_http_context->p_devinfo failed");
         goto err;
     }
     memset(iotx_http_context->p_devinfo, 0x00, sizeof(iotx_device_info_t));
@@ -292,13 +317,14 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
 
     iotx_http_context->httpc = LITE_malloc(sizeof(httpclient_t));
     if (NULL == iotx_http_context->httpc) {
-        log_err("Allocate memory for iotx_http_context->httpc failed\r\n");
+        log_err("Allocate memory for iotx_http_context->httpc failed");
         goto err;
     }
     memset(iotx_http_context->httpc, 0x00, sizeof(httpclient_t));
 
-    return iotx_http_context;
+    iotx_http_context_bak = iotx_http_context;
 
+    return iotx_http_context;
 err:
     /* Error, release the memory */
     if (NULL != iotx_http_context) {
@@ -318,13 +344,14 @@ err:
 void IOT_HTTP_DeInit(void **handle)
 {
     iotx_http_t *iotx_http_context;
-    if (NULL == handle || NULL == *handle) {
-        log_err("handle or *handle is NULL pointer\r\n");
-
+    if (NULL == handle) {
+        log_err("handle is NULL pointer");
+        return;
+    }
+    if (NULL == (iotx_http_context = verify_iotx_http_context(*handle))) {
         return;
     }
 
-    iotx_http_context = *handle;
     if (NULL != iotx_http_context->p_devinfo) {
         LITE_free(iotx_http_context->p_devinfo);
     }
@@ -337,6 +364,7 @@ void IOT_HTTP_DeInit(void **handle)
 
     iotx_http_context->auth_token_len = 0;
     LITE_free(iotx_http_context);
+    iotx_http_context_bak = NULL;
 }
 
 int IOT_HTTP_DeviceNameAuth(void *handle)
@@ -355,7 +383,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     int                 len = 0;
     char                p_msg_unsign[IOTX_HTTP_SIGN_SOURCE_LEN] = {0};
     iotx_time_t         timer;
-    iotx_http_t        *iotx_http_context = (iotx_http_t *)handle;
+    iotx_http_t        *iotx_http_context;
     /*
         //    body:
         //    {
@@ -368,8 +396,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
         //      "timestamp": "xxxxxx"//选填  13byte
         //    }
     */
-    if (NULL == iotx_http_context) {
-        log_err("iotx_http_context NULL pointer!\r\n");
+    if (NULL == (iotx_http_context = verify_iotx_http_context(handle))) {
         goto do_exit;
     }
     iotx_http_context->is_authed = 0;
@@ -378,7 +405,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     /*
     if(!utils_get_epoch_time_from_ntp(timestamp, sizeof(timestamp)))
     {
-            log_info("http time response: \r\n\r\n%s\r\n", timestamp);
+            log_info("http time response: \r\n\r\n%s", timestamp);
             goto do_exit;
     }
     */
@@ -418,7 +445,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     req_payload = (char *)LITE_malloc(len + 1);
     memset(req_payload, 0, len + 1);
 
-    log_debug("allocate req_payload: len = %d\r\n", len);
+    log_debug("allocate req_payload: len = %d", len);
 
     len = LITE_snprintf(req_payload, len + 1,
                         IOTX_HTTP_AUTH_DEVICENAME_STR,
@@ -434,7 +461,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
                         iotx_http_context->p_devinfo->device_name,
                         timestamp
                        );
-    log_debug("len = %d,req_payload: \r\n%s\r\n", len, req_payload);
+    log_debug("len = %d,req_payload: \r\n%s", len, req_payload);
 
     /* Malloc Http Response Payload */
     rsp_payload = (char *)LITE_malloc(HTTP_AUTH_RESP_MAX_LEN);
@@ -533,7 +560,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
 
     pvalue = LITE_json_value_of("info.token", httpc_data.response_buf);
     if (NULL == pvalue) {
-        log_err("can't get token from json, Abort!\r\n");
+        log_err("can't get token from json, Abort!");
         goto do_exit;
     }
 
@@ -584,7 +611,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     int                 len = 0;
     uint32_t            payload_len = 0;
     iotx_time_t         timer;
-    iotx_http_t        *iotx_http_context = (iotx_http_t *)handle;
+    iotx_http_t        *iotx_http_context;
     /*
         POST /topic/${topic} HTTP/1.1
         Host: iot-as-http.cn-shanghai.aliyuncs.com
@@ -592,9 +619,12 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
         Content-Type: application/octet-stream
         body: ${your_data}
     */
+    if (NULL == (iotx_http_context = verify_iotx_http_context(handle))) {
+        goto do_exit;
+    }
 
-    if (NULL == iotx_http_context || NULL == msg_param) {
-        log_err("iotx_http_context or msg_param NULL pointer!\r\n");
+    if (NULL == msg_param) {
+        log_err("iotx_http_context or msg_param NULL pointer!");
         goto do_exit;
     }
 
@@ -765,9 +795,8 @@ do_exit:
 
 void IOT_HTTP_Disconnect(void *handle)
 {
-    iotx_http_t *iotx_http_context = (iotx_http_t *)handle;
-
-    if (iotx_http_context != NULL) {
+    iotx_http_t *iotx_http_context;
+    if (NULL != (iotx_http_context = verify_iotx_http_context(handle))) {
         httpclient_close(iotx_http_context->httpc);
     }
 }
