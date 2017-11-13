@@ -7,7 +7,7 @@ CONFIG_ENV_CFLAGS += \
     --diag_error=warning \
     --protect_stack \
     --apcs=/interwork \
-    -DQAPI_TXM_MODULE
+    -DSIM7000C_DAM
 
 OVERRIDE_CC             := armcc
 OVERRIDE_AR             := armar
