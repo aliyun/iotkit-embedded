@@ -1,4 +1,6 @@
-include $(RULE_DIR)/funcs.mk
+include  $(RULE_DIR)/settings.mk
+sinclude $(CONFIG_TPL)
+include  $(RULE_DIR)/funcs.mk
 
 TOPDIR_NAME     := $(shell $(SHELL_DBG) basename $(TOP_DIR)|grep -m 1 -o \[-_a-zA-Z\]*[a-zA-Z])
 LIBOBJ_TMPDIR   := $(OUTPUT_DIR)/lib$(TOPDIR_NAME).objs
@@ -6,6 +8,7 @@ LIBOBJ_TMPDIR   := $(OUTPUT_DIR)/lib$(TOPDIR_NAME).objs
 SYSROOT_BIN     := $(OUTPUT_DIR)${bindir}
 SYSROOT_INC     := $(OUTPUT_DIR)${incdir}
 SYSROOT_LIB     := $(OUTPUT_DIR)${libdir}
+DEFAULT_BLD     ?= $(RULE_DIR)/misc/config.generic.default
 CONFIG_VENDOR   := $(shell grep -m 1 "VENDOR *:" $(CONFIG_TPL) 2>/dev/null|awk '{ print $$NF }')
 IMPORT_VDRDIR   := $(IMPORT_DIR)/$(CONFIG_VENDOR)
 
@@ -35,7 +38,7 @@ endif
 # To pass in RPATH related link flags
 
 COMP_LIB_NAME   := $(subst lib,,$(subst .so,,$(subst .a,,$(COMP_LIB))))
-RECURSIVE_MAKE  := $(MAKE) -s -C $(TOP_DIR) -f $(TOP_MAKEFILE)
+RECURSIVE_MAKE  := $(MAKE) $(if $(TOP_Q),-s) -C $(TOP_DIR) -f $(TOP_MAKEFILE)
 ALL_SUB_DIRS    := $(shell find -L $(TOP_DIR) ! -path "$(OUTPUT_DIR)/*" -name "$(MAKE_SEGMENT)" \
                             | sed 's:$(TOP_DIR)[/]*::;s:[/]*$(MAKE_SEGMENT)::')
 
@@ -47,8 +50,9 @@ SHOW_ENV_VARS   := \
     MAKE_ENV_VARS DEFAULT_BLD \
     LIBA_TARGET LIBSO_TARGET TARGET KMOD_TARGET \
     SRCS OBJS LIB_SRCS LIB_OBJS LIB_HDRS_DIR LIB_HEADERS \
-    INTERNAL_INCLUDES TOP_DIR IMPORT_DIR EXTERNAL_INCLUDES \
-    CONFIG_LIB_EXPORT OBJCOPY_FLAGS IMPORT_VDRDIR CONFIG_VENDOR \
+    INTERNAL_INCLUDES TOP_DIR \
+    IMPORT_DIR IMPORT_VDRDIR EXTERNAL_INCLUDES \
+    CONFIG_LIB_EXPORT OBJCOPY_FLAGS CONFIG_VENDOR \
 
 ifndef CONFIG_LIB_EXPORT
 ifeq (y,$(strip $(CONFIG_EMB_GATEWAY_SDK)))
@@ -116,7 +120,7 @@ else    # ifdef SUBDIRS
 
 PKG_RPATH   := $(shell echo $(CURDIR)|sed 's:$(OUTPUT_DIR)/*::g')
 PKG_NAME    ?= $(shell basename $(CURDIR))
-PKG_SOURCE  ?= $(shell find $(PACKAGE_DIR) -name "$(PKG_NAME)*" | head -1)
+PKG_SOURCE  ?= $(shell [ -d $(PACKAGE_DIR) ] && find $(PACKAGE_DIR) -name "$(PKG_NAME)*" | head -1)
 
 DEPENDS     += $(DEPENDS_$(MODULE_NAME))
 DEPENDS     := $(sort $(strip $(DEPENDS)))

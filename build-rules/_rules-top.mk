@@ -54,7 +54,8 @@ config:
 	        echo ""; \
 	    fi \
 	else \
-	    if [ "$(DEFAULT_BLD)" != "" ] && [ -f $(DEFAULT_BLD) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
+	    if [ "$(DEFAULT_BLD)" != "" ] && [ -f $(DEFAULT_BLD) ] && \
+	       ([ "$(DEFAULT_BLD)" = "$(RULE_DIR)/misc/config.generic.default" ] || [ "$(MAKECMDGOALS)" = "" ]); then \
 	        printf "# Automatically Generated Section End\n\n" >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "VENDOR :" $$(basename $(DEFAULT_BLD)|cut -d. -f2) >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "MODEL  :" $$(basename $(DEFAULT_BLD)|cut -d. -f3) >> $(CONFIG_TPL); \

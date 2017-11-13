@@ -1,10 +1,12 @@
 
 final-out: sub-mods
+ifneq (,$(COMP_LIB_NAME))
 	$(TOP_Q) \
 	if  [ ! -f $(SYSROOT_LIB)/lib$(COMP_LIB_NAME).a ] && \
 	    [ ! -f $(SYSROOT_LIB)/lib$(COMP_LIB_NAME).so ]; then \
 	    $(call Build_CompLib, FORCE) \
-	fi; \
+	fi;
+endif
 
 	$(TOP_Q) \
 	if [ -f $(STAMP_PRJ_CFG) ]; then true; else \

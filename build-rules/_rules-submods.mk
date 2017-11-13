@@ -17,7 +17,9 @@ sub-mods: toolchain
 
 SUB_BUILD_VARS := \
     CFLAGS LDFLAGS \
+    IMPORT_DIR \
     TOP_DIR \
+    RULE_DIR \
     CONFIG_VENDOR \
     COMP_LIB \
     $(CROSS_CANDIDATES) \
@@ -39,6 +41,7 @@ CMDLINE_VARS := \
     STAMP_BLD_ENV \
     STAMP_UNPACK \
     TOP_DIR \
+    RULE_DIR \
 
 # When SUB_BUILD_VARS like $(CFLAGS) contains special character '$'
 # simply echo its value into 'Makefile' will cause '$' lost when GNU make read in again
@@ -46,9 +49,8 @@ CMDLINE_VARS := \
 $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
                   $(wildcard $(RULE_DIR)/*.mk) \
                   $(shell grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d')
-	$(TOP_Q)rm -f $@
-	$(TOP_Q) \
-	$(foreach V, \
+	@rm -f $@
+	@$(foreach V, \
 	    $(sort $(SUB_BUILD_VARS)), \
 	        echo "$(V) := $(sort $($(V)))"|sed 's:\$$:$$$$:g' >> $(STAMP_BLD_ENV); \
 	)
