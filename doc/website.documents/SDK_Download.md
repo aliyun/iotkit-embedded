@@ -8,11 +8,20 @@
     **[https://github.com/aliyun/iotkit-embedded/wiki](https://github.com/aliyun/iotkit-embedded/wiki)**
 
 - 我们尝试用更开放的方式建设这份参考实现代码, 欢迎广大开发者在Github上:
+
     - 提交改进的Patch/Pull Request
     - 汇报缺陷的Issue/Bug Ticket
     - 或者Fork我们的项目
 
 - IoT套件后续会逐渐增加已适配的平台, 如果您使用的平台未被适配, 请访问[官方Github主页](https://github.com/aliyun/iotkit-embedded/issues), 给我们提出Issue
+
+**已适配平台**
+
+| 开发板            | 网络支持          | 厂商SDK链接       | 开发板购买链接    | 阿里云SDK版本     |
+|-------------------|-------------------|-------------------|-------------------|-------------------|
+| SIM7000C | GPRS/EDGE, NBIoT, LTE CAT-M1(eMTC) | [SIM7000C_DAM_Demo](https://github.com/SIMComHub/sim7000c_DAM_demo) | [芯讯通无线科技](https://market.aliyun.com/store/2962046-0.html) | V2.02 |
+| ESP32 | Wi-Fi | [esp32-aliyun](https://github.com/espressif/esp32-aliyun) | [乐鑫信息科技](https://espressif.taobao.com/) | V2.01 |
+| ESP8266 | Wi-Fi | [esp8266-aliyun](https://github.com/espressif/esp8266-aliyun) | [乐鑫信息科技](https://espressif.taobao.com/) | V2.01 |
 
 **希望能够看到更多的Contributor, 共同开发设备端SDK的后续版本!**
 
@@ -49,8 +58,8 @@
 - 开发环境: 64位Linux, GNU Make
 - 下载链接: [RELEASED_V2_00_20170818.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V2_00_20170818.zip)
 - 更新内容:
-    - **新增MQTT直连:** 支持更快更轻的连接IoT套件, 去掉对HTTPS/HTTP的依赖, 可看[公告](https://help.aliyun.com/document_detail/57164.html?spm=5176.doc53930.6.638.LNVRIp)
-    - **新增CoAP通道:** 基于UDP, 在纯上报数据场景更节省资源, 可看[公告](https://help.aliyun.com/document_detail/57566.html?spm=5176.doc57164.6.637.tXyBoU)
+    - **新增MQTT直连:** 支持更快更轻的连接IoT套件, 去掉对HTTPS/HTTP的依赖, 可看[公告](https://help.aliyun.com/document_detail/57164.html)
+    - **新增CoAP通道:** 基于UDP, 在纯上报数据场景更节省资源, 可看[公告](https://help.aliyun.com/document_detail/57566.html)
     - **新增OTA通道:** 提供一系列OTA相关的API, 可查询/触发/下载用户自主上传的固件
     - **升级构建系统:** 支持更灵活的组织和配置SDK
 
@@ -60,7 +69,7 @@
 - 发布日期: 2017/06/29
 - 开发语言: C语言
 - 开发环境: 64位Linux, GNU Make
-- 下载链接: [aliot_sdk_v1.0.1_release.7z](http://aliyun-iot.oss-cn-hangzhou.aliyuncs.com/iot-sdk-c/aliot_sdk_v1.0.1_release.7z)
+- 下载链接: [RELEASED_V1_0_1_20170629.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V1_0_1_20170629.zip)
 - 更新内容:
     - **华东2站点:** 第一个正式配合华东2站点的设备端SDK, 全源码发布
     - **新增设备影子功能:** 具体可参看[设备影子介绍页面](https://help.aliyun.com/document_detail/53930.html)
