@@ -18,13 +18,17 @@
 
 ## 一. 开发环境准备
 
-#### 1. Ubuntu16.04: 本SDK的编译环境是`64位`的`Ubuntu16.04`, 在其它Linux上尚未测试过, 所以推荐安装与阿里开发者一致的发行版
+#### **1. 安装Ubuntu16.04**
+
+本SDK的编译环境是`64位`的`Ubuntu16.04`, 在其它Linux上尚未测试过, 所以推荐安装与阿里开发者一致的发行版
 
 如果您使用`Windows`操作系统, 建议安装虚拟机软件`Virtualbox`, 下载地址: [https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads)
 
 然后安装64位的desktop版本`Ubuntu 16.04.x LTS`, 下载地址: [https://www.ubuntu.com/download/desktop](https://www.ubuntu.com/download/desktop)
 
-#### 2. 必备软件: 本SDK的开发编译环境使用如下软件: `make-4.1`, `git-2.7.4`, `gcc-5.4.0`, `gcov-5.4.0`, `lcov-1.12`, `bash-4.3.48`, `tar-1.28`, `mingw-5.3.1`
+#### **2. 安装必备软件**
+
+本SDK的开发编译环境使用如下软件: `make-4.1`, `git-2.7.4`, `gcc-5.4.0`, `gcov-5.4.0`, `lcov-1.12`, `bash-4.3.48`, `tar-1.28`, `mingw-5.3.1`
 
 可使用如下命令行安装必要的软件:
 
@@ -32,11 +36,11 @@
 
 ## 二. 在控制台创建设备
 
-#### 1. 注册/登录阿里云账号
+#### **1. 注册/登录阿里云账号**
 
 访问阿里云[登录页面](https://account.aliyun.com/login/login.htm), 点击[免费注册](https://account.aliyun.com/register/register.htm), 免费获得一个阿里云账号. 若您已有账号, 可直接登录
 
-#### 2. 访问物联网套件控制台
+#### **2. 访问物联网套件控制台**
 
 登入之后, 鼠标悬停在**产品**上, 弹出层叠菜单
 
@@ -46,11 +50,9 @@
 
 ![image](https://raw.githubusercontent.com/wiki/aliyun/iotkit-embedded/pics/iotconsole-iotkit.png)
 
-或直接访问[https://www.aliyun.com/product/iot](https://www.aliyun.com/product/iot)
+或直接访问[https://www.aliyun.com/product/iot](https://www.aliyun.com/product/iot), 之后点击**立即开通**, 或者**管理控制台**, 登入[控制台主界面](https://iot.console.aliyun.com/)
 
-之后点击**立即开通**, 或者**管理控制台**, 登入[控制台主界面](https://iot.console.aliyun.com/)
-
-#### 3. 创建产品和设备
+#### **3. 创建产品和设备**
 
 点击页面右上角的**创建产品**按钮, 创建一个品类, 然后在左侧导航栏点击**设备管理**, 再到页面右侧点**添加设备**, 创建该品类下的一个设备, 如下图则得到创建成功后的**设备标识三元组**
 
@@ -60,7 +62,7 @@
 
 ![image](https://raw.githubusercontent.com/wiki/aliyun/iotkit-embedded/pics/iotconsole-devinfo.png)
 
-#### 4. 创建可订阅可发布的Topic
+#### **4. 创建可订阅可发布的Topic**
 
 点击左侧导航栏的**消息通信**, 再到页面右侧点**定义Topic类**, 创建一个新的`/${productKey}/${deviceName}/data`, 并设置为**可订阅可发布**权限
 
@@ -68,19 +70,19 @@
 
 ## 三. 编译样例程序
 
-#### 1. 下载SDK
+#### **1. 下载SDK**
 
 登录Linux, 运行如下命令从github克隆代码, 或者访问最新地址[下载页面](https://github.com/aliyun/iotkit-embedded/releases/latest), **将下载到的压缩包在Linux上解压缩**
 
     $ git clone https://github.com/aliyun/iotkit-embedded
 
-#### 2. 填入设备信息
+#### **2. 填入设备信息**
 
 编辑文件`sample/mqtt/mqtt-example.c`, 编辑如下代码段, 填入之前**创建产品和设备**步骤中得到的**设备标识三元组**:
 
 ![image](https://raw.githubusercontent.com/wiki/aliyun/iotkit-embedded/pics/sdk-devinfo.png)
 
-#### 3. 编译SDK产生样例程序
+#### **3. 编译SDK产生样例程序**
 
 运行如下命令:
 
@@ -104,7 +106,7 @@
 
 ## 四. 运行样例程序
 
-#### 1. 执行样例程序
+#### **1. 执行样例程序**
 
     $ ./output/release/bin/mqtt-example
     [inf] iotx_device_info_init(40): device_info created successfully!
@@ -145,13 +147,13 @@
     ---------------------------------------------------
     main|441 :: out of sample!
 
-#### 2. 观察消息上报
+#### **2. 观察消息上报**
 
 如下日志信息显示样例程序正在通过`MQTT`的`Publish`类型消息, 上报业务数据到`/${prodcutKey}/${deviceName}/data`
 
     mqtt_client|256 :: packet-id=3, publish topic msg={"attr_name":"temperature", "attr_value":"1"}
 
-#### 3. 观察消息下推
+#### **3. 观察消息下推**
 
 如下日志信息显示该消息因为是到达已被订阅的`Topic`, 所以又被服务器原样推送到样例程序, 并进入相应的回调函数
 
@@ -160,7 +162,7 @@
     _demo_message_arrive|144 :: Payload: '{"attr_name":"temperature", "attr_value":"1"}' (Length: 45)
     _demo_message_arrive|145 :: ----
 
-#### 4. 观察控制台日志
+#### **4. 观察控制台日志**
 
 可以登录物联网套件控制台, 到[设备页面](https://iot.console.aliyun.com/#/product/detail), 找到刚才填写在SDK中的设备并点击进入, 点左边导航栏的**日志服务**, 可以看到刚才被上报的消息
 
