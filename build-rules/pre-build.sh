@@ -100,7 +100,7 @@ function Update_Makefile()
 
     cat << EOB >> ${BLD_MFILE}
 
-include \$(TOP_DIR)/build-rules/settings.mk
+include \$(RULE_DIR)/settings.mk
 include \$(CONFIG_TPL)
 
 all:

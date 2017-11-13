@@ -5,19 +5,19 @@ TOP_DIR         ?= $(CURDIR)
 
 # Settings of input directory
 #
-RULE_DIR        := $(TOP_DIR)/build-rules
-CONFIG_DIR      := $(TOP_DIR)/src/configs
-SCRIPT_DIR      := $(TOP_DIR)/src/scripts
-PACKAGE_DIR     := $(TOP_DIR)/src/packages
-IMPORT_DIR      := $(TOP_DIR)/src/import
+RULE_DIR        ?= $(TOP_DIR)/build-rules
+CONFIG_DIR      ?= $(TOP_DIR)/configs
+SCRIPT_DIR      ?= $(TOP_DIR)/scripts
+PACKAGE_DIR     ?= $(TOP_DIR)/packages
+IMPORT_DIR      ?= $(TOP_DIR)/import
 
 # Settings of output directory
 #
 CONFIG_TPL      := $(TOP_DIR)/.config
 OUTPUT_DIR      ?= $(TOP_DIR)/.O
-DIST_DIR        := $(TOP_DIR)/output
-LCOV_DIR        := Coverage
-FINAL_DIR       := $(DIST_DIR)/release
+DIST_DIR        ?= $(TOP_DIR)/output
+LCOV_DIR        ?= Coverage
+FINAL_DIR       ?= $(DIST_DIR)/release
 
 # Setting of directory for flat modules
 #

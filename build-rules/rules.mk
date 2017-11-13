@@ -1,4 +1,6 @@
-include $(RULE_DIR)/funcs.mk
+include  $(RULE_DIR)/settings.mk
+sinclude $(CONFIG_TPL)
+include  $(RULE_DIR)/funcs.mk
 
 TOPDIR_NAME     := $(shell $(SHELL_DBG) basename $(TOP_DIR)|grep -m 1 -o \[-_a-zA-Z\]*[a-zA-Z])
 LIBOBJ_TMPDIR   := $(OUTPUT_DIR)/lib$(TOPDIR_NAME).objs
