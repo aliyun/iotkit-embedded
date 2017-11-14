@@ -41,6 +41,8 @@
     #define IOTX_DEVICE_ID           "IoTxHttpTestDev_001"
 #endif
 
+#define DEFAULT_TIMEOUT_MS 5000
+
 static int iotx_post_data_to_server(void *handle)
 {
     char         path[IOTX_URI_MAX_LEN + 1] = {0};
@@ -51,13 +53,13 @@ static int iotx_post_data_to_server(void *handle)
     iotx_http_message_param_t msg_param;
     msg_param.request_payload = (char *)"{\"name\":\"hello world\"}";
     msg_param.response_payload = rsp_buf;
-    msg_param.timeout_ms = 5000;
+    msg_param.timeout_ms = iotx_http_context->timeout_ms;
     msg_param.request_payload_len = strlen(msg_param.request_payload) + 1;
     msg_param.response_payload_len = 1024;
     msg_param.topic_path = path;
 
-    HAL_Snprintf(msg_param.topic_path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update", p_devinfo->product_key,
-                 p_devinfo->device_name);
+    HAL_Snprintf(msg_param.topic_path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update",
+                 p_devinfo->product_key, p_devinfo->device_name);
 
     if (0 == IOT_HTTP_SendMessage(iotx_http_context, &msg_param)) {
         HAL_Printf("message response is %s\r\n", msg_param.response_payload);
@@ -101,6 +103,7 @@ int main(int argc, char **argv)
     }
     HAL_Printf("[HTTP-Client]: keep_alive=%d\r\n", http_param.keep_alive);
     http_param.device_info = &device_info;
+    http_param.timeout_ms = DEFAULT_TIMEOUT_MS;
 
     handle = IOT_HTTP_Init(&http_param);
     if (NULL != handle) {

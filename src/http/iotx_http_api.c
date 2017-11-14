@@ -287,6 +287,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     memset(iotx_http_context, 0x00, sizeof(iotx_http_t));
 
     iotx_http_context->keep_alive = pInitParams->keep_alive;
+    iotx_http_context->timeout_ms = pInitParams->timeout_ms;
     iotx_http_context->p_auth_token = LITE_malloc(IOTX_HTTP_AUTH_TOKEN_LEN);
     if (NULL == iotx_http_context->p_auth_token) {
         log_err("Allocate memory for auth token failed");
