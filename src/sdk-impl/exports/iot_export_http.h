@@ -23,6 +23,7 @@
 typedef struct {
     iotx_device_info_t *device_info;
     int                 keep_alive;
+    int                 timeout_ms;
 } iotx_http_param_t;
 
 /* IoTx http context */
@@ -37,6 +38,7 @@ typedef struct {
     const char         *timestamp;
     void               *httpc;
     int                 keep_alive;
+    int                 timeout_ms;
 } iotx_http_t, *iotx_http_pt;
 
 /* IoTx http message definition
