@@ -8,7 +8,7 @@
 #define _IN_
 #define _OU_
 
-extern QCLI_Group_Handle_t ali_qcli_iot_handle;     /* Handle for IOT Command Group. */
+extern QCLI_Group_Handle_t qcli_iotkit_handle;     /* Handle for IOT Command Group. */
 
 int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *format, va_list ap)
 {
@@ -22,7 +22,7 @@ void HAL_Printf(_IN_ const char *fmt, ...)
     va_start (list, fmt);
     HAL_Vsnprintf(str_tmp, 256, fmt, list);
     va_end(list);
-    QCLI_Printf(ali_qcli_iot_handle, "%s",str_tmp);
+    QCLI_Printf(qcli_iotkit_handle, "%s",str_tmp);
 }
 
 int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)

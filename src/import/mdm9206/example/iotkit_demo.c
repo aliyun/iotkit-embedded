@@ -4,7 +4,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-QCLI_Group_Handle_t ali_qcli_iot_handle;     /* Handle for IOT Command Group. */
+QCLI_Group_Handle_t qcli_iotkit_handle;     /* Handle for IOT Command Group. */
 
 /******************************************************/
 /**********************HTTP****************************/
@@ -24,7 +24,7 @@ QCLI_Group_Handle_t ali_qcli_iot_handle;     /* Handle for IOT Command Group. */
 static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-    QCLI_Printf(ali_qcli_iot_handle,"Topic:%s,Payload:%s\n", ptopic_info->ptopic, ptopic_info->payload);
+    QCLI_Printf(qcli_iotkit_handle, "Topic:%s,Payload:%s\n", ptopic_info->ptopic, ptopic_info->payload);
 }
 
 static void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
@@ -34,55 +34,55 @@ static void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt m
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_UNDEF:
-            QCLI_Printf(ali_qcli_iot_handle,"undefined event occur.\n");
+            QCLI_Printf(qcli_iotkit_handle, "undefined event occur.\n");
             break;
 
         case IOTX_MQTT_EVENT_DISCONNECT:
-            QCLI_Printf(ali_qcli_iot_handle,"MQTT disconnect.\n");
+            QCLI_Printf(qcli_iotkit_handle, "MQTT disconnect.\n");
             break;
 
         case IOTX_MQTT_EVENT_RECONNECT:
-            QCLI_Printf(ali_qcli_iot_handle,"MQTT reconnect.\n");
+            QCLI_Printf(qcli_iotkit_handle, "MQTT reconnect.\n");
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-            QCLI_Printf(ali_qcli_iot_handle,"subscribe success, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "subscribe success, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-            QCLI_Printf(ali_qcli_iot_handle,"subscribe wait ack timeout, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "subscribe wait ack timeout, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-            QCLI_Printf(ali_qcli_iot_handle,"subscribe nack, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "subscribe nack, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:
-            QCLI_Printf(ali_qcli_iot_handle,"unsubscribe success, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "unsubscribe success, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:
-            QCLI_Printf(ali_qcli_iot_handle,"unsubscribe timeout, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "unsubscribe timeout, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
-            QCLI_Printf(ali_qcli_iot_handle,"unsubscribe nack, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "unsubscribe nack, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
-            QCLI_Printf(ali_qcli_iot_handle,"publish success, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "publish success, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:
-            QCLI_Printf(ali_qcli_iot_handle,"publish timeout, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "publish timeout, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_NACK:
-            QCLI_Printf(ali_qcli_iot_handle,"publish nack, packet-id=%u\n", (unsigned int)packet_id);
+            QCLI_Printf(qcli_iotkit_handle, "publish nack, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
-            QCLI_Printf(ali_qcli_iot_handle,"topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
+            QCLI_Printf(qcli_iotkit_handle, "topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
                           topic_info->topic_len,
                           topic_info->ptopic,
                           topic_info->payload_len,
@@ -90,7 +90,7 @@ static void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt m
             break;
 
         default:
-            QCLI_Printf(ali_qcli_iot_handle,"Should NOT arrive here.\n");
+            QCLI_Printf(qcli_iotkit_handle, "Should NOT arrive here.\n");
             break;
     }
 }
@@ -120,7 +120,7 @@ static const QCLI_Command_t iot_cmd_list[] =
 
 static const QCLI_Command_Group_t iot_cmd_group =
 {
-    "ALI_IOT",              /* Group_String: will display cmd prompt as "IOT> " */
+    "IoTKit",              /* Group_String: will display cmd prompt as "IOT> " */
     sizeof(iot_cmd_list)/sizeof(iot_cmd_list[0]),   /* Command_Count */
     iot_cmd_list        /* Command_List */
 };
@@ -128,13 +128,13 @@ static const QCLI_Command_Group_t iot_cmd_group =
 /*****************************************************************************
  * This function is used to register the IOT Command Group with QCLI.
  *****************************************************************************/
-void ALI_initialize_IOT_Demo(void)
+void Initialize_IoTKit_Demo(void)
 {
     /* Attempt to reqister the Command Groups with the qcli framework.*/
-    ali_qcli_iot_handle = QCLI_Register_Command_Group(NULL, &iot_cmd_group);
-    if (ali_qcli_iot_handle)
+    qcli_iotkit_handle = QCLI_Register_Command_Group(NULL, &iot_cmd_group);
+    if (qcli_iotkit_handle)
     {
-      QCLI_Printf(ali_qcli_iot_handle, "IOT Registered\n");
+      QCLI_Printf(qcli_iotkit_handle, "IOT Registered\n");
     }
     return;
 }
@@ -171,7 +171,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 int rc = 0;
                 char topic_data[100]={0};
                 if ( NULL == pclient) {
-                    QCLI_Printf(ali_qcli_iot_handle, "need constructed first\n");
+                    QCLI_Printf(qcli_iotkit_handle, "need constructed first\n");
                     break;
                 }
                 if(Parameter_Count != 2){
@@ -182,10 +182,10 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 if (rc < 0) {
                     IOT_MQTT_Destroy(&pclient);
                     pclient = NULL;
-                    QCLI_Printf(ali_qcli_iot_handle, "subscribe command error\n");
+                    QCLI_Printf(qcli_iotkit_handle, "subscribe command error\n");
                 }
                 else{
-                    QCLI_Printf(ali_qcli_iot_handle, "subscribe %s \n", topic_data);
+                    QCLI_Printf(qcli_iotkit_handle, "subscribe %s \n", topic_data);
                 }
             }
             break;
@@ -194,7 +194,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
         case 'A':
             {
                 if (pclient) {
-                    QCLI_Printf(ali_qcli_iot_handle, "mqtt initialized\n");
+                    QCLI_Printf(qcli_iotkit_handle, "mqtt initialized\n");
                     break;
                 }
 
@@ -216,10 +216,10 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 }
 
                 if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
-                    QCLI_Printf(ali_qcli_iot_handle, "auth request failed\n");
+                    QCLI_Printf(qcli_iotkit_handle, "auth request failed\n");
                 }
 
-                QCLI_Printf(ali_qcli_iot_handle, "auth command ok\n");
+                QCLI_Printf(qcli_iotkit_handle, "auth command ok\n");
             }
             break;
 
@@ -228,11 +228,11 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
             {
                 int  keepalive,clean,timeout;
                 if ( pclient) {
-                    QCLI_Printf(ali_qcli_iot_handle, "had constructed\n");
+                    QCLI_Printf(qcli_iotkit_handle, "had constructed\n");
                     break;
                 }
                 if (pconn_info->client_id == 0){
-                    QCLI_Printf(ali_qcli_iot_handle, "please auth first\n");
+                    QCLI_Printf(qcli_iotkit_handle, "please auth first\n");
                     break;
                 }
                 if(Parameter_Count == 1){
@@ -269,9 +269,9 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
 
                 pclient = IOT_MQTT_Construct(&mqtt_params);
                 if (NULL == pclient)
-                    QCLI_Printf(ali_qcli_iot_handle, "MQTT construct failed\n");
+                    QCLI_Printf(qcli_iotkit_handle, "MQTT construct failed\n");
                 else
-                    QCLI_Printf(ali_qcli_iot_handle, "MQTT construct success\n");
+                    QCLI_Printf(qcli_iotkit_handle, "MQTT construct success\n");
             }
             break;
 
@@ -282,7 +282,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 iotx_mqtt_topic_info_t topic_msg;
                 char topic_data[100]={0};
                 if ( NULL == pclient) {
-                    QCLI_Printf(ali_qcli_iot_handle, "need constructed first\n");
+                    QCLI_Printf(qcli_iotkit_handle, "need constructed first\n");
                     break;
                 }
                 if(Parameter_Count != 3 ){
@@ -297,7 +297,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 sprintf(topic_data, "/%s/%s/%s", product_key, device_name, Parameter_List[1].String_Value);
 
                 rc = IOT_MQTT_Publish(pclient, topic_data, &topic_msg);
-                QCLI_Printf(ali_qcli_iot_handle, "topic_data:%s rc = IOT_MQTT_Publish() = %d", topic_data, rc);
+                QCLI_Printf(qcli_iotkit_handle, "topic_data:%s rc = IOT_MQTT_Publish() = %d", topic_data, rc);
             }
             break;
 
@@ -306,7 +306,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
             {
                 char topic_data[100]={0};
                 if ( NULL == pclient) {
-                    QCLI_Printf(ali_qcli_iot_handle, "need constructed first\n");
+                    QCLI_Printf(qcli_iotkit_handle, "need constructed first\n");
                     break;
                 }
                 if(Parameter_Count != 2){
@@ -314,7 +314,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 }
                 sprintf(topic_data, "/%s/%s/%s", product_key, device_name, Parameter_List[1].String_Value);
                 IOT_MQTT_Unsubscribe(pclient, topic_data);
-                QCLI_Printf(ali_qcli_iot_handle, "unsubscribe command\n");
+                QCLI_Printf(qcli_iotkit_handle, "unsubscribe command\n");
             }
             break;
 
@@ -323,7 +323,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
             {
                 int yield = 0;
                 if ( NULL == pclient) {
-                    QCLI_Printf(ali_qcli_iot_handle, "need constructed first\n");
+                    QCLI_Printf(qcli_iotkit_handle, "need constructed first\n");
                     break;
                 }
                 if(Parameter_Count == 1){
@@ -336,20 +336,20 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                     return QCLI_STATUS_USAGE_E;
                 }
                 IOT_MQTT_Yield(pclient,yield);
-                QCLI_Printf(ali_qcli_iot_handle, "yield command\n");
+                QCLI_Printf(qcli_iotkit_handle, "yield command\n");
             }
             break;
 
         case 'd':
         case 'D':
             if ( NULL == pclient) {
-                QCLI_Printf(ali_qcli_iot_handle, "need constructed first\n");
+                QCLI_Printf(qcli_iotkit_handle, "need constructed first\n");
                 break;
             }
             IOT_MQTT_Destroy(&pclient);
             IOT_CloseLog();
             pclient = NULL;
-            QCLI_Printf(ali_qcli_iot_handle, "destroy command\n");
+            QCLI_Printf(qcli_iotkit_handle, "destroy command\n");
             break;
 
         default:
@@ -379,7 +379,7 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
        case 'I':
            {
                 if(http_handle){
-                    QCLI_Printf(ali_qcli_iot_handle, "HTTP had initiled\n");
+                    QCLI_Printf(qcli_iotkit_handle, "HTTP had initiled\n");
                     break;
                 }
                 memset(&device_info , 0x00, sizeof(iotx_device_info_t));
@@ -407,9 +407,9 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
 
                 http_handle = IOT_HTTP_Init(&http_param);
                 if(NULL == http_handle)
-                     QCLI_Printf(ali_qcli_iot_handle,"http construct failed\n");
+                     QCLI_Printf(qcli_iotkit_handle,"http construct failed\n");
                 else
-                    QCLI_Printf(ali_qcli_iot_handle, "construct command ok\n");
+                    QCLI_Printf(qcli_iotkit_handle, "construct command ok\n");
 
             }
            break;
@@ -417,14 +417,14 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
         case 'A':
             {
                 if(NULL == http_handle){
-                    QCLI_Printf(ali_qcli_iot_handle, "http uninitialized\n");
+                    QCLI_Printf(qcli_iotkit_handle, "http uninitialized\n");
                     break;
                 }
                 if(0 != IOT_HTTP_DeviceNameAuth(http_handle)){
-                    QCLI_Printf(ali_qcli_iot_handle, "http auth failed\n");
+                    QCLI_Printf(qcli_iotkit_handle, "http auth failed\n");
                 }
                 else{
-                    QCLI_Printf(ali_qcli_iot_handle, "http auth success\n");
+                    QCLI_Printf(qcli_iotkit_handle, "http auth success\n");
                 }
             }
             break;
@@ -436,7 +436,7 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 iotx_http_message_param_t msg_param;
 
                 if(NULL == http_handle){
-                    QCLI_Printf(ali_qcli_iot_handle, "http uninitialized\n");
+                    QCLI_Printf(qcli_iotkit_handle, "http uninitialized\n");
                     break;
                 }
 
@@ -454,9 +454,9 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 snprintf(msg_param.topic_path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update", (char *)device_info.product_key,
                  (char *)device_info.device_name);
                 if (0 == IOT_HTTP_SendMessage(http_handle, &msg_param))
-                    QCLI_Printf(ali_qcli_iot_handle, "message response is %s\r\n", msg_param.response_payload);
+                    QCLI_Printf(qcli_iotkit_handle, "message response is %s\r\n", msg_param.response_payload);
                 else
-                    QCLI_Printf(ali_qcli_iot_handle, "IOT_HTTP_SendMessage error\r\n");
+                    QCLI_Printf(qcli_iotkit_handle, "IOT_HTTP_SendMessage error\r\n");
 
             }
             break;
@@ -468,7 +468,7 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                 http_handle = NULL;
                 IOT_DumpMemoryStats(IOT_LOG_DEBUG);
                 IOT_CloseLog();
-                QCLI_Printf(ali_qcli_iot_handle, "destroy command\n");
+                QCLI_Printf(qcli_iotkit_handle, "destroy command\n");
             }
             break;
         default:
