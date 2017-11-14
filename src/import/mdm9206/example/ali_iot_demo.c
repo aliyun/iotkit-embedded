@@ -8,7 +8,7 @@ QCLI_Group_Handle_t ali_qcli_iot_handle;     /* Handle for IOT Command Group. */
 
 /******************************************************/
 /**********************HTTP****************************/
-#define HTTP_PRODUCT_KEY            *******************"
+#define HTTP_PRODUCT_KEY            "******************"
 #define HTTP_DEVICE_NAME            "******************"
 #define HTTP_DEVICE_SECRET          "******************"
 #define HTTP_DEVICE_ID              "******************"
