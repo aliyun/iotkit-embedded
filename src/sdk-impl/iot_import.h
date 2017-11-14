@@ -42,7 +42,7 @@ extern "C" {
 #define PID_STRLEN_MAX      (64)
 #define MID_STRLEN_MAX      (64)
 
-#ifdef QAPI_TXM_MODULE
+#ifdef SIM7000C_DAM
 #include "qapi_ali_iot.h"
 #else
 
@@ -368,7 +368,7 @@ int HAL_UDP_readTimeout(
             unsigned int timeout);
 
 
-#endif  /* QAPI_TXM_MODULE */
+#endif  /* SIM7000C_DAM */
 
 #if defined(__cplusplus)
 }
