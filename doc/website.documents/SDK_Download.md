@@ -8,11 +8,20 @@
     **[https://github.com/aliyun/iotkit-embedded/wiki](https://github.com/aliyun/iotkit-embedded/wiki)**
 
 - 我们尝试用更开放的方式建设这份参考实现代码, 欢迎广大开发者在Github上:
+
     - 提交改进的Patch/Pull Request
     - 汇报缺陷的Issue/Bug Ticket
     - 或者Fork我们的项目
 
 - IoT套件后续会逐渐增加已适配的平台, 如果您使用的平台未被适配, 请访问[官方Github主页](https://github.com/aliyun/iotkit-embedded/issues), 给我们提出Issue
+
+**已适配平台**
+
+| 开发板            | 网络支持          | 厂商SDK链接       | 开发板购买链接    | 阿里云SDK版本     |
+|-------------------|-------------------|-------------------|-------------------|-------------------|
+| SIM7000C | GPRS/EDGE, NBIoT, LTE CAT-M1(eMTC) | [SIM7000C_DAM_Demo](https://github.com/SIMComHub/sim7000c_DAM_demo) | [芯讯通无线科技](https://market.aliyun.com/store/2962046-0.html) | V2.02 |
+| ESP32 | Wi-Fi | [esp32-aliyun](https://github.com/espressif/esp32-aliyun) | [乐鑫信息科技](https://espressif.taobao.com/) | V2.01 |
+| ESP8266 | Wi-Fi | [esp8266-aliyun](https://github.com/espressif/esp8266-aliyun) | [乐鑫信息科技](https://espressif.taobao.com/) | V2.01 |
 
 **希望能够看到更多的Contributor, 共同开发设备端SDK的后续版本!**
 
