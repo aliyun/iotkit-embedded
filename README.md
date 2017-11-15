@@ -32,7 +32,7 @@
 
 可使用如下命令行安装必要的软件:
 
-    apt-get install -y make git gcc
+    apt-get install -y build-essential make git gcc
 
 ## 二. 在控制台创建设备
 
