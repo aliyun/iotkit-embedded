@@ -21,6 +21,11 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(_PLATFORM_IS_LINUX_)
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+#endif
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/net.h"
@@ -137,12 +142,12 @@ static int _ssl_parse_crt(mbedtls_x509_crt *crt)
 }
 
 static int _ssl_client_init(mbedtls_ssl_context *ssl,
-                         mbedtls_net_context *tcp_fd,
-                         mbedtls_ssl_config *conf,
-                         mbedtls_x509_crt *crt509_ca, const char *ca_crt, size_t ca_len,
-                         mbedtls_x509_crt *crt509_cli, const char *cli_crt, size_t cli_len,
-                         mbedtls_pk_context *pk_cli, const char *cli_key, size_t key_len,  const char *cli_pwd, size_t pwd_len
-                        )
+                            mbedtls_net_context *tcp_fd,
+                            mbedtls_ssl_config *conf,
+                            mbedtls_x509_crt *crt509_ca, const char *ca_crt, size_t ca_len,
+                            mbedtls_x509_crt *crt509_cli, const char *cli_crt, size_t cli_len,
+                            mbedtls_pk_context *pk_cli, const char *cli_key, size_t key_len,  const char *cli_pwd, size_t pwd_len
+                           )
 {
     int ret = -1;
 
@@ -230,19 +235,19 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
  * @return If the return value is 0, the connection is created successfully. If the return value is -1, then calling lwIP #socket() has failed. If the return value is -2, then calling lwIP #connect() has failed. Any other value indicates that calling lwIP #getaddrinfo() has failed.
  */
 static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *port,
-                      const char *ca_crt, size_t ca_crt_len,
-                      const char *client_crt,   size_t client_crt_len,
-                      const char *client_key,   size_t client_key_len,
-                      const char *client_pwd, size_t client_pwd_len)
+                              const char *ca_crt, size_t ca_crt_len,
+                              const char *client_crt,   size_t client_crt_len,
+                              const char *client_key,   size_t client_key_len,
+                              const char *client_pwd, size_t client_pwd_len)
 {
     int ret = -1;
     /*
      * 0. Init
      */
     if (0 != (ret = _ssl_client_init(&(pTlsData->ssl), &(pTlsData->fd), &(pTlsData->conf),
-                                         &(pTlsData->cacertl), ca_crt, ca_crt_len,
-                                         &(pTlsData->clicert), client_crt, client_crt_len,
-                                         &(pTlsData->pkey), client_key, client_key_len, client_pwd, client_pwd_len))) {
+                                     &(pTlsData->cacertl), ca_crt, ca_crt_len,
+                                     &(pTlsData->clicert), client_crt, client_crt_len,
+                                     &(pTlsData->pkey), client_key, client_key_len, client_pwd, client_pwd_len))) {
         SSL_LOG(" failed ! ssl_client_init returned -0x%04x", -ret);
         return ret;
     }
@@ -301,6 +306,14 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
     }
     mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
+
+#if defined(_PLATFORM_IS_LINUX_)
+    struct timeval sendtimeout;
+    sendtimeout.tv_sec = 2;
+    sendtimeout.tv_usec = 0;
+    ret = setsockopt((pTlsData->fd).fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout, sizeof(sendtimeout));
+    SSL_LOG("setsockopt SO_SNDTIMEO timeout:%d", sendtimeout.tv_sec);
+#endif
 
     /*
       * 4. Handshake
@@ -436,9 +449,9 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
 }
 
 uintptr_t HAL_SSL_Establish(const char *host,
-                                      uint16_t port,
-                                      const char *ca_crt,
-                                      size_t ca_crt_len)
+                            uint16_t port,
+                            const char *ca_crt,
+                            size_t ca_crt_len)
 {
     char port_str[6];
     TLSDataParams_pt pTlsData;
