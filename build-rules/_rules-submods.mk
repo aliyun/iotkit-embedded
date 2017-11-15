@@ -17,6 +17,7 @@ sub-mods: toolchain
 
 SUB_BUILD_VARS := \
     CFLAGS LDFLAGS \
+    IMPORT_DIR \
     TOP_DIR \
     RULE_DIR \
     CONFIG_VENDOR \
