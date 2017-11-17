@@ -320,7 +320,7 @@ static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
 {
     CoAPSendNode *node = NULL;
 
-    list_for_each_entry(node, &context->list.sendlist, sendlist) {
+    list_for_each_entry(node, &context->list.sendlist, sendlist, CoAPSendNode) {
         if (node->msgid == message->header.msgid) {
             node->acked = 1;
             return COAP_SUCCESS;
@@ -347,7 +347,7 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
     }
 
 
-    list_for_each_entry(node, &context->list.sendlist, sendlist) {
+    list_for_each_entry(node, &context->list.sendlist, sendlist, CoAPSendNode) {
         if (0 != node->tokenlen && node->tokenlen == message->header.tokenlen
             && 0 == memcmp(node->token, message->token, message->header.tokenlen)) {
 
@@ -442,7 +442,7 @@ int CoAPMessage_cycle(CoAPContext *context)
     CoAPMessage_recv(context, context->waittime, 0);
 
     CoAPSendNode *node = NULL, *next = NULL;
-    list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist) {
+    list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist, CoAPSendNode) {
         if (NULL != node) {
             if (node->timeout == 0) {
                 if (node->retrans_count < COAP_MAX_RETRY_COUNT && (0 == node->acked)) {
