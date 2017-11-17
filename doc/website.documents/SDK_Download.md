@@ -27,10 +27,10 @@
 
 # 版本V2.02
 
-- 发布日期: 2017/11/20
+- 发布日期: 2017/11/30
 - 开发语言: C语言
 - 开发环境: 64位Linux, GNU Make
-- 下载链接: [RELEASED_V2_02_20171120.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V2_02_20171120.zip)
+- 下载链接: [RELEASED_V2_02_20171130.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V2_02_20171130.zip)
 - 更新内容:
     - **正式的多平台支持:** 使用`make reconfig`可弹出和选择`Ubuntu16.04`以外的已适配平台
     - **新增SIM7000C版本:** 支持用armcc工具链编译`SIM7000C`开发板版本的库和例程, 用于NBIoT通信
