@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "iot_import.h"
 #include "iot_export.h"
@@ -38,10 +39,10 @@
 
 //#define IOTX_PRE_NOSEC_SERVER_URI "coap://iot-as-coap.alibaba.net:5683"
 
-#define EXAMPLE_TRACE(fmt, args...)  \
+#define EXAMPLE_TRACE(fmt, ...)  \
     do { \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
-        HAL_Printf(fmt, ##args); \
+        HAL_Printf(fmt, ##__VA_ARGS__); \
         HAL_Printf("%s", "\r\n"); \
     } while(0)
 
