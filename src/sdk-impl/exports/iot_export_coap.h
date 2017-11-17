@@ -109,25 +109,36 @@ typedef struct {
 typedef void iotx_coap_context_t;
 
 
+/** @defgroup group_api api
+ *  @{
+ */
+
+/** @defgroup group_api_coap coap
+ *  @{
+ */
+
 /**
- * @brief   Initialize the CoAP client
+ * @brief   Initialize the CoAP client.
  *        This function initialize the data structures and network,
  *        and create the DTLS session.
  *
- * @param p_config  Specify the CoAP client parameter.
+ * @param [in] p_config: Specify the CoAP client parameter.
  *
- * @return NULL, initialize failed; NOT NULL, the contex of CoAP client.
+ * @retval NULL : Initialize failed.
+ * @retval NOT_NULL : The contex of CoAP client.
+ * @see None.
  */
 iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config);
 
 /**
- * @brief   De-initialize the CoAP client
- *        This function release CoAP DTLS session,
+ * @brief   De-initialize the CoAP client.
+ *        This function release CoAP DTLS session.
  *        and release the related resource.
  *
- * @param p_context  Pointer of contex, specify the CoAP client.
+ * @param [in] p_context: Pointer of contex, specify the CoAP client.
  *
- * @return void
+ * @return None.
+ * @see None.
  */
 void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
 
@@ -135,11 +146,12 @@ void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
 /**
  * @brief   Handle device name authentication with remote server.
  *
- * @param p_context  Pointer of contex, specify the CoAP client.
+ * @param [in] p_context: Pointer of contex, specify the CoAP client.
  *
- * @return IOTX_SUCCESS   Authenticate success.
- *        IOTX_ERR_SEND_MSG_FAILED Send authentication message failed.
- *        IOTX_ERR_AUTH_FAILED Authenticate failed or timeout.
+ * @retval IOTX_SUCCESS             : Authenticate success.
+ * @retval IOTX_ERR_SEND_MSG_FAILED : Send authentication message failed.
+ * @retval IOTX_ERR_AUTH_FAILED     : Authenticate failed or timeout.
+ * @see iotx_ret_code_t.
  */
 int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 
@@ -148,9 +160,10 @@ int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
  * @brief   Handle CoAP response packet from remote server,
  *        and process timeout request etc..
  *
- * @param p_context  Pointer of contex, specify the CoAP client.
+ * @param [in] p_context : Pointer of contex, specify the CoAP client.
  *
  * @return status.
+ * @see iotx_ret_code_t.
  */
 int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
@@ -159,40 +172,44 @@ int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
  * @brief   Send a message with specific path to server.
  *        Client must authentication with server before send message.
  *
- * @param p_context     Pointer of contex, specify the CoAP client.
- * @param p_path      Specify the path name.
- * @param p_message   Message to be sent.
+ * @param [in] p_context : Pointer of contex, specify the CoAP client.
+ * @param [in] p_path: Specify the path name.
+ * @param [in] p_message: Message to be sent.
  *
- * @return IOTX_SUCCESS Send the message success
- *        IOTX_ERR_MSG_TOO_LOOG The message length is too loog
- *        IOTX_ERR_NOT_AUTHED The client hasn't authenticated with server
+ * @retval IOTX_SUCCESS             : Send the message success.
+ * @retval IOTX_ERR_MSG_TOO_LOOG    : The message length is too long.
+ * @retval IOTX_ERR_NOT_AUTHED      : The client hasn't authenticated with server
+ * @see iotx_ret_code_t.
  */
 int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
 
 /**
 * @brief Retrieves the length and payload pointer of specified message.
 *
-* @param  p_message    Pointer to the message to get the payload. Should not be NULL.
-* @param  pp_payload   Pointer to the payload.
-* @param  p_len        Size of the payload.
+* @param  [in] p_message: Pointer to the message to get the payload. Should not be NULL.
+* @param  [out] pp_payload: Pointer to the payload.
+* @param  [out] p_len: Size of the payload.
 *
-* @retval IOTX_SUCCESS              Get the payload success.
-* @retval IOTX_ERR_INVALID_PARAM    Can't get the payload due to invalid parameter.
-*
+* @retval IOTX_SUCCESS              : Get the payload success.
+* @retval IOTX_ERR_INVALID_PARAM    : Can't get the payload due to invalid parameter.
+* @see iotx_ret_code_t.
 **/
 int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 
 /**
 * @brief Get the response code from a CoAP message.
 *
-* @param[inout] p_message    Pointer to the message to add the address information to.
+* @param [in] p_message: Pointer to the message to add the address information to.
 *                            Should not be NULL.
-* @param[in]    p_resp_code  The response code.
+* @param [out] p_resp_code: The response code.
 *
-* @retval  IOTX_SUCCESS              When get the response code to message success.
-* @retval  IOTX_ERR_INVALID_PARAM    Pointer to the message is NULL.
-*
+* @retval  IOTX_SUCCESS             : When get the response code to message success.
+* @retval  IOTX_ERR_INVALID_PARAM   : Pointer to the message is NULL.
+* @see iotx_ret_code_t.
 **/
 int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);
+
+/** @} */ /* end of api_coap */
+/** @} */ /* end of api */
 
 #endif

@@ -73,18 +73,95 @@ typedef struct {
 } iotx_conn_info_t, *iotx_conn_info_pt;
 /* From device.h */
 
+/** @defgroup group_api api
+ *  @{
+ */
+
+/** @defgroup group_api_log log
+ *  @{
+ */
+
+/**
+ * @brief Began to print log information.
+ *
+ * @param [in] ident: module name.
+ *
+ * @return None.
+ * @see None.
+ */
 void    IOT_OpenLog(const char *ident);
+
+/**
+ * @brief Stop print log information.
+ *
+ * @return None.
+ * @see None.
+ */
 void    IOT_CloseLog(void);
+
+/**
+ * @brief Set the print level.
+ *
+ * @param [in] level: @n level from 1 to 5, the greater the number, the more detailed the printing.
+ *
+ * @return None.
+ * @see None.
+ */
 void    IOT_SetLogLevel(IOT_LogLevel level);
+
+/**
+ * @brief Print the memory usage statistics.
+ *
+ * @param [in] level: @n level from 1 to 5, the greater the number, the more detailed the printing.
+ *
+ * @return None.
+ * @see None.
+ */
 void    IOT_DumpMemoryStats(IOT_LogLevel level);
+
+/** @} */ /* end of api_log */
+
+/** @defgroup group_api_conninfo conninfo
+ *  @{
+ */
+
+
+/**
+ * @brief Based on the 'product_key' + 'device_name' + 'device_secret' produce an MQTT connection username and password.
+ *
+ * @param [in] product_key: @n Apply for 'product_key' in the AliYun Console.
+ * @param [in] device_name: @n Apply for 'device_name' in the AliYun Console.
+ * @param [in] device_secret: @n Apply for 'device_secret' in the AliYun Console.
+ * @param [out] info_ptr: @n return MQTT connection parameter.
+ *
+ * @retval -1 : Fail.
+ * @retval  0 : Success.
+ * @see None.
+ */
 int     IOT_SetupConnInfo(const char *product_key,
                           const char *device_name,
                           const char *device_secret,
                           void **info_ptr);
+/**
+ * @brief Based on the product_key + device_name + device_secret produce an MQTT connection username and password by ID2_AUTH.
+ *
+ * @param [in] product_key: @n Apply for 'product_key' in the AliYun Console.
+ * @param [in] device_name: @n Apply for 'device_name' in the AliYun Console.
+ * @param [in] device_secret: @n Apply for 'device_secret' in the AliYun Console.
+ * @param [out] info_ptr: @n return MQTT connection parameter.
+ *
+ * @retval -1 : Fail.
+ * @retval  0 : Success.
+ * @see None.
+ */
+
 int     IOT_SetupConnInfoSecure(const char *product_key,
                                 const char *device_name,
                                 const char *device_secret,
                                 void **info_ptr);
+/** @} */ /* end of api_conninfo */
+
+/** @} */ /* end of api */
 
 #include "exports/iot_export_errno.h"
 #include "exports/iot_export_mqtt.h"

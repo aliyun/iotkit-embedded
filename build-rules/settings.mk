@@ -11,6 +11,10 @@ SCRIPT_DIR      ?= $(TOP_DIR)/scripts
 PACKAGE_DIR     ?= $(TOP_DIR)/packages
 IMPORT_DIR      ?= $(TOP_DIR)/import
 
+# Settings of project information
+PRJ_NAME        ?= LITE-build.prj
+PRJ_VERSION     ?= LITE-build.ver
+
 # Settings of output directory
 #
 CONFIG_TPL      := $(TOP_DIR)/.config

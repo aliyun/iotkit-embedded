@@ -118,9 +118,9 @@ typedef struct {
  * @brief It define a datatype of function pointer.
  *        This type of function will be called when a related event occur.
  *
- * @param pcontext, the program context
- * @param pclient, the MQTT client
- * @param msg, the event message.
+ * @param pcontext : The program context.
+ * @param pclient : The MQTT client.
+ * @param msg : The event message.
  *
  * @return none
  */
@@ -162,14 +162,23 @@ typedef struct {
 
 } iotx_mqtt_param_t, *iotx_mqtt_param_pt;
 
+/** @defgroup group_api api
+ *  @{
+ */
+
+/** @defgroup group_api_mqtt mqtt
+ *  @{
+ */
 
 /**
  * @brief Construct the MQTT client
  *        This function initialize the data structures, establish MQTT connection.
  *
- * @param pInitParams, specify the MQTT client parameter.
+ * @param [in] pInitParams: specify the MQTT client parameter.
  *
- * @return NULL, construct failed; NOT NULL, the handle of MQTT client.
+ * @retval     NULL : Construct failed.
+ * @retval NOT_NULL : The handle of MQTT client.
+ * @see None.
  */
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
 
@@ -178,9 +187,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
  *        This function initialize the data structures, establish MQTT connection.
  *        And set mqtt up/down process functions.
  *
- * @param pInitParams, specify the MQTT client parameter.
+ * @param [in] pInitParams: specify the MQTT client parameter.
  *
- * @return NULL, construct failed; NOT NULL, the handle of MQTT client.
+ * @retval     NULL : Construct failed.
+ * @retval NOT_NULL : The handle of MQTT client.
+ * @see None.
  */
 void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams);
 
@@ -188,9 +199,11 @@ void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams);
  * @brief Deconstruct the MQTT client
  *        This function disconnect MQTT connection and release the related resource.
  *
- * @param pointer of handle, specify the MQTT client.
+ * @param [in] phandle: pointer of handle, specify the MQTT client.
  *
- * @return 0, deconstruct success; -1, deconstruct failed.
+ * @retval  0 : Deconstruct success.
+ * @retval -1 : Deconstruct failed.
+ * @see None.
  */
 int IOT_MQTT_Destroy(void **phandle);
 
@@ -199,10 +212,11 @@ int IOT_MQTT_Destroy(void **phandle);
  * @brief Handle MQTT packet from remote server and process timeout request
  *        which include the MQTT subscribe, unsubscribe, publish(QOS >= 1), reconnect, etc..
  *
- * @param handle, specify the MQTT client.
- * @param timeout, specify the timeout in millisecond in this loop.
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] timeout_ms: specify the timeout in millisecond in this loop.
  *
  * @return status.
+ * @see None.
  */
 int IOT_MQTT_Yield(void *handle, int timeout_ms);
 
@@ -210,9 +224,11 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms);
 /**
  * @brief check whether MQTT connection is established or not.
  *
- * @param handle, specify the MQTT client.
+ * @param [in] handle: specify the MQTT client.
  *
- * @return true, MQTT in normal state; false, MQTT in abnormal state.
+ * @retval true  : MQTT in normal state.
+ * @retval false : MQTT in abnormal state.
+ * @see None.
  */
 int IOT_MQTT_CheckStateNormal(void *handle);
 
@@ -220,19 +236,17 @@ int IOT_MQTT_CheckStateNormal(void *handle);
 /**
  * @brief Subscribe MQTT topic.
  *
- * @param handle, specify the MQTT client.
- * @param topic_filter, specify the topic filter.
- * @param qos, specify the MQTT Requested QoS.
- * @param topic_handle_func, specify the topic handle callback-function.
- * @param pcontext, specify context. When call @topic_handle_func, it will be passed back.
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] topic_filter: specify the topic filter.
+ * @param [in] qos: specify the MQTT Requested QoS.
+ * @param [in] topic_handle_func: specify the topic handle callback-function.
+ * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
  *
- * @return
- * @verbatim
-      -1, subscribe failed.
-     >=0, subscribe successful.
+ * @retval -1  : Subscribe failed.
+ * @retval >=0 : Subscribe successful.
           The value is a unique ID of this request.
-          The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
-   @endverbatim
+          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
  */
 int IOT_MQTT_Subscribe(void *handle,
                        const char *topic_filter,
@@ -244,16 +258,14 @@ int IOT_MQTT_Subscribe(void *handle,
 /**
  * @brief Unsubscribe MQTT topic.
  *
- * @param handle, specify the MQTT client.
- * @param topic_filter, specify the topic filter.
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] topic_filter: specify the topic filter.
  *
- * @return
- * @verbatim
-      -1, unsubscribe failed.
-     >=0, unsubscribe successful.
+ * @retval -1  : Unsubscribe failed.
+ * @retval >=0 : Unsubscribe successful.
           The value is a unique ID of this request.
-          The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
-   @endverbatim
+          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
  */
 int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
 
@@ -261,21 +273,21 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
 /**
  * @brief Publish message to specific topic.
  *
- * @param handle, specify the MQTT client.
- * @param topic_name, specify the topic name.
- * @param topic_msg, specify the topic message.
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] topic_name: specify the topic name.
+ * @param [in] topic_msg: specify the topic message.
  *
- * @return
- * @verbatim
-    -1, publish failed.
-     0, publish successful, where QoS is 0.
-    >0, publish successful, where QoS is >= 0.
+ * @retval -1 :  Publish failed.
+ * @retval  0 :  Publish successful, where QoS is 0.
+ * @retval >0 :  Publish successful, where QoS is >= 0.
         The value is a unique ID of this request.
-        The ID will be passed back when callback @iotx_mqtt_param_t:handle_event.
- * @endverbatim
- *
+        The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
  */
 int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
 /* From mqtt_client.h */
+/** @} */ /* end of api_mqtt */
+
+/** @} */ /* end of api */
 
 #endif

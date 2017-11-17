@@ -88,27 +88,38 @@ typedef enum {
 
 } IOT_OTA_CmdType_t;
 
+/** @defgroup group_api api
+ *  @{
+ */
+
+/** @defgroup group_api_ota ota
+ *  @{
+ */
 
 /**
  * @brief Initialize OTA module, and return handle.
  *        The MQTT client must be construct before calling this interface.
  *
- * @param [in] product_key, specify the product key.
- * @param [in] device_name, specify the device name.
- * @param [in] ch_signal, specify the signal channel.
+ * @param [in] product_key: specify the product key.
+ * @param [in] device_name: specify the device name.
+ * @param [in] ch_signal: specify the signal channel.
  *
- * @return 0, successful; -1, failed.
+ * @retval  0 : Successful.
+ * @retval -1 : Failed.
+ * @see None.
  */
 void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal);
 
 
 /**
- * @brief Deinitialize OTA module specified by the @handle, and release the related resource.
+ * @brief Deinitialize OTA module specified by the 'handle', and release the related resource.
  *        You must call this interface to release resource if reboot is not invoked after downloading.
  *
- * @param [in] handle, specify the OTA module.
+ * @param [in] handle: specify the OTA module.
  *
- * @return 0, successful; < 0, failed, the value is error code.
+ * @retval   0 : Successful.
+ * @retval < 0 : Failed, the value is error code.
+ * @see None.
  */
 int IOT_OTA_Deinit(void *handle);
 
@@ -117,10 +128,12 @@ int IOT_OTA_Deinit(void *handle);
  * @brief Report firmware version information to OTA server (optional).
  *        NOTE: please
  *
- * @param [in] handle, specify the OTA module.
- * @param [in] version, specify the firmware version in string format.
+ * @param [in] handle: specify the OTA module.
+ * @param [in] version: specify the firmware version in string format.
  *
- * @return 0, successful; < 0, failed, the value is error code.
+ * @retval   0 : Successful.
+ * @retval < 0 : Failed, the value is error code.
+ * @see None.
  */
 int IOT_OTA_ReportVersion(void *handle, const char *version);
 
@@ -129,11 +142,13 @@ int IOT_OTA_ReportVersion(void *handle, const char *version);
  * @brief Report detail progress to OTA server (optional).
  *        NOTE: please
  *
- * @param [in] handle, specify the OTA module.
- * @param [in] progress, specify the progress defined by @IOT_OTA_Progress_t.
- * @param [in] msg, detail progress information in string.
+ * @param [in] handle: specify the OTA module.
+ * @param [in] progress: specify the progress defined by 'IOT_OTA_Progress_t'.
+ * @param [in] msg: detail progress information in string.
  *
- * @return 0, successful; < 0, failed, the value is error code.
+ * @retval   0 : Successful.
+ * @retval < 0 : Failed, the value is error code.
+ * @see None.
  */
 int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg);
 
@@ -141,9 +156,11 @@ int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char
 /**
  * @brief Check whether is on fetching state
  *
- * @param [in] handle, specify the OTA module.
+ * @param [in] handle: specify the OTA module.
  *
- * @return true, yes; false, no.
+ * @retval 1 : Yes.
+ * @retval 0 : No.
+ * @see None.
  */
 int IOT_OTA_IsFetching(void *handle);
 
@@ -151,51 +168,54 @@ int IOT_OTA_IsFetching(void *handle);
 /**
  * @brief Check whether is on end-of-fetch state.
  *
- * @param [in] handle, specify the OTA module.
+ * @param [in] handle: specify the OTA module.
  *
- * @return true, yes; -1, false.
+ * @retval 1 : Yes.
+ * @retval 0 : False.
+ * @see None.
  */
 int IOT_OTA_IsFetchFinish(void *handle);
 
 
 /**
  * @brief fetch firmware from remote server with specific timeout value.
- *        NOTE: If you want to download more faster, the bigger @buf should be given.
+ *        NOTE: If you want to download more faster, the bigger 'buf' should be given.
  *
- * @param [in] handle, specify the OTA module.
- * @param [out] buf, specify the space for storing firmware data.
- * @param [in] buf_len, specify the length of @buf in bytes.
- * @param [in] timeout_s, specify the timeout value in second.
+ * @param [in] handle: specify the OTA module.
+ * @param [out] buf: specify the space for storing firmware data.
+ * @param [in] buf_len: specify the length of 'buf' in bytes.
+ * @param [in] timeout_s: specify the timeout value in second.
  *
- * @return
-   @verbatim
-        < 0 : error occur.
-          0 : No any data be downloaded in @timeout_ms timeout period.
-   (0, len] : The length of data be downloaded in @timeout_ms timeout period in bytes.
-   @endverbatim
+ * @retval      < 0 : Error occur..
+ * @retval        0 : No any data be downloaded in 'timeout_s' timeout period.
+ * @retval (0, len] : The length of data be downloaded in 'timeout_s' timeout period in bytes.
+ * @see None.
  */
 int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
 
 
 /**
- * @brief Get OTA information specified by @type.
+ * @brief Get OTA information specified by 'type'.
  *        By this interface, you can get information like state, size of file, md5 of file, etc.
  *
- * @param [in] handle, handle of the specific OTA
- * @param [in] type, specify what information you want, see detail @IOT_OTA_CmdType_t
- * @param [inout] buf, specify buffer for data exchange
- * @param [in] buf_len, specify the length of @buf in byte.
+ * @param [in] handle: handle of the specific OTA
+ * @param [in] type: specify what information you want, see detail 'IOT_OTA_CmdType_t'
+ * @param [out] buf: specify buffer for data exchange
+ * @param [in] buf_len: specify the length of 'buf' in byte.
+ * @return
    @verbatim
       NOTE:
-      1) When @type is IOT_OTAG_FETCHED_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
-      2) When @type is IOT_OTAG_FILE_SIZE, @buf should be pointer of uint32_t, and @buf_len should be 4.
-      3) When @type is IOT_OTAG_MD5SUM, @buf should be a buffer, and @buf_len should be 33.
-      4) When @type is IOT_OTAG_VERSION, @buf should be a buffer, and @buf_len should be OTA_VERSION_LEN_MAX.
-      5) When @type is IOT_OTAG_CHECK_FIRMWARE, @buf should be pointer of uint32_t, and @buf_len should be 4.
+      1) When type is IOT_OTAG_FETCHED_SIZE, 'buf' should be pointer of uint32_t, and 'buf_len' should be 4.
+      2) When type is IOT_OTAG_FILE_SIZE, 'buf' should be pointer of uint32_t, and 'buf_len' should be 4.
+      3) When type is IOT_OTAG_MD5SUM, 'buf' should be a buffer, and 'buf_len' should be 33.
+      4) When type is IOT_OTAG_VERSION, 'buf' should be a buffer, and 'buf_len' should be OTA_VERSION_LEN_MAX.
+      5) When type is IOT_OTAG_CHECK_FIRMWARE, 'buf' should be pointer of uint32_t, and 'buf_len' should be 4.
          0, firmware is invalid; 1, firmware is valid.
-   @endverbatim
+  @endverbatim
  *
- * @return 0, successful; < 0, failed, the value is error code.
+ * @retval   0 : Successful.
+ * @retval < 0 : Failed, the value is error code.
+ * @see None.
  */
 int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_len);
 
@@ -203,11 +223,14 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
 /**
  * @brief Get last error code.
  *
- * @param [in] handle, specify the OTA module.
+ * @param [in] handle: specify the OTA module.
  *
  * @return The error code.
+ * @see None.
  */
 int IOT_OTA_GetLastError(void *handle);
 
+/** @} */ /* end of api_ota */
+/** @} */ /* end of api */
 
 #endif /* __OTA_EXPORT_H__ */

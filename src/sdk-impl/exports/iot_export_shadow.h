@@ -16,7 +16,8 @@
  *
  */
 
-
+#ifndef __SHADOW_EXPORT_H__
+#define __SHADOW_EXPORT_H__
 
 /* From shadow.h */
 typedef enum {
@@ -81,60 +82,141 @@ typedef struct {
     iotx_mqtt_param_t mqtt;
 } iotx_shadow_para_t, *iotx_shadow_para_pt;
 
+/** @defgroup group_api api
+ *  @{
+ */
+
+/** @defgroup group_shadow shadow
+ *  @{
+ */
+
 /**
- * @brief Construct the Device Shadow
- *        This function initialize the data structures, establish MQTT connection
- *        and subscribe the topic: "/shadow/get/${product_key}/${device_name}"
+ * @brief Construct the Device Shadow.
+ *        This function initialize the data structures, establish MQTT connection.
+ *        and subscribe the topic: "/shadow/get/${product_key}/${device_name}".
  *
- * @param pClient, A device shadow client data structure.
- * @param pParams, The specific initial parameter.
- *
- * @return NULL, construct shadow failed; NOT NULL, deconstruct failed.
+ * @param [in] pparam: The specific initial parameter.
+ * @retval     NULL : Construct shadow failed.
+ * @retval NOT_NULL : Construct success.
+ * @see None.
  */
 void *IOT_Shadow_Construct(iotx_shadow_para_pt pparam);
 
-
-/* Deconstruct the specific device shadow */
+/**
+ * @brief Deconstruct the specific device shadow.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_Destroy(void *handle);
 
+/**
+ * @brief Handle MQTT packet from cloud and wait list.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @param [in] timeout_ms: Specify the timeout value in millisecond. In other words, the API block 'timeout'_ms millisecond maximumly.
+ * @return None.
+ * @see None.
+ */
+void IOT_Shadow_Yield(void *handle, uint32_t timeout_ms);
 
-/* Handle MQTT packet from cloud and wait list */
-void IOT_Shadow_Yield(void *handle, uint32_t timeout);
-
-
-/* Register the specific attribute */
+/**
+ * @brief Create a data type registered to the server.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @param [in] pattr: The parameter which registered to the server.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_RegisterAttribute(void *handle, iotx_shadow_attr_pt pattr);
 
-
-/* Delete the specific attribute */
+/**
+ * @brief Delete the specific attribute.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @param [in] pattr: The parameter to be deleted from server.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_DeleteAttribute(void *handle, iotx_shadow_attr_pt pattr);
 
-
-/* Format the attribute name and value for update */
+/**
+ * @brief Start a process the structure of the data type format.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @param [out] pformat: The format struct of device shadow.
+ * @param [in] buf: The buf which store device shadow.
+ * @param [in] size: Maximum length of device shadow attribute.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_PushFormat_Init(
             void *handle,
             format_data_pt pformat,
             char *buf,
             uint16_t size);
 
+/**
+ * @brief Format the attribute name and value for update.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @param [in] pformat: The format struct of device shadow.
+ * @param [in] pattr: To have created the data type of the format in the add member attributes.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_PushFormat_Add(
             void *handle,
             format_data_pt pformat,
             iotx_shadow_attr_pt pattr);
 
+/**
+ * @brief Complete a process the structure of the data type format.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @param [in] pformat: The format struct of device shadow.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_PushFormat_Finalize(void *handle, format_data_pt pformat);
 
-
-/* Update data to Cloud. It is a synchronous interface. */
+/**
+ * @brief Update data to Cloud. It is a synchronous interface.
+ *
+ * @param [in] handle: The handle of device shaodw.
+ * @param [in] data: The buf which synchronization with the server.
+ * @param [in] data_len: The length, in bytes, of the data pointed to by the data parameter.
+ * @param [in] timeout_s: The timeout_s in second.In other word,the API will block timeout_s second.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_Push(
             void *handle,
             char *data,
             uint32_t data_len,
             uint16_t timeout_s);
 
-
-/* Update data to Cloud. It is a asynchronous interface.
- * The result of this update will be informed by calling the callback function @cb_fpt */
+/**
+ * @brief Update data to Cloud. It is a asynchronous interface.
+ *        The result of this update will be informed by calling the callback function cb_fpt.
+ * @param [in] handle: The handle of device shadow.
+ * @param [in] data: The buf which synchronization with the server.
+ * @param [in] data_len: The length, in bytes, of the data pointed to by the data parameter.
+ * @param [in] timeout_s: Specify the timeout value in second. Shadow will timeout after 'timeout_s' second if did not receive push response.
+ * @param [in] cb_fpt: Specify the callback function which recieve ack_code from server after push device shadow.
+ * @param [in] pcontext: Specify the context which passed to the callback function.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 int IOT_Shadow_Push_Async(
             void *handle,
             char *data,
@@ -143,7 +225,19 @@ int IOT_Shadow_Push_Async(
             iotx_push_cb_fpt cb_fpt,
             void *pcontext);
 
-
-/* Synchronize device shadow data from cloud. It is a synchronous interface. */
+/**
+ * @brief Synchronize device shadow data from cloud.
+ *        It is a synchronous interface.
+ * @param [in] handle: The handle of device shaodw.
+ * @retval SUCCESS_RETURN : Success.
+ * @retval          other : See iotx_err_t.
+ * @see None.
+ */
 iotx_err_t IOT_Shadow_Pull(void *handle);
+
 /* From shadow.h */
+
+/** @} */ /* end of api_shadow */
+/** @} */ /* end of api */
+
+#endif /* __SHADOW_EXPORT_H__ */
