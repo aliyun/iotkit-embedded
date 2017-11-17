@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdarg.h>
+
 #include "iot_import_coap.h"
 
 #ifndef __COAP_DTLS_H__
@@ -31,11 +33,11 @@
         fprintf(stderr, __VA_ARGS__);\
     }
 
-#define DTLS_TRC(fmt,  args...)  dtls_log_print("<TRACE>", fmt, ##args)
-#define DTLS_DUMP(fmt, args...)  dtls_log_print("<DUMP> ", fmt, ##args)
-#define DTLS_DEBUG(fmt,args...)  dtls_log_print("<DEBUG>", fmt, ##args)
-#define DTLS_INFO(fmt, args...)  dtls_log_print("<INFO> ", fmt, ##args)
-#define DTLS_ERR(fmt,  args...)  dtls_log_print("<ERROR>", fmt, ##args)
+#define DTLS_TRC(fmt,  ...)  dtls_log_print("<TRACE>", fmt, ##__VA_ARGS__)
+#define DTLS_DUMP(fmt, ...)  dtls_log_print("<DUMP> ", fmt, ##__VA_ARGS__)
+#define DTLS_DEBUG(fmt,...)  dtls_log_print("<DEBUG>", fmt, ##__VA_ARGS__)
+#define DTLS_INFO(fmt, ...)  dtls_log_print("<INFO> ", fmt, ##__VA_ARGS__)
+#define DTLS_ERR(fmt,  ...)  dtls_log_print("<ERROR>", fmt, ##__VA_ARGS__)
 
 #define DTLS_ERROR_BASE       (1<<24)
 
