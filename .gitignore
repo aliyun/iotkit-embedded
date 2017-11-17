@@ -25,3 +25,6 @@ src/packages/*.git/hooks/*.sample
 src/tls/mbedtls-in-iotkit
 src/log/LITE-log
 src/utils/LITE-utils
+vs_build/
+.vs/
+html/

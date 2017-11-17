@@ -11,3 +11,7 @@ IMPORT_DIR      := $(TOP_DIR)/src/import
 #
 DIST_DIR        := $(TOP_DIR)/output
 FINAL_DIR       := $(DIST_DIR)/release
+
+# Settings of project info
+PRJ_NAME        := iotkit-embedded
+PRJ_VERSION     := V2.02

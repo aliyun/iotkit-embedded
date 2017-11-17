@@ -55,7 +55,8 @@ extern "C" {
 /**
  * @brief Create a mutex.
  *
- * @return NULL, initialize mutex failed; not NULL, the mutex handle.
+ * @retval NULL : Initialize mutex failed.
+ * @retval NOT_NULL : The mutex handle.
  * @see None.
  * @note None.
  */
@@ -134,7 +135,6 @@ void HAL_Free(_IN_ void *ptr);
 /**
  * @brief Retrieves the number of milliseconds that have elapsed since the system was boot.
  *
- * @param None.
  * @return the number of milliseconds.
  * @see None.
  * @note None.
@@ -160,7 +160,7 @@ void HAL_SleepMs(_IN_ uint32_t ms);
  * @see None.
  * @note None.
  */
-void HAL_Srandom(uint32_t seed);
+void HAL_Srandom(_IN_ uint32_t seed);
 
 /**
  * @brief Get a random integer
@@ -170,7 +170,7 @@ void HAL_Srandom(uint32_t seed);
  * @see None.
  * @note None.
  */
-uint32_t HAL_Random(uint32_t region);
+uint32_t HAL_Random(_IN_ uint32_t region);
 
 /**
  * @brief Writes formatted data to stream.
@@ -187,7 +187,7 @@ void HAL_Printf(_IN_ const char *fmt, ...);
 /**
  * @brief Writes formatted data to string.
  *
- * @param [in] str: @n String that holds written text.
+ * @param [out] str: @n String that holds written text.
  * @param [in] len: @n Maximum length of character will be written
  * @param [in] fmt: @n Format that contains the text to be written, it can optionally contain embedded format specifiers
      that specifies how subsequent arguments are converted for output.
@@ -196,35 +196,42 @@ void HAL_Printf(_IN_ const char *fmt, ...);
  * @see None.
  * @note None.
  */
-int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...);
+int HAL_Snprintf(_OU_ char *str, _IN_ const int len, _IN_ const char *fmt, ...);
 
 /**
  * @brief Writes formatted data to string.
  *
- * @param [in] str: @n String that holds written text.
- * @param [in] len: @n Maximum length of character will be written
- * @param [in] fmt: @n Format that contains the text to be written
- * @param [in] ap:  @n the variable argument list
+ * @param [out] str: @n String that holds written text.
+ * @param [in] len: @n Maximum length of character will be written.
+ * @param [in] fmt: @n Format that contains the text to be written.
+ * @param [in] ap:  @n the variable argument list.
+ * @return bytes of character successfully format into string.
  * @see None.
  * @note None.
  */
-int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *fmt, va_list ap);
+int HAL_Vsnprintf(_OU_ char *str, _IN_ const int len, _IN_ const char *fmt, _IN_ va_list ap);
 
 /**
  * @brief Get vendor ID of hardware module.
  *
+ * @param [out] pid_str: @n Get vendor ID of hardware module form HAL_GetParternID
  * @return the strlen of pid_str[] successfully written into.
  */
-int HAL_GetPartnerID(char pid_str[PID_STRLEN_MAX]);
+int HAL_GetPartnerID(_OU_ char pid_str[PID_STRLEN_MAX]);
 
 /**
  * @brief Get Module ID of hardware module.
  *
+ * @param [out] mid_str: @n Get Module ID of hardware module form HAL_GetModuleID
  * @return the strlen of mid_str[] successfully written into.
  */
-int HAL_GetModuleID(char mid_str[MID_STRLEN_MAX]);
+int HAL_GetModuleID(_OU_ char mid_str[MID_STRLEN_MAX]);
 
 /** @} */ /* end of group_platform_other */
+
+/** @defgroup group_platform_network network
+ *  @{
+ */
 
 /**
  * @brief Establish a TCP connection.
@@ -232,9 +239,11 @@ int HAL_GetModuleID(char mid_str[MID_STRLEN_MAX]);
  * @param [in] host: @n Specify the hostname(IP) of the TCP server
  * @param [in] port: @n Specify the TCP port of TCP server
  *
- * @return 0, fail; > 0, success, the value is handle of this TCP connection.
+ * @return The handle of TCP connection.
+   @retval   0 : Fail.
+   @retval > 0 : Success, the value is handle of this TCP connection.
  */
-uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
+uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_  uint16_t port);
 
 
 /**
@@ -242,48 +251,48 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
  *
  * @param [in] fd: @n Specify the TCP connection by handle.
  *
- * @return < 0, fail; 0, success.
+ * @return The result of destroy TCP connection.
+ * @retval < 0 : Fail.
+ * @retval   0 : Success.
  */
-int32_t HAL_TCP_Destroy(uintptr_t fd);
+int32_t HAL_TCP_Destroy(_IN_ uintptr_t fd);
 
 
 /**
  * @brief Write data into the specific TCP connection.
- *        The API will return immediately if @len be written into the specific TCP connection.
+ *        The API will return immediately if 'len' be written into the specific TCP connection.
  *
  * @param [in] fd @n A descriptor identifying a connection.
  * @param [in] buf @n A pointer to a buffer containing the data to be transmitted.
- * @param [in] len @n The length, in bytes, of the data pointed to by the @buf parameter.
- * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block @timeout_ms millisecond maximumly.
- * @return
-   @verbatim
-        < 0 : TCP connection error occur..
-          0 : No any data be write into the TCP connection in @timeout_ms timeout period.
-   (0, len] : The total number of bytes be written in @timeout_ms timeout period.
-   @endverbatim
+ * @param [in] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+ * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+ *
+ * @retval      < 0 : TCP connection error occur..
+ * @retval        0 : No any data be write into the TCP connection in 'timeout_ms' timeout period.
+ * @retval (0, len] : The total number of bytes be written in 'timeout_ms' timeout period.
+
  * @see None.
  */
-int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t HAL_TCP_Write(_IN_ uintptr_t fd, _IN_ const char *buf, _IN_ uint32_t len, _IN_ uint32_t timeout_ms);
 
 
 /**
  * @brief Read data from the specific TCP connection with timeout parameter.
- *        The API will return immediately if @len be received from the specific TCP connection.
+ *        The API will return immediately if 'len' be received from the specific TCP connection.
  *
  * @param [in] fd @n A descriptor identifying a TCP connection.
- * @param [in] buf @n A pointer to a buffer to receive incoming data.
- * @param [in] len @n The length, in bytes, of the data pointed to by the @buf parameter.
- * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block @timeout_ms millisecond maximumly.
- * @return
-   @verbatim
-         -2 : TCP connection error occur.
-         -1 : TCP connection be closed by remote server.
-          0 : No any data be received in @timeout_ms timeout period.
-   (0, len] : The total number of bytes be received in @timeout_ms timeout period.
-   @endverbatim
+ * @param [out] buf @n A pointer to a buffer to receive incoming data.
+ * @param [out] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+ * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+ *
+ * @retval       -2 : TCP connection error occur.
+ * @retval       -1 : TCP connection be closed by remote server.
+ * @retval        0 : No any data be received in 'timeout_ms' timeout period.
+ * @retval (0, len] : The total number of bytes be received in 'timeout_ms' timeout period.
+
  * @see None.
  */
-int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t HAL_TCP_Read(_IN_ uintptr_t fd, _OU_ char *buf, _OU_ uint32_t len, _IN_ uint32_t timeout_ms);
 
 /**
  * @brief Establish a SSL connection.
@@ -297,10 +306,10 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
  * @note None.
  */
 uintptr_t HAL_SSL_Establish(
-            const char *host,
-            uint16_t port,
-            const char *ca_crt,
-            size_t ca_crt_len);
+            _IN_ const char *host,
+            _IN_ uint16_t port,
+            _IN_ const char *ca_crt,
+            _IN_ size_t ca_crt_len);
 
 
 /**
@@ -308,65 +317,127 @@ uintptr_t HAL_SSL_Establish(
  *
  * @param[in] handle: @n Handle of the specific connection.
  *
- * @return < 0, fail; 0, success.
+ * @return The result of destroy ssl
+ *
+ * @retval < 0 : Fail.
+ * @retval   0 : Success.
  */
-int32_t HAL_SSL_Destroy(uintptr_t handle);
+int32_t HAL_SSL_Destroy(_IN_ uintptr_t handle);
 
 
 /**
  * @brief Write data into the specific SSL connection.
- *        The API will return immediately if @len be written into the specific SSL connection.
+ *        The API will return immediately if 'len' be written into the specific SSL connection.
  *
- * @param [in] fd @n A descriptor identifying a connection.
+ * @param [in] handle @n A descriptor identifying a connection.
  * @param [in] buf @n A pointer to a buffer containing the data to be transmitted.
- * @param [in] len @n The length, in bytes, of the data pointed to by the @buf parameter.
- * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block @timeout_ms millisecond maximumly.
- * @return
-   @verbatim
-        < 0 : SSL connection error occur..
-          0 : No any data be write into the SSL connection in @timeout_ms timeout period.
-   (0, len] : The total number of bytes be written in @timeout_ms timeout period.
-   @endverbatim
+ * @param [in] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+ * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+ * @retval      < 0 : SSL connection error occur..
+ * @retval        0 : No any data be write into the SSL connection in 'timeout_ms' timeout period.
+ * @retval (0, len] : The total number of bytes be written in 'timeout_ms' timeout period.
  * @see None.
  */
-int32_t HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms);
+int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len, _IN_ int timeout_ms);
 
 
 /**
  * @brief Read data from the specific SSL connection with timeout parameter.
- *        The API will return immediately if @len be received from the specific SSL connection.
+ *        The API will return immediately if 'len' be received from the specific SSL connection.
  *
- * @param [in] fd @n A descriptor identifying a SSL connection.
- * @param [in] buf @n A pointer to a buffer to receive incoming data.
- * @param [in] len @n The length, in bytes, of the data pointed to by the @buf parameter.
- * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block @timeout_ms millisecond maximumly.
- * @return
-   @verbatim
-         -2 : SSL connection error occur.
-         -1 : SSL connection be closed by remote server.
-          0 : No any data be received in @timeout_ms timeout period.
-   (0, len] : The total number of bytes be received in @timeout_ms timeout period.
-   @endverbatim
+ * @param [in] handle @n A descriptor identifying a SSL connection.
+ * @param [out] buf @n A pointer to a buffer to receive incoming data.
+ * @param [out] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+ * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+ *
+ * @retval       -2 : SSL connection error occur.
+ * @retval       -1 : SSL connection be closed by remote server.
+ * @retval        0 : No any data be received in 'timeout_ms' timeout period.
+ * @retval (0, len] : The total number of bytes be received in 'timeout_ms' timeout period.
  * @see None.
  */
-int32_t HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
+int32_t HAL_SSL_Read(_IN_ uintptr_t handle, _OU_ char *buf, _OU_ int len, _IN_ int timeout_ms);
 
-void *HAL_UDP_create(char *host, unsigned short port);
-void HAL_UDP_close(void *p_socket);
+/**
+ * @brief Establish a UDP connection.
+ *
+ * @param [in] host: @n Specify the hostname(IP) of the UDP server
+ * @param [in] port: @n Specify the UDP port of UDP server
+ *
+ * @retval  < 0 : Fail.
+ * @retval >= 0 : Success, the value is handle of this UDP connection.
+ * @see None.
+ */
+void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port);
+
+/**
+ * @brief Destroy the specific UDP connection.
+ *
+ * @param [in] p_socket: @n Specify the UDP connection by handle.
+ * @return None.
+ * @see None .
+ */
+void HAL_UDP_close(_IN_ void *p_socket);
+
+/**
+ * @brief Write data into the specific UDP connection.
+ *
+ * @param [in] p_socket @n A descriptor identifying a connection.
+ * @param [in] p_data @n A pointer to a buffer containing the data to be transmitted.
+ * @param [in] datalen @n The length, in bytes, of the data pointed to by the 'p_data' parameter.
+
+ * @retval          < 0 : UDP connection error occur.
+ * @retval [0,datalen ] : The number of bytes sent.
+ * @see None.
+ */
 int HAL_UDP_write(
-            void *p_socket,
-            const unsigned char *p_data,
-            unsigned int datalen);
-int HAL_UDP_read(
-            void *p_socket,
-            unsigned char *p_data,
-            unsigned int datalen);
-int HAL_UDP_readTimeout(
-            void *p_socket,
-            unsigned char *p_data,
-            unsigned int datalen,
-            unsigned int timeout);
+            _IN_ void *p_socket,
+            _IN_ const unsigned char *p_data,
+            _IN_ unsigned int datalen);
 
+/**
+ * @brief Read data from the specific UDP connection by blocked
+ *
+ * @param [in] p_socket @n A descriptor identifying a UDP connection.
+ * @param [in] p_data @n A pointer to a buffer to receive incoming data.
+ * @param [out] datalen @n The length, in bytes, of the data pointed to by the 'p_data' parameter.
+ * @return
+ *
+ * @retval < 0 : UDP connect error occur.
+ * @retval = 0 : End of file.
+ * @retval > 0 : The number of byte read.
+ * @see None.
+ */
+int HAL_UDP_read(
+            _IN_ void *p_socket,
+            _OU_ unsigned char *p_data,
+            _OU_ unsigned int datalen);
+
+/**
+ * @brief Read data from the specific UDP connection with timeout parameter.
+ *        The API will return immediately if 'datalen' be received from the specific UDP connection.
+ *
+ * @param [in] p_socket @n A descriptor identifying a UDP connection.
+ * @param [out] p_data @n A pointer to a buffer to receive incoming data.
+ * @param [out] datalen @n The length, in bytes, of the data pointed to by the 'p_data' parameter.
+ * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block timeout_ms millisecond maximumly.
+ *
+ * @retval          -4 : UDP connect error occur.
+ * @retval          -3 : The  call  was interrupted by a signal before any data was read.
+ * @retval          -2 : No any data be received in 'timeout_ms' timeout period.
+ * @retval          -1 : Invalid parameter.
+ * @retval           0 : End of file.
+ * @retval (0,datalen] : The number of byte read.
+ * @see None.
+ */
+int HAL_UDP_readTimeout(
+            _IN_ void *p_socket,
+            _OU_ unsigned char *p_data,
+            _OU_ unsigned int datalen,
+            _IN_ unsigned int timeout_ms);
+
+/** @} */ /* end of platform_network */
+/** @} */ /* end of platform */
 
 #endif  /* SIM7000C_DAM */
 

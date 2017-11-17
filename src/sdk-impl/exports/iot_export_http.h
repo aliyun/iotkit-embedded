@@ -68,13 +68,23 @@ typedef enum {
     IOTX_HTTP_REQUEST_TOO_MANY_ERROR = 40000,
 } iotx_http_upstream_response_t;
 
+/** @defgroup group_api api
+ *  @{
+ */
+
+/** @defgroup group_api_http http
+ *  @{
+ */
+
 /**
  * @brief   Initialize the HTTP client
  *        This function initialize the data.
  *
- * @param pInitParams  Specify the init param infomation.
+ * @param [in] pInitParams: Specify the init param infomation.
  *
- * @return NULL, initialize failed; NOT NULL, the contex of HTTP client.
+ * @retval NULL     : Initialize failed.
+ * @retval NOT_NULL : The contex of HTTP client.
+ * @see None.
  */
 void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
 
@@ -82,19 +92,20 @@ void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
  * @brief   De-initialize the HTTP client
  *        This function release the related resource.
  *
- * @param handle  pointer to http context pointer.
- *
- * @return void
+ * @param [in] handle: pointer to http context pointer.
+ * @return None.
+ * @see None.
  */
 void    IOT_HTTP_DeInit(void **handle);
 
 /**
  * @brief   Handle device name authentication with remote server.
  *
- * @param handle  Pointer of context, specify the HTTP client.
+ * @param [in] handle: Pointer of context, specify the HTTP client.
  *
- * @return 0   Authenticate success.
- *        -1   Authenticate failed.
+ * @retval  0 : Authenticate success.
+ * @retval -1 : Authenticate failed.
+ * @see iotx_err_t.
  */
 int     IOT_HTTP_DeviceNameAuth(void *handle);
 
@@ -102,21 +113,22 @@ int     IOT_HTTP_DeviceNameAuth(void *handle);
  * @brief   Send a message with specific path to server.
  *        Client must authentication with server before send message.
  *
- * @param handle       Pointer of contex, specify the HTTP client.
- * @param msg_param    Specify the topic path and http payload configuration.
+ * @param [in] handle: Pointer of contex, specify the HTTP client.
+ * @param [in] msg_param: Specify the topic path and http payload configuration.
  *
- * @return  0 success
- *         -1 failed
+ * @retval  0 : Success.
+ * @retval -1 : Failed.
+ * @see iotx_err_t.
  */
 int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param);
 
 /**
- * @brief   close tcp connection from client to server
+ * @brief   close tcp connection from client to server.
  *
- * @param handle     Pointer of contex, specify the HTTP client.
- *
+ * @param [in] handle: Pointer of contex, specify the HTTP client.
+ * @return None.
+ * @see None.
  */
-
 void     IOT_HTTP_Disconnect(void *handle);
 
 /*
@@ -124,5 +136,8 @@ TEST MACROS
     Daily Test Environment:         -DTEST_HTTP_DAILY
     Pre-Online Test Environment:    -DTEST_HTTP_PRE
 */
+
+/** @} */ /* end of api_http */
+/** @} */ /* end of api */
 
 #endif

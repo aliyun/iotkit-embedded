@@ -9,7 +9,7 @@ include src/scripts/parse_make_settings.mk
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 
 include src/scripts/mock_build_options.mk
-include layout.mk
+include project.mk
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \

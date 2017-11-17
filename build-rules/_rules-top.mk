@@ -1,4 +1,4 @@
-.PHONY: detect config reconfig toolchain sub-mods final-out env
+.PHONY: doc detect config reconfig toolchain sub-mods final-out env
 
 all: detect config toolchain sub-mods final-out
 	$(TOP_Q) \
@@ -12,6 +12,14 @@ RESET_ENV_VARS := \
     CFLAGS \
     HOST \
     LDFLAGS \
+
+doc:
+	$(TOP_Q)rm -rf html
+	$(TOP_Q) \
+	sed \
+	    's:^PROJECT_NAME.*:PROJECT_NAME = $(PRJ_NAME):g; s:^PROJECT_NUMBER.*:PROJECT_NUMBER = $(PRJ_VERSION):g' \
+	build-rules/misc/Doxyfile.tpl > $(OUTPUT_DIR)/.doxygen.cfg
+	$(TOP_Q)doxygen $(OUTPUT_DIR)/.doxygen.cfg
 
 detect:
 	@if [ -d .git ]; then \
