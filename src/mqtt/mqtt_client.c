@@ -172,7 +172,7 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
     rc = iotx_mc_send_packet(pClient, pClient->buf_send, len, &timer);
     if (SUCCESS_RETURN != rc) {
         HAL_MutexUnlock(pClient->lock_write_buf);
-        /*ping outstanding, then close socket unsubscribe topic and handle callback function*/
+        /* ping outstanding, then close socket unsubscribe topic and handle callback function */
         log_err("ping outstanding is error,result = %d", rc);
         return MQTT_NETWORK_ERROR;
     }
@@ -201,7 +201,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
         return MQTT_CONNECT_PACKET_ERROR;
     }
 
-    /* send the connect packet*/
+    /* send the connect packet */
     iotx_time_init(&connectTimer);
     utils_time_countdown_ms(&connectTimer, pClient->request_timeout_ms);
     if ((iotx_mc_send_packet(pClient, pClient->buf_send, len, &connectTimer)) != SUCCESS_RETURN) {
@@ -758,7 +758,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     len += MQTTPacket_encode((unsigned char *)c->buf_read + 1,
                              rem_len); /* put the original remaining length back into the buffer */
 
-    /*Check if the received data length exceeds mqtt read buffer length*/
+    /* Check if the received data length exceeds mqtt read buffer length */
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
         log_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         int needReadLen = c->buf_size_read - len;
@@ -767,7 +767,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
             return FAIL_RETURN;
         }
 
-        /* drop data whitch over the length of mqtt buffer*/
+        /* drop data whitch over the length of mqtt buffer */
         int remainDataLen = rem_len - needReadLen;
         char *remainDataBuf = LITE_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
@@ -953,7 +953,7 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 
     (void)iotx_mc_mask_pubInfo_from(c, mypacketid);
 
-    /* call callback function to notify that PUBLISH is successful. */
+    /* call callback function to notify that PUBLISH is successful */
     if (NULL != c->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_PUBLISH_SUCCESS;
@@ -1005,10 +1005,10 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     HAL_MutexLock(c->lock_generic);
 
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
-        /*If subscribe the same topic and callback function, then ignore*/
+        /* If subscribe the same topic and callback function, then ignore */
         if ((NULL != c->sub_handle[i].topic_filter)) {
             if (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler)) {
-                /* if subscribe a identical topic and relate callback function, then ignore this subscribe. */
+                /* if subscribe a identical topic and relate callback function, then ignore this subscribe */
                 flag_dup = 1;
                 log_err("There is a identical topic and related handle in list!");
                 break;
@@ -1034,7 +1034,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 
     HAL_MutexUnlock(c->lock_generic);
 
-    /* call callback function to notify that SUBSCRIBE is successful. */
+    /* call callback function to notify that SUBSCRIBE is successful */
     if (NULL != c->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS;
@@ -1145,7 +1145,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
             memset(&c->sub_handle[i], 0, sizeof(iotx_mc_topic_handle_t));
 
             /* NOTE: in case of more than one register(subscribe) with different callback function,
-             *       so we must keep continuously searching related message handle. */
+             *       so we must keep continuously searching related message handle */
         }
     }
 
@@ -1298,8 +1298,8 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 }
 
 
-/* check MQTT client is in normal state. */
-/* 0, in abnormal state; 1, in normal state. */
+/* check MQTT client is in normal state */
+/* 0, in abnormal state; 1, in normal state */
 static int iotx_mc_check_state_normal(iotx_mc_client_t *c)
 {
     if (!c) {
@@ -1314,7 +1314,7 @@ static int iotx_mc_check_state_normal(iotx_mc_client_t *c)
 }
 
 
-/* return: 0, identical; NOT 0, different. */
+/* return: 0, identical; NOT 0, different */
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2)
 {
@@ -1336,7 +1336,7 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
         return 1;
     }
 
-    /* context must be identical also. */
+    /* context must be identical also */
     if (messageHandlers1->handle.pcontext != messageHandler2->handle.pcontext) {
         return 1;
     }
@@ -1802,7 +1802,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                     /* subscribe timeout */
                     msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT;
                     msg.msg = (void *)(uintptr_t)packet_id;
-                } else { /*if (UNSUBSCRIBE == msg_type)*/
+                } else { /* if (UNSUBSCRIBE == msg_type) */
                     /* unsubscribe timeout */
                     msg.event_type = IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT;
                     msg.msg = (void *)(uintptr_t)packet_id;
@@ -1831,14 +1831,15 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
     if (!pClient) {
         return;
     }
-    /*Periodic sending ping packet to detect whether the network is connected*/
+
+    /* Periodic sending ping packet to detect whether the network is connected */
     iotx_mc_keepalive_sub(pClient);
 
     iotx_mc_state_t currentState = iotx_mc_get_client_state(pClient);
     do {
-        /*if Exceeds the maximum delay time, then return reconnect timeout*/
+        /* if Exceeds the maximum delay time, then return reconnect timeout */
         if (IOTX_MC_STATE_DISCONNECTED_RECONNECTING == currentState) {
-            /*Reconnection is successful, Resume regularly ping packets*/
+            /* Reconnection is successful, Resume regularly ping packets */
             HAL_MutexLock(pClient->lock_generic);
             pClient->ping_mark = 0;
             HAL_MutexUnlock(pClient->lock_generic);
@@ -1854,7 +1855,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             break;
         }
 
-        /*If network suddenly interrupted, stop pinging packet, try to reconnect network immediately*/
+        /* If network suddenly interrupted, stop pinging packet, try to reconnect network immediately */
         if (IOTX_MC_STATE_DISCONNECTED == currentState) {
             log_err("network is disconnected!");
             iotx_mc_disconnect_callback(pClient);
@@ -1982,7 +1983,7 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    /*Establish TCP or TLS connection*/
+    /* Establish TCP or TLS connection */
     rc = pClient->ipstack->connect(pClient->ipstack);
     if (SUCCESS_RETURN != rc) {
         pClient->ipstack->disconnect(pClient->ipstack);
@@ -2166,7 +2167,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
 static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient)
 {
 
-    /*handle callback function*/
+    /* handle callback function */
     if (NULL != pClient->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_RECONNECT;
@@ -2187,12 +2188,12 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    /*if in disabled state, without having to send ping packets*/
+    /* if in disabled state, without having to send ping packets */
     if (!iotx_mc_check_state_normal(pClient)) {
         return SUCCESS_RETURN;
     }
 
-    /*if there is no ping_timer timeout, then return success*/
+    /* if there is no ping_timer timeout, then return success */
     if (!utils_time_is_expired(&pClient->next_ping_time)) {
         return SUCCESS_RETURN;
     }
@@ -2392,6 +2393,10 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     utils_time_countdown_ms(&time, timeout_ms);
 
     do {
+
+        /* Keep MQTT alive or reconnect if connection abort */
+        iotx_mc_keepalive(pClient);
+
         /* acquire package in cycle, such as PINGRESP or PUBLISH */
         rc = iotx_mc_cycle(pClient, &time);
         if (SUCCESS_RETURN == rc) {
@@ -2402,15 +2407,12 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
             MQTTSubInfoProc(pClient);
         }
 
-        /* Keep MQTT alive or reconnect if connection abort. */
-        iotx_mc_keepalive(pClient);
-
     } while (!utils_time_is_expired(&time) && (SUCCESS_RETURN == rc));
 
     return 0;
 }
 
-/* check whether MQTT connection is established or not. */
+/* check whether MQTT connection is established or not */
 int IOT_MQTT_CheckStateNormal(void *handle)
 {
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
