@@ -45,6 +45,7 @@
 
 static int iotx_post_data_to_server(void *handle)
 {
+    int          ret = -1;
     char         path[IOTX_URI_MAX_LEN + 1] = {0};
     char         rsp_buf[1024];
     iotx_http_t *iotx_http_context = (iotx_http_t *)handle;
@@ -61,13 +62,13 @@ static int iotx_post_data_to_server(void *handle)
     HAL_Snprintf(msg_param.topic_path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update",
                  p_devinfo->product_key, p_devinfo->device_name);
 
-    if (0 == IOT_HTTP_SendMessage(iotx_http_context, &msg_param)) {
+    if (0 == (ret = IOT_HTTP_SendMessage(iotx_http_context, &msg_param))) {
         HAL_Printf("message response is %s\r\n", msg_param.response_payload);
     } else {
         HAL_Printf("error\r\n");
     }
 
-    return 0;
+    return ret;
 }
 
 int main(int argc, char **argv)
