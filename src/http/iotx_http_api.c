@@ -244,7 +244,7 @@ static int iotx_http_report_mid(iotx_http_t *handle)
 
 }
 
-static void * verify_iotx_http_context(void *handle)
+static void *verify_iotx_http_context(void *handle)
 {
     iotx_http_t *iotx_http_context = (iotx_http_t *)handle;
 
@@ -556,6 +556,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
         case IOTX_HTTP_UPDATE_SESSION_ERROR:
         case IOTX_HTTP_REQUEST_TOO_MANY_ERROR:
         default:
+            ret = FAIL_RETURN;
             goto do_exit;
     }
 
@@ -666,6 +667,10 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     len = strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(iotx_http_context->p_auth_token) + strlen(
                       IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR);
     httpc->header = LITE_malloc(len + 1);
+    if (NULL == httpc->header) {
+        log_err("Allocate memory for httpc->header failed");
+        goto do_exit;
+    }
     LITE_snprintf(httpc->header, len + 1,
                   IOTX_HTTP_UPSTREAM_HEADER_STR, iotx_http_context->p_auth_token);
     log_info("httpc->header = %s", httpc->header);
@@ -684,7 +689,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
                   IOTX_HTTP_ONLINE_SERVER_PORT,
                   IOTX_HTTP_CA_GET,
                   &httpc_data)) {
-        goto do_exit;
+        goto do_exit_pre;
     }
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, msg_param->timeout_ms);
@@ -693,7 +698,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     if (ret < 0) {
         log_err("httpclient_recv_response error, ret = %d", ret);
         httpclient_close(httpc);
-        return ret;
+        goto do_exit_pre;
     }
 
     if (0 == iotx_http_context->keep_alive) {
@@ -715,7 +720,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 
     pvalue = LITE_json_value_of("code", httpc_data.response_buf);
     if (!pvalue) {
-        goto do_exit;
+        goto do_exit_pre;
     }
 
     response_code = atoi(pvalue);
@@ -725,7 +730,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 
     pvalue = LITE_json_value_of("message", httpc_data.response_buf);
     if (NULL == pvalue) {
-        goto do_exit;
+        goto do_exit_pre;
     }
     response_message = LITE_strdup(pvalue);
     log_info("response_message: %s", response_message);
@@ -747,14 +752,14 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
         case IOTX_HTTP_PUBLISH_MESSAGE_ERROR:
         case IOTX_HTTP_REQUEST_TOO_MANY_ERROR:
         default:
-            goto do_exit;
+            goto do_exit_pre;
     }
 
     /* info.messageId */
     pvalue = LITE_json_value_of("info.messageId", httpc_data.response_buf);
     if (NULL == pvalue) {
         log_err("messageId: NULL");
-        goto do_exit;
+        goto do_exit_pre;
     }
     messageId = pvalue;
     log_info("messageId: %s", messageId);
@@ -778,7 +783,8 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 
     ret = 0;
 
-do_exit:
+do_exit_pre:
+
     if (pvalue) {
         LITE_free(pvalue);
     }
@@ -787,9 +793,12 @@ do_exit:
         LITE_free(response_message);
     }
 
+
     if (httpc != NULL && httpc->header) {
         LITE_free(httpc->header);
     }
+
+do_exit:
 
     return ret;
 }
