@@ -10,6 +10,7 @@ CONFIG_DIR      ?= $(TOP_DIR)/configs
 SCRIPT_DIR      ?= $(TOP_DIR)/scripts
 PACKAGE_DIR     ?= $(TOP_DIR)/packages
 IMPORT_DIR      ?= $(TOP_DIR)/import
+DEFAULT_BLD     ?= $(RULE_DIR)/misc/config.generic.default
 
 # Settings of project information
 PRJ_NAME        ?= LITE-build.prj
