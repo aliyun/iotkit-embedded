@@ -785,7 +785,16 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         LITE_free(remainDataBuf);
         remainDataBuf = NULL;
 
-        return FAIL_RETURN;
+        if (NULL != c->handle_event.h_fp) {
+            iotx_mqtt_event_msg_t msg;
+
+            msg.event_type = IOTX_MQTT_EVENT_BUFFER_OVERFLOW;
+            msg.msg = "mqtt read buffer is too short";
+
+            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+        }
+
+        return SUCCESS_RETURN;
 
     }
 
@@ -987,14 +996,14 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 
     /* In negative case, grantedQoS will be 0xFFFF FF80, which means -128 */
     if ((uint8_t)grantedQoS == 0x80) {
-        iotx_mqtt_event_msg_t msg;
-
         log_err("MQTT SUBSCRIBE failed, ack code is 0x80");
+        if (NULL != c->handle_event.h_fp) {
+            iotx_mqtt_event_msg_t msg;
 
-        msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_NACK;
-        msg.msg = (void *)(uintptr_t)mypacketid;
-        c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
-
+            msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_NACK;
+            msg.msg = (void *)(uintptr_t)mypacketid;
+            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+        }
         return MQTT_SUBSCRIBE_ACK_FAILURE;
     }
 
