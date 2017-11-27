@@ -112,7 +112,7 @@ ifneq ($(CONFIG_TOOLCHAIN_NAME),)
 endif
 
 reconfig: distclean
-	$(TOP_Q)+$(RECURSIVE_MAKE) config
+	$(TOP_Q)+$(RECURSIVE_MAKE) config DEFAULT_BLD=not-exist-actually
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 
 clean:
