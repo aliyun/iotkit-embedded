@@ -68,6 +68,8 @@ typedef enum {
     /* MQTT packet published from MQTT remote broker be received */
     IOTX_MQTT_EVENT_PUBLISH_RECVEIVED = 12,
 
+    /* MQTT packet buffer overflow which the remaining space less than to receive byte */
+    IOTX_MQTT_EVENT_BUFFER_OVERFLOW = 13,
 } iotx_mqtt_event_type_t;
 
 /* topic information */

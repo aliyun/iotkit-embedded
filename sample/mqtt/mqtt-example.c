@@ -123,6 +123,10 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
                           topic_info->payload);
             break;
 
+        case IOTX_MQTT_EVENT_BUFFER_OVERFLOW:
+            EXAMPLE_TRACE("buffer overflow, %s", msg->msg);
+            break;
+
         default:
             EXAMPLE_TRACE("Should NOT arrive here.");
             break;
