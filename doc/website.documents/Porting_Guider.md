@@ -2,7 +2,7 @@
 
 ## 详细技术文档请访问[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
 
-## IoT套件后续会逐渐增加已适配的平台, 如果您使用的平台未被适配, 请访问[官方Github主页](https://github.com/aliyun/iotkit-embedded/issues), 给我们提出Issue
+#### IoT套件后续会逐渐增加已适配的平台, 如果您使用的平台未被适配, 请访问[官方Github](https://github.com/aliyun/iotkit-embedded/issues), 给我们提出Issue
 
 ## V2.0+设备端C-SDK概述
 
