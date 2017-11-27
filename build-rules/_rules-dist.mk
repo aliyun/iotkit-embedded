@@ -23,7 +23,10 @@ endif
 	    fi; \
 	fi
 
-	$(TOP_Q)$(STRIP) $(FINAL_DIR)/bin/* || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1)
+	$(TOP_Q) \
+	if [ "$$(ls $(FINAL_DIR)/bin/)" != "" ]; then \
+	    $(STRIP) $(FINAL_DIR)/bin/* || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
+	fi
 	$(TOP_Q)$(STRIP) --strip-debug $(FINAL_DIR)/lib/* || (echo "$(STRIP) $(FINAL_DIR)/lib/* failed!" && exit 1)
 
 	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))
