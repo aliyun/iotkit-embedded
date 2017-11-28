@@ -147,7 +147,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
 #define MQTT_DEVICE_NAME_LEN        (32)
 #define MQTT_DEVICE_SECRET_LEN      (64)
 
-    static int isInit = 0;
+    static char isInit = 0;
     static char msg_buf[MSG_LEN_MAX];
     static char msg_readbuf[MSG_LEN_MAX] ;
 
@@ -243,7 +243,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                     QCLI_Printf(qcli_iotkit_handle, "had constructed\n");
                     break;
                 }
-                if ((pconn_info == NULL) || (pconn_info->client_id == 0)){
+                if ((NULL == pconn_info) || (0 == pconn_info->client_id)){
                     QCLI_Printf(qcli_iotkit_handle, "please auth first\n");
                     break;
                 }
