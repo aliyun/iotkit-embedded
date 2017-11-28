@@ -109,8 +109,8 @@ static const QCLI_Command_t iot_cmd_list[] =
             "       p <topic> <message>  #publish\n"
             "       s <topic> #subscribe\n"
             "       u <topic> #unsubscribe\n"
-            "       y #yield\n"
-            "       d ", "test mqtt function",NULL},
+            "       y <timeout> or y#yield\n"
+            "       d #destroy", "test mqtt function",NULL},
 
     {http, false, "http", "#i <key><secret><name><id> or i#init\n"
         "       a #auth\n"
@@ -147,10 +147,11 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
 #define MQTT_DEVICE_NAME_LEN        (32)
 #define MQTT_DEVICE_SECRET_LEN      (64)
 
+    static char isInit = 0;
     static char msg_buf[MSG_LEN_MAX];
     static char msg_readbuf[MSG_LEN_MAX] ;
 
-    static iotx_conn_info_pt pconn_info;
+    static iotx_conn_info_pt pconn_info = NULL;
     static iotx_mqtt_param_t mqtt_params;
     static void *pclient=NULL;
     char command = '0';
@@ -162,6 +163,17 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
     if(Parameter_Count < 1){
         return QCLI_STATUS_USAGE_E;
     }
+
+    if(isInit == 0){
+        memset(msg_buf, 0, sizeof(msg_buf));
+        memset(msg_readbuf, 0, sizeof(msg_readbuf));
+        memset(&mqtt_params, 0, sizeof(mqtt_params));
+        memset(product_key, 0, sizeof(product_key));
+        memset(device_name, 0, sizeof(device_name));
+        memset(device_secret, 0, sizeof(device_secret));
+        isInit = 1;
+    }
+
     command = (char)Parameter_List[0].String_Value[0];
 
     switch ( command ) {
@@ -231,7 +243,7 @@ static QCLI_Command_Status_t mqtt(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
                     QCLI_Printf(qcli_iotkit_handle, "had constructed\n");
                     break;
                 }
-                if (pconn_info->client_id == 0){
+                if ((NULL == pconn_info) || (0 == pconn_info->client_id)){
                     QCLI_Printf(qcli_iotkit_handle, "please auth first\n");
                     break;
                 }
@@ -363,6 +375,7 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
 {
     static void *http_handle = NULL;
 
+    static char isInit = 0;
     static iotx_device_info_t device_info;
     static iotx_http_param_t http_param;
 
@@ -370,6 +383,12 @@ static QCLI_Command_Status_t http(uint32_t Parameter_Count, QCLI_Parameter_t *Pa
 
     if(Parameter_Count < 1){
         return QCLI_STATUS_USAGE_E;
+    }
+
+    if(0 == isInit){
+        memset(&device_info, 0, sizeof(device_info));
+        memset(&http_param, 0 ,sizeof(http_param));
+        isInit = 1;
     }
 
     command = (char)Parameter_List[0].String_Value[0];
