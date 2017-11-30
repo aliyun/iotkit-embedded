@@ -19,7 +19,6 @@
 
 | 开发板            | 网络支持          | 厂商SDK链接       | 开发板购买链接    | 阿里云SDK版本     |
 |-------------------|-------------------|-------------------|-------------------|-------------------|
-| SIM7000C | GPRS/EDGE, NBIoT, LTE CAT-M1(eMTC) | [SIM7000C_DAM_Demo](https://github.com/SIMComHub/sim7000c_DAM_demo) | [芯讯通无线科技](https://market.aliyun.com/store/2962046-0.html) | V2.02 |
 | ESP32 | Wi-Fi | [esp32-aliyun](https://github.com/espressif/esp32-aliyun) | [乐鑫信息科技](https://espressif.taobao.com/) | V2.01 |
 | ESP8266 | Wi-Fi | [esp8266-aliyun](https://github.com/espressif/esp8266-aliyun) | [乐鑫信息科技](https://espressif.taobao.com/) | V2.01 |
 
@@ -33,7 +32,6 @@
 - 下载链接: [RELEASED_V2_02_20171130.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V2_02_20171130.zip)
 - 更新内容:
     - **正式的多平台支持:** 使用`make reconfig`可弹出和选择`Ubuntu16.04`以外的已适配平台
-    - **新增SIM7000C版本:** 支持用armcc工具链编译`SIM7000C`开发板版本的库和例程, 用于NBIoT通信
     - **新增Windows版本:** 支持用mingw32工具链编译`Win7`版本的库和例程
     - **新增OpenSSL适配:** 新增了配合`openssl-0.9.x`+`Windows`版本的HAL参考实现
     - **优化HTTP接口:** HTTP通道方面接口优化, 支持发送报文而不断开TLS连接
