@@ -481,6 +481,7 @@ int iotx_guider_authenticate(void)
     iotx_device_info_pt dev = iotx_device_info_get();
     iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
+    int                 gw = 0;
 
     LITE_ASSERT(dev);
     LITE_ASSERT(conn);
@@ -549,13 +550,17 @@ int iotx_guider_authenticate(void)
 
 #endif  /* MQTT_DIRECT */
 
+#ifdef GATEWAY_SUPPORT
+    gw = 1;
+#endif
+
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
 #if USING_SHA1_IN_HMAC
-                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=0"
+                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d"
 #else
-                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=0"
+                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=%d"
 #endif
                       "%s"
                       "%s"
@@ -563,6 +568,7 @@ int iotx_guider_authenticate(void)
                       , dev->device_id
                       , secure_mode
                       , timestamp_str
+                      , gw
                       , partner_id
                       , module_id
                      );

@@ -11,6 +11,7 @@
     FEATURE_MQTT_DIRECT_NOTLS   = n     # 是否打开MQTT直连无TLS的分开关
     FEATURE_COAP_COMM_ENABLED   = y     # 是否打开CoAP通道的总开关
     FEATURE_HTTP_COMM_ENABLED   = y     # 是否打开HTTP通道的总开关
+    FEATURE_SUBDEVICE_ENABLED   = n     # 是否打开主子设备功能的总开关
 
 具体含义参见下表:
 
@@ -21,6 +22,7 @@
 | FEATURE_MQTT_DIRECT_NOTLS   | 使用MQTT直连模式做设备认证时, 是否要关闭MQTT over TLS           |
 | FEATURE_COAP_COMM_ENABLED   | 是否使能CoAP通道功能的总开关                                    |
 | FEATURE_HTTP_COMM_ENABLED   | 是否使能Https通道功能的总开关                                   |
+| FEATURE_SUBDEVICE_ENABLED   | 是否使能主子设备通道功能的总开关                                    |
 
 
 ## 编译 & 运行
