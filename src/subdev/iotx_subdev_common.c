@@ -1,0 +1,582 @@
+#include "iot_import.h"
+#include "lite-log.h"
+#include "lite-utils.h"
+#include "utils_timer.h"
+#include "utils_list.h"
+#include "device.h"
+#include "utils_hmac.h"
+#include "iot_export_mqtt.h"
+
+#include "iotx_subdev_common.h"
+
+extern void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
+
+char *iotx_gateway_splice_login_packet(const char *product_key,
+        const char* device_name,
+        const char* clientId, 
+        const char* timestamp, 
+        const char* sign_method,
+        const char* sign,
+        const char* cleanSession,
+        uint32_t* msg_id)
+{
+#define LOGIN_PACKET_FMT     "{\"id\":%d,\"params\":{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"clientId\":\"%s\",\"timestamp\":\"%s\",\"signMethod\":\"%s\",\"sign\":\"%s\",\"cleanSession\":\"%s\"}}"
+
+    int len, ret;
+    char* msg = NULL;
+    uint32_t id = 0;
+    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, NULL);
+    PARAMETER_NULL_CHECK_WITH_RESULT(clientId, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(timestamp, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(sign_method, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(sign, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(cleanSession, NULL);
+
+    /* sum the string length */
+    len = strlen(LOGIN_PACKET_FMT) + strlen(product_key) + strlen(device_name) + strlen(clientId) 
+            + strlen(timestamp) + strlen(sign_method) + strlen(sign) +strlen(cleanSession) + 12;
+    MALLOC_MEMORY_WITH_RESULT(msg, len, NULL);
+    id = IOT_Gateway_Generate_Message_ID();
+    ret = HAL_Snprintf(msg,
+                   len,
+                   LOGIN_PACKET_FMT,
+                   id,
+                   product_key,
+                   device_name,
+                   clientId,
+                   timestamp,
+                   sign_method,
+                   sign,
+                   cleanSession);
+    if (ret < 0) {
+        log_err("splice packet error!");
+        LITE_free(msg);
+        return NULL;
+    }
+
+    *msg_id = id;
+
+    return msg;
+}
+
+char *iotx_gateway_splice_logout_packet(const char* product_key,
+        const char* device_name,
+        uint32_t* msg_id)
+{
+#define LOGOUT_PACKET_FMT     "{\"id\":%d,\"params\":{\"productKey\":\"%s\",\"deviceName\":\"%s\"}}"
+
+    int len, ret;
+    char* msg = NULL;
+    uint32_t id = 0;
+    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, NULL);
+    PARAMETER_NULL_CHECK_WITH_RESULT(msg_id, NULL);
+
+    len = strlen(LOGOUT_PACKET_FMT) + strlen(product_key) + strlen(device_name) + 12;
+
+    MALLOC_MEMORY_WITH_RESULT(msg, len, NULL);
+    id = IOT_Gateway_Generate_Message_ID();
+    ret = HAL_Snprintf(msg,
+                   len,
+                   LOGOUT_PACKET_FMT,
+                   id,
+                   product_key,
+                   device_name);
+    if (ret < 0) {
+        log_err("splice packet error!");
+        LITE_free(msg);
+        return NULL;
+    }
+
+    *msg_id = id;
+
+    return msg;
+}
+
+
+static void iotx_gateway_splice_device_cloud_id(char* device_cloud_id, 
+        const char* product_key, 
+        const char* device_name)
+{
+    PARAMETER_STRING_NULL_CHECK(product_key);
+    PARAMETER_STRING_NULL_CHECK(device_name);
+    PARAMETER_NULL_CHECK(device_cloud_id);
+    
+    HAL_Snprintf(device_cloud_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
+}
+
+
+int iotx_gateway_calc_sign(const char* product_key, 
+        const char* device_name,
+        const char* device_secret,
+        char* hmac_sigbuf,
+        const int hmac_buflen,
+        iotx_login_sign_method_types_t sign_method,
+        const char *client_id, 
+        const char *timestamp_str)
+{
+    char signature[64];                    
+    char hmac_source[256];
+    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_secret, FAIL_RETURN);
+    PARAMETER_NULL_CHECK_WITH_RESULT(hmac_sigbuf, FAIL_RETURN);
+    PARAMETER_NULL_CHECK_WITH_RESULT(client_id, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(timestamp_str, FAIL_RETURN);
+
+    memset(signature, 0, sizeof(signature));
+    memset(hmac_source, 0, sizeof(hmac_source));
+    HAL_Snprintf(hmac_source,
+                      sizeof(hmac_source),
+                      "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+                      client_id,
+                      device_name,
+                      product_key,
+                      timestamp_str);
+    log_info("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
+    log_info("| secret: %s (%d)", device_secret, (int)strlen(device_secret));
+
+    if (sign_method == IOTX_LOGIN_SIGN_METHOD_TYPE_SHA) {
+        log_info("| method: %s", "hmacsha1");
+        utils_hmac_sha1(hmac_source, strlen(hmac_source),
+                    signature,
+                    device_secret,
+                    strlen(device_secret));
+    } else if (sign_method == IOTX_LOGIN_SIGN_METHOD_TYPE_MD5) {
+        log_info("| method: %s", "hmacmd5");
+        utils_hmac_md5(hmac_source, strlen(hmac_source),
+                   signature,
+                   device_secret,
+                   strlen(device_secret));
+    }
+
+    log_info("| signature: %s (%d)", signature, (int)strlen(signature));
+
+    memcpy(hmac_sigbuf, signature, hmac_buflen);
+    return 0;
+}
+
+static int iotx_gateway_get_secure_mode(void)
+{
+#ifdef MQTT_DIRECT
+#ifdef IOTX_WITHOUT_TLS
+    return 3;                        /* MODE_TCP_DIRECT_PLAIN */
+#else
+    return 2;                        /* MODE_TLS_DIRECT */
+#endif  /* IOTX_WITHOUT_TLS */
+#else   /* MQTT_DIRECT */
+#ifdef IOTX_WITHOUT_TLS
+    return 0;                        /* MODE_TCP_GUIDER_PLAIN */
+#else
+    return -1;                       /* MODE_TLS_GUIDER */
+#endif  /* IOTX_WITHOUT_TLS */
+
+#endif  /* MQTT_DIRECT */
+
+    return  -1;                      /* MODE_TLS_GUIDER */
+}
+
+
+void iotx_subdevice_calc_client_id(char* client_id, 
+        const char* product_key,
+        const char* device_name)
+{        
+    PARAMETER_NULL_CHECK(client_id);
+    PARAMETER_STRING_NULL_CHECK(product_key);
+    PARAMETER_STRING_NULL_CHECK(device_name);
+    
+    HAL_Snprintf(client_id, 
+            IOT_SUBDEVICE_CLIENT_ID_LEN,
+            "%s&&&%s",
+            product_key,
+            device_name);
+    log_info("client_id %s", client_id);
+}
+        
+void iotx_gateway_calc_client_id(char* client_id, 
+        const char* device_cloud_id, 
+        const char* timestamp_str, 
+        const char* sign_method)
+{
+    int secure_mode = iotx_gateway_get_secure_mode();
+    char partner_id[64 + 16] = {0}; 
+    char temp[64] = {0};
+    
+    PARAMETER_NULL_CHECK(client_id);
+    PARAMETER_STRING_NULL_CHECK(device_cloud_id);
+    PARAMETER_STRING_NULL_CHECK(timestamp_str);
+    PARAMETER_STRING_NULL_CHECK(sign_method);
+
+    /* partner_id */
+    memset(temp, 0, sizeof(temp));
+    HAL_GetPartnerID(temp);
+    if (strlen(temp)) {
+        HAL_Snprintf(partner_id, strlen(partner_id), ",partner_id=%s", temp);
+    } else {
+        strcpy(partner_id, "");
+    }
+    
+     /* clientId */  
+     HAL_Snprintf(client_id, 
+            CLIENT_ID_LEN,
+            "%s|securemode=%d,timestamp=%s,signmethod=%s,gw=0%s|",
+            device_cloud_id,
+            secure_mode,
+            timestamp_str,
+            sign_method,
+            partner_id);
+    log_info("client_id %s", client_id);
+}
+
+int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
+        const char* product_key,
+        const char* device_name,
+        const char* topic_fmt,
+        const char* params,
+        int is_subscribe)
+{
+    int ret = 0;
+    char topic[SUB_TOPIC_LEN_MAX] = {0}; 
+
+    PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
+    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(topic_fmt, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(params, FAIL_RETURN);
+
+    /* topic */
+    ret = HAL_Snprintf(topic, 
+                SUB_TOPIC_LEN_MAX, 
+                topic_fmt, 
+                product_key,
+                device_name, 
+                params);
+    if (ret < 0) {
+        return FAIL_RETURN;
+    }
+    
+    if (is_subscribe) {
+        /* subscribe */
+        ret = IOT_MQTT_Subscribe(gateway->mqtt,
+                 topic,
+                 IOTX_MQTT_QOS0,
+                 (iotx_mqtt_event_handle_func_fpt)iotx_gateway_event_handle,
+                 gateway);
+    } else {
+        /* unsubscribe */
+        ret = IOT_MQTT_Unsubscribe(gateway->mqtt, topic);
+    }
+   
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexLock(gateway->gateway_data.lock_sync_enter);
+    HAL_MutexLock(gateway->gateway_data.lock_sync);
+#endif
+    gateway->gateway_data.sync_status = ret;
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexUnlock(gateway->gateway_data.lock_sync);
+#endif
+
+    while (ret == gateway->gateway_data.sync_status) {            
+        IOT_Gateway_Yield(gateway, 200);
+    }    
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexUnlock(gateway->gateway_data.lock_sync_enter);
+#endif
+
+    if (0 == gateway->gateway_data.sync_status) {
+        log_info("subscribe or unsubscribe [%s] successfully", topic);
+    } else {
+        log_info("subscribe or unsubscribe [%s] error!", topic);
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
+        int is_subscribe)
+{
+    iotx_device_info_pt pdevice_info = iotx_device_info_get();
+    
+    PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);    
+    
+    /* login_reply */
+    if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
+                            pdevice_info->product_key,
+                            pdevice_info->device_name,
+                            TOPIC_SESSION_COMBINE_FMT, 
+                            "login_reply", 
+                            is_subscribe)){
+        return FAIL_RETURN;
+    }
+                            
+    /* logout_reply */
+    if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
+                            pdevice_info->product_key,
+                            pdevice_info->device_name,
+                            TOPIC_SESSION_COMBINE_FMT, 
+                            "logout_reply", 
+                            is_subscribe)){
+        return FAIL_RETURN;
+    }
+
+    /* RRPC request*/
+    if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway, 
+                            pdevice_info->product_key,
+                            pdevice_info->device_name,
+                            TOPIC_SYS_RRPC_FMT, 
+                            "request", 
+                            is_subscribe)){
+        return FAIL_RETURN;
+    }    
+    
+    return SUCCESS_RETURN;
+}
+
+iotx_subdevice_session_pt iotx_subdevice_find_session(iotx_gateway_pt gateway, 
+        const char* product_key, 
+        const char* device_name)
+{            
+    iotx_subdevice_session_pt session = NULL;
+    
+    PARAMETER_GATEWAY_CHECK(gateway, NULL);
+    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, NULL);
+    
+    session = gateway->session_list;
+    
+    /* session is exist */
+    while(session) {
+        if (0 == strncmp(session->product_key, product_key, strlen(product_key)) && 
+           0 == strncmp(session->device_name, device_name, strlen(device_name))) {
+            return session;
+        }
+        session = session->next;
+    } 
+
+    return NULL;
+}
+
+
+iotx_subdevice_session_pt iotx_subdevice_add_session(iotx_gateway_pt gateway, 
+        const char* product_key, 
+        const char* device_name, 
+        const char* device_cloud_secret,
+        const char* sign, 
+        const char* timestamp, 
+        const char* client_id,
+        iotx_login_sign_method_types_t sign_method_type,
+        iotx_login_clean_session_types_t clean_session_type)
+{
+    iotx_subdevice_session_pt session = NULL;
+    
+    PARAMETER_GATEWAY_CHECK(gateway, NULL);
+    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, NULL);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, NULL);
+
+    /* create a new subdev session  */
+    MALLOC_MEMORY_WITH_RESULT(session, sizeof(iotx_subdevice_session_t), NULL);
+
+    /* add session to list */
+    session->next = gateway->session_list;
+    gateway->session_list = session;   
+    
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexLock(session->lock_generic);
+#endif
+    strncpy(session->product_key, product_key, strlen(product_key));
+    strncpy(session->device_name, device_name, strlen(device_name));
+    if (device_cloud_secret)
+        strncpy(session->device_cloud_secret, device_cloud_secret, strlen(device_cloud_secret));
+    if (timestamp)
+        strncpy(session->timestamp, timestamp, strlen(timestamp));
+    if (sign)
+        strncpy(session->sign, sign, strlen(sign));
+    if (client_id)
+        strncpy(session->client_id, client_id, strlen(client_id));
+    session->sign_method = sign_method_type;
+    session->clean_session = clean_session_type;
+    session->dynamic_register = 0;
+    iotx_gateway_splice_device_cloud_id(session->device_cloud_id, product_key, device_name);    
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexUnlock(session->lock_generic);
+    HAL_MutexLock(session->lock_status);
+#endif
+    session->session_status = IOTX_SUBDEVICE_SEESION_STATUS_INIT;
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexUnlock(session->lock_status);
+#endif
+
+    return session;
+}
+
+int iotx_subdevice_remove_session(iotx_gateway_pt gateway, 
+        const char* product_key,
+        const char* device_name)
+{
+    iotx_subdevice_session_pt cur_session = NULL;
+    iotx_subdevice_session_pt pre_session = NULL;
+    
+    PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
+    
+    pre_session = cur_session = gateway->session_list;
+
+    if (NULL == cur_session) {
+        log_err("session list is empty");
+        return SUCCESS_RETURN;
+    }    
+
+    /* session is exist */
+    while(cur_session) {
+        if (0 == strncmp(cur_session->product_key, product_key, strlen(product_key)) &&
+            0 == strncmp(cur_session->device_name, device_name, strlen(device_name)) ) {
+            if (cur_session == gateway->session_list) {
+                gateway->session_list = cur_session->next;
+            } else {
+                pre_session->next = cur_session->next;
+            }
+        #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD  
+            HAL_MutexDestroy(cur_session->lock_generic);
+            HAL_MutexDestroy(cur_session->lock_status);
+        #endif
+            LITE_free(cur_session);
+            return SUCCESS_RETURN;
+        }
+        pre_session = cur_session;
+        cur_session = cur_session->next;
+    }
+    
+    return FAIL_RETURN;
+}
+
+
+int iotx_gateway_publish_sync(iotx_gateway_t* gateway, 
+        iotx_mqtt_qos_t qos, 
+        const char* topic,
+        const char* packet,
+        uint32_t message_id,
+        iotx_common_reply_data_pt reply_data,
+        iotx_gateway_publish_t publish_type)
+{
+    void* lock, *enter_lock;
+    int yiled_count = 0;
+    iotx_mqtt_topic_info_t topic_msg;
+    
+    PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
+    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(topic, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(packet, FAIL_RETURN);
+
+    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+    topic_msg.qos = qos;
+    topic_msg.retain = 0;
+    topic_msg.dup = 0;
+    topic_msg.payload = (void *)packet;
+    topic_msg.payload_len = strlen(packet);
+    topic_msg.packet_id = 0;
+
+    if (IOT_MQTT_Publish(gateway->mqtt, topic, &topic_msg) < 0) {
+        return FAIL_RETURN;
+    }
+
+    log_info("iotx_gateway_publish_sync topic [%s]\n packet [%s]", topic, packet);
+
+    switch(publish_type) {
+        case IOTX_GATEWAY_PUBLISH_LOGIN:
+            lock = gateway->gateway_data.lock_login;
+            enter_lock = gateway->gateway_data.lock_login_enter;
+            break;
+        case IOTX_GATEWAY_PUBLISH_LOGOUT:
+            lock = gateway->gateway_data.lock_logout;
+            enter_lock = gateway->gateway_data.lock_logout_enter;
+            break;
+        default:
+            log_info("param error");
+            return FAIL_RETURN;
+    }
+    
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexLock(enter_lock);
+#endif
+
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexLock(lock);
+#endif
+
+    /* sync id */
+    reply_data->id = message_id;
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexUnlock(lock);
+#endif
+
+    /* wait for response */
+    while (message_id == reply_data->id) {
+        if (yiled_count > IOT_GATEWAY_YIELD_MAX_COUNT) {
+            log_info("yiled max count, time out");
+            return FAIL_RETURN;
+        }
+        
+        IOT_Gateway_Yield(gateway, 200);
+        yiled_count++;
+    }
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    HAL_MutexUnlock(enter_lock);
+#endif
+
+    if (0 == reply_data->id) {
+        if (200 == reply_data->code) { 
+            log_info("%s successfully", topic); 
+        } else {
+            log_info("%s error!code:%d", topic, reply_data->code);
+        }
+    } else {
+        log_info("%s time out!", topic);
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+        
+
+int iotx_subdevice_set_session_status(iotx_subdevice_session_pt session, iotx_subdevice_session_status_t status)
+{
+    PARAMETER_NULL_CHECK_WITH_RESULT(session, FAIL_RETURN);
+
+    session->session_status = status;
+
+    return SUCCESS_RETURN;
+}
+
+iotx_subdevice_session_status_t iotx_subdevice_get_session_status(iotx_subdevice_session_pt session)
+{
+    PARAMETER_NULL_CHECK_WITH_RESULT(session, IOTX_SUBDEVICE_SEESION_STATUS_MAX);
+
+    return session->session_status;
+}
+
+int iotx_subdevice_set_session_dynamic_register(iotx_subdevice_session_pt session)
+{
+    PARAMETER_NULL_CHECK_WITH_RESULT(session, FAIL_RETURN);
+
+    session->dynamic_register = 1;
+
+    return SUCCESS_RETURN;
+}
+
+int iotx_subdevice_get_session_dynamic_register(iotx_subdevice_session_pt session)
+{
+    PARAMETER_NULL_CHECK_WITH_RESULT(session, FAIL_RETURN);
+
+    return session->dynamic_register;
+}
+
+
