@@ -30,7 +30,7 @@ extern "C" {
 #include "iot_import.h"
 
 /* maximum number of successful subscribe */
-#define IOTX_MC_SUB_NUM_MAX                     (10)
+#define IOTX_MC_SUB_NUM_MAX                     (30)
 
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
@@ -45,7 +45,7 @@ extern "C" {
 #define IOTX_MC_PACKET_ID_MAX                   (65535)
 
 /* maximum number of simultaneously invoke subscribe request */
-#define IOTX_MC_SUB_REQUEST_NUM_MAX             (10)
+#define IOTX_MC_SUB_REQUEST_NUM_MAX             (30)
 
 /* Minimum interval of MQTT reconnect in millisecond */
 #define IOTX_MC_RECONNECT_INTERVAL_MIN_MS       (1000)
