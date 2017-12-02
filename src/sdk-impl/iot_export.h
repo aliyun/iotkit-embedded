@@ -169,6 +169,7 @@ int     IOT_SetupConnInfoSecure(const char *product_key,
 #include "exports/iot_export_coap.h"
 #include "exports/iot_export_ota.h"
 #include "exports/iot_export_http.h"
+#include "exports/iot_export_subdev.h"
 
 #if defined(__cplusplus)
 }

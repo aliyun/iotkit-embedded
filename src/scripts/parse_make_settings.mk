@@ -44,20 +44,15 @@ endif # COAP
 endif # MQTT
 endif # OTA Enabled
 
-ifeq (gateway,$(strip $(FEATURE_SUBDEVICE_ENABLED)))
+ifeq (y,$(strip $(FEATURE_SUBDEVICE_ENABLED)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-$(error FEATURE_SUBDEVICE_ENABLED = gateway requires FEATURE_MQTT_COMM_ENABLED = y!)
+$(error FEATURE_SUBDEVICE_ENABLED = y requires FEATURE_MQTT_COMM_ENABLED = y!)
 endif
 CFLAGS += -DSUBDEVICE_SUPPORT
+ifeq (gateway,$(strip $(FEATURE_SUBDEVICE_STATUS)))
 CFLAGS += -DGATEWAY_SUPPORT
-else
-ifeq (subdevice,$(strip $(FEATURE_SUBDEVICE_ENABLED)))
-ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-$(error FEATURE_SUBDEVICE_ENABLED = subdevice requires FEATURE_MQTT_COMM_ENABLED = y!)
-endif
-CFLAGS += -DSUBDEVICE_SUPPORT
-endif # subdevice
-endif # gateway
+endif # FEATURE_SUBDEVICE_STATUS
+endif # FEATURE_SUBDEVICE_ENABLED
 
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
