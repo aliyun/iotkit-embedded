@@ -4,6 +4,7 @@
 #include "lite-utils.h"
 #include "device.h"
 #include "iotx_subdev_common.h"
+#include "iot_export_subdev.h"
 
 iotx_gateway_pt g_gateway_subdevice_t = NULL;
 
@@ -97,7 +98,7 @@ static int iotx_subdevice_recv_rrpc_callback(iotx_gateway_pt gateway,
         char* recv_topic,
         char* recv_payload)
 {    
-    char topic[SUB_TOPIC_LEN_MAX] = {0}; 
+    char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     iotx_subdevice_session_pt session = NULL;
     
     if (gateway == NULL || recv_topic == NULL || recv_payload == NULL) {
@@ -108,8 +109,8 @@ static int iotx_subdevice_recv_rrpc_callback(iotx_gateway_pt gateway,
     session = gateway->session_list;
 
     while (session) {        
-        memset(topic, 0x0, SUB_TOPIC_LEN_MAX);
-        HAL_Snprintf(topic, SUB_TOPIC_LEN_MAX, TOPIC_SYS_RRPC_FMT, session->product_key, 
+        memset(topic, 0x0, GATEWAY_TOPIC_LEN_MAX);
+        HAL_Snprintf(topic, GATEWAY_TOPIC_LEN_MAX, TOPIC_SYS_RRPC_FMT, session->product_key, 
                 session->device_name, "request");
         if ((strlen(recv_topic) >= strlen(topic) - 2) && 
           (0 == strncmp(recv_topic, topic, strlen(topic) - 2))) {
@@ -141,7 +142,7 @@ static int iotx_gateway_recv_publish_callbacks(iotx_gateway_pt gateway,
         char* recv_topic,
         char* recv_payload)
 {
-    char topic[SUB_TOPIC_LEN_MAX] = {0}; 
+    char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     iotx_device_info_pt pdevice_info = NULL;
     
     if (gateway == NULL || recv_topic == NULL || recv_payload == NULL) {
@@ -153,7 +154,7 @@ static int iotx_gateway_recv_publish_callbacks(iotx_gateway_pt gateway,
 
     /* login_reply */
     HAL_Snprintf(topic,
-            SUB_TOPIC_LEN_MAX, 
+            GATEWAY_TOPIC_LEN_MAX, 
             TOPIC_SESSION_COMBINE_FMT, 
             pdevice_info->product_key, 
             pdevice_info->device_name, 
@@ -166,7 +167,7 @@ static int iotx_gateway_recv_publish_callbacks(iotx_gateway_pt gateway,
 
     /* logout_reply */
     HAL_Snprintf(topic,
-            SUB_TOPIC_LEN_MAX, 
+            GATEWAY_TOPIC_LEN_MAX, 
             TOPIC_SESSION_COMBINE_FMT, 
             pdevice_info->product_key, 
             pdevice_info->device_name, 
@@ -178,9 +179,9 @@ static int iotx_gateway_recv_publish_callbacks(iotx_gateway_pt gateway,
     }
 
     /* rrpc request */
-    memset(topic, 0x0, SUB_TOPIC_LEN_MAX);
+    memset(topic, 0x0, GATEWAY_TOPIC_LEN_MAX);
     HAL_Snprintf(topic, 
-            SUB_TOPIC_LEN_MAX, 
+            GATEWAY_TOPIC_LEN_MAX, 
             TOPIC_SYS_RRPC_FMT, 
             pdevice_info->product_key,
             pdevice_info->device_name, 
@@ -438,7 +439,7 @@ int IOT_Subdevice_Login(void* handle,
 {
     uint32_t msg_id = 0;
     char * login_packet = NULL;
-    char topic[SUB_TOPIC_LEN_MAX] = {0}; 
+    char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     char sign_method[10] = {0};
     char clean_session[10] = {0};
     iotx_subdevice_session_pt session = NULL;
@@ -487,7 +488,7 @@ int IOT_Subdevice_Login(void* handle,
 
     /* topic */
     HAL_Snprintf(topic, 
-            SUB_TOPIC_LEN_MAX, 
+            GATEWAY_TOPIC_LEN_MAX, 
             TOPIC_SESSION_COMBINE_FMT, 
             pdevice_info->product_key, 
             pdevice_info->device_name, 
@@ -566,7 +567,7 @@ int IOT_Subdevice_Logout(void* handle,
         const char * device_name)
 {
     uint32_t msg_id = 0;
-    char topic[SUB_TOPIC_LEN_MAX] = {0}; 
+    char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     iotx_subdevice_session_pt session = NULL;
     char* logout_packet = NULL;
     iotx_device_info_pt pdevice_info = iotx_device_info_get();
@@ -594,7 +595,7 @@ int IOT_Subdevice_Logout(void* handle,
 
     /* topic */
     HAL_Snprintf(topic, 
-            SUB_TOPIC_LEN_MAX, 
+            GATEWAY_TOPIC_LEN_MAX, 
             TOPIC_SESSION_COMBINE_FMT, 
             pdevice_info->product_key, 
             pdevice_info->device_name, 
@@ -805,7 +806,7 @@ int IOT_Gateway_RRPC_Response(void* handle,
 #define TOPIC_RRPC_RESPONSE_FMT                   "/sys/%s/%s/rrpc/response/%s"
 
     int rc = 0;
-    char topic[SUB_TOPIC_LEN_MAX] = {0}; 
+    char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     iotx_mqtt_topic_info_t topic_msg;
     iotx_gateway_pt gateway = (iotx_gateway_pt)handle;
     iotx_device_info_pt pdevice_info = iotx_device_info_get();
@@ -838,7 +839,7 @@ int IOT_Gateway_RRPC_Response(void* handle,
     
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     HAL_Snprintf(topic, 
-            SUB_TOPIC_LEN_MAX, 
+            GATEWAY_TOPIC_LEN_MAX, 
             TOPIC_RRPC_RESPONSE_FMT, 
             product_key,
             device_name, 

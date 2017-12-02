@@ -24,7 +24,7 @@
 #define IOT_GATEWAY_SUPPORT_MULTI_THREAD
 
 /* Topic maximum length value */
-#define SUB_TOPIC_LEN_MAX                256
+#define GATEWAY_TOPIC_LEN_MAX                256
 
 /* Reply message maximum length value */
 #define REPLY_MESSAGE_LEN_MAX            128
