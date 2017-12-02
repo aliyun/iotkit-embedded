@@ -2401,6 +2401,11 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     utils_time_countdown_ms(&time, timeout_ms);
 
     do {
+        if (SUCCESS_RETURN != rc) {
+            unsigned int left_t = iotx_time_left(&time);
+            log_info("error occur, sleep myself with the left time %u ms", left_t);
+            HAL_SleepMs(left_t);
+        }
 
         /* Keep MQTT alive or reconnect if connection abort */
         iotx_mc_keepalive(pClient);
@@ -2415,7 +2420,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
             MQTTSubInfoProc(pClient);
         }
 
-    } while (!utils_time_is_expired(&time) && (SUCCESS_RETURN == rc));
+    } while (!utils_time_is_expired(&time));
 
     return 0;
 }
