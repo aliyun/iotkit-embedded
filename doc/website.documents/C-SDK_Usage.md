@@ -88,6 +88,18 @@
     44  IOT_Shadow_Push
     45  IOT_Shadow_Push_Async
     46  IOT_Shadow_Pull
+    47  IOT_Gateway_Generate_Message_ID
+    48  IOT_Gateway_Construct
+    49  IOT_Gateway_Destroy
+    50  IOT_Subdevice_Login
+    51  IOT_Subdevice_Logout
+    52  IOT_Gateway_Yield
+    53  IOT_Gateway_Subscribe
+    54  IOT_Gateway_Unsubscribe
+    55  IOT_Gateway_Publish
+    56  IOT_Gateway_RRPC_Register
+    57  IOT_Gateway_RRPC_Response
+
 
 ### **必选API**
 
@@ -162,3 +174,18 @@
 |  9    | IOT_Shadow_RegisterAttribute    | 创建一个数据类型注册到服务端, 注册时需要`*PushFormat*()`接口创建的数据类型格式  |
 | 10    | IOT_Shadow_DeleteAttribute      | 删除一个已被成功注册的数据属性                                                  |
 | 11    | IOT_Shadow_Yield                | MQTT的主循环函数, 调用后接受服务端的下推消息, 更新本地的数据属性                |
+
+### **主子设备相关(模组实现时的可选功能)**
+
+| 序号  | 函数名                          | 说明                                                                            |
+|-------|---------------------------------|---------------------------------------------------------------------------------|
+|  1    | IOT_Gateway_Construct           | 建立一个主设备，建立MQTT连接, 并返回被创建的会话句柄                            |
+|  2    | IOT_Gateway_Destroy             | 摧毁一个主设备的MQTT连接, 销毁所有相关的数据结构, 释放内存, 断开连接            |
+|  3    | IOT_Subdevice_Login             | 子设备上线，通知云端建立子设备session                                           |
+|  4    | IOT_Subdevice_Logout            | 子设备下线，销毁云端建立子设备session及所有相关的数据结构, 释放内存             |
+|  5    | IOT_Gateway_Yield               | MQTT的主循环函数, 调用后接受服务端的下推消息                                    |
+|  6    | IOT_Gateway_Subscribe           | 通过MQTT连接向服务端发送订阅请求                                                |
+|  7    | IOT_Gateway_Unsubscribe         | 通过MQTT连接向服务端发送取消订阅请求                                            |
+|  8    | IOT_Gateway_Publish             | 通过MQTT连接服务端发送消息发布报文                                              |
+|  9    | IOT_Gateway_RRPC_Register       | 注册设备的RRPC回调函数，接收云端发起的RRPC请求                                  |
+| 10    | IOT_Gateway_RRPC_Response       | 对云端的RRPC请求进行应答                                                        |
