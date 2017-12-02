@@ -547,6 +547,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
+    memset(pTlsData, 0x0, sizeof(TLSDataParams_t));
 
     sprintf(port_str, "%u", port);
 
