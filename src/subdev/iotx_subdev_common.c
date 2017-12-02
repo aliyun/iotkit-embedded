@@ -240,7 +240,7 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
         int is_subscribe)
 {
     int ret = 0;
-    char topic[SUB_TOPIC_LEN_MAX] = {0}; 
+    char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
 
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
     
@@ -251,7 +251,7 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
 
     /* topic */
     ret = HAL_Snprintf(topic, 
-                SUB_TOPIC_LEN_MAX, 
+                GATEWAY_TOPIC_LEN_MAX, 
                 topic_fmt, 
                 product_key,
                 device_name, 

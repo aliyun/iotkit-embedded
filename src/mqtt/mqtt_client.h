@@ -39,7 +39,7 @@ extern "C" {
 #define IOTX_MC_MQTT_VERSION                    (4)
 
 /* maximum length of topic name in byte */
-#define IOTX_MC_TOPIC_NAME_MAX_LEN              (64)
+#define IOTX_MC_TOPIC_NAME_MAX_LEN              (128)
 
 /* maximum MQTT packet-id */
 #define IOTX_MC_PACKET_ID_MAX                   (65535)
