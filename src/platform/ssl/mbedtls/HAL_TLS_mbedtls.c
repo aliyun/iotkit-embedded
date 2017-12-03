@@ -60,6 +60,7 @@ typedef struct _TLSDataParams {
 
 #define DEBUG_LEVEL 10
 
+
 static unsigned int _avRandom()
 {
     return (((unsigned int)rand() << 16) + rand());
@@ -303,6 +304,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
     return (ret);
 }
 #endif
+
 
 /**
  * @brief This function connects to the specific SSL server with TLS, and returns a value that indicates whether the connection is create successfully or not. Call #NewNetwork() to initialize network structure before calling this function.
