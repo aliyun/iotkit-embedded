@@ -2403,8 +2403,11 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     do {
         if (SUCCESS_RETURN != rc) {
             unsigned int left_t = iotx_time_left(&time);
-            log_info("error occur, sleep myself with the left time %u ms", left_t);
-            HAL_SleepMs(left_t);
+            log_info("error occur ");
+            if (left_t < 20)
+                HAL_SleepMs(left_t);
+            else
+                HAL_SleepMs(20);
         }
 
         /* Keep MQTT alive or reconnect if connection abort */
