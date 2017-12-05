@@ -100,7 +100,8 @@
     │   ├── mqtt_rrpc-example
     │   ├── ota_mqtt-example
     │   ├── sdk-testsuites
-    │   └── shadow-example
+    │   ├── shadow-testsuites
+    │   └── subdev-example
     ...
     ...
 

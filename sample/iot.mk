@@ -55,3 +55,9 @@ ifneq (,$(filter -DHTTP_COMM_ENABLED,$(CFLAGS)))
 TARGET              += http-example
 SRCS_http-example   := http/http-example.c
 endif
+
+ifneq (,$(filter -DSUBDEVICE_ENABLED,$(CFLAGS)))
+TARGET              += subdev-example
+SRCS_subdev-example   := subdev/subdev-example.c
+endif
+
