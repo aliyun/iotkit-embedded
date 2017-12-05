@@ -92,6 +92,7 @@ typedef struct {
     int     is_chunked;             /**< Response data is encoded in portions/chunks.*/
     int     retrieve_len;           /**< Content length to be retrieved. */
     int     response_content_len;   /**< Response content length. */
+    int     response_received_len;  /**< Response have received length. */
     int     post_buf_len;           /**< Post data length. */
     int     response_buf_len;       /**< Response buffer length. */
     char   *post_content_type;      /**< Content type of the post data. */
