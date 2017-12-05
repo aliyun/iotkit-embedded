@@ -225,7 +225,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~ start subscribe ~~~~~~~~~~~~~~ \n");  
     printf(" ~~~~~~~~~~~ gateway subscribe ~~~~~~~~~~~~~ \n"); 
     HAL_Snprintf(topo_topic,
-               256,
+               128,
                "/sys/%s/%s/thing/topo/add_reply",
                PRODUCT_KEY,
                DEVICE_NAME);
@@ -264,9 +264,9 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     topic_msg.payload_len = strlen(msg_pub);
 
     /* todo add subdev1 */
-    memset(topic, 0x0, 256);
+    memset(topic, 0x0, 128);
     HAL_Snprintf(topic,
-               256,
+               128,
                "/sys/%s/%s/thing/topo/add",
                PRODUCT_KEY,
                DEVICE_NAME);
@@ -301,7 +301,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
 
     printf(" ~~~~~~~~~~~~~~~ start subdev ~~~~~~~~~~~~~~~~~~ \n");   
     HAL_Snprintf(deviceinfo_topic,
-               256,
+               128,
                "/sys/%s/%s/thing/deviceinfo/delete_reply",
                SUB_1_PRODUCT_KEY,
                SUB_1_DEVICE_NAME); 
@@ -323,9 +323,9 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~~~~ start publish ~~~~~~~~~~~~~~~~~~ \n");      
 
     /* Initialize topic information */  
-    memset(topic, 0x0, 256);
+    memset(topic, 0x0, 128);
     HAL_Snprintf(topic,
-               256,
+               128,
                "/sys/%s/%s/thing/deviceinfo/delete",
                SUB_1_PRODUCT_KEY,
                SUB_1_DEVICE_NAME); 
@@ -352,17 +352,17 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
         cnt++;
     }
     
-    memset(topic, 0x0, 256);
+    memset(topic, 0x0, 128);
     HAL_Snprintf(topic,
-               256,
+               128,
                "/sys/%s/%s/thing/topo/add_reply",
                PRODUCT_KEY,
                DEVICE_NAME);
     IOT_Gateway_Unsubscribe(gateway_t, topic);    
     
-    memset(topic, 0x0, 256);
+    memset(topic, 0x0, 128);
     HAL_Snprintf(topic,
-               256,
+               128,
                "/sys/%s/%s/thing/deviceinfo/delete_reply",
                PRODUCT_KEY,
                DEVICE_NAME);
