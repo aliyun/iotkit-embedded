@@ -10,9 +10,10 @@ CFLAGS              := $(filter-out -DCOAP_COMM_ENABLED,$(CFLAGS))
 endif
 
 ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
-TARGET              += mqtt-example mqtt_rrpc-example
+TARGET              += mqtt-example mqtt_rrpc-example mqtt_multi_thread-example
 SRCS_mqtt-example   := mqtt/mqtt-example.c
 SRCS_mqtt_rrpc-example := mqtt/mqtt_rrpc-example.c
+SRCS_mqtt_multi_thread-example := mqtt/mqtt_multi_thread-example.c
 
     ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
     ifneq (,$(filter -DOTA_SIGNAL_CHANNEL=1,$(CFLAGS)))
@@ -60,4 +61,3 @@ ifneq (,$(filter -DSUBDEVICE_ENABLED,$(CFLAGS)))
 TARGET              += subdev-example
 SRCS_subdev-example   := subdev/subdev-example.c
 endif
-
