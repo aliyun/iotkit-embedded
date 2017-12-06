@@ -271,30 +271,22 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
         /* unsubscribe */
         ret = IOT_MQTT_Unsubscribe(gateway->mqtt, topic);
     }
-    log_info("-2");
    
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
-    log_info("lock_sync_enter %x", gateway->gateway_data.lock_sync_enter);
     HAL_MutexLock(gateway->gateway_data.lock_sync_enter);
     HAL_MutexLock(gateway->gateway_data.lock_sync);
 #endif
-    log_info("-1");
     gateway->gateway_data.sync_status = ret;
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
-    log_info("0");
     HAL_MutexUnlock(gateway->gateway_data.lock_sync);
 #endif
 
     while (ret == gateway->gateway_data.sync_status) {            
         IOT_Gateway_Yield(gateway, 200);
     }    
-    log_info("1");
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
-    log_info("2");
-    log_info("lock_sync_enter %x", gateway->gateway_data.lock_sync_enter);
     HAL_MutexUnlock(gateway->gateway_data.lock_sync_enter);
 #endif
-    log_info("3");
 
     if (0 == gateway->gateway_data.sync_status) {
         log_info("subscribe or unsubscribe [%s] successfully", topic);
