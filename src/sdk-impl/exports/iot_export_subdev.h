@@ -21,7 +21,7 @@
 
 
 /* option defined for gateway support multi-thread */
-#define IOT_GATEWAY_SUPPORT_MULTI_THREAD
+/*#define IOT_GATEWAY_SUPPORT_MULTI_THREAD*/
 
 /* Topic maximum length value */
 #define GATEWAY_TOPIC_LEN_MAX                256

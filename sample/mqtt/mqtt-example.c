@@ -218,8 +218,6 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    HAL_SleepMs(1000);
-
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     strcpy(msg_pub, "message: hello! start!");

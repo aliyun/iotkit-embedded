@@ -4,7 +4,6 @@
 #include "lite-utils.h"
 #include "device.h"
 #include "iotx_subdev_common.h"
-#include "iot_export_subdev.h"
 
 iotx_gateway_pt g_gateway_subdevice_t = NULL;
 
@@ -14,7 +13,9 @@ static void iotx_subdevice_common_reply_proc(iotx_gateway_pt gateway,
         int is_login)
 {
     char* node = NULL;
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     void* lock = NULL;
+#endif
     iotx_common_reply_data_pt reply_data = NULL;    
 
     log_info("recv login reply");
@@ -23,12 +24,16 @@ static void iotx_subdevice_common_reply_proc(iotx_gateway_pt gateway,
         log_info("param error");
         return;
     }
-
+    
     if (is_login) {
+    #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
         lock = gateway->gateway_data.lock_login;
+    #endif
         reply_data = &gateway->gateway_data.login_reply;
     } else {
+    #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
         lock = gateway->gateway_data.lock_logout;
+    #endif
         reply_data = &gateway->gateway_data.logout_reply;
     }
 

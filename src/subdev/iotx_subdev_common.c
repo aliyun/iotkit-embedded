@@ -271,22 +271,30 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
         /* unsubscribe */
         ret = IOT_MQTT_Unsubscribe(gateway->mqtt, topic);
     }
+    log_info("-2");
    
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    log_info("lock_sync_enter %x", gateway->gateway_data.lock_sync_enter);
     HAL_MutexLock(gateway->gateway_data.lock_sync_enter);
     HAL_MutexLock(gateway->gateway_data.lock_sync);
 #endif
+    log_info("-1");
     gateway->gateway_data.sync_status = ret;
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    log_info("0");
     HAL_MutexUnlock(gateway->gateway_data.lock_sync);
 #endif
 
     while (ret == gateway->gateway_data.sync_status) {            
         IOT_Gateway_Yield(gateway, 200);
     }    
+    log_info("1");
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    log_info("2");
+    log_info("lock_sync_enter %x", gateway->gateway_data.lock_sync_enter);
     HAL_MutexUnlock(gateway->gateway_data.lock_sync_enter);
 #endif
+    log_info("3");
 
     if (0 == gateway->gateway_data.sync_status) {
         log_info("subscribe or unsubscribe [%s] successfully", topic);
@@ -314,7 +322,7 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
                             is_subscribe)){
         return FAIL_RETURN;
     }
-                            
+
     /* logout_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
                             pdevice_info->product_key,
@@ -467,7 +475,9 @@ int iotx_gateway_publish_sync(iotx_gateway_t* gateway,
         iotx_common_reply_data_pt reply_data,
         iotx_gateway_publish_t publish_type)
 {
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     void* lock, *enter_lock;
+#endif
     int yiled_count = 0;
     iotx_mqtt_topic_info_t topic_msg;
     
@@ -489,7 +499,8 @@ int iotx_gateway_publish_sync(iotx_gateway_t* gateway,
     }
 
     log_info("iotx_gateway_publish_sync topic [%s]\n packet [%s]", topic, packet);
-
+    
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     switch(publish_type) {
         case IOTX_GATEWAY_PUBLISH_LOGIN:
             lock = gateway->gateway_data.lock_login;
@@ -503,6 +514,7 @@ int iotx_gateway_publish_sync(iotx_gateway_t* gateway,
             log_info("param error");
             return FAIL_RETURN;
     }
+#endif
     
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     HAL_MutexLock(enter_lock);
