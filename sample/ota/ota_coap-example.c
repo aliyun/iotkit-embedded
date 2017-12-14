@@ -74,10 +74,9 @@ static int fetch_ota(void *h_ota, void *h_coap)
                 rc = -1;
                 break;
             }
-        } else if (len < 0) {
-            EXAMPLE_TRACE("fetch data failed");
-            rc = -1;
-            break;
+        }else {
+            IOT_OTA_ReportProgress(h_ota, IOT_OTAP_FETCH_FAILED, NULL);
+            EXAMPLE_TRACE("ota fetch fail");
         }
 
         /* get OTA information */

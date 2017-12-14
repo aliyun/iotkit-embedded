@@ -23,6 +23,9 @@ $(foreach v, \
 )
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
+ifneq (n,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
+$(error FEATURE_OTA_ENABLED = y requires FEATURE_MQTT_DIRECT_NOTLS = n!)
+endif
 ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
 $(error FEATURE_OTA_SIGNAL_CHANNEL = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
