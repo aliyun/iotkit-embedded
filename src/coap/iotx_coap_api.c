@@ -478,7 +478,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
         CoAPMessageId_set(&message, CoAPMessageId_gen(p_coap_ctx));
         len = iotx_get_coap_token(p_iotx_coap, token);
         CoAPMessageToken_set(&message, token, len);
-        CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
+        CoAPMessageUserData_set(&message, (void *)p_message->user_data);
         CoAPMessageHandler_set(&message, p_message->resp_callback);
 
         ret = iotx_split_path_2_option(p_path, &message);
