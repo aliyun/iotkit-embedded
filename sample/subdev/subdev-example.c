@@ -289,7 +289,8 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
         printf("1  rc = IOT_Subdevice_Login() = %d\n", rc);
         IOT_Gateway_Destroy((void**)&gateway_t);
         return rc;
-    }
+    }  
+    
     if (FAIL_RETURN == IOT_Gateway_RRPC_Register(gateway_t, 
             SUB_1_PRODUCT_KEY, 
             SUB_1_DEVICE_NAME, 

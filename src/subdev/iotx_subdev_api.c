@@ -489,6 +489,9 @@ int IOT_Subdevice_Login(void* handle,
             log_err("create session error!");
             return FAIL_RETURN;        
         }    
+    } else {
+        log_info("device have been login");
+        return FAIL_RETURN;
     }
 
     /* topic */
