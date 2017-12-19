@@ -110,13 +110,7 @@ endif
 	    && touch $(STAMP_POSTINS); \
 	fi
 
-clean:
-	$(Q) \
-	D="$$(find . -maxdepth 1 -mindepth 1 -type d)"; \
-	if [ "$$(echo $${D}|awk '{ print NF }')" = "1" ]; then \
-	    cd $${D}; \
-	    $(MAKE) clean || true; \
-	fi
+clean-prepare:
 	$(Q)rm -f $(STAMP_BUILD) $(STAMP_INSTALL) $(STAMP_POSTINS)
 else
 all:

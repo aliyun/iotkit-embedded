@@ -8,6 +8,9 @@ MODINFO_VARS := \
     PKG_SWITCH \
     ORIGIN \
     PKG_SOURCE \
+    PKG_BRANCH \
+    PKG_REVISION \
+    PKG_UPSTREAM \
     REF_CFLAGS \
     REF_LDFLAGS \
     LDFLAGS \
