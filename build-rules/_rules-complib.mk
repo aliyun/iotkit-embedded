@@ -42,7 +42,7 @@ endif # COMP_LIB
 
 comp-lib: LIB_NAME = $(subst lib,,$(subst .so,,$(subst .a,,$(COMP_LIB))))
 comp-lib: LIB_OBJS = $(foreach d,$(COMP_LIB_COMPONENTS),$(LIBOBJ_TMPDIR)/$(d)/*.o)
-comp-lib: toolchain $(COMP_LIB_COMPONENTS)
+comp-lib: toolchain
 	$(Q) \
 	if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
 	    $(call Info_CompLib,$(LIB_NAME),$(COMP_LIB_COMPONENTS)); \

@@ -1,4 +1,3 @@
-COVERAGE_CMD            := src/scripts/walk_through_examples.sh
 DEFAULT_BLD             := src/configs/config.ubuntu.x86
 POST_FINAL_OUT_HOOK     := Post_Distro
 SUBDIRS                 := directory-not-exist-actually

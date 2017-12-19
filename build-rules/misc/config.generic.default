@@ -1,1 +1,2 @@
 CONFIG_ENV_CFLAGS   += -Wall
+CONFIG_ENV_CFLAGS   += --coverage

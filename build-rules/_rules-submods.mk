@@ -17,6 +17,7 @@ sub-mods: toolchain
 
 SUB_BUILD_VARS := \
     CFLAGS LDFLAGS \
+    PACKAGE_DIR \
     IMPORT_DIR \
     TOP_DIR \
     RULE_DIR \
@@ -96,9 +97,15 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 
 pre-build: MOD = $(subst target-,,$(filter-out $@,$(MAKECMDGOALS)))
 pre-build: $(STAMP_BLD_ENV)
+ifeq (0,$(MAKELEVEL))
+	$(TOP_Q)rm -vf $(OUTPUT_DIR)/$(MOD)/$(STAMP_UNPACK)
+endif
 	$(if $(filter 0,$(MAKELEVEL)),,@) \
 	$(strip $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \
 	    PKG_SOURCE="$(PKG_SOURCE_$(MOD))" \
+	    PKG_BRANCH="$(PKG_BRANCH_$(MOD))" \
+	    PKG_REVISION="$(PKG_REVISION_$(MOD))" \
+	    PKG_UPSTREAM="$(PKG_UPSTREAM_$(MOD))" \
 	    PKG_SWITCH="$(PKG_SWITCH_$(MOD))" \
 	) \
 	$(if $(filter 0,$(MAKELEVEL)),VERBOSE_PRE_BLD=1) \

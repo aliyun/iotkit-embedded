@@ -1,4 +1,4 @@
-.PHONY: doc detect config reconfig toolchain sub-mods final-out env
+.PHONY: doc detect config reconfig toolchain sub-mods final-out env help
 
 all: detect config toolchain sub-mods final-out
 	$(TOP_Q) \
@@ -12,6 +12,12 @@ RESET_ENV_VARS := \
     CFLAGS \
     HOST \
     LDFLAGS \
+
+help:
+	@echo -e "\e[1;37m[$(RULE_DIR)/docs]\e[0m"
+	@echo ""
+	@cat $(RULE_DIR)/docs/Help.md
+	@echo ""
 
 doc:
 	$(TOP_Q)rm -rf html
@@ -62,7 +68,8 @@ config:
 	        echo ""; \
 	    fi \
 	else \
-	    if [ "$(DEFAULT_BLD)" != "" ] && [ -f $(DEFAULT_BLD) ]; then \
+	    if [ "$(DEFAULT_BLD)" != "" ] && [ -f $(DEFAULT_BLD) ] && \
+	       ([ "$(DEFAULT_BLD)" = "$(RULE_DIR)/misc/config.generic.default" ] || [ "$(MAKECMDGOALS)" = "" ]); then \
 	        printf "# Automatically Generated Section End\n\n" >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "VENDOR :" $$(basename $(DEFAULT_BLD)|cut -d. -f2) >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "MODEL  :" $$(basename $(DEFAULT_BLD)|cut -d. -f3) >> $(CONFIG_TPL); \
@@ -112,7 +119,12 @@ ifneq ($(CONFIG_TOOLCHAIN_NAME),)
 endif
 
 reconfig: distclean
-	$(TOP_Q)+$(RECURSIVE_MAKE) config DEFAULT_BLD=not-exist-actually
+	$(TOP_Q)+( \
+	if [ -d $(CONFIG_DIR) ]; then \
+	    $(RECURSIVE_MAKE) config DEFAULT_BLD=not-exist-actually; \
+	else \
+	    $(RECURSIVE_MAKE) config; \
+	fi)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 
 clean:

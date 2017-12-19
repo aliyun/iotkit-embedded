@@ -50,8 +50,8 @@ SHOW_ENV_VARS   := \
     LIBA_TARGET LIBSO_TARGET TARGET KMOD_TARGET \
     SRCS OBJS LIB_SRCS LIB_OBJS LIB_HDRS_DIR LIB_HEADERS \
     INTERNAL_INCLUDES TOP_DIR PRJ_NAME PRJ_VERSION \
-    IMPORT_DIR IMPORT_VDRDIR EXTERNAL_INCLUDES \
-    CONFIG_LIB_EXPORT OBJCOPY_FLAGS CONFIG_VENDOR \
+    IMPORT_DIR IMPORT_VDRDIR CONFIG_DIR PACKAGE_DIR EXTERNAL_INCLUDES \
+    CONFIG_LIB_EXPORT OBJCOPY_FLAGS CONFIG_VENDOR COVERAGE_PROGS COVERAGE_CMD \
 
 ifndef CONFIG_LIB_EXPORT
 ifeq (y,$(strip $(CONFIG_EMB_GATEWAY_SDK)))
@@ -86,6 +86,7 @@ endif
 ifdef SUBDIRS
 include $(RULE_DIR)/_rules-top.mk
 include $(RULE_DIR)/_rules-prefix.mk
+include $(RULE_DIR)/_rules-repo.mk
 
 CROSS_CANDIDATES := CC CXX AR LD STRIP OBJCOPY
 export CC       := $(if $(OVERRIDE_CC),     $(OVERRIDE_CC),     $(CROSS_PREFIX)gcc)
@@ -145,5 +146,10 @@ include $(RULE_DIR)/_rules-modinfo.mk
 
 endif   # ifdef SUBDIRS
 
-include $(RULE_DIR)/_rules-coverage.mk
 sinclude $(STAMP_POST_RULE)
+
+ifdef UTEST_PROG
+COVERAGE_LIST += \"./$(strip $(UTEST_PROG) --list)\"
+COVERAGE_LIST += \"./$(strip $(UTEST_PROG))\"
+include $(RULE_DIR)/_rules-coverage.mk
+endif
