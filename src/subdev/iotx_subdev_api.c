@@ -378,8 +378,8 @@ uint32_t IOT_Gateway_Generate_Message_ID()
 
 void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
 {
-    iotx_gateway_pt gateway = NULL;  
-    
+    iotx_gateway_pt gateway = NULL; 
+        
     PARAMETER_NULL_CHECK_WITH_RESULT(gateway_param, NULL);
     PARAMETER_NULL_CHECK_WITH_RESULT(gateway_param->mqtt, NULL);
 

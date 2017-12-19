@@ -140,7 +140,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     iotx_conn_info_pt puser_info;
     iotx_mqtt_param_t mqtt_t;
     iotx_gateway_param_t gateway_param;
-    void* gateway_t = NULL;  
+    void* gateway_t = NULL; 
     iotx_mqtt_topic_info_t topic_msg; 
     char msg_pub[1024] = {0}; 
     char sign[41] = {0};
