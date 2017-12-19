@@ -803,11 +803,13 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
         }
     }
 
-    ret = httpclient_send_request(client, url, method, client_data);
-    if (0 != ret) {
-        log_err("httpclient_send_request is error, ret = %d", ret);
-        httpclient_close(client);
-        return ret;
+    if (!client_data->is_more) {
+        ret = httpclient_send_request(client, url, method, client_data);
+        if (0 != ret) {
+            log_err("httpclient_send_request is error, ret = %d", ret);
+            httpclient_close(client);
+            return ret;
+        }
     }
 
     iotx_time_init(&timer);
