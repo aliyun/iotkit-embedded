@@ -97,9 +97,7 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 
 pre-build: MOD = $(subst target-,,$(filter-out $@,$(MAKECMDGOALS)))
 pre-build: $(STAMP_BLD_ENV)
-ifeq (0,$(MAKELEVEL))
-	$(TOP_Q)rm -vf $(OUTPUT_DIR)/$(MOD)/$(STAMP_UNPACK)
-endif
+	$(TOP_Q)rm -f $(OUTPUT_DIR)/$(MOD)/$(STAMP_UNPACK)
 	$(if $(filter 0,$(MAKELEVEL)),,@) \
 	$(strip $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \
 	    PKG_SOURCE="$(PKG_SOURCE_$(MOD))" \

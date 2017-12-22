@@ -24,6 +24,7 @@ static void _usage(const char *me)
 {
     cut_printf("Usage: %s [OPTION] S-FILTER [C-FILTER]\n\n" \
                "OPTION:\n" \
+               "  --debug:      debug into cases\n" \
                "  --list:       list cases\n" \
                "  --count:      print case count\n" \
                "\n" \
@@ -31,6 +32,7 @@ static void _usage(const char *me)
                "C-FILTER:    case name filter\n", me, me);
 }
 
+static int _debug_opt = 0;
 static int _parse_arg(int argc, char **argv)
 {
     if (argc >= 2) {
@@ -68,25 +70,43 @@ int cut_main(int argc, char **argv)
 {
     int         i = 0, j = 0, cnt = 0;
     char        tmpbuf[128];
+    char       *pos;
 
     if (0 == _parse_arg(argc, argv)) {
         return 0;
     }
 
+    if (argc >= 2 && !strcmp(argv[1], "--debug")) {
+        _debug_opt = 1;
+        argc --;
+        argv ++;
+    }
+
     _filter(argc, argv);
 
     for (; i < cut.ccnt_total; i++) {
+        pos = tmpbuf;
+
         cut.ccur = cut.clist[i];
         if (cut.ccur->skip) {
             continue;
         }
 
         memset(tmpbuf, 0, sizeof(tmpbuf));
-        cut_snprintf(tmpbuf, sizeof(tmpbuf), "TEST [%02d/%02d] %s.%s ",
-                   ++cnt, cut.ccnt_total - cut.ccnt_skip, cut.ccur->sname, cut.ccur->cname);
-        cut_printf("%s", tmpbuf);
+        pos += cut_snprintf(pos,
+                            sizeof(tmpbuf),
+                            "TEST [%02d/%02d] %s.%s ",
+                            ++cnt,
+                            cut.ccnt_total - cut.ccnt_skip,
+                            cut.ccur->sname,
+                            cut.ccur->cname);
         for (j = 80 - strlen(tmpbuf); j >= 0; --j) {
-            cut_printf(".");
+            pos += sprintf(pos, "%s", ".");
+        }
+        if (_debug_opt) {
+            pos += sprintf(pos, " [%sEXEC%s]\n", COL_YEL, COL_DEF);
+            cut_printf("%s", tmpbuf);
+            pos -= 19;
         }
         TRY {
             if (cut.ccur->setup)
@@ -98,12 +118,18 @@ int cut_main(int argc, char **argv)
             {
                 cut.ccur->teardown(cut.ccur->data);
             }
-            cut_printf(" [%sSUCC%s]\n", COL_GRE, COL_DEF);
+
+            pos += sprintf(pos, " [%sSUCC%s]\n", COL_GRE, COL_DEF);
+            cut_printf("%s", tmpbuf);
+
             cut.ccnt_pass++;
             continue;
         }
         EXCEPT {
-            cut_printf(" [%sFAIL%s]\n", COL_RED, COL_DEF);
+
+            pos += sprintf(pos, " [%sFAIL%s]\n", COL_RED, COL_DEF);
+            cut_printf("%s", tmpbuf);
+
             cut.ccnt_fail++;
             continue;
         }

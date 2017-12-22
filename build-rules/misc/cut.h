@@ -201,20 +201,31 @@ struct cut_runtime {
             RAISE_EXCEPTION_WITH_MSG("[" #expected1 " <= " #actual " <= " #expected2 "]"); \
     } while (0)
 
-#define ASSERT_FAIL()                       RAISE_EXCEPTION_WITH_MSG("[should not be here]")
-#define ASSERT_FALSE(cond)                  ASSERT_TRUE(!(cond))
-#define ASSERT_NULL(ptr)                    ASSERT_INT(ptr, ==, NULL)
-#define ASSERT_NOT_NULL(ptr)                ASSERT_INT(ptr, !=, NULL)
-#define ASSERT_EQ(actual, expected)         ASSERT_INT(actual, ==, expected)
-#define ASSERT_NE(actual, expected)         ASSERT_INT(actual, !=, expected)
-#define ASSERT_GT(actual, expected)         ASSERT_INT(actual,  >, expected)
-#define ASSERT_GE(actual, expected)         ASSERT_INT(actual, >=, expected)
-#define ASSERT_LT(actual, expected)         ASSERT_INT(actual,  <, expected)
-#define ASSERT_LE(actual, expected)         ASSERT_INT(actual, <=, expected)
-#define ASSERT_STR_EQ(actual, expected)     ASSERT_STR(actual, ==, expected)
-#define ASSERT_STR_NE(actual, expected)     ASSERT_STR(actual, !=, expected)
-#define ASSERT_STR_GT(actual, expected)     ASSERT_STR(actual,  >, expected)
-#define ASSERT_STR_LT(actual, expected)     ASSERT_STR(actual,  <, expected)
+#define ASSERT_NSTR(expected, compare, actual, len)                                     \
+    do {                                                                          \
+        if (!(strncmp((expected), (actual), (len)) compare 0))                            \
+            RAISE_EXCEPTION_WITH_MSG("[" #expected " " #compare " " #actual "]"); \
+    } while (0)
+
+
+#define ASSERT_FAIL()                               RAISE_EXCEPTION_WITH_MSG("[should not be here]")
+#define ASSERT_FALSE(cond)                          ASSERT_TRUE(!(cond))
+#define ASSERT_NULL(ptr)                            ASSERT_INT(ptr, ==, NULL)
+#define ASSERT_NOT_NULL(ptr)                        ASSERT_INT(ptr, !=, NULL)
+#define ASSERT_EQ(actual, expected)                 ASSERT_INT(actual, ==, expected)
+#define ASSERT_NE(actual, expected)                 ASSERT_INT(actual, !=, expected)
+#define ASSERT_GT(actual, expected)                 ASSERT_INT(actual,  >, expected)
+#define ASSERT_GE(actual, expected)                 ASSERT_INT(actual, >=, expected)
+#define ASSERT_LT(actual, expected)                 ASSERT_INT(actual,  <, expected)
+#define ASSERT_LE(actual, expected)                 ASSERT_INT(actual, <=, expected)
+#define ASSERT_STR_EQ(actual, expected)             ASSERT_STR(actual, ==, expected)
+#define ASSERT_STR_NE(actual, expected)             ASSERT_STR(actual, !=, expected)
+#define ASSERT_STR_GT(actual, expected)             ASSERT_STR(actual,  >, expected)
+#define ASSERT_STR_LT(actual, expected)             ASSERT_STR(actual,  <, expected)
+#define ASSERT_NSTR_EQ(actual, expected, len)       ASSERT_NSTR(actual, ==, expected, len)
+#define ASSERT_NSTR_NE(actual, expected, len)       ASSERT_NSTR(actual, !=, expected, len)
+#define ASSERT_NSTR_GT(actual, expected, len)       ASSERT_NSTR(actual,  >, expected, len)
+#define ASSERT_NSTR_LT(actual, expected, len)       ASSERT_NSTR(actual,  <, expected, len)
 
 /*
  * see http://stackoverflow.com/questions/3585846/color-text-in-terminal-applications-in-unix

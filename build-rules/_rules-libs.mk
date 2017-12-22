@@ -6,6 +6,8 @@ LIB_OBJS ?= $(LIB_SRCS:.c=.o)
 
 sinclude $(LIB_SRCS:.c=.d)
 
+ifeq (1,$(words $(LIBA_TARGET)))
+
 $(LIBA_TARGET) :: $(LIB_OBJS)
 	$(call Brief_Log,"AR")
 	$(call Inspect_Env,$(WATCHED_VARS))
@@ -20,6 +22,13 @@ endif
 	$(Q)mkdir -p $(SYSROOT_LIB)
 	$(Q)cp -f $@ $(SYSROOT_LIB)
 	$(call Copy_Headers, $(LIB_HEADERS),$(SYSROOT_INC),$(LIB_HDRS_DIR))
+
+else
+
+$(foreach t,$(sort $(LIBA_TARGET)),$(t)): FORCE
+	$(Q)$(MAKE) LIBA_TARGET=$@ LIB_OBJS="$(LIB_SRCS_$(subst .a,,$(subst lib,,$@)):.c=.o)"
+
+endif   # ifeq (1,$(words $(LIBA_TARGET)))
 
 endif   # ifdef LIBA_TARGET
 

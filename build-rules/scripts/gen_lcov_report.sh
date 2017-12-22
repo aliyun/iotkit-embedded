@@ -57,9 +57,9 @@ done \
             '{
                 split($6, arr, ".");
 
-                if (arr[1] > HIGH)
+                if (arr[1] >= HIGH)
                     printf("\033[1;32m");
-                else if (arr[1] > MID)
+                else if (arr[1] >= MID)
                     printf("\033[1;35m");
                 else
                     printf("\033[1;31m");

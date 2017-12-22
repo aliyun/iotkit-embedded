@@ -65,9 +65,7 @@
      7      example \
      8      testsuites \
      9
-    10  CFLAGS += -DUTILS_SELF_TEST
-    11
-    12  include $(RULE_DIR)/rules.mk
+    10  include $(RULE_DIR)/rules.mk
 
 0. 构建系统是基于`GNU Make`的简化系统, 所以工作过程的起点仍然是顶层的`makefile`
 1. 读取`project.mk`, 如果当前工程的目录排布和默认的不一样, 则用当前设置, 可选
