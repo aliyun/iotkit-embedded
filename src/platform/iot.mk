@@ -1,4 +1,5 @@
 LIBA_TARGET := libiot_platform.a
+DEPENDS     += src/tls
 LIB_SRCS    := $(wildcard *.c)
 
 LIB_SRCS    += $(wildcard os/$(CONFIG_VENDOR)/*.c)

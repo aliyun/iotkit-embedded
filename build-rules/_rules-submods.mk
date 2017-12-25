@@ -121,21 +121,10 @@ ifeq (0,$(MAKELEVEL))
 	$(TOP_Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
 endif
 	$(TOP_Q) \
-	if [ "$$(echo $(PKG_SWITCH_$@))" != "" ]; then \
-	    if [ "$$(echo $(DEPENDS_$@))" != "" ]; then \
-	        if  [ ! -f $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)/lib$(shell basename $@).a ] && \
-	            [ ! -f $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)/lib$(shell basename $@).so ]; then \
-	            for i in $(DEPENDS_$@); do \
-	                $(MAKE) --no-print-directory $${i} \
-	                    $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$${i}/$(COMPILE_LOG)) \
-	                    $(ALL_LOG_OPT); \
-	                RETVAL=$$?; \
-	                if [ $${RETVAL} != 0 ]; then exit $${RETVAL}; fi; \
-	            done \
-	        fi \
-	    fi && \
-	    $(call Build_CompLib, $@) && \
-	    $(call Update_Extra_Srcs, $(EXTRA_SRCS_$@),$@) && \
+	if [ "$$( $(call Require_Build,$@) )" = "TRUE" ]; then \
+	    $(call Build_Depends,$@) && \
+	    $(call Build_CompLib,$@) && \
+	    $(call Update_Extra_Srcs,$(EXTRA_SRCS_$@),$@) && \
 	    $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ all $(SUB_LOG_OPT) $(ALL_LOG_OPT) && \
 	    if [ "$$(echo $(ORIGIN_$@))" != "" ]; then \
 	        touch $(OUTPUT_DIR)/$@/{$(STAMP_UNPACK),$(STAMP_CONFIG),$(STAMP_BUILD),$(STAMP_INSTALL)}; \

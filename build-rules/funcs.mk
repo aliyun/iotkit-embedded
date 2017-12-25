@@ -85,6 +85,39 @@ define Update_Extra_Srcs
 )
 endef
 
+define Require_Build
+( \
+    [ "$(PKG_SWITCH_$(1))" != "y" ] && \
+        echo "FALSE" && exit; \
+\
+    [ "$(LIBA_TARGET_$(1))" != "" ] && \
+    $(foreach L,$(LIBA_TARGET_$(1)),[ -f $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)/$(L) ] && ) \
+            echo "FALSE" && exit; \
+\
+    [ "$(LIBSO_TARGET_$(1))" != "" ] && \
+    [ -f $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)/$(LIBSO_TARGET_$(1)) ] && \
+            echo "FALSE" && exit; \
+\
+    echo "TRUE"; \
+)
+endef
+
+define Build_Depends
+( \
+    set -o pipefail && \
+    for i in $(DEPENDS_$(1)); do \
+        $(MAKE) --no-print-directory $${i} \
+            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$${i}/$(COMPILE_LOG)) \
+            $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(COMPILE_LOG)); \
+        RETVAL=$$?; \
+        if [ $${RETVAL} != 0 ]; then \
+            exit $${RETVAL}; \
+        fi; \
+    done \
+\
+)
+endef
+
 #
 #	    ($(foreach d,$(COMP_LIB_COMPONENTS), \
 #

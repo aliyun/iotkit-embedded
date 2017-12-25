@@ -1,4 +1,5 @@
 DEPENDS             := src/platform
+HDR_REFS            += src/sdk-impl
 LDFLAGS             := -liot_sdk
 LDFLAGS             += -liot_platform
 LDFLAGS             += -Bstatic -liot_tls
