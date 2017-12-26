@@ -6,4 +6,4 @@ LIB_HEADERS := $(wildcard LITE-utils/*.h)
 HDR_REFS    := src
 
 DEPENDS     := src/log
-PKG_SOURCE  := src/packages/LITE-utils.git
+PKG_SOURCE  := LITE-utils.git

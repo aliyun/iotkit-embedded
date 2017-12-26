@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 #endif
 
     iotx_set_devinfo(&deviceinfo);
-    config.p_devinfo = &deviceinfo;
+    config.p_devinfo = (iotx_device_info_t*)&deviceinfo;
     config.wait_time_ms = 3000;
 
     iotx_coap_context_t *p_ctx = NULL;
