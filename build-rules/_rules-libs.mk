@@ -12,7 +12,11 @@ $(LIBA_TARGET) :: $(LIB_OBJS)
 	$(call Brief_Log,"AR")
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q)rm -f $@
-	$(Q)$(AR) -rcs $@ $(LIB_OBJS)
+ifdef LIBOBJ_STRIP
+	$(call Brief_Log,"ST")
+	$(TOP_Q)$(STRIP) --strip-debug $(LIB_OBJS)
+endif
+	$(TOP_Q)$(AR) -rcs $@ $(LIB_OBJS)
 
 $(LIBA_TARGET) :: StaticLib_Install
 	$(Q)mkdir -p $(LIBOBJ_TMPDIR)/$(MODULE_NAME)

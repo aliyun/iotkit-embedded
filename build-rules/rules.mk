@@ -15,6 +15,8 @@ HOST_ARCH_BITS  := $(shell [ "$$(uname -m)" = "x86_64" ] && echo -n "64" || echo
 PREBUILT_LIBDIR := $(if $(strip $(filter 64,$(HOST_ARCH_BITS)) $(CROSS_PREFIX)),libs,32bit-libs)
 PREBUILT_BINDIR := $(if $(strip $(filter 64,$(HOST_ARCH_BITS)) $(CROSS_PREFIX)),bin,32bit-bin)
 
+CONFIG_VSP_WEBSITE  ?= http://gitlab.alibaba-inc.com/yusheng.yx/alink-vendor-support-package
+
 ifeq ($(shell uname), Linux)
 RPATH_CFLAGS    += -Wl,-rpath='$$''ORIGIN/../lib'
 endif
