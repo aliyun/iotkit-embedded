@@ -23,7 +23,6 @@
 
 #include <stdio.h>
 #include "iot_export_ota.h"
-#include "iot_import_ota.h"
 #include "ota_internal.h"
 
 

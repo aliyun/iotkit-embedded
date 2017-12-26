@@ -17,23 +17,30 @@
  */
 
 
-#ifndef _OTA_IMPORT_H_
-#define _OTA_IMPORT_H_
+
+#ifndef __CMP_OTA_H__
+#define __CMP_OTA_H__
+
+
+#ifdef CMP_SUPPORT_OTA
 
 #include "iot_import.h"
-#include "iot_export_mqtt.h"
-#include "lite-log.h"
-#include "json_parser.h"
-#include "utils_md5.h"
-#include "utils_httpc.h"
+
+#include "utils_list.h"
+#include "lite-utils.h"
+#include "device.h"
+#include "iot_export.h"
+#include "iotx_cmp_common.h"
+
+void* iotx_cmp_ota_init(iotx_cmp_conntext_pt cmp_pt, const char* version);
+
+int iotx_cmp_ota_yield(iotx_cmp_conntext_pt cmp_pt, iotx_cmp_ota_pt ota_pt);
+
+int iotx_cmp_ota_deinit(iotx_cmp_conntext_pt cmp_pt);
 
 
-#define OTA_MALLOC          HAL_Malloc
-#define OTA_FREE            HAL_Free
-#define OTA_LOG_DEBUG       log_debug
-#define OTA_LOG_INFO        log_info
-#define OTA_LOG_ERROR       log_err
-#define OTA_ASSERT          LITE_ASSERT
-#define OTA_SNPRINTF        HAL_Snprintf
+#endif /* CMP_SUPPORT_OTA */
 
-#endif /* _OTA_IMPORT_H_ */
+#endif /* __CMP_OTA_H__ */
+
+

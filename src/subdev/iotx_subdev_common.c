@@ -9,7 +9,9 @@
 
 #include "iotx_subdev_common.h"
 
+#ifndef SUBDEV_VIA_CLOUD_CONN
 extern void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
+#endif
 
 char *iotx_gateway_splice_login_packet(const char *product_key,
         const char* device_name,
@@ -262,14 +264,47 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
     
     if (is_subscribe) {
         /* subscribe */
+    #ifdef SUBDEV_VIA_CLOUD_CONN
+        iotx_cloud_connection_msg_t msg = {0};
+        msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_SUBSCRIBE;
+        msg.QoS = IOTX_MESSAGE_QOS0;
+        msg.URI = topic;
+        msg.URI_length = strlen(msg.URI);
+        msg.payload = NULL;
+        msg.payload_length = 0;
+        msg.response_handler = _response_handle;
+        msg.response_pcontext = gateway;
+        msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
+        msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
+        
+        IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+
+        ret = 1;
+    #else /* SUBDEV_VIA_CLOUD_CONN */
         ret = IOT_MQTT_Subscribe(gateway->mqtt,
                  topic,
                  IOTX_MQTT_QOS0,
                  (iotx_mqtt_event_handle_func_fpt)iotx_gateway_event_handle,
                  gateway);
+    #endif /* SUBDEV_VIA_CLOUD_CONN */
     } else {
         /* unsubscribe */
+    #ifdef SUBDEV_VIA_CLOUD_CONN
+        iotx_cloud_connection_msg_t msg = {0};
+        msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_UNSUBSCRIBE;
+        msg.URI = topic;
+        msg.URI_length = strlen(msg.URI);
+        msg.payload = NULL;
+        msg.payload_length = 0;
+        msg.response_handler = _response_handle;
+        msg.response_pcontext = gateway;
+        msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
+        msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
+        
+        ret = IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+    #else /* SUBDEV_VIA_CLOUD_CONN */
         ret = IOT_MQTT_Unsubscribe(gateway->mqtt, topic);
+    #endif /* SUBDEV_VIA_CLOUD_CONN */
     }
    
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
@@ -281,7 +316,7 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
     HAL_MutexUnlock(gateway->gateway_data.lock_sync);
 #endif
 
-    while (ret == gateway->gateway_data.sync_status) {            
+    while (ret == gateway->gateway_data.sync_status) {    
         IOT_Gateway_Yield(gateway, 200);
     }    
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
@@ -470,14 +505,35 @@ int iotx_gateway_publish_sync(iotx_gateway_t* gateway,
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     void* lock, *enter_lock;
 #endif
-    int yiled_count = 0;
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    iotx_cloud_connection_msg_t msg;
+#else
     iotx_mqtt_topic_info_t topic_msg;
+#endif
+    int yiled_count = 0;
     
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
     
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(topic, FAIL_RETURN);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(packet, FAIL_RETURN);
 
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    memset(&msg, 0x0, sizeof(iotx_cloud_connection_msg_t));
+    msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_PUBLISH;
+    msg.QoS = (iotx_message_qos_t)qos;
+    msg.URI = (char*)topic;
+    msg.URI_length = strlen(msg.URI);
+    msg.payload = (char*)packet;
+    msg.payload_length = strlen(packet);
+    msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
+    msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
+    msg.response_handler = _response_handle;
+    msg.response_pcontext = gateway;
+    if (FAIL_RETURN == IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg)) {     
+        return FAIL_RETURN;
+    }
+
+#else
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     topic_msg.qos = qos;
     topic_msg.retain = 0;
@@ -489,6 +545,7 @@ int iotx_gateway_publish_sync(iotx_gateway_t* gateway,
     if (IOT_MQTT_Publish(gateway->mqtt, topic, &topic_msg) < 0) {
         return FAIL_RETURN;
     }
+#endif
 
     log_info("iotx_gateway_publish_sync topic [%s]\n packet [%s]", topic, packet);
     

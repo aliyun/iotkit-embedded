@@ -20,7 +20,6 @@
 #define __OTA_FETCH_C_H__
 
 #include <string.h>
-#include "iot_import_ota.h"
 
 /* ofc, OTA fetch channel */
 

@@ -6,12 +6,17 @@
 
 解压之后, 打开编译配置文件`make.settings`, 根据需要编辑配置项:
 
-    FEATURE_MQTT_COMM_ENABLED   = y     # 是否打开MQTT通道的总开关
-    FEATURE_MQTT_DIRECT         = y     # 是否打开MQTT直连的分开关
-    FEATURE_MQTT_DIRECT_NOTLS   = n     # 是否打开MQTT直连无TLS的分开关
-    FEATURE_COAP_COMM_ENABLED   = y     # 是否打开CoAP通道的总开关
-    FEATURE_HTTP_COMM_ENABLED   = y     # 是否打开HTTP通道的总开关
-    FEATURE_SUBDEVICE_ENABLED   = n     # 是否打开主子设备功能的总开关
+    FEATURE_MQTT_COMM_ENABLED   = y          # 是否打开MQTT通道的总开关
+    FEATURE_MQTT_DIRECT         = y          # 是否打开MQTT直连的分开关
+    FEATURE_MQTT_DIRECT_NOTLS   = n          # 是否打开MQTT直连无TLS的分开关
+    FEATURE_COAP_COMM_ENABLED   = y          # 是否打开CoAP通道的总开关
+    FEATURE_HTTP_COMM_ENABLED   = y          # 是否打开HTTP通道的总开关
+    FEATURE_SUBDEVICE_ENABLED   = n          # 是否打开主子设备功能的总开关
+    FEATURE_SUBDEVICE_STATUS    = gateway    # 主子设备功能所处的功能状态
+    FEATURE_CLOUD_CONN_ENABLED  = n          # 是否打开CLOUD_CONN功能的总开关
+    FEATURE_CMP_ENABLED         = y          # 是否打开CMP功能的总开关
+    FEATURE_CMP_VIA_MQTT_DIRECT = y          # CMP功能连云部分是否直接使用MQTT的开关
+    FEATURE_CMP_VIA_CLOUD_CONN  = MQTT       # CMP功能连云部分使用CLOUD_CONN选择协议的开关
 
 具体含义参见下表:
 
@@ -23,6 +28,11 @@
 | FEATURE_COAP_COMM_ENABLED   | 是否使能CoAP通道功能的总开关                                    |
 | FEATURE_HTTP_COMM_ENABLED   | 是否使能Https通道功能的总开关                                   |
 | FEATURE_SUBDEVICE_ENABLED   | 是否使能主子设备通道功能的总开关                                    |
+| FEATURE_SUBDEVICE_STATUS    | 主子设备功能所处的功能状态，取值有网关gateway(gw=1)和子设备subdevice(gw=0) |
+| FEATURE_CLOUD_CONN_ENABLED  | 是否打开CLOUD_CONN功能的总开关, CLOUD_CONN支持MQTT/CoAP/HTTP之间的切换与扩展|
+| FEATURE_CMP_ENABLED         | 是否打开CMP功能的总开关,CMP: connectivity management platform |
+| FEATURE_CMP_VIA_MQTT_DIRECT | CMP功能连云部分是否直接使用MQTT的开关. CMP连云部分可以选择MQTT_DIRECT和CLOUD_CONN|
+| FEATURE_CMP_VIA_CLOUD_CONN  | CMP功能连云部分选择使用CLOUD_CONN，该开关选择具体协议：MQTT/CoAP/HTTP|
 
 
 ## 编译 & 运行
@@ -48,57 +58,70 @@
      4  IOT_DumpMemoryStats
      5  IOT_SetupConnInfo
      6  IOT_SetupConnInfoSecure
-     7  IOT_CoAP_Init
-     8  IOT_CoAP_Deinit
-     9  IOT_CoAP_DeviceNameAuth
-    10  IOT_CoAP_Yield
-    11  IOT_CoAP_SendMessage
-    12  IOT_CoAP_GetMessagePayload
-    13  IOT_CoAP_GetMessageCode
-    14  IOT_HTTP_Init
-    15  IOT_HTTP_DeInit
-    16  IOT_HTTP_DeviceNameAuth
-    17  IOT_HTTP_SendMessage
-    18  IOT_HTTP_Disconnect
-    19  IOT_MQTT_Construct
-    20  IOT_MQTT_ConstructSecure
-    21  IOT_MQTT_Destroy
-    22  IOT_MQTT_Yield
-    23  IOT_MQTT_CheckStateNormal
-    24  IOT_MQTT_Subscribe
-    25  IOT_MQTT_Unsubscribe
-    26  IOT_MQTT_Publish
-    27  IOT_OTA_Init
-    28  IOT_OTA_Deinit
-    29  IOT_OTA_ReportVersion
-    30  IOT_OTA_ReportProgress
-    31  IOT_OTA_IsFetching
-    32  IOT_OTA_IsFetchFinish
-    33  IOT_OTA_FetchYield
-    34  IOT_OTA_Ioctl
-    35  IOT_OTA_GetLastError
-    36  IOT_Shadow_Construct
-    37  IOT_Shadow_Destroy
-    38  IOT_Shadow_Yield
-    39  IOT_Shadow_RegisterAttribute
-    40  IOT_Shadow_DeleteAttribute
-    41  IOT_Shadow_PushFormat_Init
-    42  IOT_Shadow_PushFormat_Add
-    43  IOT_Shadow_PushFormat_Finalize
-    44  IOT_Shadow_Push
-    45  IOT_Shadow_Push_Async
-    46  IOT_Shadow_Pull
-    47  IOT_Gateway_Generate_Message_ID
-    48  IOT_Gateway_Construct
-    49  IOT_Gateway_Destroy
-    50  IOT_Subdevice_Login
-    51  IOT_Subdevice_Logout
-    52  IOT_Gateway_Yield
-    53  IOT_Gateway_Subscribe
-    54  IOT_Gateway_Unsubscribe
-    55  IOT_Gateway_Publish
-    56  IOT_Gateway_RRPC_Register
-    57  IOT_Gateway_RRPC_Response
+     7  IOT_Cloud_Connection_Init
+     8  IOT_Cloud_Connection_Deinit
+     9  IOT_Cloud_Connection_Send_Message
+    10  IOT_Cloud_Connection_Yield
+    11  IOT_CMP_Init
+    12  IOT_CMP_Register
+    13  IOT_CMP_Unregister
+    14  IOT_CMP_Send
+    15  IOT_CMP_Send_Sync
+    16  IOT_CMP_Yield
+    17  IOT_CMP_Deinit
+    18  IOT_CMP_OTA_Yield
+    19  IOT_CoAP_Init
+    20  IOT_CoAP_Deinit
+    21  IOT_CoAP_DeviceNameAuth
+    22  IOT_CoAP_Yield
+    23  IOT_CoAP_SendMessage
+    24  IOT_CoAP_GetMessagePayload
+    25  IOT_CoAP_GetMessageCode
+    26  IOT_HTTP_Init
+    27  IOT_HTTP_DeInit
+    28  IOT_HTTP_DeviceNameAuth
+    29  IOT_HTTP_SendMessage
+    30  IOT_HTTP_Disconnect
+    31  IOT_MQTT_Construct
+    32  IOT_MQTT_ConstructSecure
+    33  IOT_MQTT_Destroy
+    34  IOT_MQTT_Yield
+    35  IOT_MQTT_CheckStateNormal
+    36  IOT_MQTT_Subscribe
+    37  IOT_MQTT_Unsubscribe
+    38  IOT_MQTT_Publish
+    39  IOT_OTA_Init
+    40  IOT_OTA_Deinit
+    41  IOT_OTA_ReportVersion
+    42  IOT_OTA_ReportProgress
+    43  IOT_OTA_IsFetching
+    44  IOT_OTA_IsFetchFinish
+    45  IOT_OTA_FetchYield
+    46  IOT_OTA_Ioctl
+    47  IOT_OTA_GetLastError
+    48  IOT_Shadow_Construct
+    49  IOT_Shadow_Destroy
+    50  IOT_Shadow_Yield
+    51  IOT_Shadow_RegisterAttribute
+    52  IOT_Shadow_DeleteAttribute
+    53  IOT_Shadow_PushFormat_Init
+    54  IOT_Shadow_PushFormat_Add
+    55  IOT_Shadow_PushFormat_Finalize
+    56  IOT_Shadow_Push
+    57  IOT_Shadow_Push_Async
+    58  IOT_Shadow_Pull
+    59  IOT_Gateway_Generate_Message_ID
+    60  IOT_Gateway_Construct
+    61  IOT_Gateway_Destroy
+    62  IOT_Subdevice_Login
+    63  IOT_Subdevice_Logout
+    64  IOT_Gateway_Yield
+    65  IOT_Gateway_Subscribe
+    66  IOT_Gateway_Unsubscribe
+    67  IOT_Gateway_Publish
+    68  IOT_Gateway_RRPC_Register
+    69  IOT_Gateway_RRPC_Response
+
 
 
 ### **必选API**
@@ -121,6 +144,29 @@
 |  5    | IOT_CoAP_GetMessagePayload   | CoAP会话阶段, 从服务器的`CoAP Response`报文中获取报文负载                      |
 |  6    | IOT_CoAP_SendMessage         | CoAP会话阶段, 连接已成功建立后调用, 组织一个完整的CoAP报文向服务器发送         |
 |  7    | IOT_CoAP_Yield               | CoAP会话阶段, 连接已成功建立后调用, 检查和收取服务器对`CoAP Request`的回复报文 |
+
+### ** 云端连接Cloud Connection功能相关**
+
+| 序号  | 函数名                       | 说明                                                                           |
+|-------|------------------------------|--------------------------------------------------------------------------------|
+|  1    | IOT_Cloud_Connection_Init    | 云端连接实例的构造函数, 入参为`iotx_cloud_connection_param_pt`结构体, 返回创建的云端连接会话句柄   |
+|  2    | IOT_Cloud_Connection_Deinit  | 云端连接实例的摧毁函数, 入参为`IOT_Cloud_Connection_Init()`所创建的句柄                        |
+|  3    | IOT_Cloud_Connection_Send_Message      | 发送数据给云端           |
+|  4    | IOT_Cloud_Connection_Yield   | 云端连接成功建立后，收取服务器发送的报文                |
+
+### ** CMP功能相关**
+
+| 序号  | 函数名                       | 说明                                                                           |
+|-------|------------------------------|--------------------------------------------------------------------------------|
+|  1    | IOT_CMP_Init                 | CMP实例的构造函数, 入参为`iotx_cmp_init_param_pt`结构体，只存在一个CMP实例   |
+|  2    | IOT_CMP_Register             | 通过CMP订阅服务                                              |
+|  3    | IOT_CMP_Unregister           | 通过CMP取消服务订阅 |
+|  4    | IOT_CMP_Send                 | 通过CMP发送数据，可以送给云端，也可以送给本地设备|
+|  1    | IOT_CMP_Send_Sync            | 通过CMP同步发送数据   ，暂不支持|
+|  2    | IOT_CMP_Yield                | 通过CMP接收数据，单线程情况下才支持                        |
+|  3    | IOT_CMP_Deinit               | CMP示例的摧毁函数           |
+|  4    | IOT_CMP_OTA_Yield            | 通过CMP完成OTA功能                                                               |
+
 
 ### **MQTT功能相关**
 

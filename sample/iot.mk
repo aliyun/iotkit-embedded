@@ -59,6 +59,17 @@ SRCS_http-example   := http/http-example.c
 endif
 
 ifneq (,$(filter -DSUBDEVICE_ENABLED,$(CFLAGS)))
-TARGET              += subdev-example
+TARGET                += subdev-example
 SRCS_subdev-example   := subdev/subdev-example.c
 endif
+
+ifneq (,$(filter -DCLOUD_CONN_ENABLED,$(CFLAGS)))   
+TARGET                    += cloud_conn-example 
+SRCS_cloud_conn-example   := cloud-conn/cloud_conn-example.c
+endif
+
+ifneq (,$(filter -DCMP_ENABLED,$(CFLAGS)))   
+TARGET                    += cmp-example 
+SRCS_cmp-example   := cmp/cmp-example.c
+endif
+

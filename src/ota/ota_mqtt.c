@@ -15,14 +15,14 @@
  * limitations under the License.
  *
  */
-
+    
 
 #ifndef __OTA_MQTT_C_H__
 #define __OTA_MQTT_C_H__
 
 
 #include "iot_export_ota.h"
-#include "iot_import_ota.h"
+#include "iot_export_mqtt.h"
 #include "ota_internal.h"
 
 /* OSC, OTA signal channel */
@@ -181,3 +181,4 @@ int osc_ReportVersion(void *handle, const char *msg)
 }
 
 #endif
+

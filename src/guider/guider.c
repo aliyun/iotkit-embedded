@@ -31,6 +31,24 @@ const char *secmode_str[] = {
     ""
 };
 
+
+int g_domain_type = 0;
+
+
+void guider_set_domain_type(int domain_type)
+{
+    g_domain_type = domain_type;
+}
+
+char* guider_get_domain()
+{
+    if (0 == g_domain_type)
+        return GUIDER_DIRECT_DOMAIN;
+
+    return NULL;
+}
+
+
 static int _calc_hmac_signature(
             char *hmac_sigbuf,
             const int hmac_buflen,
@@ -530,7 +548,7 @@ int iotx_guider_authenticate(void)
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "%s.%s",
                       dev->product_key,
-                      GUIDER_DIRECT_DOMAIN);
+                      guider_get_domain());
     _fill_conn_string(conn->username, sizeof(conn->username),
                       "%s&%s",
                       dev->device_name,

@@ -19,9 +19,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "iot_import_ota.h"
 #include "iot_export_ota.h"
 #include "ota_internal.h"
+#include "lite-log.h"
+#include "json_parser.h"
+#include "utils_md5.h"
+#include "utils_httpc.h"
+
+#define OTA_MALLOC          HAL_Malloc
+#define OTA_FREE            HAL_Free
+#define OTA_LOG_DEBUG       log_debug
+#define OTA_LOG_INFO        log_info
+#define OTA_LOG_ERROR       log_err
+#define OTA_ASSERT          LITE_ASSERT
+#define OTA_SNPRINTF        HAL_Snprintf
 
 
 #include "ota_lib.c"
@@ -55,6 +66,9 @@ typedef struct  {
 
     int err;                    /* last error code */
 
+    ota_fetch_cb_fpt  fetch_cb;  /* fetch_callback */
+    void*  user_data;            /* fetch_callback's user_data */
+
 } OTA_Struct_t, *OTA_Struct_pt;
 
 
@@ -64,6 +78,20 @@ static int ota_check_progress(IOT_OTA_Progress_t progress)
 {
     return ((progress >= IOT_OTAP_BURN_FAILED)
             && (progress <= IOT_OTAP_FETCH_PERCENTAGE_MAX));
+}
+
+
+int iotx_ota_set_fetch_callback(void* pt, ota_fetch_cb_fpt fetch_cb, void* user_data)
+{
+    OTA_Struct_pt ota_pt = (OTA_Struct_pt)pt;
+    
+    if (NULL == ota_pt || NULL == fetch_cb) {
+        return -1;
+    }
+
+    ota_pt->fetch_cb = fetch_cb;
+    ota_pt->user_data = user_data;
+    return 0;
 }
 
 
@@ -109,6 +137,9 @@ static void ota_callback(void *pcontext, const char *msg, uint32_t msg_len)
     }
 
     h_ota->state = IOT_OTAS_FETCHING;
+
+    if (h_ota->fetch_cb)
+        h_ota->fetch_cb(h_ota->user_data, 0);
 }
 
 
@@ -378,6 +409,8 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         OTA_LOG_ERROR("Fetch firmware failed");
         h_ota->state = IOT_OTAS_FETCHED;
         h_ota->err = IOT_OTAE_FETCH_FAILED;
+        if (h_ota->fetch_cb)
+            h_ota->fetch_cb(h_ota->user_data, 1);
         return -1;
     } else if (0 == h_ota->size_fetched) {
         /* force report status in the first */
@@ -389,6 +422,8 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
 
     if (h_ota->size_fetched >= h_ota->size_file) {
         h_ota->state = IOT_OTAS_FETCHED;
+        if (h_ota->fetch_cb)
+            h_ota->fetch_cb(h_ota->user_data, 1);
     }
 
     otalib_MD5Update(h_ota->md5, buf, ret);

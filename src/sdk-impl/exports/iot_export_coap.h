@@ -25,7 +25,6 @@
 #define IOTX_DEVICE_NAME_LEN     (32)   /* IoTx device name length */
 #define IOTX_DEVICE_ID_LEN       (64)   /* IoTx device ID length */
 #define IOTX_DEVICE_SECRET_LEN   (64)   /* IoTx device secret length */
-#define IOTX_URI_MAX_LEN         (135)  /* IoTx CoAP uri maximal length */
 
 
 /*iotx return code definition*/
@@ -87,7 +86,7 @@ typedef struct {
 typedef struct {
     char                 *p_url;        /*Can be NULL*/
     int                   wait_time_ms; /*unit is micro second*/
-    iotx_deviceinfo_t    *p_devinfo;    /*Device info*/
+    iotx_device_info_t   *p_devinfo;    /*Device info*/
     iotx_event_handle_t   event_handle; /*TODO, not supported now*/
 } iotx_coap_config_t;
 

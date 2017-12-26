@@ -39,8 +39,9 @@ extern "C" {
 #define IOT_TRUE    (1)     /* indicate boolean value true */
 #define IOT_FALSE   (0)     /* indicate boolean value false */
 
-#define PID_STRLEN_MAX      (64)
-#define MID_STRLEN_MAX      (64)
+#define PID_STRLEN_MAX           (64)
+#define MID_STRLEN_MAX           (64)
+#define IOTX_URI_MAX_LEN         (135)  /* IoTx CoAP/HTTP uri & MQTT topic maximal length */
 
 #ifdef SIM7000C_DAM
 #include "qapi_ali_iot.h"

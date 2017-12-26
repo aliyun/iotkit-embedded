@@ -1,2 +1,2 @@
-LIBA_TARGET := libsubdev.a
+LIBA_TARGET := libiot_subdev.a
 HDR_REFS    := src

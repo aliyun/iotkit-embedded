@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_
-#define SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_
+#ifndef SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
+#define SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
 
 
 /* option defined for gateway support multi-thread */
@@ -93,6 +93,20 @@ typedef void (*rrpc_request_callback)(void* gateway,
         const char* deveice_name,
         const char* message_id, 
         const char* payload);
+
+/**
+ * @brief It define a datatype of function pointer.
+ *        This type of function will be called when a related event occur.
+ *
+ * @param pcontext : The program context.
+ * @param pclient : The subdevice.
+ * @param msg : The event message.
+ *       if SUBDEV_VIA_CLOUD_CONN is define, the msg is iotx_cloud_connection_msg_rsp_func_fpt
+ *       else the msg is iotx_mqtt_event_msg_pt
+ *
+ * @return none
+ */
+typedef void (*iotx_subdev_event_handle_func_fpt)(void *pcontext, void *pclient, void* msg);
 
 
 /* The structure of gateway param */
@@ -207,8 +221,8 @@ int IOT_Gateway_Yield(void* handle, uint32_t timeout);
  */
 int IOT_Gateway_Subscribe(void* handle, 
         const char *topic_filter, 
-        iotx_mqtt_qos_t qos, 
-        iotx_mqtt_event_handle_func_fpt topic_handle_func, 
+        int qos, 
+        iotx_subdev_event_handle_func_fpt topic_handle_func, 
         void *pcontext);
 
 
@@ -276,6 +290,6 @@ int IOT_Gateway_RRPC_Response(void* handle,
         const char* response);
 
 
-#endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_ */
+#endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_ */
 
 

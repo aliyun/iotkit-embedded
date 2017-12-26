@@ -472,6 +472,7 @@ do_exit:
 }
 #endif  /* MQTT_DIRECT */
 
+extern char* guider_get_domain();
 int iotx_guider_id2_authenticate(void)
 {
     char                partner_id[PID_STRLEN_MAX + 16] = {0};
@@ -563,7 +564,7 @@ int iotx_guider_id2_authenticate(void)
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "%s.%s",
                       dev->product_key,
-                      GUIDER_DIRECT_DOMAIN);
+                      guider_get_domain());
 #endif
 
     _fill_conn_string(conn->username, sizeof(conn->username),

@@ -7,6 +7,99 @@
 
 iotx_gateway_pt g_gateway_subdevice_t = NULL;
 
+static void iotx_mqtt_reconnect_callback(iotx_gateway_pt gateway);
+
+static int iotx_gateway_recv_publish_callbacks(iotx_gateway_pt gateway, 
+        char* recv_topic,
+        char* recv_payload);
+
+static int iotx_subdevice_recv_rrpc_callback(iotx_gateway_pt gateway,         
+        char* recv_topic,
+        char* recv_payload);
+
+
+#ifdef SUBDEV_VIA_CLOUD_CONN
+static void _event_handle(void *pcontext, iotx_cloud_connection_event_msg_pt msg)
+{
+    log_info("_event_handle type %d", msg->event_id);
+
+    if (msg->event_id == IOTX_CLOUD_CONNECTION_EVENT_RECONNECT) {
+        iotx_mqtt_reconnect_callback(pcontext);        
+    }
+}
+
+void _response_handle(void *pcontext, void *pconnection, iotx_cloud_connection_msg_rsp_pt msg)
+{
+    iotx_gateway_pt gateway = (iotx_gateway_pt)pcontext; 
+
+    log_info("response %d", msg->rsp_type);
+    
+    switch(msg->rsp_type) {
+        case IOTX_CLOUD_CONNECTION_RESPONSE_SUBSCRIBE_SUCCESS: 
+        case IOTX_CLOUD_CONNECTION_RESPONSE_UNSUBSCRIBE_SUCCESS:
+        #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+            HAL_MutexLock(gateway->gateway_data.lock_sync);
+        #endif
+            gateway->gateway_data.sync_status = 0;
+        #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+            HAL_MutexUnlock(gateway->gateway_data.lock_sync);
+        #endif
+            break;
+        
+        case IOTX_CLOUD_CONNECTION_RESPONSE_SUBSCRIBE_FAIL:
+        case IOTX_CLOUD_CONNECTION_RESPONSE_UNSUBSCRIBE_FAIL:
+        #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+            HAL_MutexLock(gateway->gateway_data.lock_sync);
+        #endif
+            gateway->gateway_data.sync_status = -1;
+        #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+            HAL_MutexUnlock(gateway->gateway_data.lock_sync);
+        #endif
+            break;
+        
+        case IOTX_CLOUD_CONNECTION_RESPONSE_SEND_SUCCESS: 
+            break;
+            
+        case IOTX_CLOUD_CONNECTION_RESPONSE_SEND_FAIL:
+            break;
+            
+        case IOTX_CLOUD_CONNECTION_RESPONSE_NEW_DATA:{
+            char* publish_topic = NULL;
+            char* publish_payload = NULL;
+
+            /* printf payload */
+            log_info("topic message arrived : topic [%.*s]\n",
+                     msg->URI_length,
+                     msg->URI); 
+
+            log_info("payload length [%d]", msg->payload_length);
+
+            MALLOC_MEMORY(publish_topic, msg->payload_length + 1);
+            MALLOC_MEMORY_WITH_FREE(publish_payload, msg->payload_length + 1, publish_topic);
+
+            strncpy(publish_topic, msg->URI, msg->URI_length);
+            strncpy(publish_payload, msg->payload, msg->payload_length);
+            
+
+            if (SUCCESS_RETURN == iotx_gateway_recv_publish_callbacks(gateway, publish_topic, publish_payload)
+                || SUCCESS_RETURN == iotx_subdevice_recv_rrpc_callback(gateway, publish_topic, publish_payload)) {
+                /*LITE_free(publish_topic);
+                LITE_free(publish_payload);*/
+                return;
+            }           
+            
+            LITE_free(publish_topic);
+            LITE_free(publish_payload);
+        }
+            
+            break;
+        default:
+            break;
+    }
+}
+
+#endif
+
 
 static void iotx_subdevice_common_reply_proc(iotx_gateway_pt gateway, 
         char* payload,
@@ -18,7 +111,7 @@ static void iotx_subdevice_common_reply_proc(iotx_gateway_pt gateway,
 #endif
     iotx_common_reply_data_pt reply_data = NULL;    
 
-    log_info("recv login reply");
+    log_info("recv reply");
 
     if (gateway == NULL || payload == NULL) {
         log_info("param error");
@@ -252,6 +345,7 @@ static void iotx_mqtt_reconnect_callback(iotx_gateway_pt gateway)
     }
 }
 
+#ifndef SUBDEV_VIA_CLOUD_CONN
 void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     uintptr_t packet_id = (uintptr_t)msg->msg;
@@ -273,6 +367,9 @@ void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
         #endif
             if (gateway->gateway_data.sync_status == packet_id) {
                 gateway->gateway_data.sync_status = 0;
+            #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+                HAL_MutexUnlock(gateway->gateway_data.lock_sync);
+            #endif
                 return;
             }
         #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
@@ -289,6 +386,9 @@ void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
         #endif
             if (gateway->gateway_data.sync_status == packet_id) {
                 gateway->gateway_data.sync_status = -1;
+            #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+                HAL_MutexUnlock(gateway->gateway_data.lock_sync);
+            #endif
                 return;
             }        
         #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
@@ -364,6 +464,7 @@ void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
 
     return;
 }
+#endif
 
 /* global message id */
 uint32_t global_gateway_cloud_id = 0;
@@ -378,8 +479,14 @@ uint32_t IOT_Gateway_Generate_Message_ID()
 
 void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
 {
-    iotx_gateway_pt gateway = NULL; 
-        
+    iotx_gateway_pt gateway = NULL;  
+    
+#ifdef SUBDEV_VIA_CLOUD_CONN   
+    void* handle = NULL;
+    iotx_cloud_connection_param_t param = {0};
+    iotx_device_info_pt pdevice_info = iotx_device_info_get();
+#endif
+    
     PARAMETER_NULL_CHECK_WITH_RESULT(gateway_param, NULL);
     PARAMETER_NULL_CHECK_WITH_RESULT(gateway_param->mqtt, NULL);
 
@@ -389,7 +496,8 @@ void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
     }
 
     MALLOC_MEMORY_WITH_RESULT(gateway, sizeof(iotx_gateway_t), NULL);
-
+    
+#ifndef SUBDEV_VIA_CLOUD_CONN       
     gateway_param->mqtt->handle_event.h_fp = iotx_gateway_event_handle;
     gateway_param->mqtt->handle_event.pcontext = gateway;
 
@@ -399,6 +507,35 @@ void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
         LITE_free(gateway);
         return NULL;
     }
+#else /* SUBDEV_VIA_CLOUD_CONN */      
+    param.device_info = HAL_Malloc(sizeof(iotx_deviceinfo_t));
+    if (NULL == param.device_info) {
+        log_info("memory error!");   
+        LITE_free(gateway);      
+        return NULL;
+    }
+    memset(param.device_info, 0x00, sizeof(iotx_device_info_t));
+    strncpy(param.device_info->device_id,    pdevice_info->device_id,   IOTX_DEVICE_ID_LEN);
+    strncpy(param.device_info->product_key,  pdevice_info->product_key, IOTX_PRODUCT_KEY_LEN);
+    strncpy(param.device_info->device_secret, pdevice_info->device_secret, IOTX_DEVICE_SECRET_LEN);
+    strncpy(param.device_info->device_name,  pdevice_info->device_name, IOTX_DEVICE_NAME_LEN);
+    
+    param.clean_session = gateway_param->mqtt->clean_session;    
+    param.keepalive_interval_ms = gateway_param->mqtt->keepalive_interval_ms;
+    param.request_timeout_ms = gateway_param->mqtt->request_timeout_ms;
+    param.protocol_type = IOTX_CLOUD_CONNECTION_PROTOCOL_TYPE_MQTT;
+    param.event_handler = _event_handle;
+    param.event_pcontext = (void*)gateway;
+
+    handle = IOT_Cloud_Connection_Init(&param);
+
+    if (handle == NULL) {
+        LITE_free(gateway);      
+        return NULL;
+    }
+
+    gateway->mqtt = handle;
+#endif /* SUBDEV_VIA_CLOUD_CONN */
 
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     gateway->gateway_data.lock_sync = HAL_MutexCreate();
@@ -702,21 +839,40 @@ int IOT_Gateway_Yield(void* handle, uint32_t timeout)
     iotx_gateway_pt gateway = (iotx_gateway_pt)handle;
     
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
-    
+
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    return IOT_Cloud_Connection_Yield(gateway->mqtt, timeout);
+#else    
     return IOT_MQTT_Yield(gateway->mqtt, timeout);
+#endif
 }
 
 int IOT_Gateway_Subscribe(void* handle, 
         const char *topic_filter, 
-        iotx_mqtt_qos_t qos, 
-        iotx_mqtt_event_handle_func_fpt topic_handle_func, 
+        int qos, 
+        iotx_subdev_event_handle_func_fpt topic_handle_func, 
         void *pcontext)
 {
     iotx_gateway_pt gateway = (iotx_gateway_pt)handle;
     
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
-    
-    return IOT_MQTT_Subscribe(gateway->mqtt, topic_filter, qos, topic_handle_func, pcontext);
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    iotx_cloud_connection_msg_t msg = {0};
+    msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_SUBSCRIBE;
+    msg.QoS = IOTX_MESSAGE_QOS1;
+    msg.URI = (char*)topic_filter;
+    msg.URI_length = strlen(topic_filter);
+    msg.payload = NULL;
+    msg.payload_length = 0;
+    msg.response_handler = (iotx_cloud_connection_msg_rsp_func_fpt)topic_handle_func;
+    msg.response_pcontext = NULL;
+    msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
+    msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
+    return IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+#else    
+    return IOT_MQTT_Subscribe(gateway->mqtt, topic_filter, qos, 
+            (iotx_mqtt_event_handle_func_fpt)topic_handle_func, pcontext);
+#endif    
 }
 
 
@@ -726,8 +882,20 @@ int IOT_Gateway_Unsubscribe(void* handle,
     iotx_gateway_pt gateway = (iotx_gateway_pt)handle;
     
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
-    
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    iotx_cloud_connection_msg_t msg = {0};
+    msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_UNSUBSCRIBE;
+    msg.QoS = IOTX_MESSAGE_QOS1;
+    msg.URI = (char*)topic_filter;
+    msg.URI_length = strlen(topic_filter);
+    msg.payload = NULL;
+    msg.payload_length = 0;
+    msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
+    msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
+    return IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+#else        
     return IOT_MQTT_Unsubscribe(gateway->mqtt, topic_filter);
+#endif    
 }
 
 
@@ -757,7 +925,21 @@ int IOT_Gateway_Publish(void*        handle,
         log_info("%s", dsltemplate_printf);
     }
     
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    iotx_cloud_connection_msg_t msg = {0};
+    msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_PUBLISH;
+    msg.QoS = topic_msg->qos;
+    msg.URI = (char*)topic_name;
+    msg.URI_length = strlen(topic_name);
+    msg.payload = (void*)topic_msg->payload;
+    msg.payload_length = topic_msg->payload_len;
+    msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
+    msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
+    return IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+#else        
     return IOT_MQTT_Publish(gateway->mqtt, topic_name, topic_msg);
+#endif    
+    
 }
 
 int IOT_Gateway_RRPC_Register(void* handle, 

@@ -22,5 +22,10 @@
 #define _OTA_INTERNAL_H_
 
 typedef void (*ota_cb_fpt)(void *pcontext, const char *msg, uint32_t msg_len);
+/* is_fetch = 0; start fetch */
+/* is_fetch = 1; stop fetch */
+typedef void(*ota_fetch_cb_fpt)(void* user_data, int is_fetch);
+
+int iotx_ota_set_fetch_callback(void* pt, ota_fetch_cb_fpt fetch_cb, void* user_data);
 
 #endif /* _OTA_INTERNAL_H_ */
