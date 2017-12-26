@@ -33,13 +33,16 @@ ifeq (1,$(words $(TARGET)))
 $(TARGET): $(OBJS) FORCE
 	$(call Brief_Log,"LD")
 	$(call Inspect_Env,$(WATCHED_VARS))
-	$(Q)$(CCLD) $(CFLAGS) -o $@ \
-	    $(RPATH_CFLAGS) \
-	    $(OBJS) \
-	    -Wl,--start-group $(filter -l%, $(LDFLAGS)) -Wl,--end-group \
-	    $(filter -L%, $(LDFLAGS))
-	$(Q)mkdir -p $(OUTPUT_DIR)${bindir}
-	$(Q)cp -f $@ $(OUTPUT_DIR)${bindir}
+	$(Q) \
+	if [ "$(strip $(CC))" = "gcc" ] || [ "$(filter -D_PLATFORM_IS_LINUX_,$(CFLAGS))" != "" ]; then \
+	    mkdir -p $(OUTPUT_DIR)${bindir}; \
+	    $(CCLD) $(CFLAGS) -o $@ \
+	        $(RPATH_CFLAGS) \
+	        $(OBJS) \
+	        -Wl,--start-group $(filter -l%, $(LDFLAGS)) -Wl,--end-group \
+	        $(filter -L%, $(LDFLAGS)) && \
+	    cp -f $@ $(OUTPUT_DIR)${bindir}; \
+	fi
 
 else
 

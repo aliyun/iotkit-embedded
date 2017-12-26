@@ -41,6 +41,8 @@ define Brief_Log
 	    COLOR_MARK="\e[1;33m"; \
 	elif [ "$1" = "LD" ]; then \
 	    COLOR_MARK="\e[1;31m"; \
+	elif [ "$1" = "ST" ]; then \
+	    COLOR_MARK="\e[0;33m"; \
 	fi; \
 	echo -ne "$${COLOR_MARK}"
 	@if [ "$2" = "" ]; then \
