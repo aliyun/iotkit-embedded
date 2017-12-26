@@ -2,7 +2,7 @@
 
 #include "utils_list.h"
 #include "lite-utils.h"
-#include "device.h"
+#include "lite-system.h"
 #include "iotx_cloud_connection_common.h"
 
 iotx_cloud_connection_pt g_cloud_connection_t = NULL;

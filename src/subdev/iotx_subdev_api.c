@@ -2,7 +2,7 @@
 
 #include "utils_list.h"
 #include "lite-utils.h"
-#include "device.h"
+#include "lite-system.h"
 #include "iotx_subdev_common.h"
 
 iotx_gateway_pt g_gateway_subdevice_t = NULL;
