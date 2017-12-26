@@ -23,7 +23,7 @@
 #include "lite-utils.h"
 #include "utils_timer.h"
 #include "utils_list.h"
-#include "device.h"
+#include "lite-system.h"
 
 #include "shadow.h"
 #include "shadow_common.h"

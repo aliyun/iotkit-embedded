@@ -27,7 +27,7 @@
 #include "json_parser.h"
 #include "CoAPMessage.h"
 #include "CoAPExport.h"
-#include "report.h"
+#include "lite-system.h"
 
 #define IOTX_SIGN_LENGTH         (40+1)
 #define IOTX_SIGN_SOURCE_LEN     (256)

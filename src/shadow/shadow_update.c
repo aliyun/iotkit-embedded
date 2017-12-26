@@ -22,7 +22,7 @@
 
 #include "lite-log.h"
 #include "lite-utils.h"
-#include "device.h"
+#include "lite-system.h"
 
 #include "shadow_update.h"
 

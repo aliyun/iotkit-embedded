@@ -19,7 +19,6 @@ COMP_LIB_COMPONENTS := \
     src/sdk-impl \
 
 $(call CompLib_Map, MQTT_COMM_ENABLED, \
-    src/guider \
     src/mqtt \
 )
 $(call CompLib_Map, OTA_ENABLED, src/ota)

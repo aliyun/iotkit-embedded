@@ -24,11 +24,9 @@
 #include "lite-utils.h"
 #include "utils_hmac.h"
 #include "utils_httpc.h"
-#include "ca.h"
 #include "utils_epoch_time.h"
 #include "sdk-impl_internal.h"
-#include "device.h"
-#include "report.h"
+#include "lite-system.h"
 
 /*
 #define IOTX_HTTP_TIMESTAMP_OPTIONAL_ENABLE

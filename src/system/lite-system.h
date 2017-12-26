@@ -16,6 +16,44 @@
  *
  */
 
+
+#ifndef _IOTX_AUTH_H_
+#define _IOTX_AUTH_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#include "iot_import.h"
+#include "iot_export.h"
+
+#define MQTT_SDK_VERSION    "2.0"
+
+#ifndef MQTT_ID2_AUTH
+int iotx_guider_authenticate(void);
+#else
+/* func name: iotx_guider_id2_authenticate
+ * description: used for id2 authentication
+ * intput :
+ * output :
+ * return : int
+ *           0   success
+ *          -1   error
+ */
+int iotx_guider_id2_authenticate(void);
+#endif
+
+int     iotx_device_info_init(void);
+
+int     iotx_device_info_set(
+            const char *product_key,
+            const char *device_name,
+            const char *device_secret);
+
+iotx_device_info_pt iotx_device_info_get(void);
+iotx_conn_info_pt iotx_conn_info_get(void);
+
+
 #include <stdio.h>
 
 
@@ -27,4 +65,9 @@ int iotx_midreport_payload(char *msg, char *requestId, char *mid, char *pid);
 int iotx_midreport_topic(char *topic_name, char *topic_head, char *product_key, char *device_name);
 
 
+const char *iotx_ca_get(void);
 
+#if defined(__cplusplus)
+}
+#endif
+#endif
