@@ -17,7 +17,7 @@ cp ${TARGET} ${TEMPD}
 cd ${TEMPD}
 ar xf $(basename ${TARGET})
 rm -f $(basename ${TARGET})
-${STRIP} *.o > /dev/null 2>&1
+${STRIP} -S *.o > /dev/null 2>&1
 
 for obj in $(ls *.o); do
     dir=$(find ${STAGED} -name ${obj}|xargs dirname|xargs basename)
@@ -54,7 +54,7 @@ done
 echo ""
 for mod in ${MODS}; do
     MSIZE=$(grep "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }')
-    printf "     %-8s %-12s %16s\n" \
+    printf "     %-8s %-32s %16s\n" \
         $(awk -v a=${MSIZE} -v b=${TOTAL} 'BEGIN { printf("%.2f%%\n", a/b*100); }') \
         "[ ${mod} ]" "${MSIZE} Bytes"
 done | sort -nr

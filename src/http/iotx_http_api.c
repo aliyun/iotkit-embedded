@@ -446,7 +446,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
 
     log_debug("allocate req_payload: len = %d", len);
 
-    len = LITE_snprintf(req_payload, len + 1,
+    len = HAL_Snprintf(req_payload, len + 1,
                         IOTX_HTTP_AUTH_DEVICENAME_STR,
                         "default",
                         iotx_http_context->p_devinfo->device_id,

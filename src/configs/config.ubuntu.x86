@@ -1,7 +1,6 @@
 CONFIG_ENV_CFLAGS += \
     -Os -Wall -Werror \
     -g3 -rdynamic --coverage \
-    -ansi \
     -D_PLATFORM_IS_LINUX_ \
     -D__UBUNTU_SDK_DEMO__ \
     -DCONFIG_HTTP_AUTH_TIMEOUT=500 \

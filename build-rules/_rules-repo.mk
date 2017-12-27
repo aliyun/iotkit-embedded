@@ -9,8 +9,8 @@ OPS_SCRIPT := \
     $(RULE_DIR)/scripts/ops_repository.sh \
     $(STAMP_BLD_VAR)
 
-repo-list:
+repo-list: config
 	$(TOP_Q)$(OPS_SCRIPT) list
 
-repo-update:
+repo-update: config
 	$(TOP_Q)$(OPS_SCRIPT) update
