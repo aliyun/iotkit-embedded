@@ -29,3 +29,6 @@ vs_build/
 .vs/
 html/
 compile.log
+src/mqtt/Link-MQTT
+src/ota/Link-OTA
+src/system/iotkit-system
