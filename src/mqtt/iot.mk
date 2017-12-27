@@ -1,6 +1,6 @@
 LIBA_TARGET     := libiot_mqtt.a
 LIB_SRCS        := $(wildcard Link-MQTT/*.c Link-MQTT/*/*.c)
-HDR_REFS        := src src/system/iotkit-system
+HDR_REFS        := src
 DEPENDS         := src/log src/utils
 
 PKG_SOURCE      := Link-MQTT.git
