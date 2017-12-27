@@ -1,5 +1,5 @@
 LIBA_TARGET     := libiot_system.a
-LIB_SRCS        := $(wildcard iotkit-system/*.c)
+LIB_SRCS        := $(wildcard iotkit-system/src/*.c)
 HDR_REFS        := src
 DEPENDS         := src/log src/utils
 
