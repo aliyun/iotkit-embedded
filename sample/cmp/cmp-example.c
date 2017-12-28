@@ -173,6 +173,10 @@ int cmp_client()
 
     rc = IOT_CMP_Send(&cloud_peer, &message_info, NULL);
 
+    LITE_free(message_info.URI);
+    LITE_free(message_info.method);
+    LITE_free(message_info.parameter);
+
     if (FAIL_RETURN == rc) {        
         printf("send fail\n");
         IOT_CMP_Deinit(NULL);
