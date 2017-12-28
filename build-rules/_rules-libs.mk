@@ -1,10 +1,12 @@
+VPATH    := $(TOP_DIR)/$(MODULE_NAME)
+LIB_SRCS ?= $(wildcard $(TOP_DIR)/$(MODULE_NAME)/*.c $(TOP_DIR)/$(MODULE_NAME)/*/*.c $(TOP_DIR)/$(MODULE_NAME)/*/*/*.c)
+LIB_OBJS := $(LIB_SRCS:.c=.o)
+LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
+
+sinclude $(LIB_OBJS:.o=.d)
+
 ifdef LIBA_TARGET
 .PHONY: StaticLib_Install
-
-LIB_SRCS ?= $(wildcard *.c */*.c)
-LIB_OBJS ?= $(LIB_SRCS:.c=.o)
-
-sinclude $(LIB_SRCS:.c=.d)
 
 ifeq (1,$(words $(LIBA_TARGET)))
 
@@ -30,7 +32,7 @@ endif
 else
 
 $(foreach t,$(sort $(LIBA_TARGET)),$(t)): FORCE
-	$(Q)$(MAKE) LIBA_TARGET=$@ LIB_OBJS="$(LIB_SRCS_$(subst .a,,$(subst lib,,$@)):.c=.o)"
+	$(Q)$(MAKE) LIBA_TARGET=$@ LIB_SRCS="$(foreach S,$(LIB_SRCS_$(subst .a,,$(subst lib,,$@))),$(TOP_DIR)/$(MODULE_NAME)/$(S))"
 
 endif   # ifeq (1,$(words $(LIBA_TARGET)))
 
@@ -38,11 +40,6 @@ endif   # ifdef LIBA_TARGET
 
 ifdef LIBSO_TARGET
 .PHONY: DynamicLib_Install
-
-LIB_SRCS ?= $(wildcard *.c */*.c)
-LIB_OBJS ?= $(LIB_SRCS:.c=.o)
-
-sinclude $(LIB_SRCS:.c=.d)
 
 $(LIBSO_TARGET) :: SELF_LIBNAME = $(subst lib,,$(subst .so,,$(LIBSO_TARGET)))
 $(LIBSO_TARGET) :: LDFLAGS := $(filter-out -l$(SELF_LIBNAME), $(LDFLAGS))

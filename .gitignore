@@ -4,6 +4,7 @@
 *.cproject
 *.project
 *.o
+*.d
 *.lo
 *.gcno
 *.gcda

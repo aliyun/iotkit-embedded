@@ -26,6 +26,10 @@ function Update_Sources()
     Trace "PKG_REVISION:    [${PKG_REVISION}]"
     Trace "PKG_UPSTREAM:    [${PKG_UPSTREAM}]"
 
+    for i in $(find -L ${MODULE} -type d -not -path "*.git*"|sed "s:${MODULE}/*::1"|sed '/^$/d'); do
+        mkdir -p ${BLD_DIR}/${i}
+    done
+
     if [ "${PKG_SOURCE}" != "" ] && [ -d ${PACKAGE_DIR}/${PKG_SOURCE} ]; then
         GIT_BASENAME=$(basename ${PKG_SOURCE})
         GIT_NAME_LEN=$(expr length ${GIT_BASENAME})
@@ -74,40 +78,41 @@ function Update_Sources()
         if [ "${BLD_ELEM}" = "" ]; then
             for iter in ${SRC_ELEM}; do
                 Trace "Bulk [${SRC_DIR}/${iter} => ${BLD_DIR}"
-                cp -Lrf ${SRC_DIR}/${iter} ${BLD_DIR}
+#                cp -Lrf ${SRC_DIR}/${iter} ${BLD_DIR}
             done
             return 0
         fi
     fi
 
-    for FILE in \
-        $(find -L ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
-        $(find ${SRC_DIR}/ -maxdepth 1 -name "*.patch" -o -name "lib*.a" -o -name "lib*.so") \
-        $([ "" != "${PKG_SOURCE}" ] && [ -d ${PACKAGE_DIR}/${PKG_SOURCE} ] && find ${PACKAGE_DIR}/${PKG_SOURCE}/ -type f -o -type l) \
-    ; \
-    do
-        if  [ "" != "${PKG_SOURCE}" ] && \
-            [ -d ${PKG_SOURCE} ] && \
-            [ "$(dirname ${FILE})" != "${TOP_DIR}/${MODULE}" ]; then
-            SUBD=$(echo $(dirname ${FILE})|sed "s:$(dirname ${PKG_SOURCE})::")
-            SUBD=$(echo ${SUBD}|sed "s:${SRC_DIR}::")
-        else
-            SUBD=$(echo $(dirname ${FILE})|sed "s:${SRC_DIR}::")
-            SUBD=$(echo ${SUBD}|sed "s:${PACKAGE_DIR}/*::")
-        fi
+#    for FILE in \
+#        $(find -L ${SRC_DIR}/ -type f -o -type l -name "*.[ch]" -o -name "*.mk" -o -name "*.cpp") \
+#        $(find ${SRC_DIR}/ -maxdepth 1 -name "*.patch" -o -name "lib*.a" -o -name "lib*.so") \
+#        $([ "" != "${PKG_SOURCE}" ] && [ -d ${PACKAGE_DIR}/${PKG_SOURCE} ] && find ${PACKAGE_DIR}/${PKG_SOURCE}/ -type f -o -type l) \
+#    ; \
+#    do
+#        if  [ "" != "${PKG_SOURCE}" ] && \
+#            [ -d ${PKG_SOURCE} ] && \
+#            [ "$(dirname ${FILE})" != "${TOP_DIR}/${MODULE}" ]; then
+#            SUBD=$(echo $(dirname ${FILE})|sed "s:$(dirname ${PKG_SOURCE})::")
+#            SUBD=$(echo ${SUBD}|sed "s:${SRC_DIR}::")
+#        else
+#            SUBD=$(echo $(dirname ${FILE})|sed "s:${SRC_DIR}::")
+#            SUBD=$(echo ${SUBD}|sed "s:${PACKAGE_DIR}/*::")
+#        fi
+#
+#        COPY_DIR=${OUTPUT_DIR}/${MODULE}/${SUBD}
+#        mkdir -p ${COPY_DIR}
+#        COPY_BASE=$(basename ${FILE})
+#        FILE_COPY=${COPY_DIR}/${COPY_BASE}
+#        # grep -q "\.git" <<< ${FILE} || Trace "Check: ${FILE}: ${FILE_COPY}"
+#
+#        if [ ! -e ${FILE_COPY} -o \
+#             ${FILE} -nt ${FILE_COPY} ]; then
+#             mkdir -p ${BLD_DIR}/${FILE_DIR}
+#             cp -f ${FILE} ${FILE_COPY}
+#        fi
+#    done
 
-        COPY_DIR=${OUTPUT_DIR}/${MODULE}/${SUBD}
-        mkdir -p ${COPY_DIR}
-        COPY_BASE=$(basename ${FILE})
-        FILE_COPY=${COPY_DIR}/${COPY_BASE}
-        # grep -q "\.git" <<< ${FILE} || Trace "Check: ${FILE}: ${FILE_COPY}"
-
-        if [ ! -e ${FILE_COPY} -o \
-             ${FILE} -nt ${FILE_COPY} ]; then
-             mkdir -p ${BLD_DIR}/${FILE_DIR}
-             cp -f ${FILE} ${FILE_COPY}
-        fi
-    done
 }
 
 function Update_Makefile()

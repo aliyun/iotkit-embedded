@@ -1,6 +1,7 @@
 TARGET      := sdk-testsuites
-HDR_REFS    := src
-EXTRA_SRCS  := $(RULE_DIR)/misc/cut.[ch]
+HDR_REFS    := src build-rules
+SRCS        := $(wildcard $(TOP_DIR)/$(MODULE_NAME)/*.c)
+SRCS        += $(TOP_DIR)/build-rules/misc/cut.c
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 
 LDFLAGS     += -liot_sdk

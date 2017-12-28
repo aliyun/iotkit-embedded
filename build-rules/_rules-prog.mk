@@ -1,7 +1,7 @@
 .PHONY: FORCE
 
 ifdef TARGET
-SRCS ?= $(wildcard *.c *.cpp)
+SRCS ?= $(wildcard $(TOP_DIR)/$(MODULE_DIR)/*.c *.cpp)
 OBJS ?= $(subst .c,.o,$(subst .cpp,.o,$(SRCS)))
 
 ifneq (modinfo,$(MAKECMDGOALS))

@@ -51,6 +51,7 @@ STAMP_INSTALL   := .install.done
 STAMP_POSTINS   := .post.install.done
 STAMP_SHIELD    := .shield.done
 STAMP_POST_RULE := $(OUTPUT_DIR)/.post-rules.mk
+STAMP_DIR       := $(OUTPUT_DIR)/stamps
 
 ifdef DEBUG
 AUTO_HEADER_Q   :=

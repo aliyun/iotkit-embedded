@@ -108,6 +108,10 @@ define Build_Depends
 ( \
     set -o pipefail && \
     for i in $(DEPENDS_$(1)); do \
+        STAMP=$(STAMP_DIR)/$$(echo $${i}|sed 's:/:~:g').build.done; \
+        if [ -f $${STAMP} ]; then \
+            continue; \
+        fi; \
         $(MAKE) --no-print-directory $${i} \
             $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$${i}/$(COMPILE_LOG)) \
             $(if $(Q),,2>&1|tee -a $(OUTPUT_DIR)/$(COMPILE_LOG)); \

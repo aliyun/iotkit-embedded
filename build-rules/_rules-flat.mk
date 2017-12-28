@@ -11,15 +11,20 @@ $(foreach d, \
 )
 INTERNAL_INCLUDES += $(foreach mod, $(MODULE_NAME) $(HDR_REFS), \
     $(foreach d, \
-        $(shell find $(TOP_DIR)/$(mod)/ -type d -a -name "[^.]*"), \
+        $(shell [ -d $(TOP_DIR)/$(mod) ] && \
+            find -L $(TOP_DIR)/$(mod)/ -type d \
+                -a -name "[^.]*" \
+                -not -path "*.git*"), \
         -I$(d) \
     ) \
 )
-INTERNAL_INCLUDES += \
+
+# INTERNAL_INCLUDES += \
     $(foreach d, \
         $(shell find $(OUTPUT_DIR)/$(MODULE_NAME) -type d -a -name "[^.]*"), \
         -I$(d) \
     )
+
 INTERNAL_INCLUDES := $(strip $(sort $(INTERNAL_INCLUDES)))
 
 EXTERNAL_INCLUDES += $(foreach mod, $(DEPENDS), \
@@ -97,15 +102,17 @@ NODEP_LIST = \
     $(SYSROOT_INC)/product_config.h \
 
 ifneq (,$(findstring gcc,$(CC)))
+ifeq (,$(filter modinfo,$(MAKECMDGOALS)))
 %.d: %.c
 	$(Q) \
 	$(CC) -MM -I$(CURDIR) \
 	    $(INTERNAL_INCLUDES) \
 	    $(EXTERNAL_INCLUDES) \
 	    $(CFLAGS) \
-	$< > $@.$$$$ 2>/dev/null; \
-	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $@.$$$$; \
-	mv $@.$$$$ $@;
+	$< > $(OUTPUT_DIR)/$(MODULE_NAME)/$(shell basename $@).$$$$; \
+	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $(OUTPUT_DIR)/$(MODULE_NAME)/$(shell basename $@).$$$$; \
+	mv $(OUTPUT_DIR)/$(MODULE_NAME)/$(shell basename $@).$$$$ $@;
+endif
 endif
 
 %.o: %.cpp

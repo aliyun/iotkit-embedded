@@ -6,6 +6,7 @@ all: detect config toolchain sub-mods final-out
 	    $(RECURSIVE_MAKE) toolchain; \
 	    rm -f $(STAMP_PRJ_CFG); \
 	fi
+	@rm -rf $(STAMP_DIR)
 
 RESET_ENV_VARS := \
     CROSS_PREFIX \
@@ -35,6 +36,15 @@ detect:
 	    done; \
 	fi
 
+unzip: config
+	@echo "Components: "
+	@echo ""
+	@for i in $(ALL_SUB_DIRS); do \
+	    $(MAKE) --no-print-directory pre-build target-$${i} > /dev/null; \
+	    echo ". $${i}"; \
+	done
+	@echo ""
+
 #	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
 #	    if [ $$i -nt $(CONFIG_TPL) ]; then \
 #	        echo "Re-configure project since '$${i}' updated"|grep --color ".*"; \
@@ -49,7 +59,7 @@ detect:
 
 config:
 
-	@mkdir -p $(OUTPUT_DIR) $(INSTALL_DIR)
+	@mkdir -p $(OUTPUT_DIR) $(STAMP_DIR) $(INSTALL_DIR)
 	@mkdir -p $(SYSROOT_BIN) $(SYSROOT_INC) $(SYSROOT_LIB)
 
 	$(TOP_Q) \
@@ -97,7 +107,7 @@ config:
 	        fi; \
 	    fi; \
 	    for i in $(RESET_ENV_VARS); do unset $${i}; done; \
-	    $(MAKE) --no-print-directory -f $(TOP_MAKEFILE) $(STAMP_BLD_VAR); \
+	    $(MAKE) --no-print-directory -f $(TOP_MAKEFILE) $(STAMP_BLD_VAR) unzip; \
 	fi)
 
 toolchain: VSP_TARBALL = $(OUTPUT_DIR)/$(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
@@ -140,6 +150,7 @@ clean:
 	        $(LIBOBJ_TMPDIR) \
 	        $(COMPILE_LOG) \
 	        $(DIST_DIR)/* \
+	        $(STAMP_DIR) \
 	        $(SYSROOT_INC)/* $(SYSROOT_LIB)/* $(SYSROOT_LIB)/../bin/* \
 	        $(shell $(SHELL_DBG) find $(OUTPUT_DIR) -name "$(COMPILE_LOG)" \
 	                             -o -name "$(WARNING_LOG)" \
@@ -153,7 +164,7 @@ distclean:
 	rm -rf \
 	    $(CONFIG_TPL) $(COMPILE_LOG) \
 	    $(STAMP_PRJ_CFG) $(STAMP_BLD_ENV) $(STAMP_BLD_VAR) $(STAMP_POST_RULE) \
-	    $(DIST_DIR) \
+	    $(DIST_DIR) $(STAMP_DIR) \
 
 	$(TOP_Q) \
 	if [ -d $(OUTPUT_DIR) ]; then \

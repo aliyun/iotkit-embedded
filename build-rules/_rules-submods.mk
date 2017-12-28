@@ -133,3 +133,4 @@ endif
 	    echo -ne "\r$$(printf '%40s' '')\r"; \
 	fi
 
+	@touch $(STAMP_DIR)/$$(echo "$@"|sed 's:/:~:g').build.done
