@@ -1,7 +1,7 @@
 .PHONY: FORCE
 
 ifdef TARGET
-SRCS ?= $(wildcard $(TOP_DIR)/$(MODULE_DIR)/*.c *.cpp)
+SRCS ?= $(wildcard $(TOP_DIR)/$(MODULE_NAME)/*.c $(TOP_DIR)/$(MODULE_NAME)/*.cpp)
 OBJS ?= $(subst .c,.o,$(subst .cpp,.o,$(SRCS)))
 
 ifneq (modinfo,$(MAKECMDGOALS))
@@ -31,10 +31,11 @@ endif
 ifeq (1,$(words $(TARGET)))
 
 $(TARGET): $(OBJS) FORCE
-	$(call Brief_Log,"LD")
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q) \
+( \
 	if [ "$(strip $(CC))" = "gcc" ] || [ "$(filter -D_PLATFORM_IS_LINUX_,$(CFLAGS))" != "" ]; then \
+	    $(call Brief_Log,"LD"); \
 	    mkdir -p $(OUTPUT_DIR)${bindir}; \
 	    $(CCLD) $(CFLAGS) -o $@ \
 	        $(RPATH_CFLAGS) \
@@ -42,7 +43,8 @@ $(TARGET): $(OBJS) FORCE
 	        -Wl,--start-group $(filter -l%, $(LDFLAGS)) -Wl,--end-group \
 	        $(filter -L%, $(LDFLAGS)) && \
 	    cp -f $@ $(OUTPUT_DIR)${bindir}; \
-	fi
+	fi; \
+)
 
 else
 

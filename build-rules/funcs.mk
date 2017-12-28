@@ -29,7 +29,8 @@ endif
 
 # 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white.
 define Brief_Log
-	@if [ "$1" = "CC" ]; then \
+( \
+	if [ "$1" = "CC" ]; then \
 	    if echo "$@"|grep -q "\.so$$"; then \
 	        COLOR_MARK="\e[1;32m"; \
 	    elif echo "$@"|grep -q "\.ko$$"; then \
@@ -44,8 +45,8 @@ define Brief_Log
 	elif [ "$1" = "ST" ]; then \
 	    COLOR_MARK="\e[0;33m"; \
 	fi; \
-	echo -ne "$${COLOR_MARK}"
-	@if [ "$2" = "" ]; then \
+	echo -ne "$${COLOR_MARK}"; \
+	if [ "$2" = "" ]; then \
 	    FIRST_DEP="$(firstword $(filter-out FORCE,$?))"; \
 	    SPACE_BAR="                                   "; \
 	    if [ "$${FIRST_DEP}" != "" ]; then \
@@ -54,13 +55,14 @@ define Brief_Log
 	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $$(basename $@) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	else \
 	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $(2) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
-	fi
-	@for i in $(wordlist 2,100,$(filter-out FORCE,$?)); do \
+	fi; \
+	for i in $(wordlist 2,100,$(filter-out FORCE,$?)); do \
 	    if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
 	        printf "%-32s%s\n" "" "   $$(basename $${i})"; \
 	    fi \
-	done
-	@echo -ne "\e[0m"
+	done; \
+	echo -ne "\e[0m"; \
+)
 endef
 
 define Copy_Headers

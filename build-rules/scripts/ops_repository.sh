@@ -11,8 +11,27 @@ if [ "${CMDV}" = "list" ]; then
         | sed 's/^PKG_UPSTREAM_\([^ ]*\) = \(.*\)$/[\1] \2/g'
 fi
 
+REPO_LIST=$( \
+    grep "^PKG_UPSTREAM_[-/_a-zA-Z0-9]*" ${BLDV} \
+        | sed 's/^PKG_UPSTREAM_\([^ ]*\) = \(.*\)$/[\1] \2/g' \
+        | cut -d' ' -f1 \
+        | sed 's/\[//g;s/\]//g;' \
+)
+
 if [ "${CMDV}" = "update" ]; then
-    REPOS=$(grep -o "^PKG_UPSTREAM_[-/_a-zA-Z0-9]*" ${BLDV}|sort -u|sed 's:PKG_UPSTREAM_::')
+    echo "Select repository to be updated, type 1 to update all repositories"|grep --color ".*"
+    echo ""
+    select O in "ALL REPOS" ${REPO_LIST}; do
+        echo ""
+        echo "Updating $O ..."|grep --color ".*"
+        echo ""
+        break
+    done
+
+    if [ "${O}" = "ALL REPOS" ]; then
+        O=""
+    fi
+    REPOS=$(grep -o "^PKG_UPSTREAM_[-/_a-zA-Z0-9]*" ${BLDV}|grep "${O}"|sort -u|sed 's:PKG_UPSTREAM_::')
     for R in ${REPOS}; do
         UPSTREAM=$(grep -m 1 "^PKG_UPSTREAM_${R}" ${BLDV}|awk '{ print $NF }')
         SOURCE=$(grep -m 1 "^PKG_SOURCE_${R}" ${BLDV}|awk '{ print $NF }')

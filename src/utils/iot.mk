@@ -4,5 +4,4 @@ LIB_SRCS    := $(filter-out $(TOP_DIR)/$(MODULE_NAME)/LITE-utils/lite-utils_prog
 
 HDR_REFS    := src
 
-DEPENDS     := src/log
 PKG_SOURCE  := LITE-utils.git

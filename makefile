@@ -13,10 +13,9 @@ include src/scripts/mock_build_options.mk
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
-    src/log \
     src/utils \
+    src/log \
     src/system \
-    src/sdk-impl \
 
 $(call CompLib_Map, MQTT_COMM_ENABLED, \
     src/mqtt \

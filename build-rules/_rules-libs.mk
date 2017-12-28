@@ -1,7 +1,14 @@
 VPATH    := $(TOP_DIR)/$(MODULE_NAME)
-LIB_SRCS ?= $(wildcard $(TOP_DIR)/$(MODULE_NAME)/*.c $(TOP_DIR)/$(MODULE_NAME)/*/*.c $(TOP_DIR)/$(MODULE_NAME)/*/*/*.c)
+LIB_SRCS ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$(M)))
 LIB_OBJS := $(LIB_SRCS:.c=.o)
 LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
+
+ifdef LIB_SRCS_PATTERN
+SRC_LIST := $(foreach M,$(LIB_SRCS_PATTERN),$(shell ls $(TOP_DIR)/$(MODULE_NAME)/$(M) 2>/dev/null))
+LIB_SRCS := $(SRC_LIST)
+LIB_OBJS := $(SRC_LIST:.c=.o)
+LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
+endif
 
 sinclude $(LIB_OBJS:.o=.d)
 
@@ -11,11 +18,11 @@ ifdef LIBA_TARGET
 ifeq (1,$(words $(LIBA_TARGET)))
 
 $(LIBA_TARGET) :: $(LIB_OBJS)
-	$(call Brief_Log,"AR")
+	@$(call Brief_Log,"AR")
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q)rm -f $@
-ifdef LIBOBJ_STRIP
-	$(call Brief_Log,"ST")
+ifdef CONFIG_LIBOBJ_STRIP
+	@$(call Brief_Log,"ST")
 	$(TOP_Q)$(STRIP) --strip-debug $(LIB_OBJS)
 endif
 	$(TOP_Q)$(AR) -rcs $@ $(LIB_OBJS)
@@ -32,7 +39,11 @@ endif
 else
 
 $(foreach t,$(sort $(LIBA_TARGET)),$(t)): FORCE
-	$(Q)$(MAKE) LIBA_TARGET=$@ LIB_SRCS="$(foreach S,$(LIB_SRCS_$(subst .a,,$(subst lib,,$@))),$(TOP_DIR)/$(MODULE_NAME)/$(S))"
+	$(Q) \
+	$(MAKE) LIBA_TARGET=$@ \
+	    LIB_SRCS="$(LIB_SRCS_$(subst .a,,$(subst lib,,$@)))" \
+	    LIB_SRCS_PATTERN="$(LIB_SRCS_PATTERN_$(subst .a,,$(subst lib,,$@)))" \
+
 
 endif   # ifeq (1,$(words $(LIBA_TARGET)))
 
@@ -44,7 +55,7 @@ ifdef LIBSO_TARGET
 $(LIBSO_TARGET) :: SELF_LIBNAME = $(subst lib,,$(subst .so,,$(LIBSO_TARGET)))
 $(LIBSO_TARGET) :: LDFLAGS := $(filter-out -l$(SELF_LIBNAME), $(LDFLAGS))
 $(LIBSO_TARGET) :: $(LIB_OBJS) $(foreach d,$(DEPENDS_$(MODULE_NAME)),$(SYSROOT_LIB)/$(LIBA_TARGET_$(d)))
-	$(call Brief_Log,"CC")
+	@$(call Brief_Log,"CC")
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q)$(CC) -shared -Os \
 	    $(CFLAGS) \

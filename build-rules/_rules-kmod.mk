@@ -23,7 +23,7 @@ $(firstword $(KMOD_TARGET)): $(KMOD_SRCS)
 	    >> $(KMOD_MAKEFILE); \
 	    echo "" >> $(KMOD_MAKEFILE); \
 	)
-	$(call Brief_Log,"CC",$(KMOD_TARGET))
+	@$(call Brief_Log,"CC",$(KMOD_TARGET))
 	$(Q) \
 	LDFLAGS=""; \
 	    $(MAKE) -C $(KERNEL_DIR) M=$(KMOD_BUILD_DIR) CROSS_COMPILE=$(CROSS_PREFIX) modules

@@ -82,7 +82,7 @@ clean:
         *.o.e *.d *.o *.a *.so *.log *.gc*
 
 %.o: %.c $(HD_MAKEFILE)
-	$(call Brief_Log,"CC")
+	@$(call Brief_Log,"CC")
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q) \
 	set -o pipefail; \
@@ -116,7 +116,7 @@ endif
 endif
 
 %.o: %.cpp
-	$(call Brief_Log,"CC")
+	@$(call Brief_Log,"CC")
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q)$(CXX) -I$(CURDIR) \
 	    $(INTERNAL_INCLUDES) \
