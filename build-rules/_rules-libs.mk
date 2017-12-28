@@ -1,5 +1,5 @@
 VPATH    := $(TOP_DIR)/$(MODULE_NAME)
-LIB_SRCS ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$(M)))
+LIB_SRCS ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$(M))) $(wildcard *.c)
 LIB_OBJS := $(LIB_SRCS:.c=.o)
 LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
 
