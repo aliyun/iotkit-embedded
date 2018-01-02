@@ -76,17 +76,11 @@ static void _register_func(iotx_cmp_send_peer_pt source, iotx_cmp_message_info_p
 
     printf("type %d\n", msg->message_type);
     printf("URI %s\n", msg->URI);
-    if (msg->URI)
-        LITE_free(msg->URI);    
     printf("URI_type %d\n", msg->URI_type);
     printf("code %d\n", msg->code);
     printf("id %d\n", msg->id);
     printf("method %s\n", msg->method);
-    if (msg->method)
-        LITE_free(msg->method);
     printf("parameter %s\n", (char*)msg->parameter);
-    if (msg->parameter)
-        LITE_free(msg->parameter);
 }
 
 

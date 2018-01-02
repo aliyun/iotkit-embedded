@@ -27,8 +27,8 @@
 #define CMP_DEVICE_ID_LEN       (64)
 
 
-/* support mutli thread 
-#define CMP_SUPPORT_MULTI_THREAD */ 
+/* support mutli thread */ 
+#define CMP_SUPPORT_MULTI_THREAD 
 
 /*
 * CMP: connection manager platform
@@ -151,11 +151,11 @@ typedef struct {
      * If is is the IOTX_CMP_MESSAGE_RESPONSE in register_callback, this id is no mean.
      * If is is the IOTX_CMP_MESSAGE_REQUEST in register_callback, this id must be non-null. */
     int                                       id;         
-    char                                     *URI;    /* please free memory when register_callback */
+    char                                     *URI;    
     iotx_cmp_uri_types_t                      URI_type;
     unsigned int                              code;   /* [in/out] */
-    char                                     *method; /* please free memory when register_callback */
-    void                                     *parameter;  /* please free memory when register_callback */
+    char                                     *method; 
+    void                                     *parameter;  
     unsigned int                              parameter_length;
     iotx_cmp_message_types_t                  message_type;   /* response, request or raw */
 } iotx_cmp_message_info_t, *iotx_cmp_message_info_pt;
@@ -274,10 +274,6 @@ int IOT_CMP_Unregister(iotx_cmp_unregister_param_pt pparam, void* option);
  *
  * @return success or fail.
  *
- * @note CMP will LITE_free(target) 
- *       LITE_free(message_info->URI);
- *       LITE_free(message_info->parameter);
- *       LITE_free(message_info->method);
  */
 int IOT_CMP_Send(iotx_cmp_send_peer_pt target, iotx_cmp_message_info_pt message_info, void* option);
 
@@ -297,10 +293,6 @@ int IOT_CMP_Send(iotx_cmp_send_peer_pt target, iotx_cmp_message_info_pt message_
  *
  * @return success or fail.
  *
- * @note CMP will LITE_free(target) 
- *       LITE_free(message_info->URI);
- *       LITE_free(message_info->parameter);
- *       LITE_free(message_info->method);
  */
 int IOT_CMP_Send_Sync(iotx_cmp_send_peer_pt target, iotx_cmp_message_info_pt message_info, void* option);
 
