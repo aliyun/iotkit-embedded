@@ -27,8 +27,8 @@
 #define CMP_DEVICE_ID_LEN       (64)
 
 
-/* support mutli thread */ 
-#define CMP_SUPPORT_MULTI_THREAD 
+/* support mutli thread 
+#define CMP_SUPPORT_MULTI_THREAD */  
 
 /*
 * CMP: connection manager platform
