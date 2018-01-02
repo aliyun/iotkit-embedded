@@ -105,13 +105,18 @@ ifneq (,$(findstring gcc,$(CC)))
 ifeq (,$(filter modinfo,$(MAKECMDGOALS)))
 %.d: %.c
 	$(Q) \
+( \
+	D=$$(dirname $<|sed 's:$(TOP_DIR):$(OUTPUT_DIR):1'); \
+	F=$$(basename $<); \
+	mkdir -p $${D}; \
 	$(CC) -MM -I$(CURDIR) \
 	    $(INTERNAL_INCLUDES) \
 	    $(EXTERNAL_INCLUDES) \
 	    $(CFLAGS) \
-	$< > $(OUTPUT_DIR)/$(MODULE_NAME)/$(shell basename $@).$$$$; \
-	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $(OUTPUT_DIR)/$(MODULE_NAME)/$(shell basename $@).$$$$; \
-	mv $(OUTPUT_DIR)/$(MODULE_NAME)/$(shell basename $@).$$$$ $@;
+	$< > $${D}/$${F}.$$$$; \
+	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $${D}/$${F}.$$$$; \
+	mv $${D}/$${F}.$$$$ $@; \
+)
 endif
 endif
 

@@ -43,7 +43,10 @@ if [ "${CMDV}" = "update" ]; then
         cd ${PACKAGE_DIR}
         rm -rf ${SOURCE}
 
-        git clone -q --bare -b ${BRANCH} --single-branch ${UPSTREAM} ${SOURCE}
+        # --single-branch might doesn't exist for git <= 1.7.9.5
+        #
+        # git clone -q --bare -b ${BRANCH} --single-branch ${UPSTREAM} ${SOURCE}
+        git clone -q --bare -b ${BRANCH} ${UPSTREAM} ${SOURCE}
         rm -rf ${SOURCE}/hooks/
         mkdir -p ${SOURCE}/hooks/
         touch ${SOURCE}/hooks/.gitkeep
