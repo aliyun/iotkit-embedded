@@ -108,6 +108,10 @@ export STRIP    := true
 endif
 endif
 
+ifeq (gcc,$(strip $(CC)))
+export STRIP    := strip
+endif
+
 include $(RULE_DIR)/_rules-dist.mk
 include $(RULE_DIR)/_rules-complib.mk
 include $(RULE_DIR)/_rules-submods.mk
