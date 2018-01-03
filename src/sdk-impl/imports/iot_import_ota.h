@@ -37,3 +37,4 @@
 #define OTA_SNPRINTF        HAL_Snprintf
 
 #endif /* _OTA_IMPORT_H_ */
+

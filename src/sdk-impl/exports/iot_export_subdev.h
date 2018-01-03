@@ -27,45 +27,63 @@
 #define GATEWAY_TOPIC_LEN_MAX                256
 
 /* Reply message maximum length value */
-#define REPLY_MESSAGE_LEN_MAX            128
+#define REPLY_MESSAGE_LEN_MAX                128
 
-/* The fomat of session combine topic */
+/* The format of session combine topic */
 #define TOPIC_SESSION_COMBINE_FMT            "/ext/session/%s/%s/combine/%s"
 
-/* The fomat of system RRPC topic */
+/* The format of session sub topic */
+#define TOPIC_SESSION_SUB_FMT                "/sys/%s/%s/thing/sub/%s"
+
+/* The format of session topo topic */
+#define TOPIC_SESSION_TOPO_FMT               "/sys/%s/%s/thing/topo/%s"
+
+/* The format of system RRPC topic */
 #define TOPIC_SYS_RRPC_FMT                   "/sys/%s/%s/rrpc/%s/+"
 
 
-/* Subdevice    login sign method */
-typedef enum IOTX_LOGIN_SIGN_METHOD_TYPES {
+/* Subdevice    register/login sign method */
+typedef enum IOTX_SUBDEV_SIGN_METHOD_TYPES {
     /* HmacSha1 */
-    IOTX_LOGIN_SIGN_METHOD_TYPE_SHA,
+    IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA,
     
     /* HmacMd5 */
-    IOTX_LOGIN_SIGN_METHOD_TYPE_MD5,
+    IOTX_SUBDEV_SIGN_METHOD_TYPE_MD5,
     
     /* Undefined */
-    IOTX_LOGIN_SIGN_METHOD_TYPE_UNDEFINED,
+    IOTX_SUBDEV_SIGN_METHOD_TYPE_UNDEFINED,
 
     /* Maximum number of login sign method */
-    IOTX_LOGIN_SIGN_METHOD_TYPE_MAX
-}iotx_login_sign_method_types_t;
+    IOTX_SUBDEV_SIGN_METHOD_TYPE_MAX
+}iotx_subdev_sign_method_types_t;
 
 
 /* Subdevice    login clean seesion type */
-typedef enum IOTX_LOGIN_CLEAN_SESSION_TYPES {
+typedef enum IOTX_SUBDEV_CLEAN_SESSION_TYPES {
     /* True */
-    IOTX_LOGIN_CLEAN_SESSION_TRUE,
+    IOTX_SUBDEV_CLEAN_SESSION_TRUE,
     
     /* False */
-    IOTX_LOGIN_CLEAN_SESSION_FALSE,
+    IOTX_SUBDEV_CLEAN_SESSION_FALSE,
         
     /* Undefined */
-    IOTX_LOGIN_CLEAN_SESSION_UNDEFINED,
+    IOTX_SUBDEV_CLEAN_SESSION_UNDEFINED,
     
     /* Maximum number of login clean seesion type */
-    IOTX_LOGIN_CLEAN_SESSION_MAX
-}iotx_login_clean_session_types_t;
+    IOTX_SUBDEV_CLEAN_SESSION_MAX
+}iotx_subdev_clean_session_types_t;
+
+
+/* Register type */
+typedef enum IOTX_SUBDEV_REGISTER_TYPES {
+    /* static, via web get device_secert */
+    IOTX_SUBDEV_REGISTER_TYPE_STATIC,
+    
+    /* dynamic, via register API get device_secert */
+    IOTX_SUBDEV_REGISTER_TYPE_DYNAMIC,
+    
+    IOTX_SUBDEV_REGISTER_TYPE_MAX
+}iotx_subdev_register_types_t;
 
 
 /**
@@ -129,7 +147,7 @@ void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param);
 
 /**
  * @brief Deconstruct the Gateway
- *        This function    unsubscribe default     topic, disconnect MQTT connection and 
+ *        This function unsubscribe default topic, disconnect MQTT connection and 
  *        release the related resource.
  *
  * @param pointer of handle, specify the Gateway.
@@ -140,6 +158,50 @@ int IOT_Gateway_Destroy(void** handle);
 
 
 /**
+ * @brief Device register
+ *        This function used to register device and add topo.
+ *
+ * @param pointer of handle, specify the gateway construction.
+ * @param register type.
+ *               IOTX_SUBDEV_REGISTER_TYPE_STATIC
+ *               IOTX_SUBDEV_REGISTER_TYPE_DYNAMIC
+ * @param product key.
+ * @param device name.
+ * @param timestamp.           [if type = dynamic, must be NULL ]
+ * @param client_id.           [if type = dynamic, must be NULL ]
+ * @param sign.                [if type = dynamic, must be NULL ]
+ * @param sign_method.    
+ *               IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA
+ *               IOTX_SUBDEV_SIGN_METHOD_TYPE_MD5
+ *
+ * @return 0, Logout success; -1, Logout fail.
+ */
+int IOT_Subdevice_Register(void* handle, 
+        iotx_subdev_register_types_t type, 
+        const char* product_key, 
+        const char* device_name,
+        char* timestamp, 
+        char* client_id, 
+        char* sign,
+        iotx_subdev_sign_method_types_t sign_type);
+
+
+/**
+ * @brief Device unregister
+ *        This function used to delete topo and unregister device.
+ *        The device must dynamic register again if it want to use after unregister.
+ *
+ * @param pointer of handle, specify the gateway construction.
+ * @param product key.
+ * @param device name.
+ *
+ * @return 0, Unregister success; -1, Unregister fail.
+ */
+int IOT_Subdevice_Unregister(void* handle, 
+        const char* product_key, 
+        const char* device_name);
+
+/**
  * @brief Subdevice login
  *        This function    publish a packet with LOGIN topic and wait for the reply (with
  *        LOGIN_REPLY topic), then subscribe some subdevice topic.
@@ -147,9 +209,9 @@ int IOT_Gateway_Destroy(void** handle);
  * @param pointer of handle, specify the Gateway.
  * @param product key.
  * @param device name.
- * @param timestamp.     
- * @param client_id.           
- * @param sign.          
+ * @param timestamp.           [if register_type = dynamic, must be NULL ]
+ * @param client_id.           [if register_type = dynamic, must be NULL ]
+ * @param sign.                [if register_type = dynamic, must be NULL ] 
  * @param sign method,  HmacSha1 or HmacMd5.      
  * @param clean session, ture or false.
  *
@@ -161,13 +223,13 @@ int IOT_Subdevice_Login(void* handle,
         const char* timestamp, 
         const char* client_id, 
         const char* sign, 
-        iotx_login_sign_method_types_t sign_method_type,
-        iotx_login_clean_session_types_t clean_session_type);
+        iotx_subdev_sign_method_types_t sign_method_type,
+        iotx_subdev_clean_session_types_t clean_session_type);
 
 
 /**
  * @brief Subdevice logout
- *        This function    unsubscribe some subdevice topic, then publish a packet with
+ *        This function unsubscribe some subdevice topic, then publish a packet with
  *        LOGOUT topic and wait for the reply (with LOGOUT_REPLY topic).
  *
  * @param pointer of handle, specify the Gateway.
@@ -195,7 +257,7 @@ int IOT_Gateway_Yield(void* handle, uint32_t timeout);
 
 /**
  * @brief Gateway Subscribe
- *        This function    used to subscribe some topic.
+ *        This function used to subscribe some topic.
  *
  * @param pointer of handle, specify the Gateway.
  * @param topic list.
@@ -214,7 +276,7 @@ int IOT_Gateway_Subscribe(void* handle,
 
 /**
  * @brief Gateway Unsubscribe
- *        This function    used to unsubscribe some topic.
+ *        This function used to unsubscribe some topic.
  *
  * @param pointer of handle, specify the Gateway.
  * @param topic list.
@@ -241,7 +303,7 @@ int IOT_Gateway_Publish(void* handle,
 
 /**
  * @brief Register RRPC callback
- *        This function    used to register one RRPC callback.
+ *        This function used to register one RRPC callback.
  *
  * @param pointer of handle, specify the Gateway.
  * @param product key.
@@ -259,7 +321,7 @@ int IOT_Gateway_RRPC_Register(void* handle,
 
 /**
  * @brief Response RRPC request
- *        This function    used to response the RRPC request.
+ *        This function used to response the RRPC request.
  *
  * @param pointer of handle, specify the Gateway.
  * @param product key.
