@@ -94,10 +94,10 @@ int cmp_client()
     iotx_cmp_message_info_t message_info = {0};  
     iotx_cmp_unregister_param_t unregister_param = {0};
     
-    param.product_key = HAL_Malloc(CMP_PRODUCT_KEY_LEN);
-    param.device_name = HAL_Malloc(CMP_DEVICE_NAME_LEN);
-    param.device_secret = HAL_Malloc(CMP_DEVICE_SECRET_LEN);
-    param.device_id = HAL_Malloc(CMP_DEVICE_ID_LEN);
+    param.product_key = LITE_malloc(CMP_PRODUCT_KEY_LEN);
+    param.device_name = LITE_malloc(CMP_DEVICE_NAME_LEN);
+    param.device_secret = LITE_malloc(CMP_DEVICE_SECRET_LEN);
+    param.device_id = LITE_malloc(CMP_DEVICE_ID_LEN);
 
     strncpy(param.product_key, IOTX_PRODUCT_KEY, strlen(IOTX_PRODUCT_KEY));
     strncpy(param.device_name, IOTX_DEVICE_NAME, strlen(IOTX_DEVICE_NAME));
@@ -111,6 +111,11 @@ int cmp_client()
     
     printf("init\n");
     rc = IOT_CMP_Init(&param, NULL);
+    
+    LITE_free(param.product_key);
+    LITE_free(param.device_name);
+    LITE_free(param.device_secret);
+    LITE_free(param.device_id);
 
     if (FAIL_RETURN == rc) {
         printf("init fail\n");
@@ -132,8 +137,6 @@ int cmp_client()
     }
     
     printf("register success \n");
-
-
 
 #ifndef CMP_SUPPORT_MULTI_THREAD
     rc = IOT_CMP_Yield(200, NULL);
