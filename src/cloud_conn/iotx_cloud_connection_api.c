@@ -157,10 +157,8 @@ int IOT_Cloud_Connection_Deinit(void** handle)
     /* deiniet */
     rc = cloud_connection->function_pt->deinit_func(cloud_connection);
 
-    log_info("deinit");
-
     iotx_cloud_connection_remove_mapping_all(cloud_connection);
-    log_info("deinit");
+    
     /* free memory */
     LITE_free(cloud_connection->function_pt);
     LITE_free(cloud_connection->device_info);

@@ -362,15 +362,15 @@ int main(int argc, char **argv)
     IOT_OpenLog("cloud-conn");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    /*EXAMPLE_TRACE("MQTT!");
+    EXAMPLE_TRACE("MQTT!");
     if (SUCCESS_RETURN == mqtt_client())        
         EXAMPLE_TRACE("MQTT success!");
     else 
         EXAMPLE_TRACE("MQTT fail!");
     
-    HAL_SleepMs(200);*/
+    HAL_SleepMs(200);
     
-    EXAMPLE_TRACE("--------");
+   /* EXAMPLE_TRACE("--------");
     EXAMPLE_TRACE("CoAP!");
     if (SUCCESS_RETURN == coap_client())        
         EXAMPLE_TRACE("CoAP success!");
@@ -384,7 +384,7 @@ int main(int argc, char **argv)
     if (SUCCESS_RETURN == http_client())        
         EXAMPLE_TRACE("HTTP success!");
     else 
-        EXAMPLE_TRACE("HTTP fail!");
+        EXAMPLE_TRACE("HTTP fail!")*/;
     
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_CloseLog();

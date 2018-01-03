@@ -16,7 +16,7 @@ extern void utils_hmac_md5(const char *msg, int msg_len, char *digest, const cha
 
 // static register
 #define SUB_1_PRODUCT_KEY              "a18DAcXIew7"
-#define SUB_1_DEVICE_NAME              "subdev_wifi_01"
+#define SUB_1_DEVICE_NAME              "subdev_wifi_19"//"subdev_wifi_01"
 #define SUB_1_DEVICE_SECRET            "9hhJDUpKVDrlg2kjbQIV96qfBqWS07ku"
 
 // dynamie register
@@ -69,12 +69,31 @@ static int _calc_sign(const char* product_key,
     return 0;
 }
 
-
-static void _demo_gateway_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+#if 0
+static void _demo_gateway_message_arrive(void *pcontext, void *pclient, void* msg)
 {
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    iotx_cloud_connection_msg_rsp_pt rsp = (iotx_cloud_connection_msg_rsp_pt)msg;
 
-    printf("~~~~~~~~ gateway receive MQTT data ~~~~~~~~\n");
+    printf("~~~~~~~ gateway receive cloud data ~~~~~~~\n");
+
+    /* print topic name and topic message */
+    printf("----\n");
+    printf("Topic: '%.*s' (Length: %d)\n",
+                  rsp->URI_length,
+                  rsp->URI,
+                  rsp->URI_length);
+    printf("Payload: '%.*s' (Length: %d)\n",
+                  rsp->payload_length,
+                  rsp->payload,
+                  rsp->payload_length);
+    printf("----\n");
+
+#else
+    iotx_mqtt_event_msg_pt mqtt_msg = (iotx_mqtt_event_msg_pt)msg;
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) mqtt_msg->msg;
+
+    printf("~~~~~~~ gateway receive MQTT data ~~~~~~~\n");
 
     /* print topic name and topic message */
     printf("----\n");
@@ -87,11 +106,32 @@ static void _demo_gateway_message_arrive(void *pcontext, void *pclient, iotx_mqt
                   ptopic_info->payload,
                   ptopic_info->payload_len);
     printf("----\n");
+#endif
 }
+#endif
 
-static void _demo_subdevice1_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+static void _demo_subdevice1_message_arrive(void *pcontext, void *pclient, void* msg)
 {
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+#ifdef SUBDEV_VIA_CLOUD_CONN
+    iotx_cloud_connection_msg_rsp_pt rsp = (iotx_cloud_connection_msg_rsp_pt)msg;
+
+    printf("~~~~~~~ subdevice1 receive cloud data ~~~~~~~\n");
+
+    /* print topic name and topic message */
+    printf("----\n");
+    printf("Topic: '%.*s' (Length: %d)\n",
+                  rsp->URI_length,
+                  rsp->URI,
+                  rsp->URI_length);
+    printf("Payload: '%.*s' (Length: %d)\n",
+                  rsp->payload_length,
+                  (char*)rsp->payload,
+                  rsp->payload_length);
+    printf("----\n");
+
+#else
+    iotx_mqtt_event_msg_pt mqtt_msg = (iotx_mqtt_event_msg_pt)msg;
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) mqtt_msg->msg;
 
     printf("~~~~~~~ subdevice1 receive MQTT data ~~~~~~~\n");
 
@@ -106,6 +146,7 @@ static void _demo_subdevice1_message_arrive(void *pcontext, void *pclient, iotx_
                   ptopic_info->payload,
                   ptopic_info->payload_len);
     printf("----\n");
+#endif
 }
 
        
@@ -146,12 +187,13 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     char sign[41] = {0};
     char timestamp[20] = {0};
     char client_id[32] = {0};
-    char topo_topic[128] = {0};
+    /*char topo_topic[128] = {0};*/
     char deviceinfo_topic[128] = {0};
     char topic[128] = {0};
 
     /* Device AUTH */
     rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
+    
     if (SUCCESS_RETURN != rc) {
         printf("rc = IOT_SetupConnInfo() = %d\n", rc);
         return rc;
@@ -189,7 +231,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     strncpy(timestamp, "2524608000000", strlen("2524608000000") + 1);
    
     /* client id */
-    HAL_Snprintf(client_id, 32, "%s&&&%s", SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
+    HAL_Snprintf(client_id, 32, "%s.%s", SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
     
     /* sign */    
     if (FAIL_RETURN == _calc_sign(SUB_1_PRODUCT_KEY,
@@ -221,7 +263,8 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~ construct success ~~~~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
     
-    
+
+    #if 0
     printf(" ~~~~~~~~~~~~ start subscribe ~~~~~~~~~~~~~~ \n");  
     printf(" ~~~~~~~~~~~ gateway subscribe ~~~~~~~~~~~~~ \n"); 
     HAL_Snprintf(topo_topic,
@@ -274,16 +317,36 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     printf("gateway rc = IOT_Gateway_Publish() = %d\n", rc);
 
     HAL_SleepMs(1000);
+    #else
+
+    printf(" ~~~~~~~~~~~~~ start register ~~~~~~~~~~~~~~~ \n");
+    rc = IOT_Subdevice_Register(gateway_t, 
+                IOTX_SUBDEV_REGISTER_TYPE_DYNAMIC, //IOTX_SUBDEV_REGISTER_TYPE_STATIC, 
+                SUB_1_PRODUCT_KEY, 
+                SUB_1_DEVICE_NAME, //SUB_1_DEVICE_NAME, 
+                NULL, //timestamp, 
+                NULL, //client_id, 
+                NULL, //sign, 
+                IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA);
+
+    if (SUCCESS_RETURN != rc) {
+        printf("1  rc = IOT_Subdevice_Register() = %d\n", rc);
+        IOT_Gateway_Destroy((void**)&gateway_t);
+        return rc;
+    }    
+
+    
+    #endif
 
     printf(" ~~~~~~~~~~~~~~~ start login ~~~~~~~~~~~~~~~~ \n");    
     rc = IOT_Subdevice_Login(gateway_t, 
                 SUB_1_PRODUCT_KEY, 
-                SUB_1_DEVICE_NAME, 
-                timestamp,
-                client_id,
-                sign,
-                IOTX_LOGIN_SIGN_METHOD_TYPE_SHA,
-                IOTX_LOGIN_CLEAN_SESSION_TRUE);
+                SUB_1_DEVICE_NAME,
+                NULL,//timestamp,
+                NULL,//client_id,
+                NULL,//sign,
+                IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA,
+                IOTX_SUBDEV_CLEAN_SESSION_TRUE);
 
     if (SUCCESS_RETURN != rc) {
         printf("1  rc = IOT_Subdevice_Login() = %d\n", rc);
