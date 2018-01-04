@@ -55,32 +55,36 @@ typedef enum IOTX_CMP_CLOUD_DOMAIN_TYPES {
 typedef enum IOTX_CMP_EVENT_TYPES {
     /* cloud disconnect */
     /* event_msg is null */
-    IOTX_CMP_EVENT_CLOUD_DISCONNECT = 1,
+    IOTX_CMP_EVENT_CLOUD_DISCONNECT = 0,
     
     /* cloud reconnect */
     /* event_msg is null */
-    IOTX_CMP_EVENT_CLOUD_RECONNECT = 2,
+    IOTX_CMP_EVENT_CLOUD_RECONNECT = 1,
 
     /* local: found device */
     /* event_msg is iotx_cmp_event_device_pt */
-    IOTX_CMP_EVENT_FOUND_DEVICE = 3,   
+    IOTX_CMP_EVENT_FOUND_DEVICE = 10,   
     
     /* local: remove device */
     /* event_msg is iotx_cmp_event_device_pt */
-    IOTX_CMP_EVENT_REMOVE_DEVICE = 4,
+    IOTX_CMP_EVENT_REMOVE_DEVICE = 11,
     
     /* register */
     /* event_msg is iotx_cmp_event_result_pt */
-    IOTX_CMP_EVENT_REGISTER_RESULT = 5,     
+    IOTX_CMP_EVENT_REGISTER_RESULT = 20,     
     
     /* unregister */
     /* event_msg is iotx_cmp_event_result_pt */
-    IOTX_CMP_EVENT_UNREGISTER_RESULT = 6,
+    IOTX_CMP_EVENT_UNREGISTER_RESULT = 21,
+    
+    /* unregister */
+    /* event_msg is iotx_cmp_event_result_pt */
+    IOTX_CMP_EVENT_SEND_RESULT = 22,
     
 #ifdef CMP_SUPPORT_OTA
     /* new version detected, please ota */
     /* event_msg is null */
-    IOTX_CMP_EVENT_NEW_VERSION_DETECTED = 7,
+    IOTX_CMP_EVENT_NEW_VERSION_DETECTED = 30,
 #endif /* CMP_SUPPORT_OTA */
 
     /* Maximum number of protocol */
