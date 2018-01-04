@@ -16,8 +16,8 @@ extern void utils_hmac_md5(const char *msg, int msg_len, char *digest, const cha
 
 // static register
 #define SUB_1_PRODUCT_KEY              "a18DAcXIew7"
-#define SUB_1_DEVICE_NAME              "subdev_wifi_19"//"subdev_wifi_01"
-#define SUB_1_DEVICE_SECRET            "9hhJDUpKVDrlg2kjbQIV96qfBqWS07ku"
+#define SUB_1_DEVICE_NAME              "subdev_wifi_21"//"subdev_wifi_20" 
+#define SUB_1_DEVICE_SECRET            "i2jTf0SkPoD0bH2pSV3WBXOgiuVrGTbs" 
 
 // dynamie register
 #define SUB_2_PRODUCT_KEY              "a18DAcXIew7"
@@ -27,6 +27,16 @@ extern void utils_hmac_md5(const char *msg, int msg_len, char *digest, const cha
 #define PAYLOAD_LEN_MAX                (1024)
 #define MSG_LEN_MAX                    (1024 * 2)
 
+extern int iotx_gateway_calc_sign(const char* prodect_key, 
+        const char* device_name,
+        const char* device_secret,
+        char* hmac_sigbuf,
+        const int hmac_buflen,
+        iotx_subdev_sign_method_types_t sign_method,
+        const char *client_id, 
+        const char *timestamp_str);
+
+#if 0
 static int _calc_sign(const char* product_key, 
         const char* device_name,
         const char* device_secret,
@@ -43,7 +53,7 @@ static int _calc_sign(const char* product_key,
     memset(hmac_source, 0, sizeof(hmac_source));
     HAL_Snprintf(hmac_source,
                       sizeof(hmac_source),
-                      "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+                      "clientId%s""deviceName%s""productKey%s""timestamp%s",
                       client_id,
                       device_name,
                       product_key,
@@ -68,7 +78,7 @@ static int _calc_sign(const char* product_key,
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return 0;
 }
-
+#endif
 #if 0
 static void _demo_gateway_message_arrive(void *pcontext, void *pclient, void* msg)
 {
@@ -234,12 +244,12 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     HAL_Snprintf(client_id, 32, "%s.%s", SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
     
     /* sign */    
-    if (FAIL_RETURN == _calc_sign(SUB_1_PRODUCT_KEY,
+    if (FAIL_RETURN == iotx_gateway_calc_sign(SUB_1_PRODUCT_KEY,
                             SUB_1_DEVICE_NAME,
                             SUB_1_DEVICE_SECRET,
                             sign, 
                             41,
-                            "hmacsha1",
+                            IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA,//"hmacsha1",
                             client_id,
                             timestamp)) {
         printf("sign fail \n");
@@ -321,12 +331,12 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
 
     printf(" ~~~~~~~~~~~~~ start register ~~~~~~~~~~~~~~~ \n");
     rc = IOT_Subdevice_Register(gateway_t, 
-                IOTX_SUBDEV_REGISTER_TYPE_DYNAMIC, //IOTX_SUBDEV_REGISTER_TYPE_STATIC, 
+                IOTX_SUBDEV_REGISTER_TYPE_STATIC,  
                 SUB_1_PRODUCT_KEY, 
-                SUB_1_DEVICE_NAME, //SUB_1_DEVICE_NAME, 
-                NULL, //timestamp, 
-                NULL, //client_id, 
-                NULL, //sign, 
+                SUB_1_DEVICE_NAME,
+                timestamp, 
+                client_id, 
+                sign, 
                 IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA);
 
     if (SUCCESS_RETURN != rc) {
@@ -342,14 +352,15 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     rc = IOT_Subdevice_Login(gateway_t, 
                 SUB_1_PRODUCT_KEY, 
                 SUB_1_DEVICE_NAME,
-                NULL,//timestamp,
-                NULL,//client_id,
-                NULL,//sign,
+                timestamp, 
+                client_id, 
+                sign, 
                 IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA,
                 IOTX_SUBDEV_CLEAN_SESSION_TRUE);
 
     if (SUCCESS_RETURN != rc) {
         printf("1  rc = IOT_Subdevice_Login() = %d\n", rc);
+        IOT_Subdevice_Unregister(gateway_t, SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
         IOT_Gateway_Destroy((void**)&gateway_t);
         return rc;
     }  
@@ -359,6 +370,8 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
             SUB_1_DEVICE_NAME, 
             rrpc_request_handler)) {
         printf("rrpc register error\n");
+        IOT_Subdevice_Unregister(gateway_t, SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
+        IOT_Gateway_Destroy((void**)&gateway_t);
         return FAIL_RETURN;
     }   
     printf(" ~~~~~~~~~~~~~~~ login success ~~~~~~~~~~~~~~~~ \n");    
@@ -377,6 +390,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
                 NULL);
     
     if (rc < 0) {
+        IOT_Subdevice_Unregister(gateway_t, SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
         IOT_Gateway_Destroy((void**)&gateway_t);
         printf("gateway IOT_Gateway_Subscribe() failed, rc = %d", rc);
         return rc;
@@ -440,6 +454,10 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~~ start logout ~~~~~~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
     rc = IOT_Subdevice_Logout(gateway_t, SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
+
+    printf(" ~~~~~~~~~~~~~ start unregister ~~~~~~~~~~~~~~~~ \n"); 
+    printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+    rc = IOT_Subdevice_Unregister(gateway_t, SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME);
 
     if (SUCCESS_RETURN != rc) {
         printf("1  rc = IOT_Subdevice_Logout() = %d\n", rc);

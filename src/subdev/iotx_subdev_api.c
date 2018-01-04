@@ -694,6 +694,7 @@ int IOT_Subdevice_Register(void* handle,
         iotx_subdev_sign_method_types_t sign_type)
 {    
     uint32_t msg_id = 0;
+    int rc = 0;
     char* packet = NULL;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
     char device_secret[DEVICE_SECRET_LEN] = {0};
@@ -718,8 +719,7 @@ int IOT_Subdevice_Register(void* handle,
         if (NULL != timestamp && NULL != client_id && NULL != sign) {
             log_info("parameter error, if dynamic register, timestamp = client_id = sign = NULL");
             return FAIL_RETURN;
-        }        
-        
+        }                
 
         /* topic */
         HAL_Snprintf(topic, 
@@ -774,19 +774,16 @@ int IOT_Subdevice_Register(void* handle,
 
         /* sign */  
         MALLOC_MEMORY_WITH_FREE_AND_RESULT(sign, 41, timestamp, FAIL_RETURN);    
-        if (FAIL_RETURN == iotx_gateway_calc_sign(product_key,
+        if (FAIL_RETURN == (rc = iotx_gateway_calc_sign(product_key,
                                 device_name,
                                 device_secret,
                                 sign, 
                                 41,
                                 sign_type,
                                 client_id,
-                                timestamp)) {
+                                timestamp))) {
             log_err("sign fail");
-            LITE_free(timestamp);
-            LITE_free(client_id);
-            LITE_free(sign);
-            return FAIL_RETURN;
+            goto exit;
         }                
 
         if (NULL == (session = iotx_subdevice_add_session(gateway,
@@ -799,10 +796,8 @@ int IOT_Subdevice_Register(void* handle,
                                     sign_type,
                                     IOTX_SUBDEV_CLEAN_SESSION_FALSE))) {
             log_err("create session error!");
-            LITE_free(timestamp);
-            LITE_free(client_id);
-            LITE_free(sign);
-            return FAIL_RETURN;        
+            rc = FAIL_RETURN;
+            goto exit;
         }    
         iotx_subdevice_set_session_status(session, IOTX_SUBDEVICE_SEESION_STATUS_REGISTER);
         iotx_subdevice_set_session_dynamic_register(session);
@@ -817,7 +812,8 @@ int IOT_Subdevice_Register(void* handle,
     if (sign_type != IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA && 
             sign_type != IOTX_SUBDEV_SIGN_METHOD_TYPE_MD5) {
         log_info("register type not support");
-        return FAIL_RETURN;
+        rc = FAIL_RETURN;
+        goto exit;
     }
 
     /* topo add */   
@@ -853,26 +849,24 @@ int IOT_Subdevice_Register(void* handle,
     
     if (packet == NULL) {
         log_err("login packet splice error!");
-        return FAIL_RETURN;
+        rc = FAIL_RETURN;
+        goto exit;
     }        
     
     /* publish packet */
-    if (FAIL_RETURN == iotx_gateway_publish_sync(gateway, 
+    if (FAIL_RETURN == (rc = iotx_gateway_publish_sync(gateway, 
             IOTX_MQTT_QOS0, 
             topic, 
             packet, 
             msg_id, 
             &(gateway->gateway_data.topo_add_reply),
-            IOTX_GATEWAY_PUBLISH_TOPO_ADD)) {
-        LITE_free(packet);
-        LITE_free(timestamp);
-        LITE_free(client_id);
-        LITE_free(sign);
-        log_err("MQTT Publish error!");
-        return FAIL_RETURN;        
+            IOTX_GATEWAY_PUBLISH_TOPO_ADD))) {
+        goto exit;
     }
-            
-    LITE_free(packet);    
+
+exit: 
+    if (packet)
+        LITE_free(packet);    
     
     if (IOTX_SUBDEV_REGISTER_TYPE_DYNAMIC == type) {
         LITE_free(timestamp);
@@ -880,7 +874,7 @@ int IOT_Subdevice_Register(void* handle,
         LITE_free(sign);
     }
 
-    return SUCCESS_RETURN;
+    return rc;
 }
 
 /* unregister: topo delete first, then unregister */
