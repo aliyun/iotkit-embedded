@@ -91,13 +91,13 @@ typedef enum IOTX_CMP_EVENT_TYPES {
 /* URI type */
 typedef enum IOTX_CMP_URI_TYPES {
     /* /sys/product_key/device_name/... */
-    IOTX_CMP_URI_SYS,
+    IOTX_CMP_URI_SYS = 1,
     
     /* /ext/product_key/device_name/... */
-    IOTX_CMP_URI_EXT,
+    IOTX_CMP_URI_EXT = 2,
 
     /* set by user */
-    IOTX_CMP_URI_UNDEFINE,
+    IOTX_CMP_URI_UNDEFINE = 3,
     
     /* Maximum number of protocol */
     IOTX_CMP_URI_MAX
@@ -210,8 +210,10 @@ typedef struct {
 typedef struct {
     char                                       *URI;
     iotx_cmp_uri_types_t                        URI_type;
+    iotx_cmp_message_types_t                    message_type;
     iotx_cmp_register_func_fpt                  register_func;
-    void                                       *user_data;              
+    void                                       *user_data;    
+    void                                       *mail_box;
 } iotx_cmp_register_param_t, *iotx_cmp_register_param_pt;
 
 

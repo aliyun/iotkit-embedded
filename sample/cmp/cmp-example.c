@@ -126,6 +126,7 @@ int cmp_client()
     printf("register\n");
     register_param.URI_type = IOTX_CMP_URI_UNDEFINE;
     register_param.URI = TOPIC_DATA;
+    register_param.message_type = IOTX_CMP_MESSAGE_REQUEST;
     register_param.register_func = _register_func;
     register_param.user_data = &user_data;
     rc = IOT_CMP_Register(&register_param, NULL);
