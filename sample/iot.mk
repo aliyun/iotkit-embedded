@@ -59,5 +59,6 @@ endif
 
 ifneq (,$(filter -DSUBDEVICE_ENABLED,$(CFLAGS)))
 TARGET              += subdev-example
-SRCS_subdev-example   := subdev/subdev-example.c
+SRCS_subdev-example   += subdev/subdev-example.c \
+                         subdev/subdev_example_api.c
 endif

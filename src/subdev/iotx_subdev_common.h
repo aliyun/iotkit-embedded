@@ -2,9 +2,6 @@
 #ifndef SRC_SUBDEVICE_CMP_UTIL_H_
 #define SRC_SUBDEVICE_CMP_UTIL_H_
         
-#define IOT_GATEWAY_YIELD_MAX_COUNT     100
-#define IOT_SUBDEVICE_CLIENT_ID_LEN     32
-
 
 /* Subdevice    seesion status */
 typedef enum IOTX_SUBDEVICE_SESSION_STATUS_CODES {
@@ -83,17 +80,17 @@ typedef struct iotx_gateway_data_st {
 
 /* The structure of gateway context */
 typedef struct iotx_gateway_st {
-    void                                *mqtt;      
+    void                               *mqtt;      
     iotx_subdevice_session_pt           session_list;
     iotx_gateway_data_t                 gateway_data;    
     /* If there is another user want to handle the MQTT event,
      * must set the event_handler and event pcontext */
     void*                               event_pcontext;
     iotx_mqtt_event_handle_func_fpt     event_handler;
+    int                                 is_construct;
 } iotx_gateway_t, *iotx_gateway_pt;
 
 extern iotx_gateway_pt g_gateway_subdevice_t;
-
 
 #define MALLOC_MEMORY(buffer, length) \
     do { \

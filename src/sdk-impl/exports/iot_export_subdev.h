@@ -19,6 +19,11 @@
 #ifndef SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_
 #define SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_
 
+#include "iot_export.h"
+
+#define IOT_GATEWAY_YIELD_MAX_COUNT     100
+#define IOT_SUBDEVICE_CLIENT_ID_LEN     32
+
 
 /* option defined for gateway support multi-thread */
 /*#define IOT_GATEWAY_SUPPORT_MULTI_THREAD*/

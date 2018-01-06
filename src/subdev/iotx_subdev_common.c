@@ -418,7 +418,7 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
                             pdevice_info->product_key,
                             pdevice_info->device_name,
                             TOPIC_SESSION_TOPO_FMT, 
-                            "topo_add_reply", 
+                            "add_reply", 
                             is_subscribe)){
         return FAIL_RETURN;
     }     
@@ -428,7 +428,7 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
                             pdevice_info->product_key,
                             pdevice_info->device_name,
                             TOPIC_SESSION_TOPO_FMT, 
-                            "topo_delete_reply", 
+                            "delete_reply", 
                             is_subscribe)){
         return FAIL_RETURN;
     }     
