@@ -617,14 +617,12 @@ void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
     /* construct MQTT client */
     if (NULL == (g_gateway_subdevice_t->mqtt = IOT_MQTT_Construct(gateway_param->mqtt))) {
         log_err("construct MQTT failed");
-        LITE_free(g_gateway_subdevice_t);
         return NULL;
     }
 #else /* SUBDEV_VIA_CLOUD_CONN */      
     param.device_info = LITE_malloc(sizeof(iotx_deviceinfo_t));
     if (NULL == param.device_info) {
-        log_info("memory error!");   
-        LITE_free(g_gateway_subdevice_t);      
+        log_info("memory error!");    
         return NULL;
     }
     memset(param.device_info, 0x00, sizeof(iotx_device_info_t));
@@ -642,8 +640,7 @@ void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
 
     handle = IOT_Cloud_Connection_Init(&param);
 
-    if (handle == NULL) {
-        LITE_free(g_gateway_subdevice_t);      
+    if (handle == NULL) {   
         return NULL;
     }
 
@@ -653,15 +650,10 @@ void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     g_gateway_subdevice_t->gateway_data.lock_sync = HAL_MutexCreate();
     g_gateway_subdevice_t->gateway_data.lock_sync_enter = HAL_MutexCreate();
-    g_gateway_subdevice_t->gateway_data.lock_login = HAL_MutexCreate();
-    g_gateway_subdevice_t->gateway_data.lock_login_enter = HAL_MutexCreate();
     if (NULL == g_gateway_subdevice_t->gateway_data.lock_sync || 
-        NULL == g_gateway_subdevice_t->gateway_data.lock_sync_enter || 
-        NULL == g_gateway_subdevice_t->gateway_data.lock_login ||
-        NULL == g_gateway_subdevice_t->gateway_data.lock_login_enter)
+        NULL == g_gateway_subdevice_t->gateway_data.lock_sync_enter)
     {
         log_err("create mutex error");
-        LITE_free(g_gateway_subdevice_t);
         return NULL;
     }
 #endif
@@ -1268,6 +1260,7 @@ int IOT_Gateway_Subscribe(void* handle,
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
 #ifdef SUBDEV_VIA_CLOUD_CONN
     iotx_cloud_connection_msg_t msg = {0};
+    int rc = 0;
     msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_SUBSCRIBE;
     msg.QoS = IOTX_MESSAGE_QOS1;
     msg.URI = (char*)topic_filter;
@@ -1278,7 +1271,11 @@ int IOT_Gateway_Subscribe(void* handle,
     msg.response_pcontext = NULL;
     msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
     msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
-    return IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+    rc = IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+    if (SUCCESS_RETURN == rc)
+        return 2;
+    else
+        return rc;
 #else    
     return IOT_MQTT_Subscribe(gateway->mqtt, topic_filter, qos, 
             (iotx_mqtt_event_handle_func_fpt)topic_handle_func, pcontext);
@@ -1294,6 +1291,7 @@ int IOT_Gateway_Unsubscribe(void* handle,
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
 #ifdef SUBDEV_VIA_CLOUD_CONN
     iotx_cloud_connection_msg_t msg = {0};
+    int rc = 0;
     msg.type = IOTX_CLOUD_CONNECTION_MESSAGE_TYPE_UNSUBSCRIBE;
     msg.QoS = IOTX_MESSAGE_QOS1;
     msg.URI = (char*)topic_filter;
@@ -1302,7 +1300,11 @@ int IOT_Gateway_Unsubscribe(void* handle,
     msg.payload_length = 0;
     msg.content_type = IOTX_MESSAGE_CONTENT_TYPE_JSON;
     msg.message_type = IOTX_MESSAGE_CONFIRMABLE;
-    return IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+    rc = IOT_Cloud_Connection_Send_Message(gateway->mqtt, &msg);
+    if (SUCCESS_RETURN == rc)
+        return 2;
+    else
+        return rc;
 #else        
     return IOT_MQTT_Unsubscribe(gateway->mqtt, topic_filter);
 #endif    

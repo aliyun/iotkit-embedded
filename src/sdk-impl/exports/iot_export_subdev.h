@@ -19,6 +19,11 @@
 #ifndef SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
 #define SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
 
+#include "iot_export.h"
+
+#define IOT_GATEWAY_YIELD_MAX_COUNT     100
+#define IOT_SUBDEVICE_CLIENT_ID_LEN     32
+
 
 /* option defined for gateway support multi-thread */
 /*#define IOT_GATEWAY_SUPPORT_MULTI_THREAD*/
@@ -133,7 +138,7 @@ typedef struct {
     /* If there is another user want to handle the MQTT event,
      * must set the event_handler and event pcontext */
     void*                               event_pcontext;              /* the user of gateway */
-    iotx_mqtt_event_handle_func_fpt     event_handler;               /* MQTT event handler for gateway user*/
+    iotx_subdev_event_handle_func_fpt   event_handler;               /* event handler for gateway user*/
 } iotx_gateway_param_t, *iotx_gateway_param_pt;
 
 

@@ -249,6 +249,7 @@ int IOT_CMP_Init(iotx_cmp_init_param_pt pparam, void* option);
  *
  * @param pparam, register parameter, include URI and register callback.
  * @param option, reserve.
+ *          This API not support one URI register twice, if the URI have been register, it will return fail.
  *
  * @return success or fail.
  */
