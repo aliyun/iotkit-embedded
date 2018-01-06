@@ -483,7 +483,7 @@ int IOT_Thing_Service_Response(void* handle,
  *
  * @return 0, Register success; -1, Register fail.
  */
-int IOT_Thing_Thing_Control_Register(void* handle,
+int IOT_Thing_Control_Register(void* handle,
         thing_control_callback thing_callback);
 
 

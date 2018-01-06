@@ -1114,7 +1114,7 @@ int IOT_Gateway_Destroy(void** handle)
 #endif
     
     *handle = NULL;
-    g_gateway_subdevice_t = NULL;
+    g_gateway_subdevice_t->is_construct = 0;
     
     return SUCCESS_RETURN;
 }

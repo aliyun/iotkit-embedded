@@ -1685,7 +1685,7 @@ int IOT_Tmp_Down_Raw_Response(void* handle,
 
 
 /* register callback for thing control */  
-int IOT_Thing_Thing_Control_Register(void* handle,
+int IOT_Thing_Control_Register(void* handle,
         thing_control_callback thing_callback)
 {
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;

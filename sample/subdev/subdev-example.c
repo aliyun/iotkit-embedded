@@ -75,64 +75,6 @@ static int _calc_sign(const char* product_key,
     return 0;
 }
 
-#if 0
-static void _demo_gateway_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
-{
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-
-    printf("~~~~~~~~ gateway receive MQTT data ~~~~~~~~");
-
-    /* print topic name and topic message */
-    printf("----");
-    printf("Topic: '%.*s' (Length: %d)",
-                  ptopic_info->topic_len,
-                  ptopic_info->ptopic,
-                  ptopic_info->topic_len);
-    printf("Payload: '%.*s' (Length: %d)",
-                  ptopic_info->payload_len,
-                  ptopic_info->payload,
-                  ptopic_info->payload_len);
-    printf("----");
-}
-
-static void _demo_subdevice1_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
-{
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-
-    printf("~~~~~~~ subdevice1 receive MQTT data ~~~~~~~");
-
-    /* print topic name and topic message */
-    printf("----");
-    printf("Topic: '%.*s' (Length: %d)",
-                  ptopic_info->topic_len,
-                  ptopic_info->ptopic,
-                  ptopic_info->topic_len);
-    printf("Payload: '%.*s' (Length: %d)",
-                  ptopic_info->payload_len,
-                  ptopic_info->payload,
-                  ptopic_info->payload_len);
-    printf("----");
-}
-
-static void _demo_subdevice2_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
-{
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-
-    printf("~~~~~~~ subdevice1 receive MQTT data ~~~~~~~");
-
-    /* print topic name and topic message */
-    printf("----");
-    printf("Topic: '%.*s' (Length: %d)",
-                  ptopic_info->topic_len,
-                  ptopic_info->ptopic,
-                  ptopic_info->topic_len);
-    printf("Payload: '%.*s' (Length: %d)",
-                  ptopic_info->payload_len,
-                  ptopic_info->payload,
-                  ptopic_info->payload_len);
-    printf("----");
-}
-#endif
        
 void rrpc_request_handler(void* gateway,
         const char* product_key,
@@ -288,8 +230,8 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     memset(&gateway_param, 0, sizeof(iotx_gateway_param_t));
 
     gateway_param.mqtt = &mqtt_t;
-    gateway_param.mqtt->port = puser_info->port;/* 80 */
-    gateway_param.mqtt->host = puser_info->host_name;/*"10.101.84.132";*/
+    gateway_param.mqtt->port = puser_info->port;
+    gateway_param.mqtt->host = puser_info->host_name;
     gateway_param.mqtt->client_id = puser_info->client_id;
     gateway_param.mqtt->username = puser_info->username;
     gateway_param.mqtt->password = puser_info->password;
@@ -680,7 +622,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     }
     
     printf(" ~~~~~~~~~~ thing control register ~~~~~~~~~~ \n");
-    rc = IOT_Thing_Thing_Control_Register(g_thing_t, thing_control_handler);           
+    rc = IOT_Thing_Control_Register(g_thing_t, thing_control_handler);           
     if (SUCCESS_RETURN != rc) {
         printf("raw register rc = IOT_Thing_Down_Raw_Register() = %d\n", rc);
         goto exit;
@@ -779,6 +721,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
 }
 
 
+// 示例使用subdev_example_api.h中对topic进行封装的API进行网关开发
 int demo_thing_function(char *msg_buf, char *msg_readbuf)
 {
     int rc, cnt = 0;
@@ -986,7 +929,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     }
     
     printf(" ~~~~~~~~~~ thing control register ~~~~~~~~~~ \n");
-    rc = IOT_Thing_Thing_Control_Register(g_thing_t, thing_control_handler);           
+    rc = IOT_Thing_Control_Register(g_thing_t, thing_control_handler);           
     if (SUCCESS_RETURN != rc) {
         printf("raw register rc = IOT_Thing_Down_Raw_Register() = %d\n", rc);
         goto exit;
