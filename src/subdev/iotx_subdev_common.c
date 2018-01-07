@@ -667,8 +667,8 @@ int iotx_gateway_publish_sync(iotx_gateway_t* gateway,
         return FAIL_RETURN;
     }
 #endif
-
-    log_info("iotx_gateway_publish_sync topic [%s]\n packet [%s]", topic, packet);
+    
+    log_info("iotx_gateway_publish_sync topic [%s]\n", topic); 
     
     /* sync id */
     reply_data->id = message_id;
