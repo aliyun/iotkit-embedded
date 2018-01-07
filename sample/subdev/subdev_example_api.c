@@ -903,10 +903,10 @@ static int iotx_thing_down_raw_proc(iotx_thing_masterlave_pt thing_t,
 }
 
 /* handle thing control request */
-static int iotx_thing_thing_proc(iotx_thing_masterlave_pt thing_t, 
+static int iotx_thing_proc(iotx_thing_masterlave_pt thing_t, 
         char* topic,
         char* payload, 
-        iotx_thing_thing_control_type_t control_type)
+        iotx_thing_control_type_t control_type)
 {    
     char product_key[PRODUCT_KEY_LEN] = {0};
     char device_name[DEVICE_NAME_LEN] = {0};
@@ -988,7 +988,7 @@ static int iotx_thing_receive_date(iotx_thing_masterlave_pt thing_t,
         /* thing control - disable */        
         temp = strstr(msg_rsp->URI, "/thing/disable");
         if (temp != NULL) {
-            iotx_thing_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_THING_CONTROL_TYPE_DISABLE);
+            iotx_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_CONTROL_TYPE_DISABLE);
             LITE_free(publish_topic);
             LITE_free(publish_payload);
             return SUCCESS_RETURN;
@@ -997,7 +997,7 @@ static int iotx_thing_receive_date(iotx_thing_masterlave_pt thing_t,
         /* thing control - delete */           
         temp = strstr(msg_rsp->URI, "/thing/delete");
         if (temp != NULL) {
-            iotx_thing_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_THING_CONTROL_TYPE_DELETE);
+            iotx_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_CONTROL_TYPE_DELETE);
             LITE_free(publish_topic);
             LITE_free(publish_payload);
             return SUCCESS_RETURN;
@@ -1006,7 +1006,7 @@ static int iotx_thing_receive_date(iotx_thing_masterlave_pt thing_t,
         /* thing control - enable */           
         temp = strstr(msg_rsp->URI, "/thing/enable");
         if (temp != NULL) {
-            iotx_thing_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_THING_CONTROL_TYPE_ENABLE);
+            iotx_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_CONTROL_TYPE_ENABLE);
             LITE_free(publish_topic);
             LITE_free(publish_payload);
             return SUCCESS_RETURN;
@@ -1078,7 +1078,7 @@ static int iotx_thing_recv_publish_callback(iotx_thing_masterlave_pt thing_t,
         /* thing control - disable */        
         temp = strstr(topic_info->ptopic, "/thing/disable");
         if (temp != NULL) {
-            iotx_thing_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_THING_CONTROL_TYPE_DISABLE);
+            iotx_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_CONTROL_TYPE_DISABLE);
             LITE_free(publish_topic);
             LITE_free(publish_payload);
             return SUCCESS_RETURN;
@@ -1087,7 +1087,7 @@ static int iotx_thing_recv_publish_callback(iotx_thing_masterlave_pt thing_t,
         /* thing control - delete */           
         temp = strstr(topic_info->ptopic, "/thing/delete");
         if (temp != NULL) {
-            iotx_thing_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_THING_CONTROL_TYPE_DELETE);
+            iotx_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_CONTROL_TYPE_DELETE);
             LITE_free(publish_topic);
             LITE_free(publish_payload);
             return SUCCESS_RETURN;
@@ -1096,7 +1096,7 @@ static int iotx_thing_recv_publish_callback(iotx_thing_masterlave_pt thing_t,
         /* thing control - enable */           
         temp = strstr(topic_info->ptopic, "/thing/enable");
         if (temp != NULL) {
-            iotx_thing_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_THING_CONTROL_TYPE_ENABLE);
+            iotx_thing_proc(thing_t, publish_topic, publish_payload, IOTX_Thing_CONTROL_TYPE_ENABLE);
             LITE_free(publish_topic);
             LITE_free(publish_payload);
             return SUCCESS_RETURN;
@@ -1921,12 +1921,12 @@ int IOT_Thing_Service_Response(void* handle,
 }
         
 /* response for thing control */     
-int IOT_Thing_Thing_Control_Response(void* handle, 
+int IOT_Thing_Control_Response(void* handle, 
         const char* product_key, 
         const char* device_name,
         uint32_t message_id,
         uint32_t code,
-        iotx_thing_thing_control_type_t control_type)
+        iotx_thing_control_type_t control_type)
 {
     char* response_packet = NULL;
     iotx_mqtt_topic_info_t topic_msg;
@@ -1938,7 +1938,7 @@ int IOT_Thing_Thing_Control_Response(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, FAIL_RETURN);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
 
-    if (control_type == IOTX_Thing_THING_CONTROL_TYPE_ENABLE) {
+    if (control_type == IOTX_Thing_CONTROL_TYPE_ENABLE) {
         /* topic */
         HAL_Snprintf(topic, 
                 GATEWAY_TOPIC_LEN_MAX, 
@@ -1946,7 +1946,7 @@ int IOT_Thing_Thing_Control_Response(void* handle,
                 product_key, 
                 device_name, 
                 "enable_reply");   
-    } else if (control_type == IOTX_Thing_THING_CONTROL_TYPE_DISABLE) {
+    } else if (control_type == IOTX_Thing_CONTROL_TYPE_DISABLE) {
         /* topic */
         HAL_Snprintf(topic, 
                 GATEWAY_TOPIC_LEN_MAX, 
@@ -1954,7 +1954,7 @@ int IOT_Thing_Thing_Control_Response(void* handle,
                 product_key, 
                 device_name, 
                 "disable_reply");   
-    } else if (control_type == IOTX_Thing_THING_CONTROL_TYPE_DELETE) {
+    } else if (control_type == IOTX_Thing_CONTROL_TYPE_DELETE) {
         /* topic */
         HAL_Snprintf(topic, 
                 GATEWAY_TOPIC_LEN_MAX, 

@@ -114,17 +114,17 @@ typedef enum IOTX_Thing_SERVICE_TYPES {
 
 
 /* thing control type  */
-typedef enum IOTX_Thing_THING_CONTROL_TYPES {
+typedef enum IOTX_Thing_CONTROL_TYPES {
     /* thing/enable*/
-    IOTX_Thing_THING_CONTROL_TYPE_ENABLE,
+    IOTX_Thing_CONTROL_TYPE_ENABLE,
     /* thing/disable*/
-    IOTX_Thing_THING_CONTROL_TYPE_DISABLE,
+    IOTX_Thing_CONTROL_TYPE_DISABLE,
     /* thing/delete*/
-    IOTX_Thing_THING_CONTROL_TYPE_DELETE,
+    IOTX_Thing_CONTROL_TYPE_DELETE,
     
     /* Maximum number of thind control type */
-    IOTX_Thing_THING_CONTROL_TYPE_MAX
-}iotx_thing_thing_control_type_t;   
+    IOTX_Thing_CONTROL_TYPE_MAX
+}iotx_thing_control_type_t;   
 
 
 /**
@@ -186,7 +186,7 @@ typedef void (*down_raw_callback)(void* thing_t,
 typedef void (*thing_control_callback)(void* thing_t, 
         const char* product_key, 
         const char* device_name,
-        iotx_thing_thing_control_type_t thing_control_type,
+        iotx_thing_control_type_t thing_control_type,
         uint32_t message_id);
 
 
@@ -497,18 +497,18 @@ int IOT_Thing_Control_Register(void* handle,
  * @param thing control request message id.
  * @param response code.
  * @param thing control type.
- *     IOTX_Thing_THING_CONTROL_TYPE_ENABLE
- *     IOTX_Thing_THING_CONTROL_TYPE_DISABLE
- *     IOTX_Thing_THING_CONTROL_TYPE_DELETE
+ *     IOTX_THING_CONTROL_TYPE_ENABLE
+ *     IOTX_THING_CONTROL_TYPE_DISABLE
+ *     IOTX_THING_CONTROL_TYPE_DELETE
  *
  * @return 0, Response success; -1, Response fail.
  */
-int IOT_Thing_Thing_Control_Response(void* handle, 
+int IOT_Thing_Control_Response(void* handle, 
         const char* product_key, 
         const char* device_name,
         uint32_t message_id,
         uint32_t code,
-        iotx_thing_thing_control_type_t control_type);
+        iotx_thing_control_type_t control_type);
 
 
 /**

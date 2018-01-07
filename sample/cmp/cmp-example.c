@@ -202,8 +202,7 @@ int cmp_client()
         IOT_CMP_Deinit(NULL);
         return FAIL_RETURN;
     }
-         
-    
+          
 #ifndef CMP_SUPPORT_MULTI_THREAD
     rc = IOT_CMP_Yield(200, NULL);
     if (FAIL_RETURN == rc) {        

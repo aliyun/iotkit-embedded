@@ -355,6 +355,14 @@ int IOT_CMP_OTA_Yield(iotx_cmp_ota_pt ota_pt);
 #endif /* CMP_SUPPORT_OTA */
 
 
+#ifdef UT_TEST
+int request_inject(int id, char* uri, char* method, void* parameter, int parameter_len);
+
+int response_inject(int id, char* uri, int code, void* data, int data_length);
+
+#endif /* UT_TEST */
+
+
 
 #endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_ */
 
