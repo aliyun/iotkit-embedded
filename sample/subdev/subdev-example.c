@@ -24,7 +24,7 @@ extern void utils_hmac_md5(const char *msg, int msg_len, char *digest, const cha
 #define SUB_2_DEVICE_NAME              "subdev_6"
 #define SUB_2_DEVICE_SECRET            "N7OyAHhVFHBp4NFfLHLz2nEBXyzrjDEC"
 
-#define MSG_LEN_MAX                    (1024 * 20)
+#define MSG_LEN_MAX                    (1024 * 4)
 
 #define TOPIC_GATEWAY_UPDATE           "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_SUBDEVICE1_UPDATE        "/"SUB_1_PRODUCT_KEY"/"SUB_1_DEVICE_NAME"/update"
@@ -54,8 +54,6 @@ static int _calc_sign(const char* product_key,
                       device_name,
                       product_key,
                       timestamp_str);
-    printf("| source: %s (%d)\n", hmac_source, (int)strlen(hmac_source));
-    printf("| secret: %s (%d)\n", device_secret, (int)strlen(device_secret));
 
     if (0 == strncmp(sign_method, "hmacsha1", strlen("hmacsha1"))) {
         utils_hmac_sha1(hmac_source, strlen(hmac_source),
@@ -68,8 +66,6 @@ static int _calc_sign(const char* product_key,
                    device_secret,
                    strlen(device_secret));
     }
-
-    printf("| signature: %s (%d)\n", signature, (int)strlen(signature));
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return 0;
@@ -186,13 +182,13 @@ void down_raw_handler(void* thing_t,
 void thing_control_handler(void* thing_t, 
         const char* product_key, 
         const char* device_name,
-        iotx_thing_thing_control_type_t thing_control_type,
+        iotx_thing_control_type_t thing_control_type,
         uint32_t message_id)
 {
     printf("thing control callback product_key[%s], device_name[%s], thing_control_type[%d] message_id[%d]\n", 
                     product_key, device_name, thing_control_type, message_id);
 
-    if (SUCCESS_RETURN == IOT_Thing_Thing_Control_Response(thing_t, 
+    if (SUCCESS_RETURN == IOT_Thing_Control_Response(thing_t, 
                                 product_key, 
                                 device_name, 
                                 message_id,
@@ -553,7 +549,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     iotx_thing_param_t thing_param;   
     
     //具体取值请根据自行创建的产品模型进行调整，可以参考运行时日志会提示dsl具体大小，取值需比dsl大小大即可
-    char sub_dsltemplate_get[1024 * 20] = {0} ;
+    char sub_dsltemplate_get[1024 * 4] = {0} ;
 
     /* Device AUTH */
     rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
@@ -630,7 +626,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~ register callback success ~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
-    length = 1024 * 20; //具体取值请根据自行创建的产品模型进行调整，可以参考运行时日志会提示dsl具体大小，取值需比dsl大小大即可
+    length = 1024 * 4; //具体取值请根据自行创建的产品模型进行调整，可以参考运行时日志会提示dsl具体大小，取值需比dsl大小大即可
     printf(" ~~~~~~~~~~~~ start dsl template ~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~~ get ~~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Get_Dsl_Template(g_thing_t, 
@@ -731,7 +727,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     iotx_thing_param_t thing_param;    
     
     //具体取值请根据自行创建的产品模型进行调整，可以参考运行时日志会提示dsl具体大小，取值需比dsl大小大即可
-    char sub_dsltemplate_get[1024 * 20] = {0} ;
+    char sub_dsltemplate_get[1024 * 4] = {0} ;
     
     char dsltemplate_printf[512] = {0};
     int printf_num = 0; 
@@ -937,7 +933,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~ register callback success ~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
-    length = 1024 * 20;   //具体取值请根据自行创建的产品模型进行调整，可以参考运行时日志会提示dsl具体大小，取值需比dsl大小大即可
+    length = 1024 * 4;   //具体取值请根据自行创建的产品模型进行调整，可以参考运行时日志会提示dsl具体大小，取值需比dsl大小大即可
     printf(" ~~~~~~~~~~~~ start dsl template ~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~~ get ~~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Get_Dsl_Template(g_thing_t, 

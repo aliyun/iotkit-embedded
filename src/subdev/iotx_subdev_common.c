@@ -225,24 +225,18 @@ int iotx_gateway_calc_sign(const char* product_key,
                       device_name,
                       product_key,
                       timestamp_str);
-    log_info("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
-    log_info("| secret: %s (%d)", device_secret, (int)strlen(device_secret));
 
     if (sign_method == IOTX_SUBDEV_SIGN_METHOD_TYPE_SHA) {
-        log_info("| method: %s", "hmacsha1");
         utils_hmac_sha1(hmac_source, strlen(hmac_source),
                     signature,
                     device_secret,
                     strlen(device_secret));
     } else if (sign_method == IOTX_SUBDEV_SIGN_METHOD_TYPE_MD5) {
-        log_info("| method: %s", "hmacmd5");
         utils_hmac_md5(hmac_source, strlen(hmac_source),
                    signature,
                    device_secret,
                    strlen(device_secret));
     }
-
-    log_info("| signature: %s (%d)", signature, (int)strlen(signature));
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return 0;
