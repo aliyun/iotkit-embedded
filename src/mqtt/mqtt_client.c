@@ -750,7 +750,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     len = 1;
 
     /* 2. read the remaining length.  This is variable in itself */
-    if ((rc = iotx_mc_decode_packet(c, &rem_len, iotx_time_left(timer))) < 0) {
+    if ((rc = iotx_mc_decode_packet(c, &rem_len, iotx_time_left(timer) + 10)) < 0) {
         log_err("decodePacket error,rc = %d", rc);
         return rc;
     }
