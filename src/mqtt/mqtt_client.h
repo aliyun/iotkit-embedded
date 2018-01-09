@@ -29,14 +29,12 @@ extern "C" {
 
 #include "iot_import.h"
 
-#ifdef MQTT_SUPPORT_LARGE_SUBCRIBE_TOPIC
-/* maximum number of successful subscribe */
-#define IOTX_MC_SUB_NUM_MAX                     (6400)
-/* maximum number of simultaneously invoke subscribe request */
-#define IOTX_MC_SUB_REQUEST_NUM_MAX             (60)
-#else
+#ifndef IOTX_MC_SUB_NUM_MAX
 /* maximum number of successful subscribe */
 #define IOTX_MC_SUB_NUM_MAX                     (30)
+#endif
+
+#ifndef IOTX_MC_SUB_REQUEST_NUM_MAX
 /* maximum number of simultaneously invoke subscribe request */
 #define IOTX_MC_SUB_REQUEST_NUM_MAX             (30)
 #endif
