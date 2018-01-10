@@ -150,6 +150,88 @@ int cmp_client()
     HAL_SleepMs(2000);
 #endif
 
+    
+    printf("register again \n");
+    register_param.URI_type = IOTX_CMP_URI_UNDEFINE;
+    register_param.URI = "/sys/productKey/deviceName/update";
+    register_param.message_type = IOTX_CMP_MESSAGE_REQUEST;
+    register_param.register_func = _register_func;
+    register_param.user_data = &user_data;
+    rc = IOT_CMP_Register(&register_param, NULL);
+
+    if (FAIL_RETURN == rc) {        
+        printf("register fail\n");
+        IOT_CMP_Deinit(NULL);
+        return FAIL_RETURN;
+    }
+    
+    printf("register success \n");
+
+#ifndef CMP_SUPPORT_MULTI_THREAD
+    rc = IOT_CMP_Yield(200, NULL);
+    if (FAIL_RETURN == rc) {        
+        printf("yield fail\n");
+        IOT_CMP_Deinit(NULL);
+        return FAIL_RETURN;
+    }   
+#else
+    HAL_SleepMs(2000);
+#endif
+#if 1
+    printf("register again \n");
+    register_param.URI_type = IOTX_CMP_URI_UNDEFINE;
+    register_param.URI = "/sys/productKey1/deviceName1/update";
+    register_param.message_type = IOTX_CMP_MESSAGE_REQUEST;
+    register_param.register_func = _register_func;
+    register_param.user_data = &user_data;
+    rc = IOT_CMP_Register(&register_param, NULL);
+
+    if (FAIL_RETURN == rc) {        
+        printf("register fail\n");
+        IOT_CMP_Deinit(NULL);
+        return FAIL_RETURN;
+    }
+    
+    printf("register success \n");
+
+#ifndef CMP_SUPPORT_MULTI_THREAD
+    rc = IOT_CMP_Yield(200, NULL);
+    if (FAIL_RETURN == rc) {        
+        printf("yield fail\n");
+        IOT_CMP_Deinit(NULL);
+        return FAIL_RETURN;
+    }   
+#else
+    HAL_SleepMs(2000);
+#endif
+    printf("register again \n");
+    register_param.URI_type = IOTX_CMP_URI_UNDEFINE;
+    register_param.URI = "/sys/productKey2/deviceName2/update";
+    register_param.message_type = IOTX_CMP_MESSAGE_REQUEST;
+    register_param.register_func = _register_func;
+    register_param.user_data = &user_data;
+    rc = IOT_CMP_Register(&register_param, NULL);
+
+    if (FAIL_RETURN == rc) {        
+        printf("register fail\n");
+        IOT_CMP_Deinit(NULL);
+        return FAIL_RETURN;
+    }
+    
+    printf("register success \n");
+
+#ifndef CMP_SUPPORT_MULTI_THREAD
+    rc = IOT_CMP_Yield(200, NULL);
+    if (FAIL_RETURN == rc) {        
+        printf("yield fail\n");
+        IOT_CMP_Deinit(NULL);
+        return FAIL_RETURN;
+    }   
+#else
+    HAL_SleepMs(2000);
+#endif
+#endif
+
     printf("send\n");
     memset(&cloud_peer, 0x0, sizeof(iotx_cmp_send_peer_t));
     strncpy(cloud_peer.product_key, IOTX_PRODUCT_KEY, strlen(IOTX_PRODUCT_KEY));
@@ -202,6 +284,17 @@ int cmp_client()
         IOT_CMP_Deinit(NULL);
         return FAIL_RETURN;
     }
+    #if 0
+    printf("unregister\n");
+    unregister_param.URI_type = IOTX_CMP_URI_UNDEFINE;
+    unregister_param.URI = "/sys/productKey/deviceName/update";
+    rc = IOT_CMP_Unregister(&unregister_param, NULL);    
+    if (FAIL_RETURN == rc) {        
+        printf("unregister fail\n");
+        IOT_CMP_Deinit(NULL);
+        return FAIL_RETURN;
+    }
+    #endif
           
 #ifndef CMP_SUPPORT_MULTI_THREAD
     rc = IOT_CMP_Yield(200, NULL);
