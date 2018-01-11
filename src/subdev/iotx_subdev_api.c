@@ -477,7 +477,8 @@ void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
             iotx_mqtt_reconnect_callback(pcontext);
             return;
             break;
-
+            
+        case IOTX_MQTT_EVENT_DISCONNECT:
         case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:
             return;
             break;
