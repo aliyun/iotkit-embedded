@@ -28,7 +28,7 @@
 
 
 /* support mutli thread 
-#define CMP_SUPPORT_MULTI_THREAD */  
+#define CMP_SUPPORT_MULTI_THREAD */ 
 
 /*
 * CMP: connection manager platform
@@ -76,16 +76,14 @@ typedef enum IOTX_CMP_EVENT_TYPES {
     /* unregister */
     /* event_msg is iotx_cmp_event_result_pt */
     IOTX_CMP_EVENT_UNREGISTER_RESULT = 21,
-    
+	
     /* unregister */
     /* event_msg is iotx_cmp_event_result_pt */
     IOTX_CMP_EVENT_SEND_RESULT = 22,
     
-#ifdef CMP_SUPPORT_OTA
     /* new version detected, please ota */
-    /* event_msg is null */
+    /* event_msg is iotx_cmp_ota_parameter_t */
     IOTX_CMP_EVENT_NEW_VERSION_DETECTED = 30,
-#endif /* CMP_SUPPORT_OTA */
 
     /* Maximum number of protocol */
     IOTX_CMP_EVENT_MAX
@@ -138,6 +136,15 @@ typedef struct {
     char                                     *URI;
     iotx_cmp_uri_types_t                      URI_type;
 } iotx_cmp_event_result_t, *iotx_cmp_event_result_pt;
+
+
+
+/* The structure of ota result */
+typedef struct {
+    uint32_t size_file;         /* size of file */
+    char *purl;                 /* point to URL */
+    char *version;              /* point to string */          
+} iotx_cmp_ota_parameter_t, *iotx_cmp_ota_parameter_pt;
 
 
 /* The structure of cmp event msg */
@@ -213,11 +220,11 @@ typedef struct {
 /* The structure of Register param */
 typedef struct {
     char                                       *URI;
-    iotx_cmp_uri_types_t                        URI_type;
+    iotx_cmp_uri_types_t                        URI_type; 
     iotx_cmp_message_types_t                    message_type;
     iotx_cmp_register_func_fpt                  register_func;
-    void                                       *user_data;    
-    void                                       *mail_box;
+    void                                       *user_data;         
+    void                                       *mail_box;        
 } iotx_cmp_register_param_t, *iotx_cmp_register_param_pt;
 
 
@@ -226,6 +233,25 @@ typedef struct {
     char                                       *URI;
     iotx_cmp_uri_types_t                        URI_type;           
 } iotx_cmp_unregister_param_t, *iotx_cmp_unregister_param_pt;
+
+
+/* The structure of cmp event msg */
+typedef struct {
+    /* if there is more data to download, is_more is 1, else is_more is 0 */
+    uint8_t                                   is_more;       /* [out] */
+    /* is_more is 0, result: */
+    /* 
+     * Burn firmware file failed  -4 
+     * Check firmware file failed -3
+     * Fetch firmware file failed -2 
+     * Initialized failed -1 
+     * success 0
+     */
+    uint8_t                                   result;         /* [out] */
+    int                                       progress;       /* [out] */
+    void*                                     buffer;         /* [in/out] */
+    int                                       buffer_length;  /* [in/out] */
+} iotx_cmp_ota_t, *iotx_cmp_ota_pt;
 
 
 /**
@@ -330,29 +356,7 @@ int IOT_CMP_Yield(int timeout_ms, void* option);
 int IOT_CMP_Deinit(void* option);
 
 
-#ifdef CMP_SUPPORT_OTA
-
-/* The structure of cmp event msg */
-typedef struct {
-    /* if there is more data to download, is_more is 1, else is_more is 0 */
-    uint8_t                                   is_more;       /* [out] */
-    /* is_more is 0, result: */
-    /* 
-     * Burn firmware file failed  -4 
-     * Check firmware file failed -3
-     * Fetch firmware file failed -2 
-     * Initialized failed -1 
-     * success 0
-     */
-    uint8_t                                   result;         /* [out] */
-    int                                       progress;       /* [out] */
-    void*                                     buffer;         /* [in/out] */
-    int                                       buffer_length;  /* [in/out] */
-} iotx_cmp_ota_t, *iotx_cmp_ota_pt;
-
 int IOT_CMP_OTA_Yield(iotx_cmp_ota_pt ota_pt);
-
-#endif /* CMP_SUPPORT_OTA */
 
 
 #ifdef UT_TEST
