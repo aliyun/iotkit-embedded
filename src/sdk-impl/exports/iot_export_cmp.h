@@ -247,7 +247,7 @@ typedef struct {
      * Initialized failed -1 
      * success 0
      */
-    uint8_t                                   result;         /* [out] */
+    int8_t                                    result;         /* [out] */
     int                                       progress;       /* [out] */
     void*                                     buffer;         /* [in/out] */
     int                                       buffer_length;  /* [in/out] */

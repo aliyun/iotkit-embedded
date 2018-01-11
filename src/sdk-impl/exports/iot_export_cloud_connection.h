@@ -111,7 +111,7 @@ typedef enum IOTX_CLOUD_CONNECTION_MESSAGE_TYPES {
 }iotx_cloud_connection_message_types_t;
 
 
-/* The structure of cloud Connection param */
+/* The structure of cloud Connection event struct */
 typedef struct {
     uint8_t                                   event_id;
     void*                                     msg;
