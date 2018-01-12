@@ -27,8 +27,8 @@
 #define CMP_DEVICE_ID_LEN       (64)
 
 
-/* support mutli thread 
-#define CMP_SUPPORT_MULTI_THREAD */ 
+/* support mutli thread */
+#define CMP_SUPPORT_MULTI_THREAD  
 
 /*
 * CMP: connection manager platform
@@ -265,6 +265,20 @@ typedef struct {
  * @return success or fail.
  */
 int IOT_CMP_Init(iotx_cmp_init_param_pt pparam, void* option);
+
+
+/**
+ * @brief Start OTA
+ *        This function use to start OTA, set cur_version and ota_func.
+ *
+ * @param cur_version, current version.
+ * @param ota_func, ota callback function.
+ * @param user_context, ota callback user context. 
+ * @param option, reserve.
+ *
+ * @return success or fail.
+ */
+int IOT_CMP_OTA_Start(char* cur_version, iotx_cmp_event_handle_func_fpt ota_func, void* user_context, void* option);
 
 
 /**
