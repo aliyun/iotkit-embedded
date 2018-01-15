@@ -11,7 +11,7 @@ ifeq (,$(COVERAGE_CMD))
 coverage lcov test:
 	@echo "COVERAGE_CMD not defined, skip"
 else
-coverage lcov test: all
+coverage lcov test: all $(UTEST_RECP)
 #
 #	SKIP --coverage existing in $(CFLAGS) check for now
 #

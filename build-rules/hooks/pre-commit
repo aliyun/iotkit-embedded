@@ -13,7 +13,9 @@ for i in `git status -s | awk '{ print $NF }'`; do
         if [ "$(find $i -perm /111 2>/dev/null)" != "" ]; then
             chmod a-x $i
             echo "[chmod] $i"
-            git add $i
+            if [ "$(git status --short $i|cut -c1)" = "M" ]; then
+                git add $i
+            fi
         fi
     else
         echo "[skip ] $i"

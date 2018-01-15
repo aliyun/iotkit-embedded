@@ -18,7 +18,7 @@ endif
 	        fi; \
 	    done; \
 	    VDR_NAME=$$(grep -m 1 "VENDOR *:" $(CONFIG_TPL) 2>/dev/null|awk '{ print $$NF }'); \
-	    if [ -d $(IMPORT_DIR)/$${VDR_NAME}/$(PREBUILT_LIBDIR) ]; then \
+	    if [ "$$(ls $(IMPORT_DIR)/$${VDR_NAME}/$(PREBUILT_LIBDIR)/lib* 2>/dev/null)" != "" ]; then \
 	        cp -f $(IMPORT_DIR)/$${VDR_NAME}/$(PREBUILT_LIBDIR)/lib* $(FINAL_DIR)/lib; \
 	    fi; \
 	fi

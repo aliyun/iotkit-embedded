@@ -137,30 +137,32 @@ endef
 #
 #	        if [ $$? != 0 ]; then \
 #
+# KEEP SEPA-LIBS:
+#
+# rm -f $(SYSROOT_LIB)/$(firstword $(LIBA_TARGET_$(d))) $(SYSROOT_LIB)/$(firstword $(LIBSO_TARGET_$(d))) 2>/dev/null; \
+#
 
 ifdef COMP_LIB
 define Build_CompLib
 ( \
-	if  [ "$(strip $(1))" = "FORCE" ] || \
-	    [ "$$(echo $(LDFLAGS_$(strip $(1)))|grep -wo -- '-l$(COMP_LIB_NAME)')" != "" ]; then \
-	    ($(foreach d,$(COMP_LIB_COMPONENTS), \
-	        $(MAKE) --no-print-directory $(d); \
-	        if [ $$? != 0 ]; then \
-	            echo -e "\rFailed to build $(LIBA_TARGET_$(d)) in $(d)"; \
-	            exit 10; \
-	        else \
-	            if [ "$(LIBA_TARGET_$(d))" != "" ]; then \
-	                rm -f $(SYSROOT_LIB)/$(LIBA_TARGET_$(d)); \
-	            fi; \
-	        fi; \
-	    )); \
-	    if  [ $$? != 0 ]; then \
-	        echo -e "\rFailed to build components for '$(COMP_LIB)'. Abort!"; \
-	        exit 11; \
-	    else \
-	        $(RECURSIVE_MAKE) comp-lib; \
-	    fi; \
-	fi \
+    if  [ "$(strip $(1))" = "FORCE" ] || \
+        [ "$$(echo $(LDFLAGS_$(strip $(1)))|grep -wo -- '-l$(COMP_LIB_NAME)')" != "" ]; then \
+    ( \
+        $(foreach d,$(COMP_LIB_COMPONENTS), \
+            [ -f $(STAMP_DIR)/$(subst /,~,$(d)).build.done ] || \
+            set -o pipefail && \
+            $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$(d) $(firstword $(LIBA_TARGET_$(d))) $(firstword $(LIBSO_TARGET_$(d))) && set +x; \
+            RETVAL=$$?; \
+            if [ $${RETVAL} != 0 ]; then \
+                exit $${RETVAL}; \
+            fi; \
+        ) \
+    ); \
+    if  [ ! -f $(SYSROOT_LIB)/$(COMP_LIB) ]; then \
+        $(call Info_CompLib,$(COMP_LIB_NAME),$(COMP_LIB_OBJS)); \
+    fi; \
+    $(call Finalize_CompLib,$(COMP_LIB_OBJS),$(SYSROOT_LIB),$(COMP_LIB_NAME)); \
+    fi \
 )
 endef
 else

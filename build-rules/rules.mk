@@ -39,18 +39,19 @@ endif
 # To pass in RPATH related link flags
 
 COMP_LIB_NAME   := $(subst lib,,$(subst .so,,$(subst .a,,$(COMP_LIB))))
+COMP_LIB_OBJS    = $(foreach d,$(COMP_LIB_COMPONENTS),$(LIBOBJ_TMPDIR)/$(d)/*.o)
 RECURSIVE_MAKE  := $(MAKE) $(if $(TOP_Q),-s) -C $(TOP_DIR) -f $(TOP_MAKEFILE)
-ALL_SUB_DIRS    := $(shell find -L $(TOP_DIR) ! -path "$(OUTPUT_DIR)/*" -name "$(MAKE_SEGMENT)" \
-                            | sed 's:$(TOP_DIR)[/]*::;s:[/]*$(MAKE_SEGMENT)::')
+ALL_SUB_DIRS    := $(shell find -L $(TOP_DIR) ! -path "$(OUTPUT_DIR)/*" -name "$(MAKE_SEGMENT)" 2>/dev/null \
+                           | sed 's:$(TOP_DIR)[/]*::;s:[/]*$(MAKE_SEGMENT)::')
 
 SHOW_ENV_VARS   := \
-    MODULE_NAME PKG_NAME PKG_RPATH PKG_SOURCE PKG_SWITCH_V PKG_SWITCH \
+    MODULE_NAME SUBDIRS PKG_NAME PKG_RPATH PKG_SOURCE PKG_SWITCH_V PKG_SWITCH \
     HOST_ARCH_BITS PREBUILT_LIBDIR RPATH_CFLAGS \
     CROSS_PREFIX DEPENDS CFLAGS CCLD LDFLAGS \
-    CC LD AR STRIP OBJCOPY COMP_LIB_COMPONENTS \
+    CC LD AR STRIP OBJCOPY COMP_LIB COMP_LIB_COMPONENTS \
     MAKE_ENV_VARS DEFAULT_BLD \
     LIBA_TARGET LIBSO_TARGET TARGET KMOD_TARGET \
-    SRCS OBJS LIB_SRCS LIB_OBJS LIB_HDRS_DIR LIB_HEADERS \
+    SRCS OBJS LIB_SRCS LIB_OBJS LIB_HDRS_DIR LIB_HEADERS EXTRA_SRCS \
     $(foreach M,$(LIBA_TARGET),LIB_SRCS_$(subst .a,,$(subst lib,,$(M)))) \
     INTERNAL_INCLUDES TOP_DIR PRJ_NAME PRJ_VERSION \
     IMPORT_DIR IMPORT_VDRDIR CONFIG_DIR PACKAGE_DIR EXTERNAL_INCLUDES \
@@ -84,7 +85,7 @@ endif
 endif
 endif
 
-.PHONY: all clean
+.PHONY: all clean FORCE
 
 ifdef SUBDIRS
 include $(RULE_DIR)/_rules-top.mk
@@ -110,6 +111,11 @@ endif
 
 ifeq (gcc,$(strip $(CC)))
 export STRIP    := strip
+endif
+
+ifneq (,$(filter -m32,$(strip $(CFLAGS))))
+PREBUILT_LIBDIR := 32bit-libs
+PREBUILT_BINDIR := 32bit-bin
 endif
 
 include $(RULE_DIR)/_rules-dist.mk
@@ -144,6 +150,11 @@ ifdef ORIGIN
 include $(RULE_DIR)/_rules-origin.mk
 
 else    # ifdef ORIGIN
+
+ifneq (,$(filter -m32,$(strip $(CFLAGS))))
+PREBUILT_LIBDIR := 32bit-libs
+PREBUILT_BINDIR := 32bit-bin
+endif
 
 include $(RULE_DIR)/_rules-flat.mk
 

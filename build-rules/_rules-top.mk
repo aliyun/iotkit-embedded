@@ -36,7 +36,7 @@ detect:
 	    done; \
 	fi
 
-unzip: config
+unzip: config $(STAMP_BLD_VAR)
 	@echo "Components: "
 	@echo ""
 	@for i in $(ALL_SUB_DIRS); do \
@@ -110,22 +110,37 @@ config:
 	    $(MAKE) --no-print-directory -f $(TOP_MAKEFILE) $(STAMP_BLD_VAR) unzip; \
 	fi)
 
-toolchain: VSP_TARBALL = $(OUTPUT_DIR)/$(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
+toolchain: VSP_TARBALL = $(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
 toolchain: config
 ifneq ($(CONFIG_TOOLCHAIN_NAME),)
+ifeq (,$(CONFIG_TOOLCHAIN_RPATH))
+	@echo "Error! CONFIG_TOOLCHAIN_NAME defined, but CONFIG_TOOLCHAIN_RPATH undefined!" && exit 1
+else
 	$(TOP_Q) \
+( \
 	if [ -e $(OUTPUT_DIR)/$(CONFIG_TOOLCHAIN_NAME) ]; then \
-	    true; \
-	else \
-	    if [ "$(CONFIG_CACHED_TOOLCHAIN)" != "" ] && [ -d $(CONFIG_CACHED_TOOLCHAIN) ]; then \
-	        ln -sf $(CONFIG_CACHED_TOOLCHAIN) $(OUTPUT_DIR)/$(CONFIG_TOOLCHAIN_NAME); \
-	    else \
-	        echo "Downloading ToolChain ..." && \
-	        wget -O $(VSP_TARBALL) $(CONFIG_VSP_WEBSITE)/$(CONFIG_TOOLCHAIN_RPATH) && \
-	        echo "De-compressing ToolChain ..." && \
-	        tar xf $(VSP_TARBALL) -C $(OUTPUT_DIR); \
-	    fi \
-	fi
+	    exit 0; \
+	fi; \
+\
+	if [ ! -d /tmp/$(CONFIG_TOOLCHAIN_NAME) -a -f /tmp/$(VSP_TARBALL) ]; then \
+	    echo "De-compressing Cached ToolChain ..." && \
+	    tar xf /tmp/$(VSP_TARBALL) -C /tmp; \
+	fi; \
+	if [ -d /tmp/$(CONFIG_TOOLCHAIN_NAME) ]; then \
+	    echo "Using Cached ToolChain ..." && \
+	    ln -sf /tmp/$(CONFIG_TOOLCHAIN_NAME) $(OUTPUT_DIR)/$(CONFIG_TOOLCHAIN_NAME); \
+	    exit 0; \
+	fi; \
+\
+	echo "Downloading ToolChain ..." && \
+	wget -O $(OUTPUT_DIR)/$(VSP_TARBALL) $(CONFIG_VSP_WEBSITE)/$(CONFIG_TOOLCHAIN_RPATH) && \
+	echo "De-compressing ToolChain ..." && \
+	tar xf $(OUTPUT_DIR)/$(VSP_TARBALL) -C $(OUTPUT_DIR); \
+	cp -f $(OUTPUT_DIR)/$(VSP_TARBALL) /tmp; \
+	rm -rf /tmp/$(CONFIG_TOOLCHAIN_NAME); \
+	tar xf /tmp/$(VSP_TARBALL) -C /tmp; \
+)
+endif
 endif
 
 reconfig: distclean

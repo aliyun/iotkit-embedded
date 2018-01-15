@@ -1,8 +1,16 @@
-.PHONY: FORCE
+VPATH   := $(TOP_DIR)/$(MODULE_NAME)
+SRCS    ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$(M))) $(wildcard *.c)
+OBJS    := $(SRCS:.c=.o)
+OBJS    := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(OBJS))
+
+ifdef SRCS_PATTERN
+PROG_LIST	:= $(foreach M,$(SRCS_PATTERN),$(shell ls $(TOP_DIR)/$(MODULE_NAME)/$(M) 2>/dev/null))
+SRCS 		:= $(PROG_LIST)
+OBJS 		:= $(PROG_LIST:.c=.o)
+OBJS 		:= $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(OBJS))
+endif
 
 ifdef TARGET
-SRCS ?= $(wildcard $(TOP_DIR)/$(MODULE_NAME)/*.c $(TOP_DIR)/$(MODULE_NAME)/*.cpp)
-OBJS ?= $(subst .c,.o,$(subst .cpp,.o,$(SRCS)))
 
 ifneq (modinfo,$(MAKECMDGOALS))
 ifneq (clean,$(MAKECMDGOALS))
@@ -21,6 +29,8 @@ $(TARGET): $(LIBSO_TARGET)
 
 LDFLAGS := -l$(subst .so,,$(subst lib,,$(LIBSO_TARGET))) $(LDFLAGS)
 endif
+
+LDFLAGS += $(sort $(CONFIG_ENV_LDFLAGS))
 
 ifneq (,$(filter %.cpp %.cc,$(SRCS)))
 CCLD    := $(CXX)
