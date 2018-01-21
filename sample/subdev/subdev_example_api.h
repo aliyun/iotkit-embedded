@@ -306,6 +306,20 @@ int IOT_Thing_Logout(void* handle,
         const char* product_key, 
         const char* device_name);
 
+/**
+ * @brief Get topo
+ *        This function publish a packet with topo/get topic and wait for the reply (with TOPO_GET_REPLY topic).
+ *
+ * @param pointer of handle, specify the Thing construction.
+ * @param get_toop_reply.
+ * @param length [in/out]. in -- get_topo_reply buffer length, out -- reply length
+ *
+ * @return 0, logout success; -1, logout failed.
+ */
+int IOT_Thing_Get_TOPO(void* handle, 
+        char* get_toop_reply, 
+        uint32_t* length);
+
 
 /**
  * @brief Get DSL template

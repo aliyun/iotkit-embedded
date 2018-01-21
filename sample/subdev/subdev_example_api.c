@@ -649,11 +649,12 @@ int iotx_thing_subscribe_unsubscribe_basic(iotx_thing_masterlave_pt thing_t,
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     int i = 0;
     iotx_device_info_pt pdevice_info = iotx_device_info_get();
-    iotx_thing_subscribe_topic_t basic_subscribe_topic[4] = {
+    iotx_thing_subscribe_topic_t basic_subscribe_topic[5] = {
         {TOPIC_Thing_COMMON_FMT, "sub", "register_reply", ""},
         {TOPIC_Thing_COMMON_FMT, "sub", "unregister_reply", ""},
         {TOPIC_Thing_COMMON_FMT, "topo", "add_reply", ""},
         {TOPIC_Thing_COMMON_FMT, "topo", "delete_reply", ""},
+        {TOPIC_Thing_COMMON_FMT, "topo", "get_reply", ""},
     };
     
     PARAMETER_Thing_CHECK(thing_t);
@@ -1245,14 +1246,14 @@ void* IOT_Thing_Construct(iotx_thing_param_pt param)
 
     g_thing_masterlave_t = thing_t;
 
-    /* subscribe register and topo topic */
+    /* subscribe register and topo topic 
     if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_basic(thing_t, IOTX_Thing_SUBSCRIBE_TYPE)) {
         if (FAIL_RETURN == IOT_Thing_Destroy((void**)&thing_t)) {
             LITE_free(thing_t->thing_data_t);
             LITE_free(thing_t);            
         }
         return NULL;
-    }
+    } */
     
     /* subscribe thing template topic */
     if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
@@ -1281,10 +1282,10 @@ int IOT_Thing_Destroy(void** handle)
     thing_t = (iotx_thing_masterlave_pt)(*handle);
     PARAMETER_Thing_CHECK(thing_t);
 
-    /* unsubscribe register and topo topic */
+    /* unsubscribe register and topo topic 
     if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_basic(thing_t, IOTX_Thing_UNSUBSCRIBE_TYPE)) {
         log_info("unsubscribe basic topic fail");
-    }
+    }*/
     
     /* unsubscribe thing template topic */
     if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
@@ -1418,6 +1419,26 @@ int IOT_Thing_Logout(void* handle,
     return SUCCESS_RETURN;
 }
 
+
+int IOT_Thing_Get_TOPO(void* handle, 
+        char* get_toop_reply, 
+        uint32_t* length)
+{
+    iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
+    
+    /* parameter check */
+    PARAMETER_Thing_CHECK(thing_t); 
+    PARAMETER_NULL_CHECK_WITH_RESULT(get_toop_reply, FAIL_RETURN);
+    
+    /*  get topo */
+    if (FAIL_RETURN == IOT_Gateway_Get_TOPO(thing_t->gateway, get_toop_reply, length)) {
+        log_info("get topo fail");
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
 /* get dsl template */
 int IOT_Thing_Get_Dsl_Template(void* handle, 
         const char* product_key, 
@@ -1459,7 +1480,7 @@ int IOT_Thing_Get_Dsl_Template(void* handle,
         strlen(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_DSL_GET].data)); 
     (*length) = strlen(dsl_template);
     LITE_free(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_DSL_GET].data); 
-    
+
     return SUCCESS_RETURN;
 }
 

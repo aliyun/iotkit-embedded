@@ -722,6 +722,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
 {
     int rc, cnt = 0;
     uint32_t length = 0;
+    uint32_t topo_length = 0;
     iotx_conn_info_pt puser_info;
     iotx_mqtt_param_t mqtt_t;
     iotx_thing_param_t thing_param;    
@@ -734,6 +735,8 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     char sign[41] = {0};
     char timestamp[20] = {0};
     char client_id[32] = {0};  //请根据devicename和productkey调整大小
+    
+    char get_topo_reply[512] = {0};
 
     /* Device AUTH */
     rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
@@ -908,6 +911,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     }
     printf(" ~~~~~~~~~~~~~~ login success ~~~~~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+
     
     printf(" ~~~~~~~~ start register callback ~~~~~~~~~~ \n");    
     printf(" ~~~~~~~~~~~~ service register ~~~~~~~~~~~~~ \n");
@@ -957,6 +961,14 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf("\n");
     printf(" ~~~~~~~~~~~ dsl template success ~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n"); 
+
+    topo_length = 512;
+    if (FAIL_RETURN == ( rc = IOT_Thing_Get_TOPO(g_thing_t, get_topo_reply, &topo_length))) {
+        printf("IOT_Thing_Get_TOPO error\n");
+        goto exit;
+    }
+    printf(" get_topo_reply length %d \n", topo_length);
+    printf(" get_topo_reply %s \n", get_topo_reply);
 
     //具体参数请自行参考云端控制台提示
     printf(" ~~~~~~~~~~~~ start keyelement ~~~~~~~~~~~~~ \n");

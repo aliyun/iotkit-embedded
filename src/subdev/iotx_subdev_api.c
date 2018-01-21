@@ -123,6 +123,9 @@ static int iotx_subdevice_common_reply_proc(iotx_gateway_pt gateway,
         case IOTX_GATEWAY_PUBLISH_TOPO_DELETE:
             reply_data = &gateway->gateway_data.topo_delete_reply;
             break;
+        case IOTX_GATEWAY_PUBLISH_TOPO_GET:
+            reply_data = &gateway->gateway_data.topo_get_reply;
+            break;
         default:
             log_info("param error");
             return FAIL_RETURN;
@@ -160,8 +163,29 @@ static int iotx_subdevice_common_reply_proc(iotx_gateway_pt gateway,
             log_err("register reply: get data of json error!");
             return FAIL_RETURN;
         }
+        if (strlen(node) > REPLY_MESSAGE_LEN_MAX) {
+            log_err("topo_get reply size is large then REPLY_MESSAGE_LEN_MAX, please modify the REPLY_MESSAGE_LEN_MAX");
+            return FAIL_RETURN;
+        }
         memset(gateway->gateway_data.register_message, 0x0, REPLY_MESSAGE_LEN_MAX);   
-        strncpy(gateway->gateway_data.register_message, node, strlen(node));        
+        strncpy(gateway->gateway_data.register_message, node, strlen(node));    
+         
+        LITE_free(node);
+        node = NULL;
+    } else if (IOTX_GATEWAY_PUBLISH_TOPO_GET == reply_type) {        
+        /* parse   code */
+        node = LITE_json_value_of("data", payload);
+        if (node == NULL) {
+            log_err("topo_get reply: get data of json error!");
+            return FAIL_RETURN;
+        }
+        if (strlen(node) > REPLY_MESSAGE_LEN_MAX) {  
+            LITE_free(node);
+            log_err("topo_get reply size is large then REPLY_MESSAGE_LEN_MAX, please modify the REPLY_MESSAGE_LEN_MAX");
+            return FAIL_RETURN;
+        }
+        memset(gateway->gateway_data.topo_get_message, 0x0, REPLY_MESSAGE_LEN_MAX);   
+        strncpy(gateway->gateway_data.topo_get_message, node, strlen(node));   
         LITE_free(node);
         node = NULL;
     }
@@ -332,6 +356,19 @@ static int iotx_gateway_recv_publish_callbacks(iotx_gateway_pt gateway,
       return SUCCESS_RETURN;
     }
 
+    /* todo_get_reply */
+    HAL_Snprintf(topic,
+          GATEWAY_TOPIC_LEN_MAX, 
+          TOPIC_SESSION_TOPO_FMT, 
+          pdevice_info->product_key, 
+          pdevice_info->device_name, 
+          "get_reply");
+    if ((strlen(recv_topic) == strlen(topic)) && 
+    (0 == strncmp(recv_topic, topic, strlen(topic)))) {
+      iotx_subdevice_common_reply_proc(gateway, recv_payload, IOTX_GATEWAY_PUBLISH_TOPO_GET);
+      return SUCCESS_RETURN;
+    }
+
 
     /* rrpc request */
     memset(topic, 0x0, GATEWAY_TOPIC_LEN_MAX);
@@ -461,8 +498,6 @@ static int iotx_subdevice_parse_register_reply(        char* message,
     LITE_free(node);
     node = NULL;
     
-    /*LITE_free(message);*/
-
     return SUCCESS_RETURN;
 }
 
@@ -535,10 +570,9 @@ void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
                 }        
                 log_info("%s", dsltemplate_printf);
             }
-
             MALLOC_MEMORY(publish_topic, topic_info->topic_len + 1);
             MALLOC_MEMORY_WITH_FREE(publish_payload, topic_info->payload_len + 1, publish_topic);
-
+            
             strncpy(publish_topic, topic_info->ptopic, topic_info->topic_len);
             strncpy(publish_payload, topic_info->payload, topic_info->payload_len);
 
@@ -573,9 +607,10 @@ void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
             return;
             break;
     }
-
-    if (gateway->event_handler)
+    
+    if (gateway->event_handler) {
         gateway->event_handler(gateway->event_pcontext, pclient, msg);
+    }
 
     return;
 }
@@ -1192,6 +1227,73 @@ int IOT_Subdevice_Logout(void* handle,
 
     return SUCCESS_RETURN;
 }
+
+
+int IOT_Gateway_Get_TOPO(void* handle, 
+        char* get_toop_reply, 
+        uint32_t* length)
+{
+    uint32_t msg_id = 0;
+    char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
+    char* topo_get_packet = NULL;
+    iotx_mqtt_topic_info_t topic_msg;
+    iotx_device_info_pt pdevice_info = iotx_device_info_get();
+    iotx_gateway_pt gateway = (iotx_gateway_pt)handle;
+    
+    PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
+    PARAMETER_NULL_CHECK_WITH_RESULT(get_toop_reply, FAIL_RETURN);
+    
+    /* topic */
+    HAL_Snprintf(topic, 
+            GATEWAY_TOPIC_LEN_MAX, 
+            TOPIC_SESSION_TOPO_FMT, 
+            pdevice_info->product_key, 
+            pdevice_info->device_name, 
+            "get");
+
+    /* splice topo_get packet */
+    topo_get_packet = iotx_gateway_splice_topo_get_packet(&msg_id);
+    if (topo_get_packet == NULL) {
+        log_err("topo_get packet splice error!");
+        return FAIL_RETURN;
+    }
+
+    /* publish topo_get packet */
+    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+
+    topic_msg.qos = IOTX_MQTT_QOS0;
+    topic_msg.retain = 0;
+    topic_msg.dup = 0;
+    topic_msg.payload = (void *)topo_get_packet;
+    topic_msg.payload_len = strlen(topo_get_packet);
+    topic_msg.packet_id = 0;
+
+    if (FAIL_RETURN == iotx_gateway_publish_sync(gateway, 
+            IOTX_MQTT_QOS0, 
+            topic, 
+            topo_get_packet, 
+            msg_id, 
+            &(gateway->gateway_data.topo_get_reply),
+            IOTX_GATEWAY_PUBLISH_LOGIN)) {
+        LITE_free(topo_get_packet);
+        log_err("MQTT Publish error!");
+        return FAIL_RETURN;        
+    }
+
+    LITE_free(topo_get_packet); 
+
+    if (*length < strlen(gateway->gateway_data.topo_get_message)) {
+        log_err("set memory too small");
+        return FAIL_RETURN;
+    }
+
+    strncpy(get_toop_reply, gateway->gateway_data.topo_get_message, strlen(gateway->gateway_data.topo_get_message));
+
+    *length = strlen(gateway->gateway_data.topo_get_message);
+            
+    return SUCCESS_RETURN;
+}
+
 
 int IOT_Gateway_Destroy(void** handle)
 {
