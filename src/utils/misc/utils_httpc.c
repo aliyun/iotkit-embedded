@@ -528,7 +528,6 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
             memmove(data, &data[crlf_pos + 2], len - (crlf_pos + 2)); /* Not need to move NULL-terminating char any more */
             len -= (crlf_pos + 2);
         } else {
-            /*readLen = client_data->retrieve_len; */
             readLen = client_data->retrieve_len;
         }
 
@@ -562,7 +561,6 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
                 int ret;
                 int max_len = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - count);
                 max_len = HTTPCLIENT_MIN(max_len, readLen);
-                log_debug("read more len %d", len);
                 ret = httpclient_recv(client, data, 1, max_len, &len, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
@@ -668,14 +666,12 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     if (NULL != (tmp_ptr = strstr(data, "Content-Length"))) {
         client_data->response_content_len = atoi(tmp_ptr + strlen("Content-Length: "));
         client_data->retrieve_len = client_data->response_content_len;
-        log_debug("Content-Length %d", client_data->response_content_len);
     } else if (NULL != (tmp_ptr = strstr(data, "Transfer-Encoding"))) {
         int len_chunk = strlen("Chunked");
         char *chunk_value = data + strlen("Transfer-Encoding: ");
 
         if ((! memcmp(chunk_value, "Chunked", len_chunk))
             || (! memcmp(chunk_value, "chunked", len_chunk))) {
-            log_debug("Chunked");
             client_data->is_chunked = IOT_TRUE;
             client_data->response_content_len = 0;
             client_data->retrieve_len = 0;
@@ -801,9 +797,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
             httpclient_close(client);
             return ret;
         }
-    }
 
-    if (!client_data->is_more) {
         ret = httpclient_send_request(client, url, method, client_data);
         if (0 != ret) {
             log_err("httpclient_send_request is error, ret = %d", ret);
@@ -825,7 +819,13 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
         }
     }
 
-    return 0;
+    if (! client_data->is_more) {
+        /* Close the HTTP if no more data. */
+        log_info("close http channel");
+        httpclient_close(client);
+    }
+
+    return (ret >= 0) ? 0 : -1;
 }
 
 int utils_get_response_code(httpclient_t *client)
