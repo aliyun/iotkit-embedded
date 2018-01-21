@@ -67,9 +67,11 @@ typedef struct iotx_gateway_data_st {
     iotx_common_reply_data_t            logout_reply;
     iotx_common_reply_data_t            topo_add_reply;
     iotx_common_reply_data_t            topo_delete_reply;
+    iotx_common_reply_data_t            topo_get_reply;
     iotx_common_reply_data_t            register_reply;
     iotx_common_reply_data_t            unregister_reply;
     char                                register_message[REPLY_MESSAGE_LEN_MAX];
+    char                                topo_get_message[REPLY_MESSAGE_LEN_MAX];
     rrpc_request_callback               rrpc_callback; 
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
     void*                               lock_sync; 
@@ -203,6 +205,7 @@ typedef enum IOTX_GATEWAY_PUBLISH_TYPE {
     IOTX_GATEWAY_PUBLISH_UNREGISTER,
     IOTX_GATEWAY_PUBLISH_TOPO_ADD,
     IOTX_GATEWAY_PUBLISH_TOPO_DELETE,
+    IOTX_GATEWAY_PUBLISH_TOPO_GET,
     IOTX_GATEWAY_PUBLISH_LOGIN,
     IOTX_GATEWAY_PUBLISH_LOGOUT,
 
@@ -242,6 +245,10 @@ char *iotx_gateway_splice_common_packet(const char *product_key,
         const char* device_name,
         const char* method,
         uint32_t* msg_id);
+
+        
+char *iotx_gateway_splice_topo_get_packet(uint32_t* msg_id);
+
 
 char *iotx_gateway_splice_topo_add_packet(const char *product_key,
         const char* device_name,

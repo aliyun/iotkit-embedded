@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_
-#define SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_
+#ifndef SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
+#define SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
 
 #include "iot_export.h"
 
@@ -32,7 +32,7 @@
 #define GATEWAY_TOPIC_LEN_MAX                256
 
 /* Reply message maximum length value */
-#define REPLY_MESSAGE_LEN_MAX                128
+#define REPLY_MESSAGE_LEN_MAX                1024
 
 /* The format of session combine topic */
 #define TOPIC_SESSION_COMBINE_FMT            "/ext/session/%s/%s/combine/%s"
@@ -249,6 +249,22 @@ int IOT_Subdevice_Logout(void* handle,
 
 
 /**
+ * @brief Gateway get topo
+ *        This function publish a packet with topo/get topic and wait for the reply (with TOPO_GET_REPLY topic).
+ *
+ * @param pointer of handle, specify the Gateway.
+ * @param get_toop_reply.
+ * @param length [in/out]. in -- get_topo_reply buffer length, out -- reply length
+ *
+ * @return 0, logout success; -1, logout failed.
+ */
+int IOT_Gateway_Get_TOPO(void* handle, 
+        char* get_topo_reply, 
+        uint32_t* length);
+
+
+
+/**
  * @brief Gateway Yield
  *        This function    used to received some packets.
  *
@@ -343,6 +359,6 @@ int IOT_Gateway_RRPC_Response(void* handle,
         const char* response);
 
 
-#endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CMP_H_ */
+#endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_ */
 
 

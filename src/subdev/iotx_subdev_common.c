@@ -50,6 +50,36 @@ char *iotx_gateway_splice_common_packet(const char *product_key,
 }
 
 
+
+char *iotx_gateway_splice_topo_get_packet(uint32_t* msg_id)
+{
+#define TOPOADD_PACKET_FMT     "{\"id\":%d,\"version\":\"1.0\",\"params\":{},\"method\":\"thing.topo.get\"}"
+
+    int len, ret;
+    char* msg = NULL;
+    uint32_t id = 0;
+    
+
+    /* sum the string length */
+    len = strlen(COMMON_PACKET_FMT) + 12;
+    MALLOC_MEMORY_WITH_RESULT(msg, len, NULL);
+    id = IOT_Gateway_Generate_Message_ID();
+    ret = HAL_Snprintf(msg,
+                   len,
+                   TOPOADD_PACKET_FMT,
+                   id);
+    if (ret < 0) {
+        log_err("splice packet error!");
+        LITE_free(msg);
+        return NULL;
+    }
+
+    *msg_id = id;
+
+    return msg;
+}
+
+
 char *iotx_gateway_splice_logout_packet(const char *product_key,
         const char* device_name,
         uint32_t* msg_id)
@@ -426,7 +456,17 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
                             is_subscribe)){
         return FAIL_RETURN;
     }     
-    
+
+    /* topo_get_reply */
+    if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
+                            pdevice_info->product_key,
+                            pdevice_info->device_name,
+                            TOPIC_SESSION_TOPO_FMT, 
+                            "get_reply", 
+                            is_subscribe)){
+        return FAIL_RETURN;
+    }     
+
     /* login_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
                             pdevice_info->product_key,
