@@ -641,18 +641,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
 
     printf("sub_dsltemplate_get: length[%d]:[%s]\n", length, sub_dsltemplate_get);
     printf(" ~~~~~~~~~~~ dsl template success ~~~~~~~~~~ \n");
-    printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");       
-    
-    //具体参数请自行参考云端控制台提示
-    printf(" ~~~~~~~~~~~~ start keyelement ~~~~~~~~~~~~~ \n");
-    rc = IOT_Thing_Post_Keyelement(g_thing_t,
-                PRODUCT_KEY, 
-                DEVICE_NAME, 
-                "{\"eventName\":\"Temperature\",\"eventType\":\"alert\",\"argsType\":[],\"identifier\": \"event_id\",\"description\": \"add\",\"required\": \"true\",\"version\": \"1.0.0\",\"status\": 0}",
-                "{\"propertyName\":\"dafd\",\"propertyType\": \"text\",\"identifier\":\"dakfk\",\"description\":\"dafax\",\"required\":1,\"rwFlag\":\"READ_WRITE\",\"version\": 1,\"dataSpecs\": {\"custom\":true,\"dataType\":\"TEXT\",\"gmtCreate\":1510928834763,\"gmtModified\":1510928834763,\"length\":50},\"dataSpecsList\": [],\"status\": 0}",
-                "{\"serviceName\":\"weosadf\",\"inputArgsType\":[],\"outputArgsType\":[],\"identifier\":\"dsafadsf\",\"description\":\"dsl.service.post\",\"required\":true,\"version\":\"1.0.0\",\"status\": 0}"); 
-    printf(" ~~~~~~~~~~~~ keyelement success ~~~~~~~~~~~ \n");
-    printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
+    printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");    
     
     //具体参数请自行参考云端控制台提示
     printf(" ~~~~~~~~~~~ start thing property ~~~~~~~~~~ \n"); 
