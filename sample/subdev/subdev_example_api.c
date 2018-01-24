@@ -1573,6 +1573,7 @@ int IOT_Thing_Delete_Deviceinfo(void* handle,
 }
 
 /* post key element */
+/* remove, cloud is not support this TOPIC */
 int IOT_Thing_Post_Keyelement(void* handle, 
         const char* product_key, 
         const char* device_name,

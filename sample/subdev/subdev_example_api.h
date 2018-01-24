@@ -814,10 +814,6 @@ char *iotx_thing_splice_topo_add_packet(const char* product_key,
         const char* client_id,
         int32_t* msg_id);
 
-char *iotx_thing_splice_post_keyelement_packet(const char* event,
-        const char* propery,
-        const char* service,
-        int32_t* msg_id);
 
 char* iotx_thing_splice_common_packet(const char* product_key, 
         const char* device_name, 
