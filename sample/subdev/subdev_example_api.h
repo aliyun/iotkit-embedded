@@ -394,27 +394,6 @@ int IOT_Thing_Delete_Deviceinfo(void* handle,
 
 
 /**
- * @brief Post key element
- *        This function    used to post key element to set specify template.
- *
- * @param pointer of handle, specify the Thing construction.
- * @param product key.
- * @param device name.
- * @param event.
- * @param property.
- * @param service.
- *
- * @return 0, Post success; -1, Post fail.
- */
-int IOT_Thing_Post_Keyelement(void* handle, 
-        const char* product_key, 
-        const char* device_name,
-        const char* evnet,
-        const char* property,
-        const char* service);
-
-
-/**
  * @brief Response set propety request
  *        This function    used to response set propety request.
  *
