@@ -236,6 +236,18 @@ int IOT_MQTT_CheckStateNormal(void *handle);
 
 
 /**
+ * @brief disable MQTT auto-reconnect.
+ *
+ * @param [in] handle: specify the MQTT client.
+ *
+ * @retval  0 : Success.
+ * @retval -1 : Failed.
+ * @see None.
+ */
+int IOT_MQTT_Disable_Reconnect(void *handle);
+
+
+/**
  * @brief Subscribe MQTT topic.
  *
  * @param [in] handle: specify the MQTT client.

@@ -649,7 +649,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     rc = IOT_Thing_Post_Property(g_thing_t, 
                 PRODUCT_KEY, 
                 DEVICE_NAME, 
-                "{\"afabwa\":\"sfs\"}");       
+                "{\"afabwa\":\"sfs\"}");
     printf(" ~~~~~~~~~~ thing property success ~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");   
   
