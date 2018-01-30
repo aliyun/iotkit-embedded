@@ -22,7 +22,7 @@
 | FEATURE_MQTT_DIRECT_NOTLS   | 使用MQTT直连模式做设备认证时, 是否要关闭MQTT over TLS           |
 | FEATURE_COAP_COMM_ENABLED   | 是否使能CoAP通道功能的总开关                                    |
 | FEATURE_HTTP_COMM_ENABLED   | 是否使能Https通道功能的总开关                                   |
-| FEATURE_SUBDEVICE_ENABLED   | 是否使能主子设备通道功能的总开关                                    |
+| FEATURE_SUBDEVICE_ENABLED   | 是否使能主子设备通道功能的总开关                                |
 
 
 ## 编译 & 运行
@@ -93,12 +93,13 @@
     49  IOT_Gateway_Destroy
     50  IOT_Subdevice_Login
     51  IOT_Subdevice_Logout
-    52  IOT_Gateway_Yield
-    53  IOT_Gateway_Subscribe
-    54  IOT_Gateway_Unsubscribe
-    55  IOT_Gateway_Publish
-    56  IOT_Gateway_RRPC_Register
-    57  IOT_Gateway_RRPC_Response
+	52  IOT_Gateway_Get_TOPO
+    53  IOT_Gateway_Yield
+    54  IOT_Gateway_Subscribe
+    55  IOT_Gateway_Unsubscribe
+    56  IOT_Gateway_Publish
+    57  IOT_Gateway_RRPC_Register
+    58  IOT_Gateway_RRPC_Response
 
 
 ### **必选API**
@@ -183,6 +184,7 @@
 |  2    | IOT_Gateway_Destroy             | 摧毁一个主设备的MQTT连接, 销毁所有相关的数据结构, 释放内存, 断开连接            |
 |  3    | IOT_Subdevice_Login             | 子设备上线，通知云端建立子设备session                                           |
 |  4    | IOT_Subdevice_Logout            | 子设备下线，销毁云端建立子设备session及所有相关的数据结构, 释放内存             |
+|  4    | IOT_Gateway_Get_TOPO            | 获取主设备下所有子设备的信息                                                    |
 |  5    | IOT_Gateway_Yield               | MQTT的主循环函数, 调用后接受服务端的下推消息                                    |
 |  6    | IOT_Gateway_Subscribe           | 通过MQTT连接向服务端发送订阅请求                                                |
 |  7    | IOT_Gateway_Unsubscribe         | 通过MQTT连接向服务端发送取消订阅请求                                            |

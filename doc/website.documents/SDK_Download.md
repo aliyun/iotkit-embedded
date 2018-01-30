@@ -24,6 +24,19 @@
 
 **希望能够看到更多的Contributor, 共同开发设备端SDK的后续版本!**
 
+# 版本V2.03
+
+- 发布日期: 2018/01/30
+- 开发语言: C语言
+- 开发环境: 64位Linux, GNU Make
+- 下载链接: [RELEASED_V2_03_20180130.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V2_03_20180130.zip)
+- 更新内容:
+    - **支持主子设备功能:** 设置FEATURE_SUBDEVICE_ENABLED = y，可以支持子设备通过主设备(网关设备)进行数据交互
+    - **升级HTTP通道:** 优化HTTP流程
+    - **优化TLS:** 修复内存泄漏问题
+    - **优化OTA的配置:** 可以更合理的开关OTA功能
+    - **升级MQTT通道:** 支持topic更长，更多的订阅请求；MQTT支持多线程
+	
 # 版本V2.02
 
 - 发布日期: 2017/11/30
