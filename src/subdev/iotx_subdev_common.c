@@ -61,7 +61,7 @@ char *iotx_gateway_splice_topo_get_packet(uint32_t* msg_id)
     
 
     /* sum the string length */
-    len = strlen(COMMON_PACKET_FMT) + 12;
+    len = strlen(TOPOADD_PACKET_FMT) + 12;
     MALLOC_MEMORY_WITH_RESULT(msg, len, NULL);
     id = IOT_Gateway_Generate_Message_ID();
     ret = HAL_Snprintf(msg,

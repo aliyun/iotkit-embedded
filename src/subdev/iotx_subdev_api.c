@@ -1163,7 +1163,7 @@ int IOT_Gateway_Get_TOPO(void* handle,
             topo_get_packet, 
             msg_id, 
             &(gateway->gateway_data.topo_get_reply),
-            IOTX_GATEWAY_PUBLISH_LOGIN)) {
+            IOTX_GATEWAY_PUBLISH_TOPO_GET)) {
         LITE_free(topo_get_packet);
         log_err("MQTT Publish error!");
         return FAIL_RETURN;        
