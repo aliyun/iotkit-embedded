@@ -29,7 +29,7 @@
 - 发布日期: 2018/01/30
 - 开发语言: C语言
 - 开发环境: 64位Linux, GNU Make
-- 下载链接: [RELEASED_V2_03_20180130.zip](https://github.com/aliyun/iotkit-embedded/archive/RELEASED_V2_03_20180130.zip)
+- 下载链接: [RELEASED_V2_03_20180130.zip](http://aliyun-iot.oss-cn-hangzhou.aliyuncs.com/iot-sdk-c/RELEASED_V2_03_20180130.7z)
 - 更新内容:
     - **支持主子设备功能:** 设置FEATURE_SUBDEVICE_ENABLED = y，可以支持子设备通过主设备(网关设备)进行数据交互
     - **升级HTTP通道:** 优化HTTP流程
