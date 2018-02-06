@@ -35,7 +35,7 @@ typedef enum {
 
 /* The message type */
 typedef enum {
-    IOTX_MESSAGE_CONFIRMABLE  = 0,       /* confirmable message */
+    IOTX_MESSAGE_CONFIRMABLE  = 0,           /* confirmable message */
     IOTX_MESSAGE_NON_CONFIRMABLE  = 1,       /* non-confirmable message */
 } iotx_message_type_t;
     

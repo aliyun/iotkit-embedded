@@ -48,7 +48,7 @@ typedef struct {
     int                  auth_token_len;
     char                 is_authed;
     iotx_deviceinfo_t   *p_devinfo;
-    CoAPContext          *p_coap_ctx;
+    CoAPContext         *p_coap_ctx;
     unsigned int         coap_token;
     iotx_event_handle_t  event_handle;
 } iotx_coap_t;

@@ -81,6 +81,9 @@ CFLAGS += -DSUBDEV_VIA_MQTT
 endif # FEATURE_SUBDEVICE_CHANNEL
 
 ifeq (y,$(strip $(FEATURE_CMP_ENABLED)))
+ifneq (y,$(strip $(FEATURE_OTA_ENABLED)))
+$(error FEATURE_CMP_ENABLED = y requires FEATURE_OTA_ENABLED = y!)
+endif
 ifeq (y,$(strip $(FEATURE_CMP_VIA_MQTT_DIRECT)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
 $(error FEATURE_CMP_VIA_MQTT_DIRECT = y requires FEATURE_MQTT_COMM_ENABLED = y!)
