@@ -535,15 +535,12 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
 
         do {
             templen = HTTPCLIENT_MIN(len, readLen);
-            log_debug("templen %d", templen);
             if (count + templen < client_data->response_buf_len - 1) {
-            log_debug("1");
                 memcpy(client_data->response_buf + count, data, templen);
                 count += templen;
                 client_data->response_buf[count] = '\0';
                 client_data->retrieve_len -= templen;
             } else {
-            log_debug("2");
                 memcpy(client_data->response_buf + count, data, client_data->response_buf_len - 1 - count);
                 client_data->response_buf[client_data->response_buf_len - 1] = '\0';
                 client_data->retrieve_len -= (client_data->response_buf_len - 1 - count);
@@ -557,7 +554,6 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
                 readLen = 0;
                 client_data->retrieve_len = 0;
             } else {
-            log_debug("3");
                 readLen -= len;
             }
 
@@ -569,10 +565,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
-
-                log_debug("ret %d", ret);
             }
-            log_debug("readLen %d", readLen);
         } while (readLen);
 
         if (client_data->is_chunked) {
