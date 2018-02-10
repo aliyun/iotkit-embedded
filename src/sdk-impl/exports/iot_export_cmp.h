@@ -100,13 +100,14 @@ typedef enum IOTX_CMP_EVENT_TYPES {
     /* event_msg is iotx_cmp_event_result_pt */
     IOTX_CMP_EVENT_UNREGISTER_RESULT = 21,
 
-    /* unregister */
+    /* send */
     /* event_msg is iotx_cmp_event_result_pt */
     IOTX_CMP_EVENT_SEND_RESULT = 22,
 
-    /* new version detected, please ota */
+    /* new data receive */
+    /* used by undefined CMP_SUPPORT_TOPIC_DISPATCH */
     /* event_msg is iotx_cmp_ota_parameter_t */
-    IOTX_CMP_EVENT_NEW_VERSION_DETECTED = 30,
+    IOTX_CMP_EVENT_NEW_DATA_RECEIVED = 30,
 
     /* Maximum number of protocol */
     IOTX_CMP_EVENT_MAX
@@ -164,10 +165,11 @@ typedef struct {
 
 /* The structure of ota result */
 typedef struct {
-    uint32_t size_file;         /* size of file */
-    char *purl;                 /* point to URL */
-    char *version;              /* point to string */
+    uint32_t                                  size_file;         /* size of file */
+    char                                     *purl;                 /* point to URL */
+    char                                     *version;              /* point to string */
 } iotx_cmp_ota_parameter_t, *iotx_cmp_ota_parameter_pt;
+
 
 
 /* The structure of cmp event msg */
@@ -203,6 +205,13 @@ typedef struct {
 } iotx_cmp_send_peer_t, *iotx_cmp_send_peer_pt;
 
 
+/* The structure of new data */
+typedef struct {
+    iotx_cmp_send_peer_pt                     peer;         
+    iotx_cmp_message_info_pt                  message_info;
+} iotx_cmp_new_data_t, *iotx_cmp_new_data_pt;
+
+
 /**
  * @brief It define a datatype of function pointer.
  *        This type of function will be called when a related event occur.
@@ -214,6 +223,19 @@ typedef struct {
  * @return none
  */
 typedef void (*iotx_cmp_event_handle_func_fpt)(void *pcontext, iotx_cmp_event_msg_pt msg, void *user_data);
+
+
+/**
+ * @brief It define a datatype of function pointer.
+ *        This type of function will be called when a related event occur.
+ *
+ * @param pcontext : The program context.
+ * @param ota_parameter : The ota parameter.
+ * @param user_data : The user_data set by user.
+ *
+ * @return none
+ */
+typedef void (*iotx_cmp_ota_handle_func_fpt)(void *pcontext, iotx_cmp_ota_parameter_pt ota_parameter, void *user_data);
 
 
 /**
@@ -302,7 +324,7 @@ int IOT_CMP_Init(iotx_cmp_init_param_pt pparam, void* option);
  *
  * @return success or fail.
  */
-int IOT_CMP_OTA_Start(char* cur_version, iotx_cmp_event_handle_func_fpt ota_func, void* user_context, void* option);
+int IOT_CMP_OTA_Start(char* cur_version, iotx_cmp_ota_handle_func_fpt ota_func, void* user_context, void* option);
 
 
 /**

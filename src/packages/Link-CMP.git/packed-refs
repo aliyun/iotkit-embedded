@@ -1,4 +1,5 @@
 # pack-refs with: peeled fully-peeled 
 f0a84a0324a5fbab99e110c49006c326e1d9ec99 refs/heads/caosan
 5e2503c9b2696e8089b574fa9e71528742ef2373 refs/heads/develop
-91c4434fbc7a68b5da6eaf88e7447b5834507cf0 refs/heads/master
+fff92f811d19349be18bbc60005f717cd64f93e3 refs/heads/master
+91c4434fbc7a68b5da6eaf88e7447b5834507cf0 refs/tags/linkkit_release_0.3_20180209
