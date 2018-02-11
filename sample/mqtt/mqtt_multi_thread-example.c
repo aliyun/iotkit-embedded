@@ -407,9 +407,9 @@ int main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    EXAMPLE_TRACE("not support, pleasae support multi-thread first!!!");
+    /*EXAMPLE_TRACE("not support, pleasae support multi-thread first!!!");
     
-    EXAMPLE_TRACE("Linux is support, please build in ubuntu.x86");
+    EXAMPLE_TRACE("Linux is support, please build in ubuntu.x86");*/
 
     return 0;
 }
