@@ -407,9 +407,9 @@ int main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    printf("not support, pleasae support multi-thread first!!!");
+    /*printf("not support, pleasae support multi-thread first!!!");
     
-    printf("Linux is support, please build in ubuntu.x86");
+    printf("Linux is support, please build in ubuntu.x86");*/
 
     return 0;
 }
