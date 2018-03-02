@@ -1,0 +1,8 @@
+add_subdirectory(http)
+add_subdirectory(mqtt)
+add_subdirectory(ota)
+add_subdirectory(device-shadow)
+add_subdirectory(subdev)
+if(NOT WIN32)
+    add_subdirectory(coap)
+endif(NOT WIN32)
