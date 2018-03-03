@@ -16,7 +16,8 @@
  *
  */
 
-
+#ifndef __IOT_EXPORT_ERRNO__
+#define __IOT_EXPORT_ERRNO__
 
 /* From utils_error.h */
 typedef enum IOT_RETURN_CODES {
@@ -100,3 +101,5 @@ typedef enum IOT_RETURN_CODES {
 
 } iotx_err_t;
 /* From utils_error.h */
+
+#endif /* __IOT_EXPORT_ERRNO__ */
