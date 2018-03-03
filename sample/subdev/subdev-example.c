@@ -201,7 +201,7 @@ void thing_control_handler(void* thing_t,
 }
 
 
-// Ê¾ÀıÈçºÎÊ¹ÓÃsubdevµÄAPIÖ±½Ó½øĞĞ¿ª·¢
+// ç¤ºä¾‹å¦‚ä½•ä½¿ç”¨subdevçš„APIç›´æ¥è¿›è¡Œå¼€å‘
 int demo_gateway_function(char *msg_buf, char *msg_readbuf)
 {
     int rc, msg_len, cnt = 0;;
@@ -327,7 +327,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~~~ start register ~~~~~~~~~~~~~~~ \n");
 
             
-    // Èç¹ûÏë²âÊÔ¶¯Ì¬×¢²á£¬Çë½«ÈçÏÂ´úÂë´ò¿ª£¬²¢ÇÒ½«SUB_2_DEVICE_NAMEÖØĞÂ¶¨ÒåÒ»¸öÖµ£¬ÀıÈç¡°subdev_6¡±
+    // å¦‚æœæƒ³æµ‹è¯•åŠ¨æ€æ³¨å†Œï¼Œè¯·å°†å¦‚ä¸‹ä»£ç æ‰“å¼€ï¼Œå¹¶ä¸”å°†SUB_2_DEVICE_NAMEé‡æ–°å®šä¹‰ä¸€ä¸ªå€¼ï¼Œä¾‹å¦‚â€œsubdev_6â€
 #if 0
     printf(" ~~~~~~~~~~~~~ dynamic register ~~~~~~~~~~~~~~ \n");
 
@@ -514,7 +514,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~~ logout success ~~~~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
-    // ÇëÎğËæÒâunregister Ò»¸öÉè±¸£¬Èç¹û¸ÃÉè±¸±»unregisterºó£¬¸ÃÉè±¸¾Í²»ÄÜÔÙÊ¹ÓÃ£¬Çë×¢Òâ
+    // è¯·å‹¿éšæ„unregister ä¸€ä¸ªè®¾å¤‡ï¼Œå¦‚æœè¯¥è®¾å¤‡è¢«unregisteråï¼Œè¯¥è®¾å¤‡å°±ä¸èƒ½å†ä½¿ç”¨ï¼Œè¯·æ³¨æ„
 #if 0
     rc = IOT_Subdevice_Unregister(g_gateway_t, SUB_1_PRODUCT_KEY, SUB_1_DEVICE_NAME); 
     if (SUCCESS_RETURN != rc) {
@@ -539,7 +539,7 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
 
 
 /* test for only one device */
-// Ê¾ÀıÊ¹ÓÃsubdev_example_api.hÖĞ¶Ôtopic½øĞĞ·â×°µÄAPI½øĞĞµ¥Æ·Éè±¸¿ª·¢
+// ç¤ºä¾‹ä½¿ç”¨subdev_example_api.hä¸­å¯¹topicè¿›è¡Œå°è£…çš„APIè¿›è¡Œå•å“è®¾å¤‡å¼€å‘
 int demo_only_one_device(char *msg_buf, char *msg_readbuf)
 {
     int rc, cnt = 0;
@@ -548,7 +548,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     iotx_mqtt_param_t mqtt_t;
     iotx_thing_param_t thing_param;   
     
-    //¾ßÌåÈ¡ÖµÇë¸ù¾İ×ÔĞĞ´´½¨µÄ²úÆ·Ä£ĞÍ½øĞĞµ÷Õû£¬¿ÉÒÔ²Î¿¼ÔËĞĞÊ±ÈÕÖ¾»áÌáÊ¾dsl¾ßÌå´óĞ¡£¬È¡ÖµĞè±Èdsl´óĞ¡´ó¼´¿É
+    //å…·ä½“å–å€¼è¯·æ ¹æ®è‡ªè¡Œåˆ›å»ºçš„äº§å“æ¨¡å‹è¿›è¡Œè°ƒæ•´ï¼Œå¯ä»¥å‚è€ƒè¿è¡Œæ—¶æ—¥å¿—ä¼šæç¤ºdslå…·ä½“å¤§å°ï¼Œå–å€¼éœ€æ¯”dslå¤§å°å¤§å³å¯
     char sub_dsltemplate_get[1024 * 4] = {0} ;
 
     /* Device AUTH */
@@ -626,7 +626,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~ register callback success ~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
-    length = 1024 * 4; //¾ßÌåÈ¡ÖµÇë¸ù¾İ×ÔĞĞ´´½¨µÄ²úÆ·Ä£ĞÍ½øĞĞµ÷Õû£¬¿ÉÒÔ²Î¿¼ÔËĞĞÊ±ÈÕÖ¾»áÌáÊ¾dsl¾ßÌå´óĞ¡£¬È¡ÖµĞè±Èdsl´óĞ¡´ó¼´¿É
+    length = 1024 * 4; //å…·ä½“å–å€¼è¯·æ ¹æ®è‡ªè¡Œåˆ›å»ºçš„äº§å“æ¨¡å‹è¿›è¡Œè°ƒæ•´ï¼Œå¯ä»¥å‚è€ƒè¿è¡Œæ—¶æ—¥å¿—ä¼šæç¤ºdslå…·ä½“å¤§å°ï¼Œå–å€¼éœ€æ¯”dslå¤§å°å¤§å³å¯
     printf(" ~~~~~~~~~~~~ start dsl template ~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~~ get ~~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Get_Dsl_Template(g_thing_t, 
@@ -643,7 +643,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~ dsl template success ~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");    
     
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~ start thing property ~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~ post ~~~~~~~~~~~~~~~~~~ \n");   
     rc = IOT_Thing_Post_Property(g_thing_t, 
@@ -653,7 +653,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~ thing property success ~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");   
   
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~ start trigger event ~~~~~~~~~~~ \n");  
     rc = IOT_Thing_Trigger_Event(g_thing_t,
                 PRODUCT_KEY, 
@@ -661,7 +661,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
                 "{\"dafd\":0.90}",
                 "propertyIdentifier20");
     
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~~~ start deviceinfo ~~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~ update ~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Update_Deviceinfo(g_thing_t, 
@@ -669,7 +669,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
                 DEVICE_NAME, 
                 "{\"attrKey\":\"Temperature\",\"attrValue\":36.8}");     
     
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~~~~~~~~ delete ~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Delete_Deviceinfo(g_thing_t, 
                 PRODUCT_KEY, 
@@ -679,7 +679,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~ deviceinfo success ~~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
     
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~ start publish rawdata ~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Publish_Rawdata(g_thing_t,
                 PRODUCT_KEY, 
@@ -706,7 +706,7 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
 }
 
 
-// Ê¾ÀıÊ¹ÓÃsubdev_example_api.hÖĞ¶Ôtopic½øĞĞ·â×°µÄAPI½øĞĞÍø¹Ø¿ª·¢
+// ç¤ºä¾‹ä½¿ç”¨subdev_example_api.hä¸­å¯¹topicè¿›è¡Œå°è£…çš„APIè¿›è¡Œç½‘å…³å¼€å‘
 int demo_thing_function(char *msg_buf, char *msg_readbuf)
 {
     int rc, cnt = 0;
@@ -716,14 +716,14 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     iotx_mqtt_param_t mqtt_t;
     iotx_thing_param_t thing_param;    
     
-    //¾ßÌåÈ¡ÖµÇë¸ù¾İ×ÔĞĞ´´½¨µÄ²úÆ·Ä£ĞÍ½øĞĞµ÷Õû£¬¿ÉÒÔ²Î¿¼ÔËĞĞÊ±ÈÕÖ¾»áÌáÊ¾dsl¾ßÌå´óĞ¡£¬È¡ÖµĞè±Èdsl´óĞ¡´ó¼´¿É
+    //å…·ä½“å–å€¼è¯·æ ¹æ®è‡ªè¡Œåˆ›å»ºçš„äº§å“æ¨¡å‹è¿›è¡Œè°ƒæ•´ï¼Œå¯ä»¥å‚è€ƒè¿è¡Œæ—¶æ—¥å¿—ä¼šæç¤ºdslå…·ä½“å¤§å°ï¼Œå–å€¼éœ€æ¯”dslå¤§å°å¤§å³å¯
     char sub_dsltemplate_get[1024 * 4] = {0} ;
     
     char dsltemplate_printf[512] = {0};
     int printf_num = 0; 
     char sign[41] = {0};
     char timestamp[20] = {0};
-    char client_id[32] = {0};  //Çë¸ù¾İdevicenameºÍproductkeyµ÷Õû´óĞ¡
+    char client_id[32] = {0};  //è¯·æ ¹æ®devicenameå’Œproductkeyè°ƒæ•´å¤§å°
     
     char get_topo_reply[512] = {0};
 
@@ -779,7 +779,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~ construct success ~~~~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
-    // ¾²Ì¬×¢²á×ÓÉè±¸
+    // é™æ€æ³¨å†Œå­è®¾å¤‡
     printf(" ~~~~~~~~~~~~~~ start register ~~~~~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~ static ~~~~~~~~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~ sub1 ~~~~~~~~~~~~~~~~~~~ \n");
@@ -843,7 +843,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
         goto exit;
     }
         
-    // ¶¯Ì¬×¢²á×ÓÉè±¸Çë²é¿´demo_gateway_functionÖĞµÄÊ¾Àı  
+    // åŠ¨æ€æ³¨å†Œå­è®¾å¤‡è¯·æŸ¥çœ‹demo_gateway_functionä¸­çš„ç¤ºä¾‹  
     printf(" ~~~~~~~~~~~~~~~~~~ sub2 ~~~~~~~~~~~~~~~~~~~ \n");
     /* client id */
     memset(client_id, 0x0, 32);
@@ -926,7 +926,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~ register callback success ~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
-    length = 1024 * 4;   //¾ßÌåÈ¡ÖµÇë¸ù¾İ×ÔĞĞ´´½¨µÄ²úÆ·Ä£ĞÍ½øĞĞµ÷Õû£¬¿ÉÒÔ²Î¿¼ÔËĞĞÊ±ÈÕÖ¾»áÌáÊ¾dsl¾ßÌå´óĞ¡£¬È¡ÖµĞè±Èdsl´óĞ¡´ó¼´¿É
+    length = 1024 * 4;   //å…·ä½“å–å€¼è¯·æ ¹æ®è‡ªè¡Œåˆ›å»ºçš„äº§å“æ¨¡å‹è¿›è¡Œè°ƒæ•´ï¼Œå¯ä»¥å‚è€ƒè¿è¡Œæ—¶æ—¥å¿—ä¼šæç¤ºdslå…·ä½“å¤§å°ï¼Œå–å€¼éœ€æ¯”dslå¤§å°å¤§å³å¯
     printf(" ~~~~~~~~~~~~ start dsl template ~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~~ get ~~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Get_Dsl_Template(g_thing_t, 
@@ -960,7 +960,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf(" get_topo_reply %s \n", get_topo_reply);
 
 
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~ start thing property ~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~~ post ~~~~~~~~~~~~~~~~~~ \n");   
     rc = IOT_Thing_Post_Property(g_thing_t, 
@@ -970,7 +970,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~ thing property success ~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");   
     
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~ start trigger event ~~~~~~~~~~~ \n");  
     rc = IOT_Thing_Trigger_Event(g_thing_t,
                 SUB_1_PRODUCT_KEY, 
@@ -981,7 +981,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~ trigger event success ~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
     
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~~~ start deviceinfo ~~~~~~~~~~~~ \n"); 
     printf(" ~~~~~~~~~~~~~~~~~~ update ~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Update_Deviceinfo(g_thing_t, 
@@ -989,7 +989,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
                 SUB_1_DEVICE_NAME, 
                 "[{\"attrKey\":\"Temperature\",\"attrValue\":\"36.8\"}]");     
 
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~~~~~~~~ delete ~~~~~~~~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Delete_Deviceinfo(g_thing_t, 
                 SUB_1_PRODUCT_KEY, 
@@ -999,7 +999,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     printf(" ~~~~~~~~~~~~ deviceinfo success ~~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
 
-    //¾ßÌå²ÎÊıÇë×ÔĞĞ²Î¿¼ÔÆ¶Ë¿ØÖÆÌ¨ÌáÊ¾
+    //å…·ä½“å‚æ•°è¯·è‡ªè¡Œå‚è€ƒäº‘ç«¯æ§åˆ¶å°æç¤º
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
     printf(" ~~~~~~~~~~ start publish rawdata ~~~~~~~~~~ \n"); 
     rc = IOT_Thing_Publish_Rawdata(g_thing_t,
@@ -1045,13 +1045,13 @@ int main()
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     
-    // Ê¾ÀıÈçºÎÊ¹ÓÃsubdevµÄAPIÖ±½Ó½øĞĞ¿ª·¢
+    // ç¤ºä¾‹å¦‚ä½•ä½¿ç”¨subdevçš„APIç›´æ¥è¿›è¡Œå¼€å‘
     //demo_gateway_function(msg_buf, msg_readbuf);
 
-    // Ê¾ÀıÊ¹ÓÃsubdev_example_api.hÖĞ¶Ôtopic½øĞĞ·â×°µÄAPI½øĞĞÍø¹Ø¿ª·¢
+    // ç¤ºä¾‹ä½¿ç”¨subdev_example_api.hä¸­å¯¹topicè¿›è¡Œå°è£…çš„APIè¿›è¡Œç½‘å…³å¼€å‘
     demo_thing_function(msg_buf, msg_readbuf);
 
-    // Ê¾ÀıÊ¹ÓÃsubdev_example_api.hÖĞ¶Ôtopic½øĞĞ·â×°µÄAPI½øĞĞµ¥Æ·Éè±¸¿ª·¢
+    // ç¤ºä¾‹ä½¿ç”¨subdev_example_api.hä¸­å¯¹topicè¿›è¡Œå°è£…çš„APIè¿›è¡Œå•å“è®¾å¤‡å¼€å‘
     //demo_only_one_device(msg_buf, msg_readbuf);
 
     printf("out of demo!\n");
