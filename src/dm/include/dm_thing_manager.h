@@ -1,0 +1,108 @@
+#ifndef DM_THING_MANAGER_H
+#define DM_THING_MANAGER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#include "new.h"
+#include "interface/thing_abstract.h"
+#include "interface/thing_manager_abstract.h"
+#include "interface/log_abstract.h"
+#include "interface/list_abstract.h"
+#include "dm_import.h"
+#include "iot_import.h"
+#include "iot_export_cmp.h"
+
+#define DM_THING_MANAGER_CLASS get_dm_thing_manager_class()
+#define DM_LOCAL_THING_NAME_PATTERN "lthing_%d"
+#define DM_REQUEST_VERSION_STRING "1.0"
+
+#define METHOD_NAME_SUB_REGISTER            "thing/sub/register"
+#define METHOD_NAME_SUB_REGISTER_REPLY      "thing/sub/register_reply"
+#define METHOD_NAME_SUB_UNREGISTER          "thing/sub/unregister"
+#define METHOD_NAME_SUB_UNREGISTER_REPLY    "thing/sub/unregister_reply"
+#define METHOD_NAME_LOGIN                   "thing/login"
+#define METHOD_NAME_LOGIN_REPLY             "thing/login_reply"
+#define METHOD_NAME_LOGOUT                  "thing/logout"
+#define METHOD_NAME_LOGOUT_REPLY            "thing/logout_reply"
+#define METHOD_NAME_TOPO_ADD                "thing/topo/add"
+#define METHOD_NAME_TOPO_ADD_REPLY          "thing/topo/add_reply"
+#define METHOD_NAME_TOPO_DEL                "thing/topo/delete"
+#define METHOD_NAME_TOPO_DEL_REPLY          "thing/topo/delete_reply"
+#define METHOD_NAME_THING_ENABLE            "thing/enable"
+#define METHOD_NAME_THING_ENABLE_REPLY      "thing/enable_reply"
+#define METHOD_NAME_THING_DELETE            "thing/delete"
+#define METHOD_NAME_THING_DELETE_REPLY      "thing/delete_reply"
+#define METHOD_NAME_THING_DISABLE           "thing/disable"
+#define METHOD_NAME_THING_DISABLE_REPLY     "thing/disable_reply"
+#define METHOD_NAME_THING_DSL_POST          "thing/keyelement/post"
+#define METHOD_NAME_THING_DSL_POST_REPLY    "thing/keyelement/post_reply"
+#define METHOD_NAME_THING_DSL_GET           "thing/dsltemplate/get"
+#define METHOD_NAME_THING_DSL_GET_REPLY     "thing/dsltemplate/get_reply"
+#define METHOD_NAME_PROPERTY_POST           "thing/event/property/post"
+#define METHOD_NAME_PROPERTY_POST_REPLY     "thing/event/property/post_reply"
+#define METHOD_NAME_PROPERTY_SET            "thing/service/property/set"
+#define METHOD_NAME_PROPERTY_SET_REPLY      "thing/service/property/set_reply"
+#define METHOD_NAME_PROPERTY_GET            "thing/service/property/get"
+#define METHOD_NAME_PROPERTY_GET_REPLY      "thing/service/property/get_reply"
+#define METHOD_NAME_DOWN_RAW                "thing/model/down_raw"
+#define METHOD_NAME_DOWN_RAW_PEPLY          "thing/model/down_raw_reply"
+#define METHOD_NAME_UP_RAW                  "thing/model/up_raw"
+#define METHOD_NAME_UP_RAW_REPLY            "thing/model/up_raw_reply"
+
+#define METHOD_MAX_LENGH 128
+#define URI_MAX_LENGH 256
+
+typedef struct {
+    const  void* _;
+    char*  _name; /* dm thing manager object name. */
+    void*  _local_thing_list; /* local thing list. */
+    void*  _local_thing_name_list; /* local thing list. */
+    void*  _sub_thing_list; /* sub thing list. currently not use. */
+    void*  _callback_list; /* callback function list */
+    void*  _service_property_get_identifier_list; /* identifier list when method=thing.service.property.get */
+    void*  _ota;
+    void*  _thing_id;
+    void*  _identifier;
+    void*  _property_identifier_post; /* used when event = thing.event.property.post */
+    void*  _property_identifier_set; /* used when event = thing.service.property.set */
+    void*  _property_identifier_value_set; /* used when event = thing.service.property.set */
+    void*  _service_identifier_requested; /* service identifier when requested. */
+    void*  _get_value;
+    void*  _set_value;
+    char*  _set_value_str;
+    char*  _get_value_str;
+    void*  _message_info;
+    void*  _cmp;
+    int    _local_thing_id;
+    int    _ret;
+    int    _code;
+    char*  _dm_version;
+    int    _id;
+    int    _response_id;
+    int    _request_id;
+    void*  _raw_data;
+    int    _raw_data_length;
+    char*  _method;
+    int    _cloud_connected;
+    int    _get_tsl_from_cloud;
+    int    _destructing;
+    dm_callback_type_t _callback_type;
+    dm_cloud_domain_type_t _cloud_domain;
+    iotx_cmp_event_handle_func_fpt _cmp_event_handle_func_fp;
+    iotx_cmp_register_func_fpt _cmp_register_func_fp;
+    char  _device_name[CMP_DEVICE_ID_LEN];
+    char  _product_key[CMP_PRODUCT_KEY_LEN];
+    char  _device_secret[CMP_DEVICE_SECRET_LEN];
+    char  _device_id[CMP_DEVICE_ID_LEN];
+} dm_thing_manager_t;
+
+
+extern const void* get_dm_thing_manager_class();
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* DM_THING_MANAGER_H */

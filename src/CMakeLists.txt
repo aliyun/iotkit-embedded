@@ -5,6 +5,10 @@ add_subdirectory(coap)
 add_subdirectory(packages)
 add_subdirectory(http)
 add_subdirectory(subdev)
+if(FEATURE_OTA_ENABLED)
+    add_subdirectory(fota)
+endif(FEATURE_OTA_ENABLED)
+add_subdirectory(dm)
 #add_subdirectory(sdk-tests)
 
 set(iot_sdk_c_sources $<TARGET_OBJECTS:iotkit_packages>

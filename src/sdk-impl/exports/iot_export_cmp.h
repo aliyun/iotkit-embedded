@@ -22,10 +22,10 @@
 
 #include <stdint.h>
 
-#define CMP_PRODUCT_KEY_LEN     (20)
-#define CMP_DEVICE_NAME_LEN     (32)
-#define CMP_DEVICE_SECRET_LEN   (64)
-#define CMP_DEVICE_ID_LEN       (64)
+#define CMP_PRODUCT_KEY_LEN     (20 + 1)
+#define CMP_DEVICE_NAME_LEN     (32 + 1)
+#define CMP_DEVICE_SECRET_LEN   (64 + 1)
+#define CMP_DEVICE_ID_LEN       (64 + 1)
 
 
 /* support mutli thread
@@ -163,14 +163,14 @@ typedef struct {
 
 
 
-#ifdef CMP_SUPPORT_OTA
+#ifdef SERVICE_OTA_ENABLED
 /* The structure of ota result */
 typedef struct {
     uint32_t                                  size_file;         /* size of file */
     char                                     *purl;                 /* point to URL */
     char                                     *version;              /* point to string */
 } iotx_cmp_ota_parameter_t, *iotx_cmp_ota_parameter_pt;
-#endif /* CMP_SUPPORT_OTA */
+#endif /* SERVICE_OTA_ENABLED */
 
 
 /* The structure of cmp event msg */
@@ -226,7 +226,7 @@ typedef struct {
 typedef void (*iotx_cmp_event_handle_func_fpt)(void *pcontext, iotx_cmp_event_msg_pt msg, void *user_data);
 
 
-#ifdef CMP_SUPPORT_OTA
+#ifdef SERVICE_OTA_ENABLED
 /**
  * @brief It define a datatype of function pointer.
  *        This type of function will be called when a related event occur.
@@ -238,7 +238,7 @@ typedef void (*iotx_cmp_event_handle_func_fpt)(void *pcontext, iotx_cmp_event_ms
  * @return none
  */
 typedef void (*iotx_cmp_ota_handle_func_fpt)(void *pcontext, iotx_cmp_ota_parameter_pt ota_parameter, void *user_data);
-#endif /* CMP_SUPPORT_OTA */
+#endif /* SERVICE_OTA_ENABLED */
 
 
 /**
@@ -284,7 +284,7 @@ typedef struct {
 } iotx_cmp_unregister_param_t, *iotx_cmp_unregister_param_pt;
 
 
-#ifdef CMP_SUPPORT_OTA
+#ifdef SERVICE_OTA_ENABLED
 typedef struct {
     /* if there is more data to download, is_more is 1, else is_more is 0 */
     uint8_t                                   is_more;       /* [out] */
@@ -301,7 +301,7 @@ typedef struct {
     void*                                     buffer;         /* [in/out] */
     int                                       buffer_length;  /* [in/out] */
 } iotx_cmp_ota_t, *iotx_cmp_ota_pt;
-#endif /* CMP_SUPPORT_OTA */
+#endif /* SERVICE_OTA_ENABLED */
 
 
 /**
@@ -317,7 +317,7 @@ typedef struct {
 int IOT_CMP_Init(iotx_cmp_init_param_pt pparam, void* option);
 
 
-#ifdef CMP_SUPPORT_OTA
+#ifdef SERVICE_OTA_ENABLED
 /**
  * @brief Start OTA
  *        This function use to start OTA, set cur_version and ota_func.
@@ -330,7 +330,7 @@ int IOT_CMP_Init(iotx_cmp_init_param_pt pparam, void* option);
  * @return success or fail.
  */
 int IOT_CMP_OTA_Start(char* cur_version, iotx_cmp_ota_handle_func_fpt ota_func, void* user_context, void* option);
-#endif /* CMP_SUPPORT_OTA */
+#endif /* SERVICE_OTA_ENABLED */
 
 
 /**
@@ -421,7 +421,7 @@ int IOT_CMP_Yield(int timeout_ms, void* option);
  */
 int IOT_CMP_Deinit(void* option);
 
-#ifdef CMP_SUPPORT_OTA
+#ifdef SERVICE_OTA_ENABLED
 /**
  * @brief OTA yield function.
  *        Set buffer and length yield the ota data.
@@ -431,7 +431,7 @@ int IOT_CMP_Deinit(void* option);
  * @return success or fail.
  */
 int IOT_CMP_OTA_Yield(iotx_cmp_ota_pt ota_pt);
-#endif /* CMP_SUPPORT_OTA */
+#endif /* SERVICE_OTA_ENABLED */
 
 
 #ifdef UT_TEST
