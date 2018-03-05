@@ -25,7 +25,7 @@ option(FEATURE_COAP_COMM_ENABLED          "coap communication enabled or not"   
 option(FEATURE_HTTP_COMM_ENABLED          "HTTP communication enabled or not"                        ON)
 option(FEATURE_MQTT_SHADOW                "MQTT shadow enabled or not"     ${FEATURE_MQTT_COMM_ENABLED})
 option(FEATURE_COAP_DTLS_SUPPORT          "coap w/ dtls support or not"    ${FEATURE_COAP_COMM_ENABLED})
-option(FEATURE_OTA_ENABLED                "ota enabled or not"                                       OFF)
+option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                               OFF)
 option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"                                    ON)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
@@ -45,9 +45,9 @@ if(FEATURE_MQTT_COMM_ENABLED)
     add_definitions(-DMQTT_COMM_ENABLED)
 endif(FEATURE_MQTT_COMM_ENABLED)
 
-if(FEATURE_OTA_ENABLED)
+if(FEATURE_SERVICE_OTA_ENABLED)
     add_definitions(-DSERVICE_OTA_ENABLED)
-endif(FEATURE_OTA_ENABLED)
+endif(FEATURE_SERVICE_OTA_ENABLED)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${GCC_ARCH} -Wall -Wno-comment -Wno-write-strings -Wno-format-extra-args -Winline -Wno-unused-result -Wno-format")
 ########################################################################
