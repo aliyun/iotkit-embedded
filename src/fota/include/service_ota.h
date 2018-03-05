@@ -5,8 +5,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "interface/log_abstract.h"
-
 #define SERVICE_FOTA_MODULE_NAME "service_fota"
 
 #define SERVICE_FOTA_CLASS get_service_ota_class()
