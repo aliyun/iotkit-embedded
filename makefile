@@ -28,5 +28,7 @@ $(call CompLib_Map, HTTP_COMM_ENABLED, src/http)
 $(call CompLib_Map, SUBDEVICE_ENABLED, src/subdev)
 $(call CompLib_Map, CLOUD_CONN_ENABLED, src/cloud_conn)
 $(call CompLib_Map, CMP_ENABLED, src/cmp)
+$(call CompLib_Map, DM_ENABLED, src/dm)
+$(call CompLib_Map, SERVICE_OTA_ENABLED, src/fota)
 
 include $(RULE_DIR)/rules.mk

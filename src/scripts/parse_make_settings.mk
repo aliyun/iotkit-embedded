@@ -17,6 +17,8 @@ SWITCH_VARS := \
     FEATURE_SUBDEVICE_ENABLED \
     FEATURE_CLOUD_CONN_ENABLED \
     FEATURE_CMP_ENABLED \
+    FEATURE_DM_ENABLED \
+    FEATURE_SERVICE_OTA_ENABLED \
 
 $(foreach v, \
     $(SWITCH_VARS), \
@@ -185,6 +187,18 @@ ifeq (daily,$(strip $(FEATURE_MQTT_ID2_ENV)))
 CFLAGS  += -DTEST_ID2_DAILY
 endif
 endif
+endif
+
+ifeq (y,$(strip $(FEATURE_DM_ENABLED)))    
+    ifneq (y,$(strip $(FEATURE_CMP_ENABLED)))
+    $(error FEATURE_DM_ENABLED = y requires FEATURE_CMP_ENABLED = y!)
+    endif
+endif
+
+ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))    
+    ifneq (y,$(strip $(FEATURE_DM_ENABLED)))
+    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_DM_ENABLED = y!)
+    endif
 endif
 
 SUBDIRS += src/tls

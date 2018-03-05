@@ -71,6 +71,14 @@ endif
 
 ifneq (,$(filter -DCMP_ENABLED,$(CFLAGS)))   
 TARGET                    += cmp-example 
-SRCS_cmp-example   := cmp/cmp-example.c
+SRCS_cmp-example          := cmp/cmp-example.c
+endif
+
+
+ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
+TARGET                    += linkkit-example 
+SRCS_linkkit-example      := linkkit/src/linkkit_export.c \
+                             linkkit/src/line_queue.c \
+                             linkkit/linkkit_sample.c
 endif
 
