@@ -14,6 +14,7 @@
 #include "single_list.h"
 #include "new.h"
 #include "dm_import.h"
+#include "dm_export.h"
 #include "cmp_message_info.h"
 #include "cmp_abstract_impl.h"
 
@@ -22,10 +23,6 @@
 
 #include "cJSON.h"
 
-#define IOTX_PRODUCT_KEY        "a1AzoSi5TMc"
-#define IOTX_DEVICE_NAME        "test_light_for_iotx_dm_cmp_dev"
-#define IOTX_DEVICE_SECRET      "Hl1UjJIBXo3AzjLhYdtWEGwSllHCyBpm"
-#define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
 
 static const char string_dm_thing_manager_class_name[] __DM_READ_ONLY__ = "dm_thg_mng_cls";
 static const char string_thing_service_property_set[] __DM_READ_ONLY__ = "thing.service.property.set";

@@ -10,9 +10,35 @@
 #include "iot_export.h"
 #include "iot_export_cmp.h"
 #include "lite-utils.h"
+#include "dm_export.h"
 
-
+/* todo */
+/* please modify HAL Firmware function */
 #define FIRMWARE_VERSION_MAXLEN     (32 + 1)
+
+int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
+{
+    memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
+    strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
+    version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
+    return strlen(version);
+}
+
+void HAL_Firmware_Persistence_Start(void)
+{
+    return;
+}
+
+int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length)
+{
+    return 0;
+}
+
+int HAL_Firmware_Persistence_Stop(void)
+{
+    return 0;
+}
+/********************************************************/
 
 static void service_ota_handler(void* pcontext, iotx_cmp_ota_parameter_t* ota_parameter, void* user_data)
 {
@@ -84,10 +110,10 @@ static void* service_ota_ctor(void* _self, va_list* params)
     memset(self->_current_verison, 0x0, FIRMWARE_VERSION_MAXLEN);
 
     /* get relative information. */
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    HAL_GetDeviceSecret(device_secret);
-    HAL_GetDeviceID(device_id);
+    strncpy(product_key, IOTX_PRODUCT_KEY, strlen(IOTX_PRODUCT_KEY));
+    strncpy(device_name, IOTX_DEVICE_NAME, strlen(IOTX_DEVICE_NAME));
+    strncpy(device_secret, IOTX_DEVICE_SECRET, strlen(IOTX_DEVICE_SECRET));
+    strncpy(device_id, IOTX_DEVICE_ID, strlen(IOTX_DEVICE_ID));
 
     init_param.product_key = product_key;
     init_param.device_name = device_name;
