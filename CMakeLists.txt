@@ -25,8 +25,10 @@ option(FEATURE_COAP_COMM_ENABLED          "coap communication enabled or not"   
 option(FEATURE_HTTP_COMM_ENABLED          "HTTP communication enabled or not"                        ON)
 option(FEATURE_MQTT_SHADOW                "MQTT shadow enabled or not"     ${FEATURE_MQTT_COMM_ENABLED})
 option(FEATURE_COAP_DTLS_SUPPORT          "coap w/ dtls support or not"    ${FEATURE_COAP_COMM_ENABLED})
+option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"                                    OFF)
+option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                       OFF)
+option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                              OFF)
 option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                               OFF)
-option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"                                    ON)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
 set(GCC_ARCH native CACHE STRING "GCC compile for specific architecture.")

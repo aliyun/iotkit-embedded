@@ -4,23 +4,31 @@ add_subdirectory(shadow)
 add_subdirectory(coap)
 add_subdirectory(packages)
 add_subdirectory(http)
-add_subdirectory(subdev)
-if(FEATURE_SERVICE_OTA_ENABLED)
-    add_subdirectory(fota)
-endif(FEATURE_SERVICE_OTA_ENABLED)
-add_subdirectory(dm)
+if(FEATURE_SUBDEVICE_ENABLED)
+    add_subdirectory(subdev)
+endif(FEATURE_SUBDEVICE_ENABLED)
+if(FEATURE_CMP_ENABLED)
+    if(FEATURE_SERVICE_OTA_ENABLED)
+        add_subdirectory(fota)
+    endif(FEATURE_SERVICE_OTA_ENABLED)
+    if(FEATURE_DM_ENABLED)
+        add_subdirectory(dm)
+    endif(FEATURE_DM_ENABLED)
+endif(FEATURE_CMP_ENABLED)
 #add_subdirectory(sdk-tests)
 
 set(iot_sdk_c_sources $<TARGET_OBJECTS:iotkit_packages>
                       $<TARGET_OBJECTS:coap>
                       $<TARGET_OBJECTS:iot_http>
-                      #$<TARGET_OBJECTS:platform_os_win7>
                       $<TARGET_OBJECTS:platform_ssl_mbedtls>
                       $<TARGET_OBJECTS:iot_shadow>
                       $<TARGET_OBJECTS:utils_digest>
-                      $<TARGET_OBJECTS:utils_misc>
-                      $<TARGET_OBJECTS:iot_subdev>
-   )
+                      $<TARGET_OBJECTS:utils_misc>)
+
+if(FEATURE_SUBDEVICE_ENABLED)
+    set(iot_sdk_c_sources ${iot_sdk_c_sources} $<TARGET_OBJECTS:iot_subdev>)
+endif(FEATURE_SUBDEVICE_ENABLED)
+
 if(WIN32)
     set(iot_sdk_c_sources ${iot_sdk_c_sources} $<TARGET_OBJECTS:platform_os_win7>)
 else(WIN32)
