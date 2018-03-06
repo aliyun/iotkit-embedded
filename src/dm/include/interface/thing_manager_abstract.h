@@ -8,7 +8,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "dm_abstract.h"
+#include "dm_export.h"
 
 typedef struct {
     size_t size;

@@ -5,12 +5,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "new.h"
 #include "interface/thing_abstract.h"
 #include "interface/thing_manager_abstract.h"
 #include "interface/log_abstract.h"
 #include "interface/list_abstract.h"
 #include "dm_import.h"
+#include "dm_export.h"
 #include "iot_import.h"
 #include "iot_export_cmp.h"
 
