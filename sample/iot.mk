@@ -78,7 +78,7 @@ endif
 ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
 TARGET                    += linkkit-example 
 SRCS_linkkit-example      := linkkit/src/linkkit_export.c \
-                             linkkit/src/line_queue.c \
-                             linkkit/linkkit_sample.c
+                             linkkit/src/lite_queue.c \
+                             linkkit/samples/linkkit_sample.c
 endif
 

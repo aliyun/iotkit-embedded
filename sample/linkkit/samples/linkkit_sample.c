@@ -105,7 +105,7 @@ static int raw_data_arrived(void* thing_id, void* data, int len, void* ctx)
 
     /* user's raw data process logical complete */
 
-    snprintf(raw_data, sizeof(raw_data), "test down raw reply data %lld", HAL_UptimeMs());
+    //snprintf(raw_data, sizeof(raw_data), "test down raw reply data %lld", HAL_UptimeMs());
 
     linkkit_invoke_raw_service(thing_id, 0, raw_data, strlen(raw_data));
 
