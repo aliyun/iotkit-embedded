@@ -8,9 +8,6 @@ extern "C" {
 #include "iot_export.h"
 #include "lite_queue.h"
 
-#ifdef SERVICE_OTA_ENABLED
-#include "fota_export.h"
-#endif /* SERVICE_OTA_ENABLED */
 
 typedef struct _linkkit_ops {
     int (*on_connect)(void *ctx);

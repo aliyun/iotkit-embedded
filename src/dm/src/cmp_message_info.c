@@ -7,7 +7,7 @@
 #include "cmp_message_info.h"
 #include "logger.h"
 #include "dm_import.h"
-#include "new.h"
+#include "iot_export_dm.h"
 #include "interface/list_abstract.h"
 #include "single_list.h"
 

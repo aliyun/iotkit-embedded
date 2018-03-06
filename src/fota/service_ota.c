@@ -3,14 +3,10 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "interface/ota_abstract.h"
-
-#include "service_ota.h"
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iot_export_cmp.h"
 #include "lite-utils.h"
-#include "dm_export.h"
 
 /* todo */
 /* please modify HAL Firmware function */

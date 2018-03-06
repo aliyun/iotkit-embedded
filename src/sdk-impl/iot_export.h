@@ -173,6 +173,7 @@ int     IOT_SetupConnInfoSecure(const char *product_key,
 #include "exports/iot_export_cloud_connection.h"
 #include "exports/iot_export_cmp.h"
 #include "exports/iot_export_dm.h"
+#include "exports/iot_export_fota.h"
 
 
 #if defined(__cplusplus)
