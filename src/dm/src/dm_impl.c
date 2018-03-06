@@ -17,7 +17,6 @@
 #include "lite-utils.h"
 
 #include "dm_import.h"
-#include "dm_export.h"
 
 static const char string_dm_impl_class_name[] __DM_READ_ONLY__ = "dm_impl_cls";
 static const char string_dm_impl_log_object_name[] __DM_READ_ONLY__ = "dm_logger";

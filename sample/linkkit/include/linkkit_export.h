@@ -5,7 +5,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "dm_export.h"
+#include "iot_export.h"
 #include "lite_queue.h"
 
 #ifdef SERVICE_OTA_ENABLED

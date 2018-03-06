@@ -10,9 +10,7 @@ extern "C" {
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "iot_export_cmp.h"
 
-#include "dm_export.h"
 #include "message_info_abstract.h"
 
 typedef struct {

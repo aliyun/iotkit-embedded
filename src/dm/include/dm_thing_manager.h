@@ -10,9 +10,8 @@ extern "C" {
 #include "interface/log_abstract.h"
 #include "interface/list_abstract.h"
 #include "dm_import.h"
-#include "dm_export.h"
+#include "iot_export.h"
 #include "iot_import.h"
-#include "iot_export_cmp.h"
 
 #define DM_THING_MANAGER_CLASS get_dm_thing_manager_class()
 #define DM_LOCAL_THING_NAME_PATTERN "lthing_%d"
