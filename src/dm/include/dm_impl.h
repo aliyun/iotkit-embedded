@@ -5,10 +5,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "interface/thing_abstract.h"
-#include "interface/thing_manager_abstract.h"
-#include "interface/log_abstract.h"
-#include "interface/list_abstract.h"
 
 #define DM_IMPL_CLASS get_dm_impl_class()
 

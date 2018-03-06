@@ -4,6 +4,9 @@
 #include <stdarg.h>
 #include <assert.h>
 
+#include "interface/thing_abstract.h"
+#include "interface/log_abstract.h"
+#include "interface/list_abstract.h"
 #include "interface/thing_manager_abstract.h"
 #include "interface/dm_abstract.h"
 #include "dm_thing_manager.h"
