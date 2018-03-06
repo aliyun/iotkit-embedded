@@ -106,10 +106,10 @@ static void* service_ota_ctor(void* _self, va_list* params)
     memset(self->_current_verison, 0x0, FIRMWARE_VERSION_MAXLEN);
 
     /* get relative information. */
-    strncpy(product_key, IOTX_PRODUCT_KEY, strlen(IOTX_PRODUCT_KEY));
-    strncpy(device_name, IOTX_DEVICE_NAME, strlen(IOTX_DEVICE_NAME));
-    strncpy(device_secret, IOTX_DEVICE_SECRET, strlen(IOTX_DEVICE_SECRET));
-    strncpy(device_id, IOTX_DEVICE_ID, strlen(IOTX_DEVICE_ID));
+    strncpy(product_key, DM_PRODUCT_KEY, strlen(DM_PRODUCT_KEY));
+    strncpy(device_name, DM_DEVICE_NAME, strlen(DM_DEVICE_NAME));
+    strncpy(device_secret, DM_DEVICE_SECRET, strlen(DM_DEVICE_SECRET));
+    strncpy(device_id, DM_DEVICE_ID, strlen(DM_DEVICE_ID));
 
     init_param.product_key = product_key;
     init_param.device_name = device_name;

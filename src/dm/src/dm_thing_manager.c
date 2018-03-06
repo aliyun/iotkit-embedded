@@ -682,10 +682,10 @@ static void* dm_thing_manager_ctor(void* _self, va_list* params)
     if (callback_func) list_insert(list, callback_func);
 
     /* get relative information. */
-    strncpy(self->_product_key, IOTX_PRODUCT_KEY, strlen(IOTX_PRODUCT_KEY));
-    strncpy(self->_device_name, IOTX_DEVICE_NAME, strlen(IOTX_DEVICE_NAME));
-    strncpy(self->_device_secret, IOTX_DEVICE_SECRET, strlen(IOTX_DEVICE_SECRET));
-    strncpy(self->_device_id, IOTX_DEVICE_ID, strlen(IOTX_DEVICE_ID));
+    strncpy(self->_product_key, DM_PRODUCT_KEY, strlen(DM_PRODUCT_KEY));
+    strncpy(self->_device_name, DM_DEVICE_NAME, strlen(DM_DEVICE_NAME));
+    strncpy(self->_device_secret, DM_DEVICE_SECRET, strlen(DM_DEVICE_SECRET));
+    strncpy(self->_device_id, DM_DEVICE_ID, strlen(DM_DEVICE_ID));
 
     assert(self->_product_key && self->_device_name && self->_device_secret && self->_device_id);
 
