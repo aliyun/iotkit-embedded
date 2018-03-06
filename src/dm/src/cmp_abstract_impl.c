@@ -6,7 +6,6 @@
 #include "interface/log_abstract.h"
 #include "cmp_abstract_impl.h"
 #include "logger.h"
-#include "new.h"
 #include "cmp_message_info.h"
 
 #include "dm_import.h"

@@ -12,7 +12,6 @@
 #include "logger.h"
 #include "dm_thing.h"
 #include "single_list.h"
-#include "new.h"
 #include "dm_import.h"
 #include "cmp_message_info.h"
 #include "cmp_abstract_impl.h"

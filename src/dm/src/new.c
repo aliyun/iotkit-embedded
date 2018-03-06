@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "new.h"
 #include "interface/abstract_class.h"
 
 #include "dm_import.h"

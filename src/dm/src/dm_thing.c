@@ -11,7 +11,6 @@
 #include "dm_import.h"
 #include "logger.h"
 #include "single_list.h"
-#include "new.h"
 
 #include "lite-utils.h"
 
