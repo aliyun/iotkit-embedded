@@ -17,7 +17,9 @@
 #include "cmp_abstract_impl.h"
 
 #include "iot_import.h"
-#include "iot_export.h"
+#include "iot_export_cmp.h"
+#include "iot_export_dm.h"
+#include "iot_export_errno.h"
 
 #include "cJSON.h"
 
