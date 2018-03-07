@@ -181,9 +181,9 @@ int     IOT_SetupConnInfoSecure(const char *product_key,
 #ifdef DM_ENABLED
 #include "exports/iot_export_dm.h"
 #endif /* DM_ENABLED */
-#ifdef SERVICE_OTA_ENABLED
+//#ifdef SERVICE_OTA_ENABLED
 #include "exports/iot_export_fota.h"
-#endif /* SERVICE_OTA_ENABLED */
+//#endif /* SERVICE_OTA_ENABLED */
 
 
 #if defined(__cplusplus)

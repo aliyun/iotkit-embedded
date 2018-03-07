@@ -196,9 +196,10 @@ ifeq (y,$(strip $(FEATURE_DM_ENABLED)))
 endif
 
 ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))    
-    ifneq (y,$(strip $(FEATURE_DM_ENABLED)))
-    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_DM_ENABLED = y!)
+    ifneq (y,$(strip $(FEATURE_CMP_ENABLED)))
+    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_CMP_ENABLED = y!)
     endif
+    CFLAGS  += -DSERVICE_OTA_ENABLED
 endif
 
 SUBDIRS += src/tls
