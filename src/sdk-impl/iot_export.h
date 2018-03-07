@@ -169,11 +169,21 @@ int     IOT_SetupConnInfoSecure(const char *product_key,
 #include "exports/iot_export_coap.h"
 #include "exports/iot_export_ota.h"
 #include "exports/iot_export_http.h"
+#ifdef SUBDEVICE_ENABLED
 #include "exports/iot_export_subdev.h"
+#endif /* SUBDEVICE_ENABLED */
+#ifdef CLOUD_CONN_ENABLED
 #include "exports/iot_export_cloud_connection.h"
+#endif /* CLOUD_CONN_ENABLED */
+#ifdef CMP_ENABLED
 #include "exports/iot_export_cmp.h"
+#endif /* CMP_ENABLED */
+#ifdef DM_ENABLED
 #include "exports/iot_export_dm.h"
+#endif /* DM_ENABLED */
+#ifdef SERVICE_OTA_ENABLED
 #include "exports/iot_export_fota.h"
+#endif /* SERVICE_OTA_ENABLED */
 
 
 #if defined(__cplusplus)

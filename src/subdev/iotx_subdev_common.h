@@ -310,7 +310,9 @@ int iotx_subdevice_set_session_dynamic_register(iotx_subdevice_session_pt sessio
 
 int iotx_subdevice_get_session_dynamic_register(iotx_subdevice_session_pt session);
 
+#ifdef SUBDEV_VIA_CLOUD_CONN
 void _response_handle(void *pcontext, void *pconnection, iotx_cloud_connection_msg_rsp_pt msg);
+#endif /* SUBDEV_VIA_CLOUD_CONN */
 
 
 #endif /* SRC_SUBDEVICE_CMP_UTIL_H_ */

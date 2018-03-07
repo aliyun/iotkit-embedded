@@ -25,10 +25,11 @@ option(FEATURE_COAP_COMM_ENABLED          "coap communication enabled or not"   
 option(FEATURE_HTTP_COMM_ENABLED          "HTTP communication enabled or not"                        ON)
 option(FEATURE_MQTT_SHADOW                "MQTT shadow enabled or not"     ${FEATURE_MQTT_COMM_ENABLED})
 option(FEATURE_COAP_DTLS_SUPPORT          "coap w/ dtls support or not"    ${FEATURE_COAP_COMM_ENABLED})
-option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"                                    OFF)
-option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                       OFF)
-option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                              OFF)
-option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                               OFF)
+option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"                                   OFF)
+option(FEATURE_CLOUD_CONN_ENABLED         "cloud connection enabled or not"                         OFF)
+option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                      OFF)
+option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                             OFF)
+option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                              OFF)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
 set(GCC_ARCH native CACHE STRING "GCC compile for specific architecture.")
@@ -46,6 +47,22 @@ endif(FEATURE_MQTT_DIRECT)
 if(FEATURE_MQTT_COMM_ENABLED)
     add_definitions(-DMQTT_COMM_ENABLED)
 endif(FEATURE_MQTT_COMM_ENABLED)
+
+if(FEATURE_SUBDEVICE_ENABLED)
+    add_definitions(-DSUBDEVICE_ENABLED)
+endif(FEATURE_SUBDEVICE_ENABLED)
+
+if(FEATURE_CLOUD_CONN_ENABLED)
+    add_definitions(-DCLOUD_CONN_ENABLED)
+endif(FEATURE_CLOUD_CONN_ENABLED)
+
+if(FEATURE_CMP_ENABLED)
+    add_definitions(-DCMP_ENABLED)
+endif(FEATURE_CMP_ENABLED)
+
+if(FEATURE_DM_ENABLED)
+    add_definitions(-DDM_ENABLED)
+endif(FEATURE_DM_ENABLED)
 
 if(FEATURE_SERVICE_OTA_ENABLED)
     add_definitions(-DSERVICE_OTA_ENABLED)
@@ -112,8 +129,12 @@ include_directories(${PROJECT_SOURCE_DIR}/src/packages/iot-coap-c)
 include_directories(${PROJECT_SOURCE_DIR}/src/utils/digest)
 include_directories(${PROJECT_SOURCE_DIR}/src/utils/misc)
 include_directories(${PROJECT_SOURCE_DIR}/src/tfs)
+if(FEATURE_SUBDEVICE_ENABLED)
+include_directories(${PROJECT_SOURCE_DIR}/src/subdev)
+endif(FEATURE_SUBDEVICE_ENABLED)
+if(FEATURE_DM_ENABLED)
 include_directories(${PROJECT_SOURCE_DIR}/src/dm/include)
-include_directories(${PROJECT_SOURCE_DIR}/src/fota/include)
+endif(FEATURE_DM_ENABLED)
 include_directories(${PROJECT_SOURCE_DIR}/src/import/linux/include)
 
 ########################################################################
