@@ -20,6 +20,7 @@
 #include "iot_export_cmp.h"
 #include "iot_export_dm.h"
 #include "iot_export_errno.h"
+#include "class_interface.h"
 
 #include "cJSON.h"
 

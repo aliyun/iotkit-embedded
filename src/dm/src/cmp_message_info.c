@@ -10,6 +10,7 @@
 #include "iot_export_dm.h"
 #include "interface/list_abstract.h"
 #include "single_list.h"
+#include "class_interface.h"
 
 #define CMP_MESSAGE_INFO_EXTENTED_ROOM_FOR_STRING_MALLOC 1
 
