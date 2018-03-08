@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "linkkit_export.h"
+#include "class_interface.h"
 
 #define LINKKIT_EXPORT_PRINTF printf
 
