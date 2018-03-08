@@ -1,7 +1,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include "interface/abstract_class.h"
+#include "class_interface.h"
 #include "interface/log_abstract.h"
 #include "logger.h"
 #include "dm_import.h"

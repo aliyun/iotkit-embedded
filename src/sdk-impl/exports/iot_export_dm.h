@@ -36,9 +36,6 @@ typedef enum {
     dm_callback_type_number,
 } dm_callback_type_t;
 
-typedef void (*handle_dm_callback_fp_t)(dm_callback_type_t callback_type, void* thing_id,
-                                        const char* property_service_identifier, int request_id,
-                                        void* raw_data, int raw_data_length);
 
 /* domain type */
 typedef enum {
@@ -49,6 +46,11 @@ typedef enum {
 
     dm_cloud_domain_max,
 } dm_cloud_domain_type_t;
+
+
+typedef void (*handle_dm_callback_fp_t)(dm_callback_type_t callback_type, void* thing_id,
+                                        const char* property_service_identifier, int request_id,
+                                        void* raw_data, int raw_data_length);
 
 typedef struct {
     size_t size;
@@ -74,11 +76,6 @@ typedef struct {
 } dm_t;
 
 extern const void* get_dm_impl_class();
-
-
-extern void* new_object(const void* _class, ...);
-extern void  delete_object(void* _class);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

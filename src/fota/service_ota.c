@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include "iot_import.h"
+#include "class_interface.h"
 #include "iot_export_dm.h"
 #include "iot_export_fota.h"
 #include "iot_export_cmp.h"

@@ -15,6 +15,7 @@
 #include "iot_export_dm.h"
 #include "iot_import.h"
 #include "lite-utils.h"
+#include "class_interface.h"
 
 #include "dm_import.h"
 
