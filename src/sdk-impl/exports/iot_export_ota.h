@@ -139,6 +139,20 @@ int IOT_OTA_ReportVersion(void *handle, const char *version);
 
 
 /**
+ * @brief Request firmware image from cloud.
+ *        
+ *
+ * @param [in] handle: specify the OTA module.
+ * @param [in] version: specify the firmware version in string format.
+ *
+ * @retval   0 : Successful.
+ * @retval < 0 : Failed, the value is error code.
+ * @see None.
+ */
+int IOT_OTA_RequestImage(void *handle, const char *version);
+
+
+/**
  * @brief Report detail progress to OTA server (optional).
  *        NOTE: please
  *
