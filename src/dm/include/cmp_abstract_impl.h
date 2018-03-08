@@ -4,7 +4,7 @@
 #include "interface/cmp_abstract.h"
 
 #include "iot_import.h"
-#include "iot_export.h"
+#include "iot_export_errno.h"
 #include "iot_export_cmp.h"
 
 #ifdef __cplusplus

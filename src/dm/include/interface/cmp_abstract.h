@@ -9,7 +9,8 @@ extern "C" {
 #include <stdarg.h>
 
 #include "iot_import.h"
-#include "iot_export.h"
+#include "iot_export_cmp.h"
+#include "iot_export_dm.h"
 
 #include "message_info_abstract.h"
 

@@ -20,7 +20,7 @@
 #include <stdio.h>
 
 #include "iot_import.h"
-#include "iot_export.h"
+#include "iot_export_errno.h"
 
 #include "lite-utils.h"
 #include "utils_hmac.h"

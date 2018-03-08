@@ -8,7 +8,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "iot_export.h"
+#include "iot_export_dm.h"
 
 typedef struct {
     size_t size;
