@@ -107,6 +107,8 @@ typedef enum IOTX_Thing_SERVICE_TYPES {
     
     /* Undefined service type   */
     IOTX_Thing_SERVICE_TYPE_UNDEFINED,
+
+    IOTX_Thing_SERVICE_TYPE_TOPO_UPDATE,
     
     /* Maximum number of service type */
     IOTX_Thing_SERVICE_TYPE_MAX
@@ -319,6 +321,29 @@ int IOT_Thing_Logout(void* handle,
 int IOT_Thing_Get_TOPO(void* handle, 
         char* get_toop_reply, 
         uint32_t* length);
+
+/**
+ * @brief Get config
+ *        This function publish a packet with config/get topic and wait for the reply (with CONFIG_GET_REPLY topic).
+ *
+ * @param pointer of handle, specify the Thing construction.
+ * @param get_config_reply.
+ * @param length [in/out]. in -- get_config_reply buffer length, out -- reply length
+ *
+ * @return 0, logout success; -1, logout failed.
+ */
+int IOT_Thing_Get_Config(void* handle, 
+        char* get_config_reply, 
+        uint32_t* length);
+
+/**
+ * @brief Publish Found List
+ *        This function publish a packet with new subdevice found list.
+ *
+ * @return 0, publish success; -1, publish failed.
+ */
+int IOT_Thing_Publish_Found_List(void* handle, const char* product_key, 
+    const char* device_name);
 
 
 /**

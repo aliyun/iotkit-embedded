@@ -234,45 +234,6 @@ char *iotx_thing_splice_topo_add_packet(const char* product_key,
     return msg;
 }
 
-char *iotx_thing_splice_post_keyelement_packet(const char* event,
-        const char* propery,
-        const char* service,
-        int32_t* msg_id)
-{    
-#define KEYELEMENT_PACKET_FMT    "{\"id\":%d,\"version\":\"1.0\",\"params\":{\"event\":[%s],\"property\":[%s],\"service\":[%s]},\"method\":\"thing.keyelement.post\"}"
-
-    int len, ret = -1;
-    char* msg = NULL;
-    int32_t id = 0;
-
-    if (event == NULL || propery == NULL || service == NULL || msg_id == NULL) {
-        log_err("input params error!");
-        return NULL;
-    }
-
-    /* sum the string length */
-    len = strlen(KEYELEMENT_PACKET_FMT) + 12 + strlen(event) + strlen(propery) + strlen(service);
-
-    MALLOC_MEMORY_WITH_RESULT(msg, len, NULL);
-    id = IOT_Gateway_Generate_Message_ID();
-    ret = HAL_Snprintf(msg,
-               len,
-               KEYELEMENT_PACKET_FMT,
-               id,
-               event,
-               propery,
-               service);
-    if(ret < 0) {
-        log_err("splice packet error!");
-        LITE_free(msg);
-        return NULL;
-    }
-
-    *msg_id = id;
-
-    return msg;
-
-}
 
 char* iotx_thing_splice_common_packet(const char* product_key, 
         const char* device_name, 
@@ -338,6 +299,7 @@ int iotx_thing_publish_common_packet(void* handle,
         const char* param3,
         iotx_thing_reply_type_t reply_type)
 {
+    int rc = 0;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
     int32_t msg_id = 0;
     iotx_mqtt_topic_info_t topic_msg;
@@ -389,13 +351,13 @@ int iotx_thing_publish_common_packet(void* handle,
     topic_msg.packet_id = 0;
     
     /* 发送packet */
-    if (FAIL_RETURN == iotx_thing_publish_topic_sync(thing_t, 
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_topic_sync(thing_t, 
                             msg_id,
                             topic, 
                             &topic_msg, 
-                            reply_type)) {
+                            reply_type))) {
         LITE_free(packet);
-        return FAIL_RETURN;
+        return rc;
     }
     
     LITE_free(packet);
@@ -406,7 +368,8 @@ int iotx_thing_publish_common_packet(void* handle,
         log_info("common publish error [%s]\n code[%d]", thing_t->thing_data_t->replys[reply_type].topic, thing_t->thing_data_t->replys[reply_type].code); 
         if (thing_t->thing_data_t->replys[reply_type].data)
             LITE_free(thing_t->thing_data_t->replys[reply_type].data);
-        return FAIL_RETURN;
+
+        return (~thing_t->thing_data_t->replys[reply_type].code + 1);
     }
 
     return SUCCESS_RETURN;
@@ -419,6 +382,7 @@ int iotx_thing_publish_common_event_packet(void* handle,
         const char* packet_params,
         iotx_thing_reply_type_t reply_type)
 {
+    int rc = 0;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
     int32_t msg_id = 0;
     iotx_mqtt_topic_info_t topic_msg;
@@ -465,13 +429,13 @@ int iotx_thing_publish_common_event_packet(void* handle,
     topic_msg.packet_id = 0;
     
     /* 发送 packet */
-    if (FAIL_RETURN == iotx_thing_publish_topic_sync(thing_t, 
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_topic_sync(thing_t, 
                             msg_id,
                             topic, 
                             &topic_msg, 
-                            reply_type)) {
+                            reply_type))) {
         LITE_free(packet);
-        return FAIL_RETURN;
+        return rc;
     }
     
     LITE_free(packet);
@@ -482,7 +446,7 @@ int iotx_thing_publish_common_event_packet(void* handle,
         log_info("common publish error [%s]\n code[%d]", thing_t->thing_data_t->replys[reply_type].topic, thing_t->thing_data_t->replys[reply_type].code); 
         if (thing_t->thing_data_t->replys[reply_type].data)
             LITE_free(thing_t->thing_data_t->replys[reply_type].data);
-        return FAIL_RETURN;
+        return(~thing_t->thing_data_t->replys[reply_type].code + 1);
     }
 
     return SUCCESS_RETURN;
@@ -497,6 +461,7 @@ int iotx_thing_publish_common_deviceinfo_packet(void* handle,
         const char* param2,
         iotx_thing_reply_type_t reply_type)
 { 
+    int rc = 0;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
     int32_t msg_id = 0;
     iotx_mqtt_topic_info_t topic_msg;
@@ -542,13 +507,13 @@ int iotx_thing_publish_common_deviceinfo_packet(void* handle,
     topic_msg.packet_id = 0;
     
     /* 发送packet */
-    if (FAIL_RETURN == iotx_thing_publish_topic_sync(thing_t, 
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_topic_sync(thing_t, 
                             msg_id,
                             topic, 
                             &topic_msg, 
-                            reply_type)) {
+                            reply_type))) {
         LITE_free(packet);
-        return FAIL_RETURN;
+        return rc;
     }
     
     LITE_free(packet);
@@ -559,7 +524,7 @@ int iotx_thing_publish_common_deviceinfo_packet(void* handle,
         log_info("common publish error [%s]\n code[%d]", thing_t->thing_data_t->replys[reply_type].topic, thing_t->thing_data_t->replys[reply_type].code); 
         if (thing_t->thing_data_t->replys[reply_type].data)
             LITE_free(thing_t->thing_data_t->replys[reply_type].data);
-        return FAIL_RETURN;
+        return (~thing_t->thing_data_t->replys[reply_type].code + 1);
     }
 
     return SUCCESS_RETURN;
@@ -571,7 +536,8 @@ int iotx_thing_publish_topic_sync(iotx_thing_masterlave_pt thing_t,
         const char* topic, 
         iotx_mqtt_topic_info_pt topic_msg, 
         iotx_thing_reply_type_t reply)
-{        
+{  
+    int rc = 0;
     int yiled_count = 0;
     
     PARAMETER_Thing_CHECK(thing_t);    
@@ -583,9 +549,9 @@ int iotx_thing_publish_topic_sync(iotx_thing_masterlave_pt thing_t,
     
     thing_t->thing_data_t->replys[reply].id = msg_id;
     
-    if (IOT_Gateway_Publish(thing_t->gateway, topic, topic_msg) < 0) {
+    if ((rc = IOT_Gateway_Publish(thing_t->gateway, topic, topic_msg)) < 0) {
         log_err("Gateway Publish error!");
-        return FAIL_RETURN;
+        return rc;
     }    
 
     while (msg_id == thing_t->thing_data_t->replys[reply].id) {
@@ -593,7 +559,6 @@ int iotx_thing_publish_topic_sync(iotx_thing_masterlave_pt thing_t,
             log_info("yiled max count, time out");
             return FAIL_RETURN;
         }
-        
         IOT_Thing_Yield(thing_t, 200);
         yiled_count++;
     }
@@ -613,6 +578,7 @@ int iotx_thing_subscribe_unsubscribe_topic(iotx_thing_masterlave_pt thing_t,
         iotx_thing_subcribe_unsubscribe_types_t is_subscribe)
 {    
     int ret = 0;
+    int yiled_count = 0;
     
     PARAMETER_Thing_CHECK(thing_t);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(topic, FAIL_RETURN);
@@ -629,7 +595,13 @@ int iotx_thing_subscribe_unsubscribe_topic(iotx_thing_masterlave_pt thing_t,
     thing_t->thing_data_t->sync_status = ret;
 
     while (ret == thing_t->thing_data_t->sync_status) {      
+        if (yiled_count > IOT_GATEWAY_YIELD_MAX_COUNT) {
+            log_info("yiled max count, time out");
+            return FAIL_RETURN;
+        }
+        
         IOT_Thing_Yield(thing_t, 200);
+        yiled_count++;
     }
 
     if (0 == thing_t->thing_data_t->sync_status) {
@@ -649,12 +621,14 @@ int iotx_thing_subscribe_unsubscribe_basic(iotx_thing_masterlave_pt thing_t,
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     int i = 0;
     iotx_device_info_pt pdevice_info = iotx_device_info_get();
-    iotx_thing_subscribe_topic_t basic_subscribe_topic[5] = {
+    iotx_thing_subscribe_topic_t basic_subscribe_topic[7] = {
         {TOPIC_Thing_COMMON_FMT, "sub", "register_reply", ""},
         {TOPIC_Thing_COMMON_FMT, "sub", "unregister_reply", ""},
         {TOPIC_Thing_COMMON_FMT, "topo", "add_reply", ""},
         {TOPIC_Thing_COMMON_FMT, "topo", "delete_reply", ""},
         {TOPIC_Thing_COMMON_FMT, "topo", "get_reply", ""},
+        {TOPIC_Thing_COMMON_FMT, "config", "get_reply", ""},
+        {TOPIC_Thing_COMMON_FMT, "list", "found_reply", ""},
     };
     
     PARAMETER_Thing_CHECK(thing_t);
@@ -683,28 +657,20 @@ int iotx_thing_subscribe_unsubscribe_enhance(iotx_thing_masterlave_pt thing_t,
 {
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0}; 
     int i = 0;
-    iotx_thing_subscribe_topic_t enhance_subscribe_topic[14] = {
+    iotx_thing_subscribe_topic_t enhance_subscribe_topic[6] = {
         {TOPIC_Thing_COMMON_FMT, "service", "+", ""},
         {TOPIC_Thing_COMMON_EXT_FMT, "event", "+", "post_reply"},
-        {TOPIC_Thing_COMMON_FMT, "model", "down_raw", ""},
-        {TOPIC_Thing_COMMON_FMT, "model", "up_raw_reply", ""},
         {TOPIC_Thing_COMMON_EXT_FMT, "event", "property", "post_reply"},
         {TOPIC_Thing_COMMON_EXT_FMT, "service", "property", "set"},
         {TOPIC_Thing_COMMON_EXT_FMT, "service", "property", "get"},
-        {TOPIC_Thing_COMMON_FMT, "deviceinfo", "update_reply", ""},
-        {TOPIC_Thing_COMMON_FMT, "deviceinfo", "delete_reply", ""},
-        {TOPIC_Thing_COMMON_FMT, "keyelement", "post_reply", ""},
-        {TOPIC_Thing_COMMON_FMT, "dsltemplate", "get_reply", ""},
-        {TOPIC_Thing_COMMON_EXT_EXT_FMT, "disable", "", ""},
-        {TOPIC_Thing_COMMON_EXT_EXT_FMT, "enable", "", ""},
-        {TOPIC_Thing_COMMON_EXT_EXT_FMT, "delete", "", ""}
+        {TOPIC_Thing_COMMON_EXT_FMT, "topo", "add", "notify"}
     };
     
     PARAMETER_Thing_CHECK(thing_t);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, FAIL_RETURN);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
 
-    for (i = 0; i < 14; i++) {
+    for (i = 0; i < 6; i++) {
         memset(topic, 0X0, GATEWAY_TOPIC_LEN_MAX);
         HAL_Snprintf(topic, 
                 GATEWAY_TOPIC_LEN_MAX,
@@ -720,6 +686,7 @@ int iotx_thing_subscribe_unsubscribe_enhance(iotx_thing_masterlave_pt thing_t,
     
     return SUCCESS_RETURN;
 }
+
         
 /* parse common_reply result */
 static int iotx_thing_common_reply_proc(iotx_thing_masterlave_pt thing_t, 
@@ -871,6 +838,72 @@ static int iotx_thing_service_request_proc(iotx_thing_masterlave_pt thing_t,
 
     return FAIL_RETURN;
 }
+
+/* handle service request */
+static int iotx_thing_topo_update_proc(iotx_thing_masterlave_pt thing_t, 
+        char* topic,
+        char* payload)
+{        
+    char product_key[PRODUCT_KEY_LEN] = {0};
+    char device_name[DEVICE_NAME_LEN] = {0};
+    iotx_thing_service_type_t service_type = IOTX_Thing_SERVICE_TYPE_PROPERTY_GET;
+    char* service_id = NULL, *temp = NULL, *node = NULL, *params = NULL;  
+    int message_id = 0; 
+
+    /* parameter check */
+    PARAMETER_Thing_CHECK(thing_t);    
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(topic, FAIL_RETURN);
+    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(payload, FAIL_RETURN);
+        
+    log_info("receive topo update");
+
+    /* parse   */
+    if (SUCCESS_RETURN == iotx_thing_parse_topic(topic, product_key, device_name) && 
+        (NULL != thing_t->service_callback)) { // reuse service callback
+        temp = strstr(topic, "/thing/topo");        
+        if (temp == NULL) {
+            log_err("parse error");
+            return FAIL_RETURN;
+        }     
+         
+        /* service type */ 
+        temp = strstr(topic, "/thing/topo/add/notify"); 
+        if (temp) {   
+            service_type = IOTX_Thing_SERVICE_TYPE_TOPO_UPDATE; 
+            service_id = "add/notify";
+        } else {        
+            log_info("topo topic error [%s]", topic);      
+            return FAIL_RETURN;
+        }         
+
+        /* parse payload */  
+        GET_JSON_VALUE(node, "id", payload); 
+        message_id = atoi(node);
+
+        GET_JSON_VALUE_WHIH_FREE(node, "params", payload);         
+        MALLOC_MEMORY_WITH_RESULT(params, strlen(node) + 1, FAIL_RETURN);
+        strncpy(params, node, strlen(node));  
+
+        LITE_free(node);  
+        node = NULL;      
+        
+        thing_t->service_callback(thing_t, 
+                product_key, 
+                device_name, 
+                service_type, 
+                message_id,
+                params,
+                strlen(params),
+                service_id);  
+
+        LITE_free(params);
+        
+        return SUCCESS_RETURN;
+    }
+
+    return FAIL_RETURN;
+}
+
 
 
 /* handle down_raw */
@@ -1102,6 +1135,15 @@ static int iotx_thing_recv_publish_callback(iotx_thing_masterlave_pt thing_t,
             LITE_free(publish_payload);
             return SUCCESS_RETURN;
         }
+
+        /* topo update */           
+        temp = strstr(topic_info->ptopic, "/thing/topo");
+        if (temp != NULL) {
+            iotx_thing_topo_update_proc(thing_t, publish_topic, publish_payload);
+            LITE_free(publish_topic);
+            LITE_free(publish_payload);
+            return SUCCESS_RETURN;
+        }
     }
 
     log_info("can not find the topic!");
@@ -1203,6 +1245,7 @@ void iotx_thing_event_handle(void *pcontext, void *pclient, void* msg_pt)
             break;
 
         default:
+            log_warning("unknown event");
             break;
     }
 #endif
@@ -1256,11 +1299,11 @@ void* IOT_Thing_Construct(iotx_thing_param_pt param)
     } */
     
     /* subscribe thing template topic */
-    if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
+    if (SUCCESS_RETURN != iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
                                 pdevice_info->product_key,
                                 pdevice_info->device_name,
                                 IOTX_Thing_SUBSCRIBE_TYPE)) {
-        if (FAIL_RETURN == IOT_Thing_Destroy((void**)&thing_t)) {
+        if (SUCCESS_RETURN != IOT_Thing_Destroy((void**)&thing_t)) {
             LITE_free(thing_t->thing_data_t);
             LITE_free(thing_t);            
         }
@@ -1288,7 +1331,7 @@ int IOT_Thing_Destroy(void** handle)
     }*/
     
     /* unsubscribe thing template topic */
-    if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
+    if (SUCCESS_RETURN != iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
                                 pdevice_info->product_key,
                                 pdevice_info->device_name,
                                 IOTX_Thing_UNSUBSCRIBE_TYPE)){
@@ -1296,7 +1339,7 @@ int IOT_Thing_Destroy(void** handle)
     }
     
     /* gateway destory */    
-    if (FAIL_RETURN == IOT_Gateway_Destroy((void**)&(thing_t->gateway))) {
+    if (SUCCESS_RETURN != IOT_Gateway_Destroy((void**)&(thing_t->gateway))) {
         log_info("Gateway destory fail");
         return FAIL_RETURN;
     }
@@ -1356,6 +1399,7 @@ int IOT_Thing_Login(void* handle,
         iotx_thing_sign_method_types_t sign_method,
         iotx_thing_clean_session_types_t clean_session)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
 
     /* parameter check */
@@ -1364,26 +1408,26 @@ int IOT_Thing_Login(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
             
     /*  subdevice login */
-    if (FAIL_RETURN == IOT_Subdevice_Login(thing_t->gateway, 
+    if (SUCCESS_RETURN != (rc = IOT_Subdevice_Login(thing_t->gateway, 
                             product_key, 
                             device_name, 
                             timestamp, 
                             client_id,
                             sign, 
                             sign_method,
-                            clean_session)) {
+                            clean_session))) {
         log_info("subdevice login fail");
-        return FAIL_RETURN;
+        return rc;
     }
 
     /* subscribe thing template topic */
-    if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
+    if (SUCCESS_RETURN != (rc = iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
                             product_key, 
                             device_name, 
-                            IOTX_Thing_SUBSCRIBE_TYPE)) {
+                            IOTX_Thing_SUBSCRIBE_TYPE))) {
         IOT_Subdevice_Logout(thing_t->gateway, product_key, device_name);
         log_info("subscribe topic fail");
-        return FAIL_RETURN;
+        return rc;
     }
 
     return SUCCESS_RETURN;
@@ -1394,6 +1438,7 @@ int IOT_Thing_Logout(void* handle,
         const char* product_key, 
         const char* device_name)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
     
     /* parameter check */
@@ -1402,18 +1447,18 @@ int IOT_Thing_Logout(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
     
     /*  subdevice logout */
-    if (FAIL_RETURN == IOT_Subdevice_Logout(thing_t->gateway, product_key, device_name)) {
+    if (SUCCESS_RETURN != (rc = IOT_Subdevice_Logout(thing_t->gateway, product_key, device_name))) {
         log_info("subdevice logout fail");
-        return FAIL_RETURN;
+        return rc;
     }
 
     /* unsubscribe thing template topic */
-    if (FAIL_RETURN == iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
+    if (SUCCESS_RETURN != (rc = iotx_thing_subscribe_unsubscribe_enhance(thing_t, 
                         product_key, 
                         device_name, 
-                        IOTX_Thing_UNSUBSCRIBE_TYPE)) {
+                        IOTX_Thing_UNSUBSCRIBE_TYPE))) {
         log_info("unsubscribe topic fail");
-        return FAIL_RETURN;
+        return rc;
     }
 
     return SUCCESS_RETURN;
@@ -1424,6 +1469,7 @@ int IOT_Thing_Get_TOPO(void* handle,
         char* get_toop_reply, 
         uint32_t* length)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
     
     /* parameter check */
@@ -1431,13 +1477,54 @@ int IOT_Thing_Get_TOPO(void* handle,
     PARAMETER_NULL_CHECK_WITH_RESULT(get_toop_reply, FAIL_RETURN);
     
     /*  get topo */
-    if (FAIL_RETURN == IOT_Gateway_Get_TOPO(thing_t->gateway, get_toop_reply, length)) {
+    if (SUCCESS_RETURN != (rc = IOT_Gateway_Get_TOPO(thing_t->gateway, get_toop_reply, length))) {
         log_info("get topo fail");
-        return FAIL_RETURN;
+        return rc;
     }
 
     return SUCCESS_RETURN;
 }
+
+
+int IOT_Thing_Get_Config(void* handle, 
+        char* get_config_reply, 
+        uint32_t* length)
+{
+    int rc = 0;
+    iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
+    
+    /* parameter check */
+    PARAMETER_Thing_CHECK(thing_t); 
+    PARAMETER_NULL_CHECK_WITH_RESULT(get_config_reply, FAIL_RETURN);
+    
+    /*  get config */
+    if (SUCCESS_RETURN != (rc = IOT_Gateway_Get_Config(thing_t->gateway, get_config_reply, length))) {
+        log_info("get config fail");
+        return rc;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+
+int IOT_Thing_Publish_Found_List(void* handle, const char* product_key, 
+    const char* device_name)
+{
+    int rc = 0;
+    iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
+    
+    /* parameter check */
+    PARAMETER_Thing_CHECK(thing_t); 
+    
+    /*  publish new subdevice found list */
+    if (SUCCESS_RETURN != (rc = IOT_Gateway_Publish_Found_List(thing_t->gateway, product_key, device_name))) {
+        log_info("publish new dev found list fail");
+        return rc;
+    }
+
+    return SUCCESS_RETURN;
+}
+
 
 /* get dsl template */
 int IOT_Thing_Get_Dsl_Template(void* handle, 
@@ -1446,6 +1533,7 @@ int IOT_Thing_Get_Dsl_Template(void* handle,
         char* dsl_template, 
         uint32_t* length)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;    
 
     /* parameter check */
@@ -1454,7 +1542,7 @@ int IOT_Thing_Get_Dsl_Template(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);  
     PARAMETER_NULL_CHECK_WITH_RESULT(dsl_template, FAIL_RETURN);  
 
-    if (FAIL_RETURN == iotx_thing_publish_common_packet(thing_t,
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_common_packet(thing_t,
                             product_key,
                             device_name,
                             product_key,
@@ -1462,9 +1550,9 @@ int IOT_Thing_Get_Dsl_Template(void* handle,
                             "dsltemplate",
                             "get",
                             "get_reply",   
-                            IOTX_Thing_REPLY_DSL_GET)) {
+                            IOTX_Thing_REPLY_DSL_GET))) {
         log_info("publish common packet error");
-        return FAIL_RETURN;
+        return rc;
     }                   
 
     /* check length */
@@ -1490,6 +1578,7 @@ int IOT_Thing_Post_Property(void* handle,
         const char* device_name,
         const char* property)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
 
     /* parameter check */
@@ -1498,14 +1587,14 @@ int IOT_Thing_Post_Property(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);  
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(property, FAIL_RETURN);  
 
-    if (FAIL_RETURN == iotx_thing_publish_common_event_packet(thing_t, 
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_common_event_packet(thing_t, 
                             product_key, 
                             device_name,
                             "property",
                             property,
-                            IOTX_Thing_REPLY_PROPERTY_POST)) {
+                            IOTX_Thing_REPLY_PROPERTY_POST))) {
         log_info("publish common event packet error");
-        return FAIL_RETURN;
+        return rc;
     }
                             
     LITE_free(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_PROPERTY_POST].data); 
@@ -1519,6 +1608,7 @@ int IOT_Thing_Update_Deviceinfo(void* handle,
         const char* device_name,
         const char* deviceinfo)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;    
      
     /* parameter check */
@@ -1527,15 +1617,15 @@ int IOT_Thing_Update_Deviceinfo(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);  
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(deviceinfo, FAIL_RETURN);  
 
-    if (FAIL_RETURN == iotx_thing_publish_common_deviceinfo_packet(thing_t,
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_common_deviceinfo_packet(thing_t,
                             product_key,
                             device_name,
                             deviceinfo,
                             "update",
                             "update_reply",   
-                            IOTX_Thing_REPLY_DEVICEINFO_UPDATE)) {
+                            IOTX_Thing_REPLY_DEVICEINFO_UPDATE))) {
         log_info("publish common packet error");
-        return FAIL_RETURN;
+        return rc;
     }               
                             
     LITE_free(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_DEVICEINFO_UPDATE].data); 
@@ -1549,6 +1639,7 @@ int IOT_Thing_Delete_Deviceinfo(void* handle,
         const char* device_name,
         const char* deviceinfo)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;    
      
     /* parameter check */
@@ -1557,93 +1648,18 @@ int IOT_Thing_Delete_Deviceinfo(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);  
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(deviceinfo, FAIL_RETURN);  
 
-    if (FAIL_RETURN == iotx_thing_publish_common_deviceinfo_packet(thing_t,
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_common_deviceinfo_packet(thing_t,
                             product_key,
                             device_name,
                             deviceinfo,
                             "delete",
                             "delete_reply",   
-                            IOTX_Thing_REPLY_DEVICEINFO_DELETE)) {
+                            IOTX_Thing_REPLY_DEVICEINFO_DELETE))) {
         log_info("publish common packet error");
-        return FAIL_RETURN;
+        return rc;
     }               
     
     LITE_free(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_DEVICEINFO_DELETE].data); 
-    return SUCCESS_RETURN;
-}
-
-/* post key element */
-/* remove, cloud is not support this TOPIC */
-int IOT_Thing_Post_Keyelement(void* handle, 
-        const char* product_key, 
-        const char* device_name,
-        const char* event,
-        const char* property,
-        const char* service) 
-{
-    int32_t msg_id = 0;
-    iotx_mqtt_topic_info_t topic_msg;    
-    char * keyelement_packet = NULL;
-    char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
-    iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;    
-     
-    /* parameter check */
-    PARAMETER_Thing_CHECK(thing_t);    
-    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, FAIL_RETURN);
-    PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);  
-    PARAMETER_NULL_CHECK_WITH_RESULT(event, FAIL_RETURN);
-    PARAMETER_NULL_CHECK_WITH_RESULT(property, FAIL_RETURN); 
-    PARAMETER_NULL_CHECK_WITH_RESULT(service, FAIL_RETURN);
-
-    HAL_Snprintf(topic,
-            GATEWAY_TOPIC_LEN_MAX,
-            TOPIC_Thing_COMMON_FMT,
-            product_key,
-            device_name, 
-            "keyelement",
-            "post");  
-    memset(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_KEYELEMENT_POST].topic, 0x0, GATEWAY_TOPIC_LEN_MAX);
-    HAL_Snprintf(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_KEYELEMENT_POST].topic,
-            GATEWAY_TOPIC_LEN_MAX,
-            TOPIC_Thing_COMMON_FMT,
-            product_key,
-            device_name, 
-            "keyelement",
-            "post_reply");  
-    
-    keyelement_packet = iotx_thing_splice_post_keyelement_packet(event, property, service, &msg_id);
-    /* mqtt packet */
-    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
-    topic_msg.qos = IOTX_MQTT_QOS0;
-    topic_msg.retain = 0;
-    topic_msg.dup = 0;
-    topic_msg.payload = (void *)keyelement_packet;
-    topic_msg.payload_len = strlen(keyelement_packet);
-    topic_msg.packet_id = 0;
-     
-    
-    /* publish packet */
-    if (FAIL_RETURN == iotx_thing_publish_topic_sync(thing_t, 
-                            msg_id,
-                            topic, 
-                            &topic_msg, 
-                            IOTX_Thing_REPLY_KEYELEMENT_POST)) {
-        LITE_free(keyelement_packet);
-        return FAIL_RETURN;
-    }
-    
-    LITE_free(keyelement_packet);
-    LITE_free(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_KEYELEMENT_POST].data); 
-    
-    if (200 == thing_t->thing_data_t->replys[IOTX_Thing_REPLY_KEYELEMENT_POST].code) {   
-        log_info("keyelement publish successfully [%s]", thing_t->thing_data_t->replys[IOTX_Thing_REPLY_KEYELEMENT_POST].topic); 
-    } else {
-        log_info("keyelement publish error [%s]\n code[%d]", 
-                    thing_t->thing_data_t->replys[IOTX_Thing_REPLY_KEYELEMENT_POST].topic, 
-                    thing_t->thing_data_t->replys[IOTX_Thing_REPLY_KEYELEMENT_POST].code); 
-        return FAIL_RETURN;
-    }
-                        
     return SUCCESS_RETURN;
 }
 
@@ -1654,6 +1670,7 @@ int IOT_Thing_Set_Property_Response(void* handle,
         uint32_t msg_id,
         uint32_t code)
 {
+    int rc = 0;
     iotx_mqtt_topic_info_t topic_msg;    
     char * property_packet = NULL;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
@@ -1685,10 +1702,10 @@ int IOT_Thing_Set_Property_Response(void* handle,
     topic_msg.payload_len = strlen(property_packet);
     topic_msg.packet_id = 0;
      
-    if (IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg) < 0) {
+    if ((rc = IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg)) < 0) {
         log_err("Gateway Publish error!");
         LITE_free(property_packet);   
-        return FAIL_RETURN;
+        return rc;
     }
             
     LITE_free(property_packet);   
@@ -1704,6 +1721,7 @@ int IOT_Thing_Get_Property_Response(void* handle,
         const char* property_data,
         uint32_t code)
 {
+    int rc = 0;
     iotx_mqtt_topic_info_t topic_msg;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};   
     char * property_packet = NULL;
@@ -1734,10 +1752,10 @@ int IOT_Thing_Get_Property_Response(void* handle,
     topic_msg.payload_len = strlen(property_packet);
     topic_msg.packet_id = 0;
      
-    if (IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg) < 0) {
+    if ((rc = IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg)) < 0) {
         log_err("Gateway Publish error!");
         LITE_free(property_packet);   
-        return FAIL_RETURN;
+        return rc;
     }
             
     LITE_free(property_packet);   
@@ -1790,7 +1808,8 @@ int IOT_Tmp_Down_Raw_Response(void* handle,
         const char* product_key, 
         const char* device_name,
         const char* response)
-{   
+{ 
+    int rc = 0;
     iotx_mqtt_topic_info_t topic_msg;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;
@@ -1820,9 +1839,9 @@ int IOT_Tmp_Down_Raw_Response(void* handle,
     topic_msg.packet_id = 0;
     
     /* publish mqtt packet */
-    if (FAIL_RETURN == IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg)) {
+    if (SUCCESS_RETURN != (rc = IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg))) {
         log_info("Gateway publish fail");
-        return FAIL_RETURN;
+        return rc;
     }
 
     return SUCCESS_RETURN;
@@ -1894,7 +1913,8 @@ int IOT_Thing_Service_Response(void* handle,
         const char* service_id,
         uint32_t message_id,
         uint32_t code)
-{   
+{  
+    int rc = 0;
     char* response_packet = NULL;
     char response_reply_topic[20] = {0};
     iotx_mqtt_topic_info_t topic_msg;
@@ -1931,10 +1951,10 @@ int IOT_Thing_Service_Response(void* handle,
     topic_msg.packet_id = 0;
     
     /* publish mqtt packet */
-    if (FAIL_RETURN == IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg)) {
+    if (SUCCESS_RETURN != (rc = IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg))) {
         log_info("Gateway publish fail");
         LITE_free(response_packet);
-        return FAIL_RETURN;
+        return rc;
     }
     
     LITE_free(response_packet);
@@ -1950,6 +1970,7 @@ int IOT_Thing_Control_Response(void* handle,
         uint32_t code,
         iotx_thing_control_type_t control_type)
 {
+    int rc = 0;
     char* response_packet = NULL;
     iotx_mqtt_topic_info_t topic_msg;
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
@@ -1999,7 +2020,7 @@ int IOT_Thing_Control_Response(void* handle,
     topic_msg.packet_id = 0;
     
     /* publish mqtt packet */
-    if (FAIL_RETURN == IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg)) {
+    if (SUCCESS_RETURN != (rc = IOT_Gateway_Publish(thing_t->gateway, topic, &topic_msg))) {
         log_info("Gateway publish fail");
         LITE_free(response_packet);
         return FAIL_RETURN;
@@ -2017,6 +2038,7 @@ int IOT_Thing_Trigger_Event(void* handle,
         const char* params,
         const char* event_id)
 {
+    int rc = 0;
     iotx_thing_masterlave_pt thing_t = (iotx_thing_masterlave_pt)handle;    
     
     /* parameter check */
@@ -2026,14 +2048,14 @@ int IOT_Thing_Trigger_Event(void* handle,
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(params, FAIL_RETURN);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(event_id, FAIL_RETURN);
 
-    if (FAIL_RETURN == iotx_thing_publish_common_event_packet(thing_t, 
+    if (SUCCESS_RETURN != (rc = iotx_thing_publish_common_event_packet(thing_t, 
                             product_key, 
                             device_name,
                             event_id,
                             params,
-                            IOTX_Thing_REPLY_EVENT_POST)) {
+                            IOTX_Thing_REPLY_EVENT_POST))) {
         log_info("publish common event packet error");
-        return FAIL_RETURN;
+        return rc;
     }
                             
     LITE_free(thing_t->thing_data_t->replys[IOTX_Thing_REPLY_EVENT_POST].data); 
