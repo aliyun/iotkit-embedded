@@ -1,3 +1,2 @@
-LIBA_TARGET         := libilop-fota.a
-LIB_SRCS_PATTERN    := service_ota.c
-
+LIBA_TARGET         := libiot_fota.a
+HDR_REFS            := src
