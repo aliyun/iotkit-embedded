@@ -22,7 +22,7 @@
 #include "iot_export.h"
 
 #define IOT_GATEWAY_YIELD_MAX_COUNT     100
-#define IOT_SUBDEVICE_CLIENT_ID_LEN     32
+#define IOT_SUBDEVICE_CLIENT_ID_LEN     64
 
 
 /* option defined for gateway support multi-thread */
@@ -42,6 +42,12 @@
 
 /* The format of session topo topic */
 #define TOPIC_SESSION_TOPO_FMT               "/sys/%s/%s/thing/topo/%s"
+
+/* The format of session config topic */
+#define TOPIC_SESSION_CONFIG_FMT             "/sys/%s/%s/thing/config/%s"
+
+/* The format of session found list topic */
+#define TOPIC_SESSION_LIST_FOUND_FMT         "/sys/%s/%s/thing/list/%s"
 
 /* The format of system RRPC topic */
 #define TOPIC_SYS_RRPC_FMT                   "/sys/%s/%s/rrpc/%s/+"
@@ -276,6 +282,30 @@ int IOT_Gateway_Get_TOPO(void* handle,
         char* get_topo_reply, 
         uint32_t* length);
 
+/**
+ * @brief Gateway get config
+ *        This function publish a packet with config/get topic and wait for the reply (with CONFIG_GET_REPLY topic).
+ *
+ * @param pointer of handle, specify the Gateway.
+ * @param get_config_reply.
+ * @param length [in/out]. in -- get_config_reply buffer length, out -- reply length
+ *
+ * @return 0, logout success; -1, logout failed.
+ */
+int IOT_Gateway_Get_Config(void* handle, 
+        char* get_config_reply, 
+        uint32_t* length);
+
+/**
+ * @brief Gateway publish found list
+ *        This function publish a packet with new subdevice found list.
+ *
+ * @param pointer of handle, specify the Gateway.
+ *
+ * @return 0, publish success; -1, publish failed.
+ */
+int IOT_Gateway_Publish_Found_List(void* handle, const char* product_key, 
+    const char* device_name);
 
 
 /**
