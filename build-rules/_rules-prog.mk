@@ -50,8 +50,7 @@ $(TARGET): $(OBJS) FORCE
 	    $(CCLD) $(CFLAGS) -o $@ \
 	        $(RPATH_CFLAGS) \
 	        $(OBJS) \
-	        -Wl,--start-group $(filter -l%, $(LDFLAGS)) -Wl,--end-group \
-	        $(filter -L%, $(LDFLAGS)) && \
+	        $(LDFLAGS) && \
 	    cp -f $@ $(OUTPUT_DIR)${bindir}; \
 	fi; \
 )

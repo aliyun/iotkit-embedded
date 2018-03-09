@@ -1,8 +1,8 @@
 define Dump_Var
 	NUM=`echo "$(strip $($(1)))"|awk '{ print NF }'`; \
-	if expr $${NUM} \> 1 >/dev/null; then \
+	if (( $${NUM} \> 1 )); then \
 	    printf -- "-----------------------------------------------------------------\n"; \
-	    printf "%-24s| %s\n" ". $(1)" `echo "$(strip $($(1)))"|cut -d' ' -f1|sed 's/^ *//'`; \
+	    printf "%-24s| %s\n" ". $(1)" `echo "$(strip $($(1)))"|cut -d' ' -f1|$(SED) 's/^ *//'`; \
 	    for i in `echo "$(strip $($(1)))"|cut -d' ' -f2-`; do \
 	        printf "%-24s| %s\n" "" "$${i}"; \
 	    done; \
@@ -45,23 +45,25 @@ define Brief_Log
 	elif [ "$1" = "ST" ]; then \
 	    COLOR_MARK="\e[0;33m"; \
 	fi; \
-	echo -ne "$${COLOR_MARK}"; \
+	if [ "$$(uname)" != "Darwin" ]; then \
+        echo -ne "$${COLOR_MARK}"; \
+    fi; \
 	if [ "$2" = "" ]; then \
 	    FIRST_DEP="$(firstword $(filter-out FORCE,$?))"; \
 	    SPACE_BAR="                                   "; \
 	    if [ "$${FIRST_DEP}" != "" ]; then \
 	        FIRST_DEP="$$(basename $${FIRST_DEP})"; \
 	    fi; \
-	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $$(basename $@) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
+	    printf "\r%-32s%s%s\n" "[$1] $$(echo -n "$$(basename $@)" | cut -c1-20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	else \
-	    printf "\r%-32s%s%s\n" "[$1] $$(expr substr $(2) 1 20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
+	    printf "\r%-32s%s%s\n" "[$1] $$(echo -n "$(2)" | cut -c1-20)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	fi; \
 	for i in $(wordlist 2,100,$(filter-out FORCE,$?)); do \
 	    if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
 	        printf "%-32s%s\n" "" "   $$(basename $${i})"; \
 	    fi \
 	done; \
-	echo -ne "\e[0m"; \
+	if [ "$$(uname)" != "Darwin" ]; then echo -ne "\e[0m"; fi; \
 )
 endef
 
@@ -110,7 +112,7 @@ define Build_Depends
 ( \
     set -o pipefail && \
     for i in $(DEPENDS_$(1)); do \
-        STAMP=$(STAMP_DIR)/$$(echo $${i}|sed 's:/:~:g').build.done; \
+        STAMP=$(STAMP_DIR)/$$(echo $${i}|$(SED) 's:/:~:g').build.done; \
         if [ -f $${STAMP} ]; then \
             continue; \
         fi; \

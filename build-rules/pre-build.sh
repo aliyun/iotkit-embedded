@@ -1,4 +1,10 @@
 #! /bin/bash
+if [ "$(uname)" = "Darwin" ]; then
+    SED=gsed
+else
+    SED=sed
+fi
+
 function Trace()
 {
     if [ "${VERBOSE_PRE_BLD}" != "" ]; then
@@ -13,8 +19,7 @@ function Update_Sources()
         return 0
     fi
     if [ "${PKG_SWITCH}" = "" ]; then
-        Trace "Skipped @ CONFIG_${MODULE} = '${PKG_SWITCH}'"
-        return 0
+        Trace "Warning @ CONFIG_${MODULE} = '${PKG_SWITCH}'"
     fi
 
     Trace "MODULE_NAME:     [${MODULE}]"
@@ -26,19 +31,20 @@ function Update_Sources()
     Trace "PKG_REVISION:    [${PKG_REVISION}]"
     Trace "PKG_UPSTREAM:    [${PKG_UPSTREAM}]"
 
-    for i in $(find -L ${MODULE} -type d -not -path "*.git*"|sed "s:${MODULE}/*::1"|sed '/^$/d'); do
+    for i in $(find -L ${MODULE} -type d -not -path "*.git*"|${SED} "s:${MODULE}/*::1"|${SED} '/^$/d'); do
         mkdir -p ${BLD_DIR}/${i}
     done
 
     if [ "${PKG_SOURCE}" != "" ] && [ -d ${PACKAGE_DIR}/${PKG_SOURCE} ]; then
         GIT_BASENAME=$(basename ${PKG_SOURCE})
-        GIT_NAME_LEN=$(expr length ${GIT_BASENAME})
+        GIT_NAME_LEN=$(echo -n "${GIT_BASENAME}"|wc -c|awk '{ print $1 }')
         GIT_OFFSET=$(( GIT_NAME_LEN - 3 ))
-        GIT_MOD_NAME=$(expr substr ${GIT_BASENAME} 1 $(( GIT_OFFSET-1 )))
-        GIT_POSTFIX=$(expr substr ${GIT_BASENAME} ${GIT_OFFSET} ${GIT_NAME_LEN})
+        GIT_MOD_NAME=$(echo "${GIT_BASENAME}" | cut -c"1-$(( GIT_OFFSET-1 ))"|awk '{ print $1 }')
+        GIT_POSTFIX=$(echo "${GIT_BASENAME}" | cut -c"${GIT_OFFSET}-${GIT_NAME_LEN}"|awk '{ print $1 }')
         Trace "GIT_POSTFIX:     [${GIT_POSTFIX}]"
         Trace "GIT_MOD_NAME:    [${GIT_MOD_NAME}]"
     fi
+    set +x
 
     if [ "${GIT_POSTFIX}" = ".git" ]; then
         GIT_COPY=${MODULE}/${GIT_MOD_NAME}
@@ -93,11 +99,11 @@ function Update_Sources()
 #        if  [ "" != "${PKG_SOURCE}" ] && \
 #            [ -d ${PKG_SOURCE} ] && \
 #            [ "$(dirname ${FILE})" != "${TOP_DIR}/${MODULE}" ]; then
-#            SUBD=$(echo $(dirname ${FILE})|sed "s:$(dirname ${PKG_SOURCE})::")
-#            SUBD=$(echo ${SUBD}|sed "s:${SRC_DIR}::")
+#            SUBD=$(echo $(dirname ${FILE})|${SED} "s:$(dirname ${PKG_SOURCE})::")
+#            SUBD=$(echo ${SUBD}|${SED} "s:${SRC_DIR}::")
 #        else
-#            SUBD=$(echo $(dirname ${FILE})|sed "s:${SRC_DIR}::")
-#            SUBD=$(echo ${SUBD}|sed "s:${PACKAGE_DIR}/*::")
+#            SUBD=$(echo $(dirname ${FILE})|${SED} "s:${SRC_DIR}::")
+#            SUBD=$(echo ${SUBD}|${SED} "s:${PACKAGE_DIR}/*::")
 #        fi
 #
 #        COPY_DIR=${OUTPUT_DIR}/${MODULE}/${SUBD}
@@ -141,7 +147,7 @@ EOB
     cp -f ${SRC_DIR}/${MAKE_SEGMENT} ${BLD_DIR}/${MAKE_SEGMENT}
 
     cat ${BLD_DIR}/${MAKE_SEGMENT} >> ${BLD_MFILE}
-    sed -i 's/clean:/clean : clean-prepare/g' ${BLD_MFILE}
+    ${SED} -i 's/clean:/clean : clean-prepare/g' ${BLD_MFILE}
 
     cat << EOB >> ${BLD_MFILE}
 
@@ -178,9 +184,11 @@ fi
 mkdir -p ${BLD_DIR}
 
 MSG=$(printf "%-28s%s" "${MODULE}" "[..]")
-echo -ne "\r                                                    "
-echo -ne "\e[0;37;0;44m""\r[..] o ${MSG}""\e[0;m"
-Trace ""
+if [ "$(uname)" != "Darwin" ]; then
+    echo -ne "\r                                                    "
+    echo -ne "\e[0;37;0;44m""\r[..] o ${MSG}""\e[0;m"
+    Trace ""
+fi
 
 if [ "$#" = "1" ]; then
     Update_Sources

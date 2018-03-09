@@ -3,6 +3,12 @@
 SHELL           := /bin/bash
 TOP_DIR         ?= $(CURDIR)
 
+ifeq (Darwin,$(strip $(shell uname)))
+SED             := gsed
+else
+SED             := sed
+endif
+
 # Settings of input directory and file
 #
 RULE_DIR        ?= $(TOP_DIR)/build-rules

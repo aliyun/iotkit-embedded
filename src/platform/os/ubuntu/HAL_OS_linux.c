@@ -24,7 +24,6 @@
 #include <memory.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <sys/prctl.h>
 #include <sys/time.h>
 
 #include "iot_import.h"
@@ -82,6 +81,19 @@ void HAL_Free(_IN_ void *ptr)
     free(ptr);
 }
 
+#ifdef __APPLE__
+uint64_t HAL_UptimeMs(void)
+{
+    struct timeval tv = { 0 };
+    uint32_t time_ms;
+
+    gettimeofday(&tv, NULL);
+
+    time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+
+    return time_ms;
+}
+#else
 uint64_t HAL_UptimeMs(void)
 {
     uint64_t            time_ms;
@@ -92,6 +104,7 @@ uint64_t HAL_UptimeMs(void)
 
     return time_ms;
 }
+#endif
 
 void HAL_SleepMs(_IN_ uint32_t ms)
 {

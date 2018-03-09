@@ -3,19 +3,25 @@
 if [ $# != 2 ]; then echo "$# != 2"; exit 1; fi
 if [ ! -f $1 ]; then echo "$1 not exist"; exit 2; fi
 
+if [ "$(uname)" = "Darwin" ]; then
+    SED=gsed
+else
+    SED=sed
+fi
+
 BLDV=$1
 CMDV=$2
 
 if [ "${CMDV}" = "list" ]; then
     grep "^PKG_UPSTREAM_[-/_a-zA-Z0-9]*" ${BLDV} \
-        | sed 's/^PKG_UPSTREAM_\([^ ]*\) = \(.*\)$/[\1] \2/g'
+        | ${SED} 's/^PKG_UPSTREAM_\([^ ]*\) = \(.*\)$/[\1] \2/g'
 fi
 
 REPO_LIST=$( \
     grep "^PKG_UPSTREAM_[-/_a-zA-Z0-9]*" ${BLDV} \
-        | sed 's/^PKG_UPSTREAM_\([^ ]*\) = \(.*\)$/[\1] \2/g' \
+        | ${SED} 's/^PKG_UPSTREAM_\([^ ]*\) = \(.*\)$/[\1] \2/g' \
         | cut -d' ' -f1 \
-        | sed 's/\[//g;s/\]//g;' \
+        | ${SED} 's/\[//g;s/\]//g;' \
 )
 
 if [ "${CMDV}" = "update" ]; then
@@ -31,7 +37,7 @@ if [ "${CMDV}" = "update" ]; then
     if [ "${O}" = "ALL REPOS" ]; then
         O=""
     fi
-    REPOS=$(grep -o "^PKG_UPSTREAM_[-/_a-zA-Z0-9]*" ${BLDV}|grep "${O}"|sort -u|sed 's:PKG_UPSTREAM_::')
+    REPOS=$(grep -o "^PKG_UPSTREAM_[-/_a-zA-Z0-9]*" ${BLDV}|grep "${O}"|sort -u|${SED} 's:PKG_UPSTREAM_::')
     for R in ${REPOS}; do
         UPSTREAM=$(grep -m 1 "^PKG_UPSTREAM_${R}" ${BLDV}|awk '{ print $NF }')
         SOURCE=$(grep -m 1 "^PKG_SOURCE_${R}" ${BLDV}|awk '{ print $NF }')

@@ -15,7 +15,6 @@ RESET_ENV_VARS := \
     LDFLAGS \
 
 help:
-	@echo -e "\e[1;37m[$(RULE_DIR)/docs]\e[0m"
 	@echo ""
 	@cat $(RULE_DIR)/docs/Help.md
 	@echo ""
@@ -23,7 +22,7 @@ help:
 doc:
 	$(TOP_Q)rm -rf html
 	$(TOP_Q) \
-	sed \
+	$(SED) \
 	    's:^PROJECT_NAME.*:PROJECT_NAME = $(PRJ_NAME):g; s:^PROJECT_NUMBER.*:PROJECT_NUMBER = $(PRJ_VERSION):g' \
 	build-rules/misc/Doxyfile.tpl > $(OUTPUT_DIR)/.doxygen.cfg
 	$(TOP_Q)doxygen $(OUTPUT_DIR)/.doxygen.cfg
@@ -40,12 +39,12 @@ unzip: config $(STAMP_BLD_VAR)
 	@echo "Components: "
 	@echo ""
 	@for i in $(ALL_SUB_DIRS); do \
-	    $(MAKE) --no-print-directory pre-build target-$${i} > /dev/null; \
+	    $(MAKE) --no-print-directory pre-build target-$${i} ; \
 	    echo ". $${i}"; \
 	done
 	@echo ""
 
-#	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d'); do \
+#	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|$(SED) '/^\$$/d'); do \
 #	    if [ $$i -nt $(CONFIG_TPL) ]; then \
 #	        echo "Re-configure project since '$${i}' updated"|grep --color ".*"; \
 #	        $(RECURSIVE_MAKE) reconfig; \
@@ -64,7 +63,7 @@ config:
 
 	$(TOP_Q) \
 	if [ -f $(STAMP_BLD_VAR) ]; then \
-	    if [ "$$(sed '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l)" != "0" ]; then \
+	    if [ "$$($(SED) '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l|$(SED) 's:^  *::g')" != "0" ]; then \
 	        rm -f $(STAMP_BLD_VAR); \
 	    fi \
 	fi

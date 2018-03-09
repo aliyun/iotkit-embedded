@@ -14,13 +14,13 @@ echo ""
 #
 #      sdk-example / example.c               : [100.00%]  (7/7)            [100.00%]  (1/1)
 #
-echo -ne "\e[1;36m"
+[ "$(uname)" != "Darwin" ] && echo -ne "\e[1;36m"
 printf "%${DIR_NAME_LENGTH}s   %-${SRC_NAME_LENGTH}s: %-24s %-20s\n\n" \
     "Directory" \
     "Source File" \
     "Line Coverage" \
     "Function Coverage"
-echo -ne "\e[0m"
+[ "$(uname)" != "Darwin" ] && echo -ne "\e[0m"
 
 REPORT_LIST=$(find ${LCOV_DIR} -mindepth 2 -name "index.html")
 for R in ${REPORT_LIST}; do
@@ -66,8 +66,6 @@ done \
 
                 printf("%" DIR_LEN "s / %-" SRC_LEN "s: [ %-8s] %-12s [ %-8s] %-12s\n",
                        $1, $3, $6, $8, $10, $12);
-
-                printf("\033[0m");
             }'
 
 #

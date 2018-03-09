@@ -42,7 +42,7 @@ COMP_LIB_NAME   := $(subst lib,,$(subst .so,,$(subst .a,,$(COMP_LIB))))
 COMP_LIB_OBJS    = $(foreach d,$(COMP_LIB_COMPONENTS),$(LIBOBJ_TMPDIR)/$(d)/*.o)
 RECURSIVE_MAKE  := $(MAKE) $(if $(TOP_Q),-s) -C $(TOP_DIR) -f $(TOP_MAKEFILE)
 ALL_SUB_DIRS    := $(shell find -L $(TOP_DIR) ! -path "$(OUTPUT_DIR)/*" -name "$(MAKE_SEGMENT)" 2>/dev/null \
-                           | sed 's:$(TOP_DIR)[/]*::;s:[/]*$(MAKE_SEGMENT)::')
+                           | $(SED) 's:$(TOP_DIR)[/]*::;s:[/]*$(MAKE_SEGMENT)::')
 
 SHOW_ENV_VARS   := \
     MODULE_NAME SUBDIRS PKG_NAME PKG_RPATH PKG_SOURCE PKG_SWITCH_V PKG_SWITCH \
@@ -79,7 +79,7 @@ endif # CONFIG_LIB_EXPORT
 
 ifneq (,$(shell ls $(STAMP_BLD_VAR) 2>/dev/null))
 ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
-ifeq (0,$(shell sed '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l))
+ifeq (0,$(strip $(shell $(SED) '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l)))
 include $(STAMP_BLD_VAR)
 endif
 endif
@@ -131,7 +131,7 @@ env:
 
 else    # ifdef SUBDIRS
 
-PKG_RPATH   := $(shell echo $(CURDIR)|sed 's:$(OUTPUT_DIR)/*::g')
+PKG_RPATH   := $(shell echo $(CURDIR)|$(SED) 's:$(OUTPUT_DIR)/*::g')
 PKG_NAME    ?= $(shell basename $(CURDIR))
 PKG_SOURCE  ?= $(shell [ -d $(PACKAGE_DIR) ] && find $(PACKAGE_DIR) -name "$(PKG_NAME)*" | head -1)
 

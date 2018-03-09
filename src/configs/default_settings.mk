@@ -2,6 +2,10 @@ DEFAULT_BLD             := src/configs/config.ubuntu.x86
 POST_FINAL_OUT_HOOK     := Post_Distro
 SUBDIRS                 := directory-not-exist-actually
 
+ifeq (Darwin,$(shell uname))
+POST_FINAL_OUT_HOOK     :=
+endif
+
 FEATURE_MQTT_SHADOW         ?= $(FEATURE_MQTT_COMM_ENABLED)
 FEATURE_COAP_DTLS_SUPPORT   ?= $(FEATURE_COAP_COMM_ENABLED)
 FEATURE_MQTT_ID2_AUTH       ?= n

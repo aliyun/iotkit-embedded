@@ -6,7 +6,7 @@ sub-mods: toolchain
 	if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
 	    set -o pipefail; \
 	    for i in \
-	        $$(echo $(IMPORT_DIR)|sed 's:$(TOP_DIR)/*::g')/$(CONFIG_VENDOR)/platform \
+	        $$(echo $(IMPORT_DIR)|$(SED) 's:$(TOP_DIR)/*::g')/$(CONFIG_VENDOR)/platform \
 	        $(SUBDIRS); do \
 	            if [ ! -d $${i} ]; then continue; fi; \
 	            $(MAKE) --no-print-directory Q=$(Q) $${i} 2>&1 $(SUB_LOG_OPTION); \
@@ -49,17 +49,17 @@ CMDLINE_VARS := \
 #
 $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
                   $(wildcard $(RULE_DIR)/*.mk) \
-                  $(shell grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|sed '/^\$$/d')
+                  $(shell grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|$(SED) '/^\$$/d')
 	@rm -f $@
 	@$(foreach V, \
 	    $(sort $(SUB_BUILD_VARS)), \
-	        echo "$(V) := $(sort $($(V)))"|sed 's:\$$:$$$$:g' >> $(STAMP_BLD_ENV); \
+	        echo "$(V) := $(sort $($(V)))"|$(SED) 's:\$$:$$$$:g' >> $(STAMP_BLD_ENV); \
 	)
 
 # note:
-#   sed -i "/CONFIG_$${i//\//\\/}.*/d" $(CONFIG_TPL);
+#   $(SED) -i "/CONFIG_$${i//\//\\/}.*/d" $(CONFIG_TPL);
 # above
-#   sed -i "1iCONFIG_$${i} = y" $(CONFIG_TPL)
+#   $(SED) -i "1iCONFIG_$${i} = y" $(CONFIG_TPL)
 # was removed since modules will be skipped in some cases
 
 $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_ENV) $(wildcard $(RULE_DIR)/*.mk)
@@ -72,8 +72,8 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 	        if [ ! -L $${i} ]; then \
 	            printf "CONFIGURE .............................. [%s]\n" $${i}; \
 	        fi; \
-	        sed -i "1iCONFIG_$${i} = y" $(CONFIG_TPL); \
-	        [ -f $(STAMP_POST_RULE) ] && sed -i "/target-$${i//\//\\/}.*/d" $(STAMP_POST_RULE) || true; \
+	        $(SED) -i "1iCONFIG_$${i} = y" $(CONFIG_TPL); \
+	        [ -f $(STAMP_POST_RULE) ] && $(SED) -i "/target-$${i//\//\\/}.*/d" $(STAMP_POST_RULE) || true; \
 	        echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
 	    fi; \
 	    $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \
@@ -133,4 +133,4 @@ endif
 	    echo -ne "\r$$(printf '%40s' '')\r"; \
 	fi
 
-	@mkdir -p $(STAMP_DIR) && touch $(STAMP_DIR)/$$(echo "$@"|sed 's:/:~:g').build.done
+	@mkdir -p $(STAMP_DIR) && touch $(STAMP_DIR)/$$(echo "$@"|$(SED) 's:/:~:g').build.done

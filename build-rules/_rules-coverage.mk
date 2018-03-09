@@ -18,7 +18,7 @@ coverage lcov test: all $(UTEST_RECP)
 	$(Q)rm -rf $(OUTPUT_DIR)/$(LCOV_DIR) $(DIST_DIR)/$(LCOV_DIR)
 	$(Q)rm -f $(OUTPUT_DIR)/{files,tests,all,final}.info
 	$(Q)find $(OUTPUT_DIR) -name "*.gcno" -o -name "*.gcda" -exec rm -f {} \;
-	$(Q)OUTPUT_DIR=$(OUTPUT_DIR) bash <(sed '2iPROGS=$(COVERAGE_PROGS)' $(COVERAGE_CMD)) || true
+	$(Q)OUTPUT_DIR=$(OUTPUT_DIR) bash <($(SED) '2iPROGS=$(COVERAGE_PROGS)' $(COVERAGE_CMD)) || true
 	$(Q)lcov --quiet \
 	    --capture --initial --directory $(OUTPUT_DIR)/ \
 	    -o $(OUTPUT_DIR)/files.info
@@ -36,6 +36,6 @@ coverage lcov test: all $(UTEST_RECP)
 	    --legend --no-branch-coverage -o $(OUTPUT_DIR)/$(LCOV_DIR) $(OUTPUT_DIR)/final.info
 	$(Q)cp -rf $(OUTPUT_DIR)/$(LCOV_DIR) $(DIST_DIR)/$(LCOV_DIR)
 	$(Q)cd $(DIST_DIR)/$(LCOV_DIR) && \
-	    sed -i 's:\(coverFile.*\)>$(OUTPUT_DIR)/:\1>:g' index.html
+	    $(SED) -i 's:\(coverFile.*\)>$(OUTPUT_DIR)/:\1>:g' index.html
 	$(Q)bash $(RULE_DIR)/scripts/gen_lcov_report.sh $(DIST_DIR)/$(LCOV_DIR)
 endif

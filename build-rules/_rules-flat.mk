@@ -106,7 +106,7 @@ ifeq (,$(filter modinfo,$(MAKECMDGOALS)))
 %.d: %.c
 	$(Q) \
 ( \
-	D=$$(dirname $<|sed 's:$(TOP_DIR):$(OUTPUT_DIR):1'); \
+	D=$$(dirname $<|$(SED) 's:$(TOP_DIR):$(OUTPUT_DIR):1'); \
 	F=$$(basename $<); \
 	mkdir -p $${D}; \
 	$(CC) -MM -I$(CURDIR) \
@@ -114,7 +114,7 @@ ifeq (,$(filter modinfo,$(MAKECMDGOALS)))
 	    $(EXTERNAL_INCLUDES) \
 	    $(CFLAGS) \
 	$< > $${D}/$${F}.$$$$; \
-	sed -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $${D}/$${F}.$$$$; \
+	$(SED) -i 's!$(shell basename $*)\.o[ :]!$*.o:!1' $${D}/$${F}.$$$$; \
 	mv $${D}/$${F}.$$$$ $@; \
 )
 endif
@@ -137,8 +137,8 @@ ifneq (,$(findstring gcc,$(CC)))
 	    $(EXTERNAL_INCLUDES) \
 	    $(CFLAGS) \
 	$< > $@.$$$$; \
-	$(foreach D,$(NODEP_LIST),sed -i 's:$(D)::g' $@.$$$$;) \
-	sed 's,\($*\)\.o[ :]*,\1.o $@: ,g' < $@.$$$$ > $@; \
+	$(foreach D,$(NODEP_LIST),$(SED) -i 's:$(D)::g' $@.$$$$;) \
+	$(SED) 's,\($*\)\.o[ :]*,\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$;
 endif
 

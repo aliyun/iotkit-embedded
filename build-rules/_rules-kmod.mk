@@ -11,7 +11,7 @@ $(firstword $(KMOD_TARGET)): $(KMOD_SRCS)
 	$(Q)echo "EXTRA_CFLAGS += " \
 	         "-I$(CURDIR)" \
 	         "$(INTERNAL_INCLUDES)" \
-	         | sed 's/-I/\\\n    -I/g' \
+	         | $(SED) 's/-I/\\\n    -I/g' \
 	         >> $(KMOD_MAKEFILE)
 	$(Q)echo "" >> $(KMOD_MAKEFILE)
 	$(Q)echo "obj-m := $(obj-m)" >> $(KMOD_MAKEFILE)
@@ -19,7 +19,7 @@ $(firstword $(KMOD_TARGET)): $(KMOD_SRCS)
 	$(Q) \
 	$(foreach mod, $(KMOD_NAME), \
 	    echo "$(mod)-objs := $($(mod)-objs)" \
-	    | sed 's/ [_a-z]*\.o/ \\\n   &/g' \
+	    | $(SED) 's/ [_a-z]*\.o/ \\\n   &/g' \
 	    >> $(KMOD_MAKEFILE); \
 	    echo "" >> $(KMOD_MAKEFILE); \
 	)

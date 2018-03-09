@@ -23,9 +23,15 @@ $(LIBA_TARGET) :: $(LIB_OBJS)
 	$(Q)rm -f $@
 ifdef CONFIG_LIBOBJ_STRIP
 	@$(call Brief_Log,"ST")
-	$(TOP_Q)$(STRIP) --strip-debug $(LIB_OBJS)
+	$(TOP_Q) \
+	if [ "$$(uname)" != "Darwin" ]; then \
+	    $(STRIP) --strip-debug $(LIB_OBJS); \
+	fi
 endif
-	$(TOP_Q)$(AR) -rcs $@ $(LIB_OBJS)
+	$(TOP_Q) \
+	if [ "$$(echo "$(LIB_OBJS)"|awk '{ print NF }')" != "0" ]; then \
+	    $(AR) -rcs $@ $(LIB_OBJS); \
+	fi
 
 $(LIBA_TARGET) :: StaticLib_Install
 	$(Q)mkdir -p $(LIBOBJ_TMPDIR)/$(MODULE_NAME)
@@ -35,7 +41,7 @@ ifneq ($(LIBA_TARGET),$(LIBA_SKIP_COMBO))
 endif
 endif
 	$(Q)mkdir -p $(SYSROOT_LIB)
-	$(Q)cp -f $@ $(SYSROOT_LIB)
+	$(Q)if [ -f $@ ]; then cp -f $@ $(SYSROOT_LIB); fi
 	$(call Copy_Headers, $(LIB_HEADERS),$(SYSROOT_INC),$(LIB_HDRS_DIR))
 
 else
