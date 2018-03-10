@@ -40,6 +40,7 @@ typedef enum _IOT_LogLevel {
 #define DEVICE_NAME_LEN     (32)
 #define DEVICE_ID_LEN       (64)
 #define DEVICE_SECRET_LEN   (64)
+#define PRODUCT_SECRET_LEN  (64)
 
 #define MODULE_VENDOR_ID    (32)    /* Partner ID */
 

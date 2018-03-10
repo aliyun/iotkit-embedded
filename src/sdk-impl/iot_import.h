@@ -28,20 +28,13 @@ extern "C" {
 #include <stdarg.h>
 #include <inttypes.h>
 
+#include "iot_export.h"
 #include "imports/iot_import_config.h"
+#include "imports/iot_import_product.h"
 
 /** @defgroup group_platform platform
  *  @{
  */
-
-#define _IN_                /* indicate that this is an input parameter */
-#define _OU_                /* indicate that this is an output parameter */
-#define IOT_TRUE    (1)     /* indicate boolean value true */
-#define IOT_FALSE   (0)     /* indicate boolean value false */
-
-#define PID_STRLEN_MAX           (64)
-#define MID_STRLEN_MAX           (64)
-#define IOTX_URI_MAX_LEN         (135)  /* IoTx CoAP/HTTP uri & MQTT topic maximal length */
 
 #ifdef SIM7000C_DAM
 #include "qapi_ali_iot.h"
