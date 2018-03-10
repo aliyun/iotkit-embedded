@@ -15,6 +15,7 @@ RESET_ENV_VARS := \
     LDFLAGS \
 
 help:
+	@echo -e "\033[1;37m[$(RULE_DIR)/docs]\e[0m"
 	@echo ""
 	@cat $(RULE_DIR)/docs/Help.md
 	@echo ""
@@ -40,7 +41,8 @@ unzip: config $(STAMP_BLD_VAR)
 	@echo ""
 	@for i in $(ALL_SUB_DIRS); do \
 	    $(MAKE) --no-print-directory pre-build target-$${i} ; \
-	    echo ". $${i}"; \
+	    echo -ne "\r. $${i}"; \
+	    echo -e "                                          "; \
 	done
 	@echo ""
 

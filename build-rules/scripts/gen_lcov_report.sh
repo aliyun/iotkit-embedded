@@ -1,6 +1,12 @@
 #! /bin/bash
 set -e
+
 if [ $# != 1 ]; then exit 1; fi
+if [ "$(uname)" = "Darwin" ]; then
+    SED=gsed
+else
+    SED=sed
+fi
 
 LCOV_DIR=$1
 SRC_NAME_LENGTH=28
@@ -14,21 +20,21 @@ echo ""
 #
 #      sdk-example / example.c               : [100.00%]  (7/7)            [100.00%]  (1/1)
 #
-[ "$(uname)" != "Darwin" ] && echo -ne "\e[1;36m"
+echo -ne "\033[1;36m"
 printf "%${DIR_NAME_LENGTH}s   %-${SRC_NAME_LENGTH}s: %-24s %-20s\n\n" \
     "Directory" \
     "Source File" \
     "Line Coverage" \
     "Function Coverage"
-[ "$(uname)" != "Darwin" ] && echo -ne "\e[0m"
+echo -ne "\033[0m"
 
 REPORT_LIST=$(find ${LCOV_DIR} -mindepth 2 -name "index.html")
 for R in ${REPORT_LIST}; do
     SOURCE_LIST=$(grep "coverFile" ${R} | awk -F '<' '{ print $3 }' | cut -d'>' -f2)
     for S in ${SOURCE_LIST}; do
-        STATS=$(grep -A 7 "${S}</a>" ${R} | sed -n '6p;8p'|grep -o [0-9]*)
-        DIR_NAME=$(expr substr $(dirname ${R}|xargs basename) 1 15)
-        SRC_NAME=$(expr substr ${S} 1 $(( SRC_NAME_LENGTH -1 )))
+        STATS=$(grep -A 7 "${S}</a>" ${R} | ${SED} -n '6p;8p'|grep -o -E '[0-9]+')
+        DIR_NAME=$(echo "$(dirname ${R}|xargs basename)" | cut -c1-15)
+        SRC_NAME=$(echo "${S}" | cut -c"1-$(( SRC_NAME_LENGTH -1 ))")
         COVER_LINE=$(echo ${STATS}|cut -d' ' -f1)
         TOTAL_LINE=$(echo ${STATS}|cut -d' ' -f2)
         COVER_FUNC=$(echo ${STATS}|cut -d' ' -f3)

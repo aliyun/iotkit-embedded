@@ -11,12 +11,12 @@ define Info_CompLib
 ( \
 	EXIST_OBJS="$$(ls $(2) 2>/dev/null)"; \
 \
-    if [ "$(uname)" != "Darwin" ]; then echo -ne "\e[1;32m"; fi; \
+    echo -ne "\033[1;32m"; \
     printf "\r%-32s%s\n" "[AR] lib$(1).a" "<=      "; \
     for i in $${EXIST_OBJS}; do \
         printf "%-32s%s\n" "" "   $${i}"|$(SED) 's:$(LIBOBJ_TMPDIR)/::g'; \
     done; \
-    if [ "$(uname)" != "Darwin" ]; then echo -ne "\e[0m"; fi; \
+    echo -ne "\033[0m"; \
 )
 endef
 else
@@ -33,12 +33,12 @@ define Info_CompLib
 ( \
 	EXIST_OBJS="$$(ls $(2) 2>/dev/null)"; \
 \
-    if [ "$$(uname)" != "Darwin" ]; then echo -ne "\e[1;35m"; fi; \
+    echo -ne "\033[1;35m"; \
     printf "\r%-32s%s\n" "[AR] lib$(1).a" "<=      "; \
     for i in $${EXIST_OBJS}; do \
         printf "%-32s%s\n" "" "   $${i}"|$(SED) 's:$(LIBOBJ_TMPDIR)/::g'; \
     done; \
-    if [ "$$(uname)" != "Darwin" ]; then echo -ne "\e[0m"; fi; \
+    echo -ne "\033[0m"; \
 )
 endef
 endif # dynamic

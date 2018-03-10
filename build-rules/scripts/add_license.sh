@@ -28,7 +28,7 @@ while (( i >= 0 )); do
     if [ "$j" = "" ]; then
         sed -i "1i\ *" $1
     else
-        if [ "$(echo $j|awk '{ print NF }')" = "1" ] && [ "$(expr substr $j 1 7)" = "http://" ]; then
+        if [ "$(echo $j|awk '{ print NF }')" = "1" ] && [ "$(echo $j | cut -c1-7)" = "http://" ]; then
             sed -i "1i\ *    $j" $1
         else
             sed -i "1i\ * $j" $1

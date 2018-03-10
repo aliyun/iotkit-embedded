@@ -32,22 +32,20 @@ define Brief_Log
 ( \
 	if [ "$1" = "CC" ]; then \
 	    if echo "$@"|grep -q "\.so$$"; then \
-	        COLOR_MARK="\e[1;32m"; \
+	        COLOR_MARK="\033[1;32m"; \
 	    elif echo "$@"|grep -q "\.ko$$"; then \
-	        COLOR_MARK="\e[1;35m"; \
+	        COLOR_MARK="\033[1;35m"; \
 	    else \
-	        COLOR_MARK="\e[1;36m"; \
+	        COLOR_MARK="\033[1;36m"; \
 	    fi \
 	elif [ "$1" = "AR" ]; then \
-	    COLOR_MARK="\e[1;33m"; \
+	    COLOR_MARK="\033[1;33m"; \
 	elif [ "$1" = "LD" ]; then \
-	    COLOR_MARK="\e[1;31m"; \
+	    COLOR_MARK="\033[1;31m"; \
 	elif [ "$1" = "ST" ]; then \
-	    COLOR_MARK="\e[0;33m"; \
+	    COLOR_MARK="\033[0;33m"; \
 	fi; \
-	if [ "$$(uname)" != "Darwin" ]; then \
-        echo -ne "$${COLOR_MARK}"; \
-    fi; \
+    echo -ne "$${COLOR_MARK}"; \
 	if [ "$2" = "" ]; then \
 	    FIRST_DEP="$(firstword $(filter-out FORCE,$?))"; \
 	    SPACE_BAR="                                   "; \
@@ -63,7 +61,7 @@ define Brief_Log
 	        printf "%-32s%s\n" "" "   $$(basename $${i})"; \
 	    fi \
 	done; \
-	if [ "$$(uname)" != "Darwin" ]; then echo -ne "\e[0m"; fi; \
+	echo -ne "\033[0m"; \
 )
 endef
 

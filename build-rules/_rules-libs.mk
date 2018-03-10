@@ -23,10 +23,7 @@ $(LIBA_TARGET) :: $(LIB_OBJS)
 	$(Q)rm -f $@
 ifdef CONFIG_LIBOBJ_STRIP
 	@$(call Brief_Log,"ST")
-	$(TOP_Q) \
-	if [ "$$(uname)" != "Darwin" ]; then \
-	    $(STRIP) --strip-debug $(LIB_OBJS); \
-	fi
+	$(TOP_Q)$(STRIP) $(STRIP_DBGOPT) $(LIB_OBJS)
 endif
 	$(TOP_Q) \
 	if [ "$$(echo "$(LIB_OBJS)"|awk '{ print NF }')" != "0" ]; then \

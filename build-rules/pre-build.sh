@@ -184,11 +184,9 @@ fi
 mkdir -p ${BLD_DIR}
 
 MSG=$(printf "%-28s%s" "${MODULE}" "[..]")
-if [ "$(uname)" != "Darwin" ]; then
-    echo -ne "\r                                                    "
-    echo -ne "\e[0;37;0;44m""\r[..] o ${MSG}""\e[0;m"
-    Trace ""
-fi
+echo -ne "\r                                                    "
+echo -ne "\033[0;37;0;44m""\r[..] o ${MSG}""\033[0;m"
+Trace ""
 
 if [ "$#" = "1" ]; then
     Update_Sources

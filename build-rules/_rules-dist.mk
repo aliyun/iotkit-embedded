@@ -25,11 +25,11 @@ endif
 
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/bin/)" != "" ]; then \
-	    $(STRIP) $(FINAL_DIR)/bin/* || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
+	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
 	fi
 	$(TOP_Q) \
-	if [ "$$(uname)" != "Darwin" ]; then \
-	    $(STRIP) --strip-debug $(FINAL_DIR)/lib/* || (echo "$(STRIP) $(FINAL_DIR)/lib/* failed!" && exit 1); \
+	if [ "$$(ls $(FINAL_DIR)/lib/*.so 2>/dev/null)" != "" ]; then \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" && exit 1); \
 	fi
 
 	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))

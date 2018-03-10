@@ -5,8 +5,10 @@ TOP_DIR         ?= $(CURDIR)
 
 ifeq (Darwin,$(strip $(shell uname)))
 SED             := gsed
+STRIP_DBGOPT    :=
 else
 SED             := sed
+STRIP_DBGOPT    := --strip-debug
 endif
 
 # Settings of input directory and file
