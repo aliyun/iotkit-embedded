@@ -189,29 +189,6 @@ char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
     return cid_str;
 }
 
-int HAL_SetProductKey(_IN_ char* product_key)
-{
-    return 0;
-}
-
-
-int HAL_SetDeviceName(_IN_ char* device_name)
-{
-    return 0;
-}
-
-
-int HAL_SetDeviceSecret(_IN_ char* device_secret)
-{
-    return 0;
-}
-
-
-int HAL_SetProductSecret(_IN_ char* product_secret)
-{
-    return 0;
-}
-
 
 int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_LEN])
 {
