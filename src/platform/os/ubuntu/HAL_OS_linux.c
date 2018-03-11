@@ -160,7 +160,7 @@ void HAL_Printf(_IN_ const char *fmt, ...)
     fflush(stdout);
 }
 
-int HAL_GetPartnerID(char pid_str[PID_STRLEN_MAX])
+int HAL_GetPartnerID(char* pid_str)
 {
     memset(pid_str, 0x0, PID_STRLEN_MAX);
 #ifdef __DEMO__
@@ -169,7 +169,7 @@ int HAL_GetPartnerID(char pid_str[PID_STRLEN_MAX])
     return strlen(pid_str);
 }
 
-int HAL_GetModuleID(char mid_str[MID_STRLEN_MAX])
+int HAL_GetModuleID(char* mid_str)
 {
     memset(mid_str, 0x0, MID_STRLEN_MAX);
 #ifdef __DEMO__
@@ -179,7 +179,7 @@ int HAL_GetModuleID(char mid_str[MID_STRLEN_MAX])
 }
 
 
-char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
+char *HAL_GetChipID(_OU_ char* cid_str)
 {
     memset(cid_str, 0x0, HAL_CID_LEN);
 #ifdef __DEMO__
@@ -190,7 +190,7 @@ char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
 }
 
 
-int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_LEN])
+int HAL_GetDeviceID(_OU_ char* device_id)
 {
     memset(device_id, 0x0, DEVICE_ID_LEN);
 #ifdef __DEMO__
@@ -249,7 +249,7 @@ int HAL_SetProductSecret(_IN_ char* product_secret)
     return len;
 }
 
-int HAL_GetProductKey(_OU_ char product_key[PRODUCT_KEY_LEN])
+int HAL_GetProductKey(_OU_ char* product_key)
 {
     int len = strlen(_product_key);
     memset(product_key, 0x0, PRODUCT_KEY_LEN);
@@ -261,7 +261,7 @@ int HAL_GetProductKey(_OU_ char product_key[PRODUCT_KEY_LEN])
     return len;
 }
 
-int HAL_GetProductSecret(_OU_ char product_secret[PRODUCT_SECRET_LEN])
+int HAL_GetProductSecret(_OU_ char* product_secret)
 {
     int len = strlen(_product_secret);
     memset(product_secret, 0x0, PRODUCT_SECRET_LEN);
@@ -273,7 +273,7 @@ int HAL_GetProductSecret(_OU_ char product_secret[PRODUCT_SECRET_LEN])
     return len;
 }
 
-int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_LEN])
+int HAL_GetDeviceName(_OU_ char* device_name)
 {
     int len = strlen(_device_name);
     memset(device_name, 0x0, DEVICE_NAME_LEN);
@@ -285,9 +285,9 @@ int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_LEN])
     return strlen(device_name);
 }
 
-int HAL_GetDeviceSecret(_OU_ char device_secret[DEVICE_SECRET_LEN])
+int HAL_GetDeviceSecret(_OU_ char* device_secret)
 {
-    int len = strlen(device_secret);
+    int len = strlen(_device_secret);
     memset(device_secret, 0x0, DEVICE_SECRET_LEN);
 
 #ifdef __DEMO__
@@ -298,7 +298,7 @@ int HAL_GetDeviceSecret(_OU_ char device_secret[DEVICE_SECRET_LEN])
 }
 
 
-int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
+int HAL_GetFirmwareVesion(_OU_ char* version)
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__

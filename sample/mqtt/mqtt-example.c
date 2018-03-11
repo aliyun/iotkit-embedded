@@ -43,10 +43,9 @@
     #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #endif
 
-char _product_key[PRODUCT_KEY_LEN + 1];
-char _product_secret[PRODUCT_SECRET_LEN + 1];
-char _device_name[DEVICE_NAME_LEN + 1];
-char _device_secret[DEVICE_SECRET_LEN + 1];
+char __product_key[PRODUCT_KEY_LEN + 1];
+char __device_name[DEVICE_NAME_LEN + 1];
+char __device_secret[DEVICE_SECRET_LEN + 1];
 
 /* These are pre-defined topics */
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
@@ -177,13 +176,12 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    HAL_GetProductKey(_product_key);
-    HAL_GetDeviceName(_device_name);
-    HAL_GetDeviceSecret(_device_secret);
+    HAL_GetProductKey(__product_key);
+    HAL_GetDeviceName(__device_name);
+    HAL_GetDeviceSecret(__device_secret);
 
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
-//    if (0 != IOT_SetupConnInfo(_product_key, _device_name, _device_secret, (void **)&pconn_info)) {
+    if (0 != IOT_SetupConnInfo(__product_key, __device_name, __device_secret, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
         rc = -1;
         goto do_exit;
