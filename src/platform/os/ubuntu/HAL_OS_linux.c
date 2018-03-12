@@ -96,7 +96,7 @@ void HAL_Free(_IN_ void *ptr)
 uint64_t HAL_UptimeMs(void)
 {
     struct timeval tv = { 0 };
-    uint32_t time_ms;
+    uint64_t time_ms;
 
     gettimeofday(&tv, NULL);
 
@@ -111,7 +111,7 @@ uint64_t HAL_UptimeMs(void)
     struct timespec     ts;
 
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    time_ms = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000 / 1000);
+    time_ms = ((uint64_t)ts.tv_sec * (uint64_t)1000) + (ts.tv_nsec / 1000 / 1000);
 
     return time_ms;
 }
