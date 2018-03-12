@@ -136,10 +136,12 @@ int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
     }
 
     memset(p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
-    strncpy(p_devinfo->device_id,    IOTX_DEVICE_ID,   IOTX_DEVICE_ID_LEN);
-    strncpy(p_devinfo->product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
-    strncpy(p_devinfo->device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
-    strncpy(p_devinfo->device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
+    /**< get device info*/
+    HAL_GetProductKey(p_devinfo->product_key);
+    HAL_GetDeviceSecret(p_devinfo->device_secret);
+    HAL_GetDeviceName(p_devinfo->device_name);
+    HAL_GetDeviceID(p_devinfo->device_id);
+    /**< end*/
 
     return IOTX_SUCCESS;
 }
@@ -156,10 +158,15 @@ int main(int argc, char **argv)
     IOT_OpenLog("coap-ota");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
+    /**< set device info */
+    HAL_SetProductKey(IOTX_PRODUCT_KEY);
+    HAL_SetDeviceName(IOTX_DEVICE_NAME);
+    HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
+    /**< end */
     iotx_set_devinfo(&deviceinfo);
 
     memset(&config, 0x00, sizeof(iotx_coap_config_t));
-    config.p_devinfo = &deviceinfo;
+    config.p_devinfo = (iotx_deviceinfo_t *)&deviceinfo;
     config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
     h_coap = IOT_CoAP_Init(&config);
     if (NULL == h_coap) {

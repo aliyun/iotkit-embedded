@@ -99,10 +99,12 @@ int cmp_client()
     param.device_secret = LITE_malloc(CMP_DEVICE_SECRET_LEN);
     param.device_id = LITE_malloc(CMP_DEVICE_ID_LEN);
 
-    strncpy(param.product_key, IOTX_PRODUCT_KEY, strlen(IOTX_PRODUCT_KEY));
-    strncpy(param.device_name, IOTX_DEVICE_NAME, strlen(IOTX_DEVICE_NAME));
-    strncpy(param.device_secret, IOTX_DEVICE_SECRET, strlen(IOTX_DEVICE_SECRET));
-    strncpy(param.device_id, IOTX_DEVICE_ID, strlen(IOTX_DEVICE_ID));
+    /**< get device info*/
+    HAL_GetProductKey(param.product_key);
+    HAL_GetDeviceName(param.device_name);
+    HAL_GetDeviceSecret(param.device_secret);
+    HAL_GetDeviceID(param.device_id);
+    /**< end*/
 
     param.domain_type = IOTX_CMP_CLOUD_DOMAIN_SH;
 
@@ -317,7 +319,11 @@ int main(int argc, char **argv)
 {
     IOT_OpenLog("cmp\n");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-
+    /**< set device info*/
+    HAL_SetProductKey(IOTX_PRODUCT_KEY);
+    HAL_SetDeviceName(IOTX_DEVICE_NAME);
+    HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
+    /**< end*/
     EXAMPLE_TRACE("start!\n");
     
     cmp_client();

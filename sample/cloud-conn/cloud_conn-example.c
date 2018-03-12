@@ -56,13 +56,13 @@ static int _iotx_set_devinfo(iotx_device_info_t *p_devinfo)
     }
 
     memset(p_devinfo, 0x00, sizeof(iotx_device_info_t));
-    strncpy(p_devinfo->device_id,    IOTX_DEVICE_ID,   IOTX_DEVICE_ID_LEN);
+    HAL_GetDeviceID(p_devinfo->device_id);
     EXAMPLE_TRACE("device_id %s",p_devinfo->device_id);
-    strncpy(p_devinfo->product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
+    HAL_GetProductKey(p_devinfo->product_key);
     EXAMPLE_TRACE("product_key %s",p_devinfo->product_key);
-    strncpy(p_devinfo->device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
+    HAL_GetDeviceSecret(p_devinfo->device_secret);
     EXAMPLE_TRACE("device_secret %s",p_devinfo->device_secret);
-    strncpy(p_devinfo->device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
+    HAL_GetDeviceName(p_devinfo->device_name);
     EXAMPLE_TRACE("device_name %s",p_devinfo->device_name);
     return IOTX_SUCCESS;
 }
@@ -117,7 +117,7 @@ int http_client(void)
     iotx_cloud_connection_msg_t msg = {0};
     char msg_pub[128];  
     
-    param.device_info = HAL_Malloc(sizeof(iotx_deviceinfo_t));
+    param.device_info = HAL_Malloc(sizeof(iotx_device_info_t));
     if (NULL == param.device_info) {
         EXAMPLE_TRACE("memory error!");         
         return FAIL_RETURN;
@@ -176,7 +176,7 @@ int coap_client(void)
     iotx_cloud_connection_msg_t msg = {0};
     char msg_pub[128];  
     
-    param.device_info = HAL_Malloc(sizeof(iotx_deviceinfo_t));
+    param.device_info = HAL_Malloc(sizeof(iotx_device_info_t));
     if (NULL == param.device_info) {
         EXAMPLE_TRACE("memory error!");         
         return FAIL_RETURN;
@@ -247,7 +247,7 @@ int mqtt_client(void)
     iotx_cloud_connection_msg_t msg = {0};
     char msg_pub[128];    
     
-    param.device_info = HAL_Malloc(sizeof(iotx_deviceinfo_t));
+    param.device_info = HAL_Malloc(sizeof(iotx_device_info_t));
     if (NULL == param.device_info) {
         EXAMPLE_TRACE("memory error!");         
         return FAIL_RETURN;
@@ -361,7 +361,11 @@ int main(int argc, char **argv)
 {
     IOT_OpenLog("cloud-conn");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-
+    /**< set device info*/
+    HAL_SetProductKey(IOTX_PRODUCT_KEY);
+    HAL_SetDeviceName(IOTX_DEVICE_NAME);
+    HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
+    /**< end*/
     EXAMPLE_TRACE("MQTT!");
     if (SUCCESS_RETURN == mqtt_client())        
         EXAMPLE_TRACE("MQTT success!");

@@ -26,6 +26,11 @@ extern void utils_hmac_md5(const char *msg, int msg_len, char *digest, const cha
 
 #define MSG_LEN_MAX                    (1024 * 4)
 
+char g_product_key[PRODUCT_KEY_LEN + 1];
+char g_product_secret[PRODUCT_SECRET_LEN + 1];
+char g_device_name[DEVICE_NAME_LEN + 1];
+char g_device_secret[DEVICE_SECRET_LEN + 1];
+
 #define TOPIC_GATEWAY_UPDATE           "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_SUBDEVICE1_UPDATE        "/"SUB_1_PRODUCT_KEY"/"SUB_1_DEVICE_NAME"/update"
 #define TOPIC_SUBDEVICE2_UPDATE        "/"SUB_2_PRODUCT_KEY"/"SUB_2_DEVICE_NAME"/updae"
@@ -214,8 +219,14 @@ int demo_gateway_function(char *msg_buf, char *msg_readbuf)
     char timestamp[20] = {0};
     char client_id[64/*32*/] = {0};
 
+    /**< get device info*/
+    HAL_GetProductKey(g_product_key);
+    HAL_GetDeviceName(g_device_name);
+    HAL_GetDeviceSecret(g_device_secret);
+    /**< end*/
+
     /* Device AUTH */
-    rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
+    rc = IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&puser_info);
     if (SUCCESS_RETURN != rc) {
         printf("rc = IOT_SetupConnInfo() = %d\n", rc);
         return rc;
@@ -551,8 +562,14 @@ int demo_only_one_device(char *msg_buf, char *msg_readbuf)
     //具体取值请根据自行创建的产品模型进行调整，可以参考运行时日志会提示dsl具体大小，取值需比dsl大小大即可
     char sub_dsltemplate_get[1024 * 4] = {0} ;
 
+    /**< get device info*/
+    HAL_GetProductKey(g_product_key);
+    HAL_GetDeviceName(g_device_name);
+    HAL_GetDeviceSecret(g_device_secret);
+    /**< end*/
+
     /* Device AUTH */
-    rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
+    rc = IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&puser_info);
     if (SUCCESS_RETURN != rc) {
         printf("rc = IOT_SetupConnInfo() = %d\n", rc);
         return rc;
@@ -727,8 +744,14 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
     
     char get_topo_reply[512] = {0};
 
+    /**< get device info*/
+    HAL_GetProductKey(g_product_key);
+    HAL_GetDeviceName(g_device_name);
+    HAL_GetDeviceSecret(g_device_secret);
+    /**< end*/
+
     /* Device AUTH */
-    rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
+    rc = IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&puser_info);
     if (SUCCESS_RETURN != rc) {
         printf("rc = IOT_SetupConnInfo() = %d\n", rc);
         return rc;
@@ -843,7 +866,7 @@ int demo_thing_function(char *msg_buf, char *msg_readbuf)
         goto exit;
     }
         
-    // 动态注册子设备请查看demo_gateway_function中的示例  
+    // 动态注册子设备请查看demo_gateway_function中的示例
     printf(" ~~~~~~~~~~~~~~~~~~ sub2 ~~~~~~~~~~~~~~~~~~~ \n");
     /* client id */
     memset(client_id, 0x0, 32);
@@ -1044,6 +1067,11 @@ int main()
     IOT_OpenLog("masterslave");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
+    /**< set device info*/
+    HAL_SetProductKey(PRODUCT_KEY);
+    HAL_SetDeviceName(DEVICE_NAME);
+    HAL_SetDeviceSecret(DEVICE_SECRET);
+    /**< end*/
     
     // 示例如何使用subdev的API直接进行开发
     //demo_gateway_function(msg_buf, msg_readbuf);

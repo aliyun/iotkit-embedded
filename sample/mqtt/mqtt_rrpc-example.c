@@ -36,6 +36,10 @@
 #define TEST_PAYLOAD          "hello world"
 #define TEST_TOPIC_PAYLOAD    "/sys/lLeATwv18gi/test1/rrpc/request/890192612580343808hello world"
 
+char g_product_key[PRODUCT_KEY_LEN + 1];
+char g_product_secret[PRODUCT_SECRET_LEN + 1];
+char g_device_name[DEVICE_NAME_LEN + 1];
+char g_device_secret[DEVICE_SECRET_LEN + 1];
 
 #define RRPC_MQTT_MSGLEN    (1024)
 #define MSG_ID_LEN_MAX      (64)
@@ -182,8 +186,14 @@ int mqtt_rrpc_client(void)
         goto do_exit;
     }
 
+    /**< get device info */
+    HAL_GetProductKey(g_product_key);
+    HAL_GetDeviceName(g_device_name);
+    HAL_GetDeviceSecret(g_device_secret);
+    /**< end*/
+
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
+    if (0 != IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&pconn_info)) {
         HAL_Printf("AUTH request failed!\n");
         rc = -1;
         goto do_exit;
@@ -289,7 +299,11 @@ int main(int argc, char *argv[])
         HAL_Printf("***********unittest end*****************\n");
         running_unittest = 1;
     }
-
+    /**< set device info*/
+    HAL_SetProductKey(PRODUCT_KEY);
+    HAL_SetDeviceName(DEVICE_NAME);
+    HAL_SetDeviceSecret(DEVICE_SECRET);
+    /**< end*/
     mqtt_rrpc_client();
 
     HAL_Printf("out of sample!\n");

@@ -80,14 +80,21 @@ int main(int argc, char **argv)
 
     IOT_OpenLog("http");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-
+    /**< set device info*/
+    HAL_SetProductKey(IOTX_PRODUCT_KEY);
+    HAL_SetDeviceName(IOTX_DEVICE_NAME);
+    HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
+    /**< end*/
     memset(&device_info, 0, sizeof(device_info));
     memset(&http_param, 0, sizeof(http_param));
 
-    strncpy(device_info.product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
-    strncpy(device_info.device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
-    strncpy(device_info.device_name,  IOTX_DEVICE_NAME, IOTX_DEVICE_NAME_LEN);
-    strncpy(device_info.device_id,  IOTX_DEVICE_ID, IOTX_DEVICE_ID_LEN);
+    /**< get device info*/
+    HAL_GetProductKey(device_info.product_key);
+    HAL_GetDeviceName(device_info.device_name);
+    HAL_GetDeviceSecret(device_info.device_secret);
+    HAL_GetDeviceID(device_info.device_id);
+    /**< end*/
+
 
     HAL_Printf("[HTTP-Client]: Enter HTTP Client\r\n");
     while ((opt = getopt(argc, argv, "lh")) != -1) {

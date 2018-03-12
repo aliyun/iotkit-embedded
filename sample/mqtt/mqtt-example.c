@@ -319,8 +319,12 @@ int mqtt_client_secure()
         goto do_exit;
     }
 
+    HAL_GetProductKey(__product_key);
+    HAL_GetDeviceName(__device_name);
+    HAL_GetDeviceSecret(__device_secret);
+
     /* Device AUTH */
-    rc = IOT_SetupConnInfoSecure(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info);
+    rc = IOT_SetupConnInfoSecure(__product_key, __device_name, __device_secret, (void **)&pconn_info);
     if (rc != 0) {
         EXAMPLE_TRACE("AUTH request failed!");
         goto do_exit;

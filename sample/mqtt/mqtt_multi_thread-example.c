@@ -41,6 +41,11 @@
 
 #define MQTT_MSGLEN             (1024)
 
+char g_product_key[PRODUCT_KEY_LEN + 1];
+char g_product_secret[PRODUCT_SECRET_LEN + 1];
+char g_device_name[DEVICE_NAME_LEN + 1];
+char g_device_secret[DEVICE_SECRET_LEN + 1];
+
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
@@ -319,8 +324,13 @@ int mqtt_client(void)
         goto do_exit;
     }
 
+    /**< get device info*/
+    HAL_GetProductKey(g_product_key);
+    HAL_GetDeviceName(g_device_name);
+    HAL_GetDeviceSecret(g_device_secret);
+    /**< end*/
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
+    if (0 != IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
         rc = -1;
         goto do_exit;
@@ -393,7 +403,11 @@ int main(int argc, char **argv)
 {
     IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-
+    /**< set device info*/
+    HAL_SetProductKey(PRODUCT_KEY);
+    HAL_SetDeviceName(DEVICE_NAME);
+    HAL_SetDeviceSecret(DEVICE_SECRET);
+    /**< end*/
     mqtt_client();
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_CloseLog();

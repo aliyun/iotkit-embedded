@@ -31,6 +31,11 @@
 
 #define SHADOW_MQTT_MSGLEN      (1024)
 
+char g_product_key[PRODUCT_KEY_LEN + 1];
+char g_product_secret[PRODUCT_SECRET_LEN + 1];
+char g_device_name[DEVICE_NAME_LEN + 1];
+char g_device_secret[DEVICE_SECRET_LEN + 1];
+
 #define SHADOW_TRACE(fmt, ...)  \
     do { \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
@@ -69,8 +74,14 @@ int demo_device_shadow(char *msg_buf, char *msg_readbuf)
     void *h_shadow;
     iotx_shadow_para_t shadow_para;
 
+    /**< get device info*/
+    HAL_GetProductKey(g_product_key);
+    HAL_GetDeviceName(g_device_name);
+    HAL_GetDeviceSecret(g_device_secret);
+    /**< end*/
     /* Device AUTH */
-    rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
+//    rc = IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&puser_info);
+    rc = IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&puser_info);
     if (SUCCESS_RETURN != rc) {
         SHADOW_TRACE("rc = IOT_SetupConnInfo() = %d", rc);
         return rc;
@@ -168,7 +179,11 @@ int main()
 {
     IOT_OpenLog("shadow");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-
+    /**< set device info*/
+    HAL_SetProductKey(PRODUCT_KEY);
+    HAL_SetDeviceName(DEVICE_NAME);
+    HAL_SetDeviceSecret(DEVICE_SECRET);
+    /**< end*/
     char *msg_buf = (char *)HAL_Malloc(SHADOW_MQTT_MSGLEN);
     char *msg_readbuf = (char *)HAL_Malloc(SHADOW_MQTT_MSGLEN);
 
