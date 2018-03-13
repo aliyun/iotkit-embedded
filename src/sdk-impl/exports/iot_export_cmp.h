@@ -146,6 +146,20 @@ typedef enum IOTX_CMP_PAYLOAD_TYPE {
 }iotx_cmp_message_types_t;
 
 
+#ifdef SERVICE_OTA_ENABLED
+/* URI type */
+typedef enum IOTX_CMP_OTA_TYPE {
+    /* FOTA */
+    IOTX_CMP_OTA_TYPE_FOTA = 1,
+
+    /* COTA */
+    IOTX_CMP_OTA_TYPE_COTA = 2,
+
+    /* Maximum */
+    IOTX_CMP_OTA_TYPE_MAX
+}iotx_cmp_ota_types_t;
+#endif /* SERVICE_OTA_ENABLED */
+
 /* The structure of event for cloud found new device */
 typedef struct {
     char                                      product_key[CMP_PRODUCT_KEY_LEN + 1];
@@ -164,12 +178,23 @@ typedef struct {
 
 
 #ifdef SERVICE_OTA_ENABLED
-/* The structure of ota result */
+/* The structure of fota result */
 typedef struct {
-    uint32_t                                  size_file;         /* size of file */
+    uint32_t                                  size_file;            /* size of file */
     char                                     *purl;                 /* point to URL */
     char                                     *version;              /* point to string */
-} iotx_cmp_ota_parameter_t, *iotx_cmp_ota_parameter_pt;
+} iotx_cmp_fota_parameter_t, *iotx_cmp_fota_parameter_pt;
+
+
+/* The structure of cota result */
+typedef struct {
+    char                                     *configId;             /* config ID */
+    uint32_t                                  configSize;           /* config size */
+    char                                     *sign;                 /* sign */
+    char                                     *signMethod;           /* sign method */
+    char                                     *url;                  /* point to URL */
+    char                                     *getType;              /* getType */
+} iotx_cmp_cota_parameter_t, *iotx_cmp_cota_parameter_pt;
 #endif /* SERVICE_OTA_ENABLED */
 
 
@@ -232,12 +257,24 @@ typedef void (*iotx_cmp_event_handle_func_fpt)(void *pcontext, iotx_cmp_event_ms
  *        This type of function will be called when a related event occur.
  *
  * @param pcontext : The program context.
- * @param ota_parameter : The ota parameter.
+ * @param ota_parameter : The fota parameter.
  * @param user_data : The user_data set by user.
  *
  * @return none
  */
-typedef void (*iotx_cmp_ota_handle_func_fpt)(void *pcontext, iotx_cmp_ota_parameter_pt ota_parameter, void *user_data);
+typedef void (*iotx_cmp_fota_handle_func_fpt)(void *pcontext, iotx_cmp_fota_parameter_pt ota_parameter, void *user_data);
+
+/**
+ * @brief It define a datatype of function pointer.
+ *        This type of function will be called when a related event occur.
+ *
+ * @param pcontext : The program context.
+ * @param ota_parameter : The cota parameter.
+ * @param user_data : The user_data set by user.
+ *
+ * @return none
+ */
+typedef void (*iotx_cmp_cota_handle_func_fpt)(void *pcontext, iotx_cmp_cota_parameter_pt ota_parameter, void *user_data);
 #endif /* SERVICE_OTA_ENABLED */
 
 
@@ -323,13 +360,51 @@ int IOT_CMP_Init(iotx_cmp_init_param_pt pparam, void* option);
  *        This function use to start OTA, set cur_version and ota_func.
  *
  * @param cur_version, current version.
- * @param ota_func, ota callback function.
- * @param user_context, ota callback user context.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CMP_OTA_Start(char* cur_version, iotx_cmp_ota_handle_func_fpt ota_func, void* user_context, void* option);
+int IOT_CMP_OTA_Start(char* cur_version, void* option);
+
+
+/**
+* @brief Set OTA callback
+*        This function use to set OTA callback.
+*
+* @param type, fota or cota.
+* @param ota_func, ota callback function.
+* @param user_context, ota callback user context.
+* @param option, reserve.
+*
+* @return success or fail.
+*/
+int IOT_CMP_OTA_Set_Callback(iotx_cmp_ota_types_t type, void* ota_func, void* user_context, void* option);
+
+
+/**
+* @brief Get Config
+*
+*
+* @param configScope, device or product.
+* @param getType, file or other type.
+* @param attributeKeys
+* @param option, reserve.
+*
+* @return success or fail.
+*/
+int IOT_CMP_OTA_Get_Config(const char* configScope, const char* getType, const char* attributeKeys, void* option);
+
+
+/**
+* @brief Get firmware image
+*
+*
+* @param version, firmware image version.
+* @param option, reserve.
+*
+* @return success or fail.
+*/
+int IOT_CMP_OTA_Request_Image(const char* version, void* option);
 #endif /* SERVICE_OTA_ENABLED */
 
 

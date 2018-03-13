@@ -12,9 +12,9 @@
 #include "lite-utils.h"
 
 
-static void service_ota_handler(void* pcontext, iotx_cmp_ota_parameter_t* ota_parameter, void* user_data)
+static void service_ota_handler(void* pcontext, iotx_cmp_fota_parameter_t* ota_parameter, void* user_data)
 {
-    iotx_cmp_ota_parameter_t* iotx_cmp_ota_parameter = ota_parameter;
+    iotx_cmp_fota_parameter_t* iotx_cmp_ota_parameter = ota_parameter;
     service_ota_t* service_ota = user_data;
 
     log_info("\n\n%s\n\n", iotx_cmp_ota_parameter->purl);
@@ -50,13 +50,14 @@ static void service_ota_cmp_event_handler(void* pcontext, iotx_cmp_event_msg_t* 
 
             log_info("Current firmware version: %s", service_ota->_current_verison);
 
-            ret = IOT_CMP_OTA_Start(service_ota->_current_verison, service_ota_handler, service_ota, NULL);
-
+            ret = IOT_CMP_OTA_Start(service_ota->_current_verison, NULL);
             if (ret == SUCCESS_RETURN) {
                 service_ota->_ota_inited = 1;
             }
 
-            log_debug("ret = IOT_CMP_OTA_Start() = %d\n", ret);
+            ret = IOT_CMP_OTA_Set_Callback(IOTX_CMP_OTA_TYPE_FOTA, service_ota_handler, service_ota, NULL);
+
+            log_debug("ret = IOT_CMP_OTA_Set_Callback() = %d\n", ret);
         }
 
         log_info("event %d(%s)\n###\n", msg->event_id, "cloud connected");
