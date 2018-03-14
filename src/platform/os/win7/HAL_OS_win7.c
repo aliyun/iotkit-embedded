@@ -66,16 +66,14 @@ void HAL_MutexDestroy(_IN_ void *mutex)
 
 void HAL_MutexLock(_IN_ void *mutex)
 {
-    if (WAIT_FAILED == WaitForSingleObject(mutex, INFINITE)) {
+     if (WAIT_FAILED == WaitForSingleObject(mutex, INFINITE)) {
         PLATFORM_WINOS_PERROR("lock mutex error");
     }
 }
 
 void HAL_MutexUnlock(_IN_ void *mutex)
 {
-    if (WAIT_FAILED == WaitForSingleObject(mutex, INFINITE)) {
-        PLATFORM_WINOS_PERROR("lock mutex error");
-    }
+    ReleaseMutex(mutex);
 }
 
 void *HAL_Malloc(_IN_ uint32_t size)
@@ -282,6 +280,10 @@ int HAL_GetDeviceSecret(_OU_ char* device_secret)
 int HAL_GetFirmwareVesion(_OU_ char* version)
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
+#ifdef __DEMO__
+    strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
+    version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
+#endif
 
     return strlen(version);
 }

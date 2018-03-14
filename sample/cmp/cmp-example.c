@@ -248,7 +248,7 @@ int cmp_client()
     message_info.method = LITE_malloc(strlen("thing.data") + 1);
     memset(message_info.method, 0x0, strlen("thing.data") + 1);
     strncpy(message_info.method, "thing.data", strlen("thing.data"));
-    message_info.parameter = LITE_malloc(strlen("{hello world!}"));
+    message_info.parameter = LITE_malloc(strlen("{hello world!}") + 1);
     memset(message_info.parameter, 0x0, strlen("{hello world!}") + 1);
     strncpy(message_info.parameter, "{hello world!}", strlen("{hello world!}"));
     message_info.parameter_length = strlen(message_info.parameter);   
