@@ -35,7 +35,7 @@
 #define HTTPCLIENT_RAED_HEAD_SIZE 32            /* read header */
 #define HTTPCLIENT_SEND_BUF_SIZE  1024          /* send */
 
-#define HTTPCLIENT_MAX_HOST_LEN   64
+#define HTTPCLIENT_MAX_HOST_LEN   128
 #define HTTPCLIENT_MAX_URL_LEN    1024
 
 #define HTTP_RETRIEVE_MORE_DATA   (1)            /**< More data needs to be retrieved. */

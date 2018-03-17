@@ -323,6 +323,7 @@ typedef struct {
 
 #ifdef SERVICE_OTA_ENABLED
 typedef struct {
+    iotx_cmp_ota_types_t                      ota_type;
     /* if there is more data to download, is_more is 1, else is_more is 0 */
     uint8_t                                   is_more;       /* [out] */
     /* is_more is 0, result: */

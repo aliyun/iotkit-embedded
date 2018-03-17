@@ -179,6 +179,7 @@ static int service_ota_perform_ota_service(void* _self, void* _data_buf, int _da
 
     iotx_cmp_ota->buffer = self->_data_buf;
     iotx_cmp_ota->buffer_length = self->_data_buf_length;
+    iotx_cmp_ota->ota_type = IOTX_CMP_OTA_TYPE_FOTA;
 
     self->_total_len = 0;
 
