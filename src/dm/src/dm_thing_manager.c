@@ -17,9 +17,7 @@
 #include "cmp_abstract_impl.h"
 
 #include "iot_import.h"
-#include "iot_export_cmp.h"
-#include "iot_export_dm.h"
-#include "iot_export_errno.h"
+#include "iot_export.h"
 #include "class_interface.h"
 
 #include "cJSON.h"
@@ -41,7 +39,16 @@ static const char string_method_name_up_raw[] __DM_READ_ONLY__ = METHOD_NAME_UP_
 static const char string_method_name_up_raw_reply[] __DM_READ_ONLY__ = METHOD_NAME_UP_RAW_REPLY;
 static const char string_method_name_property_set[] __DM_READ_ONLY__ = METHOD_NAME_PROPERTY_SET;
 static const char string_method_name_property_get[] __DM_READ_ONLY__ = METHOD_NAME_PROPERTY_GET;
-
+#ifdef DEVICEINFO_ENABLED
+static const char string_method_name_deviceinfo_update[] __DM_READ_ONLY__ = METHOD_NAME_DEVICEINFO_UPDATE;
+static const char string_method_name_deviceinfo_update_reply[] __DM_READ_ONLY__ = METHOD_NAME_DEVICEINFO_UPDATE_REPLY;
+static const char string_method_name_deviceinfo_delete[] __DM_READ_ONLY__ = METHOD_NAME_DEVICEINFO_DELETE;
+static const char string_method_name_deviceinfo_delete_reply[] __DM_READ_ONLY__ = METHOD_NAME_DEVICEINFO_DELETE_REPLY;
+#endif /* DEVICEINFO_ENABLED */
+#ifdef RRPC_ENABLED
+static const char string_method_name_rrpc_request_plus[] __DM_READ_ONLY__ = METHOD_NAME_RRPC_REQUEST_PLUS;
+static const char string_method_name_rrpc_request[] __DM_READ_ONLY__ = METHOD_NAME_RRPC_REQUEST;
+#endif /* RRPC_ENABLED */
 static const char string_cmp_event_handler_prompt_start[] __DM_READ_ONLY__ = "\ncmp_event_handler:\n###\n";
 static const char string_cmp_event_handler_prompt_end[] __DM_READ_ONLY__ = "\n###\n";
 static const char string_cmp_event_type_cloud_connected[] __DM_READ_ONLY__ = "cloud connected";
@@ -81,7 +88,15 @@ static void clear_and_set_message_info(message_info_t** _message_info, dm_thing_
 static void get_product_key_device_name(char* _product_key, char* _device_name, void* _thing, void* _dm_thing_manager);
 static void* dm_thing_manager_generate_new_local_thing(void* _self, const char* tsl, int tsl_len);
 static int dm_thing_manager_set_thing_property_value(void* _self, const void* thing_id, const void* identifier, const void* value, const char* value_str);
+
+static int dm_thing_manager_install_product_key_device_name(void *_self, const void* thing_id, char *product_key, char *device_name);
+
+#ifdef RRPC_ENABLED
+static int dm_thing_manager_answer_service(void* _self, const void* thing_id, const void* identifier, int response_id, int code, int rrpc);
+#else
 static int dm_thing_manager_answer_service(void* _self, const void* thing_id, const void* identifier, int response_id, int code);
+#endif /* RRPC_ENABLED */
+
 static void cmp_register_handler(iotx_cmp_send_peer_t* _source, iotx_cmp_message_info_t* _msg, void* user_data);
 
 static void list_insert(void* _list, void* _data)
@@ -303,7 +318,11 @@ static void find_and_set_lite_property_for_service_property_set(void* _item, int
             double_val = temp_cjson_obj->valuedouble;
             dm_snprintf(temp_buf, sizeof(temp_buf), "%.16lf", double_val);
         } else if (lite_property->data_type.type == data_type_type_date) {
-            dm_snprintf(temp_buf, sizeof(temp_buf), "%s", temp_cjson_obj->valuestring);
+            if(temp_cjson_obj->type == cJSON_String) {
+                dm_snprintf(temp_buf, sizeof(temp_buf), "%s", temp_cjson_obj->valuestring);
+            }else if(temp_cjson_obj->type == cJSON_Number) {
+                dm_snprintf(temp_buf, sizeof(temp_buf), "%lf", temp_cjson_obj->valuedouble);
+            }
         } else if (lite_property->data_type.type == data_type_type_enum ||
                    lite_property->data_type.type == data_type_type_bool ||
                    lite_property->data_type.type == data_type_type_int) {
@@ -361,16 +380,16 @@ static void find_thing_via_product_key_and_device_name(void* _thing, va_list* pa
     thing_t** thing = _thing;
     dm_thing_manager_t* dm_thing_manager;
     iotx_cmp_send_peer_t* iotx_cmp_send_peer;
-    char* product_key;
-    char* device_name;
+
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
 
     dm_thing_manager = va_arg(*params, void*);
     iotx_cmp_send_peer = va_arg(*params, iotx_cmp_send_peer_t*);
 
     assert(dm_thing_manager && thing && *thing);
 
-    product_key = (*thing)->return_product_key(thing);
-    device_name = (*thing)->return_device_name(thing);
+    dm_thing_manager_install_product_key_device_name(dm_thing_manager,thing,product_key,device_name);
 
     if (strcmp(product_key, iotx_cmp_send_peer->product_key) == 0 && strcmp(device_name, iotx_cmp_send_peer->device_name) == 0) {
         dm_thing_manager->_thing_id = thing;
@@ -379,32 +398,35 @@ static void find_thing_via_product_key_and_device_name(void* _thing, va_list* pa
 
 static int parse_and_set_service_input(thing_t **thing, service_t *service, char *parameter)
 {
-    cJSON *obj = cJSON_Parse(parameter);
+    cJSON* obj = NULL;
+    cJSON* item;
     int i;
     char identifier[128] = {0};
-    char *string_val;
+    char* string_val;
+    input_data_t* service_input_data;
+    lite_property_t* property;
 
+    obj = cJSON_Parse(parameter);
     if (!obj) return - 1;
 
     for (i = 0; i < service->service_input_data_num; i++) {
-        input_data_t* service_input_data = &service->service_input_data[i]; /* inputData */
+        service_input_data = &service->service_input_data[i]; /* inputData */
 
-        lite_property_t* prop = &service_input_data->lite_property;
+        property = &service_input_data->lite_property;
 
-        cJSON* item = cJSON_GetObjectItem(obj, prop->identifier);
+        item = cJSON_GetObjectItem(obj, property->identifier);
         if (!item) continue;
 
-        snprintf(identifier, sizeof(identifier), "%s.%s", service->identifier, prop->identifier);
+        snprintf(identifier, sizeof(identifier), "%s.%s", service->identifier, property->identifier);
 
-        switch (prop->data_type.type) {
+        switch (property->data_type.type) {
         case data_type_type_text:
         {
 #ifndef CJSON_STRING_ZEROCOPY
             string_val = dm_lite_calloc(1, strlen(item->valuestring) + 1);
 
             if (string_val == NULL) {
-                cJSON_Delete(obj);
-                dm_printf("NO memory...");
+                if (obj) cJSON_Delete(obj);
                 return -1;
             }
             strcpy(string_val, item->valuestring);
@@ -413,12 +435,10 @@ static int parse_and_set_service_input(thing_t **thing, service_t *service, char
 
             if (string_val == NULL) {
                 cJSON_Delete(obj);
-                dm_printf("NO memory...");
                 return -1;
             }
             strncpy(string_val, item->valuestring, item->valuestring_length);
-#endif
-
+#endif /* CJSON_STRING_ZEROCOPY */
             (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, NULL, string_val);
 
             dm_lite_free(string_val);
@@ -430,6 +450,7 @@ static int parse_and_set_service_input(thing_t **thing, service_t *service, char
             (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, &item->valueint, NULL);
             break;
         case data_type_type_float:
+        case data_type_type_double:
         case data_type_type_date:
             (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, &item->valuedouble, NULL);
             break;
@@ -438,7 +459,7 @@ static int parse_and_set_service_input(thing_t **thing, service_t *service, char
         }
     }
 
-    cJSON_Delete(obj);
+    if (obj) cJSON_Delete(obj);
 
     return 0;
 }
@@ -449,8 +470,8 @@ static void find_and_set_service_input(void* _item, int index, va_list* params)
     thing_t **thing;
     dm_thing_manager_t* dm_thing_manager;
     iotx_cmp_message_info_t* iotx_cmp_message_info;
+    char* parameter = NULL;
 
-    (void)index;
     dm_thing_manager = va_arg(*params, void*);
     iotx_cmp_message_info = va_arg(*params, iotx_cmp_message_info_t*);
     thing = va_arg(*params, thing_t**);
@@ -464,7 +485,7 @@ static void find_and_set_service_input(void* _item, int index, va_list* params)
 
         if (strstr(iotx_cmp_message_info->URI, string_method_name_property_set) != NULL || strstr(iotx_cmp_message_info->URI, string_method_name_property_get) != NULL) return;
 
-        char *parameter = iotx_cmp_message_info->parameter;
+        parameter = iotx_cmp_message_info->parameter;
         if (parameter) parse_and_set_service_input(thing, service, parameter);
     }
 }
@@ -492,7 +513,6 @@ static void cmp_register_handler(iotx_cmp_send_peer_t* _source, iotx_cmp_message
     dm_thing_manager->_thing_id = NULL;
     list_iterator(list, find_thing_via_product_key_and_device_name, dm_thing_manager, iotx_cmp_send_peer);
 
-    assert(dm_thing_manager->_thing_id || strstr(iotx_cmp_message_info->URI, string_method_name_thing_dsl_get_reply));
     if (dm_thing_manager->_thing_id == NULL && strstr(iotx_cmp_message_info->URI, string_method_name_thing_dsl_get_reply) == NULL) {
         dm_log_err("thing id NOT match");
 
@@ -530,7 +550,10 @@ static void cmp_register_handler(iotx_cmp_send_peer_t* _source, iotx_cmp_message
         if (strstr(iotx_cmp_message_info->URI, string_method_name_thing_dsl_get_reply)) { /* thing/dsltemplate/get_reply match */
             thing = dm_thing_manager_generate_new_local_thing(dm_thing_manager, iotx_cmp_message_info->parameter,
                                                               iotx_cmp_message_info->parameter_length);
-
+            if(NULL == thing) {
+                dm_log_err("generate new thing failed");
+                return;
+            }
         } else if (strstr(iotx_cmp_message_info->URI, string_method_name_property_set)) { /* thing/service/property/set match */
             assert(thing && iotx_cmp_message_info->parameter);
             property_set_param_obj = cJSON_Parse(iotx_cmp_message_info->parameter);
@@ -540,8 +563,13 @@ static void cmp_register_handler(iotx_cmp_send_peer_t* _source, iotx_cmp_message
 
             dm_log_info("%s triggerd", string_method_name_property_set);
 
+#ifdef RRPC_ENABLED
+            dm_thing_manager_answer_service(dm_thing_manager, thing, dm_thing_manager->_service_identifier_requested,
+                                            dm_thing_manager->_request_id, dm_thing_manager->_ret == 0 ? 200 : 400, 0);
+#else
             dm_thing_manager_answer_service(dm_thing_manager, thing, dm_thing_manager->_service_identifier_requested,
                                             dm_thing_manager->_request_id, dm_thing_manager->_ret == 0 ? 200 : 400);
+#endif /* RRPC_ENABLED */
 
             cJSON_Delete(property_set_param_obj);
 
@@ -572,9 +600,13 @@ static void cmp_register_handler(iotx_cmp_send_peer_t* _source, iotx_cmp_message
                 list_insert(list, property_get_param_identifier);
             }
             cJSON_Delete(property_get_param_obj);
-
+#ifdef RRPC_ENABLED
+            dm_thing_manager_answer_service(dm_thing_manager, thing, dm_thing_manager->_service_identifier_requested,
+                                            dm_thing_manager->_request_id, 200, 0);
+#else
             dm_thing_manager_answer_service(dm_thing_manager, thing, dm_thing_manager->_service_identifier_requested,
                                             dm_thing_manager->_request_id, 200);
+#endif /* RRPC_ENABLED */
 
         } else if (strstr(iotx_cmp_message_info->URI, string_method_name_thing_enable)) { /* thing/enable match */
             /* invoke callback funtions. */
@@ -582,6 +614,24 @@ static void cmp_register_handler(iotx_cmp_send_peer_t* _source, iotx_cmp_message
         } else if (strstr(iotx_cmp_message_info->URI, string_method_name_thing_disable)) { /* thing/disable match */
             /* invoke callback funtions. */
             invoke_callback_list(dm_thing_manager, dm_callback_type_thing_disabled);
+#ifdef RRPC_ENABLED
+        } else if (strstr(iotx_cmp_message_info->URI, string_method_name_rrpc_request)) { /* rrpc/request match */
+            char* p;
+//            "/sys/productKey/{productKey}/productKey/{deviceName}/rrpc/request/${messageId}"
+            p = strrchr(iotx_cmp_message_info->URI, '/');
+            if (p) {
+                p++;
+                dm_thing_manager->_rrpc_message_id = atoi(p);
+            }
+            /* invoke callback funtions. */
+            dm_thing_manager->_identifier = dm_thing_manager->_service_identifier_requested;
+            invoke_callback_list(dm_thing_manager, dm_callback_type_rrpc_requested);
+#endif /* RRPC_ENABLED */
+#ifdef DEVICEINFO_ENABLED
+        } else if (strstr(iotx_cmp_message_info->URI, string_method_name_deviceinfo_update_reply)) { /* deviceinfo/update_reply. */
+
+        } else if (strstr(iotx_cmp_message_info->URI, string_method_name_deviceinfo_delete_reply)) { /* deviceinfo/delete_reply. */
+#endif /* DEVICEINFO_ENABLED*/
         } else if (iotx_cmp_message_info->message_type == IOTX_CMP_MESSAGE_REQUEST) { /* normal service. */
             /* invoke callback funtions. */
             dm_thing_manager->_identifier = dm_thing_manager->_service_identifier_requested;
@@ -618,8 +668,8 @@ static void send_request_to_uri(void* _dm_thing_manager, const char* _uri)
     thing_t** thing = dm_thing_manager->_thing_id;
     char uri_buff[URI_MAX_LENGH] = {0};
     char method_buff[METHOD_MAX_LENGH] = {0};
-    char product_key[CMP_PRODUCT_KEY_LEN] = {0};
-    char device_name[CMP_DEVICE_NAME_LEN] = {0};
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
     char* p;
 
     assert(dm_thing_manager && uri && message_info && cmp);
@@ -684,10 +734,10 @@ static void* dm_thing_manager_ctor(void* _self, va_list* params)
     if (callback_func) list_insert(list, callback_func);
 
     /* get relative information. */
-    strncpy(self->_product_key, DM_PRODUCT_KEY, strlen(DM_PRODUCT_KEY));
-    strncpy(self->_device_name, DM_DEVICE_NAME, strlen(DM_DEVICE_NAME));
-    strncpy(self->_device_secret, DM_DEVICE_SECRET, strlen(DM_DEVICE_SECRET));
-    strncpy(self->_device_id, DM_DEVICE_ID, strlen(DM_DEVICE_ID));
+    HAL_GetProductKey(self->_product_key);
+    HAL_GetDeviceName(self->_device_name);
+    HAL_GetDeviceSecret(self->_device_secret);
+    HAL_GetDeviceID(self->_device_id);
 
     assert(self->_product_key && self->_device_name && self->_device_secret && self->_device_id);
 
@@ -748,14 +798,13 @@ static void generate_thing_event_service_subscribe_uri(void* _item, int index, v
     cmp_abstract_t** cmp;
 
     char method_buff[METHOD_MAX_LENGH] = {0};
-    char product_key[CMP_PRODUCT_KEY_LEN] = {0};
-    char device_name[CMP_DEVICE_NAME_LEN] = {0};
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
     char delimeter[] = {'.', 0};
     char* uri_buff;
     char* p;
     char* type;
 
-    (void)index;
     dm_thing_manager = va_arg(*params, void*);
     thing = va_arg(*params, void*);
     uri_buff = va_arg(*params, char*);
@@ -796,7 +845,14 @@ static void generate_subscribe_uri(void* _dm_thing_manager, void* _thing)
     const char** uri;
     char uri_buff[URI_MAX_LENGH] = {0};
     const char* uri_array[] = {string_method_name_thing_enable, string_method_name_thing_delete, string_method_name_thing_disable,
-                               string_method_name_thing_dsl_get_reply, string_method_name_down_raw, string_method_name_up_raw_reply};
+                               string_method_name_thing_dsl_get_reply, string_method_name_down_raw, string_method_name_up_raw_reply,
+#ifdef DEVICEINFO_ENABLED
+                               string_method_name_deviceinfo_update_reply, string_method_name_deviceinfo_delete_reply,
+#endif /* DEVICEINFO_ENABLED*/
+#ifdef RRPC_ENABLED
+                               string_method_name_rrpc_request_plus,
+#endif /* RRPC_ENABLED */
+                              };
 
     if (dm_thing_manager->_cloud_connected == 0) {
         dm_log_err("subscribe not allowed when cloud not connected");
@@ -813,7 +869,6 @@ static void generate_subscribe_uri(void* _dm_thing_manager, void* _thing)
             strcat(uri_buff, *uri);
 
             (*cmp)->regist(cmp, uri_buff, dm_thing_manager->_cmp_register_func_fp, dm_thing_manager, NULL);
-
         }
     }
 }
@@ -836,23 +891,26 @@ static void* dm_thing_manager_generate_new_local_thing(void* _self, const char* 
 
     thing = (thing_t**)new_object(DM_THING_CLASS, thing_name);
 
-    (*thing)->set_dsl_string(thing, tsl, tsl_len);
+    if(0 == (*thing)->set_dsl_string(thing, tsl, tsl_len)) {
+        list = self->_local_thing_list;
+        list_insert(list, thing);
 
-    list = self->_local_thing_list;
-    list_insert(list, thing);
+        list = self->_local_thing_name_list;
+        list_insert(list, thing_name);
 
-    list = self->_local_thing_name_list;
-    list_insert(list, thing_name);
+        self->_thing_id = thing;
 
-    self->_thing_id = thing;
+        dm_log_debug("new thing created@%p", self->_thing_id);
 
-    dm_log_debug("new thing created@%p", self->_thing_id);
+        /* subscribe subjects. */
+        generate_subscribe_uri(self, thing);
 
-    /* subscribe subjects. */
-    generate_subscribe_uri(self, thing);
-
-    /* invoke callback funtions. */
-    invoke_callback_list(self, dm_callback_type_new_thing_created);
+        /* invoke callback funtions. */
+        invoke_callback_list(self, dm_callback_type_new_thing_created);
+    }else {
+        delete_object(thing);
+        thing = NULL;
+    }
 
     return thing;
 }
@@ -1178,19 +1236,11 @@ static void get_product_key_device_name(char* _product_key, char* _device_name, 
 {
     char* product_key = _product_key;
     char* device_name = _device_name;
-    int ret;
 
     thing_t** thing = _thing;
     dm_thing_manager_t* dm_thing_manager = _dm_thing_manager;
-
     if (thing && *thing) {
-        (*thing)->get_product_key(thing, product_key);
-        ret = (*thing)->get_device_name(thing, device_name);
-
-        /* could not get dn from thing obj, use dn from HAL. */
-        if (ret) {
-            strcpy(device_name, dm_thing_manager->_device_name);
-        }
+        dm_thing_manager_install_product_key_device_name(dm_thing_manager, thing, product_key, device_name);
     } else {
         strcpy(product_key, dm_thing_manager->_product_key);
         strcpy(device_name, dm_thing_manager->_device_name);
@@ -1203,8 +1253,8 @@ static void clear_and_set_message_info(message_info_t** _message_info, dm_thing_
     message_info_t** message_info = _message_info;
     thing_t** thing;
 
-    char product_key[CMP_PRODUCT_KEY_LEN] = {0};
-    char device_name[CMP_DEVICE_NAME_LEN] = {0};
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
 
     assert(message_info && *message_info && dm_thing_manager);
 
@@ -1290,8 +1340,9 @@ static void handle_event_key_value(void* _item, int index, va_list* params)
     thing_t** thing;
     char method_buff[METHOD_MAX_LENGH] = {0};
     char uri_buff[URI_MAX_LENGH] = {0};
-    char* product_key;
-    char* device_name;
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+
     char* p;
     int output_data_numb;
     int i;
@@ -1319,8 +1370,7 @@ static void handle_event_key_value(void* _item, int index, va_list* params)
         if (p) *p = '/';
     } while (p);
 
-    product_key = (*thing)->return_product_key(thing);
-    device_name = (*thing)->return_device_name(thing);
+    dm_thing_manager_install_product_key_device_name(dm_thing_manager,thing,product_key,device_name);
 
     dm_snprintf(uri_buff, sizeof(uri_buff), "/sys/%s/%s/%s", product_key, device_name, method_buff);
     (*message_info)->set_uri(message_info, uri_buff);
@@ -1367,8 +1417,9 @@ static void handle_service_key_value(void* _item, int index, va_list* params)
     int output_data_numb;
     char method_buff[METHOD_MAX_LENGH] = {0};
     char uri_buff[URI_MAX_LENGH] = {0};
-    char* product_key;
-    char* device_name;
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+
     char* p;
     int i;
 
@@ -1395,10 +1446,17 @@ static void handle_service_key_value(void* _item, int index, va_list* params)
         if (p) *p = '/';
     } while (p);
 
-    product_key = (*thing)->return_product_key(thing);
-    device_name = (*thing)->return_device_name(thing);
-
+    dm_thing_manager_install_product_key_device_name(dm_thing_manager,thing,product_key,device_name);
+#ifdef RRPC_ENABLED
+    if (dm_thing_manager->_rrpc) {
+        dm_snprintf(uri_buff, sizeof(uri_buff), "/sys/%s/%s/rrpc/response/%d", product_key, device_name, dm_thing_manager->_rrpc_message_id);
+    } else {
+        dm_snprintf(uri_buff, sizeof(uri_buff), "/sys/%s/%s/%s_reply", product_key, device_name, method_buff);
+    }
+#else
     dm_snprintf(uri_buff, sizeof(uri_buff), "/sys/%s/%s/%s_reply", product_key, device_name, method_buff);
+#endif /* RRPC_ENABLED */
+
     (*message_info)->set_uri(message_info, uri_buff);
 
     (*message_info)->set_message_type(message_info, CMP_MESSAGE_INFO_MESSAGE_TYPE_RESPONSE);
@@ -1483,18 +1541,157 @@ static int dm_thing_manager_trigger_event(void* _self, const void* thing_id, con
     return self->_ret;
 }
 
+#ifdef DEVICEINFO_ENABLED
+static void check_thing_id(void* _thing, va_list* params)
+{
+    thing_t** thing = _thing;
+    dm_thing_manager_t* dm_thing_manager;
+
+    dm_thing_manager = va_arg(*params, void*);
+
+    assert(dm_thing_manager && thing && *thing);
+
+    if (dm_thing_manager->_thing_id == thing) {
+        dm_thing_manager->_ret = 0;
+    }
+}
+
+static int check_deviceinfo_params(const char* params)
+{
+    cJSON* params_obj;
+    int array_size;
+
+    params_obj = cJSON_Parse(params);
+
+    if (!cJSON_IsArray(params_obj)) {
+        dm_log_err("input params format errorm, MUST be json array type");
+        return -1;
+    }
+
+    array_size = cJSON_GetArraySize(params_obj);
+
+    if (array_size <= 0) return -1;
+
+    cJSON_Delete(params_obj);
+
+    return 0;
+}
+
+static int dm_thing_manager_trigger_deviceinfo_update(void* _self, const void* thing_id, const char* params)
+{
+    dm_thing_manager_t* self = _self;
+    message_info_t** message_info = self->_message_info;
+    cmp_abstract_t** cmp = self->_cmp;
+    thing_t** thing;
+
+    char method_buff[METHOD_MAX_LENGH] = {0};
+    char uri_buff[URI_MAX_LENGH] = {0};
+
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+
+    char* p;
+
+    assert(thing_id && cmp && *cmp && message_info && *message_info);
+
+    self->_thing_id = (void*)thing_id;
+    self->_ret = -1;
+    self->_get_value_str = NULL;
+
+    check_deviceinfo_params(params);
+
+    local_thing_list_iterator(self, check_thing_id);
+
+    if (self->_ret != 0) return -1;
+
+    thing = (thing_t**)thing_id;
+
+    strcpy(method_buff, string_method_name_deviceinfo_update);
+    /* subtitute '/' by '.' */
+    do {
+        p = strchr(method_buff, '/');
+        if (p) *p = '.';
+    } while (p);
+
+    self->_method = method_buff;
+
+    clear_and_set_message_info(message_info, self);
+
+    (*message_info)->set_message_type(message_info, CMP_MESSAGE_INFO_MESSAGE_TYPE_REQUEST);
+
+    dm_thing_manager_install_product_key_device_name(self,thing,product_key,device_name);
+
+    dm_snprintf(uri_buff, sizeof(uri_buff), "/sys/%s/%s/%s", product_key, device_name, string_method_name_deviceinfo_update);
+    (*message_info)->set_uri(message_info, uri_buff);
+
+    (*message_info)->set_params_data(message_info, (char*)params);
+
+    return (*cmp)->send(cmp, message_info, NULL);
+}
+
+static int dm_thing_manager_trigger_deviceinfo_delete(void* _self, const void* thing_id, const char* params)
+{
+    dm_thing_manager_t* self = _self;
+    message_info_t** message_info = self->_message_info;
+    cmp_abstract_t** cmp = self->_cmp;
+    thing_t** thing;
+
+    char method_buff[METHOD_MAX_LENGH] = {0};
+    char uri_buff[URI_MAX_LENGH] = {0};
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char* p;
+
+    assert(thing_id && cmp && *cmp && message_info && *message_info);
+
+    self->_thing_id = (void*)thing_id;
+    self->_ret = -1;
+    self->_get_value_str = NULL;
+
+    check_deviceinfo_params(params);
+
+    local_thing_list_iterator(self, check_thing_id);
+
+    if (self->_ret != 0) return -1;
+
+    thing = (thing_t**)thing_id;
+
+    strcpy(method_buff, string_method_name_deviceinfo_delete);
+    /* subtitute '/' by '.' */
+    do {
+        p = strchr(method_buff, '/');
+        if (p) *p = '.';
+    } while (p);
+
+    self->_method = method_buff;
+
+    clear_and_set_message_info(message_info, self);
+
+    (*message_info)->set_message_type(message_info, CMP_MESSAGE_INFO_MESSAGE_TYPE_REQUEST);
+
+    dm_thing_manager_install_product_key_device_name(self,thing,product_key,device_name);
+
+    dm_snprintf(uri_buff, sizeof(uri_buff), "/sys/%s/%s/%s", product_key, device_name, string_method_name_deviceinfo_delete);
+    (*message_info)->set_uri(message_info, uri_buff);
+
+    (*message_info)->set_params_data(message_info, (char*)params);
+
+    return (*cmp)->send(cmp, message_info, NULL);
+}
+#endif /* DEVICEINFO_ENABLED*/
 static int generate_raw_message_info(void* _dm_thing_manager, void* _thing, void* _message_info, const char* raw_topic)
 {
     dm_thing_manager_t* dm_thing_manager = _dm_thing_manager;
     thing_t** thing = _thing;
     message_info_t** message_info = _message_info;
-    char* product_key;
-    char* device_name;
+
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+
     char uri_buff[URI_MAX_LENGH] = {0};
     int ret;
 
-    product_key = (*thing)->return_product_key(thing);
-    device_name = (*thing)->return_device_name(thing);
+    dm_thing_manager_install_product_key_device_name(dm_thing_manager,thing,product_key,device_name);
 
     dm_snprintf(uri_buff, sizeof(uri_buff), "/sys/%s/%s/%s", product_key, device_name, raw_topic);
 
@@ -1521,7 +1718,11 @@ static int generate_raw_down_reply_message_info(void* _dm_thing_manager, void* _
     return generate_raw_message_info(_dm_thing_manager, _thing, _message_info, string_method_name_down_raw_reply);
 }
 
+#ifdef RRPC_ENABLED
+static int dm_thing_manager_answer_service(void* _self, const void* thing_id, const void* identifier, int response_id, int code, int rrpc)
+#else
 static int dm_thing_manager_answer_service(void* _self, const void* thing_id, const void* identifier, int response_id, int code)
+#endif /* RRPC_ENABLED */
 {
     dm_thing_manager_t* self = _self;
     message_info_t** message_info = self->_message_info;
@@ -1545,7 +1746,9 @@ static int dm_thing_manager_answer_service(void* _self, const void* thing_id, co
     } else {
         dm_log_warning("response id(%d) not matche request id(%d).", self->_response_id, self->_request_id);
     }
-
+#ifdef RRPC_ENABLED
+    self->_rrpc = rrpc;
+#endif /* RRPC_ENABLED */
     local_thing_list_iterator(self, get_service_key_value);
 
     dm_log_debug("answer normal service(%s), method(%s)", self->_identifier, self->_method ? self->_method : "NULL");
@@ -1629,6 +1832,46 @@ static int dm_thing_manager_yield(void* _self, int timeout_ms)
 }
 #endif
 
+
+static int dm_thing_manager_install_product_key_device_name(void *_self, const void* thing_id, char *product_key, char *device_name)
+{
+    char *dsl_product_key;
+    char *dsl_device_name;
+    char hal_product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char hal_device_name[DEVICE_NAME_MAXLEN] = {0};
+
+    dm_thing_manager_t* self = _self;
+    const thing_t** thing = (const thing_t**)thing_id;
+
+    self->_ret = -1;
+
+    if(HAL_GetProductKey(hal_product_key) <= 0 ||
+        (HAL_GetDeviceName(hal_device_name) <= 0)) {
+        dm_log_err("get HAL DeviceInfo failed!");
+    }
+
+    dsl_product_key = (*thing)->return_product_key(thing);
+    dsl_device_name = (*thing)->return_device_name(thing);
+
+    if(dsl_product_key && (0 == strcmp(dsl_product_key, hal_product_key))) {
+        strcpy(product_key, dsl_product_key);
+    }else {
+        dm_log_err("hal pk(%s) != dsl pk(%s)", hal_product_key, dsl_product_key ? dsl_product_key : "NULL");
+        strcpy(product_key, hal_product_key);
+    }
+    if(dsl_device_name && (0 == strcmp(dsl_device_name, hal_device_name))) {
+        strcpy(device_name, dsl_device_name);
+    }else {
+        dm_log_err("hal dn(%s) != dsl dn(%s)", hal_device_name, dsl_device_name ? dsl_device_name : "NULL");
+        strcpy(device_name, hal_device_name);
+    }
+
+    self->_ret = 0;
+
+    return self->_ret;
+}
+
+
 static thing_manager_t _dm_thing_manager_class = {
     sizeof(dm_thing_manager_t),
     string_dm_thing_manager_class_name,
@@ -1644,12 +1887,18 @@ static thing_manager_t _dm_thing_manager_class = {
     dm_thing_manager_get_thing_service_output_value,
     dm_thing_manager_set_thing_service_output_value,
     dm_thing_manager_trigger_event,
+#ifdef DEVICEINFO_ENABLED
+    dm_thing_manager_trigger_deviceinfo_update,
+    dm_thing_manager_trigger_deviceinfo_delete,
+#endif /* DEVICEINFO_ENABLED*/
     dm_thing_manager_answer_service,
     dm_thing_manager_invoke_raw_service,
     dm_thing_manager_answer_raw_service,
 #ifndef CMP_SUPPORT_MULTI_THREAD
     dm_thing_manager_yield,
 #endif
+    dm_thing_manager_install_product_key_device_name,
+
 };
 
 const void* get_dm_thing_manager_class()

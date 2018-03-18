@@ -25,12 +25,21 @@ typedef struct {
     int   (*get_thing_service_output_value)(void* _self, const void* thing_id, const void* identifier, void* value, char** value_str);
     int   (*set_thing_service_output_value)(void* _self, const void* thing_id, const void* identifier, const void* value, const char* value_str);
     int   (*trigger_event)(void* _self, const void* thing_id, const void* event_identifier, const char* property_identifier);
+#ifdef DEVICEINFO_ENABLED
+    int   (*trigger_deviceinfo_update)(void* _self, const void* thing_id, const char* params);
+    int   (*trigger_deviceinfo_delete)(void* _self, const void* thing_id, const char* params);
+#endif /* DEVICEINFO_ENABLED*/
+#ifdef RRPC_ENABLED
+    int   (*answer_service)(void* _self, const void* thing_id, const void* identifier, int response_id, int code, int rrpc);
+#else
     int   (*answer_service)(void* _self, const void* thing_id, const void* identifier, int response_id, int code);
+#endif /* RRPC_ENABLED */
     int   (*invoke_raw_service)(void* _self, const void* thing_id, void* raw_data, int raw_data_length);
     int   (*answer_raw_service)(void* _self, const void* thing_id, void* raw_data, int raw_data_length);
 #ifndef CMP_SUPPORT_MULTI_THREAD
     int   (*yield)(void* _self, int timeout);
 #endif
+    int   (*install_product_key_device_name)(void *_self, const void* thing_id, char *product_key, char *device_name);
 } thing_manager_t;
 
 #ifdef __cplusplus

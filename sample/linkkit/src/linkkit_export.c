@@ -17,7 +17,7 @@ typedef struct {
     dm_callback_type_t callback_type;
 } dm_msg_t;
 
-static linkkit_ops_t* g_ops = NULL;
+static linkkit_ops_t* g_linkkit_ops = NULL;
 static lite_queue_t* g_message_queue = NULL;
 static void* user_ctx = NULL;
 static void* dm_object  = NULL;
@@ -29,15 +29,15 @@ static void dm_callback(dm_callback_type_t callback_type,
                         void* thing_id, const char* property_service_identifier,
                         int request_id, void* raw_data, int raw_data_length)
 {
-    linkkit_ops_t* ops = g_ops;
+    linkkit_ops_t* linkkit_ops = g_linkkit_ops;
     void* context = user_ctx;
     dm_msg_t* msg = NULL;
 
-    if (!ops || ! context) return;
+    if (!linkkit_ops || ! context) return;
 
     if (callback_type == dm_callback_type_raw_data_arrived) {
-        if (ops->raw_data_arrived) {
-            ops->raw_data_arrived(thing_id, raw_data, raw_data_length, context);
+        if (linkkit_ops->raw_data_arrived) {
+            linkkit_ops->raw_data_arrived(thing_id, raw_data, raw_data_length, context);
         }
         return;
     }
@@ -63,33 +63,42 @@ static void dm_callback(dm_callback_type_t callback_type,
 
 static void handle_request(dm_msg_t* msg, void* ctx)
 {
-    linkkit_ops_t* ops = g_ops;
+    linkkit_ops_t* linkkit_ops = g_linkkit_ops;
     void* context = ctx;
-
-    if (!ops || !context) return;
+#ifdef RRPC_ENABLED
+    int rrpc = 0;
+#endif /* RRPC_ENABLED */
+    if (!linkkit_ops || !context) return;
 
     switch (msg->callback_type) {
     case dm_callback_type_cloud_connected:
-        if (ops->on_connect) ops->on_connect(context);
+        if (linkkit_ops->on_connect) linkkit_ops->on_connect(context);
         break;
     case dm_callback_type_cloud_disconnected:
-        if (ops->on_disconnect) ops->on_disconnect(context);
+        if (linkkit_ops->on_disconnect) linkkit_ops->on_disconnect(context);
         break;
     case dm_callback_type_property_value_set:
-        if (ops->thing_prop_changed) {
-            ops->thing_prop_changed(msg->thing_id,
+        if (linkkit_ops->thing_prop_changed) {
+            linkkit_ops->thing_prop_changed(msg->thing_id,
                                     msg->property_service_version_identifier,
                                     context);
         }
         break;
     case dm_callback_type_new_thing_created:
-        if (ops->thing_create) ops->thing_create(msg->thing_id, context);
+        if (linkkit_ops->thing_create) linkkit_ops->thing_create(msg->thing_id, context);
         break;
+#ifdef RRPC_ENABLED
+    case dm_callback_type_rrpc_requested:
+        rrpc = 1;
+#endif /* RRPC_ENABLED */
     case dm_callback_type_service_requested:
-        if (ops->thing_call_service) {
-            ops->thing_call_service(msg->thing_id,
+        if (linkkit_ops->thing_call_service) {
+            linkkit_ops->thing_call_service(msg->thing_id,
                                     msg->property_service_version_identifier,
                                     msg->request_id,
+#ifdef RRPC_ENABLED
+                                    rrpc,
+#endif /* RRPC_ENABLED */
                                     context);
         }
         break;
@@ -97,10 +106,10 @@ static void handle_request(dm_msg_t* msg, void* ctx)
         /* will be handled in dm_callback() */
         break;
     case dm_callback_type_thing_enabled:
-        if (ops->thing_enable) ops->thing_enable(msg->thing_id, context);
+        if (linkkit_ops->thing_enable) linkkit_ops->thing_enable(msg->thing_id, context);
         break;
     case dm_callback_type_thing_disabled:
-        if (ops->thing_disable) ops->thing_disable(msg->thing_id, context);
+        if (linkkit_ops->thing_disable) linkkit_ops->thing_disable(msg->thing_id, context);
         break;
     default:
         break;
@@ -149,7 +158,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     g_message_queue = lite_queue_create(max_buffered_msg, 0);
     if (!g_message_queue) return ret;
 
-    g_ops = ops;
+    g_linkkit_ops = ops;
     user_ctx = user_context;
 
     ret = linkkit_start_routine(dm_callback, get_tsl_from_cloud, log_level, domain_type);
@@ -243,14 +252,21 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void* thing_id, con
 
     return ret;
 }
-
+#ifdef RRPC_ENABLED
+int linkkit_answer_service(const void* thing_id, const char* service_identifier, int response_id, int code, int rrpc)
+#else
 int linkkit_answer_service(const void* thing_id, const char* service_identifier, int response_id, int code)
+#endif /* RRPC_ENABLED */
 {
     dm_t** dm = dm_object;
 
     if (dm == NULL || *dm == NULL || thing_id == NULL || service_identifier == NULL) return -1;
 
+#ifdef RRPC_ENABLED
+    return (*dm)->answer_service(dm, thing_id, service_identifier, response_id, code, rrpc);
+#else
     return (*dm)->answer_service(dm, thing_id, service_identifier, response_id, code);
+#endif /* RRPC_ENABLED */
 }
 
 int linkkit_invoke_raw_service(const void* thing_id, int is_up_raw, void* raw_data, int raw_data_length)
@@ -281,6 +297,26 @@ int linkkit_invoke_ota_service(void* data_buf, int data_buf_length)
     return ret;
 }
 #endif /* SERVICE_OTA_ENABLED */
+
+#ifdef DEVICEINFO_ENABLED
+int linkkit_trigger_deviceinfo_operate(const void* thing_id, const char* params, linkkit_deviceinfo_operate_t linkkit_deviceinfo_operation)
+{
+    dm_t** dm = dm_object;
+
+    if (linkkit_deviceinfo_operation == linkkit_deviceinfo_operate_update) {
+        if (dm == NULL || *dm == NULL || (*dm)->trigger_deviceinfo_update == NULL || thing_id == NULL) return -1;
+
+        return (*dm)->trigger_deviceinfo_update(dm, thing_id, params);
+    } else if (linkkit_deviceinfo_operation == linkkit_deviceinfo_operate_delete) {
+        if (dm == NULL || *dm == NULL || (*dm)->trigger_deviceinfo_delete == NULL || thing_id == NULL) return -1;
+
+        return (*dm)->trigger_deviceinfo_delete(dm, thing_id, params);
+    }
+
+    return -1;
+}
+#endif
+
 int linkkit_trigger_event(const void* thing_id, const char* event_identifier, const char* property_identifier)
 {
     dm_t** dm = dm_object;

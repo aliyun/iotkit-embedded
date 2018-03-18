@@ -15,7 +15,7 @@ typedef struct {
     const char*  _class_name;
     void* (*ctor)(void* _self, va_list* params);
     void* (*dtor)(void* _self);
-    void  (*set_dsl_string)(void* _self, const char* dsl, int dsl_str_len);  /* set dsl to thing model. */
+    int   (*set_dsl_string)(void* _self, const char* dsl, int dsl_str_len);  /* set dsl to thing model. */
     void* (*get_dsl_string)(void* _self); /* get dsl from thing model. */
     int   (*get_property_number)(const void* _self);
     int   (*get_service_number)(const void* _self);

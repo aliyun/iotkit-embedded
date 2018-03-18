@@ -5,9 +5,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "iot_export.h"
+#include "iot_export_fota.h"
+#include "iot_export_dm.h"
 #include "lite_queue.h"
 
+#ifdef SERVICE_OTA_ENABLED
+#include "iot_export_fota.h"
+#endif /* SERVICE_OTA_ENABLED */
 
 typedef struct _linkkit_ops {
     int (*on_connect)(void *ctx);
@@ -19,8 +23,11 @@ typedef struct _linkkit_ops {
 
     int (*thing_enable)(void *thing_id, void *ctx);
     int (*thing_disable)(void *thing_id, void *ctx);
-
+#ifdef RRPC_ENABLED
+    int (*thing_call_service)(void *thing_id, char *service, int request_id, int rrpc, void *ctx);
+#else
     int (*thing_call_service)(void *thing_id, char *service, int request_id, void *ctx);
+#endif /* RRPC_ENABLED */
     int (*thing_prop_changed)(void *thing_id, char *property, void *ctx);
 } linkkit_ops_t;
 
@@ -43,6 +50,14 @@ typedef enum {
 
     linkkit_cloud_domain_max,
 } linkkit_cloud_domain_type_t;
+
+/* device info related operation */
+typedef enum {
+    linkkit_deviceinfo_operate_update,
+    linkkit_deviceinfo_operate_delete,
+
+    linkkit_deviceinfo_operate_max,
+} linkkit_deviceinfo_operate_t;
 
 /**
  * @brief dispatch message of queue for further process.
@@ -159,6 +174,7 @@ typedef enum {
 extern int linkkit_get_value(linkkit_method_get_t method_get, const void* thing_id, const char* identifier,
                              void* value, char** value_str);
 
+
 /**
  * @brief answer to a service when a service requested by cloud.
  *
@@ -168,10 +184,15 @@ extern int linkkit_get_value(linkkit_method_get_t method_get, const void* thing_
  * @param response_id, id value in response payload. its value is from "dm_callback_type_service_requested" type callback function.
  *        use the same id as the request to send response as the same communication session.
  * @param code, code value in response payload. for example, 200 when service successfully executed, 400 when not successfully executed.
+ * @param rrpc, specify rrpc service call or not.
  *
  * @return 0 when success, -1 when fail.
  */
+#ifdef RRPC_ENABLED
+extern int linkkit_answer_service(const void* thing_id, const char* service_identifier, int response_id, int code, int rrpc);
+#else
 extern int linkkit_answer_service(const void* thing_id, const char* service_identifier, int response_id, int code);
+#endif /* RRPC_ENABLED */
 
 /**
  * @brief answer a down raw service when a raw service requested by cloud, or invoke a up raw service to cloud.
@@ -197,6 +218,20 @@ extern int linkkit_invoke_raw_service(const void* thing_id, int is_up_raw, void*
  */
 extern int linkkit_invoke_ota_service(void* data_buf, int data_buf_length);
 #endif /* SERVICE_OTA_ENABLED */
+
+#ifdef DEVICEINFO_ENABLED
+/**
+ * @brief trigger deviceinfo update procedure.
+ *
+ * @param thing_id, pointer to thing object.
+ * @param params, json type string that user to send to cloud.
+ * @param linkkit_deviceinfo_operation, specify update type or delete type.
+ *
+ * @return 0 when success, -1 when fail.
+ */
+
+int linkkit_trigger_deviceinfo_operate(const void* thing_id, const char* params, linkkit_deviceinfo_operate_t linkkit_deviceinfo_operation);
+#endif
 
 /**
  * @brief trigger a event to post to cloud.

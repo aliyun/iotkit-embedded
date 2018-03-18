@@ -168,15 +168,42 @@ static int dm_impl_trigger_event(const void* _self, const void* thing_id, const 
 
     return (*thing_manager)->trigger_event(thing_manager, thing_id, event_identifier, property_identifier);
 }
+#ifdef DEVICEINFO_ENABLED
+static int dm_impl_trigger_deviceinfo_update(const void* _self, const void* thing_id, const char* params)
+{
+    const dm_impl_t* self = _self;
+    thing_manager_t** thing_manager = self->_thing_manager;
 
+    assert(thing_manager && *thing_manager && (*thing_manager)->trigger_deviceinfo_update && thing_id && params);
+
+    return (*thing_manager)->trigger_deviceinfo_update(thing_manager, thing_id, params);
+}
+
+static int dm_impl_trigger_deviceinfo_delete(const void* _self, const void* thing_id, const char* params)
+{
+    const dm_impl_t* self = _self;
+    thing_manager_t** thing_manager = self->_thing_manager;
+
+    assert(thing_manager && *thing_manager && (*thing_manager)->trigger_deviceinfo_delete && thing_id && params);
+
+    return (*thing_manager)->trigger_deviceinfo_delete(thing_manager, thing_id, params);
+}
+#endif /* DEVICEINFO_ENABLED*/
+#ifdef RRPC_ENABLED
+static int dm_impl_answer_service(const void* _self, const void* thing_id, const void* identifier, int response_id, int code, int rrpc)
+#else
 static int dm_impl_answer_service(const void* _self, const void* thing_id, const void* identifier, int response_id, int code)
+#endif /* RRPC_ENABLED */
 {
     const dm_impl_t* self = _self;
     thing_manager_t** thing_manager = self->_thing_manager;
 
     assert(thing_manager && *thing_manager && (*thing_manager)->answer_service && thing_id && identifier);
-
+#ifdef RRPC_ENABLED
+    return (*thing_manager)->answer_service(thing_manager, thing_id, identifier, response_id, code, rrpc);
+#else
     return (*thing_manager)->answer_service(thing_manager, thing_id, identifier, response_id, code);
+#endif /* RRPC_ENABLED */
 }
 
 static int dm_impl_invoke_raw_service(const void* _self, const void* thing_id, void* raw_data, int raw_data_length)
@@ -259,6 +286,10 @@ static dm_t _dm_impl_class = {
     dm_impl_get_event_output_value,
     dm_impl_install_callback_function,
     dm_impl_trigger_event,
+#ifdef DEVICEINFO_ENABLED
+    dm_impl_trigger_deviceinfo_update,
+    dm_impl_trigger_deviceinfo_delete,
+#endif /* DEVICEINFO_ENABLED*/
     dm_impl_answer_service,
     dm_impl_invoke_raw_service,
     dm_impl_answer_raw_service,

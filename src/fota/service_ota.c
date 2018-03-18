@@ -70,10 +70,10 @@ static void* service_ota_ctor(void* _self, va_list* params)
     int ret = 0;
     iotx_cmp_init_param_t init_param;
 
-    char device_name[CMP_DEVICE_NAME_LEN] = {0};
-    char product_key[CMP_PRODUCT_KEY_LEN] = {0};
-    char device_secret[CMP_DEVICE_SECRET_LEN] = {0};
-    char device_id[CMP_DEVICE_ID_LEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_secret[DEVICE_SECRET_MAXLEN] = {0};
+    char device_id[DEVICE_ID_MAXLEN] = {0};
 
     self->_data_buf = NULL;
     self->_data_buf_length = 0;
@@ -83,10 +83,10 @@ static void* service_ota_ctor(void* _self, va_list* params)
     memset(self->_current_verison, 0x0, FIRMWARE_VERSION_MAXLEN);
 
     /* get relative information. */
-    strncpy(product_key, DM_PRODUCT_KEY, strlen(DM_PRODUCT_KEY));
-    strncpy(device_name, DM_DEVICE_NAME, strlen(DM_DEVICE_NAME));
-    strncpy(device_secret, DM_DEVICE_SECRET, strlen(DM_DEVICE_SECRET));
-    strncpy(device_id, DM_DEVICE_ID, strlen(DM_DEVICE_ID));
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_GetDeviceSecret(device_secret);
+    HAL_GetDeviceID(device_id);
 
     init_param.product_key = product_key;
     init_param.device_name = device_name;

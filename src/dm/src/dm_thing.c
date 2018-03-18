@@ -63,14 +63,14 @@ static const char string_true[] __DM_READ_ONLY__ = "true";
 
 #ifdef USING_UTILS_JSON
 #define KEY_BUFF_SIZE 32
-static void install_cjson_item_string(void** dst, const char* key, const char* src, int src_len);
+static int install_cjson_item_string(void** dst, const char* key, const char* src, int src_len);
 static void install_cjson_obj_property(property_t* dst, const char* src, int src_len);
 static void install_cjson_obj_lite_property(void* dst, const char* src, int src_len);
 #ifdef LITE_THING_MODEL
 static void install_cjson_item_string_without_malloc(void* dst, const char *key, const char* src, int src_len);
 #endif
 #else
-static void install_cjson_item_string(void** dst, const cJSON* const cjson_obj, const char* const item_name);
+static int install_cjson_item_string(void** dst, const cJSON* const cjson_obj, const char* const item_name);
 static void install_cjson_obj_property(property_t* dst, const cJSON* cjson_obj);
 static void install_cjson_obj_lite_property(void* dst, const cJSON* const cjson_obj);
 #ifdef LITE_THING_MODEL
@@ -571,7 +571,7 @@ static void install_cjson_item_input_data(void *dst, service_type_t service_type
     }
 }
 
-static void install_cjson_item_string(void **dst, const char *key, const char *src, int src_len)
+static int install_cjson_item_string(void **dst, const char *key, const char *src, int src_len)
 {
     int val_len = 0;
     char *val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
@@ -587,7 +587,7 @@ static void install_cjson_item_string(void **dst, const char *key, const char *s
         dm_log_err("parse key:%s from val:%.*s failed", key, src_len, src);
     }
 
-    return;
+    return val ? 0 : -1;
 }
 
 #ifdef LITE_THING_MODEL
@@ -925,52 +925,73 @@ static void parse_cjson_obj_to_dsl_template_services(void *_self, const char *sr
     }
 }
 
-static void parse_cjson_obj_to_dsl_template(void *_self, const char *src, int src_len)
+static int parse_cjson_obj_to_dsl_template(void *_self, const char *src, int src_len)
 {
+    if(!_self || !src || src_len <= 0) {
+        return -1;
+    }
+
     dm_thing_t *self = _self;
     char *val = NULL;
     int val_len = 0;
-
 #ifdef LITE_THING_MODEL
     self->dsl_template.schema = NULL;
     self->dsl_template.link = NULL;
 #else
     /* schema */
-    install_cjson_item_string((void **)&self->dsl_template.schema, "schema", src, src_len);
+    if(0 != install_cjson_item_string((void **)&self->dsl_template.schema, "schema", src, src_len)) {
+        return -1;
+    }
     /* link */
-    install_cjson_item_string((void **)&self->dsl_template.link, "link", src, src_len);
+    if(0 != install_cjson_item_string((void **)&self->dsl_template.link, "link", src, src_len)) {
+        return -1;
+    }
 #endif
+
     /* profile */
-    install_cjson_item_string((void **)&self->dsl_template.profile.product_key, string_profile_productKey, src, src_len);
-    install_cjson_item_string((void **)&self->dsl_template.profile.device_name, string_profile_deviceName, src, src_len);
+    if(0 != install_cjson_item_string((void **)&self->dsl_template.profile.product_key, string_profile_productKey, src, src_len)) {
+        self->dsl_template.profile.product_key = NULL;
+    }
+    if(0 != install_cjson_item_string((void **)&self->dsl_template.profile.device_name, string_profile_deviceName, src, src_len)) {
+        self->dsl_template.profile.device_name = NULL;
+    }
 
     /* properties */
-
     val = LITE_json_value_of_ext2((char*)string_properties, (char*)src, src_len, &val_len);
     if (val) {
         parse_cjson_obj_to_dsl_template_properties(self, val, val_len);
+    }else {
+        return -1;
     }
+
     /* events */
     val = LITE_json_value_of_ext2((char*)string_events, (char*)src, src_len, &val_len);
     if (val) {
         parse_cjson_obj_to_dsl_template_events(self, val, val_len);
+    }else {
+        return -1;
     }
+
     /* services */
     val = LITE_json_value_of_ext2((char*)string_services, (char*)src, src_len, &val_len);
     if (val) {
         parse_cjson_obj_to_dsl_template_services(self, val, val_len);
+    }else {
+        return -1;
     }
 
-    return;
+    return 0;
 }
 
-static void dm_thing_set_dsl_string(void *_self, const char *src, int src_len)
+static int dm_thing_set_dsl_string(void *_self, const char *src, int src_len)
 {
+    int ret;
     dm_thing_t *self = _self;
-
-    parse_cjson_obj_to_dsl_template(self, src, src_len);
+    ret = parse_cjson_obj_to_dsl_template(self, src, src_len);
 
     self->_json_object = 0;
+
+    return ret;
 }
 
 #else
@@ -1372,12 +1393,13 @@ static void install_cjson_item_input_data(void* dst, const cJSON* const cjson_ob
     }
 }
 
-static void install_cjson_item_string(void** dst, const cJSON* const cjson_obj, const char* const item_name)
+static int install_cjson_item_string(void** dst, const cJSON* const cjson_obj, const char* const item_name)
 {
     const cJSON* const root_obj = cjson_obj;
     cJSON* item_obj;
     size_t size;
 
+    int ret = -1;
     item_obj = cJSON_GetObjectItem(root_obj, item_name);
     if (item_obj && cJSON_IsString(item_obj)) {
 #ifdef CJSON_STRING_ZEROCOPY
@@ -1393,7 +1415,9 @@ static void install_cjson_item_string(void** dst, const cJSON* const cjson_obj, 
 #else
         strcpy(*dst, item_obj->valuestring);
 #endif
+        ret = 0;
     }
+    return ret;
 }
 
 #ifdef LITE_THING_MODEL
@@ -1716,8 +1740,12 @@ static void parse_cjson_obj_to_dsl_template_services(void* _self, const cJSON* c
     }
 }
 
-static void parse_cjson_obj_to_dsl_template(void* _self, const cJSON* cjson_obj)
+static int parse_cjson_obj_to_dsl_template(void* _self, const cJSON* cjson_obj)
 {
+    if(!_self || !cjson_obj) {
+        return -1;
+    }
+
     dm_thing_t* self = _self;
     const cJSON* root_obj = cjson_obj;
     cJSON* profile_obj;
@@ -1730,9 +1758,14 @@ static void parse_cjson_obj_to_dsl_template(void* _self, const cJSON* cjson_obj)
     self->dsl_template.schema = NULL;
     self->dsl_template.link = NULL;
 #else
-    install_cjson_item_string((void**)&self->dsl_template.schema, root_obj, "schema");
+    if(0 != install_cjson_item_string((void**)&self->dsl_template.schema, root_obj, "schema")) {
+        return -1;
+    }
+
     /* link */
-    install_cjson_item_string((void**)&self->dsl_template.link, root_obj, "link");
+    if(0 != install_cjson_item_string((void**)&self->dsl_template.link, root_obj, "link")) {
+        return -1;
+    }
 #endif
     /* profile */
     profile_obj = cJSON_GetObjectItem(root_obj, "profile");
@@ -1750,34 +1783,44 @@ static void parse_cjson_obj_to_dsl_template(void* _self, const cJSON* cjson_obj)
         assert(cJSON_IsArray(properties_obj));
         parse_cjson_obj_to_dsl_template_properties(self, properties_obj);
     }
+    else {
+        return -1;
+    }
     /* events */
     events_obj = cJSON_GetObjectItem(root_obj, string_events);
     if (events_obj) {
         assert(cJSON_IsArray(events_obj));
         parse_cjson_obj_to_dsl_template_events(self, events_obj);
+    } else {
+        return -1;
     }
     /* events */
     sercives_obj = cJSON_GetObjectItem(root_obj, string_services);
     if (sercives_obj) {
         assert(cJSON_IsArray(sercives_obj));
         parse_cjson_obj_to_dsl_template_services(self, sercives_obj);
+    }else {
+        return -1;
     }
 
-    return;
+    return 0;
 }
 
 /* set dsl to thing model. */
-static void dm_thing_set_dsl_string(void* _self, const char* dsl, int dsl_str_len)
+static int dm_thing_set_dsl_string(void* _self, const char* dsl, int dsl_str_len)
 {
+    int ret = -1;
     dm_thing_t* self = _self;
 
     self->_json_object = cJSON_Parse(dsl);
 
     assert(self->_json_object);
-    parse_cjson_obj_to_dsl_template(self, self->_json_object);
+    ret = parse_cjson_obj_to_dsl_template(self, self->_json_object);
 
     cJSON_Delete(self->_json_object);
     self->_json_object = 0;
+
+    return ret;
 }
 
 #endif

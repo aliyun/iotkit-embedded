@@ -32,44 +32,12 @@ typedef struct {
     void  (*log)(const void* _self, const char* _func, const int _line, log_level_t _log_level, const char* fmt, ...);
 } log_t;
 
-#ifndef ESP8266
 #define dm_log_emerg(...)      (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_emerg,   __VA_ARGS__)
 #define dm_log_crit(...)       (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_crit,    __VA_ARGS__)
 #define dm_log_err(...)        (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_err,     __VA_ARGS__)
 #define dm_log_warning(...)    (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_warning, __VA_ARGS__)
 #define dm_log_info(...)       (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_info,    __VA_ARGS__)
 #define dm_log_debug(...)      (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_debug,   __VA_ARGS__)
-#else
-#define dm_log_emerg(fmt, ...)      do {    \
-                                      static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt; \
-                                      (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_emerg, fmt, ##__VA_ARGS__); \
-                                  } while(0)
-
-#define dm_log_crit(fmt, ...)       do {    \
-                                      static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt; \
-                                      (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_crit, fmt, ##__VA_ARGS__); \
-                                  } while(0)
-
-#define dm_log_err(fmt, ...)        do {    \
-                                      static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt; \
-                                     (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_err, fmt, ##__VA_ARGS__); \
-                                  } while(0)
-
-#define dm_log_warning(fmt, ...)    do {    \
-                                      static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt; \
-                                      (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_warning, fmt, ##__VA_ARGS__); \
-                                  } while(0)
-
-#define dm_log_info(fmt, ...)       do {    \
-                                      static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt; \
-                                      (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_info, fmt, ##__VA_ARGS__); \
-                                  } while(0)
-
-#define dm_log_debug(fmt, ...)      do {    \
-                                      static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt; \
-                                      (*(log_t**)_g_default_logger)->log(_g_default_logger, __FUNCTION__, __LINE__, log_level_debug, fmt, ##__VA_ARGS__); \
-                                  } while(0)
-#endif
 
 #ifdef __cplusplus
 }

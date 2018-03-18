@@ -11,6 +11,7 @@ extern "C" {
 #include "interface/list_abstract.h"
 #include "dm_import.h"
 #include "iot_export.h"
+#include "iot_export_cmp.h"
 #include "iot_import.h"
 
 #define DM_THING_MANAGER_CLASS get_dm_thing_manager_class()
@@ -49,6 +50,16 @@ extern "C" {
 #define METHOD_NAME_DOWN_RAW_PEPLY          "thing/model/down_raw_reply"
 #define METHOD_NAME_UP_RAW                  "thing/model/up_raw"
 #define METHOD_NAME_UP_RAW_REPLY            "thing/model/up_raw_reply"
+#ifdef DEVICEINFO_ENABLED
+#define METHOD_NAME_DEVICEINFO_UPDATE       "thing/deviceinfo/update"
+#define METHOD_NAME_DEVICEINFO_UPDATE_REPLY "thing/deviceinfo/update_reply"
+#define METHOD_NAME_DEVICEINFO_DELETE       "thing/deviceinfo/delete"
+#define METHOD_NAME_DEVICEINFO_DELETE_REPLY "thing/deviceinfo/delete_reply"
+#endif /* DEVICEINFO_ENABLED*/
+#ifdef RRPC_ENABLED
+#define METHOD_NAME_RRPC_REQUEST_PLUS       "rrpc/request/+"
+#define METHOD_NAME_RRPC_REQUEST            "rrpc/request"
+#endif /* RRPC_ENABLED */
 
 #define METHOD_MAX_LENGH 128
 #define URI_MAX_LENGH 256
@@ -87,16 +98,19 @@ typedef struct {
     int    _cloud_connected;
     int    _get_tsl_from_cloud;
     int    _destructing;
+#ifdef RRPC_ENABLED
+    int    _rrpc;
+    int    _rrpc_message_id;
+#endif /* RRPC_ENABLED */
     dm_callback_type_t _callback_type;
     dm_cloud_domain_type_t _cloud_domain;
     iotx_cmp_event_handle_func_fpt _cmp_event_handle_func_fp;
     iotx_cmp_register_func_fpt _cmp_register_func_fp;
-    char  _device_name[CMP_DEVICE_ID_LEN];
-    char  _product_key[CMP_PRODUCT_KEY_LEN];
-    char  _device_secret[CMP_DEVICE_SECRET_LEN];
-    char  _device_id[CMP_DEVICE_ID_LEN];
+    char  _device_name[DEVICE_NAME_MAXLEN];
+    char  _product_key[PRODUCT_KEY_MAXLEN];
+    char  _device_secret[DEVICE_SECRET_MAXLEN];
+    char  _device_id[DEVICE_ID_MAXLEN];
 } dm_thing_manager_t;
-
 
 extern const void* get_dm_thing_manager_class();
 

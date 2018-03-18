@@ -44,10 +44,10 @@ static int cmp_impl_init(void* _self, const char* _product_key, const char* _dev
     cmp_abstract_impl_t* self = _self;
     iotx_cmp_init_param_t init_param;
 
-    char  device_name[CMP_DEVICE_NAME_LEN];
-    char  product_key[CMP_PRODUCT_KEY_LEN];
-    char  device_secret[CMP_DEVICE_SECRET_LEN];
-    char  device_id[CMP_DEVICE_ID_LEN];
+    char  device_name[DEVICE_NAME_MAXLEN];
+    char  product_key[PRODUCT_KEY_MAXLEN];
+    char  device_secret[DEVICE_SECRET_MAXLEN];
+    char  device_id[DEVICE_ID_MAXLEN];
 
     int ret = SUCCESS_RETURN;
 
