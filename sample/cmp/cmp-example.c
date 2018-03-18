@@ -93,31 +93,15 @@ int cmp_client()
     iotx_cmp_send_peer_t cloud_peer;
     iotx_cmp_message_info_t message_info = {0};  
     iotx_cmp_unregister_param_t unregister_param = {0};
-    
-    param.product_key = LITE_malloc(CMP_PRODUCT_KEY_LEN);
-    param.device_name = LITE_malloc(CMP_DEVICE_NAME_LEN);
-    param.device_secret = LITE_malloc(CMP_DEVICE_SECRET_LEN);
-    param.device_id = LITE_malloc(CMP_DEVICE_ID_LEN);
-
-    /**< get device info*/
-    HAL_GetProductKey(param.product_key);
-    HAL_GetDeviceName(param.device_name);
-    HAL_GetDeviceSecret(param.device_secret);
-    HAL_GetDeviceID(param.device_id);
-    /**< end*/
 
     param.domain_type = IOTX_CMP_CLOUD_DOMAIN_SH;
 
     param.event_func = _event_handle;
     param.user_data = &user_data;
+    param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
     
     printf("init\n");
     rc = IOT_CMP_Init(&param, NULL);
-    
-    LITE_free(param.product_key);
-    LITE_free(param.device_name);
-    LITE_free(param.device_secret);
-    LITE_free(param.device_id);
 
     if (FAIL_RETURN == rc) {
         printf("init fail\n");

@@ -39,7 +39,7 @@
 #define CMP_TOPIC_LEN_MAX  256
 
 
-/* URI type */
+/* domain type */
 typedef enum IOTX_CMP_CLOUD_DOMAIN_TYPES {
     /* "iot-as-mqtt.cn-shanghai.aliyuncs.com" */
     IOTX_CMP_CLOUD_DOMAIN_SH,
@@ -75,7 +75,7 @@ typedef enum IOTX_CMP_EVENT_TYPES {
     /* cloud connected */
     /* event_msg is null */
     IOTX_CMP_EVENT_CLOUD_CONNECTED  = 0,
-    
+
     /* cloud disconnect */
     /* event_msg is null */
     IOTX_CMP_EVENT_CLOUD_DISCONNECT = 1,
@@ -129,6 +129,7 @@ typedef enum IOTX_CMP_URI_TYPES {
     IOTX_CMP_URI_MAX
 }iotx_cmp_uri_types_t;
 
+
 typedef enum IOTX_CMP_PAYLOAD_TYPE {
     /* RAW */
     IOTX_CMP_MESSAGE_RAW = 1,
@@ -146,6 +147,19 @@ typedef enum IOTX_CMP_PAYLOAD_TYPE {
 }iotx_cmp_message_types_t;
 
 
+/* message confirmation type */
+typedef enum IOTX_CMP_DEVICE_SECRET_TYPES {
+    /* 一型一密 */
+    IOTX_CMP_DEVICE_SECRET_PRODUCT,
+
+    /* 一机一密 */
+    IOTX_CMP_DEVICE_SECRET_DEVICE,
+
+    /* Maximum number of domain */
+    IOTX_CMP_DEVICE_SECRET_TYPES_MAX
+}iotx_cmp_device_secret_types_t;
+
+
 #ifdef SERVICE_OTA_ENABLED
 /* URI type */
 typedef enum IOTX_CMP_OTA_TYPE {
@@ -159,6 +173,7 @@ typedef enum IOTX_CMP_OTA_TYPE {
     IOTX_CMP_OTA_TYPE_MAX
 }iotx_cmp_ota_types_t;
 #endif /* SERVICE_OTA_ENABLED */
+
 
 /* The structure of event for cloud found new device */
 typedef struct {
@@ -293,10 +308,7 @@ typedef void (*iotx_cmp_register_func_fpt)(iotx_cmp_send_peer_pt source, iotx_cm
 
 /* The structure of CMP param */
 typedef struct {
-    char                                       *product_key;
-    char                                       *device_name;
-    char                                       *device_secret;
-    char                                       *device_id;
+    iotx_cmp_device_secret_types_t              secret_type;
     iotx_cmp_cloud_domain_types_t               domain_type;
     iotx_cmp_event_handle_func_fpt              event_func;
     void                                       *user_data;

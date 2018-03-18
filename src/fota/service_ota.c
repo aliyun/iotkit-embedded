@@ -70,11 +70,6 @@ static void* service_ota_ctor(void* _self, va_list* params)
     int ret = 0;
     iotx_cmp_init_param_t init_param;
 
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_secret[DEVICE_SECRET_MAXLEN] = {0};
-    char device_id[DEVICE_ID_MAXLEN] = {0};
-
     self->_data_buf = NULL;
     self->_data_buf_length = 0;
     self->_ota_inited = 0;
@@ -82,20 +77,10 @@ static void* service_ota_ctor(void* _self, va_list* params)
     if (self->_current_verison == NULL) return NULL;
     memset(self->_current_verison, 0x0, FIRMWARE_VERSION_MAXLEN);
 
-    /* get relative information. */
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    HAL_GetDeviceSecret(device_secret);
-    HAL_GetDeviceID(device_id);
-
-    init_param.product_key = product_key;
-    init_param.device_name = device_name;
-    init_param.device_secret = device_secret;
-    init_param.device_id = device_id;
-
     init_param.event_func = service_ota_cmp_event_handler;
     init_param.user_data = self;
     init_param.domain_type = IOTX_CMP_CLOUD_DOMAIN_SH;
+    init_param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
 
     ret = IOT_CMP_Init(&init_param, NULL);
 

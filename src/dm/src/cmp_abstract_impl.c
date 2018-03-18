@@ -44,31 +44,17 @@ static int cmp_impl_init(void* _self, const char* _product_key, const char* _dev
     cmp_abstract_impl_t* self = _self;
     iotx_cmp_init_param_t init_param;
 
-    char  device_name[DEVICE_NAME_MAXLEN];
-    char  product_key[PRODUCT_KEY_MAXLEN];
-    char  device_secret[DEVICE_SECRET_MAXLEN];
-    char  device_id[DEVICE_ID_MAXLEN];
-
     int ret = SUCCESS_RETURN;
 
     if (!_product_key || !_device_name || !_device_secret || !_device_id || !event_cb || !pcontext) return -1;
 
     if (self->cmp_inited) return ret;
 
-    strncpy(product_key, _product_key, sizeof(product_key));
-    strncpy(device_name, _device_name, sizeof(device_name));
-    strncpy(device_secret, _device_secret, sizeof(device_secret));
-    strncpy(device_id, _device_id, sizeof(device_id));
-
-    init_param.product_key = product_key;
-    init_param.device_name = device_name;
-    init_param.device_secret = device_secret;
-    init_param.device_id = device_id;
-
     init_param.event_func = event_cb;
     init_param.user_data = pcontext;
 
     init_param.domain_type = (iotx_cmp_cloud_domain_types_t)domain_type;
+    init_param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
 
     ret = IOT_CMP_Init(&init_param, NULL);
 
