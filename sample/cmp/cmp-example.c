@@ -27,10 +27,11 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define IOTX_PRODUCT_KEY        "yfTuLfBJTiL"
-#define IOTX_DEVICE_NAME        "TestDeviceForDemo"
+#define IOTX_PRODUCT_KEY        "a19btNOIiaB"
+#define IOTX_DEVICE_NAME        "iVRDoE5B63WBVgqhXnPp"
 #define IOTX_DEVICE_SECRET      "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
+#define IOTX_PRODUCT_SECRET		"bVhigb6DwhQOJGcG"
 
     
 /* These are pre-defined topics */
@@ -98,7 +99,7 @@ int cmp_client()
 
     param.event_func = _event_handle;
     param.user_data = &user_data;
-    param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
+    param.secret_type = IOTX_CMP_DEVICE_SECRET_PRODUCT;
     
     printf("init\n");
     rc = IOT_CMP_Init(&param, NULL);
@@ -306,7 +307,11 @@ int main(int argc, char **argv)
     /**< set device info*/
     HAL_SetProductKey(IOTX_PRODUCT_KEY);
     HAL_SetDeviceName(IOTX_DEVICE_NAME);
+#ifndef SUPPORT_PRODUCT_SECRET
     HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
+#else
+    HAL_SetProductSecret(IOTX_PRODUCT_SECRET);
+#endif /**< SUPPORT_PRODUCT_SECRET*/
     /**< end*/
     EXAMPLE_TRACE("start!\n");
     
