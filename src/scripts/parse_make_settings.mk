@@ -19,6 +19,7 @@ SWITCH_VARS := \
     FEATURE_CMP_ENABLED \
     FEATURE_DM_ENABLED \
     FEATURE_SERVICE_OTA_ENABLED \
+    FEATURE_SERVICE_COTA_ENABLED \
 
 $(foreach v, \
     $(SWITCH_VARS), \
@@ -193,7 +194,6 @@ ifeq (y,$(strip $(FEATURE_DM_ENABLED)))
     ifneq (y,$(strip $(FEATURE_CMP_ENABLED)))
     $(error FEATURE_DM_ENABLED = y requires FEATURE_CMP_ENABLED = y!)
     endif
-CFLAGS  += -DDEVICEINFO_ENABLED
 endif
 
 ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))    
@@ -201,6 +201,13 @@ ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
     $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_CMP_ENABLED = y!)
     endif
     CFLAGS  += -DSERVICE_OTA_ENABLED
+    
+    ifeq (y,$(strip $(FEATURE_SERVICE_COTA_ENABLED)))    
+    ifneq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
+    $(error FEATURE_SERVICE_COTA_ENABLED = y requires FEATURE_SERVICE_OTA_ENABLED = y!)
+    endif
+    CFLAGS  += -DSERVICE_COTA_ENABLED
+endif
 endif
 
 SUBDIRS += src/tls
