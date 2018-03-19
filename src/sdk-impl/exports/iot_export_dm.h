@@ -26,16 +26,23 @@ typedef struct {
 typedef enum {
     dm_callback_type_property_value_set = 0,
     dm_callback_type_service_requested,
+#ifdef RRPC_ENABLED
+    dm_callback_type_rrpc_requested,
+#endif /* RRPC_ENABLED */
     dm_callback_type_cloud_connected,
     dm_callback_type_cloud_disconnected,
     dm_callback_type_new_thing_created,
     dm_callback_type_thing_disabled,
     dm_callback_type_thing_enabled,
     dm_callback_type_raw_data_arrived,
+    dm_callback_type_response_arrived,
 
     dm_callback_type_number,
 } dm_callback_type_t;
 
+typedef void (*handle_dm_callback_fp_t)(dm_callback_type_t callback_type, void* thing_id,
+                                        const char* property_service_identifier, int request_id,
+                                        void* raw_data, int raw_data_length);
 
 /* domain type */
 typedef enum {
@@ -46,11 +53,6 @@ typedef enum {
 
     dm_cloud_domain_max,
 } dm_cloud_domain_type_t;
-
-
-typedef void (*handle_dm_callback_fp_t)(dm_callback_type_t callback_type, void* thing_id,
-                                        const char* property_service_identifier, int request_id,
-                                        void* raw_data, int raw_data_length);
 
 typedef struct {
     size_t size;
@@ -67,7 +69,15 @@ typedef struct {
     int   (*get_event_output_value)(const void* _self, const void* thing_id, const void* identifier, void* value, char** value_str);
     int   (*install_callback_function)(void* _self, handle_dm_callback_fp_t linkkit_callback_fp);
     int   (*trigger_event)(const void* _self, const void* thing_id, const void* event_identifier, const char* property_identifier);
+#ifdef DEVICEINFO_ENABLED
+    int   (*trigger_deviceinfo_update)(const void* _self, const void* thing_id, const char* params);
+    int   (*trigger_deviceinfo_delete)(const void* _self, const void* thing_id, const char* params);
+#endif /* DEVICEINFO_ENABLED*/
+#ifdef RRPC_ENABLED
+    int   (*answer_service)(const void* _self, const void* thing_id, const void* identifier, int response_id, int code, int rrpc);
+#else
     int   (*answer_service)(const void* _self, const void* thing_id, const void* identifier, int response_id, int code);
+#endif /* RRPC_ENABLED */
     int   (*invoke_raw_service)(const void* _self, const void* thing_id, void* raw_data, int raw_data_length);
     int   (*answer_raw_service)(const void* _self, const void* thing_id, void* raw_data, int raw_data_length);
 #ifndef CMP_SUPPORT_MULTI_THREAD
@@ -81,3 +91,4 @@ extern const void* get_dm_impl_class();
 #endif /* __cplusplus */
 
 #endif /* DM_EXPORT_H */
+

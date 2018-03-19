@@ -193,6 +193,7 @@ ifeq (y,$(strip $(FEATURE_DM_ENABLED)))
     ifneq (y,$(strip $(FEATURE_CMP_ENABLED)))
     $(error FEATURE_DM_ENABLED = y requires FEATURE_CMP_ENABLED = y!)
     endif
+CFLAGS  += -DDEVICEINFO_ENABLED
 endif
 
 ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))    
