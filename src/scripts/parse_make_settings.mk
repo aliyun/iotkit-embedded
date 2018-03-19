@@ -210,6 +210,10 @@ ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
 endif
 endif
 
+ifeq (y,$(strip $(FEATURE_SUPPORT_PRODUCT_SECRET)))
+    CFLAGS  += -DSUPPORT_PRODUCT_SECRET
+endif
+
 SUBDIRS += src/tls
 SUBDIRS += src/platform
 SUBDIRS += sample
