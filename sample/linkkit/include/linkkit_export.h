@@ -8,6 +8,7 @@ extern "C" {
 #include "iot_export_fota.h"
 #include "iot_export_dm.h"
 #include "lite_queue.h"
+#include "iot_export_cota.h"
 
 #ifdef SERVICE_OTA_ENABLED
 #include "iot_export_fota.h"
@@ -88,7 +89,10 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
  *
  * @return int, 0 when success, -1 when fail.
  */
-int linkkit_ota_init(handle_service_fota_callback_fp_t callback_fp);
+int linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
+#ifdef SERVICE_COTA_ENABLED
+int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
+#endif /**< SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
 
 /**
@@ -216,7 +220,11 @@ extern int linkkit_invoke_raw_service(const void* thing_id, int is_up_raw, void*
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_invoke_ota_service(void* data_buf, int data_buf_length);
+extern int linkkit_invoke_fota_service(void* data_buf, int data_buf_length);
+#ifdef SERVICE_COTA_ENABLED
+extern int linkkit_invoke_cota_service(void* data_buf, int data_buf_length);
+extern int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option);
+#endif /**< SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
 
 #ifdef DEVICEINFO_ENABLED

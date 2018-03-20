@@ -23,6 +23,9 @@ static void* user_ctx = NULL;
 static void* dm_object  = NULL;
 #ifdef SERVICE_OTA_ENABLED
 static void* fota_object = NULL;
+#ifdef SERVICE_COTA_ENABLED
+static void* cota_object = NULL;
+#endif /* SERVICE_COTA_ENABLED */
 #endif /* SERVICE_OTA_ENABLED */
 /* callback function for dm. pack up all parameters and send to queue. this callback should be processed as fast as possible. */
 static void dm_callback(dm_callback_type_t callback_type,
@@ -166,7 +169,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     return ret;
 }
 #ifdef SERVICE_OTA_ENABLED
-int linkkit_ota_init(handle_service_fota_callback_fp_t callback_fp)
+int linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
 {
     fota_t** ota;
     int ret = -1;
@@ -186,12 +189,37 @@ int linkkit_ota_init(handle_service_fota_callback_fp_t callback_fp)
 
     return ret;
 }
+#ifdef SERVICE_COTA_ENABLED
+int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
+{
+    cota_t** ota;
+    int ret = -1;
+
+    if (cota_object) return 0;
+
+    if (callback_fp == NULL) return -1;
+
+    cota_object = new_object(SERVICE_COTA_CLASS, "cota obj");
+
+    ota = cota_object;
+
+    if (ota && *ota && (*ota)->install_callback_function) {
+        (*ota)->install_callback_function(ota, callback_fp);
+        ret = 0;
+    }
+
+    return ret;
+}
+#endif /**< SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
 int linkkit_end()
 {
     if (g_message_queue) lite_queue_destroy(g_message_queue);
 #ifdef SERVICE_OTA_ENABLED
     if (fota_object) delete_object(fota_object);
+#ifdef SERVICE_COTA_ENABLED
+    if (cota_object) delete_object(cota_object);
+#endif /**< SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
     if (dm_object) delete_object(dm_object);
 
@@ -285,7 +313,7 @@ int linkkit_invoke_raw_service(const void* thing_id, int is_up_raw, void* raw_da
     return ret;
 }
 #ifdef SERVICE_OTA_ENABLED
-int linkkit_invoke_ota_service(void* data_buf, int data_buf_length)
+int linkkit_invoke_fota_service(void* data_buf, int data_buf_length)
 {
     fota_t** ota = fota_object;
     int ret;
@@ -296,6 +324,31 @@ int linkkit_invoke_ota_service(void* data_buf, int data_buf_length)
 
     return ret;
 }
+#ifdef SERVICE_COTA_ENABLED
+int linkkit_invoke_cota_service(void* data_buf, int data_buf_length)
+{
+    cota_t** ota = cota_object;
+    int ret;
+
+    if (ota == NULL || *ota == NULL || (*ota)->perform_ota_service == NULL || data_buf == NULL || data_buf_length <= 0) return -1;
+
+    ret = (*ota)->perform_ota_service(ota, data_buf, data_buf_length);
+
+    return ret;
+}
+int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option)
+{	config_ota_t* ota_data = cota_object;
+	cota_t** ota = cota_object;
+	int ret;
+
+    if (ota == NULL || *ota == NULL || (*ota)->get == NULL) return -1;
+
+    if(!ota_data->_ota_inited) return -1;
+    ret = (*ota)->get(ota,config_scope,get_type,attribute_Keys,option);
+
+    return ret;
+}
+#endif /**< SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
 
 #ifdef DEVICEINFO_ENABLED

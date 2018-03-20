@@ -32,27 +32,27 @@ static void config_ota_handler(void* pcontext, iotx_cmp_cota_parameter_t* ota_pa
     if (config_ota->_rsp_signMethod) config_ota_lite_free(config_ota->_rsp_signMethod);
     if (config_ota->_rsp_url) config_ota_lite_free(config_ota->_rsp_url);
 
-    config_ota->_rsp_configId = config_ota_lite_calloc(1, strlen(iotx_cmp_ota_parameter->configId) + 1);
+    config_ota->_rsp_configId = config_ota_lite_malloc(strlen(iotx_cmp_ota_parameter->configId) + 1);
     if (config_ota->_rsp_configId == NULL) {
         log_err("rsp_configid malloc fail.");
         return;
     }
-    config_ota->_rsp_getType = config_ota_lite_calloc(1, strlen(iotx_cmp_ota_parameter->getType) + 1);
+    config_ota->_rsp_getType = config_ota_lite_malloc(strlen(iotx_cmp_ota_parameter->getType) + 1);
         if (config_ota->_rsp_getType == NULL) {
             log_err("_rsp_getType malloc fail.");
             return;
         }
-	config_ota->_rsp_sign = config_ota_lite_calloc(1, strlen(iotx_cmp_ota_parameter->sign) + 1);
+	config_ota->_rsp_sign = config_ota_lite_malloc(strlen(iotx_cmp_ota_parameter->sign) + 1);
 		if (config_ota->_rsp_sign == NULL) {
 			log_err("_rsp_sign malloc fail.");
 			return;
 		}
-	config_ota->_rsp_signMethod = config_ota_lite_calloc(1, strlen(iotx_cmp_ota_parameter->signMethod) + 1);
+	config_ota->_rsp_signMethod = config_ota_lite_malloc(strlen(iotx_cmp_ota_parameter->signMethod) + 1);
 		if (config_ota->_rsp_signMethod == NULL) {
 			log_err("_rsp_signMethod malloc fail.");
 			return;
 		}
-	config_ota->_rsp_url = config_ota_lite_calloc(1, strlen(iotx_cmp_ota_parameter->url) + 1);
+	config_ota->_rsp_url = config_ota_lite_malloc(strlen(iotx_cmp_ota_parameter->url) + 1);
 		if (config_ota->_rsp_url == NULL) {
 			log_err("_rsp_url malloc fail.");
 			return;

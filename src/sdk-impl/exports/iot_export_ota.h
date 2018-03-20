@@ -84,8 +84,8 @@ typedef enum {
     IOT_OTAG_FILE_SIZE,        /* size of file */
     IOT_OTAG_MD5SUM,           /* md5 in string format */
     IOT_OTAG_VERSION,          /* version in string format */
-    IOT_OTAG_CHECK_FIRMWARE    /* Check firmware is valid or not */
-
+    IOT_OTAG_CHECK_FIRMWARE,    /* Check firmware is valid or not */
+    IOT_OTAG_CHECK_CONFIG       /* Check config file is valid or not */
 } IOT_OTA_CmdType_t;
 
 /** @defgroup group_api api
