@@ -27,8 +27,8 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define IOTX_PRODUCT_KEY        "yfTuLfBJTiL"
-#define IOTX_DEVICE_NAME        "TestDeviceForDemo"
+#define IOTX_PRODUCT_KEY        "a19btNOIiaB"
+#define IOTX_DEVICE_NAME        "iVRDoE5B63WBVgqhXnPp"
 #define IOTX_DEVICE_SECRET      "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
 #define IOTX_PRODUCT_SECRET		"bVhigb6DwhQOJGcG"
