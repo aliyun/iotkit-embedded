@@ -20,9 +20,9 @@
  * example for product "鐏�-Demo"
  */
 
-#define DM_PRODUCT_KEY_1        "a1CvaEsC9Dz"
-#define DM_DEVICE_NAME_1        "hAvq5VtVfhduY0g1A2uy"
-#define DM_DEVICE_SECRET_1      "ewyOqIrI4CR2jxNmGIWnaqVXYacC1THQ"
+#define DM_PRODUCT_KEY_1        "a1HOXiRgVZE"
+#define DM_DEVICE_NAME_1        "dlkfjalkdf"
+#define DM_DEVICE_SECRET_1      "MvK3cZbOGYtRbVoBqGIYun2HTAd9rARX"
 #define DM_DEVICE_ID_1          "IoTxHttpTestDev_001"
 
 
