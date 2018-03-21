@@ -99,8 +99,11 @@ int cmp_client()
 
     param.event_func = _event_handle;
     param.user_data = &user_data;
+#ifdef SUPPORT_PRODUCT_SECRET
+    param.secret_type = IOTX_CMP_DEVICE_SECRET_PRODUCT;
+#else
     param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
-    
+#endif /* SUPPORT_PRODUCT_SECRET */
     printf("init\n");
     rc = IOT_CMP_Init(&param, NULL);
 

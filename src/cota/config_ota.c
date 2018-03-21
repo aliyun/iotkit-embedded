@@ -198,12 +198,8 @@ static int config_ota_end(void* _self)
     /* this function should not return... */
     ret = HAL_Firmware_Persistence_Stop();
 
-#if defined(_PLATFORM_IS_LINUX_) || defined(_PLATFORM_IS_WINDOWS_)
-    exit(0);
-#else
-    log_emerg("OTA end, restarting...");
-    HAL_Sys_reboot();
-#endif
+    log_emerg("OTA end");
+    /* update config*/
     return ret;
 }
 
