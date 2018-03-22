@@ -786,7 +786,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
 
     if (0 == client->net.handle) {
         /* Establish connection if no. */
-        ret = iotx_net_init(&client->net, host, port, ca_crt);
+        ret = iotx_net_init(&client->net, host, port, ca_crt, NULL);
         if (0 != ret) {
             return ret;
         }
@@ -848,7 +848,7 @@ int iotx_post(httpclient_t *client,
 
     if (0 == client->net.handle) {
         /* Establish connection if no. */
-        ret = iotx_net_init(&client->net, host, port, ca_crt);
+        ret = iotx_net_init(&client->net, host, port, ca_crt, NULL);
         if (0 != ret) {
             return ret;
         }

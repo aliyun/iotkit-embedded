@@ -467,13 +467,18 @@ void* iotx_cloud_connection_mqtt_init(void *pparam, void* handle)
 
 
     /* Construct a MQTT client with specify parameter */
+#ifndef MQTT_ID2_AUTH
     if (NULL == (pclient = IOT_MQTT_Construct(&mqtt_param))) {
+#else
+	if (NULL == (pclient = IOT_MQTT_ConstructSecure(&mqtt_param))) {
+#endif /**< MQTT_ID2_AUTH*/
         log_info("MQTT construct failed");
         LITE_free(mqtt_pt->msg_buf);
         LITE_free(mqtt_pt->msg_readbuf);
         LITE_free(mqtt_pt);
         return NULL;
     }
+
     
     return pclient;
 }
