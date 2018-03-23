@@ -25,7 +25,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
+#if defined(MQTT_ID2_AUTH) && defined(ON_DAILY)
     #define PRODUCT_KEY             "9rx2yMNV5l0"
     #define DEVICE_NAME             "sh_online_sample_mqtt"
     #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"

@@ -177,7 +177,9 @@ ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
     $(error FEATURE_MQTT_ID2_AUTH requires FEATURE_MQTT_DIRECT_NOITLS = n!)
     endif
     
-    
+    ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
+    $(error FEATURE_COAP_DTLS_SUPPORT = y requires FEATURE_MQTT_ID2_AUTH = n!)
+    endif
     # ifneq (gcc,$(strip $(CC)))
     # $(error FEATURE_MQTT_ID2_AUTH requires $(CC) equal gcc!)
     # endif
@@ -186,7 +188,7 @@ else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
     ifeq (n,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
     $(error FEATURE_MQTT_ID2_AUTH = n requires FEATURE_MQTT_DIRECT_NOITLS = y!)
     endif
-    
+        
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
     $(error FEATURE_MQTT_ID2_CRYPTO = y requires FEATURE_MQTT_ID2_AUTH = y!)
     endif
