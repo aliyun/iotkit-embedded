@@ -22,6 +22,14 @@
 
 #include "lite-utils_internal.h"
 
+typedef struct JSON_NV {
+    int         nLen;
+    int         vLen;
+    int         vType;
+    char       *pN;
+    char       *pV;
+} JSON_NV;
+
 /**
 The descriptions of the json value node type
 **/
@@ -84,21 +92,40 @@ int json_parse_name_value(char *p_cJsonStr, int iStrLen, json_parse_cb pfnCB, vo
 char *json_get_value_by_name(char *p_cJsonStr, int iStrLen, char *p_cName, int *p_iValueLen, int *p_iValueType);
 
 /**
+* @brief Get the value by a specified key from a json string
+*
+* @param[in]  p_cJsonStr   @n the JSON string
+* @param[in]  iStrLen      @n the JSON string length
+* @param[in]  p_cName      @n the specified key string
+* @param[in]  p_cNameLen   @n the specified key string length
+* @param[out] p_iValueLen  @n the value length
+* @param[out] p_iValueType @n the value type
+* @return A pointer to the value
+* @see None.
+* @note None.
+**/
+char *json_get_value_by_name_len(char *p_cJsonStr, int iStrLen, char *p_cName, int p_cNameLen, int *p_iValueLen,
+                                 int *p_iValueType);
+
+/**
  * @brief Get the JSON object point associate with a given type.
  *
- * @param[in] type @n The object type
- * @param[in] str  @n The JSON string
+ * @param[in] type      @n The object type
+ * @param[in] str       @n The JSON string
+ * @param[in] str_end   @n The end point of Json string
  * @returns The json object point with the given field type.
  * @see None.
  * @note None.
  */
-char *json_get_object(int type, char *str);
-char *json_get_next_object(int type, char *str, char **key, int *key_len, char **val, int *val_len, int *val_type);
+char *json_get_object(int type, char *str, char *str_end);
+char *json_get_next_object(int type, char *str, char *str_end, char **key, int *key_len, char **val, int *val_len,
+                           int *val_type);
 
 /**
  * @brief retrieve each key&value pair from the json string
  *
  * @param[in]  str   @n Json string to revolve
+ * @param[in]  slen  @n The length of json string
  * @param[in]  pos   @n cursor
  * @param[out] key   @n pointer to the next Key object
  * @param[out] klen  @n Key object length
@@ -108,14 +135,15 @@ char *json_get_next_object(int type, char *str, char **key, int *key_len, char *
  * @see None.
  * @note None.
  */
-#define json_object_for_each_kv(str, pos, key, klen, val, vlen, vtype) \
-    for (pos = json_get_object(JOBJECT, str); \
-         pos!=0 && *pos!=0 && (pos=json_get_next_object(JOBJECT, pos, &key, &klen, &val, &vlen, &vtype))!=0; )
+#define json_object_for_each_kv(str, slen, pos, key, klen, val, vlen, vtype) \
+    for (pos = json_get_object(JOBJECT, str, str + slen); \
+         pos != NULL && *pos!= 0 && (pos=json_get_next_object(JOBJECT, pos, str + slen , &key, &klen, &val, &vlen, &vtype))!=0; )
 
 /**
  * @brief retrieve each entry from the json array
  *
  * @param[in]  str   @n Json array to revolve
+ * @param[in]  slen  @n the length of Json array
  * @param[in]  pos   @n cursor
  * @param[out] entry @n pointer to the next entry from the array
  * @param[out] len   @n entry length
@@ -123,9 +151,9 @@ char *json_get_next_object(int type, char *str, char **key, int *key_len, char *
  * @see None.
  * @note None.
  */
-#define json_array_for_each_entry(str, pos, entry, len, type) \
-    for (pos = json_get_object(JARRAY, str); \
-         pos!=0 && *pos!=0 && (pos=json_get_next_object(JARRAY, ++pos, 0, 0, &entry, &len, &type))!=0; )
+#define json_array_for_each_entry(str, slen, pos, entry, len, type) \
+    for (pos = json_get_object(JARRAY, str, str + slen); \
+         pos != NULL && *pos!= 0 && (pos=json_get_next_object(JARRAY, ++pos, str + slen, 0, 0, &entry, &len, &type))!=0; )
 
 
 /**
