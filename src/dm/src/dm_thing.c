@@ -535,7 +535,7 @@ static void install_cjson_item_data_type(void *dst, const char *key, const char 
 
         for (index = 0; index < data_type->data_type_specs_number; ++index) {
             lite_property_item = (lite_property_t *)data_type->specs + index;
-            snprintf(_key_index, KEY_BUFF_SIZE - 1, "[%u]", index + 1);
+            snprintf(_key_index, KEY_BUFF_SIZE - 1, "[%lu]", index + 1);
             spec_val = LITE_json_value_of_ext2(_key_index, dm_val, dm_len, &spec_len);
             if (spec_val) {
                 lite_property_item = (lite_property_t *)data_type->specs + index;

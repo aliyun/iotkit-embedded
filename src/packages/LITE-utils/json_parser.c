@@ -27,54 +27,51 @@
 
 #define json_debug log_debug
 
-typedef struct JSON_NV {
-    int         nLen;
-    int         vLen;
-    int         vType;
-    char       *pN;
-    char       *pV;
-} JSON_NV;
-
-char *json_get_object(int type, char *str)
+char *json_get_object(int type, char *str, char *str_end)
 {
-    char *pos = 0;
+    char *pos = NULL;
     char ch = (type == JOBJECT) ? '{' : '[';
-    while (str != 0 && *str != 0) {
+
+    if (!str || !str_end) {
+        return NULL;
+    }
+
+    while (str != NULL && *str != 0 && str < str_end) {
         if (*str == ' ') {
             str++;
             continue;
         }
-        pos = (*str == ch) ? str : 0;
+        pos = (*str == ch) ? str : NULL;
         break;
     }
     return pos;
 }
 
-char *json_get_next_object(int type, char *str, char **key, int *key_len,
+char *json_get_next_object(int type, char *str, char *str_end, char **key, int *key_len,
                            char **val, int *val_len, int *val_type)
 {
     char    JsonMark[JTYPEMAX][2] = { { '\"', '\"' }, { '{', '}' }, { '[', ']' }, { '0', ' ' } };
-    int     iMarkDepth = 0, iValueType = JNONE, iNameLen = 0, iValueLen = 0;
+    int     iMarkDepth = 0, iValueType = JNONE, iNameLen = 0, iValueLen = 0, iStringDepth = 0;
     char   *p_cName = 0, *p_cValue = 0, *p_cPos = str;
 
     if (type == JOBJECT) {
         /* Get Key */
-        p_cPos = strchr(p_cPos, '"');
+        p_cPos = strchr(p_cPos, '\"');
         if (!p_cPos) {
-            return 0;
+            goto do_exit;
         }
         p_cName = ++p_cPos;
-        p_cPos = strchr(p_cPos, '"');
+        p_cPos = strchr(p_cPos, '\"');
         if (!p_cPos) {
-            return 0;
+            goto do_exit;
         }
         iNameLen = p_cPos - p_cName;
 
         /* Get Value */
         p_cPos = strchr(p_cPos, ':');
     }
-    while (p_cPos && *p_cPos) {
-        if (*p_cPos == '"') {
+    while (p_cPos && *p_cPos && p_cPos < str_end) {
+        if (*p_cPos == '\"') {
             iValueType = JSTRING;
             p_cValue = ++p_cPos;
             break;
@@ -86,7 +83,7 @@ char *json_get_next_object(int type, char *str, char **key, int *key_len,
             iValueType = JARRAY;
             p_cValue = p_cPos++;
             break;
-        } else if (*p_cPos >= '0' && *p_cPos <= '9') {
+        } else if ((*p_cPos == '-') || (*p_cPos >= '0' && *p_cPos <= '9')) {
             iValueType = JNUMBER;
             p_cValue = p_cPos++;
             break;
@@ -97,7 +94,8 @@ char *json_get_next_object(int type, char *str, char **key, int *key_len,
         }
         p_cPos++;
     }
-    while (p_cPos && *p_cPos && iValueType > JNONE) {
+
+    while (p_cPos && *p_cPos && p_cPos < str_end && iValueType > JNONE) {
         if (iValueType == JBOOLEAN) {
             int     len = strlen(p_cValue);
 
@@ -115,27 +113,49 @@ char *json_get_next_object(int type, char *str, char **key, int *key_len,
                 break;
             }
         } else if (iValueType == JNUMBER) {
-            if (*p_cPos < '0' || *p_cPos > '9') {
+            if ((*p_cPos < '0' || *p_cPos > '9') && (*p_cPos != '.') && (*p_cPos != '+') \
+                && (*p_cPos != '-') && ((*p_cPos != 'e')) && (*p_cPos != 'E')) {
+                iValueLen = p_cPos - p_cValue;
+                break;
+            }
+        } else if (iValueType == JSTRING) {
+            if (*p_cPos == '\"') {
                 iValueLen = p_cPos - p_cValue;
                 break;
             }
         } else if (*p_cPos == JsonMark[iValueType][1]) {
-            if (iMarkDepth == 0) {
-                iValueLen = p_cPos - p_cValue + (iValueType == JSTRING ? 0 : 1);
-                p_cPos++;
-                break;
-            } else {
-                iMarkDepth--;
+            if (iStringDepth  == 0) {
+                if (iMarkDepth == 0) {
+                    iValueLen = p_cPos - p_cValue + 1;
+                    p_cPos++;
+                    break;
+                } else {
+                    iMarkDepth--;
+                }
             }
         } else if (*p_cPos == JsonMark[iValueType][0]) {
-            iMarkDepth++;
+            if (iStringDepth == 0) {
+                iMarkDepth++;
+            }
+        } else if (*p_cPos == '\"') {
+            if (iStringDepth) {
+                iStringDepth = 0;
+            } else {
+                iStringDepth = 1;
+            }
         }
         p_cPos++;
     }
 
     if (type == JOBJECT) {
+        if ((p_cName + iNameLen) > str_end) {
+            goto do_exit;
+        }
         *key = p_cName;
         *key_len = iNameLen;
+    }
+    if ((p_cValue + iValueLen) > str_end) {
+        goto do_exit;
     }
 
     *val = p_cValue;
@@ -146,35 +166,32 @@ char *json_get_next_object(int type, char *str, char **key, int *key_len,
     } else {
         return p_cValue + iValueLen;
     }
+
+do_exit:
+    *val = NULL;
+    *val_len = 0;
+    *key = NULL;
+    *key_len = 0;
+    return NULL;
 }
 
 int json_parse_name_value(char *p_cJsonStr, int iStrLen, json_parse_cb pfnCB, void *p_CBData)
 {
     char    *pos = 0, *key = 0, *val = 0;
     int     klen = 0, vlen = 0, vtype = 0;
-    char    last_char = 0;
     int     ret = JSON_RESULT_ERR;
 
     if (p_cJsonStr == NULL || iStrLen == 0 || pfnCB == NULL) {
         return ret;
     }
 
-    if (iStrLen != strlen(p_cJsonStr)) {
-        log_warning("Backup last_char since %d != %d", iStrLen, (int)strlen(p_cJsonStr));
-        backup_json_str_last_char(p_cJsonStr, iStrLen, last_char);
-    }
-
-    json_object_for_each_kv(p_cJsonStr, pos, key, klen, val, vlen, vtype) {
+    json_object_for_each_kv(p_cJsonStr, iStrLen, pos, key, klen, val, vlen, vtype) {
         if (key && klen && val && vlen) {
             ret = JSON_RESULT_OK;
             if (JSON_PARSE_FINISH == pfnCB(key, klen, val, vlen, vtype, p_CBData)) {
                 break;
             }
         }
-    }
-
-    if (iStrLen != strlen(p_cJsonStr)) {
-        restore_json_str_last_char(p_cJsonStr, iStrLen, last_char);
     }
 
     return ret;
@@ -185,7 +202,7 @@ int json_get_value_by_name_cb(char *p_cName, int iNameLen, char *p_cValue, int i
 {
     JSON_NV     *p_stNameValue = (JSON_NV *)p_CBData;
 
-#if (JSON_DEBUG == 1)
+#ifdef JSON_DEBUG
     int         i;
 
     if (p_cName) {
@@ -203,7 +220,7 @@ int json_get_value_by_name_cb(char *p_cName, int iNameLen, char *p_cValue, int i
     }
 #endif
 
-    if (!strncmp(p_cName, p_stNameValue->pN, p_stNameValue->nLen)) {
+    if ((iNameLen == p_stNameValue->nLen) && !strncmp(p_cName, p_stNameValue->pN, p_stNameValue->nLen)) {
         p_stNameValue->pV = p_cValue;
         p_stNameValue->vLen = iValueLen;
         p_stNameValue->vType = iValueType;
@@ -231,3 +248,21 @@ char *json_get_value_by_name(char *p_cJsonStr, int iStrLen, char *p_cName, int *
     return stNV.pV;
 }
 
+char *json_get_value_by_name_len(char *p_cJsonStr, int iStrLen, char *p_cName, int p_cNameLen, int *p_iValueLen,
+                                 int *p_iValueType)
+{
+    JSON_NV     stNV;
+
+    memset(&stNV, 0, sizeof(stNV));
+    stNV.pN = p_cName;
+    stNV.nLen = p_cNameLen;
+    if (JSON_RESULT_OK == json_parse_name_value(p_cJsonStr, iStrLen, json_get_value_by_name_cb, (void *)&stNV)) {
+        if (p_iValueLen) {
+            *p_iValueLen = stNV.vLen;
+        }
+        if (p_iValueType) {
+            *p_iValueType = stNV.vType;
+        }
+    }
+    return stNV.pV;
+}

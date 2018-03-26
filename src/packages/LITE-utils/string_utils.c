@@ -19,7 +19,6 @@
 
 #include "lite-utils_internal.h"
 #include "string_utils.h"
-#include "iot_import.h"
 
 char *LITE_format_string(const char *fmt, ...)
 {
@@ -48,30 +47,44 @@ char *LITE_format_string(const char *fmt, ...)
 
 char *LITE_format_nstring(const int len, const char *fmt, ...)
 {
-    va_list         ap;
     char           *tmp = NULL;
     char           *dst;
-    int             rc = -1;
+    char           *module_name = NULL;
+    int             magic = 0;
+    va_list         ap;
 
     va_start(ap, fmt);
-    tmp = HAL_Malloc(len+2);
-    memset(tmp, 0, len+2);
-    rc = HAL_Vsnprintf(tmp, len+1, fmt, ap);
+    magic = va_arg(ap, int);
+    if (MEM_MAGIC == magic) {
+        module_name = va_arg(ap, char *);
+    }
+    if (!module_name) {
+        va_start(ap, fmt);
+    }
+
+    tmp = LITE_malloc(len + 2, magic, module_name);
+
+    if (NULL == tmp) {
+        return NULL;
+    }
+    memset(tmp, 0, len + 2);
+    UTILS_vsnprintf(tmp, len + 1, fmt, ap);
     va_end(ap);
     LITE_ASSERT(tmp);
-    LITE_ASSERT(rc < 1024);
 
-    dst = LITE_malloc(len + 1);
+    dst = LITE_malloc(len + 1, magic, module_name);
     LITE_snprintf(dst, (len + 1), "%s", tmp);
-    HAL_Free(tmp);
-
+    LITE_free(tmp);
     return dst;
+
 }
 
-char *LITE_strdup(const char *src)
+char *LITE_strdup(const char *src, ...)
 {
     int             len = 0;
     char           *dst = NULL;
+    int             magic = 0;
+    char           *module_name = NULL;
 
     if (!src) {
         return NULL;
@@ -82,7 +95,19 @@ char *LITE_strdup(const char *src)
         return NULL;
     }
 
-    dst = (char *)LITE_malloc(sizeof(char) * len);
+#if WITH_MEM_STATS_PER_MODULE
+
+    va_list         ap;
+    va_start(ap, src);
+    magic = va_arg(ap, int);
+    if (MEM_MAGIC == magic) {
+        module_name = va_arg(ap, char *);
+    }
+    va_end(ap);
+#endif
+
+    dst = (char *)LITE_malloc(sizeof(char) * len, magic, module_name);
+
     if (!dst) {
         return NULL;
     }
@@ -131,7 +156,7 @@ void LITE_hexstr_convert(char *hexstr, uint8_t *out_buf, int in_len)
         return;
     }
 
-    while (i < in_len) {
+    while (i < in_len / 2) {
         ch0 = _hexval_of_char((char)hexstr[2 * i]);
         ch1 = _hexval_of_char((char)hexstr[2 * i + 1]);
         out_buf[i] = (ch0 << 4 | ch1);
@@ -167,3 +192,4 @@ void LITE_replace_substr(char originalString[], char key[], char swap[])
         }
     }
 }
+
