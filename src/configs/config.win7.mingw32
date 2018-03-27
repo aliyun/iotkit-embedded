@@ -1,6 +1,7 @@
 CONFIG_ENV_CFLAGS   += \
     -Os -Wall -Werror \
     -D_PLATFORM_IS_WINDOWS_ \
+    -DUSING_UTILS_JSON \
 
 CROSS_PREFIX        := i686-w64-mingw32-
 
