@@ -189,9 +189,17 @@ int HAL_SetProductKey(_IN_ char* product_key)
     if (len > PRODUCT_KEY_LEN) return -1;
     memset(_product_key, 0x0, PRODUCT_KEY_LEN + 1);
     strncpy(_product_key, product_key, len);
+	FILE *fp = fopen("pk", "w");
+    if(fp == NULL)
+    	return -1;
+    unsigned int written_len = 0;
+	written_len = fwrite(product_key, 1, strlen(product_key), fp);
+
+	if (written_len != strlen(product_key)) {
+		return -1;
+	}
 #endif
-    return len;
-}
+    return written_len;
 
 
 int HAL_SetDeviceName(_IN_ char* device_name)
@@ -201,8 +209,17 @@ int HAL_SetDeviceName(_IN_ char* device_name)
     if (len > DEVICE_NAME_LEN) return -1;
     memset(_device_name, 0x0, DEVICE_NAME_LEN + 1);
     strncpy(_device_name, device_name, len);
+	FILE *fp = fopen("dn", "w");
+    if(fp == NULL)
+    	return -1;
+    unsigned int written_len = 0;
+	written_len = fwrite(device_name, 1, strlen(device_name), fp);
+
+	if (written_len != strlen(device_name)) {
+		return -1;
+	}
 #endif
-    return len;
+    return written_len;
 }
 
 
@@ -213,8 +230,17 @@ int HAL_SetDeviceSecret(_IN_ char* device_secret)
     if (len > DEVICE_SECRET_LEN) return -1;
     memset(_device_secret, 0x0, DEVICE_SECRET_LEN + 1);
     strncpy(_device_secret, device_secret, len);
+    FILE *fp = fopen("ds", "w");
+    if(fp == NULL)
+    	return -1;
+    unsigned int written_len = 0;
+	written_len = fwrite(device_secret, 1, strlen(device_secret), fp);
+
+	if (written_len != strlen(device_secret)) {
+		return -1;
+	}
 #endif
-    return len;
+    return written_len;
 }
 
 
@@ -225,8 +251,17 @@ int HAL_SetProductSecret(_IN_ char* product_secret)
     if (len > PRODUCT_SECRET_LEN) return -1;
     memset(_product_secret, 0x0, PRODUCT_SECRET_LEN + 1);
     strncpy(_product_secret, product_secret, len);
+	FILE *fp = fopen("ps", "w");
+    if(fp == NULL)
+    	return -1;
+    unsigned int written_len = 0;
+	written_len = fwrite(product_secret, 1, strlen(product_secret), fp);
+
+	if (written_len != strlen(product_secret)) {
+		return -1;
+	}
 #endif
-    return len;
+    return written_len;
 }
 
 int HAL_GetProductKey(_OU_ char* product_key)
@@ -236,9 +271,12 @@ int HAL_GetProductKey(_OU_ char* product_key)
 
 #ifdef __DEMO__
     strncpy(product_key, _product_key, len);
+	FILE * fp = fopen("pk","r");
+    if (NULL == fp) return -1;
+    len = fread(product_key,PRODUCT_KEY_LEN,1,fp);
 #endif
 
-    return len;
+    return strlen(product_key);
 }
 
 int HAL_GetProductSecret(_OU_ char* product_secret)
@@ -248,9 +286,12 @@ int HAL_GetProductSecret(_OU_ char* product_secret)
 
 #ifdef __DEMO__
     strncpy(product_secret, _product_secret, len);
+	FILE * fp = fopen("ps","r");
+    if (NULL == fp) return -1;
+    len = fread(product_secret,PRODUCT_SECRET_LEN,1,fp);
 #endif
 
-    return len;
+    return strlen(product_secret);
 }
 
 int HAL_GetDeviceName(_OU_ char* device_name)
@@ -260,6 +301,9 @@ int HAL_GetDeviceName(_OU_ char* device_name)
 
 #ifdef __DEMO__
     strncpy(device_name, _device_name, len);
+	FILE * fp = fopen("dn","r");
+    if (NULL == fp) return -1;
+    len = fread(device_name,DEVICE_NAME_LEN,1,fp);
 #endif
 
     return strlen(device_name);
@@ -272,9 +316,12 @@ int HAL_GetDeviceSecret(_OU_ char* device_secret)
 
 #ifdef __DEMO__
     strncpy(device_secret, _device_secret, len);
+    FILE * fp = fopen("ds","r");
+    if (NULL == fp) return -1;
+    len = fread(device_secret,DEVICE_SECRET_LEN,1,fp);
 #endif
 
-    return len;
+    return strlen(device_secret);
 }
 
 int HAL_GetFirmwareVesion(_OU_ char* version)
