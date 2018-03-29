@@ -55,7 +55,7 @@ static int _calc_hmac_signature(
                       timestamp_str);
     LITE_ASSERT(rc < sizeof(hmac_source));
     log_debug("| source: %s (%d)", hmac_source, (int)strlen(hmac_source));
-    log_debug("| secret: %s (%d)", dev->device_secret, (int)strlen(dev->device_secret));
+    //log_debug("| secret: %s (%d)", dev->device_secret, (int)strlen(dev->device_secret));  /* remove secert log */
 
 #if USING_SHA1_IN_HMAC
     log_debug("| method: %s", SHA_METHOD);
@@ -237,7 +237,7 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
     log_debug("%20s : %-s", "ProductKey", dev->product_key);
     log_debug("%20s : %-s", "DeviceName", dev->device_name);
     log_debug("%20s : %-s", "DeviceID", dev->device_id);
-    log_debug("%20s : %-s", "DeviceSecret", dev->device_secret);
+    //log_debug("%20s : %-s", "DeviceSecret", dev->device_secret);   /* remove secert log */
     log_debug("%s", "....................................................");
     log_debug("%20s : %-s", "PartnerID Buf", partner_id);
     log_debug("%20s : %-s", "ModuleID Buf", module_id);
