@@ -27,9 +27,9 @@ option(FEATURE_MQTT_SHADOW                "MQTT shadow enabled or not"     ${FEA
 option(FEATURE_COAP_DTLS_SUPPORT          "coap w/ dtls support or not"    ${FEATURE_COAP_COMM_ENABLED})
 option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"                                   OFF)
 option(FEATURE_CLOUD_CONN_ENABLED         "cloud connection enabled or not"                         OFF)
-option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                      OFF)
-option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                             OFF)
-option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                              OFF)
+option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                       ON)
+option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                              ON)
+option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                               ON)
 option(FEATURE_SUPPORT_PRODUCT_SECRET     "support via product_secret get device_secret"            OFF)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
@@ -73,6 +73,8 @@ endif(FEATURE_SERVICE_OTA_ENABLED)
 if(FEATURE_SUPPORT_PRODUCT_SECRET)
     add_definitions(-DSUPPORT_PRODUCT_SECRET)
 endif(FEATURE_SUPPORT_PRODUCT_SECRET)
+
+add_definitions(-DIOTX_WITHOUT_ITLS)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${GCC_ARCH} -Wall -Wno-comment -Wno-write-strings -Wno-format-extra-args -Winline -Wno-unused-result -Wno-format")
 ########################################################################
