@@ -75,6 +75,7 @@ if(FEATURE_SUPPORT_PRODUCT_SECRET)
 endif(FEATURE_SUPPORT_PRODUCT_SECRET)
 
 add_definitions(-DIOTX_WITHOUT_ITLS)
+add_definitions(-DIOTX_NET_INIT_WITH_PK_EXT)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${GCC_ARCH} -Wall -Wno-comment -Wno-write-strings -Wno-format-extra-args -Winline -Wno-unused-result -Wno-format")
 ########################################################################
