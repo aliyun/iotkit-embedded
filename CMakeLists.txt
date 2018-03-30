@@ -74,8 +74,6 @@ if(FEATURE_SUPPORT_PRODUCT_SECRET)
     add_definitions(-DSUPPORT_PRODUCT_SECRET)
 endif(FEATURE_SUPPORT_PRODUCT_SECRET)
 
-add_definitions(-DIOTX_WITHOUT_ITLS)
-
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${GCC_ARCH} -Wall -Wno-comment -Wno-write-strings -Wno-format-extra-args -Winline -Wno-unused-result -Wno-format")
 ########################################################################
 # add -fPIC property to all targets
