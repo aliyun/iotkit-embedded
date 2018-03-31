@@ -24,6 +24,32 @@
 
 **希望能够看到更多的Contributor, 共同开发设备端SDK的后续版本!**
 
+# 版本V2.10
+- 发布日期: 2018/03/31
+- 开发语言: C语言
+- 开发环境: 64位Linux, GNU Make
+- 下载链接: RELEASED_V2_10_20180331.zip
+- 更新内容:
+  - **支持cmake:** 支持cmake编译方式，可以直接在linux和windows下使用QT或者VS2017打开工程进行编译运行
+  - **支持云端对物模型的抽象**: 设置`FEATURE_CMP_ENABLED = y`和`FEATURE_DM_ENABLED`, 可以支持物模型抽象，提供属性，服务和事件的接口
+  - **支持一型一密**: 设置`FEATURE_SUPPORT_PRODUCT_SECRET = y`可以支持一型一密功能，优化产线流程
+  - **支持iTLS功能**: 设置`FEATURE_MQTT_ID2_AUTH = y`可以支持ID2加密方式，使用iTLS进行数据建连，增加安全性，降低内存消耗
+  - **支持远程配置**: 设置`FEATURE_SERVICE_OTA_ENABLED = y`，可以支持云端推送配置信息到设备
+  - **优化主子设备功能**：主子设备添加部分功能
+
+# 版本V2.03
+
+- 发布日期: 2018/01/31
+- 开发语言: C语言
+- 开发环境: 64位Linux, GNU Make
+- 下载链接: [RELEASED_V2_03_20180131.zip](http://aliyun-iot.oss-cn-hangzhou.aliyuncs.com/iot-sdk-c/RELEASED_V2_03_20180130.7z)
+- 更新内容:
+    - **支持主子设备功能:** 设置`FEATURE_SUBDEVICE_ENABLED = y`，可以支持子设备通过主设备(网关设备)进行数据交互
+    - **升级HTTP通道:** 优化HTTP流程
+    - **优化TLS:** 修复内存泄漏问题
+    - **优化OTA的配置:** 可以更合理的开关OTA功能
+    - **升级MQTT通道:** 支持topic更长，更多的订阅请求；MQTT支持多线程
+
 # 版本V2.02
 
 - 发布日期: 2017/11/30

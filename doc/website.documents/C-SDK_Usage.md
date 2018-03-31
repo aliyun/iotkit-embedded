@@ -13,10 +13,8 @@
     FEATURE_HTTP_COMM_ENABLED    = y          # 是否打开HTTP通道的总开关
     FEATURE_SUBDEVICE_ENABLED    = n          # 是否打开主子设备功能的总开关
     FEATURE_SUBDEVICE_STATUS     = gateway    # 主子设备功能所处的功能状态
-    FEATURE_CLOUD_CONN_ENABLED   = n          # 是否打开CLOUD_CONN功能的总开关
     FEATURE_CMP_ENABLED          = y          # 是否打开CMP功能的总开关
     FEATURE_CMP_VIA_MQTT_DIRECT  = y          # CMP功能连云部分是否直接使用MQTT的开关
-    FEATURE_CMP_VIA_CLOUD_CONN   = MQTT       # CMP功能连云部分使用CLOUD_CONN选择协议的开关
     FEATURE_MQTT_DIRECT_NOITLS   = y          # 是否打开MQTT直连无ITLS的分开关 目前itls只在id2模式支持
     FEATURE_DM_ENABLED           = y          # 是否打开DM功能的总开关
     FEATURE_SERVICE_OTA_ENABLED  = y          # 是否打开linkit中OTA功能的分开关
@@ -32,9 +30,7 @@
 | FEATURE_HTTP_COMM_ENABLED   | 是否使能Https通道功能的总开关                                   |
 | FEATURE_SUBDEVICE_ENABLED   | 是否使能主子设备通道功能的总开关                                    |
 | FEATURE_SUBDEVICE_STATUS    | 主子设备功能所处的功能状态，取值有网关gateway(gw=1)和子设备subdevice(gw=0) |
-| FEATURE_CLOUD_CONN_ENABLED  | 是否打开CLOUD_CONN功能的总开关, CLOUD_CONN支持MQTT/CoAP/HTTP之间的切换与扩展|
 | FEATURE_CMP_ENABLED         | 是否打开CMP功能的总开关,CMP: connectivity management platform |
-| FEATURE_CMP_VIA_MQTT_DIRECT | CMP功能连云部分是否直接使用MQTT的开关. CMP连云部分可以选择MQTT_DIRECT和CLOUD_CONN|
 | FEATURE_CMP_VIA_CLOUD_CONN  | CMP功能连云部分选择使用CLOUD_CONN，该开关选择具体协议：MQTT/CoAP/HTTP|
 | FEATURE_MQTT_ID2_AUTH       | ID2功能需打开ITLS开关支持|
 | FEATURE_SERVICE_COTA_ENABLED| 是否打开linkit中COTA功能的分开关，需打开FEATURE_SERVICE_OTA_ENABLED支持|
@@ -149,13 +145,11 @@
     89  linkkit_answer_service
     90  linkkit_invoke_raw_service
     91  linkkit_trigger_event
-    92  awss_start
-    93  awss_config_press
+    92  linkkit_fota_init
+    93  linkkit_invoke_fota_service
     94  linkkit_fota_init
-    95  linkkit_invoke_fota_service
-    96  linkkit_fota_init
-    97  linkkit_invoke_cota_get_config
-    98  linkkit_invoke_cota_service
+    95  linkkit_invoke_cota_get_config
+    96  linkkit_invoke_cota_service
 
 
 
@@ -300,10 +294,8 @@
 |  8    | linkkit_answer_service          | 对云端服务请求进行回应                                                          |
 |  9    | linkkit_invoke_raw_service      | 向云端发送裸数据                                                                |
 | 10    | linkkit_trigger_event           | 上报设备事件到云端                                                              |
-| 11    | awss_start                      | 开配配网服务，但是真正的配网功能并没有使能，仅仅使能了设备发现功能              |
-| 12    | awss_config_press               | 使能配网功能，awss_start 开始配网服务后真正的配网功能并没有使能。 另外，一旦配网功能使能，设备发现功能就会关闭 ，用户触控了设备之后才可以调用该接口使能配网功能。                        |
-| 13    | linkkit_fota_init               | 初始化 OTA-fota 服务，并安装回调函数(需编译设置宏 SERVICE_OTA_ENABLED )              |
-| 14    | linkkit_invoke_fota_service     | 执行fota服务                                                                    |
-| 15    | linkkit_fota_init               | 初始化 OTA-cota 服务，并安装回调函数(需编译设置宏 SERVICE_OTA_ENABLED SERVICE_COTA_ENABLED )     |
-| 16    | linkkit_invoke_cota_get_config  | 设备请求远程配置                                                                    |
-| 17    | linkkit_invoke_cota_service     | 执行cota服务                                                                    |
+| 11    | linkkit_fota_init               | 初始化 OTA-fota 服务，并安装回调函数(需编译设置宏 SERVICE_OTA_ENABLED )              |
+| 12    | linkkit_invoke_fota_service     | 执行fota服务                                                                    |
+| 13    | linkkit_fota_init               | 初始化 OTA-cota 服务，并安装回调函数(需编译设置宏 SERVICE_OTA_ENABLED SERVICE_COTA_ENABLED )     |
+| 14    | linkkit_invoke_cota_get_config  | 设备请求远程配置                                                                    |
+| 15    | linkkit_invoke_cota_service     | 执行cota服务                                                                    |
