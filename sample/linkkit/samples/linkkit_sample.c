@@ -20,9 +20,16 @@
  * example for product "鐏�-Demo"
  */
 
+
+#ifdef ON_DAILY
+#define DM_PRODUCT_KEY_1        "a1nmfrdo3MI"
+#define DM_DEVICE_NAME_1        "light_demo_for_ilop_device_test"
+#define DM_DEVICE_SECRET_1      "kobN5zg08IwlgbqSUeaxo0vbEsOiEI7b"
+#else
 #define DM_PRODUCT_KEY_1        "a1AzoSi5TMc"
 #define DM_DEVICE_NAME_1        "test_light_for_dm_cmp_2"
 #define DM_DEVICE_SECRET_1      "XjdICFKdWrm8pDughFg2cAImO6O0aDhE"
+#endif
 #define DM_DEVICE_ID_1          "IoTxHttpTestDev_001"
 
 
@@ -372,8 +379,16 @@ int main(int argc, char* argv[])
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
 
-    HAL_SetProductKey(DM_PRODUCT_KEY_1);
+    HAL_SetProductKey(DM_PRODUCT_KEY_1);    
+    
+#ifdef MQTT_ID2_AUTH
+    char __device_id2[TFS_ID2_LEN + 1];
+    HAL_GetID2(__device_id2);
+    HAL_SetDeviceName(__device_id2);
+#else
     HAL_SetDeviceName(DM_DEVICE_NAME_1);
+#endif
+
     HAL_SetDeviceSecret(DM_DEVICE_SECRET_1);
 
     int opt;

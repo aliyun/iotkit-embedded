@@ -224,15 +224,6 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    /* Subscribe the specific topic */
-    rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
-    if (rc < 0) {
-        IOT_MQTT_Destroy(&pclient);
-        EXAMPLE_TRACE("IOT_MQTT_Subscribe() failed, rc = %d", rc);
-        rc = -1;
-        goto do_exit;
-    }
-
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     strcpy(msg_pub, "message: hello! start!");
@@ -243,8 +234,23 @@ int mqtt_client(void)
     topic_msg.payload = (void *)msg_pub;
     topic_msg.payload_len = strlen(msg_pub);
 
+    EXAMPLE_TRACE("\n publish message: \n topic: %s\n payload: \%s\n", TOPIC_UPDATE, topic_msg.payload);
+
     rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
-    EXAMPLE_TRACE("rc = IOT_MQTT_Publish() = %d", rc);
+    EXAMPLE_TRACE("rc = IOT_MQTT_Publish() = %d", rc);    
+
+    /* Initialize topic information */
+    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+    strcpy(msg_pub, "update: hello! start!");
+
+    /* Subscribe the specific topic */
+    rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
+    if (rc < 0) {
+        IOT_MQTT_Destroy(&pclient);
+        EXAMPLE_TRACE("IOT_MQTT_Subscribe() failed, rc = %d", rc);
+        rc = -1;
+        goto do_exit;
+    }
 
     do {
         /* Generate topic message */
