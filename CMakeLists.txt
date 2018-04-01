@@ -30,7 +30,7 @@ option(FEATURE_CLOUD_CONN_ENABLED         "cloud connection enabled or not"     
 option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                       ON)
 option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                              ON)
 option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                               ON)
-option(FEATURE_SUPPORT_PRODUCT_SECRET     "support via product_secret get device_secret"             ON)
+option(FEATURE_SUPPORT_PRODUCT_SECRET     "support via product_secret get device_secret"             OFF)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
 set(GCC_ARCH native CACHE STRING "GCC compile for specific architecture.")
@@ -53,13 +53,10 @@ if(FEATURE_SUBDEVICE_ENABLED)
     add_definitions(-DSUBDEVICE_ENABLED)
 endif(FEATURE_SUBDEVICE_ENABLED)
 
-if(FEATURE_CLOUD_CONN_ENABLED)
-    add_definitions(-DCLOUD_CONN_ENABLED)
-endif(FEATURE_CLOUD_CONN_ENABLED)
-
 if(FEATURE_CMP_ENABLED)
     add_definitions(-DCMP_ENABLED)
 endif(FEATURE_CMP_ENABLED)
+add_definitions(-DCMP_SUPPORT_TOPIC_DISPATCH)
 
 if(FEATURE_DM_ENABLED)
     add_definitions(-DDM_ENABLED)

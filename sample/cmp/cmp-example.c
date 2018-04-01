@@ -31,13 +31,15 @@
 #define IOTX_PRODUCT_KEY        "gsYfsxQJgeD"
 #define IOTX_DEVICE_NAME        "DailyEnvDN"
 #define IOTX_DEVICE_SECRET      "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
-#else
-#define IOTX_PRODUCT_KEY        "a19btNOIiaB"
-#define IOTX_DEVICE_NAME        "iVRDoE5B63WBVgqhXnPp"
-#define IOTX_DEVICE_SECRET      "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
-#endif
+#define IOTX_PRODUCT_SECRET		"bVhigb6DwhQOJGcG"    // TODO
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
-#define IOTX_PRODUCT_SECRET		"bVhigb6DwhQOJGcG"
+#else
+#define IOTX_PRODUCT_KEY        "yfTuLfBJTiL"
+#define IOTX_DEVICE_NAME        "TestDeviceForDemo"
+#define IOTX_DEVICE_SECRET      "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+#define IOTX_PRODUCT_SECRET		"bVhigb6DwhQOJGcG"      // TODO
+#define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
+#endif
 
     
 /* These are pre-defined topics */
@@ -54,6 +56,20 @@
         HAL_Printf("%s", "\r\n"); \
     } while(0)
         
+
+static void _register_func(iotx_cmp_send_peer_pt source, iotx_cmp_message_info_pt msg, void *user_data)
+{
+    printf("source %s:%s\n", source->product_key, source->device_name);
+
+    printf("type %d\n", msg->message_type);
+    printf("URI %s\n", msg->URI);
+    printf("URI_type %d\n", msg->URI_type);
+    printf("code %d\n", msg->code);
+    printf("id %d\n", msg->id);
+    printf("method %s\n", msg->method);
+    printf("parameter %s\n", (char*)msg->parameter);
+}
+
 
 static void _event_handle(void *pcontext, iotx_cmp_event_msg_pt msg, void *user_data) 
 {
@@ -73,22 +89,12 @@ static void _event_handle(void *pcontext, iotx_cmp_event_msg_pt msg, void *user_
         printf("result %d\n", result->result);
         printf("URI %s\n", result->URI);
         printf("URI_type %d\n", result->URI_type);        
+    } else if (IOTX_CMP_EVENT_NEW_DATA_RECEIVED == msg->event_id) {
+        iotx_cmp_new_data_pt new_data = (iotx_cmp_new_data_pt)msg->msg;
+        _register_func(new_data->peer, new_data->message_info, user_data);
     }
 }
 
-
-static void _register_func(iotx_cmp_send_peer_pt source, iotx_cmp_message_info_pt msg, void *user_data)
-{
-    printf("source %s:%s\n", source->product_key, source->device_name);
-
-    printf("type %d\n", msg->message_type);
-    printf("URI %s\n", msg->URI);
-    printf("URI_type %d\n", msg->URI_type);
-    printf("code %d\n", msg->code);
-    printf("id %d\n", msg->id);
-    printf("method %s\n", msg->method);
-    printf("parameter %s\n", (char*)msg->parameter);
-}
 
 
 int cmp_client()
