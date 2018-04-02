@@ -149,6 +149,7 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
 
     /* print topic name and topic message */
     EXAMPLE_TRACE("----");
+    EXAMPLE_TRACE("packetId: %d", ptopic_info->packet_id);
     EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
                   ptopic_info->topic_len,
                   ptopic_info->ptopic,
@@ -226,7 +227,7 @@ int mqtt_client(void)
 
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
-    strcpy(msg_pub, "message: hello! start!");
+    strcpy(msg_pub, "update: hello! start!");
 
     topic_msg.qos = IOTX_MQTT_QOS1;
     topic_msg.retain = 0;
@@ -234,15 +235,16 @@ int mqtt_client(void)
     topic_msg.payload = (void *)msg_pub;
     topic_msg.payload_len = strlen(msg_pub);
 
-    EXAMPLE_TRACE("\n publish message: \n topic: %s\n payload: \%s\n", TOPIC_UPDATE, topic_msg.payload);
+    rc = IOT_MQTT_Publish(pclient, TOPIC_UPDATE, &topic_msg);
+    if (rc < 0) {
+        IOT_MQTT_Destroy(&pclient);
+        EXAMPLE_TRACE("error occur when publish");
+        rc = -1;
+        goto do_exit;
+    }
 
-    rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
-    EXAMPLE_TRACE("rc = IOT_MQTT_Publish() = %d", rc);    
-
-    /* Initialize topic information */
-    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
-    strcpy(msg_pub, "update: hello! start!");
-
+    EXAMPLE_TRACE("\n publish message: \n topic: %s\n payload: \%s\n rc = %d", TOPIC_UPDATE, topic_msg.payload, rc);
+    
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
@@ -251,6 +253,21 @@ int mqtt_client(void)
         rc = -1;
         goto do_exit;
     }
+
+    /* Initialize topic information */
+    memset(msg_pub, 0x0, 128);
+    strcpy(msg_pub, "data: hello! start!");
+    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+    topic_msg.qos = IOTX_MQTT_QOS1;
+    topic_msg.retain = 0;
+    topic_msg.dup = 0;
+    topic_msg.payload = (void *)msg_pub;
+    topic_msg.payload_len = strlen(msg_pub);
+
+    rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
+    EXAMPLE_TRACE("\n publish message: \n topic: %s\n payload: \%s\n rc = %d", TOPIC_DATA, topic_msg.payload, rc);
+
+    IOT_MQTT_Yield(pclient, 200);
 
     do {
         /* Generate topic message */
@@ -290,10 +307,12 @@ int mqtt_client(void)
         }
 
     } while (cnt < 1);
+        
+    IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
 
-    HAL_SleepMs(200);
+    IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Destroy(&pclient);
 
