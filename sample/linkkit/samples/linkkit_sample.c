@@ -224,7 +224,7 @@ static int thing_call_service(void* thing_id, char* service, int request_id, voi
     sample_context_t* sample = ctx;
 
     LINKKIT_PRINTF("service(%s) requested, id: thing@%p, request id:%d\n",
-                   service, thing_id, request_id);
+                   service ? service : "NULL", thing_id, request_id);
 
     if (strcmp(service, "Custom") == 0) {
 #ifdef RRPC_ENABLED
@@ -286,10 +286,42 @@ static int thing_prop_changed(void* thing_id, char* property, void* ctx)
 
         LINKKIT_PRINTF("property(%s), Red:%d, Green:%d, Blue:%d\n", property, red, green, blue);
         /* XXX: do user's process logical here. */
+    } else if (strstr(property, "structProperty") != 0) {
+        int childINTName;
+        int childFLOATName;
+        int childDATEName;
+        int childTEXTName;
+        int childBOOLName;
+        int childENUMName;
+        int childDOUBLEName;
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildINTd1e197e");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childINTName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildFLOATcdef1f2");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childFLOATName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildDATE228857b");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childDATEName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildTEXT5ad129f");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childDATEName, &value_str);
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildBOOLea5c7ba");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childDATEName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildENUMf600fe3");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childDATEName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildDOUBLEff6bba6");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childDATEName, &value_str);
+
+        LINKKIT_PRINTF("property(%s), childINTName:%d, childFLOATName:%d, childDATEName:%d, childTEXTName:%d, childBOOLName:%d, childENUMName:%d, childDOUBLEName:%d\n",\
+         property, childINTName, childFLOATName, childDATEName, childTEXTName, childBOOLName, childENUMName, childDOUBLEName);
+
     } else {
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property, NULL, &value_str);
 
-        LINKKIT_PRINTF("#### property(%s) new value set: %s ####\n", property, value_str);
+        LINKKIT_PRINTF("#### property(%s) new value set: %s ####\n", property ? property : "NULL", value_str ? value_str : "NULL");
     }
 
     /* do user's process logical here. */
