@@ -75,7 +75,7 @@
 //#define MBEDTLS_SSL_PROTO_ITLS_TEST
 //#define MBEDTLS_SSL_PROTO_ITLS_TEST_EXT
 
-#define MBEDTLS_SSL_MAX_CONTENT_LEN    (3 * 512)    /* Size of the input / output buffer */
+#define MBEDTLS_SSL_MAX_CONTENT_LEN    (4 * 512)    /* Size of the input / output buffer */
 
 #include "itls/check_config.h"
 
