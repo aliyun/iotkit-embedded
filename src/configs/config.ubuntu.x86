@@ -9,6 +9,7 @@ CONFIG_ENV_CFLAGS += \
     -DON_DAILY \
     -DUSING_UTILS_JSON \
     -DIOTX_NET_INIT_WITH_PK_EXT \
+    -DUSING_SHA1_IN_HMAC \
 
 ifneq (Darwin,$(strip $(shell uname)))
 CONFIG_ENV_CFLAGS += -rdynamic

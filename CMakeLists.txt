@@ -45,6 +45,8 @@ if(FEATURE_MQTT_DIRECT)
     add_definitions(-DMQTT_DIRECT)
 endif(FEATURE_MQTT_DIRECT)
 
+add_definitions(-DUSING_SHA1_IN_HMAC)
+
 if(FEATURE_MQTT_COMM_ENABLED)
     add_definitions(-DMQTT_COMM_ENABLED)
 endif(FEATURE_MQTT_COMM_ENABLED)
