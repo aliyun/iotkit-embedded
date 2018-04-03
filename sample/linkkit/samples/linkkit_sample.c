@@ -70,7 +70,6 @@ sample_context_t g_sample_context;
 
 #ifdef SERVICE_OTA_ENABLED
 /* callback function for fota service. */
-#ifndef SERVICE_COTA_ENABLED
 static void fota_callback(service_fota_callback_type_t callback_type, const char* version)
 {
     sample_context_t* sample;
@@ -88,7 +87,7 @@ static void fota_callback(service_fota_callback_type_t callback_type, const char
 
     /* reboot the device... */
 }
-#else
+
 static void cota_callback(service_cota_callback_type_t callback_type,
 						const char* configid,
 						uint32_t  configsize,
@@ -112,7 +111,6 @@ static void cota_callback(service_cota_callback_type_t callback_type,
 
     /* update config... */
 }
-#endif /**< SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
 
 static int on_connect(void* ctx)
@@ -453,13 +451,10 @@ int main(int argc, char* argv[])
         linkkit_set_tsl(TSL_STRING, strlen(TSL_STRING));
     }
 #ifdef SERVICE_OTA_ENABLED
-#ifndef SERVICE_COTA_ENABLED
     linkkit_fota_init(fota_callback);
-#else
     LINKKIT_PRINTF("COTA _start\n");
     linkkit_cota_init(cota_callback);
     linkkit_invoke_cota_get_config("product","file","",NULL);
-#endif /**< SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
     while (1) {
         linkkit_dispatch();
