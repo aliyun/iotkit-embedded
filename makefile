@@ -30,5 +30,5 @@ $(call CompLib_Map, CLOUD_CONN_ENABLED, src/cloud_conn)
 $(call CompLib_Map, CMP_ENABLED, src/cmp)
 $(call CompLib_Map, DM_ENABLED, src/dm)
 $(call CompLib_Map, SERVICE_OTA_ENABLED, src/fota)
-$(call CompLib_Map, SERVICE_COTA_ENABLED, src/cota)
+$(call CompLib_Map, SERVICE_OTA_ENABLED, src/cota)
 include $(RULE_DIR)/rules.mk
