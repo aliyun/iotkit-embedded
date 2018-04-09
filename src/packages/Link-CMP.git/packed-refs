@@ -1,6 +1,6 @@
 # pack-refs with: peeled fully-peeled 
 f0a84a0324a5fbab99e110c49006c326e1d9ec99 refs/heads/caosan
-44edb67bf8fca15101159063745b312489c58a94 refs/heads/develop
-f6418ee331f888490accafbd91a635a0e138d644 refs/heads/master
+cf295875b35c08475bff0e061151397b097c6c7f refs/heads/develop
+eaa81c0cf5dca2e6e67d7b4ba61b100d45afdcae refs/heads/master
 6bbbb36a73040d4d2ced1cd4a7a365dbe862561a refs/heads/no_memory_copy
 91c4434fbc7a68b5da6eaf88e7447b5834507cf0 refs/tags/linkkit_release_0.3_20180209
