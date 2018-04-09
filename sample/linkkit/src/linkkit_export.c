@@ -337,13 +337,12 @@ int linkkit_invoke_cota_service(void* data_buf, int data_buf_length)
     return ret;
 }
 int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option)
-{	config_ota_t* ota_data = cota_object;
+{
 	cota_t** ota = cota_object;
 	int ret;
 
     if (ota == NULL || *ota == NULL || (*ota)->get == NULL) return -1;
 
-    if(!ota_data->_ota_inited) return -1;
     ret = (*ota)->get(ota,config_scope,get_type,attribute_Keys,option);
 
     return ret;

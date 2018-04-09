@@ -5,11 +5,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define DM_PRODUCT_KEY        "a1AzoSi5TMc"
-#define DM_DEVICE_NAME        "test_light_for_iotx_dm_cmp_dev"
-#define DM_DEVICE_SECRET      "Hl1UjJIBXo3AzjLhYdtWEGwSllHCyBpm"
-#define DM_DEVICE_ID          "IoTxHttpTestDev_001"
-
 #define DM_IMPL_CLASS get_dm_impl_class()
 
 typedef struct {
