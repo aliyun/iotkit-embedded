@@ -1371,9 +1371,11 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
     thing_t** thing;
     message_info_t** message_info;
     dm_thing_t *dm_thing;
+    size_t params_buffer_len = 0;
+    size_t params_val_len = 0;
     char* target_property_identifier;
     int ret, i;
-    char property_key_value_buff[512] = {0};
+    char property_key_value_buff[1024] = {0};
     char* p;
     char* q = NULL;
 
@@ -1392,6 +1394,7 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
     if (property && (target_property_identifier == NULL || (property->identifier && strcmp(property->identifier, target_property_identifier) == 0))) {
         ret = install_lite_property_to_message_info(dm_thing_manager, message_info, lite_property);
 
+        params_buffer_len = sizeof(property_key_value_buff);
         if (ret == -1) {
             if(property->data_type.type == data_type_type_struct) {
                 property_key_value_buff[0] = '{';
@@ -1400,7 +1403,9 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
                     struct_lite_property = (lite_property_t*)property->data_type.specs + i;
                     ret = (*thing)->get_lite_property_value(thing, struct_lite_property, NULL, &dm_thing_manager->_get_value_str);
                     if (ret == 0 && dm_thing_manager->_get_value_str) {
-                        p = property_key_value_buff + strlen(property_key_value_buff) - 1;
+                        params_val_len = strlen(property_key_value_buff);
+                        p = property_key_value_buff + params_val_len - 1;
+
                         /* not the last item, chang from '}' to ','. */
                         if (p && *p == '}') *p = ',';
 
@@ -1408,11 +1413,11 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
                             q = dm_lite_calloc(1, strlen(dm_thing_manager->_get_value_str) + 3);
                             assert(q);
 
-                            dm_sprintf(q, "\"%s\"", dm_thing_manager->_get_value_str);
+                            dm_snprintf(q, strlen(dm_thing_manager->_get_value_str) + 3, "\"%s\"", dm_thing_manager->_get_value_str);
                             dm_thing_manager->_get_value_str = q;
                         }
 
-                        dm_sprintf(property_key_value_buff + strlen(property_key_value_buff), "\"%s\":%s}",
+                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "\"%s\":%s}",
                                    struct_lite_property->identifier, dm_thing_manager->_get_value_str);
 
                         if (q) dm_lite_free(q);
@@ -1427,14 +1432,16 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
                     dm_thing->_arr_index = i;
                     dm_thing_manager->_get_value_str = NULL;
                     ret = (*thing)->get_lite_property_value(thing, property, NULL, &dm_thing_manager->_get_value_str);
+                    params_val_len = strlen(property_key_value_buff);
+
                     if(ret == 0 && dm_thing_manager->_get_value_str) {
                         if (property->data_type.value.data_type_array_t.item_type == data_type_type_text) {
-                            dm_sprintf(property_key_value_buff + strlen(property_key_value_buff), "\"%s\",", dm_thing_manager->_get_value_str);
+                            dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "\"%s\",", dm_thing_manager->_get_value_str);
                         }else {
-                            dm_sprintf(property_key_value_buff + strlen(property_key_value_buff), "%s,", dm_thing_manager->_get_value_str);
+                            dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "%s,", dm_thing_manager->_get_value_str);
                         }
                     }else {
-                        dm_sprintf(property_key_value_buff + strlen(property_key_value_buff), "%s,", "\"\"");
+                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "%s,", "\"\"");
                     }
                 }
                 q = property_key_value_buff + strlen(property_key_value_buff) - 1;
