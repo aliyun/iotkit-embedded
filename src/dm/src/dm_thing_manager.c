@@ -756,6 +756,7 @@ static void send_request_to_uri(void* _dm_thing_manager, const char* _uri)
     char product_key[PRODUCT_KEY_MAXLEN] = {0};
     char device_name[DEVICE_NAME_MAXLEN] = {0};
     char* p;
+    int ret;
 
     assert(dm_thing_manager && uri && message_info && cmp);
 
@@ -777,8 +778,12 @@ static void send_request_to_uri(void* _dm_thing_manager, const char* _uri)
     (*message_info)->set_uri(message_info, uri_buff);
     (*message_info)->set_message_type(message_info, CMP_MESSAGE_INFO_MESSAGE_TYPE_REQUEST);
 
-    (*message_info)->serialize_to_payload_request(message_info);
+    ret = (*message_info)->serialize_to_payload_request(message_info);
 
+    if (ret == -1) {
+        dm_log_err("serialize_to_payload_request FAIL");
+        return;
+    }
     (*cmp)->send(cmp, message_info, NULL);
 
 }

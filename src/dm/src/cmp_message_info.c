@@ -44,7 +44,7 @@ static void* cmp_message_info_ctor(void* _self, va_list* params)
     self->param_list = new_object(SINGLE_LIST_CLASS, string_cmp_message_info_param_list_object_name);
     self->method = NULL;
     self->message_type = CMP_MESSAGE_INFO_MESSAGE_TYPE_REQUEST;
-
+    self->ret = -1;
     (void)params;
 
     return self;
@@ -279,6 +279,7 @@ static void serialize_params_data(void* _req_rsp_param, va_list* _params)
     cmp_message_info = va_arg(*_params, void*);
     params = va_arg(*_params, char*);
 
+    if(0 != cmp_message_info->ret) return;
     assert(req_rsp_param && cmp_message_info && req_rsp_param->key && req_rsp_param->value && params);
 
     if (strcmp(params, "{}") == 0) {
@@ -294,7 +295,9 @@ static void serialize_params_data(void* _req_rsp_param, va_list* _params)
 
         /* check if there is enough room for new key-value. */
         if (len > (CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX - strlen(params))) {
-            assert(0);
+            cmp_message_info->ret = -1;
+
+            dm_printf("\n[err] param buffer is short,len(%d) available(%lu)\n", len,(CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX - strlen(params)));
             return;
         }
 
@@ -314,12 +317,14 @@ static int cmp_message_info_serialize_to_payload_request(void* _self)
 
     assert(self->version && self->method && list && (*list));
     if (self->version && self->method && list && (*list)) {
+        self->ret = 0;
         list_iterator(list, serialize_params_data, self, params);
 #if 0
         dm_snprintf(request, CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX + 32, "{\"id\":%d,\"version\":\"%s\",\"params\":%s,\"method\":\"%s\"}",
                     self->id, self->version, params, self->method);
         cmp_message_info_set_payload(self, request, strlen(request));
 #endif
+        if(0 == self->ret) {
         cmp_message_info_set_params_data(self, params);
 
         /* for debug only. */
@@ -327,6 +332,8 @@ static int cmp_message_info_serialize_to_payload_request(void* _self)
 //        dm_printf("\nrequest:\n%s\n\n", request);
 
         ret = 0;
+        }
+        self->ret = 0;
     }
 
     return ret;
@@ -344,12 +351,14 @@ static int cmp_message_info_serialize_to_payload_response(void* _self)
 
     assert(list && (*list));
     if (list && (*list)) {
+        self->ret = 0;
         list_iterator(list, serialize_params_data, self, data);
 #if 0
         dm_snprintf(response, CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX + 32, "{\"id\":%d,\"code\":%d,\"data\":%s}",
                     self->id, self->code, data);
         cmp_message_info_set_payload(self, response, strlen(response));
 #endif
+        if(0 == self->ret) {
         cmp_message_info_set_params_data(self, data);
 
         /* for debug only. */
@@ -357,6 +366,8 @@ static int cmp_message_info_serialize_to_payload_response(void* _self)
 //        dm_printf("\nresponse:\n%s\n\n", response);
 
         ret = 0;
+        }
+        self->ret = 0;
     }
 
     return ret;

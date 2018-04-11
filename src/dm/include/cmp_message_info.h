@@ -39,6 +39,7 @@ typedef struct {
     void*           param_list;
     char*           method;
     int             message_type; /* 0: request; 1: response; 2: raw. */
+    int             ret;
 } cmp_message_info_t;
 
 extern const void* get_cmp_message_info_class();
