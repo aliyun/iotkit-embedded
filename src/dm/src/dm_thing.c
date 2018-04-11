@@ -2871,7 +2871,14 @@ static void property_free_array_type(data_type_x_t* data_type_x)
     case data_type_type_int:
     case data_type_type_double:
     case data_type_type_float:
-        dm_lite_free(data_type_x->data_type_array_t.array);
+        if(data_type_x->data_type_array_t.value_str) {
+            dm_lite_free(data_type_x->data_type_array_t.value_str);
+            data_type_x->data_type_array_t.value_str = NULL;
+        }
+        if(data_type_x->data_type_array_t.array) {
+            dm_lite_free(data_type_x->data_type_array_t.array);
+            data_type_x->data_type_array_t.array = NULL;
+        }
         break;
     case data_type_type_text:
         for(index = 0; index < data_type_x->data_type_array_t.size; index++) {
@@ -2880,7 +2887,10 @@ static void property_free_array_type(data_type_x_t* data_type_x)
                 dm_lite_free(p);
             }
         }
-        dm_lite_free(data_type_x->data_type_array_t.array);
+        if(data_type_x->data_type_array_t.array) {
+            dm_lite_free(data_type_x->data_type_array_t.array);
+            data_type_x->data_type_array_t.array = NULL;
+        }
         break;
     default:
         dm_log_err("don't support %d type", data_type_x->data_type_array_t.item_type);
