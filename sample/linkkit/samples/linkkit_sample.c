@@ -399,6 +399,11 @@ static int is_active(sample_context_t* sample)
     return sample->cloud_connected && sample->thing_enabled;
 }
 
+
+#ifdef MQTT_ID2_AUTH
+#include "tfs.h"
+#endif
+
 int main(int argc, char* argv[])
 {
     sample_context_t* sample_ctx = &g_sample_context;
