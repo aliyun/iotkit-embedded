@@ -1439,14 +1439,13 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
                     ret = (*thing)->get_lite_property_value(thing, property, NULL, &dm_thing_manager->_get_value_str);
                     params_val_len = strlen(property_key_value_buff);
 
-                    if(ret == 0 && dm_thing_manager->_get_value_str) {
-                        if (property->data_type.value.data_type_array_t.item_type == data_type_type_text) {
-                            dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "\"%s\",", dm_thing_manager->_get_value_str);
-                        }else {
-                            dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "%s,", dm_thing_manager->_get_value_str);
-                        }
+                    if(ret != 0 || !dm_thing_manager->_get_value_str) {
+                        dm_thing_manager->_get_value_str = NULL;
+                    }
+                    if (property->data_type.value.data_type_array_t.item_type == data_type_type_text) {
+                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "\"%s\",", dm_thing_manager->_get_value_str ? dm_thing_manager->_get_value_str : "");
                     }else {
-                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "%s,", "\"\"");
+                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "%s,", dm_thing_manager->_get_value_str ? dm_thing_manager->_get_value_str : "0");
                     }
                 }
                 q = property_key_value_buff + strlen(property_key_value_buff) - 1;
