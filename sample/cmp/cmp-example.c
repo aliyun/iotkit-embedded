@@ -31,13 +31,13 @@
 #define IOTX_PRODUCT_KEY        "gsYfsxQJgeD"
 #define IOTX_DEVICE_NAME        "DailyEnvDN"
 #define IOTX_DEVICE_SECRET      "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
-#define IOTX_PRODUCT_SECRET		"bVhigb6DwhQOJGcG"    // TODO
+#define IOTX_PRODUCT_SECRET		""
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
 #else
 #define IOTX_PRODUCT_KEY        "a1grYGVCPWl"
-#define IOTX_DEVICE_NAME        "0402_02"
-#define IOTX_DEVICE_SECRET      "" //"fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
-#define IOTX_PRODUCT_SECRET		"2k1QEde2BaMoZWFw"      // TODO
+#define IOTX_DEVICE_NAME        "0402_00"
+#define IOTX_DEVICE_SECRET      "h5Ge28G9QYyaLeatWm1ftPzoSKvDGrK4"
+#define IOTX_PRODUCT_SECRET		""
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
 #endif
 
