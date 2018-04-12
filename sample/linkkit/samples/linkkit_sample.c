@@ -26,9 +26,9 @@
 #define DM_DEVICE_NAME_1        "light_demo_for_ilop_device_test"
 #define DM_DEVICE_SECRET_1      "kobN5zg08IwlgbqSUeaxo0vbEsOiEI7b"
 #else
-#define DM_PRODUCT_KEY_1        "a1AzoSi5TMc"
-#define DM_DEVICE_NAME_1        "test_light_for_dm_cmp_2"
-#define DM_DEVICE_SECRET_1      "XjdICFKdWrm8pDughFg2cAImO6O0aDhE"
+#define DM_PRODUCT_KEY_1        "a1grYGVCPWl"
+#define DM_DEVICE_NAME_1        "0402_00"
+#define DM_DEVICE_SECRET_1      "h5Ge28G9QYyaLeatWm1ftPzoSKvDGrK4"
 #endif
 #define DM_DEVICE_ID_1          "IoTxHttpTestDev_001"
 
