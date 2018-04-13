@@ -235,7 +235,7 @@ static int config_ota_perform_ota_service(void* _self, void* _data_buf, int _dat
             if (ret == 0) {
                 self->_total_len += iotx_cmp_ota->buffer_length;
             }
-            log_debug("\nservice fota write flash,\tret=%d,\tbuffer_length=%d,\ttotal len:%d\n",
+            log_debug("\nservice cota write flash,\tret=%d,\tbuffer_length=%d,\ttotal len:%d\n",
                       ret, iotx_cmp_ota->buffer_length, self->_total_len);
             if (ret) goto err_handler;
         }
@@ -281,7 +281,7 @@ static void config_ota_install_callback_function(void* _self, handle_service_cot
 void* config_ota_lite_calloc(size_t nmemb, size_t size)
 {
 #ifdef CMP_SUPPORT_MEMORY_MAGIC
-    return LITE_calloc(nmemb, size, MEM_MAGIC, SERVICE_FOTA_MODULE_NAME);
+    return LITE_calloc(nmemb, size, MEM_MAGIC, SERVICE_COTA_MODULE_NAME);
 #else
     return LITE_calloc(nmemb, size);
 #endif
@@ -290,7 +290,7 @@ void* config_ota_lite_calloc(size_t nmemb, size_t size)
 void* config_ota_lite_malloc(size_t size)
 {
 #ifdef CMP_SUPPORT_MEMORY_MAGIC
-    return LITE_malloc(size, MEM_MAGIC, SERVICE_FOTA_MODULE_NAME);
+    return LITE_malloc(size, MEM_MAGIC, SERVICE_COTA_MODULE_NAME);
 #else
     return LITE_malloc(size);
 #endif
