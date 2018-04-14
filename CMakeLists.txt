@@ -29,7 +29,7 @@ option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"               
 option(FEATURE_CLOUD_CONN_ENABLED         "cloud connection enabled or not"                         OFF)
 option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                       ON)
 option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                              ON)
-option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                              OFF)
+option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                              ON)
 option(FEATURE_SUPPORT_PRODUCT_SECRET     "support via product_secret get device_secret"            OFF)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
@@ -40,6 +40,8 @@ set(GCC_ARCH native CACHE STRING "GCC compile for specific architecture.")
 ########################################################################
 add_definitions(-DOTA_SIGNAL_CHANNEL=1)
 add_definitions(-DFORCE_SSL_VERIFY)
+add_definitions(-DUSING_UTILS_JSON)
+add_definitions(-DLITE_THING_MODEL)
 
 if(FEATURE_MQTT_DIRECT)
     add_definitions(-DMQTT_DIRECT)
