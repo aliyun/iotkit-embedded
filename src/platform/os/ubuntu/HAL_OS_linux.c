@@ -300,10 +300,12 @@ int HAL_GetDeviceSecret(_OU_ char* device_secret)
 
 int HAL_GetFirmwareVesion(_OU_ char* version)
 {
+    char *ver = "1.0";
+    int len = strlen(ver);
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__
-    strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
-    version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
+    strncpy(version, ver, len);
+    version[len] = '\0';
 #endif
     return strlen(version);
 }
