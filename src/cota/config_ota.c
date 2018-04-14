@@ -247,7 +247,7 @@ static int config_ota_perform_ota_service(void* _self, void* _data_buf, int _dat
 
         if (iotx_cmp_ota->is_more) continue;
 
-        if(iotx_cmp_ota->is_more == 0 && iotx_cmp_ota->result == 0 && iotx_cmp_ota->progress == 100) {
+        if(iotx_cmp_ota->is_more == 0 && iotx_cmp_ota->result == 0) {
             ret = 0;
             log_debug("\nservice cota complete\n");
             break;

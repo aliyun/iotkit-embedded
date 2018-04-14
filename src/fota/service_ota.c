@@ -174,7 +174,7 @@ static int service_ota_perform_ota_service(void* _self, void* _data_buf, int _da
         /* reset buffer size every time after fetch */
         iotx_cmp_ota->buffer_length = self->_data_buf_length;
         ret = IOT_CMP_OTA_Yield(iotx_cmp_ota);
-
+        
         assert(iotx_cmp_ota->buffer && iotx_cmp_ota->buffer_length);
 
         if (ret == 0 && iotx_cmp_ota->buffer && iotx_cmp_ota->buffer_length) {
@@ -194,7 +194,7 @@ static int service_ota_perform_ota_service(void* _self, void* _data_buf, int _da
 
         if (iotx_cmp_ota->is_more) continue;
 
-        if(iotx_cmp_ota->is_more == 0 && iotx_cmp_ota->result == 0 && iotx_cmp_ota->progress == 100) {
+        if(iotx_cmp_ota->is_more == 0 && iotx_cmp_ota->result == 0) {
             ret = 0;
             log_debug("\nservice fota complete\n");
             break;
