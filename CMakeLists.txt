@@ -29,7 +29,8 @@ option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"               
 option(FEATURE_CLOUD_CONN_ENABLED         "cloud connection enabled or not"                         OFF)
 option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                       ON)
 option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                              ON)
-option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                              ON)
+option(FEATURE_SERVICE_OTA_ENABLED        "ota enabled or not"                                       ON)
+option(FEATURE_SERVICE_COTA_ENABLED       "config ota enabled or not"                               OFF)
 option(FEATURE_SUPPORT_PRODUCT_SECRET     "support via product_secret get device_secret"            OFF)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
@@ -69,6 +70,9 @@ endif(FEATURE_DM_ENABLED)
 
 if(FEATURE_SERVICE_OTA_ENABLED)
     add_definitions(-DSERVICE_OTA_ENABLED)
+    if(FEATURE_SERVICE_COTA_ENABLED)
+        add_definitions(-DSERVICE_COTA_ENABLED)
+    endif(FEATURE_SERVICE_COTA_ENABLED)
 endif(FEATURE_SERVICE_OTA_ENABLED)
 
 if(FEATURE_SUPPORT_PRODUCT_SECRET)
