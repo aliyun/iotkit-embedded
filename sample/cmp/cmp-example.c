@@ -35,8 +35,8 @@
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
 #else
 #define IOTX_PRODUCT_KEY        "a1grYGVCPWl"
-#define IOTX_DEVICE_NAME        "0402_00"
-#define IOTX_DEVICE_SECRET      "h5Ge28G9QYyaLeatWm1ftPzoSKvDGrK4"
+#define IOTX_DEVICE_NAME        "0402_08"
+#define IOTX_DEVICE_SECRET      "eBSIgArKX7UZiZimWC3HJ7Mqz3aaSvYZ"
 #define IOTX_PRODUCT_SECRET		""
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
 #endif
