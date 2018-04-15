@@ -96,6 +96,10 @@ static void config_ota_cmp_event_handler(void* pcontext, iotx_cmp_event_msg_t* m
         if (config_ota->_ota_inited == 0) {
             if (config_ota->_destructing == 1) return;
 
+            HAL_GetFirmwareVesion(config_ota->_current_verison);
+
+            log_info("Current firmware version: %s", config_ota->_current_verison);
+
             ret = IOT_CMP_OTA_Start(config_ota->_current_verison, NULL);
             if (ret == SUCCESS_RETURN) {
             	config_ota->_ota_inited = 1;
