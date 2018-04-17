@@ -31,10 +31,10 @@ char *LITE_format_string(const char *fmt, ...)
 
     va_start(ap, fmt);
     tmp = HAL_Malloc(TEMP_STRING_MAXLEN);
+    LITE_ASSERT(tmp);
     memset(tmp, 0, TEMP_STRING_MAXLEN);
     rc = HAL_Vsnprintf(tmp, TEMP_STRING_MAXLEN, fmt, ap);
     va_end(ap);
-    LITE_ASSERT(tmp);
     LITE_ASSERT(rc < 1024);
 
     dst = LITE_strdup(tmp);
@@ -63,6 +63,7 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
     }
 
     tmp = LITE_malloc(len + 2, magic, module_name);
+    LITE_ASSERT(tmp);
 
     if (NULL == tmp) {
         return NULL;
@@ -70,7 +71,6 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
     memset(tmp, 0, len + 2);
     UTILS_vsnprintf(tmp, len + 1, fmt, ap);
     va_end(ap);
-    LITE_ASSERT(tmp);
 
     dst = LITE_malloc(len + 1, magic, module_name);
     LITE_snprintf(dst, (len + 1), "%s", tmp);
