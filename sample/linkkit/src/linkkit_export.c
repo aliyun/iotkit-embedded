@@ -5,6 +5,7 @@
 #include "linkkit_export.h"
 #include "class_interface.h"
 
+#define EVENT_PROPERTY_POST_IDENTIFIER         "post"
 #define LINKKIT_EXPORT_PRINTF printf
 
 /* used for packing up all parameters from dm callback. */
@@ -247,6 +248,7 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void* thing_id, con
 {
     dm_t** dm = dm_object;
     int ret = -1;
+    char identifier_buf[128] = {0};
 
     if (dm == NULL || *dm == NULL || thing_id == NULL || identifier == NULL || method_set >= linkkit_method_set_number || (value == NULL && value_str == NULL)) return -1;
 
@@ -255,7 +257,12 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void* thing_id, con
     } else if (method_set == linkkit_method_set_event_output_value) {
         ret = (*dm)->set_event_output_value(dm, thing_id, identifier, value, value_str);
     } else if (method_set == linkkit_method_set_service_output_value) {
+        if (strstr(identifier, ".output") == NULL) {
+            snprintf(identifier_buf, sizeof(identifier_buf), "%s%s", identifier, ".output");
+            ret = (*dm)->set_service_output_value(dm, thing_id, identifier_buf, value, value_str);
+        } else {
         ret = (*dm)->set_service_output_value(dm, thing_id, identifier, value, value_str);
+        }
     }
 
     return ret;
@@ -265,6 +272,7 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void* thing_id, con
 {
     dm_t** dm = dm_object;
     int ret = -1;
+    char identifier_buf[128] = {0};
 
     if (dm == NULL || *dm == NULL || thing_id == NULL || identifier == NULL || method_get >= linkkit_method_get_number || (value == NULL && value_str == NULL)) return -1;
 
@@ -273,9 +281,19 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void* thing_id, con
     } else if (method_get == linkkit_method_get_event_output_value) {
         ret = (*dm)->get_event_output_value(dm, thing_id, identifier, value, value_str);
     } else if (method_get == linkkit_method_get_service_output_value) {
-        ret = (*dm)->get_service_output_value(dm, thing_id, identifier, value, value_str);
+        if (strstr(identifier, ".output") == NULL) {
+            snprintf(identifier_buf, sizeof(identifier_buf), "%s%s", identifier, ".output");
+            ret = (*dm)->get_service_output_value(dm, thing_id, identifier_buf, value, value_str);
+        } else {
+            ret = (*dm)->get_service_output_value(dm, thing_id, identifier, value, value_str);
+        }
     } else if (method_get == linkkit_method_get_service_input_value) {
-        ret = (*dm)->get_service_input_value(dm, thing_id, identifier, value, value_str);
+        if (strstr(identifier, ".input") == NULL) {
+            snprintf(identifier_buf, sizeof(identifier_buf), "%s%s", identifier, ".input");
+            ret = (*dm)->get_service_input_value(dm, thing_id, identifier_buf, value, value_str);
+        } else {
+            ret = (*dm)->get_service_input_value(dm, thing_id, identifier, value, value_str);
+        }
     }
 
     return ret;
@@ -369,13 +387,22 @@ int linkkit_trigger_deviceinfo_operate(const void* thing_id, const char* params,
 }
 #endif
 
-int linkkit_trigger_event(const void* thing_id, const char* event_identifier, const char* property_identifier)
+int linkkit_trigger_event(const void* thing_id, const char* event_identifier)
 {
     dm_t** dm = dm_object;
 
-    if (dm == NULL || *dm == NULL || (*dm)->trigger_event == NULL || thing_id == NULL || event_identifier == NULL) return -1;
+    if (dm == NULL || *dm == NULL || (*dm)->trigger_event == NULL || thing_id == NULL || event_identifier == NULL || strcmp(event_identifier, EVENT_PROPERTY_POST_IDENTIFIER) == 0) return -1;
 
-    return (*dm)->trigger_event(dm, thing_id, event_identifier, property_identifier);
+    return (*dm)->trigger_event(dm, thing_id, event_identifier, NULL);
+}
+
+int linkkit_post_property(const void* thing_id, const char* property_identifier)
+{
+    dm_t** dm = dm_object;
+
+    if (dm == NULL || *dm == NULL || (*dm)->trigger_event == NULL || thing_id == NULL) return -1;
+
+    return (*dm)->trigger_event(dm, thing_id, EVENT_PROPERTY_POST_IDENTIFIER, property_identifier);
 }
 
 #ifndef CMP_SUPPORT_MULTI_THREAD

@@ -95,7 +95,9 @@ static int dm_impl_set_event_output_value(void* _self, const void* thing_id, con
     thing_manager_t** thing_manager = self->_thing_manager;
 
     assert(thing_manager && *thing_manager && (*thing_manager)->set_thing_event_output_value && thing_id && identifier && (value || value_str));
-
+    if (strstr(identifier, "post")) {
+        return -1;
+    }
     return (*thing_manager)->set_thing_event_output_value(thing_manager, thing_id, identifier, value, value_str);
 }
 
@@ -105,7 +107,9 @@ static int dm_impl_set_service_output_value(void* _self, const void* thing_id, c
     thing_manager_t** thing_manager = self->_thing_manager;
 
     assert(thing_manager && *thing_manager && (*thing_manager)->set_thing_service_output_value && thing_id && identifier && (value || value_str));
-
+    if (strcmp(identifier, "set") == 0|| strcmp(identifier, "get") == 0) {
+        return -1;
+    }
     return (*thing_manager)->set_thing_service_output_value(thing_manager, thing_id, identifier, value, value_str);
 }
 
@@ -125,7 +129,9 @@ static int dm_impl_get_service_input_value(const void* _self, const void* thing_
     thing_manager_t** thing_manager = self->_thing_manager;
 
     assert(thing_manager && *thing_manager && (*thing_manager)->get_thing_service_input_value && thing_id && identifier && (value || value_str));
-
+    if (strcmp(identifier, "set") == 0 || strcmp(identifier, "get") == 0) {
+        return -1;
+    }
     return (*thing_manager)->get_thing_service_input_value(thing_manager, thing_id, identifier, value, value_str);
 }
 
@@ -135,7 +141,9 @@ static int dm_impl_get_service_output_value(const void* _self, const void* thing
     thing_manager_t** thing_manager = self->_thing_manager;
 
     assert(thing_manager && *thing_manager && (*thing_manager)->get_thing_service_output_value && thing_id && identifier && (value || value_str));
-
+    if (strcmp(identifier, "set") == 0 || strcmp(identifier, "get") == 0) {
+        return -1;
+    }
     return (*thing_manager)->get_thing_service_output_value(thing_manager, thing_id, identifier, value, value_str);
 }
 
@@ -145,7 +153,9 @@ static int dm_impl_get_event_output_value(const void* _self, const void* thing_i
     const thing_manager_t** thing_manager = (const thing_manager_t**)self->_thing_manager;
 
     assert(thing_manager && *thing_manager && (*thing_manager)->get_thing_event_output_value && thing_id && identifier && (value || value_str));
-
+    if (strstr(identifier, "post")) {
+        return -1;
+    }
     return (*thing_manager)->get_thing_event_output_value(thing_manager, thing_id, identifier, value, value_str);
 }
 

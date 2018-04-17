@@ -61,8 +61,9 @@ extern "C" {
 #define METHOD_NAME_RRPC_REQUEST            "rrpc/request"
 #endif /* RRPC_ENABLED */
 
-#define METHOD_MAX_LENGH 128
-#define URI_MAX_LENGH 256
+#define METHOD_MAX_LENGH                    128
+#define URI_MAX_LENGH                       256
+#define PROPERTY_KEY_VALUE_BUFF_MAX_LENGTH  1024
 
 typedef struct {
     const  void* _;

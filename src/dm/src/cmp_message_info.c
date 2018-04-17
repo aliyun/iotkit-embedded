@@ -329,7 +329,6 @@ static int cmp_message_info_serialize_to_payload_request(void* _self)
 
         /* for debug only. */
         dm_printf("\nrequest params:\n%s\n\n", params);
-//        dm_printf("\nrequest:\n%s\n\n", request);
 
         ret = 0;
         }
@@ -363,7 +362,6 @@ static int cmp_message_info_serialize_to_payload_response(void* _self)
 
         /* for debug only. */
         dm_printf("\nresponse data:\n%s\n\n", data);
-//        dm_printf("\nresponse:\n%s\n\n", response);
 
         ret = 0;
         }

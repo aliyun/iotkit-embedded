@@ -246,11 +246,20 @@ int linkkit_trigger_deviceinfo_operate(const void* thing_id, const char* params,
  *
  * @param thing_id, pointer to thing object.
  * @param event_identifier, event identifier to trigger.
+ *
+ * @return 0 when success, -1 when fail.
+ */
+extern int linkkit_trigger_event(const void* thing_id, const char* event_identifier);
+
+/**
+ * @brief post property to cloud.
+ *
+ * @param thing_id, pointer to thing object.
  * @param property_identifier, used when trigger event with method "event.property.post", if set, post specified property, if NULL, post all.
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_trigger_event(const void* thing_id, const char* event_identifier, const char* property_identifier);
+extern int linkkit_post_property(const void* thing_id, const char* property_identifier);
 
 #ifndef CMP_SUPPORT_MULTI_THREAD
 /**

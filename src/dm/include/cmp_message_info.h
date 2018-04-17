@@ -10,7 +10,7 @@ extern "C" {
 #include "dm_import.h"
 
 #define CMP_MESSAGE_INFO_CLASS get_cmp_message_info_class()
-#define CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX 1024
+#define CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX 1200
 
 #define CMP_MESSAGE_INFO_MESSAGE_TYPE_REQUEST  0
 #define CMP_MESSAGE_INFO_MESSAGE_TYPE_RESPONSE 1
