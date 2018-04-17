@@ -27,11 +27,19 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define IOTX_PRODUCT_KEY        "yfTuLfBJTiL"
-#define IOTX_DEVICE_NAME        "TestDeviceForDemo"
-#define IOTX_DEVICE_SECRET      "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+#ifdef ON_DAILY
+#define IOTX_PRODUCT_KEY        "gsYfsxQJgeD"
+#define IOTX_DEVICE_NAME        "DailyEnvDN"
+#define IOTX_DEVICE_SECRET      "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
+#define IOTX_PRODUCT_SECRET		""
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
-#define IOTX_PRODUCT_SECRET		"bVhigb6DwhQOJGcG"
+#else
+#define IOTX_PRODUCT_KEY        "a1grYGVCPWl"
+#define IOTX_DEVICE_NAME        "0402_08"
+#define IOTX_DEVICE_SECRET      "eBSIgArKX7UZiZimWC3HJ7Mqz3aaSvYZ"
+#define IOTX_PRODUCT_SECRET		""
+#define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
+#endif
 
     
 /* These are pre-defined topics */
@@ -48,6 +56,20 @@
         HAL_Printf("%s", "\r\n"); \
     } while(0)
         
+
+static void _register_func(iotx_cmp_send_peer_pt source, iotx_cmp_message_info_pt msg, void *user_data)
+{
+    printf("source %s:%s\n", source->product_key, source->device_name);
+
+    printf("type %d\n", msg->message_type);
+    printf("URI %s\n", msg->URI);
+    printf("URI_type %d\n", msg->URI_type);
+    printf("code %d\n", msg->code);
+    printf("id %d\n", msg->id);
+    printf("method %s\n", msg->method);
+    printf("parameter %s\n", (char*)msg->parameter);
+}
+
 
 static void _event_handle(void *pcontext, iotx_cmp_event_msg_pt msg, void *user_data) 
 {
@@ -67,22 +89,12 @@ static void _event_handle(void *pcontext, iotx_cmp_event_msg_pt msg, void *user_
         printf("result %d\n", result->result);
         printf("URI %s\n", result->URI);
         printf("URI_type %d\n", result->URI_type);        
+    } else if (IOTX_CMP_EVENT_NEW_DATA_RECEIVED == msg->event_id) {
+        iotx_cmp_new_data_pt new_data = (iotx_cmp_new_data_pt)msg->msg;
+        _register_func(new_data->peer, new_data->message_info, user_data);
     }
 }
 
-
-static void _register_func(iotx_cmp_send_peer_pt source, iotx_cmp_message_info_pt msg, void *user_data)
-{
-    printf("source %s:%s\n", source->product_key, source->device_name);
-
-    printf("type %d\n", msg->message_type);
-    printf("URI %s\n", msg->URI);
-    printf("URI_type %d\n", msg->URI_type);
-    printf("code %d\n", msg->code);
-    printf("id %d\n", msg->id);
-    printf("method %s\n", msg->method);
-    printf("parameter %s\n", (char*)msg->parameter);
-}
 
 
 int cmp_client()
@@ -140,88 +152,6 @@ int cmp_client()
     HAL_SleepMs(2000);
 #endif
 
-    
-    printf("register again \n");
-    register_param.URI_type = IOTX_CMP_URI_UNDEFINE;
-    register_param.URI = "/sys/productKey/deviceName/update";
-    register_param.message_type = IOTX_CMP_MESSAGE_REQUEST;
-    register_param.register_func = _register_func;
-    register_param.user_data = &user_data;
-    rc = IOT_CMP_Register(&register_param, NULL);
-
-    if (FAIL_RETURN == rc) {        
-        printf("register fail\n");
-        IOT_CMP_Deinit(NULL);
-        return FAIL_RETURN;
-    }
-    
-    printf("register success \n");
-
-#ifndef CMP_SUPPORT_MULTI_THREAD
-    rc = IOT_CMP_Yield(200, NULL);
-    if (FAIL_RETURN == rc) {        
-        printf("yield fail\n");
-        IOT_CMP_Deinit(NULL);
-        return FAIL_RETURN;
-    }   
-#else
-    HAL_SleepMs(2000);
-#endif
-#if 1
-    printf("register again \n");
-    register_param.URI_type = IOTX_CMP_URI_UNDEFINE;
-    register_param.URI = "/sys/productKey1/deviceName1/update";
-    register_param.message_type = IOTX_CMP_MESSAGE_REQUEST;
-    register_param.register_func = _register_func;
-    register_param.user_data = &user_data;
-    rc = IOT_CMP_Register(&register_param, NULL);
-
-    if (FAIL_RETURN == rc) {        
-        printf("register fail\n");
-        IOT_CMP_Deinit(NULL);
-        return FAIL_RETURN;
-    }
-    
-    printf("register success \n");
-
-#ifndef CMP_SUPPORT_MULTI_THREAD
-    rc = IOT_CMP_Yield(200, NULL);
-    if (FAIL_RETURN == rc) {        
-        printf("yield fail\n");
-        IOT_CMP_Deinit(NULL);
-        return FAIL_RETURN;
-    }   
-#else
-    HAL_SleepMs(2000);
-#endif
-    printf("register again \n");
-    register_param.URI_type = IOTX_CMP_URI_UNDEFINE;
-    register_param.URI = "/sys/productKey2/deviceName2/update";
-    register_param.message_type = IOTX_CMP_MESSAGE_REQUEST;
-    register_param.register_func = _register_func;
-    register_param.user_data = &user_data;
-    rc = IOT_CMP_Register(&register_param, NULL);
-
-    if (FAIL_RETURN == rc) {        
-        printf("register fail\n");
-        IOT_CMP_Deinit(NULL);
-        return FAIL_RETURN;
-    }
-    
-    printf("register success \n");
-
-#ifndef CMP_SUPPORT_MULTI_THREAD
-    rc = IOT_CMP_Yield(200, NULL);
-    if (FAIL_RETURN == rc) {        
-        printf("yield fail\n");
-        IOT_CMP_Deinit(NULL);
-        return FAIL_RETURN;
-    }   
-#else
-    HAL_SleepMs(2000);
-#endif
-#endif
-
     printf("send\n");
     memset(&cloud_peer, 0x0, sizeof(iotx_cmp_send_peer_t));
     strncpy(cloud_peer.product_key, IOTX_PRODUCT_KEY, strlen(IOTX_PRODUCT_KEY));
@@ -274,17 +204,6 @@ int cmp_client()
         IOT_CMP_Deinit(NULL);
         return FAIL_RETURN;
     }
-    #if 0
-    printf("unregister\n");
-    unregister_param.URI_type = IOTX_CMP_URI_UNDEFINE;
-    unregister_param.URI = "/sys/productKey/deviceName/update";
-    rc = IOT_CMP_Unregister(&unregister_param, NULL);    
-    if (FAIL_RETURN == rc) {        
-        printf("unregister fail\n");
-        IOT_CMP_Deinit(NULL);
-        return FAIL_RETURN;
-    }
-    #endif
           
 #ifndef CMP_SUPPORT_MULTI_THREAD
     rc = IOT_CMP_Yield(200, NULL);

@@ -20,10 +20,14 @@
 #ifndef __LITE_UTILS_CONFIG_H__
 #define __LITE_UTILS_CONFIG_H__
 
+#ifndef WITH_MEM_STATS
 #ifdef _PLATFORM_IS_LINUX_
-#define WITH_MEM_STATS  1
+#define WITH_MEM_STATS              1
+#define WITH_MEM_STATS_PER_MODULE   1
 #else
-#define WITH_MEM_STATS  0
+#define WITH_MEM_STATS              0
+#define WITH_MEM_STATS_PER_MODULE   0
+#endif
 #endif
 
 #endif  /* __LITE_UTILS_CONFIG_H__ */

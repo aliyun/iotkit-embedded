@@ -32,6 +32,13 @@
 
 #include "lite-list.h"
 #include "lite-log.h"
+#include "iot_import.h"
+
+
+#define UTILS_printf                HAL_Printf
+#define UTILS_malloc        		HAL_Malloc
+#define UTILS_vsnprintf     		HAL_Vsnprintf
+#define UTILS_free                  HAL_Free
 
 #define LITE_TRUE                   (1)
 #define LITE_FALSE                  (0)
@@ -51,15 +58,17 @@
 #define LITE_ASSERT(expr) \
     do { \
         if (!(expr)) { \
-            HAL_Printf("### %s | %s(%d): ASSERT FAILED ###: %s is FALSE\r\n", \
-                        __FILE__, __func__, __LINE__, #expr); \
+            UTILS_printf("### %s | %s(%d): ASSERT FAILED ###: %s is FALSE\r\n", \
+                         __FILE__, __func__, __LINE__, #expr); \
         } \
     } while(0)
 #endif
 
-#define LITE_calloc(num, size)      LITE_malloc_internal(__func__, __LINE__, (num * size))
-#define LITE_malloc(size)           LITE_malloc_internal(__func__, __LINE__, size)
-#define LITE_realloc(ptr, size)     LITE_realloc_internal(__func__, __LINE__, ptr, size)
+#define MEM_MAGIC                       (0x1234)
+
+#define LITE_calloc(num, size, ...)     LITE_malloc_internal(__func__, __LINE__, (num * size), ##__VA_ARGS__)
+#define LITE_malloc(size, ...)          LITE_malloc_internal(__func__, __LINE__, size, ##__VA_ARGS__)
+#define LITE_realloc(ptr, size, ...)    LITE_realloc_internal(__func__, __LINE__, ptr, size, ##__VA_ARGS__)
 #define LITE_free(ptr)              \
     do { \
         if(!ptr) { \
@@ -71,13 +80,14 @@
         ptr = NULL; \
     } while(0)
 
-void       *LITE_malloc_internal(const char *f, const int l, int size);
-void       *LITE_realloc_internal(const char *f, const int l, void *ptr, int size);
+void       *LITE_malloc_internal(const char *f, const int l, int size, ...);
+void       *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...);
 void        LITE_free_internal(void *ptr);
-void       *LITE_malloc_routine(int size);
+void       *LITE_malloc_routine(int size, ...);
 void        LITE_free_routine(void *ptr);
+void       *LITE_calloc_routine(size_t n, size_t s, ...);
 
-char       *LITE_strdup(const char *src);
+char       *LITE_strdup(const char *src, ...);
 char       *LITE_format_string(const char *fmt, ...);
 char       *LITE_format_nstring(const int len, const char *fmt, ...);
 void        LITE_hexbuf_convert(unsigned char *digest, char *out, int buflen, int uppercase);
@@ -87,8 +97,16 @@ void        LITE_replace_substr(char orig[], char key[], char swap[]);
 void        LITE_dump_malloc_free_stats(int level);
 void        LITE_track_malloc_callstack(int state);
 
-char           *LITE_json_value_of(char *key, char *src);
-list_head_t    *LITE_json_keys_of(char *src, char *prefix);
+char           *LITE_json_value_of(char *key, char *src, ...);
+list_head_t    *LITE_json_keys_of(char *src, char *prefix, ...);
+
+char           *LITE_json_value_of_ext(char *key, char *src, ...);
+char           *LITE_json_value_of_ext2(char *key, char *src, int src_len, int *value_len);
+
+list_head_t    *LITE_json_keys_of_ext(char *src, char *prefix, ...);
+
+int             get_json_item_size(char *src, int src_len);
+
 void            LITE_json_keys_release(list_head_t *keylist);
 
 typedef struct _json_key_t {

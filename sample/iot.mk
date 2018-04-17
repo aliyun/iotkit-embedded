@@ -27,15 +27,21 @@ SRCS_mqtt_multi_thread-example := mqtt/mqtt_multi_thread-example.c
     TARGET              += shadow-example
     SRCS_shadow-example := device-shadow/shadow-example.c
     endif
-
+    
     ifneq (,$(filter -DMQTT_ID2_AUTH,$(CFLAGS)))
-    ifneq (,$(filter -DMQTT_ID2_ENV=daily,$(CFLAGS)))
+    ifneq (,$(filter -DON_DAILY,$(CFLAGS)))
     LDFLAGS     += -ltfs
     else
     LDFLAGS     += -ltfs_online
     endif
+    ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
+    LDFLAGS     += -litls
+    endif
+    ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
     LDFLAGS     += -liot_tls
     endif
+    endif
+    LDFLAGS     += -liot_sdk
 
 endif
 

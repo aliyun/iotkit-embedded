@@ -71,7 +71,9 @@
 #define IOTX_MD5_METHOD                     "hmacmd5"
 
 /* By default we use hmac-md5 algorithm for hmac in PK/DN/DS case */
+#ifndef USING_SHA1_IN_HMAC
 #define USING_SHA1_IN_HMAC      (1)
+#endif /* USING_SHA1_IN_HMAC */
 
 #define IOTX_HTTP_HEADER_KEEPALIVE_STR  "Connection: Keep-Alive\r\n"
 #define IOTX_HTTP_HEADER_PASSWORD_STR   "password:"

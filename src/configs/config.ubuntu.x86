@@ -7,6 +7,8 @@ CONFIG_ENV_CFLAGS += \
     -DCONFIG_MID_HTTP_TIMEOUT=500 \
     -DCONFIG_GUIDER_AUTH_TIMEOUT=500 \
     -DUSING_UTILS_JSON \
+    -DIOTX_NET_INIT_WITH_PK_EXT \
+    -DUSING_SHA1_IN_HMAC \
 
 ifneq (Darwin,$(strip $(shell uname)))
 CONFIG_ENV_CFLAGS += -rdynamic

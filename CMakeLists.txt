@@ -20,7 +20,7 @@ include(iotx-sdk-version)
 option(FEATURE_GIT_CLONE_BEFORE_BUILD     "git clone repos in packages folder when cmake configs"    ON)
 option(FEATURE_MQTT_COMM_ENABLED          "MQTT communication enabled or not"                        ON)
 option(FEATURE_MQTT_DIRECT                "MQTT direct connection enabled or not"                    ON)
-option(FEATURE_MQTT_DIRECT_NOTLS          "MQTT direct connection w/o tls enabled or not"            ON)
+option(FEATURE_MQTT_DIRECT_NOTLS          "MQTT direct connection w/o tls enabled or not"           OFF)
 option(FEATURE_COAP_COMM_ENABLED          "coap communication enabled or not"                        ON)
 option(FEATURE_HTTP_COMM_ENABLED          "HTTP communication enabled or not"                        ON)
 option(FEATURE_MQTT_SHADOW                "MQTT shadow enabled or not"     ${FEATURE_MQTT_COMM_ENABLED})
@@ -29,7 +29,8 @@ option(FEATURE_SUBDEVICE_ENABLED          "subdev enabled or not"               
 option(FEATURE_CLOUD_CONN_ENABLED         "cloud connection enabled or not"                         OFF)
 option(FEATURE_CMP_ENABLED                "cmp enabled or not"                                       ON)
 option(FEATURE_DM_ENABLED                 "dm & linkkit enabled or not"                              ON)
-option(FEATURE_SERVICE_OTA_ENABLED        "service ota enabled or not"                               ON)
+option(FEATURE_SERVICE_OTA_ENABLED        "ota enabled or not"                                       ON)
+option(FEATURE_SERVICE_COTA_ENABLED       "config ota enabled or not"                               OFF)
 option(FEATURE_SUPPORT_PRODUCT_SECRET     "support via product_secret get device_secret"            OFF)
 #option(FEATURE_OTA_FETCH_CHANNEL         "specify ota fetch channel"                                ON)HTTP
 #option(FEATURE_OTA_SIGNAL_CHANNEL        "specify ota signal channel"                               ON)MQTT
@@ -40,10 +41,14 @@ set(GCC_ARCH native CACHE STRING "GCC compile for specific architecture.")
 ########################################################################
 add_definitions(-DOTA_SIGNAL_CHANNEL=1)
 add_definitions(-DFORCE_SSL_VERIFY)
+add_definitions(-DUSING_UTILS_JSON)
+add_definitions(-DLITE_THING_MODEL)
 
 if(FEATURE_MQTT_DIRECT)
     add_definitions(-DMQTT_DIRECT)
 endif(FEATURE_MQTT_DIRECT)
+
+add_definitions(-DUSING_SHA1_IN_HMAC)
 
 if(FEATURE_MQTT_COMM_ENABLED)
     add_definitions(-DMQTT_COMM_ENABLED)
@@ -53,13 +58,10 @@ if(FEATURE_SUBDEVICE_ENABLED)
     add_definitions(-DSUBDEVICE_ENABLED)
 endif(FEATURE_SUBDEVICE_ENABLED)
 
-if(FEATURE_CLOUD_CONN_ENABLED)
-    add_definitions(-DCLOUD_CONN_ENABLED)
-endif(FEATURE_CLOUD_CONN_ENABLED)
-
 if(FEATURE_CMP_ENABLED)
     add_definitions(-DCMP_ENABLED)
 endif(FEATURE_CMP_ENABLED)
+add_definitions(-DCMP_SUPPORT_TOPIC_DISPATCH)
 
 if(FEATURE_DM_ENABLED)
     add_definitions(-DDM_ENABLED)
@@ -68,11 +70,17 @@ endif(FEATURE_DM_ENABLED)
 
 if(FEATURE_SERVICE_OTA_ENABLED)
     add_definitions(-DSERVICE_OTA_ENABLED)
+    if(FEATURE_SERVICE_COTA_ENABLED)
+        add_definitions(-DSERVICE_COTA_ENABLED)
+    endif(FEATURE_SERVICE_COTA_ENABLED)
 endif(FEATURE_SERVICE_OTA_ENABLED)
 
 if(FEATURE_SUPPORT_PRODUCT_SECRET)
     add_definitions(-DSUPPORT_PRODUCT_SECRET)
 endif(FEATURE_SUPPORT_PRODUCT_SECRET)
+
+add_definitions(-DIOTX_WITHOUT_ITLS)
+add_definitions(-DIOTX_NET_INIT_WITH_PK_EXT)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${GCC_ARCH} -Wall -Wno-comment -Wno-write-strings -Wno-format-extra-args -Winline -Wno-unused-result -Wno-format")
 ########################################################################

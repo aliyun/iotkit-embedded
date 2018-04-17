@@ -8,10 +8,10 @@ extern "C" {
 #include "iot_export_fota.h"
 #include "iot_export_dm.h"
 #include "lite_queue.h"
-#include "iot_export_cota.h"
 
 #ifdef SERVICE_OTA_ENABLED
 #include "iot_export_fota.h"
+#include "iot_export_cota.h"
 #endif /* SERVICE_OTA_ENABLED */
 
 typedef struct _linkkit_ops {

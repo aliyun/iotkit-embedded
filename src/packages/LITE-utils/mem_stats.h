@@ -22,7 +22,7 @@
 
 #include "lite-utils_internal.h"
 
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(_PLATFORM_IS_LINUX_) && WITH_MEM_STATS
     #include <execinfo.h>
 #endif
 
@@ -36,6 +36,10 @@ typedef struct {
     int                 bt_level;
 #endif
     list_head_t         list;
+
+#if WITH_MEM_STATS_PER_MODULE
+    void               *mem_table;
+#endif
 } OS_malloc_record;
 
 #endif  /* __MEM_STATS_H__ */

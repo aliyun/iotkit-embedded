@@ -20,9 +20,16 @@
  * example for product "鐏�-Demo"
  */
 
-#define DM_PRODUCT_KEY_1        "a1AzoSi5TMc"
-#define DM_DEVICE_NAME_1        "test_light_for_dm_cmp_2"
-#define DM_DEVICE_SECRET_1      "XjdICFKdWrm8pDughFg2cAImO6O0aDhE"
+
+#ifdef ON_DAILY
+#define DM_PRODUCT_KEY_1        "a1nmfrdo3MI"
+#define DM_DEVICE_NAME_1        "light_demo_for_ilop_device_test"
+#define DM_DEVICE_SECRET_1      "kobN5zg08IwlgbqSUeaxo0vbEsOiEI7b"
+#else
+#define DM_PRODUCT_KEY_1        "a1grYGVCPWl"
+#define DM_DEVICE_NAME_1        "0402_08"
+#define DM_DEVICE_SECRET_1      "eBSIgArKX7UZiZimWC3HJ7Mqz3aaSvYZ"
+#endif
 #define DM_DEVICE_ID_1          "IoTxHttpTestDev_001"
 
 
@@ -62,8 +69,8 @@ typedef struct _sample_context {
 sample_context_t g_sample_context;
 
 #ifdef SERVICE_OTA_ENABLED
-/* callback function for fota service. */
 #ifndef SERVICE_COTA_ENABLED
+/* callback function for fota service. */
 static void fota_callback(service_fota_callback_type_t callback_type, const char* version)
 {
     sample_context_t* sample;
@@ -81,7 +88,8 @@ static void fota_callback(service_fota_callback_type_t callback_type, const char
 
     /* reboot the device... */
 }
-#else
+
+#else /* SERVICE_COTA_ENABLED */
 static void cota_callback(service_cota_callback_type_t callback_type,
 						const char* configid,
 						uint32_t  configsize,
@@ -105,7 +113,7 @@ static void cota_callback(service_cota_callback_type_t callback_type,
 
     /* update config... */
 }
-#endif /**< SERVICE_COTA_ENABLED*/
+#endif /* SERVICE_COTA_ENABLED */
 #endif /* SERVICE_OTA_ENABLED */
 
 static int on_connect(void* ctx)
@@ -217,7 +225,7 @@ static int thing_call_service(void* thing_id, char* service, int request_id, voi
     sample_context_t* sample = ctx;
 
     LINKKIT_PRINTF("service(%s) requested, id: thing@%p, request id:%d\n",
-                   service, thing_id, request_id);
+                   service ? service : "NULL", thing_id, request_id);
 
     if (strcmp(service, "Custom") == 0) {
 #ifdef RRPC_ENABLED
@@ -279,10 +287,42 @@ static int thing_prop_changed(void* thing_id, char* property, void* ctx)
 
         LINKKIT_PRINTF("property(%s), Red:%d, Green:%d, Blue:%d\n", property, red, green, blue);
         /* XXX: do user's process logical here. */
+    } else if (strstr(property, "structProperty") != 0) {
+        int childINTName = 0;
+        int childFLOATName = 0;
+        int childDATEName = 0;
+        int childTEXTName = 0;
+        int childBOOLName = 0;
+        int childENUMName = 0;
+        int childDOUBLEName = 0;
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildINTd1e197e");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childINTName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildFLOATcdef1f2");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childFLOATName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildDATE228857b");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childDATEName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildTEXT5ad129f");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childTEXTName, &value_str);
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildBOOLea5c7ba");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childBOOLName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildENUMf600fe3");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childENUMName, &value_str);
+
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "structchildDOUBLEff6bba6");
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &childDOUBLEName, &value_str);
+
+        LINKKIT_PRINTF("property(%s), childINTName:%d, childFLOATName:%d, childDATEName:%d, childTEXTName:%d, childBOOLName:%d, childENUMName:%d, childDOUBLEName:%d\n",\
+         property, childINTName, childFLOATName, childDATEName, childTEXTName, childBOOLName, childENUMName, childDOUBLEName);
+
     } else {
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property, NULL, &value_str);
 
-        LINKKIT_PRINTF("#### property(%s) new value set: %s ####\n", property, value_str);
+        LINKKIT_PRINTF("#### property(%s) new value set: %s ####\n", property ? property : "NULL", value_str ? value_str : "NULL");
     }
 
     /* do user's process logical here. */
@@ -362,6 +402,11 @@ static int is_active(sample_context_t* sample)
     return sample->cloud_connected && sample->thing_enabled;
 }
 
+
+#ifdef MQTT_ID2_AUTH
+#include "tfs.h"
+#endif
+
 int main(int argc, char* argv[])
 {
     sample_context_t* sample_ctx = &g_sample_context;
@@ -372,8 +417,16 @@ int main(int argc, char* argv[])
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
 
-    HAL_SetProductKey(DM_PRODUCT_KEY_1);
+    HAL_SetProductKey(DM_PRODUCT_KEY_1);    
+    
+#ifdef MQTT_ID2_AUTH
+    char __device_id2[TFS_ID2_LEN + 1];
+    HAL_GetID2(__device_id2);
+    HAL_SetDeviceName(__device_id2);
+#else
     HAL_SetDeviceName(DM_DEVICE_NAME_1);
+#endif
+
     HAL_SetDeviceSecret(DM_DEVICE_SECRET_1);
 
     int opt;
@@ -407,12 +460,13 @@ int main(int argc, char* argv[])
     }
 #ifdef SERVICE_OTA_ENABLED
 #ifndef SERVICE_COTA_ENABLED
+    LINKKIT_PRINTF("FOTA start\n");
     linkkit_fota_init(fota_callback);
-#else
-    LINKKIT_PRINTF("COTA _start\n");
+#else /* SERVICE_COTA_ENABLED */
+    LINKKIT_PRINTF("COTA_start\n");
     linkkit_cota_init(cota_callback);
     linkkit_invoke_cota_get_config("product","file","",NULL);
-#endif /**< SERVICE_COTA_ENABLED*/
+#endif /* SERVICE_COTA_ENABLED */
 #endif /* SERVICE_OTA_ENABLED */
     while (1) {
         linkkit_dispatch();

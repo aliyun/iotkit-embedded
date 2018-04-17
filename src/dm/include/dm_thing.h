@@ -25,6 +25,7 @@ typedef struct {
     size_t         _dsl_string_length;
     void*          _json_object; /* json object after dsl string parsed. */
     dsl_template_t dsl_template;
+    int            _arr_index;
 } dm_thing_t;
 
 extern const void* get_dm_thing_class();

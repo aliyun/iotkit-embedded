@@ -91,6 +91,67 @@ int tfs_id2_get_timestamp_auth_code(const uint8_t *timestamp,
                                     uint8_t *auth_code, uint32_t *len);
 
 /**
+ * @brief write key value
+ *
+ * @param[in] key: key
+ * @param[in] key_len: length of key
+ * @param[in] value: value
+ * @param[in] value_len: length of value
+ * @return: 0~OK, other~ERROR
+ * @note None.
+ */
+int tfs_write_key_value(uint8_t *key, uint32_t key_len,
+                        uint8_t *value, uint32_t value_len);
+
+/**
+ * @brief read key value
+ *
+ * @param[in] key: key
+ * @param[in] key_len: length of key
+ * @param[out] value: value
+ * @param[out] value_len: length of value
+ * @return: 0~OK, other~ERROR
+ * @note None.
+ */
+int tfs_read_key_value(uint8_t *key, uint32_t key_len,
+                       uint8_t *value, uint32_t *value_len);
+
+/**
+ * @brief remove key value
+ *
+ * @param[in] key: key
+ * @param[in] key_len: length of key
+ * @return: 0~OK, other~ERROR
+ * @note None.
+ */
+int tfs_remove_key_value(uint8_t *key, uint32_t key_len);
+
+/**
+ * @brief get device challenge
+ *
+ * @param[out] device_challenge: device challenge
+ * @param[in/out] device_challenge_len: length of device challenge
+ * @return: 0~OK, other~ERROR
+ * @note None.
+ */
+int tfs_id2_get_device_challenge(uint8_t *device_challenge, uint32_t *device_challenge_len);
+/**
+ * @brief verify server
+ *
+ * @param[in] server_auth_code: authcode of server
+ * @param[in] server_auth_code_len: authcode length of server
+ * @param[in] device_challenge: device challenge, may be NULL if use tfs_id2_get_device_challenge
+ * @param[in] device_challenge_len: the length of device_challenge, must 0 if device_challenge = NULL
+ * @param[in] server_extra: extra data of server
+ * @param[in] server_extra_len: extra data length of server
+ * @return: 0~OK, other~ERROR
+ * @note None.
+ */
+int tfs_id2_verify_server(const uint8_t *server_auth_code, uint32_t server_auth_code_len,
+                          const uint8_t *device_challenge, uint32_t device_challenge_len,
+                          const uint8_t *server_extra, uint32_t server_extra_len);
+
+/**
  * @brief aes128 cbc encryption
  *
  * @param[in] key: key for aes128, key length should be 16 bytes.

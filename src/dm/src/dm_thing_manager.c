@@ -254,6 +254,74 @@ static int check_set_lite_property_for_struct(cJSON* cjson_obj, lite_property_t 
     return 0;
 }
 
+static void find_and_set_array_item(dm_thing_manager_t* dm_thing_manager,thing_t** thing, cJSON* cjson_arr_obj, int item_index, lite_property_t *lite_property,data_type_type_t type)
+{
+    int int_val;
+    float float_val;
+    double double_val;
+    char temp_buf[64] = {0};
+    char identifier[64] = {0};
+    char* string_val = NULL;
+    cJSON *arr_json_item;
+    if(item_index > lite_property->data_type.value.data_type_array_t.size) {
+        dm_printf("input json array item:%d > lite json array size:%d ", item_index, lite_property->data_type.value.data_type_array_t.size);
+        return;
+    }
+
+    arr_json_item = cJSON_GetArrayItem(cjson_arr_obj,item_index);
+    if(!arr_json_item) {
+        dm_log_err("get array[%d] failed", item_index);
+        goto do_exit;
+    }
+    switch(lite_property->data_type.value.data_type_array_t.item_type) {
+        case data_type_type_int: {
+            int_val = arr_json_item->valueint;
+            dm_snprintf(temp_buf, sizeof(temp_buf), "%d", int_val);
+        }break;
+        case data_type_type_double: {
+                double_val = arr_json_item->valuedouble;
+                dm_snprintf(temp_buf, sizeof(temp_buf), "%.16lf", double_val);
+        }break;
+        case data_type_type_float: {
+            float_val = arr_json_item->valuedouble;
+            dm_snprintf(temp_buf, sizeof(temp_buf), "%.7f", float_val);
+        }break;
+        case data_type_type_text: {
+            string_val = dm_lite_calloc(1, strlen(arr_json_item->valuestring) + 1);
+            assert(string_val);
+            if (string_val == NULL) {
+                dm_printf("NO memory...");
+                return;
+            }
+            strcpy(string_val, arr_json_item->valuestring);
+        }break;
+        default:{
+            dm_log_err("don't support %d type", lite_property->data_type.value.data_type_array_t.item_type);
+            goto do_exit;
+        }
+    }
+    dm_thing_manager->_property_identifier_value_set = NULL;
+    if (string_val) {
+        dm_thing_manager->_property_identifier_value_set = string_val;
+    } else if (strlen(temp_buf)) {
+        dm_thing_manager->_property_identifier_value_set = dm_lite_calloc(1, strlen(temp_buf) + 1);
+        assert(dm_thing_manager->_property_identifier_value_set);
+        strcpy(dm_thing_manager->_property_identifier_value_set, temp_buf);
+    }
+
+    if (dm_thing_manager->_property_identifier_set && dm_thing_manager->_property_identifier_value_set) {
+        dm_snprintf(identifier, sizeof(identifier), "%s[%d]",(char*)dm_thing_manager->_property_identifier_set, item_index);
+        dm_thing_manager_set_thing_property_value(dm_thing_manager, thing, identifier,
+                                                  NULL, dm_thing_manager->_property_identifier_value_set);
+
+        dm_lite_free(dm_thing_manager->_property_identifier_value_set);
+        dm_thing_manager->_property_identifier_value_set = NULL;
+    }
+do_exit:
+    return;
+}
+
+
 static void find_and_set_lite_property_struct_for_service_property_set(void* _item, ...);
 static void find_and_set_lite_property_for_service_property_set(void* _item, int _index, va_list* params)
 {
@@ -272,6 +340,7 @@ static void find_and_set_lite_property_for_service_property_set(void* _item, int
     char* identifier_prefix = NULL;
     char identifier_buff[128] = {0};
     int index;
+    int arrsize = 0;
 
     dm_thing_manager = va_arg(*params, dm_thing_manager_t*);
     property_set_param_obj = va_arg(*params, cJSON*);
@@ -344,6 +413,22 @@ static void find_and_set_lite_property_for_service_property_set(void* _item, int
             }
             dm_thing_manager->_identifier = lite_property->identifier;
             invoke_callback_list(dm_thing_manager, dm_callback_type_property_value_set);
+        } else if(lite_property->data_type.type == data_type_type_array) {
+            if(!cJSON_IsArray(temp_cjson_obj)) {
+                dm_log_err("json type is not array");
+                return;
+            }
+            arrsize = cJSON_GetArraySize(temp_cjson_obj);
+            if(arrsize > lite_property->data_type.value.data_type_array_t.size) {
+                dm_printf("input json array item:%d > lite json array item:%d ", arrsize, lite_property->data_type.value.data_type_array_t.size);
+                return;
+            }
+            for(index = 0; index < arrsize; index++){
+                find_and_set_array_item(dm_thing_manager,thing, temp_cjson_obj, index, lite_property, lite_property->data_type.type);
+            }
+            dm_thing_manager->_identifier = lite_property->identifier;
+            invoke_callback_list(dm_thing_manager, dm_callback_type_property_value_set);
+            return;
         }
 
         if (string_val) {
@@ -671,6 +756,7 @@ static void send_request_to_uri(void* _dm_thing_manager, const char* _uri)
     char product_key[PRODUCT_KEY_MAXLEN] = {0};
     char device_name[DEVICE_NAME_MAXLEN] = {0};
     char* p;
+    int ret;
 
     assert(dm_thing_manager && uri && message_info && cmp);
 
@@ -692,8 +778,12 @@ static void send_request_to_uri(void* _dm_thing_manager, const char* _uri)
     (*message_info)->set_uri(message_info, uri_buff);
     (*message_info)->set_message_type(message_info, CMP_MESSAGE_INFO_MESSAGE_TYPE_REQUEST);
 
-    (*message_info)->serialize_to_payload_request(message_info);
+    ret = (*message_info)->serialize_to_payload_request(message_info);
 
+    if (ret == -1) {
+        dm_log_err("serialize_to_payload_request FAIL");
+        return;
+    }
     (*cmp)->send(cmp, message_info, NULL);
 
 }
@@ -1055,8 +1145,12 @@ static void set_property_value(void* _thing, va_list* params)
         dm_thing_manager->_ret = (*thing)->set_property_value_by_identifier(thing, dm_thing_manager->_identifier, dm_thing_manager->_set_value, dm_thing_manager->_set_value_str);
 
         /* invoke callback funtions. */
-        if (strchr(dm_thing_manager->_identifier, '.') == NULL) {
-            invoke_callback_list(dm_thing_manager, dm_callback_type_property_value_set);
+
+            if (strchr(dm_thing_manager->_identifier, '.') == NULL &&
+                    strchr(dm_thing_manager->_identifier, '[') == NULL &&
+                    strchr(dm_thing_manager->_identifier, ']') == NULL ) {
+                invoke_callback_list(dm_thing_manager, dm_callback_type_property_value_set);
+
         }
     }
 }
@@ -1223,7 +1317,7 @@ static int install_lite_property_to_message_info(dm_thing_manager_t* _thing_mana
         dm_thing_manager->_get_value_str = p;
     }
 
-    if (lite_property->identifier && dm_thing_manager->_get_value_str) {
+    if (ret == 0 && lite_property->identifier && dm_thing_manager->_get_value_str) {
         (*message_info)->add_params_data_item(message_info, lite_property->identifier, dm_thing_manager->_get_value_str);
     }
 
@@ -1281,9 +1375,12 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
     dm_thing_manager_t* dm_thing_manager;
     thing_t** thing;
     message_info_t** message_info;
+    dm_thing_t *dm_thing;
+    size_t params_buffer_len = 0;
+    size_t params_val_len = 0;
     char* target_property_identifier;
     int ret, i;
-    char struct_property_key_value_buff[512] = {'{', 0};
+    char property_key_value_buff[1024] = {0};
     char* p;
     char* q = NULL;
 
@@ -1302,30 +1399,63 @@ static void install_property_to_message_info(void* _item, int index, va_list* pa
     if (property && (target_property_identifier == NULL || (property->identifier && strcmp(property->identifier, target_property_identifier) == 0))) {
         ret = install_lite_property_to_message_info(dm_thing_manager, message_info, lite_property);
 
+        params_buffer_len = sizeof(property_key_value_buff);
         if (ret == -1) {
-            for (i = 0; i < property->data_type.data_type_specs_number; ++i) {
-                struct_lite_property = (lite_property_t*)property->data_type.specs + i;
-                ret = (*thing)->get_lite_property_value(thing, struct_lite_property, NULL, &dm_thing_manager->_get_value_str);
-                if (ret == 0 && dm_thing_manager->_get_value_str) {
-                    p = struct_property_key_value_buff + strlen(struct_property_key_value_buff) - 1;
-                    /* not the last item, chang from '}' to ','. */
-                    if (p && *p == '}') *p = ',';
+            if(property->data_type.type == data_type_type_struct) {
+                property_key_value_buff[0] = '{';
+                property_key_value_buff[1] = '\0';
+                for (i = 0; i < property->data_type.data_type_specs_number; ++i) {
+                    struct_lite_property = (lite_property_t*)property->data_type.specs + i;
+                    ret = (*thing)->get_lite_property_value(thing, struct_lite_property, NULL, &dm_thing_manager->_get_value_str);
+                    if (ret == 0 && dm_thing_manager->_get_value_str) {
+                        params_val_len = strlen(property_key_value_buff);
+                        p = property_key_value_buff + params_val_len - 1;
 
-                    if (struct_lite_property->data_type.type == data_type_type_text && dm_thing_manager->_get_value_str) {
-                        q = dm_lite_calloc(1, strlen(dm_thing_manager->_get_value_str) + 3);
-                        assert(q);
+                        /* not the last item, chang from '}' to ','. */
+                        if (p && *p == '}') *p = ',';
 
-                        dm_sprintf(q, "\"%s\"", dm_thing_manager->_get_value_str);
-                        dm_thing_manager->_get_value_str = q;
+                        if (struct_lite_property->data_type.type == data_type_type_text && dm_thing_manager->_get_value_str) {
+                            q = dm_lite_calloc(1, strlen(dm_thing_manager->_get_value_str) + 3);
+                            assert(q);
+
+                            dm_snprintf(q, strlen(dm_thing_manager->_get_value_str) + 3, "\"%s\"", dm_thing_manager->_get_value_str);
+                            dm_thing_manager->_get_value_str = q;
+                        }
+
+                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "\"%s\":%s}",
+                                   struct_lite_property->identifier, dm_thing_manager->_get_value_str);
+
+                        if (q) dm_lite_free(q);
                     }
-
-                    dm_sprintf(struct_property_key_value_buff + strlen(struct_property_key_value_buff), "\"%s\":%s}",
-                            struct_lite_property->identifier, dm_thing_manager->_get_value_str);
-
-                    if (q) dm_lite_free(q);
                 }
+            }else if(property->data_type.type == data_type_type_array) {
+                dm_thing = (dm_thing_t*)thing;
+                property_key_value_buff[0] = '[';
+                property_key_value_buff[1] = '\0';
+                for(i = 0; i < property->data_type.value.data_type_array_t.size; i++) {
+
+                    dm_thing->_arr_index = i;
+                    dm_thing_manager->_get_value_str = NULL;
+                    ret = (*thing)->get_lite_property_value(thing, property, NULL, &dm_thing_manager->_get_value_str);
+                    params_val_len = strlen(property_key_value_buff);
+
+                    if(ret != 0 || !dm_thing_manager->_get_value_str) {
+                        dm_thing_manager->_get_value_str = NULL;
+                    }
+                    if (property->data_type.value.data_type_array_t.item_type == data_type_type_text) {
+                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "\"%s\",", dm_thing_manager->_get_value_str ? dm_thing_manager->_get_value_str : "");
+                    }else {
+                        dm_snprintf(property_key_value_buff + params_val_len, params_buffer_len - params_val_len, "%s,", dm_thing_manager->_get_value_str ? dm_thing_manager->_get_value_str : "0");
+                    }
+                }
+                q = property_key_value_buff + strlen(property_key_value_buff) - 1;
+                if(*q == '[') *(q+1) = ']';
+                if(*q == ',') *(q) = ']';
+
+                dm_thing->_arr_index = -1;
             }
-            (*message_info)->add_params_data_item(message_info, property->identifier, struct_property_key_value_buff);
+
+            (*message_info)->add_params_data_item(message_info, property->identifier, property_key_value_buff);
         }
         dm_thing_manager->_ret = 0;
     }

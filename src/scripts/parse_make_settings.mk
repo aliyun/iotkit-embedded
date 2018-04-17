@@ -21,6 +21,7 @@ SWITCH_VARS := \
     FEATURE_SERVICE_OTA_ENABLED \
     FEATURE_SERVICE_COTA_ENABLED \
     FEATURE_SUPPORT_PRODUCT_SECRET \
+    FEATURE_MQTT_DIRECT_NOITLS \
 
 $(foreach v, \
     $(SWITCH_VARS), \
@@ -30,7 +31,7 @@ $(foreach v, \
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
 ifneq (n,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-$(error FEATURE_OTA_ENABLED = y requires FEATURE_MQTT_DIRECT_NOTLS = n!)
+# $(error FEATURE_OTA_ENABLED = y requires FEATURE_MQTT_DIRECT_NOTLS = n!)
 endif
 ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
@@ -143,10 +144,17 @@ endif
 
 ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
+    ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
+        ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
+            $(error FEATURE_MQTT_DIRECT_NOITLS or FEATURE_MQTT_DIRECT_NOTLS must be selected one or more)
+        endif
+    endif
     ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
     CFLAGS  += -DIOTX_WITHOUT_TLS
     endif
-
+    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
+    CFLAGS  += -DIOTX_WITHOUT_ITLS
+    endif   
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
     $(error FEATURE_MQTT_ID2_CRYPTO + FEATURE_MQTT_DIRECT is not supported!)
     endif
@@ -160,13 +168,27 @@ else    # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 endif   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-
-    ifneq (gcc,$(strip $(CC)))
-    $(error FEATURE_MQTT_ID2_AUTH requires $(CC) equal gcc!)
+    ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
+        ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
+            $(error FEATURE_MQTT_DIRECT_NOITLS or FEATURE_MQTT_DIRECT_NOTLS must be selected one or more)
+        endif
     endif
+    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
+    $(error FEATURE_MQTT_ID2_AUTH requires FEATURE_MQTT_DIRECT_NOITLS = n!)
+    endif
+    
+    ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
+    $(error FEATURE_COAP_DTLS_SUPPORT = y requires FEATURE_MQTT_ID2_AUTH = n!)
+    endif
+    # ifneq (gcc,$(strip $(CC)))
+    # $(error FEATURE_MQTT_ID2_AUTH requires $(CC) equal gcc!)
+    # endif
 
 else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-
+    ifeq (n,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
+    $(error FEATURE_MQTT_ID2_AUTH = n requires FEATURE_MQTT_DIRECT_NOITLS = y!)
+    endif
+        
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
     $(error FEATURE_MQTT_ID2_CRYPTO = y requires FEATURE_MQTT_ID2_AUTH = y!)
     endif

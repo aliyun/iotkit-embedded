@@ -210,7 +210,7 @@ int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
 
     return ret;
 }
-#endif /**< SERVICE_COTA_ENABLED*/
+#endif /* SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
 int linkkit_end()
 {
@@ -219,7 +219,7 @@ int linkkit_end()
     if (fota_object) delete_object(fota_object);
 #ifdef SERVICE_COTA_ENABLED
     if (cota_object) delete_object(cota_object);
-#endif /**< SERVICE_COTA_ENABLED*/
+#endif /* SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
     if (dm_object) delete_object(dm_object);
 
@@ -337,18 +337,17 @@ int linkkit_invoke_cota_service(void* data_buf, int data_buf_length)
     return ret;
 }
 int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option)
-{	config_ota_t* ota_data = cota_object;
+{
 	cota_t** ota = cota_object;
 	int ret;
 
     if (ota == NULL || *ota == NULL || (*ota)->get == NULL) return -1;
 
-    if(!ota_data->_ota_inited) return -1;
     ret = (*ota)->get(ota,config_scope,get_type,attribute_Keys,option);
 
     return ret;
 }
-#endif /**< SERVICE_COTA_ENABLED*/
+#endif /* SERVICE_COTA_ENABLED*/
 #endif /* SERVICE_OTA_ENABLED */
 
 #ifdef DEVICEINFO_ENABLED

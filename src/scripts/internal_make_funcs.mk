@@ -20,7 +20,7 @@ define Post_Distro
     @find $(FINAL_DIR) -name "*.[ch]" -exec chmod a-x {} \;
     @mkdir -p $(FINAL_DIR)/src
     $(if $(filter y,$(FEATURE_MQTT_ID2_AUTH)),
-        @cp -f $(OUTPUT_DIR)/src/tfs/$(LIBA_TARGET_src/tfs) $(FINAL_DIR)/lib
+        @cp -f $(OUTPUT_DIR)/src/tfs/*.a $(FINAL_DIR)/lib
         @cat doc/export.sdk.demo/head_id2.mk > $(FINAL_DIR)/src/Makefile,
         @cat doc/export.sdk.demo/head.mk > $(FINAL_DIR)/src/Makefile
         @rm -f $(FINAL_DIR)/lib/libtfs*.a)

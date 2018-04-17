@@ -125,6 +125,15 @@ int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN]);
  */
 char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN]);
 
+/**
+ * @brief   获取ID2
+ *
+ * @param   id2_str : 存放ID2字符串的缓冲区数组
+ * @return  写到id2_str[]数组中的字符长度，单位是字节(Byte)
+ */
+#ifdef MQTT_ID2_AUTH
+int HAL_GetID2(_OU_ char* id2_str);
+#endif /**< MQTT_ID2_AUTH*/
 
 /**
  * @brief   开始固件写入
