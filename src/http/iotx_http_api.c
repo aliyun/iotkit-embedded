@@ -93,7 +93,7 @@ static iotx_http_t *iotx_http_context_bak = NULL;
   Http server url: https://iot-as-http.cn-shanghai.aliyuncs.com
   Only https protocal is supported at present.
   The /auth interface is used to get access token before any data transform which need to be requested just one time.
-  The device must call /auth to get thSSSe token before transfer any data.
+  The device must call /auth to get the token before transfer any data.
   Every data transfer need to be with access token.
   You need to request for a new token if the current token have been expired.
   Token can be cached in local devices, which has 48 hours term of validity.

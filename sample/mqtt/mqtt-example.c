@@ -327,7 +327,7 @@ do_exit:
 
     return rc;
 }
-#endif /**< MQTT_ID2_AUTH*/
+#endif /* MQTT_ID2_AUTH */
 
 #ifdef MQTT_ID2_AUTH
 #include "tfs.h"
@@ -479,7 +479,7 @@ do_exit:
     return rc;
 
 }
-#endif /**< MQTT_ID2_AUTH*/
+#endif /* MQTT_ID2_AUTH*/
 
 int main(int argc, char **argv)
 {
