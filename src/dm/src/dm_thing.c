@@ -631,6 +631,8 @@ static int install_cjson_item_string(void **dst, const char *key, const char *sr
     char *val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
     size_t size;
 
+    if (*dst) dm_lite_free(*dst);
+
     if (val) {
         size = val_len + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
         *dst = dm_lite_calloc(1, size);
@@ -994,11 +996,11 @@ static int parse_cjson_obj_to_dsl_template(void *_self, const char *src, int src
 #else
     /* schema */
     if(0 != install_cjson_item_string((void **)&self->dsl_template.schema, "schema", src, src_len)) {
-        return -1;
+        dm_log_err("parse schema fail");
     }
     /* link */
     if(0 != install_cjson_item_string((void **)&self->dsl_template.link, "link", src, src_len)) {
-        return -1;
+        dm_log_err("parse link fail");
     }
 #endif
 
@@ -1777,8 +1779,6 @@ static void parse_cjson_obj_to_dsl_template_services(void* _self, const cJSON* c
     self->dsl_template.service_number = sercives_array_size;
     self->dsl_template.services = (service_t*)dm_lite_calloc(self->dsl_template.service_number, sizeof(service_t));
 
-    assert(self->dsl_template.services);
-
     if (self->dsl_template.services == NULL) {
         self->dsl_template.service_number = 0;
         dm_log_err("self->dsl_template.events malloc fail");
@@ -1813,12 +1813,12 @@ static int parse_cjson_obj_to_dsl_template(void* _self, const cJSON* cjson_obj)
     self->dsl_template.link = NULL;
 #else
     if(0 != install_cjson_item_string((void**)&self->dsl_template.schema, root_obj, "schema")) {
-        return -1;
+        dm_log_err("parse schema fail");
     }
 
     /* link */
     if(0 != install_cjson_item_string((void**)&self->dsl_template.link, root_obj, "link")) {
-        return -1;
+        dm_log_err("parse link fail");
     }
 #endif
     /* profile */
@@ -2054,29 +2054,24 @@ static void* dm_thing_get_service_by_identifier(const void* _self, const char* c
         }
         p_m = strtok(NULL, delimeter);
         p_l = strtok(NULL, delimeter);
-        if (p_m && service && index < service_number) {
+        if (p_m && service && index < service_number && (p_l ? strcmp(p_l, string_input) == 0 : 1)) {
             service_input_data_num = service->service_input_data_num;
             arr_index = get_array_index_by_identifier(p_m, &arrpre_pos);
             for (index = 0; index < service_input_data_num; ++index) {
                 input_data = service->service_input_data + index;
                 lite_property = &input_data->lite_property;
-                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index && strncmp(lite_property->identifier, p_m, arrpre_pos - p_m))) {
-                    if (p_l && strcmp(p_l, string_input) != 0) {
-                        return NULL;
-                    }
+                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index && strncmp(lite_property->identifier, p_m, arrpre_pos - p_m) == 0)) {
                     return lite_property;
                 }
             }
         }
-        if (p_m && service && index < service_number) {
+        if (p_m && service && index < service_number && (p_l ? strcmp(p_l, string_output) == 0 : 1)) {
             service_output_data_num = service->service_output_data_num;
             arr_index = get_array_index_by_identifier(p_m, &arrpre_pos);
             for (index = 0; index < service_output_data_num; ++index) {
                 lite_property = service->service_output_data + index;
-                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index && strncmp(lite_property->identifier, p_m, arrpre_pos - p_m))) {
-                    if (p_l && strcmp(p_l, string_output) != 0) {
-                        return NULL;
-                    }
+
+                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index && strncmp(lite_property->identifier, p_m, arrpre_pos - p_m) == 0)) {
                     return lite_property;
                 }
             }
@@ -2542,9 +2537,7 @@ static int get_array_item_value(const lite_property_t *lite_property, int arr_in
     double val_double;
     float val_float;
     char *dst_text = NULL;
-    if(!lite_property || !(value || value_str) || \
-            lite_property->data_type.type != data_type_type_array ||
-            arr_index < 0 ||arr_index >= lite_property->data_type.value.data_type_array_t.size) {
+    if (!lite_property || !(value || value_str) || lite_property->data_type.type != data_type_type_array || arr_index < 0 || arr_index >= lite_property->data_type.value.data_type_array_t.size) {
         dm_log_err("invalid param");
         return ret;
     }
@@ -2585,12 +2578,12 @@ static int get_array_item_value(const lite_property_t *lite_property, int arr_in
           if (value) {
               if(dst_text)  {
                 strcpy(value, dst_text);
+              }else {
+                *((char*)value) = '\0';
               }
           }
           if (value_str) {
-              if(dst_text) {
-                  *value_str = dst_text;
-              }
+              *value_str = dst_text;
           }
         ret = 0;
     }else {

@@ -326,8 +326,7 @@ static int thing_prop_changed(void* thing_id, char* property, void* ctx)
     }
 
     /* do user's process logical here. */
-    linkkit_trigger_event(thing_id, EVENT_PROPERTY_POST_IDENTIFIER, property);
-
+    linkkit_post_property(thing_id, property);
     return 0;
 }
 
@@ -355,7 +354,7 @@ static unsigned long long uptime_sec(void)
 #if 1
 static int post_all_prop(sample_context_t* sample)
 {
-    return linkkit_trigger_event(sample->thing, EVENT_PROPERTY_POST_IDENTIFIER, NULL);
+    return linkkit_post_property(sample->thing, NULL);
 }
 #endif
 static int post_event_error(sample_context_t* sample)
@@ -369,7 +368,7 @@ static int post_event_error(sample_context_t* sample)
                       event_output_identifier,
                       &errorCode, NULL);
 
-    return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER, NULL);
+    return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER);
 }
 
 #if 0
@@ -384,7 +383,7 @@ static int post_event_fault_alert(sample_context_t* sample)
                       event_output_identifier,
                       &errorCode, NULL);
 
-    return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER, NULL);
+    return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER);
 }
 
 static int upload_raw_data(sample_context_t* sample)

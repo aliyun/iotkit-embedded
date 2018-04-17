@@ -325,13 +325,12 @@ static int cmp_message_info_serialize_to_payload_request(void* _self)
         cmp_message_info_set_payload(self, request, strlen(request));
 #endif
         if(0 == self->ret) {
-        cmp_message_info_set_params_data(self, params);
+            cmp_message_info_set_params_data(self, params);
 
-        /* for debug only. */
-        dm_printf("\nrequest params:\n%s\n\n", params);
-//        dm_printf("\nrequest:\n%s\n\n", request);
+            /* for debug only. */
+            dm_printf("\nrequest params:\n%s\n\n", params);
 
-        ret = 0;
+            ret = 0;
         }
         self->ret = 0;
     }
@@ -359,13 +358,12 @@ static int cmp_message_info_serialize_to_payload_response(void* _self)
         cmp_message_info_set_payload(self, response, strlen(response));
 #endif
         if(0 == self->ret) {
-        cmp_message_info_set_params_data(self, data);
+	        cmp_message_info_set_params_data(self, data);
 
-        /* for debug only. */
-        dm_printf("\nresponse data:\n%s\n\n", data);
-//        dm_printf("\nresponse:\n%s\n\n", response);
+	        /* for debug only. */
+	        dm_printf("\nresponse data:\n%s\n\n", data);
 
-        ret = 0;
+	        ret = 0;
         }
         self->ret = 0;
     }
