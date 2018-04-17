@@ -1394,6 +1394,7 @@ static int install_lite_property_to_message_info(dm_thing_manager_t* _thing_mana
         property_key_value_buff[0] = '[';
         property_key_value_buff[1] = '\0';
 
+        params_buffer_len = sizeof(property_key_value_buff);
         for (i = 0; i < lite_property->data_type.value.data_type_array_t.size; i++) {
             dm_thing->_arr_index = i;
             dm_thing_manager->_get_value_str = NULL;
