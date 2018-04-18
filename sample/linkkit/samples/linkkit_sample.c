@@ -27,8 +27,8 @@
 #define DM_DEVICE_SECRET_1      "kobN5zg08IwlgbqSUeaxo0vbEsOiEI7b"
 #else
 #define DM_PRODUCT_KEY_1        "a1grYGVCPWl"
-#define DM_DEVICE_NAME_1        "0402_08"
-#define DM_DEVICE_SECRET_1      "eBSIgArKX7UZiZimWC3HJ7Mqz3aaSvYZ"
+#define DM_DEVICE_NAME_1        "0402_09"
+#define DM_DEVICE_SECRET_1      "DocxiD5wS6x9HNZrbC2CAoi9UnYP74Xt"
 #endif
 #define DM_DEVICE_ID_1          "IoTxHttpTestDev_001"
 
