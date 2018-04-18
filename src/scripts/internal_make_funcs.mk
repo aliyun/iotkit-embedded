@@ -59,7 +59,7 @@ define Post_Distro
     @if [ "$(CONFIG_LIB_EXPORT)" = "static" ]; then \
         echo "o BINARY FOOTPRINT CONSIST:"; \
         echo "----"; \
-        STAGED=$(LIBOBJ_TMPDIR) STRIP=$(strip $(STRIP)) $(SCRIPT_DIR)/stats_static_lib.sh $(FINAL_DIR)/lib/$(COMP_LIB); \
+        STAGED=$(LIBOBJ_TMPDIR) STRIP=$(strip $(STRIP)) bash $(SCRIPT_DIR)/stats_static_lib.sh $(FINAL_DIR)/lib/$(COMP_LIB); \
     fi
 
     @echo "========================================================================="
