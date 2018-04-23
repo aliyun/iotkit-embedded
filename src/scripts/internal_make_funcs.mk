@@ -11,6 +11,8 @@ define Post_Distro
     @rm -rf $(FINAL_DIR)/include/{LITE*,mbed*}
     @rm -rf $(FINAL_DIR)/lib/libiot_{utils,log}.a
 
+    @cp -rf src/sdk-impl/{*.h,imports,exports} $(FINAL_DIR)/include
+
     @if [ "$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS))" != "" ]; then \
         cd $(FINAL_DIR)/bin; \
         for i in $$(ls); do mv $${i} $${i}.exe; done; \
