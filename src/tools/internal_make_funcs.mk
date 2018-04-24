@@ -21,6 +21,7 @@ define Post_Distro
 
     @find $(FINAL_DIR) -name "*.[ch]" -exec chmod a-x {} \;
     @mkdir -p $(FINAL_DIR)/src
+
     $(if $(filter y,$(FEATURE_MQTT_ID2_AUTH)),
         @cp -f $(OUTPUT_DIR)/src/tfs/*.a $(FINAL_DIR)/lib
         @cat doc/export.sdk.demo/head_id2.mk > $(FINAL_DIR)/src/Makefile,
@@ -35,6 +36,8 @@ define Post_Distro
     $(if $(filter y,$(FEATURE_HTTP_COMM_ENABLED)),
         @cp -f samples/http/http-example.c $(FINAL_DIR)/src/http-example.c
         @cat doc/export.sdk.demo/http.mk >> $(FINAL_DIR)/src/Makefile)
+    @$(SED) -i 's!CC *:= gcc!CC := $(CC)!g'
+
     @chmod a-x $(FINAL_DIR)/src/*
 
     @echo ""
