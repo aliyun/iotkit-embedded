@@ -42,3 +42,8 @@ src/packages/Link-CMP/
 src/packages/Link-OTA/
 src/packages/iotkit-system/
 src/packages/mbedtls-in-iotkit/
+src/external/tls/mbedtls-in-iotkit
+src/framework/cm/Link-CMP
+src/framework/connectivity/mqtt/Link-MQTT
+src/framework/services/ota/Link-OTA
+src/utils/log/LITE-log
