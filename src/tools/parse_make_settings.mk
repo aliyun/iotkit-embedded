@@ -1,4 +1,4 @@
-include $(CURDIR)/src/scripts/internal_make_funcs.mk
+include $(CURDIR)/src/tools/internal_make_funcs.mk
 
 SWITCH_VARS := \
     FEATURE_MQTT_COMM_ENABLED \

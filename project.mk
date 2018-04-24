@@ -2,8 +2,8 @@
 #
 TOP_DIR         := $(CURDIR)
 RULE_DIR        := $(TOP_DIR)/build-rules
-CONFIG_DIR      := $(TOP_DIR)/src/configs
-SCRIPT_DIR      := $(TOP_DIR)/src/scripts
+CONFIG_DIR      := $(TOP_DIR)/src/board
+SCRIPT_DIR      := $(TOP_DIR)/src/tools
 PACKAGE_DIR     := $(TOP_DIR)/src/packages
 IMPORT_DIR      := $(TOP_DIR)/src/import
 
@@ -14,4 +14,4 @@ FINAL_DIR       := $(DIST_DIR)/release
 
 # Settings of project info
 PRJ_NAME        := iotkit-embedded
-PRJ_VERSION     := V2.02
+PRJ_VERSION     := V2.10
