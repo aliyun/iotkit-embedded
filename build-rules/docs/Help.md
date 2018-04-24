@@ -9,7 +9,7 @@
 | `make config`         | **显示当前被选择的平台配置文件**                                                  |
 | `make help`           | **打印帮助文本**                                                                  |
 | `make env`            | **打印当前编译的选项和它们的值**                                                  |
-| `make <directory>`    | **单独编译被<directory>指定的目录, 或者叫编译单元**                               |
+| `make <directory>`    | **单独编译被 <directory> 指定的目录, 或者叫编译单元**                             |
 
 高级命令
 ---
