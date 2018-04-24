@@ -1,5 +1,5 @@
 DEPENDS             := src/platform
-HDR_REFS            += src/sdk-impl src/utils src/log src/packages/LITE-utils
+HDR_REFS            += src
 LDFLAGS             := -liot_sdk
 LDFLAGS             += -liot_platform
 LDFLAGS             += -Bstatic -liot_tls
@@ -83,8 +83,7 @@ endif
 
 ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
 TARGET                    += linkkit-example 
-SRCS_linkkit-example      := linkkit/src/linkkit_export.c \
-                             linkkit/src/lite_queue.c \
-                             linkkit/samples/linkkit_sample.c
+SRCS_linkkit-example      := linkkit/linkkit_sample.c
+LDFLAGS                   += -liot_linkkit
 endif
 

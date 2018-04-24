@@ -106,7 +106,7 @@ NODEP_LIST = \
 ifneq (,$(findstring gcc,$(CC)))
 ifeq (,$(filter modinfo,$(MAKECMDGOALS)))
 %.d: %.c
-	$(Q) \
+	@ \
 ( \
 	D=$$(dirname $<|$(SED) 's:$(TOP_DIR):$(OUTPUT_DIR):1'); \
 	F=$$(basename $<); \
@@ -133,7 +133,7 @@ endif
 
 ifneq (,$(findstring gcc,$(CC)))
 %.d: %.cpp
-	$(Q) \
+	@ \
 	$(CXX) -MM -I$(CURDIR) \
 	    $(INTERNAL_INCLUDES) \
 	    $(EXTERNAL_INCLUDES) \
