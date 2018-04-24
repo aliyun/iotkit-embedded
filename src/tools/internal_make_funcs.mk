@@ -48,7 +48,7 @@ define Post_Distro
     @( \
     $(foreach V,$(SWITCH_VARS), \
         $(if $(findstring FEATURE_,$(V)), \
-            printf "%-32s : %-s\n" "    $(V)" "$($(V))"; \
+            printf "%-40s : %-s\n" "    $(V)" "$($(V))"; \
         ) \
     ) )
     @echo ""
