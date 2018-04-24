@@ -36,7 +36,8 @@ define Post_Distro
     $(if $(filter y,$(FEATURE_HTTP_COMM_ENABLED)),
         @cp -f samples/http/http-example.c $(FINAL_DIR)/src/http-example.c
         @cat doc/export.sdk.demo/http.mk >> $(FINAL_DIR)/src/Makefile)
-    @$(SED) -i 's!CC *:= gcc!CC := $(CC)!g'
+
+    @$(SED) -i 's!CC *:= gcc!CC := $(CC)!g' $(FINAL_DIR)/src/Makefile
 
     @chmod a-x $(FINAL_DIR)/src/*
 
