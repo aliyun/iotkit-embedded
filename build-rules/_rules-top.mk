@@ -21,12 +21,13 @@ help:
 	@echo ""
 
 doc:
-	$(TOP_Q)rm -rf html
+	$(TOP_Q)rm -rf doc/html
 	$(TOP_Q) \
 	$(SED) \
 	    's:^PROJECT_NAME.*:PROJECT_NAME = $(PRJ_NAME):g; s:^PROJECT_NUMBER.*:PROJECT_NUMBER = $(PRJ_VERSION):g' \
 	build-rules/misc/Doxyfile.tpl > $(OUTPUT_DIR)/.doxygen.cfg
 	$(TOP_Q)doxygen $(OUTPUT_DIR)/.doxygen.cfg
+	$(TOP_Q)mv html doc/
 
 detect:
 	@if [ -d .git ]; then \

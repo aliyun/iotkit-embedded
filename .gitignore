@@ -28,7 +28,7 @@ src/log/LITE-log
 src/utils/LITE-utils
 vs_build/
 .vs/
-html/
+doc/html/
 compile.log
 src/mqtt/Link-MQTT
 src/ota/Link-OTA
