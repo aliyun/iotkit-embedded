@@ -27,13 +27,13 @@ define Post_Distro
         @cat doc/export.sdk.demo/head.mk > $(FINAL_DIR)/src/Makefile
         @rm -f $(FINAL_DIR)/lib/libtfs*.a)
     $(if $(filter y,$(FEATURE_MQTT_COMM_ENABLED)),
-        @cp -f sample/mqtt/mqtt-example.c $(FINAL_DIR)/src/mqtt-example.c
+        @cp -f samples/mqtt/mqtt-example.c $(FINAL_DIR)/src/mqtt-example.c
         @cat doc/export.sdk.demo/mqtt.mk >> $(FINAL_DIR)/src/Makefile)
     $(if $(filter y,$(FEATURE_COAP_COMM_ENABLED)),
-        @cp -f sample/coap/coap-example.c $(FINAL_DIR)/src/coap-example.c
+        @cp -f samples/coap/coap-example.c $(FINAL_DIR)/src/coap-example.c
         @cat doc/export.sdk.demo/coap.mk >> $(FINAL_DIR)/src/Makefile)
     $(if $(filter y,$(FEATURE_HTTP_COMM_ENABLED)),
-        @cp -f sample/http/http-example.c $(FINAL_DIR)/src/http-example.c
+        @cp -f samples/http/http-example.c $(FINAL_DIR)/src/http-example.c
         @cat doc/export.sdk.demo/http.mk >> $(FINAL_DIR)/src/Makefile)
     @chmod a-x $(FINAL_DIR)/src/*
 
