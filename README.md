@@ -170,19 +170,19 @@
 
 ## 五. 交叉编译
 
-如果开发机不是Ubuntu16.04（Windows或MacOS）可以使用docker制作ubuntu16.04编译环境，在容器里编译代码。(需要在开发机安装docker和python)
+如果开发机不是Ubuntu16.04（Windows或MacOS）可以使用docker制作ubuntu16.04编译环境，在容器里编译代码。(需要在宿主机安装docker和python)
 
-#### 构建镜像
+#### **1. 构建镜像**
 
 执行 `python build_cross_compile_docker_image.py`，等待镜像构建完毕。
 
-#### 启动容器
+#### **2. 启动容器**
 
 执行 `python cross_compile_env.py`，进入ubuntu16.04容器shell。
 
-#### 配置编译选项
+#### **3. 配置编译选项**
 
-在容器shell中执行 `make reconfig`，出现提示:
+执行 `make reconfig`，出现提示:
 
 ```
 1) config.ubuntu.x86
@@ -191,7 +191,7 @@
 
 如果编译ubuntu版本，选择1，windows选则2。确认后等待编译环境配置结束，就可以通过 `make distclean` , `make` 命令编译对应的版本。编译完毕后exit退出容器shell，生成的样例程序在当前目录的`output/release/bin`目录下。
 
-#### 帮助信息
+#### **4. 帮助信息**
 
 - 在容器shell中执行 `make env` 命令可以查看目前的编译选项设置。
 
