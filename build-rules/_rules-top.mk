@@ -176,10 +176,6 @@ clean:
 	                             -o -name "$(STAMP_POSTINS)" \
 	        2>/dev/null)
 
-#	$(TOP_Q) \
-#	rm -f \
-#		$(shell find $(TOP_DIR) -name "*.d")
-
 distclean:
 	$(TOP_Q) \
 	rm -rf \

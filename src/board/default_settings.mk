@@ -1,6 +1,7 @@
 DEFAULT_BLD             := src/configs/config.ubuntu.x86
 POST_FINAL_OUT_HOOK     := Post_Distro
 SUBDIRS                 := directory-not-exist-actually
+UTEST_PROG              := sdk-testsuites
 
 ifeq (Darwin,$(shell uname))
 POST_FINAL_OUT_HOOK     :=
