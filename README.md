@@ -168,4 +168,33 @@
 
 ![image](https://raw.githubusercontent.com/wiki/aliyun/iotkit-embedded/pics/iotconsole-publog.png)
 
+## 五. 交叉编译
+
+如果开发机不是Ubuntu16.04（Windows或MacOS）可以使用docker制作ubuntu16.04编译环境，在容器里编译代码。(需要在宿主机安装docker和python)
+
+#### 构建镜像
+
+执行 `python build_cross_compile_docker_image.py`，等待镜像构建完毕。
+
+#### 启动容器
+
+执行 `python cross_compile_env.py`，进入ubuntu16.04容器shell。
+
+#### 配置编译选项
+
+执行 `make reconfig`，出现提示:
+
+```
+1) config.ubuntu.x86
+2) config.win7.mingw32
+```
+
+如果编译ubuntu版本，选择1，windows选则2。确认后等待编译环境配置结束，就可以通过 `make distclean` , `make` 命令编译对应的版本。编译完毕后exit退出容器shell，生成的样例程序在当前目录的`output/release/bin`目录下。
+
+#### 帮助信息
+
+- 在容器shell中执行 `make env` 命令可以查看目前的编译选项设置。
+
+- 如果编译的是ubuntu版本，可以不退出容器shell，直接进入output/release/bin目录，运行编译好的程序。windows版本为交叉编译版本，需要复制到windows机器上才能运行。
+
 # 关于SDK的更多使用方式, 请访问[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
