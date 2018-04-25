@@ -170,7 +170,7 @@
 
 ## 五. 交叉编译
 
-如果开发机不是Ubuntu16.04（Windows或MacOS）可以使用docker制作ubuntu16.04编译环境，在容器里编译代码。(需要在宿主机安装docker和python)
+如果开发机不是Ubuntu16.04（Windows或MacOS）可以使用docker制作ubuntu16.04编译环境，在容器里编译代码。(需要在开发机安装docker和python)
 
 #### 构建镜像
 
@@ -182,7 +182,7 @@
 
 #### 配置编译选项
 
-执行 `make reconfig`，出现提示:
+在容器shell中执行 `make reconfig`，出现提示:
 
 ```
 1) config.ubuntu.x86
