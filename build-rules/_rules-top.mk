@@ -38,6 +38,11 @@ detect:
 	    done; \
 	fi
 
+prune:
+	@echo "$(TOP_DIR).pkgs directory removed!"|grep --color ".*"
+	@rm -rf $(TOP_DIR).pkgs
+	@$(MAKE) --no-print-directory distclean
+
 unzip: config $(STAMP_BLD_VAR)
 	@echo "Components: "
 	@echo ""
