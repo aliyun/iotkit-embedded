@@ -3,6 +3,13 @@ LIB_SRCS ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$
 LIB_OBJS := $(LIB_SRCS:.c=.o)
 LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
 
+.PHONY : cmake
+
+cmake:
+	@$(foreach V,$(INFO_ENV_VARS),$(subst -,_,$(V))="$($(V))") \
+	    $(foreach V,$(TARGET),$(subst -,_,SRCS_$(V))="$(SRCS_$(V))") \
+	    bash $(RULE_DIR)/scripts/gen_sub_cmake.sh $(TOP_DIR)/${MODULE_NAME}/CMakeLists.txt
+
 ifdef LIB_SRCS_PATTERN
 SRC_LIST := $(foreach M,$(LIB_SRCS_PATTERN),$(shell ls $(TOP_DIR)/$(MODULE_NAME)/$(M) 2>/dev/null))
 LIB_SRCS := $(SRC_LIST)

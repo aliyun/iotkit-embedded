@@ -70,9 +70,9 @@ define Copy_Headers
 	if [ "$(strip $(1))" != "" ]; then \
 	    mkdir -p $(2)/$(3); \
 	    for hdr in $(1); do \
-	        if [ $${PWD}/$${hdr} -nt $(2)/$(3)/$${hdr} ]; then \
-	            mkdir -p $(2)/$(3)/$$(dirname $${hdr}); \
-	            cp -f $${hdr} $(2)/$(3)/$$(dirname $${hdr}); \
+	        if [ ! -f $(2)/$(3)/$${hdr} ] || [ $${PWD}/$${hdr} -nt $(2)/$(3)/$${hdr} ]; then \
+	            mkdir -p $(2)/$(3); \
+	            cp -f $(TOP_DIR)/$(MODULE_NAME)/$${hdr} $(2)/$(3)/$$(basename $${hdr}); \
 	        fi; \
 	    done \
 	fi

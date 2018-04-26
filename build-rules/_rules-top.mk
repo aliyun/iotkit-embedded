@@ -1,4 +1,4 @@
-.PHONY: doc detect config reconfig toolchain sub-mods final-out env help
+.PHONY: doc detect config reconfig toolchain sub-mods final-out env cmake help
 
 all: detect config toolchain sub-mods final-out
 	$(TOP_Q) \
@@ -21,13 +21,14 @@ help:
 	@echo ""
 
 doc:
-	$(TOP_Q)rm -rf doc/html
+	$(TOP_Q)rm -rf $(DOXYGEN_DIR)/html; mkdir -p $(DOXYGEN_DIR)
 	$(TOP_Q) \
 	$(SED) \
-	    's:^PROJECT_NAME.*:PROJECT_NAME = $(PRJ_NAME):g; s:^PROJECT_NUMBER.*:PROJECT_NUMBER = $(PRJ_VERSION):g' \
+	    -e 's:^PROJECT_NAME.*:PROJECT_NAME = $(PRJ_NAME):g;' \
+	    -e 's:^PROJECT_NUMBER.*:PROJECT_NUMBER = $(PRJ_VERSION):g;' \
+	    -e 's:^OUTPUT_DIRECTORY.*:OUTPUT_DIRECTORY = $(DOXYGEN_DIR):g;' \
 	build-rules/misc/Doxyfile.tpl > $(OUTPUT_DIR)/.doxygen.cfg
 	$(TOP_Q)doxygen $(OUTPUT_DIR)/.doxygen.cfg
-	$(TOP_Q)mv html doc/
 
 detect:
 	@if [ -d .git ]; then \
@@ -47,17 +48,15 @@ unzip: config $(STAMP_BLD_VAR)
 	done
 	@echo ""
 
-#	@for i in $$(grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|$(SED) '/^\$$/d'); do \
-#	    if [ $$i -nt $(CONFIG_TPL) ]; then \
-#	        echo "Re-configure project since '$${i}' updated"|grep --color ".*"; \
-#	        $(RECURSIVE_MAKE) reconfig; \
-#	    fi; \
-#	done
-#
-#	@if [ ! -d $(OUTPUT_DIR) ]; then \
-#	    echo "Re-configure project since '$(OUTPUT_DIR)' non-exist!"|grep --color ".*"; \
-#	    $(RECURSIVE_MAKE) reconfig; \
-#	fi
+cmake: config
+	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
+	    SEP_LIBS="$(foreach V,$(COMP_LIB_COMPONENTS),$(LIBA_TARGET_$(V)))" \
+	    bash $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
+	@for D in $(ALL_SUB_DIRS); do \
+	    echo "+ $${D}"; \
+	    $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$${D} cmake; \
+	done
+	@echo ""
 
 config:
 

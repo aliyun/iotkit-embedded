@@ -19,6 +19,7 @@ SCRIPT_DIR      ?= $(TOP_DIR)/scripts
 PACKAGE_DIR     ?= $(TOP_DIR)/packages
 IMPORT_DIR      ?= $(TOP_DIR)/import
 MAKE_SEGMENT    ?= iot.mk
+DOXYGEN_DIR     ?= $(TOP_DIR)
 
 ifeq ($(shell [ ! -d $(CONFIG_DIR) ] && echo y),y)
 DEFAULT_BLD     := $(RULE_DIR)/misc/config.generic.default

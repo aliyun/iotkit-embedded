@@ -57,6 +57,9 @@ SHOW_ENV_VARS   := \
     IMPORT_DIR IMPORT_VDRDIR CONFIG_DIR PACKAGE_DIR EXTERNAL_INCLUDES \
     CONFIG_LIB_EXPORT OBJCOPY_FLAGS CONFIG_VENDOR COVERAGE_PROGS COVERAGE_CMD \
 
+INFO_ENV_VARS	:= $(SHOW_ENV_VARS) \
+    ALL_SUB_DIRS SED OUTPUT_DIR MAKE_SEGMENT COMP_LIB_NAME \
+
 ifndef CONFIG_LIB_EXPORT
 ifeq (y,$(strip $(CONFIG_EMB_GATEWAY_SDK)))
 CONFIG_LIB_EXPORT := dynamic
@@ -93,11 +96,11 @@ include $(RULE_DIR)/_rules-prefix.mk
 include $(RULE_DIR)/_rules-repo.mk
 
 CROSS_CANDIDATES := CC CXX AR LD STRIP OBJCOPY
-export CC       := $(if $(OVERRIDE_CC),     $(OVERRIDE_CC),     $(CROSS_PREFIX)gcc)
-export CXX      := $(if $(OVERRIDE_CXX),    $(OVERRIDE_CXX),    $(CROSS_PREFIX)g++)
-export AR       := $(if $(OVERRIDE_AR),     $(OVERRIDE_AR),     $(CROSS_PREFIX)ar)
-export LD       := $(if $(OVERRIDE_LD),     $(OVERRIDE_LD),     $(CROSS_PREFIX)ld)
-export OBJCOPY  := $(if $(OVERRIDE_OBJCOPY),$(OVERRIDE_OBJCOPY),$(CROSS_PREFIX)objcopy)
+export CC       := $(strip $(if $(OVERRIDE_CC),     $(OVERRIDE_CC),     $(CROSS_PREFIX)gcc))
+export CXX      := $(strip $(if $(OVERRIDE_CXX),    $(OVERRIDE_CXX),    $(CROSS_PREFIX)g++))
+export AR       := $(strip $(if $(OVERRIDE_AR),     $(OVERRIDE_AR),     $(CROSS_PREFIX)ar))
+export LD       := $(strip $(if $(OVERRIDE_LD),     $(OVERRIDE_LD),     $(CROSS_PREFIX)ld))
+export OBJCOPY  := $(strip $(if $(OVERRIDE_OBJCOPY),$(OVERRIDE_OBJCOPY),$(CROSS_PREFIX)objcopy))
 
 ifneq (,$(OVERRIDE_STRIP))
 export STRIP    := $(OVERRIDE_STRIP)
