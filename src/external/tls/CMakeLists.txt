@@ -15,6 +15,7 @@ ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ctr_drbg.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/entropy.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/error.c
+    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pk_wrap.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pem.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/rsa.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/cipher.c
@@ -26,7 +27,6 @@ ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pkparse.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_ciphersuites.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_cookie.c
-    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pk_wrap.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/cipher_wrap.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/platform.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/sha1.c
@@ -35,10 +35,10 @@ ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/md.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/md_wrap.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/sha256.c
+    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_cli.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/timing.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/x509_crt.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/aes.c
-    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_cli.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/bignum.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pk.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/x509.c
