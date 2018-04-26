@@ -240,4 +240,5 @@ endif
 SUBDIRS += src/platform
 SUBDIRS += samples
 SUBDIRS += src/tests
+SUBDIRS += src/external/tls
 

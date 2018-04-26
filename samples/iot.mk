@@ -84,6 +84,5 @@ endif
 ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
 TARGET                    += linkkit-example 
 SRCS_linkkit-example      := linkkit/linkkit_sample.c
-LDFLAGS                   += -liot_linkkit
 endif
 
