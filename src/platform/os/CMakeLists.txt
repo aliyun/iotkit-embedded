@@ -1,5 +1,0 @@
-if(WIN32)
-    add_subdirectory(win7)
-else(WIN32)
-    add_subdirectory(ubuntu)
-endif(WIN32)
