@@ -3,7 +3,6 @@
 TOP_DIR         := $(CURDIR)
 RULE_DIR        := $(TOP_DIR)/build-rules
 CONFIG_DIR      := $(TOP_DIR)/src/board
-SCRIPT_DIR      := $(TOP_DIR)/src/tools
 PACKAGE_DIR     := $(TOP_DIR)/src/packages
 IMPORT_DIR      := $(TOP_DIR)/src/import
 

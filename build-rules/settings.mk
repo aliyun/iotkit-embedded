@@ -15,7 +15,6 @@ endif
 #
 RULE_DIR        ?= $(TOP_DIR)/build-rules
 CONFIG_DIR      ?= $(TOP_DIR)/configs
-SCRIPT_DIR      ?= $(TOP_DIR)/scripts
 PACKAGE_DIR     ?= $(TOP_DIR)/packages
 IMPORT_DIR      ?= $(TOP_DIR)/import
 MAKE_SEGMENT    ?= iot.mk
