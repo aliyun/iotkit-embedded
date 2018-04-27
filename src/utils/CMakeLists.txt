@@ -10,9 +10,8 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/in
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/inc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/inc)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/coap)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/http)
@@ -51,8 +50,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages/LITE-utils)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages/iot-coap-c)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/ubuntu)
@@ -64,8 +61,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/exports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/iotkit-system)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
@@ -77,6 +73,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_utils OBJECT
+    ${PROJECT_SOURCE_DIR}/src/utils/json_token.c
+    ${PROJECT_SOURCE_DIR}/src/utils/json_parser.c
+    ${PROJECT_SOURCE_DIR}/src/utils/string_utils.c
+    ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_prog.c
+    ${PROJECT_SOURCE_DIR}/src/utils/mem_stats.c
+    ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_testsuites.c
     ${PROJECT_SOURCE_DIR}/src/utils/log/lite-log.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_list.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_epoch_time.c
@@ -88,11 +90,5 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_sha256.c
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_base64.c
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_sha1.c
-    ${PROJECT_SOURCE_DIR}/src/packages/LITE-utils/json_token.c
-    ${PROJECT_SOURCE_DIR}/src/packages/LITE-utils/json_parser.c
-    ${PROJECT_SOURCE_DIR}/src/packages/LITE-utils/string_utils.c
-    ${PROJECT_SOURCE_DIR}/src/packages/LITE-utils/lite-utils_prog.c
-    ${PROJECT_SOURCE_DIR}/src/packages/LITE-utils/mem_stats.c
-    ${PROJECT_SOURCE_DIR}/src/packages/LITE-utils/lite-utils_testsuites.c
 )
 

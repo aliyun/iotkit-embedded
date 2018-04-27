@@ -32,14 +32,10 @@ MESSAGE ("---------------------------------------------------------------------"
 FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
 FILE (MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
 
-FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/src/system/iotkit-system)
-EXECUTE_PROCESS (COMMAND git clone -q ${PROJECT_SOURCE_DIR}/src/packages/iotkit-system.git ${PROJECT_SOURCE_DIR}/src/system/iotkit-system)
 FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/src/framework/services/ota/Link-OTA)
 EXECUTE_PROCESS (COMMAND git clone -q ${PROJECT_SOURCE_DIR}/src/packages/Link-OTA.git ${PROJECT_SOURCE_DIR}/src/framework/services/ota/Link-OTA)
 FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT)
 EXECUTE_PROCESS (COMMAND git clone -q ${PROJECT_SOURCE_DIR}/src/packages/Link-MQTT.git ${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT)
-FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP)
-EXECUTE_PROCESS (COMMAND git clone -q ${PROJECT_SOURCE_DIR}/src/packages/Link-CMP.git ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP)
 FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit)
 EXECUTE_PROCESS (COMMAND git clone -q ${PROJECT_SOURCE_DIR}/src/packages/mbedtls-in-iotkit.git ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit)
 

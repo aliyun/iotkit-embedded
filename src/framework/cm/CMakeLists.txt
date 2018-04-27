@@ -11,9 +11,8 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/li
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/inc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/inc)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/coap)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/http)
@@ -52,8 +51,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages/LITE-utils)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages/iot-coap-c)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/ubuntu)
@@ -65,8 +62,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/exports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/iotkit-system)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
@@ -77,11 +73,11 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_cmp OBJECT
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src/iotx_cmp_mqtt_direct.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src/iotx_cmp_cloud_conn.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src/iotx_cmp_api.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src/iotx_cmp_log.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src/iotx_cmp_common.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src/iotx_cmp_ota.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_mqtt_direct.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_cloud_conn.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_api.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_log.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_common.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_ota.c
 )
 

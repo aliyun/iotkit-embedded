@@ -10,9 +10,8 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/in
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/inc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/Link-CMP/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/inc)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/coap)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/http)
@@ -51,8 +50,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages/LITE-utils)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages/iot-coap-c)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/ubuntu)
@@ -65,8 +62,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/exports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/iotkit-system)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
@@ -77,16 +73,16 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_system OBJECT
+    ${PROJECT_SOURCE_DIR}/src/system/src/id2_guider.c
+    ${PROJECT_SOURCE_DIR}/src/system/src/class_interface.c
+    ${PROJECT_SOURCE_DIR}/src/system/src/sdk-impl.c
+    ${PROJECT_SOURCE_DIR}/src/system/src/guider.c
+    ${PROJECT_SOURCE_DIR}/src/system/src/report.c
+    ${PROJECT_SOURCE_DIR}/src/system/src/device.c
+    ${PROJECT_SOURCE_DIR}/src/system/src/ca.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/tfs_demo.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/id2_crypto.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/tfs_uttest.c
-    ${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src/id2_guider.c
-    ${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src/class_interface.c
-    ${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src/sdk-impl.c
-    ${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src/guider.c
-    ${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src/report.c
-    ${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src/device.c
-    ${PROJECT_SOURCE_DIR}/src/system/iotkit-system/src/ca.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/platform/pal_platform_base64.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/platform/pal_platform_random.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/platform/pal_platform_log.c
