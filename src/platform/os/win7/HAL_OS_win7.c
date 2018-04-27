@@ -200,7 +200,7 @@ int HAL_SetProductKey(_IN_ char* product_key)
 	}
 #endif
     return written_len;
-
+}
 
 int HAL_SetDeviceName(_IN_ char* device_name)
 {
@@ -336,7 +336,7 @@ int HAL_GetFirmwareVesion(_OU_ char* version)
 }
 
 #ifdef __DEMO__
-static FILE *fp;
+static FILE *fp_temp;
 
 #define otafilename "/tmp/alinkota.bin"
 #endif
@@ -344,7 +344,7 @@ static FILE *fp;
 void HAL_Firmware_Persistence_Start(void)
 {
 #ifdef __DEMO__
-    fp = fopen(otafilename, "w");
+    fp_temp = fopen(otafilename, "w");
 //    assert(fp);
 #endif
     return;
@@ -354,7 +354,7 @@ int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length)
 {
 #ifdef __DEMO__
     unsigned int written_len = 0;
-    written_len = fwrite(buffer, 1, length, fp);
+    written_len = fwrite(buffer, 1, length, fp_temp);
 
     if (written_len != length) {
         return -1;
@@ -366,8 +366,8 @@ int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length)
 int HAL_Firmware_Persistence_Stop(void)
 {
 #ifdef __DEMO__
-    if (fp != NULL) {
-        fclose(fp);
+    if (fp_temp != NULL) {
+        fclose(fp_temp);
     }
 #endif
 
