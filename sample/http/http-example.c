@@ -20,7 +20,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if (!WIN32)
 #include <unistd.h>
+#endif
 
 #include "iot_import.h"
 #include "iot_export.h"
@@ -75,7 +77,9 @@ int main(int argc, char **argv)
 {
     iotx_device_info_t      device_info;
     iotx_http_param_t       http_param;
+#if (!WIN32)
     int                     opt;
+#endif
     void                   *handle = NULL;
 
     IOT_OpenLog("http");
@@ -95,7 +99,7 @@ int main(int argc, char **argv)
     HAL_GetDeviceID(device_info.device_id);
     /**< end*/
 
-
+#if (!WIN32)
     HAL_Printf("[HTTP-Client]: Enter HTTP Client\r\n");
     while ((opt = getopt(argc, argv, "lh")) != -1) {
         switch (opt) {
@@ -109,6 +113,7 @@ int main(int argc, char **argv)
                 break;
         }
     }
+#endif
     HAL_Printf("[HTTP-Client]: keep_alive=%d\r\n", http_param.keep_alive);
     http_param.device_info = &device_info;
     http_param.timeout_ms = DEFAULT_TIMEOUT_MS;

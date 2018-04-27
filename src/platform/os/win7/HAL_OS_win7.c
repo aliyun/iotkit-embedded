@@ -16,15 +16,10 @@
  *
  */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
-
-#include "iot_import.h"
-#include "iot_export.h"
 
 #include <process.h>
 #include <windows.h>
@@ -32,6 +27,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
+
+#include "iot_import.h"
+#include "iot_export.h"
+#include "iot_import_product.h"
 
 #define __DEMO__
 
@@ -184,23 +183,24 @@ int HAL_GetDeviceID(_OU_ char* device_id)
 
 int HAL_SetProductKey(_IN_ char* product_key)
 {
-    int len = strlen(product_key);
+	int len = strlen(product_key);
 #ifdef __DEMO__
-    if (len > PRODUCT_KEY_LEN) return -1;
-    memset(_product_key, 0x0, PRODUCT_KEY_LEN + 1);
-    strncpy(_product_key, product_key, len);
+	if (len > PRODUCT_KEY_LEN) return -1;
+	memset(_product_key, 0x0, PRODUCT_KEY_LEN + 1);
+	strncpy(_product_key, product_key, len);
 	FILE *fp = fopen("pk", "w");
-    if(fp == NULL)
-    	return -1;
-    unsigned int written_len = 0;
+	if (fp == NULL)
+		return -1;
+	unsigned int written_len = 0;
 	written_len = fwrite(product_key, 1, strlen(product_key), fp);
 
 	if (written_len != strlen(product_key)) {
 		return -1;
 	}
 #endif
-    return written_len;
+	return written_len;
 }
+
 
 int HAL_SetDeviceName(_IN_ char* device_name)
 {

@@ -500,7 +500,11 @@ static void install_cjson_item_data_type_value(void *dst, data_type_type_t type,
         data_type_x->data_type_text_t.value = NULL; /* default value. */
     } else if (type == data_type_type_date) {
         data_type_x->data_type_date_t.value = 1513406265000; /* ms, UTC. default value. */
-        dm_lltoa(__LONG_LONG_MAX__, temp_buf, 10);
+#if !(WIN32)
+		dm_lltoa(__LONG_LONG_MAX__, temp_buf, 10);
+#else
+        dm_lltoa(LLONG_MAX, temp_buf, 10);
+#endif
         data_type_x->data_type_date_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
         assert(data_type_x->data_type_date_t.value_str);
         dm_lltoa(data_type_x->data_type_date_t.value, data_type_x->data_type_date_t.value_str, 10);
