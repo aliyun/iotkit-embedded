@@ -74,12 +74,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_dm OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_thing_manager.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/cmp_message_info.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/single_list.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/logger.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_cm_msg_info.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_slist.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_logger.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_thing.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_impl.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/cJSON.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/cmp_abstract_impl.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_cm_impl.c
 )
 

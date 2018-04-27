@@ -73,11 +73,15 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_cmp OBJECT
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_mqtt_direct.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_cloud_conn.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_api.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_log.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_common.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cmp_ota.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_coap.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_http.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_mqtt.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_cloud_conn.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_api.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_log.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_common.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_ota.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_local_conn.c
+    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_local_conn_alcs.c
 )
 
