@@ -22,6 +22,7 @@
 
 #include "iot_export_cm.h"
 #include "linked_list.h"
+#include "lite-log.h"
 
 #ifdef CM_SUPPORT_MULTI_THREAD
 #ifdef CM_SUPPORT_MULTI_THREAD_VIA_HAL
