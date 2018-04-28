@@ -19,7 +19,23 @@
 /*
  * example for product "灯-Demo"
  */
-
+#if defined(SUPPORT_SINGAPORE_DOMAIN)
+    #define IOTX_PRODUCT_KEY        "zSqW3X4e0lJ"
+    #define IOTX_DEVICE_NAME        "azhan_sg"
+    #define IOTX_DEVICE_SECRET      "qUMFGaNQGjoTdDkxKppfVzQwtpnMxRBx"
+#elif defined(ON_DAILY)
+    #define IOTX_PRODUCT_KEY        "a1nmfrdo3MI"
+    #define IOTX_DEVICE_NAME        "light_demo_for_ilop_device_test"
+    #define IOTX_DEVICE_SECRET      "kobN5zg08IwlgbqSUeaxo0vbEsOiEI7b"
+#elif defined(ON_PRE)
+    #define IOTX_PRODUCT_KEY        "a1u36e7PPs1"
+    #define IOTX_DEVICE_NAME        "MxFRySXtCYbcR9vsYDyd"
+    #define IOTX_DEVICE_SECRET      "5U0GSuYZHsfINMB3n9bxUT2Yo1fJyo9S"
+#else
+    #define IOTX_PRODUCT_KEY        "a1AzoSi5TMc"
+    #define IOTX_DEVICE_NAME        "test_light_for_dm_cmp_2"
+    #define IOTX_DEVICE_SECRET      "XjdICFKdWrm8pDughFg2cAImO6O0aDhE"
+#endif
 #define LINKKIT_PRINTF(...)  \
     do {                                                     \
         printf("\e[0;32m%s@line%d:\t", __FUNCTION__, __LINE__);  \
@@ -413,6 +429,9 @@ int main(int argc, char* argv[])
     execution_time = execution_time < 1 ? 1 : execution_time;
     LINKKIT_PRINTF("sample execution time: %d minutes\n", execution_time);
     LINKKIT_PRINTF("%s tsl from cloud\n", get_tsl_from_cloud == 0 ? "Not get" : "get");
+    HAL_SetProductKey(IOTX_PRODUCT_KEY);
+    HAL_SetDeviceName(IOTX_DEVICE_NAME);
+    HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
 
     memset(sample_ctx, 0, sizeof(sample_context_t));
     sample_ctx->thing_enabled = 1;
@@ -460,6 +479,6 @@ int main(int argc, char* argv[])
     }
 
     linkkit_end();
-
+    LINKKIT_PRINTF("out of sample!\n");
     return 0;
 }
