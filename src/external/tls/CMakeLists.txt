@@ -8,23 +8,23 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/li
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import)
 
 ADD_LIBRARY (iot_tls STATIC
-    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ctr_drbg.c
+    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/aes.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/entropy.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/error.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pem.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/rsa.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/cipher.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_tls.c
-    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/asn1parse.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/debug.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/net_sockets.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/base64.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pkparse.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_ciphersuites.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_cookie.c
+    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/asn1parse.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pk_wrap.c
-    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/cipher_wrap.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/platform.c
+    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/cipher_wrap.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/sha1.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/oid.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/entropy_poll.c
@@ -33,7 +33,7 @@ ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/sha256.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/timing.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/x509_crt.c
-    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/aes.c
+    ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ctr_drbg.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ssl_cli.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/bignum.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pk.c

@@ -232,7 +232,7 @@ static struct timeval tv_init;
   #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
 #endif
 
-#if defined(_TIMEZONE_DEFINED)
+#ifndef _TIMEZONE_DEFINED
 struct timezone
 {
     int  tz_minuteswest; /* minutes W of Greenwich */
