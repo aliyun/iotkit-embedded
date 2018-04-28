@@ -55,7 +55,7 @@ unzip: config $(STAMP_BLD_VAR)
 
 cmake: config
 	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
-	    SEP_LIBS="$(foreach V,$(COMP_LIB_COMPONENTS),$(LIBA_TARGET_$(V)))" \
+	    SEP_LIBS="$$(grep -m 1 '^COMP_LIB_FILES' $(STAMP_BLD_ENV) | cut -d' ' -f3-)" \
 	    bash $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
 	@for D in $(ALL_SUB_DIRS); do \
 	    echo "+ $${D}"; \

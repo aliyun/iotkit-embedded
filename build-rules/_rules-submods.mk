@@ -56,6 +56,7 @@ $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
 	    $(sort $(SUB_BUILD_VARS)), \
 	        echo "$(V) := $(sort $($(V)))"|$(SED) 's:\$$:$$$$:g' >> $(STAMP_BLD_ENV); \
 	)
+	@echo "COMP_LIB_FILES := $(foreach V,$(COMP_LIB_COMPONENTS), $(LIBA_TARGET_$(V)))" >> $@
 
 # note:
 #   $(SED) -i "/CONFIG_$${i//\//\\/}.*/d" $(CONFIG_TPL);

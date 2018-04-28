@@ -81,6 +81,9 @@ $(for i in ${SEP_LIBS}; do
     echo "    \$<TARGET_OBJECTS:${j}>"
 done)
 )
+if(WIN32)
+    TARGET_LINK_LIBRARIES (${COMP_LIB_NAME} ws2_32)
+endif(WIN32)
 
 EOB
 fi
