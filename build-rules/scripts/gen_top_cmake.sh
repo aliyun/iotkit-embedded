@@ -15,7 +15,6 @@ PROJECT (${PRJ_NAME}-${PRJ_VERSION})
 
 SET (EXECUTABLE_OUTPUT_PATH \${PROJECT_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH \${PROJECT_BINARY_DIR}/lib)
-SET (CMAKE_C_COMPILER "${CC}")
 SET (CMAKE_C_FLAGS "${CFLAGS}")
 
 MESSAGE ("---------------------------------------------------------------------")
