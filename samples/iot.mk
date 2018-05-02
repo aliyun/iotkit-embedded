@@ -82,7 +82,16 @@ endif
 
 
 ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
-TARGET                    += linkkit-example 
-SRCS_linkkit-example      := linkkit/linkkit_sample.c
+
+    ifeq (,$(filter -DSUBDEV_ENABLE,$(CFLAGS)))
+    TARGET                    += linkkit-example 
+    SRCS_linkkit-example      := linkkit/linkkit_sample.c
+    TARGET                 += linkkit-sample_sb
+    SRCS_linkkit-sample_sb := linkkit/linkkit_sample_share_business.c
+    else
+    TARGET                 += linkkit-sample_gw
+    SRCS_linkkit_sample_gw := linkkit/linkkit_sample_gateway.c
+    endif
+
 endif
 

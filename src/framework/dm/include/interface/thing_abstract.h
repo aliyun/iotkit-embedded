@@ -15,8 +15,8 @@ typedef struct {
     const char*  _class_name;
     void* (*ctor)(void* _self, va_list* params);
     void* (*dtor)(void* _self);
-    int   (*set_dsl_string)(void* _self, const char* dsl, int dsl_str_len);  /* set dsl to thing model. */
-    void* (*get_dsl_string)(void* _self); /* get dsl from thing model. */
+    int   (*set_tsl_string)(void* _self, const char* tsl, int tsl_str_len);  /* set tsl to thing model. */
+    void* (*get_tsl_string)(void* _self); /* get tsl from thing model. */
     int   (*get_property_number)(const void* _self);
     int   (*get_service_number)(const void* _self);
     int   (*get_event_number)(const void* _self);
@@ -28,8 +28,10 @@ typedef struct {
     int   (*get_event_identifier_by_index)(const void* _self, int index, char* identifier);
     int   (*get_schema)(const void* _self, char* schema);
     int   (*get_link)(const void* _self, char* link);
+    int   (*set_product_key)(void* _self, const char* product_key);
     int   (*get_product_key)(const void* _self, char* product_key);
     char* (*return_product_key)(const void* _self);
+    int   (*set_device_name)(void* _self, const char* device_name);
     int   (*get_device_name)(const void* _self, char* device_name);
     char* (*return_device_name)(const void* _self);
     int   (*set_property_value_by_identifier)(void* _self, const char* const identifier, const void* value, const char* value_str);

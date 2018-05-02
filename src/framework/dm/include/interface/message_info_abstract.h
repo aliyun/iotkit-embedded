@@ -29,11 +29,7 @@ typedef struct {
     int   (*serialize_to_payload_response)(void* _self);
     void  (*set_message_type)(void* _self, int request);
     int   (*get_message_type)(void* _self);
-#ifdef MEMORY_NO_COPY
-    char* (*get_params_data)(void* _self, int start);
-#else
     char* (*get_params_data)(void* _self);
-#endif
     void  (*set_params_data)(void* _self, char* params_data_buf);  /* malloc mem and copy payload. */
     int   (*set_raw_data_and_length)(void* _self, void* raw_data, int raw_data_length);  /* malloc mem and copy payload. */
     void* (*get_raw_data)(void* _self);
@@ -44,6 +40,10 @@ typedef struct {
     void  (*set_device_name)(void* _self, char* device_name);  /* malloc mem and copy payload. */
     void  (*set_code)(void* _self, int code);
     int   (*get_code)(void* _self);
+#ifdef LOCAL_CONN_ENABLE
+    void* (*get_conn_ctx)(void* _self);
+    void  (*set_conn_ctx)(void* _self, void* _conn_ctx);
+#endif
 } message_info_t;
 
 #ifdef __cplusplus

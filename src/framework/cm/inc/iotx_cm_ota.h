@@ -17,33 +17,29 @@
  */
 
 
-#ifndef __CMP_OTA_H__
-#define __CMP_OTA_H__
+#ifndef __CM_OTA_H__
+#define __CM_OTA_H__
 
 
 #ifdef SERVICE_OTA_ENABLED
 #include "iot_import.h"
 
-#include "utils_list.h"
 #include "lite-utils.h"
 #include "lite-system.h"
-#include "iot_export.h"
-#include "iot_export_ota.h"
-#include "iotx_cmp_common.h"
+#include "iotx_cm_common.h"
 
-void* iotx_cmp_ota_init(iotx_cmp_conntext_pt cmp_pt, const char* version);
+void* iotx_cm_ota_init(iotx_cm_conntext_t* cm_ctx, const char* version);
 
-int iotx_cmp_ota_yield(iotx_cmp_conntext_pt cmp_pt, iotx_cmp_ota_pt ota_pt);
+int iotx_cm_ota_yield(iotx_cm_conntext_t* cm_ctx, iotx_cm_ota_t* cm_ota);
 
-int iotx_cmp_ota_deinit(iotx_cmp_conntext_pt cmp_pt);
+int iotx_cm_ota_deinit(iotx_cm_conntext_t* cm_ctx);
 
-int iotx_cmp_ota_request_image(iotx_cmp_conntext_pt cmp_pt, const char* version);
+int iotx_cm_ota_request_image(iotx_cm_conntext_t* cm_ctx, const char* version);
 
-int iotx_cmp_ota_get_config(iotx_cmp_conntext_pt cmp_pt, const char* configScope, const char* getType, const char* attributeKeys);
+int iotx_cm_ota_get_config(iotx_cm_conntext_t* cm_ctx, const char* configScope, const char* getType, const char* attributeKeys);
 
 #endif /* SERVICE_OTA_ENABLED */
 
-
-#endif /* __CMP_OTA_H__ */
+#endif /* __CM_OTA_H__ */
 
 

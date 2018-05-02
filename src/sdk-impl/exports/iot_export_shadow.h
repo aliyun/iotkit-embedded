@@ -20,6 +20,7 @@
 #define __SHADOW_EXPORT_H__
 
 /* From shadow.h */
+#include <sys/types.h>
 typedef enum {
     IOTX_SHADOW_ACK_TIMEOUT = -1,
     IOTX_SHADOW_ACK_NONE = 0,

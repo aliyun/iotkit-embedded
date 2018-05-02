@@ -1,5 +1,5 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef DM_LOGGER_H
+#define DM_LOGGER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,16 +7,16 @@ extern "C" {
 
 #include "interface/log_abstract.h"
 
-#define LOGGER_CLASS get_logger_class()
+#define DM_LOGGER_CLASS get_dm_logger_class()
 
 typedef struct {
     const void* _;
     log_level_t _log_level;
     char* _log_name;
     char* _log_buffer;
-} logger_t;
+} dm_logger_t;
 
-extern const void* get_logger_class();
+extern const void* get_dm_logger_class();
 
 extern void* _g_default_logger;
 
@@ -24,4 +24,4 @@ extern void* _g_default_logger;
 }
 #endif /* __cplusplus */
 
-#endif /* LOGGER_H */
+#endif /* DM_LOGGER_H */

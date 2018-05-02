@@ -7,7 +7,7 @@
 #include "class_interface.h"
 #include "iot_export_dm.h"
 #include "iot_export_fota.h"
-#include "iot_export_cmp.h"
+#include "iot_export_cm.h"
 #include "iot_export_errno.h"
 #include "lite-utils.h"
 
@@ -35,7 +35,7 @@ static void service_ota_handler(void* pcontext, iotx_cmp_fota_parameter_t* ota_p
     }
 }
 
-static void service_ota_cmp_event_handler(void* pcontext, iotx_cmp_event_msg_t* msg, void* user_data)
+static void service_ota_cm_event_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
     service_ota_t* service_ota = user_data;
     int ret;
@@ -50,14 +50,14 @@ static void service_ota_cmp_event_handler(void* pcontext, iotx_cmp_event_msg_t* 
 
             log_info("Current firmware version: %s", service_ota->_current_verison);
 
-            ret = IOT_CMP_OTA_Start(service_ota->_current_verison, NULL);
+            ret = IOT_CM_OTA_Start(service_ota->_current_verison, NULL);
             if (ret == SUCCESS_RETURN) {
                 service_ota->_ota_inited = 1;
             }
 
-            ret = IOT_CMP_OTA_Set_Callback(IOTX_CMP_OTA_TYPE_FOTA, service_ota_handler, service_ota, NULL);
+            ret = IOT_CM_OTA_Set_Callback(IOTX_CMP_OTA_TYPE_FOTA, service_ota_handler, service_ota, NULL);
 
-            log_debug("ret = IOT_CMP_OTA_Set_Callback() = %d\n", ret);
+            log_debug("ret = IOT_CM_OTA_Set_Callback() = %d\n", ret);
         }
 
         log_info("event %d(%s)\n###\n", msg->event_id, "cloud connected");
@@ -68,7 +68,7 @@ static void* service_ota_ctor(void* _self, va_list* params)
 {
     service_ota_t* self = _self;
     int ret = 0;
-    iotx_cmp_init_param_t init_param;
+    iotx_cm_init_param_t init_param;
 
     self->_data_buf = NULL;
     self->_data_buf_length = 0;
@@ -77,14 +77,14 @@ static void* service_ota_ctor(void* _self, va_list* params)
     if (self->_current_verison == NULL) return NULL;
     memset(self->_current_verison, 0x0, FIRMWARE_VERSION_MAXLEN);
 
-    init_param.event_func = service_ota_cmp_event_handler;
+    init_param.event_func = service_ota_cm_event_handler;
     init_param.user_data = self;
     init_param.domain_type = IOTX_CMP_CLOUD_DOMAIN_SH;
     init_param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
 
-    ret = IOT_CMP_Init(&init_param, NULL);
+    ret = IOT_CM_Init(&init_param, NULL);
 
-    log_debug("ret = IOT_CMP_Init() = %d\n", ret);
+    log_debug("ret = IOT_CM_Init() = %d\n", ret);
 
     log_debug("service fota created@%p.", self);
 
@@ -150,21 +150,21 @@ static int service_ota_perform_ota_service(void* _self, void* _data_buf, int _da
 {
     service_ota_t* self = _self;
     int ret = -1;
-    iotx_cmp_ota_t* iotx_cmp_ota;
+    iotx_cm_ota_t* iotx_cm_ota;
 
     assert(_data_buf && _data_buf_length);
 
     self->_data_buf = _data_buf;
     self->_data_buf_length = _data_buf_length;
 
-    iotx_cmp_ota = service_ota_lite_calloc(1, sizeof(iotx_cmp_ota_t));
+    iotx_cm_ota = service_ota_lite_calloc(1, sizeof(iotx_cm_ota_t));
 
-    assert(iotx_cmp_ota);
-    if (iotx_cmp_ota == NULL) return -1;
+    assert(iotx_cm_ota);
+    if (iotx_cm_ota == NULL) return -1;
 
-    iotx_cmp_ota->buffer = self->_data_buf;
-    iotx_cmp_ota->buffer_length = self->_data_buf_length;
-    iotx_cmp_ota->ota_type = IOTX_CMP_OTA_TYPE_FOTA;
+    iotx_cm_ota->buffer = self->_data_buf;
+    iotx_cm_ota->buffer_length = self->_data_buf_length;
+    iotx_cm_ota->ota_type = IOTX_CMP_OTA_TYPE_FOTA;
 
     self->_total_len = 0;
 
@@ -172,29 +172,29 @@ static int service_ota_perform_ota_service(void* _self, void* _data_buf, int _da
 
     while (1) {
         /* reset buffer size every time after fetch */
-        iotx_cmp_ota->buffer_length = self->_data_buf_length;
-        ret = IOT_CMP_OTA_Yield(iotx_cmp_ota);
+        iotx_cm_ota->buffer_length = self->_data_buf_length;
+        ret = IOT_CM_OTA_Yield(iotx_cm_ota);
         
-        assert(iotx_cmp_ota->buffer && iotx_cmp_ota->buffer_length);
+        assert(iotx_cm_ota->buffer && iotx_cm_ota->buffer_length);
 
-        if (ret == 0 && iotx_cmp_ota->buffer && iotx_cmp_ota->buffer_length) {
-            ret = service_ota_write(self, iotx_cmp_ota->buffer, iotx_cmp_ota->buffer_length);
+        if (ret == 0 && iotx_cm_ota->buffer && iotx_cm_ota->buffer_length) {
+            ret = service_ota_write(self, iotx_cm_ota->buffer, iotx_cm_ota->buffer_length);
             if (ret == 0) {
-                self->_total_len += iotx_cmp_ota->buffer_length;
+                self->_total_len += iotx_cm_ota->buffer_length;
             }
             log_debug("\nservice fota write flash,\tret=%d,\tbuffer_length=%d,\ttotal len:%d\n",
-                      ret, iotx_cmp_ota->buffer_length, self->_total_len);
+                      ret, iotx_cm_ota->buffer_length, self->_total_len);
             if (ret) goto err_handler;
         }
 
-        if (ret || iotx_cmp_ota->result) {
-            log_debug("service fota fail, ret=%d,\tresult=%d", ret, iotx_cmp_ota->result);
+        if (ret || iotx_cm_ota->result) {
+            log_debug("service fota fail, ret=%d,\tresult=%d", ret, iotx_cm_ota->result);
             goto err_handler;
         }
 
-        if (iotx_cmp_ota->is_more) continue;
+        if (iotx_cm_ota->is_more) continue;
 
-        if(iotx_cmp_ota->is_more == 0 && iotx_cmp_ota->result == 0) {
+        if(iotx_cm_ota->is_more == 0 && iotx_cm_ota->result == 0) {
             ret = 0;
             log_debug("\nservice fota complete\n");
             break;
@@ -202,7 +202,7 @@ static int service_ota_perform_ota_service(void* _self, void* _data_buf, int _da
     }
 
 err_handler:
-    if (ret == 0 && iotx_cmp_ota->result == 0) {
+    if (ret == 0 && iotx_cm_ota->result == 0) {
         ret = service_ota_end(self);
         if (ret) {
             log_err("service fota invoke end function error, ret=%d", ret);
@@ -211,7 +211,7 @@ err_handler:
         ret = -1;
     }
 
-    if (iotx_cmp_ota) service_ota_lite_free(iotx_cmp_ota);
+    if (iotx_cm_ota) service_ota_lite_free(iotx_cm_ota);
 
     return ret;
 }
