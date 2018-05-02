@@ -241,4 +241,4 @@ SUBDIRS += src/platform
 SUBDIRS += samples
 SUBDIRS += src/tests
 SUBDIRS += src/external/tls
-
+SUBDIRS += src/tools/linkkit_tsl_convert
