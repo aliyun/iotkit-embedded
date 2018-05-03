@@ -15,7 +15,7 @@ PROJECT (${PRJ_NAME}-${PRJ_VERSION} C)
 
 SET (EXECUTABLE_OUTPUT_PATH \${PROJECT_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH \${PROJECT_BINARY_DIR}/lib)
-SET (CMAKE_C_FLAGS "${CFLAGS}")
+SET (CMAKE_C_FLAGS "$(grep -m 1 '^CFLAGS\>' ${STAMP_BLD_ENV}|cut -d' ' -f3-)")
 
 MESSAGE ("---------------------------------------------------------------------")
 MESSAGE ("Project Name              : " \${PROJECT_NAME})
