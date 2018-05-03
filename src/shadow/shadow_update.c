@@ -1,4 +1,4 @@
-g/*
+/*
  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
  * License-Identifier: Apache-2.0
  *
@@ -146,7 +146,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
                 LITE_free(pdata);
                 HAL_MutexUnlock(pshadow->mutex);
-                //log_debug("token=%s", pelement[i].token);
+                /*log_debug("token=%s", pelement[i].token);*/
                 do {
                     pdata = LITE_json_value_of("status", (char *)ppayload);
                     if (NULL == pdata) {

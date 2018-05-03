@@ -38,9 +38,9 @@
     #define DEVICE_NAME             "00AAAAAABBBBBB4B645F5800"
     #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
 #else
-    #define PRODUCT_KEY             "yfTuLfBJTiL"
-    #define DEVICE_NAME             "TestDeviceForDemo"
-    #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+    #define PRODUCT_KEY             "a1WxVtI1pGm"
+    #define DEVICE_NAME             "deviceName"
+    #define DEVICE_SECRET           "vLBybRs9SpcFRoQNt5DkDxcwKuEY9GeI"
 #endif
 
 /* These are pre-defined topics */
