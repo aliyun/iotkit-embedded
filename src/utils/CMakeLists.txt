@@ -66,6 +66,9 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
@@ -82,8 +85,10 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/utils/log/lite-log.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_list.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_epoch_time.c
+    ${PROJECT_SOURCE_DIR}/src/utils/misc/linked_list.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_httpc.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_timer.c
+    ${PROJECT_SOURCE_DIR}/src/utils/misc/lite_queue.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_net.c
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_hmac.c
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_md5.c

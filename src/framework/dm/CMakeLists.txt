@@ -67,6 +67,9 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
@@ -74,12 +77,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_dm OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_thing_manager.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_cm_msg_info.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_slist.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_logger.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_thing.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_logger.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_slist.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_impl.c
-    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/cJSON.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_cm_impl.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_cm_msg_info.c
+    ${PROJECT_SOURCE_DIR}/src/framework/dm/src/cJSON.c
 )
 

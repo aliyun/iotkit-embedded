@@ -54,7 +54,7 @@ fi
 if (( TARGET_COUNT > 1 )); then
     cat << EOB >> ${TARGET_FILE}
 $(for i in ${TARGET}; do
-    echo "ADD_EXECUTABLE (${i} "
+    echo "ADD_EXECUTABLE (${i}"
 
     j=${i//-/_}
     k=$(eval echo '${''SRCS_'"${j}"'}')

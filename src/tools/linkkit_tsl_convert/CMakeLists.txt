@@ -1,7 +1,21 @@
-include_directories(${PROJECT_SOURCE_DIR}/tool/linkkit_tsl_convert/include)
-aux_source_directory(${PROJECT_SOURCE_DIR}/tool/linkkit_tsl_convert/src SRC_TSL_FORMAT)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/.O/usr/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/ubuntu/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/ubuntu/include/itls)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/ubuntu/include/tfs)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 
-add_library(tsl_format STATIC ${SRC_TSL_FORMAT})
+ADD_EXECUTABLE (linkkit_tsl_convert
+    ${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/linkkit_tsl_convert.c
+    ${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src/tsl_opt_impl.c
+    ${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src/tsl_file.c
+    ${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src/cJSON.c
+    ${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src/tsl_format_export.c
+)
 
-add_executable(linkkit_tsl_convert linkkit_tsl_convert.c)
-target_link_libraries(linkkit_tsl_convert tsl_format)
+TARGET_LINK_LIBRARIES (linkkit_tsl_convert pthread)
+

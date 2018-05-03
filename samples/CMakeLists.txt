@@ -76,34 +76,40 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
-ADD_EXECUTABLE (mqtt-example 
+ADD_EXECUTABLE (mqtt-example
     mqtt/mqtt-example.c
 )
-ADD_EXECUTABLE (mqtt_rrpc-example 
+ADD_EXECUTABLE (mqtt_rrpc-example
     mqtt/mqtt_rrpc-example.c
 )
-ADD_EXECUTABLE (mqtt_multi_thread-example 
+ADD_EXECUTABLE (mqtt_multi_thread-example
     mqtt/mqtt_multi_thread-example.c
 )
-ADD_EXECUTABLE (ota_mqtt-example 
+ADD_EXECUTABLE (ota_mqtt-example
     ota/ota_mqtt-example.c
 )
-ADD_EXECUTABLE (shadow-example 
+ADD_EXECUTABLE (shadow-example
     device-shadow/shadow-example.c
 )
-ADD_EXECUTABLE (http-example 
+ADD_EXECUTABLE (http-example
     http/http-example.c
 )
-ADD_EXECUTABLE (cmp-example 
+ADD_EXECUTABLE (cmp-example
     cmp/cmp-example.c
 )
-ADD_EXECUTABLE (linkkit-example 
+ADD_EXECUTABLE (linkkit-example
     linkkit/linkkit_sample.c
+)
+ADD_EXECUTABLE (linkkit-sample_sb
+    linkkit/linkkit_sample_share_business.c
 )
 
 TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
@@ -145,4 +151,9 @@ TARGET_LINK_LIBRARIES (linkkit-example iot_sdk)
 TARGET_LINK_LIBRARIES (linkkit-example iot_platform)
 TARGET_LINK_LIBRARIES (linkkit-example iot_tls)
 TARGET_LINK_LIBRARIES (linkkit-example pthread)
+
+TARGET_LINK_LIBRARIES (linkkit-sample_sb iot_sdk)
+TARGET_LINK_LIBRARIES (linkkit-sample_sb iot_platform)
+TARGET_LINK_LIBRARIES (linkkit-sample_sb iot_tls)
+TARGET_LINK_LIBRARIES (linkkit-sample_sb pthread)
 
