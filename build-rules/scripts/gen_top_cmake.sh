@@ -2,6 +2,7 @@
 
 TARGET_FILE=$1
 PKG_RPATH=$(echo ${PACKAGE_DIR}|${SED} "s:${TOP_DIR}/*::g")
+W32_LIBSD=$(echo ${IMPORT_DIR}/win7/${PREBUILT_LIBDIR}|${SED} "s:${TOP_DIR}/*::g")
 
 rm -f ${TARGET_FILE}
 
@@ -15,7 +16,11 @@ PROJECT (${PRJ_NAME}-${PRJ_VERSION} C)
 
 SET (EXECUTABLE_OUTPUT_PATH \${PROJECT_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH \${PROJECT_BINARY_DIR}/lib)
-SET (CMAKE_C_FLAGS "${CFLAGS}")
+SET (CMAKE_C_FLAGS "$(grep -m 1 '^CFLAGS\>' ${STAMP_BLD_ENV}|cut -d' ' -f3-)")
+
+IF (WIN32)
+    SET (CMAKE_EXE_LINKER_FLAGS "-L\${PROJECT_SOURCE_DIR}/${W32_LIBSD}")
+ENDIF (WIN32)
 
 MESSAGE ("---------------------------------------------------------------------")
 MESSAGE ("Project Name              : " \${PROJECT_NAME})

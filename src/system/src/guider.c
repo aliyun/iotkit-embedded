@@ -81,17 +81,10 @@ static int _calc_hmac_signature(
                       timestamp_str);
     LITE_ASSERT(rc < sizeof(hmac_source));
 
-#if USING_SHA1_IN_HMAC
     utils_hmac_sha1(hmac_source, strlen(hmac_source),
                     signature,
                     dev->device_secret,
                     strlen(dev->device_secret));
-#else
-    utils_hmac_md5(hmac_source, strlen(hmac_source),
-                   signature,
-                   dev->device_secret,
-                   strlen(dev->device_secret));
-#endif
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return 0;
@@ -363,11 +356,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
                  "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
                  , dev->product_key
                  , dev->device_name
-#if USING_SHA1_IN_HMAC
                  , SHA_METHOD
-#else
-                 , MD5_METHOD
-#endif
                  , sign
                  , dev->device_id
                  , ts);
@@ -602,11 +591,7 @@ int iotx_guider_authenticate(void)
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
-#if USING_SHA1_IN_HMAC
                       ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
-#else
-                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=%d" ",ext=%d"
-#endif
                       "%s"
                       "%s"
                       "|"

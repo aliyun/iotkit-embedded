@@ -607,11 +607,7 @@ int iotx_guider_id2_authenticate(void)
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
-#if USING_SHA1_IN_HMAC
                       ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d, ext=%d"
-#else
-                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=%d, ext=%d"
-#endif
                       "%s"
 #ifndef IOTX_WITHOUT_ITLS
 					  ",authtype=id2"

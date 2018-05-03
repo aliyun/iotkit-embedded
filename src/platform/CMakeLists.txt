@@ -13,7 +13,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/in
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/include/mbedtls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/ubuntu)

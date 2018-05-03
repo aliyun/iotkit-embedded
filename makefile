@@ -31,4 +31,5 @@ $(call CompLib_Map, CMP_ENABLED, src/framework/cm)
 $(call CompLib_Map, DM_ENABLED, src/framework/dm)
 $(call CompLib_Map, SERVICE_OTA_ENABLED, src/framework/services/fota)
 $(call CompLib_Map, SERVICE_OTA_ENABLED, src/framework/services/cota)
+
 include $(RULE_DIR)/rules.mk

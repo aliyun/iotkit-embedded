@@ -54,10 +54,6 @@
 #define SHA_METHOD              "hmacsha1"
 #define MD5_METHOD              "hmacmd5"
 
-/* By default we use hmac-sha1 algorithm for hmac in PK/DN/DS case */
-#ifndef USING_SHA1_IN_HMAC
-#define USING_SHA1_IN_HMAC      (1)
-#endif /* USING_SHA1_IN_HMAC */
 
 typedef enum _SECURE_MODE {
     MODE_TLS_GUIDER             = -1,
