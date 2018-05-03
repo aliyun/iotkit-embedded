@@ -64,7 +64,6 @@ static const char string_EXT_URI[] CM_READ_ONLY = "/ext/%s/%s/";
 static const char string_SYS_URI_1[] CM_READ_ONLY = "/sys/%s/%s/%s";
 static const char string_EXT_URI_1[] CM_READ_ONLY = "/ext/%s/%s/%s";
 static const char string_SHA_METHOD[] CM_READ_ONLY = "hmacsha1";
-static const char string_MD5_METHOD[] CM_READ_ONLY = "hmacmd5";
 static const char string_TIMESTAMP[] CM_READ_ONLY = "2524608000000";
 static const char string_AUTH_URL[] CM_READ_ONLY = "https://iot-auth.alibaba.net/auth/register/device";
 static const char string_AUTH_CONTENT_TYPE[] CM_READ_ONLY = "application/x-www-form-urlencoded";
@@ -207,11 +206,7 @@ static char *_set_auth_req_str(const char *product_key, const char *device_name,
                  , string_auth_req_format
                  , product_key
                  , device_name
-#if USING_SHA1_IN_HMAC
                  , string_SHA_METHOD
-#else
-                 , string_MD5_METHOD
-#endif
                  , sign
                  , client_id
                  , ts);
@@ -323,18 +318,10 @@ static int _calc_hmac_signature(
                       product_key,
                       random);
 
-#if USING_SHA1_IN_HMAC
     utils_hmac_sha1(hmac_source, strlen(hmac_source),
                     signature,
                     product_secret,
                     strlen(product_secret));
-#else
-    utils_hmac_md5(hmac_source, strlen(hmac_source),
-                   signature,
-                   product_secret,
-                   strlen(product_secret));
-#endif
-
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return ret;

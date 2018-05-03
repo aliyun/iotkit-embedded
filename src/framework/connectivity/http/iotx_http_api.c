@@ -68,12 +68,7 @@
 #endif
 
 #define IOTX_SHA_METHOD                     "hmacsha1"
-#define IOTX_MD5_METHOD                     "hmacmd5"
 
-/* By default we use hmac-md5 algorithm for hmac in PK/DN/DS case */
-#ifndef USING_SHA1_IN_HMAC
-#define USING_SHA1_IN_HMAC      (1)
-#endif /* USING_SHA1_IN_HMAC */
 
 #define IOTX_HTTP_HEADER_KEEPALIVE_STR  "Connection: Keep-Alive\r\n"
 #define IOTX_HTTP_HEADER_PASSWORD_STR   "password:"
@@ -105,13 +100,8 @@ static iotx_http_t *iotx_http_context_bak = NULL;
 
 static int iotx_calc_sign(const char *p_device_secret, const char *p_msg, char *sign)
 {
-#if USING_SHA1_IN_HMAC
     log_info("| method: %s", IOTX_SHA_METHOD);
     utils_hmac_sha1(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
-#else
-    log_info("| method: %s", IOTX_MD5_METHOD);
-    utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
-#endif
     return IOTX_SUCCESS;
 }
 
@@ -428,11 +418,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     len = calc_snprintf_string_length(IOTX_HTTP_AUTH_DEVICENAME_STR,
                                       "default",
                                       iotx_http_context->p_devinfo->device_id,
-#if USING_SHA1_IN_HMAC
                                       IOTX_SHA_METHOD,
-#else
-                                      IOTX_MD5_METHOD,
-#endif
                                       sign,
                                       iotx_http_context->p_devinfo->product_key,
                                       iotx_http_context->p_devinfo->device_name,
@@ -452,11 +438,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
                         IOTX_HTTP_AUTH_DEVICENAME_STR,
                         "default",
                         iotx_http_context->p_devinfo->device_id,
-#if USING_SHA1_IN_HMAC
                         IOTX_SHA_METHOD,
-#else
-                        IOTX_MD5_METHOD,
-#endif
                         sign,
                         iotx_http_context->p_devinfo->product_key,
                         iotx_http_context->p_devinfo->device_name,
