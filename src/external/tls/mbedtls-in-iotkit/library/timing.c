@@ -232,6 +232,12 @@ static struct timeval tv_init;
   #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
 #endif
 
+struct timezone
+{
+    int  tz_minuteswest; /* minutes W of Greenwich */
+    int  tz_dsttime;     /* type of dst correction */
+};
+
 int mbedtls_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
     unsigned __int64  tmpres = 0;
