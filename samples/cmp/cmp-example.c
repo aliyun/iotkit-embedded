@@ -28,12 +28,21 @@
 #include "iot_export.h"
 #include "iot_export_cm.h"
 
-#define IOTX_PRODUCT_KEY        "a1nmfrdo3MI"
-#define IOTX_DEVICE_NAME        "light_demo_for_ilop_device_test"
-#define IOTX_DEVICE_SECRET      "kobN5zg08IwlgbqSUeaxo0vbEsOiEI7b"
+#ifdef ON_DAILY
+#define IOTX_PRODUCT_KEY        "gsYfsxQJgeD"
+#define IOTX_DEVICE_NAME        "DailyEnvDN"
+#define IOTX_DEVICE_SECRET      "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
+#define IOTX_PRODUCT_SECRET		""
 #define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
+#else
+#define IOTX_PRODUCT_KEY        "a1grYGVCPWl"
+#define IOTX_DEVICE_NAME        "0402_08"
+#define IOTX_DEVICE_SECRET      "eBSIgArKX7UZiZimWC3HJ7Mqz3aaSvYZ"
+#define IOTX_PRODUCT_SECRET		""
+#define IOTX_DEVICE_ID          "IoTxHttpTestDev_001"
+#endif
 
-
+    
 /* These are pre-defined topics */
 #define TOPIC_UPDATE            "/"IOTX_PRODUCT_KEY"/"IOTX_DEVICE_NAME"/update"
 #define TOPIC_DATA              "/"IOTX_PRODUCT_KEY"/"IOTX_DEVICE_NAME"/data"
@@ -55,9 +64,6 @@ static void _register_func(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* 
 
     EXAMPLE_TRACE("type %d\n", msg->message_type);
     EXAMPLE_TRACE("URI %s\n", msg->URI);
-#if 0
-    EXAMPLE_TRACE("URI_type %d\n", msg->URI_type);
-#endif
     EXAMPLE_TRACE("code %d\n", msg->code);
     EXAMPLE_TRACE("id %d\n", msg->id);
     EXAMPLE_TRACE("method %s\n", msg->method);
@@ -102,6 +108,11 @@ int cm_client()
 
     param.event_func = _event_handle;
     param.user_data = &user_data;
+#ifdef SUPPORT_PRODUCT_SECRET
+    param.secret_type = IOTX_CMP_DEVICE_SECRET_PRODUCT;
+#else
+    param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
+#endif /* SUPPORT_PRODUCT_SECRET */
 
     EXAMPLE_TRACE("init\n");
     rc = IOT_CM_Init(&param, NULL);
@@ -146,16 +157,13 @@ int cm_client()
 
     message_info.id = 0;
     message_info.message_type = IOTX_CM_MESSAGE_REQUEST;
-    message_info.URI = LITE_malloc(strlen(TOPIC_DATA) + 1, MEM_MAGIC, "CM");
+    message_info.URI = LITE_malloc(strlen(TOPIC_DATA) + 1);
     memset(message_info.URI, 0x0, strlen(TOPIC_DATA) + 1);
     strncpy(message_info.URI, TOPIC_DATA, strlen(TOPIC_DATA));
-#if 0
-    message_info.URI_type = IOTX_CM_URI_UNDEFINE;
-#endif
-    message_info.method = LITE_malloc(strlen("thing.data") + 1, MEM_MAGIC, "CM");
+    message_info.method = LITE_malloc(strlen("thing.data") + 1);
     memset(message_info.method, 0x0, strlen("thing.data") + 1);
     strncpy(message_info.method, "thing.data", strlen("thing.data"));
-    message_info.parameter = LITE_malloc(strlen("{hello world!}"), MEM_MAGIC, "CM");
+    message_info.parameter = LITE_malloc(strlen("{hello world!}"));
     memset(message_info.parameter, 0x0, strlen("{hello world!}") + 1);
     strncpy(message_info.parameter, "{hello world!}", strlen("{hello world!}"));
     message_info.parameter_length = strlen(message_info.parameter);
@@ -215,7 +223,15 @@ int main(int argc, char **argv)
 {
     IOT_OpenLog("cm\n");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-
+    /**< set device info*/
+    HAL_SetProductKey(IOTX_PRODUCT_KEY);
+    HAL_SetDeviceName(IOTX_DEVICE_NAME);
+#ifndef SUPPORT_PRODUCT_SECRET
+    HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
+#else
+    HAL_SetProductSecret(IOTX_PRODUCT_SECRET);
+#endif /**< SUPPORT_PRODUCT_SECRET*/
+    /**< end*/
     EXAMPLE_TRACE("start!\n");
 
     cm_client();
