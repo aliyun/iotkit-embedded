@@ -84,5 +84,6 @@ ADD_LIBRARY (iot_tfs STATIC
     ${PROJECT_SOURCE_DIR}/src/system/tfs/platform/pal_platform_log.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/platform/pal_platform_memory.c
     ${PROJECT_SOURCE_DIR}/src/system/tfs/platform/pal_platform_md5.c
+    ${EXTRA_C_SOURCES}
 )
 

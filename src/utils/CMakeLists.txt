@@ -95,5 +95,6 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_sha256.c
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_base64.c
     ${PROJECT_SOURCE_DIR}/src/utils/digest/utils_sha1.c
+    ${EXTRA_C_SOURCES}
 )
 

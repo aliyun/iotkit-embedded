@@ -137,7 +137,7 @@ static int service_ota_end(void* _self)
     /* this function should not return... */
     ret = HAL_Firmware_Persistence_Stop();
 
-#if defined(_PLATFORM_IS_LINUX_) || defined(_PLATFORM_IS_WINDOWS_)
+#if defined(_PLATFORM_IS_LINUX_) || defined(_PLATFORM_IS_WINDOWS_) || defined(_PLATFORM_IS_HOST_)
     exit(0);
 #else
     log_emerg("OTA end, restarting...");

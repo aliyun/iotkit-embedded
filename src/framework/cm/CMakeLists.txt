@@ -86,5 +86,6 @@ ADD_LIBRARY (iot_cmp OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_http.c
     ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_ota.c
     ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_mqtt.c
+    ${EXTRA_C_SOURCES}
 )
 

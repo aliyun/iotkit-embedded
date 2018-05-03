@@ -78,5 +78,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 ADD_LIBRARY (iot_subdev STATIC
     ${PROJECT_SOURCE_DIR}/src/framework/services/subdev/iotx_subdev_api.c
     ${PROJECT_SOURCE_DIR}/src/framework/services/subdev/iotx_subdev_common.c
+    ${EXTRA_C_SOURCES}
 )
 

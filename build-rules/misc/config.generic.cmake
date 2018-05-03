@@ -1,8 +1,7 @@
 CONFIG_ENV_CFLAGS   += \
     -Os -Wall -Werror \
-    -g3 --coverage \
-    -D_PLATFORM_IS_LINUX_ \
-    -D__UBUNTU_SDK_DEMO__ \
+    -g3 \
+    -D_PLATFORM_IS_HOST_ \
     -DCONFIG_HTTP_AUTH_TIMEOUT=500 \
     -DCONFIG_MID_HTTP_TIMEOUT=500 \
     -DCONFIG_GUIDER_AUTH_TIMEOUT=500 \
@@ -12,10 +11,4 @@ CONFIG_ENV_CFLAGS   += \
     -DCM_VIA_CLOUD_CONN \
     -DCM_VIA_CLOUD_CONN_MQTT
 
-ifneq (Darwin,$(strip $(shell uname)))
-CONFIG_ENV_CFLAGS   += -rdynamic
-endif
-
 LDFLAGS             += -lpthread
-
-OVERRIDE_STRIP      := strip

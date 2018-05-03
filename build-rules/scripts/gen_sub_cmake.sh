@@ -27,6 +27,7 @@ if [ "${LIBA_TARGET}" != "" ]; then
     cat << EOB >> ${TARGET_FILE}
 ADD_LIBRARY (${LNAME} ${TYPE}
 ${SRC_LIST}
+    \${EXTRA_C_SOURCES}
 )
 
 EOB

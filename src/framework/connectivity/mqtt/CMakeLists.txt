@@ -84,5 +84,6 @@ ADD_LIBRARY (iot_mqtt OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT/MQTTPacket/MQTTDeserializePublish.c
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT/MQTTPacket/MQTTUnsubscribeClient.c
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT/MQTTPacket/MQTTConnectClient.c
+    ${EXTRA_C_SOURCES}
 )
 

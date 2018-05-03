@@ -77,5 +77,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_fota OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/services/fota/service_ota.c
+    ${EXTRA_C_SOURCES}
 )
 

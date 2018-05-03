@@ -77,5 +77,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_ota OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/services/ota/Link-OTA/src/ota.c
+    ${EXTRA_C_SOURCES}
 )
 

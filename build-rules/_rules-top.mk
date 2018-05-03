@@ -53,7 +53,9 @@ unzip: config $(STAMP_BLD_VAR)
 	done
 	@echo ""
 
-cmake: config
+cmake:
+	@$(MAKE) -s distclean
+	@$(MAKE) -s DEFAULT_BLD=$(RULE_DIR)/misc/config.generic.cmake config
 	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
 	    SEP_LIBS="$$(grep -m 1 '^COMP_LIB_FILES' $(STAMP_BLD_ENV) | cut -d' ' -f3-)" \
 	    bash $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
@@ -85,7 +87,8 @@ config:
 	    fi \
 	else \
 	    if [ "$(DEFAULT_BLD)" != "" ] && [ -f $(DEFAULT_BLD) ] && \
-	       ([ "$(DEFAULT_BLD)" = "$(RULE_DIR)/misc/config.generic.default" ] || [ "$(MAKECMDGOALS)" = "" ]); then \
+	       ([ "$(DEFAULT_BLD)" = "$(RULE_DIR)/misc/config.generic.default" ] \
+	            || [ "$(MAKECMDGOALS)" = "" ] || [ "$(MAKECMDGOALS)" = "config" ]); then \
 	        printf "# Automatically Generated Section End\n\n" >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "VENDOR :" $$(basename $(DEFAULT_BLD)|cut -d. -f2) >> $(CONFIG_TPL); \
 	        printf "# %-10s %s\n" "MODEL  :" $$(basename $(DEFAULT_BLD)|cut -d. -f3) >> $(CONFIG_TPL); \

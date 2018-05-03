@@ -6,9 +6,17 @@ LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
 .PHONY : cmake
 
 cmake:
+
 	@$(foreach V,$(INFO_ENV_VARS),$(subst -,_,$(V))="$($(V))") \
 	    $(foreach V,$(TARGET),$(subst -,_,SRCS_$(V))="$(SRCS_$(V))") \
 	    bash $(RULE_DIR)/scripts/gen_sub_cmake.sh $(TOP_DIR)/${MODULE_NAME}/CMakeLists.txt
+
+ifdef Extra_CMake_Head
+	@rm -f $(OUTPUT_DIR)/$(STAMP_CMAKE)
+	@$(call Extra_CMake_Head, >> $(OUTPUT_DIR)/$(STAMP_CMAKE))
+	@cat $(TOP_DIR)/${MODULE_NAME}/CMakeLists.txt >> $(OUTPUT_DIR)/$(STAMP_CMAKE)
+	@mv $(OUTPUT_DIR)/$(STAMP_CMAKE) $(TOP_DIR)/${MODULE_NAME}/CMakeLists.txt
+endif
 
 ifdef LIB_SRCS_PATTERN
 SRC_LIST := $(foreach M,$(LIB_SRCS_PATTERN),$(shell ls $(TOP_DIR)/$(MODULE_NAME)/$(M) 2>/dev/null))

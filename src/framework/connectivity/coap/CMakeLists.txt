@@ -78,5 +78,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 ADD_LIBRARY (iot_coap STATIC
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/coap/iotx_coap_api.c
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/coap/iotx_ca_cert.c
+    ${EXTRA_C_SOURCES}
 )
 

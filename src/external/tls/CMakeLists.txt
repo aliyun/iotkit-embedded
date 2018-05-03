@@ -7,9 +7,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/in
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/include)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/ubuntu/include)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/ubuntu/include/itls)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/ubuntu/include/tfs)
 
 ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/ctr_drbg.c
@@ -42,5 +39,6 @@ ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/bignum.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/pk.c
     ${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library/x509.c
+    ${EXTRA_C_SOURCES}
 )
 

@@ -77,5 +77,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_linkkit OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/services/linkkit/src/linkkit_export.c
+    ${EXTRA_C_SOURCES}
 )
 

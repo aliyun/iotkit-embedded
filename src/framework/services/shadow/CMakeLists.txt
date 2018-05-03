@@ -80,5 +80,6 @@ ADD_LIBRARY (iot_shadow OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/services/shadow/shadow_delta.c
     ${PROJECT_SOURCE_DIR}/src/framework/services/shadow/shadow.c
     ${PROJECT_SOURCE_DIR}/src/framework/services/shadow/shadow_common.c
+    ${EXTRA_C_SOURCES}
 )
 

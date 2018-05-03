@@ -54,6 +54,7 @@ STAMP_BLD_ENV   := $(OUTPUT_DIR)/.sub-build.env
 STAMP_BLD_VAR   := $(OUTPUT_DIR)/.sub-build.vars
 STAMP_UNPACK    := .unpack.done
 STAMP_CONFIG    := .config.done
+STAMP_CMAKE     := .cmake_section
 STAMP_BUILD     := .build.done
 STAMP_INSTALL   := .install.done
 STAMP_POSTINS   := .post.install.done

@@ -84,5 +84,6 @@ ADD_LIBRARY (iot_dm OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_cm_impl.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/dm_cm_msg_info.c
     ${PROJECT_SOURCE_DIR}/src/framework/dm/src/cJSON.c
+    ${EXTRA_C_SOURCES}
 )
 

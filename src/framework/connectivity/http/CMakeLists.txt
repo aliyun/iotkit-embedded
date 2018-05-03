@@ -77,5 +77,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_http OBJECT
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/http/iotx_http_api.c
+    ${EXTRA_C_SOURCES}
 )
 
