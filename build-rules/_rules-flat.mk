@@ -3,7 +3,6 @@ INTERNAL_INCLUDES += -I$(SYSROOT_INC)
 INTERNAL_INCLUDES += $(foreach d, $(shell find $(SYSROOT_INC) -type d), -I$(d))
 INTERNAL_INCLUDES += -I$(TOP_DIR)
 INTERNAL_INCLUDES += -I$(IMPORT_DIR)
-INTERNAL_INCLUDES += -I$(IMPORT_DIR)/include
 INTERNAL_INCLUDES += \
 $(foreach d, \
     $(shell [ -d $(IMPORT_DIR)/$(CONFIG_VENDOR) ] && find -L $(IMPORT_DIR)/$(CONFIG_VENDOR)/include -type d), \
