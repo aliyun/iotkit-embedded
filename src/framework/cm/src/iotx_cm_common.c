@@ -27,6 +27,7 @@
 #endif /* CM_SUPPORT_LOCAL_CONN */
 #include "utils_httpc.h"
 #include "utils_hmac.h"
+#include "lite-utils.h"
 
 #define IOTX_CM_MESSAGE_ID_MAX     (65535)
 #define CM_AUTH_TIMEOUT            (10 * 1000)
