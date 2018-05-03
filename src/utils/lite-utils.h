@@ -105,6 +105,9 @@ char           *LITE_json_value_of_ext2(char *key, char *src, int src_len, int *
 
 list_head_t    *LITE_json_keys_of_ext(char *src, char *prefix, ...);
 
+int             LITE_json_value_type(char *src, int src_len);
+char           *LITE_json_array_get_item(int index, char *src, int src_len, int* val_len);
+
 int             get_json_item_size(char *src, int src_len);
 
 void            LITE_json_keys_release(list_head_t *keylist);
