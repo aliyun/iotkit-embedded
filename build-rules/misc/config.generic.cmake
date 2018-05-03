@@ -1,5 +1,5 @@
 CONFIG_ENV_CFLAGS   += \
-    -Os -Wall -Werror \
+    -Os -Wall \
     -g3 \
     -D_PLATFORM_IS_HOST_ \
     -DCONFIG_HTTP_AUTH_TIMEOUT=500 \
