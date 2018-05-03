@@ -1,4 +1,4 @@
-g/*
+/*
  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
  * License-Identifier: Apache-2.0
  *
