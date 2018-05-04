@@ -15,6 +15,7 @@ MODINFO_VARS := \
     REF_LDFLAGS \
     LDFLAGS \
     LIBA_TARGET \
+    LIB_OBJS \
     TARGET \
     LIBSO_TARGET \
 
@@ -23,6 +24,7 @@ $(if $(filter modinfo,$(MAKECMDGOALS)), \
         $(info DEPENDS_$(MODULE_NAME) = $(strip $(DEPENDS))) \
     ) \
 )
+
 $(if $(filter modinfo,$(MAKECMDGOALS)), \
     $(foreach v, $(MODINFO_VARS), \
         $(if $(strip $($(v))), \
@@ -30,3 +32,22 @@ $(if $(filter modinfo,$(MAKECMDGOALS)), \
         ) \
     ) \
 )
+
+ifeq (0,$(words $(TARGET)))
+else
+ifeq (1,$(words $(TARGET)))
+
+$(if $(filter modinfo,$(MAKECMDGOALS)), \
+    $(info SRCS_$(TARGET) = $(SRCS)) \
+)
+
+else
+
+$(if $(filter modinfo,$(MAKECMDGOALS)), \
+    $(foreach v, $(TARGET), \
+        $(info SRCS_$(v) = $(TOP_DIR)/$(MODULE_NAME)/$(SRCS_$(v))) \
+    ) \
+)
+
+endif
+endif

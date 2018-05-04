@@ -61,6 +61,7 @@ STAMP_POSTINS   := .post.install.done
 STAMP_SHIELD    := .shield.done
 STAMP_POST_RULE := $(OUTPUT_DIR)/.post-rules.mk
 STAMP_DIR       := $(OUTPUT_DIR)/stamps
+STAMP_ONE_MK	:= $(OUTPUT_DIR)/.one_makefile
 
 ifdef DEBUG
 AUTO_HEADER_Q   :=

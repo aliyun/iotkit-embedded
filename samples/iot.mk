@@ -41,7 +41,6 @@ SRCS_mqtt_multi_thread-example := mqtt/mqtt_multi_thread-example.c
     LDFLAGS     += -liot_tls
     endif
     endif
-    LDFLAGS     += -liot_sdk
 
 endif
 

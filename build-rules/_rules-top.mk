@@ -1,4 +1,4 @@
-.PHONY: doc detect config reconfig toolchain sub-mods final-out env cmake help
+.PHONY: doc detect config reconfig toolchain sub-mods final-out env cmake one help
 
 all: detect config toolchain sub-mods final-out
 	$(TOP_Q) \
@@ -65,6 +65,14 @@ cmake:
 	done
 	@echo ""
 
+one: COMP_LIB_OBJS = $(foreach V,$(COMP_LIB_COMPONENTS),$(foreach U,$(LIB_OBJS_$(V)),$(V)/$(U)))
+one:
+	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
+	    ALL_LIBS="$(strip $(foreach V,$(SUBDIRS),$(LIBA_TARGET_$(V))))" \
+	    ALL_PROG="$(strip $(foreach V,$(SUBDIRS),$(TARGET_$(V))))" \
+	    COMP_LIB_OBJS="$(foreach V,$(COMP_LIB_OBJS),$(OUTPUT_DIR)/$(V))" \
+	    bash $(RULE_DIR)/scripts/gen_one_makefile.sh $(STAMP_ONE_MK)
+
 config:
 
 	@mkdir -p $(OUTPUT_DIR) $(STAMP_DIR) $(INSTALL_DIR)
@@ -118,6 +126,8 @@ config:
 	    for i in $(RESET_ENV_VARS); do unset $${i}; done; \
 	    $(MAKE) --no-print-directory -f $(TOP_MAKEFILE) $(STAMP_BLD_VAR) unzip; \
 	fi)
+
+	$(MAKE) --no-print-directory one
 
 toolchain: VSP_TARBALL = $(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
 toolchain: config
