@@ -3,16 +3,25 @@ ALL_LOG_OPTION := $(if $(Q),,| tee -a $(COMPILE_LOG))
 
 sub-mods: toolchain
 	$(Q) \
-	if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
-	    set -o pipefail; \
-	    for i in \
-	        $$(echo $(IMPORT_DIR)|$(SED) 's:$(TOP_DIR)/*::g')/$(CONFIG_VENDOR)/platform \
-	        $(SUBDIRS); do \
-	            if [ ! -d $${i} ]; then continue; fi; \
-	            $(MAKE) --no-print-directory Q=$(Q) $${i} 2>&1 $(SUB_LOG_OPTION); \
-	            RETVAL=$$?; \
-	            if [ $${RETVAL} != 0 ]; then exit $${RETVAL}; fi; \
-	    done 2>&1 $(ALL_LOG_OPTION); \
+	if [ -f $(STAMP_ONE_MK) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
+	    $(MAKE) --no-print-directory -j32 -f $(STAMP_ONE_MK) && \
+	    TMPD=$$(mktemp -d) && \
+	    rm -rf $${TMPD} && \
+	    cp -rf $(OUTPUT_DIR) $${TMPD} && \
+	    rm -rf $${TMPD}/{usr,stamps} && \
+	    mv $${TMPD} $(LIBOBJ_TMPDIR); \
+	else \
+	    if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
+	        set -o pipefail; \
+	        for i in \
+	            $$(echo $(IMPORT_DIR)|$(SED) 's:$(TOP_DIR)/*::g')/$(CONFIG_VENDOR)/platform \
+	            $(SUBDIRS); do \
+	                if [ ! -d $${i} ]; then continue; fi; \
+	                $(MAKE) --no-print-directory Q=$(Q) $${i} 2>&1 $(SUB_LOG_OPTION); \
+	                RETVAL=$$?; \
+	                if [ $${RETVAL} != 0 ]; then exit $${RETVAL}; fi; \
+	        done 2>&1 $(ALL_LOG_OPTION); \
+	    fi; \
 	fi
 
 SUB_BUILD_VARS := \

@@ -24,7 +24,7 @@ endif
 	fi
 
 	$(TOP_Q) \
-	if [ "$$(ls $(FINAL_DIR)/bin/)" != "" ]; then \
+	if [ "$$(ls $(FINAL_DIR)/bin/ 2>/dev/null)" != "" ]; then \
 	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
 	fi
 	$(TOP_Q) \
