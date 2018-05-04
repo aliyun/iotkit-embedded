@@ -38,14 +38,14 @@ else
 ifeq (1,$(words $(TARGET)))
 
 $(if $(filter modinfo,$(MAKECMDGOALS)), \
-    $(info SRCS_$(TARGET) = $(SRCS)) \
+    $(info SRCS_$(TARGET) = $(subst $(TOP_DIR)/,,$(SRCS))) \
 )
 
 else
 
 $(if $(filter modinfo,$(MAKECMDGOALS)), \
     $(foreach v, $(TARGET), \
-        $(info SRCS_$(v) = $(TOP_DIR)/$(MODULE_NAME)/$(SRCS_$(v))) \
+        $(info SRCS_$(v) = $(SRCS_$(v))) \
     ) \
 )
 

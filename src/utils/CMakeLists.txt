@@ -48,7 +48,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/32bit-libs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import/win7/libs)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/packages)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/ubuntu)
@@ -78,7 +77,6 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/utils/json_token.c
     ${PROJECT_SOURCE_DIR}/src/utils/json_parser.c
     ${PROJECT_SOURCE_DIR}/src/utils/string_utils.c
-    ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_prog.c
     ${PROJECT_SOURCE_DIR}/src/utils/mem_stats.c
     ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_testsuites.c
     ${PROJECT_SOURCE_DIR}/src/utils/log/lite-log.c

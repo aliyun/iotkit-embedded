@@ -29,16 +29,13 @@ vs_build/
 .vs/
 doc/html/
 compile.log
-src/mqtt/Link-MQTT
 src/system/iotkit-system
 src/cmp/Link-CMP
 CMakeLists.txt.user
 qt_build/
 src/packages/LITE-log/
-src/packages/Link-MQTT/
 src/packages/Link-CMP/
 src/packages/iotkit-system/
 src/packages/mbedtls-in-iotkit/
 src/framework/cm/Link-CMP
-src/framework/connectivity/mqtt/Link-MQTT
 src/utils/log/LITE-log

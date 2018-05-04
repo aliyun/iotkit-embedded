@@ -127,7 +127,7 @@ config:
 	    $(MAKE) --no-print-directory -f $(TOP_MAKEFILE) $(STAMP_BLD_VAR) unzip; \
 	fi)
 
-	$(MAKE) --no-print-directory one
+	@$(MAKE) --no-print-directory one
 
 toolchain: VSP_TARBALL = $(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
 toolchain: config

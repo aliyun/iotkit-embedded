@@ -35,8 +35,7 @@ MESSAGE ("---------------------------------------------------------------------"
 FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
 FILE (MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
 
-FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT)
-EXECUTE_PROCESS (COMMAND git clone -q ${PROJECT_SOURCE_DIR}/src/packages/Link-MQTT.git ${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT)
+
 
 ADD_SUBDIRECTORY (src/utils)
 ADD_SUBDIRECTORY (src/system)
