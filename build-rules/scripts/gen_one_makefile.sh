@@ -61,18 +61,19 @@ done)
 EOB
 done
 
-k=""
 for i in ${ALL_PROG}; do
     j=$(grep -m 1 "^SRCS_${i}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
-    if [ "${k}" = "" ]; then
-        k=$(grep -m 1 "TARGET_.* = .*${i}" ${STAMP_BLD_VAR}|cut -d' ' -f1|sed 's:TARGET_::1')
-        LFLAGS=$(grep -m 1 "^LDFLAGS_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
+    k=$(grep -m 1 "TARGET_.* = .*${i}" ${STAMP_BLD_VAR}|cut -d' ' -f1|sed 's:TARGET_::1')
+    if [ "$(grep -m 1 "^TARGET_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-|awk '{ print NF }')" = "1" ]; then
+        k=""
     fi
+    LFLAGS=$(grep -m 1 "^LDFLAGS_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
+    j=$(for n in ${j}; do echo -n "${TOP_DIR}/${k}/${n} "; done)
 
     cat << EOB >> ${TARGET_FILE}
 ${OUTPUT_DIR}/usr/bin/${i}: \\
-$(for k in ${j} ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS}; do
-    echo "    ${k} \\";
+$(for m in ${j} ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS}; do
+    echo "    ${m} \\";
 done)
 
 	@\$(call Brief_Log,"LD",\$\$(basename \$@),"...")
