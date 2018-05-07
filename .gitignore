@@ -28,3 +28,4 @@ src/utils/LITE-utils
 vs_build/
 .vs/
 html/
+Release/
