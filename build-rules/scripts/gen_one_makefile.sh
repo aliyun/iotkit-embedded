@@ -14,6 +14,7 @@ ALL_BINS=$(for iter in ${ALL_PROG}; do echo -n "${OUTPUT_DIR}/usr/bin/${iter} ";
 cat << EOB >> ${TARGET_FILE}
 include ${RULE_DIR}/funcs.mk
 
+SHELL := bash
 VPATH := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter} "; done)
 
 .PHONY: all
