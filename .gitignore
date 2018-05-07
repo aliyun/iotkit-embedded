@@ -4,6 +4,7 @@
 *.cproject
 *.project
 *.o
+*.d
 *.lo
 *.gcno
 *.gcda
@@ -28,4 +29,17 @@ src/utils/LITE-utils
 vs_build/
 .vs/
 html/
+compile.log
+src/mqtt/Link-MQTT
+src/ota/Link-OTA
+src/system/iotkit-system
+src/cmp/Link-CMP
+CMakeLists.txt.user
+src/packages/LITE-log/
+src/packages/Link-MQTT/
+src/packages/Link-CMP/
+src/packages/Link-OTA/
+src/packages/iotkit-system/
+src/packages/mbedtls-in-iotkit/
+
 Release/
