@@ -14,3 +14,5 @@ CONFIG_ENV_LDFLAGS      += \
     -lpthread
 
 CONFIG_ENV_STAGING_DIR  :=
+CONFIG_samples :=
+CONFIG_src/tests :=
