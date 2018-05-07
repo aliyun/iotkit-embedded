@@ -4,6 +4,7 @@ ALL_LOG_OPTION := $(if $(Q),,| tee -a $(COMPILE_LOG))
 sub-mods: toolchain
 	$(Q) \
 	if [ -f $(STAMP_ONE_MK) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
+	    $(MAKE) --no-print-directory clean && \
 	    $(MAKE) --no-print-directory -j32 -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
 	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \

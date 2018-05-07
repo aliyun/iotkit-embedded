@@ -8,6 +8,16 @@ for iter in \
     $(find -L ${TOP_DIR} -type d -not -path "*.git*" -not -path "*.O*"); do \
         echo "    -I${iter} \\"; \
 done)
+
+
+ETC_OBJS=$(
+for i in ${ALL_LIBS}; do
+    j=$(grep "${i}$" ${STAMP_BLD_VAR} | cut -d' ' -f1 | sed 's|LIBA_TARGET_|LIB_OBJS_|g')
+    k=$(grep "${j}" ${STAMP_BLD_VAR} | cut -d' ' -f3-)
+    for l in ${k}; do
+        echo "${j//LIB_OBJS_/}/${l}"
+    done
+done)
 ALL_LIBS=$(for iter in ${ALL_LIBS}; do echo -n "${OUTPUT_DIR}/usr/lib/${iter} "; done)
 ALL_BINS=$(for iter in ${ALL_PROG}; do echo -n "${OUTPUT_DIR}/usr/bin/${iter} "; done)
 OUTPUT_D=$(basename ${OUTPUT_DIR})
