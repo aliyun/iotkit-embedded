@@ -83,9 +83,9 @@ done)
         -o \$@ \\
         ${IFLAGS}
         ${CFLAGS} \\
-        ${LFLAGS} \\
         -L${OUTPUT_DIR}/usr/lib \\
-        \$^
+        \$^ \\
+        ${LFLAGS}
 
 EOB
 done
