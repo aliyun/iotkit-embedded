@@ -26,14 +26,14 @@ $(for iter in ${COMP_LIB_OBJS}; do
 done
 )
 
-	@mkdir -p \$\$(dirname \$@)
-	@\$(call Brief_Log,"AR",\$\$(basename \$@),"...")
-	@${AR} -rcs \$@ \$^
+	\$(Q)mkdir -p \$\$(dirname \$@)
+	\$(Q)\$(call Brief_Log,"AR",\$\$(basename \$@),"...")
+	\$(Q)${AR} -rcs \$@ \$^
 
 %.o:
-	@\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
-	@mkdir -p \$\$(dirname \$@)
-	@S=\$\$(echo \$@|sed 's:${OUTPUT_DIR}:${TOP_DIR}:1'); \\
+	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
+	\$(Q)mkdir -p \$\$(dirname \$@)
+	\$(Q)S=\$\$(echo \$@|sed 's:${OUTPUT_DIR}:${TOP_DIR}:1'); \\
     ${CC} -c \\
         -o \$@ \\
         ${CFLAGS} \\
@@ -55,9 +55,9 @@ $(for m in ${k}; do
     echo "    ${m} \\";
 done)
 
-	@mkdir -p \$\$(dirname \$@)
-	@\$(call Brief_Log,"AR",\$\$(basename \$@),"...")
-	@${AR} -rcs \$@ \$^
+	\$(Q)mkdir -p \$\$(dirname \$@)
+	\$(Q)\$(call Brief_Log,"AR",\$\$(basename \$@),"...")
+	\$(Q)${AR} -rcs \$@ \$^
 
 EOB
 done
@@ -77,8 +77,8 @@ $(for m in ${j} ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS}; do
     echo "    ${m} \\";
 done)
 
-	@\$(call Brief_Log,"LD",\$\$(basename \$@),"...")
-	@${CC} \\
+	\$(Q)\$(call Brief_Log,"LD",\$\$(basename \$@),"...")
+	\$(Q)${CC} \\
         -o \$@ \\
         ${IFLAGS}
         ${CFLAGS} \\
