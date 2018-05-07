@@ -1,4 +1,4 @@
-g/*
+/*
  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
  * License-Identifier: Apache-2.0
  *
@@ -15,9 +15,6 @@ g/*
  * limitations under the License.
  *
  */
-
-
-
 #include "iot_import.h"
 
 #include "lite-log.h"
