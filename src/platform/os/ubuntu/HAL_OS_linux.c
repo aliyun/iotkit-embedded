@@ -25,10 +25,14 @@
 
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/prctl.h>
 #include <sys/time.h>
-
+#include <net/if.h>	      // struct ifreq
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/ioctl.h>
 #include "iot_import.h"
-
 
 #define __DEMO__
 
@@ -349,4 +353,141 @@ int HAL_Firmware_Persistence_Stop(void)
     return 0;
 }
 
+int HAL_Config_Write(const char *buffer, int length)
+{
+    FILE *fp;
+    size_t written_len;
+    char filepath[128] = {0};
+
+    if (!buffer || length <= 0) {
+        return -1;
+    }
+
+    snprintf(filepath, sizeof(filepath), "./%s", "alinkconf");
+    fp = fopen(filepath, "w");
+    if (!fp) {
+        return -1;
+    }
+
+    written_len = fwrite(buffer, 1, length, fp);
+
+    fclose(fp);
+
+    return ((written_len != length) ? -1 : 0);
+}
+
+int HAL_Config_Read(char *buffer, int length)
+{
+    FILE *fp;
+    size_t read_len;
+    char filepath[128] = {0};
+
+    if (!buffer || length <= 0) {
+        return -1;
+    }
+
+    snprintf(filepath, sizeof(filepath), "./%s", "alinkconf");
+    fp = fopen(filepath, "r");
+    if (!fp) {
+        return -1;
+    }
+
+    read_len = fread(buffer, 1, length, fp);
+    fclose(fp);
+
+    return ((read_len != length) ? -1 : 0);
+}
+
+#define REBOOT_CMD "reboot"
+void HAL_Sys_reboot(void)
+{
+    if (system(REBOOT_CMD)) {
+        perror("HAL_Sys_reboot failed");
+    }
+}
+
+#define ROUTER_INFO_PATH        "/proc/net/route"
+#define ROUTER_RECORD_SIZE      256
+
+char *_get_default_routing_ifname(char *ifname, int ifname_size)
+{
+    FILE *fp = NULL;
+    char line[ROUTER_RECORD_SIZE] = {0};
+    char iface[IFNAMSIZ] = {0};
+    char *result = NULL;
+    unsigned int destination, gateway, flags, mask;
+    unsigned int refCnt, use, metric, mtu, window, irtt;
+
+    fp = fopen(ROUTER_INFO_PATH, "r");
+    if (fp == NULL) {
+        perror("fopen");
+        return result;
+    }
+
+    char *buff = fgets(line, sizeof(line), fp);
+    if (buff == NULL) {
+        perror("fgets");
+        goto out;
+    }
+
+    while (fgets(line, sizeof(line), fp)) {
+        if (11 !=
+            sscanf(line, "%s %08x %08x %x %d %d %d %08x %d %d %d",
+                   iface, &destination, &gateway, &flags, &refCnt, &use,
+                   &metric, &mask, &mtu, &window, &irtt)) {
+            perror("sscanf");
+            continue;
+        }
+
+        /*default route */
+        if ((destination == 0) && (mask == 0)) {
+            strncpy(ifname, iface, ifname_size - 1);
+            result = ifname;
+            break;
+        }
+    }
+
+out:
+    if (fp) {
+        fclose(fp);
+    }
+
+    return result;
+}
+
+
+uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
+{
+    struct ifreq ifreq;
+    int sock = -1;
+    char ifname_buff[IFNAMSIZ] = {0};
+
+    if((NULL == ifname || strlen(ifname) == 0) &&
+        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))){
+        perror("get default routeing ifname");
+        return -1;
+    }
+
+    if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket");
+        return -1;
+    }
+
+    ifreq.ifr_addr.sa_family = AF_INET; //ipv4 address
+    strncpy(ifreq.ifr_name, ifname, IFNAMSIZ - 1);
+
+    if (ioctl(sock, SIOCGIFADDR, &ifreq) < 0) {
+        close(sock);
+        perror("ioctl");
+        return -1;
+    }
+
+    close(sock);
+
+    strncpy(ip_str,
+            inet_ntoa(((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr),
+            NETWORK_ADDR_LEN);
+
+    return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
+}
 
