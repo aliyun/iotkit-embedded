@@ -10,11 +10,11 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/in
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit/library)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/inc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/cm/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/coap)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/http)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c)
@@ -78,17 +78,20 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
-ADD_LIBRARY (iot_cmp OBJECT
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_local_conn.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_cloud_conn.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_api.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_log.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_common.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_local_conn_alcs.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_coap.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_http.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cm_ota.c
-    ${PROJECT_SOURCE_DIR}/src/framework/cm/src/iotx_cloud_conn_mqtt.c
+ADD_LIBRARY (iot_alcs OBJECT
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPSerialize.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPObserve.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/alcs_api.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPPlatform.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPNetwork.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPExport.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/alcs_client.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPResource.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPServer.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPDeserialize.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPMessage.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/alcs_server.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/alcs_coap.c
     ${EXTRA_C_SOURCES}
 )
 

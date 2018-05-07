@@ -6,8 +6,12 @@ done)
 
 rm -f ${TARGET_FILE}
 
+
 cat << EOB >> ${TARGET_FILE}
 $(for i in ${INTERNAL_INCLUDES} ${EXTERNAL_INCLUDES}; do
+    if grep -q "$(basename ${OUTPUT_DIR})/usr/include" <<< "${i}"; then
+        continue;
+    fi
     echo $i \
         | ${SED} "s:-I${TOP_DIR}\(.*\):INCLUDE_DIRECTORIES (\${PROJECT_SOURCE_DIR}\1):g"
 done)
