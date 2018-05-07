@@ -5,7 +5,7 @@ rm -f ${TARGET_FILE}
 
 IFLAGS=$( \
 for iter in \
-    $(find -L ${TOP_DIR} -type d -not -path "*.git*" -not -path "*.O*"); do \
+    $(find -L ${TOP_DIR} -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
         echo "    -I${iter} \\"; \
 done)
 
@@ -21,6 +21,10 @@ done)
 ALL_LIBS=$(for iter in ${ALL_LIBS}; do echo -n "${OUTPUT_DIR}/usr/lib/${iter} "; done)
 ALL_BINS=$(for iter in ${ALL_PROG}; do echo -n "${OUTPUT_DIR}/usr/bin/${iter} "; done)
 OUTPUT_D=$(basename ${OUTPUT_DIR})
+
+if [ "${CC}" != "gcc" ]; then
+    ALL_BINS=""
+fi
 
 cat << EOB >> ${TARGET_FILE}
 include ${RULE_DIR}/funcs.mk
