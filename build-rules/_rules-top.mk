@@ -171,13 +171,15 @@ reconfig: distclean
 	fi)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 
+
+#	for i in $(SUBDIRS) $(COMP_LIB_COMPONENTS); do \
+#	    if [ -d $(OUTPUT_DIR)/$${i} ]; then \
+#	        $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$${i} clean; \
+#	    fi \
+#	done
+
 clean:
 	$(TOP_Q) \
-	for i in $(SUBDIRS) $(COMP_LIB_COMPONENTS); do \
-	    if [ -d $(OUTPUT_DIR)/$${i} ]; then \
-	        $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$${i} clean; \
-	    fi \
-	done
 
 	$(TOP_Q) \
 	rm -rf \
@@ -187,10 +189,15 @@ clean:
 	        $(STAMP_DIR) \
 	        $(SYSROOT_INC)/* $(SYSROOT_LIB)/* $(SYSROOT_LIB)/../bin/* \
 	        $(shell $(SHELL_DBG) find $(OUTPUT_DIR) -name "$(COMPILE_LOG)" \
-	                             -o -name "$(WARNING_LOG)" \
-	                             -o -name "$(STAMP_BUILD)" \
-	                             -o -name "$(STAMP_INSTALL)" \
-	                             -o -name "$(STAMP_POSTINS)" \
+	                             -or -name "$(WARNING_LOG)" \
+	                             -or -name "$(STAMP_BUILD)" \
+	                             -or -name "$(STAMP_INSTALL)" \
+	                             -or -name "$(STAMP_POSTINS)" \
+	                             -or -name "*.so" \
+	                             -or -name "*.a" \
+	                             -or -name "*.o" \
+	                             -or -name "*.d" \
+	                             -or -name "*.gc*" \
 	        2>/dev/null)
 
 distclean:
