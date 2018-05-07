@@ -571,7 +571,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     LITE_free(pvalue);
     pvalue = NULL;
 
-    //log_info("iotToken: %s", iotx_http_context->p_auth_token);
+    /* log_info("iotToken: %s", iotx_http_context->p_auth_token); */
 
     /* report module id */
     ret = iotx_http_report_mid(iotx_http_context);
