@@ -31,5 +31,6 @@ endif
 	if [ "$$(ls $(FINAL_DIR)/lib/*.so 2>/dev/null)" != "" ]; then \
 	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" && exit 1); \
 	fi
-
+ifeq ($(strip $(HAS_POST_HOOK)), 1)
 	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))
+endif

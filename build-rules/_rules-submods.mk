@@ -6,7 +6,7 @@ sub-mods: toolchain
 	if [ -f $(STAMP_ONE_MK) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
 	    $(MAKE) --no-print-directory -j32 -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
-	    rm -rf $${TMPD} && \
+	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \
 	    cp -rf $(OUTPUT_DIR) $${TMPD} && \
 	    rm -rf $${TMPD}/{usr,stamps} && \
 	    mv $${TMPD} $(LIBOBJ_TMPDIR); \
