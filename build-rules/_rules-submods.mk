@@ -4,8 +4,9 @@ ALL_LOG_OPTION := $(if $(Q),,| tee -a $(COMPILE_LOG))
 sub-mods: toolchain
 	$(Q) \
 	if [ -f $(STAMP_ONE_MK) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
+	    CORE_NUM=$$(cat /proc/cpuinfo | grep processor | tail -1 | awk '{ print $$NF }'); \
 	    $(MAKE) --no-print-directory clean && \
-	    $(MAKE) --no-print-directory -j32 -f $(STAMP_ONE_MK) && \
+	    $(MAKE) --no-print-directory -j$$((CORE_NUM + 1)) -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
 	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \
 	    cp -rf $(OUTPUT_DIR) $${TMPD} && \
