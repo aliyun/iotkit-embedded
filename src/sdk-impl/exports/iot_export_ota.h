@@ -167,7 +167,6 @@ int IOT_OTA_RequestImage(void *handle, const char *version);
 int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg);
 
 
-
 /**
  * @brief Report detail progress to OTA server (optional).
  *        NOTE: please
