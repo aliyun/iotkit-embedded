@@ -15,6 +15,7 @@ cat << EOB >> ${TARGET_FILE}
 include ${RULE_DIR}/funcs.mk
 
 SHELL := bash
+Q     ?= @
 VPATH := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter} "; done)
 
 .PHONY: all
