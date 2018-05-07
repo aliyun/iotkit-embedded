@@ -10,6 +10,7 @@ for iter in \
 done)
 ALL_LIBS=$(for iter in ${ALL_LIBS}; do echo -n "${OUTPUT_DIR}/usr/lib/${iter} "; done)
 ALL_BINS=$(for iter in ${ALL_PROG}; do echo -n "${OUTPUT_DIR}/usr/bin/${iter} "; done)
+OUTPUT_D=$(basename ${OUTPUT_DIR})
 
 cat << EOB >> ${TARGET_FILE}
 include ${RULE_DIR}/funcs.mk
@@ -89,3 +90,9 @@ done)
 
 EOB
 done
+
+TMP_DEPF=$(mktemp)
+grep -o '/[a-zA-Z].*\.o\>' ${TARGET_FILE} \
+    | sed 's!\(.*\)\(.O/\)\(.*\)\.o!\1\2\3.o : \1\3.c!g' > ${TMP_DEPF}
+cat ${TMP_DEPF} >> ${TARGET_FILE}
+rm -f ${TMP_DEPF}
