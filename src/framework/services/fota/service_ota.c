@@ -12,21 +12,21 @@
 #include "lite-utils.h"
 
 
-static void service_ota_handler(void* pcontext, iotx_cmp_fota_parameter_t* ota_parameter, void* user_data)
+static void service_ota_handler(void* pcontext, iotx_cm_fota_parameter_t* ota_parameter, void* user_data)
 {
-    iotx_cmp_fota_parameter_t* iotx_cmp_ota_parameter = ota_parameter;
+    iotx_cm_fota_parameter_t* iotx_cm_ota_parameter = ota_parameter;
     service_ota_t* service_ota = user_data;
 
-    log_info("\n\n%s\n\n", iotx_cmp_ota_parameter->purl);
+    log_info("\n\n%s\n\n", iotx_cm_ota_parameter->purl);
 
     if (service_ota->_ota_version) service_ota_lite_free(service_ota->_ota_version);
 
-    service_ota->_ota_version = service_ota_lite_calloc(1, strlen(iotx_cmp_ota_parameter->version) + 1);
+    service_ota->_ota_version = service_ota_lite_calloc(1, strlen(iotx_cm_ota_parameter->version) + 1);
     if (service_ota->_ota_version == NULL) {
         log_err("ota version malloc fail.");
         return;
     }
-    strcpy(service_ota->_ota_version, iotx_cmp_ota_parameter->version);
+    strcpy(service_ota->_ota_version, iotx_cm_ota_parameter->version);
     log_debug("new OTA version %s", service_ota->_ota_version);
 
     /* invoke callback funtions. */
@@ -42,7 +42,7 @@ static void service_ota_cm_event_handler(void* pcontext, iotx_cm_event_msg_t* ms
 
     log_info("\n###\n");
 
-    if (IOTX_CMP_EVENT_CLOUD_CONNECTED == msg->event_id) {
+    if (IOTX_CM_EVENT_CLOUD_CONNECTED == msg->event_id) {
         if (service_ota->_ota_inited == 0) {
             if (service_ota->_destructing == 1) return;
 
@@ -55,7 +55,7 @@ static void service_ota_cm_event_handler(void* pcontext, iotx_cm_event_msg_t* ms
                 service_ota->_ota_inited = 1;
             }
 
-            ret = IOT_CM_OTA_Set_Callback(IOTX_CMP_OTA_TYPE_FOTA, service_ota_handler, service_ota, NULL);
+            ret = IOT_CM_OTA_Set_Callback(IOTX_CM_OTA_TYPE_FOTA, service_ota_handler, service_ota, NULL);
 
             log_debug("ret = IOT_CM_OTA_Set_Callback() = %d\n", ret);
         }
@@ -79,8 +79,8 @@ static void* service_ota_ctor(void* _self, va_list* params)
 
     init_param.event_func = service_ota_cm_event_handler;
     init_param.user_data = self;
-    init_param.domain_type = IOTX_CMP_CLOUD_DOMAIN_SH;
-    init_param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
+    init_param.domain_type = IOTX_CM_CLOUD_DOMAIN_ShangHai;
+    init_param.secret_type = IOTX_CM_DEVICE_SECRET_DEVICE;
 
     ret = IOT_CM_Init(&init_param, NULL);
 
@@ -164,7 +164,7 @@ static int service_ota_perform_ota_service(void* _self, void* _data_buf, int _da
 
     iotx_cm_ota->buffer = self->_data_buf;
     iotx_cm_ota->buffer_length = self->_data_buf_length;
-    iotx_cm_ota->ota_type = IOTX_CMP_OTA_TYPE_FOTA;
+    iotx_cm_ota->ota_type = IOTX_CM_OTA_TYPE_FOTA;
 
     self->_total_len = 0;
 
@@ -227,7 +227,7 @@ static void service_ota_install_callback_function(void* _self, handle_service_fo
 
 void* service_ota_lite_calloc(size_t nmemb, size_t size)
 {
-#ifdef CMP_SUPPORT_MEMORY_MAGIC
+#ifdef CM_SUPPORT_MEMORY_MAGIC
     return LITE_calloc(nmemb, size, MEM_MAGIC, SERVICE_FOTA_MODULE_NAME);
 #else
     return LITE_calloc(nmemb, size);
@@ -236,7 +236,7 @@ void* service_ota_lite_calloc(size_t nmemb, size_t size)
 
 void* service_ota_lite_malloc(size_t size)
 {
-#ifdef CMP_SUPPORT_MEMORY_MAGIC
+#ifdef CM_SUPPORT_MEMORY_MAGIC
     return LITE_malloc(size, MEM_MAGIC, SERVICE_FOTA_MODULE_NAME);
 #else
     return LITE_malloc(size);
