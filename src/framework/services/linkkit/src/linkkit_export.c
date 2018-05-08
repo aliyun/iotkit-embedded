@@ -17,6 +17,10 @@
 #define EVENT_PROPERTY_POST_IDENTIFIER         "post"
 #define LINKKIT_EXPORT_PRINTF                   printf
 
+#ifndef __LONG_LONG_MAX__
+#define __LONG_LONG_MAX__ (9223372036854775807)
+#endif
+
 /* used for packing up all parameters from dm callback. */
 typedef struct _dm_msg {
     void*                     thing_id;
