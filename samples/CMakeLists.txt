@@ -160,10 +160,12 @@ IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (cm-example pthread)
 ENDIF (NOT MSVC)
 
+IF (NOT WIN32)
 TARGET_LINK_LIBRARIES (linkkit-example iot_sdk)
 TARGET_LINK_LIBRARIES (linkkit-example iot_platform)
 TARGET_LINK_LIBRARIES (linkkit-example iot_tls)
 IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit-example pthread)
 ENDIF (NOT MSVC)
+ENDIF (NOT WIN32)
 

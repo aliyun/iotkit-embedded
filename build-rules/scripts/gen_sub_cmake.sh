@@ -84,12 +84,18 @@ $(for i in ${TARGET}; do
 done)
 
 $(for i in ${TARGET}; do
+    if echo ${WIN32_CMAKE_SKIP} | grep -qw ${i}; then
+        echo "IF (NOT WIN32)"
+    fi
     echo "TARGET_LINK_LIBRARIES (${i} ${COMP_LIB_NAME})"
     for j in $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g' | grep -vw ${COMP_LIB_NAME}); do
         if [ "${j}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${i} ${j})"
         if [ "${j}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
     done
+    if echo ${WIN32_CMAKE_SKIP} | grep -qw ${i}; then
+        echo "ENDIF (NOT WIN32)"
+    fi
     echo ""
 done)
 
