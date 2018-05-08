@@ -108,9 +108,11 @@ ADD_EXECUTABLE (http-example
 ADD_EXECUTABLE (cmp-example
     cmp/cmp-example.c
 )
+IF (NOT WIN32)
 ADD_EXECUTABLE (linkkit-example
     linkkit/linkkit_sample.c
 )
+ENDIF (NOT WIN32)
 
 TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
 TARGET_LINK_LIBRARIES (mqtt-example iot_platform)
