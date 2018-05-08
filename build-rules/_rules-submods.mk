@@ -28,7 +28,7 @@ sub-mods: toolchain
 	    fi; \
 	fi
 
-SUB_BUILD_VARS := \
+TOP_BUILD_VARS := \
     CFLAGS LDFLAGS \
     PACKAGE_DIR \
     IMPORT_DIR \
@@ -58,7 +58,7 @@ CMDLINE_VARS := \
     TOP_DIR \
     RULE_DIR \
 
-# When SUB_BUILD_VARS like $(CFLAGS) contains special character '$'
+# When TOP_BUILD_VARS like $(CFLAGS) contains special character '$'
 # simply echo its value into 'Makefile' will cause '$' lost when GNU make read in again
 #
 $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
@@ -66,7 +66,7 @@ $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
                   $(shell grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|$(SED) '/^\$$/d')
 	@rm -f $@
 	@$(foreach V, \
-	    $(sort $(SUB_BUILD_VARS)), \
+	    $(sort $(TOP_BUILD_VARS)), \
 	        echo "$(V) := $(sort $($(V)))"|$(SED) 's:\$$:$$$$:g' >> $(STAMP_BLD_ENV); \
 	)
 	@echo "COMP_LIB_FILES := $(foreach V,$(COMP_LIB_COMPONENTS), $(LIBA_TARGET_$(V)))" >> $@
