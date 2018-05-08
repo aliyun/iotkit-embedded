@@ -220,7 +220,7 @@ void alcs_rec_auth (CoAPContext *ctx, const char *paths, NetworkAddr* from, CoAP
             session->sessionId = ++sessionid_seed;
             char path[100] = {0}; 
             strncpy(path, pk, sizeof(path));
-            strncat(path, dn, sizeof(path));
+            strncat(path, dn, sizeof(path)-strlen(path)-1);
             CoAPPathMD5_sum (path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
 
             memcpy (&session->addr, from, sizeof(NetworkAddr));
@@ -436,7 +436,7 @@ int alcs_resource_register_secure (CoAPContext *context, const char* pk, const c
 
     char pk_dn[100] = {0};
     strncpy(pk_dn, pk, sizeof(pk_dn));
-    strncat(pk_dn, dn, sizeof(pk_dn));
+    strncat(pk_dn, dn, sizeof(pk_dn)-strlen(pk_dn)-1);
     CoAPPathMD5_sum (pk_dn, strlen(pk_dn), item->pk_dn, PK_DN_CHECKSUM_LEN);
     
     list_add_tail(&item->lst, &secure_resource_cb_head);
