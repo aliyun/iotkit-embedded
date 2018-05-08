@@ -27,7 +27,7 @@
 #include "utils_hmac.h"
 #endif
 
-#include "cJSON.h"
+#include "lite-cjson.h"
 
 #ifdef SUBDEV_ENABLE
 typedef struct {
@@ -450,17 +450,21 @@ static void print_iotx_cm_message_info(const void* _source, const void* _msg)
     dm_printf("***\n");
 }
 
-static int check_set_lite_property_for_struct(cJSON* cjson_obj, lite_property_t *lite_property)
+static int check_set_lite_property_for_struct(lite_cjson_t *lite, lite_property_t *lite_property)
 {
     int i;
+	int res = 0;
     lite_property_t* sub_property;
-    cJSON *subobject;
+    lite_cjson_t subobject;
+	
     for (i = 0; i < lite_property->data_type.data_type_specs_number; i++) {
         sub_property = (lite_property_t*)lite_property->data_type.specs + i;
-        subobject = cJSON_GetObjectItem(cjson_obj, sub_property->identifier);
-        if (!subobject) return -1;
+
+		memset(&subobject,0,sizeof(lite_cjson_t));
+		res = lite_cjson_object_item(lite,sub_property->identifier,strlen(sub_property->identifier),&subobject);
+		if (res) {return -1;}
         if (data_type_type_struct == sub_property->data_type.type) {
-            if (check_set_lite_property_for_struct(subobject, sub_property)) {
+            if (check_set_lite_property_for_struct(&subobject, sub_property)) {
                 return -1;
             }
         }
@@ -468,46 +472,49 @@ static int check_set_lite_property_for_struct(cJSON* cjson_obj, lite_property_t 
     return 0;
 }
 
-static void find_and_set_array_item(dm_thing_manager_t* dm_thing_manager,thing_t** thing, cJSON* cjson_arr_obj, int item_index, lite_property_t *lite_property,data_type_type_t type)
+static void find_and_set_array_item(dm_thing_manager_t* dm_thing_manager,thing_t** thing, lite_cjson_t *lite, int item_index, lite_property_t *lite_property,data_type_type_t type)
 {
+	int res = 0;
     int int_val;
     float float_val;
     double double_val;
     char temp_buf[64] = {0};
     char identifier[64] = {0};
     char* string_val = NULL;
-    cJSON *arr_json_item;
+	lite_cjson_t lite_item;
+
     if (item_index > lite_property->data_type.value.data_type_array_t.size) {
         dm_printf("input json array item:%d > lite json array size:%d ", item_index, lite_property->data_type.value.data_type_array_t.size);
         return;
     }
 
-    arr_json_item = cJSON_GetArrayItem(cjson_arr_obj,item_index);
-    if (!arr_json_item) {
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_array_item(lite,item_index,&lite_item);
+    if (res) {
         dm_log_err("get array[%d] failed", item_index);
         goto do_exit;
     }
     switch(lite_property->data_type.value.data_type_array_t.item_type) {
         case data_type_type_int: {
-            int_val = arr_json_item->valueint;
+            int_val = lite_item.value_int;
             dm_snprintf(temp_buf, sizeof(temp_buf), "%d", int_val);
         }break;
         case data_type_type_double: {
-                double_val = arr_json_item->valuedouble;
+                double_val = lite_item.value_double;
                 dm_snprintf(temp_buf, sizeof(temp_buf), "%.16lf", double_val);
         }break;
         case data_type_type_float: {
-            float_val = arr_json_item->valuedouble;
+            float_val = lite_item.value_double;
             dm_snprintf(temp_buf, sizeof(temp_buf), "%.7f", float_val);
         }break;
         case data_type_type_text: {
-            string_val = dm_lite_calloc(1, strlen(arr_json_item->valuestring) + 1);
-            assert(string_val);
+            string_val = dm_lite_calloc(1, lite_item.value_length + 1);
             if (string_val == NULL) {
                 dm_printf("NO memory...");
                 return;
             }
-            strcpy(string_val, arr_json_item->valuestring);
+			memset(string_val, 0, lite_item.value_length + 1);
+			memcpy(string_val, lite_item.value, lite_item.value_length);
         }break;
         default:{
             dm_log_err("don't support %d type", lite_property->data_type.value.data_type_array_t.item_type);
@@ -539,13 +546,15 @@ do_exit:
 static void find_and_set_lite_property_struct_for_service_property_set(void* _item, ...);
 static void find_and_set_lite_property_for_service_property_set(void* _item, int _index, va_list* params)
 {
+	int res = 0;
+	lite_cjson_t *property_set_param_obj = NULL;
+    lite_cjson_t temp_cjson_obj;
+	
     property_t* property = _item;
     lite_property_t* lite_property;
     lite_property_t* lite_property_struct;
     dm_thing_manager_t* dm_thing_manager;
     thing_t** thing;
-    cJSON* property_set_param_obj;
-    cJSON* temp_cjson_obj;
     char temp_buf[64] = {0};
     int int_val;
     float float_val;
@@ -557,7 +566,7 @@ static void find_and_set_lite_property_for_service_property_set(void* _item, int
     int arrsize = 0;
 
     dm_thing_manager = va_arg(*params, dm_thing_manager_t*);
-    property_set_param_obj = va_arg(*params, cJSON*);
+    property_set_param_obj = va_arg(*params, lite_cjson_t*);
     thing = va_arg(*params, thing_t**);
     identifier_prefix = va_arg(*params, char*);
 
@@ -567,8 +576,12 @@ static void find_and_set_lite_property_for_service_property_set(void* _item, int
 
     lite_property = (lite_property_t*)property;
 
-    temp_cjson_obj = cJSON_GetObjectItem(property_set_param_obj, lite_property->identifier);
-    if (temp_cjson_obj) {
+	memset(&temp_cjson_obj,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(property_set_param_obj,lite_property->identifier,
+		strlen(lite_property->identifier),&temp_cjson_obj);
+	if (res) {return;}
+
+    if (temp_cjson_obj.value) {
         if (identifier_prefix) {
             dm_snprintf(identifier_buff, sizeof(identifier_buff), "%s%c%s", identifier_prefix, DEFAULT_TSL_DELIMITER, lite_property->identifier);
             dm_thing_manager->_property_identifier_set = identifier_buff;
@@ -577,45 +590,35 @@ static void find_and_set_lite_property_for_service_property_set(void* _item, int
         }
 
         if (lite_property->data_type.type == data_type_type_text) {
-#ifndef CJSON_STRING_ZEROCOPY
-            string_val = dm_lite_calloc(1, strlen(temp_cjson_obj->valuestring) + 1);
+            string_val = dm_lite_calloc(1, temp_cjson_obj.value_length + 1);
             assert(string_val);
             if (string_val == NULL) {
                 dm_printf("NO memory...");
                 return;
             }
-            strcpy(string_val, temp_cjson_obj->valuestring);
-#else
-            string_val = dm_lite_calloc(1, temp_cjson_obj->valuestring_length + 1);
-            assert(string_val);
-            if (string_val == NULL) {
-                dm_printf("NO memory...");
-                return;
-            }
-            strncpy(string_val, temp_cjson_obj->valuestring, temp_cjson_obj->valuestring_length);
-#endif
+			memset(string_val, 0, temp_cjson_obj.value_length + 1);
+			memcpy(string_val, temp_cjson_obj.value, temp_cjson_obj.value_length);
         } else if (lite_property->data_type.type == data_type_type_float) {
-            float_val = temp_cjson_obj->valuedouble;
+            float_val = temp_cjson_obj.value_double;
             dm_snprintf(temp_buf, sizeof(temp_buf), "%.7f", float_val);
         } else if (lite_property->data_type.type == data_type_type_double) {
-            double_val = temp_cjson_obj->valuedouble;
+            double_val = temp_cjson_obj.value_double;
             dm_snprintf(temp_buf, sizeof(temp_buf), "%.16lf", double_val);
         } else if (lite_property->data_type.type == data_type_type_date) {
-            if (temp_cjson_obj->type == cJSON_String) {
-                dm_snprintf(temp_buf, sizeof(temp_buf), "%s", temp_cjson_obj->valuestring);
-            } else if (temp_cjson_obj->type == cJSON_Number) {
-                dm_snprintf(temp_buf, sizeof(temp_buf), "%lf", temp_cjson_obj->valuedouble);
+            if (lite_cjson_is_string(&temp_cjson_obj)) {
+                dm_snprintf(temp_buf, sizeof(temp_buf), "%.*s", temp_cjson_obj.value_length,temp_cjson_obj.value);
+            } else if (lite_cjson_is_number(&temp_cjson_obj)) {
+                dm_snprintf(temp_buf, sizeof(temp_buf), "%lf", temp_cjson_obj.value_double);
             }
         } else if (lite_property->data_type.type == data_type_type_enum ||
                    lite_property->data_type.type == data_type_type_bool ||
                    lite_property->data_type.type == data_type_type_int) {
 
-            int_val = temp_cjson_obj->valueint;
+            int_val = temp_cjson_obj.value_int;
             dm_snprintf(temp_buf, sizeof(temp_buf), "%d", int_val);
         } else if (lite_property->data_type.type == data_type_type_struct) {
-            assert(cJSON_IsObject(temp_cjson_obj));
-            if (!cJSON_IsObject(temp_cjson_obj)) return;
-            if (check_set_lite_property_for_struct(temp_cjson_obj, lite_property)) {
+            if (!lite_cjson_is_object(&temp_cjson_obj)) return;
+            if (check_set_lite_property_for_struct(&temp_cjson_obj, lite_property)) {
                 dm_printf("invalid json");
                 return;
             }
@@ -623,22 +626,22 @@ static void find_and_set_lite_property_for_service_property_set(void* _item, int
             for (index = 0; index < lite_property->data_type.data_type_specs_number; ++index) {
                 lite_property_struct = (lite_property_t*)lite_property->data_type.specs + index;
                 find_and_set_lite_property_struct_for_service_property_set(lite_property_struct, dm_thing_manager,
-                                                                           temp_cjson_obj, thing, lite_property->identifier);
+                                                                           &temp_cjson_obj, thing, lite_property->identifier);
             }
             dm_thing_manager->_identifier = lite_property->identifier;
             invoke_callback_list(dm_thing_manager, dm_callback_type_property_value_set);
         } else if (lite_property->data_type.type == data_type_type_array) {
-            if (!cJSON_IsArray(temp_cjson_obj)) {
+            if (!lite_cjson_is_array(&temp_cjson_obj)) {
                 dm_log_err("json type is not array");
                 return;
             }
-            arrsize = cJSON_GetArraySize(temp_cjson_obj);
+            arrsize = temp_cjson_obj.size;
             if (arrsize > lite_property->data_type.value.data_type_array_t.size) {
                 dm_printf("input json array item:%d > lite json array item:%d ", arrsize, lite_property->data_type.value.data_type_array_t.size);
                 return;
             }
             for (index = 0; index < arrsize; index++){
-                find_and_set_array_item(dm_thing_manager,thing, temp_cjson_obj, index, lite_property, lite_property->data_type.type);
+                find_and_set_array_item(dm_thing_manager,thing, &temp_cjson_obj, index, lite_property, lite_property->data_type.type);
             }
             dm_thing_manager->_identifier = lite_property->identifier;
             invoke_callback_list(dm_thing_manager, dm_callback_type_property_value_set);
@@ -695,17 +698,17 @@ static void find_thing_via_product_key_and_device_name(void* _thing, va_list* pa
     }
 }
 
-static int set_service_array_input(dm_thing_manager_t* _dm_thing_manager, thing_t** thing, cJSON* cjson_arr_obj, int item_index,lite_property_t *lite_property, data_type_type_t type, char *_identifier)
+static int set_service_array_input(dm_thing_manager_t* _dm_thing_manager, thing_t** thing, lite_cjson_t *lite, int item_index,lite_property_t *lite_property, data_type_type_t type, char *_identifier)
 {
-    int ret = -1;
+    int res = 0;
     int int_val;
     float float_val;
     double double_val;
     char temp_buf[64] = {0};
     char identifier[64] = {0};
-    cJSON *arr_json_item;
+    lite_cjson_t lite_item;
 
-    if(!_dm_thing_manager || !thing || !cjson_arr_obj || item_index < 0 || !lite_property || !_identifier)   {
+    if(!_dm_thing_manager || !thing || !lite || item_index < 0 || !lite_property || !_identifier)   {
         dm_log_err("invalid params", item_index);
         goto do_exit;
     }
@@ -714,27 +717,27 @@ static int set_service_array_input(dm_thing_manager_t* _dm_thing_manager, thing_
         goto do_exit;
     }
 
-
-    arr_json_item = cJSON_GetArrayItem(cjson_arr_obj,item_index);
-    if (!arr_json_item) {
-        dm_log_err("get array[%d] failed", item_index);
+	res = lite_cjson_array_item(lite,item_index,&lite_item);
+	if (res) {
+		dm_log_err("get array[%d] failed", item_index);
         goto do_exit;
-    }
+	}
+
     switch(lite_property->data_type.value.data_type_array_t.item_type) {
     case data_type_type_int: {
-        int_val = arr_json_item->valueint;
+        int_val = lite_item.value_int;
         dm_snprintf(temp_buf, sizeof(temp_buf), "%d", int_val);
     }break;
     case data_type_type_double: {
-        double_val = arr_json_item->valuedouble;
+        double_val = lite_item.value_double;
         dm_snprintf(temp_buf, sizeof(temp_buf), "%.16lf", double_val);
     }break;
     case data_type_type_float: {
-        float_val = arr_json_item->valuedouble;
+        float_val = lite_item.value_double;
         dm_snprintf(temp_buf, sizeof(temp_buf), "%.7f", float_val);
     }break;
     case data_type_type_text: {
-        dm_snprintf(temp_buf, sizeof(temp_buf), "%s", arr_json_item->valuestring);
+        dm_snprintf(temp_buf, sizeof(temp_buf), "%.*s", lite_item.value_length, lite_item.value);
     }break;
     default:{
         dm_log_err("don't support %d type", lite_property->data_type.value.data_type_array_t.item_type);
@@ -745,19 +748,22 @@ static int set_service_array_input(dm_thing_manager_t* _dm_thing_manager, thing_
     if (strlen(temp_buf) > 0) {
         dm_snprintf(identifier, sizeof(identifier), "%s[%d]", _identifier, item_index);
         (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, NULL, temp_buf);
-        ret = 0;
+        res = 0;
     }
 do_exit:
-    return ret;
+    return res;
 }
 
 static int parse_and_set_service_input(dm_thing_manager_t *_dm_thing_manager,thing_t **thing, service_t *service, char* parameter)
 {
-    cJSON* obj = NULL;
-    cJSON* item;
+	int res = 0;
+	lite_cjson_t lite;
+	lite_cjson_t lite_item;
+    //cJSON* obj = NULL;
+    //cJSON* item;
     int i;
     char identifier[128] = {0};
-    char* string_val;
+    char* string_val = NULL;
     int arr_size = 0;
     int arr_index = 0;
     input_data_t* service_input_data;
@@ -765,39 +771,30 @@ static int parse_and_set_service_input(dm_thing_manager_t *_dm_thing_manager,thi
 
     dm_thing_manager_t* dm_thing_manager = _dm_thing_manager;
 
-    obj = cJSON_Parse(parameter);
-    if (!obj) return - 1;
+	memset(&lite, 0, sizeof(lite_cjson_t));
+	res = lite_cjson_parse(parameter,strlen(parameter),&lite);
+	if (res) {return -1;}
 
     for (i = 0; i < service->service_input_data_num; i++) {
         service_input_data = &service->service_input_data[i]; /* inputData */
 
         property = &service_input_data->lite_property;
 
-        item = cJSON_GetObjectItem(obj, property->identifier);
-        if (!item) continue;
+		memset(&lite_item, 0, sizeof(lite_cjson_t));
+		res = lite_cjson_object_item(&lite,property->identifier,strlen(property->identifier),&lite_item);
+		if (res) {continue;}
 
         snprintf(identifier, sizeof(identifier), "%s.%s", service->identifier, property->identifier);
 
         switch (property->data_type.type) {
         case data_type_type_text:
         {
-#ifndef CJSON_STRING_ZEROCOPY
-            string_val = dm_lite_calloc(1, strlen(item->valuestring) + 1);
+            string_val = dm_lite_calloc(1, lite_item.value_length + 1);
 
-            if (string_val == NULL) {
-                if (obj) cJSON_Delete(obj);
-                return -1;
-            }
-            strcpy(string_val, item->valuestring);
-#else
-            string_val = dm_lite_calloc(1, item->valuestring_length + 1);
+            if (string_val == NULL) {return -1;}
+			memset(string_val, 0, lite_item.value_length + 1);
+			memcpy(string_val, lite_item.value, lite_item.value_length);
 
-            if (string_val == NULL) {
-                cJSON_Delete(obj);
-                return -1;
-            }
-            strncpy(string_val, item->valuestring, item->valuestring_length);
-#endif /* CJSON_STRING_ZEROCOPY */
             (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, NULL, string_val);
 
             dm_lite_free(string_val);
@@ -806,25 +803,23 @@ static int parse_and_set_service_input(dm_thing_manager_t *_dm_thing_manager,thi
         case data_type_type_enum:
         case data_type_type_bool:
         case data_type_type_int:
-            (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, &item->valueint, NULL);
+            (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, &lite_item.value_int, NULL);
             break;
         case data_type_type_float:
         case data_type_type_double:
         case data_type_type_date:
-            (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, &item->valuedouble, NULL);
+            (*thing)->set_service_input_output_data_value_by_identifier(thing, identifier, &lite_item.value_double, NULL);
             break;
         case data_type_type_array:
-            arr_size = cJSON_GetArraySize(item);
+            arr_size = lite_item.size;
             for(arr_index = 0; arr_index < arr_size; arr_index++) {
-                set_service_array_input(dm_thing_manager, thing, item, arr_index, property, property->data_type.type, identifier);
+                set_service_array_input(dm_thing_manager, thing, &lite_item, arr_index, property, property->data_type.type, identifier);
             }
             break;
         default:
             break;
         }
     }
-
-    if (obj) cJSON_Delete(obj);
 
     return 0;
 }
@@ -911,14 +906,17 @@ static void dm_cm_register_uri_handler_property_set(dm_thing_manager_t* _dm_thin
     iotx_cm_message_info_t* cm_message_info = _cm_message_info;
     thing_t** thing;
 
-    cJSON* property_set_param_obj;
+	int res = 0;
+	lite_cjson_t property_set_param_obj;
 
     thing = dm_thing_manager->_thing_id;
     assert(thing && cm_message_info->parameter);
-    property_set_param_obj = cJSON_Parse(cm_message_info->parameter);
-    assert(property_set_param_obj && cJSON_IsObject(property_set_param_obj));
 
-    property_iterator(thing, find_and_set_lite_property_for_service_property_set, dm_thing_manager, property_set_param_obj, thing, NULL);
+	memset(&property_set_param_obj,0,sizeof(lite_cjson_t));
+	res = lite_cjson_parse(cm_message_info->parameter,strlen(cm_message_info->parameter),&property_set_param_obj);
+	if (res || !lite_cjson_is_object(&property_set_param_obj)) {return;}
+
+    property_iterator(thing, find_and_set_lite_property_for_service_property_set, dm_thing_manager, &property_set_param_obj, thing, NULL);
 
 #ifdef RRPC_ENABLED
     dm_thing_manager_answer_service(dm_thing_manager, thing, dm_thing_manager->_service_identifier_requested,
@@ -928,7 +926,6 @@ static void dm_cm_register_uri_handler_property_set(dm_thing_manager_t* _dm_thin
                                     dm_thing_manager->_request_id, dm_thing_manager->_ret == 0 ? 200 : 400);
 #endif /* RRPC_ENABLED */
 
-    cJSON_Delete(property_set_param_obj);
 }
 
 static void dm_cm_register_uri_handler_property_get(dm_thing_manager_t* _dm_thing_manager, iotx_cm_message_info_t* _cm_message_info)
@@ -937,40 +934,38 @@ static void dm_cm_register_uri_handler_property_get(dm_thing_manager_t* _dm_thin
     iotx_cm_message_info_t* cm_message_info = _cm_message_info;
     thing_t** thing;
 
-    cJSON* property_get_param_obj;
-    cJSON* property_get_param_item_obj;
+	int res = 0;
+	lite_cjson_t lite;
+	lite_cjson_t lite_item;
     list_t** list;
     int array_size, index;
-    char* property_get_param_identifier;
+    char* property_get_param_identifier = NULL;
 
     thing = dm_thing_manager->_thing_id;
 
     assert(cm_message_info->parameter);
     list = dm_thing_manager->_service_property_get_identifier_list;
-    property_get_param_obj = cJSON_Parse(cm_message_info->parameter);
 
-    assert(property_get_param_obj && cJSON_IsArray(property_get_param_obj));
+	memset(&lite, 0, sizeof(lite_cjson_t));
+	res = lite_cjson_parse(cm_message_info->parameter,strlen(cm_message_info->parameter),&lite);
 
-    if (property_get_param_obj == NULL || cJSON_IsArray(property_get_param_obj) == 0) {
+    if (res || !lite_cjson_is_array(&lite)) {
         dm_log_err("UNABLE to resolve %s params format", string_method_name_property_get);
         return;
     }
 
-    array_size = cJSON_GetArraySize(property_get_param_obj);
+    array_size = lite.size;
     for (index = 0; index < array_size; ++index) {
-        property_get_param_item_obj = cJSON_GetArrayItem(property_get_param_obj, index);
-        assert(cJSON_IsString(property_get_param_item_obj));
-#ifndef CJSON_STRING_ZEROCOPY
-        property_get_param_identifier = dm_lite_calloc(1, strlen(property_get_param_item_obj->valuestring) + 1);
-        strcpy(property_get_param_identifier, property_get_param_item_obj->valuestring);
-#else
-        property_get_param_identifier = dm_lite_calloc(1, property_get_param_item_obj->valuestring_length + 1);
-        strncpy(property_get_param_identifier, property_get_param_item_obj->valuestring,
-                property_get_param_item_obj->valuestring_length);
-#endif
+		memset(&lite_item, 0, sizeof(lite_cjson_t));
+		res = lite_cjson_array_item(&lite,index,&lite_item);
+		if (res || !lite_cjson_is_string(&lite_item)) {return;}
+
+        property_get_param_identifier = dm_lite_calloc(1, lite_item.value_length + 1);
+		memcpy(property_get_param_identifier, lite_item.value, lite_item.value_length);
+
         list_insert(list, property_get_param_identifier);
     }
-    cJSON_Delete(property_get_param_obj);
+
 #ifdef RRPC_ENABLED
     dm_thing_manager_answer_service(dm_thing_manager, thing, dm_thing_manager->_service_identifier_requested,
                                     dm_thing_manager->_request_id, 200, 0);
@@ -1124,38 +1119,34 @@ static void dm_cm_register_uri_handler_permit_join(dm_thing_manager_t* _dm_thing
     message_info_t** message_info = dm_thing_manager->_message_info;
     cm_abstract_t** cm = dm_thing_manager->_cm;
     char uri_buff[URI_MAX_LENGTH] = {0};
-    cJSON* params_obj;
-    cJSON* params_pk_obj;
-    cJSON* params_time_obj;
-    char* pk;
-    int time_s;
 
-    params_obj = cJSON_Parse(cm_message_info->parameter);
+	int res = 0;
+	lite_cjson_t lite;
+	lite_cjson_t lite_item_pk;
+	lite_cjson_t lite_item_time;
 
-    assert(params_obj);
+	memset(&lite, 0, sizeof(lite_cjson_t));
+	res = lite_cjson_parse(cm_message_info->parameter,strlen(cm_message_info->parameter),&lite);
+	if (res) {return;}
 
-    if (!params_obj) return;
+	memset(&lite_item_pk, 0, sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite,"productKey",strlen("productKey"),&lite_item_pk);
+	if (res || !lite_cjson_is_string(&lite_item_pk)) {return;}
+	
+	memset(&lite_item_time, 0, sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite,"time",strlen("time"),&lite_item_time);
+	if (res || !lite_cjson_is_number(&lite_item_time)) {return;}
 
-    params_pk_obj = cJSON_GetObjectItem(params_obj, "productKey");
-    params_time_obj = cJSON_GetObjectItem(params_obj, "time");
-
-    assert(params_pk_obj && params_time_obj);
-
-    if (!params_pk_obj || !params_time_obj) return;
-
-    pk = params_pk_obj->valuestring;
-    time_s = params_time_obj->valueint;
-
-    if (pk) {
-        strcpy(dm_thing_manager->_permit_pk, pk);
+    if (lite_item_pk.value_length != 0) {
+		memcpy(dm_thing_manager->_permit_pk, lite_item_pk.value, lite_item_pk.value_length);
     } else {
         memset(dm_thing_manager->_permit_pk, 0, sizeof(dm_thing_manager->_permit_pk));
     }
 
-    dm_thing_manager->_permit_time_ms = time_s * 1000;
+    dm_thing_manager->_permit_time_ms = lite_item_time.value_int * 1000;
     dm_thing_manager->_uptime_ms = HAL_UptimeMs();
 
-    dm_log_debug("permit_pk:%s, time:%d", dm_thing_manager->_permit_pk ? dm_thing_manager->_permit_pk : "NULL", time_s);
+    dm_log_debug("permit_pk:%s, time:%d", dm_thing_manager->_permit_pk ? dm_thing_manager->_permit_pk : "NULL", lite_item_time.value_int);
 
 
     /* response to permit */
@@ -1287,11 +1278,12 @@ static void dm_cm_register_uri_handler_sub_register_reply(dm_thing_manager_t* _d
     list_t** list;
     char subdev_secret[DEVICE_SECRET_MAXLEN] = {0};
 
-    cJSON* register_response_data_obj;
-    cJSON* register_response_data_item_obj;
-    cJSON* device_secret_obj;
-    cJSON* product_key_obj;
-    cJSON* device_namet_obj;
+	int res = 0;
+	lite_cjson_t lite;
+	lite_cjson_t lite_item;
+	lite_cjson_t lite_item_pk;
+	lite_cjson_t lite_item_dn;
+	lite_cjson_t lite_item_ds;
 
     int index, array_size;
 
@@ -1305,39 +1297,43 @@ static void dm_cm_register_uri_handler_sub_register_reply(dm_thing_manager_t* _d
         dm_thing_manager->_thing_id = dm_thing_manager->_sub_thing_id = request_info->thing_id;
 
         if (dm_thing_manager->_code == 200) {
-            register_response_data_obj = cJSON_Parse(cm_message_info->parameter);
-
-            assert(register_response_data_obj && cJSON_IsArray(register_response_data_obj));
-
-            if (register_response_data_obj == NULL || cJSON_IsArray(register_response_data_obj) == 0) {
+			memset(&lite, 0, sizeof(lite_cjson_t));
+			res = lite_cjson_parse(cm_message_info->parameter,strlen(cm_message_info->parameter),&lite);
+			if (res || !lite_cjson_is_array(&lite)) {
                 dm_log_err("UNABLE to resolve %s params format", string_method_name_sub_register);
                 return;
             }
 
-            array_size = cJSON_GetArraySize(register_response_data_obj);
+            array_size = lite.size;
 
             assert(array_size == 1);
             for (index = 0; index < array_size; ++index) {
-                register_response_data_item_obj = cJSON_GetArrayItem(register_response_data_obj, index);
-                assert(cJSON_IsObject(register_response_data_item_obj));
+				memset(&lite_item, 0, sizeof(lite_cjson_t));
+				res = lite_cjson_array_item(&lite,index,&lite_item);
+				if (res || !lite_cjson_is_object(&lite_item)) {return;}
 
-                product_key_obj = cJSON_GetObjectItem(register_response_data_item_obj, "productKey");
+				memset(&lite_item_pk, 0, sizeof(lite_cjson_t));
+				res = lite_cjson_object_item(&lite_item,"productKey",strlen("productKey"),&lite_item_pk);
+				if (res || !lite_cjson_is_string(&lite_item_pk)) {return;}
 
-                device_namet_obj = cJSON_GetObjectItem(register_response_data_item_obj, "deviceName");
+                memset(&lite_item_dn, 0, sizeof(lite_cjson_t));
+				res = lite_cjson_object_item(&lite_item,"deviceName",strlen("deviceName"),&lite_item_dn);
+				if (res || !lite_cjson_is_string(&lite_item_dn)) {return;}
 
-                assert(product_key_obj && device_namet_obj && strcmp(product_key_obj->valuestring, request_info->product_key) == 0 && strcmp(device_namet_obj->valuestring, request_info->device_name) == 0);
+				if (strlen(request_info->product_key) != lite_item_pk.value_length ||
+					memcmp(request_info->product_key, lite_item_pk.value, lite_item_pk.value_length) != 0 ||
+					strlen(request_info->device_name) != lite_item_dn.value_length ||
+					memcmp(request_info->device_name, lite_item_dn.value, lite_item_dn.value_length) != 0)
+				{
+					return;
+				}
 
-                device_secret_obj = cJSON_GetObjectItem(register_response_data_item_obj, "deviceSecret");
+				memset(&lite_item_ds, 0, sizeof(lite_cjson_t));
+				res = lite_cjson_object_item(&lite_item,"deviceSecret",strlen("deviceSecret"),&lite_item_ds);
+				if (res || !lite_cjson_is_string(&lite_item_ds)) {goto exit;}
 
-                assert(device_secret_obj);
-                if (!device_secret_obj) goto exit;
-#ifndef CJSON_STRING_ZEROCOPY
-                strcpy(subdev_secret, device_secret_obj->valuestring);
-#else
-                strncpy(subdev_secret, device_secret_obj->valuestring, device_secret_obj->valuestring_length);
-#endif
+				memcpy(subdev_secret, lite_item_ds.value, lite_item_ds.value_length);
             }
-            cJSON_Delete(register_response_data_obj);
 
             dm_thing_manager->_subdev_ds_from_register = subdev_secret;
             dm_thing_manager->_subdev_pk_from_register = request_info->product_key;
@@ -1749,13 +1745,6 @@ static void* dm_thing_manager_ctor(void* _self, va_list* params)
 #ifdef LOCAL_CONN_ENABLE
     (*cm)->add_service(cm, (char*)string_dev_core_service_dev, self->_cm_local_conn_register_func_fp, self, 0);
 #endif
-
-    cJSON_Hooks hook = {
-        dm_lite_malloc,
-        dm_lite_free_func,
-    };
-
-    cJSON_InitHooks(&hook);
 
 #if (defined SUBDEV_ENABLE) && (0)
     /* temp for test. */
@@ -2811,21 +2800,16 @@ static void check_thing_id(void* _thing, va_list* params)
 #ifdef EXTENDED_INFO_ENABLED
 static int check_extended_info_params(const char* params)
 {
-    cJSON* params_obj;
+	int res = 0;
+	lite_cjson_t lite;
     int array_size;
 
-    params_obj = cJSON_Parse(params);
-
-    if (!cJSON_IsArray(params_obj)) {
-        dm_log_err("input params format errorm, MUST be json array type");
+	memset(&lite, 0, sizeof(lite_cjson_t));
+	res = lite_cjson_parse(params,strlen(params),&lite);
+	if (res || !lite_cjson_is_array(&lite) || lite.size <= 0) {
+        dm_log_err("input params format errorm, MUST be json array type and size cannot be zero");
         return -1;
     }
-
-    array_size = cJSON_GetArraySize(params_obj);
-
-    if (array_size <= 0) return -1;
-
-    cJSON_Delete(params_obj);
 
     return 0;
 }

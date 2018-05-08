@@ -13,6 +13,7 @@
 #include "dm_slist.h"
 
 #include "lite-utils.h"
+#include "lite-cjson.h"
 
 #define DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC 1
 
@@ -63,11 +64,11 @@ static const char string_false[] __DM_READ_ONLY__ = "false";
 static const char string_true[] __DM_READ_ONLY__ = "true";
 
 #define KEY_BUFF_SIZE 32
-static int install_cjson_item_string(void** dst, const char* key, const char* src, int src_len);
-static void install_cjson_obj_property(property_t* dst, const char* src, int src_len);
-static void install_cjson_obj_lite_property(void* dst, const char* src, int src_len);
+static int install_cjson_item_string(void** dst, const char* key, lite_cjson_t *lite);
+static void install_cjson_obj_property(property_t* dst, lite_cjson_t *lite);
+static void install_cjson_obj_lite_property(void* dst, lite_cjson_t *lite);
 #ifdef LITE_THING_MODEL
-static void install_cjson_item_string_without_malloc(void* dst, const char* key, const char* src, int src_len);
+static void install_cjson_item_string_without_malloc(void* dst, const char* key, lite_cjson_t *lite);
 #endif
 #ifdef ENABLE_THING_DEBUG
 static void property_print_data_type_info(void* dst);
@@ -184,7 +185,7 @@ static data_type_type_t detect_data_type_type(const char* const type_str)
     return type;
 }
 
-static void install_cjson_item_data_type_value(void* dst, data_type_type_t type, const char* src, int src_len)
+static void install_cjson_item_data_type_value(void* dst, data_type_type_t type, lite_cjson_t *lite)
 {
     data_type_x_t *data_type_x = (data_type_x_t *)dst;
     int index = 0;
@@ -201,19 +202,19 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         /* min */
 #ifdef LITE_THING_MODEL
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, string_min, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, string_min, lite);
         data_type_x->data_type_int_t.min = atoi(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.min_str, string_min, src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_int_t.min_str, string_min, lite);
         data_type_x->data_type_int_t.min = atoi(data_type_x->data_type_int_t.min_str);
 #endif
         /* max */
 #ifdef LITE_THING_MODEL
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, string_max, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, string_max, lite);
         data_type_x->data_type_int_t.max = atoi(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.max_str, string_max, src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_int_t.max_str, string_max, lite);
         data_type_x->data_type_int_t.max = atoi(data_type_x->data_type_int_t.max_str);
 #endif
 
@@ -237,9 +238,9 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit, "unit", lite);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit_name, "unitName", lite);
 #endif
 
         data_type_x->data_type_int_t.value = (data_type_x->data_type_int_t.min + data_type_x->data_type_int_t.max) / 2; /* default value? */
@@ -257,16 +258,16 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, string_min, src, src_len);
         data_type_x->data_type_float_t.min = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.min_str, string_min, src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_float_t.min_str, string_min, lite);
         data_type_x->data_type_float_t.min = atof(data_type_x->data_type_float_t.min_str);
 #endif
         /* max */
 #ifdef LITE_THING_MODEL
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, string_max, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, string_max, lite);
         data_type_x->data_type_float_t.max = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.max_str, string_max, src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_float_t.max_str, string_max, lite);
         data_type_x->data_type_float_t.max = atof(data_type_x->data_type_float_t.max_str);
 #endif
 #if 0
@@ -290,9 +291,9 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit, "unit", lite);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit_name, "unitName", lite);
 #endif
         data_type_x->data_type_float_t.value = (data_type_x->data_type_float_t.min + data_type_x->data_type_float_t.max) / 2; /* default value? */
         long_val = (long long)data_type_x->data_type_float_t.max;
@@ -305,19 +306,19 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         /* min */
 #ifdef LITE_THING_MODEL
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, string_min, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, string_min, lite);
         data_type_x->data_type_double_t.min = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.min_str, string_min, src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_double_t.min_str, string_min, lite);
         data_type_x->data_type_double_t.min = atof(data_type_x->data_type_double_t.min_str);
 #endif
         /* max */
 #ifdef LITE_THING_MODEL
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, string_max, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, string_max, lite);
         data_type_x->data_type_double_t.max = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.max_str, string_max, src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_double_t.max_str, string_max, lite);
         data_type_x->data_type_double_t.max = atof(data_type_x->data_type_double_t.max_str);
 #endif
 
@@ -341,9 +342,9 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit, "unit", lite);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit_name, "unitName", lite);
 #endif
         data_type_x->data_type_double_t.value = (data_type_x->data_type_double_t.min + data_type_x->data_type_double_t.max) / 2; /* default value? */
         long_val = (long long)data_type_x->data_type_double_t.max;
@@ -354,9 +355,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
     } else if (type == data_type_type_enum) {
         /* detect enum item number */
 
-        index = get_json_item_size((char*)src, src_len);
-
-        data_type_x->data_type_enum_t.enum_item_number = index;
+        data_type_x->data_type_enum_t.enum_item_number = lite->size;
 
         if (data_type_x->data_type_enum_t.enum_item_number == 0) {
             data_type_x->data_type_enum_t.enum_item_key = NULL;
@@ -389,7 +388,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             strcpy(*current_key, temp_buf);
 #ifndef LITE_THING_MODEL
             current_val = data_type_x->data_type_enum_t.enum_item_value + index;
-            install_cjson_item_string((void**)current_val, temp_buf, src, src_len);
+            install_cjson_item_string((void**)current_val, temp_buf, lite);
 #endif
         }
         data_type_x->data_type_enum_t.value = atoi(*data_type_x->data_type_enum_t.enum_item_key);
@@ -415,7 +414,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             strcpy(*current_key, temp_buf);
 #ifndef LITE_THING_MODEL
             current_val = data_type_x->data_type_bool_t.bool_item_value + index;
-            install_cjson_item_string((void**)current_val, temp_buf, src, src_len);
+            install_cjson_item_string((void**)current_val, temp_buf, lite);
 #endif
         }
 
@@ -428,12 +427,12 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         /* length */
 #ifdef LITE_THING_MODEL
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, string_length, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, string_length, lite);
         if (strlen(temp_buf)) {
             data_type_x->data_type_text_t.length = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.length_str, string_length, src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_text_t.length_str, string_length, lite);
         if (data_type_x->data_type_text_t.length_str) {
             data_type_x->data_type_text_t.length = atoi(data_type_x->data_type_text_t.length_str);
         }
@@ -443,9 +442,9 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         }
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit, "unit", lite);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit_name, "unitName", lite);
 #endif
         data_type_x->data_type_text_t.value = NULL; /* default value. */
     } else if (type == data_type_type_date) {
@@ -458,18 +457,18 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 #ifdef  LITE_THING_MODEL
         dm_snprintf(temp_identifiy, sizeof(temp_identifiy), "%s.%s", string_item, string_type);
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, string_size, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, string_size, lite);
         data_type_x->data_type_array_t.size = atoi(temp_buf);
         memset(temp_buf, 0, sizeof(temp_buf));
-        install_cjson_item_string_without_malloc(temp_buf, temp_identifiy, src, src_len);
+        install_cjson_item_string_without_malloc(temp_buf, temp_identifiy, lite);
         data_type_x->data_type_array_t.item_type = detect_data_type_type(temp_buf);
 #else
-        install_cjson_item_string((void**)&p_tmp, string_size, src, src_len);
+        install_cjson_item_string((void**)&p_tmp, string_size, lite);
         data_type_x->data_type_array_t.size = p_tmp ? atoi(p_tmp) : 0;
         dm_lite_free(p_tmp);
         p_tmp = NULL;
         dm_snprintf(temp_identifiy, sizeof(temp_identifiy), "%s.%s", string_item, string_type);
-        install_cjson_item_string((void**)&p_tmp, temp_identifiy, src, src_len);
+        install_cjson_item_string((void**)&p_tmp, temp_identifiy, lite);
         data_type_x->data_type_array_t.item_type = detect_data_type_type(p_tmp);
         dm_lite_free(p_tmp);
         p_tmp = NULL;
@@ -483,51 +482,51 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
     }
 }
 
-static void install_cjson_item_data_type(void* dst, const char* key, const char* src, int src_len)
+static void install_cjson_item_data_type(void* dst, const char* key, lite_cjson_t *lite)
 {
-    char* val = NULL, *dm_val = NULL;
-    char _key_index[KEY_BUFF_SIZE] = {0};
-    int val_len = 0, dm_len = 0;
+	int res = 0;
+	lite_cjson_t lite_item;
+	lite_cjson_t lite_item_dm;
+	
     data_type_t* data_type = (data_type_t*)dst;
-    size_t specs_array_size, index;
-    size_t size;
+    int index;
+    int size;
     lite_property_t* lite_property_item;
 
-    val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
-    if (!val) {
-        return;
-    }
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(lite,key,strlen(key),&lite_item);
+	if (res) {return;}
 
-    dm_val = LITE_json_value_of_ext2((char*)string_type, val, val_len, &dm_len);
-    if (dm_val) {
-        size = dm_len + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
-        data_type->type_str = dm_lite_calloc(1, size);
-        if (!data_type->type_str) return;
-        memset(data_type->type_str, 0, size);
-        strncpy(data_type->type_str, dm_val, size - 1);
-        data_type->type = detect_data_type_type(data_type->type_str);
-    }
+	memset(&lite_item_dm,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite_item,string_type,strlen(string_type),&lite_item_dm);
+	if (res) {return;}
+	
+	size = lite_item_dm.value_length + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
+	data_type->type_str = dm_lite_calloc(1, size);
+    if (!data_type->type_str) return;
+    memset(data_type->type_str, 0, size);
+    strncpy(data_type->type_str, lite_item_dm.value, lite_item_dm.value_length);
+    data_type->type = detect_data_type_type(data_type->type_str);
 
-    dm_val = LITE_json_value_of_ext2((char*)string_specs, val, val_len, &dm_len);
-    if (!dm_val) {
-        return;
-    }
+	memset(&lite_item_dm,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite_item,string_specs,strlen(string_specs),&lite_item_dm);
+	if (res) {return;}
+
     if (data_type->type != data_type_type_struct) {
-        if ('{' != *dm_val) {
+        if ('{' != *(lite_item_dm.value)) {
             return;
         }
         data_type->data_type_specs_number = 0;
         data_type->specs = NULL;
-        install_cjson_item_data_type_value((void*)&data_type->value, data_type->type, dm_val, dm_len);
+        install_cjson_item_data_type_value((void*)&data_type->value, data_type->type, &lite_item_dm);
     } else {
-        char* spec_val = NULL;
-        int spec_len = 0;
-        if ('[' != *dm_val) {
+    	lite_cjson_t lite_item_spec;
+		
+        if ('[' != *(lite_item_dm.value)) {
             return;
         }
-        specs_array_size = get_json_item_size(dm_val, dm_len);
 
-        data_type->data_type_specs_number = specs_array_size;
+        data_type->data_type_specs_number = lite_item_dm.size;
         if (data_type->data_type_specs_number == 0) {
             data_type->specs = NULL;
         } else {
@@ -539,141 +538,149 @@ static void install_cjson_item_data_type(void* dst, const char* key, const char*
 
         for (index = 0; index < data_type->data_type_specs_number; ++index) {
             lite_property_item = (lite_property_t*)data_type->specs + index;
-            snprintf(_key_index, KEY_BUFF_SIZE - 1, "[%lu]", index + 1);
-            spec_val = LITE_json_value_of_ext2(_key_index, dm_val, dm_len, &spec_len);
-            if (spec_val) {
-                lite_property_item = (lite_property_t*)data_type->specs + index;
-                install_cjson_obj_lite_property(lite_property_item, spec_val, spec_len);
-            }
+
+			memset(&lite_item_spec,0,sizeof(lite_cjson_t));
+			res = lite_cjson_array_item(&lite_item_dm,index + 1,&lite_item_spec);
+			if (res == 0) {
+				lite_property_item = (lite_property_t*)data_type->specs + index;
+                install_cjson_obj_lite_property(lite_property_item, &lite_item_spec);
+			}
         }
     }
 }
 
-static void install_cjson_obj_lite_property(void* dst, const char* src, int src_len)
+static void install_cjson_obj_lite_property(void* dst, lite_cjson_t *lite)
 {
     lite_property_t* lite_property_item = (lite_property_t*)dst;
 
-    install_cjson_item_string((void**)&lite_property_item->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void**)&lite_property_item->identifier, string_identifier, lite);
 #ifndef LITE_THING_MODEL
-    install_cjson_item_string((void**)&lite_property_item->name, string_name, src, src_len);
+    install_cjson_item_string((void**)&lite_property_item->name, string_name, lite);
 #endif
-    install_cjson_item_data_type(&lite_property_item->data_type, string_dataType, src, src_len);
+    install_cjson_item_data_type(&lite_property_item->data_type, string_dataType, lite);
 }
 
-static void install_cjson_item_input_data(void* dst, service_type_t service_type, const char* src, int src_len)
+static void install_cjson_item_input_data(void* dst, service_type_t service_type, lite_cjson_t *lite)
 {
     input_data_t *input_data_item = (input_data_t *)dst;
     int property_to_get_name_size = 0;
     if (service_type == service_type_others) {
-        install_cjson_obj_lite_property(&input_data_item->lite_property, src, src_len);
+        install_cjson_obj_lite_property(&input_data_item->lite_property, lite);
     } else if (service_type == service_type_property_set) {
-        install_cjson_obj_property(&input_data_item->property_to_set, src, src_len);
+        install_cjson_obj_property(&input_data_item->property_to_set, lite);
     } else if (service_type == service_type_property_get) {
-        property_to_get_name_size = src_len + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
+        property_to_get_name_size = lite->value_length + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
         input_data_item->property_to_get_name = (char*)dm_lite_calloc(1, property_to_get_name_size);
-        strncpy(input_data_item->property_to_get_name, src, property_to_get_name_size - 1);
+        strncpy(input_data_item->property_to_get_name, lite->value, lite->value_length);
     }
 }
 
-static int install_cjson_item_string(void** dst, const char* key, const char* src, int src_len)
+static int install_cjson_item_string(void** dst, const char* key, lite_cjson_t *lite)
 {
-    int val_len = 0;
-    char* val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
-    size_t size;
+	int res = 0;
+	int size;
+	char *tmp_dest = NULL;
+	lite_cjson_t lite_item;
 
-    if (*dst) dm_lite_free(*dst);
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(lite,key,strlen(key),&lite_item);
 
-    if (val) {
-        size = val_len + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
-        *dst = dm_lite_calloc(1, size);
+    if (res == 0) {
+        size = lite_item.value_length + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
+		tmp_dest = dm_lite_calloc(1, size);
 
-        if (!*dst) return -1;
+		if (!tmp_dest) {return -1;}
+		if (*dst) dm_lite_free(*dst);
+		
+        *dst = tmp_dest;
 
         memset(*dst, 0, size);
-        strncpy(*dst, val, val_len);
+        memcpy(*dst, lite_item.value, lite_item.value_length);
     } else {
-        dm_log_err("parse key:%s from val:%.*s failed", key, src_len, src);
+        dm_log_err("parse key:%s from val:%.*s failed", key, lite->value_length, lite->value);
     }
 
-    return val ? 0 : -1;
+    return res;
 }
 
 #ifdef LITE_THING_MODEL
-static void install_cjson_item_string_without_malloc(void* dst, const char* key, const char* src, int src_len)
+static void install_cjson_item_string_without_malloc(void* dst, const char* key, lite_cjson_t *lite)
 {
-    int val_len = 0;
-    char* val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
-    if (val) {
-        strncpy(dst, val, val_len);
-    } else {
-        dm_log_err("parse key:%s from val:%.*s failed", key, src_len, src);
-    }
+	int res = 0;
+	lite_cjson_t lite_item;
+
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite,key,strlen(key),&lite_item);
+	if (res == 0) {
+		memcpy(dst, lite_item.value, lite_item.value_length);
+	} else {
+		dm_log_err("parse key:%s from val:%.*s failed", key, lite_item.value_length, lite_item.value);
+	}
+	
     return;
 }
 #endif
 
-static void install_cjson_item_bool(void* dst, const char* key, const char* src, int src_len)
+static void install_cjson_item_bool(void* dst, const char* key, lite_cjson_t *lite)
 {
-    char* bool_val = NULL;
-    int bool_val_len = 0;
-    int *val = dst;
+	int res = 0;
+	lite_cjson_t lite_item;
+	int *val = dst;
 
-    *val = 1;
-    bool_val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &bool_val_len);
-
-    if (bool_val) {
-        if (!strncmp(bool_val, string_false, bool_val_len)) {
+	*val = 1;
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(lite,key,strlen(key),&lite_item);
+	if (res == 0) {
+		 if (!strncmp(lite_item.value, string_false, lite_item.value_length)) {
             *val = 0;
         }
-    }
+	}
 
-    return;
+	return;
 }
 
-static void install_cjson_obj_property(property_t* dst, const char* src, int src_len)
+static void install_cjson_obj_property(property_t* dst, lite_cjson_t *lite)
 {
     property_t* property = dst;
     char* temp_str = NULL;
 
     /* properties.identifier */
-    install_cjson_item_string((void**)&property->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void**)&property->identifier, string_identifier, lite);
 #ifdef LITE_THING_MODEL
     property->name = NULL;
     property->desc = NULL;
 #else
     /* properties.name */
-    install_cjson_item_string((void**)&property->name, string_name, src, src_len);
+    install_cjson_item_string((void**)&property->name, string_name, lite);
     /* properties.desc */
-    install_cjson_item_string((void**)&property->desc, string_desc, src, src_len);
+    install_cjson_item_string((void**)&property->desc, string_desc, lite);
 #endif
     /* properties.required */
-    install_cjson_item_bool((void*)&property->required, string_required, src, src_len);
+    install_cjson_item_bool((void*)&property->required, string_required, lite);
     /* properties.accessMode */
-    install_cjson_item_string((void**)&temp_str, string_accessMode, src, src_len);
+    install_cjson_item_string((void**)&temp_str, string_accessMode, lite);
     if (temp_str) {
         property->access_mode = strlen(temp_str) == 2 ? property_access_mode_rw :
                                                         (strcmp(temp_str, "r") == 0 ? property_access_mode_r : property_access_mode_w);
         dm_lite_free(temp_str);
     }
-    install_cjson_item_data_type(&property->data_type, string_dataType, src, src_len);
+    install_cjson_item_data_type(&property->data_type, string_dataType, lite);
     return;
 }
 
-static void parse_cjson_obj_to_tsl_template_properties(void* _self, const char* src, int src_len)
+static void parse_cjson_obj_to_tsl_template_properties(void* _self, lite_cjson_t *lite)
 {
-    char _key[KEY_BUFF_SIZE] = {0};
-    char* val = NULL;
-    int val_len = 0;
-
+	int res = 0;
+	lite_cjson_t lite_item;
+	
     dm_thing_t* self = _self;
-    int properties_array_size;
     int index;
     property_t* property;
 
-    properties_array_size = get_json_item_size((char*)src, src_len);
-
-    self->tsl_template.property_number = properties_array_size;
-
+	if (!lite_cjson_is_array(lite)) {return;}
+	
+    self->tsl_template.property_number = lite->size;
+	
     if (self->tsl_template.property_number == 0) {
         return;
     }
@@ -685,47 +692,43 @@ static void parse_cjson_obj_to_tsl_template_properties(void* _self, const char* 
         return;
     }
 
-    if (src) {
+    if (lite->value) {
         for (index = 0; index < self->tsl_template.property_number; ++index) {
-            snprintf(_key, KEY_BUFF_SIZE - 1, "[%d]", index + 1);
             property = self->tsl_template.properties + index;
 
-            val = LITE_json_value_of_ext2(_key, (char*)src, src_len, &val_len);
-            if (val) {
-                install_cjson_obj_property(property, val, val_len);
-            }
-
+			memset(&lite_item,0,sizeof(lite_cjson_t));
+			res = lite_cjson_array_item(lite,index + 1,&lite_item);
+			if (res == 0) {
+				install_cjson_obj_property(property, &lite_item);
+			}
         }
     }
 }
 
 
-static void install_cjson_obj_event(event_t *dst, const char* src, int src_len)
+static void install_cjson_obj_event(event_t *dst, lite_cjson_t *lite)
 {
-    char _key_index[KEY_BUFF_SIZE] = {0};
-    char* val = NULL;
-    int val_len = 0;
-    char* dm_val = NULL;
-    int dm_val_len = 0;
+	int res = 0;
+	lite_cjson_t lite_item;
+	lite_cjson_t lite_item_dm;
     event_t *event = dst;
-    int output_data_array_size;
     int output_data_index;
     lite_property_t* output_data_item;
 
     /* events.identifier */
-    install_cjson_item_string((void**)&event->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void**)&event->identifier, string_identifier, lite);
 #ifndef LITE_THING_MODEL
     /* events.name */
-    install_cjson_item_string((void**)&event->name, string_name, src, src_len);
+    install_cjson_item_string((void**)&event->name, string_name, lite);
     /* events.desc */
-    install_cjson_item_string((void**)&event->desc, string_desc, src, src_len);
+    install_cjson_item_string((void**)&event->desc, string_desc, lite);
 #endif
     /* events.method */
-    install_cjson_item_string((void**)&event->method, string_method, src, src_len);
+    install_cjson_item_string((void**)&event->method, string_method, lite);
     /* events.required */
-    install_cjson_item_bool((void*)&event->required, string_required, src, src_len);
+    install_cjson_item_bool((void*)&event->required, string_required, lite);
     /* events.type */
-    install_cjson_item_string((void**)&event->event_type_str, string_type, src, src_len);
+    install_cjson_item_string((void**)&event->event_type_str, string_type, lite);
     if (strcmp(event->event_type_str, string_info) == 0) {
         event->event_type = event_type_info;
     } else if (strcmp(event->event_type_str, string_alert) == 0) {
@@ -740,10 +743,10 @@ static void install_cjson_obj_event(event_t *dst, const char* src, int src_len)
     }
 #endif
 
-    val = LITE_json_value_of_ext2((char*)string_outputData, (char*)src, src_len, &val_len);
-    if (val) {
-        output_data_array_size = get_json_item_size(val, val_len);
-        event->event_output_data_num = output_data_array_size;
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(lite,string_outputData,strlen(string_outputData),&lite_item);
+	if (res == 0) {
+        event->event_output_data_num = lite_item.size;
         if (event->event_output_data_num == 0) {
             return;
         }
@@ -754,31 +757,28 @@ static void install_cjson_obj_event(event_t *dst, const char* src, int src_len)
             event->event_output_data_num = 0;
             return;
         }
-    }
+	}
 
     for (output_data_index = 0; output_data_index < event->event_output_data_num; ++output_data_index) {
         output_data_item = event->event_output_data + output_data_index;
-        snprintf(_key_index, KEY_BUFF_SIZE - 1, "[%d]", output_data_index + 1);
-        dm_val = LITE_json_value_of_ext2(_key_index, val, val_len, &dm_val_len);
-        if (dm_val) {
-            install_cjson_obj_lite_property(output_data_item, dm_val, dm_val_len);
-        }
+
+		memset(&lite_item_dm,0,sizeof(lite_cjson_t));
+		res = lite_cjson_array_item(&lite_item,output_data_index + 1,&lite_item_dm);
+		if (res == 0) {
+			install_cjson_obj_lite_property(output_data_item, &lite_item_dm);
+		}
     }
 }
 
-static void parse_cjson_obj_to_tsl_template_events(void* _self, const char* src, int src_len)
+static void parse_cjson_obj_to_tsl_template_events(void* _self, lite_cjson_t *lite)
 {
-    char* val = NULL;
-    char _key[KEY_BUFF_SIZE] = {0};
+	int res = 0;
+	lite_cjson_t lite_item;
     dm_thing_t* self = _self;
-    int events_array_size;
     int index;
-    int val_len = 0;
     event_t *event;
 
-    events_array_size = get_json_item_size((char*)src, src_len);
-
-    self->tsl_template.event_number = events_array_size;
+    self->tsl_template.event_number = lite->size;
 
     if (self->tsl_template.event_number == 0) {
         return;
@@ -794,42 +794,40 @@ static void parse_cjson_obj_to_tsl_template_events(void* _self, const char* src,
 
     for (index = 0; index < self->tsl_template.event_number; ++index) {
         event = self->tsl_template.events + index;
-        snprintf(_key, KEY_BUFF_SIZE - 1, "[%d]", index + 1);
-        val = LITE_json_value_of_ext2(_key, (char*)src, src_len, &val_len);
-        if (val) {
-            install_cjson_obj_event(event, val, val_len);
-        }
+		
+		memset(&lite_item,0,sizeof(lite_cjson_t));
+		res = lite_cjson_array_item(lite,index + 1,&lite_item);
+		if (res == 0) {
+			install_cjson_obj_event(event, &lite_item);
+		}
     }
 }
 
-static void install_cjson_obj_service(service_t *dst, const char* src, int src_len)
+static void install_cjson_obj_service(service_t *dst, lite_cjson_t *lite)
 {
-    char _key_index[KEY_BUFF_SIZE] = {0};
-    char* val = NULL;
-    int val_len = 0;
-    char* dm_val = NULL;
-    int dm_val_len = 0;
+	int res = 0;
+	lite_cjson_t lite_item;
+	lite_cjson_t lite_item_dm;
 
     service_t *service = dst;
-    int output_data_array_size, input_data_array_size;
     int output_data_index, input_data_index;
     lite_property_t* output_data_item;
     input_data_t *input_data_item;
 
     /* service.identifier */
-    install_cjson_item_string((void**)&service->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void**)&service->identifier, string_identifier, lite);
 #ifndef LITE_THING_MODEL
     /* service.name */
-    install_cjson_item_string((void**)&service->name, string_name, src, src_len);
+    install_cjson_item_string((void**)&service->name, string_name, lite);
     /* service.desc */
-    install_cjson_item_string((void**)&service->desc, string_desc, src, src_len);
+    install_cjson_item_string((void**)&service->desc, string_desc, lite);
 #endif
     /* service.method */
-    install_cjson_item_string((void**)&service->method, string_method, src, src_len);
+    install_cjson_item_string((void**)&service->method, string_method, lite);
     /* service.call_type */
-    install_cjson_item_string((void**)&service->call_type, string_callType, src, src_len);
+    install_cjson_item_string((void**)&service->call_type, string_callType, lite);
     /* service.required */
-    install_cjson_item_bool((void*)&service->required, string_required, src, src_len);
+    install_cjson_item_bool((void*)&service->required, string_required, lite);
 
     if (strcmp(service->method, string_thing_service_property_set) == 0) {
         service->service_type = service_type_property_set;
@@ -840,15 +838,15 @@ static void install_cjson_obj_service(service_t *dst, const char* src, int src_l
     }
 
     /* output data process */
-    val = LITE_json_value_of_ext2((char*)string_outputData, (char*)src, src_len, &val_len);
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(lite,string_outputData,strlen(string_outputData),&lite_item);
 #ifdef LITE_THING_MODEL
-    if (val && (service->service_type != service_type_property_get))
+	if ((res == 0) && (service->service_type != service_type_property_get))
 #else
-    if (val)
+	if (res == 0)
 #endif
-    {
-        output_data_array_size = get_json_item_size(val, val_len);
-        service->service_output_data_num = output_data_array_size;
+	{
+        service->service_output_data_num = lite_item.size;
 
         if (service->service_output_data_num) {
             if (service->service_output_data_num) {
@@ -865,22 +863,26 @@ static void install_cjson_obj_service(service_t *dst, const char* src, int src_l
 
     for (output_data_index = 0; output_data_index < service->service_output_data_num; ++output_data_index) {
         output_data_item = service->service_output_data + output_data_index;
-        snprintf(_key_index, KEY_BUFF_SIZE, "[%d]", output_data_index + 1);
-        dm_val = LITE_json_value_of_ext2(_key_index, val, val_len, &dm_val_len);
-        install_cjson_obj_lite_property(output_data_item, dm_val, dm_val_len);
+
+		memset(&lite_item_dm,0,sizeof(lite_cjson_t));
+		res = lite_cjson_array_item(&lite_item,output_data_index + 1,&lite_item_dm);
+		if (res == 0) {
+			install_cjson_obj_lite_property(output_data_item, &lite_item_dm);
+		}
     }
 
     /* input data process */
     service->service_input_data_num = 0;
-    val = LITE_json_value_of_ext2((char*)string_inputData, (char*)src, src_len, &val_len);
+
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(lite,string_inputData,strlen(string_inputData),&lite_item);
 #ifdef LITE_THING_MODEL
-    if (val && (service->service_type != service_type_property_set))
+	if ((res == 0) && (service->service_type != service_type_property_set))
 #else
-    if (val)
+	if (res == 0)
 #endif
     {
-        input_data_array_size = get_json_item_size(val, val_len);
-        service->service_input_data_num = input_data_array_size;
+        service->service_input_data_num = lite_item.size;
         service->service_input_data = (input_data_t *)dm_lite_calloc(service->service_input_data_num, sizeof(input_data_t));
         if (service->service_input_data == NULL) {
             service->service_input_data_num = 0;
@@ -888,29 +890,26 @@ static void install_cjson_obj_service(service_t *dst, const char* src, int src_l
     }
     for (input_data_index = 0; input_data_index < service->service_input_data_num; ++input_data_index) {
         input_data_item = service->service_input_data + input_data_index;
-        snprintf(_key_index, KEY_BUFF_SIZE, "[%d]", input_data_index + 1);
-        dm_val = LITE_json_value_of_ext2(_key_index, val, val_len, &dm_val_len);
-        if (dm_val) {
-            install_cjson_item_input_data(input_data_item, service->service_type, dm_val, dm_val_len);
-        }
+
+		memset(&lite_item_dm,0,sizeof(lite_cjson_t));
+		res = lite_cjson_array_item(&lite_item,input_data_index + 1,&lite_item_dm);
+		if (res == 0) {
+			install_cjson_item_input_data(input_data_item, service->service_type, &lite_item_dm);
+		}
     }
 }
 
-static void parse_cjson_obj_to_tsl_template_services(void* _self, const char* src, int src_len)
+static void parse_cjson_obj_to_tsl_template_services(void* _self, lite_cjson_t *lite)
 {
-    char _key[KEY_BUFF_SIZE] = {0};
+	int res = 0;
+	lite_cjson_t lite_item;
+	
     dm_thing_t* self = _self;
 
-    int sercives_array_size;
     int index;
     service_t *service;
 
-    char* val = NULL;
-    int val_len = 0;
-
-    sercives_array_size = get_json_item_size((char*)src, src_len);
-
-    self->tsl_template.service_number = sercives_array_size;
+    self->tsl_template.service_number = lite->size;
     if (self->tsl_template.service_number == 0) return;
     self->tsl_template.services = (service_t *)dm_lite_calloc(self->tsl_template.service_number, sizeof(service_t));
 
@@ -922,11 +921,12 @@ static void parse_cjson_obj_to_tsl_template_services(void* _self, const char* sr
 
     for (index = 0; index < self->tsl_template.service_number; ++index) {
         service = self->tsl_template.services + index;
-        snprintf(_key, KEY_BUFF_SIZE, "[%d]", index + 1);
-        val = LITE_json_value_of_ext2(_key, (char*)src, src_len, &val_len);
-        if (val) {
-            install_cjson_obj_service(service, val, val_len);
-        }
+
+		memset(&lite_item,0,sizeof(lite_cjson_t));
+		res = lite_cjson_array_item(lite,index + 1,&lite_item);
+		if (res == 0) {
+			install_cjson_obj_service(service, &lite_item);
+		}
     }
 }
 
@@ -937,46 +937,55 @@ static int parse_cjson_obj_to_tsl_template(void* _self, const char* src, int src
     }
 
     dm_thing_t* self = _self;
-    char* val = NULL;
-    int val_len = 0;
+	lite_cjson_t lite;
+	lite_cjson_t lite_item;
+	int res = 0;	
+
+	memset(&lite,0,sizeof(lite_cjson_t));
+	res = lite_cjson_parse(src,src_len,&lite);
+	if (res) {return -1;}
+	
 #ifdef LITE_THING_MODEL
     self->tsl_template.schema = NULL;
     self->tsl_template.link = NULL;
 #else
     /* schema */
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.schema, "schema", src, src_len)) {
+    if (0 != install_cjson_item_string((void**)&self->tsl_template.schema, "schema", &lite)) {
         dm_log_err("parse schema fail");
     }
     /* link */
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.link, "link", src, src_len)) {
+    if (0 != install_cjson_item_string((void**)&self->tsl_template.link, "link", &lite)) {
         dm_log_err("parse link fail");
     }
 #endif
 
     /* profile */
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.profile.product_key, string_profile_productKey, src, src_len)) {
+    if (0 != install_cjson_item_string((void**)&self->tsl_template.profile.product_key, string_profile_productKey, &lite)) {
         self->tsl_template.profile.product_key = NULL;
     }
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.profile.device_name, string_profile_deviceName, src, src_len)) {
+    if (0 != install_cjson_item_string((void**)&self->tsl_template.profile.device_name, string_profile_deviceName, &lite)) {
         self->tsl_template.profile.device_name = NULL;
     }
 
     /* properties */
-    val = LITE_json_value_of_ext2((char*)string_properties, (char*)src, src_len, &val_len);
-    if (val) {
-        parse_cjson_obj_to_tsl_template_properties(self, val, val_len);
-    }
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite,string_properties,strlen(string_properties),&lite_item);
+    if (res == 0) {
+		parse_cjson_obj_to_tsl_template_properties(self, &lite_item);
+	}
 
     /* events */
-    val = LITE_json_value_of_ext2((char*)string_events, (char*)src, src_len, &val_len);
-    if (val) {
-        parse_cjson_obj_to_tsl_template_events(self, val, val_len);
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite,string_events,strlen(string_events),&lite_item);
+    if (res == 0) {
+        parse_cjson_obj_to_tsl_template_events(self, &lite_item);
     }
 
     /* services */
-    val = LITE_json_value_of_ext2((char*)string_services, (char*)src, src_len, &val_len);
-    if (val) {
-        parse_cjson_obj_to_tsl_template_services(self, val, val_len);
+	memset(&lite_item,0,sizeof(lite_cjson_t));
+	res = lite_cjson_object_item(&lite,string_services,strlen(string_services),&lite_item);
+    if (res == 0) {
+        parse_cjson_obj_to_tsl_template_services(self, &lite_item);
     }
 
     return 0;
@@ -987,7 +996,13 @@ static int dm_thing_set_tsl_string(void* _self, const char* src, int src_len)
     int ret;
     dm_thing_t* self = _self;
     ret = parse_cjson_obj_to_tsl_template(self, src, src_len);
-
+	
+	#ifdef ENABLE_THING_DEBUG
+	thing_t **thing_op = _self;
+	(*thing_op)->print_property_detail_info(self);
+	(*thing_op)->print_event_detail_info(self);
+	(*thing_op)->print_service_detail_info(self);
+	#endif
     return ret;
 }
 
@@ -2654,7 +2669,7 @@ static void item_print_info(void* _item, int index, va_list* params)
     lite_property_t* lite_property;
     input_data_t* input_data;
     char* type_str; /* 0: property, 1: event, 2: service. */
-    int type;
+    int type = 0;
     char* control_str;
     int length;
     int i, j;

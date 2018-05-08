@@ -8,7 +8,7 @@ include src/tools/parse_make_settings.mk
 # CFLAGS  += -DTEST_COAP_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DINSPECT_MQTT_FLOW
-
+# CFLAGS    += -DENABLE_THING_DEBUG
 include src/tools/mock_build_options.mk
 
 COMP_LIB            := libiot_sdk.a
