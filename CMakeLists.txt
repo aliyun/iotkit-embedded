@@ -53,7 +53,6 @@ ADD_SUBDIRECTORY (src/platform)
 ADD_SUBDIRECTORY (samples)
 ADD_SUBDIRECTORY (src/tests)
 ADD_SUBDIRECTORY (src/external/tls)
-ADD_SUBDIRECTORY (src/tools/linkkit_tsl_convert)
 
 ADD_LIBRARY (iot_sdk STATIC
     $<TARGET_OBJECTS:iot_utils>
