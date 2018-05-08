@@ -110,7 +110,7 @@ static void send_err_rsp (CoAPContext* ctx, NetworkAddr*addr, int code, CoAPMess
     CoAPMessage sendMsg;
     CoAPLenString payload = {0};
     alcs_msg_init (ctx, &sendMsg, code, COAP_MESSAGE_TYPE_ACK, 0, &payload, NULL);
-    CoAPLenString token = {fromMsg->payloadlen, fromMsg->payload};
+    CoAPLenString token = {fromMsg->header.tokenlen, fromMsg->token};
     alcs_sendrsp (ctx, addr, &sendMsg, 1, fromMsg->header.msgid, &token);
 }
 
