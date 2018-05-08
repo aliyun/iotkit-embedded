@@ -25,11 +25,11 @@ MESSAGE ("Library Dir               : " ${LIBRARY_OUTPUT_PATH})
 MESSAGE ("SDK Version               : " V2.10)
 MESSAGE ("")
 
-if(WIN32)
+IF (WIN32)
     MESSAGE ("Building on WINDOWS ...")
-else(WIN32)
+ELSE (WIN32)
     MESSAGE ("Building on LINUX ...")
-endif(WIN32)
+ENDIF (WIN32)
 MESSAGE ("---------------------------------------------------------------------")
 
 FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
@@ -44,7 +44,6 @@ ADD_SUBDIRECTORY (src/framework/connectivity/mqtt)
 ADD_SUBDIRECTORY (src/framework/services/ota)
 ADD_SUBDIRECTORY (src/framework/services/shadow)
 ADD_SUBDIRECTORY (src/framework/connectivity/http)
-ADD_SUBDIRECTORY (src/framework/connectivity/alcs)
 ADD_SUBDIRECTORY (src/framework/cm)
 ADD_SUBDIRECTORY (src/framework/dm)
 ADD_SUBDIRECTORY (src/framework/services/fota)
@@ -64,7 +63,6 @@ ADD_LIBRARY (iot_sdk STATIC
     $<TARGET_OBJECTS:iot_ota>
     $<TARGET_OBJECTS:iot_shadow>
     $<TARGET_OBJECTS:iot_http>
-    $<TARGET_OBJECTS:iot_alcs>
     $<TARGET_OBJECTS:iot_cmp>
     $<TARGET_OBJECTS:iot_dm>
     $<TARGET_OBJECTS:iot_fota>
