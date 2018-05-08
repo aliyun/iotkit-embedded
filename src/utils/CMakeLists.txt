@@ -1,6 +1,7 @@
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/board)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/cmp)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external/tls/mbedtls-in-iotkit)
@@ -63,6 +64,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/system/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
@@ -80,7 +82,6 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/utils/mem_stats.c
     ${PROJECT_SOURCE_DIR}/src/utils/lite-cjson.c
     ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_testsuites.c
-    ${PROJECT_SOURCE_DIR}/src/utils/lite-cjson.c
     ${PROJECT_SOURCE_DIR}/src/utils/log/lite-log.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_list.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_epoch_time.c

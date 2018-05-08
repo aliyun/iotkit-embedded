@@ -66,7 +66,7 @@ fi
 if (( TARGET_COUNT > 1 )); then
     cat << EOB >> ${TARGET_FILE}
 $(for i in ${TARGET}; do
-    if grep -qw ${i} <<< ${WIN32_CMAKE_SKIP}; then
+    if echo ${WIN32_CMAKE_SKIP} | grep -qw ${i}; then
         echo "IF (NOT WIN32)"
     fi
     echo "ADD_EXECUTABLE (${i}"
@@ -78,7 +78,7 @@ $(for i in ${TARGET}; do
         echo "    ${v}"
     done
     echo ")"
-    if grep -qw ${i} <<< ${WIN32_CMAKE_SKIP}; then
+    if echo ${WIN32_CMAKE_SKIP} | grep -qw ${i}; then
         echo "ENDIF (NOT WIN32)"
     fi
 done)
