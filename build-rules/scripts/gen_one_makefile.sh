@@ -35,7 +35,7 @@ VPATH := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter}
 
 .PHONY: all
 all: ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS} ${ALL_BINS}
-	cp -rf ${EXTRA_INSTALL_HDRS} ${OUTPUT_DIR}/usr/include 2>/dev/null || true
+	\$(Q)cp -rf ${EXTRA_INSTALL_HDRS} ${OUTPUT_DIR}/usr/include 2>/dev/null || true
 
 ${OUTPUT_DIR}/usr/lib/${COMP_LIB}: \\
 $(for iter in ${COMP_LIB_OBJS}; do
