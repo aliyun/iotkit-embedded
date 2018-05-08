@@ -24,4 +24,3 @@ LDFLAGS             += -lpthread
 
 OVERRIDE_STRIP      := strip
 
-CONFIG_src/framework/connectivity/alcs :=
