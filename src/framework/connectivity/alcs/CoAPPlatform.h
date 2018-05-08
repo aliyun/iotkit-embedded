@@ -63,11 +63,11 @@ extern "C" {
     fprintf(stderr, __VA_ARGS__);\
 }
 
-#define COAP_DUMP(fmt, args...)  coap_log("<DUMP>", fmt, ##args)
-#define COAP_TRC(fmt,  args...)  coap_log("<TRACE>",fmt, ##args)
-#define COAP_DEBUG(fmt,args...)  coap_log("<DEBUG> ",fmt, ##args)
-#define COAP_INFO(fmt, args...)  coap_log("<INFO> ",fmt, ##args)
-#define COAP_ERR(fmt,  args...)  coap_log("<ERROR>",fmt, ##args)
+#define COAP_DUMP(fmt, args, ...)  coap_log("<DUMP>",  fmt, ##__VA_ARGS__)
+#define COAP_TRC(fmt,  args, ...)  coap_log("<TRACE>", fmt, ##__VA_ARGS__)
+#define COAP_DEBUG(fmt,args, ...)  coap_log("<DEBUG>", fmt, ##__VA_ARGS__)
+#define COAP_INFO(fmt, args, ...)  coap_log("<INFO> ", fmt, ##__VA_ARGS__)
+#define COAP_ERR(fmt,  args, ...)  coap_log("<ERROR>", fmt, ##__VA_ARGS__)
 #endif
 
 int platform_is_multicast(const char *ip_str);
