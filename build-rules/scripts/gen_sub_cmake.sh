@@ -50,7 +50,9 @@ done)
 
 $(for i in \
     $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g'); do
+        if [ "${i}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${TARGET} ${i})"
+        if [ "${i}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
 done)
 
 EOB

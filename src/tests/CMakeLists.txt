@@ -92,5 +92,7 @@ ADD_EXECUTABLE (sdk-testsuites
 TARGET_LINK_LIBRARIES (sdk-testsuites iot_platform)
 TARGET_LINK_LIBRARIES (sdk-testsuites iot_sdk)
 TARGET_LINK_LIBRARIES (sdk-testsuites iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (sdk-testsuites pthread)
+ENDIF (NOT MSVC)
 

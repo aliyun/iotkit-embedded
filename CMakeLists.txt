@@ -62,7 +62,6 @@ ADD_LIBRARY (iot_sdk STATIC
     $<TARGET_OBJECTS:iot_ota>
     $<TARGET_OBJECTS:iot_shadow>
     $<TARGET_OBJECTS:iot_http>
-    $<TARGET_OBJECTS:iot_alcs>
     $<TARGET_OBJECTS:iot_cmp>
     $<TARGET_OBJECTS:iot_dm>
     $<TARGET_OBJECTS:iot_fota>
