@@ -74,9 +74,9 @@ TARGET                    += cloud_conn-example
 SRCS_cloud_conn-example   := cloud-conn/cloud_conn-example.c
 endif
 
-ifneq (,$(filter -DCMP_ENABLED,$(CFLAGS)))   
-TARGET                    += cmp-example 
-SRCS_cmp-example          := cmp/cmp-example.c
+ifneq (,$(filter -DCM_ENABLED,$(CFLAGS)))   
+TARGET                    += cm-example 
+SRCS_cm-example          := cmp/cmp-example.c
 endif
 
 

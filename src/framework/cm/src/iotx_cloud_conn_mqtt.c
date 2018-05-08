@@ -31,12 +31,6 @@
 #include "iotx_cm_common.h"
 #include "iotx_cloud_conn_mqtt.h"
 
-#ifdef ESP8266
-#define MQTT_MSGLEN             (1024)
-#else
-#define MQTT_MSGLEN             (1024 * 40)
-#endif
-
 typedef struct iotx_connection_topic_st {
     void*                            next;
     char*                            topic;
@@ -364,20 +358,20 @@ void* iotx_cloud_conn_mqtt_init(void* handle)
         }
         memset(_mqtt_pt, 0x0, sizeof(iotx_cloud_conn_mqtt_t));
 
-        if (NULL == (_mqtt_pt->msg_buf = (char *)CM_malloc(MQTT_MSGLEN))) {
+        if (NULL == (_mqtt_pt->msg_buf = (char *)CM_malloc(CM_MQTT_SEND_LEN))) {
             log_info("not enough memory");
             LITE_free(_mqtt_pt);
             return NULL;
         }
-        memset(_mqtt_pt->msg_buf, 0x0, MQTT_MSGLEN);
+        memset(_mqtt_pt->msg_buf, 0x0, CM_MQTT_SEND_LEN);
 
-        if (NULL == (_mqtt_pt->msg_readbuf = (char *)CM_malloc(MQTT_MSGLEN))) {
+        if (NULL == (_mqtt_pt->msg_readbuf = (char *)CM_malloc(CM_MQTT_RECV_LEN))) {
             log_info("not enough memory");
             LITE_free(_mqtt_pt->msg_buf);
             LITE_free(_mqtt_pt);
             return NULL;
         }
-        memset(_mqtt_pt->msg_readbuf, 0x0, MQTT_MSGLEN);
+        memset(_mqtt_pt->msg_readbuf, 0x0, CM_MQTT_RECV_LEN);
     }
 
     pconn_info = iotx_conn_info_get();
@@ -396,9 +390,9 @@ void* iotx_cloud_conn_mqtt_init(void* handle)
     mqtt_param.clean_session = 0;
     mqtt_param.keepalive_interval_ms = 60000;
     mqtt_param.pread_buf = _mqtt_pt->msg_readbuf;
-    mqtt_param.read_buf_size = MQTT_MSGLEN;
+    mqtt_param.read_buf_size = CM_MQTT_RECV_LEN;
     mqtt_param.pwrite_buf = _mqtt_pt->msg_buf;
-    mqtt_param.write_buf_size = MQTT_MSGLEN;
+    mqtt_param.write_buf_size = CM_MQTT_SEND_LEN;
 
     mqtt_param.handle_event.h_fp = iotx_cloud_conn_mqtt_event_handle;
     mqtt_param.handle_event.pcontext = (void*)handle;
