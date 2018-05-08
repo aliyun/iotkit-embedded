@@ -149,8 +149,10 @@ TARGET_LINK_LIBRARIES (cmp-example iot_platform)
 TARGET_LINK_LIBRARIES (cmp-example iot_tls)
 TARGET_LINK_LIBRARIES (cmp-example pthread)
 
+IF (NOT WIN32)
 TARGET_LINK_LIBRARIES (linkkit-example iot_sdk)
 TARGET_LINK_LIBRARIES (linkkit-example iot_platform)
 TARGET_LINK_LIBRARIES (linkkit-example iot_tls)
 TARGET_LINK_LIBRARIES (linkkit-example pthread)
+ENDIF (NOT WIN32)
 
