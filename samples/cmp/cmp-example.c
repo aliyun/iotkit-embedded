@@ -109,9 +109,9 @@ int cm_client()
     param.event_func = _event_handle;
     param.user_data = &user_data;
 #ifdef SUPPORT_PRODUCT_SECRET
-    param.secret_type = IOTX_CMP_DEVICE_SECRET_PRODUCT;
+    param.secret_type = IOTX_CM_DEVICE_SECRET_PRODUCT;
 #else
-    param.secret_type = IOTX_CMP_DEVICE_SECRET_DEVICE;
+    param.secret_type = IOTX_CM_DEVICE_SECRET_DEVICE;
 #endif /* SUPPORT_PRODUCT_SECRET */
 
     EXAMPLE_TRACE("init\n");

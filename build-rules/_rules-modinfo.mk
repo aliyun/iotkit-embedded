@@ -19,9 +19,11 @@ MODINFO_VARS := \
     TARGET \
     LIBSO_TARGET \
 
+ifneq (,$(CONFIG_$(MODULE_NAME)))
 $(if $(filter modinfo,$(MAKECMDGOALS)), \
     $(if $(strip $(DEPENDS)), \
         $(info DEPENDS_$(MODULE_NAME) = $(strip $(DEPENDS))) \
+        $(info CONFIG_$(MODULE_NAME) = $(CONFIG_$(MODULE_NAME))) \
     ) \
 )
 
@@ -49,5 +51,6 @@ $(if $(filter modinfo,$(MAKECMDGOALS)), \
     ) \
 )
 
+endif
 endif
 endif

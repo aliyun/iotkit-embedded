@@ -6,8 +6,12 @@ done)
 
 rm -f ${TARGET_FILE}
 
+
 cat << EOB >> ${TARGET_FILE}
 $(for i in ${INTERNAL_INCLUDES} ${EXTERNAL_INCLUDES}; do
+    if grep -q "$(basename ${OUTPUT_DIR})/usr/include" <<< "${i}"; then
+        continue;
+    fi
     echo $i \
         | ${SED} "s:-I${TOP_DIR}\(.*\):INCLUDE_DIRECTORIES (\${PROJECT_SOURCE_DIR}\1):g"
 done)
@@ -46,7 +50,9 @@ done)
 
 $(for i in \
     $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g'); do
+        if [ "${i}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${TARGET} ${i})"
+        if [ "${i}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
 done)
 
 EOB
@@ -69,7 +75,9 @@ done)
 $(for i in ${TARGET}; do
     echo "TARGET_LINK_LIBRARIES (${i} ${COMP_LIB_NAME})"
     for j in $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g' | grep -vw ${COMP_LIB_NAME}); do
+        if [ "${j}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${i} ${j})"
+        if [ "${j}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
     done
     echo ""
 done)

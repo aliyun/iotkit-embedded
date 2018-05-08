@@ -185,7 +185,7 @@ void* thread_subscribe2(void *pclient)
     return NULL;
 }
 
-// 多线程subscribe
+// subscribe
 void CASE2(void * pclient)
 {
     int   ret = -1;
@@ -256,7 +256,7 @@ void* thread_publish2(void *pclient)
     return NULL;
 }
 
-// 多线程publish
+// publish
 void CASE1(void * pclient)
 {
     int   ret = -1;

@@ -177,7 +177,7 @@ int     IOT_SetupConnInfoSecure(const char *product_key,
 #include "exports/iot_export_cloud_connection.h"
 #endif /* CLOUD_CONN_ENABLED */
 #ifdef CMP_ENABLED
-#include "exports/iot_export_cmp.h"
+#include "exports/iot_export_cm.h"
 #endif /* CMP_ENABLED */
 //#ifdef SERVICE_OTA_ENABLED
 #include "exports/iot_export_fota.h"

@@ -4,7 +4,11 @@ ALL_LOG_OPTION := $(if $(Q),,| tee -a $(COMPILE_LOG))
 sub-mods: toolchain
 	$(Q) \
 	if [ -f $(STAMP_ONE_MK) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
-	    $(MAKE) --no-print-directory -j32 -f $(STAMP_ONE_MK) && \
+	    CORE_NUM=$$(cat /proc/cpuinfo 2>/dev/null| grep processor | tail -1 | awk '{ print $$NF }'); \
+	    JOBS_NUM=32; \
+	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
+	    $(MAKE) --no-print-directory clean && \
+	    $(MAKE) --no-print-directory -j$$((JOBS_NUM + 1)) -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
 	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \
 	    cp -rf $(OUTPUT_DIR) $${TMPD} && \
@@ -24,7 +28,7 @@ sub-mods: toolchain
 	    fi; \
 	fi
 
-SUB_BUILD_VARS := \
+TOP_BUILD_VARS := \
     CFLAGS LDFLAGS \
     PACKAGE_DIR \
     IMPORT_DIR \
@@ -54,7 +58,7 @@ CMDLINE_VARS := \
     TOP_DIR \
     RULE_DIR \
 
-# When SUB_BUILD_VARS like $(CFLAGS) contains special character '$'
+# When TOP_BUILD_VARS like $(CFLAGS) contains special character '$'
 # simply echo its value into 'Makefile' will cause '$' lost when GNU make read in again
 #
 $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
@@ -62,7 +66,7 @@ $(STAMP_BLD_ENV): $(TOP_DIR)/makefile $(shell ls $(CONFIG_TPL) 2>/dev/null) \
                   $(shell grep "^ *include" $(TOP_DIR)/$(TOP_MAKEFILE)|awk '{ print $$NF }'|$(SED) '/^\$$/d')
 	@rm -f $@
 	@$(foreach V, \
-	    $(sort $(SUB_BUILD_VARS)), \
+	    $(sort $(TOP_BUILD_VARS)), \
 	        echo "$(V) := $(sort $($(V)))"|$(SED) 's:\$$:$$$$:g' >> $(STAMP_BLD_ENV); \
 	)
 	@echo "COMP_LIB_FILES := $(foreach V,$(COMP_LIB_COMPONENTS), $(LIBA_TARGET_$(V)))" >> $@

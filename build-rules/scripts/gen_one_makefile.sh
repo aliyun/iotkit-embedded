@@ -5,11 +5,26 @@ rm -f ${TARGET_FILE}
 
 IFLAGS=$( \
 for iter in \
-    $(find -L ${TOP_DIR} -type d -not -path "*.git*" -not -path "*.O*"); do \
+    $(find -L ${TOP_DIR} -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
         echo "    -I${iter} \\"; \
+done)
+
+
+ETC_OBJS=$(
+for i in ${ALL_LIBS}; do
+    j=$(grep "${i}$" ${STAMP_BLD_VAR} | cut -d' ' -f1 | sed 's|LIBA_TARGET_|LIB_OBJS_|g')
+    k=$(grep "${j}" ${STAMP_BLD_VAR} | cut -d' ' -f3-)
+    for l in ${k}; do
+        echo "${j//LIB_OBJS_/}/${l}"
+    done
 done)
 ALL_LIBS=$(for iter in ${ALL_LIBS}; do echo -n "${OUTPUT_DIR}/usr/lib/${iter} "; done)
 ALL_BINS=$(for iter in ${ALL_PROG}; do echo -n "${OUTPUT_DIR}/usr/bin/${iter} "; done)
+OUTPUT_D=$(basename ${OUTPUT_DIR})
+
+if [ "${CC}" != "gcc" ]; then
+    ALL_BINS=""
+fi
 
 cat << EOB >> ${TARGET_FILE}
 include ${RULE_DIR}/funcs.mk
@@ -20,6 +35,7 @@ VPATH := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter}
 
 .PHONY: all
 all: ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS} ${ALL_BINS}
+	\$(Q)cp -rf ${EXTRA_INSTALL_HDRS} ${OUTPUT_DIR}/usr/include 2>/dev/null || true
 
 ${OUTPUT_DIR}/usr/lib/${COMP_LIB}: \\
 $(for iter in ${COMP_LIB_OBJS}; do
@@ -89,3 +105,9 @@ done)
 
 EOB
 done
+
+TMP_DEPF=$(mktemp)
+grep -o '/[a-zA-Z].*\.o\>' ${TARGET_FILE} \
+    | sed 's!\(.*\)\(.O/\)\(.*\)\.o!\1\2\3.o : \1\3.c!g' > ${TMP_DEPF}
+cat ${TMP_DEPF} >> ${TARGET_FILE}
+rm -f ${TMP_DEPF}

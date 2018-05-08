@@ -31,7 +31,7 @@ TOTAL=$(cat ${TEMPF}|awk '{ sum += $3 } END { print sum }')
 
 SMODS=$( \
 for mod in ${MODS}; do \
-    MSIZE=$(grep "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }'); \
+    MSIZE=$(grep -w "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }'); \
     printf "%-8s %s\n" \
         $(awk -v a=${MSIZE} -v b=${TOTAL} 'BEGIN { printf("%.2f%%\n", a/b*100); }') \
         "${mod}"; \
@@ -40,8 +40,8 @@ done | sort -nr | awk '{ print $2 }' \
 
 echo ""
 for mod in ${SMODS}; do
-    MSIZE=$(grep "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }')
-    OBJS=$(grep "^${mod}" ${TEMPF}|awk '{ print $2 }')
+    MSIZE=$(grep -w "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }')
+    OBJS=$(grep -w "^${mod}" ${TEMPF}|awk '{ print $2 }')
     for obj in ${OBJS}; do
         FSIZE=$(grep "\<${obj}\>" ${TEMPF}|awk '{ print $3 }')
         printf "     %-8s %28s | %-8s %8s %-8s\n" \
@@ -53,7 +53,7 @@ done
 
 echo ""
 for mod in ${MODS}; do
-    MSIZE=$(grep "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }')
+    MSIZE=$(grep -w "^${mod}" ${TEMPF}|awk '{ sum += $3 } END { print sum }')
     printf "     %-8s %-32s %16s\n" \
         $(awk -v a=${MSIZE} -v b=${TOTAL} 'BEGIN { printf("%.2f%%\n", a/b*100); }') \
         "[ ${mod} ]" "${MSIZE} Bytes"
