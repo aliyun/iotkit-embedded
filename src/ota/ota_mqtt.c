@@ -127,6 +127,11 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
     }
 
     memset(h_osc, 0, sizeof(otamqtt_Struct_t));
+    h_osc->mqtt = ch_signal;
+    h_osc->product_key = product_key;
+    h_osc->device_name = device_name;
+    h_osc->cb = cb;
+    h_osc->context = context;
 
     /* subscribe the OTA topic: "/ota/device/upgrade/$(product_key)/$(device_name)" */
     ret = otamqtt_GenTopicName(h_osc->topic_upgrade, OTA_MQTT_TOPIC_LEN, "upgrade", product_key, device_name);
@@ -140,12 +145,6 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
         OTA_LOG_ERROR("mqtt subscribe failed");
         goto do_exit;
     }
-
-    h_osc->mqtt = ch_signal;
-    h_osc->product_key = product_key;
-    h_osc->device_name = device_name;
-    h_osc->cb = cb;
-    h_osc->context = context;
 
     return h_osc;
 
