@@ -78,6 +78,7 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/utils/json_parser.c
     ${PROJECT_SOURCE_DIR}/src/utils/string_utils.c
     ${PROJECT_SOURCE_DIR}/src/utils/mem_stats.c
+    ${PROJECT_SOURCE_DIR}/src/utils/lite-cjson.c
     ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_testsuites.c
     ${PROJECT_SOURCE_DIR}/src/utils/lite-cjson.c
     ${PROJECT_SOURCE_DIR}/src/utils/log/lite-log.c

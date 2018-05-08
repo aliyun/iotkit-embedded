@@ -39,8 +39,10 @@ fi
 
 TARGET_COUNT=$(echo "${TARGET}" | awk '{ print NF }')
 
-
 if (( TARGET_COUNT == 1 )); then
+    if grep -qw ${TARGET} <<< ${WIN32_CMAKE_SKIP}; then
+        echo "IF (NOT WIN32)" >> ${TARGET_FILE}
+    fi
     cat << EOB >> ${TARGET_FILE}
 ADD_EXECUTABLE (${TARGET}
 $(for i in ${SRCS}; do
@@ -54,13 +56,19 @@ $(for i in \
         echo "TARGET_LINK_LIBRARIES (${TARGET} ${i})"
         if [ "${i}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
 done)
-
 EOB
+    if grep -qw ${TARGET} <<< ${WIN32_CMAKE_SKIP}; then
+        echo "ENDIF (NOT WIN32)" >> ${TARGET_FILE}
+    fi
+    echo "" >> ${TARGET_FILE}
 fi
 
 if (( TARGET_COUNT > 1 )); then
     cat << EOB >> ${TARGET_FILE}
 $(for i in ${TARGET}; do
+    if grep -qw ${i} <<< ${WIN32_CMAKE_SKIP}; then
+        echo "IF (NOT WIN32)"
+    fi
     echo "ADD_EXECUTABLE (${i}"
 
     j=${i//-/_}
@@ -70,6 +78,9 @@ $(for i in ${TARGET}; do
         echo "    ${v}"
     done
     echo ")"
+    if grep -qw ${i} <<< ${WIN32_CMAKE_SKIP}; then
+        echo "ENDIF (NOT WIN32)"
+    fi
 done)
 
 $(for i in ${TARGET}; do

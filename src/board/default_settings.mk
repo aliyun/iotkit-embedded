@@ -38,9 +38,13 @@ CFLAGS  += \
     -DCOAP_SERV_MULTITHREAD \
     -DCOAP_USE_PLATFORM_MEMORY -DCOAP_USE_PLATFORM_LOG \
 
-EXTRA_INSTALL_HDRS := \
+EXTRA_INSTALL_HDRS  := \
     src/sdk-impl/iot_import.h \
     src/sdk-impl/iot_export.h \
     src/sdk-impl/imports \
     src/sdk-impl/exports \
+
+WIN32_CMAKE_SKIP    := \
+    linkkit_tsl_convert \
+    linkkit-example \
 

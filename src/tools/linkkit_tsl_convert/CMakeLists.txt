@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 
+IF (NOT WIN32)
 ADD_EXECUTABLE (linkkit_tsl_convert
     ${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/linkkit_tsl_convert.c
     ${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src/tsl_opt_impl.c
@@ -15,4 +16,5 @@ ADD_EXECUTABLE (linkkit_tsl_convert
 IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit_tsl_convert pthread)
 ENDIF (NOT MSVC)
+ENDIF (NOT WIN32)
 
