@@ -16,6 +16,10 @@
 
 #define DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC 1
 
+#ifndef __LONG_LONG_MAX__
+#define __LONG_LONG_MAX__ (9223372036854775807)
+#endif
+
 static const char string_dm_thing_class_name[] __DM_READ_ONLY__ =  "dm_thing_cls";
 static const char string_property[] __DM_READ_ONLY__ = "property";
 static const char string_service[] __DM_READ_ONLY__ = "service";

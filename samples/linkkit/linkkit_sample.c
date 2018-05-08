@@ -10,7 +10,9 @@
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
+#if !defined(_WIN32)
 #include <unistd.h>
+#endif
 
 #include "linkkit_export.h"
 
@@ -407,6 +409,7 @@ int main(int argc, char* argv[])
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
 
+#if !defined(_WIN32)
     int opt;
 
     while ((opt = getopt(argc, argv, "t:g:h")) != -1) {
@@ -425,6 +428,7 @@ int main(int argc, char* argv[])
             break;
         }
     }
+#endif
 
     execution_time = execution_time < 1 ? 1 : execution_time;
     LINKKIT_PRINTF("sample execution time: %d minutes\n", execution_time);
