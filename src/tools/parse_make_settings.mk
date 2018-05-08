@@ -16,7 +16,7 @@ SWITCH_VARS := \
     FEATURE_MQTT_ID2_ENV \
     FEATURE_HTTP_COMM_ENABLED \
     FEATURE_SUBDEVICE_ENABLED \
-    FEATURE_CMP_ENABLED \
+    FEATURE_CM_ENABLED \
     FEATURE_DM_ENABLED \
     FEATURE_SERVICE_OTA_ENABLED \
     FEATURE_SERVICE_COTA_ENABLED \
@@ -71,9 +71,9 @@ endif
 CFLAGS += -DSUBDEV_VIA_MQTT
 endif # FEATURE_SUBDEVICE_CHANNEL
 
-ifeq (y,$(strip $(FEATURE_CMP_ENABLED)))
+ifeq (y,$(strip $(FEATURE_CM_ENABLED)))
 ifneq (y,$(strip $(FEATURE_OTA_ENABLED)))
-$(error FEATURE_CMP_ENABLED = y requires FEATURE_OTA_ENABLED = y!)
+$(error FEATURE_CM_ENABLED = y requires FEATURE_OTA_ENABLED = y!)
 endif
 ifeq (y,$(strip $(FEATURE_CMP_VIA_MQTT_DIRECT)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
@@ -102,7 +102,7 @@ endif #FEATURE_HTTP_COMM_ENABLED
 CFLAGS += -DCMP_VIA_CLOUD_CONN_HTTP
 endif #FEATURE_CMP_VIA_CLOUD_CONN
 endif #FEATURE_CMP_VIA_MQTT_DIRECT = n
-endif #FEATURE_CMP_ENABLED
+endif #FEATURE_CM_ENABLED
 
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
@@ -197,14 +197,14 @@ endif
 endif
 
 ifeq (y,$(strip $(FEATURE_DM_ENABLED)))    
-    ifneq (y,$(strip $(FEATURE_CMP_ENABLED)))
-    $(error FEATURE_DM_ENABLED = y requires FEATURE_CMP_ENABLED = y!)
+    ifneq (y,$(strip $(FEATURE_CM_ENABLED)))
+    $(error FEATURE_DM_ENABLED = y requires FEATURE_CM_ENABLED = y!)
     endif
 endif
 
 ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))    
-    ifneq (y,$(strip $(FEATURE_CMP_ENABLED)))
-    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_CMP_ENABLED = y!)
+    ifneq (y,$(strip $(FEATURE_CM_ENABLED)))
+    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_CM_ENABLED = y!)
     endif
     CFLAGS  += -DSERVICE_OTA_ENABLED
     

@@ -13,10 +13,7 @@
     FEATURE_HTTP_COMM_ENABLED   = y          # 是否打开HTTP通道的总开关
     FEATURE_SUBDEVICE_ENABLED   = n          # 是否打开主子设备功能的总开关
     FEATURE_SUBDEVICE_STATUS    = gateway    # 主子设备功能所处的功能状态
-    FEATURE_CLOUD_CONN_ENABLED  = n          # 是否打开CLOUD_CONN功能的总开关
-    FEATURE_CMP_ENABLED         = y          # 是否打开CMP功能的总开关
-    FEATURE_CMP_VIA_MQTT_DIRECT = y          # CMP功能连云部分是否直接使用MQTT的开关
-    FEATURE_CMP_VIA_CLOUD_CONN  = MQTT       # CMP功能连云部分使用CLOUD_CONN选择协议的开关
+    FEATURE_CM_ENABLED          = y          # 是否打开CM功能的总开关
 
 具体含义参见下表:
 
@@ -30,9 +27,7 @@
 | FEATURE_SUBDEVICE_ENABLED   | 是否使能主子设备通道功能的总开关                                    |
 | FEATURE_SUBDEVICE_STATUS    | 主子设备功能所处的功能状态，取值有网关gateway(gw=1)和子设备subdevice(gw=0) |
 | FEATURE_CLOUD_CONN_ENABLED  | 是否打开CLOUD_CONN功能的总开关, CLOUD_CONN支持MQTT/CoAP/HTTP之间的切换与扩展|
-| FEATURE_CMP_ENABLED         | 是否打开CMP功能的总开关,CMP: connectivity management platform |
-| FEATURE_CMP_VIA_MQTT_DIRECT | CMP功能连云部分是否直接使用MQTT的开关. CMP连云部分可以选择MQTT_DIRECT和CLOUD_CONN|
-| FEATURE_CMP_VIA_CLOUD_CONN  | CMP功能连云部分选择使用CLOUD_CONN，该开关选择具体协议：MQTT/CoAP/HTTP|
+| FEATURE_CM_ENABLED          | 是否打开CMP功能的总开关,CMP: connectivity management platform |
 
 
 ## 编译 & 运行
