@@ -280,7 +280,7 @@ int alcs_encrypt (const char* src, int len, const char* key, void* out)
         memcpy (buf, src + len1, len - len1);
         memset (buf + len - len1, pad, pad);
         p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_ENCRYPTION);
-        ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, out + len1);
+        ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, (uint8_t *)out + len1);
         HAL_Aes128_Destroy (aes_e_h);
     }
 
