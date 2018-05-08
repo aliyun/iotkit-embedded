@@ -86,8 +86,6 @@ int alcs_sendmsg(CoAPContext *context, NetworkAddr* addr, CoAPMessage *message, 
 	return do_sendmsg (context, addr, message, observe, message->header.msgid, NULL);
 }
 
-//msgid & token从接收到CoAPMessage获取
-//若发送
 int alcs_sendrsp(CoAPContext *context, NetworkAddr* addr, CoAPMessage *message, char observe, unsigned short msgid, CoAPLenString* token)
 {
 	return do_sendmsg (context, addr, message, observe, msgid, token);
