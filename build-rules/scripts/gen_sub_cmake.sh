@@ -73,7 +73,9 @@ done)
 $(for i in ${TARGET}; do
     echo "TARGET_LINK_LIBRARIES (${i} ${COMP_LIB_NAME})"
     for j in $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g' | grep -vw ${COMP_LIB_NAME}); do
+        if [ "${j}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${i} ${j})"
+        if [ "${j}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
     done
     echo ""
 done)

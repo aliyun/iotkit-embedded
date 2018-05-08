@@ -108,51 +108,63 @@ ADD_EXECUTABLE (http-example
 ADD_EXECUTABLE (cmp-example
     cmp/cmp-example.c
 )
-IF (NOT WIN32)
 ADD_EXECUTABLE (linkkit-example
     linkkit/linkkit_sample.c
 )
-ENDIF (NOT WIN32)
 
 TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
 TARGET_LINK_LIBRARIES (mqtt-example iot_platform)
 TARGET_LINK_LIBRARIES (mqtt-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (mqtt-example pthread)
+ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (mqtt_rrpc-example iot_sdk)
 TARGET_LINK_LIBRARIES (mqtt_rrpc-example iot_platform)
 TARGET_LINK_LIBRARIES (mqtt_rrpc-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (mqtt_rrpc-example pthread)
+ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (mqtt_multi_thread-example iot_sdk)
 TARGET_LINK_LIBRARIES (mqtt_multi_thread-example iot_platform)
 TARGET_LINK_LIBRARIES (mqtt_multi_thread-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (mqtt_multi_thread-example pthread)
+ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (ota_mqtt-example iot_sdk)
 TARGET_LINK_LIBRARIES (ota_mqtt-example iot_platform)
 TARGET_LINK_LIBRARIES (ota_mqtt-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (ota_mqtt-example pthread)
+ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (shadow-example iot_sdk)
 TARGET_LINK_LIBRARIES (shadow-example iot_platform)
 TARGET_LINK_LIBRARIES (shadow-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (shadow-example pthread)
+ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (http-example iot_sdk)
 TARGET_LINK_LIBRARIES (http-example iot_platform)
 TARGET_LINK_LIBRARIES (http-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (http-example pthread)
+ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (cmp-example iot_sdk)
 TARGET_LINK_LIBRARIES (cmp-example iot_platform)
 TARGET_LINK_LIBRARIES (cmp-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (cmp-example pthread)
+ENDIF (NOT MSVC)
 
-IF (NOT WIN32)
 TARGET_LINK_LIBRARIES (linkkit-example iot_sdk)
 TARGET_LINK_LIBRARIES (linkkit-example iot_platform)
 TARGET_LINK_LIBRARIES (linkkit-example iot_tls)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit-example pthread)
-ENDIF (NOT WIN32)
+ENDIF (NOT MSVC)
 
