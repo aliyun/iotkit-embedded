@@ -405,4 +405,3 @@ int IOT_Gateway_RRPC_Response(void* handle,
 
 #endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_ */
 
-
