@@ -137,7 +137,7 @@ ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
     endif
     ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
     CFLAGS  += -DIOTX_WITHOUT_ITLS
-    endif   
+    endif
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
     $(error FEATURE_MQTT_ID2_CRYPTO + FEATURE_MQTT_DIRECT is not supported!)
     endif
@@ -159,7 +159,7 @@ ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
     ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
     $(error FEATURE_MQTT_ID2_AUTH requires FEATURE_MQTT_DIRECT_NOITLS = n!)
     endif
-    
+
     ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
     $(error FEATURE_COAP_DTLS_SUPPORT = y requires FEATURE_MQTT_ID2_AUTH = n!)
     endif
@@ -171,7 +171,7 @@ else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
     ifeq (n,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
     $(error FEATURE_MQTT_ID2_AUTH = n requires FEATURE_MQTT_DIRECT_NOITLS = y!)
     endif
-        
+
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
     $(error FEATURE_MQTT_ID2_CRYPTO = y requires FEATURE_MQTT_ID2_AUTH = y!)
     endif
@@ -196,19 +196,19 @@ endif
 endif
 endif
 
-ifeq (y,$(strip $(FEATURE_DM_ENABLED)))    
+ifeq (y,$(strip $(FEATURE_DM_ENABLED)))
     ifneq (y,$(strip $(FEATURE_CM_ENABLED)))
     $(error FEATURE_DM_ENABLED = y requires FEATURE_CM_ENABLED = y!)
     endif
 endif
 
-ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))    
+ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
     ifneq (y,$(strip $(FEATURE_CM_ENABLED)))
     $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_CM_ENABLED = y!)
     endif
     CFLAGS  += -DSERVICE_OTA_ENABLED
-    
-    ifeq (y,$(strip $(FEATURE_SERVICE_COTA_ENABLED)))    
+
+    ifeq (y,$(strip $(FEATURE_SERVICE_COTA_ENABLED)))
     ifneq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
     $(error FEATURE_SERVICE_COTA_ENABLED = y requires FEATURE_SERVICE_OTA_ENABLED = y!)
     endif
@@ -218,6 +218,12 @@ endif
 
 ifeq (y,$(strip $(FEATURE_SUPPORT_PRODUCT_SECRET)))
     CFLAGS  += -DSUPPORT_PRODUCT_SECRET
+endif
+
+ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+    ifeq (y,$(strip $(FEATURE_ALCS_ENABLED)))
+    $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_ALCS_ENABLED=y!)
+    endif
 endif
 
 SUBDIRS += src/platform

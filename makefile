@@ -16,13 +16,14 @@ COMP_LIB_COMPONENTS := \
     src/utils \
     src/system \
     src/framework/services/linkkit \
+    src/framework/connectivity/iot-coap-c \
 
 $(call CompLib_Map, MQTT_COMM_ENABLED, \
     src/framework/connectivity/mqtt \
 )
 $(call CompLib_Map, OTA_ENABLED, src/framework/services/ota)
 $(call CompLib_Map, MQTT_SHADOW, src/framework/services/shadow)
-$(call CompLib_Map, COAP_COMM_ENABLED, src/framework/services/coap)
+$(call CompLib_Map, COAP_COMM_ENABLED, src/framework/connectivity/coap)
 $(call CompLib_Map, MQTT_ID2_AUTH, src/system/tfs)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/framework/connectivity/http)
 $(call CompLib_Map, ALCS_ENABLED, src/framework/connectivity/alcs)

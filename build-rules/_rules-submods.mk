@@ -7,6 +7,7 @@ sub-mods: toolchain
 	    CORE_NUM=$$(cat /proc/cpuinfo 2>/dev/null| grep processor | tail -1 | awk '{ print $$NF }'); \
 	    JOBS_NUM=32; \
 	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
+	    if [ "$(Q)" != "@" ]; then JOBS_NUM=0; fi; \
 	    $(MAKE) --no-print-directory clean && \
 	    $(MAKE) --no-print-directory -j$$((JOBS_NUM + 1)) -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \

@@ -44,6 +44,13 @@ EXTRA_INSTALL_HDRS  := \
     src/sdk-impl/imports \
     src/sdk-impl/exports \
 
+EXTRA_INCLUDE_DIRS	:= \
+	src/sdk-impl \
+	src/external/tls \
+	src/import \
+	src/tools/linkkit_tsl_convert/include \
+	build-rules \
+
 WIN32_CMAKE_SKIP    := \
     linkkit_tsl_convert \
     linkkit-example \

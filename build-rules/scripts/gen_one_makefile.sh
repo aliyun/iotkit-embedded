@@ -5,7 +5,7 @@ rm -f ${TARGET_FILE}
 
 IFLAGS=$( \
 for iter in \
-    $(find -L ${TOP_DIR} -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
+    $(find ${COMP_LIB_COMPONENTS} ${EXTRA_INCLUDE_DIRS} -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
         echo "    -I${iter} \\"; \
 done)
 CFLAGS=$( \
