@@ -1,2 +1,2 @@
 LIBA_TARGET := libiot_alcs.a
-HDR_REFS    := src
+HDR_REFS    := src/sdk-impl src/utils

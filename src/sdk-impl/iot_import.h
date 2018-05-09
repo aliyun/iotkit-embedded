@@ -32,7 +32,6 @@ extern "C" {
 #include "imports/iot_import_config.h"
 #include "imports/iot_import_product.h"
 #include "imports/iot_import_crypt.h"
-#include "imports/iot_import_coap.h"
 
 /** @defgroup group_platform platform
  *  @{
