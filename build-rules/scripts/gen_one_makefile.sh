@@ -8,7 +8,12 @@ for iter in \
     $(find -L ${TOP_DIR} -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
         echo "    -I${iter} \\"; \
 done)
-
+CFLAGS=$( \
+echo "${CFLAGS}" \
+    | xargs -n 1 \
+    | grep -v '\-\-coverage' \
+    | awk '{ printf("%s ", $0); }' \
+)
 
 ETC_OBJS=$(
 for i in ${ALL_LIBS}; do
