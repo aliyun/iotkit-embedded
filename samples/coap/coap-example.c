@@ -20,7 +20,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if !defined(_WIN32)
 #include <unistd.h>
+#endif
 
 #include "iot_import.h"
 #include "iot_export.h"
@@ -115,6 +117,7 @@ int main(int argc, char **argv)
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     HAL_Printf("[COAP-Client]: Enter Coap Client\r\n");
+#if !defined(_WIN32)
     while ((opt = getopt(argc, argv, "e:s:lh")) != -1) {
         switch (opt) {
             case 's':
@@ -133,6 +136,7 @@ int main(int argc, char **argv)
                 break;
         }
     }
+#endif
 
     memset(&config, 0x00, sizeof(iotx_coap_config_t));
     if (0 == strncmp(env, "pre", strlen("pre"))) {
