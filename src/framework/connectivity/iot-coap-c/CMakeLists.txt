@@ -1,14 +1,4 @@
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/cloud-conn)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/cmp)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/coap)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/device-shadow)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/http)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/linkkit)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/mqtt)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/ota)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/samples/subdev)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/board)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/external)
@@ -26,6 +16,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/coap)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/http)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/framework/connectivity/mqtt/Link-MQTT/MQTTPacket)
@@ -82,98 +73,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
-ADD_EXECUTABLE (mqtt-example
-    mqtt/mqtt-example.c
+ADD_LIBRARY (core_coap OBJECT
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c/CoAPSerialize.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c/CoAPExport.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c/CoAPNetwork.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c/CoAPDeserialize.c
+    ${PROJECT_SOURCE_DIR}/src/framework/connectivity/iot-coap-c/CoAPMessage.c
+    ${EXTRA_C_SOURCES}
 )
-ADD_EXECUTABLE (mqtt_rrpc-example
-    mqtt/mqtt_rrpc-example.c
-)
-ADD_EXECUTABLE (mqtt_multi_thread-example
-    mqtt/mqtt_multi_thread-example.c
-)
-ADD_EXECUTABLE (ota_mqtt-example
-    ota/ota_mqtt-example.c
-)
-ADD_EXECUTABLE (shadow-example
-    device-shadow/shadow-example.c
-)
-ADD_EXECUTABLE (coap-example
-    coap/coap-example.c
-)
-ADD_EXECUTABLE (http-example
-    http/http-example.c
-)
-ADD_EXECUTABLE (cm-example
-    cmp/cmp-example.c
-)
-IF (NOT WIN32)
-ADD_EXECUTABLE (linkkit-example
-    linkkit/linkkit_sample.c
-)
-ENDIF (NOT WIN32)
-
-TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
-TARGET_LINK_LIBRARIES (mqtt-example iot_platform)
-TARGET_LINK_LIBRARIES (mqtt-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (mqtt-example pthread)
-ENDIF (NOT MSVC)
-
-TARGET_LINK_LIBRARIES (mqtt_rrpc-example iot_sdk)
-TARGET_LINK_LIBRARIES (mqtt_rrpc-example iot_platform)
-TARGET_LINK_LIBRARIES (mqtt_rrpc-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (mqtt_rrpc-example pthread)
-ENDIF (NOT MSVC)
-
-TARGET_LINK_LIBRARIES (mqtt_multi_thread-example iot_sdk)
-TARGET_LINK_LIBRARIES (mqtt_multi_thread-example iot_platform)
-TARGET_LINK_LIBRARIES (mqtt_multi_thread-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (mqtt_multi_thread-example pthread)
-ENDIF (NOT MSVC)
-
-TARGET_LINK_LIBRARIES (ota_mqtt-example iot_sdk)
-TARGET_LINK_LIBRARIES (ota_mqtt-example iot_platform)
-TARGET_LINK_LIBRARIES (ota_mqtt-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (ota_mqtt-example pthread)
-ENDIF (NOT MSVC)
-
-TARGET_LINK_LIBRARIES (shadow-example iot_sdk)
-TARGET_LINK_LIBRARIES (shadow-example iot_platform)
-TARGET_LINK_LIBRARIES (shadow-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (shadow-example pthread)
-ENDIF (NOT MSVC)
-
-TARGET_LINK_LIBRARIES (coap-example iot_sdk)
-TARGET_LINK_LIBRARIES (coap-example iot_platform)
-TARGET_LINK_LIBRARIES (coap-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (coap-example pthread)
-ENDIF (NOT MSVC)
-
-TARGET_LINK_LIBRARIES (http-example iot_sdk)
-TARGET_LINK_LIBRARIES (http-example iot_platform)
-TARGET_LINK_LIBRARIES (http-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (http-example pthread)
-ENDIF (NOT MSVC)
-
-TARGET_LINK_LIBRARIES (cm-example iot_sdk)
-TARGET_LINK_LIBRARIES (cm-example iot_platform)
-TARGET_LINK_LIBRARIES (cm-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (cm-example pthread)
-ENDIF (NOT MSVC)
-
-IF (NOT WIN32)
-TARGET_LINK_LIBRARIES (linkkit-example iot_sdk)
-TARGET_LINK_LIBRARIES (linkkit-example iot_platform)
-TARGET_LINK_LIBRARIES (linkkit-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (linkkit-example pthread)
-ENDIF (NOT MSVC)
-ENDIF (NOT WIN32)
 

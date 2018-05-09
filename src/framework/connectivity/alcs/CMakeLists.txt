@@ -73,7 +73,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
-ADD_LIBRARY (iot_alcs OBJECT
+ADD_LIBRARY (iot_alcs STATIC
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPSerialize.c
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/CoAPObserve.c
     ${PROJECT_SOURCE_DIR}/src/framework/connectivity/alcs/alcs_api.c
