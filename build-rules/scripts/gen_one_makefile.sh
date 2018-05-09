@@ -36,6 +36,7 @@ VPATH := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter}
 .PHONY: all
 all: ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS} ${ALL_BINS}
 	\$(Q)cp -rf ${EXTRA_INSTALL_HDRS} ${OUTPUT_DIR}/usr/include 2>/dev/null || true
+	@rm -f *.gcda *.gcno \$\$(find ${RULE_DIR} -name "*.o")
 
 ${OUTPUT_DIR}/usr/lib/${COMP_LIB}: \\
 $(for iter in ${COMP_LIB_OBJS}; do
@@ -106,8 +107,8 @@ done)
 EOB
 done
 
-TMP_DEPF=$(mktemp)
-grep -o '/[a-zA-Z].*\.o\>' ${TARGET_FILE} \
-    | sed 's!\(.*\)\(.O/\)\(.*\)\.o!\1\2\3.o : \1\3.c!g' > ${TMP_DEPF}
-cat ${TMP_DEPF} >> ${TARGET_FILE}
-rm -f ${TMP_DEPF}
+# TMP_DEPF=$(mktemp)
+# grep -o '/[a-zA-Z][a-zA-Z].*\.o\>' ${TARGET_FILE} \
+#     | sed 's!\(.*\)\(.O/\)\(.*\)\.o!\1\2\3.o : \1\3.c!g' > ${TMP_DEPF}
+# cat ${TMP_DEPF} >> ${TARGET_FILE}
+# rm -f ${TMP_DEPF}
