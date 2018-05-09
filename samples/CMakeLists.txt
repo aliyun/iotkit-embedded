@@ -97,9 +97,11 @@ ADD_EXECUTABLE (ota_mqtt-example
 ADD_EXECUTABLE (shadow-example
     device-shadow/shadow-example.c
 )
+IF (NOT WIN32)
 ADD_EXECUTABLE (coap-example
     coap/coap-example.c
 )
+ENDIF (NOT WIN32)
 ADD_EXECUTABLE (http-example
     http/http-example.c
 )
@@ -147,12 +149,14 @@ IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (shadow-example pthread)
 ENDIF (NOT MSVC)
 
+IF (NOT WIN32)
 TARGET_LINK_LIBRARIES (coap-example iot_sdk)
 TARGET_LINK_LIBRARIES (coap-example iot_platform)
 TARGET_LINK_LIBRARIES (coap-example iot_tls)
 IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (coap-example pthread)
 ENDIF (NOT MSVC)
+ENDIF (NOT WIN32)
 
 TARGET_LINK_LIBRARIES (http-example iot_sdk)
 TARGET_LINK_LIBRARIES (http-example iot_platform)

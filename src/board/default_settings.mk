@@ -54,4 +54,5 @@ EXTRA_INCLUDE_DIRS	:= \
 WIN32_CMAKE_SKIP    := \
     linkkit_tsl_convert \
     linkkit-example \
+    coap-example \
 
