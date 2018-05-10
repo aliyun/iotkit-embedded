@@ -6,6 +6,18 @@ W32_LIBSD=$(echo ${IMPORT_DIR}/win7/${PREBUILT_LIBDIR}|${SED} "s:${TOP_DIR}/*::g
 
 rm -f ${TARGET_FILE}
 
+ALL_CFLAGS="$(grep -m 1 '^CFLAGS\>' ${STAMP_BLD_ENV}|cut -d' ' -f3-)"
+REM_CFLAGS=""
+DEF_CFLAGS=""
+for i in ${ALL_CFLAGS}; do
+    j=$(echo ${i}|cut -c1,2)
+    if [ "${j}" = "-D" ]; then
+        DEF_CFLAGS="${DEF_CFLAGS} ${i}"
+    else
+        REM_CFLAGS="${REM_CFLAGS} ${i}"
+    fi
+done
+
 cat << EOB >> ${TARGET_FILE}
 if(\${CMAKE_SOURCE_DIR} STREQUAL \${CMAKE_BINARY_DIR})
     MESSAGE (FATAL_ERROR "in-tree build not allowded")
@@ -16,7 +28,7 @@ PROJECT (${PRJ_NAME}-${PRJ_VERSION} C)
 
 SET (EXECUTABLE_OUTPUT_PATH \${PROJECT_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH \${PROJECT_BINARY_DIR}/lib)
-SET (CMAKE_C_FLAGS "$(grep -m 1 '^CFLAGS\>' ${STAMP_BLD_ENV}|cut -d' ' -f3-)")
+SET (CMAKE_C_FLAGS "${REM_CFLAGS}")
 
 IF (WIN32)
     SET (CMAKE_EXE_LINKER_FLAGS "-L\${PROJECT_SOURCE_DIR}/${W32_LIBSD}")
@@ -53,6 +65,13 @@ $(for i in $(grep 'PKG_SOURCE' \
 
     echo "FILE (REMOVE_RECURSE \${PROJECT_SOURCE_DIR}/${UNZIP_DIR}/${GREPO_PRE})"
     echo "EXECUTE_PROCESS (COMMAND git clone -q \${PROJECT_SOURCE_DIR}/${PKG_RPATH}/${GREPO_DIR} \${PROJECT_SOURCE_DIR}/${UNZIP_DIR}/${GREPO_PRE})"
+    echo ""
+done)
+EOB
+
+cat << EOB >> ${TARGET_FILE}
+$(for i in ${DEF_CFLAGS}; do
+    echo "ADD_DEFINITIONS (${i})"
 done)
 
 EOB
