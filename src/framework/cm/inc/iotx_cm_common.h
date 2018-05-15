@@ -141,6 +141,7 @@ extern const char cm_log_info_found_device[] CM_READ_ONLY;
 extern const char cm_log_info_remove_device[] CM_READ_ONLY;
 extern const char cm_log_info_local_disconnect[] CM_READ_ONLY;
 extern const char cm_log_info_local_reconnect[] CM_READ_ONLY;
+extern const char cm_log_info_version[] CM_READ_ONLY;
 
 typedef enum {
     /* cloud */

@@ -998,7 +998,7 @@ int iotx_cm_local_conn_remove_subdevice(void* handler, void* _connectivity, cons
 
     connection = (iotx_connection_t*)connectivity->context;
 
-    return connection->add_subdevice_func(connection, pk, dn);
+    return connection->remove_subdevice_func(connection, pk, dn);
 }
 
 

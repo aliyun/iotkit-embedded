@@ -66,7 +66,8 @@ static const char string_SYS_URI_1[] CM_READ_ONLY = "/sys/%s/%s/%s";
 static const char string_EXT_URI_1[] CM_READ_ONLY = "/ext/%s/%s/%s";
 static const char string_SHA_METHOD[] CM_READ_ONLY = "hmacsha1";
 static const char string_TIMESTAMP[] CM_READ_ONLY = "2524608000000";
-static const char string_AUTH_URL[] CM_READ_ONLY = "https://iot-auth.alibaba.net/auth/register/device";
+static const char string_AUTH_URL[] CM_READ_ONLY = "https://iot-auth.cn-shanghai.aliyuncs.com/auth/register/device";
+static const char string_AUTH_URL_1[] CM_READ_ONLY = "https://iot-auth.ap-southeast-1.aliyuncs.com/auth/register/device";
 static const char string_AUTH_CONTENT_TYPE[] CM_READ_ONLY = "application/x-www-form-urlencoded";
 static const char string_hmac_format[] CM_READ_ONLY = "deviceName%s" "productKey%s" "random%s";
 static const char string_auth_req_format[] CM_READ_ONLY = "productKey=%s&" "deviceName=%s&" "signMethod=%s&" "sign=%s&" "version=default&" "clientId=%s&" "random=%s&" "resources=mqtt";
@@ -324,6 +325,7 @@ static int _calc_hmac_signature(
                     product_secret,
                     strlen(product_secret));
 
+    memset(hmac_sigbuf, 0x0, hmac_buflen);
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return ret;
 }
@@ -340,12 +342,17 @@ int iotx_cm_auth(const char *product_key, const char *device_name, const char *c
     req_str = _set_auth_req_str(product_key, device_name, client_id, guider_sign, s_random);
     CM_INFO(cm_log_info_auth_req, req_str);
 
+#ifdef SUPPORT_SINGAPORE_DOMAIN
+    if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, string_AUTH_URL_1, req_str)) {
+#else /* SUPPORT_SINGAPORE_DOMAIN */
     if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, string_AUTH_URL, req_str)) {
+#endif /* SUPPORT_SINGAPORE_DOMAIN */
         if (req_str) LITE_free(req_str);
         if (s_random) LITE_free(s_random);
         CM_ERR(cm_log_error_auth);
         return FAIL_RETURN;
     }
+	if (req_str) LITE_free(req_str);
     if (s_random) LITE_free(s_random);
     return SUCCESS_RETURN;
 }
