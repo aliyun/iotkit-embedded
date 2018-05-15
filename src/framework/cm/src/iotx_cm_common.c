@@ -54,6 +54,7 @@ static const char string_code[] CM_READ_ONLY = "code";
 static const char string_data[] CM_READ_ONLY = "data";
 static const char string_message[] CM_READ_ONLY = "message";
 static const char string_params[] CM_READ_ONLY = "params";
+static const char string_param[] CM_READ_ONLY = "param";
 static const char string_method[] CM_READ_ONLY = "method";
 static const char string_pk[] CM_READ_ONLY = "data.productKey";
 static const char string_dn[] CM_READ_ONLY = "data.deviceName";
@@ -438,8 +439,11 @@ int iotx_cm_parse_payload(void* payload,
         /* parse params */
         node = LITE_json_value_of((char*)string_params, payload_pt);
         if (node == NULL) {
-            CM_ERR(cm_log_error_parse_params);
-            return FAIL_RETURN;
+            node = LITE_json_value_of((char*)string_param, payload_pt);
+            if (node == NULL) {
+                CM_ERR(cm_log_error_parse_params);
+                return FAIL_RETURN;
+            }
         }
 
         msg->parameter = node;
@@ -502,12 +506,15 @@ int iotx_cm_parse_payload(void* _payload, int payload_length, iotx_cm_message_in
     node = LITE_json_value_of((char*)string_code, payload);
     if (node == NULL) {
         msg->message_type = IOTX_CM_MESSAGE_REQUEST;
-
+        
         /* parse params */
-        node = LITE_json_value_of((char*)string_params, payload);
+        node = LITE_json_value_of((char*)string_params, payload_pt);
         if (node == NULL) {
-            CM_ERR(cm_log_error_parse_params);
-            return FAIL_RETURN;
+            node = LITE_json_value_of((char*)string_param, payload_pt);
+            if (node == NULL) {
+                CM_ERR(cm_log_error_parse_params);
+                return FAIL_RETURN;
+            }
         }
 
         msg->parameter = node;
