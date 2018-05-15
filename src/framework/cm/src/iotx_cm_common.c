@@ -508,9 +508,9 @@ int iotx_cm_parse_payload(void* _payload, int payload_length, iotx_cm_message_in
         msg->message_type = IOTX_CM_MESSAGE_REQUEST;
         
         /* parse params */
-        node = LITE_json_value_of((char*)string_params, payload_pt);
+        node = LITE_json_value_of((char*)string_params, payload);
         if (node == NULL) {
-            node = LITE_json_value_of((char*)string_param, payload_pt);
+            node = LITE_json_value_of((char*)string_param, payload);
             if (node == NULL) {
                 CM_ERR(cm_log_error_parse_params);
                 return FAIL_RETURN;
