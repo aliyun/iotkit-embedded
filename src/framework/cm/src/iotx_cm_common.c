@@ -69,6 +69,7 @@ static const char string_SHA_METHOD[] CM_READ_ONLY = "hmacsha1";
 static const char string_TIMESTAMP[] CM_READ_ONLY = "2524608000000";
 static const char string_AUTH_URL[] CM_READ_ONLY = "https://iot-auth.cn-shanghai.aliyuncs.com/auth/register/device";
 static const char string_AUTH_URL_1[] CM_READ_ONLY = "https://iot-auth.ap-southeast-1.aliyuncs.com/auth/register/device";
+static const char string_AUTH_URL_2[] CM_READ_ONLY = "https://iot-auth-pre.ap-southeast-1.aliyuncs.com/auth/register/device";
 static const char string_AUTH_CONTENT_TYPE[] CM_READ_ONLY = "application/x-www-form-urlencoded";
 static const char string_hmac_format[] CM_READ_ONLY = "deviceName%s" "productKey%s" "random%s";
 static const char string_auth_req_format[] CM_READ_ONLY = "productKey=%s&" "deviceName=%s&" "signMethod=%s&" "sign=%s&" "version=default&" "clientId=%s&" "random=%s&" "resources=mqtt";
@@ -344,7 +345,11 @@ int iotx_cm_auth(const char *product_key, const char *device_name, const char *c
     CM_INFO(cm_log_info_auth_req, req_str);
 
 #ifdef SUPPORT_SINGAPORE_DOMAIN
+#ifdef ON_PRE
+    if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, string_AUTH_URL_2, req_str)) {
+#else /* ON_PRE */
     if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, string_AUTH_URL_1, req_str)) {
+#endif /* ON_PRE */
 #else /* SUPPORT_SINGAPORE_DOMAIN */
     if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, string_AUTH_URL, req_str)) {
 #endif /* SUPPORT_SINGAPORE_DOMAIN */

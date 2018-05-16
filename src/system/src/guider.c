@@ -290,9 +290,9 @@ static void guider_get_url(char *buf, int len)
     #if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
     #elif defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
+        strcat(buf, "iot-auth.alibaba.net");
     #else
-        strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");   ////////////  TODO
+        strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
     #endif
     }
 
