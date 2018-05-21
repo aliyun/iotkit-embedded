@@ -862,7 +862,7 @@ static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
 /* deliver message */
 static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
-    int i, flag_matched = 0;
+    int flag_matched = 0;
 
     if (!c || !topicName || !topic_msg) {
         return;
@@ -873,14 +873,14 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 
     /* we have to find the right message handler - indexed by topic */
     HAL_MutexLock(c->lock_generic);
-    for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
 
-        if ((c->sub_handle[i].topic_filter != 0)
-            && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
-                || iotx_mc_is_topic_matched((char *)c->sub_handle[i].topic_filter, topicName))) {
+    iotx_mc_topic_handle_t *h;
+    for (h = c->first_sub_handle; h; h = h->next) {
+        if (MQTTPacket_equals(topicName, (char *)h->topic_filter)
+                || iotx_mc_is_topic_matched((char *)h->topic_filter, topicName)) {
             log_debug("topic be matched");
 
-            iotx_mc_topic_handle_t msg_handle = c->sub_handle[i];
+            iotx_mc_topic_handle_t msg_handle = *h;
             HAL_MutexUnlock(c->lock_generic);
 
             if (NULL != msg_handle.handle.h_fp) {
@@ -991,8 +991,8 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 {
     unsigned short mypacketid;
-    int i, count = 0, grantedQoS = -1;
-    int i_free = -1, flag_dup = 0;
+    int count = 0, grantedQoS = -1;
+    int flag_dup = 0;
 
     if (!c) {
         return FAIL_RETURN;
@@ -1026,32 +1026,31 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 
     HAL_MutexLock(c->lock_generic);
 
-    for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
+    iotx_mc_topic_handle_t *h;
+    for (h = c->first_sub_handle; h; h = h->next) {
         /* If subscribe the same topic and callback function, then ignore */
-        if ((NULL != c->sub_handle[i].topic_filter)) {
-            if (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler)) {
-                /* if subscribe a identical topic and relate callback function, then ignore this subscribe */
-                flag_dup = 1;
-                log_err("There is a identical topic and related handle in list!");
-                break;
-            }
-        } else {
-            if (-1 == i_free) {
-                i_free = i; /* record available element */
-            }
+        if (0 == iotx_mc_check_handle_is_identical(h, &messagehandler)) {
+            /* if subscribe a identical topic and relate callback function, then ignore this subscribe */
+            flag_dup = 1;
+            log_err("There is a identical topic and related handle in list!");
+            break;
         }
     }
 
     if (0 == flag_dup) {
-        if (-1 == i_free) {
-            log_err("NOT more @sub_handle space!");
+        iotx_mc_topic_handle_t *handle = LITE_malloc(sizeof(iotx_mc_topic_handle_t));
+        if (!handle) {
             HAL_MutexUnlock(c->lock_generic);
             return FAIL_RETURN;
-        } else {
-            c->sub_handle[i_free].topic_filter = messagehandler.topic_filter;
-            c->sub_handle[i_free].handle.h_fp = messagehandler.handle.h_fp;
-            c->sub_handle[i_free].handle.pcontext = messagehandler.handle.pcontext;
         }
+        memset(handle, 0, sizeof(iotx_mc_topic_handle_t));
+
+        handle->topic_filter = messagehandler.topic_filter;
+        handle->handle.h_fp = messagehandler.handle.h_fp;
+        handle->handle.pcontext = messagehandler.handle.pcontext;
+
+        handle->next = c->first_sub_handle;
+        c->first_sub_handle = handle;
     }
 
     HAL_MutexUnlock(c->lock_generic);
@@ -1141,11 +1140,26 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     return result;
 }
 
+static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *h)
+{
+    iotx_mc_topic_handle_t **hp, *h1;
+
+    hp = &c->first_sub_handle;
+    while ((*hp) != NULL) {
+        h1 = *hp;
+        if (h1 == h)
+            *hp = h->next;
+        else
+            hp = &h1->next;
+    }
+
+    return 0;
+}
 
 /* handle UNSUBACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 {
-    unsigned short i, mypacketid = 0;  /* should be the same as the packetid above */
+    unsigned short mypacketid = 0;  /* should be the same as the packetid above */
 
     if (!c) {
         return FAIL_RETURN;
@@ -1161,10 +1175,14 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 
     /* Remove from message handler array */
     HAL_MutexLock(c->lock_generic);
-    for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
-        if ((c->sub_handle[i].topic_filter != NULL)
-            && (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messageHandler))) {
-            memset(&c->sub_handle[i], 0, sizeof(iotx_mc_topic_handle_t));
+
+    iotx_mc_topic_handle_t *h, *h_next;
+    for (h = c->first_sub_handle; h; h = h_next) {
+        h_next = h->next;
+
+        if (0 == iotx_mc_check_handle_is_identical(h, &messageHandler)) {
+            remove_handle_from_list(c, h);
+            LITE_free(h);
 
             /* NOTE: in case of more than one register(subscribe) with different callback function,
              *       so we must keep continuously searching related message handle */
@@ -1435,6 +1453,18 @@ static int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
         return rc;
     }
 
+    iotx_mc_topic_handle_t *h, *h_next;
+
+    HAL_MutexLock(c->lock_generic);
+    for (h = c->first_sub_handle; h; h = h_next) {
+        h_next = h->next;
+        if (strcmp(h->topic_filter, topicFilter) == 0) {
+            remove_handle_from_list(c, h);
+            LITE_free(h);
+        }
+    }
+    HAL_MutexUnlock(c->lock_generic);
+
     log_info("mqtt unsubscribe success,topic = %s!", topicFilter);
     return (int)msgId;
 }
@@ -1618,9 +1648,6 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     connectdata.password.cstring = (char *)pInitParams->password;
     connectdata.cleansession = pInitParams->clean_session;
 
-
-    memset(pClient->sub_handle, 0, IOTX_MC_SUB_NUM_MAX * sizeof(iotx_mc_topic_handle_t));
-
     pClient->packet_id = 0;
     pClient->lock_generic = HAL_MutexCreate();
     if (!pClient->lock_generic) {
@@ -1693,8 +1720,12 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
         goto RETURN;
     }
     memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
-    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key, iotx_device_info_get()->product_key);
-
+#ifndef IOTX_NET_INIT_WITH_PK_EXT
+    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key);
+#else
+    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key,
+    				   iotx_device_info_get()->product_key);
+#endif
     if (SUCCESS_RETURN != rc) {
         mc_state = IOTX_MC_STATE_INVALID;
         goto RETURN;
@@ -2396,6 +2427,17 @@ int IOT_MQTT_Destroy(void **phandler)
 {
     POINTER_SANITY_CHECK(phandler, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(*phandler, NULL_VALUE_ERROR);
+    iotx_mc_client_t* c = (iotx_mc_client_t*)(*phandler);
+
+    if (c->first_sub_handle) {
+        iotx_mc_topic_handle_t* handler = c->first_sub_handle;
+        iotx_mc_topic_handle_t* next_handler = c->first_sub_handle;
+        while (handler) {
+            next_handler = handler->next;
+            LITE_free(handler);
+            handler = next_handler;
+        }
+    }    
 
     iotx_mc_release((iotx_mc_client_t *)(*phandler));
     LITE_free(*phandler);
