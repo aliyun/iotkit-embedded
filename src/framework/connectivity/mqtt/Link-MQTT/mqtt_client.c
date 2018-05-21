@@ -668,13 +668,16 @@ static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_
 {
     int rc = FAIL_RETURN;
     int sent = 0;
+    unsigned int left_t = 0;
 
     if (!c || !buf || !time) {
         return rc;
     }
 
+    left_t = iotx_time_left(time);
+    left_t = (left_t == 0) ? 1: left_t;
     while (sent < length && !utils_time_is_expired(time)) {
-        rc = c->ipstack->write(c->ipstack, &buf[sent], length, iotx_time_left(time));
+        rc = c->ipstack->write(c->ipstack, &buf[sent], length, left_t);
         if (rc < 0) { /* there was an error writing the data */
             break;
         }
@@ -730,13 +733,17 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     int len = 0;
     int rem_len = 0;
     int rc = 0;
+    unsigned int left_t = 0;
 
     if (!c || !timer || !packet_type) {
         return FAIL_RETURN;
     }
 
+    left_t = iotx_time_left(timer);
+    left_t = (left_t == 0) ? 1: left_t;
+
     /* 1. read the header byte.  This has the packet type in it */
-    rc = c->ipstack->read(c->ipstack, c->buf_read, 1, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer));
+    rc = c->ipstack->read(c->ipstack, c->buf_read, 1, left_t);
     if (0 == rc) { /* timeout */
         *packet_type = 0;
         return SUCCESS_RETURN;
@@ -748,7 +755,9 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     len = 1;
 
     /* 2. read the remaining length.  This is variable in itself */
-    if ((rc = iotx_mc_decode_packet(c, &rem_len, iotx_time_left(timer))) < 0) {
+    left_t = iotx_time_left(timer);
+    left_t = (left_t == 0) ? 1: left_t;
+    if ((rc = iotx_mc_decode_packet(c, &rem_len, left_t)) < 0) {
         log_err("decodePacket error,rc = %d", rc);
         return rc;
     }
@@ -760,7 +769,9 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
         log_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         int needReadLen = c->buf_size_read - len;
-        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != needReadLen) {
+        left_t = iotx_time_left(timer);
+        left_t = (left_t == 0) ? 1: left_t;
+        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, left_t) != needReadLen) {
             log_err("mqtt read error");
             return FAIL_RETURN;
         }
@@ -773,7 +784,9 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
             return FAIL_RETURN;
         }
 
-        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != remainDataLen) {
+        left_t = iotx_time_left(timer);
+        left_t = (left_t == 0) ? 1: left_t;
+        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, left_t) != remainDataLen) {
             log_err("mqtt read error");
             LITE_free(remainDataBuf);
             remainDataBuf = NULL;
@@ -797,7 +810,9 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     }
 
     /* 3. read the rest of the buffer using a callback to supply the rest of the data */
-    if (rem_len > 0 && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != rem_len)) {
+    left_t = iotx_time_left(timer);
+    left_t = (left_t == 0) ? 1: left_t;
+    if (rem_len > 0 && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len, left_t) != rem_len)) {
         log_err("mqtt read error");
         return FAIL_RETURN;
     }
