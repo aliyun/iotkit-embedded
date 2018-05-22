@@ -25,7 +25,6 @@ extern "C" {
 
 #include "lite-log.h"
 #include "lite-utils.h"
-#include "security.h"
 #include "iot_import.h"
 
 void unittest_HAL_OS(void);
