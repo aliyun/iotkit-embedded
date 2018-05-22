@@ -22,5 +22,6 @@ endif
 
 LDFLAGS             += -lpthread
 
+CFLAGS              += -DTEST_ON_DAILY
 OVERRIDE_STRIP      := strip
 

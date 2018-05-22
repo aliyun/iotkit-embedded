@@ -3,6 +3,8 @@ SKIP_SSL_VERIFY_MODES = \
     ID2_PRE \
     MQTT_DAILY \
     OTA_DAILY \
+    ON_DAILY \
+    ON_PRE   \
 
 SKIP_MQTT_DIRECT_MODES = \
     MQTT_DAILY \
