@@ -678,7 +678,7 @@ int IOT_Subdevice_Register(void* handle,
             log_info("parse register reply error");
             return FAIL_RETURN;
         }        
-        //log_info("register success, secret %s", device_secret);  /* remove secert log */
+        /*log_info("register success, secret %s", device_secret);  remove secert log */
         
         /* timestamp */
         MALLOC_MEMORY_WITH_RESULT(timestamp, 20, FAIL_RETURN);
