@@ -56,6 +56,11 @@ static int dm_cm_impl_init(void* _self, const char* _product_key, const char* _d
     init_param.user_data = pcontext;
 
     init_param.domain_type = (iotx_cm_cloud_domain_types_t)domain_type;
+#ifdef SUPPORT_PRODUCT_SECRET
+    init_param.secret_type = IOTX_CM_DEVICE_SECRET_PRODUCT;
+#else
+    init_param.secret_type = IOTX_CM_DEVICE_SECRET_DEVICE;
+#endif
 
     ret = IOT_CM_Init(&init_param, NULL);
 

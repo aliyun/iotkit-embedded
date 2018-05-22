@@ -6893,6 +6893,7 @@ int mbedtls_ssl_write( mbedtls_ssl_context *ssl, const unsigned char *buf, size_
 #if defined(MBEDTLS_SSL_CBC_RECORD_SPLITTING)
     ret = ssl_write_split( ssl, buf, len );
 #else
+	len = len > MBEDTLS_SSL_MAX_CONTENT_LEN ? MBEDTLS_SSL_MAX_CONTENT_LEN : len;
     ret = ssl_write_real( ssl, buf, len );
 #endif
 

@@ -1095,7 +1095,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         return MQTT_PUBLISH_PACKET_ERROR;
     }
     topic_msg.qos = (unsigned char)qos;
-    topic_msg.payload_len = (unsigned short)payload_len;
+    topic_msg.payload_len = (uint32_t)payload_len;
 
     /* payload decrypt by id2_aes */
     if (c->mqtt_down_process) {
