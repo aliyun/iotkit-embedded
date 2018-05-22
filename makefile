@@ -27,6 +27,7 @@ $(call CompLib_Map, MQTT_SHADOW, src/shadow)
 $(call CompLib_Map, COAP_COMM_ENABLED, src/coap)
 $(call CompLib_Map, MQTT_ID2_AUTH, src/tfs)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/http)
+$(call CompLib_Map, HTTP2_COMM_ENABLED, src/file_upload src/http2)
 $(call CompLib_Map, SUBDEVICE_ENABLED, src/subdev)
 
 include $(RULE_DIR)/rules.mk

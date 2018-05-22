@@ -33,8 +33,10 @@ define Post_Distro
     $(if $(filter y,$(FEATURE_HTTP_COMM_ENABLED)),
         @cp -f sample/http/http-example.c $(FINAL_DIR)/src/http-example.c
         @cat doc/export.sdk.demo/http.mk >> $(FINAL_DIR)/src/Makefile)
+    $(if $(filter y,$(FEATURE_HTTP2_COMM_ENABLED)),
+        @cp -f sample/http2/http2-example.c $(FINAL_DIR)/src/http2-example.c
+        @cat doc/export.sdk.demo/http2.mk >> $(FINAL_DIR)/src/Makefile)
     @chmod a-x $(FINAL_DIR)/src/*
-
     @echo ""
     @echo "========================================================================="
     @echo "o BUILD COMPLETE WITH FOLLOWING SWITCHES:"

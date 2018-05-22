@@ -57,6 +57,11 @@ TARGET              += http-example
 SRCS_http-example   := http/http-example.c
 endif
 
+ifneq (,$(filter -DHTTP2_COMM_ENABLED,$(CFLAGS)))
+TARGET              += http2-example
+SRCS_http2-example  := http2/http2-example.c
+endif
+
 ifneq (,$(filter -DSUBDEVICE_ENABLED,$(CFLAGS)))
 TARGET                += subdev-example
 SRCS_subdev-example   += subdev/subdev-example.c \
