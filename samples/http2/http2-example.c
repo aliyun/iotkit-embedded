@@ -21,14 +21,26 @@
 #include <pthread.h>
 #include "iot_export.h"
 #include "iot_export_file_uploader.h"
-#include "iot_import_product.h"
 
-#define HTTP2_ONLINE_SERVER_URL     "https://10.101.12.205/"
-#define HTTP2_ONLINE_SERVER_PORT	 9999
-
-#define HTTP2_PRODUCT_KEY             "a1QWlwJO4Z2"
-#define HTTP2_DEVICE_NAME             "cHzzrWfxLiRLYHik3sYJ"
-#define HTTP2_DEVICE_SECRET           "vZxZiUMf3vwTViC3XIxJ2ZHt0zVoZlRa"
+#if defined(ON_DAILY)
+	#define HTTP2_ONLINE_SERVER_URL       "https://10.101.12.205/"
+	#define HTTP2_ONLINE_SERVER_PORT	  9999
+	#define HTTP2_PRODUCT_KEY             "a1QWlwJO4Z2"
+	#define HTTP2_DEVICE_NAME             "cHzzrWfxLiRLYHik3sYJ"
+	#define HTTP2_DEVICE_SECRET           "vZxZiUMf3vwTViC3XIxJ2ZHt0zVoZlRa"
+#elif defined(ON_PRE)
+	#define HTTP2_ONLINE_SERVER_URL       "https://100.67.141.158/"
+	#define HTTP2_ONLINE_SERVER_PORT	  8443
+	#define HTTP2_PRODUCT_KEY             "b1XVhqfan1X"
+	#define HTTP2_DEVICE_NAME             "YvhjziEQmKusCFUgRpeo"
+	#define HTTP2_DEVICE_SECRET           "QjkhCrAX0SbNWgKpIamuiDdLkk23Q1r7"
+#else
+	#define HTTP2_ONLINE_SERVER_URL       "*.iot-as-http2.cn-shanghai.aliyuncs.com"
+	#define HTTP2_ONLINE_SERVER_PORT	  443
+	#define HTTP2_PRODUCT_KEY             "DM5b8zbTWJs"
+	#define HTTP2_DEVICE_NAME             "mydevice1"
+	#define HTTP2_DEVICE_SECRET           "q4tiwQuICYfr6JQ8aUFjWxocuXJ5ruEx"
+#endif
 
 #define HTTP2_SYNC_API 0
 
@@ -55,7 +67,7 @@ void* upload_thread(void *user_data)
 
     while(retry < MAX_HTTP2_MAX_RETRANS_TIMES) {
         memset(&client, 0, sizeof(httpclient_t));
-        handler = iotx_http2_client_connect(&client, HTTP2_ONLINE_SERVER_URL, HTTP2_ONLINE_SERVER_PORT);
+        handler = iotx_http2_client_connect((void *)&client, HTTP2_ONLINE_SERVER_URL, HTTP2_ONLINE_SERVER_PORT);
         if(handler == NULL) {
             printf("can't connect\n");
             return 0;
@@ -165,16 +177,15 @@ int main(int argc, char **argv)
     pthread_t  pid2;
     char *file_name1 = NULL;
     char *file_name2 = NULL;
+    IOT_OpenLog("http2");
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    HAL_SetProductKey(HTTP2_PRODUCT_KEY);
-    HAL_SetDeviceName(HTTP2_DEVICE_NAME);
-    HAL_SetDeviceSecret(HTTP2_DEVICE_SECRET);
     ret = pthread_create(&pid, NULL, thread_http2, NULL);
     if (ret != 0) {
         printf("pthread_create1 failed!\n");
         return 0;
     }
-    //wait http2 thread ready.
+    /*wait http2 thread ready.*/
     HAL_SleepMs(1000);
     if(argc > 1) {
         file_name1 = argv[1];
@@ -196,6 +207,7 @@ int main(int argc, char **argv)
     }
 
     while(1);
+    IOT_CloseLog();
     return 0;
 }
 #endif

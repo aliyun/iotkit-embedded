@@ -37,6 +37,7 @@
 #include "nghttp2_http.h"
 #include "nghttp2_pq.h"
 #include "nghttp2_debug.h"
+#include "iot_import.h"
 
 /*
  * Returns non-zero if the number of outgoing opened streams is larger
@@ -164,7 +165,7 @@ static int session_call_error_callback(nghttp2_session *session,
   mem = &session->mem;
 
   va_start(ap, fmt);
-  rv = vsnprintf(NULL, 0, fmt, ap);
+  rv = HAL_Vsnprintf(NULL, 0, fmt, ap);
   va_end(ap);
 
   if (rv < 0) {
@@ -179,7 +180,7 @@ static int session_call_error_callback(nghttp2_session *session,
   }
 
   va_start(ap, fmt);
-  rv = vsnprintf(buf, bufsize, fmt, ap);
+  rv = HAL_Vsnprintf(buf, bufsize, fmt, ap);
   va_end(ap);
 
   if (rv < 0) {
@@ -1964,9 +1965,9 @@ static int session_prep_frame(nghttp2_session *session,
 
     rv = nghttp2_session_predicate_data_send(session, stream);
     if (rv != 0) {
-      // If stream was already closed, nghttp2_session_get_stream()
-      // returns NULL, but item is still attached to the stream.
-      // Search stream including closed again.
+      /* If stream was already closed, nghttp2_session_get_stream()
+         returns NULL, but item is still attached to the stream.
+         Search stream including closed again.*/
       stream = nghttp2_session_get_stream_raw(session, frame->hd.stream_id);
       if (stream) {
         int rv2;

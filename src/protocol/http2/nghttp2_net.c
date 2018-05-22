@@ -22,42 +22,45 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef NGHTTP2_NET_H
-#define NGHTTP2_NET_H
+#include <stdio.h>
 
-#ifndef LITTLE_ENDIAN
-#define LITTLE_ENDIAN 1234
+#include "iot_import.h"
+#include "nghttp2_net.h"
+
+#if IOT_BYTE_ORDER == LITTLE_ENDIAN
+uint32_t nghttp2_htonl(uint32_t hostlong) {
+  uint32_t res;
+  unsigned char *p = (unsigned char *)&res;
+  *p++ = hostlong >> 24;
+  *p++ = (hostlong >> 16) & 0xffu;
+  *p++ = (hostlong >> 8) & 0xffu;
+  *p = hostlong & 0xffu;
+  return res;
+}
+
+uint16_t nghttp2_htons(uint16_t hostshort) {
+  uint16_t res;
+  unsigned char *p = (unsigned char *)&res;
+  *p++ = hostshort >> 8;
+  *p = hostshort & 0xffu;
+  return res;
+}
+
+uint32_t nghttp2_ntohl(uint32_t netlong) {
+  uint32_t res;
+  unsigned char *p = (unsigned char *)&netlong;
+  res = *p++ << 24;
+  res += *p++ << 16;
+  res += *p++ << 8;
+  res += *p;
+  return res;
+}
+
+uint16_t nghttp2_ntohs(uint16_t netshort) {
+  uint16_t res;
+  unsigned char *p = (unsigned char *)&netshort;
+  res = *p++ << 8;
+  res += *p;
+  return res;
+}
 #endif
-
-#ifndef BIG_ENDIAN
-#define BIG_ENDIAN 4321
-#endif
-
-#define IOT_BYTE_ORDER LITTLE_ENDIAN
-
-#if IOT_BYTE_ORDER == BIG_ENDIAN
-#define nghttp2_htonl(x) (x)
-#define nghttp2_htons(x) (x)
-#define nghttp2_ntohl(x) (x)
-#define nghttp2_ntohs(x) (x)
-#else
-/* Windows requires ws2_32 library for ntonl family functions.  We
-   define inline functions for those function so that we don't have
-   dependeny on that lib. */
-
-#ifdef _MSC_VER
-#define STIN static __inline
-#else
-#define STIN
-#endif
-
-STIN uint32_t nghttp2_htonl(uint32_t hostlong);
-
-STIN uint16_t nghttp2_htons(uint16_t hostshort);
-
-STIN uint32_t nghttp2_ntohl(uint32_t netlong);
-
-STIN uint16_t nghttp2_ntohs(uint16_t netshort);
-
-#endif
-#endif /* NGHTTP2_NET_H */
