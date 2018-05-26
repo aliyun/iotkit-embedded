@@ -63,7 +63,7 @@ static uint64_t _linux_time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -117,7 +117,7 @@ intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     }
     freeaddrinfo(addrInfoList);
 
-    return (intptr_t)rc;
+    return (uintptr_t)rc;
 }
 
 

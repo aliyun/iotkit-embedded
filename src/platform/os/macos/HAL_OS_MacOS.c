@@ -38,6 +38,7 @@
 
 #include "iot_import.h"
 
+#define HAL_MAC_LEN  (18)
 #if defined(SUPPORT_SINGAPORE_DOMAIN)
 static char DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN] = {"zSqW3X4e0lJ"};
 static char DEMO_CASE_DEVICE_NAME[DEVICE_NAME_MAXLEN] = {"azhan_sg"};

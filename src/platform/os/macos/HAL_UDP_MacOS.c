@@ -31,13 +31,7 @@
 
 #include "iot_import.h"
 
-#define PLATFORM_LINUXSOCK_LOG(format, ...) \
-    do { \
-        HAL_Printf("LINUXSOCK %u %s() | "format"\n", __LINE__, __FUNCTION__, ##__VA_ARGS__);\
-        fflush(stdout);\
-    } while(0);
 
-#if 0
 void *HAL_UDP_create(char *host, unsigned short port)
 {
 #define NETWORK_ADDR_LEN    (16)
@@ -175,9 +169,14 @@ int HAL_UDP_readTimeout(void *p_socket,
     /* This call will not block */
     return HAL_UDP_read(p_socket, p_data, datalen);
 }
-#endif
 
-intptr_t HAL_UDP_create(_IN_ const char *host, _IN_ unsigned short port)
+#define PLATFORM_LINUXSOCK_LOG(format, ...) \
+    do { \
+        HAL_Printf("LINUXSOCK %u %s() | "format"\n", __LINE__, __FUNCTION__, ##__VA_ARGS__);\
+        fflush(stdout);\
+    } while(0);
+
+intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
 {
     struct sockaddr_in addr;
     long sockfd;
@@ -197,7 +196,7 @@ intptr_t HAL_UDP_create(_IN_ const char *host, _IN_ unsigned short port)
 
     memset(&addr, 0, sizeof(struct sockaddr_in));
 
-    if (setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &opt_val, sizeof(opt_val)) < 0) {
+    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
         perror("setsockopt");
         close(sockfd);
         return -1;
@@ -270,7 +269,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
     return -1;
 }
 
-int HAL_UDP_close(_IN_ intptr_t sockfd)
+int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
 {
     return close((int)sockfd);
 }
