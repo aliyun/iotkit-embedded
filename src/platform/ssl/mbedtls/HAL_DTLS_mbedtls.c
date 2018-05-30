@@ -33,6 +33,8 @@
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/net_sockets.h"
 
+mbedtls_ssl_session *saved_session = NULL;
+
 typedef struct {
     mbedtls_ssl_context          context;
     mbedtls_ssl_config           conf;
@@ -46,7 +48,73 @@ typedef struct {
     mbedtls_ssl_cookie_ctx       cookie_ctx;
 } dtls_session_t;
 
+#define MBEDTLS_MEM_TEST 1
 
+#ifdef MBEDTLS_MEM_TEST
+
+#define MBEDTLS_MEM_INFO_MAGIC   0x12345678
+
+static unsigned int mbedtls_mem_used = 0;
+static unsigned int mbedtls_max_mem_used = 0;
+
+typedef struct {
+    int magic;
+    int size;
+} mbedtls_mem_info_t;
+
+void *_DTLSCalloc_wrapper( size_t n, size_t size )
+{
+    void *buf = NULL;
+    mbedtls_mem_info_t *mem_info = NULL;
+
+    if (n == 0 || size == 0) {
+        return NULL;
+    }
+
+    buf = malloc(n * size + sizeof(mbedtls_mem_info_t));
+    if (NULL == buf) {
+        return NULL;
+    } else {
+        memset(buf, 0, n * size + sizeof(mbedtls_mem_info_t));
+    }
+
+    mem_info = (mbedtls_mem_info_t *)buf;
+    mem_info->magic = MBEDTLS_MEM_INFO_MAGIC;
+    mem_info->size = n * size;
+    buf += sizeof(mbedtls_mem_info_t);
+
+    mbedtls_mem_used += mem_info->size;
+    if (mbedtls_mem_used > mbedtls_max_mem_used) {
+        mbedtls_max_mem_used = mbedtls_mem_used;
+    }
+
+    /* DTLS_TRC("INFO -- mbedtls malloc: %p %d  total used: %d  max used: %d\r\n",
+                       buf, (int)size, mbedtls_mem_used, mbedtls_max_mem_used); */
+
+    return buf;
+}
+
+void _DTLSFree_wrapper( void *ptr )
+{
+    mbedtls_mem_info_t *mem_info = NULL;
+    if (NULL == ptr) {
+        return;
+    }
+
+    mem_info = ptr - sizeof(mbedtls_mem_info_t);
+    if (mem_info->magic != MBEDTLS_MEM_INFO_MAGIC) {
+        DTLS_TRC("Warning - invalid mem info magic: 0x%x\r\n", mem_info->magic);
+        return;
+    }
+
+    mbedtls_mem_used -= mem_info->size;
+    /* DTLS_TRC("INFO mbedtls free: %p %d  total used: %d  max used: %d\r\n",
+                       ptr, mem_info->size, mbedtls_mem_used, mbedtls_max_mem_used);*/
+
+    free(mem_info);
+}
+
+#else
 static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 {
     void *ptr = NULL;
@@ -65,6 +133,50 @@ static  void _DTLSFree_wrapper(void *ptr)
         ptr = NULL;
     }
 }
+#endif
+
+#ifdef DTLS_SESSION_SAVE
+static int _DTLSSession_save( const mbedtls_ssl_session *session,
+                             unsigned char *buf, size_t buf_len,
+                             size_t *olen )
+{
+    unsigned char *p = buf;
+    size_t left = buf_len;
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    size_t cert_len;
+#endif /* MBEDTLS_X509_CRT_PARSE_C */
+
+    if( left < sizeof( mbedtls_ssl_session ) )
+        return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
+
+    memcpy( p, session, sizeof( mbedtls_ssl_session ) );
+    p += sizeof( mbedtls_ssl_session );
+    left -= sizeof( mbedtls_ssl_session );
+
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    if( session->peer_cert == NULL )
+        cert_len = 0;
+    else
+        cert_len = session->peer_cert->raw.len;
+
+    if( left < 3 + cert_len )
+        return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
+
+    *p++ = (unsigned char)( cert_len >> 16 & 0xFF );
+    *p++ = (unsigned char)( cert_len >>  8 & 0xFF );
+    *p++ = (unsigned char)( cert_len       & 0xFF );
+
+    if( session->peer_cert != NULL )
+        memcpy( p, session->peer_cert->raw.p, cert_len );
+
+    p += cert_len;
+#endif /* MBEDTLS_X509_CRT_PARSE_C */
+
+    *olen = p - buf;
+
+    return( 0 );
+}
+#endif
 
 static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
         unsigned char    *p_ca_cert_pem)
@@ -135,11 +247,29 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
                             mbedtls_net_recv_timeout);
         DTLS_TRC("mbedtls_ssl_set_bio result 0x%04x\r\n", result);
 
+        if(NULL != saved_session){
+            mbedtls_ssl_set_session(&p_dtls_session->context, saved_session);
+        }
+
         do {
             result = mbedtls_ssl_handshake(&p_dtls_session->context);
         } while (result == MBEDTLS_ERR_SSL_WANT_READ ||
                  result == MBEDTLS_ERR_SSL_WANT_WRITE);
         DTLS_TRC("mbedtls_ssl_handshake result 0x%04x\r\n", result);
+#ifdef MBEDTLS_MEM_TEST
+        DTLS_TRC("mbedtls handshake memory total used: %d  max used: %d\r\n",
+                                 mbedtls_mem_used, mbedtls_max_mem_used);
+#endif
+        if(0 == result){
+            if(NULL == saved_session){
+                saved_session = coap_malloc(sizeof(mbedtls_ssl_session));
+            }
+            if(NULL != saved_session){
+                memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
+                result = mbedtls_ssl_get_session(&p_dtls_session->context, saved_session);
+                DTLS_TRC("mbedtls_ssl_get_session_session return 0x%04x\r\n", result);
+            }
+        }
     }
 
     return (result ? DTLS_HANDSHAKE_FAILED : DTLS_SUCCESS);
@@ -151,6 +281,10 @@ dtls_session_t *_DTLSSession_init()
     p_dtls_session = coap_malloc(sizeof(dtls_session_t));
 
     mbedtls_debug_set_threshold(0);
+#ifdef MBEDTLS_MEM_TEST
+    mbedtls_mem_used = 0;
+    mbedtls_max_mem_used = 0;
+#endif
     mbedtls_platform_set_calloc_free(_DTLSCalloc_wrapper, _DTLSFree_wrapper);
     if (NULL != p_dtls_session) {
         mbedtls_net_init(&p_dtls_session->fd);

@@ -34,6 +34,7 @@
 #define IOTX_ONLINE_DTLS_SERVER_URL     "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 
 char m_coap_client_running = 0;
+char m_coap_reconnect = 0;
 
 static void iotx_response_handler(void *arg, void *p_response)
 {
@@ -99,6 +100,16 @@ static void iotx_post_data_to_server(void *param)
     IOT_CoAP_SendMessage(p_ctx, path, &message);
 }
 
+void show_usage()
+{
+    HAL_Printf("\r\nusage: coap-example [OPTION]...\r\n");
+    HAL_Printf("\t-e pre|online \t\tSet the cloud environment.\r\n");
+    HAL_Printf("\t-s nosec|dtls \t\tSet the security setting.\r\n");
+    HAL_Printf("\t-l            \t\tSet the program run loop.\r\n");
+    HAL_Printf("\t-r            \t\tTesting the DTLS session ticket.\r\n");
+    HAL_Printf("\t-h            \t\tShow this usage.\r\n");
+}
+
 int main(int argc, char **argv)
 {
     int                     count = 0;
@@ -116,9 +127,8 @@ int main(int argc, char **argv)
     IOT_OpenLog("coap");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    HAL_Printf("[COAP-Client]: Enter Coap Client\r\n");
 #if !defined(_WIN32)
-    while ((opt = getopt(argc, argv, "e:s:lh")) != -1) {
+    while ((opt = getopt(argc, argv, "e:s:lhr")) != -1) {
         switch (opt) {
             case 's':
                 strncpy(secur, optarg, strlen(optarg));
@@ -129,15 +139,19 @@ int main(int argc, char **argv)
             case 'l':
                 m_coap_client_running = 1;
                 break;
-            case 'h':
-                /* TODO: */
+            case 'r':
+                m_coap_reconnect = 1;
                 break;
+            case 'h':
+                show_usage();
+                return 0;
             default:
                 break;
         }
     }
 #endif
 
+    HAL_Printf("[COAP-Client]: Enter Coap Client\r\n");
     memset(&config, 0x00, sizeof(iotx_coap_config_t));
     if (0 == strncmp(env, "pre", strlen("pre"))) {
         if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
@@ -166,6 +180,8 @@ int main(int argc, char **argv)
     config.wait_time_ms = 3000;
 
     iotx_coap_context_t *p_ctx = NULL;
+
+reconnect:
     p_ctx = IOT_CoAP_Init(&config);
     if (NULL != p_ctx) {
         IOT_CoAP_DeviceNameAuth(p_ctx);
@@ -182,8 +198,13 @@ int main(int argc, char **argv)
     } else {
         HAL_Printf("IoTx CoAP init failed\r\n");
     }
+    if(m_coap_reconnect){
+        m_coap_reconnect = 0;
+        goto reconnect;
+    }
 
     IOT_CloseLog();
+    HAL_Printf("[COAP-Client]: Exit Coap Client\r\n");
     return 0;
 }
 
