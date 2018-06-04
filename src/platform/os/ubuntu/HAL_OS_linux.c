@@ -34,6 +34,8 @@
 #include <sys/ioctl.h>
 #include "iot_import.h"
 
+#include "kv.h"
+
 #define __DEMO__
 
 #ifdef __DEMO__
@@ -491,3 +493,37 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
     return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
 }
 
+static kv_file_t *kvfile = NULL;
+
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
+{
+    if (!kvfile) {
+        kvfile = kv_open("/tmp/kvfile.db");
+        if (!kvfile)
+            return -1;
+    }
+
+    return kv_set_blob(kvfile, (char *)key, (char *)val, len);
+}
+
+int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
+{
+    if (!kvfile) {
+        kvfile = kv_open("/tmp/kvfile.db");
+        if (!kvfile)
+            return -1;
+    }
+
+    return kv_get_blob(kvfile, (char *)key, buffer, buffer_len);
+}
+
+int HAL_Kv_Del(const char *key)
+{
+    if (!kvfile) {
+        kvfile = kv_open("/tmp/kvfile.db");
+        if (!kvfile)
+            return -1;
+    }
+
+    return kv_del(kvfile, (char *)key);
+}
