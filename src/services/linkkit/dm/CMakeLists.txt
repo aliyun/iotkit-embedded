@@ -1,9 +1,4 @@
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/docs)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/hooks)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/misc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/scripts)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/board)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import)
@@ -51,6 +46,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/inc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/include/interface)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src)
@@ -62,7 +58,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/Link-OTA/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/subdev)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit)
@@ -78,16 +73,14 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
-ADD_EXECUTABLE (sdk-testsuites
-    ${PROJECT_SOURCE_DIR}/src/tests/sdk-testsuites.c
-    ${PROJECT_SOURCE_DIR}/src/tests/hal-os.c
-    ${PROJECT_SOURCE_DIR}/build-rules/misc/cut.c
+ADD_LIBRARY (iot_dm STATIC
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/dm_thing_manager.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/dm_thing.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/dm_logger.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/dm_slist.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/dm_impl.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/dm_cm_impl.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/dm_cm_msg_info.c
+    ${EXTRA_C_SOURCES}
 )
-
-TARGET_LINK_LIBRARIES (sdk-testsuites iot_platform)
-TARGET_LINK_LIBRARIES (sdk-testsuites iot_sdk)
-TARGET_LINK_LIBRARIES (sdk-testsuites iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (sdk-testsuites pthread)
-ENDIF (NOT MSVC)
 

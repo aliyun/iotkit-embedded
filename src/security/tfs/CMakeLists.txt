@@ -1,9 +1,4 @@
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/docs)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/hooks)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/misc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/build-rules/scripts)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/board)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import)
@@ -42,6 +37,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/cota)
@@ -62,7 +58,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/Link-OTA/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/subdev)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit)
@@ -78,16 +73,15 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
-ADD_EXECUTABLE (sdk-testsuites
-    ${PROJECT_SOURCE_DIR}/src/tests/sdk-testsuites.c
-    ${PROJECT_SOURCE_DIR}/src/tests/hal-os.c
-    ${PROJECT_SOURCE_DIR}/build-rules/misc/cut.c
+ADD_LIBRARY (iot_tfs STATIC
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/tfs_demo.c
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/id2_crypto.c
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/tfs_uttest.c
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_base64.c
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_random.c
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_log.c
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_memory.c
+    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_md5.c
+    ${EXTRA_C_SOURCES}
 )
-
-TARGET_LINK_LIBRARIES (sdk-testsuites iot_platform)
-TARGET_LINK_LIBRARIES (sdk-testsuites iot_sdk)
-TARGET_LINK_LIBRARIES (sdk-testsuites iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (sdk-testsuites pthread)
-ENDIF (NOT MSVC)
 

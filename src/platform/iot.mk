@@ -1,7 +1,7 @@
 LIBA_TARGET := libiot_platform.a
-HDR_REFS    += src/sdk-impl src/external/tls
+HDR_REFS    += src/sdk-impl src/thirdparty/tls
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
-DEPENDS		+= src/external/tls
+DEPENDS		+= src/thirdparty/tls
 
 LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
 LIB_SRCS_PATTERN    += ssl/mbedtls/*.c
