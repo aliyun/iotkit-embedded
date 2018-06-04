@@ -4,7 +4,7 @@ TOP_DIR         := $(CURDIR)
 RULE_DIR        := $(TOP_DIR)/build-rules
 CONFIG_DIR      := $(TOP_DIR)/src/board
 PACKAGE_DIR     := $(TOP_DIR)/src/packages
-IMPORT_DIR      := $(TOP_DIR)/src/import
+IMPORT_DIR      := $(TOP_DIR)/src/thirdparty/lib
 
 # Settings of output directory
 #

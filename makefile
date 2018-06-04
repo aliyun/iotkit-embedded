@@ -21,6 +21,9 @@ COMP_LIB_COMPONENTS := \
 $(call CompLib_Map, MQTT_COMM_ENABLED, \
     src/protocol/mqtt \
 )
+$(call CompLib_Map, HTTP2_COMM_ENABLED, \
+	src/services/file_upload \
+	src/protocol/http2)
 $(call CompLib_Map, OTA_ENABLED, src/services/ota)
 $(call CompLib_Map, MQTT_SHADOW, src/services/shadow)
 $(call CompLib_Map, COAP_COMM_ENABLED, src/protocol/coap)

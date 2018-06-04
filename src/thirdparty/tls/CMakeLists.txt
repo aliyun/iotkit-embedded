@@ -1,5 +1,5 @@
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/import)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/lib)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit/include)
