@@ -588,7 +588,6 @@ void* iotx_cm_cloud_conn_init(void* handler, iotx_cm_init_param_t *pparam)
     if (NULL == connectivity) {
         CM_ERR(cm_log_error_memory);
         connection->deinit_func(connection);
-        iotx_cm_cloud_conn_deinit(connectivity);
         return NULL;
     }
 

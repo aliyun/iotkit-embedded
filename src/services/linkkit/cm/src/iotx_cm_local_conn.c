@@ -842,7 +842,7 @@ void* iotx_cm_local_conn_init(void* handler, iotx_cm_init_param_t* pparam)
     connectivity = LITE_malloc(sizeof(iotx_cm_connectivity_t));
     if (NULL == connectivity) {
         CM_ERR(cm_log_error_memory);
-        iotx_cm_local_conn_deinit(connectivity);
+        connection->deinit_func(connection);
         return NULL;
     }
 

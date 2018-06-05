@@ -56,6 +56,18 @@ char* guider_get_domain()
     return NULL;
 }
 
+static int                  iotx_guider_authed = 0;
+
+void iotx_guider_auth_set(int authed)
+{
+    iotx_guider_authed = authed;
+}
+
+int iotx_guider_auth_get(void)
+{
+    return iotx_guider_authed;
+}
+
 
 static int _calc_hmac_signature(
             char *hmac_sigbuf,
@@ -347,7 +359,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
 
-    ret = HAL_Malloc(AUTH_STRING_MAXLEN);
+    ret = LITE_malloc(AUTH_STRING_MAXLEN);
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
@@ -373,7 +385,8 @@ static int guider_get_iotId_iotToken(
             char *host,
             uint16_t *pport)
 {
-    char                iotx_payload[1024] = {0};
+#define PAYLOAD_STRING_MAXLEN  (1024)
+    char*               iotx_payload = NULL;
     int                 iotx_port = 443;
     int                 ret = -1;
     iotx_conn_info_pt   usr = iotx_conn_info_get();
@@ -407,8 +420,11 @@ static int guider_get_iotId_iotToken(
             "message":"success"
         }
     */
+    iotx_payload = LITE_malloc(PAYLOAD_STRING_MAXLEN);
+    LITE_ASSERT(iotx_payload);
+    memset(iotx_payload, 0, PAYLOAD_STRING_MAXLEN);
     _http_response(iotx_payload,
-                   sizeof(iotx_payload),
+                   PAYLOAD_STRING_MAXLEN,
                    request_string,
                    guider_addr,
                    iotx_port,
@@ -479,6 +495,10 @@ static int guider_get_iotId_iotToken(
     ret = 0;
 
 do_exit:
+    if (iotx_payload) {
+        LITE_free(iotx_payload);
+        iotx_payload = NULL;
+    }
     if (pvalue) {
         LITE_free(pvalue);
         pvalue = NULL;
