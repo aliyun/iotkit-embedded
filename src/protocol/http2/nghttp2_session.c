@@ -1752,11 +1752,6 @@ nghttp2_session_enforce_flow_control_limits(nghttp2_session *session,
                                             nghttp2_stream *stream,
                                             ssize_t requested_window_size) {
   ssize_t window_size = 0;
-  printf("send: remote windowsize connection=%d, remote maxframsize=%u, "
-         "stream(id %d)=%d\n",
-         session->remote_window_size, session->remote_settings.max_frame_size,
-         stream->stream_id, stream->remote_window_size);
-
   window_size = nghttp2_min(nghttp2_min(nghttp2_min(requested_window_size,
                                              stream->remote_window_size),
                                  session->remote_window_size),
@@ -5298,9 +5293,6 @@ ssize_t nghttp2_session_mem_recv(nghttp2_session *session, const uint8_t *in,
   nghttp2_stream *stream;
   size_t pri_fieldlen;
   nghttp2_mem *mem;
-
-  printf("recv: connection recv_window_size=%d, local_window=%d\n",
-         session->recv_window_size, session->local_window_size);
 
   mem = &session->mem;
 

@@ -49,6 +49,7 @@
 #include "nghttp2_session.h"
 #include "utils_hmac.h"
 #include "lite-utils.h"
+#include "lite-log.h"
 #include "iot_export_http2.h"
 #include "iot_export.h"
 #include "iot_import_product.h"
@@ -76,7 +77,7 @@
 //#define IOTX_H2_SUPPORT
 //#define IOTX_HTTP2_DEBUG
 #define IOTX_HTTP_CA_GET				iotx_ca_get()
-#define NGHTTP2_DBG                     printf
+#define NGHTTP2_DBG                     log_info
 
 enum { IO_NONE, WANT_READ, WANT_WRITE };
 
@@ -546,7 +547,7 @@ static int http2_client_conn(httpclient_t *pclient, char *url, int port)
         }
         ret = httpclient_connect(pclient);
         if (0 != ret) {
-            printf("http2client_connect is error, ret = %d", ret);
+            log_err("http2client_connect is error, ret = %d", ret);
             httpclient_close(pclient);
             return ret;
         }

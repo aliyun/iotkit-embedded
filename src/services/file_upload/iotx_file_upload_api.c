@@ -22,6 +22,7 @@
 
 #include "utils_hmac.h"
 #include "lite-utils.h"
+#include "lite-log.h"
 #include "iot_export_http2.h"
 #include "iot_export_file_uploader.h"
 
@@ -185,7 +186,7 @@ static void file_upload_gen_string(char *str, int type, char *para1, int para2)
             break;
         }
         default: {
-            printf("ASSERT\n");
+            log_err("ASSERT\n");
             break;
         }
     }
@@ -231,9 +232,8 @@ static int submit_file_create_request(http2_connection_t *connection, file_info 
       sprintf(is_cover_str, "%d", 1);
     }
 
-    printf("before filename is %s\n", fileinfo->filename);
     filename = find_file_name(fileinfo->filename);
-    printf("filename is %s\n", filename);
+    log_info("filename is %s\n", filename);
 #ifdef IOTX_H2_SUPPORT
     const http2_header header[] = {MAKE_HEADER(":method", "GET"),
                                    MAKE_HEADER_CS(":path", path_str),
@@ -539,7 +539,7 @@ int iotx_get_file_size(char *file_name)
     int size = 0;
     if((fp = fopen(file_name, "r")) == NULL)
     {
-        printf("The file %s can not be opened.\n", file_name);
+        log_err("The file %s can not be opened.\n", file_name);
         return -1;
     }
     fseek(fp, 0L, SEEK_END);
@@ -554,12 +554,12 @@ int iotx_get_file_data(char *file_name, char *data, int len, int offset)
     int ret = 0;
     if((fp = fopen(file_name, "r")) == NULL)
     {
-        printf("The file %s can not be opened.\n", file_name);
+        log_err("The file %s can not be opened.\n", file_name);
         return -1;
     }
     ret = fseek(fp, offset, SEEK_SET);
     if(ret != 0) {
-        printf("The file %s can not move offset.\n", file_name);
+        log_err("The file %s can not move offset.\n", file_name);
         return -1;
     }
     ret = fread(data, len, 1, fp);
@@ -573,7 +573,7 @@ int iotx_check_file_exist(char *file_name)
     FILE *fp = NULL;
     if((fp = fopen(file_name, "r")) == NULL)
     {
-        printf("The %s doesn't exist.\n", file_name);
+        log_err("The %s doesn't exist.\n", file_name);
         return 0;
     }
     fclose(fp);
@@ -585,7 +585,7 @@ int iotx_check_file_same(char *file_name, char *file_name_upload)
 {
     if(strncmp(file_name, file_name_upload, strlen(file_name_upload)) == 0)
     {
-        printf("The %s file is uploading.\n", file_name);
+        log_err("The %s file is uploading.\n", file_name);
         return 1;
     }
     return 0;
@@ -642,7 +642,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
         if(result < 0)
         {
             *(info->current_pos) = 1;
-             printf("Creat cloud file fail,result = %d\n", result);
+             log_err("Creat cloud file fail,result = %d\n", result);
              LITE_free(data);
              return HTTP2_UPLOAD_FILE_CREATE_FAIL;
         }
@@ -693,7 +693,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
             if(stream_id <= 0)
             {
                 *(info->current_pos) = curr_slice;
-                 printf("upload data to cloud fail,stream_id = %d\n", stream_id);
+                 log_err("upload data to cloud fail,stream_id = %d\n", stream_id);
                  LITE_free(data);
                  return HTTP2_UPLOAD_FILE_UPLOAD_FAIL;
             }
@@ -889,7 +889,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
         if(result < 0)
         {
              upload_info->curr_slice_num = 1;
-             printf("Creat cloud file fail,result = %d\n", result);
+             log_err("Creat cloud file fail,result = %d\n", result);
              LITE_free(data);
              return HTTP2_UPLOAD_FILE_CREATE_FAIL;
         }
@@ -939,7 +939,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
             file_data.need_auth = need_auth;
             file_data.type = upload_info->type;
             stream_id = iotx_data_upload_to_cloud(conn, upload_info->file_id, &file_data);
-            printf("delay_time: %d\n", g_file_upload_ptr->delay_time);
+            log_info("delay_time: %d\n", g_file_upload_ptr->delay_time);
             if (g_file_upload_ptr->delay_time > 0) {
                 HAL_SleepMs((g_file_upload_ptr->delay_time)*1000);
             }
@@ -947,7 +947,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
             if(stream_id <= 0)
             {
                  upload_info->curr_slice_num = curr_slice;
-                 printf("upload data to cloud fail, ret = %d\n", stream_id);
+                 log_err("upload data to cloud fail, ret = %d\n", stream_id);
                  LITE_free(data);
                  return HTTP2_UPLOAD_FILE_UPLOAD_FAIL;
             }
@@ -981,7 +981,7 @@ static void process_upload_info(file_upload_info *upload_info)
         if(ret < 0) {
             if(upload_info->retry_count == MAX_HTTP2_MAX_RETRANS_TIMES ||
                 ret <= HTTP2_UPLOAD_FILE_NOT_EXIST) {
-                printf("upload file failed, %d\n", ret);
+                log_err("upload file failed, %d\n", ret);
                 if(upload_info->callback != NULL) {
                     upload_info->callback(ret, NULL, upload_info->user_data);
                 }
@@ -1050,13 +1050,13 @@ void iotx_http2_upload_file_init(device_conn_info *conn_info)
     memset(&g_device_info, 0, sizeof(device_info));
     g_file_upload_ptr->lock_thread = HAL_MutexCreate();
     if (g_file_upload_ptr->lock_thread  == NULL) {
-        printf("lock create failed.\n");
+        log_err("lock create failed.\n");
         return;
     }
     if(conn_info->product_key == NULL ||
        conn_info->device_name == NULL ||
        conn_info->device_secret == NULL) {
-        printf("device parameter is error.\n");
+        log_err("device parameter is error.\n");
         return;
     }
 
@@ -1100,7 +1100,7 @@ void iotx_http2_upload_file_init(device_conn_info *conn_info)
         }
         if(conn != NULL && conn->status == 0) {
             iotx_http2_client_disconnect(conn);
-            printf("network disconnect, try it later\n");
+            log_err("network disconnect, try it later\n");
             g_http2_conn = NULL;
             is_http2_connection = 0;
         }
@@ -1108,6 +1108,6 @@ void iotx_http2_upload_file_init(device_conn_info *conn_info)
     HAL_MutexLock(g_file_upload_ptr->lock_thread);
     release_upload_file_list();
     HAL_MutexUnlock(g_file_upload_ptr->lock_thread);
-    printf("can't connect cloud server, exit\n");
+    log_err("can't connect cloud server, exit\n");
     HAL_MutexDestroy(g_file_upload_ptr->lock_thread);
 }
