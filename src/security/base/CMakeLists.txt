@@ -23,8 +23,9 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/exports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/base)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/base/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/base/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services)
@@ -76,21 +77,13 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_system OBJECT
-    ${PROJECT_SOURCE_DIR}/src/security/src/id2_guider.c
-    ${PROJECT_SOURCE_DIR}/src/security/src/class_interface.c
-    ${PROJECT_SOURCE_DIR}/src/security/src/sdk-impl.c
-    ${PROJECT_SOURCE_DIR}/src/security/src/guider.c
-    ${PROJECT_SOURCE_DIR}/src/security/src/report.c
-    ${PROJECT_SOURCE_DIR}/src/security/src/device.c
-    ${PROJECT_SOURCE_DIR}/src/security/src/ca.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/tfs_demo.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/id2_crypto.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/tfs_uttest.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_base64.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_random.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_log.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_memory.c
-    ${PROJECT_SOURCE_DIR}/src/security/tfs/platform/pal_platform_md5.c
+    ${PROJECT_SOURCE_DIR}/src/security/base/src/id2_guider.c
+    ${PROJECT_SOURCE_DIR}/src/security/base/src/class_interface.c
+    ${PROJECT_SOURCE_DIR}/src/security/base/src/sdk-impl.c
+    ${PROJECT_SOURCE_DIR}/src/security/base/src/guider.c
+    ${PROJECT_SOURCE_DIR}/src/security/base/src/report.c
+    ${PROJECT_SOURCE_DIR}/src/security/base/src/device.c
+    ${PROJECT_SOURCE_DIR}/src/security/base/src/ca.c
     ${EXTRA_C_SOURCES}
 )
 

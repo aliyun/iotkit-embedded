@@ -14,7 +14,7 @@ include src/tools/mock_build_options.mk
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/utils \
-    src/security \
+    src/security/base \
     src/services/linkkit \
     src/protocol/iot-coap-c \
 

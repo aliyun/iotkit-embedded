@@ -67,7 +67,7 @@ ADD_DEFINITIONS (-DUSING_UTILS_JSON)
 ADD_DEFINITIONS (-D_PLATFORM_IS_HOST_)
 
 ADD_SUBDIRECTORY (src/utils)
-ADD_SUBDIRECTORY (src/security)
+ADD_SUBDIRECTORY (src/security/base)
 ADD_SUBDIRECTORY (src/services/linkkit)
 ADD_SUBDIRECTORY (src/protocol/iot-coap-c)
 ADD_SUBDIRECTORY (src/protocol/mqtt)

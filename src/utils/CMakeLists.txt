@@ -23,7 +23,8 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/exports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/base)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/base/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services)
@@ -80,8 +81,8 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/utils/json_parser.c
     ${PROJECT_SOURCE_DIR}/src/utils/string_utils.c
     ${PROJECT_SOURCE_DIR}/src/utils/mem_stats.c
-    ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_testsuites.c
     ${PROJECT_SOURCE_DIR}/src/utils/lite-cjson.c
+    ${PROJECT_SOURCE_DIR}/src/utils/lite-utils_testsuites.c
     ${PROJECT_SOURCE_DIR}/src/utils/log/lite-log.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_list.c
     ${PROJECT_SOURCE_DIR}/src/utils/misc/utils_epoch_time.c

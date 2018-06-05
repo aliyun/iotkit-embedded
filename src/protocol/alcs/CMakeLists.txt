@@ -16,8 +16,8 @@ ADD_LIBRARY (iot_alcs STATIC
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_mqtt.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/CoAPObserve.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_api.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_adapter.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/CoAPPlatform.c
+    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_adapter.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/CoAPExport.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_client.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/CoAPNetwork.c
