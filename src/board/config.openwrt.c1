@@ -15,5 +15,4 @@ CONFIG_ENV_LDFLAGS      += \
 
 CONFIG_ENV_STAGING_DIR  :=
 CONFIG_samples :=
-CONFIG_src/tests :=
 CONFIG_src/tools/linkkit_tsl_convert :=

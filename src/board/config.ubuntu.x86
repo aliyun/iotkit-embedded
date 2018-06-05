@@ -16,7 +16,6 @@ CONFIG_ENV_CFLAGS   += -Werror
 else
 CONFIG_src/platform :=
 CONFIG_samples      :=
-CONFIG_src/tests    :=
 CONFIG_src/tools/linkkit_tsl_convert :=
 endif
 

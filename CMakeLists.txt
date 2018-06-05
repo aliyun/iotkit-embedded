@@ -82,7 +82,7 @@ ADD_SUBDIRECTORY (src/services/linkkit/dm)
 
 ADD_SUBDIRECTORY (src/platform)
 ADD_SUBDIRECTORY (samples)
-ADD_SUBDIRECTORY (src/tests)
+ADD_SUBDIRECTORY (tests)
 ADD_SUBDIRECTORY (src/thirdparty/tls)
 ADD_SUBDIRECTORY (src/tools/linkkit_tsl_convert)
 

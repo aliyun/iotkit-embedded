@@ -50,8 +50,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/Link-OTA)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/Link-OTA/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/subdev)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tests/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/lib)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/lib/common)
@@ -80,10 +78,11 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/tests/)
 
 ADD_EXECUTABLE (sdk-testsuites
-    ${PROJECT_SOURCE_DIR}/src/tests/sdk-testsuites.c
-    ${PROJECT_SOURCE_DIR}/src/tests/hal-os.c
+    ${PROJECT_SOURCE_DIR}/tests/sdk-testsuites.c
+    ${PROJECT_SOURCE_DIR}/tests/hal-os.c
     ${PROJECT_SOURCE_DIR}/build-rules/misc/cut.c
 )
 

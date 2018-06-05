@@ -229,6 +229,6 @@ endif
 
 SUBDIRS += src/platform
 SUBDIRS += samples
-SUBDIRS += src/tests
+SUBDIRS += tests
 SUBDIRS += src/thirdparty/tls
 SUBDIRS += src/tools/linkkit_tsl_convert
