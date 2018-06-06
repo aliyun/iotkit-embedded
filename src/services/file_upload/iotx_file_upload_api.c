@@ -708,30 +708,54 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
     return HTTP2_UPLOAD_FILE_RET_OK;
 }
 
-static int iotx_add_file_into_list(char *file_name,
+static file_upload_list *iotx_get_file_info(char *file_name,
                                 int type,
                                 iotx_upload_file_callback callback,
                                 void *user_data)
 {
-    file_upload_list *p = g_file_list;
-    while(p != NULL) {
-        if(iotx_check_file_same(file_name, p->name) == 1) {
-            LITE_free(file_name);
-            return HTTP2_UPLOAD_FILE_IS_UPLOADING;
-        }
-        p = p->next;
-    }
     file_upload_list *temp = LITE_calloc(1, sizeof(file_upload_list));
     if(temp == NULL) {
-        LITE_free(file_name);
-        return HTTP2_MEMORY_NOT_ENOUGH;
+        return NULL;
     }
     temp->next = NULL;
     temp->name = file_name;
     temp->type = type;
     temp->callback = callback;
     temp->user_data = user_data;
-    p->next = temp;
+    return temp;
+}
+
+static int iotx_add_file_into_list(char *file_name,
+                                int type,
+                                iotx_upload_file_callback callback,
+                                void *user_data)
+{
+    file_upload_list *p = g_file_list;
+    file_upload_list *temp = NULL;
+    if(p == NULL) {
+        temp = iotx_get_file_info(file_name, type, callback, user_data);
+        if(temp == NULL) {
+            LITE_free(file_name);
+            return HTTP2_MEMORY_NOT_ENOUGH;
+        }
+        g_file_list = temp;
+    } else {
+        file_upload_list *pre = p;
+        while(p != NULL) {
+            if(iotx_check_file_same(file_name, p->name) == 1) {
+                LITE_free(file_name);
+                return HTTP2_UPLOAD_FILE_IS_UPLOADING;
+            }
+            pre = p;
+            p = p->next;
+        }
+        temp = iotx_get_file_info(file_name, type, callback, user_data);
+        if(temp == NULL) {
+            LITE_free(file_name);
+            return HTTP2_MEMORY_NOT_ENOUGH;
+        }
+        pre->next = temp;
+    }
     return 0;
 }
 
@@ -993,6 +1017,10 @@ static void process_upload_info(file_upload_info *upload_info)
                 LITE_free(upload_info->filename);
                 memset(upload_info, 0, sizeof(file_upload_info));
                 g_file_upload_ptr->num = g_file_upload_ptr->num - 1;
+                if(g_file_list != NULL) {
+                    /* add into uploading */
+                    iotx_chagne_file_to_upload();
+                }
             } else {
                 upload_info->retry_count = upload_info->retry_count + 1;
             }
@@ -1080,14 +1108,19 @@ void iotx_http2_upload_file_init(device_conn_info *conn_info)
         log_err("device parameter is error.\n");
         return;
     }
-    port = iotx_http2_get_url(buf, conn_info->product_key);
+    if(conn_info->url == NULL || conn_info->port == 0)
+        port = iotx_http2_get_url(buf, conn_info->product_key);
     iotx_http2_set_device_info(conn_info->product_key, conn_info->device_name, conn_info->device_secret);
     while(1) {
         if(g_file_upload_ptr->num > 0) {
             int i;
             file_upload_info *upload_info = NULL;
             if(is_http2_connection == 0) {
-                conn = iotx_http2_client_connect((void *)&client, buf, port);
+                if(conn_info->url == NULL || conn_info->port == 0) {
+                    conn = iotx_http2_client_connect((void *)&client, buf, port);
+                } else {
+                    conn = iotx_http2_client_connect((void *)&client, conn_info->url, conn_info->port);
+                  }
                 if(conn == NULL) {
                     if(count < MAX_HTTP2_MAX_RETRANS_TIMES) {
                         count++;
