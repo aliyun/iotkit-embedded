@@ -1120,7 +1120,7 @@ void iotx_http2_upload_file_init(device_conn_info *conn_info)
                     conn = iotx_http2_client_connect((void *)&client, buf, port);
                 } else {
                     conn = iotx_http2_client_connect((void *)&client, conn_info->url, conn_info->port);
-                  }
+                }
                 if(conn == NULL) {
                     if(count < MAX_HTTP2_MAX_RETRANS_TIMES) {
                         count++;
