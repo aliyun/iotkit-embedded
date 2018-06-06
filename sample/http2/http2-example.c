@@ -35,8 +35,6 @@
 	#define HTTP2_DEVICE_NAME             "YvhjziEQmKusCFUgRpeo"
 	#define HTTP2_DEVICE_SECRET           "QjkhCrAX0SbNWgKpIamuiDdLkk23Q1r7"
 #else
-	#define HTTP2_ONLINE_SERVER_URL       "*.iot-as-http2.cn-shanghai.aliyuncs.com"
-	#define HTTP2_ONLINE_SERVER_PORT	  443
 	#define HTTP2_PRODUCT_KEY             "DM5b8zbTWJs"
 	#define HTTP2_DEVICE_NAME             "mydevice1"
 	#define HTTP2_DEVICE_SECRET           "q4tiwQuICYfr6JQ8aUFjWxocuXJ5ruEx"
@@ -67,7 +65,7 @@ void* upload_thread(void *user_data)
 
     while(retry < MAX_HTTP2_MAX_RETRANS_TIMES) {
         memset(&client, 0, sizeof(httpclient_t));
-        handler = iotx_http2_client_connect((void *)&client, HTTP2_ONLINE_SERVER_URL, HTTP2_ONLINE_SERVER_PORT);
+        handler = iotx_http2_client_connect((void *)&client, NULL, 0);
         if(handler == NULL) {
             printf("can't connect\n");
             return 0;
@@ -163,8 +161,8 @@ void* thread_http2(void *user_data)
     conn_info.product_key = HTTP2_PRODUCT_KEY;
     conn_info.device_name = HTTP2_DEVICE_NAME;
     conn_info.device_secret = HTTP2_DEVICE_SECRET;
-    conn_info.url = HTTP2_ONLINE_SERVER_URL;
-    conn_info.port = HTTP2_ONLINE_SERVER_PORT;
+    conn_info.url = NULL;
+    conn_info.port = 0;
     iotx_http2_upload_file_init(&conn_info);
     return NULL;
 }
