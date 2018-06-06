@@ -4,7 +4,6 @@ SWITCH_VARS := \
     FEATURE_MQTT_COMM_ENABLED \
     FEATURE_MQTT_SHADOW \
     FEATURE_MQTT_DIRECT \
-    FEATURE_MQTT_DIRECT_NOTLS \
     FEATURE_COAP_COMM_ENABLED \
     FEATURE_COAP_DTLS_SUPPORT \
     FEATURE_ALCS_ENABLED \
@@ -16,13 +15,14 @@ SWITCH_VARS := \
     FEATURE_MQTT_ID2_ENV \
     FEATURE_HTTP_COMM_ENABLED \
     FEATURE_HTTP2_COMM_ENABLED \
+	FEATURE_SUPPORT_TLS \
+	FEATURE_SUPPORT_ITLS \
     FEATURE_SUBDEVICE_ENABLED \
     FEATURE_CM_ENABLED \
     FEATURE_DM_ENABLED \
     FEATURE_SERVICE_OTA_ENABLED \
     FEATURE_SERVICE_COTA_ENABLED \
     FEATURE_SUPPORT_PRODUCT_SECRET \
-    FEATURE_MQTT_DIRECT_NOITLS \
 
 $(foreach v, \
     $(SWITCH_VARS), \
@@ -30,29 +30,37 @@ $(foreach v, \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 
+ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
+    ifneq (n,$(strip $(FEATURE_SUPPORT_TLS)))
+        # $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
+	endif
+endif
+
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
-ifneq (n,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-# $(error FEATURE_OTA_ENABLED = y requires FEATURE_MQTT_DIRECT_NOTLS = n!)
-endif
-ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
-ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-$(error FEATURE_OTA_SIGNAL_CHANNEL = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
-endif
-CFLAGS += -DOTA_SIGNAL_CHANNEL=1
-else
-ifeq (COAP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
-ifneq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-$(error FEATURE_OTA_SIGNAL_CHANNEL = COAP requires FEATURE_COAP_COMM_ENABLED = y!)
-endif
-CFLAGS += -DOTA_SIGNAL_CHANNEL=2
-else
-ifeq (HTTP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
-CFLAGS += -DOTA_SIGNAL_CHANNEL=4
-else
-$(error FEATURE_OTA_SIGNAL_CHANNEL must be MQTT or COAP or HTTP!)
-endif # HTTP
-endif # COAP
-endif # MQTT
+    ifeq (n,$(strip $(FEATURE_SUPPORT_TLS)))
+        ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
+            # $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
+	    endif
+    endif
+    ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+        ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
+            $(error FEATURE_OTA_SIGNAL_CHANNEL = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
+        endif
+        CFLAGS += -DOTA_SIGNAL_CHANNEL=1
+    else
+        ifeq (COAP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+            ifneq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+                $(error FEATURE_OTA_SIGNAL_CHANNEL = COAP requires FEATURE_COAP_COMM_ENABLED = y!)
+            endif
+            CFLAGS += -DOTA_SIGNAL_CHANNEL=2
+        else
+            ifeq (HTTP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+                CFLAGS += -DOTA_SIGNAL_CHANNEL=4
+            else
+                $(error FEATURE_OTA_SIGNAL_CHANNEL must be MQTT or COAP or HTTP!)
+            endif # HTTP
+        endif # COAP
+    endif # MQTT
 endif # OTA Enabled
 
 ifeq (y,$(strip $(FEATURE_SUBDEVICE_ENABLED)))
@@ -128,28 +136,30 @@ endif
 
 ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
 
-    ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-        ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
-            $(error FEATURE_MQTT_DIRECT_NOITLS or FEATURE_MQTT_DIRECT_NOTLS must be selected one or more)
-        endif
-    endif
-    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-    CFLAGS  += -DIOTX_WITHOUT_TLS
-    endif
-    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
-    CFLAGS  += -DIOTX_WITHOUT_ITLS
-    endif
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
     $(error FEATURE_MQTT_ID2_CRYPTO + FEATURE_MQTT_DIRECT is not supported!)
     endif
-
-else    # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
-
-    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-    $(error FEATURE_MQTT_DIRECT_NOTLS = y requires FEATURE_MQTT_DIRECT = y!)
+	
+else   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
+    ifeq (n,$(strip $(FEATURE_SUPPORT_TLS)))
+        ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
+            $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
+        endif
     endif
 
 endif   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
+
+ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+    ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
+        $(error FEATURE_SUPPORT_TLS and FEATURE_SUPPORT_ITLS are not supported together!)
+    endif
+else # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+    CFLAGS  += -DIOTX_WITHOUT_TLS
+endif # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+
+ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
+    CFLAGS  += -DIOTX_WITHOUT_ITLS
+endif # ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
     ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
