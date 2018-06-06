@@ -28,7 +28,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "utils_httpc.h"
 
 typedef enum {
 
@@ -39,40 +38,40 @@ typedef enum {
 }http2_flag;
 
 typedef struct http2_connection {
-    httpclient_t   *network;       /**<iot network ptr */
-    void           *session;       //http2 session
-    char           *file_id;       //file id
-    char           *buffer;        //receive buffer
-    int            buffer_len;     //receive buffer length
-    int            *len;           //receive data length
-    int            flag;           //check the stream is end or not
-    char           *statuscode;    // receive response for check is correct
-    char           *store_id;     //store file id
+    void           *network;       /* iot network ptr */
+    void           *session;       /* http2 session */
+    char           *file_id;       /* file id length */
+    char           *buffer;        /* receive buffer */
+    int            buffer_len;     /* receive buffer length */
+    int            *len;           /* receive data length */
+    int            flag;           /* check the stream is end or not */
+    char           *statuscode;    /* receive response for check is correct */
+    char           *store_id;      /* store file id */
     int            status;
 }http2_connection_t;
 
 typedef struct http2_header_struct{
-    char *name;     //header name
-    char *value;    //the value of name
-    int  namelen;   //the length of header name
-    int  valuelen;  //the length of value
+    char *name;     /* header name */
+    char *value;    /* the value of name */
+    int  namelen;   /* the length of header name */
+    int  valuelen;  /* the length of value */
 }http2_header;
 
 typedef struct http2_data_struct{
-    http2_header *header;  //header data.
-    int header_count;      //the count of header data.
-    char *data;            //send data.
-    int len;               //send data length.
-    int stream_id;         //send data over specify stream
-    int flag;              //send data flag.
+    http2_header *header;  /* header data. */
+    int header_count;      /* the count of header data. */
+    char *data;            /* send data. */
+    int len;               /* send data length. */
+    int stream_id;         /* send data over specify stream */
+    int flag;              /* send data flag. */
 }http2_data;
 
 /**
 * @brief          the http2 client connect.
-* @param[in]      pclient: http client.
+* @param[in]      pclient: http client. <struct httpclient_t>
 * @return         http2 client connection handler.
 */
-extern http2_connection_t *iotx_http2_client_connect(httpclient_t *pclient, char *url, int port);
+extern http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port);
 /**
 * @brief          the http2 client send data.
 * @param[in]      handler: http2 client connection handler.

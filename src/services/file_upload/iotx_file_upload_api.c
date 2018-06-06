@@ -19,15 +19,16 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "iot_export.h"
+#include "utils_httpc.h"
 #include "utils_hmac.h"
 #include "lite-utils.h"
 #include "lite-log.h"
 #include "iot_export_http2.h"
 #include "iot_export_file_uploader.h"
 
-#define KEEP_ALIVE_TIMES                     (60) //seconds
-#define MAX_HTTP2_INTERVAL_TIMES             (3)  //seconds
+#define KEEP_ALIVE_TIMES                     (60) /*seconds*/
+#define MAX_HTTP2_INTERVAL_TIMES             (3)  /*seconds*/
 #define MAX_HTTP2_FILE_NAME_LEN              (128)
 #define MAX_HTTP2_SUPPORT_FILE_UPLOAD_NUM    (4)
 #define MAX_HTTP2_PER_DATA_LEN               (1024 * 8)
@@ -215,7 +216,7 @@ static int submit_file_create_request(http2_connection_t *connection, file_info 
     http2_data h2_data;
 
     memset(&h2_data, 0, sizeof(http2_data));
-    if(type == 1) { //log
+    if(type == 1) { /*log*/
         strncpy(type_str, logstr, strlen(logstr));
     } else {
         strncpy(type_str, filestr, strlen(filestr));
@@ -289,7 +290,7 @@ static int submit_file_auth_req(http2_connection_t *connection, int is_recover, 
     http2_data h2_data;
 
     memset(&h2_data, 0, sizeof(http2_data));
-    if(type == 1) { //log
+    if(type == 1) { /* log */
         strncpy(type_str, logstr, strlen(logstr));
     } else {
         strncpy(type_str, filestr, strlen(filestr));
@@ -380,7 +381,7 @@ static int submit_file_data_req(void *conn, char *file_id, file_data_info *file_
     int count = 0;
 
     memset(&h2_data, 0, sizeof(http2_data));
-    if(type == 1) { //log
+    if(type == 1) { /* log */
         strncpy(type_str, logstr, strlen(logstr));
     } else {
         strncpy(type_str, filestr, strlen(filestr));
@@ -423,7 +424,7 @@ static int submit_file_data_req(void *conn, char *file_id, file_data_info *file_
     }
 
     windows_size = iotx_http2_get_available_window_size(conn);
-    while(windows_size < data_len && count < 100) { //wait 10s
+    while(windows_size < data_len && count < 100) { /* wait 10s */
         rv = iotx_http2_update_window_size(conn);
         if(rv < 0) {
             return -1;
@@ -431,7 +432,7 @@ static int submit_file_data_req(void *conn, char *file_id, file_data_info *file_
         windows_size = iotx_http2_get_available_window_size(conn);
         count++;
     }
-    //upload to server
+    /*upload to server*/
     h2_data.data = data;
     h2_data.len = data_len;
     connection->flag = HTTP2_FLAG_NONE;
@@ -445,7 +446,7 @@ static int submit_file_data_req(void *conn, char *file_id, file_data_info *file_
         if(rv < 0) {
             return -1;
         }
-        //stream_id = nghttp2_submit_request(connection->session, NULL, nva, nv_len, &data_prd, NULL);
+        /* stream_id = nghttp2_submit_request(connection->session, NULL, nva, nv_len, &data_prd, NULL); */
     } else {
         uint8_t flags = HTTP2_FLAG_NONE;
         if (last_frame == 1) {
@@ -591,13 +592,13 @@ int iotx_check_file_same(char *file_name, char *file_name_upload)
     return 0;
 }
 
-//#define TEST
+/*#define TEST*/
 HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_info *info)
 {
     char *data = NULL;
-    int file_size = 0;              //file data size
-    int slice_num = 0;               //slice number
-    int curr_slice = *(info->current_pos);   // current slice nunber
+    int file_size = 0;               /* file data size*/
+    int slice_num = 0;               /* slice number*/
+    int curr_slice = *(info->current_pos);   /* current slice nunber*/
     int real_length = 0;
     file_info fileinfo = {0};
     int need_auth = 0;
@@ -622,7 +623,9 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
     }
 
     data  = LITE_malloc(real_length + 1);
-
+    if(data == NULL) {
+        return HTTP2_MEMORY_NOT_ENOUGH;
+    }
     slice_num = file_size / MAX_HTTP2_PER_SLICE_LEN;
     if(file_size % MAX_HTTP2_PER_SLICE_LEN > 0)
     {
@@ -634,10 +637,10 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
     fileinfo.is_recover = 0;
     fileinfo.type = info->type;
     #ifndef TEST
-    if(info->file_id[0] == '\0') { //file id is null, will recover,app need to save file id.
+    if(info->file_id[0] == '\0') { /*file id is null, will recover,app need to save file id.*/
         int result = 0;
         fileinfo.is_recover = 1;
-        //file_id need to save.
+        /*file_id need to save.*/
         result = iotx_cloud_file_create(conn, &fileinfo, info->file_id, info->store_id);
         if(result < 0)
         {
@@ -650,7 +653,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
         need_auth = 1;
     }
     #endif
-    //curr_slice need to save.
+    /*curr_slice need to save.*/
     while(curr_slice <= slice_num) {
         int stream_id = 0;
         int send_times = 0;
@@ -660,7 +663,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
         if (curr_slice < slice_num) {
             send_times = MAX_HTTP2_DATA_SEND_TIMES;
             send_size = MAX_HTTP2_PER_SLICE_LEN;
-        } else { //curr_slice == slice_num :last slice
+        } else { /*curr_slice == slice_num :last slice*/
             send_size = file_size - (curr_slice - 1) * MAX_HTTP2_PER_SLICE_LEN;
             send_times = send_size / MAX_HTTP2_PER_DATA_LEN;
             if (send_size % MAX_HTTP2_PER_DATA_LEN > 0) {
@@ -671,12 +674,12 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
             file_data_info file_data;
             int last_frame = 0;
             int offset = (curr_slice - 1)  * MAX_HTTP2_PER_SLICE_LEN + (i - 1) * MAX_HTTP2_PER_DATA_LEN;
-            if (curr_slice == slice_num && send_times == i) { //last slice & last packet
+            if (curr_slice == slice_num && send_times == i) { /*last slice & last packet*/
                 real_length = file_size - offset;
             }
             iotx_get_file_data(info->file_name, data, real_length, offset);
             data[real_length] = '\0';
-            if (send_times == i) { //last packet in every stream
+            if (send_times == i) { /*last packet in every stream*/
                 last_frame = 1;
             }
             file_data.curr_slice_num = curr_slice;
@@ -845,7 +848,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file_async(char *file_name,
 HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
 {
     char *data = NULL;
-    int curr_slice;   // current slice nunber
+    int curr_slice;   /* current slice nunber*/
     int need_auth = upload_info->need_auth;
     http2_connection_t *conn = NULL;
     int real_length = 0;
@@ -869,7 +872,9 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
     }
 
     data  = LITE_malloc(real_length + 1);
-
+    if(data == NULL) {
+        return HTTP2_MEMORY_NOT_ENOUGH;
+    }
     upload_info->slice_num = upload_info->file_size / MAX_HTTP2_PER_SLICE_LEN;
     if (upload_info->file_size % MAX_HTTP2_PER_SLICE_LEN > 0) {
         upload_info->slice_num = upload_info->slice_num + 1;
@@ -881,10 +886,10 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
     fileinfo.is_recover = 0;
     conn = iotx_get_http2_conn();
 
-    if(upload_info->file_id[0] == '\0') { //file id is null, will recover,app need to save file id.
+    if(upload_info->file_id[0] == '\0') { /*file id is null, will recover,app need to save file id.*/
         int result = 0;
         fileinfo.is_recover = 1;
-        //file_id need to save.
+        /*file_id need to save.*/
         result = iotx_cloud_file_create(conn, &fileinfo, upload_info->file_id, upload_info->store_id);
         if(result < 0)
         {
@@ -897,7 +902,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
         need_auth = 1;
     }
     curr_slice = upload_info->curr_slice_num;
-    //curr_slice need to save.
+    /*curr_slice need to save.*/
     if(curr_slice <= upload_info->slice_num) {
         int stream_id = 0;
         int send_times = 0;
@@ -907,7 +912,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
         if (curr_slice < upload_info->slice_num) {
             send_times = MAX_HTTP2_DATA_SEND_TIMES;
             send_size = MAX_HTTP2_PER_SLICE_LEN;
-        } else { //curr_slice == slice_num :last slice
+        } else { /*curr_slice == slice_num :last slice*/
             send_size = upload_info->file_size - (curr_slice - 1) * MAX_HTTP2_PER_SLICE_LEN;
             send_times = send_size / MAX_HTTP2_PER_DATA_LEN;
             if (send_size % MAX_HTTP2_PER_DATA_LEN > 0) {
@@ -919,7 +924,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
             int last_frame = 0;
             int offset = (curr_slice - 1)  * MAX_HTTP2_PER_SLICE_LEN + (i - 1) * MAX_HTTP2_PER_DATA_LEN;
             int res = 0;
-            if (curr_slice == upload_info->slice_num && send_times == i) { //last slice & last packet
+            if (curr_slice == upload_info->slice_num && send_times == i) { /* last slice & last packet */
                 real_length = upload_info->file_size - offset;
             }
             res = iotx_get_file_data(upload_info->filename, data, real_length, offset);
@@ -927,7 +932,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
                 return HTTP2_UPLOAD_FILE_READ_FAIL;
             }
             data[real_length] = '\0';
-            if (send_times == i) { //last packet in every stream
+            if (send_times == i) { /*last packet in every stream*/
                 last_frame = 1;
             }
             file_data.curr_slice_num = curr_slice;
@@ -965,7 +970,7 @@ static void process_upload_info(file_upload_info *upload_info)
     int ret = 0;
 
     if(upload_info->curr_slice_num > upload_info->slice_num) {
-        //upload success
+        /*upload success*/
         if(upload_info->callback != NULL) {
             upload_info->callback(HTTP2_UPLOAD_FILE_RET_OK,  upload_info->store_id, upload_info->user_data);
         }
@@ -973,7 +978,7 @@ static void process_upload_info(file_upload_info *upload_info)
         memset(upload_info, 0, sizeof(file_upload_info));
         g_file_upload_ptr->num = g_file_upload_ptr->num - 1;
         if(g_file_list != NULL) {
-            //add into uploading
+            /* add into uploading */
             iotx_chagne_file_to_upload();
         }
     } else {
@@ -1018,10 +1023,10 @@ int iotx_http2_keep_alive()
 int iotx_http2_set_bitrate(int bitrate)
 {
     if(bitrate > 0) {
-        // one block is 4096 byte
+        /* one block is 4096 byte*/
         g_file_upload_ptr->delay_time = (64 * 8 * 8) / bitrate;
         if (g_file_upload_ptr->delay_time > 50) {
-            //need to keep alive with cloud
+            /*need to keep alive with cloud*/
             g_file_upload_ptr->delay_time = 50;
         }
         return 0;
@@ -1037,6 +1042,20 @@ int iotx_http2_set_device_info(char *pk, char *dn, char *ds)
     return 0;
 }
 
+static int iotx_http2_get_url(char *buf, char *productkey)
+{
+#if defined(ON_DAILY)
+    sprintf(buf, "%s", "10.101.12.205");
+    return 9999;
+#elif defined(ON_PRE)
+    sprintf(buf, "%s", "100.67.141.158");
+    return 8443;
+#else
+    sprintf(buf, "%s", productkey);
+    strcat(buf, ".iot-as-http2.cn-shanghai.aliyuncs.com");
+    return 443;
+#endif
+}
 
 void iotx_http2_upload_file_init(device_conn_info *conn_info)
 {
@@ -1044,6 +1063,8 @@ void iotx_http2_upload_file_init(device_conn_info *conn_info)
     http2_connection_t *conn = NULL;
     int is_http2_connection = 0;
     int count = 0;
+    char buf[100] = {0};
+    int port = 0;
 
     memset(&g_file_upload, 0, sizeof(file_upload_contex));
     memset(&client, 0, sizeof(httpclient_t));
@@ -1059,14 +1080,14 @@ void iotx_http2_upload_file_init(device_conn_info *conn_info)
         log_err("device parameter is error.\n");
         return;
     }
-
+    port = iotx_http2_get_url(buf, conn_info->product_key);
     iotx_http2_set_device_info(conn_info->product_key, conn_info->device_name, conn_info->device_secret);
     while(1) {
         if(g_file_upload_ptr->num > 0) {
             int i;
             file_upload_info *upload_info = NULL;
             if(is_http2_connection == 0) {
-                conn = iotx_http2_client_connect(&client, conn_info->url, conn_info->port);
+                conn = iotx_http2_client_connect((void *)&client, buf, port);
                 if(conn == NULL) {
                     if(count < MAX_HTTP2_MAX_RETRANS_TIMES) {
                         count++;

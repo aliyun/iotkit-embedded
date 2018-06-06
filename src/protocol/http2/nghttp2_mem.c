@@ -33,8 +33,8 @@ static void *default_malloc(size_t size, void *mem_user_data) {
 
 static void default_free(void *ptr, void *mem_user_data) {
   (void)mem_user_data;
-
-  LITE_free(ptr);
+  if(ptr != NULL)
+    LITE_free(ptr);
 }
 
 static void *default_calloc(size_t nmemb, size_t size, void *mem_user_data) {

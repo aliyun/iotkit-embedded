@@ -52,30 +52,12 @@
 #include "lite-log.h"
 #include "iot_export_http2.h"
 #include "iot_export.h"
-#include "iot_import_product.h"
+#include "utils_httpc.h"
 
 #define MAX_HTTP2_HOST_LEN                   (128)
 
 #define IOTX_H2_SUPPORT
-//#define IOTX_HTTP_ONLINE_SERVER_URL 	"https://iot-as-http.cn-shanghai.aliyuncs.com"
-//"https://http2.akamai.com/"
-//"http://www.ianlewis.org/"
-//"http://nghttp2.org/"
-#ifdef IOTX_H2_SUPPORT
-#define IOTX_HTTP2_ONLINE_SERVER_URL     "https://10.101.12.205/"
-#define IOTX_HTTP2_ONLINE_SERVER_PORT	 9999
-#else
-#define IOTX_HTTP2_ONLINE_SERVER_URL     "http://11.239.175.57/"
-//#define IOTX_HTTP2_ONLINE_SERVER_URL     "http://nghttp2.org/"
 
-//#define IOTX_HTTP2_ONLINE_SERVER_PORT	443
-#define IOTX_HTTP2_ONLINE_SERVER_PORT	8080
-//#define IOTX_HTTP2_ONLINE_SERVER_PORT	80
-#endif
-
-
-//#define IOTX_H2_SUPPORT
-//#define IOTX_HTTP2_DEBUG
 #define IOTX_HTTP_CA_GET				iotx_ca_get()
 #define NGHTTP2_DBG                     log_info
 
@@ -90,7 +72,7 @@ typedef struct _http2_request_struct_ {
 extern const char *iotx_ca_get(void);
 extern int httpclient_connect(httpclient_t *client);
 static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nva_copy, int end);
-static int http2_parse_host(char *url, char *host, size_t maxHostLen);
+/*static int http2_parse_host(char *url, char *host, size_t maxHostLen);*/
 
 int g_recv_timeout = 50;
 
@@ -108,9 +90,9 @@ static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
     connection = (http2_connection_t *)user_data;
 
     NGHTTP2_DBG("send_callback data begins %s * %d!\r\n", (char *)data, (int)length);
-    //if(length < 50)
-        //LITE_hexdump("data:", data, length);
-    client = connection->network;
+    /*if(length < 50)
+        LITE_hexdump("data:", data, length);*/
+    client = (httpclient_t *)connection->network;
     rv = client->net.write(&client->net, (char *)data, length, 5000);
     NGHTTP2_DBG("send_callback data ends len = %d!\r\n", rv);
     if (rv < 0) {
@@ -141,11 +123,10 @@ static ssize_t recv_callback(nghttp2_session *session, uint8_t *buf,
     httpclient_t  *client;
 
     connection = (http2_connection_t *)user_data;
-    //NGHTTP2_DBG("recv_callback begin\r\n");
-    client = connection->network;
+    client = (httpclient_t *)connection->network;
 
     rv = client->net.read(&client->net, (char *)buf, length, g_recv_timeout);
-    //NGHTTP2_DBG("recv_callback len= %d\r\n", rv);
+    /* NGHTTP2_DBG("recv_callback len= %d\r\n", rv); */
     if (rv < 0) {
             rv = NGHTTP2_ERR_CALLBACK_FAILURE;
     } else if (rv == 0) {
@@ -459,7 +440,7 @@ static ssize_t data_read_callback(nghttp2_session *session, int32_t stream_id,
     }
     *data_flags |= NGHTTP2_DATA_FLAG_EOF;
 
-    //len  = strlen((char *)source->ptr);
+    /*len  = strlen((char *)source->ptr);*/
     len  = source->len;
 
     if(length < len) {
@@ -490,6 +471,7 @@ static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nv
 * @param[in]     maxHostLen: Maximun length of host.
 * @return        None.
 */
+#if 0
 static int http2_parse_host(char *url, char *host, size_t maxHostLen)   //Parse URL
 {
     size_t hostLen = 0;
@@ -499,7 +481,7 @@ static int http2_parse_host(char *url, char *host, size_t maxHostLen)   //Parse 
     hostPtr = (char *) strstr(url, "://");
     if (hostPtr == NULL) {
         NGHTTP2_DBG("Could not find host");
-        return 0; //URL is invalid
+        return 0; /*URL is invalid*/
     }
     hostPtr += 3;
 
@@ -510,7 +492,7 @@ static int http2_parse_host(char *url, char *host, size_t maxHostLen)   //Parse 
     } else {
         hostLen = pathPtr - hostPtr;
     }
-    if (maxHostLen < hostLen + 1 ) { //including NULL-terminating char
+    if (maxHostLen < hostLen + 1 ) { /*including NULL-terminating char*/
         NGHTTP2_DBG("Host str is too small (%d >= %d)", (int)maxHostLen, (int)hostLen + 1);
         return 0;
     }
@@ -519,7 +501,7 @@ static int http2_parse_host(char *url, char *host, size_t maxHostLen)   //Parse 
 
     return 1;
 }
-
+#endif
 /**
 * @brief          Connect the SSL client.
 * @param[in]      pclient: http client.
@@ -531,16 +513,15 @@ static int http2_parse_host(char *url, char *host, size_t maxHostLen)   //Parse 
 static int http2_client_conn(httpclient_t *pclient, char *url, int port)
 {
     int ret = 0;
-    char host[MAX_HTTP2_HOST_LEN] = { 0 };
-    //int port = IOTX_HTTP2_ONLINE_SERVER_PORT;
+    /*char host[MAX_HTTP2_HOST_LEN] = { 0 };*/
 
-    http2_parse_host(url, host, sizeof(host));
+    /*http2_parse_host(url, host, sizeof(host));*/
     if (0 == pclient->net.handle) {
         /* Establish connection if no. */
     #ifdef IOTX_H2_SUPPORT
-        ret = iotx_net_init(&pclient->net, host, port, iotx_ca_get(), NULL);
+        ret = iotx_net_init(&pclient->net, url, port, iotx_ca_get(), NULL);
     #else
-        ret = iotx_net_init(&pclient->net, host, port, NULL, NULL);
+        ret = iotx_net_init(&pclient->net, url, port, NULL, NULL);
     #endif
         if (0 != ret) {
             return ret;
@@ -572,7 +553,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
     if (header != NULL && header_count != 0) {
         nva_size = http2_nv_copy_nghttp2_nv(nva, nva_size, header, header_count);
     }
-    //upload to server
+    /*upload to server*/
     if(data != NULL && len != 0) {
         data_prd.source.ptr = data;
         data_prd.source.len = len;
@@ -626,7 +607,7 @@ int iotx_http2_client_recv(http2_connection_t *conn, char *data, int data_len, i
 * @param[in]      pclient: http client.
 * @return         http2 client connection handler.
 */
-http2_connection_t *iotx_http2_client_connect(httpclient_t *pclient, char *url, int port)
+http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port)
 {
     http2_connection_t *connection;
     nghttp2_session_callbacks *callbacks;
@@ -634,7 +615,10 @@ http2_connection_t *iotx_http2_client_connect(httpclient_t *pclient, char *url, 
     int ret = 0;
 
     connection = LITE_calloc(1, sizeof(http2_connection_t));
-    if (0 != (ret = http2_client_conn(pclient, url, port))) {
+    if(connection == NULL) {
+        return NULL;
+    }
+    if (0 != (ret = http2_client_conn((httpclient_t *)pclient, url, port))) {
         NGHTTP2_DBG("https_client_conn failed %d\r\n", ret);
         LITE_free(connection);
         return NULL;
@@ -667,7 +651,7 @@ http2_connection_t *iotx_http2_client_connect(httpclient_t *pclient, char *url, 
 #endif
 
     rv = nghttp2_session_send(connection->session);
-    //request_free(&req);
+    /*request_free(&req);*/
     if (rv < 0) {
         NGHTTP2_DBG("nghttp2_session_send fail %d", rv);
         LITE_free(connection);
@@ -683,10 +667,9 @@ int iotx_http2_client_disconnect(http2_connection_t *conn)
     if(conn == NULL) {
         return 0;
     }
-    httpclient_close(conn->network);
+    httpclient_close((httpclient_t *)conn->network);
     nghttp2_session_del(conn->session);
     LITE_free(conn);
-    conn = NULL;
     return 0;
 }
 
