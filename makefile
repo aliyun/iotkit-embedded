@@ -9,7 +9,6 @@ include src/tools/parse_make_settings.mk
 # CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 # CFLAGS    += -DENABLE_THING_DEBUG
-include src/tools/mock_build_options.mk
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
@@ -38,3 +37,4 @@ $(call CompLib_Map, SERVICE_OTA_ENABLED, src/services/fota)
 $(call CompLib_Map, SERVICE_OTA_ENABLED, src/services/cota)
 
 include $(RULE_DIR)/rules.mk
+include src/tools/mock_build_options.mk
