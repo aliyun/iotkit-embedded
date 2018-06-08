@@ -78,18 +78,24 @@ static int _calc_hmac_signature(
     char                    signature[64];
     char                    hmac_source[512];
     int                     rc = -1;
+	int                     ext = 0;
     iotx_device_info_pt     dev;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
+    
+#ifdef SUPPORT_AUTH_ROUTER
+    ext = 1;
+#endif
 
     memset(signature, 0, sizeof(signature));
     memset(hmac_source, 0, sizeof(hmac_source));
     rc = HAL_Snprintf(hmac_source,
                       sizeof(hmac_source),
-                      "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+                      "clientId%s" "deviceName%s" "ext%d" "productKey%s" "timestamp%s",
                       dev->device_id,
                       dev->device_name,
+					  ext,
                       dev->product_key,
                       timestamp_str);
     LITE_ASSERT(rc < sizeof(hmac_source));
@@ -371,7 +377,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
 
     rc = sprintf(ret,
                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
-                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt?ext=%d"
+                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt&ext=%d"
                  , dev->product_key
                  , dev->device_name
                  , SHA_METHOD
