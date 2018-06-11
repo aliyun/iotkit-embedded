@@ -50,13 +50,15 @@ int     LITE_hexdump(const char *title, const void *buf, const int len);
 
 void    LITE_syslog_routine(const char *f, const int l, const int level, const char *fmt, va_list* params);
 void    LITE_syslog(const char *f, const int l, const int level, const char *fmt, ...);
+void LITE_syslog_upload_to_cloud(const char *module, const int level, const char *fmt, ...);
 
-#define log_emerg(...)          LITE_syslog(__FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
-#define log_crit(...)           LITE_syslog(__FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
-#define log_err(...)            LITE_syslog(__FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
-#define log_warning(...)        LITE_syslog(__FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
-#define log_info(...)           LITE_syslog(__FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
-#define log_debug(...)          LITE_syslog(__FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
+#define log_emerg(...)              LITE_syslog(__FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
+#define log_crit(...)               LITE_syslog(__FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
+#define log_err(...)                LITE_syslog(__FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
+#define log_warning(...)            LITE_syslog(__FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
+#define log_info(...)               LITE_syslog(__FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
+#define log_debug(...)              LITE_syslog(__FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
+#define log_err_online(module, ...) LITE_syslog_upload_to_cloud(module, LOG_ERR_LEVEL, __VA_ARGS__)
 
 int     log_multi_line_internal(const char *f, const int l,
                                 const char *title, int level, char *payload, const char *mark);
