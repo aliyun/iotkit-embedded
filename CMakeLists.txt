@@ -57,28 +57,27 @@ ADD_DEFINITIONS (-DHTTP_COMM_ENABLED)
 ADD_DEFINITIONS (-DIOTX_WITHOUT_ITLS)
 ADD_DEFINITIONS (-DMQTT_COMM_ENABLED)
 ADD_DEFINITIONS (-DMQTT_DIRECT)
-ADD_DEFINITIONS (-DMQTT_DIRECT_NOITLS)
 ADD_DEFINITIONS (-DMQTT_SHADOW)
 ADD_DEFINITIONS (-DOTA_ENABLED)
 ADD_DEFINITIONS (-DOTA_SIGNAL_CHANNEL=1)
 ADD_DEFINITIONS (-DSUBDEV_VIA_MQTT)
+ADD_DEFINITIONS (-DSUPPORT_TLS)
 ADD_DEFINITIONS (-DTEST_COAP_DAILY)
 ADD_DEFINITIONS (-DUSING_UTILS_JSON)
 ADD_DEFINITIONS (-D_PLATFORM_IS_HOST_)
 
 ADD_SUBDIRECTORY (src/utils)
 ADD_SUBDIRECTORY (src/security/base)
-ADD_SUBDIRECTORY (src/services/linkkit)
-ADD_SUBDIRECTORY (src/protocol/iot-coap-c)
 ADD_SUBDIRECTORY (src/protocol/mqtt)
 ADD_SUBDIRECTORY (src/services/file_upload)
 ADD_SUBDIRECTORY (src/protocol/http2)
+ADD_SUBDIRECTORY (src/services/linkkit)
+ADD_SUBDIRECTORY (src/services/linkkit/dm)
 ADD_SUBDIRECTORY (src/services/ota)
 ADD_SUBDIRECTORY (src/services/shadow)
 ADD_SUBDIRECTORY (src/protocol/coap)
 ADD_SUBDIRECTORY (src/protocol/http)
 ADD_SUBDIRECTORY (src/services/linkkit/cm)
-ADD_SUBDIRECTORY (src/services/linkkit/dm)
 
 ADD_SUBDIRECTORY (src/platform)
 ADD_SUBDIRECTORY (samples)
@@ -89,17 +88,16 @@ ADD_SUBDIRECTORY (src/tools/linkkit_tsl_convert)
 ADD_LIBRARY (iot_sdk STATIC
     $<TARGET_OBJECTS:iot_utils>
     $<TARGET_OBJECTS:iot_system>
-    $<TARGET_OBJECTS:iot_linkkit>
-    $<TARGET_OBJECTS:core_coap>
     $<TARGET_OBJECTS:iot_mqtt>
     $<TARGET_OBJECTS:iot_file_uploader>
     $<TARGET_OBJECTS:iot_http2>
+    $<TARGET_OBJECTS:iot_linkkit>
+    $<TARGET_OBJECTS:iot_dm>
     $<TARGET_OBJECTS:iot_ota>
     $<TARGET_OBJECTS:iot_shadow>
     $<TARGET_OBJECTS:iot_coap>
     $<TARGET_OBJECTS:iot_http>
     $<TARGET_OBJECTS:iot_cmp>
-    $<TARGET_OBJECTS:iot_dm>
 )
 if(WIN32)
     TARGET_LINK_LIBRARIES (iot_sdk ws2_32)
