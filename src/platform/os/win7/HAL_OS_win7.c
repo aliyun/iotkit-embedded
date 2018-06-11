@@ -91,6 +91,21 @@ uint64_t HAL_UptimeMs(void)
     return (uint64_t)(GetTickCount());
 }
 
+char *HAL_Gettimestr(_IN_ char *buf, _IN_ int len)
+{
+    time_t t;
+    struct tm      *local;
+    int str_len    = 0;
+
+    if (buf == NULL && len >= 28) {
+        return NULL;
+    }
+    t = time(NULL);
+    local = localtime(&t);
+    strftime(buf, 28, "%m-%d %H:%M:%S", local);
+    return buf;
+}
+
 void HAL_SleepMs(_IN_ uint32_t ms)
 {
     Sleep(ms);
