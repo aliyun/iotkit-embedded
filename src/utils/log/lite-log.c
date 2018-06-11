@@ -20,6 +20,7 @@
 #include "lite-utils.h"
 #include "iot_export.h"
 #include "mqtt_instance.h"
+#include "iot_import.h"
 
 #define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    \
     do { \
@@ -82,7 +83,7 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
 static log_client logcb;
 
 static char *lvl_names[] = {
-    "emg", "crt", "err", "wrn", "inf", "dbg",
+    "emg", "crt", "ERROR", "WARNING", "INFO", "DEBUG",
 };
 
 void LITE_syslog_routine(const char *f, const int l, const int level, const char *fmt, va_list* params)
@@ -90,12 +91,12 @@ void LITE_syslog_routine(const char *f, const int l, const int level, const char
     char       *tmpbuf = logcb.text_buf;
     char       *o = tmpbuf;
     int         truncated = 0;
-
+    char       buf[28];
     if (!strlen(LITE_get_logname()) || LITE_get_loglevel() < level || level < LOG_EMERG_LEVEL) {
         return;
     }
 
-    LITE_printf(LOG_PREFIX_FMT, lvl_names[level], f, l);
+    LITE_printf(LOG_PREFIX_FMT, HAL_Gettimestr(buf, 28), lvl_names[level], "c-sdk");
 
     memset(tmpbuf, 0, sizeof(logcb.text_buf));
 
@@ -168,11 +169,12 @@ void LITE_rich_hexdump(const char *f, const int l,
                        const void *buf_ptr,
                        const int buf_len)
 {
+    char buf[28];
     if (LITE_get_loglevel() < level) {
         return;
     }
 
-    LITE_printf(LOG_PREFIX_FMT, lvl_names[LITE_get_loglevel()], f, l);
+    LITE_printf(LOG_PREFIX_FMT, HAL_Gettimestr(buf, 28), lvl_names[LITE_get_loglevel()], "c-sdk");
     LITE_printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
     LITE_hexdump(buf_str, buf_ptr, buf_len);
 

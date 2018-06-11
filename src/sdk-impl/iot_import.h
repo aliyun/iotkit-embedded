@@ -137,6 +137,16 @@ void HAL_Free(_IN_ void *ptr);
  */
 uint64_t HAL_UptimeMs(void);
 
+/**
+ * @brief Retrieves the timer string.
+ *
+ * @param [buf] give buffer to save timer string
+ * @param [len] the length of buffer
+ * @return the string of timer.
+ * @see None.
+ * @note None.
+ */
+char *HAL_Gettimestr(_IN_ char *buf, _IN_ int len);
 
 /**
  * @brief Sleep thread itself.
