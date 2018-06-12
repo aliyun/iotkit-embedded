@@ -23,9 +23,7 @@
 #ifdef COAP_USE_PLATFORM_MEMORY
 #include "lite-utils.h"
 #endif
-#ifdef COAP_USE_PLATFORM_LOG
 #include "lite-log.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,7 +41,7 @@ extern "C" {
 #else
 #define coap_free free
 #endif
-
+#if 0
 #ifdef COAP_USE_PLATFORM_LOG
 #define COAP_TRC   log_debug
 #define COAP_DUMP  log_debug
@@ -68,6 +66,22 @@ extern "C" {
 #define COAP_DEBUG(fmt,args, ...)  coap_log("<DEBUG>", fmt, ##__VA_ARGS__)
 #define COAP_INFO(fmt, args, ...)  coap_log("<INFO> ", fmt, ##__VA_ARGS__)
 #define COAP_ERR(fmt,  args, ...)  coap_log("<ERROR>", fmt, ##__VA_ARGS__)
+#endif
+#endif
+#ifdef SDK_DEBUG_LEVEL_NONE
+#define COAP_TRC
+#define COAP_DUMP
+#define COAP_DEBUG
+#define COAP_INFO
+#define COAP_ERR
+#define COAP_WRN
+#else
+#define COAP_TRC(...)     log_debug("alcs", __VA_ARGS__)
+#define COAP_DUMP(...)    log_debug("alcs", __VA_ARGS__)
+#define COAP_DEBUG(...)   log_debug("alcs", __VA_ARGS__)
+#define COAP_INFO(...)    log_info("alcs", __VA_ARGS__)
+#define COAP_WRN(...)     log_warning("alcs", __VA_ARGS__)
+#define COAP_ERR(...)     log_err("alcs", __VA_ARGS__)
 #endif
 
 int platform_is_multicast(const char *ip_str);

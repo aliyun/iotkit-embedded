@@ -230,18 +230,18 @@ static void iotx_coap_mid_rsphdl(void *arg, void *p_response)
 
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &p_payload_len);
-    log_debug("MID Report: CoAP response code = %d", resp_code);
-    log_debug("MID Report: CoAP msg_len = %d", p_payload_len);
+    COAP_DEBUG("MID Report: CoAP response code = %d", resp_code);
+    COAP_DEBUG("MID Report: CoAP msg_len = %d", p_payload_len);
     if (p_payload_len > 0) {
-        log_debug("MID Report: CoAP msg = '%s'", p_payload);
+        COAP_DEBUG("MID Report: CoAP msg = '%s'", p_payload);
         msg = json_get_value_by_name((char *)p_payload, p_payload_len, "id", &p_payload_len, 0);
         if (NULL != msg) {
-            log_debug("MID Report: CoAP mid_report responseID = '%s'", msg);
+            COAP_DEBUG("MID Report: CoAP mid_report responseID = '%s'", msg);
         } else {
-            log_warning("MID Report: CoAP mid_report responseID not found in msg");
+            COAP_WRN("MID Report: CoAP mid_report responseID not found in msg");
         }
     } else {
-        log_warning("MID Report: CoAP response payload_len = 0");
+        COAP_WRN("MID Report: CoAP response payload_len = 0");
     }
 }
 
@@ -261,19 +261,19 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
     memset(mid, 0, sizeof(mid));
 
     if (0 == HAL_GetPartnerID(pid)) {
-        log_debug("PartnerID is Null");
+        COAP_DEBUG("PartnerID is Null");
         return SUCCESS_RETURN;
     }
     if (0 == HAL_GetModuleID(mid)) {
-        log_debug("ModuleID is Null");
+        COAP_DEBUG("ModuleID is Null");
         return SUCCESS_RETURN;
     }
     if (NULL == p_iotx_coap) {
-        log_err("Invalid param: p_context is NULL");
+        COAP_ERR("Invalid param: p_context is NULL");
         return FAIL_RETURN;
     }
 
-    log_debug("MID Report: started in CoAP");
+    COAP_DEBUG("MID Report: started in CoAP");
     p_coap_ctx = (CoAPContext *)p_iotx_coap->p_coap_ctx;
 
     iotx_midreport_reqid(requestId,
@@ -282,7 +282,7 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
     /* 1,generate json data */
     char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
-        log_err("allocate mem failed");
+        COAP_ERR("allocate mem failed");
         return FAIL_RETURN;
     }
 
@@ -291,7 +291,7 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
                            mid,
                            pid);
 
-    log_debug("MID Report: json data = '%s'", msg);
+    COAP_DEBUG("MID Report: json data = '%s'", msg);
 
     memset(&message, 0, sizeof(iotx_message_t));
 
@@ -307,24 +307,24 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
                                p_iotx_coap->p_devinfo->product_key,
                                p_iotx_coap->p_devinfo->device_name);
 
-    log_debug("MID Report: topic name = '%s'", topic_name);
+    COAP_DEBUG("MID Report: topic name = '%s'", topic_name);
 
     if (ret < 0) {
-        log_err("generate topic name of info failed");
+        COAP_ERR("generate topic name of info failed");
         HAL_Free(msg);
         return FAIL_RETURN;
     }
 
     if (IOTX_SUCCESS != (ret = IOT_CoAP_SendMessage(p_context, topic_name, &message))) {
-        log_err("send CoAP msg failed, ret = %d", ret);
+        COAP_ERR("send CoAP msg failed, ret = %d", ret);
         HAL_Free(msg);
         return FAIL_RETURN;
     }
     HAL_Free(msg);
-    log_debug("MID Report: IOT_CoAP_SendMessage() = %d", ret);
+    COAP_DEBUG("MID Report: IOT_CoAP_SendMessage() = %d", ret);
 
     ret = CoAPMessage_recv(p_coap_ctx, CONFIG_COAP_AUTH_TIMEOUT, 1);
-    log_debug("MID Report: finished, ret = CoAPMessage_recv() = %d", ret);
+    COAP_DEBUG("MID Report: finished, ret = CoAPMessage_recv() = %d", ret);
 
     return SUCCESS_RETURN;
 }

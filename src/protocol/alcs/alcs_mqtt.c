@@ -11,6 +11,7 @@
 #include "alcs_mqtt.h"
 #include "utils_md5.h"
 #include "alcs_adapter.h"
+#include "CoAPPlatform.h"
 
 static alcs_mqtt_ctx_t g_alcs_mqtt_ctx;
 
@@ -29,15 +30,15 @@ static alcs_mqtt_status_e __alcs_mqtt_send_response(char *topic, int id, int cod
 	char *msg_pub = NULL;
 	uint16_t msg_len = 0;
 	alcs_mqtt_status_e status = ALCS_MQTT_STATUS_SUCCESS;
-		
+
 	if (data == NULL || strlen(data) == 0)
         data = "{}";
 
 	msg_len = strlen(ALCS_MQTT_THING_LAN_PREFIX_RESPONSE_FMT) + 20 + strlen(data) + 1;
-	
+
 	if ((msg_pub = ALCS_ADAPTER_malloc(msg_len)) == NULL)
 		return ALCS_MQTT_STATUS_ERROR;
-	
+
 	snprintf(msg_pub,msg_len,ALCS_MQTT_THING_LAN_PREFIX_RESPONSE_FMT,id,code,data);
 
     status =  __alcs_mqtt_publish(topic,1,msg_pub,strlen(msg_pub));
@@ -51,8 +52,8 @@ static alcs_mqtt_status_e __alcs_mqtt_kv_set(const char *key, const void *val, i
 {
 	if (HAL_Kv_Set(key,val,len,sync) != 0)
 		return ALCS_MQTT_STATUS_ERROR;
-	
-	log_info("ALCS KV Set, Key: %s, Val: %s, Len: %d",key,val,len);
+
+	COAP_INFO("ALCS KV Set, Key: %s, Val: %s, Len: %d",key,val,len);
 	return ALCS_MQTT_STATUS_SUCCESS;
 }
 
@@ -61,8 +62,8 @@ static alcs_mqtt_status_e __alcs_mqtt_kv_get(const char *key, void *buffer, int 
 	if (HAL_Kv_Get(key,buffer,buffer_len) != 0)
 		return ALCS_MQTT_STATUS_ERROR;
 
-	log_info("ALCS KV Get, Key: %s",key);
-	
+	COAP_INFO("ALCS KV Get, Key: %s",key);
+
 	return ALCS_MQTT_STATUS_SUCCESS;
 }
 
@@ -71,8 +72,8 @@ static alcs_mqtt_status_e __alcs_mqtt_kv_del(const char *key)
 	if (HAL_Kv_Del(key) != 0)
 		return ALCS_MQTT_STATUS_ERROR;
 
-	log_info("ALCS KV Del, Key: %s",key);
-	
+	COAP_INFO("ALCS KV Del, Key: %s",key);
+
 	return ALCS_MQTT_STATUS_SUCCESS;
 }
 
@@ -85,43 +86,43 @@ alcs_mqtt_status_e __alcs_mqtt_prefix_secret_save(const char *pk, uint16_t pk_le
 	uint8_t key_md5[16] = {0};
 	char key_md5_hexstr[33] = {0};
 	char *value = NULL;
-	
+
 	if (pk == NULL || pk_len >= PRODUCT_KEY_MAXLEN ||
 		dn == NULL || dn_len >= DEVICE_NAME_MAXLEN ||
 		prefix == NULL || secret == NULL)
 	{
-		log_err("Invalid Parameter");
+		COAP_ERR("Invalid Parameter");
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 
 	//Calculate Key
 	key_source = ALCS_ADAPTER_malloc(pk_len + dn_len + 1);
 	if (key_source == NULL) {
-		log_err("No Enough Memory");
+		COAP_ERR("No Enough Memory");
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 	memset(key_source,0,pk_len + dn_len + 1);
-	
+
 	HAL_Snprintf(key_source,pk_len + dn_len + 1,"%.*s%.*s",pk_len,pk,dn_len,dn);
-	
+
 	utils_md5((const unsigned char *)key_source,strlen(key_source),key_md5);
 	utils_md5_hexstr(key_md5,(unsigned char *)key_md5_hexstr);
 
 	//Calculate Value
 	value = ALCS_ADAPTER_malloc(prefix_len + secret_len + 3);
 	if (value == NULL) {
-		log_err("No Enough Memory");
+		COAP_ERR("No Enough Memory");
 		LITE_free(key_source);
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 	memset(value,0,prefix_len + secret_len + 3);
-	
+
 	value[0] = prefix_len;
 	value[1] = secret_len;
 	HAL_Snprintf(&value[2],prefix_len + secret_len + 1,"%.*s%.*s",prefix_len,prefix,secret_len,secret);
 
 	if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_set(key_md5_hexstr, value, prefix_len + secret_len + 3, 1)) {
-		log_err("ALCS KV Set Prefix And Secret Fail");
+		COAP_ERR("ALCS KV Set Prefix And Secret Fail");
 		LITE_free(key_source);
 		LITE_free(value);
 		return ALCS_MQTT_STATUS_ERROR;
@@ -140,38 +141,38 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_laod(const char *pk, uint16_t pk_len,
 	uint8_t key_md5[16] = {0};
 	char key_md5_hexstr[33] = {0};
 	char value[128] = {0};
-	int value_len = 0; 
-	
+	int value_len = 0;
+
 	if (pk == NULL || strlen(pk) >= PRODUCT_KEY_MAXLEN ||
 		dn == NULL || strlen(dn) >= DEVICE_NAME_MAXLEN ||
 		prefix == NULL || secret == NULL) {
-		log_err("Invalid Parameter");
+		COAP_ERR("Invalid Parameter");
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 
 	//Calculate Key
 	key_source = ALCS_ADAPTER_malloc(pk_len + dn_len + 1);
 	if (key_source == NULL) {
-		log_err("No Enough Memory");
+		COAP_ERR("No Enough Memory");
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 	memset(key_source,0,pk_len + dn_len + 1);
-	
+
 	HAL_Snprintf(key_source,pk_len + dn_len + 1,"%.*s%.*s",pk_len,pk,dn_len,dn);
-	
+
 	utils_md5((const unsigned char *)key_source,strlen(key_source),key_md5);
 	utils_md5_hexstr(key_md5,(unsigned char *)key_md5_hexstr);
 
 	//Get Value
 	if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_get(key_md5_hexstr, value, &value_len)) {
-		log_err("ALCS KV Get Prefix And Secret Fail");
+		COAP_ERR("ALCS KV Get Prefix And Secret Fail");
 		LITE_free(key_source);
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 
 	memcpy(prefix,&value[2],value[0]);
 	memcpy(secret,&value[2 + value[0]],value[1]);
-	
+
 	return ALCS_MQTT_STATUS_SUCCESS;
 }
 
@@ -181,28 +182,28 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_del(const char *pk, uint16_t pk_len,
 	char *key_source = NULL;
 	uint8_t key_md5[16] = {0};
 	char key_md5_hexstr[33] = {0};
-	
+
 	if (pk == NULL || strlen(pk) >= PRODUCT_KEY_MAXLEN ||
 		dn == NULL || strlen(dn) >= DEVICE_NAME_MAXLEN) {
-		log_err("Invalid Parameter");
+		COAP_ERR("Invalid Parameter");
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 
 	//Calculate Key
 	key_source = ALCS_ADAPTER_malloc(pk_len + dn_len + 1);
 	if (key_source == NULL) {
-		log_err("No Enough Memory");
+		COAP_ERR("No Enough Memory");
 		return ALCS_MQTT_STATUS_ERROR;
 	}
 	memset(key_source,0,pk_len + dn_len + 1);
-	
+
 	HAL_Snprintf(key_source,pk_len + dn_len + 1,"%.*s%.*s",pk_len,pk,dn_len,dn);
-	
+
 	utils_md5((const unsigned char *)key_source,strlen(key_source),key_md5);
 	utils_md5_hexstr(key_md5,(unsigned char *)key_md5_hexstr);
 
 	if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_del(key_md5_hexstr)) {
-		log_err("ALCS KV Get Prefix And Secret Fail");
+		COAP_ERR("ALCS KV Get Prefix And Secret Fail");
 		LITE_free(key_source);
 		return ALCS_MQTT_STATUS_ERROR;
 	}
@@ -215,23 +216,23 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
 	alcs_mqtt_ctx_t *alcs_mqtt_ctx = (alcs_mqtt_ctx_t*)ctx;
 	char topic_compare[ALCS_MQTT_TOPIC_MAX_LEN] = {0};
 	char reqid[16]	 = {0};
-	
+
 	if (topic == NULL || payload == NULL || topic_len == 0 || payload_len == 0) return;
 
 	memset(topic_compare,0,ALCS_MQTT_TOPIC_MAX_LEN);
 	snprintf(topic_compare,ALCS_MQTT_TOPIC_MAX_LEN,ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
 					alcs_mqtt_ctx->product_key,alcs_mqtt_ctx->device_name);
 
-	log_info("Receivce Message, Topic: %.*s\n",topic_len,topic);
-	log_info("Receivce Message, Payload: %.*s\n",payload_len,payload);
-	
+	COAP_INFO("Receivce Message, Topic: %.*s\n",topic_len,topic);
+	COAP_INFO("Receivce Message, Payload: %.*s\n",payload_len,payload);
+
 	if ((strlen(topic_compare) == topic_len) && (strncmp(topic_compare,topic,topic_len) == 0))
 	{
 		int data_len = 0, prefix_len = 0, secret_len = 0, productKey_len = 0, deviceName_len = 0;
 		char *data = NULL, *prefix = NULL, *secret = NULL, *productKey = NULL, *deviceName = NULL;
 		data = json_get_value_by_name((char *)payload, payload_len, "data", &data_len, NULL);
-		log_info("Data: %.*s\n",data_len,data);
-		
+		COAP_INFO("Data: %.*s\n",data_len,data);
+
 		if(NULL != data && 0 != data_len){
 			char back1, back2;
 			prefix = json_get_value_by_name(data, data_len, ALCS_MQTT_JSON_KEY_PREFIX, &prefix_len, NULL);
@@ -239,8 +240,8 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
 			productKey = json_get_value_by_name(data, data_len, ALCS_MQTT_JSON_KEY_PRODUCT_KEY, &productKey_len, NULL);
 			deviceName = json_get_value_by_name(data, data_len, ALCS_MQTT_JSON_KEY_DEVICE_NAME, &deviceName_len, NULL);
 
-			log_info("Get Reply, Product Key: %.*s, Device Name: %.*s\n",productKey_len,productKey,deviceName_len,deviceName);
-		
+			COAP_INFO("Get Reply, Product Key: %.*s, Device Name: %.*s\n",productKey_len,productKey,deviceName_len,deviceName);
+
 			if(NULL != alcs_mqtt_ctx->coap_ctx && prefix && secret) {
 				back1 = prefix[prefix_len];
 				prefix[prefix_len] = 0;
@@ -248,7 +249,7 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
 				secret[secret_len] = 0;
 				alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, secret);
 				prefix[prefix_len] = back1;
-				secret[secret_len] = back2; 			   
+				secret[secret_len] = back2;
 
 				if (productKey && deviceName) {
 					if (__alcs_mqtt_prefix_secret_save(productKey,productKey_len,deviceName,deviceName_len,prefix,prefix_len,secret,secret_len) == ALCS_MQTT_STATUS_SUCCESS) {
@@ -264,11 +265,11 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
 				}else{
 					iotx_alcs_subdev_remove(alcs_mqtt_ctx->product_key,alcs_mqtt_ctx->device_name);
 					if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_set(ALCS_MQTT_JSON_KEY_PREFIX, prefix, prefix_len, 1)) {
-						log_err("ALCS KV Set Prefix Fail");
+						COAP_ERR("ALCS KV Set Prefix Fail");
 						;
 					}
 					if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_set(ALCS_MQTT_JSON_KEY_SECRET, secret, secret_len, 1)) {
-						log_err("ALCS KV Set Secret Fail");
+						COAP_ERR("ALCS KV Set Secret Fail");
 						;
 					}
 				}
@@ -304,7 +305,7 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
 			if (0 != alcs_remove_svr_key(alcs_mqtt_ctx->coap_ctx, prefix)) {
 			}
 			if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_del(ALCS_MQTT_JSON_KEY_PREFIX)) {
-				log_err("Remove the keyprefix from aos_kv fail");
+				COAP_ERR("Remove the keyprefix from aos_kv fail");
 				;
 			}
 
@@ -334,7 +335,7 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
 			if(NULL != alcs_mqtt_ctx->coap_ctx && blacklist) {
 				alcs_set_revocation(alcs_mqtt_ctx->coap_ctx, blacklist);
 				if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_set(ALCS_MQTT_JSON_KEY_BLACK, blacklist, blacklist_len, 1)) {
-					log_err("aos_kv_set set blacklist fail"); 
+					COAP_ERR("aos_kv_set set blacklist fail");
 					;
 				}
 			}
@@ -373,18 +374,18 @@ alcs_mqtt_status_e alcs_mqtt_init(void *handle,char *product_key,char *device_na
 	if (handle == NULL || product_key == NULL || strlen(product_key) > PRODUCT_KEY_LEN ||
 		device_name == NULL || strlen(device_name) > DEVICE_NAME_LEN)
 		return ALCS_MQTT_STATUS_ERROR;
-	
+
 	memset(ctx,0,sizeof(alcs_mqtt_ctx_t));
 	ctx->coap_ctx = (CoAPContext*)handle;
 	memcpy(ctx->product_key,product_key,strlen(product_key));
 	memcpy(ctx->device_name,device_name,strlen(device_name));
-	
+
 	memset(topic,0,ALCS_MQTT_TOPIC_MAX_LEN);
 	snprintf(topic,ALCS_MQTT_TOPIC_MAX_LEN,ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
 					ctx->product_key,ctx->device_name);
     if (__alcs_mqtt_subscribe((void*)ctx,topic) != ALCS_MQTT_STATUS_SUCCESS)
 	{
-		log_err("ALCS Subscribe Failed, Topic: %s",topic);
+		COAP_ERR("ALCS Subscribe Failed, Topic: %s",topic);
 		status = ALCS_MQTT_STATUS_ERROR;
 	}
 
@@ -393,7 +394,7 @@ alcs_mqtt_status_e alcs_mqtt_init(void *handle,char *product_key,char *device_na
 					ctx->product_key,ctx->device_name);
     if (__alcs_mqtt_subscribe((void*)ctx,topic) != ALCS_MQTT_STATUS_SUCCESS)
 	{
-		log_err("ALCS Subscribe Failed, Topic: %s",topic);
+		COAP_ERR("ALCS Subscribe Failed, Topic: %s",topic);
 		status = ALCS_MQTT_STATUS_ERROR;
 	}
 
@@ -402,7 +403,7 @@ alcs_mqtt_status_e alcs_mqtt_init(void *handle,char *product_key,char *device_na
 					ctx->product_key,ctx->device_name);
     if (__alcs_mqtt_subscribe((void*)ctx,topic) != ALCS_MQTT_STATUS_SUCCESS)
 	{
-		log_err("ALCS Subscribe Failed, Topic: %s",topic);
+		COAP_ERR("ALCS Subscribe Failed, Topic: %s",topic);
 		status = ALCS_MQTT_STATUS_ERROR;
 	}
 
@@ -410,7 +411,7 @@ alcs_mqtt_status_e alcs_mqtt_init(void *handle,char *product_key,char *device_na
 	alcs_mqtt_blacklist_update((void*)ctx->coap_ctx);
 
 	alcs_prefixkey_get(ctx->product_key,ctx->device_name);
-	
+
 	return status;
 }
 
@@ -430,7 +431,7 @@ alcs_mqtt_status_e alcs_mqtt_deinit(void *handle,char *product_key,char *device_
                     ctx->product_key,ctx->device_name);
     if (__alcs_mqtt_unsubscribe((void*)ctx,topic) != ALCS_MQTT_STATUS_SUCCESS)
     {
-        log_err("ALCS Subscribe Failed, Topic: %s",topic);
+        COAP_ERR("ALCS Subscribe Failed, Topic: %s",topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
 
@@ -439,7 +440,7 @@ alcs_mqtt_status_e alcs_mqtt_deinit(void *handle,char *product_key,char *device_
                     ctx->product_key,ctx->device_name);
     if (__alcs_mqtt_unsubscribe((void*)ctx,topic) != ALCS_MQTT_STATUS_SUCCESS)
     {
-        log_err("ALCS Subscribe Failed, Topic: %s",topic);
+        COAP_ERR("ALCS Subscribe Failed, Topic: %s",topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
 
@@ -448,7 +449,7 @@ alcs_mqtt_status_e alcs_mqtt_deinit(void *handle,char *product_key,char *device_
                     ctx->product_key,ctx->device_name);
     if (__alcs_mqtt_unsubscribe((void*)ctx,topic) != ALCS_MQTT_STATUS_SUCCESS)
     {
-        log_err("ALCS Subscribe Failed, Topic: %s",topic);
+        COAP_ERR("ALCS Subscribe Failed, Topic: %s",topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
 
@@ -468,15 +469,15 @@ alcs_mqtt_status_e alcs_mqtt_blacklist_update(void* ctx)
     int blacklist_len = ALCS_MQTT_BLACK_MAX_LEN;
 
     if (NULL == context) return -1;
-    
-    if (ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_BLACK, blacklist, &blacklist_len)) {        
-        log_info("The blacklist is %.*s", blacklist_len, blacklist);
+
+    if (ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_BLACK, blacklist, &blacklist_len)) {
+        COAP_INFO("The blacklist is %.*s", blacklist_len, blacklist);
         if(blacklist_len) {
             alcs_set_revocation(context, blacklist);
             return ALCS_MQTT_STATUS_SUCCESS;
         }
     }
-    
+
     return ALCS_MQTT_STATUS_ERROR;
 }
 
@@ -488,18 +489,18 @@ alcs_mqtt_status_e alcs_mqtt_prefixkey_update(void* ctx)
     int prefix_len = ALCS_MQTT_PREFIX_MAX_LEN, secret_len = ALCS_MQTT_SECRET_MAX_LEN;
 
     if (NULL == context) return ALCS_MQTT_STATUS_ERROR;
-         
-    log_info("start alcs_prefixkey_update\n");
-   
+
+    COAP_INFO("start alcs_prefixkey_update\n");
+
     if (ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_PREFIX, prefix, &prefix_len) &&
         ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_SECRET, secret, &secret_len)) {
-        log_info("The prefix is  %.*s, deviceSecret is %.*s", prefix_len, prefix, secret_len, secret);
+        COAP_INFO("The prefix is  %.*s, deviceSecret is %.*s", prefix_len, prefix, secret_len, secret);
         if(prefix_len && secret_len) {
             alcs_add_svr_key(context, prefix, secret);
             return ALCS_MQTT_STATUS_SUCCESS;
         }
     }
-    
+
     return ALCS_MQTT_STATUS_ERROR;
 }
 
@@ -512,7 +513,7 @@ alcs_mqtt_status_e alcs_prefixkey_get(const char *product_key,const char *device
 	alcs_mqtt_ctx_t* ctx =  __alcs_mqtt_get_ctx();
 	alcs_mqtt_status_e status = ALCS_MQTT_STATUS_SUCCESS;
 	int id = ctx->send_id++;
-	
+
 	if (product_key == NULL || strlen(product_key) > PRODUCT_KEY_LEN ||
 		device_name == NULL || strlen(device_name) > DEVICE_NAME_LEN)
 		return ALCS_MQTT_STATUS_ERROR;
@@ -522,10 +523,10 @@ alcs_mqtt_status_e alcs_prefixkey_get(const char *product_key,const char *device
 	msg_len = strlen(ALCS_MQTT_THING_ALCS_REQUEST) + 10 + 1;
 	if ((msg_pub = ALCS_ADAPTER_malloc(msg_len)) == NULL)
 		return ALCS_MQTT_STATUS_ERROR;
-	
+
 	snprintf(msg_pub, msg_len, ALCS_MQTT_THING_ALCS_REQUEST,id);
 
-	log_err("ALCS Prefix Get, Topic: %s, Payload: %s",topic,msg_pub);
+	COAP_ERR("ALCS Prefix Get, Topic: %s, Payload: %s",topic,msg_pub);
     status = __alcs_mqtt_publish(topic,1,msg_pub,strlen(msg_pub));
 
 	LITE_free(msg_pub);
@@ -542,23 +543,23 @@ alcs_mqtt_status_e alcs_mqtt_subdev_prefix_get(const char *product_key,const cha
 	alcs_mqtt_ctx_t* ctx =  __alcs_mqtt_get_ctx();
 	alcs_mqtt_status_e status = ALCS_MQTT_STATUS_SUCCESS;
 	int id = ctx->send_id++;
-	
+
 	if (product_key == NULL || strlen(product_key) > PRODUCT_KEY_LEN ||
 		device_name == NULL || strlen(device_name) > DEVICE_NAME_LEN)
 		return ALCS_MQTT_STATUS_ERROR;
 
-	log_info("Subdevice, PK: %s, DN: %s\n",product_key,device_name);
+	COAP_INFO("Subdevice, PK: %s, DN: %s\n",product_key,device_name);
 	snprintf(topic,ALCS_MQTT_TOPIC_MAX_LEN,ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_FMT,
 		ctx->product_key,ctx->device_name);
 
 	msg_len = strlen(ALCS_MQTT_THING_ALCS_SUBDEV_REQUEST) + 10 + strlen(product_key) + strlen(device_name) + 1;
 	if ((msg_pub = ALCS_ADAPTER_malloc(msg_len)) == NULL)
 		return ALCS_MQTT_STATUS_ERROR;
-	
+
 	snprintf(msg_pub, msg_len, ALCS_MQTT_THING_ALCS_SUBDEV_REQUEST,id,
 				(int)strlen(product_key),product_key,(int)strlen(device_name),device_name);
 
-	log_err("ALCS Prefix Get, Topic: %s, Payload: %s",topic,msg_pub);
+	COAP_ERR("ALCS Prefix Get, Topic: %s, Payload: %s",topic,msg_pub);
     status = __alcs_mqtt_publish(topic,1,msg_pub,strlen(msg_pub));
 
 	LITE_free(msg_pub);
