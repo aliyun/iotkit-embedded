@@ -22,20 +22,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define http_emerg
-#define http_crit
-#define http_err
-#define http_warning
-#define http_info
-#define http_debug
-#else
 #define http_emerg(...)    log_emerg("http", __VA_ARGS__)
 #define http_crit(...)     log_crit("http", __VA_ARGS__)
 #define http_err(...)      log_err("http", __VA_ARGS__)
 #define http_warning(...)  log_warning("http", __VA_ARGS__)
 #define http_info(...)     log_info("http", __VA_ARGS__)
 #define http_debug(...)    log_debug("http", __VA_ARGS__)
-#endif
 
 #endif  /* __HTTP_DEBUG_H__ */

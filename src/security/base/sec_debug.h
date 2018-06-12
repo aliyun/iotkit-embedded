@@ -22,20 +22,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define sec_emerg
-#define sec_crit
-#define sec_err
-#define sec_warning
-#define sec_info
-#define sec_debug
-#else
 #define sec_emerg(...)    log_emerg("sec", __VA_ARGS__)
 #define sec_crit(...)     log_crit("sec", __VA_ARGS__)
 #define sec_err(...)      log_err("sec", __VA_ARGS__)
 #define sec_warning(...)  log_warning("sec", __VA_ARGS__)
 #define sec_info(...)     log_info("sec", __VA_ARGS__)
 #define sec_debug(...)    log_debug("sec", __VA_ARGS__)
-#endif
 
 #endif  /* __SEC_DEBUG_H__ */

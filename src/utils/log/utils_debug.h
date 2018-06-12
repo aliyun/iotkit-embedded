@@ -23,20 +23,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define utils_emerg
-#define utils_crit
-#define utils_err
-#define utils_warning
-#define utils_info
-#define utils_debug
-#else
 #define utils_emerg(...)    log_emerg("util", __VA_ARGS__)
 #define utils_crit(...)     log_crit("util", __VA_ARGS__)
 #define utils_err(...)      log_err("util", __VA_ARGS__)
 #define utils_warning(...)  log_warning("util", __VA_ARGS__)
 #define utils_info(...)     log_info("util", __VA_ARGS__)
 #define utils_debug(...)    log_debug("util", __VA_ARGS__)
-#endif
 
 #endif  /* __UTILS_DEBUG_H__ */

@@ -22,20 +22,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define OTA_LOG_EMERG
-#define OTA_LOG_CRIT
-#define OTA_LOG_ERROR
-#define OTA_LOG_WRN
-#define OTA_LOG_INFO
-#define OTA_LOG_DEBUG
-#else
 #define OTA_LOG_EMERG(...)    log_emerg("ota", __VA_ARGS__)
 #define OTA_LOG_CRIT(...)     log_crit("ota", __VA_ARGS__)
 #define OTA_LOG_ERROR(...)    log_err("ota", __VA_ARGS__)
 #define OTA_LOG_WRN(...)      log_warning("ota", __VA_ARGS__)
 #define OTA_LOG_INFO(...)     log_info("ota", __VA_ARGS__)
 #define OTA_LOG_DEBUG(...)    log_debug("ota", __VA_ARGS__)
-#endif
 
 #endif  /* __OTA_DEBUG_H__ */

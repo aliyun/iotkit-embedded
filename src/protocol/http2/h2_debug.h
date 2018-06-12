@@ -22,20 +22,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define h2_emerg
-#define h2_crit
-#define h2_err
-#define h2_warning
-#define h2_info
-#define h2_debug
-#else
 #define h2_emerg(...)    log_emerg("h2", __VA_ARGS__)
 #define h2_crit(...)     log_crit("h2", __VA_ARGS__)
 #define h2_err(...)      log_err("h2", __VA_ARGS__)
 #define h2_warning(...)  log_warning("h2", __VA_ARGS__)
 #define h2_info(...)     log_info("h2", __VA_ARGS__)
 #define h2_debug(...)    log_debug("h2", __VA_ARGS__)
-#endif
 
 #endif  /* __HTTP_DEBUG_H__ */

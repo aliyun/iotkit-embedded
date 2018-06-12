@@ -22,20 +22,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define shadow_emerg
-#define shadow_crit
-#define shadow_err
-#define shadow_warning
-#define shadow_info
-#define shadow_debug
-#else
 #define shadow_emerg(...)    log_emerg("sha", __VA_ARGS__)
 #define shadow_crit(...)     log_crit("sha", __VA_ARGS__)
 #define shadow_err(...)      log_err("sha", __VA_ARGS__)
 #define shadow_warning(...)  log_warning("sha", __VA_ARGS__)
 #define shadow_info(...)     log_info("sha", __VA_ARGS__)
 #define shadow_debug(...)    log_debug("sha", __VA_ARGS__)
-#endif
 
 #endif  /* __SHAD_DEBUG_H__ */

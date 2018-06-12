@@ -22,20 +22,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define mqtt_emerg
-#define mqtt_crit
-#define mqtt_err
-#define mqtt_warning
-#define mqtt_info
-#define mqtt_debug
-#else
 #define mqtt_emerg(...)    log_emerg("mqtt", __VA_ARGS__)
 #define mqtt_crit(...)     log_crit("mqtt", __VA_ARGS__)
 #define mqtt_err(...)      log_err("mqtt", __VA_ARGS__)
 #define mqtt_warning(...)  log_warning("mqtt", __VA_ARGS__)
 #define mqtt_info(...)     log_info("mqtt", __VA_ARGS__)
 #define mqtt_debug(...)    log_debug("mqtt", __VA_ARGS__)
-#endif
 
 #endif  /* __MQTT_DEBUG_H__ */

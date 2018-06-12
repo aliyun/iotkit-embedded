@@ -52,12 +52,18 @@ void    LITE_syslog_routine(char *m, const char *f, const int l, const int level
 void    LITE_syslog(char *m, const char *f, const int l, const int level, const char *fmt, ...);
 void LITE_syslog_upload_to_cloud(const char *module, const int level, const char *fmt, ...);
 
-#define log_emerg(module,...)              LITE_syslog(module, __FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
-#define log_crit(module,...)               LITE_syslog(module, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
-#define log_err(module,...)                LITE_syslog(module, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
+#ifdef SDK_DEBUG_LEVEL_NONE
+#define log_warning(module,...)
+#define log_info(module,...)
+#define log_debug(module,...)
+#else
 #define log_warning(module,...)            LITE_syslog(module, __FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
 #define log_info(module,...)               LITE_syslog(module, __FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
 #define log_debug(module,...)              LITE_syslog(module, __FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
+#endif
+#define log_emerg(module,...)              LITE_syslog(module, __FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
+#define log_crit(module,...)               LITE_syslog(module, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
+#define log_err(module,...)                LITE_syslog(module, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
 #define log_err_online(module, ...) LITE_syslog_upload_to_cloud(module, LOG_ERR_LEVEL, __VA_ARGS__)
 
 int     log_multi_line_internal(const char *f, const int l,

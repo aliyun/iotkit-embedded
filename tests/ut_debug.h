@@ -22,20 +22,11 @@
 
 #include "lite-log.h"
 
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define ut_emerg
-#define ut_crit
-#define ut_err
-#define ut_warning
-#define ut_info
-#define ut_debug
-#else
 #define ut_emerg(...)    log_emerg("ut", __VA_ARGS__)
 #define ut_crit(...)     log_crit("ut", __VA_ARGS__)
 #define ut_err(...)      log_err("ut", __VA_ARGS__)
 #define ut_warning(...)  log_warning("ut", __VA_ARGS__)
 #define ut_info(...)     log_info("ut", __VA_ARGS__)
 #define ut_debug(...)    log_debug("ut", __VA_ARGS__)
-#endif
 
 #endif  /* __UT_DEBUG_H__ */
