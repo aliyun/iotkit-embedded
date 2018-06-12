@@ -21,12 +21,13 @@ ${STRIP} -S *.o > /dev/null 2>&1
 
 for obj in $(ls *.o); do
     dir=$(find ${STAGED} -name ${obj}|xargs dirname|xargs basename)
-    printf "%-12s %-32s %s\n" ${dir} ${obj} $(size ${obj}|tail -1|awk '{ print $1+$2 }')
+    printf "%-12s %-32s %-8s %-8s\n" ${dir} ${obj} $(size ${obj}|tail -1|awk '{ print $1+$2 }') $(size ${obj}|tail -1|awk '{ print $2+$3 }')
 done | sort > ${TEMPF}
 
 MODS=$(cat ${TEMPF}|awk '{ print $1 }'|sort -u)
 
 TOTAL=$(cat ${TEMPF}|awk '{ sum += $3 } END { print sum }')
+RAM_TOTAL=$(cat ${TEMPF}|awk '{ sum += $4 } END { print sum }')
 # echo "TOTAL = ${TOTAL}"
 
 SMODS=$( \
@@ -59,6 +60,10 @@ for mod in ${MODS}; do
         "[ ${mod} ]" "${MSIZE} Bytes"
 done | sort -nr
 
+ echo "                             "
+ echo "     ROM_TOTAL = ${TOTAL}"
+ echo "     RAM_TATAL = ${RAM_TOTAL}"
+ 
 cd ${OLDPWD}
 rm -rf ${TEMPD}
 rm -f ${TEMPF}
