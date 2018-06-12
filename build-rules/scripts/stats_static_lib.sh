@@ -21,7 +21,7 @@ ${STRIP} -S *.o > /dev/null 2>&1
 
 for obj in $(ls *.o); do
     dir=$(find ${STAGED} -name ${obj}|xargs dirname|xargs basename)
-    printf "%-12s %-32s %s\n" ${dir} ${obj} $(du -b ${obj}|awk '{ print $1 }')
+    printf "%-12s %-32s %s\n" ${dir} ${obj} $(size ${obj}|tail -1|awk '{ print $1+$2 }')
 done | sort > ${TEMPF}
 
 MODS=$(cat ${TEMPF}|awk '{ print $1 }'|sort -u)

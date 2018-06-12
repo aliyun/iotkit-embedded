@@ -37,7 +37,7 @@ define Post_Distro
         @cp -f samples/http/http-example.c $(FINAL_DIR)/src/http-example.c
         @cat doc/export.sdk.demo/http.mk >> $(FINAL_DIR)/src/Makefile)
    $(if $(filter y,$(FEATURE_HTTP2_COMM_ENABLED)),
-        @cp -f sample/http2/http2-example.c $(FINAL_DIR)/src/http2-example.c
+        @cp -f samples/http2/http2-example.c $(FINAL_DIR)/src/http2-example.c
         @cat doc/export.sdk.demo/http2.mk >> $(FINAL_DIR)/src/Makefile)
 
     @$(SED) -i 's!CC *:= gcc!CC := $(CC)!g' $(FINAL_DIR)/src/Makefile
