@@ -146,7 +146,7 @@ uint64_t HAL_UptimeMs(void);
  * @see None.
  * @note None.
  */
-char *HAL_Gettimestr(_IN_ char *buf, _IN_ int len);
+char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len);
 
 /**
  * @brief Sleep thread itself.

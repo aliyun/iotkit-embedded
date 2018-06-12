@@ -143,7 +143,7 @@ uint64_t HAL_UptimeMs(void)
     return time_ms;
 }
 
-char *HAL_Gettimestr(_IN_ char *buf, _IN_ int len)
+char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
 {
     struct timeval tv;
     struct tm      tm;

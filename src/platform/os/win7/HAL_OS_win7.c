@@ -89,7 +89,7 @@ uint64_t HAL_UptimeMs(void)
     return (uint64_t)(GetTickCount());
 }
 
-char *HAL_Gettimestr(_IN_ char *buf, _IN_ int len)
+char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
 {
     time_t t;
     struct tm      *local;
