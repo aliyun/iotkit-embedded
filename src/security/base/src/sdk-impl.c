@@ -20,6 +20,7 @@
 #ifdef MQTT_ID2_AUTH
 #include "id2_crypto.h"
 #endif
+#include "lite-system.h"
 
 void IOT_OpenLog(const char *ident)
 {
