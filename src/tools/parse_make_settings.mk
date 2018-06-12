@@ -61,6 +61,9 @@ ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
             endif # HTTP
         endif # COAP
     endif # MQTT
+	ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
+		CFLAGS += -DSERVICE_OTA_ENABLED
+	endif #enable ota on enhance sdk
 endif # OTA Enabled
 
 ifeq (y,$(strip $(FEATURE_SUBDEVICE_ENABLED)))
