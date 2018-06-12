@@ -24,16 +24,18 @@ static void _setup_hal_suite(void)
 {
     ADD_SUITE(HAL_OS);
 }
-
+#ifdef HTTP2_COMM_ENABLED
 static void _setup_http2_suite(void)
 {
     ADD_SUITE(HTTP2);
 }
-
+#endif
 int main(int argc, char *argv[])
 {
     _setup_hal_suite();
+#ifdef HTTP2_COMM_ENABLED
     _setup_http2_suite();
+#endif	
     cut_main(argc, argv);
 
     return 0;

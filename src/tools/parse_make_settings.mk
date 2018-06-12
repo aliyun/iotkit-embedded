@@ -31,15 +31,15 @@ $(foreach v, \
 )
 
 ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
-    ifneq (n,$(strip $(FEATURE_SUPPORT_TLS)))
-        # $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
+    ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+        $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
 	endif
-endif
+endif # HTTP2
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
     ifeq (n,$(strip $(FEATURE_SUPPORT_TLS)))
         ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
-            # $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
+            $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
 	    endif
     endif
     ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))

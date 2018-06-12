@@ -1,3 +1,4 @@
+#ifdef HTTP2_COMM_ENABLED
 #include "sdk-testsuites_internal.h"
 #include "cut.h"
 #include "ut_debug.h"
@@ -91,3 +92,4 @@ SUITE(HTTP2) = {
     ADD_CASE(HTTP2, http2_client_case3),
     ADD_CASE_NULL
 };
+#endif
