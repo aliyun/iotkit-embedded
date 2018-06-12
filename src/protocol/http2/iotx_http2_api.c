@@ -161,6 +161,7 @@ static int on_frame_send_callback(nghttp2_session *session,
                 for (i = 0; i < frame->headers.nvlen; ++i) {
                     NGHTTP2_DBG("%s: %s\n", nva[i].name, nva[i].value);
                 }
+                (void)nva;
             }
             break;
         case NGHTTP2_RST_STREAM:
@@ -217,6 +218,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
                     for (i = 0; i < frame->headers.nvlen; ++i) {
                         NGHTTP2_DBG("%s %s\r\n", nva[i].name, nva[i].value);
                     }
+                    (void)nva;
                 }
             }
             break;
