@@ -20,7 +20,7 @@
 
 #include "iot_import.h"
 
-#include "lite-log.h"
+#include "shadow_debug.h"
 #include "lite-utils.h"
 #include "lite-system.h"
 
@@ -64,7 +64,7 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
     list[i].pcontext = pcontext;
 
     if (token_len >= IOTX_DS_TOKEN_LEN) {
-        log_warning("token is too long.");
+        shadow_warning("token is too long.");
         token_len = IOTX_DS_TOKEN_LEN - 1;
     }
     memcpy(list[i].token, ptoken, token_len);
@@ -73,7 +73,7 @@ iotx_update_ack_wait_list_pt iotx_shadow_update_wait_ack_list_add(
     iotx_time_init(&list[i].timer);
     utils_time_countdown_ms(&list[i].timer, timeout);
 
-    log_debug("Add update ACK list");
+    shadow_debug("Add update ACK list");
 
     return &list[i];
 }
@@ -125,18 +125,18 @@ void iotx_ds_update_wait_ack_list_handle_response(
     /* get token */
     pdata = LITE_json_value_of("clientToken", (char *)json_doc);
     if (NULL == pdata) {
-        log_warning("Invalid JSON document: not 'clientToken' key");
+        shadow_warning("Invalid JSON document: not 'clientToken' key");
         return;
     }
     pToken = pdata;
 
     ppayload = LITE_json_value_of("payload", (char *)json_doc);
     if (NULL == ppayload) {
-        log_warning("Invalid JSON document: not 'payload' key");
+        shadow_warning("Invalid JSON document: not 'payload' key");
         LITE_free(pdata);
         return;
     } else {
-        log_debug("ppayload = %s", ppayload);
+        shadow_debug("ppayload = %s", ppayload);
     }
 
     HAL_MutexLock(pshadow->mutex);
@@ -146,11 +146,11 @@ void iotx_ds_update_wait_ack_list_handle_response(
             if (0 == memcmp(pdata, pelement[i].token, strlen(pelement[i].token))) {
                 LITE_free(pdata);
                 HAL_MutexUnlock(pshadow->mutex);
-                log_debug("token=%s", pelement[i].token);
+                shadow_debug("token=%s", pelement[i].token);
                 do {
                     pdata = LITE_json_value_of("status", (char *)ppayload);
                     if (NULL == pdata) {
-                        log_warning("Invalid JSON document: not 'payload.status' key");
+                        shadow_warning("Invalid JSON document: not 'payload.status' key");
                         break;
                     }
 
@@ -170,7 +170,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
 
                         pdata = LITE_json_value_of("content.errorcode", (char *)ppayload);
                         if (NULL == pdata) {
-                            log_warning("Invalid JSON document: not 'content.errorcode' key");
+                            shadow_warning("Invalid JSON document: not 'content.errorcode' key");
                             break;
                         }
                         ack_code = atoi(pdata);
@@ -178,14 +178,14 @@ void iotx_ds_update_wait_ack_list_handle_response(
 
                         pdata = LITE_json_value_of("content.errormessage", (char *)ppayload);
                         if (NULL == pdata) {
-                            log_warning("Invalid JSON document: not 'content.errormessage' key");
+                            shadow_warning("Invalid JSON document: not 'content.errormessage' key");
                             break;
                         }
 
                         pelement[i].callback(pelement[i].pcontext, ack_code, pdata, strlen(pdata));
                         LITE_free(pdata);
                     } else {
-                        log_warning("Invalid JSON document: value of 'status' key is invalid.");
+                        shadow_warning("Invalid JSON document: value of 'status' key is invalid.");
                         LITE_free(pdata);
                     }
 
@@ -204,5 +204,5 @@ void iotx_ds_update_wait_ack_list_handle_response(
     LITE_free(pToken);
     LITE_free(ppayload);
     HAL_MutexUnlock(pshadow->mutex);
-    log_warning("Not match any wait element in list.");
+    shadow_warning("Not match any wait element in list.");
 }

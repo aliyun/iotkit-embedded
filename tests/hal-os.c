@@ -1,5 +1,6 @@
 #include "sdk-testsuites_internal.h"
 #include "cut.h"
+#include "ut_debug.h"
 
 CASE(HAL_OS, HAL_UptimeMs) {
     uint64_t        before = 0;
@@ -11,9 +12,9 @@ CASE(HAL_OS, HAL_UptimeMs) {
     after = HAL_UptimeMs();
     result = after - before - 5;
 
-    log_debug("before = HAL_UptimeMs() = %" PRIu64, before);
-    log_debug("after = HAL_UptimeMs() = %" PRIu64, after);
-    log_debug("result = HAL_UptimeMs() = %d", after-before);
+    ut_debug("before = HAL_UptimeMs() = %" PRIu64, before);
+    ut_debug("after = HAL_UptimeMs() = %" PRIu64, after);
+    ut_debug("result = HAL_UptimeMs() = %d", after-before);
 
     ASSERT_IN(-1, result, 1);
 }

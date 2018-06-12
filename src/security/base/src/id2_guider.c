@@ -86,7 +86,7 @@ static int _calc_id2_signature(
     LITE_ASSERT(dev);
 
     /* Get timestamp */
-    log_debug("timestamp_str: %s", timestamp_str);
+    sec_debug("timestamp_str: %s", timestamp_str);
 
     /* Get Device Code */
     rc = tfs_id2_get_timestamp_auth_code((uint8_t *)timestamp_str,
@@ -324,7 +324,7 @@ static int id2_guider_get_iotId_iotToken(
                    iotx_ca_get()
 #endif
                   );
-    log_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
+    sec_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
     pvalue = LITE_json_value_of("code", iotx_payload);
     if (!pvalue) {
@@ -345,12 +345,12 @@ static int id2_guider_get_iotId_iotToken(
     pvalue = LITE_json_value_of("data.iotId", iotx_payload);
     if (NULL == pvalue) {
         cipher_data = 1;
-        log_debug("'data.iotId' NOT found, cipher_data = %d", cipher_data);
+        sec_debug("'data.iotId' NOT found, cipher_data = %d", cipher_data);
     } else {
         LITE_free(pvalue);
         pvalue = NULL;
         cipher_data = 0;
-        log_debug("'data.iotId' already found, cipher_data = %d", cipher_data);
+        sec_debug("'data.iotId' already found, cipher_data = %d", cipher_data);
     }
 
     if (cipher_data) {
@@ -370,7 +370,7 @@ static int id2_guider_get_iotId_iotToken(
                                     src_len,
                                     b64_decode,
                                     &dst_len);
-        log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
+        sec_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
         if (id2_rc) {
             goto do_exit;
         }
@@ -388,20 +388,20 @@ static int id2_guider_get_iotId_iotToken(
                                  id2_decrypt,
                                  &dec_len);
         /* remove */
-        /*log_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);*/
+        /*sec_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);*/
         if (id2_rc != 0) {
             log_err("decrypt cipher text with ID2 key error!");
             goto do_exit;
         }
 
         /* remove */
-        /*log_debug("id2_decrypt = %s", id2_decrypt);*/
+        /*sec_debug("id2_decrypt = %s", id2_decrypt);*/
 
         sprintf(iotx_payload, "{\"data\":");
         strcat(iotx_payload, (const char *)id2_decrypt);
         strcat(iotx_payload, "}");
         /* remove */
-        /*log_debug("iotx_payload = %s", iotx_payload);*/
+        /*sec_debug("iotx_payload = %s", iotx_payload);*/
     }
 
 
@@ -451,17 +451,17 @@ static int id2_guider_get_iotId_iotToken(
                                 src_len,
                                 usr->aeskey_hex,
                                 &dst_len);
-    log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
+    sec_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
     LITE_ASSERT(!id2_rc);
     HEXDUMP_DEBUG(usr->aeskey_hex, dst_len);
 
-    log_debug("%10s: %s", "iotId", iot_id);
-    
+    sec_debug("%10s: %s", "iotId", iot_id);
+
     /* remove */
-    /*log_debug("%10s: %s", "iotToken", iot_token);
-    log_debug("%10s: %s", "Host", host);
-    log_debug("%10s: %d", "Port", *pport);
-    log_debug("%10s: %s", "AES Key", usr->aeskey_str);*/
+    /*sec_debug("%10s: %s", "iotToken", iot_token);
+    sec_debug("%10s: %s", "Host", host);
+    sec_debug("%10s: %d", "Port", *pport);
+    sec_debug("%10s: %s", "AES Key", usr->aeskey_str);*/
 
     ret = 0;
 
@@ -539,7 +539,7 @@ int iotx_guider_id2_authenticate(void)
                                          );
 
     LITE_ASSERT(req_str);
-    log_debug("req_str = '%s'", req_str);
+    sec_debug("req_str = '%s'", req_str);
 
     if (0 != id2_guider_get_iotId_iotToken(guider_url,
                                            req_str,
@@ -592,7 +592,7 @@ int iotx_guider_id2_authenticate(void)
                       id2,
 #else
                       dev->device_name,
-#endif             
+#endif
 #endif
                       dev->product_key);
     _fill_conn_string(conn->password, sizeof(conn->password),

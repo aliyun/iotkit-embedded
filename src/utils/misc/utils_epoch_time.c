@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 #include "utils_epoch_time.h"
-#include "lite-log.h"
+#include "utils_debug.h"
 
 #define HTTP_RESP_CONTENT_LEN   (64)
 #define ALIYUN_NTP_SERVER       "ntp%d.aliyun.com"
@@ -111,7 +111,7 @@ static int _get_packet(unsigned char *packet, int *len)
     struct timeval_t now = {0, 0};
 
     if (*len < 48) {
-        log_err("packet buf too short!\n");
+        utils_err("packet buf too short!\n");
         return -1;
     }
 
@@ -165,17 +165,17 @@ static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval_t *tv
 #undef Data
 
 #ifdef NTP_DEBUG
-    log_debug("LI=%d  VN=%d  Mode=%d  Stratum=%d  Poll=%d  Precision=%d\n",
+    utils_debug("LI=%d  VN=%d  Mode=%d  Stratum=%d  Poll=%d  Precision=%d\n",
               ntp_packet.li, ntp_packet.vn, ntp_packet.mode,
               ntp_packet.stratum, ntp_packet.poll, ntp_packet.prec);
-    log_debug("Delay=%.1f  Dispersion=%.1f  Refid=%u.%u.%u.%u\n",
+    utils_debug("Delay=%.1f  Dispersion=%.1f  Refid=%u.%u.%u.%u\n",
               sec2u(ntp_packet.delay), sec2u(ntp_packet.disp),
               ntp_packet.refid >> 24 & 0xff, ntp_packet.refid >> 16 & 0xff,
               ntp_packet.refid >> 8 & 0xff, ntp_packet.refid & 0xff);
-    log_debug("Reference %u.%.6u\n", reftime.coarse - JAN_1970, USEC(reftime.fine));
-    log_debug("Originate %u.%.6u\n", orgtime.coarse - JAN_1970, USEC(orgtime.fine));
-    log_debug("Receive   %u.%.6u\n", rectime.coarse - JAN_1970, USEC(rectime.fine));
-    log_debug("Transmit  %u.%.6u\n", xmttime.coarse - JAN_1970, USEC(xmttime.fine));
+    utils_debug("Reference %u.%.6u\n", reftime.coarse - JAN_1970, USEC(reftime.fine));
+    utils_debug("Originate %u.%.6u\n", orgtime.coarse - JAN_1970, USEC(orgtime.fine));
+    utils_debug("Receive   %u.%.6u\n", rectime.coarse - JAN_1970, USEC(rectime.fine));
+    utils_debug("Transmit  %u.%.6u\n", xmttime.coarse - JAN_1970, USEC(xmttime.fine));
 #endif
 
     tv->tv_sec = xmttime.coarse - JAN_1970;
@@ -194,25 +194,25 @@ static uint64_t _get_timestamp_from_ntp(const char *host)
 
     fd = (long)HAL_UDP_create((char *)host, ALIYUN_NTP_PORT);
     if (fd < 0) {
-        log_err("udp create error!");
+        utils_err("udp create error!");
         return 0;
     }
 
     ret = _get_packet(write_buf, &write_len);
     if (ret < 0) {
-        log_err("get_packet error!");
+        utils_err("get_packet error!");
         goto do_exit;
     }
 
     ret = HAL_UDP_write((void *)fd, write_buf, write_len);
     if (ret < 0) {
-        log_err("udp write error!");
+        utils_err("udp write error!");
         goto do_exit;
     }
 
     ret = HAL_UDP_readTimeout((void *)fd, read_buf, sizeof(read_buf), 3000);
     if (ret < 0) {
-        log_err("udp read error!");
+        utils_err("udp read error!");
         goto do_exit;
     }
     _rfc1305_parse_timeval(read_buf, &tv);

@@ -18,6 +18,7 @@
 
 
 #include "lite-utils_internal.h"
+#include "ut_debug.h"
 
 int unittest_string_utils(void)
 {
@@ -26,9 +27,9 @@ int unittest_string_utils(void)
     unsigned char       outbuf[10] = { 0x0 };
 
     LITE_hexbuf_convert(hexbuf, hexstr, sizeof(hexbuf), 0);
-    log_info("hexstr = '%s'", hexstr);
+    ut_info("hexstr = '%s'", hexstr);
     LITE_hexbuf_convert(hexbuf, hexstr, sizeof(hexbuf), 1);
-    log_info("hexstr = '%s'", hexstr);
+    ut_info("hexstr = '%s'", hexstr);
 
     LITE_hexstr_convert(hexstr, outbuf, strlen(hexstr));
     HEXDUMP_INFO(outbuf, sizeof(outbuf));
@@ -38,19 +39,19 @@ int unittest_string_utils(void)
     char               *str = NULL;
 
     str = LITE_format_string(UNITTEST_STRING_FORMAT, 100, "Hello", 'A', 640);
-    log_info("(Length: %02d) '%s'", (int)strlen(str), str);
+    ut_info("(Length: %02d) '%s'", (int)strlen(str), str);
     LITE_free(str);
 
     str = LITE_format_nstring(10, UNITTEST_STRING_FORMAT, 100, "Hello", 'A', 640);
-    log_info("(Length: %02d) '%s'", (int)strlen(str), str);
+    ut_info("(Length: %02d) '%s'", (int)strlen(str), str);
     LITE_free(str);
 
     str = LITE_format_nstring(20, UNITTEST_STRING_FORMAT, 100, "Hello", 'A', 640);
-    log_info("(Length: %02d) '%s'", (int)strlen(str), str);
+    ut_info("(Length: %02d) '%s'", (int)strlen(str), str);
     LITE_free(str);
 
     str = LITE_format_nstring(40, UNITTEST_STRING_FORMAT, 100, "Hello", 'A', 640);
-    log_info("(Length: %02d) '%s'", (int)strlen(str), str);
+    ut_info("(Length: %02d) '%s'", (int)strlen(str), str);
     LITE_free(str);
 
 #define UNITTEST_JSON_FORMAT    \
@@ -64,17 +65,17 @@ int unittest_string_utils(void)
     char                source[128];
 
     LITE_snprintf(source, sizeof(source), "%s", "Hello, World!");
-    log_info("ORIG: '%s'", source);
+    ut_info("ORIG: '%s'", source);
     LITE_replace_substr(source, "Worl", "Clou");
-    log_info("REPL: '%s'", source);
+    ut_info("REPL: '%s'", source);
 
     LITE_snprintf(source, sizeof(source), "%s", UNITTEST_JSON_FORMAT);
-    log_info("ORIG: '%s'", source);
+    ut_info("ORIG: '%s'", source);
     LITE_replace_substr(source, "Float", "%f");
     LITE_replace_substr(source, "Integer", "%d");
     LITE_replace_substr(source, "String", "%s");
     LITE_replace_substr(source, "Boolean", "%s");
-    log_info("REPL: '%s'", source);
+    ut_info("REPL: '%s'", source);
 
     return 0;
 }
@@ -117,7 +118,7 @@ int unittest_json_token(void)
             char           *val = NULL;
 
             val = LITE_json_value_of(pos->key, UNITTEST_JSON_SAMPLE);
-            log_info("%-28s: %.48s", pos->key, val);
+            ut_info("%-28s: %.48s", pos->key, val);
             LITE_free(val);
         }
     }
@@ -137,7 +138,7 @@ int unittest_json_token(void)
         char       *val;
 
         val = LITE_json_value_of(token, sub_objc);
-        log_info("%s|%-18s: %.48s", UNITTEST_JSON_SUBKEY, token, val);
+        ut_info("%s|%-18s: %.48s", UNITTEST_JSON_SUBKEY, token, val);
         LITE_free(val);
     }
     LITE_json_keys_release(ret_list);
@@ -167,11 +168,11 @@ int unittest_json_parser(void)
     for (pkey = keys; *pkey; ++ pkey) {
         val = LITE_json_value_of(*pkey, UNITTEST_JSON_SAMPLE);
         if (val == NULL) {
-            log_err("failed to get value of key: '%s'", *pkey);
+            ut_err("failed to get value of key: '%s'", *pkey);
             return -1;
         }
 
-        log_info("%-28s: %s", *pkey, val);
+        ut_info("%-28s: %s", *pkey, val);
         LITE_free(val);
     }
 

@@ -16,7 +16,7 @@
  *
  */
 
-
+#include "utils_debug.h"
 #include "mem_stats.h"
 
 LIST_HEAD(mem_recs);
@@ -77,7 +77,7 @@ static int record_backtrace(int *level, char *** trace)
     *level = backtrace(buffer, MAX_BT_LEVEL);
     *trace = backtrace_symbols(buffer, *level);
     if (*trace == NULL) {
-        log_err("backtrace_symbols returns NULL!");
+        utils_err("backtrace_symbols returns NULL!");
         return -1;
     }
 
@@ -123,7 +123,7 @@ void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...
     temp = LITE_malloc_internal(f, l, size, magic, module_name);
 
     if (NULL == temp) {
-        log_err("allocate %d bytes from %s(%d) failed", size, f, l);
+        utils_err("allocate %d bytes from %s(%d) failed", size, f, l);
         return NULL;
     }
 
@@ -230,7 +230,7 @@ int _count_malloc_internal(const char *f, const int l, OS_malloc_record *os_mall
     pos = (module_mem_t *)_find_mem_table(module_name, &mem_module_statis);
     if (!pos) {
         if (NULL == (pos = (module_mem_t *)_create_mem_table(module_name, &mem_module_statis))) {
-            log_err("create_mem_table:[%s] failed!", module_name);
+            utils_err("create_mem_table:[%s] failed!", module_name);
             return ret;
         }
     }
@@ -279,7 +279,7 @@ void  _count_free_internal(void *ptr, OS_malloc_record *os_malloc_pos)
 
     pos = (module_mem_t *)(os_malloc_pos->mem_table);
     if (!pos) {
-        log_err("find mem_table faild");
+        utils_err("find mem_table faild");
         return;
     }
 
@@ -316,8 +316,8 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
 
 #if defined(WITH_TOTAL_COST_WARNING)
     if (bytes_total_in_use > WITH_TOTAL_COST_WARNING) {
-        log_debug(" ");
-        log_debug("==== PRETTY HIGH TOTAL IN USE: %d BYTES ====", bytes_total_in_use);
+        utils_debug(" ");
+        utils_debug("==== PRETTY HIGH TOTAL IN USE: %d BYTES ====", bytes_total_in_use);
         LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     }
 #endif
@@ -591,7 +591,7 @@ void LITE_dump_malloc_free_stats(int level)
         }
     }
 #else
-    log_info("WITH_MEM_STATS = %d", WITH_MEM_STATS);
+    utils_info("WITH_MEM_STATS = %d", WITH_MEM_STATS);
 #endif  /* #if WITH_MEM_STATS */
 
     return;

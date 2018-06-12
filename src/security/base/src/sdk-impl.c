@@ -21,6 +21,7 @@
 #include "id2_crypto.h"
 #endif
 #include "lite-system.h"
+#include "sec_debug.h"
 
 void IOT_OpenLog(const char *ident)
 {
@@ -43,7 +44,7 @@ void IOT_SetLogLevel(IOT_LogLevel level)
     LOGLEVEL            lvl = (LOGLEVEL)level;
 
     if (lvl > LOG_DEBUG_LEVEL) {
-        log_err("Invalid input level: %d out of [%d, %d]", level,
+        sec_err("Invalid input level: %d out of [%d, %d]", level,
                 LOG_EMERG_LEVEL,
                 LOG_DEBUG_LEVEL);
         return;
@@ -58,7 +59,7 @@ void IOT_DumpMemoryStats(IOT_LogLevel level)
 
     if (lvl > LOG_DEBUG_LEVEL) {
         lvl = LOG_DEBUG_LEVEL;
-        log_warning("Invalid input level, using default: %d => %d", level, lvl);
+        sec_warning("Invalid input level, using default: %d => %d", level, lvl);
     }
 
     LITE_dump_malloc_free_stats(lvl);
@@ -73,7 +74,7 @@ int IOT_SetupConnInfo(const char *product_key,
     int                 rc = 0;
 
     if (!info_ptr) {
-        log_err("Invalid argument, info_ptr = %p", info_ptr);
+        sec_err("Invalid argument, info_ptr = %p", info_ptr);
         return -1;
     }
 
@@ -83,7 +84,7 @@ int IOT_SetupConnInfo(const char *product_key,
 
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
-    
+
     if (0 == iotx_guider_auth_get())
         rc = iotx_guider_authenticate();
     if (rc == 0) {
@@ -111,7 +112,7 @@ int IOT_SetupConnInfoSecure(const char *product_key,
     POINTER_SANITY_CHECK(info_ptr, -1);
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
-    
+
     if (0 == iotx_guider_auth_get())
         rc = iotx_guider_id2_authenticate();
     if (rc == 0) {

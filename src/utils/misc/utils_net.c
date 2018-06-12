@@ -20,7 +20,7 @@
 
 #include "iot_import.h"
 #include "utils_net.h"
-#include "lite-log.h"
+#include "utils_debug.h"
 
 /*** TCP connection ***/
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -48,7 +48,7 @@ static int disconnect_tcp(utils_network_pt pNetwork)
 static int connect_tcp(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return 1;
     }
 
@@ -65,7 +65,7 @@ static int connect_tcp(utils_network_pt pNetwork)
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return -1;
     }
 
@@ -75,7 +75,7 @@ static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint3
 static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return -1;
     }
 
@@ -85,7 +85,7 @@ static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len
 static int disconnect_ssl(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return -1;
     }
 
@@ -98,7 +98,7 @@ static int disconnect_ssl(utils_network_pt pNetwork)
 static int connect_ssl(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return 1;
     }
 
@@ -122,7 +122,7 @@ static int connect_ssl(utils_network_pt pNetwork)
 static int read_itls(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return -1;
     }
 
@@ -132,7 +132,7 @@ static int read_itls(utils_network_pt pNetwork, char *buffer, uint32_t len, uint
 static int write_itls(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return -1;
     }
 
@@ -142,7 +142,7 @@ static int write_itls(utils_network_pt pNetwork, const char *buffer, uint32_t le
 static int disconnect_itls(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return -1;
     }
 
@@ -155,7 +155,7 @@ static int disconnect_itls(utils_network_pt pNetwork)
 static int connect_itls(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        log_err("network is null");
+        utils_err("network is null");
         return 1;
     }
 
@@ -193,7 +193,7 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
 #endif
     else {
         ret = -1;
-        log_err("no method match!");
+        utils_err("no method match!");
     }
 
     return ret;
@@ -218,7 +218,7 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
 #endif
     else {
         ret = -1;
-        log_err("no method match!");
+        utils_err("no method match!");
     }
 
     return ret;
@@ -243,7 +243,7 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
 #endif
     else {
         ret = -1;
-        log_err("no method match!");
+        utils_err("no method match!");
     }
 
     return  ret;
@@ -268,7 +268,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
 #endif
     else {
         ret = -1;
-        log_err("no method match!");
+        utils_err("no method match!");
     }
 
     return ret;
@@ -277,7 +277,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
 int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt, char *product_key)
 {
     if (!pNetwork || !host) {
-        log_err("parameter error! pNetwork=%p, host = %p", pNetwork, host);
+        utils_err("parameter error! pNetwork=%p, host = %p", pNetwork, host);
         return -1;
     }
     pNetwork->pHostAddress = host;

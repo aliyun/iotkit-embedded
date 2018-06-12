@@ -15,11 +15,11 @@
  * limitations under the License.
  *
  */
- 
+
 #include <stdio.h>
 #include "class_interface.h"
 #include "lite-utils.h"
-
+#include "utils_debug.h"
 
 void* new_object(const void* _class, ...)
 {
@@ -39,7 +39,7 @@ void* new_object(const void* _class, ...)
         va_end(params);
     }
 
-    printf("%s %s @%p\n", ab_class->_class_name, "constructed", p);
+    utils_info("%s %s @%p\n", ab_class->_class_name, "constructed", p);
 
     return p;
 }
@@ -51,7 +51,7 @@ void delete_object(void* _object)
     if (_object && *ab_class && (*ab_class)->dtor) {
         _object = (*ab_class)->dtor(_object);
 
-        printf("%s %s @%p\n", (*ab_class)->_class_name, "destructed", _object);
+        utils_info("%s %s @%p\n", (*ab_class)->_class_name, "destructed", _object);
 
         LITE_free(_object);
     }

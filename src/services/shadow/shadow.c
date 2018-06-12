@@ -25,6 +25,7 @@
 #include "shadow_common.h"
 #include "shadow_update.h"
 #include "shadow_delta.h"
+#include "shadow_debug.h"
 
 
 /* check return code */
@@ -60,8 +61,8 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
 
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
-    log_debug("topic=%.*s", topic_info->topic_len, topic_info->ptopic);
-    log_debug("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
+    shadow_debug("topic=%.*s", topic_info->topic_len, topic_info->ptopic);
+    shadow_debug("data of topic=%.*s", topic_info->payload_len, (char *)topic_info->payload);
 
     /* update time if there is 'timestamp' key in JSON string */
     pname = LITE_json_value_of((char *)"timestamp", (char *)topic_info->payload);
@@ -79,12 +80,12 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
 
     /* get 'method' */
     pname = LITE_json_value_of((char *)"method", (char *)topic_info->payload);
-    /* log_debug("pname(%d) = %s", (int)strlen(pname), pname); */
+    /* shadow_debug("pname(%d) = %s", (int)strlen(pname), pname); */
     if (NULL == pname) {
-        log_err("Invalid JSON document: not 'method' key");
+        shadow_err("Invalid JSON document: not 'method' key");
     } else if ((strlen("control") == strlen(pname)) && !strcmp(pname, "control")) {
         /* call delta handle function */
-        log_debug("receive 'control' method");
+        shadow_debug("receive 'control' method");
 
         iotx_shadow_delta_entry(
                     pshadow,
@@ -93,18 +94,18 @@ static void iotx_shadow_callback_get(iotx_shadow_pt pshadow, void *pclient, iotx
         LITE_free(pname);
     } else if ((strlen("reply") == strlen(pname)) && !strcmp(pname, "reply")) {
         /* call update ACK handle function. */
-        log_debug("receive 'reply' method");
+        shadow_debug("receive 'reply' method");
         iotx_ds_update_wait_ack_list_handle_response(
                     pshadow,
                     topic_info->payload,
                     topic_info->payload_len);
         LITE_free(pname);
     } else {
-        log_err("Invalid 'method' key");
+        shadow_err("Invalid 'method' key");
         LITE_free(pname);
     }
 
-    log_debug("End of method handle");
+    shadow_debug("End of method handle");
 }
 
 static int iotx_shadow_subcribe_get(iotx_shadow_pt pshadow)
@@ -166,13 +167,13 @@ int IOT_Shadow_Push_Async(
     }
 
     if (!IOT_MQTT_CheckStateNormal(pshadow->mqtt)) {
-        log_err("The MQTT connection must be established before UPDATE data.");
+        shadow_err("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
     /*Add to callback list */
 
-    log_debug("data(%d) = %s", (int)data_len, data);
+    shadow_debug("data(%d) = %s", (int)data_len, data);
     ptoken = LITE_json_value_of((char *)"clientToken", (char *)data);
 
     LITE_ASSERT(NULL != ptoken);
@@ -200,12 +201,12 @@ static void iotx_update_ack_cb(
             const char *ack_msg, /* NOTE: NOT a string. */
             uint32_t ack_msg_len)
 {
-    log_debug("ack_code=%d", ack_code);
+    shadow_debug("ack_code=%d", ack_code);
 
     if (NULL != ack_msg) {
-        log_debug("ack_msg=%.*s", ack_msg_len, ack_msg);
+        shadow_debug("ack_msg=%.*s", ack_msg_len, ack_msg);
     } else {
-        log_debug("ack_msg is NULL");
+        shadow_debug("ack_msg is NULL");
     }
 
     *((int *)pcontext) = ack_code;
@@ -226,7 +227,7 @@ iotx_err_t IOT_Shadow_Push(
     }
 
     if (!IOT_MQTT_CheckStateNormal(pshadow->mqtt)) {
-        log_err("The MQTT connection must be established before UPDATE data.");
+        shadow_err("The MQTT connection must be established before UPDATE data.");
         return ERROR_SHADOW_INVALID_STATE;
     }
 
@@ -241,13 +242,13 @@ iotx_err_t IOT_Shadow_Push(
     if ((IOTX_SHADOW_ACK_SUCCESS == ack_update)
         || (IOTX_SHADOW_ACK_ERR_SHADOW_DOCUMENT_IS_NULL == ack_update)) {
         /* It is not the error that device shadow document is null */
-        log_info("update success.");
+        shadow_info("update success.");
         return SUCCESS_RETURN;
     } else if (IOTX_SHADOW_ACK_TIMEOUT == ack_update) {
-        log_info("update timeout.");
+        shadow_info("update timeout.");
         return ERROR_SHADOW_UPDATE_TIMEOUT;
     } else {
-        log_info("update negative ack.");
+        shadow_info("update negative ack.");
         return ERROR_SHADOW_UPDATE_NACK;
     }
 }
@@ -262,11 +263,11 @@ iotx_err_t IOT_Shadow_Pull(void *handle)
     format_data_t format;
     iotx_shadow_pt pshadow = (iotx_shadow_pt)handle;
 
-    log_info("Device Shadow sync start.");
+    shadow_info("Device Shadow sync start.");
 
     buf = LITE_malloc(SHADOW_SYNC_MSG_SIZE);
     if (NULL == buf) {
-        log_err("Device Shadow sync failed");
+        shadow_err("Device Shadow sync failed");
         return ERROR_NO_MEM;
     }
 
@@ -275,9 +276,9 @@ iotx_err_t IOT_Shadow_Pull(void *handle)
 
     ret = IOT_Shadow_Push(pshadow, format.buf, format.offset, 10);
     if (SUCCESS_RETURN == ret) {
-        log_info("Device Shadow sync success.");
+        shadow_info("Device Shadow sync success.");
     } else {
-        log_info("Device Shadow sync failed.");
+        shadow_info("Device Shadow sync failed.");
     }
 
     LITE_free(buf);
@@ -297,28 +298,28 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-            log_info("subscribe success, packet-id=%u", (unsigned int)packet_id);
+            shadow_info("subscribe success, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = 0;
             }
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-            log_info("subscribe wait ack timeout, packet-id=%u", (unsigned int)packet_id);
+            shadow_info("subscribe wait ack timeout, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = -1;
             }
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-            log_info("subscribe nack, packet-id=%u", (unsigned int)packet_id);
+            shadow_info("subscribe nack, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = -1;
             }
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
-            log_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
+            shadow_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                      topic_info->topic_len,
                      topic_info->ptopic,
                      topic_info->payload_len,
@@ -326,7 +327,7 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
             break;
 
         default:
-            /* log_info("Should NOT arrive here."); */
+            /* shadow_info("Should NOT arrive here."); */
             break;
     }
 }
@@ -338,13 +339,13 @@ void *IOT_Shadow_Construct(iotx_shadow_para_pt pparams)
 
     /* initialize shadow */
     if (NULL == (pshadow = LITE_malloc(sizeof(iotx_shadow_t)))) {
-        log_err("Not enough memory");
+        shadow_err("Not enough memory");
         return NULL;
     }
     memset(pshadow, 0x0, sizeof(iotx_shadow_t));
 
     if (NULL == (pshadow->mutex = HAL_MutexCreate())) {
-        log_err("create mutex failed");
+        shadow_err("create mutex failed");
         goto do_exit;
     }
 
@@ -357,13 +358,13 @@ void *IOT_Shadow_Construct(iotx_shadow_para_pt pparams)
 #else
 	if (NULL == (pshadow->mqtt = IOT_MQTT_ConstructSecure(&pparams->mqtt))) {
 #endif /**< MQTT_ID2_AUTH*/
-        log_err("construct MQTT failed");
+        shadow_err("construct MQTT failed");
         goto do_exit;
     }
 
     rc = iotx_shadow_subcribe_get(pshadow);
     if (rc < 0) {
-        log_err("subscribe 'get' topic fialed, rc=%d", rc);
+        shadow_err("subscribe 'get' topic fialed, rc=%d", rc);
         goto do_exit;
     }
 
@@ -374,15 +375,15 @@ void *IOT_Shadow_Construct(iotx_shadow_para_pt pparams)
     }
 
     if (0 == pshadow->inner_data.sync_status) {
-        log_info("Sync device data successfully");
+        shadow_info("Sync device data successfully");
     } else {
-        log_info("Sync device data failed");
+        shadow_info("Sync device data failed");
     }
 
 
     pshadow->inner_data.attr_list = list_new();
     if (NULL == pshadow->inner_data.attr_list) {
-        log_err("new list failed");
+        shadow_err("new list failed");
         goto do_exit;
     }
 

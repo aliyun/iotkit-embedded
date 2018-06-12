@@ -20,7 +20,7 @@
 
 #include "iot_import.h"
 
-#include "lite-log.h"
+#include "shadow_debug.h"
 #include "lite-utils.h"
 #include "utils_list.h"
 #include "shadow_delta.h"
@@ -68,7 +68,7 @@ static uint32_t iotx_shadow_get_timestamp(const char *pmetadata_desired,
         }
     }
 
-    log_err("NOT timestamp in JSON doc");
+    shadow_err("NOT timestamp in JSON doc");
     return 0;
 }
 
@@ -100,7 +100,7 @@ static void iotx_shadow_delta_update_attr(iotx_shadow_pt pshadow,
     iter = list_iterator_new(pshadow->inner_data.attr_list, LIST_TAIL);
     if (NULL == iter) {
         HAL_MutexUnlock(pshadow->mutex);
-        log_warning("Allocate memory failed");
+        shadow_warning("Allocate memory failed");
         return ;
     }
 
@@ -118,7 +118,7 @@ static void iotx_shadow_delta_update_attr(iotx_shadow_pt pshadow,
 
             /* convert string of JSON value according to destination data type. */
             if (SUCCESS_RETURN != iotx_shadow_delta_update_attr_value(pattr, pvalue, strlen(pvalue))) {
-                log_warning("Update attribute value failed.");
+                shadow_warning("Update attribute value failed.");
             }
 
             if (NULL != pattr->callback) {
@@ -155,7 +155,7 @@ void iotx_shadow_delta_entry(
     pmetadata = LITE_json_value_of((char *)key_metadata, (char *)json_doc);
 
     if ((NULL == pstate) || (NULL == pmetadata)) {
-        log_err("Invalid JSON Doc");
+        shadow_err("Invalid JSON Doc");
         return;
     }
 

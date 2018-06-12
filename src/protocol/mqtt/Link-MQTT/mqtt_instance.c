@@ -8,15 +8,8 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
-
+#include "mqtt_debug.h"
 #include "mqtt_instance.h"
-
-#define DPRINT(...)                                      \
-do {                                                     \
-    printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
-    printf(__VA_ARGS__);                                 \
-    printf("\033[0m");                                   \
-} while (0)
 
 static void *mqtt_client = NULL;
 
@@ -64,7 +57,7 @@ static void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt m
         event = MQTT_INSTANCE_EVENT_CONNECTED;
         break;
     case IOTX_MQTT_EVENT_DISCONNECT:
-        event = MQTT_INSTANCE_EVENT_DISCONNECTED; 
+        event = MQTT_INSTANCE_EVENT_DISCONNECTED;
         break;
     default:
         return;
@@ -249,7 +242,7 @@ static void subscriber_cb(void *ctx, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     mqtt_instance_topic_t *t = ctx;
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-    
+
     if (t && t->cb) {
         t->cb((char *)ptopic_info->ptopic,   ptopic_info->topic_len,
               (void *)ptopic_info->payload , ptopic_info->payload_len, t->ctx);
@@ -292,9 +285,9 @@ int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *pay
 }
 
 int mqtt_unsubscribe(char *topic)
-{    
+{
     mqtt_instance_topic_t *t, *t_next;
-    
+
     if (!mqtt_client)
         return -1;
 
@@ -316,7 +309,7 @@ int mqtt_unsubscribe(char *topic)
 int mqtt_publish(char *topic, int qos, void *data, int len)
 {
     iotx_mqtt_topic_info_t mqtt_msg;
-    
+
     if (!mqtt_client)
         return -1;
     memset(&mqtt_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
@@ -328,7 +321,7 @@ int mqtt_publish(char *topic, int qos, void *data, int len)
     mqtt_msg.payload_len = len;
 
     if (IOT_MQTT_Publish(mqtt_client, topic, &mqtt_msg) < 0) {
-        DPRINT("IOT_MQTT_Publish failed\n");
+        mqtt_err("IOT_MQTT_Publish failed\n");
         return -1;
     }
 

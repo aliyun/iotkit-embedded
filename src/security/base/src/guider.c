@@ -18,6 +18,7 @@
 
 #include "guider_internal.h"
 #include "utils_epoch_time.h"
+#include "sec_debug.h"
 
 #ifndef CONFIG_GUIDER_AUTH_TIMEOUT
     #define CONFIG_GUIDER_AUTH_TIMEOUT  (10 * 1000)
@@ -153,7 +154,7 @@ int _http_response(char *payload,
                        "%s",
                        request_string);
     LITE_ASSERT(len < HTTP_POST_MAX_LEN);
-    log_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
+    sec_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
     resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
     if (!resp_payload) {
@@ -180,7 +181,7 @@ int _http_response(char *payload,
     }
 
     memcpy(payload, httpc_data.response_buf, payload_len);
-    log_debug("PAYLOAD: %s", payload);
+    sec_debug("PAYLOAD: %s", payload);
 
 RETURN:
     if (requ_payload) {
@@ -243,23 +244,23 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
         *ptr = '\0';
     }
 
-    /* log_debug("dst(%d) = %s", rc, dst); */
+    /* sec_debug("dst(%d) = %s", rc, dst); */
     return 0;
 }
 
 void guider_print_conn_info(iotx_conn_info_pt conn)
 {
-    log_debug("%s", "-----------------------------------------");
-    log_debug("%16s : %-s", "Host", conn->host_name);
-    log_debug("%16s : %d",  "Port", conn->port);
-    /*log_debug("%16s : %-s", "UserName", conn->username);
-    log_debug("%16s : %-s", "PassWord", conn->password);*/  /* remove */
-    log_debug("%16s : %-s", "ClientID", conn->client_id);
+    sec_debug("%s", "-----------------------------------------");
+    sec_debug("%16s : %-s", "Host", conn->host_name);
+    sec_debug("%16s : %d",  "Port", conn->port);
+    /*sec_debug("%16s : %-s", "UserName", conn->username);
+    sec_debug("%16s : %-s", "PassWord", conn->password);*/  /* remove */
+    sec_debug("%16s : %-s", "ClientID", conn->client_id);
     if (conn->pub_key) {
-        log_debug("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
+        sec_debug("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
     }
 
-    log_debug("%s", "-----------------------------------------");
+    sec_debug("%s", "-----------------------------------------");
 }
 
 void guider_print_dev_guider_info(iotx_device_info_pt dev,
@@ -272,26 +273,26 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
                                   char *id2,
                                   char *dev_code)
 {
-    log_debug("%s", "....................................................");
-    log_debug("%20s : %-s", "ProductKey", dev->product_key);
-    log_debug("%20s : %-s", "DeviceName", dev->device_name);
-    log_debug("%20s : %-s", "DeviceID", dev->device_id);
-    /*log_debug("%20s : %-s", "DeviceSecret", dev->device_secret);*/  /* remove */
-    log_debug("%s", "....................................................");
-    log_debug("%20s : %-s", "PartnerID Buf", partner_id);
-    log_debug("%20s : %-s", "ModuleID Buf", module_id);
-    log_debug("%20s : %s", "Guider URL", guider_url);
+    sec_debug("%s", "....................................................");
+    sec_debug("%20s : %-s", "ProductKey", dev->product_key);
+    sec_debug("%20s : %-s", "DeviceName", dev->device_name);
+    sec_debug("%20s : %-s", "DeviceID", dev->device_id);
+    /*sec_debug("%20s : %-s", "DeviceSecret", dev->device_secret);*/  /* remove */
+    sec_debug("%s", "....................................................");
+    sec_debug("%20s : %-s", "PartnerID Buf", partner_id);
+    sec_debug("%20s : %-s", "ModuleID Buf", module_id);
+    sec_debug("%20s : %s", "Guider URL", guider_url);
     if (secure_mode > 0) {
-        log_debug("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
+        sec_debug("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
     }
-    log_debug("%20s : %s", "Guider Timestamp", time_stamp);
-    log_debug("%s", "....................................................");
-    /*log_debug("%20s : %s", "Guider Sign", guider_sign);*/ /* remove */
+    sec_debug("%20s : %s", "Guider Timestamp", time_stamp);
+    sec_debug("%s", "....................................................");
+    /*sec_debug("%20s : %s", "Guider Sign", guider_sign);*/ /* remove */
     if (id2 != NULL) {
-        log_debug("%20s : %s", "Guider ID2", id2);
-        log_debug("%20s : %s", "Guider DeviceCode", dev_code);
+        sec_debug("%20s : %s", "Guider ID2", id2);
+        sec_debug("%20s : %s", "Guider DeviceCode", dev_code);
     }
-    log_debug("%s", "....................................................");
+    sec_debug("%s", "....................................................");
 
     return;
 }
@@ -456,7 +457,7 @@ static int guider_get_iotId_iotToken(
                    iotx_ca_get()
 #endif
                   );
-    log_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
+    sec_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
     pvalue = LITE_json_value_of("code", iotx_payload);
     if (!pvalue) {
@@ -507,10 +508,10 @@ static int guider_get_iotId_iotToken(
     pvalue = NULL;
     *pport = atoi(port_str);
 
-    log_debug("%10s: %s", "iotId", iot_id);
-    log_debug("%10s: %s", "iotToken", iot_token);
-    log_debug("%10s: %s", "Host", host);
-    log_debug("%10s: %d", "Port", *pport);
+    sec_debug("%10s: %s", "iotId", iot_id);
+    sec_debug("%10s: %s", "iotToken", iot_token);
+    sec_debug("%10s: %s", "Host", host);
+    sec_debug("%10s: %d", "Port", *pport);
 
     ret = 0;
 
@@ -569,7 +570,7 @@ int iotx_guider_authenticate(void)
 
     req_str = guider_set_auth_req_str(guider_sign, timestamp_str);
     LITE_ASSERT(req_str);
-    log_debug("req_str = '%s'", req_str);
+    sec_debug("req_str = '%s'", req_str);
 
     if (0 != guider_get_iotId_iotToken(guider_url,
                                        req_str,

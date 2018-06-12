@@ -19,6 +19,7 @@
 
 #include "lite-utils_internal.h"
 #include "string_utils.h"
+#include "utils_debug.h"
 
 char *LITE_format_string(const char *fmt, ...)
 {
@@ -92,7 +93,7 @@ char *LITE_strdup(const char *src, ...)
     }
     len = strlen(src) + 1;
     if (len > 1024) {
-        log_err("Too long string to duplicate, abort! len = %d", len);
+        utils_err("Too long string to duplicate, abort! len = %d", len);
         return NULL;
     }
 
@@ -153,7 +154,7 @@ void LITE_hexstr_convert(char *hexstr, uint8_t *out_buf, int in_len)
     uint8_t         ch0, ch1;
 
     if (in_len % 2 != 0) {
-        log_err("hexstr length (%d) is not even", in_len);
+        utils_err("hexstr length (%d) is not even", in_len);
         return;
     }
 

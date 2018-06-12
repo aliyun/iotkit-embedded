@@ -19,6 +19,7 @@
 
 #include "lite-utils_internal.h"
 #include "json_parser.h"
+#include "utils_debug.h"
 
 int contain_arr(const char *src, int src_len, const char **arr_pre)
 {
@@ -107,7 +108,7 @@ static list_head_t *_LITE_json_keys_of_ext(int type, char *src, int src_len, cha
                 entry =  LITE_malloc(sizeof(json_key_t), magic, module_name);
 
                 if (NULL == entry) {
-                    log_err("LITE_malloc failed!");
+                    utils_err("LITE_malloc failed!");
                     return NULL;
                 }
                 memset(entry, 0, sizeof(json_key_t));
@@ -164,7 +165,7 @@ static list_head_t *_LITE_json_keys_of_ext(int type, char *src, int src_len, cha
                 unsigned int    arridxlen = 0;
                 entry = LITE_malloc(sizeof(json_key_t), magic, module_name);
                 if (NULL == entry) {
-                    log_err("LITE_malloc failed!");
+                    utils_err("LITE_malloc failed!");
                     return NULL;
                 }
                 memset(entry, 0, sizeof(json_key_t));
@@ -224,7 +225,7 @@ static list_head_t *_LITE_json_keys_of_ext(int type, char *src, int src_len, cha
 
         entry = LITE_malloc(sizeof(json_key_t), magic, module_name);
         if (NULL == entry) {
-            log_err("LITE_malloc failed!");
+            utils_err("LITE_malloc failed!");
             return NULL;
         }
         memset(entry, 0, sizeof(json_key_t));
@@ -403,7 +404,7 @@ static list_head_t *_LITE_json_keys_of(char *src, int src_len, char *prefix, ...
 
             entry = LITE_malloc(sizeof(json_key_t), magic, module_name);
             if (NULL == entry) {
-                log_err("LITE_malloc failed!");
+                utils_err("LITE_malloc failed!");
                 return NULL;
             }
             memset(entry, 0, sizeof(json_key_t));
@@ -443,7 +444,7 @@ static list_head_t *_LITE_json_keys_of(char *src, int src_len, char *prefix, ...
 
         entry = LITE_malloc(sizeof(json_key_t), magic, module_name);
         if (NULL == entry) {
-            log_err("LITE_malloc failed!");
+            utils_err("LITE_malloc failed!");
             return NULL;
         }
         memset(entry, 0, sizeof(json_key_t));
@@ -665,7 +666,7 @@ char* LITE_json_array_get_item(int index, char *src, int src_len, int* val_len)
 
 	iter_pos = src;
 	iter_pos++;
-	
+
 	while (iter_pos && (iter_pos < src + src_len)) {
 		if (*iter_pos == '[') {
 			if (item_type == -1) {item_type = JARRAY;iter_start = iter_pos;};
@@ -716,7 +717,7 @@ char* LITE_json_array_get_item(int index, char *src, int src_len, int* val_len)
 			if (item_type == -1) {item_type = JBOOLEAN;iter_start = iter_pos;};
 			if (item_type == JBOOLEAN) {
 				if (*iter_pos == 'f' || *iter_pos == 'F') {
-					if ((iter_pos + 4 <= src + src_len) && 
+					if ((iter_pos + 4 <= src + src_len) &&
 						(memcmp(iter_pos,"false",5) == 0 || memcmp(iter_pos,"FALSE",5) == 0)) {
 							iter_index++;item_type = JNONE,deep = 0;
 							if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}
@@ -724,7 +725,7 @@ char* LITE_json_array_get_item(int index, char *src, int src_len, int* val_len)
 						return NULL;
 					}
 				}else if (*iter_pos == 't' || *iter_pos == 'T') {
-					if ((iter_pos + 3 <= src + src_len) && 
+					if ((iter_pos + 3 <= src + src_len) &&
 						(memcmp(iter_pos,"true",4) == 0 || memcmp(iter_pos,"TRUE",4) == 0)) {
 							iter_index++;item_type = JNONE,deep = 0;
 							if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}

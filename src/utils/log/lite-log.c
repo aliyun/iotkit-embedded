@@ -21,6 +21,7 @@
 #include "iot_export.h"
 #include "mqtt_instance.h"
 #include "iot_import.h"
+#include "utils_debug.h"
 
 #define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    \
     do { \
@@ -86,7 +87,7 @@ static char *lvl_names[] = {
     "emg", "crt", "ERROR", "WARNING", "INFO", "DEBUG",
 };
 
-void LITE_syslog_routine(const char *f, const int l, const int level, const char *fmt, va_list* params)
+void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list* params)
 {
     char       *tmpbuf = logcb.text_buf;
     char       *o = tmpbuf;
@@ -96,7 +97,7 @@ void LITE_syslog_routine(const char *f, const int l, const int level, const char
         return;
     }
 
-    LITE_printf(LOG_PREFIX_FMT, HAL_Gettimestr(buf, 28), lvl_names[level], "c-sdk");
+    LITE_printf(LOG_PREFIX_FMT, HAL_Gettimestr(buf, 28), lvl_names[level], m);
 
     memset(tmpbuf, 0, sizeof(logcb.text_buf));
 
@@ -120,12 +121,12 @@ void LITE_syslog_routine(const char *f, const int l, const int level, const char
     return;
 }
 
-void LITE_syslog(const char *f, const int l, const int level, const char *fmt, ...)
+void LITE_syslog(char *m, const char *f, const int l, const int level, const char *fmt, ...)
 {
     va_list ap;
 
     va_start(ap, fmt);
-    LITE_syslog_routine(f, l, level, fmt, &ap);
+    LITE_syslog_routine(m, f, l, level, fmt, &ap);
     va_end(ap);
 }
 
@@ -258,9 +259,9 @@ void LITE_syslog_online(const char *module, const int level, const char *fmt, va
     sprintf(topic, "/sys/%s/%s/thing/log/post", product_key, device_name);
     ret = mqtt_publish(topic, IOTX_MQTT_QOS0, tmpbuf, strlen(tmpbuf));
     if(ret < 0)
-        log_err("can't publish to cloud. ret = %d\n", ret);
+        utils_err("can't publish to cloud. ret = %d\n", ret);
     else
-        log_info("publish to cloud. ret = %d\n", ret);
+        utils_info("publish to cloud. ret = %d\n", ret);
     LITE_free(tmpbuf);
 }
 

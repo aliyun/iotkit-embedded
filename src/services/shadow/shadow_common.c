@@ -19,7 +19,7 @@
 
 
 #include "iot_import.h"
-#include "lite-log.h"
+#include "shadow_debug.h"
 #include "lite-utils.h"
 #include "utils_timer.h"
 #include "utils_list.h"
@@ -199,7 +199,7 @@ int iotx_ds_common_convert_data2string(
     } else if (IOTX_SHADOW_NULL == type) {
         ret = HAL_Snprintf(buf, buf_len, "%s", "\"null\"");
     } else {
-        log_err("Error data type");
+        shadow_err("Error data type");
         ret = -1;
     }
 
@@ -234,7 +234,7 @@ iotx_err_t iotx_ds_common_convert_string2data(
     } else if (type == IOTX_SHADOW_STRING) {
         memcpy(pdata, buf, buf_len);
     } else {
-        log_err("Error data type");
+        shadow_err("Error data type");
         return ERROR_SHADOW_UNDEF_TYPE;
     }
 
@@ -249,7 +249,7 @@ void iotx_ds_common_update_time(iotx_shadow_pt pshadow, uint32_t new_timestamp)
     pshadow->inner_data.time.epoch_time = new_timestamp;
     HAL_MutexUnlock(pshadow->mutex);
 
-    log_info("update system time");
+    shadow_info("update system time");
 }
 
 
@@ -297,7 +297,7 @@ iotx_err_t iotx_ds_common_remove_attr(
     node = list_find(pshadow->inner_data.attr_list, pattr);
     if (NULL == node) {
         rc = ERROR_SHADOW_NO_ATTRIBUTE;
-        log_err("Try to remove a non-existent attribute.");
+        shadow_err("Try to remove a non-existent attribute.");
     } else {
         list_remove(pshadow->inner_data.attr_list, node);
     }
@@ -317,7 +317,7 @@ void iotx_ds_common_update_version(iotx_shadow_pt pshadow, uint32_t version)
     }
     HAL_MutexUnlock(pshadow->mutex);
 
-    log_info("update shadow version");
+    shadow_info("update shadow version");
 }
 
 
@@ -359,7 +359,7 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 
     topic_full = LITE_malloc(len + 1);
     if (NULL == topic_full) {
-        log_err("Not enough memory");
+        shadow_err("Not enough memory");
         return NULL;
     }
 
@@ -393,7 +393,7 @@ int iotx_ds_common_publish2update(iotx_shadow_pt pshadow, char *data, uint32_t d
         }
     }
 
-    log_debug("publish msg: len=%d, str=%s", data_len, data);
+    shadow_debug("publish msg: len=%d, str=%s", data_len, data);
 
     topic_msg.qos = IOTX_MQTT_QOS1;
     topic_msg.retain = 0;
