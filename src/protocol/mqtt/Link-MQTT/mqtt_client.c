@@ -2167,6 +2167,7 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
     if (iotx_mc_check_state_normal(pClient)) {
         rc = MQTTDisconnect(pClient);
         mqtt_debug("rc = MQTTDisconnect() = %d", rc);
+        (void)rc;
     }
 
     /* close tcp/ip socket or free tls resources */

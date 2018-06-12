@@ -68,21 +68,13 @@ extern "C" {
 #define COAP_ERR(fmt,  args, ...)  coap_log("<ERROR>", fmt, ##__VA_ARGS__)
 #endif
 #endif
-#ifdef SDK_DEBUG_LEVEL_NONE
-#define COAP_TRC
-#define COAP_DUMP
-#define COAP_DEBUG
-#define COAP_INFO
-#define COAP_ERR
-#define COAP_WRN
-#else
+
 #define COAP_TRC(...)     log_debug("alcs", __VA_ARGS__)
 #define COAP_DUMP(...)    log_debug("alcs", __VA_ARGS__)
 #define COAP_DEBUG(...)   log_debug("alcs", __VA_ARGS__)
 #define COAP_INFO(...)    log_info("alcs", __VA_ARGS__)
 #define COAP_WRN(...)     log_warning("alcs", __VA_ARGS__)
 #define COAP_ERR(...)     log_err("alcs", __VA_ARGS__)
-#endif
 
 int platform_is_multicast(const char *ip_str);
 

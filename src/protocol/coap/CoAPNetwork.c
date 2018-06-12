@@ -41,6 +41,7 @@ unsigned int CoAPNetworkDTLS_read(void *p_session,
     DTLSContext           *context   = NULL;
 
     COAP_TRC("<< secure_datagram_read, read buffer len %d, timeout %d", read_len, timeout);
+    (void)read_len;
     if (NULL != p_session) {
         /* read dtls application data*/
         context = (DTLSContext *)p_session;

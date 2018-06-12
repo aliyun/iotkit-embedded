@@ -527,6 +527,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     }
     response_message = pvalue;
     http_info("response_message: %s", response_message);
+    (void)response_message;
     LITE_free(pvalue);
     pvalue = NULL;
 
@@ -746,6 +747,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     }
     messageId = pvalue;
     http_info("messageId: %s", messageId);
+    (void)messageId;
     LITE_free(pvalue);
     pvalue = NULL;
 

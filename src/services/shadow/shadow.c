@@ -324,6 +324,7 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
                      topic_info->ptopic,
                      topic_info->payload_len,
                      topic_info->payload);
+            (void)topic_info;
             break;
 
         default:
