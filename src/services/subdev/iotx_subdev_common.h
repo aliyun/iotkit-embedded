@@ -1,39 +1,40 @@
 
 #ifndef SRC_SUBDEVICE_CMP_UTIL_H_
 #define SRC_SUBDEVICE_CMP_UTIL_H_
-        
+
+#include "subdev_debug.h"
 
 /* Subdevice    seesion status */
 typedef enum IOTX_SUBDEVICE_SESSION_STATUS_CODES {
     /* Initial */
     IOTX_SUBDEVICE_SEESION_STATUS_INIT,
-    
+
     /* Register */
     IOTX_SUBDEVICE_SEESION_STATUS_REGISTER,
-    
+
     /* Login */
     IOTX_SUBDEVICE_SEESION_STATUS_LOGIN,
-    
+
     /* Logout */
-    IOTX_SUBDEVICE_SEESION_STATUS_LOGOUT,  
-    
-    /* Enable */  
+    IOTX_SUBDEVICE_SEESION_STATUS_LOGOUT,
+
+    /* Enable */
     IOTX_SUBDEVICE_SEESION_STATUS_ENABLE,
-    
+
     /* Disalbe */
     IOTX_SUBDEVICE_SEESION_STATUS_DISABLE,
-    
+
     /* Unregister */
     IOTX_SUBDEVICE_SEESION_STATUS_UNREGISTER,
-        
+
     /* Maximum number of seesion status type */
     IOTX_SUBDEVICE_SEESION_STATUS_MAX
 }iotx_subdevice_session_status_t;
 
 /* The structure of subdevice session */
 typedef struct iotx_subdevice_session_st{
-    char                                device_cloud_id[DEVICE_ID_LEN];           
-    char                                device_cloud_secret[DEVICE_SECRET_LEN]; 
+    char                                device_cloud_id[DEVICE_ID_LEN];
+    char                                device_cloud_secret[DEVICE_SECRET_LEN];
     char                                product_key[PRODUCT_KEY_LEN];
     char                                device_name[DEVICE_NAME_LEN];
     char                                timestamp[20];
@@ -42,10 +43,10 @@ typedef struct iotx_subdevice_session_st{
     iotx_subdev_sign_method_types_t     sign_method;                     /* HmacSha1, HmacMd5 */
     iotx_subdev_clean_session_types_t   clean_session;                   /* ture, false */
     iotx_subdevice_session_status_t     session_status;
-    rrpc_request_callback               rrpc_callback; 
-#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD    
-    void*                               lock_generic; 
-    void*                               lock_status; 
+    rrpc_request_callback               rrpc_callback;
+#ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
+    void*                               lock_generic;
+    void*                               lock_status;
 #endif
     int                                 dynamic_register;
     struct iotx_subdevice_session_st*   next;
@@ -75,19 +76,19 @@ typedef struct iotx_gateway_data_st {
     char                                register_message[REPLY_MESSAGE_LEN_MAX];
     char                                topo_get_message[REPLY_MESSAGE_LEN_MAX];
     char                                config_get_message[REPLY_MESSAGE_LEN_MAX];
-    rrpc_request_callback               rrpc_callback; 
+    rrpc_request_callback               rrpc_callback;
 #ifdef IOT_GATEWAY_SUPPORT_MULTI_THREAD
-    void*                               lock_sync; 
-    void*                               lock_sync_enter;  
+    void*                               lock_sync;
+    void*                               lock_sync_enter;
 #endif
 } iotx_gateway_data_t, *iotx_gateway_data_pt;
 
 
 /* The structure of gateway context */
 typedef struct iotx_gateway_st {
-    void                               *mqtt;      
+    void                               *mqtt;
     iotx_subdevice_session_pt           session_list;
-    iotx_gateway_data_t                 gateway_data;    
+    iotx_gateway_data_t                 gateway_data;
     /* If there is another user want to handle the MQTT event,
      * must set the event_handler and event pcontext */
     void*                               event_pcontext;
@@ -103,19 +104,19 @@ extern iotx_gateway_pt g_gateway_subdevice_t;
             LITE_free(buffer); \
         (buffer) = (void*)LITE_malloc(length); \
         if (NULL == (buffer)) { \
-            log_err("Not enough memory"); \
+            subdev_err("Not enough memory"); \
             return; \
         } \
         memset((buffer), 0x0, (length)); \
     } while(0)
-    
+
 #define MALLOC_MEMORY_WITH_RESULT(buffer, length, result) \
     do { \
         if (buffer) \
             LITE_free(buffer); \
         (buffer) = (void*)LITE_malloc(length); \
         if (NULL == (buffer)) { \
-            log_err("Not enough memory"); \
+            subdev_err("Not enough memory"); \
             return (result); \
         } \
         memset((buffer), 0x0, (length)); \
@@ -127,7 +128,7 @@ extern iotx_gateway_pt g_gateway_subdevice_t;
             LITE_free(buffer); \
         (buffer) = (void*)LITE_malloc(length); \
         if (NULL == (buffer)) { \
-            log_err("Not enough memory"); \
+            subdev_err("Not enough memory"); \
             LITE_free(free_buffer); \
             return; \
         } \
@@ -140,7 +141,7 @@ extern iotx_gateway_pt g_gateway_subdevice_t;
             LITE_free(buffer); \
         (buffer) = (void*)LITE_malloc(length); \
         if (NULL == (buffer)) { \
-            log_err("Not enough memory"); \
+            subdev_err("Not enough memory"); \
             LITE_free(free_buffer); \
             return (result); \
         } \
@@ -150,27 +151,27 @@ extern iotx_gateway_pt g_gateway_subdevice_t;
 #define PARAMETER_NULL_CHECK(param) \
     do { \
         if ((param) == NULL) { \
-            log_info("param error"); \
+            subdev_info("param error"); \
             return; \
         } \
     } while(0)
-                        
+
 #define PARAMETER_NULL_CHECK_WITH_RESULT(param, result) \
     do { \
         if ((param) == NULL) { \
-            log_info("param error"); \
+            subdev_info("param error"); \
             return (result); \
         } \
     } while(0)
-    
+
 #define PARAMETER_STRING_NULL_CHECK(ptr) \
     do { \
         if (NULL == (ptr)) { \
-            log_err("Invalid argument, %s = %p", #ptr, (ptr)); \
+            subdev_err("Invalid argument, %s = %p", #ptr, (ptr)); \
             return; \
         } \
         if (0 == strlen((ptr))) { \
-            log_err("Invalid argument, %s = '%s'", #ptr, (ptr)); \
+            subdev_err("Invalid argument, %s = '%s'", #ptr, (ptr)); \
             return; \
         } \
     } while(0)
@@ -178,11 +179,11 @@ extern iotx_gateway_pt g_gateway_subdevice_t;
 #define PARAMETER_STRING_NULL_CHECK_WITH_RESULT(ptr, result) \
     do { \
         if (NULL == (ptr)) { \
-            log_err("Invalid argument, %s = %p", #ptr, (ptr)); \
+            subdev_err("Invalid argument, %s = %p", #ptr, (ptr)); \
             return (result); \
         } \
         if (0 == strlen((ptr))) { \
-            log_err("Invalid argument, %s = '%s'", #ptr, (ptr)); \
+            subdev_err("Invalid argument, %s = '%s'", #ptr, (ptr)); \
             return (result); \
         } \
     } while(0)
@@ -190,15 +191,15 @@ extern iotx_gateway_pt g_gateway_subdevice_t;
 #define PARAMETER_GATEWAY_CHECK(gateway_t, result) \
     do { \
         if ((gateway_t) == NULL) { \
-            log_info("param error"); \
+            subdev_info("param error"); \
             return (result); \
         } \
         if ((gateway_t) != g_gateway_subdevice_t) { \
-            log_info("param error"); \
+            subdev_info("param error"); \
             return (result); \
         } \
         if ((gateway_t)->mqtt == NULL) { \
-            log_info("param error"); \
+            subdev_info("param error"); \
             return (result); \
         } \
     } while(0)
@@ -217,21 +218,21 @@ typedef enum IOTX_GATEWAY_PUBLISH_TYPE {
     IOTX_GATEWAY_PUBLISH_MAX
 }iotx_gateway_publish_t;
 
-iotx_subdevice_session_pt iotx_subdevice_find_session(iotx_gateway_pt gateway, 
-        const char* product_key, 
+iotx_subdevice_session_pt iotx_subdevice_find_session(iotx_gateway_pt gateway,
+        const char* product_key,
         const char* device_name);
 
-iotx_subdevice_session_pt iotx_subdevice_add_session(iotx_gateway_pt gateway, 
-        const char * product_key, 
-        const char* device_name, 
-        const char* device_cloud_secret, 
-        const char* sign, 
-        const char* timestamp, 
+iotx_subdevice_session_pt iotx_subdevice_add_session(iotx_gateway_pt gateway,
+        const char * product_key,
+        const char* device_name,
+        const char* device_cloud_secret,
+        const char* sign,
+        const char* timestamp,
         const char* client_id,
         iotx_subdev_sign_method_types_t sign_method_type,
         iotx_subdev_clean_session_types_t clean_session_type);
 
-int iotx_subdevice_remove_session(iotx_gateway_pt gateway, 
+int iotx_subdevice_remove_session(iotx_gateway_pt gateway,
         const char* product_key,
         const char* device_name);
 
@@ -242,7 +243,7 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
         const char* params,
         int is_subscribe);
 
-int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway, 
+int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
         int is_subscribe);
 
 /* topo/delete    register   unregister*/
@@ -251,7 +252,7 @@ char *iotx_gateway_splice_common_packet(const char *product_key,
         const char* method,
         uint32_t* msg_id);
 
-        
+
 char *iotx_gateway_splice_topo_get_packet(uint32_t* msg_id);
 
 char *iotx_gateway_splice_config_get_packet(uint32_t* msg_id);
@@ -259,8 +260,8 @@ char *iotx_gateway_splice_config_get_packet(uint32_t* msg_id);
 
 char *iotx_gateway_splice_topo_add_packet(const char *product_key,
         const char* device_name,
-        const char* clientId, 
-        const char* timestamp, 
+        const char* clientId,
+        const char* timestamp,
         const char* sign_method,
         const char* sign,
         const char* method,
@@ -269,47 +270,47 @@ char *iotx_gateway_splice_topo_add_packet(const char *product_key,
 
 char *iotx_gateway_splice_login_packet(const char *product_key,
         const char* device_name,
-        const char* clientId, 
-        const char* timestamp, 
+        const char* clientId,
+        const char* timestamp,
         const char* sign_method,
-        const char* sign, 
+        const char* sign,
         const char* cleanSession,
         uint32_t* msg_id);
-        
+
 char *iotx_gateway_splice_logout_packet(const char *product_key,
         const char* device_name,
         uint32_t* msg_id);
-        
 
-int iotx_gateway_calc_sign(const char* prodect_key, 
+
+int iotx_gateway_calc_sign(const char* prodect_key,
         const char* device_name,
         const char* device_secret,
         char* hmac_sigbuf,
         const int hmac_buflen,
         iotx_subdev_sign_method_types_t sign_method,
-        const char *client_id, 
+        const char *client_id,
         const char *timestamp_str);
 
-void iotx_subdevice_calc_client_id(char* client_id, 
+void iotx_subdevice_calc_client_id(char* client_id,
         const char* product_key,
         const char* device_name);
 
-void iotx_gateway_calc_client_id(char* client_id, 
-        const char* device_cloud_id, 
+void iotx_gateway_calc_client_id(char* client_id,
+        const char* device_cloud_id,
         const char* timestamp_str,
         const char* sign_method);
 
-int iotx_gateway_publish_sync(iotx_gateway_t* gateway, 
-        iotx_mqtt_qos_t qos, 
+int iotx_gateway_publish_sync(iotx_gateway_t* gateway,
+        iotx_mqtt_qos_t qos,
         const char* topic,
         const char* packet,
         uint32_t message_id,
         iotx_common_reply_data_pt reply_data,
         iotx_gateway_publish_t publish_type);
 
-int iotx_subdevice_set_session_status(iotx_subdevice_session_pt session, 
+int iotx_subdevice_set_session_status(iotx_subdevice_session_pt session,
         iotx_subdevice_session_status_t status);
-        
+
 iotx_subdevice_session_status_t iotx_subdevice_get_session_status(iotx_subdevice_session_pt session);
 
 
