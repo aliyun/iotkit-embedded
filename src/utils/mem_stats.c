@@ -591,7 +591,7 @@ void LITE_dump_malloc_free_stats(int level)
         }
     }
 #else
-    log_err("WITH_MEM_STATS = %d", WITH_MEM_STATS);
+    log_info("WITH_MEM_STATS = %d", WITH_MEM_STATS);
 #endif  /* #if WITH_MEM_STATS */
 
     return;
