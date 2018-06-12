@@ -1171,7 +1171,11 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     }
 
     iotx_mc_topic_handle_t messageHandler;
+    memset(&messageHandler, 0, sizeof(iotx_mc_topic_handle_t));
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
+    if ((NULL == messageHandler.handle.h_fp) || (NULL == messageHandler.topic_filter)) {
+        return MQTT_SUB_INFO_NOT_FOUND_ERROR;
+    }
 
     /* Remove from message handler array */
     HAL_MutexLock(c->lock_generic);
@@ -2123,6 +2127,8 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         log_err("redo authentication error!");
         return -1;
     }
+
+    pClient->ipstack->disconnect(pClient->ipstack);
 
     rc = iotx_mc_attempt_reconnect(pClient);
     if (SUCCESS_RETURN == rc) {
