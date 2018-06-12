@@ -1,11 +1,8 @@
 #ifndef __LITE_LOG_CONFIG_H__
 #define __LITE_LOG_CONFIG_H__
-
-#define LITE_printf                     printf
-#define LITE_sprintf                    sprintf
-#define LITE_snprintf                   snprintf
-#define LITE_vsnprintf                  vsnprintf
-
+#define LITE_printf                     HAL_Printf
+#define LITE_snprintf                   HAL_Snprintf
+#define LITE_vsnprintf                  HAL_Vsnprintf
 #define LITE_LOG_ENABLED
 
 #define LOG_MSG_MAXLEN                  (255)

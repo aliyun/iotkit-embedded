@@ -50,6 +50,7 @@ EXTRA_INCLUDE_DIRS	:= \
 	src/thirdparty/lib \
 	src/tools/linkkit_tsl_convert/include \
 	build-rules \
+	src/platform \
 
 WIN32_CMAKE_SKIP    := \
     linkkit_tsl_convert \

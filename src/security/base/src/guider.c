@@ -144,7 +144,7 @@ int _http_response(char *payload,
 
     requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
-        log_err("Allocate HTTP request buf failed!");
+        sec_err("Allocate HTTP request buf failed!");
         return ERROR_MALLOC;
     }
     memset(requ_payload, 0, HTTP_POST_MAX_LEN);
@@ -469,9 +469,9 @@ static int guider_get_iotId_iotToken(
     pvalue = NULL;
 
     if (200 != ret_code) {
-        log_err("++++");
-        log_err("ret_code = %d (!= 200), abort!", ret_code);
-        log_err("++++");
+        sec_err("++++");
+        sec_err("ret_code = %d (!= 200), abort!", ret_code);
+        sec_err("++++");
         goto do_exit;
     }
 
@@ -582,7 +582,7 @@ int iotx_guider_authenticate(void)
             HAL_Free(req_str);
         }
 
-        log_err("_iotId_iotToken_http() failed");
+        sec_err("_iotId_iotToken_http() failed");
         return -1;
     }
 #else

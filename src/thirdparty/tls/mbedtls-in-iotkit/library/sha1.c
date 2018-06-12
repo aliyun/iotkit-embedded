@@ -41,7 +41,9 @@
 #include "mbedtls/platform.h"
 #else
 #include <stdio.h>
-#define mbedtls_printf printf
+#include "mbedtls/debug.h"
+
+#define mbedtls_printf tls_info
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
 

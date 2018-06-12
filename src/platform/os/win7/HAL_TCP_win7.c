@@ -28,10 +28,7 @@
 #endif
 
 #include "iot_import.h"
-
-#define PLATFORM_WINSOCK_LOG    printf
-#define PLATFORM_WINSOCK_PERROR printf
-
+#include "platform_debug.h"
 
 static uint64_t time_left(uint64_t t_end, uint64_t t_now)
 {
@@ -56,7 +53,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     WSAStartup(0x202, &wsaData);
 
-    PLATFORM_WINSOCK_LOG("host : %s, port : %u\n", host, port);
+    platform_info("host : %s, port : %u\n", host, port);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);   /* socket */
     hp = gethostbyname(host);
@@ -65,7 +62,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     memset(&addrServer, 0, sizeof(addrServer));
     memcpy(&(addrServer.sin_addr), hp->h_addr, hp->h_length);
 
-    PLATFORM_WINSOCK_LOG("ip = %u.%u.%u.%u",
+    platform_info("ip = %u.%u.%u.%u",
                          addrServer.sin_addr.S_un.S_un_b.s_b1,
                          addrServer.sin_addr.S_un.S_un_b.s_b2,
                          addrServer.sin_addr.S_un.S_un_b.s_b3,
@@ -74,13 +71,13 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     addrServer.sin_family = AF_INET;
     addrServer.sin_port = htons((unsigned short)1883);
 
-    PLATFORM_WINSOCK_LOG("connecting to %s", host);
+    platform_info("connecting to %s", host);
     if (connect(sockfd, (struct sockaddr *)&addrServer, sizeof(struct sockaddr))) {
-        PLATFORM_WINSOCK_LOG("connect failed!\n");
+        platform_err("connect failed!\n");
         return -1;
     }
 
-    PLATFORM_WINSOCK_LOG("connect successfully!\n");
+    platform_info("connect successfully!\n");
 
     return sockfd;
 }
@@ -93,19 +90,19 @@ int32_t HAL_TCP_Destroy(uintptr_t fd)
     /* Shutdown both send and receive operations. */
     rc = shutdown((int) fd, 2);
     if (0 != rc) {
-        PLATFORM_WINSOCK_PERROR("shutdown error");
+        platform_err("shutdown error");
         return -1;
     }
 
     rc = closesocket((int) fd);
     if (0 != rc) {
-        PLATFORM_WINSOCK_PERROR("closesocket error");
+        platform_err("closesocket error");
         return -1;
     }
 
     rc = WSACleanup();
     if (0 != rc) {
-        PLATFORM_WINSOCK_PERROR("WSACleanup error");
+        platform_err("WSACleanup error");
         return -1;
     }
 
@@ -147,13 +144,13 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                     continue;
                 }
             } else if (0 == ret) {
-                PLATFORM_WINSOCK_LOG("select-write timeout");
+                platform_err("select-write timeout");
                 break;
             } else {
                 if (WSAEINTR == WSAGetLastError()) {
                     continue;
                 }
-                PLATFORM_WINSOCK_PERROR("select-write fail");
+                platform_err("select-write fail");
                 err_code = -1;
                 break;
             }
@@ -164,10 +161,10 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             if (ret > 0) {
                 len_sent += ret;
             } else if (0 == ret) {
-                PLATFORM_WINSOCK_LOG("No any data be sent");
+                platform_err("No any data be sent");
             } else {
                 /* socket error occur */
-                PLATFORM_WINSOCK_PERROR("send fail");
+                platform_err("send fail");
                 err_code = -1;
                 break;
             }
@@ -207,14 +204,14 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {
-                PLATFORM_WINSOCK_LOG("connection is closed");
+                platform_err("connection is closed");
                 err_code = -1;
                 break;
             } else {
                 if (WSAEINTR == WSAGetLastError()) {
                     continue;
                 }
-                PLATFORM_WINSOCK_PERROR("recv fail");
+                platform_err("recv fail");
                 err_code = -2;
                 break;
             }
@@ -224,7 +221,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             if (WSAEINTR == WSAGetLastError()) {
                 continue;
             }
-            PLATFORM_WINSOCK_PERROR("select-read fail");
+            platform_err("select-read fail");
             err_code = -2;
             break;
         }

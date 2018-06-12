@@ -30,6 +30,9 @@
 #endif
 
 #include "ssl.h"
+#include "lite-log.h"
+
+#define tls_info(...)     log_info("tls", __VA_ARGS__)
 
 #if defined(MBEDTLS_ECP_C)
 #include "ecp.h"

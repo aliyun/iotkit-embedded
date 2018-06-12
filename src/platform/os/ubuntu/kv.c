@@ -9,7 +9,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include "platform_debug.h"
 #include "kv.h"
 #include "cJSON.h"
 #include "base64.h"
@@ -54,7 +54,7 @@ static int kv_sync(kv_file_t *file)
 
     int tmpfd = mkstemp(fullpath);
     if (tmpfd < 0) {
-        perror("kv_sync open");
+        platform_err("kv_sync open");
         free(json);
         return -1;
     }
@@ -62,7 +62,7 @@ static int kv_sync(kv_file_t *file)
     /* write json data into temporary file */
     int len = strlen(json) + 1;
     if (write(tmpfd, json, len) != len) {
-        perror("kv_sync write");
+        platform_err("kv_sync write");
         close(tmpfd);
         free(json);
         return -1;
@@ -74,7 +74,7 @@ static int kv_sync(kv_file_t *file)
 
     /* save KV file atomically */
     if (rename(fullpath, file->filename) < 0) {
-        perror("rename");
+        platform_err("rename");
         return -1;
     }
 
@@ -138,7 +138,7 @@ kv_file_t *kv_open(char *filename)
     memset(file, 0, sizeof(kv_file_t));
 
     if (strlen(filename) > sizeof(file->filename) - 1) {
-        printf("filename %s is too long\n", filename);
+        platform_err("filename %s is too long\n", filename);
         goto fail;
     }
 

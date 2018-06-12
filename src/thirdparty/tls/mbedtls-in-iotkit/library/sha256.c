@@ -42,7 +42,9 @@
 #else
 #include <stdio.h>
 #include <stdlib.h>
-#define mbedtls_printf printf
+#include "mbedtls/debug.h"
+
+#define mbedtls_printf   tls_info
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif /* MBEDTLS_PLATFORM_C */

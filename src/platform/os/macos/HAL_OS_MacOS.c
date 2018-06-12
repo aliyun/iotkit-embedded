@@ -37,6 +37,7 @@
 #include <sys/ioctl.h>
 
 #include "iot_import.h"
+#include "platform_debug.h"
 
 #define HAL_MAC_LEN  (18)
 #if defined(SUPPORT_SINGAPORE_DOMAIN)
@@ -67,7 +68,7 @@ void *HAL_MutexCreate(void)
     }
 
     if (0 != (err_num = pthread_mutex_init(mutex, NULL))) {
-        perror("create mutex failed");
+        platform_err("create mutex failed");
         HAL_Free(mutex);
         return NULL;
     }
@@ -79,7 +80,7 @@ void HAL_MutexDestroy(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
-        perror("destroy mutex failed");
+        platform_err("destroy mutex failed");
     }
 
     HAL_Free(mutex);
@@ -89,7 +90,7 @@ void HAL_MutexLock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
-        perror("lock mutex failed");
+        platform_err("lock mutex failed");
     }
 }
 
@@ -97,7 +98,7 @@ void HAL_MutexUnlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
-        perror("unlock mutex failed");
+        platform_err("unlock mutex failed");
     }
 }
 
@@ -155,8 +156,8 @@ char *HAL_Gettimestr(_IN_ char *buf, _IN_ int len)
     localtime_r(&tv.tv_sec, &tm);
     strftime(buf, 28, "%m-%d %H:%M:%S", &tm);
     str_len = strlen(buf);
-    if (str_len + 3 < 28)
-        sprintf(buf + str_len, ".%3.3d", (int)(tv.tv_usec)/1000);
+    if (str_len + 3 < len)
+        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec)/1000);
     return buf;
 }
 

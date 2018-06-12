@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
+#include "platform_debug.h"
 
 #define __DEMO__
 
@@ -43,15 +44,12 @@ char _device_secret[DEVICE_SECRET_LEN + 1];
 #endif
 
 
-#define PLATFORM_WINOS_PERROR printf
-
-
 void *HAL_MutexCreate(void)
 {
     HANDLE mutex;
 
     if (NULL == (mutex = CreateMutex(NULL, FALSE, NULL))) {
-        PLATFORM_WINOS_PERROR("create mutex error");
+        platform_err("create mutex error");
     }
 
     return mutex;
@@ -60,14 +58,14 @@ void *HAL_MutexCreate(void)
 void HAL_MutexDestroy(_IN_ void *mutex)
 {
     if (0 == CloseHandle(mutex)) {
-        PLATFORM_WINOS_PERROR("destroy mutex error");
+        platform_err("destroy mutex error");
     }
 }
 
 void HAL_MutexLock(_IN_ void *mutex)
 {
      if (WAIT_FAILED == WaitForSingleObject(mutex, INFINITE)) {
-        PLATFORM_WINOS_PERROR("lock mutex error");
+        platform_err("lock mutex error");
     }
 }
 

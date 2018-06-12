@@ -17,24 +17,16 @@
  */
 
 
-#include "sdk-testsuites_internal.h"
-#include "cut.h"
+#ifndef __PLATFORM_DEBUG_H__
+#define __PLATFORM_DEBUG_H__
 
-static void _setup_hal_suite(void)
-{
-    ADD_SUITE(HAL_OS);
-}
+#include "lite-log.h"
 
-static void _setup_http2_suite(void)
-{
-    ADD_SUITE(HTTP2);
-}
+#define platform_emerg(...)    log_emerg("port", __VA_ARGS__)
+#define platform_crit(...)     log_crit("port", __VA_ARGS__)
+#define platform_err(...)      log_err("port", __VA_ARGS__)
+#define platform_warning(...)  log_warning("port", __VA_ARGS__)
+#define platform_info(...)     log_info("port", __VA_ARGS__)
+#define platform_debug(...)    log_debug("port", __VA_ARGS__)
 
-int main(int argc, char *argv[])
-{
-    _setup_hal_suite();
-    _setup_http2_suite();
-    cut_main(argc, argv);
-
-    return 0;
-}
+#endif  /* __PLATFORM_DEBUG_H__ */

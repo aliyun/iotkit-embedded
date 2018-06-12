@@ -32,6 +32,7 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/net_sockets.h"
+#include "platform_debug.h"
 
 mbedtls_ssl_session *saved_session = NULL;
 

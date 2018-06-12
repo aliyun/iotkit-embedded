@@ -30,13 +30,7 @@
 #include <netdb.h>
 
 #include "iot_import.h"
-
-#define PLATFORM_LINUXSOCK_LOG(format, ...) \
-    do { \
-        HAL_Printf("LINUXSOCK %u %s() | "format"\n", __LINE__, __FUNCTION__, ##__VA_ARGS__);\
-        fflush(stdout);\
-    } while(0);
-
+#include "platform_debug.h"
 
 static uint64_t _linux_get_time_ms(void)
 {
@@ -74,7 +68,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     memset(&hints, 0, sizeof(hints));
 
-    PLATFORM_LINUXSOCK_LOG("establish tcp connection with server(host=%s port=%u)", host, port);
+    platform_info("establish tcp connection with server(host=%s port=%u)", host, port);
 
     hints.ai_family = AF_INET; /* only IPv4 */
     hints.ai_socktype = SOCK_STREAM;
@@ -82,20 +76,20 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     sprintf(service, "%u", port);
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        perror("getaddrinfo error");
+        platform_err("getaddrinfo error");
         return 0;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
-            perror("socket type error");
+            platform_err("socket type error");
             rc = 0;
             continue;
         }
 
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
-            perror("create socket error");
+            platform_err("create socket error");
             rc = 0;
             continue;
         }
@@ -106,14 +100,14 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
         }
 
         close(fd);
-        perror("connect error");
+        platform_err("connect error");
         rc = 0;
     }
 
     if (0 == rc) {
-        PLATFORM_LINUXSOCK_LOG("fail to establish tcp");
+        platform_err("fail to establish tcp");
     } else {
-        PLATFORM_LINUXSOCK_LOG("success to establish tcp, fd=%d", rc);
+        platform_info("success to establish tcp, fd=%d", rc);
     }
     freeaddrinfo(addrInfoList);
 
@@ -128,13 +122,13 @@ int HAL_TCP_Destroy(uintptr_t fd)
     /* Shutdown both send and receive operations. */
     rc = shutdown((int) fd, 2);
     if (0 != rc) {
-        perror("shutdown error");
+        platform_err("shutdown error");
         return -1;
     }
 
     rc = close((int) fd);
     if (0 != rc) {
-        perror("closesocket error");
+        platform_err("closesocket error");
         return -1;
     }
 
@@ -168,21 +162,21 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             ret = select(fd + 1, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
                 if (0 == FD_ISSET(fd, &sets)) {
-                    PLATFORM_LINUXSOCK_LOG("Should NOT arrive");
+                    platform_err("Should NOT arrive");
                     /* If timeout in next loop, it will not sent any data */
                     ret = 0;
                     continue;
                 }
             } else if (0 == ret) {
-                PLATFORM_LINUXSOCK_LOG("select-write timeout %d", (int)fd);
+                platform_err("select-write timeout %d", (int)fd);
                 break;
             } else {
                 if (EINTR == errno) {
-                    PLATFORM_LINUXSOCK_LOG("EINTR be caught");
+                    platform_err("EINTR be caught");
                     continue;
                 }
 
-                perror("select-write fail");
+                platform_err("select-write fail");
                 break;
             }
         }
@@ -192,14 +186,14 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             if (ret > 0) {
                 len_sent += ret;
             } else if (0 == ret) {
-                PLATFORM_LINUXSOCK_LOG("No data be sent");
+                platform_err("No data be sent");
             } else {
                 if (EINTR == errno) {
-                    PLATFORM_LINUXSOCK_LOG("EINTR be caught");
+                    platform_err("EINTR be caught");
                     continue;
                 }
 
-                perror("send fail");
+                platform_err("send fail");
                 break;
             }
         }
@@ -238,22 +232,22 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {
-                perror("connection is closed");
+                platform_err("connection is closed");
                 err_code = -1;
                 break;
             } else {
                 if (EINTR == errno) {
-                    PLATFORM_LINUXSOCK_LOG("EINTR be caught");
+                    platform_err("EINTR be caught");
                     continue;
                 }
-                perror("recv fail");
+                platform_err("recv fail");
                 err_code = -2;
                 break;
             }
         } else if (0 == ret) {
             break;
         } else {
-            perror("select-recv fail");
+            platform_err("select-recv fail");
             err_code = -2;
             break;
         }

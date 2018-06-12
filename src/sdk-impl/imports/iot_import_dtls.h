@@ -23,21 +23,17 @@
 #include <stdarg.h>
 
 #include "iot_import_coap.h"
+#include "lite-log.h"
 
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__
 
-#define dtls_log_print(level, ...) \
-    {\
-        fprintf(stderr, "%s [%s #%d]   ",level, __FILE__, __LINE__); \
-        fprintf(stderr, __VA_ARGS__);\
-    }
 
-#define DTLS_TRC(fmt,  ...)  dtls_log_print("<TRACE>", fmt, ##__VA_ARGS__)
-#define DTLS_DUMP(fmt, ...)  dtls_log_print("<DUMP> ", fmt, ##__VA_ARGS__)
-#define DTLS_DEBUG(fmt,...)  dtls_log_print("<DEBUG>", fmt, ##__VA_ARGS__)
-#define DTLS_INFO(fmt, ...)  dtls_log_print("<INFO> ", fmt, ##__VA_ARGS__)
-#define DTLS_ERR(fmt,  ...)  dtls_log_print("<ERROR>", fmt, ##__VA_ARGS__)
+#define DTLS_TRC(...)    log_debug("dtls", __VA_ARGS__)
+#define DTLS_DUMP(...)   log_err("dtls", __VA_ARGS__)
+#define DTLS_DEBUG(...)  log_debug("dtls", __VA_ARGS__)
+#define DTLS_INFO(...)   log_info("dtls", __VA_ARGS__)
+#define DTLS_ERR(...)    log_err("dtls", __VA_ARGS__)
 
 #define DTLS_ERROR_BASE       (1<<24)
 

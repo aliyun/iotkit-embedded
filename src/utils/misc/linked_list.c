@@ -1,15 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-
+#include "utils_debug.h"
 #include "iot_import.h"
 #include "linked_list.h"
-
-#define LINKKED_LIST_PRINTF(...)  \
-    do {                                                     \
-        printf("\e[0;33m%s@line%d\t:", __FUNCTION__, __LINE__);  \
-        printf(__VA_ARGS__);                                 \
-        printf("\e[0m");                                   \
-    } while (0)
 
 linked_list_t* linked_list_create(char* _name, int synchronized)
 {
@@ -68,7 +61,7 @@ void linked_list_destroy(linked_list_t* _linked_list)
         free(node);
     }
 
-    LINKKED_LIST_PRINTF("linked list(%s) destroyed\n", linked_list->_name);
+    utils_info("linked list(%s) destroyed\n", linked_list->_name);
 
     if (linked_list->_mutex) HAL_MutexUnlock(linked_list->_mutex);
 
@@ -98,7 +91,7 @@ void linked_list_insert(linked_list_t* _linked_list, void* data)
 
     if (linked_list->_mutex) HAL_MutexUnlock(linked_list->_mutex);
 
-    LINKKED_LIST_PRINTF("linked list(%s) insert node@%p,size:%lu\n", linked_list->_name, node, linked_list->_size);
+    utils_info("linked list(%s) insert node@%p,size:%lu\n", linked_list->_name, node, linked_list->_size);
 }
 
 void linked_list_remove(linked_list_t* _linked_list, void* data)
@@ -115,7 +108,7 @@ void linked_list_remove(linked_list_t* _linked_list, void* data)
         if (node->data == data) {
             *p = node->next;
             linked_list->_size--;
-            LINKKED_LIST_PRINTF("linked list(%s) remove node@%p,size:%lu\n", linked_list->_name, node, linked_list->_size);
+            utils_info("linked list(%s) remove node@%p,size:%lu\n", linked_list->_name, node, linked_list->_size);
             free(node);
         } else {
             p = &(*p)->next;
@@ -144,7 +137,7 @@ void linked_list_clear(linked_list_t* _linked_list)
 
     if (linked_list->_mutex) HAL_MutexUnlock(linked_list->_mutex);
 
-    LINKKED_LIST_PRINTF("linked list(%s) cleared\n", linked_list->_name);
+    utils_info("linked list(%s) cleared\n", linked_list->_name);
 }
 
 int  linked_list_empty(const linked_list_t* _linked_list)

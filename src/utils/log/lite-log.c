@@ -61,7 +61,7 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
             LITE_printf(" ");
             written += 1;
         }
-        LITE_sprintf((char *)ascii + i % 16, "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
+        LITE_snprintf((char *)ascii + i % 16, 1, "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
 
         if (((i + 1) % 16 == 0) || (i == len - 1)) {
             for (j = 0; j < 48 - written; ++j) {
@@ -84,7 +84,7 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
 static log_client logcb;
 
 static char *lvl_names[] = {
-    "emg", "crt", "ERROR", "WARNING", "INFO", "DEBUG",
+    "emg", "crt", "err", "wrn", "inf", "dbg",
 };
 
 void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list* params)
@@ -236,7 +236,7 @@ void LITE_syslog_online(const char *module, const int level, const char *fmt, va
     char       product_key[PRODUCT_KEY_LEN + 1];
     char       device_name[DEVICE_NAME_LEN + 1];
     tmpbuf = LITE_calloc(1, LOG_MSG_MAXLEN + 1);
-    LITE_sprintf(tmpbuf, LOG_PREFIX_FMT_ONLINE, HAL_UptimeMs(), lvl_names[level], module);
+    LITE_snprintf(tmpbuf, LOG_MSG_MAXLEN, LOG_PREFIX_FMT_ONLINE, HAL_UptimeMs(), lvl_names[level], module);
     len = strlen(tmpbuf);
 
     o = tmpbuf + len;
