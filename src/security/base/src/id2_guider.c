@@ -19,6 +19,7 @@
 #include "guider_internal.h"
 #include "utils_epoch_time.h"
 #include "tfs.h"
+#include "sec_debug.h"
 
 #ifndef MQTT_DIRECT
 static int _is_non_symbol(char c)
@@ -34,7 +35,7 @@ static int _is_non_symbol(char c)
 static int _url_encode(const char *input, char *output)
 {
     if (input == NULL || output == NULL) {
-        log_err("_url_encode: input param error!");
+        sec_err("_url_encode: input param error!");
         return -1;
     }
 
@@ -140,11 +141,11 @@ static void id2_guider_get_timestamp_str(char *buf, int len)
     } while (ret == 0 && ++retry < 10);
 
     if (retry > 1) {
-        log_err("utils_get_epoch_time_from_ntp() retry = %d.", retry);
+        sec_err("utils_get_epoch_time_from_ntp() retry = %d.", retry);
     }
 
     if (ret == 0) {
-        log_err("utils_get_epoch_time_from_ntp() failed!");
+        sec_err("utils_get_epoch_time_from_ntp() failed!");
     }
 
     return;
@@ -336,9 +337,9 @@ static int id2_guider_get_iotId_iotToken(
     pvalue = NULL;
 
     if (200 != ret_code) {
-        log_err("++++");
-        log_err("ret_code = %d (!= 200), abort!", ret_code);
-        log_err("++++");
+        sec_err("++++");
+        sec_err("ret_code = %d (!= 200), abort!", ret_code);
+        sec_err("++++");
         goto do_exit;
     }
 
@@ -356,13 +357,13 @@ static int id2_guider_get_iotId_iotToken(
     if (cipher_data) {
         pvalue = LITE_json_value_of("data", iotx_payload);
         if (NULL == pvalue) {
-            log_err("'data' section not found in HTTP resp payload!");
+            sec_err("'data' section not found in HTTP resp payload!");
             goto do_exit;
         }
         src_len = (uint32_t)strlen(pvalue);
         b64_decode = LITE_malloc(src_len);
         if (!b64_decode) {
-            log_err("allocate memory for b64_decode failed");
+            sec_err("allocate memory for b64_decode failed");
             goto do_exit;
         }
         id2_rc = utils_base64decode((const uint8_t *)pvalue,
@@ -379,7 +380,7 @@ static int id2_guider_get_iotId_iotToken(
 
         id2_decrypt = LITE_malloc(dst_len);
         if (!id2_decrypt) {
-            log_err("allocate memory for id2_decrypt failed");
+            sec_err("allocate memory for id2_decrypt failed");
             goto do_exit;
         }
 
@@ -390,7 +391,7 @@ static int id2_guider_get_iotId_iotToken(
         /* remove */
         /*sec_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);*/
         if (id2_rc != 0) {
-            log_err("decrypt cipher text with ID2 key error!");
+            sec_err("decrypt cipher text with ID2 key error!");
             goto do_exit;
         }
 
@@ -551,7 +552,7 @@ int iotx_guider_id2_authenticate(void)
             HAL_Free(req_str);
         }
 
-        log_err("_iotId_iotToken_http() failed");
+        sec_err("_iotId_iotToken_http() failed");
         LITE_free(id2);
         LITE_free(device_code);
         return -1;

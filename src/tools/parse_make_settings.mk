@@ -165,13 +165,13 @@ ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
 endif # ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
 
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-    ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOTLS)))
-        ifneq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
-            $(error FEATURE_MQTT_DIRECT_NOITLS or FEATURE_MQTT_DIRECT_NOTLS must be selected one or more)
+    ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+        ifneq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
+            $(error FEATURE_SUPPORT_ITLS or FEATURE_SUPPORT_TLS must be selected one or more)
         endif
     endif
-    ifeq (y,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
-    $(error FEATURE_MQTT_ID2_AUTH requires FEATURE_MQTT_DIRECT_NOITLS = n!)
+    ifneq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
+    $(error FEATURE_MQTT_ID2_AUTH requires FEATURE_SUPPORT_ITLS = n!)
     endif
 
     ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
@@ -182,8 +182,8 @@ ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
     # endif
 
 else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-    ifeq (n,$(strip $(FEATURE_MQTT_DIRECT_NOITLS)))
-    $(error FEATURE_MQTT_ID2_AUTH = n requires FEATURE_MQTT_DIRECT_NOITLS = y!)
+    ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
+    $(error FEATURE_MQTT_ID2_AUTH = n requires FEATURE_SUPPORT_ITLS = n!)
     endif
 
     ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))

@@ -36,6 +36,10 @@
 #include "platform_debug.h"
 #include "kv.h"
 
+#ifdef MQTT_ID2_AUTH
+#include "tfs.h"
+#endif /**< MQTT_ID2_AUTH*/
+
 #define __DEMO__
 
 #ifdef __DEMO__
@@ -225,6 +229,21 @@ int HAL_GetDeviceID(_OU_ char* device_id)
     return strlen(device_id);
 }
 
+#ifdef MQTT_ID2_AUTH
+int HAL_GetID2(_OU_ char* id2_str)
+{
+	int rc;
+    uint8_t                 id2[TFS_ID2_LEN + 1] = {0};
+	uint32_t                id2_len = TFS_ID2_LEN + 1;
+    memset(id2_str, 0x0, TFS_ID2_LEN + 1);
+#ifdef __DEMO__
+    rc = tfs_get_ID2(id2, &id2_len);
+    if (rc < 0) return rc;
+    strncpy(id2_str, (const char*)id2, TFS_ID2_LEN);
+#endif
+    return strlen(id2_str);
+}
+#endif /**< MQTT_ID2_AUTH*/
 
 int HAL_SetProductKey(_IN_ char* product_key)
 {

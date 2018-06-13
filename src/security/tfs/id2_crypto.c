@@ -24,6 +24,7 @@
 #include "sdk-impl_internal.h"
 #include "tfs.h"
 #include "utils_hmac.h"
+#include "tfs_debug.h"
 
 #define HASH_SHA1_LEN           (20)
 #define HMAC_MD5_LEN            (16)
@@ -100,7 +101,7 @@ static int _fill_replay_fender(
                  "%s%d%d",
                  topic, msg_id, enc_payloadlen);
     hmac_srclen = strlen(hmac_source);
-    log_debug("hmac_source(%d) = '%s'", hmac_srclen, hmac_source);
+    tfs_debug("hmac_source(%d) = '%s'", hmac_srclen, hmac_source);
 
     memset(f->hmac_str, 0, sizeof(f->hmac_str));
 #ifdef HASH_SHA1
@@ -108,7 +109,7 @@ static int _fill_replay_fender(
 
     utils_sha1(hmac_source, hmac_srclen, sha1_hexbuf);
     LITE_hexbuf_convert(sha1_hexbuf, f->hmac_str, HASH_SHA1_LEN, 0);
-    log_debug("sha1_str(%d) = '%s'", HASH_SHA1_LEN * 2, f->hmac_str);
+    tfs_debug("sha1_str(%d) = '%s'", HASH_SHA1_LEN * 2, f->hmac_str);
 #else
     utils_hmac_md5((const char *)hmac_source,
                    hmac_srclen,
@@ -167,10 +168,10 @@ int iotx_mqtt_id2_payload_encrypt(char *topic, iotx_mqtt_topic_info_pt topic_msg
                              &enc_len,
                              out_buf + sizeof(MQTT_ReplayFender),
                              TFS_AES_ZERO_PADDING);
-    log_debug("rc = tfs_aes128_cbc_enc() = %d, enc_len = %d", ret, enc_len);
+    tfs_debug("rc = tfs_aes128_cbc_enc() = %d, enc_len = %d", ret, enc_len);
 
     if (ret != 0) {
-        log_err("tfs_aes128_cbc_enc error!");
+        tfs_err("tfs_aes128_cbc_enc error!");
         ret = -1;
         goto exit;
     }
@@ -212,10 +213,10 @@ int iotx_mqtt_id2_payload_decrypt(iotx_mqtt_topic_info_pt topic_msg)
                              &dec_len,
                              dec_out,
                              TFS_AES_ZERO_PADDING);
-    log_debug("rc = tfs_aes128_cbc_dec() = %d, dec_len = %d", ret, dec_len);
+    tfs_debug("rc = tfs_aes128_cbc_dec() = %d, dec_len = %d", ret, dec_len);
 
     if (ret != 0) {
-        log_err("tfs_aes128_cbc_dec error!");
+        tfs_err("tfs_aes128_cbc_dec error!");
         LITE_free(dec_out);
         return -1;
     }
@@ -224,7 +225,7 @@ int iotx_mqtt_id2_payload_decrypt(iotx_mqtt_topic_info_pt topic_msg)
     memcpy((void *)topic_msg->payload, dec_out, dec_len);
     topic_msg->payload_len = dec_len;
 
-    log_debug("ID2 decrypt publish[%d]: %s", topic_msg->payload_len, topic_msg->payload);
+    tfs_debug("ID2 decrypt publish[%d]: %s", topic_msg->payload_len, topic_msg->payload);
     LITE_free(dec_out);
 
     return ret;
