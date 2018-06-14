@@ -42,6 +42,7 @@ unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
         return COAP_ERROR_INVALID_PARAM;
     }
 
+    COAP_DEBUG("The uri is %s", p_uri);
     len = strlen(p_uri);
     p = p_uri;
     q = (char *)COAP_DEFAULT_SCHEME;
@@ -59,7 +60,23 @@ unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
         --len;
         *p_endpoint_type = COAP_ENDPOINT_DTLS;
         *port     = COAPS_DEFAULT_PORT;
-    } else {
+    }
+    else if(*p == '-'){
+        ++p;
+        --len;
+        q = (char *)"psk";
+        while (len && *q && tolower(*p) == *q) {
+            ++p;
+            ++q;
+            --len;
+        }
+        if (*q) {
+            return COAP_ERROR_INVALID_URI;
+        }
+        *p_endpoint_type = COAP_ENDPOINT_PSK;
+        *port     = COAP_DEFAULT_PORT;
+    }
+    else {
         *p_endpoint_type = COAP_ENDPOINT_NOSEC;
         *port     = COAP_DEFAULT_PORT;
     }

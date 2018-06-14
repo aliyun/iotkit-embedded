@@ -30,8 +30,10 @@
 #define IOTX_DAILY_DTLS_SERVER_URI      "coaps://iot-as-coap.alibaba.net:5684"
 #define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI       "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
+#define IOTX_PRE_PSK_SERVER_URI         "coap-psk://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 
 #define IOTX_ONLINE_DTLS_SERVER_URL     "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
+#define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 
 char m_coap_client_running = 0;
 char m_coap_reconnect = 0;
@@ -156,7 +158,11 @@ int main(int argc, char **argv)
     if (0 == strncmp(env, "pre", strlen("pre"))) {
         if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
             config.p_url = IOTX_PRE_DTLS_SERVER_URI;
-        } else {
+        }
+        else if(0 == strncmp(secur, "psk", strlen("psk"))){
+            config.p_url = IOTX_PRE_PSK_SERVER_URI;
+        }
+        else {
             config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
         }
     } else if (0 == strncmp(env, "online", strlen("online"))) {
@@ -164,8 +170,15 @@ int main(int argc, char **argv)
             char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
-        } else {
-            HAL_Printf("Online environment must access with DTLS\r\n");
+        }
+        else if(0 == strncmp(secur, "psk", strlen("psk"))){
+            char url[256] = {0};
+            snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, IOTX_PRODUCT_KEY);
+            config.p_url = url;
+
+        }
+        else {
+            HAL_Printf("Online environment must access with DTLS/PSK\r\n");
             IOT_CloseLog();
             return -1;
         }

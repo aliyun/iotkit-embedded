@@ -27,6 +27,7 @@ typedef enum
 {
     COAP_ENDPOINT_NOSEC = 0,
     COAP_ENDPOINT_DTLS,
+    COAP_ENDPOINT_PSK,
 }coap_endpoint_type;
 
 

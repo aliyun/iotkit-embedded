@@ -61,6 +61,7 @@
 #define COAP_OPTION_PROXY_SCHEME   39   /* C, String,  1-255 B, (none) */
 #define COAP_OPTION_SIZE1          60   /* E, uint,    0-4 B, (none) */
 #define COAP_OPTION_AUTH_TOKEN     61   /* C, String,  1-255B, (none)*/
+#define COAP_OPTION_SEQ            62
 
 
 /*CoAP Message types*/
