@@ -561,6 +561,7 @@ int iotx_get_file_data(char *file_name, char *data, int len, int offset)
     ret = fseek(fp, offset, SEEK_SET);
     if(ret != 0) {
         log_err("The file %s can not move offset.\n", file_name);
+        fclose(fp);
         return -1;
     }
     ret = fread(data, len, 1, fp);
