@@ -242,6 +242,13 @@ endif
 
 SUBDIRS += src/platform
 SUBDIRS += samples
+ifeq (y,$(strip $(FEATURE_SDK_UNIT_TEST)))
 SUBDIRS += tests
+endif
+ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
 SUBDIRS += src/thirdparty/tls
+endif
+ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
+SUBDIRS += src/thirdparty/tfs
+endif
 SUBDIRS += src/tools/linkkit_tsl_convert

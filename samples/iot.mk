@@ -1,10 +1,13 @@
 DEPENDS             := src/platform
 HDR_REFS            += src
-LDFLAGS             := -liot_sdk
-LDFLAGS             += -liot_platform
-LDFLAGS             += -Bstatic -liot_tls
-CFLAGS              := $(filter-out -ansi,$(CFLAGS))
 
+LDFLAGS             := -Bstatic
+LDFLAGS             += -liot_sdk
+LDFLAGS             += -liot_platform
+CFLAGS              := $(filter-out -ansi,$(CFLAGS))
+ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
+LDFLAGS     += -liot_tls
+endif
 ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
 LDFLAGS             += -lws2_32
 CFLAGS              := $(filter-out -DCOAP_COMM_ENABLED,$(CFLAGS))
@@ -35,10 +38,7 @@ SRCS_mqtt_multi_thread-example := mqtt/mqtt_multi_thread-example.c
     LDFLAGS     += -ltfs_online
     endif
     ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
-    LDFLAGS     += -litls
-    endif
-    ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
-    LDFLAGS     += -liot_tls
+    LDFLAGS     += -litls -liot_tfs -liot_sdk
     endif
     endif
 
@@ -98,4 +98,3 @@ ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))
     endif
 
 endif
-

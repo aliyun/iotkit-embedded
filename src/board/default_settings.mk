@@ -1,8 +1,9 @@
 DEFAULT_BLD             := $(CONFIG_DIR)/config.ubuntu.x86
 POST_FINAL_OUT_HOOK     := Post_Distro
 SUBDIRS                 := directory-not-exist-actually
+ifeq (y,$(strip $(FEATURE_SDK_UNIT_TEST)))
 UTEST_PROG              := sdk-testsuites
-
+endif
 ifeq (Darwin,$(shell uname))
 POST_FINAL_OUT_HOOK     :=
 endif

@@ -8,6 +8,7 @@ CONFIG_ENV_CFLAGS   += \
     -DCONFIG_GUIDER_AUTH_TIMEOUT=500 \
     -DIOTX_NET_INIT_WITH_PK_EXT \
     -DCM_VIA_CLOUD_CONN \
+    -DTEST_HTTP_DAILY   \
     -DCM_VIA_CLOUD_CONN_MQTT
 
 ifneq (Darwin,$(strip $(shell uname)))
