@@ -27,7 +27,7 @@ $(call CompLib_Map, DM_ENABLED, \
 $(call CompLib_Map, OTA_ENABLED, src/services/ota)
 $(call CompLib_Map, MQTT_SHADOW, src/services/shadow)
 $(call CompLib_Map, COAP_COMM_ENABLED, src/protocol/coap)
-$(call CompLib_Map, MQTT_ID2_AUTH, src/security/tfs)
+$(call CompLib_Map, MQTT_ID2_AUTH, src/thirdparty/tfs)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/protocol/http)
 $(call CompLib_Map, ALCS_ENABLED, src/protocol/alcs)
 $(call CompLib_Map, SUBDEVICE_ENABLED, src/services/subdev)
