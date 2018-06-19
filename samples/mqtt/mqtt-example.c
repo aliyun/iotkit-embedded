@@ -25,23 +25,11 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#if defined(MQTT_ID2_AUTH) && defined(ON_DAILY)
-    #define PRODUCT_KEY             "9rx2yMNV5l0"
-    #define DEVICE_NAME             "sh_online_sample_mqtt"
-    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
-#elif defined(ON_DAILY)
-    #define PRODUCT_KEY             "gsYfsxQJgeD"
-    #define DEVICE_NAME             "DailyEnvDN"
-    #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
-#elif defined(MQTT_ID2_AUTH)
-    #define PRODUCT_KEY             "micKUvuzOps"
-    #define DEVICE_NAME             "00AAAAAABBBBBB4B645F5800"
-    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
-#else
-    #define PRODUCT_KEY             "yfTuLfBJTiL"
-    #define DEVICE_NAME             "TestDeviceForDemo"
-    #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
-#endif
+
+#define PRODUCT_KEY             "W9LchU2zAAK"
+#define DEVICE_NAME             "subdevice_2"
+#define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
+
 
 char __product_key[PRODUCT_KEY_LEN + 1];
 char __device_name[DEVICE_NAME_LEN + 1];

@@ -370,7 +370,6 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     char                   *ret = NULL;
     iotx_device_info_pt     dev = NULL;
     int                     rc = -1;
-    int                     ext = 0;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
@@ -379,20 +378,22 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
-#ifdef SUPPORT_AUTH_ROUTER
-    ext = 1;
-#endif
-
     rc = sprintf(ret,
                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
-                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt&ext=%d"
+                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"                 
+#ifdef SUPPORT_AUTH_ROUTER
+                 "&ext=%d"
+#endif
                  , dev->product_key
                  , dev->device_name
                  , SHA_METHOD
                  , sign
                  , dev->device_id
                  , ts
-                 , ext);
+#ifdef SUPPORT_AUTH_ROUTER
+                 , 1
+#endif
+                 );
     LITE_ASSERT(rc < AUTH_STRING_MAXLEN);
 
     return ret;
@@ -579,7 +580,7 @@ int iotx_guider_authenticate(void)
                                        iotx_conn_host,
                                        &iotx_conn_port)) {
         if (req_str) {
-            HAL_Free(req_str);
+            LITE_free(req_str);
         }
 
         sec_err("_iotId_iotToken_http() failed");
@@ -658,7 +659,7 @@ int iotx_guider_authenticate(void)
     guider_print_conn_info(conn);
 
     if (req_str) {
-        HAL_Free(req_str);
+        LITE_free(req_str);
     }
 
     return 0;

@@ -56,19 +56,12 @@
     "}"
 #endif
 
-#define IOTX_HTTP_AUTH_STR "auth"
+#define IOTX_HTTP_AUTH_STR              "auth"
+#define IOTX_HTTP_ONLINE_SERVER_URL     "https://iot-as-http.cn-shanghai.aliyuncs.com"
+#define IOTX_HTTP_ONLINE_SERVER_PORT    443
+#define IOTX_HTTP_CA_GET                iotx_ca_get()
 
-#if defined(TEST_HTTP_DAILY)
-    #define IOTX_HTTP_ONLINE_SERVER_URL     "http://10.101.83.159"
-    #define IOTX_HTTP_ONLINE_SERVER_PORT    80
-    #define IOTX_HTTP_CA_GET                NULL
-#else
-    #define IOTX_HTTP_ONLINE_SERVER_URL     "https://iot-as-http.cn-shanghai.aliyuncs.com"
-    #define IOTX_HTTP_ONLINE_SERVER_PORT    443
-    #define IOTX_HTTP_CA_GET                iotx_ca_get()
-#endif
-
-#define IOTX_SHA_METHOD                     "hmacsha1"
+#define IOTX_SHA_METHOD                 "hmacsha1"
 
 
 #define IOTX_HTTP_HEADER_KEEPALIVE_STR  "Connection: Keep-Alive\r\n"
@@ -445,7 +438,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
                         iotx_http_context->p_devinfo->device_name,
                         timestamp
                        );
-    http_debug("len = %d,req_payload: \r\n%s", len, req_payload);
+    http_debug("len = %d, req_payload: \r\n%s", len, req_payload);
 
     /* Malloc Http Response Payload */
     rsp_payload = (char *)LITE_malloc(HTTP_AUTH_RESP_MAX_LEN);
@@ -498,6 +491,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
         return ret;
     }
     if (0 == iotx_http_context->keep_alive) {
+        http_info("http not keepalive");
         httpclient_close(httpc);
     }
     /*
@@ -555,7 +549,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     LITE_free(pvalue);
     pvalue = NULL;
 
-    http_info("iotToken: %s", iotx_http_context->p_auth_token);
+    /*http_info("iotToken: %s", iotx_http_context->p_auth_token);*/
 
     /* report module id */
     ret = iotx_http_report_mid(iotx_http_context);
@@ -777,7 +771,6 @@ do_exit_pre:
     if (response_message) {
         LITE_free(response_message);
     }
-
 
     if (httpc != NULL && httpc->header) {
         LITE_free(httpc->header);

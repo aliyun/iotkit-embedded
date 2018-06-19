@@ -27,21 +27,11 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#if defined(TEST_HTTP_DAILY)
+#define IOTX_PRODUCT_KEY             "W9LchU2zAAK"
+#define IOTX_DEVICE_NAME             "subdevice_2"
+#define IOTX_DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
+#define IOTX_DEVICE_ID               "subdevice_2"
 
-    /* Daily Environment */
-    #define IOTX_PRODUCT_KEY         "zPygj0yP3UF"
-    #define IOTX_DEVICE_NAME         "device_3"
-    #define IOTX_DEVICE_SECRET       "dTWyCJgBYOGVDcr93ukArCa5cndX3s4D"
-    #define IOTX_DEVICE_ID           "device_3"
-
-#else
-    /* Pre-Online or Online Environment */
-    #define IOTX_PRODUCT_KEY         "yfTuLfBJTiL"
-    #define IOTX_DEVICE_NAME         "TestDeviceForDemo"
-    #define IOTX_DEVICE_SECRET       "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
-    #define IOTX_DEVICE_ID           "IoTxHttpTestDev_001"
-#endif
 
 #define DEFAULT_TIMEOUT_MS 5000
 

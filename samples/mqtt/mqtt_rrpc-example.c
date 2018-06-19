@@ -24,9 +24,10 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define PRODUCT_KEY         "lLeATwv18gi"
-#define DEVICE_NAME         "test1"
-#define DEVICE_SECRET       "HQ4AB77MRpAxzgRQAnJdjewGaiEBoJZR"
+#define PRODUCT_KEY             "W9LchU2zAAK"
+#define DEVICE_NAME             "subdevice_2"
+#define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
+
 
 /* These are the pre-defined topics */
 #define TOPIC_RRPC_REQ       "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/rrpc/request/"

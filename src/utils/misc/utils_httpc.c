@@ -244,7 +244,7 @@ int httpclient_send_auth(httpclient_t *client, char *send_buf, int *send_idx)
     httpclient_base64enc(b_auth, base64buff);
     b_auth[strlen(b_auth) + 1] = '\0';
     b_auth[strlen(b_auth)] = '\n';
-    utils_debug("b_auth:%s", b_auth) ;
+    utils_debug("b_auth: %s", b_auth) ;
     httpclient_get_info(client, send_buf, send_idx, b_auth, 0);
     return SUCCESS_RETURN;
 }
@@ -267,7 +267,7 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     /* int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &(client->remote_port), path, sizeof(path)); */
     int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &port, path, sizeof(path));
     if (res != SUCCESS_RETURN) {
-        utils_err("httpclient_parse_url returned %d", res);
+        utils_err("httpclient_parse_url fail returned %d", res);
         return res;
     }
 
@@ -343,7 +343,7 @@ int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_dat
             if (ret > 0) {
                 utils_debug("Written %d bytes", ret);
             } else if (ret == 0) {
-                utils_err("ret == 0,Connection was closed by server");
+                utils_err("ret == 0, Connection was closed by server");
                 return ERROR_HTTP_CLOSED; /* Connection was closed by server */
             } else {
                 utils_err("Connection error (send returned %d)", ret);
@@ -375,13 +375,13 @@ int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, i
         /* timeout */
         return FAIL_RETURN;
     } else if (-1 == ret) {
-        utils_info("Connection closed.");
+        utils_err("Connection closed.");
         return ERROR_HTTP_CONN;
     } else {
         utils_err("Connection error (recv returned %d)", ret);
         return ERROR_HTTP_CONN;
     }
-    utils_info("%u bytes has been read", *p_read_len);
+    utils_debug("%u bytes has been read", *p_read_len);
     return 0;
 
     /*    while (readLen <= min_len) { */
@@ -452,7 +452,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
             utils_debug("data len: %d %d", len, count);
 
             if (ret == ERROR_HTTP_CONN) {
-                utils_debug("ret == ERROR_HTTP_CONN");
+                utils_err("ret == ERROR_HTTP_CONN");
                 return ret;
             }
 
@@ -712,7 +712,7 @@ int httpclient_send_request(httpclient_t *client, const char *url, HTTPCLIENT_RE
     int ret = ERROR_HTTP_CONN;
 
     if (0 == client->net.handle) {
-        utils_debug("not connection have been established");
+        utils_err("not connection have been established");
         return ret;
     }
 
@@ -739,7 +739,7 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
     utils_time_countdown_ms(&timer, timeout_ms);
 
     if (0 == client->net.handle) {
-        utils_debug("not connection have been established");
+        utils_err("not connection have been established");
         return ret;
     }
 
@@ -771,7 +771,7 @@ void httpclient_close(httpclient_t *client)
         client->net.disconnect(&client->net);
     }
     client->net.handle = 0;
-    utils_debug("client disconnected");
+    utils_info("client disconnected");
 }
 
 int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt,
@@ -782,7 +782,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
     httpclient_parse_host(url, host, sizeof(host));
-    utils_debug("host: '%s', port: %d", host, port);
+    utils_info("host: '%s', port: %d", host, port);
 
     if (0 == client->net.handle) {
         /* Establish connection if no. */
@@ -844,7 +844,7 @@ int iotx_post(httpclient_t *client,
     char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
 
     httpclient_parse_host(url, host, sizeof(host));
-    utils_debug("host: '%s', port: %d", host, port);
+    utils_info("host: '%s', port: %d", host, port);
 
     if (0 == client->net.handle) {
         /* Establish connection if no. */

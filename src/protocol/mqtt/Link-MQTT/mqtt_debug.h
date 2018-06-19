@@ -22,11 +22,11 @@
 
 #include "lite-log.h"
 
-#define mqtt_emerg(...)    log_emerg("mqtt", __VA_ARGS__)
-#define mqtt_crit(...)     log_crit("mqtt", __VA_ARGS__)
-#define mqtt_err(...)      log_err("mqtt", __VA_ARGS__)
-#define mqtt_warning(...)  log_warning("mqtt", __VA_ARGS__)
-#define mqtt_info(...)     log_info("mqtt", __VA_ARGS__)
-#define mqtt_debug(...)    log_debug("mqtt", __VA_ARGS__)
+#define mqtt_emerg(...)    log_emerg("MQTT", __VA_ARGS__)
+#define mqtt_crit(...)     log_crit("MQTT", __VA_ARGS__)
+#define mqtt_err(...)      log_err("MQTT", __VA_ARGS__)
+#define mqtt_warning(...)  log_warning("MQTT", __VA_ARGS__)
+#define mqtt_info(...)     log_info("MQTT", __VA_ARGS__)
+#define mqtt_debug(...)    log_debug("MQTT", __VA_ARGS__)
 
 #endif  /* __MQTT_DEBUG_H__ */

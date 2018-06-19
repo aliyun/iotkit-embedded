@@ -83,6 +83,7 @@ static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
         }
 
         if (iterm[i] < 32 || iterm[i] >= 127) {
+            mqtt_err("item length must [32, 128)");
             return FAIL_RETURN;
         }
     }
@@ -103,7 +104,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     }
 
     if (strlen(topicName) > IOTX_MC_TOPIC_NAME_MAX_LEN) {
-        mqtt_err("len of topicName exceeds 64");
+        mqtt_err("len of topicName exceeds 128");
         return FAIL_RETURN;
     }
 
@@ -215,7 +216,6 @@ int MQTTConnect(iotx_mc_client_t *pClient)
 
 /* MQTT send publish packet */
 int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
-
 {
     list_node_t *node = NULL;
     iotx_time_t timer;
@@ -348,8 +348,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         return MQTT_SUBSCRIBE_PACKET_ERROR;
     }
 
-
-
     /*
      * NOTE: It prefer to push the element into list and then remove it when send failed,
      *       because some of extreme cases
@@ -468,7 +466,6 @@ static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
             HAL_MutexUnlock(c->lock_list_pub);
             return SUCCESS_RETURN;
         }
-
 
         for (;;) {
             node = list_iterator_next(iter);
@@ -2474,7 +2471,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     do {
         if (SUCCESS_RETURN != rc) {
             unsigned int left_t = iotx_time_left(&time);
-            mqtt_info("error occur ");
+            mqtt_info("yield cycle");
             if (left_t < 20)
                 HAL_SleepMs(left_t);
             else
