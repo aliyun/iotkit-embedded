@@ -25,9 +25,10 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define PRODUCT_KEY             "yfTuLfBJTiL"
-#define DEVICE_NAME             "TestDeviceForDemo"
-#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+#define PRODUCT_KEY             "W9LchU2zAAK"
+#define DEVICE_NAME             "subdevice_2"
+#define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
+
 
 #define SHADOW_MQTT_MSGLEN      (1024)
 

@@ -22,11 +22,11 @@
 
 #include "lite-log.h"
 
-#define shadow_emerg(...)    log_emerg("sha", __VA_ARGS__)
-#define shadow_crit(...)     log_crit("sha", __VA_ARGS__)
-#define shadow_err(...)      log_err("sha", __VA_ARGS__)
-#define shadow_warning(...)  log_warning("sha", __VA_ARGS__)
-#define shadow_info(...)     log_info("sha", __VA_ARGS__)
-#define shadow_debug(...)    log_debug("sha", __VA_ARGS__)
+#define shadow_emerg(...)    log_emerg("shadow", __VA_ARGS__)
+#define shadow_crit(...)     log_crit("shadow", __VA_ARGS__)
+#define shadow_err(...)      log_err("shadow", __VA_ARGS__)
+#define shadow_warning(...)  log_warning("shadow", __VA_ARGS__)
+#define shadow_info(...)     log_info("shadow", __VA_ARGS__)
+#define shadow_debug(...)    log_debug("shadow", __VA_ARGS__)
 
 #endif  /* __SHAD_DEBUG_H__ */

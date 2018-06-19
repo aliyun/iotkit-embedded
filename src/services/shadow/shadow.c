@@ -298,28 +298,28 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
-            shadow_info("subscribe success, packet-id=%u", (unsigned int)packet_id);
+            shadow_debug("subscribe success, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = 0;
             }
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
-            shadow_info("subscribe wait ack timeout, packet-id=%u", (unsigned int)packet_id);
+            shadow_debug("subscribe wait ack timeout, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = -1;
             }
             break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-            shadow_info("subscribe nack, packet-id=%u", (unsigned int)packet_id);
+            shadow_debug("subscribe nack, packet-id=%u", (unsigned int)packet_id);
             if (pshadow->inner_data.sync_status == packet_id) {
                 pshadow->inner_data.sync_status = -1;
             }
             break;
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
-            shadow_info("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
+            shadow_debug("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                      topic_info->topic_len,
                      topic_info->ptopic,
                      topic_info->payload_len,
@@ -328,7 +328,7 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
             break;
 
         default:
-            /* shadow_info("Should NOT arrive here."); */
+            shadow_debug("Should NOT arrive here.");
             break;
     }
 }
@@ -376,9 +376,9 @@ void *IOT_Shadow_Construct(iotx_shadow_para_pt pparams)
     }
 
     if (0 == pshadow->inner_data.sync_status) {
-        shadow_info("Sync device data successfully");
+        shadow_debug("Sync device data successfully");
     } else {
-        shadow_info("Sync device data failed");
+        shadow_debug("Sync device data failed");
     }
 
 
