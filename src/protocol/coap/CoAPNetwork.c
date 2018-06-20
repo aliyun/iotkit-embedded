@@ -168,7 +168,8 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
         }
     }
 #endif
-    if (COAP_ENDPOINT_NOSEC == p_param->ep_type) {
+    if (COAP_ENDPOINT_NOSEC == p_param->ep_type
+            || COAP_ENDPOINT_PSK == p_param->ep_type) {
         /*Create udp socket*/
         p_network->context = HAL_UDP_create(p_param->p_host, p_param->port);
         if ((void *) - 1 == p_network->context) {
@@ -189,7 +190,8 @@ unsigned int CoAPNetwork_deinit(coap_network_t *p_network)
         p_network->context = NULL;
     }
 #endif
-    if (COAP_ENDPOINT_NOSEC == p_network->ep_type) {
+    if (COAP_ENDPOINT_NOSEC == p_network->ep_type
+            || COAP_ENDPOINT_PSK == p_network->ep_type) {
         HAL_UDP_close(p_network->context);
     }
 

@@ -28,6 +28,8 @@
 #include "CoAPMessage.h"
 #include "CoAPExport.h"
 #include "lite-system.h"
+#include "lite-cjson.h"
+#include "utils_sha256.h"
 
 #define IOTX_SIGN_LENGTH         (40+1)
 #define IOTX_SIGN_SOURCE_LEN     (256)
@@ -38,6 +40,8 @@
 
 #define IOTX_AUTH_STR      "auth"
 #define IOTX_SIGN_SRC_STR  "clientId%sdeviceName%sproductKey%s"
+#define IOTX_SIGN_SRC_STR_WITH_SEQ  "clientId%sdeviceName%sproductKey%sseq%d"
+
 #define IOTX_AUTH_DEVICENAME_STR "{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"clientId\":\"%s\",\"sign\":\"%s\"}"
 
 #define IOTX_COAP_ONLINE_DTLS_SERVER_URL "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
@@ -50,6 +54,8 @@ typedef struct {
     iotx_deviceinfo_t   *p_devinfo;
     CoAPContext         *p_coap_ctx;
     unsigned int         coap_token;
+    unsigned int         seq;
+    unsigned char        key[32];
     iotx_event_handle_t  event_handle;
 } iotx_coap_t;
 
@@ -78,6 +84,31 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
     return IOTX_SUCCESS;
 }
 
+int iotx_calc_sign_with_seq(const char *p_device_secret, const char *p_client_id,
+                  const char *p_device_name, const char *p_product_key, unsigned int seq, char sign[IOTX_SIGN_LENGTH])
+{
+   char *p_msg = NULL;
+
+   p_msg = (char *)coap_malloc(IOTX_SIGN_SOURCE_LEN);
+   if (NULL == p_msg) {
+       return IOTX_ERR_NO_MEM;
+   }
+   memset(sign,  0x00, IOTX_SIGN_LENGTH);
+   memset(p_msg, 0x00, IOTX_SIGN_SOURCE_LEN);
+
+   HAL_Snprintf(p_msg, IOTX_SIGN_SOURCE_LEN,
+                IOTX_SIGN_SRC_STR_WITH_SEQ,
+                p_client_id,
+                p_device_name,
+                p_product_key, seq);
+   utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+
+   coap_free(p_msg);
+   COAP_DEBUG("The device name sign with seq: %s", sign);
+   return IOTX_SUCCESS;
+}
+
+
 static int iotx_get_token_from_json(char *p_str, char *p_token, int len)
 {
     char *p_value = NULL;
@@ -98,6 +129,53 @@ static int iotx_get_token_from_json(char *p_str, char *p_token, int len)
     }
 
     return IOTX_ERR_AUTH_FAILED;
+}
+
+static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
+{
+    int ret = -1;
+    lite_cjson_t root;
+    lite_cjson_t node;
+    unsigned char buff[128] = {0};
+
+    if(NULL == p_str || NULL == p_iotx_coap){
+       return IOTX_ERR_INVALID_PARAM;
+    }
+
+    memset(&root, 0x00, sizeof(lite_cjson_t));
+    memset(&node, 0x00, sizeof(lite_cjson_t));
+    ret = lite_cjson_parse(p_str, strlen(p_str), &root);
+    if(-1 == ret){
+        return IOTX_ERR_AUTH_FAILED;
+    }
+
+    ret = lite_cjson_object_item(&root, "token", strlen("token"), &node);
+    if(-1 == ret){
+        return IOTX_ERR_AUTH_FAILED;
+    }
+    if (p_iotx_coap->auth_token_len - 1 < node.value_length) {
+        return IOTX_ERR_BUFF_TOO_SHORT;
+    }
+    memset(p_iotx_coap->p_auth_token, 0x00, node.value_length);
+    strncpy(p_iotx_coap->p_auth_token, node.value , node.value_length);
+
+    memset(&node, 0x00, sizeof(lite_cjson_t));
+    ret = lite_cjson_object_item(&root, "seqOffset", strlen("seqOffset"), &node);
+    if(-1 == ret){
+        return IOTX_ERR_AUTH_FAILED;
+    }
+    p_iotx_coap->seq = node.value_int;
+
+    memset(&node, 0x00, sizeof(lite_cjson_t));
+    ret = lite_cjson_object_item(&root, "random", strlen("random"), &node);
+    if(-1 == ret){
+        return IOTX_ERR_AUTH_FAILED;
+    }
+    HAL_Snprintf((char *)buff, sizeof(buff), "%s,%s",
+            p_iotx_coap->p_devinfo->device_secret, node.value);
+    utils_sha256(buff,  strlen((char *)buff), p_iotx_coap->key);
+
+    return IOTX_SUCCESS;
 }
 
 static void iotx_device_name_auth_callback(void *user, void *p_message)
@@ -122,7 +200,13 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
 
     switch (message->header.code) {
         case COAP_MSG_CODE_205_CONTENT: {
-            ret_code = iotx_get_token_from_json((char *)message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
+            if(COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type){
+                ret_code = iotx_parse_auth_from_json((char *)message->payload, p_iotx_coap);
+            }
+            else{
+                ret_code = iotx_get_token_from_json((char *)message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
+            }
+
             if (IOTX_SUCCESS == ret_code) {
                 p_iotx_coap->is_authed = IOT_TRUE;
                 COAP_INFO("CoAP authenticate success!!!");
@@ -360,6 +444,12 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     CoAPStrOption_add(&message, COAP_OPTION_URI_PATH, (unsigned char *)IOTX_AUTH_STR, strlen(IOTX_AUTH_STR));
     CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
     CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_JSON);
+    if(COAP_ENDPOINT_PSK  == p_coap_ctx->network.ep_type){
+        unsigned char seq_str[32] = {0};
+        HAL_Snprintf((char *)seq_str, sizeof(seq_str), "%d", p_iotx_coap->seq);
+        CoAPStrOption_add(&message, COAP_OPTION_SEQ, seq_str, strlen((char *)seq_str)) ;
+    }
+
     CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
 
     p_payload = coap_malloc(COAP_MSG_MAX_PDU_LEN);
@@ -367,8 +457,16 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
         CoAPMessage_destory(&message);
         return IOTX_ERR_NO_MEM;
     }
-    iotx_calc_sign(p_iotx_coap->p_devinfo->device_secret, p_iotx_coap->p_devinfo->device_id,
-                   p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, sign);
+    memset(p_payload, 0x00, COAP_MSG_MAX_PDU_LEN);
+
+    if(COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type){
+        iotx_calc_sign_with_seq(p_iotx_coap->p_devinfo->device_secret, p_iotx_coap->p_devinfo->device_id,
+                       p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, p_iotx_coap->seq, sign);
+
+    }else{
+        iotx_calc_sign(p_iotx_coap->p_devinfo->device_secret, p_iotx_coap->p_devinfo->device_id,
+                       p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, sign);
+    }
     HAL_Snprintf((char *)p_payload, COAP_MSG_MAX_PDU_LEN,
                  IOTX_AUTH_DEVICENAME_STR,
                  p_iotx_coap->p_devinfo->product_key,
@@ -595,6 +693,8 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 
     /*Init coap token*/
     p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;
+    p_iotx_coap->seq        = 0;
+    memset(p_iotx_coap->key, 0x00, sizeof(p_iotx_coap->key));
 
     /*Create coap context*/
     memset(&param, 0x00, sizeof(CoAPInitParam));

@@ -192,7 +192,8 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
         network_param.p_ca_cert_pem  = (unsigned char *)iotx_coap_get_ca();
     }
 #endif
-    if (COAP_ENDPOINT_NOSEC == network_param.ep_type) {
+    if (COAP_ENDPOINT_NOSEC == network_param.ep_type
+        || COAP_ENDPOINT_PSK == network_param.ep_type) {
         network_param.p_ca_cert_pem = NULL;
     }
     network_param.p_host = host;
