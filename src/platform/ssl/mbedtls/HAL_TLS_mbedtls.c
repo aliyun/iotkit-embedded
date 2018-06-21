@@ -115,37 +115,6 @@ static int _real_confirm(int verify_result)
     return 0;
 }
 
-static int _ssl_parse_crt(mbedtls_x509_crt *crt)
-{
-    char buf[1024];
-    mbedtls_x509_crt *local_crt = crt;
-    int i = 0;
-    while (local_crt) {
-        mbedtls_x509_crt_info(buf, sizeof(buf) - 1, "", local_crt);
-        {
-            char str[512];
-            const char *start, *cur;
-            start = buf;
-            for (cur = buf; *cur != '\0'; cur++) {
-                if (*cur == '\n') {
-                    size_t len = cur - start + 1;
-                    if (len > 511) {
-                        len = 511;
-                    }
-                    memcpy(str, start, len);
-                    str[len] = '\0';
-                    start = cur + 1;
-                    platform_info("%s", str);
-                }
-            }
-        }
-        platform_info("crt content:%u", (uint32_t)strlen(buf));
-        local_crt = local_crt->next;
-        i++;
-    }
-    return i;
-}
-
 static int _ssl_client_init(mbedtls_ssl_context *ssl,
                             mbedtls_net_context *tcp_fd,
                             mbedtls_ssl_config *conf,
@@ -178,7 +147,6 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
             return ret;
         }
     }
-    _ssl_parse_crt(crt509_ca);
     platform_info(" ok (%d skipped)", ret);
 
 
@@ -513,6 +481,16 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
     platform_info("ssl_disconnect");
 }
 
+int32_t HAL_SSL_GetFd(uintptr_t handle)
+{
+    int32_t fd = -1;
+    if ((uintptr_t)NULL == handle) {
+        platform_err("handle is NULL");
+        return fd;
+    }
+    fd = ((TLSDataParams_t *)handle)->fd.fd;
+    return fd;
+}
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
     return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
