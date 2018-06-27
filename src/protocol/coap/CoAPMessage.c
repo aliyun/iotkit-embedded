@@ -356,7 +356,7 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
             if (COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code) {
                 /* TODO:i */
                 if (NULL != context->notifier) {
-                    context->notifier(message->header.code, message);
+                    //context->notifier(message->header.code, message);
                 }
             }
 
@@ -383,16 +383,23 @@ static void CoAPMessage_handle(CoAPContext *context,
 {
     int    ret  = COAP_SUCCESS;
     CoAPMessage     message;
+    unsigned char code, msgclass, detail;
     memset(&message, 0x00, sizeof(CoAPMessage));
 
     ret = CoAPDeserialize_Message(&message, buf, datalen);
     if (NULL != message.payload) {
         COAP_DEBUG("-----payload: %s---", message.payload);
     }
-    COAP_DEBUG("-----code   : 0x%x---", message.header.code);
-    COAP_DEBUG("-----type   : 0x%x---", message.header.type);
-    COAP_DEBUG("-----msgid  : %d---", message.header.msgid);
-    COAP_DEBUG("-----opt    : %d---", message.optnum);
+    code = (unsigned char)message.header.code;
+    msgclass = code >> 5;
+    detail = code & 0x1F;
+
+    COAP_DEBUG("Version     : %d", message.header.version);
+    COAP_DEBUG("Code        : %d.%02d(0x%x)", msgclass, detail, code);
+    COAP_DEBUG("Type        : 0x%x", message.header.type);
+    COAP_DEBUG("Msgid       : %d", message.header.msgid);
+    COAP_DEBUG("Option      : %d", message.optnum);
+    COAP_DEBUG("Payload Len : %d", message.payloadlen);
 
     if (COAP_SUCCESS != ret) {
         if (NULL != context->notifier) {

@@ -55,10 +55,16 @@ static void iotx_response_handler(void *arg, void *p_response)
     #define IOTX_DEVICE_SECRET       "5FQbVOPWNwhEuCvnVcP1Mvyjmvt8ECQi"
     #define IOTX_DEVICE_ID           "device_2"
 #else
+#if 0
     #define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
     #define IOTX_DEVICE_NAME         "IoTxCoAPTestDev"
     #define IOTX_DEVICE_SECRET       "Stk4IUErQUBc1tWRWEKWb5ACra4hFDYF"
     #define IOTX_DEVICE_ID           "IoTxCoAPTestDev.1"
+#endif
+    #define IOTX_PRODUCT_KEY         "a1ahRRxliZW"
+    #define IOTX_DEVICE_NAME         "d896e0ffff000001"
+    #define IOTX_DEVICE_SECRET       "zPwChiLh0EaifR809D5Rc6LDIC6AtmGt"
+    #define IOTX_DEVICE_ID           "sn_id"
 #endif
 
 int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
@@ -199,11 +205,11 @@ reconnect:
     if (NULL != p_ctx) {
         IOT_CoAP_DeviceNameAuth(p_ctx);
         do {
-            count ++;
-            if (count == 11) {
+            if (count == 11 || 0 == count) {
                 iotx_post_data_to_server((void *)p_ctx);
                 count = 1;
             }
+            count ++;
             IOT_CoAP_Yield(p_ctx);
         } while (m_coap_client_running);
 
