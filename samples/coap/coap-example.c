@@ -46,7 +46,7 @@ static void iotx_response_handler(void *arg, void *p_response)
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
     HAL_Printf("[APPL]: Message response code: 0x%x\r\n", resp_code);
-    HAL_Printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
+    HAL_Printf("[APPL]: Len: %d, Payload: %s\r\n", len, p_payload);
 }
 
 #ifdef TEST_COAP_DAILY
@@ -111,11 +111,11 @@ static void iotx_post_data_to_server(void *param)
 void show_usage()
 {
     HAL_Printf("\r\nusage: coap-example [OPTION]...\r\n");
-    HAL_Printf("\t-e pre|online \t\tSet the cloud environment.\r\n");
-    HAL_Printf("\t-s nosec|dtls \t\tSet the security setting.\r\n");
-    HAL_Printf("\t-l            \t\tSet the program run loop.\r\n");
-    HAL_Printf("\t-r            \t\tTesting the DTLS session ticket.\r\n");
-    HAL_Printf("\t-h            \t\tShow this usage.\r\n");
+    HAL_Printf("\t-e pre|online     \t\tSet the cloud environment.\r\n");
+    HAL_Printf("\t-s nosec|dtls|psk \t\tSet the security setting.\r\n");
+    HAL_Printf("\t-l                \t\tSet the program run loop.\r\n");
+    HAL_Printf("\t-r                \t\tTesting the DTLS session ticket.\r\n");
+    HAL_Printf("\t-h                \t\tShow this usage.\r\n");
 }
 
 int main(int argc, char **argv)

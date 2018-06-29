@@ -782,9 +782,10 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
 
         len = iotx_aes_cfb_decrypt(message->payload, message->payloadlen, p_iotx_coap->key, payload);
 
-        if(len > 0){
-            memcpy(message->payload, payload, len);
-            message->payloadlen = len;
+        COAP_DEBUG("payload: %s", payload);
+        if(len == 0){
+            memcpy(message->payload, payload, message->payloadlen);
+            message->payloadlen = message->payloadlen;
         }
         coap_free(payload);
 

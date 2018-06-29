@@ -387,9 +387,6 @@ static void CoAPMessage_handle(CoAPContext *context,
     memset(&message, 0x00, sizeof(CoAPMessage));
 
     ret = CoAPDeserialize_Message(&message, buf, datalen);
-    if (NULL != message.payload) {
-        COAP_DEBUG("-----payload: %s---", message.payload);
-    }
     code = (unsigned char)message.header.code;
     msgclass = code >> 5;
     detail = code & 0x1F;

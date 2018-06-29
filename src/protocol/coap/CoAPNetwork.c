@@ -129,13 +129,13 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
 int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
                      unsigned int datalen, unsigned int timeout)
 {
-    unsigned int len = 0;
+    int len = 0;
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_ENDPOINT_DTLS == network->ep_type)  {
         len = datalen;
         memset(data, 0x00, datalen);
-        CoAPNetworkDTLS_read(network->context, data, &len, timeout);
+        CoAPNetworkDTLS_read(network->context, data, (unsigned int *)&len, timeout);
     } else {
 #endif
         memset(data, 0x00, datalen);
@@ -144,7 +144,8 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
 #ifdef COAP_DTLS_SUPPORT
     }
 #endif
-    COAP_TRC("<< CoAP recv %d bytes data", len);
+    if(len > 0)
+        COAP_TRC("<< CoAP recv %d bytes data", len);
     return len;
 }
 
