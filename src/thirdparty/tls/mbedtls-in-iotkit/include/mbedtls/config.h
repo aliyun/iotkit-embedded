@@ -408,7 +408,7 @@
  *
  * Enable Cipher Feedback mode (CFB) for symmetric ciphers.
  */
-//#define MBEDTLS_CIPHER_MODE_CFB
+#define MBEDTLS_CIPHER_MODE_CFB
 
 /**
  * \def MBEDTLS_CIPHER_MODE_CTR
