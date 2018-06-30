@@ -27,10 +27,13 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://iot-as-coap.alibaba.net:5684"
+#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://10.125.7.82:5684"
+//#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://iot-as-coap.alibaba.net:5684"
+#define IOTX_DAILY_PSK_SERVER_URI       "coap-psk://10.101.83.159:5683"
 #define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI       "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 #define IOTX_PRE_PSK_SERVER_URI         "coap-psk://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
+
 
 #define IOTX_ONLINE_DTLS_SERVER_URL     "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
@@ -111,11 +114,11 @@ static void iotx_post_data_to_server(void *param)
 void show_usage()
 {
     HAL_Printf("\r\nusage: coap-example [OPTION]...\r\n");
-    HAL_Printf("\t-e pre|online     \t\tSet the cloud environment.\r\n");
-    HAL_Printf("\t-s nosec|dtls|psk \t\tSet the security setting.\r\n");
-    HAL_Printf("\t-l                \t\tSet the program run loop.\r\n");
-    HAL_Printf("\t-r                \t\tTesting the DTLS session ticket.\r\n");
-    HAL_Printf("\t-h                \t\tShow this usage.\r\n");
+    HAL_Printf("\t-e pre|online|daily\t\tSet the cloud environment.\r\n");
+    HAL_Printf("\t-s nosec|dtls|psk  \t\tSet the security setting.\r\n");
+    HAL_Printf("\t-l                 \t\tSet the program run loop.\r\n");
+    HAL_Printf("\t-r                 \t\tTesting the DTLS session ticket.\r\n");
+    HAL_Printf("\t-h                 \t\tShow this usage.\r\n");
 }
 
 int main(int argc, char **argv)
@@ -189,9 +192,18 @@ int main(int argc, char **argv)
             return -1;
         }
     }
+    else if(0 == strncmp(env, "daily", strlen("daily"))){
+        if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
+            config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
+        }
+        else if(0 == strncmp(secur, "psk", strlen("psk"))){
+            config.p_url = IOTX_DAILY_PSK_SERVER_URI;
+
+        }
+    }
 
 #ifdef TEST_COAP_DAILY
-    config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
+    //config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
 #endif
 
     iotx_set_devinfo(&deviceinfo);
