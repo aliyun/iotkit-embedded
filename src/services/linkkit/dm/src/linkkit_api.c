@@ -710,6 +710,9 @@ int linkkit_trigger_event(const void* thing_id, const char* event_identifier, ha
     if (res > 0) {
         id_send = res;
         if (list && cb) _insert_post_cb(id_send, list, cb);
+    } else {
+        dm_log_err("DM", "%d", res);
+        log_err_online("DM", "%d", res);
     }
     return res;
 }
@@ -743,8 +746,13 @@ int linkkit_post_property(const void* thing_id, const char* property_identifier,
         res = IOT_DM_Post_Property_End(&handle);
     }
 
-    id_send = res;
-    if (list && cb) _insert_post_cb(id_send, list, cb);
+    if (res > 0) {
+        id_send = res;
+        if (list && cb) _insert_post_cb(id_send, list, cb);
+    } else {
+        dm_log_err("DM", "%d", res);
+        log_err_online("DM", "%d", res);
+    }
     return res;
 }
 

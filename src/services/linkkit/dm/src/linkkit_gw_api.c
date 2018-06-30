@@ -1141,7 +1141,9 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
 
     res = IOT_DM_Post_Event_Direct(devid, identifier, strlen(identifier), event, strlen(event));
     if (res < 0) {
-         return -1;
+        dm_log_err("DM", "%d", res);
+        log_err_online("DM", "%d", res);
+        return -1;
     } else {
         id = res;
     }
@@ -1234,6 +1236,8 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
 
     res = IOT_DM_Post_Property_Direct(devid, property, strlen(property));
     if (res < 0) {
+        dm_log_err("DM", "%d", res);
+        log_err_online("DM", "%d", res);
         return -1;
     } else {
         id = res;
