@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
+#include <pthread.h>
 #include "platform_debug.h"
 
 #define __DEMO__
@@ -299,6 +300,91 @@ int HAL_GetFirmwareVesion(_OU_ char* version)
 #endif
 
     return strlen(version);
+}
+
+void *HAL_SemaphoreCreate(void)
+{
+    sem_t *sem = (sem_t *)malloc(sizeof(sem_t));
+    if (NULL == sem) {
+        return NULL;
+    }
+
+    if (0 != sem_init(sem, 0, 0)) {
+        free(sem);
+        return NULL;
+    }
+
+    return sem;
+}
+
+void HAL_SemaphoreDestroy(_IN_ void *sem)
+{
+    sem_destroy((sem_t *)sem);
+    free(sem);
+}
+
+void HAL_SemaphorePost(_IN_ void *sem)
+{
+    sem_post((sem_t *)sem);
+}
+
+int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
+{
+    if (PLATFORM_WAIT_INFINITE == timeout_ms) {
+        sem_wait(sem);
+        return 0;
+    } else {
+        struct timespec ts;
+        int s;
+        /* Restart if interrupted by handler */
+        do {
+            if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+                return -1;
+            }
+
+            s = 0;
+            ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+            if (ts.tv_nsec >= 1000000000) {
+                ts.tv_nsec -= 1000000000;
+                s = 1;
+            }
+
+            ts.tv_sec += timeout_ms / 1000 + s;
+
+        } while (((s = sem_timedwait(sem, &ts)) != 0) && errno == EINTR);
+
+        return (s == 0) ? 0 : -1;
+    }
+}
+
+int HAL_ThreadCreate(
+            _OU_ void **thread_handle,
+            _IN_ void *(*work_routine)(void *),
+            _IN_ void *arg,
+            _IN_ hal_os_thread_param_t *hal_os_thread_param,
+            _OU_ int *stack_used)
+{
+    int ret = -1;
+    *stack_used = 0;
+
+    ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
+
+    return ret;
+}
+
+void HAL_ThreadDetach(_IN_ void *thread_handle)
+{
+    pthread_detach((pthread_t)thread_handle);
+}
+
+void HAL_ThreadDelete(_IN_ void *thread_handle)
+{
+    if (NULL == thread_handle) {
+        pthread_exit(0);
+    } else {
+        /*main thread delete child thread*/
+        pthread_cancel((pthread_t)thread_handle);
+    }
 }
 
 #ifdef __DEMO__

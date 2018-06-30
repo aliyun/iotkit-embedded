@@ -290,7 +290,7 @@ int HAL_SetProductSecret(_IN_ char product_secret[PRODUCT_SECRET_MAXLEN])
     return strlen(DEMO_CASE_PRODUCT_SECRET);
 }
 
-#ifdef USE_LPTHREAD
+
 typedef struct {
     int count;
     pthread_cond_t cond;
@@ -392,8 +392,6 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
         pthread_cancel((pthread_t)thread_handle);
     }
 }
-
-#endif
 
 static FILE *fp;
 
