@@ -74,11 +74,6 @@ SRCS_subdev-example   += subdev/subdev-example.c \
                          subdev/subdev_example_api.c
 endif
 
-ifneq (,$(filter -DCLOUD_CONN_ENABLED,$(CFLAGS)))   
-TARGET                    += cloud_conn-example 
-SRCS_cloud_conn-example   := cloud-conn/cloud_conn-example.c
-endif
-
 ifneq (,$(filter -DCM_ENABLED,$(CFLAGS)))   
 TARGET                    += cm-example 
 SRCS_cm-example          := cmp/cmp-example.c
@@ -87,14 +82,13 @@ endif
 
 ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
 
-    ifeq (,$(filter -DSUBDEV_ENABLE,$(CFLAGS)))
-    TARGET                    += linkkit-example 
-    SRCS_linkkit-example      := linkkit/linkkit_sample.c
-    #TARGET                 += linkkit-sample_sb
-    #SRCS_linkkit-sample_sb := linkkit/linkkit_sample_share_business.c
-    else
-    TARGET                 += linkkit-sample_gw
-    SRCS_linkkit_sample_gw := linkkit/linkkit_sample_gateway.c
-    endif
+#    ifeq (,$(filter -DSUBDEV_ENABLE,$(CFLAGS)))
+    TARGET                           += linkkit-example_single
+    SRCS_linkkit-example_single      := linkkit/linkkit_sample_single.c
+    TARGET                  += linkkit-example_gw
+    SRCS_linkkit-example_gw += linkkit/linkkit_sample_gateway.c \
+                              linkkit/light.c \
+                              linkkit/cJSON.c
+#    endif
 
 endif

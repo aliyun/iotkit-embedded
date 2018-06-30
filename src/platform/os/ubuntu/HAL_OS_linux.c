@@ -49,6 +49,25 @@ char _device_name[DEVICE_NAME_LEN + 1];
 char _device_secret[DEVICE_SECRET_LEN + 1];
 #endif
 
+void *HAL_SemaphoreCreate(void)
+{
+    return NULL;
+}
+
+void HAL_SemaphoreDestroy(_IN_ void *sem)
+{
+}
+
+int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
+{
+    return -1;
+}
+
+void HAL_SemaphorePost(_IN_ void *sem)
+{
+}
+
+
 void *HAL_MutexCreate(void)
 {
     int err_num;
@@ -564,3 +583,34 @@ int HAL_Kv_Del(const char *key)
 
     return kv_del(kvfile, (char *)key);
 }
+
+int HAL_ThreadCreate(
+            _OU_ void **thread_handle,
+            _IN_ void *(*work_routine)(void *),
+            _IN_ void *arg,
+            _IN_ hal_os_thread_param_t *hal_os_thread_param,
+            _OU_ int *stack_used)
+{
+    int ret = -1;
+    *stack_used = 0;
+
+    ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
+
+    return ret;
+}
+
+void HAL_ThreadDetach(_IN_ void *thread_handle)
+{
+    pthread_detach((pthread_t)thread_handle);
+}
+
+void HAL_ThreadDelete(_IN_ void *thread_handle)
+{
+    if (NULL == thread_handle) {
+        pthread_exit(0);
+    } else {
+        /*main thread delete child thread*/
+        pthread_cancel((pthread_t)thread_handle);
+    }
+}
+

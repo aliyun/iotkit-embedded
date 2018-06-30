@@ -18,6 +18,7 @@ SWITCH_VARS := \
 	FEATURE_SUPPORT_TLS \
 	FEATURE_SUPPORT_ITLS \
     FEATURE_SUBDEVICE_ENABLED \
+	FEATURE_SDK_ENHANCE \
     FEATURE_CM_ENABLED \
     FEATURE_DM_ENABLED \
     FEATURE_SERVICE_OTA_ENABLED \
@@ -29,7 +30,13 @@ $(foreach v, \
     $(if $(filter y,$($(v))), \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
-
+ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
+	FEATURE_CM_ENABLED := y
+	FEATURE_DM_ENABLED := y
+	CFLAGS += -DCM_ENABLED
+	CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE	
+	CFLAGS += -DDM_ENABLED
+endif # FEATURE_SDK_ENHANCE
 ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
     ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
         $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)

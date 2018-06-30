@@ -20,6 +20,8 @@
 #ifndef __SRC_CM_COMMON_H__
 #define __SRC_CM_COMMON_H__
 
+#include "lite-utils.h"
+#include "lite-system.h"
 #include "iot_export_cm.h"
 #include "linked_list.h"
 #include "lite-log.h"
@@ -48,9 +50,9 @@
 #define CM_READ_ONLY
 #endif
 
-#define CM_INFO(...)         LITE_syslog(__FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
-#define CM_WARNING(...)      LITE_syslog(__FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
-#define CM_ERR(...)          LITE_syslog(__FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
+#define CM_INFO(...)         log_info("cm", __VA_ARGS__)
+#define CM_WARNING(...)      log_warning("cm", __VA_ARGS__)
+#define CM_ERR(...)          log_err("cm", __VA_ARGS__)
 
 
 #define CM_SUPPORT_MAX_MAPPING_SIZE            (20)
@@ -70,10 +72,11 @@
 /* error */
 extern const char cm_log_error_parameter[] CM_READ_ONLY;
 extern const char cm_log_error_param_1[] CM_READ_ONLY;
+extern const char cm_log_error_param_2[] CM_READ_ONLY;
+extern const char cm_log_error_param_3[] CM_READ_ONLY;
 extern const char cm_log_error_auth[] CM_READ_ONLY;
 extern const char cm_log_error_memory[] CM_READ_ONLY;
 extern const char cm_log_error_fail[] CM_READ_ONLY;
-extern const char cm_log_error_fail_ota[] CM_READ_ONLY;
 extern const char cm_log_error_fail_1[] CM_READ_ONLY;
 extern const char cm_log_error_fail_rc[] CM_READ_ONLY;
 extern const char cm_log_error_status[] CM_READ_ONLY;
@@ -96,9 +99,9 @@ extern const char cm_log_error_di[] CM_READ_ONLY;
 extern const char cm_log_error_secret_1[] CM_READ_ONLY;
 extern const char cm_log_error_secret_2[] CM_READ_ONLY;
 extern const char cm_log_error_ret_code[] CM_READ_ONLY;
+extern const char cm_log_error_protocol[] CM_READ_ONLY;
 
 /* warning */
-extern const char cm_log_warning_ota_started[] CM_READ_ONLY;
 extern const char cm_log_warning_cloud_disconnected[] CM_READ_ONLY;
 extern const char cm_log_warning_not_support[] CM_READ_ONLY;
 extern const char cm_log_warning_not_arrived[] CM_READ_ONLY;
@@ -124,6 +127,7 @@ extern const char cm_log_info_URI_ext[] CM_READ_ONLY;
 extern const char cm_log_info_URI_undefined[] CM_READ_ONLY;
 extern const char cm_log_info_URI_length[] CM_READ_ONLY;
 extern const char cm_log_info_payload_length[] CM_READ_ONLY;
+extern const char cm_log_info_payload[] CM_READ_ONLY;
 extern const char cm_log_info_firmware[] CM_READ_ONLY;
 extern const char cm_log_info_MQTT_disconnect[] CM_READ_ONLY;
 extern const char cm_log_info_MQTT_reconnect[] CM_READ_ONLY;
@@ -142,17 +146,12 @@ extern const char cm_log_info_remove_device[] CM_READ_ONLY;
 extern const char cm_log_info_local_disconnect[] CM_READ_ONLY;
 extern const char cm_log_info_local_reconnect[] CM_READ_ONLY;
 extern const char cm_log_info_version[] CM_READ_ONLY;
-
-typedef enum {
-    /* cloud */
-    IOTX_CM_CONNECTIVITY_TYPE_CLOUD = 1,
-
-    /* Local */
-    IOTX_CM_CONNECTIVITY_TYPE_LOCAL  = 2,
-
-    IOTX_CM_CONNECTIVITY_TYPE_MAX
-}iotx_cm_connectivity_types_t;
-
+extern const char cm_log_info_not_support[] CM_READ_ONLY;
+extern const char cm_log_info_response_code[] CM_READ_ONLY;
+extern const char cm_log_info_response[] CM_READ_ONLY;
+extern const char cm_log_info_mqtt_send[] CM_READ_ONLY;
+extern const char cm_log_info_mqtt_received[] CM_READ_ONLY;
+extern const char cm_log_info_suback[] CM_READ_ONLY;
 
 /* The structure of cm event msg */
 typedef struct {
@@ -175,9 +174,7 @@ typedef enum {
 } iotx_cm_mapping_type_t;
     
 
-
 typedef void (*iotx_cm_response_fp_t)(void* pcontext, iotx_cm_mapping_type_t mapping_type, iotx_cm_message_info_t* msg_info);
-
 
 
 /* The structure of cloud connection context */
@@ -188,7 +185,6 @@ typedef struct iotx_cm_mapping_st {
     int                                        is_used;
 #endif
     iotx_cm_mapping_type_t                     mapping_type;
-    iotx_cm_message_types_t                    type;
     iotx_cm_register_fp_t                      func;
     void*                                      user_data;
     void*                                      mail_box;
@@ -211,9 +207,17 @@ typedef enum {
 #ifdef CM_SUPPORT_MULTI_THREAD
 
 typedef enum {
+    /* connect */
+    /* msg is NULL */
+    IOTX_CM_PROCESS_CONNECT = 1,
+
+    /* connect */
+    /* msg is NULL */
+    IOTX_CM_PROCESS_DISCONNECT,
+
     /* register */
     /* msg is iotx_cm_process_register_t */
-    IOTX_CM_PROCESS_REGISTER = 0,
+    IOTX_CM_PROCESS_REGISTER,
 
     /* register result */
     /* msg is iotx_cm_process_register_result_t */
@@ -298,17 +302,17 @@ typedef enum {
 
 
 typedef struct iotx_cm_process_register_st {
-    char*                                       URI;
-    iotx_cm_message_types_t                     type;
+    /*char*                                       URI;
     iotx_cm_register_fp_t                       register_func;
     void*                                       user_data;
-    void*                                       mail_box;
+    void*                                       mail_box;*/
+    iotx_cm_register_param_t**                  register_param;
+    int                                         count;
 } iotx_cm_process_register_t;
 
 
 typedef struct iotx_cm_process_service_st {
     char*                                       URI;
-    iotx_cm_message_types_t                     type;
     iotx_cm_message_auth_types_t                auth_type;
     iotx_cm_register_fp_t                       register_func;
     void*                                       user_data;
@@ -328,6 +332,7 @@ typedef struct iotx_cm_process_send_st {
     char*                                       URI;
     void*                                       payload;
     int                                         payload_length;
+    void*                                       sem;
     void*                                       conn_ctx;
 } iotx_cm_process_send_t;
 
@@ -365,75 +370,9 @@ typedef struct iotx_cm_process_list_st {
 
 #endif /* CM_SUPPORT_MULTI_THREAD */
 
-typedef void* (*init_fp_t)(void* handler, iotx_cm_init_param_t* pparam);
-typedef int   (*connect_fp_t)(void* handler, void* connectivity);
-typedef int   (*trigger_connected_fp_t)(void* handler, void* connectivity, iotx_cm_event_handle_fp_t event_fp, void* user_data);
-typedef int   (*register_fp_t)(void* handler, void* connectivity, const char* topic_filter);
-typedef int   (*unregister_fp_t)(void* handler, void* connectivity, const char* topic_filter);
-typedef int   (*add_service_fp_t)(void* handler, void* connectivity, const char* topic_filter, iotx_cm_message_auth_types_t auth_type);
-typedef int   (*delete_service_fp_t)(void* handler, void* connectivity, const char* topic_filter);
-typedef int   (*send_fp_t)(void* handler, void* connectivity, iotx_cm_send_peer_t* target,
-                            const char* topic_filter, iotx_cm_message_ack_types_t ack_type, const void* payload, int payload_length, void* context);
-typedef int   (*send_sync_fp_t)(void* handler, void* connectivity, iotx_cm_send_peer_t* target,
-                                 const char* topic_filter,  iotx_cm_message_ack_types_t ack_type, const void* payload, int payload_length, void* context);
-typedef int   (*add_subdevice_fp_t)(void* handler, void* connectivity, const char* pk, const char* dn);
-typedef int   (*remove_subdevice_fp_t)(void* handler, void* connectivity, const char* pk, const char* dn);
-typedef int   (*yield_fp_t)(void* connectivity, int timeout_ms);
-typedef int   (*deinit_fp_t)(void* connectivity);
-typedef iotx_cm_send_peer_t* (*get_target_fp_t)(void);
-#ifdef CM_SUPPORT_MULTI_THREAD
-typedef int   (*add_send_fp_t)(void* cm_ctx, iotx_cm_send_peer_t* target, iotx_cm_message_info_t* message_info);
-typedef void* (*thread_process_fp_t)(void *pclient);
-#endif /* CM_SUPPORT_MULTI_THREAD */
-
-typedef struct iotx_cm_connectivity_st {
-    int                                           id;
-    int                                           is_connected;
-    iotx_cm_connectivity_types_t                  type;
-    void*                                         context;
-#ifdef CM_SUPPORT_MULTI_THREAD
-#ifdef CM_SUPPORT_MULTI_THREAD_VIA_HAL
-    void*                                         pthread_process;
-#else
-    pthread_t                                     pthread_process;
-#endif
-    iotx_cm_process_list_t*                       process_list;
-    void*                                         process_lock;
-#endif /* CM_SUPPORT_MULTI_THREAD */
-    init_fp_t                                     init_func;
-    connect_fp_t                                  connect_func;
-    trigger_connected_fp_t                        trigger_connected_func;
-    register_fp_t                                 register_func;
-    unregister_fp_t                               unregister_func;
-    add_service_fp_t                              add_service_func;
-    delete_service_fp_t                           remove_service_func;
-    send_fp_t                                     send_func;
-    send_sync_fp_t                                send_sync_func;
-    add_subdevice_fp_t                            add_subdevice_func;
-    remove_subdevice_fp_t                         remove_subdevice_func;
-    yield_fp_t                                    yield_func;
-    deinit_fp_t                                   deinit_func;
-    get_target_fp_t                               get_target_func;
-#ifdef CM_SUPPORT_MULTI_THREAD
-    add_send_fp_t                                 add_send_func;
-    thread_process_fp_t                           thread_process_func;
-#endif /* CM_SUPPORT_MULTI_THREAD */
-} iotx_cm_connectivity_t;
-
-typedef struct iotx_cm_connectivity_list_st {
-    iotx_cm_connectivity_t*                       node;
-    void*                                         next;
-} iotx_cm_connectivity_list_t;
-
-typedef struct _iotx_cm_event_cb_usr_ctx {
-    iotx_cm_event_handle_fp_t                     event_func;
-    void*                                         user_data;
-}iotx_cm_event_cb_usr_ctx_t;
-
 
 typedef struct iotx_cm_conntext_st{
 #ifdef CM_SUPPORT_MULTI_THREAD
-    uint8_t                                      thread_stop;
     void*                                        action_lock;
 #endif /* CM_SUPPORT_MULTI_THREAD */
     uint64_t                                     cm_message_id;
@@ -442,44 +381,26 @@ typedef struct iotx_cm_conntext_st{
     iotx_cm_mapping_t*                           service_mapping_list;
     iotx_cm_response_fp_t                        response_func;
     linked_list_t*                               list_event_callback;
-#ifdef SERVICE_OTA_ENABLED
-    void*                                        ota_handler;
-    iotx_cm_fota_handle_fp_t                     fota_func;
-    void*                                        fota_user_context;
-    iotx_cm_cota_handle_fp_t                     cota_func;
-    void*                                        cota_user_context;
-#endif /* SERVICE_OTA_ENABLED */
     int                                          inited;
-    iotx_cm_connectivity_t*                      target_connectivity;
+    void*                                        target_connectivity;
+//    int                                          send_sync_s
 } iotx_cm_conntext_t;
 
 int iotx_cm_auth(const char *product_key, const char *device_name, const char *client_id);
 
-void iotx_cm_free_message_info(iotx_cm_message_info_t* message_info);
+//void iotx_cm_free_message_info(iotx_cm_message_info_t* message_info);
 
 void iotx_cm_response_func(void* context, iotx_cm_mapping_type_t mapping_type, iotx_cm_message_info_t* message_info);
 
-int iotx_cm_parse_payload(void* _payload, int payload_length, iotx_cm_message_info_t* msg);
+//int iotx_cm_parse_payload(void* _payload, int payload_length, iotx_cm_message_info_t* msg);
 
-int iotx_cm_splice_payload(void* payload, int* payload_length, int id, iotx_cm_message_info_t* msg);
-
-iotx_cm_connectivity_t* iotx_cm_find_connectivity(iotx_cm_conntext_t* cm_ctx, iotx_cm_send_peer_t* target, void* conn_ctx);
-
-int iotx_cm_get_connectivity_id();
-
-iotx_cm_connectivity_types_t iotx_cm_get_connectivity_type(iotx_cm_connectivity_t* connectivity);
-
-int iotx_cm_add_connectivity(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_t* connectivity);
-
-int iotx_cm_add_connectivity_all(iotx_cm_conntext_t* cm_ctx, iotx_cm_init_param_t* init_param);
-
-int iotx_cm_remove_connectivity_all(iotx_cm_conntext_t* cm_ctx);
+//int iotx_cm_splice_payload(void* payload, int* payload_length, int id, iotx_cm_message_info_t* msg);
 
 iotx_cm_mapping_t* iotx_cm_get_mapping_node(iotx_cm_mapping_type_t mapping_type);
 
 int iotx_cm_free_mapping_node(iotx_cm_mapping_type_t mapping_type, iotx_cm_mapping_t* node);
 
-int iotx_cm_add_mapping(iotx_cm_conntext_t* cm_ctx, iotx_cm_mapping_type_t mapping_type, char* URI, iotx_cm_message_types_t type, iotx_cm_register_fp_t func, void* user_data, void* mail_box);
+int iotx_cm_add_mapping(iotx_cm_conntext_t* cm_ctx, iotx_cm_mapping_type_t mapping_type, char* URI, iotx_cm_register_fp_t func, void* user_data, void* mail_box);
 
 int iotx_cm_remove_mapping(iotx_cm_conntext_t* cm_ctx, iotx_cm_mapping_type_t mapping_type, char* URI);
 
@@ -487,43 +408,26 @@ int iotx_cm_remove_mapping_all(iotx_cm_conntext_t* cm_ctx);
 
 iotx_cm_mapping_t* iotx_cm_find_mapping(iotx_cm_conntext_t* cm_ctx, iotx_cm_mapping_type_t mapping_type, char* URI, int URI_length);
 
-int iotx_cm_register(iotx_cm_conntext_t* cm_ctx, char* _URI, iotx_cm_message_types_t type,
-                             iotx_cm_register_fp_t register_func, void* user_data, void* mail_box);
+int iotx_cm_register(iotx_cm_conntext_t* cm_ctx, void* _connectivity, iotx_cm_register_param_t *register_param, int count);
 
-int iotx_cm_unregister(iotx_cm_conntext_t* cm_ctx, char* URI);
+int iotx_cm_unregister(iotx_cm_conntext_t* cm_ctx, void* _connectivity, char* URI);
 
-int iotx_cm_add_service(iotx_cm_conntext_t* cm_ctx, char* URI, iotx_cm_message_types_t type, iotx_cm_message_auth_types_t auth_type,
+int iotx_cm_add_service(iotx_cm_conntext_t* cm_ctx, void* _connectivity, char* URI, iotx_cm_message_auth_types_t auth_type,
                         iotx_cm_register_fp_t register_func, void* user_data, void* mail_box);
 
-int iotx_cm_remove_service(iotx_cm_conntext_t* cm_ctx, char* URI);
+int iotx_cm_remove_service(iotx_cm_conntext_t* cm_ctx, void* _connectivity, char* URI);
 
-int iotx_cm_add_subdevice(iotx_cm_conntext_t* cm_ctx, const char* pk, const char* dn);
+int iotx_cm_add_subdevice(iotx_cm_conntext_t* cm_ctx, void* _connectivity, const char* pk, const char* dn);
 
-int iotx_cm_remove_subdevice(iotx_cm_conntext_t* cm_ctx, const char* pk, const char* dn);
+int iotx_cm_remove_subdevice(iotx_cm_conntext_t* cm_ctx, void* _connectivity, const char* pk, const char* dn);
 
-int iotx_cm_parse_message(iotx_cm_conntext_t* cm_ctx, iotx_cm_message_info_t* message_info, char** URI, void** payload, int* payload_length);
+//int iotx_cm_parse_message(iotx_cm_conntext_t* cm_ctx, iotx_cm_message_info_t* message_info, char** URI, void** payload, int* payload_length);
 
-int iotx_cm_send_data(iotx_cm_conntext_t* cm_ctx, iotx_cm_send_peer_t* target, void* _connectivity,
-                      char* URI, iotx_cm_message_ack_types_t ack_type, void* payload, int payload_length, void* context);
+int iotx_cm_send_data(iotx_cm_conntext_t* cm_ctx, void* _connectivity, iotx_cm_send_peer_t* target,
+                      char* URI, iotx_cm_message_ack_types_t ack_type, void* payload, int payload_length, void* context, void *sem);
 
 int iotx_cm_trigger_event_callback(iotx_cm_conntext_t* cm_ctx, iotx_cm_event_msg_t* msg);
 
-#ifdef CM_SUPPORT_MULTI_THREAD
-iotx_cm_process_list_node_t* iotx_cm_get_list_node(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type);
-
-int iotx_cm_free_list_node(iotx_cm_conntext_t* cm_ctx, iotx_cm_process_list_node_t* node);
-
-int iotx_cm_free_list_node_all(iotx_cm_conntext_t* cm_ctx);
-
-/* node is in */
-int iotx_cm_process_list_push(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type, iotx_cm_process_list_node_t* node);
-
-/* node is out */
-iotx_cm_process_list_node_t* iotx_cm_process_list_pop(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type);
-
-int iotx_cm_process_list_get_size(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type);
-
-#endif /* CM_SUPPORT_MULTI_THREAD */
 
 #endif /* __SRC_CM_COMMON_H__ */
 

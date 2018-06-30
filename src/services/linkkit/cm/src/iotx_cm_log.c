@@ -23,10 +23,11 @@
 /* error */
 const char cm_log_error_parameter[] CM_READ_ONLY = "parameters error!";
 const char cm_log_error_param_1[] CM_READ_ONLY = "param error: lack of product_key or device_name or device_secret";
+const char cm_log_error_param_2[] CM_READ_ONLY = "param error: send sync must need support CM_SUPPORT_MULTI_THREAD";
+const char cm_log_error_param_3[] CM_READ_ONLY = "param error: send sync must need _connectivity";
 const char cm_log_error_auth[] CM_READ_ONLY = "auth error";
 const char cm_log_error_memory[] CM_READ_ONLY = "memory error";
 const char cm_log_error_fail[] CM_READ_ONLY = "failed";
-const char cm_log_error_fail_ota[] CM_READ_ONLY = "ota failed";
 const char cm_log_error_fail_1[] CM_READ_ONLY = "register fail: add mapping fail.";
 const char cm_log_error_fail_rc[] CM_READ_ONLY = "fail: rc = %d.";
 const char cm_log_error_status[] CM_READ_ONLY = "status error!";
@@ -49,9 +50,9 @@ const char cm_log_error_di[] CM_READ_ONLY = "device_id is empty";
 const char cm_log_error_ret_code[] CM_READ_ONLY = "\r\n ret_code = %d (!= 200), abort!\r\n ";
 const char cm_log_error_secret_1[] CM_READ_ONLY = "secret type is product_secret, but the product_secret is null";
 const char cm_log_error_secret_2[] CM_READ_ONLY = "device_secret is null";
+const char cm_log_error_protocol[] CM_READ_ONLY = "Not support protocol for %d";
 
 /* warning */
-const char cm_log_warning_ota_started[] CM_READ_ONLY = "ota is started";
 const char cm_log_warning_cloud_disconnected[] CM_READ_ONLY = "cloud is not connect";
 const char cm_log_warning_not_support[] CM_READ_ONLY = "NOT_SUPPORT";
 const char cm_log_warning_not_arrived[] CM_READ_ONLY = "Should NOT arrived here";
@@ -77,6 +78,7 @@ const char cm_log_info_URI_ext[] CM_READ_ONLY = "URI type: /EXT/ ";
 const char cm_log_info_URI_undefined[] CM_READ_ONLY = "URI type: /UNDEFINE/ ";
 const char cm_log_info_URI_length[] CM_READ_ONLY = "URI length = %d";
 const char cm_log_info_payload_length[] CM_READ_ONLY = "payload length = %d";
+const char cm_log_info_payload[] CM_READ_ONLY = "payload = %s";
 const char cm_log_info_firmware[] CM_READ_ONLY = "The firmware is valid";
 const char cm_log_info_MQTT_disconnect[] CM_READ_ONLY = "MQTT disconnect.";
 const char cm_log_info_MQTT_reconnect[] CM_READ_ONLY = "MQTT reconnect";
@@ -94,5 +96,11 @@ const char cm_log_info_found_device[] CM_READ_ONLY = "found device";
 const char cm_log_info_remove_device[] CM_READ_ONLY = "remove device";
 const char cm_log_info_local_disconnect[] CM_READ_ONLY = "local disconnect";
 const char cm_log_info_local_reconnect[] CM_READ_ONLY = "local reconnect";
-const char cm_log_info_version[] CM_READ_ONLY = "cm version: %s";
+const char cm_log_info_version[] CM_READ_ONLY = "cm verstion %s";
+const char cm_log_info_response[] CM_READ_ONLY = "receive response";
+const char cm_log_info_response_code[] CM_READ_ONLY = "receive response code: %d";
+const char cm_log_info_not_support[] CM_READ_ONLY = "not support";
+const char cm_log_info_mqtt_send[] CM_READ_ONLY = "mqtt publish: topic=%.*s, topic_msg=%.*s";
+const char cm_log_info_mqtt_received[] CM_READ_ONLY = "mqtt received: topic=%.*s, topic_msg=%.*s";
+const char cm_log_info_suback[] CM_READ_ONLY = "subscribe success, packet-id=%u";
 

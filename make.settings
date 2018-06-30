@@ -36,7 +36,7 @@ FEATURE_HTTP_COMM_ENABLED   = y
 ## Usage:    If the value is "y", it support http/2 protocol and the HTTP2_COMM_ENABLED compile option will be defined
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_HTTP2_COMM_ENABLED  = y
+FEATURE_HTTP2_COMM_ENABLED  = n
 
 ##
 ## FEATURE_SDK_ENHANCE

@@ -30,6 +30,9 @@ extern "C" {
 #include "iot_import.h"
 #include "iot_export_mqtt.h"
 
+/* maximum number of successful subscribe */
+#define IOTX_MC_SUB_NUM_MAX                     (100)
+
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
 
@@ -91,11 +94,9 @@ typedef enum MQTT_NODE_STATE {
 
 
 /* Handle structure of subscribed topic */
-typedef struct iotx_mc_topic_handle_s {
+typedef struct {
     const char *topic_filter;
     iotx_mqtt_event_handle_t handle;
-
-    struct iotx_mc_topic_handle_s *next;
 } iotx_mc_topic_handle_t;
 
 
@@ -105,7 +106,7 @@ typedef struct SUBSCRIBE_INFO {
     uint16_t                msg_id;         /* packet id of subscribe(unsubcribe) */
     iotx_time_t             sub_start_time; /* start time of subscribe request */
     iotx_mc_node_t          node_state;     /* state of this node */
-    iotx_mc_topic_handle_t  handler;        /* handle of topic subscribed(unsubcribed) */
+    iotx_mc_topic_handle_t* handler;        /* handle of topic subscribed(unsubcribed) */
     uint16_t                len;            /* length of subscribe message */
     unsigned char          *buf;            /* subscribe message */
 } iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
@@ -137,7 +138,7 @@ typedef struct Client {
     uint8_t                         keepalive_probes;                        /* keepalive probes */
     char                           *buf_send;                                /* pointer of send buffer */
     char                           *buf_read;                                /* pointer of read buffer */
-    iotx_mc_topic_handle_t         *first_sub_handle;                        /* list of subscribe handle */
+    iotx_mc_topic_handle_t          sub_handle[IOTX_MC_SUB_NUM_MAX];         /* array of subscribe handle */
     utils_network_pt                ipstack;                                 /* network parameter */
     iotx_time_t                     next_ping_time;                          /* next ping time */
     int                             ping_mark;                               /* flag of ping */

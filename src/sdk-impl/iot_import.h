@@ -42,6 +42,16 @@ extern "C" {
 #else
 
 #include "itls.h"
+
+void *HAL_SemaphoreCreate(void);
+
+void HAL_SemaphoreDestroy(_IN_ void *sem);
+
+int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms);
+
+void HAL_SemaphorePost(_IN_ void *sem);
+
+
 /*********************************** mutex interface ***********************************/
 
 /** @defgroup group_platform_mutex mutex
@@ -759,6 +769,16 @@ int HAL_Firmware_Persistence_Stop(void);
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
 int HAL_Kv_Del(const char *key);
+int HAL_ThreadCreate(
+            _OU_ void **thread_handle,
+            _IN_ void *(*work_routine)(void *),
+            _IN_ void *arg,
+            _IN_ hal_os_thread_param_t *hal_os_thread_param,
+            _OU_ int *stack_used);
+
+void HAL_ThreadDetach(_IN_ void *thread_handle);
+void HAL_ThreadDelete(_IN_ void *thread_handle);
+
 
 /** @} */ //end of platform_firmware_upgrade
 

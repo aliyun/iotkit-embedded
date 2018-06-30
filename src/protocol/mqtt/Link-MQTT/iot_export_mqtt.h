@@ -20,6 +20,8 @@
 #ifndef _IOT_EXPORT_MQTT_H_
 #define _IOT_EXPORT_MQTT_H_
 
+#define MUTLI_SUBSCIRBE_MAX                                     (5)
+
 /* From mqtt_client.h */
 typedef enum {
     IOTX_MQTT_QOS0 = 0,
@@ -79,10 +81,11 @@ typedef struct {
     uint8_t         dup;
     uint8_t         retain;
     uint16_t        topic_len;
-    uint32_t        payload_len;
+    uint16_t        payload_len;
     const char     *ptopic;
     const char     *payload;
 } iotx_mqtt_topic_info_t, *iotx_mqtt_topic_info_pt;
+
 
 typedef struct {
 
@@ -163,6 +166,15 @@ typedef struct {
     iotx_mqtt_event_handle_t    handle_event;             /* Specify MQTT event handle */
 
 } iotx_mqtt_param_t, *iotx_mqtt_param_pt;
+
+
+/* Information structure of mutli-subscribe */
+typedef struct {
+    const char                                    *topicFilter;
+    iotx_mqtt_qos_t                                qos;
+    iotx_mqtt_event_handle_func_fpt                messageHandler;
+} iotx_mutli_sub_info_t, *iotx_mutli_sub_info_pt;
+
 
 /** @defgroup group_api api
  *  @{

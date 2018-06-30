@@ -30,6 +30,7 @@
 #include "iot_export_alcs.h"
 
 #include "iotx_cm_common.h"
+#include "iotx_cm_connectivity.h"
 #include "iotx_cm_connection.h"
 #include "iotx_local_conn_alcs.h"
 
@@ -37,12 +38,20 @@ static const int _alcs_port = 5683;
 static const int _alcs_send_maxcount = 8;
 static const int _alcs_waittime = 2000;
 static const int _alcs_obs_maxcount = 8;
+static const int _alcs_res_maxcount = 8;
 
 static const char string_group[] CM_READ_ONLY = "224.0.1.187";
 
+void _alcs_free_alcs_transfer_context(void* cntx)
+{
+    iotx_alcs_transfer_msg_context_t* context = (iotx_alcs_transfer_msg_context_t*)cntx;
+    if (context->ip) LITE_free(context->ip);
+    if (context->token) LITE_free(context->token);
+}
+
 void _alcs_event_handler(void *pcontext, void *phandle, iotx_alcs_event_msg_t *msg)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)pcontext;
+    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)pcontext;
 
     CM_INFO(cm_log_info_event_id, msg->event_type);
 
@@ -137,7 +146,7 @@ void _alcs_event_handler(void *pcontext, void *phandle, iotx_alcs_event_msg_t *m
 }
 
 /*  alcs */
-void* iotx_local_conn_alcs_init(void* handle)
+void* iotx_local_conn_alcs_init(void* handle, void* param)
 {
     iotx_alcs_param_t alcs_param;
     iotx_alcs_event_handle_t event_handle;
@@ -151,6 +160,7 @@ void* iotx_local_conn_alcs_init(void* handle)
     alcs_param.send_maxcount = _alcs_send_maxcount;
     alcs_param.waittime = _alcs_waittime;
     alcs_param.obs_maxcount = _alcs_obs_maxcount;
+    alcs_param.res_maxcount = _alcs_res_maxcount;
     alcs_param.role = IOTX_ALCS_ROLE_CLIENT | IOTX_ALCS_ROLE_SERVER;
     event_handle.h_fp = _alcs_event_handler;
     event_handle.pcontext = handle;
@@ -171,7 +181,7 @@ int iotx_local_conn_alcs_add_service(void* handle,
                                      iotx_cm_message_auth_types_t auth_type)
 {
     iotx_alcs_res_t alcs_res = {0};
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
 
     alcs_res.uri = (char*)topic_filter;
     alcs_res.msg_ct = IOTX_ALCS_MESSAGE_CT_APP_JSON;
@@ -185,7 +195,7 @@ int iotx_local_conn_alcs_add_service(void* handle,
 int iotx_local_conn_alcs_remove_service(void* handle,
                                         const char *topic_filter)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
 
     return IOT_ALCS_Unregister_Resource(connection->context, (char*)topic_filter);
 }
@@ -196,7 +206,7 @@ int iotx_local_conn_alcs_send(void* handle,
                               iotx_connection_msg_t* message)
 {
     int ret = FAIL_RETURN;
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
     iotx_alcs_transfer_msg_context_t* context = (iotx_alcs_transfer_msg_context_t*)_context;
     iotx_alcs_msg_t alcs_msg;
 
@@ -237,30 +247,31 @@ int iotx_local_conn_alcs_send(void* handle,
 
 int iotx_local_conn_alcs_add_subdevice(void* handle, const char* pk, const char* dn)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
-    return IOT_ALCS_Add_Sub_Device(connection->context, pk, dn);
+//    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
+//    return IOT_ALCS_Add_Sub_Device(connection->context, pk, dn);
+    return SUCCESS_RETURN;
 }
 
 
 int iotx_local_conn_alcs_remove_subdevice(void* handle, const char* pk, const char* dn)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
-    return IOT_ALCS_Remove_Sub_Device(connection->context, pk, dn);
+//    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
+//    return IOT_ALCS_Remove_Sub_Device(connection->context, pk, dn);
+    return SUCCESS_RETURN;
 }
 
 
 int iotx_local_conn_alcs_deinit(void* handle)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
-
+    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
     return IOT_ALCS_Destroy(&connection->context);
 }
 
 
 int iotx_local_conn_alcs_yield(void* handle, int timeout_ms)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
-
+    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
+    return SUCCESS_RETURN;
     return IOT_ALCS_Yield(connection->context);
 }
 

@@ -5,6 +5,10 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit/include/mbedtls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit/library)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/digest)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/log)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/utils/misc)
 
 ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit/library/aes.c

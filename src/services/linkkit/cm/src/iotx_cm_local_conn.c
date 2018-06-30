@@ -26,7 +26,12 @@
 #include "iotx_cm_common.h"
 #include "iotx_cm_local_conn.h"
 #include "iotx_cm_connection.h"
+#include "iotx_cm_connectivity.h"
 #include "iotx_local_conn_alcs.h"
+
+#define CM_SUPPORT_MULTI_LOCAL_DEVICE
+
+#define CM_SUPPORT_MAX_LOCAL_DEVICE     (1)
 
 typedef struct iotx_cm_local_device_list_st {
     iotx_cm_local_device_t*                        node;
@@ -36,35 +41,29 @@ typedef struct iotx_cm_local_device_list_st {
 
 static iotx_cm_local_device_list_t* g_local_device = NULL;
 
-#if 0
-static iotx_cm_local_device_list_t iotx_cm_local_device_list[CM_SUPPORT_MAX_MAPPING_SIZE];
+static iotx_cm_local_device_list_t iotx_cm_local_device_list[CM_SUPPORT_MAX_LOCAL_DEVICE];
 
 static int iotx_cm_local_conn_add_device(iotx_cm_local_device_t* device)
 {
-    iotx_cm_local_device_list_t* device_list = NULL;
     iotx_cm_local_device_list_t* temp = NULL;
     int i = 0;
 
     if (NULL == device) {
-        log_info("parameter error");
+        CM_ERR(cm_log_error_parameter);
         return FAIL_RETURN;
     }
 
-    for (i = 0; i < CM_SUPPORT_MAX_MAPPING_SIZE; i++) {
+    for (i = 0; i < CM_SUPPORT_MAX_LOCAL_DEVICE; i++) {
         if (iotx_cm_local_device_list[i].is_used == 0) {
             iotx_cm_local_device_list[i].is_used = 1;
-            device_list = &iotx_cm_local_device_list[i];
+            break;
         }
     }
 
-    if (NULL == device_list) {
-        return FAIL_RETURN;
-    }
-
-    device_list->node = device;
+    iotx_cm_local_device_list[i].node = device;
 
     if (NULL == g_local_device) {
-        g_local_device = device_list;
+        g_local_device = &iotx_cm_local_device_list[i];
         return SUCCESS_RETURN;
     }
 
@@ -73,7 +72,7 @@ static int iotx_cm_local_conn_add_device(iotx_cm_local_device_t* device)
         temp = temp->next;
     }
 
-    temp->next = device_list;
+    temp->next = &iotx_cm_local_device_list[i];
 
     return SUCCESS_RETURN;
 }
@@ -85,7 +84,7 @@ static int iotx_cm_local_conn_remove_device(iotx_cm_local_device_t* device)
     iotx_cm_local_device_list_t* pre_temp = NULL;
 
     if (NULL == g_local_device) {
-        log_info("parameter error");
+        CM_ERR(cm_log_error_parameter);
         return FAIL_RETURN;
     }
 
@@ -127,7 +126,7 @@ static int iotx_cm_local_conn_remove_device(iotx_cm_local_device_t* device)
 static int iotx_cm_local_conn_remove_device_all()
 {
     int i = 0;
-    for (i = 0; i < CM_SUPPORT_MAX_MAPPING_SIZE; i++) {
+    for (i = 0; i < CM_SUPPORT_MAX_LOCAL_DEVICE; i++) {
         if (iotx_cm_local_device_list[i].is_used == 1) {
             LITE_free(iotx_cm_local_device_list[i].node->device_info);
             LITE_free(iotx_cm_local_device_list[i].node);
@@ -150,32 +149,27 @@ static int iotx_cm_local_compare_device(iotx_cm_send_peer_t* device_info_1, iotx
     return -1;
 }
 
+
 /* find */
 static iotx_cm_local_device_t* iotx_cm_local_conn_find_device(iotx_cm_send_peer_t* device_info)
 {
     iotx_cm_local_device_list_t* temp = NULL;
 
     if (NULL == g_local_device) {
-        log_info("parameter error");
+        CM_ERR(cm_log_error_parameter);
         return NULL;
     }
 
-    if (0 == iotx_cm_local_compare_device(g_local_device->node->device_info, device_info)) {
-        return g_local_device->node;
-    }
+    if (0 == iotx_cm_local_compare_device(g_local_device->node->device_info, device_info)) return g_local_device->node;
 
     temp = g_local_device->next;
     while (temp) {
-        if (0 == iotx_cm_local_compare_device(temp->node->device_info, device_info)) {
-            return temp->node;
-        }
-
+        if (0 == iotx_cm_local_compare_device(temp->node->device_info, device_info)) return temp->node;
         temp = temp->next;
     }
 
     return NULL;
 }
-#endif
 
 
 static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event_msg_t* event_msg)
@@ -226,30 +220,32 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
     }
         break;
 
-#if 0
-    case IOTX_LOCAL_CONN_EVENT_ADD_DEVICE: {
-        iotx_local_conn_device_event_t* msg = (iotx_local_conn_device_event_t*)event_msg->msg;
-        iotx_cm_send_peer_t* device_info = NULL;
+#ifdef CM_SUPPORT_MULTI_LOCAL_DEVICE
+    case IOTX_CONNECTION_EVENT_ADD_DEVICE: {
+        iotx_cm_local_device_t* _device = (iotx_cm_local_device_t*)event_msg->msg;
         iotx_cm_local_device_t* device = NULL;
 
-        if (NULL == msg) return;
+        if (NULL == _device) return;
 
         CM_INFO(cm_log_info_add_device);
 
-        device_info = LITE_malloc(sizeof(iotx_cm_event_device_t));
-        if (NULL == device_info) return;
-
         device = LITE_malloc(sizeof(iotx_cm_local_device_t));
-        if (NULL == device) {
-            LITE_free(device_info);
+        if (NULL == device) return;
+        device->device_info = LITE_malloc(sizeof(iotx_cm_send_peer_t));
+        if (NULL == device->device_info) {
+            LITE_free(device);
+            return;
+        }
+        device->addr = LITE_malloc(strlen(_device->addr));
+        if (NULL == device->addr) {
+            LITE_free(device->device_info);
+            LITE_free(device);
             return;
         }
 
-        memset(device_info, 0x0, sizeof(iotx_cm_event_device_t));
-        stretpy(device_info->product_key, msg->product_key);
-        stretpy(device_info->device_name, msg->device_name);
-        device->device_info = device_info;
-        device->addr = msg->addr;
+        strcpy(device->device_info->product_key, _device->device_info->product_key);
+        strcpy(device->device_info->device_name, _device->device_info->device_name);
+        strcpy(device->addr, _device->addr);
 
 #ifdef CM_SUPPORT_MULTI_THREAD
         {
@@ -270,23 +266,31 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
     }
         break;
 
-    case IOTX_LOCAL_CONN_EVENT_REMOVE_DEVICE: {
-        iotx_local_conn_device_event_t* msg = (iotx_local_conn_device_event_t*)event_msg->msg;
-        iotx_cm_send_peer_t* device_info = NULL;
+    case IOTX_CONNECTION_EVENT_REMOVE_DEVICE: {
+        iotx_cm_local_device_t* _device = (iotx_cm_local_device_t*)event_msg->msg;
         iotx_cm_local_device_t* device = NULL;
 
-        if (NULL == msg) return;
+        if (NULL == _device) return;
 
         CM_INFO(cm_log_info_remove_device);
 
         device = LITE_malloc(sizeof(iotx_cm_local_device_t));
-        if (NULL == device) {
-            LITE_free(device_info);
+        if (NULL == device) return;
+        device->device_info = LITE_malloc(sizeof(iotx_cm_send_peer_t));
+        if (NULL == device->device_info) {
+            LITE_free(device);
+            return;
+        }
+        device->addr = LITE_malloc(strlen(_device->addr));
+        if (NULL == device->addr) {
+            LITE_free(device->device_info);
+            LITE_free(device);
             return;
         }
 
-        device->device_info = device_info;
-        device->addr = msg->addr;
+        strcpy(device->device_info->product_key, _device->device_info->product_key);
+        strcpy(device->device_info->device_name, _device->device_info->device_name);
+        strcpy(device->addr, _device->addr);
 
 #ifdef CM_SUPPORT_MULTI_THREAD
         {
@@ -306,7 +310,7 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
 #endif /* CM_SUPPORT_MULTI_THREAD */
     }
         break;
-#endif
+#endif /* CM_SUPPORT_MULTI_LOCAL_DEVICE */
 
     default:
         break;
@@ -535,11 +539,12 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             if (msg_info->URI) {
                 strncpy(msg_info->URI, msg->URI, msg->URI_length);
             } else {
-                CM_ERR(cm_log_error_parse_URI);
+                CM_ERR(cm_log_error_memory);
                 LITE_free(node->msg);
                 iotx_cm_free_list_node(cm_ctx, node);
                 return FAIL_RETURN;
             }
+            msg_info->URI_length = msg->URI_length;
 
 #ifdef CM_SUPPORT_TOPIC_DISPATCH
             /* find mapping */
@@ -550,23 +555,34 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
                 iotx_cm_free_list_node(cm_ctx, node);
                 return FAIL_RETURN;
             }
-            msg_info->message_type = mapping->type;
 #endif /* CM_SUPPORT_TOPIC_DISPATCH */
 
-            if (FAIL_RETURN == iotx_cm_parse_payload((char*)msg->payload, msg->payload_length, msg_info)) {
-                CM_ERR(cm_log_error_parse_URI);
-                iotx_cm_free_message_info(msg_info);
+            msg_info->payload = CM_malloc(msg->payload_length + 1);
+            if (msg_info->payload) {
+                strncpy(msg_info->payload, msg->payload, msg->payload_length);
+            } else {
+                CM_ERR(cm_log_error_memory);
+                LITE_free(msg_info->URI);
                 LITE_free(node->msg);
                 iotx_cm_free_list_node(cm_ctx, node);
                 return FAIL_RETURN;
             }
-
             msg_info->conn_ctx = msg->conn_ctx;
+
+//            if (FAIL_RETURN == iotx_cm_parse_payload((char*)msg->payload, msg->payload_length, msg_info)) {
+//                CM_ERR(cm_log_error_memory);
+//                LITE_free(msg_info->URI);
+//                LITE_free(node->msg);
+//                iotx_cm_free_list_node(cm_ctx, node);
+//                return FAIL_RETURN;
+//            }
 
             ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
 
             if (FAIL_RETURN == ret) {
-                iotx_cm_free_message_info(msg_info);
+                CM_ERR(cm_log_error_memory);
+                LITE_free(msg_info->URI);
+                LITE_free(msg_info->payload);
                 LITE_free(node->msg);
                 iotx_cm_free_list_node(cm_ctx, node);
                 break;
@@ -579,45 +595,36 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
 #endif /* CM_SUPPORT_TOPIC_DISPATCH */
 
         memset(&message_info, 0x0, sizeof(iotx_cm_message_info_t));
+        message_info.URI = msg->URI;
+        message_info.URI_length = msg->URI_length;
+        message_info.payload = msg->payload;
+        message_info.payload_length = msg->payload_length;
+        message_info.conn_ctx = msg->conn_ctx;
 
-        message_info.URI = LITE_malloc(msg->URI_length + 1);
-#if 0
-        if (NULL == message_info.URI) {
-            CM_ERR(cm_log_error_memory);
-            return FAIL_RETURN;
-        }
-        memset(message_info.URI, 0x0, msg->URI_length + 1);
-        if (FAIL_RETURN == iotx_cm_parse_URI((char*)msg->URI, msg->URI_length, message_info.URI, &message_info.URI_type)) {
-            CM_ERR(cm_log_error_parse_URI);
-            iotx_cm_free_message_info(&message_info);
-            return FAIL_RETURN;
-        }
-#endif
-        if (message_info.URI) {
-            strncpy(message_info.URI, msg->URI, msg->URI_length);
-        } else {
-            iotx_cm_free_message_info(&message_info);
-            return FAIL_RETURN;
-        }
+//        message_info.URI = LITE_malloc(msg->URI_length + 1);
+//        if (message_info.URI) {
+//            strncpy(message_info.URI, msg->URI, msg->URI_length);
+//        } else {
+//            iotx_cm_free_message_info(&message_info);
+//            return FAIL_RETURN;
+//        }
 
 #ifdef CM_SUPPORT_TOPIC_DISPATCH
         /* find mapping */
         mapping = iotx_cm_find_mapping(cm_ctx, IOTX_CM_MAPPING_TYPE_SERVICE, (char*)msg->URI, msg->URI_length);
         if (NULL == mapping) {
             CM_WARNING(cm_log_warning_not_mapping);
-            iotx_cm_free_message_info(&message_info);
+//            iotx_cm_free_message_info(&message_info);
             return FAIL_RETURN;
         }
-        message_info.message_type = mapping->type;
+//        message_info.message_type = mapping->type;
 #endif /* CM_SUPPORT_TOPIC_DISPATCH */
 
-        if (FAIL_RETURN == iotx_cm_parse_payload((char*)msg->payload, msg->payload_length, &message_info)) {
-            CM_ERR(cm_log_error_parse_payload);
-            iotx_cm_free_message_info(&message_info);
-            return FAIL_RETURN;
-        }
-
-        message_info.conn_ctx = msg->conn_ctx;
+//        if (FAIL_RETURN == iotx_cm_parse_payload((char*)msg->payload, msg->payload_length, &message_info)) {
+//            CM_ERR(cm_log_error_parse_payload);
+//            iotx_cm_free_message_info(&message_info);
+//            return FAIL_RETURN;
+//        }
 
         return iotx_cm_local_conn_response_handler(cm_ctx, &message_info);
 #endif /* CM_SUPPORT_MULTI_THREAD */
@@ -645,19 +652,6 @@ int iotx_cm_local_conn_service_handler(iotx_cm_conntext_t* cm_ctx, char* URI, in
 
     event_result.result = result;
     event_result.URI = LITE_malloc(CM_TOPIC_LEN_MAX);
-#if 0
-    if (NULL == event_result.URI) {
-        CM_ERR(cm_log_error_memory);
-        return FAIL_RETURN;
-    }
-    memset(event_result.URI, 0x0, CM_TOPIC_LEN_MAX);
-
-    if (FAIL_RETURN == iotx_cm_parse_URI((char*)URI, strlen(event_result.URI), event_result.URI, &event_result.URI_type)) {
-        CM_ERR(cm_log_error_parse_URI);
-        LITE_free(event_result.URI);
-        return FAIL_RETURN;
-    }
-#endif
     if (event_result.URI) {
         strncpy(event_result.URI, URI, CM_TOPIC_LEN_MAX);
     } else {
@@ -716,25 +710,21 @@ int iotx_cm_local_conn_reconnect_handler(iotx_cm_conntext_t* cm_ctx)
 
 int iotx_cm_local_conn_found_device_handler(iotx_cm_conntext_t* cm_ctx, iotx_cm_local_device_t* device)
 {
-#if 0
     iotx_cm_event_msg_t event;
 
-    if (FAIL_RETURN == iotx_cm_local_conn_add_device(device)) {
-        return FAIL_RETURN;
-    }
+    if (FAIL_RETURN == iotx_cm_local_conn_add_device(device)) return FAIL_RETURN;
 
     event.event_id = IOTX_CM_EVENT_FOUND_DEVICE;
     event.msg = device->device_info;
 
     CM_INFO(cm_log_info_found_device);
     iotx_cm_trigger_event_callback(cm_ctx, &event);
-#endif
     return SUCCESS_RETURN;
 }
 
+
 int iotx_cm_local_conn_remove_device_handler(iotx_cm_conntext_t* cm_ctx, iotx_cm_local_device_t* device)
 {
-#if 0
     iotx_cm_event_msg_t event;
     if (FAIL_RETURN == iotx_cm_local_conn_remove_device(device)) {
         return FAIL_RETURN;
@@ -745,8 +735,6 @@ int iotx_cm_local_conn_remove_device_handler(iotx_cm_conntext_t* cm_ctx, iotx_cm
 
     CM_INFO(cm_log_info_remove_device);
     iotx_cm_trigger_event_callback(cm_ctx, &event);
-
-#endif
     return SUCCESS_RETURN;
 }
 
@@ -771,27 +759,26 @@ int iotx_cm_local_conn_response_handler(iotx_cm_conntext_t* cm_ctx,
 int iotx_cm_local_conn_connect(void* handler, void* _connectivity)
 {
     iotx_cm_connectivity_t *connectivity = NULL;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
 
     connectivity = (iotx_cm_connectivity_t *)_connectivity;
-    connection = (iotx_connection_t*)connectivity->context;
+    connection = (iotx_cm_connection_t*)connectivity->context;
 
-    connection->context = connection->init_func(connection);
-    if (connection->context) {
-        connectivity->is_connected = 1;
+    connection->context = connection->init_func(connection, NULL);
 
-        return SUCCESS_RETURN;
-    }
+    if (connection->context)
+        connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_CONNECTED;
 
-    return FAIL_RETURN;
+    return connection->context ? SUCCESS_RETURN : FAIL_RETURN;
 }
 
 
 static void* _alcs_init(void* handler)
 {
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
+    iotx_cm_local_device_t* local_device = NULL;
 
-    connection = CM_malloc(sizeof(iotx_connection_t));
+    connection = CM_malloc(sizeof(iotx_cm_connection_t));
 
     if (NULL == connection) return NULL;
 
@@ -805,70 +792,71 @@ static void* _alcs_init(void* handler)
     connection->add_subdevice_func = iotx_local_conn_alcs_add_subdevice;
     connection->remove_subdevice_func = iotx_local_conn_alcs_remove_subdevice;
     connection->yield_func = iotx_local_conn_alcs_yield;
-    connection->protocol_type = IOTX_CONNECTION_PROTOCOL_TYPE_ALCS;
+    connection->protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_ALCS;
     connection->event_handler = iotx_local_conn_event_callback;
     connection->event_pcontext = handler;
     connection->response_handler = iotx_cm_local_conn_response_callback;
 
-    g_local_device = CM_malloc(sizeof(iotx_cm_local_device_list_t));
-    memset(g_local_device, 0x0, sizeof(iotx_cm_local_device_list_t));
+    local_device = CM_malloc(sizeof(iotx_cm_local_device_t));
+    memset(local_device, 0x0, sizeof(iotx_cm_local_device_t));
 
-    g_local_device->node = CM_malloc(sizeof(iotx_cm_local_device_t));
-    memset(g_local_device->node, 0x0, sizeof(iotx_cm_local_device_t));
+    local_device->device_info = CM_malloc(sizeof(iotx_cm_send_peer_t));
+    memset(local_device->device_info, 0x0, sizeof(iotx_cm_send_peer_t));
 
-    g_local_device->node->device_info = CM_malloc(sizeof(iotx_cm_send_peer_t));
-    memset(g_local_device->node->device_info, 0x0, sizeof(iotx_cm_send_peer_t));
+    strcpy(local_device->device_info->device_name, "device_name");
+    strcpy(local_device->device_info->product_key, "product_key");
 
-    strcpy(g_local_device->node->device_info->device_name, "device_name");
-    strcpy(g_local_device->node->device_info->product_key, "product_key");
-
+    iotx_cm_local_conn_add_device(local_device);
     return connection;
 }
 
-void* iotx_cm_local_conn_init(void* handler, iotx_cm_init_param_t* pparam)
+void* iotx_cm_local_conn_init(void* handler, void* param)
 {
     iotx_cm_conntext_t* cm_ctx = (iotx_cm_conntext_t*)handler;
     iotx_cm_connectivity_t* connectivity = NULL;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
+    iotx_cm_connectivity_alcs_param_t* alcs_param = (iotx_cm_connectivity_alcs_param_t*)param;
 
-    if (NULL == cm_ctx || NULL == pparam) {
+    if (NULL == cm_ctx) {
         CM_ERR(cm_log_error_parameter);
         return NULL;
     }
-    connection = _alcs_init(cm_ctx);
+
+    switch (alcs_param->protocol_type) {
+    case IOTX_CM_CONNECTION_PROTOCOL_TYPE_ALCS:
+        connection = _alcs_init(cm_ctx);
+
+    default:
+        CM_ERR(cm_log_error_protocol, alcs_param->protocol_type);
+        break;
+    }
 
     if (connection == NULL) return NULL;
 
     connectivity = LITE_malloc(sizeof(iotx_cm_connectivity_t));
     if (NULL == connectivity) {
         CM_ERR(cm_log_error_memory);
-        
-        if(g_local_device->node->device_info) LITE_free(g_local_device->node->device_info);
-        if(g_local_device->node) LITE_free(g_local_device->node);
-        if(g_local_device) LITE_free(g_local_device);
-
         connection->deinit_func(connection);
-
         LITE_free(connection);
         return NULL;
     }
 
     connectivity->context = connection;
-
     connectivity->init_func = iotx_cm_local_conn_init;
     connectivity->connect_func = iotx_cm_local_conn_connect;
     connectivity->register_func = iotx_cm_local_conn_register;
+    connectivity->check_connected_func = iotx_cm_local_conn_check_connected;
     connectivity->trigger_connected_func = iotx_cm_local_conn_trigger_connected;
     connectivity->unregister_func = iotx_cm_local_conn_unregister;
     connectivity->add_service_func = iotx_cm_local_conn_add_service;
     connectivity->remove_service_func = iotx_cm_local_conn_remove_service;
     connectivity->send_func = iotx_cm_local_conn_send;
-    connectivity->send_sync_func = iotx_cm_local_conn_send_sync;
     connectivity->add_subdevice_func = iotx_cm_local_conn_add_subdevice;
     connectivity->remove_subdevice_func = iotx_cm_local_conn_remove_subdevice;
     connectivity->yield_func = iotx_cm_local_conn_yield;
     connectivity->deinit_func = iotx_cm_local_conn_deinit;
     connectivity->get_target_func = iotx_cm_local_conn_get_target;
+    connectivity->check_target_func = iotx_cm_local_conn_check_target;
 #ifdef CM_SUPPORT_MULTI_THREAD
     connectivity->add_send_func = iotx_cm_local_conn_add_send;
     connectivity->thread_process_func = iotx_cm_local_conn_process;
@@ -876,7 +864,7 @@ void* iotx_cm_local_conn_init(void* handler, iotx_cm_init_param_t* pparam)
 
     connectivity->id = iotx_cm_get_connectivity_id();
     connectivity->type = IOTX_CM_CONNECTIVITY_TYPE_LOCAL;
-    
+    connectivity->is_try_connect = 0;
 #ifdef CM_SUPPORT_MULTI_THREAD
     connectivity->process_lock = HAL_MutexCreate();
 #ifdef CM_SUPPORT_MULTI_THREAD_VIA_HAL
@@ -897,13 +885,16 @@ int iotx_cm_local_conn_trigger_connected(void* handler, void* _connectivity, iot
 
     if (NULL == connectivity || NULL == cm_ctx) return FAIL_RETURN;
 
-    if (0 == connectivity->is_connected && connectivity->connect_func)
-        connectivity->connect_func(cm_ctx, connectivity);
+    connectivity->is_try_connect = 1;
 
-    if (1 == connectivity->is_connected) {
+    if ((IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != iotx_cm_get_connectivity_status(connectivity)) && connectivity->connect_func) {
+        connectivity->connect_func(cm_ctx, connectivity);
+    }
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED == iotx_cm_get_connectivity_status(connectivity)) {
         iotx_cm_event_msg_t event_msg = {0};
         event_msg.event_id = IOTX_CM_EVENT_LOCAL_CONNECTED;
-        event_msg.msg = (void*)connectivity->id;
+        event_msg.msg = (void*)connectivity;
         event_fp ? event_fp(cm_ctx, &event_msg, user_data) : iotx_cm_trigger_event_callback(cm_ctx, &event_msg);
         return SUCCESS_RETURN;
     }
@@ -912,7 +903,26 @@ int iotx_cm_local_conn_trigger_connected(void* handler, void* _connectivity, iot
 }
 
 
-int iotx_cm_local_conn_register(void* handler, void* _connectivity, const char* topic_filter)
+int iotx_cm_local_conn_check_connected(void* handler, void* _connectivity, iotx_cm_event_handle_fp_t event_fp, void* user_data)
+{
+    iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
+    iotx_cm_conntext_t* cm_ctx = (iotx_cm_conntext_t*)handler;
+
+    if (NULL == connectivity || NULL == cm_ctx) return FAIL_RETURN;
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED == iotx_cm_get_connectivity_status(connectivity)) {
+        iotx_cm_event_msg_t event_msg = {0};
+        event_msg.event_id = IOTX_CM_EVENT_LOCAL_CONNECTED;
+        event_msg.msg = (void*)connectivity;
+        event_fp ? event_fp(cm_ctx, &event_msg, user_data) : iotx_cm_trigger_event_callback(cm_ctx, &event_msg);
+        return SUCCESS_RETURN;
+    }
+
+    return FAIL_RETURN;
+}
+
+
+int iotx_cm_local_conn_register(void* handler, void* _connectivity, void *register_param, int count)
 {
     return SUCCESS_RETURN;
 }
@@ -927,9 +937,12 @@ int iotx_cm_local_conn_unregister(void* handler, void* _connectivity, const char
 int iotx_cm_local_conn_add_service(void* handler, void* _connectivity, const char* topic_filter, iotx_cm_message_auth_types_t auth_type)
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
 
-    connection = (iotx_connection_t*)connectivity->context;
+    connection = (iotx_cm_connection_t*)connectivity->context;
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != connectivity->status)
+        return FAIL_RETURN;
 
     return connection->add_service_func(connection, topic_filter, IOTX_CM_MESSAGE_NEED_ACK, auth_type);
 }
@@ -938,9 +951,12 @@ int iotx_cm_local_conn_add_service(void* handler, void* _connectivity, const cha
 int iotx_cm_local_conn_remove_service(void* handler, void* _connectivity, const char* topic_filter)
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
 
-    connection = (iotx_connection_t*)connectivity->context;
+    connection = (iotx_cm_connection_t*)connectivity->context;
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != connectivity->status)
+        return FAIL_RETURN;
 
     return connection->remove_service_func(connection, topic_filter);
 }
@@ -953,13 +969,17 @@ int iotx_cm_local_conn_send(void* handler,
                             iotx_cm_message_ack_types_t ack_type,
                             const void* payload,
                             int payload_length,
-                            void* context)
+                            void* context,
+                            void *sem)
 {
     iotx_cm_connectivity_t* connectivity = (iotx_cm_connectivity_t*)_connectivity;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
     iotx_connection_msg_t msg = {0};
 
-    connection = (iotx_connection_t*)connectivity->context;
+    connection = (iotx_cm_connection_t*)connectivity->context;
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != connectivity->status)
+        return FAIL_RETURN;
 
     msg.type = IOTX_CONNECTION_MESSAGE_TYPE_SEND;
     msg.ack_type = ack_type;
@@ -969,30 +989,21 @@ int iotx_cm_local_conn_send(void* handler,
     msg.payload_length = payload_length;
     msg.response_handler = iotx_cm_local_conn_response_callback;
     msg.response_pcontext = handler;
+    msg.sem = sem;
 
     return connection->send_func(connection, context, &msg);
-}
-
-
-int iotx_cm_local_conn_send_sync(void* handler,
-                                 void* _connectivity,
-                                 iotx_cm_send_peer_t* target,
-                                 const char* topic_filter,
-                                 iotx_cm_message_ack_types_t ack_type,
-                                 const void* payload,
-                                 int payload_length,
-                                 void* context)
-{
-    return SUCCESS_RETURN;
 }
 
 
 int iotx_cm_local_conn_add_subdevice(void* handler, void* _connectivity, const char* pk, const char* dn)
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
 
-    connection = (iotx_connection_t*)connectivity->context;
+    connection = (iotx_cm_connection_t*)connectivity->context;
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != connectivity->status)
+        return FAIL_RETURN;
 
     return connection->add_subdevice_func(connection, pk, dn);
 }
@@ -1001,40 +1012,52 @@ int iotx_cm_local_conn_add_subdevice(void* handler, void* _connectivity, const c
 int iotx_cm_local_conn_remove_subdevice(void* handler, void* _connectivity, const char* pk, const char* dn)
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
 
-    connection = (iotx_connection_t*)connectivity->context;
+    connection = (iotx_cm_connection_t*)connectivity->context;
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != connectivity->status)
+        return FAIL_RETURN;
 
     return connection->remove_subdevice_func(connection, pk, dn);
 }
 
 
-int iotx_cm_local_conn_yield(void* _connectivity, int timeout_ms)
+int iotx_cm_local_conn_yield(void* handler, void* _connectivity, int timeout_ms)
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
 
-    connection = (iotx_connection_t*)connectivity->context;
+    connection = (iotx_cm_connection_t*)connectivity->context;
+
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != connectivity->status)
+        return FAIL_RETURN;
 
     return connection->yield_func(connection, timeout_ms);
 }
 
 
-int iotx_cm_local_conn_deinit(void* _connectivity)
+int iotx_cm_local_conn_deinit(void* handler, void* _connectivity)
 {
-    int ret;
+    int ret = -1;
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
-    iotx_connection_t* connection = NULL;
+    iotx_cm_connection_t* connection = NULL;
 
-    connection = (iotx_connection_t*)connectivity->context;
+#ifdef CM_SUPPORT_MULTI_THREAD
+    iotx_cm_free_process_list_handler(connectivity, handler);
+#endif /* CM_SUPPORT_MULTI_THREAD */
 
-    if(g_local_device->node->device_info) LITE_free(g_local_device->node->device_info);
-    if(g_local_device->node) LITE_free(g_local_device->node);
-    if(g_local_device) LITE_free(g_local_device);
+    connection = (iotx_cm_connection_t*)connectivity->context;
 
-    ret = connection->deinit_func(connection);
+    iotx_cm_local_conn_remove_device_all();
+    g_local_device = NULL;
 
-    LITE_free(connection);
+    if (IOTX_CM_CONNECTIVITY_STATUS_CONNECTED == connectivity->status)
+        ret = connection->deinit_func(connection);    
+
+//    connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_DISCONNECTED;
+
+    LITE_free(connection);    
 
     connectivity->context = NULL;
 
@@ -1051,26 +1074,30 @@ iotx_cm_send_peer_t* iotx_cm_local_conn_get_target()
 }
 
 
+int iotx_cm_local_conn_check_target(iotx_cm_send_peer_t* peer)
+{
+    if (peer == NULL) return FAIL_RETURN;
+
+    if (NULL != iotx_cm_local_conn_find_device(peer)) return SUCCESS_RETURN;
+
+    return FAIL_RETURN;
+}
+
+
 #ifdef CM_SUPPORT_MULTI_THREAD
-int iotx_cm_local_conn_add_send(void* handler,
-                                iotx_cm_send_peer_t* target,
-                                iotx_cm_message_info_t* message_info)
+int iotx_cm_local_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx_cm_message_info_t* message_info, void* sem)
 {
     /* send message to itself thread */
     int ret = 0;
     iotx_cm_process_list_node_t* node = NULL;
     iotx_cm_process_send_t* msg = NULL;
-    char* URI;
-    void* payload;
-    int payload_length = 0;
     iotx_cm_conntext_t* cm_ctx = (iotx_cm_conntext_t*)handler;
 
     node = iotx_cm_get_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL);
     if (NULL == node) return FAIL_RETURN;
 
     node->type = IOTX_CM_PROCESS_LOCAL_SEND;
-
-    node->msg = LITE_malloc(sizeof(iotx_cm_process_send_t));
+    node->msg = CM_malloc(sizeof(iotx_cm_process_send_t));
     if (NULL == node->msg) {
         CM_INFO(cm_log_error_parameter);
         iotx_cm_free_list_node(cm_ctx, node);
@@ -1079,7 +1106,7 @@ int iotx_cm_local_conn_add_send(void* handler,
 
     msg = node->msg;
     if (target) {
-        msg->target = LITE_malloc(sizeof(iotx_cm_send_peer_t));
+        msg->target = CM_malloc(sizeof(iotx_cm_send_peer_t));
         memset(msg->target, 0x0, sizeof(iotx_cm_send_peer_t));
         strncpy(msg->target->device_name, target->device_name, strlen(target->device_name));
         strncpy(msg->target->product_key, target->product_key, strlen(target->product_key));
@@ -1087,26 +1114,38 @@ int iotx_cm_local_conn_add_send(void* handler,
         msg->target = NULL;
     }
 
-    if (FAIL_RETURN == iotx_cm_parse_message(cm_ctx, message_info, &URI, &payload, &payload_length)) {
-        CM_INFO(cm_log_error_parameter);
+    msg->URI = CM_malloc(strlen(message_info->URI) + 1);
+    if (NULL == msg->URI) {
+        CM_ERR(cm_log_error_memory);
+        LITE_free(msg->target);
+        LITE_free(msg);
         iotx_cm_free_list_node(cm_ctx, node);
-        if (msg->target)
-            LITE_free(msg->target);
+        return FAIL_RETURN;
+    }
+    strncpy(msg->URI, message_info->URI, strlen(message_info->URI));
+
+    msg->payload = CM_malloc(message_info->payload_length);
+    if (NULL == msg->payload) {
+        CM_ERR(cm_log_error_memory);
+        LITE_free(msg->URI);
+        LITE_free(msg->target);
+        LITE_free(msg);
+        iotx_cm_free_list_node(cm_ctx, node);
         return FAIL_RETURN;
     }
 
-    msg->URI = URI;
+    memcpy(msg->payload, message_info->payload, message_info->payload_length);
+    msg->payload_length = message_info->payload_length;
     msg->ack_type = message_info->ack_type;
-    msg->payload = payload;
-    msg->payload_length = payload_length;
     msg->conn_ctx = message_info->conn_ctx;
+    msg->sem = sem;
 
     ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
 
     if (FAIL_RETURN == ret) {
         if (msg->target) LITE_free(msg->target);
-        LITE_free(msg->URI);
-        LITE_free(msg->payload);
+        if (msg->URI) LITE_free(msg->URI);
+        if (msg->payload) LITE_free(msg->payload);
         LITE_free(node->msg);
         iotx_cm_free_list_node(cm_ctx, node);
     }
@@ -1117,33 +1156,52 @@ int iotx_cm_local_conn_add_send(void* handler,
 void* iotx_cm_local_conn_process(void *pclient)
 {
     iotx_cm_conntext_t* cm_ctx = (iotx_cm_conntext_t*)pclient;
-    iotx_cm_connectivity_t* connectivity = iotx_cm_find_connectivity(cm_ctx, iotx_cm_local_conn_get_target(), NULL);
+    iotx_cm_connectivity_t* connectivity = iotx_cm_find_connectivity_by_type(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL);
 
     if (NULL == cm_ctx) {
         CM_INFO(cm_log_error_parameter);
         return NULL;
     }
 
-    log_info("enter cloud process");
+    CM_INFO(cm_log_info_enter_process_2);
 
-    while (!cm_ctx->thread_stop) {
-        if (NULL == connectivity) {
-            HAL_SleepMs(1000);
-            connectivity = iotx_cm_find_connectivity(cm_ctx, iotx_cm_local_conn_get_target(), NULL);
-            continue;
-        }
+    while (!connectivity) {
+        connectivity = iotx_cm_find_connectivity_by_type(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL);
+        HAL_SleepMs(1000);
+        continue;
+    }
 
-        if (0 == connectivity->is_connected) {
-            connectivity->trigger_connected_func(cm_ctx, connectivity, NULL, NULL);
+    while (connectivity) {
+        if (connectivity->is_try_connect && IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != iotx_cm_get_connectivity_status(connectivity)) {
+            if (SUCCESS_RETURN == iotx_cm_local_conn_trigger_connected(cm_ctx, connectivity, NULL, NULL))
+                iotx_cm_set_connectivity_status(connectivity, IOTX_CM_CONNECTIVITY_STATUS_CONNECTED);
             continue;
         }
 
         if (iotx_cm_process_list_get_size(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL) > 0) {
             iotx_cm_process_list_node_t* node = NULL;
             if (NULL != (node = iotx_cm_process_list_pop(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL))) {
-                log_info("process %d", node->type);
+                CM_INFO(cm_log_info_process_type, node->type);
 
                 switch(node->type) {
+                case IOTX_CM_PROCESS_CONNECT: {
+                    if (SUCCESS_RETURN == iotx_cm_local_conn_trigger_connected(cm_ctx, connectivity, NULL, NULL))
+                        iotx_cm_set_connectivity_status(connectivity, IOTX_CM_CONNECTIVITY_STATUS_CONNECTED);
+                }
+                    break;
+
+                case IOTX_CM_PROCESS_DISCONNECT: {
+                    /* todo */
+                    /* connectivity must reset to NULL */
+                    if (FAIL_RETURN == iotx_cm_local_conn_deinit(cm_ctx, connectivity))
+                        CM_ERR(cm_log_error_fail);
+                    connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_UNCREATED;
+                    linked_list_remove(cm_ctx->list_connectivity, connectivity);
+                    LITE_free(connectivity);
+                    return NULL;
+                }
+                    break;
+
                 case IOTX_CM_PROCESS_ADD_DEVICE: {
                     iotx_cm_local_device_t* device = (iotx_cm_local_device_t*)node->msg;
                     iotx_cm_local_conn_found_device_handler(cm_ctx, device);
@@ -1158,18 +1216,21 @@ void* iotx_cm_local_conn_process(void *pclient)
 
                 case IOTX_CM_PROCESS_LOCAL_SEND: {
                     iotx_cm_process_send_t* _send = (iotx_cm_process_send_t*)node->msg;
-                    if (FAIL_RETURN == iotx_cm_send_data(cm_ctx,
-                                                         _send->target,
-                                                         iotx_cm_find_connectivity(cm_ctx, iotx_cm_local_conn_get_target(), _send->conn_ctx),
-                                                         _send->URI,
-                                                         _send->ack_type,
-                                                         _send->payload,
-                                                         _send->payload_length,
-                                                         _send->conn_ctx)) {
-                        log_info("send fail");
+                    if (FAIL_RETURN == iotx_cm_local_conn_send(cm_ctx,
+                                                               connectivity,
+                                                               _send->target,
+                                                               _send->URI,
+                                                               _send->ack_type,
+                                                               _send->payload,
+                                                               _send->payload_length,
+                                                               _send->conn_ctx,
+                                                               _send->sem)) {
+                        CM_ERR(cm_log_error_fail);
                     }
 
                     if (_send->target) LITE_free(_send->target);
+                    if (_send->URI) LITE_free(_send->URI);
+                    if (_send->payload) LITE_free(_send->payload);
                     LITE_free(_send);
                 }
                     break;
@@ -1185,9 +1246,15 @@ void* iotx_cm_local_conn_process(void *pclient)
                     break;
 
                 case IOTX_CM_PROCESS_REGISTER: {
+                    int i = 0;
                     iotx_cm_process_register_t* _register = (iotx_cm_process_register_t*)node->msg;
-                    iotx_cm_local_conn_register(cm_ctx, connectivity, _register->URI);
-                    LITE_free(_register->URI);
+                    iotx_cm_register_param_t** register_param = (iotx_cm_register_param_t**)_register->register_param;
+                    iotx_cm_local_conn_register(cm_ctx, connectivity, _register->register_param, _register->count);
+                    for (; i < _register->count; i++) {
+                        LITE_free(register_param[i]->URI);
+                        LITE_free(register_param[i]);
+                    }
+                    LITE_free(register_param);
                     LITE_free(_register);
                 }
                     break;
@@ -1206,7 +1273,6 @@ void* iotx_cm_local_conn_process(void *pclient)
                     if (FAIL_RETURN == iotx_cm_add_mapping(cm_ctx,
                                                            IOTX_CM_MAPPING_TYPE_SERVICE,
                                                            _service->URI,
-                                                           _service->type,
                                                            _service->register_func,
                                                            _service->user_data,
                                                            _service->mail_box)) {
@@ -1256,6 +1322,8 @@ void* iotx_cm_local_conn_process(void *pclient)
                 case IOTX_CM_PROCESS_LOCAL_NEW_DATA: {
                     iotx_cm_message_info_t* message_info = (iotx_cm_message_info_t*)node->msg;
                     iotx_cm_local_conn_response_handler(cm_ctx, message_info);
+                    LITE_free(message_info->URI);
+                    LITE_free(message_info->payload);
                     LITE_free(node->msg);
                 }
                     break;
@@ -1282,7 +1350,10 @@ void* iotx_cm_local_conn_process(void *pclient)
             }
         }
         /* local yield */
-        connectivity->yield_func(connectivity, 50);
+        if (connectivity && IOTX_CM_CONNECTIVITY_STATUS_CONNECTED == iotx_cm_get_connectivity_status(connectivity))
+            connectivity->yield_func(cm_ctx, connectivity, 50);
+        else
+            HAL_SleepMs(50);
     }
 
     return NULL;

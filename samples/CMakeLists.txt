@@ -18,6 +18,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/macos)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/ubuntu)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/os/win7)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/ssl)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/ssl/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/ssl/mbedtls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/platform/ssl/openssl)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol)
@@ -35,8 +36,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/base)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/base/src)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/cota)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/file_upload)
@@ -47,10 +46,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/inc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/include)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/include/interface)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/include)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/Link-OTA)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/Link-OTA/src)
@@ -71,6 +67,8 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/lib/win7)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/lib/win7/32bit-libs)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/lib/win7/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/lib/win7/libs)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tfs)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tfs/platform)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/thirdparty/tls/mbedtls-in-iotkit/include)
@@ -108,17 +106,21 @@ ENDIF (NOT WIN32)
 ADD_EXECUTABLE (http-example
     http/http-example.c
 )
-ADD_EXECUTABLE (http2-example
-    http2/http2-example.c
+ADD_EXECUTABLE (subdev-example
+    subdev/subdev-example.c
+    subdev/subdev_example_api.c
 )
 ADD_EXECUTABLE (cm-example
     cmp/cmp-example.c
 )
-IF (NOT WIN32)
-ADD_EXECUTABLE (linkkit-example
-    linkkit/linkkit_sample.c
+ADD_EXECUTABLE (linkkit-example_single
+    linkkit/linkkit_sample_single.c
 )
-ENDIF (NOT WIN32)
+ADD_EXECUTABLE (linkkit-example_gw
+    linkkit/linkkit_sample_gateway.c
+    linkkit/light.c
+    linkkit/cJSON.c
+)
 
 TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
 TARGET_LINK_LIBRARIES (mqtt-example iot_platform)
@@ -171,11 +173,11 @@ IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (http-example pthread)
 ENDIF (NOT MSVC)
 
-TARGET_LINK_LIBRARIES (http2-example iot_sdk)
-TARGET_LINK_LIBRARIES (http2-example iot_platform)
-TARGET_LINK_LIBRARIES (http2-example iot_tls)
+TARGET_LINK_LIBRARIES (subdev-example iot_sdk)
+TARGET_LINK_LIBRARIES (subdev-example iot_platform)
+TARGET_LINK_LIBRARIES (subdev-example iot_tls)
 IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (http2-example pthread)
+TARGET_LINK_LIBRARIES (subdev-example pthread)
 ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (cm-example iot_sdk)
@@ -185,12 +187,17 @@ IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (cm-example pthread)
 ENDIF (NOT MSVC)
 
-IF (NOT WIN32)
-TARGET_LINK_LIBRARIES (linkkit-example iot_sdk)
-TARGET_LINK_LIBRARIES (linkkit-example iot_platform)
-TARGET_LINK_LIBRARIES (linkkit-example iot_tls)
+TARGET_LINK_LIBRARIES (linkkit-example_single iot_sdk)
+TARGET_LINK_LIBRARIES (linkkit-example_single iot_platform)
+TARGET_LINK_LIBRARIES (linkkit-example_single iot_tls)
 IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (linkkit-example pthread)
+TARGET_LINK_LIBRARIES (linkkit-example_single pthread)
 ENDIF (NOT MSVC)
-ENDIF (NOT WIN32)
+
+TARGET_LINK_LIBRARIES (linkkit-example_gw iot_sdk)
+TARGET_LINK_LIBRARIES (linkkit-example_gw iot_platform)
+TARGET_LINK_LIBRARIES (linkkit-example_gw iot_tls)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (linkkit-example_gw pthread)
+ENDIF (NOT MSVC)
 

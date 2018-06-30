@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
  * License-Identifier: Apache-2.0
  *
@@ -48,6 +48,44 @@ typedef enum IOTX_CM_CLOUD_DOMAIN_TYPES {
 }iotx_cm_cloud_domain_types_t;
 
 
+/* protocol type */
+typedef enum IOTX_CM_CONNECTION_PROTOCOL_TYPES {
+    /* MQTT */
+    IOTX_CM_CONNECTION_PROTOCOL_TYPE_MQTT = 1,
+
+    /* COAP */
+    IOTX_CM_CONNECTION_PROTOCOL_TYPE_COAP = 2,
+
+    /* HTTP */
+    IOTX_CM_CONNECTION_PROTOCOL_TYPE_HTTP = 3,
+
+    /* HTTP2 */
+    IOTX_CM_CONNECTION_PROTOCOL_TYPE_HTTP2 = 4,
+
+    /* ALCS */
+    IOTX_CM_CONNECTION_PROTOCOL_TYPE_ALCS = 5,
+
+    /* Maximum number of protocol type */
+    IOTX_CM_CONNECTION_PROTOCOL_TYPE_MAX
+}iotx_cm_connection_protocol_types_t;
+
+
+/* connectivity type */
+typedef enum IOTX_CM_CONNECTIVITY_TYPES {
+    /* cloud */
+    IOTX_CM_CONNECTIVITY_TYPE_CLOUD = 1,
+
+    /* alcs */
+    IOTX_CM_CONNECTIVITY_TYPE_LOCAL = 2,
+
+    /* undef */
+    IOTX_CM_CONNECTIVITY_TYPE_UNDEF = 3,
+
+    /* Maximum number of connectivity type */
+    IOTX_CM_CONNECTIVITY_TYPE_MAX
+}iotx_cm_connectivity_types_t;
+
+
 /* message confirmation type */
 typedef enum IOTX_CM_MESSAGE_ACK_TYPES {
     /* non ACK */
@@ -61,7 +99,7 @@ typedef enum IOTX_CM_MESSAGE_ACK_TYPES {
     /* CoAP: CON */
     IOTX_CM_MESSAGE_NEED_ACK,
 
-    /* Maximum number of domain */
+    /* Maximum number of ack type */
     IOTX_CM_MESSAGE_ACK_MAX
 }iotx_cm_message_ack_types_t;
 
@@ -119,7 +157,7 @@ typedef enum IOTX_CM_EVENT_TYPES {
 
     /* local: found device */
     /* event_msg is iotx_cm_send_peer_t* */
-    IOTX_CM_EVENT_FOUND_DEVICE = 10,
+    IOTX_CM_EVENT_FOUND_DEVICE,
 
     /* local: remove device */
     /* event_msg is iotx_cm_send_peer_t* */
@@ -127,7 +165,7 @@ typedef enum IOTX_CM_EVENT_TYPES {
 
     /* register */
     /* event_msg is iotx_cm_event_result_pt */
-    IOTX_CM_EVENT_REGISTER_RESULT = 20,
+    IOTX_CM_EVENT_REGISTER_RESULT,
 
     /* unregister */
     /* event_msg is iotx_cm_event_result_pt */
@@ -145,33 +183,12 @@ typedef enum IOTX_CM_EVENT_TYPES {
     /* event_msg is iotx_cm_event_result_pt */
     IOTX_CM_EVENT_REMOVE_SERVICE_RESULT,
 
-    /* new version detected, please ota */
-    /* event_msg is iotx_cm_ota_parameter_t */
-    IOTX_CM_EVENT_NEW_VERSION_DETECTED = 30,
+    /* event_msg is iotx_cm_message_info_t */
+    IOTX_CM_EVENT_NEW_DATA_RECEIVED,
 
-        /* event_msg is iotx_cm_ota_parameter_t */
-    IOTX_CM_EVENT_NEW_DATA_RECEIVED = 40,
-
-    /* Maximum number of protocol */
+    /* Maximum number of event */
     IOTX_CM_EVENT_MAX
 }iotx_cm_event_types_t;
-
-
-typedef enum IOTX_CM_MESSAGE_TYPE {
-    /* RAW */
-    IOTX_CM_MESSAGE_RAW = 1,
-
-    /* request */
-    /* method and parameter is non-value, code is 0 */
-    IOTX_CM_MESSAGE_REQUEST = 2,
-
-    /* response */
-    /* code and parameter is non-value, method is NULL */
-    /* parameter is for data node */
-    IOTX_CM_MESSAGE_RESPONSE = 3,
-
-    IOTX_CM_MESSAGE_MAX
-}iotx_cm_message_types_t;
 
 
 /* message confirmation type */
@@ -185,21 +202,6 @@ typedef enum IOTX_CM_DEVICE_SECRET_TYPES {
     /* Maximum number of domain */
     IOTX_CM_DEVICE_SECRET_TYPES_MAX
 }iotx_cm_device_secret_types_t;
-
-
-#ifdef SERVICE_OTA_ENABLED
-/* URI type */
-typedef enum IOTX_CM_OTA_TYPE {
-    /* FOTA */
-    IOTX_CM_OTA_TYPE_FOTA = 1,
-
-    /* COTA */
-    IOTX_CM_OTA_TYPE_COTA = 2,
-
-    /* Maximum */
-    IOTX_CM_OTA_TYPE_MAX
-}iotx_cm_ota_types_t;
-#endif /* SERVICE_OTA_ENABLED */
 
 
 /* The structure of event for cloud found new device */
@@ -217,28 +219,6 @@ typedef struct {
 } iotx_cm_event_result_t, *iotx_cm_event_result_pt;
 
 
-
-#ifdef SERVICE_OTA_ENABLED
-/* The structure of fota result */
-typedef struct {
-    uint32_t                                  size_file;            /* size of file */
-    char*                                     purl;                 /* point to URL */
-    char*                                     version;              /* point to string */
-} iotx_cm_fota_parameter_t;
-
-
-/* The structure of cota result */
-typedef struct {
-    char*                                     configId;             /* config ID */
-    uint32_t                                  configSize;           /* config size */
-    char*                                     sign;                 /* sign */
-    char*                                     signMethod;           /* sign method */
-    char*                                     url;                  /* point to URL */
-    char*                                     getType;              /* getType */
-} iotx_cm_cota_parameter_t;
-#endif /* SERVICE_OTA_ENABLED */
-
-
 /* The structure of cm event msg */
 typedef struct {
     uint8_t                                   event_id;
@@ -253,32 +233,68 @@ typedef struct {
      * this id is must have value, read in register_callback's IOTX_CM_MESSAGE_REQUEST.
      * If is is the IOTX_CM_MESSAGE_RESPONSE in register_callback, this id is no mean.
      * If is is the IOTX_CM_MESSAGE_REQUEST in register_callback, this id must be non-null. */
-    int                                       id;
+//    int                                       id;
     iotx_cm_message_ack_types_t               ack_type;
+//    iotx_cm_message_method_types_t            method_type;
     char*                                     URI;
-    unsigned int                              code;   /* [in/out] */
-    char*                                     method;
-    void*                                     parameter;
-    unsigned int                              parameter_length;
-    char*                                     message;
-    iotx_cm_message_types_t                   message_type;   /* response, request or raw */
+    unsigned int                              URI_length;
+//    unsigned int                              code;   /* [in/out] */
+//    char*                                     method;
+//    void*                                     parameter;
+//    unsigned int                              parameter_length;
+    void*                                     payload;
+    unsigned int                              payload_length;
+//    char*                                     message;
+//    iotx_cm_message_types_t                   message_type;   /* response, request or raw */
     void*                                     conn_ctx;      /* connection context */
 } iotx_cm_message_info_t;
 
 
 /* The structure of event for cloud found new device */
 typedef struct {
-    char                                      product_key[PRODUCT_KEY_LEN + 1];
-    char                                      device_name[DEVICE_NAME_LEN + 1];
+    char                                           product_key[PRODUCT_KEY_LEN + 1];
+    char                                           device_name[DEVICE_NAME_LEN + 1];
 } iotx_cm_send_peer_t;
 
 
 /* The structure of new data */
 typedef struct {
-    iotx_cm_send_peer_t*                      peer;
-    iotx_cm_message_info_t*                   message_info;
+    iotx_cm_send_peer_t*                           peer;
+    iotx_cm_message_info_t*                        message_info;
 } iotx_cm_new_data_t;
 
+
+/* The struct of cloud connectivity parameter */
+typedef struct cm_connectivity_cloud_param_st {
+//    iotx_cm_cloud_domain_types_t              domain_type;
+    iotx_cm_connection_protocol_types_t            protocol_type;
+} iotx_cm_connectivity_cloud_param_t;
+
+
+/* The struct of alcs connectivity parameter */
+typedef struct cm_connectivity_alcs_param_st {
+    iotx_cm_connection_protocol_types_t            protocol_type;
+} iotx_cm_connectivity_alcs_param_t;
+
+
+/* The struct of undefined connectivity parameter */
+typedef struct cm_connectivity_undefined_param_st {
+    iotx_cm_connection_protocol_types_t            protocol_type;
+    char*                                          url;
+    int                                            port;
+    char*                                          pkey;
+} iotx_cm_connectivity_undefined_param_t;
+
+
+/* The struct of connectivity parameter */
+typedef struct cm_connectivity_param_st {
+    iotx_cm_connectivity_types_t                   connectivity_type;
+    union {
+        iotx_cm_connectivity_cloud_param_t*        cloud_param;
+        iotx_cm_connectivity_alcs_param_t*         alcs_param;
+        iotx_cm_connectivity_undefined_param_t*    undefined_param;
+    };
+} iotx_cm_connectivity_param_t;
 
 /**
  * @brief It define a datatype of function pointer.
@@ -291,33 +307,6 @@ typedef struct {
  * @return none
  */
 typedef void (*iotx_cm_event_handle_fp_t)(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data);
-
-
-#ifdef SERVICE_OTA_ENABLED
-/**
- * @brief It define a datatype of function pointer.
- *        This type of function will be called when a related event occur.
- *
- * @param pcontext : The program context.
- * @param ota_parameter : The fota parameter.
- * @param user_data : The user_data set by user.
- *
- * @return none
- */
-typedef void (*iotx_cm_fota_handle_fp_t)(void* pcontext, iotx_cm_fota_parameter_t* ota_parameter, void* user_data);
-
-/**
- * @brief It define a datatype of function pointer.
- *        This type of function will be called when a related event occur.
- *
- * @param pcontext : The program context.
- * @param ota_parameter : The cota parameter.
- * @param user_data : The user_data set by user.
- *
- * @return none
- */
-typedef void (*iotx_cm_cota_handle_fp_t)(void* pcontext, iotx_cm_cota_parameter_t* ota_parameter, void* user_data);
-#endif /* SERVICE_OTA_ENABLED */
 
 
 /**
@@ -345,7 +334,6 @@ typedef struct {
 /* The structure of Register param */
 typedef struct {
     char*                                       URI;
-    iotx_cm_message_types_t                     message_type;
     iotx_cm_register_fp_t                       register_func;
     void*                                       user_data;
     void*                                       mail_box;
@@ -361,9 +349,8 @@ typedef struct {
 /* The structure of Register param */
 typedef struct {
     char*                                      URI;
-    iotx_cm_message_types_t                    message_type;
     iotx_cm_message_auth_types_t               auth_type;
-    iotx_cm_register_fp_t                      register_func;
+    iotx_cm_register_fp_t                      service_func;
     void*                                      user_data;
     void*                                      mail_box;
 } iotx_cm_add_service_param_t;
@@ -375,30 +362,9 @@ typedef struct {
 } iotx_cm_remove_service_param_t;
 
 
-#ifdef SERVICE_OTA_ENABLED
-typedef struct {
-    iotx_cm_ota_types_t                       ota_type;
-    /* if there is more data to download, is_more is 1, else is_more is 0 */
-    uint8_t                                   is_more;       /* [out] */
-    /* is_more is 0, result: */
-    /*
-     * Burn firmware file failed  -4
-     * Check firmware file failed -3
-     * Fetch firmware file failed -2
-     * Initialized failed -1
-     * success 0
-     */
-    int8_t                                    result;         /* [out] */
-    int                                       progress;       /* [out] */
-    void*                                     buffer;         /* [in/out] */
-    int                                       buffer_length;  /* [in/out] */
-} iotx_cm_ota_t, *iotx_cm_ota_pt;
-#endif /* SERVICE_OTA_ENABLED */
-
-
 /**
  * @brief CM init
- *        This function initialize the CM structures, establish network connection
+ *        This function initialize the CM structures
  *        If CM has been initialized, this function will return success directly.
  *
  * @param pparam, specify the cm and event handler.
@@ -409,58 +375,40 @@ typedef struct {
 int IOT_CM_Init(iotx_cm_init_param_t* init_param, void* option);
 
 
-#ifdef SERVICE_OTA_ENABLED
 /**
- * @brief Start OTA
- *        This function use to start OTA, set cur_version and ota_func.
+ * @brief Create connectivity
+ *        This function use to create one connectivity with protocol and url.
  *
- * @param cur_version, current version.
+ * @param connectivity_param, connectivity type and protocol, url, port, psk.
+ * @param option, reserve.
+ *
+ * @return Connectivity handler.
+ */
+void* IOT_CM_Connectivity_Create(iotx_cm_connectivity_param_t* connectivity_param, void* option);
+
+
+/**
+ * @brief Connect connectivity
+ *        This function use to connect one connectivity with create by IOT_CM_Connectivity_Create.
+ *
+ * @param connectivity, the return by IOT_CM_Connectivity_Create.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_OTA_Start(char* cur_version, void* option);
+int IOT_CM_Connectivity_Connect(void* connectivity, void* option);
 
 
 /**
-* @brief Set OTA callback
-*        This function use to set OTA callback.
-*
-* @param type, fota or cota.
-* @param ota_func, ota callback function.
-* @param user_context, ota callback user context.
-* @param option, reserve.
-*
-* @return success or fail.
-*/
-int IOT_CM_OTA_Set_Callback(iotx_cm_ota_types_t type, void* ota_func, void* user_context, void* option);
-
-
-/**
-* @brief Get Config
-*
-*
-* @param configScope, device or product.
-* @param getType, file or other type.
-* @param attributeKeys.
-* @param option, reserve.
-*
-* @return success or fail.
-*/
-int IOT_CM_OTA_Get_Config(const char* configScope, const char* getType, const char* attributeKeys, void* option);
-
-
-/**
-* @brief Get firmware image
-*
-*
-* @param version, firmware image version.
-* @param option, reserve.
-*
-* @return success or fail.
-*/
-int IOT_CM_OTA_Request_Image(const char* version, void* option);
-#endif /* SERVICE_OTA_ENABLED */
+ * @brief Destroy connectivity
+ *        This function use to free one connectivity with create by IOT_CM_Connectivity_Create.
+ *
+ * @param connectivity, the return by IOT_CM_Connectivity_Create.
+ * @param option, reserve.
+ *
+ * @return success or fail.
+ */
+int IOT_CM_Connectivity_Destroy(void **connectivity, void* option);
 
 
 /**
@@ -469,25 +417,31 @@ int IOT_CM_OTA_Request_Image(const char* version, void* option);
  *        If it is received a request, will callback the register_cb.
  *        If there is no match register_cb (user have not register the service set callback), the request will be discard.
  *
+ * @param connectivity
+ *        return by IOT_CM_Connectivity_Create
+ *        If it is NULL, call all connectivity, alse, via connectivity to register.
  * @param pparam, register parameter, include URI and register callback.
  * @param option, reserve.
  *          This API not support one URI register twice, if the URI have been register, it will return fail.
  *
  * @return success or fail.
  */
-int IOT_CM_Register(iotx_cm_register_param_t* pparam, void* option);
+int IOT_CM_Register(void* _connectivity, iotx_cm_register_param_t* pparam, int count, void* option);
 
 
 /**
  * @brief Unregister service.
  *        This function used to unregister some service by different URI
  *
+ * @param connectivity
+ *        return by IOT_CM_Connectivity_Create
+ *        If it is NULL, call all connectivity, alse, via connectivity to unregister.
  * @param pparam, unregister parameter, include URI.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Unregister(iotx_cm_unregister_param_t* unregister_param, void* option);
+int IOT_CM_Unregister(void* _connectivity, iotx_cm_unregister_param_t* unregister_param, void* option);
 
 
 /**
@@ -496,89 +450,112 @@ int IOT_CM_Unregister(iotx_cm_unregister_param_t* unregister_param, void* option
  *        If it is received a request, will callback the register_cb.
  *        If there is no match register_cb (user have not register the service set callback), the request will be discard.
  *
+ * @param connectivity
+ *        return by IOT_CM_Connectivity_Create
+ *        If it is NULL, call all connectivity, alse, via connectivity to add service.
  * @param pparam, register parameter, include URI and register callback.
  * @param option, reserve.
  *          This API not support one URI register twice, if the URI have been register, it will return fail.
  *
  * @return success or fail.
  */
-int IOT_CM_Add_Service(iotx_cm_add_service_param_t* service_param, void* option);
+int IOT_CM_Add_Service(void* _connectivity, iotx_cm_add_service_param_t* service_param, void* option);
 
 
 /**
  * @brief Unregister service.
  *        This function used to unregister some service by different URI
  *
+ * @param connectivity
+ *        return by IOT_CM_Connectivity_Create
+ *        If it is NULL, call all connectivity, alse, via connectivity to remove service.
  * @param pparam, unregister parameter, include URI.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Remove_Service(iotx_cm_remove_service_param_t* service_param, void* option);
+int IOT_CM_Remove_Service(void* _connectivity, iotx_cm_remove_service_param_t* service_param, void* option);
 
 
 /**
  * @brief add sub-device.
  *        This function used to add sub-device with sub-device's pk and dn.
  *
+ * @param connectivity
+ *        return by IOT_CM_Connectivity_Create
+ *        If it is NULL, call all connectivity, alse, via connectivity to add sub-device.
  * @param PK, product_key.
  * @param DN, device_name.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Add_Sub_Device(const char* PK, const char* DN, void* option);
+int IOT_CM_Add_Sub_Device(void* _connectivity, const char* PK, const char* DN, void* option);
 
 
 /**
  * @brief remove sub-device.
  *        This function used to remove sub-device with sub-device's pk and dn.
  *
+ * @param connectivity
+ *        return by IOT_CM_Connectivity_Create
+ *        If it is NULL, call all connectivity, alse, via connectivity to remove sub-device.
  * @param PK, product_key.
  * @param DN, device_name.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Remove_Sub_Device(const char* PK, const char* DN, void* option);
+int IOT_CM_Remove_Sub_Device(void* _connectivity, const char* PK, const char* DN, void* option);
 
 
 /**
  * @brief Send data.
  *        This function used to send data to target.
- *        If the target is NULL, the data will broadcast to all the reachable places.
- *        If the target is not NULL, the data will send to target only.
- *        If the target's product_key and device_name is itself, the data will send to cloud.
+ *        If the connectivity and target is NULL, the data will broadcast to all the reachable places.
+ *        If the connectivity is not NULL, target is NULL, the data will broadcast to the connectivity's all the reachable places.
+ *        If the connectivity is NULL, target's product_key and device_name is itself, the data will send to cloud.
+ *        If the connectivity and target is not NULL, the data will send to target only.
  *
- * @param target.
+ * @param connectivity
+ *        return by IOT_CM_Connectivity_Create
+ *        If it is NULL, call all connectivity, alse, via connectivity to send.
+ * @param target. the send peer.
+ *        if NULL, will send to all target. [alcs will have more targets in one connectivity]
  * @param message_info.
  * @param option, reserve.
  *
  * @return success or fail.
  *
  */
-int IOT_CM_Send(iotx_cm_send_peer_t* target, iotx_cm_message_info_t* message_info, void* option);
+int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t* target, iotx_cm_message_info_t* message_info, void* option);
 
-
-#ifndef CM_SUPPORT_MULTI_THREAD
 
 /**
  * @brief Send data.
- *        This function used to send data to target and wait for response.
- *        If the target is NULL, the data will broadcast to all the reachable places.
- *        If the target is not NULL, the data will send to target only.
- *        If the target's product_key and device_name is itself, the data will send to cloud.
+ *        This function used to send data to target.
+ *        If the connectivity and target is NULL, the data will broadcast to all the reachable places.
+ *        If the connectivity is not NULL, target is NULL, the data will broadcast to the connectivity's all the reachable places.
+ *        If the connectivity is NULL, target's product_key and device_name is itself, the data will send to cloud.
+ *        If the connectivity and target is not NULL, the data will send to target only.
  *
- * @param target.
+ * @note This function only working in CM_SUPPORT_MULTI_THREAD.
+ *       This function only working in _connectivity is not NULL.
+ *
+ * @param connectivity. the handler of IOT_CM_Connectivity_Create.
+ *        if NULL, will send to all connectivity.
+ * @param target. the send peer.
+ *        if NULL, will send to all target. [alcs will have more targets in one connectivity]
  * @param message_info [in/out].
  * @param option, reserve.
  *
  * @return success or fail.
  *
  */
-int IOT_CM_Send_Sync(iotx_cm_send_peer_t* send_peer, iotx_cm_message_info_t* message_info, void* option);
+int IOT_CM_Send_Sync(void *_connectivity, iotx_cm_send_peer_t* send_peer, iotx_cm_message_info_t* message_info, void* option);
 
 
+#ifndef CM_SUPPORT_MULTI_THREAD
 /**
  * @brief Yield.
  *        This function used to yield when want to received data.
@@ -603,27 +580,6 @@ int IOT_CM_Yield(int timeout_ms, void* option);
  * @return success or fail.
  */
 int IOT_CM_Deinit(void* option);
-
-#ifdef SERVICE_OTA_ENABLED
-/**
- * @brief OTA yield function.
- *        Set buffer and length yield the ota data.
- *
- * @param ota_pt, ota yield params.
- *
- * @return success or fail.
- */
-int IOT_CM_OTA_Yield(iotx_cm_ota_t* cm_ota);
-#endif /* SERVICE_OTA_ENABLED */
-
-
-#ifdef UT_TEST
-int request_inject(int id, char* uri, char* method, void* parameter, int parameter_len);
-
-int response_inject(int id, char* uri, int code, void* data, int data_length);
-
-#endif /* UT_TEST */
-
 
 
 #endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CM_H_ */
