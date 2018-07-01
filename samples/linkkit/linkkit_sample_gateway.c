@@ -48,10 +48,11 @@ typedef struct {
     char NETWORK_KEY[32 + 1];
 
     int connected;
-
+	int register_completed;
     int lk_dev;
 } gateway_t;
 
+static int gateway_register_complete(void *ctx);
 static int gateway_get_property(char *in, char *out, int out_len, void *ctx);
 static int gateway_set_property(char *in, void *ctx);
 static int gateway_call_service(char *identifier, char *in, char *out, int out_len, void *ctx);
@@ -59,11 +60,20 @@ static int gateway_call_service(char *identifier, char *in, char *out, int out_l
 
 /* callback function */
 static linkkit_cbs_t linkkit_cbs = {
+	.register_complete = gateway_register_complete,
     .get_property = gateway_get_property,
     .set_property = gateway_set_property,
     .call_service = gateway_call_service,
 };
 
+static int gateway_register_complete(void *ctx)
+{
+	 gateway_t *gw = (gateway_t *)ctx;
+
+	 gw->register_completed = 1;
+
+	 return 0;
+}
 
 /*
  * the handler property get
@@ -354,10 +364,8 @@ int main(void)
         return -1;
     }
 
-#if 0
-    while (gateway.connected == 0)
+    while (gateway.register_completed == 0)
         sleep(1);
-#endif
 
     /*
      * subdev start

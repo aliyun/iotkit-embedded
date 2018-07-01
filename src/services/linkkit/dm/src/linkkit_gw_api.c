@@ -116,7 +116,7 @@ typedef struct {
     int params_len;
 } lk_msg_t;
 
-
+static void* g_linkkit_dispatch = NULL;
 static linkkit_gbl_t gbl;
 static linkkit_dev_t *main_device = NULL;
 static topo_node_t *first_node = NULL;
@@ -360,6 +360,15 @@ static int _offline_all_subdevs(void)
     HAL_MutexUnlock(gbl_lock);
 #endif
     return 0;
+}
+
+static void* _linkkit_dispatch(void *params)
+{
+	while (1) {
+		IOT_DM_Dispatch();
+		HAL_SleepMs(200);
+	}
+	return NULL;
 }
 
 static void _linkkit_event_subdev_register_reply(char *payload)
@@ -690,6 +699,28 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 		        dev->cbs.post_rawdata_reply(lite_item_rawdata.value, lite_item_rawdata.value_length, dev->ctx);
 		}
 		break;
+		case IOTX_DM_EVENT_REGISTER_COMPLETED: {
+			int res = 0;
+			lite_cjson_t lite, lite_item_devid;
+
+			/* Parse Payload */
+			memset(&lite,0,sizeof(lite_cjson_t));
+			res = lite_cjson_parse(payload,strlen(payload),&lite);
+			if (res != SUCCESS_RETURN) {return;}
+
+			/* Parse Devid */
+			memset(&lite_item_devid,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_DEVID,strlen(LINKKIT_GW_API_KEY_DEVID),&lite_item_devid);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
+
+			linkkit_dev_t *dev = _find_device_by_devid(lite_item_devid.value_int);
+		    if (!dev) {return;}
+			
+			if (dev->cbs.register_complete)
+				dev->cbs.register_complete(dev->ctx);
+		}
+		break;
         default:
             dm_log_info("Not Found Type For Now, Smile");
             break;
@@ -901,6 +932,7 @@ int linkkit_gateway_exit(void)
 
 int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 {
+	int res = 0, stack_used = 0;
     iotx_dm_init_params_t dm_init_params;
     if (!_validOps(cbs)) {
         dm_log_info("invalid cbs: %p\n", cbs);
@@ -923,7 +955,13 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = _linkkit_gw_event_callback;
 
-    return IOT_DM_Construct(&dm_init_params);
+    res = IOT_DM_Construct(&dm_init_params);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	res = HAL_ThreadCreate(&g_linkkit_dispatch,_linkkit_dispatch,NULL,NULL,&stack_used);
+	if (res != SUCCESS_RETURN) {IOT_DM_Destroy();return FAIL_RETURN;}
+
+	return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_stop(int devid)

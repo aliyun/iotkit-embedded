@@ -102,6 +102,8 @@ int linkkit_gateway_init(linkkit_params_t *initParams);
 int linkkit_gateway_exit(void);
 
 typedef struct {
+
+	int (*register_complete) (void *ctx);
     /**
      * @brief get property callback.
      *

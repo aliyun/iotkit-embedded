@@ -1754,13 +1754,14 @@ int iotx_dmsg_remove_device(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 	return SUCCESS_RETURN;
 }
 
-
+const char IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT[] DM_READ_ONLY = "{\"devid\":%d}";
 const char IOTX_DMSG_EVENT_REGISTER_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
 int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 {
-	int res = 0, devid = 0, index = 0, number = 0;
+	int res = 0, devid = 0, index = 0, number = 0, message_len = 0;
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
+	char *message = NULL;
 
 	if (result != SUCCESS_RETURN) {return FAIL_RETURN;}
 
@@ -1822,6 +1823,23 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	iotx_dmgr_clear_dev_sub_service_event(devid);
 	iotx_dmgr_set_dev_status(devid,IOTX_DMGR_DEV_STATUS_ONLINE);
 
+	dm_log_debug("Devid %d Subscribe Completed",devid);
+	
+	message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
+	message = DM_malloc(message_len);
+	if (message == NULL) {
+		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(message,0,message_len);
+	HAL_Snprintf(message,message_len,IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT,devid);
+
+	res = _iotx_dmsg_send_to_user(IOTX_DM_EVENT_REGISTER_COMPLETED,message);
+	if (res != SUCCESS_RETURN) {
+		DM_free(message);
+		return FAIL_RETURN;
+	}
+	
 	return SUCCESS_RETURN;
 }
 
