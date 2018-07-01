@@ -234,7 +234,7 @@ static int handle_service_custom(sample_context_t* _sample_ctx, const void* thin
      */
     snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier, "transparency");
     linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier, &transparency_value, NULL);
-    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier, transparency_value);    
+    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier, transparency_value);
 
     /*
      * set output value according to user's process result.
@@ -419,7 +419,7 @@ static int thing_prop_changed(const void* thing_id, const char* property, void* 
 /* there is some data transparent transmission by linkkit */
 static int linkit_data_arrived(const void* thing_id, const void* params, int len, void* ctx)
 {
-    EXAMPLE_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char*)params);    
+    EXAMPLE_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char*)params);
 
     /* do user's data arrived process logical here. */
 
@@ -604,7 +604,6 @@ int linkkit_example()
          * please follow user's rule to modify these code.
          */
 
-        trigger_deviceinfo(&sample_ctx);
 #ifdef POST_WIFI_STATUS
         if(now % 10 == 0) {
             post_property_wifi_status_once(&sample_ctx);
