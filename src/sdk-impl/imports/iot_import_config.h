@@ -29,7 +29,7 @@
 * The buffer is used to send MQTT data.
 */
 #ifndef CM_MQTT_SEND_LEN
-#define CM_MQTT_SEND_LEN                  CM_MQTT_MSGLEN_8266
+#define CM_MQTT_SEND_LEN                  CM_MQTT_MSGLEN_SEND
 #endif /* CM_MQTT_SEND_LEN */
 
 /* CM_MQTT_RECV_LEN
@@ -38,7 +38,7 @@
 * The buffer size is decided on the TSL's size.
 */
 #ifndef CM_MQTT_RECV_LEN
-#define CM_MQTT_RECV_LEN                  CM_MQTT_MSGLEN_8266
+#define CM_MQTT_RECV_LEN                  CM_MQTT_MSGLEN_3060
 #endif /* CM_MQTT_RECV_LEN */
 
 

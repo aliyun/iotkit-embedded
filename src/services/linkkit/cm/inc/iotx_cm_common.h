@@ -50,9 +50,9 @@
 #define CM_READ_ONLY
 #endif
 
-#define CM_INFO(...)         log_info("cm", __VA_ARGS__)
-#define CM_WARNING(...)      log_warning("cm", __VA_ARGS__)
-#define CM_ERR(...)          log_err("cm", __VA_ARGS__)
+#define CM_INFO(...)         log_info("CM", __VA_ARGS__)
+#define CM_WARNING(...)      log_warning("CM", __VA_ARGS__)
+#define CM_ERR(...)          log_err("CM", __VA_ARGS__)
 
 
 #define CM_SUPPORT_MAX_MAPPING_SIZE            (20)

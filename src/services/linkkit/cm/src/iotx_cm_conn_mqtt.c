@@ -508,7 +508,7 @@ int iotx_cm_conn_mqtt_publish(void* handle, void* _context, iotx_connection_msg_
         msg_rsp.URI_length = message->URI_length;
 
         if (connection->response_handler)
-            connection->response_handler(connection, &msg_rsp);
+            connection->response_handler(connection->event_pcontext, &msg_rsp);
     }
 
     return ret;

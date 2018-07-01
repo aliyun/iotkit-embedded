@@ -39,10 +39,10 @@ ADD_LIBRARY (iot_linkkit OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/watcher.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/linkkit_gw_api.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/src/iotx_dm_tsl_alink.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_conn_mqtt.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_local_conn.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_conn_coap.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_conn_http.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_conn_mqtt.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_cloud_conn.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_api.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/src/iotx_cm_log.c

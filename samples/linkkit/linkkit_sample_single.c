@@ -299,7 +299,7 @@ static int thing_call_service(const void* thing_id, const char* service, int req
 static int thing_prop_changed(const void* thing_id, const char* property, void* ctx)
 {
     char* value_str = NULL;
-    char property_buf[64] = {0};
+    /*char property_buf[64] = {0};*/
     int response_id = -1;
 
     /* do user's property changed process logical here. */
@@ -312,17 +312,15 @@ static int thing_prop_changed(const void* thing_id, const char* property, void* 
     /*
      * example:
      *     property identifier:
-     *               HSVColor
-     *                   Hue, Saturation, Value
-     *               HSLColor
-     *                   Hue, Saturation, Lightness
-     *               RGBColor
-     *                   Red, Green, Blue
+     *               IndoorTemperature
+     *               TemperatureModelStatus
+     *               CurrentTemperature
      *
      * please follow TSL modify this property identifier
      */
 
-
+#if 0
+    /* if the proprety id is %s.%s, please follow this code */
     /* get new property value */
     if (strstr(property, "HSVColor") != 0) {
         int hue, saturation, value;
@@ -385,6 +383,25 @@ static int thing_prop_changed(const void* thing_id, const char* property, void* 
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property, NULL, &value_str);
 
         EXAMPLE_TRACE("property(%s) new value set: %s\n", property, value_str);
+    }
+#endif
+
+    if (strstr(property, "IndoorTemperature") != 0) {
+        float temperature = 0.0;
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &temperature, &value_str);
+        EXAMPLE_TRACE("property(%s):%d\n", property, temperature);
+    } else if (strstr(property, "TemperatureModelStatus") != 0) {
+        int status = 0.0;
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &status, &value_str);
+        EXAMPLE_TRACE("property(%s):%d\n", property, status);
+    } else if (strstr(property, "CurrentTemperature") != 0) {
+        float temperature = 0.0;
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &temperature, &value_str);
+        EXAMPLE_TRACE("property(%s):%d\n", property, temperature);
+    } else if (strstr(property, "Humidity") != 0) {
+        int humidity;
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &humidity, &value_str);
+        EXAMPLE_TRACE("property(%s):%d\n", property, humidity);
     }
 
     /* post property
@@ -479,18 +496,34 @@ static unsigned long long uptime_sec(void)
 
 static int post_all_prop(sample_context_t* sample)
 {
+    float f = 20.0;
+    int i = 1;
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "IndoorTemperature", &f, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "TemperatureModelStatus", &i, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "CurrentTemperature", &f, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "Humidity", &f, NULL);
+
+    /* demo for post one property */
+    linkkit_post_property(sample->thing, "Humidity", post_property_cb);
+
+    /* demo for post all property */
     return linkkit_post_property(sample->thing, NULL, post_property_cb);
 }
 
 
 static int trigger_event(sample_context_t* sample)
 {
-    char* event_id = NULL;
-
     /* please modify the event_id by TSL */
-    return linkkit_trigger_event(sample->thing, event_id, NULL);
+    return linkkit_trigger_event(sample->thing, "TemperatureAlarm", post_property_cb);
 }
 
+#ifdef EXTENDED_INFO_ENABLED
+static int trigger_deviceinfo(sample_context_t* sample)
+{
+    /* please modify the parameter */
+    return linkkit_trigger_extended_info_operate(sample->thing, "[{device_info : 21}]", linkkit_extended_info_operate_update);
+}
+#endif
 
 static int is_active(sample_context_t* sample_ctx)
 {
@@ -505,7 +538,7 @@ static int is_active(sample_context_t* sample_ctx)
 int linkkit_example()
 {
     sample_context_t sample_ctx = {0};
-    int execution_time = 2;
+    int execution_time = 20;
     int exit = 0;
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
@@ -571,6 +604,7 @@ int linkkit_example()
          * please follow user's rule to modify these code.
          */
 
+        trigger_deviceinfo(&sample_ctx);
 #ifdef POST_WIFI_STATUS
         if(now % 10 == 0) {
             post_property_wifi_status_once(&sample_ctx);
@@ -583,6 +617,12 @@ int linkkit_example()
         if (now % 45 == 0 && is_active(&sample_ctx)) {
             trigger_event(&sample_ctx);
         }
+
+#ifdef EXTENDED_INFO_ENABLED
+        if (now % 50 == 0 && is_active(&sample_ctx)) {
+            trigger_deviceinfo(&sample_ctx);
+        }
+#endif
 
         if (exit) break;
 
@@ -606,9 +646,9 @@ int main(int argc, char **argv)
 
     EXAMPLE_TRACE("start!\n");
 
-    HAL_SetProductKey("a1BUNdoKJs7");
-    HAL_SetDeviceName("gw-type-001");
-    HAL_SetDeviceSecret("ayxXAAJYaJl4g1bI726LLm7qw4y8FY5P");
+    HAL_SetProductKey("a1QrigYtTJj");
+    HAL_SetDeviceName("FBrNwJIiWVLibTvdXgYv");
+    HAL_SetDeviceSecret("HnDrKGNZneA5ptxoTvEM1RFwe366a5tV");
 
     /*
      * linkkit dome
