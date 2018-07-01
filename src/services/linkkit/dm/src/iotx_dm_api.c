@@ -121,10 +121,19 @@ int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const 
 	}
 
 	if (source == IOTX_DM_TSL_SOURCE_CLOUD) {
+		int sub_generic_index = 0;
 		char product_key[PRODUCT_KEY_MAXLEN] = {0};
 		char device_name[DEVICE_NAME_MAXLEN] = {0};
 		char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
+		res = iotx_dmgr_set_tsl_source(devid,source);
+		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+		res = iotx_dmgr_get_dev_sub_generic_index(devid,&sub_generic_index);
+		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+		if (sub_generic_index != IOTX_DMGR_DEV_SUB_END) {return SUCCESS_RETURN;}
+			
 		res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
@@ -325,7 +334,7 @@ int IOT_DM_Post_Property_Add(_IN_ void *handle, _IN_ char *identifier, _IN_ int 
 	char *identifier_refer = NULL;
 	iotx_dapi_property_t *dapi_property = NULL;
 	
-	if (handle == NULL || identifier == NULL) {
+	if (handle == NULL) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
@@ -832,6 +841,81 @@ int IOT_DM_Get_Device_Status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 	}
 	
 	return iotx_dmgr_get_dev_status(devid,status);
+}
+
+int IOT_DM_Legacy_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+	int res = 0, value_len = 0;
+	void *data = NULL;
+	iotx_dsw_data_type_e type;
+	
+	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = iotx_dmgr_get_property_data(devid,key,key_len,&data);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	res = iotx_dmgr_get_data_type(data,&type);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (type == IOTX_DSW_DATA_TYPE_TEXT || type == IOTX_DSW_DATA_TYPE_DATE) {value_len = strlen(value);}
+	
+	res = iotx_dmgr_set_property_value(devid,key,key_len,value,value_len);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+	
+	return SUCCESS_RETURN;
+}
+
+int IOT_DM_Legacy_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+	int res = 0, value_len = 0;
+	void *data = NULL;
+	iotx_dsw_data_type_e type;
+	
+	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = iotx_dmgr_get_event_output_data(devid,key,key_len,&data);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	res = iotx_dmgr_get_data_type(data,&type);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (type == IOTX_DSW_DATA_TYPE_TEXT || type == IOTX_DSW_DATA_TYPE_DATE) {value_len = strlen(value);}
+	
+	res = iotx_dmgr_set_property_value(devid,key,key_len,value,value_len);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+	
+	return SUCCESS_RETURN;
+}
+
+int IOT_DM_Legacy_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+	int res = 0, value_len = 0;
+	void *data = NULL;
+	iotx_dsw_data_type_e type;
+	
+	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = iotx_dmgr_get_service_output_data(devid,key,key_len,&data);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	res = iotx_dmgr_get_data_type(data,&type);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (type == IOTX_DSW_DATA_TYPE_TEXT || type == IOTX_DSW_DATA_TYPE_DATE) {value_len = strlen(value);}
+	
+	res = iotx_dmgr_set_property_value(devid,key,key_len,value,value_len);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	return SUCCESS_RETURN;
 }
 
 int IOT_DM_Legacy_Get_Pkdn_By_Devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN])

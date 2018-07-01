@@ -543,24 +543,19 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void* thing_id, con
 
     res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
-        int len = 0;
         switch (method_set) {
-            //len is valid when value is string & value str is not null
-            if (value_str != NULL) {
-                len = strlen(value_str);
-            }
             case linkkit_method_set_property_value: {
-                res = IOT_DM_Set_Property_Value(devid, (char *)identifier, strlen(identifier), (void *)value, len);
+                res = IOT_DM_Legacy_Set_Property_Value(devid, (char *)identifier, strlen(identifier), (void *)value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_event_output_value: {
-                res = IOT_DM_Set_Event_Output_Value(devid, (char *)identifier, strlen(identifier), (void *)value, len);
+                res = IOT_DM_Legacy_Set_Event_Output_Value(devid, (char *)identifier, strlen(identifier), (void *)value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_service_output_value: {
-                res = IOT_DM_Set_Service_Output_Value(devid, (char *)identifier, strlen(identifier), (void *)value, len);
+                res = IOT_DM_Legacy_Set_Service_Output_Value(devid, (char *)identifier, strlen(identifier), (void *)value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
                 break;
             }

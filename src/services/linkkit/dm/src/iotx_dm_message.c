@@ -1790,6 +1790,20 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	}
 	iotx_dmgr_set_dev_sub_generic_index(devid,IOTX_DMGR_DEV_SUB_END);
 
+	/* Check TSL Source And If Shadow Is Exist */
+	iotx_dm_tsl_source_t source;
+	void *shadow = NULL;
+
+	res = iotx_dmgr_get_shadow(devid,&shadow);
+	if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
+	
+	res = iotx_dmgr_get_tsl_source(devid,&source);
+	if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (source == IOTX_DM_TSL_SOURCE_CLOUD && shadow == NULL) {
+		iotx_dcs_thing_dsltemplate_get(product_key,device_name);
+	}
+	
 	res = iotx_dmgr_get_dev_sub_service_event_index(devid,&index);
 	if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 

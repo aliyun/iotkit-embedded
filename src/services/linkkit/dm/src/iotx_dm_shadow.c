@@ -515,6 +515,90 @@ int iotx_dsw_get_service_input_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	return SUCCESS_RETURN;
 }
 
+int iotx_dsw_get_service_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+{
+	int res = 0;
+	int offset = 0, array_index = 0;
+	char *pos = NULL;
+	iotx_dsw_service_t *service = NULL;
+	iotx_dsw_data_t *service_data = NULL;
+
+	if (shadow == NULL || key == NULL || key_len <= 0) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
+
+	dm_log_debug("TSL Service output Search, Event ID: %.*s",offset,key);
+	dm_log_debug("TSL Service output Search, Left Part: %s",(key + offset + 1));
+
+	res = _iotx_dsw_service_search(shadow,key,offset,&service);
+	if (res != SUCCESS_RETURN) {
+		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
+	}
+
+	pos = key + offset + 1;
+	dm_log_debug("TSL Service Input Data Search, Event Data ID: %s",pos);
+
+	res = _iotx_dsw_property_search(shadow,pos,strlen(pos),&service_data,&array_index);
+	if (res != SUCCESS_RETURN) {
+		res = _iotx_dsw_service_output_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
+		if (res != SUCCESS_RETURN) {
+			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			return FAIL_RETURN;
+		}
+	}
+
+	if (data) {*data = (void *)service_data;}
+
+	return SUCCESS_RETURN;
+}
+
+int iotx_dsw_get_event_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+{
+	int res = 0;
+	int offset = 0, array_index = 0;
+	char *pos = NULL;
+	iotx_dsw_event_t *event = NULL;
+	iotx_dsw_data_t *event_data = NULL;
+
+	if (shadow == NULL || key == NULL || key_len <= 0) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
+
+	dm_log_debug("TSL Event output Search, Event ID: %.*s",offset,key);
+	dm_log_debug("TSL Event output Search, Left Part: %s",(key + offset + 1));
+
+	res = _iotx_dsw_event_search(shadow,key,offset,&event);
+	if (res != SUCCESS_RETURN) {
+		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
+	}
+
+	pos = key + offset + 1;
+	dm_log_debug("TSL Event Output Data Search, Event Data ID: %s",pos);
+
+	res = _iotx_dsw_property_search(shadow,pos,strlen(pos),&event_data,&array_index);
+	if (res != SUCCESS_RETURN) {
+		res = _iotx_dsw_event_output_search(event->input_datas,event->input_data_number,pos,strlen(pos),&event_data,&array_index);
+		if (res != SUCCESS_RETURN) {
+			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			return FAIL_RETURN;
+		}
+	}
+
+	if (data) {*data = (void *)event_data;}
+
+	return SUCCESS_RETURN;
+}
+
 int iotx_dsw_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type)
 {
 	iotx_dsw_data_t *data_item = (iotx_dsw_data_t *)data;

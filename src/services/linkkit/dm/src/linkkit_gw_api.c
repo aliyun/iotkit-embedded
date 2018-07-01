@@ -364,7 +364,6 @@ static int _offline_all_subdevs(void)
 
 static void _linkkit_event_subdev_register_reply(char *payload)
 {
-#if 0
     int res = 0;
     lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
 
@@ -375,27 +374,25 @@ static void _linkkit_event_subdev_register_reply(char *payload)
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {return;}
 
     /* Parse Message ID */
-    res = lite_cjson_object_item(&lite,LINKKIT_KEY_ID,strlen(LINKKIT_KEY_ID),&lite_item_id);
+    res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_ID,strlen(LINKKIT_GW_API_KEY_ID),&lite_item_id);
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_id)) {return;}
     dm_log_info("Current Msg ID: %d",lite_item_id.value_int);
 
     /* Parse Message Code */
-    res = lite_cjson_object_item(&lite,LINKKIT_KEY_CODE,strlen(LINKKIT_KEY_CODE),&lite_item_code);
+    res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_CODE,strlen(LINKKIT_GW_API_KEY_CODE),&lite_item_code);
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_code)) {return;}
     dm_log_info("Current Code: %d",lite_item_code.value_int);
 
     /* Parse Devid */
-    res = lite_cjson_object_item(&lite,LINKKIT_KEY_DEVID,strlen(LINKKIT_KEY_DEVID),&lite_item_devid);
+    res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_DEVID,strlen(LINKKIT_GW_API_KEY_DEVID),&lite_item_devid);
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
     dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
     IOT_DM_Subdev_Topo_Add(lite_item_devid.value_int);
-#endif
 }
 
 static void _linkkit_event_topo_add_reply(char *payload)
 {
-#if 0
     int res = 0;
     lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
 
@@ -406,22 +403,21 @@ static void _linkkit_event_topo_add_reply(char *payload)
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {return;}
 
     /* Parse Message ID */
-    res = lite_cjson_object_item(&lite,LINKKIT_KEY_ID,strlen(LINKKIT_KEY_ID),&lite_item_id);
+    res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_ID,strlen(LINKKIT_GW_API_KEY_ID),&lite_item_id);
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_id)) {return;}
     dm_log_info("Current Msg ID: %d",lite_item_id.value_int);
 
     /* Parse Message Code */
-    res = lite_cjson_object_item(&lite,LINKKIT_KEY_CODE,strlen(LINKKIT_KEY_CODE),&lite_item_code);
+    res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_CODE,strlen(LINKKIT_GW_API_KEY_CODE),&lite_item_code);
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_code)) {return;}
     dm_log_info("Current Code: %d",lite_item_code.value_int);
 
     /* Parse Devid */
-    res = lite_cjson_object_item(&lite,LINKKIT_KEY_DEVID,strlen(LINKKIT_KEY_DEVID),&lite_item_devid);
+    res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_DEVID,strlen(LINKKIT_GW_API_KEY_DEVID),&lite_item_devid);
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
     dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
     IOT_DM_Subdev_Login(lite_item_devid.value_int);
-#endif
 }
 
 

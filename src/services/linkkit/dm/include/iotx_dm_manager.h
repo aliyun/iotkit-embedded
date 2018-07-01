@@ -25,6 +25,7 @@ typedef struct {
 	char product_key[PRODUCT_KEY_MAXLEN];
 	char device_name[DEVICE_NAME_MAXLEN];
 	char device_secret[DEVICE_SECRET_MAXLEN];
+	iotx_dm_tsl_source_t tsl_source;
 	iotx_dm_dev_avail_t status;
 	iotx_dm_dev_status_t dev_status;
 	iotx_dmgr_dev_sub_t sub_status;
@@ -48,6 +49,9 @@ int iotx_dmgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODU
 int iotx_dmgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);
 int iotx_dmgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node);
 int iotx_dmgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid);
+int iotx_dmgr_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source);
+int iotx_dmgr_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source);
+int iotx_dmgr_get_shadow(_IN_ int devid, void **shadow);
 int iotx_dmgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type);
 int iotx_dmgr_set_dev_enable(_IN_ int devid);
 int iotx_dmgr_set_dev_disable(_IN_ int devid);
@@ -71,6 +75,8 @@ int iotx_dmgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_S
 int iotx_dmgr_get_device_secret(_IN_ int devid, _OU_ char device_secret[DEVICE_SECRET_MAXLEN]);
 int iotx_dmgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 int iotx_dmgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int iotx_dmgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int iotx_dmgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 int iotx_dmgr_get_data_type(_IN_ void *property, _OU_ iotx_dsw_data_type_e *type);
 int iotx_dmgr_get_property_number(_IN_ int devid, _OU_ int *number);
 int iotx_dmgr_get_service_number(_IN_ int devid, _OU_ int *number);

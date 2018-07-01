@@ -196,6 +196,42 @@ int iotx_dsw_get_property_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int
 int iotx_dsw_get_service_input_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 
 /**
+ * @brief Get service output data from TSL struct.
+ *        This function used to get service output data from TSL struct.
+ *
+ * @param shadow. The pointer of TSL Struct.
+ * @param key. The property compound string, format decided by data type of property as follows:
+ *        int,float,double,text,enum,date,bool type: property_id
+ *		  array type: property_id(array)[index]
+ *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
+ *
+ * @param key_len. The length of key.
+ * @param property. The property in TSL Struct.
+ *
+ * @return success or fail.
+ *
+ */
+int iotx_dsw_get_service_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+
+/**
+ * @brief Get event output data from TSL struct.
+ *        This function used to get event output data from TSL struct.
+ *
+ * @param shadow. The pointer of TSL Struct.
+ * @param key. The property compound string, format decided by data type of property as follows:
+ *        int,float,double,text,enum,date,bool type: property_id
+ *		  array type: property_id(array)[index]
+ *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
+ *
+ * @param key_len. The length of key.
+ * @param property. The property in TSL Struct.
+ *
+ * @return success or fail.
+ *
+ */
+int iotx_dsw_get_event_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+
+/**
  * @brief Get property type from TSL struct.
  *        This function used to get property type from TSL struct.
  *

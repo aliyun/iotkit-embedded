@@ -179,6 +179,10 @@ int IOT_DM_Get_Device_Type(_IN_ int devid, _OU_ int *type);
 int IOT_DM_Get_Device_Avail_Status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status);
 int IOT_DM_Get_Device_Status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
 
+int IOT_DM_Legacy_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int IOT_DM_Legacy_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int IOT_DM_Legacy_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+
 int IOT_DM_Legacy_Get_Pkdn_By_Devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN]);
 int IOT_DM_Legacy_Get_Devid_By_Pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);
 int IOT_DM_Legacy_Get_ThingId_By_Devid(_IN_ int devid, _OU_ void **thing_id);
