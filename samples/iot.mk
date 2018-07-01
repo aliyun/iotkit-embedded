@@ -83,12 +83,16 @@ endif
 ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
 
 #    ifeq (,$(filter -DSUBDEV_ENABLE,$(CFLAGS)))
+	ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
     TARGET                           += linkkit-example_single
     SRCS_linkkit-example_single      := linkkit/linkkit_sample_single.c
+	endif
+	ifneq (,$(filter -DCONFIG_DM_DEVTYPE_GATEWAY,$(CFLAGS)))
     TARGET                  += linkkit-example_gw
     SRCS_linkkit-example_gw += linkkit/linkkit_sample_gateway.c \
                               linkkit/light.c \
                               linkkit/cJSON.c
+	endif
 #    endif
 
 endif
