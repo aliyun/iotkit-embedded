@@ -62,8 +62,8 @@ typedef struct {
 
 /* light's pk, dn, and ds */
 static const light_conf_t light_maps[] = {
-    {"a1DQA90NlFe", "Light01", "xQXstmFgUqWc36oOqzvHAHynAta843yZ"},
-    {"a1DQA90NlFe", "Light02", "FQz3CiUyQ8bCMc6vGKTdu5xRTBx2CJ4x"},
+    {"a1vj9KBli0Y", "light_1", "WoMEzdQEsfnsVOytvENSyFYNryQngqS8"},
+    {"a1vj9KBli0Y", "light_2", "XIMo1UAyDjLbzf0MjhErWYizNKWc8Md3"},
 };
 
 static light_t *lights[LIGHT_MAX_NUM];
@@ -232,14 +232,6 @@ int light_init(void)
         light->ColorTemperature = 4500;
 
         /*
-         * register subdev
-         */
-        if (linkkit_gateway_subdev_register(light->productKey, light->deviceName, light->deviceSecret) < 0) {
-            free(light);
-            break;
-        }
-
-        /*
          * create subdev
          * return the device id.
          */
@@ -247,6 +239,14 @@ int light_init(void)
         if (light->devid < 0) {
             EXAMPLE_TRACE("linkkit_gateway_subdev_create %s<%s> failed\n", light->deviceName, light->productKey);
             linkkit_gateway_subdev_unregister(light->productKey, light->deviceName);
+            free(light);
+            break;
+        }
+
+        /*
+         * register subdev
+         */
+        if (linkkit_gateway_subdev_register(light->productKey, light->deviceName, light->deviceSecret) < 0) {
             free(light);
             break;
         }
