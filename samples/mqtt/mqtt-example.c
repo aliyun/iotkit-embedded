@@ -25,11 +25,23 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-
-#define PRODUCT_KEY             "W9LchU2zAAK"
-#define DEVICE_NAME             "subdevice_2"
-#define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
-
+#if defined(MQTT_ID2_AUTH) && defined(ON_DAILY)
+    #define PRODUCT_KEY             "9rx2yMNV5l0"
+    #define DEVICE_NAME             "sh_online_sample_mqtt"
+    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+#elif defined(ON_DAILY)
+    #define PRODUCT_KEY             "gsYfsxQJgeD"
+    #define DEVICE_NAME             "DailyEnvDN"
+    #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
+#elif defined(MQTT_ID2_AUTH)
+    #define PRODUCT_KEY             "micKUvuzOps"
+    #define DEVICE_NAME             "00AAAAAABBBBBB4B645F5800"
+    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
+#else
+    #define PRODUCT_KEY             "W9LchU2zAAK"
+    #define DEVICE_NAME             "subdevice_2"
+    #define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
+#endif
 
 char __product_key[PRODUCT_KEY_LEN + 1];
 char __device_name[DEVICE_NAME_LEN + 1];
@@ -242,6 +254,64 @@ int mqtt_client(void)
         goto do_exit;
     }
 
+    iotx_mutli_sub_info_pt sub_list[6];
+    sub_list[0] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
+    if (NULL == sub_list[0]) {
+        rc = -1;
+        goto do_exit;
+    }
+    sub_list[0]->topicFilter = TOPIC_DATA;
+    sub_list[0]->qos = IOTX_MQTT_QOS1;
+    sub_list[0]->messageHandler = _demo_message_arrive;
+
+    sub_list[1] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
+    if (NULL == sub_list[1]) {
+        rc = -1;
+        goto do_exit;
+    }
+    sub_list[1]->topicFilter = TOPIC_UPDATE;
+    sub_list[1]->qos = IOTX_MQTT_QOS1;
+    sub_list[1]->messageHandler = _demo_message_arrive;
+    sub_list[2] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
+    if (NULL == sub_list[2]) {
+        rc = -1;
+        goto do_exit;
+    }
+    sub_list[2]->topicFilter = TOPIC_DATA;
+    sub_list[2]->qos = IOTX_MQTT_QOS1;
+    sub_list[2]->messageHandler = _demo_message_arrive;
+
+    sub_list[3] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
+    if (NULL == sub_list[3]) {
+        rc = -1;
+        goto do_exit;
+    }
+    sub_list[3]->topicFilter = TOPIC_UPDATE;
+    sub_list[3]->qos = IOTX_MQTT_QOS1;
+    sub_list[3]->messageHandler = _demo_message_arrive;
+    sub_list[4] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
+    if (NULL == sub_list[4]) {
+        rc = -1;
+        goto do_exit;
+    }
+    sub_list[4]->topicFilter = TOPIC_DATA;
+    sub_list[4]->qos = IOTX_MQTT_QOS1;
+    sub_list[4]->messageHandler = _demo_message_arrive;
+
+    sub_list[5] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
+    if (NULL == sub_list[5]) {
+        rc = -1;
+        goto do_exit;
+    }
+    sub_list[5]->topicFilter = TOPIC_UPDATE;
+    sub_list[5]->qos = IOTX_MQTT_QOS1;
+    sub_list[5]->messageHandler = _demo_message_arrive;
+    IOT_MQTT_Subscribe_Multi(pclient, sub_list, 5, NULL);
+
+    IOT_MQTT_Yield(pclient, 200);
+
+    HAL_SleepMs(2000);
+
     /* Initialize topic information */
     memset(msg_pub, 0x0, 128);
     strcpy(msg_pub, "data: hello! start!");
@@ -303,6 +373,12 @@ int mqtt_client(void)
     IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Destroy(&pclient);
+
+    HAL_Free(sub_list[0]);
+    HAL_Free(sub_list[1]);    
+    HAL_Free(sub_list[2]);
+    HAL_Free(sub_list[3]);
+    HAL_Free(sub_list[4]);
 
 do_exit:
     if (NULL != msg_buf) {
