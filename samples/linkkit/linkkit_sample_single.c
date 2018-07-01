@@ -640,7 +640,7 @@ int linkkit_example()
 
 int main(int argc, char **argv)
 {
-    IOT_OpenLog("cm");
+    IOT_OpenLog("linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     EXAMPLE_TRACE("start!\n");

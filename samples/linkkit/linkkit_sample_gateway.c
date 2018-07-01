@@ -299,6 +299,14 @@ int main(void)
     gateway_t gateway;
     linkkit_params_t *initParams = NULL;
     int maxMsgSize, maxMsgQueueSize, loglevel;
+
+    IOT_OpenLog("linkkit_gw");
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
+
+    HAL_SetProductKey("a1QrigYtTJj");
+    HAL_SetDeviceName("FBrNwJIiWVLibTvdXgYv");
+    HAL_SetDeviceSecret("HnDrKGNZneA5ptxoTvEM1RFwe366a5tV");
+
     memset(&gateway, 0, sizeof(gateway_t));
 
     /* fill fake zigbee network info */
@@ -375,6 +383,11 @@ int main(void)
     linkkit_gateway_stop(gateway.lk_dev);
     /* gateway exit */
     linkkit_gateway_exit();
+
+    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
+    IOT_CloseLog();
+
+    EXAMPLE_TRACE("out of sample!\n");
 
     return 0;
 }
