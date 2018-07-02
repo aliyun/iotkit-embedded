@@ -742,9 +742,7 @@ int iotx_dmgr_clear_dev_sub_service_event(_IN_ int devid)
 
 void iotx_dmgr_dev_sub_status_check(void)
 {
-	int res = 0;
 	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
 	int dcs_mapping_size = iotx_dcs_get_topic_mapping_size();
 	iotx_dmgr_dev_node_t *node = NULL;
 	uint64_t current_time = HAL_UptimeMs();
@@ -760,12 +758,7 @@ void iotx_dmgr_dev_sub_status_check(void)
 			if (current_time - node->sub_status.ctime >= IOTX_DMGR_DEV_SUB_TIMEOUT_MS) {
 				node->sub_status.ctime = current_time;
 				dm_log_debug("Retry Generic Subscribe, devid: %d, index: %d",node->devid,node->sub_status.generic_index);
-				res = iotx_dcm_service_name((char *)dcs_mapping[node->sub_status.generic_index].service_prefix,
-											(char *)dcs_mapping[node->sub_status.generic_index].service_name,
-											node->product_key,node->device_name,&service_name);
-				if (res != SUCCESS_RETURN) {continue;}
-
-				iotx_dcs_topic_subscribe(service_name);
+				iotx_dcs_topic_generic_subscribe(node->devid,node->sub_status.generic_index);
 				DM_free(service_name);
 			}
 			_iotx_dmgr_mutex_unlock();
