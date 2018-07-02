@@ -234,6 +234,7 @@ int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY
 	memcpy(node->product_key,product_key,strlen(product_key));
 	memcpy(node->device_name,device_name,strlen(device_name));
 	node->dev_status = IOTX_DMGR_DEV_STATUS_AUTHORIZED;
+	node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
 	INIT_LIST_HEAD(&node->linked_list);
 
 	list_add_tail(&node->linked_list,&ctx->dev_list);

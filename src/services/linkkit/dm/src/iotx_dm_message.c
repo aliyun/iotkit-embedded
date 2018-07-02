@@ -1570,8 +1570,6 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	res = iotx_dmgr_set_dev_sub_service_event_index(devid,IOTX_DMGR_DEV_SUB_START);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	iotx_dcs_thing_dsltemplate_get(product_key,device_name);
-
 	return SUCCESS_RETURN;
 }
 
@@ -1808,7 +1806,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 		res = iotx_dcs_topic_generic_subscribe(devid,index + 1);
 		if (res != iotx_dcs_get_topic_mapping_size()) {return res;}
 	}
-	if (index == IOTX_DMGR_DEV_SUB_END) {
+	if ((((index + 1) >= iotx_dcs_get_topic_mapping_size()) || (res == iotx_dcs_get_topic_mapping_size())) && index != IOTX_DMGR_DEV_SUB_END) {
 		dm_log_debug("Devid %d Subscribe Completed",devid);
 	
 		message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
@@ -1839,7 +1837,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	res = iotx_dmgr_get_tsl_source(devid,&source);
 	if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	if (devid == IOTX_DMGR_LOCAL_NODE_DEVID && source == IOTX_DM_TSL_SOURCE_CLOUD && shadow == NULL) {
+	if (source == IOTX_DM_TSL_SOURCE_CLOUD && shadow == NULL) {
 		iotx_dcs_thing_dsltemplate_get(product_key,device_name);
 	}
 	
