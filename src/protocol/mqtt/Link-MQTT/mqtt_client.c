@@ -346,14 +346,17 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* sub_i
     memset(handler, 0x0, sizeof(iotx_mc_topic_handle_t) * list_size);
     memset(qos, 0x0, sizeof(iotx_mqtt_qos_t) * list_size);
 
-    for(; i < list_size; i++) {
+    for (; i < list_size; i++) {
         topic[i].cstring = (char *)(sub_info_list[i]->topicFilter);
         qos[i] = sub_info_list[i]->qos;
-        //handler[i].topic_filter = (char *)(sub_info_list[i]->topicFilter);
         handler[i].topic_filter = LITE_malloc(strlen(sub_info_list[i]->topicFilter) + 1);
         if(NULL == handler[i].topic_filter)
         {
             LITE_free(handler);
+            i--;
+            for(; i >= 0; i--) {
+                LITE_free(handler[i].topic_filter);
+            }
             return FAIL_RETURN;
         }
         memcpy((char *)handler[i].topic_filter, sub_info_list[i]->topicFilter, strlen(sub_info_list[i]->topicFilter) + 1);
@@ -369,7 +372,9 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* sub_i
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, list_size, topic, (int *)qos);
     if (len <= 0) {
         HAL_MutexUnlock(c->lock_write_buf);
-        LITE_free(handler[i].topic_filter);
+        for (i = 0; i < list_size; i++) {
+            LITE_free(handler[i].topic_filter);
+        }
         LITE_free(handler);
         return MQTT_SUBSCRIBE_PACKET_ERROR;
     }
@@ -427,7 +432,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 
     handler = LITE_malloc(sizeof(iotx_mc_topic_handle_t));
     if (NULL == handler) return FAIL_RETURN;
-    //handler->topic_filter = (char *)topicFilter;
     handler->topic_filter = LITE_malloc(strlen(topicFilter) + 1);
     if (NULL == handler->topic_filter)
     {
@@ -708,6 +712,7 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     *node = list_node_new(subInfo);
     if (NULL == *node) {
         HAL_MutexUnlock(c->lock_list_sub);
+        LITE_free(subInfo);
         mqtt_err("run list_node_new is error!");
         return FAIL_RETURN;
     }
@@ -753,7 +758,6 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
             }
 
             if (subInfo->msg_id == msgId) {
-                //*messageHandler = subInfo->handler; /* return handle */
                 *messageHandler = subInfo->handler;
                 subInfo->node_state = IOTX_MC_NODE_STATE_INVALID; /* mark as invalid node */
             }
