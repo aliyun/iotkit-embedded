@@ -958,6 +958,9 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     res = IOT_DM_Construct(&dm_init_params);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
+	res = IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_CLOUD,NULL,0);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+	
 	res = HAL_ThreadCreate(&g_linkkit_dispatch,_linkkit_dispatch,NULL,NULL,&stack_used);
 	if (res != SUCCESS_RETURN) {IOT_DM_Destroy();return FAIL_RETURN;}
 

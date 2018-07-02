@@ -1604,6 +1604,8 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 		return FAIL_RETURN;
 	}
 
+	if (response->code.value_int != IOTX_DM_ERR_CODE_SUCCESS) {return SUCCESS_RETURN;}
+	
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
 	res = iotx_dcs_topic_generic_subscribe(devid,0);
@@ -1801,7 +1803,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	res = iotx_dmgr_get_tsl_source(devid,&source);
 	if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	if (source == IOTX_DM_TSL_SOURCE_CLOUD && shadow == NULL) {
+	if (devid == IOTX_DMGR_LOCAL_NODE_DEVID && source == IOTX_DM_TSL_SOURCE_CLOUD && shadow == NULL) {
 		iotx_dcs_thing_dsltemplate_get(product_key,device_name);
 	}
 	

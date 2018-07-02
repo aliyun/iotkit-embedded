@@ -38,7 +38,7 @@
 * The buffer size is decided on the TSL's size.
 */
 #ifndef CM_MQTT_RECV_LEN
-#define CM_MQTT_RECV_LEN                  CM_MQTT_MSGLEN_3060
+#define CM_MQTT_RECV_LEN                  CM_MQTT_MSGLEN_GW
 #endif /* CM_MQTT_RECV_LEN */
 
 

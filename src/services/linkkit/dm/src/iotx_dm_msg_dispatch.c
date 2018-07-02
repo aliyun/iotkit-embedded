@@ -347,7 +347,7 @@ int iotx_dcs_topic_service_event_create(int devid)
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	void *reference = NULL;
-	char *method = NULL;
+	char *method = NULL, *method_reply = NULL;
 	char **service_event = NULL;
 	int service_event_index = 0;
 
@@ -400,7 +400,7 @@ int iotx_dcs_topic_service_event_create(int devid)
 
 	dm_log_debug("Current Shadow TSL Event Number: %d",event_number);
 	for (index = 0;index < event_number;index++) {
-		reference = NULL;method = NULL;
+		reference = NULL;method = NULL;method_reply = NULL;
 
 		res = iotx_dmgr_get_event_by_index(devid,index,&reference);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
@@ -413,12 +413,22 @@ int iotx_dcs_topic_service_event_create(int devid)
 		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 
-		res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,(service_event + service_event_index));
-		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
+		method_reply = DM_malloc(strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
+		if (method_reply == NULL) {
+			DM_free(method);
+			dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			return FAIL_RETURN;
+		}
+		memset(method_reply,0,strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
+		memcpy(method_reply,method,strlen(method));
+		memcpy(method_reply + strlen(method_reply),IOTX_DCS_REPLY_SUFFIX,strlen(IOTX_DCS_REPLY_SUFFIX));
+		
+		res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method_reply,product_key,device_name,(service_event + service_event_index));
+		if (res != SUCCESS_RETURN) {DM_free(method);DM_free(method_reply);return FAIL_RETURN;}
 
 		dm_log_debug("Current Service Event Generate: %s",*(service_event + service_event_index));
 
-		DM_free(method);service_event_index++;
+		DM_free(method);DM_free(method_reply);service_event_index++;
 	}
 
 	res = iotx_dmgr_set_dev_sub_service_event(devid,(service_number + event_number),service_event);
