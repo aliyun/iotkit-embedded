@@ -275,8 +275,8 @@ static void *_response_waiter(void *arg)
         obj->cb(1, data, data_len, obj->ctx);
 
 fail:
-    if (data)
-        AMemPool_Put(gbl.msgbuf_pool, data);
+    /* if (data)
+        AMemPool_Put(gbl.msgbuf_pool, data); */
     watcher_free(obj->w);
     LITE_free(obj);
 
@@ -721,6 +721,83 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 				dev->cbs.register_complete(dev->ctx);
 		}
 		break;
+		case IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY: {
+			int res = 0;
+			lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
+
+			/* Parse Payload */
+			memset(&lite,0,sizeof(lite_cjson_t));
+			res = lite_cjson_parse(payload,strlen(payload),&lite);
+			if (res != SUCCESS_RETURN) {return;}
+
+			/* Parse Id */
+			memset(&lite_item_id,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_ID,strlen(LINKKIT_GW_API_KEY_ID),&lite_item_id);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Id: %d",lite_item_id.value_int);
+
+			/* Parse Code */
+			memset(&lite_item_code,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_CODE,strlen(LINKKIT_GW_API_KEY_CODE),&lite_item_code);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Code: %d",lite_item_code.value_int);
+
+			/* Parse Devid */
+			memset(&lite_item_devid,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_DEVID,strlen(LINKKIT_GW_API_KEY_DEVID),&lite_item_devid);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
+
+			watcher_signal(lite_item_id.value_int,lite_item_code.value_int,NULL,0);
+		}
+		break;
+		case IOTX_DM_EVENT_EVENT_SPECIFIC_POST_REPLY: {
+			int res = 0;
+			char *eventid = NULL;
+			lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid, lite_item_eventid;
+
+			/* Parse Payload */
+			memset(&lite,0,sizeof(lite_cjson_t));
+			res = lite_cjson_parse(payload,strlen(payload),&lite);
+			if (res != SUCCESS_RETURN) {return;}
+
+			/* Parse Id */
+			memset(&lite_item_id,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_ID,strlen(LINKKIT_GW_API_KEY_ID),&lite_item_id);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Id: %d",lite_item_id.value_int);
+
+			/* Parse Code */
+			memset(&lite_item_code,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_CODE,strlen(LINKKIT_GW_API_KEY_CODE),&lite_item_code);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Code: %d",lite_item_code.value_int);
+
+			/* Parse Devid */
+			memset(&lite_item_devid,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_DEVID,strlen(LINKKIT_GW_API_KEY_DEVID),&lite_item_devid);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
+
+			/* Parse Property ID */
+			memset(&lite_item_eventid,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GW_API_KEY_EVENTID,strlen(LINKKIT_GW_API_KEY_EVENTID),&lite_item_eventid);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current EventID: %.*s",lite_item_eventid.value_length,lite_item_eventid.value);
+
+			eventid = DM_malloc(lite_item_eventid.value_length + 1);
+			if (eventid == NULL) {
+				dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+				return;
+			}
+			memset(eventid,0,lite_item_eventid.value_length + 1);
+			memcpy(eventid,lite_item_eventid.value,lite_item_eventid.value_length);
+
+	        watcher_signal(lite_item_id.value_int,lite_item_code.value_int,eventid,strlen(eventid));
+
+			DM_free(eventid);
+		}
+		break;
         default:
             dm_log_info("Not Found Type For Now, Smile");
             break;
@@ -747,14 +824,14 @@ static int _linkkit_recv_data_with_timeout(int id, int timeout_ms)
         goto fail;
     }
 
-    if (data)
-        AMemPool_Put(gbl.msgbuf_pool, data);
+    /* if (data)
+        AMemPool_Put(gbl.msgbuf_pool, data); */
     watcher_free(w);
     return 0;
 
 fail:
-    if (data)
-        AMemPool_Put(gbl.msgbuf_pool, data);
+     /* if (data)
+        AMemPool_Put(gbl.msgbuf_pool, data); */
     watcher_free(w);
     return code;
 }
