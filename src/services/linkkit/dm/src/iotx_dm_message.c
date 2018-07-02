@@ -1213,81 +1213,35 @@ int iotx_dmsg_thing_sub_register_reply(iotx_dmsg_response_payload_t *response)
 const char IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int iotx_dmsg_thing_sub_unregister_reply(iotx_dmsg_response_payload_t *response)
 {
-	int res = 0, index = 0, message_len = 0, devid = 0;
-	lite_cjson_t lite, lite_item, lite_item_pk, lite_item_dn, lite_item_ds;
+	int res = 0, id, message_len = 0;
+	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
 	char *message = NULL;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
-	char temp_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	iotx_dmc_node_t *node = NULL;
 
 	if (response == NULL) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
+	
+	memcpy(int_id,response->id.value,response->id.value_length);
+	id = atoi(int_id);
 
-	res = lite_cjson_parse(response->data.value,response->data.value_length,&lite);
-	if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
+	dm_log_debug("Current ID: %d",id);
+
+	res = iotx_dmc_msg_search(id,&node);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	message_len = strlen(IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message = DM_malloc(message_len);
+	if (message == NULL) {
+		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
+	memset(message,0,message_len);
+	HAL_Snprintf(message,message_len,IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT,id,response->code.value_int,node->devid);
 
-	for (index = 0;index < lite.size;index++) {
-		devid = 0;message_len = 0;message = NULL;
-		memset(temp_id,0,IOTX_DCM_UINT32_STRLEN);
-		memset(product_key,0,PRODUCT_KEY_MAXLEN);
-		memset(device_name,0,DEVICE_NAME_MAXLEN);
-		memset(&lite_item,0,sizeof(lite_cjson_t));
-		memset(&lite_item_pk,0,sizeof(lite_cjson_t));
-		memset(&lite_item_dn,0,sizeof(lite_cjson_t));
-		memset(&lite_item_ds,0,sizeof(lite_cjson_t));
-
-		dm_log_debug("Current Index: %d",index);
-		/* Item */
-		res = lite_cjson_array_item(&lite,index,&lite_item);
-		if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {continue;}
-
-		/* Product Key */
-		res = lite_cjson_object_item(&lite_item,IOTX_DMSG_KEY_PRODUCT_KEY,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),&lite_item_pk);
-		if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk)) {continue;}
-		dm_log_debug("Current Product Key: %.*s",lite_item_pk.value_length,lite_item_pk.value);
-
-		/* Device Name */
-		res = lite_cjson_object_item(&lite_item,IOTX_DMSG_KEY_DEVICE_NAME,strlen(IOTX_DMSG_KEY_DEVICE_NAME),&lite_item_dn);
-		if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn)) {continue;}
-		dm_log_debug("Current Device Name: %.*s",lite_item_dn.value_length,lite_item_dn.value);
-
-		/* Device Name */
-		res = lite_cjson_object_item(&lite_item,IOTX_DMSG_KEY_DEVICE_SECRET,strlen(IOTX_DMSG_KEY_DEVICE_SECRET),&lite_item_ds);
-		if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_ds)) {continue;}
-		dm_log_debug("Current Device Secret: %.*s",lite_item_ds.value_length,lite_item_ds.value);
-
-		/* Get Device ID */
-		memcpy(product_key,lite_item_pk.value,lite_item_pk.value_length);
-		memcpy(device_name,lite_item_dn.value,lite_item_dn.value_length);
-		memcpy(device_secret,lite_item_ds.value,lite_item_ds.value_length);
-
-		res = iotx_dmgr_search_device_by_pkdn(product_key,device_name,&devid);
-		if (res != SUCCESS_RETURN) {continue;}
-
-		/* Device Destroy */
-		res = iotx_dmgr_device_destroy(devid);
-		if (res != SUCCESS_RETURN) {continue;}
-
-		/* Send Message To User */
-		memcpy(temp_id,response->id.value,response->id.value_length);
- 		message_len = strlen(IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*2 + 1;
-		message = DM_malloc(message_len);
-		if (message == NULL) {
-			dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
-			continue;
-		}
-		memset(message,0,message_len);
-		HAL_Snprintf(message,message_len,IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT,atoi(temp_id),response->code.value_int,devid);
-
-		res = _iotx_dmsg_send_to_user(IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY,message);
-		if (res != SUCCESS_RETURN) {DM_free(message);}
-	}
+	res = _iotx_dmsg_send_to_user(IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY,message);
+	if (res != SUCCESS_RETURN) {DM_free(message);}
 
 	return SUCCESS_RETURN;
 }
