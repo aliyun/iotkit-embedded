@@ -29,7 +29,7 @@
 
 #define IOTX_DAILY_DTLS_SERVER_URI      "coaps://10.125.7.82:5684"
 //#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://iot-as-coap.alibaba.net:5684"
-#define IOTX_DAILY_PSK_SERVER_URI       "coap-psk://10.101.83.159:5683"
+#define IOTX_DAILY_PSK_SERVER_URI       "coap-psk://10.101.83.159:5682"
 #define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI       "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 #define IOTX_PRE_PSK_SERVER_URI         "coap-psk://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
