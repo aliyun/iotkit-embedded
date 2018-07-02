@@ -1621,8 +1621,71 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	return SUCCESS_RETURN;
 }
 
+const char IOTX_DMSG_EVENT_COMBINE_LOGOUT_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response)
 {
+	int res = 0, message_len = 0, devid = 0;
+	char *message = NULL;
+	lite_cjson_t lite, lite_item_pk, lite_item_dn;
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+	char temp_id[IOTX_DCM_UINT32_STRLEN] = {0};
+
+	if (response == NULL) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Parse JSON */
+	memset(&lite,0,sizeof(lite_cjson_t));
+	res = lite_cjson_parse(response->data.value,response->data.value_length,&lite);
+	if (res != SUCCESS_RETURN) {
+		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
+		return FAIL_RETURN;
+	}
+
+	/* Parse Product Key */
+	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_PRODUCT_KEY,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),&lite_item_pk);
+	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk) || lite_item_pk.value_length >= PRODUCT_KEY_MAXLEN) {
+		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),IOTX_DMSG_KEY_PRODUCT_KEY);
+		return FAIL_RETURN;
+	}
+	memcpy(product_key,lite_item_pk.value,lite_item_pk.value_length);
+
+	/* Parse Device Name */
+	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_DEVICE_NAME,strlen(IOTX_DMSG_KEY_DEVICE_NAME),&lite_item_dn);
+	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn) || lite_item_dn.value_length >= DEVICE_NAME_MAXLEN) {
+		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_DEVICE_NAME),IOTX_DMSG_KEY_DEVICE_NAME);
+		return FAIL_RETURN;
+	}
+	memcpy(device_name,lite_item_dn.value,lite_item_dn.value_length);
+
+	/* Get Device Id */
+	res = iotx_dmgr_search_device_by_pkdn(product_key,device_name,&devid);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	/* Update State Machine */
+	if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
+		iotx_dmgr_set_dev_status(devid,IOTX_DMGR_DEV_STATUS_ATTACHED);
+
+	/* Message ID */
+	memcpy(temp_id,response->id.value,response->id.value_length);
+
+	message_len = strlen(IOTX_DMSG_EVENT_COMBINE_LOGOUT_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message = DM_malloc(message_len);
+	if (message == NULL) {
+		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(message,0,message_len);
+	HAL_Snprintf(message,message_len,IOTX_DMSG_EVENT_COMBINE_LOGOUT_REPLY_FMT,atoi(temp_id),response->code.value_int,devid);
+
+	res = _iotx_dmsg_send_to_user(IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY,message);
+	if (res != SUCCESS_RETURN) {
+		DM_free(message);
+		return FAIL_RETURN;
+	}
+	
 	return SUCCESS_RETURN;
 }
 
@@ -1791,6 +1854,25 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 		res = iotx_dcs_topic_generic_subscribe(devid,index + 1);
 		if (res != iotx_dcs_get_topic_mapping_size()) {return res;}
 	}
+	if (index == IOTX_DMGR_DEV_SUB_END) {
+		dm_log_debug("Devid %d Subscribe Completed",devid);
+	
+		message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
+		message = DM_malloc(message_len);
+		if (message == NULL) {
+			dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			return FAIL_RETURN;
+		}
+		memset(message,0,message_len);
+		HAL_Snprintf(message,message_len,IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT,devid);
+
+		res = _iotx_dmsg_send_to_user(IOTX_DM_EVENT_REGISTER_COMPLETED,message);
+		if (res != SUCCESS_RETURN) {
+			DM_free(message);
+			return FAIL_RETURN;
+		}
+	
+	}
 	iotx_dmgr_set_dev_sub_generic_index(devid,IOTX_DMGR_DEV_SUB_END);
 
 	/* Check TSL Source And If Shadow Is Exist */
@@ -1824,23 +1906,6 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	iotx_dmgr_set_dev_sub_service_event_index(devid,IOTX_DMGR_DEV_SUB_END);
 	iotx_dmgr_clear_dev_sub_service_event(devid);
 	iotx_dmgr_set_dev_status(devid,IOTX_DMGR_DEV_STATUS_ONLINE);
-
-	dm_log_debug("Devid %d Subscribe Completed",devid);
-	
-	message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
-	message = DM_malloc(message_len);
-	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
-		return FAIL_RETURN;
-	}
-	memset(message,0,message_len);
-	HAL_Snprintf(message,message_len,IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT,devid);
-
-	res = _iotx_dmsg_send_to_user(IOTX_DM_EVENT_REGISTER_COMPLETED,message);
-	if (res != SUCCESS_RETURN) {
-		DM_free(message);
-		return FAIL_RETURN;
-	}
 	
 	return SUCCESS_RETURN;
 }
