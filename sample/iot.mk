@@ -90,3 +90,8 @@ SRCS_linkkit-example      := linkkit/src/linkkit_export.c \
                              linkkit/samples/linkkit_sample.c
 endif
 
+ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
+TARGET              				+= mqtt_multi_region-example
+SRCS_mqtt_multi_region-example     := mqtt/mqtt_multi_region-example.c
+endif
+

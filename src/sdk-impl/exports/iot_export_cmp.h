@@ -41,11 +41,20 @@
 
 /* domain type */
 typedef enum IOTX_CMP_CLOUD_DOMAIN_TYPES {
-    /* "iot-as-mqtt.cn-shanghai.aliyuncs.com" */
+    /* Shanghai, direrct: "iot-as-mqtt.cn-shanghai.aliyuncs.com" */
     IOTX_CMP_CLOUD_DOMAIN_SH,
 
-    /* USA */
-    IOTX_CMP_CLOUD_DOMAIN_USA,
+    /* Singapore, direrct: "iot-as-mqtt.ap-southeast-1.aliyuncs.com" */
+    IOTX_CMP_CLOUD_DOMAIN_SG,
+
+    /* Japan, direrct: "iot-as-mqtt.ap-northeast-1.aliyuncs.com" */ 
+    IOTX_CMP_CLOUD_DOMAIN_JP,
+
+    /* America, direrct: "iot-as-mqtt.us-west-1.aliyuncs.com" */
+    IOTX_CMP_CLOUD_DOMAIN_US,   
+
+    /* Germany, direrct: "iot-as-mqtt.eu-central-1.aliyuncs.com" */
+    IOTX_CMP_CLOUD_DOMAIN_GER,
 
     /* Maximum number of domain */
     IOTX_CMP_CLOUD_DOMAIN_MAX
