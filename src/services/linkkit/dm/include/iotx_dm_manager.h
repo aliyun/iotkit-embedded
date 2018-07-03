@@ -100,5 +100,21 @@ int iotx_dmgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int 
 int iotx_dmgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
 int iotx_dmgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
 int iotx_dmgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int iotx_dmgr_upstream_thing_sub_register(_IN_ int devid);
+int iotx_dmgr_upstream_thing_sub_unregister(_IN_ int devid);
+int iotx_dmgr_upstream_thing_topo_add(_IN_ int devid);
+int iotx_dmgr_upstream_thing_topo_delete(_IN_ int devid);
+int iotx_dmgr_upstream_thing_topo_get(void);
+int iotx_dmgr_upstream_thing_list_found(_IN_ int devid);
+int iotx_dmgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dmgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *method, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dmgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dmgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dmgr_upstream_thing_dsltemplate_get(_IN_ int devid);
+int iotx_dmgr_upstream_thing_dynamictsl_get(_IN_ int devid);
+int iotx_dmgr_upstream_combine_login(_IN_ int devid);
+int iotx_dmgr_upstream_combine_logout(_IN_ int devid);
+int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
 
 #endif

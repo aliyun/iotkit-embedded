@@ -195,13 +195,13 @@ int main(int argc, char *argv[])
 		//HAL_SleepMs(1000);
 		//if (time > 10000) break;
 		//if(time == 5000) {IOT_DM_Subdev_Topo_Del(devid);}
-		//if (time == 5000) {iotx_dcs_thing_topo_get();}
-		//if (time == 5000) {iotx_dcs_thing_list_found(testpk,testdn);}
+		//if (time == 5000) {iotx_dmgr_upstream_thing_topo_get();}
+		//if (time == 5000) {iotx_dmgr_upstream_thing_list_found(devid);}
 		if (time == 5000) {IOT_DM_Subdev_Register(devid);}
 		//if (time == 3000) {IOT_DM_Subdev_Topo_Add(devid1);}
 		//if (time == 8000) {IOT_DM_Subdev_Topo_Del(devid1);}
 		//if (time == 7000) {IOT_DM_Subdev_Login(devid);}
-		//if (time == 8000) {iotx_dcs_thing_model_up_raw(testpk,testdn,testpayload,strlen(testpayload));}
+		//if (time == 8000) {iotx_dmgr_upstream_thing_model_up_raw(devid,testpayload,strlen(testpayload));}
 		//if (time == 8000) {IOT_DM_Subdev_Unregister(devid);}
 		#if 0
 		if (time == 10000) {

@@ -134,9 +134,6 @@ int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const 
 	_iotx_dapi_lock();
 	if (source == IOTX_DM_TSL_SOURCE_CLOUD) {
 		int sub_generic_index = 0;
-		char product_key[PRODUCT_KEY_MAXLEN] = {0};
-		char device_name[DEVICE_NAME_MAXLEN] = {0};
-		char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
 		res = iotx_dmgr_set_tsl_source(devid,source);
 		if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
@@ -145,11 +142,8 @@ int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const 
 		if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
 		if (sub_generic_index != IOTX_DMGR_DEV_SUB_END) {_iotx_dapi_unlock();return SUCCESS_RETURN;}
-			
-		res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-		if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-		res = iotx_dcs_thing_dsltemplate_get(product_key,device_name);
+
+		res = iotx_dmgr_upstream_thing_dsltemplate_get(devid);
 
 		_iotx_dapi_unlock();
 		return res;
@@ -412,9 +406,6 @@ int IOT_DM_Post_Property_End(_IN_ void **handle)
 {
 	int res = 0;
 	char *payload = NULL;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	iotx_dapi_property_t *dapi_property = NULL;
 
 	if (handle == NULL) {
@@ -437,10 +428,7 @@ int IOT_DM_Post_Property_End(_IN_ void **handle)
 
 	dm_log_debug("Current Property Post Payload, Length: %d, Payload: %s",strlen(payload),payload);
 
-	res = iotx_dmgr_search_device_by_devid(dapi_property->devid,product_key,device_name,device_secret);
-	if (res == SUCCESS_RETURN) {
-		res = iotx_dcs_thing_property_post(product_key,device_name,payload,strlen(payload));
-	}
+	res = iotx_dmgr_upstream_thing_property_post(dapi_property->devid,payload,strlen(payload));
 	
 	free(payload);
 	lite_cjson_delete(dapi_property->lite);
@@ -455,9 +443,6 @@ int IOT_DM_Post_Property_End(_IN_ void **handle)
 int IOT_DM_Post_Event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	void *event = NULL;
 	lite_cjson_item_t *lite = NULL;
 	char *method = NULL, *payload = NULL;
@@ -492,9 +477,6 @@ int IOT_DM_Post_Event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier
 	}
 
 	dm_log_debug("Current Event Post Payload, Length: %d, Payload: %s",strlen(payload),payload);
-	
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {free(payload);_iotx_dapi_unlock();return FAIL_RETURN;}
 
 	res = iotx_dmgr_get_event_by_identifier(devid,identifier,&event);
 	if (res != SUCCESS_RETURN) {free(payload);_iotx_dapi_unlock();return FAIL_RETURN;}
@@ -503,8 +485,8 @@ int IOT_DM_Post_Event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier
 	if (res != SUCCESS_RETURN) {free(payload);_iotx_dapi_unlock();return FAIL_RETURN;}
 
 	dm_log_debug("Current Event Method: %s",method);
-	
-	res = iotx_dcs_thing_event_post(product_key,device_name,identifier,identifier_len,method,payload,strlen(payload));
+
+	res = iotx_dmgr_upstream_thing_event_post(devid,identifier,identifier_len,method,payload,strlen(payload));
 	
 	free(payload);DM_free(method);
 
@@ -515,17 +497,12 @@ int IOT_DM_Post_Event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier
 int IOT_DM_Post_Property_Direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_thing_property_post(product_key,device_name,payload,payload_len);
-	if (res < SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
+	res = iotx_dmgr_upstream_thing_property_post(devid,payload,payload_len);
+	if (res < SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
+	
 	_iotx_dapi_unlock();
 	return res;
 }
@@ -535,9 +512,6 @@ int IOT_DM_Post_Event_Direct(_IN_ int devid, _IN_ char *identifier, _IN_ int ide
 	int res = 0, method_len = 0;
 	const char *method_fmt = "thing.event.%.*s.post";
 	char *method = NULL;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
 	if (devid < 0 || identifier == NULL || identifier_len == 0 || payload == NULL || payload_len <= 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -545,8 +519,6 @@ int IOT_DM_Post_Event_Direct(_IN_ int devid, _IN_ char *identifier, _IN_ int ide
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
 	method_len = strlen(method_fmt) + strlen(identifier) + 1;
 	method = DM_malloc(method_len);
@@ -557,8 +529,8 @@ int IOT_DM_Post_Event_Direct(_IN_ int devid, _IN_ char *identifier, _IN_ int ide
 	}
 	memset(method,0,method_len);
 	HAL_Snprintf(method,method_len,method_fmt,identifier_len,identifier);
-	
-	res = iotx_dcs_thing_event_post(product_key,device_name,identifier,identifier_len,method,payload,strlen(payload));
+
+	res = iotx_dmgr_upstream_thing_event_post(devid,identifier,identifier_len,method,payload,payload_len);
 	if (res < SUCCESS_RETURN) {DM_free(method);_iotx_dapi_unlock();return FAIL_RETURN;}
 
 	DM_free(method);
@@ -569,9 +541,6 @@ int IOT_DM_Post_Event_Direct(_IN_ int devid, _IN_ char *identifier, _IN_ int ide
 int IOT_DM_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	lite_cjson_item_t *lite = NULL;
 	char *payload = NULL;
 	
@@ -605,11 +574,8 @@ int IOT_DM_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_er
 	}
 
 	dm_log_debug("Current Service Response Payload, Length: %d, Payload: %s",strlen(payload),payload);
-	
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {free(payload);_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_thing_service_response(product_key,device_name,msgid,code,identifier,identifier_len,payload,strlen(payload));
+
+	res = iotx_dmgr_upstream_thing_service_response(devid,msgid,code,identifier,identifier_len,payload,strlen(payload));
 	
 	free(payload);
 
@@ -620,9 +586,6 @@ int IOT_DM_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_er
 int IOT_DM_DeviceInfo_Update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -630,10 +593,8 @@ int IOT_DM_DeviceInfo_Update(_IN_ int devid, _IN_ char *payload, _IN_ int payloa
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_thing_deviceinfo_update(product_key,device_name,payload,payload_len);
+
+	res = iotx_dmgr_upstream_thing_deviceinfo_update(devid,payload,payload_len);
 	if (res < SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
 	_iotx_dapi_unlock();
@@ -643,9 +604,6 @@ int IOT_DM_DeviceInfo_Update(_IN_ int devid, _IN_ char *payload, _IN_ int payloa
 int IOT_DM_DeviceInfo_Delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -653,10 +611,8 @@ int IOT_DM_DeviceInfo_Delete(_IN_ int devid, _IN_ char *payload, _IN_ int payloa
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_thing_deviceinfo_delete(product_key,device_name,payload,payload_len);
+
+	res = iotx_dmgr_upstream_thing_deviceinfo_delete(devid,payload,payload_len);
 	if (res < SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
 	_iotx_dapi_unlock();
@@ -666,9 +622,6 @@ int IOT_DM_DeviceInfo_Delete(_IN_ int devid, _IN_ char *payload, _IN_ int payloa
 int IOT_DM_Post_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -676,10 +629,8 @@ int IOT_DM_Post_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 	
-	res = iotx_dcs_thing_model_up_raw(product_key,device_name,payload,payload_len);
+	res = iotx_dmgr_upstream_thing_model_up_raw(devid,payload,payload_len);
 	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
 	_iotx_dapi_unlock();
@@ -759,9 +710,6 @@ int IOT_DM_Subdev_Number(void)
 int IOT_DM_Subdev_Register(_IN_ int devid)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -769,10 +717,8 @@ int IOT_DM_Subdev_Register(_IN_ int devid)
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_thing_sub_register(product_key,device_name);
+
+	res = iotx_dmgr_upstream_thing_sub_register(devid);
 
 	_iotx_dapi_unlock();
 	return res;
@@ -781,9 +727,6 @@ int IOT_DM_Subdev_Register(_IN_ int devid)
 int IOT_DM_Subdev_Unregister(_IN_ int devid)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -791,10 +734,8 @@ int IOT_DM_Subdev_Unregister(_IN_ int devid)
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_thing_sub_unregister(product_key,device_name);
+
+	res = iotx_dmgr_upstream_thing_sub_unregister(devid);
 
 	_iotx_dapi_unlock();
 	return res;
@@ -803,9 +744,6 @@ int IOT_DM_Subdev_Unregister(_IN_ int devid)
 int IOT_DM_Subdev_Topo_Add(_IN_ int devid)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -813,10 +751,8 @@ int IOT_DM_Subdev_Topo_Add(_IN_ int devid)
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
-	res = iotx_dcs_thing_topo_add(product_key,device_name,device_secret);
+	res = iotx_dmgr_upstream_thing_topo_add(devid);
 
 	_iotx_dapi_unlock();
 	return res;
@@ -825,9 +761,6 @@ int IOT_DM_Subdev_Topo_Add(_IN_ int devid)
 int IOT_DM_Subdev_Topo_Del(_IN_ int devid)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -835,10 +768,8 @@ int IOT_DM_Subdev_Topo_Del(_IN_ int devid)
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
-	res = iotx_dcs_thing_topo_delete(product_key,device_name);
+	res = iotx_dmgr_upstream_thing_topo_delete(devid);
 
 	_iotx_dapi_unlock();
 	return res;
@@ -847,9 +778,6 @@ int IOT_DM_Subdev_Topo_Del(_IN_ int devid)
 int IOT_DM_Subdev_Login(_IN_ int devid)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -857,10 +785,8 @@ int IOT_DM_Subdev_Login(_IN_ int devid)
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_combine_login(product_key,device_name,device_secret);
+
+	res = iotx_dmgr_upstream_combine_login(devid);
 
 	_iotx_dapi_unlock();
 	return res;
@@ -869,9 +795,6 @@ int IOT_DM_Subdev_Login(_IN_ int devid)
 int IOT_DM_Subdev_Logout(_IN_ int devid)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	
 	if (devid < 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -879,10 +802,8 @@ int IOT_DM_Subdev_Logout(_IN_ int devid)
 	}
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 	
-	res = iotx_dcs_combine_logout(product_key,device_name);
+	res = iotx_dmgr_upstream_combine_logout(devid);
 
 	_iotx_dapi_unlock();
 	return res;
@@ -1125,15 +1046,10 @@ int IOT_DM_Legacy_Get_Pkdn_Ptr_By_Devid(_IN_ int devid, _OU_ char **product_key,
 int IOT_DM_Legacy_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
-	
-	res = iotx_dcs_thing_service_response(product_key,device_name,msgid,code,identifier,identifier_len,payload,payload_len);
+
+	res = iotx_dmgr_upstream_thing_service_response(devid,msgid,code,identifier,identifier_len,payload,payload_len);
 
 	_iotx_dapi_unlock();
 	return res;
@@ -1142,15 +1058,10 @@ int IOT_DM_Legacy_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iot
 int IOT_DM_Legacy_Send_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	char product_key[PRODUCT_KEY_MAXLEN] = {0};
-	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
 	_iotx_dapi_lock();
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
-	if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 	
-	res = iotx_dcs_thing_model_up_raw(product_key,device_name,payload,payload_len);
+	res = iotx_dmgr_upstream_thing_model_up_raw(devid,payload,payload_len);
 
 	_iotx_dapi_unlock();
 	return res;
