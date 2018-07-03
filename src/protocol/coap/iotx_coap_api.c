@@ -426,8 +426,8 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
     return SUCCESS_RETURN;
 }
 
-#ifdef AES_CBC_128
-static int iotx_aes_cbc_encrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
+
+int iotx_aes_cbc_encrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
 {
     char* iv = "543yhjy97ae7fyfg";
 
@@ -438,11 +438,9 @@ static int iotx_aes_cbc_encrypt (const unsigned char* src, int len, const unsign
 
     p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init((unsigned char *)key, (unsigned char *)iv, HAL_AES_ENCRYPTION);
     if (len1) {
-        COAP_DEBUG("iotx_aes_cbc_encrypt 1");
         ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, src, len1 >> 4, out);
     }
     if (!ret && pad) {
-        COAP_DEBUG("iotx_aes_cbc_encrypt 2");
         char buf[16] = {0};
         memcpy (buf, src + len1, len - len1);
         memset (buf + len - len1, pad, pad);
@@ -452,52 +450,25 @@ static int iotx_aes_cbc_encrypt (const unsigned char* src, int len, const unsign
 
     HAL_Aes128_Destroy (aes_e_h);
 
-    COAP_DEBUG ("to encrypt src:%s, len:%d", src, len2);
+    COAP_DEBUG ("to encrypt src: %s, len: %d", src, len2);
     return ret == 0? len2 : 0;
 }
-#endif
 
-static int iotx_aes_cfb_encrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
-{
-    int ret = -1;
-    char* iv = "543yhjy97ae7fyfg";
-
-    p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init((unsigned char *)key, (unsigned char *)iv, HAL_AES_ENCRYPTION);
-    ret = HAL_Aes128_Cfb_Encrypt(aes_e_h, src, len, out);
-    HAL_Aes128_Destroy (aes_e_h);
-
-    COAP_DEBUG ("to encrypt src:%s, len:%d", src, len);
-    return ret;
-}
-
-int iotx_aes_cfb_decrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
-{
-    int ret = -1;
-    char* iv = "543yhjy97ae7fyfg";
-
-    p_HAL_Aes128_t aes_d_h = HAL_Aes128_Init((unsigned char *)key, (unsigned char *)iv, HAL_AES_ENCRYPTION);
-    ret = HAL_Aes128_Cfb_Decrypt(aes_d_h, src, len, out);
-    HAL_Aes128_Destroy(aes_d_h);
-
-    return ret;
-}
-
-#ifdef AES_CBC_128
 int iotx_aes_cbc_decrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
 {
     char* iv = "543yhjy97ae7fyfg";
 
     p_HAL_Aes128_t aes_d_h;
-    int ret = -1;
+    int ret = 0;
     int n = len >> 4;
 
     aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
-    if (n > 0) {
-        if (aes_d_h) {
-            ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
-        } else {
-            COAP_ERR ("fail to decrypt");
-        }
+    if(!aes_d_h){
+        COAP_INFO("fail to decrypt");
+        return  0;
+    }
+    if (n > 1) {
+        ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
     }
 
     if (ret == 0) {
@@ -523,7 +494,35 @@ int iotx_aes_cbc_decrypt (const unsigned char* src, int len, const unsigned char
 
     return 0;
 }
+
+
+#if AES_CFB_NOPADDING
+static int iotx_aes_cfb_encrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
+{
+    int ret = -1;
+    char* iv = "543yhjy97ae7fyfg";
+
+    p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init((unsigned char *)key, (unsigned char *)iv, HAL_AES_ENCRYPTION);
+    ret = HAL_Aes128_Cfb_Encrypt(aes_e_h, src, len, out);
+    HAL_Aes128_Destroy (aes_e_h);
+
+    COAP_DEBUG ("to encrypt src:%s, len:%d", src, len);
+    return len;
+}
+
+int iotx_aes_cfb_decrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
+{
+    int ret = -1;
+    char* iv = "543yhjy97ae7fyfg";
+
+    p_HAL_Aes128_t aes_d_h = HAL_Aes128_Init((unsigned char *)key, (unsigned char *)iv, HAL_AES_ENCRYPTION);
+    ret = HAL_Aes128_Cfb_Decrypt(aes_d_h, src, len, out);
+    HAL_Aes128_Destroy(aes_d_h);
+
+    return ret;
+}
 #endif
+
 int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
 {
     int len = 0;
@@ -711,29 +710,29 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
             unsigned char buff[32] = {0};
             unsigned char seq[33] = {0};
             HAL_Snprintf((char *)buff, sizeof(buff)-1, "%d", p_iotx_coap->seq++);
-            COAP_DEBUG("seq: %s", buff);
-            ret = iotx_aes_cfb_encrypt(buff, strlen((char *)buff), p_iotx_coap->key, seq);
+            len = iotx_aes_cbc_encrypt(buff, strlen((char *)buff), p_iotx_coap->key, seq);
+            if(0 < len){
+                CoAPStrOption_add(&message,  COAP_OPTION_SEQ, (unsigned char *)seq, len);
+            }
+            else{
+                COAP_INFO("Encrypt seq failed");
+            }
+            HEXDUMP_DEBUG(seq, len);
 
-            CoAPStrOption_add(&message,  COAP_OPTION_SEQ,
-                  (unsigned char *)seq, strlen((char *)buff));
             payload = (unsigned char *)coap_malloc(COAP_MSG_MAX_PDU_LEN);
             if(NULL == payload){
                 return IOTX_ERR_NO_MEM;
             }
             memset(payload, 0x00, COAP_MSG_MAX_PDU_LEN);
-            ret = iotx_aes_cfb_encrypt(p_message->p_payload, p_message->payload_len, p_iotx_coap->key, payload);
-            if(0 != ret){
+            len = iotx_aes_cbc_encrypt(p_message->p_payload, p_message->payload_len, p_iotx_coap->key, payload);
+            if(0 == len){
                 coap_free(payload);
                 payload = NULL;
                 return IOTX_ERR_INVALID_PARAM;
             }
-            COAP_DEBUG("Payload: ");
-            HEXDUMP_DEBUG(payload, p_message->payload_len);
-            unsigned char tmp[1024] = {0};
-            iotx_aes_cfb_decrypt(payload, p_message->payload_len, p_iotx_coap->key, tmp);
-            COAP_DEBUG("Decrypt: %s", tmp);
 
-            CoAPMessagePayload_set(&message, payload, p_message->payload_len);
+            HEXDUMP_DEBUG(payload, len);
+            CoAPMessagePayload_set(&message, payload, len);
         }else{
             CoAPMessagePayload_set(&message, p_message->p_payload, p_message->payload_len);
         }
@@ -780,12 +779,13 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
         }
         memset(payload, 0x00, COAP_MSG_MAX_PDU_LEN);
 
-        len = iotx_aes_cfb_decrypt(message->payload, message->payloadlen, p_iotx_coap->key, payload);
+        len = iotx_aes_cbc_decrypt(message->payload, message->payloadlen, p_iotx_coap->key, payload);
+        HEXDUMP_DEBUG(message->payload, message->payloadlen);
 
-        COAP_DEBUG("payload: %s", payload);
-        if(len == 0){
-            memcpy(message->payload, payload, message->payloadlen);
-            message->payloadlen = message->payloadlen;
+        COAP_DEBUG("payload: %s, len %d", payload, len);
+        if(len != 0){
+            memcpy(message->payload, payload, len);
+            message->payloadlen = len;
         }
         coap_free(payload);
 
@@ -891,7 +891,6 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
         COAP_ERR(" Create coap context failed");
         goto err;
     }
-
 
     /*Register the event handle to notify the application */
     p_iotx_coap->event_handle = p_config->event_handle;
