@@ -27,7 +27,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://10.125.7.82:5684"
+#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://11.239.164.238:5684"
 //#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://iot-as-coap.alibaba.net:5684"
 #define IOTX_DAILY_PSK_SERVER_URI       "coap-psk://10.101.83.159:5682"
 
