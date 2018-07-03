@@ -601,7 +601,7 @@ int iotx_guider_authenticate(void)
 #if defined (ON_DAILY)   /* daily*/
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "10.125.0.27");
+                      "10.125.3.189");
 #elif defined (ON_PRE)    /* pre */
     conn->port = 80;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
