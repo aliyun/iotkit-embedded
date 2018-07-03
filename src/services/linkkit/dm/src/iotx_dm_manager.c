@@ -235,6 +235,8 @@ int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY
 	memcpy(node->device_name,device_name,strlen(device_name));
 	node->dev_status = IOTX_DMGR_DEV_STATUS_AUTHORIZED;
 	node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
+	node->sub_status.generic_index = IOTX_DMGR_DEV_SUB_START;
+	node->sub_status.service_event_index = IOTX_DMGR_DEV_SUB_START;
 	INIT_LIST_HEAD(&node->linked_list);
 
 	list_add_tail(&node->linked_list,&ctx->dev_list);
