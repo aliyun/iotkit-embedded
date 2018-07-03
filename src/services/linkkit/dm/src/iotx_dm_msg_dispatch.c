@@ -268,7 +268,7 @@ int iotx_dcs_topic_subscribe(char *uri)
 
 	dm_log_debug("Current Subscribe Topic: %s",uri);
 
-	res = iotx_dcw_cloud_register(ctx->cloud_connectivity,uri,ctx);
+	res = iotx_dcw_cloud_register(ctx->cloud_connectivity,&uri,1,ctx);
 	if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(uri),uri);}
 
 	return SUCCESS_RETURN;
@@ -311,7 +311,7 @@ int iotx_dcs_topic_generic_subscribe(int devid, int index)
 
 	/* Subscribe Cloud Service */
 	dm_log_debug("Current Subscribe Topic: %s",service_name);
-	res = iotx_dcw_cloud_register(ctx->cloud_connectivity,service_name,ctx);
+	res = iotx_dcw_cloud_register(ctx->cloud_connectivity,&service_name,1,ctx);
 	if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
 	DM_free(service_name);
 
@@ -331,7 +331,7 @@ int iotx_dcs_topic_service_event_subscribe(int devid, int index)
 
 	/* Subscribe Cloud Service */
 	dm_log_debug("Current Subscribe Topic: %s",service_event);
-	res = iotx_dcw_cloud_register(ctx->cloud_connectivity,service_event,ctx);
+	res = iotx_dcw_cloud_register(ctx->cloud_connectivity,&service_event,1,ctx);
 	if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_event),service_event);}
 
 	DM_free(service_event);

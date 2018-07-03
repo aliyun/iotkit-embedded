@@ -252,22 +252,42 @@ int iotx_dcw_conn_destroy(void **conn_handle)
 	return IOT_CM_Connectivity_Destroy(conn_handle,NULL);
 }
 
-int iotx_dcw_cloud_register(void *conn_handle, char *uri, void *user_data)
+int iotx_dcw_cloud_register(void *conn_handle, char **uri, int count, void *user_data)
 {
-	iotx_cm_register_param_t cm_register_param;
+	int res = 0, index = 0;
+	iotx_cm_register_param_t *cm_register_param = NULL;
+	iotx_cm_register_param_t *cm_register_param_item = NULL;
 
-	if (conn_handle == NULL || uri == NULL) {
+	if (conn_handle == NULL || uri == NULL || count <= 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
+
+	for (index = 0;index < count;index++) {
+		if (*(uri + index) == NULL) {return FAIL_RETURN;}else{dm_log_debug("URI %d: %s",index,*(uri + index));}
+	}
+
+	cm_register_param = DM_malloc(count * sizeof(iotx_cm_register_param_t));
+	if (cm_register_param == NULL) {
+		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(cm_register_param,0,count * sizeof(iotx_cm_register_param_t));
+
+	for (index = 0;index < count;index++) {
+		cm_register_param_item = cm_register_param + index;
+		cm_register_param_item->URI = *(uri + index);
+		cm_register_param_item->register_func = iotx_dcw_topic_callback;
+		cm_register_param_item->user_data = user_data;
+		cm_register_param_item->mail_box = NULL;
+	}
 	
-	memset(&cm_register_param,0,sizeof(iotx_cm_register_param_t));
-	cm_register_param.URI = uri;
-	cm_register_param.register_func = iotx_dcw_topic_callback;
-	cm_register_param.user_data = user_data;
-	cm_register_param.mail_box = NULL;
+	res =  IOT_CM_Register(conn_handle, cm_register_param, count, NULL);
+
+	DM_free(cm_register_param);
+
+	return res;
 	
-	return IOT_CM_Register(conn_handle, &cm_register_param, 1, NULL);
 }
 
 int iotx_dcw_cloud_unregister(void *conn_handle, char *uri)

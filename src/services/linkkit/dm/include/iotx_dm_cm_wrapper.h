@@ -12,7 +12,7 @@ int iotx_dcw_yield(int timeout_ms);
 int iotx_dcw_conn_cloud_mqtt_init(void **conn_handle);
 int iotx_dcw_conn_local_alcs_init(void **conn_handle);
 int iotx_dcw_conn_destroy(void **conn_handle);
-int iotx_dcw_cloud_register(void *conn_handle, char *uri, void *user_data);
+int iotx_dcw_cloud_register(void *conn_handle, char **uri, int count, void *user_data);
 int iotx_dcw_cloud_unregister(void *conn_handle, char *uri);
 int iotx_dcw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_auth_types_t auth_type, void *user_data);
 int iotx_dcw_local_remove_service(void *conn_handle, char *uri);
