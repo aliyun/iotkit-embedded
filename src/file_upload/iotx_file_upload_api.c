@@ -117,7 +117,7 @@ static http2_connection_t *iotx_get_http2_conn();
 static char *find_file_name(char *name);
 static void file_upload_gen_string(char *str, int type, char *para1, int para2);
 static int iotx_cloud_file_create(http2_connection_t *conn, file_info *fileinfo, char *file_id,char *store_id);
-static int iotx_data_upload_to_cloud(http2_connection_t *conn, char *file_id, file_data_info *file_data);
+static int iotx_data_upload_to_cloud(http2_connection_t *conn, char *file_id, char *store_id, file_data_info *file_data);
 static void process_upload_info(file_upload_info *upload_info);
 static int submit_file_auth_req(http2_connection_t *connection, int is_recover, int type);
 static int submit_file_create_request(http2_connection_t *connection, file_info *fileinfo, void *user_data);
@@ -353,7 +353,7 @@ static int http2_nv_copy(http2_header *nva, int start, http2_header *nva_copy, i
 }
 
 
-static int submit_file_data_req(void *conn, char *file_id, file_data_info *file_data)
+static int submit_file_data_req(void *conn, char *file_id, char *store_id, file_data_info *file_data)
 {
     char path_str[100] = {0};
     http2_connection_t *connection = (http2_connection_t *)conn;
@@ -380,6 +380,8 @@ static int submit_file_data_req(void *conn, char *file_id, file_data_info *file_
     int rv = 0;
     int count = 0;
 
+    connection->file_id = file_id;
+    connection->store_id = store_id;
     memset(&h2_data, 0, sizeof(http2_data));
     if(type == 1) { /* log */
         strncpy(type_str, logstr, strlen(logstr));
@@ -499,7 +501,7 @@ static int iotx_cloud_file_create(http2_connection_t *connection, file_info *fil
     return 0;
 }
 
-static int iotx_data_upload_to_cloud(http2_connection_t *connection, char *file_id, file_data_info *file_data)
+static int iotx_data_upload_to_cloud(http2_connection_t *connection, char *file_id, char *store_id, file_data_info *file_data)
 {
     int new_stream_id = 0;
     char status[4] = {0};
@@ -507,7 +509,7 @@ static int iotx_data_upload_to_cloud(http2_connection_t *connection, char *file_
     int times = 0;
 
     connection->statuscode = status;
-    new_stream_id = submit_file_data_req(connection, file_id, file_data);
+    new_stream_id = submit_file_data_req(connection, file_id, store_id, file_data);
     if(new_stream_id < 0) {
         return -3;
     }
@@ -641,6 +643,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
     if(info->file_id[0] == '\0') { /*file id is null, will recover,app need to save file id.*/
         int result = 0;
         fileinfo.is_recover = 1;
+        info->store_id[0] = '\0';
         /*file_id need to save.*/
         result = iotx_cloud_file_create(conn, &fileinfo, info->file_id, info->store_id);
         if(result < 0)
@@ -692,7 +695,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file(http2_connection_t *conn, file_sync_
             file_data.is_last_frame = last_frame;
             file_data.need_auth = need_auth;
         #ifndef TEST
-            stream_id = iotx_data_upload_to_cloud(conn, info->file_id, &file_data);
+            stream_id = iotx_data_upload_to_cloud(conn, info->file_id, info->store_id, &file_data);
             need_auth = 0;
             if(stream_id <= 0)
             {
@@ -968,7 +971,7 @@ HTTP2_UPLOAD_FILE_RET_TYPE iotx_http2_upload_file(file_upload_info *upload_info)
             file_data.is_last_frame = last_frame;
             file_data.need_auth = need_auth;
             file_data.type = upload_info->type;
-            stream_id = iotx_data_upload_to_cloud(conn, upload_info->file_id, &file_data);
+            stream_id = iotx_data_upload_to_cloud(conn, upload_info->file_id, upload_info->store_id, &file_data);
             log_info("delay_time: %d\n", g_file_upload_ptr->delay_time);
             if (g_file_upload_ptr->delay_time > 0) {
                 HAL_SleepMs((g_file_upload_ptr->delay_time)*1000);

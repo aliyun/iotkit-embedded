@@ -23,18 +23,20 @@
 #include "iot_export_file_uploader.h"
 
 #if defined(ON_DAILY)
-	#define HTTP2_ONLINE_SERVER_URL       "https://10.101.12.205/"
-	#define HTTP2_ONLINE_SERVER_PORT	  9999
+	#define HTTP2_ONLINE_SERVER_URL       "10.101.12.205/"
+	#define HTTP2_ONLINE_SERVER_PORT      9999
 	#define HTTP2_PRODUCT_KEY             "a1QWlwJO4Z2"
 	#define HTTP2_DEVICE_NAME             "cHzzrWfxLiRLYHik3sYJ"
 	#define HTTP2_DEVICE_SECRET           "vZxZiUMf3vwTViC3XIxJ2ZHt0zVoZlRa"
 #elif defined(ON_PRE)
-	#define HTTP2_ONLINE_SERVER_URL       "https://100.67.141.158/"
-	#define HTTP2_ONLINE_SERVER_PORT	  8443
+	#define HTTP2_ONLINE_SERVER_URL       "100.67.141.158/"
+	#define HTTP2_ONLINE_SERVER_PORT      8443
 	#define HTTP2_PRODUCT_KEY             "b1XVhqfan1X"
 	#define HTTP2_DEVICE_NAME             "YvhjziEQmKusCFUgRpeo"
 	#define HTTP2_DEVICE_SECRET           "QjkhCrAX0SbNWgKpIamuiDdLkk23Q1r7"
 #else
+	#define HTTP2_ONLINE_SERVER_URL       NULL
+	#define HTTP2_ONLINE_SERVER_PORT      443
 	#define HTTP2_PRODUCT_KEY             "DM5b8zbTWJs"
 	#define HTTP2_DEVICE_NAME             "mydevice1"
 	#define HTTP2_DEVICE_SECRET           "q4tiwQuICYfr6JQ8aUFjWxocuXJ5ruEx"
@@ -65,7 +67,7 @@ void* upload_thread(void *user_data)
 
     while(retry < MAX_HTTP2_MAX_RETRANS_TIMES) {
         memset(&client, 0, sizeof(httpclient_t));
-        handler = iotx_http2_client_connect((void *)&client, NULL, 0);
+        handler = iotx_http2_client_connect((void *)&client, HTTP2_ONLINE_SERVER_URL, HTTP2_ONLINE_SERVER_PORT);
         if(handler == NULL) {
             printf("can't connect\n");
             return 0;
@@ -118,9 +120,9 @@ int file_upload_callback1(int result ,char *store_id, void *user_data)
 int file_upload_callback2(int result ,char *store_id, void *user_data)
 {
     if (result == 0)
-        printf("file callback2 name:%s upload success: %s\n", (char *)user_data, store_id);
+        printf("file callback name:%s upload success: %s\n", (char *)user_data, store_id);
     else
-        printf("file callback2 name:%s upload fail: %d\n", (char *)user_data, result);
+        printf("file callback name:%s upload fail: %d\n", (char *)user_data, result);
     return 1;
 }
 
@@ -153,6 +155,49 @@ void* thread2(void *user_data)
     return NULL;
 }
 
+void* thread3(void *user_data)
+{
+    char *file_name = (char *)user_data;
+    int ret = -1;
+    int type = 1; /*0->file, 1-> log*/
+
+    if (file_name != NULL) {
+        printf("name:%s\n", (char *)file_name);
+        ret = iotx_upload_file_async(file_name, type, file_upload_callback2, user_data);
+        printf("the result is %d\n", ret);
+    }
+    return NULL;
+}
+
+void* thread4(void *user_data)
+{
+    char *file_name = (char *)user_data;
+    int ret = -1;
+    int type = 1; /*0->file, 1-> log*/
+
+    if (file_name != NULL) {
+        printf("name:%s\n", (char *)file_name);
+        ret = iotx_upload_file_async(file_name, type, file_upload_callback2, user_data);
+        printf("the result is %d\n", ret);
+    }
+    return NULL;
+}
+
+void* thread5(void *user_data)
+{
+    char *file_name = (char *)user_data;
+    int ret = -1;
+    int type = 1; /*0->file, 1-> log*/
+
+    if (file_name != NULL) {
+        printf("name:%s\n", (char *)file_name);
+        ret = iotx_upload_file_async(file_name, type, file_upload_callback2, user_data);
+        printf("the result is %d\n", ret);
+    }
+    return NULL;
+}
+
+
 
 void* thread_http2(void *user_data)
 {
@@ -161,8 +206,8 @@ void* thread_http2(void *user_data)
     conn_info.product_key = HTTP2_PRODUCT_KEY;
     conn_info.device_name = HTTP2_DEVICE_NAME;
     conn_info.device_secret = HTTP2_DEVICE_SECRET;
-    conn_info.url = NULL;
-    conn_info.port = 0;
+    conn_info.url = HTTP2_ONLINE_SERVER_URL;
+    conn_info.port = HTTP2_ONLINE_SERVER_PORT;
     iotx_http2_upload_file_init(&conn_info);
     return NULL;
 }
@@ -173,8 +218,14 @@ int main(int argc, char **argv)
     pthread_t  pid;
     pthread_t  pid1;
     pthread_t  pid2;
+    pthread_t  pid3;
+    pthread_t  pid4;
+    pthread_t  pid5;
     char *file_name1 = NULL;
     char *file_name2 = NULL;
+    char *file_name3 = NULL;
+    char *file_name4 = NULL;
+    char *file_name5 = NULL;
     IOT_OpenLog("http2");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
@@ -188,6 +239,9 @@ int main(int argc, char **argv)
     if(argc > 1) {
         file_name1 = argv[1];
         file_name2 = argv[2];
+        file_name3 = argv[3];
+        file_name4 = argv[4];
+        file_name5 = argv[5];
     } else {
         printf("no file name input!\n");
         return 0;
@@ -201,6 +255,22 @@ int main(int argc, char **argv)
     ret = pthread_create(&pid2, NULL, thread2, file_name2);
     if (ret != 0) {
         printf("pthread_create2 failed!\n");
+        return 0;
+    }
+    ret = pthread_create(&pid3, NULL, thread3, file_name3);
+    if (ret != 0) {
+        printf("pthread_create3 failed!\n");
+        return 0;
+    }
+
+    ret = pthread_create(&pid4, NULL, thread4, file_name4);
+    if (ret != 0) {
+        printf("pthread_create4 failed!\n");
+        return 0;
+    }
+    ret = pthread_create(&pid5, NULL, thread5, file_name5);
+    if (ret != 0) {
+        printf("pthread_create5 failed!\n");
         return 0;
     }
 
