@@ -8,6 +8,8 @@
 #include "iotx_dm_message.h"
 #include "iotx_dm_cm_wrapper.h"
 
+#define linkkit_log(...) log_info("linkkit",__VA_ARGS__)
+
 #define LINKKIT_KEY_ID        "id"
 #define LINKKIT_KEY_CODE      "code"
 #define LINKKIT_KEY_DEVID     "devid"
@@ -37,25 +39,25 @@ static void _linkkit_event_thing_service_request(char *payload)
 	memset(&lite_item_id,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_ID,strlen(LINKKIT_KEY_ID),&lite_item_id);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_id)) {return;}
-	log_info("Current Msg ID: %d",lite_item_id.value_int);
+	linkkit_log("Current Msg ID: %d",lite_item_id.value_int);
 
 	/* Parse Devid */
 	memset(&lite_item_devid,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_DEVID,strlen(LINKKIT_KEY_DEVID),&lite_item_devid);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
-	log_info("Current Devid: %d",lite_item_devid.value_int);
+	linkkit_log("Current Devid: %d",lite_item_devid.value_int);
 
 	/* Parse Serviceid */
 	memset(&lite_item_serviceid,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_SERVICEID,strlen(LINKKIT_KEY_SERVICEID),&lite_item_serviceid);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_serviceid)) {return;}
-	log_info("Current Serviceid: %.*s",lite_item_serviceid.value_length,lite_item_serviceid.value);
+	linkkit_log("Current Serviceid: %.*s",lite_item_serviceid.value_length,lite_item_serviceid.value);
 
 	/* Parse Serviceid */
 	memset(&lite_item_payload,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_PAYLOAD,strlen(LINKKIT_KEY_PAYLOAD),&lite_item_payload);
 	if (res != SUCCESS_RETURN) {return;}
-	log_info("Current Payload: %.*s",lite_item_payload.value_length,lite_item_payload.value);
+	linkkit_log("Current Payload: %.*s",lite_item_payload.value_length,lite_item_payload.value);
 
 	IOT_DM_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,IOTX_DM_ERR_CODE_SUCCESS,lite_item_serviceid.value,lite_item_serviceid.value_length);
 }
@@ -74,17 +76,17 @@ static void _linkkit_event_subdev_register_reply(char *payload)
 	/* Parse Message ID */
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_ID,strlen(LINKKIT_KEY_ID),&lite_item_id);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_id)) {return;}
-	log_info("Current Msg ID: %d",lite_item_id.value_int);
+	linkkit_log("Current Msg ID: %d",lite_item_id.value_int);
 
 	/* Parse Message Code */
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_CODE,strlen(LINKKIT_KEY_CODE),&lite_item_code);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_code)) {return;}
-	log_info("Current Code: %d",lite_item_code.value_int);
+	linkkit_log("Current Code: %d",lite_item_code.value_int);
 
 	/* Parse Devid */
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_DEVID,strlen(LINKKIT_KEY_DEVID),&lite_item_devid);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
-	log_info("Current devid: %d",lite_item_devid.value_int);
+	linkkit_log("Current devid: %d",lite_item_devid.value_int);
 
 	IOT_DM_Subdev_Topo_Add(lite_item_devid.value_int);
 }
@@ -103,25 +105,25 @@ static void _linkkit_event_topo_add_reply(char *payload)
 	/* Parse Message ID */
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_ID,strlen(LINKKIT_KEY_ID),&lite_item_id);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_id)) {return;}
-	log_info("Current Msg ID: %d",lite_item_id.value_int);
+	linkkit_log("Current Msg ID: %d",lite_item_id.value_int);
 
 	/* Parse Message Code */
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_CODE,strlen(LINKKIT_KEY_CODE),&lite_item_code);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_code)) {return;}
-	log_info("Current Code: %d",lite_item_code.value_int);
+	linkkit_log("Current Code: %d",lite_item_code.value_int);
 
 	/* Parse Devid */
 	res = lite_cjson_object_item(&lite,LINKKIT_KEY_DEVID,strlen(LINKKIT_KEY_DEVID),&lite_item_devid);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
-	log_info("Current devid: %d",lite_item_devid.value_int);
+	linkkit_log("Current devid: %d",lite_item_devid.value_int);
 
 	IOT_DM_Subdev_Login(lite_item_devid.value_int);
 }
 
 void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 {
-	log_info("Receive Message Type: %d",type);
-	if (payload) {log_info("Receive Message: %s",payload);}
+	linkkit_log("Receive Message Type: %d",type);
+	if (payload) {linkkit_log("Receive Message: %s",payload);}
 
 	switch(type) {
 		case IOTX_DM_EVENT_THING_SERVICE_REQUEST:
@@ -150,7 +152,7 @@ void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 			}
 			break;
 		default:
-			log_info("Not Found Type For Now, Smile");
+			linkkit_log("Not Found Type For Now, Smile");
 			break;
 	}
 }
@@ -177,7 +179,7 @@ int main(int argc, char *argv[])
 	
 	res = IOT_DM_Construct(&dm_init_params);
 	if (res != SUCCESS_RETURN) {
-		log_err("IOT_DM_Construct Failed");
+		linkkit_log("IOT_DM_Construct Failed");
 		return FAIL_RETURN;
 	}
 
@@ -197,7 +199,7 @@ int main(int argc, char *argv[])
 		//if(time == 5000) {IOT_DM_Subdev_Topo_Del(devid);}
 		//if (time == 5000) {iotx_dmgr_upstream_thing_topo_get();}
 		//if (time == 5000) {iotx_dmgr_upstream_thing_list_found(devid);}
-		if (time == 5000) {IOT_DM_Subdev_Register(devid);}
+		//if (time == 5000) {IOT_DM_Subdev_Register(devid);}
 		//if (time == 3000) {IOT_DM_Subdev_Topo_Add(devid1);}
 		//if (time == 8000) {IOT_DM_Subdev_Topo_Del(devid1);}
 		//if (time == 7000) {IOT_DM_Subdev_Login(devid);}
@@ -245,13 +247,13 @@ int main(int argc, char *argv[])
 		IOT_DM_Yield(100);
 		time+=100;
 		IOT_DM_Dispatch();
-		//log_info("While Loop");
+		//linkkit_log("While Loop");
 	}
 	
 	IOT_DM_Destroy();
-	log_info("sizeof(int): %d",sizeof(int));
-	log_info("sizeof(float): %d",sizeof(float));
-	log_info("sizeof(double): %d",sizeof(double));
+	linkkit_log("sizeof(int): %d",sizeof(int));
+	linkkit_log("sizeof(float): %d",sizeof(float));
+	linkkit_log("sizeof(double): %d",sizeof(double));
 	
 	LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
 }

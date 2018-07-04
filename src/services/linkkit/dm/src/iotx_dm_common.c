@@ -198,7 +198,6 @@ int iotx_dcm_replace_char(_IN_ char *input, _IN_ int input_len, _IN_ char src, _
 int iotx_dcm_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char **service_name)
 {
 	int service_name_len = 0;
-
 	if (name == NULL || product_key == NULL || device_name == NULL ||
 		service_name == NULL || *service_name != NULL) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);

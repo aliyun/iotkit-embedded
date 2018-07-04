@@ -93,6 +93,8 @@ ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))
                               linkkit/light.c \
                               linkkit/cJSON.c
 	endif
+TARGET += linkkit-sample
+SRCS_linkkit-sample = linkkit/linkkit_sample.c
 #    endif
 
 endif
