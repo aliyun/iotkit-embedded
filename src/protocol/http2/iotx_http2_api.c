@@ -349,13 +349,13 @@ static int on_header_callback(nghttp2_session *session,
                 http2_connection_t *connection  = (http2_connection_t *)user_data;
                 /* Print response headers for the initiated request. */
                 NGHTTP2_DBG("on header callback %s %d %s %d!\n", name, (int)namelen, value, (int)valuelen);
-                if(strncmp((char *)name, "x-file-upload-id", (int)namelen) == 0) {
+                if(strncmp((char *)name, "x-file-upload-id", (int)namelen) == 0 &&  connection->file_id[0] == '\0') {
                     strncpy(connection->file_id, (char *)value, (int)valuelen);
                 }
                 if(strncmp((char *)name, ":status", (int)namelen) == 0) {
                     strncpy(connection->statuscode, (char *)value, (int)valuelen);
                 }
-                if(strncmp((char *)name, "x-file-store-id", (int)namelen) == 0) {
+                if(strncmp((char *)name, "x-file-store-id", (int)namelen) == 0 && connection->store_id[0] == '\0') {
                     strncpy(connection->store_id, (char *)value, (int)valuelen);
                 }
                 break;
