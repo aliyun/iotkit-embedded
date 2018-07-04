@@ -825,7 +825,7 @@ void* iotx_cm_local_conn_init(void* handler, void* param)
     switch (alcs_param->protocol_type) {
     case IOTX_CM_CONNECTION_PROTOCOL_TYPE_ALCS:
         connection = _alcs_init(cm_ctx);
-
+	break;
     default:
         CM_ERR(cm_log_error_protocol, alcs_param->protocol_type);
         break;

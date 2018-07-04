@@ -346,12 +346,12 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
 		COAP_ERR("ALCS Linked List Init Failed");
 		return FAIL_RETURN;
 	}
-	if (alcs_mqtt_init(adapter->coap_ctx,product_key,device_name) != ALCS_MQTT_STATUS_SUCCESS) {
+	//if (alcs_mqtt_init(adapter->coap_ctx,product_key,device_name) != ALCS_MQTT_STATUS_SUCCESS) {
 		/*solve the prpblem of hard fault when mqtt connection fails once*/
 		//iotx_alcs_adapter_deinit();
-		COAP_ERR("ALCS MQTT Init Failed");
-		return FAIL_RETURN;
-	}
+		//COAP_ERR("ALCS MQTT Init Failed");
+		//return FAIL_RETURN;
+	//}
 #if  defined(COAP_WITH_YLOOP) /*&& defined(CM_SUPPORT_MULTI_THREAD)*/
     aos_schedule_call(alcs_repeat_action, (void *)adapter);
 #endif

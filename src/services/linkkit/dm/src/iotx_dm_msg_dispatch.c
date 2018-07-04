@@ -596,12 +596,12 @@ int iotx_dcs_topic_local_generic_register(void)
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	char *service_name = NULL;
 	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
-	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
+	iotx_dcs_resource_mapping_t *dcs_mapping = iotx_dcs_get_resource_mapping();
 
 	HAL_GetProductKey(product_key);
 	HAL_GetDeviceName(device_name);
 
-	for (index = 0;index < iotx_dcs_get_topic_mapping_size();index++)
+	for (index = 0;index < iotx_dcs_get_resource_mapping_size();index++)
 	{
 		service_name = NULL;
 		if (!(dcs_mapping[index].service_type & IOTX_DM_SERVICE_LOCAL)) {continue;}
@@ -637,14 +637,14 @@ int iotx_dcs_init(void)
 	if (res == ERROR_NO_MEM) {goto ERROR;}
 
 	/* Create Local Connectivity */
-#ifdef CONFIG_DM_LOCAL_ENABLE
+#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
 	res = iotx_dcw_conn_local_alcs_init(&ctx->local_connectivity);
 	if (res == ERROR_NO_MEM) {goto ERROR;}
 #endif
 
 	return SUCCESS_RETURN;
 ERROR:
-#ifdef CONFIG_DM_LOCAL_ENABLE
+#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
 	if (ctx->local_connectivity) {iotx_dcw_conn_destroy(&ctx->local_connectivity);}
 #endif
 	if (ctx->cloud_connectivity) {iotx_dcw_conn_destroy(&ctx->cloud_connectivity);}
@@ -657,7 +657,7 @@ int iotx_dcs_deinit(void)
 {
 	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
 
-	#ifdef CONFIG_DM_LOCAL_ENABLE
+	#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
 	if (ctx->local_connectivity) {iotx_dcw_conn_destroy(&ctx->local_connectivity);}
 #endif
 	if (ctx->cloud_connectivity) {iotx_dcw_conn_destroy(&ctx->cloud_connectivity);}
