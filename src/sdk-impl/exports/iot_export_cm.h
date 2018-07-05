@@ -508,6 +508,8 @@ int IOT_CM_Add_Sub_Device(void* _connectivity, const char* PK, const char* DN, v
  */
 int IOT_CM_Remove_Sub_Device(void* _connectivity, const char* PK, const char* DN, void* option);
 
+int IOT_CM_Init_Second(void* _connectivity);
+
 
 /**
  * @brief Send data.

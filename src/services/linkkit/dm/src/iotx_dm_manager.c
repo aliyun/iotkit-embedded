@@ -2030,3 +2030,44 @@ int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _I
 	return SUCCESS_RETURN;
 }
 
+int iotx_dmgr_upstream_thing_lan_prefix_get(_IN_ int devid)
+{
+	int res = 0;
+	iotx_dmgr_dev_node_t *node = NULL;
+	iotx_dmsg_request_t request;
+
+	if (devid < 0) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+	
+	memset(&request,0,sizeof(iotx_dmsg_request_t));
+	request.service_prefix = IOTX_DCS_SYS_PREFIX;
+	request.service_name = IOTX_DCS_THING_LAN_PREFIX_GET;
+	HAL_GetProductKey(request.product_key);
+	HAL_GetDeviceName(request.device_name);
+
+	/* Get Params And Method */
+	res = iotx_dmsg_thing_lan_prefix_get(&request);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	/* Get Msg ID */
+	request.msgid = iotx_dmsg_get_id();
+
+	/* Get Dev ID */
+	request.devid = devid;
+
+	/* Send Message To Cloud */
+	res = iotx_dmsg_request(&request);
+	if (res == SUCCESS_RETURN) {
+		res = request.msgid;
+	}
+
+	DM_free(request.params);
+
+	return res;
+}
+

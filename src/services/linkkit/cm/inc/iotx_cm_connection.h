@@ -148,6 +148,8 @@ typedef struct {
 
 typedef void* (*iotx_cm_connection_init_fp_t)(void* connection, void* param);
 
+typedef int (*iotx_cm_connection_init_second_fp_t)(void* connection);
+
 typedef int (*iotx_cm_connection_subscribe_fp_t)(void* connection, void *_register_param, int count);
 
 typedef int (*iotx_cm_connection_unsubscribe_fp_t)(void* connection, const char *topic_filter);
@@ -179,6 +181,7 @@ typedef struct iotx_connection_param_st {
 typedef struct iotx_connection_st {
     void*                                       context;
     iotx_cm_connection_init_fp_t                init_func;
+    iotx_cm_connection_init_second_fp_t         init_second_func;
     iotx_cm_connection_subscribe_fp_t           sub_func;
     iotx_cm_connection_unsubscribe_fp_t         unsub_func;
     iotx_cm_connection_add_service_fp_t         add_service_func;

@@ -70,36 +70,36 @@ const char IOTX_DCS_THING_LAN_PREFIX_GET[]              DM_READ_ONLY = "thing/la
 const char IOTX_DCS_THING_LAN_PREFIX_GET_REPLY[]        DM_READ_ONLY = "thing/lan/prefix/get_reply";
 const char IOTX_DCS_THING_LAN_PREFIX_UPDATE[]           DM_READ_ONLY = "thing/lan/prefix/update";
 const char IOTX_DCS_THING_LAN_PREFIX_UPDATE_REPLY[]     DM_READ_ONLY = "thing/lan/prefix/update_reply";
-
-static const iotx_dcs_resource_mapping_t g_iotx_dcs_resource_mapping[] DM_READ_ONLY = {
-	{IOTX_DCS_DEV_CORE_SERVICE_DEV,            NULL,                        IOTX_DM_DEVICE_ALL,     IOTX_DM_LOCAL_NO_AUTH, iotx_dcs_thing_dev_core_service_dev         },
-	{IOTX_DCS_THING_LAN_PREFIX_GET_REPLY,      IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_LOCAL_AUTH,    iotx_dcs_thing_lan_prefix_get_reply         },
-	{IOTX_DCS_THING_LAN_PREFIX_UPDATE_REPLY,   IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_LOCAL_AUTH,    iotx_dcs_thing_lan_prefix_update_reply      }
-};
+const char IOTX_DCS_THING_LAN_BLACKLIST_UPDATE[]        DM_READ_ONLY = "thing/lan/blacklist/update";
+const char IOTX_DCS_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY = "thing/lan/blacklist/update_reply";
 
 static const iotx_dcs_topic_mapping_t g_iotx_dcs_topic_mapping[] DM_READ_ONLY = {
-	{IOTX_DCS_THING_TOPO_ADD_NOTIFY,           IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_add_notify              },
-	{IOTX_DCS_THING_SERVICE_PROPERTY_SET,      IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_service_property_set         },
-	{IOTX_DCS_THING_SERVICE_PROPERTY_GET,      IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_service_property_get         },
-	{IOTX_DCS_THING_DISABLE,                   IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_disable                      },
-	{IOTX_DCS_THING_ENABLE,                    IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_enable                       },
-	{IOTX_DCS_THING_DELETE,                    IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_delete                       },
-	{IOTX_DCS_THING_MODEL_DOWN_RAW,            IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_model_down_raw               },
-	{IOTX_DCS_THING_GATEWAY_PERMIT,            IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_gateway_permit               },
-	{IOTX_DCS_THING_SUB_REGISTER_REPLY,        IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_sub_register_reply           },
-	{IOTX_DCS_THING_SUB_UNREGISTER_REPLY,      IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_sub_unregister_reply         },
-	{IOTX_DCS_THING_TOPO_ADD_REPLY,            IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_add_reply               },
-	{IOTX_DCS_THING_TOPO_DELETE_REPLY,         IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_delete_reply            },
-	{IOTX_DCS_THING_TOPO_GET_REPLY,            IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_get_reply               },
-	{IOTX_DCS_THING_LIST_FOUND_REPLY,          IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_list_found_reply             },
-	{IOTX_DCS_THING_EVENT_PROPERTY_POST_REPLY, IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_event_property_post_reply    },
-	{IOTX_DCS_THING_DEVICEINFO_UPDATE_REPLY,   IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_deviceinfo_update_reply      },
-	{IOTX_DCS_THING_DEVICEINFO_DELETE_REPLY,   IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_deviceinfo_delete_reply      },
-	{IOTX_DCS_THING_DSLTEMPLATE_GET_REPLY,     IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_dsltemplate_get_reply        },
-	{IOTX_DCS_THING_DYNAMICTSL_GET_REPLY,      IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_dynamictsl_get_reply         },
-	{IOTX_DCS_COMBINE_LOGIN_REPLY,             IOTX_DCS_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_combine_login_reply                },
-	{IOTX_DCS_COMBINE_LOGOUT_REPLY,            IOTX_DCS_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_combine_logout_reply               },
-	{IOTX_DCS_THING_MODEL_UP_RAW_REPLY,        IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_model_up_raw_reply           }
+	{IOTX_DCS_THING_TOPO_ADD_NOTIFY,            IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_add_notify              },
+	{IOTX_DCS_THING_SERVICE_PROPERTY_SET,       IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_service_property_set         },
+	{IOTX_DCS_THING_SERVICE_PROPERTY_GET,       IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_service_property_get         },
+	{IOTX_DCS_THING_DISABLE,                    IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_disable                      },
+	{IOTX_DCS_THING_ENABLE,                     IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_enable                       },
+	{IOTX_DCS_THING_DELETE,                     IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_delete                       },
+	{IOTX_DCS_THING_MODEL_DOWN_RAW,             IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_model_down_raw               },
+	{IOTX_DCS_THING_GATEWAY_PERMIT,             IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_gateway_permit               },
+	{IOTX_DCS_THING_SUB_REGISTER_REPLY,         IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_sub_register_reply           },
+	{IOTX_DCS_THING_SUB_UNREGISTER_REPLY,       IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_sub_unregister_reply         },
+	{IOTX_DCS_THING_TOPO_ADD_REPLY,             IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_add_reply               },
+	{IOTX_DCS_THING_TOPO_DELETE_REPLY,          IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_delete_reply            },
+	{IOTX_DCS_THING_TOPO_GET_REPLY,             IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_topo_get_reply               },
+	{IOTX_DCS_THING_LIST_FOUND_REPLY,           IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_list_found_reply             },
+	{IOTX_DCS_THING_EVENT_PROPERTY_POST_REPLY,  IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_event_property_post_reply    },
+	{IOTX_DCS_THING_DEVICEINFO_UPDATE_REPLY,    IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_deviceinfo_update_reply      },
+	{IOTX_DCS_THING_DEVICEINFO_DELETE_REPLY,    IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_deviceinfo_delete_reply      },
+	{IOTX_DCS_THING_DSLTEMPLATE_GET_REPLY,      IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_dsltemplate_get_reply        },
+	{IOTX_DCS_THING_DYNAMICTSL_GET_REPLY,       IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_dynamictsl_get_reply         },
+	{IOTX_DCS_COMBINE_LOGIN_REPLY,              IOTX_DCS_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_combine_login_reply                },
+	{IOTX_DCS_COMBINE_LOGOUT_REPLY,             IOTX_DCS_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_combine_logout_reply               },
+	{IOTX_DCS_THING_MODEL_UP_RAW_REPLY,         IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_model_up_raw_reply           },
+	{IOTX_DCS_DEV_CORE_SERVICE_DEV,             NULL,                        IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH, iotx_dcs_thing_dev_core_service_dev         },
+	//{IOTX_DCS_THING_LAN_PREFIX_GET_REPLY,       IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_lan_prefix_get_reply         },
+	//{IOTX_DCS_THING_LAN_PREFIX_UPDATE_REPLY,    IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_lan_prefix_update_reply      },
+	//{IOTX_DCS_THING_LAN_BLACKLIST_UPDATE_REPLY, IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_lan_blacklist_update_reply   }
 };
 
 static const iotx_dcs_event_mapping_t g_iotx_dcs_event_mapping[] DM_READ_ONLY = {
@@ -299,7 +299,13 @@ int iotx_dcs_topic_generic_subscribe(int devid, int index)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	for (search_index = index;search_index < sizeof(g_iotx_dcs_topic_mapping)/sizeof(iotx_dcs_topic_mapping_t);search_index++) {
-		if (dcs_mapping[search_index].dev_type & dev_type) {sub_count++;if (sub_count == IOTX_DCS_MULTI_SUBSCRIBE_MAX) {break;}}
+		if ((dcs_mapping[search_index].dev_type & dev_type) && 
+			(dcs_mapping[search_index].service_type & IOTX_DM_SERVICE_CLOUD)) {
+			sub_count++;
+			if (sub_count == IOTX_DCS_MULTI_SUBSCRIBE_MAX) {
+				break;
+			}
+		}
 	}
 
 	if (search_index == sizeof(g_iotx_dcs_topic_mapping)/sizeof(iotx_dcs_topic_mapping_t) && sub_count == 0) {
@@ -316,7 +322,9 @@ int iotx_dcs_topic_generic_subscribe(int devid, int index)
 	memset(service_name,0,sub_count * sizeof(char *));
 
 	for (search_index = index;search_index < sizeof(g_iotx_dcs_topic_mapping)/sizeof(iotx_dcs_topic_mapping_t);search_index++) {
-		if (dcs_mapping[search_index].dev_type & dev_type && sub_index < sub_count) {
+		if ((dcs_mapping[search_index].dev_type & dev_type) && 
+			(dcs_mapping[search_index].service_type & IOTX_DM_SERVICE_CLOUD) && 
+			(sub_index < sub_count)) {
 			dm_log_debug("current index: %d",search_index);
 			res = iotx_dcm_service_name((char *)dcs_mapping[search_index].service_prefix,(char *)dcs_mapping[search_index].service_name,product_key,device_name,service_name + sub_index);
 			if (res != SUCCESS_RETURN) {goto ERROR;}
@@ -596,17 +604,17 @@ int iotx_dcs_topic_local_generic_register(void)
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	char *service_name = NULL;
 	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
-	iotx_dcs_resource_mapping_t *dcs_mapping = iotx_dcs_get_resource_mapping();
+	iotx_dcs_topic_mapping_t *dcs_topic_mapping = iotx_dcs_get_topic_mapping();
 
 	HAL_GetProductKey(product_key);
 	HAL_GetDeviceName(device_name);
 
-	for (index = 0;index < iotx_dcs_get_resource_mapping_size();index++)
+	for (index = 0;index < iotx_dcs_get_topic_mapping_size();index++)
 	{
 		service_name = NULL;
-		if (!(dcs_mapping[index].service_type & IOTX_DM_SERVICE_LOCAL)) {continue;}
-		service_auth = (dcs_mapping[index].service_type & IOTX_DM_SERVICE_LOCAL_AUTH)?(IOTX_DM_MESSAGE_AUTH):(IOTX_DM_MESSAGE_NO_AUTH);
-		res = iotx_dcm_service_name((char *)dcs_mapping[index].service_prefix,(char *)dcs_mapping[index].service_name,product_key,device_name,&service_name);
+		if (!(dcs_topic_mapping[index].service_type & IOTX_DM_SERVICE_LOCAL)) {continue;}
+		service_auth = (dcs_topic_mapping[index].service_type & IOTX_DM_SERVICE_LOCAL_AUTH)?(IOTX_DM_MESSAGE_AUTH):(IOTX_DM_MESSAGE_NO_AUTH);
+		res = iotx_dcm_service_name((char *)dcs_topic_mapping[index].service_prefix,(char *)dcs_topic_mapping[index].service_name,product_key,device_name,&service_name);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 		/* Subscribe Cloud Service */
@@ -664,16 +672,6 @@ int iotx_dcs_deinit(void)
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 
 	return SUCCESS_RETURN;
-}
-
-iotx_dcs_resource_mapping_t* iotx_dcs_get_resource_mapping(void)
-{
-	return (iotx_dcs_resource_mapping_t *)g_iotx_dcs_resource_mapping;
-}
-
-int iotx_dcs_get_resource_mapping_size(void)
-{
-	return sizeof(g_iotx_dcs_resource_mapping)/sizeof(iotx_dcs_resource_mapping_t);
 }
 
 iotx_dcs_topic_mapping_t* iotx_dcs_get_topic_mapping(void)
@@ -1241,10 +1239,27 @@ void iotx_dcs_thing_dev_core_service_dev(iotx_cm_send_peer_t* source, iotx_cm_me
 
 void iotx_dcs_thing_lan_prefix_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
 {
+	int res = 0;
+	iotx_dmsg_response_payload_t response;
 
+	dm_log_debug(IOTX_DCS_THING_LAN_PREFIX_GET_REPLY);
+
+
+	/* Response */
+	res = iotx_dmsg_response_parse(msg->payload,msg->payload_length,&response);
+	if (res != SUCCESS_RETURN) {return;}
+
+	/* Operation */
+	//res = iotx_dmsg_thing_lan_prefix_get_reply(&response);
+	//if (res != SUCCESS_RETURN) {return;}
 }
 
 void iotx_dcs_thing_lan_prefix_update_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
+{
+
+}
+
+void iotx_dcs_thing_lan_blacklist_update_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
 {
 
 }
@@ -1258,8 +1273,11 @@ void iotx_dcs_user_defined_handler(iotx_cm_send_peer_t* source, iotx_cm_message_
 
 void iotx_dcs_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
+	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
 	dm_log_info("IOTX_CM_EVENT_CLOUD_CONNECTED");
 
+	ctx->cloud_connected = 1;
+		
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
 	iotx_dcs_topic_generic_subscribe(IOTX_DMGR_LOCAL_NODE_DEVID,0);
@@ -1268,26 +1286,37 @@ void iotx_dcs_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 	/* Service Event Topic Subscribe Will Be Execute After All Generic Topic Subscribed */
 	iotx_dmgr_set_dev_sub_service_event_index(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DMGR_DEV_SUB_START);
 
+	iotx_dcw_local_init_second(ctx->local_connectivity);
+		
 	iotx_dmsg_cloud_connected();
 }
 
 void iotx_dcs_event_cloud_disconnect_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
+	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
 	dm_log_info("IOTX_CM_EVENT_CLOUD_DISCONNECT");
+
+	ctx->cloud_connected = 0;
 
 	iotx_dmsg_cloud_disconnect();
 }
 
 void iotx_dcs_event_cloud_reconnect_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
+	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
 	dm_log_info("IOTX_CM_EVENT_CLOUD_RECONNECT");
 
+	ctx->cloud_connected = 1;
+	
 	iotx_dmsg_cloud_reconnect();
 }
 
 void iotx_dcs_event_local_connected_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
+	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
 	dm_log_info("IOTX_CM_EVENT_LOCAL_CONNECTED");
+
+	ctx->local_connected = 1;
 
 	iotx_dcs_topic_local_generic_register();
 
@@ -1296,14 +1325,20 @@ void iotx_dcs_event_local_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 
 void iotx_dcs_event_local_disconnect_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
+	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
 	dm_log_info("IOTX_CM_EVENT_LOCAL_DISCONNECT");
+		
+	ctx->local_connected = 0;
 
 	_iotx_dmsg_send_to_user(IOTX_DM_EVENT_LOCAL_DISCONNECT,NULL);
 }
 
 void iotx_dcs_event_local_reconnect_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
+	iotx_dcs_ctx_t *ctx = _iotx_dcs_get_ctx();
 	dm_log_info("IOTX_CM_EVENT_LOCAL_RECONNECT");
+
+	ctx->local_connected = 1;
 
 	_iotx_dmsg_send_to_user(IOTX_DM_EVENT_LOCAL_RECONNECT,NULL);
 }

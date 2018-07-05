@@ -175,6 +175,12 @@ void* iotx_local_conn_alcs_init(void* handle, void* param)
     return pclient;
 }
 
+int iotx_local_conn_alcs_cloud_init(void *handle) {
+	iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
+	
+	return IOT_ALCS_Cloud_Init(connection->context);
+}
+
 int iotx_local_conn_alcs_add_service(void* handle,
                                      const char *topic_filter,
                                      iotx_cm_message_ack_types_t ack_type,

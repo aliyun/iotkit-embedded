@@ -783,6 +783,7 @@ static void* _alcs_init(void* handler)
     if (NULL == connection) return NULL;
 
     connection->init_func = iotx_local_conn_alcs_init;
+	connection->init_second_func = iotx_local_conn_alcs_cloud_init;
     connection->deinit_func = iotx_local_conn_alcs_deinit;
     connection->send_func = iotx_local_conn_alcs_send;
     connection->sub_func = NULL;
@@ -843,6 +844,7 @@ void* iotx_cm_local_conn_init(void* handler, void* param)
 
     connectivity->context = connection;
     connectivity->init_func = iotx_cm_local_conn_init;
+	connectivity->init_sencond_func = iotx_cm_local_conn_init_second;
     connectivity->connect_func = iotx_cm_local_conn_connect;
     connectivity->register_func = iotx_cm_local_conn_register;
     connectivity->check_connected_func = iotx_cm_local_conn_check_connected;
@@ -877,6 +879,16 @@ void* iotx_cm_local_conn_init(void* handler, void* param)
     return connectivity;
 }
 
+int iotx_cm_local_conn_init_second(void* handler, void* _connectivity)
+{
+	iotx_cm_connectivity_t *connectivity = NULL;
+    iotx_cm_connection_t* connection = NULL;
+
+    connectivity = (iotx_cm_connectivity_t *)_connectivity;
+    connection = (iotx_cm_connection_t*)connectivity->context;
+
+    return connection->init_second_func(connection);
+}
 
 int iotx_cm_local_conn_trigger_connected(void* handler, void* _connectivity, iotx_cm_event_handle_fp_t event_fp, void* user_data)
 {
@@ -1341,7 +1353,10 @@ void* iotx_cm_local_conn_process(void *pclient)
                     LITE_free(node->msg);
                 }
                     break;
-
+				case IOTX_CM_PROCESS_LOCAL_CLOUD_INIT: {
+					iotx_cm_local_conn_init_second(cm_ctx,connectivity);
+				}
+				break;
                 default:
                     break;
                 }

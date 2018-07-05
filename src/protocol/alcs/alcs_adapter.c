@@ -529,6 +529,45 @@ void* IOT_ALCS_Construct(iotx_alcs_param_t *params)
 	return (void *)adapter;
 }
 
+int IOT_ALCS_Cloud_Init(void *handle)
+{
+	COAP_ERR("Start ALCS Cloud Init");
+	int res = 0;
+	iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+
+	if(adapter->local_cloud_inited == 1) {return SUCCESS_RETURN;}
+	
+	if(handle == NULL){
+		return FAIL_RETURN;
+	}
+
+	res = HAL_GetProductKey(product_key);
+	if (res <= 0 || res > PRODUCT_KEY_MAXLEN-1) {
+		iotx_alcs_adapter_deinit();
+		COAP_ERR("Get Product Key Failed");
+		return FAIL_RETURN;
+	}
+
+	res = HAL_GetDeviceName(device_name);
+	if (res <= 0 || res > DEVICE_NAME_MAXLEN-1)	{
+		iotx_alcs_adapter_deinit();
+		COAP_ERR("Get Device Name Failed");
+		return FAIL_RETURN;
+	}
+	
+	if (alcs_mqtt_init(adapter->coap_ctx,product_key,device_name) != ALCS_MQTT_STATUS_SUCCESS) {
+		/*solve the prpblem of hard fault when mqtt connection fails once*/
+		COAP_ERR("ALCS MQTT Init Failed");
+		return FAIL_RETURN;
+	}
+
+	adapter->local_cloud_inited = 1;
+		
+	return SUCCESS_RETURN;
+}
+
 int IOT_ALCS_Destroy(void **phandle)
 {
 	POINTER_SANITY_CHECK(phandle, NULL_VALUE_ERROR);

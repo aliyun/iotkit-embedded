@@ -198,7 +198,8 @@ typedef enum {
     cm_iterator_action_remove_service,
     cm_iterator_action_add_subdevice,
     cm_iterator_action_remove_subdevice,
-
+	cm_iterator_action_init_second,
+	
     cm_iterator_action_max
 } cm_iterator_action_t;
 
@@ -289,6 +290,8 @@ typedef enum {
     /* msg is null*/
     IOTX_CM_PROCESS_LOCAL_RECONNECT,
 
+	IOTX_CM_PROCESS_LOCAL_CLOUD_INIT,
+	
     /* add subdevice */
     IOTX_CM_PROCESS_ADD_SUBDIVCE,
         

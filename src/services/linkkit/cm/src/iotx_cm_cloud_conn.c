@@ -791,6 +791,10 @@ int iotx_cm_cloud_conn_remove_subdevice(void* handler, void* connectivity, const
     return SUCCESS_RETURN;
 }
 
+int iotx_cm_cloud_conn_init_second_handler(void* handler, void* connectivity)
+{
+	return SUCCESS_RETURN;
+}
 
 int iotx_cm_cloud_conn_yield(void* handler, void* _connectivity, int timeout_ms)
 {
@@ -1093,7 +1097,10 @@ void* iotx_cm_cloud_conn_process(void *pclient)
                     LITE_free(node->msg);
                     break;
                 }
-
+				case IOTX_CM_PROCESS_LOCAL_CLOUD_INIT: {
+					iotx_cm_cloud_conn_init_second_handler(cm_ctx, connectivity);
+				}
+					break;
                 default:
                     break;
                 }

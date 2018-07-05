@@ -15,6 +15,8 @@ typedef struct iotx_alcs_transfer_msg_context {
 
 void* iotx_local_conn_alcs_init(void* handle, void *param);
 
+int iotx_local_conn_alcs_cloud_init(void *handle);
+
 int iotx_local_conn_alcs_add_service(void *handle, const char *topic_filter, iotx_cm_message_ack_types_t ack_type, iotx_cm_message_auth_types_t auth_type);
 
 int iotx_local_conn_alcs_remove_service(void *handle, const char *topic_filter);

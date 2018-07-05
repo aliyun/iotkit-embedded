@@ -432,7 +432,10 @@ void iotx_cm_free_process_list_handler(void* list_node, va_list* params)
             LITE_free(send);
             break;
         }
+		case IOTX_CM_PROCESS_LOCAL_CLOUD_INIT: {
 
+		}
+			break;
         default:
             break;
         }

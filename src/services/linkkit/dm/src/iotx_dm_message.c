@@ -2501,3 +2501,32 @@ int iotx_dmsg_combine_logout(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 
 	return SUCCESS_RETURN;
 }
+
+const char IOTX_DMSG_THING_LAN_PREFIX_GET_METHOD[] DM_READ_ONLY = "thing.lan.prefix.get";
+const char IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS[] DM_READ_ONLY = "{}";
+int iotx_dmsg_thing_lan_prefix_get(_OU_ iotx_dmsg_request_t *request)
+{
+	char *params = NULL;
+	int params_len = 0;
+
+	if (request == NULL) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Params */
+	request->method = (char *)IOTX_DMSG_THING_LAN_PREFIX_GET_METHOD;
+	params_len = strlen(IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS) + 1;
+	params = DM_malloc(params_len);
+
+	if (params == NULL) {
+		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		return FAIL_RETURN;
+	}
+	memset(params,0,params_len);
+	memcpy(params,IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS,strlen(IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS));
+
+	request->params = params;
+
+	return SUCCESS_RETURN;
+}
