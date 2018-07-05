@@ -438,7 +438,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
     }
 }
 
-
+const char IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS[] DM_READ_ONLY = "[{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]"; 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
  *
@@ -458,6 +458,8 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
 #ifdef CM_SUPPORT_MULTI_THREAD
     int stack_used;
 #endif /* CM_SUPPORT_MULTI_THREAD */
+    char *version_param = NULL;
+    int version_param_len = 0;
 
     if (!ops || !user_context || max_buffered_msg <= 0) return ret;
     g_linkkit_ops = ops;
@@ -474,6 +476,15 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     ret = IOT_DM_Construct(&dm_init_params);
 	if (ret != SUCCESS_RETURN) {return FAIL_RETURN;}
 
+    /* Report linkkit version */
+    version_param_len = strlen(IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS) + strlen(LINKKIT_VERSION) + 1;
+    version_param = DM_malloc(version_param_len);
+    if (version_param == NULL) {return FAIL_RETURN;}
+    HAL_Snprintf(version_param, version_param_len, IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS, LINKKIT_VERSION);  
+    IOT_DM_DeviceInfo_Update(IOTX_DMGR_LOCAL_NODE_DEVID, version_param, version_param_len);
+    DM_free(version_param);
+
+    /* Get TSL from cloud if need */
 	if (get_tsl_from_cloud != 0) {
 		ret = IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_CLOUD,NULL,0);
 		if (ret < SUCCESS_RETURN) {return FAIL_RETURN;}
