@@ -60,8 +60,8 @@
 #define COAP_OPTION_PROXY_URI      35   /* C, String,  1-1024 B, (none) */
 #define COAP_OPTION_PROXY_SCHEME   39   /* C, String,  1-255 B, (none) */
 #define COAP_OPTION_SIZE1          60   /* E, uint,    0-4 B, (none) */
-#define COAP_OPTION_AUTH_TOKEN     61   /* C, String,  1-255B, (none)*/
-#define COAP_OPTION_SEQ            62
+#define COAP_OPTION_AUTH_TOKEN     2088 /* C, String,  1-255B, (none)*/
+#define COAP_OPTION_SEQ            2089
 
 
 /*CoAP Message types*/
@@ -184,7 +184,7 @@ typedef struct
     unsigned char   token[COAP_MSG_MAX_TOKEN_LEN];
     CoAPMsgOption   options[COAP_MSG_MAX_OPTION_NUM];
     unsigned char   optnum;
-    unsigned char   optdelta;
+    unsigned short  optdelta;
     unsigned char  *payload;
     unsigned short  payloadlen;
     CoAPRespMsgHandler handler;
