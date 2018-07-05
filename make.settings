@@ -86,4 +86,4 @@ FEATURE_ALCS_ENABLED        = n
 ## Usage:    If the value is "y", it support gateway feature and the _DEV_PRODUCT_GW compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_DEV_PRODUCT_GW      = y
+FEATURE_DEV_PRODUCT_GW      = n

@@ -45,10 +45,16 @@ typedef enum _linkkit_loglevel {
 /* domain type */
 /* please sync with dm_cloud_domain_type_t */
 typedef enum {
-    /* iot-as-mqtt.cn-shanghai.aliyuncs.com */
+    /* shanghai */
     linkkit_cloud_domain_shanghai,
-    /* USA */
+    /* singapore */
     linkkit_cloud_domain_singapore,
+    /* japan */
+    linkkit_cloud_domain_japan,
+    /* america */
+    linkkit_cloud_domain_america,
+    /* germany */
+    linkkit_cloud_domain_germany,
 
     linkkit_cloud_domain_max,
 } linkkit_cloud_domain_type_t;

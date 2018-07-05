@@ -386,7 +386,7 @@ typedef struct iotx_cm_conntext_st{
 //    int                                          send_sync_s
 } iotx_cm_conntext_t;
 
-int iotx_cm_auth(const char *product_key, const char *device_name, const char *client_id);
+int iotx_cm_auth(const char *product_key, const char *device_name, const char *client_id, iotx_cm_cloud_domain_types_t domain_type);
 
 //void iotx_cm_free_message_info(iotx_cm_message_info_t* message_info);
 

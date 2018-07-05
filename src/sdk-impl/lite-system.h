@@ -51,6 +51,10 @@ iotx_device_info_pt iotx_device_info_get(void);
 iotx_conn_info_pt iotx_conn_info_get(void);
 
 
+void iotx_guider_set_domain_type(int domain_type);
+char* iotx_guider_get_domain(void);
+
+
 void iotx_guider_auth_set(int authed);
 int iotx_guider_auth_get(void);
 

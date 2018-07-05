@@ -37,11 +37,20 @@
 
 /* domain type */
 typedef enum IOTX_CM_CLOUD_DOMAIN_TYPES {
-    /* "iot-as-mqtt.cn-shanghai.aliyuncs.com" */
+    /* Shanghai */
     IOTX_CM_CLOUD_DOMAIN_ShangHai,
 
     /* Singapore */
     IOTX_CM_CLOUD_DOMAIN_Singapore,
+
+    /* Japan */
+    IOTX_CM_CLOUD_DOMAIN_Japan,
+
+    /* America */
+    IOTX_CM_CLOUD_DOMAIN_America,
+
+    /* Germany */
+    IOTX_CM_CLOUD_DOMAIN_Germany,
 
     /* Maximum number of domain */
     IOTX_CM_CLOUD_DOMAIN_MAX
