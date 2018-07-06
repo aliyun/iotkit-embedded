@@ -557,6 +557,7 @@ int main(int argc, char **argv)
     HAL_SetDeviceSecret(DEVICE_SECRET);
 
 #ifndef MQTT_ID2_AUTH
+    IOT_SetupDomain(IOTX_CLOUD_DOMAIN_SH);
     mqtt_client();
 #else
     mqtt_client_secure();

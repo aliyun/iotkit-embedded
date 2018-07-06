@@ -74,6 +74,9 @@ int IOT_CM_Init(iotx_cm_init_param_t* init_param, void* option)
 
     CM_INFO(cm_log_info_version, "0.3");
 
+    // Setup domain type
+    iotx_guider_set_domain_type(init_param->domain_type);
+
     if (NULL == init_param || init_param->event_func == NULL) return FAIL_RETURN;
 
     if (NULL == g_cm_ctx) {
@@ -93,7 +96,7 @@ int IOT_CM_Init(iotx_cm_init_param_t* init_param, void* option)
                 }
 
                 /* auth */
-                if (FAIL_RETURN == iotx_cm_auth(product_key, device_name, device_id)) {
+                if (FAIL_RETURN == iotx_cm_auth(product_key, device_name, device_id, init_param->domain_type)) {
                     CM_ERR(cm_log_error_auth);
                     return FAIL_RETURN;
                 }

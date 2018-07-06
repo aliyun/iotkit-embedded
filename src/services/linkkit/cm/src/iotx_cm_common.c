@@ -59,8 +59,8 @@ static const char string_EXT_URI_1[] CM_READ_ONLY = "/ext/%s/%s/%s";
 static const char string_SHA_METHOD[] CM_READ_ONLY = "hmacsha1";
 static const char string_MD5_METHOD[] CM_READ_ONLY = "hmacmd5";
 static const char string_TIMESTAMP[] CM_READ_ONLY = "2524608000000";
-static const char string_AUTH_URL[] CM_READ_ONLY = "https://iot-auth.cn-shanghai.aliyuncs.com/auth/register/device";
-static const char string_AUTH_URL_1[] CM_READ_ONLY = "https://iot-auth.ap-southeast-1.aliyuncs.com/auth/register/device";
+static const char string_AUTH_URL_SHANGHAI[] CM_READ_ONLY = "https://iot-auth.cn-shanghai.aliyuncs.com/auth/register/device";
+static const char string_AUTH_URL_SINGAPORE[] CM_READ_ONLY = "https://iot-auth.ap-southeast-1.aliyuncs.com/auth/register/device";
 static const char string_AUTH_CONTENT_TYPE[] CM_READ_ONLY = "application/x-www-form-urlencoded";
 static const char string_hmac_format[] CM_READ_ONLY = "deviceName%s" "productKey%s" "random%s";
 static const char string_auth_req_format[] CM_READ_ONLY = "productKey=%s&" "deviceName=%s&" "signMethod=%s&" "sign=%s&" "version=default&" "clientId=%s&" "random=%s&" "resources=mqtt";
@@ -336,28 +336,45 @@ static int _calc_hmac_signature(
 }
 
 
-int iotx_cm_auth(const char *product_key, const char *device_name, const char *client_id)
+int iotx_cm_auth(const char *product_key, const char *device_name, const char *client_id, iotx_cm_cloud_domain_types_t domain_type)
 {
     char *req_str = NULL;
     char guider_sign[40] = {0};
     char *s_random = NULL;
+    char *url;
+    
     s_random = genRandomString(int_random_length);
     // todo   string_TIMESTAMP -> random
     _calc_hmac_signature(product_key, device_name, guider_sign, sizeof(guider_sign), s_random);
     req_str = _set_auth_req_str(product_key, device_name, client_id, guider_sign, s_random);
     CM_INFO(cm_log_info_auth_req, req_str);
 
-#ifdef SUPPORT_SINGAPORE_DOMAIN
-    if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, string_AUTH_URL_1, req_str)) {
-#else /* SUPPORT_SINGAPORE_DOMAIN */
-    if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, string_AUTH_URL, req_str)) {
-#endif /* SUPPORT_SINGAPORE_DOMAIN */
+    if (IOTX_CM_CLOUD_DOMAIN_ShangHai == domain_type) 
+    {
+        url = CM_malloc(strlen(string_AUTH_URL_SHANGHAI) + 1);
+        if (url == NULL) return FAIL_RETURN;
+        strcpy(url, string_AUTH_URL_SHANGHAI);
+    }
+    else if (IOTX_CM_CLOUD_DOMAIN_Singapore == domain_type)
+    {
+        url = CM_malloc(strlen(string_AUTH_URL_SINGAPORE) + 1);
+        if (url == NULL) return FAIL_RETURN;
+        strcpy(url, string_AUTH_URL_SINGAPORE);
+    }
+    else
+    {
+        return FAIL_RETURN;
+    }   
+
+    if (SUCCESS_RETURN != _get_device_secret(product_key, device_name, client_id, url, req_str)) {
         if (req_str) LITE_free(req_str);
         if (s_random) LITE_free(s_random);
+        LITE_free(url);
         CM_ERR(cm_log_error_auth);
         return FAIL_RETURN;
     }
     if (s_random) LITE_free(s_random);
+    LITE_free(url);
     return SUCCESS_RETURN;
 }
 #endif /* SUPPORT_PRODUCT_SECRET */
