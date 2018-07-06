@@ -1868,6 +1868,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 const char IOTX_DMSG_EVENT_UNREGISTER_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
 int iotx_dmsg_unregister_result(_IN_ char *uri,_IN_ int result)
 {
+	#if 0
 	int res = 0, message_len = 0;
 	char *message = NULL;
 	if (uri == NULL) {
@@ -1889,6 +1890,7 @@ int iotx_dmsg_unregister_result(_IN_ char *uri,_IN_ int result)
 		DM_free(message);
 		return FAIL_RETURN;
 	}
+#endif
 
 	return SUCCESS_RETURN;
 }

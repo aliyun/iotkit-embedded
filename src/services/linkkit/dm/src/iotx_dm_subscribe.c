@@ -8,10 +8,17 @@
 #include "iotx_dm_cm_wrapper.h"
 #include "iotx_dm_opt.h"
 
-static int _iotx_dsub_filter(int devid, int index)
+static int _iotx_dsub_filter(int devid, int index, int unsub)
 {
 	int res = 0, dev_type = 0;
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
+	void *conn = iotx_dconn_get_cloud_conn();
 	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
+
+	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	res = iotx_dmgr_get_dev_type(devid,&dev_type);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
@@ -29,27 +36,68 @@ static int _iotx_dsub_filter(int devid, int index)
 	res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_PROPERTY_POST_REPLY,&prop_post_reply_opt);
 	if (res == SUCCESS_RETURN) {
 		if (strcmp(dcs_mapping[index].service_name,IOTX_DCS_THING_EVENT_PROPERTY_POST_REPLY) == 0) {
-			if (prop_post_reply_opt == 0) {return FAIL_RETURN;}
+			if (prop_post_reply_opt == 0) {
+				/*Unsubscribe This Topic*/
+				if (unsub) {
+					char *unsubscribe = NULL;
+					res = iotx_dcm_service_name((char *)dcs_mapping[index].service_prefix,
+						(char *)dcs_mapping[index].service_name,product_key,device_name,&unsubscribe);
+					if (res == SUCCESS_RETURN){
+						iotx_dcw_cloud_unregister(conn,unsubscribe);
+						DM_free(unsubscribe);
+					}
+				}
+				return FAIL_RETURN;
+			}
 		}
 	}
 	
 	return SUCCESS_RETURN;
 }
 
-static int _iotx_dsub_shadow_service_filter(int devid, char *method)
+static int _iotx_dsub_shadow_service_filter(int devid, char *method, int unsub)
 {
 	return SUCCESS_RETURN;
 }
 
-static int _iotx_dsub_shadow_event_filter(int devid, char *method)
+static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 {
 	int res = 0;
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
+	void *conn = iotx_dconn_get_cloud_conn();
+
+	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	/* Check Event Post Reply Opt */
 	int event_post_reply_opt = 0;
 	res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_EVENT_POST_REPLY,&event_post_reply_opt);
 	if (res == SUCCESS_RETURN) {
-		if (event_post_reply_opt == 0) {return FAIL_RETURN;}
+		if (event_post_reply_opt == 0) {
+			if (unsub) {
+				char *method_reply = NULL,*unsubscribe = NULL;
+				
+				method_reply = DM_malloc(strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
+				if (method_reply == NULL) {
+					DM_free(method);
+					dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+					return FAIL_RETURN;
+				}
+				memset(method_reply,0,strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
+				memcpy(method_reply,method,strlen(method));
+				memcpy(method_reply + strlen(method_reply),IOTX_DCS_REPLY_SUFFIX,strlen(IOTX_DCS_REPLY_SUFFIX));
+		
+				res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method_reply,product_key,device_name,&unsubscribe);
+				DM_free(method_reply);
+				if (res == SUCCESS_RETURN){
+					iotx_dcw_cloud_unregister(conn,unsubscribe);
+					DM_free(unsubscribe);
+				}
+			}
+			return FAIL_RETURN;
+		}
 	}
 	
 	return SUCCESS_RETURN;
@@ -98,7 +146,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	
 	/* Find Out How Many Topic Will Be Subscribe This Time */
 	for (search_index = index;search_index < dcs_mapping_size;search_index++) {
-		if (_iotx_dsub_filter(devid,search_index) == SUCCESS_RETURN) {
+		if (_iotx_dsub_filter(devid,search_index,1) == SUCCESS_RETURN) {
 			sub_count++;
 			if (sub_count == IOTX_DCS_MULTI_SUBSCRIBE_MAX) {break;}
 		}
@@ -122,7 +170,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 
 	/* Find Out Topics Which Will Be Subscribe */
 	for (search_index = index,sub_index = 0;search_index < dcs_mapping_size;search_index++) {
-		if (_iotx_dsub_filter(devid,search_index) == SUCCESS_RETURN) {
+		if (_iotx_dsub_filter(devid,search_index,0) == SUCCESS_RETURN) {
 			res = iotx_dcm_service_name((char *)dcs_mapping[search_index].service_prefix,
 				(char *)dcs_mapping[search_index].service_name,product_key,device_name,subscribe + sub_index);
 			if (res != SUCCESS_RETURN) {goto ERROR;}
@@ -190,7 +238,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_service_filter(devid,method);
+		res = _iotx_dsub_shadow_service_filter(devid,method,1);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		service_count++;DM_free(method);
@@ -207,7 +255,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_event_filter(devid,method);
+		res = _iotx_dsub_shadow_event_filter(devid,method,1);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		event_count++;DM_free(method);
@@ -234,7 +282,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_service_filter(devid,method);
+		res = _iotx_dsub_shadow_service_filter(devid,method,0);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,(subscribe + service_event_index));
@@ -256,7 +304,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_event_filter(devid,method);
+		res = _iotx_dsub_shadow_event_filter(devid,method,0);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		method_reply = DM_malloc(strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);

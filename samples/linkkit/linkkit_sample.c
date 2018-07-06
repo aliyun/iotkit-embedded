@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
 	dm_init_params.event_callback = linkkit_event_callback;
 
-	int value = 1;
+	int value = 0;
 	IOT_DM_Set_Opt(0,&value);
 	IOT_DM_Set_Opt(1,&value);
 	IOT_DM_Set_Opt(2,&value);
