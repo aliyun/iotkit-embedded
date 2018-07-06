@@ -8,7 +8,7 @@ include src/tools/parse_make_settings.mk
 # CFLAGS  += -DTEST_COAP_DAILY
 # CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DINSPECT_MQTT_FLOW
-# CFLAGS    += -DENABLE_THING_DEBUG
+# CFLAGS  += -DENABLE_THING_DEBUG
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
@@ -19,8 +19,8 @@ $(call CompLib_Map, MQTT_COMM_ENABLED, \
     src/protocol/mqtt \
 )
 $(call CompLib_Map, HTTP2_COMM_ENABLED, \
-	src/services/file_upload \
-	src/protocol/http2)
+    src/services/file_upload \
+    src/protocol/http2)
 $(call CompLib_Map, OTA_ENABLED, src/services/ota)
 $(call CompLib_Map, MQTT_SHADOW, src/services/shadow)
 $(call CompLib_Map, COAP_COMM_ENABLED, src/protocol/coap)
