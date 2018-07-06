@@ -9,8 +9,11 @@
 #include "iotx_dm_cm_wrapper.h"
 #include "iotx_dm_shadow.h"
 #include "iotx_dm_ipc.h"
+#include "iotx_dm_subscribe.h"
 #include "iotx_dm_msg_dispatch.h"
 #include "iotx_dm_message_cache.h"
+#include "iotx_dm_subscribe.h"
+#include "iotx_dm_opt.h"
 #include "utils_hmac.h"
 
 static iotx_dmsg_ctx_t g_iotx_dmsg_ctx;
@@ -1459,8 +1462,8 @@ int iotx_dmsg_thing_dsltemplate_get_reply(iotx_dmsg_response_payload_t *response
 
 	iotx_dmgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);
 
-	iotx_dcs_topic_service_event_destroy(node->devid);
-	iotx_dcs_topic_service_event_create(node->devid);
+	iotx_dsub_shadow_destroy(node->devid);
+	iotx_dsub_shadow_create(node->devid);
 
 	return SUCCESS_RETURN;
 }
@@ -1487,8 +1490,8 @@ int iotx_dmsg_thing_dynamictsl_get_reply(iotx_dmsg_response_payload_t *response)
 
 	iotx_dmgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);
 
-	iotx_dcs_topic_service_event_destroy(node->devid);
-	iotx_dcs_topic_service_event_create(node->devid);
+	iotx_dsub_shadow_destroy(node->devid);
+	iotx_dsub_shadow_create(node->devid);
 
 	return SUCCESS_RETURN;
 }
@@ -1562,7 +1565,7 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
-	res = iotx_dcs_topic_generic_subscribe(devid,0);
+	res = iotx_dsub_multi_next(devid,0);
 	if (res < SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Set Service Event Topic Index To IOTX_DMGR_DEV_SUB_START */
@@ -1803,7 +1806,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	dm_log_debug("Current Generic Index: %d",index);
 
 	if (index >= 0 && index + 1 < iotx_dcs_get_topic_mapping_size()) {
-		res = iotx_dcs_topic_generic_subscribe(devid,index + 1);
+		res = iotx_dsub_multi_next(devid,index + 1);
 		if (res != iotx_dcs_get_topic_mapping_size()) {return res;}
 	}
 	if ((((index + 1) >= iotx_dcs_get_topic_mapping_size()) || (res == iotx_dcs_get_topic_mapping_size())) && index != IOTX_DMGR_DEV_SUB_END) {
@@ -1852,7 +1855,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	dm_log_debug("Current Service Event Number: %d",number);
 
 	if (index >= IOTX_DMGR_DEV_SUB_START && index + 1 < number) {
-		res = iotx_dcs_topic_service_event_subscribe(devid,index + 1);
+		res = iotx_dsub_shadow_next(devid,index + 1);
 		return res;
 	}
 	iotx_dmgr_set_dev_sub_service_event_index(devid,IOTX_DMGR_DEV_SUB_END);

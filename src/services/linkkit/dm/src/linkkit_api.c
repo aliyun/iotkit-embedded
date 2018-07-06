@@ -438,6 +438,11 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
     }
 }
 
+int linkkit_set_opt(linkkit_opt_t opt, void *data)
+{
+	return IOT_DM_Set_Opt(opt,data);
+}
+
 const char IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS[] DM_READ_ONLY = "[{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]"; 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).

@@ -78,6 +78,22 @@ void* linkkit_dispatch(void* params);
 void* linkkit_dispatch();
 #endif
 
+typedef enum {
+	linkkit_opt_property_post_reply,  /* data type: int */
+	linkkit_opt_event_post_reply,     /* data type: int */
+	linkkit_opt_property_set_reply    /* data type: int */
+}linkkit_opt_t;
+
+/**
+ * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
+ *
+ * @param opt, specify the option need to be set.
+ * @param data, specify the option value.
+ *
+ * @return int, 0 when success, -1 when fail.
+ */
+int linkkit_set_opt(linkkit_opt_t opt, void *data);
+
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
  *

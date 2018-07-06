@@ -95,17 +95,6 @@ typedef struct {
 	iotx_cm_event_handle_fp_t handler;
 }iotx_dcs_event_mapping_t;
 
-typedef struct {
-	void *mutex;
-	int cloud_connected;
-	void *cloud_connectivity;
-	int local_connected;
-	void *local_connectivity;
-}iotx_dcs_ctx_t;
-
-int iotx_dcs_init(void);
-int iotx_dcs_deinit(void);
-
 iotx_dcs_topic_mapping_t* iotx_dcs_get_topic_mapping(void);
 int iotx_dcs_get_topic_mapping_size(void);
 int iotx_dcs_get_topic_mapping_dev_type_mask(_IN_ int index, _OU_ int *dev_type_mask);
@@ -118,14 +107,6 @@ int iotx_dcs_uri_prefix_ext_session_split(_IN_ char *uri, _IN_ int uri_len, _OU_
 int iotx_dcs_uri_pkdn_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 int iotx_dcs_uri_service_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 int iotx_dcs_uri_event_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
-
-int iotx_dcs_topic_subscribe(char *uri);
-int iotx_dcs_topic_generic_subscribe(int devid, int index);
-int iotx_dcs_topic_service_event_subscribe(int devid, int index);
-int iotx_dcs_topic_service_event_create(int devid);
-int iotx_dcs_topic_service_event_destroy(int devid);
-int iotx_dcs_topic_generic_unsubscribe(int devid);
-int iotx_dcs_topic_service_event_unsubscribe(int devid);
 
 void iotx_dcs_thing_topo_add_notify(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void iotx_dcs_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);

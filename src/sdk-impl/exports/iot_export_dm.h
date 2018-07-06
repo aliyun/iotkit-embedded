@@ -145,6 +145,7 @@ typedef enum {
 
 #define IOTX_DM_POST_PROPERTY_ALL (NULL)
 
+int IOT_DM_Set_Opt(int opt,void *data);
 int IOT_DM_Construct(_IN_ iotx_dm_init_params_t *init_params);
 int IOT_DM_Destroy(void);
 int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len);
