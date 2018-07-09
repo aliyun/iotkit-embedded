@@ -35,7 +35,6 @@
 #include "itls/debug.h"
 #include "itls/platform.h"
 
-#include "itls.h"
 #include "iot_import.h"
 #include "platform_debug.h"
 
@@ -54,7 +53,6 @@ typedef struct _TLSDataParams {
 
 #if defined(CONFIG_ITLS_TIME_TEST)
 #include <sys/time.h>
-
 static struct timeval tv1, tv2;
 #endif
 
@@ -80,10 +78,8 @@ static void _ssl_debug(void *ctx, int level, const char *file, int line, const c
 {
     ((void) ctx);
     ((void) level);
-    #if 0
-    HAL_Printf("%s:%04d: %s", file, line, str);
-    #endif
-    platform_info("%s", str);
+
+    platform_info("%s:%04d: %s", file, line, str);
 }
 
 #if defined(_PLATFORM_IS_LINUX_)
@@ -144,10 +140,11 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
         sendtimeout.tv_usec = 0;
 
         if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout, sizeof(sendtimeout))) {
+            perror("setsockopt");
             platform_err("setsockopt error");
         }
 
-        platform_info("setsockopt SO_SNDTIMEO timeout: %ld", sendtimeout.tv_sec);
+        platform_info("setsockopt SO_SNDTIMEO timeout: %ds", sendtimeout.tv_sec);
 
         if (connect(ctx->fd, cur->ai_addr, cur->ai_addrlen) == 0) {
             ret = 0;
@@ -170,12 +167,16 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
  * @param[in] addr is the Server Host name or IP address.
  * @param[in] port is the Server Port.
  * @param[in] product_key is the product name.
+ * @param[in] product_secret is the product secret.
  *
  * @retval       0 : success.
  * @retval     < 0 : fail.
  */
-static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *port,
-                              const char *product_key)
+static int _TLSConnectNetwork(TLSDataParams_t *pTlsData,
+                              const char *addr,
+                              const char *port,
+                              const char *product_key,
+                              const char *product_secret)
 {
     int ret = -1;
 
@@ -233,8 +234,21 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         goto _out;
     }
 
+    /* "OPTIONAL", token for id2 one-time provisioning */
+    if ((ret = mbedtls_ssl_conf_auth_token(&(pTlsData->conf), product_secret, strlen(product_secret))) != 0) {
+        platform_err( " failed\n  ! mbedtls_ssl_conf_auth_token returned %d\n\n", ret );
+        goto _out;
+    }
+
+#if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
+    if ((ret = mbedtls_ssl_conf_max_frag_len(&(pTlsData->conf), MBEDTLS_SSL_MAX_FRAG_LEN_1024)) != 0) {
+        platform_err( " failed\n  ! mbedtls_ssl_conf_max_frag_len returned %d\n\n", ret );
+        goto _out;
+    }
+#endif
+
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
-        platform_err("failed! mbedtls_ssl_setup returned %d", ret);
+        platform_err(" failed! mbedtls_ssl_setup returned %d", ret);
         goto _out;
     }
 
@@ -257,9 +271,8 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
-
     platform_info("=========================== iTLS handshake used time(usec): %d\n",
-            (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
+                   (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
     platform_info(" ok");
@@ -316,9 +329,8 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
-
     platform_info("=========================== iTLS receive data(%d bytes) used time(usec): %d\n",
-            readLen, (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
+                   readLen, (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
     return (readLen > 0) ? readLen : net_status;
@@ -349,9 +361,8 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
 
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
-
-    platform_info("=========================== iTLS send data(%d bytes) used time(usec): %d\n",
-             writtenLen,  (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
+    platform_info("iTLS send data(%d bytes) used time(usec): %d\n",
+                   writtenLen,  (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
     return writtenLen;
@@ -366,13 +377,23 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
     platform_info("ssl_disconnect");
 }
 
-uintptr_t HAL_iTLS_Establish(
-                 const char *host,
-                 uint16_t port,
-                 const char *product_key)
+uintptr_t HAL_SSL_Establish(const char *host,
+                             uint16_t port,
+                             const char *ca_crt,
+                             size_t ca_crt_len)
 {
     char port_str[6];
     TLSDataParams_pt pTlsData;
+    char *product_key = NULL;
+    char *product_secret = NULL;
+
+    if (host == NULL || ca_crt == NULL) {
+        platform_err("input params are NULL");
+        return 0;
+    }
+
+    product_key = ca_crt;
+    product_secret = ca_crt + strlen(product_key) + 1;
 
     pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
@@ -383,18 +404,18 @@ uintptr_t HAL_iTLS_Establish(
 
     sprintf(port_str, "%u", port);
 
-    if (0 != _TLSConnectNetwork(pTlsData, host, port_str, product_key)) {
+    if (0 != _TLSConnectNetwork(pTlsData, host, port_str, product_key, product_secret)) {
         HAL_Free((void *)pTlsData);
-        return (uintptr_t)NULL;
+        return (uintptr_t)NULL; 
     }
 
     return (uintptr_t)pTlsData;
 }
 
-int32_t HAL_iTLS_Destroy(uintptr_t handle)
+int32_t HAL_SSL_Destroy(uintptr_t handle)
 {
     if ((uintptr_t)NULL == handle) {
-        platform_info("handle is NULL");
+        platform_err("handle is NULL");
         return 0;
     }
 
@@ -404,12 +425,12 @@ int32_t HAL_iTLS_Destroy(uintptr_t handle)
     return 0;
 }
 
-int32_t HAL_iTLS_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
+int32_t HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 {
     return _network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
 }
 
-int32_t HAL_iTLS_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
+int32_t HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
     return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
 }

@@ -24,6 +24,9 @@ int mbedtls_write_key_id_ext(
 int mbedtls_write_auth_code_ext(
         mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen);
 
+int mbedtls_parse_hello_verify_ext(
+        mbedtls_ssl_context *ssl, unsigned char *buf, size_t len);
+
 int mbedtls_parse_auth_code_ext(
         mbedtls_ssl_context *ssl, unsigned char *buf, size_t len);
 

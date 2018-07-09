@@ -224,7 +224,7 @@
  * peers are using it too!
  */
 #if !defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
-#define MBEDTLS_SSL_MAX_CONTENT_LEN         16384   /**< Size of the input / output buffer */
+#define MBEDTLS_SSL_MAX_CONTENT_LEN         1024   /**< Size of the input / output buffer */
 #endif
 
 /* \} name SECTION: Module settings */
@@ -351,6 +351,11 @@
 #define MBEDTLS_TLS_EXT_AUTH_CODE               0x2002
 #define MBEDTLS_TLS_EXT_PRE_MASTER_SECRET       0x2003
 
+#define MBEDTLS_TLS_EXT_SRV_CHALLENGE           0x2010
+#define MBEDTLS_TLS_EXT_KEY_OTP_DATA            0x2011
+
+#define MBEDTLS_TLS_EXT_EXTENDED_VERSION        0x2020
+
 #define MBEDTLS_TLS_EXT_RENEGOTIATION_INFO      0xFF01
 
 /*
@@ -362,6 +367,7 @@
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS)
 #define MBEDTLS_AUTH_EXTRA_MAX_LEN     256
+#define MBEDTLS_AUTH_TOKEN_MAX_LEN     256
 #define MBEDTLS_KEY_ID_MAX_LEN         256
 #endif
 
@@ -779,6 +785,8 @@ struct mbedtls_ssl_config
 #if defined(MBEDTLS_SSL_PROTO_ITLS)
     unsigned char *auth_extra;         /* optional */
     unsigned int   auth_extra_len;
+    unsigned char *auth_token;         /* optional */
+    unsigned int   auth_token_len;
 #endif
 };
 
@@ -1820,15 +1828,27 @@ void mbedtls_ssl_conf_sig_hashes( mbedtls_ssl_config *conf,
  * \brief                 Set the optional auth code extra data.
  *                        (client-side only)
  *
- * \param ssl             SSL context
+ * \param conf            SSL configuration context
  * \param auth_extra      pointer to the auth extra
  * \param auth_extra_len  auth extra length
  *
- * \return         0 if successful or MBEDTLS_ERR_SSL_ALLOC_FAILED
+ * \return         0 if successful or MBEDTLS_ERR_SSL_BAD_INPUT_DATA
  */
 int mbedtls_ssl_conf_auth_extra( mbedtls_ssl_config *conf,
                 const char *auth_extra, size_t auth_extra_len );
 
+/**
+ * \brief                 Set the one-time provisioning auth token.
+ *                        (client-side only)
+ *
+ * \param conf            SSL configuration context
+ * \param auth_extra      pointer to the auth token
+ * \param auth_extra_len  auth token length
+ *
+ * \return         0 if successful or MBEDTLS_ERR_SSL_BAD_INPUT_DATA
+ */
+int mbedtls_ssl_conf_auth_token( mbedtls_ssl_config *conf,
+                const char *auth_token, size_t auth_token_len );
 #endif
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
