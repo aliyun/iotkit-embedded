@@ -24,6 +24,10 @@ static void _setup_hal_suite(void)
 {
     ADD_SUITE(HAL_OS);
 }
+static void _setup_dm_suite(void)
+{
+    ADD_SUITE(DM_TEST);
+}
 #ifdef HTTP2_COMM_ENABLED
 static void _setup_http2_suite(void)
 {
@@ -33,6 +37,7 @@ static void _setup_http2_suite(void)
 int main(int argc, char *argv[])
 {
     _setup_hal_suite();
+    _setup_dm_suite();
 #ifdef HTTP2_COMM_ENABLED
     _setup_http2_suite();
 #endif	
