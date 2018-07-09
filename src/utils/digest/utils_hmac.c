@@ -18,7 +18,7 @@
 
 
 #include <string.h>
-#include "utils_debug.h"
+#include "lite-utils_internal.h"
 #include "utils_md5.h"
 #include "utils_sha1.h"
 #include "utils_sha256.h"
@@ -33,13 +33,13 @@
 
 void utils_hmac_md5(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
-    if((NULL == msg) || (NULL == digest) || (NULL == key)) {
+    if ((NULL == msg) || (NULL == digest) || (NULL == key)) {
         utils_err("parameter is Null,failed!");
         return;
     }
 
-    if(key_len > KEY_IOPAD_SIZE) {
-        utils_err("key_len > size(%d) of array",KEY_IOPAD_SIZE);
+    if (key_len > KEY_IOPAD_SIZE) {
+        utils_err("key_len > size(%d) of array", KEY_IOPAD_SIZE);
         return;
     }
 
@@ -83,13 +83,13 @@ void utils_hmac_md5(const char *msg, int msg_len, char *digest, const char *key,
 
 void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
-    if((NULL == msg) || (NULL == digest) || (NULL == key)) {
+    if ((NULL == msg) || (NULL == digest) || (NULL == key)) {
         utils_err("parameter is Null,failed!");
         return;
     }
 
-    if(key_len > KEY_IOPAD_SIZE) {
-        utils_err("key_len > size(%d) of array",KEY_IOPAD_SIZE);
+    if (key_len > KEY_IOPAD_SIZE) {
+        utils_err("key_len > size(%d) of array", KEY_IOPAD_SIZE);
         return;
     }
 
@@ -129,13 +129,13 @@ void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char 
 
 void utils_hmac_sha256(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
-	if((NULL == msg) || (NULL == digest) || (NULL == key)) {
+    if ((NULL == msg) || (NULL == digest) || (NULL == key)) {
         utils_err("parameter is Null,failed!");
         return;
     }
 
-    if(key_len > KEY_IOPAD_SIZE) {
-        utils_err("key_len > size(%d) of array",KEY_IOPAD_SIZE);
+    if (key_len > KEY_IOPAD_SIZE) {
+        utils_err("key_len > size(%d) of array", KEY_IOPAD_SIZE);
         return;
     }
 
@@ -179,13 +179,13 @@ void utils_hmac_sha256(const char *msg, int msg_len, char *digest, const char *k
 
 void utils_hmac_sha1(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
-    if((NULL == msg) || (NULL == digest) || (NULL == key)) {
+    if ((NULL == msg) || (NULL == digest) || (NULL == key)) {
         utils_err("parameter is Null,failed!");
         return;
     }
 
-    if(key_len > KEY_IOPAD_SIZE) {
-        utils_err("key_len > size(%d) of array",KEY_IOPAD_SIZE);
+    if (key_len > KEY_IOPAD_SIZE) {
+        utils_err("key_len > size(%d) of array", KEY_IOPAD_SIZE);
         return;
     }
 
@@ -229,13 +229,13 @@ void utils_hmac_sha1(const char *msg, int msg_len, char *digest, const char *key
 
 void utils_hmac_sha1_raw(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
-    if((NULL == msg) || (NULL == digest) || (NULL == key)) {
+    if ((NULL == msg) || (NULL == digest) || (NULL == key)) {
         utils_err("parameter is Null,failed!");
         return;
     }
 
-    if(key_len > KEY_IOPAD_SIZE) {
-        utils_err("key_len > size(%d) of array",KEY_IOPAD_SIZE);
+    if (key_len > KEY_IOPAD_SIZE) {
+        utils_err("key_len > size(%d) of array", KEY_IOPAD_SIZE);
         return;
     }
 
@@ -271,15 +271,15 @@ void utils_hmac_sha1_raw(const char *msg, int msg_len, char *digest, const char 
     utils_sha1_update(&context, out, SHA1_DIGEST_SIZE);     /* then results of 1st hash */
     utils_sha1_finish(&context, out);                       /* finish up 2nd pass */
 
-    memcpy (digest, out, SHA1_DIGEST_SIZE);
+    memcpy(digest, out, SHA1_DIGEST_SIZE);
 }
 
-void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int* digest_len)
+void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int *digest_len)
 {
     char buf[SHA1_DIGEST_SIZE];
-    utils_hmac_sha1_raw (msg, msg_len, buf, key, key_len);
+    utils_hmac_sha1_raw(msg, msg_len, buf, key, key_len);
 
     unsigned int outlen;
-    utils_base64encode ((unsigned char*)buf, SHA1_DIGEST_SIZE, *digest_len, (unsigned char*)digest, &outlen);
+    utils_base64encode((unsigned char *)buf, SHA1_DIGEST_SIZE, *digest_len, (unsigned char *)digest, &outlen);
     *digest_len = outlen;
 }

@@ -15,19 +15,22 @@
  * limitations under the License.
  *
  */
+#ifndef __LITE_LOG_INTERNAL_H__
+#define __LITE_LOG_INTERNAL_H__
 
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
 
-#ifndef __UTILS_DEBUG_H__
-#define __UTILS_DEBUG_H__
-
-
+#include "lite-log_config.h"
 #include "lite-log.h"
+#include "lite-utils.h"
+#include "iot_import.h"
 
-#define utils_emerg(...)    log_emerg("util", __VA_ARGS__)
-#define utils_crit(...)     log_crit("util", __VA_ARGS__)
-#define utils_err(...)      log_err("util", __VA_ARGS__)
-#define utils_warning(...)  log_warning("util", __VA_ARGS__)
-#define utils_info(...)     log_info("util", __VA_ARGS__)
-#define utils_debug(...)    log_debug("util", __VA_ARGS__)
+typedef struct {
+    char            name[LOG_MOD_NAME_LEN + 1];
+    int             priority;
+    char            text_buf[LOG_MSG_MAXLEN + 1];
+} log_client;
 
-#endif  /* __UTILS_DEBUG_H__ */
+#endif  /* __LITE_LOG_INTERNAL_H__ */

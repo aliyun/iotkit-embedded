@@ -1,8 +1,8 @@
 LIBA_TARGET := libiot_platform.a
-HDR_REFS    += src/sdk-impl
 HDR_REFS    += src/security/pro
 HDR_REFS    += src/thirdparty/tls
 HDR_REFS    += src/utils
+HDR_REFS    += src/log
 HDR_REFS    += src/platform
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 DEPENDS		+= src/thirdparty/tls

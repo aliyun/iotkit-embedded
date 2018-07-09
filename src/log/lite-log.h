@@ -48,23 +48,25 @@ int     LITE_get_loglevel(void);
 void    LITE_set_loglevel(int level);
 int     LITE_hexdump(const char *title, const void *buf, const int len);
 
-void    LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list* params);
+void    LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params);
 void    LITE_syslog(char *m, const char *f, const int l, const int level, const char *fmt, ...);
-void LITE_syslog_upload_to_cloud(const char *module, const int level, const char *fmt, ...);
+
+extern  int mqtt_publish(char *topic, int qos, void *data, int len);
+void    LITE_syslog_upload_to_cloud(const char *module, const int level, const char *fmt, ...);
 
 #ifdef SDK_DEBUG_LEVEL_NONE
-#define log_warning(module,...)
-#define log_info(module,...)
-#define log_debug(module,...)
+#define log_warning(mod ,...)
+#define log_info(mod ,...)
+#define log_debug(mod ,...)
 #else
-#define log_warning(module,...)            LITE_syslog(module, __FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
-#define log_info(module,...)               LITE_syslog(module, __FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
-#define log_debug(module,...)              LITE_syslog(module, __FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
+#define log_warning(mod ,...)            LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
+#define log_info(mod ,...)               LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
+#define log_debug(mod ,...)              LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
 #endif
-#define log_emerg(module,...)              LITE_syslog(module, __FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
-#define log_crit(module,...)               LITE_syslog(module, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
-#define log_err(module,...)                LITE_syslog(module, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
-#define log_err_online(module, ...) LITE_syslog_upload_to_cloud(module, LOG_ERR_LEVEL, __VA_ARGS__)
+#define log_emerg(mod ,...)              LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
+#define log_crit(mod ,...)               LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
+#define log_err(mod ,...)                LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
+#define log_err_online(mod, ...)         LITE_syslog_upload_to_cloud(mod, LOG_ERR_LEVEL, __VA_ARGS__)
 
 int     log_multi_line_internal(const char *f, const int l,
                                 const char *title, int level, char *payload, const char *mark);

@@ -13,6 +13,7 @@ include src/tools/parse_make_settings.mk
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/utils \
+    src/log \
     src/security/base \
 
 $(call CompLib_Map, MQTT_COMM_ENABLED, \

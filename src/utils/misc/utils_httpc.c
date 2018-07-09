@@ -24,7 +24,7 @@
 #include "iot_import.h"
 #include "utils_timer.h"
 #include "utils_httpc.h"
-#include "utils_debug.h"
+#include "lite-utils_internal.h"
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))
@@ -652,7 +652,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
 
     /*If not ending of response body*/
     /* try to read more header again until find response head ending "\r\n\r\n" */
-    while(NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
+    while (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
         /* try to read more header */
         ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_RAED_HEAD_SIZE, &new_trf_len, iotx_time_left(&timer));
         if (ret == ERROR_HTTP_CONN) {

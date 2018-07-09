@@ -20,7 +20,7 @@
 
 #include "iot_import.h"
 #include "utils_net.h"
-#include "utils_debug.h"
+#include "lite-utils_internal.h"
 
 /*** TCP connection ***/
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -103,10 +103,10 @@ static int connect_ssl(utils_network_pt pNetwork)
     }
 
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
-                                     pNetwork->pHostAddress,
-                                     pNetwork->port,
-                                     pNetwork->ca_crt,
-                                     pNetwork->ca_crt_len + 1))) {
+            pNetwork->pHostAddress,
+            pNetwork->port,
+            pNetwork->ca_crt,
+            pNetwork->ca_crt_len + 1))) {
         return 0;
     } else {
         /* TODO SHOLUD not remove this handle space */

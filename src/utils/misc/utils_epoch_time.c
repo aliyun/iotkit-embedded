@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 #include "utils_epoch_time.h"
-#include "utils_debug.h"
+#include "lite-utils_internal.h"
 
 #define HTTP_RESP_CONTENT_LEN   (64)
 #define ALIYUN_NTP_SERVER       "ntp%d.aliyun.com"
@@ -79,9 +79,9 @@ struct ntp_packet_t {
  * implement of htonl and ntohl
  */
 #define BigLittleSwap(A)        ((((uint32_t)(A) & 0xff000000) >> 24) | \
-                                (((uint32_t)(A) & 0x00ff0000) >> 8) | \
-                                (((uint32_t)(A) & 0x0000ff00) << 8) | \
-                                (((uint32_t)(A) & 0x000000ff) << 24))
+                                 (((uint32_t)(A) & 0x00ff0000) >> 8) | \
+                                 (((uint32_t)(A) & 0x0000ff00) << 8) | \
+                                 (((uint32_t)(A) & 0x000000ff) << 24))
 
 /* return 1 if big endian */
 static int _check_endian(void)
@@ -132,7 +132,7 @@ static int _get_packet(unsigned char *packet, int *len)
 
 static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval_t *tv)
 {
-/* straight out of RFC-1305 Appendix A */
+    /* straight out of RFC-1305 Appendix A */
     struct ntp_packet_t ntp_packet;
     struct ntptime_t xmttime;
 #ifdef NTP_DEBUG
@@ -147,7 +147,9 @@ static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval_t *tv
     ntp_packet.stratum = Data(0) >> 16 & 0xff;
     ntp_packet.poll    = Data(0) >>  8 & 0xff;
     ntp_packet.prec    = Data(0)       & 0xff;
-    if (ntp_packet.prec & 0x80) ntp_packet.prec |= 0xffffff00;
+    if (ntp_packet.prec & 0x80) {
+        ntp_packet.prec |= 0xffffff00;
+    }
     ntp_packet.delay   = Data(1);
     ntp_packet.disp    = Data(2);
     ntp_packet.refid   = Data(3);
@@ -166,12 +168,12 @@ static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval_t *tv
 
 #ifdef NTP_DEBUG
     utils_debug("LI=%d  VN=%d  Mode=%d  Stratum=%d  Poll=%d  Precision=%d\n",
-              ntp_packet.li, ntp_packet.vn, ntp_packet.mode,
-              ntp_packet.stratum, ntp_packet.poll, ntp_packet.prec);
+                ntp_packet.li, ntp_packet.vn, ntp_packet.mode,
+                ntp_packet.stratum, ntp_packet.poll, ntp_packet.prec);
     utils_debug("Delay=%.1f  Dispersion=%.1f  Refid=%u.%u.%u.%u\n",
-              sec2u(ntp_packet.delay), sec2u(ntp_packet.disp),
-              ntp_packet.refid >> 24 & 0xff, ntp_packet.refid >> 16 & 0xff,
-              ntp_packet.refid >> 8 & 0xff, ntp_packet.refid & 0xff);
+                sec2u(ntp_packet.delay), sec2u(ntp_packet.disp),
+                ntp_packet.refid >> 24 & 0xff, ntp_packet.refid >> 16 & 0xff,
+                ntp_packet.refid >> 8 & 0xff, ntp_packet.refid & 0xff);
     utils_debug("Reference %u.%.6u\n", reftime.coarse - JAN_1970, USEC(reftime.fine));
     utils_debug("Originate %u.%.6u\n", orgtime.coarse - JAN_1970, USEC(orgtime.fine));
     utils_debug("Receive   %u.%.6u\n", rectime.coarse - JAN_1970, USEC(rectime.fine));

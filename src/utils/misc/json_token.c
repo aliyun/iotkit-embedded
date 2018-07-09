@@ -19,7 +19,7 @@
 
 #include "lite-utils_internal.h"
 #include "json_parser.h"
-#include "utils_debug.h"
+#include "lite-utils_internal.h"
 
 int contain_arr(const char *src, int src_len, const char **arr_pre)
 {
@@ -633,120 +633,161 @@ char *LITE_json_value_of_ext2(char *key, char *src, int src_len, int *value_len)
 
 int LITE_json_value_type(char *src, int src_len)
 {
-	if (*src == '[' && *(src + src_len - 1) == ']') {
-		return JARRAY;
-	}else if (*src == '{' && *(src + src_len - 1) == '}') {
-		return JOBJECT;
-	}else if (*src == '\"' && *(src + src_len - 1) == '\"') {
-		return JSTRING;
-	}else if ((*src == '-') || (*src >= '0' && *src <= '9')){
-		return JNUMBER;
-	}else if ((*src == 't') || (*src == 'T')) {
-		if (src_len == 4 && (memcmp(src,"true",4) == 0 || memcmp(src,"TRUE",4) == 0))
-			return JBOOLEAN;
-	}else if ((*src == 'f') || (*src == 'F')) {
-		if (src_len == 5 && (memcmp(src,"false",5) == 0 || memcmp(src,"FALSE",5) == 0))
-			return JBOOLEAN;
-	}
+    if (*src == '[' && *(src + src_len - 1) == ']') {
+        return JARRAY;
+    } else if (*src == '{' && *(src + src_len - 1) == '}') {
+        return JOBJECT;
+    } else if (*src == '\"' && *(src + src_len - 1) == '\"') {
+        return JSTRING;
+    } else if ((*src == '-') || (*src >= '0' && *src <= '9')) {
+        return JNUMBER;
+    } else if ((*src == 't') || (*src == 'T')) {
+        if (src_len == 4 && (memcmp(src, "true", 4) == 0 || memcmp(src, "TRUE", 4) == 0)) {
+            return JBOOLEAN;
+        }
+    } else if ((*src == 'f') || (*src == 'F')) {
+        if (src_len == 5 && (memcmp(src, "false", 5) == 0 || memcmp(src, "FALSE", 5) == 0)) {
+            return JBOOLEAN;
+        }
+    }
 
-	return JNONE;
+    return JNONE;
 }
 
-char* LITE_json_array_get_item(int index, char *src, int src_len, int* val_len)
+char *LITE_json_array_get_item(int index, char *src, int src_len, int *val_len)
 {
-	char *iter_pos = NULL;
-	char *iter_start = NULL;
-	int iter_index = 0;
-	int item_type = JNONE;
-	int deep = 0;
+    char *iter_pos = NULL;
+    char *iter_start = NULL;
+    int iter_index = 0;
+    int item_type = JNONE;
+    int deep = 0;
 
-	if (src == NULL || val_len == NULL || index <= 0 || src_len <= 0) {
-		return NULL;
-	}
+    if (src == NULL || val_len == NULL || index <= 0 || src_len <= 0) {
+        return NULL;
+    }
 
-	iter_pos = src;
-	iter_pos++;
+    iter_pos = src;
+    iter_pos++;
 
-	while (iter_pos && (iter_pos < src + src_len)) {
-		if (*iter_pos == '[') {
-			if (item_type == -1) {item_type = JARRAY;iter_start = iter_pos;};
-			if (item_type == JARRAY) {
-				deep++;
-			}
-		}else if (*iter_pos == ']') {
-			if (item_type == JARRAY) {
-				deep--;
-				if (!deep) {
-					if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
-						iter_index++;item_type = JNONE,deep = 0;
-						if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}
-					}else{
-						return NULL;
-					}
-				}
-			}
-		}else if (*iter_pos == '{') {
-			if (item_type == -1) {item_type = JOBJECT;iter_start = iter_pos;};
-			if (item_type == JOBJECT) {
-				deep++;
-			}
-		}else if (*iter_pos == '}') {
-			if (item_type == JOBJECT) {
-				deep--;
-				if (!deep) {
-					if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
-						iter_index++;item_type = JNONE,deep = 0;
-						if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}
-					}else{
-						return NULL;
-					}
-				}
-			}
-		}else if (*iter_pos == '\"') {
-			if (item_type == -1) {item_type = JSTRING;iter_start = iter_pos;};
-			if (item_type == JSTRING) {
-				deep = deep ? 0 : 1;
-				if (!deep) {
-					if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
-						iter_index++;item_type = JNONE,deep = 0;
-						if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}
-					}
-				}
-			}
-		}else if (*iter_pos == 'f' || *iter_pos == 'F' || *iter_pos == 't' || *iter_pos == 'T') {
-			if (item_type == -1) {item_type = JBOOLEAN;iter_start = iter_pos;};
-			if (item_type == JBOOLEAN) {
-				if (*iter_pos == 'f' || *iter_pos == 'F') {
-					if ((iter_pos + 4 <= src + src_len) &&
-						(memcmp(iter_pos,"false",5) == 0 || memcmp(iter_pos,"FALSE",5) == 0)) {
-							iter_index++;item_type = JNONE,deep = 0;
-							if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}
-					}else{
-						return NULL;
-					}
-				}else if (*iter_pos == 't' || *iter_pos == 'T') {
-					if ((iter_pos + 3 <= src + src_len) &&
-						(memcmp(iter_pos,"true",4) == 0 || memcmp(iter_pos,"TRUE",4) == 0)) {
-							iter_index++;item_type = JNONE,deep = 0;
-							if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}
-					}else{
-						return NULL;
-					}
-				}
-			}
-		}else if (*iter_pos == '-' || (*iter_pos >= '0' && *iter_pos <= '9')) {
-			if (item_type == -1) {item_type = JNUMBER;iter_start = iter_pos;};
-			if (item_type == JNUMBER) {
-				if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
-					iter_index++;item_type = JNONE,deep = 0;
-					if (iter_index == index) {*val_len = iter_pos - iter_start + 1;return iter_start;}
-				}
-			}
-		}
-		iter_pos++;
-	}
+    while (iter_pos && (iter_pos < src + src_len)) {
+        if (*iter_pos == '[') {
+            if (item_type == -1) {
+                item_type = JARRAY;
+                iter_start = iter_pos;
+            };
+            if (item_type == JARRAY) {
+                deep++;
+            }
+        } else if (*iter_pos == ']') {
+            if (item_type == JARRAY) {
+                deep--;
+                if (!deep) {
+                    if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
+                        iter_index++;
+                        item_type = JNONE, deep = 0;
+                        if (iter_index == index) {
+                            *val_len = iter_pos - iter_start + 1;
+                            return iter_start;
+                        }
+                    } else {
+                        return NULL;
+                    }
+                }
+            }
+        } else if (*iter_pos == '{') {
+            if (item_type == -1) {
+                item_type = JOBJECT;
+                iter_start = iter_pos;
+            };
+            if (item_type == JOBJECT) {
+                deep++;
+            }
+        } else if (*iter_pos == '}') {
+            if (item_type == JOBJECT) {
+                deep--;
+                if (!deep) {
+                    if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
+                        iter_index++;
+                        item_type = JNONE, deep = 0;
+                        if (iter_index == index) {
+                            *val_len = iter_pos - iter_start + 1;
+                            return iter_start;
+                        }
+                    } else {
+                        return NULL;
+                    }
+                }
+            }
+        } else if (*iter_pos == '\"') {
+            if (item_type == -1) {
+                item_type = JSTRING;
+                iter_start = iter_pos;
+            };
+            if (item_type == JSTRING) {
+                deep = deep ? 0 : 1;
+                if (!deep) {
+                    if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
+                        iter_index++;
+                        item_type = JNONE, deep = 0;
+                        if (iter_index == index) {
+                            *val_len = iter_pos - iter_start + 1;
+                            return iter_start;
+                        }
+                    }
+                }
+            }
+        } else if (*iter_pos == 'f' || *iter_pos == 'F' || *iter_pos == 't' || *iter_pos == 'T') {
+            if (item_type == -1) {
+                item_type = JBOOLEAN;
+                iter_start = iter_pos;
+            };
+            if (item_type == JBOOLEAN) {
+                if (*iter_pos == 'f' || *iter_pos == 'F') {
+                    if ((iter_pos + 4 <= src + src_len) &&
+                        (memcmp(iter_pos, "false", 5) == 0 || memcmp(iter_pos, "FALSE", 5) == 0)) {
+                        iter_index++;
+                        item_type = JNONE, deep = 0;
+                        if (iter_index == index) {
+                            *val_len = iter_pos - iter_start + 1;
+                            return iter_start;
+                        }
+                    } else {
+                        return NULL;
+                    }
+                } else if (*iter_pos == 't' || *iter_pos == 'T') {
+                    if ((iter_pos + 3 <= src + src_len) &&
+                        (memcmp(iter_pos, "true", 4) == 0 || memcmp(iter_pos, "TRUE", 4) == 0)) {
+                        iter_index++;
+                        item_type = JNONE, deep = 0;
+                        if (iter_index == index) {
+                            *val_len = iter_pos - iter_start + 1;
+                            return iter_start;
+                        }
+                    } else {
+                        return NULL;
+                    }
+                }
+            }
+        } else if (*iter_pos == '-' || (*iter_pos >= '0' && *iter_pos <= '9')) {
+            if (item_type == -1) {
+                item_type = JNUMBER;
+                iter_start = iter_pos;
+            };
+            if (item_type == JNUMBER) {
+                if (*(iter_pos + 1) == ',' || ((iter_pos + 1 == src + src_len - 1) && (*(iter_pos + 1) == ']'))) {
+                    iter_index++;
+                    item_type = JNONE, deep = 0;
+                    if (iter_index == index) {
+                        *val_len = iter_pos - iter_start + 1;
+                        return iter_start;
+                    }
+                }
+            }
+        }
+        iter_pos++;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 

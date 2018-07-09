@@ -17,11 +17,6 @@
  */
 
 #include "lite-log_internal.h"
-#include "lite-utils.h"
-#include "iot_export.h"
-#include "mqtt_instance.h"
-#include "iot_import.h"
-#include "utils_debug.h"
 
 #define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    \
     do { \
@@ -87,7 +82,7 @@ static char *lvl_names[] = {
     "emg", "crt", "err", "wrn", "inf", "dbg",
 };
 
-void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list* params)
+void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params)
 {
     char       *tmpbuf = logcb.text_buf;
     char       *o = tmpbuf;
@@ -225,7 +220,7 @@ int log_multi_line_internal(const char *f, const int l,
     return 0;
 }
 
-void LITE_syslog_online(const char *module, const int level, const char *fmt, va_list* params)
+void LITE_syslog_online(const char *module, const int level, const char *fmt, va_list *params)
 {
     char       *tmpbuf = NULL;
     char       *o = NULL;
@@ -235,6 +230,7 @@ void LITE_syslog_online(const char *module, const int level, const char *fmt, va
     char       topic[100];
     char       product_key[PRODUCT_KEY_LEN + 1];
     char       device_name[DEVICE_NAME_LEN + 1];
+
     tmpbuf = LITE_calloc(1, LOG_MSG_MAXLEN + 1);
     LITE_snprintf(tmpbuf, LOG_MSG_MAXLEN, LOG_PREFIX_FMT_ONLINE, HAL_UptimeMs(), lvl_names[level], module);
     len = strlen(tmpbuf);
@@ -250,7 +246,7 @@ void LITE_syslog_online(const char *module, const int level, const char *fmt, va
         int i;
         tmpbuf[LOG_MSG_MAXLEN] = '\0';
         for (i = 0; i < 3; i++) {
-            tmpbuf[LOG_MSG_MAXLEN - i -1] = '.';
+            tmpbuf[LOG_MSG_MAXLEN - i - 1] = '.';
         }
     }
     /*upload to cloud*/
@@ -258,10 +254,11 @@ void LITE_syslog_online(const char *module, const int level, const char *fmt, va
     HAL_GetDeviceName(device_name);
     sprintf(topic, "/sys/%s/%s/thing/log/post", product_key, device_name);
     ret = mqtt_publish(topic, IOTX_MQTT_QOS0, tmpbuf, strlen(tmpbuf));
-    if(ret < 0)
-        utils_err("can't publish to cloud. ret = %d\n", ret);
-    else
-        utils_info("publish to cloud. ret = %d\n", ret);
+    if (ret < 0) {
+        log_err((char *)module, "can't publish to cloud. ret = %d\n", ret);
+    } else {
+        log_info((char *)module, "publish to cloud. ret = %d\n", ret);
+    }
     LITE_free(tmpbuf);
 }
 

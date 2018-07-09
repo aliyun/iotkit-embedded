@@ -2,10 +2,10 @@ ifneq ($(TOP_DIR),$(CURDIR))
 INTERNAL_INCLUDES += -I$(SYSROOT_INC)
 INTERNAL_INCLUDES += $(foreach d, $(shell find $(SYSROOT_INC) -type d), -I$(d))
 INTERNAL_INCLUDES += -I$(TOP_DIR)
-INTERNAL_INCLUDES += -I$(IMPORT_DIR)
+INTERNAL_INCLUDES += $(foreach d, $(shell find $(EXPORT_DIR) -type d), -I$(d))
 INTERNAL_INCLUDES += \
 $(foreach d, \
-    $(shell [ -d $(IMPORT_DIR)/$(CONFIG_VENDOR) ] && find -L $(IMPORT_DIR)/$(CONFIG_VENDOR)/include -type d), \
+    $(shell [ -d $(IMPORT_DIR)/$(CONFIG_VENDOR)/include ] && find -L $(IMPORT_DIR)/$(CONFIG_VENDOR)/include -type d), \
     -I$(d) \
 )
 INTERNAL_INCLUDES += $(foreach mod, $(MODULE_NAME) $(HDR_REFS), \

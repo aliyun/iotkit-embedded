@@ -1,5 +1,6 @@
 #ifndef __LITE_LOG_CONFIG_H__
 #define __LITE_LOG_CONFIG_H__
+
 #define LITE_printf                     HAL_Printf
 #define LITE_snprintf                   HAL_Snprintf
 #define LITE_vsnprintf                  HAL_Vsnprintf
@@ -16,8 +17,8 @@
     "-----------------------"
 
 #if defined(_PLATFORM_IS_LINUX_)
-#undef  LOG_MSG_MAXLEN
-#define LOG_MSG_MAXLEN                  (512)
+    #undef  LOG_MSG_MAXLEN
+    #define LOG_MSG_MAXLEN              (512)
 #endif
 
 #endif  /* __LITE_LOG_CONFIG_H__ */

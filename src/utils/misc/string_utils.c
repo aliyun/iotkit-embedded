@@ -19,7 +19,7 @@
 
 #include "lite-utils_internal.h"
 #include "string_utils.h"
-#include "utils_debug.h"
+#include "lite-utils_internal.h"
 
 char *LITE_format_string(const char *fmt, ...)
 {
