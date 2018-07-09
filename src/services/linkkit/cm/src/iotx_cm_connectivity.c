@@ -150,25 +150,25 @@ int iotx_cm_destory_connectivity(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivit
 static void iotx_cm_find_connectivity_handler(void* list_node, va_list* params)
 {
     iotx_cm_connectivity_t* connectivity = (iotx_cm_connectivity_t*)list_node;
-    iotx_cm_conntext_t* cm_ctx;
+    iotx_cm_connectivity_t **target_connectivity = NULL;
     iotx_cm_send_peer_t* target;
     void* conn_ctx;
 
-    cm_ctx = va_arg(*params, iotx_cm_conntext_t*);
+    target_connectivity = va_arg(*params, iotx_cm_connectivity_t **);
     target = va_arg(*params, void*);
     conn_ctx = va_arg(*params, void*);
 
-    assert(cm_ctx);
+    assert(target_connectivity);
 
     /* TODO */
     if (conn_ctx && IOTX_CM_CONNECTIVITY_TYPE_LOCAL == connectivity->type) {
-        cm_ctx->target_connectivity = connectivity;
+       *target_connectivity = connectivity;
         return;
     }
 
     if (connectivity && target && connectivity->check_target_func) {
         if (SUCCESS_RETURN == connectivity->check_target_func(target)) {
-            cm_ctx->target_connectivity = connectivity;
+            *target_connectivity = connectivity;
         }
     }
 }
@@ -177,16 +177,16 @@ static void iotx_cm_find_connectivity_handler(void* list_node, va_list* params)
 iotx_cm_connectivity_t* iotx_cm_find_connectivity(iotx_cm_conntext_t* cm_ctx, iotx_cm_send_peer_t* target, void* conn_ctx)
 {
     linked_list_t* list = NULL;
-
+	iotx_cm_connectivity_t *target_connectivity = NULL;
+		
     assert(cm_ctx);
     list = cm_ctx->list_connectivity;
 
     assert(list);
 
-    cm_ctx->target_connectivity = NULL;
-    linked_list_iterator(list, iotx_cm_find_connectivity_handler, cm_ctx, target, conn_ctx);
+    linked_list_iterator(list, iotx_cm_find_connectivity_handler, &target_connectivity, target, conn_ctx);
 
-    return cm_ctx->target_connectivity;
+    return target_connectivity;
 }
 
 
