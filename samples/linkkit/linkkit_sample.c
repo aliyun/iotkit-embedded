@@ -176,7 +176,11 @@ int main(int argc, char *argv[])
 	dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
 	dm_init_params.event_callback = linkkit_event_callback;
-	
+
+	int value = 0;
+	IOT_DM_Set_Opt(0,&value);
+	IOT_DM_Set_Opt(1,&value);
+	IOT_DM_Set_Opt(2,&value);
 	res = IOT_DM_Construct(&dm_init_params);
 	if (res != SUCCESS_RETURN) {
 		linkkit_log("IOT_DM_Construct Failed");
@@ -186,7 +190,7 @@ int main(int argc, char *argv[])
 	IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 	//IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 
-	//iotx_dcs_topic_local_generic_register();
+	//iotx_dsub_local_register();
 	char *testpk = "b1ZFYKi3UG3";
 	char *testdn = "type-001";
 	char *testdn1 = "type-unregister-001";

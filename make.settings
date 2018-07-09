@@ -20,7 +20,7 @@ FEATURE_MQTT_DIRECT         = y
 ## Usage:    If the value is "y", it support coap protocol to connect alibaba cloud and the COAP_COMM_ENABLED compile option will be defined
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_COAP_COMM_ENABLED   = y
+FEATURE_COAP_COMM_ENABLED   = n
 
 ##
 ## FEATURE_HTTP_COMM_ENABLED
@@ -78,7 +78,7 @@ FEATURE_SERVICE_OTA_ENABLED = n
 ## Usage:    If the value is "y", it support alcs feature and the ALCS_ENABLED compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_ALCS_ENABLED        = n
+FEATURE_ALCS_ENABLED        = y
 
 ##
 ## FEATURE_DEV_PRODUCT_GW

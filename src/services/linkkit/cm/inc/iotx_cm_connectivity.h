@@ -47,6 +47,7 @@ typedef enum {
 
 
 typedef void* (*init_fp_t)(void* handler, void* pparam);
+typedef int   (*init_sencond_fp_t)(void* handler, void* connectivity);
 typedef int   (*connect_fp_t)(void* handler, void* connectivity);
 typedef int   (*trigger_connected_fp_t)(void* handler, void* connectivity, iotx_cm_event_handle_fp_t event_fp, void* user_data);
 typedef int   (*check_connected_fp_t)(void* handler, void* connectivity, iotx_cm_event_handle_fp_t event_fp, void* user_data);
@@ -87,6 +88,7 @@ typedef struct iotx_cm_connectivity_st {
 #endif /* CM_SUPPORT_MULTI_THREAD */
     uint8_t                                       is_try_connect;
     init_fp_t                                     init_func;
+    init_sencond_fp_t                             init_sencond_func;
     connect_fp_t                                  connect_func;
     trigger_connected_fp_t                        trigger_connected_func;
     check_connected_fp_t                          check_connected_func;

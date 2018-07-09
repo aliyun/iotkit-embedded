@@ -305,6 +305,11 @@ int iotx_dcw_cloud_unregister(void *conn_handle, char *uri)
 	return IOT_CM_Unregister(conn_handle,&cm_unregister_param,NULL);
 }
 
+int iotx_dcw_local_init_second(void *conn_handle)
+{
+	return IOT_CM_Init_Second(conn_handle);
+}
+
 int iotx_dcw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_auth_types_t auth_type, void *user_data)
 {
 	iotx_cm_add_service_param_t cm_add_service_param;

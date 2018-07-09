@@ -110,6 +110,7 @@ int iotx_cm_add_connectivity(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_t*
 
     connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_INITED;
 
+	CM_ERR("Add Connectivity Success, Type: %d",connectivity->type);
     return SUCCESS_RETURN;
 }
 
@@ -192,30 +193,30 @@ iotx_cm_connectivity_t* iotx_cm_find_connectivity(iotx_cm_conntext_t* cm_ctx, io
 static void iotx_cm_find_connectivity_by_type_handler(void* list_node, va_list* params)
 {
     iotx_cm_connectivity_t* connectivity = (iotx_cm_connectivity_t*)list_node;
-    iotx_cm_conntext_t* cm_ctx;
+	iotx_cm_connectivity_t** search_connectivity = NULL;
     iotx_cm_connectivity_types_t type;
 
-    cm_ctx = va_arg(*params, iotx_cm_conntext_t*);
+    search_connectivity = va_arg(*params, iotx_cm_connectivity_t**);
     type = va_arg(*params, iotx_cm_connectivity_types_t);
-
+	
     if (connectivity->type == type)
-        cm_ctx->target_connectivity = connectivity;
+        *search_connectivity = connectivity;
 }
 
 
 iotx_cm_connectivity_t* iotx_cm_find_connectivity_by_type(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type)
 {
     linked_list_t* list = NULL;
-
+	iotx_cm_connectivity_t* target_connectivity = NULL;
+	
     assert(cm_ctx);
     list = cm_ctx->list_connectivity;
 
     assert(list);
+	
+    linked_list_iterator(list, iotx_cm_find_connectivity_by_type_handler, &target_connectivity, type);
 
-    cm_ctx->target_connectivity = NULL;
-    linked_list_iterator(list, iotx_cm_find_connectivity_by_type_handler, cm_ctx, type);
-
-    return cm_ctx->target_connectivity;
+    return target_connectivity;
 }
 
 
@@ -431,7 +432,10 @@ void iotx_cm_free_process_list_handler(void* list_node, va_list* params)
             LITE_free(send);
             break;
         }
+		case IOTX_CM_PROCESS_LOCAL_CLOUD_INIT: {
 
+		}
+			break;
         default:
             break;
         }
@@ -478,9 +482,13 @@ int iotx_cm_process_list_push(iotx_cm_conntext_t* cm_ctx,
         CM_ERR(cm_log_error_parameter);
         return FAIL_RETURN;
     }
-
+	
     connectivity = iotx_cm_find_connectivity_by_type(cm_ctx, type);
-    if (NULL == connectivity) return FAIL_RETURN;
+    if (NULL == connectivity) {
+		CM_ERR("Current Connectivity Count: %d",linked_list_get_size((const linked_list_t*)cm_ctx->list_connectivity));
+		CM_ERR("Cannot Found Connectivity,Type: %d",type);
+		return FAIL_RETURN;
+	}
 
     list = connectivity->process_list;
 

@@ -35,6 +35,28 @@ typedef enum _IOT_LogLevel {
     IOT_LOG_DEBUG,
 } IOT_LogLevel;
 
+/* domain type */
+typedef enum IOTX_CLOUD_DOMAIN_TYPES {
+    /* Shanghai */
+    IOTX_CLOUD_DOMAIN_SH,
+
+    /* Singapore */
+    IOTX_CLOUD_DOMAIN_SG,
+
+    /* Japan */ 
+    IOTX_CLOUD_DOMAIN_JP,
+
+    /* America */
+    IOTX_CLOUD_DOMAIN_US,   
+
+    /* Germany */
+    IOTX_CLOUD_DOMAIN_GER,
+
+    /* Maximum number of domain */
+    IOTX_CLOUD_DOMAIN_MAX
+}iotx_cloud_domain_types_t;
+
+
 /* From device.h */
 #define PRODUCT_KEY_LEN     (20)
 #define DEVICE_NAME_LEN     (32)
@@ -42,6 +64,7 @@ typedef enum _IOT_LogLevel {
 #define DEVICE_SECRET_LEN   (64)
 #define PRODUCT_SECRET_LEN  (64)
 
+#define LINKKIT_VERSION     "2.2.0"
 #define MODULE_VENDOR_ID    (32)    /* Partner ID */
 
 #define HOST_ADDRESS_LEN    (128)
@@ -160,6 +183,18 @@ int     IOT_SetupConnInfoSecure(const char *product_key,
                                 const char *device_name,
                                 const char *device_secret,
                                 void **info_ptr);
+
+/**
+ * @brief Setup Demain type, should be called before MQTT connection.
+ *
+ * @param [in] domain_type: @n Domain type.
+ *
+ * @return None.
+ * @see None.
+ */
+void    IOT_SetupDomain(int domain_type);
+
+
 /** @} */ /* end of api_conninfo */
 
 /** @} */ /* end of api */

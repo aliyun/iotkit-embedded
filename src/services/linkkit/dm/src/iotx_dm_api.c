@@ -10,6 +10,9 @@
 #include "iotx_dm_cm_wrapper.h"
 #include "iotx_dm_ipc.h"
 #include "iotx_dm_msg_dispatch.h"
+#include "iotx_dm_subscribe.h"
+#include "iotx_dm_conn.h"
+#include "iotx_dm_opt.h"
 #include "iot_export_dm.h"
 
 static iotx_dapi_ctx_t g_iotx_dapi_ctx;
@@ -28,6 +31,11 @@ static void _iotx_dapi_lock(void)
 static void _iotx_dapi_unlock(void) {
 	iotx_dapi_ctx_t *ctx = _iotx_dapi_get_ctx();
 	if (ctx->mutex) {HAL_MutexUnlock(ctx->mutex);}
+}
+
+int IOT_DM_Set_Opt(int opt,void *data)
+{
+	return iotx_dopt_set(opt,data);
 }
 
 int IOT_DM_Construct(_IN_ iotx_dm_init_params_t *init_params)
@@ -89,8 +97,8 @@ int IOT_DM_Construct(_IN_ iotx_dm_init_params_t *init_params)
 		goto ERROR;
 	}
 
-	/* DM Service Module Init */
-	res = iotx_dcs_init();
+	/* DM Connect Module Init */
+	res = iotx_dconn_init();
 	if (res != SUCCESS_RETURN) {
 		dm_log_err(IOTX_DM_LOG_CM_INIT_FAILED);
 		goto ERROR;
@@ -99,7 +107,7 @@ int IOT_DM_Construct(_IN_ iotx_dm_init_params_t *init_params)
 	return SUCCESS_RETURN;
 
 ERROR:
-	iotx_dcs_deinit();
+	iotx_dconn_deinit();
 	iotx_dcw_deinit();
 	iotx_dmgr_deinit();
 	iotx_dipc_deinit();
@@ -112,7 +120,7 @@ ERROR:
 int IOT_DM_Destroy(void)
 {
 	iotx_dapi_ctx_t *ctx = _iotx_dapi_get_ctx();
-	iotx_dcs_deinit();
+	iotx_dconn_deinit();
 	iotx_dcw_deinit();
 	iotx_dmgr_deinit();
 	iotx_dipc_deinit();
@@ -159,10 +167,10 @@ int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const 
 		res = iotx_dmgr_set_tsl(devid,IOTX_DM_TSL_TYPE_ALINK,tsl,tsl_len);
 		if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
-		res = iotx_dcs_topic_service_event_destroy(devid);
+		res = iotx_dsub_shadow_destroy(devid);
 		if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 		
-		res = iotx_dcs_topic_service_event_create(devid);
+		res = iotx_dsub_shadow_create(devid);
 		if (res != SUCCESS_RETURN) {_iotx_dapi_unlock();return FAIL_RETURN;}
 
 		_iotx_dapi_unlock();

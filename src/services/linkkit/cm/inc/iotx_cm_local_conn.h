@@ -38,6 +38,7 @@ int iotx_cm_local_conn_service_handler(iotx_cm_conntext_t* cm_ctx, char* URI, in
 
 void* iotx_cm_local_conn_init(void* handler, void *param);
 int iotx_cm_local_conn_connect(void* handler, void* connectivity);
+int iotx_cm_local_conn_init_second(void* handler, void* _connectivity);
 int iotx_cm_local_conn_trigger_connected(void* handler, void* connectivity, iotx_cm_event_handle_fp_t event_fp, void *user_data);
 int iotx_cm_local_conn_check_connected(void* handler, void* _connectivity, iotx_cm_event_handle_fp_t event_fp, void* user_data);
 int iotx_cm_local_conn_register(void* handler, void* connectivity, void* register_param, int count);

@@ -9,7 +9,9 @@ CONFIG_ENV_CFLAGS   += \
     -DIOTX_NET_INIT_WITH_PK_EXT \
     -DCM_VIA_CLOUD_CONN \
     -DTEST_HTTP_DAILY   \
-    -DCM_VIA_CLOUD_CONN_MQTT
+    -DCM_VIA_CLOUD_CONN_MQTT \
+    -DCM_SUPPORT_LOCAL_CONN \
+    -DCONFIG_DM_SUPPORT_LOCAL_CONN
 
 ifneq (Darwin,$(strip $(shell uname)))
 CONFIG_ENV_CFLAGS   += -rdynamic

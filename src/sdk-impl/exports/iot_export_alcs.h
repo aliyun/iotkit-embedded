@@ -158,6 +158,18 @@ typedef struct iotx_alcs_res_st{
 void* IOT_ALCS_Construct(iotx_alcs_param_t *params);
 
 /**
+ * @brief Init Cloud Part
+ *        This function initialize the cloud part.
+ *
+ * @param [in] params: specify the ALCS initialize parameter.
+ *
+ * @retval     NULL : Construct failed.
+ * @retval NOT_NULL : The handle of ALCS.
+ * @see None.
+ */
+int IOT_ALCS_Cloud_Init(void *handle);
+
+/**
  * @brief Deconstruct the ALCS handle
  *        This function distroy ALCS handle and release the related resource.
  *

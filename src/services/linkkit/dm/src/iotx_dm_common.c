@@ -43,6 +43,7 @@ const char IOTX_DM_LOG_IPC_MESSAGE_LIST_FULL[] DM_READ_ONLY = "DM IPC Message Li
 const char IOTX_DM_LOG_MESSAGE_INIT_FAILED[] DM_READ_ONLY = "DM Message Module Init Failed";
 const char IOTX_DM_LOG_MESSAGE_CACHE_INIT_FAILED[] DM_READ_ONLY = "DM Message Cache Module Init Failed";
 const char IOTX_DM_LOG_IPC_INIT_FAILED[] DM_READ_ONLY = "DM IPC Module Init Failed";
+const char IOTX_DM_LOG_DOPT_UNKNOWN_OPT[] DM_READ_ONLY = "DM Option Unknown: %d";
 
 int iotx_dcm_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
@@ -197,6 +198,7 @@ int iotx_dcm_replace_char(_IN_ char *input, _IN_ int input_len, _IN_ char src, _
 
 int iotx_dcm_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char **service_name)
 {
+	int prefix_len = (prefix == NULL)?(0):(strlen(prefix));
 	int service_name_len = 0;
 	if (name == NULL || product_key == NULL || device_name == NULL ||
 		service_name == NULL || *service_name != NULL) {
@@ -204,7 +206,7 @@ int iotx_dcm_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ c
 		return FAIL_RETURN;
 	}
 
-	service_name_len = (prefix == NULL)?(0):(strlen(prefix)) + strlen(name) + strlen(product_key) + strlen(device_name) + 1;
+	service_name_len = prefix_len + strlen(name) + strlen(product_key) + strlen(device_name) + 1;
 	*service_name = DM_malloc(service_name_len);
 	if (*service_name == NULL) {
 		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);

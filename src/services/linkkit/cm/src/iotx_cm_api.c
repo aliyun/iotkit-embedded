@@ -74,6 +74,9 @@ int IOT_CM_Init(iotx_cm_init_param_t* init_param, void* option)
 
     CM_INFO(cm_log_info_version, "0.3");
 
+    // Setup domain type
+    iotx_guider_set_domain_type(init_param->domain_type);
+
     if (NULL == init_param || init_param->event_func == NULL) return FAIL_RETURN;
 
     if (NULL == g_cm_ctx) {
@@ -93,7 +96,7 @@ int IOT_CM_Init(iotx_cm_init_param_t* init_param, void* option)
                 }
 
                 /* auth */
-                if (FAIL_RETURN == iotx_cm_auth(product_key, device_name, device_id)) {
+                if (FAIL_RETURN == iotx_cm_auth(product_key, device_name, device_id, init_param->domain_type)) {
                     CM_ERR(cm_log_error_auth);
                     return FAIL_RETURN;
                 }
@@ -278,6 +281,8 @@ static int cm_connectivity_register(void* handler, void* connectivity, iotx_cm_r
     char* URI;
     int length = 0, i = 0, fail = 0;
 
+	CM_ERR("Current Type: %d",iotx_cm_get_connectivity_type(connectivity));
+	
     node = iotx_cm_get_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity));
     if (NULL == node) {
         CM_ERR(cm_log_error_get_node);
@@ -508,6 +513,28 @@ static int cm_connectivity_sub_device(void* handler, void* connectivity, const c
     return SUCCESS_RETURN;
 }
 
+static int cm_connectivity_init_second(void* handler, void* connectivity)
+{
+	iotx_cm_conntext_t* cm_ctx = (iotx_cm_conntext_t*)handler;
+    iotx_cm_process_list_node_t* node = NULL;
+
+    node = iotx_cm_get_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity));
+    if (NULL == node) {
+        CM_ERR(cm_log_error_get_node);
+        return FAIL_RETURN;
+    }
+
+	node->type = IOTX_CM_PROCESS_LOCAL_CLOUD_INIT;
+	
+    if (FAIL_RETURN == iotx_cm_process_list_push(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node)) {
+        CM_ERR(cm_log_error_push_node);
+        iotx_cm_free_list_node(cm_ctx, node);
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
 
 static void cm_multi_iterator_action_handler(void* list_node, va_list* params)
 {
@@ -563,7 +590,11 @@ static void cm_multi_iterator_action_handler(void* list_node, va_list* params)
             (*ret) = cm_connectivity_sub_device(cm_ctx, connectivity, (const char*)arg3, (const char*)arg4, 0);
         }
             break;
-            
+			
+        case cm_iterator_action_init_second:{
+			*ret = cm_connectivity_init_second(cm_ctx, connectivity);
+        }
+			break;
         default:
             break;
         }
@@ -572,6 +603,29 @@ static void cm_multi_iterator_action_handler(void* list_node, va_list* params)
 }
 #endif
 
+
+int IOT_CM_Init_Second(void* _connectivity)
+{
+	int ret = 0;
+    iotx_cm_conntext_t* cm_ctx = g_cm_ctx;
+#ifdef CM_SUPPORT_MULTI_THREAD
+    iotx_cm_connectivity_t* connectivity = (iotx_cm_connectivity_t*)_connectivity;
+#endif
+
+	assert(cm_ctx);
+
+#ifdef CM_SUPPORT_MULTI_THREAD
+    if (NULL == connectivity) {
+        linked_list_iterator(cm_ctx->list_connectivity, cm_multi_iterator_action_handler, cm_ctx, cm_iterator_action_init_second, &ret);
+    } else {
+        ret = cm_connectivity_init_second(cm_ctx, connectivity);
+    }
+#else /* CM_SUPPORT_MULTI_THREAD */
+    ret = iotx_cm_register(cm_ctx, _connectivity, register_param, count);
+#endif /* CM_SUPPORT_MULTI_THREAD */
+
+    return ret;
+}
 
 /**
  * @brief Register service.

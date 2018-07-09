@@ -36,6 +36,7 @@ typedef void (*iotx_alcs_auth_timer_fnuc_t)(CoAPContext *);
 
 typedef struct iotx_alcs_adapter_st{
 	void *mutex;
+	int local_cloud_inited;
 	CoAPContext *coap_ctx;
 	uint8_t role;
 	iotx_alcs_auth_timer_fnuc_t alcs_client_auth_timer_func;

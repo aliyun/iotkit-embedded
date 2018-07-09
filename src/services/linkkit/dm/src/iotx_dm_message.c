@@ -9,8 +9,11 @@
 #include "iotx_dm_cm_wrapper.h"
 #include "iotx_dm_shadow.h"
 #include "iotx_dm_ipc.h"
+#include "iotx_dm_subscribe.h"
 #include "iotx_dm_msg_dispatch.h"
 #include "iotx_dm_message_cache.h"
+#include "iotx_dm_subscribe.h"
+#include "iotx_dm_opt.h"
 #include "utils_hmac.h"
 
 static iotx_dmsg_ctx_t g_iotx_dmsg_ctx;
@@ -1459,8 +1462,8 @@ int iotx_dmsg_thing_dsltemplate_get_reply(iotx_dmsg_response_payload_t *response
 
 	iotx_dmgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);
 
-	iotx_dcs_topic_service_event_destroy(node->devid);
-	iotx_dcs_topic_service_event_create(node->devid);
+	iotx_dsub_shadow_destroy(node->devid);
+	iotx_dsub_shadow_create(node->devid);
 
 	return SUCCESS_RETURN;
 }
@@ -1487,8 +1490,8 @@ int iotx_dmsg_thing_dynamictsl_get_reply(iotx_dmsg_response_payload_t *response)
 
 	iotx_dmgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);
 
-	iotx_dcs_topic_service_event_destroy(node->devid);
-	iotx_dcs_topic_service_event_create(node->devid);
+	iotx_dsub_shadow_destroy(node->devid);
+	iotx_dsub_shadow_create(node->devid);
 
 	return SUCCESS_RETURN;
 }
@@ -1562,7 +1565,7 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
-	res = iotx_dcs_topic_generic_subscribe(devid,0);
+	res = iotx_dsub_multi_next(devid,0);
 	if (res < SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Set Service Event Topic Index To IOTX_DMGR_DEV_SUB_START */
@@ -1803,7 +1806,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	dm_log_debug("Current Generic Index: %d",index);
 
 	if (index >= 0 && index + 1 < iotx_dcs_get_topic_mapping_size()) {
-		res = iotx_dcs_topic_generic_subscribe(devid,index + 1);
+		res = iotx_dsub_multi_next(devid,index + 1);
 		if (res != iotx_dcs_get_topic_mapping_size()) {return res;}
 	}
 	if ((((index + 1) >= iotx_dcs_get_topic_mapping_size()) || (res == iotx_dcs_get_topic_mapping_size())) && index != IOTX_DMGR_DEV_SUB_END) {
@@ -1852,7 +1855,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	dm_log_debug("Current Service Event Number: %d",number);
 
 	if (index >= IOTX_DMGR_DEV_SUB_START && index + 1 < number) {
-		res = iotx_dcs_topic_service_event_subscribe(devid,index + 1);
+		res = iotx_dsub_shadow_next(devid,index + 1);
 		return res;
 	}
 	iotx_dmgr_set_dev_sub_service_event_index(devid,IOTX_DMGR_DEV_SUB_END);
@@ -1865,6 +1868,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 const char IOTX_DMSG_EVENT_UNREGISTER_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
 int iotx_dmsg_unregister_result(_IN_ char *uri,_IN_ int result)
 {
+	#if 0
 	int res = 0, message_len = 0;
 	char *message = NULL;
 	if (uri == NULL) {
@@ -1886,6 +1890,7 @@ int iotx_dmsg_unregister_result(_IN_ char *uri,_IN_ int result)
 		DM_free(message);
 		return FAIL_RETURN;
 	}
+#endif
 
 	return SUCCESS_RETURN;
 }
@@ -2496,6 +2501,35 @@ int iotx_dmsg_combine_logout(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 	}
 	memset(params,0,params_len);
 	HAL_Snprintf(params,params_len,IOTX_DMSG_COMBINE_LOGOUT_PARAMS,product_key,device_name);
+
+	request->params = params;
+
+	return SUCCESS_RETURN;
+}
+
+const char IOTX_DMSG_THING_LAN_PREFIX_GET_METHOD[] DM_READ_ONLY = "thing.lan.prefix.get";
+const char IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS[] DM_READ_ONLY = "{}";
+int iotx_dmsg_thing_lan_prefix_get(_OU_ iotx_dmsg_request_t *request)
+{
+	char *params = NULL;
+	int params_len = 0;
+
+	if (request == NULL) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Params */
+	request->method = (char *)IOTX_DMSG_THING_LAN_PREFIX_GET_METHOD;
+	params_len = strlen(IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS) + 1;
+	params = DM_malloc(params_len);
+
+	if (params == NULL) {
+		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		return FAIL_RETURN;
+	}
+	memset(params,0,params_len);
+	memcpy(params,IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS,strlen(IOTX_DMSG_THING_LAN_PREFIX_GET_PARAMS));
 
 	request->params = params;
 

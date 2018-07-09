@@ -198,7 +198,8 @@ typedef enum {
     cm_iterator_action_remove_service,
     cm_iterator_action_add_subdevice,
     cm_iterator_action_remove_subdevice,
-
+	cm_iterator_action_init_second,
+	
     cm_iterator_action_max
 } cm_iterator_action_t;
 
@@ -289,6 +290,8 @@ typedef enum {
     /* msg is null*/
     IOTX_CM_PROCESS_LOCAL_RECONNECT,
 
+	IOTX_CM_PROCESS_LOCAL_CLOUD_INIT,
+	
     /* add subdevice */
     IOTX_CM_PROCESS_ADD_SUBDIVCE,
         
@@ -386,7 +389,7 @@ typedef struct iotx_cm_conntext_st{
 //    int                                          send_sync_s
 } iotx_cm_conntext_t;
 
-int iotx_cm_auth(const char *product_key, const char *device_name, const char *client_id);
+int iotx_cm_auth(const char *product_key, const char *device_name, const char *client_id, iotx_cm_cloud_domain_types_t domain_type);
 
 //void iotx_cm_free_message_info(iotx_cm_message_info_t* message_info);
 
