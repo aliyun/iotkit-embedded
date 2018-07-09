@@ -544,14 +544,14 @@ iotx_cm_process_list_node_t* iotx_cm_process_list_pop(iotx_cm_conntext_t* cm_ctx
     connectivity = iotx_cm_find_connectivity_by_type(cm_ctx, type);
     if (NULL == connectivity) return NULL;
 
+	HAL_MutexLock(connectivity->process_lock);
+	
     list = connectivity->process_list;
 
     if (NULL == list) {
         CM_ERR(cm_log_error_status);
         return NULL;
     }
-
-    HAL_MutexLock(connectivity->process_lock);
 
     if (list->size == 1) {
         node = list->header;
