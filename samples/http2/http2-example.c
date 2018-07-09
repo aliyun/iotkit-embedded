@@ -23,20 +23,20 @@
 #include "iot_export_file_uploader.h"
 
 #if defined(ON_DAILY)
-	#define HTTP2_ONLINE_SERVER_URL       "https://10.101.12.205/"
-	#define HTTP2_ONLINE_SERVER_PORT	  9999
+	#define HTTP2_ONLINE_SERVER_URL       "10.101.12.205/"
+	#define HTTP2_ONLINE_SERVER_PORT      9999
 	#define HTTP2_PRODUCT_KEY             "a1QWlwJO4Z2"
 	#define HTTP2_DEVICE_NAME             "cHzzrWfxLiRLYHik3sYJ"
 	#define HTTP2_DEVICE_SECRET           "vZxZiUMf3vwTViC3XIxJ2ZHt0zVoZlRa"
 #elif defined(ON_PRE)
-	#define HTTP2_ONLINE_SERVER_URL       "https://100.67.141.158/"
-	#define HTTP2_ONLINE_SERVER_PORT	  8443
+	#define HTTP2_ONLINE_SERVER_URL       "100.67.141.158/"
+	#define HTTP2_ONLINE_SERVER_PORT      8443
 	#define HTTP2_PRODUCT_KEY             "b1XVhqfan1X"
 	#define HTTP2_DEVICE_NAME             "YvhjziEQmKusCFUgRpeo"
 	#define HTTP2_DEVICE_SECRET           "QjkhCrAX0SbNWgKpIamuiDdLkk23Q1r7"
 #else
-	#define HTTP2_ONLINE_SERVER_URL       "*.iot-as-http2.cn-shanghai.aliyuncs.com"
-	#define HTTP2_ONLINE_SERVER_PORT	  443
+	#define HTTP2_ONLINE_SERVER_URL       NULL
+	#define HTTP2_ONLINE_SERVER_PORT      443
 	#define HTTP2_PRODUCT_KEY             "DM5b8zbTWJs"
 	#define HTTP2_DEVICE_NAME             "mydevice1"
 	#define HTTP2_DEVICE_SECRET           "q4tiwQuICYfr6JQ8aUFjWxocuXJ5ruEx"

@@ -52,7 +52,11 @@
 #define GUIDER_DEVCODE_LEN          (256)
 #define GUIDER_URLENCODE_LEN        (256)
 
-#define GUIDER_DIRECT_DOMAIN        "iot-as-mqtt.cn-shanghai.aliyuncs.com"
+#define GUIDER_DIRECT_DOMAIN_SHANGHAI       "iot-as-mqtt.cn-shanghai.aliyuncs.com"
+#define GUIDER_DIRECT_DOMAIN_SINGAPORE      "iot-as-mqtt.ap-southeast-1.aliyuncs.com"
+#define GUIDER_DIRECT_DOMAIN_JAPAN          "iot-as-mqtt.ap-northeast-1.aliyuncs.com"
+#define GUIDER_DIRECT_DOMAIN_AMERICA        "iot-as-mqtt.us-west-1.aliyuncs.com"
+#define GUIDER_DIRECT_DOMAIN_GERMANY        "iot-as-mqtt.eu-central-1.aliyuncs.com"
 
 #define SHA_METHOD              "hmacsha1"
 #define MD5_METHOD              "hmacmd5"

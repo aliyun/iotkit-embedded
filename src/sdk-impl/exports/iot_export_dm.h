@@ -23,6 +23,7 @@
 #define IOTX_DM_DEVICE_SINGLE  (0x01)
 #define IOTX_DM_DEVICE_SUBDEV  (0x02)
 #define IOTX_DM_DEVICE_GATEWAY (0x04)
+#define IOTX_DM_DEVICE_MAIN    (IOTX_DM_DEVICE_SINGLE|IOTX_DM_DEVICE_GATEWAY)
 #define IOTX_DM_DEVICE_ALL     (IOTX_DM_DEVICE_SINGLE|IOTX_DM_DEVICE_SUBDEV|IOTX_DM_DEVICE_GATEWAY)
 
 /* Service Type 0~7bit: type, 8~15bit: extended*/
@@ -99,6 +100,9 @@ typedef enum {
 typedef enum {
 	IOTX_DM_CLOUD_DOMAIN_SHANGHAI,
     IOTX_DM_CLOUD_DOMAIN_SINGAPORE,
+    IOTX_DM_CLOUD_DOMAIN_JAPAN,
+    IOTX_DM_CLOUD_DOMAIN_AMERICA,
+    IOTX_DM_CLOUD_DOMAIN_GERMANY,
     IOTX_DM_CLOUD_DOMAIN_MAX
 }iotx_dm_cloud_domain_types_t;
 
@@ -141,6 +145,7 @@ typedef enum {
 
 #define IOTX_DM_POST_PROPERTY_ALL (NULL)
 
+int IOT_DM_Set_Opt(int opt,void *data);
 int IOT_DM_Construct(_IN_ iotx_dm_init_params_t *init_params);
 int IOT_DM_Destroy(void);
 int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len);

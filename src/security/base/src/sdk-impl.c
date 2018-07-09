@@ -23,6 +23,12 @@
 #include "lite-system.h"
 #include "sec_debug.h"
 
+
+void IOT_SetupDomain(int domain_type)
+{
+    iotx_guider_set_domain_type(domain_type);
+}
+
 void IOT_OpenLog(const char *ident)
 {
     const char         *mod = ident;

@@ -37,23 +37,28 @@ const char *secmode_str[] = {
 };
 
 
-#ifdef SUPPORT_SINGAPORE_DOMAIN
-int g_domain_type = 1;
-#define SUPPORT_AUTH_ROUTER
-#else
+/* domain type */
 int g_domain_type = 0;
-#endif /* SUPPORT_SINGAPORE_DOMAIN */
 
 
-void guider_set_domain_type(int domain_type)
+void iotx_guider_set_domain_type(int domain_type)
 {
     g_domain_type = domain_type;
 }
 
-char* guider_get_domain()
+/* return domain, DIRECT mode */
+char* iotx_guider_get_domain(void)
 {
     if (0 == g_domain_type)
-        return GUIDER_DIRECT_DOMAIN;
+        return GUIDER_DIRECT_DOMAIN_SHANGHAI;
+    else if (1 == g_domain_type)
+        return GUIDER_DIRECT_DOMAIN_SINGAPORE;
+    else if (2 == g_domain_type)
+        return GUIDER_DIRECT_DOMAIN_JAPAN;
+    else if (3 == g_domain_type)
+        return GUIDER_DIRECT_DOMAIN_AMERICA;
+    else if (4 == g_domain_type)
+        return GUIDER_DIRECT_DOMAIN_GERMANY;    
 
     return NULL;
 }
@@ -305,7 +310,8 @@ static void guider_get_url(char *buf, int len)
 
     HAL_Snprintf(buf, len, "%s", "http://");
 
-    if (0 == g_domain_type) {
+    if (0 == g_domain_type) 
+    {
     #if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
     #elif defined(ON_DAILY)
@@ -313,7 +319,10 @@ static void guider_get_url(char *buf, int len)
     #else
         strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
     #endif
-    } else {
+    } 
+
+    else if (1 == g_domain_type)
+    {
     #if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
     #elif defined(ON_DAILY)
@@ -322,6 +331,39 @@ static void guider_get_url(char *buf, int len)
         strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
     #endif
     }
+
+    else if (2 == g_domain_type)
+    {
+    #if defined(ON_PRE)
+        strcat(buf, "iot-auth-pre.ap-northeast-1.aliyuncs.com");    ////////////  TODO
+    #elif defined(ON_DAILY)
+        strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
+    #else
+        strcat(buf, "iot-auth.ap-northeast-1.aliyuncs.com"); ////////////  TODO
+    #endif
+    } 
+
+    else if (3 == g_domain_type)
+    {
+    #if defined(ON_PRE)
+        strcat(buf, "iot-auth-pre.us-west-1.aliyuncs.com");    ////////////  TODO
+    #elif defined(ON_DAILY)
+        strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
+    #else
+        strcat(buf, "iot-auth.us-west-1.aliyuncs.com");  ////////////  TODO
+    #endif
+    } 
+
+    else if (4 == g_domain_type)
+    {
+    #if defined(ON_PRE)
+        strcat(buf, "iot-auth-pre.eu-central-1.aliyuncs.com");    ////////////  TODO
+    #elif defined(ON_DAILY)
+        strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
+    #else
+        strcat(buf, "iot-auth.eu-central-1.aliyuncs.com");   ////////////  TODO
+    #endif
+    }      
 
     strcat(buf, "/auth/devicename");
 
@@ -611,7 +653,7 @@ int iotx_guider_authenticate(void)
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "%s.%s",
                       dev->product_key,
-                      guider_get_domain());
+                      iotx_guider_get_domain());
 #endif
     _fill_conn_string(conn->username, sizeof(conn->username),
                       "%s&%s",

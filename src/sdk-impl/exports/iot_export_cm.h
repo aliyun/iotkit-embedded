@@ -37,11 +37,20 @@
 
 /* domain type */
 typedef enum IOTX_CM_CLOUD_DOMAIN_TYPES {
-    /* "iot-as-mqtt.cn-shanghai.aliyuncs.com" */
+    /* Shanghai */
     IOTX_CM_CLOUD_DOMAIN_ShangHai,
 
     /* Singapore */
     IOTX_CM_CLOUD_DOMAIN_Singapore,
+
+    /* Japan */
+    IOTX_CM_CLOUD_DOMAIN_Japan,
+
+    /* America */
+    IOTX_CM_CLOUD_DOMAIN_America,
+
+    /* Germany */
+    IOTX_CM_CLOUD_DOMAIN_Germany,
 
     /* Maximum number of domain */
     IOTX_CM_CLOUD_DOMAIN_MAX
@@ -507,6 +516,8 @@ int IOT_CM_Add_Sub_Device(void* _connectivity, const char* PK, const char* DN, v
  * @return success or fail.
  */
 int IOT_CM_Remove_Sub_Device(void* _connectivity, const char* PK, const char* DN, void* option);
+
+int IOT_CM_Init_Second(void* _connectivity);
 
 
 /**

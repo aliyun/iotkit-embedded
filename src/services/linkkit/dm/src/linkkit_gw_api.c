@@ -875,6 +875,15 @@ int linkkit_gateway_set_option(linkkit_params_t *params, int option, void *value
             return -1;
         params->threadStackSize = *((int *)value);
         break;
+	case LINKKIT_OPT_PROPERTY_POST_REPLY:
+		IOT_DM_Set_Opt(0,value);
+		break;
+	case LINKKIT_OPT_EVENT_POST_REPLY:
+		IOT_DM_Set_Opt(1,value);
+		break;
+	case LINKKIT_OPT_PROPERTY_SET_REPLY:
+		IOT_DM_Set_Opt(2,value);
+		break;
     default:
         dm_log_err("unknow option: %d\n", option);
         return -1;
@@ -1005,7 +1014,6 @@ int linkkit_gateway_exit(void)
 
     return 0;
 }
-
 
 int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 {

@@ -45,10 +45,16 @@ typedef enum _linkkit_loglevel {
 /* domain type */
 /* please sync with dm_cloud_domain_type_t */
 typedef enum {
-    /* iot-as-mqtt.cn-shanghai.aliyuncs.com */
+    /* shanghai */
     linkkit_cloud_domain_shanghai,
-    /* USA */
+    /* singapore */
     linkkit_cloud_domain_singapore,
+    /* japan */
+    linkkit_cloud_domain_japan,
+    /* america */
+    linkkit_cloud_domain_america,
+    /* germany */
+    linkkit_cloud_domain_germany,
 
     linkkit_cloud_domain_max,
 } linkkit_cloud_domain_type_t;
@@ -71,6 +77,22 @@ void* linkkit_dispatch(void* params);
 #else
 void* linkkit_dispatch();
 #endif
+
+typedef enum {
+	linkkit_opt_property_post_reply,  /* data type: int */
+	linkkit_opt_event_post_reply,     /* data type: int */
+	linkkit_opt_property_set_reply    /* data type: int */
+}linkkit_opt_t;
+
+/**
+ * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
+ *
+ * @param opt, specify the option need to be set.
+ * @param data, specify the option value.
+ *
+ * @return int, 0 when success, -1 when fail.
+ */
+int linkkit_set_opt(linkkit_opt_t opt, void *data);
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).

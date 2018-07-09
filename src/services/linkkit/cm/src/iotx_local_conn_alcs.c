@@ -63,7 +63,7 @@ void _alcs_event_handler(void *pcontext, void *phandle, iotx_alcs_event_msg_t *m
 
         if (NULL == transfer_msg->uri || NULL == transfer_msg->payload) return;
 
-        log_info("message response arrived: uri=%s, payload=%.*s",
+        CM_INFO("message response arrived: uri=%s, payload=%.*s",
                  transfer_msg->uri,
                  transfer_msg->payload_len,
                  transfer_msg->payload);
@@ -109,7 +109,7 @@ void _alcs_event_handler(void *pcontext, void *phandle, iotx_alcs_event_msg_t *m
 
         if (NULL == transfer_msg->ip || NULL == transfer_msg->token || NULL == transfer_msg->uri || NULL == transfer_msg->payload) return;
 
-        log_info("message response arrived: token=%.*s, uri=%s, topic_msg=%.*s",
+        CM_INFO("message response arrived: token=%.*s, uri=%s, topic_msg=%.*s",
                  transfer_msg->token_len,
                  transfer_msg->token,
                  transfer_msg->uri,
@@ -173,6 +173,12 @@ void* iotx_local_conn_alcs_init(void* handle, void* param)
     }
 
     return pclient;
+}
+
+int iotx_local_conn_alcs_cloud_init(void *handle) {
+	iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
+	
+	return IOT_ALCS_Cloud_Init(connection->context);
 }
 
 int iotx_local_conn_alcs_add_service(void* handle,
