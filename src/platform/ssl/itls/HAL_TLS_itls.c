@@ -384,8 +384,8 @@ uintptr_t HAL_SSL_Establish(const char *host,
 {
     char port_str[6];
     TLSDataParams_pt pTlsData;
-    char *product_key = NULL;
-    char *product_secret = NULL;
+    const char *product_key = NULL;
+    const char *product_secret = NULL;
 
     if (host == NULL || ca_crt == NULL) {
         platform_err("input params are NULL");

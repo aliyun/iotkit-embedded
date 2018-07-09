@@ -46,7 +46,7 @@ EXTRA_INSTALL_HDRS  := \
 EXTRA_INCLUDE_DIRS	:= \
 	src/sdk-impl \
 	src/thirdparty/tls \
-	src/thirdparty/lib \
+	src/security/pro \
 	src/tools/linkkit_tsl_convert/include \
 	build-rules \
 	src/platform \
