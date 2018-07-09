@@ -18,7 +18,7 @@ CONFIG_ENV_CFLAGS   += -rdynamic
 CONFIG_ENV_CFLAGS   += -Werror
 else
 CONFIG_src/platform :=
-CONFIG_samples      :=
+CONFIG_examples     :=
 CONFIG_src/tools/linkkit_tsl_convert :=
 endif
 

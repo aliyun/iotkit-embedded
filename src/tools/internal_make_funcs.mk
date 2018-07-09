@@ -28,16 +28,16 @@ define Post_Distro
         @cat doc/export.sdk.demo/head.mk > $(FINAL_DIR)/src/Makefile
         @rm -f $(FINAL_DIR)/lib/libtfs*.a)
     $(if $(filter y,$(FEATURE_MQTT_COMM_ENABLED)),
-        @cp -f samples/mqtt/mqtt-example.c $(FINAL_DIR)/src/mqtt-example.c
+        @cp -f examples/mqtt/mqtt-example.c $(FINAL_DIR)/src/mqtt-example.c
         @cat doc/export.sdk.demo/mqtt.mk >> $(FINAL_DIR)/src/Makefile)
     $(if $(filter y,$(FEATURE_COAP_COMM_ENABLED)),
-        @cp -f samples/coap/coap-example.c $(FINAL_DIR)/src/coap-example.c
+        @cp -f examples/coap/coap-example.c $(FINAL_DIR)/src/coap-example.c
         @cat doc/export.sdk.demo/coap.mk >> $(FINAL_DIR)/src/Makefile)
     $(if $(filter y,$(FEATURE_HTTP_COMM_ENABLED)),
-        @cp -f samples/http/http-example.c $(FINAL_DIR)/src/http-example.c
+        @cp -f examples/http/http-example.c $(FINAL_DIR)/src/http-example.c
         @cat doc/export.sdk.demo/http.mk >> $(FINAL_DIR)/src/Makefile)
    $(if $(filter y,$(FEATURE_HTTP2_COMM_ENABLED)),
-        @cp -f samples/http2/http2-example.c $(FINAL_DIR)/src/http2-example.c
+        @cp -f examples/http2/http2-example.c $(FINAL_DIR)/src/http2-example.c
         @cat doc/export.sdk.demo/http2.mk >> $(FINAL_DIR)/src/Makefile)
 
     @$(SED) -i 's!CC *:= gcc!CC := $(CC)!g' $(FINAL_DIR)/src/Makefile
