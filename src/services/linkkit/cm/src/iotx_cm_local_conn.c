@@ -195,7 +195,7 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
         node->msg = NULL;
 
         if (FAIL_RETURN == (ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node)))
-            iotx_cm_free_list_node(cm_ctx, node);
+            iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
     }
 #else
         iotx_cm_local_conn_disconnect_handler(cm_ctx);
@@ -213,7 +213,7 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
             node->msg = NULL;
 
             if (FAIL_RETURN == (ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node)))
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
         }
 #else
         iotx_cm_local_conn_reconnect_handler(cm_ctx);
@@ -259,7 +259,7 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
 
             ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
 
-            if (FAIL_RETURN == ret) iotx_cm_free_list_node(cm_ctx, node);
+            if (FAIL_RETURN == ret) iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
         }
 #else
         iotx_cm_local_conn_found_device_handler(cm_ctx, device);
@@ -304,7 +304,7 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
 
             ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
 
-            if (FAIL_RETURN == ret) iotx_cm_free_list_node(cm_ctx, node);
+            if (FAIL_RETURN == ret) iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
         }
 #else
         iotx_cm_local_conn_remove_device_handler(cm_ctx, device);
@@ -338,13 +338,13 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             iotx_cm_process_list_node_t* node = NULL;
             iotx_cm_process_service_result_t* result_msg = NULL;
 
-            if (NULL == (node = iotx_cm_get_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD))) return FAIL_RETURN;
+            if (NULL == (node = iotx_cm_get_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL))) return FAIL_RETURN;
 
             node->type = IOTX_CM_PROCESS_ADD_SERVICE_RESULT;
             node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
             if (NULL == node) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
 
@@ -353,7 +353,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
             if (NULL == result_msg->URI) {
                 LITE_free(node->msg);
-                LITE_free(node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -366,7 +366,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             if (FAIL_RETURN == ret) {
                 LITE_free(result_msg->URI);
                 LITE_free(node->msg);
-                LITE_free(node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
         }
@@ -390,7 +390,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
             if (NULL == node) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
 
@@ -399,7 +399,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
             if (NULL == result_msg->URI) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -412,7 +412,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
 
             if (FAIL_RETURN == ret) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
         }
@@ -436,7 +436,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
             if (NULL == node) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
 
@@ -445,7 +445,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
             if (NULL == result_msg->URI) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -457,7 +457,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
 
             if (FAIL_RETURN == ret) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
         }
@@ -481,7 +481,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
             if (NULL == node) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
 
@@ -490,7 +490,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
             if (NULL == result_msg->URI) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -502,7 +502,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
 
             if (FAIL_RETURN == ret) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
             }
         }
 #else
@@ -530,7 +530,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             node->msg = LITE_malloc(sizeof(iotx_cm_message_info_t));
             if (NULL == node->msg) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
 
@@ -542,7 +542,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             } else {
                 CM_ERR(cm_log_error_memory);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
             msg_info->URI_length = msg->URI_length;
@@ -553,7 +553,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
             if (NULL == mapping) {
                 CM_WARNING(cm_log_warning_not_mapping);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
 #endif /* CM_SUPPORT_TOPIC_DISPATCH */
@@ -565,7 +565,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
                 CM_ERR(cm_log_error_memory);
                 LITE_free(msg_info->URI);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 return FAIL_RETURN;
             }
             msg_info->conn_ctx = msg->conn_ctx;
@@ -574,7 +574,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
 //                CM_ERR(cm_log_error_memory);
 //                LITE_free(msg_info->URI);
 //                LITE_free(node->msg);
-//                iotx_cm_free_list_node(cm_ctx, node);
+//                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
 //                return FAIL_RETURN;
 //            }
 
@@ -585,7 +585,7 @@ static int iotx_cm_local_conn_response_callback(void* pcontext, iotx_connection_
                 LITE_free(msg_info->URI);
                 LITE_free(msg_info->payload);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                 break;
             }
         }
@@ -1113,7 +1113,7 @@ int iotx_cm_local_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
     node->msg = CM_malloc(sizeof(iotx_cm_process_send_t));
     if (NULL == node->msg) {
         CM_INFO(cm_log_error_parameter);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
         return FAIL_RETURN;
     }
 
@@ -1132,7 +1132,7 @@ int iotx_cm_local_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
         CM_ERR(cm_log_error_memory);
         LITE_free(msg->target);
         LITE_free(msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
         return FAIL_RETURN;
     }
     strncpy(msg->URI, message_info->URI, strlen(message_info->URI));
@@ -1143,7 +1143,7 @@ int iotx_cm_local_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
         LITE_free(msg->URI);
         LITE_free(msg->target);
         LITE_free(msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
         return FAIL_RETURN;
     }
 
@@ -1160,7 +1160,7 @@ int iotx_cm_local_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
         if (msg->URI) LITE_free(msg->URI);
         if (msg->payload) LITE_free(msg->payload);
         LITE_free(node->msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
     }
 
     return ret;
@@ -1362,7 +1362,7 @@ void* iotx_cm_local_conn_process(void *pclient)
                     break;
                 }
 
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
             }
         }
         /* local yield */

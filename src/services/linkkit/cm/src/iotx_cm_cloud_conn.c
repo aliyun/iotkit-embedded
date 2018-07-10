@@ -64,7 +64,7 @@ static void iotx_cm_cloud_conn_event_callback(void *_cm_ctx, iotx_connection_eve
             ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             if (FAIL_RETURN == ret) {
                 CM_ERR(cm_log_error_push_node);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }
 #else
@@ -89,7 +89,7 @@ static void iotx_cm_cloud_conn_event_callback(void *_cm_ctx, iotx_connection_eve
             ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             if (FAIL_RETURN == ret) {
                 CM_ERR(cm_log_error_push_node);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }
 #else
@@ -131,14 +131,14 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
             node->type = IOTX_CM_PROCESS_REGISTER_RESULT;
             if (NULL == (node->msg = CM_malloc(sizeof(iotx_cm_process_register_result_t)))) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
 
             result_msg = node->msg;
             if (NULL == (result_msg->URI = CM_malloc(strlen(msg->URI) + 1))) {
                 LITE_free(node->msg);
-                LITE_free(node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -149,7 +149,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
             if (FAIL_RETURN == (ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node))) {
                 LITE_free(result_msg->URI);
                 LITE_free(node->msg);
-                LITE_free(node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }
 #else
@@ -172,7 +172,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
             node->type = IOTX_CM_PROCESS_REGISTER_RESULT;
             if (NULL == (node->msg = CM_malloc(sizeof(iotx_cm_process_register_result_t)))) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
 
@@ -180,7 +180,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
 
             if (NULL == (result_msg->URI = CM_malloc(strlen(msg->URI) + 1))) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -191,7 +191,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
 
             if (FAIL_RETURN == (ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node))) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }
 #else
@@ -213,7 +213,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
             node->type = IOTX_CM_PROCESS_UNREGISTER_RESULT;
             if (NULL == (node->msg = CM_malloc(sizeof(iotx_cm_process_register_result_t)))) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
 
@@ -221,7 +221,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
 
             if (NULL == (result_msg->URI = CM_malloc(strlen(msg->URI) + 1))) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -231,7 +231,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
 
             if (FAIL_RETURN == (ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node))) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }
 #else
@@ -253,7 +253,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
             node->type = IOTX_CM_PROCESS_UNREGISTER_RESULT;
             if (NULL == (node->msg = CM_malloc(sizeof(iotx_cm_process_register_result_t)))) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
 
@@ -261,7 +261,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
 
             if (NULL == (result_msg->URI = CM_malloc(strlen(msg->URI) + 1))) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
             memset(result_msg->URI, 0x0, strlen(msg->URI) + 1);
@@ -271,7 +271,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
 
             if (FAIL_RETURN == (ret = iotx_cm_process_list_push(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node))) {
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }
 #else
@@ -298,7 +298,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
             node->type = IOTX_CM_PROCESS_CLOUD_NEW_DATA;
             if (NULL == (node->msg = CM_malloc(sizeof(iotx_cm_message_info_t)))) {
                 CM_ERR(cm_log_error_memory);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
 
@@ -310,7 +310,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
             } else {
                 CM_ERR(cm_log_error_memory);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
             msg_info->URI_length = msg->URI_length;
@@ -321,7 +321,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
                 CM_WARNING(cm_log_warning_not_mapping);
                 LITE_free(msg_info->URI);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
 #endif
@@ -330,7 +330,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
 //                CM_ERR(cm_log_error_parse_payload);
 //                iotx_cm_free_message_info(msg_info);
 //                LITE_free(node->msg);
-//                iotx_cm_free_list_node(cm_ctx, node);
+//                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
 //                return FAIL_RETURN;
 //            }
 
@@ -341,7 +341,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
                 CM_ERR(cm_log_error_memory);
                 LITE_free(msg_info->URI);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 return FAIL_RETURN;
             }
             msg_info->payload_length = msg->payload_length;
@@ -351,7 +351,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
                 LITE_free(msg_info->URI);
                 LITE_free(msg_info->payload);
                 LITE_free(node->msg);
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
                 break;
             }
         }
@@ -867,7 +867,7 @@ int iotx_cm_cloud_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
     node->msg = CM_malloc(sizeof(iotx_cm_process_send_t));
     if (NULL == node->msg) {
         CM_ERR(cm_log_error_memory);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
         return FAIL_RETURN;
     }
 
@@ -886,7 +886,7 @@ int iotx_cm_cloud_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
         CM_ERR(cm_log_error_memory);
         LITE_free(msg->target);
         LITE_free(msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
         return FAIL_RETURN;
     }
     strncpy(msg->URI, message_info->URI, strlen(message_info->URI));
@@ -897,7 +897,7 @@ int iotx_cm_cloud_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
         LITE_free(msg->URI);
         LITE_free(msg->target);
         LITE_free(msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
         return FAIL_RETURN;
     }
 
@@ -914,7 +914,7 @@ int iotx_cm_cloud_conn_add_send(void* handler, iotx_cm_send_peer_t* target, iotx
         if (msg->URI) LITE_free(msg->URI);
         if (msg->payload) LITE_free(msg->payload);
         LITE_free(node->msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
     }
 
     return SUCCESS_RETURN;
@@ -1105,7 +1105,7 @@ void* iotx_cm_cloud_conn_process(void *pclient)
                     break;
                 }
 
-                iotx_cm_free_list_node(cm_ctx, node);
+                iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }
         /* cloud yield */

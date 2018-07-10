@@ -142,7 +142,7 @@ int iotx_cm_connect_connectivity_all(iotx_cm_conntext_t* cm_ctx);
 #ifdef CM_SUPPORT_MULTI_THREAD
 iotx_cm_process_list_node_t* iotx_cm_get_list_node(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type);
 
-int iotx_cm_free_list_node(iotx_cm_conntext_t* cm_ctx, iotx_cm_process_list_node_t* node);
+int iotx_cm_free_list_node(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type, iotx_cm_process_list_node_t* node);
 
 void iotx_cm_free_process_list_handler(void* list_node, va_list* params);
 

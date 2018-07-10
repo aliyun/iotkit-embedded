@@ -289,20 +289,40 @@ iotx_cm_process_list_node_t* iotx_cm_get_list_node(iotx_cm_conntext_t* cm_ctx, i
 }
 
 
-int iotx_cm_free_list_node(iotx_cm_conntext_t* cm_ctx, iotx_cm_process_list_node_t* node)
+int iotx_cm_free_list_node(iotx_cm_conntext_t* cm_ctx, iotx_cm_connectivity_types_t type, iotx_cm_process_list_node_t* node)
 {
-    if (NULL == node) return FAIL_RETURN;
+	iotx_cm_connectivity_t *connectivity = NULL;
+	
+    if (NULL == node || cm_ctx == NULL) {
+        return FAIL_RETURN;
+    }
+
+	if (IOTX_CM_CONNECTIVITY_TYPE_CLOUD == type) {
+        connectivity = iotx_cm_find_connectivity(cm_ctx, iotx_cm_cloud_conn_get_target(), NULL);
+
+    }
+#ifdef CM_SUPPORT_LOCAL_CONN
+    else if (IOTX_CM_CONNECTIVITY_TYPE_LOCAL == type) {
+        connectivity = iotx_cm_find_connectivity(cm_ctx, iotx_cm_local_conn_get_target(), NULL);
+    }
+#endif
+
+	HAL_MutexLock(connectivity->process_lock);
 
 #ifdef CM_PROCESS_NODE_USE_POOL
     if (node->is_used == 1) {
+		/* CM_ERR("Free Node: %p, func: %s, line: %d",node); */
         node->is_used = 0;
         memset(node, 0x0, sizeof(iotx_cm_process_list_node_t));
+		HAL_MutexUnlock(connectivity->process_lock);
         return SUCCESS_RETURN;
     }
 
+	HAL_MutexUnlock(connectivity->process_lock);
     return FAIL_RETURN;
 #else
     LITE_free(node);
+	HAL_MutexUnlock(connectivity->process_lock);
     return SUCCESS_RETURN;
 #endif
 }

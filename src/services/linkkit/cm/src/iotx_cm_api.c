@@ -219,7 +219,7 @@ int IOT_CM_Connectivity_Connect(void* connectivity, void* option)
         node->type = IOTX_CM_PROCESS_CONNECT;
 
         if (FAIL_RETURN == iotx_cm_process_list_push(g_cm_ctx, iotx_cm_get_connectivity_type(connectivity), node)) {
-            iotx_cm_free_list_node(g_cm_ctx, node);
+            iotx_cm_free_list_node(g_cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
             return FAIL_RETURN;
         }
         return SUCCESS_RETURN;
@@ -260,7 +260,7 @@ int IOT_CM_Connectivity_Destroy(void** connectivity, void* option)
         node->type = IOTX_CM_PROCESS_DISCONNECT;
 
         if (FAIL_RETURN == iotx_cm_process_list_push(g_cm_ctx, iotx_cm_get_connectivity_type((*connectivity)), node)) {
-            iotx_cm_free_list_node(g_cm_ctx, node);
+            iotx_cm_free_list_node(g_cm_ctx, iotx_cm_get_connectivity_type(*connectivity), node);
             return FAIL_RETURN;
         }
         return SUCCESS_RETURN;
@@ -293,7 +293,7 @@ static int cm_connectivity_register(void* handler, void* connectivity, iotx_cm_r
     msg = node->msg = CM_malloc(sizeof(iotx_cm_process_register_t));
     if (NULL == node->msg) {
         CM_ERR(cm_log_error_memory);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
@@ -308,7 +308,7 @@ static int cm_connectivity_register(void* handler, void* connectivity, iotx_cm_r
         URI = CM_malloc(length + 1);
         if (NULL == URI) {
             CM_ERR(cm_log_error_memory);
-            iotx_cm_free_list_node(cm_ctx, node);
+            iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
             fail = 1;
             break;
         }
@@ -319,7 +319,7 @@ static int cm_connectivity_register(void* handler, void* connectivity, iotx_cm_r
             CM_ERR(cm_log_error_memory);
             LITE_free(URI);
             LITE_free(msg);
-            iotx_cm_free_list_node(cm_ctx, node);
+            iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
             fail = 1;
             break;
         }
@@ -349,7 +349,7 @@ static int cm_connectivity_register(void* handler, void* connectivity, iotx_cm_r
             LITE_free(param[i]);
         }
         LITE_free(param);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
@@ -374,7 +374,7 @@ static int cm_connectivity_unregister(void* handler, void* connectivity, iotx_cm
     URI = CM_malloc(length + 1);
     if (NULL == URI){
         CM_ERR(cm_log_error_memory);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
     strcpy(URI, unregister_param->URI);
@@ -385,7 +385,7 @@ static int cm_connectivity_unregister(void* handler, void* connectivity, iotx_cm
     if (FAIL_RETURN == iotx_cm_process_list_push(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node)) {
         CM_ERR(cm_log_error_push_node);
         LITE_free(URI);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
@@ -411,7 +411,7 @@ static int cm_connectivity_add_service(void* handler, void* connectivity, iotx_c
     URI = CM_malloc(length + 1);
     if (NULL == URI) {
         CM_ERR(cm_log_error_memory);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
     strcpy(URI, add_service_param->URI);
@@ -421,7 +421,7 @@ static int cm_connectivity_add_service(void* handler, void* connectivity, iotx_c
     if (NULL == node->msg) {
         CM_ERR(cm_log_error_memory);
         LITE_free(URI);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
     msg = node->msg;
@@ -435,7 +435,7 @@ static int cm_connectivity_add_service(void* handler, void* connectivity, iotx_c
         CM_ERR(cm_log_error_push_node);
         LITE_free(URI);
         LITE_free(node->msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
@@ -460,7 +460,7 @@ static int cm_connectivity_remove_service(void* handler, void* connectivity, iot
     URI = CM_malloc(length + 1);
     if (NULL == URI){
         CM_ERR(cm_log_error_memory);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
     strcpy(URI, remove_service_param->URI);
@@ -471,7 +471,7 @@ static int cm_connectivity_remove_service(void* handler, void* connectivity, iot
     if (FAIL_RETURN == iotx_cm_process_list_push(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node)) {
         CM_ERR(cm_log_error_push_node);
         LITE_free(URI);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
@@ -495,7 +495,7 @@ static int cm_connectivity_sub_device(void* handler, void* connectivity, const c
     node->msg = CM_malloc(sizeof(iotx_cm_process_subdevice_t));
     if (NULL == node->msg) {
         CM_ERR(cm_log_error_memory);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
@@ -506,7 +506,7 @@ static int cm_connectivity_sub_device(void* handler, void* connectivity, const c
     if (FAIL_RETURN == iotx_cm_process_list_push(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node)) {
         CM_ERR(cm_log_error_push_node);
         LITE_free(node->msg);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
@@ -528,7 +528,7 @@ static int cm_connectivity_init_second(void* handler, void* connectivity)
 	
     if (FAIL_RETURN == iotx_cm_process_list_push(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node)) {
         CM_ERR(cm_log_error_push_node);
-        iotx_cm_free_list_node(cm_ctx, node);
+        iotx_cm_free_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity), node);
         return FAIL_RETURN;
     }
 
