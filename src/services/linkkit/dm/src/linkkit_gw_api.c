@@ -560,7 +560,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
                 int res = 0;
 				lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_paylaod;
                 char *identifier = NULL;
-                char *payload = NULL;
+                char *input = NULL;
                 char *out_json = NULL;
 
 				/* Parse Payload */
@@ -600,19 +600,19 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 				memset(identifier,0,lite_item_serviceid.value_length + 1);
 				memcpy(identifier,lite_item_serviceid.value,lite_item_serviceid.value_length);
 
-				payload = DM_malloc(lite_item_paylaod.value_length + 1);
-				if (payload == NULL) {
+				input = DM_malloc(lite_item_paylaod.value_length + 1);
+				if (input == NULL) {
 					DM_free(identifier);
 					dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
 					return;
 				}
-				memset(payload,0,lite_item_paylaod.value_length + 1);
-				memcpy(payload,lite_item_paylaod.value,lite_item_paylaod.value_length);
+				memset(input,0,lite_item_paylaod.value_length + 1);
+				memcpy(input,lite_item_paylaod.value,lite_item_paylaod.value_length);
 
 				out_json = AMemPool_Get(gbl.msgbuf_pool);
 			    if (!out_json) {
 					IOT_DM_Legacy_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,202,lite_item_serviceid.value,lite_item_serviceid.value_length,"{}",strlen("{}"));
-			        DM_free(identifier);DM_free(payload);
+			        DM_free(identifier);DM_free(input);
 			        return;
 			    }
 			    out_json[0] = '\0';
@@ -620,7 +620,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 
                 linkkit_dev_t *dev = _find_device_by_devid(lite_item_devid.value_int);
                 if (dev->cbs.call_service)
-                    res = dev->cbs.call_service(identifier, payload, out_json, gbl.max_msg_size - 1, dev->ctx);
+                    res = dev->cbs.call_service(identifier, input, out_json, gbl.max_msg_size - 1, dev->ctx);
 
 				if (res == SUCCESS_RETURN) {
 					IOT_DM_Legacy_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,200,lite_item_serviceid.value,lite_item_serviceid.value_length,out_json,strlen(out_json));
@@ -628,7 +628,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 					IOT_DM_Legacy_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,202,lite_item_serviceid.value,lite_item_serviceid.value_length,"{}",strlen("{}"));
 				}
 
-				DM_free(identifier);DM_free(payload);
+				DM_free(identifier);DM_free(input);
 				AMemPool_Put(gbl.msgbuf_pool, out_json);
             }
             break;
