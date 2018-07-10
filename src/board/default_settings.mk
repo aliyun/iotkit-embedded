@@ -1,4 +1,4 @@
-DEFAULT_BLD             := $(CONFIG_DIR)/config.win7.mingw32
+DEFAULT_BLD             := $(CONFIG_DIR)/config.ubuntu.x86
 POST_FINAL_OUT_HOOK     := Post_Distro
 SUBDIRS                 := directory-not-exist-actually
 UTEST_PROG              := sdk-testsuites
