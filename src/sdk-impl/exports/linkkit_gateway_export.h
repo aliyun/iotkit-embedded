@@ -55,7 +55,7 @@ linkkit_params_t *linkkit_gateway_get_default_params(void);
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_set_option(linkkit_params_t *params, int option, void *value, int value_len);
+int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, int value_len);
 
 typedef struct {
     int event_type; /* see LINKKIT_EVENT_XXX for more details */

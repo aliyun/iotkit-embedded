@@ -340,13 +340,13 @@ int main(void)
         return -1;    
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
     maxMsgSize = 20 * 1024;
-    linkkit_gateway_set_option(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));    
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));    
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
     maxMsgQueueSize = 8;
-    linkkit_gateway_set_option(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));    
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));    
     /* LINKKIT_OPT_LOG_LEVEL: log level [0 - Emergency, 1 - Critical, 2 - Error, 3 - Warnning, 4 - Info, 5 - Debug] */
     loglevel = 5;
-    linkkit_gateway_set_option(initParams, LINKKIT_OPT_LOG_LEVEL, &loglevel, sizeof(int));
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_LOG_LEVEL, &loglevel, sizeof(int));
 
     /* set event handler */
     linkkit_gateway_set_event_callback(initParams, event_handler, &gateway);

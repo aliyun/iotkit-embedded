@@ -849,7 +849,7 @@ linkkit_params_t *linkkit_gateway_get_default_params(void)
 }
 
 
-int linkkit_gateway_set_option(linkkit_params_t *params, int option, void *value, int value_len)
+int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, int value_len)
 {
     if (!params || !value || !value_len)
         return -1;

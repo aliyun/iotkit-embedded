@@ -92,7 +92,7 @@ typedef enum {
  *
  * @return int, 0 when success, -1 when fail.
  */
-int linkkit_set_opt(linkkit_opt_t opt, void *data);
+int linkkit_setopt(linkkit_opt_t opt, void *data);
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).

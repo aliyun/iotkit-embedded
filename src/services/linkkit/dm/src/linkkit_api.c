@@ -438,7 +438,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
     }
 }
 
-int linkkit_set_opt(linkkit_opt_t opt, void *data)
+int linkkit_setopt(linkkit_opt_t opt, void *data)
 {
 	return IOT_DM_Set_Opt(opt,data);
 }
