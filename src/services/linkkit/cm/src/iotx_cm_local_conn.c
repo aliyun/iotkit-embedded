@@ -130,6 +130,7 @@ static int iotx_cm_local_conn_remove_device_all()
         if (iotx_cm_local_device_list[i].is_used == 1) {
             LITE_free(iotx_cm_local_device_list[i].node->device_info);
             LITE_free(iotx_cm_local_device_list[i].node);
+            iotx_cm_local_device_list[i].is_used = 0;
         }
     }
     return SUCCESS_RETURN;
