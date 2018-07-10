@@ -40,7 +40,7 @@ static iotx_cm_mapping_t g_cm_service_mapping_list[CM_SUPPORT_MAX_MAPPING_SIZE];
 
 #endif
 
-
+#if 0
 static const char string_id[] CM_READ_ONLY = "id";
 static const char string_code[] CM_READ_ONLY = "code";
 static const char string_data[] CM_READ_ONLY = "data";
@@ -65,6 +65,7 @@ static const char string_AUTH_CONTENT_TYPE[] CM_READ_ONLY = "application/x-www-f
 static const char string_hmac_format[] CM_READ_ONLY = "deviceName%s" "productKey%s" "random%s";
 static const char string_auth_req_format[] CM_READ_ONLY = "productKey=%s&" "deviceName=%s&" "signMethod=%s&" "sign=%s&" "version=default&" "clientId=%s&" "random=%s&" "resources=mqtt";
 static const int  int_random_length = 15;
+#endif
 
 #if 0
 static int iotx_cm_get_next_message_id(iotx_cm_conntext_t* cm_ctx)
