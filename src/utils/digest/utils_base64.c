@@ -24,7 +24,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "utils_base64.h"
 
 static int8_t g_encodingTable[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',

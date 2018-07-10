@@ -23,7 +23,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "nghttp2_mem.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 
 static void *default_malloc(size_t size, void *mem_user_data) {
   (void)mem_user_data;

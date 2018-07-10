@@ -29,8 +29,8 @@
 
 #include "iotx_log.h"
 
-#include "lite-utils_config.h"
-#include "lite-utils.h"
+#include "iotx_utils_config.h"
+#include "iotx_utils.h"
 
 #define utils_emerg(...)    log_emerg("util", __VA_ARGS__)
 #define utils_crit(...)     log_crit("util", __VA_ARGS__)

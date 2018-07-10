@@ -3,7 +3,7 @@
 #include "iot_export.h"
 
 #include "json_parser.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "mqtt_instance.h"
 #include "CoAPExport.h"
 #include "alcs_api.h"

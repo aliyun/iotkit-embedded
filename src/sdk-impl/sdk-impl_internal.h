@@ -28,7 +28,7 @@ extern "C" {
 #include "iot_export.h"
 
 #include "iotx_log.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-system.h"
 
 #define POINTER_SANITY_CHECK(ptr, err) \

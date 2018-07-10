@@ -24,7 +24,7 @@
 
 #include "iotx_log_config.h"
 #include "iotx_log.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "iot_import.h"
 
 typedef struct {

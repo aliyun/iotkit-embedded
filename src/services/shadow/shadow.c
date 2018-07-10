@@ -20,7 +20,7 @@
 #include "iot_import.h"
 
 #include "utils_list.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "shadow.h"
 #include "shadow_common.h"
 #include "shadow_update.h"

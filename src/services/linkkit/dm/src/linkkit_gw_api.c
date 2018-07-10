@@ -6,7 +6,7 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-cjson.h"
 
 #include "iotx_dm_common.h"
@@ -17,7 +17,7 @@
 #include "watcher.h"
 #include "mempool.h"
 #include "iotx_log.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "iot_export_dm.h"
 #include "linkkit_gateway_export.h"
 

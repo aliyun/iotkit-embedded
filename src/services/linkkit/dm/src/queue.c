@@ -4,7 +4,7 @@
 
 #include "queue.h"
 #include "iot_import.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 
 typedef struct {
     void *data;

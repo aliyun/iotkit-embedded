@@ -1,4 +1,4 @@
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-list.h"
 #include "iotx_dm_common.h"
 #include "iotx_dm_ipc.h"

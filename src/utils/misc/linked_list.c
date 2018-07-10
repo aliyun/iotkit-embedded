@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "iot_import.h"
 #include "linked_list.h"
 

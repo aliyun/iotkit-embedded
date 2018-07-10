@@ -16,7 +16,7 @@
  *
  */
 
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "mem_stats.h"
 
 LIST_HEAD(mem_recs);

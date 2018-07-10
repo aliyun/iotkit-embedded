@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "iot_import.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "subdev_example_api.h"
 
 iotx_thing_masterlave_pt g_thing_masterlave_t = NULL;

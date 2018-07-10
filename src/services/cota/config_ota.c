@@ -28,7 +28,7 @@
 #include "iot_export_cota.h"
 #include "iot_export_cm.h"
 #include "iot_export_errno.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 
 static void config_ota_handler(void* pcontext, iotx_cm_cota_parameter_t* ota_parameter, void* user_data)
 {

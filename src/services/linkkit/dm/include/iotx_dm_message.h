@@ -1,7 +1,7 @@
 #ifndef _IOTX_DM_MESSAGE_H_
 #define _IOTX_DM_MESSAGE_H_
 
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-list.h"
 #include "lite-cjson.h"
 #include "iot_export_dm.h"

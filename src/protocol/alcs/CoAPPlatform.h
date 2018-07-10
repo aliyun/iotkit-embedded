@@ -21,7 +21,7 @@
 #define __COAP_PLATFORM_OS_H__
 #include <stdio.h>
 #ifdef COAP_USE_PLATFORM_MEMORY
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #endif
 #include "iotx_log.h"
 

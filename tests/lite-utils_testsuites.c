@@ -17,7 +17,7 @@
  */
 
 
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "ut_debug.h"
 
 int unittest_string_utils(void)

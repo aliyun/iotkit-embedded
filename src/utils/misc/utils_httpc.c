@@ -24,7 +24,7 @@
 #include "iot_import.h"
 #include "utils_timer.h"
 #include "utils_httpc.h"
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))

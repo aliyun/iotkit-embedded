@@ -23,7 +23,7 @@
 #include "iot_export.h"
 #include "lite-system.h"
 #include "mqtt_debug.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "utils_net.h"
 #include "utils_hmac.h"
 #include "utils_list.h"

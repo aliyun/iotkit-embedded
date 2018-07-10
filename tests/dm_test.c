@@ -1,7 +1,7 @@
 #include "sdk-testsuites_internal.h"
 #include "cut.h"
 #include "ut_debug.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-cjson.h"
 #include "iotx_dm_common.h"
 #include "iotx_dm_manager.h"

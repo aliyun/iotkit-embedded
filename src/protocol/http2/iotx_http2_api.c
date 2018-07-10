@@ -48,7 +48,7 @@
 #include "nghttp2/nghttp2.h"
 #include "nghttp2_session.h"
 #include "utils_hmac.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "h2_debug.h"
 #include "iot_export_http2.h"
 #include "iot_export.h"

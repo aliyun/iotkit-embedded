@@ -19,7 +19,7 @@
 
 #include "iot_import.h"
 #include "iotx_log.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-system.h"
 #include "iot_export.h"
 #include "iot_export_mqtt.h"

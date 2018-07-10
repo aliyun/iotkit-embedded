@@ -20,7 +20,7 @@
 #ifndef __MEM_STATS_H__
 #define __MEM_STATS_H__
 
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 
 #if defined(_PLATFORM_IS_LINUX_) && WITH_MEM_STATS
     #include <execinfo.h>

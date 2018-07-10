@@ -22,7 +22,7 @@
 #include "iot_export.h"
 #include "utils_httpc.h"
 #include "utils_hmac.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "fs_upload_debug.h"
 #include "iot_export_http2.h"
 #include "iot_export_file_uploader.h"

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iot_export_mqtt.h"

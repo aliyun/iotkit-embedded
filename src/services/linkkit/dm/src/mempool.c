@@ -6,7 +6,7 @@
 #include <stddef.h>
 
 #include "mempool.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "iot_import.h"
 
 #define max(a, b)   ((a) > (b) ? (a) : (b))

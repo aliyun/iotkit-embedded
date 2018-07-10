@@ -22,7 +22,7 @@
 #include "iot_import.h"
 #include "iot_export_errno.h"
 
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "utils_hmac.h"
 #include "json_parser.h"
 #include "CoAPMessage.h"

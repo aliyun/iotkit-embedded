@@ -9,7 +9,7 @@
 #include "iot_export_fota.h"
 #include "iot_export_cm.h"
 #include "iot_export_errno.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 
 
 static void service_ota_handler(void* pcontext, iotx_cm_fota_parameter_t* ota_parameter, void* user_data)

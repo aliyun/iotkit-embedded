@@ -17,9 +17,9 @@
  */
 
 
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "string_utils.h"
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 
 char *LITE_format_string(const char *fmt, ...)
 {

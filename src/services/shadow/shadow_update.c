@@ -21,7 +21,7 @@
 #include "iot_import.h"
 
 #include "shadow_debug.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-system.h"
 
 #include "shadow_update.h"

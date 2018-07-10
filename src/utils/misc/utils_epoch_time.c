@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 #include "utils_epoch_time.h"
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 
 #define HTTP_RESP_CONTENT_LEN   (64)
 #define ALIYUN_NTP_SERVER       "ntp%d.aliyun.com"

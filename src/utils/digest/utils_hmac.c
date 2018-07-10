@@ -18,7 +18,7 @@
 
 
 #include <string.h>
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "utils_md5.h"
 #include "utils_sha1.h"
 #include "utils_sha256.h"

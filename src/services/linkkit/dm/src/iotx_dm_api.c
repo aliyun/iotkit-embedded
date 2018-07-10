@@ -1,5 +1,5 @@
 #include "iot_import.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-list.h"
 #include "lite-cjson.h"
 #include "iotx_dm_common.h"

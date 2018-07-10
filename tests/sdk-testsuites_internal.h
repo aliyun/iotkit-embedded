@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #include "iotx_log.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "iot_import.h"
 
 void unittest_HAL_OS(void);

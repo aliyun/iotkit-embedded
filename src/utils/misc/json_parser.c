@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "json_parser.h"
 
 #define json_debug log_debug

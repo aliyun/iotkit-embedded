@@ -21,7 +21,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#include "lite-utils.h"
+#include "iotx_utils.h"
 
 int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name)
 {

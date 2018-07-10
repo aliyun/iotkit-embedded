@@ -17,9 +17,9 @@
  */
 
 
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 #include "json_parser.h"
-#include "lite-utils_internal.h"
+#include "iotx_utils_internal.h"
 
 int contain_arr(const char *src, int src_len, const char **arr_pre)
 {

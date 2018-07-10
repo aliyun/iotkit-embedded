@@ -1,4 +1,4 @@
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "iot_import.h"
 
 #include "thread.h"

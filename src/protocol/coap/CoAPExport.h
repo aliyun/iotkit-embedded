@@ -18,7 +18,7 @@
 
 
 #include "CoAPNetwork.h"
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "iotx_log.h"
 
 #ifndef __COAP_EXPORT_H__

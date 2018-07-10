@@ -18,8 +18,8 @@
 
 #include <stdio.h>
 #include "class_interface.h"
-#include "lite-utils.h"
-#include "lite-utils_internal.h"
+#include "iotx_utils.h"
+#include "iotx_utils_internal.h"
 
 void *new_object(const void *_class, ...)
 {

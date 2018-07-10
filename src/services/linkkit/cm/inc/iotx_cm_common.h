@@ -20,7 +20,7 @@
 #ifndef __SRC_CM_COMMON_H__
 #define __SRC_CM_COMMON_H__
 
-#include "lite-utils.h"
+#include "iotx_utils.h"
 #include "lite-system.h"
 #include "iot_export_cm.h"
 #include "linked_list.h"
