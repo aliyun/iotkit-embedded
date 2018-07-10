@@ -3,9 +3,10 @@
 TARGET_FILE=$1
 rm -f ${TARGET_FILE}
 
+CONFIG_VERNDOR=$(grep -m 1 "VENDOR *:" .config|awk '{ print $NF }')
 IFLAGS=$( \
 for iter in \
-    $(find ${COMP_LIB_COMPONENTS} ${EXTRA_INCLUDE_DIRS} -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
+    $(find ${COMP_LIB_COMPONENTS} ${EXTRA_INCLUDE_DIRS} ${IMPORT_DIR}/${CONFIG_VENDOR}/include -type d -not -path "*.git*" -not -path "*.O*"); do \
         echo "    -I${iter} \\"; \
 done)
 CFLAGS=$( \

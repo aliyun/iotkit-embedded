@@ -49,7 +49,7 @@ $(LIBA_TARGET) :: StaticLib_Install
 	$(Q)mkdir -p $(LIBOBJ_TMPDIR)/$(MODULE_NAME)
 ifneq (,$(strip $(LIB_OBJS)))
 ifneq ($(LIBA_TARGET),$(LIBA_SKIP_COMBO))
-	$(Q)cp -f $(LIB_OBJS) $(LIBOBJ_TMPDIR)/$(MODULE_NAME)
+	$(Q)cp -f $(LIB_OBJS) $(LIBOBJ_TMPDIR)/$(MODULE_NAME) 2>/dev/null || true
 endif
 endif
 	$(Q)mkdir -p $(SYSROOT_LIB)
