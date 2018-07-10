@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "lite-utils.h"
 #include "iot_import.h"
 

@@ -27,7 +27,7 @@
 
 #include "iot_import.h"
 
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "lite-utils.h"
 #include "utils_md5.h"
 #include "utils_base64.h"

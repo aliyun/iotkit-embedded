@@ -20,7 +20,7 @@
 #ifndef __OTA_DEBUG_H__
 #define __OTA_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define OTA_LOG_EMERG(...)    log_emerg("ota", __VA_ARGS__)
 #define OTA_LOG_CRIT(...)     log_crit("ota", __VA_ARGS__)

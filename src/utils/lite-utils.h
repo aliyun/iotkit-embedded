@@ -31,7 +31,7 @@
 #endif
 
 #include "lite-list.h"
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "iot_import.h"
 
 

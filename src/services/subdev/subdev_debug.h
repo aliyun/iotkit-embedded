@@ -20,7 +20,7 @@
 #ifndef __SUBDEV_DEBUG_H__
 #define __SUBDEV_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define subdev_emerg(...)    log_emerg("subdev", __VA_ARGS__)
 #define subdev_crit(...)     log_crit("subdev", __VA_ARGS__)

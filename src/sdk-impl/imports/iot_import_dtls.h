@@ -23,7 +23,7 @@
 #include <stdarg.h>
 
 #include "iot_import_coap.h"
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__

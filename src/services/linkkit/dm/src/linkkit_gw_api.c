@@ -16,7 +16,7 @@
 #include "thread.h"
 #include "watcher.h"
 #include "mempool.h"
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "lite-utils.h"
 #include "iot_export_dm.h"
 #include "linkkit_gateway_export.h"

@@ -20,7 +20,7 @@
 #ifndef __FS_UPLOAD_DEBUG_H__
 #define __FS_UPLOAD_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define fsupload_emerg(...)    log_emerg("fsup", __VA_ARGS__)
 #define fsupload_crit(...)     log_crit("fsup", __VA_ARGS__)

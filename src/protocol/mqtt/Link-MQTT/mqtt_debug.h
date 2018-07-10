@@ -20,7 +20,7 @@
 #ifndef __MQTT_DEBUG_H__
 #define __MQTT_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define mqtt_emerg(...)    log_emerg("MQTT", __VA_ARGS__)
 #define mqtt_crit(...)     log_crit("MQTT", __VA_ARGS__)

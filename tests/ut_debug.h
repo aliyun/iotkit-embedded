@@ -20,7 +20,7 @@
 #ifndef __UT_DEBUG_H__
 #define __UT_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define ut_emerg(...)    log_emerg("ut", __VA_ARGS__)
 #define ut_crit(...)     log_crit("ut", __VA_ARGS__)

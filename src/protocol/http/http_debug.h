@@ -20,7 +20,7 @@
 #ifndef __HTTP_DEBUG_H__
 #define __HTTP_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define http_emerg(...)    log_emerg("HTTP", __VA_ARGS__)
 #define http_crit(...)     log_crit("HTTP", __VA_ARGS__)

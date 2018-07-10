@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "iot_import.h"
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "utils_sha256.h"
 /* Shift-right (used in SHA-256, SHA-384, and SHA-512): */
 #define R(b,x)      ((x) >> (b))

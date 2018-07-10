@@ -20,7 +20,7 @@
 #ifndef __SHAD_DEBUG_H__
 #define __SHAD_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define shadow_emerg(...)    log_emerg("shadow", __VA_ARGS__)
 #define shadow_crit(...)     log_crit("shadow", __VA_ARGS__)

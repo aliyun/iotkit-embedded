@@ -10,7 +10,7 @@
 #include "lite-cjson.h"
 #include "linkkit_export.h"
 #include "iotx_dm_common.h"
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "linked_list.h"
 
 #define LINKKIT_API_KEY_ID         "id"

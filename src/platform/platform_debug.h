@@ -20,7 +20,7 @@
 #ifndef __PLATFORM_DEBUG_H__
 #define __PLATFORM_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define platform_emerg(...)    log_emerg("port", __VA_ARGS__)
 #define platform_crit(...)     log_crit("port", __VA_ARGS__)

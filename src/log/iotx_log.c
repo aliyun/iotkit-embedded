@@ -16,7 +16,7 @@
  *
  */
 
-#include "lite-log_internal.h"
+#include "iotx_log_internal.h"
 
 #define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    \
     do { \

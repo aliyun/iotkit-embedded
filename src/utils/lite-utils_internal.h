@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #include "lite-utils_config.h"
 #include "lite-utils.h"

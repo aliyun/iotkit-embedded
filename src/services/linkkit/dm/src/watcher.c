@@ -7,7 +7,7 @@
 
 #include "watcher.h"
 #include "mempool.h"
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "iotx_dm_common.h"
 
 struct watcher_s {

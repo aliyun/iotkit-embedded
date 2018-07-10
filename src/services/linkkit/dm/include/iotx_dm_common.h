@@ -8,7 +8,7 @@
 #ifndef _OU_
 #define _OU_
 #endif
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define DM_SUPPORT_MEMORY_MAGIC
 #ifdef DM_SUPPORT_MEMORY_MAGIC

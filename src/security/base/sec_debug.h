@@ -20,7 +20,7 @@
 #ifndef __SEC_DEBUG_H__
 #define __SEC_DEBUG_H__
 
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #define sec_emerg(...)    log_emerg("sec", __VA_ARGS__)
 #define sec_crit(...)     log_crit("sec", __VA_ARGS__)

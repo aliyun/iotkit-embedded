@@ -19,7 +19,7 @@
 #ifdef COAP_COMM_ENABLED
 
 #include "iot_import.h"
-#include "lite-log.h"
+#include "iotx_log.h"
 #include "lite-utils.h"
 #include "utils_timer.h"
 #include "lite-system.h"

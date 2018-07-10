@@ -22,8 +22,8 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "lite-log_config.h"
-#include "lite-log.h"
+#include "iotx_log_config.h"
+#include "iotx_log.h"
 #include "lite-utils.h"
 #include "iot_import.h"
 

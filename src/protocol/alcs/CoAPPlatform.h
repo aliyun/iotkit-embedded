@@ -23,7 +23,7 @@
 #ifdef COAP_USE_PLATFORM_MEMORY
 #include "lite-utils.h"
 #endif
-#include "lite-log.h"
+#include "iotx_log.h"
 
 #ifdef __cplusplus
 extern "C" {
