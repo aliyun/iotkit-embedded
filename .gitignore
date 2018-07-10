@@ -39,4 +39,3 @@ src/packages/iotkit-system/
 src/packages/mbedtls-in-iotkit/
 src/framework/cm/Link-CMP
 src/utils/log/LITE-log
-.*
