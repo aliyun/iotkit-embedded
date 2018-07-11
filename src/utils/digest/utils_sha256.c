@@ -71,6 +71,7 @@ static  uint32_t reverse_32bit(uint32_t data)
     return ((data & 0xff00ff00UL) >> 8) | ((data & 0x00ff00ffUL) << 8);
 }
 
+#ifndef BUILD_AOS
 //host byte order to big endian
 uint32_t os_htobe32(uint32_t data)
 {
@@ -101,6 +102,7 @@ uint64_t os_htobe64(uint64_t data)
 
     return reverse_64bit(data);
 }
+#endif
 static void utils_sha256_zeroize(void *v, size_t n)
 {
     volatile unsigned char *p = v;
