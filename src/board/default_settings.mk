@@ -1,4 +1,4 @@
-DEFAULT_BLD             := $(CONFIG_DIR)/config.ubuntu.x86
+DEFAULT_BLD             := $(CONFIG_DIR)/config.rhino.make
 POST_FINAL_OUT_HOOK     := Post_Distro
 SUBDIRS                 := directory-not-exist-actually
 UTEST_PROG              := sdk-testsuites
