@@ -559,6 +559,7 @@ static void* _coap_init(void* handler)
 #endif
 }
 
+#ifdef HTTP_COMM_ENABLED
 /* can not call twice */
 static void* _http_init(void* handler)
 {
@@ -585,6 +586,7 @@ static void* _http_init(void* handler)
 
     return connection;
 }
+#endif
 
 void* iotx_cm_cloud_conn_init(void* handler, void *param)
 {
@@ -603,9 +605,11 @@ void* iotx_cm_cloud_conn_init(void* handler, void *param)
         connection = _coap_init(cm_ctx);
         break;
 
+#ifdef HTTP_COMM_ENABLED
     case IOTX_CM_CONNECTION_PROTOCOL_TYPE_HTTP:
         connection = _http_init(cm_ctx);
         break;
+#endif
 
     default:
         CM_ERR(cm_log_error_protocol, cloud_param->protocol_type);
