@@ -626,6 +626,8 @@ void* iotx_cm_cloud_conn_init(void* handler, void *param)
         return NULL;
     }
 
+    iotx_event_post(IOTX_CONN_CLOUD);
+
     device_info = iotx_device_info_get();
     memset(&g_cloud_target, 0x0, sizeof(iotx_cm_send_peer_t));
     strncpy(g_cloud_target.product_key, device_info->product_key, strlen(device_info->product_key));
