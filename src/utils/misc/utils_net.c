@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "iot_import.h"
+#include "iot_export.h"
 #include "utils_net.h"
 #include "iotx_utils_internal.h"
 
@@ -112,6 +113,7 @@ static int connect_ssl(utils_network_pt pNetwork)
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
+        iotx_event_post(IOTX_CONN_CLOUD_FAIL);
         return -1;
     }
 }

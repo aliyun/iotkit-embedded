@@ -205,6 +205,7 @@ void    IOT_SetupDomain(int domain_type);
 #include "exports/iot_export_coap.h"
 #include "exports/iot_export_ota.h"
 #include "exports/iot_export_http.h"
+#include "exports/iot_export_event.h"
 #ifdef SUBDEVICE_ENABLED
 #include "exports/iot_export_subdev.h"
 #endif /* SUBDEVICE_ENABLED */
