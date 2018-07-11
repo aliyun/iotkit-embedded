@@ -3,4 +3,4 @@ HDR_REFS            += src/utils
 HDR_REFS            += src/log
 HDR_REFS            += src/services/linkkit/cm/inc
 HDR_REFS            += src/services/linkkit/dm/include
-HDR_REFS        += src/protocol/mqtt/Link-MQTT
+HDR_REFS            += src/protocol/mqtt/Link-MQTT

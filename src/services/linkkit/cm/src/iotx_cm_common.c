@@ -968,7 +968,6 @@ static void cm_connectivity_iterator_action_handler(void* list_node, va_list* pa
     }
 }
 
-
 int iotx_cm_register(iotx_cm_conntext_t* cm_ctx, void* _connectivity, iotx_cm_register_param_t* register_param, int count)
 {
     linked_list_t* list = NULL;

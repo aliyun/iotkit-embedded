@@ -424,6 +424,8 @@ int iotx_cm_add_subdevice(iotx_cm_conntext_t* cm_ctx, void* _connectivity, const
 
 int iotx_cm_remove_subdevice(iotx_cm_conntext_t* cm_ctx, void* _connectivity, const char* pk, const char* dn);
 
+int iotx_cm_init_second(iotx_cm_conntext_t* cm_ctx, void* _connectivity);
+
 //int iotx_cm_parse_message(iotx_cm_conntext_t* cm_ctx, iotx_cm_message_info_t* message_info, char** URI, void** payload, int* payload_length);
 
 int iotx_cm_send_data(iotx_cm_conntext_t* cm_ctx, void* _connectivity, iotx_cm_send_peer_t* target,

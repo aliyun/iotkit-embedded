@@ -621,7 +621,7 @@ int IOT_CM_Init_Second(void* _connectivity)
         ret = cm_connectivity_init_second(cm_ctx, connectivity);
     }
 #else /* CM_SUPPORT_MULTI_THREAD */
-    ret = iotx_cm_register(cm_ctx, _connectivity, register_param, count);
+    ret = iotx_cm_init_second(cm_ctx, _connectivity);
 #endif /* CM_SUPPORT_MULTI_THREAD */
 
     return ret;
