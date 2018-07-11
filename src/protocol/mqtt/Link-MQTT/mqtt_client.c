@@ -2615,11 +2615,6 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     return SUCCESS_RETURN;
 }
 
-int __attribute__((weak)) awss_report_cloud()
-{
-    return 0;
-}
-
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -2655,8 +2650,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         LITE_free(pclient);
         return NULL;
     }
-
-    awss_report_cloud();
 
 #ifndef MQTT_ID2_AUTH
     pclient->mqtt_auth = iotx_guider_authenticate;
