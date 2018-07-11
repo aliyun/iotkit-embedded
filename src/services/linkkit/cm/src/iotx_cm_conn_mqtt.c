@@ -333,7 +333,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         }
         break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED: {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
             iotx_connection_msg_rsp_t msg_rsp;
 

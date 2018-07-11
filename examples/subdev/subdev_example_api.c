@@ -1235,7 +1235,7 @@ void iotx_thing_event_handle(void *pcontext, void *pclient, void* msg_pt)
             break;
 
         /* publish */
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             iotx_thing_recv_publish_callback(thing_t, msg);
             break;
 

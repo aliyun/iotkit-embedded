@@ -81,7 +81,7 @@ static void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt m
             QCLI_Printf(qcli_iotkit_handle, "publish nack, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             QCLI_Printf(qcli_iotkit_handle, "topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
                           topic_info->topic_len,
                           topic_info->ptopic,

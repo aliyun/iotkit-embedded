@@ -1000,7 +1000,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 
             if (NULL != msg_handle.handle.h_fp) {
                 iotx_mqtt_event_msg_t msg;
-                msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECVEIVED;
+                msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
                 msg.msg = (void *)topic_msg;
 
                 msg_handle.handle.h_fp(msg_handle.handle.pcontext, c, &msg);
@@ -1019,7 +1019,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
         if (NULL != c->handle_event.h_fp) {
             iotx_mqtt_event_msg_t msg;
 
-            msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECVEIVED;
+            msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
             msg.msg = topic_msg;
 
             c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);

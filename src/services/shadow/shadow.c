@@ -318,7 +318,7 @@ void iotx_ds_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
             }
             break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             shadow_debug("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                      topic_info->topic_len,
                      topic_info->ptopic,

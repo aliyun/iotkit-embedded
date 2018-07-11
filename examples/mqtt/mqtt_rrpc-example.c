@@ -102,7 +102,7 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
             HAL_Printf("publish nack, packet-id=%u\n", (unsigned int)packet_id);
             break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             HAL_Printf("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
                        topic_info->topic_len,
                        topic_info->ptopic,

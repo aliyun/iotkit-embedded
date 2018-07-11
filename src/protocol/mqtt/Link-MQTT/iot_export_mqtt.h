@@ -68,7 +68,7 @@ typedef enum {
     IOTX_MQTT_EVENT_PUBLISH_NACK = 11,
 
     /* MQTT packet published from MQTT remote broker be received */
-    IOTX_MQTT_EVENT_PUBLISH_RECVEIVED = 12,
+    IOTX_MQTT_EVENT_PUBLISH_RECEIVED = 12,
 
     /* MQTT packet buffer overflow which the remaining space less than to receive byte */
     IOTX_MQTT_EVENT_BUFFER_OVERFLOW = 13,
@@ -111,7 +111,7 @@ typedef struct {
      *    IOTX_MQTT_EVENT_PUBLISH_NACK :
      *      Its data type is @uint32_t and the value is MQTT packet identifier.
      *
-     * 3) IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+     * 3) IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
      *      Its data type is @iotx_mqtt_packet_info_t and see detail at the declare of this type.
      *
      * */

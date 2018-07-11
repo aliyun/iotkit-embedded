@@ -597,7 +597,7 @@ void iotx_gateway_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
         #endif
             break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED: {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             char* publish_topic = NULL;
             char* publish_payload = NULL;
             int printf_num = 0;

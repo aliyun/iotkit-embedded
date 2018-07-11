@@ -120,7 +120,7 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
             EXAMPLE_TRACE("publish nack, packet-id=%u", (unsigned int)packet_id);
             break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             EXAMPLE_TRACE("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                           topic_info->topic_len,
                           topic_info->ptopic,
