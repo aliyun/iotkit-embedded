@@ -1969,7 +1969,7 @@ int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _I
 	memset(cloud_payload,0,payload_len + 1);
 	memcpy(cloud_payload,payload,payload_len);
 
-	res = iotx_dcw_send_to_cloud(uri,cloud_payload,NULL);
+	res = iotx_dcw_send_to_all(uri,cloud_payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(cloud_payload);
 		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);

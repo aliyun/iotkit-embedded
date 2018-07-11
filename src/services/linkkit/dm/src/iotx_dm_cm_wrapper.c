@@ -365,6 +365,36 @@ int iotx_dcw_local_remove_subdev(void *conn_handle, char *product_key, char *dev
 	return IOT_CM_Remove_Sub_Device(conn_handle,product_key,device_name,NULL);
 }
 
+
+int iotx_dcw_send_to_all(char *uri, char *payload, void *user_data)
+{
+	int res = 0;
+	iotx_cm_message_info_t cm_message_info;
+	iotx_cm_send_peer_t cm_send_peer;
+
+	if (uri == NULL || payload == NULL) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+	
+	memset(&cm_message_info,0,sizeof(iotx_cm_message_info_t));
+	cm_message_info.ack_type = IOTX_CM_MESSAGE_NO_ACK;
+	cm_message_info.URI = uri;
+	cm_message_info.URI_length = strlen(uri);
+	cm_message_info.payload = payload;
+	cm_message_info.payload_length = strlen(payload);
+	cm_message_info.conn_ctx = user_data;
+
+	memset(&cm_send_peer,0,sizeof(iotx_cm_send_peer_t));
+	//HAL_GetProductKey(cm_send_peer.product_key);
+	//HAL_GetDeviceName(cm_send_peer.device_name);
+	
+	res = IOT_CM_Send(NULL,&cm_send_peer,&cm_message_info,NULL);
+	dm_log_info(IOTX_DM_LOG_CM_SEND_RESULT,res);
+	
+	return res;
+}
+
 int iotx_dcw_send_to_cloud(char *uri, char *payload, void *user_data)
 {
 	int res = 0;

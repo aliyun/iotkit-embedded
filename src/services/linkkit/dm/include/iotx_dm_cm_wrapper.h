@@ -19,6 +19,7 @@ int iotx_dcw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_aut
 int iotx_dcw_local_remove_service(void *conn_handle, char *uri);
 int iotx_dcw_local_add_subdev(void *conn_handle, const char *product_key, const char *device_name);
 int iotx_dcw_local_remove_subdev(void *conn_handle, char *product_key, char *device_name);
+int iotx_dcw_send_to_all(char *uri, char *payload, void *user_data);
 int iotx_dcw_send_to_cloud(char *uri, char *payload, void *user_data);
 int iotx_dcw_send_to_device(void *conn_handle, char *product_key, char *device_name, char *uri, char *payload, void *user_data);
 

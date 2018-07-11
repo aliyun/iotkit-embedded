@@ -843,7 +843,9 @@ iotx_cm_send_peer_t* iotx_cm_cloud_conn_get_target()
 
 int iotx_cm_cloud_conn_check_target(iotx_cm_send_peer_t* peer)
 {
-    if (0 == strncmp(peer->product_key, g_cloud_target.product_key, strlen(peer->product_key)) &&
+    if ((strlen(g_cloud_target.product_key) == strlen(peer->product_key)) && 
+		(strlen(g_cloud_target.device_name) == strlen(peer->device_name)) &&
+		0 == strncmp(peer->product_key, g_cloud_target.product_key, strlen(peer->product_key)) &&
             0 == strncmp(peer->device_name, g_cloud_target.device_name, strlen(peer->device_name)))
         return SUCCESS_RETURN;
     return FAIL_RETURN;
