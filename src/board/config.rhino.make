@@ -1,4 +1,4 @@
-include $(TOP_DIR)/aos_board_conf.mk
+-include $(TOP_DIR)/aos_board_conf.mk
 CONFIG_ENV_CFLAGS   += \
     -g3 --coverage \
     -DBUILD_AOS \
@@ -11,14 +11,11 @@ CONFIG_ENV_CFLAGS   += \
     -DCM_SUPPORT_MULTI_THREAD_VIA_HAL \
     -I$(TOP_DIR)/../../../../include \
    
-
 #CONFIG_ENV_CFLAGS   += -Werror
-CONFIG_src/thirdparty/tls :=
-CONFIG_examples      :=
-CONFIG_src/thirdparty  :=
-CONFIG_src/platform  :=
+CONFIG_src/thirdparty/tls   :=
+CONFIG_examples             :=
+CONFIG_src/thirdparty       :=
+CONFIG_src/platform         :=
+CONFIG_src/utils/digest     :=
+CONFIG_tests                :=
 CONFIG_src/tools/linkkit_tsl_convert :=
-CONFIG_src/utils/digest :=
-CONFIG_tests :=
-
-

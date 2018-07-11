@@ -1,6 +1,6 @@
 include project.mk
 include make.settings
-include src/board/default_settings.mk
+include src/tools/default_settings.mk
 include src/tools/parse_make_settings.mk
 
 # CFLAGS  += -DTEST_MQTT_DAILY

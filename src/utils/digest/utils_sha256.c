@@ -55,6 +55,10 @@ const static uint32_t sha256_initial_hash_value[8] = {
     0x5be0cd19UL
 };
 
+extern uint32_t os_htobe32(uint32_t data);
+extern uint64_t os_htobe64(uint64_t data);
+extern uint32_t os_be32toh(uint32_t data);
+
 static uint8_t is_little_endian()
 {
     static uint32_t _endian_x_ = 1;
