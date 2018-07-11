@@ -29,6 +29,7 @@ typedef struct _post_cb
     unsigned long long     time;
 } post_cb_t;
 
+static void* g_linkkit_mutex = NULL;
 void* g_list_post_cb = NULL;
 static linkkit_ops_t* g_linkkit_ops = NULL;
 static void* g_user_ctx = NULL;
@@ -106,9 +107,14 @@ static void _insert_post_cb(int id_send, linked_list_t* list, void* cb)
 
     list_size = linked_list_get_size(list);
     if (list_size > LINKKIT_MAX_POST_CB_NUMBER) {
-        /* find oldest cb and remove */
+		/* find oldest cb and remove */
+		HAL_MutexLock(g_linkkit_mutex);
         linked_list_iterator(list, _find_oldest_post_cb, &post_cb_oldest, current_time_ms);
-        if (post_cb_oldest) linked_list_remove(list, post_cb_oldest);
+		linked_list_remove(list, post_cb_oldest);
+		HAL_MutexUnlock(g_linkkit_mutex);
+        if (post_cb_oldest) {
+            free(post_cb_oldest);
+        }
     }
 }
 
@@ -352,12 +358,15 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 			if (res != SUCCESS_RETURN) {return;}
 
 	        if (list) {
+				HAL_MutexLock(g_linkkit_mutex);
 	            linked_list_iterator(list, _find_post_cb_by_id, lite_item_id.value_int, &post_cb);
+				linked_list_remove(list, post_cb);
+				HAL_MutexUnlock(g_linkkit_mutex);
 	            if (post_cb && post_cb->cb) {
 	                handle_post_cb_fp = post_cb->cb;
 	                handle_post_cb_fp(thing_id, lite_item_id.value_int, lite_item_code.value_int, NULL, context);
 
-	                linked_list_remove(list, post_cb);
+	                free(post_cb);
 	            }
 	        }
 		}
@@ -496,6 +505,9 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
 	}
     g_list_post_cb = linked_list_create("post cb", 0);
     if (!g_list_post_cb) return -1;
+
+	g_linkkit_mutex = HAL_MutexCreate();
+	if (g_linkkit_mutex == NULL) return -1;
 
 	return SUCCESS_RETURN;
 }

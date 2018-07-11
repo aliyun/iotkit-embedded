@@ -308,14 +308,14 @@ int main(void)
 {
     gateway_t gateway;
     linkkit_params_t *initParams = NULL;
-    int maxMsgSize, maxMsgQueueSize, loglevel;
+    int maxMsgSize, maxMsgQueueSize, loglevel, prop_post_reply, event_post_reply;
 
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    HAL_SetProductKey("a1vj9KBli0Y");
-    HAL_SetDeviceName("gateway");
-    HAL_SetDeviceSecret("pNLCEYQkC0O83XGJZVrJIj1CtzQMal8y");
+    HAL_SetProductKey("a1BUNdoKJs7");
+    HAL_SetDeviceName("gw-type-002");
+    HAL_SetDeviceSecret("lctt8UIWjX3ncdeNJ9hkGZQydChYVPLg");
 
     memset(&gateway, 0, sizeof(gateway_t));
 
@@ -348,6 +348,12 @@ int main(void)
     loglevel = 5;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_LOG_LEVEL, &loglevel, sizeof(int));
 
+	prop_post_reply = 0;
+	linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY, &prop_post_reply, sizeof(int));
+		
+	event_post_reply = 0;
+	linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY, &event_post_reply, sizeof(int));
+	
     /* set event handler */
     linkkit_gateway_set_event_callback(initParams, event_handler, &gateway);
 
@@ -372,7 +378,7 @@ int main(void)
      * this example, subdev is a light
      * user's add logic in light_init
      */
-    light_init();
+    //light_init();
     while (1) {
         /*
          * gateway trigger event

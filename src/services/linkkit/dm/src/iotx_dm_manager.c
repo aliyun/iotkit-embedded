@@ -11,6 +11,7 @@
 #include "iotx_dm_message.h"
 #include "iotx_dm_message_cache.h"
 #include "iotx_dm_subscribe.h"
+#include "iotx_dm_opt.h"
 #include "iot_export_dm.h"
 
 static iotx_dmgr_ctx g_iotx_dmgr = {0};
@@ -1619,7 +1620,11 @@ int iotx_dmgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
+		int prop_post_reply = 0;
+		res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_PROPERTY_POST_REPLY,&prop_post_reply);
+		if (res == SUCCESS_RETURN && prop_post_reply) {
+			iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
+		}
 		res = request.msgid;
 	}
 
@@ -1672,7 +1677,11 @@ int iotx_dmgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
+		int event_post_reply = 0;
+		res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_EVENT_POST_REPLY,&event_post_reply);
+		if (res == SUCCESS_RETURN && event_post_reply) {
+			iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
+		}
 		res = request.msgid;
 	}
 

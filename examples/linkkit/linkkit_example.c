@@ -167,8 +167,8 @@ int main(int argc, char *argv[])
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
 	HAL_SetProductKey("a1BUNdoKJs7");
-	HAL_SetDeviceName("gw-type-001");
-	HAL_SetDeviceSecret("ayxXAAJYaJl4g1bI726LLm7qw4y8FY5P");
+	HAL_SetDeviceName("gw-type-002");
+	HAL_SetDeviceSecret("lctt8UIWjX3ncdeNJ9hkGZQydChYVPLg");
 
 	/* DM Construct */
 	iotx_dm_init_params_t dm_init_params;
@@ -243,9 +243,9 @@ int main(int argc, char *argv[])
 		}
 		#endif
 		//if (time == 8000) {break;}
-		#if 0
+		#if 1
 		if (time == 8000) {
-			IOT_DM_Post_Event(0,"Error");
+			IOT_DM_Post_Event(0,"Error",strlen("Error"));
 		}
 		#endif
 		IOT_DM_Yield(100);
