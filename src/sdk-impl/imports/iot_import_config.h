@@ -17,30 +17,12 @@
     #define CONFIG_COAP_AUTH_TIMEOUT    (10 * 1000)
 #endif
 
-/* CM */
+#ifndef CONFIG_MQTT_TX_MAXLEN
+    #define CONFIG_MQTT_TX_MAXLEN       (1024)
+#endif
 
-#define CM_MQTT_MSGLEN_SEND             (5 * 1024)
-#define CM_MQTT_MSGLEN_8266             (1024)
-#define CM_MQTT_MSGLEN_3060             (10 * 1024)
-#define CM_MQTT_MSGLEN_GW               (50 * 1024)
-
-/* CM_MQTT_SEND_LEN
-* CM MQTT Send buffer's size.
-* The buffer is used to send MQTT data.
-*/
-#ifndef CM_MQTT_SEND_LEN
-#define CM_MQTT_SEND_LEN                  CM_MQTT_MSGLEN_SEND
-#endif /* CM_MQTT_SEND_LEN */
-
-/* CM_MQTT_RECV_LEN
-* CM MQTT Received  buffer's size.
-* The buffer is used to receive MQTT data.
-* The buffer size is decided on the TSL's size.
-*/
-#ifndef CM_MQTT_RECV_LEN
-#define CM_MQTT_RECV_LEN                  CM_MQTT_MSGLEN_GW
-#endif /* CM_MQTT_RECV_LEN */
-
-
+#ifndef CONFIG_MQTT_RX_MAXLEN
+    #define CONFIG_MQTT_RX_MAXLEN       (1024)
+#endif
 
 #endif  /* __IOT_IMPORT_CONFIG_H__ */

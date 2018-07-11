@@ -367,20 +367,20 @@ void* iotx_cm_conn_mqtt_init(void* handle, void* init_param)
     }
     memset(mqtt_ctx, 0x0, sizeof(iotx_cloud_conn_mqtt_t));
 
-    if (NULL == (mqtt_ctx->msg_buf = (char *)CM_malloc(CM_MQTT_SEND_LEN))) {
+    if (NULL == (mqtt_ctx->msg_buf = (char *)CM_malloc(CONFIG_MQTT_TX_MAXLEN))) {
         CM_ERR(cm_log_error_memory);
         LITE_free(mqtt_ctx);
         return NULL;
     }
-    memset(mqtt_ctx->msg_buf, 0x0, CM_MQTT_SEND_LEN);
+    memset(mqtt_ctx->msg_buf, 0x0, CONFIG_MQTT_TX_MAXLEN);
 
-    if (NULL == (mqtt_ctx->msg_readbuf = (char *)CM_malloc(CM_MQTT_RECV_LEN))) {
+    if (NULL == (mqtt_ctx->msg_readbuf = (char *)CM_malloc(CONFIG_MQTT_RX_MAXLEN))) {
         CM_ERR(cm_log_error_memory);
         LITE_free(mqtt_ctx->msg_buf);
         LITE_free(mqtt_ctx);
         return NULL;
     }
-    memset(mqtt_ctx->msg_readbuf, 0x0, CM_MQTT_RECV_LEN);
+    memset(mqtt_ctx->msg_readbuf, 0x0, CONFIG_MQTT_RX_MAXLEN);
 
     pconn_info = iotx_conn_info_get();
 
@@ -398,9 +398,9 @@ void* iotx_cm_conn_mqtt_init(void* handle, void* init_param)
     mqtt_param.clean_session = 0;
     mqtt_param.keepalive_interval_ms = 60000;
     mqtt_param.pread_buf = mqtt_ctx->msg_readbuf;
-    mqtt_param.read_buf_size = CM_MQTT_RECV_LEN;
+    mqtt_param.read_buf_size = CONFIG_MQTT_RX_MAXLEN;
     mqtt_param.pwrite_buf = mqtt_ctx->msg_buf;
-    mqtt_param.write_buf_size = CM_MQTT_SEND_LEN;
+    mqtt_param.write_buf_size = CONFIG_MQTT_TX_MAXLEN;
 
     mqtt_param.handle_event.h_fp = iotx_cloud_conn_mqtt_event_handle;
     mqtt_param.handle_event.pcontext = (void*)handle;

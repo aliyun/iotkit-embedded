@@ -1,4 +1,5 @@
 -include $(TOP_DIR)/aos_board_conf.mk
+
 CONFIG_ENV_CFLAGS   += \
     -g3 --coverage \
     -DBUILD_AOS \
@@ -11,6 +12,10 @@ CONFIG_ENV_CFLAGS   += \
     -DCM_SUPPORT_MULTI_THREAD_VIA_HAL \
     -I$(TOP_DIR)/../../../../include \
    
+CONFIG_ENV_CFLAGS   += \
+    -DCONFIG_MQTT_TX_MAXLEN=512 \
+    -DCONFIG_MQTT_RX_MAXLEN=1200 \
+
 #CONFIG_ENV_CFLAGS   += -Werror
 CONFIG_src/thirdparty/tls   :=
 CONFIG_examples             :=
