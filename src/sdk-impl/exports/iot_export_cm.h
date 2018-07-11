@@ -25,7 +25,7 @@
 #include "iot_export.h"
 
 /* support mutli thread
-#define CM_SUPPORT_MULTI_THREAD */
+#define CONFIG_SDK_THREAD_COST */
 
 /*
 * CM: connection manager platform
@@ -54,7 +54,7 @@ typedef enum IOTX_CM_CLOUD_DOMAIN_TYPES {
 
     /* Maximum number of domain */
     IOTX_CM_CLOUD_DOMAIN_MAX
-}iotx_cm_cloud_domain_types_t;
+} iotx_cm_cloud_domain_types_t;
 
 
 /* protocol type */
@@ -76,7 +76,7 @@ typedef enum IOTX_CM_CONNECTION_PROTOCOL_TYPES {
 
     /* Maximum number of protocol type */
     IOTX_CM_CONNECTION_PROTOCOL_TYPE_MAX
-}iotx_cm_connection_protocol_types_t;
+} iotx_cm_connection_protocol_types_t;
 
 
 /* connectivity type */
@@ -92,7 +92,7 @@ typedef enum IOTX_CM_CONNECTIVITY_TYPES {
 
     /* Maximum number of connectivity type */
     IOTX_CM_CONNECTIVITY_TYPE_MAX
-}iotx_cm_connectivity_types_t;
+} iotx_cm_connectivity_types_t;
 
 
 /* message confirmation type */
@@ -110,7 +110,7 @@ typedef enum IOTX_CM_MESSAGE_ACK_TYPES {
 
     /* Maximum number of ack type */
     IOTX_CM_MESSAGE_ACK_MAX
-}iotx_cm_message_ack_types_t;
+} iotx_cm_message_ack_types_t;
 
 /* message auth type */
 typedef enum IOTX_CM_MESSAGE_AUTH_TYPES {
@@ -122,7 +122,7 @@ typedef enum IOTX_CM_MESSAGE_AUTH_TYPES {
 
     /* Maximum number of domain */
     IOTX_CM_MESSAGE_AUTH_MAX
-}iotx_cm_message_auth_types_t;
+} iotx_cm_message_auth_types_t;
 
 
 /* The message payload encode format */
@@ -197,7 +197,7 @@ typedef enum IOTX_CM_EVENT_TYPES {
 
     /* Maximum number of event */
     IOTX_CM_EVENT_MAX
-}iotx_cm_event_types_t;
+} iotx_cm_event_types_t;
 
 
 /* message confirmation type */
@@ -210,7 +210,7 @@ typedef enum IOTX_CM_DEVICE_SECRET_TYPES {
 
     /* Maximum number of domain */
     IOTX_CM_DEVICE_SECRET_TYPES_MAX
-}iotx_cm_device_secret_types_t;
+} iotx_cm_device_secret_types_t;
 
 
 /* The structure of event for cloud found new device */
@@ -224,14 +224,14 @@ typedef struct {
 typedef struct {
     /* 0: success, -1:nack */
     int                                      result;
-    char*                                    URI;
+    char                                    *URI;
 } iotx_cm_event_result_t, *iotx_cm_event_result_pt;
 
 
 /* The structure of cm event msg */
 typedef struct {
     uint8_t                                   event_id;
-    void*                                     msg;
+    void                                     *msg;
 } iotx_cm_event_msg_t;
 
 
@@ -242,20 +242,20 @@ typedef struct {
      * this id is must have value, read in register_callback's IOTX_CM_MESSAGE_REQUEST.
      * If is is the IOTX_CM_MESSAGE_RESPONSE in register_callback, this id is no mean.
      * If is is the IOTX_CM_MESSAGE_REQUEST in register_callback, this id must be non-null. */
-//    int                                       id;
+    //    int                                       id;
     iotx_cm_message_ack_types_t               ack_type;
-//    iotx_cm_message_method_types_t            method_type;
-    char*                                     URI;
+    //    iotx_cm_message_method_types_t            method_type;
+    char                                     *URI;
     unsigned int                              URI_length;
-//    unsigned int                              code;   /* [in/out] */
-//    char*                                     method;
-//    void*                                     parameter;
-//    unsigned int                              parameter_length;
-    void*                                     payload;
+    //    unsigned int                              code;   /* [in/out] */
+    //    char*                                     method;
+    //    void*                                     parameter;
+    //    unsigned int                              parameter_length;
+    void                                     *payload;
     unsigned int                              payload_length;
-//    char*                                     message;
-//    iotx_cm_message_types_t                   message_type;   /* response, request or raw */
-    void*                                     conn_ctx;      /* connection context */
+    //    char*                                     message;
+    //    iotx_cm_message_types_t                   message_type;   /* response, request or raw */
+    void                                     *conn_ctx;      /* connection context */
 } iotx_cm_message_info_t;
 
 
@@ -268,14 +268,14 @@ typedef struct {
 
 /* The structure of new data */
 typedef struct {
-    iotx_cm_send_peer_t*                           peer;
-    iotx_cm_message_info_t*                        message_info;
+    iotx_cm_send_peer_t                           *peer;
+    iotx_cm_message_info_t                        *message_info;
 } iotx_cm_new_data_t;
 
 
 /* The struct of cloud connectivity parameter */
 typedef struct cm_connectivity_cloud_param_st {
-//    iotx_cm_cloud_domain_types_t              domain_type;
+    //    iotx_cm_cloud_domain_types_t              domain_type;
     iotx_cm_connection_protocol_types_t            protocol_type;
 } iotx_cm_connectivity_cloud_param_t;
 
@@ -289,9 +289,9 @@ typedef struct cm_connectivity_alcs_param_st {
 /* The struct of undefined connectivity parameter */
 typedef struct cm_connectivity_undefined_param_st {
     iotx_cm_connection_protocol_types_t            protocol_type;
-    char*                                          url;
+    char                                          *url;
     int                                            port;
-    char*                                          pkey;
+    char                                          *pkey;
 } iotx_cm_connectivity_undefined_param_t;
 
 
@@ -299,9 +299,9 @@ typedef struct cm_connectivity_undefined_param_st {
 typedef struct cm_connectivity_param_st {
     iotx_cm_connectivity_types_t                   connectivity_type;
     union {
-        iotx_cm_connectivity_cloud_param_t*        cloud_param;
-        iotx_cm_connectivity_alcs_param_t*         alcs_param;
-        iotx_cm_connectivity_undefined_param_t*    undefined_param;
+        iotx_cm_connectivity_cloud_param_t        *cloud_param;
+        iotx_cm_connectivity_alcs_param_t         *alcs_param;
+        iotx_cm_connectivity_undefined_param_t    *undefined_param;
     };
 } iotx_cm_connectivity_param_t;
 
@@ -315,7 +315,7 @@ typedef struct cm_connectivity_param_st {
  *
  * @return none
  */
-typedef void (*iotx_cm_event_handle_fp_t)(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data);
+typedef void (*iotx_cm_event_handle_fp_t)(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data);
 
 
 /**
@@ -328,7 +328,7 @@ typedef void (*iotx_cm_event_handle_fp_t)(void* pcontext, iotx_cm_event_msg_t* m
  *
  * @return none
  */
-typedef void (*iotx_cm_register_fp_t)(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
+typedef void (*iotx_cm_register_fp_t)(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 
 
 /* The structure of CM param */
@@ -336,38 +336,38 @@ typedef struct {
     iotx_cm_device_secret_types_t               secret_type;
     iotx_cm_cloud_domain_types_t                domain_type;
     iotx_cm_event_handle_fp_t                   event_func;
-    void*                                       user_data;
+    void                                       *user_data;
 } iotx_cm_init_param_t;
 
 
 /* The structure of Register param */
 typedef struct {
-    char*                                       URI;
+    char                                       *URI;
     iotx_cm_register_fp_t                       register_func;
-    void*                                       user_data;
-    void*                                       mail_box;
+    void                                       *user_data;
+    void                                       *mail_box;
 } iotx_cm_register_param_t;
 
 
 /* The structure of Register param */
 typedef struct {
-    char*                                      URI;
+    char                                      *URI;
 } iotx_cm_unregister_param_t;
 
 
 /* The structure of Register param */
 typedef struct {
-    char*                                      URI;
+    char                                      *URI;
     iotx_cm_message_auth_types_t               auth_type;
     iotx_cm_register_fp_t                      service_func;
-    void*                                      user_data;
-    void*                                      mail_box;
+    void                                      *user_data;
+    void                                      *mail_box;
 } iotx_cm_add_service_param_t;
 
 
 /* The structure of Register param */
 typedef struct {
-    char*                                      URI;
+    char                                      *URI;
 } iotx_cm_remove_service_param_t;
 
 
@@ -381,7 +381,7 @@ typedef struct {
  *
  * @return success or fail.
  */
-int IOT_CM_Init(iotx_cm_init_param_t* init_param, void* option);
+int IOT_CM_Init(iotx_cm_init_param_t *init_param, void *option);
 
 
 /**
@@ -393,7 +393,7 @@ int IOT_CM_Init(iotx_cm_init_param_t* init_param, void* option);
  *
  * @return Connectivity handler.
  */
-void* IOT_CM_Connectivity_Create(iotx_cm_connectivity_param_t* connectivity_param, void* option);
+void *IOT_CM_Connectivity_Create(iotx_cm_connectivity_param_t *connectivity_param, void *option);
 
 
 /**
@@ -405,7 +405,7 @@ void* IOT_CM_Connectivity_Create(iotx_cm_connectivity_param_t* connectivity_para
  *
  * @return success or fail.
  */
-int IOT_CM_Connectivity_Connect(void* connectivity, void* option);
+int IOT_CM_Connectivity_Connect(void *connectivity, void *option);
 
 
 /**
@@ -417,7 +417,7 @@ int IOT_CM_Connectivity_Connect(void* connectivity, void* option);
  *
  * @return success or fail.
  */
-int IOT_CM_Connectivity_Destroy(void **connectivity, void* option);
+int IOT_CM_Connectivity_Destroy(void **connectivity, void *option);
 
 
 /**
@@ -435,7 +435,7 @@ int IOT_CM_Connectivity_Destroy(void **connectivity, void* option);
  *
  * @return success or fail.
  */
-int IOT_CM_Register(void* _connectivity, iotx_cm_register_param_t* pparam, int count, void* option);
+int IOT_CM_Register(void *_connectivity, iotx_cm_register_param_t *pparam, int count, void *option);
 
 
 /**
@@ -450,7 +450,7 @@ int IOT_CM_Register(void* _connectivity, iotx_cm_register_param_t* pparam, int c
  *
  * @return success or fail.
  */
-int IOT_CM_Unregister(void* _connectivity, iotx_cm_unregister_param_t* unregister_param, void* option);
+int IOT_CM_Unregister(void *_connectivity, iotx_cm_unregister_param_t *unregister_param, void *option);
 
 
 /**
@@ -468,7 +468,7 @@ int IOT_CM_Unregister(void* _connectivity, iotx_cm_unregister_param_t* unregiste
  *
  * @return success or fail.
  */
-int IOT_CM_Add_Service(void* _connectivity, iotx_cm_add_service_param_t* service_param, void* option);
+int IOT_CM_Add_Service(void *_connectivity, iotx_cm_add_service_param_t *service_param, void *option);
 
 
 /**
@@ -483,7 +483,7 @@ int IOT_CM_Add_Service(void* _connectivity, iotx_cm_add_service_param_t* service
  *
  * @return success or fail.
  */
-int IOT_CM_Remove_Service(void* _connectivity, iotx_cm_remove_service_param_t* service_param, void* option);
+int IOT_CM_Remove_Service(void *_connectivity, iotx_cm_remove_service_param_t *service_param, void *option);
 
 
 /**
@@ -499,7 +499,7 @@ int IOT_CM_Remove_Service(void* _connectivity, iotx_cm_remove_service_param_t* s
  *
  * @return success or fail.
  */
-int IOT_CM_Add_Sub_Device(void* _connectivity, const char* PK, const char* DN, void* option);
+int IOT_CM_Add_Sub_Device(void *_connectivity, const char *PK, const char *DN, void *option);
 
 
 /**
@@ -515,9 +515,9 @@ int IOT_CM_Add_Sub_Device(void* _connectivity, const char* PK, const char* DN, v
  *
  * @return success or fail.
  */
-int IOT_CM_Remove_Sub_Device(void* _connectivity, const char* PK, const char* DN, void* option);
+int IOT_CM_Remove_Sub_Device(void *_connectivity, const char *PK, const char *DN, void *option);
 
-int IOT_CM_Init_Second(void* _connectivity);
+int IOT_CM_Init_Second(void *_connectivity);
 
 
 /**
@@ -539,7 +539,7 @@ int IOT_CM_Init_Second(void* _connectivity);
  * @return success or fail.
  *
  */
-int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t* target, iotx_cm_message_info_t* message_info, void* option);
+int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info, void *option);
 
 
 /**
@@ -550,7 +550,7 @@ int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t* target, iotx_cm_message
  *        If the connectivity is NULL, target's product_key and device_name is itself, the data will send to cloud.
  *        If the connectivity and target is not NULL, the data will send to target only.
  *
- * @note This function only working in CM_SUPPORT_MULTI_THREAD.
+ * @note This function only working in CONFIG_SDK_THREAD_COST.
  *       This function only working in _connectivity is not NULL.
  *
  * @param connectivity. the handler of IOT_CM_Connectivity_Create.
@@ -563,24 +563,25 @@ int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t* target, iotx_cm_message
  * @return success or fail.
  *
  */
-int IOT_CM_Send_Sync(void *_connectivity, iotx_cm_send_peer_t* send_peer, iotx_cm_message_info_t* message_info, void* option);
+int IOT_CM_Send_Sync(void *_connectivity, iotx_cm_send_peer_t *send_peer, iotx_cm_message_info_t *message_info,
+                     void *option);
 
 
-#ifndef CM_SUPPORT_MULTI_THREAD
-/**
- * @brief Yield.
- *        This function used to yield when want to received data.
- *        This function just need used in CM_SUPPORT_MULTI_THREAD = n.
- *        If the CM_SUPPORT_MULTI_THREAD = y, this function is no need.
- *
- * @param target.
- * @param message_info.
- * @param option, reserve.
- *
- * @return success or fail.
- */
-int IOT_CM_Yield(int timeout_ms, void* option);
-#endif /* CM_SUPPORT_MULTI_THREAD */
+#if (CONFIG_SDK_THREAD_COST == 0)
+    /**
+    * @brief Yield.
+    *        This function used to yield when want to received data.
+    *        This function just need used in CONFIG_SDK_THREAD_COST = n.
+    *        If the CONFIG_SDK_THREAD_COST = y, this function is no need.
+    *
+    * @param target.
+    * @param message_info.
+    * @param option, reserve.
+    *
+    * @return success or fail.
+    */
+    int IOT_CM_Yield(int timeout_ms, void *option);
+#endif /* CONFIG_SDK_THREAD_COST */
 
 
 /**
@@ -590,7 +591,7 @@ int IOT_CM_Yield(int timeout_ms, void* option);
  *
  * @return success or fail.
  */
-int IOT_CM_Deinit(void* option);
+int IOT_CM_Deinit(void *option);
 
 
 #endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CM_H_ */

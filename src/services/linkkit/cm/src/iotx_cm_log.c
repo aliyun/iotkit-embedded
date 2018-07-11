@@ -23,7 +23,7 @@
 /* error */
 const char cm_log_error_parameter[] CM_READ_ONLY = "parameters error!";
 const char cm_log_error_param_1[] CM_READ_ONLY = "param error: lack of product_key or device_name or device_secret";
-const char cm_log_error_param_2[] CM_READ_ONLY = "param error: send sync must need support CM_SUPPORT_MULTI_THREAD";
+const char cm_log_error_param_2[] CM_READ_ONLY = "param error: send sync must need support CONFIG_SDK_THREAD_COST";
 const char cm_log_error_param_3[] CM_READ_ONLY = "param error: send sync must need _connectivity";
 const char cm_log_error_auth[] CM_READ_ONLY = "auth error";
 const char cm_log_error_memory[] CM_READ_ONLY = "memory error";

@@ -13,24 +13,26 @@ extern "C" {
 #include "iot_export_fota.h"
 #endif /* SERVICE_OTA_ENABLED */
 
-typedef void (*handle_post_cb_fp_t)(const void* thing_id, int respons_id, int code, const char* response_message, void* ctx);
-typedef void (*handle_subdev_cb_fp_t)(const void* thing_id, int code, const char* response_message, int success, void* ctx);
+typedef void (*handle_post_cb_fp_t)(const void *thing_id, int respons_id, int code, const char *response_message,
+                                    void *ctx);
+typedef void (*handle_subdev_cb_fp_t)(const void *thing_id, int code, const char *response_message, int success,
+                                      void *ctx);
 
 typedef struct _linkkit_ops {
 #ifdef LOCAL_CONN_ENABLE
-    int (*on_connect)(void* ctx, int cloud); /* true: cloud connection; false: local connection */
-    int (*on_disconnect)(void* ctx, int cloud); /* true: cloud connection; false: local connection */
+    int (*on_connect)(void *ctx, int cloud); /* true: cloud connection; false: local connection */
+    int (*on_disconnect)(void *ctx, int cloud); /* true: cloud connection; false: local connection */
 #else
-    int (*on_connect)(void* ctx); /* true: cloud connection; false: local connection */
-    int (*on_disconnect)(void* ctx); /* true: cloud connection; false: local connection */
+    int (*on_connect)(void *ctx); /* true: cloud connection; false: local connection */
+    int (*on_disconnect)(void *ctx); /* true: cloud connection; false: local connection */
 #endif
-    int (*raw_data_arrived)(const void* thing_id, const void* data, int len, void* ctx);
-    int (*thing_create)(const void* thing_id, void* ctx);
-    int (*thing_enable)(const void* thing_id, void* ctx);
-    int (*thing_disable)(const void* thing_id, void* ctx);
-    int (*thing_call_service)(const void* thing_id, const char* service, int request_id, void* ctx);
-    int (*thing_prop_changed)(const void* thing_id, const char* property, void* ctx);
-    int (*linkit_data_arrived)(const void* thing_id, const void* data, int len, void* ctx);
+    int (*raw_data_arrived)(const void *thing_id, const void *data, int len, void *ctx);
+    int (*thing_create)(const void *thing_id, void *ctx);
+    int (*thing_enable)(const void *thing_id, void *ctx);
+    int (*thing_disable)(const void *thing_id, void *ctx);
+    int (*thing_call_service)(const void *thing_id, const char *service, int request_id, void *ctx);
+    int (*thing_prop_changed)(const void *thing_id, const char *property, void *ctx);
+    int (*linkit_data_arrived)(const void *thing_id, const void *data, int len, void *ctx);
 } linkkit_ops_t;
 
 typedef enum _linkkit_loglevel {
@@ -72,17 +74,17 @@ typedef enum {
  *
  * @return void*
  */
-#ifdef CM_SUPPORT_MULTI_THREAD
-void* linkkit_dispatch(void* params);
+#if (CONFIG_SDK_THREAD_COST == 1)
+void *linkkit_dispatch(void *params);
 #else
-void* linkkit_dispatch();
+void *linkkit_dispatch();
 #endif
 
 typedef enum {
-	linkkit_opt_property_post_reply,  /* data type: int */
-	linkkit_opt_event_post_reply,     /* data type: int */
-	linkkit_opt_property_set_reply    /* data type: int */
-}linkkit_opt_t;
+    linkkit_opt_property_post_reply,  /* data type: int */
+    linkkit_opt_event_post_reply,     /* data type: int */
+    linkkit_opt_property_set_reply    /* data type: int */
+} linkkit_opt_t;
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
@@ -106,7 +108,8 @@ int linkkit_setopt(linkkit_opt_t opt, void *data);
  *
  * @return int, 0 when success, -1 when fail.
  */
-int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level, linkkit_ops_t *ops, linkkit_cloud_domain_type_t domain_type, void *user_context);
+int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level, linkkit_ops_t *ops,
+                  linkkit_cloud_domain_type_t domain_type, void *user_context);
 
 #ifdef SERVICE_OTA_ENABLED
 /**
@@ -135,7 +138,7 @@ int linkkit_end();
  *
  * @return pointer to thing object, NULL when fails.
  */
-extern void* linkkit_set_tsl(const char* tsl, int tsl_len);
+extern void *linkkit_set_tsl(const char *tsl, int tsl_len);
 
 /* patterns: */
 /* method:
@@ -168,8 +171,8 @@ typedef enum {
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_set_value(linkkit_method_set_t method_set, const void* thing_id, const char* identifier,
-                             const void* value, const char* value_str);
+extern int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
+                             const void *value, const char *value_str);
 
 typedef enum {
     linkkit_method_get_property_value = 0,
@@ -199,8 +202,8 @@ typedef enum {
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_get_value(linkkit_method_get_t method_get, const void* thing_id, const char* identifier,
-                             void* value, char** value_str);
+extern int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
+                             void *value, char **value_str);
 
 
 /**
@@ -216,7 +219,7 @@ extern int linkkit_get_value(linkkit_method_get_t method_get, const void* thing_
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_answer_service(const void* thing_id, const char* service_identifier, int response_id, int code);
+extern int linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code);
 
 /**
  * @brief answer a down raw service when a raw service requested by cloud, or invoke a up raw service to cloud.
@@ -228,7 +231,7 @@ extern int linkkit_answer_service(const void* thing_id, const char* service_iden
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_invoke_raw_service(const void* thing_id, int is_up_raw, void* raw_data, int raw_data_length);
+extern int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
 
 #ifdef SERVICE_OTA_ENABLED
 /**
@@ -240,7 +243,7 @@ extern int linkkit_invoke_raw_service(const void* thing_id, int is_up_raw, void*
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_invoke_ota_service(void* data_buf, int data_buf_length);
+extern int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
 #endif /* SERVICE_OTA_ENABLED */
 
 #ifdef EXTENDED_INFO_ENABLED
@@ -254,7 +257,8 @@ extern int linkkit_invoke_ota_service(void* data_buf, int data_buf_length);
  * @return 0 when success, -1 when fail.
  */
 
-int linkkit_trigger_extended_info_operate(const void* thing_id, const char* params, linkkit_extended_info_operate_t linkkit_extended_info_operation);
+int linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
+        linkkit_extended_info_operate_t linkkit_extended_info_operation);
 #endif /* EXTENDED_INFO_ENABLED */
 
 /**
@@ -265,7 +269,7 @@ int linkkit_trigger_extended_info_operate(const void* thing_id, const char* para
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_trigger_event(const void* thing_id, const char* event_identifier, handle_post_cb_fp_t cb);
+extern int linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
 
 /**
  * @brief trigger a event to post to cloud.
@@ -276,7 +280,8 @@ extern int linkkit_trigger_event(const void* thing_id, const char* event_identif
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_trigger_event_json(const void* thing_id, const char* event_identifier, char *event, handle_post_cb_fp_t cb);
+extern int linkkit_trigger_event_json(const void *thing_id, const char *event_identifier, char *event,
+                                      handle_post_cb_fp_t cb);
 
 
 /**
@@ -287,7 +292,7 @@ extern int linkkit_trigger_event_json(const void* thing_id, const char* event_id
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_post_property(const void* thing_id, const char* property_identifier, handle_post_cb_fp_t cb);
+extern int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
 
 /**
  * @brief post property to cloud.
@@ -295,12 +300,13 @@ extern int linkkit_post_property(const void* thing_id, const char* property_iden
  * @param thing_id, pointer to thing object.
  * @param property_identifier, used when trigger event with method "event.property.post", if set, post specified property, if NULL, post all.
  * @param event, property data, in JSON format.
- * 
+ *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_post_property_json(const void* thing_id, const char* property_identifier, char *property, handle_post_cb_fp_t cb);
+extern int linkkit_post_property_json(const void *thing_id, const char *property_identifier, char *property,
+                                      handle_post_cb_fp_t cb);
 
-#ifndef CM_SUPPORT_MULTI_THREAD
+#if (CONFIG_SDK_THREAD_COST == 0)
 /**
  * @brief this function used to yield when want to receive or send data.
  *        if multi-thread enabled, user should NOT call this function.
@@ -310,7 +316,7 @@ extern int linkkit_post_property_json(const void* thing_id, const char* property
  * @return 0 when success, -1 when fail.
  */
 extern int linkkit_yield(int timeout_ms);
-#endif /* CM_SUPPORT_MULTI_THREAD */
+#endif /* CONFIG_SDK_THREAD_COST */
 
 #ifdef __cplusplus
 }

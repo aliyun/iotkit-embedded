@@ -352,7 +352,7 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
 		//COAP_ERR("ALCS MQTT Init Failed");
 		//return FAIL_RETURN;
 	//}
-#if  defined(COAP_WITH_YLOOP) /*&& defined(CM_SUPPORT_MULTI_THREAD)*/
+#if  defined(COAP_WITH_YLOOP) /*&& defined(CONFIG_SDK_THREAD_COST)*/
     aos_schedule_call(alcs_repeat_action, (void *)adapter);
 #endif
 

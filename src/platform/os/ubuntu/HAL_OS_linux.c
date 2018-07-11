@@ -419,7 +419,10 @@ int HAL_ThreadCreate(
             _OU_ int *stack_used)
 {
     int ret = -1;
-    *stack_used = 0;
+
+    if (stack_used) {
+        *stack_used = 0;
+    }
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
 

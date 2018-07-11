@@ -25,4 +25,8 @@
     #define CONFIG_MQTT_RX_MAXLEN       (1024)
 #endif
 
+#ifndef CONFIG_SDK_THREAD_COST
+    #define CONFIG_SDK_THREAD_COST      (1)
+#endif
+
 #endif  /* __IOT_IMPORT_CONFIG_H__ */
