@@ -582,12 +582,22 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
         return FAIL_RETURN;
     }
 
-    /* RRPC request*/
+    /* RRPC request */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
                             pdevice_info->product_key,
                             pdevice_info->device_name,
                             TOPIC_SYS_RRPC_FMT,
                             "request",
+                            is_subscribe)){
+        return FAIL_RETURN;
+    }
+
+	/* DSL Template */
+	if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
+                            pdevice_info->product_key,
+                            pdevice_info->device_name,
+                            TOPIC_SYS_DSL_TEMPLATE_FMT,
+                            "get_reply",
                             is_subscribe)){
         return FAIL_RETURN;
     }

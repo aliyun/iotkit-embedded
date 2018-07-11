@@ -657,20 +657,21 @@ int iotx_thing_subscribe_unsubscribe_enhance(iotx_thing_masterlave_pt thing_t,
 {
     char topic[GATEWAY_TOPIC_LEN_MAX] = {0};
     int i = 0;
-    iotx_thing_subscribe_topic_t enhance_subscribe_topic[6] = {
+    iotx_thing_subscribe_topic_t enhance_subscribe_topic[7] = {
         {TOPIC_Thing_COMMON_FMT, "service", "+", ""},
         {TOPIC_Thing_COMMON_EXT_FMT, "event", "+", "post_reply"},
         {TOPIC_Thing_COMMON_EXT_FMT, "event", "property", "post_reply"},
         {TOPIC_Thing_COMMON_EXT_FMT, "service", "property", "set"},
         {TOPIC_Thing_COMMON_EXT_FMT, "service", "property", "get"},
-        {TOPIC_Thing_COMMON_EXT_FMT, "topo", "add", "notify"}
+        {TOPIC_Thing_COMMON_EXT_FMT, "topo", "add", "notify"},
+        {TOPIC_Thing_COMMON_FMT,     "dsltemplate", "get_reply", ""}
     };
 
     PARAMETER_Thing_CHECK(thing_t);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(product_key, FAIL_RETURN);
     PARAMETER_STRING_NULL_CHECK_WITH_RESULT(device_name, FAIL_RETURN);
 
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 7; i++) {
         memset(topic, 0X0, GATEWAY_TOPIC_LEN_MAX);
         HAL_Snprintf(topic,
                 GATEWAY_TOPIC_LEN_MAX,

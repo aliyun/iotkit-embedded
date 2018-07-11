@@ -52,6 +52,8 @@
 /* The format of system RRPC topic */
 #define TOPIC_SYS_RRPC_FMT                   "/sys/%s/%s/rrpc/%s/+"
 
+/* The format of dsltemplate  */
+#define TOPIC_SYS_DSL_TEMPLATE_FMT           "/sys/%s/%s/thing/dsltemplate/%s"
 
 /* Subdevice    register/login sign method */
 typedef enum IOTX_SUBDEV_SIGN_METHOD_TYPES {
