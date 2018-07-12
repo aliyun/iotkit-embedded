@@ -47,18 +47,19 @@ void iotx_guider_set_domain_type(int domain_type)
 }
 
 /* return domain, DIRECT mode */
-char* iotx_guider_get_domain(void)
+char *iotx_guider_get_domain(void)
 {
-    if (0 == g_domain_type)
+    if (0 == g_domain_type) {
         return GUIDER_DIRECT_DOMAIN_SHANGHAI;
-    else if (1 == g_domain_type)
+    } else if (1 == g_domain_type) {
         return GUIDER_DIRECT_DOMAIN_SINGAPORE;
-    else if (2 == g_domain_type)
+    } else if (2 == g_domain_type) {
         return GUIDER_DIRECT_DOMAIN_JAPAN;
-    else if (3 == g_domain_type)
+    } else if (3 == g_domain_type) {
         return GUIDER_DIRECT_DOMAIN_AMERICA;
-    else if (4 == g_domain_type)
-        return GUIDER_DIRECT_DOMAIN_GERMANY;    
+    } else if (4 == g_domain_type) {
+        return GUIDER_DIRECT_DOMAIN_GERMANY;
+    }
 
     return NULL;
 }
@@ -95,21 +96,21 @@ static int _calc_hmac_signature(
     memset(hmac_source, 0, sizeof(hmac_source));
     if (is_for_ext) {
         rc = HAL_Snprintf(hmac_source,
-                      sizeof(hmac_source),
-                      "clientId%s" "deviceName%s" "ext%d" "productKey%s" "timestamp%s",
-                      dev->device_id,
-                      dev->device_name,
-					  ext_value,
-                      dev->product_key,
-                      timestamp_str);
+                          sizeof(hmac_source),
+                          "clientId%s" "deviceName%s" "ext%d" "productKey%s" "timestamp%s",
+                          dev->device_id,
+                          dev->device_name,
+                          ext_value,
+                          dev->product_key,
+                          timestamp_str);
     } else {
         rc = HAL_Snprintf(hmac_source,
-                      sizeof(hmac_source),
-                      "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
-                      dev->device_id,
-                      dev->device_name,
-                      dev->product_key,
-                      timestamp_str);
+                          sizeof(hmac_source),
+                          "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+                          dev->device_id,
+                          dev->device_name,
+                          dev->product_key,
+                          timestamp_str);
     }
     LITE_ASSERT(rc < sizeof(hmac_source));
 
@@ -310,60 +311,53 @@ static void guider_get_url(char *buf, int len)
 
     HAL_Snprintf(buf, len, "%s", "http://");
 
-    if (0 == g_domain_type) 
-    {
-    #if defined(ON_PRE)
-        strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
-    #elif defined(ON_DAILY)
+    if (0 == g_domain_type) {
+#if defined(ON_DAILY)
         strcat(buf, "iot-auth.alibaba.net");
-    #else
+#else
         strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
-    #endif
-    } 
-
-    else if (1 == g_domain_type)
-    {
-    #if defined(ON_PRE)
-        strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
-    #elif defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");
-    #else
-        strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
-    #endif
+#endif
     }
 
-    else if (2 == g_domain_type)
-    {
-    #if defined(ON_PRE)
+    else if (1 == g_domain_type) {
+#if defined(ON_PRE)
+        strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
+#elif defined(ON_DAILY)
+        strcat(buf, "iot-auth.alibaba.net");
+#else
+        strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
+#endif
+    }
+
+    else if (2 == g_domain_type) {
+#if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.ap-northeast-1.aliyuncs.com");    ////////////  TODO
-    #elif defined(ON_DAILY)
+#elif defined(ON_DAILY)
         strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
-    #else
+#else
         strcat(buf, "iot-auth.ap-northeast-1.aliyuncs.com"); ////////////  TODO
-    #endif
-    } 
+#endif
+    }
 
-    else if (3 == g_domain_type)
-    {
-    #if defined(ON_PRE)
+    else if (3 == g_domain_type) {
+#if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.us-west-1.aliyuncs.com");    ////////////  TODO
-    #elif defined(ON_DAILY)
+#elif defined(ON_DAILY)
         strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
-    #else
+#else
         strcat(buf, "iot-auth.us-west-1.aliyuncs.com");  ////////////  TODO
-    #endif
-    } 
+#endif
+    }
 
-    else if (4 == g_domain_type)
-    {
-    #if defined(ON_PRE)
+    else if (4 == g_domain_type) {
+#if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.eu-central-1.aliyuncs.com");    ////////////  TODO
-    #elif defined(ON_DAILY)
+#elif defined(ON_DAILY)
         strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
-    #else
+#else
         strcat(buf, "iot-auth.eu-central-1.aliyuncs.com");   ////////////  TODO
-    #endif
-    }      
+#endif
+    }
 
     strcat(buf, "/auth/devicename");
 
@@ -422,7 +416,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
 
     rc = sprintf(ret,
                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
-                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"                 
+                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
 #ifdef SUPPORT_AUTH_ROUTER
                  "&ext=%d"
 #endif
@@ -435,7 +429,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
 #ifdef SUPPORT_AUTH_ROUTER
                  , 1
 #endif
-                 );
+                );
     LITE_ASSERT(rc < AUTH_STRING_MAXLEN);
 
     return ret;
@@ -450,7 +444,7 @@ static int guider_get_iotId_iotToken(
             uint16_t *pport)
 {
 #define PAYLOAD_STRING_MAXLEN  (1024)
-    char*               iotx_payload = NULL;
+    char               *iotx_payload = NULL;
     int                 iotx_port = 443;
     int                 ret = -1;
     iotx_conn_info_pt   usr = iotx_conn_info_get();
@@ -585,7 +579,7 @@ int iotx_guider_authenticate(void)
     iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
     int                 gw = 0;
-	int                 ext = 0;
+    int                 ext = 0;
 
     LITE_ASSERT(dev);
     LITE_ASSERT(conn);
@@ -608,7 +602,7 @@ int iotx_guider_authenticate(void)
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
 #endif
     guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
-                             timestamp_str, guider_sign, NULL, NULL);
+                                 timestamp_str, guider_sign, NULL, NULL);
 
 
     req_str = guider_set_auth_req_str(guider_sign, timestamp_str);
@@ -632,7 +626,7 @@ int iotx_guider_authenticate(void)
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
 
     guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
-                             timestamp_str, guider_sign, NULL, NULL);
+                                 timestamp_str, guider_sign, NULL, NULL);
 
 #endif
 
@@ -693,7 +687,7 @@ int iotx_guider_authenticate(void)
                       , secure_mode
                       , timestamp_str
                       , gw
-					  , ext
+                      , ext
                       , partner_id
                       , module_id
                      );

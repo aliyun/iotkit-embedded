@@ -41,7 +41,9 @@
 #include "iot_import.h"
 #include "platform_debug.h"
 
-#define SEND_TIMEOUT_SECONDS (10)
+#define SEND_TIMEOUT_SECONDS                (10)
+#define GUIDER_ONLINE_HOSTNAME              ("iot-auth.cn-shanghai.aliyuncs.com")
+#define GUIDER_PRE_ADDRESS                  ("100.67.80.107")
 
 typedef struct _TLSDataParams {
     mbedtls_ssl_context ssl;          /**< mbed TLS control context. */
@@ -75,10 +77,10 @@ static void _ssl_debug(void *ctx, int level, const char *file, int line, const c
 {
     ((void) level);
     if (NULL != ctx) {
-    #if 0
+#if 0
         fprintf((FILE *) ctx, "%s:%04d: %s", file, line, str);
         fflush((FILE *) ctx);
-    #endif
+#endif
         platform_info("%s", str);
     }
 }
@@ -357,13 +359,17 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 #endif
     mbedtls_ssl_conf_rng(&(pTlsData->conf), _ssl_random, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, NULL);
-    mbedtls_ssl_conf_dbg( &(pTlsData->conf), _ssl_debug, stdout );
+    mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, stdout);
 
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
         platform_err("failed! mbedtls_ssl_setup returned %d", ret);
         return ret;
     }
+#if defined(ON_PRE) || defined(ON_DAILY)
+    platform_err("SKIPPING mbedtls_ssl_set_hostname() when ON_PRE or ON_DAILY defined!");
+#else
     mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
+#endif
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
     /*
@@ -515,8 +521,9 @@ uintptr_t HAL_SSL_Establish(const char *host,
                             const char *ca_crt,
                             size_t ca_crt_len)
 {
-    char port_str[6];
-    TLSDataParams_pt pTlsData;
+    char                port_str[6];
+    const char         *alter = host;
+    TLSDataParams_pt    pTlsData;
 
     pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
@@ -526,7 +533,14 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     sprintf(port_str, "%u", port);
 
-    if (0 != _TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
+#if defined(ON_PRE)
+    if (!strcmp(GUIDER_ONLINE_HOSTNAME, host)) {
+        platform_err("ALTERING '%s' to '%s' since ON_PRE defined!", host, GUIDER_PRE_ADDRESS);
+        alter = GUIDER_PRE_ADDRESS;
+    }
+#endif
+
+    if (0 != _TLSConnectNetwork(pTlsData, alter, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
         _network_ssl_disconnect(pTlsData);
         HAL_Free((void *)pTlsData);
         return (uintptr_t)NULL;
