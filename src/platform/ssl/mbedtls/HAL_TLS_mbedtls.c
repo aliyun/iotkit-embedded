@@ -53,9 +53,6 @@ typedef struct _TLSDataParams {
 } TLSDataParams_t, *TLSDataParams_pt;
 
 
-#define DEBUG_LEVEL 10
-
-
 static unsigned int _avRandom()
 {
     return (((unsigned int)rand() << 16) + rand());
@@ -129,7 +126,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
      * 0. Initialize the RNG and the session data
      */
 #if defined(MBEDTLS_DEBUG_C)
-    mbedtls_debug_set_threshold((int)DEBUG_LEVEL);
+    mbedtls_debug_set_threshold((int)CONFIG_MBEDTLS_DEBUG_LEVEL);
 #endif
     mbedtls_net_init(tcp_fd);
     mbedtls_ssl_init(ssl);
@@ -360,7 +357,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 #endif
     mbedtls_ssl_conf_rng(&(pTlsData->conf), _ssl_random, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, NULL);
-    /* mbedtls_ssl_conf_dbg( &(pTlsData->conf), _ssl_debug, stdout ); */
+    mbedtls_ssl_conf_dbg( &(pTlsData->conf), _ssl_debug, stdout );
 
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
         platform_err("failed! mbedtls_ssl_setup returned %d", ret);

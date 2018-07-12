@@ -29,4 +29,8 @@
     #define CONFIG_SDK_THREAD_COST      (1)
 #endif
 
+#ifndef CONFIG_MBEDTLS_DEBUG_LEVEL
+    #define CONFIG_MBEDTLS_DEBUG_LEVEL  (0)
+#endif
+
 #endif  /* __IOT_IMPORT_CONFIG_H__ */
