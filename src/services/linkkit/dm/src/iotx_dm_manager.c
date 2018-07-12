@@ -1989,6 +1989,46 @@ int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _I
 	return SUCCESS_RETURN;
 }
 
+int iotx_dmgr_upstream_ntp_request(void)
+{
+	int res = 0;
+	const char *ntp_request_fmt = "{\"deviceSendTime\":\"1234\"}";
+	char /* *cloud_payload = NULL, */ *uri = NULL;
+	iotx_dmsg_request_t request;
+	
+	memset(&request,0,sizeof(iotx_dmsg_request_t));
+	request.service_prefix = IOTX_DCS_EXT_NTP_PREFIX;
+	request.service_name = IOTX_DCS_NTP_REQUEST;
+	HAL_GetProductKey(request.product_key);
+	HAL_GetDeviceName(request.device_name);
+
+	/* Request URI */
+	res = iotx_dcm_service_name(request.service_prefix,request.service_name,
+								request.product_key,request.device_name,&uri);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	#if 0
+	cloud_payload = DM_malloc(payload_len + 1);
+	if (cloud_payload == NULL) {
+		DM_free(uri);
+		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(cloud_payload,0,payload_len + 1);
+	memcpy(cloud_payload,payload,payload_len);
+	#endif
+	
+	res = iotx_dcw_send_to_all(uri,(char *)ntp_request_fmt,NULL);
+	if (res != SUCCESS_RETURN) {
+		DM_free(uri);//DM_free(cloud_payload);
+		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
+		return FAIL_RETURN;
+	}
+
+	DM_free(uri);//DM_free(cloud_payload);
+	return SUCCESS_RETURN;
+}
+
 int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0, service_name_len = 0;

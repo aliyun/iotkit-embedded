@@ -761,6 +761,9 @@ int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
 int HAL_Kv_Del(const char *key);
 
+void HAL_UTC_Set(uint64_t ms);
+uint64_t HAL_UTC_Get(void);
+
 /** @} */ //end of platform_firmware_upgrade
 
 #endif  /* SIM7000C_DAM */

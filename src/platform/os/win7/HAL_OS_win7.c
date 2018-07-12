@@ -429,4 +429,13 @@ int HAL_Firmware_Persistence_Stop(void)
     return 0;
 }
 
+void HAL_UTC_Set(uint64_t ms)
+{
+
+}
+
+uint64_t HAL_UTC_Get(void)
+{
+    return 0;
+}
 

@@ -1645,7 +1645,7 @@ int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response)
 }
 
 const char IOTX_DMSG_THING_MODEL_UP_RAW_REPLY_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"payload\":\"%.*s\"}";
-int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],iotx_dmsg_response_payload_t *response)
+int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],char *payload, int payload_len)
 {
 	int res = 0, devid = 0, message_len = 0;
 	char *message = NULL;
@@ -1653,7 +1653,7 @@ int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN]
 	if (product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
-		response == NULL) {
+		payload == NULL || payload_len <= 0) {
 		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
@@ -1661,14 +1661,14 @@ int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN]
 	res = iotx_dmgr_search_device_by_pkdn(product_key,device_name,&devid);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(IOTX_DMSG_THING_MODEL_DOWN_FMT) + IOTX_DCM_UINT32_STRLEN + response->data.value_length + 1;
+	message_len = strlen(IOTX_DMSG_THING_MODEL_DOWN_FMT) + IOTX_DCM_UINT32_STRLEN + payload_len + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
 		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
-	HAL_Snprintf(message,message_len,IOTX_DMSG_THING_MODEL_DOWN_FMT,devid,response->data.value_length,response->data.value);
+	HAL_Snprintf(message,message_len,IOTX_DMSG_THING_MODEL_DOWN_FMT,devid,payload_len,payload);
 
 	res = _iotx_dmsg_send_to_user(IOTX_DM_EVENT_MODEL_UP_RAW_REPLY,message);
 	if (res != SUCCESS_RETURN) {
@@ -1676,6 +1676,42 @@ int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN]
 		return FAIL_RETURN;
 	}
 
+	return SUCCESS_RETURN;
+}
+
+int iotx_dmsg_ntp_response(char *payload, int payload_len)
+{
+	int res = 0;
+	uint64_t utc = 0;
+	lite_cjson_t lite, lite_item_server_send_time;
+	const char *serverSendTime = "serverSendTime";
+	char uint64_str[IOTX_DCM_UINT64_STRLEN] = {0};
+	
+	if (payload == NULL || payload_len <=0) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = lite_cjson_parse(payload,payload_len,&lite);
+	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
+		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		return FAIL_RETURN;
+	}
+
+	res = lite_cjson_object_item(&lite,serverSendTime,strlen(serverSendTime),&lite_item_server_send_time);
+	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_server_send_time)) {
+		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		return FAIL_RETURN;
+	}
+	dm_log_debug("NTP Time In String: %.*s",lite_item_server_send_time.value_length,lite_item_server_send_time.value);
+
+	memcpy(uint64_str,lite_item_server_send_time.value,lite_item_server_send_time.value_length);
+	utc = atoll(uint64_str);
+
+	dm_log_debug("NTP Time In Number: %lld",utc);
+	
+	HAL_UTC_Set(utc);
+	
 	return SUCCESS_RETURN;
 }
 
@@ -1797,6 +1833,12 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 		if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	}
 
+	res = iotx_dcs_uri_prefix_ext_ntp_split(uri,strlen(uri),NULL,NULL);
+	if (res == SUCCESS_RETURN) {
+		res = iotx_dmsg_uri_parse_pkdn(uri,strlen(uri),3,5,product_key,device_name);
+		if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
+	}
+
 	res = iotx_dmgr_search_device_by_pkdn(product_key,device_name,&devid);
 	if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
@@ -1811,7 +1853,9 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	}
 	if ((((index + 1) >= iotx_dcs_get_topic_mapping_size()) || (res == iotx_dcs_get_topic_mapping_size())) && index != IOTX_DMGR_DEV_SUB_END) {
 		dm_log_debug("Devid %d Subscribe Completed",devid);
-	
+
+		iotx_dmgr_upstream_ntp_request();
+			
 		message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
 		message = DM_malloc(message_len);
 		if (message == NULL) {

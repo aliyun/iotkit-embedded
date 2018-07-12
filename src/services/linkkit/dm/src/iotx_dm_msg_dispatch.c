@@ -16,6 +16,7 @@
 
 const char IOTX_DCS_SYS_PREFIX[]                        DM_READ_ONLY = "/sys/%s/%s/";
 const char IOTX_DCS_EXT_SESSION_PREFIX[]                DM_READ_ONLY = "/ext/session/%s/%s/";
+const char IOTX_DCS_EXT_NTP_PREFIX[]                    DM_READ_ONLY = "/ext/ntp/%s/%s/";
 const char IOTX_DCS_REPLY_SUFFIX[]                      DM_READ_ONLY = "_reply";
 
 /* From Cloud To Local Request And Response*/
@@ -68,6 +69,8 @@ const char IOTX_DCS_COMBINE_LOGOUT[]                    DM_READ_ONLY = "combine/
 const char IOTX_DCS_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY = "combine/logout_reply";
 const char IOTX_DCS_THING_MODEL_UP_RAW[]                DM_READ_ONLY = "thing/model/up_raw";
 const char IOTX_DCS_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/model/up_raw_reply";
+const char IOTX_DCS_NTP_REQUEST[]                       DM_READ_ONLY = "request";
+const char IOTX_DCS_NTP_RESPONSE[]                      DM_READ_ONLY = "response";
 const char IOTX_DCS_DEV_CORE_SERVICE_DEV[]              DM_READ_ONLY = "/dev/core/service/dev";
 const char IOTX_DCS_THING_LAN_PREFIX_GET[]              DM_READ_ONLY = "thing/lan/prefix/get";
 const char IOTX_DCS_THING_LAN_PREFIX_GET_REPLY[]        DM_READ_ONLY = "thing/lan/prefix/get_reply";
@@ -99,6 +102,7 @@ static const iotx_dcs_topic_mapping_t g_iotx_dcs_topic_mapping[] DM_READ_ONLY = 
 	{IOTX_DCS_COMBINE_LOGIN_REPLY,              IOTX_DCS_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_combine_login_reply                },
 	{IOTX_DCS_COMBINE_LOGOUT_REPLY,             IOTX_DCS_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   iotx_dcs_combine_logout_reply               },
 	{IOTX_DCS_THING_MODEL_UP_RAW_REPLY,         IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_model_up_raw_reply           },
+	{IOTX_DCS_NTP_RESPONSE,                     IOTX_DCS_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   iotx_dcs_ntp_response                       },
 	{IOTX_DCS_DEV_CORE_SERVICE_DEV,             NULL,                        IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH, iotx_dcs_thing_dev_core_service_dev         },
 	//{IOTX_DCS_THING_LAN_PREFIX_GET_REPLY,       IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_lan_prefix_get_reply         },
 	//{IOTX_DCS_THING_LAN_PREFIX_UPDATE_REPLY,    IOTX_DCS_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   iotx_dcs_thing_lan_prefix_update_reply      },
@@ -159,6 +163,28 @@ int iotx_dcs_uri_prefix_ext_session_split(_IN_ char *uri, _IN_ int uri_len, _OU_
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (memcmp(IOTX_DCS_EXT_SESSION_PREFIX,uri,offset+1) != 0) {return FAIL_RETURN;}
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (start) {*start = offset;}
+	if (end) {*end = uri_len - offset - 1;}
+
+	return SUCCESS_RETURN;
+}
+
+int iotx_dcs_uri_prefix_ext_ntp_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
+{
+	int res = 0, offset = 0;
+
+	if (uri == NULL || uri_len <= 0) {
+		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/*"/ext/ntp/%s/%s/"*/
+	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (memcmp(IOTX_DCS_EXT_NTP_PREFIX,uri,offset+1) != 0) {return FAIL_RETURN;}
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (start) {*start = offset;}
@@ -896,7 +922,6 @@ void iotx_dcs_combine_logout_reply(iotx_cm_send_peer_t* source, iotx_cm_message_
 void iotx_dcs_thing_model_up_raw_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
 {
 	int res = 0;
-	iotx_dmsg_response_payload_t response;
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 
@@ -907,12 +932,19 @@ void iotx_dcs_thing_model_up_raw_reply(iotx_cm_send_peer_t* source, iotx_cm_mess
 
 	dm_log_debug("Product Key: %s, Device Name: %s",product_key,device_name);
 
-	/* Response */
-	res = iotx_dmsg_response_parse(msg->payload,msg->payload_length,&response);
+	/* Operation */
+	res = iotx_dmsg_thing_model_up_raw_reply(product_key,device_name,msg->payload,msg->payload_length);
 	if (res != SUCCESS_RETURN) {return;}
+}
+
+void iotx_dcs_ntp_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
+{
+	int res = 0;
+
+	dm_log_debug(IOTX_DCS_NTP_RESPONSE);
 
 	/* Operation */
-	res = iotx_dmsg_thing_model_up_raw_reply(product_key,device_name,&response);
+	res = iotx_dmsg_ntp_response(msg->payload,msg->payload_length);
 	if (res != SUCCESS_RETURN) {return;}
 }
 

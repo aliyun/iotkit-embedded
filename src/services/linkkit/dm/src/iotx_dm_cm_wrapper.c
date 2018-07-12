@@ -91,6 +91,27 @@ void iotx_dcw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t
         }
     }
 
+	prefix_end = 0, prefix_uri_end = 0;
+    res = iotx_dcs_uri_prefix_ext_ntp_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
+    if (res == SUCCESS_RETURN) {
+        /* URI Start With /ext/ntp/ */
+        dm_log_debug("Current URI Without /ext/ntp: %.*s", prefix_uri_end + 1, msg->URI + prefix_end);
+        int pkdn_end = 0, pkdn_uri_end = 0;
+        res = iotx_dcs_uri_pkdn_split(msg->URI + prefix_end, prefix_uri_end + 1, &pkdn_end, &pkdn_uri_end);
+        if (res == SUCCESS_RETURN) {
+            /* pkdn_end At /sys/%s/%s/ */
+            dm_log_debug("Current URI Without /ext/ntp/: %.*s", pkdn_uri_end, msg->URI + prefix_end + pkdn_end + 1);
+            for (index = 0; index < iotx_dcs_get_topic_mapping_size(); index++) {
+                if ((strlen(dcs_mapping[index].service_name) == pkdn_uri_end) &&
+                    (memcmp(dcs_mapping[index].service_name, msg->URI + prefix_end + pkdn_end + 1, pkdn_uri_end) == 0) &&
+                    (memcmp(dcs_mapping[index].service_prefix, IOTX_DCS_EXT_NTP_PREFIX, strlen(IOTX_DCS_EXT_NTP_PREFIX)) == 0)) {
+                    dcs_mapping[index].service_handler(source, msg, user_data);
+                    return;
+                }
+            }
+        }
+    }
+
     for (index = 0; index < iotx_dcs_get_topic_mapping_size(); index++) {
         if ((strlen(dcs_mapping[index].service_name) == msg->URI_length) &&
             (memcmp(dcs_mapping[index].service_name, msg->URI, msg->URI_length) == 0)) {

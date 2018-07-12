@@ -94,7 +94,8 @@ int iotx_dmsg_thing_dsltemplate_get_reply(iotx_dmsg_response_payload_t *response
 int iotx_dmsg_thing_dynamictsl_get_reply(iotx_dmsg_response_payload_t *response);
 int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response);
 int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response);
-int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],iotx_dmsg_response_payload_t *response);
+int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],char *payload, int payload_len);
+int iotx_dmsg_ntp_response(char *payload, int payload_len);
 int iotx_dmsg_cloud_connected(void);
 int iotx_dmsg_cloud_disconnect(void);
 int iotx_dmsg_cloud_reconnect(void);
