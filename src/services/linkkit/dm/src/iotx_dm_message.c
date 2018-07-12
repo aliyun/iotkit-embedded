@@ -1854,7 +1854,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	if ((((index + 1) >= iotx_dcs_get_topic_mapping_size()) || (res == iotx_dcs_get_topic_mapping_size())) && index != IOTX_DMGR_DEV_SUB_END) {
 		dm_log_debug("Devid %d Subscribe Completed",devid);
 
-		iotx_dmgr_upstream_ntp_request();
+		if (devid == IOTX_DMGR_LOCAL_NODE_DEVID) {iotx_dmgr_upstream_ntp_request();}
 			
 		message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
 		message = DM_malloc(message_len);
