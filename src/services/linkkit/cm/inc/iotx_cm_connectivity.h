@@ -89,7 +89,7 @@ typedef struct iotx_cm_connectivity_st {
 #endif /* CONFIG_SDK_THREAD_COST */
     uint8_t                                       is_try_connect;
     init_fp_t                                     init_func;
-    init_sencond_fp_t                             init_sencond_func;
+    init_sencond_fp_t                             init_second_func;
     connect_fp_t                                  connect_func;
     trigger_connected_fp_t                        trigger_connected_func;
     check_connected_fp_t                          check_connected_func;

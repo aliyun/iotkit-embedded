@@ -960,7 +960,7 @@ static void cm_connectivity_iterator_action_handler(void* list_node, va_list* pa
             connectivity->remove_subdevice_func(cm_ctx, connectivity, pk, dn);
             break;
 		case cm_iterator_action_init_second:
-			connectivity->init_sencond_func(cm_ctx, connectivity);
+			connectivity->init_second_func(cm_ctx, connectivity);
 			break;
         default:
             break;
@@ -1128,7 +1128,7 @@ int iotx_cm_init_second(iotx_cm_conntext_t* cm_ctx, void* _connectivity)
         list = cm_ctx->list_connectivity;
         linked_list_iterator(list, cm_connectivity_iterator_action_handler, cm_ctx, cm_iterator_action_init_second);
     } else {
-        connectivity->init_sencond_func(cm_ctx, connectivity);
+        connectivity->init_second_func(cm_ctx, connectivity);
     }
 
     return SUCCESS_RETURN;

@@ -916,7 +916,7 @@ void *iotx_cm_local_conn_init(void *handler, void *param)
 
     connectivity->context = connection;
     connectivity->init_func = iotx_cm_local_conn_init;
-    connectivity->init_sencond_func = iotx_cm_local_conn_init_second;
+    connectivity->init_second_func = iotx_cm_local_conn_init_second;
     connectivity->connect_func = iotx_cm_local_conn_connect;
     connectivity->register_func = iotx_cm_local_conn_register;
     connectivity->check_connected_func = iotx_cm_local_conn_check_connected;
