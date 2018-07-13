@@ -1175,7 +1175,7 @@ int iotx_dmsg_thing_sub_register_reply(iotx_dmsg_response_payload_t *response)
 		if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn)) {continue;}
 		dm_log_debug("Current Device Name: %.*s",lite_item_dn.value_length,lite_item_dn.value);
 
-		/* Device Name */
+		/* Device Secret */
 		res = lite_cjson_object_item(&lite_item,IOTX_DMSG_KEY_DEVICE_SECRET,strlen(IOTX_DMSG_KEY_DEVICE_SECRET),&lite_item_ds);
 		if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_ds)) {continue;}
 		dm_log_debug("Current Device Secret: %.*s",lite_item_ds.value_length,lite_item_ds.value);
@@ -1497,6 +1497,7 @@ int iotx_dmsg_thing_dynamictsl_get_reply(iotx_dmsg_response_payload_t *response)
 }
 
 const char IOTX_DMSG_EVENT_COMBINE_LOGIN_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
+const char IOTX_DMSG_THING_AOS_ACTIVE_INFO_PAYLOAD[] DM_READ_ONLY = "[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
 int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, message_len = 0, devid = 0;
@@ -1562,7 +1563,21 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	}
 
 	if (response->code.value_int != IOTX_DM_ERR_CODE_SUCCESS) {return SUCCESS_RETURN;}
-	
+
+    /* Send aos active info here */
+    dm_log_info("Send AOS active here\n\n");
+
+    int active_param_len;
+    char* active_param;
+    char aos_active_data[10] = "123456789";
+        
+    active_param_len = strlen(IOTX_DMSG_THING_AOS_ACTIVE_INFO_PAYLOAD) + strlen(aos_active_data) + 1;
+    active_param = DM_malloc(active_param_len);
+    if (active_param == NULL) {return FAIL_RETURN;}
+    HAL_Snprintf(active_param, active_param_len, IOTX_DMSG_THING_AOS_ACTIVE_INFO_PAYLOAD, aos_active_data);  
+    IOT_DM_DeviceInfo_Update(devid, active_param, active_param_len);
+    DM_free(active_param);
+
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
 	res = iotx_dsub_multi_next(devid,0);
