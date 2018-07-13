@@ -8,7 +8,7 @@
 
 #define LOG_MSG_MAXLEN                  (255)
 #define LOG_MOD_NAME_LEN                (7)
-#define LOG_PREFIX_FMT                  "%s,%d,[%s], "
+#define LOG_PREFIX_FMT                  "[%s]%s(%d): "
 #define LOG_PREFIX_FMT_ONLINE           "%ld %s %s "
 
 #define HEXDUMP_SEP_LINE                "+" \
@@ -22,4 +22,3 @@
 #endif
 
 #endif  /* __LITE_LOG_CONFIG_H__ */
-
