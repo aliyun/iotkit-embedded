@@ -30,19 +30,11 @@
 #endif
 #include "CoAPNetwork.h"
 
-
-typedef struct
-{
-    CoAPNetworkType       type;
-    unsigned short        port;
-    intptr_t             fd;
-}NetworkConf;
-
 int CoAPNetwork_read(NetworkContext         *p_context,
-                            NetworkAddr     *p_remote,
-                            unsigned char   *p_data,
-                            unsigned int     datalen,
-                            unsigned int     timeout_ms)
+                     NetworkAddr     *p_remote,
+                     unsigned char   *p_data,
+                     unsigned int     datalen,
+                     unsigned int     timeout_ms)
 
 {
     int          len      = 0;
@@ -122,7 +114,7 @@ NetworkContext *CoAPNetwork_init (const NetworkInit   *p_param)
 #endif
         /*Create udp socket*/
         network->port = p_param->port;
-        network->fd = HAL_UDP_create_without_connect(NULL, network->port);
+        network->fd = HAL_UDP_create(NULL, network->port);
         if ((intptr_t)-1 == network->fd) {
             coap_free(network);
             return NULL;
@@ -148,7 +140,7 @@ void CoAPNetwork_deinit(NetworkContext *p_context)
         // TODO:
     }else{
 #endif
-        HAL_UDP_close_without_connect(network->fd);
+        HAL_UDP_close(network->fd);
         coap_free(p_context);
         p_context = NULL;
 #ifdef COAP_DTLS_SUPPORT

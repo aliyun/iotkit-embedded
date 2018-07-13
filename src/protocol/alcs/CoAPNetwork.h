@@ -32,6 +32,12 @@ typedef enum
     COAP_NETWORK_DTLS,
 }CoAPNetworkType;
 
+typedef struct
+{
+    CoAPNetworkType       type;
+    unsigned short        port;
+    intptr_t             fd;
+} NetworkConf;
 
 typedef void NetworkContext;
 

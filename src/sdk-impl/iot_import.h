@@ -32,6 +32,9 @@ extern "C" {
 #include "imports/iot_import_config.h"
 #include "imports/iot_import_product.h"
 #include "imports/iot_import_crypt.h"
+#include "imports/iot_import_coap.h"
+#include "imports/iot_import_awss.h"
+#include "imports/iot_import_dtls.h"
 
 /** @defgroup group_platform platform
  *  @{
@@ -40,6 +43,8 @@ extern "C" {
 #ifdef SIM7000C_DAM
 #include "qapi_ali_iot.h"
 #else
+
+#include "itls.h"
 
 /*********************************** mutex interface ***********************************/
 

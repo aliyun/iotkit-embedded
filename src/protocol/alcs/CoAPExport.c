@@ -192,12 +192,13 @@ void *CoAPContextAppdata_get(CoAPContext *context)
 void CoAPContext_free(CoAPContext *context)
 {
     CoAPIntContext *p_ctx = NULL;
+    CoAPSendNode *cur = NULL, *next = NULL;
     if (NULL == context) {
         return;
     }
 
     p_ctx = (CoAPIntContext *)context;
-    CoAPSendNode *cur, *next;
+
     CoAPNetwork_deinit(p_ctx->p_network);
     COAP_DEBUG("CoAP Network Deinit");
 

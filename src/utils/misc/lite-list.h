@@ -17,8 +17,10 @@
  */
 
 
-#ifndef _LINUX_LIST_H
-#define _LINUX_LIST_H
+#ifndef _LITE_LIST_H
+#define _LITE_LIST_H
+
+//#include "iotx_utils.h"
 
 #define inline __inline
 

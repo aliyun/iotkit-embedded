@@ -17,8 +17,8 @@
  */
 
 
-#ifndef __LITE_UTILS_H__
-#define __LITE_UTILS_H__
+#ifndef __IOTX_UTILS_H__
+#define __IOTX_UTILS_H__
 
 #include <stdio.h>
 #include <stdint.h>

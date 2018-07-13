@@ -23,6 +23,11 @@
 
 #include <string.h>
 
+#define KEY_IOPAD_SIZE        (64)
+#define MD5_DIGEST_SIZE       (16)
+#define SHA1_DIGEST_SIZE      (20)
+#define SHA256_DIGEST_SIZE    (32)
+
 void utils_hmac_md5(const char *msg, int msg_len, char *digest, const char *key, int key_len);
 
 void utils_hmac_sha1(const char *msg, int msg_len, char *digest, const char *key, int key_len);
