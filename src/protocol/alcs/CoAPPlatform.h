@@ -29,6 +29,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#if 0
 
 #ifdef COAP_USE_PLATFORM_MEMORY
 #define coap_malloc(size) LITE_malloc(size, MEM_MAGIC, "CoAP")
@@ -41,7 +42,7 @@ extern "C" {
 #else
 #define coap_free free
 #endif
-#if 0
+
 #ifdef COAP_USE_PLATFORM_LOG
 #define COAP_TRC   log_debug
 #define COAP_DUMP  log_debug

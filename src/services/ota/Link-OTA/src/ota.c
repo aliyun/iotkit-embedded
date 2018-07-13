@@ -25,6 +25,7 @@
 #include "utils_md5.h"
 #include "utils_sha256.h"
 #include "utils_httpc.h"
+#include "iotx_utils.h"
 #include "ota_debug.h"
 
 #define OTA_MALLOC          HAL_Malloc

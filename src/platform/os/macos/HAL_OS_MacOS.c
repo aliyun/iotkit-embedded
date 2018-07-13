@@ -39,7 +39,6 @@
 #include "iot_import.h"
 #include "platform_debug.h"
 
-#define HAL_MAC_LEN  (18)
 #if defined(SUPPORT_SINGAPORE_DOMAIN)
 static char DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN] = {"zSqW3X4e0lJ"};
 static char DEMO_CASE_DEVICE_NAME[DEVICE_NAME_MAXLEN] = {"azhan_sg"};
@@ -630,12 +629,12 @@ int HAL_Kv_Del(const char *key)
     return 0;
 }
 
-void HAL_UTC_Set(int64_t ms)
+void HAL_UTC_Set(long long ms)
 {
 
 }
 
-int64_t HAL_UTC_Get(void)
+long long HAL_UTC_Get(void)
 {
     return 0;
 }

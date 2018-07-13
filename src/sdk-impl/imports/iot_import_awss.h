@@ -105,7 +105,6 @@ int HAL_Wifi_Low_Power(_IN_ int timeout_ms);
  */
 int HAL_RF433_Get_Rssi_Dbm(void);
 
-#define HAL_MAC_LEN    (17 + 1)
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
  *
