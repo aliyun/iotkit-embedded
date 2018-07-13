@@ -759,8 +759,26 @@ int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
 int HAL_Kv_Del(const char *key);
 
-void HAL_UTC_Set(uint64_t ms);
-uint64_t HAL_UTC_Get(void);
+/**
+ * @brief Set the UTC time in milliseconds.
+ *
+ * @param[in] ms: @the time value to be set in milliseconds.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+void HAL_UTC_Set(long long ms);
+
+/**
+ * @brief Get the UTC time in milliseconds.
+ *
+ * @param None.
+ * @return  the UTC time in milliseconds.
+ * @see None.
+ * @note None.
+ */
+long long HAL_UTC_Get(void);
+
 
 /** @} */ //end of platform_firmware_upgrade
 

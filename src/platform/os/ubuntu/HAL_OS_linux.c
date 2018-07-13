@@ -656,13 +656,25 @@ int HAL_Kv_Del(const char *key)
     return kv_del(kvfile, (char *)key);
 }
 
-void HAL_UTC_Set(uint64_t ms)
+static long long os_time_get(void)
 {
-
+    struct timeval tv;
+    long long ms;
+    gettimeofday(&tv, NULL);
+    ms = tv.tv_sec * 1000LL + tv.tv_usec / 1000;
+    return ms;
 }
 
-uint64_t HAL_UTC_Get(void)
+static long long delta_time = 0;
+
+void HAL_UTC_Set(long long ms)
 {
-    return 0;
+    delta_time = ms - os_time_get();
+} 
+
+long long HAL_UTC_Get(void)
+{
+    return delta_time + os_time_get();
 }
+
 
