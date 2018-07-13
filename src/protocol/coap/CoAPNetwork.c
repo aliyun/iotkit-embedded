@@ -112,7 +112,7 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
         rc = CoAPNetworkDTLS_write(p_network->context, p_data, &datalen);
     } else {
 #endif
-        rc = HAL_UDP_write((void *)p_network->context, p_data, datalen);
+        rc = HAL_UDP_write((intptr_t)p_network->context, p_data, datalen);
         COAP_DEBUG("[CoAP-NWK]: Network write return %d", rc);
 
         if (-1 == rc) {

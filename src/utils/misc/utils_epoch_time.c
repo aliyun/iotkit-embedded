@@ -206,13 +206,13 @@ static uint64_t _get_timestamp_from_ntp(const char *host)
         goto do_exit;
     }
 
-    ret = HAL_UDP_write((void *)fd, write_buf, write_len);
+    ret = HAL_UDP_write((intptr_t)fd, write_buf, write_len);
     if (ret < 0) {
         utils_err("udp write error!");
         goto do_exit;
     }
 
-    ret = HAL_UDP_readTimeout((void *)fd, read_buf, sizeof(read_buf), 3000);
+    ret = HAL_UDP_readTimeout((intptr_t)fd, read_buf, sizeof(read_buf), 3000);
     if (ret < 0) {
         utils_err("udp read error!");
         goto do_exit;
@@ -221,7 +221,7 @@ static uint64_t _get_timestamp_from_ntp(const char *host)
     retval = ((uint64_t)tv.tv_sec) * 1000 + tv.tv_usec / 1000;
 
 do_exit:
-    HAL_UDP_close((void *)fd);
+    HAL_UDP_close((intptr_t)fd);
     return retval;
 }
 

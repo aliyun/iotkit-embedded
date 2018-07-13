@@ -376,7 +376,7 @@ int32_t HAL_SSL_Read(_IN_ uintptr_t handle, _OU_ char *buf, _OU_ int len, _IN_ i
  * @retval >= 0 : Success, the value is handle of this UDP connection.
  * @see None.
  */
-void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port);
+intptr_t HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port);
 
 /**
  * @brief Destroy the specific UDP connection.
@@ -385,7 +385,7 @@ void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port);
  * @return None.
  * @see None .
  */
-void HAL_UDP_close(_IN_ void *p_socket);
+void HAL_UDP_close(_IN_ intptr_t p_socket);
 
 /**
  * @brief Write data into the specific UDP connection.
@@ -399,7 +399,7 @@ void HAL_UDP_close(_IN_ void *p_socket);
  * @see None.
  */
 int HAL_UDP_write(
-            _IN_ void *p_socket,
+            _IN_ intptr_t p_socket,
             _IN_ const unsigned char *p_data,
             _IN_ unsigned int datalen);
 
@@ -417,7 +417,7 @@ int HAL_UDP_write(
  * @see None.
  */
 int HAL_UDP_read(
-            _IN_ void *p_socket,
+            _IN_ intptr_t p_socket,
             _OU_ unsigned char *p_data,
             _OU_ unsigned int datalen);
 
@@ -439,7 +439,7 @@ int HAL_UDP_read(
  * @see None.
  */
 int HAL_UDP_readTimeout(
-            _IN_ void *p_socket,
+            _IN_ intptr_t p_socket,
             _OU_ unsigned char *p_data,
             _OU_ unsigned int datalen,
             _IN_ unsigned int timeout_ms);

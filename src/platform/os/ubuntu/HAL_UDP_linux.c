@@ -32,7 +32,7 @@
 #include "iot_import.h"
 
 
-void *HAL_UDP_create(char *host, unsigned short port)
+intptr_t HAL_UDP_create(char *host, unsigned short port)
 {
 #define NETWORK_ADDR_LEN    (16)
 
@@ -45,7 +45,7 @@ void *HAL_UDP_create(char *host, unsigned short port)
     struct sockaddr_in     *sa = NULL;
 
     if (NULL == host) {
-        return (void *)(-1);
+        return (-1);
     }
 
     sprintf(port_ptr, "%u", port);
@@ -57,7 +57,7 @@ void *HAL_UDP_create(char *host, unsigned short port)
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
         platform_err("getaddrinfo error");
-        return (void *)(-1);
+        return (-1);
     }
 
     for (ainfo = res; ainfo != NULL; ainfo = ainfo->ai_next) {
@@ -80,20 +80,20 @@ void *HAL_UDP_create(char *host, unsigned short port)
     }
     freeaddrinfo(res);
 
-    return (void *)socket_id;
+    return socket_id;
 
 #undef NETWORK_ADDR_LEN
 }
 
-void HAL_UDP_close(void *p_socket)
+void HAL_UDP_close(intptr_t p_socket)
 {
-    long            socket_id = -1;
+    long socket_id = -1;
 
-    socket_id = (long)p_socket;
+    socket_id = p_socket;
     close(socket_id);
 }
 
-int HAL_UDP_write(void *p_socket,
+int HAL_UDP_write(intptr_t p_socket,
                   const unsigned char *p_data,
                   unsigned int datalen)
 {
@@ -109,14 +109,14 @@ int HAL_UDP_write(void *p_socket,
     return rc;
 }
 
-int HAL_UDP_read(void *p_socket,
+int HAL_UDP_read(intptr_t p_socket,
                  unsigned char *p_data,
                  unsigned int datalen)
 {
     long            socket_id = -1;
     int             count = -1;
 
-    if (NULL == p_data || NULL == p_socket) {
+    if (NULL == p_data || 0 == p_socket) {
         return -1;
     }
 
@@ -126,7 +126,7 @@ int HAL_UDP_read(void *p_socket,
     return count;
 }
 
-int HAL_UDP_readTimeout(void *p_socket,
+int HAL_UDP_readTimeout(intptr_t p_socket,
                         unsigned char *p_data,
                         unsigned int datalen,
                         unsigned int timeout)
@@ -136,7 +136,7 @@ int HAL_UDP_readTimeout(void *p_socket,
     fd_set              read_fds;
     long                socket_id = -1;
 
-    if (NULL == p_socket || NULL == p_data) {
+    if (0 == p_socket || NULL == p_data) {
         return -1;
     }
     socket_id = (long)p_socket;
