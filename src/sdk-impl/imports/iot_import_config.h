@@ -26,7 +26,7 @@
 #endif
 
 #ifndef CONFIG_SDK_THREAD_COST
-    #define CONFIG_SDK_THREAD_COST      (1)
+    #define CONFIG_SDK_THREAD_COST      (0)
 #endif
 
 #ifndef CONFIG_MBEDTLS_DEBUG_LEVEL
