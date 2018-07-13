@@ -1885,7 +1885,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (source == IOTX_DM_TSL_SOURCE_CLOUD && shadow == NULL) {
-		iotx_dmgr_upstream_thing_dsltemplate_get(devid);
+		iotx_dmgr_upstream_thing_dynamictsl_get(devid);
 	}
 	
 	res = iotx_dmgr_get_dev_sub_service_event_index(devid,&index);

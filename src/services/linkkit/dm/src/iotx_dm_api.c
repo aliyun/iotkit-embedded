@@ -151,7 +151,7 @@ int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const 
 
 		if (sub_generic_index != IOTX_DMGR_DEV_SUB_END) {_iotx_dapi_unlock();return SUCCESS_RETURN;}
 
-		res = iotx_dmgr_upstream_thing_dsltemplate_get(devid);
+		res = iotx_dmgr_upstream_thing_dynamictsl_get(devid);
 
 		_iotx_dapi_unlock();
 		return res;

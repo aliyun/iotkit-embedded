@@ -73,7 +73,7 @@ extern const char IOTX_DCS_THING_LAN_PREFIX_UPDATE_REPLY[]     DM_READ_ONLY;
 extern const char IOTX_DCS_THING_LAN_BLACKLIST_UPDATE[]        DM_READ_ONLY;
 extern const char IOTX_DCS_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY;
 
-#define IOTX_DCS_MULTI_SUBSCRIBE_MAX (4)
+#define IOTX_DCS_MULTI_SUBSCRIBE_MAX (1)
 
 typedef void (*iotx_dcs_topic_handler)(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 
