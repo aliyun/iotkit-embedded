@@ -44,8 +44,6 @@ extern "C" {
 #include "qapi_ali_iot.h"
 #else
 
-#include "itls.h"
-
 /*********************************** mutex interface ***********************************/
 
 /** @defgroup group_platform_mutex mutex
