@@ -155,7 +155,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current Request Message ID: %.*s",request->id.value_length,request->id.value);
+	dm_log_info("Current Request Message ID: %.*s",request->id.value_length,request->id.value);
 
 	//Parse Version
 	memset(&request->version,0,sizeof(lite_cjson_t));
@@ -164,7 +164,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current Request Message Version: %.*s",request->version.value_length,request->version.value);
+	dm_log_info("Current Request Message Version: %.*s",request->version.value_length,request->version.value);
 
 
 	//Parse Method
@@ -174,7 +174,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current Request Message Method: %.*s",request->method.value_length,request->method.value);
+	dm_log_info("Current Request Message Method: %.*s",request->method.value_length,request->method.value);
 
 	//Parse Params
 	memset(&request->params,0,sizeof(lite_cjson_t));
@@ -183,7 +183,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current Request Message Params: %.*s",request->params.value_length,request->params.value);
+	dm_log_info("Current Request Message Params: %.*s",request->params.value_length,request->params.value);
 
 	return SUCCESS_RETURN;
 }
@@ -213,7 +213,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current Request Message ID: %.*s",response->id.value_length,response->id.value);
+	dm_log_info("Current Request Message ID: %.*s",response->id.value_length,response->id.value);
 
 	//Parse code
 	memset(&response->code,0,sizeof(lite_cjson_t));
@@ -222,7 +222,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current Request Message Code: %d",response->code.value_int);
+	dm_log_info("Current Request Message Code: %d",response->code.value_int);
 
 	//Parse data
 	memset(&response->data,0,sizeof(lite_cjson_t));
@@ -231,7 +231,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current Request Message Data: %.*s",response->data.value_length,response->data.value);
+	dm_log_info("Current Request Message Data: %.*s",response->data.value_length,response->data.value);
 
 	return SUCCESS_RETURN;
 }
@@ -262,6 +262,8 @@ int iotx_dmsg_request(_IN_ iotx_dmsg_request_t *request)
 	memset(payload,0,payload_len);
 	HAL_Snprintf(payload,payload_len,IOTX_DMSG_REQUEST,request->msgid,
 					IOTX_DMSG_VERSION,request->params,request->method);
+
+	dm_log_info("DM Send Message, URI: %s, Payload: %s",uri,payload);
 
 	res = iotx_dcw_send_to_all(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {

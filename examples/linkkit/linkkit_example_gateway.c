@@ -313,9 +313,9 @@ int main(void)
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    HAL_SetProductKey("a1BUNdoKJs7");
-    HAL_SetDeviceName("gw-type-002");
-    HAL_SetDeviceSecret("lctt8UIWjX3ncdeNJ9hkGZQydChYVPLg");
+    HAL_SetProductKey("a1J4Xm7QjP7");
+    HAL_SetDeviceName("gw-type-001");
+    HAL_SetDeviceSecret("V43EmyaPf9gdrbUgE13vlsc9tqiukd16");
 
     memset(&gateway, 0, sizeof(gateway_t));
 

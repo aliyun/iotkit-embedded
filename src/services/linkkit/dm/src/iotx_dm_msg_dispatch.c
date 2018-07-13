@@ -1079,7 +1079,7 @@ void iotx_dcs_event_register_result_handler(void* pcontext, iotx_cm_event_msg_t*
 
 	iotx_cm_event_result_t *cm_event_result = (iotx_cm_event_result_t *)msg->msg;
 
-	dm_log_debug("Topic Subscribe Result: %d, URI: %s",cm_event_result->result,cm_event_result->URI);
+	dm_log_info("Topic Subscribe Result: %d, URI: %s",cm_event_result->result,cm_event_result->URI);
 
 	iotx_dmsg_register_result(cm_event_result->URI,cm_event_result->result);
 }
