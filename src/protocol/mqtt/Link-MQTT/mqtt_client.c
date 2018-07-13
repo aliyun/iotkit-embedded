@@ -29,7 +29,7 @@
 #include "utils_list.h"
 #include "utils_timer.h"
 #include "sdk-impl_internal.h"
-
+//#include "activation.h"
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
 #ifdef MQTT_ID2_AUTH
@@ -54,7 +54,6 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
         iotx_mc_topic_handle_t *messageHandler2);
 static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2);
-
 
 
 /* check rule whether is valid or not */
@@ -2538,6 +2537,108 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
+extern int aos_get_version_info(unsigned char version_num[4], unsigned char random_num[4], unsigned char mac_address[4], unsigned char chip_code[4], unsigned char *output_buffer, int output_buffer_size) __attribute__((weak));
+/* Report AOS Version */
+static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
+{
+    int ret = 0;
+    int i;
+    char mac[8] = {0};
+    char version_str[AOS_VERSION_LEN_MAX];
+    char version[4] = {0};
+    char random_num[4];
+    char chip_code[4] = {0};
+    char output[AOS_ACTIVE_INFO_LEN] = {0};
+    char topic_name[IOTX_URI_MAX_LEN + 1];
+    char msg[AOS_VERSON_MSG_LEN] = {0};
+    iotx_mqtt_topic_info_t topic_info;
+    iotx_device_info_pt dev = iotx_device_info_get();
+
+    if (!aos_get_version_info) {
+        mqtt_info("aos is no implement, os active is no allow!");
+        return SUCCESS_RETURN;
+    }
+    
+    mqtt_info("aos version report started in MQTT");
+
+    // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
+    HAL_GetAosKernelVersoin(version_str);
+    ret = iotx_get_aos_hex_version(version_str, version);
+    if (-1 == ret) {
+        mqtt_err("Get AOS kernel version failed");
+        return FAIL_RETURN;
+    }
+    mqtt_info("aos version = %d.%d.%d.%d", version[0], version[1], version[2], version[3]);
+
+    // Get Mac address
+    ret = HAL_GetMacAddr(mac);
+    if (ret <= 0) {
+        mqtt_err("get mac attr failed");
+        return FAIL_RETURN;
+    }
+    mqtt_info("mac addr = %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    // Get Random
+    HAL_Srandom(HAL_UptimeMs());
+    for (i = 0; i < 4; i ++) {
+        random_num[i] = (char)HAL_Random(0xFF);
+    }
+
+    // Get ChipID
+    char chipID[HAL_CID_LEN];
+    HAL_GetChipID(chipID);
+    strncpy(chip_code, chipID, sizeof(chip_code));
+    mqtt_info("chip code = %02x %02x %02x %02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
+
+    /*
+    input: version 4byte + random 4 byte + mac 4byte + chip_code 4byte
+    output: output_buffer store the version info process. length at least OUTPUT_SPACE_SIZE
+    return: 0 success, 1 failed 
+    */
+    // Get aos active info
+    ret = aos_get_version_info((unsigned char*)version, (unsigned char*)random_num, (unsigned char*)mac, 
+                                (unsigned char*)chip_code, (unsigned char*)output, AOS_ACTIVE_INFO_LEN);
+    if (ret) {
+        mqtt_err("aos_get_version_info failed");
+        return FAIL_RETURN;
+    }
+    mqtt_info("get aos avtive info: %s", output );
+
+    // generate report topic
+    ret = iotx_gen_aos_report_topic(topic_name, dev->product_key, dev->device_name);
+    if (ret <= 0) {
+        mqtt_err("aos generate topic failed");
+        return FAIL_RETURN;
+    }
+    mqtt_info("aos version report topic: %s", topic_name);
+
+    // generate report message json data
+    ret = iotx_gen_aos_report_payload(msg, 1, output);
+    if (ret <= 0) {
+        mqtt_err("aos generate message json failed");
+        return FAIL_RETURN;
+    }
+    mqtt_info("aos version report data: %s", msg);
+
+    topic_info.qos = IOTX_MQTT_QOS0;
+    topic_info.payload = (void *)msg;
+    topic_info.payload_len = strlen(msg);
+    topic_info.retain = 0;
+    topic_info.dup = 0;
+
+    // publish message
+    ret = iotx_mc_publish(pclient, topic_name, &topic_info);
+    if (ret < 0) {
+        mqtt_err("publish failed");
+        return FAIL_RETURN;
+    }
+
+    mqtt_debug("aos version report: finished, iotx_mc_publish() = %d", ret);
+
+    return SUCCESS_RETURN; 
+}
+
+
 /* report ModuleID */
 static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
 {
@@ -2615,6 +2716,9 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     return SUCCESS_RETURN;
 }
 
+
+
+
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -2659,6 +2763,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     /* report module id */
     err = iotx_mc_report_mid(pclient);
+    if (SUCCESS_RETURN != err) {
+        iotx_mc_release(pclient);
+        LITE_free(pclient);
+        return NULL;
+    }
+
+    /* report aos version */
+    err = iotx_mc_report_aos_version(pclient);
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         LITE_free(pclient);
