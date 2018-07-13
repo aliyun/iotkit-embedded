@@ -156,6 +156,23 @@ int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *fmt, va_l
     return ret;
 }
 
+int HAL_GetAosKernelVersoin(char *aos_ver_str)
+{
+    memset(aos_ver_str, 0x0, AOS_VERSION_LEN_MAX);
+#ifdef __DEMO__
+    strcpy(aos_ver_str, "AOS-R-1.3.0.0");
+#endif
+    return strlen(aos_ver_str);
+}
+
+int HAL_GetMacAddr(char *mac)
+{
+    memset(mac, 0x0, MAC_ADDR_LEN_MAX);
+#ifdef __DEMO__
+    strcpy(mac, "\x01\x02\x03\x04\x05\x06\x07\x08");
+#endif
+    return strlen(mac);
+}
 
 int HAL_GetPartnerID(char* pid_str)
 {
