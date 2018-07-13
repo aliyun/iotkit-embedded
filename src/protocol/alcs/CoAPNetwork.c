@@ -140,7 +140,7 @@ void CoAPNetwork_deinit(NetworkContext *p_context)
         // TODO:
     }else{
 #endif
-        HAL_UDP_close((void *)network->fd);
+        HAL_UDP_close(network->fd);
         coap_free(p_context);
         p_context = NULL;
 #ifdef COAP_DTLS_SUPPORT

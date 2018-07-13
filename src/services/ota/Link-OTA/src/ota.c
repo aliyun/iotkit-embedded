@@ -27,6 +27,7 @@
 #include "utils_httpc.h"
 #include "iotx_utils.h"
 #include "ota_debug.h"
+#include "iotx_utils.h"
 
 #define OTA_MALLOC          HAL_Malloc
 #define OTA_FREE            HAL_Free
