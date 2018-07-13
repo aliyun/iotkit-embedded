@@ -114,7 +114,7 @@ NetworkContext *CoAPNetwork_init (const NetworkInit   *p_param)
 #endif
         /*Create udp socket*/
         network->port = p_param->port;
-        network->fd = (intptr_t)HAL_UDP_create(NULL, network->port);
+        network->fd = (intptr_t)HAL_UDP_create_without_connect(NULL, network->port);
         if ((intptr_t)-1 == network->fd) {
             coap_free(network);
             return NULL;
@@ -140,7 +140,7 @@ void CoAPNetwork_deinit(NetworkContext *p_context)
         // TODO:
     }else{
 #endif
-        HAL_UDP_close(network->fd);
+        HAL_UDP_close_without_connect(network->fd);
         coap_free(p_context);
         p_context = NULL;
 #ifdef COAP_DTLS_SUPPORT
