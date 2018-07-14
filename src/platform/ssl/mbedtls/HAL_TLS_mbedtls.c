@@ -238,6 +238,8 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
     /* Try the sockaddrs until a connection succeeds */
     ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
     for (cur = addr_list; cur != NULL; cur = cur->ai_next) {
+        char ip4_str[INET_ADDRSTRLEN];
+
         ctx->fd = (int) socket(cur->ai_family, cur->ai_socktype,
                                cur->ai_protocol);
         if (ctx->fd < 0) {
@@ -252,8 +254,10 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
             perror("setsockopt");
             platform_err("setsockopt error");
         }
-
         platform_info("setsockopt SO_SNDTIMEO timeout: %ds", sendtimeout.tv_sec);
+
+        inet_ntop(AF_INET, &((const struct sockaddr_in *)cur->ai_addr)->sin_addr, ip4_str, INET_ADDRSTRLEN);
+        platform_info("connecting IP_ADDRESS: %s", ip4_str);
 
         if (connect(ctx->fd, cur->ai_addr, cur->ai_addrlen) == 0) {
             ret = 0;
