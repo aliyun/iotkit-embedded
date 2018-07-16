@@ -59,7 +59,7 @@ static void _linkkit_event_thing_service_request(char *payload)
 	if (res != SUCCESS_RETURN) {return;}
 	linkkit_log("Current Payload: %.*s",lite_item_payload.value_length,lite_item_payload.value);
 
-	IOT_DM_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,IOTX_DM_ERR_CODE_SUCCESS,lite_item_serviceid.value,lite_item_serviceid.value_length);
+	iotx_dm_send_service_response(lite_item_devid.value_int,lite_item_id.value_int,IOTX_DM_ERR_CODE_SUCCESS,lite_item_serviceid.value,lite_item_serviceid.value_length);
 }
 
 static void _linkkit_event_subdev_register_reply(char *payload)

@@ -740,7 +740,7 @@ int linkkit_answer_service(const void *thing_id, const char *service_identifier,
     }
 
     //ToDo: need to analyze
-    res = IOT_DM_Send_Service_Response(devid, response_id, (iotx_dm_error_code_t)code, (char *)service_identifier,
+    res = iotx_dm_send_service_response(devid, response_id, (iotx_dm_error_code_t)code, (char *)service_identifier,
                                        strlen(service_identifier));
 
     return res;
