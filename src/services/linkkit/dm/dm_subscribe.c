@@ -6,7 +6,7 @@
 #include "dm_cm_wrapper.h"
 #include "dm_opt.h"
 
-static int _iotx_dsub_filter(int devid, int index, int unsub)
+static int _dm_sub_filter(int devid, int index, int unsub)
 {
 	int res = 0, dev_type = 0;
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
@@ -53,12 +53,12 @@ static int _iotx_dsub_filter(int devid, int index, int unsub)
 	return SUCCESS_RETURN;
 }
 
-static int _iotx_dsub_shadow_service_filter(int devid, char *method, int unsub)
+static int _dm_sub_shadow_service_filter(int devid, char *method, int unsub)
 {
 	return SUCCESS_RETURN;
 }
 
-static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
+static int _dm_sub_shadow_event_filter(int devid, char *method, int unsub)
 {
 	int res = 0;
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
@@ -101,7 +101,7 @@ static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dsub_multi(_IN_ char **subscribe, _IN_ int count)
+int dm_sub_multi(_IN_ char **subscribe, _IN_ int count)
 {
 	int res = 0;
 	void *conn = dm_conn_get_cloud_conn();
@@ -121,7 +121,7 @@ int iotx_dsub_multi(_IN_ char **subscribe, _IN_ int count)
 	return res;
 }
 
-int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
+int dm_sub_multi_next(_IN_ int devid, _IN_ int index)
 {
 	int res = 0;
 	int search_index = 0, sub_index = 0, sub_count = 0;
@@ -144,7 +144,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	
 	/* Find Out How Many Topic Will Be Subscribe This Time */
 	for (search_index = index;search_index < dcs_mapping_size;search_index++) {
-		if (_iotx_dsub_filter(devid,search_index,1) == SUCCESS_RETURN) {
+		if (_dm_sub_filter(devid,search_index,1) == SUCCESS_RETURN) {
 			sub_count++;
 			if (sub_count == DM_DISP_MULTI_SUBSCRIBE_MAX) {break;}
 		}
@@ -168,7 +168,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 
 	/* Find Out Topics Which Will Be Subscribe */
 	for (search_index = index,sub_index = 0;search_index < dcs_mapping_size;search_index++) {
-		if (_iotx_dsub_filter(devid,search_index,0) == SUCCESS_RETURN) {
+		if (_dm_sub_filter(devid,search_index,0) == SUCCESS_RETURN) {
 			res = dm_utils_service_name((char *)dcs_mapping[search_index].service_prefix,
 				(char *)dcs_mapping[search_index].service_name,product_key,device_name,subscribe + sub_index);
 			if (res != SUCCESS_RETURN) {goto ERROR;}
@@ -199,7 +199,7 @@ ERROR:
 	return FAIL_RETURN;
 }
 
-int iotx_dsub_shadow_create(int devid)
+int dm_sub_shadow_create(int devid)
 {
 	int res = 0, service_number = 0, event_number = 0;
 	int index = 0, service_event_index = 0, service_count = 0, event_count = 0;
@@ -236,7 +236,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_service_filter(devid,method,1);
+		res = _dm_sub_shadow_service_filter(devid,method,1);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		service_count++;DM_free(method);
@@ -253,7 +253,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_event_filter(devid,method,1);
+		res = _dm_sub_shadow_event_filter(devid,method,1);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		event_count++;DM_free(method);
@@ -280,7 +280,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_service_filter(devid,method,0);
+		res = _dm_sub_shadow_service_filter(devid,method,0);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		res = dm_utils_service_name((char *)DM_DISP_SYS_PREFIX,method,product_key,device_name,(subscribe + service_event_index));
@@ -302,7 +302,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
-		res = _iotx_dsub_shadow_event_filter(devid,method,0);
+		res = _dm_sub_shadow_event_filter(devid,method,0);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
 		method_reply = DM_malloc(strlen(method) + strlen(DM_DISP_REPLY_SUFFIX) + 1);
@@ -331,19 +331,19 @@ int iotx_dsub_shadow_create(int devid)
 
 	if (index == DM_MGR_DEV_SUB_END) {
 		dm_log_debug("Current Device %d Has Already Subscribe All Generic Topic");
-		iotx_dsub_shadow_next(devid,0);
+		dm_sub_shadow_next(devid,0);
 	}
 	dm_mgr_set_dev_sub_service_event_index(devid,DM_MGR_DEV_SUB_START);
 
 	return SUCCESS_RETURN;
 }
 
-int iotx_dsub_shadow_destroy(int devid)
+int dm_sub_shadow_destroy(int devid)
 {
 	return dm_mgr_clear_dev_sub_service_event(devid);
 }
 
-int iotx_dsub_shadow_next(int devid, int index)
+int dm_sub_shadow_next(int devid, int index)
 {
 	int res = 0;
 	char *service_event = NULL;
@@ -369,7 +369,7 @@ int iotx_dsub_shadow_next(int devid, int index)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dsub_local_register(void)
+int dm_sub_local_register(void)
 {
 	int res = 0, index = 0;
 	iotx_dm_message_auth_types_t service_auth;

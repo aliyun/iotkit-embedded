@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 	//iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 
-	//iotx_dsub_local_register();
+	//dm_sub_local_register();
 	char *testpk = "a13KoHF52kc";
 	char *testdn = "type-001";
 	//char *testpayload = "this is test";

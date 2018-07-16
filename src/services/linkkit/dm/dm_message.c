@@ -1461,8 +1461,8 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
 
 	dm_mgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);
 
-	iotx_dsub_shadow_destroy(node->devid);
-	iotx_dsub_shadow_create(node->devid);
+	dm_sub_shadow_destroy(node->devid);
+	dm_sub_shadow_create(node->devid);
 
 	return SUCCESS_RETURN;
 }
@@ -1489,8 +1489,8 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
 
 	dm_mgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);
 
-	iotx_dsub_shadow_destroy(node->devid);
-	iotx_dsub_shadow_create(node->devid);
+	dm_sub_shadow_destroy(node->devid);
+	dm_sub_shadow_create(node->devid);
 
 	return SUCCESS_RETURN;
 }
@@ -1579,7 +1579,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
 
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
-	res = iotx_dsub_multi_next(devid,0);
+	res = dm_sub_multi_next(devid,0);
 	if (res < SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Set Service Event Topic Index To DM_MGR_DEV_SUB_START */
@@ -1862,7 +1862,7 @@ int dm_msg_register_result(_IN_ char *uri,_IN_ int result)
 	dm_log_debug("Current Generic Index: %d",index);
 
 	if (index >= 0 && index + 1 < dm_disp_get_topic_mapping_size()) {
-		res = iotx_dsub_multi_next(devid,index + 1);
+		res = dm_sub_multi_next(devid,index + 1);
 		if (res != dm_disp_get_topic_mapping_size()) {return res;}
 	}
 	if ((((index + 1) >= dm_disp_get_topic_mapping_size()) || (res == dm_disp_get_topic_mapping_size())) && index != DM_MGR_DEV_SUB_END) {
@@ -1913,7 +1913,7 @@ int dm_msg_register_result(_IN_ char *uri,_IN_ int result)
 	dm_log_debug("Current Service Event Number: %d",number);
 
 	if (index >= DM_MGR_DEV_SUB_START && index + 1 < number) {
-		res = iotx_dsub_shadow_next(devid,index + 1);
+		res = dm_sub_shadow_next(devid,index + 1);
 		return res;
 	}
 	dm_mgr_set_dev_sub_service_event_index(devid,DM_MGR_DEV_SUB_END);

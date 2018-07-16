@@ -992,7 +992,7 @@ void dm_disp_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t* 
 	
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
-	iotx_dsub_multi_next(IOTX_DM_LOCAL_NODE_DEVID,0);
+	dm_sub_multi_next(IOTX_DM_LOCAL_NODE_DEVID,0);
 
 	/* Set Service Event Topic Index To DM_MGR_DEV_SUB_START */
 	/* Service Event Topic Subscribe Will Be Execute After All Generic Topic Subscribed */
@@ -1029,7 +1029,7 @@ void dm_disp_event_local_connected_handler(void* pcontext, iotx_cm_event_msg_t* 
 
 	dm_conn_set_local_conn_state(1);
 
-	iotx_dsub_local_register();
+	dm_sub_local_register();
 
 	_dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_CONNECTED,NULL);
 }

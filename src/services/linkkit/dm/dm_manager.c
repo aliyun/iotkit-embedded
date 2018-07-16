@@ -765,7 +765,7 @@ void dm_mgr_dev_sub_status_check(void)
                                                                                       (char *)dcs_mapping[node->sub_status.generic_index].service_name,
                                                                                       node->product_key,node->device_name,&service_name);
 				if (res != SUCCESS_RETURN) {continue;}
-				iotx_dsub_multi(&service_name,1);
+				dm_sub_multi(&service_name,1);
 				DM_free(service_name);
 			}
 			_dm_mgr_mutex_unlock();
@@ -778,7 +778,7 @@ void dm_mgr_dev_sub_status_check(void)
 			if (current_time - node->sub_status.ctime >= DM_MGR_DEV_SUB_TIMEOUT_MS) {
 				node->sub_status.ctime = current_time;
 				dm_log_debug("Retry Service Event Subscribe, devid: %d, : %s",*(node->sub_status.service_event + node->sub_status.service_event_index));
-				iotx_dsub_multi(node->sub_status.service_event + node->sub_status.service_event_index,1);
+				dm_sub_multi(node->sub_status.service_event + node->sub_status.service_event_index,1);
 			}
 			_dm_mgr_mutex_unlock();
 			return;

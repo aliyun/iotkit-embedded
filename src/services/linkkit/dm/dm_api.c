@@ -163,10 +163,10 @@ int iotx_dm_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const
 		res = dm_mgr_set_tsl(devid,IOTX_DM_TSL_TYPE_ALINK,tsl,tsl_len);
 		if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 
-		res = iotx_dsub_shadow_destroy(devid);
+		res = dm_sub_shadow_destroy(devid);
 		if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 		
-		res = iotx_dsub_shadow_create(devid);
+		res = dm_sub_shadow_create(devid);
 		if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 
 		_dm_api_unlock();
