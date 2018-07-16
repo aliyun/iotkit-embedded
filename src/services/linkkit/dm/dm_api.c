@@ -29,12 +29,12 @@ static void _iotx_dapi_unlock(void) {
 	if (ctx->mutex) {HAL_MutexUnlock(ctx->mutex);}
 }
 
-int IOT_DM_Set_Opt(int opt,void *data)
+int iotx_dm_set_opt(int opt,void *data)
 {
 	return iotx_dopt_set(opt,data);
 }
 
-int IOT_DM_Construct(_IN_ iotx_dm_init_params_t *init_params)
+int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 {
 	int res = 0;
 	iotx_dapi_ctx_t *ctx = _iotx_dapi_get_ctx();
@@ -113,7 +113,7 @@ ERROR:
 	return FAIL_RETURN;
 }
 
-int IOT_DM_Destroy(void)
+int iotx_dm_destroy(void)
 {
 	iotx_dapi_ctx_t *ctx = _iotx_dapi_get_ctx();
 	iotx_dconn_deinit();
@@ -126,7 +126,7 @@ int IOT_DM_Destroy(void)
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len)
+int iotx_dm_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len)
 {
 	int res = 0;
 
@@ -177,7 +177,7 @@ int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const 
 	return FAIL_RETURN;
 }
 
-int IOT_DM_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
+int iotx_dm_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
 {
 	int res = 0;
 	
@@ -194,7 +194,7 @@ int IOT_DM_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, 
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Get_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int iotx_dm_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
 
@@ -211,7 +211,7 @@ int IOT_DM_Get_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, 
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
+int iotx_dm_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
 {
 	int res = 0;
 
@@ -228,7 +228,7 @@ int IOT_DM_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_l
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Get_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int iotx_dm_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
 
@@ -245,7 +245,7 @@ int IOT_DM_Get_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_l
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Get_Service_Input_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int iotx_dm_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
 
@@ -262,7 +262,7 @@ int IOT_DM_Get_Service_Input_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
+int iotx_dm_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
 {
 	int res = 0;
 
@@ -279,7 +279,7 @@ int IOT_DM_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Get_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int iotx_dm_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
 
@@ -296,7 +296,7 @@ int IOT_DM_Get_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Post_Property_Start(_IN_ int devid, _OU_ void **handle)
+int iotx_dm_post_property_start(_IN_ int devid, _OU_ void **handle)
 {
 	iotx_dapi_property_t *dapi_property = NULL;
 
@@ -363,7 +363,7 @@ static int _iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, 
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Post_Property_Add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
+int iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
 {
 	int ret = SUCCESS_RETURN, res = 0, index = 0, number = 0;
 	void *property_refer = NULL;
@@ -406,7 +406,7 @@ int IOT_DM_Post_Property_Add(_IN_ void *handle, _IN_ char *identifier, _IN_ int 
 	return ret;
 }
 
-int IOT_DM_Post_Property_End(_IN_ void **handle)
+int iotx_dm_post_property_end(_IN_ void **handle)
 {
 	int res = 0;
 	char *payload = NULL;
@@ -444,7 +444,7 @@ int IOT_DM_Post_Property_End(_IN_ void **handle)
 	return res;
 }
 
-int IOT_DM_Post_Event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len)
+int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len)
 {
 	int res = 0;
 	void *event = NULL;
@@ -498,7 +498,7 @@ int IOT_DM_Post_Event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier
 	return res;
 }
 
-int IOT_DM_Post_Property_Direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_post_property_direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
 
@@ -511,7 +511,7 @@ int IOT_DM_Post_Property_Direct(_IN_ int devid, _IN_ char *payload, _IN_ int pay
 	return res;
 }
 
-int IOT_DM_Post_Event_Direct(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_post_event_direct(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0, method_len = 0;
 	const char *method_fmt = "thing.event.%.*s.post";
@@ -587,7 +587,7 @@ int IOT_DM_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_er
 	return res;
 }
 
-int IOT_DM_DeviceInfo_Update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
 	
@@ -605,7 +605,7 @@ int IOT_DM_DeviceInfo_Update(_IN_ int devid, _IN_ char *payload, _IN_ int payloa
 	return res;
 }
 
-int IOT_DM_DeviceInfo_Delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
 	
@@ -623,7 +623,7 @@ int IOT_DM_DeviceInfo_Delete(_IN_ int devid, _IN_ char *payload, _IN_ int payloa
 	return res;
 }
 
-int IOT_DM_Post_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
 
@@ -641,12 +641,12 @@ int IOT_DM_Post_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Yield(int timeout_ms)
+int iotx_dm_yield(int timeout_ms)
 {
 	return iotx_dcw_yield(timeout_ms);
 }
 
-void IOT_DM_Dispatch(void)
+void iotx_dm_dispatch(void)
 {
 	iotx_dapi_ctx_t *ctx = _iotx_dapi_get_ctx();
 	void *data = NULL;
@@ -663,7 +663,7 @@ void IOT_DM_Dispatch(void)
 	}
 }
 
-int IOT_DM_Subdev_Create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
+int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
 {
 	int res = 0;
 
@@ -683,7 +683,7 @@ int IOT_DM_Subdev_Create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Subdev_Destroy(_IN_ int devid)
+int iotx_dm_subdev_destroy(_IN_ int devid)
 {
 	int res = 0;
 
@@ -700,7 +700,7 @@ int IOT_DM_Subdev_Destroy(_IN_ int devid)
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Subdev_Number(void)
+int iotx_dm_subdev_number(void)
 {
 	int number = 0;
 
@@ -711,7 +711,7 @@ int IOT_DM_Subdev_Number(void)
 	return number;
 }
 
-int IOT_DM_Subdev_Register(_IN_ int devid)
+int iotx_dm_subdev_register(_IN_ int devid)
 {
 	int res = 0;
 	
@@ -728,7 +728,7 @@ int IOT_DM_Subdev_Register(_IN_ int devid)
 	return res;
 }
 
-int IOT_DM_Subdev_Unregister(_IN_ int devid)
+int iotx_dm_subdev_unregister(_IN_ int devid)
 {
 	int res = 0;
 	
@@ -745,7 +745,7 @@ int IOT_DM_Subdev_Unregister(_IN_ int devid)
 	return res;
 }
 
-int IOT_DM_Subdev_Topo_Add(_IN_ int devid)
+int iotx_dm_subdev_topo_add(_IN_ int devid)
 {
 	int res = 0;
 	
@@ -762,7 +762,7 @@ int IOT_DM_Subdev_Topo_Add(_IN_ int devid)
 	return res;
 }
 
-int IOT_DM_Subdev_Topo_Del(_IN_ int devid)
+int iotx_dm_subdev_topo_del(_IN_ int devid)
 {
 	int res = 0;
 	
@@ -779,7 +779,7 @@ int IOT_DM_Subdev_Topo_Del(_IN_ int devid)
 	return res;
 }
 
-int IOT_DM_Subdev_Login(_IN_ int devid)
+int iotx_dm_subdev_login(_IN_ int devid)
 {
 	int res = 0;
 	
@@ -796,7 +796,7 @@ int IOT_DM_Subdev_Login(_IN_ int devid)
 	return res;
 }
 
-int IOT_DM_Subdev_Logout(_IN_ int devid)
+int iotx_dm_subdev_logout(_IN_ int devid)
 {
 	int res = 0;
 	
@@ -813,7 +813,7 @@ int IOT_DM_Subdev_Logout(_IN_ int devid)
 	return res;
 }
 
-int IOT_DM_Get_Device_Type(_IN_ int devid, _OU_ int *type)
+int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type)
 {
 	int res = 0;
 
@@ -830,7 +830,7 @@ int IOT_DM_Get_Device_Type(_IN_ int devid, _OU_ int *type)
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Get_Device_Avail_Status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status)
+int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status)
 {
 	int res = 0;
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
@@ -853,7 +853,7 @@ int IOT_DM_Get_Device_Avail_Status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *sta
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Get_Device_Status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
+int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 {
 	int res = 0;
 	
@@ -869,7 +869,7 @@ int IOT_DM_Get_Device_Status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 	return res;
 }
 
-int IOT_DM_Legacy_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0, value_len = 0;
 	void *data = NULL;
@@ -896,7 +896,7 @@ int IOT_DM_Legacy_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int ke
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0, value_len = 0;
 	void *data = NULL;
@@ -923,7 +923,7 @@ int IOT_DM_Legacy_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ in
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0, value_len = 0;
 	void *data = NULL;
@@ -950,7 +950,7 @@ int IOT_DM_Legacy_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ 
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Get_Pkdn_By_Devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN])
+int iotx_dm_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN])
 {
 	int res = 0;
 
@@ -972,7 +972,7 @@ int IOT_DM_Legacy_Get_Pkdn_By_Devid(_IN_ int devid, _OU_ char product_key[PRODUC
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Get_Devid_By_Pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
+int iotx_dm_legacy_get_devid_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
 {
 	int res = 0;
 
@@ -991,7 +991,7 @@ int IOT_DM_Legacy_Get_Devid_By_Pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Get_ThingId_By_Devid(_IN_ int devid, _OU_ void **thing_id)
+int iotx_dm_legacy_get_thingid_by_devid(_IN_ int devid, _OU_ void **thing_id)
 {
 	int res = 0;
 
@@ -1008,7 +1008,7 @@ int IOT_DM_Legacy_Get_ThingId_By_Devid(_IN_ int devid, _OU_ void **thing_id)
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Get_Devid_By_ThingId(_IN_ void *thing_id, _OU_ int *devid)
+int iotx_dm_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid)
 {
 	int res = 0;
 
@@ -1025,7 +1025,7 @@ int IOT_DM_Legacy_Get_Devid_By_ThingId(_IN_ void *thing_id, _OU_ int *devid)
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Get_Pkdn_Ptr_By_Devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name)
+int iotx_dm_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name)
 {
 	int res = 0;
 	iotx_dmgr_dev_node_t *node = NULL;
@@ -1047,7 +1047,7 @@ int IOT_DM_Legacy_Get_Pkdn_Ptr_By_Devid(_IN_ int devid, _OU_ char **product_key,
 	return SUCCESS_RETURN;
 }
 
-int IOT_DM_Legacy_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
 
@@ -1059,7 +1059,7 @@ int IOT_DM_Legacy_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iot
 	return res;
 }
 
-int IOT_DM_Legacy_Send_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_legacy_send_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
 

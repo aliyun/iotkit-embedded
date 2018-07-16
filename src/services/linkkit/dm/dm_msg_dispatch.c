@@ -992,11 +992,11 @@ void iotx_dcs_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 	
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
-	iotx_dsub_multi_next(IOTX_DMGR_LOCAL_NODE_DEVID,0);
+	iotx_dsub_multi_next(IOTX_DM_LOCAL_NODE_DEVID,0);
 
 	/* Set Service Event Topic Index To IOTX_DMGR_DEV_SUB_START */
 	/* Service Event Topic Subscribe Will Be Execute After All Generic Topic Subscribed */
-	iotx_dmgr_set_dev_sub_service_event_index(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DMGR_DEV_SUB_START);
+	iotx_dmgr_set_dev_sub_service_event_index(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DMGR_DEV_SUB_START);
 
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
 	iotx_dcw_local_init_second(iotx_dconn_get_local_conn());

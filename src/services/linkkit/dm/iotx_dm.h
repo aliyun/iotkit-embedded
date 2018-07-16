@@ -1,7 +1,6 @@
 #ifndef _IOT_EXPORT_DM_H_
 #define _IOT_EXPORT_DM_H_
 
-#include "iot_import_product.h"
 #ifndef _IN_
 #define _IN_
 #endif
@@ -18,7 +17,7 @@
 #error "You Must Select Device Type!"
 #endif
 
-#define IOTX_DMGR_LOCAL_NODE_DEVID (0)
+#define IOTX_DM_LOCAL_NODE_DEVID (0)
 
 #define IOTX_DM_DEVICE_SINGLE  (0x01)
 #define IOTX_DM_DEVICE_SUBDEV  (0x02)
@@ -129,72 +128,72 @@ typedef struct {
 }iotx_dm_init_params_t;
 
 typedef enum {
-	IOTX_DMGR_DEV_AVAIL_ENABLE,
-	IOTX_DMGR_DEV_AVAIL_DISABLE
+	IOTX_DM_DEV_AVAIL_ENABLE,
+	IOTX_DM_DEV_AVAIL_DISABLE
 }iotx_dm_dev_avail_t;
 
 typedef enum {
-	IOTX_DMGR_DEV_STATUS_UNAUTHORIZED,   /* Subdev Created */
-	IOTX_DMGR_DEV_STATUS_AUTHORIZED,     /* Receive Topo Add Notify */
-	IOTX_DMGR_DEV_STATUS_REGISTERED,     /* Receive Subdev Registered */
-	IOTX_DMGR_DEV_STATUS_ATTACHED,       /* Receive Subdev Topo Add Reply */
-	IOTX_DMGR_DEV_STATUS_LOGINED,        /* Receive Subdev Login Reply */
-	IOTX_DMGR_DEV_STATUS_ONLINE          /* After All Topic Subscribed */
+	IOTX_DM_DEV_STATUS_UNAUTHORIZED,   /* Subdev Created */
+	IOTX_DM_DEV_STATUS_AUTHORIZED,     /* Receive Topo Add Notify */
+	IOTX_DM_DEV_STATUS_REGISTERED,     /* Receive Subdev Registered */
+	IOTX_DM_DEV_STATUS_ATTACHED,       /* Receive Subdev Topo Add Reply */
+	IOTX_DM_DEV_STATUS_LOGINED,        /* Receive Subdev Login Reply */
+	IOTX_DM_DEV_STATUS_ONLINE          /* After All Topic Subscribed */
 }iotx_dm_dev_status_t;
 
 
 #define IOTX_DM_POST_PROPERTY_ALL (NULL)
 
-int IOT_DM_Set_Opt(int opt,void *data);
-int IOT_DM_Construct(_IN_ iotx_dm_init_params_t *init_params);
-int IOT_DM_Destroy(void);
-int IOT_DM_Set_TSL(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len);
-int IOT_DM_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
-int IOT_DM_Get_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int IOT_DM_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
-int IOT_DM_Get_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int IOT_DM_Get_Service_Input_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int IOT_DM_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
-int IOT_DM_Get_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_set_opt(int opt,void *data);
+int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params);
+int iotx_dm_destroy(void);
+int iotx_dm_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len);
+int iotx_dm_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int iotx_dm_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int iotx_dm_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int iotx_dm_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
-int IOT_DM_Post_Property_Start(_IN_ int devid, _OU_ void **handle);
-int IOT_DM_Post_Property_Add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len);
-int IOT_DM_Post_Property_End(_IN_ void **handle);
-int IOT_DM_Post_Event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len);
+int iotx_dm_post_property_start(_IN_ int devid, _OU_ void **handle);
+int iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len);
+int iotx_dm_post_property_end(_IN_ void **handle);
+int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len);
 
-int IOT_DM_Post_Property_Direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
-int IOT_DM_Post_Event_Direct(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_post_property_direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_post_event_direct(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
 int IOT_DM_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len);
-int IOT_DM_Post_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 
-int IOT_DM_DeviceInfo_Update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
-int IOT_DM_DeviceInfo_Delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
-int IOT_DM_Yield(int timeout_ms);
-void IOT_DM_Dispatch(void);
-int IOT_DM_Subdev_Create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);
-int IOT_DM_Subdev_Destroy(_IN_ int devid);
-int IOT_DM_Subdev_Number(void);
-int IOT_DM_Subdev_Register(_IN_ int devid);
-int IOT_DM_Subdev_Unregister(_IN_ int devid);
-int IOT_DM_Subdev_Topo_Add(_IN_ int devid);
-int IOT_DM_Subdev_Topo_Del(_IN_ int devid);
-int IOT_DM_Subdev_Login(_IN_ int devid);
-int IOT_DM_Subdev_Logout(_IN_ int devid);
+int iotx_dm_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_yield(int timeout_ms);
+void iotx_dm_dispatch(void);
+int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);
+int iotx_dm_subdev_destroy(_IN_ int devid);
+int iotx_dm_subdev_number(void);
+int iotx_dm_subdev_register(_IN_ int devid);
+int iotx_dm_subdev_unregister(_IN_ int devid);
+int iotx_dm_subdev_topo_add(_IN_ int devid);
+int iotx_dm_subdev_topo_del(_IN_ int devid);
+int iotx_dm_subdev_login(_IN_ int devid);
+int iotx_dm_subdev_logout(_IN_ int devid);
 
-int IOT_DM_Get_Device_Type(_IN_ int devid, _OU_ int *type);
-int IOT_DM_Get_Device_Avail_Status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status);
-int IOT_DM_Get_Device_Status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
+int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type);
+int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status);
+int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
 
-int IOT_DM_Legacy_Set_Property_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int IOT_DM_Legacy_Set_Event_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int IOT_DM_Legacy_Set_Service_Output_Value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
-int IOT_DM_Legacy_Get_Pkdn_By_Devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN]);
-int IOT_DM_Legacy_Get_Devid_By_Pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);
-int IOT_DM_Legacy_Get_ThingId_By_Devid(_IN_ int devid, _OU_ void **thing_id);
-int IOT_DM_Legacy_Get_Devid_By_ThingId(_IN_ void *thing_id, _OU_ int *devid);
-int IOT_DM_Legacy_Get_Pkdn_Ptr_By_Devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name);
-int IOT_DM_Legacy_Send_Service_Response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
-int IOT_DM_Legacy_Send_Rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN]);
+int iotx_dm_legacy_get_devid_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);
+int iotx_dm_legacy_get_thingid_by_devid(_IN_ int devid, _OU_ void **thing_id);
+int iotx_dm_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid);
+int iotx_dm_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name);
+int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_legacy_send_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 
 #endif
