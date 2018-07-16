@@ -68,6 +68,22 @@ int iotx_guider_auth_get(void);
 #define AOS_VERSON_MSG_LEN      (256)
 #define AOS_ACTIVE_INFO_LEN     (100)
 
+#ifndef VERSION_NUM_SIZE
+#define VERSION_NUM_SIZE    4
+#endif
+
+#ifndef RANDOM_NUM_SIZE
+#define RANDOM_NUM_SIZE     4
+#endif
+
+#ifndef MAC_ADDRESS_SIZE
+#define MAC_ADDRESS_SIZE    8
+#endif
+
+#ifndef CHIP_CODE_SIZE
+#define CHIP_CODE_SIZE      4
+#endif
+
 int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);
 int iotx_midreport_payload(char *msg, char *requestId, char *mid, char *pid);
 int iotx_midreport_topic(char *topic_name, char *topic_head, char *product_key, char *device_name);
