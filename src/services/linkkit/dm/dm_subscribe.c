@@ -1,12 +1,10 @@
-#include "iot_import.h"
-#include "iotx_utils.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_conn.h"
-#include "iotx_dm_manager.h"
-#include "iotx_dm_subscribe.h"
-#include "iotx_dm_msg_dispatch.h"
-#include "iotx_dm_cm_wrapper.h"
-#include "iotx_dm_opt.h"
+#include "iotx_dm_internal.h"
+#include "dm_conn.h"
+#include "dm_manager.h"
+#include "dm_subscribe.h"
+#include "dm_msg_dispatch.h"
+#include "dm_cm_wrapper.h"
+#include "dm_opt.h"
 
 static int _iotx_dsub_filter(int devid, int index, int unsub)
 {

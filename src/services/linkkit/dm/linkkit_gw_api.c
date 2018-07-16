@@ -9,7 +9,7 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
 
-#include "iotx_dm_common.h"
+#include "dm_common.h"
 #include "queue.h"
 #include "tmpmsg.h"
 #include "packet.h"
@@ -18,7 +18,7 @@
 #include "mempool.h"
 #include "iotx_log.h"
 #include "iotx_utils.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 #include "linkkit_gateway_export.h"
 
 #define TOPIC_MAXLEN    (128)

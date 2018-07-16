@@ -8,7 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include <unistd.h>
 
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 #ifdef SERVICE_OTA_ENABLED
 #include "iot_export_fota.h"
 #endif /* SERVICE_OTA_ENABLED */

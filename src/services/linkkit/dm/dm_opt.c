@@ -1,6 +1,5 @@
-#include "iot_import.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_opt.h"
+#include "iotx_dm_internal.h"
+#include "dm_opt.h"
 
 static iotx_dopt_ctx g_iotx_dopt = {
 	0,0,1

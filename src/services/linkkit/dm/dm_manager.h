@@ -1,9 +1,9 @@
 #ifndef _IOTX_DM_MANAGER_H_
 #define _IOTX_DM_MANAGER_H_
 
-#include "iotx_dm_shadow.h"
+#include "dm_shadow.h"
 #include "lite-cjson.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 
 #define IOTX_DMGR_DEV_SUB_TIMEOUT_MS (5000)
 

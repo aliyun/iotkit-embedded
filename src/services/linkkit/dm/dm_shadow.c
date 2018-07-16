@@ -1,9 +1,6 @@
-#include "iot_import.h"
-#include "iotx_utils.h"
-#include "lite-cjson.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_shadow.h"
-#include "iotx_dm_tsl_alink.h"
+#include "iotx_dm_internal.h"
+#include "dm_shadow.h"
+#include "dm_tsl_alink.h"
 
 //#define IOTX_DM_TSL_DEVELOP_TEST
 

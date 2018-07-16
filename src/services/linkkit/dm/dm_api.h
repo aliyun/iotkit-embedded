@@ -2,7 +2,7 @@
 #define _IOT_DM_API_H_
 
 #include "lite-cjson.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 
 typedef struct {
 	void *mutex;

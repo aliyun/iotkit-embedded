@@ -3,7 +3,7 @@
 
 #include "iotx_utils.h"
 #include "lite-list.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 
 typedef struct {
 	iotx_dm_event_types_t type;

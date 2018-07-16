@@ -1,7 +1,6 @@
-#include "iot_import.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_cm_wrapper.h"
-#include "iotx_dm_conn.h"
+#include "iotx_dm_internal.h"
+#include "dm_cm_wrapper.h"
+#include "dm_conn.h"
 
 static iotx_dconn_ctx g_iotx_dconn_ctx;
 

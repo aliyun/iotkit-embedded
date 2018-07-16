@@ -3,13 +3,13 @@
 #include "ut_debug.h"
 #include "iotx_utils.h"
 #include "lite-cjson.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_manager.h"
-#include "iotx_dm_shadow.h"
-#include "iotx_dm_ipc.h"
-#include "iotx_dm_msg_dispatch.h"
-#include "iotx_dm_message.h"
-#include "iotx_dm_cm_wrapper.h"
+#include "dm_common.h"
+#include "dm_manager.h"
+#include "dm_shadow.h"
+#include "dm_ipc.h"
+#include "dm_msg_dispatch.h"
+#include "dm_message.h"
+#include "dm_cm_wrapper.h"
 
 #define linkkit_log(...) log_info("linkkit",__VA_ARGS__)
 

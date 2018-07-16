@@ -1,9 +1,6 @@
-#include "iot_import.h"
-#include "iotx_utils.h"
-#include "lite-list.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_message_cache.h"
-#include "iotx_dm_message.h"
+#include "iotx_dm_internal.h"
+#include "dm_message_cache.h"
+#include "dm_message.h"
 
 iotx_dmc_ctx_t g_iotx_dmc_ctx;
 

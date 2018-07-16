@@ -3,7 +3,7 @@
 
 #include "lite-list.h"
 #include "iot_export_cm.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 
 #define IOTX_DCS_SERVICE_DELIMITER '/'
 

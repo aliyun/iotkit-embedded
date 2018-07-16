@@ -1,9 +1,6 @@
-#include "iot_import.h"
-#include "iotx_utils.h"
-#include "lite-cjson.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_shadow.h"
-#include "iotx_dm_tsl_alink.h"
+#include "iotx_dm_internal.h"
+#include "dm_shadow.h"
+#include "dm_tsl_alink.h"
 
 typedef int (*iotx_dsw_data_parse)(_IN_ iotx_dsw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 typedef int (*iotx_dsw_array_parse)(_IN_ iotx_dsw_data_value_t *data_value, _IN_ lite_cjson_t *root);

@@ -2,7 +2,7 @@
 #define _IOTX_DM_MESSAGE_CACHE_H_
 
 #include "lite-list.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 
 #define IOTX_DCS_MSG_TIMEOUT_MS_DEFAULT (10000)
 

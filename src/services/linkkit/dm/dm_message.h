@@ -4,7 +4,7 @@
 #include "iotx_utils.h"
 #include "lite-list.h"
 #include "lite-cjson.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 
 #define IOTX_DMSG_KEY_ID                   "id"
 #define IOTX_DMSG_KEY_VERSION              "version"

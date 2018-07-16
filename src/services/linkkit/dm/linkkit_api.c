@@ -9,7 +9,7 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
 #include "linkkit_export.h"
-#include "iotx_dm_common.h"
+#include "dm_common.h"
 #include "iotx_log.h"
 #include "linked_list.h"
 
