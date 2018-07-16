@@ -379,6 +379,7 @@ int mqtt_client(void)
     HAL_Free(sub_list[2]);
     HAL_Free(sub_list[3]);
     HAL_Free(sub_list[4]);
+    HAL_Free(sub_list[5]);
 
 do_exit:
     if (NULL != msg_buf) {

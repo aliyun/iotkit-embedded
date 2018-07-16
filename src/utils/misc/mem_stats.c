@@ -288,7 +288,6 @@ void  _count_free_internal(void *ptr, OS_malloc_record *os_malloc_pos)
 
     pos->mem_statis.bytes_total_freed += os_malloc_pos->buflen;
     pos->mem_statis.bytes_total_in_use -= os_malloc_pos->buflen;
-
 }
 
 #endif
@@ -525,7 +524,11 @@ void LITE_dump_malloc_free_stats(int level)
             if (!strcmp(module_pos->mem_statis.module_name, "unknown")) {
                 unknown_mod = module_pos;
             }
-        }
+            else
+            {
+                UTILS_free(module_pos->mem_statis.calling_stack.func_name);
+            }
+        } 
     }
 
     if (unknown_mod) {
@@ -536,14 +539,22 @@ void LITE_dump_malloc_free_stats(int level)
 
         list_for_each_entry_safe(call_pos, tmp, &unknown_mod->mem_statis.calling_stack.func_head, func_head, calling_stack_t) {
             if (call_pos->func_name) {
-                LITE_printf(". \x1B[1;31m%s \x1B[0m Ln:%d\r\n", call_pos->func_name, call_pos->line);
+                LITE_printf(". \x1B[1;31m%s \x1B[0m Ln:%d\r\n", call_pos->func_name, call_pos->line);              
+
+                // free memery of func_name and calling_stack
+                UTILS_free(call_pos->func_name);
+                list_del(&call_pos->func_head);
+                UTILS_free(call_pos);
             }
         }
-        LITE_printf("\r\n");
+        LITE_printf("\r\n");  
     }
-
+    
+    list_for_each_entry_safe(module_pos, tmp, &mem_module_statis, list, module_mem_t) {
+        list_del(&module_pos->list);
+        UTILS_free(module_pos);
+    }
 #endif
-
     if (!LITE_log_enabled() || LITE_get_loglevel() == level) {
         int         j;
         int         cnt = 0;
@@ -584,7 +595,7 @@ void LITE_dump_malloc_free_stats(int level)
                     }
 
                     LITE_printf("%s\r\n", p);
-                }
+                }            
 #endif
                 LITE_printf("\r\n");
             }
@@ -593,7 +604,6 @@ void LITE_dump_malloc_free_stats(int level)
 #else
     utils_info("WITH_MEM_STATS = %d", WITH_MEM_STATS);
 #endif  /* #if WITH_MEM_STATS */
-
     return;
 }
 
