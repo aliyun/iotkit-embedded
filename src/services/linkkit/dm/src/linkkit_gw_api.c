@@ -1015,10 +1015,17 @@ int linkkit_gateway_exit(void)
     return 0;
 }
 
+// linkkit version report parameter
+const char IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS[] DM_READ_ONLY =
+            "[{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
+
 int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 {
 	int res = 0, stack_used = 0;
     iotx_dm_init_params_t dm_init_params;
+    char *version_param = NULL;
+    int version_param_len = 0;
+    
     if (!_validOps(cbs)) {
         dm_log_info("invalid cbs: %p\n", cbs);
         return -1;
@@ -1042,6 +1049,16 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 
     res = IOT_DM_Construct(&dm_init_params);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+    /* Report linkkit version */
+    version_param_len = strlen(IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS) + strlen(LINKKIT_VERSION) + 1;
+    version_param = DM_malloc(version_param_len);
+    if (version_param == NULL) {
+        return FAIL_RETURN;
+    }
+    HAL_Snprintf(version_param, version_param_len, IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS, LINKKIT_VERSION);
+    IOT_DM_DeviceInfo_Update(IOTX_DMGR_LOCAL_NODE_DEVID, version_param, version_param_len);
+    DM_free(version_param);
 
 	res = IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_CLOUD,NULL,0);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
