@@ -15,10 +15,10 @@ static int _iotx_dsub_filter(int devid, int index, int unsub)
 	void *conn = dm_conn_get_cloud_conn();
 	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
 
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
+	res = dm_mgr_search_device_by_devid(devid,product_key,device_name,device_secret);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	res = iotx_dmgr_get_dev_type(devid,&dev_type);
+	res = dm_mgr_get_dev_type(devid,&dev_type);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Check Device Type */
@@ -66,7 +66,7 @@ static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 	void *conn = dm_conn_get_cloud_conn();
 
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
+	res = dm_mgr_search_device_by_devid(devid,product_key,device_name,device_secret);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	/* Check Event Post Reply Opt */
@@ -139,7 +139,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	}
 	
 	/* Search Device Product Key And Device Name */
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
+	res = dm_mgr_search_device_by_devid(devid,product_key,device_name,device_secret);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	/* Find Out How Many Topic Will Be Subscribe This Time */
@@ -188,7 +188,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 		if (*(subscribe + sub_index)) {DM_free(*(subscribe + sub_index));}
 	}
 
-	iotx_dmgr_set_dev_sub_generic_index(devid,search_index);
+	dm_mgr_set_dev_sub_generic_index(devid,search_index);
 
 	return SUCCESS_RETURN;
 ERROR:
@@ -215,22 +215,22 @@ int iotx_dsub_shadow_create(int devid)
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
+	res = dm_mgr_search_device_by_devid(devid,product_key,device_name,device_secret);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dmgr_get_service_number(devid,&service_number);
+	res = dm_mgr_get_service_number(devid,&service_number);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dmgr_get_event_number(devid,&event_number);
+	res = dm_mgr_get_event_number(devid,&event_number);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Find Out Topic Which Need To Be Subscribe */
 	for (index = 0;index < service_number;index++) {
 		service = NULL;method = NULL;
-		res  = iotx_dmgr_get_service_by_index(devid,index,&service);
+		res  = dm_mgr_get_service_by_index(devid,index,&service);
 		if (res != SUCCESS_RETURN) {continue;}
 		
-		res = iotx_dmgr_get_service_method(service,&method);
+		res = dm_mgr_get_service_method(service,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
@@ -244,10 +244,10 @@ int iotx_dsub_shadow_create(int devid)
 
 	for (index = 0;index < event_number;index++) {
 		event = NULL;method = NULL;
-		res  = iotx_dmgr_get_event_by_index(devid,index,&event);
+		res  = dm_mgr_get_event_by_index(devid,index,&event);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		res = iotx_dmgr_get_event_method(event,&method);
+		res = dm_mgr_get_event_method(event,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
@@ -271,10 +271,10 @@ int iotx_dsub_shadow_create(int devid)
 
 	for (index = 0;index < service_number;index++) {
 		service = NULL;method = NULL;
-		res  = iotx_dmgr_get_service_by_index(devid,index,&service);
+		res  = dm_mgr_get_service_by_index(devid,index,&service);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		res = iotx_dmgr_get_service_method(service,&method);
+		res = dm_mgr_get_service_method(service,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
@@ -293,10 +293,10 @@ int iotx_dsub_shadow_create(int devid)
 
 	for (index = 0;index < event_number;index++) {
 		event = NULL;method = NULL,method_reply = NULL;
-		res  = iotx_dmgr_get_event_by_index(devid,index,&event);
+		res  = dm_mgr_get_event_by_index(devid,index,&event);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		res = iotx_dmgr_get_event_method(event,&method);
+		res = dm_mgr_get_event_method(event,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
 		res = dm_utils_replace_char(method,strlen(method),'.','/');
@@ -323,24 +323,24 @@ int iotx_dsub_shadow_create(int devid)
 		DM_free(method);DM_free(method_reply);service_event_index++;
 	}
 
-	res = iotx_dmgr_set_dev_sub_service_event(devid,(service_count + event_count),subscribe);
+	res = dm_mgr_set_dev_sub_service_event(devid,(service_count + event_count),subscribe);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dmgr_get_dev_sub_generic_index(devid,&index);
+	res = dm_mgr_get_dev_sub_generic_index(devid,&index);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	if (index == IOTX_DMGR_DEV_SUB_END) {
+	if (index == DM_MGR_DEV_SUB_END) {
 		dm_log_debug("Current Device %d Has Already Subscribe All Generic Topic");
 		iotx_dsub_shadow_next(devid,0);
 	}
-	iotx_dmgr_set_dev_sub_service_event_index(devid,IOTX_DMGR_DEV_SUB_START);
+	dm_mgr_set_dev_sub_service_event_index(devid,DM_MGR_DEV_SUB_START);
 
 	return SUCCESS_RETURN;
 }
 
 int iotx_dsub_shadow_destroy(int devid)
 {
-	return iotx_dmgr_clear_dev_sub_service_event(devid);
+	return dm_mgr_clear_dev_sub_service_event(devid);
 }
 
 int iotx_dsub_shadow_next(int devid, int index)
@@ -354,7 +354,7 @@ int iotx_dsub_shadow_next(int devid, int index)
 		return FAIL_RETURN;
 	}
 	
-	res = iotx_dmgr_get_dev_sub_service_event(devid,index,&service_event);
+	res = dm_mgr_get_dev_sub_service_event(devid,index,&service_event);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Subscribe Cloud Service */
@@ -364,7 +364,7 @@ int iotx_dsub_shadow_next(int devid, int index)
 
 	DM_free(service_event);
 
-	iotx_dmgr_set_dev_sub_service_event_index(devid,index);
+	dm_mgr_set_dev_sub_service_event_index(devid,index);
 
 	return SUCCESS_RETURN;
 }

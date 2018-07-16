@@ -199,13 +199,13 @@ int main(int argc, char *argv[])
 		//HAL_SleepMs(1000);
 		//if (time > 10000) break;
 		//if(time == 5000) {iotx_dm_subdev_topo_del(devid);}
-		//if (time == 5000) {iotx_dmgr_upstream_thing_topo_get();}
-		//if (time == 5000) {iotx_dmgr_upstream_thing_list_found(devid);}
+		//if (time == 5000) {dm_mgr_upstream_thing_topo_get();}
+		//if (time == 5000) {dm_mgr_upstream_thing_list_found(devid);}
 		//if (time == 5000) {iotx_dm_subdev_register(devid);}
 		//if (time == 3000) {iotx_dm_subdev_topo_add(devid1);}
 		//if (time == 8000) {iotx_dm_subdev_topo_del(devid1);}
 		//if (time == 7000) {iotx_dm_subdev_login(devid);}
-		//if (time == 8000) {iotx_dmgr_upstream_thing_model_up_raw(devid,testpayload,strlen(testpayload));}
+		//if (time == 8000) {dm_mgr_upstream_thing_model_up_raw(devid,testpayload,strlen(testpayload));}
 		//if (time == 8000) {iotx_dm_subdev_unregister(devid);}
 		#if 0
 		if (time == 10000) {

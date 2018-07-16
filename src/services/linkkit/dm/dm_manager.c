@@ -10,38 +10,38 @@
 #include "dm_opt.h"
 #include "iotx_dm.h"
 
-static iotx_dmgr_ctx g_iotx_dmgr = {0};
+static dm_mgr_ctx g_dm_mgr = {0};
 
-static iotx_dmgr_ctx* _iotx_dmgr_get_ctx(void)
+static dm_mgr_ctx* _dm_mgr_get_ctx(void)
 {
-	return &g_iotx_dmgr;
+	return &g_dm_mgr;
 }
 
-static void _iotx_dmgr_mutex_lock(void)
+static void _dm_mgr_mutex_lock(void)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
 	if (ctx->mutex) {HAL_MutexLock(ctx->mutex);}
 }
 
-static void _iotx_dmgr_mutex_unlock(void)
+static void _dm_mgr_mutex_unlock(void)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
 	if (ctx->mutex) {HAL_MutexUnlock(ctx->mutex);}
 }
 
-static int _iotx_dmgr_next_devid(void)
+static int _dm_mgr_next_devid(void)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
 
 	return ctx->global_devid++;
 }
 
-static int _iotx_dmgr_search_dev_by_devid(_IN_ int devid, _OU_ iotx_dmgr_dev_node_t **node)
+static int _dm_mgr_search_dev_by_devid(_IN_ int devid, _OU_ dm_mgr_dev_node_t **node)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *search_node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *search_node = NULL;
 	
-	list_for_each_entry(search_node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
+	list_for_each_entry(search_node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
 		if (search_node->devid == devid) {
 			dm_log_debug("Device Found, devid: %d",devid);
 			if (node) {*node = search_node;}
@@ -53,12 +53,12 @@ static int _iotx_dmgr_search_dev_by_devid(_IN_ int devid, _OU_ iotx_dmgr_dev_nod
 	return FAIL_RETURN;
 }
 
-static int _iotx_dmgr_search_dev_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ iotx_dmgr_dev_node_t **node)
+static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ dm_mgr_dev_node_t **node)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *search_node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *search_node = NULL;
 	
-	list_for_each_entry(search_node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
+	list_for_each_entry(search_node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
 		if ((strlen(search_node->product_key) == strlen(product_key)) &&
 			(memcmp(search_node->product_key,product_key,strlen(product_key)) == 0) &&
 			(strlen(search_node->device_name) == strlen(device_name)) &&
@@ -73,33 +73,33 @@ static int _iotx_dmgr_search_dev_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLE
 	return FAIL_RETURN;
 }
 
-static int _iotx_dmgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN])
+static int _dm_mgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN])
 {
 	int res = 0;
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,NULL);
+	res = _dm_mgr_search_dev_by_devid(devid,NULL);
 	if (res == SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	node = DM_malloc(sizeof(iotx_dmgr_dev_node_t));
+	node = DM_malloc(sizeof(dm_mgr_dev_node_t));
 	if (node == NULL) {
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	memset(node,0,sizeof(iotx_dmgr_dev_node_t));
+	memset(node,0,sizeof(dm_mgr_dev_node_t));
 
 	node->devid = devid;
 	node->dev_type = dev_type;
 	memcpy(node->product_key,product_key,strlen(product_key));
 	memcpy(node->device_name,device_name,strlen(device_name));
-	node->sub_status.generic_index = IOTX_DMGR_DEV_SUB_START;
-	node->sub_status.service_event_index = IOTX_DMGR_DEV_SUB_START;
+	node->sub_status.generic_index = DM_MGR_DEV_SUB_START;
+	node->sub_status.service_event_index = DM_MGR_DEV_SUB_START;
 	INIT_LIST_HEAD(&node->linked_list);
 
 	list_add_tail(&node->linked_list,&ctx->dev_list);
@@ -107,14 +107,14 @@ static int _iotx_dmgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product
 	return SUCCESS_RETURN;
 }
 
-static void _iotx_dmgr_destroy_devlist(void)
+static void _dm_mgr_destroy_devlist(void)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *del_node = NULL;
-	iotx_dmgr_dev_node_t *next_node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *del_node = NULL;
+	dm_mgr_dev_node_t *next_node = NULL;
 	int index = 0;
 	
-	list_for_each_entry_safe(del_node,next_node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
+	list_for_each_entry_safe(del_node,next_node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
 		list_del(&del_node->linked_list);
 		for (index = 0;index < del_node->sub_status.service_event_number;index++) {
 			if (*(del_node->sub_status.service_event + index) == NULL) {continue;}
@@ -126,7 +126,7 @@ static void _iotx_dmgr_destroy_devlist(void)
 	}
 }
 
-static int _iotx_dmgr_legacy_thing_created(int devid)
+static int _dm_mgr_legacy_thing_created(int devid)
 {
 	int res = 0, message_len = 0;
 	const char *thing_created_fmt = "{\"devid\":%d}";
@@ -150,14 +150,14 @@ static int _iotx_dmgr_legacy_thing_created(int devid)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_init(void)
+int dm_mgr_init(void)
 {
 	int res = 0;
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	
-	memset(ctx,0,sizeof(iotx_dmgr_ctx));
+	memset(ctx,0,sizeof(dm_mgr_ctx));
 	
 	/* Create Mutex */
 	ctx->mutex = HAL_MutexCreate();
@@ -175,37 +175,37 @@ int iotx_dmgr_init(void)
 	/* Local Node */
 	HAL_GetProductKey(product_key);
 	HAL_GetDeviceName(device_name);
-	res = _iotx_dmgr_insert_dev(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DM_DEVICE_TYPE,product_key,device_name);
+	res = _dm_mgr_insert_dev(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DM_DEVICE_TYPE,product_key,device_name);
 	if (res != SUCCESS_RETURN) {goto ERROR;}
 
-	_iotx_dmgr_legacy_thing_created(IOTX_DM_LOCAL_NODE_DEVID);
+	_dm_mgr_legacy_thing_created(IOTX_DM_LOCAL_NODE_DEVID);
 		
 	return SUCCESS_RETURN;
 	
 ERROR:
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
-	memset(ctx,0,sizeof(iotx_dmgr_ctx));
+	memset(ctx,0,sizeof(dm_mgr_ctx));
 	return FAIL_RETURN;
 }
 
-int iotx_dmgr_deinit(void)
+int dm_mgr_deinit(void)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
 
-	_iotx_dmgr_mutex_lock();
-	_iotx_dmgr_destroy_devlist();
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_lock();
+	_dm_mgr_destroy_devlist();
+	_dm_mgr_mutex_unlock();
 	
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
+int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
 {
 	int res = 0;
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (product_key == NULL || device_name == NULL ||
 		strlen(product_key) >= PRODUCT_KEY_MAXLEN ||
@@ -214,28 +214,28 @@ int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_pkdn(product_key,device_name,&node);
+	res = _dm_mgr_search_dev_by_pkdn(product_key,device_name,&node);
 	if (res == SUCCESS_RETURN) {
 		if (devid) {*devid = node->devid;}
 		return SUCCESS_RETURN;
 	}
 	
-	node = DM_malloc(sizeof(iotx_dmgr_dev_node_t));
+	node = DM_malloc(sizeof(dm_mgr_dev_node_t));
 	if (node == NULL) {
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	memset(node,0,sizeof(iotx_dmgr_dev_node_t));
+	memset(node,0,sizeof(dm_mgr_dev_node_t));
 
-	node->devid = _iotx_dmgr_next_devid();
+	node->devid = _dm_mgr_next_devid();
 	node->dev_type = dev_type;
 	node->dev_shadow = NULL;
 	memcpy(node->product_key,product_key,strlen(product_key));
 	memcpy(node->device_name,device_name,strlen(device_name));
 	node->dev_status = IOTX_DM_DEV_STATUS_AUTHORIZED;
 	node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
-	node->sub_status.generic_index = IOTX_DMGR_DEV_SUB_START;
-	node->sub_status.service_event_index = IOTX_DMGR_DEV_SUB_START;
+	node->sub_status.generic_index = DM_MGR_DEV_SUB_START;
+	node->sub_status.service_event_index = DM_MGR_DEV_SUB_START;
 	INIT_LIST_HEAD(&node->linked_list);
 
 	list_add_tail(&node->linked_list,&ctx->dev_list);
@@ -245,17 +245,17 @@ int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_device_destroy(_IN_ int devid)
+int dm_mgr_device_destroy(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (node->devid == IOTX_DM_LOCAL_NODE_DEVID) {
@@ -271,31 +271,31 @@ int iotx_dmgr_device_destroy(_IN_ int devid)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_device_number(void)
+int dm_mgr_device_number(void)
 {
 	int index = 0;
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *search_node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *search_node = NULL;
 	
-	list_for_each_entry(search_node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
+	list_for_each_entry(search_node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
 		index++;
 	}
 
 	return index;
 }
 
-int iotx_dmgr_get_devid_by_index(_IN_ int index, _OU_ int *devid)
+int dm_mgr_get_devid_by_index(_IN_ int index, _OU_ int *devid)
 {
 	int search_index = 0;
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *search_node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *search_node = NULL;
 
 	if (index < 0 || devid == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	list_for_each_entry(search_node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
+	list_for_each_entry(search_node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
 		if (search_index == index) {
 			*devid = search_node->devid;
 			return SUCCESS_RETURN;
@@ -306,18 +306,18 @@ int iotx_dmgr_get_devid_by_index(_IN_ int index, _OU_ int *devid)
 	return FAIL_RETURN;
 }
 
-int iotx_dmgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
+int dm_mgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
 {
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
-	iotx_dmgr_dev_node_t *search_node = NULL;
-	iotx_dmgr_dev_node_t *next_node = NULL;
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *search_node = NULL;
+	dm_mgr_dev_node_t *next_node = NULL;
 
 	if (devid < 0 || devid_next == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	list_for_each_entry(next_node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
+	list_for_each_entry(next_node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
 		if (search_node && search_node->devid == devid) {
 			*devid_next = next_node->devid;
 			return SUCCESS_RETURN;
@@ -331,17 +331,17 @@ int iotx_dmgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
 	return FAIL_RETURN;
 }
 
-int iotx_dmgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
+int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (product_key == NULL || device_name == NULL || device_secret == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	memcpy(product_key,node->product_key,strlen(node->product_key));
@@ -351,17 +351,17 @@ int iotx_dmgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODU
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
+int dm_mgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (product_key == NULL || device_name == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_pkdn(product_key,device_name,&node);
+	res = _dm_mgr_search_dev_by_pkdn(product_key,device_name,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (devid) {*devid = node->devid;}
@@ -369,12 +369,12 @@ int iotx_dmgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node)
+int dm_mgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *search_node = NULL;
+	dm_mgr_dev_node_t *search_node = NULL;
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&search_node);
+	res = _dm_mgr_search_dev_by_devid(devid,&search_node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (node) {*node = (void *)search_node;}
@@ -382,9 +382,9 @@ int iotx_dmgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid)
+int dm_mgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid)
 {
-	iotx_dmgr_dev_node_t *search_node = (iotx_dmgr_dev_node_t *)node;
+	dm_mgr_dev_node_t *search_node = (dm_mgr_dev_node_t *)node;
 	
 	if (node == NULL || devid == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -396,17 +396,17 @@ int iotx_dmgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source)
+int dm_mgr_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || tsl_source < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	node->tsl_source = tsl_source;
@@ -414,17 +414,17 @@ int iotx_dmgr_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_sourc
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source)
+int dm_mgr_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || tsl_source == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	*tsl_source = node->tsl_source;
@@ -432,17 +432,17 @@ int iotx_dmgr_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_sour
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_shadow(_IN_ int devid, void **shadow)
+int dm_mgr_get_shadow(_IN_ int devid, void **shadow)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || shadow == NULL || *shadow != NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	*shadow = node->dev_shadow;
@@ -450,17 +450,17 @@ int iotx_dmgr_get_shadow(_IN_ int devid, void **shadow)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type)
+int dm_mgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || dev_type == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	*dev_type = node->dev_type;
@@ -468,17 +468,17 @@ int iotx_dmgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_dev_enable(_IN_ int devid)
+int dm_mgr_set_dev_enable(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	node->status = IOTX_DM_DEV_AVAIL_ENABLE;
@@ -486,17 +486,17 @@ int iotx_dmgr_set_dev_enable(_IN_ int devid)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_dev_disable(_IN_ int devid)
+int dm_mgr_set_dev_disable(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	node->status = IOTX_DM_DEV_AVAIL_DISABLE;
@@ -504,10 +504,10 @@ int iotx_dmgr_set_dev_disable(_IN_ int devid)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ iotx_dm_dev_avail_t *status)
+int dm_mgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ iotx_dm_dev_avail_t *status)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (product_key == NULL || device_name == NULL || status == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
@@ -516,7 +516,7 @@ int iotx_dmgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_pkdn(product_key,device_name,&node);
+	res = _dm_mgr_search_dev_by_pkdn(product_key,device_name,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	*status = node->status;
@@ -524,17 +524,17 @@ int iotx_dmgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status)
+int dm_mgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);	
+	res = _dm_mgr_search_dev_by_devid(devid,&node);	
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	node->dev_status = status;
@@ -542,17 +542,17 @@ int iotx_dmgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
+int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || status == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);	
+	res = _dm_mgr_search_dev_by_devid(devid,&node);	
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	*status = node->dev_status;
@@ -560,145 +560,145 @@ int iotx_dmgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_dev_sub_generic_index(_IN_ int devid, _IN_ int index)
+int dm_mgr_set_dev_sub_generic_index(_IN_ int devid, _IN_ int index)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
 	dm_log_debug("Set Generic Index: %d",index);
 	
 	node->sub_status.generic_index = index;
 	node->sub_status.ctime = HAL_UptimeMs();
 
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_dev_sub_generic_index(_IN_ int devid, _OU_ int *index)
+int dm_mgr_get_dev_sub_generic_index(_IN_ int devid, _OU_ int *index)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
 	*index = node->sub_status.generic_index;
 
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_dev_sub_service_event(_IN_ int devid, _IN_ int number, _IN_ char **service_event)
+int dm_mgr_set_dev_sub_service_event(_IN_ int devid, _IN_ int number, _IN_ char **service_event)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number <= 0 || service_event == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
 	dm_log_debug("Current Service Event Number: %d",number);
 	node->sub_status.service_event_number = number;
 	node->sub_status.service_event = service_event;
 
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_dev_sub_service_event_index(_IN_ int devid, _IN_ int index)
+int dm_mgr_set_dev_sub_service_event_index(_IN_ int devid, _IN_ int index)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
 	node->sub_status.service_event_index = index;
 	
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_dev_sub_service_event_number(_IN_ int devid, _OU_ int *number)
+int dm_mgr_get_dev_sub_service_event_number(_IN_ int devid, _OU_ int *number)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
 	*number = node->sub_status.service_event_number;
 	
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_dev_sub_service_event_index(_IN_ int devid, _OU_ int *index)
+int dm_mgr_get_dev_sub_service_event_index(_IN_ int devid, _OU_ int *index)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
 	*index = node->sub_status.service_event_index;
 
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_dev_sub_service_event(_IN_ int devid, _IN_ int index, _OU_ char **service_event)
+int dm_mgr_get_dev_sub_service_event(_IN_ int devid, _IN_ int index, _OU_ char **service_event)
 {
 	int res = 0;
 	char *service_event_refer = NULL;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0 || service_event == NULL || *service_event != NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
 	if (index >= 0 || index < node->sub_status.service_event_number) {
 		service_event_refer = *(node->sub_status.service_event + index);
@@ -706,27 +706,27 @@ int iotx_dmgr_get_dev_sub_service_event(_IN_ int devid, _IN_ int index, _OU_ cha
 		*service_event = DM_malloc(strlen(service_event_refer) + 1);
 		if (*service_event == NULL) {
 			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-			_iotx_dmgr_mutex_unlock();
+			_dm_mgr_mutex_unlock();
 			return FAIL_RETURN;
 		}
 		memset(*service_event,0,strlen(service_event_refer) + 1);
 		memcpy(*service_event,service_event_refer,strlen(service_event_refer));
 	}
 	
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_clear_dev_sub_service_event(_IN_ int devid)
+int dm_mgr_clear_dev_sub_service_event(_IN_ int devid)
 {
 	int res = 0,index = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
-	_iotx_dmgr_mutex_lock();
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
-	if (res != SUCCESS_RETURN) {_iotx_dmgr_mutex_unlock();return FAIL_RETURN;}
+	_dm_mgr_mutex_lock();
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
+	if (res != SUCCESS_RETURN) {_dm_mgr_mutex_unlock();return FAIL_RETURN;}
 
-	if (node->sub_status.service_event == NULL) {_iotx_dmgr_mutex_unlock();return SUCCESS_RETURN;}
+	if (node->sub_status.service_event == NULL) {_dm_mgr_mutex_unlock();return SUCCESS_RETURN;}
 	
 	for (index = 0;index < node->sub_status.service_event_number;index++) {
 		if (*(node->sub_status.service_event + index) == NULL) {continue;}
@@ -737,28 +737,28 @@ int iotx_dmgr_clear_dev_sub_service_event(_IN_ int devid)
 	DM_free(node->sub_status.service_event);
 	node->sub_status.service_event_number = 0;
 	
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 	return SUCCESS_RETURN;
 }
 
-void iotx_dmgr_dev_sub_status_check(void)
+void dm_mgr_dev_sub_status_check(void)
 {
 	int res = 0;
-	iotx_dmgr_ctx *ctx = _iotx_dmgr_get_ctx();
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
 	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
 	int dcs_mapping_size = iotx_dcs_get_topic_mapping_size();
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	uint64_t current_time = HAL_UptimeMs();
 	char *service_name = NULL;
 
-	_iotx_dmgr_mutex_lock();
-	list_for_each_entry(node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
+	_dm_mgr_mutex_lock();
+	list_for_each_entry(node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
 		if (node->dev_status != IOTX_DM_DEV_STATUS_LOGINED && node->devid != IOTX_DM_LOCAL_NODE_DEVID) {continue;}
 		
 		/* Check Generic Topic */
-		if (node->sub_status.generic_index > IOTX_DMGR_DEV_SUB_START && node->sub_status.generic_index < dcs_mapping_size) {
+		if (node->sub_status.generic_index > DM_MGR_DEV_SUB_START && node->sub_status.generic_index < dcs_mapping_size) {
 			if (node->sub_status.ctime > current_time) {node->sub_status.ctime = current_time;}
-			if (current_time - node->sub_status.ctime >= IOTX_DMGR_DEV_SUB_TIMEOUT_MS) {
+			if (current_time - node->sub_status.ctime >= DM_MGR_DEV_SUB_TIMEOUT_MS) {
 				node->sub_status.ctime = current_time;
 				dm_log_debug("Retry Generic Subscribe, devid: %d, index: %d",node->devid,node->sub_status.generic_index);
 				 res = dm_utils_service_name((char *)dcs_mapping[node->sub_status.generic_index].service_prefix,
@@ -768,36 +768,36 @@ void iotx_dmgr_dev_sub_status_check(void)
 				iotx_dsub_multi(&service_name,1);
 				DM_free(service_name);
 			}
-			_iotx_dmgr_mutex_unlock();
+			_dm_mgr_mutex_unlock();
 			return;
 		}
 
 		/* Check Service Event Topic */
-		if (node->sub_status.service_event_index > IOTX_DMGR_DEV_SUB_START && node->sub_status.service_event_index < node->sub_status.service_event_number) {
+		if (node->sub_status.service_event_index > DM_MGR_DEV_SUB_START && node->sub_status.service_event_index < node->sub_status.service_event_number) {
 			if (node->sub_status.ctime > current_time) {node->sub_status.ctime = current_time;}
-			if (current_time - node->sub_status.ctime >= IOTX_DMGR_DEV_SUB_TIMEOUT_MS) {
+			if (current_time - node->sub_status.ctime >= DM_MGR_DEV_SUB_TIMEOUT_MS) {
 				node->sub_status.ctime = current_time;
 				dm_log_debug("Retry Service Event Subscribe, devid: %d, : %s",*(node->sub_status.service_event + node->sub_status.service_event_index));
 				iotx_dsub_multi(node->sub_status.service_event + node->sub_status.service_event_index,1);
 			}
-			_iotx_dmgr_mutex_unlock();
+			_dm_mgr_mutex_unlock();
 			return;
 		}
 	}
-	_iotx_dmgr_mutex_unlock();
+	_dm_mgr_mutex_unlock();
 }
 
-int iotx_dmgr_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, int tsl_len)
+int dm_mgr_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, int tsl_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (tsl == NULL || tsl_len <= 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {
 		dm_log_err(DM_UTILS_LOG_DMGR_DEVICE_NOT_FOUND,devid);
 		return FAIL_RETURN;
@@ -809,17 +809,17 @@ int iotx_dmgr_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, i
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN])
+int dm_mgr_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN])
 {
 	int res  = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || product_key == NULL || strlen(product_key) >= PRODUCT_KEY_MAXLEN) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	memcpy(product_key,node->product_key,strlen(node->product_key));
@@ -827,17 +827,17 @@ int iotx_dmgr_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_MAXLEN])
+int dm_mgr_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_MAXLEN])
 {
 	int res  = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || device_name == NULL || strlen(device_name) >= DEVICE_NAME_MAXLEN) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memcpy(device_name,node->device_name,strlen(node->device_name));
@@ -845,10 +845,10 @@ int iotx_dmgr_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
+int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || device_secret == NULL ||
 		strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
@@ -856,7 +856,7 @@ int iotx_dmgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_S
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	memset(node->device_secret,0,DEVICE_SECRET_MAXLEN);
@@ -865,17 +865,17 @@ int iotx_dmgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_S
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_device_secret(_IN_ int devid, _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
+int dm_mgr_get_device_secret(_IN_ int devid, _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || device_secret == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	memcpy(device_secret,node->device_secret,strlen(node->device_secret));
@@ -883,17 +883,17 @@ int iotx_dmgr_get_device_secret(_IN_ int devid, _OU_ char device_secret[DEVICE_S
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+int dm_mgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_property_data(node->dev_shadow,key,key_len,data);
@@ -902,17 +902,17 @@ int iotx_dmgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+int dm_mgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_service_input_data(node->dev_shadow,key,key_len,data);
@@ -921,17 +921,17 @@ int iotx_dmgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int ke
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+int dm_mgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_service_output_data(node->dev_shadow,key,key_len,data);
@@ -940,17 +940,17 @@ int iotx_dmgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int k
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+int dm_mgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_event_output_data(node->dev_shadow,key,key_len,data);
@@ -959,7 +959,7 @@ int iotx_dmgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type)
+int dm_mgr_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type)
 {
 	if (data == NULL || type == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -969,135 +969,135 @@ int iotx_dmgr_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type)
 	return iotx_dsw_get_data_type(data,type);
 }
 
-int iotx_dmgr_get_property_number(_IN_ int devid, _OU_ int *number)
+int dm_mgr_get_property_number(_IN_ int devid, _OU_ int *number)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return iotx_dsw_get_property_number(node->dev_shadow,number);
 }
 
 
-int iotx_dmgr_get_service_number(_IN_ int devid, _OU_ int *number)
+int dm_mgr_get_service_number(_IN_ int devid, _OU_ int *number)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return iotx_dsw_get_service_number(node->dev_shadow,number);
 }
 
-int iotx_dmgr_get_event_number(_IN_ int devid, _OU_ int *number)
+int dm_mgr_get_event_number(_IN_ int devid, _OU_ int *number)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return iotx_dsw_get_event_number(node->dev_shadow,number);
 }
 
-int iotx_dmgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property)
+int dm_mgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	return iotx_dsw_get_property_by_index(node->dev_shadow,index,property);
 }
 
-int iotx_dmgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service)
+int dm_mgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	return iotx_dsw_get_service_by_index(node->dev_shadow,index,service);
 }
 
-int iotx_dmgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
+int dm_mgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	return iotx_dsw_get_event_by_index(node->dev_shadow,index,event);
 }
 
-int iotx_dmgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service)
+int dm_mgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || identifier == NULL || service == NULL || *service != NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	return iotx_dsw_get_service_by_identifier(node->dev_shadow,identifier,service);
 }
 
-int iotx_dmgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event)
+int dm_mgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || identifier == NULL || event == NULL || *event != NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	return iotx_dsw_get_event_by_identifier(node->dev_shadow,identifier,event);
 }
 
-int iotx_dmgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
+int dm_mgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
 {
 	if (property == NULL || identifier == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1107,7 +1107,7 @@ int iotx_dmgr_get_property_identifier(_IN_ void *property, _OU_ char **identifie
 	return iotx_dsw_get_property_identifier(property,identifier);
 }
 
-int iotx_dmgr_get_service_method(_IN_ void *service, _OU_ char **method)
+int dm_mgr_get_service_method(_IN_ void *service, _OU_ char **method)
 {
 	if (service == NULL || method == NULL || *method != NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1117,7 +1117,7 @@ int iotx_dmgr_get_service_method(_IN_ void *service, _OU_ char **method)
 	return iotx_dsw_get_service_method(service,method);
 }
 
-int iotx_dmgr_get_event_method(_IN_ void *event, _OU_ char **method)
+int dm_mgr_get_event_method(_IN_ void *event, _OU_ char **method)
 {
 	if (event == NULL || method == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1127,17 +1127,17 @@ int iotx_dmgr_get_event_method(_IN_ void *event, _OU_ char **method)
 	return iotx_dsw_get_event_method(event,method);
 }
 
-int iotx_dmgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
+int dm_mgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	res = iotx_dsw_set_property_value(node->dev_shadow,key,key_len,value,value_len);
@@ -1146,17 +1146,17 @@ int iotx_dmgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_le
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_property_value(node->dev_shadow,key,key_len,value);
@@ -1165,17 +1165,17 @@ int iotx_dmgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_le
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_event_output_value(_IN_ int devid, _IN_ char * key,_IN_ int key_len,_IN_ void * value,_IN_ int value_len)
+int dm_mgr_set_event_output_value(_IN_ int devid, _IN_ char * key,_IN_ int key_len,_IN_ void * value,_IN_ int value_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	res = iotx_dsw_set_event_output_value(node->dev_shadow,key,key_len,value,value_len);
@@ -1184,17 +1184,17 @@ int iotx_dmgr_set_event_output_value(_IN_ int devid, _IN_ char * key,_IN_ int ke
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_event_output_value(node->dev_shadow,key,key_len,value);
@@ -1203,17 +1203,17 @@ int iotx_dmgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int ke
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_service_input_value(_IN_ int devid, _IN_ char * key,_IN_ int key_len,_IN_ void * value,_IN_ int value_len)
+int dm_mgr_set_service_input_value(_IN_ int devid, _IN_ char * key,_IN_ int key_len,_IN_ void * value,_IN_ int value_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	res = iotx_dsw_set_service_input_value(node->dev_shadow,key,key_len,value,value_len);
@@ -1222,17 +1222,17 @@ int iotx_dmgr_set_service_input_value(_IN_ int devid, _IN_ char * key,_IN_ int k
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_service_input_value(node->dev_shadow,key,key_len,value);
@@ -1241,17 +1241,17 @@ int iotx_dmgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int k
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_set_service_output_value(_IN_ int devid, _IN_ char * key,_IN_ int key_len,_IN_ void * value,_IN_ int value_len)
+int dm_mgr_set_service_output_value(_IN_ int devid, _IN_ char * key,_IN_ int key_len,_IN_ void * value,_IN_ int value_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	res = iotx_dsw_set_service_output_value(node->dev_shadow,key,key_len,value,value_len);
@@ -1260,17 +1260,17 @@ int iotx_dmgr_set_service_output_value(_IN_ int devid, _IN_ char * key,_IN_ int 
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_get_service_output_value(node->dev_shadow,key,key_len,value);
@@ -1279,17 +1279,17 @@ int iotx_dmgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int 
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite)
+int dm_mgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	res = iotx_dsw_assemble_property(node->dev_shadow,identifier,identifier_len,lite);
@@ -1298,17 +1298,17 @@ int iotx_dmgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int 
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite)
+int dm_mgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_assemble_event_output(node->dev_shadow,identifier,identifier_len,lite);
@@ -1317,17 +1317,17 @@ int iotx_dmgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ 
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite)
+int dm_mgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	res = iotx_dsw_assemble_service_output(node->dev_shadow,identifier,identifier_len,lite);
@@ -1336,10 +1336,10 @@ int iotx_dmgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_upstream_thing_sub_register(_IN_ int devid)
+int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1347,7 +1347,7 @@ int iotx_dmgr_upstream_thing_sub_register(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1378,10 +1378,10 @@ int iotx_dmgr_upstream_thing_sub_register(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_sub_unregister(_IN_ int devid)
+int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1389,7 +1389,7 @@ int iotx_dmgr_upstream_thing_sub_unregister(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1420,10 +1420,10 @@ int iotx_dmgr_upstream_thing_sub_unregister(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_topo_add(_IN_ int devid)
+int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1431,7 +1431,7 @@ int iotx_dmgr_upstream_thing_topo_add(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1462,10 +1462,10 @@ int iotx_dmgr_upstream_thing_topo_add(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_topo_delete(_IN_ int devid)
+int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1473,7 +1473,7 @@ int iotx_dmgr_upstream_thing_topo_delete(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1504,10 +1504,10 @@ int iotx_dmgr_upstream_thing_topo_delete(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_topo_get(void)
+int dm_mgr_upstream_thing_topo_get(void)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1516,7 +1516,7 @@ int iotx_dmgr_upstream_thing_topo_get(void)
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
-	res = _iotx_dmgr_search_dev_by_pkdn(request.product_key,request.device_name,&node);
+	res = _dm_mgr_search_dev_by_pkdn(request.product_key,request.device_name,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	/* Get Params And Method */
@@ -1541,10 +1541,10 @@ int iotx_dmgr_upstream_thing_topo_get(void)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_list_found(_IN_ int devid)
+int dm_mgr_upstream_thing_list_found(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1552,7 +1552,7 @@ int iotx_dmgr_upstream_thing_list_found(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1583,10 +1583,10 @@ int iotx_dmgr_upstream_thing_list_found(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
@@ -1594,7 +1594,7 @@ int iotx_dmgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1629,11 +1629,11 @@ int iotx_dmgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *method, _IN_ char *payload, _IN_ int payload_len)
+int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *method, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0, service_name_len = 0;
 	char *service_name = NULL;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || 
@@ -1642,7 +1642,7 @@ int iotx_dmgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	service_name_len = strlen(IOTX_DCS_THING_EVENT_POST) + identifier_len + 1;
@@ -1687,10 +1687,10 @@ int iotx_dmgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
@@ -1698,7 +1698,7 @@ int iotx_dmgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payloa
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1729,10 +1729,10 @@ int iotx_dmgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payloa
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
@@ -1740,7 +1740,7 @@ int iotx_dmgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payloa
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1771,10 +1771,10 @@ int iotx_dmgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payloa
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_dsltemplate_get(_IN_ int devid)
+int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1782,7 +1782,7 @@ int iotx_dmgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1813,10 +1813,10 @@ int iotx_dmgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_dynamictsl_get(_IN_ int devid)
+int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1824,7 +1824,7 @@ int iotx_dmgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1855,10 +1855,10 @@ int iotx_dmgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_combine_login(_IN_ int devid)
+int dm_mgr_upstream_combine_login(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1866,7 +1866,7 @@ int iotx_dmgr_upstream_combine_login(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1897,10 +1897,10 @@ int iotx_dmgr_upstream_combine_login(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_combine_logout(_IN_ int devid)
+int dm_mgr_upstream_combine_logout(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -1908,7 +1908,7 @@ int iotx_dmgr_upstream_combine_logout(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1939,10 +1939,10 @@ int iotx_dmgr_upstream_combine_logout(_IN_ int devid)
 	return res;
 }
 
-int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	char *cloud_payload = NULL, *uri = NULL;
 	iotx_dmsg_request_t request;
 
@@ -1951,7 +1951,7 @@ int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _I
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));
@@ -1985,7 +1985,7 @@ int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _I
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_upstream_ntp_request(void)
+int dm_mgr_upstream_ntp_request(void)
 {
 	int res = 0;
 	const char *ntp_request_fmt = "{\"deviceSendTime\":\"1234\"}";
@@ -2025,10 +2025,10 @@ int iotx_dmgr_upstream_ntp_request(void)
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0, service_name_len = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	char *msgid_str = NULL, *service_name = NULL;
 	iotx_dmsg_request_payload_t request;
 	iotx_dmsg_response_t response;
@@ -2042,7 +2042,7 @@ int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _I
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	/* Response Msg ID */
@@ -2076,10 +2076,10 @@ int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _I
 	return SUCCESS_RETURN;
 }
 
-int iotx_dmgr_upstream_thing_lan_prefix_get(_IN_ int devid)
+int dm_mgr_upstream_thing_lan_prefix_get(_IN_ int devid)
 {
 	int res = 0;
-	iotx_dmgr_dev_node_t *node = NULL;
+	dm_mgr_dev_node_t *node = NULL;
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
@@ -2087,7 +2087,7 @@ int iotx_dmgr_upstream_thing_lan_prefix_get(_IN_ int devid)
 		return FAIL_RETURN;
 	}
 
-	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
+	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(iotx_dmsg_request_t));

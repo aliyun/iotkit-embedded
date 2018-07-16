@@ -276,10 +276,10 @@ int iotx_dcs_topic_generic_unsubscribe(int devid)
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dmgr_get_product_key(devid,product_key);
+	res = dm_mgr_get_product_key(devid,product_key);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dmgr_get_device_name(devid,device_name);
+	res = dm_mgr_get_device_name(devid,device_name);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	for (index = 0;index < sizeof(g_iotx_dcs_topic_mapping)/sizeof(iotx_dcs_topic_mapping_t);index++) {
@@ -310,28 +310,28 @@ int iotx_dcs_topic_service_event_unsubscribe(int devid)
 
 	if (devid < 0) {return FAIL_RETURN;}
 
-	res = iotx_dmgr_get_product_key(devid,product_key);
+	res = dm_mgr_get_product_key(devid,product_key);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("Current Shadow Product Key: %s",product_key);
 
-	res = iotx_dmgr_get_device_name(devid,device_name);
+	res = dm_mgr_get_device_name(devid,device_name);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("Current Shadow Device Name: %s",device_name);
 
-	res = iotx_dmgr_get_service_number(devid,&service_number);
+	res = dm_mgr_get_service_number(devid,&service_number);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dmgr_get_event_number(devid,&event_number);
+	res = dm_mgr_get_event_number(devid,&event_number);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	dm_log_debug("Current Shadow Service Number: %d",service_number);
 	for (index = 0;index < service_number;index++) {
 		service_name = NULL;reference = NULL;method = NULL;
 
-		res = iotx_dmgr_get_service_by_index(devid,index,&reference);
+		res = dm_mgr_get_service_by_index(devid,index,&reference);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-		res = iotx_dmgr_get_service_method(reference,&method);
+		res = dm_mgr_get_service_method(reference,&method);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 		dm_log_debug("Service Index: %d, Method: %s",index,method);
 
@@ -352,10 +352,10 @@ int iotx_dcs_topic_service_event_unsubscribe(int devid)
 	for (index = 0;index < event_number;index++) {
 		service_name = NULL;reference = NULL;method = NULL;
 
-		res = iotx_dmgr_get_event_by_index(devid,index,&reference);
+		res = dm_mgr_get_event_by_index(devid,index,&reference);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-		res = iotx_dmgr_get_event_method(reference,&method);
+		res = dm_mgr_get_event_method(reference,&method);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 		dm_log_debug("TSL Event Index: %d, Method: %s",index,method);
@@ -450,7 +450,7 @@ void iotx_dcs_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_me
 	res = iotx_dmsg_uri_parse_pkdn(msg->URI,msg->URI_length,2,4,product_key,device_name);
 	if (res != SUCCESS_RETURN) {return;}
 
-	res = iotx_dmgr_search_device_by_pkdn(product_key,device_name,&devid);
+	res = dm_mgr_search_device_by_pkdn(product_key,device_name,&devid);
 	if (res != SUCCESS_RETURN) {return;}
 
 	res = iotx_dmsg_request_parse(msg->payload,msg->payload_length,&request);
@@ -994,9 +994,9 @@ void iotx_dcs_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 	/* Start From Subscribe Generic Topic */
 	iotx_dsub_multi_next(IOTX_DM_LOCAL_NODE_DEVID,0);
 
-	/* Set Service Event Topic Index To IOTX_DMGR_DEV_SUB_START */
+	/* Set Service Event Topic Index To DM_MGR_DEV_SUB_START */
 	/* Service Event Topic Subscribe Will Be Execute After All Generic Topic Subscribed */
-	iotx_dmgr_set_dev_sub_service_event_index(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DMGR_DEV_SUB_START);
+	dm_mgr_set_dev_sub_service_event_index(IOTX_DM_LOCAL_NODE_DEVID,DM_MGR_DEV_SUB_START);
 
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
 	dm_cmw_local_init_second(dm_conn_get_local_conn());
