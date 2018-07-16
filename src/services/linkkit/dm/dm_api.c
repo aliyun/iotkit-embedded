@@ -66,7 +66,7 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 	}
 	
 	/* DM Cloud Message Parse And Assemble Module Init */
-	res = iotx_dmsg_init();
+	res = dm_msg_init();
 	if (res != SUCCESS_RETURN) {
 		dm_log_err(DM_UTILS_LOG_MESSAGE_INIT_FAILED);
 		goto ERROR;
@@ -107,7 +107,7 @@ ERROR:
 	dm_cmw_deinit();
 	dm_mgr_deinit();
 	dm_ipc_deinit();
-	iotx_dmsg_deinit();
+	dm_msg_deinit();
 	dm_msg_cache_deinit();
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return FAIL_RETURN;
@@ -120,7 +120,7 @@ int iotx_dm_destroy(void)
 	dm_cmw_deinit();
 	dm_mgr_deinit();
 	dm_ipc_deinit();
-	iotx_dmsg_deinit();
+	dm_msg_deinit();
 	dm_msg_cache_deinit();
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return SUCCESS_RETURN;

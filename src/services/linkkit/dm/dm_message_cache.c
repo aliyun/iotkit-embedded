@@ -144,7 +144,7 @@ void dm_msg_cache_tick(void)
 		if (current_time - node->ctime >= DM_MSG_CACHE_TIMEOUT_MS_DEFAULT) {
 			dm_log_debug("Message ID Timeout: %d",node->msgid);
 			/* Send Timeout Message To User */
-			iotx_dmsg_send_msg_timeout_to_user(node->msgid,node->devid,node->response_type);
+			dm_msg_send_msg_timeout_to_user(node->msgid,node->devid,node->response_type);
 			list_del(&node->linked_list);
 			if (node->data) {DM_free(node->data);}
 			DM_free(node);
