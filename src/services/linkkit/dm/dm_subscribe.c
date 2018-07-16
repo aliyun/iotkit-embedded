@@ -31,7 +31,7 @@ static int _iotx_dsub_filter(int devid, int index, int unsub)
 
 	/* Check Property Post Reply Opt */
 	int prop_post_reply_opt = 0;
-	res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_PROPERTY_POST_REPLY,&prop_post_reply_opt);
+	res = dm_opt_get(DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY,&prop_post_reply_opt);
 	if (res == SUCCESS_RETURN) {
 		if (strcmp(dcs_mapping[index].service_name,DM_DISP_THING_EVENT_PROPERTY_POST_REPLY) == 0) {
 			if (prop_post_reply_opt == 0) {
@@ -71,7 +71,7 @@ static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 	
 	/* Check Event Post Reply Opt */
 	int event_post_reply_opt = 0;
-	res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_EVENT_POST_REPLY,&event_post_reply_opt);
+	res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY,&event_post_reply_opt);
 	if (res == SUCCESS_RETURN) {
 		if (event_post_reply_opt == 0) {
 			if (unsub) {

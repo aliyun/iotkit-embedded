@@ -31,7 +31,7 @@ static void _dm_api_unlock(void) {
 
 int iotx_dm_set_opt(int opt,void *data)
 {
-	return iotx_dopt_set(opt,data);
+	return dm_opt_set(opt,data);
 }
 
 int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)

@@ -1,30 +1,30 @@
 #include "iotx_dm_internal.h"
 #include "dm_opt.h"
 
-static iotx_dopt_ctx g_iotx_dopt = {
+static dm_opt_ctx g_dm_opt = {
 	0,0,1
 };
 
-int iotx_dopt_set(iotx_dopt_t opt, void *data)
+int dm_opt_set(dm_opt_t opt, void *data)
 {
 	int res = SUCCESS_RETURN;
 
 	if (data == NULL) {return FAIL_RETURN;}
 	
 	switch (opt) {
-		case IOTX_DOPT_DOWNSTREAM_PROPERTY_POST_REPLY: {
+		case DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY: {
 			int opt = *(int *)(data);
-			g_iotx_dopt.prop_post_reply_opt = opt;
+			g_dm_opt.prop_post_reply_opt = opt;
 		}
 		break;
-		case IOTX_DOPT_DOWNSTREAM_EVENT_POST_REPLY: {
+		case DM_OPT_DOWNSTREAM_EVENT_POST_REPLY: {
 			int opt = *(int *)(data);
-			g_iotx_dopt.event_post_reply_opt = opt;
+			g_dm_opt.event_post_reply_opt = opt;
 		}
 		break;
-		case IOTX_DOPT_UPSTREAM_PROPERTY_SET_REPLY: {
+		case DM_OPT_UPSTREAM_PROPERTY_SET_REPLY: {
 			int opt = *(int *)(data);
-			g_iotx_dopt.prop_set_reply_opt = opt;
+			g_dm_opt.prop_set_reply_opt = opt;
 		}
 		break;
 		default: {
@@ -37,23 +37,23 @@ int iotx_dopt_set(iotx_dopt_t opt, void *data)
 	return res;
 }
 
-int iotx_dopt_get(iotx_dopt_t opt, void *data)
+int dm_opt_get(dm_opt_t opt, void *data)
 {
 	int res = SUCCESS_RETURN;
 	
 	if (data == NULL) {return FAIL_RETURN;}
 
 	switch (opt) {
-		case IOTX_DOPT_DOWNSTREAM_PROPERTY_POST_REPLY: {
-			*(int *)(data) = g_iotx_dopt.prop_post_reply_opt;
+		case DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY: {
+			*(int *)(data) = g_dm_opt.prop_post_reply_opt;
 		}
 		break;
-		case IOTX_DOPT_DOWNSTREAM_EVENT_POST_REPLY: {
-			*(int *)(data) = g_iotx_dopt.event_post_reply_opt;
+		case DM_OPT_DOWNSTREAM_EVENT_POST_REPLY: {
+			*(int *)(data) = g_dm_opt.event_post_reply_opt;
 		}
 		break;
-		case IOTX_DOPT_UPSTREAM_PROPERTY_SET_REPLY: {
-			*(int *)(data) = g_iotx_dopt.prop_set_reply_opt;
+		case DM_OPT_UPSTREAM_PROPERTY_SET_REPLY: {
+			*(int *)(data) = g_dm_opt.prop_set_reply_opt;
 		}
 		break;
 		default: {

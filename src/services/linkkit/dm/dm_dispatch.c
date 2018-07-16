@@ -467,7 +467,7 @@ void dm_disp_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_mes
 	response.code = (res == SUCCESS_RETURN)?(IOTX_DM_ERR_CODE_SUCCESS):(IOTX_DM_ERR_CODE_REQUEST_ERROR);
 
 	int prop_set_reply_opt = 0;
-	res = iotx_dopt_get(IOTX_DOPT_UPSTREAM_PROPERTY_SET_REPLY,&prop_set_reply_opt);
+	res = dm_opt_get(DM_OPT_UPSTREAM_PROPERTY_SET_REPLY,&prop_set_reply_opt);
 	if (res == SUCCESS_RETURN) {
 		if (prop_set_reply_opt) {dm_msg_response_without_data(&request,&response);}
 	}
