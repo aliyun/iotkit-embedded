@@ -120,7 +120,7 @@ static int _iotx_dsw_data_array_search(_IN_ iotx_dsw_data_t *input, _IN_ int inp
 	iotx_dsw_data_value_complex_t *complex_struct = (iotx_dsw_data_value_complex_t *)input->data_value.value;
 	dm_log_debug("Current Key: %s, Len: %d",key,key_len);
 	dm_log_debug("Current Item Identifier: %s",input->identifier);
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
 	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
 
 	switch(complex_struct->type)
@@ -158,11 +158,11 @@ static int _iotx_dsw_data_struct_search(_IN_ iotx_dsw_data_t *input,_IN_ char *k
 
 	iotx_dsw_data_value_complex_t *complex_struct = (iotx_dsw_data_value_complex_t *)input->data_value.value;
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
 	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
 
 	partial_offset = deli_offset;
-	res = iotx_dcm_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
+	res = dm_utils_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Current Index: %d",array_index);
 		partial_offset = partial_input_len;
@@ -219,15 +219,15 @@ static int _iotx_dsw_data_search(_IN_ iotx_dsw_data_t *input,_IN_ char *key,
 	int partial_input_len = 0, array_input_len = 0, array_index = 0;
 
 	if (input == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
 	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
 
 	partial_offset = deli_offset;
-	res = iotx_dcm_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
+	res = dm_utils_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Current Index: %d",array_index);
 		partial_offset = partial_input_len;
@@ -285,12 +285,12 @@ static int _iotx_dsw_property_search(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	iotx_dsw_data_t *property_item = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	if (shadow->property_number == 0 || shadow->properties == NULL) {
-		dm_log_err(IOTX_DM_LOG_TSL_PROPERTY_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -309,7 +309,7 @@ static int _iotx_dsw_event_output_search(_IN_ iotx_dsw_data_t *outputdatas, _IN_
 	iotx_dsw_data_t *outputdata = NULL;
 
 	if (outputdatas == NULL || number <=0 || key == NULL || key_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -328,7 +328,7 @@ static int _iotx_dsw_event_search(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ 
 	iotx_dsw_event_t *dtsl_event = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -353,7 +353,7 @@ static int _iotx_dsw_service_input_search(_IN_ iotx_dsw_data_t *inputdatas, _IN_
 	iotx_dsw_data_t *inputdata = NULL;
 
 	if (inputdatas == NULL || number <=0 || key == NULL || key_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -372,7 +372,7 @@ static int _iotx_dsw_service_output_search(_IN_ iotx_dsw_data_t *outputdatas, _I
 	iotx_dsw_data_t *outputdata = NULL;
 
 	if (outputdatas == NULL || number <=0 || key == NULL || key_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -391,7 +391,7 @@ static int _iotx_dsw_service_search(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	iotx_dsw_service_t *dtsl_service = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -415,7 +415,7 @@ int iotx_dsw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int
 	int res = 0;
 
 	if (shadow == NULL || *shadow != NULL || tsl == NULL || tsl_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -457,13 +457,13 @@ int iotx_dsw_get_property_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int
 	int res = 0;
 
 	if (shadow == NULL || key == NULL || key_len <= 0 || data == NULL || *data != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	res = _iotx_dsw_property_search(shadow,key,key_len,(iotx_dsw_data_t **)data,NULL);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_PROPERTY_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -479,11 +479,11 @@ int iotx_dsw_get_service_input_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	iotx_dsw_data_t *service_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Service input Search, Event ID: %.*s",offset,key);
@@ -491,7 +491,7 @@ int iotx_dsw_get_service_input_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 
 	res = _iotx_dsw_service_search(shadow,key,offset,&service);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -502,7 +502,7 @@ int iotx_dsw_get_service_input_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -521,11 +521,11 @@ int iotx_dsw_get_service_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	iotx_dsw_data_t *service_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Service output Search, Event ID: %.*s",offset,key);
@@ -533,7 +533,7 @@ int iotx_dsw_get_service_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 
 	res = _iotx_dsw_service_search(shadow,key,offset,&service);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -544,7 +544,7 @@ int iotx_dsw_get_service_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_service_output_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -563,11 +563,11 @@ int iotx_dsw_get_event_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_
 	iotx_dsw_data_t *event_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Event output Search, Event ID: %.*s",offset,key);
@@ -575,7 +575,7 @@ int iotx_dsw_get_event_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_
 
 	res = _iotx_dsw_event_search(shadow,key,offset,&event);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -586,7 +586,7 @@ int iotx_dsw_get_event_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_event_output_search(event->input_datas,event->input_data_number,pos,strlen(pos),&event_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -601,7 +601,7 @@ int iotx_dsw_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type)
 	iotx_dsw_data_t *data_item = (iotx_dsw_data_t *)data;
 
 	if (data_item == NULL || type == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -621,7 +621,7 @@ int iotx_dsw_get_event(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len
 	iotx_dsw_event_t *dtsl_event = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -643,7 +643,7 @@ int iotx_dsw_get_service(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_l
 	iotx_dsw_service_t *dtsl_service = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -662,7 +662,7 @@ int iotx_dsw_get_service(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_l
 int iotx_dsw_get_property_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number)
 {
 	if (shadow == NULL || number == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -674,7 +674,7 @@ int iotx_dsw_get_property_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number)
 int iotx_dsw_get_service_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number)
 {
 	if (shadow == NULL || number == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -686,7 +686,7 @@ int iotx_dsw_get_service_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number)
 int iotx_dsw_get_event_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number)
 {
 	if (shadow == NULL || number == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -699,7 +699,7 @@ int iotx_dsw_get_property_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ v
 {
 	if (shadow == NULL || index < 0 || index >= shadow->property_number ||
 		property == NULL || *property != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -712,7 +712,7 @@ int iotx_dsw_get_service_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ vo
 {
 	if (shadow == NULL || index < 0 || index >= shadow->service_number ||
 		service == NULL || *service != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -725,7 +725,7 @@ int iotx_dsw_get_event_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ void
 {
 	if (shadow == NULL || index < 0 || index >= shadow->event_number ||
 		event == NULL || *event != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -741,7 +741,7 @@ int iotx_dsw_get_service_by_identifier(_IN_ iotx_dsw_t *shadow, _IN_ char *ident
 
 	if (shadow == NULL || identifier == NULL ||
 		service == NULL || *service != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -764,7 +764,7 @@ int iotx_dsw_get_event_by_identifier(_IN_ iotx_dsw_t *shadow, _IN_ char *identif
 
 	if (shadow == NULL || identifier == NULL ||
 		event == NULL || *event != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -785,7 +785,7 @@ int iotx_dsw_get_property_identifier(_IN_ void *property, _OU_ char **identifier
 	iotx_dsw_data_t *property_item = (iotx_dsw_data_t *)property;
 
 	if (property_item == NULL || identifier == NULL || *identifier != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -801,14 +801,14 @@ int iotx_dsw_get_service_method(_IN_ void *service, _OU_ char **method)
 	iotx_dsw_service_t *service_item = (iotx_dsw_service_t *)service;
 
 	if (service_item == NULL || method == NULL || *method != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	service_method_len = (strlen(service_method_fmt) + strlen(service_item->identifier) + 1);
 	*method = DM_malloc(service_method_len);
 	if (*method == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(*method,0,service_method_len);
@@ -827,7 +827,7 @@ int iotx_dsw_get_event_method(_IN_ void *event, _OU_ char **method)
 	iotx_dsw_event_t *event_item = (iotx_dsw_event_t *)event;
 
 	if (event_item == NULL || method == NULL || *method != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -842,7 +842,7 @@ int iotx_dsw_get_event_method(_IN_ void *event, _OU_ char **method)
 	event_method_len = (strlen(event_method_fmt) + strlen(identifier) + 1);
 	*method = DM_malloc(event_method_len);
 	if (*method == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(*method,0,event_method_len);
@@ -888,9 +888,9 @@ static int _iotx_dsw_text_set(_IN_ iotx_dsw_data_value_t *data_value, _IN_ void 
 	int value_set_len = (value == NULL)?(strlen("NULL")):(value_len);
 
 	if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;}
-	res = iotx_dcm_copy(value_set,value_set_len,&data_value->value,value_set_len + 1);
+	res = dm_utils_copy(value_set,value_set_len,&data_value->value,value_set_len + 1);
 	if (res != SUCCESS_RETURN) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("Current String Value Be Set(String): %s",data_value->value);
@@ -917,9 +917,9 @@ static int _iotx_dsw_date_set(_IN_ iotx_dsw_data_value_t *data_value, _IN_ void 
 	int value_set_len = (value == NULL)?(strlen("NULL")):(value_len);
 
 	if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;}
-	res = iotx_dcm_copy(value_set,value_set_len,&data_value->value,value_set_len + 1);
+	res = dm_utils_copy(value_set,value_set_len,&data_value->value,value_set_len + 1);
 	if (res != SUCCESS_RETURN) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("Current String Value Be Set(String): %s",data_value->value);
@@ -945,7 +945,7 @@ static int _iotx_dsw_array_int_set(_IN_ iotx_dsw_data_value_t *data_value, _IN_ 
 	int int_set = (value == NULL)?(0):(*(int *)value);
 
 	if (((int *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -961,7 +961,7 @@ static int _iotx_dsw_array_float_set(_IN_ iotx_dsw_data_value_t *data_value, _IN
 	float float_set = (value == NULL)?(0):(*(float *)value);
 
 	if (((float *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -977,7 +977,7 @@ static int _iotx_dsw_array_double_set(_IN_ iotx_dsw_data_value_t *data_value, _I
 	double double_set = (value == NULL)?(0):(*(double *)value);
 
 	if (((double *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -999,7 +999,7 @@ static int _iotx_dsw_array_text_set(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 		*((char **)(complex_array->value) + index) = NULL;
 	}
 
-	res = iotx_dcm_copy(text_set,value_set_len,(void **)((char **)(complex_array->value) + index),value_set_len + 1);
+	res = dm_utils_copy(text_set,value_set_len,(void **)((char **)(complex_array->value) + index),value_set_len + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("Current Array Value Be Set(String), Index: %d, Value: %s",index, *((char **)(complex_array->value) + index));
 
@@ -1012,7 +1012,7 @@ static int _iotx_dsw_array_enum_set(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 	int int_set = (value == NULL)?(0):(*(int *)value);
 
 	if (((int *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1034,7 +1034,7 @@ static int _iotx_dsw_array_date_set(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 		*((char **)(complex_array->value) + index) = NULL;
 	}
 
-	res = iotx_dcm_copy(text_set,value_set_len,(void **)((char **)(complex_array->value) + index),value_set_len + 1);
+	res = dm_utils_copy(text_set,value_set_len,(void **)((char **)(complex_array->value) + index),value_set_len + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("Current Array Value Be Set(String), Index: %d, Value: %s",index, *((char **)(complex_array->value) + index));
 
@@ -1047,7 +1047,7 @@ static int _iotx_dsw_array_bool_set(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 	int int_set = (value == NULL)?(0):(*(int *)value);
 
 	if (((int *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1063,12 +1063,12 @@ static int _iotx_dsw_data_array_set(_IN_ iotx_dsw_data_value_t *data_value,_IN_ 
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array == NULL || index < 0 || index >= complex_array->size) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	if (g_iotx_data_type_mapping[complex_array->type].func_array_set == NULL) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[complex_array->type].name),
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[complex_array->type].name),
 																g_iotx_data_type_mapping[complex_array->type].name);
 		return FAIL_RETURN;
 	}
@@ -1079,7 +1079,7 @@ static int _iotx_dsw_data_array_set(_IN_ iotx_dsw_data_value_t *data_value,_IN_ 
 static int _iotx_dsw_data_set(_IN_ iotx_dsw_data_value_t *data_value,_IN_ void *value,_IN_ int value_len)
 {
 	if (g_iotx_data_type_mapping[data_value->type].func_set == NULL) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[data_value->type].name),
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[data_value->type].name),
 																g_iotx_data_type_mapping[data_value->type].name);
 		return FAIL_RETURN;
 	}
@@ -1093,7 +1093,7 @@ int iotx_dsw_set_property_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ in
 	iotx_dsw_data_t *data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1104,13 +1104,13 @@ int iotx_dsw_set_property_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ in
 		dm_log_debug("Current Found Data Index: %d",array_index);
 		res = _iotx_dsw_data_array_set(&data->data_value,value,value_len,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_PROPERTY_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_set(&data->data_value,value,value_len);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_PROPERTY_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1142,7 +1142,7 @@ static int _iotx_dsw_text_get(_IN_ iotx_dsw_data_value_t *data_value, _IN_ void 
 
 	if (*(char **)value != NULL || data_value->value == NULL) {return FAIL_RETURN;}
 
-	res = iotx_dcm_copy(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
+	res = dm_utils_copy(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1160,7 +1160,7 @@ static int _iotx_dsw_date_get(_IN_ iotx_dsw_data_value_t *data_value, _IN_ void 
 
 	if (*(char **)value != NULL || data_value->value == NULL) {return FAIL_RETURN;}
 
-	res = iotx_dcm_copy(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
+	res = dm_utils_copy(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1177,7 +1177,7 @@ static int _iotx_dsw_array_int_get(_IN_ iotx_dsw_data_value_t *data_value, _IN_ 
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array->value == NULL || ((int *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1191,7 +1191,7 @@ static int _iotx_dsw_array_float_get(_IN_ iotx_dsw_data_value_t *data_value, _IN
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array->value == NULL || ((float *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1205,7 +1205,7 @@ static int _iotx_dsw_array_double_get(_IN_ iotx_dsw_data_value_t *data_value, _I
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array->value == NULL || ((double *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1220,11 +1220,11 @@ static int _iotx_dsw_array_text_get(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array->value == NULL || *((char **)(complex_array->value) + index) == NULL || *(char **)value != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_copy(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
+	res = dm_utils_copy(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
 		(void **)value,strlen(*((char **)(complex_array->value) + index)) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
@@ -1236,7 +1236,7 @@ static int _iotx_dsw_array_enum_get(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array->value == NULL || ((int *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1251,11 +1251,11 @@ static int _iotx_dsw_array_date_get(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array->value == NULL || *((char **)(complex_array->value) + index) == NULL || *(char **)value != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_copy(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
+	res = dm_utils_copy(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
 		(void **)value,strlen(*((char **)(complex_array->value) + index)) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
@@ -1267,7 +1267,7 @@ static int _iotx_dsw_array_bool_get(_IN_ iotx_dsw_data_value_t *data_value, _IN_
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array->value == NULL || ((int *)(complex_array->value) + index) == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1281,12 +1281,12 @@ static int _iotx_dsw_data_array_get(_IN_ iotx_dsw_data_value_t *data_value,_IN_ 
 	iotx_dsw_data_value_complex_t *complex_array = data_value->value;
 
 	if (complex_array == NULL || index < 0 || index >= complex_array->size) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	if (g_iotx_data_type_mapping[complex_array->type].func_array_get == NULL) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[complex_array->type].name),
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[complex_array->type].name),
 																g_iotx_data_type_mapping[complex_array->type].name);
 		return FAIL_RETURN;
 	}
@@ -1297,7 +1297,7 @@ static int _iotx_dsw_data_array_get(_IN_ iotx_dsw_data_value_t *data_value,_IN_ 
 static int _iotx_dsw_data_get(_IN_ iotx_dsw_data_value_t *data_value,_IN_ void *value)
 {
 	if (g_iotx_data_type_mapping[data_value->type].func_get == NULL) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[data_value->type].name),
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_HAS_NO_SET_FUNC,strlen(g_iotx_data_type_mapping[data_value->type].name),
 																g_iotx_data_type_mapping[data_value->type].name);
 		return FAIL_RETURN;
 	}
@@ -1311,7 +1311,7 @@ int iotx_dsw_get_property_value(_IN_ iotx_dsw_t *shadow,_IN_ char *key,_IN_ int 
 	iotx_dsw_data_t *data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1322,13 +1322,13 @@ int iotx_dsw_get_property_value(_IN_ iotx_dsw_t *shadow,_IN_ char *key,_IN_ int 
 		dm_log_debug("Current Found Data Index: %d",array_index);
 		res = _iotx_dsw_data_array_get(&data->data_value,value,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_PROPERTY_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_get(&data->data_value,value);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_PROPERTY_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1345,11 +1345,11 @@ int iotx_dsw_set_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	iotx_dsw_data_t *event_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Event Output Search, Event ID: %.*s",offset,key);
@@ -1357,7 +1357,7 @@ int iotx_dsw_set_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 
 	res = _iotx_dsw_event_search(shadow,key,offset,&event);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -1368,7 +1368,7 @@ int iotx_dsw_set_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1376,13 +1376,13 @@ int iotx_dsw_set_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	if (event_data->data_value.type == IOTX_DSW_DATA_TYPE_ARRAY) {
 		res = _iotx_dsw_data_array_set(&event_data->data_value,value,value_len,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_set(&event_data->data_value,value,value_len);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1399,11 +1399,11 @@ int iotx_dsw_get_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	iotx_dsw_data_t *event_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Event Output Search, Event ID: %.*s",offset,key);
@@ -1411,7 +1411,7 @@ int iotx_dsw_get_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 
 	res = _iotx_dsw_event_search(shadow,key,offset,&event);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -1422,7 +1422,7 @@ int iotx_dsw_get_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1430,13 +1430,13 @@ int iotx_dsw_get_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
 	if (event_data->data_value.type == IOTX_DSW_DATA_TYPE_ARRAY) {
 		res = _iotx_dsw_data_array_get(&event_data->data_value,value,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_get(&event_data->data_value,value);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1453,11 +1453,11 @@ int iotx_dsw_set_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	iotx_dsw_data_t *service_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Service Input Search, Event ID: %.*s",offset,key);
@@ -1465,7 +1465,7 @@ int iotx_dsw_set_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 
 	res = _iotx_dsw_service_search(shadow,key,offset,&service);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -1476,7 +1476,7 @@ int iotx_dsw_set_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1484,13 +1484,13 @@ int iotx_dsw_set_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	if (service_data->data_value.type == IOTX_DSW_DATA_TYPE_ARRAY) {
 		res = _iotx_dsw_data_array_set(&service_data->data_value,value,value_len,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_set(&service_data->data_value,value,value_len);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1507,11 +1507,11 @@ int iotx_dsw_get_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	iotx_dsw_data_t *service_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Service input Search, Event ID: %.*s",offset,key);
@@ -1519,7 +1519,7 @@ int iotx_dsw_get_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 
 	res = _iotx_dsw_service_search(shadow,key,offset,&service);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -1530,7 +1530,7 @@ int iotx_dsw_get_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1538,13 +1538,13 @@ int iotx_dsw_get_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	if (service_data->data_value.type == IOTX_DSW_DATA_TYPE_ARRAY) {
 		res = _iotx_dsw_data_array_get(&service_data->data_value,value,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_get(&service_data->data_value,value);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1561,11 +1561,11 @@ int iotx_dsw_set_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 	iotx_dsw_data_t *service_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Service Output Search, Event ID: %.*s",offset,key);
@@ -1573,7 +1573,7 @@ int iotx_dsw_set_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 
 	res = _iotx_dsw_service_search(shadow,key,offset,&service);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -1584,7 +1584,7 @@ int iotx_dsw_set_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1592,13 +1592,13 @@ int iotx_dsw_set_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 	if (service_data->data_value.type == IOTX_DSW_DATA_TYPE_ARRAY) {
 		res = _iotx_dsw_data_array_set(&service_data->data_value,value,value_len,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_set(&service_data->data_value,value,value_len);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_SET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_SET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1615,11 +1615,11 @@ int iotx_dsw_get_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 	iotx_dsw_data_t *service_data = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&offset);
 	if (res != SUCCESS_RETURN){return FAIL_RETURN;}
 
 	dm_log_debug("TSL Service input Search, Event ID: %.*s",offset,key);
@@ -1627,7 +1627,7 @@ int iotx_dsw_get_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 
 	res = _iotx_dsw_service_search(shadow,key,offset,&service);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -1638,7 +1638,7 @@ int iotx_dsw_get_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 	if (res != SUCCESS_RETURN) {
 		res = _iotx_dsw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1646,13 +1646,13 @@ int iotx_dsw_get_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
 	if (service_data->data_value.type == IOTX_DSW_DATA_TYPE_ARRAY) {
 		res = _iotx_dsw_data_array_get(&service_data->data_value,value,array_index);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}else{
 		res = _iotx_dsw_data_get(&service_data->data_value,value);
 		if (res != SUCCESS_RETURN) {
-			dm_log_err(IOTX_DM_LOG_TSL_EVENT_GET_FAILED,key_len,key);
+			dm_log_err(DM_UTILS_LOG_TSL_EVENT_GET_FAILED,key_len,key);
 			return FAIL_RETURN;
 		}
 	}
@@ -1700,7 +1700,7 @@ static int _iotx_dsw_array_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ lit
 	iotx_dsw_data_value_complex_t *complex_array = NULL;
 
 	if (data == NULL || lite == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1709,7 +1709,7 @@ static int _iotx_dsw_array_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ lit
 	if (lite->type == cJSON_Array) {
 		array = lite_cjson_create_object();
 		if (array == NULL) {
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 	}
@@ -1717,7 +1717,7 @@ static int _iotx_dsw_array_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ lit
 	array_item = lite_cjson_create_array();
 	if (array_item == NULL) {
 		if (array) {lite_cjson_delete(array);}
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 
@@ -1808,7 +1808,7 @@ static int _iotx_dsw_array_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ lit
 			break;
 		default:
 			{
-				dm_log_err(IOTX_DM_LOG_DATA_TYPE_INVALID, complex_array->type);
+				dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID, complex_array->type);
 			}
 			break;
 	}
@@ -1824,14 +1824,14 @@ static int _iotx_dsw_struct_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ li
 	iotx_dsw_data_value_complex_t *complex_struct = NULL;
 
 	if (data == NULL || lite == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	if (lite->type == cJSON_Array) {
 		lite_object = lite_cjson_create_object();
 		if (lite_object == NULL) {
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 	}
@@ -1839,7 +1839,7 @@ static int _iotx_dsw_struct_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ li
 	lite_item = lite_cjson_create_object();
 	if (lite_item == NULL) {
 		lite_cjson_delete(lite_object);
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 
@@ -1865,14 +1865,14 @@ static int _iotx_dsw_data_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ lite
 	lite_cjson_item_t *data_object = NULL;
 
 	if (data == NULL || lite == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	if (lite->type == cJSON_Array) {
 		data_object = lite_cjson_create_object();
 		if (data_object == NULL) {
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 	}
@@ -1942,7 +1942,7 @@ static int _iotx_dsw_data_insert_json_item(_IN_ iotx_dsw_data_t *data, _IN_ lite
 			}
 			break;
 		default:
-			dm_log_err(IOTX_DM_LOG_DATA_TYPE_INVALID, data->data_value.type);
+			dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID, data->data_value.type);
 			res = FAIL_RETURN;
 			break;
 	}
@@ -1956,7 +1956,7 @@ int iotx_dsw_assemble_property(_IN_ iotx_dsw_t *shadow, _IN_ char *identifier, _
 	iotx_dsw_data_t *property = NULL;
 
 	if (shadow == NULL || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1987,7 +1987,7 @@ int iotx_dsw_assemble_event_output(_IN_ iotx_dsw_t *shadow, _IN_ char *identifie
 	iotx_dsw_event_t *event = NULL;
 
 	if (shadow == NULL || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2022,7 +2022,7 @@ int iotx_dsw_assemble_service_output(_IN_ iotx_dsw_t *shadow, _IN_ char *identif
 	iotx_dsw_service_t *service = NULL;
 
 	if (shadow == NULL || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2367,7 +2367,7 @@ static void _iotx_dsw_services_free(_IN_ iotx_dsw_service_t *services,_IN_ int n
 void iotx_dsw_destroy(_IN_ iotx_dsw_t **shadow)
 {
 	if (shadow == NULL || *shadow == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return;
 	}
 

@@ -9,7 +9,7 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
 
-#include "dm_common.h"
+#include "dm_utils.h"
 #include "queue.h"
 #include "tmpmsg.h"
 #include "packet.h"
@@ -509,7 +509,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 
 			params = DM_malloc(lite_item_payload.value_length + 1);
 			if (params == NULL) {
-				dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+				dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 				return;
 			}
 			memset(params,0,lite_item_payload.value_length + 1);
@@ -594,7 +594,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 
 				identifier = DM_malloc(lite_item_serviceid.value_length + 1);
 				if (identifier == NULL) {
-					dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+					dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 					return;
 				}
 				memset(identifier,0,lite_item_serviceid.value_length + 1);
@@ -603,7 +603,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 				input = DM_malloc(lite_item_paylaod.value_length + 1);
 				if (input == NULL) {
 					DM_free(identifier);
-					dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+					dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 					return;
 				}
 				memset(input,0,lite_item_paylaod.value_length + 1);
@@ -787,7 +787,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 
 			eventid = DM_malloc(lite_item_eventid.value_length + 1);
 			if (eventid == NULL) {
-				dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+				dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 				return;
 			}
 			memset(eventid,0,lite_item_eventid.value_length + 1);
@@ -1522,7 +1522,7 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
         //res return id
         id = res;
     }
-    dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 2, res);
+    dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 2, res);
     res = _linkkit_recv_data_with_timeout(id, timeout_ms);
     AMemPool_Put(gbl.msgbuf_pool, reqbuf);
     return res;
@@ -1562,7 +1562,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
         //res return id
         id = res;
     }
-    dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 2, res);
+    dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 2, res);
     res = _linkkit_recv_data_with_timeout(id, timeout_ms);
     AMemPool_Put(gbl.msgbuf_pool, reqbuf);
     return res;

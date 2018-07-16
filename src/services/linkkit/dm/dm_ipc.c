@@ -28,7 +28,7 @@ int iotx_dipc_init(int max_size)
 	//Create Mutex
 	ctx->mutex = HAL_MutexCreate();
 	if (ctx->mutex == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -66,21 +66,21 @@ int iotx_dipc_msg_insert(void *data)
 	iotx_dipc_msg_node_t *node = NULL;
 	
 	if (data == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	_iotx_dipc_lock();
 	
 	if (ctx->msg_list.size >= ctx->msg_list.max_size) {
-		dm_log_warning(IOTX_DM_LOG_IPC_MESSAGE_LIST_FULL);
+		dm_log_warning(DM_UTILS_LOG_IPC_MESSAGE_LIST_FULL);
 		_iotx_dipc_unlock();
 		return FAIL_RETURN;
 	}
 	
 	node = DM_malloc(sizeof(iotx_dipc_msg_node_t));
 	if (node == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		_iotx_dipc_unlock();
 		return FAIL_RETURN;
 	}
@@ -100,7 +100,7 @@ int iotx_dipc_msg_next(void **data)
 	iotx_dipc_t *ctx = _iotx_dipc_get_ctx();
 
 	if (data == NULL || *data != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 

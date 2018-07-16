@@ -28,7 +28,7 @@ int iotx_dopt_set(iotx_dopt_t opt, void *data)
 		}
 		break;
 		default: {
-			dm_log_err(IOTX_DM_LOG_DOPT_UNKNOWN_OPT);
+			dm_log_err(DM_UTILS_LOG_DOPT_UNKNOWN_OPT);
 			res = FAIL_RETURN;
 		}
 		break;
@@ -57,7 +57,7 @@ int iotx_dopt_get(iotx_dopt_t opt, void *data)
 		}
 		break;
 		default: {
-			dm_log_err(IOTX_DM_LOG_DOPT_UNKNOWN_OPT);
+			dm_log_err(DM_UTILS_LOG_DOPT_UNKNOWN_OPT);
 			res = FAIL_RETURN;
 		}
 		break;

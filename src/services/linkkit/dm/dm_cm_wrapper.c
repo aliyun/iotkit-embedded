@@ -12,7 +12,7 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
     dm_log_info("DMGR TOPIC CALLBACK");
 
     if (source == NULL || msg == NULL || msg->URI == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return;
     }
 
@@ -128,12 +128,12 @@ void dm_cmw_event_callback(void *pcontext, iotx_cm_event_msg_t *msg, void *user_
     iotx_dcs_event_mapping_t *dcw_event_mapping = iotx_dcs_get_event_mapping();
 
     if (msg == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return;
     }
 
     if (dcw_event_mapping[msg->event_id].handler == NULL) {
-        dm_log_err(IOTX_DM_LOG_CM_EVENT_UNKNOWN, msg->event_id);
+        dm_log_err(DM_UTILS_LOG_CM_EVENT_UNKNOWN, msg->event_id);
         return;
     }
 
@@ -193,7 +193,7 @@ static int _dm_cmw_conn_local_alcs_create(void **conn_handle)
     iotx_cm_connectivity_alcs_param_t cm_connectivity_alcs_param;
 
     if (conn_handle == NULL || *conn_handle != NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -215,7 +215,7 @@ static int _dm_cmw_conn_local_alcs_create(void **conn_handle)
 static int _dm_cmw_conn_connect(void *conn_handle)
 {
     if (conn_handle == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -227,19 +227,19 @@ int dm_cmw_conn_cloud_mqtt_init(void **conn_handle)
     int res = 0;
 
     if (conn_handle == NULL || *conn_handle != NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
     res = _dm_cmw_conn_cloud_mqtt_create(conn_handle);
     if (res != SUCCESS_RETURN) {
-        dm_log_warning(IOTX_DM_LOG_CM_CLOUD_CONNECTIVITY_CREATE_FAILED);
+        dm_log_warning(DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_CREATE_FAILED);
         return ERROR_NO_MEM;
     }
 
     res = _dm_cmw_conn_connect(*conn_handle);
     if (res != SUCCESS_RETURN) {
-        dm_log_warning(IOTX_DM_LOG_CM_CLOUD_CONNECTIVITY_CONNECT_FAILED);
+        dm_log_warning(DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_CONNECT_FAILED);
         return FAIL_RETURN;
     }
 
@@ -251,19 +251,19 @@ int dm_cmw_conn_local_alcs_init(void **conn_handle)
     int res = 0;
 
     if (conn_handle == NULL || *conn_handle != NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
     res = _dm_cmw_conn_local_alcs_create(conn_handle);
     if (res != SUCCESS_RETURN) {
-        dm_log_warning(IOTX_DM_LOG_CM_LOCAL_CONNECTIVITY_CREATE_FAILED);
+        dm_log_warning(DM_UTILS_LOG_CM_LOCAL_CONNECTIVITY_CREATE_FAILED);
         return ERROR_NO_MEM;
     }
 
     res = _dm_cmw_conn_connect(*conn_handle);
     if (res != SUCCESS_RETURN) {
-        dm_log_warning(IOTX_DM_LOG_CM_LOCAL_CONNECTIVITY_CONNECT_FAILED);
+        dm_log_warning(DM_UTILS_LOG_CM_LOCAL_CONNECTIVITY_CONNECT_FAILED);
         return FAIL_RETURN;
     }
 
@@ -272,7 +272,7 @@ int dm_cmw_conn_local_alcs_init(void **conn_handle)
 int dm_cmw_conn_destroy(void **conn_handle)
 {
     if (conn_handle == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -286,7 +286,7 @@ int dm_cmw_cloud_register(void *conn_handle, char **uri, int count, void *user_d
     iotx_cm_register_param_t *cm_register_param_item = NULL;
 
     if (conn_handle == NULL || uri == NULL || count <= 0) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -300,7 +300,7 @@ int dm_cmw_cloud_register(void *conn_handle, char **uri, int count, void *user_d
 
     cm_register_param = DM_malloc(count * sizeof(iotx_cm_register_param_t));
     if (cm_register_param == NULL) {
-        dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         return FAIL_RETURN;
     }
     memset(cm_register_param, 0, count * sizeof(iotx_cm_register_param_t));
@@ -326,7 +326,7 @@ int dm_cmw_cloud_unregister(void *conn_handle, char *uri)
     iotx_cm_unregister_param_t cm_unregister_param;
 
     if (conn_handle == NULL || uri == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -346,7 +346,7 @@ int dm_cmw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_auth_
     iotx_cm_add_service_param_t cm_add_service_param;
 
     if (conn_handle == NULL || uri == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -365,7 +365,7 @@ int dm_cmw_local_remove_service(void *conn_handle, char *uri)
     iotx_cm_remove_service_param_t cm_remove_servie_param;
 
     if (conn_handle == NULL || uri == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -377,7 +377,7 @@ int dm_cmw_local_add_subdev(void *conn_handle, const char *product_key, const ch
     if (conn_handle == NULL ||
         product_key == NULL || (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         device_name == NULL || (strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -389,7 +389,7 @@ int dm_cmw_local_remove_subdev(void *conn_handle, char *product_key, char *devic
     if (conn_handle == NULL ||
         product_key == NULL || (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         device_name == NULL || (strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -404,7 +404,7 @@ int dm_cmw_send_to_all(char *uri, char *payload, void *user_data)
     iotx_cm_send_peer_t cm_send_peer;
 
     if (uri == NULL || payload == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -421,7 +421,7 @@ int dm_cmw_send_to_all(char *uri, char *payload, void *user_data)
     //HAL_GetDeviceName(cm_send_peer.device_name);
 
     res = IOT_CM_Send(NULL, &cm_send_peer, &cm_message_info, NULL);
-    dm_log_info(IOTX_DM_LOG_CM_SEND_RESULT, res);
+    dm_log_info(DM_UTILS_LOG_CM_SEND_RESULT, res);
 
     return res;
 }
@@ -433,7 +433,7 @@ int dm_cmw_send_to_cloud(char *uri, char *payload, void *user_data)
     iotx_cm_send_peer_t cm_send_peer;
 
     if (uri == NULL || payload == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
@@ -450,7 +450,7 @@ int dm_cmw_send_to_cloud(char *uri, char *payload, void *user_data)
     HAL_GetDeviceName(cm_send_peer.device_name);
 
     res = IOT_CM_Send(NULL, &cm_send_peer, &cm_message_info, NULL);
-    dm_log_info(IOTX_DM_LOG_CM_SEND_RESULT, res);
+    dm_log_info(DM_UTILS_LOG_CM_SEND_RESULT, res);
 
     return res;
 }
@@ -465,7 +465,7 @@ int dm_cmw_send_to_device(void *conn_handle, char *product_key, char *device_nam
         product_key == NULL || (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         device_name == NULL || (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
         uri == NULL || payload == NULL) {
-        dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 

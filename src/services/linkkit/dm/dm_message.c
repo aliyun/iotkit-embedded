@@ -63,7 +63,7 @@ int _iotx_dmsg_send_to_user(iotx_dm_event_types_t type, char *message)
 
 	dipc_msg = DM_malloc(sizeof(iotx_dipc_msg_t));
 	if (dipc_msg == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(dipc_msg,0,sizeof(iotx_dipc_msg_t));
@@ -85,10 +85,10 @@ int iotx_dmsg_send_msg_timeout_to_user(int msg_id, int devid, iotx_dm_event_type
 	int res = 0, message_len = 0;
 	char *message = NULL;
 
-	message_len = strlen(IOTX_DMSG_SEND_MSG_TIMEOUT_FMT) + IOTX_DCM_UINT32_STRLEN * 3 + 1;
+	message_len = strlen(IOTX_DMSG_SEND_MSG_TIMEOUT_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
 	message = DM_malloc(message_len + 1);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -106,17 +106,17 @@ int iotx_dmsg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_de
 
 	if (uri == NULL || uri_len <= 0 || product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) || (strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,start_deli,&start);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,start_deli,&start);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,start_deli + 1,&slice);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,start_deli + 1,&slice);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,end_deli,&end);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,end_deli,&end);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	dm_log_debug("URI Product Key: %.*s, Device Name: %.*s",slice - start - 1,uri + start + 1,end - slice - 1,uri + slice + 1);
@@ -133,7 +133,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 	lite_cjson_t lite;
 
 	if (payload == NULL || payload_len <= 0 || request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -141,7 +141,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 	memset(&lite,0,sizeof(lite_cjson_t));
 	res = lite_cjson_parse(payload,payload_len,&lite);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 
@@ -149,7 +149,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 	memset(&request->id,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_ID,strlen(IOTX_DMSG_KEY_ID),&request->id);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&request->id)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Current Request Message ID: %.*s",request->id.value_length,request->id.value);
@@ -158,7 +158,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 	memset(&request->version,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_VERSION,strlen(IOTX_DMSG_KEY_VERSION),&request->version);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&request->version)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Current Request Message Version: %.*s",request->version.value_length,request->version.value);
@@ -168,7 +168,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 	memset(&request->method,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_METHOD,strlen(IOTX_DMSG_KEY_METHOD),&request->method);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&request->method)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Current Request Message Method: %.*s",request->method.value_length,request->method.value);
@@ -177,7 +177,7 @@ int iotx_dmsg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx_
 	memset(&request->params,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_PARAMS,strlen(IOTX_DMSG_KEY_PARAMS),&request->params);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&request->params)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Current Request Message Params: %.*s",request->params.value_length,request->params.value);
@@ -191,7 +191,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 	lite_cjson_t lite;
 
 	if (payload == NULL || payload_len <= 0 || response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -199,7 +199,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 	memset(&lite,0,sizeof(lite_cjson_t));
 	res = lite_cjson_parse(payload,payload_len,&lite);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 
@@ -207,7 +207,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 	memset(&response->id,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_ID,strlen(IOTX_DMSG_KEY_ID),&response->id);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&response->id)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Current Request Message ID: %.*s",response->id.value_length,response->id.value);
@@ -216,7 +216,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 	memset(&response->code,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_CODE,strlen(IOTX_DMSG_KEY_CODE),&response->code);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&response->code)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Current Request Message Code: %d",response->code.value_int);
@@ -225,7 +225,7 @@ int iotx_dmsg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ iotx
 	memset(&response->data,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_DATA,strlen(IOTX_DMSG_KEY_DATA),&response->data);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Current Request Message Data: %.*s",response->data.value_length,response->data.value);
@@ -240,12 +240,12 @@ int iotx_dmsg_request(_IN_ iotx_dmsg_request_t *request)
 	char *payload = NULL, *uri = NULL;
 
 	if (request == NULL || request->params == NULL || request->method == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* Request URI */
-	res = iotx_dcm_service_name(request->service_prefix,request->service_name,
+	res = dm_utils_service_name(request->service_prefix,request->service_name,
 								request->product_key,request->device_name,&uri);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
@@ -253,7 +253,7 @@ int iotx_dmsg_request(_IN_ iotx_dmsg_request_t *request)
 	payload = DM_malloc(payload_len);
 	if (payload == NULL) {
 		DM_free(uri);
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(payload,0,payload_len);
@@ -265,7 +265,7 @@ int iotx_dmsg_request(_IN_ iotx_dmsg_request_t *request)
 	res = dm_cmw_send_to_all(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
-		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
 		return FAIL_RETURN;
 	}
 
@@ -280,21 +280,21 @@ int iotx_dmsg_response_with_data(_IN_ iotx_dmsg_request_payload_t *request, _IN_
 	char *uri = NULL, *payload = NULL;
 
 	if (request == NULL || response == NULL || data == NULL || data_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* Response URI */
-	res = iotx_dcm_service_name(response->service_prefix,response->service_name,
+	res = dm_utils_service_name(response->service_prefix,response->service_name,
 								response->product_key,response->device_name,&uri);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Response Payload */
-	payload_len = strlen(IOTX_DMSG_RESPONSE_WITH_DATA) + request->id.value_length + IOTX_DCM_UINT32_STRLEN + data_len + 1;
+	payload_len = strlen(IOTX_DMSG_RESPONSE_WITH_DATA) + request->id.value_length + DM_UTILS_UINT32_STRLEN + data_len + 1;
 	payload = DM_malloc(payload_len);
 	if (payload == NULL) {
 		DM_free(uri);
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(payload,0,payload_len);
@@ -306,7 +306,7 @@ int iotx_dmsg_response_with_data(_IN_ iotx_dmsg_request_payload_t *request, _IN_
 	res = dm_cmw_send_to_all(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
-		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
 		return FAIL_RETURN;
 	}
 
@@ -321,21 +321,21 @@ int iotx_dmsg_response_without_data(_IN_ iotx_dmsg_request_payload_t *request, _
 	char *uri = NULL, *payload = NULL;
 
 	if (request == NULL || response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* Response URI */
-	res = iotx_dcm_service_name(response->service_prefix,response->service_name,
+	res = dm_utils_service_name(response->service_prefix,response->service_name,
 								response->product_key,response->device_name,&uri);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Response Payload */
-	payload_len = strlen(IOTX_DMSG_RESPONSE_WITHOUT_DATA) + request->id.value_length + IOTX_DCM_UINT32_STRLEN + 1;
+	payload_len = strlen(IOTX_DMSG_RESPONSE_WITHOUT_DATA) + request->id.value_length + DM_UTILS_UINT32_STRLEN + 1;
 	payload = DM_malloc(payload_len);
 	if (payload == NULL) {
 		DM_free(uri);
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(payload,0,payload_len);
@@ -345,7 +345,7 @@ int iotx_dmsg_response_without_data(_IN_ iotx_dmsg_request_payload_t *request, _
 	res = dm_cmw_send_to_all(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
-		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
 		return FAIL_RETURN;
 	}
 
@@ -398,7 +398,7 @@ static int _iotx_dmsg_property_set_number(int devid, char *key, lite_cjson_t *ro
 	message_len = strlen(IOTX_DMSG_PROPERTY_SET_USER_PAYLOAD) + 10 + strlen(key) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return res;
 	}
 	memset(message,0,message_len);
@@ -443,7 +443,7 @@ static int _iotx_dmsg_property_set_string(int devid, char *key, lite_cjson_t *ro
 	message_len = strlen(IOTX_DMSG_PROPERTY_SET_USER_PAYLOAD) + 10 + strlen(key) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return res;
 	}
 	memset(message,0,message_len);
@@ -474,7 +474,7 @@ static int _iotx_dmsg_property_set_object(int devid, char *key, lite_cjson_t *ro
 		dm_log_debug("new_key_len: %d",new_key_len);
 		new_key = DM_malloc(new_key_len);
 		if (new_key == NULL) {
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 		memset(new_key,0,new_key_len);
@@ -508,7 +508,7 @@ static int _iotx_dmsg_property_set_array(int devid, char *key, lite_cjson_t *roo
 
 		dm_log_debug("Current Value: %.*s",lite_item_value.value_length,lite_item_value.value);
 
-		res = iotx_dcm_itoa(index,&ascii_index);
+		res = dm_utils_itoa(index,&ascii_index);
 		if (res != SUCCESS_RETURN) {continue;}
 
 		/*                         Original Key              '['         Index         ']'*/
@@ -516,7 +516,7 @@ static int _iotx_dmsg_property_set_array(int devid, char *key, lite_cjson_t *roo
 		new_key = DM_malloc(new_key_len);
 		if (new_key == NULL) {
 			DM_free(ascii_index);
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 		memset(new_key,0,new_key_len);
@@ -551,7 +551,7 @@ int iotx_dmsg_property_set(int devid,iotx_dmsg_request_payload_t *request)
 	lite_cjson_t lite;
 
 	if (request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -559,7 +559,7 @@ int iotx_dmsg_property_set(int devid,iotx_dmsg_request_payload_t *request)
 	memset(&lite,0,sizeof(lite_cjson_t));
 	res = lite_cjson_parse(request->params.value,request->params.value_length,&lite);
 	if (res != SUCCESS_RETURN || (!lite_cjson_is_object(&lite) && !lite_cjson_is_array(&lite))) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,request->params.value_length,request->params.value);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,request->params.value_length,request->params.value);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Property Set, Size: %d",lite.size);
@@ -578,10 +578,10 @@ int iotx_dmsg_property_set(int devid,iotx_dmsg_request_payload_t *request)
 		res = lite_cjson_object_item_by_index(&lite,index,&lite_item_key,&lite_item_value);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		message_len = strlen(IOTX_DMSG_PROPERTY_SET_FMT) + IOTX_DCM_UINT32_STRLEN + lite_item_key.value_length + 1;
+		message_len = strlen(IOTX_DMSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + lite_item_key.value_length + 1;
 		message = DM_malloc(message_len);
 		if (message == NULL) {
-			dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 		memset(message,0,message_len);
@@ -593,10 +593,10 @@ int iotx_dmsg_property_set(int devid,iotx_dmsg_request_payload_t *request)
 		}
 	}
 #elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
-	message_len = strlen(IOTX_DMSG_PROPERTY_SET_FMT) + IOTX_DCM_UINT32_STRLEN + request->params.value_length + 1;
+	message_len = strlen(IOTX_DMSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + request->params.value_length + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -623,7 +623,7 @@ int iotx_dmsg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
 	memset(&lite,0,sizeof(lite_cjson_t));
 	res = lite_cjson_parse(payload,payload_len,&lite);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 
@@ -664,7 +664,7 @@ int iotx_dmsg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
 							strlen(product_key) + strlen(device_name) + 1;
 		message = DM_malloc(message_len);
 		if (message == NULL) {
-			dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			ret = FAIL_RETURN;
 			continue;
 		}
@@ -725,7 +725,7 @@ static int _iotx_dmsg_service_set_number(int devid, char *key, lite_cjson_t *roo
 	message_len = strlen(IOTX_DMSG_SERVICE_SET_USER_PAYLOAD) + 10 + strlen(key) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return res;
 	}
 	memset(message,0,message_len);
@@ -773,7 +773,7 @@ static int _iotx_dmsg_service_set_string(int devid, char *key, lite_cjson_t *roo
 	message_len = strlen(IOTX_DMSG_SERVICE_SET_USER_PAYLOAD) + 10 + strlen(key) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return res;
 	}
 	memset(message,0,message_len);
@@ -805,7 +805,7 @@ static int _iotx_dmsg_service_set_object(int devid, char *key, lite_cjson_t *roo
 		dm_log_debug("new_key_len: %d",new_key_len);
 		new_key = DM_malloc(new_key_len);
 		if (new_key == NULL) {
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 		memset(new_key,0,new_key_len);
@@ -839,7 +839,7 @@ static int _iotx_dmsg_service_set_array(int devid, char *key, lite_cjson_t *root
 
 		dm_log_debug("Current Value: %.*s",lite_item_value.value_length,lite_item_value.value);
 
-		res = iotx_dcm_itoa(index,&ascii_index);
+		res = dm_utils_itoa(index,&ascii_index);
 		if (res != SUCCESS_RETURN) {continue;}
 
 		/*                         Original Key              '['         Index         ']'*/
@@ -847,7 +847,7 @@ static int _iotx_dmsg_service_set_array(int devid, char *key, lite_cjson_t *root
 		new_key = DM_malloc(new_key_len);
 		if (new_key == NULL) {
 			DM_free(ascii_index);
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 		memset(new_key,0,new_key_len);
@@ -880,7 +880,7 @@ int iotx_dmsg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 	int res = 0, id = 0, devid = 0, message_len = 0;
 	lite_cjson_t lite;
 	char *key = NULL, *message = NULL;;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	/* Message ID */
 	memcpy(int_id,request->id.value,request->id.value_length);
@@ -892,7 +892,7 @@ int iotx_dmsg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		identifier == NULL || identifier_len == 0 || request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -901,7 +901,7 @@ int iotx_dmsg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 
 	key = DM_malloc(identifier_len + 1);
 	if (key == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(key,0,identifier_len + 1);
@@ -911,7 +911,7 @@ int iotx_dmsg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 	memset(&lite,0,sizeof(lite_cjson_t));
 	res = lite_cjson_parse(request->params.value,request->params.value_length,&lite);
 	if (res != SUCCESS_RETURN || (!lite_cjson_is_object(&lite) && !lite_cjson_is_array(&lite))) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,request->params.value_length,request->params.value);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,request->params.value_length,request->params.value);
 		return FAIL_RETURN;
 	}
 	dm_log_info("Service Request, Size: %d",lite.size);
@@ -921,19 +921,19 @@ int iotx_dmsg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 #if defined (CONFIG_DM_DEVTYPE_SINGLE)
-	message_len = strlen(IOTX_DMSG_SERVICE_REQUEST_FMT) + IOTX_DCM_UINT32_STRLEN*2 + identifier_len + 1;
+	message_len = strlen(IOTX_DMSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN*2 + identifier_len + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
 	HAL_Snprintf(message,message_len,IOTX_DMSG_SERVICE_REQUEST_FMT,id,devid,identifier_len,identifier);
 #elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
-	message_len = strlen(IOTX_DMSG_SERVICE_REQUEST_FMT) + IOTX_DCM_UINT32_STRLEN*2 + identifier_len + request->params.value_length + 1;
+	message_len = strlen(IOTX_DMSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN*2 + identifier_len + request->params.value_length + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -957,7 +957,7 @@ int iotx_dmsg_thing_disable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 	if (product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -966,10 +966,10 @@ int iotx_dmsg_thing_disable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 
 	res = iotx_dmgr_set_dev_disable(devid);
 
-	message_len = strlen(IOTX_DMSG_EVENT_THING_DISABLE_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_THING_DISABLE_FMT) + DM_UTILS_UINT32_STRLEN + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -993,7 +993,7 @@ int iotx_dmsg_thing_enable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char 
 	if (product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1003,10 +1003,10 @@ int iotx_dmsg_thing_enable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char 
 	res = iotx_dmgr_set_dev_enable(devid);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(IOTX_DMSG_EVENT_THING_ENABLE_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_THING_ENABLE_FMT) + DM_UTILS_UINT32_STRLEN + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1030,7 +1030,7 @@ int iotx_dmsg_thing_delete(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char 
 	if (product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1043,7 +1043,7 @@ int iotx_dmsg_thing_delete(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char 
 	message_len = strlen(IOTX_DMSG_EVENT_THING_DELETE_FMT) + strlen(product_key) + strlen(device_name) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1068,17 +1068,17 @@ int iotx_dmsg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _I
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	res = iotx_dmgr_search_device_by_pkdn(product_key,device_name,&devid);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(IOTX_DMSG_THING_MODEL_DOWN_FMT) + IOTX_DCM_UINT32_STRLEN + payload_len + 1;
+	message_len = strlen(IOTX_DMSG_THING_MODEL_DOWN_FMT) + DM_UTILS_UINT32_STRLEN + payload_len + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1100,20 +1100,20 @@ int iotx_dmsg_thing_gateway_permit(_IN_ char *payload, _IN_ int payload_len)
 	lite_cjson_t lite;
 
 	if (payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	res = lite_cjson_parse(payload,payload_len,&lite);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 
 	message_len = payload_len + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memcpy(message,payload,payload_len);
@@ -1136,22 +1136,22 @@ int iotx_dmsg_thing_sub_register_reply(iotx_dmsg_response_payload_t *response)
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
-	char temp_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	if (response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	res = lite_cjson_parse(response->data.value,response->data.value_length,&lite);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
 		return FAIL_RETURN;
 	}
 
 	for (index = 0;index < lite.size;index++) {
 		devid = 0;message_len = 0;message = NULL;
-		memset(temp_id,0,IOTX_DCM_UINT32_STRLEN);
+		memset(temp_id,0,DM_UTILS_UINT32_STRLEN);
 		memset(product_key,0,PRODUCT_KEY_MAXLEN);
 		memset(device_name,0,DEVICE_NAME_MAXLEN);
 		memset(&lite_item,0,sizeof(lite_cjson_t));
@@ -1196,10 +1196,10 @@ int iotx_dmsg_thing_sub_register_reply(iotx_dmsg_response_payload_t *response)
 
 		/* Send Message To User */
 		memcpy(temp_id,response->id.value,response->id.value_length);
- 		message_len = strlen(IOTX_DMSG_EVENT_SUBDEV_REGISTER_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*2 + 1;
+ 		message_len = strlen(IOTX_DMSG_EVENT_SUBDEV_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*2 + 1;
 		message = DM_malloc(message_len);
 		if (message == NULL) {
-			dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			continue;
 		}
 		memset(message,0,message_len);
@@ -1216,12 +1216,12 @@ const char IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT[] DM_READ_ONLY = "{\"id\"
 int iotx_dmsg_thing_sub_unregister_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id, message_len = 0;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	char *message = NULL;
 	iotx_dmc_node_t *node = NULL;
 
 	if (response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -1233,10 +1233,10 @@ int iotx_dmsg_thing_sub_unregister_reply(iotx_dmsg_response_payload_t *response)
 	res = iotx_dmc_msg_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1252,7 +1252,7 @@ const char IOTX_DMSG_EVENT_THING_TOPO_ADD_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d
 int iotx_dmsg_thing_topo_add_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0, message_len = 0;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	iotx_dmc_node_t *node = NULL;
 	char *message = NULL;
 
@@ -1268,10 +1268,10 @@ int iotx_dmsg_thing_topo_add_reply(iotx_dmsg_response_payload_t *response)
 	if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
 		iotx_dmgr_set_dev_status(node->devid,IOTX_DM_DEV_STATUS_ATTACHED);
 
-	message_len = strlen(IOTX_DMSG_EVENT_THING_TOPO_ADD_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_THING_TOPO_ADD_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1287,7 +1287,7 @@ const char IOTX_DMSG_EVENT_THING_TOPO_DELETE_REPLY_FMT[] DM_READ_ONLY = "{\"id\"
 int iotx_dmsg_thing_topo_delete_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0, message_len = 0;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	iotx_dmc_node_t *node = NULL;
 	char *message = NULL;
 
@@ -1303,10 +1303,10 @@ int iotx_dmsg_thing_topo_delete_reply(iotx_dmsg_response_payload_t *response)
 	if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
 		iotx_dmgr_set_dev_status(node->devid,IOTX_DM_DEV_STATUS_ATTACHED);
 
-	message_len = strlen(IOTX_DMSG_EVENT_THING_TOPO_DELETE_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_THING_TOPO_DELETE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1323,10 +1323,10 @@ int iotx_dmsg_topo_get_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0, message_len = 0;
 	char *message = NULL;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	if (response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1336,10 +1336,10 @@ int iotx_dmsg_topo_get_reply(iotx_dmsg_response_payload_t *response)
 
 	dm_log_debug("Current ID: %d",id);
 
-	message_len = strlen(IOTX_DMSG_TOPO_GET_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*2 + response->data.value_length + 1;
+	message_len = strlen(IOTX_DMSG_TOPO_GET_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*2 + response->data.value_length + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1364,7 +1364,7 @@ int iotx_dmsg_thing_event_property_post_reply(iotx_dmsg_response_payload_t *resp
 {
 	int res = 0, id = 0, message_len = 0;
 	char *message = NULL;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	iotx_dmc_node_t *node = NULL;
 
 	/* Message ID */
@@ -1376,10 +1376,10 @@ int iotx_dmsg_thing_event_property_post_reply(iotx_dmsg_response_payload_t *resp
 	res = iotx_dmc_msg_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(IOTX_DMSG_EVENT_PROPERTY_POST_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_PROPERTY_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1399,7 +1399,7 @@ int iotx_dmsg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_
 {
 	int res = 0, id = 0, message_len = 0;
 	char *message = NULL;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	iotx_dmc_node_t *node = NULL;
 
 	/* Message ID */
@@ -1411,10 +1411,10 @@ int iotx_dmsg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_
 	res = iotx_dmc_msg_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(IOTX_DMSG_EVENT_SPECIFIC_POST_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + strlen(identifier) + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_SPECIFIC_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + strlen(identifier) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1442,11 +1442,11 @@ int iotx_dmsg_thing_deviceinfo_delete_reply(iotx_dmsg_response_payload_t *respon
 int iotx_dmsg_thing_dsltemplate_get_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	iotx_dmc_node_t *node = NULL;
 
 	if (response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1470,11 +1470,11 @@ int iotx_dmsg_thing_dsltemplate_get_reply(iotx_dmsg_response_payload_t *response
 int iotx_dmsg_thing_dynamictsl_get_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	iotx_dmc_node_t *node = NULL;
 
 	if (response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1504,10 +1504,10 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	lite_cjson_t lite, lite_item_pk, lite_item_dn;
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char temp_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	if (response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1515,14 +1515,14 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	memset(&lite,0,sizeof(lite_cjson_t));
 	res = lite_cjson_parse(response->data.value,response->data.value_length,&lite);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
 		return FAIL_RETURN;
 	}
 
 	/* Parse Product Key */
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_PRODUCT_KEY,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),&lite_item_pk);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk) || lite_item_pk.value_length >= PRODUCT_KEY_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),IOTX_DMSG_KEY_PRODUCT_KEY);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),IOTX_DMSG_KEY_PRODUCT_KEY);
 		return FAIL_RETURN;
 	}
 	memcpy(product_key,lite_item_pk.value,lite_item_pk.value_length);
@@ -1530,7 +1530,7 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	/* Parse Device Name */
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_DEVICE_NAME,strlen(IOTX_DMSG_KEY_DEVICE_NAME),&lite_item_dn);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn) || lite_item_dn.value_length >= DEVICE_NAME_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_DEVICE_NAME),IOTX_DMSG_KEY_DEVICE_NAME);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_DEVICE_NAME),IOTX_DMSG_KEY_DEVICE_NAME);
 		return FAIL_RETURN;
 	}
 	memcpy(device_name,lite_item_dn.value,lite_item_dn.value_length);
@@ -1546,10 +1546,10 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 	/* Message ID */
 	memcpy(temp_id,response->id.value,response->id.value_length);
 
-	message_len = strlen(IOTX_DMSG_EVENT_COMBINE_LOGIN_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_COMBINE_LOGIN_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1598,10 +1598,10 @@ int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response)
 	lite_cjson_t lite, lite_item_pk, lite_item_dn;
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
-	char temp_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	if (response == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1609,14 +1609,14 @@ int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response)
 	memset(&lite,0,sizeof(lite_cjson_t));
 	res = lite_cjson_parse(response->data.value,response->data.value_length,&lite);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
 		return FAIL_RETURN;
 	}
 
 	/* Parse Product Key */
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_PRODUCT_KEY,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),&lite_item_pk);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk) || lite_item_pk.value_length >= PRODUCT_KEY_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),IOTX_DMSG_KEY_PRODUCT_KEY);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_PRODUCT_KEY),IOTX_DMSG_KEY_PRODUCT_KEY);
 		return FAIL_RETURN;
 	}
 	memcpy(product_key,lite_item_pk.value,lite_item_pk.value_length);
@@ -1624,7 +1624,7 @@ int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response)
 	/* Parse Device Name */
 	res = lite_cjson_object_item(&lite,IOTX_DMSG_KEY_DEVICE_NAME,strlen(IOTX_DMSG_KEY_DEVICE_NAME),&lite_item_dn);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn) || lite_item_dn.value_length >= DEVICE_NAME_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_DEVICE_NAME),IOTX_DMSG_KEY_DEVICE_NAME);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DMSG_KEY_DEVICE_NAME),IOTX_DMSG_KEY_DEVICE_NAME);
 		return FAIL_RETURN;
 	}
 	memcpy(device_name,lite_item_dn.value,lite_item_dn.value_length);
@@ -1640,10 +1640,10 @@ int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response)
 	/* Message ID */
 	memcpy(temp_id,response->id.value,response->id.value_length);
 
-	message_len = strlen(IOTX_DMSG_EVENT_COMBINE_LOGOUT_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
+	message_len = strlen(IOTX_DMSG_EVENT_COMBINE_LOGOUT_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1668,17 +1668,17 @@ int iotx_dmsg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN]
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	res = iotx_dmgr_search_device_by_pkdn(product_key,device_name,&devid);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(IOTX_DMSG_THING_MODEL_DOWN_FMT) + IOTX_DCM_UINT32_STRLEN + payload_len + 1;
+	message_len = strlen(IOTX_DMSG_THING_MODEL_DOWN_FMT) + DM_UTILS_UINT32_STRLEN + payload_len + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1699,22 +1699,22 @@ int iotx_dmsg_ntp_response(char *payload, int payload_len)
 	uint64_t utc = 0;
 	lite_cjson_t lite, lite_item_server_send_time;
 	const char *serverSendTime = "serverSendTime";
-	char uint64_str[IOTX_DCM_UINT64_STRLEN] = {0};
+	char uint64_str[DM_UTILS_UINT64_STRLEN] = {0};
 	
 	if (payload == NULL || payload_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	res = lite_cjson_parse(payload,payload_len,&lite);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 
 	res = lite_cjson_object_item(&lite,serverSendTime,strlen(serverSendTime),&lite_item_server_send_time);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_server_send_time)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,payload_len,payload);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("NTP Time In String: %.*s",lite_item_server_send_time.value_length,lite_item_server_send_time.value);
@@ -1771,14 +1771,14 @@ int iotx_dmsg_found_device(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char 
 	if (product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	message_len = strlen(IOTX_DMSG_EVENT_FOUND_DEVICE_FMT) + strlen(product_key) + strlen(device_name) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1802,14 +1802,14 @@ int iotx_dmsg_remove_device(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 	if (product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	message_len = strlen(IOTX_DMSG_EVENT_REMOVE_DEVICE_FMT) + strlen(product_key) + strlen(device_name) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1870,10 +1870,10 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 
 		if (devid == IOTX_DM_LOCAL_NODE_DEVID) {iotx_dmgr_upstream_ntp_request();}
 			
-		message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
+		message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + DM_UTILS_UINT32_STRLEN + 1;
 		message = DM_malloc(message_len);
 		if (message == NULL) {
-			dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			return FAIL_RETURN;
 		}
 		memset(message,0,message_len);
@@ -1930,14 +1930,14 @@ int iotx_dmsg_unregister_result(_IN_ char *uri,_IN_ int result)
 	int res = 0, message_len = 0;
 	char *message = NULL;
 	if (uri == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	message_len = strlen(IOTX_DMSG_EVENT_UNREGISTER_RESULT_FMT) + 10 + strlen(uri) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1959,14 +1959,14 @@ int iotx_dmsg_send_result(_IN_ char *uri,_IN_ int result)
 	int res = 0, message_len = 0;
 	char *message = NULL;
 	if (uri == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	message_len = strlen(IOTX_DMSG_EVENT_SEND_RESULT_FMT) + 10 + strlen(uri) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -1987,14 +1987,14 @@ int iotx_dmsg_add_service_result(_IN_ char *uri,_IN_ int result)
 	int res = 0, message_len = 0;
 	char *message = NULL;
 	if (uri == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	message_len = strlen(IOTX_DMSG_EVENT_ADD_SERVICE_RESULT_FMT) + 10 + strlen(uri) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -2015,14 +2015,14 @@ int iotx_dmsg_remove_service_result(_IN_ char *uri,_IN_ int result)
 	int res = 0, message_len = 0;
 	char *message = NULL;
 	if (uri == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	message_len = strlen(IOTX_DMSG_EVENT_REMOVE_SERVICE_RESULT_FMT) + 10 + strlen(uri) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -2050,14 +2050,14 @@ int iotx_dmsg_thing_sub_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
 		request->product_key == NULL || request->device_name == NULL ||
 		(strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	params_len = strlen(IOTX_DMSG_THING_SUB_REGISTER_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2085,14 +2085,14 @@ int iotx_dmsg_thing_sub_unregister(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _I
 		request->product_key == NULL || request->device_name == NULL ||
 		(strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	params_len = strlen(IOTX_DMSG_THING_SUB_UNREGISTER_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2114,7 +2114,7 @@ int iotx_dmsg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 {
 	char *params = NULL;
 	int params_len = 0;
-	char timestamp[IOTX_DCM_UINT64_STRLEN] = {0};
+	char timestamp[DM_UTILS_UINT64_STRLEN] = {0};
 	char client_id[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 1] = {0};
 	char *sign_source = NULL;
 	int sign_source_len = 0;
@@ -2130,12 +2130,12 @@ int iotx_dmsg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 		request->product_key == NULL || request->device_name == NULL ||
 		(strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* TimeStamp */
-	HAL_Snprintf(timestamp,IOTX_DCM_UINT64_STRLEN,"%llu",HAL_UptimeMs());
+	HAL_Snprintf(timestamp,DM_UTILS_UINT64_STRLEN,"%llu",HAL_UptimeMs());
 	dm_log_debug("Time Stamp: %s",timestamp);
 
 	/* Client ID */
@@ -2146,7 +2146,7 @@ int iotx_dmsg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 					strlen(device_name) + strlen(product_key) + strlen(timestamp) + 1;
 	sign_source = DM_malloc(sign_source_len);
 	if (sign_source == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(sign_source,0,sign_source_len);
@@ -2163,7 +2163,7 @@ int iotx_dmsg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 		utils_hmac_sha256(sign_source,strlen(sign_source),sign,device_secret,strlen(device_secret));
 	}else{
 		DM_free(sign_source);
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	DM_free(sign_source);
@@ -2176,7 +2176,7 @@ int iotx_dmsg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 	params = DM_malloc(params_len);
 
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2202,7 +2202,7 @@ int iotx_dmsg_thing_topo_delete(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ 
 		request->product_key == NULL || request->device_name == NULL ||
 		(strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2211,7 +2211,7 @@ int iotx_dmsg_thing_topo_delete(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ 
 	params_len = strlen(IOTX_DMSG_THING_TOPO_DELETE_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2234,7 +2234,7 @@ int iotx_dmsg_thing_topo_get(_OU_ iotx_dmsg_request_t *request)
 	params_len = strlen(IOTX_DMSG_THING_TOPO_GET_PARAMS) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2256,7 +2256,7 @@ int iotx_dmsg_thing_list_found(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ c
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2265,7 +2265,7 @@ int iotx_dmsg_thing_list_found(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ c
 	params_len = strlen(IOTX_DMSG_THING_LIST_FOUND_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2286,7 +2286,7 @@ int iotx_dmsg_thing_property_post(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		payload == NULL || request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2295,7 +2295,7 @@ int iotx_dmsg_thing_property_post(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN
 	params_len = strlen(payload) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2315,7 +2315,7 @@ int iotx_dmsg_thing_event_post(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ c
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		payload == NULL || request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2324,7 +2324,7 @@ int iotx_dmsg_thing_event_post(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ c
 	params_len = strlen(payload) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2346,7 +2346,7 @@ int iotx_dmsg_thing_deviceinfo_update(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		payload == NULL || request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2355,7 +2355,7 @@ int iotx_dmsg_thing_deviceinfo_update(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
 	params_len = strlen(payload) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2376,7 +2376,7 @@ int iotx_dmsg_thing_deviceinfo_delete(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		payload == NULL || request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2385,7 +2385,7 @@ int iotx_dmsg_thing_deviceinfo_delete(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
 	params_len = strlen(payload) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2404,7 +2404,7 @@ int iotx_dmsg_thing_dsltemplate_get(_OU_ iotx_dmsg_request_t *request)
 	int params_len = 0;
 
 	if (request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2413,7 +2413,7 @@ int iotx_dmsg_thing_dsltemplate_get(_OU_ iotx_dmsg_request_t *request)
 	params_len = strlen(IOTX_DMSG_THING_DSLTEMPLATE_GET_PARAMS) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2432,7 +2432,7 @@ int iotx_dmsg_thing_dynamictsl_get(_OU_ iotx_dmsg_request_t *request)
 	int params_len = 0;
 
 	if (request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2441,7 +2441,7 @@ int iotx_dmsg_thing_dynamictsl_get(_OU_ iotx_dmsg_request_t *request)
 	params_len = strlen(IOTX_DMSG_THING_DYNAMICTSL_GET_PARAMS) + 1;
 	params = DM_malloc(params_len);
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2459,7 +2459,7 @@ int iotx_dmsg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 {
 	char *params = NULL;
 	int params_len = 0;
-	char timestamp[IOTX_DCM_UINT64_STRLEN] = {0};
+	char timestamp[DM_UTILS_UINT64_STRLEN] = {0};
 	char client_id[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 1] = {0};
 	char *sign_source = NULL;
 	int sign_source_len = 0;
@@ -2475,12 +2475,12 @@ int iotx_dmsg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 		request->product_key == NULL || request->device_name == NULL ||
 		(strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* TimeStamp */
-	HAL_Snprintf(timestamp,IOTX_DCM_UINT64_STRLEN,"%llu",HAL_UptimeMs());
+	HAL_Snprintf(timestamp,DM_UTILS_UINT64_STRLEN,"%llu",HAL_UptimeMs());
 	dm_log_debug("Time Stamp: %s",timestamp);
 
 	/* Client ID */
@@ -2491,7 +2491,7 @@ int iotx_dmsg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 					strlen(device_name) + strlen(product_key) + strlen(timestamp) + 1;
 	sign_source = DM_malloc(sign_source_len);
 	if (sign_source == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(sign_source,0,sign_source_len);
@@ -2508,7 +2508,7 @@ int iotx_dmsg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 		utils_hmac_sha256(sign_source,strlen(sign_source),sign,device_secret,strlen(device_secret));
 	}else{
 		DM_free(sign_source);
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	DM_free(sign_source);
@@ -2521,7 +2521,7 @@ int iotx_dmsg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 	params = DM_malloc(params_len);
 
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2544,7 +2544,7 @@ int iotx_dmsg_combine_logout(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
 		request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2554,7 +2554,7 @@ int iotx_dmsg_combine_logout(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
 	params = DM_malloc(params_len);
 
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);
@@ -2573,7 +2573,7 @@ int iotx_dmsg_thing_lan_prefix_get(_OU_ iotx_dmsg_request_t *request)
 	int params_len = 0;
 
 	if (request == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2583,7 +2583,7 @@ int iotx_dmsg_thing_lan_prefix_get(_OU_ iotx_dmsg_request_t *request)
 	params = DM_malloc(params_len);
 
 	if (params == NULL) {
-		dm_log_err(IOTX_DM_LOG_SIGN_METHOD_NOT_FOUND);
+		dm_log_err(DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND);
 		return FAIL_RETURN;
 	}
 	memset(params,0,params_len);

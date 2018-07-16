@@ -30,7 +30,7 @@ int iotx_dmc_init(void)
 	/* Create Mutex */
 	ctx->mutex = HAL_MutexCreate();
 	if (ctx->mutex == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 
@@ -67,7 +67,7 @@ int iotx_dmc_msg_insert(int msgid, int devid, iotx_dm_event_types_t type, char *
 
 	node = DM_malloc(sizeof(iotx_dmc_node_t));
 	if (node == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(node,0,sizeof(iotx_dmc_node_t));
@@ -92,7 +92,7 @@ int iotx_dmc_msg_search(_IN_ int msgid, _OU_ iotx_dmc_node_t **node)
 	iotx_dmc_node_t *search_node = NULL;
 
 	if (msgid <= 0 || node == NULL || *node != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 

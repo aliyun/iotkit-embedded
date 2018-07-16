@@ -38,7 +38,7 @@ static int _iotx_dsub_filter(int devid, int index, int unsub)
 				/*Unsubscribe This Topic*/
 				if (unsub) {
 					char *unsubscribe = NULL;
-					res = iotx_dcm_service_name((char *)dcs_mapping[index].service_prefix,
+					res = dm_utils_service_name((char *)dcs_mapping[index].service_prefix,
 						(char *)dcs_mapping[index].service_name,product_key,device_name,&unsubscribe);
 					if (res == SUCCESS_RETURN){
 						dm_cmw_cloud_unregister(conn,unsubscribe);
@@ -80,14 +80,14 @@ static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 				method_reply = DM_malloc(strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
 				if (method_reply == NULL) {
 					DM_free(method);
-					dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+					dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 					return FAIL_RETURN;
 				}
 				memset(method_reply,0,strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
 				memcpy(method_reply,method,strlen(method));
 				memcpy(method_reply + strlen(method_reply),IOTX_DCS_REPLY_SUFFIX,strlen(IOTX_DCS_REPLY_SUFFIX));
 		
-				res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method_reply,product_key,device_name,&unsubscribe);
+				res = dm_utils_service_name((char *)IOTX_DCS_SYS_PREFIX,method_reply,product_key,device_name,&unsubscribe);
 				DM_free(method_reply);
 				if (res == SUCCESS_RETURN){
 					dm_cmw_cloud_unregister(conn,unsubscribe);
@@ -107,7 +107,7 @@ int iotx_dsub_multi(_IN_ char **subscribe, _IN_ int count)
 	void *conn = iotx_dconn_get_cloud_conn();
 
 	if (subscribe == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -115,7 +115,7 @@ int iotx_dsub_multi(_IN_ char **subscribe, _IN_ int count)
 
 	res = dm_cmw_cloud_register(conn,subscribe,count,NULL);
 	if (res == FAIL_RETURN) {
-		dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(*subscribe),*subscribe);
+		dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(*subscribe),*subscribe);
 	}
 
 	return res;
@@ -134,7 +134,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	void *conn = iotx_dconn_get_cloud_conn();
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -161,7 +161,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	/* Malloc Memory For Multi-Subscribe */
 	subscribe = DM_malloc(sub_count * sizeof(char *));
 	if (subscribe == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(subscribe,0,sub_count * sizeof(char *));
@@ -169,7 +169,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	/* Find Out Topics Which Will Be Subscribe */
 	for (search_index = index,sub_index = 0;search_index < dcs_mapping_size;search_index++) {
 		if (_iotx_dsub_filter(devid,search_index,0) == SUCCESS_RETURN) {
-			res = iotx_dcm_service_name((char *)dcs_mapping[search_index].service_prefix,
+			res = dm_utils_service_name((char *)dcs_mapping[search_index].service_prefix,
 				(char *)dcs_mapping[search_index].service_name,product_key,device_name,subscribe + sub_index);
 			if (res != SUCCESS_RETURN) {goto ERROR;}
 			sub_index++;
@@ -181,7 +181,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	/* Multi-Subscribe Topic */
 	res = dm_cmw_cloud_register(conn,subscribe,sub_count,NULL);
 	if (res == FAIL_RETURN) {
-		dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(*(subscribe)),*(subscribe));
+		dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(*(subscribe)),*(subscribe));
 	}
 	
 	for (sub_index = 0;sub_index < sub_count;sub_index++) {
@@ -211,7 +211,7 @@ int iotx_dsub_shadow_create(int devid)
 	char **subscribe = NULL;
 	
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -233,7 +233,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dmgr_get_service_method(service,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
+		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
 		res = _iotx_dsub_shadow_service_filter(devid,method,1);
@@ -250,7 +250,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dmgr_get_event_method(event,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
+		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
 		res = _iotx_dsub_shadow_event_filter(devid,method,1);
@@ -264,7 +264,7 @@ int iotx_dsub_shadow_create(int devid)
 	/* Allocate Memory For Service And Event Topic*/
 	subscribe = DM_malloc((service_count + event_count)*sizeof(char*));
 	if (subscribe == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(subscribe,0,(service_count + event_count)*sizeof(char*));
@@ -277,13 +277,13 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dmgr_get_service_method(service,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
+		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
 		res = _iotx_dsub_shadow_service_filter(devid,method,0);
 		if (res != SUCCESS_RETURN) {DM_free(method);continue;}
 
-		res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,(subscribe + service_event_index));
+		res = dm_utils_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,(subscribe + service_event_index));
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 
 		dm_log_debug("Current Service Event Generate: %s",*(subscribe + service_event_index));
@@ -299,7 +299,7 @@ int iotx_dsub_shadow_create(int devid)
 		res = iotx_dmgr_get_event_method(event,&method);
 		if (res != SUCCESS_RETURN) {continue;}
 
-		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
+		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 		
 		res = _iotx_dsub_shadow_event_filter(devid,method,0);
@@ -308,14 +308,14 @@ int iotx_dsub_shadow_create(int devid)
 		method_reply = DM_malloc(strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
 		if (method_reply == NULL) {
 			DM_free(method);
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			continue;
 		}
 		memset(method_reply,0,strlen(method) + strlen(IOTX_DCS_REPLY_SUFFIX) + 1);
 		memcpy(method_reply,method,strlen(method));
 		memcpy(method_reply + strlen(method_reply),IOTX_DCS_REPLY_SUFFIX,strlen(IOTX_DCS_REPLY_SUFFIX));
 		
-		res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method_reply,product_key,device_name,(subscribe + service_event_index));
+		res = dm_utils_service_name((char *)IOTX_DCS_SYS_PREFIX,method_reply,product_key,device_name,(subscribe + service_event_index));
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 
 		dm_log_debug("Current Service Event Generate: %s",*(subscribe + service_event_index));
@@ -350,7 +350,7 @@ int iotx_dsub_shadow_next(int devid, int index)
 	void *conn = iotx_dconn_get_cloud_conn();
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -360,7 +360,7 @@ int iotx_dsub_shadow_next(int devid, int index)
 	/* Subscribe Cloud Service */
 	dm_log_debug("Current Subscribe Topic: %s",service_event);
 	res = dm_cmw_cloud_register(conn,&service_event,1,NULL);
-	if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_event),service_event);}
+	if (res == FAIL_RETURN) {dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_event),service_event);}
 
 	DM_free(service_event);
 
@@ -387,12 +387,12 @@ int iotx_dsub_local_register(void)
 		service_name = NULL;
 		if (!(dcs_topic_mapping[index].service_type & IOTX_DM_SERVICE_LOCAL)) {continue;}
 		service_auth = (dcs_topic_mapping[index].service_type & IOTX_DM_SERVICE_LOCAL_AUTH)?(IOTX_DM_MESSAGE_AUTH):(IOTX_DM_MESSAGE_NO_AUTH);
-		res = iotx_dcm_service_name((char *)dcs_topic_mapping[index].service_prefix,(char *)dcs_topic_mapping[index].service_name,product_key,device_name,&service_name);
+		res = dm_utils_service_name((char *)dcs_topic_mapping[index].service_prefix,(char *)dcs_topic_mapping[index].service_name,product_key,device_name,&service_name);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 		/* Subscribe Cloud Service */
 		res = dm_cmw_local_add_service(conn,service_name,service_auth,NULL);
-		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_LOCAL_REGISTER_FAILED,strlen(service_name),service_name);}
+		if (res == FAIL_RETURN) {dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_LOCAL_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);
 	}
 

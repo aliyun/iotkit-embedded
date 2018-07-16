@@ -130,12 +130,12 @@ int iotx_dcs_uri_prefix_sys_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *st
 	int res = 0, offset = 0;
 
 	if (uri == NULL || uri_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/*"/sys/%s/%s/"*/
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,2,&offset);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,2,&offset);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (memcmp(IOTX_DCS_SYS_PREFIX,uri,offset+1) != 0) {return FAIL_RETURN;}
@@ -151,12 +151,12 @@ int iotx_dcs_uri_prefix_ext_session_split(_IN_ char *uri, _IN_ int uri_len, _OU_
 	int res = 0, offset = 0;
 
 	if (uri == NULL || uri_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/*"/ext/session/%s/%s/"*/
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (memcmp(IOTX_DCS_EXT_SESSION_PREFIX,uri,offset+1) != 0) {return FAIL_RETURN;}
@@ -173,12 +173,12 @@ int iotx_dcs_uri_prefix_ext_ntp_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int
 	int res = 0, offset = 0;
 
 	if (uri == NULL || uri_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/*"/ext/ntp/%s/%s/"*/
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (memcmp(IOTX_DCS_EXT_NTP_PREFIX,uri,offset+1) != 0) {return FAIL_RETURN;}
@@ -195,12 +195,12 @@ int iotx_dcs_uri_pkdn_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _
 	int res = 0, offset = 0;
 
 	if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* "/pk/dn/" */
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	*start = offset;
@@ -215,12 +215,12 @@ int iotx_dcs_uri_service_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ i
 	const char *prefix = "/thing/service/";
 
 	if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* "/thing/service/%s" */
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Check "thing/service" */
@@ -240,12 +240,12 @@ int iotx_dcs_uri_event_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int
 	const char *suffix = "post_reply";
 
 	if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	/* "/thing/event/%s/post_reply" */
-	res = iotx_dcm_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
+	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,3,&offset);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Check "thing/event/" */
@@ -272,7 +272,7 @@ int iotx_dcs_topic_generic_unsubscribe(int devid)
 	iotx_dcs_topic_mapping_t *dcs_mapping = (iotx_dcs_topic_mapping_t *)g_iotx_dcs_topic_mapping;
 
 	if (devid < 0 || index < 0 || index >= sizeof(g_iotx_dcs_topic_mapping)/sizeof(iotx_dcs_topic_mapping_t)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -285,13 +285,13 @@ int iotx_dcs_topic_generic_unsubscribe(int devid)
 	for (index = 0;index < sizeof(g_iotx_dcs_topic_mapping)/sizeof(iotx_dcs_topic_mapping_t);index++) {
 		service_name = NULL;
 
-		res = iotx_dcm_service_name((char *)dcs_mapping[index].service_prefix,(char *)dcs_mapping[index].service_name,product_key,device_name,&service_name);
+		res = dm_utils_service_name((char *)dcs_mapping[index].service_prefix,(char *)dcs_mapping[index].service_name,product_key,device_name,&service_name);
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 		/* Unsubscribe Cloud Service */
 		dm_log_debug("Current Unsubscribe Topic: %s",service_name);
 		res = dm_cmw_cloud_unregister(ctx->cloud_connectivity,service_name);
-		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
+		if (res == FAIL_RETURN) {dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);
 	}
 
@@ -335,16 +335,16 @@ int iotx_dcs_topic_service_event_unsubscribe(int devid)
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 		dm_log_debug("Service Index: %d, Method: %s",index,method);
 
-		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
+		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 
-		res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,&service_name);
+		res = dm_utils_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,&service_name);
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 
 		dm_log_debug("Current Unsubscribe Topic: %s",service_name);
 
 		res = dm_cmw_cloud_unregister(ctx->cloud_connectivity,service_name);
-		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
+		if (res == FAIL_RETURN) {dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);DM_free(method);
 	}
 
@@ -360,16 +360,16 @@ int iotx_dcs_topic_service_event_unsubscribe(int devid)
 
 		dm_log_debug("TSL Event Index: %d, Method: %s",index,method);
 
-		res = iotx_dcm_replace_char(method,strlen(method),'.','/');
+		res = dm_utils_replace_char(method,strlen(method),'.','/');
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 
-		res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,&service_name);
+		res = dm_utils_service_name((char *)IOTX_DCS_SYS_PREFIX,method,product_key,device_name,&service_name);
 		if (res != SUCCESS_RETURN) {DM_free(method);return FAIL_RETURN;}
 
 		dm_log_debug("Current Unsubscribe Topic: %s",service_name);
 
 		res = dm_cmw_cloud_unregister(ctx->cloud_connectivity,service_name);
-		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
+		if (res == FAIL_RETURN) {dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);DM_free(method);
 	}
 
@@ -393,7 +393,7 @@ int iotx_dcs_get_topic_mapping_dev_type_mask(_IN_ int index, _OU_ int *dev_type_
 
 	if (index < 0 || dev_type_mask == NULL ||
 		index >= sizeof(g_iotx_dcs_topic_mapping)/sizeof(iotx_dcs_topic_mapping_t)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -632,7 +632,7 @@ void iotx_dcs_thing_sub_register_reply(iotx_cm_send_peer_t* source, iotx_cm_mess
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_SUB_REGISTER_REPLY);
 
@@ -654,7 +654,7 @@ void iotx_dcs_thing_sub_unregister_reply(iotx_cm_send_peer_t* source, iotx_cm_me
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_SUB_UNREGISTER_REPLY);
 
@@ -676,7 +676,7 @@ void iotx_dcs_thing_topo_add_reply(iotx_cm_send_peer_t* source, iotx_cm_message_
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_TOPO_ADD_REPLY);
 
@@ -698,7 +698,7 @@ void iotx_dcs_thing_topo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm_messa
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_TOPO_DELETE_REPLY);
 
@@ -719,7 +719,7 @@ void iotx_dcs_thing_topo_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_TOPO_GET_REPLY);
 
@@ -754,7 +754,7 @@ void iotx_dcs_thing_event_property_post_reply(iotx_cm_send_peer_t* source, iotx_
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_EVENT_PROPERTY_POST_REPLY);
 
@@ -774,7 +774,7 @@ void iotx_dcs_thing_event_post_reply(iotx_cm_send_peer_t* source, iotx_cm_messag
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_EVENT_POST_REPLY,"{Identifier}");
 	dm_log_debug("Current URI: %.*s",msg->URI_length,msg->URI);
@@ -796,7 +796,7 @@ void iotx_dcs_thing_deviceinfo_update_reply(iotx_cm_send_peer_t* source, iotx_cm
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_DEVICEINFO_UPDATE_REPLY);
 
@@ -816,7 +816,7 @@ void iotx_dcs_thing_deviceinfo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_DEVICEINFO_DELETE_REPLY);
 
@@ -836,7 +836,7 @@ void iotx_dcs_thing_dsltemplate_get_reply(iotx_cm_send_peer_t* source, iotx_cm_m
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_DSLTEMPLATE_GET_REPLY);
 
@@ -856,7 +856,7 @@ void iotx_dcs_thing_dynamictsl_get_reply(iotx_cm_send_peer_t* source, iotx_cm_me
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_THING_DYNAMICTSL_GET_REPLY);
 
@@ -876,7 +876,7 @@ void iotx_dcs_combine_login_reply(iotx_cm_send_peer_t* source, iotx_cm_message_i
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_COMBINE_LOGIN_REPLY);
 
@@ -898,7 +898,7 @@ void iotx_dcs_combine_logout_reply(iotx_cm_send_peer_t* source, iotx_cm_message_
 {
 	int res = 0;
 	iotx_dmsg_response_payload_t response;
-	char int_id[IOTX_DCM_UINT32_STRLEN] = {0};
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
 	dm_log_debug(IOTX_DCS_COMBINE_LOGOUT_REPLY);
 

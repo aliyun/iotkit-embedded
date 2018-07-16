@@ -1,6 +1,6 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
-#include "dm_common.h"
+#include "dm_utils.h"
 #include "dm_manager.h"
 #include "dm_shadow.h"
 #include "dm_ipc.h"

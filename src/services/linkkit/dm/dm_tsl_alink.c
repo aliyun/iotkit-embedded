@@ -51,7 +51,7 @@ static iotx_dtsl_alink_mapping_t g_iotx_dtsl_alink_mapping[] = {
 static int _iotx_dsw_get_type(_IN_ const char *name, _IN_ int name_len, _OU_ iotx_dsw_data_type_e *type)
 {
 	if (name == NULL || name_len <=0 || type == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -89,7 +89,7 @@ static int _iotx_dsw_profile_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t *r
 	memset(&lite_profile,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_PROFILE,strlen(IOTX_DSW_KEY_PROFILE),&lite_profile);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_profile)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROFILE),IOTX_DSW_KEY_PROFILE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROFILE),IOTX_DSW_KEY_PROFILE);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Profile: %.*s",lite_profile.value_length,lite_profile.value);
@@ -101,7 +101,7 @@ static int _iotx_dsw_profile_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t *r
 		memcpy(shadow->profile.product_key,lite_profile_pk.value,lite_profile_pk.value_length);
 		dm_log_debug("TSL Product Key: %.*s",lite_profile_pk.value_length,lite_profile_pk.value);
 	}else{
-		dm_log_warning(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROFILE_PK),IOTX_DSW_KEY_PROFILE_PK);
+		dm_log_warning(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROFILE_PK),IOTX_DSW_KEY_PROFILE_PK);
 		return FAIL_RETURN;
 	}
 
@@ -112,7 +112,7 @@ static int _iotx_dsw_profile_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t *r
 		memcpy(shadow->profile.device_name,lite_profile_dn.value,lite_profile_dn.value_length);
 		dm_log_debug("TSL Device name: %.*s",lite_profile_dn.value_length,lite_profile_dn.value);
 	}else{
-		dm_log_warning(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROFILE_DN),IOTX_DSW_KEY_PROFILE_DN);
+		dm_log_warning(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROFILE_DN),IOTX_DSW_KEY_PROFILE_DN);
 	}
 
 	return SUCCESS_RETURN;
@@ -159,7 +159,7 @@ static int _iotx_dsw_array_int_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN
 
 	complex_array->value = DM_malloc((complex_array->size)*(sizeof(int)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(complex_array->size)*(sizeof(int)));
@@ -181,7 +181,7 @@ static int _iotx_dsw_array_float_parse(_IN_ iotx_dsw_data_value_t *data_value, _
 
 	complex_array->value = DM_malloc((complex_array->size)*(sizeof(float)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(complex_array->size)*(sizeof(float)));
@@ -203,7 +203,7 @@ static int _iotx_dsw_array_double_parse(_IN_ iotx_dsw_data_value_t *data_value, 
 
 	complex_array->value = DM_malloc((complex_array->size)*(sizeof(double)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(complex_array->size)*(sizeof(double)));
@@ -225,7 +225,7 @@ static int _iotx_dsw_array_text_parse(_IN_ iotx_dsw_data_value_t *data_value, _I
 
 	complex_array->value = DM_malloc((complex_array->size)*(sizeof(char *)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(complex_array->size)*(sizeof(char *)));
@@ -252,7 +252,7 @@ static int _iotx_dsw_array_enum_parse(_IN_ iotx_dsw_data_value_t *data_value, _I
 
 	complex_array->value = DM_malloc((complex_array->size)*(sizeof(int)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(complex_array->size)*(sizeof(int)));
@@ -266,7 +266,7 @@ static int _iotx_dsw_array_date_parse(_IN_ iotx_dsw_data_value_t *data_value, _I
 
 	complex_array->value = DM_malloc((complex_array->size)*(sizeof(char *)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(complex_array->size)*(sizeof(char *)));
@@ -280,7 +280,7 @@ static int _iotx_dsw_array_bool_parse(_IN_ iotx_dsw_data_value_t *data_value, _I
 
 	complex_array->value = DM_malloc((complex_array->size)*(sizeof(int)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(complex_array->size)*(sizeof(int)));
@@ -292,21 +292,21 @@ static int _iotx_dsw_array_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _
 {
 	#if 0
 	int res = 0;
-	char size_str[IOTX_DCM_UINT32_STRLEN] = {0};
+	char size_str[DM_UTILS_UINT32_STRLEN] = {0};
 	lite_cjson_t lite_item,lite_type,lite_specs;
 	iotx_dsw_data_value_complex_t *complex_array = (iotx_dsw_data_value_complex_t *)data_value->value;
 	iotx_dsw_data_value_t *data_value_next_level;
 	iotx_dsw_data_value_complex_t *complex_array_next_level = NULL;
 
 	if (!lite_cjson_is_object(root)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	//Allocate Memory For Next Level Data Value And Next Level Complex Array
 	data_value_next_level = DM_malloc(sizeof(iotx_dsw_data_value_t));
 	if (data_value_next_level == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(data_value_next_level,0,sizeof(iotx_dsw_data_value_t));
@@ -315,7 +315,7 @@ static int _iotx_dsw_array_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _
 	complex_array_next_level = DM_malloc(sizeof(iotx_dsw_data_value_complex_t));
 	if (complex_array_next_level == NULL) {
 		DM_free(data_value_next_level);
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array_next_level,0,sizeof(iotx_dsw_data_value_complex_t));
@@ -326,10 +326,10 @@ static int _iotx_dsw_array_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_SIZE,strlen(IOTX_DSW_KEY_SIZE),&lite_item);
 	if (res != SUCCESS_RETURN && !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SIZE),IOTX_DSW_KEY_SIZE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SIZE),IOTX_DSW_KEY_SIZE);
 		return FAIL_RETURN;
 	}
-	if (lite_item.value_length > IOTX_DCM_UINT32_STRLEN) {return FAIL_RETURN;}
+	if (lite_item.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
 	memcpy(size_str,lite_item.value,lite_item.value_length);
 	complex_array_next_level->size = atoi(size_str);
 
@@ -339,18 +339,18 @@ static int _iotx_dsw_array_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_ITEM,strlen(IOTX_DSW_KEY_ITEM),&lite_item);
 	if (res != SUCCESS_RETURN && !lite_cjson_is_object(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_ITEM),IOTX_DSW_KEY_ITEM);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_ITEM),IOTX_DSW_KEY_ITEM);
 		return FAIL_RETURN;
 	}
 	memset(&lite_type,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite_item,IOTX_DSW_KEY_TYPE,strlen(IOTX_DSW_KEY_TYPE),&lite_type);
 	if (res != SUCCESS_RETURN && !lite_cjson_is_string(&lite_type)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_TYPE),IOTX_DSW_KEY_TYPE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_TYPE),IOTX_DSW_KEY_TYPE);
 		return FAIL_RETURN;
 	}
 	res = _iotx_dsw_get_type(lite_type.value,lite_type.value_length,&complex_array_next_level->type);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_NOT_EXIST);
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_NOT_EXIST);
 		return FAIL_RETURN;
 	}
 
@@ -359,12 +359,12 @@ static int _iotx_dsw_array_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _
 	res = lite_cjson_object_item(&lite_item,IOTX_DSW_KEY_SPECS,strlen(IOTX_DSW_KEY_SPECS),&lite_specs);
 	if ((complex_array_next_level->type == IOTX_DSW_DATA_TYPE_ARRAY || complex_array_next_level->type == IOTX_DSW_DATA_TYPE_STRUCT) &&
 		(res != SUCCESS_RETURN)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SPECS),IOTX_DSW_KEY_SPECS);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SPECS),IOTX_DSW_KEY_SPECS);
 		return FAIL_RETURN;
 	}
 
 	if (g_iotx_dtsl_alink_mapping[complex_array_next_level->type].func_array_parse == NULL) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_INVALID,lite_type.value_length,lite_type.value);
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID,lite_type.value_length,lite_type.value);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Property Specs Type: %s",g_iotx_dtsl_alink_mapping[complex_array_next_level->type].name);
@@ -384,14 +384,14 @@ static int _iotx_dsw_array_struct_parse(_IN_ iotx_dsw_data_value_t *data_value, 
 	iotx_dsw_data_t *data = NULL;
 
 	if (!lite_cjson_is_array(root) || root->size <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	complex_array->size = root->size;
 	complex_array->value = DM_malloc((root->size)*(sizeof(iotx_dsw_data_t)));
 	if (complex_array->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array->value,0,(root->size)*(sizeof(iotx_dsw_data_t)));
@@ -413,21 +413,21 @@ static int _iotx_dsw_array_struct_parse(_IN_ iotx_dsw_data_value_t *data_value, 
 static int _iotx_dsw_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ lite_cjson_t *root)
 {
 	int res = 0;
-	char size_str[IOTX_DCM_UINT32_STRLEN] = {0};
+	char size_str[DM_UTILS_UINT32_STRLEN] = {0};
 	lite_cjson_t lite_item,lite_type,lite_specs;
 	iotx_dsw_data_value_complex_t *complex_array = NULL;
 
 	dm_log_debug("IOTX_DSW_DATA_TYPE_ARRAY");
 
 	if (root == NULL || !lite_cjson_is_object(root)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	//Allocate Memory For Data Type Specs
 	complex_array = DM_malloc(sizeof(iotx_dsw_data_value_complex_t));
 	if (complex_array == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_array,0,sizeof(iotx_dsw_dtspecs_array_t));
@@ -437,10 +437,10 @@ static int _iotx_dsw_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ li
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_SIZE,strlen(IOTX_DSW_KEY_SIZE),&lite_item);
 	if (res != SUCCESS_RETURN && !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SIZE),IOTX_DSW_KEY_SIZE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SIZE),IOTX_DSW_KEY_SIZE);
 		return FAIL_RETURN;
 	}
-	if (lite_item.value_length > IOTX_DCM_UINT32_STRLEN) {return FAIL_RETURN;}
+	if (lite_item.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
 	memcpy(size_str,lite_item.value,lite_item.value_length);
 	complex_array->size = atoi(size_str);
 
@@ -450,18 +450,18 @@ static int _iotx_dsw_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ li
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_ITEM,strlen(IOTX_DSW_KEY_ITEM),&lite_item);
 	if (res != SUCCESS_RETURN && !lite_cjson_is_object(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_ITEM),IOTX_DSW_KEY_ITEM);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_ITEM),IOTX_DSW_KEY_ITEM);
 		return FAIL_RETURN;
 	}
 	memset(&lite_type,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite_item,IOTX_DSW_KEY_TYPE,strlen(IOTX_DSW_KEY_TYPE),&lite_type);
 	if (res != SUCCESS_RETURN && !lite_cjson_is_string(&lite_type)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_TYPE),IOTX_DSW_KEY_TYPE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_TYPE),IOTX_DSW_KEY_TYPE);
 		return FAIL_RETURN;
 	}
 	res = _iotx_dsw_get_type(lite_type.value,lite_type.value_length,&complex_array->type);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_NOT_EXIST);
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_NOT_EXIST);
 		return FAIL_RETURN;
 	}
 
@@ -470,12 +470,12 @@ static int _iotx_dsw_array_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ li
 	res = lite_cjson_object_item(&lite_item,IOTX_DSW_KEY_SPECS,strlen(IOTX_DSW_KEY_SPECS),&lite_specs);
 	if ((complex_array->type == IOTX_DSW_DATA_TYPE_ARRAY || complex_array->type == IOTX_DSW_DATA_TYPE_STRUCT) &&
 		(res != SUCCESS_RETURN)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SPECS),IOTX_DSW_KEY_SPECS);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SPECS),IOTX_DSW_KEY_SPECS);
 		return FAIL_RETURN;
 	}
 
 	if (g_iotx_dtsl_alink_mapping[complex_array->type].func_array_parse == NULL) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_INVALID,lite_type.value_length,lite_type.value);
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID,lite_type.value_length,lite_type.value);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Property Specs Type: %s",g_iotx_dtsl_alink_mapping[complex_array->type].name);
@@ -497,7 +497,7 @@ static int _iotx_dsw_struct_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ l
 	dm_log_debug("IOTX_DSW_DATA_TYPE_STRUCT");
 
 	if (root == NULL || !lite_cjson_is_array(root) || root->size == 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -506,7 +506,7 @@ static int _iotx_dsw_struct_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ l
 	//Allocate Memory For Data Type Specs
 	complex_struct = DM_malloc(sizeof(iotx_dsw_data_value_complex_t));
 	if (complex_struct == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_struct,0,sizeof(iotx_dsw_dtspecs_array_t));
@@ -517,7 +517,7 @@ static int _iotx_dsw_struct_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ l
 	//Allocate Memory For Multi Identifier
 	complex_struct->value = DM_malloc((complex_struct->size)*(sizeof(iotx_dsw_data_t)));
 	if (complex_struct->value == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(complex_struct->value,0,(complex_struct->size)*(sizeof(iotx_dsw_data_t)));
@@ -529,7 +529,7 @@ static int _iotx_dsw_struct_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ l
 
 		res = lite_cjson_array_item(root,index,&lite_item);
 		if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
-			dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,root->value_length,root->value);
+			dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,root->value_length,root->value);
 			return FAIL_RETURN;
 		}
 		dm_log_debug("TSL Property Struct Property: %.*s",lite_item.value_length,lite_item.value);
@@ -551,13 +551,13 @@ static int _iotx_dsw_data_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ lit
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_TYPE,strlen(IOTX_DSW_KEY_TYPE),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_TYPE),IOTX_DSW_KEY_TYPE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_TYPE),IOTX_DSW_KEY_TYPE);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Data Type: %.*s",lite_item.value_length,lite_item.value);
 	res = _iotx_dsw_get_type(lite_item.value,lite_item.value_length,&data_value->type);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_NOT_EXIST);
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_NOT_EXIST);
 		return FAIL_RETURN;
 	}
 
@@ -570,7 +570,7 @@ static int _iotx_dsw_data_parse(_IN_ iotx_dsw_data_value_t *data_value, _IN_ lit
 
 	//Parse Type And Value
 	if (g_iotx_dtsl_alink_mapping[data_value->type].func_parse == NULL) {
-		dm_log_err(IOTX_DM_LOG_DATA_TYPE_HAS_NO_PARSE_FUNC,
+		dm_log_err(DM_UTILS_LOG_DATA_TYPE_HAS_NO_PARSE_FUNC,
 			strlen(g_iotx_dtsl_alink_mapping[data_value->type].name),g_iotx_dtsl_alink_mapping[data_value->type].name);
 		return FAIL_RETURN;
 	}
@@ -589,10 +589,10 @@ static int _iotx_dsw_property_parse(_IN_ iotx_dsw_data_t *property, _IN_ lite_cj
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_IDENTIFIER,strlen(IOTX_DSW_KEY_IDENTIFIER),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
 		return FAIL_RETURN;
 	}
-	res = iotx_dcm_copy(lite_item.value,lite_item.value_length,(void **)(&property->identifier),lite_item.value_length + 1);
+	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)(&property->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Property Identifier: %s",property->identifier);
 
@@ -600,7 +600,7 @@ static int _iotx_dsw_property_parse(_IN_ iotx_dsw_data_t *property, _IN_ lite_cj
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_DATATYPE,strlen(IOTX_DSW_KEY_DATATYPE),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Property Data Type: %.*s",lite_item.value_length,lite_item.value);
@@ -622,7 +622,7 @@ static int _iotx_dsw_properties_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t
 			dm_log_debug("TSL Properties: %.*s, size: %d",
 			lite_properties.value_length,lite_properties.value,lite_properties.size);
 		}else{
-			dm_log_warning(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROPERTIES),IOTX_DSW_KEY_PROPERTIES);
+			dm_log_warning(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_PROPERTIES),IOTX_DSW_KEY_PROPERTIES);
 			return FAIL_RETURN;
 		}
 	}else{
@@ -636,7 +636,7 @@ static int _iotx_dsw_properties_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t
 	shadow->property_number = lite_properties.size;
 	shadow->properties = DM_malloc(sizeof(iotx_dsw_data_t)*(lite_properties.size));
 	if (shadow->properties == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(shadow->properties,0,sizeof(iotx_dsw_data_t)*(lite_properties.size));
@@ -662,7 +662,7 @@ static int _iotx_dsw_data_array_search(_IN_ iotx_dsw_data_t *input, _IN_ int inp
 	iotx_dsw_data_value_complex_t *complex_struct = (iotx_dsw_data_value_complex_t *)input->data_value.value;
 	dm_log_debug("Current Key: %s, Len: %d",key,key_len);
 	dm_log_debug("Current Item Identifier: %s",input->identifier);
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
 	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
 
 	switch(complex_struct->type)
@@ -700,11 +700,11 @@ static int _iotx_dsw_data_struct_search(_IN_ iotx_dsw_data_t *input,_IN_ char *k
 
 	iotx_dsw_data_value_complex_t *complex_struct = (iotx_dsw_data_value_complex_t *)input->data_value.value;
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
 	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
 
 	partial_offset = deli_offset;
-	res = iotx_dcm_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
+	res = dm_utils_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Current Index: %d",array_index);
 		partial_offset = partial_input_len;
@@ -761,15 +761,15 @@ static int _iotx_dsw_data_search(_IN_ iotx_dsw_data_t *input,_IN_ char *key,
 	int partial_input_len = 0, array_input_len = 0, array_index = 0;
 
 	if (input == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
+	res = dm_utils_memtok(key,key_len,IOTX_DSW_KEY_DELIMITER,1,&deli_offset);
 	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
 
 	partial_offset = deli_offset;
-	res = iotx_dcm_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
+	res = dm_utils_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Current Index: %d",array_index);
 		partial_offset = partial_input_len;
@@ -827,12 +827,12 @@ static int _iotx_dsw_property_search(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
 	iotx_dsw_data_t *property_item = NULL;
 
 	if (shadow == NULL || key == NULL || key_len <=0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	if (shadow->property_number == 0 || shadow->properties == NULL) {
-		dm_log_err(IOTX_DM_LOG_TSL_PROPERTY_NOT_EXIST,key_len,key);
+		dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_NOT_EXIST,key_len,key);
 		return FAIL_RETURN;
 	}
 
@@ -854,10 +854,10 @@ static int _iotx_dsw_event_outputdata_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_d
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_IDENTIFIER,strlen(IOTX_DSW_KEY_IDENTIFIER),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
 		return FAIL_RETURN;
 	}
-	res = iotx_dcm_copy(lite_item.value,lite_item.value_length,(void **)&(event_data->identifier),lite_item.value_length + 1);
+	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)&(event_data->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Ouput Event Identifier: %s",event_data->identifier);
 
@@ -870,7 +870,7 @@ static int _iotx_dsw_event_outputdata_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_d
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_DATATYPE,strlen(IOTX_DSW_KEY_DATATYPE),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Output Event Data Type: %.*s",lite_item.value_length,lite_item.value);
@@ -892,7 +892,7 @@ static int _iotx_dsw_event_outputdatas_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_
 	//Allocate Memory For Output Datas
 	event->output_datas = DM_malloc((event->output_data_number)*(sizeof(iotx_dsw_data_t)));
 	if (event->output_datas == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(event->output_datas,0,(event->output_data_number)*(sizeof(iotx_dsw_data_t)));
@@ -921,10 +921,10 @@ static int _iotx_dsw_event_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_dsw_event_t 
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_IDENTIFIER,strlen(IOTX_DSW_KEY_IDENTIFIER),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
 		return FAIL_RETURN;
 	}
-	res = iotx_dcm_copy(lite_item.value,lite_item.value_length,(void **)(&event->identifier),lite_item.value_length + 1);
+	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)(&event->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Event Identifier: %s",event->identifier);
 
@@ -932,7 +932,7 @@ static int _iotx_dsw_event_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_dsw_event_t 
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_OUTPUTDATA,strlen(IOTX_DSW_KEY_OUTPUTDATA),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_OUTPUTDATA),IOTX_DSW_KEY_OUTPUTDATA);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_OUTPUTDATA),IOTX_DSW_KEY_OUTPUTDATA);
 	}
 	event->output_data_number = lite_item.size;
 	res = _iotx_dsw_event_outputdatas_parse(shadow,event,&lite_item);
@@ -954,7 +954,7 @@ static int _iotx_dsw_events_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t *ro
 			lite_events.value_length,lite_events.value,lite_events.size);
 			dm_log_debug("TSL Events: size: %d",lite_events.size);
 		}else{
-			dm_log_warning(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_EVENTS),IOTX_DSW_KEY_EVENTS);
+			dm_log_warning(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_EVENTS),IOTX_DSW_KEY_EVENTS);
 			return FAIL_RETURN;
 		}
 	}else{
@@ -969,7 +969,7 @@ static int _iotx_dsw_events_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t *ro
 	shadow->event_number = lite_events.size;
 	shadow->events = DM_malloc(sizeof(iotx_dsw_event_t)*(lite_events.size));
 	if (shadow->events == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(shadow->events,0,sizeof(iotx_dsw_event_t)*(lite_events.size));
@@ -995,10 +995,10 @@ static int _iotx_dsw_service_outputdata_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_IDENTIFIER,strlen(IOTX_DSW_KEY_IDENTIFIER),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
 		return FAIL_RETURN;
 	}
-	res = iotx_dcm_copy(lite_item.value,lite_item.value_length,(void **)&(service_data->identifier),lite_item.value_length + 1);
+	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)&(service_data->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Ouput Service Identifier: %s",service_data->identifier);
 
@@ -1011,7 +1011,7 @@ static int _iotx_dsw_service_outputdata_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_DATATYPE,strlen(IOTX_DSW_KEY_DATATYPE),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Output Service Data Type: %.*s",lite_item.value_length,lite_item.value);
@@ -1033,7 +1033,7 @@ static int _iotx_dsw_service_outputdatas_parse(_IN_ iotx_dsw_t *shadow, _IN_ iot
 	//Allocate Memory For Output Datas
 	service->output_datas = DM_malloc((service->output_data_number)*(sizeof(iotx_dsw_data_t)));
 	if (service->output_datas == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(service->output_datas,0,(service->output_data_number)*(sizeof(iotx_dsw_data_t)));
@@ -1058,11 +1058,11 @@ static int _iotx_dsw_service_inputdata_get_parse(_IN_ iotx_dsw_t *shadow, _IN_ i
 	int res = 0;
 
 	if (!lite_cjson_is_string(root)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dcm_copy(root->value,root->value_length,(void **)&(input_data->identifier),root->value_length + 1);
+	res = dm_utils_copy(root->value,root->value_length,(void **)&(input_data->identifier),root->value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	dm_log_debug("TSL Service InputData Identifier: %s",input_data->identifier);
@@ -1076,7 +1076,7 @@ static int _iotx_dsw_service_inputdata_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_
 	lite_cjson_t lite_item;
 
 	if (!lite_cjson_is_object(root)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1084,10 +1084,10 @@ static int _iotx_dsw_service_inputdata_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_IDENTIFIER,strlen(IOTX_DSW_KEY_IDENTIFIER),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
 		return FAIL_RETURN;
 	}
-	res = iotx_dcm_copy(lite_item.value,lite_item.value_length,(void **)&(input_data->identifier),lite_item.value_length + 1);
+	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)&(input_data->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Input Service Identifier: %s",input_data->identifier);
 
@@ -1100,7 +1100,7 @@ static int _iotx_dsw_service_inputdata_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_DATATYPE,strlen(IOTX_DSW_KEY_DATATYPE),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_DATATYPE),IOTX_DSW_KEY_DATATYPE);
 		return FAIL_RETURN;
 	}
 	dm_log_debug("TSL Input Service Data Type: %.*s",lite_item.value_length,lite_item.value);
@@ -1122,7 +1122,7 @@ static int _iotx_dsw_service_inputdatas_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx
 	//Allocate Memory For Output Datas
 	service->input_datas = DM_malloc((service->input_data_number)*(sizeof(iotx_dsw_data_t)));
 	if (service->input_datas == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(service->input_datas,0,(service->input_data_number)*(sizeof(iotx_dsw_data_t)));
@@ -1157,10 +1157,10 @@ static int _iotx_dsw_service_parse(_IN_ iotx_dsw_t *shadow, _IN_ iotx_dsw_servic
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,IOTX_DSW_KEY_IDENTIFIER,strlen(IOTX_DSW_KEY_IDENTIFIER),&lite_item);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_IDENTIFIER),IOTX_DSW_KEY_IDENTIFIER);
 		return FAIL_RETURN;
 	}
-	res = iotx_dcm_copy(lite_item.value,lite_item.value_length,(void **)(&service->identifier),lite_item.value_length + 1);
+	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)(&service->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Service Identifier: %s",service->identifier);
 
@@ -1203,7 +1203,7 @@ static int _iotx_dsw_services_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t *
 			lite_services.value_length,lite_services.value);
 			dm_log_debug("TSL Services: size: %d",lite_services.size);
 		}else{
-			dm_log_warning(IOTX_DM_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SERVICES),IOTX_DSW_KEY_SERVICES);
+			dm_log_warning(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(IOTX_DSW_KEY_SERVICES),IOTX_DSW_KEY_SERVICES);
 			return FAIL_RETURN;
 		}
 	}else{
@@ -1217,7 +1217,7 @@ static int _iotx_dsw_services_parse(_IN_ iotx_dsw_t *shadow, _IN_ lite_cjson_t *
 	shadow->service_number = lite_services.size;
 	shadow->services = DM_malloc(sizeof(iotx_dsw_service_t)*(lite_services.size));
 	if (shadow->services == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(shadow->services,0,sizeof(iotx_dsw_service_t)*(lite_services.size));
@@ -1243,13 +1243,13 @@ int iotx_dtsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ iotx_dsw
 	lite_cjson_t lite_root;
 
 	if (shadow == NULL || *shadow != NULL || tsl == NULL || tsl_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	*shadow = DM_malloc(sizeof(iotx_dsw_t));
 	if (*shadow == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(*shadow,0,sizeof(iotx_dsw_t));
@@ -1258,7 +1258,7 @@ int iotx_dtsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ iotx_dsw
 	memset(&lite_root,0,sizeof(lite_root));
 	res = lite_cjson_parse(tsl,tsl_len,&lite_root);
 	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_root)) {
-		dm_log_err(IOTX_DM_LOG_JSON_PARSE_FAILED,tsl_len,tsl);
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,tsl_len,tsl);
 		DM_free(*shadow);
 		return FAIL_RETURN;
 	}

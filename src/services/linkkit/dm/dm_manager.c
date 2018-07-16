@@ -80,7 +80,7 @@ static int _iotx_dmgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -89,7 +89,7 @@ static int _iotx_dmgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product
 	
 	node = DM_malloc(sizeof(iotx_dmgr_dev_node_t));
 	if (node == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(node,0,sizeof(iotx_dmgr_dev_node_t));
@@ -132,10 +132,10 @@ static int _iotx_dmgr_legacy_thing_created(int devid)
 	const char *thing_created_fmt = "{\"devid\":%d}";
 	char *message = NULL;
 	
-	message_len = strlen(thing_created_fmt) + IOTX_DCM_UINT32_STRLEN + 1;
+	message_len = strlen(thing_created_fmt) + DM_UTILS_UINT32_STRLEN + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
@@ -162,7 +162,7 @@ int iotx_dmgr_init(void)
 	/* Create Mutex */
 	ctx->mutex = HAL_MutexCreate();
 	if (ctx->mutex == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		goto ERROR;
 	}
 
@@ -210,7 +210,7 @@ int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY
 	if (product_key == NULL || device_name == NULL ||
 		strlen(product_key) >= PRODUCT_KEY_MAXLEN ||
 		strlen(device_name) >= DEVICE_NAME_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -222,7 +222,7 @@ int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY
 	
 	node = DM_malloc(sizeof(iotx_dmgr_dev_node_t));
 	if (node == NULL) {
-		dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(node,0,sizeof(iotx_dmgr_dev_node_t));
@@ -251,7 +251,7 @@ int iotx_dmgr_device_destroy(_IN_ int devid)
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -259,7 +259,7 @@ int iotx_dmgr_device_destroy(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	if (node->devid == IOTX_DM_LOCAL_NODE_DEVID) {
-		dm_log_warning(IOTX_DM_LOG_DMGR_DELETE_DEVICE_ITSELF);
+		dm_log_warning(DM_UTILS_LOG_DMGR_DELETE_DEVICE_ITSELF);
 		return FAIL_RETURN;
 	}
 
@@ -291,7 +291,7 @@ int iotx_dmgr_get_devid_by_index(_IN_ int index, _OU_ int *devid)
 	iotx_dmgr_dev_node_t *search_node = NULL;
 
 	if (index < 0 || devid == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -313,7 +313,7 @@ int iotx_dmgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
 	iotx_dmgr_dev_node_t *next_node = NULL;
 
 	if (devid < 0 || devid_next == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -337,7 +337,7 @@ int iotx_dmgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODU
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (product_key == NULL || device_name == NULL || device_secret == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -357,7 +357,7 @@ int iotx_dmgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (product_key == NULL || device_name == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -387,7 +387,7 @@ int iotx_dmgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid)
 	iotx_dmgr_dev_node_t *search_node = (iotx_dmgr_dev_node_t *)node;
 	
 	if (node == NULL || devid == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -402,7 +402,7 @@ int iotx_dmgr_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_sourc
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || tsl_source < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -420,7 +420,7 @@ int iotx_dmgr_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_sour
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || tsl_source == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -438,7 +438,7 @@ int iotx_dmgr_get_shadow(_IN_ int devid, void **shadow)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || shadow == NULL || *shadow != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -456,7 +456,7 @@ int iotx_dmgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type)
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || dev_type == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -474,7 +474,7 @@ int iotx_dmgr_set_dev_enable(_IN_ int devid)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -492,7 +492,7 @@ int iotx_dmgr_set_dev_disable(_IN_ int devid)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -512,7 +512,7 @@ int iotx_dmgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 	if (product_key == NULL || device_name == NULL || status == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
 		(strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -530,7 +530,7 @@ int iotx_dmgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status)
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -548,7 +548,7 @@ int iotx_dmgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || status == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -566,7 +566,7 @@ int iotx_dmgr_set_dev_sub_generic_index(_IN_ int devid, _IN_ int index)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -589,7 +589,7 @@ int iotx_dmgr_get_dev_sub_generic_index(_IN_ int devid, _OU_ int *index)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -609,7 +609,7 @@ int iotx_dmgr_set_dev_sub_service_event(_IN_ int devid, _IN_ int number, _IN_ ch
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number <= 0 || service_event == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -631,7 +631,7 @@ int iotx_dmgr_set_dev_sub_service_event_index(_IN_ int devid, _IN_ int index)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -651,7 +651,7 @@ int iotx_dmgr_get_dev_sub_service_event_number(_IN_ int devid, _OU_ int *number)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -671,7 +671,7 @@ int iotx_dmgr_get_dev_sub_service_event_index(_IN_ int devid, _OU_ int *index)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -692,7 +692,7 @@ int iotx_dmgr_get_dev_sub_service_event(_IN_ int devid, _IN_ int index, _OU_ cha
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0 || service_event == NULL || *service_event != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -705,7 +705,7 @@ int iotx_dmgr_get_dev_sub_service_event(_IN_ int devid, _IN_ int index, _OU_ cha
 		if (service_event_refer == NULL) {return FAIL_RETURN;}
 		*service_event = DM_malloc(strlen(service_event_refer) + 1);
 		if (*service_event == NULL) {
-			dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+			dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 			_iotx_dmgr_mutex_unlock();
 			return FAIL_RETURN;
 		}
@@ -761,7 +761,7 @@ void iotx_dmgr_dev_sub_status_check(void)
 			if (current_time - node->sub_status.ctime >= IOTX_DMGR_DEV_SUB_TIMEOUT_MS) {
 				node->sub_status.ctime = current_time;
 				dm_log_debug("Retry Generic Subscribe, devid: %d, index: %d",node->devid,node->sub_status.generic_index);
-				 res = iotx_dcm_service_name((char *)dcs_mapping[node->sub_status.generic_index].service_prefix,
+				 res = dm_utils_service_name((char *)dcs_mapping[node->sub_status.generic_index].service_prefix,
                                                                                       (char *)dcs_mapping[node->sub_status.generic_index].service_name,
                                                                                       node->product_key,node->device_name,&service_name);
 				if (res != SUCCESS_RETURN) {continue;}
@@ -793,13 +793,13 @@ int iotx_dmgr_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, i
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (tsl == NULL || tsl_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {
-		dm_log_err(IOTX_DM_LOG_DMGR_DEVICE_NOT_FOUND,devid);
+		dm_log_err(DM_UTILS_LOG_DMGR_DEVICE_NOT_FOUND,devid);
 		return FAIL_RETURN;
 	}
 
@@ -815,7 +815,7 @@ int iotx_dmgr_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || product_key == NULL || strlen(product_key) >= PRODUCT_KEY_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -833,7 +833,7 @@ int iotx_dmgr_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || device_name == NULL || strlen(device_name) >= DEVICE_NAME_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -852,7 +852,7 @@ int iotx_dmgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_S
 
 	if (devid < 0 || device_secret == NULL ||
 		strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -871,7 +871,7 @@ int iotx_dmgr_get_device_secret(_IN_ int devid, _OU_ char device_secret[DEVICE_S
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || device_secret == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -889,7 +889,7 @@ int iotx_dmgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -908,7 +908,7 @@ int iotx_dmgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int ke
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -927,7 +927,7 @@ int iotx_dmgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int k
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -946,7 +946,7 @@ int iotx_dmgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (key == NULL || key_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -962,7 +962,7 @@ int iotx_dmgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key
 int iotx_dmgr_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type)
 {
 	if (data == NULL || type == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -975,7 +975,7 @@ int iotx_dmgr_get_property_number(_IN_ int devid, _OU_ int *number)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -992,7 +992,7 @@ int iotx_dmgr_get_service_number(_IN_ int devid, _OU_ int *number)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1008,7 +1008,7 @@ int iotx_dmgr_get_event_number(_IN_ int devid, _OU_ int *number)
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || number == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1024,7 +1024,7 @@ int iotx_dmgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1040,7 +1040,7 @@ int iotx_dmgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **s
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1056,7 +1056,7 @@ int iotx_dmgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **eve
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || index < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1072,7 +1072,7 @@ int iotx_dmgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || identifier == NULL || service == NULL || *service != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
@@ -1087,7 +1087,7 @@ int iotx_dmgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || identifier == NULL || event == NULL || *event != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1100,7 +1100,7 @@ int iotx_dmgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU
 int iotx_dmgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
 {
 	if (property == NULL || identifier == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1110,7 +1110,7 @@ int iotx_dmgr_get_property_identifier(_IN_ void *property, _OU_ char **identifie
 int iotx_dmgr_get_service_method(_IN_ void *service, _OU_ char **method)
 {
 	if (service == NULL || method == NULL || *method != NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -1120,7 +1120,7 @@ int iotx_dmgr_get_service_method(_IN_ void *service, _OU_ char **method)
 int iotx_dmgr_get_event_method(_IN_ void *event, _OU_ char **method)
 {
 	if (event == NULL || method == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -1133,7 +1133,7 @@ int iotx_dmgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_le
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
@@ -1152,7 +1152,7 @@ int iotx_dmgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_le
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1171,7 +1171,7 @@ int iotx_dmgr_set_event_output_value(_IN_ int devid, _IN_ char * key,_IN_ int ke
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1190,7 +1190,7 @@ int iotx_dmgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int ke
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1209,7 +1209,7 @@ int iotx_dmgr_set_service_input_value(_IN_ int devid, _IN_ char * key,_IN_ int k
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1228,7 +1228,7 @@ int iotx_dmgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int k
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1247,7 +1247,7 @@ int iotx_dmgr_set_service_output_value(_IN_ int devid, _IN_ char * key,_IN_ int 
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1266,7 +1266,7 @@ int iotx_dmgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int 
 	iotx_dmgr_dev_node_t *node = NULL;
 
 	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1285,7 +1285,7 @@ int iotx_dmgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int 
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1304,7 +1304,7 @@ int iotx_dmgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ 
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1323,7 +1323,7 @@ int iotx_dmgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN
 	iotx_dmgr_dev_node_t *node = NULL;
 	
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1343,7 +1343,7 @@ int iotx_dmgr_upstream_thing_sub_register(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1385,7 +1385,7 @@ int iotx_dmgr_upstream_thing_sub_unregister(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1427,7 +1427,7 @@ int iotx_dmgr_upstream_thing_topo_add(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1469,7 +1469,7 @@ int iotx_dmgr_upstream_thing_topo_delete(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1548,7 +1548,7 @@ int iotx_dmgr_upstream_thing_list_found(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1590,7 +1590,7 @@ int iotx_dmgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1638,7 +1638,7 @@ int iotx_dmgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _
 
 	if (devid < 0 || identifier == NULL || identifier_len <= 0 || 
 		method == NULL || payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1648,7 +1648,7 @@ int iotx_dmgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _
 	service_name_len = strlen(IOTX_DCS_THING_EVENT_POST) + identifier_len + 1;
 	service_name = DM_malloc(service_name_len);
 	if (service_name == NULL) {
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(service_name,0,service_name_len);
@@ -1694,7 +1694,7 @@ int iotx_dmgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payloa
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1736,7 +1736,7 @@ int iotx_dmgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payloa
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1778,7 +1778,7 @@ int iotx_dmgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1820,7 +1820,7 @@ int iotx_dmgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1862,7 +1862,7 @@ int iotx_dmgr_upstream_combine_login(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1904,7 +1904,7 @@ int iotx_dmgr_upstream_combine_logout(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1947,7 +1947,7 @@ int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _I
 	iotx_dmsg_request_t request;
 
 	if (devid < 0 || payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -1961,14 +1961,14 @@ int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _I
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
 
 	/* Request URI */
-	res = iotx_dcm_service_name(request.service_prefix,request.service_name,
+	res = dm_utils_service_name(request.service_prefix,request.service_name,
 								request.product_key,request.device_name,&uri);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	cloud_payload = DM_malloc(payload_len + 1);
 	if (cloud_payload == NULL) {
 		DM_free(uri);
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(cloud_payload,0,payload_len + 1);
@@ -1977,7 +1977,7 @@ int iotx_dmgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _I
 	res = dm_cmw_send_to_all(uri,cloud_payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(cloud_payload);
-		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
 		return FAIL_RETURN;
 	}
 
@@ -1999,7 +1999,7 @@ int iotx_dmgr_upstream_ntp_request(void)
 	HAL_GetDeviceName(request.device_name);
 
 	/* Request URI */
-	res = iotx_dcm_service_name(request.service_prefix,request.service_name,
+	res = dm_utils_service_name(request.service_prefix,request.service_name,
 								request.product_key,request.device_name,&uri);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
@@ -2007,7 +2007,7 @@ int iotx_dmgr_upstream_ntp_request(void)
 	cloud_payload = DM_malloc(payload_len + 1);
 	if (cloud_payload == NULL) {
 		DM_free(uri);
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(cloud_payload,0,payload_len + 1);
@@ -2017,7 +2017,7 @@ int iotx_dmgr_upstream_ntp_request(void)
 	res = dm_cmw_send_to_all(uri,(char *)ntp_request_fmt,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);//DM_free(cloud_payload);
-		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
 		return FAIL_RETURN;
 	}
 
@@ -2038,7 +2038,7 @@ int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _I
 
 	if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0 ||
 		payload == NULL || payload_len <= 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
@@ -2046,7 +2046,7 @@ int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _I
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	/* Response Msg ID */
-	res = iotx_dcm_itoa(msgid,&msgid_str);
+	res = dm_utils_itoa(msgid,&msgid_str);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	request.id.value = msgid_str;
 	request.id.value_length = strlen(msgid_str);
@@ -2056,7 +2056,7 @@ int iotx_dmgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _I
 	service_name = DM_malloc(service_name_len);
 	if (service_name == NULL) {
 		DM_free(msgid_str);
-		dm_log_err(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(service_name,0,service_name_len);
@@ -2083,7 +2083,7 @@ int iotx_dmgr_upstream_thing_lan_prefix_get(_IN_ int devid)
 	iotx_dmsg_request_t request;
 
 	if (devid < 0) {
-		dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
