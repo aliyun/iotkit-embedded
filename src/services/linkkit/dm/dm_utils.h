@@ -1,5 +1,5 @@
-#ifndef _DM_UTILS_COMMON_H_
-#define _DM_UTILS_COMMON_H_
+#ifndef _DM_UTILS_H_
+#define _DM_UTILS_H_
 
 #include "iotx_dm_internal.h"
 

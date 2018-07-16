@@ -988,7 +988,7 @@ void iotx_dcs_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 {
 	dm_log_info("IOTX_CM_EVENT_CLOUD_CONNECTED");
 
-	iotx_dconn_set_cloud_conn_state(1);
+	dm_conn_set_cloud_conn_state(1);
 	
 	/* Re-Subscribe Topic */
 	/* Start From Subscribe Generic Topic */
@@ -999,7 +999,7 @@ void iotx_dcs_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 	iotx_dmgr_set_dev_sub_service_event_index(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DMGR_DEV_SUB_START);
 
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
-	dm_cmw_local_init_second(iotx_dconn_get_local_conn());
+	dm_cmw_local_init_second(dm_conn_get_local_conn());
 #endif
 
 	iotx_dmsg_cloud_connected();
@@ -1009,7 +1009,7 @@ void iotx_dcs_event_cloud_disconnect_handler(void* pcontext, iotx_cm_event_msg_t
 {
 	dm_log_info("IOTX_CM_EVENT_CLOUD_DISCONNECT");
 
-	iotx_dconn_set_cloud_conn_state(0);
+	dm_conn_set_cloud_conn_state(0);
 
 	iotx_dmsg_cloud_disconnect();
 }
@@ -1018,7 +1018,7 @@ void iotx_dcs_event_cloud_reconnect_handler(void* pcontext, iotx_cm_event_msg_t*
 {
 	dm_log_info("IOTX_CM_EVENT_CLOUD_RECONNECT");
 
-	iotx_dconn_set_cloud_conn_state(1);
+	dm_conn_set_cloud_conn_state(1);
 	
 	iotx_dmsg_cloud_reconnect();
 }
@@ -1027,7 +1027,7 @@ void iotx_dcs_event_local_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 {
 	dm_log_info("IOTX_CM_EVENT_LOCAL_CONNECTED");
 
-	iotx_dconn_set_local_conn_state(1);
+	dm_conn_set_local_conn_state(1);
 
 	iotx_dsub_local_register();
 
@@ -1038,7 +1038,7 @@ void iotx_dcs_event_local_disconnect_handler(void* pcontext, iotx_cm_event_msg_t
 {
 	dm_log_info("IOTX_CM_EVENT_LOCAL_DISCONNECT");
 		
-	iotx_dconn_set_local_conn_state(0);
+	dm_conn_set_local_conn_state(0);
 
 	_iotx_dmsg_send_to_user(IOTX_DM_EVENT_LOCAL_DISCONNECT,NULL);
 }
@@ -1047,7 +1047,7 @@ void iotx_dcs_event_local_reconnect_handler(void* pcontext, iotx_cm_event_msg_t*
 {
 	dm_log_info("IOTX_CM_EVENT_LOCAL_RECONNECT");
 
-	iotx_dconn_set_local_conn_state(1);
+	dm_conn_set_local_conn_state(1);
 
 	_iotx_dmsg_send_to_user(IOTX_DM_EVENT_LOCAL_RECONNECT,NULL);
 }

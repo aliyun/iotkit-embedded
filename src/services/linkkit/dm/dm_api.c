@@ -94,7 +94,7 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 	}
 
 	/* DM Connect Module Init */
-	res = iotx_dconn_init();
+	res = dm_conn_init();
 	if (res != SUCCESS_RETURN) {
 		dm_log_err(DM_UTILS_LOG_CM_INIT_FAILED);
 		goto ERROR;
@@ -103,7 +103,7 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 	return SUCCESS_RETURN;
 
 ERROR:
-	iotx_dconn_deinit();
+	dm_conn_deinit();
 	dm_cmw_deinit();
 	iotx_dmgr_deinit();
 	iotx_dipc_deinit();
@@ -116,7 +116,7 @@ ERROR:
 int iotx_dm_destroy(void)
 {
 	dm_api_ctx_t *ctx = _dm_api_get_ctx();
-	iotx_dconn_deinit();
+	dm_conn_deinit();
 	dm_cmw_deinit();
 	iotx_dmgr_deinit();
 	iotx_dipc_deinit();

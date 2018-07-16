@@ -12,7 +12,7 @@ static int _iotx_dsub_filter(int devid, int index, int unsub)
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
-	void *conn = iotx_dconn_get_cloud_conn();
+	void *conn = dm_conn_get_cloud_conn();
 	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
 
 	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
@@ -64,7 +64,7 @@ static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	char device_secret[DEVICE_SECRET_MAXLEN] = {0};
-	void *conn = iotx_dconn_get_cloud_conn();
+	void *conn = dm_conn_get_cloud_conn();
 
 	res = iotx_dmgr_search_device_by_devid(devid,product_key,device_name,device_secret);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
@@ -104,7 +104,7 @@ static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 int iotx_dsub_multi(_IN_ char **subscribe, _IN_ int count)
 {
 	int res = 0;
-	void *conn = iotx_dconn_get_cloud_conn();
+	void *conn = dm_conn_get_cloud_conn();
 
 	if (subscribe == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -131,7 +131,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	char **subscribe = 0;
 	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
 	int dcs_mapping_size = iotx_dcs_get_topic_mapping_size();
-	void *conn = iotx_dconn_get_cloud_conn();
+	void *conn = dm_conn_get_cloud_conn();
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -347,7 +347,7 @@ int iotx_dsub_shadow_next(int devid, int index)
 {
 	int res = 0;
 	char *service_event = NULL;
-	void *conn = iotx_dconn_get_cloud_conn();
+	void *conn = dm_conn_get_cloud_conn();
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -376,7 +376,7 @@ int iotx_dsub_local_register(void)
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	char *service_name = NULL;
-	void *conn = iotx_dconn_get_local_conn();
+	void *conn = dm_conn_get_local_conn();
 	iotx_dcs_topic_mapping_t *dcs_topic_mapping = iotx_dcs_get_topic_mapping();
 
 	HAL_GetProductKey(product_key);
