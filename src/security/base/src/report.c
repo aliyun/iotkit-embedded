@@ -92,7 +92,7 @@ int iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData)
     */
     int ret;
     ret = HAL_Snprintf(msg,
-                       MIDREPORT_PAYLOAD_LEN,
+                       AOS_VERSON_MSG_LEN,
                        "{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}],\"method\":\"thing.deviceinfo.update\"}",
                        requestId,
                        versionData
@@ -137,11 +137,18 @@ int iotx_get_aos_hex_version(char *str, char hex[4])
 
 #undef AOS_IMPLEMENT_DEMO
 #ifdef AOS_IMPLEMENT_DEMO
-int aos_get_version_info(unsigned char version_num[4], unsigned char random_num[4], unsigned char mac_address[4], unsigned char chip_code[4], unsigned char *output_buffer, int output_buffer_size)
+unsigned int aos_get_version_info(unsigned char version_num[4], unsigned char random_num[4], unsigned char mac_address[4], unsigned char chip_code[4], unsigned char *output_buffer, unsigned int output_buffer_size)
 {
     strncpy((char *)output_buffer, "01234567890123456789", 21);
     return 0;
 }
+
+const char *aos_get_kernel_version(void)
+{
+    return "AOS-R-1.3.0";
+}
+
+
 #endif
 
 

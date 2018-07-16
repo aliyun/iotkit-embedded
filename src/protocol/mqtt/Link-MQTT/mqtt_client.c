@@ -2537,14 +2537,24 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-extern int aos_get_version_info(unsigned char version_num[4], unsigned char random_num[4], unsigned char mac_address[4], unsigned char chip_code[4], unsigned char *output_buffer, int output_buffer_size) __attribute__((weak));
+// aos will implement this function
+extern unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], unsigned char chip_code[CHIP_CODE_SIZE], 
+                                          unsigned char *output_buffer, unsigned int output_buffer_size) __attribute__((weak));
+// aos will implement this function
+extern const char *aos_get_kernel_version(void) __attribute__((weak));
+
+char* __attribute__((weak)) HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
+{
+    strcpy(mac_str, "\x01\x02\x03\x04\x05\x06\x07");
+    return mac_str;
+}
+
 /* Report AOS Version */
 static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
 {
     int ret = 0;
     int i;
     char mac[8] = {0};
-    char version_str[AOS_VERSION_LEN_MAX];
     char version[4] = {0};
     char random_num[4];
     char chip_code[4] = {0};
@@ -2561,9 +2571,13 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     
     mqtt_info("aos version report started in MQTT");
 
+    if (!aos_get_kernel_version) {
+        mqtt_info("aos can't get kernel version");
+        return FAIL_RETURN;
+    }
+
     // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
-    HAL_GetAosKernelVersoin(version_str);
-    ret = iotx_get_aos_hex_version(version_str, version);
+    ret = iotx_get_aos_hex_version((char*)aos_get_kernel_version(), version);
     if (-1 == ret) {
         mqtt_err("Get AOS kernel version failed");
         return FAIL_RETURN;
@@ -2571,11 +2585,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     mqtt_info("aos version = %d.%d.%d.%d", version[0], version[1], version[2], version[3]);
 
     // Get Mac address
-    ret = HAL_GetMacAddr(mac);
-    if (ret <= 0) {
-        mqtt_err("get mac attr failed");
-        return FAIL_RETURN;
-    }
+    HAL_Wifi_Get_Mac(mac);
     mqtt_info("mac addr = %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     // Get Random
@@ -2620,7 +2630,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     }
     mqtt_info("aos version report data: %s", msg);
 
-    topic_info.qos = IOTX_MQTT_QOS0;
+    topic_info.qos = IOTX_MQTT_QOS1;
     topic_info.payload = (void *)msg;
     topic_info.payload_len = strlen(msg);
     topic_info.retain = 0;

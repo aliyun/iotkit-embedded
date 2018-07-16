@@ -308,18 +308,19 @@ static void guider_get_url(char *buf, int len)
 #ifdef MQTT_DIRECT
     HAL_Snprintf(buf, len, "%s", "");
 #else
-
     HAL_Snprintf(buf, len, "%s", "http://");
 
-    if (0 == g_domain_type) {
+    switch (g_domain_type)
+    {
+    case GUIDER_DOMAIN_SH:
 #if defined(ON_DAILY)
         strcat(buf, "iot-auth.alibaba.net");
 #else
         strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
 #endif
-    }
+        break;
 
-    else if (1 == g_domain_type) {
+    case GUIDER_DOMAIN_SG:
 #if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
 #elif defined(ON_DAILY)
@@ -327,9 +328,9 @@ static void guider_get_url(char *buf, int len)
 #else
         strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
 #endif
-    }
+        break;
 
-    else if (2 == g_domain_type) {
+    case GUIDER_DOMAIN_JP:
 #if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.ap-northeast-1.aliyuncs.com");    ////////////  TODO
 #elif defined(ON_DAILY)
@@ -337,9 +338,9 @@ static void guider_get_url(char *buf, int len)
 #else
         strcat(buf, "iot-auth.ap-northeast-1.aliyuncs.com"); ////////////  TODO
 #endif
-    }
+        break;
 
-    else if (3 == g_domain_type) {
+    case GUIDER_DOMAIN_US:
 #if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.us-west-1.aliyuncs.com");    ////////////  TODO
 #elif defined(ON_DAILY)
@@ -347,9 +348,9 @@ static void guider_get_url(char *buf, int len)
 #else
         strcat(buf, "iot-auth.us-west-1.aliyuncs.com");  ////////////  TODO
 #endif
-    }
+        break;    
 
-    else if (4 == g_domain_type) {
+    case GUIDER_DOMAIN_GER:
 #if defined(ON_PRE)
         strcat(buf, "iot-auth-pre.eu-central-1.aliyuncs.com");    ////////////  TODO
 #elif defined(ON_DAILY)
@@ -357,10 +358,18 @@ static void guider_get_url(char *buf, int len)
 #else
         strcat(buf, "iot-auth.eu-central-1.aliyuncs.com");   ////////////  TODO
 #endif
+        break;
+
+    default:    // default use shanghai domain
+#if defined(ON_DAILY)
+        strcat(buf, "iot-auth.alibaba.net");
+#else
+        strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
+#endif
+        break;
     }
 
     strcat(buf, "/auth/devicename");
-
 #endif  /* MQTT_DIRECT */
 
     return;
