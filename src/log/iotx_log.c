@@ -224,6 +224,7 @@ int log_multi_line_internal(const char *f, const int l,
 
 void LITE_syslog_online(const char *module, const int level, const char *fmt, va_list *params)
 {
+#ifdef SDK_ENHANCE
     char       *tmpbuf = NULL;
     char       *o = NULL;
     int        truncated = 0;
@@ -262,6 +263,7 @@ void LITE_syslog_online(const char *module, const int level, const char *fmt, va
         log_info((char *)module, "publish to cloud. ret = %d\n", ret);
     }
     LITE_free(tmpbuf);
+#endif
 }
 
 void LITE_syslog_upload_to_cloud(const char *module, const int level, const char *fmt, ...)
