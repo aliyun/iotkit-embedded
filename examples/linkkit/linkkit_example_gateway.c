@@ -142,7 +142,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
     if (strlen(p) >= out_len) {
         cJSON_Delete(rJson);
         cJSON_Delete(pJson);
-        free(p);
+        HAL_Free(p);
         return -1;
     }
 
@@ -152,7 +152,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
 
     cJSON_Delete(rJson);
     cJSON_Delete(pJson);
-    free(p);
+    HAL_Free(p);
 
     return 0;
 }
@@ -251,7 +251,7 @@ static int post_all_properties(gateway_t *gw)
     linkkit_gateway_post_property_json_sync(gw->lk_dev, p, 5000);
 
     cJSON_Delete(pJson);
-    free(p);
+    HAL_Free(p);
 
     return 0;
 }
