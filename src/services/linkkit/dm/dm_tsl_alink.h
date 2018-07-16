@@ -8,11 +8,11 @@
  * @param tsl. The TSL string in JSON format.
  * @param tsl_len. The length of tsl
  * @param shadow. The pointer of TSL Struct pointer, will be malloc memory.
- *                This memory should be free by iotx_dsw_destroy.
+ *                This memory should be free by dm_shw_destroy.
  *
  * @return success or fail.
  *
  */
-int iotx_dtsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ iotx_dsw_t **shadow);
+int iotx_dtsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow);
 
 #endif

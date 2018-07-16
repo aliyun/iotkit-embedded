@@ -873,7 +873,7 @@ int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int k
 {
 	int res = 0, value_len = 0;
 	void *data = NULL;
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	
 	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -887,7 +887,7 @@ int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int k
 	res = dm_mgr_get_data_type(data,&type);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 
-	if (type == IOTX_DSW_DATA_TYPE_TEXT || type == IOTX_DSW_DATA_TYPE_DATE) {value_len = strlen(value);}
+	if (type == DM_SHW_DATA_TYPE_TEXT || type == DM_SHW_DATA_TYPE_DATE) {value_len = strlen(value);}
 	
 	res = dm_mgr_set_property_value(devid,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
@@ -900,7 +900,7 @@ int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
 {
 	int res = 0, value_len = 0;
 	void *data = NULL;
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	
 	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -914,7 +914,7 @@ int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
 	res = dm_mgr_get_data_type(data,&type);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 
-	if (type == IOTX_DSW_DATA_TYPE_TEXT || type == IOTX_DSW_DATA_TYPE_DATE) {value_len = strlen(value);}
+	if (type == DM_SHW_DATA_TYPE_TEXT || type == DM_SHW_DATA_TYPE_DATE) {value_len = strlen(value);}
 	
 	res = dm_mgr_set_property_value(devid,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
@@ -927,7 +927,7 @@ int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
 {
 	int res = 0, value_len = 0;
 	void *data = NULL;
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	
 	if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -941,7 +941,7 @@ int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
 	res = dm_mgr_get_data_type(data,&type);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 
-	if (type == IOTX_DSW_DATA_TYPE_TEXT || type == IOTX_DSW_DATA_TYPE_DATE) {value_len = strlen(value);}
+	if (type == DM_SHW_DATA_TYPE_TEXT || type == DM_SHW_DATA_TYPE_DATE) {value_len = strlen(value);}
 	
 	res = dm_mgr_set_property_value(devid,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}

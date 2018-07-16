@@ -121,7 +121,7 @@ static void _dm_mgr_destroy_devlist(void)
 			DM_free(*(del_node->sub_status.service_event + index));
 		}
 		if (del_node->sub_status.service_event) {DM_free(del_node->sub_status.service_event);}
-		iotx_dsw_destroy(&del_node->dev_shadow);
+		dm_shw_destroy(&del_node->dev_shadow);
 		DM_free(del_node);
 	}
 }
@@ -265,7 +265,7 @@ int dm_mgr_device_destroy(_IN_ int devid)
 
 	list_del(&node->linked_list);
 
-	if (node->dev_shadow) {iotx_dsw_destroy(&node->dev_shadow);}
+	if (node->dev_shadow) {dm_shw_destroy(&node->dev_shadow);}
 	DM_free(node);
 
 	return SUCCESS_RETURN;
@@ -803,7 +803,7 @@ int dm_mgr_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, int 
 		return FAIL_RETURN;
 	}
 
-	res = iotx_dsw_create(tsl_type,tsl,tsl_len,&node->dev_shadow);
+	res = dm_shw_create(tsl_type,tsl,tsl_len,&node->dev_shadow);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	return SUCCESS_RETURN;
@@ -896,7 +896,7 @@ int dm_mgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_property_data(node->dev_shadow,key,key_len,data);
+	res = dm_shw_get_property_data(node->dev_shadow,key,key_len,data);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -915,7 +915,7 @@ int dm_mgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_l
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_service_input_data(node->dev_shadow,key,key_len,data);
+	res = dm_shw_get_service_input_data(node->dev_shadow,key,key_len,data);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -934,7 +934,7 @@ int dm_mgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_service_output_data(node->dev_shadow,key,key_len,data);
+	res = dm_shw_get_service_output_data(node->dev_shadow,key,key_len,data);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -953,20 +953,20 @@ int dm_mgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_le
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_event_output_data(node->dev_shadow,key,key_len,data);
+	res = dm_shw_get_event_output_data(node->dev_shadow,key,key_len,data);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type)
+int dm_mgr_get_data_type(_IN_ void *data, _OU_ dm_shw_data_type_e *type)
 {
 	if (data == NULL || type == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 	
-	return iotx_dsw_get_data_type(data,type);
+	return dm_shw_get_data_type(data,type);
 }
 
 int dm_mgr_get_property_number(_IN_ int devid, _OU_ int *number)
@@ -982,7 +982,7 @@ int dm_mgr_get_property_number(_IN_ int devid, _OU_ int *number)
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	return iotx_dsw_get_property_number(node->dev_shadow,number);
+	return dm_shw_get_property_number(node->dev_shadow,number);
 }
 
 
@@ -999,7 +999,7 @@ int dm_mgr_get_service_number(_IN_ int devid, _OU_ int *number)
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	return iotx_dsw_get_service_number(node->dev_shadow,number);
+	return dm_shw_get_service_number(node->dev_shadow,number);
 }
 
 int dm_mgr_get_event_number(_IN_ int devid, _OU_ int *number)
@@ -1015,7 +1015,7 @@ int dm_mgr_get_event_number(_IN_ int devid, _OU_ int *number)
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	return iotx_dsw_get_event_number(node->dev_shadow,number);
+	return dm_shw_get_event_number(node->dev_shadow,number);
 }
 
 int dm_mgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property)
@@ -1031,7 +1031,7 @@ int dm_mgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **pro
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	return iotx_dsw_get_property_by_index(node->dev_shadow,index,property);
+	return dm_shw_get_property_by_index(node->dev_shadow,index,property);
 }
 
 int dm_mgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service)
@@ -1047,7 +1047,7 @@ int dm_mgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **serv
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	return iotx_dsw_get_service_by_index(node->dev_shadow,index,service);
+	return dm_shw_get_service_by_index(node->dev_shadow,index,service);
 }
 
 int dm_mgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
@@ -1063,7 +1063,7 @@ int dm_mgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	return iotx_dsw_get_event_by_index(node->dev_shadow,index,event);
+	return dm_shw_get_event_by_index(node->dev_shadow,index,event);
 }
 
 int dm_mgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service)
@@ -1078,7 +1078,7 @@ int dm_mgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	return iotx_dsw_get_service_by_identifier(node->dev_shadow,identifier,service);
+	return dm_shw_get_service_by_identifier(node->dev_shadow,identifier,service);
 }
 
 int dm_mgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event)
@@ -1094,7 +1094,7 @@ int dm_mgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ v
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	return iotx_dsw_get_event_by_identifier(node->dev_shadow,identifier,event);
+	return dm_shw_get_event_by_identifier(node->dev_shadow,identifier,event);
 }
 
 int dm_mgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
@@ -1104,7 +1104,7 @@ int dm_mgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
 		return FAIL_RETURN;
 	}
 
-	return iotx_dsw_get_property_identifier(property,identifier);
+	return dm_shw_get_property_identifier(property,identifier);
 }
 
 int dm_mgr_get_service_method(_IN_ void *service, _OU_ char **method)
@@ -1114,7 +1114,7 @@ int dm_mgr_get_service_method(_IN_ void *service, _OU_ char **method)
 		return FAIL_RETURN;
 	}
 	
-	return iotx_dsw_get_service_method(service,method);
+	return dm_shw_get_service_method(service,method);
 }
 
 int dm_mgr_get_event_method(_IN_ void *event, _OU_ char **method)
@@ -1124,7 +1124,7 @@ int dm_mgr_get_event_method(_IN_ void *event, _OU_ char **method)
 		return FAIL_RETURN;
 	}
 	
-	return iotx_dsw_get_event_method(event,method);
+	return dm_shw_get_event_method(event,method);
 }
 
 int dm_mgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
@@ -1140,7 +1140,7 @@ int dm_mgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, 
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	res = iotx_dsw_set_property_value(node->dev_shadow,key,key_len,value,value_len);
+	res = dm_shw_set_property_value(node->dev_shadow,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1159,7 +1159,7 @@ int dm_mgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, 
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_property_value(node->dev_shadow,key,key_len,value);
+	res = dm_shw_get_property_value(node->dev_shadow,key,key_len,value);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1178,7 +1178,7 @@ int dm_mgr_set_event_output_value(_IN_ int devid, _IN_ char * key,_IN_ int key_l
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	res = iotx_dsw_set_event_output_value(node->dev_shadow,key,key_len,value,value_len);
+	res = dm_shw_set_event_output_value(node->dev_shadow,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1197,7 +1197,7 @@ int dm_mgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_l
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_event_output_value(node->dev_shadow,key,key_len,value);
+	res = dm_shw_get_event_output_value(node->dev_shadow,key,key_len,value);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1216,7 +1216,7 @@ int dm_mgr_set_service_input_value(_IN_ int devid, _IN_ char * key,_IN_ int key_
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	res = iotx_dsw_set_service_input_value(node->dev_shadow,key,key_len,value,value_len);
+	res = dm_shw_set_service_input_value(node->dev_shadow,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1235,7 +1235,7 @@ int dm_mgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_service_input_value(node->dev_shadow,key,key_len,value);
+	res = dm_shw_get_service_input_value(node->dev_shadow,key,key_len,value);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1254,7 +1254,7 @@ int dm_mgr_set_service_output_value(_IN_ int devid, _IN_ char * key,_IN_ int key
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	res = iotx_dsw_set_service_output_value(node->dev_shadow,key,key_len,value,value_len);
+	res = dm_shw_set_service_output_value(node->dev_shadow,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1273,7 +1273,7 @@ int dm_mgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_get_service_output_value(node->dev_shadow,key,key_len,value);
+	res = dm_shw_get_service_output_value(node->dev_shadow,key,key_len,value);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1292,7 +1292,7 @@ int dm_mgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int ide
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	res = iotx_dsw_assemble_property(node->dev_shadow,identifier,identifier_len,lite);
+	res = dm_shw_assemble_property(node->dev_shadow,identifier,identifier_len,lite);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1311,7 +1311,7 @@ int dm_mgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_assemble_event_output(node->dev_shadow,identifier,identifier_len,lite);
+	res = dm_shw_assemble_event_output(node->dev_shadow,identifier,identifier_len,lite);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1330,7 +1330,7 @@ int dm_mgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ i
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dsw_assemble_service_output(node->dev_shadow,identifier,identifier_len,lite);
+	res = dm_shw_assemble_service_output(node->dev_shadow,identifier,identifier_len,lite);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;

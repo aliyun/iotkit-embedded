@@ -274,21 +274,21 @@ int main(int argc, char *argv[])
 	HAL_SetDeviceName("gw-type-001");
 	HAL_SetDeviceSecret("ayxXAAJYaJl4g1bI726LLm7qw4y8FY5P");
 
-	iotx_dsw_t *dtsl = NULL;
+	dm_shw_t *dtsl = NULL;
 	
-	iotx_dsw_create(IOTX_DM_TSL_TYPE_ALINK,LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST),&dtsl);
+	dm_shw_create(IOTX_DM_TSL_TYPE_ALINK,LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST),&dtsl);
 
 	#if 0 /* Struct Bool Set */
 	char *key = "WorkPlans.PlantSwitch";
 	int value = 1;
-	iotx_dsw_set_property_value(&dtsl,key,strlen(key),&value,0);
+	dm_shw_set_property_value(&dtsl,key,strlen(key),&value,0);
 	#endif
 	
 	#if 0 /* Struct Bool Get */
 	int res = 0;
 	char *key = "WorkPlans.PlantSwitch";
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
@@ -297,14 +297,14 @@ int main(int argc, char *argv[])
 	#if 0 /* Struct Int Set */
 	char *key = "WorkPlans.SelectIndex";
 	int value = 8;
-	iotx_dsw_set_property_value(&dtsl,key,strlen(key),&value,0);
+	dm_shw_set_property_value(&dtsl,key,strlen(key),&value,0);
 	#endif
 	
 	#if 0 /* Struct Int Get */
 	int res = 0;
 	char *key = "WorkPlans.SelectIndex";
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
@@ -313,19 +313,19 @@ int main(int argc, char *argv[])
 	#if 0 /* Struct Text Set */
 	char *key_set = "WorkPlans.PlantInfo1";
 	char *value_set = "Hello, World";
-	iotx_dsw_set_property_value(&dtsl,key_set,strlen(key_set),value_set,strlen(value_set));
+	dm_shw_set_property_value(&dtsl,key_set,strlen(key_set),value_set,strlen(value_set));
 	#endif
 	
 	#if 0 /* Struct Text Get */
 	int res = 0;
 	char *key = "WorkPlans.PlantInfo1";
 	char *value = NULL;
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
-	res = iotx_dsw_get_property_value(&dtsl,key,strlen(key),(void *)&value);
+	res = dm_shw_get_property_value(&dtsl,key,strlen(key),(void *)&value);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found,Value: %s",value);
 		DM_free(value);
@@ -335,14 +335,14 @@ int main(int argc, char *argv[])
 	#if 0 /* Struct Array Int Set */
 	char *key = "WorkPlans.PlantInfo4[3]";
 	int value = 5;
-	iotx_dsw_set_property_value(&dtsl,key,strlen(key),&value,0);
+	dm_shw_set_property_value(&dtsl,key,strlen(key),&value,0);
 	#endif
 	
 	#if 0 /* Struct Array Int Get */
 	int res = 0;
 	char *key = "WorkPlans.PlantInfo4[3]";
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
@@ -351,20 +351,20 @@ int main(int argc, char *argv[])
 	#if 0 /* Event Int Set */
 	char *key_set = "Error.ErrorCode";
 	int value_set = 18;
-	iotx_dsw_set_event_output_value(&dtsl,key_set,strlen(key_set),&value_set,0);
+	dm_shw_set_event_output_value(&dtsl,key_set,strlen(key_set),&value_set,0);
 	#endif
 	
 	#if 0 /* Event Int Get */
 	int res = 0;
 	char *key_get = "Error.ErrorCode";
 	int value_get = 0;
-	res = iotx_dsw_get_event_output_value(&dtsl,key_get,strlen(key_get),&value_get);
+	res = dm_shw_get_event_output_value(&dtsl,key_get,strlen(key_get),&value_get);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Event Found, Identifier: %d",value_get);
 	}
 	#endif
 	
-	iotx_dsw_destroy(&dtsl);
+	dm_shw_destroy(&dtsl);
 	LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
 }
 #endif

@@ -20,7 +20,7 @@ typedef struct {
 typedef struct {
 	int devid;
 	int dev_type;
-	iotx_dsw_t *dev_shadow;
+	dm_shw_t *dev_shadow;
 	char product_key[PRODUCT_KEY_MAXLEN];
 	char device_name[DEVICE_NAME_MAXLEN];
 	char device_secret[DEVICE_SECRET_MAXLEN];
@@ -76,7 +76,7 @@ int dm_mgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _
 int dm_mgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 int dm_mgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 int dm_mgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
-int dm_mgr_get_data_type(_IN_ void *property, _OU_ iotx_dsw_data_type_e *type);
+int dm_mgr_get_data_type(_IN_ void *property, _OU_ dm_shw_data_type_e *type);
 int dm_mgr_get_property_number(_IN_ int devid, _OU_ int *number);
 int dm_mgr_get_service_number(_IN_ int devid, _OU_ int *number);
 int dm_mgr_get_event_number(_IN_ int devid, _OU_ int *number);

@@ -358,7 +358,7 @@ static int _dm_msg_property_set_number(int devid, char *key, lite_cjson_t *root)
 {
 	int res = 0, message_len = 0;
 	void *data = NULL;
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	char *message = NULL;
 
 	dm_log_debug("Current Key: %s",key);
@@ -371,20 +371,20 @@ static int _dm_msg_property_set_number(int devid, char *key, lite_cjson_t *root)
 
 	dm_log_debug("Current Type: %d",type);
 	switch (type) {
-		case IOTX_DSW_DATA_TYPE_INT:
-		case IOTX_DSW_DATA_TYPE_ENUM:
-		case IOTX_DSW_DATA_TYPE_BOOL:
+		case DM_SHW_DATA_TYPE_INT:
+		case DM_SHW_DATA_TYPE_ENUM:
+		case DM_SHW_DATA_TYPE_BOOL:
 			{
 				res = dm_mgr_set_property_value(devid,key,strlen(key),&root->value_int,0);
 			}
 			break;
-		case IOTX_DSW_DATA_TYPE_FLOAT:
+		case DM_SHW_DATA_TYPE_FLOAT:
 			{
 				float value_float = (float)root->value_double;
 				res = dm_mgr_set_property_value(devid,key,strlen(key),&value_float,0);
 			}
 			break;
-		case IOTX_DSW_DATA_TYPE_DOUBLE:
+		case DM_SHW_DATA_TYPE_DOUBLE:
 			{
 				res = dm_mgr_set_property_value(devid,key,strlen(key),&root->value_double,0);
 			}
@@ -414,7 +414,7 @@ static int _dm_msg_property_set_string(int devid, char *key, lite_cjson_t *root)
 {
 	int res = 0, message_len = 0;
 	void *data = NULL;
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	char *message = NULL;
 
 	dm_log_debug("Current Key: %s",key);
@@ -428,8 +428,8 @@ static int _dm_msg_property_set_string(int devid, char *key, lite_cjson_t *root)
 	dm_log_debug("Current Type: %d",type);
 
 	switch(type) {
-		case IOTX_DSW_DATA_TYPE_TEXT:
-		case IOTX_DSW_DATA_TYPE_DATE:
+		case DM_SHW_DATA_TYPE_TEXT:
+		case DM_SHW_DATA_TYPE_DATE:
 			{
 				res = dm_mgr_set_property_value(devid,key,strlen(key),root->value,root->value_length);
 			}
@@ -478,7 +478,7 @@ static int _dm_msg_property_set_object(int devid, char *key, lite_cjson_t *root)
 			return FAIL_RETURN;
 		}
 		memset(new_key,0,new_key_len);
-		if (key) {memcpy(new_key,key,strlen(key));new_key[strlen(new_key)] = IOTX_DSW_KEY_DELIMITER;}
+		if (key) {memcpy(new_key,key,strlen(key));new_key[strlen(new_key)] = DM_SHW_KEY_DELIMITER;}
 		memcpy(new_key + strlen(new_key),lite_item_key.value,lite_item_key.value_length);
 		dm_log_debug("New Key: %s",new_key);
 
@@ -683,7 +683,7 @@ static int _dm_msg_service_set_number(int devid, char *key, lite_cjson_t *root)
 {
 	int res = 0;
 	void *data = NULL;
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 
 	dm_log_debug("Current Key: %s",key);
 
@@ -695,20 +695,20 @@ static int _dm_msg_service_set_number(int devid, char *key, lite_cjson_t *root)
 
 	dm_log_debug("Current Type: %d",type);
 	switch (type) {
-		case IOTX_DSW_DATA_TYPE_INT:
-		case IOTX_DSW_DATA_TYPE_ENUM:
-		case IOTX_DSW_DATA_TYPE_BOOL:
+		case DM_SHW_DATA_TYPE_INT:
+		case DM_SHW_DATA_TYPE_ENUM:
+		case DM_SHW_DATA_TYPE_BOOL:
 			{
 				res = dm_mgr_set_service_input_value(devid,key,strlen(key),&root->value_int,0);
 			}
 			break;
-		case IOTX_DSW_DATA_TYPE_FLOAT:
+		case DM_SHW_DATA_TYPE_FLOAT:
 			{
 				float value_float = (float)root->value_double;
 				res = dm_mgr_set_service_input_value(devid,key,strlen(key),&value_float,0);
 			}
 			break;
-		case IOTX_DSW_DATA_TYPE_DOUBLE:
+		case DM_SHW_DATA_TYPE_DOUBLE:
 			{
 				res = dm_mgr_set_service_input_value(devid,key,strlen(key),&root->value_double,0);
 			}
@@ -742,7 +742,7 @@ static int _dm_msg_service_set_string(int devid, char *key, lite_cjson_t *root)
 {
 	int res = 0;
 	void *data = NULL;
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 
 	dm_log_debug("Current Key: %s",key);
 
@@ -755,8 +755,8 @@ static int _dm_msg_service_set_string(int devid, char *key, lite_cjson_t *root)
 	dm_log_debug("Current Type: %d",type);
 
 	switch(type) {
-		case IOTX_DSW_DATA_TYPE_TEXT:
-		case IOTX_DSW_DATA_TYPE_DATE:
+		case DM_SHW_DATA_TYPE_TEXT:
+		case DM_SHW_DATA_TYPE_DATE:
 			{
 				res = dm_mgr_set_service_input_value(devid,key,strlen(key),root->value,root->value_length);
 			}
@@ -809,7 +809,7 @@ static int _dm_msg_service_set_object(int devid, char *key, lite_cjson_t *root)
 			return FAIL_RETURN;
 		}
 		memset(new_key,0,new_key_len);
-		if (key) {memcpy(new_key,key,strlen(key));new_key[strlen(new_key)] = IOTX_DSW_KEY_DELIMITER;}
+		if (key) {memcpy(new_key,key,strlen(key));new_key[strlen(new_key)] = DM_SHW_KEY_DELIMITER;}
 		memcpy(new_key + strlen(new_key),lite_item_key.value,lite_item_key.value_length);
 		dm_log_debug("New Key: %s",new_key);
 
