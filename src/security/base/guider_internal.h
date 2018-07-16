@@ -74,6 +74,15 @@ typedef enum _SECURE_MODE {
 	MODE_ITLS_DNS_ID2           = 8,
 } SECURE_MODE;
 
+typedef enum _DOMAIN_TYPE {
+    GUIDER_DOMAIN_SH,
+    GUIDER_DOMAIN_SG,
+    GUIDER_DOMAIN_JP,
+    GUIDER_DOMAIN_US,
+    GUIDER_DOMAIN_GER,
+    GUIDER_DOMAIN_MAX
+} DOMAIN_TYPE;
+
 extern const char *secmode_str[];
 
 SECURE_MODE _secure_mode_num(void);
