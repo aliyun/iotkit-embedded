@@ -160,15 +160,15 @@ void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
 int main(int argc, char *argv[])
 {
-	int res = 0, devid = 0, devid1 = 0;
+	int res = 0, devid = 0;
 	static int time = 0;
 	
-	LITE_openlog("linkkit");
-	LITE_set_loglevel(LOG_DEBUG_LEVEL);
+	IOT_OpenLog("linkkit");
+	IOT_SetLogLevel(LOG_DEBUG_LEVEL);
 
-	HAL_SetProductKey("a1BUNdoKJs7");
-	HAL_SetDeviceName("gw-type-002");
-	HAL_SetDeviceSecret("lctt8UIWjX3ncdeNJ9hkGZQydChYVPLg");
+	HAL_SetProductKey("a1J4Xm7QjP7");
+	HAL_SetDeviceName("gw-type-001");
+	HAL_SetDeviceSecret("V43EmyaPf9gdrbUgE13vlsc9tqiukd16");
 
 	/* DM Construct */
 	iotx_dm_init_params_t dm_init_params;
@@ -191,12 +191,10 @@ int main(int argc, char *argv[])
 	//IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 
 	//iotx_dsub_local_register();
-	char *testpk = "b1ZFYKi3UG3";
+	char *testpk = "a13KoHF52kc";
 	char *testdn = "type-001";
-	char *testdn1 = "type-unregister-001";
 	//char *testpayload = "this is test";
 	IOT_DM_Subdev_Create(testpk,testdn,&devid);
-	IOT_DM_Subdev_Create(testpk,testdn1,&devid1);
 	while(1) {
 		//HAL_SleepMs(1000);
 		//if (time > 10000) break;

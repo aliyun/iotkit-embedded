@@ -8,6 +8,8 @@
 #define IOT_TRUE                    (1)     /* indicate boolean value true */
 #define IOT_FALSE                   (0)     /* indicate boolean value false */
 
+#define AOS_VERSION_LEN_MAX         (20)
+#define MAC_ADDR_LEN_MAX            (10)
 #define PID_STRLEN_MAX              (64)
 #define MID_STRLEN_MAX              (64)
 #define IOTX_URI_MAX_LEN            (135)  /* IoTx CoAP/HTTP uri & MQTT topic maximal length */
@@ -20,6 +22,22 @@
 #define PRODUCT_SECRET_MAXLEN       (64 + 1)
 #define FIRMWARE_VERSION_MAXLEN     (32 + 1)
 #define HAL_CID_LEN (64 + 1)
+
+/**
+ * @brief   获取AliOS的`内核版本号`, 仅用于AliOS
+ *
+ * @param   aos_ver_str : 用来存放AliOS版本字符串的数组
+ * @return  写到aos_ver_str[]数组中的字符长度, 单位是字节(Byte)
+ */
+int HAL_GetAosKernelVersoin(char *aos_ver_str);
+
+/**
+ * @brief   获取设备的Mac地址, 用于AliOS内部函数
+ *
+ * @param   mac : 用来存放MAC地址字符串的数组
+ * @return  写到mac[]数组中的字符长度, 单位是字节(Byte)
+ */
+int HAL_GetMacAddr(char *mac);
 
 /**
  * @brief   获取设备的`Partner ID`, 仅用于紧密合作伙伴

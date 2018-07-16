@@ -693,6 +693,7 @@ void *iotx_cm_cloud_conn_init(void *handler, void *param)
 
     connectivity->context = connection;
     connectivity->init_func = iotx_cm_cloud_conn_init;
+	connectivity->init_second_func = iotx_cm_cloud_conn_init_second;
     connectivity->connect_func = iotx_cm_cloud_conn_connect;
     connectivity->trigger_connected_func = iotx_cm_cloud_conn_trigger_connected;
     connectivity->check_connected_func = iotx_cm_cloud_conn_check_connected;
@@ -862,7 +863,7 @@ int iotx_cm_cloud_conn_remove_subdevice(void *handler, void *connectivity, const
     return SUCCESS_RETURN;
 }
 
-int iotx_cm_cloud_conn_init_second_handler(void *handler, void *connectivity)
+int iotx_cm_cloud_conn_init_second(void *handler, void *connectivity)
 {
     return SUCCESS_RETURN;
 }
@@ -1197,7 +1198,7 @@ void *iotx_cm_cloud_conn_process(void *pclient)
                         break;
                     }
                     case IOTX_CM_PROCESS_LOCAL_CLOUD_INIT: {
-                        iotx_cm_cloud_conn_init_second_handler(cm_ctx, connectivity);
+                        iotx_cm_cloud_conn_init_second(cm_ctx, connectivity);
                     }
                     break;
                     default:
