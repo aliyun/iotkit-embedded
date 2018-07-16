@@ -9,7 +9,7 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
 
-#include "iotx_dm_common.h"
+#include "dm_common.h"
 #include "queue.h"
 #include "tmpmsg.h"
 #include "packet.h"
@@ -18,7 +18,7 @@
 #include "mempool.h"
 #include "iotx_log.h"
 #include "iotx_utils.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 #include "linkkit_gateway_export.h"
 
 #define TOPIC_MAXLEN    (128)
@@ -365,7 +365,7 @@ static int _offline_all_subdevs(void)
 static void* _linkkit_dispatch(void *params)
 {
 	while (1) {
-		IOT_DM_Dispatch();
+		iotx_dm_dispatch();
 		HAL_SleepMs(200);
 	}
 	return NULL;
@@ -397,7 +397,7 @@ static void _linkkit_event_subdev_register_reply(char *payload)
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
     dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
-    IOT_DM_Subdev_Topo_Add(lite_item_devid.value_int);
+    iotx_dm_subdev_topo_add(lite_item_devid.value_int);
 }
 
 static void _linkkit_event_topo_add_reply(char *payload)
@@ -426,7 +426,7 @@ static void _linkkit_event_topo_add_reply(char *payload)
     if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
     dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
-    IOT_DM_Subdev_Login(lite_item_devid.value_int);
+    iotx_dm_subdev_login(lite_item_devid.value_int);
 }
 
 
@@ -611,7 +611,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 
 				out_json = AMemPool_Get(gbl.msgbuf_pool);
 			    if (!out_json) {
-					IOT_DM_Legacy_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,202,lite_item_serviceid.value,lite_item_serviceid.value_length,"{}",strlen("{}"));
+					iotx_dm_legacy_send_service_response(lite_item_devid.value_int,lite_item_id.value_int,202,lite_item_serviceid.value,lite_item_serviceid.value_length,"{}",strlen("{}"));
 			        DM_free(identifier);DM_free(input);
 			        return;
 			    }
@@ -623,9 +623,9 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
                     res = dev->cbs.call_service(identifier, input, out_json, gbl.max_msg_size - 1, dev->ctx);
 
 				if (res == SUCCESS_RETURN) {
-					IOT_DM_Legacy_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,200,lite_item_serviceid.value,lite_item_serviceid.value_length,out_json,strlen(out_json));
+					iotx_dm_legacy_send_service_response(lite_item_devid.value_int,lite_item_id.value_int,200,lite_item_serviceid.value,lite_item_serviceid.value_length,out_json,strlen(out_json));
 				}else{
-					IOT_DM_Legacy_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,202,lite_item_serviceid.value,lite_item_serviceid.value_length,"{}",strlen("{}"));
+					iotx_dm_legacy_send_service_response(lite_item_devid.value_int,lite_item_id.value_int,202,lite_item_serviceid.value,lite_item_serviceid.value_length,"{}",strlen("{}"));
 				}
 
 				DM_free(identifier);DM_free(input);
@@ -665,7 +665,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 		        ret = dev->cbs.down_rawdata(lite_item_rawdata.value, lite_item_rawdata.value_length, respbuf, gbl.max_msg_size, dev->ctx);
 
 		    if (ret > 0) {
-				IOT_DM_Legacy_Send_Rawdata(lite_item_devid.value_int,(char *)respbuf,ret);
+				iotx_dm_legacy_send_rawdata(lite_item_devid.value_int,(char *)respbuf,ret);
 		    }
 
 		    AMemPool_Put(gbl.msgbuf_pool, respbuf);
@@ -876,13 +876,13 @@ int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, in
         params->threadStackSize = *((int *)value);
         break;
 	case LINKKIT_OPT_PROPERTY_POST_REPLY:
-		IOT_DM_Set_Opt(0,value);
+		iotx_dm_set_opt(0,value);
 		break;
 	case LINKKIT_OPT_EVENT_POST_REPLY:
-		IOT_DM_Set_Opt(1,value);
+		iotx_dm_set_opt(1,value);
 		break;
 	case LINKKIT_OPT_PROPERTY_SET_REPLY:
-		IOT_DM_Set_Opt(2,value);
+		iotx_dm_set_opt(2,value);
 		break;
     default:
         dm_log_err("unknow option: %d\n", option);
@@ -1037,7 +1037,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
         return -1;
     }
     memset(dev, 0, sizeof(linkkit_dev_t));
-    dev->devid = IOTX_DMGR_LOCAL_NODE_DEVID;
+    dev->devid = IOTX_DM_LOCAL_NODE_DEVID;
     dev->cbs = *cbs;
     dev->ctx = ctx;
 
@@ -1047,7 +1047,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = _linkkit_gw_event_callback;
 
-    res = IOT_DM_Construct(&dm_init_params);
+    res = iotx_dm_construct(&dm_init_params);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
     /* Report linkkit version */
@@ -1057,14 +1057,14 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
         return FAIL_RETURN;
     }
     HAL_Snprintf(version_param, version_param_len, IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS, LINKKIT_VERSION);
-    IOT_DM_DeviceInfo_Update(IOTX_DMGR_LOCAL_NODE_DEVID, version_param, version_param_len);
+    iotx_dm_deviceinfo_update(IOTX_DM_LOCAL_NODE_DEVID, version_param, version_param_len);
     DM_free(version_param);
 
-	res = IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_CLOUD,NULL,0);
+	res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_CLOUD,NULL,0);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	res = HAL_ThreadCreate(&g_linkkit_dispatch,_linkkit_dispatch,NULL,NULL,&stack_used);
-	if (res != SUCCESS_RETURN) {IOT_DM_Destroy();return FAIL_RETURN;}
+	if (res != SUCCESS_RETURN) {iotx_dm_destroy();return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
 }
@@ -1072,7 +1072,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 int linkkit_gateway_stop(int devid)
 {
     LITE_free(main_device);
-    return IOT_DM_Destroy();
+    return iotx_dm_destroy();
 }
 /**
  * @brief register subdev to gateway.
@@ -1088,11 +1088,11 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     int devid;
     int res = FAIL_RETURN;
 
-    res = IOT_DM_Legacy_Get_Devid_By_Pkdn(productKey, deviceName, &devid);
+    res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
         return res;
     }
-    res = IOT_DM_Subdev_Register(devid);
+    res = iotx_dm_subdev_register(devid);
     return res;
 }
 /**
@@ -1109,17 +1109,17 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
     int res = FAIL_RETURN;
 
 
-    res = IOT_DM_Legacy_Get_Devid_By_Pkdn(productKey, deviceName, &devid);
+    res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
         return res;
     }
 
     //Todo get device api from pk dn
-    res = IOT_DM_Subdev_Topo_Del(devid);
+    res = iotx_dm_subdev_topo_del(devid);
     if (res != SUCCESS_RETURN) {
         return res;
     }
-    res = IOT_DM_Subdev_Unregister(devid);
+    res = iotx_dm_subdev_unregister(devid);
 
     linkkit_dev_t *dev = _find_device_by_devid(devid);
     if (dev != NULL && _is_subdev(dev)) {
@@ -1145,7 +1145,7 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
     int res = FAIL_RETURN;
 
    //need to save cb & ctx
-    res = IOT_DM_Subdev_Create(productKey, deviceName, &devid);
+    res = iotx_dm_subdev_create(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
         return res;
     }
@@ -1178,7 +1178,7 @@ int linkkit_gateway_subdev_destroy(int devid)
         LITE_free(dev);
     }
 
-    return IOT_DM_Subdev_Destroy(devid);
+    return iotx_dm_subdev_destroy(devid);
 }
 /**
  * @brief make subdev accessible from cloud.
@@ -1189,7 +1189,7 @@ int linkkit_gateway_subdev_destroy(int devid)
  */
 int linkkit_gateway_subdev_login(int devid)
 {
-    return IOT_DM_Subdev_Login(devid);
+    return iotx_dm_subdev_login(devid);
 }
 
 /**
@@ -1201,7 +1201,7 @@ int linkkit_gateway_subdev_login(int devid)
  */
 int linkkit_gateway_subdev_logout(int devid)
 {
-    return IOT_DM_Subdev_Logout(devid);
+    return iotx_dm_subdev_logout(devid);
 }
 /**
  * @brief get device infomation specific by devid.
@@ -1217,14 +1217,14 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
         return -1;
     }
     memset(devinfo, 0, sizeof(linkkit_devinfo_t));
-    res = IOT_DM_Legacy_Get_Pkdn_Ptr_By_Devid(devid, &(devinfo->productKey), &(devinfo->deviceName));
+    res = iotx_dm_legacy_get_pkdn_ptr_by_devid(devid, &(devinfo->productKey), &(devinfo->deviceName));
     if (res != SUCCESS_RETURN) {
         return res;
     }
     int type;
     iotx_dm_dev_status_t status;
     iotx_dm_dev_avail_t available;
-    res = IOT_DM_Get_Device_Type(devid, &type);
+    res = iotx_dm_get_device_type(devid, &type);
     if (res != SUCCESS_RETURN) {
         return res;
     }
@@ -1237,18 +1237,18 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
         return -1;
     }
 
-    res = IOT_DM_Get_Device_Status(devid, &status);
+    res = iotx_dm_get_device_status(devid, &status);
     if (res != SUCCESS_RETURN) {
         return res;
     }
-    if (status >= IOTX_DMGR_DEV_STATUS_LOGINED) {
+    if (status >= IOTX_DM_DEV_STATUS_LOGINED) {
         devinfo->login = 1;
     }
-    if (status == IOTX_DMGR_DEV_STATUS_ONLINE) {
+    if (status == IOTX_DM_DEV_STATUS_ONLINE) {
         devinfo->online = 1;
     }
 
-    res = IOT_DM_Get_Device_Avail_Status(devid, &available);
+    res = iotx_dm_get_device_avail_status(devid, &available);
     if (res != SUCCESS_RETURN) {
         return res;
     }
@@ -1276,9 +1276,9 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
     }
 
     if (timeout_ms == 0)
-        return IOT_DM_Post_Event_Direct(devid, identifier, strlen(identifier), event, strlen(event));
+        return iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
 
-    res = IOT_DM_Post_Event_Direct(devid, identifier, strlen(identifier), event, strlen(event));
+    res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
     if (res < 0) {
         dm_log_err("DM", "%d", res);
         log_err_online("DM", "%d", res);
@@ -1313,7 +1313,7 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
         return -1;
     }
     if (timeout_ms == 0)
-        return IOT_DM_Post_Event_Direct(devid, identifier, strlen(identifier), event, strlen(event));
+        return iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
 
     post_event_t *ev = LITE_malloc(sizeof(post_event_t));
     if (!ev) {
@@ -1332,7 +1332,7 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
     obj->ctx = ev;
     obj->timeout_ms = timeout_ms;
 
-    res = IOT_DM_Post_Event_Direct(devid, identifier, strlen(identifier), event, strlen(event));
+    res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
     if (res < 0) {
         LITE_free(obj);
         return -1;
@@ -1371,9 +1371,9 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
         return -1;
 
     if (timeout_ms == 0)
-        return IOT_DM_Post_Property_Direct(devid, property, strlen(property));
+        return iotx_dm_post_property_direct(devid, property, strlen(property));
 
-    res = IOT_DM_Post_Property_Direct(devid, property, strlen(property));
+    res = iotx_dm_post_property_direct(devid, property, strlen(property));
     if (res < 0) {
         dm_log_err("DM", "%d", res);
         log_err_online("DM", "%d", res);
@@ -1406,7 +1406,7 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
         return -1;
 
     if (timeout_ms == 0)
-        return IOT_DM_Post_Property_Direct(devid, property, strlen(property));
+        return iotx_dm_post_property_direct(devid, property, strlen(property));
 
     post_event_t *ev = LITE_malloc(sizeof(post_event_t));
     if (!ev) {
@@ -1425,7 +1425,7 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
     obj->ctx = ev;
     obj->timeout_ms = timeout_ms;
 
-    res = IOT_DM_Post_Property_Direct(devid, property, strlen(property));
+    res = iotx_dm_post_property_direct(devid, property, strlen(property));
     if (res < 0) {
         LITE_free(obj);
         return -1;
@@ -1456,7 +1456,7 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
  */
 int linkkit_gateway_post_rawdata(int devid, void *data, int len)
 {
-    return IOT_DM_Post_Rawdata(devid, data, len);
+    return iotx_dm_post_rawdata(devid, data, len);
 }
 
 /**
@@ -1514,7 +1514,7 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
         return -1;
     }
 
-    res = IOT_DM_DeviceInfo_Update(devid, reqbuf, strlen(reqbuf));
+    res = iotx_dm_deviceinfo_update(devid, reqbuf, strlen(reqbuf));
     if (res < 0) {
         AMemPool_Put(gbl.msgbuf_pool, reqbuf);
         return res;
@@ -1554,7 +1554,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
         AMemPool_Put(gbl.msgbuf_pool, reqbuf);
         return -1;
     }
-    res = IOT_DM_DeviceInfo_Delete(devid, reqbuf, strlen(reqbuf));
+    res = iotx_dm_deviceinfo_delete(devid, reqbuf, strlen(reqbuf));
     if (res < 0) {
         AMemPool_Put(gbl.msgbuf_pool, reqbuf);
         return res;
@@ -1575,7 +1575,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
  */
 int linkkit_gateway_get_num_devices(void)
 {
-    return IOT_DM_Subdev_Number();
+    return iotx_dm_subdev_number();
 }
 /**
  * @brief get all devices currently in gateway

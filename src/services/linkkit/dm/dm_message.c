@@ -1,19 +1,16 @@
-#include "iot_import.h"
+#include "iotx_dm_internal.h"
 #include "utils_hmac.h"
 #include "utils_sha256.h"
-#include "iotx_utils.h"
-#include "lite-cjson.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_message.h"
-#include "iotx_dm_manager.h"
-#include "iotx_dm_cm_wrapper.h"
-#include "iotx_dm_shadow.h"
-#include "iotx_dm_ipc.h"
-#include "iotx_dm_subscribe.h"
-#include "iotx_dm_msg_dispatch.h"
-#include "iotx_dm_message_cache.h"
-#include "iotx_dm_subscribe.h"
-#include "iotx_dm_opt.h"
+#include "dm_message.h"
+#include "dm_manager.h"
+#include "dm_cm_wrapper.h"
+#include "dm_shadow.h"
+#include "dm_ipc.h"
+#include "dm_subscribe.h"
+#include "dm_msg_dispatch.h"
+#include "dm_message_cache.h"
+#include "dm_subscribe.h"
+#include "dm_opt.h"
 #include "utils_hmac.h"
 
 static iotx_dmsg_ctx_t g_iotx_dmsg_ctx;
@@ -1191,7 +1188,7 @@ int iotx_dmsg_thing_sub_register_reply(iotx_dmsg_response_payload_t *response)
 
 		/* Update State Machine */
 		if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
-			iotx_dmgr_set_dev_status(devid,IOTX_DMGR_DEV_STATUS_REGISTERED);
+			iotx_dmgr_set_dev_status(devid,IOTX_DM_DEV_STATUS_REGISTERED);
 
 		/* Set Device Secret */
 		res = iotx_dmgr_set_device_secret(devid,device_secret);
@@ -1269,7 +1266,7 @@ int iotx_dmsg_thing_topo_add_reply(iotx_dmsg_response_payload_t *response)
 
 	/* Update State Machine */
 	if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
-		iotx_dmgr_set_dev_status(node->devid,IOTX_DMGR_DEV_STATUS_ATTACHED);
+		iotx_dmgr_set_dev_status(node->devid,IOTX_DM_DEV_STATUS_ATTACHED);
 
 	message_len = strlen(IOTX_DMSG_EVENT_THING_TOPO_ADD_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
@@ -1304,7 +1301,7 @@ int iotx_dmsg_thing_topo_delete_reply(iotx_dmsg_response_payload_t *response)
 
 	/* Update State Machine */
 	if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
-		iotx_dmgr_set_dev_status(node->devid,IOTX_DMGR_DEV_STATUS_ATTACHED);
+		iotx_dmgr_set_dev_status(node->devid,IOTX_DM_DEV_STATUS_ATTACHED);
 
 	message_len = strlen(IOTX_DMSG_EVENT_THING_TOPO_DELETE_REPLY_FMT) + IOTX_DCM_UINT32_STRLEN*3 + 1;
 	message = DM_malloc(message_len);
@@ -1544,7 +1541,7 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
 
 	/* Update State Machine */
 	if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
-		iotx_dmgr_set_dev_status(devid,IOTX_DMGR_DEV_STATUS_LOGINED);
+		iotx_dmgr_set_dev_status(devid,IOTX_DM_DEV_STATUS_LOGINED);
 
 	/* Message ID */
 	memcpy(temp_id,response->id.value,response->id.value_length);
@@ -1577,7 +1574,7 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
     active_param = DM_malloc(active_param_len);
     if (active_param == NULL) {return FAIL_RETURN;}
     HAL_Snprintf(active_param, active_param_len, IOTX_DMSG_THING_AOS_ACTIVE_INFO_PAYLOAD, aos_active_data);  
-    IOT_DM_DeviceInfo_Update(devid, active_param, active_param_len);
+    iotx_dm_deviceinfo_update(devid, active_param, active_param_len);
     DM_free(active_param);
 
 	/* Re-Subscribe Topic */
@@ -1638,7 +1635,7 @@ int iotx_dmsg_combine_logout_reply(iotx_dmsg_response_payload_t *response)
 
 	/* Update State Machine */
 	if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS)
-		iotx_dmgr_set_dev_status(devid,IOTX_DMGR_DEV_STATUS_ATTACHED);
+		iotx_dmgr_set_dev_status(devid,IOTX_DM_DEV_STATUS_ATTACHED);
 
 	/* Message ID */
 	memcpy(temp_id,response->id.value,response->id.value_length);
@@ -1871,7 +1868,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	if ((((index + 1) >= iotx_dcs_get_topic_mapping_size()) || (res == iotx_dcs_get_topic_mapping_size())) && index != IOTX_DMGR_DEV_SUB_END) {
 		dm_log_debug("Devid %d Subscribe Completed",devid);
 
-		if (devid == IOTX_DMGR_LOCAL_NODE_DEVID) {iotx_dmgr_upstream_ntp_request();}
+		if (devid == IOTX_DM_LOCAL_NODE_DEVID) {iotx_dmgr_upstream_ntp_request();}
 			
 		message_len = strlen(IOTX_DMSG_EVENT_REGISTER_COMPLETED_FMT) + IOTX_DCM_UINT32_STRLEN + 1;
 		message = DM_malloc(message_len);
@@ -1921,7 +1918,7 @@ int iotx_dmsg_register_result(_IN_ char *uri,_IN_ int result)
 	}
 	iotx_dmgr_set_dev_sub_service_event_index(devid,IOTX_DMGR_DEV_SUB_END);
 	iotx_dmgr_clear_dev_sub_service_event(devid);
-	iotx_dmgr_set_dev_status(devid,IOTX_DMGR_DEV_STATUS_ONLINE);
+	iotx_dmgr_set_dev_status(devid,IOTX_DM_DEV_STATUS_ONLINE);
 	
 	return SUCCESS_RETURN;
 }

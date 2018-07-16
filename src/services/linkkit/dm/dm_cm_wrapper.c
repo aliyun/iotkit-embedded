@@ -1,9 +1,7 @@
-#include "iot_import.h"
-#include "iotx_utils.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_cm_wrapper.h"
-#include "iotx_dm_msg_dispatch.h"
-#include "iotx_dm_manager.h"
+#include "iotx_dm_internal.h"
+#include "dm_cm_wrapper.h"
+#include "dm_msg_dispatch.h"
+#include "dm_manager.h"
 #include "iot_export_cm.h"
 
 void iotx_dcw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)

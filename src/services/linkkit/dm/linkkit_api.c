@@ -9,7 +9,7 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
 #include "linkkit_export.h"
-#include "iotx_dm_common.h"
+#include "dm_common.h"
 #include "iotx_log.h"
 #include "linked_list.h"
 
@@ -47,7 +47,7 @@ void *linkkit_dispatch(void *params)
         if (thread_process_disatch_exit) {
             return NULL;
         }
-        IOT_DM_Dispatch();
+        iotx_dm_dispatch();
         HAL_SleepMs(10);
     }
     return NULL;
@@ -55,7 +55,7 @@ void *linkkit_dispatch(void *params)
 #else
 void *linkkit_dispatch()
 {
-    IOT_DM_Dispatch();
+    iotx_dm_dispatch();
     return NULL;
 }
 #endif
@@ -183,7 +183,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current Raw Data: %.*s", lite_item_rawdata.value_length, lite_item_rawdata.value);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -228,7 +228,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -264,7 +264,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -292,7 +292,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -320,7 +320,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -358,7 +358,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current PropertyID: %.*s", lite_item_propertyid.value_length, lite_item_propertyid.value);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -414,7 +414,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -481,7 +481,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current EventID: %.*s", lite_item_eventid.value_length, lite_item_eventid.value);
 
-            res = IOT_DM_Legacy_Get_ThingId_By_Devid(lite_item_devid.value_int, &thing_id);
+            res = iotx_dm_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
@@ -523,7 +523,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
 int linkkit_setopt(linkkit_opt_t opt, void *data)
 {
-    return IOT_DM_Set_Opt(opt, data);
+    return iotx_dm_set_opt(opt, data);
 }
 
 const char IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS[] DM_READ_ONLY =
@@ -565,7 +565,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     HAL_ThreadDetach(thread_process_dispatch);
 #endif /* CONFIG_SDK_THREAD_COST */
 
-    ret = IOT_DM_Construct(&dm_init_params);
+    ret = iotx_dm_construct(&dm_init_params);
     if (ret != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
@@ -577,12 +577,12 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
         return FAIL_RETURN;
     }
     HAL_Snprintf(version_param, version_param_len, IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS, LINKKIT_VERSION);
-    IOT_DM_DeviceInfo_Update(IOTX_DMGR_LOCAL_NODE_DEVID, version_param, version_param_len);
+    iotx_dm_deviceinfo_update(IOTX_DM_LOCAL_NODE_DEVID, version_param, version_param_len);
     DM_free(version_param);
 
     /* Get TSL from cloud if need */
     if (get_tsl_from_cloud != 0) {
-        ret = IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, NULL, 0);
+        ret = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, NULL, 0);
         if (ret < SUCCESS_RETURN) {
             return FAIL_RETURN;
         }
@@ -625,7 +625,7 @@ int linkkit_end()
         linked_list_iterator(list, _free_post_cb);
         linked_list_destroy(list);
     }
-    return IOT_DM_Destroy();
+    return iotx_dm_destroy();
 }
 
 /**
@@ -640,12 +640,12 @@ void *linkkit_set_tsl(const char *tsl, int tsl_len)
 {
     void *thing = NULL;
     int res = 0;
-    res = IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, tsl, tsl_len);
+    res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, tsl, tsl_len);
     if (res != SUCCESS_RETURN) {
         return NULL;
     }
     //ToDo: get ptr of device id
-    IOT_DM_Legacy_Get_ThingId_By_Devid(IOTX_DMGR_LOCAL_NODE_DEVID, &thing);
+    iotx_dm_legacy_get_thingid_by_devid(IOTX_DM_LOCAL_NODE_DEVID, &thing);
     if (res != SUCCESS_RETURN) {
         dm_log_err("get thing id fail");
     }
@@ -659,21 +659,21 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, con
     int res = FAIL_RETURN;
     int devid;
 
-    res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
+    res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
         switch (method_set) {
             case linkkit_method_set_property_value: {
-                res = IOT_DM_Legacy_Set_Property_Value(devid, (char *)identifier, strlen(identifier), (void *)value);
+                res = iotx_dm_legacy_set_property_value(devid, (char *)identifier, strlen(identifier), (void *)value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_event_output_value: {
-                res = IOT_DM_Legacy_Set_Event_Output_Value(devid, (char *)identifier, strlen(identifier), (void *)value);
+                res = iotx_dm_legacy_set_event_output_value(devid, (char *)identifier, strlen(identifier), (void *)value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_service_output_value: {
-                res = IOT_DM_Legacy_Set_Service_Output_Value(devid, (char *)identifier, strlen(identifier), (void *)value);
+                res = iotx_dm_legacy_set_service_output_value(devid, (char *)identifier, strlen(identifier), (void *)value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
                 break;
             }
@@ -694,26 +694,26 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, con
     int res = FAIL_RETURN;
     int devid;
 
-    res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
+    res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
         switch (method_get) {
             case linkkit_method_get_property_value: {
-                res = IOT_DM_Get_Property_Value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_get_property_value(devid, (char *)identifier, strlen(identifier), value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_event_output_value: {
-                res = IOT_DM_Get_Event_Output_Value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_get_event_output_value(devid, (char *)identifier, strlen(identifier), value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_service_input_value: {
-                res = IOT_DM_Get_Service_Input_Value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_get_service_input_value(devid, (char *)identifier, strlen(identifier), value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_service_output_value: {
-                res = IOT_DM_Get_Service_Output_Value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_get_service_output_value(devid, (char *)identifier, strlen(identifier), value);
                 dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
                 break;
             }
@@ -734,7 +734,7 @@ int linkkit_answer_service(const void *thing_id, const char *service_identifier,
 {
     int res = 0, devid = 0;
 
-    res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
+    res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
@@ -760,9 +760,9 @@ int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_da
     int res = FAIL_RETURN;
     int devid;
 
-    res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
+    res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN && raw_data != NULL) {
-        res = IOT_DM_Post_Rawdata(devid, raw_data, raw_data_length);
+        res = iotx_dm_post_rawdata(devid, raw_data, raw_data_length);
     }
     return res;
 }
@@ -784,14 +784,14 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
     int res = FAIL_RETURN;
     int devid;
 
-    res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
+    res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN && params != NULL) {
         int len  = strlen(params);
         if (linkkit_extended_info_operation == linkkit_extended_info_operate_update) {
-            res = IOT_DM_DeviceInfo_Update(devid, (char *)params, len);
+            res = iotx_dm_deviceinfo_update(devid, (char *)params, len);
             dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 2, res);
         } else if (linkkit_extended_info_operation == linkkit_extended_info_operate_delete) {
-            res = IOT_DM_DeviceInfo_Delete(devid, (char *)params, len);
+            res = iotx_dm_deviceinfo_delete(devid, (char *)params, len);
             dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 2, res);
         } else {
             dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -818,9 +818,9 @@ int linkkit_trigger_event(const void *thing_id, const char *event_identifier, ha
     int id_send = 0;
     linked_list_t *list = g_list_post_cb;
 
-    res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
+    res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN && event_identifier != NULL) {
-        res = IOT_DM_Post_Event(devid, (char *)event_identifier, strlen((char *)event_identifier));
+        res = iotx_dm_post_event(devid, (char *)event_identifier, strlen((char *)event_identifier));
         dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 3, res);
     }
 
@@ -851,19 +851,19 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
     int id_send = 0;
     linked_list_t *list = g_list_post_cb;
 
-    res = IOT_DM_Legacy_Get_Devid_By_ThingId((void *)thing_id, &devid);
+    res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
         void *handle = NULL;
-        res = IOT_DM_Post_Property_Start(devid, &handle);
+        res = iotx_dm_post_property_start(devid, &handle);
         if (res != SUCCESS_RETURN) {
             return res;
         }
         if (property_identifier != NULL) {
-            res = IOT_DM_Post_Property_Add(handle, (char *)property_identifier, strlen((char *)property_identifier));
+            res = iotx_dm_post_property_add(handle, (char *)property_identifier, strlen((char *)property_identifier));
         } else {
-            res = IOT_DM_Post_Property_Add(handle, IOTX_DM_POST_PROPERTY_ALL, 0);
+            res = iotx_dm_post_property_add(handle, IOTX_DM_POST_PROPERTY_ALL, 0);
         }
-        res = IOT_DM_Post_Property_End(&handle);
+        res = iotx_dm_post_property_end(&handle);
     }
 
     if (res > 0) {
@@ -881,6 +881,6 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
 #if (CONFIG_SDK_THREAD_COST == 0)
 int linkkit_yield(int timeout_ms)
 {
-    return IOT_DM_Yield(timeout_ms);
+    return iotx_dm_yield(timeout_ms);
 }
 #endif

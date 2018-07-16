@@ -1,5 +1,4 @@
-#include "iotx_utils.h"
-#include "iotx_dm_common.h"
+#include "iotx_dm_internal.h"
 
 //Constant Log
 const char IOTX_DM_LOG_INVALID_PARAMETER[] DM_READ_ONLY = "Invalid Parameter";

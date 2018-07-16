@@ -1,18 +1,14 @@
-#include "iot_import.h"
-#include "iotx_utils.h"
-#include "lite-cjson.h"
-#include "lite-list.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_manager.h"
-#include "iotx_dm_shadow.h"
-#include "iotx_dm_cm_wrapper.h"
-#include "iotx_dm_msg_dispatch.h"
-#include "iotx_dm_ipc.h"
-#include "iotx_dm_message.h"
-#include "iotx_dm_message_cache.h"
-#include "iotx_dm_subscribe.h"
-#include "iotx_dm_opt.h"
-#include "iot_export_dm.h"
+#include "iotx_dm_internal.h"
+#include "dm_manager.h"
+#include "dm_shadow.h"
+#include "dm_cm_wrapper.h"
+#include "dm_msg_dispatch.h"
+#include "dm_ipc.h"
+#include "dm_message.h"
+#include "dm_message_cache.h"
+#include "dm_subscribe.h"
+#include "dm_opt.h"
+#include "iotx_dm.h"
 
 static iotx_dmgr_ctx g_iotx_dmgr = {0};
 
@@ -171,7 +167,7 @@ int iotx_dmgr_init(void)
 	}
 
 	/* Init Device Id*/
-	ctx->global_devid = IOTX_DMGR_LOCAL_NODE_DEVID + 1;
+	ctx->global_devid = IOTX_DM_LOCAL_NODE_DEVID + 1;
 	
 	/* Init Device List */
 	INIT_LIST_HEAD(&ctx->dev_list);
@@ -179,10 +175,10 @@ int iotx_dmgr_init(void)
 	/* Local Node */
 	HAL_GetProductKey(product_key);
 	HAL_GetDeviceName(device_name);
-	res = _iotx_dmgr_insert_dev(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DM_DEVICE_TYPE,product_key,device_name);
+	res = _iotx_dmgr_insert_dev(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DM_DEVICE_TYPE,product_key,device_name);
 	if (res != SUCCESS_RETURN) {goto ERROR;}
 
-	_iotx_dmgr_legacy_thing_created(IOTX_DMGR_LOCAL_NODE_DEVID);
+	_iotx_dmgr_legacy_thing_created(IOTX_DM_LOCAL_NODE_DEVID);
 		
 	return SUCCESS_RETURN;
 	
@@ -236,7 +232,7 @@ int iotx_dmgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY
 	node->dev_shadow = NULL;
 	memcpy(node->product_key,product_key,strlen(product_key));
 	memcpy(node->device_name,device_name,strlen(device_name));
-	node->dev_status = IOTX_DMGR_DEV_STATUS_AUTHORIZED;
+	node->dev_status = IOTX_DM_DEV_STATUS_AUTHORIZED;
 	node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
 	node->sub_status.generic_index = IOTX_DMGR_DEV_SUB_START;
 	node->sub_status.service_event_index = IOTX_DMGR_DEV_SUB_START;
@@ -262,7 +258,7 @@ int iotx_dmgr_device_destroy(_IN_ int devid)
 	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	if (node->devid == IOTX_DMGR_LOCAL_NODE_DEVID) {
+	if (node->devid == IOTX_DM_LOCAL_NODE_DEVID) {
 		dm_log_warning(IOTX_DM_LOG_DMGR_DELETE_DEVICE_ITSELF);
 		return FAIL_RETURN;
 	}
@@ -485,7 +481,7 @@ int iotx_dmgr_set_dev_enable(_IN_ int devid)
 	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	node->status = IOTX_DMGR_DEV_AVAIL_ENABLE;
+	node->status = IOTX_DM_DEV_AVAIL_ENABLE;
 
 	return SUCCESS_RETURN;
 }
@@ -503,7 +499,7 @@ int iotx_dmgr_set_dev_disable(_IN_ int devid)
 	res = _iotx_dmgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	node->status = IOTX_DMGR_DEV_AVAIL_DISABLE;
+	node->status = IOTX_DM_DEV_AVAIL_DISABLE;
 
 	return SUCCESS_RETURN;
 }
@@ -757,7 +753,7 @@ void iotx_dmgr_dev_sub_status_check(void)
 
 	_iotx_dmgr_mutex_lock();
 	list_for_each_entry(node,&ctx->dev_list,linked_list,iotx_dmgr_dev_node_t) {
-		if (node->dev_status != IOTX_DMGR_DEV_STATUS_LOGINED && node->devid != IOTX_DMGR_LOCAL_NODE_DEVID) {continue;}
+		if (node->dev_status != IOTX_DM_DEV_STATUS_LOGINED && node->devid != IOTX_DM_LOCAL_NODE_DEVID) {continue;}
 		
 		/* Check Generic Topic */
 		if (node->sub_status.generic_index > IOTX_DMGR_DEV_SUB_START && node->sub_status.generic_index < dcs_mapping_size) {

@@ -142,7 +142,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
     if (strlen(p) >= out_len) {
         cJSON_Delete(rJson);
         cJSON_Delete(pJson);
-        free(p);
+        HAL_Free(p);
         return -1;
     }
 
@@ -152,7 +152,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
 
     cJSON_Delete(rJson);
     cJSON_Delete(pJson);
-    free(p);
+    HAL_Free(p);
 
     return 0;
 }
@@ -251,7 +251,7 @@ static int post_all_properties(gateway_t *gw)
     linkkit_gateway_post_property_json_sync(gw->lk_dev, p, 5000);
 
     cJSON_Delete(pJson);
-    free(p);
+    HAL_Free(p);
 
     return 0;
 }
@@ -371,7 +371,7 @@ int main(void)
     }
 
     while (gateway.register_completed == 0)
-        sleep(1);
+        HAL_SleepMs(1000);
 
     /*
      * subdev start
@@ -385,7 +385,7 @@ int main(void)
          * please follow user's case, modify this logic
          */
         linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "Error", "{\"ErrorCode\": 0}", 10000);
-        usleep(1000 * 1000);
+        HAL_SleepMs(1000);
     }
 
     /*

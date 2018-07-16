@@ -3,13 +3,13 @@
 #include "ut_debug.h"
 #include "iotx_utils.h"
 #include "lite-cjson.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_manager.h"
-#include "iotx_dm_shadow.h"
-#include "iotx_dm_ipc.h"
-#include "iotx_dm_msg_dispatch.h"
-#include "iotx_dm_message.h"
-#include "iotx_dm_cm_wrapper.h"
+#include "dm_common.h"
+#include "dm_manager.h"
+#include "dm_shadow.h"
+#include "dm_ipc.h"
+#include "dm_msg_dispatch.h"
+#include "dm_message.h"
+#include "dm_cm_wrapper.h"
 
 #define linkkit_log(...) log_info("linkkit",__VA_ARGS__)
 
@@ -90,7 +90,7 @@ static void _linkkit_event_subdev_register_reply(char *payload)
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
 	linkkit_log("Current devid: %d",lite_item_devid.value_int);
 
-	IOT_DM_Subdev_Topo_Add(lite_item_devid.value_int);
+	iotx_dm_subdev_topo_add(lite_item_devid.value_int);
 }
 
 static void _linkkit_event_topo_add_reply(char *payload)
@@ -119,7 +119,7 @@ static void _linkkit_event_topo_add_reply(char *payload)
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
 	linkkit_log("Current devid: %d",lite_item_devid.value_int);
 
-	IOT_DM_Subdev_Login(lite_item_devid.value_int);
+	iotx_dm_subdev_login(lite_item_devid.value_int);
 }
 
 void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
@@ -159,7 +159,7 @@ void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 	}
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut001) {
+CASE(DM_TEST, iotx_dm_construct_ut001) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -174,11 +174,11 @@ CASE(DM_TEST, IOT_DM_Construct_ut001) {
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
 	dm_init_params.event_callback = linkkit_event_callback;
 	
-	res = IOT_DM_Construct(&dm_init_params);
+	res = iotx_dm_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut002) {
+CASE(DM_TEST, iotx_dm_construct_ut002) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -192,11 +192,11 @@ CASE(DM_TEST, IOT_DM_Construct_ut002) {
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
 	dm_init_params.event_callback = linkkit_event_callback;
 	
-	res = IOT_DM_Construct(&dm_init_params);
+	res = iotx_dm_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut003) {
+CASE(DM_TEST, iotx_dm_construct_ut003) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -211,11 +211,11 @@ CASE(DM_TEST, IOT_DM_Construct_ut003) {
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
 	dm_init_params.event_callback = linkkit_event_callback;
 	
-	res = IOT_DM_Construct(&dm_init_params);
+	res = iotx_dm_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut004) {
+CASE(DM_TEST, iotx_dm_construct_ut004) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -230,11 +230,11 @@ CASE(DM_TEST, IOT_DM_Construct_ut004) {
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
 	dm_init_params.event_callback = linkkit_event_callback;
 	
-	res = IOT_DM_Construct(&dm_init_params);
+	res = iotx_dm_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut005) {
+CASE(DM_TEST, iotx_dm_construct_ut005) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -249,11 +249,11 @@ CASE(DM_TEST, IOT_DM_Construct_ut005) {
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
 	dm_init_params.event_callback = linkkit_event_callback;
 	
-	res = IOT_DM_Construct(&dm_init_params);
+	res = iotx_dm_construct(&dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut006) {
+CASE(DM_TEST, iotx_dm_construct_ut006) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -268,11 +268,11 @@ CASE(DM_TEST, IOT_DM_Construct_ut006) {
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_MAX;
 	dm_init_params.event_callback = linkkit_event_callback;
 	
-	res = IOT_DM_Construct(&dm_init_params);
+	res = iotx_dm_construct(&dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut007) {
+CASE(DM_TEST, iotx_dm_construct_ut007) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -287,11 +287,11 @@ CASE(DM_TEST, IOT_DM_Construct_ut007) {
 	dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
 	dm_init_params.event_callback = NULL;
 	
-	res = IOT_DM_Construct(&dm_init_params);
+	res = iotx_dm_construct(&dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Construct_ut008) {
+CASE(DM_TEST, iotx_dm_construct_ut008) {
     int res = 0;
     LITE_openlog("linkkit");
 	LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -302,13 +302,13 @@ CASE(DM_TEST, IOT_DM_Construct_ut008) {
     /* DM Construct */
 	iotx_dm_init_params_t *dm_init_params = NULL;
 
-	res = IOT_DM_Construct(dm_init_params);
+	res = iotx_dm_construct(dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Set_TSL_ut001) {
+CASE(DM_TEST, iotx_dm_set_tsl_ut001) {
     int res = 0;
-	res = IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_LOCAL,LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
+	res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_LOCAL,LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
@@ -316,45 +316,45 @@ CASE(DM_TEST, IOT_DM_Yield_ut001) {
     int res = 0;
     int i;
 	for(i = 0; i < 5*10; i++){
-		res = IOT_DM_Yield(100);
-		IOT_DM_Dispatch();
+		res = iotx_dm_yield(100);
+		iotx_dm_dispatch();
         HAL_SleepMs(100);
 	}
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, IOT_DM_Destroy_ut001) {
+CASE(DM_TEST, iotx_dm_destroy_ut001) {
     int res = 0;
-	res = IOT_DM_Destroy();
+	res = iotx_dm_destroy();
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
 SUITE(DM_TEST) = {
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut001),
-    ADD_CASE(DM_TEST, IOT_DM_Set_TSL_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, IOT_DM_Destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
     
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut002),
-    ADD_CASE(DM_TEST, IOT_DM_Set_TSL_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut002),
+    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, IOT_DM_Destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
     
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut003),
-    ADD_CASE(DM_TEST, IOT_DM_Set_TSL_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut003),
+    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, IOT_DM_Destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
     
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut004),
-    ADD_CASE(DM_TEST, IOT_DM_Set_TSL_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut004),
+    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, IOT_DM_Destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
     
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut005),
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut006),
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut007),
-    ADD_CASE(DM_TEST, IOT_DM_Construct_ut008),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut005),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut006),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut007),
+    ADD_CASE(DM_TEST, iotx_dm_construct_ut008),
     ADD_CASE_NULL
 };

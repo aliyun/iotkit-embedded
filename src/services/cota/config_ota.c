@@ -24,7 +24,7 @@
 
 #include "iot_import.h"
 #include "class_interface.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 #include "iot_export_cota.h"
 #include "iot_export_cm.h"
 #include "iot_export_errno.h"

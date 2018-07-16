@@ -1,12 +1,12 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
-#include "iotx_dm_common.h"
-#include "iotx_dm_manager.h"
-#include "iotx_dm_shadow.h"
-#include "iotx_dm_ipc.h"
-#include "iotx_dm_msg_dispatch.h"
-#include "iotx_dm_message.h"
-#include "iotx_dm_cm_wrapper.h"
+#include "dm_common.h"
+#include "dm_manager.h"
+#include "dm_shadow.h"
+#include "dm_ipc.h"
+#include "dm_msg_dispatch.h"
+#include "dm_message.h"
+#include "dm_cm_wrapper.h"
 
 #define linkkit_log(...) log_info("linkkit",__VA_ARGS__)
 
@@ -88,7 +88,7 @@ static void _linkkit_event_subdev_register_reply(char *payload)
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
 	linkkit_log("Current devid: %d",lite_item_devid.value_int);
 
-	IOT_DM_Subdev_Topo_Add(lite_item_devid.value_int);
+	iotx_dm_subdev_topo_add(lite_item_devid.value_int);
 }
 
 static void _linkkit_event_topo_add_reply(char *payload)
@@ -117,7 +117,7 @@ static void _linkkit_event_topo_add_reply(char *payload)
 	if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
 	linkkit_log("Current devid: %d",lite_item_devid.value_int);
 
-	IOT_DM_Subdev_Login(lite_item_devid.value_int);
+	iotx_dm_subdev_login(lite_item_devid.value_int);
 }
 
 void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
@@ -178,81 +178,81 @@ int main(int argc, char *argv[])
 	dm_init_params.event_callback = linkkit_event_callback;
 
 	int value = 0;
-	IOT_DM_Set_Opt(0,&value);
-	IOT_DM_Set_Opt(1,&value);
-	IOT_DM_Set_Opt(2,&value);
-	res = IOT_DM_Construct(&dm_init_params);
+	iotx_dm_set_opt(0,&value);
+	iotx_dm_set_opt(1,&value);
+	iotx_dm_set_opt(2,&value);
+	res = iotx_dm_construct(&dm_init_params);
 	if (res != SUCCESS_RETURN) {
-		linkkit_log("IOT_DM_Construct Failed");
+		linkkit_log("iotx_dm_construct Failed");
 		return FAIL_RETURN;
 	}
 
-	IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
-	//IOT_DM_Set_TSL(IOTX_DMGR_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
+	iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
+	//iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 
 	//iotx_dsub_local_register();
 	char *testpk = "a13KoHF52kc";
 	char *testdn = "type-001";
 	//char *testpayload = "this is test";
-	IOT_DM_Subdev_Create(testpk,testdn,&devid);
+	iotx_dm_subdev_create(testpk,testdn,&devid);
 	while(1) {
 		//HAL_SleepMs(1000);
 		//if (time > 10000) break;
-		//if(time == 5000) {IOT_DM_Subdev_Topo_Del(devid);}
+		//if(time == 5000) {iotx_dm_subdev_topo_del(devid);}
 		//if (time == 5000) {iotx_dmgr_upstream_thing_topo_get();}
 		//if (time == 5000) {iotx_dmgr_upstream_thing_list_found(devid);}
-		//if (time == 5000) {IOT_DM_Subdev_Register(devid);}
-		//if (time == 3000) {IOT_DM_Subdev_Topo_Add(devid1);}
-		//if (time == 8000) {IOT_DM_Subdev_Topo_Del(devid1);}
-		//if (time == 7000) {IOT_DM_Subdev_Login(devid);}
+		//if (time == 5000) {iotx_dm_subdev_register(devid);}
+		//if (time == 3000) {iotx_dm_subdev_topo_add(devid1);}
+		//if (time == 8000) {iotx_dm_subdev_topo_del(devid1);}
+		//if (time == 7000) {iotx_dm_subdev_login(devid);}
 		//if (time == 8000) {iotx_dmgr_upstream_thing_model_up_raw(devid,testpayload,strlen(testpayload));}
-		//if (time == 8000) {IOT_DM_Subdev_Unregister(devid);}
+		//if (time == 8000) {iotx_dm_subdev_unregister(devid);}
 		#if 0
 		if (time == 10000) {
 			int res = 0;
 			void *handle = NULL;
-			res = IOT_DM_Post_Property_Start(devid,&handle);
+			res = iotx_dm_post_property_start(devid,&handle);
 			if (res != SUCCESS_RETURN) {
-				dm_log_debug("IOT_DM_Post_Property_Start Error");
+				dm_log_debug("iotx_dm_post_property_start Error");
 			}
 
 			#if 1
-			res = IOT_DM_Post_Property_Add(handle,"WorkPlans");
+			res = iotx_dm_post_property_add(handle,"WorkPlans");
 			if (res != SUCCESS_RETURN) {
-				dm_log_debug("IOT_DM_Post_Property_Add Error");
+				dm_log_debug("iotx_dm_post_property_add Error");
 			}
 			#endif
 			#if 0
-			res = IOT_DM_Post_Property_Add(handle,"WaterReplace");
+			res = iotx_dm_post_property_add(handle,"WaterReplace");
 			if (res != SUCCESS_RETURN) {
-				dm_log_debug("IOT_DM_Post_Property_Add Error");
+				dm_log_debug("iotx_dm_post_property_add Error");
 			}
 			
-			res = IOT_DM_Post_Property_Add(handle,IOTX_DM_POST_PROPERTY_ALL);
+			res = iotx_dm_post_property_add(handle,IOTX_DM_POST_PROPERTY_ALL);
 			if (res != SUCCESS_RETURN) {
-				dm_log_debug("IOT_DM_Post_Property_Add Error");
+				dm_log_debug("iotx_dm_post_property_add Error");
 			}
 			#endif
-			res = IOT_DM_Post_Property_End(&handle);
+			res = iotx_dm_post_property_end(&handle);
 			
 			if (res != SUCCESS_RETURN) {
-				dm_log_debug("IOT_DM_Post_Property_End Error");
+				dm_log_debug("iotx_dm_post_property_end Error");
 			}
 		}
 		#endif
 		//if (time == 8000) {break;}
 		#if 1
 		if (time == 8000) {
-			IOT_DM_Post_Event(0,"Error",strlen("Error"));
+			iotx_dm_post_event(0,"Error",strlen("Error"));
 		}
 		#endif
-		IOT_DM_Yield(100);
+		iotx_dm_yield(100);
 		time+=100;
-		IOT_DM_Dispatch();
+		iotx_dm_dispatch();
 		//linkkit_log("While Loop");
 	}
 	
-	IOT_DM_Destroy();
+	iotx_dm_destroy();
 	linkkit_log("sizeof(int): %d",sizeof(int));
 	linkkit_log("sizeof(float): %d",sizeof(float));
 	linkkit_log("sizeof(double): %d",sizeof(double));

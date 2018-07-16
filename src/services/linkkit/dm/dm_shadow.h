@@ -3,7 +3,7 @@
 
 #include "iot_import.h"
 #include "lite-cjson.h"
-#include "iot_export_dm.h"
+#include "iotx_dm.h"
 
 #define IOTX_DSW_KEY_SCHEMA                     "schema"
 #define IOTX_DSW_KEY_LINK                       "link"
