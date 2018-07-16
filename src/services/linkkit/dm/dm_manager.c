@@ -1369,7 +1369,7 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1411,7 +1411,7 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1453,7 +1453,7 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_ADD_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_ADD_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1495,7 +1495,7 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_DELETE_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_DELETE_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1532,7 +1532,7 @@ int dm_mgr_upstream_thing_topo_get(void)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_GET_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_GET_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1574,7 +1574,7 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_ADD_NOTIFY_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_ADD_NOTIFY_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1619,7 +1619,7 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
 		int prop_post_reply = 0;
 		res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_PROPERTY_POST_REPLY,&prop_post_reply);
 		if (res == SUCCESS_RETURN && prop_post_reply) {
-			iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
+			dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
 		}
 		res = request.msgid;
 	}
@@ -1676,7 +1676,7 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
 		int event_post_reply = 0;
 		res = iotx_dopt_get(IOTX_DOPT_DOWNSTREAM_EVENT_POST_REPLY,&event_post_reply);
 		if (res == SUCCESS_RETURN && event_post_reply) {
-			iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
+			dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY,NULL);
 		}
 		res = request.msgid;
 	}
@@ -1720,7 +1720,7 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1762,7 +1762,7 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1804,7 +1804,7 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1846,7 +1846,7 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1888,7 +1888,7 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_COMBINE_LOGIN_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_COMBINE_LOGIN_REPLY,NULL);
 		res = request.msgid;
 	}
 
@@ -1930,7 +1930,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 	/* Send Message To Cloud */
 	res = iotx_dmsg_request(&request);
 	if (res == SUCCESS_RETURN) {
-		iotx_dmc_msg_insert(request.msgid,request.devid,IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY,NULL);
+		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY,NULL);
 		res = request.msgid;
 	}
 

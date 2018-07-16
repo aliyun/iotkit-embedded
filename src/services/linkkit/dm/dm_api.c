@@ -59,7 +59,7 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 	}
 
 	/* DM Message Cache Init */
-	res = iotx_dmc_init();
+	res = dm_msg_cache_init();
 	if (res != SUCCESS_RETURN) {
 		dm_log_err(DM_UTILS_LOG_MESSAGE_CACHE_INIT_FAILED);
 		goto ERROR;
@@ -108,7 +108,7 @@ ERROR:
 	dm_mgr_deinit();
 	dm_ipc_deinit();
 	iotx_dmsg_deinit();
-	iotx_dmc_deinit();
+	dm_msg_cache_deinit();
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return FAIL_RETURN;
 }
@@ -121,7 +121,7 @@ int iotx_dm_destroy(void)
 	dm_mgr_deinit();
 	dm_ipc_deinit();
 	iotx_dmsg_deinit();
-	iotx_dmc_deinit();
+	dm_msg_cache_deinit();
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return SUCCESS_RETURN;
 }
@@ -652,7 +652,7 @@ void iotx_dm_dispatch(void)
 	void *data = NULL;
 
 	dm_mgr_dev_sub_status_check();
-	iotx_dmc_msg_tick();
+	dm_msg_cache_tick();
 	if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
 		dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
 

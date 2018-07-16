@@ -647,7 +647,7 @@ void iotx_dcs_thing_sub_register_reply(iotx_cm_send_peer_t* source, iotx_cm_mess
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_sub_unregister_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -669,7 +669,7 @@ void iotx_dcs_thing_sub_unregister_reply(iotx_cm_send_peer_t* source, iotx_cm_me
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_topo_add_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -691,7 +691,7 @@ void iotx_dcs_thing_topo_add_reply(iotx_cm_send_peer_t* source, iotx_cm_message_
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_topo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -712,7 +712,7 @@ void iotx_dcs_thing_topo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm_messa
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_topo_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -732,7 +732,7 @@ void iotx_dcs_thing_topo_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_list_found_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -767,7 +767,7 @@ void iotx_dcs_thing_event_property_post_reply(iotx_cm_send_peer_t* source, iotx_
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_event_post_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, char *identifier, int identifier_len, void* user_data)
@@ -789,7 +789,7 @@ void iotx_dcs_thing_event_post_reply(iotx_cm_send_peer_t* source, iotx_cm_messag
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_deviceinfo_update_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -809,7 +809,7 @@ void iotx_dcs_thing_deviceinfo_update_reply(iotx_cm_send_peer_t* source, iotx_cm
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_deviceinfo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -829,7 +829,7 @@ void iotx_dcs_thing_deviceinfo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_dsltemplate_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -849,7 +849,7 @@ void iotx_dcs_thing_dsltemplate_get_reply(iotx_cm_send_peer_t* source, iotx_cm_m
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_dynamictsl_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -869,7 +869,7 @@ void iotx_dcs_thing_dynamictsl_get_reply(iotx_cm_send_peer_t* source, iotx_cm_me
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_combine_login_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -891,7 +891,7 @@ void iotx_dcs_combine_login_reply(iotx_cm_send_peer_t* source, iotx_cm_message_i
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_combine_logout_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -913,7 +913,7 @@ void iotx_dcs_combine_logout_reply(iotx_cm_send_peer_t* source, iotx_cm_message_
 
 	/* Remove Message From Cache */
 	memcpy(int_id,response.id.value,response.id.value_length);
-	iotx_dmc_msg_remove(atoi(int_id));
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void iotx_dcs_thing_model_up_raw_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)

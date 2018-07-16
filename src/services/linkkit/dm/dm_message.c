@@ -1218,7 +1218,7 @@ int iotx_dmsg_thing_sub_unregister_reply(iotx_dmsg_response_payload_t *response)
 	int res = 0, id, message_len = 0;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 	char *message = NULL;
-	iotx_dmc_node_t *node = NULL;
+	dm_msg_cache_node_t *node = NULL;
 
 	if (response == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1230,7 +1230,7 @@ int iotx_dmsg_thing_sub_unregister_reply(iotx_dmsg_response_payload_t *response)
 
 	dm_log_debug("Current ID: %d",id);
 
-	res = iotx_dmc_msg_search(id,&node);
+	res = dm_msg_cache_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	message_len = strlen(IOTX_DMSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
@@ -1253,7 +1253,7 @@ int iotx_dmsg_thing_topo_add_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0, message_len = 0;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-	iotx_dmc_node_t *node = NULL;
+	dm_msg_cache_node_t *node = NULL;
 	char *message = NULL;
 
 	memcpy(int_id,response->id.value,response->id.value_length);
@@ -1261,7 +1261,7 @@ int iotx_dmsg_thing_topo_add_reply(iotx_dmsg_response_payload_t *response)
 
 	dm_log_debug("Current ID: %d",id);
 
-	res = iotx_dmc_msg_search(id,&node);
+	res = dm_msg_cache_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Update State Machine */
@@ -1288,7 +1288,7 @@ int iotx_dmsg_thing_topo_delete_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0, message_len = 0;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-	iotx_dmc_node_t *node = NULL;
+	dm_msg_cache_node_t *node = NULL;
 	char *message = NULL;
 
 	memcpy(int_id,response->id.value,response->id.value_length);
@@ -1296,7 +1296,7 @@ int iotx_dmsg_thing_topo_delete_reply(iotx_dmsg_response_payload_t *response)
 
 	dm_log_debug("Current ID: %d",id);
 
-	res = iotx_dmc_msg_search(id,&node);
+	res = dm_msg_cache_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	/* Update State Machine */
@@ -1365,7 +1365,7 @@ int iotx_dmsg_thing_event_property_post_reply(iotx_dmsg_response_payload_t *resp
 	int res = 0, id = 0, message_len = 0;
 	char *message = NULL;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-	iotx_dmc_node_t *node = NULL;
+	dm_msg_cache_node_t *node = NULL;
 
 	/* Message ID */
 	memcpy(int_id,response->id.value,response->id.value_length);
@@ -1373,7 +1373,7 @@ int iotx_dmsg_thing_event_property_post_reply(iotx_dmsg_response_payload_t *resp
 
 	dm_log_debug("Current ID: %d",id);
 
-	res = iotx_dmc_msg_search(id,&node);
+	res = dm_msg_cache_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	message_len = strlen(IOTX_DMSG_EVENT_PROPERTY_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
@@ -1400,7 +1400,7 @@ int iotx_dmsg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_
 	int res = 0, id = 0, message_len = 0;
 	char *message = NULL;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-	iotx_dmc_node_t *node = NULL;
+	dm_msg_cache_node_t *node = NULL;
 
 	/* Message ID */
 	memcpy(int_id,response->id.value,response->id.value_length);
@@ -1408,7 +1408,7 @@ int iotx_dmsg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_
 
 	dm_log_debug("Current ID: %d",id);
 
-	res = iotx_dmc_msg_search(id,&node);
+	res = dm_msg_cache_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	message_len = strlen(IOTX_DMSG_EVENT_SPECIFIC_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + strlen(identifier) + 1;
@@ -1443,7 +1443,7 @@ int iotx_dmsg_thing_dsltemplate_get_reply(iotx_dmsg_response_payload_t *response
 {
 	int res = 0, id = 0;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-	iotx_dmc_node_t *node = NULL;
+	dm_msg_cache_node_t *node = NULL;
 
 	if (response == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1456,7 +1456,7 @@ int iotx_dmsg_thing_dsltemplate_get_reply(iotx_dmsg_response_payload_t *response
 
 	dm_log_debug("Current ID: %d",id);
 
-	res = iotx_dmc_msg_search(id,&node);
+	res = dm_msg_cache_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	dm_mgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);
@@ -1471,7 +1471,7 @@ int iotx_dmsg_thing_dynamictsl_get_reply(iotx_dmsg_response_payload_t *response)
 {
 	int res = 0, id = 0;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-	iotx_dmc_node_t *node = NULL;
+	dm_msg_cache_node_t *node = NULL;
 
 	if (response == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1484,7 +1484,7 @@ int iotx_dmsg_thing_dynamictsl_get_reply(iotx_dmsg_response_payload_t *response)
 
 	dm_log_debug("Current ID: %d",id);
 
-	res = iotx_dmc_msg_search(id,&node);
+	res = dm_msg_cache_search(id,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	dm_mgr_set_tsl(node->devid,IOTX_DM_TSL_TYPE_ALINK,(const char *)response->data.value,response->data.value_length);

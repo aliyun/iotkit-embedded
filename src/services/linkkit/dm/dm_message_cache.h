@@ -1,10 +1,9 @@
-#ifndef _IOTX_DM_MESSAGE_CACHE_H_
-#define _IOTX_DM_MESSAGE_CACHE_H_
+#ifndef _DM_MESSAGE_CACHE_H_
+#define _DM_MESSAGE_CACHE_H_
 
-#include "lite-list.h"
-#include "iotx_dm.h"
+#include "iotx_dm_internal.h"
 
-#define IOTX_DCS_MSG_TIMEOUT_MS_DEFAULT (10000)
+#define DM_MSG_CACHE_TIMEOUT_MS_DEFAULT (10000)
 
 typedef struct {
 	int msgid;
@@ -13,18 +12,18 @@ typedef struct {
 	char *data;
 	uint64_t ctime;
 	struct list_head linked_list;
-}iotx_dmc_node_t;
+}dm_msg_cache_node_t;
 
 typedef struct {
 	void *mutex;
 	struct list_head dmc_list;
-}iotx_dmc_ctx_t;
+}dm_msg_cache_ctx_t;
 
-int iotx_dmc_init(void);
-int iotx_dmc_deinit(void);
-int iotx_dmc_msg_insert(int msg_id, int devid, iotx_dm_event_types_t type, char *data);
-int iotx_dmc_msg_search(_IN_ int msg_id, _OU_ iotx_dmc_node_t **node);
-int iotx_dmc_msg_remove(int msg_id);
-void iotx_dmc_msg_tick(void);
+int dm_msg_cache_init(void);
+int dm_msg_cache_deinit(void);
+int dm_msg_cache_insert(int msg_id, int devid, iotx_dm_event_types_t type, char *data);
+int dm_msg_cache_search(_IN_ int msg_id, _OU_ dm_msg_cache_node_t **node);
+int dm_msg_cache_remove(int msg_id);
+void dm_msg_cache_tick(void);
 
 #endif
