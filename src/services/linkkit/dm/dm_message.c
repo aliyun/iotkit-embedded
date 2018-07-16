@@ -7,7 +7,7 @@
 #include "dm_shadow.h"
 #include "dm_ipc.h"
 #include "dm_subscribe.h"
-#include "dm_msg_dispatch.h"
+#include "dm_dispatch.h"
 #include "dm_message_cache.h"
 #include "dm_subscribe.h"
 #include "dm_opt.h"
@@ -110,13 +110,13 @@ int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli,
 		return FAIL_RETURN;
 	}
 
-	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,start_deli,&start);
+	res = dm_utils_memtok(uri,uri_len,DM_DISP_SERVICE_DELIMITER,start_deli,&start);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,start_deli + 1,&slice);
+	res = dm_utils_memtok(uri,uri_len,DM_DISP_SERVICE_DELIMITER,start_deli + 1,&slice);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = dm_utils_memtok(uri,uri_len,IOTX_DCS_SERVICE_DELIMITER,end_deli,&end);
+	res = dm_utils_memtok(uri,uri_len,DM_DISP_SERVICE_DELIMITER,end_deli,&end);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	dm_log_debug("URI Product Key: %.*s, Device Name: %.*s",slice - start - 1,uri + start + 1,end - slice - 1,uri + slice + 1);
@@ -1835,19 +1835,19 @@ int dm_msg_register_result(_IN_ char *uri,_IN_ int result)
 
 	if (result != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	res = iotx_dcs_uri_prefix_sys_split(uri,strlen(uri),NULL,NULL);
+	res = dm_disp_uri_prefix_sys_split(uri,strlen(uri),NULL,NULL);
 	if (res == SUCCESS_RETURN) {
 		res = dm_msg_uri_parse_pkdn(uri,strlen(uri),2,4,product_key,device_name);
 		if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	}
 
-	res = iotx_dcs_uri_prefix_ext_session_split(uri,strlen(uri),NULL,NULL);
+	res = dm_disp_uri_prefix_ext_session_split(uri,strlen(uri),NULL,NULL);
 	if (res == SUCCESS_RETURN) {
 		res = dm_msg_uri_parse_pkdn(uri,strlen(uri),3,5,product_key,device_name);
 		if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	}
 
-	res = iotx_dcs_uri_prefix_ext_ntp_split(uri,strlen(uri),NULL,NULL);
+	res = dm_disp_uri_prefix_ext_ntp_split(uri,strlen(uri),NULL,NULL);
 	if (res == SUCCESS_RETURN) {
 		res = dm_msg_uri_parse_pkdn(uri,strlen(uri),3,5,product_key,device_name);
 		if(res != SUCCESS_RETURN) {return FAIL_RETURN;}
@@ -1861,11 +1861,11 @@ int dm_msg_register_result(_IN_ char *uri,_IN_ int result)
 
 	dm_log_debug("Current Generic Index: %d",index);
 
-	if (index >= 0 && index + 1 < iotx_dcs_get_topic_mapping_size()) {
+	if (index >= 0 && index + 1 < dm_disp_get_topic_mapping_size()) {
 		res = iotx_dsub_multi_next(devid,index + 1);
-		if (res != iotx_dcs_get_topic_mapping_size()) {return res;}
+		if (res != dm_disp_get_topic_mapping_size()) {return res;}
 	}
-	if ((((index + 1) >= iotx_dcs_get_topic_mapping_size()) || (res == iotx_dcs_get_topic_mapping_size())) && index != DM_MGR_DEV_SUB_END) {
+	if ((((index + 1) >= dm_disp_get_topic_mapping_size()) || (res == dm_disp_get_topic_mapping_size())) && index != DM_MGR_DEV_SUB_END) {
 		dm_log_debug("Devid %d Subscribe Completed",devid);
 
 		if (devid == IOTX_DM_LOCAL_NODE_DEVID) {dm_mgr_upstream_ntp_request();}

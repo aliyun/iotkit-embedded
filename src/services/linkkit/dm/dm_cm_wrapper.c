@@ -1,13 +1,13 @@
 #include "iotx_dm_internal.h"
 #include "dm_cm_wrapper.h"
-#include "dm_msg_dispatch.h"
+#include "dm_dispatch.h"
 #include "dm_manager.h"
 #include "iot_export_cm.h"
 
 void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
 {
     int res = 0, index = 0;
-    iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
+    dm_disp_topic_mapping_t *dcs_mapping = dm_disp_get_topic_mapping();
 
     dm_log_info("DMGR TOPIC CALLBACK");
 
@@ -19,20 +19,20 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
     dm_log_info("DMGR Receive Message: %s", (msg->URI == NULL) ? ("NULL") : (msg->URI));
 
     int prefix_end = 0, prefix_uri_end = 0;
-    res = iotx_dcs_uri_prefix_sys_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
+    res = dm_disp_uri_prefix_sys_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
     if (res == SUCCESS_RETURN) {
         /* URI Start With /sys/ */
         dm_log_debug("Current URI Without /sys: %.*s", prefix_uri_end + 1, msg->URI + prefix_end);
 
         int pkdn_end = 0, pkdn_uri_end = 0;
-        res = iotx_dcs_uri_pkdn_split(msg->URI + prefix_end, prefix_uri_end + 1, &pkdn_end, &pkdn_uri_end);
+        res = dm_disp_uri_pkdn_split(msg->URI + prefix_end, prefix_uri_end + 1, &pkdn_end, &pkdn_uri_end);
         if (res == SUCCESS_RETURN) {
             /* pkdn_end At /sys/%s/%s/ */
             dm_log_debug("Current URI Without /sys/pk/dn/: %.*s", pkdn_uri_end, msg->URI + prefix_end + pkdn_end + 1);
-            for (index = 0; index < iotx_dcs_get_topic_mapping_size(); index++) {
+            for (index = 0; index < dm_disp_get_topic_mapping_size(); index++) {
                 if ((strlen(dcs_mapping[index].service_name) == pkdn_uri_end) &&
                     (memcmp(dcs_mapping[index].service_name, msg->URI + prefix_end + pkdn_end + 1, pkdn_uri_end) == 0) &&
-                    (memcmp(dcs_mapping[index].service_prefix, IOTX_DCS_SYS_PREFIX, strlen(IOTX_DCS_SYS_PREFIX)) == 0)) {
+                    (memcmp(dcs_mapping[index].service_prefix, DM_DISP_SYS_PREFIX, strlen(DM_DISP_SYS_PREFIX)) == 0)) {
                     dcs_mapping[index].service_handler(source, msg, user_data);
                     return;
                 }
@@ -41,13 +41,13 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
             int identifier_start = 0, identifier_end = 0;
 
             /* Check URI Match /sys/pk/dn/thing/service/{service_id} */
-            res = iotx_dcs_uri_service_specific_split(msg->URI + prefix_end + pkdn_end, pkdn_uri_end + 1, &identifier_start,
+            res = dm_disp_uri_service_specific_split(msg->URI + prefix_end + pkdn_end, pkdn_uri_end + 1, &identifier_start,
                     &identifier_end);
             if (res == SUCCESS_RETURN) {
                 dm_log_debug("identifier_start: %d, identifier_end: %d", identifier_start, identifier_end);
                 dm_log_debug("Current Service Identifier: %.*s", identifier_end - identifier_start,
                              msg->URI + prefix_end + pkdn_end + identifier_start + 1);
-                iotx_dcs_thing_service_request(source, msg, msg->URI + prefix_end + pkdn_end + identifier_start + 1,
+                dm_disp_thing_service_request(source, msg, msg->URI + prefix_end + pkdn_end + identifier_start + 1,
                                                identifier_end - identifier_start, user_data);
                 return;
             }
@@ -55,13 +55,13 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
             identifier_start = 0;
             identifier_end = 0;
             /* Check URI Match /sys/pk/dn/thing/event/{event_id}/post_reply */
-            res = iotx_dcs_uri_event_specific_split(msg->URI + prefix_end + pkdn_end, pkdn_uri_end + 1, &identifier_start,
+            res = dm_disp_uri_event_specific_split(msg->URI + prefix_end + pkdn_end, pkdn_uri_end + 1, &identifier_start,
                                                     &identifier_end);
             if (res == SUCCESS_RETURN) {
                 dm_log_debug("identifier_start: %d, identifier_end: %d", identifier_start, identifier_end);
                 dm_log_debug("Current Event Identifier: %.*s", identifier_end - identifier_start - 1,
                              msg->URI + prefix_end + pkdn_end + identifier_start + 1);
-                iotx_dcs_thing_event_post_reply(source, msg, msg->URI + prefix_end + pkdn_end + identifier_start + 1,
+                dm_disp_thing_event_post_reply(source, msg, msg->URI + prefix_end + pkdn_end + identifier_start + 1,
                                                 identifier_end - identifier_start - 1, user_data);
                 return;
             }
@@ -69,19 +69,19 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
     }
 
     prefix_end = 0, prefix_uri_end = 0;
-    res = iotx_dcs_uri_prefix_ext_session_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
+    res = dm_disp_uri_prefix_ext_session_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
     if (res == SUCCESS_RETURN) {
         /* URI Start With /ext/session/ */
         dm_log_debug("Current URI Without /ext/session: %.*s", prefix_uri_end + 1, msg->URI + prefix_end);
         int pkdn_end = 0, pkdn_uri_end = 0;
-        res = iotx_dcs_uri_pkdn_split(msg->URI + prefix_end, prefix_uri_end + 1, &pkdn_end, &pkdn_uri_end);
+        res = dm_disp_uri_pkdn_split(msg->URI + prefix_end, prefix_uri_end + 1, &pkdn_end, &pkdn_uri_end);
         if (res == SUCCESS_RETURN) {
             /* pkdn_end At /sys/%s/%s/ */
             dm_log_debug("Current URI Without /sys/pk/dn/: %.*s", pkdn_uri_end, msg->URI + prefix_end + pkdn_end + 1);
-            for (index = 0; index < iotx_dcs_get_topic_mapping_size(); index++) {
+            for (index = 0; index < dm_disp_get_topic_mapping_size(); index++) {
                 if ((strlen(dcs_mapping[index].service_name) == pkdn_uri_end) &&
                     (memcmp(dcs_mapping[index].service_name, msg->URI + prefix_end + pkdn_end + 1, pkdn_uri_end) == 0) &&
-                    (memcmp(dcs_mapping[index].service_prefix, IOTX_DCS_EXT_SESSION_PREFIX, strlen(IOTX_DCS_EXT_SESSION_PREFIX)) == 0)) {
+                    (memcmp(dcs_mapping[index].service_prefix, DM_DISP_EXT_SESSION_PREFIX, strlen(DM_DISP_EXT_SESSION_PREFIX)) == 0)) {
                     dcs_mapping[index].service_handler(source, msg, user_data);
                     return;
                 }
@@ -90,19 +90,19 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
     }
 
 	prefix_end = 0, prefix_uri_end = 0;
-    res = iotx_dcs_uri_prefix_ext_ntp_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
+    res = dm_disp_uri_prefix_ext_ntp_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
     if (res == SUCCESS_RETURN) {
         /* URI Start With /ext/ntp/ */
         dm_log_debug("Current URI Without /ext/ntp: %.*s", prefix_uri_end + 1, msg->URI + prefix_end);
         int pkdn_end = 0, pkdn_uri_end = 0;
-        res = iotx_dcs_uri_pkdn_split(msg->URI + prefix_end, prefix_uri_end + 1, &pkdn_end, &pkdn_uri_end);
+        res = dm_disp_uri_pkdn_split(msg->URI + prefix_end, prefix_uri_end + 1, &pkdn_end, &pkdn_uri_end);
         if (res == SUCCESS_RETURN) {
             /* pkdn_end At /sys/%s/%s/ */
             dm_log_debug("Current URI Without /ext/ntp/: %.*s", pkdn_uri_end, msg->URI + prefix_end + pkdn_end + 1);
-            for (index = 0; index < iotx_dcs_get_topic_mapping_size(); index++) {
+            for (index = 0; index < dm_disp_get_topic_mapping_size(); index++) {
                 if ((strlen(dcs_mapping[index].service_name) == pkdn_uri_end) &&
                     (memcmp(dcs_mapping[index].service_name, msg->URI + prefix_end + pkdn_end + 1, pkdn_uri_end) == 0) &&
-                    (memcmp(dcs_mapping[index].service_prefix, IOTX_DCS_EXT_NTP_PREFIX, strlen(IOTX_DCS_EXT_NTP_PREFIX)) == 0)) {
+                    (memcmp(dcs_mapping[index].service_prefix, DM_DISP_EXT_NTP_PREFIX, strlen(DM_DISP_EXT_NTP_PREFIX)) == 0)) {
                     dcs_mapping[index].service_handler(source, msg, user_data);
                     return;
                 }
@@ -110,7 +110,7 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
         }
     }
 
-    for (index = 0; index < iotx_dcs_get_topic_mapping_size(); index++) {
+    for (index = 0; index < dm_disp_get_topic_mapping_size(); index++) {
         if ((strlen(dcs_mapping[index].service_name) == msg->URI_length) &&
             (memcmp(dcs_mapping[index].service_name, msg->URI, msg->URI_length) == 0)) {
             dcs_mapping[index].service_handler(source, msg, user_data);
@@ -119,13 +119,13 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
     }
 
     /* TSL Topic Or User Dynamic Add Topic */
-    iotx_dcs_user_defined_handler(source, msg, user_data);
+    dm_disp_user_defined_handler(source, msg, user_data);
 
 }
 
 void dm_cmw_event_callback(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
-    iotx_dcs_event_mapping_t *dcw_event_mapping = iotx_dcs_get_event_mapping();
+    dm_disp_event_mapping_t *dcw_event_mapping = dm_disp_get_event_mapping();
 
     if (msg == NULL) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);

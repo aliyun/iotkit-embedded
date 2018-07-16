@@ -7,7 +7,7 @@
 #include "dm_manager.h"
 #include "dm_shadow.h"
 #include "dm_ipc.h"
-#include "dm_msg_dispatch.h"
+#include "dm_dispatch.h"
 #include "dm_message.h"
 #include "dm_cm_wrapper.h"
 

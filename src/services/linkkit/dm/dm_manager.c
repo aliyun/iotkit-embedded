@@ -2,7 +2,7 @@
 #include "dm_manager.h"
 #include "dm_shadow.h"
 #include "dm_cm_wrapper.h"
-#include "dm_msg_dispatch.h"
+#include "dm_dispatch.h"
 #include "dm_ipc.h"
 #include "dm_message.h"
 #include "dm_message_cache.h"
@@ -745,8 +745,8 @@ void dm_mgr_dev_sub_status_check(void)
 {
 	int res = 0;
 	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
-	iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
-	int dcs_mapping_size = iotx_dcs_get_topic_mapping_size();
+	dm_disp_topic_mapping_t *dcs_mapping = dm_disp_get_topic_mapping();
+	int dcs_mapping_size = dm_disp_get_topic_mapping_size();
 	dm_mgr_dev_node_t *node = NULL;
 	uint64_t current_time = HAL_UptimeMs();
 	char *service_name = NULL;
@@ -1351,8 +1351,8 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_SUB_REGISTER;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_SUB_REGISTER;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1393,8 +1393,8 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_SUB_UNREGISTER;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_SUB_UNREGISTER;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1435,8 +1435,8 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_TOPO_ADD;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_TOPO_ADD;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1477,8 +1477,8 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_TOPO_DELETE;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_TOPO_DELETE;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1511,8 +1511,8 @@ int dm_mgr_upstream_thing_topo_get(void)
 	dm_msg_request_t request;
 
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_TOPO_GET;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_TOPO_GET;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1556,8 +1556,8 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_LIST_FOUND;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_LIST_FOUND;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1598,8 +1598,8 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_EVENT_PROPERTY_POST;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_EVENT_PROPERTY_POST;
 	memcpy(request.product_key,node->product_key,strlen(node->product_key));
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
 
@@ -1645,17 +1645,17 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
-	service_name_len = strlen(IOTX_DCS_THING_EVENT_POST) + identifier_len + 1;
+	service_name_len = strlen(DM_DISP_THING_EVENT_POST) + identifier_len + 1;
 	service_name = DM_malloc(service_name_len);
 	if (service_name == NULL) {
 		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
 	memset(service_name,0,service_name_len);
-	HAL_Snprintf(service_name,service_name_len,IOTX_DCS_THING_EVENT_POST,identifier_len,identifier);
+	HAL_Snprintf(service_name,service_name_len,DM_DISP_THING_EVENT_POST,identifier_len,identifier);
 
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
 	request.service_name = service_name;
 	memcpy(request.product_key,node->product_key,strlen(node->product_key));
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
@@ -1702,8 +1702,8 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_DEVICEINFO_UPDATE;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_DEVICEINFO_UPDATE;
 	memcpy(request.product_key,node->product_key,strlen(node->product_key));
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
 
@@ -1744,8 +1744,8 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_DEVICEINFO_DELETE;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_DEVICEINFO_DELETE;
 	memcpy(request.product_key,node->product_key,strlen(node->product_key));
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
 
@@ -1786,8 +1786,8 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_DSLTEMPLATE_GET;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_DSLTEMPLATE_GET;
 	memcpy(request.product_key,node->product_key,strlen(node->product_key));
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
 
@@ -1828,8 +1828,8 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_DYNAMICTSL_GET;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_DYNAMICTSL_GET;
 	memcpy(request.product_key,node->product_key,strlen(node->product_key));
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
 
@@ -1870,8 +1870,8 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_EXT_SESSION_PREFIX;
-	request.service_name = IOTX_DCS_COMBINE_LOGIN;
+	request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
+	request.service_name = DM_DISP_COMBINE_LOGIN;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1912,8 +1912,8 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_EXT_SESSION_PREFIX;
-	request.service_name = IOTX_DCS_COMBINE_LOGOUT;
+	request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
+	request.service_name = DM_DISP_COMBINE_LOGOUT;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -1955,8 +1955,8 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_MODEL_UP_RAW;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_MODEL_UP_RAW;
 	memcpy(request.product_key,node->product_key,strlen(node->product_key));
 	memcpy(request.device_name,node->device_name,strlen(node->device_name));
 
@@ -1993,8 +1993,8 @@ int dm_mgr_upstream_ntp_request(void)
 	dm_msg_request_t request;
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_EXT_NTP_PREFIX;
-	request.service_name = IOTX_DCS_NTP_REQUEST;
+	request.service_prefix = DM_DISP_EXT_NTP_PREFIX;
+	request.service_name = DM_DISP_NTP_REQUEST;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
@@ -2052,7 +2052,7 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ 
 	request.id.value_length = strlen(msgid_str);
 
 	/* Service Name */
-	service_name_len = strlen(IOTX_DCS_THING_SERVICE_RESPONSE) + identifier_len + 1;
+	service_name_len = strlen(DM_DISP_THING_SERVICE_RESPONSE) + identifier_len + 1;
 	service_name = DM_malloc(service_name_len);
 	if (service_name == NULL) {
 		DM_free(msgid_str);
@@ -2060,10 +2060,10 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ 
 		return FAIL_RETURN;
 	}
 	memset(service_name,0,service_name_len);
-	HAL_Snprintf(service_name,service_name_len,IOTX_DCS_THING_SERVICE_RESPONSE,identifier_len,identifier);
+	HAL_Snprintf(service_name,service_name_len,DM_DISP_THING_SERVICE_RESPONSE,identifier_len,identifier);
 
 	/* Response */
-	response.service_prefix = IOTX_DCS_SYS_PREFIX;
+	response.service_prefix = DM_DISP_SYS_PREFIX;
 	response.service_name = service_name;
 	memcpy(response.product_key,node->product_key,strlen(node->product_key));
 	memcpy(response.device_name,node->device_name,strlen(node->device_name));
@@ -2091,8 +2091,8 @@ int dm_mgr_upstream_thing_lan_prefix_get(_IN_ int devid)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
 	memset(&request,0,sizeof(dm_msg_request_t));
-	request.service_prefix = IOTX_DCS_SYS_PREFIX;
-	request.service_name = IOTX_DCS_THING_LAN_PREFIX_GET;
+	request.service_prefix = DM_DISP_SYS_PREFIX;
+	request.service_name = DM_DISP_THING_LAN_PREFIX_GET;
 	HAL_GetProductKey(request.product_key);
 	HAL_GetDeviceName(request.device_name);
 
