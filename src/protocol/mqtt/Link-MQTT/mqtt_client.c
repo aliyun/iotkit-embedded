@@ -2541,7 +2541,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 extern unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], unsigned char chip_code[CHIP_CODE_SIZE], 
                                           unsigned char *output_buffer, unsigned int output_buffer_size) __attribute__((weak));
 // aos will implement this function
-extern const char *aos_get_kernel_version(void) __attribute__((weak));
+extern const char *aos_version_get(void) __attribute__((weak));
 
 char* __attribute__((weak)) HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
 {
@@ -2571,13 +2571,13 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     
     mqtt_info("aos version report started in MQTT");
 
-    if (!aos_get_kernel_version) {
+    if (!aos_version_get) {
         mqtt_info("aos can't get kernel version");
         return FAIL_RETURN;
     }
 
     // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
-    ret = iotx_get_aos_hex_version((char*)aos_get_kernel_version(), version);
+    ret = iotx_get_aos_hex_version((char*)aos_version_get(), version);
     if (-1 == ret) {
         mqtt_err("Get AOS kernel version failed");
         return FAIL_RETURN;

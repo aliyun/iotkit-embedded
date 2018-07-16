@@ -143,7 +143,7 @@ unsigned int aos_get_version_info(unsigned char version_num[4], unsigned char ra
     return 0;
 }
 
-const char *aos_get_kernel_version(void)
+const char *aos_version_get(void)
 {
     return "AOS-R-1.3.0";
 }
