@@ -371,7 +371,7 @@ int main(void)
     }
 
     while (gateway.register_completed == 0)
-        sleep(1);
+        HAL_SleepMs(1000);
 
     /*
      * subdev start
@@ -385,7 +385,7 @@ int main(void)
          * please follow user's case, modify this logic
          */
         linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "Error", "{\"ErrorCode\": 0}", 10000);
-        usleep(1000 * 1000);
+        HAL_SleepMs(1000);
     }
 
     /*
