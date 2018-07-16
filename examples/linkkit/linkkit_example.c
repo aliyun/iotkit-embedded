@@ -387,6 +387,6 @@ int main(int argc, char *argv[])
 
 	msg.URI = uri;
 	msg.URI_length = strlen(uri);
-	iotx_dcw_topic_callback(&source, &msg, NULL);
+	dm_cmw_topic_callback(&source, &msg, NULL);
 }
 #endif

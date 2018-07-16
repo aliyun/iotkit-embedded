@@ -262,7 +262,7 @@ int iotx_dmsg_request(_IN_ iotx_dmsg_request_t *request)
 
 	dm_log_info("DM Send Message, URI: %s, Payload: %s",uri,payload);
 
-	res = iotx_dcw_send_to_all(uri,payload,NULL);
+	res = dm_cmw_send_to_all(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
 		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
@@ -303,7 +303,7 @@ int iotx_dmsg_response_with_data(_IN_ iotx_dmsg_request_payload_t *request, _IN_
 
 	dm_log_debug("Send URI: %s, Payload: %s",uri,payload);
 
-	res = iotx_dcw_send_to_all(uri,payload,NULL);
+	res = dm_cmw_send_to_all(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
 		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);
@@ -342,7 +342,7 @@ int iotx_dmsg_response_without_data(_IN_ iotx_dmsg_request_payload_t *request, _
 	HAL_Snprintf(payload,payload_len,IOTX_DMSG_RESPONSE_WITHOUT_DATA,
 					request->id.value_length,request->id.value,response->code);
 
-	res = iotx_dcw_send_to_all(uri,payload,NULL);
+	res = dm_cmw_send_to_all(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
 		dm_log_err(IOTX_DM_LOG_CM_SEND_MESSAGE_FAILED);

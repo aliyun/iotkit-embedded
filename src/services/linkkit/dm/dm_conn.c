@@ -16,21 +16,21 @@ int iotx_dconn_init(void)
 	memset(ctx,0,sizeof(iotx_dconn_ctx));
 	
 	/* Create Cloud Connectivity */
-	res = iotx_dcw_conn_cloud_mqtt_init(&ctx->cloud_connectivity);
+	res = dm_cmw_conn_cloud_mqtt_init(&ctx->cloud_connectivity);
 	if (res == ERROR_NO_MEM) {goto ERROR;}
 
 	/* Create Local Connectivity */
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
-	res = iotx_dcw_conn_local_alcs_init(&ctx->local_connectivity);
+	res = dm_cmw_conn_local_alcs_init(&ctx->local_connectivity);
 	if (res == ERROR_NO_MEM) {goto ERROR;}
 #endif
 
 	return SUCCESS_RETURN;
 ERROR:
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
-	if (ctx->local_connectivity) {iotx_dcw_conn_destroy(&ctx->local_connectivity);}
+	if (ctx->local_connectivity) {dm_cmw_conn_destroy(&ctx->local_connectivity);}
 #endif
-	if (ctx->cloud_connectivity) {iotx_dcw_conn_destroy(&ctx->cloud_connectivity);}
+	if (ctx->cloud_connectivity) {dm_cmw_conn_destroy(&ctx->cloud_connectivity);}
 
 	return FAIL_RETURN;
 }
@@ -39,9 +39,9 @@ int iotx_dconn_deinit(void)
 {
 	iotx_dconn_ctx *ctx = _iotx_dconn_get_ctx();
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
-	if (ctx->local_connectivity) {iotx_dcw_conn_destroy(&ctx->local_connectivity);}
+	if (ctx->local_connectivity) {dm_cmw_conn_destroy(&ctx->local_connectivity);}
 #endif
-	if (ctx->cloud_connectivity) {iotx_dcw_conn_destroy(&ctx->cloud_connectivity);}
+	if (ctx->cloud_connectivity) {dm_cmw_conn_destroy(&ctx->cloud_connectivity);}
 
 	return SUCCESS_RETURN;
 }

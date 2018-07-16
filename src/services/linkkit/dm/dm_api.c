@@ -87,7 +87,7 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 	}
 	
 	/* DM CM Wrapper Module Init */
-	res = iotx_dcw_init(init_params->secret_type,init_params->domain_type);
+	res = dm_cmw_init(init_params->secret_type,init_params->domain_type);
 	if (res != SUCCESS_RETURN) {
 		dm_log_err(IOTX_DM_LOG_CM_INIT_FAILED);
 		goto ERROR;
@@ -104,7 +104,7 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 
 ERROR:
 	iotx_dconn_deinit();
-	iotx_dcw_deinit();
+	dm_cmw_deinit();
 	iotx_dmgr_deinit();
 	iotx_dipc_deinit();
 	iotx_dmsg_deinit();
@@ -117,7 +117,7 @@ int iotx_dm_destroy(void)
 {
 	dm_api_ctx_t *ctx = _dm_api_get_ctx();
 	iotx_dconn_deinit();
-	iotx_dcw_deinit();
+	dm_cmw_deinit();
 	iotx_dmgr_deinit();
 	iotx_dipc_deinit();
 	iotx_dmsg_deinit();
@@ -643,7 +643,7 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
 
 int iotx_dm_yield(int timeout_ms)
 {
-	return iotx_dcw_yield(timeout_ms);
+	return dm_cmw_yield(timeout_ms);
 }
 
 void iotx_dm_dispatch(void)

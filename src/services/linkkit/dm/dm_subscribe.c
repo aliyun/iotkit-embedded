@@ -41,7 +41,7 @@ static int _iotx_dsub_filter(int devid, int index, int unsub)
 					res = iotx_dcm_service_name((char *)dcs_mapping[index].service_prefix,
 						(char *)dcs_mapping[index].service_name,product_key,device_name,&unsubscribe);
 					if (res == SUCCESS_RETURN){
-						iotx_dcw_cloud_unregister(conn,unsubscribe);
+						dm_cmw_cloud_unregister(conn,unsubscribe);
 						DM_free(unsubscribe);
 					}
 				}
@@ -90,7 +90,7 @@ static int _iotx_dsub_shadow_event_filter(int devid, char *method, int unsub)
 				res = iotx_dcm_service_name((char *)IOTX_DCS_SYS_PREFIX,method_reply,product_key,device_name,&unsubscribe);
 				DM_free(method_reply);
 				if (res == SUCCESS_RETURN){
-					iotx_dcw_cloud_unregister(conn,unsubscribe);
+					dm_cmw_cloud_unregister(conn,unsubscribe);
 					DM_free(unsubscribe);
 				}
 			}
@@ -113,7 +113,7 @@ int iotx_dsub_multi(_IN_ char **subscribe, _IN_ int count)
 
 	dm_log_debug("Current Subscribe Topic: %s",*subscribe);
 
-	res = iotx_dcw_cloud_register(conn,subscribe,count,NULL);
+	res = dm_cmw_cloud_register(conn,subscribe,count,NULL);
 	if (res == FAIL_RETURN) {
 		dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(*subscribe),*subscribe);
 	}
@@ -179,7 +179,7 @@ int iotx_dsub_multi_next(_IN_ int devid, _IN_ int index)
 	dm_log_debug("Subscribe Topic Ready, Count: %d",sub_count);
 
 	/* Multi-Subscribe Topic */
-	res = iotx_dcw_cloud_register(conn,subscribe,sub_count,NULL);
+	res = dm_cmw_cloud_register(conn,subscribe,sub_count,NULL);
 	if (res == FAIL_RETURN) {
 		dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(*(subscribe)),*(subscribe));
 	}
@@ -359,7 +359,7 @@ int iotx_dsub_shadow_next(int devid, int index)
 
 	/* Subscribe Cloud Service */
 	dm_log_debug("Current Subscribe Topic: %s",service_event);
-	res = iotx_dcw_cloud_register(conn,&service_event,1,NULL);
+	res = dm_cmw_cloud_register(conn,&service_event,1,NULL);
 	if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_event),service_event);}
 
 	DM_free(service_event);
@@ -391,7 +391,7 @@ int iotx_dsub_local_register(void)
 		if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 		/* Subscribe Cloud Service */
-		res = iotx_dcw_local_add_service(conn,service_name,service_auth,NULL);
+		res = dm_cmw_local_add_service(conn,service_name,service_auth,NULL);
 		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_LOCAL_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);
 	}

@@ -4,7 +4,7 @@
 #include "dm_manager.h"
 #include "iot_export_cm.h"
 
-void iotx_dcw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
+void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
 {
     int res = 0, index = 0;
     iotx_dcs_topic_mapping_t *dcs_mapping = iotx_dcs_get_topic_mapping();
@@ -123,7 +123,7 @@ void iotx_dcw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t
 
 }
 
-void iotx_dcw_event_callback(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
+void dm_cmw_event_callback(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
     iotx_dcs_event_mapping_t *dcw_event_mapping = iotx_dcs_get_event_mapping();
 
@@ -140,25 +140,25 @@ void iotx_dcw_event_callback(void *pcontext, iotx_cm_event_msg_t *msg, void *use
     dcw_event_mapping[msg->event_id].handler(pcontext, msg, user_data);
 }
 
-int iotx_dcw_init(iotx_dm_device_secret_types_t secret_type, iotx_dm_cloud_domain_types_t domain_type)
+int dm_cmw_init(iotx_dm_device_secret_types_t secret_type, iotx_dm_cloud_domain_types_t domain_type)
 {
     iotx_cm_init_param_t cm_init_param;
 
     memset(&cm_init_param, 0, sizeof(iotx_cm_init_param_t));
     cm_init_param.secret_type = (iotx_cm_device_secret_types_t)secret_type;
     cm_init_param.domain_type = (iotx_cm_cloud_domain_types_t)domain_type;
-    cm_init_param.event_func = iotx_dcw_event_callback;
+    cm_init_param.event_func = dm_cmw_event_callback;
     cm_init_param.user_data = NULL;
 
     return IOT_CM_Init(&cm_init_param, NULL);
 }
 
-int iotx_dcw_deinit(void)
+int dm_cmw_deinit(void)
 {
     return IOT_CM_Deinit(NULL);
 }
 
-int iotx_dcw_yield(int timeout_ms)
+int dm_cmw_yield(int timeout_ms)
 {
 #if (CONFIG_SDK_THREAD_COST == 0)
     return IOT_CM_Yield(timeout_ms, NULL);
@@ -167,7 +167,7 @@ int iotx_dcw_yield(int timeout_ms)
 #endif
 }
 
-static int _iotx_dcw_conn_cloud_mqtt_create(void **conn_handle)
+static int _dm_cmw_conn_cloud_mqtt_create(void **conn_handle)
 {
     iotx_cm_connectivity_param_t cm_connectivity_param;
     iotx_cm_connectivity_cloud_param_t cm_connectivity_cloud_param;
@@ -187,7 +187,7 @@ static int _iotx_dcw_conn_cloud_mqtt_create(void **conn_handle)
     return SUCCESS_RETURN;
 }
 
-static int _iotx_dcw_conn_local_alcs_create(void **conn_handle)
+static int _dm_cmw_conn_local_alcs_create(void **conn_handle)
 {
     iotx_cm_connectivity_param_t cm_connectivity_param;
     iotx_cm_connectivity_alcs_param_t cm_connectivity_alcs_param;
@@ -212,7 +212,7 @@ static int _iotx_dcw_conn_local_alcs_create(void **conn_handle)
     return SUCCESS_RETURN;
 }
 
-static int _iotx_dcw_conn_connect(void *conn_handle)
+static int _dm_cmw_conn_connect(void *conn_handle)
 {
     if (conn_handle == NULL) {
         dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -222,7 +222,7 @@ static int _iotx_dcw_conn_connect(void *conn_handle)
     return IOT_CM_Connectivity_Connect(conn_handle, NULL);
 }
 
-int iotx_dcw_conn_cloud_mqtt_init(void **conn_handle)
+int dm_cmw_conn_cloud_mqtt_init(void **conn_handle)
 {
     int res = 0;
 
@@ -231,13 +231,13 @@ int iotx_dcw_conn_cloud_mqtt_init(void **conn_handle)
         return FAIL_RETURN;
     }
 
-    res = _iotx_dcw_conn_cloud_mqtt_create(conn_handle);
+    res = _dm_cmw_conn_cloud_mqtt_create(conn_handle);
     if (res != SUCCESS_RETURN) {
         dm_log_warning(IOTX_DM_LOG_CM_CLOUD_CONNECTIVITY_CREATE_FAILED);
         return ERROR_NO_MEM;
     }
 
-    res = _iotx_dcw_conn_connect(*conn_handle);
+    res = _dm_cmw_conn_connect(*conn_handle);
     if (res != SUCCESS_RETURN) {
         dm_log_warning(IOTX_DM_LOG_CM_CLOUD_CONNECTIVITY_CONNECT_FAILED);
         return FAIL_RETURN;
@@ -246,7 +246,7 @@ int iotx_dcw_conn_cloud_mqtt_init(void **conn_handle)
     return SUCCESS_RETURN;
 }
 
-int iotx_dcw_conn_local_alcs_init(void **conn_handle)
+int dm_cmw_conn_local_alcs_init(void **conn_handle)
 {
     int res = 0;
 
@@ -255,13 +255,13 @@ int iotx_dcw_conn_local_alcs_init(void **conn_handle)
         return FAIL_RETURN;
     }
 
-    res = _iotx_dcw_conn_local_alcs_create(conn_handle);
+    res = _dm_cmw_conn_local_alcs_create(conn_handle);
     if (res != SUCCESS_RETURN) {
         dm_log_warning(IOTX_DM_LOG_CM_LOCAL_CONNECTIVITY_CREATE_FAILED);
         return ERROR_NO_MEM;
     }
 
-    res = _iotx_dcw_conn_connect(*conn_handle);
+    res = _dm_cmw_conn_connect(*conn_handle);
     if (res != SUCCESS_RETURN) {
         dm_log_warning(IOTX_DM_LOG_CM_LOCAL_CONNECTIVITY_CONNECT_FAILED);
         return FAIL_RETURN;
@@ -269,7 +269,7 @@ int iotx_dcw_conn_local_alcs_init(void **conn_handle)
 
     return SUCCESS_RETURN;
 }
-int iotx_dcw_conn_destroy(void **conn_handle)
+int dm_cmw_conn_destroy(void **conn_handle)
 {
     if (conn_handle == NULL) {
         dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
@@ -279,7 +279,7 @@ int iotx_dcw_conn_destroy(void **conn_handle)
     return IOT_CM_Connectivity_Destroy(conn_handle, NULL);
 }
 
-int iotx_dcw_cloud_register(void *conn_handle, char **uri, int count, void *user_data)
+int dm_cmw_cloud_register(void *conn_handle, char **uri, int count, void *user_data)
 {
     int res = 0, index = 0;
     iotx_cm_register_param_t *cm_register_param = NULL;
@@ -308,7 +308,7 @@ int iotx_dcw_cloud_register(void *conn_handle, char **uri, int count, void *user
     for (index = 0; index < count; index++) {
         cm_register_param_item = cm_register_param + index;
         cm_register_param_item->URI = *(uri + index);
-        cm_register_param_item->register_func = iotx_dcw_topic_callback;
+        cm_register_param_item->register_func = dm_cmw_topic_callback;
         cm_register_param_item->user_data = user_data;
         cm_register_param_item->mail_box = NULL;
     }
@@ -321,7 +321,7 @@ int iotx_dcw_cloud_register(void *conn_handle, char **uri, int count, void *user
 
 }
 
-int iotx_dcw_cloud_unregister(void *conn_handle, char *uri)
+int dm_cmw_cloud_unregister(void *conn_handle, char *uri)
 {
     iotx_cm_unregister_param_t cm_unregister_param;
 
@@ -336,12 +336,12 @@ int iotx_dcw_cloud_unregister(void *conn_handle, char *uri)
     return IOT_CM_Unregister(conn_handle, &cm_unregister_param, NULL);
 }
 
-int iotx_dcw_local_init_second(void *conn_handle)
+int dm_cmw_local_init_second(void *conn_handle)
 {
     return IOT_CM_Init_Second(conn_handle);
 }
 
-int iotx_dcw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_auth_types_t auth_type, void *user_data)
+int dm_cmw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_auth_types_t auth_type, void *user_data)
 {
     iotx_cm_add_service_param_t cm_add_service_param;
 
@@ -353,14 +353,14 @@ int iotx_dcw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_aut
     memset(&cm_add_service_param, 0, sizeof(iotx_cm_add_service_param_t));
     cm_add_service_param.URI = uri;
     cm_add_service_param.auth_type = auth_type;
-    cm_add_service_param.service_func = iotx_dcw_topic_callback;
+    cm_add_service_param.service_func = dm_cmw_topic_callback;
     cm_add_service_param.user_data = NULL;
     cm_add_service_param.mail_box = NULL;
 
     return IOT_CM_Add_Service(conn_handle, &cm_add_service_param, NULL);
 }
 
-int iotx_dcw_local_remove_service(void *conn_handle, char *uri)
+int dm_cmw_local_remove_service(void *conn_handle, char *uri)
 {
     iotx_cm_remove_service_param_t cm_remove_servie_param;
 
@@ -372,7 +372,7 @@ int iotx_dcw_local_remove_service(void *conn_handle, char *uri)
     return IOT_CM_Remove_Service(conn_handle, &cm_remove_servie_param, NULL);
 }
 
-int iotx_dcw_local_add_subdev(void *conn_handle, const char *product_key, const char *device_name)
+int dm_cmw_local_add_subdev(void *conn_handle, const char *product_key, const char *device_name)
 {
     if (conn_handle == NULL ||
         product_key == NULL || (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
@@ -384,7 +384,7 @@ int iotx_dcw_local_add_subdev(void *conn_handle, const char *product_key, const 
     return IOT_CM_Add_Sub_Device(conn_handle, product_key, device_name, NULL);
 }
 
-int iotx_dcw_local_remove_subdev(void *conn_handle, char *product_key, char *device_name)
+int dm_cmw_local_remove_subdev(void *conn_handle, char *product_key, char *device_name)
 {
     if (conn_handle == NULL ||
         product_key == NULL || (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
@@ -397,7 +397,7 @@ int iotx_dcw_local_remove_subdev(void *conn_handle, char *product_key, char *dev
 }
 
 
-int iotx_dcw_send_to_all(char *uri, char *payload, void *user_data)
+int dm_cmw_send_to_all(char *uri, char *payload, void *user_data)
 {
     int res = 0;
     iotx_cm_message_info_t cm_message_info;
@@ -426,7 +426,7 @@ int iotx_dcw_send_to_all(char *uri, char *payload, void *user_data)
     return res;
 }
 
-int iotx_dcw_send_to_cloud(char *uri, char *payload, void *user_data)
+int dm_cmw_send_to_cloud(char *uri, char *payload, void *user_data)
 {
     int res = 0;
     iotx_cm_message_info_t cm_message_info;
@@ -455,7 +455,7 @@ int iotx_dcw_send_to_cloud(char *uri, char *payload, void *user_data)
     return res;
 }
 
-int iotx_dcw_send_to_device(void *conn_handle, char *product_key, char *device_name, char *uri, char *payload,
+int dm_cmw_send_to_device(void *conn_handle, char *product_key, char *device_name, char *uri, char *payload,
                             void *user_data)
 {
     iotx_cm_message_info_t cm_message_info;

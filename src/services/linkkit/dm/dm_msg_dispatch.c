@@ -290,7 +290,7 @@ int iotx_dcs_topic_generic_unsubscribe(int devid)
 
 		/* Unsubscribe Cloud Service */
 		dm_log_debug("Current Unsubscribe Topic: %s",service_name);
-		res = iotx_dcw_cloud_unregister(ctx->cloud_connectivity,service_name);
+		res = dm_cmw_cloud_unregister(ctx->cloud_connectivity,service_name);
 		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);
 	}
@@ -343,7 +343,7 @@ int iotx_dcs_topic_service_event_unsubscribe(int devid)
 
 		dm_log_debug("Current Unsubscribe Topic: %s",service_name);
 
-		res = iotx_dcw_cloud_unregister(ctx->cloud_connectivity,service_name);
+		res = dm_cmw_cloud_unregister(ctx->cloud_connectivity,service_name);
 		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);DM_free(method);
 	}
@@ -368,7 +368,7 @@ int iotx_dcs_topic_service_event_unsubscribe(int devid)
 
 		dm_log_debug("Current Unsubscribe Topic: %s",service_name);
 
-		res = iotx_dcw_cloud_unregister(ctx->cloud_connectivity,service_name);
+		res = dm_cmw_cloud_unregister(ctx->cloud_connectivity,service_name);
 		if (res == FAIL_RETURN) {dm_log_warning(IOTX_DM_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_name),service_name);}
 		DM_free(service_name);DM_free(method);
 	}
@@ -999,7 +999,7 @@ void iotx_dcs_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t*
 	iotx_dmgr_set_dev_sub_service_event_index(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DMGR_DEV_SUB_START);
 
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
-	iotx_dcw_local_init_second(iotx_dconn_get_local_conn());
+	dm_cmw_local_init_second(iotx_dconn_get_local_conn());
 #endif
 
 	iotx_dmsg_cloud_connected();
@@ -1122,5 +1122,5 @@ void iotx_dcs_event_new_data_received_handler(void* pcontext, iotx_cm_event_msg_
 	dm_log_info("IOTX_CM_EVENT_NEW_DATA_RECEIVED");
 
 	iotx_cm_new_data_t *cm_new_data = msg->msg;
-	iotx_dcw_topic_callback(cm_new_data->peer,cm_new_data->message_info,user_data);
+	dm_cmw_topic_callback(cm_new_data->peer,cm_new_data->message_info,user_data);
 }
