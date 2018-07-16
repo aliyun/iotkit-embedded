@@ -59,19 +59,19 @@ int iotx_dmsg_get_id(void)
 int _iotx_dmsg_send_to_user(iotx_dm_event_types_t type, char *message)
 {
 	int res = 0;
-	iotx_dipc_msg_t *dipc_msg = NULL;
+	dm_ipc_msg_t *dipc_msg = NULL;
 
-	dipc_msg = DM_malloc(sizeof(iotx_dipc_msg_t));
+	dipc_msg = DM_malloc(sizeof(dm_ipc_msg_t));
 	if (dipc_msg == NULL) {
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	memset(dipc_msg,0,sizeof(iotx_dipc_msg_t));
+	memset(dipc_msg,0,sizeof(dm_ipc_msg_t));
 
 	dipc_msg->type = type;
 	dipc_msg->data = message;
 
-	res = iotx_dipc_msg_insert((void *)dipc_msg);
+	res = dm_ipc_msg_insert((void *)dipc_msg);
 	if (res != SUCCESS_RETURN) {
 		DM_free(dipc_msg);
 	}

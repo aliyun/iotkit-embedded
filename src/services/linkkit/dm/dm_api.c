@@ -73,7 +73,7 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 	}
 
 	/* DM IPC Module Init */
-	res = iotx_dipc_init(IOTX_DM_DIPC_MSGLIST_MAXLEN);
+	res = dm_ipc_init(IOTX_DM_DIPC_MSGLIST_MAXLEN);
 	if (res != SUCCESS_RETURN) {
 		dm_log_err(DM_UTILS_LOG_IPC_INIT_FAILED);
 		goto ERROR;
@@ -106,7 +106,7 @@ ERROR:
 	dm_conn_deinit();
 	dm_cmw_deinit();
 	iotx_dmgr_deinit();
-	iotx_dipc_deinit();
+	dm_ipc_deinit();
 	iotx_dmsg_deinit();
 	iotx_dmc_deinit();
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
@@ -119,7 +119,7 @@ int iotx_dm_destroy(void)
 	dm_conn_deinit();
 	dm_cmw_deinit();
 	iotx_dmgr_deinit();
-	iotx_dipc_deinit();
+	dm_ipc_deinit();
 	iotx_dmsg_deinit();
 	iotx_dmc_deinit();
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
@@ -653,8 +653,8 @@ void iotx_dm_dispatch(void)
 
 	iotx_dmgr_dev_sub_status_check();
 	iotx_dmc_msg_tick();
-	if (iotx_dipc_msg_next(&data) == SUCCESS_RETURN) {
-		iotx_dipc_msg_t *msg = (iotx_dipc_msg_t *)data;
+	if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
+		dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
 
 		if (ctx->event_callback) {ctx->event_callback(msg->type,msg->data);}
 		
