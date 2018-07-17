@@ -66,7 +66,6 @@ int iotx_guider_auth_get(void);
 #define MIDREPORT_REQID_LEN     (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 6)
 
 #define AOS_VERSON_MSG_LEN      (256)
-#define AOS_ACTIVE_INFO_LEN     (81)
 
 
 int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);

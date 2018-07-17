@@ -38,12 +38,15 @@
 #ifndef CHIP_CODE_SIZE
 #define CHIP_CODE_SIZE      4
 #endif
+// aos activation data len
+#define AOS_ACTIVE_INFO_LEN (81)
+
 
 // activation device type
 typedef enum
 {
     ACTIVE_SUBDEV,
-    ACTIVE_SINGLE_GW,
+    ACTIVE_SINGLE_GW
 } active_device_type_t;
 
 // activation system type
@@ -51,7 +54,7 @@ typedef enum
 {
     ACTIVE_LINKKIT_ONLY,
     ACTIVE_LINKKIT_AOS_EMBED,
-    ACTIVE_LINKKIT_AOS_LINUX,
+    ACTIVE_LINKKIT_AOS_LINUX
 } active_system_type_t;
 
 /**

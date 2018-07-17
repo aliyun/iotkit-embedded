@@ -12,6 +12,7 @@
 #include "dm_subscribe.h"
 #include "dm_opt.h"
 #include "utils_hmac.h"
+#include "utils_sysinfo.h"
 
 static dm_msg_ctx_t g_dm_msg_ctx;
 
@@ -1495,6 +1496,10 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
 	return SUCCESS_RETURN;
 }
 
+/* AOS activatoin data generate function */
+extern unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
+                                                   unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
+
 const char DM_MSG_EVENT_COMBINE_LOGIN_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 const char DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD[] DM_READ_ONLY = "[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
 int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
@@ -1567,9 +1572,21 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     dm_log_info("Send AOS active here\n\n");
 
     int active_param_len;
+    int i;
     char *active_param;
-    char *aos_active_data = "020200007E5D9A1C01020304050601020102030411111111112222222222333333333344444444";
-        
+    char aos_active_data[AOS_ACTIVE_INFO_LEN];
+    char subdev_aos_verson[VERSION_NUM_SIZE] = {0x02, 0x02, 0x00, 0x00};
+    char subdev_mac_num[MAC_ADDRESS_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, ACTIVE_SUBDEV, ACTIVE_LINKKIT_AOS_EMBED};
+    char subdev_chip_code[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
+    char random_num[RANDOM_NUM_SIZE];
+
+    HAL_Srandom(HAL_UptimeMs());
+    for (i = 0; i < 4; i ++) {
+        random_num[i] = (char)HAL_Random(0xFF);
+    }
+    aos_get_version_info((unsigned char*)subdev_aos_verson, (unsigned char*)random_num, (unsigned char*)subdev_mac_num,
+                         (unsigned char*)subdev_chip_code, (unsigned char*)aos_active_data, AOS_ACTIVE_INFO_LEN);
+    
     active_param_len = strlen(DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD) + strlen(aos_active_data) + 1;
     active_param = DM_malloc(active_param_len);
     if (active_param == NULL) {return FAIL_RETURN;}
