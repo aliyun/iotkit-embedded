@@ -718,7 +718,11 @@ void *iotx_cm_cloud_conn_init(void *handler, void *param)
     connectivity->is_try_connect = 0;
 #if (CONFIG_SDK_THREAD_COST == 1)
     connectivity->process_lock = HAL_MutexCreate();
-    HAL_ThreadCreate(&connectivity->pthread_process, iotx_cm_cloud_conn_process, handler, NULL, 0);
+
+    hal_os_thread_param_t task_parms = {0};
+    task_parms.stack_size = 6144;
+    task_parms.name = "cm_cloud_conn_process";
+    HAL_ThreadCreate(&connectivity->pthread_process, iotx_cm_cloud_conn_process, handler, &task_parms, 0);
 #endif
 
     return connectivity;
