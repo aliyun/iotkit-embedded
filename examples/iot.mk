@@ -83,18 +83,18 @@ endif
 ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
 
     ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
-    TARGET                          += linkkit-example_single
-    SRCS_linkkit-example_single     := linkkit/linkkit_example_single.c
+    TARGET                          += linkkit-example-single
+    SRCS_linkkit-example-single     := linkkit/linkkit_example_single.c
     endif
     ifneq (,$(filter -DCONFIG_DM_DEVTYPE_GATEWAY,$(CFLAGS)))
-    TARGET                          += linkkit-example_gw
-    SRCS_linkkit-example_gw         += linkkit/linkkit_example_gateway.c \
+    TARGET                          += linkkit-example-gw
+    SRCS_linkkit-example-gw         += linkkit/linkkit_example_gateway.c \
                                        linkkit/light.c \
                                        linkkit/cJSON.c
     endif
 
-TARGET += linkkit-scheduler
-SRCS_linkkit-scheduler = linkkit/linkkit_scheduler.c
+TARGET += linkkit-example-sched
+SRCS_linkkit-example-sched = linkkit/linkkit_example_sched.c
 
 TARGET += linkkit-example
 SRCS_linkkit-example = linkkit/linkkit_example.c
