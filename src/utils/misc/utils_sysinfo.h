@@ -20,7 +20,7 @@
 
 #include "iot_import.h"
 #ifdef BUILD_AOS
-    #include "activatoin.h"
+    #include "activation.h"
 #endif
 
 #ifndef VERSION_NUM_SIZE
