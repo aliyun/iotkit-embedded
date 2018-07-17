@@ -197,12 +197,12 @@ static void iotx_cm_find_connectivity_by_type_handler(void *list_node, va_list *
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)list_node;
     iotx_cm_connectivity_t **search_connectivity = NULL;
-    iotx_cm_connectivity_types_t type;
+    int type;
 
     search_connectivity = va_arg(*params, iotx_cm_connectivity_t **);
-    type = va_arg(*params, iotx_cm_connectivity_types_t);
+    type = va_arg(*params, int);
 
-    if (connectivity->type == type) {
+    if (type == (int)connectivity->type) {
         *search_connectivity = connectivity;
     }
 }
@@ -218,7 +218,7 @@ iotx_cm_connectivity_t *iotx_cm_find_connectivity_by_type(iotx_cm_conntext_t *cm
 
     assert(list);
 
-    linked_list_iterator(list, iotx_cm_find_connectivity_by_type_handler, &target_connectivity, type);
+    linked_list_iterator(list, iotx_cm_find_connectivity_by_type_handler, &target_connectivity, (int)type);
 
     return target_connectivity;
 }
