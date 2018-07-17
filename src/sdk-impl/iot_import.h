@@ -784,40 +784,6 @@ long long HAL_UTC_Get(void);
 
 
 /** @} */ //end of platform_firmware_upgrade
-
-
-
-/**
- * @brief Get OS versoin from AliOS.
- *
- * @param None.
- * @return None.
- * @see None.
- * @note None.
- */
-void HAL_GetOSVersion( unsigned char version[VERSION_NUM_SIZE] );
-
-/**
- * @brief Get MAC hex from AliOS.
- *
- * @param None.
- * @return None.
- * @see None.
- * @note None.
- */
-void HAL_GetMacHex( unsigned char mac[MAC_ADDRESS_SIZE] );
-
-/**
- * @brief Get Chip code from AliOS.
- *
- * @param None.
- * @return None.
- * @see None.
- * @note None.
- */
-void HAL_GetChipCode( unsigned char chip_code[CHIP_CODE_SIZE] );
-
-
 #endif  /* SIM7000C_DAM */
 
 #if defined(__cplusplus)

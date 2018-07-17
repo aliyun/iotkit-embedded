@@ -26,6 +26,7 @@
 #include "utils_hmac.h"
 #include "utils_list.h"
 #include "utils_timer.h"
+#include "utils_sysinfo.h"
 #include "sdk-impl_internal.h"
 
 #include "MQTTPacket/MQTTPacket.h"
@@ -34,10 +35,6 @@
     #ifdef MQTT_ID2_CRYPTO
         #include "id2_crypto.h"
     #endif
-#endif
-
-#ifdef BUILD_AOS
-    #include "activatoin.h"
 #endif
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
@@ -2558,13 +2555,13 @@ unsigned int __attribute__((weak)) aos_get_version_info(unsigned char version_nu
 }
                                                                   
 // aos will implement this function
-void __attribute__((weak)) HAL_GetOSVersion( unsigned char version[VERSION_NUM_SIZE] )
+void __attribute__((weak)) aos_get_version_hex( unsigned char version[VERSION_NUM_SIZE] )
 {
     strncpy((char*)version, "\x02\x02\x00\x00", VERSION_NUM_SIZE);
 }
 
 // aos will implement this function
-void __attribute__((weak)) HAL_GetMacHex( unsigned char mac[MAC_ADDRESS_SIZE] )
+void __attribute__((weak)) aos_get_mac_hex( unsigned char mac[MAC_ADDRESS_SIZE] )
 {
     strncpy((char*)mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
     mac[6] = ACTIVE_SINGLE_GW;
@@ -2572,7 +2569,7 @@ void __attribute__((weak)) HAL_GetMacHex( unsigned char mac[MAC_ADDRESS_SIZE] )
 }
 
 // aos will implement this function
-void __attribute__((weak)) HAL_GetChipCode( unsigned char chip_code[CHIP_CODE_SIZE] )
+void __attribute__((weak)) aos_get_chip_code( unsigned char chip_code[CHIP_CODE_SIZE] )
 {
     strncpy((char*)chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
 }
@@ -2595,11 +2592,11 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     mqtt_info("aos version report started in MQTT");
 
     // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
-    HAL_GetOSVersion((unsigned char*)version);
+    aos_get_version_hex((unsigned char*)version);
     mqtt_info("aos version = %d.%d.%d.%d", version[0], version[1], version[2], version[3]);
 
     // Get Mac address
-    HAL_GetMacHex((unsigned char*)mac);
+    aos_get_mac_hex((unsigned char*)mac);
     mqtt_info("mac addr = %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     // Get Random
@@ -2609,7 +2606,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     }
 
     // Get ChipID
-    HAL_GetChipCode((unsigned char*)chip_code);
+    aos_get_chip_code((unsigned char*)chip_code);
     mqtt_info("chip code = %02x %02x %02x %02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
 
     /*

@@ -22,22 +22,6 @@
 #define FIRMWARE_VERSION_MAXLEN     (32 + 1)
 #define HAL_CID_LEN (64 + 1)
 
-#ifndef VERSION_NUM_SIZE
-#define VERSION_NUM_SIZE    4
-#endif
-
-#ifndef RANDOM_NUM_SIZE
-#define RANDOM_NUM_SIZE     4
-#endif
-
-#ifndef MAC_ADDRESS_SIZE
-#define MAC_ADDRESS_SIZE    8
-#endif
-
-#ifndef CHIP_CODE_SIZE
-#define CHIP_CODE_SIZE      4
-#endif
-
 /**
  * @brief   获取设备的`Partner ID`, 仅用于紧密合作伙伴
  *
