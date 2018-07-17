@@ -100,32 +100,4 @@ int iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData)
     return ret;
 }
 
-#undef AOS_IMPLEMENT_DEMO
-#ifdef AOS_IMPLEMENT_DEMO
-unsigned int aos_get_version_info(unsigned char version_num[4], unsigned char random_num[4], unsigned char mac_address[4], unsigned char chip_code[4], unsigned char *output_buffer, unsigned int output_buffer_size)
-{
-    strncpy((char *)output_buffer, "01234567890123456789", 21);
-    return 0;
-}
-
-// aos will implement this function
-void HAL_GetOSVersion( unsigned char version[VERSION_NUM_SIZE] )
-{
-    strncpy(version, "AOS-R-1.3.0");
-}
-
-// aos will implement this function,,,
-void HAL_GetMacHex( unsigned char mac[MAC_ADDRESS_SIZE] )
-{
-    strncpy(mac_str, "\x08\x08\x08\x08\x08\x08\x08\x08", 8);
-}
-
-// aos will implement this function
-void  HAL_GetChipID( unsigned char chip_code[CHIP_CODE_SIZE] )
-{
-    strncpy(cid_str, "\x08\x08\x08\x08", 4);
-}
-
-#endif
-
 
