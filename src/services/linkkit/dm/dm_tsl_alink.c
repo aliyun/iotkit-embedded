@@ -379,7 +379,6 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
 static int _dm_shw_array_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root)
 {
 	int res = 0, index = 0;
-	lite_cjson_t lite_item;
 	dm_shw_data_value_complex_t *complex_array = (dm_shw_data_value_complex_t *)data_value->value;
 	dm_shw_data_t *data = NULL;
 
@@ -388,22 +387,21 @@ static int _dm_shw_array_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_
 		return FAIL_RETURN;
 	}
 
-	complex_array->size = root->size;
-	complex_array->value = DM_malloc((root->size)*(sizeof(dm_shw_data_t)));
+	dm_log_debug("Array Struct Size: %d",complex_array->size);
+	complex_array->value = DM_malloc((complex_array->size)*(sizeof(dm_shw_data_t)));
 	if (complex_array->value == NULL) {
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	memset(complex_array->value,0,(root->size)*(sizeof(dm_shw_data_t)));
+	memset(complex_array->value,0,(complex_array->size)*(sizeof(dm_shw_data_t)));
 
-	for(index = 0;index < root->size;index++) {
+	dm_log_debug("Array Struct Spec Size: %d",root->size);
+	for(index = 0;index < complex_array->size;index++) {
 		data = (dm_shw_data_t *)complex_array->value + index;
-		memset(&lite_item,0,sizeof(lite_cjson_t));
 
-		res = lite_cjson_array_item(root,index,&lite_item);
-		if (res != SUCCESS_RETURN) {continue;}
+		data->data_value.type = DM_SHW_DATA_TYPE_STRUCT;
 
-		res = _dm_shw_property_parse(data,&lite_item);
+		res = _dm_shw_struct_parse(&data->data_value,root);
 		if (res != SUCCESS_RETURN) {continue;}
 	}
 

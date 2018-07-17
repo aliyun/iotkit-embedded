@@ -97,6 +97,9 @@ static void _dm_shw_array_print(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_struct_print(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_property_print(_IN_ dm_shw_data_t *property);
 
+/* Data Search */
+static int _dm_shw_data_struct_search(_IN_ dm_shw_data_t *input,_IN_ char *key, _IN_ int key_len, _OU_ dm_shw_data_t **output, _OU_ int *index);
+
 static dm_shw_data_type_mapping_t g_iotx_data_type_mapping[] = {
 	{DM_SHW_DATA_TYPE_NONE,     "none",     NULL,                   NULL,                        NULL,                    NULL,                         NULL,                    NULL,                          NULL                  },
 	{DM_SHW_DATA_TYPE_INT,      "int",      _dm_shw_int_set,      _dm_shw_array_int_set,      _dm_shw_int_get,      _dm_shw_array_int_get,      _dm_shw_int_free,      _dm_shw_array_int_free,      _dm_shw_int_print   },
@@ -137,6 +140,14 @@ static int _dm_shw_data_array_search(_IN_ dm_shw_data_t *input, _IN_ int input_i
 				if (output) {*output = input;}
 				if (output_index) {*output_index = input_index;}
 				return SUCCESS_RETURN;
+			}
+			break;
+		case DM_SHW_DATA_TYPE_STRUCT:
+			{
+				dm_shw_data_t *search_data = NULL;
+				search_data = (dm_shw_data_t *)complex_struct->value + input_index;
+				if (search_data == NULL) {return FAIL_RETURN;}
+				return _dm_shw_data_struct_search(search_data,key,deli_offset,output,output_index);
 			}
 			break;
 		default:
@@ -893,7 +904,7 @@ static int _dm_shw_text_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current String Value Be Set(String): %s",data_value->value);
+	dm_log_debug("Current Text Value Be Set(String): %s",data_value->value);
 
 	return SUCCESS_RETURN;
 }
@@ -922,7 +933,7 @@ static int _dm_shw_date_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("Current String Value Be Set(String): %s",data_value->value);
+	dm_log_debug("Current Date Value Be Set(String): %s",data_value->value);
 
 	return SUCCESS_RETURN;
 }
@@ -1001,7 +1012,7 @@ static int _dm_shw_array_text_set(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
 
 	res = dm_utils_copy(text_set,value_set_len,(void **)((char **)(complex_array->value) + index),value_set_len + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
-	dm_log_debug("Current Array Value Be Set(String), Index: %d, Value: %s",index, *((char **)(complex_array->value) + index));
+	dm_log_debug("Current Array Value Be Set(Text String), Index: %d, Value: %s",index, *((char **)(complex_array->value) + index));
 
 	return SUCCESS_RETURN;
 }
@@ -1036,7 +1047,7 @@ static int _dm_shw_array_date_set(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
 
 	res = dm_utils_copy(text_set,value_set_len,(void **)((char **)(complex_array->value) + index),value_set_len + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
-	dm_log_debug("Current Array Value Be Set(String), Index: %d, Value: %s",index, *((char **)(complex_array->value) + index));
+	dm_log_debug("Current Array Value Be Set(Date String), Index: %d, Value: %s",index, *((char **)(complex_array->value) + index));
 
 	return SUCCESS_RETURN;
 }
