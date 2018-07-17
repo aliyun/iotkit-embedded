@@ -2538,6 +2538,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
 /* AOS activation data report */
 // aos will implement this function
+#ifndef BUILD_AOS
 unsigned int __attribute__((weak)) aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
                                                                   unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size)
 {
@@ -2550,9 +2551,10 @@ unsigned int __attribute__((weak)) aos_get_version_info(unsigned char version_nu
     HAL_Snprintf(p += 8, 9, "%02X%02X%02X%02X", random_num[0], random_num[1], random_num[2], random_num[3]);
     HAL_Snprintf(p += 8, 17, "%02X%02X%02X%02X%02X%02X%02X%02X", mac_address[0], mac_address[1], mac_address[2], mac_address[3], mac_address[4], mac_address[5], mac_address[6], mac_address[7]);
     HAL_Snprintf(p += 16, 9, "%02X%02X%02X%02X", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
-    strncpy(p += 8, "11111111112222222222333333333344444444", 39);
+    strncpy(p += 8, "1111111111222222222233333333334444444444", 41);
     return 0;
 }
+#endif                                                                 
                                                                   
 // aos will implement this function
 void __attribute__((weak)) aos_get_version_hex( unsigned char version[VERSION_NUM_SIZE] )
