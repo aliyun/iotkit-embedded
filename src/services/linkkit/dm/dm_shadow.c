@@ -1804,11 +1804,12 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
 			break;
 		case DM_SHW_DATA_TYPE_STRUCT:
 			{
-				dm_shw_data_t *data = NULL;
+				dm_shw_data_t *array_data = NULL;
 				for (index = 0;index < complex_array->size;index++) {
-					data = (dm_shw_data_t *)(complex_array->value) + index;
-					_dm_shw_struct_insert_json_item(data,array_item);
+					array_data = (dm_shw_data_t *)(complex_array->value) + index;
+					if (array_data) {_dm_shw_struct_insert_json_item(array_data,array_item);}
 				}
+
 				if (lite->type == cJSON_Array) {
 					lite_cjson_add_item_to_object(array,data->identifier,array_item);
 					lite_cjson_add_item_to_array(lite,array);
@@ -1861,10 +1862,18 @@ static int _dm_shw_struct_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_c
 		_dm_shw_data_insert_json_item(current_data,lite_item);
 	}
 	if (lite->type == cJSON_Array) {
-		lite_cjson_add_item_to_object(lite_object,data->identifier,lite_item);
-		lite_cjson_add_item_to_array(lite,lite_object);
+		if (data->identifier) {
+			lite_cjson_add_item_to_object(lite_object,data->identifier,lite_item);
+			lite_cjson_add_item_to_array(lite,lite_object);
+		}else{
+			lite_cjson_add_item_to_array(lite,lite_item);
+		}
 	}else{
-		lite_cjson_add_item_to_object(lite,data->identifier,lite_item);
+		if (data->identifier) {
+			lite_cjson_add_item_to_object(lite,data->identifier,lite_item);
+		}else{
+			res = FAIL_RETURN;
+		}
 	}
 
 	return res;
@@ -1934,6 +1943,7 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 			break;
 		case DM_SHW_DATA_TYPE_ARRAY:
 			{
+				dm_log_debug("DM_SHW_DATA_TYPE_ARRAY");
 				if (lite->type == cJSON_Array) {
 					res = _dm_shw_array_insert_json_item(data,data_object);
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
@@ -1944,6 +1954,7 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 			break;
 		case DM_SHW_DATA_TYPE_STRUCT:
 			{
+				dm_log_debug("DM_SHW_DATA_TYPE_STRUCT");
 				if (lite->type == cJSON_Array) {
 					res = _dm_shw_struct_insert_json_item(data,data_object);
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
