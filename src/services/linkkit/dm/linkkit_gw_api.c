@@ -1016,7 +1016,7 @@ int linkkit_gateway_exit(void)
 }
 
 // linkkit version report parameter
-const char IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS[] DM_READ_ONLY =
+const char IOTX_DMSG_THING_GW_DEVICEINFO_UPDATE_PARAMS[] DM_READ_ONLY =
             "[{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
 
 int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
@@ -1051,12 +1051,12 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
     /* Report linkkit version */
-    version_param_len = strlen(IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS) + strlen(LINKKIT_VERSION) + 1;
+    version_param_len = strlen(IOTX_DMSG_THING_GW_DEVICEINFO_UPDATE_PARAMS) + strlen(LINKKIT_VERSION) + 1;
     version_param = DM_malloc(version_param_len);
     if (version_param == NULL) {
         return FAIL_RETURN;
     }
-    HAL_Snprintf(version_param, version_param_len, IOTX_DMSG_THING_DEVICEINFO_UPDATE_PARAMS, LINKKIT_VERSION);
+    HAL_Snprintf(version_param, version_param_len, IOTX_DMSG_THING_GW_DEVICEINFO_UPDATE_PARAMS, LINKKIT_VERSION);
     iotx_dm_deviceinfo_update(IOTX_DM_LOCAL_NODE_DEVID, version_param, version_param_len);
     DM_free(version_param);
 
