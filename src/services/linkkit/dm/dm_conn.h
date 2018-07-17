@@ -1,20 +1,20 @@
-#ifndef _IOTX_DM_CM_MANAGER_H_
-#define _IOTX_DM_CM_MANAGER_H_
+#ifndef _DM_CONN_H_
+#define _DM_CONN_H_
 
 typedef struct {
 	int cloud_connected;
 	void *cloud_connectivity;
 	int local_connected;
 	void *local_connectivity;
-}iotx_dconn_ctx;
+}dm_conn_ctx;
 
-int iotx_dconn_init(void);
-int iotx_dconn_deinit(void);
-void* iotx_dconn_get_cloud_conn(void);
-void* iotx_dconn_get_local_conn(void);
-void iotx_dconn_set_cloud_conn_state(int connected);
-int iotx_dconn_get_cloud_conn_state(void);
-void iotx_dconn_set_local_conn_state(int connected);
-int iotx_dconn_get_local_conn_state(void);
+int dm_conn_init(void);
+int dm_conn_deinit(void);
+void* dm_conn_get_cloud_conn(void);
+void* dm_conn_get_local_conn(void);
+void dm_conn_set_cloud_conn_state(int connected);
+int dm_conn_get_cloud_conn_state(void);
+void dm_conn_set_local_conn_state(int connected);
+int dm_conn_get_local_conn_state(void);
 
 #endif

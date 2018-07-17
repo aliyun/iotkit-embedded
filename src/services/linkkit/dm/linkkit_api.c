@@ -9,7 +9,7 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
 #include "linkkit_export.h"
-#include "dm_common.h"
+#include "dm_utils.h"
 #include "iotx_log.h"
 #include "linked_list.h"
 
@@ -235,7 +235,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
             service = DM_malloc(lite_item_serviceid.value_length + 1);
             if (service == NULL) {
-                dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+                dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 return;
             }
             memset(service, 0, lite_item_serviceid.value_length + 1);
@@ -365,7 +365,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
             propertyid = DM_malloc(lite_item_propertyid.value_length + 1);
             if (propertyid == NULL) {
-                dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+                dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 return;
             }
             memset(propertyid, 0, lite_item_propertyid.value_length + 1);
@@ -488,7 +488,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
             eventid = DM_malloc(lite_item_eventid.value_length + 1);
             if (eventid == NULL) {
-                dm_log_warning(IOTX_DM_LOG_MEMORY_NOT_ENOUGH);
+                dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 return;
             }
             memset(eventid, 0, lite_item_eventid.value_length + 1);
@@ -664,26 +664,26 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, con
         switch (method_set) {
             case linkkit_method_set_property_value: {
                 res = iotx_dm_legacy_set_property_value(devid, (char *)identifier, strlen(identifier), (void *)value);
-                dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
+                dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_event_output_value: {
                 res = iotx_dm_legacy_set_event_output_value(devid, (char *)identifier, strlen(identifier), (void *)value);
-                dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
+                dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_service_output_value: {
                 res = iotx_dm_legacy_set_service_output_value(devid, (char *)identifier, strlen(identifier), (void *)value);
-                dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 0, res);
+                dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             default: {
-                dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+                dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
                 break;
             }
         }
     } else {
-        dm_log_err(IOTX_DM_LOG_GET_INVALID_DEV_ID);
+        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
     }
     return res;
 }
@@ -699,31 +699,31 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, con
         switch (method_get) {
             case linkkit_method_get_property_value: {
                 res = iotx_dm_get_property_value(devid, (char *)identifier, strlen(identifier), value);
-                dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
+                dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_event_output_value: {
                 res = iotx_dm_get_event_output_value(devid, (char *)identifier, strlen(identifier), value);
-                dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
+                dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_service_input_value: {
                 res = iotx_dm_get_service_input_value(devid, (char *)identifier, strlen(identifier), value);
-                dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
+                dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_service_output_value: {
                 res = iotx_dm_get_service_output_value(devid, (char *)identifier, strlen(identifier), value);
-                dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 1, res);
+                dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             default: {
-                dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+                dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
                 break;
             }
         }
     } else {
-        dm_log_err(IOTX_DM_LOG_GET_INVALID_DEV_ID);
+        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
     }
     return res;
 }
@@ -740,7 +740,7 @@ int linkkit_answer_service(const void *thing_id, const char *service_identifier,
     }
 
     //ToDo: need to analyze
-    res = IOT_DM_Send_Service_Response(devid, response_id, (iotx_dm_error_code_t)code, (char *)service_identifier,
+    res = iotx_dm_send_service_response(devid, response_id, (iotx_dm_error_code_t)code, (char *)service_identifier,
                                        strlen(service_identifier));
 
     return res;
@@ -789,15 +789,15 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
         int len  = strlen(params);
         if (linkkit_extended_info_operation == linkkit_extended_info_operate_update) {
             res = iotx_dm_deviceinfo_update(devid, (char *)params, len);
-            dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 2, res);
+            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 2, res);
         } else if (linkkit_extended_info_operation == linkkit_extended_info_operate_delete) {
             res = iotx_dm_deviceinfo_delete(devid, (char *)params, len);
-            dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 2, res);
+            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 2, res);
         } else {
-            dm_log_err(IOTX_DM_LOG_INVALID_PARAMETER);
+            dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         }
     } else {
-        dm_log_err(IOTX_DM_LOG_GET_INVALID_DEV_ID);
+        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
     }
     return res;
 }
@@ -821,7 +821,7 @@ int linkkit_trigger_event(const void *thing_id, const char *event_identifier, ha
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN && event_identifier != NULL) {
         res = iotx_dm_post_event(devid, (char *)event_identifier, strlen((char *)event_identifier));
-        dm_log_info(IOTX_DM_LOG_OPERATOR_RES, 3, res);
+        dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 3, res);
     }
 
     if (res > 0) {

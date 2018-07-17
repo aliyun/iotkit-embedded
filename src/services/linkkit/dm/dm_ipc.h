@@ -1,34 +1,32 @@
-#ifndef _IOTX_DM_IPC_H_
-#define _IOTX_DM_IPC_H_
+#ifndef _DM_IPC_H_
+#define _DM_IPC_H_
 
-#include "iotx_utils.h"
-#include "lite-list.h"
-#include "iotx_dm.h"
+#include "iotx_dm_internal.h"
 
 typedef struct {
 	iotx_dm_event_types_t type;
 	char *data;
-}iotx_dipc_msg_t;
+}dm_ipc_msg_t;
 
 typedef struct {
 	void *data;
 	struct list_head linked_list;
-}iotx_dipc_msg_node_t;
+}dm_ipc_msg_node_t;
 
 typedef struct {
 	int max_size;
 	int size;
 	struct list_head message_list;
-}iotx_dipc_msg_list_t;
+}dm_ipc_msg_list_t;
 
 typedef struct {
 	void *mutex;
-	iotx_dipc_msg_list_t msg_list;
-}iotx_dipc_t;
+	dm_ipc_msg_list_t msg_list;
+}dm_ipc_t;
 
-int iotx_dipc_init(int max_size);
-void iotx_dipc_deinit(void);
-int iotx_dipc_msg_insert(void *data);
-int iotx_dipc_msg_next(void **data);
+int dm_ipc_init(int max_size);
+void dm_ipc_deinit(void);
+int dm_ipc_msg_insert(void *data);
+int dm_ipc_msg_next(void **data);
 
 #endif

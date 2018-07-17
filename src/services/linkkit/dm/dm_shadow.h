@@ -1,125 +1,123 @@
-#ifndef _IOTX_DM_SHADOW_H_
-#define _IOTX_DM_SHADOW_H_
+#ifndef _DM_SHADOW_H_
+#define _DM_SHADOW_H_
 
-#include "iot_import.h"
-#include "lite-cjson.h"
-#include "iotx_dm.h"
+#include "iotx_dm_internal.h"
 
-#define IOTX_DSW_KEY_SCHEMA                     "schema"
-#define IOTX_DSW_KEY_LINK                       "link"
-#define IOTX_DSW_KEY_PROFILE                    "profile"
-#define IOTX_DSW_KEY_PROPERTIES                 "properties"
-#define IOTX_DSW_KEY_EVENTS                     "events"
-#define IOTX_DSW_KEY_SERVICES                   "services"
+#define DM_SHW_KEY_SCHEMA                     "schema"
+#define DM_SHW_KEY_LINK                       "link"
+#define DM_SHW_KEY_PROFILE                    "profile"
+#define DM_SHW_KEY_PROPERTIES                 "properties"
+#define DM_SHW_KEY_EVENTS                     "events"
+#define DM_SHW_KEY_SERVICES                   "services"
 
-#define IOTX_DSW_KEY_PROFILE_PK                 "productKey"
-#define IOTX_DSW_KEY_PROFILE_DN                 "deviceName"
-#define IOTX_DSW_KEY_IDENTIFIER                 "identifier"
-#define IOTX_DSW_KEY_NAME                       "name"
-#define IOTX_DSW_KEY_DESC                       "desc"
-#define IOTX_DSW_KEY_ACCESS_MODE                "accessMode"
-#define IOTX_DSW_KEY_REQUIRED                   "required"
-#define IOTX_DSW_KEY_METHOD                     "method"
-#define IOTX_DSW_KEY_CALLTYPE                   "callType"
-#define IOTX_DSW_KEY_OUTPUTDATA                 "outputData"
-#define IOTX_DSW_KEY_INPUTDATA                  "inputData"
-#define IOTX_DSW_KEY_DATATYPE                   "dataType"
-#define IOTX_DSW_KEY_TYPE                       "type"
-#define IOTX_DSW_KEY_SPECS                      "specs"
-#define IOTX_DSW_KEY_UNIT                       "unit"
-#define IOTX_DSW_KEY_UNITNAME                   "unitName"
-#define IOTX_DSW_KEY_MIN                        "min"
-#define IOTX_DSW_KEY_MAX                        "max"
-#define IOTX_DSW_KEY_LENGTH                     "length"
-#define IOTX_DSW_KEY_SIZE                       "size"
-#define IOTX_DSW_KEY_ITEM                       "item"
+#define DM_SHW_KEY_PROFILE_PK                 "productKey"
+#define DM_SHW_KEY_PROFILE_DN                 "deviceName"
+#define DM_SHW_KEY_IDENTIFIER                 "identifier"
+#define DM_SHW_KEY_NAME                       "name"
+#define DM_SHW_KEY_DESC                       "desc"
+#define DM_SHW_KEY_ACCESS_MODE                "accessMode"
+#define DM_SHW_KEY_REQUIRED                   "required"
+#define DM_SHW_KEY_METHOD                     "method"
+#define DM_SHW_KEY_CALLTYPE                   "callType"
+#define DM_SHW_KEY_OUTPUTDATA                 "outputData"
+#define DM_SHW_KEY_INPUTDATA                  "inputData"
+#define DM_SHW_KEY_DATATYPE                   "dataType"
+#define DM_SHW_KEY_TYPE                       "type"
+#define DM_SHW_KEY_SPECS                      "specs"
+#define DM_SHW_KEY_UNIT                       "unit"
+#define DM_SHW_KEY_UNITNAME                   "unitName"
+#define DM_SHW_KEY_MIN                        "min"
+#define DM_SHW_KEY_MAX                        "max"
+#define DM_SHW_KEY_LENGTH                     "length"
+#define DM_SHW_KEY_SIZE                       "size"
+#define DM_SHW_KEY_ITEM                       "item"
 
 //Special Service And Event
-#define IOTX_DSW_SPECIAL_SERVICE_SET_IDENTIFIER "set"
-#define IOTX_DSW_SPECIAL_SERVICE_SET_METHOD     "thing.service.property.set"
-#define IOTX_DSW_SPECIAL_SERVICE_GET_IDENTIFIER "get"
-#define IOTX_DSW_SPECIAL_SERVICE_GET_METHOD     "thing.service.property.get"
-#define IOTX_DSW_SPECIAL_EVENT_POST_IDENTIFIER  "post"
-#define IOTX_DSW_SPECIAL_EVENT_POST_METHOD      "thing.event.property.post"
+#define DM_SHW_SPECIAL_SERVICE_SET_IDENTIFIER "set"
+#define DM_SHW_SPECIAL_SERVICE_SET_METHOD     "thing.service.property.set"
+#define DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER "get"
+#define DM_SHW_SPECIAL_SERVICE_GET_METHOD     "thing.service.property.get"
+#define DM_SHW_SPECIAL_EVENT_POST_IDENTIFIER  "post"
+#define DM_SHW_SPECIAL_EVENT_POST_METHOD      "thing.event.property.post"
 
-#define IOTX_DSW_KEY_DELIMITER                  '.'
+#define DM_SHW_KEY_DELIMITER                  '.'
 
 typedef struct {
 	char product_key[PRODUCT_KEY_MAXLEN];
 	char device_name[DEVICE_NAME_MAXLEN];
-}iotx_dsw_profile_t;
+}dm_shw_profile_t;
 
 typedef enum {
-	IOTX_DSW_DATA_TYPE_NONE,                    //none
-	IOTX_DSW_DATA_TYPE_INT,                     //int
-	IOTX_DSW_DATA_TYPE_FLOAT,                   //float
-	IOTX_DSW_DATA_TYPE_DOUBLE,                  //double
-	IOTX_DSW_DATA_TYPE_TEXT,                    //string
-	IOTX_DSW_DATA_TYPE_ENUM,                    //int
-	IOTX_DSW_DATA_TYPE_DATE,                    //string
-	IOTX_DSW_DATA_TYPE_BOOL,                    //bool,0 or 1
-	IOTX_DSW_DATA_TYPE_ARRAY,                   //support int, float, double, text
-	IOTX_DSW_DATA_TYPE_STRUCT,                  //support above 8 data types
-}iotx_dsw_data_type_e;
+	DM_SHW_DATA_TYPE_NONE,                    //none
+	DM_SHW_DATA_TYPE_INT,                     //int
+	DM_SHW_DATA_TYPE_FLOAT,                   //float
+	DM_SHW_DATA_TYPE_DOUBLE,                  //double
+	DM_SHW_DATA_TYPE_TEXT,                    //string
+	DM_SHW_DATA_TYPE_ENUM,                    //int
+	DM_SHW_DATA_TYPE_DATE,                    //string
+	DM_SHW_DATA_TYPE_BOOL,                    //bool,0 or 1
+	DM_SHW_DATA_TYPE_ARRAY,                   //support int, float, double, text
+	DM_SHW_DATA_TYPE_STRUCT,                  //support above 8 data types
+}dm_shw_data_type_e;
 
 typedef struct {
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	int size_int;
 	char *size;
-}iotx_dsw_dtspecs_array_t;
+}dm_shw_dtspecs_array_t;
 
 typedef struct {
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	int size;
 	void *value;
-}iotx_dsw_data_value_complex_t;
+}dm_shw_data_value_complex_t;
 
 typedef struct {
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	union {
 		int value_int;
 		float value_float;
 		double value_double;
 		void *value;                             //string or complex type accroding to data type
 	};
-}iotx_dsw_data_value_t;
+}dm_shw_data_value_t;
 
 typedef struct {
-	iotx_dsw_data_type_e type;
+	dm_shw_data_type_e type;
 	int specs_number;                            //used when type is enum and struct
 	void *specs;                                 //nerver be used by struct
-}iotx_dsw_data_type_t;
+}dm_shw_data_type_t;
 
 typedef struct {
 	char *identifier;
-	iotx_dsw_data_value_t data_value;
-}iotx_dsw_data_t;
+	dm_shw_data_value_t data_value;
+}dm_shw_data_t;
 
 typedef struct {
 	char *identifier;
 	int input_data_number;                       //input_data Number
-	iotx_dsw_data_t *input_datas;               //input_data array, type is iotx_dsw_data_t
+	dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
 	int output_data_number;                      //ouput_data Number
-	iotx_dsw_data_t *output_datas;              //output_data array, type is iotx_dsw_data_t
-}iotx_dsw_event_t;
+	dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+}dm_shw_event_t;
 
 typedef struct {
 	char *identifier;                            //synchronized or asynchronized
 	int input_data_number;                       //input_data_number
-	iotx_dsw_data_t *input_datas;               //input_data array, type is iotx_dsw_data_t
+	dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
 	int output_data_number;                      //ouput_data Number
-	iotx_dsw_data_t *output_datas;              //output_data array, type is iotx_dsw_data_t
-}iotx_dsw_service_t;
+	dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+}dm_shw_service_t;
 
 typedef struct {
-	iotx_dsw_profile_t profile;
+	dm_shw_profile_t profile;
 	int property_number;
-	iotx_dsw_data_t *properties;                //property array, type is iotx_dsw_data_t
+	dm_shw_data_t *properties;                //property array, type is dm_shw_data_t
 	int event_number;
-	iotx_dsw_event_t *events;                   //event array, type is iotx_dsw_event_t
+	dm_shw_event_t *events;                   //event array, type is dm_shw_event_t
 	int service_number;
-	iotx_dsw_service_t *services;               //service array, type is iotx_dsw_service_t
-}iotx_dsw_t;
+	dm_shw_service_t *services;               //service array, type is dm_shw_service_t
+}dm_shw_t;
 
 /**
  * @brief Create TSL struct from TSL string.
@@ -128,12 +126,12 @@ typedef struct {
  * @param tsl. The TSL string in JSON format.
  * @param tsl_len. The length of tsl
  * @param shadow. The pointer of TSL Struct pointer, will be malloc memory.
- *                This memory should be free by iotx_dsw_destroy.
+ *                This memory should be free by dm_shw_destroy.
  *
  * @return success or fail.
  *
  */
-int iotx_dsw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int tsl_len, _OU_ iotx_dsw_t **shadow);
+int dm_shw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow);
 
 /**
  * @brief Get product key from TSL struct.
@@ -145,7 +143,7 @@ int iotx_dsw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int
  * @return success or fail.
  *
  */
-int iotx_dsw_get_product_key(_IN_ iotx_dsw_t *shadow, _OU_ char product_key[PRODUCT_KEY_MAXLEN]);
+int dm_shw_get_product_key(_IN_ dm_shw_t *shadow, _OU_ char product_key[PRODUCT_KEY_MAXLEN]);
 
 /**
  * @brief Get device name from TSL struct.
@@ -157,7 +155,7 @@ int iotx_dsw_get_product_key(_IN_ iotx_dsw_t *shadow, _OU_ char product_key[PROD
  * @return success or fail.
  *
  */
-int iotx_dsw_get_device_name(_IN_ iotx_dsw_t *shadow, _OU_ char device_name[DEVICE_NAME_MAXLEN]);
+int dm_shw_get_device_name(_IN_ dm_shw_t *shadow, _OU_ char device_name[DEVICE_NAME_MAXLEN]);
 
 /**
  * @brief Get property from TSL struct.
@@ -175,7 +173,7 @@ int iotx_dsw_get_device_name(_IN_ iotx_dsw_t *shadow, _OU_ char device_name[DEVI
  * @return success or fail.
  *
  */
-int iotx_dsw_get_property_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_shw_get_property_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 
 /**
  * @brief Get service data from TSL struct.
@@ -193,7 +191,7 @@ int iotx_dsw_get_property_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_input_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_shw_get_service_input_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 
 /**
  * @brief Get service output data from TSL struct.
@@ -211,7 +209,7 @@ int iotx_dsw_get_service_input_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_shw_get_service_output_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 
 /**
  * @brief Get event output data from TSL struct.
@@ -229,7 +227,7 @@ int iotx_dsw_get_service_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
  * @return success or fail.
  *
  */
-int iotx_dsw_get_event_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_shw_get_event_output_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 
 /**
  * @brief Get property type from TSL struct.
@@ -242,7 +240,7 @@ int iotx_dsw_get_event_output_data(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_
  * @return success or fail.
  *
  */
-int iotx_dsw_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type);
+int dm_shw_get_data_type(_IN_ void *data, _OU_ dm_shw_data_type_e *type);
 
 /**
  * @brief Get event from TSL struct.
@@ -258,7 +256,7 @@ int iotx_dsw_get_data_type(_IN_ void *data, _OU_ iotx_dsw_data_type_e *type);
  * @return success or fail.
  *
  */
-int iotx_dsw_get_event(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **event);
+int dm_shw_get_event(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **event);
 
 /**
  * @brief Get service from TSL struct.
@@ -274,7 +272,7 @@ int iotx_dsw_get_event(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **service);
+int dm_shw_get_service(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **service);
 
 /**
  * @brief Get property number from TSL struct.
@@ -286,7 +284,7 @@ int iotx_dsw_get_service(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_l
  * @return success or fail.
  *
  */
-int iotx_dsw_get_property_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number);
+int dm_shw_get_property_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
 
 /**
  * @brief Get service number from TSL struct.
@@ -298,7 +296,7 @@ int iotx_dsw_get_property_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number);
+int dm_shw_get_service_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
 
 /**
  * @brief Get event number from TSL struct.
@@ -310,7 +308,7 @@ int iotx_dsw_get_service_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int iotx_dsw_get_event_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number);
+int dm_shw_get_event_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
 
 /**
  * @brief Get property reference from TSL struct by index.
@@ -323,7 +321,7 @@ int iotx_dsw_get_event_number(_IN_ iotx_dsw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int iotx_dsw_get_property_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ void **property);
+int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **property);
 
 /**
  * @brief Get service reference from TSL struct by index.
@@ -336,7 +334,7 @@ int iotx_dsw_get_property_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ v
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ void **service);
+int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **service);
 
 /**
  * @brief Get event reference from TSL struct by index.
@@ -349,7 +347,7 @@ int iotx_dsw_get_service_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ vo
  * @return success or fail.
  *
  */
-int iotx_dsw_get_event_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ void **event);
+int dm_shw_get_event_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **event);
 
 /**
  * @brief Get service reference from TSL struct by identifier.
@@ -362,7 +360,7 @@ int iotx_dsw_get_event_by_index(_IN_ iotx_dsw_t *shadow,_IN_ int index,_OU_ void
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_by_identifier(_IN_ iotx_dsw_t *shadow, _IN_ char *identifier, _OU_ void **service);
+int dm_shw_get_service_by_identifier(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _OU_ void **service);
 
 /**
  * @brief Get event reference from TSL struct by identifier.
@@ -375,7 +373,7 @@ int iotx_dsw_get_service_by_identifier(_IN_ iotx_dsw_t *shadow, _IN_ char *ident
  * @return success or fail.
  *
  */
-int iotx_dsw_get_event_by_identifier(_IN_ iotx_dsw_t *shadow, _IN_ char *identifier, _OU_ void **event);
+int dm_shw_get_event_by_identifier(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _OU_ void **event);
 
 /**
  * @brief Get property identifier from TSL struct by service handle.
@@ -387,7 +385,7 @@ int iotx_dsw_get_event_by_identifier(_IN_ iotx_dsw_t *shadow, _IN_ char *identif
  * @return success or fail.
  *
  */
-int iotx_dsw_get_property_identifier(_IN_ void *property, _OU_ char **identifier);
+int dm_shw_get_property_identifier(_IN_ void *property, _OU_ char **identifier);
 
 /**
  * @brief Get service method from TSL struct by service handle.
@@ -399,7 +397,7 @@ int iotx_dsw_get_property_identifier(_IN_ void *property, _OU_ char **identifier
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_method(_IN_ void *service, _OU_ char **method);
+int dm_shw_get_service_method(_IN_ void *service, _OU_ char **method);
 
 /**
  * @brief Get event method from TSL struct by event handle.
@@ -411,7 +409,7 @@ int iotx_dsw_get_service_method(_IN_ void *service, _OU_ char **method);
  * @return success or fail.
  *
  */
-int iotx_dsw_get_event_method(_IN_ void *event, _OU_ char **method);
+int dm_shw_get_event_method(_IN_ void *event, _OU_ char **method);
 
 /**
  * @brief Set Property Value Into TSL Struct.
@@ -433,7 +431,7 @@ int iotx_dsw_get_event_method(_IN_ void *event, _OU_ char **method);
  * @return success or fail.
  *
  */
-int iotx_dsw_set_property_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
 
 /**
  * @brief Get Property Value From TSL Struct.
@@ -457,7 +455,7 @@ int iotx_dsw_set_property_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ in
  * @return success or fail.
  *
  */
-int iotx_dsw_get_property_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void *value);
+int dm_shw_get_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void *value);
 
 /**
  * @brief Set event output value into TSL struct.
@@ -480,7 +478,7 @@ int iotx_dsw_get_property_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ in
  * @return success or fail.
  *
  */
-int iotx_dsw_set_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
 
 /**
  * @brief Get event output value from TSL struct.
@@ -505,7 +503,7 @@ int iotx_dsw_set_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
  * @return success or fail.
  *
  */
-int iotx_dsw_get_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_shw_get_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
 /**
  * @brief Set service input value from TSL struct.
@@ -530,7 +528,7 @@ int iotx_dsw_get_event_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN
  * @return success or fail.
  *
  */
-int iotx_dsw_set_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_service_input_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
 
 /**
  * @brief Get service input value from TSL struct.
@@ -555,7 +553,7 @@ int iotx_dsw_set_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_shw_get_service_input_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
 /**
  * @brief Set service output value from TSL struct.
@@ -580,7 +578,7 @@ int iotx_dsw_get_service_input_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _I
  * @return success or fail.
  *
  */
-int iotx_dsw_set_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_service_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
 
 /**
  * @brief Get service output value from TSL struct.
@@ -605,7 +603,7 @@ int iotx_dsw_set_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
  * @return success or fail.
  *
  */
-int iotx_dsw_get_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_shw_get_service_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
 /**
  * @brief Get property payload from TSL struct.
@@ -621,7 +619,7 @@ int iotx_dsw_get_service_output_value(_IN_ iotx_dsw_t *shadow, _IN_ char *key, _
  * @return success or fail.
  *
  */
-int iotx_dsw_assemble_property(_IN_ iotx_dsw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Get event output payload from TSL struct.
@@ -637,7 +635,7 @@ int iotx_dsw_assemble_property(_IN_ iotx_dsw_t *shadow, _IN_ char *identifier, _
  * @return success or fail.
  *
  */
-int iotx_dsw_assemble_event_output(_IN_ iotx_dsw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Get service output payload from TSL struct.
@@ -653,7 +651,7 @@ int iotx_dsw_assemble_event_output(_IN_ iotx_dsw_t *shadow, _IN_ char *identifie
  * @return success or fail.
  *
  */
-int iotx_dsw_assemble_service_output(_IN_ iotx_dsw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Free TSL struct.
@@ -664,7 +662,7 @@ int iotx_dsw_assemble_service_output(_IN_ iotx_dsw_t *shadow, _IN_ char *identif
  * @return success or fail.
  *
  */
-void iotx_dsw_destroy(_IN_ iotx_dsw_t **shadow);
+void dm_shw_destroy(_IN_ dm_shw_t **shadow);
 
 /**
  * @brief Print detailed information of TSL struct.
@@ -675,6 +673,6 @@ void iotx_dsw_destroy(_IN_ iotx_dsw_t **shadow);
  * @return success or fail.
  *
  */
-void iotx_dsw_print(_IN_ iotx_dsw_t *shadow);
+void dm_shw_print(_IN_ dm_shw_t *shadow);
 
 #endif

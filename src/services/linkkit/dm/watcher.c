@@ -8,7 +8,7 @@
 #include "watcher.h"
 #include "mempool.h"
 #include "iotx_log.h"
-#include "dm_common.h"
+#include "dm_utils.h"
 
 struct watcher_s {
     int id;

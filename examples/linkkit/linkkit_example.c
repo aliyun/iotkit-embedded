@@ -1,10 +1,10 @@
 #include "iotx_utils.h"
 #include "lite-cjson.h"
-#include "dm_common.h"
+#include "dm_utils.h"
 #include "dm_manager.h"
 #include "dm_shadow.h"
 #include "dm_ipc.h"
-#include "dm_msg_dispatch.h"
+#include "dm_dispatch.h"
 #include "dm_message.h"
 #include "dm_cm_wrapper.h"
 
@@ -59,7 +59,7 @@ static void _linkkit_event_thing_service_request(char *payload)
 	if (res != SUCCESS_RETURN) {return;}
 	linkkit_log("Current Payload: %.*s",lite_item_payload.value_length,lite_item_payload.value);
 
-	IOT_DM_Send_Service_Response(lite_item_devid.value_int,lite_item_id.value_int,IOTX_DM_ERR_CODE_SUCCESS,lite_item_serviceid.value,lite_item_serviceid.value_length);
+	iotx_dm_send_service_response(lite_item_devid.value_int,lite_item_id.value_int,IOTX_DM_ERR_CODE_SUCCESS,lite_item_serviceid.value,lite_item_serviceid.value_length);
 }
 
 static void _linkkit_event_subdev_register_reply(char *payload)
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 	//iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST));
 
-	//iotx_dsub_local_register();
+	//dm_sub_local_register();
 	char *testpk = "a13KoHF52kc";
 	char *testdn = "type-001";
 	//char *testpayload = "this is test";
@@ -199,13 +199,13 @@ int main(int argc, char *argv[])
 		//HAL_SleepMs(1000);
 		//if (time > 10000) break;
 		//if(time == 5000) {iotx_dm_subdev_topo_del(devid);}
-		//if (time == 5000) {iotx_dmgr_upstream_thing_topo_get();}
-		//if (time == 5000) {iotx_dmgr_upstream_thing_list_found(devid);}
+		//if (time == 5000) {dm_mgr_upstream_thing_topo_get();}
+		//if (time == 5000) {dm_mgr_upstream_thing_list_found(devid);}
 		//if (time == 5000) {iotx_dm_subdev_register(devid);}
 		//if (time == 3000) {iotx_dm_subdev_topo_add(devid1);}
 		//if (time == 8000) {iotx_dm_subdev_topo_del(devid1);}
 		//if (time == 7000) {iotx_dm_subdev_login(devid);}
-		//if (time == 8000) {iotx_dmgr_upstream_thing_model_up_raw(devid,testpayload,strlen(testpayload));}
+		//if (time == 8000) {dm_mgr_upstream_thing_model_up_raw(devid,testpayload,strlen(testpayload));}
 		//if (time == 8000) {iotx_dm_subdev_unregister(devid);}
 		#if 0
 		if (time == 10000) {
@@ -274,21 +274,21 @@ int main(int argc, char *argv[])
 	HAL_SetDeviceName("gw-type-001");
 	HAL_SetDeviceSecret("ayxXAAJYaJl4g1bI726LLm7qw4y8FY5P");
 
-	iotx_dsw_t *dtsl = NULL;
+	dm_shw_t *dtsl = NULL;
 	
-	iotx_dsw_create(IOTX_DM_TSL_TYPE_ALINK,LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST),&dtsl);
+	dm_shw_create(IOTX_DM_TSL_TYPE_ALINK,LINKKIT_TSL_STRING_TEST,strlen(LINKKIT_TSL_STRING_TEST),&dtsl);
 
 	#if 0 /* Struct Bool Set */
 	char *key = "WorkPlans.PlantSwitch";
 	int value = 1;
-	iotx_dsw_set_property_value(&dtsl,key,strlen(key),&value,0);
+	dm_shw_set_property_value(&dtsl,key,strlen(key),&value,0);
 	#endif
 	
 	#if 0 /* Struct Bool Get */
 	int res = 0;
 	char *key = "WorkPlans.PlantSwitch";
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
@@ -297,14 +297,14 @@ int main(int argc, char *argv[])
 	#if 0 /* Struct Int Set */
 	char *key = "WorkPlans.SelectIndex";
 	int value = 8;
-	iotx_dsw_set_property_value(&dtsl,key,strlen(key),&value,0);
+	dm_shw_set_property_value(&dtsl,key,strlen(key),&value,0);
 	#endif
 	
 	#if 0 /* Struct Int Get */
 	int res = 0;
 	char *key = "WorkPlans.SelectIndex";
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
@@ -313,19 +313,19 @@ int main(int argc, char *argv[])
 	#if 0 /* Struct Text Set */
 	char *key_set = "WorkPlans.PlantInfo1";
 	char *value_set = "Hello, World";
-	iotx_dsw_set_property_value(&dtsl,key_set,strlen(key_set),value_set,strlen(value_set));
+	dm_shw_set_property_value(&dtsl,key_set,strlen(key_set),value_set,strlen(value_set));
 	#endif
 	
 	#if 0 /* Struct Text Get */
 	int res = 0;
 	char *key = "WorkPlans.PlantInfo1";
 	char *value = NULL;
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
-	res = iotx_dsw_get_property_value(&dtsl,key,strlen(key),(void *)&value);
+	res = dm_shw_get_property_value(&dtsl,key,strlen(key),(void *)&value);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found,Value: %s",value);
 		DM_free(value);
@@ -335,14 +335,14 @@ int main(int argc, char *argv[])
 	#if 0 /* Struct Array Int Set */
 	char *key = "WorkPlans.PlantInfo4[3]";
 	int value = 5;
-	iotx_dsw_set_property_value(&dtsl,key,strlen(key),&value,0);
+	dm_shw_set_property_value(&dtsl,key,strlen(key),&value,0);
 	#endif
 	
 	#if 0 /* Struct Array Int Get */
 	int res = 0;
 	char *key = "WorkPlans.PlantInfo4[3]";
-	iotx_dsw_data_t *property = NULL;
-	res = iotx_dsw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
+	dm_shw_data_t *property = NULL;
+	res = dm_shw_get_property_data(&dtsl,key,strlen(key),(void **)&property);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Property Found, Identifier: %s",property->identifier);
 	}
@@ -351,20 +351,20 @@ int main(int argc, char *argv[])
 	#if 0 /* Event Int Set */
 	char *key_set = "Error.ErrorCode";
 	int value_set = 18;
-	iotx_dsw_set_event_output_value(&dtsl,key_set,strlen(key_set),&value_set,0);
+	dm_shw_set_event_output_value(&dtsl,key_set,strlen(key_set),&value_set,0);
 	#endif
 	
 	#if 0 /* Event Int Get */
 	int res = 0;
 	char *key_get = "Error.ErrorCode";
 	int value_get = 0;
-	res = iotx_dsw_get_event_output_value(&dtsl,key_get,strlen(key_get),&value_get);
+	res = dm_shw_get_event_output_value(&dtsl,key_get,strlen(key_get),&value_get);
 	if (res == SUCCESS_RETURN) {
 		dm_log_debug("Event Found, Identifier: %d",value_get);
 	}
 	#endif
 	
-	iotx_dsw_destroy(&dtsl);
+	dm_shw_destroy(&dtsl);
 	LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
 }
 #endif
@@ -387,6 +387,6 @@ int main(int argc, char *argv[])
 
 	msg.URI = uri;
 	msg.URI_length = strlen(uri);
-	iotx_dcw_topic_callback(&source, &msg, NULL);
+	dm_cmw_topic_callback(&source, &msg, NULL);
 }
 #endif
