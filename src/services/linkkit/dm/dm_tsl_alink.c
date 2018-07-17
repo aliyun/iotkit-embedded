@@ -10,7 +10,7 @@ typedef struct {
 	const char *name;
 	dm_shw_data_parse  func_parse;
 	dm_shw_array_parse func_array_parse;
-}iotx_dtsl_alink_mapping_t;
+}dm_tsl_alink_mapping_t;
 
 //Data Parse
 static int _dm_shw_int_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
@@ -35,7 +35,7 @@ static int _dm_shw_array_bool_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ l
 static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 static int _dm_shw_array_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 
-static iotx_dtsl_alink_mapping_t g_iotx_dtsl_alink_mapping[] = {
+static dm_tsl_alink_mapping_t g_dm_tsl_alink_mapping[] = {
 	{DM_SHW_DATA_TYPE_NONE,     "none",     NULL,                      NULL                          },
 	{DM_SHW_DATA_TYPE_INT,      "int",      _dm_shw_int_parse,      _dm_shw_array_int_parse      },
 	{DM_SHW_DATA_TYPE_FLOAT,    "float",    _dm_shw_float_parse,    _dm_shw_array_float_parse    },
@@ -57,11 +57,11 @@ static int _dm_shw_get_type(_IN_ const char *name, _IN_ int name_len, _OU_ dm_sh
 
 	int index = 0;
 
-	for (index = 0;index <sizeof(g_iotx_dtsl_alink_mapping)/sizeof(iotx_dtsl_alink_mapping_t);index++) {
-		if (strlen(g_iotx_dtsl_alink_mapping[index].name) == name_len &&
-			memcmp(g_iotx_dtsl_alink_mapping[index].name,name,name_len) == 0) {
-			dm_log_debug("Data Type Found: %d:%s",g_iotx_dtsl_alink_mapping[index].type,g_iotx_dtsl_alink_mapping[index].name);
-			*type = g_iotx_dtsl_alink_mapping[index].type;
+	for (index = 0;index <sizeof(g_dm_tsl_alink_mapping)/sizeof(dm_tsl_alink_mapping_t);index++) {
+		if (strlen(g_dm_tsl_alink_mapping[index].name) == name_len &&
+			memcmp(g_dm_tsl_alink_mapping[index].name,name,name_len) == 0) {
+			dm_log_debug("Data Type Found: %d:%s",g_dm_tsl_alink_mapping[index].type,g_dm_tsl_alink_mapping[index].name);
+			*type = g_dm_tsl_alink_mapping[index].type;
 			return SUCCESS_RETURN;
 		}
 	}
@@ -363,14 +363,14 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
 		return FAIL_RETURN;
 	}
 
-	if (g_iotx_dtsl_alink_mapping[complex_array_next_level->type].func_array_parse == NULL) {
+	if (g_dm_tsl_alink_mapping[complex_array_next_level->type].func_array_parse == NULL) {
 		dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID,lite_type.value_length,lite_type.value);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("TSL Property Specs Type: %s",g_iotx_dtsl_alink_mapping[complex_array_next_level->type].name);
+	dm_log_debug("TSL Property Specs Type: %s",g_dm_tsl_alink_mapping[complex_array_next_level->type].name);
 
 	//Parse Array Type
-	res = g_iotx_dtsl_alink_mapping[complex_array->type].func_array_parse(data_value_next_level,&lite_specs);
+	res = g_dm_tsl_alink_mapping[complex_array->type].func_array_parse(data_value_next_level,&lite_specs);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	#endif
 	return SUCCESS_RETURN;
@@ -474,14 +474,14 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
 		return FAIL_RETURN;
 	}
 
-	if (g_iotx_dtsl_alink_mapping[complex_array->type].func_array_parse == NULL) {
+	if (g_dm_tsl_alink_mapping[complex_array->type].func_array_parse == NULL) {
 		dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID,lite_type.value_length,lite_type.value);
 		return FAIL_RETURN;
 	}
-	dm_log_debug("TSL Property Specs Type: %s",g_iotx_dtsl_alink_mapping[complex_array->type].name);
+	dm_log_debug("TSL Property Specs Type: %s",g_dm_tsl_alink_mapping[complex_array->type].name);
 
 	//Parse Array Type
-	res = g_iotx_dtsl_alink_mapping[complex_array->type].func_array_parse(data_value,&lite_specs);
+	res = g_dm_tsl_alink_mapping[complex_array->type].func_array_parse(data_value,&lite_specs);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -569,12 +569,12 @@ static int _dm_shw_data_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cj
 	}
 
 	//Parse Type And Value
-	if (g_iotx_dtsl_alink_mapping[data_value->type].func_parse == NULL) {
+	if (g_dm_tsl_alink_mapping[data_value->type].func_parse == NULL) {
 		dm_log_err(DM_UTILS_LOG_DATA_TYPE_HAS_NO_PARSE_FUNC,
-			strlen(g_iotx_dtsl_alink_mapping[data_value->type].name),g_iotx_dtsl_alink_mapping[data_value->type].name);
+			strlen(g_dm_tsl_alink_mapping[data_value->type].name),g_dm_tsl_alink_mapping[data_value->type].name);
 		return FAIL_RETURN;
 	}
-	res = g_iotx_dtsl_alink_mapping[data_value->type].func_parse(data_value,&lite_item);
+	res = g_dm_tsl_alink_mapping[data_value->type].func_parse(data_value,&lite_item);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1237,7 +1237,7 @@ static int _dm_shw_services_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *root
 	return SUCCESS_RETURN;
 }
 
-int iotx_dtsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow)
+int dm_tsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow)
 {
 	int res = 0;
 	lite_cjson_t lite_root;

@@ -422,7 +422,7 @@ int dm_shw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int t
 	switch (type) {
 		case IOTX_DM_TSL_TYPE_ALINK:
 			{
-				res = iotx_dtsl_alink_create(tsl,tsl_len,shadow);
+				res = dm_tsl_alink_create(tsl,tsl_len,shadow);
 			}
 			break;
 		case IOTX_DM_TSL_TYPE_TLV:

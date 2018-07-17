@@ -1,5 +1,5 @@
-#ifndef _IOTX_DM_TSL_ALINK_H_
-#define _IOTX_DM_TSL_ALINK_H_
+#ifndef _DM_TSL_ALINK_H_
+#define _DM_TSL_ALINK_H_
 
 /**
  * @brief Create TSL struct from TSL string.
@@ -13,6 +13,6 @@
  * @return success or fail.
  *
  */
-int iotx_dtsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow);
+int dm_tsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow);
 
 #endif
