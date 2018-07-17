@@ -93,6 +93,9 @@ ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))
                                        linkkit/cJSON.c
     endif
 
+TARGET += linkkit-scheduler
+SRCS_linkkit-scheduler = linkkit/linkkit_scheduler.c
+
 TARGET += linkkit-example
 SRCS_linkkit-example = linkkit/linkkit_example.c
 
