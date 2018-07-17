@@ -50,12 +50,12 @@
 #define CM_SUPPORT_MAX_MAPPING_SIZE            (20)
 
 #ifdef CM_SUPPORT_TOPIC_DISPATCH
-    #define CM_MAPPING_USE_POOL
+    /* #define CM_MAPPING_USE_POOL */
 #endif
 
 #if (CONFIG_SDK_THREAD_COST == 1)
 
-    #define CM_PROCESS_NODE_USE_POOL
+   /*  #define CM_PROCESS_NODE_USE_POOL */
     #define CM_SUPPORT_MAX_PROCESS_NODE_SIZE       (30)
 #endif /* CONFIG_SDK_THREAD_COST */
 

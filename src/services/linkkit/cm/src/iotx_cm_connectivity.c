@@ -552,9 +552,9 @@ int iotx_cm_process_list_push(iotx_cm_conntext_t *cm_ctx,
         return FAIL_RETURN;
     }
 
-    list = connectivity->process_list;
-
     HAL_MutexLock(connectivity->process_lock);
+
+    list = connectivity->process_list;
 
     if (NULL == list) {
         list = CM_malloc(sizeof(iotx_cm_process_list_t));
