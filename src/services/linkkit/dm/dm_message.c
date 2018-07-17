@@ -1567,8 +1567,8 @@ int iotx_dmsg_combine_login_reply(iotx_dmsg_response_payload_t *response)
     dm_log_info("Send AOS active here\n\n");
 
     int active_param_len;
-    char* active_param;
-    char aos_active_data[10] = "123456789";
+    char *active_param;
+    char *aos_active_data = "020200007E5D9A1C01020304050601020102030411111111112222222222333333333344444444";
         
     active_param_len = strlen(IOTX_DMSG_THING_AOS_ACTIVE_INFO_PAYLOAD) + strlen(aos_active_data) + 1;
     active_param = DM_malloc(active_param_len);

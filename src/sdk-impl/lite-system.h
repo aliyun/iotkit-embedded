@@ -66,23 +66,23 @@ int iotx_guider_auth_get(void);
 #define MIDREPORT_REQID_LEN     (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 6)
 
 #define AOS_VERSON_MSG_LEN      (256)
-#define AOS_ACTIVE_INFO_LEN     (100)
+#define AOS_ACTIVE_INFO_LEN     (81)
 
-#ifndef VERSION_NUM_SIZE
-#define VERSION_NUM_SIZE    4
-#endif
 
-#ifndef RANDOM_NUM_SIZE
-#define RANDOM_NUM_SIZE     4
-#endif
+// activation device type
+typedef enum
+{
+    ACTIVE_SUBDEV,
+    ACTIVE_SINGLE_GW,
+} active_device_type_t;
 
-#ifndef MAC_ADDRESS_SIZE
-#define MAC_ADDRESS_SIZE    8
-#endif
-
-#ifndef CHIP_CODE_SIZE
-#define CHIP_CODE_SIZE      4
-#endif
+// activation system type
+typedef enum
+{
+    ACTIVE_LINKKIT_ONLY,
+    ACTIVE_LINKKIT_AOS_EMBED,
+    ACTIVE_LINKKIT_AOS_LINUX,
+} active_system_type_t;
 
 int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);
 int iotx_midreport_payload(char *msg, char *requestId, char *mid, char *pid);
@@ -91,21 +91,6 @@ int iotx_midreport_topic(char *topic_name, char *topic_head, char *product_key, 
 /* AOS version report API */
 int iotx_gen_aos_report_topic(char *topic_name, char *product_key, char *device_name);
 int iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData);
-int iotx_get_aos_hex_version(char *str, char hex[4]);
-
-/* AOS HAL function */
-/* get aos activation data */
-unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
-                                                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
-                                                                  
-/* get aos version */
-const char *aos_version_get(void);
-
-/* get mac address from aos */
-char *aos_mac_get(char* mac_str);
-
-/* get chip code from aos */
-char *aos_chipCode_get(char* cid_str);
 
 const char *iotx_ca_get(void);
 

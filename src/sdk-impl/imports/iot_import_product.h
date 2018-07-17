@@ -8,7 +8,6 @@
 #define IOT_TRUE                    (1)     /* indicate boolean value true */
 #define IOT_FALSE                   (0)     /* indicate boolean value false */
 
-#define AOS_VERSION_LEN_MAX         (20)
 #define MAC_ADDR_LEN_MAX            (10)
 #define PID_STRLEN_MAX              (64)
 #define MID_STRLEN_MAX              (64)
@@ -22,6 +21,22 @@
 #define PRODUCT_SECRET_MAXLEN       (64 + 1)
 #define FIRMWARE_VERSION_MAXLEN     (32 + 1)
 #define HAL_CID_LEN (64 + 1)
+
+#ifndef VERSION_NUM_SIZE
+#define VERSION_NUM_SIZE    4
+#endif
+
+#ifndef RANDOM_NUM_SIZE
+#define RANDOM_NUM_SIZE     4
+#endif
+
+#ifndef MAC_ADDRESS_SIZE
+#define MAC_ADDRESS_SIZE    8
+#endif
+
+#ifndef CHIP_CODE_SIZE
+#define CHIP_CODE_SIZE      4
+#endif
 
 /**
  * @brief   获取设备的`Partner ID`, 仅用于紧密合作伙伴
