@@ -8,7 +8,7 @@ CONFIG_ENV_CFLAGS   += \
     -DCM_VIA_CLOUD_CONN_MQTT \
     -DCM_SUPPORT_MULTI_THREAD_VIA_HAL \
     -I$(TOP_DIR)/../../../../../include \
-    -I$(TOP_DIR)/../../../../activatoin
+    -I$(TOP_DIR)/../../../../activation
    
 CONFIG_ENV_CFLAGS   += \
     -DCONFIG_HTTP_AUTH_TIMEOUT=500 \
