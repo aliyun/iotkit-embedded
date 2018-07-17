@@ -2538,15 +2538,41 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 }
 
 // aos will implement this function
-extern unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], unsigned char chip_code[CHIP_CODE_SIZE], 
-                                          unsigned char *output_buffer, unsigned int output_buffer_size) __attribute__((weak));
-// aos will implement this function
-extern const char *aos_version_get(void) __attribute__((weak));
-
-char* __attribute__((weak)) HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
+unsigned int __attribute__((weak)) aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
+                                                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size)
 {
-    strcpy(mac_str, "\x01\x02\x03\x04\x05\x06\x07");
+    char *p = (char*)output_buffer;
+
+    if (output_buffer_size < AOS_ACTIVE_INFO_LEN)
+        return 1;
+
+    HAL_Snprintf(p, 9, "%02X%02X%02X%02X", version_num[0], version_num[1], version_num[2], version_num[3]);
+    HAL_Snprintf(p += 8, 9, "%02X%02X%02X%02X", random_num[0], random_num[1], random_num[2], random_num[3]);
+    HAL_Snprintf(p += 8, 13, "%02X%02X%02X%02X%02X%02X", mac_address[0], mac_address[1], mac_address[2], mac_address[3], mac_address[4], mac_address[5]);
+    HAL_Snprintf(p += 12, 5, "0102");
+    HAL_Snprintf(p += 4, 9, "%02X%02X%02X%02X", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
+    strncpy(p += 8, "11111111112222222222333333333344444444", 39);
+    return 0;
+}
+                                                                  
+// aos will implement this function
+const char* __attribute__((weak)) aos_version_get(void)
+{
+    return "LINKKIT-R-2.2.0";
+}
+
+// aos will implement this function
+char* __attribute__((weak)) aos_mac_get(char* mac_str)
+{
+    strncpy(mac_str, "\x01\x02\x03\x04\x05\x06\x07\x08", 8);
     return mac_str;
+}
+
+// aos will implement this function
+char* __attribute__((weak)) aos_chipCode_get(char* cid_str)
+{
+    strncpy(cid_str, "\x01\x02\x03\x04", 4);
+    return cid_str;
 }
 
 /* Report AOS Version */
@@ -2563,18 +2589,8 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     char msg[AOS_VERSON_MSG_LEN] = {0};
     iotx_mqtt_topic_info_t topic_info;
     iotx_device_info_pt dev = iotx_device_info_get();
-
-    if (!aos_get_version_info) {
-        mqtt_info("aos is no implement, os active is no allow!");
-        return SUCCESS_RETURN;
-    }
     
     mqtt_info("aos version report started in MQTT");
-
-    if (!aos_version_get) {
-        mqtt_info("aos can't get kernel version");
-        return FAIL_RETURN;
-    }
 
     // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
     ret = iotx_get_aos_hex_version((char*)aos_version_get(), version);
@@ -2585,7 +2601,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     mqtt_info("aos version = %d.%d.%d.%d", version[0], version[1], version[2], version[3]);
 
     // Get Mac address
-    HAL_Wifi_Get_Mac(mac);
+    aos_mac_get(mac);
     mqtt_info("mac addr = %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     // Get Random
@@ -2595,9 +2611,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     }
 
     // Get ChipID
-    char chipID[HAL_CID_LEN];
-    HAL_GetChipID(chipID);
-    strncpy(chip_code, chipID, sizeof(chip_code));
+    aos_chipCode_get(chip_code);
     mqtt_info("chip code = %02x %02x %02x %02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
 
     /*

@@ -93,6 +93,19 @@ int iotx_gen_aos_report_topic(char *topic_name, char *product_key, char *device_
 int iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData);
 int iotx_get_aos_hex_version(char *str, char hex[4]);
 
+/* AOS HAL function */
+/* get aos activation data */
+unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
+                                                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
+                                                                  
+/* get aos version */
+const char *aos_version_get(void);
+
+/* get mac address from aos */
+char *aos_mac_get(char* mac_str);
+
+/* get chip code from aos */
+char *aos_chipCode_get(char* cid_str);
 
 const char *iotx_ca_get(void);
 

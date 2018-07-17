@@ -148,6 +148,17 @@ const char *aos_version_get(void)
     return "AOS-R-1.3.0";
 }
 
+char* aos_mac_get(char* mac_str)
+{
+    strncpy(mac_str, "\x08\x08\x08\x08\x08\x08\x08\x08", 8);
+    return mac_str;
+}
+
+char* aos_chipCode_get(char* cid_str)
+{
+    strncpy(cid_str, "\x08\x08\x08\x08", 4);
+    return cid_str;
+}
 
 #endif
 
