@@ -44,6 +44,24 @@ const char DM_UTILS_LOG_MESSAGE_CACHE_INIT_FAILED[]                             
 const char DM_UTILS_LOG_IPC_INIT_FAILED[]                                       DM_READ_ONLY = "DM IPC Module Init Failed";
 const char DM_UTILS_LOG_DOPT_UNKNOWN_OPT[]                                      DM_READ_ONLY = "DM Option Unknown: %d";
 
+int dm_utils_copy_direct(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
+{
+	if (input == NULL || output == NULL || *output != NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	*output = malloc(output_len);
+	if (*output == NULL) {
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(*output,0,output_len);
+	memcpy(*output,input,input_len);
+
+	return SUCCESS_RETURN;
+}
+
 int dm_utils_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
 	if (input == NULL || output == NULL || *output != NULL) {

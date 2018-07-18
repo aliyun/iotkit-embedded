@@ -51,6 +51,8 @@ extern const char DM_UTILS_LOG_DOPT_UNKNOWN_OPT[]                               
 #define DM_UTILS_UINT32_STRLEN (10)
 #define DM_UTILS_UINT64_STRLEN (20)
 
+int dm_utils_copy_direct(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len);
+
 int dm_utils_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len);
 
 /**

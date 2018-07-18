@@ -1153,7 +1153,7 @@ static int _dm_shw_text_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
 
 	if (*(char **)value != NULL || data_value->value == NULL) {return FAIL_RETURN;}
 
-	res = dm_utils_copy(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
+	res = dm_utils_copy_direct(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1171,7 +1171,7 @@ static int _dm_shw_date_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
 
 	if (*(char **)value != NULL || data_value->value == NULL) {return FAIL_RETURN;}
 
-	res = dm_utils_copy(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
+	res = dm_utils_copy_direct(data_value->value,strlen(data_value->value),(void **)value,strlen(data_value->value) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
@@ -1235,7 +1235,7 @@ static int _dm_shw_array_text_get(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
 		return FAIL_RETURN;
 	}
 
-	res = dm_utils_copy(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
+	res = dm_utils_copy_direct(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
 		(void **)value,strlen(*((char **)(complex_array->value) + index)) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
@@ -1266,7 +1266,7 @@ static int _dm_shw_array_date_get(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
 		return FAIL_RETURN;
 	}
 
-	res = dm_utils_copy(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
+	res = dm_utils_copy_direct(*((char **)(complex_array->value) + index),strlen(*((char **)(complex_array->value) + index)),
 		(void **)value,strlen(*((char **)(complex_array->value) + index)) + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
