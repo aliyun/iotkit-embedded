@@ -45,16 +45,16 @@
 // activation device type
 typedef enum
 {
-    ACTIVE_SUBDEV,
-    ACTIVE_SINGLE_GW
+    ACTIVE_SUBDEV,              // it's a subDevice
+    ACTIVE_SINGLE_GW            // it s a single or gateway device
 } active_device_type_t;
 
 // activation system type
 typedef enum
 {
-    ACTIVE_LINKKIT_ONLY,
-    ACTIVE_LINKKIT_AOS_EMBED,
-    ACTIVE_LINKKIT_AOS_LINUX
+    ACTIVE_LINKKIT_ONLY,        // only linkkit implement
+    ACTIVE_LINKKIT_AOS,         // both linkkit and AOS implement
+    ACTIVE_LINKKIT_OTHERS       // linkkit and 3-party OS implement
 } active_system_type_t;
 
 /**

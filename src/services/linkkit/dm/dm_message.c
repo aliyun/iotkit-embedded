@@ -1576,7 +1576,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     char *active_param;
     char aos_active_data[AOS_ACTIVE_INFO_LEN];
     char subdev_aos_verson[VERSION_NUM_SIZE] = {0x02, 0x02, 0x00, 0x00};
-    char subdev_mac_num[MAC_ADDRESS_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, ACTIVE_SUBDEV, ACTIVE_LINKKIT_AOS_EMBED};
+    char subdev_mac_num[MAC_ADDRESS_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, ACTIVE_SUBDEV, ACTIVE_LINKKIT_OTHERS};
     char subdev_chip_code[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
     char random_num[RANDOM_NUM_SIZE];
 
