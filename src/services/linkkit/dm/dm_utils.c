@@ -177,6 +177,83 @@ int dm_utils_ftoa(_IN_ double input,_OU_ char **output)
 	return SUCCESS_RETURN;
 }
 
+int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char **output)
+{
+	int index = 0, output_len = 0;
+	unsigned char iter_char = 0;
+
+	if (input == NULL || input_len <= 0 || output == NULL || *output != NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	output_len = input_len * 2;
+	*output = DM_malloc(output_len + 1);
+	if (*output == NULL) {
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(*output,0,output_len + 1);
+
+	for (index = 0;index < input_len;index++) {
+		iter_char = (input[index] >> 4) & 0x0F;
+		if (iter_char >= 0x00 && iter_char <= 0x09) {
+			iter_char += '0';
+		}else if (iter_char >= 0x0A && iter_char <= 0x0F) {
+			iter_char += 'A';
+		}
+		(*output)[index*2] = iter_char;
+
+		iter_char = (input[index]) & 0x0F;
+		if (iter_char >= 0x00 && iter_char <= 0x09) {
+			iter_char += '0';
+		}else if (iter_char >= 0x0A && iter_char <= 0x0F) {
+			iter_char += 'A';
+		}
+		(*output)[index*2 + 1] = iter_char;
+	}
+
+	return SUCCESS_RETURN;
+}
+
+int dm_utils_str_to_hex(_IN_ char *input, _IN_ int input_len, _OU_ unsigned char **output, _OU_ int *output_len)
+{
+	int index = 0;
+	char iter_char = 0;
+
+	if (input == NULL || input_len <= 0 || input_len%2 != 0 || 
+		output == NULL || *output != NULL || output_len == NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	*output_len = input_len/2;
+	*output = DM_malloc(*output_len);
+	if (*output == NULL) {
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(*output,0,*output_len);
+
+	for (index = 0;index < input_len;index+=2) {
+		if (input[index] >= '0' && input[index] <= '9') {
+			iter_char = input[index] - '0';
+		}else if (input[index] >= 'A' && input[index] <= 'F') {
+			iter_char = input[index] - 'A';
+		}
+		(*output)[index/2] |= (iter_char << 4) & 0xF0;
+		
+		if (input[index+1] >= '0' && input[index+1] <= '9') {
+			iter_char = input[index+1] - '0';
+		}else if (input[index+1] >= 'A' && input[index+1] <= 'F') {
+			iter_char = input[index+1] - 'A';
+		}
+		(*output)[index/2] |= (iter_char) & 0x0F;
+	}
+
+	return SUCCESS_RETURN;
+}
+
 int dm_utils_memtok(_IN_ char *input, _IN_ int input_len, _IN_ char delimiter, _IN_ int index, _OU_ int *offset)
 {
 	int item_index = 0;

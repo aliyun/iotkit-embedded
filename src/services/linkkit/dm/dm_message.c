@@ -1063,7 +1063,7 @@ const char DM_MSG_THING_MODEL_DOWN_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"payload
 int dm_msg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0, devid = 0, message_len = 0;
-	char *message = NULL;
+	char *hexstr = NULL, *message = NULL;
 
 	if (product_key == NULL || device_name == NULL ||
 		(strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
@@ -1076,14 +1076,19 @@ int dm_msg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ 
 	res = dm_mgr_search_device_by_pkdn(product_key,device_name,&devid);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
-	message_len = strlen(DM_MSG_THING_MODEL_DOWN_FMT) + DM_UTILS_UINT32_STRLEN + payload_len + 1;
+	res = dm_utils_hex_to_str((unsigned char *)payload,payload_len,&hexstr);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	message_len = strlen(DM_MSG_THING_MODEL_DOWN_FMT) + DM_UTILS_UINT32_STRLEN + strlen(hexstr) + 1;
 	message = DM_malloc(message_len);
 	if (message == NULL) {
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		DM_free(hexstr);
 		return FAIL_RETURN;
 	}
 	memset(message,0,message_len);
-	HAL_Snprintf(message,message_len,DM_MSG_THING_MODEL_DOWN_FMT,devid,payload_len,payload);
+	HAL_Snprintf(message,message_len,DM_MSG_THING_MODEL_DOWN_FMT,devid,strlen(hexstr),hexstr);
+	DM_free(hexstr);
 
 	res = _dm_msg_send_to_user(IOTX_DM_EVENT_MODEL_DOWN_RAW,message);
 	if (res != SUCCESS_RETURN) {

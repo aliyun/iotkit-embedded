@@ -4,10 +4,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include "iot_import.h"
+#include "iotx_dm_internal.h"
 #include "iot_export.h"
-#include "iotx_utils.h"
-#include "lite-cjson.h"
 #include "linkkit_export.h"
 #include "dm_utils.h"
 #include "iotx_log.h"
@@ -156,8 +154,9 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             break;
         }
         case IOTX_DM_EVENT_MODEL_DOWN_RAW: {
-            int res = 0;
+            int res = 0, raw_data_len = 0;
             void *thing_id = NULL;
+            unsigned char *raw_data = NULL;
             lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
 
             /* Parse Payload */
@@ -188,7 +187,15 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
                 return;
             }
 
-            linkkit_ops->raw_data_arrived(thing_id, lite_item_rawdata.value, lite_item_rawdata.value_length, context);
+            res = dm_utils_str_to_hex(lite_item_rawdata.value, lite_item_rawdata.value_length, &raw_data, &raw_data_len);
+            if (res != SUCCESS_RETURN) {
+                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+                return;
+            }
+            HEXDUMP_DEBUG(raw_data,raw_data_len);
+            linkkit_ops->raw_data_arrived(thing_id, raw_data, raw_data_len, context);
+
+            DM_free(raw_data);
         }
         break;
         case IOTX_DM_EVENT_THING_SERVICE_REQUEST: {
