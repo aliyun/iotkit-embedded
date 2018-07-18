@@ -224,7 +224,7 @@ int log_multi_line_internal(const char *f, const int l,
 
 void LITE_syslog_online(const char *module, const int level, const char *fmt, va_list *params)
 {
-#ifdef SDK_ENHANCE
+#if (defined(SDK_ENHANCE) && defined(CONFIG_LOG_ONLINE))
     char       *tmpbuf = NULL;
     char       *o = NULL;
     int        truncated = 0;
