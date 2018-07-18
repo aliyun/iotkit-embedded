@@ -277,8 +277,11 @@ int iotx_local_conn_alcs_deinit(void* handle)
 int iotx_local_conn_alcs_yield(void* handle, int timeout_ms)
 {
     iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
+#ifdef COAP_SERV_MULTITHREAD    
     return SUCCESS_RETURN;
+#else    
     return IOT_ALCS_Yield(connection->context);
+#endif
 }
 
 #endif /* CM_SUPPORT_LOCAL_CONN */
