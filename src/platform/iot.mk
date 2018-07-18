@@ -1,11 +1,11 @@
 LIBA_TARGET := libiot_platform.a
-HDR_REFS    += src/security/pro
-HDR_REFS    += src/thirdparty/tls
-HDR_REFS    += src/infra/utils
-HDR_REFS    += src/infra/log
-HDR_REFS    += src/platform
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
-DEPENDS		+= src/thirdparty/tls
+
+HDR_REFS    += src/ref-impl/tls
+HDR_REFS    += src/infra
+HDR_REFS    += src/security/pro
+
+DEPENDS     += src/ref-impl/tls
 
 LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
 LIB_SRCS_PATTERN    += ssl/mbedtls/*.c

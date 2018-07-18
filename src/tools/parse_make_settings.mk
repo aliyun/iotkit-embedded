@@ -257,7 +257,7 @@ SUBDIRS += src/platform
 SUBDIRS += examples
 SUBDIRS += tests
 ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
-SUBDIRS += src/thirdparty/tls
+SUBDIRS += src/ref-impl/tls
 endif
 ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 SUBDIRS += src/thirdparty/tfs
