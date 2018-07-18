@@ -26,6 +26,7 @@
 #include "utils_hmac.h"
 #include "utils_list.h"
 #include "utils_timer.h"
+#include "string_utils.h"
 #include "utils_sysinfo.h"
 #include "sdk-impl_internal.h"
 
@@ -2539,7 +2540,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 /* AOS activation data report */
 // aos will implement this function
 #ifndef BUILD_AOS
-unsigned int __attribute__((weak)) aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
+unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
                                                                   unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size)
 {
     char *p = (char*)output_buffer;
@@ -2547,11 +2548,18 @@ unsigned int __attribute__((weak)) aos_get_version_info(unsigned char version_nu
     if (output_buffer_size < AOS_ACTIVE_INFO_LEN)
         return 1;
 
-    HAL_Snprintf(p, 9, "%02X%02X%02X%02X", version_num[0], version_num[1], version_num[2], version_num[3]);
-    HAL_Snprintf(p += 8, 9, "%02X%02X%02X%02X", random_num[0], random_num[1], random_num[2], random_num[3]);
-    HAL_Snprintf(p += 8, 17, "%02X%02X%02X%02X%02X%02X%02X%02X", mac_address[0], mac_address[1], mac_address[2], mac_address[3], mac_address[4], mac_address[5], mac_address[6], mac_address[7]);
-    HAL_Snprintf(p += 16, 9, "%02X%02X%02X%02X", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
-    strncpy(p += 8, "1111111111222222222233333333334444444444", 41);
+    memset(p, 0, output_buffer_size);
+
+    LITE_hexbuf_convert(version_num, p, VERSION_NUM_SIZE, 1);
+    p += VERSION_NUM_SIZE*2;
+    LITE_hexbuf_convert(random_num, p, RANDOM_NUM_SIZE, 1);
+    p += RANDOM_NUM_SIZE*2;
+    LITE_hexbuf_convert(mac_address, p, MAC_ADDRESS_SIZE, 1);
+    p += MAC_ADDRESS_SIZE*2;
+    LITE_hexbuf_convert(chip_code, p, CHIP_CODE_SIZE, 1);
+    p += CHIP_CODE_SIZE*2;
+    strcat(p, "1111111111222222222233333333334444444444");
+    
     return 0;
 }
 #endif                                                                 
