@@ -708,15 +708,13 @@ void *iotx_cm_cloud_conn_init(void *handler, void *param)
     connectivity->deinit_func = iotx_cm_cloud_conn_deinit;
     connectivity->get_target_func = iotx_cm_cloud_conn_get_target;
     connectivity->check_target_func = iotx_cm_cloud_conn_check_target;
-#if (CONFIG_SDK_THREAD_COST == 1)
-    connectivity->add_send_func = iotx_cm_cloud_conn_add_send;
-    connectivity->thread_process_func = iotx_cm_cloud_conn_process;
-#endif /* CONFIG_SDK_THREAD_COST */
 
     connectivity->id = iotx_cm_get_connectivity_id();
     connectivity->type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     connectivity->is_try_connect = 0;
 #if (CONFIG_SDK_THREAD_COST == 1)
+    connectivity->add_send_func = iotx_cm_cloud_conn_add_send;
+    connectivity->thread_process_func = iotx_cm_cloud_conn_process;
     connectivity->process_lock = HAL_MutexCreate();
 
     hal_os_thread_param_t task_parms = {0};
