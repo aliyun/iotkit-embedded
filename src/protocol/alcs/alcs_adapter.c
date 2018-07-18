@@ -22,9 +22,6 @@ static iotx_alcs_adapter_t g_alcs_adapter;
 extern void on_client_auth_timer(CoAPContext *);
 extern void on_svr_auth_timer(CoAPContext *);
 
-#if  defined(COAP_WITH_YLOOP)
-static void alcs_repeat_action(void *handle);
-#endif
 static void alcs_heartbeat(void *handle);
 
 static iotx_alcs_adapter_t* __iotx_alcs_get_ctx(void)
@@ -346,15 +343,6 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
 		COAP_ERR("ALCS Linked List Init Failed");
 		return FAIL_RETURN;
 	}
-	//if (alcs_mqtt_init(adapter->coap_ctx,product_key,device_name) != ALCS_MQTT_STATUS_SUCCESS) {
-		/*solve the prpblem of hard fault when mqtt connection fails once*/
-		//iotx_alcs_adapter_deinit();
-		//COAP_ERR("ALCS MQTT Init Failed");
-		//return FAIL_RETURN;
-	//}
-#if  defined(COAP_WITH_YLOOP) /*&& defined(CONFIG_SDK_THREAD_COST)*/
-    aos_schedule_call(alcs_repeat_action, (void *)adapter);
-#endif
 
 	return SUCCESS_RETURN;
 }
@@ -578,17 +566,6 @@ int IOT_ALCS_Destroy(void **phandle)
 	return SUCCESS_RETURN;
 }
 
-#if  defined(COAP_WITH_YLOOP)
-static void alcs_repeat_action(void *handle)
-{
-	if(handle == NULL){
-		return;
-	}
-    alcs_heartbeat(handle);
-    aos_post_delayed_action(1000, alcs_repeat_action, handle);
-}
-#endif
-
 static void alcs_heartbeat(void *handle)
 {
     iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)handle;
@@ -606,9 +583,9 @@ int IOT_ALCS_Yield(void *handle)
 
 	POINTER_SANITY_CHECK(adapter, NULL_VALUE_ERROR);
 	POINTER_SANITY_CHECK(adapter->coap_ctx, NULL_VALUE_ERROR);
-#ifndef COAP_WITH_YLOOP
+
 	res = (CoAPMessage_cycle(adapter->coap_ctx) != COAP_SUCCESS) ? (FAIL_RETURN) : (SUCCESS_RETURN);
-#endif
+
 	alcs_heartbeat(handle);
 
 	iotx_alcs_subdev_stage_check();

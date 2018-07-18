@@ -300,7 +300,6 @@ void alcs_start_loop (CoAPContext *ctx, int newThread)
 #ifdef USE_ALCS_SECURE
     CoAPServer_add_timer (on_auth_timer);
 #endif
-
     CoAPServer_loop (ctx);
 #endif
 }
