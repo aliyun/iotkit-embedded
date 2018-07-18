@@ -495,7 +495,6 @@ static int set_scheduler_prop(sample_context_t *sample)
     return 0;
 }
 
-#if 0
 static int get_scheduler_prop(sample_context_t *sample)
 {
     int id = 0;
@@ -503,10 +502,7 @@ static int get_scheduler_prop(sample_context_t *sample)
     int enable = 0;
 
     /* Get LocalTimer[0] */
-    id = 0;
-    cron = NULL;
-    enable = 0;
-    switchid = 0;
+    id = 0; cron = NULL; enable = 0;
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
     printf("LocalTimer[0].id: %d\n", id);
 
@@ -520,10 +516,7 @@ static int get_scheduler_prop(sample_context_t *sample)
     printf("LocalTimer[0].enable: %d\n", enable);
 
     /* Get LocalTimer[1] */
-    id = 0;
-    cron = NULL;
-    enable = 0;
-    switchid = 0;
+    id = 0; cron = NULL; enable = 0;
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
     printf("LocalTimer[1].id: %d\n", id);
 
@@ -538,7 +531,6 @@ static int get_scheduler_prop(sample_context_t *sample)
 
     return 0;
 }
-#endif
 
 static int get_scheduler_post_event(sample_context_t *sample)
 {
@@ -623,15 +615,15 @@ int linkkit_example()
         }
 #endif
 
-        if (now == 5 && is_active(&sample_ctx)) {
+        if (now == 10 && is_active(&sample_ctx)) {
             set_scheduler_prop(&sample_ctx);
         }
 
-        /* if (now == 20 && is_active(&sample_ctx)) {
+        if (now == 15 && is_active(&sample_ctx)) {
             get_scheduler_prop(&sample_ctx);
-        } */
+        }
 
-        if (now == 10 && is_active(&sample_ctx)) {
+        if (now == 20 && is_active(&sample_ctx)) {
             get_scheduler_post_event(&sample_ctx);
         }
 
