@@ -22,7 +22,6 @@ CONFIG_src/thirdparty/tls   :=
 CONFIG_examples             :=
 CONFIG_src/thirdparty       :=
 CONFIG_src/platform         :=
-CONFIG_src/utils/digest     :=
 CONFIG_src/services/ota     :=
 CONFIG_tests                :=
 CONFIG_src/tools/linkkit_tsl_convert :=
