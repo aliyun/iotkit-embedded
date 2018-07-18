@@ -7,7 +7,7 @@ CFLAGS      += -I../include/iot-sdk
 CFLAGS      += -I../include/mbedtls
 
 LDFLAGS     := -L../lib
-LDFLAGS     += -liot_sdk -liot_platform
+LDFLAGS     += -liot_sdk -liot_hal
 LDFLAGS     += -Bstatic -liot_tls
 LDFLAGS     += -lgcov
 

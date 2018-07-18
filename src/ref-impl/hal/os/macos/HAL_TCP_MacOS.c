@@ -30,7 +30,7 @@
 #include <netdb.h>
 
 #include "iot_import.h"
-#include "platform_debug.h"
+#include "iotx_hal_internal.h"
 
 static uint64_t _linux_get_time_ms(void)
 {
@@ -68,7 +68,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     memset(&hints, 0, sizeof(hints));
 
-    platform_info("establish tcp connection with server(host=%s port=%u)", host, port);
+    hal_info("establish tcp connection with server(host=%s port=%u)", host, port);
 
     hints.ai_family = AF_INET; /* only IPv4 */
     hints.ai_socktype = SOCK_STREAM;
@@ -76,20 +76,20 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     sprintf(service, "%u", port);
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        platform_err("getaddrinfo error");
+        hal_err("getaddrinfo error");
         return -1;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
-            platform_err("socket type error");
+            hal_err("socket type error");
             rc = -1;
             continue;
         }
 
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
-            platform_err("create socket error");
+            hal_err("create socket error");
             rc = -1;
             continue;
         }
@@ -100,14 +100,14 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
         }
 
         close(fd);
-        platform_err("connect error");
+        hal_err("connect error");
         rc = -1;
     }
 
     if (-1 == rc) {
-        platform_err("fail to establish tcp");
+        hal_err("fail to establish tcp");
     } else {
-        platform_info("success to establish tcp, fd=%d", rc);
+        hal_info("success to establish tcp, fd=%d", rc);
     }
     freeaddrinfo(addrInfoList);
 
@@ -122,13 +122,13 @@ int HAL_TCP_Destroy(uintptr_t fd)
     /* Shutdown both send and receive operations. */
     rc = shutdown((int) fd, 2);
     if (0 != rc) {
-        platform_err("shutdown error");
+        hal_err("shutdown error");
         return -1;
     }
 
     rc = close((int) fd);
     if (0 != rc) {
-        platform_err("closesocket error");
+        hal_err("closesocket error");
         return -1;
     }
 
@@ -162,21 +162,21 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             ret = select(fd + 1, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
                 if (0 == FD_ISSET(fd, &sets)) {
-                    platform_err("Should NOT arrive");
+                    hal_err("Should NOT arrive");
                     /* If timeout in next loop, it will not sent any data */
                     ret = 0;
                     continue;
                 }
             } else if (0 == ret) {
-                platform_err("select-write timeout %d", (int)fd);
+                hal_err("select-write timeout %d", (int)fd);
                 break;
             } else {
                 if (EINTR == errno) {
-                    platform_err("EINTR be caught");
+                    hal_err("EINTR be caught");
                     continue;
                 }
 
-                platform_err("select-write fail");
+                hal_err("select-write fail");
                 break;
             }
         }
@@ -186,14 +186,14 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             if (ret > 0) {
                 len_sent += ret;
             } else if (0 == ret) {
-                platform_err("No data be sent");
+                hal_err("No data be sent");
             } else {
                 if (EINTR == errno) {
-                    platform_err("EINTR be caught");
+                    hal_err("EINTR be caught");
                     continue;
                 }
 
-                platform_err("send fail");
+                hal_err("send fail");
                 break;
             }
         }
@@ -232,22 +232,22 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {
-                platform_err("connection is closed");
+                hal_err("connection is closed");
                 err_code = -1;
                 break;
             } else {
                 if (EINTR == errno) {
-                    platform_err("EINTR be caught");
+                    hal_err("EINTR be caught");
                     continue;
                 }
-                platform_err("recv fail");
+                hal_err("recv fail");
                 err_code = -2;
                 break;
             }
         } else if (0 == ret) {
             break;
         } else {
-            platform_err("select-recv fail");
+            hal_err("select-recv fail");
             err_code = -2;
             break;
         }

@@ -36,7 +36,7 @@
 #include "itls/platform.h"
 
 #include "iot_import.h"
-#include "platform_debug.h"
+#include "iotx_hal_internal.h"
 
 #define CONFIG_ITLS_TIME_TEST
 
@@ -79,7 +79,7 @@ static void _ssl_debug(void *ctx, int level, const char *file, int line, const c
     ((void) ctx);
     ((void) level);
 
-    platform_info("%s:%04d: %s", file, line, str);
+    hal_info("%s:%04d: %s", file, line, str);
 }
 
 #if defined(_PLATFORM_IS_LINUX_)
@@ -141,10 +141,10 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
 
         if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout, sizeof(sendtimeout))) {
             perror("setsockopt");
-            platform_err("setsockopt error");
+            hal_err("setsockopt error");
         }
 
-        platform_info("setsockopt SO_SNDTIMEO timeout: %ds", sendtimeout.tv_sec);
+        hal_info("setsockopt SO_SNDTIMEO timeout: %ds", sendtimeout.tv_sec);
 
         if (connect(ctx->fd, cur->ai_addr, cur->ai_addrlen) == 0) {
             ret = 0;
@@ -193,62 +193,62 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData,
     /*
      * 1. Start the connection
      */
-    platform_info("Connecting to /%s/%s...", addr, port);
+    hal_info("Connecting to /%s/%s...", addr, port);
 #if defined(_PLATFORM_IS_LINUX_)
     if (0 != (ret = mbedtls_net_connect_timeout(&(pTlsData->fd),
                     addr, port, MBEDTLS_NET_PROTO_TCP, SEND_TIMEOUT_SECONDS))) {
-        platform_err(" failed ! net_connect returned -0x%04x", -ret);
+        hal_err(" failed ! net_connect returned -0x%04x", -ret);
         return ret;
     }
 #else
     if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP))) {
-        platform_err(" failed ! net_connect returned -0x%04x", -ret);
+        hal_err(" failed ! net_connect returned -0x%04x", -ret);
         return ret;
     }
 #endif
-    platform_info(" ok");
+    hal_info(" ok");
 
     /*
      * 2. Setup stuff
      */
-    platform_info("  . Setting up the SSL/TLS structure...");
+    hal_info("  . Setting up the SSL/TLS structure...");
     if ((ret = mbedtls_ssl_config_defaults(&(pTlsData->conf),
                                            MBEDTLS_SSL_IS_CLIENT,
                                            MBEDTLS_SSL_TRANSPORT_STREAM,
                                            MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
-        platform_err(" failed! mbedtls_ssl_config_defaults returned %d", ret);
+        hal_err(" failed! mbedtls_ssl_config_defaults returned %d", ret);
         goto _out;
     }
 
     mbedtls_ssl_conf_max_version(&pTlsData->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
     mbedtls_ssl_conf_min_version(&pTlsData->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
 
-    platform_info(" ok");
+    hal_info(" ok");
 
     mbedtls_ssl_conf_rng(&(pTlsData->conf), _ssl_random, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, NULL);
 
     /* "OPTIONAL", set extra data for client authentication */
     if ((ret = mbedtls_ssl_conf_auth_extra(&(pTlsData->conf), product_key, strlen(product_key))) != 0) {
-        platform_err(" failed! mbedtls_ssl_config_auth_extra returned %d", ret);
+        hal_err(" failed! mbedtls_ssl_config_auth_extra returned %d", ret);
         goto _out;
     }
 
     /* "OPTIONAL", token for id2 one-time provisioning */
     if ((ret = mbedtls_ssl_conf_auth_token(&(pTlsData->conf), product_secret, strlen(product_secret))) != 0) {
-        platform_err( " failed\n  ! mbedtls_ssl_conf_auth_token returned %d\n\n", ret );
+        hal_err( " failed\n  ! mbedtls_ssl_conf_auth_token returned %d\n\n", ret );
         goto _out;
     }
 
 #if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
     if ((ret = mbedtls_ssl_conf_max_frag_len(&(pTlsData->conf), MBEDTLS_SSL_MAX_FRAG_LEN_1024)) != 0) {
-        platform_err( " failed\n  ! mbedtls_ssl_conf_max_frag_len returned %d\n\n", ret );
+        hal_err( " failed\n  ! mbedtls_ssl_conf_max_frag_len returned %d\n\n", ret );
         goto _out;
     }
 #endif
 
     if ((ret = mbedtls_ssl_setup(&(pTlsData->ssl), &(pTlsData->conf))) != 0) {
-        platform_err(" failed! mbedtls_ssl_setup returned %d", ret);
+        hal_err(" failed! mbedtls_ssl_setup returned %d", ret);
         goto _out;
     }
 
@@ -257,25 +257,25 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData,
     /*
       * 3. Handshake
       */
-    platform_info("Performing the SSL/TLS handshake...");
+    hal_info("Performing the SSL/TLS handshake...");
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv1, NULL);
 #endif
 
     while ((ret = mbedtls_ssl_handshake(&(pTlsData->ssl))) != 0) {
         if ((ret != MBEDTLS_ERR_SSL_WANT_READ) && (ret != MBEDTLS_ERR_SSL_WANT_WRITE)) {
-            platform_err("failed  ! mbedtls_ssl_handshake returned -0x%04x", -ret);
+            hal_err("failed  ! mbedtls_ssl_handshake returned -0x%04x", -ret);
             goto _out;
         }
     }
 
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
-    platform_info("=========================== iTLS handshake used time(usec): %d\n",
+    hal_info("=========================== iTLS handshake used time(usec): %d\n",
                    (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
-    platform_info(" ok");
+    hal_info(" ok");
 
 _out:
     if (ret != 0) {
@@ -308,7 +308,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
             return (net_status == -2) ? net_status : readLen;
         } else {
             if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == ret) {
-                platform_err("ssl recv peer close notify");
+                hal_err("ssl recv peer close notify");
                 net_status = -2; /* connection is closed */
                 break;
             } else if ((MBEDTLS_ERR_SSL_TIMEOUT == ret)
@@ -320,7 +320,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 
                 return readLen;
             } else {
-                platform_err("ssl recv error: code = %d", ret);
+                hal_err("ssl recv error: code = %d", ret);
                 net_status = -1;
                 return -1; /* Connection error */
             }
@@ -329,7 +329,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
-    platform_info("=========================== iTLS receive data(%d bytes) used time(usec): %d\n",
+    hal_info("=========================== iTLS receive data(%d bytes) used time(usec): %d\n",
                    readLen, (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
@@ -351,17 +351,17 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
             writtenLen += ret;
             continue;
         } else if (ret == 0) {
-            platform_err("ssl write timeout");
+            hal_err("ssl write timeout");
             return 0;
         } else {
-            platform_err("ssl write error, code = %d", ret);
+            hal_err("ssl write error, code = %d", ret);
             return -1;
         }
     }
 
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
-    platform_info("iTLS send data(%d bytes) used time(usec): %d\n",
+    hal_info("iTLS send data(%d bytes) used time(usec): %d\n",
                    writtenLen,  (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
@@ -374,7 +374,7 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
     mbedtls_net_free(&(pTlsData->fd));
     mbedtls_ssl_free(&(pTlsData->ssl));
     mbedtls_ssl_config_free(&(pTlsData->conf));
-    platform_info("ssl_disconnect");
+    hal_info("ssl_disconnect");
 }
 
 uintptr_t HAL_SSL_Establish(const char *host,
@@ -388,7 +388,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     const char *product_secret = NULL;
 
     if (host == NULL || ca_crt == NULL) {
-        platform_err("input params are NULL");
+        hal_err("input params are NULL");
         return 0;
     }
 
@@ -415,7 +415,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 int32_t HAL_SSL_Destroy(uintptr_t handle)
 {
     if ((uintptr_t)NULL == handle) {
-        platform_err("handle is NULL");
+        hal_err("handle is NULL");
         return 0;
     }
 

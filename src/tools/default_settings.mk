@@ -47,7 +47,7 @@ EXTRA_INCLUDE_DIRS	:= \
 	src/security/pro \
 	src/tools/linkkit_tsl_convert/include \
 	build-rules \
-	src/platform \
+	src/ref-impl/hal \
 
 WIN32_CMAKE_SKIP    := \
     linkkit_tsl_convert \

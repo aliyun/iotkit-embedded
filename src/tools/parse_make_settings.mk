@@ -253,7 +253,7 @@ ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
     endif
 endif
 
-SUBDIRS += src/platform
+SUBDIRS += src/ref-impl/hal
 SUBDIRS += examples
 SUBDIRS += tests
 ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))

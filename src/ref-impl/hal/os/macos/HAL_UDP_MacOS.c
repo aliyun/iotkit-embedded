@@ -28,7 +28,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "platform_debug.h"
+#include "iotx_hal_internal.h"
 #include "iot_import.h"
 
 
@@ -56,7 +56,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        platform_err("getaddrinfo error");
+        hal_err("getaddrinfo error");
         return (-1);
     }
 
@@ -68,7 +68,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
             socket_id = socket(ainfo->ai_family, ainfo->ai_socktype, ainfo->ai_protocol);
             if (socket_id < 0) {
-                platform_err("create socket error");
+                hal_err("create socket error");
                 continue;
             }
             if (0 == connect(socket_id, ainfo->ai_addr, ainfo->ai_addrlen)) {
@@ -181,7 +181,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
-        platform_err("socket");
+        hal_err("socket");
         return -1;
     }
     if (0 == port) {
@@ -191,7 +191,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
     memset(&addr, 0, sizeof(struct sockaddr_in));
 
     if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
-        platform_err("setsockopt");
+        hal_err("setsockopt");
         close(sockfd);
         return -1;
     }
@@ -204,7 +204,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
         } else {
             hp = gethostbyname(host);
             if (!hp) {
-                platform_err("can't resolute the host address \n");
+                hal_err("can't resolute the host address \n");
                 close(sockfd);
                 return -1;
             }
@@ -219,7 +219,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
         close(sockfd);
         return -1;
     }
-    platform_info("success to establish udp, fd=%d", sockfd);
+    hal_info("success to establish udp, fd=%d", sockfd);
 
     return (intptr_t)sockfd;
 }
@@ -237,7 +237,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
         return -1;
     }
 
-    platform_info("HAL_UDP_connect, host=%s, port=%d", host, port);
+    hal_info("HAL_UDP_connect, host=%s, port=%d", host, port);
     sprintf(port_ptr, "%u", port);
     memset((char *)&hints, 0x00, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
@@ -246,7 +246,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        platform_err("getaddrinfo error");
+        hal_err("getaddrinfo error");
         return -1;
     }
 
@@ -283,7 +283,7 @@ int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
     socket_id = (int)sockfd;
     err = setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
     if (err < 0) {
-        platform_err("setsockopt");
+        hal_err("setsockopt");
         return err;
     }
 
@@ -294,7 +294,7 @@ int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
     /*join to the multicast group*/
     err = setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if (err < 0) {
-        platform_err("setsockopt");
+        hal_err("setsockopt");
         return err;
     }
 
@@ -396,7 +396,7 @@ int HAL_UDP_send(_IN_ intptr_t sockfd,
     ret = send(sockfd, (char *)p_data, (int)datalen, 0);
 
     if (ret < 0) {
-        platform_err("send");
+        hal_err("send");
     }
 
     return ret;
@@ -422,7 +422,7 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
     } else {
         hp = gethostbyname((char *)p_remote->addr);
         if (!hp) {
-            platform_err("can't resolute the host address \n");
+            hal_err("can't resolute the host address \n");
             return -1;
         }
         ip = *(uint32_t *)(hp->h_addr);
@@ -450,7 +450,7 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
     ret = sendto(sockfd, p_data, datalen, 0, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
 
     if (ret < 0) {
-        platform_err("sendto");
+        hal_err("sendto");
     }
 
     return (ret) > 0 ? ret : -1;

@@ -6,7 +6,7 @@
 #include "openssl/pem.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
-#include "platform_debug.h"
+#include "iotx_hal_internal.h"
 
 static SSL_CTX *ssl_ctx = NULL;
 static X509_STORE *ca_store = NULL;
@@ -44,14 +44,14 @@ static int ssl_ca_store_init(const char *my_ca)
     int ret;
     if (!ca_store) {
         if (!my_ca) {
-            platform_err("no global ca string provided \n");
+            hal_err("no global ca string provided \n");
             return -1;
         }
         ca_store = X509_STORE_new();
         ca = ssl_load_cert(my_ca);
         ret = X509_STORE_add_cert(ca_store, ca);
         if (ret != 1) {
-            platform_err("failed to X509_STORE_add_cert ret = %d \n", ret);
+            hal_err("failed to X509_STORE_add_cert ret = %d \n", ret);
             return -1;
         }
     }
@@ -72,12 +72,12 @@ static int ssl_verify_ca(X509 *target_cert)
     ret = X509_STORE_CTX_init(store_ctx, ca_store, target_cert, ca_stack);
 
     if (ret != 1) {
-        platform_err("X509_STORE_CTX_init fail, ret = %d", ret);
+        hal_err("X509_STORE_CTX_init fail, ret = %d", ret);
         goto end;
     }
     ret = X509_verify_cert(store_ctx);
     if (ret != 1) {
-        platform_err("X509_verify_cert fail, ret = %d, error id = %d, %s\n",
+        hal_err("X509_verify_cert fail, ret = %d, error id = %d, %s\n",
                ret, store_ctx->error,
                X509_verify_cert_error_string(store_ctx->error));
         goto end;
@@ -108,11 +108,11 @@ static int ssl_init(const char *my_ca)
         SSL_load_error_strings();
         ssl_ctx = SSL_CTX_new(meth);
         if (!ssl_ctx) {
-            platform_err("fail to initialize ssl context \n");
+            hal_err("fail to initialize ssl context \n");
             return -1;
         }
     } else {
-        platform_info("ssl context already initialized \n");
+        hal_info("ssl context already initialized \n");
     }
 
     return 0;
@@ -126,7 +126,7 @@ static int ssl_establish(int sock, SSL **ppssl)
     X509 *server_cert;
 
     if (!ssl_ctx) {
-        platform_err("no ssl context to create ssl connection \n");
+        hal_err("no ssl context to create ssl connection \n");
         return -1;
     }
 
@@ -136,14 +136,14 @@ static int ssl_establish(int sock, SSL **ppssl)
     err = SSL_connect(ssl_temp);
 
     if (err == -1) {
-        platform_err("failed create ssl connection \n");
+        hal_err("failed create ssl connection \n");
         goto err;
     }
 
     server_cert = SSL_get_peer_certificate(ssl_temp);
 
     if (!server_cert) {
-        platform_err("failed to get server cert");
+        hal_err("failed to get server cert");
         goto err;
     }
 
@@ -154,7 +154,7 @@ static int ssl_establish(int sock, SSL **ppssl)
 
     X509_free(server_cert);
 
-    platform_info("success to verify cert \n");
+    hal_info("success to verify cert \n");
 
     *ppssl = (void *)ssl_temp;
 
@@ -266,21 +266,21 @@ int platform_ssl_recv(void *ssl, char *buf, uint32_t len, int timeout_ms)
                 if (ret > 0) {
                     len_recv += ret;
                 } else if (0 == ret) {
-                    platform_err("connection is closed");
+                    hal_err("connection is closed");
                     err_code = -1;
                     break;
                 } else {
                     if (SSL_ERROR_WANT_READ == SSL_get_error(ssl, ret)) {
                         continue;
                     }
-                    platform_err("recv fail");
+                    hal_err("recv fail");
                     err_code = -2;
                     break;
                 }
             } else if (0 == ret) {
                 break;
             } else {
-                platform_err("select-read fail");
+                hal_err("select-read fail");
                 err_code = -2;
                 break;
             }
@@ -317,7 +317,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     handle = malloc(sizeof(struct ssl_info_st));
     if (NULL == handle) {
-        platform_err("no enough memory\n");
+        hal_err("no enough memory\n");
         return (uintptr_t)NULL;
     }
 
@@ -343,7 +343,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
 {
     struct ssl_info_st *h = (struct ssl_info_st *)handle;
 
-    platform_info("close ssl connection\n");
+    hal_info("close ssl connection\n");
 
     if (0 != h->ssl) {
         platform_ssl_close((void *)h->ssl);

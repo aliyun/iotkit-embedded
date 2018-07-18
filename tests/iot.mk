@@ -5,7 +5,7 @@ SRCS        += $(TOP_DIR)/build-rules/misc/cut.c
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 LDFLAGS     := -Bstatic
 LDFLAGS     += -liot_sdk
-LDFLAGS     += -liot_platform
+LDFLAGS     += -liot_hal
 
 ifneq (,$(filter -DMQTT_ID2_AUTH,$(CFLAGS)))
 ifneq (,$(filter -DON_DAILY,$(CFLAGS)))
@@ -22,4 +22,4 @@ ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
 LDFLAGS     += -liot_tls
 endif
 
-DEPENDS     += src/platform
+DEPENDS     += src/ref-impl/hal

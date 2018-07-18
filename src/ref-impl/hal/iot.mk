@@ -1,4 +1,4 @@
-LIBA_TARGET := libiot_platform.a
+LIBA_TARGET := libiot_hal.a
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 
 HDR_REFS    += src/ref-impl/tls

@@ -23,25 +23,17 @@
 #include <stdarg.h>
 #include <memory.h>
 
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/prctl.h>
-#include <sys/time.h>
-#include <semaphore.h>
-#include <errno.h>
-#include <assert.h>
-#include <net/if.h>	      // struct ifreq
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/ioctl.h>
 #include "iot_import.h"
-#include "platform_debug.h"
-#include "kv.h"
+#include "iot_export.h"
 
-#ifdef MQTT_ID2_AUTH
-#include "tfs.h"
-#endif /**< MQTT_ID2_AUTH*/
+#include <process.h>
+#include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <memory.h>
+#include <pthread.h>
+#include "iotx_hal_internal.h"
 
 #define __DEMO__
 
@@ -52,18 +44,13 @@ char _device_name[DEVICE_NAME_LEN + 1];
 char _device_secret[DEVICE_SECRET_LEN + 1];
 #endif
 
+
 void *HAL_MutexCreate(void)
 {
-    int err_num;
-    pthread_mutex_t *mutex = (pthread_mutex_t *)HAL_Malloc(sizeof(pthread_mutex_t));
-    if (NULL == mutex) {
-        return NULL;
-    }
+    HANDLE mutex;
 
-    if (0 != (err_num = pthread_mutex_init(mutex, NULL))) {
-        platform_err("create mutex failed");
-        HAL_Free(mutex);
-        return NULL;
+    if (NULL == (mutex = CreateMutex(NULL, FALSE, NULL))) {
+        hal_err("create mutex error");
     }
 
     return mutex;
@@ -71,28 +58,21 @@ void *HAL_MutexCreate(void)
 
 void HAL_MutexDestroy(_IN_ void *mutex)
 {
-    int err_num;
-    if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
-        platform_err("destroy mutex failed");
+    if (0 == CloseHandle(mutex)) {
+        hal_err("destroy mutex error");
     }
-
-    HAL_Free(mutex);
 }
 
 void HAL_MutexLock(_IN_ void *mutex)
 {
-    int err_num;
-    if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
-        platform_err("lock mutex failed");
+     if (WAIT_FAILED == WaitForSingleObject(mutex, INFINITE)) {
+        hal_err("lock mutex error");
     }
 }
 
 void HAL_MutexUnlock(_IN_ void *mutex)
 {
-    int err_num;
-    if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
-        platform_err("unlock mutex failed");
-    }
+    ReleaseMutex(mutex);
 }
 
 void *HAL_Malloc(_IN_ uint32_t size)
@@ -105,79 +85,41 @@ void HAL_Free(_IN_ void *ptr)
     free(ptr);
 }
 
-#ifdef __APPLE__
 uint64_t HAL_UptimeMs(void)
 {
-    struct timeval tv = { 0 };
-    uint64_t time_ms;
-
-    gettimeofday(&tv, NULL);
-
-    time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-
-    return time_ms;
-}
-#else
-uint64_t HAL_UptimeMs(void)
-{
-    uint64_t            time_ms;
-    struct timespec     ts;
-
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    time_ms = ((uint64_t)ts.tv_sec * (uint64_t)1000) + (ts.tv_nsec / 1000 / 1000);
-
-    return time_ms;
+    return (uint64_t)(GetTickCount());
 }
 
 char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
 {
-    struct timeval tv;
-    struct tm      tm;
+    time_t t;
+    struct tm      *local;
     int str_len    = 0;
 
     if (buf == NULL && len >= 28) {
         return NULL;
     }
-    gettimeofday(&tv, NULL);
-    localtime_r(&tv.tv_sec, &tm);
-    strftime(buf, 28, "%m-%d %H:%M:%S", &tm);
-    str_len = strlen(buf);
-    if (str_len + 3 < len)
-        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec)/1000);
+    t = time(NULL);
+    local = localtime(&t);
+    strftime(buf, 28, "%m-%d %H:%M:%S", local);
     return buf;
 }
-#endif
 
 void HAL_SleepMs(_IN_ uint32_t ms)
 {
-    usleep(1000 * ms);
+    Sleep(ms);
 }
 
+uint32_t orig_seed = 2;
 void HAL_Srandom(uint32_t seed)
 {
-    srandom(seed);
+    orig_seed = seed;
 }
 
 uint32_t HAL_Random(uint32_t region)
 {
-    return (region > 0) ? (random() % region) : 0;
-}
-
-int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)
-{
-    va_list args;
-    int     rc;
-
-    va_start(args, fmt);
-    rc = vsnprintf(str, len, fmt, args);
-    va_end(args);
-
-    return rc;
-}
-
-int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *format, va_list ap)
-{
-    return vsnprintf(str, len, format, ap);
+    orig_seed = 1664525 * orig_seed + 1013904223;
+    return (region > 0) ? (orig_seed % region) : 0;
 }
 
 void HAL_Printf(_IN_ const char *fmt, ...)
@@ -189,6 +131,29 @@ void HAL_Printf(_IN_ const char *fmt, ...)
     va_end(args);
 
     fflush(stdout);
+}
+
+
+int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)
+{
+    int ret;
+    va_list args;
+
+    va_start(args, fmt);
+    ret = _vsnprintf(str, len-1, fmt, args);
+    va_end(args);
+
+    return ret;
+}
+
+
+int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *fmt, va_list ap)
+{
+    int ret;
+
+    ret = _vsnprintf(str, len-1, fmt, ap);
+
+    return ret;
 }
 
 int HAL_GetPartnerID(char* pid_str)
@@ -209,7 +174,6 @@ int HAL_GetModuleID(char* mid_str)
     return strlen(mid_str);
 }
 
-
 char *HAL_GetChipID(_OU_ char* cid_str)
 {
     memset(cid_str, 0x0, HAL_CID_LEN);
@@ -219,7 +183,6 @@ char *HAL_GetChipID(_OU_ char* cid_str)
 #endif
     return cid_str;
 }
-
 
 int HAL_GetDeviceID(_OU_ char* device_id)
 {
@@ -231,22 +194,6 @@ int HAL_GetDeviceID(_OU_ char* device_id)
 
     return strlen(device_id);
 }
-
-#ifdef MQTT_ID2_AUTH
-int HAL_GetID2(_OU_ char* id2_str)
-{
-	int rc;
-    uint8_t                 id2[TFS_ID2_LEN + 1] = {0};
-	uint32_t                id2_len = TFS_ID2_LEN + 1;
-    memset(id2_str, 0x0, TFS_ID2_LEN + 1);
-#ifdef __DEMO__
-    rc = tfs_get_ID2(id2, &id2_len);
-    if (rc < 0) return rc;
-    strncpy(id2_str, (const char*)id2, TFS_ID2_LEN);
-#endif
-    return strlen(id2_str);
-}
-#endif /**< MQTT_ID2_AUTH*/
 
 int HAL_SetProductKey(_IN_ char* product_key)
 {
@@ -343,16 +290,14 @@ int HAL_GetDeviceSecret(_OU_ char* device_secret)
     return len;
 }
 
-
 int HAL_GetFirmwareVesion(_OU_ char* version)
 {
-    char *ver = "1.0";
-    int len = strlen(ver);
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__
-    strncpy(version, ver, len);
-    version[len] = '\0';
+    strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
+    version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
 #endif
+
     return strlen(version);
 }
 
@@ -419,7 +364,6 @@ int HAL_ThreadCreate(
             _OU_ int *stack_used)
 {
     int ret = -1;
-
     if (stack_used) {
         *stack_used = 0;
     }
@@ -444,9 +388,11 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
     }
 }
 
+#ifdef __DEMO__
 static FILE *fp;
 
 #define otafilename "/tmp/alinkota.bin"
+#endif
 
 void HAL_Firmware_Persistence_Start(void)
 {
@@ -479,202 +425,16 @@ int HAL_Firmware_Persistence_Stop(void)
 #endif
 
     /* check file md5, and burning it to flash ... finally reboot system */
-
     return 0;
 }
 
-int HAL_Config_Write(const char *buffer, int length)
+void HAL_UTC_Set(int64_t ms)
 {
-    FILE *fp;
-    size_t written_len;
-    char filepath[128] = {0};
 
-    if (!buffer || length <= 0) {
-        return -1;
-    }
-
-    snprintf(filepath, sizeof(filepath), "./%s", "alinkconf");
-    fp = fopen(filepath, "w");
-    if (!fp) {
-        return -1;
-    }
-
-    written_len = fwrite(buffer, 1, length, fp);
-
-    fclose(fp);
-
-    return ((written_len != length) ? -1 : 0);
 }
 
-int HAL_Config_Read(char *buffer, int length)
+int64_t HAL_UTC_Get(void)
 {
-    FILE *fp;
-    size_t read_len;
-    char filepath[128] = {0};
-
-    if (!buffer || length <= 0) {
-        return -1;
-    }
-
-    snprintf(filepath, sizeof(filepath), "./%s", "alinkconf");
-    fp = fopen(filepath, "r");
-    if (!fp) {
-        return -1;
-    }
-
-    read_len = fread(buffer, 1, length, fp);
-    fclose(fp);
-
-    return ((read_len != length) ? -1 : 0);
+    return 0;
 }
-
-#define REBOOT_CMD "reboot"
-void HAL_Sys_reboot(void)
-{
-    if (system(REBOOT_CMD)) {
-        perror("HAL_Sys_reboot failed");
-    }
-}
-
-#define ROUTER_INFO_PATH        "/proc/net/route"
-#define ROUTER_RECORD_SIZE      256
-
-char *_get_default_routing_ifname(char *ifname, int ifname_size)
-{
-    FILE *fp = NULL;
-    char line[ROUTER_RECORD_SIZE] = {0};
-    char iface[IFNAMSIZ] = {0};
-    char *result = NULL;
-    unsigned int destination, gateway, flags, mask;
-    unsigned int refCnt, use, metric, mtu, window, irtt;
-
-    fp = fopen(ROUTER_INFO_PATH, "r");
-    if (fp == NULL) {
-        perror("fopen");
-        return result;
-    }
-
-    char *buff = fgets(line, sizeof(line), fp);
-    if (buff == NULL) {
-        perror("fgets");
-        goto out;
-    }
-
-    while (fgets(line, sizeof(line), fp)) {
-        if (11 !=
-            sscanf(line, "%s %08x %08x %x %d %d %d %08x %d %d %d",
-                   iface, &destination, &gateway, &flags, &refCnt, &use,
-                   &metric, &mask, &mtu, &window, &irtt)) {
-            perror("sscanf");
-            continue;
-        }
-
-        /*default route */
-        if ((destination == 0) && (mask == 0)) {
-            strncpy(ifname, iface, ifname_size - 1);
-            result = ifname;
-            break;
-        }
-    }
-
-out:
-    if (fp) {
-        fclose(fp);
-    }
-
-    return result;
-}
-
-
-uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
-{
-    struct ifreq ifreq;
-    int sock = -1;
-    char ifname_buff[IFNAMSIZ] = {0};
-
-    if((NULL == ifname || strlen(ifname) == 0) &&
-        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))){
-        perror("get default routeing ifname");
-        return -1;
-    }
-
-    if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("socket");
-        return -1;
-    }
-
-    ifreq.ifr_addr.sa_family = AF_INET; //ipv4 address
-    strncpy(ifreq.ifr_name, ifname, IFNAMSIZ - 1);
-
-    if (ioctl(sock, SIOCGIFADDR, &ifreq) < 0) {
-        close(sock);
-        perror("ioctl");
-        return -1;
-    }
-
-    close(sock);
-
-    strncpy(ip_str,
-            inet_ntoa(((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr),
-            NETWORK_ADDR_LEN);
-
-    return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
-}
-
-static kv_file_t *kvfile = NULL;
-
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile)
-            return -1;
-    }
-
-    return kv_set_blob(kvfile, (char *)key, (char *)val, len);
-}
-
-int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile)
-            return -1;
-    }
-
-    return kv_get_blob(kvfile, (char *)key, buffer, buffer_len);
-}
-
-int HAL_Kv_Del(const char *key)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile)
-            return -1;
-    }
-
-    return kv_del(kvfile, (char *)key);
-}
-
-static long long os_time_get(void)
-{
-    struct timeval tv;
-    long long ms;
-    gettimeofday(&tv, NULL);
-    ms = tv.tv_sec * 1000LL + tv.tv_usec / 1000;
-    return ms;
-}
-
-static long long delta_time = 0;
-
-void HAL_UTC_Set(long long ms)
-{
-    delta_time = ms - os_time_get();
-} 
-
-long long HAL_UTC_Get(void)
-{
-    return delta_time + os_time_get();
-}
-
 

@@ -37,7 +37,7 @@
 #include <sys/ioctl.h>
 
 #include "iot_import.h"
-#include "platform_debug.h"
+#include "iotx_hal_internal.h"
 
 #if defined(SUPPORT_SINGAPORE_DOMAIN)
 static char DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN] = {"zSqW3X4e0lJ"};
@@ -67,7 +67,7 @@ void *HAL_MutexCreate(void)
     }
 
     if (0 != (err_num = pthread_mutex_init(mutex, NULL))) {
-        platform_err("create mutex failed");
+        hal_err("create mutex failed");
         HAL_Free(mutex);
         return NULL;
     }
@@ -79,7 +79,7 @@ void HAL_MutexDestroy(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
-        platform_err("destroy mutex failed");
+        hal_err("destroy mutex failed");
     }
 
     HAL_Free(mutex);
@@ -89,7 +89,7 @@ void HAL_MutexLock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
-        platform_err("lock mutex failed");
+        hal_err("lock mutex failed");
     }
 }
 
@@ -97,7 +97,7 @@ void HAL_MutexUnlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
-        platform_err("unlock mutex failed");
+        hal_err("unlock mutex failed");
     }
 }
 

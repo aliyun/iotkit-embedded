@@ -1,9 +1,9 @@
-DEPENDS             := src/platform
+DEPENDS             := src/ref-impl/hal
 HDR_REFS            += src
 
 LDFLAGS             := -Bstatic
 LDFLAGS             += -liot_sdk
-LDFLAGS             += -liot_platform
+LDFLAGS             += -liot_hal
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
 LDFLAGS             += -liot_tls

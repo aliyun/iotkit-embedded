@@ -22,11 +22,11 @@
 
 #include "iotx_log.h"
 
-#define platform_emerg(...)    log_emerg("port", __VA_ARGS__)
-#define platform_crit(...)     log_crit("port", __VA_ARGS__)
-#define platform_err(...)      log_err("port", __VA_ARGS__)
-#define platform_warning(...)  log_warning("port", __VA_ARGS__)
-#define platform_info(...)     log_info("port", __VA_ARGS__)
-#define platform_debug(...)    log_debug("port", __VA_ARGS__)
+#define hal_emerg(...)    log_emerg("hal", __VA_ARGS__)
+#define hal_crit(...)     log_crit("hal", __VA_ARGS__)
+#define hal_err(...)      log_err("hal", __VA_ARGS__)
+#define hal_warning(...)  log_warning("hal", __VA_ARGS__)
+#define hal_info(...)     log_info("hal", __VA_ARGS__)
+#define hal_debug(...)    log_debug("hal", __VA_ARGS__)
 
 #endif  /* __PLATFORM_DEBUG_H__ */

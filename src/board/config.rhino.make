@@ -18,10 +18,9 @@ CONFIG_ENV_CFLAGS   += \
     -DCONFIG_MQTT_RX_MAXLEN=1200 \
 
 #CONFIG_ENV_CFLAGS   += -Werror
-CONFIG_src/ref-impl/tls     :=
-CONFIG_examples             :=
-CONFIG_src/platform         :=
-CONFIG_src/services/ota     :=
-CONFIG_tests                :=
+CONFIG_src/ref-impl/tls         :=
+CONFIG_src/ref-impl/hal         :=
+CONFIG_examples                 :=
+CONFIG_src/services/ota         :=
+CONFIG_tests                    :=
 CONFIG_src/tools/linkkit_tsl_convert :=
-
