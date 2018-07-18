@@ -349,10 +349,21 @@ int IOT_OTA_Deinit(void *handle)
         return -1;
     }
 
-    osc_Deinit(h_ota->ch_signal);
-    ofc_Deinit(h_ota->ch_fetch);
-    otalib_MD5Deinit(h_ota->md5);
-    otalib_Sha256Deinit(h_ota->sha256);
+    if (NULL != h_ota->ch_signal) {
+        osc_Deinit(h_ota->ch_signal);
+    }
+    
+    if (NULL != h_ota->ch_fetch) {
+        ofc_Deinit(h_ota->ch_fetch);
+    }
+    
+    if (NULL != h_ota->md5) {
+        otalib_MD5Deinit(h_ota->md5);
+    }
+    
+    if (NULL != h_ota->sha256) {
+        otalib_Sha256Deinit(h_ota->sha256);
+    }
 
     if (NULL != h_ota->purl) {
         OTA_FREE(h_ota->purl);
@@ -787,8 +798,6 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
             } else {
                 *((uint32_t *)buf) = 0;
             }
-            memset(h_ota->md5sum, 0x0, 33);
-            otalib_MD5Deinit(h_ota->md5);
             return 0;
         }
     case IOT_OTAG_CHECK_CONFIG:
@@ -811,8 +820,6 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
 				} else {
 					*((uint32_t *)buf) = 0;
 				}
-                memset(h_ota->md5sum, 0x0, 33);
-                otalib_MD5Deinit(h_ota->md5);
         	}
         	if (0 == strncmp(h_ota->signMethod, "Sha256", strlen(h_ota->signMethod)))
         	{
