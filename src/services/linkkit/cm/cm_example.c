@@ -16,7 +16,6 @@
  *
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +23,6 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
-
 
 #define IOTX_PRODUCT_KEY        "a1AzoSi5TMc"
 #define IOTX_DEVICE_NAME        "test_light_for_dm_cmp_2"

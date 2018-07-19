@@ -595,5 +595,3 @@ int IOT_CM_Deinit(void *option);
 
 
 #endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CM_H_ */
-
-
