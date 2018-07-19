@@ -12,12 +12,10 @@ SWITCH_VARS := \
     FEATURE_OTA_FETCH_CHANNEL \
     FEATURE_HTTP_COMM_ENABLED \
     FEATURE_HTTP2_COMM_ENABLED \
-	FEATURE_SUPPORT_TLS \
-	FEATURE_SUPPORT_ITLS \
+    FEATURE_SUPPORT_TLS \
+    FEATURE_SUPPORT_ITLS \
     FEATURE_SUBDEVICE_ENABLED \
-	FEATURE_SDK_ENHANCE \
-    FEATURE_CM_ENABLED \
-    FEATURE_DM_ENABLED \
+    FEATURE_SDK_ENHANCE \
     FEATURE_SERVICE_OTA_ENABLED \
     FEATURE_SERVICE_COTA_ENABLED \
     FEATURE_SUPPORT_PRODUCT_SECRET \
@@ -28,28 +26,26 @@ $(foreach v, \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
-	FEATURE_CM_ENABLED := y
-	FEATURE_DM_ENABLED := y
-	CFLAGS += -DCM_ENABLED
-	CFLAGS += -DDM_ENABLED
-	ifeq (y,$(strip $(FEATURE_DEV_PRODUCT_GW)))
-		CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY
-		CFLAGS += -DCONFIG_SDK_THREAD_COST=1
-	else
-		CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE	
-	endif
+    CFLAGS += -DCM_ENABLED
+    CFLAGS += -DDM_ENABLED
+    ifeq (y,$(strip $(FEATURE_DEV_PRODUCT_GW)))
+        CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY
+        CFLAGS += -DCONFIG_SDK_THREAD_COST=1
+    else
+        CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE
+    endif
 endif # FEATURE_SDK_ENHANCE
 ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
     ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
         $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
-	endif
+    endif
 endif # HTTP2
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
     ifeq (n,$(strip $(FEATURE_SUPPORT_TLS)))
         ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
             $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
-	    endif
+        endif
     endif
     ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
         ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
@@ -70,9 +66,9 @@ ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
             endif # HTTP
         endif # COAP
     endif # MQTT
-	ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
-		CFLAGS += -DSERVICE_OTA_ENABLED
-	endif #enable ota on enhance sdk
+    ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
+        CFLAGS += -DSERVICE_OTA_ENABLED
+    endif #enable ota on enhance sdk
 endif # OTA Enabled
 
 ifeq (y,$(strip $(FEATURE_SUBDEVICE_ENABLED)))
@@ -93,10 +89,7 @@ CFLAGS += -DSUBDEV_VIA_MQTT
 endif # FEATURE_SUBDEVICE_CHANNEL
 endif # FEATURE_SUBDEVICE_ENABLED
 
-ifeq (y,$(strip $(FEATURE_CM_ENABLED)))
-ifneq (y,$(strip $(FEATURE_OTA_ENABLED)))
-$(error FEATURE_CM_ENABLED = y requires FEATURE_OTA_ENABLED = y!)
-endif
+ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
 ifeq (y,$(strip $(FEATURE_CMP_VIA_MQTT_DIRECT)))
 ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
 $(error FEATURE_CMP_VIA_MQTT_DIRECT = y requires FEATURE_MQTT_COMM_ENABLED = y!)
@@ -124,7 +117,7 @@ endif #FEATURE_HTTP_COMM_ENABLED
 CFLAGS += -DCMP_VIA_CLOUD_CONN_HTTP
 endif #FEATURE_CMP_VIA_CLOUD_CONN
 endif #FEATURE_CMP_VIA_MQTT_DIRECT = n
-endif #FEATURE_CM_ENABLED
+endif #FEATURE_SDK_ENHANCE
 
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
@@ -169,15 +162,9 @@ else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 endif   # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 endif
 
-ifeq (y,$(strip $(FEATURE_DM_ENABLED)))
-    ifneq (y,$(strip $(FEATURE_CM_ENABLED)))
-    $(error FEATURE_DM_ENABLED = y requires FEATURE_CM_ENABLED = y!)
-    endif
-endif
-
 ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
-    ifneq (y,$(strip $(FEATURE_CM_ENABLED)))
-    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_CM_ENABLED = y!)
+    ifneq (y,$(strip $(FEATURE_SDK_ENHANCE)))
+    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_SDK_ENHANCE= y!)
     endif
     CFLAGS  += -DSERVICE_OTA_ENABLED
 

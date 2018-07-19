@@ -32,7 +32,7 @@ SRCS_mqtt_multi_thread-example  := mqtt/mqtt_multi_thread-example.c
     TARGET                      += shadow-example
     SRCS_shadow-example         := device-shadow/shadow-example.c
     endif
-    
+
     ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
 
     LDFLAGS += \
@@ -77,13 +77,7 @@ SRCS_subdev-example     += subdev/subdev-example.c \
                            subdev/subdev_example_api.c
 endif
 
-ifneq (,$(filter -DCM_ENABLED,$(CFLAGS)))   
-TARGET                  += cm-example 
-SRCS_cm-example         := cmp/cmp-example.c
-endif
-
-
-ifneq (,$(filter -DDM_ENABLED,$(CFLAGS)))   
+ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
 
     ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
     TARGET                          += linkkit-example-single
