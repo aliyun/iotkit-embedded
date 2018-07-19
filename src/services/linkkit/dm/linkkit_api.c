@@ -801,6 +801,7 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
  *
  * @param thing_id, pointer to thing object.
  * @param event_identifier, event identifier to trigger.
+ * @param cb, callback function of event post.
  *
  * @return 0 when success, -1 when fail.
  */
@@ -834,6 +835,7 @@ int linkkit_trigger_event(const void *thing_id, const char *event_identifier, ha
  *
  * @param thing_id, pointer to thing object.
  * @param property_identifier, used when trigger event with method "event.property.post", if set, post specified property, if NULL, post all.
+ * @param cb, callback function of property post.
  *
  * @return 0 when success, -1 when fail.
  */

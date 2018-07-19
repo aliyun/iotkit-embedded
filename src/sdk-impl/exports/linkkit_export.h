@@ -215,7 +215,6 @@ extern int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_
  * @param response_id, id value in response payload. its value is from "dm_callback_type_service_requested" type callback function.
  *        use the same id as the request to send response as the same communication session.
  * @param code, code value in response payload. for example, 200 when service successfully executed, 400 when not successfully executed.
- * @param rrpc, specify rrpc service call or not.
  *
  * @return 0 when success, -1 when fail.
  */
@@ -266,6 +265,7 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
  *
  * @param thing_id, pointer to thing object.
  * @param event_identifier, event identifier to trigger.
+ * @param cb, callback function of event post. 
  *
  * @return 0 when success, -1 when fail.
  */
@@ -277,6 +277,7 @@ extern int linkkit_trigger_event(const void *thing_id, const char *event_identif
  * @param thing_id, pointer to thing object.
  * @param event_identifier, event identifier to trigger.
  * @param event, event data, in JSON format.
+ * @param cb, callback function of event post.
  *
  * @return 0 when success, -1 when fail.
  */
@@ -289,7 +290,8 @@ extern int linkkit_trigger_event_json(const void *thing_id, const char *event_id
  *
  * @param thing_id, pointer to thing object.
  * @param property_identifier, used when trigger event with method "event.property.post", if set, post specified property, if NULL, post all.
- *
+ * @param cb, callback function of property post.
+ * 
  * @return 0 when success, -1 when fail.
  */
 extern int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
@@ -300,6 +302,7 @@ extern int linkkit_post_property(const void *thing_id, const char *property_iden
  * @param thing_id, pointer to thing object.
  * @param property_identifier, used when trigger event with method "event.property.post", if set, post specified property, if NULL, post all.
  * @param event, property data, in JSON format.
+ * @param cb, callback function of property post.
  *
  * @return 0 when success, -1 when fail.
  */
