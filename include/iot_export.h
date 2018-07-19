@@ -43,18 +43,18 @@ typedef enum IOTX_CLOUD_DOMAIN_TYPES {
     /* Singapore */
     IOTX_CLOUD_DOMAIN_SG,
 
-    /* Japan */ 
+    /* Japan */
     IOTX_CLOUD_DOMAIN_JP,
 
     /* America */
-    IOTX_CLOUD_DOMAIN_US,   
+    IOTX_CLOUD_DOMAIN_US,
 
     /* Germany */
     IOTX_CLOUD_DOMAIN_GER,
 
     /* Maximum number of domain */
     IOTX_CLOUD_DOMAIN_MAX
-}iotx_cloud_domain_types_t;
+} iotx_cloud_domain_types_t;
 
 
 /* From device.h */

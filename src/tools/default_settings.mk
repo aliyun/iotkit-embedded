@@ -33,13 +33,13 @@ CFLAGS  += \
     -DCOAP_USE_PLATFORM_MEMORY -DCOAP_USE_PLATFORM_LOG \
 
 EXTRA_INSTALL_HDRS  := \
-    src/sdk-impl/iot_import.h \
-    src/sdk-impl/iot_export.h \
-    src/sdk-impl/imports \
-    src/sdk-impl/exports \
+    $(EXPORT_DIR)/iot_import.h \
+    $(EXPORT_DIR)/iot_export.h \
+    $(EXPORT_DIR)/imports \
+    $(EXPORT_DIR)/exports \
 
 EXTRA_INCLUDE_DIRS	:= \
-	src/sdk-impl \
+	$(EXPORT_DIR) \
 	src/ref-impl/tls \
 	src/security/pro \
 	src/tools/linkkit_tsl_convert/include \

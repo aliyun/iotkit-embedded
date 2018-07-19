@@ -31,11 +31,11 @@ extern "C" {
 
 typedef enum {
 
-  HTTP2_FLAG_NONE = 0,
+    HTTP2_FLAG_NONE = 0,
 
-  HTTP2_FLAG_END_STREAM = 0x01,
+    HTTP2_FLAG_END_STREAM = 0x01,
 
-}http2_flag;
+} http2_flag;
 
 typedef struct http2_connection {
     void           *network;       /* iot network ptr */
@@ -48,23 +48,23 @@ typedef struct http2_connection {
     char           *statuscode;    /* receive response for check is correct */
     char           *store_id;      /* store file id */
     int            status;
-}http2_connection_t;
+} http2_connection_t;
 
-typedef struct http2_header_struct{
+typedef struct http2_header_struct {
     char *name;     /* header name */
     char *value;    /* the value of name */
     int  namelen;   /* the length of header name */
     int  valuelen;  /* the length of value */
-}http2_header;
+} http2_header;
 
-typedef struct http2_data_struct{
+typedef struct http2_data_struct {
     http2_header *header;  /* header data. */
     int header_count;      /* the count of header data. */
     char *data;            /* send data. */
     int len;               /* send data length. */
     int stream_id;         /* send data over specify stream */
     int flag;              /* send data flag. */
-}http2_data;
+} http2_data;
 
 /**
 * @brief          the http2 client connect.

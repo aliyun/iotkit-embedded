@@ -86,7 +86,8 @@ typedef struct {
  *
  * @return 0 when success, < 0 when fail.
  */
-int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev, void *ctx), void *ctx);
+int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev, void *ctx),
+                                       void *ctx);
 
 /**
  * @brief linkkit initialization.
@@ -106,7 +107,7 @@ int linkkit_gateway_exit(void);
 
 typedef struct {
 
-	int (*register_complete) (void *ctx);
+    int (*register_complete)(void *ctx);
     /**
      * @brief get property callback.
      *
@@ -295,7 +296,8 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event, int timeout_ms, void (*func)(int retval, void *ctx), void *ctx);
+int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event, int timeout_ms,
+                                       void (*func)(int retval, void *ctx), void *ctx);
 
 
 /**
@@ -320,7 +322,8 @@ int linkkit_gateway_post_property_json_sync(int devid, char *json, int timeout_m
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms, void (*func)(int retval, void *ctx), void *ctx);
+int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms, void (*func)(int retval, void *ctx),
+                                       void *ctx);
 
 /**
  * @brief post raw data to cloud.

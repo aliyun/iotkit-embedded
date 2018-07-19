@@ -40,7 +40,7 @@ typedef struct _file_sync_info_struct_ {
     char *store_id;    /*store id when file upload success*/
     int *current_pos;  /*retransmit pos*/
     int type;          /*file type 0 : file. 1: log*/
-}file_sync_info;
+} file_sync_info;
 
 typedef struct _device_conn_info_struct_ {
     char  *product_key;
@@ -48,7 +48,7 @@ typedef struct _device_conn_info_struct_ {
     char  *device_secret;
     char  *url;
     int   port;
-}device_conn_info;
+} device_conn_info;
 
 typedef enum {
     HTTP2_UPLOAD_FILE_RET_OK            = 0,
@@ -95,9 +95,9 @@ extern int iotx_upload_file(http2_connection_t *conn, file_sync_info *file_info)
 * @return         The result. 0 is ok.
 */
 extern HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file_async(char *file_name,
-                                int type,
-                                iotx_upload_file_callback callback,
-                                void *user_data);
+        int type,
+        iotx_upload_file_callback callback,
+        void *user_data);
 /**
 * @brief          the http2 set device info.
 * @pk[in]         pk: product key.

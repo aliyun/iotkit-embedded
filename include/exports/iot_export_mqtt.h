@@ -270,7 +270,7 @@ int IOT_MQTT_Subscribe(void *handle,
 
 
 int IOT_MQTT_Subscribe_Multi(void *handle,
-                             iotx_mutli_sub_info_pt* sub_list,
+                             iotx_mutli_sub_info_pt *sub_list,
                              int list_size,
                              void *pcontext);
 

@@ -44,7 +44,7 @@ int HAL_GetModuleID(_OU_ char mid_str[MID_STR_MAXLEN]);
  * @param   product_key : 用来存放ProductKey字符串的数组
  * @return  写到product_key[]数组中的字符长度, 单位是字节(Byte)
  */
-int HAL_SetProductKey(_IN_ char* product_key);
+int HAL_SetProductKey(_IN_ char *product_key);
 
 /**
  * @brief   设置设备的`DeviceName`, 用于标识设备单品的名字, 三元组之一
@@ -52,7 +52,7 @@ int HAL_SetProductKey(_IN_ char* product_key);
  * @param   device_name : 用来存放DeviceName字符串的数组
  * @return  写到device_name[]数组中的字符长度, 单位是字节(Byte)
  */
-int HAL_SetDeviceName(_IN_ char* device_name);
+int HAL_SetDeviceName(_IN_ char *device_name);
 
 /**
  * @brief   设置设备的`DeviceSecret`, 用于标识设备单品的密钥, 三元组之一
@@ -60,7 +60,7 @@ int HAL_SetDeviceName(_IN_ char* device_name);
  * @param   device_secret : 用来存放DeviceSecret字符串的数组
  * @return  写到device_secret[]数组中的字符长度, 单位是字节(Byte)
  */
-int HAL_SetDeviceSecret(_IN_ char* device_secret);
+int HAL_SetDeviceSecret(_IN_ char *device_secret);
 
 /**
  * @brief   设置设备的`ProductSecret`, 用于标识设备单品的密钥, 三元组之一
@@ -68,7 +68,7 @@ int HAL_SetDeviceSecret(_IN_ char* device_secret);
  * @param   product_secret : 用来存放ProductSecret字符串的数组
  * @return  写到product_secret[]数组中的字符长度, 单位是字节(Byte)
  */
-int HAL_SetProductSecret(_IN_ char* product_secret);
+int HAL_SetProductSecret(_IN_ char *product_secret);
 
 /**
  * @brief   获取设备的`ProductKey`, 用于标识设备的品类, 三元组之一

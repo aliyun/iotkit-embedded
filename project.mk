@@ -3,8 +3,8 @@
 TOP_DIR         := $(CURDIR)
 RULE_DIR        := $(TOP_DIR)/build-rules
 CONFIG_DIR      := $(TOP_DIR)/src/board
-IMPORT_DIR      := $(TOP_DIR)/prebuilt
-EXPORT_DIR      := $(TOP_DIR)/src/sdk-impl
+EXPORT_DIR      := include
+IMPORT_DIR      := prebuilt
 
 # Settings of output directory
 #

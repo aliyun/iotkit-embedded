@@ -192,7 +192,7 @@ struct HAL_Ht40_Ctrl {
  * @param[in] rssi @n rssi of packet, range of [-127, -1]
  */
 typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
-                                          enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
+        enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
 
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
@@ -216,9 +216,9 @@ void HAL_Awss_Close_Monitor(void);
  *              may ignore it.
  */
 void HAL_Awss_Switch_Channel(
-    _IN_ char primary_channel,
-    _IN_OPT_ char secondary_channel,
-    _IN_OPT_ uint8_t bssid[ETH_ALEN]);
+            _IN_ char primary_channel,
+            _IN_OPT_ char secondary_channel,
+            _IN_OPT_ uint8_t bssid[ETH_ALEN]);
 
 /* auth type */
 enum AWSS_AUTH_TYPE {
@@ -265,13 +265,13 @@ enum AWSS_ENC_TYPE {
  *      If bssid specifies the dest AP, HAL should use bssid to connect dest AP.
  */
 int HAL_Awss_Connect_Ap(
-    _IN_ uint32_t connection_timeout_ms,
-    _IN_ char ssid[HAL_MAX_SSID_LEN],
-    _IN_ char passwd[HAL_MAX_PASSWD_LEN],
-    _IN_OPT_ enum AWSS_AUTH_TYPE auth,
-    _IN_OPT_ enum AWSS_ENC_TYPE encry,
-    _IN_OPT_ uint8_t bssid[ETH_ALEN],
-    _IN_OPT_ uint8_t channel);
+            _IN_ uint32_t connection_timeout_ms,
+            _IN_ char ssid[HAL_MAX_SSID_LEN],
+            _IN_ char passwd[HAL_MAX_PASSWD_LEN],
+            _IN_OPT_ enum AWSS_AUTH_TYPE auth,
+            _IN_OPT_ enum AWSS_ENC_TYPE encry,
+            _IN_OPT_ uint8_t bssid[ETH_ALEN],
+            _IN_OPT_ uint8_t channel);
 
 /**
  * @brief check system network is ready(get ip address) or not.
@@ -330,7 +330,7 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  * @note None.
  */
 typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
-                                          _IN_ signed char rssi_dbm, _IN_ int buffer_type);
+        _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 
 /**
  * @brief   在站点(Station)模式下使能或禁用对管理帧的过滤
@@ -351,9 +351,9 @@ typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
  * @note awss use this API to filter specific mgnt frame in wifi station mode
  */
 int HAL_Wifi_Enable_Mgmt_Frame_Filter(
-    _IN_ uint32_t filter_mask,
-    _IN_OPT_ uint8_t vendor_oui[3],
-    _IN_ awss_wifi_mgmt_frame_cb_t callback);
+            _IN_ uint32_t filter_mask,
+            _IN_OPT_ uint8_t vendor_oui[3],
+            _IN_ awss_wifi_mgmt_frame_cb_t callback);
 
 typedef struct {
     enum AWSS_AUTH_TYPE auth;
@@ -379,12 +379,12 @@ typedef struct {
  * @note None.
  */
 typedef int (*awss_wifi_scan_result_cb_t)(
-    const char ssid[HAL_MAX_SSID_LEN],
-    const uint8_t bssid[ETH_ALEN],
-    enum AWSS_AUTH_TYPE auth,
-    enum AWSS_ENC_TYPE encry,
-    uint8_t channel, signed char rssi,
-    int is_last_ap);
+            const char ssid[HAL_MAX_SSID_LEN],
+            const uint8_t bssid[ETH_ALEN],
+            enum AWSS_AUTH_TYPE auth,
+            enum AWSS_ENC_TYPE encry,
+            uint8_t channel, signed char rssi,
+            int is_last_ap);
 
 /**
  * @brief   启动一次Wi-Fi的空中扫描(Scan)
@@ -421,9 +421,9 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
  *     If the STA dosen't connect AP successfully, HAL should return -1 and not touch the ssid/passwd/bssid buffer.
  */
 int HAL_Wifi_Get_Ap_Info(
-    _OU_ char ssid[HAL_MAX_SSID_LEN],
-    _OU_ char passwd[HAL_MAX_PASSWD_LEN],
-    _OU_ uint8_t bssid[ETH_ALEN]);
+            _OU_ char ssid[HAL_MAX_SSID_LEN],
+            _OU_ char passwd[HAL_MAX_PASSWD_LEN],
+            _OU_ uint8_t bssid[ETH_ALEN]);
 
 /**
  * @brief   获取`smartconfig`服务的安全等级
