@@ -43,7 +43,7 @@ typedef struct _sample_context {
  * please modify this string follow as product's TSL.
  */
 static const char TSL_STRING[] =
-            "{\"schema\":\"https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json\",\"profile\":{\"productKey\":\"a13Npv1vjZ4\"},\"services\":[],\"properties\":[{\"identifier\":\"LocalTimer\",\"dataType\":{\"specs\":{\"size\":\"2\",\"item\":{\"type\":\"struct\",\"specs\":[{\"identifier\":\"ID\",\"name\":\"idName\",\"dataType\":{\"type\":\"int\"}},{\"identifier\":\"Cron\",\"name\":\"cronName\",\"dataType\":{\"type\":\"text\"}},{\"identifier\":\"Enable\",\"name\""
+            "{\"schema\":\"https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json\",\"profile\":{\"productKey\":\"a13Npv1vjZ4\"},\"services\":[],\"properties\":[{\"identifier\":\"LocalTimer\",\"dataType\":{\"specs\":{\"size\":\"2\",\"item\":{\"type\":\"struct\",\"specs\":[{\"identifier\":\"ID\",\"name\":\"idName\",\"dataType\":{\"type\":\"int\"}},{\"identifier\":\"Timer\",\"name\":\"cronName\",\"dataType\":{\"type\":\"text\"}},{\"identifier\":\"Enable\",\"name\""
             ":\"enableName\",\"dataType\":{\"type\":\"bool\"}}]}},\"type\":\"array\"},\"name\":\"LocalTimerName\",\"accessMode\":\"rw\",\"required\":false}],\"events\":[{\"identifier\":\"post\"}]}";
 
 /*
@@ -305,68 +305,38 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
     /*char property_buf[64] = {0};*/
     int response_id = -1;
 
-    /* do user's property changed process logical here. */
-
-    /* ............................... */
-
-    /* user's property changed process logical complete */
-
-
-    /*
-     * example:
-     *     property identifier:
-     *               IndoorTemperature
-     *               TemperatureModelStatus
-     *               CurrentTemperature
-     *
-     * please follow TSL modify this property identifier
-     */
-
     if (strstr(property, "LocalTimer") != 0) {
         int id = 0;
-        char *cron = NULL;
+        char *timer = NULL;
         int enable = 0;
-        int switchid = 0;
+        uint64_t utc = 0;
 
         /* Get LocalTimer[0] */
-        id = 0;
-        cron = NULL;
-        enable = 0;
-        switchid = 0;
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].id", &id, NULL);
-        EXAMPLE_TRACE("LocalTimer[0].id: %d\n", id);
+        id = 0; timer = NULL; enable = 0;
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].ID", &id, NULL);
+        EXAMPLE_TRACE("LocalTimer[0].ID: %d\n", id);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].cron", &cron, NULL);
-        EXAMPLE_TRACE("LocalTimer[0].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
-        if (cron) {
-            free(cron);
-        }
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Timer", &timer, NULL);
+        EXAMPLE_TRACE("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
+        if (timer) { free(timer);}
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].enable", &enable, NULL);
-        EXAMPLE_TRACE("LocalTimer[0].enable: %d\n", enable);
-
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].switch", &switchid, NULL);
-        EXAMPLE_TRACE("LocalTimer[0].switch: %d\n", switchid);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Enable", &enable, NULL);
+        EXAMPLE_TRACE("LocalTimer[0].Enable: %d\n", enable);
 
         /* Get LocalTimer[1] */
-        id = 0;
-        cron = NULL;
-        enable = 0;
-        switchid = 0;
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].id", &id, NULL);
-        EXAMPLE_TRACE("LocalTimer[1].id: %d\n", id);
+        id = 0; timer = NULL; enable = 0;
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].ID", &id, NULL);
+        EXAMPLE_TRACE("LocalTimer[1].ID: %d\n", id);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].cron", &cron, NULL);
-        EXAMPLE_TRACE("LocalTimer[1].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
-        if (cron) {
-            free(cron);
-        }
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Timer", &timer, NULL);
+        EXAMPLE_TRACE("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
+        if (timer) {free(timer);}
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].enable", &enable, NULL);
-        EXAMPLE_TRACE("LocalTimer[1].enable: %d\n", enable);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Enable", &enable, NULL);
+        EXAMPLE_TRACE("LocalTimer[1].Enable: %d\n", enable);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].switch", &switchid, NULL);
-        EXAMPLE_TRACE("LocalTimer[1].switch: %d\n", switchid);
+        utc = HAL_UTC_Get();
+        EXAMPLE_TRACE("Current UTC: %lld\n", utc);
     }
 
     /* post property
@@ -460,7 +430,7 @@ static unsigned long long uptime_sec(void)
     return (HAL_UptimeMs() - start_time) / 1000;
 }
 
-static int is_active(sample_context_t *sample_ctx)
+int is_active(sample_context_t *sample_ctx)
 {
 #ifdef LOCAL_CONN_ENABLE
     return (sample_ctx->cloud_connected/* && sample_ctx->thing_enabled*/)
@@ -470,69 +440,65 @@ static int is_active(sample_context_t *sample_ctx)
 #endif
 }
 
-static int set_scheduler_prop(sample_context_t *sample)
+int set_scheduler_prop(sample_context_t *sample)
 {
     int id = 0;
-    char *cron = NULL;
+    char *timer = NULL;
     int enable = 0;
 
     /* Set LocalTimer[0] */
     id = 0;
-    cron = "This is LocalTimer 0";
+    timer = "10 11 * * * 1 2 3 4 5";
     enable = 1;
     linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Cron", cron, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", timer, NULL);
     linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
 
     /* Set LocalTimer[1] */
     id = 1;
-    cron = "This is LocalTimer 1";
+    timer = "30 11 * * * 1 2 3 4 5";
     enable = 1;
     linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Cron", cron, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Timer", timer, NULL);
     linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Enable", &enable, NULL);
 
     return 0;
 }
 
-static int get_scheduler_prop(sample_context_t *sample)
+int get_scheduler_prop(sample_context_t *sample)
 {
     int id = 0;
-    char *cron = NULL;
+    char *timer = NULL;
     int enable = 0;
 
     /* Get LocalTimer[0] */
-    id = 0; cron = NULL; enable = 0;
+    id = 0; timer = NULL; enable = 0;
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
-    printf("LocalTimer[0].id: %d\n", id);
+    printf("LocalTimer[0].ID: %d\n", id);
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Cron", &cron, NULL);
-    printf("LocalTimer[0].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
-    if (cron) {
-        free(cron);
-    }
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", &timer, NULL);
+    printf("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
+    if (timer) {free(timer);}
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
-    printf("LocalTimer[0].enable: %d\n", enable);
+    printf("LocalTimer[0].Enable: %d\n", enable);
 
     /* Get LocalTimer[1] */
-    id = 0; cron = NULL; enable = 0;
+    id = 0; timer = NULL; enable = 0;
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
-    printf("LocalTimer[1].id: %d\n", id);
+    printf("LocalTimer[1].ID: %d\n", id);
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Cron", &cron, NULL);
-    printf("LocalTimer[1].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
-    if (cron) {
-        free(cron);
-    }
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Timer", &timer, NULL);
+    printf("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
+    if (timer) {free(timer);}
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Enable", &enable, NULL);
-    printf("LocalTimer[1].enable: %d\n", enable);
+    printf("LocalTimer[1].Enable: %d\n", enable);
 
     return 0;
 }
 
-static int get_scheduler_post_event(sample_context_t *sample)
+int get_scheduler_post_event(sample_context_t *sample)
 {
     linkkit_post_property(sample->thing, "LocalTimer", post_property_cb);
 
@@ -615,7 +581,7 @@ int linkkit_example()
         }
 #endif
 
-        if (now == 10 && is_active(&sample_ctx)) {
+        /* if (now == 10 && is_active(&sample_ctx)) {
             set_scheduler_prop(&sample_ctx);
         }
 
@@ -625,7 +591,7 @@ int linkkit_example()
 
         if (now == 20 && is_active(&sample_ctx)) {
             get_scheduler_post_event(&sample_ctx);
-        }
+        } */
 
         if (exit) {
             break;
