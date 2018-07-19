@@ -33,7 +33,7 @@
 #include "utils_base64.h"
 #include "utils_hmac.h"
 #include "utils_httpc.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 
 /*#define GUIDER_IOT_ID_LEN           (256)
 #define GUIDER_IOT_TOKEN_LEN        (512)*/
@@ -61,6 +61,12 @@
 #define SHA_METHOD              "hmacsha1"
 #define MD5_METHOD              "hmacmd5"
 
+#define sys_emerg(...)          log_emerg("sys", __VA_ARGS__)
+#define sys_crit(...)           log_crit("sys", __VA_ARGS__)
+#define sys_err(...)            log_err("sys", __VA_ARGS__)
+#define sys_warning(...)        log_warning("sys", __VA_ARGS__)
+#define sys_info(...)           log_info("sys", __VA_ARGS__)
+#define sys_debug(...)          log_debug("sys", __VA_ARGS__)
 
 typedef enum _SECURE_MODE {
     MODE_TLS_GUIDER             = -1,
@@ -71,7 +77,7 @@ typedef enum _SECURE_MODE {
     MODE_TCP_DIRECT_ID2_ENCRYPT = 4,
     MODE_TLS_GUIDER_ID2_ENCRYPT = 5,
     MODE_TLS_DIRECT_ID2_ENCRYPT = 7,
-	MODE_ITLS_DNS_ID2           = 8,
+    MODE_ITLS_DNS_ID2           = 8,
 } SECURE_MODE;
 
 typedef enum _DOMAIN_TYPE {

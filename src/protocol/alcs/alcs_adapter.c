@@ -3,7 +3,6 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "sdk-impl_internal.h"
 #include "linked_list.h"
 #include "iot_export_alcs.h"
 #include "alcs_api.h"

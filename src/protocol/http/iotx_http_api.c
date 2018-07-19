@@ -25,8 +25,7 @@
 #include "utils_hmac.h"
 #include "utils_httpc.h"
 #include "utils_epoch_time.h"
-#include "sdk-impl_internal.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "http_debug.h"
 
 /*

@@ -21,7 +21,7 @@
 #define __SRC_CM_COMMON_H__
 
 #include "iotx_utils.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "iot_export_cm.h"
 #include "linked_list.h"
 #include "iotx_log.h"

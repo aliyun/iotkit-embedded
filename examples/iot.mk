@@ -1,4 +1,6 @@
 DEPENDS             := src/ref-impl/hal
+DEPENDS             += src/ref-impl/tls
+
 HDR_REFS            += src
 
 LDFLAGS             := -Bstatic

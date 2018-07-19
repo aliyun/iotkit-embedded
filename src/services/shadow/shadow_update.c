@@ -22,7 +22,7 @@
 
 #include "shadow_debug.h"
 #include "iotx_utils.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 
 #include "shadow_update.h"
 

@@ -19,8 +19,7 @@
 
 #include <string.h>
 
-#include "sec_debug.h"
-#include "lite-system.h"
+#include "iotx_system_internal.h"
 
 static iotx_conn_info_t     iotx_conn_info;
 static iotx_device_info_t   iotx_device_info;
@@ -29,7 +28,7 @@ static int                  iotx_devinfo_inited = 0;
 int iotx_device_info_init(void)
 {
     if (iotx_devinfo_inited) {
-        sec_debug("device_info already created, return!");
+        sys_debug("device_info already created, return!");
         return 0;
     }
 
@@ -37,7 +36,7 @@ int iotx_device_info_init(void)
     memset(&iotx_conn_info, 0x0, sizeof(iotx_conn_info_t));
     iotx_devinfo_inited = 1;
 
-    sec_info("device_info created successfully!");
+    sys_info("device_info created successfully!");
     return SUCCESS_RETURN;
 }
 
@@ -47,7 +46,7 @@ int iotx_device_info_set(
             const char *device_secret)
 {
     int ret;
-    sec_debug("start to set device info!");
+    sys_debug("start to set device info!");
 
     memset(&iotx_device_info, 0x0, sizeof(iotx_device_info));
     strncpy(iotx_device_info.product_key, product_key, PRODUCT_KEY_LEN);
@@ -57,11 +56,11 @@ int iotx_device_info_set(
     /* construct device-id(@product_key+@device_name) */
     ret = HAL_Snprintf(iotx_device_info.device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
     if ((ret < 0) || (ret >= DEVICE_ID_LEN)) {
-        sec_err("set device info failed");
+        sys_err("set device info failed");
         return FAIL_RETURN;
     }
 
-    sec_debug("device_info set successfully!");
+    sys_debug("device_info set successfully!");
     return SUCCESS_RETURN;
 }
 

@@ -19,7 +19,7 @@
 #include <stddef.h>
 #include "iot_import.h"
 #include "iot_export.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "mqtt_debug.h"
 #include "iotx_utils.h"
 #include "utils_net.h"
@@ -28,7 +28,6 @@
 #include "utils_timer.h"
 #include "string_utils.h"
 #include "utils_sysinfo.h"
-#include "sdk-impl_internal.h"
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"

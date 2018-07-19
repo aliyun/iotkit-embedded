@@ -30,15 +30,10 @@
 #include <assert.h>
 #endif
 
-#include "lite-list.h"
 #include "iotx_log.h"
+#include "lite-list.h"
+#include "iotx_utils_config.h"
 #include "iot_import.h"
-
-
-#define UTILS_printf                HAL_Printf
-#define UTILS_malloc        		HAL_Malloc
-#define UTILS_vsnprintf     		HAL_Vsnprintf
-#define UTILS_free                  HAL_Free
 
 #define LITE_TRUE                   (1)
 #define LITE_FALSE                  (0)
@@ -47,6 +42,26 @@
 #define container_of(ptr, type, member)  \
     ((type *) ((char *) (ptr) - offsetof(type, member)))
 #endif
+
+#define POINTER_SANITY_CHECK(ptr, err) \
+    do { \
+        if (NULL == (ptr)) { \
+            log_err("Invalid argument, %s = %p", #ptr, ptr); \
+            return (err); \
+        } \
+    } while(0)
+
+#define STRING_PTR_SANITY_CHECK(ptr, err) \
+    do { \
+        if (NULL == (ptr)) { \
+            log_err("Invalid argument, %s = %p", #ptr, (ptr)); \
+            return (err); \
+        } \
+        if (0 == strlen((ptr))) { \
+            log_err("Invalid argument, %s = '%s'", #ptr, (ptr)); \
+            return (err); \
+        } \
+    } while(0)
 
 #define LITE_MINIMUM(a, b)          (((a) <= (b)) ? (a) : (b))
 #define LITE_MAXIMUM(a, b)          (((a) >= (b)) ? (a) : (b))

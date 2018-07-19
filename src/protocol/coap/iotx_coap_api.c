@@ -27,7 +27,7 @@
 #include "json_parser.h"
 #include "CoAPMessage.h"
 #include "CoAPExport.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "lite-cjson.h"
 #include "utils_sha256.h"
 

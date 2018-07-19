@@ -22,7 +22,7 @@
 #include "iotx_log.h"
 #include "iotx_utils.h"
 #include "utils_timer.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "utils_hmac.h"
 #include "iot_export.h"
 #include "iot_export_coap.h"

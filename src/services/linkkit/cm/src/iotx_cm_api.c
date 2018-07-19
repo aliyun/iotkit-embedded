@@ -22,7 +22,7 @@
 #include "iot_import.h"
 
 #include "iotx_utils.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "iot_export.h"
 #include "iotx_cm_common.h"
 #include "iotx_cm_connectivity.h"

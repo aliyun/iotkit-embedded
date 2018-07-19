@@ -20,6 +20,11 @@
 #ifndef __LITE_UTILS_CONFIG_H__
 #define __LITE_UTILS_CONFIG_H__
 
+#define UTILS_printf                HAL_Printf
+#define UTILS_malloc                HAL_Malloc
+#define UTILS_vsnprintf             HAL_Vsnprintf
+#define UTILS_free                  HAL_Free
+
 #ifndef WITH_MEM_STATS
 #ifdef _PLATFORM_IS_LINUX_
 #define WITH_MEM_STATS              1

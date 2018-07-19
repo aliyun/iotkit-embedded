@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "iot_import.h"
 #include "iot_export.h"
 
@@ -67,11 +67,11 @@ int iotx_gen_aos_report_topic(char *topic_name, char *product_key, char *device_
 {
     int ret;
     /* linkkit version topic name: "/sys/${productKey}/${deviceName}/thing/deviceinfo/update" */
-    ret = HAL_Snprintf(topic_name, 
-                        IOTX_URI_MAX_LEN, 
-                        "/sys/%s/%s/thing/deviceinfo/update",
-                        product_key,
-                        device_name);
+    ret = HAL_Snprintf(topic_name,
+                       IOTX_URI_MAX_LEN,
+                       "/sys/%s/%s/thing/deviceinfo/update",
+                       product_key,
+                       device_name);
     return ret;
 }
 
@@ -80,8 +80,8 @@ int iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData)
 {
     /* Topic's Json data
     {
-        "id" : 123,                     
-        "version":"1.0",                
+        "id" : 123,
+        "version":"1.0",
         "params" : [{
             "attrKey" : "SYS_ALIOS_ACTIVATION",
             "attrValue" : "some data",
@@ -96,7 +96,7 @@ int iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData)
                        "{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}],\"method\":\"thing.deviceinfo.update\"}",
                        requestId,
                        versionData
-                       );
+                      );
     return ret;
 }
 

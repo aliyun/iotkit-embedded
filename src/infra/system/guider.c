@@ -16,9 +16,7 @@
  *
  */
 
-#include "guider_internal.h"
-#include "utils_epoch_time.h"
-#include "sec_debug.h"
+#include "iotx_system_internal.h"
 
 #ifndef CONFIG_GUIDER_AUTH_TIMEOUT
     #define CONFIG_GUIDER_AUTH_TIMEOUT  (10 * 1000)
@@ -64,7 +62,7 @@ char *iotx_guider_get_domain(void)
     return NULL;
 }
 
-static int                  iotx_guider_authed = 0;
+static int iotx_guider_authed = 0;
 
 void iotx_guider_auth_set(int authed)
 {
@@ -75,7 +73,6 @@ int iotx_guider_auth_get(void)
 {
     return iotx_guider_authed;
 }
-
 
 static int _calc_hmac_signature(
             char *hmac_sigbuf,
@@ -150,7 +147,7 @@ int _http_response(char *payload,
 
     requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
-        sec_err("Allocate HTTP request buf failed!");
+        sys_err("Allocate HTTP request buf failed!");
         return ERROR_MALLOC;
     }
     memset(requ_payload, 0, HTTP_POST_MAX_LEN);
@@ -160,7 +157,7 @@ int _http_response(char *payload,
                        "%s",
                        request_string);
     LITE_ASSERT(len < HTTP_POST_MAX_LEN);
-    sec_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
+    sys_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
     resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
     if (!resp_payload) {
@@ -187,7 +184,7 @@ int _http_response(char *payload,
     }
 
     memcpy(payload, httpc_data.response_buf, payload_len);
-    sec_debug("PAYLOAD: %s", payload);
+    sys_debug("PAYLOAD: %s", payload);
 
 RETURN:
     if (requ_payload) {
@@ -250,23 +247,23 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
         *ptr = '\0';
     }
 
-    /* sec_debug("dst(%d) = %s", rc, dst); */
+    /* sys_debug("dst(%d) = %s", rc, dst); */
     return 0;
 }
 
 void guider_print_conn_info(iotx_conn_info_pt conn)
 {
-    sec_debug("%s", "-----------------------------------------");
-    sec_debug("%16s : %-s", "Host", conn->host_name);
-    sec_debug("%16s : %d",  "Port", conn->port);
-    /*sec_debug("%16s : %-s", "UserName", conn->username);
-    sec_debug("%16s : %-s", "PassWord", conn->password);*/  /* remove */
-    sec_debug("%16s : %-s", "ClientID", conn->client_id);
+    sys_debug("%s", "-----------------------------------------");
+    sys_debug("%16s : %-s", "Host", conn->host_name);
+    sys_debug("%16s : %d",  "Port", conn->port);
+    /*sys_debug("%16s : %-s", "UserName", conn->username);
+    sys_debug("%16s : %-s", "PassWord", conn->password);*/  /* remove */
+    sys_debug("%16s : %-s", "ClientID", conn->client_id);
     if (conn->pub_key) {
-        sec_debug("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
+        sys_debug("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
     }
 
-    sec_debug("%s", "-----------------------------------------");
+    sys_debug("%s", "-----------------------------------------");
 }
 
 void guider_print_dev_guider_info(iotx_device_info_pt dev,
@@ -279,26 +276,26 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
                                   char *id2,
                                   char *dev_code)
 {
-    sec_debug("%s", "....................................................");
-    sec_debug("%20s : %-s", "ProductKey", dev->product_key);
-    sec_debug("%20s : %-s", "DeviceName", dev->device_name);
-    sec_debug("%20s : %-s", "DeviceID", dev->device_id);
-    /*sec_debug("%20s : %-s", "DeviceSecret", dev->device_secret);*/  /* remove */
-    sec_debug("%s", "....................................................");
-    sec_debug("%20s : %-s", "PartnerID Buf", partner_id);
-    sec_debug("%20s : %-s", "ModuleID Buf", module_id);
-    sec_debug("%20s : %s", "Guider URL", guider_url);
+    sys_debug("%s", "....................................................");
+    sys_debug("%20s : %-s", "ProductKey", dev->product_key);
+    sys_debug("%20s : %-s", "DeviceName", dev->device_name);
+    sys_debug("%20s : %-s", "DeviceID", dev->device_id);
+    /*sys_debug("%20s : %-s", "DeviceSecret", dev->device_secret);*/  /* remove */
+    sys_debug("%s", "....................................................");
+    sys_debug("%20s : %-s", "PartnerID Buf", partner_id);
+    sys_debug("%20s : %-s", "ModuleID Buf", module_id);
+    sys_debug("%20s : %s", "Guider URL", guider_url);
     if (secure_mode > 0) {
-        sec_debug("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
+        sys_debug("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
     }
-    sec_debug("%20s : %s", "Guider Timestamp", time_stamp);
-    sec_debug("%s", "....................................................");
-    /*sec_debug("%20s : %s", "Guider Sign", guider_sign);*/ /* remove */
+    sys_debug("%20s : %s", "Guider Timestamp", time_stamp);
+    sys_debug("%s", "....................................................");
+    /*sys_debug("%20s : %s", "Guider Sign", guider_sign);*/ /* remove */
     if (id2 != NULL) {
-        sec_debug("%20s : %s", "Guider ID2", id2);
-        sec_debug("%20s : %s", "Guider DeviceCode", dev_code);
+        sys_debug("%20s : %s", "Guider ID2", id2);
+        sys_debug("%20s : %s", "Guider DeviceCode", dev_code);
     }
-    sec_debug("%s", "....................................................");
+    sys_debug("%s", "....................................................");
 
     return;
 }
@@ -310,63 +307,62 @@ static void guider_get_url(char *buf, int len)
 #else
     HAL_Snprintf(buf, len, "%s", "http://");
 
-    switch (g_domain_type)
-    {
-    case GUIDER_DOMAIN_SH:
+    switch (g_domain_type) {
+        case GUIDER_DOMAIN_SH:
 #if defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");
+            strcat(buf, "iot-auth.alibaba.net");
 #else
-        strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
+            strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
 #endif
-        break;
+            break;
 
-    case GUIDER_DOMAIN_SG:
+        case GUIDER_DOMAIN_SG:
 #if defined(ON_PRE)
-        strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
+            strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
 #elif defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");
+            strcat(buf, "iot-auth.alibaba.net");
 #else
-        strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
+            strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
 #endif
-        break;
+            break;
 
-    case GUIDER_DOMAIN_JP:
+        case GUIDER_DOMAIN_JP:
 #if defined(ON_PRE)
-        strcat(buf, "iot-auth-pre.ap-northeast-1.aliyuncs.com");    ////////////  TODO
+            strcat(buf, "iot-auth-pre.ap-northeast-1.aliyuncs.com");    ////////////  TODO
 #elif defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
+            strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
 #else
-        strcat(buf, "iot-auth.ap-northeast-1.aliyuncs.com"); ////////////  TODO
+            strcat(buf, "iot-auth.ap-northeast-1.aliyuncs.com"); ////////////  TODO
 #endif
-        break;
+            break;
 
-    case GUIDER_DOMAIN_US:
+        case GUIDER_DOMAIN_US:
 #if defined(ON_PRE)
-        strcat(buf, "iot-auth-pre.us-west-1.aliyuncs.com");    ////////////  TODO
+            strcat(buf, "iot-auth-pre.us-west-1.aliyuncs.com");    ////////////  TODO
 #elif defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
+            strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
 #else
-        strcat(buf, "iot-auth.us-west-1.aliyuncs.com");  ////////////  TODO
+            strcat(buf, "iot-auth.us-west-1.aliyuncs.com");  ////////////  TODO
 #endif
-        break;    
+            break;
 
-    case GUIDER_DOMAIN_GER:
+        case GUIDER_DOMAIN_GER:
 #if defined(ON_PRE)
-        strcat(buf, "iot-auth-pre.eu-central-1.aliyuncs.com");    ////////////  TODO
+            strcat(buf, "iot-auth-pre.eu-central-1.aliyuncs.com");    ////////////  TODO
 #elif defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
+            strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
 #else
-        strcat(buf, "iot-auth.eu-central-1.aliyuncs.com");   ////////////  TODO
+            strcat(buf, "iot-auth.eu-central-1.aliyuncs.com");   ////////////  TODO
 #endif
-        break;
+            break;
 
-    default:    // default use shanghai domain
+        default:    // default use shanghai domain
 #if defined(ON_DAILY)
-        strcat(buf, "iot-auth.alibaba.net");
+            strcat(buf, "iot-auth.alibaba.net");
 #else
-        strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
+            strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
 #endif
-        break;
+            break;
     }
 
     strcat(buf, "/auth/devicename");
@@ -501,7 +497,7 @@ static int guider_get_iotId_iotToken(
                    iotx_ca_get()
 #endif
                   );
-    sec_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
+    sys_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
     pvalue = LITE_json_value_of("code", iotx_payload);
     if (!pvalue) {
@@ -513,9 +509,9 @@ static int guider_get_iotId_iotToken(
     pvalue = NULL;
 
     if (200 != ret_code) {
-        sec_err("++++");
-        sec_err("ret_code = %d (!= 200), abort!", ret_code);
-        sec_err("++++");
+        sys_err("++++");
+        sys_err("ret_code = %d (!= 200), abort!", ret_code);
+        sys_err("++++");
         goto do_exit;
     }
 
@@ -552,10 +548,10 @@ static int guider_get_iotId_iotToken(
     pvalue = NULL;
     *pport = atoi(port_str);
 
-    /*sec_debug("%10s: %s", "iotId", iot_id);*/
-    /*sec_debug("%10s: %s", "iotToken", iot_token);*/
-    sec_debug("%10s: %s", "Host", host);
-    sec_debug("%10s: %d", "Port", *pport);
+    /*sys_debug("%10s: %s", "iotId", iot_id);*/
+    /*sys_debug("%10s: %s", "iotToken", iot_token);*/
+    sys_debug("%10s: %s", "Host", host);
+    sys_debug("%10s: %d", "Port", *pport);
 
     ret = 0;
 
@@ -614,7 +610,7 @@ int iotx_guider_authenticate(void)
 
     req_str = guider_set_auth_req_str(guider_sign, timestamp_str);
     LITE_ASSERT(req_str);
-    sec_debug("req_str = '%s'", req_str);
+    sys_debug("req_str = '%s'", req_str);
 
     if (0 != guider_get_iotId_iotToken(guider_url,
                                        req_str,
@@ -626,7 +622,7 @@ int iotx_guider_authenticate(void)
             LITE_free(req_str);
         }
 
-        sec_err("_iotId_iotToken_http() failed");
+        sys_err("_iotId_iotToken_http() failed");
         return -1;
     }
 #else

@@ -26,7 +26,7 @@
 #include "iot_import.h"
 
 #include "iotx_utils.h"
-#include "lite-system.h"
+#include "iotx_system.h"
 #include "iotx_cm_common.h"
 
 int iotx_cm_local_conn_disconnect_handler(iotx_cm_conntext_t *cm_ctx);
