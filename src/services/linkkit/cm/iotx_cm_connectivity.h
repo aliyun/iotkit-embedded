@@ -71,9 +71,9 @@ typedef int (*deinit_fp_t)(void *handler, void *connectivity);
 typedef iotx_cm_send_peer_t *(*get_target_fp_t)(void);
 typedef int (*check_target_fp_t)(iotx_cm_send_peer_t *);
 #if (CONFIG_SDK_THREAD_COST == 1)
-    typedef int (*add_send_fp_t)(void *cm_ctx, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info,
-    void *sem);
-    typedef void *(*thread_process_fp_t)(void *pclient);
+typedef int (*add_send_fp_t)(void *cm_ctx, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info,
+                             void *sem);
+typedef void *(*thread_process_fp_t)(void *pclient);
 #endif /* CONFIG_SDK_THREAD_COST */
 
 
@@ -143,23 +143,23 @@ int iotx_cm_destory_connectivity(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivit
 int iotx_cm_connect_connectivity_all(iotx_cm_conntext_t *cm_ctx);
 
 #if (CONFIG_SDK_THREAD_COST == 1)
-    iotx_cm_process_list_node_t *iotx_cm_get_list_node(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type);
+iotx_cm_process_list_node_t *iotx_cm_get_list_node(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type);
 
-    int iotx_cm_free_list_node(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type,
-    iotx_cm_process_list_node_t *node);
+int iotx_cm_free_list_node(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type,
+                           iotx_cm_process_list_node_t *node);
 
-    void iotx_cm_free_process_list_handler(void *list_node, va_list *params);
+void iotx_cm_free_process_list_handler(void *list_node, va_list *params);
 
-    int iotx_cm_free_list_node_all(iotx_cm_conntext_t *cm_ctx);
+int iotx_cm_free_list_node_all(iotx_cm_conntext_t *cm_ctx);
 
-    /* node is in */
-    int iotx_cm_process_list_push(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type,
-    iotx_cm_process_list_node_t *node);
+/* node is in */
+int iotx_cm_process_list_push(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type,
+                              iotx_cm_process_list_node_t *node);
 
-    /* node is out */
-    iotx_cm_process_list_node_t *iotx_cm_process_list_pop(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type);
+/* node is out */
+iotx_cm_process_list_node_t *iotx_cm_process_list_pop(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type);
 
-    int iotx_cm_process_list_get_size(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type);
+int iotx_cm_process_list_get_size(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_types_t type);
 
 #endif /* CONFIG_SDK_THREAD_COST */
 

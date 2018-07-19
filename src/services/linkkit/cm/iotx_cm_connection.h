@@ -83,7 +83,7 @@ typedef enum IOTX_CONNECTION_MESSAGE_TYPES {
 
     /* Maximum number of message type */
     IOTX_CONNECTION_MESSAGE_TYPE_MAX
-}iotx_connection_message_types_t;
+} iotx_connection_message_types_t;
 
 
 typedef enum IOTX_CONNECTION_EVENT_TYPES {
@@ -96,13 +96,13 @@ typedef enum IOTX_CONNECTION_EVENT_TYPES {
     IOTX_CONNECTION_EVENT_REMOVE_DEVICE,
 
     IOTX_CONNECTION_EVENT_MAX
-}iotx_connection_event_types_t;
+} iotx_connection_event_types_t;
 
 
 /* The structure of cloud Connection event struct */
 typedef struct {
     uint8_t                                   event_id;
-    void*                                     msg;
+    void                                     *msg;
 } iotx_connection_event_msg_t;
 
 
@@ -116,59 +116,60 @@ typedef struct {
  *
  * @return none
  */
-typedef void (*iotx_cm_connection_event_handle_fp_t)(void* pconnection, iotx_connection_event_msg_t* msg);
+typedef void (*iotx_cm_connection_event_handle_fp_t)(void *pconnection, iotx_connection_event_msg_t *msg);
 
 typedef struct {
     iotx_connection_response_types_t            rsp_type;
-    char*                                       URI;
+    char                                       *URI;
     uint32_t                                    URI_length;
-    void*                                       payload;
+    void                                       *payload;
     uint32_t                                    payload_length;
     iotx_cm_message_ack_types_t                 ack_type;
-    void*                                       conn_ctx;
+    void                                       *conn_ctx;
 } iotx_connection_msg_rsp_t;
 
 
-typedef int (*iotx_connection_msg_rsp_fp_t)(void* pcontext, iotx_connection_msg_rsp_t* msg);
+typedef int (*iotx_connection_msg_rsp_fp_t)(void *pcontext, iotx_connection_msg_rsp_t *msg);
 
 
 typedef struct {
     iotx_connection_message_types_t             type;
-    char*                                       URI;
+    char                                       *URI;
     uint32_t                                    URI_length;
-    void*                                       payload;
+    void                                       *payload;
     uint32_t                                    payload_length;
     iotx_cm_message_ack_types_t                 ack_type;
-    void*                                       response_pcontext;
+    void                                       *response_pcontext;
     iotx_connection_msg_rsp_fp_t                response_handler;
     iotx_cm_content_type_t                      content_type;
-    void*                                       sem;
+    void                                       *sem;
 } iotx_connection_msg_t;
 
 
-typedef void* (*iotx_cm_connection_init_fp_t)(void* connection, void* param);
+typedef void *(*iotx_cm_connection_init_fp_t)(void *connection, void *param);
 
-typedef int (*iotx_cm_connection_init_second_fp_t)(void* connection);
+typedef int (*iotx_cm_connection_init_second_fp_t)(void *connection);
 
-typedef int (*iotx_cm_connection_subscribe_fp_t)(void* connection, void *_register_param, int count);
+typedef int (*iotx_cm_connection_subscribe_fp_t)(void *connection, void *_register_param, int count);
 
-typedef int (*iotx_cm_connection_unsubscribe_fp_t)(void* connection, const char *topic_filter);
+typedef int (*iotx_cm_connection_unsubscribe_fp_t)(void *connection, const char *topic_filter);
 
-typedef int (*iotx_cm_connection_add_service_fp_t)(void* connection, const char *topic_filter, iotx_cm_message_ack_types_t ack_type, iotx_cm_message_auth_types_t auth_type);
+typedef int (*iotx_cm_connection_add_service_fp_t)(void *connection, const char *topic_filter,
+        iotx_cm_message_ack_types_t ack_type, iotx_cm_message_auth_types_t auth_type);
 
-typedef int (*iotx_cm_connection_remove_service_fp_t)(void* connection, const char *topic_filter);
+typedef int (*iotx_cm_connection_remove_service_fp_t)(void *connection, const char *topic_filter);
 
-typedef int (*iotx_cm_connection_send_fp_t)(void* connection, void* _context, iotx_connection_msg_t* message);
+typedef int (*iotx_cm_connection_send_fp_t)(void *connection, void *_context, iotx_connection_msg_t *message);
 
-typedef int (*iotx_cm_connection_add_subdevice_fp_t)(void* connection, const char* pk, const char* dn);
+typedef int (*iotx_cm_connection_add_subdevice_fp_t)(void *connection, const char *pk, const char *dn);
 
-typedef int (*iotx_cm_connection_remove_subdevice_fp_t)(void* connection, const char* pk, const char* dn);
+typedef int (*iotx_cm_connection_remove_subdevice_fp_t)(void *connection, const char *pk, const char *dn);
 
-typedef int (*iotx_cm_connection_deinit_fp_t)(void* connection);
+typedef int (*iotx_cm_connection_deinit_fp_t)(void *connection);
 
-typedef int (*iotx_cm_connection_yield_fp_t)(void* connection, int timeout_ms);
+typedef int (*iotx_cm_connection_yield_fp_t)(void *connection, int timeout_ms);
 
-typedef int (*iotx_cm_connection_resposne_fp_t)(void* connection, iotx_connection_msg_rsp_t* msg);
+typedef int (*iotx_cm_connection_resposne_fp_t)(void *connection, iotx_connection_msg_rsp_t *msg);
 
 
 typedef struct iotx_connection_param_st {
@@ -179,7 +180,7 @@ typedef struct iotx_connection_param_st {
 
 /* The structure of cloud connection context */
 typedef struct iotx_connection_st {
-    void*                                       context;
+    void                                       *context;
     iotx_cm_connection_init_fp_t                init_func;
     iotx_cm_connection_init_second_fp_t         init_second_func;
     iotx_cm_connection_subscribe_fp_t           sub_func;
@@ -192,7 +193,7 @@ typedef struct iotx_connection_st {
     iotx_cm_connection_yield_fp_t               yield_func;
     iotx_cm_connection_deinit_fp_t              deinit_func;
     iotx_cm_connection_protocol_types_t         protocol_type;
-    void*                                       event_pcontext;
+    void                                       *event_pcontext;
     iotx_cm_connection_event_handle_fp_t        event_handler;
     iotx_cm_connection_resposne_fp_t            response_handler;
 } iotx_cm_connection_t;

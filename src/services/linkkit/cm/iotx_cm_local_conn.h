@@ -57,9 +57,9 @@ int iotx_cm_local_conn_deinit(void *handler, void *connectivity);
 int iotx_cm_local_conn_check_target(iotx_cm_send_peer_t *peer);
 iotx_cm_send_peer_t *iotx_cm_local_conn_get_target();
 #if (CONFIG_SDK_THREAD_COST == 1)
-    int iotx_cm_local_conn_add_send(void *handler, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info,
-    void *sem);
-    void *iotx_cm_local_conn_process(void *pclient);
+int iotx_cm_local_conn_add_send(void *handler, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info,
+                                void *sem);
+void *iotx_cm_local_conn_process(void *pclient);
 #endif /* CONFIG_SDK_THREAD_COST */
 
 #endif /* CM_SUPPORT_LOCAL_CONN */
