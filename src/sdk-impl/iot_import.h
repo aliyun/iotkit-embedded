@@ -761,6 +761,13 @@ int HAL_Firmware_Persistence_Stop(void);
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
 int HAL_Kv_Del(const char *key);
+int HAL_Kv_Erase_All();
+
+
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data);
+int HAL_Timer_Start(void *t, int ms);
+int HAL_Timer_Stop(void *t);
+int HAL_Timer_Delete(void *timer);
 
 /**
  * @brief Set the UTC time in milliseconds.
