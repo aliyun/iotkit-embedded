@@ -56,8 +56,9 @@ unzip: config $(STAMP_BLD_VAR)
 cmake:
 	@$(MAKE) -s distclean
 	@$(MAKE) -s DEFAULT_BLD=$(RULE_DIR)/misc/config.generic.cmake config
-	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
+	@$(foreach V,$(filter-out CFLAGS,$(INFO_ENV_VARS)),$(V)="$($(V))") \
 	    SEP_LIBS="$$(grep -m 1 '^COMP_LIB_FILES' $(STAMP_BLD_ENV) | cut -d' ' -f3-)" \
+	    CFLAGS=$(CFLAGS) \
 	    bash $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
 	@for D in $(ALL_SUB_DIRS); do \
 	    echo "+ $${D}"; \
