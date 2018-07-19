@@ -354,11 +354,7 @@ void *IOT_Shadow_Construct(iotx_shadow_para_pt pparams)
     pparams->mqtt.handle_event.pcontext = pshadow;
 
     /* construct MQTT client */
-#ifndef MQTT_ID2_AUTH
     if (NULL == (pshadow->mqtt = IOT_MQTT_Construct(&pparams->mqtt))) {
-#else
-	if (NULL == (pshadow->mqtt = IOT_MQTT_ConstructSecure(&pparams->mqtt))) {
-#endif /**< MQTT_ID2_AUTH*/
         shadow_err("construct MQTT failed");
         goto do_exit;
     }

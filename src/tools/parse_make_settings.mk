@@ -10,9 +10,6 @@ SWITCH_VARS := \
     FEATURE_OTA_ENABLED \
     FEATURE_OTA_SIGNAL_CHANNEL \
     FEATURE_OTA_FETCH_CHANNEL \
-    FEATURE_MQTT_ID2_AUTH \
-    FEATURE_MQTT_ID2_CRYPTO \
-    FEATURE_MQTT_ID2_ENV \
     FEATURE_HTTP_COMM_ENABLED \
     FEATURE_HTTP2_COMM_ENABLED \
 	FEATURE_SUPPORT_TLS \
@@ -150,21 +147,6 @@ $(foreach V,SHADOW DIRECT DIRECT_NOTLS, \
 )
 endif
 
-ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
-
-    ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
-    $(error FEATURE_MQTT_ID2_CRYPTO + FEATURE_MQTT_DIRECT is not supported!)
-    endif
-	
-else   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
-    ifeq (n,$(strip $(FEATURE_SUPPORT_TLS)))
-        ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
-            $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
-        endif
-    endif
-
-endif   # ifeq (y,$(strip $(FEATURE_MQTT_DIRECT)))
-
 ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
     ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
         $(error FEATURE_SUPPORT_TLS and FEATURE_SUPPORT_ITLS are not supported together!)
@@ -176,34 +158,6 @@ endif # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
 ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
     CFLAGS  += -DIOTX_WITHOUT_ITLS
 endif # ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
-
-ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-    ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
-        ifneq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
-            $(error FEATURE_SUPPORT_ITLS or FEATURE_SUPPORT_TLS must be selected one or more)
-        endif
-    endif
-    ifneq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
-    $(error FEATURE_MQTT_ID2_AUTH requires FEATURE_SUPPORT_ITLS = n!)
-    endif
-
-    ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
-    $(error FEATURE_COAP_DTLS_SUPPORT = y requires FEATURE_MQTT_ID2_AUTH = n!)
-    endif
-    # ifneq (gcc,$(strip $(CC)))
-    # $(error FEATURE_MQTT_ID2_AUTH requires $(CC) equal gcc!)
-    # endif
-
-else    # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-    ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
-    $(error FEATURE_MQTT_ID2_AUTH = n requires FEATURE_SUPPORT_ITLS = n!)
-    endif
-
-    ifeq (y,$(strip $(FEATURE_MQTT_ID2_CRYPTO)))
-    $(error FEATURE_MQTT_ID2_CRYPTO = y requires FEATURE_MQTT_ID2_AUTH = y!)
-    endif
-
-endif   # ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
 
 ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
@@ -258,8 +212,5 @@ SUBDIRS += examples
 SUBDIRS += tests
 ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
 SUBDIRS += src/ref-impl/tls
-endif
-ifeq (y,$(strip $(FEATURE_MQTT_ID2_AUTH)))
-SUBDIRS += src/thirdparty/tfs
 endif
 SUBDIRS += src/tools/linkkit_tsl_convert

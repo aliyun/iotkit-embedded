@@ -32,11 +32,6 @@
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
-#ifdef MQTT_ID2_AUTH
-    #ifdef MQTT_ID2_CRYPTO
-        #include "id2_crypto.h"
-    #endif
-#endif
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
 static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
@@ -1305,11 +1300,6 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     topic_msg.qos = (unsigned char)qos;
     topic_msg.payload_len = (unsigned short)payload_len;
 
-    /* payload decrypt by id2_aes */
-    if (c->mqtt_down_process) {
-        c->mqtt_down_process(&topic_msg);
-    }
-
     mqtt_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
     mqtt_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
     mqtt_debug("%20s : %.*s",
@@ -1749,10 +1739,6 @@ static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt
         mqtt_err("MQTTPublish return error,MQTT_QOS2 is now not supported.");
         return MQTT_PUBLISH_QOS_ERROR;
     }
-    /* payload encrypt by id2_aes */
-    if (c->mqtt_up_process) {
-        rc = c->mqtt_up_process((char *)topicName, topic_msg);
-    }
 
 #if defined(INSPECT_MQTT_FLOW)
     HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
@@ -1980,10 +1966,6 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
         mc_state = IOTX_MC_STATE_INVALID;
         goto RETURN;
     }
-#if defined(MQTT_ID2_CRYPTO)
-    pClient->ipstack->ca_crt = NULL;
-    pClient->ipstack->ca_crt_len = 0;
-#endif
     if (SUCCESS_RETURN != iotx_mc_calc_random_init()) {
         mqtt_err("iotx_mc_calc_random_init failed");
         rc = FAIL_RETURN;
@@ -2838,11 +2820,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
-#ifndef MQTT_ID2_AUTH
     pclient->mqtt_auth = iotx_guider_authenticate;
-#else
-    pclient->mqtt_auth = iotx_guider_id2_authenticate;
-#endif
 
     /* report module id */
     err = iotx_mc_report_mid(pclient);
@@ -2870,25 +2848,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     return pclient;
 }
-
-#ifdef MQTT_ID2_AUTH
-void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams)
-{
-    iotx_mc_client_t   *pclient;
-
-    pclient = IOT_MQTT_Construct(pInitParams);
-    if (NULL == pclient) {
-        return NULL;
-    }
-
-    pclient->mqtt_auth = iotx_guider_id2_authenticate;
-#ifdef MQTT_ID2_CRYPTO
-    pclient->mqtt_up_process = iotx_mqtt_id2_payload_encrypt;
-    pclient->mqtt_down_process = iotx_mqtt_id2_payload_decrypt;
-#endif
-    return pclient;
-}
-#endif
 
 int IOT_MQTT_Destroy(void **phandler)
 {

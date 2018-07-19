@@ -152,8 +152,6 @@ typedef struct Client {
     void                           *lock_write_buf;                          /* lock of write */
     iotx_mqtt_event_handle_t        handle_event;                            /* event handle */
     int (*mqtt_auth)(void);
-    int (*mqtt_up_process)(char *topic, iotx_mqtt_topic_info_pt topic_msg);  /* process function before mqtt publish */
-    int (*mqtt_down_process)(iotx_mqtt_topic_info_pt topic_msg);             /* process function while received mqtt publish */
 } iotx_mc_client_t, *iotx_mc_client_pt;
 
 typedef enum {

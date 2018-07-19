@@ -30,15 +30,6 @@ extern "C" {
 #define MQTT_SDK_VERSION    "2.0"
 
 int iotx_guider_authenticate(void);
-/* func name: iotx_guider_id2_authenticate
- * description: used for id2 authentication
- * intput :
- * output :
- * return : int
- *           0   success
- *          -1   error
- */
-int iotx_guider_id2_authenticate(void);
 
 int     iotx_device_info_init(void);
 

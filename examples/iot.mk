@@ -31,15 +31,8 @@ SRCS_mqtt_multi_thread-example  := mqtt/mqtt_multi_thread-example.c
     SRCS_shadow-example         := device-shadow/shadow-example.c
     endif
     
-    ifneq (,$(filter -DMQTT_ID2_AUTH,$(CFLAGS)))
-    ifneq (,$(filter -DON_DAILY,$(CFLAGS)))
-    LDFLAGS     += -ltfs
-    else
-    LDFLAGS     += -ltfs_online
-    endif
     ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
-    LDFLAGS     += -litls -liot_tfs -liot_sdk
-    endif
+    LDFLAGS     += -litls -liot_sdk
     endif
 
 endif

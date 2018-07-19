@@ -497,8 +497,6 @@ static int guider_get_iotId_iotToken(
                    iotx_port,
 #if defined(TEST_OTA_PRE)
                    NULL
-#elif defined(MQTT_ID2_AUTH) && defined(TEST_ID2_PRE)
-                   NULL
 #else
                    iotx_ca_get()
 #endif

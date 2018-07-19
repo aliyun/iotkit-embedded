@@ -702,11 +702,7 @@ void* IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param)
     gateway_param->mqtt->handle_event.pcontext = g_gateway_subdevice_t;
 
     /* construct MQTT client */
-#ifndef MQTT_ID2_AUTH
     if (NULL == (g_gateway_subdevice_t->mqtt = IOT_MQTT_Construct(gateway_param->mqtt))) {
-#else
-	if (NULL == (g_gateway_subdevice_t->mqtt = IOT_MQTT_ConstructSecure(gateway_param->mqtt))) {
-#endif /**< MQTT_ID2_AUTH*/
         subdev_err("construct MQTT failed");
         return NULL;
     }

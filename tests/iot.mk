@@ -7,15 +7,8 @@ LDFLAGS     := -Bstatic
 LDFLAGS     += -liot_sdk
 LDFLAGS     += -liot_hal
 
-ifneq (,$(filter -DMQTT_ID2_AUTH,$(CFLAGS)))
-ifneq (,$(filter -DON_DAILY,$(CFLAGS)))
-LDFLAGS     += -ltfs
-else
-LDFLAGS     += -ltfs_online
-endif
 ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
 LDFLAGS     += -litls -liot_tfs -liot_sdk
-endif
 endif
 
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
