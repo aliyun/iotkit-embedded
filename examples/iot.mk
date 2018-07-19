@@ -32,7 +32,15 @@ SRCS_mqtt_multi_thread-example  := mqtt/mqtt_multi_thread-example.c
     endif
     
     ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
-    LDFLAGS     += -litls -liot_sdk
+
+    LDFLAGS += \
+        -litls \
+        -lid2client \
+        -lkm \
+        -lplat_gen \
+        -lalicrypto \
+        -lmbedcrypto \
+
     endif
 
 endif

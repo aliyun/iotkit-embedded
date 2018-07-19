@@ -5,11 +5,13 @@ HDR_REFS    += src/ref-impl/tls
 HDR_REFS    += src/infra
 HDR_REFS    += src/security/pro
 
-DEPENDS     += src/ref-impl/tls
-
 LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
+ifneq (,$(filter -DSUPPORT_TLS,$(CFLAGS)))
 LIB_SRCS_PATTERN    += ssl/mbedtls/*.c
+endif
+ifneq (,$(filter -DSUPPORT_ITLS,$(CFLAGS)))
 LIB_SRCS_PATTERN    += ssl/itls/*.c
+endif
 
 define Extra_CMake_Head
     echo 'IF (WIN32)' $(1)

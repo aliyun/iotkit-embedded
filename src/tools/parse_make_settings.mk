@@ -167,14 +167,6 @@ else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
     endif
 
 endif   # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-
-ifeq (pre,$(strip $(FEATURE_MQTT_ID2_ENV)))
-CFLAGS  += -DTEST_ID2_PRE
-else
-ifeq (daily,$(strip $(FEATURE_MQTT_ID2_ENV)))
-CFLAGS  += -DTEST_ID2_DAILY
-endif
-endif
 endif
 
 ifeq (y,$(strip $(FEATURE_DM_ENABLED)))

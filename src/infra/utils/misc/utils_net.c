@@ -128,7 +128,7 @@ static int read_itls(utils_network_pt pNetwork, char *buffer, uint32_t len, uint
         return -1;
     }
 
-    return HAL_iTLS_Read((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
+    return HAL_SSL_Read((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
 }
 
 static int write_itls(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -138,7 +138,7 @@ static int write_itls(utils_network_pt pNetwork, const char *buffer, uint32_t le
         return -1;
     }
 
-    return HAL_iTLS_Write((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
+    return HAL_SSL_Write((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
 }
 
 static int disconnect_itls(utils_network_pt pNetwork)
@@ -148,7 +148,7 @@ static int disconnect_itls(utils_network_pt pNetwork)
         return -1;
     }
 
-    HAL_iTLS_Destroy((uintptr_t)pNetwork->handle);
+    HAL_SSL_Destroy((uintptr_t)pNetwork->handle);
     pNetwork->handle = 0;
 
     return 0;
@@ -161,10 +161,10 @@ static int connect_itls(utils_network_pt pNetwork)
         return 1;
     }
 
-    if (0 != (pNetwork->handle = (intptr_t)HAL_iTLS_Establish(
+    if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,
             pNetwork->port,
-            pNetwork->product_key))) {
+            pNetwork->product_key, 0))) {
         return 0;
     } else {
         /* TODO SHOLUD not remove this handle space */
