@@ -59,6 +59,8 @@ int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU
 
 /*** lite_cjson create, add and print ***/
 
+typedef int cJSON_bool;
+
 #define cJSON_IsReference 256
 #define cJSON_StringIsConst 512
 
@@ -83,7 +85,7 @@ char  *lite_cjson_print(lite_cjson_item_t *item);
 char  *lite_cjson_print_unformatted(lite_cjson_item_t *item);
 
 /* Delete a lite_cjson_item_t entity and all subentities. */
-void lite_cjson_delete(lite_cjson_item_t *c);
+void lite_cjson_delete(lite_cjson_item_t *item);
 
 /* Append item to specific object */
 void lite_cjson_add_item_to_array(lite_cjson_item_t *array, lite_cjson_item_t *item);
