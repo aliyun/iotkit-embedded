@@ -418,7 +418,7 @@ void dm_disp_thing_topo_add_notify(iotx_cm_send_peer_t* source, iotx_cm_message_
 	dm_msg_request_payload_t request;
 	dm_msg_response_t response;
 
-	dm_log_debug(DM_DISP_THING_TOPO_ADD_NOTIFY);
+	dm_log_info(DM_DISP_THING_TOPO_ADD_NOTIFY);
 
 	/* Request */
 	res = dm_msg_request_parse(msg->payload,msg->payload_length,&request);
@@ -442,6 +442,8 @@ void dm_disp_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_mes
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	dm_msg_request_payload_t request;
 	dm_msg_response_t response;
+
+	dm_log_info(DM_DISP_THING_SERVICE_PROPERTY_SET);
 
 	memset(&request,0,sizeof(dm_msg_request_payload_t));
 	memset(&response,0,sizeof(dm_msg_response_t));
@@ -475,6 +477,8 @@ void dm_disp_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_mes
 
 void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
 {
+	dm_log_info(DM_DISP_THING_SERVICE_PROPERTY_GET);
+
 	/* Never Used */
 	dm_log_debug("Serivce Property Get, Payload: %.*s",msg->payload_length,msg->payload);
 }
@@ -486,9 +490,9 @@ void dm_disp_thing_service_request(iotx_cm_send_peer_t* source, iotx_cm_message_
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 	dm_msg_request_payload_t request;
 
-	dm_log_debug(DM_DISP_THING_SERVICE_REQUEST,"{Identifier}");
-	dm_log_debug("Current URI: %.*s",msg->URI_length,msg->URI);
-	dm_log_debug("Current Identifier: %.*s",identifier_len,identifier);
+	dm_log_info(DM_DISP_THING_SERVICE_REQUEST,"{Identifier}");
+	dm_log_info("Current URI: %.*s",msg->URI_length,msg->URI);
+	dm_log_info("Current Identifier: %.*s",identifier_len,identifier);
 
 	/* Parse Product Key And Device Name */
 	res = dm_msg_uri_parse_pkdn(msg->URI,msg->URI_length,2,4,product_key,device_name);
@@ -509,7 +513,7 @@ void dm_disp_thing_disable(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* 
 	dm_msg_request_payload_t request;
 	dm_msg_response_t response;
 
-	dm_log_debug(DM_DISP_THING_DISABLE);
+	dm_log_info(DM_DISP_THING_DISABLE);
 
 	memset(&request,0,sizeof(dm_msg_request_payload_t));
 	memset(&response,0,sizeof(dm_msg_response_t));
@@ -536,7 +540,7 @@ void dm_disp_thing_enable(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* m
 	dm_msg_request_payload_t request;
 	dm_msg_response_t response;
 
-	dm_log_debug(DM_DISP_THING_ENABLE);
+	dm_log_info(DM_DISP_THING_ENABLE);
 
 	memset(&request,0,sizeof(dm_msg_request_payload_t));
 	memset(&response,0,sizeof(dm_msg_response_t));
@@ -563,7 +567,7 @@ void dm_disp_thing_delete(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* m
 	dm_msg_request_payload_t request;
 	dm_msg_response_t response;
 
-	dm_log_debug(DM_DISP_THING_DELETE);
+	dm_log_info(DM_DISP_THING_DELETE);
 
 	memset(&request,0,sizeof(dm_msg_request_payload_t));
 	memset(&response,0,sizeof(dm_msg_response_t));
@@ -591,7 +595,7 @@ void dm_disp_thing_model_down_raw(iotx_cm_send_peer_t* source, iotx_cm_message_i
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_MODEL_DOWN_RAW);
+	dm_log_info(DM_DISP_THING_MODEL_DOWN_RAW);
 
 	res = dm_msg_uri_parse_pkdn(msg->URI,msg->URI_length,2,4,product_key,device_name);
 	if (res != SUCCESS_RETURN) {return;}
@@ -607,7 +611,7 @@ void dm_disp_thing_gateway_permit(iotx_cm_send_peer_t* source, iotx_cm_message_i
 	dm_msg_request_payload_t request;
 	dm_msg_response_t response;
 
-	dm_log_debug(DM_DISP_THING_GATEWAY_PERMIT);
+	dm_log_info(DM_DISP_THING_GATEWAY_PERMIT);
 
 	memset(&request,0,sizeof(dm_msg_request_payload_t));
 	memset(&response,0,sizeof(dm_msg_response_t));
@@ -634,7 +638,7 @@ void dm_disp_thing_sub_register_reply(iotx_cm_send_peer_t* source, iotx_cm_messa
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_SUB_REGISTER_REPLY);
+	dm_log_info(DM_DISP_THING_SUB_REGISTER_REPLY);
 
 	memset(&response,0,sizeof(dm_msg_response_payload_t));
 
@@ -656,7 +660,7 @@ void dm_disp_thing_sub_unregister_reply(iotx_cm_send_peer_t* source, iotx_cm_mes
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_SUB_UNREGISTER_REPLY);
+	dm_log_info(DM_DISP_THING_SUB_UNREGISTER_REPLY);
 
 	memset(&response,0,sizeof(dm_msg_response_payload_t));
 
@@ -678,7 +682,7 @@ void dm_disp_thing_topo_add_reply(iotx_cm_send_peer_t* source, iotx_cm_message_i
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_TOPO_ADD_REPLY);
+	dm_log_info(DM_DISP_THING_TOPO_ADD_REPLY);
 
 	memset(&response,0,sizeof(dm_msg_response_payload_t));
 
@@ -700,8 +704,7 @@ void dm_disp_thing_topo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm_messag
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_TOPO_DELETE_REPLY);
-
+	dm_log_info(DM_DISP_THING_TOPO_DELETE_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -721,7 +724,7 @@ void dm_disp_thing_topo_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_i
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_TOPO_GET_REPLY);
+	dm_log_info(DM_DISP_THING_TOPO_GET_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -740,7 +743,7 @@ void dm_disp_thing_list_found_reply(iotx_cm_send_peer_t* source, iotx_cm_message
 	int res = 0;
 	dm_msg_response_payload_t response;
 
-	dm_log_debug(DM_DISP_THING_LIST_FOUND_REPLY);
+	dm_log_info(DM_DISP_THING_LIST_FOUND_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -756,7 +759,7 @@ void dm_disp_thing_event_property_post_reply(iotx_cm_send_peer_t* source, iotx_c
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_EVENT_PROPERTY_POST_REPLY);
+	dm_log_info(DM_DISP_THING_EVENT_PROPERTY_POST_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -776,9 +779,9 @@ void dm_disp_thing_event_post_reply(iotx_cm_send_peer_t* source, iotx_cm_message
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_EVENT_POST_REPLY,"{Identifier}");
-	dm_log_debug("Current URI: %.*s",msg->URI_length,msg->URI);
-	dm_log_debug("Current Identifier: %.*s",identifier_len,identifier);
+	dm_log_info(DM_DISP_THING_EVENT_POST_REPLY,"{Identifier}");
+	dm_log_info("Current URI: %.*s",msg->URI_length,msg->URI);
+	dm_log_info("Current Identifier: %.*s",identifier_len,identifier);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -798,7 +801,7 @@ void dm_disp_thing_deviceinfo_update_reply(iotx_cm_send_peer_t* source, iotx_cm_
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_DEVICEINFO_UPDATE_REPLY);
+	dm_log_info(DM_DISP_THING_DEVICEINFO_UPDATE_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -818,7 +821,7 @@ void dm_disp_thing_deviceinfo_delete_reply(iotx_cm_send_peer_t* source, iotx_cm_
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_DEVICEINFO_DELETE_REPLY);
+	dm_log_info(DM_DISP_THING_DEVICEINFO_DELETE_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -838,7 +841,7 @@ void dm_disp_thing_dsltemplate_get_reply(iotx_cm_send_peer_t* source, iotx_cm_me
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_DSLTEMPLATE_GET_REPLY);
+	dm_log_info(DM_DISP_THING_DSLTEMPLATE_GET_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -858,7 +861,7 @@ void dm_disp_thing_dynamictsl_get_reply(iotx_cm_send_peer_t* source, iotx_cm_mes
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_DYNAMICTSL_GET_REPLY);
+	dm_log_info(DM_DISP_THING_DYNAMICTSL_GET_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -878,8 +881,7 @@ void dm_disp_combine_login_reply(iotx_cm_send_peer_t* source, iotx_cm_message_in
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_COMBINE_LOGIN_REPLY);
-
+	dm_log_info(DM_DISP_COMBINE_LOGIN_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -900,8 +902,7 @@ void dm_disp_combine_logout_reply(iotx_cm_send_peer_t* source, iotx_cm_message_i
 	dm_msg_response_payload_t response;
 	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-	dm_log_debug(DM_DISP_COMBINE_LOGOUT_REPLY);
-
+	dm_log_info(DM_DISP_COMBINE_LOGOUT_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
@@ -922,7 +923,7 @@ void dm_disp_thing_model_up_raw_reply(iotx_cm_send_peer_t* source, iotx_cm_messa
 	char product_key[PRODUCT_KEY_MAXLEN] = {0};
 	char device_name[DEVICE_NAME_MAXLEN] = {0};
 
-	dm_log_debug(DM_DISP_THING_MODEL_UP_RAW_REPLY);
+	dm_log_info(DM_DISP_THING_MODEL_UP_RAW_REPLY);
 
 	res = dm_msg_uri_parse_pkdn(msg->URI,msg->URI_length,2,4,product_key,device_name);
 	if (res != SUCCESS_RETURN) {return;}
@@ -938,7 +939,7 @@ void dm_disp_ntp_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* m
 {
 	int res = 0;
 
-	dm_log_debug(DM_DISP_NTP_RESPONSE);
+	dm_log_info(DM_DISP_NTP_RESPONSE);
 
 	/* Operation */
 	res = dm_msg_ntp_response(msg->payload,msg->payload_length);
@@ -955,8 +956,7 @@ void dm_disp_thing_lan_prefix_get_reply(iotx_cm_send_peer_t* source, iotx_cm_mes
 	int res = 0;
 	dm_msg_response_payload_t response;
 
-	dm_log_debug(DM_DISP_THING_LAN_PREFIX_GET_REPLY);
-
+	dm_log_info(DM_DISP_THING_LAN_PREFIX_GET_REPLY);
 
 	/* Response */
 	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
