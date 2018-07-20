@@ -30,6 +30,7 @@ sub-mods: toolchain
 	fi
 
 TOP_BUILD_VARS := \
+    CC LD AR \
     CFLAGS LDFLAGS \
     PACKAGE_DIR \
     IMPORT_DIR \
