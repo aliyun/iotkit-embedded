@@ -1,7 +1,7 @@
 #ifndef _IOTX_DM_CM_WRAPPER_H_
 #define _IOTX_DM_CM_WRAPPER_H_
 
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 
 void dm_cmw_event_callback(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data);
 void dm_cmw_topic_callback(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);

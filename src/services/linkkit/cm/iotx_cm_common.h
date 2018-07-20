@@ -22,7 +22,7 @@
 
 #include "iotx_utils.h"
 #include "iotx_system.h"
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 #include "linked_list.h"
 #include "iotx_log.h"
 

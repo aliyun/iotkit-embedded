@@ -7,7 +7,7 @@
 #include "class_interface.h"
 #include "iotx_dm.h"
 #include "iot_export_fota.h"
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 #include "iot_export_errno.h"
 #include "iotx_utils.h"
 
@@ -82,9 +82,9 @@ static void* service_ota_ctor(void* _self, va_list* params)
     init_param.domain_type = IOTX_CM_CLOUD_DOMAIN_ShangHai;
     init_param.secret_type = IOTX_CM_DEVICE_SECRET_DEVICE;
 
-    ret = IOT_CM_Init(&init_param, NULL);
+    ret = iotx_cm_init(&init_param, NULL);
 
-    log_debug("ret = IOT_CM_Init() = %d\n", ret);
+    log_debug("ret = iotx_cm_init() = %d\n", ret);
 
     log_debug("service fota created@%p.", self);
 

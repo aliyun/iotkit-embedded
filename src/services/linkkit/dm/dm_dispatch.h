@@ -2,7 +2,7 @@
 #define _DM_DISPATCH_H_
 
 #include "iotx_dm_internal.h"
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 
 #define DM_DISP_SERVICE_DELIMITER '/'
 

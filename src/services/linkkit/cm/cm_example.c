@@ -94,23 +94,23 @@ int _ut_test_3()
     param.event_func = _event_handle;
     param.user_data = NULL;
     EXAMPLE_TRACE("init\n");
-    ret = IOT_CM_Init(&param, NULL);
+    ret = iotx_cm_init(&param, NULL);
     if (FAIL_RETURN == ret) {
         printf("init fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
     cloud_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_MQTT;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = &cloud_param;
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity) {
         EXAMPLE_TRACE("cloud connectivity create fail first");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity, NULL);
+    ret = iotx_cm_connect(cloud_connectivity, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("cloud connectivity via MQTT connectivity fail");
         return FAIL_RETURN;
@@ -119,13 +119,13 @@ int _ut_test_3()
     alcs_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_ALCS;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_LOCAL;
     create_param.alcs_param = &alcs_param;
-    local_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    local_connectivity = iotx_cm_open(&create_param, NULL);
     if (NULL == local_connectivity) {
         EXAMPLE_TRACE("local connectivity create fail first");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(local_connectivity, NULL);
+    ret = iotx_cm_connect(local_connectivity, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("local connectivity via MQTT connectivity fail");
         return FAIL_RETURN;
@@ -135,7 +135,7 @@ int _ut_test_3()
     register_param.register_func = _register_func;
     register_param.URI = TOPIC_DATA;
     register_param.user_data = NULL;
-    ret = IOT_CM_Register(NULL, &register_param, 1, NULL);
+    ret = iotx_cm_serv_reg(NULL, &register_param, 1, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("register fail");
         return FAIL_RETURN;
@@ -146,7 +146,7 @@ int _ut_test_3()
     service_param.service_func = _register_func;
     service_param.URI = TOPIC_DATA;
     service_param.user_data = NULL;
-    ret = IOT_CM_Add_Service(NULL, &service_param, NULL);
+    ret = iotx_cm_serv_add(NULL, &service_param, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("add service fail");
         return FAIL_RETURN;
@@ -158,7 +158,7 @@ int _ut_test_3()
     message_info.payload_length = strlen("data!!!!!\n\n");
     message_info.URI = TOPIC_DATA;
     message_info.URI_length = strlen(TOPIC_DATA);
-    ret = IOT_CM_Send(NULL, NULL, &message_info, NULL);
+    ret = iotx_cm_send(NULL, NULL, &message_info, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("send fail");
         return FAIL_RETURN;
@@ -166,9 +166,9 @@ int _ut_test_3()
 
     HAL_SleepMs(2000);
 
-    IOT_CM_Connectivity_Destroy(&local_connectivity, NULL);
+    iotx_cm_close(&local_connectivity, NULL);
 
-    IOT_CM_Deinit(NULL);
+    iotx_cm_deinit(NULL);
 
     return SUCCESS_RETURN;
 }
@@ -189,32 +189,32 @@ int _ut_test_2()
     param.event_func = _event_handle;
     param.user_data = NULL;
     EXAMPLE_TRACE("init\n");
-    ret = IOT_CM_Init(&param, NULL);
+    ret = iotx_cm_init(&param, NULL);
     if (FAIL_RETURN == ret) {
         printf("init fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
     cloud_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_MQTT;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity) {
         EXAMPLE_TRACE("Cloud connectivity create fail first");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity, NULL);
+    ret = iotx_cm_connect(cloud_connectivity, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("Cloud connectivity via MQTT connectivity fail");
         return FAIL_RETURN;
     }
 
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity, NULL);
+    iotx_cm_close(&cloud_connectivity, NULL);
 
     HAL_SleepMs(5000);
 
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity) {
         EXAMPLE_TRACE("Cloud connectivity create fail first");
         return FAIL_RETURN;
@@ -224,34 +224,34 @@ int _ut_test_2()
     register_param.URI = TOPIC_DATA;
     register_param.register_func = _register_func;
     register_param.user_data = NULL;
-    ret = IOT_CM_Register(cloud_connectivity, &register_param, 1, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity, &register_param, 1, NULL);
     if (FAIL_RETURN == ret) {
         printf("mqtt register fail\n");
-        /*IOT_CM_Deinit(NULL);
+        /*iotx_cm_deinit(NULL);
         return FAIL_RETURN;*/
     }
 
     register_param.URI = TOPIC_ERROR;
     register_param.register_func = _register_func;
     register_param.user_data = NULL;
-    ret = IOT_CM_Register(cloud_connectivity, &register_param, 1, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity, &register_param, 1, NULL);
     if (FAIL_RETURN == ret) {
         printf("mqtt register fail\n");
-        /*IOT_CM_Deinit(NULL);
+        /*iotx_cm_deinit(NULL);
         return FAIL_RETURN;*/
     }
 
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity, NULL);
+    iotx_cm_close(&cloud_connectivity, NULL);
 
     HAL_SleepMs(5000);
 
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity) {
         EXAMPLE_TRACE("Cloud connectivity create fail first");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity, NULL);
+    ret = iotx_cm_connect(cloud_connectivity, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("Cloud connectivity via MQTT connectivity fail");
         return FAIL_RETURN;
@@ -261,36 +261,36 @@ int _ut_test_2()
     register_param.URI = TOPIC_DATA;
     register_param.register_func = _register_func;
     register_param.user_data = NULL;
-    ret = IOT_CM_Register(cloud_connectivity, &register_param, 1, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity, &register_param, 1, NULL);
     if (FAIL_RETURN == ret) {
         printf("mqtt register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
     register_param.URI = TOPIC_ERROR;
     register_param.register_func = _register_func;
     register_param.user_data = NULL;
-    ret = IOT_CM_Register(cloud_connectivity, &register_param, 1, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity, &register_param, 1, NULL);
     if (FAIL_RETURN == ret) {
         printf("mqtt register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
     EXAMPLE_TRACE("register success \n");
 
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity, NULL);
+    iotx_cm_close(&cloud_connectivity, NULL);
 
     HAL_SleepMs(5000);
 
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity) {
         EXAMPLE_TRACE("Cloud connectivity create fail first");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity, NULL);
+    ret = iotx_cm_connect(cloud_connectivity, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("Cloud connectivity via MQTT connectivity fail");
         return FAIL_RETURN;
@@ -306,22 +306,22 @@ int _ut_test_2()
     strncpy(message_info.payload, "{hello world!}", strlen("{hello world!}"));
     message_info.payload_length = strlen(message_info.payload);
 
-    ret = IOT_CM_Send(cloud_connectivity, NULL, &message_info, NULL);
+    ret = iotx_cm_send(cloud_connectivity, NULL, &message_info, NULL);
 
     HAL_Free(message_info.URI);
     HAL_Free(message_info.payload);
 
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("send fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("yield fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
@@ -332,27 +332,27 @@ int _ut_test_2()
 
     EXAMPLE_TRACE("unregister\n");
     unregister_param.URI = TOPIC_DATA;
-    ret = IOT_CM_Unregister(cloud_connectivity, &unregister_param, NULL);
+    ret = iotx_cm_serv_unreg(cloud_connectivity, &unregister_param, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("unregister fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("yield fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
     HAL_SleepMs(200);
 #endif
 
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity, NULL);
+    iotx_cm_close(&cloud_connectivity, NULL);
 
-    IOT_CM_Deinit(NULL);
+    iotx_cm_deinit(NULL);
 
     return SUCCESS_RETURN;
 }
@@ -376,23 +376,23 @@ int _ut_test_1()
     param.user_data = NULL;
 
     EXAMPLE_TRACE("init\n");
-    ret = IOT_CM_Init(&param, NULL);
+    ret = iotx_cm_init(&param, NULL);
     if (FAIL_RETURN == ret) {
         printf("init fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
     cloud_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_MQTT;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity_mqtt = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity_mqtt = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity_mqtt) {
         EXAMPLE_TRACE("Cloud connectivity via MQTT create fail");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity_mqtt, NULL);
+    ret = iotx_cm_connect(cloud_connectivity_mqtt, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("Cloud connectivity via MQTT connectivity fail");
         return FAIL_RETURN;
@@ -401,13 +401,13 @@ int _ut_test_1()
     cloud_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_COAP;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity_coap = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity_coap = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity_coap) {
         EXAMPLE_TRACE("Cloud connectivity via COAP create fail");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity_coap, NULL);
+    ret = iotx_cm_connect(cloud_connectivity_coap, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("Cloud connectivity via COAP connectivity fail");
         return FAIL_RETURN;
@@ -416,13 +416,13 @@ int _ut_test_1()
     cloud_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_HTTP;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity_http = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity_http = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity_http) {
         EXAMPLE_TRACE("Cloud connectivity via HTTP create fail");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity_http, NULL);
+    ret = iotx_cm_connect(cloud_connectivity_http, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("Cloud connectivity via HTTP connectivity fail");
         return FAIL_RETURN;
@@ -432,20 +432,20 @@ int _ut_test_1()
     register_param.URI = TOPIC_DATA;
     register_param.register_func = _register_func;
     register_param.user_data = NULL;
-    ret = IOT_CM_Register(cloud_connectivity_mqtt, &register_param, 1, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity_mqtt, &register_param, 1, NULL);
     if (FAIL_RETURN == ret) {
         printf("mqtt register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
     register_param.URI = TOPIC_ERROR;
     register_param.register_func = _register_func;
     register_param.user_data = NULL;
-    ret = IOT_CM_Register(cloud_connectivity_mqtt, &register_param, 1, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity_mqtt, &register_param, 1, NULL);
     if (FAIL_RETURN == ret) {
         printf("mqtt register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
@@ -461,22 +461,22 @@ int _ut_test_1()
     strncpy(message_info.payload, "{hello world!}", strlen("{hello world!}"));
     message_info.payload_length = strlen(message_info.payload);
 
-    ret = IOT_CM_Send(NULL, NULL, &message_info, NULL);
+    ret = iotx_cm_send(NULL, NULL, &message_info, NULL);
 
     HAL_Free(message_info.URI);
     HAL_Free(message_info.payload);
 
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("send fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("yield fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
@@ -487,27 +487,27 @@ int _ut_test_1()
 
     EXAMPLE_TRACE("unregister\n");
     unregister_param.URI = TOPIC_DATA;
-    ret = IOT_CM_Unregister(cloud_connectivity_mqtt, &unregister_param, NULL);
+    ret = iotx_cm_serv_unreg(cloud_connectivity_mqtt, &unregister_param, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("unregister fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("yield fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
     HAL_SleepMs(200);
 #endif
 
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity_mqtt, NULL);
+    iotx_cm_close(&cloud_connectivity_mqtt, NULL);
 
-    IOT_CM_Deinit(NULL);
+    iotx_cm_deinit(NULL);
 
     return SUCCESS_RETURN;
 }
@@ -532,23 +532,23 @@ int _ut_test_base()
     param.user_data = NULL;
 
     EXAMPLE_TRACE("init\n");
-    ret = IOT_CM_Init(&param, NULL);
+    ret = iotx_cm_init(&param, NULL);
     if (FAIL_RETURN == ret) {
         printf("init fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
     cloud_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_MQTT;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity_mqtt = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity_mqtt = iotx_cm_open(&create_param, NULL);
     if (NULL == cloud_connectivity_mqtt) {
         EXAMPLE_TRACE("Cloud connectivity via MQTT create fail");
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity_mqtt, NULL);
+    ret = iotx_cm_connect(cloud_connectivity_mqtt, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("Cloud connectivity via MQTT connectivity fail");
         return FAIL_RETURN;
@@ -561,10 +561,10 @@ int _ut_test_base()
     register_param[1].URI = TOPIC_ERROR;
     register_param[1].register_func = _register_func;
     register_param[1].user_data = NULL;
-    ret = IOT_CM_Register(NULL, register_param, 2, NULL);
+    ret = iotx_cm_serv_reg(NULL, register_param, 2, NULL);
     if (FAIL_RETURN == ret) {
         printf("mqtt register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
@@ -580,22 +580,22 @@ int _ut_test_base()
     strncpy(message_info.payload, "{hello world!}", strlen("{hello world!}"));
     message_info.payload_length = strlen(message_info.payload);
 
-    ret = IOT_CM_Send(NULL, NULL, &message_info, NULL);
+    ret = iotx_cm_send(NULL, NULL, &message_info, NULL);
 
     HAL_Free(message_info.URI);
     HAL_Free(message_info.payload);
 
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("send fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("yield fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
@@ -606,27 +606,27 @@ int _ut_test_base()
 
     EXAMPLE_TRACE("unregister\n");
     unregister_param.URI = TOPIC_DATA;
-    ret = IOT_CM_Unregister(cloud_connectivity_mqtt, &unregister_param, NULL);
+    ret = iotx_cm_serv_unreg(cloud_connectivity_mqtt, &unregister_param, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("unregister fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("yield fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
     HAL_SleepMs(200);
 #endif
 
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity_mqtt, NULL);
+    iotx_cm_close(&cloud_connectivity_mqtt, NULL);
 
-    IOT_CM_Deinit(NULL);
+    iotx_cm_deinit(NULL);
 
     return SUCCESS_RETURN;
 }
@@ -655,11 +655,11 @@ int cm_client()
     param.user_data = &user_data;
 
     EXAMPLE_TRACE("init\n");
-    ret = IOT_CM_Init(&param, NULL);
+    ret = iotx_cm_init(&param, NULL);
 
     if (FAIL_RETURN == ret) {
         printf("init fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
@@ -669,17 +669,17 @@ int cm_client()
                 IOTX_CM_CONNECTION_PROTOCOL_TYPE_MQTT;//IOTX_CM_CONNECTION_PROTOCOL_TYPE_COAP; //IOTX_CM_CONNECTION_PROTOCOL_TYPE_HTTP;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
 
     if (NULL == cloud_connectivity) {
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity, NULL);
+    ret = iotx_cm_connect(cloud_connectivity, NULL);
 
     if (FAIL_RETURN == ret) {
         printf("connect fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #ifdef CM_SUPPORT_LOCAL_CONN
@@ -688,52 +688,52 @@ int cm_client()
     alcs_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_ALCS;
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_LOCAL;
     create_param.alcs_param = &alcs_param;
-    alcs_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    alcs_connectivity = iotx_cm_open(&create_param, NULL);
 
     if (NULL == alcs_connectivity) {
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(alcs_connectivity, NULL);
+    ret = iotx_cm_connect(alcs_connectivity, NULL);
 #endif
 #if 1
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity, NULL);
+    iotx_cm_close(&cloud_connectivity, NULL);
     //IOTX_CM_Connectivity_Destory(&alcs_connectivity);
     HAL_SleepMs(5000);
 
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
 
     if (NULL == cloud_connectivity) {
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity, NULL);
+    ret = iotx_cm_connect(cloud_connectivity, NULL);
 
-    IOT_CM_Connectivity_Destroy(&cloud_connectivity, NULL);
+    iotx_cm_close(&cloud_connectivity, NULL);
 
     HAL_SleepMs(5000);
 
     create_param.connectivity_type = IOTX_CM_CONNECTIVITY_TYPE_CLOUD;
     create_param.cloud_param = & cloud_param;
-    cloud_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    cloud_connectivity = iotx_cm_open(&create_param, NULL);
 
     if (NULL == cloud_connectivity) {
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(cloud_connectivity, NULL);
+    ret = iotx_cm_connect(cloud_connectivity, NULL);
 #endif
     EXAMPLE_TRACE("register\n");
     register_param.URI = TOPIC_DATA;
     register_param.message_type = IOTX_CM_MESSAGE_REQUEST;
     register_param.register_func = _register_func;
     register_param.user_data = &user_data;
-    ret = IOT_CM_Register(cloud_connectivity, &register_param, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity, &register_param, NULL);
     if (FAIL_RETURN == ret) {
         printf("register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
@@ -744,10 +744,10 @@ int cm_client()
     register_param.message_type = IOTX_CM_MESSAGE_REQUEST;
     register_param.register_func = _register_func;
     register_param.user_data = &user_data;
-    ret = IOT_CM_Register(cloud_connectivity, &register_param, NULL);
+    ret = iotx_cm_serv_reg(cloud_connectivity, &register_param, NULL);
     if (FAIL_RETURN == ret) {
         printf("register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
@@ -760,20 +760,20 @@ int cm_client()
     add_service.service_func = NULL;
     add_service.URI = TOPIC_DATA;
     add_service.user_data = NULL;
-    ret = IOT_CM_Add_Service(alcs_connectivity, &add_service, NULL);
+    ret = iotx_cm_serv_add(alcs_connectivity, &add_service, NULL);
 #endif /* CM_SUPPORT_LOCAL_CONN */
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("yield fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
     HAL_SleepMs(2000);
 #endif
-    IOT_CM_Connectivity_Destroy(&alcs_connectivity, NULL);
+    iotx_cm_close(&alcs_connectivity, NULL);
 
     EXAMPLE_TRACE("send\n");
     memset(&cloud_peer, 0x0, sizeof(iotx_cm_send_peer_t));
@@ -794,8 +794,8 @@ int cm_client()
     strncpy(message_info.payload, "{hello world!}", strlen("{hello world!}"));
     message_info.payload_length = strlen(message_info.payload);
 
-    //    ret = IOT_CM_Send(alcs_connectivity, NULL, &message_info, NULL);
-    ret = IOT_CM_Send(NULL, NULL, &message_info, NULL);
+    //    ret = iotx_cm_send(alcs_connectivity, NULL, &message_info, NULL);
+    ret = iotx_cm_send(NULL, NULL, &message_info, NULL);
 
     LITE_free(message_info.URI);
     //    LITE_free(message_info.method);
@@ -803,15 +803,15 @@ int cm_client()
 
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("send fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
@@ -822,18 +822,18 @@ int cm_client()
 
     EXAMPLE_TRACE("unregister\n");
     unregister_param.URI = TOPIC_DATA;
-    ret = IOT_CM_Unregister(cloud_connectivity, &unregister_param, NULL);
+    ret = iotx_cm_serv_unreg(cloud_connectivity, &unregister_param, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("unregister fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    ret = IOT_CM_Yield(200, NULL);
+    ret = iotx_cm_yield(200, NULL);
     if (FAIL_RETURN == ret) {
         EXAMPLE_TRACE("register fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #else
@@ -841,9 +841,9 @@ int cm_client()
 #endif
     //    IOTX_CM_Connectivity_Destory(&cloud_connectivity, NULL);
 
-    IOT_CM_Connectivity_Destroy(&alcs_connectivity, NULL);
+    iotx_cm_close(&alcs_connectivity, NULL);
 
-    IOT_CM_Deinit(NULL);
+    iotx_cm_deinit(NULL);
 #else
 
     iotx_cm_init_param_t param = {0};
@@ -858,11 +858,11 @@ int cm_client()
     param.user_data = NULL;
 
     EXAMPLE_TRACE("init\n");
-    ret = IOT_CM_Init(&param, NULL);
+    ret = iotx_cm_init(&param, NULL);
 
     if (FAIL_RETURN == ret) {
         printf("init fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 
@@ -871,17 +871,17 @@ int cm_client()
     ota_param.port = 80;
     create_param.connectivity_type = CM_CONNECTIVIT_TYPE_OTA;
     create_param.ota_param = &ota_param;
-    ota_connectivity = IOT_CM_Connectivity_Create(&create_param, NULL);
+    ota_connectivity = iotx_cm_open(&create_param, NULL);
 
     if (NULL == ota_connectivity) {
         return FAIL_RETURN;
     }
 
-    ret = IOT_CM_Connectivity_Connect(ota_connectivity);
+    ret = iotx_cm_connect(ota_connectivity);
 
     if (FAIL_RETURN == ret) {
         printf("connect fail\n");
-        IOT_CM_Deinit(NULL);
+        iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
 #endif

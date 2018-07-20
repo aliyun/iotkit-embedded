@@ -237,8 +237,8 @@ typedef struct {
 
 /* The structure of cm event msg */
 typedef struct {
-    /* If it is the IOTX_CM_MESSAGE_REQUEST in IOT_CM_Send, this id is no mean.
-     * If it is the IOTX_CM_MESSAGE_RESPONSE in IOT_CM_Send,
+    /* If it is the IOTX_CM_MESSAGE_REQUEST in iotx_cm_send, this id is no mean.
+     * If it is the IOTX_CM_MESSAGE_RESPONSE in iotx_cm_send,
      * this id is must have value, read in register_callback's IOTX_CM_MESSAGE_REQUEST.
      * If is is the IOTX_CM_MESSAGE_RESPONSE in register_callback, this id is no mean.
      * If is is the IOTX_CM_MESSAGE_REQUEST in register_callback, this id must be non-null. */
@@ -381,7 +381,7 @@ typedef struct {
  *
  * @return success or fail.
  */
-int IOT_CM_Init(iotx_cm_init_param_t *init_param, void *option);
+int iotx_cm_init(iotx_cm_init_param_t *init_param, void *option);
 
 
 /**
@@ -393,31 +393,31 @@ int IOT_CM_Init(iotx_cm_init_param_t *init_param, void *option);
  *
  * @return Connectivity handler.
  */
-void *IOT_CM_Connectivity_Create(iotx_cm_connectivity_param_t *connectivity_param, void *option);
+void *iotx_cm_open(iotx_cm_connectivity_param_t *connectivity_param, void *option);
 
 
 /**
  * @brief Connect connectivity
- *        This function use to connect one connectivity with create by IOT_CM_Connectivity_Create.
+ *        This function use to connect one connectivity with create by iotx_cm_open.
  *
- * @param connectivity, the return by IOT_CM_Connectivity_Create.
+ * @param connectivity, the return by iotx_cm_open.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Connectivity_Connect(void *connectivity, void *option);
+int iotx_cm_connect(void *connectivity, void *option);
 
 
 /**
  * @brief Destroy connectivity
- *        This function use to free one connectivity with create by IOT_CM_Connectivity_Create.
+ *        This function use to free one connectivity with create by iotx_cm_open.
  *
- * @param connectivity, the return by IOT_CM_Connectivity_Create.
+ * @param connectivity, the return by iotx_cm_open.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Connectivity_Destroy(void **connectivity, void *option);
+int iotx_cm_close(void **connectivity, void *option);
 
 
 /**
@@ -427,7 +427,7 @@ int IOT_CM_Connectivity_Destroy(void **connectivity, void *option);
  *        If there is no match register_cb (user have not register the service set callback), the request will be discard.
  *
  * @param connectivity
- *        return by IOT_CM_Connectivity_Create
+ *        return by iotx_cm_open
  *        If it is NULL, call all connectivity, alse, via connectivity to register.
  * @param pparam, register parameter, include URI and register callback.
  * @param option, reserve.
@@ -435,7 +435,7 @@ int IOT_CM_Connectivity_Destroy(void **connectivity, void *option);
  *
  * @return success or fail.
  */
-int IOT_CM_Register(void *_connectivity, iotx_cm_register_param_t *pparam, int count, void *option);
+int iotx_cm_serv_reg(void *_connectivity, iotx_cm_register_param_t *pparam, int count, void *option);
 
 
 /**
@@ -443,14 +443,14 @@ int IOT_CM_Register(void *_connectivity, iotx_cm_register_param_t *pparam, int c
  *        This function used to unregister some service by different URI
  *
  * @param connectivity
- *        return by IOT_CM_Connectivity_Create
+ *        return by iotx_cm_open
  *        If it is NULL, call all connectivity, alse, via connectivity to unregister.
  * @param pparam, unregister parameter, include URI.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Unregister(void *_connectivity, iotx_cm_unregister_param_t *unregister_param, void *option);
+int iotx_cm_serv_unreg(void *_connectivity, iotx_cm_unregister_param_t *unregister_param, void *option);
 
 
 /**
@@ -460,7 +460,7 @@ int IOT_CM_Unregister(void *_connectivity, iotx_cm_unregister_param_t *unregiste
  *        If there is no match register_cb (user have not register the service set callback), the request will be discard.
  *
  * @param connectivity
- *        return by IOT_CM_Connectivity_Create
+ *        return by iotx_cm_open
  *        If it is NULL, call all connectivity, alse, via connectivity to add service.
  * @param pparam, register parameter, include URI and register callback.
  * @param option, reserve.
@@ -468,7 +468,7 @@ int IOT_CM_Unregister(void *_connectivity, iotx_cm_unregister_param_t *unregiste
  *
  * @return success or fail.
  */
-int IOT_CM_Add_Service(void *_connectivity, iotx_cm_add_service_param_t *service_param, void *option);
+int iotx_cm_serv_add(void *_connectivity, iotx_cm_add_service_param_t *service_param, void *option);
 
 
 /**
@@ -476,14 +476,14 @@ int IOT_CM_Add_Service(void *_connectivity, iotx_cm_add_service_param_t *service
  *        This function used to unregister some service by different URI
  *
  * @param connectivity
- *        return by IOT_CM_Connectivity_Create
+ *        return by iotx_cm_open
  *        If it is NULL, call all connectivity, alse, via connectivity to remove service.
  * @param pparam, unregister parameter, include URI.
  * @param option, reserve.
  *
  * @return success or fail.
  */
-int IOT_CM_Remove_Service(void *_connectivity, iotx_cm_remove_service_param_t *service_param, void *option);
+int iotx_cm_serv_del(void *_connectivity, iotx_cm_remove_service_param_t *service_param, void *option);
 
 
 /**
@@ -491,7 +491,7 @@ int IOT_CM_Remove_Service(void *_connectivity, iotx_cm_remove_service_param_t *s
  *        This function used to add sub-device with sub-device's pk and dn.
  *
  * @param connectivity
- *        return by IOT_CM_Connectivity_Create
+ *        return by iotx_cm_open
  *        If it is NULL, call all connectivity, alse, via connectivity to add sub-device.
  * @param PK, product_key.
  * @param DN, device_name.
@@ -499,7 +499,7 @@ int IOT_CM_Remove_Service(void *_connectivity, iotx_cm_remove_service_param_t *s
  *
  * @return success or fail.
  */
-int IOT_CM_Add_Sub_Device(void *_connectivity, const char *PK, const char *DN, void *option);
+int iotx_cm_subdev_add(void *_connectivity, const char *PK, const char *DN, void *option);
 
 
 /**
@@ -507,7 +507,7 @@ int IOT_CM_Add_Sub_Device(void *_connectivity, const char *PK, const char *DN, v
  *        This function used to remove sub-device with sub-device's pk and dn.
  *
  * @param connectivity
- *        return by IOT_CM_Connectivity_Create
+ *        return by iotx_cm_open
  *        If it is NULL, call all connectivity, alse, via connectivity to remove sub-device.
  * @param PK, product_key.
  * @param DN, device_name.
@@ -515,9 +515,9 @@ int IOT_CM_Add_Sub_Device(void *_connectivity, const char *PK, const char *DN, v
  *
  * @return success or fail.
  */
-int IOT_CM_Remove_Sub_Device(void *_connectivity, const char *PK, const char *DN, void *option);
+int iotx_cm_subdev_del(void *_connectivity, const char *PK, const char *DN, void *option);
 
-int IOT_CM_Init_Second(void *_connectivity);
+int iotx_cm_postinit(void *_connectivity);
 
 
 /**
@@ -529,7 +529,7 @@ int IOT_CM_Init_Second(void *_connectivity);
  *        If the connectivity and target is not NULL, the data will send to target only.
  *
  * @param connectivity
- *        return by IOT_CM_Connectivity_Create
+ *        return by iotx_cm_open
  *        If it is NULL, call all connectivity, alse, via connectivity to send.
  * @param target. the send peer.
  *        if NULL, will send to all target. [alcs will have more targets in one connectivity]
@@ -539,7 +539,7 @@ int IOT_CM_Init_Second(void *_connectivity);
  * @return success or fail.
  *
  */
-int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info, void *option);
+int iotx_cm_send(void *connectivity, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info, void *option);
 
 
 /**
@@ -553,7 +553,7 @@ int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t *target, iotx_cm_message
  * @note This function only working in CONFIG_SDK_THREAD_COST.
  *       This function only working in _connectivity is not NULL.
  *
- * @param connectivity. the handler of IOT_CM_Connectivity_Create.
+ * @param connectivity. the handler of iotx_cm_open.
  *        if NULL, will send to all connectivity.
  * @param target. the send peer.
  *        if NULL, will send to all target. [alcs will have more targets in one connectivity]
@@ -563,7 +563,7 @@ int IOT_CM_Send(void *connectivity, iotx_cm_send_peer_t *target, iotx_cm_message
  * @return success or fail.
  *
  */
-int IOT_CM_Send_Sync(void *_connectivity, iotx_cm_send_peer_t *send_peer, iotx_cm_message_info_t *message_info,
+int iotx_cm_send_sync(void *_connectivity, iotx_cm_send_peer_t *send_peer, iotx_cm_message_info_t *message_info,
                      void *option);
 
 
@@ -580,7 +580,7 @@ int IOT_CM_Send_Sync(void *_connectivity, iotx_cm_send_peer_t *send_peer, iotx_c
     *
     * @return success or fail.
     */
-    int IOT_CM_Yield(int timeout_ms, void *option);
+    int iotx_cm_yield(int timeout_ms, void *option);
 #endif /* CONFIG_SDK_THREAD_COST */
 
 
@@ -591,7 +591,7 @@ int IOT_CM_Send_Sync(void *_connectivity, iotx_cm_send_peer_t *send_peer, iotx_c
  *
  * @return success or fail.
  */
-int IOT_CM_Deinit(void *option);
+int iotx_cm_deinit(void *option);
 
 
 #endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_CM_H_ */

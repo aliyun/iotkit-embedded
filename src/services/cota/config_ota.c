@@ -26,7 +26,7 @@
 #include "class_interface.h"
 #include "iotx_dm.h"
 #include "iot_export_cota.h"
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 #include "iot_export_errno.h"
 #include "iotx_utils.h"
 
@@ -145,9 +145,9 @@ static void* config_ota_ctor(void* _self, va_list* params)
 	init_param.user_data = self;
 	init_param.domain_type = IOTX_CM_CLOUD_DOMAIN_ShangHai;
 
-	ret = IOT_CM_Init(&init_param, NULL);
+	ret = iotx_cm_init(&init_param, NULL);
 
-	log_debug("ret = IOT_CM_Init() = %d\n", ret);
+	log_debug("ret = iotx_cm_init() = %d\n", ret);
 
 	log_debug("service cota created@%p.", self);
 

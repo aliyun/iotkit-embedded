@@ -23,7 +23,7 @@
 #include "iotx_system.h"
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 
 #include "mqtt_instance.h"
 #include "iotx_cm_common.h"

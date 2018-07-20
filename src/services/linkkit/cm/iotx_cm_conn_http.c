@@ -25,7 +25,7 @@
 #include "utils_hmac.h"
 #include "iot_export.h"
 #include "iot_export_http.h"
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 #include "iotx_cm_connection.h"
 #include "iotx_cm_conn_http.h"
 

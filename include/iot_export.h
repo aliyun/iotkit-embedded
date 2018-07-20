@@ -202,19 +202,8 @@ void    IOT_SetupDomain(int domain_type);
 #include "exports/iot_export_ota.h"
 #include "exports/iot_export_http.h"
 #include "exports/iot_export_event.h"
-#ifdef SUBDEVICE_ENABLED
 #include "exports/iot_export_subdev.h"
-#endif /* SUBDEVICE_ENABLED */
-#ifdef CLOUD_CONN_ENABLED
-#include "exports/iot_export_cloud_connection.h"
-#endif /* CLOUD_CONN_ENABLED */
-#ifdef CMP_ENABLED
-#include "exports/iot_export_cm.h"
-#endif /* CMP_ENABLED */
-//#ifdef SERVICE_OTA_ENABLED
 #include "exports/iot_export_fota.h"
-//#endif /* SERVICE_OTA_ENABLED */
-
 
 #if defined(__cplusplus)
 }

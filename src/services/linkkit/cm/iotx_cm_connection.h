@@ -20,7 +20,7 @@
 #ifndef __CM_CONNECTION_H__
 #define __CM_CONNECTION_H__
 
-#include "iot_export_cm.h"
+#include "iotx_cm.h"
 #include "iotx_cm_common.h"
 
 
