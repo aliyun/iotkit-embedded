@@ -161,7 +161,7 @@ static int connect_itls(utils_network_pt pNetwork)
         return 1;
     }
 
-    char pkps[PRODUCT_KEY_LEN+PRODUCT_SECRET_LEN] = {0};
+    char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
     int len = strlen(pNetwork->product_key);
     strncpy(pkps, pNetwork->product_key, len);
     HAL_GetProductSecret(pkps + len + 1);

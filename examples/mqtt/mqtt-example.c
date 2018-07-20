@@ -31,14 +31,14 @@
     #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
 #else
     #ifndef IOTX_WITHOUT_ITLS
-    #define PRODUCT_KEY             "a16E4IcVRBf"
-    #define PRODUCT_SECRET          "i11p9cngs22gORO4XLFD4D5AB8EC10B3"
-    #define DEVICE_NAME             "000FFFFFAB5F174855956D00"
-    #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
+        #define PRODUCT_KEY             "a16E4IcVRBf"
+        #define PRODUCT_SECRET          "i11p9cngs22gORO4XLFD4D5AB8EC10B3"
+        #define DEVICE_NAME             "000FFFFFAB5F174855956D00"
+        #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
     #else
-    #define PRODUCT_KEY             "a1IfbZi3oDt"
-    #define DEVICE_NAME             "Test1"
-    #define DEVICE_SECRET           "kuzVoswkUIdb9uXm4T8ykIJushFym8RL"
+        #define PRODUCT_KEY             "a1IfbZi3oDt"
+        #define DEVICE_NAME             "Test1"
+        #define DEVICE_SECRET           "kuzVoswkUIdb9uXm4T8ykIJushFym8RL"
     #endif
 #endif
 
@@ -242,7 +242,7 @@ int mqtt_client(void)
     }
 
     EXAMPLE_TRACE("\n publish message: \n topic: %s\n payload: \%s\n rc = %d", TOPIC_UPDATE, topic_msg.payload, rc);
-    
+
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
@@ -356,7 +356,7 @@ int mqtt_client(void)
         }
 
     } while (cnt < 1);
-        
+
     IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
@@ -366,7 +366,7 @@ int mqtt_client(void)
     IOT_MQTT_Destroy(&pclient);
 
     HAL_Free(sub_list[0]);
-    HAL_Free(sub_list[1]);    
+    HAL_Free(sub_list[1]);
     HAL_Free(sub_list[2]);
     HAL_Free(sub_list[3]);
     HAL_Free(sub_list[4]);
@@ -394,9 +394,9 @@ int main(int argc, char **argv)
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
-    #ifndef IOTX_WITHOUT_ITLS
+#ifndef IOTX_WITHOUT_ITLS
     HAL_SetProductSecret(PRODUCT_SECRET);
-    #endif
+#endif
 
     IOT_SetupDomain(IOTX_CLOUD_DOMAIN_SH);
     mqtt_client();

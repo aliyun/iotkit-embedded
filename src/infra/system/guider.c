@@ -384,19 +384,19 @@ static SECURE_MODE guider_get_secure_mode(void)
 
 #ifdef MQTT_DIRECT
 
-    #ifdef IOTX_WITHOUT_ITLS
+#ifdef IOTX_WITHOUT_ITLS
     rc = MODE_TLS_DIRECT;
-    #else
+#else
     rc = MODE_ITLS_DNS_ID2;
-    #endif  /* IOTX_WITHOUT_ITLS */
+#endif  /* IOTX_WITHOUT_ITLS */
 
 #else
 
-    #ifdef IOTX_WITHOUT_TLS
+#ifdef IOTX_WITHOUT_TLS
     rc = MODE_TCP_GUIDER_PLAIN;
-    #else
+#else
     rc = MODE_TLS_GUIDER;
-    #endif  /* IOTX_WITHOUT_TLS */
+#endif  /* IOTX_WITHOUT_TLS */
 
 #endif  /* MQTT_DIRECT */
 
@@ -600,11 +600,11 @@ int iotx_guider_authenticate(void)
     char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
     char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
 
-    #ifdef SUPPORT_AUTH_ROUTER
+#ifdef SUPPORT_AUTH_ROUTER
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 1, 1);
-    #else
+#else
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
-    #endif
+#endif
     guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
                                  timestamp_str, guider_sign, NULL, NULL);
 
@@ -631,7 +631,7 @@ int iotx_guider_authenticate(void)
 
     guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
                                  timestamp_str, guider_sign, NULL, NULL);
-    
+
 #endif
 
     /* Start Filling Connection Information */
@@ -639,39 +639,39 @@ int iotx_guider_authenticate(void)
 
 #ifdef MQTT_DIRECT
 
-    #if defined (ON_DAILY)   /* daily*/
+#if defined (ON_DAILY)   /* daily*/
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "10.125.3.189");
-    #elif defined (ON_PRE)    /* pre */
+#elif defined (ON_PRE)    /* pre */
     conn->port = 80;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "100.67.80.75");
-    #else /* online */
+#else /* online */
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "%s.%s",
                       dev->product_key,
-                      iotx_guider_get_domain());                      
-    #endif
+                      iotx_guider_get_domain());
+#endif
 
     /* host name and port of ITLS environment */
-    #ifndef IOTX_WITHOUT_ITLS
-    #if defined (TEST_ITLS_DAILY)
+#ifndef IOTX_WITHOUT_ITLS
+#if defined(ON_DAILY)
     conn->port = 1885;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "106.15.166.168");
-    
+
     strcpy(guider_sign, "1111111111222222222233333333334444444444555555555566666666664444");
-    #else
+#else
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "%s.%s",
                       dev->product_key,
-                      GUIDER_DIRECT_DOMAIN_ITLS);    
-    #endif
-    #endif
-    
+                      GUIDER_DIRECT_DOMAIN_ITLS);
+#endif
+#endif
+
     _fill_conn_string(conn->username, sizeof(conn->username),
                       "%s&%s",
                       dev->device_name,
@@ -716,7 +716,7 @@ int iotx_guider_authenticate(void)
                       , partner_id
                       , module_id
                      );
-#else 
+#else
     /* add "aututype=1d2" string as ITLS used */
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
