@@ -391,13 +391,14 @@ void LITE_free_internal(void *ptr)
 {
 #if WITH_MEM_STATS
     OS_malloc_record       *pos;
+    OS_malloc_record       *next;
 
     if (!ptr) {
         return;
     }
 
     pos = NULL;
-    list_for_each_entry(pos, &mem_recs, list, OS_malloc_record) {
+    list_for_each_entry_safe(pos, next, &mem_recs, list, OS_malloc_record) {
         if (pos->buf == ptr) {
             break;
         }
