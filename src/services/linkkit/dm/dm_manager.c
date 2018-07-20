@@ -777,7 +777,7 @@ void dm_mgr_dev_sub_status_check(void)
 			if (node->sub_status.ctime > current_time) {node->sub_status.ctime = current_time;}
 			if (current_time - node->sub_status.ctime >= DM_MGR_DEV_SUB_TIMEOUT_MS) {
 				node->sub_status.ctime = current_time;
-				dm_log_debug("Retry Service Event Subscribe, devid: %d, : %s",*(node->sub_status.service_event + node->sub_status.service_event_index));
+				dm_log_debug("Retry Service Event Subscribe, devid: %d",*(node->sub_status.service_event + node->sub_status.service_event_index));
 				dm_sub_multi(node->sub_status.service_event + node->sub_status.service_event_index,1);
 			}
 			_dm_mgr_mutex_unlock();
