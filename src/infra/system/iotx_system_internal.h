@@ -44,7 +44,7 @@
 #define CONN_SECMODE_LEN            (32)
 
 /*#define GUIDER_SIGN_LEN             (256)*/
-#define GUIDER_SIGN_LEN             (64)  /* 40 */
+#define GUIDER_SIGN_LEN             (66)  /* TODO: 40 */
 
 #define GUIDER_TS_LEN               (16)
 #define GUIDER_URL_LEN              (256)
@@ -57,6 +57,9 @@
 #define GUIDER_DIRECT_DOMAIN_JAPAN          "iot-as-mqtt.ap-northeast-1.aliyuncs.com"
 #define GUIDER_DIRECT_DOMAIN_AMERICA        "iot-as-mqtt.us-west-1.aliyuncs.com"
 #define GUIDER_DIRECT_DOMAIN_GERMANY        "iot-as-mqtt.eu-central-1.aliyuncs.com"
+
+/* ITLS direct domain */
+#define GUIDER_DIRECT_DOMAIN_ITLS           "itls.ap-southeast-1.aliyuncs.com"
 
 #define SHA_METHOD              "hmacsha1"
 #define MD5_METHOD              "hmacmd5"

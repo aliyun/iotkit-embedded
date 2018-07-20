@@ -161,10 +161,16 @@ static int connect_itls(utils_network_pt pNetwork)
         return 1;
     }
 
+    char pkps[PRODUCT_KEY_LEN+PRODUCT_SECRET_LEN] = {0};
+    int len = strlen(pNetwork->product_key);
+    strncpy(pkps, pNetwork->product_key, len);
+    HAL_GetProductSecret(pkps + len + 1);
+    len += strlen(pkps + len + 1) + 2;
+
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,
             pNetwork->port,
-            pNetwork->product_key, 0))) {
+            pkps, len))) {
         return 0;
     } else {
         /* TODO SHOLUD not remove this handle space */
