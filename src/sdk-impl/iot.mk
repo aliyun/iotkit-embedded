@@ -1,3 +1,3 @@
-LIBA_TARGET     := libsdk-impl.a
+LIBA_TARGET     := libsdk_impl.a
 
 HDR_REFS        := src/infra

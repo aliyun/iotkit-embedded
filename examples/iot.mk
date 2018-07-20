@@ -93,7 +93,4 @@ ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
 TARGET += linkkit-example-sched
 SRCS_linkkit-example-sched = linkkit/linkkit_example_sched.c
 
-TARGET += linkkit-example
-SRCS_linkkit-example = linkkit/linkkit_example.c
-
 endif

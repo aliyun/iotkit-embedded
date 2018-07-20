@@ -1,4 +1,4 @@
-LIBA_TARGET     := libiot_cmp.a
+LIBA_TARGET     := libiot_cm.a
 
 CFLAGS          += -DCMP_SUPPORT_TOPIC_DISPATCH
 
