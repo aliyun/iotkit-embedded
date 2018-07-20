@@ -1351,10 +1351,11 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
         return MQTT_UNSUBSCRIBE_ACK_PACKET_ERROR;
     }
 
-    iotx_mc_topic_handle_t* messageHandler;
+    iotx_mc_topic_handle_t* messageHandler = NULL;
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
 
-    if (NULL == messageHandler->topic_filter) {
+ 
+    if (NULL == messageHandler || NULL == messageHandler->topic_filter) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
 
@@ -2092,7 +2093,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                     msg.msg = (void *)(uintptr_t)packet_id;
                 }
 
-                iotx_mc_topic_handle_t* messageHandler;
+                iotx_mc_topic_handle_t* messageHandler = NULL;
                 (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
 
                 if (messageHandler)
