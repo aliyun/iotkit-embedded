@@ -25,21 +25,29 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#if defined(ON_DAILY)
-    #define PRODUCT_KEY             "gsYfsxQJgeD"
-    #define DEVICE_NAME             "DailyEnvDN"
-    #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
-#else
-    #ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
+
+    #if defined(ON_DAILY)
         #define PRODUCT_KEY             "a16E4IcVRBf"
         #define PRODUCT_SECRET          "i11p9cngs22gORO4XLFD4D5AB8EC10B3"
         #define DEVICE_NAME             "000FFFFFAB5F174855956D00"
         #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
     #else
+        #error "not support online iTLS for now"
+    #endif
+
+#else
+
+    #if defined(ON_DAILY)
+        #define PRODUCT_KEY             "gsYfsxQJgeD"
+        #define DEVICE_NAME             "DailyEnvDN"
+        #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
+    #else
         #define PRODUCT_KEY             "a1IfbZi3oDt"
         #define DEVICE_NAME             "Test1"
         #define DEVICE_SECRET           "kuzVoswkUIdb9uXm4T8ykIJushFym8RL"
     #endif
+
 #endif
 
 char __product_key[PRODUCT_KEY_LEN + 1];
@@ -394,7 +402,7 @@ int main(int argc, char **argv)
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
-#ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
     HAL_SetProductSecret(PRODUCT_SECRET);
 #endif
 

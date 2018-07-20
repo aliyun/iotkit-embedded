@@ -33,7 +33,7 @@ SRCS_mqtt_multi_thread-example  := mqtt/mqtt_multi_thread-example.c
     SRCS_shadow-example         := device-shadow/shadow-example.c
     endif
 
-    ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
+    ifneq (,$(filter -DSUPPORT_ITLS,$(CFLAGS)))
 
     LDFLAGS += \
         -litls \

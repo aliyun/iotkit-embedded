@@ -7,7 +7,7 @@ LDFLAGS     := -Bstatic
 LDFLAGS     += -liot_sdk
 LDFLAGS     += -liot_hal
 
-ifeq (,$(filter -DIOTX_WITHOUT_ITLS,$(CFLAGS)))
+ifneq (,$(filter -DSUPPORT_ITLS,$(CFLAGS)))
 LDFLAGS     += -litls -liot_tfs -liot_sdk
 endif
 

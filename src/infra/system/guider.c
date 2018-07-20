@@ -384,11 +384,11 @@ static SECURE_MODE guider_get_secure_mode(void)
 
 #ifdef MQTT_DIRECT
 
-#ifdef IOTX_WITHOUT_ITLS
+#if !defined(SUPPORT_ITLS)
     rc = MODE_TLS_DIRECT;
 #else
     rc = MODE_ITLS_DNS_ID2;
-#endif  /* IOTX_WITHOUT_ITLS */
+#endif  /* SUPPORT_ITLS */
 
 #else
 
@@ -656,7 +656,7 @@ int iotx_guider_authenticate(void)
 #endif
 
     /* host name and port of ITLS environment */
-#ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
 #if defined(ON_DAILY)
     conn->port = 1885;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
@@ -700,7 +700,7 @@ int iotx_guider_authenticate(void)
 #endif
 
 
-#ifdef IOTX_WITHOUT_ITLS
+#if !defined(SUPPORT_ITLS)
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
@@ -734,7 +734,7 @@ int iotx_guider_authenticate(void)
                       , partner_id
                       , module_id
                      );
-#endif  /* IOTX_WITHOUT_ITLS */
+#endif  /* SUPPORT_ITLS */
 
     guider_print_conn_info(conn);
 
