@@ -29,24 +29,6 @@
 #include "iotx_cm_common.h"
 #include "iotx_cm_conn_mqtt.h"
 
-
-typedef struct iotx_connection_topic_st {
-    void                            *next;
-    char                            *topic;
-    int                              packet_id;
-    void                            *sem;
-} iotx_connection_topic_t;
-
-
-typedef struct iotx_cloud_conn_mqtt_st {
-    char                            *msg_buf;
-    char                            *msg_readbuf;
-    void                            *mqtt_handler;
-    int                              list_length;
-    iotx_connection_topic_t         *topic_list;
-} iotx_cloud_conn_mqtt_t;
-
-
 static int _add_topic(iotx_cloud_conn_mqtt_t *mqtt_ctx, const char *topic, int packet_id, void *sem)
 {
     iotx_connection_topic_t *new_pt = NULL;

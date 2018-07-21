@@ -4,6 +4,21 @@
 
 #include "iotx_cm_connection.h"
 
+typedef struct iotx_connection_topic_st {
+    void                            *next;
+    char                            *topic;
+    int                              packet_id;
+    void                            *sem;
+} iotx_connection_topic_t;
+
+typedef struct iotx_cloud_conn_mqtt_st {
+    char                            *msg_buf;
+    char                            *msg_readbuf;
+    void                            *mqtt_handler;
+    int                              list_length;
+    iotx_connection_topic_t         *topic_list;
+} iotx_cloud_conn_mqtt_t;
+
 void *iotx_cm_conn_mqtt_init(void *handle, void *init_param);
 
 int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count);

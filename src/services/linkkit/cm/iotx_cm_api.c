@@ -26,6 +26,8 @@
 #include "iot_export.h"
 #include "iotx_cm_common.h"
 #include "iotx_cm_connectivity.h"
+#include "iotx_cm_connection.h"
+#include "iotx_cm_conn_mqtt.h"
 
 static iotx_cm_conntext_t *g_cm_ctx = NULL;
 
@@ -184,6 +186,50 @@ void *iotx_cm_open(iotx_cm_connectivity_param_t *connectivity_param, void *optio
     return iotx_cm_create_connectivity(g_cm_ctx, connectivity_param);
 }
 
+/**
+ * @brief Get protocol connection handle from connectivity
+ *        This function use to get protocol connection handler from connectivity.
+ *        ex: mqtt handler returned by IOT_MQTT_Construct
+ *            alcs handler returned by IOT_ALCS_Construct
+ * @param connectivity, the return by iotx_cm_open.
+ *
+ * @return Connectivity handler.
+ */
+void *iotx_cm_get_protocol_handle(void *connectivity)
+{
+    iotx_cm_connectivity_t *connectivity_ptr = (iotx_cm_connectivity_t *)connectivity;
+    iotx_cm_connection_t *connection_ptr = NULL;
+
+    if (connectivity_ptr == NULL) {
+        CM_ERR(cm_log_error_parameter);
+        return NULL;
+    }
+
+    connection_ptr = (iotx_cm_connection_t *)connectivity_ptr->context;
+    if (connection_ptr == NULL) {return NULL;}
+
+    switch (connectivity_ptr->type) {
+        case IOTX_CM_CONNECTIVITY_TYPE_CLOUD:
+            {
+                iotx_cloud_conn_mqtt_t *mqtt_ctx = NULL;
+
+                mqtt_ctx = (iotx_cloud_conn_mqtt_t *)connection_ptr->context;
+                if (mqtt_ctx == NULL) {return NULL;}
+
+                return mqtt_ctx->mqtt_handler;
+            }
+            break;
+        case IOTX_CM_CONNECTIVITY_TYPE_LOCAL:
+            {
+                return connection_ptr->context;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return NULL;
+}
 
 /**
  * @brief Connect connectivity
