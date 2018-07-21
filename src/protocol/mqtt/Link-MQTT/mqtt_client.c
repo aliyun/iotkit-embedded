@@ -2707,6 +2707,67 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
     return SUCCESS_RETURN;
 }
 
+/* report Firmware version */
+static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
+{
+    int ret;
+    char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
+    char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
+    iotx_mqtt_topic_info_t topic_info;
+    iotx_device_info_pt dev = iotx_device_info_get();
+    char version[FIRMWARE_VERSION_MAXLEN] = {0};
+    
+    ret = HAL_GetFirmwareVesion(version);
+    if (ret <= 0) {
+        mqtt_err("firmware version does not implement");
+        return FAIL_RETURN;
+    }
+
+    mqtt_debug("firmware version report start in MQTT");
+
+    /* firmware report topic name generate */
+    ret = HAL_Snprintf(topic_name, 
+                       IOTX_URI_MAX_LEN,
+                       "/ota/device/inform/%s/%s",
+                       dev->product_key,
+                       dev->device_name
+                       );
+    if (ret <= 0) {
+        mqtt_err("firmware report topic generate err");
+        return FAIL_RETURN;
+    }
+    mqtt_debug("firmware report topic: %s", topic_name);
+    
+    /* firmware report message json data generate */
+    ret = HAL_Snprintf(msg,
+                       FIRMWARE_VERSION_MSG_LEN,
+                       "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
+                       3,
+                       version
+                       );
+    if (ret <= 0) {
+        mqtt_err("firmware report message json data generate err");
+        return FAIL_RETURN;
+    }
+    mqtt_debug("firmware report data: %s", msg);
+
+    topic_info.qos = IOTX_MQTT_QOS1;
+    topic_info.payload = (void *)msg;
+    topic_info.payload_len = strlen(msg);
+    topic_info.retain = 0;
+    topic_info.dup = 0;
+
+    // publish message
+    ret = iotx_mc_publish(pclient, topic_name, &topic_info);
+    if (ret < 0) {
+        mqtt_err("publish failed");
+        return FAIL_RETURN;
+    }
+
+    mqtt_debug("firmware version report finished, iotx_mc_publish() = %d", ret);
+    return SUCCESS_RETURN;
+}
+
 /* report ModuleID */
 static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
 {
@@ -2840,6 +2901,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     
     /* report aos version */
     err = iotx_mc_report_aos_version(pclient);
+    if (SUCCESS_RETURN != err) {
+        iotx_mc_release(pclient);
+        LITE_free(pclient);
+        return NULL;
+    }
+
+    /* report firmware version */
+    err = iotx_mc_report_firmware_version(pclient);
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         LITE_free(pclient);
