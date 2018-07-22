@@ -41,10 +41,11 @@ static void event_list_remove(mqtt_instance_event_t *ev)
     ep = &first_event;
     while ((*ep) != NULL) {
         e1 = *ep;
-        if (e1 == ev)
+        if (e1 == ev) {
             *ep = ev->next;
-        else
+        } else {
             ep = &e1->next;
+        }
     }
 }
 
@@ -53,20 +54,21 @@ static void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt m
     int event = 0;
 
     switch (msg->event_type) {
-    case IOTX_MQTT_EVENT_RECONNECT:
-        event = MQTT_INSTANCE_EVENT_CONNECTED;
-        break;
-    case IOTX_MQTT_EVENT_DISCONNECT:
-        event = MQTT_INSTANCE_EVENT_DISCONNECTED;
-        break;
-    default:
-        return;
+        case IOTX_MQTT_EVENT_RECONNECT:
+            event = MQTT_INSTANCE_EVENT_CONNECTED;
+            break;
+        case IOTX_MQTT_EVENT_DISCONNECT:
+            event = MQTT_INSTANCE_EVENT_DISCONNECTED;
+            break;
+        default:
+            return;
     }
 
     mqtt_instance_event_t *ev;
     for (ev = first_event; ev; ev = ev->next) {
-        if (ev->event_cb)
+        if (ev->event_cb) {
             ev->event_cb(event, ev->ctx);
+        }
     }
 }
 
@@ -81,10 +83,11 @@ void mqtt_remove_instance()
     mqtt_client = NULL;
 }
 
-int mqtt_set_instance(void* mqtt_t)
+int mqtt_set_instance(void *mqtt_t)
 {
-    if (mqtt_client || mqtt_t == NULL)
+    if (mqtt_client || mqtt_t == NULL) {
         return FAIL_RETURN;
+    }
 
     mqtt_client = mqtt_t;
     return SUCCESS_RETURN;
@@ -98,8 +101,9 @@ int mqtt_set_instance(void* mqtt_t)
 */
 int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, int maxMsgSize)
 {
-    if (mqtt_client)
+    if (mqtt_client) {
         return 1;
+    }
 
     IOT_OpenLog("masterslave");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -108,16 +112,19 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
     iotx_mqtt_param_t mqtt_params;
 
     int ret = IOT_SetupConnInfo(productKey, deviceName, deviceSecret, (void **)&pconn_info);
-    if (ret != SUCCESS_RETURN)
+    if (ret != SUCCESS_RETURN) {
         return -1;
+    }
 
     mqtt_rbuf = LITE_malloc(maxMsgSize);
-    if (!mqtt_rbuf)
+    if (!mqtt_rbuf) {
         return -1;
+    }
 
     mqtt_wbuf = LITE_malloc(maxMsgSize);
-    if (!mqtt_wbuf)
+    if (!mqtt_wbuf) {
         goto fail;
+    }
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
@@ -142,8 +149,9 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
 
     /* Construct a MQTT client with specify parameter */
     mqtt_client = IOT_MQTT_Construct(&mqtt_params);
-    if (!mqtt_client)
+    if (!mqtt_client) {
         goto fail;
+    }
 
     return 0;
 
@@ -187,15 +195,18 @@ int mqtt_deinit_instance(void)
 
 int mqtt_set_event_cb(void (*event_cb)(int event, void *ctx), void *ctx)
 {
-    if (!event_cb)
+    if (!event_cb) {
         return -1;
+    }
 
-    if (!mqtt_client)
+    if (!mqtt_client) {
         return -1;
+    }
 
     mqtt_instance_event_t *ev = LITE_malloc(sizeof(mqtt_instance_event_t));
-    if (!ev)
+    if (!ev) {
         return -1;
+    }
     memset(ev, 0, sizeof(mqtt_instance_event_t));
 
     ev->event_cb = event_cb;
@@ -231,10 +242,11 @@ static void topic_list_remove(mqtt_instance_topic_t *t)
     tp = &first_topic;
     while ((*tp) != NULL) {
         t1 = *tp;
-        if (t1 == t)
+        if (t1 == t) {
             *tp = t->next;
-        else
+        } else {
             tp = &t1->next;
+        }
     }
 }
 
@@ -245,21 +257,24 @@ static void subscriber_cb(void *ctx, void *pclient, iotx_mqtt_event_msg_pt msg)
 
     if (t && t->cb) {
         t->cb((char *)ptopic_info->ptopic,   ptopic_info->topic_len,
-              (void *)ptopic_info->payload , ptopic_info->payload_len, t->ctx);
+              (void *)ptopic_info->payload, ptopic_info->payload_len, t->ctx);
     }
 }
 
 int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *payload, int len, void *ctx), void *ctx)
 {
-    if (!topic || !cb)
+    if (!topic || !cb) {
         return -1;
+    }
 
-    if (!mqtt_client)
+    if (!mqtt_client) {
         return -1;
+    }
 
     mqtt_instance_topic_t *t = LITE_malloc(sizeof(mqtt_instance_topic_t));
-    if (!t)
+    if (!t) {
         return -1;
+    }
     memset(t, 0, sizeof(mqtt_instance_topic_t));
 
     t->topic = LITE_malloc(strlen(topic) + 1);
@@ -288,8 +303,9 @@ int mqtt_unsubscribe(char *topic)
 {
     mqtt_instance_topic_t *t, *t_next;
 
-    if (!mqtt_client)
+    if (!mqtt_client) {
         return -1;
+    }
 
     for (t = first_topic; t; t = t_next) {
         t_next = t->next;
@@ -310,8 +326,9 @@ int mqtt_publish(char *topic, int qos, void *data, int len)
 {
     iotx_mqtt_topic_info_t mqtt_msg;
 
-    if (!mqtt_client)
+    if (!mqtt_client) {
         return -1;
+    }
     memset(&mqtt_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
 
     mqtt_msg.qos         = qos;

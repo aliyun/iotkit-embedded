@@ -39,7 +39,7 @@ void mqtt_remove_instance();
  * @retval  0:
  * @see None.
  */
-int mqtt_set_instance(void* mqtt_t);
+int mqtt_set_instance(void *mqtt_t);
 
 
 
@@ -63,7 +63,7 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
 /**
  * @brief   Deinitialize the mqtt singleton instance.
  *
- * 
+ *
  * @retval 0:  success
  * @retval -1: fail
  * @see None.
@@ -76,7 +76,7 @@ int mqtt_deinit_instance();
  *
  * @param [in] event callback
  * @param [in] user data
- * 
+ *
  * @retval 0:  success
  * @retval -1: fail
  * @see None.
@@ -90,19 +90,20 @@ int mqtt_set_event_cb(void (*event)(int event, void *ctx), void *ctx);
  * @param [in] topic
  * @param [in] callback
  * @param [in] user data
- * 
+ *
  * @retval 0:  success
  * @retval -1: fail
  * @see None.
  */
-int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *payload, int payload_len, void *ctx), void *ctx);
+int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *payload, int payload_len, void *ctx),
+                   void *ctx);
 
 
 /**
  * @brief   Unsubscribe topic.
  *
  * @param [in] topic
- * 
+ *
  * @retval 0:  success
  * @retval -1: fail
  * @see None.
@@ -117,7 +118,7 @@ int mqtt_unsubscribe(char *topic);
  * @param [in] qos
  * @param [in] payload data
  * @param [in] payload data length
- * 
+ *
  * @retval 0:  success
  * @retval -1: fail
  * @see None.
