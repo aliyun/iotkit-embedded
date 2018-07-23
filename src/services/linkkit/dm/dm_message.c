@@ -357,10 +357,9 @@ int dm_msg_response_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm
 const char DM_MSG_PROPERTY_SET_USER_PAYLOAD[] DM_READ_ONLY = "{\"result\":%d,\"identifier\":\"%s\"}";
 static int _dm_msg_property_set_number(int devid, char *key, lite_cjson_t *root)
 {
-	int res = 0, message_len = 0;
+	int res = 0;
 	void *data = NULL;
 	dm_shw_data_type_e type;
-	char *message = NULL;
 
 	dm_log_debug("Current Key: %s",key);
 
@@ -395,6 +394,7 @@ static int _dm_msg_property_set_number(int devid, char *key, lite_cjson_t *root)
 			break;
 	}
 
+	#if 0
 	/* Send To User */
 	message_len = strlen(DM_MSG_PROPERTY_SET_USER_PAYLOAD) + 10 + strlen(key) + 1;
 	message = DM_malloc(message_len);
@@ -407,16 +407,16 @@ static int _dm_msg_property_set_number(int devid, char *key, lite_cjson_t *root)
 	dm_log_debug("Send To User: %s",message);
 	res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_SET,message);
 	if (res != SUCCESS_RETURN) {DM_free(message);}
+	#endif
 
 	return res;
 }
 
 static int _dm_msg_property_set_string(int devid, char *key, lite_cjson_t *root)
 {
-	int res = 0, message_len = 0;
+	int res = 0;
 	void *data = NULL;
 	dm_shw_data_type_e type;
-	char *message = NULL;
 
 	dm_log_debug("Current Key: %s",key);
 
@@ -440,6 +440,7 @@ static int _dm_msg_property_set_string(int devid, char *key, lite_cjson_t *root)
 			break;
 	}
 
+	#if 0
 	/* Send To User */
 	message_len = strlen(DM_MSG_PROPERTY_SET_USER_PAYLOAD) + 10 + strlen(key) + 1;
 	message = DM_malloc(message_len);
@@ -451,6 +452,7 @@ static int _dm_msg_property_set_string(int devid, char *key, lite_cjson_t *root)
 	HAL_Snprintf(message,message_len,DM_MSG_PROPERTY_SET_USER_PAYLOAD,res,key);
 	res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_SET,message);
 	if (res != SUCCESS_RETURN) {DM_free(message);}
+	#endif
 
 	return res;
 }
