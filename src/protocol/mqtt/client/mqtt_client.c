@@ -239,9 +239,9 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     if (len <= 0) {
         HAL_MutexUnlock(c->lock_write_buf);
         mqtt_err("MQTTSerialize_publish is error, len=%d, buf_size=%u, payloadlen=%u",
-                len,
-                c->buf_size_send,
-                topic_msg->payload_len);
+                 len,
+                 c->buf_size_send,
+                 topic_msg->payload_len);
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
@@ -317,13 +317,14 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
 
 
 /* MQTT send subscribe packet */
-static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* sub_info_list, unsigned int list_size, unsigned int msgId, void *pcontext)
+static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_info_list, unsigned int list_size,
+                              unsigned int msgId, void *pcontext)
 {
     int len = 0;
     int i = 0;
     iotx_time_t timer;
     MQTTString topic[list_size];
-    iotx_mc_topic_handle_t* handler = NULL;
+    iotx_mc_topic_handle_t *handler = NULL;
     iotx_mqtt_qos_t qos[list_size];
     list_node_t *node = NULL;
 
@@ -333,8 +334,9 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* sub_i
 
     memset(topic, 0x0, sizeof(MQTTString) * list_size);
     handler = LITE_malloc(sizeof(iotx_mc_topic_handle_t) * list_size);
-    if (NULL == handler)
+    if (NULL == handler) {
         return FAIL_RETURN;
+    }
 
     memset(handler, 0x0, sizeof(iotx_mc_topic_handle_t) * list_size);
     memset(qos, 0x0, sizeof(iotx_mqtt_qos_t) * list_size);
@@ -343,11 +345,10 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* sub_i
         topic[i].cstring = (char *)(sub_info_list[i]->topicFilter);
         qos[i] = sub_info_list[i]->qos;
         handler[i].topic_filter = LITE_malloc(strlen(sub_info_list[i]->topicFilter) + 1);
-        if(NULL == handler[i].topic_filter)
-        {
+        if (NULL == handler[i].topic_filter) {
             LITE_free(handler);
             i--;
-            for(; i >= 0; i--) {
+            for (; i >= 0; i--) {
                 LITE_free(handler[i].topic_filter);
             }
             return FAIL_RETURN;
@@ -362,7 +363,8 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* sub_i
 
     HAL_MutexLock(c->lock_write_buf);
 
-    len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, list_size, topic, (int *)qos);
+    len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, list_size,
+                                  topic, (int *)qos);
     if (len <= 0) {
         HAL_MutexUnlock(c->lock_write_buf);
         for (i = 0; i < list_size; i++) {
@@ -412,7 +414,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     iotx_time_t timer;
     MQTTString topic = MQTTString_initializer;
     /*iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};*/
-    iotx_mc_topic_handle_t* handler = NULL;
+    iotx_mc_topic_handle_t *handler = NULL;
     list_node_t *node = NULL;
 
     if (!c || !topicFilter || !messageHandler) {
@@ -424,17 +426,18 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     handler = LITE_malloc(sizeof(iotx_mc_topic_handle_t));
-    if (NULL == handler) return FAIL_RETURN;
+    if (NULL == handler) {
+        return FAIL_RETURN;
+    }
     handler->topic_filter = LITE_malloc(strlen(topicFilter) + 1);
-    if (NULL == handler->topic_filter)
-    {
+    if (NULL == handler->topic_filter) {
         LITE_free(handler);
         return FAIL_RETURN;
     }
     memcpy((char *)handler->topic_filter, topicFilter, strlen(topicFilter) + 1);
     handler->handle.h_fp = messageHandler;
-	handler->handle.pcontext = pcontext;
-	
+    handler->handle.pcontext = pcontext;
+
     HAL_MutexLock(c->lock_write_buf);
 
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic,
@@ -486,7 +489,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
     MQTTString topic = MQTTString_initializer;
     int len = 0;
     /*iotx_mc_topic_handle_t handler = {topicFilter, {NULL, NULL}};*/
-    iotx_mc_topic_handle_t* handler = NULL;
+    iotx_mc_topic_handle_t *handler = NULL;
 
     /* push into list */
     list_node_t *node = NULL;
@@ -500,7 +503,9 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     handler = LITE_malloc(sizeof(iotx_mc_topic_handle_t));
-    if (NULL == handler) return FAIL_RETURN;
+    if (NULL == handler) {
+        return FAIL_RETURN;
+    }
     //handler->topic_filter = topicFilter;
     handler->topic_filter = LITE_malloc(strlen(topicFilter) + 1);
     if (NULL == handler->topic_filter) {
@@ -880,7 +885,8 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
         mqtt_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         int needReadLen = c->buf_size_read - len;
-        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != needReadLen) {
+        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen,
+                             iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != needReadLen) {
             mqtt_err("mqtt read error");
             return FAIL_RETURN;
         }
@@ -893,7 +899,8 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
             return FAIL_RETURN;
         }
 
-        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != remainDataLen) {
+        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen,
+                             iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != remainDataLen) {
             mqtt_err("mqtt read error");
             LITE_free(remainDataBuf);
             remainDataBuf = NULL;
@@ -917,14 +924,16 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     }
 
     /* 3. read the rest of the buffer using a callback to supply the rest of the data */
-    if (rem_len > 0 && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != rem_len)) {
+    if (rem_len > 0
+        && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len,
+                             iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != rem_len)) {
         mqtt_err("mqtt read error");
         return FAIL_RETURN;
     }
 
     header.byte = c->buf_read[0];
     *packet_type = header.bits.type;
-    if((len + rem_len) < c->buf_size_read) {
+    if ((len + rem_len) < c->buf_size_read) {
         c->buf_read[len + rem_len] = '\0';
     }
     return SUCCESS_RETURN;
@@ -1103,13 +1112,14 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     int i = 0, count = 0, fail_flag = -1, j = 0;
     int grantedQoS[MUTLI_SUBSCIRBE_MAX];
     int i_free = -1, flag_dup = 0;
-    iotx_mc_topic_handle_t* messagehandler = NULL;
+    iotx_mc_topic_handle_t *messagehandler = NULL;
 
     if (!c) {
         return FAIL_RETURN;
     }
 
-    if (MQTTDeserialize_suback(&mypacketid, MUTLI_SUBSCIRBE_MAX, &count, grantedQoS, (unsigned char *)c->buf_read, c->buf_size_read) != 1) {
+    if (MQTTDeserialize_suback(&mypacketid, MUTLI_SUBSCIRBE_MAX, &count, grantedQoS, (unsigned char *)c->buf_read,
+                               c->buf_size_read) != 1) {
         mqtt_err("Sub ack packet error");
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
     }
@@ -1152,17 +1162,16 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
                 HAL_MutexUnlock(c->lock_generic);
                 return FAIL_RETURN;
             } else {
-                if(fail_flag == 1){
+                if (fail_flag == 1) {
                     LITE_free(messagehandler[j].topic_filter);
-                }
-                else{
+                } else {
                     c->sub_handle[i_free].topic_filter = messagehandler[j].topic_filter;
                     c->sub_handle[i_free].handle.h_fp = messagehandler[j].handle.h_fp;
                     c->sub_handle[i_free].handle.pcontext = messagehandler[j].handle.pcontext;
                 }
             }
         } else {
-             LITE_free(messagehandler[j].topic_filter);
+            LITE_free(messagehandler[j].topic_filter);
         }
     }
 
@@ -1302,12 +1311,12 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     mqtt_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
     mqtt_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
     mqtt_debug("%20s : %.*s",
-              "Topic Name",
-              topicName.lenstring.len,
-              topicName.lenstring.data);
+               "Topic Name",
+               topicName.lenstring.len,
+               topicName.lenstring.data);
     mqtt_debug("%20s : %d / %d", "Payload Len/Room",
-              topic_msg.payload_len,
-              c->buf_read + c->buf_size_read - topic_msg.payload);
+               topic_msg.payload_len,
+               c->buf_read + c->buf_size_read - topic_msg.payload);
     mqtt_debug("%20s : %d", "Receive Buflen", c->buf_size_read);
 
 #if defined(INSPECT_MQTT_FLOW)
@@ -1351,10 +1360,11 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
         return MQTT_UNSUBSCRIBE_ACK_PACKET_ERROR;
     }
 
-    iotx_mc_topic_handle_t* messageHandler;
+    iotx_mc_topic_handle_t *messageHandler = NULL;
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
 
-    if (NULL == messageHandler->topic_filter) {
+
+    if (NULL == messageHandler || NULL == messageHandler->topic_filter) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
 
@@ -1546,7 +1556,7 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
         return 1;
     }
 
-    if (!(messageHandlers1 ->topic_filter)|| !(messageHandler2->topic_filter)) {
+    if (!(messageHandlers1 ->topic_filter) || !(messageHandler2->topic_filter)) {
         return 1;
     }
 
@@ -1580,7 +1590,7 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
         return 1;
     }
 
-    if (!(messageHandlers1 ->topic_filter)|| !(messageHandler2->topic_filter)) {
+    if (!(messageHandlers1 ->topic_filter) || !(messageHandler2->topic_filter)) {
         return 1;
     }
 
@@ -1600,7 +1610,7 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
 
 
 /* mutli-subscribe */
-static int iotx_mc_subscribe_mutli(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* sub_list, int list_size, void *pcontext)
+static int iotx_mc_subscribe_mutli(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_list, int list_size, void *pcontext)
 {
     int i = 0;
     if (NULL == c || NULL == sub_list) {
@@ -1614,7 +1624,7 @@ static int iotx_mc_subscribe_mutli(iotx_mc_client_t *c, iotx_mutli_sub_info_pt* 
         return MQTT_STATE_ERROR;
     }
 
-    for(i = 0; i < list_size; i++) {
+    for (i = 0; i < list_size; i++) {
         if (0 != iotx_mc_check_topic(sub_list[i]->topicFilter, TOPIC_FILTER_TYPE)) {
             mqtt_err("topic format is error,topicFilter = %s", sub_list[i]->topicFilter);
             return MQTT_TOPIC_FORMAT_ERROR;
@@ -1805,21 +1815,21 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
 
     if (pConnectParams->keepAliveInterval < KEEP_ALIVE_INTERVAL_DEFAULT_MIN) {
         mqtt_warning("Input heartbeat interval(%d ms) < Allowed minimum(%d ms)",
-                    (pConnectParams->keepAliveInterval * 1000),
-                    (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
-                   );
+                     (pConnectParams->keepAliveInterval * 1000),
+                     (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
+                    );
         mqtt_warning("Reset heartbeat interval => %d Millisecond",
-                    (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
-                   );
+                     (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
+                    );
         pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MIN;
     } else if (pConnectParams->keepAliveInterval > KEEP_ALIVE_INTERVAL_DEFAULT_MAX) {
         mqtt_warning("Input heartbeat interval(%d ms) > Allowed maximum(%d ms)",
-                    (pConnectParams->keepAliveInterval * 1000),
-                    (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
-                   );
+                     (pConnectParams->keepAliveInterval * 1000),
+                     (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
+                    );
         mqtt_warning("Reset heartbeat interval => %d Millisecond",
-                    (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
-                   );
+                     (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
+                    );
         pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MAX;
     } else {
         pClient->connect_data.keepAliveInterval = pConnectParams->keepAliveInterval;
@@ -1959,7 +1969,8 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
         goto RETURN;
     }
     memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
-    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key, iotx_device_info_get()->product_key);
+    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key,
+                       iotx_device_info_get()->product_key);
 
     if (SUCCESS_RETURN != rc) {
         mc_state = IOTX_MC_STATE_INVALID;
@@ -2092,11 +2103,12 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                     msg.msg = (void *)(uintptr_t)packet_id;
                 }
 
-                iotx_mc_topic_handle_t* messageHandler;
+                iotx_mc_topic_handle_t *messageHandler = NULL;
                 (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
 
-                if (messageHandler)
+                if (messageHandler) {
                     LITE_free(messageHandler->topic_filter);
+                }
                 LITE_free(messageHandler);
 
                 pClient->handle_event.h_fp(pClient->handle_event.pcontext, pClient, &msg);
@@ -2323,10 +2335,10 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
     int rc;
 
     mqtt_info("reconnect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
-             pClient->connect_data.MQTTVersion,
-             pClient->connect_data.clientID.cstring,
-             pClient->connect_data.keepAliveInterval,
-             pClient->connect_data.username.cstring);
+              pClient->connect_data.MQTTVersion,
+              pClient->connect_data.clientID.cstring,
+              pClient->connect_data.keepAliveInterval,
+              pClient->connect_data.username.cstring);
     pClient->ipstack->disconnect(pClient->ipstack);
     /* Ignoring return code. failures expected if network is disconnected */
     rc = iotx_mc_connect(pClient);
@@ -2349,7 +2361,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-	mqtt_info("Waiting to reconnect...");
+    mqtt_info("Waiting to reconnect...");
     while (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet.  */
         HAL_SleepMs(20);
@@ -2521,46 +2533,48 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 /* AOS activation data report */
 // aos will implement this function
 #ifndef BUILD_AOS
-unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE], unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE], 
-                                                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size)
+unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
+                                  unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],
+                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size)
 {
-    char *p = (char*)output_buffer;
+    char *p = (char *)output_buffer;
 
-    if (output_buffer_size < AOS_ACTIVE_INFO_LEN)
+    if (output_buffer_size < AOS_ACTIVE_INFO_LEN) {
         return 1;
+    }
 
     memset(p, 0, output_buffer_size);
 
     LITE_hexbuf_convert(version_num, p, VERSION_NUM_SIZE, 1);
-    p += VERSION_NUM_SIZE*2;
+    p += VERSION_NUM_SIZE * 2;
     LITE_hexbuf_convert(random_num, p, RANDOM_NUM_SIZE, 1);
-    p += RANDOM_NUM_SIZE*2;
+    p += RANDOM_NUM_SIZE * 2;
     LITE_hexbuf_convert(mac_address, p, MAC_ADDRESS_SIZE, 1);
-    p += MAC_ADDRESS_SIZE*2;
+    p += MAC_ADDRESS_SIZE * 2;
     LITE_hexbuf_convert(chip_code, p, CHIP_CODE_SIZE, 1);
-    p += CHIP_CODE_SIZE*2;
+    p += CHIP_CODE_SIZE * 2;
     strcat(p, "1111111111222222222233333333334444444444");
-    
+
     return 0;
 }
-#endif                                                                 
-                                                                  
+#endif
+
 // aos will implement this function
-void __attribute__((weak)) aos_get_version_hex( unsigned char version[VERSION_NUM_SIZE] )
+void __attribute__((weak)) aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
 {
-    strncpy((char*)version, "\x02\x02\x00\x00", VERSION_NUM_SIZE);
+    strncpy((char *)version, "\x02\x02\x00\x00", VERSION_NUM_SIZE);
 }
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_mac_hex( unsigned char mac[MAC_ADDRESS_SIZE] )
+void __attribute__((weak)) aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
 {
-    strncpy((char*)mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
+    strncpy((char *)mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
 }
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_chip_code( unsigned char chip_code[CHIP_CODE_SIZE] )
+void __attribute__((weak)) aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 {
-    strncpy((char*)chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
+    strncpy((char *)chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
 }
 
 /* Report AOS Version */
@@ -2577,19 +2591,19 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     char msg[AOS_VERSON_MSG_LEN] = {0};
     iotx_mqtt_topic_info_t topic_info;
     iotx_device_info_pt dev = iotx_device_info_get();
-    
+
     mqtt_debug("aos version report started in MQTT");
 
     // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
-    aos_get_version_hex((unsigned char*)version);
+    aos_get_version_hex((unsigned char *)version);
     mqtt_debug("aos version = %d.%d.%d.%d", version[0], version[1], version[2], version[3]);
 
     // Get Mac address
-    aos_get_mac_hex((unsigned char*)mac);
+    aos_get_mac_hex((unsigned char *)mac);
     mqtt_debug("mac addr = %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     mac[6] = ACTIVE_SINGLE_GW;
-#ifdef BUILD_AOS    
+#ifdef BUILD_AOS
     mac[7] = ACTIVE_LINKKIT_AOS;
 #else
     mac[7] = ACTIVE_LINKKIT_ONLY;
@@ -2602,22 +2616,22 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     }
 
     // Get ChipID
-    aos_get_chip_code((unsigned char*)chip_code);
+    aos_get_chip_code((unsigned char *)chip_code);
     mqtt_debug("chip code = %02x %02x %02x %02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
 
     /*
     input: version 4byte + random 4 byte + mac 4byte + chip_code 4byte
     output: output_buffer store the version info process. length at least OUTPUT_SPACE_SIZE
-    return: 0 success, 1 failed 
+    return: 0 success, 1 failed
     */
     // Get aos active info
-    ret = aos_get_version_info((unsigned char*)version, (unsigned char*)random_num, (unsigned char*)mac, 
-                                (unsigned char*)chip_code, (unsigned char*)output, AOS_ACTIVE_INFO_LEN);
+    ret = aos_get_version_info((unsigned char *)version, (unsigned char *)random_num, (unsigned char *)mac,
+                               (unsigned char *)chip_code, (unsigned char *)output, AOS_ACTIVE_INFO_LEN);
     if (ret) {
         mqtt_err("aos_get_version_info failed");
         return FAIL_RETURN;
     }
-    mqtt_debug("get aos avtive info: %s", output );
+    mqtt_debug("get aos avtive info: %s", output);
 
     // generate report topic
     ret = iotx_gen_aos_report_topic(topic_name, dev->product_key, dev->device_name);
@@ -2650,7 +2664,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
 
     mqtt_debug("aos version report finished, iotx_mc_publish() = %d", ret);
 
-    return SUCCESS_RETURN; 
+    return SUCCESS_RETURN;
 }
 
 /* report Linkkit version */
@@ -2661,15 +2675,15 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
     char msg[LINKKIT_VERSION_MSG_LEN] = {0};
     iotx_mqtt_topic_info_t topic_info;
     iotx_device_info_pt dev = iotx_device_info_get();
-    
+
     mqtt_debug("linkkit version report start in MQTT");
 
     /* linkkit version topic name */
-    ret = HAL_Snprintf(topic_name, 
-                        IOTX_URI_MAX_LEN, 
-                        "/sys/%s/%s/thing/deviceinfo/update",
-                        dev->product_key,
-                        dev->device_name);
+    ret = HAL_Snprintf(topic_name,
+                       IOTX_URI_MAX_LEN,
+                       "/sys/%s/%s/thing/deviceinfo/update",
+                       dev->product_key,
+                       dev->device_name);
     if (ret <= 0) {
         mqtt_err("linkkit version topic generate err");
         return FAIL_RETURN;
@@ -2682,7 +2696,7 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
                        "{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}],\"method\":\"thing.deviceinfo.update\"}",
                        2,
                        LINKKIT_VERSION
-                       );
+                      );
     if (ret <= 0) {
         mqtt_err("linkkit version json data generate err");
         return FAIL_RETURN;
@@ -2703,6 +2717,67 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
     }
 
     mqtt_debug("linkkit version report finished, iotx_mc_publish() = %d", ret);
+    return SUCCESS_RETURN;
+}
+
+/* report Firmware version */
+static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
+{
+    int ret;
+    char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
+    char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
+    iotx_mqtt_topic_info_t topic_info;
+    iotx_device_info_pt dev = iotx_device_info_get();
+    char version[FIRMWARE_VERSION_MAXLEN] = {0};
+
+    ret = HAL_GetFirmwareVesion(version);
+    if (ret <= 0) {
+        mqtt_err("firmware version does not implement");
+        return FAIL_RETURN;
+    }
+
+    mqtt_debug("firmware version report start in MQTT");
+
+    /* firmware report topic name generate */
+    ret = HAL_Snprintf(topic_name,
+                       IOTX_URI_MAX_LEN,
+                       "/ota/device/inform/%s/%s",
+                       dev->product_key,
+                       dev->device_name
+                      );
+    if (ret <= 0) {
+        mqtt_err("firmware report topic generate err");
+        return FAIL_RETURN;
+    }
+    mqtt_debug("firmware report topic: %s", topic_name);
+
+    /* firmware report message json data generate */
+    ret = HAL_Snprintf(msg,
+                       FIRMWARE_VERSION_MSG_LEN,
+                       "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
+                       3,
+                       version
+                      );
+    if (ret <= 0) {
+        mqtt_err("firmware report message json data generate err");
+        return FAIL_RETURN;
+    }
+    mqtt_debug("firmware report data: %s", msg);
+
+    topic_info.qos = IOTX_MQTT_QOS1;
+    topic_info.payload = (void *)msg;
+    topic_info.payload_len = strlen(msg);
+    topic_info.retain = 0;
+    topic_info.dup = 0;
+
+    // publish message
+    ret = iotx_mc_publish(pclient, topic_name, &topic_info);
+    if (ret < 0) {
+        mqtt_err("publish failed");
+        return FAIL_RETURN;
+    }
+
+    mqtt_debug("firmware version report finished, iotx_mc_publish() = %d", ret);
     return SUCCESS_RETURN;
 }
 
@@ -2798,7 +2873,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     STRING_PTR_SANITY_CHECK(pInitParams->username, NULL);
     STRING_PTR_SANITY_CHECK(pInitParams->password, NULL);
 
-	mqtt_info("mqtt version: 1.0");
+    mqtt_info("mqtt version: 1.0");
 
     pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
@@ -2834,11 +2909,19 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         LITE_free(pclient);
-        return NULL;        
+        return NULL;
     }
-    
+
     /* report aos version */
     err = iotx_mc_report_aos_version(pclient);
+    if (SUCCESS_RETURN != err) {
+        iotx_mc_release(pclient);
+        LITE_free(pclient);
+        return NULL;
+    }
+
+    /* report firmware version */
+    err = iotx_mc_report_firmware_version(pclient);
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         LITE_free(pclient);
@@ -2882,10 +2965,11 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
         if (SUCCESS_RETURN != rc) {
             unsigned int left_t = iotx_time_left(&time);
             mqtt_info("error occur ");
-            if (left_t < 20)
+            if (left_t < 20) {
                 HAL_SleepMs(left_t);
-            else
+            } else {
                 HAL_SleepMs(20);
+            }
         }
 
         /* Keep MQTT alive or reconnect if connection abort */
@@ -2913,7 +2997,7 @@ int IOT_MQTT_CheckStateNormal(void *handle)
     return iotx_mc_check_state_normal((iotx_mc_client_t *)handle);
 }
 
-int IOT_MQTT_Subscribe_Multi(void *handle, iotx_mutli_sub_info_pt* sub_list, int list_size, void *pcontext)
+int iotx_mc_batchsub(void *handle, iotx_mutli_sub_info_pt *sub_list, int list_size, void *pcontext)
 {
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     if (list_size > MUTLI_SUBSCIRBE_MAX) {
@@ -2937,8 +3021,8 @@ int IOT_MQTT_Subscribe(void *handle,
 
     if (qos > IOTX_MQTT_QOS2) {
         mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
-                    qos,
-                    IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
+                     qos,
+                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
 

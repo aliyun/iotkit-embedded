@@ -23,49 +23,7 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "iot_import.h"
-#include "iot_export_mqtt.h"
-
-/* maximum number of successful subscribe */
-#define IOTX_MC_SUB_NUM_MAX                     (100)
-
-/* maximum republish elements in list */
-#define IOTX_MC_REPUB_NUM_MAX                   (20)
-
-/* MQTT client version number */
-#define IOTX_MC_MQTT_VERSION                    (4)
-
-/* maximum length of topic name in byte */
-#define IOTX_MC_TOPIC_NAME_MAX_LEN              (128)
-
-/* maximum MQTT packet-id */
-#define IOTX_MC_PACKET_ID_MAX                   (65535)
-
-/* maximum number of simultaneously invoke subscribe request */
-#define IOTX_MC_SUB_REQUEST_NUM_MAX             (30)
-
-/* Minimum interval of MQTT reconnect in millisecond */
-#define IOTX_MC_RECONNECT_INTERVAL_MIN_MS       (1000)
-
-/* Maximum interval of MQTT reconnect in millisecond */
-#define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (60000)
-
-/* Minimum timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_MIN_MS          (500)
-
-/* Maximum timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_MAX_MS          (5000)
-
-/* Default timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
-
-/* Max times of keepalive which has been send and did not received response package */
-#define IOTX_MC_KEEPALIVE_PROBE_MAX             (3)
-
+#include "iotx_mqtt_internal.h"
 
 typedef enum {
     IOTX_MC_CONNECTION_ACCEPTED = 0,
@@ -106,7 +64,7 @@ typedef struct SUBSCRIBE_INFO {
     uint16_t                msg_id;         /* packet id of subscribe(unsubcribe) */
     iotx_time_t             sub_start_time; /* start time of subscribe request */
     iotx_mc_node_t          node_state;     /* state of this node */
-    iotx_mc_topic_handle_t* handler;        /* handle of topic subscribed(unsubcribed) */
+    iotx_mc_topic_handle_t *handler;        /* handle of topic subscribed(unsubcribed) */
     uint16_t                len;            /* length of subscribe message */
     unsigned char          *buf;            /* subscribe message */
 } iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
@@ -148,7 +106,8 @@ typedef struct Client {
     list_t                         *list_pub_wait_ack;                       /* list of wait publish ack */
     list_t                         *list_sub_wait_ack;                       /* list of subscribe or unsubscribe ack */
     void                           *lock_list_pub;                           /* lock of list of wait publish ack */
-    void                           *lock_list_sub;                           /* lock of list of subscribe or unsubscribe ack */
+    void
+    *lock_list_sub;                           /* lock of list of subscribe or unsubscribe ack */
     void                           *lock_write_buf;                          /* lock of write */
     iotx_mqtt_event_handle_t        handle_event;                            /* event handle */
     int (*mqtt_auth)(void);
@@ -158,7 +117,6 @@ typedef enum {
     TOPIC_NAME_TYPE = 0,
     TOPIC_FILTER_TYPE
 } iotx_mc_topic_type_t;
-
 
 #if defined(__cplusplus)
 }

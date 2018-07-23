@@ -23,7 +23,6 @@
 #include <assert.h>
 
 #include "iot_import.h"
-#include "class_interface.h"
 #include "iotx_dm.h"
 #include "iot_export_cota.h"
 #include "iotx_cm.h"

@@ -120,7 +120,7 @@ static int connect_ssl(utils_network_pt pNetwork)
 #endif  /* #ifndef IOTX_WITHOUT_TLS */
 
 /*** iTLS connection ***/
-#ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
 static int read_itls(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
@@ -161,10 +161,16 @@ static int connect_itls(utils_network_pt pNetwork)
         return 1;
     }
 
+    char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
+    int len = strlen(pNetwork->product_key);
+    strncpy(pkps, pNetwork->product_key, len);
+    HAL_GetProductSecret(pkps + len + 1);
+    len += strlen(pkps + len + 1) + 2;
+
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,
             pNetwork->port,
-            pNetwork->product_key, 0))) {
+            pkps, len))) {
         return 0;
     } else {
         /* TODO SHOLUD not remove this handle space */
@@ -183,7 +189,7 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = read_tcp(pNetwork, buffer, len, timeout_ms);
     }
-#ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
         ret = read_itls(pNetwork, buffer, len, timeout_ms);
     }
@@ -208,7 +214,7 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = write_tcp(pNetwork, buffer, len, timeout_ms);
     }
-#ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
         ret = write_itls(pNetwork, buffer, len, timeout_ms);
     }
@@ -233,7 +239,7 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = disconnect_tcp(pNetwork);
     }
-#ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
         ret = disconnect_itls(pNetwork);
     }
@@ -258,7 +264,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = connect_tcp(pNetwork);
     }
-#ifndef IOTX_WITHOUT_ITLS
+#if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
         ret = connect_itls(pNetwork);
     }
@@ -285,7 +291,7 @@ int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, co
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
     pNetwork->ca_crt = ca_crt;
-#ifdef IOTX_WITHOUT_ITLS
+#if !defined(SUPPORT_ITLS)
     pNetwork->product_key = NULL;
 #else
     pNetwork->product_key = product_key;

@@ -30,6 +30,7 @@ sub-mods: toolchain
 	fi
 
 TOP_BUILD_VARS := \
+    CC LD AR \
     CFLAGS LDFLAGS \
     PACKAGE_DIR \
     IMPORT_DIR \
@@ -50,6 +51,7 @@ TOP_BUILD_VARS := \
     CROSS_CANDIDATES \
     ALL_SUB_DIRS \
     WIN32_CMAKE_SKIP \
+    NOEXEC_CMAKE_DIRS \
 
 CMDLINE_VARS := \
     HD_MAKEFILE \

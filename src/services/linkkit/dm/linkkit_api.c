@@ -26,6 +26,7 @@ typedef struct _post_cb {
     unsigned long long     time;
 } post_cb_t;
 
+static int g_linkkit_inited = 0;
 static void *g_linkkit_mutex = NULL;
 void *g_list_post_cb = NULL;
 static linkkit_ops_t *g_linkkit_ops = NULL;
@@ -554,6 +555,10 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     int stack_used;
 #endif /* CONFIG_SDK_THREAD_COST */
 
+    if (g_linkkit_inited) {
+        return FAIL_RETURN;
+    }
+
     if (!ops || !user_context || max_buffered_msg <= 0) {
         return ret;
     }
@@ -589,7 +594,8 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     if (g_linkkit_mutex == NULL) {
         return -1;
     }
-
+    
+    g_linkkit_inited = 1;
     return SUCCESS_RETURN;
 }
 
@@ -610,6 +616,11 @@ int linkkit_end()
 {
     linked_list_t *list;
 
+    if (!g_linkkit_inited) {
+        return FAIL_RETURN;
+    }
+    g_linkkit_inited = 0;
+    
 #if (CONFIG_SDK_THREAD_COST == 1)
     thread_process_disatch_exit = 1;
 #endif
@@ -618,6 +629,7 @@ int linkkit_end()
         linked_list_iterator(list, _free_post_cb);
         linked_list_destroy(list);
     }
+    
     return iotx_dm_destroy();
 }
 
@@ -841,7 +853,7 @@ int linkkit_trigger_event(const void *thing_id, const char *event_identifier, ha
  */
 int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb)
 {
-    int res = FAIL_RETURN;
+    int res = FAIL_RETURN, ret = FAIL_RETURN;
     int devid;
     int id_send = 0;
     linked_list_t *list = g_list_post_cb;
@@ -858,19 +870,21 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
         } else {
             res = iotx_dm_post_property_add(handle, IOTX_DM_POST_PROPERTY_ALL, 0);
         }
+        ret = res;
         res = iotx_dm_post_property_end(&handle);
+        if (res < SUCCESS_RETURN) {ret = res;}
     }
 
-    if (res > 0) {
-        id_send = res;
+    if (ret >= 0) {
+        id_send = ret;
         if (list && cb) {
             _insert_post_cb(id_send, list, cb);
         }
     } else {
-        dm_log_err("DM", "%d", res);
-        log_err_online("DM", "%d", res);
+        dm_log_err("DM", "%d", ret);
+        log_err_online("DM", "%d", ret);
     }
-    return res;
+    return ret;
 }
 
 #if (CONFIG_SDK_THREAD_COST == 0)

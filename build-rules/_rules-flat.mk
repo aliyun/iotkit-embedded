@@ -45,8 +45,8 @@ endif
 # CFLAGS  := $(sort $(strip $(CFLAGS)))
 
 LDFLAGS += -L$(SYSROOT_LIB)
-ifeq (y,$(shell [ -d $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR) ] && echo y))
-LDFLAGS += -L$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)
+ifeq (y,$(shell [ -d $(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR) ] && echo y))
+LDFLAGS += -L$(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)
 endif
 
 LDFLAGS += $(foreach d,$(DEPENDS_$(MODULE_NAME)),$(REF_LDFLAGS_$(d)))

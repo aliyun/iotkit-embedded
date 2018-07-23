@@ -148,10 +148,6 @@ else # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
     CFLAGS  += -DIOTX_WITHOUT_TLS
 endif # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
 
-ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
-    CFLAGS  += -DIOTX_WITHOUT_ITLS
-endif # ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
-
 ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 

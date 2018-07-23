@@ -254,6 +254,7 @@ int light_init(void)
         /*
          * login subdev
          */
+        #if (0)
         if (linkkit_gateway_subdev_login(light->devid) < 0) {
             EXAMPLE_TRACE("linkkit_gateway_subdev_login %s<%s> failed\n", light->deviceName, light->productKey);
             linkkit_gateway_subdev_destroy(light->devid);
@@ -261,6 +262,7 @@ int light_init(void)
             free(light);
             break;
         }
+        #endif
 
         lights[i] = light;
     }

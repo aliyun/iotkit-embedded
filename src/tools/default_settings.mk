@@ -32,6 +32,9 @@ CFLAGS  += \
     -DCOAP_OBSERVE_CLIENT_SUPPORTED \
     -DCOAP_USE_PLATFORM_MEMORY -DCOAP_USE_PLATFORM_LOG \
 
+#
+# Hacks for cmake sub-system
+#
 EXTRA_INSTALL_HDRS  := \
     $(EXPORT_DIR)/iot_import.h \
     $(EXPORT_DIR)/iot_export.h \
@@ -48,6 +51,7 @@ EXTRA_INCLUDE_DIRS	:= \
 
 WIN32_CMAKE_SKIP    := \
     linkkit_tsl_convert \
-    linkkit-example \
     coap-example \
+
+NOEXEC_CMAKE_DIRS   := tests src/services/linkkit/dm
 

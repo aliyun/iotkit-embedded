@@ -37,6 +37,13 @@ ${SRC_LIST}
 EOB
 fi
 
+#
+# We do NOT compose ADD_TARGET and TARGET_LINK_LIBRARY segment for those
+#
+if grep -qw "${MODULE_NAME}" <<< "${NOEXEC_CMAKE_DIRS}"; then
+    exit 0
+fi
+
 TARGET_COUNT=$(echo "${TARGET}" | awk '{ print NF }')
 
 if (( TARGET_COUNT == 1 )); then

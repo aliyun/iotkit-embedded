@@ -20,26 +20,14 @@
 #include "sdk-testsuites_internal.h"
 #include "cut.h"
 
-static void _setup_hal_suite(void)
-{
-    ADD_SUITE(HAL_OS);
-}
-static void _setup_dm_suite(void)
-{
-    ADD_SUITE(DM_TEST);
-}
-#ifdef HTTP2_COMM_ENABLED
-static void _setup_http2_suite(void)
-{
-    ADD_SUITE(HTTP2);
-}
-#endif
 int main(int argc, char *argv[])
 {
-    _setup_hal_suite();
-    _setup_dm_suite();
+    ADD_SUITE(HAL_OS);
+#ifdef SDK_ENHANCE
+    ADD_SUITE(DM_TEST);
+#endif
 #ifdef HTTP2_COMM_ENABLED
-    _setup_http2_suite();
+    ADD_SUITE(HTTP2);
 #endif	
     cut_main(argc, argv);
 

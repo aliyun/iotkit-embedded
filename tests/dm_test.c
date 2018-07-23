@@ -1,3 +1,4 @@
+#ifdef SDK_ENHANCE
 #include "sdk-testsuites_internal.h"
 #include "cut.h"
 #include "ut_debug.h"
@@ -358,3 +359,4 @@ SUITE(DM_TEST) = {
     ADD_CASE(DM_TEST, iotx_dm_construct_ut008),
     ADD_CASE_NULL
 };
+#endif

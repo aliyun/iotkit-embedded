@@ -18,12 +18,14 @@
 
 
 #include "iot_import.h"
-#include "iotx_log.h"
 #include "iotx_utils.h"
+#include "iotx_log.h"
+#include "iotx_cm.h"
+#include "iotx_mqtt.h"
 #include "iotx_system.h"
+
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
-#include "iotx_cm.h"
 
 #include "mqtt_instance.h"
 #include "iotx_cm_common.h"
@@ -435,7 +437,7 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
         mutli_sub[i]->qos = IOTX_CM_MESSAGE_NO_ACK;
         mutli_sub[i]->topicFilter = topicFilter;
     }
-    ret = IOT_MQTT_Subscribe_Multi(mqtt_ctx->mqtt_handler,
+    ret = iotx_mc_batchsub(mqtt_ctx->mqtt_handler,
                                    mutli_sub,
                                    count,
                                    (void *)connection);

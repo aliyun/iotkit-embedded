@@ -168,14 +168,6 @@ typedef struct {
 } iotx_mqtt_param_t, *iotx_mqtt_param_pt;
 
 
-/* Information structure of mutli-subscribe */
-typedef struct {
-    const char                                    *topicFilter;
-    iotx_mqtt_qos_t                                qos;
-    iotx_mqtt_event_handle_func_fpt                messageHandler;
-} iotx_mutli_sub_info_t, *iotx_mutli_sub_info_pt;
-
-
 /** @defgroup group_api api
  *  @{
  */
@@ -268,11 +260,6 @@ int IOT_MQTT_Subscribe(void *handle,
                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
                        void *pcontext);
 
-
-int IOT_MQTT_Subscribe_Multi(void *handle,
-                             iotx_mutli_sub_info_pt *sub_list,
-                             int list_size,
-                             void *pcontext);
 
 /**
  * @brief Unsubscribe MQTT topic.

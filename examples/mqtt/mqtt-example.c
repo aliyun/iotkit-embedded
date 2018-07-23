@@ -25,14 +25,29 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-#if defined(ON_DAILY)
-    #define PRODUCT_KEY             "gsYfsxQJgeD"
-    #define DEVICE_NAME             "DailyEnvDN"
-    #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
+#if defined(SUPPORT_ITLS)
+
+    #if defined(ON_DAILY)
+        #define PRODUCT_KEY             "a16E4IcVRBf"
+        #define PRODUCT_SECRET          "i11p9cngs22gORO4XLFD4D5AB8EC10B3"
+        #define DEVICE_NAME             "000FFFFFAB5F174855956D00"
+        #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
+    #else
+        #error "not support online iTLS for now"
+    #endif
+
 #else
-    #define PRODUCT_KEY             "W9LchU2zAAK"
-    #define DEVICE_NAME             "subdevice_2"
-    #define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
+
+    #if defined(ON_DAILY)
+        #define PRODUCT_KEY             "gsYfsxQJgeD"
+        #define DEVICE_NAME             "DailyEnvDN"
+        #define DEVICE_SECRET           "y1vzFkEgcuXnvkAfm627pwarx4HRNikX"
+    #else
+        #define PRODUCT_KEY             "a1IfbZi3oDt"
+        #define DEVICE_NAME             "Test1"
+        #define DEVICE_SECRET           "kuzVoswkUIdb9uXm4T8ykIJushFym8RL"
+    #endif
+
 #endif
 
 char __product_key[PRODUCT_KEY_LEN + 1];
@@ -235,7 +250,7 @@ int mqtt_client(void)
     }
 
     EXAMPLE_TRACE("\n publish message: \n topic: %s\n payload: \%s\n rc = %d", TOPIC_UPDATE, topic_msg.payload, rc);
-    
+
     /* Subscribe the specific topic */
     rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
     if (rc < 0) {
@@ -244,60 +259,6 @@ int mqtt_client(void)
         rc = -1;
         goto do_exit;
     }
-
-    iotx_mutli_sub_info_pt sub_list[6];
-    sub_list[0] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[0]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[0]->topicFilter = TOPIC_DATA;
-    sub_list[0]->qos = IOTX_MQTT_QOS1;
-    sub_list[0]->messageHandler = _demo_message_arrive;
-
-    sub_list[1] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[1]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[1]->topicFilter = TOPIC_UPDATE;
-    sub_list[1]->qos = IOTX_MQTT_QOS1;
-    sub_list[1]->messageHandler = _demo_message_arrive;
-    sub_list[2] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[2]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[2]->topicFilter = TOPIC_DATA;
-    sub_list[2]->qos = IOTX_MQTT_QOS1;
-    sub_list[2]->messageHandler = _demo_message_arrive;
-
-    sub_list[3] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[3]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[3]->topicFilter = TOPIC_UPDATE;
-    sub_list[3]->qos = IOTX_MQTT_QOS1;
-    sub_list[3]->messageHandler = _demo_message_arrive;
-    sub_list[4] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[4]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[4]->topicFilter = TOPIC_DATA;
-    sub_list[4]->qos = IOTX_MQTT_QOS1;
-    sub_list[4]->messageHandler = _demo_message_arrive;
-
-    sub_list[5] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[5]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[5]->topicFilter = TOPIC_UPDATE;
-    sub_list[5]->qos = IOTX_MQTT_QOS1;
-    sub_list[5]->messageHandler = _demo_message_arrive;
-    IOT_MQTT_Subscribe_Multi(pclient, sub_list, 5, NULL);
 
     IOT_MQTT_Yield(pclient, 200);
 
@@ -349,7 +310,7 @@ int mqtt_client(void)
         }
 
     } while (cnt < 1);
-        
+
     IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
@@ -357,13 +318,6 @@ int mqtt_client(void)
     IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Destroy(&pclient);
-
-    HAL_Free(sub_list[0]);
-    HAL_Free(sub_list[1]);    
-    HAL_Free(sub_list[2]);
-    HAL_Free(sub_list[3]);
-    HAL_Free(sub_list[4]);
-    HAL_Free(sub_list[5]);
 
 do_exit:
     if (NULL != msg_buf) {
@@ -387,6 +341,9 @@ int main(int argc, char **argv)
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
+#if defined(SUPPORT_ITLS)
+    HAL_SetProductSecret(PRODUCT_SECRET);
+#endif
 
     IOT_SetupDomain(IOTX_CLOUD_DOMAIN_SH);
     mqtt_client();
