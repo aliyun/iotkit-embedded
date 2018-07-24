@@ -1,9 +1,6 @@
 #ifndef IOTX_MQTT_CONFIG_H__
 #define IOTX_MQTT_CONFIG_H__
 
-/* maximum number of successful subscribe */
-#define IOTX_MC_SUB_NUM_MAX                     (100)
-
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
 

@@ -990,7 +990,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 
     /* we have to find the right message handler - indexed by topic */
     HAL_MutexLock(c->lock_generic);
-    for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
+    for (i = 0; i < CONFIG_MQTT_SUBTOPIC_MAXNUM; ++i) {
 
         if ((c->sub_handle[i].topic_filter != 0)
             && (MQTTPacket_equals(topicName, (char *)c->sub_handle[i].topic_filter)
@@ -1140,7 +1140,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
             fail_flag = 1;
             mqtt_err("MQTT SUBSCRIBE failed, ack code is 0x80");
         }
-        for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
+        for (i = 0; i < CONFIG_MQTT_SUBTOPIC_MAXNUM; ++i) {
             /* If subscribe the same topic and callback function, then ignore */
             if ((NULL != c->sub_handle[i].topic_filter)) {
                 if (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler[j])) {
@@ -1234,7 +1234,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 
     HAL_MutexLock(c->lock_generic);
 
-    for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
+    for (i = 0; i < CONFIG_MQTT_SUBTOPIC_MAXNUM; ++i) {
         /* If subscribe the same topic and callback function, then ignore */
         if ((NULL != c->sub_handle[i].topic_filter)) {
             if (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler)) {
@@ -1370,7 +1370,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 
     /* Remove from message handler array */
     HAL_MutexLock(c->lock_generic);
-    for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
+    for (i = 0; i < CONFIG_MQTT_SUBTOPIC_MAXNUM; ++i) {
         if ((c->sub_handle[i].topic_filter != NULL)
             && (0 == iotx_mc_check_handle_is_identical_ex(&c->sub_handle[i], messageHandler))) {
             LITE_free(c->sub_handle[i].topic_filter);
@@ -1895,7 +1895,7 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     connectdata.cleansession = pInitParams->clean_session;
 
 
-    memset(pClient->sub_handle, 0, IOTX_MC_SUB_NUM_MAX * sizeof(iotx_mc_topic_handle_t));
+    memset(pClient->sub_handle, 0, CONFIG_MQTT_SUBTOPIC_MAXNUM * sizeof(iotx_mc_topic_handle_t));
 
     pClient->packet_id = 0;
     pClient->lock_generic = HAL_MutexCreate();
@@ -2452,7 +2452,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INVALID);
     HAL_SleepMs(100);
 
-    for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
+    for (i = 0; i < CONFIG_MQTT_SUBTOPIC_MAXNUM; ++i) {
         if (pClient->sub_handle[i].topic_filter != NULL) {
             LITE_free(pClient->sub_handle[i].topic_filter);
         }
@@ -2858,6 +2858,8 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     return SUCCESS_RETURN;
 }
 
+#define CONFIG_VARS_DUMP(v)         mqtt_debug("%32s : %d\n", #v, v)
+
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -2873,7 +2875,9 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     STRING_PTR_SANITY_CHECK(pInitParams->username, NULL);
     STRING_PTR_SANITY_CHECK(pInitParams->password, NULL);
 
-    mqtt_info("mqtt version: 1.0");
+    CONFIG_VARS_DUMP(CONFIG_MQTT_TX_MAXLEN);
+    CONFIG_VARS_DUMP(CONFIG_MQTT_RX_MAXLEN);
+    CONFIG_VARS_DUMP(CONFIG_MQTT_SUBTOPIC_MAXNUM);
 
     pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {

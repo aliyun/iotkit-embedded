@@ -96,7 +96,7 @@ typedef struct Client {
     uint8_t                         keepalive_probes;                        /* keepalive probes */
     char                           *buf_send;                                /* pointer of send buffer */
     char                           *buf_read;                                /* pointer of read buffer */
-    iotx_mc_topic_handle_t          sub_handle[IOTX_MC_SUB_NUM_MAX];         /* array of subscribe handle */
+    iotx_mc_topic_handle_t          sub_handle[CONFIG_MQTT_SUBTOPIC_MAXNUM];         /* array of subscribe handle */
     utils_network_pt                ipstack;                                 /* network parameter */
     iotx_time_t                     next_ping_time;                          /* next ping time */
     int                             ping_mark;                               /* flag of ping */
