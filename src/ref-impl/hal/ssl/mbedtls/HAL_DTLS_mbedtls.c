@@ -29,7 +29,9 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/timing.h"
 #include "mbedtls/ctr_drbg.h"
+#ifdef MBEDTLS_ENTROPY_C
 #include "mbedtls/entropy.h"
+#endif
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/net_sockets.h"
 #include "iotx_hal_internal.h"
@@ -40,7 +42,9 @@ typedef struct {
     mbedtls_ssl_context          context;
     mbedtls_ssl_config           conf;
     mbedtls_ctr_drbg_context     ctr_drbg;
+#ifdef MBEDTLS_ENTROPY_C
     mbedtls_entropy_context      entropy;
+#endif
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_x509_crt             cacert;
 #endif
@@ -299,7 +303,9 @@ dtls_session_t *_DTLSSession_init()
         mbedtls_x509_crt_init(&p_dtls_session->cacert);
 #endif
         mbedtls_ctr_drbg_init(&p_dtls_session->ctr_drbg);
+#ifdef MBEDTLS_ENTROPY_C
         mbedtls_entropy_init(&p_dtls_session->entropy);
+#endif
         DTLS_INFO("HAL_DTLSSession_init success\r\n");
 
     }
@@ -325,7 +331,9 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
         mbedtls_ssl_free(&p_dtls_session->context);
 
         mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
+#ifdef MBEDTLS_ENTROPY_C
         mbedtls_entropy_free(&p_dtls_session->entropy);
+#endif
         coap_free(p_dtls_session);
     }
 
@@ -341,9 +349,11 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
     p_dtls_session = _DTLSSession_init();
     if (NULL != p_dtls_session) {
         mbedtls_ssl_config_init(&p_dtls_session->conf);
+#ifdef MBEDTLS_ENTROPY_C
         result = mbedtls_ctr_drbg_seed(&p_dtls_session->ctr_drbg, mbedtls_entropy_func, &p_dtls_session->entropy,
                                        (const unsigned char *)"IoTx",
                                        strlen("IoTx"));
+#endif
         if (0 !=  result) {
             DTLS_ERR("mbedtls_ctr_drbg_seed result 0x%04x\r\n", result);
             goto error;
