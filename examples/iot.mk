@@ -80,8 +80,8 @@ endif
 ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
 
     ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
-    TARGET                          += linkkit-example-single
-    SRCS_linkkit-example-single     := linkkit/linkkit_example_single.c
+    TARGET                          += linkkit-example-solo
+    SRCS_linkkit-example-solo       := linkkit/linkkit_example_solo.c
     endif
     ifneq (,$(filter -DCONFIG_DM_DEVTYPE_GATEWAY,$(CFLAGS)))
     TARGET                          += linkkit-example-gw

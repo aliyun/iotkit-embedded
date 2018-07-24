@@ -37,3 +37,4 @@ $(call CompLib_Map, SERVICE_OTA_ENABLED, src/services/cota)
 
 include $(RULE_DIR)/rules.mk
 include src/tools/mock_build_options.mk
+

@@ -9,7 +9,7 @@
 
 for i in `git status -s | awk '{ print $NF }'`; do
     j=$(echo $(basename $i)|cut -d'.' -f2)
-    if [ "$j" = "c" -o "$j" = "h" -o "$j" = "md" -o "$j" = "mk" ]; then
+    if [ "$j" = "c" -o "$j" = "h" -o "$j" = "md" -o "$j" = "mk" ] || [ "$i" = "makefile" -o "$i" = "make.settings" ]; then
         if [ "$(find $i -perm /111 2>/dev/null)" != "" ]; then
             chmod a-x $i
             echo "[chmod] $i"
