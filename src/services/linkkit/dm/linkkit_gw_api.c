@@ -53,19 +53,6 @@ typedef struct topo_node_s {
     struct topo_node_s *next;
 } topo_node_t;
 
-struct linkkit_params_s {
-    int maxMsgSize;         /* max message size          */
-    int maxMsgQueueSize;    /* max message queue size    */
-
-    int threadPoolSize;     /* number threads in pool    */
-    int threadStackSize;    /* default thread stack size */
-
-    int (*event_cb)(linkkit_event_t *ev, void *ctx);
-
-    /* user private data */
-    void *ctx;
-};
-
 typedef struct {
     lk_queue_t  *linkkit_msgq;
 

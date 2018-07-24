@@ -35,6 +35,39 @@ enum {
     LINKKIT_OPT_PROPERTY_SET_REPLY  = 7  /* data type: int */
 };
 
+typedef struct {
+    int event_type; /* see LINKKIT_EVENT_XXX for more details */
+
+    union {
+        struct {
+            char *productKey;
+            char *deviceName;
+        } subdev_deleted;
+
+        struct {
+            char *productKey;
+            int   timeoutSec;
+        } subdev_permited;
+
+        struct {
+            char *subdevList;   /* json format:[{"productKey":"","deviceName":""},...] */
+        } subdev_install;
+    } event_data;
+} linkkit_event_t;
+
+struct linkkit_params_s {
+    int maxMsgSize;         /* max message size          */
+    int maxMsgQueueSize;    /* max message queue size    */
+
+    int threadPoolSize;     /* number threads in pool    */
+    int threadStackSize;    /* default thread stack size */
+
+    int (*event_cb)(linkkit_event_t *ev, void *ctx);
+
+    /* user private data */
+    void *ctx;
+};
+
 typedef struct linkkit_params_s linkkit_params_t;
 
 /**
@@ -55,26 +88,6 @@ linkkit_params_t *linkkit_gateway_get_default_params(void);
  * @return 0 when success, -1 when fail.
  */
 int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, int value_len);
-
-typedef struct {
-    int event_type; /* see LINKKIT_EVENT_XXX for more details */
-
-    union {
-        struct {
-            char *productKey;
-            char *deviceName;
-        } subdev_deleted;
-
-        struct {
-            char *productKey;
-            int   timeoutSec;
-        } subdev_permited;
-
-        struct {
-            char *subdevList;   /* json format:[{"productKey":"","deviceName":""},...] */
-        } subdev_install;
-    } event_data;
-} linkkit_event_t;
 
 /**
  * @brief set event callback
