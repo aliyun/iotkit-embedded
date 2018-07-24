@@ -1,6 +1,6 @@
 include $(CURDIR)/src/tools/internal_make_funcs.mk
 
-SWITCH_VARS := \
+SWITCH_VARS :=  \
     FEATURE_MQTT_COMM_ENABLED \
     FEATURE_MQTT_SHADOW \
     FEATURE_MQTT_DIRECT \
@@ -20,6 +20,9 @@ SWITCH_VARS := \
     FEATURE_SERVICE_COTA_ENABLED \
     FEATURE_SUPPORT_PRODUCT_SECRET \
 
+SWITCH_VARS += $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(TOP_DIR)/make.settings|uniq)
+SWITCH_VARS := $(sort $(SWITCH_VARS))
+
 $(foreach v, \
     $(SWITCH_VARS), \
     $(if $(filter y,$($(v))), \
@@ -28,7 +31,7 @@ $(foreach v, \
 ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
     CFLAGS += -DCM_ENABLED
     CFLAGS += -DDM_ENABLED
-    ifeq (y,$(strip $(FEATURE_DEV_PRODUCT_GW)))
+    ifeq (y,$(strip $(FEATURE_ENHANCED_GATEWAY)))
         CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY
         CFLAGS += -DCONFIG_SDK_THREAD_COST=1
     else
