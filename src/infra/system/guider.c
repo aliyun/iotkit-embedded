@@ -661,8 +661,6 @@ int iotx_guider_authenticate(void)
     conn->port = 1885;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "106.15.166.168");
-
-    strcpy(guider_sign, "1111111111222222222233333333334444444444555555555566666666664444");
 #else
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),

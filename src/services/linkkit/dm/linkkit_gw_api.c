@@ -919,12 +919,12 @@ int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)
  */
 int linkkit_gateway_init(linkkit_params_t *initParams)
 {
-    _dump_params(initParams);
-
     if (_checkInitParams(initParams) < 0) {
         dm_log_info("invalid initParams\n");
         return -1;
     }
+
+    _dump_params(initParams);
 
     memset(&gbl, 0, sizeof(linkkit_gbl_t));
 

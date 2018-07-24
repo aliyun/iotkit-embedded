@@ -308,7 +308,7 @@ int main(void)
 {
     gateway_t gateway;
     linkkit_params_t *initParams = NULL;
-    int maxMsgSize, maxMsgQueueSize, loglevel, prop_post_reply, event_post_reply;
+    int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
 
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -344,9 +344,6 @@ int main(void)
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
     maxMsgQueueSize = 8;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));    
-    /* LINKKIT_OPT_LOG_LEVEL: log level [0 - Emergency, 1 - Critical, 2 - Error, 3 - Warnning, 4 - Info, 5 - Debug] */
-    loglevel = 5;
-    linkkit_gateway_setopt(initParams, LINKKIT_OPT_LOG_LEVEL, &loglevel, sizeof(int));
 
 	prop_post_reply = 0;
 	linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY, &prop_post_reply, sizeof(int));

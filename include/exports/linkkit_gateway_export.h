@@ -30,10 +30,9 @@ enum {
     LINKKIT_OPT_MAX_MSG_QUEUE_SIZE  = 2,
     LINKKIT_OPT_THREAD_POOL_SIZE    = 3,
     LINKKIT_OPT_THREAD_STACK_SIZE   = 4,
-    LINKKIT_OPT_LOG_LEVEL           = 5, /* 0 - Emergency, 1 - Critical, 2 - Error, 3 - Warnning, 4 - Info, 5 - Debug */
-    LINKKIT_OPT_PROPERTY_POST_REPLY = 6, /* data type: int */
-    LINKKIT_OPT_EVENT_POST_REPLY    = 7, /* data type: int */
-    LINKKIT_OPT_PROPERTY_SET_REPLY  = 8  /* data type: int */
+    LINKKIT_OPT_PROPERTY_POST_REPLY = 5, /* data type: int */
+    LINKKIT_OPT_EVENT_POST_REPLY    = 6, /* data type: int */
+    LINKKIT_OPT_PROPERTY_SET_REPLY  = 7  /* data type: int */
 };
 
 typedef struct linkkit_params_s linkkit_params_t;
