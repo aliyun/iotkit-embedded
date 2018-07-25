@@ -982,7 +982,9 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
     int devid;
     int id_send = 0;
     linked_list_t *list = g_list_post_cb;
-
+    if(!g_linkkit_inited) {
+        return FAIL_RETURN;
+    }
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
         void *handle = NULL;
