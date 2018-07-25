@@ -9,9 +9,6 @@ extern "C" {
 #include <unistd.h>
 
 #include "iotx_dm.h"
-#ifdef SERVICE_OTA_ENABLED
-#include "iot_export_fota.h"
-#endif /* SERVICE_OTA_ENABLED */
 
 typedef void (*handle_post_cb_fp_t)(const void *thing_id, int respons_id, int code, const char *response_message,
                                     void *ctx);
@@ -110,17 +107,6 @@ int linkkit_set_opt(linkkit_opt_t opt, void *data);
  */
 int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level, linkkit_ops_t *ops,
                   linkkit_cloud_domain_type_t domain_type, void *user_context);
-
-#ifdef SERVICE_OTA_ENABLED
-/**
- * @brief init fota service routines, and install callback funstions.
- *
- * @param callback_fp, callback function to be installed.
- *
- * @return int, 0 when success, -1 when fail.
- */
-int linkkit_ota_init(handle_service_fota_callback_fp_t callback_fp);
-#endif /* SERVICE_OTA_ENABLED */
 
 /**
  * @brief stop linkkit routines.
@@ -320,6 +306,76 @@ extern int linkkit_post_property_json(const void *thing_id, const char *property
  */
 extern int linkkit_yield(int timeout_ms);
 #endif /* CONFIG_SDK_THREAD_COST */
+
+typedef enum {
+    service_cota_callback_type_new_version_detected = 10,
+
+    service_cota_callback_type_number,
+} service_cota_callback_type_t;
+
+typedef void (*handle_service_cota_callback_fp_t)(service_cota_callback_type_t callback_type, const char *configid,
+        uint32_t  configsize,
+        const char *gettype,
+        const char *sign,
+        const char *signmethod,
+        const char *cota_url);
+
+/**
+ * @brief this function used to register callback for config ota.
+ *
+ * @param callback_fp, user callback which register to cota.
+ *
+ * @return 0 when success, -1 when fail.
+ */
+int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
+
+/**
+ * @brief this function used to execute cota process.
+ *
+ * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
+ * @param data_buf_length, data buf length that used to do ota.
+ * 
+ * @return 0 when success, -1 when fail.
+ */
+int linkkit_invoke_cota_service(void* data_buf, int data_buf_length);
+
+/**
+ * @brief this function used to trigger cota process.
+ *
+ * @param config_scope, remote config scope, should be "product".
+ * @param get_type, remote config file type, should be "file".
+ * @param attribute_Keys, reserved.
+ * @param option, reserved.
+ * @return 0 when success, -1 when fail.
+ */
+int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option);
+
+typedef enum {
+    service_fota_callback_type_new_version_detected = 10,
+
+    service_fota_callback_type_number,
+} service_fota_callback_type_t;
+
+typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t callback_type, const char* version);
+
+/**
+ * @brief this function used to register callback for firmware ota.
+ *
+ * @param callback_fp, user callback which register to fota.
+ *
+ * @return 0 when success, -1 when fail.
+ */
+int linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
+
+/**
+ * @brief this function used to execute fota process.
+ *
+ * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
+ * @param data_buf_length, data buf length that used to do ota.
+ * 
+ * @return 0 when success, -1 when fail.
+ */
+int linkkit_invoke_fota_service(void* data_buf, int data_buf_length);
 
 #ifdef __cplusplus
 }

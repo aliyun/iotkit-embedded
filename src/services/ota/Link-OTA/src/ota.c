@@ -750,6 +750,98 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
     }
 
     switch (type) {
+    case IOT_OTAG_COTA_CONFIG_ID:
+        {
+            char **value = (char **)buf;
+            if (value == NULL || *value != NULL || h_ota->configId == NULL) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            }else{
+                *value = malloc(strlen(h_ota->configId) + 1);
+                if (*value == NULL) {h_ota->err = IOT_OTAE_INVALID_PARAM;return -1;}
+                memset(*value,0,strlen(h_ota->configId) + 1);
+                memcpy(*value,h_ota->configId,strlen(h_ota->configId));
+                return 0;
+            }
+        }
+        break;
+    case IOT_OTAG_COTA_CONFIG_SIZE:
+        {
+            if ((4 != buf_len) || (0 != ((unsigned long)buf & 0x3))) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            } else {
+                *((uint32_t *)buf) = h_ota->configSize;
+                return 0;
+            }
+        }
+        break;
+    case IOT_OTAG_COTA_SIGN:
+        {
+            char **value = (char **)buf;
+            if (value == NULL || *value != NULL || h_ota->sign == NULL) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            }else{
+                *value = malloc(strlen(h_ota->sign) + 1);
+                if (*value == NULL) {h_ota->err = IOT_OTAE_INVALID_PARAM;return -1;}
+                memset(*value,0,strlen(h_ota->sign) + 1);
+                memcpy(*value,h_ota->sign,strlen(h_ota->sign));
+                return 0;
+            }
+        }
+        break;
+    case IOT_OTAG_COTA_SIGN_METHOD:
+        {
+            char **value = (char **)buf;
+            if (value == NULL || *value != NULL || h_ota->signMethod == NULL) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            }else{
+                *value = malloc(strlen(h_ota->signMethod) + 1);
+                if (*value == NULL) {h_ota->err = IOT_OTAE_INVALID_PARAM;return -1;}
+                memset(*value,0,strlen(h_ota->signMethod) + 1);
+                memcpy(*value,h_ota->signMethod,strlen(h_ota->signMethod));
+                return 0;
+            }
+        }
+        break;
+    case IOT_OTAG_COTA_URL:
+        {
+            char **value = (char **)buf;
+            if (value == NULL || *value != NULL || h_ota->cota_url == NULL) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            }else{
+                *value = malloc(strlen(h_ota->cota_url) + 1);
+                if (*value == NULL) {h_ota->err = IOT_OTAE_INVALID_PARAM;return -1;}
+                memset(*value,0,strlen(h_ota->cota_url) + 1);
+                memcpy(*value,h_ota->cota_url,strlen(h_ota->cota_url));
+                return 0;
+            }
+        }
+        break;
+    case IOT_OTAG_COTA_GETTYPE:
+        {
+            char **value = (char **)buf;
+            if (value == NULL || *value != NULL || h_ota->getType == NULL) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            }else{
+                *value = malloc(strlen(h_ota->getType) + 1);
+                if (*value == NULL) {h_ota->err = IOT_OTAE_INVALID_PARAM;return -1;}
+                memset(*value,0,strlen(h_ota->getType) + 1);
+                memcpy(*value,h_ota->getType,strlen(h_ota->getType));
+                return 0;
+            }
+        }
+        break;
     case IOT_OTAG_FETCHED_SIZE:
         if ((4 != buf_len) || (0 != ((unsigned long)buf & 0x3))) {
             OTA_LOG_ERROR("Invalid parameter");

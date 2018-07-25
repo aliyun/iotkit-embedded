@@ -85,6 +85,7 @@ typedef enum {
 	IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY,
 	IOTX_DM_EVENT_MODEL_UP_RAW_REPLY,
 	IOTX_DM_EVENT_LEGACY_THING_CREATED,
+	IOTX_DM_EVENT_COTA_NEW_CONFIG,
 	IOTX_DM_EVENT_MAX
 }iotx_dm_event_types_t;
 
@@ -183,6 +184,9 @@ int iotx_dm_subdev_logout(_IN_ int devid);
 int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type);
 int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status);
 int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
+
+int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
+int iotx_dm_cota_get_config(_IN_ const char* config_scope, const char* get_type, const char* attribute_keys);
 
 int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);

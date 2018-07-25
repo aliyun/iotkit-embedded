@@ -11,13 +11,19 @@
 #include "iotx_log.h"
 #include "linked_list.h"
 
-#define LINKKIT_API_KEY_ID         "id"
-#define LINKKIT_API_KEY_CODE       "code"
-#define LINKKIT_API_KEY_DEVID      "devid"
-#define LINKKIT_API_KEY_SERVICEID  "serviceid"
-#define LINKKIT_API_KEY_PROPERTYID "propertyid"
-#define LINKKIT_API_KEY_EVENTID    "eventid"
-#define LINKKIT_API_KEY_PAYLOAD    "payload"
+#define LINKKIT_API_KEY_ID          "id"
+#define LINKKIT_API_KEY_CODE        "code"
+#define LINKKIT_API_KEY_DEVID       "devid"
+#define LINKKIT_API_KEY_SERVICEID   "serviceid"
+#define LINKKIT_API_KEY_PROPERTYID  "propertyid"
+#define LINKKIT_API_KEY_EVENTID     "eventid"
+#define LINKKIT_API_KEY_PAYLOAD     "payload"
+#define LINKKIT_API_KEY_CONFIG_ID   "configId"
+#define LINKKIT_API_KEY_CONFIG_SIZE "configSize"
+#define LINKKIT_API_KEY_GET_TYPE    "getType"
+#define LINKKIT_API_KEY_SIGN        "sign"
+#define LINKKIT_API_KEY_SIGN_METHOD "signMethod"
+#define LINKKIT_API_KEY_URL         "url"
 
 #define LINKKIT_MAX_POST_CB_NUMBER 20
 typedef struct _post_cb {
@@ -31,6 +37,10 @@ static void *g_linkkit_mutex = NULL;
 void *g_list_post_cb = NULL;
 static linkkit_ops_t *g_linkkit_ops = NULL;
 static void *g_user_ctx = NULL;
+
+static handle_service_cota_callback_fp_t g_cota_callback = NULL;
+/* static handle_service_fota_callback_fp_t g_fota_fallback = NULL; */
+
 #if (CONFIG_SDK_THREAD_COST == 1)
     void *thread_process_dispatch;
     int   thread_process_disatch_exit = 0;
@@ -514,6 +524,95 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             DM_free(eventid);
         }
         break;
+        case IOTX_DM_EVENT_COTA_NEW_CONFIG: {
+            int res = 0;
+            lite_cjson_t lite, lite_item_configid, lite_item_configsize, lite_item_gettype;
+            lite_cjson_t lite_item_sign, lite_item_signmethod, lite_item_url;
+            char *config_id = NULL, *get_type = NULL, *sign = NULL, *sign_method = NULL, *url = NULL;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
+                return;
+            }
+
+            /* Parse Config ID */
+            memset(&lite_item_configid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_API_KEY_CONFIG_ID, strlen(LINKKIT_API_KEY_CONFIG_ID), &lite_item_configid);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_configid)) {
+                return;
+            }
+            dm_log_debug("Current Config ID: %.*s", lite_item_configid.value_length,lite_item_configid.value);
+
+            /* Parse Config Size */
+            memset(&lite_item_configsize, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_API_KEY_CONFIG_SIZE, strlen(LINKKIT_API_KEY_CONFIG_SIZE), &lite_item_configsize);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_configsize)) {
+                return;
+            }
+            dm_log_debug("Current Config Size: %d", lite_item_configsize.value_int);
+
+            /* Parse Get Type */
+            memset(&lite_item_gettype, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_API_KEY_GET_TYPE, strlen(LINKKIT_API_KEY_GET_TYPE), &lite_item_gettype);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_gettype)) {
+                return;
+            }
+            dm_log_debug("Current Get Type: %.*s", lite_item_gettype.value_length,lite_item_gettype.value);
+
+            /* Parse Sign */
+            memset(&lite_item_sign, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_API_KEY_SIGN, strlen(LINKKIT_API_KEY_SIGN), &lite_item_sign);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_sign)) {
+                return;
+            }
+            dm_log_debug("Current Sign: %.*s", lite_item_sign.value_length,lite_item_sign.value);
+
+            /* Parse Sign Method*/
+            memset(&lite_item_signmethod, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_API_KEY_SIGN_METHOD, strlen(LINKKIT_API_KEY_SIGN_METHOD), &lite_item_signmethod);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_signmethod)) {
+                return;
+            }
+            dm_log_debug("Current Sign Method: %.*s", lite_item_signmethod.value_length,lite_item_signmethod.value);
+
+            /* Parse URL */
+            memset(&lite_item_url, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_API_KEY_URL, strlen(LINKKIT_API_KEY_URL), &lite_item_url);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_url)) {
+                return;
+            }
+            dm_log_debug("Current URL: %.*s", lite_item_url.value_length,lite_item_url.value);
+
+            dm_utils_copy_direct(lite_item_configid.value,lite_item_configid.value_length,(void **)&config_id,lite_item_configid.value_length + 1);
+            dm_utils_copy_direct(lite_item_gettype.value,lite_item_gettype.value_length,(void **)&get_type,lite_item_gettype.value_length + 1);
+            dm_utils_copy_direct(lite_item_sign.value,lite_item_sign.value_length,(void **)&sign,lite_item_sign.value_length + 1);
+            dm_utils_copy_direct(lite_item_signmethod.value,lite_item_signmethod.value_length,(void **)&sign_method,lite_item_signmethod.value_length + 1);
+            dm_utils_copy_direct(lite_item_url.value,lite_item_url.value_length,(void **)&url,lite_item_url.value_length + 1);
+
+            if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
+                if (config_id) {free(config_id);}
+                if (get_type) {free(get_type);}
+                if (sign) {free(sign);}
+                if (sign_method) {free(sign_method);}
+                if (url) {free(url);}
+            }
+
+            if (g_cota_callback){
+                g_cota_callback(service_cota_callback_type_new_version_detected,config_id,lite_item_configsize.value_int,get_type,sign,sign_method,url);
+            }
+
+            if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
+                if (config_id) {free(config_id);}
+                if (get_type) {free(get_type);}
+                if (sign) {free(sign);}
+                if (sign_method) {free(sign_method);}
+                if (url) {free(url);}
+            }
+        }
+
+        break;
 #ifdef LOCAL_CONN_ENABLE
         case IOTX_DM_EVENT_LOCAL_CONNECTED: {
             linkkit_ops->on_connect(context, 0);
@@ -733,8 +832,6 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, con
     return res;
 }
 
-
-
 int linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code)
 {
     int res = 0, devid = 0;
@@ -893,3 +990,20 @@ int linkkit_yield(int timeout_ms)
     return iotx_dm_yield(timeout_ms);
 }
 #endif
+
+int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
+{
+    g_cota_callback = callback_fp;
+
+    return 0;
+}
+
+int linkkit_invoke_cota_service(void* data_buf, int data_buf_length)
+{
+    return iotx_dm_cota_perform_sync(data_buf,data_buf_length);
+}
+
+int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option)
+{
+    return iotx_dm_cota_get_config(config_scope,get_type,attribute_Keys);
+}

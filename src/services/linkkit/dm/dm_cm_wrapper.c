@@ -269,6 +269,20 @@ int dm_cmw_conn_local_alcs_init(void **conn_handle)
 
     return SUCCESS_RETURN;
 }
+
+int dm_cmw_conn_get_prototol_handle(void *conn_handle, void **protocol_handle)
+{
+    if (conn_handle == NULL || protocol_handle == NULL || *protocol_handle != NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+    
+    *protocol_handle = iotx_cm_get_protocol_handle(conn_handle);
+    if (*protocol_handle == NULL) {return FAIL_RETURN;}
+
+    return SUCCESS_RETURN;
+}
+
 int dm_cmw_conn_destroy(void **conn_handle)
 {
     if (conn_handle == NULL) {

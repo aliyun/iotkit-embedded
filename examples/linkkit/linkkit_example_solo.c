@@ -25,6 +25,11 @@
 #include "iot_export.h"
 #include "linkkit_export.h"
 
+#define LINKKIT_OTA_BUFFER_SIZE (512)
+
+#define EVENT_ERROR_IDENTIFIER                 "Error"
+#define EVENT_ERROR_OUTPUT_INFO_IDENTIFIER     "ErrorCode"
+
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
@@ -42,7 +47,43 @@ typedef struct _sample_context {
 /*
  * please modify this string follow as product's TSL.
  */
-#include "example_tsl_solo.data"
+static const char TSL_STRING[] =
+            "{\"schema\":\"https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json\",\"profile\":{\"productKey\":\"a13Npv1vjZ4\"},\"services\":[{\"outputData\":[],\"identifier\":\"set\",\"inputData\":[{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_Band_Name\"},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Channel_Name\"},{\"identifi"
+            "er\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"max\":\"-1\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_RSSI_Name\"},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_SNR_Name\"},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_AP_BSSID_Name\"},{\"identifier\":\"WIFI_Tx_Rate\",\"dataType\":{\"specs\":{\"mi" 
+            "n\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Tx_Rate_Name\"},{\"identifier\":\"WIFI_Rx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Rx_Rate_Name\"},{\"identifier\":\"RGBColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Red\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Red_Name\"},{\"identifier\":\"Green\",\"dataType\":"
+            "{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Green_Name\"},{\"identifier\":\"Blue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Blue_Name\"}],\"type\":\"struct\"},\"name\":\"RGBColor_Name\"},{\"identifier\":\"HSVColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_Name\"},"
+            "{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Value\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Value_Name\"}],\"type\":\"struct\"},\"name\":\"HSVColor_Name\"},{\"identifier\":\"HSLColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"360\",\"step"
+            "\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_Name\"},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Lightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Lightness_Name\"}],\"type\":\"struct\"},\"name\":\"HSLColor_Name\"},{\"identifier\":\"WorkMode\",\"dataType\":{\"specs\":{\"0\":\"manual\",\"1\":\"r"
+            "ead\",\"2\":\"cinema\",\"3\":\"night-light\",\"4\":\"life\",\"5\":\"soft\"},\"type\":\"enum\"},\"name\":\"WorkMode_Name\"},{\"identifier\":\"NightLightSwitch\",\"dataType\":{\"specs\":{\"0\":\"off\",\"1\":\"on\"},\"type\":\"bool\"},\"name\":\"NightLightSwitch_Name\"},{\"identifier\":\"Brightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Brightness_Name\"},{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\""
+            ":\"off\",\"1\":\"on\"},\"type\":\"bool\"},\"name\":\"LightSwitch_Name\"},{\"identifier\":\"ColorTemperature\",\"dataType\":{\"specs\":{\"min\":\"2700\",\"max\":\"6500\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"ColorTemperature_Name\"},{\"identifier\":\"PropertyCharacter\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"PropertyCharacter_Name\"},{\"identifier\":\"Propertypoint\",\"dataType\":{\"specs\":{\"min\":\"-100\",\"max\":\"100\",\"step\":"
+            "\"1\"},\"type\":\"double\"},\"name\":\"Propertypoint_Name\"}],\"method\":\"thing.service.property.set\",\"name\":\"set\",\"required\":true,\"callType\":\"async\",\"desc\":\"属性设置\"},{\"outputData\":[{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_Band_Name\"},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Channel_Name\"},{"
+            "\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"max\":\"-1\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_RSSI_Name\"},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_SNR_Name\"},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_AP_BSSID_Name\"},{\"identifier\":\"WIFI_Tx_Rate\",\"dataType\":{\"spec"
+            "s\":{\"min\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Tx_Rate_Name\"},{\"identifier\":\"WIFI_Rx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Rx_Rate_Name\"},{\"identifier\":\"RGBColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Red\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Red_Name\"},{\"identifier\":\"Green\",\"dat"
+            "aType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Green_Name\"},{\"identifier\":\"Blue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Blue_Name\"}],\"type\":\"struct\"},\"name\":\"RGBColor_Name\"},{\"identifier\":\"HSVColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_N"
+            "ame\"},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Value\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Value_Name\"}],\"type\":\"struct\"},\"name\":\"HSVColor_Name\"},{\"identifier\":\"HSLColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"360\","
+            "\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_Name\"},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Lightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Lightness_Name\"}],\"type\":\"struct\"},\"name\":\"HSLColor_Name\"},{\"identifier\":\"WorkMode\",\"dataType\":{\"specs\":{\"0\":\"manual\",\"1\""
+            ":\"read\",\"2\":\"cinema\",\"3\":\"night-light\",\"4\":\"life\",\"5\":\"soft\"},\"type\":\"enum\"},\"name\":\"WorkMode_Name\"},{\"identifier\":\"NightLightSwitch\",\"dataType\":{\"specs\":{\"0\":\"off\",\"1\":\"on\"},\"type\":\"bool\"},\"name\":\"NightLightSwitch_Name\"},{\"identifier\":\"Brightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Brightness_Name\"},{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\""
+            "0\":\"off\",\"1\":\"on\"},\"type\":\"bool\"},\"name\":\"LightSwitch_Name\"},{\"identifier\":\"ColorTemperature\",\"dataType\":{\"specs\":{\"min\":\"2700\",\"max\":\"6500\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"ColorTemperature_Name\"},{\"identifier\":\"PropertyCharacter\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"PropertyCharacter_Name\"},{\"identifier\":\"Propertypoint\",\"dataType\":{\"specs\":{\"min\":\"-100\",\"max\":\"100\",\"step\""
+            ":\"1\"},\"type\":\"double\"},\"name\":\"Propertypoint_Name\"}],\"identifier\":\"get\",\"inputData\":[\"WIFI_Band\",\"WIFI_Channel\",\"WiFI_RSSI\",\"WiFI_SNR\",\"WIFI_AP_BSSID\",\"WIFI_Tx_Rate\",\"WIFI_Rx_Rate\",\"RGBColor\",\"HSVColor\",\"HSLColor\",\"WorkMode\",\"NightLightSwitch\",\"Brightness\",\"LightSwitch\",\"ColorTemperature\",\"PropertyCharacter\",\"Propertypoint\"],\"method\":\"thing.service.property.get\",\"name\":\"get\",\"required\":true,\"callType\":\"async\",\"de"
+            "sc\":\"属性获取\"},{\"outputData\":[{\"identifier\":\"Contrastratio\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Contrastratio_Name\"}],\"identifier\":\"Custom\",\"inputData\":[{\"identifier\":\"transparency\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"transparency_Name\"}],\"method\":\"thing.service.Custom\",\"name\":\"Custom_Name\",\"required\":false,\"callType\":"
+            "\"async\"}],\"properties\":[{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_Band_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Channel_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"max\":\"-1\",\"step"
+            "\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_RSSI_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_SNR_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_AP_BSSID_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WIFI_"
+            "Tx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Tx_Rate_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WIFI_Rx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Rx_Rate_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"RGBColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Red\",\"dataType\":{\"specs\":{\"min\""
+            ":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Red_Name\"},{\"identifier\":\"Green\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Green_Name\"},{\"identifier\":\"Blue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Blue_Name\"}],\"type\":\"struct\"},\"name\":\"RGBColor_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"HSVColor\",\"d"
+            "ataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_Name\"},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Value\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Value_Name\"}],\"type\":\"struct\"},\"name\":\""
+            "HSVColor_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"HSLColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"360\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_Name\"},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Lightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\""
+            ",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Lightness_Name\"}],\"type\":\"struct\"},\"name\":\"HSLColor_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WorkMode\",\"dataType\":{\"specs\":{\"0\":\"manual\",\"1\":\"read\",\"2\":\"cinema\",\"3\":\"night-light\",\"4\":\"life\",\"5\":\"soft\"},\"type\":\"enum\"},\"name\":\"WorkMode_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"NightLightSwitch\",\"dataType\":{\"specs\":{\"0\":\"off\",\"1\":"
+            "\"on\"},\"type\":\"bool\"},\"name\":\"NightLightSwitch_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"Brightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Brightness_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"off\",\"1\":\"on\"},\"type\":\"bool\"},\"name\":\"LightSwitch_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identif"
+            "ier\":\"ColorTemperature\",\"dataType\":{\"specs\":{\"min\":\"2700\",\"max\":\"6500\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"ColorTemperature_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"PropertyCharacter\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"PropertyCharacter_Name\",\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"Propertypoint\",\"dataType\":{\"specs\":{\"min\":\"-100\",\"max\":\"100\",\"step\":\""
+            "1\"},\"type\":\"double\"},\"name\":\"Propertypoint_Name\",\"accessMode\":\"rw\",\"required\":false}],\"events\":[{\"outputData\":[{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_Band_Name\"},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Channel_Name\"},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\""
+            "max\":\"-1\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_RSSI_Name\"},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WiFI_SNR_Name\"},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"WIFI_AP_BSSID_Name\"},{\"identifier\":\"WIFI_Tx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"n"
+            "ame\":\"WIFI_Tx_Rate_Name\"},{\"identifier\":\"WIFI_Rx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"WIFI_Rx_Rate_Name\"},{\"identifier\":\"RGBColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Red\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Red_Name\"},{\"identifier\":\"Green\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\""
+            ":\"int\"},\"name\":\"Green_Name\"},{\"identifier\":\"Blue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Blue_Name\"}],\"type\":\"struct\"},\"name\":\"RGBColor_Name\"},{\"identifier\":\"HSVColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_Name\"},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\""
+            ",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Value\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Value_Name\"}],\"type\":\"struct\"},\"name\":\"HSVColor_Name\"},{\"identifier\":\"HSLColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"360\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Hue_Name\"},{\"identifier\":\"Sa"
+            "turation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Saturation_Name\"},{\"identifier\":\"Lightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Lightness_Name\"}],\"type\":\"struct\"},\"name\":\"HSLColor_Name\"},{\"identifier\":\"WorkMode\",\"dataType\":{\"specs\":{\"0\":\"manual\",\"1\":\"read\",\"2\":\"cinema\",\"3\":\"night-light\",\"4\":\"life\",\"5\":\"soft\""
+            "},\"type\":\"enum\"},\"name\":\"WorkMode_Name\"},{\"identifier\":\"NightLightSwitch\",\"dataType\":{\"specs\":{\"0\":\"off\",\"1\":\"on\"},\"type\":\"bool\"},\"name\":\"NightLightSwitch_Name\"},{\"identifier\":\"Brightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"Brightness_Name\"},{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"off\",\"1\":\"on\"},\"type\":\"bool\"},\"name\":\"LightSwitch_Name\"},{\""
+            "identifier\":\"ColorTemperature\",\"dataType\":{\"specs\":{\"min\":\"2700\",\"max\":\"6500\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"ColorTemperature_Name\"},{\"identifier\":\"PropertyCharacter\",\"dataType\":{\"specs\":{\"length\":\"1024\"},\"type\":\"text\"},\"name\":\"PropertyCharacter_Name\"},{\"identifier\":\"Propertypoint\",\"dataType\":{\"specs\":{\"min\":\"-100\",\"max\":\"100\",\"step\":\"1\"},\"type\":\"double\"},\"name\":\"Propertypoint_Name\"}],\"identifier\":\""
+            "post\",\"method\":\"thing.event.property.post\",\"name\":\"post\",\"type\":\"info\",\"required\":true,\"desc\":\"属性上报\"},{\"outputData\":[{\"identifier\":\"ErrorCode\",\"dataType\":{\"specs\":{\"0\":\"normal\"},\"type\":\"enum\"},\"name\":\"ErrorCode_Name\"}],\"identifier\":\"Error\",\"method\":\"thing.event.Error.post\",\"name\":\"Error_Name\",\"type\":\"info\",\"required\":false}]}";
 
 /*
  * the callback of linkkit_post_property.
@@ -301,7 +342,7 @@ static int handle_service_custom(sample_context_t *_sample_ctx, const void *thin
 static int thing_prop_changed(const void *thing_id, const char *property, void *ctx)
 {
     char *value_str = NULL;
-    /*char property_buf[64] = {0};*/
+    char property_buf[64] = {0};
     int response_id = -1;
 
     /* do user's property changed process logical here. */
@@ -321,7 +362,6 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
      * please follow TSL modify this property identifier
      */
 
-#if 0
     /* if the proprety id is %s.%s, please follow this code */
     /* get new property value */
     if (strstr(property, "HSVColor") != 0) {
@@ -381,29 +421,6 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &blue, &value_str);
 
         EXAMPLE_TRACE("property(%s), Red:%d, Green:%d, Blue:%d\n", property, red, green, blue);
-    } else {
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, NULL, &value_str);
-
-        EXAMPLE_TRACE("property(%s) new value set: %s\n", property, value_str);
-    }
-#endif
-
-    if (strstr(property, "IndoorTemperature") != 0) {
-        float temperature = 0.0;
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &temperature, &value_str);
-        EXAMPLE_TRACE("property(%s):%d\n", property, temperature);
-    } else if (strstr(property, "TemperatureModelStatus") != 0) {
-        int status = 0.0;
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &status, &value_str);
-        EXAMPLE_TRACE("property(%s):%d\n", property, status);
-    } else if (strstr(property, "CurrentTemperature") != 0) {
-        float temperature = 0.0;
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &temperature, &value_str);
-        EXAMPLE_TRACE("property(%s):%d\n", property, temperature);
-    } else if (strstr(property, "Humidity") != 0) {
-        int humidity;
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, property, &humidity, &value_str);
-        EXAMPLE_TRACE("property(%s):%d\n", property, humidity);
     }
 
     /* post property
@@ -462,9 +479,16 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
         rx_rate = wireless_info.rx_rate;
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Band", band, NULL);
+        linkkit_post_property(sample_ctx->thing,"WIFI_Band",post_property_cb);
+
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Channel", &channel, NULL);
+        linkkit_post_property(sample_ctx->thing,"WIFI_Channel",post_property_cb);
+
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WiFI_RSSI", &rssi, NULL);
+        linkkit_post_property(sample_ctx->thing,"WiFI_RSSI",post_property_cb);
+
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WiFI_SNR", &snr, NULL);
+        linkkit_post_property(sample_ctx->thing,"WiFI_SNR",post_property_cb);
 
         memset(val_buf, 0, sizeof(val_buf));
         for (i = 0; i < ETH_ALEN; i++) {
@@ -473,10 +497,15 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
         if (strlen(val_buf) > 0 && val_buf[strlen(val_buf) - 1] == ':') {
             val_buf[strlen(val_buf) - 1] = '\0';
         }
+
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_AP_BSSID", val_buf, NULL);
+        linkkit_post_property(sample_ctx->thing,"WIFI_AP_BSSID",post_property_cb);
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Tx_Rate", &tx_rate, NULL);
+        linkkit_post_property(sample_ctx->thing,"WIFI_Tx_Rate",post_property_cb);
+
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Rx_Rate", &rx_rate, NULL);
+        linkkit_post_property(sample_ctx->thing,"WIFI_Rx_Rate",post_property_cb);
 
         is_post = 1;
         ret = 0;
@@ -498,31 +527,32 @@ static unsigned long long uptime_sec(void)
 }
 
 
-static int post_all_prop(sample_context_t *sample)
+int post_all_prop(sample_context_t *sample)
 {
-    float f = 20.0;
-    int i = 1;
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "IndoorTemperature", &f, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "TemperatureModelStatus", &i, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "CurrentTemperature", &f, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "Humidity", &f, NULL);
-
-    /* demo for post one property */
-    linkkit_post_property(sample->thing, "Humidity", post_property_cb);
-
     /* demo for post all property */
     return linkkit_post_property(sample->thing, NULL, post_property_cb);
 }
 
 
-static int trigger_event(sample_context_t *sample)
+int trigger_event(sample_context_t *sample)
 {
+    char event_output_identifier[64];
+    snprintf(event_output_identifier, sizeof(event_output_identifier), "%s.%s", EVENT_ERROR_IDENTIFIER, EVENT_ERROR_OUTPUT_INFO_IDENTIFIER);
+
+    int errorCode = 0;
+    linkkit_set_value(linkkit_method_set_event_output_value,
+                      sample->thing,
+                      event_output_identifier,
+                      &errorCode, NULL);
+
+    return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER, post_property_cb);
+
     /* please modify the event_id by TSL */
     return linkkit_trigger_event(sample->thing, "TemperatureAlarm", post_property_cb);
 }
 
 #ifdef EXTENDED_INFO_ENABLED
-static int trigger_deviceinfo(sample_context_t *sample)
+int trigger_deviceinfo(sample_context_t *sample)
 {
     /* please modify the parameter */
     return linkkit_trigger_extended_info_operate(sample->thing, "[{device_info : 21}]",
@@ -530,7 +560,7 @@ static int trigger_deviceinfo(sample_context_t *sample)
 }
 #endif
 
-static int is_active(sample_context_t *sample_ctx)
+int is_active(sample_context_t *sample_ctx)
 {
 #ifdef LOCAL_CONN_ENABLE
     return (sample_ctx->cloud_connected/* && sample_ctx->thing_enabled*/)
@@ -540,6 +570,19 @@ static int is_active(sample_context_t *sample_ctx)
 #endif
 }
 
+void linkkit_cota_callback(service_cota_callback_type_t callback_type, const char *configid, uint32_t configsize, const char *gettype, const char *sign, const char *signmethod, const char *cota_url)
+{
+    char cota_buffer[LINKKIT_OTA_BUFFER_SIZE] = {0};
+
+    EXAMPLE_TRACE("Cota Config ID: %s",configid);
+    EXAMPLE_TRACE("Cota Config Size: %d",configsize);
+    EXAMPLE_TRACE("Cota Get Type: %s",gettype);
+    EXAMPLE_TRACE("Cota Sign: %s",sign);
+    EXAMPLE_TRACE("Cota Sign Method: %s",signmethod);
+    EXAMPLE_TRACE("Cota URL: %s",cota_url);
+
+    linkkit_invoke_cota_service(cota_buffer,LINKKIT_OTA_BUFFER_SIZE);
+}
 
 int linkkit_example()
 {
@@ -549,7 +592,6 @@ int linkkit_example()
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
     int get_tsl_from_cloud = 0;                        /* the param of whether it is get tsl from cloud */
-
     linkkit_ops_t linkkit_ops = {
         .on_connect           = on_connect,            /* connect handler */
         .on_disconnect        = on_disconnect,         /* disconnect handler */
@@ -584,6 +626,7 @@ int linkkit_example()
         linkkit_set_tsl(TSL_STRING, strlen(TSL_STRING));
     }
 
+    linkkit_cota_init(linkkit_cota_callback);
     EXAMPLE_TRACE("linkkit enter loop");
     while (1) {
         /*
@@ -611,6 +654,10 @@ int linkkit_example()
          *
          * please follow user's rule to modify these code.
          */
+        
+        /* if (now % 10 == 0) {
+            linkkit_invoke_cota_get_config("unknown","anyway","",NULL);
+        } */
 
 #ifdef POST_WIFI_STATUS
         if (now % 10 == 0) {
@@ -657,9 +704,9 @@ int main(int argc, char **argv)
 
     EXAMPLE_TRACE("start!\n");
 
-    HAL_SetProductKey("a1QrigYtTJj");
-    HAL_SetDeviceName("FBrNwJIiWVLibTvdXgYv");
-    HAL_SetDeviceSecret("HnDrKGNZneA5ptxoTvEM1RFwe366a5tV");
+    HAL_SetProductKey("a13Npv1vjZ4");
+    HAL_SetDeviceName("example1");
+    HAL_SetDeviceSecret("T85uRb3b2L3rEMydTTAwgSkh78SJoTG6");
 
     /*
      * linkkit dome

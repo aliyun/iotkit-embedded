@@ -79,7 +79,12 @@ typedef enum {
 
 
 typedef enum {
-
+    IOT_OTAG_COTA_CONFIG_ID,
+    IOT_OTAG_COTA_CONFIG_SIZE,
+    IOT_OTAG_COTA_SIGN,
+    IOT_OTAG_COTA_SIGN_METHOD,
+    IOT_OTAG_COTA_URL,
+    IOT_OTAG_COTA_GETTYPE,
     IOT_OTAG_FETCHED_SIZE,     /* option for get already fetched size */
     IOT_OTAG_FILE_SIZE,        /* size of file */
     IOT_OTAG_MD5SUM,           /* md5 in string format */

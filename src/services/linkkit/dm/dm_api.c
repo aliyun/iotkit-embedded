@@ -9,6 +9,7 @@
 #include "dm_subscribe.h"
 #include "dm_conn.h"
 #include "dm_opt.h"
+#include "dm_cota.h"
 #include "iotx_dm.h"
 
 static dm_api_ctx_t g_dm_api_ctx;
@@ -100,6 +101,13 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 		goto ERROR;
 	}
 	
+	/* DM Config OTA Module Init */
+	res = dm_cota_init();
+	if (res != SUCCESS_RETURN) {
+		dm_log_err(DM_UTILS_LOG_COTA_INIT_FAILED);
+		goto ERROR;
+	}
+
 	return SUCCESS_RETURN;
 
 ERROR:
@@ -109,6 +117,8 @@ ERROR:
 	dm_ipc_deinit();
 	dm_msg_deinit();
 	dm_msg_cache_deinit();
+	dm_cota_deinit();
+
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return FAIL_RETURN;
 }
@@ -122,6 +132,8 @@ int iotx_dm_destroy(void)
 	dm_ipc_deinit();
 	dm_msg_deinit();
 	dm_msg_cache_deinit();
+	dm_cota_deinit();
+	
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return SUCCESS_RETURN;
 }
@@ -653,6 +665,7 @@ void iotx_dm_dispatch(void)
 
 	dm_mgr_dev_sub_status_check();
 	dm_msg_cache_tick();
+	dm_cota_status_check();
 	if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
 		dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
 
@@ -869,6 +882,16 @@ int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 	return res;
 }
 
+int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
+{
+	return dm_cota_perform_sync(buffer,buffer_len);
+}
+
+int iotx_dm_cota_get_config(_IN_ const char* config_scope, const char* get_type, const char* attribute_keys)
+{
+	return dm_cota_get_config(config_scope,get_type,attribute_keys);
+}
+
 int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
 	int res = 0, value_len = 0;
@@ -916,7 +939,7 @@ int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
 
 	if (type == DM_SHW_DATA_TYPE_TEXT || type == DM_SHW_DATA_TYPE_DATE) {value_len = strlen(value);}
 	
-	res = dm_mgr_set_property_value(devid,key,key_len,value,value_len);
+	res = dm_mgr_set_event_output_value(devid,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 
 	_dm_api_unlock();
@@ -943,7 +966,7 @@ int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
 
 	if (type == DM_SHW_DATA_TYPE_TEXT || type == DM_SHW_DATA_TYPE_DATE) {value_len = strlen(value);}
 	
-	res = dm_mgr_set_property_value(devid,key,key_len,value,value_len);
+	res = dm_mgr_set_service_output_value(devid,key,key_len,value,value_len);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
 
 	_dm_api_unlock();

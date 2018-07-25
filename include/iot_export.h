@@ -203,7 +203,6 @@ void    IOT_SetupDomain(int domain_type);
 #include "exports/iot_export_http.h"
 #include "exports/iot_export_event.h"
 #include "exports/iot_export_subdev.h"
-#include "exports/iot_export_fota.h"
 
 #if defined(__cplusplus)
 }

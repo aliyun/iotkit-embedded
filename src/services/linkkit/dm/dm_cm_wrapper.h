@@ -10,6 +10,7 @@ int dm_cmw_deinit(void);
 int dm_cmw_yield(int timeout_ms);
 int dm_cmw_conn_cloud_mqtt_init(void **conn_handle);
 int dm_cmw_conn_local_alcs_init(void **conn_handle);
+int dm_cmw_conn_get_prototol_handle(void *conn_handle, void **protocol_handle);
 int dm_cmw_conn_destroy(void **conn_handle);
 int dm_cmw_cloud_register(void *conn_handle, char **uri, int count, void *user_data);
 int dm_cmw_cloud_unregister(void *conn_handle, char *uri);
