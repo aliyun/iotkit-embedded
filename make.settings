@@ -81,9 +81,9 @@ FEATURE_SERVICE_OTA_ENABLED = n
 FEATURE_ALCS_ENABLED        = y
 
 ##
-## FEATURE_ENHANCE_GATEWAY
-## Brief:    ENHANCE_GATEWAY(gateway product) is a gateway product
-## Usage:    If the value is "y", it support gateway feature and the -DENHANCE_GATEWAY compile option will be defined.
+## FEATURE_ENHANCED_GATEWAY
+## Brief:    ENHANCED_GATEWAY(gateway product) is a gateway product
+## Usage:    If the value is "y", it support gateway feature and the -DENHANCED_GATEWAY compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_ENHANCE_GATEWAY     = n
+FEATURE_ENHANCED_GATEWAY    = n
