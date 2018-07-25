@@ -24,7 +24,11 @@
 #include <stdio.h>
 #include "iot_export_ota.h"
 #include "ota_internal.h"
-
+#include "utils_md5.h"
+#include "utils_sha256.h"
+#include "ota_hal_os.h"
+#include "ota_log.h"
+#include "json_parser.h"
 
 static const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const char *key, uint32_t *val_len)
 {
@@ -39,7 +43,7 @@ static const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const
 
 static void *otalib_MD5Init(void)
 {
-    iot_md5_context *ctx = OTA_MALLOC(sizeof(iot_md5_context));
+    iot_md5_context *ctx = ota_malloc(sizeof(iot_md5_context));
     if (NULL == ctx) {
         return NULL;
     }
@@ -71,13 +75,13 @@ static void otalib_MD5Finalize(void *md5, char *output_str)
 static void otalib_MD5Deinit(void *md5)
 {
     if (NULL != md5) {
-        OTA_FREE(md5);
+        ota_free(md5);
     }
 }
 
 static void *otalib_Sha256Init(void)
 {
-    iot_sha256_context *ctx = OTA_MALLOC(sizeof(iot_sha256_context));
+    iot_sha256_context *ctx = ota_malloc(sizeof(iot_sha256_context));
     if (NULL == ctx) {
         return NULL;
     }
@@ -108,9 +112,8 @@ static void otalib_Sha256Finalize(void *sha256, char *output_str)
 
 static void otalib_Sha256Deinit(void *sha256)
 {
-	utils_sha256_free(sha256);
     if (NULL != sha256) {
-        OTA_FREE(sha256);
+        ota_free(sha256);
     }
 }
 /* Get the specific @key value, and copy to @dest */
@@ -125,12 +128,12 @@ static int otalib_GetFirmwareFixlenPara(const char *json_doc,
     uint32_t val_len;
 
     if (NULL == (pvalue = otalib_JsonValueOf(json_doc, json_doc_len, key, &val_len))) {
-        OTA_LOG_ERROR("Not '%s' key in json doc of OTA", key);
+        OTA_LOG_E("Not '%s' key in json doc of OTA", key);
         return -1;
     }
 
     if (val_len > dest_len) {
-        OTA_LOG_ERROR("value length of the key is too long");
+        OTA_LOG_E("value length of the key is too long");
         return -1;
     }
 
@@ -151,12 +154,12 @@ static int otalib_GetFirmwareVarlenPara(const char *json_doc,
     uint32_t val_len;
 
     if (NULL == (pvalue = otalib_JsonValueOf(json_doc, json_doc_len, key, &val_len))) {
-        OTA_LOG_ERROR("Not %s key in json doc of OTA", key);
+        OTA_LOG_E("Not %s key in json doc of OTA", key);
         return -1;
     }
 
-    if (NULL == (*dest = OTA_MALLOC(val_len + 1))) {
-        OTA_LOG_ERROR("allocate for dest failed");
+    if (NULL == (*dest = ota_malloc(val_len + 1))) {
+        OTA_LOG_E("allocate for dest failed");
         return -1;
     }
 
@@ -175,25 +178,25 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
 
     /* get version */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "version", version)) {
-        OTA_LOG_ERROR("get value of version key failed");
+        OTA_LOG_E("get value of version key failed");
         return -1;
     }
 
     /* get URL */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "url", url)) {
-        OTA_LOG_ERROR("get value of url key failed");
+        OTA_LOG_E("get value of url key failed");
         return -1;
     }
 
     /* get md5 */
     if (0 != otalib_GetFirmwareFixlenPara(json_doc, json_len, "md5", md5, 32)) {
-        OTA_LOG_ERROR("get value of md5 key failed");
+        OTA_LOG_E("get value of md5 key failed");
         return -1;
     }
 
     /* get file size */
     if (0 != otalib_GetFirmwareFixlenPara(json_doc, json_len, "size", file_size_str, OTA_FILESIZE_STR_LEN)) {
-        OTA_LOG_ERROR("get value of size key failed");
+        OTA_LOG_E("get value of size key failed");
         return -1;
     }
     file_size_str[OTA_FILESIZE_STR_LEN] = '\0';
@@ -213,13 +216,13 @@ int otalib_GetConfigParams(const char *json_doc, uint32_t json_len, char **confi
 
     /* get configId */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "configId", configId)) {
-        OTA_LOG_ERROR("get value of configId key failed");
+        OTA_LOG_E("get value of configId key failed");
         return -1;
     }
 
     /* get configSize */
     if (0 != otalib_GetFirmwareFixlenPara(json_doc, json_len, "configSize", file_size_str, OTA_FILESIZE_STR_LEN)) {
-        OTA_LOG_ERROR("get value of size key failed");
+        OTA_LOG_E("get value of size key failed");
         return -1;
     }
     file_size_str[OTA_FILESIZE_STR_LEN] = '\0';
@@ -227,25 +230,25 @@ int otalib_GetConfigParams(const char *json_doc, uint32_t json_len, char **confi
 
     /* get sign */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "sign", sign)) {
-        OTA_LOG_ERROR("get value of sign key failed");
+        OTA_LOG_E("get value of sign key failed");
         return -1;
     }
 
     /* get signMethod */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "signMethod", signMethod)) {
-        OTA_LOG_ERROR("get value of signMethod key failed");
+        OTA_LOG_E("get value of signMethod key failed");
         return -1;
     }
 
     /* get url */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "url", url)) {
-        OTA_LOG_ERROR("get value of url key failed");
+        OTA_LOG_E("get value of url key failed");
         return -1;
     }
 
     /* get getType */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "getType", getType)) {
-        OTA_LOG_ERROR("get value of getType key failed");
+        OTA_LOG_E("get value of getType key failed");
         return -1;
     }
     return 0;
@@ -267,7 +270,7 @@ int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *versio
                        version);
 
     if (ret < 0) {
-        OTA_LOG_ERROR("HAL_Snprintf failed");
+        OTA_LOG_E("HAL_Snprintf failed");
         return -1;
     }
 
@@ -298,15 +301,13 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
 
 
     if (ret < 0) {
-        OTA_LOG_ERROR("HAL_Snprintf failed");
+        OTA_LOG_E("HAL_Snprintf failed");
         return -1;
     } else if (ret >= buf_len) {
-        OTA_LOG_ERROR("msg is too long");
+        OTA_LOG_E("msg is too long");
         return IOT_OTAE_STR_TOO_LONG;
     }
 
     return 0;
 }
-
-
 #endif /* _OTA_LIB_C_ */

@@ -18,9 +18,10 @@
 
 #ifndef __OTA_FETCH_C_H__
 #define __OTA_FETCH_C_H__
-
+#include <stdint.h>
 #include <string.h>
-
+#include "utils_httpc.h"
+#include "ota_log.h"
 /* ofc, OTA fetch channel */
 
 typedef struct {
@@ -45,9 +46,9 @@ extern const char *iotx_ca_get(void);
 void *ofc_Init(char *url)
 {
     otahttp_Struct_pt h_odc;
-
-    if (NULL == (h_odc = OTA_MALLOC(sizeof(otahttp_Struct_t)))) {
-        OTA_LOG_ERROR("allocate for h_odc failed");
+    h_odc = ota_malloc(sizeof(otahttp_Struct_t));
+    if (NULL == h_odc) {
+        OTA_LOG_E("allocate for h_odc failed");
         return NULL;
     }
 
@@ -84,7 +85,7 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
     if (0 != httpclient_common(&h_odc->http, h_odc->url, 443, iotx_ca_get(), HTTPCLIENT_GET, timeout_s * 1000,
                                &h_odc->http_data)) {
 #endif
-        OTA_LOG_ERROR("fetch firmware failed");
+        OTA_LOG_E("fetch firmware failed");
         return -1;
     }
 
@@ -95,7 +96,7 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 int ofc_Deinit(void *handle)
 {
     if (NULL != handle) {
-        OTA_FREE(handle);
+        ota_free(handle);
     }
 
     return 0;
