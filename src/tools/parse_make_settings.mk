@@ -147,11 +147,16 @@ ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
     ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
         $(error FEATURE_SUPPORT_TLS and FEATURE_SUPPORT_ITLS are not supported together!)
     endif
-else # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+else    # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
     CFLAGS  += -DIOTX_WITHOUT_TLS
-endif # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+endif   # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
 
 ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+
+    ifeq (y,$(strip $(FEATURE_ALCS_ENABLED)))
+    $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_ALCS_ENABLED=y!)
+    endif
+
 else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 
     ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
@@ -159,31 +164,8 @@ else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
     endif
 
 endif   # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-endif
 
-ifeq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
-    ifneq (y,$(strip $(FEATURE_SDK_ENHANCE)))
-    $(error FEATURE_SERVICE_OTA_ENABLED = y requires FEATURE_SDK_ENHANCE= y!)
-    endif
-    CFLAGS  += -DSERVICE_OTA_ENABLED
-
-    ifeq (y,$(strip $(FEATURE_SERVICE_COTA_ENABLED)))
-    ifneq (y,$(strip $(FEATURE_SERVICE_OTA_ENABLED)))
-    $(error FEATURE_SERVICE_COTA_ENABLED = y requires FEATURE_SERVICE_OTA_ENABLED = y!)
-    endif
-    CFLAGS  += -DSERVICE_COTA_ENABLED
-endif
-endif
-
-ifeq (y,$(strip $(FEATURE_SUPPORT_PRODUCT_SECRET)))
-    CFLAGS  += -DSUPPORT_PRODUCT_SECRET
-endif
-
-ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-    ifeq (y,$(strip $(FEATURE_ALCS_ENABLED)))
-    $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_ALCS_ENABLED=y!)
-    endif
-endif
+endif   # ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
 
 SUBDIRS += src/ref-impl/hal
 SUBDIRS += examples

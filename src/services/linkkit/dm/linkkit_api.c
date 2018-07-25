@@ -727,10 +727,6 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     return SUCCESS_RETURN;
 }
 
-#ifdef SERVICE_OTA_ENABLED
-#endif /* SERVICE_OTA_ENABLED */
-
-
 static void _free_post_cb(void *_post_cb, va_list *params)
 {
     void *post_cb = _post_cb;

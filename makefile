@@ -32,8 +32,6 @@ $(call CompLib_Map, SDK_ENHANCE, \
 $(call CompLib_Map, HTTP2_COMM_ENABLED, \
     src/services/file_upload \
     src/protocol/http2)
-$(call CompLib_Map, SERVICE_OTA_ENABLED, src/services/fota)
-$(call CompLib_Map, SERVICE_OTA_ENABLED, src/services/cota)
 
 include $(RULE_DIR)/rules.mk
 include src/tools/mock_build_options.mk

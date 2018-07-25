@@ -17,12 +17,15 @@ ADD_LIBRARY (iot_dm OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_api.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_cm_wrapper.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_conn.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_cota.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_dispatch.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_fota.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_ipc.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_manager.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_message.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_message_cache.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_opt.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_ota.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_shadow.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_subscribe.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_tsl_alink.c
