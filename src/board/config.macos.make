@@ -15,7 +15,7 @@ else
 CONFIG_src/tools/linkkit_tsl_convert :=
 endif
 
-LDFLAGS             += -lpthread
+LDFLAGS             += -lpthread -lrt
 
 OVERRIDE_STRIP      := strip
 

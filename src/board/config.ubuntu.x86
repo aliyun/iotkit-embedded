@@ -27,6 +27,6 @@ CONFIG_examples     :=
 CONFIG_src/tools/linkkit_tsl_convert :=
 endif
 
-CONFIG_ENV_LDFLAGS  += -lpthread
+CONFIG_ENV_LDFLAGS  += -lpthread -lrt
 
 OVERRIDE_STRIP      := strip
