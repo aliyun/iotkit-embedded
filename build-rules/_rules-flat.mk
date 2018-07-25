@@ -107,7 +107,7 @@ ifeq (,$(filter modinfo,$(MAKECMDGOALS)))
 %.d: %.c
 	@ \
 ( \
-	D=$$(dirname $<|$(SED) 's:$(TOP_DIR):$(OUTPUT_DIR):1'); \
+	D=$$(dirname $<|$(SED) 's,$(TOP_DIR),$(OUTPUT_DIR),1'); \
 	F=$$(basename $<); \
 	mkdir -p $${D}; \
 	$(CC) -MM -I$(CURDIR) \
@@ -138,7 +138,7 @@ ifneq (,$(findstring gcc,$(CC)))
 	    $(EXTERNAL_INCLUDES) \
 	    $(CFLAGS) \
 	$< > $@.$$$$; \
-	$(foreach D,$(NODEP_LIST),$(SED) -i 's:$(D)::g' $@.$$$$;) \
+	$(foreach D,$(NODEP_LIST),$(SED) -i 's,$(D),,g' $@.$$$$;) \
 	$(SED) 's,\($*\)\.o[ :]*,\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$;
 endif
