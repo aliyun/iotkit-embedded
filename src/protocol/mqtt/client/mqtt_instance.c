@@ -105,11 +105,8 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
         return 1;
     }
 
-    IOT_OpenLog("masterslave");
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
-
-    iotx_conn_info_pt pconn_info;
-    iotx_mqtt_param_t mqtt_params;
+    iotx_conn_info_pt pconn_info = {0};
+    iotx_mqtt_param_t mqtt_params = {0};
 
     int ret = IOT_SetupConnInfo(productKey, deviceName, deviceSecret, (void **)&pconn_info);
     if (ret != SUCCESS_RETURN) {
