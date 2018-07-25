@@ -18,6 +18,7 @@
 #include <string.h>
 #include "CoAPPlatform.h"
 #include "CoAPExport.h"
+#include "CoAPInternal.h"
 #include "CoAPServer.h"
 
 #define COAP_INIT_TOKEN     (0x01020304)
@@ -82,8 +83,11 @@ static void *CoAPServer_yield(void *param)
 {
     CoAPContext *context = (CoAPContext *)param;
     COAP_DEBUG("Enter to CoAP daemon task");
-    while(g_coap_running){
-        CoAPMessage_cycle(context);
+    while (g_coap_running) {
+        if (HAL_Sys_Net_Is_Ready())
+            CoAPMessage_cycle(context);
+        else
+            HAL_SleepMs(((CoAPIntContext*)context)->waittime);
     }
 #ifdef COAP_SERV_MULTITHREAD
     HAL_SemaphorePost(g_semphore);
