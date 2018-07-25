@@ -50,6 +50,11 @@ typedef enum {
     IOT_OTAS_FETCHED        /* Fetching firmware finish */
 } IOT_OTA_State_t;
 
+typedef enum {
+    IOT_OTAT_NONE,
+    IOT_OTAT_COTA,
+    IOT_OTAT_FOTA
+} IOT_OTA_Type_t;
 
 /* Progress of OTA */
 typedef enum {
@@ -85,6 +90,7 @@ typedef enum {
     IOT_OTAG_COTA_SIGN_METHOD,
     IOT_OTAG_COTA_URL,
     IOT_OTAG_COTA_GETTYPE,
+    IOT_OTAG_OTA_TYPE,
     IOT_OTAG_FETCHED_SIZE,     /* option for get already fetched size */
     IOT_OTAG_FILE_SIZE,        /* size of file */
     IOT_OTAG_MD5SUM,           /* md5 in string format */

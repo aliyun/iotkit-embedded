@@ -2,9 +2,6 @@
 #define _DM_COTA_H_
 
 typedef struct {
-    void *ota_handle;
-    char product_key[PRODUCT_KEY_MAXLEN];
-    char device_name[DEVICE_NAME_MAXLEN];
     int is_report_new_config;
 }dm_cota_ctx_t;
 

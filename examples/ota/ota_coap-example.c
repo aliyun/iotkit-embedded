@@ -56,7 +56,8 @@ static int fetch_ota(void *h_ota, void *h_coap)
     int rc = 1;
     FILE *fp;
     uint32_t last_percent = 0, percent = 0;
-    char version[128], md5sum[33];
+    char md5sum[33];
+    char *version = NULL;
     int32_t len, size_downloaded, size_file;
     char buf_ota[OTA_BUF_LEN];
     int32_t firmware_valid;
@@ -83,7 +84,7 @@ static int fetch_ota(void *h_ota, void *h_coap)
         IOT_OTA_Ioctl(h_ota, IOT_OTAG_FETCHED_SIZE, &size_downloaded, 4);
         IOT_OTA_Ioctl(h_ota, IOT_OTAG_FILE_SIZE, &size_file, 4);
         IOT_OTA_Ioctl(h_ota, IOT_OTAG_MD5SUM, md5sum, 33);
-        IOT_OTA_Ioctl(h_ota, IOT_OTAG_VERSION, version, 128);
+        IOT_OTA_Ioctl(h_ota, IOT_OTAG_VERSION, &version, 1);
 
         last_percent = percent;
         percent = (size_downloaded * 100) / size_file;
@@ -94,6 +95,7 @@ static int fetch_ota(void *h_ota, void *h_coap)
 
         IOT_CoAP_Yield(h_coap);
 
+        if (version) {free(version);version = NULL;}
     } while (!IOT_OTA_IsFetchFinish(h_ota));
 
     while (1 == rc) {

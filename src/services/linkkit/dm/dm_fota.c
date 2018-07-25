@@ -1,59 +1,51 @@
 #include "iotx_dm_internal.h"
 #include "iot_export_ota.h"
 #include "dm_ota.h"
-#include "dm_cota.h"
+#include "dm_fota.h"
 #include "dm_conn.h"
 #include "dm_cm_wrapper.h"
 #include "dm_message.h"
 
-static dm_cota_ctx_t g_dm_cota_ctx;
+static dm_fota_ctx_t g_dm_fota_ctx;
 
-static dm_cota_ctx_t* _dm_cota_get_ctx(void)
+static dm_fota_ctx_t* _dm_fota_get_ctx(void)
 {
-    return &g_dm_cota_ctx;
+    return &g_dm_fota_ctx;
 }
 
-int dm_cota_init(void)
+int dm_fota_init(void)
 {
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
 
-    memset(ctx,0,sizeof(dm_cota_ctx_t));
+    memset(ctx,0,sizeof(dm_fota_ctx_t));
 
     return SUCCESS_RETURN;
 }
 
-int dm_cota_deinit(void)
+int dm_fota_deinit(void)
 {
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
 
-    memset(ctx,0,sizeof(dm_cota_ctx_t));
+     memset(ctx,0,sizeof(dm_fota_ctx_t));
 
     return SUCCESS_RETURN;
 }
 
-static int _dm_cota_send_new_config_to_user(void *ota_handle)
+static int _dm_fota_send_new_config_to_user(void *ota_handle)
 {
     int res = 0, message_len = 0;
     char *message = NULL;
-    uint32_t config_size = 0;
-    char *config_id = NULL, *sign = NULL, *sign_method = NULL, *url = NULL, *get_type = NULL;
-    const char *cota_new_config_fmt = 
-        "{\"configId\":\"%s\",\"configSize\":%d,\"getType\":\"%s\",\"sign\":\"%s\",\"signMethod\":\"%s\",\"url\":\"%s\"}";
+    char *version = NULL;
+    const char *fota_new_config_fmt = "{\"version\":\"%s\"}";
 
-    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_COTA_CONFIG_ID, (void *)&config_id, 1);
-    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_COTA_CONFIG_SIZE, &config_size, 4);
-    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_COTA_SIGN, (void *)&sign, 1);
-    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_COTA_SIGN_METHOD, (void *)&sign_method, 1);
-    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_COTA_URL, (void *)&url, 1);
-    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_COTA_GETTYPE, (void *)&get_type, 1);
+    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_VERSION, (void *)&version, 1);
 
-    if (config_id == NULL || sign == NULL || sign_method == NULL || url == NULL || get_type == NULL) {
+    if (version == NULL) {
         res = FAIL_RETURN;
         goto ERROR;
     }
 
-    message_len = strlen(cota_new_config_fmt) + strlen(config_id) + DM_UTILS_UINT32_STRLEN + strlen(get_type) + 
-                    strlen(sign) + strlen(sign_method) + strlen(url) + 1;
+    message_len = strlen(fota_new_config_fmt) + strlen(version) + 1;
     
     message = DM_malloc(message_len);
     if (message == NULL) {
@@ -62,11 +54,11 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
         goto ERROR;
     }
     memset(message,0,message_len);
-    HAL_Snprintf(message,message_len,cota_new_config_fmt,config_id,config_size,get_type,sign,sign_method,url);
+    HAL_Snprintf(message,message_len,fota_new_config_fmt,version);
 
     dm_log_info("Send To User: %s",message);
 
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_COTA_NEW_CONFIG,message);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_FOTA_NEW_FIRMWARE,message);
     if (res != SUCCESS_RETURN) {
         if (message) {DM_free(message);}
         res = FAIL_RETURN;
@@ -75,22 +67,18 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
 
     res = SUCCESS_RETURN;
 ERROR:
-    if (config_id) {free(config_id);}
-    if (sign) {free(sign);}
-    if (sign_method) {free(sign_method);}
-    if (url) {free(url);}
-    if (get_type) {free(get_type);}
+    if (version) {free(version);}
 
     return res;
 }
 
-int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
+int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
 {
     int res = 0;
     uint32_t file_size = 0, file_downloaded = 0, file_download = 0;
     uint32_t percent_pre = 0, percent_now = 0;
     unsigned long long report_pre = 0, report_now = 0;
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
     void *ota_handle = NULL;
     uint32_t ota_type = IOT_OTAT_NONE;
 
@@ -108,7 +96,7 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     if (ota_handle == NULL) {return FAIL_RETURN;}
     IOT_OTA_Ioctl(ota_handle,IOT_OTAG_OTA_TYPE,&ota_type,4);
 
-    if (ota_type != IOT_OTAT_COTA) {return FAIL_RETURN;}
+    if (ota_type != IOT_OTAT_FOTA) {return FAIL_RETURN;}
 
     /* Prepare Write Data To Storage */
     HAL_Firmware_Persistence_Start();
@@ -146,7 +134,7 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
         /* Check If OTA Finished */
         if (IOT_OTA_IsFetchFinish(ota_handle)) {
             uint32_t file_isvalid = 0;
-            IOT_OTA_Ioctl(ota_handle, IOT_OTAG_CHECK_CONFIG, &file_isvalid, 4);
+            IOT_OTA_Ioctl(ota_handle, IOT_OTAG_CHECK_FIRMWARE, &file_isvalid, 4);
             if (file_isvalid == 0) {
                 HAL_Firmware_Persistence_Stop();
                 return FAIL_RETURN;
@@ -160,24 +148,10 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     return SUCCESS_RETURN;
 }
 
-int dm_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_keys)
+int dm_fota_status_check(void)
 {
     int res = 0;
-    void *ota_handle = NULL;
-
-    /* Get Ota Handle */
-    res = dm_ota_get_ota_handle(&ota_handle);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return IOT_OTA_GetConfig(ota_handle,config_scope,get_type,attribute_keys);
-}
-
-int dm_cota_status_check(void)
-{
-    int res = 0;
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
     void *ota_handle = NULL;
 
     /* Get Ota Handle */
@@ -191,11 +165,11 @@ int dm_cota_status_check(void)
 
         IOT_OTA_Ioctl(ota_handle,IOT_OTAG_OTA_TYPE,&ota_type,4);
 
-        if (ota_type == IOT_OTAT_COTA) {
+        if (ota_type == IOT_OTAT_FOTA) {
             /* Send New Config Information To User */
             if (ctx->is_report_new_config == 0) {
                 dm_log_debug("Cota Status Check");
-                res = _dm_cota_send_new_config_to_user(ota_handle);
+                res = _dm_fota_send_new_config_to_user(ota_handle);
                 if (res == SUCCESS_RETURN) {ctx->is_report_new_config = 1;}
             }
         }

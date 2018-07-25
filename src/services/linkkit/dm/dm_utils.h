@@ -50,6 +50,7 @@ extern const char DM_UTILS_LOG_MESSAGE_CACHE_INIT_FAILED[]                      
 extern const char DM_UTILS_LOG_IPC_INIT_FAILED[]                                DM_READ_ONLY;
 extern const char DM_UTILS_LOG_DOPT_UNKNOWN_OPT[]                               DM_READ_ONLY;
 extern const char DM_UTILS_LOG_COTA_INIT_FAILED[]                               DM_READ_ONLY;
+extern const char DM_UTILS_LOG_FOTA_INIT_FAILED[]                               DM_READ_ONLY;
 extern const char DM_UTILS_LOG_OTA_FETCH_FAILED[]                               DM_READ_ONLY;
 
 #define DM_UTILS_UINT32_STRLEN (10)

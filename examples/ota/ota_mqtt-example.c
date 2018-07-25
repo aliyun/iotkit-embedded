@@ -227,7 +227,8 @@ int mqtt_client(void)
 
         if (IOT_OTA_IsFetching(h_ota)) {
             uint32_t last_percent = 0, percent = 0;
-            char version[128], md5sum[33];
+            char md5sum[33];
+            char *version = NULL;
             uint32_t len, size_downloaded, size_file;
             do {
 
@@ -247,7 +248,7 @@ int mqtt_client(void)
                 IOT_OTA_Ioctl(h_ota, IOT_OTAG_FETCHED_SIZE, &size_downloaded, 4);
                 IOT_OTA_Ioctl(h_ota, IOT_OTAG_FILE_SIZE, &size_file, 4);
                 IOT_OTA_Ioctl(h_ota, IOT_OTAG_MD5SUM, md5sum, 33);
-                IOT_OTA_Ioctl(h_ota, IOT_OTAG_VERSION, version, 128);
+                IOT_OTA_Ioctl(h_ota, IOT_OTAG_VERSION, &version, 1);
 
                 last_percent = percent;
                 percent = (size_downloaded * 100) / size_file;
@@ -256,6 +257,8 @@ int mqtt_client(void)
                     IOT_OTA_ReportProgress(h_ota, percent, "hello");
                 }
                 IOT_MQTT_Yield(pclient, 100);
+
+                if (version) {free(version);version = NULL;}
             } while (!IOT_OTA_IsFetchFinish(h_ota));
 
             IOT_OTA_Ioctl(h_ota, IOT_OTAG_CHECK_FIRMWARE, &firmware_valid, 4);

@@ -53,6 +53,7 @@ typedef struct  {
 
     uint32_t id;                /* message id */
     IOT_OTA_State_t state;      /* OTA state */
+    IOT_OTA_Type_t type;        /* OTA Type */
     uint32_t size_last_fetched; /* size of last downloaded */
     uint32_t size_fetched;      /* size of already downloaded */
     uint32_t size_file;         /* size of file */
@@ -165,6 +166,7 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             return -1;
         }
 
+        h_ota->type = IOT_OTAT_FOTA;
         h_ota->state = IOT_OTAS_FETCHING;
 
         if (h_ota->fetch_cb)
@@ -215,6 +217,7 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             return -1;
         }
 
+        h_ota->type = IOT_OTAT_COTA;
         h_ota->state = IOT_OTAS_FETCHING;
 
         if (h_ota->fetch_cota_cb)
@@ -253,6 +256,7 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             return -1;
         }
 
+        h_ota->type = IOT_OTAT_COTA;
         h_ota->state = IOT_OTAS_FETCHING;
 
         if (h_ota->fetch_cota_cb)
@@ -284,6 +288,7 @@ void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_si
         return NULL;
     }
     memset(h_ota, 0, sizeof(OTA_Struct_t));
+    h_ota->type = IOT_OTAT_NONE;
     h_ota->state = IOT_OTAS_UNINITED;
 
     h_ota->ch_signal = osc_Init(product_key, device_name, ch_signal, ota_callback, h_ota);
@@ -693,6 +698,7 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
     if (ret < 0) {
         OTA_LOG_ERROR("Fetch firmware failed");
         h_ota->state = IOT_OTAS_FETCHED;
+        h_ota->type = IOT_OTAT_NONE;
         h_ota->err = IOT_OTAE_FETCH_FAILED;
 
         if (h_ota->fetch_cb && h_ota->purl) {
@@ -717,6 +723,7 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
     h_ota->size_fetched += ret;
 
     if (h_ota->size_fetched >= h_ota->size_file) {
+        h_ota->type = IOT_OTAT_NONE;
         h_ota->state = IOT_OTAS_FETCHED;
         if (h_ota->fetch_cb && h_ota->purl) {
             h_ota->fetch_cb(h_ota->user_data, 1, h_ota->size_file, h_ota->purl, h_ota->version);
@@ -842,6 +849,18 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
             }
         }
         break;
+    case IOT_OTAG_OTA_TYPE:
+        {
+            if ((4 != buf_len) || (0 != ((unsigned long)buf & 0x3))) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            } else {
+                *((uint32_t *)buf) = h_ota->type;
+                return 0;
+            }
+        }
+        break;
     case IOT_OTAG_FETCHED_SIZE:
         if ((4 != buf_len) || (0 != ((unsigned long)buf & 0x3))) {
             OTA_LOG_ERROR("Invalid parameter");
@@ -863,8 +882,20 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
         };
 
     case IOT_OTAG_VERSION:
-        strncpy(buf, h_ota->version, buf_len);
-        ((char *)buf)[buf_len - 1] = '\0';
+        {
+            char **value = (char **)buf;
+            if (value == NULL || *value != NULL || h_ota->version == NULL) {
+                OTA_LOG_ERROR("Invalid parameter");
+                h_ota->err = IOT_OTAE_INVALID_PARAM;
+                return -1;
+            }else{
+                *value = malloc(strlen(h_ota->version) + 1);
+                if (*value == NULL) {h_ota->err = IOT_OTAE_INVALID_PARAM;return -1;}
+                memset(*value,0,strlen(h_ota->version) + 1);
+                memcpy(*value,h_ota->version,strlen(h_ota->version));
+                return 0;
+            }
+        }
         break;
 
     case IOT_OTAG_MD5SUM:

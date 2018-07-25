@@ -584,10 +584,19 @@ void linkkit_cota_callback(service_cota_callback_type_t callback_type, const cha
     linkkit_invoke_cota_service(cota_buffer,LINKKIT_OTA_BUFFER_SIZE);
 }
 
+void linkkit_fota_callback(service_fota_callback_type_t callback_type, const char* version)
+{
+    char fota_buffer[LINKKIT_OTA_BUFFER_SIZE] = {0};
+
+    EXAMPLE_TRACE("Fota Version: %s",version);
+
+    linkkit_invoke_fota_service(fota_buffer,LINKKIT_OTA_BUFFER_SIZE);
+}
+
 int linkkit_example()
 {
     sample_context_t sample_ctx = {0};
-    int loop_iteration_num = 20;
+    int execution_time = 20;
     int exit = 0;
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
@@ -627,6 +636,7 @@ int linkkit_example()
     }
 
     linkkit_cota_init(linkkit_cota_callback);
+    linkkit_fota_init(linkkit_fota_callback);
     EXAMPLE_TRACE("linkkit enter loop");
     while (1) {
         /*
@@ -655,8 +665,9 @@ int linkkit_example()
          * please follow user's rule to modify these code.
          */
         
+        /* Manually Trigger Config OTA */
         /* if (now % 10 == 0) {
-            linkkit_invoke_cota_get_config("unknown","anyway","",NULL);
+            linkkit_invoke_cota_get_config("product","file","",NULL);
         } */
 
 #ifdef POST_WIFI_STATUS
@@ -684,7 +695,7 @@ int linkkit_example()
 
         /* after all, this is an sample, give a chance to return... */
         /* modify this value for this sample executaion time period */
-        if (now > 60 * loop_iteration_num) {
+        if (now > 60 * execution_time) {
             exit = 1;
         }
 

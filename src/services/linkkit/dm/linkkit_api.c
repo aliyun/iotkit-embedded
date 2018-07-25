@@ -24,6 +24,7 @@
 #define LINKKIT_API_KEY_SIGN        "sign"
 #define LINKKIT_API_KEY_SIGN_METHOD "signMethod"
 #define LINKKIT_API_KEY_URL         "url"
+#define LINKKIT_API_KEY_VERSION     "version"
 
 #define LINKKIT_MAX_POST_CB_NUMBER 20
 typedef struct _post_cb {
@@ -39,7 +40,7 @@ static linkkit_ops_t *g_linkkit_ops = NULL;
 static void *g_user_ctx = NULL;
 
 static handle_service_cota_callback_fp_t g_cota_callback = NULL;
-/* static handle_service_fota_callback_fp_t g_fota_fallback = NULL; */
+static handle_service_fota_callback_fp_t g_fota_callback = NULL;
 
 #if (CONFIG_SDK_THREAD_COST == 1)
     void *thread_process_dispatch;
@@ -597,22 +598,49 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
                 if (sign) {free(sign);}
                 if (sign_method) {free(sign_method);}
                 if (url) {free(url);}
+                return;
             }
 
             if (g_cota_callback){
                 g_cota_callback(service_cota_callback_type_new_version_detected,config_id,lite_item_configsize.value_int,get_type,sign,sign_method,url);
             }
 
-            if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
-                if (config_id) {free(config_id);}
-                if (get_type) {free(get_type);}
-                if (sign) {free(sign);}
-                if (sign_method) {free(sign_method);}
-                if (url) {free(url);}
-            }
+            if (config_id) {free(config_id);}
+            if (get_type) {free(get_type);}
+            if (sign) {free(sign);}
+            if (sign_method) {free(sign_method);}
+            if (url) {free(url);}
         }
-
         break;
+        case IOTX_DM_EVENT_FOTA_NEW_FIRMWARE: {
+            int res = 0;
+            lite_cjson_t lite, lite_item_version;
+            char *version = NULL;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
+                return;
+            }
+
+            /* Parse Version */
+            memset(&lite_item_version, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_API_KEY_VERSION, strlen(LINKKIT_API_KEY_VERSION), &lite_item_version);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_version)) {
+                return;
+            }
+            dm_log_debug("Current Firmware Version: %.*s", lite_item_version.value_length,lite_item_version.value);
+
+            dm_utils_copy_direct(lite_item_version.value,lite_item_version.value_length,(void **)&version,lite_item_version.value_length + 1);
+            if (version == NULL) {free(version);}
+
+            if (g_fota_callback) {
+                g_fota_callback(service_fota_callback_type_new_version_detected,version);
+            }
+
+            if (version == NULL) {free(version);}
+        }
 #ifdef LOCAL_CONN_ENABLE
         case IOTX_DM_EVENT_LOCAL_CONNECTED: {
             linkkit_ops->on_connect(context, 0);
@@ -1006,4 +1034,16 @@ int linkkit_invoke_cota_service(void* data_buf, int data_buf_length)
 int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option)
 {
     return iotx_dm_cota_get_config(config_scope,get_type,attribute_Keys);
+}
+
+int linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
+{
+    g_fota_callback = callback_fp;
+
+    return 0;
+}
+
+int linkkit_invoke_fota_service(void* data_buf, int data_buf_length)
+{
+    return iotx_dm_fota_perform_sync(data_buf,data_buf_length);
 }
