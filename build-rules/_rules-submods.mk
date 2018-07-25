@@ -19,7 +19,7 @@ sub-mods: toolchain
 	    if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
 	        set -o pipefail; \
 	        for i in \
-	            $$(echo $(IMPORT_DIR)|$(SED) 's:$(TOP_DIR)/*::g')/$(CONFIG_VENDOR)/platform \
+	            $$(echo $(IMPORT_DIR)|$(SED) 's,$(TOP_DIR)/*,,g')/$(CONFIG_VENDOR)/platform \
 	            $(SUBDIRS); do \
 	                if [ ! -d $${i} ]; then continue; fi; \
 	                $(MAKE) --no-print-directory Q=$(Q) $${i} 2>&1 $(SUB_LOG_OPTION); \
@@ -93,7 +93,6 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 	            printf "CONFIGURE .............................. [%s]\n" $${i}; \
 	        fi; \
 	        $(SED) -i "1iCONFIG_$${i} = y" $(CONFIG_TPL); \
-	        [ -f $(STAMP_POST_RULE) ] && $(SED) -i "/target-$${i//\//\\/}.*/d" $(STAMP_POST_RULE) || true; \
 	        echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
 	    fi; \
 	    $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \

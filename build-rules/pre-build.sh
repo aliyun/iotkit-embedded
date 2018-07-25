@@ -31,7 +31,7 @@ function Update_Sources()
     Trace "PKG_REVISION:    [${PKG_REVISION}]"
     Trace "PKG_UPSTREAM:    [${PKG_UPSTREAM}]"
 
-    for i in $(find -L ${MODULE} -type d -not -path "*.git*"|${SED} "s:${MODULE}/*::1"|${SED} '/^$/d'); do
+    for i in $(find -L ${MODULE} -type d -not -path "*.git*"|${SED} "s,${MODULE}/*,,1"|${SED} '/^$/d'); do
         mkdir -p ${BLD_DIR}/${i}
     done
 

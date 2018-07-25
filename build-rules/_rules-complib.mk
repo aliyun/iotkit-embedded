@@ -14,7 +14,7 @@ define Info_CompLib
     echo -ne "\033[1;32m"; \
     printf "\r%-40s%s\n" "[AR] lib$(1).a" "<=      "; \
     for i in $${EXIST_OBJS}; do \
-        printf "%-40s%s\n" "" "   $${i}"|$(SED) 's:$(LIBOBJ_TMPDIR)/::g'; \
+        printf "%-40s%s\n" "" "   $${i}"|$(SED) 's,$(LIBOBJ_TMPDIR)/,,g'; \
     done; \
     echo -ne "\033[0m"; \
 )
@@ -36,7 +36,7 @@ define Info_CompLib
     echo -ne "\033[1;35m"; \
     printf "\r%-40s%s\n" "[AR] lib$(1).a" "<=      "; \
     for i in $${EXIST_OBJS}; do \
-        printf "%-40s%s\n" "" "   $${i}"|$(SED) 's:$(LIBOBJ_TMPDIR)/::g'; \
+        printf "%-40s%s\n" "" "   $${i}"|$(SED) 's,$(LIBOBJ_TMPDIR)/,,g'; \
     done; \
     echo -ne "\033[0m"; \
 )
