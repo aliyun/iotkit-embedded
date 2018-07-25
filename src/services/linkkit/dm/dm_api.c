@@ -102,27 +102,6 @@ int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 		dm_log_err(DM_UTILS_LOG_CM_INIT_FAILED);
 		goto ERROR;
 	}
-	
-	/* DM OTA Module Init */
-	res = dm_ota_init();
-	if (res != SUCCESS_RETURN) {
-		dm_log_err(DM_UTILS_LOG_COTA_INIT_FAILED);
-		goto ERROR;
-	}
-
-	/* DM Config OTA Module Init */
-	res = dm_cota_init();
-	if (res != SUCCESS_RETURN) {
-		dm_log_err(DM_UTILS_LOG_COTA_INIT_FAILED);
-		goto ERROR;
-	}
-
-	/* DM Firmware OTA Mudule Init */
-	res = dm_fota_init();
-	if (res != SUCCESS_RETURN) {
-		dm_log_err(DM_UTILS_LOG_FOTA_INIT_FAILED);
-		goto ERROR;
-	}
 
 	return SUCCESS_RETURN;
 
@@ -133,9 +112,6 @@ ERROR:
 	dm_ipc_deinit();
 	dm_msg_deinit();
 	dm_msg_cache_deinit();
-	dm_cota_deinit();
-	dm_fota_deinit();
-	dm_ota_deinit();
 
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return FAIL_RETURN;
@@ -153,7 +129,7 @@ int iotx_dm_destroy(void)
 	dm_cota_deinit();
 	dm_fota_deinit();
 	dm_ota_deinit();
-	
+
 	if (ctx->mutex) {HAL_MutexDestroy(ctx->mutex);}
 	return SUCCESS_RETURN;
 }

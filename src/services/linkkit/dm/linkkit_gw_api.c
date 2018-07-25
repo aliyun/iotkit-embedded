@@ -37,6 +37,7 @@ enum {
 #define LINKKIT_GW_API_KEY_PAYLOAD     "payload"
 #define LINKKIT_GW_API_KEY_PRODUCT_KEY "product_key"
 #define LINKKIT_GW_API_KEY_TIMEOUT     "timeout"
+#define LINKKIT_GW_API_KEY_VERSION     "version"
 
 typedef struct linkkit_dev_s {
     uint8_t online; /* called linkkit_subdev_login() and subscribed all topics */
@@ -108,6 +109,7 @@ static linkkit_gbl_t gbl;
 static linkkit_dev_t *main_device = NULL;
 static topo_node_t *first_node = NULL;
 static void *gbl_lock = NULL;
+static handle_service_fota_callback_fp_t g_fota_callback = NULL;
 
 static int _checkInitParams(linkkit_params_t *initParams);
 static void _dump_params(linkkit_params_t *params);
@@ -785,6 +787,36 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 			DM_free(eventid);
 		}
 		break;
+        case IOTX_DM_EVENT_FOTA_NEW_FIRMWARE: {
+            int res = 0;
+            lite_cjson_t lite, lite_item_version;
+            char *version = NULL;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
+                return;
+            }
+
+            /* Parse Version */
+            memset(&lite_item_version, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, LINKKIT_GW_API_KEY_VERSION, strlen(LINKKIT_GW_API_KEY_VERSION), &lite_item_version);
+            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_version)) {
+                return;
+            }
+            dm_log_debug("Current Firmware Version: %.*s", lite_item_version.value_length,lite_item_version.value);
+
+            dm_utils_copy_direct(lite_item_version.value,lite_item_version.value_length,(void **)&version,lite_item_version.value_length + 1);
+            if (version == NULL) {free(version);}
+
+            if (g_fota_callback) {
+                g_fota_callback(service_fota_callback_type_new_version_detected,version);
+            }
+
+            if (version == NULL) {free(version);}
+        }
+        break;
         default:
             dm_log_info("Not Found Type For Now, Smile");
             break;
@@ -1431,17 +1463,17 @@ int linkkit_gateway_post_rawdata(int devid, void *data, int len)
 }
 
 /**
- * @brief init fota service and install callback funstion.
+ * @brief this function used to register callback for firmware ota.
  *
- * @param cb, callback function to be installed.
- * @param ctx, user data passed to callback function.
+ * @param callback_fp, user callback which register to fota.
  *
- * @return int, 0 when success, -1 when fail.
+ * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_ota_init(void (*cb)(int event, const char *version, void *ctx), void *ctx)
+int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp)
 {
-    //not support
-    return -1;
+    g_fota_callback = callback_fp;
+
+    return 0;
 }
 
 /**
@@ -1451,10 +1483,9 @@ int linkkit_gateway_ota_init(void (*cb)(int event, const char *version, void *ct
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_ota_update(int recvbuf_length)
+int linkkit_gateway_invoke_fota_service(void* data_buf, int data_buf_length)
 {
-    //not support
-    return -1;
+    return iotx_dm_fota_perform_sync(data_buf,data_buf_length);
 }
 
 /**

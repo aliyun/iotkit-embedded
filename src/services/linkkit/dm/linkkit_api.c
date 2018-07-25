@@ -641,6 +641,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
             if (version == NULL) {free(version);}
         }
+        break;
 #ifdef LOCAL_CONN_ENABLE
         case IOTX_DM_EVENT_LOCAL_CONNECTED: {
             linkkit_ops->on_connect(context, 0);

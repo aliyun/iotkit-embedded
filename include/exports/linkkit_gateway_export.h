@@ -352,24 +352,32 @@ typedef enum {
     LINKKIT_OTA_EVENT_NEW_VERSION_DETECTED = 1,
 } linkkit_ota_event_t;
 
-/**
- * @brief init fota service and install callback funstion.
- *
- * @param cb, callback function to be installed.
- * @param ctx, user data passed to callback function.
- *
- * @return int, 0 when success, -1 when fail.
- */
-int linkkit_gateway_ota_init(void (*cb)(int event, const char *version, void *ctx), void *ctx);
+typedef enum {
+    service_fota_callback_type_new_version_detected = 10,
+
+    service_fota_callback_type_number,
+} service_fota_callback_type_t;
+
+typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t callback_type, const char* version);
 
 /**
- * @brief perform system upgrade when "new version detected" event reported.
+ * @brief this function used to register callback for firmware ota.
  *
- * @param recvbuf_length, receive buffer length that used to receive upgrade package.
+ * @param callback_fp, user callback which register to fota.
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_ota_update(int recvbuf_length);
+int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp);
+
+/**
+ * @brief this function used to execute fota process.
+ *
+ * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
+ * @param data_buf_length, data buf length that used to do ota.
+ * 
+ * @return 0 when success, -1 when fail.
+ */
+int linkkit_gateway_invoke_fota_service(void* data_buf, int data_buf_length);
 
 typedef struct {
     char *attrKey;    /* the key of extend info. */

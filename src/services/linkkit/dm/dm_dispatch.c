@@ -7,6 +7,9 @@
 #include "dm_conn.h"
 #include "dm_subscribe.h"
 #include "dm_opt.h"
+#include "dm_ota.h"
+#include "dm_cota.h"
+#include "dm_fota.h"
 #include "iotx_dm.h"
 
 /*****************************Internal Definition*****************************/
@@ -986,6 +989,7 @@ void dm_disp_user_defined_handler(iotx_cm_send_peer_t* source, iotx_cm_message_i
 
 void dm_disp_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t* msg, void* user_data)
 {
+	int res = 0;
 	dm_log_info("IOTX_CM_EVENT_CLOUD_CONNECTED");
 
 	dm_conn_set_cloud_conn_state(1);
@@ -1001,6 +1005,18 @@ void dm_disp_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t* 
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
 	dm_cmw_local_init_second(dm_conn_get_local_conn());
 #endif
+
+	/* DM OTA Module Init */
+	res = dm_ota_init();
+	if (res != SUCCESS_RETURN) {dm_log_err(DM_UTILS_LOG_OTA_INIT_FAILED);}
+	
+	/* DM Config OTA Module Init */
+	res = dm_cota_init();
+	if (res != SUCCESS_RETURN) {dm_log_err(DM_UTILS_LOG_COTA_INIT_FAILED);}
+
+	/* DM Firmware OTA Mudule Init */
+	res = dm_fota_init();
+	if (res != SUCCESS_RETURN) {dm_log_err(DM_UTILS_LOG_FOTA_INIT_FAILED);}
 
 	dm_msg_cloud_connected();
 }

@@ -30,6 +30,7 @@
 #include "linkkit_gateway_export.h"
 #include "iot_import.h"
 
+#define LINKKIT_OTA_BUFFER_SIZE (512)
 
 #define EXAMPLE_TRACE(...)                                      \
 do {                                                     \
@@ -303,6 +304,14 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
     return 0;
 }
 
+void linkkit_fota_callback(service_fota_callback_type_t callback_type, const char* version)
+{
+    char fota_buffer[LINKKIT_OTA_BUFFER_SIZE] = {0};
+
+    EXAMPLE_TRACE("Fota Version: %s",version);
+
+    linkkit_gateway_invoke_fota_service(fota_buffer,LINKKIT_OTA_BUFFER_SIZE);
+}
 
 int main(void)
 {
@@ -313,9 +322,9 @@ int main(void)
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    HAL_SetProductKey("a1J4Xm7QjP7");
-    HAL_SetDeviceName("gw-type-001");
-    HAL_SetDeviceSecret("V43EmyaPf9gdrbUgE13vlsc9tqiukd16");
+    HAL_SetProductKey("a1MDjb1BLCB");
+    HAL_SetDeviceName("example1");
+    HAL_SetDeviceSecret("iiyo7SnW5pZHEaJsKKGTLf3UQSpO06aC");
 
     memset(&gateway, 0, sizeof(gateway_t));
 
@@ -369,6 +378,8 @@ int main(void)
 
     while (gateway.register_completed == 0)
         HAL_SleepMs(1000);
+
+    linkkit_gateway_fota_init(linkkit_fota_callback);
 
     /*
      * subdev start

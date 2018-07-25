@@ -45,6 +45,7 @@ const char DM_UTILS_LOG_MESSAGE_INIT_FAILED[]                            DM_READ
 const char DM_UTILS_LOG_MESSAGE_CACHE_INIT_FAILED[]                      DM_READ_ONLY = "DM Message Cache Module Init Failed";
 const char DM_UTILS_LOG_IPC_INIT_FAILED[]                                DM_READ_ONLY = "DM IPC Module Init Failed";
 const char DM_UTILS_LOG_DOPT_UNKNOWN_OPT[]                               DM_READ_ONLY = "DM Option Unknown: %d";
+const char DM_UTILS_LOG_OTA_INIT_FAILED[]                                DM_READ_ONLY = "DM OTA Init Failed";
 const char DM_UTILS_LOG_COTA_INIT_FAILED[]                               DM_READ_ONLY = "DM Config OTA Init Failed";
 const char DM_UTILS_LOG_FOTA_INIT_FAILED[]                               DM_READ_ONLY = "DM Firmware OTA Init Failed";
 const char DM_UTILS_LOG_OTA_FETCH_FAILED[]                               DM_READ_ONLY = "DM OTA Fetch Failed";
