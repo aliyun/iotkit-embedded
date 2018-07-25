@@ -218,7 +218,6 @@ extern int linkkit_answer_service(const void *thing_id, const char *service_iden
  */
 extern int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
 
-#ifdef SERVICE_OTA_ENABLED
 /**
  * @brief perform ota service when "new version detected" reported.
  *
@@ -228,8 +227,7 @@ extern int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void 
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
-#endif /* SERVICE_OTA_ENABLED */
+int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
 
 #ifdef EXTENDED_INFO_ENABLED
 /**
