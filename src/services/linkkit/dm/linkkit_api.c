@@ -687,7 +687,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
         return FAIL_RETURN;
     }
 
-    if (!ops || !user_context || max_buffered_msg <= 0) {
+    if (!ops || max_buffered_msg <= 0) {
         return ret;
     }
     g_linkkit_ops = ops;
