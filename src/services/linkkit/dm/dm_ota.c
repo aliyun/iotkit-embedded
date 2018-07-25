@@ -5,15 +5,18 @@
 #include "dm_cm_wrapper.h"
 #include "dm_message.h"
 
+#ifdef OTA_ENABLED
 static dm_ota_ctx_t g_dm_ota_ctx;
 
 static dm_ota_ctx_t* _dm_ota_get_ctx(void)
 {
     return &g_dm_ota_ctx;
 }
+#endif
 
 int dm_ota_init(void)
 {
+#ifdef OTA_ENABLED
     int res = 0;
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
     void *cloud_connectivity = NULL;
@@ -41,21 +44,23 @@ int dm_ota_init(void)
         dm_log_err(DM_UTILS_LOG_COTA_INIT_FAILED);
         return FAIL_RETURN;
     }
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int dm_ota_deinit(void)
 {
+#ifdef OTA_ENABLED
      dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
 
      if (ctx->ota_handle) {IOT_OTA_Deinit(ctx->ota_handle);}
-
+#endif
      return SUCCESS_RETURN;
 }
 
 int dm_ota_get_ota_handle(void** handle)
 {
+#ifdef OTA_ENABLED
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
 
     if (handle == NULL || *handle != NULL) {
@@ -66,6 +71,6 @@ int dm_ota_get_ota_handle(void** handle)
     if (ctx->ota_handle == NULL) {return FAIL_RETURN;}
 
     *handle = ctx->ota_handle;
-
+#endif
     return SUCCESS_RETURN;
 }
