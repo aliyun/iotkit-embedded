@@ -37,7 +37,7 @@ THE SOFTWARE.
 #pragma GCC visibility pop
 #endif
 
-#include "cJSON_required_by_uOTA.h"
+#include "cJSON.h"
 
 /* define our own boolean type */
 #define true ((cJSON_bool)1)
@@ -56,7 +56,7 @@ CJSON_PUBLIC(const char *) cJSON_GetErrorPtr(void)
 
 /* This is a safeguard to prevent copy-pasters from using incompatible C and header files */
 #if (CJSON_VERSION_MAJOR != 1) || (CJSON_VERSION_MINOR != 5) || (CJSON_VERSION_PATCH != 3)
-#error cJSON_required_by_uOTA.h and cJSON.c have different versions. Make sure that both have the same.
+#error cJSON.h and cJSON.c have different versions. Make sure that both have the same.
 #endif
 
 CJSON_PUBLIC(const char*) cJSON_Version(void)
