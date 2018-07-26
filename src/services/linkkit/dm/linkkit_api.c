@@ -802,6 +802,7 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, con
                 break;
             }
             default: {
+                res = FAIL_RETURN;
                 dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
                 break;
             }
@@ -809,6 +810,7 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, con
     } else {
         dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
     }
+    
     return res;
 }
 
