@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <cJSON.h>
+#include <cJSON_required_by_uOTA.h>
 
 #include "ota_log.h"
 #include "ota_transport.h"

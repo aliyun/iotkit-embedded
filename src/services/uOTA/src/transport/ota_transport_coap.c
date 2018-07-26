@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <cJSON.h>
+#include <cJSON_required_by_uOTA.h>
 
 #include "iot_export.h"
 #include "iot_export_coap.h"

@@ -17,8 +17,7 @@ LIB_SRCS_PATTERN    := \
     hal/ota_hal_os.c \
     hal/ota_hal_plat.c \
     hal/ota_hal_module.c \
-
+    cJSON_required_by_uOTA.c \
 
 HDR_REFS            += src/infra
 HDR_REFS            += src/protocol/mqtt/client
-HDR_REFS            += src/ref-impl/hal/os/$(CONFIG_VENDOR)
