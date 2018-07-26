@@ -586,18 +586,19 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current URL: %.*s", lite_item_url.value_length,lite_item_url.value);
 
-            dm_utils_copy_direct(lite_item_configid.value,lite_item_configid.value_length,(void **)&config_id,lite_item_configid.value_length + 1);
-            dm_utils_copy_direct(lite_item_gettype.value,lite_item_gettype.value_length,(void **)&get_type,lite_item_gettype.value_length + 1);
-            dm_utils_copy_direct(lite_item_sign.value,lite_item_sign.value_length,(void **)&sign,lite_item_sign.value_length + 1);
-            dm_utils_copy_direct(lite_item_signmethod.value,lite_item_signmethod.value_length,(void **)&sign_method,lite_item_signmethod.value_length + 1);
-            dm_utils_copy_direct(lite_item_url.value,lite_item_url.value_length,(void **)&url,lite_item_url.value_length + 1);
+            dm_utils_copy(lite_item_configid.value,lite_item_configid.value_length,(void **)&config_id,lite_item_configid.value_length + 1);
+            dm_utils_copy(lite_item_gettype.value,lite_item_gettype.value_length,(void **)&get_type,lite_item_gettype.value_length + 1);
+            dm_utils_copy(lite_item_sign.value,lite_item_sign.value_length,(void **)&sign,lite_item_sign.value_length + 1);
+            dm_utils_copy(lite_item_signmethod.value,lite_item_signmethod.value_length,(void **)&sign_method,lite_item_signmethod.value_length + 1);
+            dm_utils_copy(lite_item_url.value,lite_item_url.value_length,(void **)&url,lite_item_url.value_length + 1);
 
             if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
-                if (config_id) {free(config_id);}
-                if (get_type) {free(get_type);}
-                if (sign) {free(sign);}
-                if (sign_method) {free(sign_method);}
-                if (url) {free(url);}
+                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+                if (config_id) {DM_free(config_id);}
+                if (get_type) {DM_free(get_type);}
+                if (sign) {DM_free(sign);}
+                if (sign_method) {DM_free(sign_method);}
+                if (url) {DM_free(url);}
                 return;
             }
 
@@ -605,11 +606,11 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
                 g_cota_callback(service_cota_callback_type_new_version_detected,config_id,lite_item_configsize.value_int,get_type,sign,sign_method,url);
             }
 
-            if (config_id) {free(config_id);}
-            if (get_type) {free(get_type);}
-            if (sign) {free(sign);}
-            if (sign_method) {free(sign_method);}
-            if (url) {free(url);}
+            if (config_id) {DM_free(config_id);}
+            if (get_type) {DM_free(get_type);}
+            if (sign) {DM_free(sign);}
+            if (sign_method) {DM_free(sign_method);}
+            if (url) {DM_free(url);}
         }
         break;
         case IOTX_DM_EVENT_FOTA_NEW_FIRMWARE: {
@@ -632,14 +633,17 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current Firmware Version: %.*s", lite_item_version.value_length,lite_item_version.value);
 
-            dm_utils_copy_direct(lite_item_version.value,lite_item_version.value_length,(void **)&version,lite_item_version.value_length + 1);
-            if (version == NULL) {free(version);}
+            dm_utils_copy(lite_item_version.value,lite_item_version.value_length,(void **)&version,lite_item_version.value_length + 1);
+            if (version == NULL) {
+                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+                return;
+            }
 
             if (g_fota_callback) {
                 g_fota_callback(service_fota_callback_type_new_version_detected,version);
             }
 
-            if (version == NULL) {free(version);}
+            if (version) {DM_free(version);}
         }
         break;
 #ifdef LOCAL_CONN_ENABLE

@@ -807,14 +807,17 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
             }
             dm_log_debug("Current Firmware Version: %.*s", lite_item_version.value_length,lite_item_version.value);
 
-            dm_utils_copy_direct(lite_item_version.value,lite_item_version.value_length,(void **)&version,lite_item_version.value_length + 1);
-            if (version == NULL) {free(version);}
+            dm_utils_copy(lite_item_version.value,lite_item_version.value_length,(void **)&version,lite_item_version.value_length + 1);
+            if (version == NULL) {
+                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+                return;
+            }
 
             if (g_fota_callback) {
                 g_fota_callback(service_fota_callback_type_new_version_detected,version);
             }
 
-            if (version == NULL) {free(version);}
+            if (version) {free(version);}
         }
         break;
         default:
