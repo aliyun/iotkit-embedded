@@ -53,6 +53,23 @@ static int _dm_mgr_search_dev_by_devid(_IN_ int devid, _OU_ dm_mgr_dev_node_t **
 	return FAIL_RETURN;
 }
 
+static int _dm_mgr_search_devid_by_node(_IN_ dm_mgr_dev_node_t *node, _OU_ int *devid)
+{
+	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+	dm_mgr_dev_node_t *search_node = NULL;
+	
+	list_for_each_entry(search_node,&ctx->dev_list,linked_list,dm_mgr_dev_node_t) {
+		if (search_node == node) {
+			dm_log_debug("Device Found, node: %p",node);
+			if (devid) {*devid = search_node->devid;}
+			return SUCCESS_RETURN;
+		}
+	}
+
+	dm_log_debug("Device Not Found, node: %p",node);
+	return FAIL_RETURN;
+}
+
 static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ dm_mgr_dev_node_t **node)
 {
 	dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
@@ -384,14 +401,15 @@ int dm_mgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node)
 
 int dm_mgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid)
 {
-	dm_mgr_dev_node_t *search_node = (dm_mgr_dev_node_t *)node;
+	int res = 0;
 	
 	if (node == NULL || devid == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
-	*devid = search_node->devid;
+	res = _dm_mgr_search_devid_by_node((dm_mgr_dev_node_t *)node, devid);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 
 	return SUCCESS_RETURN;
 }
