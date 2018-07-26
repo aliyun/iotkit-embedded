@@ -24,8 +24,13 @@ SRCS_mqtt_multi_thread-example  := mqtt/mqtt_multi_thread-example.c
     ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
     ifneq (,$(filter -DOTA_SIGNAL_CHANNEL=1,$(CFLAGS)))
     TARGET                      += ota_mqtt-example
-    SRCS_ota_mqtt-example       := ota/ota_mqtt-example.c
+    SRCS_ota_mqtt-example       := uOTA/ota_mqtt-example.c
     endif
+    endif
+
+    ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
+    TARGET                      += uota_app-example
+    SRCS_uota_app-example       := uOTA/uota_app-example.c
     endif
 
     ifneq (,$(filter -DMQTT_SHADOW,$(CFLAGS)))
@@ -56,7 +61,7 @@ SRCS                += coap/coap-example.c
     ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
     ifneq (,$(filter -DOTA_SIGNAL_CHANNEL=2,$(CFLAGS)))
     TARGET                  += ota_coap-example
-    SRCS_ota_coap-example   := ota/ota_coap-example.c
+    SRCS_ota_coap-example   := uOTA/ota_coap-example.c
     endif
     endif
 endif

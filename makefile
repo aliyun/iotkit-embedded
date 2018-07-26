@@ -19,7 +19,7 @@ COMP_LIB_COMPONENTS := \
     src/sdk-impl \
 
 $(call CompLib_Map, MQTT_COMM_ENABLED, src/protocol/mqtt)
-$(call CompLib_Map, OTA_ENABLED, src/services/ota)
+$(call CompLib_Map, OTA_ENABLED, src/services/uOTA)
 $(call CompLib_Map, MQTT_SHADOW, src/services/shadow)
 $(call CompLib_Map, COAP_COMM_ENABLED, src/protocol/coap)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/protocol/http)
