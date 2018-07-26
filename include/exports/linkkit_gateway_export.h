@@ -363,7 +363,7 @@ typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t c
 /**
  * @brief this function used to register callback for firmware ota.
  *
- * @param callback_fp, user callback which register to fota.
+ * @param callback_fp, user callback which register to fota. (NULL for unregister)
  *
  * @return 0 when success, -1 when fail.
  */
