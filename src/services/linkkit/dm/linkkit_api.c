@@ -778,7 +778,7 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, con
 
     if(!g_linkkit_inited) {return FAIL_RETURN;}
 
-    if (thing_id == NULL || identifier == NULL || value == NULL) {
+    if (thing_id == NULL || identifier == NULL || ((value == NULL && value_str == NULL))) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
@@ -787,17 +787,17 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, con
     if (res == SUCCESS_RETURN) {
         switch (method_set) {
             case linkkit_method_set_property_value: {
-                res = iotx_dm_legacy_set_property_value(devid, (char *)identifier, strlen(identifier), (void *)value);
+                res = iotx_dm_legacy_set_property_value(devid, (char *)identifier, strlen(identifier), (void *)value, (char *)value_str);
                 dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_event_output_value: {
-                res = iotx_dm_legacy_set_event_output_value(devid, (char *)identifier, strlen(identifier), (void *)value);
+                res = iotx_dm_legacy_set_event_output_value(devid, (char *)identifier, strlen(identifier), (void *)value, (char *)value_str);
                 dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
                 break;
             }
             case linkkit_method_set_service_output_value: {
-                res = iotx_dm_legacy_set_service_output_value(devid, (char *)identifier, strlen(identifier), (void *)value);
+                res = iotx_dm_legacy_set_service_output_value(devid, (char *)identifier, strlen(identifier), (void *)value, (char *)value_str);
                 dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
                 break;
             }
@@ -822,7 +822,7 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, con
 
     if(!g_linkkit_inited) {return FAIL_RETURN;}
 
-    if (thing_id == NULL || identifier == NULL || value == NULL) {
+    if (thing_id == NULL || identifier == NULL || ((value == NULL && value_str == NULL))) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
@@ -831,22 +831,22 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, con
     if (res == SUCCESS_RETURN) {
         switch (method_get) {
             case linkkit_method_get_property_value: {
-                res = iotx_dm_get_property_value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_legacy_get_property_value(devid, (char *)identifier, strlen(identifier), value, value_str);
                 dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_event_output_value: {
-                res = iotx_dm_get_event_output_value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_legacy_get_event_output_value(devid, (char *)identifier, strlen(identifier), value, value_str);
                 dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_service_input_value: {
-                res = iotx_dm_get_service_input_value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_legacy_get_service_input_value(devid, (char *)identifier, strlen(identifier), value, value_str);
                 dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }
             case linkkit_method_get_service_output_value: {
-                res = iotx_dm_get_service_output_value(devid, (char *)identifier, strlen(identifier), value);
+                res = iotx_dm_legacy_get_service_output_value(devid, (char *)identifier, strlen(identifier), value, value_str);
                 dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
                 break;
             }

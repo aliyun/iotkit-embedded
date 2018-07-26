@@ -155,7 +155,7 @@ typedef enum {
  *        int: int*, float: float*, double: double*,
  *        text: char*, enum: int*, date: char*, bool: int*
  * 
- * @param value_str, never used.
+ * @param value_str, value to set in string format if value is null.
  *
  * @return 0 when success, -1 when fail.
  */
@@ -186,7 +186,8 @@ typedef enum {
  *        int: int*, float: float*, double: double*,
  *        text: char**, enum: int*, date: char**, bool: int*
  * 
- * @param value_str, never used.
+ * @param value_str, value to get in string format. If success, memory of *value_str will be allocated,
+ *        user should free the memory.
  *
  * @warning if data type is text or date, *value well be end with '\0'.
  *          the memory allocated to *value must be free by user.

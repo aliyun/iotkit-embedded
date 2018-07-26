@@ -190,9 +190,13 @@ int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
 int iotx_dm_cota_get_config(_IN_ const char* config_scope, const char* get_type, const char* attribute_keys);
 int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
 
-int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ char *value_str);
+int iotx_dm_legacy_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ char **value_str);
+int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ char *value_str);
+int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ char **value_str);
+int iotx_dm_legacy_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ char **value_str);
+int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ char *value_str);
+int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ char **value_str);
 
 int iotx_dm_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN]);
 int iotx_dm_legacy_get_devid_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);

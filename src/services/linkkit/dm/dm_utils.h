@@ -78,7 +78,9 @@ int dm_utils_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_
 int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
 	_OU_ int *partial_input_len, _OU_ int *array_input_len, _OU_ int *array_index);
 
+int dm_utils_itoa_direct(_IN_ int input,_OU_ char **output);
 int dm_utils_itoa(_IN_ int input,_OU_ char **output);
+int dm_utils_ftoa_direct(_IN_ double input,_OU_ char **output);
 int dm_utils_ftoa(_IN_ double input,_OU_ char **output);
 int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char **output);
 int dm_utils_str_to_hex(_IN_ char *input, _IN_ int input_len, _OU_ unsigned char **output, _OU_ int *output_len);

@@ -135,6 +135,30 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
 	return FAIL_RETURN;
 }
 
+int dm_utils_itoa_direct(_IN_ int input,_OU_ char **output)
+{
+	int res = 0;
+	char temp_output[10 + 1] = {0};
+
+	if (output == NULL || *output != NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = HAL_Snprintf(temp_output,10,"%d",input);
+	if (res < 0) {return FAIL_RETURN;}
+
+	*output = malloc(strlen(temp_output) + 1);
+	if (*output == NULL) {
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(*output,0,strlen(temp_output) + 1);
+	memcpy(*output,temp_output,strlen(temp_output));
+
+	return SUCCESS_RETURN;
+}
+
 int dm_utils_itoa(_IN_ int input,_OU_ char **output)
 {
 	int res = 0;
@@ -149,6 +173,30 @@ int dm_utils_itoa(_IN_ int input,_OU_ char **output)
 	if (res < 0) {return FAIL_RETURN;}
 
 	*output = DM_malloc(strlen(temp_output) + 1);
+	if (*output == NULL) {
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(*output,0,strlen(temp_output) + 1);
+	memcpy(*output,temp_output,strlen(temp_output));
+
+	return SUCCESS_RETURN;
+}
+
+int dm_utils_ftoa_direct(_IN_ double input,_OU_ char **output)
+{
+	int res = 0;
+	char temp_output[30 + 1] = {0};
+
+	if (output == NULL || *output != NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	res = HAL_Snprintf(temp_output,30,"%f",input);
+	if (res < 0) {return FAIL_RETURN;}
+
+	*output = malloc(strlen(temp_output) + 1);
 	if (*output == NULL) {
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
