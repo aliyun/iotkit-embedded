@@ -104,6 +104,8 @@ typedef struct {
     int params_len;
 } lk_msg_t;
 
+static int g_linkkit_inited = 0;
+static int g_linkkit_started = 0;
 static void* g_linkkit_dispatch = NULL;
 static linkkit_gbl_t gbl;
 static linkkit_dev_t *main_device = NULL;
@@ -116,7 +118,6 @@ static void _dump_params(linkkit_params_t *params);
 static void *_response_waiter(void *arg);
 static void _async_post_event(int code, char *out, int out_len, void *ctx);
 void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload);
-static int _validOps(linkkit_cbs_t *cbs);
 static int _subdev_node_add(linkkit_dev_t *dev);
 static void _subdev_node_del(linkkit_dev_t *dev);
 static topo_node_t *_subdev_find_node_by_devid(int devid);
@@ -208,19 +209,6 @@ static linkkit_dev_t *_find_device_by_devid(int devid)
     }
 
     return n->subdev;
-}
-
-
-static int _validOps(linkkit_cbs_t *cbs)
-{
-    if (!cbs)
-        return 0;
-
-    if (cbs->get_property || cbs->set_property       ||
-        cbs->down_rawdata || cbs->post_rawdata_reply)
-        return 1;
-
-    return 0;
 }
 
 static void _async_post_event(int code, char *out, int out_len, void *ctx)
@@ -873,28 +861,30 @@ linkkit_params_t *linkkit_gateway_get_default_params(void)
 
 int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, int value_len)
 {
-    if (!params || !value || !value_len)
-        return -1;
+    if (params == NULL || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     switch (option) {
     case LINKKIT_OPT_MAX_MSG_SIZE:
         if (value_len != sizeof(int))
-            return -1;
+            return FAIL_RETURN;
         params->maxMsgSize = *((int *)value);
         break;
     case LINKKIT_OPT_MAX_MSG_QUEUE_SIZE:
         if (value_len != sizeof(int))
-            return -1;
+            return FAIL_RETURN;
         params->maxMsgQueueSize = *((int *)value);
         break;
     case LINKKIT_OPT_THREAD_POOL_SIZE:
         if (value_len != sizeof(int))
-            return -1;
+            return FAIL_RETURN;
         params->threadPoolSize = *((int *)value);
         break;
     case LINKKIT_OPT_THREAD_STACK_SIZE:
         if (value_len != sizeof(int))
-            return -1;
+            return FAIL_RETURN;
         params->threadStackSize = *((int *)value);
         break;
 	case LINKKIT_OPT_PROPERTY_POST_REPLY:
@@ -908,10 +898,10 @@ int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, in
 		break;
     default:
         dm_log_err("unknow option: %d\n", option);
-        return -1;
+        return FAIL_RETURN;
     }
 
-    return 0;
+    return SUCCESS_RETURN;
 }
 /**
  * @brief set event callback
@@ -941,6 +931,8 @@ int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)
  */
 int linkkit_gateway_init(linkkit_params_t *initParams)
 {
+    if (g_linkkit_inited == 1) {return FAIL_RETURN;}
+
     if (_checkInitParams(initParams) < 0) {
         dm_log_info("invalid initParams\n");
         return -1;
@@ -982,13 +974,23 @@ int linkkit_gateway_init(linkkit_params_t *initParams)
     gbl.threadPoolSize = initParams->threadPoolSize;
     gbl.threadStackSize = initParams->threadStackSize;
 
+    g_linkkit_inited = 1;
     dm_log_info("!!! linkkit initialized !!!\n");
 
     return 0;
 
 fail:
-    linkkit_gateway_exit();
-    return -1;
+    gbl.linkkit_abort = 1;
+    if (gbl.msgqblk_pool) {AMemPool_Free(gbl.msgqblk_pool);gbl.msgqblk_pool = NULL;}
+    if (gbl.msgbuf_pool) {AMemPool_Free(gbl.msgbuf_pool);gbl.msgbuf_pool = NULL;}
+    if (gbl.linkkit_msgq) {lk_queue_free(gbl.linkkit_msgq);gbl.linkkit_msgq = NULL;}
+    if (gbl.mutex) {HAL_MutexDestroy(gbl.mutex);gbl.mutex = NULL;}
+    if (gbl_lock) {HAL_MutexDestroy(gbl_lock);gbl_lock = NULL;}
+    watcher_exit();
+    memset(&gbl, 0, sizeof(linkkit_gbl_t));
+    gbl.linkkit_abort = 0;
+
+    return FAIL_RETURN;
 }
 
 
@@ -999,52 +1001,32 @@ fail:
  */
 int linkkit_gateway_exit(void)
 {
+    if (g_linkkit_inited == 0) {return FAIL_RETURN;}
+    g_linkkit_inited = 0;
     gbl.linkkit_abort = 1;
-
-    if (gbl.msgqblk_pool) {
-        AMemPool_Free(gbl.msgqblk_pool);
-        gbl.msgqblk_pool = NULL;
-    }
-
-    if (gbl.msgbuf_pool) {
-        AMemPool_Free(gbl.msgbuf_pool);
-        gbl.msgbuf_pool = NULL;
-    }
-
-    if (gbl.linkkit_msgq) {
-        lk_queue_free(gbl.linkkit_msgq);
-        gbl.linkkit_msgq = NULL;
-    }
-
-    if (gbl.mutex) {
-        HAL_MutexDestroy(gbl.mutex);
-        gbl.mutex = NULL;
-    }
-
-    if (gbl_lock) {
-        HAL_MutexDestroy(gbl_lock);
-        gbl_lock = NULL;
-    }
-
+    if (gbl.msgqblk_pool) {AMemPool_Free(gbl.msgqblk_pool);gbl.msgqblk_pool = NULL;}
+    if (gbl.msgbuf_pool) {AMemPool_Free(gbl.msgbuf_pool);gbl.msgbuf_pool = NULL;}
+    if (gbl.linkkit_msgq) {lk_queue_free(gbl.linkkit_msgq);gbl.linkkit_msgq = NULL;}
+    if (gbl.mutex) {HAL_MutexDestroy(gbl.mutex);gbl.mutex = NULL;}
+    if (gbl_lock) {HAL_MutexDestroy(gbl_lock);gbl_lock = NULL;}
     watcher_exit();
-
     memset(&gbl, 0, sizeof(linkkit_gbl_t));
-
     gbl.linkkit_abort = 0;
-
     dm_log_info("!!! linkkit exited !!!\n");
 
-    return 0;
+    return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 {
 	int res = 0, stack_used = 0;
     iotx_dm_init_params_t dm_init_params;
-    
-    if (!_validOps(cbs)) {
-        dm_log_info("invalid cbs: %p\n", cbs);
-        return -1;
+
+    if (g_linkkit_started == 1) {return FAIL_RETURN;}
+
+    if (cbs == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
     }
 
     linkkit_dev_t *dev = LITE_malloc(sizeof(linkkit_dev_t));
@@ -1072,11 +1054,16 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 	res = HAL_ThreadCreate(&g_linkkit_dispatch,_linkkit_dispatch,NULL,NULL,&stack_used);
 	if (res != SUCCESS_RETURN) {iotx_dm_destroy();return FAIL_RETURN;}
 
+    g_linkkit_started = 1;
+
 	return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_stop(int devid)
 {
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+    if (devid != IOTX_DM_LOCAL_NODE_DEVID) {return FAIL_RETURN;}
+    g_linkkit_started = 0;
     LITE_free(main_device);
     return iotx_dm_destroy();
 }
@@ -1093,6 +1080,8 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
 {
     int devid;
     int res = FAIL_RETURN;
+
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
 
     res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
@@ -1114,6 +1103,7 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
     int devid;
     int res = FAIL_RETURN;
 
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
 
     res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
@@ -1150,7 +1140,9 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
     int devid;
     int res = FAIL_RETURN;
 
-   //need to save cb & ctx
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
+    //need to save cb & ctx
     res = iotx_dm_subdev_create(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
         return res;
@@ -1179,6 +1171,9 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
 int linkkit_gateway_subdev_destroy(int devid)
 {
     linkkit_dev_t *dev = _find_device_by_devid(devid);
+
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     if (dev != NULL && _is_subdev(dev)) {
         _subdev_node_del(dev);
         LITE_free(dev);
@@ -1195,6 +1190,8 @@ int linkkit_gateway_subdev_destroy(int devid)
  */
 int linkkit_gateway_subdev_login(int devid)
 {
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     return iotx_dm_subdev_login(devid);
 }
 
@@ -1207,6 +1204,8 @@ int linkkit_gateway_subdev_login(int devid)
  */
 int linkkit_gateway_subdev_logout(int devid)
 {
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     return iotx_dm_subdev_logout(devid);
 }
 /**
@@ -1219,6 +1218,9 @@ int linkkit_gateway_subdev_logout(int devid)
 int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
 {
     int res = FAIL_RETURN;
+
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     if (devid < 0 || devinfo == NULL) {
         return -1;
     }
@@ -1276,6 +1278,8 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
     int res = FAIL_RETURN;
     int id;
 
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     if (!identifier || !strlen(identifier) || !event || !strlen(event) || timeout_ms < 0) {
         dm_log_info("invalid parameters\n");
         return -1;
@@ -1313,6 +1317,8 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
 {
     int res = FAIL_RETURN;
     int id;
+
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
 
     if (!identifier || !strlen(identifier) || !event || !strlen(event) || timeout_ms < 0) {
         dm_log_info("invalid parameters\n");
@@ -1373,6 +1379,8 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
     int res = FAIL_RETURN;
     int id;
 
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     if (!property || !strlen(property) || timeout_ms < 0)
         return -1;
 
@@ -1407,6 +1415,8 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
 {
     int res = FAIL_RETURN;
     int id;
+
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
 
     if (!property || !strlen(property) || timeout_ms < 0)
         return -1;
@@ -1462,6 +1472,8 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
  */
 int linkkit_gateway_post_rawdata(int devid, void *data, int len)
 {
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     return iotx_dm_post_rawdata(devid, data, len);
 }
 
@@ -1474,6 +1486,8 @@ int linkkit_gateway_post_rawdata(int devid, void *data, int len)
  */
 int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp)
 {
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     g_fota_callback = callback_fp;
 
     return 0;
@@ -1488,6 +1502,8 @@ int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp)
  */
 int linkkit_gateway_invoke_fota_service(void* data_buf, int data_buf_length)
 {
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     return iotx_dm_fota_perform_sync(data_buf,data_buf_length);
 }
 
@@ -1505,6 +1521,13 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
 {
     int res = FAIL_RETURN;
     int id;
+
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
+    if (extinfos == NULL || nb_extinfos <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     if (timeout_ms < 0) {
         return -1;
@@ -1548,6 +1571,8 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     int res = FAIL_RETURN;
     int id;
 
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+
     if (timeout_ms < 0) {
         return -1;
     }
@@ -1580,5 +1605,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
  */
 int linkkit_gateway_get_num_devices(void)
 {
+    if (g_linkkit_started == 0) {return FAIL_RETURN;}
+    
     return iotx_dm_subdev_number();
 }
