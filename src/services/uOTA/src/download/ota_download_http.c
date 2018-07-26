@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "md5.h"
+#include "utils_md5.h"
 #include "ota_download.h"
 #include "ota_util.h"
 #include "ota_log.h"

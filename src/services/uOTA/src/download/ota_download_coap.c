@@ -7,7 +7,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "md5.h"
+#include "utils_md5.h"
 #include "ota_service.h"
 #include "ota_download.h"
 #include "ota_util.h"
