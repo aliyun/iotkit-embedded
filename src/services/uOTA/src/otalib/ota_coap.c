@@ -64,7 +64,7 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
 {
     int ret;
 
-    ret = snprintf(buf,
+    ret = ota_snprintf(buf,
             buf_len,
             "/topic/ota/device/%s/%s/%s",
             ota_topic_type,
@@ -72,7 +72,7 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
             device_name);
 
     if ((ret > buf_len)|| (ret < 0)) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 

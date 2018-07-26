@@ -12,12 +12,12 @@ LIB_SRCS_PATTERN    := \
     src/download/ota_socket.c \
     src/verify/ota_util.c \
     src/verify/ota_verify.c \
-    src/api/ota.c \
     src/utility/chip_code/chip_code.c \
     src/utility/crc/crc.c \
     hal/ota_hal_os.c \
     hal/ota_hal_plat.c \
     hal/ota_hal_module.c \
+
 
 HDR_REFS            += src/infra
 HDR_REFS            += src/protocol/mqtt/client

@@ -106,14 +106,14 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
         OTA_LOG_E("coap gen topic is null");
         return -1;
     }
-    ret = snprintf(buf,
+    ret = ota_snprintf(buf,
                    buf_len,
                    "/topic/ota/device/%s/%s/%s",
                    ota_topic_type,
                    ctx->pk,
                    ctx->dn);
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 
@@ -126,13 +126,13 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
 static int otalib_GenReqMsg(char *buf, size_t buf_len, uint32_t id, const char *version)
 {
     int ret = 0;
-    ret = snprintf(buf,
+    ret = ota_snprintf(buf,
                    buf_len,
                    "{\"id\":%d,\"params\":{\"mode\":\"coap\",\"version\":\"%s\"}}",
                    id,
                    version?version:NULL);
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 
@@ -144,14 +144,14 @@ static int otalib_GenReqMsg(char *buf, size_t buf_len, uint32_t id, const char *
 static int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *version)
 {
     int ret = 0;
-    ret = snprintf(buf,
+    ret = ota_snprintf(buf,
                    buf_len,
                    "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
                    id,
                    version?version:NULL);
 
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 
@@ -165,14 +165,14 @@ static int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progr
 {
     int ret;
     if (NULL == msg_detail) {
-        ret = snprintf(buf,
+        ret = ota_snprintf(buf,
                        buf_len,
                        "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%d%%\"}}",
                        id,
                        progress,
                        progress);
     } else {
-        ret = snprintf(buf,
+        ret = ota_snprintf(buf,
                        buf_len,
                        "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}",
                        id,
@@ -181,7 +181,7 @@ static int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progr
     }
 
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     } else if (ret >= buf_len) {
         OTA_LOG_E("msg is too long");
@@ -291,11 +291,11 @@ int ota_transport_init(void)
     } else if (0 == strncmp(OTA_ENV, "online", strlen("online"))) {
         if (0 == strncmp(OTA_SECUR, "dtls", strlen("dtls"))) {
             char url[256] = {0};
-            snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, ctx->pk);
+            ota_snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, ctx->pk);
             config.p_url = url;
         }else if(0 == strncmp(OTA_SECUR, "psk", strlen("psk"))){
             char url[256] = {0};
-            snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, ctx->pk);
+            ota_snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, ctx->pk);
             config.p_url = url;
         }else {
             OTA_LOG_E("Online DTLS/PSK\r\n");
@@ -335,12 +335,7 @@ int8_t ota_parse_response(const char *response, int buf_len, ota_response_params
         OTA_LOG_E("Error before: [%s]\n",err?err:NULL);
         goto parse_failed;
     } else {
-        // char *info = cJSON_Print(root);
-        // OTA_LOG_D("root is %s", info);
-        // free(info);
-
         cJSON *message =  cJSON_GetObjectItem(root, "message");
-
         if (NULL == message) {
             OTA_LOG_E("invalid json doc of OTA ");
             goto parse_failed;

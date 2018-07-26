@@ -54,14 +54,14 @@ static int ota_download_start(char *url, ota_write_cb_t func, void* cur_sign) {
         return -1;
     }
 
-    ret = snprintf(download_topic_buf,
+    ret = ota_snprintf(download_topic_buf,
                    sizeof(download_topic_buf),
                    DOWNLOAD_PATH,
                    ctx->pk,
                    ctx->dn);
 
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 

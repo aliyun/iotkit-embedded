@@ -6,6 +6,14 @@
 #define OTA_PLATFORM_OS_H_
 #include <stdint.h>
 #include "ota_service.h"
+#include "iot_import.h"
+
+
+#ifdef _IS_LINKKIT_
+#define ota_snprintf HAL_Snprintf
+#define ota_malloc HAL_Malloc
+#define ota_free   HAL_Free
+#endif
 
 void *ota_malloc(uint32_t size);
 

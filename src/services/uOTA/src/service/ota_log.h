@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "iotx_log.h"
 
-#if 0
+#ifndef _IS_LINKKIT_
 #define OTA_LOG_D(format, ...) printf(format"\r\n",##__VA_ARGS__)
 #define OTA_LOG_I(format, ...) printf(format"\r\n",##__VA_ARGS__)
 #define OTA_LOG_W(format, ...) printf(format"\r\n",##__VA_ARGS__)
@@ -27,5 +27,4 @@
 #define OTA_LOG_WRN(...)        log_warning("ota", __VA_ARGS__)
 #define OTA_LOG_INFO(...)       log_info("ota", __VA_ARGS__)
 #define OTA_LOG_DEBUG(...)      log_debug("ota", __VA_ARGS__)
-
 #endif  // _OTA_LOG_H_

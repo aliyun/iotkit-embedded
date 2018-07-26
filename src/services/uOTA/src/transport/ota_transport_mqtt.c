@@ -59,9 +59,9 @@ static int ota_mqtt_gen_topic_name(char *buf, size_t buf_len, const char *ota_to
                                    const char *device_name)
 {
     int ret;
-    ret = snprintf(buf, buf_len, "/ota/device/%s/%s/%s", ota_topic_type, product_key, device_name);
+    ret = ota_snprintf(buf, buf_len, "/ota/device/%s/%s/%s", ota_topic_type, product_key, device_name);
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 
@@ -102,12 +102,12 @@ static void ota_mqtt_sub_callback(char *topic, int topic_len, void *payload, int
 static int ota_gen_info_msg(char *buf, size_t buf_len, uint32_t id, const char *version)
 {
     int ret;
-    ret = snprintf(buf,buf_len,
+    ret = ota_snprintf(buf,buf_len,
                    "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
                    id,version);
 
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 
@@ -121,17 +121,17 @@ static int ota_gen_report_msg(char *buf, size_t buf_len, uint32_t id, int progre
 {
     int ret;
     if (NULL == msg_detail) {
-        ret = snprintf(buf,buf_len,
+        ret = ota_snprintf(buf,buf_len,
                        "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%d%%\"}}",
                        id,progress,progress);
     } else {
-        ret = snprintf(buf,buf_len,
+        ret = ota_snprintf(buf,buf_len,
                        "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}",
                        id,progress,msg_detail);
     }
 
     if (ret < 0) {
-        OTA_LOG_E("snprintf failed");
+        OTA_LOG_E("ota_snprintf failed");
         return -1;
     } else if (ret >= buf_len) {
         OTA_LOG_E("msg is too long");

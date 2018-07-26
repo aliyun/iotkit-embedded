@@ -47,9 +47,8 @@ typedef struct  {
 /* 0, successful; -1, failed */
 static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key, const char *device_name)
 {
-    int ret;
-
-    ret = snprintf(buf,
+    int ret = 0;
+    ret = ota_snprintf(buf,
                        buf_len,
                        "/ota/device/%s/%s/%s",
                        ota_topic_type,

@@ -11,9 +11,9 @@
 #include <signal.h>
 #include <string.h>
 #include "ota_hal_os.h"
+#include "ota_log.h"
 #include "crc.h"
 #include "iot_export.h"
-#include "iot_import.h"
 #include "iot_export_coap.h"
 #include "mqtt_instance.h"
 
@@ -28,20 +28,13 @@
 #include <hal/hal.h>
 #endif
 
-#define HAL_DEBUG 
-#ifdef HAL_DEBUG
-#define hal_printf printf
-#else
-#define hal_printf
-#endif
-
 #define DEFAULT_THREAD_PRI   10
 
 const char *iotx_ca_get(void);
 int  IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num, unsigned int *more, unsigned int *size);
 int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iotx_message_t *p_message,
                                unsigned int block_type, unsigned int num, unsigned int more, unsigned int size);
-
+#ifndef _IS_LINKKIT_
 void *ota_malloc(uint32_t size)
 {
     #ifndef _PLATFORM_IS_LINUX_
@@ -51,6 +44,16 @@ void *ota_malloc(uint32_t size)
     #endif
     
 }
+
+void ota_free(void *ptr)
+{  
+    #ifndef _PLATFORM_IS_LINUX_
+    aos_free(ptr);
+    #else
+    free(ptr);
+    #endif
+}
+#endif
 
 void *ota_zalloc(uint32_t size)
 {
@@ -69,16 +72,6 @@ void *ota_realloc(void* ptr, uint32_t size)
     return realloc(ptr, size);
     #endif
 }
-
-void ota_free(void *ptr)
-{  
-    #ifndef _PLATFORM_IS_LINUX_
-    aos_free(ptr);
-    #else
-    free(ptr);
-    #endif
-}
-
 void *ota_mutex_init(void)
 {
     #ifndef _PLATFORM_IS_LINUX_
@@ -101,7 +94,7 @@ void *ota_mutex_init(void)
         return NULL;
     }
 
-    hal_printf("HAL_MutexCreate:%p\n", mutex);   
+    OTA_LOG_I("HAL_MutexCreate:%p\n", mutex);
     #endif
 
     return mutex;
@@ -116,7 +109,7 @@ int ota_mutex_lock(void *mutex)
         return 0;
     }
     if (0 != pthread_mutex_lock((pthread_mutex_t *)mutex)) {
-        hal_printf("lock mutex failed");
+        OTA_LOG_E("lock mutex failed");
     }
     #endif
     return 0;
@@ -131,7 +124,7 @@ int ota_mutex_unlock(void *mutex)
         return 0;
     }
     if (0 != pthread_mutex_unlock((pthread_mutex_t *)mutex)) {
-        hal_printf("unlock mutex failed");
+        OTA_LOG_E("unlock mutex failed");
     }
     #endif
     return 0;
@@ -144,15 +137,15 @@ void ota_mutex_destroy(void *mutex)
     aos_free(mutex);
     #else
     if(mutex == NULL) {
-        hal_printf("mutex null.");
+        OTA_LOG_E("mutex null.");
         return;
     }
 
     if (0 != pthread_mutex_destroy((pthread_mutex_t *)mutex)) {
-        hal_printf("destroy mutex failed");
+        OTA_LOG_E("destroy mutex failed");
     }
 
-    hal_printf("HAL_MutexDestroy:%p\n", mutex);
+    OTA_LOG_I("HAL_MutexDestroy:%p\n", mutex);
     ota_free(mutex);
     #endif
 }
@@ -361,7 +354,7 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
     if (!temp) {
         return -1;
     }
-    snprintf(temp, real_len, OTA_KV_START, key);
+    ota_snprintf(temp, real_len, OTA_KV_START, key);
     ret = aos_kv_set(temp, val, len, sync);
     aos_free(temp);
     return ret;
@@ -375,7 +368,7 @@ int ota_kv_get(const char *key, void *buffer, int *buffer_len)
     if (!temp) {
         return -1;
     }
-    snprintf(temp, real_len, OTA_KV_START, key);
+    ota_snprintf(temp, real_len, OTA_KV_START, key);
     ret = aos_kv_get(temp, buffer, buffer_len);
     aos_free(temp);
     return ret;
@@ -389,7 +382,7 @@ int ota_kv_del(const char *key)
     if (!temp) {
         return -1;
     }
-    snprintf(temp, real_len, OTA_KV_START, key);
+    ota_snprintf(temp, real_len, OTA_KV_START, key);
     ret = aos_kv_del(temp);
     aos_free(temp);
     return ret;
@@ -521,16 +514,16 @@ static int hal_fopen(FILE **fp, int *size, int *num)
     /* create an file to save the kv */
     if((*fp = fopen(KV_FILE_PATH, "a+")) == NULL)
     {
-        hal_printf("fopen(create) %s error:%s\n", KV_FILE_PATH, strerror(errno));
+        OTA_LOG_E("fopen(create) %s error:%s\n", KV_FILE_PATH, strerror(errno));
         return -1;
     }
 
     fseek(*fp, 0L, SEEK_END);
 
-    hal_printf("ftell:%d\n", (int)ftell(*fp));
+    OTA_LOG_I("ftell:%d\n", (int)ftell(*fp));
     if((*size = ftell(*fp)) % ITEM_LEN)
     {
-        hal_printf("%s is not an kv file\n", KV_FILE_PATH);
+        OTA_LOG_E("%s is not an kv file\n", KV_FILE_PATH);
         fclose(*fp);
         return -1;
     }
@@ -539,7 +532,7 @@ static int hal_fopen(FILE **fp, int *size, int *num)
 
     fseek(*fp, 0L, SEEK_SET);
 
-    hal_printf("file size:%d, block num:%d\n", *size, *num);
+    OTA_LOG_I("file size:%d, block num:%d\n", *size, *num);
 
     return 0;
 }
@@ -575,7 +568,7 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
         /* key compared */
         if(strcmp(kv_item.key, key) == 0)
         {
-            hal_printf("HAL_Kv_Set@key compared:%s\n", key);
+            OTA_LOG_I("HAL_Kv_Set@key compared:%s\n", key);
             /* set value and write to file */
             memset(kv_item.val, 0, ITEM_MAX_VAL_LEN);
             memcpy(kv_item.val, val, len);
@@ -591,7 +584,7 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
         }
     }
 
-    hal_printf("HAL_Kv_Set key:%s\n", key);
+    OTA_LOG_I("HAL_Kv_Set key:%s\n", key);
     /* key not compared, append an kv to file */
     memset(&kv_item, 0, sizeof(kv_t));
     strcpy(kv_item.key, key);
@@ -613,7 +606,7 @@ _hal_set_error:
         pthread_mutex_unlock(&mutex_kv);
         return -1;
     }
-    hal_printf("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
+    OTA_LOG_E("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
@@ -662,7 +655,7 @@ int ota_kv_get(const char *key, void *buffer, int *buffer_len)
         /* key compared */
         if(strcmp(kv_item.key, key) == 0)
         {
-            hal_printf("HAL_Kv_Get@key compared:%s\n", key);
+            OTA_LOG_I("HAL_Kv_Get@key compared:%s\n", key);
             /* set value and write to file */
             *buffer_len = kv_item.state.val_len;
             memcpy(buffer, kv_item.val, *buffer_len);
@@ -671,7 +664,7 @@ int ota_kv_get(const char *key, void *buffer, int *buffer_len)
         }
     }
 
-    hal_printf("can not find the key:%s\n", key);
+    OTA_LOG_I("can not find the key:%s\n", key);
 
     goto _hal_get_ok;
 
@@ -681,7 +674,7 @@ _hal_get_error:
         pthread_mutex_unlock(&mutex_kv);
         return -1;
     }
-    hal_printf("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
+    OTA_LOG_E("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
@@ -731,7 +724,7 @@ int ota_kv_del(const char *key)
         if(strcmp(kv_item.key, key) == 0)
         {
             /* use last kv item merge this kv item and delete the last kv item */
-            hal_printf("HAL_Kv_Del@key compared:%s, cur_pos:%d\n", kv_item.key, cur_pos);
+            OTA_LOG_I("HAL_Kv_Del@key compared:%s, cur_pos:%d\n", kv_item.key, cur_pos);
 
             /* fp pointer to last kv item */
             fseek(fp, -ITEM_LEN, SEEK_END);
@@ -741,7 +734,7 @@ int ota_kv_del(const char *key)
                 goto _hal_del_error;
             }
 
-            hal_printf("last item key:%s, val:%s\n", kv_item_last.key, kv_item_last.val);
+            OTA_LOG_I("last item key:%s, val:%s\n", kv_item_last.key, kv_item_last.val);
 
             /* pointer to currect kv item */
             fseek(fp, cur_pos, SEEK_SET);
@@ -749,7 +742,7 @@ int ota_kv_del(const char *key)
             goto _hal_del_ok;
         }
     }
-    hal_printf("HAL_Kv_Del@ can not find the key:%s\n", key);
+    OTA_LOG_E("HAL_Kv_Del@ can not find the key:%s\n", key);
     goto _hal_del_ok;
 
 _hal_del_error:
@@ -758,7 +751,7 @@ _hal_del_error:
         pthread_mutex_unlock(&mutex_kv);
         return -1;
     }
-    hal_printf("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
+    OTA_LOG_E("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
@@ -770,7 +763,7 @@ _hal_del_ok:
     fclose(fp);
     if(truncate(KV_FILE_PATH, file_size - ITEM_LEN) != 0)
     {
-        hal_printf("truncate %s error:%s\n", KV_FILE_PATH, strerror(errno));
+        OTA_LOG_E("truncate %s error:%s\n", KV_FILE_PATH, strerror(errno));
         pthread_mutex_unlock(&mutex_kv);
         return -1;
     }
@@ -783,11 +776,11 @@ int ota_kv_erase_all(void)
 {
     pthread_mutex_lock(&mutex_kv);
 
-    hal_printf("HAL_Erase_All_Kv\n");
+    OTA_LOG_I("HAL_Erase_All_Kv\n");
 
     if(truncate(KV_FILE_PATH, 0) != 0)
     {
-        hal_printf("truncate %s error:%s\n", KV_FILE_PATH, strerror(errno));
+        OTA_LOG_E("truncate %s error:%s\n", KV_FILE_PATH, strerror(errno));
         pthread_mutex_unlock(&mutex_kv);
         return -1;
     }
@@ -799,26 +792,18 @@ int ota_kv_erase_all(void)
 void *ota_timer_create(const char *name, void (*func)(void *), void *user_data)
 {
     timer_t *timer = NULL;
-
     struct sigevent ent;
-
     /* check parameter */
     if(func == NULL)    return NULL;
-
     timer = (timer_t *)malloc(sizeof(time_t));
-
     /* Init */
     memset(&ent, 0x00, sizeof(struct sigevent));
-
     /* create a timer */
     ent.sigev_notify = SIGEV_THREAD;
     ent.sigev_notify_function = (void (*)(union sigval))func;
     ent.sigev_value.sival_ptr = user_data;
-
-    hal_printf("HAL_Timer_Create\n");
-
     if(timer_create(CLOCK_MONOTONIC, &ent, timer) != 0) {
-        fprintf(stderr, "timer_create");
+        OTA_LOG_E("timer_create");
         return NULL;
     }
 
@@ -828,10 +813,8 @@ void *ota_timer_create(const char *name, void (*func)(void *), void *user_data)
 int ota_timer_start(void *timer, int ms)
 {
     struct itimerspec ts;
-
     /* check parameter */
     if(timer == NULL)   return -1;
-
     /* it_interval=0: timer run only once */
     ts.it_interval.tv_sec = 0;
     ts.it_interval.tv_nsec = 0;
@@ -840,15 +823,12 @@ int ota_timer_start(void *timer, int ms)
     ts.it_value.tv_sec = ms / 1000;
     ts.it_value.tv_nsec = (ms % 1000) * 1000;
 
-    hal_printf("HAL_Timer_Start\n");
-
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
 
 int ota_timer_stop(void *timer)
 {
     struct itimerspec ts;
-
     /* check parameter */
     if(timer == NULL)   return -1;
 
@@ -860,20 +840,14 @@ int ota_timer_stop(void *timer)
     ts.it_value.tv_sec = 0;
     ts.it_value.tv_nsec = 0;
 
-    hal_printf("HAL_Timer_Stop\n");
-
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
 
 int ota_timer_delete(void *timer)
 {
     int ret = 0;
-
     /* check parameter */
     if(timer == NULL)   return -1;
-
-    hal_printf("HAL_Timer_Delete\n");
-
     ret = timer_delete(*(timer_t *)timer);
 
     free(timer);

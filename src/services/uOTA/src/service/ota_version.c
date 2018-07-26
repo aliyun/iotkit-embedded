@@ -66,7 +66,7 @@ const char   *ota_get_system_version(void)
 #ifdef OTA_MULTI_BINS
     int len = MAX_VERSION_LEN;
     memset(version_config.system_version, 0, MAX_VERSION_LEN);
-    snprintf(version_config.system_version, MAX_VERSION_LEN, "%s_%s", aos_get_kernel_version(), aos_get_app_version());
+    ota_snprintf(version_config.system_version, MAX_VERSION_LEN, "%s_%s", aos_get_kernel_version(), aos_get_app_version());
     return version_config.system_version;
 #else
     return (const char *)SYSINFO_APP_VERSION;

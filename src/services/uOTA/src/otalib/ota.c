@@ -587,7 +587,7 @@ int IOT_OTA_GetConfig(void *handle, const char* configScope, const char* getType
         return -1;
     }
 
-    if (0 > snprintf(topic,
+    if (0 > ota_snprintf(topic,
                          OTA_MQTT_TOPIC_LEN,
                          "/sys/%s/%s/thing/config/get",
                          h_ota->product_key,
@@ -595,7 +595,7 @@ int IOT_OTA_GetConfig(void *handle, const char* configScope, const char* getType
         goto do_exit;
     };
 
-    if (0 > snprintf(msg_get,
+    if (0 > ota_snprintf(msg_get,
                          MSG_REPORT_LEN,
                          "{\"id\" : %d,\"version\":\"1.0\",\"params\":{\"configScope\":\"%s\",\"getType\":\"%s\",\"attributeKeys\":\"%s\"},\"method\":\"thing.config.get\"}",
                          h_ota->id,

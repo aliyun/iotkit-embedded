@@ -8,6 +8,7 @@
 #include <unistd.h> 
 
 #include <errno.h>
+#include "ota_log.h"
 #include "ota_hal_plat.h"
 
 static FILE* ota_fd = NULL;
@@ -40,7 +41,7 @@ int ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, uint8_t* in_buf ,
 
     ret = fwrite(in_buf, in_buf_len, 1, ota_fd);
     if(ret != 1) {
-        printf("write error: %d, %d ,%s\n", ret, in_buf_len ,strerror(errno));
+        OTA_LOG_E("write error: %d, %d ,%s\n", ret, in_buf_len ,strerror(errno));
 	return -1;
     }
     return 0;

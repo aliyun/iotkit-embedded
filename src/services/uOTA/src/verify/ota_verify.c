@@ -154,7 +154,7 @@ static int ota_check_md5(const uint8_t *cur_hash, const char *download_hash)
     char digest_str[33] = {0};
     int i = 0;
     for (; i < 16 ; i++) {
-        snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
+        ota_snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
     }
     OTA_LOG_I("url md5=%s", download_hash);
     OTA_LOG_I("digestMD5=%s", digest_str);
@@ -174,7 +174,7 @@ static int ota_check_sha256(const uint8_t *cur_hash, const char *download_hash)
     char digest_str[65] = {0};
     int i = 0;
     for (; i < 32 ; i++) {
-        snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
+        ota_snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
     }
     OTA_LOG_I("url SHA256=%s", download_hash);
     OTA_LOG_I("digestSHA256=%s", digest_str);
