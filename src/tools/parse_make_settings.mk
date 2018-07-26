@@ -39,6 +39,7 @@ ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
     endif
 endif # FEATURE_SDK_ENHANCE
 ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
+    CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))
     ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
         $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
     endif
