@@ -663,21 +663,11 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
 int linkkit_set_opt(linkkit_opt_t opt, void *data)
 {
+    if (data == NULL) {return FAIL_RETURN;}
+
     return iotx_dm_set_opt(opt, data);
 }
 
-/**
- * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
- *
- * @param max_buffered_msg, specify max buffered message size.
- * @param ops, callback function struct to be installed.
- * @param get_tsl_from_cloud, config if device need to get tsl from cloud(!0) or local(0), if local selected, must invoke linkkit_set_tsl to tell tsl to dm after start complete.
- * @param log_level, config log level.
- * @param user_context, user context pointer.
- * @param domain_type, specify the could server domain.
- *
- * @return int, 0 when success, -1 when fail.
- */
 int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level, linkkit_ops_t *ops,
                   linkkit_cloud_domain_type_t domain_type, void *user_context)
 {
@@ -740,13 +730,12 @@ static void _free_post_cb(void *_post_cb, va_list *params)
     }
 }
 
-int linkkit_end()
+int linkkit_end(void)
 {
     linked_list_t *list;
 
-    if (!g_linkkit_inited) {
-        return FAIL_RETURN;
-    }
+    if (!g_linkkit_inited) {return FAIL_RETURN;}
+
     g_linkkit_inited = 0;
     
 #if (CONFIG_SDK_THREAD_COST == 1)
@@ -761,18 +750,13 @@ int linkkit_end()
     return iotx_dm_destroy();
 }
 
-/**
- * @brief install user tsl.
- *
- * @param tsl, tsl string that contains json description for thing object.
- * @param tsl_len, tsl string length.
- *
- * @return pointer to thing object, NULL when fails.
- */
 void *linkkit_set_tsl(const char *tsl, int tsl_len)
 {
     void *thing = NULL;
     int res = 0;
+
+    if(!g_linkkit_inited) {return NULL;}
+
     res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, tsl, tsl_len);
     if (res != SUCCESS_RETURN) {
         return NULL;
@@ -791,6 +775,13 @@ int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, con
 {
     int res = FAIL_RETURN;
     int devid;
+
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (thing_id == NULL || identifier == NULL || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
@@ -826,6 +817,13 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, con
 {
     int res = FAIL_RETURN;
     int devid;
+
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (thing_id == NULL || identifier == NULL || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
@@ -865,6 +863,13 @@ int linkkit_answer_service(const void *thing_id, const char *service_identifier,
 {
     int res = 0, devid = 0;
 
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (thing_id == NULL || service_identifier == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -876,20 +881,18 @@ int linkkit_answer_service(const void *thing_id, const char *service_identifier,
 
     return res;
 }
-/**
- * @brief answer a down raw service when a raw service requested by cloud, or invoke a up raw service to cloud.
- *
- * @param thing_id, pointer to thing object.
- * @param is_up_raw, specify up raw(not 0) or down raw reply(0).
- * @param raw_data, raw data that sent to cloud.
- * @param raw_data_length, raw data length that sent to cloud.
- *
- * @return 0 when success, -1 when fail.
- */
+
 int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length)
 {
     int res = FAIL_RETURN;
     int devid;
+
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (thing_id == NULL || raw_data == NULL || raw_data_length <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN && raw_data != NULL) {
@@ -898,22 +901,18 @@ int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_da
     return res;
 }
 
-#ifdef EXTENDED_INFO_ENABLED
-/**
- * @brief trigger extended info update procedure.
- *
- * @param thing_id, pointer to thing object.
- * @param params, json type string that user to send to cloud.
- * @param linkkit_extended_info_operation, specify update type or delete type.
- *
- * @return 0 when success, -1 when fail.
- */
-
 int linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
         linkkit_extended_info_operate_t linkkit_extended_info_operation)
 {
     int res = FAIL_RETURN;
     int devid;
+
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (thing_id == NULL || params == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN && params != NULL) {
@@ -932,23 +931,20 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
     }
     return res;
 }
-#endif /* EXTENDED_INFO_ENABLED */
 
-/**
- * @brief trigger a event to post to cloud.
- *
- * @param thing_id, pointer to thing object.
- * @param event_identifier, event identifier to trigger.
- * @param cb, callback function of event post.
- *
- * @return >=0 when success, -1 when fail.
- */
 int linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb)
 {
     int res = FAIL_RETURN;
     int devid;
     int id_send = 0;
     linked_list_t *list = g_list_post_cb;
+
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (thing_id == NULL || event_identifier == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN && event_identifier != NULL) {
@@ -968,24 +964,20 @@ int linkkit_trigger_event(const void *thing_id, const char *event_identifier, ha
     return res;
 }
 
-/**
- * @brief post property to cloud.
- *
- * @param thing_id, pointer to thing object.
- * @param property_identifier, used when trigger event with method "event.property.post", if set, post specified property, if NULL, post all.
- * @param cb, callback function of property post.
- *
- * @return >=0 when success, -1 when fail.
- */
 int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb)
 {
     int res = FAIL_RETURN, ret = FAIL_RETURN;
     int devid;
     int id_send = 0;
     linked_list_t *list = g_list_post_cb;
-    if(!g_linkkit_inited) {
+
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (thing_id == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
     res = iotx_dm_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res == SUCCESS_RETURN) {
         void *handle = NULL;
@@ -1000,27 +992,31 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
         }
         ret = res;
         res = iotx_dm_post_property_end(&handle);
-        if (res < SUCCESS_RETURN) {ret = res;}
     }
 
-    if (ret >= 0) {
-        id_send = ret;
+    if (res > 0) {
+        id_send = res;
         if (list && cb) {
             _insert_post_cb(id_send, list, cb);
         }
     } else {
-        dm_log_err("DM", "%d", ret);
-        log_err_online("DM", "%d", ret);
+        dm_log_err("DM", "%d", res);
+        log_err_online("DM", "%d", res);
     }
     return ret;
 }
 
-#if (CONFIG_SDK_THREAD_COST == 0)
 int linkkit_yield(int timeout_ms)
 {
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (timeout_ms <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
     return iotx_dm_yield(timeout_ms);
 }
-#endif
 
 int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
 {
@@ -1031,11 +1027,25 @@ int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
 
 int linkkit_invoke_cota_service(void* data_buf, int data_buf_length)
 {
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (data_buf == NULL || data_buf_length <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
     return iotx_dm_cota_perform_sync(data_buf,data_buf_length);
 }
 
 int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option)
 {
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (config_scope == NULL || get_type == NULL || attribute_Keys == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
     return iotx_dm_cota_get_config(config_scope,get_type,attribute_Keys);
 }
 
@@ -1048,5 +1058,12 @@ int linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
 
 int linkkit_invoke_fota_service(void* data_buf, int data_buf_length)
 {
+    if(!g_linkkit_inited) {return FAIL_RETURN;}
+
+    if (data_buf == NULL || data_buf_length <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+    
     return iotx_dm_fota_perform_sync(data_buf,data_buf_length);
 }

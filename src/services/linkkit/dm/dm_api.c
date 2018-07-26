@@ -34,6 +34,8 @@ static void _dm_api_unlock(void) {
 
 int iotx_dm_set_opt(int opt,void *data)
 {
+	if (data == NULL) {return FAIL_RETURN;}
+
 	return dm_opt_set(opt,data);
 }
 
@@ -651,6 +653,11 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
 
 int iotx_dm_yield(int timeout_ms)
 {
+	if (timeout_ms <= 0) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+	
 	return dm_cmw_yield(timeout_ms);
 }
 

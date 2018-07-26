@@ -114,7 +114,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_end();
+int linkkit_end(void);
 
 /**
  * @brief install user tsl.
@@ -124,7 +124,7 @@ int linkkit_end();
  *
  * @return pointer to thing object, NULL when fails.
  */
-extern void *linkkit_set_tsl(const char *tsl, int tsl_len);
+void *linkkit_set_tsl(const char *tsl, int tsl_len);
 
 /* patterns: */
 /* method:
@@ -151,13 +151,15 @@ typedef enum {
  * @param method_set, specify set value type.
  * @param thing_id, pointer to thing object, specify which thing to set.
  * @param identifier, property, event output, service output identifier.
- * @param value, value to set.(input int* if target value is int type or enum or bool, float* if float type,
- *        long long* if date type, char* if text type).
- * @param value_str, value to set in string format if value is null.
+ * @param value. The value to be set, data type decided by data type of property as follows:
+ *        int: int*, float: float*, double: double*,
+ *        text: char*, enum: int*, date: char*, bool: int*
+ * 
+ * @param value_str, never used.
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
+int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
                              const void *value, const char *value_str);
 
 typedef enum {
@@ -180,15 +182,18 @@ typedef enum {
  * @param method_get, specify get value type.
  * @param thing_id, pointer to thing object, specify which thing to get.
  * @param identifier, property, event output, service input/output identifier.
- * @param value, value to get(input int* if target value is int type or enum or bool, float* if float type,
- *        long long* if date type, char* if text type).
- * @param value_str, value to get in string format. DO NOT modify this when function returns,
- *        user should copy to user's own buffer for further process.
- *        user should NOT free the memory.
+ * @param value. The variable to store value, data type decided by data type of property as follows:
+ *        int: int*, float: float*, double: double*,
+ *        text: char**, enum: int*, date: char**, bool: int*
+ * 
+ * @param value_str, never used.
  *
+ * @warning if data type is text or date, *value well be end with '\0'.
+ *          the memory allocated to *value must be free by user.
+ * 
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
+int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
                              void *value, char **value_str);
 
 
@@ -204,7 +209,7 @@ extern int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code);
+int linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code);
 
 /**
  * @brief answer a down raw service when a raw service requested by cloud, or invoke a up raw service to cloud.
@@ -216,7 +221,7 @@ extern int linkkit_answer_service(const void *thing_id, const char *service_iden
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
+int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
 
 /**
  * @brief perform ota service when "new version detected" reported.
@@ -229,7 +234,6 @@ extern int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void 
  */
 int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
 
-#ifdef EXTENDED_INFO_ENABLED
 /**
  * @brief trigger extended info update procedure.
  *
@@ -242,7 +246,6 @@ int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
 
 int linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
         linkkit_extended_info_operate_t linkkit_extended_info_operation);
-#endif /* EXTENDED_INFO_ENABLED */
 
 /**
  * @brief trigger a event to post to cloud.
@@ -253,7 +256,7 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
  *
  * @return >=0 when success, -1 when fail.
  */
-extern int linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
+int linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
 
 /**s
  * @brief trigger a event to post to cloud.
@@ -265,7 +268,7 @@ extern int linkkit_trigger_event(const void *thing_id, const char *event_identif
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_trigger_event_json(const void *thing_id, const char *event_identifier, char *event,
+int linkkit_trigger_event_json(const void *thing_id, const char *event_identifier, char *event,
                                       handle_post_cb_fp_t cb);
 
 
@@ -278,7 +281,7 @@ extern int linkkit_trigger_event_json(const void *thing_id, const char *event_id
  *
  * @return >=0 when success, -1 when fail.
  */
-extern int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
+int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
 
 /**
  * @brief post property to cloud.
@@ -290,10 +293,9 @@ extern int linkkit_post_property(const void *thing_id, const char *property_iden
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_post_property_json(const void *thing_id, const char *property_identifier, char *property,
+int linkkit_post_property_json(const void *thing_id, const char *property_identifier, char *property,
                                       handle_post_cb_fp_t cb);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
 /**
  * @brief this function used to yield when want to receive or send data.
  *        if multi-thread enabled, user should NOT call this function.
@@ -302,8 +304,7 @@ extern int linkkit_post_property_json(const void *thing_id, const char *property
  *
  * @return 0 when success, -1 when fail.
  */
-extern int linkkit_yield(int timeout_ms);
-#endif /* CONFIG_SDK_THREAD_COST */
+int linkkit_yield(int timeout_ms);
 
 typedef enum {
     service_cota_callback_type_new_version_detected = 10,

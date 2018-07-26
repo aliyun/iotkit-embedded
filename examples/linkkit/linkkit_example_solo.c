@@ -551,14 +551,12 @@ int trigger_event(sample_context_t *sample)
     return linkkit_trigger_event(sample->thing, "TemperatureAlarm", post_property_cb);
 }
 
-#ifdef EXTENDED_INFO_ENABLED
 int trigger_deviceinfo(sample_context_t *sample)
 {
     /* please modify the parameter */
     return linkkit_trigger_extended_info_operate(sample->thing, "[{device_info : 21}]",
             linkkit_extended_info_operate_update);
 }
-#endif
 
 int is_active(sample_context_t *sample_ctx)
 {
@@ -665,7 +663,7 @@ int linkkit_example()
          * please follow user's rule to modify these code.
          */
         
-        /* Manually Trigger Config OTA */
+        /* Manually Trigger Config OTA If Need */
         /* if (now % 10 == 0) {
             linkkit_invoke_cota_get_config("product","file","",NULL);
         } */
@@ -683,11 +681,10 @@ int linkkit_example()
             trigger_event(&sample_ctx);
         }
 
-#ifdef EXTENDED_INFO_ENABLED
-        if (now % 50 == 0 && is_active(&sample_ctx)) {
+        /* Send Device Extended Info To Cloud If Need */
+        /* if (now % 50 == 0 && is_active(&sample_ctx)) {
             trigger_deviceinfo(&sample_ctx);
-        }
-#endif
+        } */
 
         if (exit) {
             break;
