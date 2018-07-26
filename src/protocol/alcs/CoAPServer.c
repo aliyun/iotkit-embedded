@@ -85,6 +85,7 @@ static void *CoAPServer_yield(void *param)
     while(g_coap_running){
         CoAPMessage_cycle(context);
     }
+
 #ifdef COAP_SERV_MULTITHREAD
     HAL_SemaphorePost(g_semphore);
     COAP_INFO("Exit the CoAP daemon task, Post semphore");
@@ -145,7 +146,7 @@ CoAPContext *CoAPServer_init()
 #ifdef COAP_SERV_MULTITHREAD
         g_coap_running = 1;
         hal_os_thread_param_t task_parms = {0};
-        task_parms.stack_size = 2048;
+        task_parms.stack_size = 4096;
         task_parms.name = "CoAPServer_yield";
         HAL_ThreadCreate(&g_coap_thread, CoAPServer_yield, (void *)g_context, &task_parms, &stack_used);
 #endif
