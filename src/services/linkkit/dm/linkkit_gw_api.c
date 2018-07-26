@@ -1022,6 +1022,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 	int res = 0, stack_used = 0;
     iotx_dm_init_params_t dm_init_params;
 
+    if (g_linkkit_inited == 0) {return FAIL_RETURN;}
     if (g_linkkit_started == 1) {return FAIL_RETURN;}
 
     if (cbs == NULL) {
