@@ -258,20 +258,6 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
  */
 int linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
 
-/**s
- * @brief trigger a event to post to cloud.
- *
- * @param thing_id, pointer to thing object.
- * @param event_identifier, event identifier to trigger.
- * @param event, event data, in JSON format.
- * @param cb, callback function of event post.
- *
- * @return 0 when success, -1 when fail.
- */
-int linkkit_trigger_event_json(const void *thing_id, const char *event_identifier, char *event,
-                                      handle_post_cb_fp_t cb);
-
-
 /**
  * @brief post property to cloud.
  *
@@ -282,19 +268,6 @@ int linkkit_trigger_event_json(const void *thing_id, const char *event_identifie
  * @return >=0 when success, -1 when fail.
  */
 int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
-
-/**
- * @brief post property to cloud.
- *
- * @param thing_id, pointer to thing object.
- * @param property_identifier, used when trigger event with method "event.property.post", if set, post specified property, if NULL, post all.
- * @param event, property data, in JSON format.
- * @param cb, callback function of property post.
- *
- * @return 0 when success, -1 when fail.
- */
-int linkkit_post_property_json(const void *thing_id, const char *property_identifier, char *property,
-                                      handle_post_cb_fp_t cb);
 
 /**
  * @brief this function used to yield when want to receive or send data.

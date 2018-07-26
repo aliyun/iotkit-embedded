@@ -1582,15 +1582,3 @@ int linkkit_gateway_get_num_devices(void)
 {
     return iotx_dm_subdev_number();
 }
-/**
- * @brief get all devices currently in gateway
- *
- * @param devinfos, device information array, see linkkit_devinfo_t for more detail.
- * @param nb_devinfos, number of extend infos in extinfos.
- *
- * @return number devinfos filled.
- */
-int linkkit_gateway_get_devinfos(linkkit_devinfo_t *devinfos, int nb_devinfos)
-{
-    return 0;
-}
