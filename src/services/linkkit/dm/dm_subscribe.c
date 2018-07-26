@@ -188,6 +188,8 @@ int dm_sub_multi_next(_IN_ int devid, _IN_ int index)
 		if (*(subscribe + sub_index)) {DM_free(*(subscribe + sub_index));}
 	}
 
+	DM_free(subscribe);
+	
 	dm_mgr_set_dev_sub_generic_index(devid,search_index);
 
 	return SUCCESS_RETURN;
