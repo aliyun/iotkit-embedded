@@ -30,11 +30,16 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <assert.h>
-#include <net/if.h>	      // struct ifreq
+#include <net/if.h>       // struct ifreq
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
+#include <sys/reboot.h>
+#include <sys/time.h>
+#include <time.h>
+#include <signal.h>
+
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
 #include "kv.h"
@@ -42,10 +47,10 @@
 #define __DEMO__
 
 #ifdef __DEMO__
-char _product_key[PRODUCT_KEY_LEN + 1];
-char _product_secret[PRODUCT_SECRET_LEN + 1];
-char _device_name[DEVICE_NAME_LEN + 1];
-char _device_secret[DEVICE_SECRET_LEN + 1];
+    char _product_key[PRODUCT_KEY_LEN + 1];
+    char _product_secret[PRODUCT_SECRET_LEN + 1];
+    char _device_name[DEVICE_NAME_LEN + 1];
+    char _device_secret[DEVICE_SECRET_LEN + 1];
 #endif
 
 void *HAL_MutexCreate(void)
@@ -138,8 +143,9 @@ char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
     localtime_r(&tv.tv_sec, &tm);
     strftime(buf, 28, "%m-%d %H:%M:%S", &tm);
     str_len = strlen(buf);
-    if (str_len + 3 < len)
-        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec)/1000);
+    if (str_len + 3 < len) {
+        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec) / 1000);
+    }
     return buf;
 }
 #endif
@@ -187,7 +193,7 @@ void HAL_Printf(_IN_ const char *fmt, ...)
     fflush(stdout);
 }
 
-int HAL_GetPartnerID(char* pid_str)
+int HAL_GetPartnerID(char *pid_str)
 {
     memset(pid_str, 0x0, PID_STRLEN_MAX);
 #ifdef __DEMO__
@@ -196,7 +202,7 @@ int HAL_GetPartnerID(char* pid_str)
     return strlen(pid_str);
 }
 
-int HAL_GetModuleID(char* mid_str)
+int HAL_GetModuleID(char *mid_str)
 {
     memset(mid_str, 0x0, MID_STRLEN_MAX);
 #ifdef __DEMO__
@@ -206,7 +212,7 @@ int HAL_GetModuleID(char* mid_str)
 }
 
 
-char *HAL_GetChipID(_OU_ char* cid_str)
+char *HAL_GetChipID(_OU_ char *cid_str)
 {
     memset(cid_str, 0x0, HAL_CID_LEN);
 #ifdef __DEMO__
@@ -217,7 +223,7 @@ char *HAL_GetChipID(_OU_ char* cid_str)
 }
 
 
-int HAL_GetDeviceID(_OU_ char* device_id)
+int HAL_GetDeviceID(_OU_ char *device_id)
 {
     memset(device_id, 0x0, DEVICE_ID_LEN);
 #ifdef __DEMO__
@@ -228,11 +234,13 @@ int HAL_GetDeviceID(_OU_ char* device_id)
     return strlen(device_id);
 }
 
-int HAL_SetProductKey(_IN_ char* product_key)
+int HAL_SetProductKey(_IN_ char *product_key)
 {
     int len = strlen(product_key);
 #ifdef __DEMO__
-    if (len > PRODUCT_KEY_LEN) return -1;
+    if (len > PRODUCT_KEY_LEN) {
+        return -1;
+    }
     memset(_product_key, 0x0, PRODUCT_KEY_LEN + 1);
     strncpy(_product_key, product_key, len);
 #endif
@@ -240,11 +248,13 @@ int HAL_SetProductKey(_IN_ char* product_key)
 }
 
 
-int HAL_SetDeviceName(_IN_ char* device_name)
+int HAL_SetDeviceName(_IN_ char *device_name)
 {
     int len = strlen(device_name);
 #ifdef __DEMO__
-    if (len > DEVICE_NAME_LEN) return -1;
+    if (len > DEVICE_NAME_LEN) {
+        return -1;
+    }
     memset(_device_name, 0x0, DEVICE_NAME_LEN + 1);
     strncpy(_device_name, device_name, len);
 #endif
@@ -252,11 +262,13 @@ int HAL_SetDeviceName(_IN_ char* device_name)
 }
 
 
-int HAL_SetDeviceSecret(_IN_ char* device_secret)
+int HAL_SetDeviceSecret(_IN_ char *device_secret)
 {
     int len = strlen(device_secret);
 #ifdef __DEMO__
-    if (len > DEVICE_SECRET_LEN) return -1;
+    if (len > DEVICE_SECRET_LEN) {
+        return -1;
+    }
     memset(_device_secret, 0x0, DEVICE_SECRET_LEN + 1);
     strncpy(_device_secret, device_secret, len);
 #endif
@@ -264,18 +276,20 @@ int HAL_SetDeviceSecret(_IN_ char* device_secret)
 }
 
 
-int HAL_SetProductSecret(_IN_ char* product_secret)
+int HAL_SetProductSecret(_IN_ char *product_secret)
 {
     int len = strlen(product_secret);
 #ifdef __DEMO__
-    if (len > PRODUCT_SECRET_LEN) return -1;
+    if (len > PRODUCT_SECRET_LEN) {
+        return -1;
+    }
     memset(_product_secret, 0x0, PRODUCT_SECRET_LEN + 1);
     strncpy(_product_secret, product_secret, len);
 #endif
     return len;
 }
 
-int HAL_GetProductKey(_OU_ char* product_key)
+int HAL_GetProductKey(_OU_ char *product_key)
 {
     int len = strlen(_product_key);
     memset(product_key, 0x0, PRODUCT_KEY_LEN);
@@ -287,7 +301,7 @@ int HAL_GetProductKey(_OU_ char* product_key)
     return len;
 }
 
-int HAL_GetProductSecret(_OU_ char* product_secret)
+int HAL_GetProductSecret(_OU_ char *product_secret)
 {
     int len = strlen(_product_secret);
     memset(product_secret, 0x0, PRODUCT_SECRET_LEN);
@@ -299,7 +313,7 @@ int HAL_GetProductSecret(_OU_ char* product_secret)
     return len;
 }
 
-int HAL_GetDeviceName(_OU_ char* device_name)
+int HAL_GetDeviceName(_OU_ char *device_name)
 {
     int len = strlen(_device_name);
     memset(device_name, 0x0, DEVICE_NAME_LEN);
@@ -311,7 +325,7 @@ int HAL_GetDeviceName(_OU_ char* device_name)
     return strlen(device_name);
 }
 
-int HAL_GetDeviceSecret(_OU_ char* device_secret)
+int HAL_GetDeviceSecret(_OU_ char *device_secret)
 {
     int len = strlen(_device_secret);
     memset(device_secret, 0x0, DEVICE_SECRET_LEN);
@@ -324,7 +338,7 @@ int HAL_GetDeviceSecret(_OU_ char* device_secret)
 }
 
 
-int HAL_GetFirmwareVesion(_OU_ char* version)
+int HAL_GetFirmwareVesion(_OU_ char *version)
 {
     char *ver = "1.0";
     int len = strlen(ver);
@@ -432,7 +446,7 @@ void HAL_Firmware_Persistence_Start(void)
 {
 #ifdef __DEMO__
     fp = fopen(otafilename, "w");
-//    assert(fp);
+    //    assert(fp);
 #endif
     return;
 }
@@ -572,8 +586,8 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
     int sock = -1;
     char ifname_buff[IFNAMSIZ] = {0};
 
-    if((NULL == ifname || strlen(ifname) == 0) &&
-        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))){
+    if ((NULL == ifname || strlen(ifname) == 0) &&
+        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))) {
         perror("get default routeing ifname");
         return -1;
     }
@@ -607,8 +621,9 @@ int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
 {
     if (!kvfile) {
         kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile)
+        if (!kvfile) {
             return -1;
+        }
     }
 
     return kv_set_blob(kvfile, (char *)key, (char *)val, len);
@@ -618,8 +633,9 @@ int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
 {
     if (!kvfile) {
         kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile)
+        if (!kvfile) {
             return -1;
+        }
     }
 
     return kv_get_blob(kvfile, (char *)key, buffer, buffer_len);
@@ -629,8 +645,9 @@ int HAL_Kv_Del(const char *key)
 {
     if (!kvfile) {
         kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile)
+        if (!kvfile) {
             return -1;
+        }
     }
 
     return kv_del(kvfile, (char *)key);
@@ -650,11 +667,109 @@ static long long delta_time = 0;
 void HAL_UTC_Set(long long ms)
 {
     delta_time = ms - os_time_get();
-} 
+}
 
 long long HAL_UTC_Get(void)
 {
     return delta_time + os_time_get();
+}
+
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
+{
+    timer_t *timer = NULL;
+
+    struct sigevent ent;
+
+    /* check parameter */
+    if (func == NULL) {
+        return NULL;
+    }
+
+    timer = (timer_t *)malloc(sizeof(time_t));
+
+    /* Init */
+    memset(&ent, 0x00, sizeof(struct sigevent));
+
+    /* create a timer */
+    ent.sigev_notify = SIGEV_THREAD;
+    ent.sigev_notify_function = (void (*)(union sigval))func;
+    ent.sigev_value.sival_ptr = user_data;
+
+    printf("HAL_Timer_Create\n");
+
+    if (timer_create(CLOCK_MONOTONIC, &ent, timer) != 0) {
+        fprintf(stderr, "timer_create");
+        return NULL;
+    }
+
+    return (void *)timer;
+}
+
+int HAL_Timer_Start(void *timer, int ms)
+{
+    struct itimerspec ts;
+
+    /* check parameter */
+    if (timer == NULL) {
+        return -1;
+    }
+
+    /* it_interval=0: timer run only once */
+    ts.it_interval.tv_sec = 0;
+    ts.it_interval.tv_nsec = 0;
+
+    /* it_value=0: stop timer */
+    ts.it_value.tv_sec = ms / 1000;
+    ts.it_value.tv_nsec = (ms % 1000) * 1000;
+
+    printf("HAL_Timer_Start\n");
+
+    return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
+}
+
+int HAL_Timer_Stop(void *timer)
+{
+    struct itimerspec ts;
+
+    /* check parameter */
+    if (timer == NULL) {
+        return -1;
+    }
+
+    /* it_interval=0: timer run only once */
+    ts.it_interval.tv_sec = 0;
+    ts.it_interval.tv_nsec = 0;
+
+    /* it_value=0: stop timer */
+    ts.it_value.tv_sec = 0;
+    ts.it_value.tv_nsec = 0;
+
+    printf("HAL_Timer_Stop\n");
+
+    return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
+}
+
+int HAL_Timer_Delete(void *timer)
+{
+    int ret = 0;
+
+    /* check parameter */
+    if (timer == NULL) {
+        return -1;
+    }
+
+    printf("HAL_Timer_Delete\n");
+
+    ret = timer_delete(*(timer_t *)timer);
+
+    free(timer);
+
+    return ret;
+}
+
+void HAL_Reboot(void)
+{
+    reboot(0);
 }
 
 

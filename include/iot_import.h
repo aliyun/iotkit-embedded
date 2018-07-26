@@ -768,6 +768,7 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data);
 int HAL_Timer_Start(void *t, int ms);
 int HAL_Timer_Stop(void *t);
 int HAL_Timer_Delete(void *timer);
+void HAL_Reboot(void);
 
 /**
  * @brief Set the UTC time in milliseconds.
