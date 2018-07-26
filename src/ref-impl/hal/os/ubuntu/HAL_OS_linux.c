@@ -435,6 +435,7 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
     } else {
         /*main thread delete child thread*/
         pthread_cancel((pthread_t)thread_handle);
+        pthread_join((pthread_t)thread_handle, 0);
     }
 }
 

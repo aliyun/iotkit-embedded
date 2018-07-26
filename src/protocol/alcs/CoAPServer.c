@@ -176,6 +176,7 @@ void CoAPServer_deinit(CoAPContext *context)
         HAL_SemaphoreDestroy(g_semphore);
         g_semphore = NULL;
     }
+    HAL_ThreadDelete(g_coap_thread);
 #endif
     if(NULL != context){
         CoAPContext_free(context);
