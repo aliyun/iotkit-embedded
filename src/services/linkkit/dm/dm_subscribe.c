@@ -350,6 +350,7 @@ int dm_sub_shadow_next(int devid, int index)
 	int res = 0;
 	char *service_event = NULL;
 	void *conn = dm_conn_get_cloud_conn();
+	void *local_conn = dm_conn_get_local_conn();
 
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -363,6 +364,9 @@ int dm_sub_shadow_next(int devid, int index)
 	dm_log_debug("Current Subscribe Topic: %s",service_event);
 	res = dm_cmw_cloud_register(conn,&service_event,1,NULL);
 	if (res == FAIL_RETURN) {dm_log_warning(DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED,strlen(service_event),service_event);}
+
+	/* Regiter Resource To Local */
+	dm_cmw_local_add_service(local_conn,service_event,IOTX_DM_MESSAGE_AUTH,NULL);
 
 	DM_free(service_event);
 

@@ -1385,7 +1385,7 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY,NULL);
 		res = request.msgid;
@@ -1427,7 +1427,7 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY,NULL);
 		res = request.msgid;
@@ -1469,7 +1469,7 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_ADD_REPLY,NULL);
 		res = request.msgid;
@@ -1511,7 +1511,7 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_DELETE_REPLY,NULL);
 		res = request.msgid;
@@ -1548,7 +1548,7 @@ int dm_mgr_upstream_thing_topo_get(void)
 	request.devid = node->devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_GET_REPLY,NULL);
 		res = request.msgid;
@@ -1590,7 +1590,7 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_TOPO_ADD_NOTIFY_REPLY,NULL);
 		res = request.msgid;
@@ -1632,7 +1632,7 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_all(&request);
 	if (res == SUCCESS_RETURN) {
 		int prop_post_reply = 0;
 		res = dm_opt_get(DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY,&prop_post_reply);
@@ -1689,7 +1689,7 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_all(&request);
 	if (res == SUCCESS_RETURN) {
 		int event_post_reply = 0;
 		res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY,&event_post_reply);
@@ -1736,7 +1736,7 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY,NULL);
 		res = request.msgid;
@@ -1778,7 +1778,7 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY,NULL);
 		res = request.msgid;
@@ -1820,7 +1820,7 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,NULL);
 		res = request.msgid;
@@ -1862,7 +1862,7 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,NULL);
 		res = request.msgid;
@@ -1904,7 +1904,7 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_COMBINE_LOGIN_REPLY,NULL);
 		res = request.msgid;
@@ -1946,7 +1946,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		dm_msg_cache_insert(request.msgid,request.devid,IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY,NULL);
 		res = request.msgid;
@@ -2032,7 +2032,7 @@ int dm_mgr_upstream_ntp_request(void)
 	memcpy(cloud_payload,payload,payload_len);
 	#endif
 	
-	res = dm_cmw_send_to_all(uri,(char *)ntp_request_fmt,NULL);
+	res = dm_cmw_send_to_cloud(uri,(char *)ntp_request_fmt,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);//DM_free(cloud_payload);
 		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
@@ -2125,7 +2125,7 @@ int dm_mgr_upstream_thing_lan_prefix_get(_IN_ int devid)
 	request.devid = devid;
 
 	/* Send Message To Cloud */
-	res = dm_msg_request(&request);
+	res = dm_msg_request_cloud(&request);
 	if (res == SUCCESS_RETURN) {
 		res = request.msgid;
 	}

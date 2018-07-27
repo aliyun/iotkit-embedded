@@ -21,6 +21,7 @@ int dm_cmw_local_add_subdev(void *conn_handle, const char *product_key, const ch
 int dm_cmw_local_remove_subdev(void *conn_handle, char *product_key, char *device_name);
 int dm_cmw_send_to_all(char *uri, char *payload, void *user_data);
 int dm_cmw_send_to_cloud(char *uri, char *payload, void *user_data);
+int dm_cmw_send_to_local(char *uri, int uri_len, char *payload, int payload_len, void *user_data);
 int dm_cmw_send_to_device(void *conn_handle, char *product_key, char *device_name, char *uri, char *payload, void *user_data);
 
 #endif

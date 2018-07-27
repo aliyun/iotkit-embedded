@@ -235,7 +235,7 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
 }
 
 const char DM_MSG_REQUEST[] DM_READ_ONLY = "{\"id\":\"%d\",\"version\":\"%s\",\"params\":%s,\"method\":\"%s\"}";
-int dm_msg_request(_IN_ dm_msg_request_t *request)
+int dm_msg_request_all(_IN_ dm_msg_request_t *request)
 {
 	int res = 0, payload_len = 0;
 	char *payload = NULL, *uri = NULL;
@@ -264,6 +264,84 @@ int dm_msg_request(_IN_ dm_msg_request_t *request)
 	dm_log_info("DM Send Message, URI: %s, Payload: %s",uri,payload);
 
 	res = dm_cmw_send_to_all(uri,payload,NULL);
+	if (res != SUCCESS_RETURN) {
+		DM_free(uri);DM_free(payload);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
+		return FAIL_RETURN;
+	}
+
+	DM_free(uri);DM_free(payload);
+	return SUCCESS_RETURN;
+}
+
+int dm_msg_request_cloud(_IN_ dm_msg_request_t *request)
+{
+	int res = 0, payload_len = 0;
+	char *payload = NULL, *uri = NULL;
+
+	if (request == NULL || request->params == NULL || request->method == NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Request URI */
+	res = dm_utils_service_name(request->service_prefix,request->service_name,
+								request->product_key,request->device_name,&uri);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	payload_len = strlen(DM_MSG_REQUEST) + 10 + strlen(DM_MSG_VERSION) + strlen(request->params) + strlen(request->method) + 1;
+	payload = DM_malloc(payload_len);
+	if (payload == NULL) {
+		DM_free(uri);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(payload,0,payload_len);
+	HAL_Snprintf(payload,payload_len,DM_MSG_REQUEST,request->msgid,
+					DM_MSG_VERSION,request->params,request->method);
+
+	dm_log_info("DM Send Message, URI: %s, Payload: %s",uri,payload);
+
+	res = dm_cmw_send_to_cloud(uri,payload,NULL);
+	if (res != SUCCESS_RETURN) {
+		DM_free(uri);DM_free(payload);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
+		return FAIL_RETURN;
+	}
+
+	DM_free(uri);DM_free(payload);
+	return SUCCESS_RETURN;
+}
+
+int dm_msg_request_local(_IN_ dm_msg_request_t *request)
+{
+	int res = 0, payload_len = 0;
+	char *payload = NULL, *uri = NULL;
+
+	if (request == NULL || request->params == NULL || request->method == NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Request URI */
+	res = dm_utils_service_name(request->service_prefix,request->service_name,
+								request->product_key,request->device_name,&uri);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	payload_len = strlen(DM_MSG_REQUEST) + 10 + strlen(DM_MSG_VERSION) + strlen(request->params) + strlen(request->method) + 1;
+	payload = DM_malloc(payload_len);
+	if (payload == NULL) {
+		DM_free(uri);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(payload,0,payload_len);
+	HAL_Snprintf(payload,payload_len,DM_MSG_REQUEST,request->msgid,
+					DM_MSG_VERSION,request->params,request->method);
+
+	dm_log_info("DM Send Message, URI: %s, Payload: %s",uri,payload);
+
+	res = dm_cmw_send_to_local(uri,strlen(uri),payload,strlen(payload),NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
 		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
@@ -343,7 +421,7 @@ int dm_msg_response_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm
 	HAL_Snprintf(payload,payload_len,DM_MSG_RESPONSE_WITHOUT_DATA,
 					request->id.value_length,request->id.value,response->code);
 
-	res = dm_cmw_send_to_all(uri,payload,NULL);
+	res = dm_cmw_send_to_cloud(uri,payload,NULL);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
 		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);

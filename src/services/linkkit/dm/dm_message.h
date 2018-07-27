@@ -66,7 +66,9 @@ int dm_msg_send_msg_timeout_to_user(int msg_id, int devid, iotx_dm_event_types_t
 int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli, _IN_ int end_deli, _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN]);
 int dm_msg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_request_payload_t *request);
 int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_response_payload_t *response);
-int dm_msg_request(_IN_ dm_msg_request_t *request);
+int dm_msg_request_all(_IN_ dm_msg_request_t *request);
+int dm_msg_request_cloud(_IN_ dm_msg_request_t *request);
+int dm_msg_request_local(_IN_ dm_msg_request_t *request);
 int dm_msg_response_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, _IN_ char *data, _IN_ int data_len);
 int dm_msg_response_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response);
 int dm_msg_property_set(int devid,dm_msg_request_payload_t *request);

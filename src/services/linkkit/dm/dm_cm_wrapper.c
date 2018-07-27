@@ -2,6 +2,7 @@
 #include "dm_cm_wrapper.h"
 #include "dm_dispatch.h"
 #include "dm_manager.h"
+#include "dm_conn.h"
 #include "iotx_cm.h"
 
 void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -466,6 +467,55 @@ int dm_cmw_send_to_cloud(char *uri, char *payload, void *user_data)
     res = iotx_cm_send(NULL, &cm_send_peer, &cm_message_info, NULL);
     dm_log_info(DM_UTILS_LOG_CM_SEND_RESULT, res);
 
+    return res;
+}
+
+int dm_cmw_send_to_local(char *uri, int uri_len, char *payload, int payload_len, void *user_data)
+{
+    int res = 0;
+    char *cm_uri = NULL, *cm_payload = NULL;
+    iotx_cm_message_info_t cm_message_info;
+    void *local_conn = NULL;
+
+    if (uri == NULL || uri_len <= 0 || payload == NULL || payload_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    local_conn = dm_conn_get_local_conn();
+    if (local_conn == NULL) {
+        return FAIL_RETURN;
+    }
+
+    cm_uri = DM_malloc(uri_len + 1);
+    if (cm_uri == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        return FAIL_RETURN;
+    }
+    memset(cm_uri,0,uri_len + 1);
+    memcpy(cm_uri,uri,uri_len);
+
+    cm_payload = DM_malloc(payload_len + 1);
+    if (cm_payload == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        DM_free(cm_uri);
+        return FAIL_RETURN;
+    }
+    memset(cm_payload,0,payload_len + 1);
+    memcpy(cm_payload,payload,payload_len);
+
+    memset(&cm_message_info, 0, sizeof(iotx_cm_message_info_t));
+    cm_message_info.ack_type = IOTX_CM_MESSAGE_NO_ACK;
+    cm_message_info.URI = cm_uri;
+    cm_message_info.URI_length = uri_len;
+    cm_message_info.payload = cm_payload;
+    cm_message_info.payload_length = payload_len;
+    cm_message_info.conn_ctx = user_data;
+
+    res = iotx_cm_send(local_conn, NULL, &cm_message_info, NULL);
+    dm_log_info(DM_UTILS_LOG_CM_SEND_RESULT, res);
+
+    DM_free(cm_uri);DM_free(cm_payload);
     return res;
 }
 

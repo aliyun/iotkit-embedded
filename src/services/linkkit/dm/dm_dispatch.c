@@ -80,29 +80,29 @@ const char DM_DISP_THING_LAN_BLACKLIST_UPDATE[]        DM_READ_ONLY = "thing/lan
 const char DM_DISP_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY = "thing/lan/blacklist/update_reply";
 
 static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
-	{DM_DISP_THING_TOPO_ADD_NOTIFY,            DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_topo_add_notify              },
-	{DM_DISP_THING_SERVICE_PROPERTY_SET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_service_property_set         },
-	{DM_DISP_THING_SERVICE_PROPERTY_GET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_service_property_get         },
-	{DM_DISP_THING_DISABLE,                    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_disable                      },
-	{DM_DISP_THING_ENABLE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_enable                       },
-	{DM_DISP_THING_DELETE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_delete                       },
-	{DM_DISP_THING_MODEL_DOWN_RAW,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_model_down_raw               },
-	{DM_DISP_THING_GATEWAY_PERMIT,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_gateway_permit               },
-	{DM_DISP_THING_SUB_REGISTER_REPLY,         DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_sub_register_reply           },
-	{DM_DISP_THING_SUB_UNREGISTER_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_sub_unregister_reply         },
-	{DM_DISP_THING_TOPO_ADD_REPLY,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_topo_add_reply               },
-	{DM_DISP_THING_TOPO_DELETE_REPLY,          DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_topo_delete_reply            },
-	{DM_DISP_THING_TOPO_GET_REPLY,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_topo_get_reply               },
-	{DM_DISP_THING_LIST_FOUND_REPLY,           DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_thing_list_found_reply             },
-	{DM_DISP_THING_EVENT_PROPERTY_POST_REPLY,  DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_event_property_post_reply    },
-	{DM_DISP_THING_DEVICEINFO_UPDATE_REPLY,    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_deviceinfo_update_reply      },
-	{DM_DISP_THING_DEVICEINFO_DELETE_REPLY,    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_deviceinfo_delete_reply      },
-	{DM_DISP_THING_DSLTEMPLATE_GET_REPLY,      DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_dsltemplate_get_reply        },
-	{DM_DISP_THING_DYNAMICTSL_GET_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_dynamictsl_get_reply         },
-	{DM_DISP_COMBINE_LOGIN_REPLY,              DM_DISP_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_combine_login_reply                },
-	{DM_DISP_COMBINE_LOGOUT_REPLY,             DM_DISP_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_ALL,   dm_disp_combine_logout_reply               },
-	{DM_DISP_THING_MODEL_UP_RAW_REPLY,         DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,   dm_disp_thing_model_up_raw_reply           },
-	{DM_DISP_NTP_RESPONSE,                     DM_DISP_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_ntp_response                       },
+	{DM_DISP_THING_TOPO_ADD_NOTIFY,            DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_topo_add_notify              },
+	{DM_DISP_THING_SERVICE_PROPERTY_SET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_service_property_set         },
+	{DM_DISP_THING_SERVICE_PROPERTY_GET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_service_property_get         },
+	{DM_DISP_THING_DISABLE,                    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_disable                      },
+	{DM_DISP_THING_ENABLE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_enable                       },
+	{DM_DISP_THING_DELETE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_delete                       },
+	{DM_DISP_THING_MODEL_DOWN_RAW,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_model_down_raw               },
+	{DM_DISP_THING_GATEWAY_PERMIT,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_gateway_permit               },
+	{DM_DISP_THING_SUB_REGISTER_REPLY,         DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_sub_register_reply           },
+	{DM_DISP_THING_SUB_UNREGISTER_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_sub_unregister_reply         },
+	{DM_DISP_THING_TOPO_ADD_REPLY,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_topo_add_reply               },
+	{DM_DISP_THING_TOPO_DELETE_REPLY,          DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_topo_delete_reply            },
+	{DM_DISP_THING_TOPO_GET_REPLY,             DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_topo_get_reply               },
+	{DM_DISP_THING_LIST_FOUND_REPLY,           DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_list_found_reply             },
+	{DM_DISP_THING_EVENT_PROPERTY_POST_REPLY,  DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_event_property_post_reply    },
+	{DM_DISP_THING_DEVICEINFO_UPDATE_REPLY,    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_deviceinfo_update_reply      },
+	{DM_DISP_THING_DEVICEINFO_DELETE_REPLY,    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_deviceinfo_delete_reply      },
+	{DM_DISP_THING_DSLTEMPLATE_GET_REPLY,      DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_dsltemplate_get_reply        },
+	{DM_DISP_THING_DYNAMICTSL_GET_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_dynamictsl_get_reply         },
+	{DM_DISP_COMBINE_LOGIN_REPLY,              DM_DISP_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_combine_login_reply                },
+	{DM_DISP_COMBINE_LOGOUT_REPLY,             DM_DISP_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_combine_logout_reply               },
+	{DM_DISP_THING_MODEL_UP_RAW_REPLY,         DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_model_up_raw_reply           },
+	{DM_DISP_NTP_RESPONSE,                     DM_DISP_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_CLOUD,   dm_disp_ntp_response                       },
 	{DM_DISP_DEV_CORE_SERVICE_DEV,             NULL,                        IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH, dm_disp_thing_dev_core_service_dev         },
 	//{DM_DISP_THING_LAN_PREFIX_GET_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_prefix_get_reply         },
 	//{DM_DISP_THING_LAN_PREFIX_UPDATE_REPLY,    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_prefix_update_reply      },
@@ -476,6 +476,8 @@ void dm_disp_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_mes
 	if (res == SUCCESS_RETURN) {
 		if (prop_set_reply_opt) {dm_msg_response_without_data(&request,&response);}
 	}
+
+	dm_cmw_send_to_local(msg->URI,msg->URI_length,msg->payload,msg->payload_length,NULL);
 }
 
 void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
@@ -508,6 +510,9 @@ void dm_disp_thing_service_request(iotx_cm_send_peer_t* source, iotx_cm_message_
 	/* Operation */
 	res = dm_msg_thing_service_request(product_key,device_name,identifier,identifier_len,&request);
 	if (res != SUCCESS_RETURN) {return;}
+
+	/* Send Message To Local */
+	dm_cmw_send_to_local(msg->URI,msg->URI_length,msg->payload,msg->payload_length,NULL);
 }
 
 void dm_disp_thing_disable(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
