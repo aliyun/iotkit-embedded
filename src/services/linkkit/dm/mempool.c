@@ -76,6 +76,7 @@ int AMemPool_Free(AMemPool *p)
     if (!p)
         return -1;
 
+    HAL_MutexLock(p->lock);
     printf("num_free = %d, blk_size = %d, total_size = %d\n", p->num_free, p->blk_size, p->num_free * p->blk_size);
     printf("num_used = %d\n", p->num_used);
 
@@ -90,6 +91,7 @@ int AMemPool_Free(AMemPool *p)
 
         LITE_free(mblk);
     }
+    HAL_MutexUnlock(p->lock);
 
     assert(p->num_free == 0);
     assert(p->num_used == 0);
