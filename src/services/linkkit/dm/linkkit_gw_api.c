@@ -409,6 +409,10 @@ static void _linkkit_event_topo_add_reply(char *payload)
 
 void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 {
+    if (!main_device) {
+        dm_log_err("main_device is NULL (%p)! Abort!", main_device);
+    }
+
     dm_log_info("Receive Message Type: %d",type);
     if (payload) {dm_log_info("Receive Message: %s",payload);}
 
@@ -1573,6 +1577,10 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     int id;
 
     if (g_linkkit_started == 0) {return FAIL_RETURN;}
+    if (extinfos == NULL || nb_extinfos <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     if (timeout_ms < 0) {
         return -1;
