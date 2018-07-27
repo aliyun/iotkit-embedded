@@ -246,10 +246,12 @@ static void otacoap_report_version_period()
 
 static const char *to_capital_letter(char *value, int len)
 {
+    int     i = 0;
+
     if (value == NULL || len <= 0) {
         return NULL;
     }
-    for (int i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         if (*(value + i) >= 'a' && *(value + i) <= 'z') {
             *(value + i) -= 'a' - 'A';
         }
@@ -271,9 +273,14 @@ static const char *to_capital_letter(char *value, int len)
 int ota_transport_init(void)
 {
     int ret = 0;
-    iotx_coap_config_t config = {0};
-    iotx_device_info_t dev = {0};
+
+    iotx_coap_config_t config;
+    iotx_device_info_t dev;
     ota_service_manager* ctx = (ota_service_manager*)get_ota_service_manager();
+
+    memset(&config, 0, sizeof(config));
+    memset(&dev, 0, sizeof(dev));
+
     strcpy(dev.device_id,ctx->ps);
     strcpy(dev.product_key,ctx->pk);
     strcpy(dev.device_name,ctx->dn);

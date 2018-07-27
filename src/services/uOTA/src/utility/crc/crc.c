@@ -94,7 +94,8 @@ unsigned int UpdateCRC32(unsigned int data)
     register unsigned int crc = data;
     register unsigned int polynomial = 0xedb88320;
 
-    for (unsigned int i = 8 ; i > 0; i--)
+    unsigned int i;
+    for (i = 8 ; i > 0; i--)
     {
         if (crc & 1)
             crc = (crc >> 1) ^ polynomial;

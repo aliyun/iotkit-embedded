@@ -542,6 +542,7 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
     FILE *fp = NULL;
     int file_size = 0, block_num = 0,  ret = 0, cur_pos = 0;
     kv_t kv_item;
+    int     i;
 
     /* check parameter */
     if(key == NULL || val == NULL)
@@ -555,7 +556,7 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
         goto _hal_set_error;
     }
 
-    for(int i = 0; i < block_num; i++)
+    for(i = 0; i < block_num; i++)
     {
         memset(&kv_item, 0, sizeof(kv_t));
         cur_pos = ftell(fp);
@@ -626,6 +627,7 @@ _hal_set_ok:
 int ota_kv_get(const char *key, void *buffer, int *buffer_len)
 {
     FILE *fp = NULL;
+    int i;
     /* read from file */
     int file_size = 0, block_num = 0;
     kv_t kv_item;
@@ -643,7 +645,7 @@ int ota_kv_get(const char *key, void *buffer, int *buffer_len)
         goto _hal_get_error;
     }
 
-    for(int i = 0; i < block_num; i++)
+    for(i = 0; i < block_num; i++)
     {
         memset(&kv_item, 0, sizeof(kv_t));
         /* read an kv item(512 bytes) from file */
@@ -691,6 +693,7 @@ _hal_get_ok:
 int ota_kv_del(const char *key)
 {
     FILE *fp = NULL;
+    int i;
     /* read from file */
     int file_size = 0, block_num = 0, cur_pos = 0;
     kv_t kv_item;
@@ -709,7 +712,7 @@ int ota_kv_del(const char *key)
         goto _hal_del_error;
     }
 
-    for(int i = 0; i < block_num; i++)
+    for(i = 0; i < block_num; i++)
     {
         memset(&kv_item, 0, sizeof(kv_t));
         cur_pos = ftell(fp);
