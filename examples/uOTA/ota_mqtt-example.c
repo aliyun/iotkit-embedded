@@ -34,9 +34,9 @@
     #define DEVICE_NAME             "ota_test"
     #define DEVICE_SECRET           "67szT5tQNMIu3sbrd3UwLhs7M73wTHXQ"
 #else
-    #define PRODUCT_KEY             "yfTuLfBJTiL"
-    #define DEVICE_NAME             "TestDeviceForDemo"
-    #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+    #define PRODUCT_KEY             "a1IfbZi3oDt"
+    #define DEVICE_NAME             "Test1"
+    #define DEVICE_SECRET           "kuzVoswkUIdb9uXm4T8ykIJushFym8RL"
 #endif
 
 char g_product_key[PRODUCT_KEY_LEN + 1];
