@@ -658,15 +658,19 @@ int iotx_guider_authenticate(void)
     /* host name and port of ITLS environment */
 #if defined(SUPPORT_ITLS)
 #if defined(ON_DAILY)
-    conn->port = 1885;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "106.15.166.168");
+        conn->port = 1885;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                          "10.125.7.82");
+#elif defined(ON_PRE)
+        conn->port = 1885;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                          "106.15.166.168");
 #else
-    conn->port = 1883;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s.%s",
-                      dev->product_key,
-                      GUIDER_DIRECT_DOMAIN_ITLS);
+        conn->port = 1883;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                          "%s.%s",
+                          dev->product_key,
+                          GUIDER_DIRECT_DOMAIN_ITLS);
 #endif
 #endif
 

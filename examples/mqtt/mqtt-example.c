@@ -32,6 +32,11 @@
         #define PRODUCT_SECRET          "i11p9cngs22gORO4XLFD4D5AB8EC10B3"
         #define DEVICE_NAME             "000FFFFFAB5F174855956D00"
         #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
+    #elif defined(ON_PRE)
+        #define PRODUCT_KEY             "a16E4IcVRBf"
+        #define PRODUCT_SECRET          "i11p9cngs22gORO4XLFD4D5AB8EC10B3"
+        #define DEVICE_NAME             "Device1"
+        #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
     #else
         #error "not support online iTLS for now"
     #endif
