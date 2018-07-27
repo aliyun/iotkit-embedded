@@ -411,6 +411,7 @@ void _linkkit_gw_event_callback(iotx_dm_event_types_t type, char *payload)
 {
     if (!main_device) {
         dm_log_err("main_device is NULL (%p)! Abort!", main_device);
+        return;
     }
 
     dm_log_info("Receive Message Type: %d",type);
