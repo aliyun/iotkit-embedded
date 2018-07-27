@@ -956,7 +956,30 @@ void dm_disp_ntp_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* m
 
 void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
 {
+	int res = 0, payload_len;
+	char *payload = NULL;
+	dm_msg_request_payload_t request;
+	dm_msg_response_t response;
 
+	dm_log_info(DM_DISP_DEV_CORE_SERVICE_DEV);
+
+	memset(&request,0,sizeof(dm_msg_request_payload_t));
+	memset(&response,0,sizeof(dm_msg_response_t));
+
+	res = dm_msg_request_parse(msg->payload,msg->payload_length,&request);
+	if (res != SUCCESS_RETURN) {return;}
+
+	res = dm_msg_dev_core_service_dev(&payload,&payload_len);
+	if (res != SUCCESS_RETURN) {return;}
+
+	/* Response */
+	response.service_prefix = NULL;
+	response.service_name = DM_DISP_DEV_CORE_SERVICE_DEV;
+	response.code = (res == SUCCESS_RETURN)?(IOTX_DM_ERR_CODE_SUCCESS):(IOTX_DM_ERR_CODE_REQUEST_ERROR);
+
+	dm_msg_response_local_with_data(&request,&response,payload,payload_len);
+
+	DM_free(payload);
 }
 
 void dm_disp_thing_lan_prefix_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)

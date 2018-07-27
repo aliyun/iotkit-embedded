@@ -393,6 +393,46 @@ int dm_msg_response_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_ms
 	return SUCCESS_RETURN;
 }
 
+int dm_msg_response_local_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, _IN_ char *data, _IN_ int data_len)
+{
+	int res = 0, payload_len = 0;
+	char *uri = NULL, *payload = NULL;
+
+	if (request == NULL || response == NULL || data == NULL || data_len <= 0) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Response URI */
+	res = dm_utils_service_name(response->service_prefix,response->service_name,
+								response->product_key,response->device_name,&uri);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	/* Response Payload */
+	payload_len = strlen(DM_MSG_RESPONSE_WITH_DATA) + request->id.value_length + DM_UTILS_UINT32_STRLEN + data_len + 1;
+	payload = DM_malloc(payload_len);
+	if (payload == NULL) {
+		DM_free(uri);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(payload,0,payload_len);
+	HAL_Snprintf(payload,payload_len,DM_MSG_RESPONSE_WITH_DATA,
+					request->id.value_length,request->id.value,response->code,data_len,data);
+
+	dm_log_debug("Send URI: %s, Payload: %s",uri,payload);
+
+	res = dm_cmw_send_to_local(uri,strlen(uri),payload,strlen(payload),NULL);
+	if (res != SUCCESS_RETURN) {
+		DM_free(uri);DM_free(payload);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
+		return FAIL_RETURN;
+	}
+
+	DM_free(uri);DM_free(payload);
+	return SUCCESS_RETURN;
+}
+
 const char DM_MSG_RESPONSE_WITHOUT_DATA[] DM_READ_ONLY = "{\"id\":\"%.*s\",\"code\":%d,\"data\":{}}";
 int dm_msg_response_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response)
 {
@@ -1833,6 +1873,35 @@ int dm_msg_ntp_response(char *payload, int payload_len)
 	
 	HAL_UTC_Set(utc);
 	
+	return SUCCESS_RETURN;
+}
+
+const char DM_MSG_DEV_CORE_SERVICE_DEV[] DM_READ_ONLY = "{\"deviceModel\":{\"profile\":{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"addr\":\"%s\",\"port\":%d}}}";
+int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
+{
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+	char ip_addr[16] = {0};
+	uint16_t port = 5683;
+
+	if (payload == NULL || *payload != NULL || payload_len == NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	HAL_GetProductKey(product_key);
+	HAL_GetDeviceName(device_name);
+	HAL_Wifi_Get_IP(ip_addr,0);
+
+	*payload_len = strlen(DM_MSG_DEV_CORE_SERVICE_DEV) + strlen(product_key) + strlen(device_name) + strlen(ip_addr) + DM_UTILS_UINT16_STRLEN + 1;
+	*payload = DM_malloc(*payload_len);
+	if (*payload == NULL) {
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	} 
+	memset(*payload,0,*payload_len);
+	HAL_Snprintf(*payload,*payload_len,DM_MSG_DEV_CORE_SERVICE_DEV,product_key,device_name,ip_addr,port);
+
 	return SUCCESS_RETURN;
 }
 

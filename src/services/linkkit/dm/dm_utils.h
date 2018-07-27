@@ -54,6 +54,7 @@ extern const char DM_UTILS_LOG_COTA_INIT_FAILED[]                               
 extern const char DM_UTILS_LOG_FOTA_INIT_FAILED[]                               DM_READ_ONLY;
 extern const char DM_UTILS_LOG_OTA_FETCH_FAILED[]                               DM_READ_ONLY;
 
+#define DM_UTILS_UINT16_STRLEN (5)
 #define DM_UTILS_UINT32_STRLEN (10)
 #define DM_UTILS_UINT64_STRLEN (20)
 
