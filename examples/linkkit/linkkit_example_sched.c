@@ -318,7 +318,7 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
 
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Timer", NULL, &timer);
         EXAMPLE_TRACE("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-        if (timer) { free(timer);}
+        if (timer) {free(timer);timer = NULL;}
 
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Enable", &enable, NULL);
         EXAMPLE_TRACE("LocalTimer[0].Enable: %d\n", enable);
@@ -330,7 +330,7 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
 
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Timer", NULL, &timer);
         EXAMPLE_TRACE("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-        if (timer) {free(timer);}
+        if (timer) {free(timer);timer = NULL;}
 
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Enable", &enable, NULL);
         EXAMPLE_TRACE("LocalTimer[1].Enable: %d\n", enable);
@@ -478,7 +478,7 @@ int get_scheduler_prop(sample_context_t *sample)
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", NULL, &timer);
     printf("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-    if (timer) {free(timer);}
+    if (timer) {free(timer);timer = NULL;}
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
     printf("LocalTimer[0].Enable: %d\n", enable);
@@ -490,7 +490,7 @@ int get_scheduler_prop(sample_context_t *sample)
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Timer", NULL, &timer);
     printf("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-    if (timer) {free(timer);}
+    if (timer) {free(timer);timer = NULL;}
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Enable", &enable, NULL);
     printf("LocalTimer[1].Enable: %d\n", enable);
