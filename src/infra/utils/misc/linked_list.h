@@ -4,15 +4,15 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-typedef void (*linked_list_handle_fp_t)(void *list_node, va_list *params);
+typedef void (*linked_list_handle_fp_t)(void *list_unit, va_list *params);
 
-typedef struct _list_node {
+typedef struct _list_unit {
     void              *data;
-    struct _list_node *next;
-} list_node_t;
+    struct _list_unit *next;
+} list_unit_t;
 
 typedef struct {
-    list_node_t *_head;
+    list_unit_t *_head;
     size_t       _size;
     char        *_name;
     void        *_mutex;

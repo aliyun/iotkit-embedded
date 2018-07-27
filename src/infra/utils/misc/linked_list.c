@@ -16,7 +16,7 @@ linked_list_t *linked_list_create(char *_name, int synchronized)
 
     memset(linked_list, 0, sizeof(linked_list_t));
 
-    linked_list->_head = (list_node_t *)calloc(1, sizeof(list_node_t));
+    linked_list->_head = (list_unit_t *)calloc(1, sizeof(list_unit_t));
     if (!linked_list->_head) {
         goto err_handler;
     }
@@ -61,7 +61,7 @@ void linked_list_destroy(linked_list_t *_linked_list)
 {
     linked_list_t *linked_list = _linked_list;
 
-    list_node_t **p;
+    list_unit_t **p;
 
     if (linked_list->_mutex) {
         HAL_MutexLock(linked_list->_mutex);
@@ -72,7 +72,7 @@ void linked_list_destroy(linked_list_t *_linked_list)
     linked_list->_size = 0;
 
     while ((*p) != NULL) {
-        list_node_t *node = *p;
+        list_unit_t *node = *p;
         *p = node->next;
         free(node);
     }
@@ -99,13 +99,13 @@ void linked_list_destroy(linked_list_t *_linked_list)
 void linked_list_insert(linked_list_t *_linked_list, void *data)
 {
     linked_list_t *linked_list = _linked_list;
-    list_node_t *node = (list_node_t *)calloc(1, sizeof(list_node_t));
+    list_unit_t *node = (list_unit_t *)calloc(1, sizeof(list_unit_t));
 
     if (linked_list->_mutex) {
         HAL_MutexLock(linked_list->_mutex);
     }
 
-    list_node_t **p = (list_node_t **)&linked_list->_head;
+    list_unit_t **p = (list_unit_t **)&linked_list->_head;
     for (; (*p) != NULL; p = &(*p)->next);
 
     node->data = data;
@@ -123,16 +123,16 @@ void linked_list_insert(linked_list_t *_linked_list, void *data)
 void linked_list_remove(linked_list_t *_linked_list, void *data)
 {
     linked_list_t *linked_list = _linked_list;
-    list_node_t **p;
+    list_unit_t **p;
 
     if (linked_list->_mutex) {
         HAL_MutexLock(linked_list->_mutex);
     }
 
-    p = (list_node_t **)&linked_list->_head;
+    p = (list_unit_t **)&linked_list->_head;
 
     while ((*p) != NULL) {
-        list_node_t *node = *p;
+        list_unit_t *node = *p;
         if (node->data == data) {
             *p = node->next;
             linked_list->_size--;
@@ -151,16 +151,16 @@ void linked_list_remove(linked_list_t *_linked_list, void *data)
 void linked_list_clear(linked_list_t *_linked_list)
 {
     linked_list_t *linked_list = _linked_list;
-    list_node_t **p;
+    list_unit_t **p;
 
     if (linked_list->_mutex) {
         HAL_MutexLock(linked_list->_mutex);
     }
 
-    p = (list_node_t **)&linked_list->_head->next;
+    p = (list_unit_t **)&linked_list->_head->next;
 
     while ((*p) != NULL) {
-        list_node_t *node = *p;
+        list_unit_t *node = *p;
         *p = node->next;
         free(node);
     }
@@ -192,7 +192,7 @@ static void linked_list_iterator_routine(const linked_list_t *_linked_list, link
         va_list *params)
 {
     const linked_list_t *linked_list = _linked_list;
-    list_node_t **p;
+    list_unit_t **p;
 
     if (linked_list->_mutex) {
         HAL_MutexLock(linked_list->_mutex);
