@@ -22,23 +22,18 @@
 #include "iotx_system.h"
 #include "mqtt_debug.h"
 #include "iotx_utils.h"
-#include "utils_net.h"
 #include "utils_hmac.h"
-#include "utils_list.h"
-#include "utils_timer.h"
 #include "string_utils.h"
 #include "utils_sysinfo.h"
 
 #include "MQTTPacket/MQTTPacket.h"
-#include "mqtt_client.h"
+#include "iotx_mqtt_internal.h"
 
-static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
-static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
-static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
+static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *time);
+static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned int *packet_type);
 static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient);
 static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient) ;
 static int iotx_mc_check_state_normal(iotx_mc_client_t *c);
-static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient);
 static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient);
 static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, list_node_t **node);
 static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type,
@@ -49,8 +44,9 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
 static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2);
 
+static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
+static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
 
-/* check rule whether is valid or not */
 static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 {
     int i = 0;
@@ -1647,7 +1643,7 @@ static int iotx_mc_subscribe_mutli(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *
 }
 
 /* subscribe */
-static int iotx_mc_subscribe(iotx_mc_client_t *c,
+int iotx_mc_subscribe(iotx_mc_client_t *c,
                              const char *topicFilter,
                              iotx_mqtt_qos_t qos,
                              iotx_mqtt_event_handle_func_fpt topic_handle_func,
@@ -1688,7 +1684,7 @@ static int iotx_mc_subscribe(iotx_mc_client_t *c,
 
 
 /* unsubscribe */
-static int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
+int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
 {
     int rc = FAIL_RETURN;
     unsigned int msgId = iotx_mc_get_next_packetid(c);
@@ -1722,7 +1718,7 @@ static int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
 }
 
 /* publish */
-static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
+int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
     uint16_t msg_id = 0;
     int rc = FAIL_RETURN;
@@ -1875,7 +1871,7 @@ static int32_t iotx_mc_calc_random_init()
 }
 
 /* Initialize MQTT client */
-static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
+int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
 {
     int rc = FAIL_RETURN;
     iotx_mc_state_t mc_state = IOTX_MC_STATE_INVALID;
@@ -2280,7 +2276,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 
 
 /* connect */
-static int iotx_mc_connect(iotx_mc_client_t *pClient)
+int iotx_mc_connect(iotx_mc_client_t *pClient)
 {
     int rc = FAIL_RETURN;
 
@@ -2331,7 +2327,7 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
 }
 
 
-static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
+int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 {
 
     int rc;
@@ -2355,7 +2351,7 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 
 
 /* reconnect */
-static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
+int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
     int             rc = FAIL_RETURN;
     uint32_t        interval_ms = 0;
@@ -2402,7 +2398,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     return rc;
 }
 
-static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
+int iotx_mc_disconnect(iotx_mc_client_t *pClient)
 {
     int             rc = -1;
 
