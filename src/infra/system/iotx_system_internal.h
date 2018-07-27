@@ -59,7 +59,7 @@
 #define GUIDER_DIRECT_DOMAIN_GERMANY        "iot-as-mqtt.eu-central-1.aliyuncs.com"
 
 /* ITLS direct domain */
-#define GUIDER_DIRECT_DOMAIN_ITLS           "itls.ap-southeast-1.aliyuncs.com"
+#define GUIDER_DIRECT_DOMAIN_ITLS           "itls.cn-shanghai.aliyuncs.com"
 
 #define SHA_METHOD              "hmacsha1"
 #define MD5_METHOD              "hmacmd5"
