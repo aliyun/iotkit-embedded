@@ -2860,8 +2860,6 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     return SUCCESS_RETURN;
 }
 
-#define CONFIG_VARS_DUMP(v)         mqtt_info("%32s : %d\n", #v, v)
-
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -2877,9 +2875,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     STRING_PTR_SANITY_CHECK(pInitParams->username, NULL);
     STRING_PTR_SANITY_CHECK(pInitParams->password, NULL);
 
-    CONFIG_VARS_DUMP(CONFIG_MQTT_TX_MAXLEN);
-    CONFIG_VARS_DUMP(CONFIG_MQTT_RX_MAXLEN);
-    CONFIG_VARS_DUMP(CONFIG_MQTT_SUBTOPIC_MAXNUM);
+    CONFIG_VARS_DUMP(CONFIG_MQTT_SUBTOPIC_MAXNUM, mqtt_info);
 
     pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {

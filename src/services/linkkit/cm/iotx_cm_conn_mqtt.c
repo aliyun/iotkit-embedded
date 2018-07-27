@@ -347,7 +347,6 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
     }
 }
 
-
 /*  mqtt */
 void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
 {
@@ -355,6 +354,9 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
     iotx_conn_info_pt pconn_info;
     void *pclient;
     iotx_cloud_conn_mqtt_t *mqtt_ctx = NULL;
+
+    CONFIG_VARS_DUMP(CONFIG_MQTT_TX_MAXLEN, CM_INFO);
+    CONFIG_VARS_DUMP(CONFIG_MQTT_RX_MAXLEN, CM_INFO);
 
     mqtt_ctx = CM_malloc(sizeof(iotx_cloud_conn_mqtt_t));
     if (NULL == mqtt_ctx) {

@@ -63,6 +63,8 @@
         } \
     } while(0)
 
+#define CONFIG_VARS_DUMP(var, logf) logf("%32s : %d\n", #var, var)
+
 #define LITE_MINIMUM(a, b)          (((a) <= (b)) ? (a) : (b))
 #define LITE_MAXIMUM(a, b)          (((a) >= (b)) ? (a) : (b))
 #define LITE_isdigit(c)             (((c) <= '9' && (c) >= '0') ? (LITE_TRUE) : (LITE_FALSE))
