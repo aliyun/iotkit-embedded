@@ -2858,7 +2858,7 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     return SUCCESS_RETURN;
 }
 
-#define CONFIG_VARS_DUMP(v)         mqtt_debug("%32s : %d\n", #v, v)
+#define CONFIG_VARS_DUMP(v)         mqtt_info("%32s : %d\n", #v, v)
 
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
