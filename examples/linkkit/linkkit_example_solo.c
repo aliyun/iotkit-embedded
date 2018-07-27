@@ -335,16 +335,19 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSVColor.Saturation */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Saturation");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &saturation, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSVColor.Value */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Value");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &value, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Value:%d\n", property, hue, saturation, value);
     } else if (strstr(property, "HSLColor") != 0) {
@@ -354,16 +357,19 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSLColor.Saturation */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Saturation");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &saturation, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSLColor.Lightness */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Lightness");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &lightness, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Lightness:%d\n", property, hue, saturation, lightness);
     }  else if (strstr(property, "RGBColor") != 0) {
@@ -373,16 +379,19 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Red");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &red, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier RGBColor.Green */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Green");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &green, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier RGBColor.Blue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Blue");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &blue, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         EXAMPLE_TRACE("property(%s), Red:%d, Green:%d, Blue:%d\n", property, red, green, blue);
     }

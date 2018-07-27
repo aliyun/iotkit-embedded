@@ -316,7 +316,7 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].ID", &id, NULL);
         EXAMPLE_TRACE("LocalTimer[0].ID: %d\n", id);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Timer", &timer, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Timer", NULL, &timer);
         EXAMPLE_TRACE("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
         if (timer) { free(timer);}
 
@@ -328,7 +328,7 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].ID", &id, NULL);
         EXAMPLE_TRACE("LocalTimer[1].ID: %d\n", id);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Timer", &timer, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Timer", NULL, &timer);
         EXAMPLE_TRACE("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
         if (timer) {free(timer);}
 
@@ -476,7 +476,7 @@ int get_scheduler_prop(sample_context_t *sample)
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
     printf("LocalTimer[0].ID: %d\n", id);
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", &timer, NULL);
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", NULL, &timer);
     printf("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
     if (timer) {free(timer);}
 
@@ -488,7 +488,7 @@ int get_scheduler_prop(sample_context_t *sample)
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
     printf("LocalTimer[1].ID: %d\n", id);
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Timer", &timer, NULL);
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Timer", NULL, &timer);
     printf("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
     if (timer) {free(timer);}
 
