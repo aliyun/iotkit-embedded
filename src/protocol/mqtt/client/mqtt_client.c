@@ -1653,11 +1653,13 @@ static int iotx_mc_subscribe(iotx_mc_client_t *c,
                              iotx_mqtt_event_handle_func_fpt topic_handle_func,
                              void *pcontext)
 {
+    int rc = FAIL_RETURN;
+    unsigned int msgId = iotx_mc_get_next_packetid(c);
+
     if (NULL == c || NULL == topicFilter || !topic_handle_func) {
         return NULL_VALUE_ERROR;
     }
 
-    int rc = FAIL_RETURN;
 
     if (!iotx_mc_check_state_normal(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
@@ -1669,7 +1671,7 @@ static int iotx_mc_subscribe(iotx_mc_client_t *c,
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
-    unsigned int msgId = iotx_mc_get_next_packetid(c);
+    mqtt_debug("PERFORM subscribe to '%s' (msgId=%d)", topicFilter, msgId);
     rc = MQTTSubscribe(c, topicFilter, qos, msgId, topic_handle_func, pcontext);
     if (rc != SUCCESS_RETURN) {
         if (rc == MQTT_NETWORK_ERROR) {

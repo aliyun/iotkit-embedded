@@ -56,7 +56,7 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
             LITE_printf(" ");
             written += 1;
         }
-        LITE_snprintf((char *)ascii + i % 16, 1, "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
+        LITE_snprintf((char *)ascii + i % 16, sizeof(ascii), "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
 
         if (((i + 1) % 16 == 0) || (i == len - 1)) {
             for (j = 0; j < 48 - written; ++j) {
@@ -167,7 +167,6 @@ void LITE_rich_hexdump(const char *f, const int l,
                        const void *buf_ptr,
                        const int buf_len)
 {
-    //char buf[28];
     if (LITE_get_loglevel() < level) {
         return;
     }
