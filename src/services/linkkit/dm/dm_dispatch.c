@@ -1031,6 +1031,7 @@ void dm_disp_event_cloud_connected_handler(void* pcontext, iotx_cm_event_msg_t* 
 	dm_mgr_set_dev_sub_service_event_index(IOTX_DM_LOCAL_NODE_DEVID,DM_MGR_DEV_SUB_START);
 
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+	dm_log_info("DM ALCS INIT SECOND");
 	dm_cmw_local_init_second(dm_conn_get_local_conn());
 #endif
 
@@ -1073,7 +1074,13 @@ void dm_disp_event_local_connected_handler(void* pcontext, iotx_cm_event_msg_t* 
 
 	dm_conn_set_local_conn_state(1);
 
+#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+	dm_log_info("DM ALCS INIT SECOND");
+	if (dm_conn_get_cloud_conn_state()) {
+		dm_cmw_local_init_second(dm_conn_get_local_conn());
+	}
 	dm_sub_local_register();
+#endif
 
 	_dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_CONNECTED,NULL);
 }
