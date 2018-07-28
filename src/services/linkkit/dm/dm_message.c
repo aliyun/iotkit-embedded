@@ -393,7 +393,7 @@ int dm_msg_response_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_ms
 	return SUCCESS_RETURN;
 }
 
-int dm_msg_response_local_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, _IN_ char *data, _IN_ int data_len)
+int dm_msg_response_local_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, _IN_ char *data, _IN_ int data_len, void *user_data)
 {
 	int res = 0, payload_len = 0;
 	char *uri = NULL, *payload = NULL;
@@ -422,7 +422,7 @@ int dm_msg_response_local_with_data(_IN_ dm_msg_request_payload_t *request, _IN_
 
 	dm_log_debug("Send URI: %s, Payload: %s",uri,payload);
 
-	res = dm_cmw_send_to_local(uri,strlen(uri),payload,strlen(payload),NULL);
+	res = dm_cmw_send_to_local(uri,strlen(uri),payload,strlen(payload),user_data);
 	if (res != SUCCESS_RETURN) {
 		DM_free(uri);DM_free(payload);
 		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
