@@ -9,4 +9,4 @@ CONFIG_ENV_CFLAGS   += \
     -DCM_VIA_CLOUD_CONN_MQTT \
     -DCONFIG_DM_DEVTYPE_SINGLE
 
-LDFLAGS             += -lpthread
+LDFLAGS             += -lpthread -lrt

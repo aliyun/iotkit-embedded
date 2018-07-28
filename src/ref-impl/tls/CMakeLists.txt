@@ -11,7 +11,10 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/include/mbedtls)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/include/mbedtls/uOTA_required)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/uOTA_required)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/inc/)
 
 ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/pk.c
@@ -45,6 +48,8 @@ ADD_LIBRARY (iot_tls STATIC
     ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/cipher_wrap.c
     ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/bignum.c
     ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/x509.c
+    ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/uOTA_required/ssl.c
+    ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/uOTA_required/hash.c
     ${EXTRA_C_SOURCES}
 )
 

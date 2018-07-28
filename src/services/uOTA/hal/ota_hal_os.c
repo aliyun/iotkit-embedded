@@ -17,7 +17,7 @@
 #include "iot_export_coap.h"
 #include "mqtt_instance.h"
 
-#ifdef _PLATFORM_IS_LINUX_
+#ifdef _PLATFORM_IS_HOST_
 #include <unistd.h>
 #include <sys/reboot.h>
 #include <semaphore.h>
@@ -37,7 +37,7 @@ int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iot
 #ifndef _IS_LINKKIT_
 void *ota_malloc(uint32_t size)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     return aos_malloc(size);
     #else
     return malloc(size);
@@ -47,7 +47,7 @@ void *ota_malloc(uint32_t size)
 
 void ota_free(void *ptr)
 {  
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_free(ptr);
     #else
     free(ptr);
@@ -57,7 +57,7 @@ void ota_free(void *ptr)
 
 void *ota_zalloc(uint32_t size)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     return aos_zalloc(size);
     #else
     return calloc(size, 1);
@@ -66,7 +66,7 @@ void *ota_zalloc(uint32_t size)
 
 void *ota_realloc(void* ptr, uint32_t size)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     return aos_realloc(ptr, size);
     #else
     return realloc(ptr, size);
@@ -74,7 +74,7 @@ void *ota_realloc(void* ptr, uint32_t size)
 }
 void *ota_mutex_init(void)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_mutex_t *mutex = (aos_mutex_t *)ota_malloc(sizeof(aos_mutex_t));
     if (NULL == mutex) {
         return NULL;
@@ -102,7 +102,7 @@ void *ota_mutex_init(void)
 
 int ota_mutex_lock(void *mutex)
 {   
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     return aos_mutex_lock((aos_mutex_t *)mutex, AOS_WAIT_FOREVER);
     #else
     if (NULL == mutex) {
@@ -117,7 +117,7 @@ int ota_mutex_lock(void *mutex)
 
 int ota_mutex_unlock(void *mutex)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     return aos_mutex_unlock((aos_mutex_t *)mutex);
     #else
     if (NULL == mutex) {
@@ -132,7 +132,7 @@ int ota_mutex_unlock(void *mutex)
 
 void ota_mutex_destroy(void *mutex)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_mutex_free((aos_mutex_t *)mutex);
     aos_free(mutex);
     #else
@@ -152,7 +152,7 @@ void ota_mutex_destroy(void *mutex)
 
 void *ota_semaphore_init(void)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_sem_t *sem = (aos_sem_t *)ota_malloc(sizeof(aos_sem_t));
     if (NULL == sem) {
         return NULL;
@@ -178,7 +178,7 @@ void *ota_semaphore_init(void)
 
 int ota_semaphore_wait( void *sem, int32_t timeout_ms)
 {   
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     return aos_sem_wait((aos_sem_t *)sem, timeout_ms);
     #else
     if ((~0) == timeout_ms) {
@@ -212,7 +212,7 @@ int ota_semaphore_wait( void *sem, int32_t timeout_ms)
 
 void ota_semaphore_post(void *sem)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_sem_signal((aos_sem_t *)sem);
     #else
     sem_post((sem_t *)sem);
@@ -221,7 +221,7 @@ void ota_semaphore_post(void *sem)
 
 void ota_semaphore_destroy(void *sem)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_sem_free((aos_sem_t *)sem);
     aos_free(sem);
     #else
@@ -233,7 +233,7 @@ void ota_semaphore_destroy(void *sem)
 uint32_t ota_now_ms(void)
 {
     uint32_t time_ms;
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     return aos_now_ms();
     #else
     struct timeval tv = { 0 };
@@ -246,7 +246,7 @@ uint32_t ota_now_ms(void)
 
 void ota_msleep(uint32_t ms)
 {  
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_msleep(ms);
     #else
     usleep(1000 * ms);
@@ -255,14 +255,14 @@ void ota_msleep(uint32_t ms)
 
 void ota_reboot(void)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_reboot();
     #else
     reboot(0);
     #endif
 }
 
-#ifndef _PLATFORM_IS_LINUX_
+#ifndef _PLATFORM_IS_HOST_
 typedef struct {
     aos_task_t task;
     int detached;
@@ -293,7 +293,7 @@ int ota_thread_create(
     int *stack_used)
 {
     int ret = -1;
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     char *tname;
     uint32_t ssiz;
     int detach_state = 0;
@@ -335,7 +335,7 @@ int ota_thread_create(
 
 void ota_thread_exit(void *thread)
 {
-    #ifndef _PLATFORM_IS_LINUX_
+    #ifndef _PLATFORM_IS_HOST_
     aos_task_exit(0);
     #else
     pthread_exit(0);
@@ -343,7 +343,7 @@ void ota_thread_exit(void *thread)
 }
 
 
-#ifndef _PLATFORM_IS_LINUX_
+#ifndef _PLATFORM_IS_HOST_
 #define OTA_KV_START  "ota.kv_%s"
 
 int ota_kv_set(const char *key, const void *val, int len, int sync)

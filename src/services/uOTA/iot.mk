@@ -21,4 +21,13 @@ LIB_SRCS_PATTERN    := \
 
 HDR_REFS            += src/infra
 HDR_REFS            += src/protocol/mqtt/client
-HDR_REFS            += src/ref-impl/hal/os/$(CONFIG_VENDOR)
+
+define Extra_CMake_Head
+    echo 'IF (WIN32)' $(1)
+    echo '    SET (OS_DIR win7)' $(1)
+    echo 'ELSE (WIN32)' $(1)
+    echo '    SET (OS_DIR ubuntu)' $(1)
+    echo 'ENDIF (WIN32)' $(1)
+    echo 'INCLUDE_DIRECTORIES ($${PROJECT_SOURCE_DIR}/src/ref-impl/hal/os/$${OS_DIR})' $(1)
+    echo '' $(1)
+endef
