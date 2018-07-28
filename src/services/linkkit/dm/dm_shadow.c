@@ -1747,6 +1747,7 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
 					lite_cjson_add_item_to_array(lite,array);
 				}else{
 					lite_cjson_add_item_to_object(lite,data->identifier,array_item);
+					lite_cjson_delete(array);
 				}
 			}
 			break;
@@ -1762,6 +1763,7 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
 					lite_cjson_add_item_to_array(lite,array);
 				}else{
 					lite_cjson_add_item_to_object(lite,data->identifier,array_item);
+					lite_cjson_delete(array);
 				}
 			}
 			break;
@@ -1777,6 +1779,7 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
 					lite_cjson_add_item_to_array(lite,array);
 				}else{
 					lite_cjson_add_item_to_object(lite,data->identifier,array_item);
+					lite_cjson_delete(array);
 				}
 			}
 			break;
@@ -1794,6 +1797,7 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
 					lite_cjson_add_item_to_array(lite,array);
 				}else{
 					lite_cjson_add_item_to_object(lite,data->identifier,array_item);
+					lite_cjson_delete(array);
 				}
 			}
 			break;
@@ -1815,12 +1819,15 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
 					lite_cjson_add_item_to_array(lite,array);
 				}else{
 					lite_cjson_add_item_to_object(lite,data->identifier,array_item);
+					lite_cjson_delete(array);
 				}
 			}
 			break;
 		default:
 			{
 				dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID, complex_array->type);
+				lite_cjson_delete(array_item);
+				lite_cjson_delete(array);
 			}
 			break;
 	}
@@ -1867,12 +1874,16 @@ static int _dm_shw_struct_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_c
 			lite_cjson_add_item_to_array(lite,lite_object);
 		}else{
 			lite_cjson_add_item_to_array(lite,lite_item);
+			lite_cjson_delete(lite_object);
 		}
 	}else{
 		if (data->identifier) {
 			lite_cjson_add_item_to_object(lite,data->identifier,lite_item);
+			lite_cjson_delete(lite_object);
 		}else{
 			res = FAIL_RETURN;
+			lite_cjson_delete(lite_item);
+			lite_cjson_delete(lite_object);
 		}
 	}
 
@@ -1907,6 +1918,7 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
 				}else{
 					res = _dm_shw_int_insert_json_item(data,lite);
+					lite_cjson_delete(data_object);
 				}
 			}
 			break;
@@ -1917,6 +1929,7 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
 				}else{
 					res = _dm_shw_float_insert_json_item(data,lite);
+					lite_cjson_delete(data_object);
 				}
 			}
 			break;
@@ -1927,6 +1940,7 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
 				}else{
 					res = _dm_shw_double_insert_json_item(data,lite);
+					lite_cjson_delete(data_object);
 				}
 			}
 			break;
@@ -1938,6 +1952,7 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
 				}else{
 					res = _dm_shw_string_insert_json_item(data,lite);
+					lite_cjson_delete(data_object);
 				}
 			}
 			break;
@@ -1949,6 +1964,7 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
 				}else{
 					res = _dm_shw_array_insert_json_item(data,lite);
+					lite_cjson_delete(data_object);
 				}
 			}
 			break;
@@ -1960,11 +1976,13 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
 					if (res == SUCCESS_RETURN) {lite_cjson_add_item_to_array(lite,data_object);}
 				}else{
 					res = _dm_shw_struct_insert_json_item(data,lite);
+					lite_cjson_delete(data_object);
 				}
 			}
 			break;
 		default:
 			dm_log_err(DM_UTILS_LOG_DATA_TYPE_INVALID, data->data_value.type);
+			lite_cjson_delete(data_object);
 			res = FAIL_RETURN;
 			break;
 	}
