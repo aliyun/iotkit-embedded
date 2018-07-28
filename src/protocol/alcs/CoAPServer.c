@@ -78,11 +78,19 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
     return COAP_SUCCESS;
 }
 
+void CoAPSever_thread_leave()
+{
+    g_coap_running = 0;
+}
+
+void * coap_yield_mutex = NULL;
+
 static void *CoAPServer_yield(void *param)
 {
     CoAPContext *context = (CoAPContext *)param;
     COAP_DEBUG("Enter to CoAP daemon task");
-    while(g_coap_running){
+
+    while (g_coap_running) {
         CoAPMessage_cycle(context);
     }
 
@@ -133,12 +141,21 @@ CoAPContext *CoAPServer_init()
             COAP_ERR("Semaphore Create failed");
             return NULL;
         }
+
+        coap_yield_mutex = HAL_MutexCreate();
+        if(NULL == coap_yield_mutex){
+            COAP_ERR("coap_yield_mutex Create failed");
+            return NULL;
+        }
 #endif
 
         g_context = CoAPContext_create(&param);
         if(NULL == g_context){
 #ifdef COAP_SERV_MULTITHREAD
             HAL_SemaphoreDestroy(g_semphore);
+            HAL_MutexDestroy(coap_yield_mutex);
+            g_semphore = NULL;
+            coap_yield_mutex = NULL;
 #endif
             COAP_ERR("CoAP Context Create failed");
             return NULL;
@@ -175,6 +192,10 @@ void CoAPServer_deinit(CoAPContext *context)
         COAP_INFO("Wait Semaphore, will exit task");
         HAL_SemaphoreDestroy(g_semphore);
         g_semphore = NULL;
+    }
+    if (NULL != coap_yield_mutex) {
+        HAL_MutexDestroy(coap_yield_mutex);
+        coap_yield_mutex = NULL;
     }
     HAL_ThreadDelete(g_coap_thread);
 #endif

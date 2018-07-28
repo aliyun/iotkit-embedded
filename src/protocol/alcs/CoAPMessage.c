@@ -866,17 +866,28 @@ int CoAPMessage_retransmit(CoAPContext *context)
     return COAP_SUCCESS;
 }
 
+extern void * coap_yield_mutex;
+
 int CoAPMessage_cycle(CoAPContext *context)
 {
     unsigned int ret = 0;
+
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
 
     if (NULL == context) {
         return COAP_ERROR_NULL;
     }
 
+    if (coap_yield_mutex != NULL) {
+        HAL_MutexLock(coap_yield_mutex);
+    }
+
     CoAPMessage_process(ctx, ctx->waittime);
     ret = CoAPMessage_retransmit(ctx);
+
+    if (coap_yield_mutex != NULL) {
+        HAL_MutexUnlock(coap_yield_mutex);
+    }
     return ret;
 }
 

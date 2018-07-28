@@ -1471,16 +1471,12 @@ void *iotx_cm_local_conn_process(void *pclient)
                 iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
             }
         }
-        /* local yield */
-#ifndef COAP_SERV_MULTITHREAD        
+        /* local yield */      
         if (connectivity && IOTX_CM_CONNECTIVITY_STATUS_CONNECTED == iotx_cm_get_connectivity_status(connectivity)) {
             connectivity->yield_func(cm_ctx, connectivity, 50);
         } else {
             HAL_SleepMs(50);
-        }
-#else 
-        HAL_SleepMs(50);
-#endif        
+        }       
     }
 
     return NULL;

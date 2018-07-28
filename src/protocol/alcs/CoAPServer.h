@@ -39,6 +39,8 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
         unsigned char *buff, unsigned short len, CoAPSendMsgHandler callback, unsigned short *msgid);
 
 int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char *buff, unsigned short len, void *req, const char *paths);
+
+void CoAPSever_thread_leave();
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

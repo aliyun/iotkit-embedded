@@ -342,7 +342,7 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
 		COAP_ERR("ALCS Linked List Init Failed");
 		return FAIL_RETURN;
 	}
-
+    
 	return SUCCESS_RETURN;
 }
 
@@ -579,7 +579,8 @@ int IOT_ALCS_Yield(void *handle)
 {
 	int res = 0;
 	iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)handle;
-
+    
+	CoAPSever_thread_leave();
 	POINTER_SANITY_CHECK(adapter, NULL_VALUE_ERROR);
 	POINTER_SANITY_CHECK(adapter->coap_ctx, NULL_VALUE_ERROR);
 
