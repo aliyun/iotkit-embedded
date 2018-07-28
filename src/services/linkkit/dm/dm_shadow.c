@@ -2247,9 +2247,14 @@ static void _dm_shw_array_struct_free(_IN_ dm_shw_data_value_t *data_value)
 
 	dm_shw_data_value_complex_t *complex_struct = (dm_shw_data_value_complex_t *)data_value->value;
 
-	for (index = 0;index < complex_struct->size;index++) {
-		data = (dm_shw_data_t *)complex_struct->value + index;
-		_dm_shw_property_free(data);
+	if (complex_struct) {
+		for (index = 0;index < complex_struct->size;index++) {
+			data = (dm_shw_data_t *)complex_struct->value + index;
+			_dm_shw_property_free(data);
+		}
+		DM_free(complex_struct->value);
+		DM_free(complex_struct);
+		data_value->value = NULL;
 	}
 }
 
