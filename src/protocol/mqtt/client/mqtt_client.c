@@ -342,11 +342,12 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
 
 
 /* MQTT send subscribe packet */
-static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_info_list, unsigned int list_size,
+static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_info_list, unsigned int list_size,
                               unsigned int msgId, void *pcontext)
 {
     int len = 0;
     int i = 0;
+    int total_len = 0;
     iotx_time_t timer;
     MQTTString topic[list_size];
     iotx_mc_topic_handle_t *handler = NULL;
@@ -366,7 +367,7 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
     memset(handler, 0x0, sizeof(iotx_mc_topic_handle_t) * list_size);
     memset(qos, 0x0, sizeof(iotx_mqtt_qos_t) * list_size);
 
-    for (; i < list_size; i++) {
+    for (i = 0, total_len = 0; i < list_size; i++) {
         topic[i].cstring = (char *)(sub_info_list[i]->topicFilter);
         qos[i] = sub_info_list[i]->qos;
         handler[i].topic_filter = mqtt_malloc(strlen(sub_info_list[i]->topicFilter) + 1);
@@ -379,6 +380,7 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
             return FAIL_RETURN;
         }
         memcpy((char *)handler[i].topic_filter, sub_info_list[i]->topicFilter, strlen(sub_info_list[i]->topicFilter) + 1);
+        total_len += strlen(sub_info_list[i]->topicFilter);
         handler[i].handle.h_fp = sub_info_list[i]->messageHandler;
         handler[i].handle.pcontext = pcontext;
     }
@@ -388,7 +390,7 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
 
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, total_len, 0);
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, list_size,
                                   topic, (int *)qos);
     if (len <= 0) {
@@ -1616,7 +1618,7 @@ static int iotx_mc_subscribe_mutli(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *
     }
 
     unsigned int msgId = iotx_mc_get_next_packetid(c);
-    rc = MQTTMutliSubscribe(c, sub_list, list_size, msgId, pcontext);
+    rc = MQTTBatchSubscribe(c, sub_list, list_size, msgId, pcontext);
     if (rc != SUCCESS_RETURN) {
         if (rc == MQTT_NETWORK_ERROR) {
             iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
