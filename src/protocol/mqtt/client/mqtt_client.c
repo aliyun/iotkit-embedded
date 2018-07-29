@@ -236,7 +236,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName)+topic_msg->payload_len, topicName);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName) + topic_msg->payload_len, topicName);
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
                                 c->buf_size_send,
                                 0,
@@ -409,6 +409,16 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
      *       because some of extreme cases
      * */
 
+    mqtt_debug("%20s : %08d", "Packet Ident", msgId);
+    for (i = 0; i < list_size; ++ i) {
+        mqtt_debug("%16s[%02d] : %s", "Topic", i, sub_info_list[i]->topicFilter);
+        mqtt_debug("%16s[%02d] : %d", "QoS", i, (int)qos[i]);
+    }
+    mqtt_debug("%20s : %d", "Packet Length", len);
+#if defined(INSPECT_MQTT_FLOW)
+    HEXDUMP_DEBUG(c->buf_send, len);
+#endif
+
     /* push the element to list of wait subscribe ACK */
     if (SUCCESS_RETURN != iotx_mc_push_subInfo_to(c, len, msgId, SUBSCRIBE, handler, &node)) {
         mqtt_err("push publish into to pubInfolist failed!");
@@ -505,6 +515,14 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         HAL_MutexUnlock(c->lock_write_buf);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
+
+    mqtt_debug("%20s : %08d", "Packet Ident", msgId);
+    mqtt_debug("%20s : %s", "Topic", topicFilter);
+    mqtt_debug("%20s : %d", "QoS", (int)qos);
+    mqtt_debug("%20s : %d", "Packet Length", len);
+#if defined(INSPECT_MQTT_FLOW)
+    HEXDUMP_DEBUG(c->buf_send, len);
+#endif
 
     if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
         /* If send failed, remove it */
@@ -1168,25 +1186,28 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     unsigned short mypacketid;
     int i = 0, count = 0, fail_flag = -1, j = 0;
     int grantedQoS[MUTLI_SUBSCIRBE_MAX];
-    int i_free = -1, flag_dup = 0;
+    int i_free = -1, flag_dup = 0, rc;
     iotx_mc_topic_handle_t *messagehandler = NULL;
 
     if (!c) {
         return FAIL_RETURN;
     }
 
-    if (MQTTDeserialize_suback(&mypacketid, MUTLI_SUBSCIRBE_MAX, &count, grantedQoS, (unsigned char *)c->buf_read,
-                               c->buf_size_read) != 1) {
-        mqtt_err("Sub ack packet error");
+    rc = MQTTDeserialize_suback(&mypacketid, MUTLI_SUBSCIRBE_MAX, &count, grantedQoS, (unsigned char *)c->buf_read,
+                                c->buf_size_read);
+
+    if (rc < 0) {
+        mqtt_err("Sub ack packet error, rc = MQTTDeserialize_suback() = %d", rc);
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
     }
 
-#ifdef INSPECT_MQTT_FLOW
+    mqtt_debug("%20s : %d", "Return Value", rc);
     mqtt_debug("%20s : %d", "Packet ID", mypacketid);
     mqtt_debug("%20s : %d", "Count", count);
     for (i = 0; i < count; ++i) {
-        mqtt_debug("%17s[%d] : %d", "Granted QoS", i, grantedQoS[i]);
+        mqtt_debug("%16s[%02d] : %d", "Granted QoS", i, grantedQoS[i]);
     }
+#ifdef INSPECT_MQTT_FLOW
 #endif
 
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
