@@ -9,18 +9,18 @@
 #include "iot_export_mqtt.h"
 #include "iotx_mqtt.h"
 
-#define MQTT_DYNBUF_MARGIN                  (64)
-#define MQTT_CONNECT_REQUIRED_BUFLEN        (256)
+#define MQTT_DYNBUF_MARGIN                      (64)
+#define MQTT_CONNECT_REQUIRED_BUFLEN            (256)
 
 #if WITH_MQTT_DYNBUF
-#define RESET_BUF_AND_SIZE(cli, b, s)        do { \
+#define RESET_SERIALIZE_BUF(cli, b, s)          do { \
         LITE_free(cli->b); \
         cli->b = NULL; \
         cli->s = 0; \
         mqtt_debug("FREED: curr buf_send = %p, curr buf_size_send = %d", cli->b, cli->s); \
     } while (0)
 
-#define ALLOC_DYNAMIC_BUF(cli, b, s, l, n)   do { \
+#define ALLOC_SERIALIZE_BUF(cli, b, s, l, n)    do { \
         int     tmpbuf_len = 0; \
         \
         tmpbuf_len = l + MQTT_DYNBUF_MARGIN; \
@@ -35,8 +35,8 @@
     } while (0)
 
 #else
-#define ALLOC_DYNAMIC_BUF(cli, b, s, l, n)
-#define RESET_BUF_AND_SIZE(cli, b, s)
+#define ALLOC_SERIALIZE_BUF(cli, b, s, l, n)
+#define RESET_SERIALIZE_BUF(cli, b, s)
 #endif
 
 /* MQTT send publish packet */
