@@ -1,3 +1,4 @@
+#if 0
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -1619,3 +1620,4 @@ int linkkit_gateway_get_num_devices(void)
     
     return iotx_dm_subdev_number();
 }
+#endif

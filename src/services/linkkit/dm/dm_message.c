@@ -2659,7 +2659,6 @@ int dm_msg_thing_event_post(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char
 }
 
 const char DM_MSG_THING_DEVICEINFO_UPDATE_METHOD[] DM_READ_ONLY = "thing.deviceinfo.update";
-/* const char DM_MSG_THING_DEVICEINFO_UPDATE_PARAMS[] DM_READ_ONLY = "{}"; */
 int dm_msg_thing_deviceinfo_update(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _IN_ char *payload, _OU_ dm_msg_request_t *request)
 {
 	char *params = NULL;
