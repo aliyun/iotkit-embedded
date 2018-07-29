@@ -87,7 +87,7 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
     char       *tmpbuf = logcb.text_buf;
     char       *o = tmpbuf;
     int         truncated = 0;
-    //char       buf[28];
+
     if (!strlen(LITE_get_logname()) || LITE_get_loglevel() < level || level < LOG_EMERG_LEVEL) {
         return;
     }

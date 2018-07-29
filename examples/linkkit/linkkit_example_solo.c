@@ -635,7 +635,7 @@ int linkkit_example()
          *
          * please follow user's rule to modify these code.
          */
-        
+
         /* Manually Trigger Config OTA If Need */
         /* if (now % 10 == 0) {
             linkkit_invoke_cota_get_config("product","file","",NULL);
