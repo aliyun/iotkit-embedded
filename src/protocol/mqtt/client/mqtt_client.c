@@ -476,7 +476,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, topicFilter);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic,
                                   (int *)&qos);
     if (len <= 0) {
@@ -2711,7 +2711,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
 {
 #if (defined(BUILD_AOS) || defined(OTA_ENABLED))
     return SUCCESS_RETURN;
-#else    
+#else
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
@@ -2768,7 +2768,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
 
     mqtt_debug("firmware version report finished, iotx_mc_publish() = %d", ret);
     return SUCCESS_RETURN;
-#endif    
+#endif
 }
 
 /* report ModuleID */
