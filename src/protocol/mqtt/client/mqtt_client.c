@@ -448,7 +448,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     /*iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};*/
     iotx_mc_topic_handle_t *    handler = NULL;
     list_node_t *               node = NULL;
-    int                         rc = -1;
 
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
