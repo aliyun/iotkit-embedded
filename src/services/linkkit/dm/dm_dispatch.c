@@ -18,6 +18,7 @@ const char DM_DISP_SYS_PREFIX[]                        DM_READ_ONLY = "/sys/%s/%
 const char DM_DISP_EXT_SESSION_PREFIX[]                DM_READ_ONLY = "/ext/session/%s/%s/";
 const char DM_DISP_EXT_NTP_PREFIX[]                    DM_READ_ONLY = "/ext/ntp/%s/%s/";
 const char DM_DISP_REPLY_SUFFIX[]                      DM_READ_ONLY = "_reply";
+const char DM_DISP_EXT_ERROR_PREFIX[]                  DM_READ_ONLY = "/ext/error/%s/%s/";
 
 /* From Cloud To Local Request And Response*/
 const char DM_DISP_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY = "thing/topo/add/notify";
@@ -186,6 +187,27 @@ int dm_disp_uri_prefix_ext_ntp_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int 
 
 	if (memcmp(DM_DISP_EXT_NTP_PREFIX,uri,offset+1) != 0) {return FAIL_RETURN;}
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (start) {*start = offset;}
+	if (end) {*end = uri_len - offset - 1;}
+
+	return SUCCESS_RETURN;
+}
+
+int dm_disp_uri_prefix_ext_error_split(_IN_ char * uri, _IN_ int uri_len, _OU_ int * start, _OU_ int * end)
+{
+	int res = 0, offset = 0;
+
+	if (uri == NULL || uri_len <= 0) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/*"/ext/error/%s/%s/"*/
+	res = dm_utils_memtok(uri,uri_len,DM_DISP_SERVICE_DELIMITER,3,&offset);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	if (memcmp(DM_DISP_EXT_ERROR_PREFIX,uri,offset+1) != 0) {return FAIL_RETURN;}
 
 	if (start) {*start = offset;}
 	if (end) {*end = uri_len - offset - 1;}
@@ -952,6 +974,25 @@ void dm_disp_ntp_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* m
 	/* Operation */
 	res = dm_msg_ntp_response(msg->payload,msg->payload_length);
 	if (res != SUCCESS_RETURN) {return;}
+}
+
+void dm_disp_ext_error_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
+{
+	int res = 0;
+	dm_msg_response_payload_t response;
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+
+	/* Response */
+	res = dm_msg_response_parse(msg->payload,msg->payload_length,&response);
+	if (res != SUCCESS_RETURN) {return;}
+
+	/* Operation */
+	res = dm_msg_ext_error_reply(&response);
+	if (res != SUCCESS_RETURN) {return;}
+
+	/* Remove Message From Cache */
+	memcpy(int_id,response.id.value,response.id.value_length);
+	dm_msg_cache_remove(atoi(int_id));
 }
 
 void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)

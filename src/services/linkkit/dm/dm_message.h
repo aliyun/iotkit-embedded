@@ -96,6 +96,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response);
 int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],char *payload, int payload_len);
 int dm_msg_ntp_response(char *payload, int payload_len);
+int dm_msg_ext_error_reply(dm_msg_response_payload_t *response);
 int dm_msg_dev_core_service_dev(char **payload, int *payload_len);
 int dm_msg_cloud_connected(void);
 int dm_msg_cloud_disconnect(void);

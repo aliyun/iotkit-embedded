@@ -1936,6 +1936,57 @@ int dm_msg_ntp_response(char *payload, int payload_len)
 	return SUCCESS_RETURN;
 }
 
+int dm_msg_ext_error_reply(dm_msg_response_payload_t *response)
+{
+	int res = 0, devid = 0;
+	lite_cjson_t lite, lite_item_pk, lite_item_dn;
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+
+	if (response == NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Parse JSON */
+	memset(&lite,0,sizeof(lite_cjson_t));
+	res = lite_cjson_parse(response->data.value,response->data.value_length,&lite);
+	if (res != SUCCESS_RETURN) {
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,response->data.value_length,response->data.value);
+		return FAIL_RETURN;
+	}
+
+	/* Parse Product Key */
+	res = lite_cjson_object_item(&lite,DM_MSG_KEY_PRODUCT_KEY,strlen(DM_MSG_KEY_PRODUCT_KEY),&lite_item_pk);
+	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk) || lite_item_pk.value_length >= PRODUCT_KEY_MAXLEN) {
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(DM_MSG_KEY_PRODUCT_KEY),DM_MSG_KEY_PRODUCT_KEY);
+		return FAIL_RETURN;
+	}
+	memcpy(product_key,lite_item_pk.value,lite_item_pk.value_length);
+
+	/* Parse Device Name */
+	res = lite_cjson_object_item(&lite,DM_MSG_KEY_DEVICE_NAME,strlen(DM_MSG_KEY_DEVICE_NAME),&lite_item_dn);
+	if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn) || lite_item_dn.value_length >= DEVICE_NAME_MAXLEN) {
+		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,strlen(DM_MSG_KEY_DEVICE_NAME),DM_MSG_KEY_DEVICE_NAME);
+		return FAIL_RETURN;
+	}
+	memcpy(device_name,lite_item_dn.value,lite_item_dn.value_length);
+
+	/* Get Device Id */
+	res = dm_mgr_search_device_by_pkdn(product_key,device_name,&devid);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+    /* Login again if error code is 520 */
+	if (response->code.value_int == IOTX_DM_ERR_CODE_NO_ACTIVE_SESSION) {
+        dm_log_err("log in again test\r\n");
+        dm_mgr_upstream_combine_login(devid);
+	}
+
+	return SUCCESS_RETURN;
+}
+
+
+
 const char DM_MSG_DEV_CORE_SERVICE_DEV[] DM_READ_ONLY = "{\"deviceModel\":{\"profile\":{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"addr\":\"%s\",\"port\":%d}}}";
 int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
 {

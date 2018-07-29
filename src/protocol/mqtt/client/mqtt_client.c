@@ -2913,7 +2913,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
-#ifndef BUILD_AOS
     /* report firmware version */
     err = iotx_mc_report_firmware_version(pclient);
     if (SUCCESS_RETURN != err) {
@@ -2921,7 +2920,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         LITE_free(pclient);
         return NULL;
     }
-#endif
 
     return pclient;
 }
