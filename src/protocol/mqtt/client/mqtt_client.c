@@ -236,7 +236,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, topic_msg->payload_len, topicName);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName)+topic_msg->payload_len, topicName);
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
                                 c->buf_size_send,
                                 0,
