@@ -2710,6 +2710,9 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
 /* report Firmware version */
 static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
 {
+#if (defined(BUILD_AOS) || defined(OTA_ENABLED))
+    return SUCCESS_RETURN;
+#else    
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
@@ -2766,6 +2769,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
 
     mqtt_debug("firmware version report finished, iotx_mc_publish() = %d", ret);
     return SUCCESS_RETURN;
+#endif    
 }
 
 /* report ModuleID */
