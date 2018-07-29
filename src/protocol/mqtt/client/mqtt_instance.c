@@ -8,8 +8,8 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
-#include "mqtt_debug.h"
 #include "mqtt_instance.h"
+#include "iotx_mqtt_internal.h"
 
 static void *mqtt_client = NULL;
 

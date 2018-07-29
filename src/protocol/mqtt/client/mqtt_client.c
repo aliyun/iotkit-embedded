@@ -20,7 +20,6 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iotx_system.h"
-#include "mqtt_debug.h"
 #include "iotx_utils.h"
 #include "utils_hmac.h"
 #include "string_utils.h"
@@ -359,7 +358,7 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
     }
 
     memset(topic, 0x0, sizeof(MQTTString) * list_size);
-    handler = LITE_malloc(sizeof(iotx_mc_topic_handle_t) * list_size);
+    handler = mqtt_malloc(sizeof(iotx_mc_topic_handle_t) * list_size);
     if (NULL == handler) {
         return FAIL_RETURN;
     }
@@ -370,7 +369,7 @@ static int MQTTMutliSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
     for (; i < list_size; i++) {
         topic[i].cstring = (char *)(sub_info_list[i]->topicFilter);
         qos[i] = sub_info_list[i]->qos;
-        handler[i].topic_filter = LITE_malloc(strlen(sub_info_list[i]->topicFilter) + 1);
+        handler[i].topic_filter = mqtt_malloc(strlen(sub_info_list[i]->topicFilter) + 1);
         if (NULL == handler[i].topic_filter) {
             LITE_free(handler);
             i--;
@@ -446,8 +445,8 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     iotx_time_t                 timer;
     MQTTString                  topic = MQTTString_initializer;
     /*iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};*/
-    iotx_mc_topic_handle_t *    handler = NULL;
-    list_node_t *               node = NULL;
+    iotx_mc_topic_handle_t     *handler = NULL;
+    list_node_t                *node = NULL;
 
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
@@ -462,11 +461,11 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
-    handler = LITE_malloc(sizeof(iotx_mc_topic_handle_t));
+    handler = mqtt_malloc(sizeof(iotx_mc_topic_handle_t));
     if (NULL == handler) {
         return FAIL_RETURN;
     }
-    handler->topic_filter = LITE_malloc(strlen(topicFilter) + 1);
+    handler->topic_filter = mqtt_malloc(strlen(topicFilter) + 1);
     if (NULL == handler->topic_filter) {
         LITE_free(handler);
         return FAIL_RETURN;
@@ -545,12 +544,12 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
-    handler = LITE_malloc(sizeof(iotx_mc_topic_handle_t));
+    handler = mqtt_malloc(sizeof(iotx_mc_topic_handle_t));
     if (NULL == handler) {
         return FAIL_RETURN;
     }
     //handler->topic_filter = topicFilter;
-    handler->topic_filter = LITE_malloc(strlen(topicFilter) + 1);
+    handler->topic_filter = mqtt_malloc(strlen(topicFilter) + 1);
     if (NULL == handler->topic_filter) {
         LITE_free(handler);
         return FAIL_RETURN;
@@ -699,7 +698,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
         return FAIL_RETURN;
     }
 
-    iotx_mc_pub_info_t *repubInfo = (iotx_mc_pub_info_t *)LITE_malloc(sizeof(iotx_mc_pub_info_t) + len);
+    iotx_mc_pub_info_t *repubInfo = (iotx_mc_pub_info_t *)mqtt_malloc(sizeof(iotx_mc_pub_info_t) + len);
     if (NULL == repubInfo) {
         HAL_MutexUnlock(c->lock_list_pub);
         mqtt_err("run iotx_memory_malloc is error!");
@@ -747,7 +746,7 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
         return FAIL_RETURN;
     }
 
-    iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)LITE_malloc(sizeof(
+    iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)mqtt_malloc(sizeof(
             iotx_mc_subsribe_info_t) + len);
     if (NULL == subInfo) {
         HAL_MutexUnlock(c->lock_list_sub);
@@ -950,7 +949,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
         /* drop data whitch over the length of mqtt buffer */
         int remainDataLen = rem_len - needReadLen;
-        char *remainDataBuf = LITE_malloc(remainDataLen + 1);
+        char *remainDataBuf = mqtt_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
             mqtt_err("allocate remain buffer failed");
             return FAIL_RETURN;
@@ -1949,7 +1948,7 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
     iotx_time_init(&pClient->next_ping_time);
     iotx_time_init(&pClient->reconnect_param.reconnect_next_time);
 
-    pClient->ipstack = (utils_network_pt)LITE_malloc(sizeof(utils_network_t));
+    pClient->ipstack = (utils_network_pt)mqtt_malloc(sizeof(utils_network_t));
     if (NULL == pClient->ipstack) {
         mqtt_err("allocate Network struct failed");
         rc = FAIL_RETURN;
@@ -2866,7 +2865,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     CONFIG_VARS_DUMP(CONFIG_MQTT_SUBTOPIC_MAXNUM, mqtt_info);
 
-    pclient = (iotx_mc_client_t *)LITE_malloc(sizeof(iotx_mc_client_t));
+    mqtt_crit("sizeof(iotx_mc_client_t) = %d!", sizeof(iotx_mc_client_t));
+    pclient = (iotx_mc_client_t *)mqtt_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
         mqtt_err("not enough memory.");
         return NULL;
