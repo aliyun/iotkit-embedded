@@ -55,7 +55,7 @@ typedef struct {
     } event_data;
 } linkkit_event_t;
 
-struct linkkit_params_s {
+typedef struct linkkit_params_s {
     int maxMsgSize;         /* max message size          */
     int maxMsgQueueSize;    /* max message queue size    */
 
@@ -66,9 +66,7 @@ struct linkkit_params_s {
 
     /* user private data */
     void *ctx;
-};
-
-typedef struct linkkit_params_s linkkit_params_t;
+}linkkit_params_t;
 
 /**
  * @brief get default initialize parameters
@@ -98,8 +96,7 @@ int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, in
  *
  * @return 0 when success, < 0 when fail.
  */
-int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev, void *ctx),
-                                       void *ctx);
+int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev, void *ctx), void *ctx);
 
 /**
  * @brief linkkit initialization.
