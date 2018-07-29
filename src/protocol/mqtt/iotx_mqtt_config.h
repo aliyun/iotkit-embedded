@@ -2,7 +2,7 @@
 #define IOTX_MQTT_CONFIG_H__
 
 #ifndef WITH_MQTT_DYNBUF
-    #define WITH_MQTT_DYNBUF                    (0)
+    #define WITH_MQTT_DYNBUF                    (1)
 #endif
 
 /* maximum republish elements in list */
