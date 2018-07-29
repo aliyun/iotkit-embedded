@@ -107,6 +107,7 @@ void dm_disp_msg_tick(void);
 int dm_disp_uri_prefix_sys_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 int dm_disp_uri_prefix_ext_session_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 int dm_disp_uri_prefix_ext_ntp_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
+int dm_disp_uri_prefix_ext_error_split(_IN_ char * uri, _IN_ int uri_len, _OU_ int * start, _OU_ int * end);
 int dm_disp_uri_pkdn_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 int dm_disp_uri_service_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 int dm_disp_uri_event_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
@@ -136,6 +137,7 @@ void dm_disp_combine_login_reply(iotx_cm_send_peer_t* source, iotx_cm_message_in
 void dm_disp_combine_logout_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_model_up_raw_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_ntp_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
+void dm_disp_ext_error_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_lan_prefix_get_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_lan_prefix_update_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);

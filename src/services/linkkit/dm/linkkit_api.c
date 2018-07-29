@@ -690,6 +690,13 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
     dm_init_params.domain_type = domain_type;
     dm_init_params.event_callback = _linkkit_event_callback;
+    
+    /* Setup log level */
+    if ((LOGLEVEL)log_level > LOG_DEBUG_LEVEL) {
+        return FAIL_RETURN;
+    }
+    LITE_set_loglevel(log_level); 
+    
 #if (CONFIG_SDK_THREAD_COST == 1)
     HAL_ThreadCreate(&thread_process_dispatch, linkkit_dispatch, NULL, NULL, &stack_used);
     HAL_ThreadDetach(thread_process_dispatch);

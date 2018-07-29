@@ -111,6 +111,16 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
         }
     }
 
+	prefix_end = 0, prefix_uri_end = 0;
+    res = dm_disp_uri_prefix_ext_error_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
+    if (res == SUCCESS_RETURN) {
+        /* URI Start with /ext/error */
+        dm_log_debug("Current URI Without /ext/error: %.*s", prefix_uri_end + 1, msg->URI + prefix_end);
+
+        dm_disp_ext_error_response(source, msg, user_data);
+    }
+
+
     for (index = 0; index < dm_disp_get_topic_mapping_size(); index++) {
         if ((strlen(dcs_mapping[index].service_name) == msg->URI_length) &&
             (memcmp(dcs_mapping[index].service_name, msg->URI, msg->URI_length) == 0)) {
