@@ -148,6 +148,7 @@ typedef enum {
 #define IOTX_DM_POST_PROPERTY_ALL (NULL)
 
 int iotx_dm_set_opt(int opt,void *data);
+int iotx_dm_get_opt(int opt,void *data);
 int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params);
 int iotx_dm_destroy(void);
 int iotx_dm_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len);

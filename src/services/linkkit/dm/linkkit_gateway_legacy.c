@@ -121,6 +121,7 @@ static int _linkkit_gateway_upstream_sync_callback_list_insert(int msgid, void *
     INIT_LIST_HEAD(&node->linked_list);
 
     list_add(&node->linked_list,&linkkit_gateway_ctx->upstream_sync_callback_list);
+    dm_log_info("New Message, msgid: %d",msgid);
 
     return SUCCESS_RETURN;
 }
@@ -1197,7 +1198,7 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
 
 int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *event, int timeout_ms)
 {
-    int res = 0;
+    int res = 0, event_reply_value = 0;
     void *semaphore = NULL;
 
     if (devid < 0 || identifier == NULL || event == NULL || timeout_ms < 0) {
@@ -1205,7 +1206,12 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
         return FAIL_RETURN;
     }
 
-    if (timeout_ms == 0) {
+    res = iotx_dm_get_opt(1,(void *)&event_reply_value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    if (timeout_ms == 0 || event_reply_value == 0) {
         return iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
     }
 
@@ -1240,14 +1246,19 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
 
 int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event, int timeout_ms, void (*func)(int retval, void *ctx), void *ctx)
 {
-    int res = 0;
+    int res = 0, event_reply_value = 0;
 
     if (devid < 0 || identifier == NULL || event == NULL || timeout_ms < 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
-    if (timeout_ms == 0) {
+    res = iotx_dm_get_opt(1,(void *)&event_reply_value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    if (timeout_ms == 0 || event_reply_value == 0) {
         return iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
     }
 
@@ -1269,7 +1280,7 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
 
 int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeout_ms)
 {
-    int res = 0;
+    int res = 0, property_reply_value = 0;
     void *semaphore = NULL;
 
     if (devid < 0 || property == NULL || timeout_ms < 0) {
@@ -1277,7 +1288,12 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
         return FAIL_RETURN;
     }
 
-    if (timeout_ms == 0) {
+    res = iotx_dm_get_opt(0,(void *)&property_reply_value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    if (timeout_ms == 0 || property_reply_value == 0) {
         return iotx_dm_post_property_direct(devid, property, strlen(property));
     }
 
@@ -1312,14 +1328,19 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
 
 int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms, void (*func)(int retval, void *ctx), void *ctx)
 {
-    int res = 0;
+    int res = 0, property_reply_value = 0;
 
     if (devid < 0 || property == NULL || timeout_ms < 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
-    if (timeout_ms == 0) {
+    res = iotx_dm_get_opt(0,(void *)&property_reply_value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+    
+    if (timeout_ms == 0 || property_reply_value == 0) {
         return iotx_dm_post_property_direct(devid, property, strlen(property));
     }
 
@@ -1330,7 +1351,7 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
 
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_async_callback_list_insert(res,timeout_ms,func,ctx);
-    if (res != SUCCESS_RETURN) {
+    if (res != SUCCESS_RETURN) {    
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
