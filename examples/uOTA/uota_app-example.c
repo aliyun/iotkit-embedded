@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "iot_export.h"
 #include "ota_service.h"
 
 static void usage(void){
@@ -36,8 +37,14 @@ int main(int argc, char *argv[]){
        ctx.dl_protcol = 3;
 
     printf("Hello OTA.\n");
+
+    IOT_OpenLog("uOTA");
+    IOT_SetLogLevel(LOG_DEBUG_LEVEL);
+
     ota_service_init(&ctx);
     while(1){
     };
+
+    IOT_CloseLog();
     return 0;  
 }
