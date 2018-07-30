@@ -318,7 +318,7 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_post_property_json_sync(int devid, char *json, int timeout_ms);
+int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeout_ms);
 
 /**
  * @brief post property to cloud asynchronously.
