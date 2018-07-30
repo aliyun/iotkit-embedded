@@ -1651,13 +1651,73 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
 	return SUCCESS_RETURN;
 }
 
+const char DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
 {
+	int res = 0, id = 0, message_len = 0;
+	char *message = NULL;
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+	dm_msg_cache_node_t *node = NULL;
+
+	/* Message ID */
+	memcpy(int_id,response->id.value,response->id.value_length);
+	id = atoi(int_id);
+
+	dm_log_debug("Current ID: %d",id);
+
+	res = dm_msg_cache_search(id,&node);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	message_len = strlen(DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
+	message = DM_malloc(message_len);
+	if (message == NULL) {
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(message,0,message_len);
+	HAL_Snprintf(message,message_len,DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT,id,response->code.value_int,node->devid);
+
+	res = _dm_msg_send_to_user(IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY,message);
+	if (res != SUCCESS_RETURN) {
+		DM_free(message);
+		return FAIL_RETURN;
+	}
+
 	return SUCCESS_RETURN;
 }
 
+const char DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
 {
+	int res = 0, id = 0, message_len = 0;
+	char *message = NULL;
+	char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+	dm_msg_cache_node_t *node = NULL;
+
+	/* Message ID */
+	memcpy(int_id,response->id.value,response->id.value_length);
+	id = atoi(int_id);
+
+	dm_log_debug("Current ID: %d",id);
+
+	res = dm_msg_cache_search(id,&node);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	message_len = strlen(DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN*3 + 1;
+	message = DM_malloc(message_len);
+	if (message == NULL) {
+		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(message,0,message_len);
+	HAL_Snprintf(message,message_len,DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT,id,response->code.value_int,node->devid);
+
+	res = _dm_msg_send_to_user(IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY,message);
+	if (res != SUCCESS_RETURN) {
+		DM_free(message);
+		return FAIL_RETURN;
+	}
+
 	return SUCCESS_RETURN;
 }
 
