@@ -500,7 +500,7 @@ void dm_disp_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_mes
 		if (prop_set_reply_opt) {dm_msg_response_without_data(&request,&response);}
 	}
 
-	dm_cmw_send_to_local(msg->URI,msg->URI_length,msg->payload,msg->payload_length,NULL);
+	dm_msg_response_local_without_data(&request,&response,msg->conn_ctx);
 }
 
 void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)

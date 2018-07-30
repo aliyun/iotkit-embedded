@@ -177,7 +177,7 @@ int dm_msg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_r
 	//Parse Params
 	memset(&request->params,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(&lite,DM_MSG_KEY_PARAMS,strlen(DM_MSG_KEY_PARAMS),&request->params);
-	if (res != SUCCESS_RETURN || !lite_cjson_is_object(&request->params)) {
+	if (res != SUCCESS_RETURN) {
 		dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED,payload_len,payload);
 		return FAIL_RETURN;
 	}
@@ -472,6 +472,44 @@ int dm_msg_response_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm
 	return SUCCESS_RETURN;
 }
 
+int dm_msg_response_local_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, void *user_data)
+{
+	int res = 0, payload_len = 0;
+	char *uri = NULL, *payload = NULL;
+
+	if (request == NULL || response == NULL) {
+		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+		return FAIL_RETURN;
+	}
+
+	/* Response URI */
+	res = dm_utils_service_name(response->service_prefix,response->service_name,
+								response->product_key,response->device_name,&uri);
+	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
+
+	/* Response Payload */
+	payload_len = strlen(DM_MSG_RESPONSE_WITHOUT_DATA) + request->id.value_length + DM_UTILS_UINT32_STRLEN + 1;
+	payload = DM_malloc(payload_len);
+	if (payload == NULL) {
+		DM_free(uri);
+		dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+		return FAIL_RETURN;
+	}
+	memset(payload,0,payload_len);
+	HAL_Snprintf(payload,payload_len,DM_MSG_RESPONSE_WITHOUT_DATA,
+					request->id.value_length,request->id.value,response->code);
+
+	res = dm_cmw_send_to_local(uri,strlen(uri),payload,strlen(payload),user_data);
+	if (res != SUCCESS_RETURN) {
+		DM_free(uri);DM_free(payload);
+		dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
+		return FAIL_RETURN;
+	}
+
+	DM_free(uri);DM_free(payload);
+	return SUCCESS_RETURN;
+}
+
 const char DM_MSG_PROPERTY_SET_USER_PAYLOAD[] DM_READ_ONLY = "{\"result\":%d,\"identifier\":\"%s\"}";
 static int _dm_msg_property_set_number(int devid, char *key, lite_cjson_t *root)
 {
@@ -738,7 +776,7 @@ int dm_msg_property_get(_IN_ int devid,_IN_ dm_msg_request_payload_t *request,_I
 	lite_cjson_t lite, lite_item;
 	lite_cjson_item_t *lite_cjson_item = NULL;
 
-	if (devid < 0 || request == NULL || payload == NULL || *payload == NULL || payload_len == NULL) {
+	if (devid < 0 || request == NULL || payload == NULL || *payload != NULL || payload_len == NULL) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
