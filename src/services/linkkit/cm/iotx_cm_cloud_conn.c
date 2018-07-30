@@ -1060,7 +1060,6 @@ void *iotx_cm_cloud_conn_process(void *pclient)
                         connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_UNCREATED;
                         linked_list_remove(cm_ctx->list_connectivity, connectivity);
                         LITE_free(connectivity);
-                        return NULL;
                     }
                     break;
 

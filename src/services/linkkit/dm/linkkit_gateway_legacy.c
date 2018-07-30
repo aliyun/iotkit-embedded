@@ -1016,6 +1016,7 @@ int linkkit_gateway_stop(int devid)
     linkkit_gateway_ctx->is_started = 0;
     HAL_ThreadDelete(linkkit_gateway_ctx->dispatch_thread);
     iotx_dm_destroy();
+    HAL_SleepMs(200);
     _linkkit_gateway_callback_list_destroy();
     _linkkit_gateway_upstream_sync_callback_list_destroy();
     _linkkit_gateway_upstream_async_callback_list_destroy();
