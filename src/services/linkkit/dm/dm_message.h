@@ -73,6 +73,7 @@ int dm_msg_response_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_ms
 int dm_msg_response_local_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, _IN_ char *data, _IN_ int data_len, void *user_data);
 int dm_msg_response_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response);
 int dm_msg_property_set(int devid,dm_msg_request_payload_t *request);
+int dm_msg_property_get(_IN_ int devid,_IN_ dm_msg_request_payload_t *request,_IN_ char **payload, _IN_ int *payload_len);
 int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len);
 int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], char *identifier, int identifier_len, dm_msg_request_payload_t *request);
 int dm_msg_thing_disable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN]);
