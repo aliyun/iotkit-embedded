@@ -1407,7 +1407,12 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
         return FAIL_RETURN;
     }
 
-    for (index = 0;index < nb_extinfos;index++) { 
+    for (index = 0;index < nb_extinfos;index++) {
+        if(extinfos[index].attrKey == NULL || extinfos[index].attrValue == NULL) {
+            lite_cjson_delete(lite_array);
+            return FAIL_RETURN;
+        }
+
         lite_array_item = lite_cjson_create_object();
         if (lite_array_item == NULL) {
             lite_cjson_delete(lite_array);
@@ -1482,7 +1487,12 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
         return FAIL_RETURN;
     }
 
-    for (index = 0;index < nb_extinfos;index++) { 
+    for (index = 0;index < nb_extinfos;index++) {
+        if(extinfos[index].attrKey == NULL || extinfos[index].attrValue == NULL) {
+            lite_cjson_delete(lite_array);
+            return FAIL_RETURN;
+        }
+        
         lite_array_item = lite_cjson_create_object();
         if (lite_array_item == NULL) {
             lite_cjson_delete(lite_array);
