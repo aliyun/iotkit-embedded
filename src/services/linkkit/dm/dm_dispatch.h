@@ -115,6 +115,7 @@ int dm_disp_uri_event_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int 
 void dm_disp_thing_topo_add_notify(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
+void dm_disp_thing_service_property_post(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_service_request(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, char *identifier, int identifier_len, void* user_data);
 void dm_disp_thing_disable(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_enable(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
