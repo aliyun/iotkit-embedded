@@ -1230,9 +1230,11 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
         return FAIL_RETURN;
     }
 
+    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1300,9 +1302,11 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
         return FAIL_RETURN;
     }
 
+    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1431,9 +1435,11 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
         return FAIL_RETURN;
     }
 
+    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1503,9 +1509,11 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
         return FAIL_RETURN;
     }
 
+    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 

@@ -346,7 +346,7 @@ int main(void)
      */
     initParams = linkkit_gateway_get_default_params();
     if (!initParams)
-        return -1;    
+        return -1;
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
     maxMsgSize = 20 * 1024;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));    
