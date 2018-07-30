@@ -7,11 +7,11 @@
 #include "CoAPPlatform.h"
 #include "CoAPObserve.h"
 
-struct list_head secure_resource_cb_head;
+LIST_HEAD(secure_resource_cb_head);
 
 static bool is_inited = 0;
 #ifdef SUPPORT_MULTI_DEVICES
-struct list_head device_list;
+LIST_HEAD(device_list);
 
 device_auth_list* get_device(CoAPContext *context)
 {

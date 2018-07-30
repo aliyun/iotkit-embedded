@@ -105,9 +105,6 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
         return 1;
     }
 
-    IOT_OpenLog("masterslave");
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
-
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
 
