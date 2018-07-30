@@ -1316,12 +1316,139 @@ int linkkit_gateway_invoke_fota_service(void* data_buf, int data_buf_length)
 
 int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos, int timeout_ms)
 {
-    return SUCCESS_RETURN;
+    int res = FAIL_RETURN;
+    int i = 0;
+    void *semaphore = NULL;
+    char *payload = NULL;
+    lite_cjson_item_t *info_array = NULL, *lite_item = NULL;
+
+    if (devid < 0 || extinfos == NULL || nb_extinfos < 0 || timeout_ms < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    info_array = lite_cjson_create_array();
+    if (NULL == info_array) {
+        return FAIL_RETURN;
+    }
+
+    for (i=0; i<nb_extinfos; i++) { 
+        lite_item = lite_cjson_create_object();
+        if (NULL == lite_item) {
+            goto end;
+        }
+        lite_cjson_add_item_to_array(info_array, lite_item);
+        lite_cjson_add_string_to_object(lite_item, "attrKey", extinfos[i].attrKey);
+        lite_cjson_add_string_to_object(lite_item, "attrValue", extinfos[i].attrValue);
+    }
+    payload = lite_cjson_print_unformatted(info_array);
+    if (NULL == payload) {
+        goto end;
+    }
+    
+    if (timeout_ms == 0) {
+        res = iotx_dm_deviceinfo_update(devid, payload, strlen(payload));
+        goto end;
+    }
+
+    res = iotx_dm_deviceinfo_update(devid, payload, strlen(payload));
+    if (res < SUCCESS_RETURN) {
+        goto end;
+    }
+    
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        goto end;
+    }
+
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        goto end;
+    }
+
+    res = HAL_SemaphoreWait(semaphore,timeout_ms);
+    if (res < SUCCESS_RETURN) {
+        res = FAIL_RETURN;
+    }
+
+end:
+    if (semaphore != NULL) {
+        HAL_SemaphoreDestroy(semaphore);
+    }
+    if (payload != NULL) {
+        LITE_free(payload);
+    }
+    lite_cjson_delete(info_array);
+    return res;
 }
 
 int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos, int timeout_ms)
 {
-    return SUCCESS_RETURN;
+  int res = FAIL_RETURN;
+    int i = 0;
+    void *semaphore = NULL;
+    char *payload = NULL;
+    lite_cjson_item_t *info_array = NULL, *lite_item = NULL;
+
+    if (devid < 0 || extinfos == NULL || nb_extinfos < 0 || timeout_ms < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    info_array = lite_cjson_create_array();
+    if (NULL == info_array) {
+        return FAIL_RETURN;
+    }
+
+    for (i=0; i<nb_extinfos; i++) { 
+        lite_item = lite_cjson_create_object();
+        if (NULL == lite_item) {
+            goto end;
+        }
+        lite_cjson_add_item_to_array(info_array, lite_item);
+        lite_cjson_add_string_to_object(lite_item, "attrKey", extinfos[i].attrKey);
+    }
+    payload = lite_cjson_print_unformatted(info_array);
+    if (NULL == payload) {
+        goto end;
+    }
+    
+    if (timeout_ms == 0) {
+        res = iotx_dm_deviceinfo_delete(devid, payload, strlen(payload));
+        goto end;
+    }
+
+    res = iotx_dm_deviceinfo_delete(devid, payload, strlen(payload));
+    if (res < SUCCESS_RETURN) {
+        goto end;
+    }
+    
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        goto end;
+    }
+
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        goto end;
+    }
+
+    res = HAL_SemaphoreWait(semaphore,timeout_ms);
+    if (res < SUCCESS_RETURN) {
+        res = FAIL_RETURN;
+    }
+    
+end:
+    if (semaphore != NULL) {
+        HAL_SemaphoreDestroy(semaphore);
+    }
+    if (payload != NULL) {
+        LITE_free(payload);
+    }
+    lite_cjson_delete(info_array);
+    return res;
 }
 
 int linkkit_gateway_get_num_devices(void)
