@@ -337,10 +337,17 @@ int HAL_GetDeviceSecret(_OU_ char *device_secret)
     return len;
 }
 
+/*
+ * This need to be same with app version as in uOTA module (ota_version.h)
 
+    #ifndef SYSINFO_APP_VERSION
+    #define SYSINFO_APP_VERSION "app-1.0.0-20180101.1000"
+    #endif
+ *
+ */
 int HAL_GetFirmwareVesion(_OU_ char *version)
 {
-    char *ver = "1.0";
+    char *ver = "app-1.0.0-20180101.1000";
     int len = strlen(ver);
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__
