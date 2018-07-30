@@ -85,6 +85,7 @@ static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
 	{DM_DISP_THING_TOPO_ADD_NOTIFY,            DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_topo_add_notify              },
 	{DM_DISP_THING_SERVICE_PROPERTY_SET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_service_property_set         },
 	{DM_DISP_THING_SERVICE_PROPERTY_GET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_service_property_get         },
+	{DM_DISP_THING_EVENT_PROPERTY_POST,        DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_LOCAL_AUTH,      dm_disp_thing_service_property_post        },
 	{DM_DISP_THING_DISABLE,                    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_disable                      },
 	{DM_DISP_THING_ENABLE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_enable                       },
 	{DM_DISP_THING_DELETE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_delete                       },
@@ -540,6 +541,11 @@ void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_mes
 
 	dm_msg_response_local_with_data(&request,&response,payload,paylaod_len,msg->conn_ctx);
 	DM_free(payload);
+}
+
+void dm_disp_thing_service_property_post(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
+{
+
 }
 
 void dm_disp_thing_service_request(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, char *identifier, int identifier_len, void* user_data)
