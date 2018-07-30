@@ -72,6 +72,7 @@ int dm_msg_request_local(_IN_ dm_msg_request_t *request);
 int dm_msg_response_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, _IN_ char *data, _IN_ int data_len);
 int dm_msg_response_local_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, _IN_ char *data, _IN_ int data_len, void *user_data);
 int dm_msg_response_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response);
+int dm_msg_response_local_without_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response, void *user_data);
 int dm_msg_property_set(int devid,dm_msg_request_payload_t *request);
 int dm_msg_property_get(_IN_ int devid,_IN_ dm_msg_request_payload_t *request,_IN_ char **payload, _IN_ int *payload_len);
 int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len);
