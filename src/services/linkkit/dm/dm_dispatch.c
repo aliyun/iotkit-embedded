@@ -26,6 +26,7 @@ const char DM_DISP_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY = "thing/top
 const char DM_DISP_THING_SERVICE_PROPERTY_SET[]        DM_READ_ONLY = "thing/service/property/set";
 const char DM_DISP_THING_SERVICE_PROPERTY_SET_REPLY[]  DM_READ_ONLY = "thing/service/property/set_reply";
 const char DM_DISP_THING_SERVICE_PROPERTY_GET[]        DM_READ_ONLY = "thing/service/property/get";
+const char DM_DISP_THING_SERVICE_PROPERTY_GET_REPLY[]  DM_READ_ONLY = "thing/service/property/get_reply";
 const char DM_DISP_THING_SERVICE_REQUEST[]             DM_READ_ONLY = "thing/service/%s";
 const char DM_DISP_THING_SERVICE_RESPONSE[]            DM_READ_ONLY = "thing/service/%.*s_reply";
 const char DM_DISP_THING_DISABLE[]                     DM_READ_ONLY = "thing/disable";
@@ -83,7 +84,7 @@ const char DM_DISP_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY = "thing/lan
 static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
 	{DM_DISP_THING_TOPO_ADD_NOTIFY,            DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_topo_add_notify              },
 	{DM_DISP_THING_SERVICE_PROPERTY_SET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_service_property_set         },
-	{DM_DISP_THING_SERVICE_PROPERTY_GET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_service_property_get         },
+	{DM_DISP_THING_SERVICE_PROPERTY_GET,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_service_property_get         },
 	{DM_DISP_THING_DISABLE,                    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_disable                      },
 	{DM_DISP_THING_ENABLE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_enable                       },
 	{DM_DISP_THING_DELETE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_delete                       },
@@ -104,7 +105,7 @@ static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
 	{DM_DISP_COMBINE_LOGOUT_REPLY,             DM_DISP_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_combine_logout_reply               },
 	{DM_DISP_THING_MODEL_UP_RAW_REPLY,         DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_model_up_raw_reply           },
 	{DM_DISP_NTP_RESPONSE,                     DM_DISP_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_CLOUD,   dm_disp_ntp_response                       },
-	{DM_DISP_DEV_CORE_SERVICE_DEV,             NULL,                        IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH, dm_disp_thing_dev_core_service_dev         },
+	{DM_DISP_DEV_CORE_SERVICE_DEV,             NULL,                       IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH,   dm_disp_thing_dev_core_service_dev         },
 	//{DM_DISP_THING_LAN_PREFIX_GET_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_prefix_get_reply         },
 	//{DM_DISP_THING_LAN_PREFIX_UPDATE_REPLY,    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_prefix_update_reply      },
 	//{DM_DISP_THING_LAN_BLACKLIST_UPDATE_REPLY, DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_blacklist_update_reply   }
@@ -504,10 +505,41 @@ void dm_disp_thing_service_property_set(iotx_cm_send_peer_t* source, iotx_cm_mes
 
 void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
 {
-	dm_log_info(DM_DISP_THING_SERVICE_PROPERTY_GET);
+	int res = 0, devid = 0, paylaod_len = 0;
+	char *payload = NULL;
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+	dm_msg_request_payload_t request;
+	dm_msg_response_t response;
 
 	/* Never Used */
-	dm_log_debug("Serivce Property Get, Payload: %.*s",msg->payload_length,msg->payload);
+	dm_log_info("Serivce Property Get, Payload: %.*s",msg->payload_length,msg->payload);
+
+	memset(&request,0,sizeof(dm_msg_request_payload_t));
+	memset(&response,0,sizeof(dm_msg_response_t));
+
+	/* Request */
+	res = dm_msg_uri_parse_pkdn(msg->URI,msg->URI_length,2,4,product_key,device_name);
+	if (res != SUCCESS_RETURN) {return;}
+
+	res = dm_mgr_search_device_by_pkdn(product_key,device_name,&devid);
+	if (res != SUCCESS_RETURN) {return;}
+
+	res = dm_msg_request_parse(msg->payload,msg->payload_length,&request);
+	if (res != SUCCESS_RETURN) {return;}
+
+	/* Operation */
+	res = dm_msg_property_get(devid,&request,&payload,&paylaod_len);
+
+	/* Response */
+	response.service_prefix = DM_DISP_SYS_PREFIX;
+	response.service_name = DM_DISP_THING_SERVICE_PROPERTY_GET_REPLY;
+	memcpy(response.product_key,product_key,strlen(product_key));
+	memcpy(response.device_name,device_name,strlen(device_name));
+	response.code = (res == SUCCESS_RETURN)?(IOTX_DM_ERR_CODE_SUCCESS):(IOTX_DM_ERR_CODE_REQUEST_ERROR);
+
+	dm_msg_response_local_with_data(&request,&response,payload,paylaod_len,msg->conn_ctx);
+	DM_free(payload);
 }
 
 void dm_disp_thing_service_request(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, char *identifier, int identifier_len, void* user_data)
