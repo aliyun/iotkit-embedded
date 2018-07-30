@@ -145,6 +145,8 @@ CoAPContext *CoAPServer_init()
         coap_yield_mutex = HAL_MutexCreate();
         if(NULL == coap_yield_mutex){
             COAP_ERR("coap_yield_mutex Create failed");
+            HAL_SemaphoreDestroy(g_semphore);
+            g_semphore = NULL;
             return NULL;
         }
 #endif
