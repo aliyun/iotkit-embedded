@@ -253,7 +253,9 @@ int iotx_alcs_adapter_deinit(void)
 	if (adapter->alcs_send_list) linked_list_destroy(adapter->alcs_send_list);
 
     if (adapter->alcs_event_handle) LITE_free(adapter->alcs_event_handle);
-
+   
+    if(adapter->mutex) HAL_MutexDestroy(adapter->mutex); 
+	
     alcs_mqtt_deinit(adapter->coap_ctx, product_key, device_name);
 
 	//if (adapter->coap_ctx) CoAPContext_free(adapter->coap_ctx);
@@ -295,6 +297,7 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
 	coap_ctx = alcs_context_init(&coap_param);
 	if (coap_ctx == NULL) {
 		COAP_ERR("Coap Context Init Failed");
+		HAL_MutexDestroy(adapter->mutex); 
 		return FAIL_RETURN;
 	}
 	adapter->coap_ctx = coap_ctx;
