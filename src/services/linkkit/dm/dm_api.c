@@ -39,6 +39,13 @@ int iotx_dm_set_opt(int opt,void *data)
 	return dm_opt_set(opt,data);
 }
 
+int iotx_dm_get_opt(int opt,void *data)
+{
+	if (data == NULL) {return FAIL_RETURN;}
+
+	return dm_opt_get(opt,data);
+}
+
 int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
 {
 	int res = 0;
