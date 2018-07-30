@@ -2732,7 +2732,7 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
 /* report Firmware version */
 static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
 {
-#if (defined(BUILD_AOS) || defined(OTA_ENABLED))
+#if defined(BUILD_AOS)
     return SUCCESS_RETURN;
 #else
     int ret;
