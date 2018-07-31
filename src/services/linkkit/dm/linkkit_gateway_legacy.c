@@ -426,7 +426,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
             dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
-            iotx_dm_subdev_topo_add(lite_item_devid.value_int);
+            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int);
+            _linkkit_gateway_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY:
@@ -460,7 +462,108 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
             dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
-            iotx_dm_subdev_login(lite_item_devid.value_int);
+            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int);
+            _linkkit_gateway_mutex_unlock();
+        }
+        break;
+        case IOTX_DM_EVENT_TOPO_DELETE_REPLY:
+        {
+            int res = 0;
+			lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
+
+			/* Parse Payload */
+			memset(&lite,0,sizeof(lite_cjson_t));
+			res = lite_cjson_parse(payload,strlen(payload),&lite);
+			if (res != SUCCESS_RETURN) {return;}
+
+			/* Parse Id */
+			memset(&lite_item_id,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_ID,strlen(LINKKIT_GATEWAY_LEGACY_KEY_ID),&lite_item_id);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Id: %d",lite_item_id.value_int);
+
+			/* Parse Code */
+			memset(&lite_item_code,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_CODE,strlen(LINKKIT_GATEWAY_LEGACY_KEY_CODE),&lite_item_code);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Code: %d",lite_item_code.value_int);
+
+			/* Parse Devid */
+			memset(&lite_item_devid,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_DEVID,strlen(LINKKIT_GATEWAY_LEGACY_KEY_DEVID),&lite_item_devid);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
+
+            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int);
+            _linkkit_gateway_mutex_unlock();
+        }
+        break;
+        case IOTX_DM_EVENT_COMBINE_LOGIN_REPLY:
+        {
+            int res = 0;
+			lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
+
+			/* Parse Payload */
+			memset(&lite,0,sizeof(lite_cjson_t));
+			res = lite_cjson_parse(payload,strlen(payload),&lite);
+			if (res != SUCCESS_RETURN) {return;}
+
+			/* Parse Id */
+			memset(&lite_item_id,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_ID,strlen(LINKKIT_GATEWAY_LEGACY_KEY_ID),&lite_item_id);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Id: %d",lite_item_id.value_int);
+
+			/* Parse Code */
+			memset(&lite_item_code,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_CODE,strlen(LINKKIT_GATEWAY_LEGACY_KEY_CODE),&lite_item_code);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Code: %d",lite_item_code.value_int);
+
+			/* Parse Devid */
+			memset(&lite_item_devid,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_DEVID,strlen(LINKKIT_GATEWAY_LEGACY_KEY_DEVID),&lite_item_devid);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
+
+            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int);
+            _linkkit_gateway_mutex_unlock();
+        }
+        break;
+        case IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY:
+        {
+            int res = 0;
+			lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
+
+			/* Parse Payload */
+			memset(&lite,0,sizeof(lite_cjson_t));
+			res = lite_cjson_parse(payload,strlen(payload),&lite);
+			if (res != SUCCESS_RETURN) {return;}
+
+			/* Parse Id */
+			memset(&lite_item_id,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_ID,strlen(LINKKIT_GATEWAY_LEGACY_KEY_ID),&lite_item_id);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Id: %d",lite_item_id.value_int);
+
+			/* Parse Code */
+			memset(&lite_item_code,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_CODE,strlen(LINKKIT_GATEWAY_LEGACY_KEY_CODE),&lite_item_code);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Code: %d",lite_item_code.value_int);
+
+			/* Parse Devid */
+			memset(&lite_item_devid,0,sizeof(lite_cjson_t));
+			res = lite_cjson_object_item(&lite,LINKKIT_GATEWAY_LEGACY_KEY_DEVID,strlen(LINKKIT_GATEWAY_LEGACY_KEY_DEVID),&lite_item_devid);
+			if (res != SUCCESS_RETURN) {return;}
+			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
+
+            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int);
+            _linkkit_gateway_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_PROPERTY_SET:
@@ -1030,6 +1133,7 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
 {
     int res = 0, devid = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+    void *semaphore = NULL;
 
     if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
         deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN) {
@@ -1044,13 +1148,83 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
         return FAIL_RETURN;
     }
 
-    return iotx_dm_subdev_register(devid);
+    /* Subdev Delete Topo */
+    res = iotx_dm_subdev_topo_del(devid);
+    if (res < SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        return FAIL_RETURN;
+    }
+
+    _linkkit_gateway_mutex_lock();
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_mutex_unlock();
+
+    res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
+    if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+
+    /* Subdev Register */
+    res = iotx_dm_subdev_register(devid);
+    if (res < SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    _linkkit_gateway_mutex_lock();
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_mutex_unlock();
+
+    res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
+    if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+
+    /* Subdev Add Topo */
+    res = iotx_dm_subdev_topo_add(devid);
+    if (res < SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    _linkkit_gateway_mutex_lock();
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_mutex_unlock();
+
+    res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
+    if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+
+    HAL_SemaphoreDestroy(semaphore);
+    return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
 {
     int res = 0, devid = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+    void *semaphore = NULL;
 
     if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
         deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN) {
@@ -1065,12 +1239,34 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
         return FAIL_RETURN;
     }
 
+    /* Subdev Delete Topo */
     res = iotx_dm_subdev_topo_del(devid);
-    if (res != SUCCESS_RETURN) {
+    if (res < SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
-    return iotx_dm_subdev_unregister(devid);
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        return FAIL_RETURN;
+    }
+
+    _linkkit_gateway_mutex_lock();
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_mutex_unlock();
+
+    res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
+    if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+
+    HAL_SemaphoreDestroy(semaphore);
+    return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cbs_t *cbs, void *ctx)
@@ -1128,20 +1324,76 @@ int linkkit_gateway_subdev_destroy(int devid)
 
 int linkkit_gateway_subdev_login(int devid)
 {
+    int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+    void *semaphore = NULL;
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
-    return iotx_dm_subdev_login(devid);
+    res = iotx_dm_subdev_login(devid);
+    if (res < SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        return FAIL_RETURN;
+    }
+
+    _linkkit_gateway_mutex_lock();
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_mutex_unlock();
+
+    res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
+    if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+
+    HAL_SemaphoreDestroy(semaphore);
+    return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_logout(int devid)
 {
+    int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+    void *semaphore = NULL;
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
-    return iotx_dm_subdev_logout(devid);
+    res = iotx_dm_subdev_logout(devid);
+    if (res < SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        return FAIL_RETURN;
+    }
+
+    _linkkit_gateway_mutex_lock();
+    res = _linkkit_gateway_upstream_sync_callback_list_insert(res,semaphore);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_mutex_unlock();
+
+    res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
+    if (res < SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        return FAIL_RETURN;
+    }
+
+    HAL_SemaphoreDestroy(semaphore);
+    return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)

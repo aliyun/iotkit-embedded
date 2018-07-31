@@ -15,6 +15,8 @@
 #define LINKKIT_GATEWAY_LEGACY_KEY_TIMEOUT     "timeout"
 #define LINKKIT_GATEWAY_LEGACY_KEY_VERSION     "version"
 
+#define LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS (10000)
+
 typedef struct {
     int devid;
     linkkit_cbs_t *callback;
