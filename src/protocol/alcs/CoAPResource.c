@@ -42,8 +42,8 @@ int CoAPPathMD5_sum(const char *path, int len, char outbuf[], int outlen)
         return -1;
     }
 
-    utils_md5 ((unsigned char *)path, (size_t)len, md5);
-    memcpy (outbuf, md5, outlen > 16 ? 16 : outlen);
+    utils_md5((unsigned char *)path, (size_t)len, md5);
+    memcpy(outbuf, md5, outlen > 16 ? 16 : outlen);
     return 0;
 }
 
@@ -64,11 +64,13 @@ int CoAPResource_deinit(CoAPContext *context)
 {
     CoAPResource *node = NULL, *next = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
+    char            tmpbuf[2 * COAP_MAX_PATH_CHECKSUM_LEN + 1];
 
     HAL_MutexLock(ctx->resource.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->resource.list, reslist, CoAPResource) {
         list_del_init(&node->reslist);
-        COAP_DEBUG("Release the resource %s", node->path);
+        LITE_hexbuf_convert((unsigned char *)node->path, tmpbuf, COAP_MAX_PATH_CHECKSUM_LEN, 0);
+        COAP_DEBUG("Release the resource %s", tmpbuf);
         coap_free(node);
         node  = NULL;
     }
@@ -129,7 +131,7 @@ int CoAPResource_register(CoAPContext *context, const char *path,
     }
 
 
-    CoAPPathMD5_sum (path, strlen(path), path_calc, COAP_PATH_DEFAULT_SUM_LEN);
+    CoAPPathMD5_sum(path, strlen(path), path_calc, COAP_PATH_DEFAULT_SUM_LEN);
     list_for_each_entry(node, &ctx->resource.list, reslist, CoAPResource) {
         if (0 == memcmp(path_calc, node->path, COAP_PATH_DEFAULT_SUM_LEN)) {
             /*Alread exist, re-write it*/
@@ -179,7 +181,7 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
     }
     COAP_INFO("CoAPResourceByPath_get, context:%p\n", ctx);
 
-    CoAPPathMD5_sum (path, strlen(path), path_calc, COAP_PATH_DEFAULT_SUM_LEN);
+    CoAPPathMD5_sum(path, strlen(path), path_calc, COAP_PATH_DEFAULT_SUM_LEN);
 
     HAL_MutexLock(ctx->resource.list_mutex);
     list_for_each_entry(node, &ctx->resource.list, reslist, CoAPResource) {
