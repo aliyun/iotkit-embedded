@@ -308,8 +308,10 @@ int iotx_cm_close(void **connectivity, void *option)
     }
 #if (CONFIG_SDK_THREAD_COST == 1)
     {
+        iotx_cm_connectivity_t *connectivity_node = (iotx_cm_connectivity_t *)(*connectivity);
+        connectivity_node->deinit_func(g_cm_ctx,connectivity_node);
         /* send message to itself thread */
-        iotx_cm_process_list_node_t *node = NULL;
+        /* iotx_cm_process_list_node_t *node = NULL;
 
         if (NULL == (node = iotx_cm_get_list_node(g_cm_ctx, iotx_cm_get_connectivity_type(*connectivity)))) {
             return FAIL_RETURN;
@@ -321,6 +323,8 @@ int iotx_cm_close(void **connectivity, void *option)
             iotx_cm_free_list_node(g_cm_ctx, iotx_cm_get_connectivity_type(*connectivity), node);
             return FAIL_RETURN;
         }
+        CM_ERR("1. Close Connectivity Node: %p",node); */
+        HAL_SleepMs(1000);
         return SUCCESS_RETURN;
     }
 #else /* CONFIG_SDK_THREAD_COST */
@@ -1126,7 +1130,7 @@ static void free_list_event_callback(void *_node, va_list *params)
 #if (CONFIG_SDK_THREAD_COST == 1)
 static void connectivity_deinit(void *_node, va_list *params)
 {
-    iotx_cm_close(&_node, NULL);
+    /* iotx_cm_close(&_node, NULL); */
 }
 #endif
 
@@ -1171,6 +1175,7 @@ int iotx_cm_deinit(void *option)
     iotx_cm_remove_mapping_all(cm_ctx);
 
 #if (CONFIG_SDK_THREAD_COST == 1)
+    HAL_MutexDestroy(g_cm_ctx->action_lock);
     linked_list_iterator(list, connectivity_deinit, cm_ctx);
 
     HAL_SleepMs(2000);

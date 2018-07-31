@@ -250,6 +250,7 @@ void alcs_auth_subdev_init(CoAPContext *ctx, const char* productKey, const char*
 void alcs_auth_deinit(void)
 {
 	alcs_resource_cb_deinit();
+    alcs_auth_list_deinit();
 }
 
 bool is_networkadd_same (NetworkAddr* addr1, NetworkAddr* addr2)
