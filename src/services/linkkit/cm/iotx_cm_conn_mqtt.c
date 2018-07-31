@@ -35,6 +35,8 @@ static int _add_topic(iotx_cloud_conn_mqtt_t *mqtt_ctx, const char *topic, int p
 {
     iotx_connection_topic_t *new_pt = NULL;
 
+    ARGUMENT_SANITY_CHECK(mqtt_ctx, FAIL_RETURN);
+
     new_pt = CM_malloc(sizeof(iotx_connection_topic_t));
     if (NULL == new_pt) {
         CM_ERR(cm_log_error_memory);
@@ -66,7 +68,7 @@ static int _delete_topic(iotx_cloud_conn_mqtt_t *mqtt_ctx, unsigned int packet_i
     iotx_connection_topic_t *current = NULL;
     iotx_connection_topic_t *pre = NULL;
 
-    if (NULL == mqtt_ctx->topic_list) {
+    if (!mqtt_ctx || !mqtt_ctx->topic_list) {
         CM_ERR(cm_log_warning_no_list);
         return FAIL_RETURN;
     }
@@ -114,10 +116,8 @@ static char *_find_topic(iotx_cloud_conn_mqtt_t *mqtt_ctx, unsigned int packet_i
     iotx_connection_topic_t *current = NULL;
     iotx_connection_topic_t *pre = NULL;
 
-    if (NULL == mqtt_ctx->topic_list) {
-        CM_ERR(cm_log_warning_no_list);
-        return NULL;
-    }
+    ARGUMENT_SANITY_CHECK(mqtt_ctx, NULL);
+    ARGUMENT_SANITY_CHECK(mqtt_ctx->topic_list, NULL);
 
     current = pre = mqtt_ctx->topic_list;
 
@@ -137,8 +137,8 @@ static void _delete_all(iotx_cloud_conn_mqtt_t *mqtt_ctx)
     iotx_connection_topic_t *current = NULL;
     iotx_connection_topic_t *next = NULL;
 
-    if (NULL == mqtt_ctx->topic_list) {
-        CM_ERR(cm_log_warning_no_list);
+    if (!mqtt_ctx || !mqtt_ctx->topic_list) {
+        CM_WARNING(cm_log_warning_no_list);
         return;
     }
 
