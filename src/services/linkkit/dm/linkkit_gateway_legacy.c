@@ -384,16 +384,26 @@ int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)
 
 int linkkit_gateway_init(linkkit_params_t *initParams)
 {
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+
     if (initParams == NULL) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
+    if (linkkit_gateway_ctx->is_inited == 1) {return FAIL_RETURN;}
+    linkkit_gateway_ctx->is_inited = 1;
 
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_exit(void)
 {
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+
+    if (linkkit_gateway_ctx->is_inited == 0) {return FAIL_RETURN;}
+    linkkit_gateway_ctx->is_inited = 0;
+
     return SUCCESS_RETURN;
 }
 
@@ -1070,12 +1080,15 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
         return FAIL_RETURN;
     }
 
+    if (linkkit_gateway_ctx->is_inited == 0) {return FAIL_RETURN;}
+
     if (linkkit_gateway_ctx->is_started) {
         dm_log_info("Linkkit Gateway Already Started");
         return SUCCESS_RETURN;
     }
 
     memset(linkkit_gateway_ctx,0,sizeof(linkkit_gateway_legacy_ctx_t));
+    linkkit_gateway_ctx->is_inited = 1;
     linkkit_gateway_ctx->is_started = 1;
 
     /* Create Mutex */
