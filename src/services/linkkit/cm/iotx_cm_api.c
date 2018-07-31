@@ -109,6 +109,12 @@ int iotx_cm_init(iotx_cm_init_param_t *init_param, void *option)
 #endif /* SUPPORT_PRODUCT_SECRET*/
 
         HAL_GetDeviceSecret(device_secret);
+
+        ARGUMENT_SANITY_CHECK(strlen(device_name), FAIL_RETURN);
+        ARGUMENT_SANITY_CHECK(strlen(product_key), FAIL_RETURN);
+        ARGUMENT_SANITY_CHECK(strlen(device_id), FAIL_RETURN);
+        ARGUMENT_SANITY_CHECK(strlen(device_secret), FAIL_RETURN);
+
         assert(strlen(device_name) && strlen(product_key) && strlen(device_id) && strlen(device_secret));
 
         /* Device AUTH */
