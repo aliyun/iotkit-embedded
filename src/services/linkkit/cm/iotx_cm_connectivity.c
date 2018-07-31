@@ -313,6 +313,10 @@ int iotx_cm_free_list_node(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_type
 #ifdef CM_SUPPORT_LOCAL_CONN
     else if (IOTX_CM_CONNECTIVITY_TYPE_LOCAL == type) {
         connectivity = iotx_cm_find_connectivity(cm_ctx, iotx_cm_local_conn_get_target(), NULL);
+        if (NULL == connectivity) {
+            CM_WARNING("iotx_cm_find_connectivity() returns NULL");
+            return FAIL_RETURN;
+        }
     }
 #endif
 
