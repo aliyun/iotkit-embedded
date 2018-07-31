@@ -2267,6 +2267,8 @@ static void _dm_shw_array_free(_IN_ dm_shw_data_value_t *data_value)
 		if (g_iotx_data_type_mapping[complex_array->type].func_array_free != NULL) {
 			g_iotx_data_type_mapping[complex_array->type].func_array_free(data_value);
 		}
+		DM_free(complex_array);
+		data_value->value = NULL;
 	}
 }
 
