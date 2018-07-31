@@ -456,6 +456,20 @@ void alcs_resource_cb_deinit(void)
 	}
 }
 
+void alcs_auth_list_deinit(void)
+{
+    auth_list* auth_list_ctx = get_list(ctx);
+    svr_key_item *del_item = NULL, *next_item = NULL;
+
+#ifdef ALCSSERVER
+    list_for_each_entry_safe(del_item,next_item,&auth_list_ctx->lst_svr,lst,svr_key_item) {
+        list_del(&del_item->lst);
+        if (del_item->keyInfo.secret) {coap_free(del_item->keyInfo.secret);}
+        coap_free(del_item);
+    }
+#endif
+}
+
 void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote, CoAPMessage *request)
 {
     COAP_DEBUG ("alcs_rec_heart_beat");

@@ -1138,6 +1138,9 @@ int iotx_cm_local_conn_deinit(void *handler, void *_connectivity)
     iotx_cm_connection_t *connection = NULL;
 
 #if (CONFIG_SDK_THREAD_COST == 1)
+    HAL_ThreadDelete(connectivity->pthread_process);
+    HAL_SleepMs(100);
+    HAL_MutexDestroy(connectivity->process_lock);
     iotx_cm_free_process_list_handler(connectivity, handler);
 #endif /* CONFIG_SDK_THREAD_COST */
 
@@ -1305,13 +1308,14 @@ void *iotx_cm_local_conn_process(void *pclient)
                     case IOTX_CM_PROCESS_DISCONNECT: {
                         /* todo */
                         /* connectivity must reset to NULL */
+                        /* iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
                         if (FAIL_RETURN == iotx_cm_local_conn_deinit(cm_ctx, connectivity)) {
                             CM_ERR(cm_log_error_fail);
-                        }
-                        connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_UNCREATED;
+                        } */
+                       /*  connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_UNCREATED;
                         linked_list_remove(cm_ctx->list_connectivity, connectivity);
-                        LITE_free(connectivity);
-                        return NULL;
+                        LITE_free(connectivity); */
+                        /* return NULL; */
                     }
                     break;
 

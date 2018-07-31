@@ -165,5 +165,6 @@ int internal_secure_send (CoAPContext *ctx, session_item* session, NetworkAddr *
 int alcs_resource_register_secure (CoAPContext *context, const char* pk, const char* dn, const char *path, unsigned short permission,
             unsigned int ctype, unsigned int maxage, CoAPRecvMsgHandler callback);
 void alcs_resource_cb_deinit(void);
+void alcs_auth_list_deinit(void);
 
 #endif
