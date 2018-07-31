@@ -34,6 +34,8 @@ typedef struct _post_cb {
 } post_cb_t;
 
 static int g_linkkit_inited = 0;
+static int g_linkkit_leave = 0;
+
 static void *g_linkkit_mutex = NULL;
 void *g_list_post_cb = NULL;
 static linkkit_ops_t *g_linkkit_ops = NULL;
@@ -48,7 +50,6 @@ static handle_service_fota_callback_fp_t g_fota_callback = NULL;
 #endif /* CONFIG_SDK_THREAD_COST */
 
 static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload);
-
 
 #if (CONFIG_SDK_THREAD_COST == 1)
 void *linkkit_dispatch(void *params)
@@ -69,6 +70,21 @@ void *linkkit_dispatch()
     return NULL;
 }
 #endif
+
+void linkkit_try_leave()
+{
+    g_linkkit_leave = 1;
+}
+
+int linkkit_is_try_leave()
+{
+    return g_linkkit_leave;
+}
+
+int linkkit_is_end()
+{
+    return !g_linkkit_inited;
+}
 
 static void _find_oldest_post_cb(void *_post_cb, va_list *params)
 {
@@ -725,6 +741,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
     }
     
     g_linkkit_inited = 1;
+    g_linkkit_leave = 0;
     return SUCCESS_RETURN;
 }
 
