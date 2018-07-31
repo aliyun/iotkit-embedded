@@ -27,8 +27,8 @@
 
 #ifndef WITH_MEM_STATS
     #ifdef __UBUNTU_SDK_DEMO__
-        #define WITH_MEM_STATS              1
-        #define WITH_MEM_STATS_PER_MODULE   1
+        #define WITH_MEM_STATS              0
+        #define WITH_MEM_STATS_PER_MODULE   0
     #else
         #define WITH_MEM_STATS              0
         #define WITH_MEM_STATS_PER_MODULE   0
