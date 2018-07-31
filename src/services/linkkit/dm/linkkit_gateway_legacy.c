@@ -1568,7 +1568,12 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
     }
 
     if (timeout_ms == 0 || event_reply_value == 0) {
-        return iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
+        res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }else{
+            return SUCCESS_RETURN;
+        }
     }
 
     res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
@@ -1631,7 +1636,12 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
     dm_log_info("event_reply_value: %d",event_reply_value); 
 
     if (timeout_ms == 0 || event_reply_value == 0) {
-        return iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
+        res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }else{
+            return SUCCESS_RETURN;
+        }
     }
 
     res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
@@ -1670,7 +1680,12 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
     }
 
     if (timeout_ms == 0 || property_reply_value == 0) {
-        return iotx_dm_post_property_direct(devid, property, strlen(property));
+        res = iotx_dm_post_property_direct(devid, property, strlen(property));
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }else{
+            return SUCCESS_RETURN;
+        }
     }
 
     res = iotx_dm_post_property_direct(devid, property, strlen(property));
@@ -1731,7 +1746,12 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
     }
     
     if (timeout_ms == 0 || property_reply_value == 0) {
-        return iotx_dm_post_property_direct(devid, property, strlen(property));
+        res = iotx_dm_post_property_direct(devid, property, strlen(property));
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }else{
+            return SUCCESS_RETURN;
+        }
     }
 
     res = iotx_dm_post_property_direct(devid, property, strlen(property));
@@ -1828,7 +1848,11 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
     if (timeout_ms == 0) {
         res = iotx_dm_deviceinfo_update(devid, payload, strlen(payload));
         LITE_free(payload);
-        return res;
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }else{
+            return SUCCESS_RETURN;
+        }
     }
 
     res = iotx_dm_deviceinfo_update(devid, payload, strlen(payload));
@@ -1888,7 +1912,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
-    
+
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
@@ -1921,7 +1945,11 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     if (timeout_ms == 0) {
         res = iotx_dm_deviceinfo_delete(devid, payload, strlen(payload));
         LITE_free(payload);
-        return res;
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }else{
+            return SUCCESS_RETURN;
+        }
     }
 
     res = iotx_dm_deviceinfo_delete(devid, payload, strlen(payload));
