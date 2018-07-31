@@ -345,15 +345,15 @@ int IOT_OTA_Deinit(void *handle)
     if (NULL != h_ota->ch_signal) {
         osc_Deinit(h_ota->ch_signal);
     }
-    
+
     if (NULL != h_ota->ch_fetch) {
         ofc_Deinit(h_ota->ch_fetch);
     }
-    
+
     if (NULL != h_ota->md5) {
         otalib_MD5Deinit(h_ota->md5);
     }
-    
+
     if (NULL != h_ota->sha256) {
         otalib_Sha256Deinit(h_ota->sha256);
     }
@@ -637,8 +637,10 @@ int IOT_OTA_IsFetching(void *handle)
     }
 
     if (IOT_OTAS_UNINITED == h_ota->state) {
+    /*
         OTA_LOG_E("handle is uninitialized");
         h_ota->err = IOT_OTAE_INVALID_STATE;
+    */
         return 0;
     }
 
