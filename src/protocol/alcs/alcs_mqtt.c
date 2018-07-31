@@ -428,6 +428,9 @@ alcs_mqtt_status_e alcs_mqtt_deinit(void *handle, char *product_key, char *devic
     alcs_mqtt_status_e status = ALCS_MQTT_STATUS_SUCCESS;
     alcs_mqtt_ctx_t *ctx =  __alcs_mqtt_get_ctx();
 
+    ARGUMENT_SANITY_CHECK(product_key && strlen(product_key), FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(device_name && strlen(device_name), FAIL_RETURN);
+
     if (handle == NULL || product_key == NULL || strlen(product_key) > PRODUCT_KEY_LEN ||
         device_name == NULL || strlen(device_name) > DEVICE_NAME_LEN || ctx == NULL) {
         return ALCS_MQTT_STATUS_ERROR;
