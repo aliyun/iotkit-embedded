@@ -28,6 +28,7 @@ typedef void (*linkkit_gateway_upstream_async_callback)(int retval, void *ctx);
 typedef struct {
     int msgid;
     void *semaphore;
+    int code;
     struct list_head linked_list;
 }linkkit_gateway_upstream_sync_callback_node_t;
 
