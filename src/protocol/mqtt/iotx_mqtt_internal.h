@@ -34,6 +34,9 @@
         \
         tmpbuf_len = l + MQTT_DYNBUF_MARGIN; \
         mqtt_debug("START: orig buf_send = %p, orig buf_size_send = %d, required payload_len = %d", cli->b, cli->s, l); \
+        if (cli->b) { \
+            mqtt_warning("NOT USING pre-malloced sendbuf %p, malloc per packet", cli->b); \
+        } \
         cli->b = LITE_malloc(tmpbuf_len, MEM_MAGIC, "mqtt"); \
         if (NULL == cli->b) { \
             mqtt_err("Unable to allocate %d bytes for '%s', abort!", tmpbuf_len, (n)?(n):""); \
