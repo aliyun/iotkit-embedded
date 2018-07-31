@@ -436,7 +436,7 @@ int main(void)
         HAL_SleepMs(2000);
         res = linkkit_gateway_subdev_destroy(devid);
 
-        break;
+        HAL_SleepMs(5000);
     }
 
     /* gateway stop */

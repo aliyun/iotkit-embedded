@@ -1407,6 +1407,11 @@ int linkkit_gateway_subdev_destroy(int devid)
     }
     _linkkit_gateway_mutex_unlock();
 
+    res = iotx_dm_subdev_destroy(devid);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
     return SUCCESS_RETURN;
 }
 
