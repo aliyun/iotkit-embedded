@@ -73,6 +73,11 @@ void *HAL_MutexCreate(void)
 void HAL_MutexDestroy(_IN_ void *mutex)
 {
     int err_num;
+
+    if (!mutex) {
+        hal_warning("mutex want to destroy is NULL!");
+        return;
+    }
     if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
         hal_err("destroy mutex failed");
     }
