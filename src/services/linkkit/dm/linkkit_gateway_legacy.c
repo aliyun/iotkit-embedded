@@ -1552,12 +1552,15 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
 {
     int res = 0, msgid = 0, code = 0, event_reply_value = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     void *semaphore = NULL;
 
     if (devid < 0 || identifier == NULL || event == NULL || timeout_ms < 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
+    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     res = iotx_dm_get_opt(1,(void *)&event_reply_value);
     if (res != SUCCESS_RETURN) {
@@ -1611,11 +1614,14 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
 int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event, int timeout_ms, void (*func)(int retval, void *ctx), void *ctx)
 {
     int res = 0, event_reply_value = 0;
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (devid < 0 || identifier == NULL || event == NULL || timeout_ms < 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
+    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     res = iotx_dm_get_opt(1,(void *)&event_reply_value);
     if (res != SUCCESS_RETURN) {
@@ -1648,12 +1654,15 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
 {
     int res = 0, msgid = 0, code = 0, property_reply_value = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     void *semaphore = NULL;
 
     if (devid < 0 || property == NULL || timeout_ms < 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
+    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     res = iotx_dm_get_opt(0,(void *)&property_reply_value);
     if (res != SUCCESS_RETURN) {
@@ -1707,11 +1716,14 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
 int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms, void (*func)(int retval, void *ctx), void *ctx)
 {
     int res = 0, property_reply_value = 0;
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (devid < 0 || property == NULL || timeout_ms < 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
+    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     res = iotx_dm_get_opt(0,(void *)&property_reply_value);
     if (res != SUCCESS_RETURN) {
@@ -1771,6 +1783,7 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
 {
     int res = 0, index = 0, msgid = 0, code = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     void *semaphore = NULL;
     char *payload = NULL;
     lite_cjson_item_t *lite_array = NULL, *lite_array_item = NULL;
@@ -1779,6 +1792,8 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
+    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
@@ -1862,6 +1877,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
 {
     int res = 0, index = 0, msgid = 0, code = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     void *semaphore = NULL;
     char *payload = NULL;
     lite_cjson_item_t *lite_array = NULL, *lite_array_item = NULL;
@@ -1871,6 +1887,8 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
         return FAIL_RETURN;
     }
 
+    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
+    
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
