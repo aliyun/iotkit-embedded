@@ -1933,6 +1933,10 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 	res = _dm_mgr_search_dev_by_devid(devid,&node);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	
+	if (node->dev_status < IOTX_DM_DEV_STATUS_LOGINED) {
+		return FAIL_RETURN;
+	}
+	
 	memset(&request,0,sizeof(dm_msg_request_t));
 	request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
 	request.service_name = DM_DISP_COMBINE_LOGOUT;
