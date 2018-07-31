@@ -11,6 +11,9 @@ extern const char DM_DISP_EXT_SESSION_PREFIX[]  DM_READ_ONLY;
 extern const char DM_DISP_EXT_NTP_PREFIX[]      DM_READ_ONLY;
 extern const char DM_DISP_REPLY_SUFFIX[]        DM_READ_ONLY;
 
+extern const char DM_DISP_RRPC_RESPONSE_OLD_VERSION[]         DM_READ_ONLY; 
+extern const char DM_DISP_RRPC_RESPONSE_NEW_VERSION[]         DM_READ_ONLY;
+
 /* From Cloud To Local Request And Response*/
 extern const char DM_DISP_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY;
 extern const char DM_DISP_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY;
@@ -137,6 +140,7 @@ void dm_disp_thing_dynamictsl_get_reply(iotx_cm_send_peer_t* source, iotx_cm_mes
 void dm_disp_combine_login_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_combine_logout_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_model_up_raw_reply(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
+void dm_disp_rrpc_request_plus(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_ntp_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_ext_error_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);
 void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data);

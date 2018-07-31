@@ -20,6 +20,12 @@ const char DM_DISP_EXT_NTP_PREFIX[]                    DM_READ_ONLY = "/ext/ntp/
 const char DM_DISP_REPLY_SUFFIX[]                      DM_READ_ONLY = "_reply";
 const char DM_DISP_EXT_ERROR_PREFIX[]                  DM_READ_ONLY = "/ext/error/%s/%s/";
 
+const char DM_DISP_RRPC_RESPONSE_OLD_VERSION[]         DM_READ_ONLY = "/sys/%.*s/%.*s/rrpc/response/%d"; /* product key, device name, response id */
+const char DM_DISP_RRPC_RESPONSE_NEW_VERSION[]         DM_READ_ONLY = "/ext/rrpc/%d/sys/%.*s/%.*s/thing/service/%.*s"; /* response id, product key, device name, service id */
+
+const char DM_DISP_RRPC_REQUEST_PLUS[]                 DM_READ_ONLY = "rrpc/request/+";
+const char DM_DOSP_RRPC_REQUEST[]                      DM_READ_ONLY = "rrpc/request";
+
 /* From Cloud To Local Request And Response*/
 const char DM_DISP_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY = "thing/topo/add/notify";
 const char DM_DISP_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY = "thing/topo/add/notify_reply";
@@ -105,6 +111,7 @@ static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
 	{DM_DISP_COMBINE_LOGIN_REPLY,              DM_DISP_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_combine_login_reply                },
 	{DM_DISP_COMBINE_LOGOUT_REPLY,             DM_DISP_EXT_SESSION_PREFIX, IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_combine_logout_reply               },
 	{DM_DISP_THING_MODEL_UP_RAW_REPLY,         DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_model_up_raw_reply           },
+	{DM_DISP_RRPC_REQUEST_PLUS,                DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_rrpc_request_plus                  },
 	{DM_DISP_NTP_RESPONSE,                     DM_DISP_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_CLOUD,   dm_disp_ntp_response                       },
 	{DM_DISP_DEV_CORE_SERVICE_DEV,             NULL,                       IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH,   dm_disp_thing_dev_core_service_dev         },
 	//{DM_DISP_THING_LAN_PREFIX_GET_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_prefix_get_reply         },
@@ -1001,6 +1008,11 @@ void dm_disp_thing_model_up_raw_reply(iotx_cm_send_peer_t* source, iotx_cm_messa
 	/* Operation */
 	res = dm_msg_thing_model_up_raw_reply(product_key,device_name,msg->payload,msg->payload_length);
 	if (res != SUCCESS_RETURN) {return;}
+}
+
+void dm_disp_rrpc_request_plus(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
+{
+
 }
 
 void dm_disp_ntp_response(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
