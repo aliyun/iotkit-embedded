@@ -1507,6 +1507,30 @@ int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ io
 	return res;
 }
 
+int iotx_dm_legacy_send_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+{
+	int res = 0;
+
+	_dm_api_lock();
+
+	res = dm_mgr_upstream_rrpc_old_version_response(devid,msgid,code,identifier,identifier_len,payload,payload_len);
+
+	_dm_api_unlock();
+	return res;
+}
+
+int iotx_dm_legacy_send_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+{
+	int res = 0;
+
+	_dm_api_lock();
+
+	res = dm_mgr_upstream_rrpc_new_version_response(devid,msgid,code,identifier,identifier_len,payload,payload_len);
+
+	_dm_api_unlock();
+	return res;
+}
+
 int iotx_dm_legacy_send_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
 	int res = 0;

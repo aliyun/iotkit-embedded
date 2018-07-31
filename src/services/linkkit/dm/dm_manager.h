@@ -116,6 +116,8 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid);
 int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_ntp_request(void);
 int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int dm_mgr_upstream_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int dm_mgr_upstream_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_lan_prefix_get(_IN_ int devid);
 
 #endif

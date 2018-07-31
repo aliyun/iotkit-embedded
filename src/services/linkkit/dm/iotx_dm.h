@@ -206,6 +206,8 @@ int iotx_dm_legacy_get_thingid_by_devid(_IN_ int devid, _OU_ void **thing_id);
 int iotx_dm_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid);
 int iotx_dm_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name);
 int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_legacy_send_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_legacy_send_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_legacy_send_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 
 #endif
