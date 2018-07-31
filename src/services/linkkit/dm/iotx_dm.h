@@ -177,7 +177,7 @@ void iotx_dm_dispatch(void);
 int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid);
 int iotx_dm_subdev_destroy(_IN_ int devid);
 int iotx_dm_subdev_number(void);
-int iotx_dm_subdev_register(_IN_ int devid);
+int iotx_dm_subdev_register(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN]);
 int iotx_dm_subdev_unregister(_IN_ int devid);
 int iotx_dm_subdev_topo_add(_IN_ int devid);
 int iotx_dm_subdev_topo_del(_IN_ int devid);

@@ -702,7 +702,6 @@ int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char d
 	_dm_api_lock();
 	res = dm_mgr_device_create(IOTX_DM_DEVICE_SUBDEV,product_key,device_name,devid);
 	if (res != SUCCESS_RETURN) {_dm_api_unlock();return FAIL_RETURN;}
-
 	_dm_api_unlock();
 	return SUCCESS_RETURN;
 }
@@ -735,17 +734,29 @@ int iotx_dm_subdev_number(void)
 	return number;
 }
 
-int iotx_dm_subdev_register(_IN_ int devid)
+int iotx_dm_subdev_register(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
 	int res = 0;
-	
+	dm_mgr_dev_node_t *search_node = NULL;
+
 	if (devid < 0) {
 		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
 		return FAIL_RETURN;
 	}
 
 	_dm_api_lock();
-
+	if ((device_secret != NULL) && (strlen(device_secret) > 0) && (strlen(device_secret) < DEVICE_SECRET_MAXLEN)) {
+		res = dm_mgr_search_device_node_by_devid(devid,(void **)&search_node);
+		if (res != SUCCESS_RETURN) {
+			_dm_api_unlock();
+			return FAIL_RETURN;
+		}
+		memset(search_node->device_secret,0,DEVICE_SECRET_MAXLEN);
+		memcpy(search_node->device_secret,device_secret,strlen(device_secret));
+		_dm_api_unlock();
+		return SUCCESS_RETURN;
+	}
+	
 	res = dm_mgr_upstream_thing_sub_register(devid);
 
 	_dm_api_unlock();
