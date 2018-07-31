@@ -2881,8 +2881,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #if WITH_MQTT_DYNBUF
 #else
     POINTER_SANITY_CHECK(pInitParams->pwrite_buf, NULL);
-    POINTER_SANITY_CHECK(pInitParams->pread_buf, NULL);
 #endif
+    POINTER_SANITY_CHECK(pInitParams->pread_buf, NULL);
 
     STRING_PTR_SANITY_CHECK(pInitParams->host, NULL);
     STRING_PTR_SANITY_CHECK(pInitParams->client_id, NULL);
