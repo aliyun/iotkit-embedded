@@ -365,12 +365,16 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
     }
     memset(mqtt_ctx, 0x0, sizeof(iotx_cloud_conn_mqtt_t));
 
+#if WITH_MQTT_DYNBUF
+    CM_WARNING("WITH_MQTT_DYNBUF = %d, skipping malloc sendbuf of %d bytes", WITH_MQTT_DYNBUF, CONFIG_MQTT_TX_MAXLEN);
+#else
     if (NULL == (mqtt_ctx->msg_buf = (char *)CM_malloc(CONFIG_MQTT_TX_MAXLEN))) {
         CM_ERR(cm_log_error_memory);
         LITE_free(mqtt_ctx);
         return NULL;
     }
     memset(mqtt_ctx->msg_buf, 0x0, CONFIG_MQTT_TX_MAXLEN);
+#endif
 
     if (NULL == (mqtt_ctx->msg_readbuf = (char *)CM_malloc(CONFIG_MQTT_RX_MAXLEN))) {
         CM_ERR(cm_log_error_memory);
