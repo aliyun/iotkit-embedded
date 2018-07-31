@@ -69,11 +69,15 @@ static linkkit_cbs_t linkkit_cbs = {
 
 static int gateway_register_complete(void *ctx)
 {
-	 gateway_t *gw = (gateway_t *)ctx;
+	gateway_t *gw = (gateway_t *)ctx;
+    
+    if (gw == NULL) {
+        return -1;
+    }
 
-	 gw->register_completed = 1;
-
-	 return 0;
+	gw->register_completed = 1;
+    EXAMPLE_TRACE("Current Device %d Register ALL Service Completed\n",gw->lk_dev);
+	return 0;
 }
 
 /*
@@ -308,9 +312,14 @@ void linkkit_fota_callback(service_fota_callback_type_t callback_type, const cha
 {
     char fota_buffer[LINKKIT_OTA_BUFFER_SIZE] = {0};
 
-    EXAMPLE_TRACE("Fota Version: %s",version);
+    EXAMPLE_TRACE("Fota Version: %s\n",version);
 
     linkkit_gateway_invoke_fota_service(fota_buffer,LINKKIT_OTA_BUFFER_SIZE);
+}
+
+void trigger_event_callback(int ret,void *ctx)
+{
+    EXAMPLE_TRACE("Trigger Event Result: %d\n",ret);
 }
 
 int main(void)
@@ -322,9 +331,9 @@ int main(void)
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    HAL_SetProductKey("a1MDjb1BLCB");
+    HAL_SetProductKey("a1RIsMLz2BJ");
     HAL_SetDeviceName("example1");
-    HAL_SetDeviceSecret("iiyo7SnW5pZHEaJsKKGTLf3UQSpO06aC");
+    HAL_SetDeviceSecret("RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE");
 
     memset(&gateway, 0, sizeof(gateway_t));
 
@@ -354,10 +363,10 @@ int main(void)
     maxMsgQueueSize = 8;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));    
 
-	prop_post_reply = 0;
+	prop_post_reply = 1;
 	linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY, &prop_post_reply, sizeof(int));
 		
-	event_post_reply = 0;
+	event_post_reply = 1;
 	linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY, &event_post_reply, sizeof(int));
 	
     /* set event handler */
@@ -383,23 +392,52 @@ int main(void)
 
     /*
      * subdev start
-     * this example, subdev is a light
-     * user's add logic in light_init
      */
-    //light_init();
+    int res = 0;
+    char *subdev_pk = "a1NGqAVowRX";
+    char *subdev_dn = "example1";
+    char *subdev_ds = "HSbPuKvf0ekZff5ARWJDWKuyPTdQh5wb";
+    int devid = 0;
     while (1) {
         /*
          * gateway trigger event
          * please follow user's case, modify this logic
          */
-        linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "Error", "{\"ErrorCode\": 0}", 10000);
-        HAL_SleepMs(1000);
-    }
+        /* linkkit_gateway_trigger_event_json(gateway.lk_dev,"testEventODmkIIcDwj","{\"output\":0}",10000,trigger_event_callback,NULL); */
+        /* linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "testEventODmkIIcDwj", "{\"output\":0}", 10000); */
+        EXAMPLE_TRACE("=================================linkkit_gateway_subdev_create=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_subdev_create(subdev_pk,subdev_dn,&linkkit_cbs,NULL);
+        if (res < SUCCESS_RETURN) {break;}
+        devid = res;
+        EXAMPLE_TRACE("linkkit_gateway_subdev_create, devid: %d\n",devid);
+        
+        EXAMPLE_TRACE("=================================linkkit_gateway_subdev_register=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_subdev_register(subdev_pk,subdev_dn,subdev_ds);
+        if (res != SUCCESS_RETURN) {break;}
+        
+        EXAMPLE_TRACE("=================================linkkit_gateway_subdev_login=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_subdev_login(devid);
+        if (res != SUCCESS_RETURN) {break;}
 
-    /*
-     * subdev exit
-     */
-    light_exit();
+        EXAMPLE_TRACE("=================================linkkit_gateway_subdev_logout=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_subdev_logout(devid);
+        if (res != SUCCESS_RETURN) {break;}
+
+        EXAMPLE_TRACE("=================================linkkit_gateway_subdev_unregister=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_subdev_unregister(subdev_pk,subdev_dn);
+        if (res != SUCCESS_RETURN) {break;}
+
+        EXAMPLE_TRACE("=================================linkkit_gateway_subdev_destroy=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_subdev_destroy(devid);
+
+        break;
+    }
 
     /* gateway stop */
     linkkit_gateway_stop(gateway.lk_dev);
