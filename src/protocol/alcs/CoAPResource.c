@@ -64,7 +64,7 @@ int CoAPResource_deinit(CoAPContext *context)
 {
     CoAPResource *node = NULL, *next = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
-    char            tmpbuf[2 * COAP_MAX_PATH_CHECKSUM_LEN + 1];
+    char            tmpbuf[2 * COAP_MAX_PATH_CHECKSUM_LEN + 1] = {0};
 
     HAL_MutexLock(ctx->resource.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->resource.list, reslist, CoAPResource) {

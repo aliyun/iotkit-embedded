@@ -422,6 +422,16 @@ int main(void)
         res = linkkit_gateway_subdev_login(devid);
         if (res != SUCCESS_RETURN) {break;}
 
+        EXAMPLE_TRACE("=================================linkkit_gateway_post_property_json_sync=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_post_property_json_sync(devid,"{\"LightSwitch\":1}",10000);
+        if (res != SUCCESS_RETURN) {break;}
+
+        EXAMPLE_TRACE("=================================linkkit_gateway_trigger_event_json_sync=======================================\n");
+        HAL_SleepMs(2000);
+        res = linkkit_gateway_trigger_event_json_sync(devid,"Error","{\"ErrorCode\":0}",10000);
+        if (res != SUCCESS_RETURN) {break;}
+
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_logout=======================================\n");
         HAL_SleepMs(2000);
         res = linkkit_gateway_subdev_logout(devid);
