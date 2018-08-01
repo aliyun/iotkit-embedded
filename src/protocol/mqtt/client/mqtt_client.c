@@ -29,9 +29,9 @@
 #include "iotx_mqtt_internal.h"
 
 #ifdef VERSION_REPORT_DEBUG
-#define VERSION_DEBUG(...) log_debug("MQTT", __VA_ARGS__)
+    #define VERSION_DEBUG(...) log_debug("MQTT", __VA_ARGS__)
 #else
-#define VERSION_DEBUG(...)
+    #define VERSION_DEBUG(...)
 #endif
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *time);
@@ -51,6 +51,8 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
 
 static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
 static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
+
+static int _dump_wait_list(iotx_mc_client_t *c, const char *type);
 
 static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 {
@@ -545,6 +547,8 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     }
 
     RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
+
+    _dump_wait_list(c, "sub");
     HAL_MutexUnlock(c->lock_write_buf);
     return SUCCESS_RETURN;
 }
@@ -766,6 +770,11 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 
     HAL_MutexLock(c->lock_list_sub);
 
+    mqtt_debug("c->list_sub_wait_ack->len:IOTX_MC_SUB_REQUEST_NUM_MAX = %d:%d",
+               c->list_sub_wait_ack->len,
+               IOTX_MC_SUB_REQUEST_NUM_MAX);
+    _dump_wait_list(c, "sub");
+
     if (c->list_sub_wait_ack->len >= IOTX_MC_SUB_REQUEST_NUM_MAX) {
         HAL_MutexUnlock(c->lock_list_sub);
         mqtt_err("number of subInfo more than max!,size = %d", c->list_sub_wait_ack->len);
@@ -805,6 +814,71 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     return SUCCESS_RETURN;
 }
 
+/* Required to run in lock protection setup by caller */
+static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
+{
+#ifdef INSPECT_MQTT_LIST
+    list_t          *dump_list = NULL;
+
+    ARGUMENT_SANITY_CHECK(c != NULL, FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(type != NULL, FAIL_RETURN);
+
+    if (strlen(type) && !strcmp(type, "sub")) {
+        dump_list = c->list_sub_wait_ack;
+    } else if (strlen(type) && !strcmp(type, "pub")) {
+        dump_list = c->list_pub_wait_ack;
+    } else {
+        mqtt_err("Invalid argument of type = '%s', abort", type);
+    }
+
+    mqtt_debug("LIST type = %s, LIST len = %d", type, dump_list->len);
+    mqtt_debug("********");
+    if (dump_list->len) {
+        list_iterator_t             *iter;
+        list_node_t                 *node = NULL;
+        iotx_mc_subsribe_info_t     *subInfo = NULL;
+        iotx_mc_pub_info_t          *pubInfo = NULL;
+
+        if (NULL == (iter = list_iterator_new(dump_list, LIST_TAIL))) {
+            return SUCCESS_RETURN;
+        }
+
+        for (;;) {
+            node = list_iterator_next(iter);
+            if (NULL == node) {
+                break;
+            }
+
+            if (strlen(type) && !strcmp(type, "sub")) {
+                subInfo = (iotx_mc_subsribe_info_t *) node->val;
+                if (!subInfo) {
+                    mqtt_err("sub node's value is invalid!");
+                    continue;
+                }
+                mqtt_debug("[%d] %-32s(%d) | %p | %-8s | %-6s |",
+                           subInfo->msg_id,
+                           subInfo->handler->topic_filter ? subInfo->handler->topic_filter : "+ N/A +",
+                           subInfo->len,
+                           subInfo->handler,
+                           (subInfo->node_state == IOTX_MC_NODE_STATE_INVALID) ? "INVALID" : "NORMAL",
+                           (subInfo->type == SUBSCRIBE) ? "SUB" : "UNSUB"
+                          );
+            } else {
+                pubInfo = (iotx_mc_pub_info_t *) node->val;
+                if (!pubInfo) {
+                    mqtt_err("pub node's value is invalid!");
+                    continue;
+                }
+            }
+        }
+
+        list_iterator_destroy(iter);
+    }
+    mqtt_debug("********");
+
+#endif
+    return SUCCESS_RETURN;
+}
 
 /* remove the list element specified by @msgId from list of wait subscribe(unsubscribe) ACK */
 /* and return message handle by @messageHandler */
