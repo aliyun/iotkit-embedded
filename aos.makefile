@@ -88,14 +88,7 @@ all: .O/usr/lib/libiot_sdk.a
     .O/src/services/linkkit/dm/dm_tsl_alink.o \
     .O/src/services/linkkit/dm/dm_utils.o \
     .O/src/services/linkkit/dm/linkkit_api.o \
-    .O/src/services/linkkit/dm/linkkit_gw_api.o \
-    .O/src/services/linkkit/dm/linkkit_legacy_adaptor.o \
-    .O/src/services/linkkit/dm/mempool.o \
-    .O/src/services/linkkit/dm/packet.o \
-    .O/src/services/linkkit/dm/queue.o \
-    .O/src/services/linkkit/dm/thread.o \
-    .O/src/services/linkkit/dm/tmpmsg.o \
-    .O/src/services/linkkit/dm/watcher.o \
+    ./.O/src/services/linkkit/dm/linkkit_gateway_legacy.o \
 
 	$(Q)mkdir -p $$(dirname $@)
 	$(Q)$(call Brief_Log,"AR",$$(basename $@),"...")
