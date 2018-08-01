@@ -28,6 +28,12 @@
 #include "MQTTPacket/MQTTPacket.h"
 #include "iotx_mqtt_internal.h"
 
+#ifdef VERSION_REPORT_DEBUG
+#define VERSION_DEBUG(...) log_debug("MQTT", __VA_ARGS__)
+#else
+#define VERSION_DEBUG(...)
+#endif
+
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *time);
 static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned int *packet_type);
 static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient);
@@ -2601,15 +2607,15 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
     iotx_mqtt_topic_info_t topic_info;
     iotx_device_info_pt dev = iotx_device_info_get();
 
-    mqtt_debug("aos version report started in MQTT");
+    VERSION_DEBUG("aos version report started in MQTT");
 
     // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
     aos_get_version_hex((unsigned char *)version);
-    mqtt_debug("aos version = %d.%d.%d.%d", version[0], version[1], version[2], version[3]);
+    VERSION_DEBUG("aos version = %d.%d.%d.%d", version[0], version[1], version[2], version[3]);
 
     // Get Mac address
     aos_get_mac_hex((unsigned char *)mac);
-    mqtt_debug("mac addr = %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    VERSION_DEBUG("mac addr = %02x.%02x.%02x.%02x.%02x.%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     mac[6] = ACTIVE_SINGLE_GW;
 #ifdef BUILD_AOS
@@ -2626,7 +2632,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
 
     // Get ChipID
     aos_get_chip_code((unsigned char *)chip_code);
-    mqtt_debug("chip code = %02x %02x %02x %02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
+    VERSION_DEBUG("chip code = %02x %02x %02x %02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
 
     /*
     input: version 4byte + random 4 byte + mac 4byte + chip_code 4byte
@@ -2640,7 +2646,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
         mqtt_err("aos_get_version_info failed");
         return FAIL_RETURN;
     }
-    mqtt_debug("get aos avtive info: %s", output);
+    VERSION_DEBUG("get aos avtive info: %s", output);
 
     // generate report topic
     ret = iotx_gen_aos_report_topic(topic_name, dev->product_key, dev->device_name);
@@ -2648,7 +2654,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
         mqtt_err("aos generate topic failed");
         return FAIL_RETURN;
     }
-    mqtt_debug("aos version report topic: %s", topic_name);
+    VERSION_DEBUG("aos version report topic: %s", topic_name);
 
     // generate report message json data
     ret = iotx_gen_aos_report_payload(msg, 1, output);
@@ -2656,7 +2662,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
         mqtt_err("aos generate message json failed");
         return FAIL_RETURN;
     }
-    mqtt_debug("aos version report data: %s", msg);
+    VERSION_DEBUG("aos version report data: %s", msg);
 
     topic_info.qos = IOTX_MQTT_QOS1;
     topic_info.payload = (void *)msg;
@@ -2671,7 +2677,7 @@ static int iotx_mc_report_aos_version(iotx_mc_client_t *pclient)
         return FAIL_RETURN;
     }
 
-    mqtt_debug("aos version report finished, iotx_mc_publish() = %d", ret);
+    VERSION_DEBUG("aos version report finished, iotx_mc_publish() = %d", ret);
 
     return SUCCESS_RETURN;
 }
@@ -2685,7 +2691,7 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
     iotx_mqtt_topic_info_t topic_info;
     iotx_device_info_pt dev = iotx_device_info_get();
 
-    mqtt_debug("linkkit version report start in MQTT");
+    VERSION_DEBUG("linkkit version report start in MQTT");
 
     /* linkkit version topic name */
     ret = HAL_Snprintf(topic_name,
@@ -2697,7 +2703,7 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
         mqtt_err("linkkit version topic generate err");
         return FAIL_RETURN;
     }
-    mqtt_debug("linkkit version report topic: %s", topic_name);
+    VERSION_DEBUG("linkkit version report topic: %s", topic_name);
 
     /* generate linkkit version json data */
     ret = HAL_Snprintf(msg,
@@ -2710,7 +2716,7 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
         mqtt_err("linkkit version json data generate err");
         return FAIL_RETURN;
     }
-    mqtt_debug("linkkit version report data: %s", msg);
+    VERSION_DEBUG("linkkit version report data: %s", msg);
 
     topic_info.qos = IOTX_MQTT_QOS1;
     topic_info.payload = (void *)msg;
@@ -2725,7 +2731,7 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
         return FAIL_RETURN;
     }
 
-    mqtt_debug("linkkit version report finished, iotx_mc_publish() = %d", ret);
+    VERSION_DEBUG("linkkit version report finished, iotx_mc_publish() = %d", ret);
     return SUCCESS_RETURN;
 }
 
@@ -2748,7 +2754,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
         return FAIL_RETURN;
     }
 
-    mqtt_debug("firmware version report start in MQTT");
+    VERSION_DEBUG("firmware version report start in MQTT");
 
     /* firmware report topic name generate */
     ret = HAL_Snprintf(topic_name,
@@ -2761,7 +2767,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
         mqtt_err("firmware report topic generate err");
         return FAIL_RETURN;
     }
-    mqtt_debug("firmware report topic: %s", topic_name);
+    VERSION_DEBUG("firmware report topic: %s", topic_name);
 
     /* firmware report message json data generate */
     ret = HAL_Snprintf(msg,
@@ -2774,7 +2780,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
         mqtt_err("firmware report message json data generate err");
         return FAIL_RETURN;
     }
-    mqtt_debug("firmware report data: %s", msg);
+    VERSION_DEBUG("firmware report data: %s", msg);
 
     topic_info.qos = IOTX_MQTT_QOS1;
     topic_info.payload = (void *)msg;
@@ -2789,7 +2795,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
         return FAIL_RETURN;
     }
 
-    mqtt_debug("firmware version report finished, iotx_mc_publish() = %d", ret);
+    VERSION_DEBUG("firmware version report finished, iotx_mc_publish() = %d", ret);
     return SUCCESS_RETURN;
 #endif
 }
