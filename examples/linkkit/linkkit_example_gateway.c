@@ -325,6 +325,7 @@ void trigger_event_callback(int ret,void *ctx)
 int main(void)
 {
     gateway_t gateway;
+    gateway_t subdev;
     linkkit_params_t *initParams = NULL;
     int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
 
@@ -336,6 +337,7 @@ int main(void)
     HAL_SetDeviceSecret("RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE");
 
     memset(&gateway, 0, sizeof(gateway_t));
+    memset(&subdev, 0, sizeof(gateway_t));
 
     /* fill fake zigbee network info */
     /*
@@ -398,6 +400,7 @@ int main(void)
     char *subdev_dn = "example1";
     char *subdev_ds = "HSbPuKvf0ekZff5ARWJDWKuyPTdQh5wb";
     int devid = 0;
+
     while (1) {
         /*
          * gateway trigger event
@@ -407,9 +410,10 @@ int main(void)
         /* linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "testEventODmkIIcDwj", "{\"output\":0}", 10000); */
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_create=======================================\n");
         HAL_SleepMs(2000);
-        res = linkkit_gateway_subdev_create(subdev_pk,subdev_dn,&linkkit_cbs,NULL);
+        res = linkkit_gateway_subdev_create(subdev_pk,subdev_dn,&linkkit_cbs,(void *)&subdev);
         if (res < SUCCESS_RETURN) {break;}
         devid = res;
+        subdev.lk_dev = devid;
         EXAMPLE_TRACE("linkkit_gateway_subdev_create, devid: %d\n",devid);
         
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_register=======================================\n");
@@ -447,6 +451,7 @@ int main(void)
         res = linkkit_gateway_subdev_destroy(devid);
 
         HAL_SleepMs(5000);
+        /* break; */
     }
 
     /* gateway stop */

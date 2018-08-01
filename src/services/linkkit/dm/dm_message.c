@@ -701,7 +701,7 @@ static int _dm_msg_property_set_array(int devid, char *key, lite_cjson_t *root)
 #if defined (CONFIG_DM_DEVTYPE_SINGLE)
 const char DM_MSG_PROPERTY_SET_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"propertyid\":\"%.*s\"}";
 #elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
-const char DM_MSG_PROPERTY_SET_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"payload\":\"%.*s\"}";
+const char DM_MSG_PROPERTY_SET_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"payload\":%.*s}";
 #endif
 int dm_msg_property_set(int devid,dm_msg_request_payload_t *request)
 {
