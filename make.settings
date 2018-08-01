@@ -79,4 +79,4 @@ FEATURE_ALCS_ENABLED        = y
 ## Usage:    If the value is "y", it support gateway feature and the -DENHANCED_GATEWAY compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_ENHANCED_GATEWAY    = y
+FEATURE_ENHANCED_GATEWAY    = n
