@@ -541,7 +541,7 @@ void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_mes
 
 	/* Response */
 	response.service_prefix = DM_DISP_SYS_PREFIX;
-	response.service_name = DM_DISP_THING_SERVICE_PROPERTY_GET_REPLY;
+	response.service_name = DM_DISP_THING_SERVICE_PROPERTY_GET;
 	memcpy(response.product_key,product_key,strlen(product_key));
 	memcpy(response.device_name,device_name,strlen(device_name));
 	response.code = (res == SUCCESS_RETURN)?(IOTX_DM_ERR_CODE_SUCCESS):(IOTX_DM_ERR_CODE_REQUEST_ERROR);
@@ -552,7 +552,32 @@ void dm_disp_thing_service_property_get(iotx_cm_send_peer_t* source, iotx_cm_mes
 
 void dm_disp_thing_service_property_post(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, void* user_data)
 {
+	int res = 0;
+	char product_key[PRODUCT_KEY_MAXLEN] = {0};
+	char device_name[DEVICE_NAME_MAXLEN] = {0};
+	dm_msg_request_payload_t request;
+	dm_msg_response_t response;
 
+	dm_log_info(DM_DISP_THING_EVENT_PROPERTY_POST);
+
+	memset(&request,0,sizeof(dm_msg_request_payload_t));
+	memset(&response,0,sizeof(dm_msg_response_t));
+
+	/* Request */
+	res = dm_msg_uri_parse_pkdn(msg->URI,msg->URI_length,2,4,product_key,device_name);
+	if (res != SUCCESS_RETURN) {return;}
+
+	res = dm_msg_request_parse(msg->payload,msg->payload_length,&request);
+	if (res != SUCCESS_RETURN) {return;}
+
+	/* Response */
+	response.service_prefix = DM_DISP_SYS_PREFIX;
+	response.service_name = DM_DISP_THING_EVENT_PROPERTY_POST;
+	memcpy(response.product_key,product_key,strlen(product_key));
+	memcpy(response.device_name,device_name,strlen(device_name));
+	response.code = (res == SUCCESS_RETURN)?(IOTX_DM_ERR_CODE_SUCCESS):(IOTX_DM_ERR_CODE_REQUEST_ERROR);
+
+	dm_msg_response_local_without_data(&request,&response,msg->conn_ctx);
 }
 
 void dm_disp_thing_service_request(iotx_cm_send_peer_t* source, iotx_cm_message_info_t* msg, char *identifier, int identifier_len, void* user_data)

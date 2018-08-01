@@ -85,7 +85,7 @@ void alcs_rec_auth_select (CoAPContext *ctx, const char *paths, NetworkAddr* fro
 
 svr_key_info* is_legal_key(CoAPContext *ctx, const char* keyprefix, int prefixlen, const char* keyseq, int seqlen, int* res_code)
 {
-    COAP_DEBUG ("islegal prefix:%.*s, seq:%.*s", prefixlen, keyprefix, seqlen, keyseq);
+    COAP_INFO ("islegal prefix:%.*s, seq:%.*s", prefixlen, keyprefix, seqlen, keyseq);
 
     auth_list* lst = get_list(ctx);
     if (lst) {
@@ -106,6 +106,7 @@ svr_key_info* is_legal_key(CoAPContext *ctx, const char* keyprefix, int prefixle
         }
 
         if (list_empty(&lst->lst_svr)) {
+            COAP_INFO ("ALCS_AUTH_AUTHLISTEMPTY:%d\r\n", ALCS_AUTH_AUTHLISTEMPTY);
             *res_code = ALCS_AUTH_AUTHLISTEMPTY;
         } else {
             svr_key_item *node = NULL, *next = NULL;
@@ -128,6 +129,7 @@ svr_key_info* is_legal_key(CoAPContext *ctx, const char* keyprefix, int prefixle
                 }
             }
 
+            COAP_INFO ("ALCS_AUTH_UNMATCHPREFIX:%d\r\n", ALCS_AUTH_UNMATCHPREFIX);
             *res_code = ALCS_AUTH_UNMATCHPREFIX;
         }
 
