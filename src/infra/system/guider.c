@@ -320,8 +320,7 @@ static void guider_get_url(char *buf, int len)
 
         case GUIDER_DOMAIN_SG:
 #if defined(ON_PRE)
-          //strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
-            strcat(buf, "100.67.85.121");
+            strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
 #elif defined(ON_DAILY)
             strcat(buf, "iot-auth.alibaba.net");
 #else
