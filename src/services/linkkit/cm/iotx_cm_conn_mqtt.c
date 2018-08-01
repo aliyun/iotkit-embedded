@@ -425,6 +425,31 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
 
 int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
 {
+    int res = 0;
+    iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
+    iotx_cloud_conn_mqtt_t *mqtt_ctx = (iotx_cloud_conn_mqtt_t *)connection->context;
+
+#if (CONFIG_SDK_THREAD_COST == 0)
+    iotx_cm_register_param_t *register_param = (iotx_cm_register_param_t *)_register_param;
+    void *topicFilter = register_param[0].URI;
+#else
+    iotx_cm_register_param_t **register_param = (iotx_cm_register_param_t **)_register_param;
+    void *topicFilter = register_param[0]->URI;
+#endif
+
+    res = IOT_MQTT_Subscribe(mqtt_ctx->mqtt_handler,
+                            topicFilter,
+                            _QoS(IOTX_CM_MESSAGE_NEED_ACK),
+                            iotx_cloud_conn_mqtt_event_handle,
+                            (void *)connection);
+
+    if (res > 0) {
+        _add_topic(mqtt_ctx, topicFilter, res, NULL);
+    }
+
+    return res;
+
+#if 0
     int ret = 0, i = 0;
     iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
     iotx_cloud_conn_mqtt_t *mqtt_ctx = (iotx_cloud_conn_mqtt_t *)connection->context;
@@ -435,6 +460,7 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
     iotx_cm_register_param_t **register_param = (iotx_cm_register_param_t **)_register_param;
     void *topicFilter = register_param[i]->URI;
 #endif
+
     iotx_mutli_sub_info_t *mutli_sub[count];
 
     for (; i < count; i++) {
@@ -457,6 +483,7 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
     }
 
     return ret;
+#endif
 }
 
 int iotx_cm_conn_mqtt_unsubscribe(void *handle,
