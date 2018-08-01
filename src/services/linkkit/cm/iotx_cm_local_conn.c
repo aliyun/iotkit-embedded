@@ -619,6 +619,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
 #endif /* CM_SUPPORT_TOPIC_DISPATCH */
 
                 msg_info->payload = CM_malloc(msg->payload_length + 1);
+                msg_info->payload_length = msg->payload_length;
                 if (msg_info->payload)
                 {
                     strncpy(msg_info->payload, msg->payload, msg->payload_length);
