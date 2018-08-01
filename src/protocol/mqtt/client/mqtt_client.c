@@ -1293,7 +1293,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     MQTTString topicName;
     iotx_mqtt_topic_info_t topic_msg;
     int qos = 0;
-    int payload_len = 0;
+    uint32_t payload_len = 0;
 
     if (!c) {
         return FAIL_RETURN;
@@ -1314,7 +1314,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         return MQTT_PUBLISH_PACKET_ERROR;
     }
     topic_msg.qos = (unsigned char)qos;
-    topic_msg.payload_len = (unsigned short)payload_len;
+    topic_msg.payload_len = payload_len;
 
     mqtt_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
     mqtt_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
