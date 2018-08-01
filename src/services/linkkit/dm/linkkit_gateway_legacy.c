@@ -135,6 +135,7 @@ static int _linkkit_gateway_upstream_sync_callback_list_remove(int msgid)
     list_for_each_entry(search_node,&linkkit_gateway_ctx->upstream_sync_callback_list,linked_list,linkkit_gateway_upstream_sync_callback_node_t) {
         if (search_node->msgid == msgid) {
             dm_log_info("Message Found: %d, Delete It",msgid);
+            HAL_SemaphoreDestroy(search_node->semaphore);
             list_del(&search_node->linked_list);
             DM_free(search_node);
             return SUCCESS_RETURN;
@@ -1212,7 +1213,9 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1220,7 +1223,6 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -1229,24 +1231,31 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     /* Subdev Register */
     res = iotx_dm_subdev_register(devid,deviceSecret);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         return FAIL_RETURN;
     }
+
     if (res > SUCCESS_RETURN) {
+        semaphore = HAL_SemaphoreCreate();
+        if (semaphore == NULL) {
+            return FAIL_RETURN;
+        }
+
         msgid = res;
 
         _linkkit_gateway_mutex_lock();
         res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
         if (res != SUCCESS_RETURN) {
-            _linkkit_gateway_mutex_unlock();
             HAL_SemaphoreDestroy(semaphore);
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
         _linkkit_gateway_mutex_unlock();
 
         res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
         if (res < SUCCESS_RETURN) {
-            HAL_SemaphoreDestroy(semaphore);
+            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
 
@@ -1254,31 +1263,38 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
         code = node->code;
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
         if (code != SUCCESS_RETURN) {
-            HAL_SemaphoreDestroy(semaphore);
             _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
         _linkkit_gateway_mutex_unlock();
     }
+
     /* Subdev Add Topo */
     res = iotx_dm_subdev_topo_add(devid);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         return FAIL_RETURN;
     }
+
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        return FAIL_RETURN;
+    }
+
     msgid = res;
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1286,13 +1302,11 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1339,7 +1353,9 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1347,13 +1363,11 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1438,15 +1452,17 @@ int linkkit_gateway_subdev_login(int devid)
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1454,13 +1470,11 @@ int linkkit_gateway_subdev_login(int devid)
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1487,15 +1501,17 @@ int linkkit_gateway_subdev_logout(int devid)
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1503,13 +1519,11 @@ int linkkit_gateway_subdev_logout(int devid)
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1608,15 +1622,17 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1624,13 +1640,11 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1720,15 +1734,17 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1736,13 +1752,11 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1889,15 +1903,17 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1905,13 +1921,11 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
@@ -1986,15 +2000,17 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     _linkkit_gateway_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -2002,13 +2018,11 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
 
-    HAL_SemaphoreDestroy(semaphore);
     return SUCCESS_RETURN;
 }
 
