@@ -1406,7 +1406,7 @@ int linkkit_gateway_subdev_destroy(int devid)
     int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
-    if (devid < 0) {
+    if (devid <= 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
@@ -1435,6 +1435,11 @@ int linkkit_gateway_subdev_login(int devid)
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     void *semaphore = NULL;
+
+    if (devid <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
@@ -1485,6 +1490,11 @@ int linkkit_gateway_subdev_logout(int devid)
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     void *semaphore = NULL;
 
+    if (devid <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     res = iotx_dm_subdev_logout(devid);
@@ -1534,12 +1544,12 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
     iotx_dm_dev_avail_t available;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
-    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
-
     if (devid < 0 || devinfo == NULL) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+    
+    if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     memset(devinfo, 0, sizeof(linkkit_devinfo_t));
     res = iotx_dm_legacy_get_pkdn_ptr_by_devid(devid, &(devinfo->productKey), &(devinfo->deviceName));
