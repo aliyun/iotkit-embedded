@@ -168,9 +168,9 @@ static int _linkkit_gateway_upstream_sync_callback_list_search(int msgid, linkki
 static void _linkkit_gateway_upstream_sync_callback_list_destroy(void)
 {
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
-    linkkit_gateway_upstream_sync_callback_node_t *search_node = NULL;
+    linkkit_gateway_upstream_sync_callback_node_t *search_node = NULL, *next_node = NULL;
 
-    list_for_each_entry(search_node,&linkkit_gateway_ctx->upstream_sync_callback_list,linked_list,linkkit_gateway_upstream_sync_callback_node_t) {
+    list_for_each_entry_safe(search_node,next_node,&linkkit_gateway_ctx->upstream_sync_callback_list,linked_list,linkkit_gateway_upstream_sync_callback_node_t) {
         list_del(&search_node->linked_list);
         HAL_SemaphoreDestroy(search_node->semaphore);
         DM_free(search_node);
@@ -249,9 +249,9 @@ static int _linkkit_gateway_upstream_async_callback_list_search(int msgid, linkk
 static void _linkkit_gateway_upstream_async_callback_list_destroy(void)
 {
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
-    linkkit_gateway_upstream_async_callback_node_t *search_node = NULL;
+    linkkit_gateway_upstream_async_callback_node_t *search_node = NULL, *next_node = NULL;
 
-    list_for_each_entry(search_node,&linkkit_gateway_ctx->upstream_async_callback_list,linked_list,linkkit_gateway_upstream_async_callback_node_t) {
+    list_for_each_entry_safe(search_node,next_node,&linkkit_gateway_ctx->upstream_async_callback_list,linked_list,linkkit_gateway_upstream_async_callback_node_t) {
         list_del(&search_node->linked_list);
         DM_free(search_node);
     }
