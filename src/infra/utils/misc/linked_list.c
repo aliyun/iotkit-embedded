@@ -9,14 +9,14 @@ linked_list_t *linked_list_create(char *_name, int synchronized)
     size_t name_len = 0;
     linked_list_t *linked_list = NULL;
 
-    linked_list = calloc(1, sizeof(linked_list_t));
+    linked_list = LITE_calloc(1, sizeof(linked_list_t));
     if (!linked_list) {
         return NULL;
     }
 
     memset(linked_list, 0, sizeof(linked_list_t));
 
-    linked_list->_head = (list_unit_t *)calloc(1, sizeof(list_unit_t));
+    linked_list->_head = (list_unit_t *)LITE_calloc(1, sizeof(list_unit_t));
     if (!linked_list->_head) {
         goto err_handler;
     }
@@ -27,7 +27,7 @@ linked_list_t *linked_list_create(char *_name, int synchronized)
 
     if (_name) {
         name_len = strlen(_name);
-        linked_list->_name = calloc(1, name_len + 1);
+        linked_list->_name = LITE_calloc(1, name_len + 1);
         if (!linked_list->_name) {
             goto err_handler;
         }
@@ -42,16 +42,16 @@ linked_list_t *linked_list_create(char *_name, int synchronized)
 
 err_handler:
     if (linked_list->_head) {
-        free(linked_list->_head);
+        LITE_free(linked_list->_head);
     }
     if (linked_list->_name) {
-        free(linked_list->_name);
+        LITE_free(linked_list->_name);
     }
     if (linked_list->_mutex) {
-        free(linked_list->_mutex);
+        LITE_free(linked_list->_mutex);
     }
     if (linked_list) {
-        free(linked_list);
+        LITE_free(linked_list);
     }
 
     return NULL;
@@ -74,7 +74,7 @@ void linked_list_destroy(linked_list_t *_linked_list)
     while ((*p) != NULL) {
         list_unit_t *node = *p;
         *p = node->next;
-        free(node);
+        LITE_free(node);
     }
 
     utils_info("linked list(%s) destroyed\n", linked_list->_name);
@@ -84,7 +84,7 @@ void linked_list_destroy(linked_list_t *_linked_list)
     }
 
     if (linked_list->_name) {
-        free(linked_list->_name);
+        LITE_free(linked_list->_name);
     }
 
     if (linked_list->_mutex) {
@@ -92,14 +92,14 @@ void linked_list_destroy(linked_list_t *_linked_list)
     }
 
     if (linked_list) {
-        free(linked_list);
+        LITE_free(linked_list);
     }
 }
 
 void linked_list_insert(linked_list_t *_linked_list, void *data)
 {
     linked_list_t *linked_list = _linked_list;
-    list_unit_t *node = (list_unit_t *)calloc(1, sizeof(list_unit_t));
+    list_unit_t *node = (list_unit_t *)LITE_calloc(1, sizeof(list_unit_t));
 
     if (linked_list->_mutex) {
         HAL_MutexLock(linked_list->_mutex);
@@ -137,7 +137,7 @@ void linked_list_remove(linked_list_t *_linked_list, void *data)
             *p = node->next;
             linked_list->_size--;
             utils_info("linked list(%s) remove node@%p,size:%lu\n", linked_list->_name, node, linked_list->_size);
-            free(node);
+            LITE_free(node);
         } else {
             p = &(*p)->next;
         }
@@ -162,7 +162,7 @@ void linked_list_clear(linked_list_t *_linked_list)
     while ((*p) != NULL) {
         list_unit_t *node = *p;
         *p = node->next;
-        free(node);
+        LITE_free(node);
     }
     linked_list->_head->next = NULL;
     linked_list->_size = 0;
