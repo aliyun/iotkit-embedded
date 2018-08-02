@@ -21,6 +21,7 @@ LIB_SRCS_PATTERN    := \
 
 HDR_REFS            += src/infra
 HDR_REFS            += src/protocol/mqtt/client
+HDR_REFS            += src/ref-impl/hal/os/$(CONFIG_VENDOR)
 
 define Extra_CMake_Head
     echo 'IF (WIN32)' $(1)
