@@ -38,7 +38,10 @@
         #define DEVICE_NAME             "Device1"
         #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
     #else
-        #error "not support online iTLS for now"
+        #define PRODUCT_KEY             "a16E4IcVRBf"
+        #define PRODUCT_SECRET          "i11p9cngs22gORO4XLFD4D5AB8EC10B3"
+        #define DEVICE_NAME             "Device1"
+        #define DEVICE_SECRET           "i11fqFvpJWardIZikyFE3A3F485AAAE5"
     #endif
 
 #else
