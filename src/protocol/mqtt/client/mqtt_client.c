@@ -845,6 +845,9 @@ static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
             return SUCCESS_RETURN;
         }
 
+        iotx_mc_topic_handle_t *debug_handler = NULL;
+        char *topic_filter = NULL;
+
         for (;;) {
             node = list_iterator_next(iter);
             if (NULL == node) {
@@ -857,18 +860,20 @@ static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
                     mqtt_err("sub node's value is invalid!");
                     continue;
                 }
+                debug_handler = subInfo->handler;
+                topic_filter = (char *)((debug_handler)?(debug_handler->topic_filter):("NULL"));
 #if 0
                 HEXDUMP_DEBUG(subInfo->handler->topic_filter, 32);
                 mqtt_debug("[%d] %-32s(%d) | %p | %-8s | %-6s |",
                            subInfo->msg_id,
                            (subInfo->handler->topic_filter[0] == '/') ? subInfo->handler->topic_filter : "+ N/A +",
 #else
-                mqtt_debug("[%d] %p(%d) | %p | %-8s | %-6s |",
+                mqtt_debug("[%d] %s(%d) | %p | %-8s | %-6s |",
                            subInfo->msg_id,
-                           subInfo->handler->topic_filter ? subInfo->handler->topic_filter : "+ N/A +",
+                           topic_filter,
 #endif
                            subInfo->len,
-                           subInfo->handler,
+                           debug_handler,
                            (subInfo->node_state == IOTX_MC_NODE_STATE_INVALID) ? "INVALID" : "NORMAL",
                            (subInfo->type == SUBSCRIBE) ? "SUB" : "UNSUB"
                           );
@@ -923,12 +928,14 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
 
             if (subInfo->msg_id == msgId) {
                 *messageHandler = subInfo->handler;
+                subInfo->handler = NULL;
                 subInfo->node_state = IOTX_MC_NODE_STATE_INVALID; /* mark as invalid node */
             }
         }
 
         list_iterator_destroy(iter);
     }
+    _dump_wait_list(c,"sub");
     HAL_MutexUnlock(c->lock_list_sub);
 
     return SUCCESS_RETURN;
@@ -2152,8 +2159,16 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             node = list_iterator_next(iter);
 
             if (NULL != tempNode) {
+                #ifdef INSPECT_MQTT_LIST
+                mqtt_debug("remove list_sub_wait_ack before");
+                #endif
+                _dump_wait_list(pClient,"sub");
                 list_remove(pClient->list_sub_wait_ack, tempNode);
                 tempNode = NULL;
+                #ifdef INSPECT_MQTT_LIST
+                _dump_wait_list(pClient,"sub");
+                #endif
+                mqtt_debug("remove list_sub_wait_ack after");
             }
 
             if (NULL == node) {
@@ -3131,7 +3146,10 @@ int IOT_MQTT_Subscribe(void *handle,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
-
+    #ifdef INSPECT_MQTT_LIST
+    mqtt_debug("iotx_mc_subscribe before");
+    #endif
+    _dump_wait_list((iotx_mc_client_t *)handle, "sub");
     return iotx_mc_subscribe((iotx_mc_client_t *)handle, topic_filter, qos, topic_handle_func, pcontext);
 }
 

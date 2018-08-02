@@ -438,7 +438,7 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
 #endif
 
 #ifdef INSPECT_MQTT_LIST
-    HEXDUMP_DEBUG(topicFilter, 32);
+    HEXDUMP_DEBUG(topicFilter, strlen(topicFilter));
 #endif
 
     res = IOT_MQTT_Subscribe(mqtt_ctx->mqtt_handler,
