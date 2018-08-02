@@ -1290,6 +1290,7 @@ void *iotx_cm_local_conn_process(void *pclient)
             if (SUCCESS_RETURN == iotx_cm_local_conn_trigger_connected(cm_ctx, connectivity, NULL, NULL)) {
                 iotx_cm_set_connectivity_status(connectivity, IOTX_CM_CONNECTIVITY_STATUS_CONNECTED);
             }
+            HAL_SleepMs(1000);
             continue;
         }
 
