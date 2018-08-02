@@ -122,6 +122,8 @@ int CoAPResource_register(CoAPContext *context, const char *path,
     CoAPResource *node = NULL, *newnode = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
 
+    ARGUMENT_SANITY_CHECK(context, FAIL_RETURN);
+
     HAL_MutexLock(ctx->resource.list_mutex);
     if (ctx->resource.count >= ctx->resource.maxcount) {
         HAL_MutexUnlock(ctx->resource.list_mutex);
