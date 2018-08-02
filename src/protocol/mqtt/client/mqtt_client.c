@@ -795,9 +795,11 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     iotx_time_start(&subInfo->sub_start_time);
     subInfo->type = type;
     subInfo->handler = handler;
-    subInfo->buf = (unsigned char *)subInfo + sizeof(iotx_mc_subsribe_info_t);
 
+#if 0
+    subInfo->buf = (unsigned char *)subInfo + sizeof(iotx_mc_subsribe_info_t);
     memcpy(subInfo->buf, c->buf_send, len);
+#endif
 
     *node = list_node_new(subInfo);
     if (NULL == *node) {
@@ -855,9 +857,16 @@ static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
                     mqtt_err("sub node's value is invalid!");
                     continue;
                 }
+#if 0
+                HEXDUMP_DEBUG(subInfo->handler->topic_filter, 32);
                 mqtt_debug("[%d] %-32s(%d) | %p | %-8s | %-6s |",
                            subInfo->msg_id,
+                           (subInfo->handler->topic_filter[0] == '/') ? subInfo->handler->topic_filter : "+ N/A +",
+#else
+                mqtt_debug("[%d] %p(%d) | %p | %-8s | %-6s |",
+                           subInfo->msg_id,
                            subInfo->handler->topic_filter ? subInfo->handler->topic_filter : "+ N/A +",
+#endif
                            subInfo->len,
                            subInfo->handler,
                            (subInfo->node_state == IOTX_MC_NODE_STATE_INVALID) ? "INVALID" : "NORMAL",

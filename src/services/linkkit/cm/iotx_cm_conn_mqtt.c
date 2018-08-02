@@ -437,6 +437,10 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
     void *topicFilter = register_param[0]->URI;
 #endif
 
+#ifdef INSPECT_MQTT_LIST
+    HEXDUMP_DEBUG(topicFilter, 32);
+#endif
+
     res = IOT_MQTT_Subscribe(mqtt_ctx->mqtt_handler,
                             topicFilter,
                             _QoS(IOTX_CM_MESSAGE_NEED_ACK),
