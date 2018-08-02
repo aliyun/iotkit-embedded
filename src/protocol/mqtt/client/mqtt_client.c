@@ -1306,6 +1306,9 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 #ifdef INSPECT_MQTT_FLOW
 #endif
 
+    #ifdef INSPECT_MQTT_LIST
+    mqtt_debug("receivce SUBACK, packetid: %d",mypacketid);
+    #endif
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
     if ((NULL == messagehandler) || (NULL == messagehandler->handle.h_fp) || (NULL == messagehandler->topic_filter)) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
@@ -1459,6 +1462,9 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     }
 
     iotx_mc_topic_handle_t *messageHandler = NULL;
+    #ifdef INSPECT_MQTT_LIST
+    mqtt_debug("receivce UNSUBACK, packetid: %d",mypacketid);
+    #endif
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
 
 
@@ -2217,6 +2223,9 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                 }
 
                 iotx_mc_topic_handle_t *messageHandler = NULL;
+                #ifdef INSPECT_MQTT_LIST
+                mqtt_debug("MQTTSubInfoProc Timeout, packetid: %d",subInfo->msg_id);
+                #endif
                 (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
 
                 if (messageHandler) {
