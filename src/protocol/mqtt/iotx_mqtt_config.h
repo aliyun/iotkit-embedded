@@ -30,7 +30,7 @@
 #define IOTX_MC_REQUEST_TIMEOUT_MIN_MS          (500)
 
 /* Maximum timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_MAX_MS          (5000)
+#define IOTX_MC_REQUEST_TIMEOUT_MAX_MS          (10000)
 
 /* Default timeout interval of MQTT request in millisecond */
 #define IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
