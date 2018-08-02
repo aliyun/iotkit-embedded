@@ -428,7 +428,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	memset(complex_array,0,sizeof(dm_shw_dtspecs_array_t));
+	memset(complex_array,0,sizeof(dm_shw_data_value_complex_t));
 	data_value->value = (void *)complex_array;
 
 	//Parse Size (Mandatory)
@@ -462,6 +462,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
 		dm_log_err(DM_UTILS_LOG_DATA_TYPE_NOT_EXIST);
 		return FAIL_RETURN;
 	}
+	dm_log_debug("TSL Property Array Type: %d",complex_array->type);
 
 	//Parse Specs (Optional)
 	memset(&lite_specs,0,sizeof(lite_cjson_t));
@@ -507,7 +508,7 @@ static int _dm_shw_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_
 		dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
 		return FAIL_RETURN;
 	}
-	memset(complex_struct,0,sizeof(dm_shw_dtspecs_array_t));
+	memset(complex_struct,0,sizeof(dm_shw_data_value_complex_t));
 	data_value->value = (void *)complex_struct;
 
 	complex_struct->size = root->size;

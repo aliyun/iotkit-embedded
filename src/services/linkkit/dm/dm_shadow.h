@@ -62,12 +62,6 @@ typedef enum {
 
 typedef struct {
 	dm_shw_data_type_e type;
-	int size_int;
-	char *size;
-}dm_shw_dtspecs_array_t;
-
-typedef struct {
-	dm_shw_data_type_e type;
 	int size;
 	void *value;
 }dm_shw_data_value_complex_t;

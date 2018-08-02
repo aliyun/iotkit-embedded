@@ -2134,41 +2134,17 @@ static void _dm_shw_bool_free(_IN_ dm_shw_data_value_t *data_value)
 
 static void _dm_shw_array_int_free(_IN_ dm_shw_data_value_t *data_value)
 {
-	dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-	//Free Specs
-	if (complex_array) {
-		//Free Value
-		if (complex_array->value) {DM_free(complex_array->value);complex_array->value = NULL;}
-		DM_free(complex_array);
-		data_value->value = NULL;
-	}
 }
 
 static void _dm_shw_array_float_free(_IN_ dm_shw_data_value_t *data_value)
 {
-	dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-	//Free Specs
-	if (complex_array) {
-		//Free Value
-		if (complex_array->value) {DM_free(complex_array->value);complex_array->value = NULL;}
-		DM_free(complex_array);
-		data_value->value = NULL;
-	}
 }
 
 static void _dm_shw_array_double_free(_IN_ dm_shw_data_value_t *data_value)
 {
-	dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-	//Free Specs
-	if (complex_array) {
-		//Free Value
-		if (complex_array->value) {DM_free(complex_array->value);complex_array->value = NULL;}
-		DM_free(complex_array);
-		data_value->value = NULL;
-	}
 }
 
 static void _dm_shw_array_text_free(_IN_ dm_shw_data_value_t *data_value)
@@ -2184,23 +2160,12 @@ static void _dm_shw_array_text_free(_IN_ dm_shw_data_value_t *data_value)
 				*((char **)(complex_array->value) + index) = NULL;
 			}
 		}
-		DM_free(complex_array->value);
-		DM_free(complex_array);
-		data_value->value = NULL;
 	}
 }
 
 static void _dm_shw_array_enum_free(_IN_ dm_shw_data_value_t *data_value)
 {
-	dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-	//Free Specs
-	if (complex_array) {
-		//Free Value
-		if (complex_array->value) {DM_free(complex_array->value);complex_array->value = NULL;}
-		DM_free(complex_array);
-		data_value->value = NULL;
-	}
 }
 
 static void _dm_shw_array_date_free(_IN_ dm_shw_data_value_t *data_value)
@@ -2216,23 +2181,12 @@ static void _dm_shw_array_date_free(_IN_ dm_shw_data_value_t *data_value)
 				*((char **)(complex_array->value) + index) = NULL;
 			}
 		}
-		DM_free(complex_array->value);
-		DM_free(complex_array);
-		data_value->value = NULL;
 	}
 }
 
 static void _dm_shw_array_bool_free(_IN_ dm_shw_data_value_t *data_value)
 {
-	dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-	//Free Specs
-	if (complex_array) {
-		//Free Value
-		if (complex_array->value) {DM_free(complex_array->value);complex_array->value = NULL;}
-		DM_free(complex_array);
-		data_value->value = NULL;
-	}
 }
 
 static void _dm_shw_array_array_free(_IN_ dm_shw_data_value_t *data_value)
@@ -2252,9 +2206,6 @@ static void _dm_shw_array_struct_free(_IN_ dm_shw_data_value_t *data_value)
 			data = (dm_shw_data_t *)complex_struct->value + index;
 			_dm_shw_property_free(data);
 		}
-		DM_free(complex_struct->value);
-		DM_free(complex_struct);
-		data_value->value = NULL;
 	}
 }
 
@@ -2262,11 +2213,13 @@ static void _dm_shw_array_free(_IN_ dm_shw_data_value_t *data_value)
 {
 	dm_shw_data_value_complex_t *complex_array = data_value->value;
 
+	dm_log_err("complex_array->type: %d",complex_array->type);
 	//Free Value
 	if (complex_array) {
 		if (g_iotx_data_type_mapping[complex_array->type].func_array_free != NULL) {
 			g_iotx_data_type_mapping[complex_array->type].func_array_free(data_value);
 		}
+		if (complex_array->value) {DM_free(complex_array->value);}
 		DM_free(complex_array);
 		data_value->value = NULL;
 	}
@@ -2284,7 +2237,7 @@ static void _dm_shw_struct_free(_IN_ dm_shw_data_value_t *data_value)
 			property = (dm_shw_data_t *)(complex_array->value) + index;
 			_dm_shw_property_free(property);
 		}
-		DM_free(complex_array->value);
+		if (complex_array->value) {DM_free(complex_array->value);}
 		DM_free(complex_array);
 		data_value->value = NULL;
 	}
