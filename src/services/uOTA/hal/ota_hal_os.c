@@ -864,15 +864,27 @@ extern void* mbedtls_ssl_connect(int socketfd, const char *ca_crt, uint32_t ca_c
 extern int32_t mbedtls_ssl_send(void* ssl,  char *buf, uint32_t len);
 extern int32_t mbedtls_ssl_recv(void* ssl,  char *buf, uint32_t len);
 void* ota_ssl_connect(int socketfd, const char *ca_crt, uint32_t ca_crt_len) {
+#ifdef SUPPORT_TLS
     return mbedtls_ssl_connect(socketfd, ca_crt, ca_crt_len);
+#else
+    return NULL;
+#endif
 }
 
 int32_t ota_ssl_send(void* ssl,  char *buf, uint32_t len) {
+#ifdef SUPPORT_TLS
     return mbedtls_ssl_send(ssl, buf, len);
+#else
+    return -1;
+#endif
 }
 
 int32_t ota_ssl_recv(void* ssl,  char *buf, uint32_t len) {
+#ifdef SUPPORT_TLS
     return mbedtls_ssl_recv(ssl, buf, len);
+#else
+    return -1;
+#endif
 }
 
 int ota_HAL_GetProductKey(char product_key[PRODUCT_KEY_MAXLEN]){
