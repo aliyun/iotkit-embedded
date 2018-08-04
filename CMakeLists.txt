@@ -37,7 +37,6 @@ FILE (MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
 
 
 ADD_DEFINITIONS (-D_IS_LINKKIT_)
-ADD_DEFINITIONS (-DALCS_ENABLED)
 ADD_DEFINITIONS (-DCMP_VIA_MQTT_DIRECT)
 ADD_DEFINITIONS (-DCM_ENABLED)
 ADD_DEFINITIONS (-DCM_VIA_CLOUD_CONN)
@@ -72,7 +71,6 @@ ADD_SUBDIRECTORY (src/sdk-impl)
 ADD_SUBDIRECTORY (src/protocol/mqtt)
 ADD_SUBDIRECTORY (src/services/uOTA)
 ADD_SUBDIRECTORY (src/protocol/http)
-ADD_SUBDIRECTORY (src/protocol/alcs)
 ADD_SUBDIRECTORY (src/services/linkkit/cm)
 ADD_SUBDIRECTORY (src/services/linkkit/dm)
 
@@ -90,7 +88,6 @@ ADD_LIBRARY (iot_sdk STATIC
     $<TARGET_OBJECTS:iot_mqtt>
     $<TARGET_OBJECTS:iot_ota>
     $<TARGET_OBJECTS:iot_http>
-    $<TARGET_OBJECTS:iot_alcs>
     $<TARGET_OBJECTS:iot_cm>
     $<TARGET_OBJECTS:iot_dm>
 )
