@@ -2199,7 +2199,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             }
 
             /* check the request if timeout or not */
-            if (utils_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * 2)) {
+            if (utils_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * 5)) {
                 /* continue to check the next node */
                 continue;
             }
