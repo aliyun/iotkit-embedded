@@ -43,7 +43,6 @@ typedef struct {
 
 typedef struct {
     void *mutex;
-    void *upstream_mutex;
     int is_inited;
     int is_started;
     linkkit_params_t init_params;
