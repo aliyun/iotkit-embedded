@@ -396,7 +396,7 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
     mqtt_param.password = pconn_info->password;
     mqtt_param.pub_key = pconn_info->pub_key;
 
-    mqtt_param.request_timeout_ms = 10000;
+    mqtt_param.request_timeout_ms = 2000;
     mqtt_param.clean_session = 0;
     mqtt_param.keepalive_interval_ms = 60000;
     mqtt_param.pread_buf = mqtt_ctx->msg_readbuf;
