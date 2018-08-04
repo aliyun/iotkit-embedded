@@ -31,14 +31,7 @@ ADD_LIBRARY (iot_dm OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_tsl_alink.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_utils.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/linkkit_api.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/linkkit_gw_api.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/linkkit_legacy_adaptor.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/mempool.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/packet.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/queue.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/thread.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/tmpmsg.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/watcher.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/linkkit_gateway_legacy.c
     ${EXTRA_C_SOURCES}
 )
 

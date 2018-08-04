@@ -8,15 +8,15 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 
 ADD_LIBRARY (iot_utils OBJECT
-    ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/linked_list.c
+    ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_list.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/json_token.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/json_parser.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/string_utils.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_epoch_time.c
-    ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/mem_stats.c
+    ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/linked_list.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_event.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_httpc.c
-    ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_list.c
+    ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/mem_stats.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_timer.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/lite_queue.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/lite-cjson.c
