@@ -141,7 +141,7 @@ static void _insert_post_cb(int id_send, linked_list_t *list, void *cb)
         /* find oldest cb and remove */
         HAL_MutexLock(g_linkkit_mutex);
         linked_list_iterator(list, _find_oldest_post_cb, &post_cb_oldest, current_time_ms);
-        if (post_cb) {linked_list_remove(list, post_cb);}
+        linked_list_remove(list, post_cb_oldest);
         HAL_MutexUnlock(g_linkkit_mutex);
         if (post_cb_oldest) {
             free(post_cb_oldest);
@@ -457,7 +457,7 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             if (list) {
                 HAL_MutexLock(g_linkkit_mutex);
                 linked_list_iterator(list, _find_post_cb_by_id, lite_item_id.value_int, &post_cb);
-                if (post_cb) {linked_list_remove(list, post_cb);}
+                linked_list_remove(list, post_cb);
                 HAL_MutexUnlock(g_linkkit_mutex);
                 if (post_cb && post_cb->cb) {
                     handle_post_cb_fp = post_cb->cb;
@@ -530,18 +530,14 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
             memcpy(eventid, lite_item_eventid.value, lite_item_eventid.value_length);
 
             if (list) {
-                HAL_MutexLock(g_linkkit_mutex);
                 linked_list_iterator(list, _find_post_cb_by_id, lite_item_id.value_int, &post_cb);
-                if (post_cb) {linked_list_remove(list, post_cb);}
-                HAL_MutexUnlock(g_linkkit_mutex);
                 if (post_cb && post_cb->cb) {
                     handle_post_cb_fp = post_cb->cb;
-                    handle_post_cb_fp(thing_id, lite_item_id.value_int, lite_item_code.value_int, NULL, context);
+                    handle_post_cb_fp(thing_id, lite_item_id.value_int, lite_item_code.value_int, eventid, context);
 
-                    free(post_cb);
+                    linked_list_remove(list, post_cb);
                 }
             }
-
             DM_free(eventid);
         }
         break;
@@ -734,7 +730,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
             return FAIL_RETURN;
         }
     }
-    g_list_post_cb = linked_list_create("post cb", 1);
+    g_list_post_cb = linked_list_create("post cb", 0);
     if (!g_list_post_cb) {
         return -1;
     }
