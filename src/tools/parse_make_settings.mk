@@ -144,6 +144,11 @@ $(foreach V,SHADOW DIRECT DIRECT_NOTLS, \
 )
 endif
 
+ifeq (y,$(strip $(FEATURE_ALCS_ENABLED)))
+    CFLAGS  += -DCM_SUPPORT_LOCAL_CONN
+    CFLAGS  += -DCONFIG_DM_SUPPORT_LOCAL_CONN
+endif
+
 ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
     ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
         $(error FEATURE_SUPPORT_TLS and FEATURE_SUPPORT_ITLS are not supported together!)
