@@ -3004,7 +3004,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     CONFIG_VARS_DUMP(CONFIG_MQTT_SUBTOPIC_MAXNUM, mqtt_info);
 
-    mqtt_crit("sizeof(iotx_mc_client_t) = %d!", sizeof(iotx_mc_client_t));
+    mqtt_debug("sizeof(iotx_mc_client_t) = %d!", sizeof(iotx_mc_client_t));
     pclient = (iotx_mc_client_t *)mqtt_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
         mqtt_err("not enough memory.");

@@ -26,24 +26,23 @@
         LITE_free(cli->b); \
         cli->b = NULL; \
         cli->s = 0; \
-        mqtt_debug("FREED: curr buf_send = %p, curr buf_size_send = %d", cli->b, cli->s); \
+        mqtt_debug("FREED: curr buf = %p, curr buf_size = %d", cli->b, cli->s); \
     } while (0)
 
 #define ALLOC_SERIALIZE_BUF(cli, b, s, l, n)    do { \
         int     tmpbuf_len = 0; \
         \
         tmpbuf_len = l + MQTT_DYNBUF_MARGIN; \
-        mqtt_debug("START: orig buf_send = %p, orig buf_size_send = %d, required payload_len = %d", cli->b, cli->s, l); \
         if (cli->b) { \
-            mqtt_warning("NOT USING pre-malloced sendbuf %p, malloc per packet", cli->b); \
+            mqtt_warning("NOT USING pre-malloced buf %p, malloc per packet", cli->b); \
         } \
         cli->b = LITE_malloc(tmpbuf_len, MEM_MAGIC, "mqtt"); \
         if (NULL == cli->b) { \
             mqtt_err("Unable to allocate %d bytes for '%s', abort!", tmpbuf_len, (n)?(n):""); \
             return ERROR_NO_MEM; \
         } \
-        cli->buf_size_send = tmpbuf_len; \
-        mqtt_debug("ALLOC: curr buf_send = %p, curr buf_size_send = %d", cli->buf_send, cli->buf_size_send); \
+        cli->s = tmpbuf_len; \
+        mqtt_debug("ALLOC: curr buf = %p, curr buf_size = %d, required payload_len = %d", cli->b, cli->s, l); \
     } while (0)
 
 #else

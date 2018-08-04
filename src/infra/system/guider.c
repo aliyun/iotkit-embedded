@@ -253,17 +253,17 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
 
 void guider_print_conn_info(iotx_conn_info_pt conn)
 {
-    sys_debug("%s", "-----------------------------------------");
-    sys_debug("%16s : %-s", "Host", conn->host_name);
-    sys_debug("%16s : %d",  "Port", conn->port);
-    /*sys_debug("%16s : %-s", "UserName", conn->username);
-    sys_debug("%16s : %-s", "PassWord", conn->password);*/  /* remove */
-    sys_debug("%16s : %-s", "ClientID", conn->client_id);
+    sys_info("%s", "-----------------------------------------");
+    sys_info("%16s : %-s", "Host", conn->host_name);
+    sys_info("%16s : %d",  "Port", conn->port);
+    /*sys_info("%16s : %-s", "UserName", conn->username);
+    sys_info("%16s : %-s", "PassWord", conn->password);*/  /* remove */
+    sys_info("%16s : %-s", "ClientID", conn->client_id);
     if (conn->pub_key) {
-        sys_debug("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
+        sys_info("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
     }
 
-    sys_debug("%s", "-----------------------------------------");
+    sys_info("%s", "-----------------------------------------");
 }
 
 void guider_print_dev_guider_info(iotx_device_info_pt dev,
@@ -276,26 +276,26 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
                                   char *id2,
                                   char *dev_code)
 {
-    sys_debug("%s", "....................................................");
-    sys_debug("%20s : %-s", "ProductKey", dev->product_key);
-    sys_debug("%20s : %-s", "DeviceName", dev->device_name);
-    sys_debug("%20s : %-s", "DeviceID", dev->device_id);
-    /*sys_debug("%20s : %-s", "DeviceSecret", dev->device_secret);*/  /* remove */
-    sys_debug("%s", "....................................................");
-    sys_debug("%20s : %-s", "PartnerID Buf", partner_id);
-    sys_debug("%20s : %-s", "ModuleID Buf", module_id);
-    sys_debug("%20s : %s", "Guider URL", guider_url);
+    sys_info("%s", "....................................................");
+    sys_info("%20s : %-s", "ProductKey", dev->product_key);
+    sys_info("%20s : %-s", "DeviceName", dev->device_name);
+    sys_info("%20s : %-s", "DeviceID", dev->device_id);
+    /*sys_info("%20s : %-s", "DeviceSecret", dev->device_secret);*/  /* remove */
+    sys_info("%s", "....................................................");
+    sys_info("%20s : %-s", "PartnerID Buf", partner_id);
+    sys_info("%20s : %-s", "ModuleID Buf", module_id);
+    sys_info("%20s : %s", "Guider URL", guider_url);
     if (secure_mode > 0) {
-        sys_debug("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
+        sys_info("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
     }
-    sys_debug("%20s : %s", "Guider Timestamp", time_stamp);
-    sys_debug("%s", "....................................................");
-    /*sys_debug("%20s : %s", "Guider Sign", guider_sign);*/ /* remove */
+    sys_info("%20s : %s", "Guider Timestamp", time_stamp);
+    sys_info("%s", "....................................................");
+    /*sys_info("%20s : %s", "Guider Sign", guider_sign);*/ /* remove */
     if (id2 != NULL) {
-        sys_debug("%20s : %s", "Guider ID2", id2);
-        sys_debug("%20s : %s", "Guider DeviceCode", dev_code);
+        sys_info("%20s : %s", "Guider ID2", id2);
+        sys_info("%20s : %s", "Guider DeviceCode", dev_code);
     }
-    sys_debug("%s", "....................................................");
+    sys_info("%s", "....................................................");
 
     return;
 }
