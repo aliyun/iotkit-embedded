@@ -20,6 +20,18 @@ static void _linkkit_gateway_mutex_unlock(void)
     if (linkkit_gateway_ctx->mutex) {HAL_MutexUnlock(linkkit_gateway_ctx->mutex);}
 }
 
+static void _linkkit_gateway_upstream_mutex_lock(void)
+{
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+    if (linkkit_gateway_ctx->upstream_mutex) {HAL_MutexLock(linkkit_gateway_ctx->upstream_mutex);}
+}
+
+static void _linkkit_gateway_upstream_mutex_unlock(void)
+{
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
+    if (linkkit_gateway_ctx->upstream_mutex) {HAL_MutexUnlock(linkkit_gateway_ctx->upstream_mutex);}
+}
+
 static int _linkkit_gateway_callback_list_insert(int devid, linkkit_cbs_t *callback, void *context)
 {
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -464,9 +476,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
             dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY:
@@ -500,9 +512,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_devid)) {return;}
             dm_log_info("Current devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_TOPO_DELETE_REPLY:
@@ -533,9 +545,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_COMBINE_LOGIN_REPLY:
@@ -566,9 +578,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY:
@@ -599,9 +611,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_PROPERTY_SET:
@@ -636,9 +648,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			memset(params,0,lite_item_payload.value_length + 1);
 			memcpy(params,lite_item_payload.value,lite_item_payload.value_length);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             res = _linkkit_gateway_callback_list_search(lite_item_devid.value_int, &node);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
             if (res == SUCCESS_RETURN) {
                 if (node->callback->set_property) {
                     node->callback->set_property(params,node->callback_ctx);
@@ -747,9 +759,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             }
             memset(output,0,linkkit_gateway_ctx->init_params.maxMsgSize + 1);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             res = _linkkit_gateway_callback_list_search(lite_item_devid.value_int, &node);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
             if (res == SUCCESS_RETURN) {
                 if (node->callback->call_service) {
                     res = node->callback->call_service(identifier,input,output,linkkit_gateway_ctx->init_params.maxMsgSize,node->callback_ctx);
@@ -795,9 +807,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             }
             memset(output,0,linkkit_gateway_ctx->init_params.maxMsgSize + 1);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             res = _linkkit_gateway_callback_list_search(lite_item_devid.value_int, &node);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
             if (res == SUCCESS_RETURN) {
                 if (node->callback->down_rawdata) {
                     res = node->callback->down_rawdata(lite_item_rawdata.value,lite_item_rawdata.value_length,output,linkkit_gateway_ctx->init_params.maxMsgSize, node->callback_ctx);
@@ -833,9 +845,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Raw Data: %.*s",lite_item_rawdata.value_length,lite_item_rawdata.value);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             res = _linkkit_gateway_callback_list_search(lite_item_devid.value_int, &node);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
             if (res == SUCCESS_RETURN) {
                 if (node->callback->post_rawdata_reply) {
                     node->callback->post_rawdata_reply(lite_item_rawdata.value,lite_item_rawdata.value_length,node->callback_ctx);
@@ -860,9 +872,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             res = _linkkit_gateway_callback_list_search(lite_item_devid.value_int, &node);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
             if (res == SUCCESS_RETURN) {
                 if (node->callback->register_complete) {
                     node->callback->register_complete(node->callback_ctx);
@@ -898,9 +910,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_EVENT_SPECIFIC_POST_REPLY:
@@ -946,9 +958,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			memset(eventid,0,lite_item_eventid.value_length + 1);
 			memcpy(eventid,lite_item_eventid.value,lite_item_eventid.value_length);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
 	        _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
 
 			DM_free(eventid);
         }
@@ -1015,9 +1027,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         case IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY:
@@ -1048,9 +1060,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 			if (res != SUCCESS_RETURN) {return;}
 			dm_log_debug("Current Devid: %d",lite_item_devid.value_int);
 
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_callback_remove(lite_item_id.value_int,lite_item_code.value_int);
-            _linkkit_gateway_mutex_unlock();
+            _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
         default:
@@ -1100,6 +1112,14 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
         return FAIL_RETURN;
     }
 
+    linkkit_gateway_ctx->upstream_mutex = HAL_MutexCreate();
+    if (linkkit_gateway_ctx->upstream_mutex == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
+        linkkit_gateway_ctx->is_started = 0;
+        return FAIL_RETURN;
+    }
+
     /* Initialize Device Manager */
     memset(&dm_init_params,0,sizeof(iotx_dm_init_params_t));
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
@@ -1109,6 +1129,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     res = iotx_dm_construct(&dm_init_params);
 	if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
+        HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -1117,6 +1138,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID,IOTX_DM_TSL_SOURCE_CLOUD,NULL,0);
 	if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
+        HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
         iotx_dm_destroy();
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
@@ -1125,6 +1147,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     res = HAL_ThreadCreate(&linkkit_gateway_ctx->dispatch_thread,_linkkit_gateway_dispatch,NULL,NULL,&stack_used);
 	if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
+        HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
         iotx_dm_destroy();
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
@@ -1136,6 +1159,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     res = _linkkit_gateway_callback_list_insert(IOTX_DM_LOCAL_NODE_DEVID,cbs,ctx);
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
+        HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
         iotx_dm_destroy();
         HAL_ThreadDelete(linkkit_gateway_ctx->dispatch_thread);
         linkkit_gateway_ctx->is_started = 0;
@@ -1157,6 +1181,7 @@ int linkkit_gateway_stop(int devid)
     if (devid != IOTX_DM_LOCAL_NODE_DEVID) {return FAIL_RETURN;}
 
     _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     linkkit_gateway_ctx->is_started = 0;
     HAL_ThreadDelete(linkkit_gateway_ctx->dispatch_thread);
     iotx_dm_destroy();
@@ -1164,9 +1189,12 @@ int linkkit_gateway_stop(int devid)
     _linkkit_gateway_callback_list_destroy();
     _linkkit_gateway_upstream_sync_callback_list_destroy();
     _linkkit_gateway_upstream_async_callback_list_destroy();
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
+    HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
     HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
+
     return SUCCESS_RETURN;
 }
 
@@ -1185,126 +1213,144 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     /* Subdev Delete Topo */
     res = iotx_dm_subdev_topo_del(devid);
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     /* Subdev Register */
     res = iotx_dm_subdev_register(devid,deviceSecret);
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     if (res > SUCCESS_RETURN) {
         semaphore = HAL_SemaphoreCreate();
         if (semaphore == NULL) {
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
 
         msgid = res;
 
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
         if (res != SUCCESS_RETURN) {
             HAL_SemaphoreDestroy(semaphore);
+            _linkkit_gateway_upstream_mutex_unlock();
             _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
-        _linkkit_gateway_mutex_unlock();
+        _linkkit_gateway_upstream_mutex_unlock();
 
         res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
         if (res < SUCCESS_RETURN) {
-            _linkkit_gateway_mutex_lock();
+            _linkkit_gateway_upstream_mutex_lock();
             _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+            _linkkit_gateway_upstream_mutex_unlock();
             _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
 
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         code = node->code;
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
         if (code != SUCCESS_RETURN) {
+            _linkkit_gateway_upstream_mutex_unlock();
             _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
-        _linkkit_gateway_mutex_unlock();
+        _linkkit_gateway_upstream_mutex_unlock();
     }
 
     /* Subdev Add Topo */
     res = iotx_dm_subdev_topo_add(devid);
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     msgid = res;
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1325,47 +1371,55 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     /* Subdev Delete Topo */
     res = iotx_dm_subdev_topo_del(devid);
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1384,18 +1438,22 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_subdev_create(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_callback_list_insert(devid,cbs,ctx);
     if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
         iotx_dm_subdev_destroy(devid);
+        _linkkit_gateway_upstream_mutex_unlock();
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return devid;
@@ -1405,7 +1463,6 @@ int linkkit_gateway_subdev_destroy(int devid)
 {
     int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
-
     if (devid <= 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
@@ -1414,18 +1471,21 @@ int linkkit_gateway_subdev_destroy(int devid)
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
     _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_callback_list_remove(devid);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
+        _linkkit_gateway_mutex_unlock();
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_upstream_mutex_unlock();
+
+    res = iotx_dm_subdev_destroy(devid);
     if (res != SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
-
-    res = iotx_dm_subdev_destroy(devid);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
     return SUCCESS_RETURN;
 }
 
@@ -1443,41 +1503,48 @@ int linkkit_gateway_subdev_login(int devid)
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_subdev_login(devid);
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1497,41 +1564,48 @@ int linkkit_gateway_subdev_logout(int devid)
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_subdev_logout(devid);
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,LINKKIT_GATEWAY_LEGACY_SYNC_DEFAULT_TIMEOUT_MS);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1551,14 +1625,17 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
     
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     memset(devinfo, 0, sizeof(linkkit_devinfo_t));
     res = iotx_dm_legacy_get_pkdn_ptr_by_devid(devid, &(devinfo->productKey), &(devinfo->deviceName));
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     
     res = iotx_dm_get_device_type(devid, &type);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     if (type == IOTX_DM_DEVICE_GATEWAY) {
@@ -1567,11 +1644,13 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
         devinfo->devtype = 1;
     } else {
         dm_log_info("wrong device type\n");
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     res = iotx_dm_get_device_status(devid, &status);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     if (status >= IOTX_DM_DEV_STATUS_LOGINED) {
@@ -1583,9 +1662,11 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
 
     res = iotx_dm_get_device_avail_status(devid, &available);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     devinfo->state = available;
+    _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
 }
@@ -1604,55 +1685,65 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_get_opt(1,(void *)&event_reply_value);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     if (timeout_ms == 0 || event_reply_value == 0) {
         res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
         if (res < SUCCESS_RETURN) {
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }else{
+            _linkkit_gateway_mutex_unlock();
             return SUCCESS_RETURN;
         }
     }
 
     res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1670,8 +1761,10 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_get_opt(1,(void *)&event_reply_value);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -1680,23 +1773,28 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
     if (timeout_ms == 0 || event_reply_value == 0) {
         res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
         if (res < SUCCESS_RETURN) {
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }else{
+            _linkkit_gateway_mutex_unlock();
             return SUCCESS_RETURN;
         }
     }
 
     res = iotx_dm_post_event_direct(devid, identifier, strlen(identifier), event, strlen(event));
     if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    _linkkit_gateway_mutex_lock();
-    res = _linkkit_gateway_upstream_async_callback_list_insert(res,timeout_ms,func,ctx);
-    if (res != SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+
+    _linkkit_gateway_upstream_mutex_lock();
+    res = _linkkit_gateway_upstream_async_callback_list_insert(res,timeout_ms,func,ctx);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
+        _linkkit_gateway_mutex_unlock();
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1716,55 +1814,65 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_get_opt(0,(void *)&property_reply_value);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     if (timeout_ms == 0 || property_reply_value == 0) {
         res = iotx_dm_post_property_direct(devid, property, strlen(property));
         if (res < SUCCESS_RETURN) {
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }else{
+            _linkkit_gateway_mutex_unlock();
             return SUCCESS_RETURN;
         }
     }
 
     res = iotx_dm_post_property_direct(devid, property, strlen(property));
     if (res < SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1782,31 +1890,38 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     res = iotx_dm_get_opt(0,(void *)&property_reply_value);
     if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     
     if (timeout_ms == 0 || property_reply_value == 0) {
         res = iotx_dm_post_property_direct(devid, property, strlen(property));
         if (res < SUCCESS_RETURN) {
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }else{
+            _linkkit_gateway_mutex_unlock();
             return SUCCESS_RETURN;
         }
     }
 
     res = iotx_dm_post_property_direct(devid, property, strlen(property));
     if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    _linkkit_gateway_mutex_lock();
-    res = _linkkit_gateway_upstream_async_callback_list_insert(res,timeout_ms,func,ctx);
-    if (res != SUCCESS_RETURN) {    
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+
+    _linkkit_gateway_upstream_mutex_lock();
+    res = _linkkit_gateway_upstream_async_callback_list_insert(res,timeout_ms,func,ctx);
+    if (res != SUCCESS_RETURN) {    
+        _linkkit_gateway_upstream_mutex_unlock();
+        _linkkit_gateway_mutex_unlock();
+        return FAIL_RETURN;
+    }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1814,11 +1929,16 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
 
 int linkkit_gateway_post_rawdata(int devid, void *data, int len)
 {
+    int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
-    return iotx_dm_post_rawdata(devid, data, len);
+    _linkkit_gateway_mutex_lock();
+    res = iotx_dm_post_rawdata(devid, data, len);
+    _linkkit_gateway_mutex_unlock();
+
+    return res;
 }
 
 int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp)
@@ -1834,11 +1954,16 @@ int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp)
 
 int linkkit_gateway_invoke_fota_service(void* data_buf, int data_buf_length)
 {
+    int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
-    return iotx_dm_fota_perform_sync(data_buf,data_buf_length);
+    _linkkit_gateway_mutex_lock();
+    res = iotx_dm_fota_perform_sync(data_buf,data_buf_length);
+    _linkkit_gateway_mutex_unlock();
+
+    return res;
 }
 
 int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos, int timeout_ms)
@@ -1857,21 +1982,25 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     for (index = 0;index < nb_extinfos;index++) {
         if(extinfos[index].attrKey == NULL || extinfos[index].attrValue == NULL) {
             lite_cjson_delete(lite_array);
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
 
         lite_array_item = lite_cjson_create_object();
         if (lite_array_item == NULL) {
             lite_cjson_delete(lite_array);
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
         lite_cjson_add_string_to_object(lite_array_item, "attrKey", extinfos[index].attrKey);
@@ -1883,6 +2012,7 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
     if (payload == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         lite_cjson_delete(lite_array);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     lite_cjson_delete(lite_array);
@@ -1891,8 +2021,10 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
         res = iotx_dm_deviceinfo_update(devid, payload, strlen(payload));
         LITE_free(payload);
         if (res < SUCCESS_RETURN) {
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }else{
+            _linkkit_gateway_mutex_unlock();
             return SUCCESS_RETURN;
         }
     }
@@ -1900,6 +2032,7 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
     res = iotx_dm_deviceinfo_update(devid, payload, strlen(payload));
     if (res < SUCCESS_RETURN) {
         LITE_free(payload);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
@@ -1907,33 +2040,38 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -1955,21 +2093,25 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
 
+    _linkkit_gateway_mutex_lock();
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
     for (index = 0;index < nb_extinfos;index++) {
         if(extinfos[index].attrKey == NULL || extinfos[index].attrValue == NULL) {
             lite_cjson_delete(lite_array);
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
         
         lite_array_item = lite_cjson_create_object();
         if (lite_array_item == NULL) {
             lite_cjson_delete(lite_array);
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }
         lite_cjson_add_string_to_object(lite_array_item, "attrKey", extinfos[index].attrKey);
@@ -1980,6 +2122,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     if (payload == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         lite_cjson_delete(lite_array);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     lite_cjson_delete(lite_array);
@@ -1988,8 +2131,10 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
         res = iotx_dm_deviceinfo_delete(devid, payload, strlen(payload));
         LITE_free(payload);
         if (res < SUCCESS_RETURN) {
+            _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
         }else{
+            _linkkit_gateway_mutex_unlock();
             return SUCCESS_RETURN;
         }
     }
@@ -1997,6 +2142,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     res = iotx_dm_deviceinfo_delete(devid, payload, strlen(payload));
     if (res < SUCCESS_RETURN) {
         LITE_free(payload);
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
@@ -2004,33 +2150,38 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
+        _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_upstream_sync_callback_list_insert(msgid,semaphore,&node);
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
-    _linkkit_gateway_mutex_unlock();
+    _linkkit_gateway_upstream_mutex_unlock();
 
     res = HAL_SemaphoreWait(semaphore,timeout_ms);
     if (res < SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_lock();
+        _linkkit_gateway_upstream_mutex_lock();
         _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    _linkkit_gateway_mutex_lock();
+    _linkkit_gateway_upstream_mutex_lock();
     code = node->code;
     _linkkit_gateway_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
+        _linkkit_gateway_upstream_mutex_unlock();
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
     }
+    _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -2038,9 +2189,14 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
 
 int linkkit_gateway_get_num_devices(void)
 {
+    int dev_nums = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (linkkit_gateway_ctx->is_started == 0) {return FAIL_RETURN;}
-    
-    return iotx_dm_subdev_number();
+
+    _linkkit_gateway_mutex_lock();
+    dev_nums = iotx_dm_subdev_number();
+    _linkkit_gateway_mutex_unlock();
+
+    return dev_nums;
 }
