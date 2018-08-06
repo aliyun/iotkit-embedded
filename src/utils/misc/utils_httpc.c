@@ -668,7 +668,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
         client_data->retrieve_len = client_data->response_content_len;
     } else if (NULL != (tmp_ptr = strstr(data, "Transfer-Encoding"))) {
         int len_chunk = strlen("Chunked");
-        char *chunk_value = data + strlen("Transfer-Encoding: ");
+        char *chunk_value = tmp_ptr + strlen("Transfer-Encoding: ");
 
         if ((! memcmp(chunk_value, "Chunked", len_chunk))
             || (! memcmp(chunk_value, "chunked", len_chunk))) {
