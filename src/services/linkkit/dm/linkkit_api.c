@@ -141,7 +141,7 @@ static void _insert_post_cb(int id_send, linked_list_t *list, void *cb)
         /* find oldest cb and remove */
         HAL_MutexLock(g_linkkit_mutex);
         linked_list_iterator(list, _find_oldest_post_cb, &post_cb_oldest, current_time_ms);
-        if (post_cb) {linked_list_remove(list, post_cb);}
+        if (post_cb_oldest) {linked_list_remove(list, post_cb_oldest);}
         HAL_MutexUnlock(g_linkkit_mutex);
         if (post_cb_oldest) {
             free(post_cb_oldest);
