@@ -518,6 +518,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
                 /* Last chunk */
                 client_data->is_more = IOT_FALSE;
                 log_debug("no more (last chunk)");
+                break;
             }
 
             if (n != 1) {
