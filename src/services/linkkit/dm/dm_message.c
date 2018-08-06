@@ -75,6 +75,7 @@ int _dm_msg_send_to_user(iotx_dm_event_types_t type, char *message)
 	res = dm_ipc_msg_insert((void *)dipc_msg);
 	if (res != SUCCESS_RETURN) {
 		DM_free(dipc_msg);
+		return FAIL_RETURN;
 	}
 
 	return SUCCESS_RETURN;
