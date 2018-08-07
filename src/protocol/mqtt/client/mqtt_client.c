@@ -2133,7 +2133,6 @@ RETURN :
     return rc;
 }
 
-#define CONFIG_SUBINFO_LIFE         (10)
 
 /* remove node of list of wait subscribe ACK, which is in invalid state or timeout */
 static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
@@ -2200,7 +2199,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             }
 
             /* check the request if timeout or not */
-            if (utils_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * CONFIG_SUBINFO_LIFE)) {
+            if (utils_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * 5)) {
                 /* continue to check the next node */
                 continue;
             }
