@@ -1100,7 +1100,6 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
         return SUCCESS_RETURN;
     }
 
-    memset(linkkit_gateway_ctx,0,sizeof(linkkit_gateway_legacy_ctx_t));
     linkkit_gateway_ctx->is_inited = 1;
     linkkit_gateway_ctx->is_started = 1;
 
@@ -1195,6 +1194,7 @@ int linkkit_gateway_stop(int devid)
     HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
     HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
 
+    memset(linkkit_gateway_ctx,0,sizeof(linkkit_gateway_legacy_ctx_t));
     return SUCCESS_RETURN;
 }
 
