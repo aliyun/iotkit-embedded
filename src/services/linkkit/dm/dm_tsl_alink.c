@@ -653,197 +653,6 @@ static int _dm_shw_properties_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *ro
 	return SUCCESS_RETURN;
 }
 
-static int _dm_shw_data_array_search(_IN_ dm_shw_data_t *input, _IN_ int input_index, _IN_ char *key,
-								_IN_ int key_len, _OU_ dm_shw_data_t **output, _OU_ int *output_index)
-{
-	int res = 0, deli_offset = 0;
-
-	dm_shw_data_value_complex_t *complex_struct = (dm_shw_data_value_complex_t *)input->data_value.value;
-	dm_log_debug("Current Key: %s, Len: %d",key,key_len);
-	dm_log_debug("Current Item Identifier: %s",input->identifier);
-	res = dm_utils_memtok(key,key_len,DM_SHW_KEY_DELIMITER,1,&deli_offset);
-	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
-
-	switch(complex_struct->type)
-	{
-		case DM_SHW_DATA_TYPE_INT:
-		case DM_SHW_DATA_TYPE_FLOAT:
-		case DM_SHW_DATA_TYPE_DOUBLE:
-		case DM_SHW_DATA_TYPE_TEXT:
-		case DM_SHW_DATA_TYPE_ENUM:
-		case DM_SHW_DATA_TYPE_DATE:
-		case DM_SHW_DATA_TYPE_BOOL:
-			{
-				if (deli_offset != key_len) {return FAIL_RETURN;}
-				if (output) {*output = input;}
-				if (output_index) {*output_index = input_index;}
-				return SUCCESS_RETURN;
-			}
-			break;
-		default:
-			dm_log_err("Unknown Data Type: %d",complex_struct->type);
-			break;
-	}
-
-	return FAIL_RETURN;
-}
-
-static int _dm_shw_data_struct_search(_IN_ dm_shw_data_t *input,_IN_ char *key,
-								_IN_ int key_len, _OU_ dm_shw_data_t **output, _OU_ int *index)
-{
-	int res = 0, item_index = 0, deli_offset = 0, partial_offset = 0;
-	int partial_input_len = 0, array_input_len = 0, array_index = 0;
-	dm_shw_data_t *data_item = NULL;
-
-	dm_log_debug("Current Key: %.*s",key_len,key);
-
-	dm_shw_data_value_complex_t *complex_struct = (dm_shw_data_value_complex_t *)input->data_value.value;
-
-	res = dm_utils_memtok(key,key_len,DM_SHW_KEY_DELIMITER,1,&deli_offset);
-	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
-
-	partial_offset = deli_offset;
-	res = dm_utils_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
-	if (res == SUCCESS_RETURN) {
-		dm_log_debug("Current Index: %d",array_index);
-		partial_offset = partial_input_len;
-	}
-
-	for (item_index = 0;item_index < complex_struct->size;item_index++) {
-		data_item = (dm_shw_data_t *)complex_struct->value + item_index;
-		if (strlen(data_item->identifier) != partial_offset ||
-			memcmp(data_item->identifier,key,partial_offset) != 0) {
-			continue;
-		}
-
-		switch (data_item->data_value.type) {
-			case DM_SHW_DATA_TYPE_INT:
-			case DM_SHW_DATA_TYPE_FLOAT:
-			case DM_SHW_DATA_TYPE_DOUBLE:
-			case DM_SHW_DATA_TYPE_TEXT:
-			case DM_SHW_DATA_TYPE_ENUM:
-			case DM_SHW_DATA_TYPE_DATE:
-			case DM_SHW_DATA_TYPE_BOOL:
-				{
-					if (partial_input_len != 0 || deli_offset != key_len) {return FAIL_RETURN;}
-					if (output) {*output = data_item;}
-					return SUCCESS_RETURN;
-				}
-				break;
-			case DM_SHW_DATA_TYPE_ARRAY:
-				{
-					int key_offset = (deli_offset == key_len)?(deli_offset - 1):(deli_offset+1);
-					int key_len_offset = (deli_offset == key_len)?(key_len):(deli_offset+1);
-					if ((partial_input_len == 0) && (deli_offset == key_len)) {if (output) {*output = data_item;} return SUCCESS_RETURN;}
-					if (partial_input_len == 0) {return FAIL_RETURN;}
-					return _dm_shw_data_array_search(data_item,array_index,key+key_offset,key_len-key_len_offset,output,index);
-				}
-			case DM_SHW_DATA_TYPE_STRUCT:
-				{
-					if (deli_offset == key_len) {if (output) {*output = data_item;} return SUCCESS_RETURN;}
-					if (partial_input_len != 0) {return FAIL_RETURN;}
-					return _dm_shw_data_struct_search(data_item,key+deli_offset+1,key_len-deli_offset-1,output,index);
-				}
-		default:
-			dm_log_err("Unknown Data Type");
-			break;
-		}
-	}
-
-	return FAIL_RETURN;
-}
-
-static int _dm_shw_data_search(_IN_ dm_shw_data_t *input,_IN_ char *key,
-								_IN_ int key_len, _OU_ dm_shw_data_t **output, _OU_ int *index)
-{
-	int res = 0, deli_offset = 0, partial_offset = 0;
-	int partial_input_len = 0, array_input_len = 0, array_index = 0;
-
-	if (input == NULL || key == NULL || key_len <= 0) {
-		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-		return FAIL_RETURN;
-	}
-
-	res = dm_utils_memtok(key,key_len,DM_SHW_KEY_DELIMITER,1,&deli_offset);
-	if (res != SUCCESS_RETURN) {deli_offset = key_len;}
-
-	partial_offset = deli_offset;
-	res = dm_utils_strarr_index(key,deli_offset,&partial_input_len,&array_input_len,&array_index);
-	if (res == SUCCESS_RETURN) {
-		dm_log_debug("Current Index: %d",array_index);
-		partial_offset = partial_input_len;
-	}
-
-	dm_log_debug("Current Input Identifier: %s",input->identifier);
-	dm_log_debug("Current Compare Key: %.*s",partial_offset,key);
-
-	if (strlen(input->identifier) != partial_offset ||
-		memcmp(input->identifier,key,partial_offset) != 0) {
-		return FAIL_RETURN;
-	}
-
-	switch (input->data_value.type) {
-		case DM_SHW_DATA_TYPE_INT:
-		case DM_SHW_DATA_TYPE_FLOAT:
-		case DM_SHW_DATA_TYPE_DOUBLE:
-		case DM_SHW_DATA_TYPE_TEXT:
-		case DM_SHW_DATA_TYPE_ENUM:
-		case DM_SHW_DATA_TYPE_DATE:
-		case DM_SHW_DATA_TYPE_BOOL:
-			{
-				if (partial_input_len != 0 || deli_offset != key_len) {return FAIL_RETURN;}
-				if (output) {*output = input;}
-				return SUCCESS_RETURN;
-			}
-			break;
-		case DM_SHW_DATA_TYPE_ARRAY:
-			{
-				int key_offset = (deli_offset == key_len)?(deli_offset - 1):(deli_offset+1);
-				int key_len_offset = (deli_offset == key_len)?(key_len):(deli_offset+1);
-				if ((partial_input_len == 0) && (deli_offset == key_len)) {if (output) {*output = input;} return SUCCESS_RETURN;}
-				if (partial_input_len == 0) {return FAIL_RETURN;}
-				return _dm_shw_data_array_search(input,array_index,key+key_offset,key_len-key_len_offset,output,index);
-			}
-			break;
-		case DM_SHW_DATA_TYPE_STRUCT:
-			{
-				if (deli_offset == key_len) {if (output) {*output = input;} return SUCCESS_RETURN;}
-				if (partial_input_len != 0) {return FAIL_RETURN;}
-				return _dm_shw_data_struct_search(input,key+deli_offset+1,key_len-deli_offset-1,output,index);
-			}
-			break;
-		default:
-			dm_log_warning("Unknow Data Type");
-			break;
-	}
-
-	return FAIL_RETURN;
-}
-
-static int _dm_shw_property_search(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ dm_shw_data_t **property, _OU_ int *index)
-{
-	int res = 0, item_index = 0;
-	dm_shw_data_t *property_item = NULL;
-
-	if (shadow == NULL || key == NULL || key_len <=0) {
-		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-		return FAIL_RETURN;
-	}
-
-	if (shadow->property_number == 0 || shadow->properties == NULL) {
-		dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_NOT_EXIST,key_len,key);
-		return FAIL_RETURN;
-	}
-
-	for (item_index = 0;item_index < shadow->property_number;item_index++) {
-		property_item = shadow->properties + item_index;
-		res = _dm_shw_data_search(property_item,key,key_len,property,index);
-		if (res == SUCCESS_RETURN) {return SUCCESS_RETURN;}
-	}
-
-	return FAIL_RETURN;
-}
-
 static int _dm_shw_event_outputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_data_t *event_data, _IN_ lite_cjson_t *root)
 {
 	int res = 0;
@@ -860,11 +669,6 @@ static int _dm_shw_event_outputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_dat
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Ouput Event Identifier: %s",event_data->identifier);
 
-	//Search If There Is Same Identifier In Properties
-	res = _dm_shw_property_search(shadow,event_data->identifier,strlen(event_data->identifier),NULL,NULL);
-	if (res == SUCCESS_RETURN) {return SUCCESS_RETURN;}
-
-	//This Identifier Not Exist In Properties, Parse It
 	//Parse DataType
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,DM_SHW_KEY_DATATYPE,strlen(DM_SHW_KEY_DATATYPE),&lite_item);
@@ -926,6 +730,13 @@ static int _dm_shw_event_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_event_t *event
 	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)(&event->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Event Identifier: %s",event->identifier);
+
+	/* Check If Current Event Id Is Post */
+	if (((strlen(event->identifier) == strlen(DM_SHW_SPECIAL_EVENT_POST_IDENTIFIER)) &&
+		(memcmp(event->identifier,DM_SHW_SPECIAL_EVENT_POST_IDENTIFIER,strlen(DM_SHW_SPECIAL_EVENT_POST_IDENTIFIER)) == 0))) {
+		dm_log_info("TSL Special Event Identifier: %s, Ignore It",event->identifier);
+		return SUCCESS_RETURN;
+	}
 
 	//Parse Output Data (Madantory)
 	memset(&lite_item,0,sizeof(lite_cjson_t));
@@ -1001,11 +812,6 @@ static int _dm_shw_service_outputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_d
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Ouput Service Identifier: %s",service_data->identifier);
 
-	//Search If There Is Same Identifier In Properties
-	res = _dm_shw_property_search(shadow,service_data->identifier,strlen(service_data->identifier),NULL,NULL);
-	if (res == SUCCESS_RETURN) {return SUCCESS_RETURN;}
-
-	//This Identifier Not Exist In Properties, Parse It
 	//Parse DataType
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,DM_SHW_KEY_DATATYPE,strlen(DM_SHW_KEY_DATATYPE),&lite_item);
@@ -1052,23 +858,6 @@ static int _dm_shw_service_outputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_
 	return SUCCESS_RETURN;
 }
 
-static int _dm_shw_service_inputdata_get_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_data_t *input_data, _IN_ lite_cjson_t *root)
-{
-	int res = 0;
-
-	if (!lite_cjson_is_string(root)) {
-		dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-		return FAIL_RETURN;
-	}
-
-	res = dm_utils_copy(root->value,root->value_length,(void **)&(input_data->identifier),root->value_length + 1);
-	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
-
-	dm_log_debug("TSL Service InputData Identifier: %s",input_data->identifier);
-
-	return SUCCESS_RETURN;
-}
-
 static int _dm_shw_service_inputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_data_t *input_data, _IN_ lite_cjson_t *root)
 {
 	int res = 0;
@@ -1090,11 +879,6 @@ static int _dm_shw_service_inputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_da
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Input Service Identifier: %s",input_data->identifier);
 
-	//Search If There Is Same Identifier In Properties
-	res = _dm_shw_property_search(shadow,input_data->identifier,strlen(input_data->identifier),NULL,NULL);
-	if (res == SUCCESS_RETURN) {return SUCCESS_RETURN;}
-
-	//This Identifier Not Exist In Properties, Parse It
 	//Parse DataType
 	memset(&lite_item,0,sizeof(lite_cjson_t));
 	res = lite_cjson_object_item(root,DM_SHW_KEY_DATATYPE,strlen(DM_SHW_KEY_DATATYPE),&lite_item);
@@ -1135,12 +919,8 @@ static int _dm_shw_service_inputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_s
 
 		dm_log_debug("Index: %d, Current Service Input Data: %.*s",index,lite_item.value_length,lite_item.value);
 
-		//There Is A God-Damned Special Case For thing.service.property.get(method)/get(identifier)
-		if (strcmp(service->identifier,DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER) == 0) {
-			_dm_shw_service_inputdata_get_parse(shadow,input_data,&lite_item);
-		}else{
-			_dm_shw_service_inputdata_parse(shadow,input_data,&lite_item);
-		}
+		_dm_shw_service_inputdata_parse(shadow,input_data,&lite_item);
+
 		dm_log_debug("~^_^~~^_^~~^_^~ I'm Delimiter ~^_^~^_^~^_^~\n");
 	}
 
@@ -1162,6 +942,15 @@ static int _dm_shw_service_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_service_t *s
 	res = dm_utils_copy(lite_item.value,lite_item.value_length,(void **)(&service->identifier),lite_item.value_length + 1);
 	if (res != SUCCESS_RETURN) {return FAIL_RETURN;}
 	dm_log_debug("TSL Service Identifier: %s",service->identifier);
+
+	/* Check If Current Service Id Is Set Or Get */
+	if (((strlen(service->identifier) == strlen(DM_SHW_SPECIAL_SERVICE_SET_IDENTIFIER)) &&
+		(memcmp(service->identifier,DM_SHW_SPECIAL_SERVICE_SET_IDENTIFIER,strlen(DM_SHW_SPECIAL_SERVICE_SET_IDENTIFIER)) == 0)) ||
+		((strlen(service->identifier) == strlen(DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER)) &&
+		(memcmp(service->identifier,DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER,strlen(DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER)) == 0))) {
+		dm_log_info("TSL Special Service Identifier: %s, Ignore It",service->identifier);
+		return SUCCESS_RETURN;
+	}
 
 	//Parse Output Data (Optional)
 	memset(&lite_item,0,sizeof(lite_cjson_t));

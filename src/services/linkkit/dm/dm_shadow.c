@@ -509,13 +509,10 @@ int dm_shw_get_service_input_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
 	pos = key + offset + 1;
 	dm_log_debug("TSL Service Input Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&service_data,&array_index);
+	res = _dm_shw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (data) {*data = (void *)service_data;}
@@ -551,13 +548,10 @@ int dm_shw_get_service_output_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ i
 	pos = key + offset + 1;
 	dm_log_debug("TSL Service Output Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&service_data,&array_index);
+	res = _dm_shw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (data) {*data = (void *)service_data;}
@@ -593,13 +587,10 @@ int dm_shw_get_event_output_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int
 	pos = key + offset + 1;
 	dm_log_debug("TSL Event Output Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&event_data,&array_index);
+	res = _dm_shw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (data) {*data = (void *)event_data;}
@@ -1375,13 +1366,10 @@ int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
 	pos = key + offset + 1;
 	dm_log_debug("TSL Event Output Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&event_data,&array_index);
+	res = _dm_shw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (event_data->data_value.type == DM_SHW_DATA_TYPE_ARRAY) {
@@ -1429,13 +1417,10 @@ int dm_shw_get_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
 	pos = key + offset + 1;
 	dm_log_debug("TSL Event Output Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&event_data,&array_index);
+	res = _dm_shw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_event_output_search(event->output_datas,event->output_data_number,pos,strlen(pos),&event_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (event_data->data_value.type == DM_SHW_DATA_TYPE_ARRAY) {
@@ -1483,13 +1468,10 @@ int dm_shw_set_service_input_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ i
 	pos = key + offset + 1;
 	dm_log_debug("TSL Service Output Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&service_data,&array_index);
+	res = _dm_shw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (service_data->data_value.type == DM_SHW_DATA_TYPE_ARRAY) {
@@ -1537,13 +1519,10 @@ int dm_shw_get_service_input_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ i
 	pos = key + offset + 1;
 	dm_log_debug("TSL Service Input Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&service_data,&array_index);
+	res = _dm_shw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_service_input_search(service->input_datas,service->input_data_number,pos,strlen(pos),&service_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (service_data->data_value.type == DM_SHW_DATA_TYPE_ARRAY) {
@@ -1591,13 +1570,10 @@ int dm_shw_set_service_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ 
 	pos = key + offset + 1;
 	dm_log_debug("TSL Service Output Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&service_data,&array_index);
+	res = _dm_shw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (service_data->data_value.type == DM_SHW_DATA_TYPE_ARRAY) {
@@ -1645,13 +1621,10 @@ int dm_shw_get_service_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ 
 	pos = key + offset + 1;
 	dm_log_debug("TSL Service Input Data Search, Event Data ID: %s",pos);
 
-	res = _dm_shw_property_search(shadow,pos,strlen(pos),&service_data,&array_index);
+	res = _dm_shw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
 	if (res != SUCCESS_RETURN) {
-		res = _dm_shw_service_output_search(service->output_datas,service->output_data_number,pos,strlen(pos),&service_data,&array_index);
-		if (res != SUCCESS_RETURN) {
-			dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
-			return FAIL_RETURN;
-		}
+		dm_log_err(DM_UTILS_LOG_TSL_EVENT_NOT_EXIST,key_len,key);
+		return FAIL_RETURN;
 	}
 
 	if (service_data->data_value.type == DM_SHW_DATA_TYPE_ARRAY) {
