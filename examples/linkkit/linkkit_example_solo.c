@@ -567,7 +567,7 @@ void linkkit_fota_callback(service_fota_callback_type_t callback_type, const cha
 int linkkit_example()
 {
     sample_context_t sample_ctx = {0};
-    int execution_time = 20;
+    int execution_time = 2;
     int exit = 0;
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;

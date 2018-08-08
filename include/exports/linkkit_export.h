@@ -71,11 +71,7 @@ typedef enum {
  *
  * @return void*
  */
-#if (CONFIG_SDK_THREAD_COST == 1)
-void *linkkit_dispatch(void *params);
-#else
-void *linkkit_dispatch();
-#endif
+void *linkkit_dispatch(void);
 
 typedef enum {
     linkkit_opt_property_post_reply,  /* data type: int */
@@ -247,17 +243,6 @@ int linkkit_answer_service(const void *thing_id, const char *service_identifier,
  * @return 0 when success, -1 when fail.
  */
 int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
-
-/**
- * @brief perform ota service when "new version detected" reported.
- *
- * @param is_up_raw, specify up raw(not 0) or down raw reply(0).
- * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
- * @param data_buf_length, data buf length that used to do ota.
- *
- * @return 0 when success, -1 when fail.
- */
-int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
 
 /**
  * @brief trigger extended info update procedure.

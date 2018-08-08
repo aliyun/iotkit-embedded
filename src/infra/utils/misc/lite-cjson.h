@@ -2,11 +2,11 @@
 #define __LITE_CJSON_H__
 
 #ifndef _IN_
-    #define _IN_
+#define _IN_
 #endif
 
 #ifndef _OU_
-    #define _OU_
+#define _OU_
 #endif
 
 /* cJSON Types: */
@@ -21,7 +21,7 @@
 #define cJSON_Raw    (1 << 7) /* raw json */
 
 #ifndef LITE_CJSON_NESTING_LIMIT
-    #define LITE_CJSON_NESTING_LIMIT 1000
+#define LITE_CJSON_NESTING_LIMIT 1000
 #endif
 
 /* The cJSON structure: */

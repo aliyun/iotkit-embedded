@@ -24,6 +24,7 @@ const char DM_UTILS_LOG_TSL_PROPERTY_ASSEMBLE_FAILED[]                   DM_READ
 const char DM_UTILS_LOG_TSL_EVENT_SET_FAILED[]                           DM_READ_ONLY = "TSL Event Set Failed: %.*s";
 const char DM_UTILS_LOG_TSL_EVENT_GET_FAILED[]                           DM_READ_ONLY = "TSL Event Get Failed: %.*s";
 const char DM_UTILS_LOG_TSL_EVENT_OUTPUT_ASSEMBLE_FAILED[]               DM_READ_ONLY = "TSL Event Output Assemble Failed: %.*s";
+const char DM_UTILS_LOG_DM_INIT_FAILED[]                                 DM_READ_ONLY = "DM Init Failed";
 const char DM_UTILS_LOG_CM_EVENT_UNKNOWN[]                               DM_READ_ONLY = "DM CM Event Unknown: %d";
 const char DM_UTILS_LOG_CM_INIT_FAILED[]                                 DM_READ_ONLY = "DM CM Init Failed";
 const char DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_CREATE_FAILED[]            DM_READ_ONLY = "DM CM Cloud Connectivity Create Failed";

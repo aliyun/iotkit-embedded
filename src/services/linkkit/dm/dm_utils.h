@@ -28,6 +28,7 @@ extern const char DM_UTILS_LOG_TSL_PROPERTY_ASSEMBLE_FAILED[]                   
 extern const char DM_UTILS_LOG_TSL_EVENT_SET_FAILED[]                           DM_READ_ONLY;
 extern const char DM_UTILS_LOG_TSL_EVENT_GET_FAILED[]                           DM_READ_ONLY;
 extern const char DM_UTILS_LOG_TSL_EVENT_OUTPUT_ASSEMBLE_FAILED[]               DM_READ_ONLY;
+extern const char DM_UTILS_LOG_DM_INIT_FAILED[]                                 DM_READ_ONLY;
 extern const char DM_UTILS_LOG_CM_EVENT_UNKNOWN[]                               DM_READ_ONLY;
 extern const char DM_UTILS_LOG_CM_INIT_FAILED[]                                 DM_READ_ONLY;
 extern const char DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_CREATE_FAILED[]            DM_READ_ONLY;
