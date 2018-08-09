@@ -6,18 +6,18 @@
 
 解压之后, 打开编译配置文件`make.settings`, 根据需要编辑配置项:
 
+    FEATURE_OTA_ENABLED          = y          # 是否打开linkkit中OTA功能的分开关
     FEATURE_MQTT_COMM_ENABLED    = y          # 是否打开MQTT通道的总开关
     FEATURE_MQTT_DIRECT          = y          # 是否打开MQTT直连的分开关
-    FEATURE_MQTT_DIRECT_NOTLS    = n          # 是否打开MQTT直连无TLS的分开关
     FEATURE_COAP_COMM_ENABLED    = y          # 是否打开CoAP通道的总开关
     FEATURE_HTTP_COMM_ENABLED    = y          # 是否打开HTTP通道的总开关
+    FEATURE_HTTP2_COMM_ENABLED   = n          # 是否打开HTTP/2通道的总开关
+    FEATURE_SDK_ENHANCE          = y          # 是否打开Linkkit高级版功能的总开关
+    FEATURE_SUPPORT_TLS          = y          # 选择TLS安全连接的开关，此开关与iTLS开关互斥
+    FEATURE_SUPPORT_ITLS         = n          # 选择iTLS安全连接的开关，此开关与TLS开关互斥
     FEATURE_SUBDEVICE_ENABLED    = n          # 是否打开主子设备功能的总开关
-    FEATURE_SUBDEVICE_STATUS     = gateway    # 主子设备功能所处的功能状态
-    FEATURE_CMP_ENABLED          = y          # 是否打开CMP功能的总开关
-    FEATURE_CMP_VIA_MQTT_DIRECT  = y          # CMP功能连云部分是否直接使用MQTT的开关
-    FEATURE_MQTT_DIRECT_NOITLS   = y          # 是否打开MQTT直连无ITLS的分开关 目前itls只在id2模式支持
-    FEATURE_DM_ENABLED           = y          # 是否打开DM功能的总开关
-    FEATURE_SERVICE_OTA_ENABLED  = y          # 是否打开linkit中OTA功能的分开关
+    FEATURE_ALCS_ENABLED         = y          # 是否打开本地通信功能的总开关
+    FEATURE_OTA_ENABLED          = y          # 切换网关和单品的总开关
 
 具体含义参见下表:
 
