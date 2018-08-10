@@ -1,8 +1,19 @@
-# 阿里云物联网套件
+# <a name="目录">目录</a>
++ [快速开始](#快速开始)
+    * [一. 开发环境准备](#一. 开发环境准备)
+        - [1. 安装Ubuntu16.04](#1. 安装Ubuntu16.04)
+        - [2. 安装必备软件](#2. 安装必备软件)
+        - [3. 下载物联网套件SDK](#3. 下载物联网套件SDK)
+    * [二. 在控制台创建设备](#二. 在控制台创建设备)
+        - [1. 注册/登录阿里云账号](#1. 注册/登录阿里云账号)
+        - [2. 访问物联网套件控制台](#2. 访问物联网套件控制台)
+        - [3. 创建产品和设备（基础版）](#3. 创建产品和设备（基础版）)
+        - [4. 创建产品和设备（高级版）](#4. 创建产品和设备（高级版）)
+    * [三. 编译运行样例程序](#三. 编译运行样例程序)
+        - [1. 样例程序（基础版）](#1. 样例程序（基础版）)
+        - [2. 样例程序（高级版）](#2. 样例程序（高级版）)
 
-物联网套件是阿里云专门为物联网领域的开发人员推出的，其目的是帮助开发者搭建安全且性能强大的数据通道，方便终端(如传感器，执行器，嵌入式设备或智能家电等等)和云端的双向通信。
-
-# 快速开始
+# <a name="快速开始">快速开始</a>
 
 本节描述如何申请自己的设备，并结合本SDK快速体验该设备通过`MQTT`+`TLS/SSL`协议连接到阿里云，上报和接收业务报文。关于SDK的更多使用方式，请访问[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
 
@@ -13,9 +24,9 @@
 > 利用MQTT协议是一种基于二进制消息的发布/订阅编程模式的消息协议，下面的应用程序先在阿里云IoT平台订阅(`Subscribe`)一个`Topic`成功, 然后自己向该`Topic`做发布(`Publish`)动作
 > 阿里云IoT平台收到之后，就会原样推送回这个应用程序，因为该程序之前已经通过订阅(`Subscribe`)动作成为该`Topic`的一个接收者，发布到这个`Topic`上的任何消息，都会被推送到已订阅该`Topic`的所有终端上
 
-## 一. 开发环境准备
+## <a name="一. 开发环境准备">一. 开发环境准备</a>
 
-#### **1. 安装Ubuntu16.04**
+### <a name="1. 安装Ubuntu16.04">1. 安装Ubuntu16.04</a>
 
 本SDK的编译环境是`64位`的`Ubuntu16.04`，在其它Linux上尚未测试过，所以推荐安装与阿里开发者一致的发行版
 
@@ -23,7 +34,7 @@
 
 然后安装64位的desktop版本`Ubuntu 16.04.x LTS`，下载地址: [https://www.ubuntu.com/download/desktop](https://www.ubuntu.com/download/desktop)
 
-#### **2. 安装必备软件**
+### <a name="2. 安装必备软件">2. 安装必备软件</a>
 
 本SDK的开发编译环境使用如下软件: `make-4.1`, `git-2.7.4`, `gcc-5.4.0`, `gcov-5.4.0`, `lcov-1.12`, `bash-4.3.48`, `tar-1.28`, `mingw-5.3.1`
 
@@ -31,18 +42,18 @@
 
     apt-get install -y build-essential make git gcc
 
-#### **3. 下载物联网套件SDK**
+### <a name="3. 下载物联网套件SDK">3. 下载物联网套件SDK</a>
 
 当前物联网套件最新SDK版本为Linkkit 2.2.0，可从如下地址获取：
 -   **[Linkkit 2.2.0下载地址](https://linkkit-sdk-download.oss-cn-shanghai.aliyuncs.com/linkkit2.2.tar.gz)**
 
-## 二. 在控制台创建设备
+## <a name="二. 在控制台创建设备">二. 在控制台创建设备</a>
 
-#### **1. 注册/登录阿里云账号**
+### <a name="1. 注册/登录阿里云账号">1. 注册/登录阿里云账号</a>
 
 访问阿里云[登录页面](https://account.aliyun.com/login/login.htm), 点击[免费注册](https://account.aliyun.com/register/register.htm), 免费获得一个阿里云账号. 若您已有账号, 可直接登录
 
-#### **2. 访问物联网套件控制台**
+### <a name="2. 访问物联网套件控制台">2. 访问物联网套件控制台</a>
 
 登入之后, 鼠标悬停在**产品**上, 弹出层叠菜单，并单击**阿里云Link Platform**
 
@@ -52,7 +63,7 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/%E4%BA%A7%E5%93%81-%E9%98%BF%E9%87%8C%E4%BA%91Link%20Platform-%E7%AB%8B%E5%8D%B3%E5%BC%80%E9%80%9A.png)
 
-#### **3. 创建产品和设备（基础版）**
+### <a name="3. 创建产品和设备（基础版）">3. 创建产品和设备（基础版）</a>
 
 进入IoT控制台后，点击页面左侧导航栏的**产品管理**，再点击右侧的**创建产品**，如下图所示：
 
@@ -97,7 +108,7 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81-%E6%B6%88%E6%81%AF%E9%80%9A%E4%BF%A1-%E8%87%AA%E5%AE%9A%E4%B9%89topic-data.png)
 
-#### **4. 创建产品和设备（高级版）**
+### <a name="4. 创建产品和设备（高级版）">4. 创建产品和设备（高级版）</a>
 
 进入IoT控制台后，点击页面左侧导航栏的**产品管理**，再点击右侧的**创建产品**，如下图所示：
 
@@ -180,18 +191,18 @@
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%B9%89-%E5%AE%8C%E6%88%90.png)
 
 
-## 三. 编译运行样例程序
+## <a name="三. 编译运行样例程序">三. 编译运行样例程序</a>
 
-#### **1. 样例程序（基础版）**
+### <a name="1. 样例程序（基础版）">1. 样例程序（基础版）</a>
 
 
-#### **1.1 填入设备信息**
+#### <a name="1.1 填入设备信息">1.1 填入设备信息</a>
 
 编辑文件`iotx-sdk-c/examples/mqtt/mqtt-example.c`, 编辑如下代码段, 填入之前**创建产品和设备**步骤中得到的**设备三元组**:
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B-mqtt-example-%E4%B8%89%E5%85%83%E7%BB%84%E4%BF%AE%E6%94%B9.png)
 
-#### **1.2 编译SDK产生样例程序**
+#### <a name="1.2 编译SDK产生样例程序">1.2 编译SDK产生样例程序</a>
 
 运行如下命令:
 
@@ -216,7 +227,7 @@
     ...
     ...
 
-#### **1.3 执行样例程序**
+#### <a name="1.3 执行样例程序">1.3 执行样例程序</a>
 
     $ ./output/release/bin/mqtt-example 
     [inf] iotx_device_info_init(39): device_info created successfully!
@@ -281,13 +292,13 @@
     ...
     main|361 :: out of sample! 
 
-#### **1.4 观察消息上报**
+#### <a name="1.4 观察消息上报">1.4 观察消息上报</a>
 
 如下日志信息显示样例程序正在通过`MQTT`的`Publish`类型消息, 上报业务数据到`/${prodcutKey}/${deviceName}/data`
 
     mqtt_client|309 :: packet-id=7, publish topic msg={"attr_name":"temperature", "attr_value":"1"}
 
-#### **1.5 观察消息下推**
+#### <a name="1.5 观察消息下推">1.5 观察消息下推</a>
 
 如下日志信息显示该消息因为是到达已被订阅的`Topic`, 所以又被服务器原样推送到样例程序, 并进入相应的回调函数
 
@@ -297,17 +308,17 @@
     _demo_message_arrive|175 :: Payload: '{"attr_name":"temperature", "attr_value":"1"}' (Length: 45)
     _demo_message_arrive|176 :: ----
 
-#### **1.6 观察控制台日志**
+#### <a name="1.6 观察控制台日志">1.6 观察控制台日志</a>
 
 可以登录物联网套件控制台, 到**产品管理**, 找到刚才创建的产品，点击**查看**，选择**日志服务**选项卡，可以看到刚才上报的消息（Message ID为7）
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E6%97%A5%E5%BF%97%E6%9C%8D%E5%8A%A1.png)
 
-#### **2. 样例程序（高级版）**
+### <a name="2. 样例程序（高级版）">2. 样例程序（高级版）</a>
 
 高级版以单品API为例演示设备服务、属性、事件的数据流转
 
-#### **2.1 填入设备信息**
+#### <a name="2.1 填入设备信息">2.1 填入设备信息</a>
 高级版单品的exmaple位于`iotx-sdk-c/examples/linkkit/linkkit_example_solo.c`，该example用到的TSL位于同目录下的`example_tsl_solo.data`。  
 接下来我们需要将SDK默认的设备信息更换成我们在前一章节中创建的高级版设备，需要替换设备的三元组以及设备的TSL  
 进入**产品管理**，选择我们刚才创建的设备`AdvUserExample`，进入`产品详情`，选择`功能定义`选项卡，这里可以看到之前定义的服务、属性和事件。  
@@ -337,7 +348,7 @@
 这样三元组和TSL都已换成我们刚才创建的设备。  
 之前我们在产品的**功能定义**中定义了一个服务、一个属性和一个事件，与`linkkit_example_solo.c`中的相同，所以不需要做出修改。
 
-#### **2.2 编译SDK产生样例程序**
+#### <a name="2.2 编译SDK产生样例程序">2.2 编译SDK产生样例程序</a>
 
 运行如下命令:
 
@@ -346,7 +357,7 @@
 
 编译成功完成后, 生成的样例程序为当前目录的`output/release/bin`目录下的`linkkit-example-solo`
 
-#### **2.3 执行样例程序**
+#### <a name="2.3 执行样例程序">2.3 执行样例程序</a>
 
     ./output/release/bin/linkkit-example-solo 
     main|686 :: start!
@@ -403,7 +414,8 @@
     ...
     ...
 
-- 属性  
+属性
+---
 对于属性示例程序会每隔30s上报一次所有属性，因为我们定义了一个属性`DeviceStatus`，所以应该看到如下日志：
 
     ```
@@ -448,7 +460,8 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E8%8E%B7%E5%8F%96%E5%B1%9E%E6%80%A7.png)
 
-- 事件  
+事件
+---
 
 示例程序中`Error`事件是每45s上报一次，日志如下：
 
@@ -459,7 +472,9 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E4%BA%8B%E4%BB%B6%E4%B8%8A%E6%8A%A5.png)
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E8%8E%B7%E5%8F%96%E4%BA%8B%E4%BB%B6.png)
-- 服务  
+
+服务
+---
 
 同样，在物联网控制台中打开`设备调试`选项卡，选择我们创建的服务`Custom`，由于该服务的输入参数数据类型为int型，标识为`transparency`，所以在下方的输入框中填入参数：
 
@@ -495,4 +510,4 @@
 
 关于单品example中服务、属性、事件的说明就此结束
 
-# 关于SDK的更多使用方式, 请访问[阿里云物联网平台帮助文档](https://help.aliyun.com/product/30520.html?spm=5176.11485173.0.0.534659af6BLaB7)
+> 关于SDK的更多使用方式, 请访问[阿里云物联网平台帮助文档](https://help.aliyun.com/product/30520.html)

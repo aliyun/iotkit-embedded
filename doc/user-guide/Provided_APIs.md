@@ -1,6 +1,6 @@
 # <a name="目录">目录</a>
 + [编译配置项说明](#编译配置项说明)
-+ [编译 & 运行](#编译 & 运行)
++ [编译和运行](#编译和运行)
 + [C-SDK提供的功能API说明](#C-SDK提供的功能API说明)
     * [API列表](#API列表)
         - [基础版API](#基础版API)
@@ -34,7 +34,7 @@
     FEATURE_ALCS_ENABLED         = y          # 是否打开本地通信功能的总开关
     FEATURE_OTA_ENABLED          = y          # 切换网关和单品的总开关
 
-# <a name="编译 & 运行">编译 & 运行</a>
+# <a name="编译和运行">编译和运行</a>
 请参考`Cross_Build.md`
 
 # <a name="C-SDK提供的功能API说明">C-SDK提供的功能API说明</a>
