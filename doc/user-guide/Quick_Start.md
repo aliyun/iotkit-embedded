@@ -505,8 +505,9 @@
     [dbg] dm_msg_response_with_data(384): Send URI: /sys/a1csED27mp7/AdvExample1/thing/service/Custom_reply, Payload: {"id":"65850626","code":200,"data":{"Contrastratio":6}}
     [inf] iotx_cm_conn_mqtt_publish(531): mqtt publish: topic=/sys/a1csED27mp7/AdvExample1/thing/service/Custom_reply, topic_msg={"id":"65850626","code":200,"data":{"Contrastratio":6}}
 
-我们可以看到，设备端example已经收到从云端下发的服务`Custom`，其中服务的输入参数`transparency`的值为5，而在example中，当收到`transparency`后，会将该输入参数的值+1赋给输出参数`Contrastratio`，  
-从上面的日志中可以看到`Contrastratio`的值被设成了6，然后上报给服务端。  
+我们可以看到，设备端example已经收到从云端下发的服务`Custom`，其中服务的输入参数`transparency`的值为5
+
+而在example中，当收到`transparency`后，会将该输入参数的值+1赋给输出参数`Contrastratio`，从上面的日志中可以看到`Contrastratio`的值被设成了6，然后上报给服务端。  
 
 关于单品example中服务、属性、事件的说明就此结束
 
