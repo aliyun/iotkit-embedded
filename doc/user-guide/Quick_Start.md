@@ -406,16 +406,18 @@
 - 属性  
 对于属性示例程序会每隔30s上报一次所有属性，因为我们定义了一个属性`DeviceStatus`，所以应该看到如下日志：
 
+    ```
     [dbg] iotx_dm_post_property_end(450): Current Property Post Payload, Length: 19, Payload: {"DeviceStatus":""}
     [dbg] _dm_mgr_search_dev_by_devid(46): Device Found, devid: 0
     [inf] dm_msg_request_all(265): DM Send Message, URI: /sys/a1csED27mp7/AdvExample1/thing/event/property/post, Payload: {"id":"1","version":"1.0","params":{"DeviceStatus":""},"method":"thing.event.property.post"}
     [inf] iotx_cm_conn_mqtt_publish(531): mqtt publish: topic=/sys/a1csED27mp7/AdvExample1/thing/event/property/post, topic_msg={"id":"4","version":"1.0","params":{"DeviceStatus":""},"method":"thing.event.property.post"}
-
+    ```
+    
 可以看出，由于我们没有设置属性的值，所以默认该值为空字符串，此时在物联网控制台上可以查询到刚才的上报记录：
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E6%97%A5%E5%BF%97%E6%9C%8D%E5%8A%A1-%E5%B1%9E%E6%80%A7%E4%B8%8A%E6%8A%A5.png)
 
-从上图可以看出，Message ID为1的一条Property Post消息已上报至服务端  
+从上图可以看出，一条Property Post消息已上报至服务端  `
 此时可从服务端主动向这个属性set一个值，打开`产品管理`->`产品详情`->`在线调试选项卡`，选择我们要调试的设备：
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E8%AE%BE%E7%BD%AE%E5%B1%9E%E6%80%A7.png)
