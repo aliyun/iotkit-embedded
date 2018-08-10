@@ -43,11 +43,9 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/%E4%BA%A7%E5%93%81-%E9%98%BF%E9%87%8C%E4%BA%91Link%20Platform.png)
 
-然后, 点击**立即开通**
+然后, 点击**立即开通**，即可进入IoT控制台
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/%E4%BA%A7%E5%93%81-%E9%98%BF%E9%87%8C%E4%BA%91Link%20Platform-%E7%AB%8B%E5%8D%B3%E5%BC%80%E9%80%9A.png)
-
-或直接访问[https://www.aliyun.com/product/iot](https://www.aliyun.com/product/iot), 之后点击**立即开通**, 或者**管理控制台**, 登入[控制台主界面](https://iot.console.aliyun.com/)
 
 #### **3. 创建产品和设备**
 
