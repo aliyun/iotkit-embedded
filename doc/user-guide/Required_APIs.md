@@ -12,7 +12,7 @@
         |                           |         |                           |     output/release/bin/*-example
         +---------------------------+         +---------------------------+
         |                           |         |                           | =>  SDK提供功能的API, 都在这里声明
-        |  IoT SDK Interface Layer  |         | src/sdk-impl/iot_export.h | =>  构建完成后产生:
+        |  IoT SDK Interface Layer  |         |   include/iot_export.h    | =>  构建完成后产生:
         |                           |         |                           |
         |     IOT_XXX_YYY() APIs    |         |  Has all APIs' prototype  |     output/release/include/
         |                           |         |                           |         iot-sdk/iot_export.h
@@ -32,7 +32,7 @@
         |                           |         |                           |
         +---------------------------+         +---------------------------+
         |                           |         |                           | =>  SDK仅含有示例代码, 移植时需二次开发
-        |  Hardware Abstract Layer  |         | src/sdk-impl/iot_import.h | =>  构建完成后产生:
+        |  Hardware Abstract Layer  |         |    include/iot_import.h   | =>  构建完成后产生:
         |                           |         | : =>                      |
         |     HAL_XXX_YYY() APIs    |         | : HAL_*() declarations    |     output/release/lib/
         |                           |         |                           |         libiot_platform.a
@@ -62,14 +62,14 @@
 
 ## 硬件平台抽象层(HAL层)
 
-* 所有HAL层函数的声明都在 `src/sdk-impl/iot_import.h` 这个头文件中列出
-* 各功能点引入的HAL层接口依赖在`src/sdk-impl/imports/iot_import_*.h`中列出
-* 这些`imports`目录下的子文件, 都被`src/sdk-impl/iot_import.h`包含
+* 所有HAL层函数的声明都在 `include/iot_import.h` 这个头文件中列出
+* 各功能点引入的HAL层接口依赖在`include/imports/iot_import_*.h`中列出
+* 这些`imports`目录下的子文件, 都被`include/iot_import.h`包含
 * 在V2.0+版本的编译系统中, 这个部分会被编译成`output/release/lib/libiot_platform.a`
 
 以下可以列出所有跨平台移植时需要实现的HAL层接口
 
-    src/sdk-impl$ grep -ro "HAL_[_A-Za-z0-9]*" *|cut -d':' -f2|sort -u|cat -n
+    include$ grep -ro "HAL_[_A-Za-z0-9]*" *|cut -d':' -f2|sort -u|cat -n
 
      1  HAL_DTLSSession_create
      2  HAL_DTLSSession_free
@@ -103,6 +103,7 @@
     30  HAL_UDP_write
     31  HAL_UptimeMs
     32  HAL_Vsnprintf
+    ...
 
 对这些函数做实现的时候, 可以参考`src/platform`下已经写好的示例, 这些示例在`Ubuntu16.04`主机和`Win7`主机上被完善的编写和测试过
 
@@ -125,7 +126,7 @@
         +-- openssl
             +-- HAL_TLS_openssl.c
 
-以下是这些函数的一个说明表格, 更多详细信息, 请查阅代码中的注释, 或关注[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
+以下是这些函数的一个说明表格, 更多函数的详细信息, 请查阅代码中的注释, 或关注[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
 
 | 函数名                   | 说明                                                                    |
 |--------------------------|-------------------------------------------------------------------------|
@@ -176,17 +177,21 @@
 | HAL_Vsnprintf            | 字符串打印函数, 将`va_list`类型的变量, 打印到指定目标字符串             |
 | HAL_UptimeMs             | 时钟函数, 获取本设备从加电以来到目前时间点已经过去的毫秒数              |
 
-
-**可实现为空**
+**多线程相关**
 
 | 函数名                   | 说明                                                                    |
 |--------------------------|-------------------------------------------------------------------------|
-| HAL_GetPartnerID         | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
-| HAL_GetModuleID          | 用于紧密合作伙伴, 一般客户只需要在此可实现为空函数                      |
-| HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-| HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-| HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
-| HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 目前SDK仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexCreate          | 创建一个互斥量, 用于同步控制, 对于仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexDestroy         | 销毁一个互斥量, 用于同步控制, 对于仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexLock            | 加锁一个互斥量, 用于同步控制, 对于仅支持单线程应用, 可实现为空函数   |
+| HAL_MutexUnlock          | 解锁一个互斥量, 用于同步控制, 对于仅支持单线程应用, 可实现为空函数   |
+| HAL_ThreadCreate         | 按照指定入参创建一个线程，对于仅支持单线程应用, 可实现为空函数       |
+| HAL_ThreadDelete         | 杀死指定的线程，对于仅支持单线程应用, 可实现为空函数                |
+| HAL_ThreadDetach         | 设置指定的线程为`Detach`状态，对于仅支持单线程应用, 可实现为空函数  |
+| HAL_SemaphoreCreate      | 创建一个计数信号量，对于仅支持单线程应用, 可实现为空函数             |
+| HAL_SemaphoreDestroy     | 销毁一个计数信号量，对于仅支持单线程应用, 可实现为空函数             |
+| HAL_SemaphorePost        | 在指定的计数信号量上做自减操作并等待，对于仅支持单线程应用, 可实现为空函数 |
+| HAL_SemaphoreWait        | 在指定的计数信号量上做自增操作, 解除其它线程的等待，对于仅支持单线程应用, 可实现为空函数 |
 
 **没有MQTT时可实现为空**
 
@@ -203,7 +208,7 @@
 | HAL_Random               | 随机数函数, 接受一个无符号数作为范围, 返回0到该数值范围内的随机无符号数 |
 | HAL_Srandom              | 随机数播种函数, 使`HAL_Random`的返回值每个执行序列各不相同, 类似`srand` |
 
-**没有CoAP时可实现为空**
+**CoAP协议相关(ALCS本地通信依赖CoAP协议)**
 
 | 函数名                   | 说明                                                                    |
 |--------------------------|-------------------------------------------------------------------------|
@@ -211,22 +216,74 @@
 | HAL_DTLSSession_free     | 销毁一个DTLS会话并释放DTLS资源, 用于CoAP功能                            |
 | HAL_DTLSSession_read     | 从DTLS连接中读数据, 用于CoAP功能                                        |
 | HAL_DTLSSession_write    | 向DTLS连接中写数据, 用于CoAP功能                                        |
-
-**没有ID2时可实现为空**
-
-| 函数名                   | 说明                                                                    |
-|--------------------------|-------------------------------------------------------------------------|
+| HAL_Aes128_Cbc_Decrypt   | AES128解密，CBC模式，用于CoAP报文加解密                                    |
+| HAL_Aes128_Cbc_Encrypt   | AES128加密，CBC模式，用于CoAP报文加解密                                    |
+| HAL_Aes128_Cfb_Decrypt   | AES128解密，CFB模式，用于CoAP报文加解密                                    |
+| HAL_Aes128_Cfb_Encrypt   | AES128加密，CFB模式，用于CoAP报文加解密                                    |
+| HAL_Aes128_Destroy       | AES128反初始化                                                           |
+| HAL_Aes128_Init          | AES128初始化                                                             |
 | HAL_UDP_close            | 关闭一个UDP socket                                                      |
 | HAL_UDP_create           | 创建一个UDP socket                                                      |
 | HAL_UDP_read             | 阻塞的从一个UDP socket中读取数据包, 并返回读到的字节数                  |
 | HAL_UDP_readTimeout      | 在指定时间内, 从一个UDP socket中读取数据包, 返回读到的字节数            |
 | HAL_UDP_write            | 阻塞的向一个UDP socket中发送数据包, 并返回发送的字节数                  |
 
+**ALCS本地通信**
+
+| 函数名                          | 说明                                                           |
+|--------------------------------|----------------------------------------------------------------|
+| HAL_UDP_create_without_connect | 创建一个本地UDP socket，但不发起任何网络交互                      |  
+| HAL_UDP_close_without_connect  | 销毁指定的UDP socket，回收资源                                   |
+| HAL_UDP_joinmulticast          | 在指定的UDP socket上发送加入组播组的请求                          |
+| HAL_UDP_sendto                 | 在指定的UDP socket上发送指定缓冲区的指定长度, 阻塞时间不超过指定时长, 且指定长度若发送完需提前返回  |
+| HAL_UDP_recvfrom               | 从指定的UDP句柄接收指定长度数据到缓冲区, 阻塞时间不超过指定时长, 且指定长度若接收完需提前返回, 源地址保存在出参中  |
+| HAL_Kv_Set                     | 写入指定KV数据                                                  |
+| HAL_Kv_Get                     | 读取指定KV数据                                                  |
+| HAL_Kv_Del                     | 删除指定KV数据                                                  |
+| HAL_Kv_Erase_All               | 擦除所有的KV数据                                                |
+
+**设备信息设置与获取**
+
+| 函数名                   | 说明                                                                    |
+|--------------------------|-------------------------------------------------------------------------|
+| HAL_GetChipID            | 获取芯片ID                                                             |
+| HAL_GetDeviceID          | 获取设备ID                                                             |
+| HAL_GetFirmwareVesion    | 获取固件版本号，必须实现                                                |
+| HAL_GetModuleID          | 获取模组ID，用于紧密合作伙伴, 一般客户只需要在此可实现为空函数             |
+| HAL_GetPartnerID         | 获取合作伙伴ID，用于紧密合作伙伴, 一般客户只需要在此可实现为空函数         |
+| HAL_GetDeviceName        | 获取DeviceName，三元组获取函数之一，必须实现                             |
+| HAL_GetDeviceSecret      | 获取DeviceSecret，三元组获取函数之一，必须实现                           |
+| HAL_GetProductKey        | 获取ProductKey，三元组获取函数之一，必须实现                             |
+| HAL_GetProductSecret     | 获取ProductSecret，三元组获取函数之一，必须实现                          |
+| HAL_SetDeviceName        | 设置DeviceName，三元组配置函数之一，必须实现                             |
+| HAL_SetDeviceSecret      | 设置DeviceSecret，三元组配置函数之一，必须实现                           |
+| HAL_SetProductKey        | 设置ProductKey, 三元组配置函数之一，必须实现                             |
+| HAL_SetProductSecret     | 设置ProductSecret，三元组配置函数之一，必须实现                          |
+
+**数据持久化相关**
+
+| 函数名                             | 说明                                                         |
+|-----------------------------------|--------------------------------------------------------------|
+| HAL_Firmware_Persistence_Start    | 固件持久化开始，包含OTA功能时必须实现                           |
+| HAL_Firmware_Persistence_Stop     | 固件持久化结束，包含OTA功能时必须实现                           |
+| HAL_Firmware_Persistence_Write    | 固件持久化写入，包含OTA功能时必须实现                           |
+
+**ntp功能**
+
+| 函数名                             | 说明                                                         |
+|-----------------------------------|--------------------------------------------------------------|
+| HAL_UTC_Set                       | 设置UTC时间，单位ms                                           |
+| HAL_UTC_Get                       | 获取UTC时间，单位ms                                           |
+
+
+**WIFI和配网相关**  
+请查看`include/imports/iot_import_awss.h`
+
 ## SDK内核实现层
 
-* 所有被提供的函数的声明都在 `src/sdk-impl/iot_export.h` 这个头文件中列出
-* 各功能点提供的接口在`src/sdk-impl/exports/iot_export_*.h`中列出
-* 这些`exports`目录下的子文件, 都被`src/sdk-impl/iot_export.h`包含
+* 所有被提供的函数的声明都在 `include/iot_export.h` 这个头文件中列出
+* 各功能点提供的接口在`include/exports/iot_export_*.h`中列出
+* 这些`exports`目录下的子文件, 都被`include/iot_export.h`包含
 * 在V2.0+版本的编译系统中, 这个部分会被编译成`output/release/lib/libiot_sdk.a`
 
 ## SDK接口声明层 + 例程
