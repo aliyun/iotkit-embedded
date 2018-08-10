@@ -31,6 +31,11 @@
 
     apt-get install -y build-essential make git gcc
 
+#### **3. 下载物联网套件SDK**
+
+当前物联网套件最新SDK版本为Linkkit 2.2.0，可从如下地址获取：
+-   **[Linkkit 2.2.0下载地址](https://linkkit-sdk-download.oss-cn-shanghai.aliyuncs.com/linkkit2.2.tar.gz)**
+
 ## 二. 在控制台创建设备
 
 #### **1. 注册/登录阿里云账号**
@@ -47,17 +52,17 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/%E4%BA%A7%E5%93%81-%E9%98%BF%E9%87%8C%E4%BA%91Link%20Platform-%E7%AB%8B%E5%8D%B3%E5%BC%80%E9%80%9A.png)
 
-#### **3. 创建产品和设备**
+#### **3. 创建产品和设备（基础版）**
 
 进入IoT控制台后，点击页面左侧导航栏的**产品管理**，再点击右侧的**创建产品**，如下图所示：
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81.png)
 
-在弹出的创建产品中，填写产品信息：
+在弹出的创建产品中，选择基础版，填写产品信息：
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81-%E8%AF%A6%E7%BB%86%E5%8F%82%E6%95%B0.png)
 
-以基础版为例，填写**产品名称**，选择**节点类型**
+填写**产品名称**，选择**节点类型**。
 填写好产品信息后，点击**确认**即可生成该产品：
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81-%E7%A1%AE%E8%AE%A4.png)
 
@@ -86,26 +91,107 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86-%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87-%E7%94%9F%E6%88%90%E4%B8%89%E5%85%83%E7%BB%84.png)
 
-至此，产品与设备创建完成。
+至此，基础版产品与设备创建完成。
 
 此外，为了example演示，我们在产品的消息通信中定义一个自定义的topic，用于向服务端发送数据和从服务端接收数据：
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81-%E6%B6%88%E6%81%AF%E9%80%9A%E4%BF%A1-%E8%87%AA%E5%AE%9A%E4%B9%89topic-data.png)
 
-## 三. 编译样例程序
+#### **4. 创建产品和设备（高级版）**
 
-#### **1. 下载SDK**
+进入IoT控制台后，点击页面左侧导航栏的**产品管理**，再点击右侧的**创建产品**，如下图所示：
 
-当前物联网套件最新SDK版本为Linkkit 2.2.0，可从如下地址获取：
--   **[Linkkit 2.2.0下载地址](https://linkkit-sdk-download.oss-cn-shanghai.aliyuncs.com/linkkit2.2.tar.gz)**
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81.png)
 
-#### **2. 填入设备信息**
+在弹出的创建产品中，选择高级版，填写产品信息：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81-%E8%AF%A6%E7%BB%86%E5%8F%82%E6%95%B0.png)
+在此需要填写以下信息：
+
+- 填写**产品名称**
+- 选择**节点类型**
+- 选择**设备类型**，如果没有需要的设备类型，可以填空，稍后在产品**功能定义**时再定义具体的功能
+- 选择**数据格式**，目前有**Alink JSON**和**透传/自定义**两种格式可选（在这里我们使用Alink JSON格式作为示例）  
+    **Alink JSON**：使用标准的Alink协议格式来进行物联网套件与云端的服务、属性、事件的数据交换  
+    **透传/自定义**：使用物联网套件的透传接口来进行与云端的数据交换，在云端需要用户完成透传数据与Alink格式的转换脚本
+- **ID2**：是否使用ID2认证
+
+填写好产品信息后，点击**确认**即可生成该产品：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81-%E7%A1%AE%E8%AE%A4.png)
+
+点击产品右侧的**查看**，可跳转到产品详情页面：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85.png)
+
+在该页面中，有五个主要的选项卡：
+- 产品信息：展示产品相关信息，其中ProductKey用于标示产品的品类，该产品下所有设备的ProductKey均一致
+- 消息通信：展示产品用于上下行数据的主要Topic
+- 功能定义：在这里可以定义设备的物模型，定义物的服务、属性、事件
+- 日志服务：此处可浏览设备的历史上下行消息
+- 在线调试：此处可对该产品下的设备进行在线调试，如下发服务到设备，设置设备的属性，观察设备的事件上报
+
+产品创建好后，接下来可以创建设备了，点击**产品详情**页面中**设备数**旁的**前往管理**，即可看到当前产品下的设备列表，目前为空：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86.png)
+
+点击上图右侧的**添加设备**，开始创建设备：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86-%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87.png)
+
+在填写好**DeviceName**后，点击确认即可创建该设备，生成设备的**三元组**：
+- `ProductKey`：标识产品的品类，相同产品的所有设备ProductKey均相同
+- `DeviceName`：标识产品下的每个设备，相同产品的所有设备DeviceName均不相同
+- `DeviceSecret`：设备密钥，每个设备均不相同
+- **三元组**用于标识阿里云上的每个设备，用于连接阿里云服务器时完成设备认证
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86-%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87-%E7%94%9F%E6%88%90%E4%B8%89%E5%85%83%E7%BB%84.png)
+
+至此，高级版产品与设备创建完成。
+
+稍后会展示高级版服务、属性、事件的示例程序，所以在这里我们回到**产品管理**，选择我们刚才创建的产品，进入**产品详情**页，选择**功能定义**选项卡：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%B9%89.png)
+
+选择右侧的**新增**，我们先创建一个属性：  
+该属性是一个字符串属性，最大长度为2048个字节
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%B9%89-%E6%96%B0%E5%A2%9E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%B1%9E%E6%80%A7.png)
+点击**确认**，这样一个属性就创建好了
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%B9%89-%E6%96%B0%E5%A2%9E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%B1%9E%E6%80%A7-%E5%88%9B%E5%BB%BA%E6%88%90%E5%8A%9F.png)
+
+接下来我们创建一个服务：  
+关于服务的创建要注意的是，服务只能由服务端下发，设备端被动接收，每个服务有自己的输入参数和输出参数，说明如下：  
+- 服务的**输入参数**：指的是当从云端下发服务时，云端向设备端发送的数据内容
+- 服务的**输出参数**：指的是当设备端收到从云端下发的服务时，如果有需要对该服务返回一些业务数据，那么就是输出参数的内容  
+在这个服务中我们创建一个输入参数和一个输出参数
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%B9%89-%E6%96%B0%E5%A2%9E%E6%9C%8D%E5%8A%A1.png)
+
+最后，再创建一个事件：
+关于事件要注意的是，事件只能由设备端主动上报给服务端，每个事件只有输出参数，表示从设备端需要上报的数据内容  
+在这个事件中我们创建一个输出参数
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%B9%89-%E6%96%B0%E5%A2%9E%E4%BA%8B%E4%BB%B6.png)
+
+至此，我们创建的产品中服务、属性、事件各有一个：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E5%8A%9F%E8%83%BD%E5%AE%9A%E4%B9%89-%E5%AE%8C%E6%88%90.png)
+
+
+## 三. 编译运行样例程序
+
+#### **1. 样例程序（基础版）**
+
+
+#### **1.1 填入设备信息**
 
 编辑文件`iotx-sdk-c/examples/mqtt/mqtt-example.c`, 编辑如下代码段, 填入之前**创建产品和设备**步骤中得到的**设备三元组**:
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B-mqtt-example-%E4%B8%89%E5%85%83%E7%BB%84%E4%BF%AE%E6%94%B9.png)
 
-#### **3. 编译SDK产生样例程序**
+#### **1.2 编译SDK产生样例程序**
 
 运行如下命令:
 
@@ -130,9 +216,7 @@
     ...
     ...
 
-## 四. 运行样例程序
-
-#### **1. 执行样例程序**
+#### **1.3 执行样例程序**
 
     $ ./output/release/bin/mqtt-example 
     [inf] iotx_device_info_init(39): device_info created successfully!
@@ -197,13 +281,13 @@
     ...
     main|361 :: out of sample! 
 
-#### **2. 观察消息上报**
+#### **1.4 观察消息上报**
 
 如下日志信息显示样例程序正在通过`MQTT`的`Publish`类型消息, 上报业务数据到`/${prodcutKey}/${deviceName}/data`
 
     mqtt_client|309 :: packet-id=7, publish topic msg={"attr_name":"temperature", "attr_value":"1"}
 
-#### **3. 观察消息下推**
+#### **1.5 观察消息下推**
 
 如下日志信息显示该消息因为是到达已被订阅的`Topic`, 所以又被服务器原样推送到样例程序, 并进入相应的回调函数
 
@@ -213,10 +297,15 @@
     _demo_message_arrive|175 :: Payload: '{"attr_name":"temperature", "attr_value":"1"}' (Length: 45)
     _demo_message_arrive|176 :: ----
 
-#### **4. 观察控制台日志**
+#### **1.6 观察控制台日志**
 
 可以登录物联网套件控制台, 到**产品管理**, 找到刚才创建的产品，点击**查看**，选择**日志服务**选项卡，可以看到刚才上报的消息（Message ID为7）
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E6%97%A5%E5%BF%97%E6%9C%8D%E5%8A%A1.png)
+
+#### **2. 样例程序（高级版）**
+
+
+#### **2.1 填入设备信息**
 
 # 关于SDK的更多使用方式, 请访问[阿里云物联网平台帮助文档](https://help.aliyun.com/product/30520.html?spm=5176.11485173.0.0.534659af6BLaB7)
