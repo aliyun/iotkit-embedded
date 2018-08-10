@@ -39,7 +39,7 @@
 
 以[芯讯通无线科技](https://market.aliyun.com/store/2962046-0.html)出品, 基于高通`MDM9206`芯片的`NBIoT/GPRS`解决方案[SIM7000C](https://market.aliyun.com/products/201200001/cmgj022417.html)开发板为例
 
-    $ cp -f doc/config.mdm9206.sim7000c src/configs/
+    $ cp -f doc/config.mdm9206.sim7000c src/board/
 
     $ make reconfig
     SELECT A CONFIGURATION:
@@ -82,7 +82,7 @@
 
 对于未适配好硬件平台的情况, 对编译出目标平台的`libiot_sdk.a`, 需要经历如下几个步骤:
 
-- 在`src/configs/`目录下添加一个对应的配置文件, 文件名规范为`config.XXX.YYY`, 其中`XXX`部分就对应后面`src/platform/os/XXX`目录的HAL层代码
+- 在`src/board/`目录下添加一个对应的配置文件, 文件名规范为`config.XXX.YYY`, 其中`XXX`部分就对应后面`src/ref-impl/hal/os/XXX`目录的HAL层代码
 - 在配置文件中, 至少要指定交叉编译器`OVERRIDE_CC`, 静态库压缩器`OVERRIDE_AR`, 以及编译选项`CONFIG_ENV_CFLAGS`等
 - 尝试编译SDK, 对可能出现的跨平台问题进行修正, 直到成功产生`libiot_sdk.a`
 - 最后, 您需要以任何编译方式, 产生目标架构的`libiot_platform.a`, 若平台未适配, 则这个库对应的源代码在SDK中并未包含, 需要您根据[SDK跨平台移植](https://help.aliyun.com/document_detail/56047.html)页面自行实现`HAL_*()`接口
@@ -92,24 +92,26 @@
 
 #### 1. 添加配置文件
 
-    $ touch src/configs/config.arm-linux.demo
-    $ ls src/configs/
+    $ touch src/board/config.arm-linux.demo
+    $ ls src/board/
     config.arm-linux.demo  config.mdm9206.sim7000c  config.ubuntu.x86  config.win7.mingw32  default_settings.mk
 
 #### 2. 编辑配置文件, 设置编译选项和工具链, 以及跳过编译的目录
 
-    $ vim src/configs/config.arm-linux.demo
+    $ vim src/board/config.arm-linux.demo
 
       1 CONFIG_ENV_CFLAGS = -Wall
       2
       3 OVERRIDE_CC = arm-linux-gnueabi-gcc-5
       4 OVERRIDE_AR = arm-linux-gnueabi-gcc-ar-5
       5
-      6 CONFIG_src/platform =
-      7 CONFIG_sample =
-      8 CONFIG_src/sdk-tests =
+      6 CONFIG_src/ref-impl/hal         :=
+      7 CONFIG_examples                 :=
+      8 CONFIG_src/services/ota         :=
+      9 CONFIG_tests                    :=
+      10 CONFIG_src/tools/linkkit_tsl_convert :=
 
-注意, 6-8行表示对这3个目录跳过编译, 在编写未被适配平台的库时, 这在最初是必要的
+注意, 6-11行表示对这些目录跳过编译, 在编写未被适配平台的库时, 这在最初是必要的
 
 #### 3. 选择配置文件
 
@@ -208,35 +210,37 @@
 ---
 仍然以上一节中, 某款目前未适配的`arm-linux`目标平台为例, 假设这款平台和`Ubuntu`差别很小, 完全可以用`Ubuntu`上开发测试的HAL层代码作为开发的基础, 则可以这样做:
 
-#### 1. 在`src/platform/`目录下复制一份HAL层实现代码
+#### 1. 在`src/ref-impl/hal/`目录下复制一份HAL层实现代码
 
-    $ cd src/platform/os/
+    $ cd src/ref-impl/hal/os/
     $ ls
     ubuntu  win7
-    src/platform/os$ cp -rf ubuntu arm-linux
-    src/platform/os$ ls
+    src/ref-impl/hal/os$ cp -rf ubuntu arm-linux
+    src/ref-impl/hal/os$ ls
     arm-linux  ubuntu  win7
 
-    src/platform/os$ tree -A arm-linux
+    src/ref-impl/hal/os$ tree -A arm-linux
     arm-linux
     +-- HAL_OS_linux.c
     +-- HAL_TCP_linux.c
     +-- HAL_UDP_linux.c
 
-#### 2. 打开之前被关闭的`src/platform`编译开关
+#### 2. 打开之前被关闭的`src/ref-impl/hal`编译开关
 
-    $ vi src/configs/config.arm-linux.demo
+    $ vi src/board/config.arm-linux.demo
 
       1 CONFIG_ENV_CFLAGS = -Wall
       2
       3 OVERRIDE_CC = arm-linux-gnueabi-gcc-5
       4 OVERRIDE_AR = arm-linux-gnueabi-gcc-ar-5
       5
-      6 # CONFIG_src/platform =
-      7 CONFIG_sample =
-      8 CONFIG_src/sdk-tests =
+      6 #CONFIG_src/ref-impl/hal         :=
+      7 CONFIG_examples                 :=
+      8 CONFIG_src/services/ota         :=
+      9 CONFIG_tests                    :=
+      10 CONFIG_src/tools/linkkit_tsl_convert :=
 
-可以看到在`CONFIG_src/platform =`这一行前添加了一个`#`符号, 代表这一行被注释掉了, 效果等同于被删掉, `src/platform`不会再被编译到
+可以看到在`CONFIG_src/ref-impl/hal =`这一行前添加了一个`#`符号, 代表这一行被注释掉了, 效果等同于被删掉, `src/ref-impl/hal`不会再被编译到
 
 #### 3. 尝试编译被复制的HAL层代码
 
@@ -290,13 +294,13 @@
     ...
     ...
 
-可以看到我们进展的确实十分顺利, 被复制的代码`src/platform/os/arm-linux/*.c`确实直接编译成功了, 产生了`arm-linux`格式的`libiot_platform.a`
+可以看到我们进展的确实十分顺利, 被复制的代码`src/ref-impl/hal/os/arm-linux/*.c`确实直接编译成功了, 产生了`arm-linux`格式的`libiot_platform.a`
 
 #### 4. 编辑配置文件, 尝试产生样例程序
 
 这样有了`libiot_platform.a`, `libiot_tls.a`, 以及`libiot_sdk.a`, 其实以及可以尝试产生样例的可执行程序, 并运行一下试试了
 
-方法和上一步一样, 打开`config.arm-linux.demo`里面的`CONFIG_sample`开关, 使得`sample/`目录下的样例源码被编译出来
+方法和上一步一样, 打开`config.arm-linux.demo`里面的`CONFIG_sample`开关, 使得`example/`目录下的样例源码被编译出来
 
     $ vi src/configs/config.arm-linux.demo
 
@@ -305,11 +309,13 @@
       3 OVERRIDE_CC = arm-linux-gnueabi-gcc-5
       4 OVERRIDE_AR = arm-linux-gnueabi-gcc-ar-5
       5
-      6 # CONFIG_src/platform =
-      7 # CONFIG_sample =
-      8 CONFIG_src/sdk-tests =
+      6 #CONFIG_src/ref-impl/hal         :=
+      7 #CONFIG_examples                 :=
+      8 CONFIG_src/services/ota         :=
+      9 CONFIG_tests                    :=
+      10 CONFIG_src/tools/linkkit_tsl_convert :=
 
-可以看到在`CONFIG_sample =`这一行前添加了一个`#`符号, 代表这一行被注释掉了, 效果等同于被删掉, `sample`目录不会再被编译到
+可以看到在`CONFIG_examples =`这一行前添加了一个`#`符号, 代表这一行被注释掉了, 效果等同于被删掉, `example`目录不会再被编译到
 
 #### 5. 重新载入配置文件, 编译可执行程序
 
@@ -364,8 +370,8 @@
 
 接下来, 您就可以把样例程序例如`mqtt-example`, 用`SCP`, `TFTP`或者其它方式, 拷贝下载到您的目标开发板上运行调试了
 
-- 如果一切顺利, 则证明`src/platform/arm-linux`部分的HAL层代码工作正常
-- 如果样例程序运行有问题, 则需要再重点修改调试下`src/platform/arm-linux`部分的HAL层代码, 因为这些代码是我们从`Ubuntu`主机部分复制的, 完全可能并不适合`arm-linux`
+- 如果一切顺利, 则证明`src/ref-impl/hal/os/arm-linux`部分的HAL层代码工作正常
+- 如果样例程序运行有问题, 则需要再重点修改调试下`src/ref-impl/hal/os/arm-linux`部分的HAL层代码, 因为这些代码是我们从`Ubuntu`主机部分复制的, 完全可能并不适合`arm-linux`
 
 如此反复直到确保`libiot_platform.a`的开发没问题为止
 
