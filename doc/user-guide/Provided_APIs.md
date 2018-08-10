@@ -140,25 +140,22 @@
      3  linkkit_dispatch
      4  linkkit_end
      5  linkkit_fota_init
-     6  linkkit_get_default_params
-     7  linkkit_get_value
-     8  linkkit_invoke_cota_get_config
-     9  linkkit_invoke_cota_service
-    10  linkkit_invoke_fota_service
-    11  linkkit_invoke_raw_service
-    12  linkkit_is_end
-    13  linkkit_is_try_leave
-    14  linkkit_post_property
-    15  linkkit_post_rawdata
-    16  linkkit_set_opt
-    17  linkkit_set_tsl
-    18  linkkit_set_value
-    19  linkkit_start
-    20  linkkit_subdev_create
-    21  linkkit_trigger_event
-    22  linkkit_trigger_extended_info_operate
-    23  linkkit_try_leave
-    24  linkkit_yield
+     6  linkkit_get_value
+     7  linkkit_invoke_cota_get_config
+     8  linkkit_invoke_cota_service
+     9  linkkit_invoke_fota_service
+    10  linkkit_invoke_raw_service
+    11  linkkit_is_end
+    12  linkkit_is_try_leave
+    13  linkkit_post_property
+    14  linkkit_set_opt
+    15  linkkit_set_tsl
+    16  linkkit_set_value
+    17  linkkit_start
+    18  linkkit_trigger_event
+    19  linkkit_trigger_extended_info_operate
+    20  linkkit_try_leave
+    21  linkkit_yield
 
 ### <a name="linkkit网关API">linkkit网关API</a>
 
