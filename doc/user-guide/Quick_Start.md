@@ -59,10 +59,7 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81-%E8%AF%A6%E7%BB%86%E5%8F%82%E6%95%B0.png)
 
-以高级版为例，填写**产品名称**，**节点类型**，**设备类型**和**数据格式**等参数。需要注意的是，数据格式有**Alink JSON**和**透传/自定义**两种。
-- 选择**Alink JSON格式**，产品所有与阿里云交换的数据均要符合物模型（TSL）定义的数据格式。
-- 选择**透传/自定义格式**，产品所有与阿里云交换的透传数据均通过SDK透传接口进行发送、接收，在云端需要自行开发脚本来做透传数据与Alink JSON格式的转换
-
+以基础版为例，填写**产品名称**，选择**节点类型**
 填写好产品信息后，点击**确认**即可生成该产品：
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E5%88%9B%E5%BB%BA%E4%BA%A7%E5%93%81-%E7%A1%AE%E8%AE%A4.png)
 
@@ -88,11 +85,11 @@
 - `ProductKey`：标识产品的品类，相同产品的所有设备ProductKey均相同
 - `DeviceName`：标识产品下的每个设备，相同产品的所有设备DeviceName均不相同
 - `DeviceSecret`：设备密钥，每个设备均不相同
-**三元组**用于标识阿里云上的每个设备，用于连接阿里云服务器时完成设备认证
+- **三元组**用于标识阿里云上的每个设备，用于连接阿里云服务器时完成设备认证
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86-%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87-%E7%94%9F%E6%88%90%E4%B8%89%E5%85%83%E7%BB%84.png)
 
-至此，产品与设备创建完成
+至此，产品与设备创建完成。
 
 ## 三. 编译样例程序
 
@@ -103,9 +100,9 @@
 
 #### **2. 填入设备信息**
 
-编辑文件`sample/mqtt/mqtt-example.c`, 编辑如下代码段, 填入之前**创建产品和设备**步骤中得到的**设备标识三元组**:
+编辑文件`iotx-sdk-c/examples/mqtt/mqtt-example.c`, 编辑如下代码段, 填入之前**创建产品和设备**步骤中得到的**设备三元组**:
 
-![image](https://raw.githubusercontent.com/wiki/aliyun/iotkit-embedded/pics/sdk-devinfo.png)
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/%E4%BA%A7%E5%93%81%E6%A0%B7%E4%BE%8B-mqtt-example-%E4%B8%89%E5%85%83%E7%BB%84.png)
 
 #### **3. 编译SDK产生样例程序**
 
@@ -117,16 +114,18 @@
 编译成功完成后, 生成的样例程序在当前目录的`output/release/bin`目录下:
 
     $ tree output/release
-    output/release
+    output/release/
     ├── bin
-    │   ├── coap-example
-    │   ├── http-example
-    │   ├── mqtt-example
-    │   ├── mqtt_rrpc-example
-    │   ├── ota_mqtt-example
-    │   ├── sdk-testsuites
-    │   ├── shadow-testsuites
-    │   └── subdev-example
+    │   ├── http-example
+    │   ├── linkkit-example-sched
+    │   ├── linkkit-example-solo
+    │   ├── linkkit_tsl_convert
+    │   ├── mqtt-example
+    │   ├── mqtt_multi_thread-example
+    │   ├── mqtt_rrpc-example
+    │   ├── ota_mqtt-example
+    │   ├── sdk-testsuites
+    │   └── uota_app-example
     ...
     ...
 
@@ -134,44 +133,50 @@
 
 #### **1. 执行样例程序**
 
-    $ ./output/release/bin/mqtt-example
-    [inf] iotx_device_info_init(40): device_info created successfully!
-    [dbg] iotx_device_info_set(50): start to set device info!
-    [dbg] iotx_device_info_set(64): device_info set successfully!
-    [dbg] _calc_hmac_signature(57): | source: clientId2UCRZpAbCGC.ExampleDevdeviceNameExampleDevproductKey2UCRZpAbCGCtimestamp2524608000000 (93)
-    [dbg] _calc_hmac_signature(58): | secret: fbh47lGBSayncmTHEjF1E5x4CZdeJTO9 (32)
-    [dbg] _calc_hmac_signature(61): | method: hmacsha1
-    [dbg] _calc_hmac_signature(74): | signature: 326a4a6ed38b1bd5ddb6a5d11d27928bfb5a62d0 (40)
-    [dbg] guider_print_dev_guider_info(236): ....................................................
-    [dbg] guider_print_dev_guider_info(237):           ProductKey : 2UCRZpAbCGC
-    [dbg] guider_print_dev_guider_info(238):           DeviceName : ExampleDev
-    [dbg] guider_print_dev_guider_info(239):             DeviceID : 2UCRZpAbCGC.ExampleDev
-    [dbg] guider_print_dev_guider_info(240):         DeviceSecret : fbh47lGBSayncmTHEjF1E5x4CZdeJTO9
-    [dbg] guider_print_dev_guider_info(241): ....................................................
+    $ ./output/release/bin/mqtt-example 
+    [inf] iotx_device_info_init(39): device_info created successfully!
+    [dbg] iotx_device_info_set(49): start to set device info!
+    [dbg] iotx_device_info_set(63): device_info set successfully!
+    [inf] guider_print_dev_guider_info(279): ....................................................
+    [inf] guider_print_dev_guider_info(280):           ProductKey : a1Om9G9DMDx
+    [inf] guider_print_dev_guider_info(281):           DeviceName : Example1
+    [inf] guider_print_dev_guider_info(282):             DeviceID : a1Om9G9DMDx.Example1
+    [inf] guider_print_dev_guider_info(284): ....................................................
+    [inf] guider_print_dev_guider_info(285):        PartnerID Buf : ,partner_id=example.demo.partner-id
+    [inf] guider_print_dev_guider_info(286):         ModuleID Buf : ,module_id=example.demo.module-id
+    [inf] guider_print_dev_guider_info(287):           Guider URL : 
+    [inf] guider_print_dev_guider_info(289):       Guider SecMode : 2 (TLS + Direct)
+    [inf] guider_print_dev_guider_info(291):     Guider Timestamp : 2524608000000
+    [inf] guider_print_dev_guider_info(292): ....................................................
+    [inf] guider_print_dev_guider_info(298): ....................................................
+    [inf] guider_print_conn_info(256): -----------------------------------------
+    [inf] guider_print_conn_info(257):             Host : a1Om9G9DMDx.iot-as-mqtt.cn-shanghai.aliyuncs.com
+    [inf] guider_print_conn_info(258):             Port : 1883
+    [inf] guider_print_conn_info(261):         ClientID : a1Om9G9DMDx.Example1|securemode=2,timestamp=2524608000000,signmethod=hmacsha1,gw=0,ext=0,partner_id=example.demo.partner-id,module_id=example.demo.module-id|
+    [inf] guider_print_conn_info(263):       TLS PubKey : 0x437636 ('-----BEGIN CERTI ...')
+    [inf] guider_print_conn_info(266): -----------------------------------------
+    [inf] IOT_MQTT_Construct(3005):      CONFIG_MQTT_SUBTOPIC_MAXNUM : 65535
+    [dbg] IOT_MQTT_Construct(3007): sizeof(iotx_mc_client_t) = 1573144!
+    [inf] iotx_mc_init(2098): MQTT init success!
+    [inf] _ssl_client_init(142): Loading the CA root certificate ...
+    [inf] _ssl_client_init(149):  ok (0 skipped)
+    [inf] _TLSConnectNetwork(315): Connecting to /a1Om9G9DMDx.iot-as-mqtt.cn-shanghai.aliyuncs.com/1883...
+    [inf] mbedtls_net_connect_timeout(257): setsockopt SO_SNDTIMEO timeout: 10s
+    [inf] mbedtls_net_connect_timeout(260): connecting IP_ADDRESS: 139.196.135.135
+    [inf] _TLSConnectNetwork(328):  ok
+    [inf] _TLSConnectNetwork(333):   . Setting up the SSL/TLS structure...
+    [inf] _TLSConnectNetwork(343):  ok
+    [inf] _TLSConnectNetwork(382): Performing the SSL/TLS handshake...
+    [inf] _TLSConnectNetwork(390):  ok
+    [inf] _TLSConnectNetwork(394):   . Verifying peer X.509 certificate..
+    [inf] _real_confirm(90): certificate verification result: 0x00
+    [wrn] MQTTConnect(204): NOT USING pre-malloced buf 0x1394010, malloc per packet
+    [dbg] MQTTConnect(204): ALLOC: curr buf = 0x13a0890, curr buf_size = 320, required payload_len = 256
+    [dbg] MQTTConnect(224): FREED: curr buf = (nil), curr buf_size = 0
+    [inf] iotx_mc_connect(2449): mqtt connect success!
     ...
     ...
-    _demo_message_arrive|136 :: ----
-    _demo_message_arrive|140 :: Topic: '/2UCRZpAbCGC/ExampleDev/data' (Length: 28)
-    _demo_message_arrive|144 :: Payload: '{"attr_name":"temperature", "attr_value":"1"}' (Length: 45)
-    _demo_message_arrive|145 :: ----
-    [inf] iotx_mc_unsubscribe(1416): mqtt unsubscribe success,topic = /2UCRZpAbCGC/ExampleDev/data!
-    [dbg] iotx_mc_disconnect(2106): rc = MQTTDisconnect() = 0
-    [inf] _network_ssl_disconnect(413): ssl_disconnect
-    [inf] iotx_mc_disconnect(2114): mqtt disconnect!
-    [inf] iotx_mc_release(2160): mqtt release!
-
-    ---------------------------------------------------
-    . bytes_total_allocated:    1292
-    . bytes_total_freed:        1292
-    . bytes_total_in_use:       0
-    . bytes_max_allocated:      560
-    . bytes_max_in_use:         1066
-    . iterations_allocated:     20
-    . iterations_freed:         20
-    . iterations_in_use:        0
-    . iterations_max_in_use:    11
-    ---------------------------------------------------
-    main|441 :: out of sample!
+    main|361 :: out of sample! 
 
 #### **2. 观察消息上报**
 
