@@ -69,9 +69,8 @@
 在该页面中，有五个主要的选项卡：
 - 产品信息：展示产品相关信息，其中ProductKey用于标示产品的品类，该产品下所有设备的ProductKey均一致
 - 消息通信：展示产品用于上下行数据的主要Topic
-- 功能定义：在该选项卡中可定义产品的三要素（服务、属性、事件）
+- 服务端订阅：在这里可以选择设备消息类型并推送到MNS队列中，用户服务端从队列里获得设备数据。这样简化服务端订阅设备数据的流程，让客户的服务端能够简单方便并高可靠的获得设备数据。
 - 日志服务：此处可浏览设备的历史上下行消息
-- 设备调试：这里可以对产品下的各个设备进行调试，如进行服务下发和属性设置
 
 产品创建好后，接下来可以创建设备了，点击**产品详情**页面中**设备数**旁的**前往管理**，即可看到当前产品下的设备列表，目前为空：
 
@@ -91,6 +90,10 @@
 
 至此，产品与设备创建完成。
 
+此外，为了example演示，我们在产品的消息通信中定义一个自定义的topic，用于向服务端发送数据和从服务端接收数据：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81-%E6%B6%88%E6%81%AF%E9%80%9A%E4%BF%A1-%E8%87%AA%E5%AE%9A%E4%B9%89topic-data.png)
+
 ## 三. 编译样例程序
 
 #### **1. 下载SDK**
@@ -102,7 +105,7 @@
 
 编辑文件`iotx-sdk-c/examples/mqtt/mqtt-example.c`, 编辑如下代码段, 填入之前**创建产品和设备**步骤中得到的**设备三元组**:
 
-![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/%E4%BA%A7%E5%93%81%E6%A0%B7%E4%BE%8B-mqtt-example-%E4%B8%89%E5%85%83%E7%BB%84.png)
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B-mqtt-example-%E4%B8%89%E5%85%83%E7%BB%84%E4%BF%AE%E6%94%B9.png)
 
 #### **3. 编译SDK产生样例程序**
 
@@ -138,9 +141,9 @@
     [dbg] iotx_device_info_set(49): start to set device info!
     [dbg] iotx_device_info_set(63): device_info set successfully!
     [inf] guider_print_dev_guider_info(279): ....................................................
-    [inf] guider_print_dev_guider_info(280):           ProductKey : a1Om9G9DMDx
+    [inf] guider_print_dev_guider_info(280):           ProductKey : a1ExpAkj9Hi
     [inf] guider_print_dev_guider_info(281):           DeviceName : Example1
-    [inf] guider_print_dev_guider_info(282):             DeviceID : a1Om9G9DMDx.Example1
+    [inf] guider_print_dev_guider_info(282):             DeviceID : a1ExpAkj9Hi.Example1
     [inf] guider_print_dev_guider_info(284): ....................................................
     [inf] guider_print_dev_guider_info(285):        PartnerID Buf : ,partner_id=example.demo.partner-id
     [inf] guider_print_dev_guider_info(286):         ModuleID Buf : ,module_id=example.demo.module-id
@@ -150,9 +153,9 @@
     [inf] guider_print_dev_guider_info(292): ....................................................
     [inf] guider_print_dev_guider_info(298): ....................................................
     [inf] guider_print_conn_info(256): -----------------------------------------
-    [inf] guider_print_conn_info(257):             Host : a1Om9G9DMDx.iot-as-mqtt.cn-shanghai.aliyuncs.com
+    [inf] guider_print_conn_info(257):             Host : a1ExpAkj9Hi.iot-as-mqtt.cn-shanghai.aliyuncs.com
     [inf] guider_print_conn_info(258):             Port : 1883
-    [inf] guider_print_conn_info(261):         ClientID : a1Om9G9DMDx.Example1|securemode=2,timestamp=2524608000000,signmethod=hmacsha1,gw=0,ext=0,partner_id=example.demo.partner-id,module_id=example.demo.module-id|
+    [inf] guider_print_conn_info(261):         ClientID : a1ExpAkj9Hi.Example1|securemode=2,timestamp=2524608000000,signmethod=hmacsha1,gw=0,ext=0,partner_id=example.demo.partner-id,module_id=example.demo.module-id|
     [inf] guider_print_conn_info(263):       TLS PubKey : 0x437636 ('-----BEGIN CERTI ...')
     [inf] guider_print_conn_info(266): -----------------------------------------
     [inf] IOT_MQTT_Construct(3005):      CONFIG_MQTT_SUBTOPIC_MAXNUM : 65535
@@ -160,9 +163,9 @@
     [inf] iotx_mc_init(2098): MQTT init success!
     [inf] _ssl_client_init(142): Loading the CA root certificate ...
     [inf] _ssl_client_init(149):  ok (0 skipped)
-    [inf] _TLSConnectNetwork(315): Connecting to /a1Om9G9DMDx.iot-as-mqtt.cn-shanghai.aliyuncs.com/1883...
+    [inf] _TLSConnectNetwork(315): Connecting to /a1ExpAkj9Hi.iot-as-mqtt.cn-shanghai.aliyuncs.com/1883...
     [inf] mbedtls_net_connect_timeout(257): setsockopt SO_SNDTIMEO timeout: 10s
-    [inf] mbedtls_net_connect_timeout(260): connecting IP_ADDRESS: 139.196.135.135
+    [inf] mbedtls_net_connect_timeout(260): connecting IP_ADDRESS: 106.15.100.2
     [inf] _TLSConnectNetwork(328):  ok
     [inf] _TLSConnectNetwork(333):   . Setting up the SSL/TLS structure...
     [inf] _TLSConnectNetwork(343):  ok
@@ -170,10 +173,28 @@
     [inf] _TLSConnectNetwork(390):  ok
     [inf] _TLSConnectNetwork(394):   . Verifying peer X.509 certificate..
     [inf] _real_confirm(90): certificate verification result: 0x00
-    [wrn] MQTTConnect(204): NOT USING pre-malloced buf 0x1394010, malloc per packet
-    [dbg] MQTTConnect(204): ALLOC: curr buf = 0x13a0890, curr buf_size = 320, required payload_len = 256
+    [wrn] MQTTConnect(204): NOT USING pre-malloced buf 0xc4a010, malloc per packet
+    [dbg] MQTTConnect(204): ALLOC: curr buf = 0xc56890, curr buf_size = 320, required payload_len = 256
     [dbg] MQTTConnect(224): FREED: curr buf = (nil), curr buf_size = 0
     [inf] iotx_mc_connect(2449): mqtt connect success!
+    ...
+    ...
+    mqtt_client|309 :: packet-id=7, publish topic msg={"attr_name":"temperature", "attr_value":"1"}
+    [dbg] iotx_mc_cycle(1591): PUBACK
+    event_handle|132 :: publish success, packet-id=7
+    [dbg] iotx_mc_cycle(1608): PUBLISH
+    [dbg] iotx_mc_handle_recv_PUBLISH(1412):         Packet Ident : 00035641
+    [dbg] iotx_mc_handle_recv_PUBLISH(1413):         Topic Length : 26
+    [dbg] iotx_mc_handle_recv_PUBLISH(1417):           Topic Name : /a1ExpAkj9Hi/Example1/data
+    [dbg] iotx_mc_handle_recv_PUBLISH(1420):     Payload Len/Room : 45 / 992
+    [dbg] iotx_mc_handle_recv_PUBLISH(1421):       Receive Buflen : 1024
+    [dbg] iotx_mc_handle_recv_PUBLISH(1432): delivering msg ...
+    [dbg] iotx_mc_deliver_message(1170): topic be matched
+    _demo_message_arrive|166 :: ----
+    _demo_message_arrive|167 :: packetId: 35641
+    _demo_message_arrive|171 :: Topic: '/a1ExpAkj9Hi/Example1/data' (Length: 26)
+    _demo_message_arrive|175 :: Payload: '{"attr_name":"temperature", "attr_value":"1"}' (Length: 45)
+    _demo_message_arrive|176 :: ----
     ...
     ...
     main|361 :: out of sample! 
@@ -182,21 +203,22 @@
 
 如下日志信息显示样例程序正在通过`MQTT`的`Publish`类型消息, 上报业务数据到`/${prodcutKey}/${deviceName}/data`
 
-    mqtt_client|256 :: packet-id=3, publish topic msg={"attr_name":"temperature", "attr_value":"1"}
+    mqtt_client|309 :: packet-id=7, publish topic msg={"attr_name":"temperature", "attr_value":"1"}
 
 #### **3. 观察消息下推**
 
 如下日志信息显示该消息因为是到达已被订阅的`Topic`, 所以又被服务器原样推送到样例程序, 并进入相应的回调函数
 
-    _demo_message_arrive|136 :: ----
-    _demo_message_arrive|140 :: Topic: '/2UCRZpAbCGC/ExampleDev/data' (Length: 28)
-    _demo_message_arrive|144 :: Payload: '{"attr_name":"temperature", "attr_value":"1"}' (Length: 45)
-    _demo_message_arrive|145 :: ----
+    _demo_message_arrive|166 :: ----
+    _demo_message_arrive|167 :: packetId: 35641
+    _demo_message_arrive|171 :: Topic: '/a1ExpAkj9Hi/Example1/data' (Length: 26)
+    _demo_message_arrive|175 :: Payload: '{"attr_name":"temperature", "attr_value":"1"}' (Length: 45)
+    _demo_message_arrive|176 :: ----
 
 #### **4. 观察控制台日志**
 
-可以登录物联网套件控制台, 到[设备页面](https://iot.console.aliyun.com/#/product/detail), 找到刚才填写在SDK中的设备并点击进入, 点左边导航栏的**日志服务**, 可以看到刚才被上报的消息
+可以登录物联网套件控制台, 到**产品管理**, 找到刚才创建的产品，点击**查看**，选择**日志服务**选项卡，可以看到刚才上报的消息（Message ID为7）
 
-![image](https://raw.githubusercontent.com/wiki/aliyun/iotkit-embedded/pics/iotconsole-publog.png)
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E6%97%A5%E5%BF%97%E6%9C%8D%E5%8A%A1.png)
 
 # 关于SDK的更多使用方式, 请访问[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
