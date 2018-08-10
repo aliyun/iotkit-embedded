@@ -305,7 +305,192 @@
 
 #### **2. 样例程序（高级版）**
 
+高级版以单品API为例演示设备服务、属性、事件的数据流转
 
 #### **2.1 填入设备信息**
+高级版单品的exmaple位于`iotx-sdk-c/examples/linkkit/linkkit_example_solo.c`，该example用到的TSL位于同目录下的`example_tsl_solo.data`。  
+接下来我们需要将SDK默认的设备信息更换成我们在前一章节中创建的高级版设备，需要替换设备的三元组以及设备的TSL  
+进入**产品管理**，选择我们刚才创建的设备`AdvUserExample`，进入`产品详情`，选择`功能定义`选项卡，这里可以看到之前定义的服务、属性和事件。  
+点击右侧的`查看物模型`，如下图所示：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E7%89%A9%E6%A8%A1%E5%9E%8B.png)
+
+点击`导出模型文件`将物模型导出
+此时可以运行如下命令先编译SDK
+
+    $ make distclean
+    $ make
+
+在`iotx-sdk-c/output/release/bin`目录下会产生一个转义工具`linkkit_tsl_convert`，将刚才下载的物模型文件**model.json**拷贝到这里，执行如下命令：  
+    
+    $ ./linkkit_tsl_convert -i model.json
+    
+命令执行成功后会在当前目录下产生一个`conv.txt`文件，这个就是转义好的物模型字符串了。（转义工具网上很多，也可自行寻找）  
+用`conv.txt`文件中的字符串替换`iotx-sdk-c/examples/linkkit/example_tsl_solo.data`中变量`TSL_STRING`的字符串即可。
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E5%8D%95%E5%93%81%E6%9B%BF%E6%8D%A2TSL.png)
+
+然后将`iotx-sdk-c/examples/linkkit/linkkit_example_solo.c`中的三元组替换成刚才创建的设备
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E5%8D%95%E5%93%81%E6%9B%BF%E6%8D%A2%E4%B8%89%E5%85%83%E7%BB%84.png)
+
+这样三元组和TSL都已换成我们刚才创建的设备。  
+之前我们在产品的**功能定义**中定义了一个服务、一个属性和一个事件，与`linkkit_example_solo.c`中的相同，所以不需要做出修改。
+
+#### **2.2 编译SDK产生样例程序**
+
+运行如下命令:
+
+    $ make distclean
+    $ make
+
+编译成功完成后, 生成的样例程序为当前目录的`output/release/bin`目录下的`linkkit-example-solo`
+
+#### **2.3 执行样例程序**
+
+    ./output/release/bin/linkkit-example-solo 
+    main|686 :: start!
+    
+    linkkit_example|587 :: linkkit start
+    [dbg] _dm_mgr_search_dev_by_devid(52): Device Not Found, devid: 0
+    [inf] iotx_cm_init(77): cm verstion 0.3
+    [inf] iotx_device_info_init(39): device_info created successfully!
+    [dbg] iotx_device_info_set(49): start to set device info!
+    [dbg] iotx_device_info_set(63): device_info set successfully!
+    [inf] guider_print_dev_guider_info(279): ....................................................
+    [inf] guider_print_dev_guider_info(280):           ProductKey : a1csED27mp7
+    [inf] guider_print_dev_guider_info(281):           DeviceName : AdvExample1
+    [inf] guider_print_dev_guider_info(282):             DeviceID : a1csED27mp7.AdvExample1
+    [inf] guider_print_dev_guider_info(284): ....................................................
+    [inf] guider_print_dev_guider_info(285):        PartnerID Buf : ,partner_id=example.demo.partner-id
+    [inf] guider_print_dev_guider_info(286):         ModuleID Buf : ,module_id=example.demo.module-id
+    [inf] guider_print_dev_guider_info(287):           Guider URL : 
+    [inf] guider_print_dev_guider_info(289):       Guider SecMode : 2 (TLS + Direct)
+    [inf] guider_print_dev_guider_info(291):     Guider Timestamp : 2524608000000
+    [inf] guider_print_dev_guider_info(292): ....................................................
+    [inf] guider_print_dev_guider_info(298): ....................................................
+    [inf] guider_print_conn_info(256): -----------------------------------------
+    [inf] guider_print_conn_info(257):             Host : a1csED27mp7.iot-as-mqtt.cn-shanghai.aliyuncs.com
+    [inf] guider_print_conn_info(258):             Port : 1883
+    [inf] guider_print_conn_info(261):         ClientID : a1csED27mp7.AdvExample1|securemode=2,timestamp=2524608000000,signmethod=hmacsha1,gw=0,ext=0,partner_id=example.demo.partner-id,module_id=example.demo.module-id|
+    [inf] guider_print_conn_info(263):       TLS PubKey : 0x47ffd6 ('-----BEGIN CERTI ...')
+    [inf] guider_print_conn_info(266): -----------------------------------------
+    [inf] iotx_cm_init(126): cm context initialize
+    [inf] linked_list_insert(120): linked list(cm event_cb list) insert node@0x18a2760,size:1
+    [inf] linked_list_insert(120): linked list(cm connectivity list) insert node@0x18a28c0,size:1
+    [err] iotx_cm_add_connectivity(113): Add Connectivity Success, Type: 1
+    [inf] iotx_cm_conn_mqtt_init(358):            CONFIG_MQTT_TX_MAXLEN : 1024
+    [inf] iotx_cm_conn_mqtt_init(359):            CONFIG_MQTT_RX_MAXLEN : 5000
+    [wrn] iotx_cm_conn_mqtt_init(369): WITH_MQTT_DYNBUF = 1, skipping malloc sendbuf of 1024 bytes
+    [inf] IOT_MQTT_Construct(3005):      CONFIG_MQTT_SUBTOPIC_MAXNUM : 65535
+    [dbg] IOT_MQTT_Construct(3007): sizeof(iotx_mc_client_t) = 1573144!
+    [inf] iotx_mc_init(2098): MQTT init success!
+    [inf] _ssl_client_init(142): Loading the CA root certificate ...
+    [inf] _ssl_client_init(149):  ok (0 skipped)
+    [inf] _TLSConnectNetwork(315): Connecting to /a1csED27mp7.iot-as-mqtt.cn-shanghai.aliyuncs.com/1883...
+    [inf] mbedtls_net_connect_timeout(257): setsockopt SO_SNDTIMEO timeout: 10s
+    [inf] mbedtls_net_connect_timeout(260): connecting IP_ADDRESS: 106.15.100.2
+    [inf] _TLSConnectNetwork(328):  ok
+    [inf] _TLSConnectNetwork(333):   . Setting up the SSL/TLS structure...
+    [inf] _TLSConnectNetwork(343):  ok
+    [inf] _TLSConnectNetwork(382): Performing the SSL/TLS handshake...
+    [inf] _TLSConnectNetwork(390):  ok
+    [inf] _TLSConnectNetwork(394):   . Verifying peer X.509 certificate..
+    [inf] _real_confirm(90): certificate verification result: 0x00
+    [dbg] MQTTConnect(204): ALLOC: curr buf = 0x18af8f0, curr buf_size = 320, required payload_len = 256
+    [dbg] MQTTConnect(224): FREED: curr buf = (nil), curr buf_size = 0
+    [inf] iotx_mc_connect(2449): mqtt connect success!
+    ...
+    ...
+
+- 属性  
+对于属性示例程序会每隔30s上报一次所有属性，因为我们定义了一个属性`DeviceStatus`，所以应该看到如下日志：
+
+    [dbg] iotx_dm_post_property_end(450): Current Property Post Payload, Length: 19, Payload: {"DeviceStatus":""}
+    [dbg] _dm_mgr_search_dev_by_devid(46): Device Found, devid: 0
+    [inf] dm_msg_request_all(265): DM Send Message, URI: /sys/a1csED27mp7/AdvExample1/thing/event/property/post, Payload: {"id":"1","version":"1.0","params":{"DeviceStatus":""},"method":"thing.event.property.post"}
+    [inf] iotx_cm_conn_mqtt_publish(531): mqtt publish: topic=/sys/a1csED27mp7/AdvExample1/thing/event/property/post, topic_msg={"id":"4","version":"1.0","params":{"DeviceStatus":""},"method":"thing.event.property.post"}
+
+可以看出，由于我们没有设置属性的值，所以默认该值为空字符串，此时在物联网控制台上可以查询到刚才的上报记录：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E6%97%A5%E5%BF%97%E6%9C%8D%E5%8A%A1-%E5%B1%9E%E6%80%A7%E4%B8%8A%E6%8A%A5.png)
+
+从上图可以看出，Message ID为1的一条Property Post消息已上报至服务端  
+此时可从服务端主动向这个属性set一个值，打开`产品管理`->`产品详情`->`在线调试选项卡`，选择我们要调试的设备：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E8%AE%BE%E7%BD%AE%E5%B1%9E%E6%80%A7.png)
+
+如上图所示，选择`DeviceStatus`这个属性，然后选择`设置`，在下方的输入框中将"Hello World"填入该属性的值，然后点击发送指令，  
+此时在设备端的日志中可以看到从服务端set下来的值：
+
+    [dbg] iotx_mc_cycle(1608): PUBLISH
+    [dbg] iotx_mc_handle_recv_PUBLISH(1412):         Packet Ident : 00000000
+    [dbg] iotx_mc_handle_recv_PUBLISH(1413):         Topic Length : 55
+    [dbg] iotx_mc_handle_recv_PUBLISH(1417):           Topic Name : /sys/a1csED27mp7/AdvExample1/thing/service/property/set
+    [dbg] iotx_mc_handle_recv_PUBLISH(1420):     Payload Len/Room : 112 / 4940
+    [dbg] iotx_mc_handle_recv_PUBLISH(1421):       Receive Buflen : 5000
+    [dbg] iotx_mc_handle_recv_PUBLISH(1432): delivering msg ...
+    [dbg] iotx_mc_deliver_message(1170): topic be matched
+    [inf] iotx_cloud_conn_mqtt_event_handle(180): event_type 12
+    [inf] iotx_cloud_conn_mqtt_event_handle(325): mqtt received: topic=/sys/a1csED27mp7/AdvExample1/thing/service/property/set, topic_msg={"method":"thing.service.property.set","id":"65822254","params":{"DeviceStatus":"HelloWorld"},"version":"1.0.0"}
+    
+这样，一条从服务端设置属性的命令就到达设备端了，由于在example里收到这条属性后，会调用`linkkit_post_property`将该属性值上报给服务端，所以有如下的日志：
+
+    [dbg] iotx_dm_post_property_end(450): Current Property Post Payload, Length: 29, Payload: {"DeviceStatus":"HelloWorld"}
+    [dbg] _dm_mgr_search_dev_by_devid(46): Device Found, devid: 0
+    [inf] dm_msg_request_all(265): DM Send Message, URI: /sys/a1csED27mp7/AdvExample1/thing/event/property/post, Payload: {"id":"34","version":"1.0","params":{"DeviceStatus":"HelloWorld"},"method":"thing.event.property.post"}
+    [inf] iotx_cm_conn_mqtt_publish(531): mqtt publish: topic=/sys/a1csED27mp7/AdvExample1/thing/event/property/post, topic_msg={"id":"34","version":"1.0","params":{"DeviceStatus":"HelloWorld"},"method":"thing.event.property.post"}
+    
+只有当设备端主动上报属性值到服务端后，才能在服务端查询到这个属性值。  
+在`设备调试`中，选择`DeviceStatus`这个属性，然后选择`获取`，在下方的输入框中就可以看到刚才设置的属性了：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E8%8E%B7%E5%8F%96%E5%B1%9E%E6%80%A7.png)
+
+- 事件  
+
+示例程序中`Error`事件是每45s上报一次，日志如下：
+
+    [inf] dm_msg_request_all(265): DM Send Message, URI: /sys/a1csED27mp7/AdvExample1/thing/event/Error/post, Payload: {"id":"36","version":"1.0","params":{"ErrorCode":0},"method":"thing.event.Error.post"}
+    [inf] iotx_cm_conn_mqtt_publish(531): mqtt publish: topic=/sys/a1csED27mp7/AdvExample1/thing/event/Error/post, topic_msg={"id":"36","version":"1.0","params":{"ErrorCode":0},"method":"thing.event.Error.post"}
+
+相应地，在物联网控制台的`日志服务`或者`在线调试`选项卡中可以看到对应的信息：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E4%BA%8B%E4%BB%B6%E4%B8%8A%E6%8A%A5.png)
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E8%8E%B7%E5%8F%96%E4%BA%8B%E4%BB%B6.png)
+- 服务  
+
+同样，在物联网控制台中打开`设备调试`选项卡，选择我们创建的服务`Custom`，由于该服务的输入参数数据类型为int型，标识为`transparency`，所以在下方的输入框中填入参数：
+
+![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/LP-ADV-%E4%BA%A7%E5%93%81%E7%AE%A1%E7%90%86-%E4%BA%A7%E5%93%81%E8%AF%A6%E6%83%85-%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95-%E6%9C%8D%E5%8A%A1%E4%B8%8B%E5%8F%91.png)
+
+此时在设备端可以看到如下日志：
+
+    [dbg] iotx_mc_cycle(1608): PUBLISH
+    [dbg] iotx_mc_handle_recv_PUBLISH(1412):         Packet Ident : 00000000
+    [dbg] iotx_mc_handle_recv_PUBLISH(1413):         Topic Length : 49
+    [dbg] iotx_mc_handle_recv_PUBLISH(1417):           Topic Name : /sys/a1csED27mp7/AdvExample1/thing/service/Custom
+    [dbg] iotx_mc_handle_recv_PUBLISH(1420):     Payload Len/Room : 95 / 4946
+    [dbg] iotx_mc_handle_recv_PUBLISH(1421):       Receive Buflen : 5000
+    [dbg] iotx_mc_handle_recv_PUBLISH(1432): delivering msg ...
+    [dbg] iotx_mc_deliver_message(1170): topic be matched
+    [inf] iotx_cloud_conn_mqtt_event_handle(180): event_type 12
+    [inf] iotx_cloud_conn_mqtt_event_handle(325): mqtt received: topic=/sys/a1csED27mp7/AdvExample1/thing/service/Custom, topic_msg={"method":"thing.service.Custom","id":"65850626","params":{"transparency":5},"version":"1.0.0"}
+    [inf] iotx_cm_cloud_conn_response_callback(121): rsp_type 11
+    [inf] iotx_cm_cloud_conn_response_handler(525): URI = /sys/a1csED27mp7/AdvExample1/thing/service/Custom{"method":"thing.service.Custom","id":"65850626","params":{"transparency":5},"version":"1.0.0"}
+    [inf] dm_disp_event_new_data_received_handler(1289): IOTX_CM_EVENT_NEW_DATA_RECEIVED
+    [inf] dm_cmw_topic_callback(13): DMGR TOPIC CALLBACK
+    [inf] dm_cmw_topic_callback(20): DMGR Receive Message: /sys/a1csED27mp7/AdvExample1/thing/service/Custom{"method":"thing.service.Custom","id":"65850626","params":{"transparency":5},"version":"1.0.0"}
+    ...
+    ...
+    [dbg] iotx_dm_send_service_response(597): Current Service Response Payload, Length: 19, Payload: {"Contrastratio":6}
+    [dbg] _dm_mgr_search_dev_by_devid(46): Device Found, devid: 0
+    [dbg] dm_mgr_upstream_thing_service_response(2098): Current Service Name: thing/service/Custom_reply
+    [dbg] dm_msg_response_with_data(384): Send URI: /sys/a1csED27mp7/AdvExample1/thing/service/Custom_reply, Payload: {"id":"65850626","code":200,"data":{"Contrastratio":6}}
+    [inf] iotx_cm_conn_mqtt_publish(531): mqtt publish: topic=/sys/a1csED27mp7/AdvExample1/thing/service/Custom_reply, topic_msg={"id":"65850626","code":200,"data":{"Contrastratio":6}}
+
+我们可以看到，设备端example已经收到从云端下发的服务`Custom`，其中服务的输入参数`transparency`的值为5，而在example中，当收到`transparency`后，会将该输入参数的值+1赋给输出参数`Contrastratio`，  
+从上面的日志中可以看到`Contrastratio`的值被设成了6，然后上报给服务端。  
+
+关于单品example中服务、属性、事件的说明就此结束
 
 # 关于SDK的更多使用方式, 请访问[阿里云物联网平台帮助文档](https://help.aliyun.com/product/30520.html?spm=5176.11485173.0.0.534659af6BLaB7)
