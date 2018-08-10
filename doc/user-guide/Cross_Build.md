@@ -20,18 +20,7 @@
     $ make distclean
     $ make
 
-得到`libiot_sdk.a`之后, 在`output/release/src/`目录下, 有个简单的示意用`Makefile`, 演示了如何将SDK中编译好的静态库在外部的编译方式下使用, 产生应用程序, 如
-
-    output/release/src$ make
-    gcc -I../include -I../include/iot-sdk -I../include/mbedtls -o ext.mqtt mqtt-example.c -L../lib -liot_sdk -liot_platform -Bstatic -liot_tls -lgcov
-    gcc -I../include -I../include/iot-sdk -I../include/mbedtls -o ext.coap coap-example.c -L../lib -liot_sdk -liot_platform -Bstatic -liot_tls -lgcov
-    gcc -I../include -I../include/iot-sdk -I../include/mbedtls -o ext.http http-example.c -L../lib -liot_sdk -liot_platform -Bstatic -liot_tls -lgcov
-
-    output/release/src$ ./ext.mqtt
-    [inf] iotx_device_info_init(40): device_info created successfully!
-    [dbg] iotx_device_info_set(50): start to set device info!
-    [dbg] iotx_device_info_set(64): device_info set successfully!
-    ...
+即可得到`libiot_sdk.a`
 
 ## 交叉编译到已适配硬件平台
 
@@ -54,21 +43,26 @@
     MODEL  :   sim7000c
 
 
-    CONFIGURE .............................. [sample]
-    CONFIGURE .............................. [src/coap]
-    CONFIGURE .............................. [src/guider]
-    CONFIGURE .............................. [src/http]
-    CONFIGURE .............................. [src/log]
-    CONFIGURE .............................. [src/mqtt]
-    CONFIGURE .............................. [src/ota]
-    CONFIGURE .............................. [src/platform]
+    CONFIGURE .............................. [examples]
+    CONFIGURE .............................. [src/infra/log]
+    CONFIGURE .............................. [src/infra/system]
+    CONFIGURE .............................. [src/infra/utils]
+    CONFIGURE .............................. [src/protocol/alcs]
+    CONFIGURE .............................. [src/protocol/coap]
+    CONFIGURE .............................. [src/protocol/http]
+    CONFIGURE .............................. [src/protocol/http2]
+    CONFIGURE .............................. [src/protocol/mqtt]
+    CONFIGURE .............................. [src/ref-impl/hal]
+    CONFIGURE .............................. [src/ref-impl/tls]
     CONFIGURE .............................. [src/sdk-impl]
-    CONFIGURE .............................. [src/sdk-tests]
-    CONFIGURE .............................. [src/shadow]
-    CONFIGURE .............................. [src/system]
-    CONFIGURE .............................. [src/tfs]
-    CONFIGURE .............................. [src/tls]
-    CONFIGURE .............................. [src/utils]
+    CONFIGURE .............................. [src/services/file_upload]
+    CONFIGURE .............................. [src/services/linkkit/cm]
+    CONFIGURE .............................. [src/services/linkkit/dm]
+    CONFIGURE .............................. [src/services/shadow]
+    CONFIGURE .............................. [src/services/subdev]
+    CONFIGURE .............................. [src/services/uOTA]
+    CONFIGURE .............................. [src/tools/linkkit_tsl_convert]
+    CONFIGURE .............................. [tests]
 
     $ make
     ...
@@ -127,21 +121,26 @@
     VENDOR :   arm-linux
     MODEL  :   demo
 
-    CONFIGURE .............................. [sample]
-    CONFIGURE .............................. [src/coap]
-    CONFIGURE .............................. [src/guider]
-    CONFIGURE .............................. [src/http]
-    CONFIGURE .............................. [src/log]
-    CONFIGURE .............................. [src/mqtt]
-    CONFIGURE .............................. [src/ota]
-    CONFIGURE .............................. [src/platform]
+    CONFIGURE .............................. [examples]
+    CONFIGURE .............................. [src/infra/log]
+    CONFIGURE .............................. [src/infra/system]
+    CONFIGURE .............................. [src/infra/utils]
+    CONFIGURE .............................. [src/protocol/alcs]
+    CONFIGURE .............................. [src/protocol/coap]
+    CONFIGURE .............................. [src/protocol/http]
+    CONFIGURE .............................. [src/protocol/http2]
+    CONFIGURE .............................. [src/protocol/mqtt]
+    CONFIGURE .............................. [src/ref-impl/hal]
+    CONFIGURE .............................. [src/ref-impl/tls]
     CONFIGURE .............................. [src/sdk-impl]
-    CONFIGURE .............................. [src/sdk-tests]
-    CONFIGURE .............................. [src/shadow]
-    CONFIGURE .............................. [src/system]
-    CONFIGURE .............................. [src/tfs]
-    CONFIGURE .............................. [src/tls]
-    CONFIGURE .............................. [src/utils]
+    CONFIGURE .............................. [src/services/file_upload]
+    CONFIGURE .............................. [src/services/linkkit/cm]
+    CONFIGURE .............................. [src/services/linkkit/dm]
+    CONFIGURE .............................. [src/services/shadow]
+    CONFIGURE .............................. [src/services/subdev]
+    CONFIGURE .............................. [src/services/uOTA]
+    CONFIGURE .............................. [src/tools/linkkit_tsl_convert]
+    CONFIGURE .............................. [tests]
 
 #### 4. 交叉编译产生库文件`libiot_sdk.a`
 
@@ -150,23 +149,21 @@
 
     VENDOR :   arm-linux
     MODEL  :   demo
-
-    [CC] sha1.o                     <= sha1.c
-                                       makefile
-    [CC] sha256.o                   <= sha256.c
-                                       makefile
+    
     ...
-    ...
-    [AR] libiot_sdk.a               <= src/log
-                                       src/utils
-                                       src/system
-                                       src/sdk-impl
-                                       src/guider
-                                       src/mqtt
-                                       src/ota
-                                       src/shadow
-                                       src/coap
-                                       src/http
+    [AR] libiot_sdk.a                       <=  ...
+    [AR] libiot_hal.a                       <=  ...
+    [AR] libiot_tls.a                       <=  ...
+    [LD] mqtt-example                       <=  ...
+    [LD] mqtt_rrpc-example                  <=  ...
+    [LD] mqtt_multi_thread-example          <=  ...
+    [LD] ota_mqtt-example                   <=  ...
+    [LD] uota_app-example                   <=  ...
+    [LD] http-example                       <=  ...
+    [LD] linkkit-example-solo               <=  ...
+    [LD] linkkit-example-sched              <=  ...
+    [LD] sdk-testsuites                     <=  ...
+    [LD] linkkit_tsl_convert                <=  ...
 
     =========================================================================
     o BUILD COMPLETE WITH FOLLOWING SWITCHES:
@@ -257,40 +254,43 @@
     MODEL  :   demo
 
 
-    CONFIGURE .............................. [sample]
-    CONFIGURE .............................. [src/coap]
-    CONFIGURE .............................. [src/guider]
-    CONFIGURE .............................. [src/http]
-    CONFIGURE .............................. [src/log]
-    CONFIGURE .............................. [src/mqtt]
-    CONFIGURE .............................. [src/ota]
-    CONFIGURE .............................. [src/platform]
+    CONFIGURE .............................. [examples]
+    CONFIGURE .............................. [src/infra/log]
+    CONFIGURE .............................. [src/infra/system]
+    CONFIGURE .............................. [src/infra/utils]
+    CONFIGURE .............................. [src/protocol/alcs]
+    CONFIGURE .............................. [src/protocol/coap]
+    CONFIGURE .............................. [src/protocol/http]
+    CONFIGURE .............................. [src/protocol/http2]
+    CONFIGURE .............................. [src/protocol/mqtt]
+    CONFIGURE .............................. [src/ref-impl/hal]
+    CONFIGURE .............................. [src/ref-impl/tls]
     CONFIGURE .............................. [src/sdk-impl]
-    CONFIGURE .............................. [src/sdk-tests]
-    CONFIGURE .............................. [src/shadow]
-    CONFIGURE .............................. [src/system]
-    CONFIGURE .............................. [src/tfs]
-    CONFIGURE .............................. [src/tls]
-    CONFIGURE .............................. [src/utils]
+    CONFIGURE .............................. [src/services/file_upload]
+    CONFIGURE .............................. [src/services/linkkit/cm]
+    CONFIGURE .............................. [src/services/linkkit/dm]
+    CONFIGURE .............................. [src/services/shadow]
+    CONFIGURE .............................. [src/services/subdev]
+    CONFIGURE .............................. [src/services/uOTA]
+    CONFIGURE .............................. [src/tools/linkkit_tsl_convert]
+    CONFIGURE .............................. [tests]
 
     $ make
     ...
     ...
-    [CC] HAL_TCP_linux.o            <= HAL_TCP_linux.c
-                                       makefile
-    [CC] HAL_OS_linux.o             <= HAL_OS_linux.c
-                                       makefile
-    [CC] HAL_UDP_linux.o            <= HAL_UDP_linux.c
-                                       makefile
-    [CC] HAL_DTLS_mbedtls.o         <= HAL_DTLS_mbedtls.c
-                                       makefile
-    [CC] HAL_TLS_mbedtls.o          <= HAL_TLS_mbedtls.c
-                                       makefile
-    [AR] libiot_platform.a          <= HAL_TCP_linux.o
-                                       HAL_OS_linux.o
-                                       HAL_UDP_linux.o
-                                       HAL_DTLS_mbedtls.o
-                                       HAL_TLS_mbedtls.o
+    [AR] libiot_sdk.a                       <=  ...
+    [AR] libiot_hal.a                       <=  ...
+    [AR] libiot_tls.a                       <=  ...
+    [LD] mqtt-example                       <=  ...
+    [LD] mqtt_rrpc-example                  <=  ...
+    [LD] mqtt_multi_thread-example          <=  ...
+    [LD] ota_mqtt-example                   <=  ...
+    [LD] uota_app-example                   <=  ...
+    [LD] http-example                       <=  ...
+    [LD] linkkit-example-solo               <=  ...
+    [LD] linkkit-example-sched              <=  ...
+    [LD] sdk-testsuites                     <=  ...
+    [LD] linkkit_tsl_convert                <=  ...
     ...
     ...
 
@@ -302,7 +302,7 @@
 
 方法和上一步一样, 打开`config.arm-linux.demo`里面的`CONFIG_sample`开关, 使得`example/`目录下的样例源码被编译出来
 
-    $ vi src/configs/config.arm-linux.demo
+    $ vi src/board/config.arm-linux.demo
 
       1 CONFIG_ENV_CFLAGS = -Wall
       2
@@ -335,34 +335,34 @@
 
     $ make
     ...
-    [AR] libiot_sdk.a               <= src/log
-                                       src/utils
-                                       src/system
-                                       src/sdk-impl
-                                       src/guider
-                                       src/mqtt
-                                       src/ota
-                                       src/shadow
-                                       src/coap
-                                       src/http
-    [CC] mqtt-example.o             <= mqtt-example.c
-                                       makefile
-    [LD] mqtt-example               <= mqtt-example.o
+    [AR] libiot_sdk.a                       <=  ...
+    [AR] libiot_hal.a                       <=  ...
+    [AR] libiot_tls.a                       <=  ...
+    [LD] mqtt-example                       <=  ...
+    [LD] mqtt_rrpc-example                  <=  ...
+    [LD] mqtt_multi_thread-example          <=  ...
+    [LD] ota_mqtt-example                   <=  ...
+    [LD] uota_app-example                   <=  ...
+    [LD] http-example                       <=  ...
+    [LD] linkkit-example-solo               <=  ...
+    [LD] linkkit-example-sched              <=  ...
+    [LD] sdk-testsuites                     <=  ...
+    [LD] linkkit_tsl_convert                <=  ...
     ...
 
 如果有如上的编译输出, 则代表`mqtt-example`样例程序已经被成功的编译出来, 它们存放在`output/release/bin`目录下
 
     $ cd output/release/bin/
     $ ls
-    coap-example  http-example  mqtt-example  mqtt_rrpc-example  ota_mqtt-example  shadow-example
+    http-example           linkkit-example-solo  mqtt-example               mqtt_rrpc-example  sdk-testsuites
+    linkkit-example-sched  linkkit_tsl_convert   mqtt_multi_thread-example  ota_mqtt-example   uota_app-example
 
     $ file *
-    coap-example:      ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYS) ...
     http-example:      ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYS) ...
     mqtt-example:      ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYS) ...
     mqtt_rrpc-example: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYS) ...
     ota_mqtt-example:  ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYS) ...
-    shadow-example:    ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYS) ...
+    ...
 
 可以用`file`命令验证, 这些可执行程序确实是交叉编译到`arm-linux`架构上的
 
