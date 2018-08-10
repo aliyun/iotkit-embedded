@@ -56,7 +56,7 @@
 
 * 最上层称为"SDK接口声明层", 对应上图的 `IoT SDK Interface Layer`
     - 这里没有实现, 只有一系列C函数的原型声明, 也就是SDK跨平台移植完成之后, 可以用于编写业务逻辑, 和阿里云服务器通信的API
-    - 举例来说, 怎么去使用这些API做业务逻辑, 我们在`sample`目录提供了丰富的示例程序, 并且只要填入了设备信息, 就可以在Linux主机上运行体验
+    - 举例来说, 怎么去使用这些API做业务逻辑, 我们在`examples`目录提供了丰富的示例程序, 并且只要填入了设备信息, 就可以在Linux主机上运行体验
 
 以下按照从下到上的顺序, 逐个对每个层次做更加详细的说明
 
@@ -71,60 +71,75 @@
 
     include$ grep -ro "HAL_[_A-Za-z0-9]*" *|cut -d':' -f2|sort -u|cat -n
 
-     1  HAL_DTLSSession_create
-     2  HAL_DTLSSession_free
-     3  HAL_DTLSSession_read
-     4  HAL_DTLSSession_write
-     5  HAL_Free
-     6  HAL_GetModuleID
-     7  HAL_GetPartnerID
-     8  HAL_Malloc
-     9  HAL_MutexCreate
-    10  HAL_MutexDestroy
-    11  HAL_MutexLock
-    12  HAL_MutexUnlock
-    13  HAL_Printf
-    14  HAL_Random
-    15  HAL_SleepMs
-    16  HAL_Snprintf
-    17  HAL_Srandom
-    18  HAL_SSL_Destroy
-    19  HAL_SSL_Establish
-    20  HAL_SSL_Read
-    21  HAL_SSL_Write
-    22  HAL_TCP_Destroy
-    23  HAL_TCP_Establish
-    24  HAL_TCP_Read
-    25  HAL_TCP_Write
-    26  HAL_UDP_close
-    27  HAL_UDP_create
-    28  HAL_UDP_read
-    29  HAL_UDP_readTimeout
-    30  HAL_UDP_write
-    31  HAL_UptimeMs
-    32  HAL_Vsnprintf
+     1  HAL_Aes128_Cbc_Decrypt
+     2  HAL_Aes128_Cbc_Encrypt
+     3  HAL_Aes128_Cfb_Decrypt
+     4  HAL_Aes128_Cfb_Encrypt
+     5  HAL_Aes128_Destroy
+     6  HAL_Aes128_Init
+     7  HAL_Aes128_t
+     8  HAL_AES_DECRYPTION
+     9  HAL_AES_ENCRYPTION
+    10  HAL_Awss_Close_Monitor
+    11  HAL_Awss_Connect_Ap
+    12  HAL_Awss_frame_type
+    13  HAL_Awss_Frame_Type
+    14  HAL_Awss_Frame_Type_t
+    15  HAL_Awss_Get_Channelscan_Interval_Ms
+    16  HAL_Awss_Get_Connect_Default_Ssid_Timeout_Interval_Ms
+    17  HAL_Awss_Get_Conn_Encrypt_Type
+    18  HAL_Awss_Get_Encrypt_Type
+    19  HAL_Awss_Get_Timeout_Interval_Ms
+    20  HAL_Awss_Open_Monitor
+    21  HAL_Awss_Switch_Channel
+    22  HAL_CID_LEN
+    23  HAL_Config_Read
+    24  HAL_CONFIG_SIZE
+    25  HAL_Config_Write
+    26  HAL_DTLSSession_create
+    27  HAL_DTLSSession_free
+    28  HAL_DTLSSession_read
+    29  HAL_DTLSSession_write
+    30  HAL_Firmware_Persistence_Start
+    31  HAL_Firmware_Persistence_Stop
+    32  HAL_Firmware_Persistence_Write
     ...
 
-对这些函数做实现的时候, 可以参考`src/platform`下已经写好的示例, 这些示例在`Ubuntu16.04`主机和`Win7`主机上被完善的编写和测试过
+对这些函数做实现的时候, 可以参考`src/ref-impl/hal`下已经写好的示例, 这些示例在`Ubuntu16.04`主机和`Win7`主机上被完善的编写和测试过
 
-    src/platform$ tree
+    src/ref-impl/hal$ tree
     .
-    +-- iot.mk
-    +-- os
-    |   +-- linux
-    |   |   +-- HAL_OS_linux.c
-    |   |   +-- HAL_TCP_linux.c
-    |   |   +-- HAL_UDP_linux.c
-    |   +-- ubuntu -> linux
-    |   +-- win7
-    |       +-- HAL_OS_win7.c
-    |       +-- HAL_TCP_win7.c
-    +-- ssl
-        +-- mbedtls
-        |   +-- HAL_DTLS_mbedtls.c
-        |   +-- HAL_TLS_mbedtls.c
-        +-- openssl
-            +-- HAL_TLS_openssl.c
+    ├── CMakeLists.txt
+    ├── iot.mk
+    ├── iotx_hal_internal.h
+    ├── os
+    │   ├── macos
+    │   │   ├── HAL_Crypt_MacOS.c
+    │   │   ├── HAL_OS_MacOS.c
+    │   │   ├── HAL_TCP_MacOS.c
+    │   │   └── HAL_UDP_MacOS.c
+    │   ├── ubuntu
+    │   │   ├── base64.c
+    │   │   ├── base64.h
+    │   │   ├── cJSON.c
+    │   │   ├── cJSON.h
+    │   │   ├── HAL_Crypt_Linux.c
+    │   │   ├── HAL_OS_linux.c
+    │   │   ├── HAL_TCP_linux.c
+    │   │   ├── HAL_UDP_linux.c
+    │   │   ├── kv.c
+    │   │   └── kv.h
+    │   └── win7
+    │       ├── HAL_OS_win7.c
+    │       └── HAL_TCP_win7.c
+    └── ssl
+        ├── itls
+        │   └── HAL_TLS_itls.c
+        ├── mbedtls
+        │   ├── HAL_DTLS_mbedtls.c
+        │   └── HAL_TLS_mbedtls.c
+        └── openssl
+            └── HAL_TLS_openssl.c
 
 以下是这些函数的一个说明表格, 更多函数的详细信息, 请查阅代码中的注释, 或关注[官方WiKi](https://github.com/aliyun/iotkit-embedded/wiki)
 
