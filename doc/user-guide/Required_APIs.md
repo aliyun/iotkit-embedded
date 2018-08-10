@@ -114,7 +114,6 @@
         |   +-- HAL_TLS_mbedtls.c
         +-- openssl
             +-- HAL_TLS_openssl.c
->>>>>>> [doc] add index for Required_APIs.md
 
 以下是这些函数的一个说明表格, 更多函数的详细信息, 请查阅代码中的注释
 
