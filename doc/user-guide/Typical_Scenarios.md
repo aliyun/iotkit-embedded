@@ -89,12 +89,11 @@
 
 ![image](https://linkkit-export.oss-cn-shanghai.aliyuncs.com/iotkit-MQTT%E9%BB%98%E8%AE%A4%E6%8E%A5%E6%94%B6%E9%95%BF%E5%BA%A6%E5%9C%A8iot_import_config.h%E4%B8%AD%E7%9A%84%E9%85%8D%E7%BD%AE.png)
 
+- 注意事项：在Makefile中设置的`CONFIG_MQTT_RX_MAXLEN`值会覆盖掉`iot_import_config.h`中设置的值
+
 #### 高级版单品使用TSL动态拉取：
 默认情况下，在高级版单品的example（源代码位于`iotx-sdk-c/examples/linkkit`目录下的`linkkit_example_solo.c`）中，使用的是TSL静态集成。
 若要使用TSL动态拉取，只需要将`linkkit_start`的第二个入参`get_tsl_from_cloud`设为`1`即可。
 
 #### 高级版网关使用TSL动态拉取：
 目前，高级版网关仅使用TSL动态拉取。
-
-
-
