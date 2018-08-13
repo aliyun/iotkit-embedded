@@ -33,6 +33,7 @@
 #include "iotx_log.h"
 #include "lite-list.h"
 #include "iotx_utils_config.h"
+#include "utils_box.h"
 #include "iot_import.h"
 
 #define LITE_TRUE                   (1)

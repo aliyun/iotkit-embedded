@@ -2503,7 +2503,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char d
 	char *sign_source = NULL;
 	int sign_source_len = 0;
 	char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA1;
-	char sign[64] = {0};
+	char sign[65] = {0};
 
 
 	if (request == NULL || product_key == NULL ||
