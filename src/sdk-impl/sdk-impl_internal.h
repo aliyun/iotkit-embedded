@@ -8,4 +8,8 @@
 #define sdk_info(...)           log_info("sdk", __VA_ARGS__)
 #define sdk_debug(...)          log_debug("sdk", __VA_ARGS__)
 
+typedef struct {
+    int dynamic_register;
+}sdk_impl_ctx_t;
+
 #endif  /* __SDK_IMPL_INTERNAL_H__ */

@@ -341,6 +341,7 @@ do_exit:
 
 int main(int argc, char **argv)
 {
+    int domain_type = IOTX_CLOUD_DOMAIN_SH;
     IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
@@ -352,8 +353,7 @@ int main(int argc, char **argv)
 #if defined(SUPPORT_ITLS)
     HAL_SetProductSecret(PRODUCT_SECRET);
 #endif
-
-    IOT_SetupDomain(IOTX_CLOUD_DOMAIN_SH);
+    IOT_Ioctl(IOTX_IOCTL_OPT_SET_DOMAIN_TYPE,&domain_type);
     mqtt_client();
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_CloseLog();

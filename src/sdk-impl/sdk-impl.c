@@ -20,9 +20,11 @@
 #include "iotx_system.h"
 #include "sdk-impl_internal.h"
 
-void IOT_SetupDomain(int domain_type)
+static sdk_impl_ctx_t g_sdk_impl_ctx = {0};
+
+static sdk_impl_ctx_t* _iotx_sdk_impl_get_ctx(void)
 {
-    iotx_guider_set_domain_type(domain_type);
+    return &g_sdk_impl_ctx;
 }
 
 void IOT_OpenLog(const char *ident)
@@ -101,3 +103,48 @@ int IOT_SetupConnInfo(const char *product_key,
 }
 
 #endif  /* #if defined(MQTT_COMM_ENABLED)   */
+
+int IOT_Ioctl(int option, void *data)
+{
+    int res = SUCCESS_RETURN;
+    sdk_impl_ctx_t *ctx = _iotx_sdk_impl_get_ctx();
+
+    if (option < 0 || data == NULL) {
+        sdk_err("Invalid Parameter");
+        return FAIL_RETURN;
+    }
+
+    switch (option)
+    {
+        case IOTX_IOCTL_OPT_SET_DOMAIN_TYPE:
+        {
+            int domain_type = *(int *)data;
+            iotx_guider_set_domain_type(domain_type);
+
+            res = SUCCESS_RETURN;
+        }
+        break;
+        case IOTX_IOCTL_OPT_SET_DYNAMIC_REGISTER:
+        {
+            ctx->dynamic_register = *(int *)data;
+
+            res = SUCCESS_RETURN;
+        }
+        break;
+        case IOTX_IOCTL_OPT_GET_DYNAMIC_REGISTER:
+        {
+            *(int *)data = ctx->dynamic_register;
+
+            res = SUCCESS_RETURN;
+        }
+        break;
+        default:
+        {
+            sdk_err("Unknown Ioctl Option");
+            res = FAIL_RETURN;
+        }
+        break;
+    }
+
+    return res;
+}

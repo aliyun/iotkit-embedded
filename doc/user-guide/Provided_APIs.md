@@ -59,7 +59,7 @@
      4  IOT_DumpMemoryStats
      5  IOT_SetupConnInfo
      6  IOT_SetupConnInfoSecure
-     7  IOT_SetupDomain
+     7  IOT_Ioctl
      8  IOT_ALCS_Construct
      9  IOT_ALCS_Cloud_Init
     10  IOT_ALCS_Destroy
@@ -197,7 +197,7 @@
 |  2    | IOT_CloseLog                 | 停止打印日志信息(log), 入参为空                                    |
 |  3    | IOT_SetLogLevel              | 设置打印的日志等级, 接受入参从1到5, 数字越大, 打印越详细           |
 |  4    | IOT_DumpMemoryStats          | 调试函数, 打印内存的使用统计情况, 入参为1-5, 数字越大, 打印越详细  |
-|  5    | IOT_SetupDomain              | 设置云服务器域名，目前支持国内，新加坡，日本，美国，德国等区域     |
+|  5    | IOT_Ioctl                    | 设置SDK运行时可配置选项，详情见API注释                          |
 
 ### <a name="CoAP功能相关">CoAP功能相关</a>
 
