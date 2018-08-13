@@ -225,7 +225,7 @@ int IOT_MQTT_Destroy(void **phandle);
  * @see None.
  */
 int IOT_MQTT_Yield(void *handle, int timeout_ms);
-
+int IOT_MQTT_LogPost(void *handle, const char *msg, const int msg_len);
 
 /**
  * @brief check whether MQTT connection is established or not.

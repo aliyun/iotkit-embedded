@@ -115,6 +115,7 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
     if (tmpbuf[strlen(tmpbuf)-1] != '\n') {
         LITE_printf("\r\n");
     }
+
     return;
 }
 
