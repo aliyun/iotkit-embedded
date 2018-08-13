@@ -30,6 +30,7 @@ extern "C" {
 #include <stdarg.h>
 
 #include "iotx_log_config.h"
+#include "iotx_log_post.h"
 
 typedef enum _LOGLEVEL {
     LOG_EMERG_LEVEL = 0,    /* OS system is unavailable */
@@ -66,7 +67,7 @@ void    LITE_syslog_upload_to_cloud(const char *module, const int level, const c
 #define log_emerg(mod ,...)              LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
 #define log_crit(mod ,...)               LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
 #define log_err(mod ,...)                LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
-#define log_err_online(mod, ...)         LITE_syslog_upload_to_cloud(mod, LOG_ERR_LEVEL, __VA_ARGS__)
+#define log_err_online(mod, ...)         LITE_syslog_post(mod, LOG_ERR_LEVEL, __VA_ARGS__)
 
 int     log_multi_line_internal(const char *f, const int l,
                                 const char *title, int level, char *payload, const char *mark);

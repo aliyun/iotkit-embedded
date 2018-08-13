@@ -221,59 +221,6 @@ int log_multi_line_internal(const char *f, const int l,
     return 0;
 }
 
-void LITE_syslog_online(const char *module, const int level, const char *fmt, va_list *params)
-{
-#if (defined(SDK_ENHANCE) && defined(CONFIG_LOG_ONLINE))
-    char       *tmpbuf = NULL;
-    char       *o = NULL;
-    int        truncated = 0;
-    int        len;
-    int        ret = 0;
-    char       topic[100];
-    char       product_key[PRODUCT_KEY_LEN + 1];
-    char       device_name[DEVICE_NAME_LEN + 1];
-
-    tmpbuf = LITE_calloc(1, LOG_MSG_MAXLEN + 1);
-    LITE_snprintf(tmpbuf, LOG_MSG_MAXLEN, LOG_PREFIX_FMT_ONLINE, HAL_UptimeMs(), lvl_names[level], module);
-    len = strlen(tmpbuf);
-
-    o = tmpbuf + len;
-    o += LITE_vsnprintf(o, LOG_MSG_MAXLEN - len + 1, fmt, *params);
-
-    if (o - tmpbuf > LOG_MSG_MAXLEN) {
-        o = tmpbuf + strlen(tmpbuf);
-        truncated = 1;
-    }
-    if (truncated == 1) {
-        int i;
-        tmpbuf[LOG_MSG_MAXLEN] = '\0';
-        for (i = 0; i < 3; i++) {
-            tmpbuf[LOG_MSG_MAXLEN - i - 1] = '.';
-        }
-    }
-    /*upload to cloud*/
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    sprintf(topic, "/sys/%s/%s/thing/log/post", product_key, device_name);
-    ret = mqtt_publish(topic, IOTX_MQTT_QOS0, tmpbuf, strlen(tmpbuf));
-    if (ret < 0) {
-        log_err((char *)module, "can't publish to cloud. ret = %d\n", ret);
-    } else {
-        log_info((char *)module, "publish to cloud. ret = %d\n", ret);
-    }
-    LITE_free(tmpbuf);
-#endif
-}
-
-void LITE_syslog_upload_to_cloud(const char *module, const int level, const char *fmt, ...)
-{
-    va_list ap;
-
-    va_start(ap, fmt);
-    LITE_syslog_online(module, level, fmt, &ap);
-    va_end(ap);
-}
-
 #else   /* defined(LITE_LOG_ENABLED) */
 void LITE_syslog(const char *f, const int l, const int level, const char *fmt, ...)
 {
