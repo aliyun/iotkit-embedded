@@ -30,7 +30,6 @@ extern "C" {
 #include <stdarg.h>
 
 #include "iotx_log_config.h"
-#include "iotx_log_post.h"
 
 typedef enum _LOGLEVEL {
     LOG_EMERG_LEVEL = 0,    /* OS system is unavailable */

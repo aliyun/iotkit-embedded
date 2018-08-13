@@ -225,7 +225,22 @@ int IOT_MQTT_Destroy(void **phandle);
  * @see None.
  */
 int IOT_MQTT_Yield(void *handle, int timeout_ms);
-int IOT_MQTT_LogPost(void *handle, const char *msg, const int msg_len);
+
+
+/**
+ * @brief Post log information to cloud.
+ *
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] levle: log level string
+ * @param [in] moduel: module string.
+ * @param [in] msg: log information string.
+ *
+ * @retval 0  : Post successful.
+ * @retval -1 : Post fail.
+ * @see None.
+ */
+//int IOT_MQTT_LogPost(void *handle, const char *msg, int msg_len);
+int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const char *msg);
 
 /**
  * @brief check whether MQTT connection is established or not.
