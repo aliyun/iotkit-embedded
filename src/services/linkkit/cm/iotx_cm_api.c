@@ -84,6 +84,7 @@ int iotx_cm_init(iotx_cm_init_param_t *init_param, void *option)
         HAL_GetProductKey(product_key);
         HAL_GetDeviceName(device_name);
         HAL_GetDeviceID(device_id);
+        HAL_GetDeviceSecret(device_secret);
 
         ARGUMENT_SANITY_CHECK(strlen(device_name), FAIL_RETURN);
         ARGUMENT_SANITY_CHECK(strlen(product_key), FAIL_RETURN);
