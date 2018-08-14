@@ -3,7 +3,8 @@
 
 typedef enum {
     IOTX_LINKKIT_DEV_TYPE_MASTER,
-    IOTX_LINKKIT_DEV_TYPE_SLAVE
+    IOTX_LINKKIT_DEV_TYPE_SLAVE,
+    IOTX_LINKKIT_DEV_TYPE_MAX
 } iotx_linkkit_dev_type_t;
 
 typedef struct {
@@ -14,8 +15,10 @@ typedef struct {
 } iotx_linkkit_dev_meta_info_t;
 
 typedef enum {
-    IOTX_LINKKIT_CMD_OPTION_POST_PROPERTY_REPLY,
-    IOTX_LINKKIT_CMD_OPTION_POST_EVENT_REPLY
+    IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY,           /* only for master device, choose whether you need receive property post reply message */
+    IOTX_LINKKIT_CMD_OPTION_EVENT_POST_REPLY,              /* only for master device, choose whether you need receive event post reply message */
+    IOTX_LINKKIT_CMD_OPTION_PROPERTY_SET_REPLY,            /* only for master device, choose whether you need send property set reply message */
+    IOTX_LINKKIT_CMD_MAX
 } iotx_linkkit_ioctl_cmd_t;
 
 typedef struct {
@@ -47,7 +50,7 @@ typedef enum {
  * @return success: device id (>=0), fail: -1.
  *
  */
-int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t meta_info);
+int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info);
 
 /**
  * @brief configuration runtime parameter before network established.
@@ -67,12 +70,12 @@ int IOT_Linkkit_Ioctl(int devid, iotx_linkkit_ioctl_cmd_t cmd, void *arg);
  *        for slave device, send message to cloud for register new device and add topo with master device
  *
  * @param devid. device identifier.
- * @param iotx_linkkit_event_handler_t. event callback. see iotx_linkkit_event_handler_t
+ * @param iotx_linkkit_event_handler_t. event callback, only for master device. see iotx_linkkit_event_handler_t
  *
  * @return success: device id (>=0), fail: -1.
  *
  */
-int IOT_Linkkit_Start(int devid, iotx_linkkit_event_handler_t hdlrs);
+int IOT_Linkkit_Start(int devid, iotx_linkkit_event_handler_t *hdlrs);
 
 /**
  * @brief try to receive message from cloud and dispatch these message to user event callback

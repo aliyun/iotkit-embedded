@@ -94,6 +94,7 @@ typedef struct {
 
 typedef enum {
     IOTX_IOCTL_SET_DOMAIN,              /* value(int*): iotx_cloud_domain_types_t */
+    IOTX_IOCTL_GET_DOMAIN,              /* value(int*) */
     IOTX_IOCTL_SET_DYNAMIC_REGISTER,    /* value(int*): 0 - Disable Dynamic Register, 1 - Enable Dynamic Register */
     IOTX_IOCTL_GET_DYNAMIC_REGISTER     /* value(int*) */
 } iotx_ioctl_option_t;

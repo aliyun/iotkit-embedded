@@ -80,3 +80,10 @@ FEATURE_ALCS_ENABLED        = y
 ## Note:     Switchable (value is y or n)
 ##
 FEATURE_ENHANCED_GATEWAY    = n
+
+##
+## FEATURE_LEGACY_LINKKIT
+## Brief:    Using Legacy Linkkit api(linkkit_export.h and linkkit_gateway_export.h)
+## Usage:    If the value is "y", please use api in linkkit_export.h and linkkit_gateway_export.h, or please use api in iot_export_linkkit.h
+## Note:     Switchable (value is y or n)
+FEATURE_LEGACY_LINKKIT      = y

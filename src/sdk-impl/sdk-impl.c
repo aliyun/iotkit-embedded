@@ -146,6 +146,12 @@ int IOT_Ioctl(int option, void *data)
             res = SUCCESS_RETURN;
         }
         break;
+        case IOTX_IOCTL_GET_DOMAIN: {
+            *(int *)data = ctx->domain_type;
+
+            res = SUCCESS_RETURN;
+        }
+        break;
         case IOTX_IOCTL_SET_DYNAMIC_REGISTER: {
             ctx->dynamic_register = *(int *)data;
 
