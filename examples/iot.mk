@@ -101,5 +101,4 @@ SRCS_linkkit-example-sched = linkkit/linkkit_example_sched.c
 
 TARGET += linkkit-example-countdown
 SRCS_linkkit-example-countdown = linkkit/linkkit_example_countdown.c
-
 endif

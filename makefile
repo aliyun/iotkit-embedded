@@ -25,7 +25,6 @@ $(call CompLib_Map, COAP_COMM_ENABLED, src/protocol/coap)
 $(call CompLib_Map, HTTP_COMM_ENABLED, src/protocol/http)
 $(call CompLib_Map, ALCS_ENABLED, src/protocol/alcs)
 $(call CompLib_Map, SUBDEVICE_ENABLED, src/services/subdev)
-$(call CompLib_Map, CLOUD_CONN_ENABLED, src/protocol/cloud_conn)
 $(call CompLib_Map, SDK_ENHANCE, \
     src/services/linkkit/cm \
     src/services/linkkit/dm)
