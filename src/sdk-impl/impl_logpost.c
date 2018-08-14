@@ -15,15 +15,7 @@
  * limitations under the License.
  *
  */
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-
-#include "iotx_system_internal.h"
-#include "iotx_mqtt_internal.h"
-
+#include "sdk-impl_internal.h"
 
 #define LOG_PUBLISH_MSG_MAXLEN   (255)
 

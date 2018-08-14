@@ -1,6 +1,16 @@
 #ifndef __SDK_IMPL_INTERNAL_H__
 #define __SDK_IMPL_INTERNAL_H__
 
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
+#include "iotx_utils.h"
+#include "iotx_system.h"
+#include "iotx_mqtt.h"
+
 #define sdk_emerg(...)          log_emerg("sdk", __VA_ARGS__)
 #define sdk_crit(...)           log_crit("sdk", __VA_ARGS__)
 #define sdk_err(...)            log_err("sdk", __VA_ARGS__)
@@ -25,5 +35,11 @@ typedef struct {
     int domain_type;
     int dynamic_register;
 } sdk_impl_ctx_t;
+
+sdk_impl_ctx_t *sdk_impl_get_ctx(void);
+int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
+                             _IN_ char product_secret[PRODUCT_SECRET_MAXLEN],
+                             _IN_ char device_name[DEVICE_NAME_MAXLEN],
+                             _OU_ char device_secret[DEVICE_SECRET_MAXLEN]);
 
 #endif  /* __SDK_IMPL_INTERNAL_H__ */
