@@ -53,9 +53,6 @@ ELSE (WIN32)
 ENDIF (WIN32)
 MESSAGE ("---------------------------------------------------------------------")
 
-FILE (REMOVE_RECURSE \${PROJECT_SOURCE_DIR}/../$(basename ${TOP_DIR}).pkgs)
-FILE (MAKE_DIRECTORY \${PROJECT_SOURCE_DIR}/../$(basename ${TOP_DIR}).pkgs)
-
 $(for i in $(grep 'PKG_SOURCE' \
                 $(find ${TOP_DIR} -name ${MAKE_SEGMENT} -not -path "*.O*") \
                     | ${SED} "s:${TOP_DIR}/\(.*\)/${MAKE_SEGMENT}.*= *\(.*\):\1~\2:g"); do

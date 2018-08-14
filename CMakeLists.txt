@@ -32,9 +32,6 @@ ELSE (WIN32)
 ENDIF (WIN32)
 MESSAGE ("---------------------------------------------------------------------")
 
-FILE (REMOVE_RECURSE ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
-FILE (MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/../iotx-sdk-c.pkgs)
-
 
 ADD_DEFINITIONS (-D_IS_LINKKIT_)
 ADD_DEFINITIONS (-DALCS_ENABLED)

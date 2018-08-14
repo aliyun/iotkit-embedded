@@ -8,10 +8,16 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/)
 
 ADD_LIBRARY (sdk_impl OBJECT
     ${PROJECT_SOURCE_DIR}/src/sdk-impl/sdk-impl.c
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_logpost.c
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_dynreg.c
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/sdk_impl_linkkit.c
     ${EXTRA_C_SOURCES}
 )
 

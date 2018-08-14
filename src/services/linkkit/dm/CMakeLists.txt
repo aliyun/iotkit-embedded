@@ -30,8 +30,8 @@ ADD_LIBRARY (iot_dm OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_subscribe.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_tsl_alink.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_utils.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/linkkit_api.c
     ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/linkkit_gateway_legacy.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/linkkit_solo_legacy.c
     ${EXTRA_C_SOURCES}
 )
 
