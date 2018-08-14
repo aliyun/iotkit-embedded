@@ -64,7 +64,7 @@ typedef enum IOTX_CLOUD_DOMAIN_TYPES {
 #define DEVICE_SECRET_LEN   (64)
 #define PRODUCT_SECRET_LEN  (64)
 
-#define LINKKIT_VERSION     "2.2.0"
+#define LINKKIT_VERSION     "2.2.1"
 #define MODULE_VENDOR_ID    (32)    /* Partner ID */
 
 #define HOST_ADDRESS_LEN    (128)
@@ -93,9 +93,9 @@ typedef struct {
 } iotx_conn_info_t, *iotx_conn_info_pt;
 
 typedef enum {
-    IOTX_IOCTL_OPT_SET_DOMAIN_TYPE,            /* value(int*): iotx_cloud_domain_types_t */
-    IOTX_IOCTL_OPT_SET_DYNAMIC_REGISTER,       /* value(int*): 0 - Disable Dynamic Register, 1 -  Enable Dynamic Register */
-    IOTX_IOCTL_OPT_GET_DYNAMIC_REGISTER        /* value(int*) */
+    IOTX_IOCTL_SET_DOMAIN,              /* value(int*): iotx_cloud_domain_types_t */
+    IOTX_IOCTL_SET_DYNAMIC_REGISTER,    /* value(int*): 0 - Disable Dynamic Register, 1 - Enable Dynamic Register */
+    IOTX_IOCTL_GET_DYNAMIC_REGISTER     /* value(int*) */
 } iotx_ioctl_option_t;
 /* From device.h */
 
@@ -194,7 +194,7 @@ int     IOT_SetupConnInfoSecure(const char *product_key,
  * @return None.
  * @see None.
  */
-int IOT_Ioctl(int option, void *data);
+int     IOT_Ioctl(int option, void *data);
 
 /** @} */ /* end of api_conninfo */
 

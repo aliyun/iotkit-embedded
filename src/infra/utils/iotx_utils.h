@@ -30,10 +30,16 @@
     #include <assert.h>
 #endif
 
-#include "iotx_log.h"
-#include "lite-list.h"
 #include "iotx_utils_config.h"
+
+#include "iotx_log.h"
+
+#include "utils_hmac.h"
+#include "utils_httpc.h"
+#include "lite-cjson.h"
+#include "lite-list.h"
 #include "utils_box.h"
+
 #include "iot_import.h"
 
 #define LITE_TRUE                   (1)

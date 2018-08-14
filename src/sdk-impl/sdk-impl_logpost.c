@@ -30,11 +30,11 @@
 
 static int iotx_mc_log_post(void *pclient, char *payload);
 
-static const char THING_LOG_POST_PARAMS[] = 
-"{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"timestamp\":%lld,\"logLevel\":\"%s\",\"module\":\"%s\",\"logContent\":\"%s";
+static const char THING_LOG_POST_PARAMS[] =
+            "{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"timestamp\":%lld,\"logLevel\":\"%s\",\"module\":\"%s\",\"logContent\":\"%s";
 
-static const char THING_LOG_POST_PARAMS_TAIL[] = 
-"...\"}],\"method\":\"thing.log.post\"}";
+static const char THING_LOG_POST_PARAMS_TAIL[] =
+            "...\"}],\"method\":\"thing.log.post\"}";
 
 /* Post log information to cloud through mqtt */
 int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const char *msg)
@@ -48,11 +48,11 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
         return FAIL_RETURN;
     }
 
-    logbuf = LITE_malloc(LOG_PUBLISH_MSG_MAXLEN+1);
+    logbuf = LITE_malloc(LOG_PUBLISH_MSG_MAXLEN + 1);
     if (logbuf == NULL) {
         return FAIL_RETURN;
     }
-    memset(logbuf, 0, LOG_PUBLISH_MSG_MAXLEN+1);
+    memset(logbuf, 0, LOG_PUBLISH_MSG_MAXLEN + 1);
 
     /* generate log post json data */
     ret = HAL_Snprintf(logbuf, LOG_PUBLISH_MSG_MAXLEN, THING_LOG_POST_PARAMS, msgid, HAL_UTC_Get(), level, module, msg);
@@ -63,11 +63,10 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
 
     length = strlen(logbuf);
     if (length >= (LOG_PUBLISH_MSG_MAXLEN - sizeof(THING_LOG_POST_PARAMS_TAIL))) {
-        strcpy(logbuf + LOG_PUBLISH_MSG_MAXLEN - sizeof(THING_LOG_POST_PARAMS_TAIL)-3, THING_LOG_POST_PARAMS_TAIL);
+        strcpy(logbuf + LOG_PUBLISH_MSG_MAXLEN - sizeof(THING_LOG_POST_PARAMS_TAIL) - 3, THING_LOG_POST_PARAMS_TAIL);
+    } else {
+        strcat(logbuf, THING_LOG_POST_PARAMS_TAIL + 3);
     }
-    else {
-        strcat(logbuf, THING_LOG_POST_PARAMS_TAIL+3);
-    }    
 
     ret = iotx_mc_log_post(pHandle, logbuf);
     if (ret < 0) {
@@ -75,7 +74,7 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
     } else {
         log_err((char *)module, "log post to cloud success");
     }
-    
+
     LITE_free(logbuf);
     return ret;
 }
@@ -98,12 +97,12 @@ static int iotx_mc_log_post(void *pclient, char *payload)
                        dev->product_key,
                        dev->device_name);
     if (ret <= 0) {
-        log_err("logpost","log topic generate err");
+        log_err("logpost", "log topic generate err");
         return FAIL_RETURN;
     }
 
     /* print log post json data */
-    log_debug("logpost","log post data: %s", payload);
+    log_debug("logpost", "log post data: %s", payload);
 
     topic_info.qos = IOTX_MQTT_QOS0;
     topic_info.payload = (void *)payload;
@@ -112,9 +111,9 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     topic_info.dup = 0;
 
     /* publish message */
-    ret = iotx_mc_publish((iotx_mc_client_t*)pclient, topic_name, &topic_info);
+    ret = iotx_mc_publish((iotx_mc_client_t *)pclient, topic_name, &topic_info);
     if (ret < 0) {
-        log_err("logpost","publish failed");
+        log_err("logpost", "publish failed");
         return FAIL_RETURN;
     }
 

@@ -239,7 +239,6 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms);
  * @retval -1 : Post fail.
  * @see None.
  */
-//int IOT_MQTT_LogPost(void *handle, const char *msg, int msg_len);
 int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const char *msg);
 
 /**

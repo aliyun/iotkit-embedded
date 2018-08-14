@@ -354,11 +354,11 @@ int main(int argc, char **argv)
 #endif
     /* Choose Login Server */
     int domain_type = IOTX_CLOUD_DOMAIN_SH;
-    IOT_Ioctl(IOTX_IOCTL_OPT_SET_DOMAIN_TYPE,(void *)&domain_type);
+    IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
 
     /* Choose Login  Method */
     int dynamic_register = 0;
-    IOT_Ioctl(IOTX_IOCTL_OPT_SET_DYNAMIC_REGISTER,(void *)&dynamic_register);
+    IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
     mqtt_client();
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
