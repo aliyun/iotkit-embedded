@@ -168,23 +168,6 @@ int     IOT_SetupConnInfo(const char *product_key,
                           const char *device_name,
                           const char *device_secret,
                           void **info_ptr);
-/**
- * @brief Based on the product_key + device_name + device_secret produce an MQTT connection username and password by ID2_AUTH.
- *
- * @param [in] product_key: @n Apply for 'product_key' in the AliYun Console.
- * @param [in] device_name: @n Apply for 'device_name' in the AliYun Console.
- * @param [in] device_secret: @n Apply for 'device_secret' in the AliYun Console.
- * @param [out] info_ptr: @n return MQTT connection parameter.
- *
- * @retval -1 : Fail.
- * @retval  0 : Success.
- * @see None.
- */
-
-int     IOT_SetupConnInfoSecure(const char *product_key,
-                                const char *device_name,
-                                const char *device_secret,
-                                void **info_ptr);
 
 /**
  * @brief Setup Demain type, should be called before MQTT connection.

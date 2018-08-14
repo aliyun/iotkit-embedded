@@ -58,77 +58,84 @@
      3  IOT_SetLogLevel
      4  IOT_DumpMemoryStats
      5  IOT_SetupConnInfo
-     6  IOT_SetupConnInfoSecure
-     7  IOT_Ioctl
-     8  IOT_ALCS_Construct
-     9  IOT_ALCS_Cloud_Init
-    10  IOT_ALCS_Destroy
-    11  IOT_ALCS_Yield
-    12  IOT_ALCS_Send
-    13  IOT_ALCS_Send_Response
-    14  IOT_ALCS_Register_Resource
-    15  IOT_ALCS_Observe_Notify
-    16  IOT_ALCS_Unregister_Resource
-    17  IOT_ALCS_Add_Sub_Device
-    18  IOT_ALCS_Remove_Sub_Device
-    19  IOT_CoAP_Init
-    20  IOT_CoAP_Deinit
-    21  IOT_CoAP_DeviceNameAuth
-    22  IOT_CoAP_Yield
-    23  IOT_CoAP_SendMessage
-    24  IOT_CoAP_GetMessagePayload
-    25  IOT_CoAP_GetMessageCode
-    26  IOT_HTTP_Init
-    27  IOT_HTTP_DeInit
-    28  IOT_HTTP_DeviceNameAuth
-    29  IOT_HTTP_SendMessage
-    30  IOT_HTTP_Disconnect
-    31  IOT_MQTT_Construct
-    32  IOT_MQTT_ConstructSecure
-    33  IOT_MQTT_Destroy
-    34  IOT_MQTT_Yield
-    35  IOT_MQTT_CheckStateNormal
-    36  IOT_MQTT_Subscribe
-    37  IOT_MQTT_Unsubscribe
-    38  IOT_MQTT_Publish
-    39  IOT_OTA_Init
-    40  IOT_OTA_Deinit
-    41  IOT_OTA_ReportVersion
-    42  IOT_OTA_RequestImage
-    43  IOT_OTA_ReportProgress
-    44  IOT_OTA_GetConfig
-    45  IOT_OTA_IsFetching
-    46  IOT_OTA_IsFetchFinish
-    47  IOT_OTA_FetchYield
-    48  IOT_OTA_Ioctl
-    49  IOT_OTA_GetLastError
-    50  IOT_Shadow_Construct
-    51  IOT_Shadow_Destroy
-    52  IOT_Shadow_Yield
-    53  IOT_Shadow_RegisterAttribute
-    54  IOT_Shadow_DeleteAttribute
-    55  IOT_Shadow_PushFormat_Init
-    56  IOT_Shadow_PushFormat_Add
-    57  IOT_Shadow_PushFormat_Finalize
-    58  IOT_Shadow_Push
-    59  IOT_Shadow_Push_Async
-    60  IOT_Shadow_Pull
-    61  IOT_Gateway_Generate_Message_ID
-    62  IOT_Gateway_Construct
-    63  IOT_Gateway_Destroy
-    64  IOT_Subdevice_Register
-    65  IOT_Subdevice_Unregister
-    66  IOT_Subdevice_Login
-    67  IOT_Subdevice_Logout
-    68  IOT_Gateway_Get_TOPO
-    69  IOT_Gateway_Get_Config
-    70  IOT_Gateway_Publish_Found_List
-    71  IOT_Gateway_Yield
-    72  IOT_Gateway_Subscribe
-    73  IOT_Gateway_Unsubscribe
-    74  IOT_Gateway_Publish
-    75  IOT_Gateway_RRPC_Register
-    76  IOT_Gateway_RRPC_Response
+     6  IOT_Ioctl
+     7  IOT_ALCS_Construct
+     8  IOT_ALCS_Cloud_Init
+     9  IOT_ALCS_Destroy
+    10  IOT_ALCS_Yield
+    11  IOT_ALCS_Send
+    12  IOT_ALCS_Send_Response
+    13  IOT_ALCS_Register_Resource
+    14  IOT_ALCS_Observe_Notify
+    15  IOT_ALCS_Unregister_Resource
+    16  IOT_ALCS_Add_Sub_Device
+    17  IOT_ALCS_Remove_Sub_Device
+    18  IOT_CoAP_Init
+    19  IOT_CoAP_Deinit
+    20  IOT_CoAP_DeviceNameAuth
+    21  IOT_CoAP_Yield
+    22  IOT_CoAP_SendMessage
+    23  IOT_CoAP_GetMessagePayload
+    24  IOT_CoAP_GetMessageCode
+    25  IOT_HTTP_Init
+    26  IOT_HTTP_DeInit
+    27  IOT_HTTP_DeviceNameAuth
+    28  IOT_HTTP_SendMessage
+    29  IOT_HTTP_Disconnect
+    30  IOT_Linkkit_Open
+    31  IOT_Linkkit_Ioctl
+    32  IOT_Linkkit_Start
+    33  IOT_Linkkit_Yield
+    34  IOT_Linkkit_Close
+    35  IOT_Linkkit_Login
+    36  IOT_Linkkit_Logout
+    37  IOT_Linkkit_Post
+    38  IOT_MQTT_Construct
+    39  IOT_MQTT_Destroy
+    40  IOT_MQTT_Yield
+    41  IOT_MQTT_LogPost
+    42  IOT_MQTT_CheckStateNormal
+    43  IOT_MQTT_Subscribe
+    44  IOT_MQTT_Unsubscribe
+    45  IOT_MQTT_Publish
+    46  IOT_OTA_Init
+    47  IOT_OTA_Deinit
+    48  IOT_OTA_ReportVersion
+    49  IOT_OTA_RequestImage
+    50  IOT_OTA_ReportProgress
+    51  IOT_OTA_GetConfig
+    52  IOT_OTA_IsFetching
+    53  IOT_OTA_IsFetchFinish
+    54  IOT_OTA_FetchYield
+    55  IOT_OTA_Ioctl
+    56  IOT_OTA_GetLastError
+    57  IOT_Shadow_Construct
+    58  IOT_Shadow_Destroy
+    59  IOT_Shadow_Yield
+    60  IOT_Shadow_RegisterAttribute
+    61  IOT_Shadow_DeleteAttribute
+    62  IOT_Shadow_PushFormat_Init
+    63  IOT_Shadow_PushFormat_Add
+    64  IOT_Shadow_PushFormat_Finalize
+    65  IOT_Shadow_Push
+    66  IOT_Shadow_Push_Async
+    67  IOT_Shadow_Pull
+    68  IOT_Gateway_Generate_Message_ID
+    69  IOT_Gateway_Construct
+    70  IOT_Gateway_Destroy
+    71  IOT_Subdevice_Register
+    72  IOT_Subdevice_Unregister
+    73  IOT_Subdevice_Login
+    74  IOT_Subdevice_Logout
+    75  IOT_Gateway_Get_TOPO
+    76  IOT_Gateway_Get_Config
+    77  IOT_Gateway_Publish_Found_List
+    78  IOT_Gateway_Yield
+    79  IOT_Gateway_Subscribe
+    80  IOT_Gateway_Unsubscribe
+    81  IOT_Gateway_Publish
+    82  IOT_Gateway_RRPC_Register
+    83  IOT_Gateway_RRPC_Response
 
 ### <a name="linkkit单品API">linkkit单品API</a>
 
@@ -216,15 +223,13 @@
 | 序号  | 函数名                       | 说明                                                                           |
 |-------|------------------------------|--------------------------------------------------------------------------------|
 |  1    | IOT_SetupConnInfo            | MQTT连接前的准备, 基于`DeviceName + DeviceSecret + ProductKey`产生MQTT连接的用户名和密码等 |
-|  2    | IOT_SetupConnInfoSecure      | MQTT连接前的准备, 基于`ID2 + DeviceSecret + ProductKey`产生MQTT连接的用户名和密码等,ID2模式启用|
-|  3    | IOT_MQTT_CheckStateNormal    | MQTT连接后, 调用此函数检查长连接是否正常                                       |
-|  4    | IOT_MQTT_Construct           | MQTT实例的构造函数, 入参为`iotx_mqtt_param_t`结构体, 连接MQTT服务器, 并返回被创建句柄 |
-|  5    | IOT_MQTT_ConstructSecure     | MQTT实例的构造函数, 入参为`iotx_mqtt_param_t`结构体, 连接MQTT服务器, 并返回被创建句柄，ID2模式启用|
-|  6    | IOT_MQTT_Destroy             | MQTT实例的摧毁函数, 入参为`IOT_MQTT_Construct()`创建的句柄                     |
-|  7    | IOT_MQTT_Publish             | MQTT会话阶段, 组织一个完整的`MQTT Publish`报文, 向服务端发送消息发布报文       |
-|  8    | IOT_MQTT_Subscribe           | MQTT会话阶段, 组织一个完整的`MQTT Subscribe`报文, 向服务端发送订阅请求         |
-|  9    | IOT_MQTT_Unsubscribe         | MQTT会话阶段, 组织一个完整的`MQTT UnSubscribe`报文, 向服务端发送取消订阅请求   |
-|  10   | IOT_MQTT_Yield               | MQTT会话阶段, MQTT主循环函数, 内含了心跳的维持, 服务器下行报文的收取等         |
+|  2    | IOT_MQTT_CheckStateNormal    | MQTT连接后, 调用此函数检查长连接是否正常                                       |
+|  3    | IOT_MQTT_Construct           | MQTT实例的构造函数, 入参为`iotx_mqtt_param_t`结构体, 连接MQTT服务器, 并返回被创建句柄 |
+|  4    | IOT_MQTT_Destroy             | MQTT实例的摧毁函数, 入参为`IOT_MQTT_Construct()`创建的句柄                     |
+|  5    | IOT_MQTT_Publish             | MQTT会话阶段, 组织一个完整的`MQTT Publish`报文, 向服务端发送消息发布报文       |
+|  6    | IOT_MQTT_Subscribe           | MQTT会话阶段, 组织一个完整的`MQTT Subscribe`报文, 向服务端发送订阅请求         |
+|  7    | IOT_MQTT_Unsubscribe         | MQTT会话阶段, 组织一个完整的`MQTT UnSubscribe`报文, 向服务端发送取消订阅请求   |
+|  8    | IOT_MQTT_Yield               | MQTT会话阶段, MQTT主循环函数, 内含了心跳的维持, 服务器下行报文的收取等         |
 
 ### <a name="OTA功能相关">OTA功能相关</a>
 

@@ -35,7 +35,7 @@
         IOTX_CLOUD_DOMAIN_MAX
     } iotx_cloud_domain_types_t;
     
-在使用基础版MQTT接口连接阿里云时，使用`IOT_Ioctl`的`IOTX_IOCTL_SET_DOMAIN`选项设置要连接的站点，然后再使用`IOT_SetupConnInfo`或者`IOT_SetupConnInfoSecure`来建立设备到阿里云的连接
+在使用基础版MQTT接口连接阿里云时，使用`IOT_Ioctl`的`IOTX_IOCTL_SET_DOMAIN`选项设置要连接的站点，然后再使用`IOT_SetupConnInfo`来建立设备到阿里云的连接
 
 ### <a name="高级版">高级版</a>
 在`iotx-sdk-c/include/exports/linkkit_export.h`中，枚举类型`linkkit_cloud_domain_type_t`定义了当前可连接的MQTT站点：
