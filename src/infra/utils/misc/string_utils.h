@@ -23,5 +23,8 @@
 #include "iotx_utils_internal.h"
 
 
+int LITE_get_randstr(_OU_ char *random, _IN_ int length);
+
+
 #endif  /* __COMMON_UTILS_H__ */
 

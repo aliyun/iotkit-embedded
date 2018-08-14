@@ -21,7 +21,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include "mqtt_instance.h"
 #include "iotx_system_internal.h"
 #include "iotx_mqtt_internal.h"
 

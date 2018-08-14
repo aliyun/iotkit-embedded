@@ -195,3 +195,39 @@ void LITE_replace_substr(char originalString[], char key[], char swap[])
     }
 }
 
+int LITE_get_randstr(_OU_ char *random, _IN_ int length)
+{
+    int index = 0;
+
+    if (random == NULL || length <= 0) {
+        utils_err("Invalid Parameter");
+        return FAIL_RETURN;
+    }
+
+    HAL_Srandom(HAL_UptimeMs());
+
+    for (index = 0; index < length; index++) {
+        switch (HAL_Random(3)) {
+            case 0: {
+                random[index] = 'A' + HAL_Random(26);
+            }
+            break;
+            case 1: {
+                random[index]  = 'a' + HAL_Random(26);
+            }
+            break;
+            case 2: {
+                random[index] = '0' + HAL_Random(10);
+            }
+            break;
+            default: {
+                utils_err("Should Not Execute Here");
+                return FAIL_RETURN;
+            }
+        }
+    }
+
+    return SUCCESS_RETURN;
+}
+
+

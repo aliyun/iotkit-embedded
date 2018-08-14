@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
  * License-Identifier: Apache-2.0
@@ -61,7 +62,7 @@ static int _calc_dynreg_sign(
     const char     *dynamic_register_sign_fmt = "deviceName%sproductKey%srandom%s";
 
     /* Start Dynamic Register */
-    res = ubox_random_string(random, DYNAMIC_REGISTER_RANDOM_KEY_LENGTH);
+    res = LITE_get_randstr(random, DYNAMIC_REGISTER_RANDOM_KEY_LENGTH);
     if (res != SUCCESS_RETURN) {
         sdk_err("Random Key Generate Failed");
     }
@@ -183,7 +184,8 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _OU_ char device_
 
 static int _perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
                                      _IN_ char product_secret[PRODUCT_SECRET_MAXLEN],
-                                     _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
+                                     _IN_ char device_name[DEVICE_NAME_MAXLEN], 
+                                     _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
     int             res = 0, dynamic_register_request_len = 0;
     char            sign[DYNAMIC_REGISTER_SIGN_LENGTH] = {0};

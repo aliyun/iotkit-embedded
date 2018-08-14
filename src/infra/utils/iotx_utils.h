@@ -38,7 +38,7 @@
 #include "utils_httpc.h"
 #include "lite-cjson.h"
 #include "lite-list.h"
-#include "utils_box.h"
+#include "string_utils.h"
 
 #include "iot_import.h"
 
