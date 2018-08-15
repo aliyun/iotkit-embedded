@@ -173,8 +173,14 @@ int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifie
 int iotx_dm_post_property_direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_post_event_direct(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
                               _IN_ int payload_len);
+
+int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
+        _IN_ char *identifier,
+        _IN_ int identifier_len);
+
 int iotx_dm_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier,
-                                  _IN_ int identifier_len);
+                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+
 int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 
 int iotx_dm_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);

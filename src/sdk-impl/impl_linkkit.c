@@ -50,15 +50,86 @@ static void _iotx_linkkit_mutex_unlock(void)
 
 static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 {
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
     sdk_info("Receive Message Type: %d", type);
     if (payload) {
         sdk_info("Receive Message: %s", payload);
     }
 
     switch (type) {
+        case IOTX_DM_EVENT_THING_SERVICE_REQUEST: {
+            int res = 0, response_len = 0, response_sync;
+            char *request = NULL, *response = NULL;
+            lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse Id */
+            memset(&lite_item_id, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_ID, strlen(IOTX_LINKKIT_KEY_ID), &lite_item_id);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Id: %d", lite_item_id.value_int);
+
+            /* Parse Devid */
+            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID), &lite_item_devid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+
+            /* Parse Serviceid */
+            memset(&lite_item_serviceid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_SERVICEID, strlen(IOTX_LINKKIT_KEY_SERVICEID),
+                                         &lite_item_serviceid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
+
+            /* Parse Payload */
+            memset(&lite_item_payload, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_PAYLOAD, strlen(IOTX_LINKKIT_KEY_PAYLOAD), &lite_item_payload);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+
+            request = HAL_Malloc(lite_item_payload.value_length + 1);
+            if (request == NULL) {
+                sdk_err("Not Enough Memory");
+                return;
+            }
+            memset(request, 0, lite_item_payload.value_length + 1);
+            memcpy(request, lite_item_payload.value, lite_item_payload.value_length);
+
+            if (ctx->user_event_handler->service_request) {
+                res = ctx->user_event_handler->service_request(lite_item_devid.value_int, lite_item_serviceid.value,
+                        lite_item_serviceid.value_length,
+                        request, lite_item_payload.value_length, &response, &response_len, &response_sync);
+                if (response != NULL && response_len > 0) {
+                    /* service response exist */
+                    iotx_dm_error_code_t code = (res == 0) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
+                    iotx_dm_send_service_response(lite_item_devid.value_int, lite_item_id.value_int, code, lite_item_serviceid.value,
+                                                  lite_item_serviceid.value_length,
+                                                  response, response_len);
+                    HAL_Free(response);
+                }
+            }
+
+            HAL_Free(request);
+        }
+        break;
         case IOTX_DM_EVENT_PROPERTY_SET: {
             int res = 0;
-            iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
             lite_cjson_t lite, lite_item_devid, lite_item_payload;
 
             /* Parse Payload */

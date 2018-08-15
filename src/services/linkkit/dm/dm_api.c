@@ -760,8 +760,9 @@ int iotx_dm_post_event_direct(_IN_ int devid, _IN_ char *identifier, _IN_ int id
     return res;
 }
 
-int iotx_dm_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier,
-                                  _IN_ int identifier_len)
+int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
+        _IN_ char *identifier,
+        _IN_ int identifier_len)
 {
     int res = 0;
     lite_cjson_item_t *lite = NULL;
@@ -801,6 +802,26 @@ int iotx_dm_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_e
     res = dm_mgr_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload, strlen(payload));
 
     free(payload);
+
+    _dm_api_unlock();
+    return res;
+}
+
+int iotx_dm_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier,
+                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0 || payload == NULL || payload_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+
+    dm_log_debug("Current Service Response Payload, Length: %d, Payload: %.*s", payload_len, payload);
+
+    res = dm_mgr_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload, payload_len);
 
     _dm_api_unlock();
     return res;
