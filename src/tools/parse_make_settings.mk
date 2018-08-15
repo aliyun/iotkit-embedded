@@ -18,7 +18,6 @@ SWITCH_VARS :=  \
     FEATURE_SDK_ENHANCE \
     FEATURE_SERVICE_OTA_ENABLED \
     FEATURE_SERVICE_COTA_ENABLED \
-    FEATURE_LEGACY_LINKKIT
 
 SWITCH_VARS += $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(TOP_DIR)/make.settings|uniq)
 SWITCH_VARS := $(sort $(SWITCH_VARS))
@@ -28,9 +27,7 @@ $(foreach v, \
     $(if $(filter y,$($(v))), \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
-ifeq (y,$(strip $(FEATURE_LEGACY_LINKKIT)))
-    CFLAGS += -DCONFIG_LEGACY_LINKKIT
-endif
+
 ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
     CFLAGS += -DCM_ENABLED
     CFLAGS += -DDM_ENABLED

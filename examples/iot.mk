@@ -84,7 +84,7 @@ endif
 
 ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
 
-    ifneq (,$(filter -DCONFIG_LEGACY_LINKKIT,$(CFLAGS)))
+    ifneq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
         ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
         TARGET                          += linkkit-example-solo
         SRCS_linkkit-example-solo       := linkkit/linkkit_example_solo.c

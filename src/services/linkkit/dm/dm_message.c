@@ -785,7 +785,7 @@ static int _dm_msg_property_set_array(int devid, char *key, lite_cjson_t *root)
     return SUCCESS_RETURN;
 }
 
-#if defined (CONFIG_LEGACY_LINKKIT)
+#if defined (DEPRECATED_LINKKIT)
 #if defined (CONFIG_DM_DEVTYPE_SINGLE)
     const char DM_MSG_PROPERTY_SET_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"propertyid\":\"%.*s\"}";
 #elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
@@ -1261,7 +1261,7 @@ static int _dm_msg_service_set_array(int devid, char *key, lite_cjson_t *root)
     return SUCCESS_RETURN;
 }
 
-#if defined (CONFIG_LEGACY_LINKKIT)
+#if defined (DEPRECATED_LINKKIT)
 #if defined (CONFIG_DM_DEVTYPE_SINGLE)
     const char DM_MSG_SERVICE_REQUEST_FMT[] DM_READ_ONLY = "{\"id\":%d,\"devid\":%d,\"serviceid\":\"%.*s\"}";
 #elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
