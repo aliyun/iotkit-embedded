@@ -64,7 +64,7 @@ static int _dm_sub_filter(int devid, int index, int unsub)
     res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &event_post_reply_opt);
     if (res == SUCCESS_RETURN) {
         if (strcmp(dcs_mapping[index].service_name, DM_DISP_THING_EVENT_POST_REPLY_WILDCARD) == 0) {
-            if (prop_post_reply_opt == 0) {
+            if (event_post_reply_opt == 0) {
                 /*Unsubscribe This Topic*/
                 if (unsub) {
                     char *unsubscribe = NULL;

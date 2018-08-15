@@ -54,13 +54,15 @@ typedef enum {
     IOTX_LINKKIT_MSG_POST_PROPERTY,
 
     /* post event output value to cloud , need fill event identifier in IOT_Linkkit_Post */
-    IOTX_LINKKIT_MSG_POST_EVENT
+    IOTX_LINKKIT_MSG_POST_EVENT,
+
+    IOT_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 
 /**
  * @brief create a new device
  *
- * @param dev_type. type of device which will be created. see iotx_dev_type_t
+ * @param dev_type. type of device which will be created. see iotx_linkkit_dev_type_t
  * @param meta_info. The product key, product secret, device name and device secret of new device.
  *
  * @return success: device id (>=0), fail: -1.
@@ -147,4 +149,5 @@ int IOT_Linkkit_Logout(int devid);
  * @return success: message id (>1), fail: -1.
  *
  */
-int IOT_Linkkit_Post(int devid, int msg_type, const char *identifier, unsigned char *payload, int payload_len);
+int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifier, int identifier_len,
+                     unsigned char *payload, int payload_len);

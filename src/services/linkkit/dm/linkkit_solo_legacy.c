@@ -1110,7 +1110,7 @@ int linkkit_trigger_event(const void *thing_id, const char *event_identifier, ha
         return FAIL_RETURN;
     }
 
-    res = iotx_dm_post_event(devid, (char *)event_identifier, strlen((char *)event_identifier));
+    res = iotx_dm_deprecated_post_event(devid, (char *)event_identifier, strlen((char *)event_identifier));
     if (res < SUCCESS_RETURN) {
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;

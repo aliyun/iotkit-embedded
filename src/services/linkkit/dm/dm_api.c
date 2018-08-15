@@ -39,10 +39,6 @@ static void _dm_api_unlock(void)
 
 int iotx_dm_set_opt(int opt, void *data)
 {
-    if (data == NULL) {
-        return FAIL_RETURN;
-    }
-
     return dm_opt_set(opt, data);
 }
 
@@ -645,7 +641,7 @@ int iotx_dm_post_property_end(_IN_ void **handle)
     return res;
 }
 
-int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len)
+int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len)
 {
     int res = 0;
     void *event = NULL;
@@ -724,8 +720,8 @@ int iotx_dm_post_property_direct(_IN_ int devid, _IN_ char *payload, _IN_ int pa
     return res;
 }
 
-int iotx_dm_post_event_direct(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
-                              _IN_ int payload_len)
+int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
+                       _IN_ int payload_len)
 {
     int res = 0, method_len = 0;
     const char *method_fmt = "thing.event.%.*s.post";

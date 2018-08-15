@@ -89,7 +89,8 @@ int user_post_reply_event_handler(const int devid, const int msgid, const int co
     const char *reply = (payload == NULL) ? ("NULL") : (payload);
     const int reply_len = (payload_len == 0) ? (strlen("NULL")) : (payload_len);
 
-    EXAMPLE_TRACE("Property Reply Received, Devid: %d, MsgID: %d, Code: %d, Payload: %.*s", devid, msgid, code, reply_len,
+    EXAMPLE_TRACE("Property Reply Received, Devid: %d, Message ID: %d, Code: %d, Payload: %.*s", devid, msgid, code,
+                  reply_len,
                   reply);
     return 0;
 }
@@ -103,10 +104,26 @@ static iotx_linkkit_event_handler_t user_event_handler = {
     .post_reply =      user_post_reply_event_handler,
 };
 
+static uint64_t user_update_sec(void)
+{
+    static uint64_t time_start_ms = 0;
+
+    if (time_start_ms == 0) {
+        time_start_ms = HAL_UptimeMs();
+    }
+
+    return (HAL_UptimeMs() - time_start_ms) / 1000;
+}
+
 int main(int argc, char *argv[])
 {
     int res = 0, master_devid = 0;
+    uint64_t time_prev_sec = 0, time_now_sec = 0;
     iotx_linkkit_dev_meta_info_t master_meta_info;
+
+    /* Example Event Post */
+    char *event_id = "Error";
+    char *event_payload = "{\"ErrorCode\":0}";
 
     IOT_OpenLog("iot_linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -132,6 +149,10 @@ int main(int argc, char *argv[])
     int dynamic_register = 0;
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
+    /* Choose Whether You Need Post Event Reply */
+    int post_event_reply = 0;
+    IOT_Linkkit_Ioctl(master_devid, IOTX_LINKKIT_CMD_OPTION_EVENT_POST_REPLY, (void *)&post_event_reply);
+
     /* Start Connect Aliyun Server */
     res = IOT_Linkkit_Start(master_devid, &user_event_handler);
     if (res < 0) {
@@ -141,6 +162,19 @@ int main(int argc, char *argv[])
 
     while (1) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
+
+        time_now_sec = user_update_sec();
+        if (time_prev_sec == time_now_sec) {
+            continue;
+        }
+
+        if (time_now_sec % 20 == 0) {
+            res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_EVENT, event_id, strlen(event_id),
+                                   (unsigned char *)event_payload, strlen(event_payload));
+            EXAMPLE_TRACE("Post Event Message ID: %d", res);
+        }
+
+        time_prev_sec = time_now_sec;
     }
     return 0;
 }

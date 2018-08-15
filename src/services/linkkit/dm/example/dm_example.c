@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
         //if (time == 8000) {break;}
 #if 1
         if (time == 8000) {
-            iotx_dm_post_event(0, "Error", strlen("Error"));
+            iotx_dm_deprecated_post_event(0, "Error", strlen("Error"));
         }
 #endif
         iotx_dm_yield(100);
