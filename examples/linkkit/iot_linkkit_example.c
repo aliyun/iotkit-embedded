@@ -36,9 +36,9 @@ static int user_down_raw_event_handler(const int devid, const unsigned char *pay
     return 0;
 }
 
-int user_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
-                                       const char *request, const int request_len,
-                                       char **response, int *response_len, int *response_sync)
+static int user_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
+        const char *request, const int request_len,
+        char **response, int *response_len, int *response_sync)
 {
     int contrastratio = 0;
     cJSON *root = NULL, *item_transparency = NULL;
@@ -79,7 +79,7 @@ int user_service_request_event_handler(const int devid, const char *serviceid, c
     return 0;
 }
 
-int user_property_set_event_handler(const int devid, const char *payload, const int payload_len)
+static int user_property_set_event_handler(const int devid, const char *payload, const int payload_len)
 {
     int res = 0;
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Payload: %s", devid, payload);
@@ -90,8 +90,8 @@ int user_property_set_event_handler(const int devid, const char *payload, const 
     return 0;
 }
 
-int user_post_reply_event_handler(const int devid, const int msgid, const int code, const char *payload,
-                                  const int payload_len)
+static int user_post_reply_event_handler(const int devid, const int msgid, const int code, const char *payload,
+        const int payload_len)
 {
     const char *reply = (payload == NULL) ? ("NULL") : (payload);
     const int reply_len = (payload_len == 0) ? (strlen("NULL")) : (payload_len);
@@ -102,6 +102,20 @@ int user_post_reply_event_handler(const int devid, const int msgid, const int co
     return 0;
 }
 
+static int user_ntp_response_event_handler(const char *utc)
+{
+    EXAMPLE_TRACE("Current UTC: %s", utc);
+
+    return 0;
+}
+
+static int user_initialized(const int devid)
+{
+    EXAMPLE_TRACE("Device Initialized, Devid: %d", devid);
+
+    return 0;
+}
+
 static iotx_linkkit_event_handler_t user_event_handler = {
     .connected =       user_connected_event_handler,
     .disconnected =    user_disconnected_event_handler,
@@ -109,6 +123,8 @@ static iotx_linkkit_event_handler_t user_event_handler = {
     .service_request = user_service_request_event_handler,
     .property_set =    user_property_set_event_handler,
     .post_reply =      user_post_reply_event_handler,
+    .ntp_response =    user_ntp_response_event_handler,
+    .initialized =     user_initialized
 };
 
 static uint64_t user_update_sec(void)

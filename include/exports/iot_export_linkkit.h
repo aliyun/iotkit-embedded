@@ -99,6 +99,16 @@ typedef struct {
      *
      */
     int (* post_reply)(const int devid, const int msgid, const int code, const char *payload, const int payload_len);
+
+    /**
+     * @brief UTC timestamp from cloud
+     *
+     * @param utc. UTC timestamp
+     *
+     * @return service request success: 0, fail: -1.
+     *
+     */
+    int (* ntp_response)(const char *utc);
     int (* permit_join)(void);
     int (* initialized)(const int devid);
 } iotx_linkkit_event_handler_t;

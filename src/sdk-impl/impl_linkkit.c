@@ -17,6 +17,7 @@
 #define IOTX_LINKKIT_KEY_SIGN_METHOD "signMethod"
 #define IOTX_LINKKIT_KEY_URL         "url"
 #define IOTX_LINKKIT_KEY_VERSION     "version"
+#define IOTX_LINKKIT_KEY_UTC         "utc"
 
 typedef struct {
     void *mutex;
@@ -67,6 +68,30 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_CLOUD_DISCONNECT: {
             if (ctx->user_event_handler->disconnected) {
                 ctx->user_event_handler->disconnected();
+            }
+        }
+        break;
+        case IOTX_DM_EVENT_REGISTER_COMPLETED: {
+            int res = 0;
+            lite_cjson_t lite, lite_item_devid;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse Devid */
+            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID), &lite_item_devid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+
+            if (ctx->user_event_handler->initialized) {
+                ctx->user_event_handler->initialized(lite_item_devid.value_int);
             }
         }
         break;
@@ -291,6 +316,41 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             }
 
             HAL_Free(user_payload);
+        }
+        break;
+        case IOTX_DM_EVENT_NTP_RESPONSE: {
+            int res = 0;
+            char *utc_payload = NULL;
+            lite_cjson_t lite, lite_item_utc;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse Utc */
+            memset(&lite_item_utc, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_UTC, strlen(IOTX_LINKKIT_KEY_UTC), &lite_item_utc);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current UTC: %.*s", lite_item_utc.value_length, lite_item_utc.value);
+
+            utc_payload = HAL_Malloc(lite_item_utc.value_length + 1);
+            if (utc_payload == NULL) {
+                sdk_err("Not Enough Memory");
+                return;
+            }
+            memset(utc_payload, 0, lite_item_utc.value_length + 1);
+            memcpy(utc_payload, lite_item_utc.value, lite_item_utc.value_length);
+
+            if (ctx->user_event_handler->ntp_response) {
+                ctx->user_event_handler->ntp_response(utc_payload);
+            }
+
+            HAL_Free(utc_payload);
         }
         break;
         default: {

@@ -2310,9 +2310,11 @@ int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
     return SUCCESS_RETURN;
 }
 
+const char DM_MSG_THING_NTP_RESPONSE_FMT[] DM_READ_ONLY = "{\"utc\":\"%.*s\"}";
 int dm_msg_ntp_response(char *payload, int payload_len)
 {
-    int res = 0;
+    int res = 0, message_len = 0;
+    char *message = NULL;
     uint64_t utc = 0;
     lite_cjson_t lite, lite_item_server_send_time;
     const char *serverSendTime = "serverSendTime";
@@ -2342,6 +2344,24 @@ int dm_msg_ntp_response(char *payload, int payload_len)
     dm_log_debug("NTP Time In Number: %lld", utc);
 
     HAL_UTC_Set(utc);
+
+    /* Send Message To User */
+    message_len = strlen(DM_MSG_THING_NTP_RESPONSE_FMT) + DM_UTILS_UINT32_STRLEN + lite_item_server_send_time.value_length +
+                  1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        return FAIL_RETURN;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_THING_NTP_RESPONSE_FMT, lite_item_server_send_time.value_length,
+                 lite_item_server_send_time.value);
+
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_NTP_RESPONSE, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
+        return FAIL_RETURN;
+    }
 
     return SUCCESS_RETURN;
 }
