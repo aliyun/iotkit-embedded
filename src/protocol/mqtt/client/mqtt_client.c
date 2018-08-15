@@ -588,7 +588,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
 
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, topicFilter);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
     if ((len = MQTTSerialize_unsubscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1,
                                          &topic)) <= 0) {
         LITE_free(handler->topic_filter);
