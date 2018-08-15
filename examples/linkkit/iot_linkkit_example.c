@@ -2,10 +2,10 @@
 #include "iot_export_linkkit.h"
 #include "cJSON.h"
 
-#define PRODUCT_KEY     "a1X2bEnP82z"
+#define PRODUCT_KEY     "a13Npv1vjZ4"
 #define PRODUCT_SECRET  "9MQCVFRsNcWTg7ak"
 #define DEVICE_NAME     "example_zc"
-#define DEVICE_SECRET   "XZvZ1295n3mzGFYWHUnjy1xkdHb919C8"
+#define DEVICE_SECRET   "ZlexLJ4G0aXiSwkGmUFWuZBLLySKcG8h"
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
@@ -128,9 +128,15 @@ int main(int argc, char *argv[])
     uint64_t time_prev_sec = 0, time_now_sec = 0;
     iotx_linkkit_dev_meta_info_t master_meta_info;
 
-    /* Example Event Post */
+    /* Event Post Example */
     char *event_id = "Error";
     char *event_payload = "{\"ErrorCode\":0}";
+
+    /* Device Info Update Example */
+    char *device_info_update = "[{\"attrKey\":\"abc\",\"attrValue\":\"hello,world\"}]";
+
+    /* Device Info Delete Example */
+    char *device_info_delete = "[{\"attrKey\":\"abc\"}]";
 
     IOT_OpenLog("iot_linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -157,7 +163,7 @@ int main(int argc, char *argv[])
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
     /* Choose Whether You Need Post Property Reply */
-    int post_property_reply = 1;
+    int post_property_reply = 0;
     IOT_Linkkit_Ioctl(master_devid, IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY, (void *)&post_property_reply);
 
     /* Choose Whether You Need Post Event Reply */
@@ -179,10 +185,22 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        if (time_now_sec % 20 == 0) {
+        if (time_now_sec % 11 == 0) {
             res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_EVENT, event_id, strlen(event_id),
                                    (unsigned char *)event_payload, strlen(event_payload));
             EXAMPLE_TRACE("Post Event Message ID: %d", res);
+        }
+
+        if (time_now_sec % 13 == 0) {
+            res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE, event_id, strlen(event_id),
+                                   (unsigned char *)device_info_update, strlen(device_info_update));
+            EXAMPLE_TRACE("Device Info Update Result: %d", res);
+        }
+
+        if (time_now_sec % 17 == 0) {
+            res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_DELETE, event_id, strlen(event_id),
+                                   (unsigned char *)device_info_delete, strlen(device_info_delete));
+            EXAMPLE_TRACE("Device Info Update Result: %d", res);
         }
 
         time_prev_sec = time_now_sec;

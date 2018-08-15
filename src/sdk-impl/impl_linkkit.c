@@ -185,7 +185,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             HAL_Free(property_payload);
         }
         break;
-        case IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY: {
+        case IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY:
+        case IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY:
+        case IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY: {
             int res = 0;
             lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
 
@@ -521,6 +523,14 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
             } else {
                 res = iotx_dm_post_event(devid, identifier, identifier_len, (char *)payload, payload_len);
             }
+        }
+        break;
+        case IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE: {
+            res = iotx_dm_deviceinfo_update(devid, (char *)payload, payload_len);
+        }
+        break;
+        case IOTX_LINKKIT_MSG_DEVICEINFO_DELETE: {
+            res = iotx_dm_deviceinfo_delete(devid, (char *)payload, payload_len);
         }
         break;
         default: {

@@ -21,6 +21,22 @@ typedef enum {
     IOTX_LINKKIT_CMD_MAX
 } iotx_linkkit_ioctl_cmd_t;
 
+typedef enum {
+    /* post property value to cloud */
+    IOTX_LINKKIT_MSG_POST_PROPERTY,
+
+    /* post event output value to cloud , need fill event identifier in IOT_Linkkit_Post */
+    IOTX_LINKKIT_MSG_POST_EVENT,
+
+    /* post device info update message to cloud */
+    IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE,
+
+    /*  post device info delete message to cloud */
+    IOTX_LINKKIT_MSG_DEVICEINFO_DELETE,
+
+    IOT_LINKKIT_MSG_MAX
+} iotx_linkkit_msg_type_t;
+
 typedef struct {
     /**
      * @brief connected cloud event
@@ -86,16 +102,6 @@ typedef struct {
     int (* permit_join)(void);
     int (* initialized)(const int devid);
 } iotx_linkkit_event_handler_t;
-
-typedef enum {
-    /* post property value to cloud */
-    IOTX_LINKKIT_MSG_POST_PROPERTY,
-
-    /* post event output value to cloud , need fill event identifier in IOT_Linkkit_Post */
-    IOTX_LINKKIT_MSG_POST_EVENT,
-
-    IOT_LINKKIT_MSG_MAX
-} iotx_linkkit_msg_type_t;
 
 /**
  * @brief create a new device
@@ -184,7 +190,7 @@ int IOT_Linkkit_Logout(int devid);
  * @param payload. message payload.
  * @param payload_len. message payload length.
  *
- * @return success: message id (>1), fail: -1.
+ * @return success: 0 or message id (>1), fail: -1.
  *
  */
 int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifier, int identifier_len,
