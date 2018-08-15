@@ -100,6 +100,9 @@ ADD_EXECUTABLE (linkkit-example-solo
 ADD_EXECUTABLE (linkkit-example-sched
     linkkit/linkkit_example_sched.c
 )
+ADD_EXECUTABLE (linkkit-example-countdown
+    linkkit/linkkit_example_countdown.c
+)
 
 TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
 TARGET_LINK_LIBRARIES (mqtt-example iot_hal)
@@ -165,3 +168,10 @@ TARGET_LINK_LIBRARIES (linkkit-example-sched pthread)
 ENDIF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit-example-sched rt)
 
+TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_sdk)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_hal)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_tls)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown pthread)
+ENDIF (NOT MSVC)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown rt)
