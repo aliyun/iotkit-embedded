@@ -16,13 +16,14 @@
  *
  */
 
-
-
 #ifndef __IOT_EXPORT_H__
 #define __IOT_EXPORT_H__
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+#undef  deprecated
+#define deprecated
 
 #include <stdint.h>
 
