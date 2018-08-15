@@ -1889,7 +1889,7 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
 	
 	if (node->dev_status >= IOTX_DM_DEV_STATUS_LOGINED) {
 		dm_log_info("Device %d Already Login");
-		return FAIL_RETURN;
+		return SUCCESS_RETURN;
 	}
 	memset(&request,0,sizeof(dm_msg_request_t));
 	request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;

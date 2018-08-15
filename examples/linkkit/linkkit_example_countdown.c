@@ -670,12 +670,6 @@ int main(int argc, char **argv)
 
     APP_TRACE("start!\n");
 
-#if (0)
-    HAL_SetProductKey("a1IB32GfUmQ");
-    HAL_SetDeviceName("CountDown1");
-    HAL_SetDeviceSecret("apTvgNuH7W5vPmsEqwdZ8z6vLEQKovXF");
-#endif
-
     HAL_SetProductKey("a1ikrQdGiG8");
     HAL_SetDeviceName("CountDown1");
     HAL_SetDeviceSecret("kjr4EItbk13LIRYlvtYSIR6UTSXwWzif");
