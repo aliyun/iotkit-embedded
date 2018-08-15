@@ -210,6 +210,100 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             HAL_Free(property_payload);
         }
         break;
+        case IOTX_DM_EVENT_MODEL_DOWN_RAW: {
+            int res = 0, raw_data_len = 0;
+            unsigned char *raw_data = NULL;
+            lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse Devid */
+            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID),
+                                         &lite_item_devid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+
+            /* Parse Raw Data */
+            memset(&lite_item_rawdata, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_PAYLOAD, strlen(IOTX_LINKKIT_KEY_PAYLOAD),
+                                         &lite_item_rawdata);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Raw Data: %.*s", lite_item_rawdata.value_length, lite_item_rawdata.value);
+
+            raw_data_len = lite_item_rawdata.value_length / 2;
+            raw_data = HAL_Malloc(raw_data_len);
+            if (raw_data == NULL) {
+                sdk_err("No Enough Memory");
+                return;
+            }
+            LITE_hexstr_convert(lite_item_rawdata.value, lite_item_rawdata.value_length, raw_data, raw_data_len);
+
+            HEXDUMP_DEBUG(raw_data, raw_data_len);
+
+            if (ctx->user_event_handler->down_raw) {
+                ctx->user_event_handler->down_raw(lite_item_devid.value_int, raw_data, raw_data_len);
+            }
+
+            HAL_Free(raw_data);
+        }
+        break;
+        case IOTX_DM_EVENT_MODEL_UP_RAW_REPLY: {
+            int res = 0, raw_data_len = 0;
+            unsigned char *raw_data = NULL;
+            lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse Devid */
+            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID),
+                                         &lite_item_devid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+
+            /* Parse Raw Data */
+            memset(&lite_item_rawdata, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_PAYLOAD, strlen(IOTX_LINKKIT_KEY_PAYLOAD),
+                                         &lite_item_rawdata);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Raw Data: %.*s", lite_item_rawdata.value_length, lite_item_rawdata.value);
+
+            raw_data_len = lite_item_rawdata.value_length / 2;
+            raw_data = HAL_Malloc(raw_data_len);
+            if (raw_data == NULL) {
+                sdk_err("No Enough Memory");
+                return;
+            }
+            LITE_hexstr_convert(lite_item_rawdata.value, lite_item_rawdata.value_length, raw_data, raw_data_len);
+
+            HEXDUMP_DEBUG(raw_data, raw_data_len);
+
+            if (ctx->user_event_handler->up_raw_reply) {
+                ctx->user_event_handler->up_raw_reply(lite_item_devid.value_int, raw_data, raw_data_len);
+            }
+
+            HAL_Free(raw_data);
+        }
+        break;
         case IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY:
         case IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY:
         case IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY: {
@@ -591,6 +685,10 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
         break;
         case IOTX_LINKKIT_MSG_DEVICEINFO_DELETE: {
             res = iotx_dm_deviceinfo_delete(devid, (char *)payload, payload_len);
+        }
+        break;
+        case IOTX_LINKKIT_MSG_POST_RAW_DATA: {
+            res = iotx_dm_post_rawdata(devid, (char *)payload, payload_len);
         }
         break;
         default: {

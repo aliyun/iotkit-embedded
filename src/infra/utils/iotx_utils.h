@@ -123,7 +123,7 @@ char       *LITE_strdup(const char *src, ...);
 char       *LITE_format_string(const char *fmt, ...);
 char       *LITE_format_nstring(const int len, const char *fmt, ...);
 void        LITE_hexbuf_convert(unsigned char *digest, char *out, int buflen, int uppercase);
-void        LITE_hexstr_convert(char *hexstr, uint8_t *out_buf, int len);
+void        LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len);
 void        LITE_replace_substr(char orig[], char key[], char swap[]);
 
 void        LITE_dump_malloc_free_stats(int level);

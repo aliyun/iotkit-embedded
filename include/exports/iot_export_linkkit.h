@@ -31,8 +31,11 @@ typedef enum {
     /* post device info update message to cloud */
     IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE,
 
-    /*  post device info delete message to cloud */
+    /* post device info delete message to cloud */
     IOTX_LINKKIT_MSG_DEVICEINFO_DELETE,
+
+    /* post raw data to cloud */
+    IOTX_LINKKIT_MSG_POST_RAW_DATA,
 
     IOT_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
@@ -54,7 +57,30 @@ typedef struct {
      */
     int (* disconnected)(void);
 
+    /**
+     * @brief raw data received from cloud
+     *
+     * @param devid. device identifier
+     * @param payload. raw data payload
+     * @param payload_len. length of raw data payload
+     *
+     * @return service request success: 0, fail: -1.
+     *
+     */
     int (* down_raw)(const int devid, const unsigned char *payload, const int payload_len);
+
+    /**
+     * @brief post raw data reply from cloud
+     *
+     * @param devid. device identifier
+     * @param payload. raw data payload
+     * @param payload_len. length of raw data payload
+     *
+     * @return service request success: 0, fail: -1.
+     *
+     */
+    int (* up_raw_reply)(const int devid, const unsigned char *payload, const int payload_len);
+
     /**
      * @brief service request message from cloud
      *

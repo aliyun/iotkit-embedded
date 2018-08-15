@@ -148,20 +148,20 @@ static uint8_t _hexval_of_char(char hex)
     return 0;
 }
 
-void LITE_hexstr_convert(char *hexstr, uint8_t *out_buf, int in_len)
+void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len)
 {
     int             i = 0;
     uint8_t         ch0, ch1;
 
-    if (in_len % 2 != 0) {
-        utils_err("hexstr length (%d) is not even", in_len);
+    if (input_len % 2 != 0) {
+        utils_err("hexstr length (%d) is not even", input_len);
         return;
     }
 
-    while (i < in_len / 2) {
-        ch0 = _hexval_of_char((char)hexstr[2 * i]);
-        ch1 = _hexval_of_char((char)hexstr[2 * i + 1]);
-        out_buf[i] = (ch0 << 4 | ch1);
+    while (i < input_len / 2 && i < output_len) {
+        ch0 = _hexval_of_char((char)input[2 * i]);
+        ch1 = _hexval_of_char((char)input[2 * i + 1]);
+        output[i] = (ch0 << 4 | ch1);
         i++;
     }
 }

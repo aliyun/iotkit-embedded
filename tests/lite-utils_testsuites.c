@@ -31,7 +31,7 @@ int unittest_string_utils(void)
     LITE_hexbuf_convert(hexbuf, hexstr, sizeof(hexbuf), 1);
     ut_info("hexstr = '%s'", hexstr);
 
-    LITE_hexstr_convert(hexstr, outbuf, strlen(hexstr));
+    LITE_hexstr_convert(hexstr, strlen(hexstr), outbuf, 10);
     HEXDUMP_INFO(outbuf, sizeof(outbuf));
 
 #define UNITTEST_STRING_FORMAT      "Integer: %d, String: '%s', Char: %c, Hex: %04x"
