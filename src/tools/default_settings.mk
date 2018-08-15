@@ -8,10 +8,22 @@ endif
 
 FEATURE_MQTT_SHADOW             ?= n
 FEATURE_COAP_DTLS_SUPPORT       ?= $(FEATURE_COAP_COMM_ENABLED)
+FEATURE_ALCS_ENABLED            ?= y
 FEATURE_OTA_ENABLED             ?= y
 FEATURE_OTA_FETCH_CHANNEL       ?= HTTP
 FEATURE_OTA_SIGNAL_CHANNEL      ?= MQTT
 FEATURE_MQTT_COMM_ENABLED       ?= n
+FEATURE_HTTP_COMM_ENABLED       ?= n
+FEATURE_HTTP2_COMM_ENABLED      ?= n
+FEATURE_SUBDEVICE_ENABLED       ?= n
+
+## FEATURE_COAP_COMM_ENABLED
+##
+## Brief:   Establish non-persistent connection with AliCloud via CoAP-based protocol
+## Usage:   Switching to "y" leads to building CoAP related implementation into SDK and COAP_COMM_ENABLED included into CFLAGS
+##          Switching to "n" leads to keeping CoAP-based cloud connection implementations out of SDK
+##
+FEATURE_COAP_COMM_ENABLED       ?= n
 
 CONFIG_LIB_EXPORT               ?= static
 
@@ -29,7 +41,7 @@ CFLAGS  += -DFORCE_SSL_VERIFY
 CFLAGS  += \
     -DCOAP_OBSERVE_SERVER_SUPPORTED \
     -DCOAP_OBSERVE_CLIENT_SUPPORTED \
-	-DCOAP_SERV_MULTITHREAD \
+    -DCOAP_SERV_MULTITHREAD \
     -DCOAP_USE_PLATFORM_MEMORY -DCOAP_USE_PLATFORM_LOG \
 
 #
@@ -41,13 +53,13 @@ EXTRA_INSTALL_HDRS  := \
     $(EXPORT_DIR)/imports \
     $(EXPORT_DIR)/exports \
 
-EXTRA_INCLUDE_DIRS	:= \
-	$(EXPORT_DIR) \
-	src/ref-impl/tls \
-	src/security/pro \
-	src/tools/linkkit_tsl_convert/include \
-	build-rules \
-	src/ref-impl/hal \
+EXTRA_INCLUDE_DIRS  := \
+    $(EXPORT_DIR) \
+    src/ref-impl/tls \
+    src/security/pro \
+    src/tools/linkkit_tsl_convert/include \
+    build-rules \
+    src/ref-impl/hal \
 
 WIN32_CMAKE_SKIP    := \
     linkkit_tsl_convert \
