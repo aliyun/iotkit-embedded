@@ -241,32 +241,32 @@ int main(int argc, char *argv[])
         if (time == 10000) {
             int res = 0;
             void *handle = NULL;
-            res = iotx_dm_post_property_start(devid, &handle);
+            res = iotx_dm_deprecated_post_property_start(devid, &handle);
             if (res != SUCCESS_RETURN) {
-                dm_log_debug("iotx_dm_post_property_start Error");
+                dm_log_debug("iotx_dm_deprecated_post_property_start Error");
             }
 
 #if 1
-            res = iotx_dm_post_property_add(handle, "WorkPlans");
+            res = iotx_dm_deprecated_post_property_add(handle, "WorkPlans");
             if (res != SUCCESS_RETURN) {
-                dm_log_debug("iotx_dm_post_property_add Error");
+                dm_log_debug("iotx_dm_deprecated_post_property_add Error");
             }
 #endif
 #if 0
-            res = iotx_dm_post_property_add(handle, "WaterReplace");
+            res = iotx_dm_deprecated_post_property_add(handle, "WaterReplace");
             if (res != SUCCESS_RETURN) {
-                dm_log_debug("iotx_dm_post_property_add Error");
+                dm_log_debug("iotx_dm_deprecated_post_property_add Error");
             }
 
-            res = iotx_dm_post_property_add(handle, IOTX_DM_POST_PROPERTY_ALL);
+            res = iotx_dm_deprecated_post_property_add(handle, IOTX_DM_POST_PROPERTY_ALL);
             if (res != SUCCESS_RETURN) {
-                dm_log_debug("iotx_dm_post_property_add Error");
+                dm_log_debug("iotx_dm_deprecated_post_property_add Error");
             }
 #endif
-            res = iotx_dm_post_property_end(&handle);
+            res = iotx_dm_deprecated_post_property_end(&handle);
 
             if (res != SUCCESS_RETURN) {
-                dm_log_debug("iotx_dm_post_property_end Error");
+                dm_log_debug("iotx_dm_deprecated_post_property_end Error");
             }
         }
 #endif

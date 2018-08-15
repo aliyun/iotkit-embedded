@@ -9,12 +9,14 @@
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
-#define EXAMPLE_TRACE(fmt, ...)  \
-    do { \
-        HAL_Printf("%s|%03d: ", __func__, __LINE__); \
-        HAL_Printf(fmt, ##__VA_ARGS__); \
-        HAL_Printf("%s", "\r\n"); \
-    } while(0)
+#define EXAMPLE_TRACE(...)                               \
+    do {                                                     \
+        HAL_Printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
+        HAL_Printf(__VA_ARGS__);                                 \
+        HAL_Printf("\033[0m\n\n");                                   \
+    } while (0)
+
+static int master_devid = 0;
 
 static int user_connected_event_handler(void)
 {
@@ -79,7 +81,12 @@ int user_service_request_event_handler(const int devid, const char *serviceid, c
 
 int user_property_set_event_handler(const int devid, const char *payload, const int payload_len)
 {
-    EXAMPLE_TRACE("Property Set Received, Devid: %d, Payload: %.*s", devid, payload_len, payload);
+    int res = 0;
+    EXAMPLE_TRACE("Property Set Received, Devid: %d, Payload: %s", devid, payload);
+
+    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, payload_len);
+    EXAMPLE_TRACE("Post Property Message ID: %d", res);
+
     return 0;
 }
 
@@ -89,7 +96,7 @@ int user_post_reply_event_handler(const int devid, const int msgid, const int co
     const char *reply = (payload == NULL) ? ("NULL") : (payload);
     const int reply_len = (payload_len == 0) ? (strlen("NULL")) : (payload_len);
 
-    EXAMPLE_TRACE("Property Reply Received, Devid: %d, Message ID: %d, Code: %d, Payload: %.*s", devid, msgid, code,
+    EXAMPLE_TRACE("Message Post Reply Received, Devid: %d, Message ID: %d, Code: %d, Payload: %.*s", devid, msgid, code,
                   reply_len,
                   reply);
     return 0;
@@ -117,7 +124,7 @@ static uint64_t user_update_sec(void)
 
 int main(int argc, char *argv[])
 {
-    int res = 0, master_devid = 0;
+    int res = 0;
     uint64_t time_prev_sec = 0, time_now_sec = 0;
     iotx_linkkit_dev_meta_info_t master_meta_info;
 
@@ -148,6 +155,10 @@ int main(int argc, char *argv[])
     /* Choose Login Method */
     int dynamic_register = 0;
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
+
+    /* Choose Whether You Need Post Property Reply */
+    int post_property_reply = 1;
+    IOT_Linkkit_Ioctl(master_devid, IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY, (void *)&post_property_reply);
 
     /* Choose Whether You Need Post Event Reply */
     int post_event_reply = 0;

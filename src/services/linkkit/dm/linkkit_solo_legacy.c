@@ -1156,7 +1156,7 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
         return FAIL_RETURN;
     }
 
-    res = iotx_dm_post_property_start(devid, &property_handle);
+    res = iotx_dm_deprecated_post_property_start(devid, &property_handle);
     if (res != SUCCESS_RETURN) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         _linkkit_solo_mutex_unlock();
@@ -1164,14 +1164,14 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
     }
 
     property_identifier_len = (property_identifier) ? (strlen((char *)property_identifier)) : (0);
-    res = iotx_dm_post_property_add(property_handle, (char *)property_identifier, property_identifier_len);
+    res = iotx_dm_deprecated_post_property_add(property_handle, (char *)property_identifier, property_identifier_len);
     if (res != SUCCESS_RETURN) {
-        iotx_dm_post_property_end(&property_handle);
+        iotx_dm_deprecated_post_property_end(&property_handle);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
 
-    res = iotx_dm_post_property_end(&property_handle);
+    res = iotx_dm_deprecated_post_property_end(&property_handle);
     if (res < SUCCESS_RETURN) {
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;

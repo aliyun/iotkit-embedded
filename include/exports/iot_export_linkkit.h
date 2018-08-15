@@ -22,8 +22,22 @@ typedef enum {
 } iotx_linkkit_ioctl_cmd_t;
 
 typedef struct {
+    /**
+     * @brief connected cloud event
+     *
+     * @return service request success: 0, fail: -1.
+     *
+     */
     int (* connected)(void);
+
+    /**
+     * @brief disconnected cloud event
+     *
+     * @return service request success: 0, fail: -1.
+     *
+     */
     int (* disconnected)(void);
+
     int (* down_raw)(const int devid, const unsigned char *payload, const int payload_len);
     /**
      * @brief service request message from cloud
@@ -43,7 +57,31 @@ typedef struct {
     int (* service_request)(const int devid, const char *serviceid, const int serviceid_len, const char *request,
                             const int request_len,
                             char **response, int *response_len, int *respones_sync);
+
+    /**
+     * @brief property set message from cloud
+     *
+     * @param devid. device identifier
+     * @param payload. property set payload
+     * @param payload_len. length of property set payload
+     *
+     * @return service request success: 0, fail: -1.
+     *
+     */
     int (* property_set)(const int devid, const char *payload, const int payload_len);
+
+    /**
+     * @brief reply message from cloud
+     *
+     * @param devid. device identifier
+     * @param msgid. message id, same with return value of IOT_Linkkit_Post
+     * @param code. reply code from cloud, success: 200
+     * @param payload. reply payload, it's different from different message
+     * @param payload_len. length of reply payload
+     *
+     * @return service request success: 0, fail: -1.
+     *
+     */
     int (* post_reply)(const int devid, const int msgid, const int code, const char *payload, const int payload_len);
     int (* permit_join)(void);
     int (* initialized)(const int devid);

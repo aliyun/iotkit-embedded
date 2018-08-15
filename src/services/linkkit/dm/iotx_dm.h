@@ -165,12 +165,12 @@ int iotx_dm_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int ke
                                      _IN_ int value_len);
 int iotx_dm_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
-int iotx_dm_post_property_start(_IN_ int devid, _OU_ void **handle);
-int iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len);
-int iotx_dm_post_property_end(_IN_ void **handle);
+int iotx_dm_deprecated_post_property_start(_IN_ int devid, _OU_ void **handle);
+int iotx_dm_deprecated_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len);
+int iotx_dm_deprecated_post_property_end(_IN_ void **handle);
 int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len);
 
-int iotx_dm_post_property_direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
                        _IN_ int payload_len);
 

@@ -2032,7 +2032,7 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
     }
 
     if (timeout_ms == 0 || property_reply_value == 0) {
-        res = iotx_dm_post_property_direct(devid, property, strlen(property));
+        res = iotx_dm_post_property(devid, property, strlen(property));
         if (res < SUCCESS_RETURN) {
             _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
@@ -2042,7 +2042,7 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
         }
     }
 
-    res = iotx_dm_post_property_direct(devid, property, strlen(property));
+    res = iotx_dm_post_property(devid, property, strlen(property));
     if (res < SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
@@ -2111,7 +2111,7 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
     }
 
     if (timeout_ms == 0 || property_reply_value == 0) {
-        res = iotx_dm_post_property_direct(devid, property, strlen(property));
+        res = iotx_dm_post_property(devid, property, strlen(property));
         if (res < SUCCESS_RETURN) {
             _linkkit_gateway_mutex_unlock();
             return FAIL_RETURN;
@@ -2121,7 +2121,7 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
         }
     }
 
-    res = iotx_dm_post_property_direct(devid, property, strlen(property));
+    res = iotx_dm_post_property(devid, property, strlen(property));
     if (res < SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;

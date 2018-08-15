@@ -476,7 +476,7 @@ int iotx_dm_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int ke
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_post_property_start(_IN_ int devid, _OU_ void **handle)
+int iotx_dm_deprecated_post_property_start(_IN_ int devid, _OU_ void **handle)
 {
     dm_api_property_t *dapi_property = NULL;
 
@@ -522,7 +522,7 @@ int iotx_dm_post_property_start(_IN_ int devid, _OU_ void **handle)
     return SUCCESS_RETURN;
 }
 
-static int _iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
+static int _iotx_dm_deprecated_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
 {
     int res = 0;
     dm_api_property_t *dapi_property = NULL;
@@ -543,7 +543,7 @@ static int _iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, 
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
+int iotx_dm_deprecated_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
 {
     int ret = SUCCESS_RETURN, res = 0, index = 0, number = 0;
     void *property_refer = NULL;
@@ -563,7 +563,7 @@ int iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int
             _dm_api_unlock();
             return FAIL_RETURN;
         }
-        ret = _iotx_dm_post_property_add(handle, identifier, identifier_len);
+        ret = _iotx_dm_deprecated_post_property_add(handle, identifier, identifier_len);
 
         _dm_api_unlock();
         return ret;
@@ -589,7 +589,7 @@ int iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int
             continue;
         }
 
-        res = _iotx_dm_post_property_add(handle, identifier_refer, strlen(identifier_refer));
+        res = _iotx_dm_deprecated_post_property_add(handle, identifier_refer, strlen(identifier_refer));
         if (res != SUCCESS_RETURN) {
             ret = FAIL_RETURN;
         }
@@ -599,7 +599,7 @@ int iotx_dm_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int
     return ret;
 }
 
-int iotx_dm_post_property_end(_IN_ void **handle)
+int iotx_dm_deprecated_post_property_end(_IN_ void **handle)
 {
     int res = 0;
     char *payload = NULL;
@@ -704,7 +704,7 @@ int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ in
     return res;
 }
 
-int iotx_dm_post_property_direct(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0;
 
