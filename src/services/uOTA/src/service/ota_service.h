@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#define UOTA_VERSION   "0.0.1"
+#define UOTA_VERSION   "0.0.2"
 
 #ifndef OTA_SERVICE_H_
 #define OTA_SERVICE_H_
@@ -25,9 +25,9 @@ typedef struct {
     char  dn[DEVICE_NAME_MAXLEN + 1];/*Device name*/
     char  ds[DEVICE_SECRET_MAXLEN + 1];/*Device secret*/
     char  uuid[64];
-    int   trans_protcol;  /*default:0--> MQTT 1-->COAP 2-->HTTP*/
-    int   dl_protcol;    /*default:3--> HTTPS 1-->COAP 2-->HTTP*/
-    int   sign_type;     /*default:0--> sha256 1--> md5 2-->RSA*/ 
+    int   trans_protcol;  /*default:0--> MQTT 1-->COAP*/
+    int   dl_protcol;     /*default:3--> HTTPS 1-->COAP 2-->HTTP*/
+    int   sign_type;      /*default:0--> sha256 1--> md5 2-->RSA*/ 
     int   firm_size;
     char* dl_url;         /*Dowdload URL*/
     void* h_coap;
