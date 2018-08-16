@@ -2320,7 +2320,7 @@ int dm_mgr_upstream_ntp_request(void)
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
+int dm_mgr_deprecated_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
         _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0, service_name_len = 0;
@@ -2377,19 +2377,20 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ int msgid, _IN_ 
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_upstream_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
+int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
+        _IN_ iotx_dm_error_code_t code,
         _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0, service_name_len = 0;
     dm_mgr_dev_node_t *node = NULL;
-    char *msgid_str = NULL, *service_name = NULL;
+    char *service_name = NULL;
     dm_msg_request_payload_t request;
     dm_msg_response_t response;
 
     memset(&request, 0, sizeof(dm_msg_request_payload_t));
     memset(&response, 0, sizeof(dm_msg_response_t));
 
-    if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0 ||
+    if (devid < 0 || msgid == NULL || msgid_len <= 0 || identifier == NULL || identifier_len <= 0 ||
         payload == NULL || payload_len <= 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
@@ -2400,30 +2401,21 @@ int dm_mgr_upstream_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _I
         return FAIL_RETURN;
     }
 
-    /* Response Msg ID */
-    res = dm_utils_itoa(msgid, &msgid_str);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-    request.id.value = msgid_str;
-    request.id.value_length = strlen(msgid_str);
+    request.id.value = msgid;
+    request.id.value_length = msgid_len;
 
     /* Service Name */
-    service_name_len = strlen(DM_DISP_RRPC_RESPONSE_OLD_VERSION) + strlen(node->product_key) + strlen(
-                                   node->device_name) + DM_UTILS_UINT32_STRLEN + 1;
+    service_name_len = strlen(DM_DISP_THING_SERVICE_RESPONSE) + identifier_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
-        DM_free(msgid_str);
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         return FAIL_RETURN;
     }
     memset(service_name, 0, service_name_len);
-    HAL_Snprintf(service_name, service_name_len, DM_DISP_RRPC_RESPONSE_OLD_VERSION, strlen(node->product_key),
-                 node->product_key,
-                 strlen(node->device_name), node->device_name, msgid);
+    HAL_Snprintf(service_name, service_name_len, DM_DISP_THING_SERVICE_RESPONSE, identifier_len, identifier);
 
     /* Response */
-    response.service_prefix = NULL;
+    response.service_prefix = DM_DISP_SYS_PREFIX;
     response.service_name = service_name;
     memcpy(response.product_key, node->product_key, strlen(node->product_key));
     memcpy(response.device_name, node->device_name, strlen(node->device_name));
@@ -2432,25 +2424,25 @@ int dm_mgr_upstream_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _I
     dm_log_debug("Current Service Name: %s", service_name);
     dm_msg_response_with_data(&request, &response, payload, payload_len);
 
-    DM_free(msgid_str);
     DM_free(service_name);
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_upstream_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
+                                  _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0, service_name_len = 0;
+    const char *rrpc_response_service_name = "rrpc/response/%.*s";
     dm_mgr_dev_node_t *node = NULL;
-    char *msgid_str = NULL, *service_name = NULL;
+    char *service_name = NULL;
     dm_msg_request_payload_t request;
     dm_msg_response_t response;
 
     memset(&request, 0, sizeof(dm_msg_request_payload_t));
     memset(&response, 0, sizeof(dm_msg_response_t));
 
-    if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0 ||
-        payload == NULL || payload_len <= 0) {
+    if (devid < 0 || msgid == NULL || msgid_len <= 0 ||
+        rrpcid == NULL || rrpcid_len <= 0 || payload == NULL || payload_len <= 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
@@ -2461,29 +2453,21 @@ int dm_mgr_upstream_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _I
     }
 
     /* Response Msg ID */
-    res = dm_utils_itoa(msgid, &msgid_str);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-    request.id.value = msgid_str;
-    request.id.value_length = strlen(msgid_str);
+    request.id.value = msgid;
+    request.id.value_length = msgid_len;
 
     /* Service Name */
-    service_name_len = strlen(DM_DISP_RRPC_RESPONSE_NEW_VERSION) + DM_UTILS_UINT32_STRLEN + strlen(
-                                   node->product_key) + strlen(node->device_name) + identifier_len + 1;
+    service_name_len = strlen(rrpc_response_service_name) + rrpcid_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
-        DM_free(msgid_str);
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         return FAIL_RETURN;
     }
     memset(service_name, 0, service_name_len);
-    HAL_Snprintf(service_name, service_name_len, DM_DISP_RRPC_RESPONSE_NEW_VERSION, msgid, strlen(node->product_key),
-                 node->product_key,
-                 strlen(node->device_name), node->device_name, identifier_len, identifier);
+    HAL_Snprintf(service_name, service_name_len, rrpc_response_service_name, rrpcid_len, rrpcid);
 
     /* Response */
-    response.service_prefix = NULL;
+    response.service_prefix = DM_DISP_SYS_PREFIX;
     response.service_name = service_name;
     memcpy(response.product_key, node->product_key, strlen(node->product_key));
     memcpy(response.device_name, node->device_name, strlen(node->device_name));
@@ -2492,8 +2476,8 @@ int dm_mgr_upstream_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _I
     dm_log_debug("Current Service Name: %s", service_name);
     dm_msg_response_with_data(&request, &response, payload, payload_len);
 
-    DM_free(msgid_str);
     DM_free(service_name);
+
     return SUCCESS_RETURN;
 }
 

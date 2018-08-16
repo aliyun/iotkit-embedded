@@ -89,6 +89,7 @@ typedef enum {
     IOTX_DM_EVENT_COTA_NEW_CONFIG,
     IOTX_DM_EVENT_FOTA_NEW_FIRMWARE,
     IOTX_DM_EVENT_NTP_RESPONSE,
+    IOTX_DM_EVENT_RRPC_REQUEST,
     IOTX_DM_EVENT_MAX
 } iotx_dm_event_types_t;
 
@@ -153,9 +154,10 @@ int iotx_dm_get_opt(int opt, void *data);
 int iotx_dm_open(void);
 int iotx_dm_start(_IN_ iotx_dm_init_params_t *init_params);
 int iotx_dm_close(void);
-int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params);
-int iotx_dm_destroy(void);
-int iotx_dm_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len);
+int iotx_dm_deprecated_construct(_IN_ iotx_dm_init_params_t *init_params);
+int iotx_dm_deprecated_destroy(void);
+int iotx_dm_deprecated_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl,
+                               _IN_ int tsl_len);
 int iotx_dm_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
 int iotx_dm_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 int iotx_dm_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
@@ -179,7 +181,8 @@ int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN
         _IN_ char *identifier,
         _IN_ int identifier_len);
 
-int iotx_dm_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier,
+int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
+                                  _IN_ char *identifier,
                                   _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
 
 int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
@@ -231,10 +234,8 @@ int iotx_dm_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid);
 int iotx_dm_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name);
 int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
         _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
-int iotx_dm_legacy_send_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
-int iotx_dm_legacy_send_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
+                               _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_legacy_send_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 
 #endif

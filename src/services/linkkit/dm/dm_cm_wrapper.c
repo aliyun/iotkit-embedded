@@ -49,21 +49,33 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
                 dm_log_debug("Current Service Identifier: %.*s", identifier_end - identifier_start,
                              msg->URI + prefix_end + pkdn_end + identifier_start + 1);
                 dm_disp_thing_service_request(source, msg, msg->URI + prefix_end + pkdn_end + identifier_start + 1,
-                                               identifier_end - identifier_start, user_data);
+                                              identifier_end - identifier_start, user_data);
                 return;
             }
 
-            identifier_start = 0;
-            identifier_end = 0;
+            identifier_start = 0, identifier_end = 0;
             /* Check URI Match /sys/pk/dn/thing/event/{event_id}/post_reply */
             res = dm_disp_uri_event_specific_split(msg->URI + prefix_end + pkdn_end, pkdn_uri_end + 1, &identifier_start,
-                                                    &identifier_end);
+                                                   &identifier_end);
             if (res == SUCCESS_RETURN) {
                 dm_log_debug("identifier_start: %d, identifier_end: %d", identifier_start, identifier_end);
                 dm_log_debug("Current Event Identifier: %.*s", identifier_end - identifier_start - 1,
                              msg->URI + prefix_end + pkdn_end + identifier_start + 1);
                 dm_disp_thing_event_post_reply(source, msg, msg->URI + prefix_end + pkdn_end + identifier_start + 1,
-                                                identifier_end - identifier_start - 1, user_data);
+                                               identifier_end - identifier_start - 1, user_data);
+                return;
+            }
+
+            identifier_start = 0, identifier_end = 0;
+            /* Check URI Match /sys/pk/dn/rrpc/request/{message_id}} */
+            res = dm_disp_uri_rrpc_request_split(msg->URI + prefix_end + pkdn_end, pkdn_uri_end + 1, &identifier_start,
+                                                 &identifier_end);
+            if (res == SUCCESS_RETURN) {
+                dm_log_debug("identifier_start: %d, identifier_end: %d", identifier_start, identifier_end);
+                dm_log_debug("Current RRPC Request Message ID: %.*s", identifier_end - identifier_start,
+                             msg->URI + prefix_end + pkdn_end + identifier_start + 1);
+                dm_disp_rrpc_request(source, msg, msg->URI + prefix_end + pkdn_end + identifier_start + 1,
+                                     identifier_end - identifier_start, user_data);
                 return;
             }
         }
@@ -90,7 +102,7 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
         }
     }
 
-	prefix_end = 0, prefix_uri_end = 0;
+    prefix_end = 0, prefix_uri_end = 0;
     res = dm_disp_uri_prefix_ext_ntp_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
     if (res == SUCCESS_RETURN) {
         /* URI Start With /ext/ntp/ */
@@ -111,7 +123,7 @@ void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
         }
     }
 
-	prefix_end = 0, prefix_uri_end = 0;
+    prefix_end = 0, prefix_uri_end = 0;
     res = dm_disp_uri_prefix_ext_error_split(msg->URI, msg->URI_length, &prefix_end, &prefix_uri_end);
     if (res == SUCCESS_RETURN) {
         /* URI Start with /ext/error */
@@ -287,9 +299,11 @@ int dm_cmw_conn_get_prototol_handle(void *conn_handle, void **protocol_handle)
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
-    
+
     *protocol_handle = iotx_cm_get_protocol_handle(conn_handle);
-    if (*protocol_handle == NULL) {return FAIL_RETURN;}
+    if (*protocol_handle == NULL) {
+        return FAIL_RETURN;
+    }
 
     return SUCCESS_RETURN;
 }
@@ -502,8 +516,8 @@ int dm_cmw_send_to_local(char *uri, int uri_len, char *payload, int payload_len,
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         return FAIL_RETURN;
     }
-    memset(cm_uri,0,uri_len + 1);
-    memcpy(cm_uri,uri,uri_len);
+    memset(cm_uri, 0, uri_len + 1);
+    memcpy(cm_uri, uri, uri_len);
 
     cm_payload = DM_malloc(payload_len + 1);
     if (cm_payload == NULL) {
@@ -511,8 +525,8 @@ int dm_cmw_send_to_local(char *uri, int uri_len, char *payload, int payload_len,
         DM_free(cm_uri);
         return FAIL_RETURN;
     }
-    memset(cm_payload,0,payload_len + 1);
-    memcpy(cm_payload,payload,payload_len);
+    memset(cm_payload, 0, payload_len + 1);
+    memcpy(cm_payload, payload, payload_len);
 
     memset(&cm_message_info, 0, sizeof(iotx_cm_message_info_t));
     cm_message_info.ack_type = IOTX_CM_MESSAGE_NO_ACK;
@@ -525,12 +539,13 @@ int dm_cmw_send_to_local(char *uri, int uri_len, char *payload, int payload_len,
     res = iotx_cm_send(local_conn, NULL, &cm_message_info, NULL);
     dm_log_info(DM_UTILS_LOG_CM_SEND_RESULT, res);
 
-    DM_free(cm_uri);DM_free(cm_payload);
+    DM_free(cm_uri);
+    DM_free(cm_payload);
     return res;
 }
 
 int dm_cmw_send_to_device(void *conn_handle, char *product_key, char *device_name, char *uri, char *payload,
-                            void *user_data)
+                          void *user_data)
 {
     iotx_cm_message_info_t cm_message_info;
     iotx_cm_send_peer_t cm_send_peer;

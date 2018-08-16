@@ -772,7 +772,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     dm_init_params.domain_type = domain_type;
     dm_init_params.event_callback = _linkkit_solo_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     if (res != SUCCESS_RETURN) {
         dm_log_err(DM_UTILS_LOG_DM_INIT_FAILED);
         HAL_MutexDestroy(linkkit_solo_ctx->mutex);
@@ -783,7 +783,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
 
     /* Get TSL From Cloud If Need */
     if (get_tsl_from_cloud != 0) {
-        res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, NULL, 0);
+        res = iotx_dm_deprecated_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, NULL, 0);
         if (res < SUCCESS_RETURN) {
             HAL_MutexDestroy(linkkit_solo_ctx->mutex);
             HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
@@ -839,7 +839,7 @@ void *linkkit_set_tsl(const char *tsl, int tsl_len)
     }
 
     _linkkit_solo_mutex_lock();
-    res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, tsl, tsl_len);
+    res = iotx_dm_deprecated_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, tsl, tsl_len);
     if (res != SUCCESS_RETURN) {
         _linkkit_solo_mutex_unlock();
         return NULL;

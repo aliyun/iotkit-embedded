@@ -18,6 +18,7 @@
 #define IOTX_LINKKIT_KEY_URL         "url"
 #define IOTX_LINKKIT_KEY_VERSION     "version"
 #define IOTX_LINKKIT_KEY_UTC         "utc"
+#define IOTX_LINKKIT_KEY_RRPCID      "rrpcid"
 
 typedef struct {
     void *mutex;
@@ -96,7 +97,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         }
         break;
         case IOTX_DM_EVENT_THING_SERVICE_REQUEST: {
-            int res = 0, response_len = 0, response_sync;
+            int res = 0, response_len = 0;
             char *request = NULL, *response = NULL;
             lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload;
 
@@ -113,7 +114,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             if (res != SUCCESS_RETURN) {
                 return;
             }
-            sdk_debug("Current Id: %d", lite_item_id.value_int);
+            sdk_debug("Current Id: %.*s", lite_item_id.value_length, lite_item_id.value);
 
             /* Parse Devid */
             memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
@@ -148,14 +149,15 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(request, 0, lite_item_payload.value_length + 1);
             memcpy(request, lite_item_payload.value, lite_item_payload.value_length);
 
-            if (ctx->user_event_handler->service_request) {
-                res = ctx->user_event_handler->service_request(lite_item_devid.value_int, lite_item_serviceid.value,
+            if (ctx->user_event_handler->async_service_request) {
+                res = ctx->user_event_handler->async_service_request(lite_item_devid.value_int, lite_item_serviceid.value,
                         lite_item_serviceid.value_length,
-                        request, lite_item_payload.value_length, &response, &response_len, &response_sync);
+                        request, lite_item_payload.value_length, &response, &response_len);
                 if (response != NULL && response_len > 0) {
                     /* service response exist */
                     iotx_dm_error_code_t code = (res == 0) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
-                    iotx_dm_send_service_response(lite_item_devid.value_int, lite_item_id.value_int, code, lite_item_serviceid.value,
+                    iotx_dm_send_service_response(lite_item_devid.value_int, lite_item_id.value, lite_item_id.value_length, code,
+                                                  lite_item_serviceid.value,
                                                   lite_item_serviceid.value_length,
                                                   response, response_len);
                     HAL_Free(response);
@@ -447,6 +449,87 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             HAL_Free(utc_payload);
         }
         break;
+        case IOTX_DM_EVENT_RRPC_REQUEST: {
+            int res = 0, rrpc_response_len = 0;
+            char *rrpc_request = NULL, *rrpc_response = NULL;
+            lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_rrpcid, lite_item_serviceid, lite_item_payload;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse ID */
+            memset(&lite_item_id, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_ID, strlen(IOTX_LINKKIT_KEY_ID), &lite_item_id);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Id: %.*s", lite_item_id.value_length, lite_item_id.value);
+
+            /* Parse Devid */
+            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID),
+                                         &lite_item_devid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+
+            /* Parse Serviceid */
+            memset(&lite_item_serviceid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_SERVICEID, strlen(IOTX_LINKKIT_KEY_SERVICEID),
+                                         &lite_item_serviceid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
+
+            /* Parse RRPCID */
+            memset(&lite_item_rrpcid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_RRPCID, strlen(IOTX_LINKKIT_KEY_RRPCID),
+                                         &lite_item_rrpcid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current RRPC ID: %.*s", lite_item_rrpcid.value_length, lite_item_rrpcid.value);
+
+            /* Parse Payload */
+            memset(&lite_item_payload, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_PAYLOAD, strlen(IOTX_LINKKIT_KEY_PAYLOAD),
+                                         &lite_item_payload);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+
+            rrpc_request = HAL_Malloc(lite_item_payload.value_length + 1);
+            if (rrpc_request == NULL) {
+                sdk_err("Not Enough Memory");
+                return;
+            }
+            memset(rrpc_request, 0, lite_item_payload.value_length + 1);
+            memcpy(rrpc_request, lite_item_payload.value, lite_item_payload.value_length);
+
+            if (ctx->user_event_handler->sync_service_request) {
+                res = ctx->user_event_handler->sync_service_request(lite_item_devid.value_int, lite_item_serviceid.value,
+                        lite_item_serviceid.value_length,
+                        rrpc_request, lite_item_payload.value_length, &rrpc_response, &rrpc_response_len);
+                if (rrpc_response != NULL && rrpc_response_len > 0) {
+                    iotx_dm_error_code_t code = (res == 0) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
+                    iotx_dm_send_rrpc_response(lite_item_devid.value_int, lite_item_id.value, lite_item_id.value_length, code,
+                                               lite_item_rrpcid.value,
+                                               lite_item_rrpcid.value_length,
+                                               rrpc_response, rrpc_response_len);
+                    HAL_Free(rrpc_response);
+                }
+            }
+
+            HAL_Free(rrpc_request);
+        }
+        break;
         default: {
         }
         break;
@@ -519,7 +602,7 @@ static int _iotx_linkkit_master_start(void)
     int stack_used = 0;
     res = HAL_ThreadCreate(&ctx->dispatch_thread, _iotx_linkkit_dispatch, NULL, NULL, &stack_used);
     if (res != SUCCESS_RETURN) {
-        iotx_dm_destroy();
+        iotx_dm_close();
         return FAIL_RETURN;
     }
 #endif
@@ -651,6 +734,7 @@ int IOT_Linkkit_Close(int devid)
 #endif
 
     HAL_MutexDestroy(ctx->mutex);
+    iotx_dm_close();
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
 
     return SUCCESS_RETURN;

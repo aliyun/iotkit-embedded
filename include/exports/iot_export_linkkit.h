@@ -82,7 +82,7 @@ typedef struct {
     int (* up_raw_reply)(const int devid, const unsigned char *payload, const int payload_len);
 
     /**
-     * @brief service request message from cloud
+     * @brief async service request message from cloud
      *
      * @param devid. device identifier
      * @param serviceid. service id in TSL
@@ -91,14 +91,31 @@ typedef struct {
      * @param request_len. length of service request payload
      * @param response. user service response payload, should use HAL_Malloc to malloc memory for *response if response exist
      * @param response_len. length of user service response payload.
-     * @param respones_sync. reserved.
      *
      * @return service request success: 0, fail: -1.
      *
      */
-    int (* service_request)(const int devid, const char *serviceid, const int serviceid_len, const char *request,
-                            const int request_len,
-                            char **response, int *response_len, int *respones_sync);
+    int (* async_service_request)(const int devid, const char *serviceid, const int serviceid_len, const char *request,
+                                  const int request_len,
+                                  char **response, int *response_len);
+
+    /**
+    * @brief sync service request message from cloud
+    *
+    * @param devid. device identifier
+    * @param serviceid. service id in TSL
+    * @param serviceid_len. length of service id
+    * @param request. service request payload
+    * @param request_len. length of service request payload
+    * @param response. user service response payload, should use HAL_Malloc to malloc memory for *response if response exist
+    * @param response_len. length of user service response payload.
+    *
+    * @return service request success: 0, fail: -1.
+    *
+    */
+    int (* sync_service_request)(const int devid, const char *serviceid, const int serviceid_len, const char *request,
+                                 const int request_len,
+                                 char **response, int *response_len);
 
     /**
      * @brief property set message from cloud

@@ -42,15 +42,15 @@ static int user_up_raw_reply_event_handler(const int devid, const unsigned char 
     return 0;
 }
 
-static int user_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
+static int user_async_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
         const char *request, const int request_len,
-        char **response, int *response_len, int *response_sync)
+        char **response, int *response_len)
 {
     int contrastratio = 0;
     cJSON *root = NULL, *item_transparency = NULL;
     const char *response_fmt = "{\"Contrastratio\":%d}";
-    EXAMPLE_TRACE("Service Set Received, Devid: %d, Service ID: %.*s,Payload: %.*s", devid, serviceid_len, serviceid,
-                  request_len, request);
+    EXAMPLE_TRACE("Service Set Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len, serviceid,
+                  request);
 
     /* Parse Root */
     root = cJSON_Parse(request);
@@ -81,6 +81,53 @@ static int user_service_request_event_handler(const int devid, const char *servi
     }
     memset(*response, 0, *response_len);
     HAL_Snprintf(*response, *response_len, response_fmt, contrastratio);
+    *response_len = strlen(*response);
+
+    return 0;
+}
+
+static int user_sync_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
+        const char *request,
+        const int request_len,
+        char **response, int *response_len)
+{
+    int to_cloud = 0;
+    cJSON *root = NULL, *item_from_cloud = NULL;
+    const char *response_fmt = "{\"ToCloud\":%d}";
+    EXAMPLE_TRACE("Service Set Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len, serviceid,
+                  request);
+
+    /* Parse Root */
+    root = cJSON_Parse(request);
+    if (root == NULL || !cJSON_IsObject(root)) {
+        EXAMPLE_TRACE("JSON Parse Error");
+        return -1;
+    }
+
+
+    if (strlen("SyncService") == serviceid_len && memcmp("SyncService", serviceid, serviceid_len) == 0) {
+        /* Parse Item */
+        item_from_cloud = cJSON_GetObjectItem(root, "FromCloud");
+        if (item_from_cloud == NULL || !cJSON_IsNumber(item_from_cloud)) {
+            cJSON_Delete(root);
+            return -1;
+        }
+        EXAMPLE_TRACE("FromCloud: %d", item_from_cloud->valueint);
+        to_cloud = item_from_cloud->valueint + 1;
+    }
+
+    cJSON_Delete(root);
+
+    /* Send Service Response To Cloud */
+    *response_len = strlen(response_fmt) + 10 + 1;
+    *response = HAL_Malloc(*response_len);
+    if (*response == NULL) {
+        EXAMPLE_TRACE("Memory Not Enough");
+        return -1;
+    }
+    memset(*response, 0, *response_len);
+    HAL_Snprintf(*response, *response_len, response_fmt, to_cloud);
+    *response_len = strlen(*response);
 
     return 0;
 }
@@ -123,15 +170,16 @@ static int user_initialized(const int devid)
 }
 
 static iotx_linkkit_event_handler_t user_event_handler = {
-    .connected =       user_connected_event_handler,
-    .disconnected =    user_disconnected_event_handler,
-    .down_raw =        user_down_raw_event_handler,
-    .up_raw_reply =    user_up_raw_reply_event_handler,
-    .service_request = user_service_request_event_handler,
-    .property_set =    user_property_set_event_handler,
-    .post_reply =      user_post_reply_event_handler,
-    .ntp_response =    user_ntp_response_event_handler,
-    .initialized =     user_initialized
+    .connected             = user_connected_event_handler,
+    .disconnected          = user_disconnected_event_handler,
+    .down_raw              = user_down_raw_event_handler,
+    .up_raw_reply          = user_up_raw_reply_event_handler,
+    .async_service_request = user_async_service_request_event_handler,
+    .sync_service_request  = user_sync_service_request_event_handler,
+    .property_set          = user_property_set_event_handler,
+    .post_reply            = user_post_reply_event_handler,
+    .ntp_response          = user_ntp_response_event_handler,
+    .initialized           = user_initialized
 };
 
 static uint64_t user_update_sec(void)
@@ -255,9 +303,9 @@ int main(int argc, char *argv[])
         }
 
         /* Post Raw Example */
-        /* if (time_now_sec % 23 == 0) {
+        if (time_now_sec % 23 == 0) {
             user_post_raw_data();
-        } */
+        }
 
         time_prev_sec = time_now_sec;
     }

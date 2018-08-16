@@ -320,6 +320,37 @@ int dm_disp_uri_service_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ in
     return SUCCESS_RETURN;
 }
 
+int dm_disp_uri_rrpc_request_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
+{
+    int res = 0, offset = 0;
+    const char *prefix = "/rrpc/request/";
+
+    if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    /* "/rrpc/request/%s" */
+    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 3, &offset);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Check "rrpc/request" */
+    if (memcmp(DM_DISP_RRPC_REQUEST_PLUS, uri + 1, offset) != 0) {
+        return FAIL_RETURN;
+    }
+
+    if (uri_len <= strlen(prefix)) {
+        return FAIL_RETURN;
+    }
+
+    *start = offset;
+    *end = uri_len - 1;
+
+    return SUCCESS_RETURN;
+}
+
 int dm_disp_uri_event_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
 {
     int res = 0, offset = 0;
@@ -733,6 +764,40 @@ void dm_disp_thing_service_request(iotx_cm_send_peer_t *source, iotx_cm_message_
 
     /* Operation */
     res = dm_msg_thing_service_request(product_key, device_name, identifier, identifier_len, &request);
+    if (res != SUCCESS_RETURN) {
+        return;
+    }
+
+    /* Send Message To Local */
+    dm_cmw_send_to_local(msg->URI, msg->URI_length, msg->payload, msg->payload_length, NULL);
+}
+
+void dm_disp_rrpc_request(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, char *messageid,
+                          int messageid_len, void *user_data)
+{
+    int res = 0;
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    dm_msg_request_payload_t request;
+
+    dm_log_info(DM_DISP_THING_SERVICE_REQUEST, "{Identifier}");
+    dm_log_info("Current URI: %.*s", msg->URI_length, msg->URI);
+    dm_log_info("Current Identifier: %.*s", messageid_len, messageid);
+
+    /* Parse Product Key And Device Name */
+    res = dm_msg_uri_parse_pkdn(msg->URI, msg->URI_length, 2, 4, product_key, device_name);
+    if (res != SUCCESS_RETURN) {
+        return;
+    }
+
+    /* Request */
+    res = dm_msg_request_parse(msg->payload, msg->payload_length, &request);
+    if (res != SUCCESS_RETURN) {
+        return;
+    }
+
+    /* Operation */
+    res = dm_msg_rrpc_request(product_key, device_name, messageid, messageid_len, &request);
     if (res != SUCCESS_RETURN) {
         return;
     }

@@ -164,7 +164,7 @@ int iotx_dm_close(void)
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_construct(_IN_ iotx_dm_init_params_t *init_params)
+int iotx_dm_deprecated_construct(_IN_ iotx_dm_init_params_t *init_params)
 {
     int res = 0;
     dm_api_ctx_t *ctx = _dm_api_get_ctx();
@@ -246,7 +246,7 @@ ERROR:
     return FAIL_RETURN;
 }
 
-int iotx_dm_destroy(void)
+int iotx_dm_deprecated_destroy(void)
 {
     dm_api_ctx_t *ctx = _dm_api_get_ctx();
     dm_conn_deinit();
@@ -265,7 +265,7 @@ int iotx_dm_destroy(void)
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len)
+int iotx_dm_deprecated_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len)
 {
     int res = 0;
 
@@ -795,7 +795,8 @@ int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN
 
     dm_log_debug("Current Service Response Payload, Length: %d, Payload: %s", strlen(payload), payload);
 
-    res = dm_mgr_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload, strlen(payload));
+    res = dm_mgr_deprecated_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload,
+            strlen(payload));
 
     free(payload);
 
@@ -803,7 +804,8 @@ int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN
     return res;
 }
 
-int iotx_dm_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code, _IN_ char *identifier,
+int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
+                                  _IN_ char *identifier,
                                   _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0;
@@ -817,7 +819,8 @@ int iotx_dm_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_e
 
     dm_log_debug("Current Service Response Payload, Length: %d, Payload: %.*s", payload_len, payload);
 
-    res = dm_mgr_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload, payload_len);
+    res = dm_mgr_upstream_thing_service_response(devid, msgid, msgid_len, code, identifier, identifier_len, payload,
+            payload_len);
 
     _dm_api_unlock();
     return res;
@@ -1874,33 +1877,27 @@ int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ io
 
     _dm_api_lock();
 
-    res = dm_mgr_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload, payload_len);
+    res = dm_mgr_deprecated_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload,
+            payload_len);
 
     _dm_api_unlock();
     return res;
 }
 
-int iotx_dm_legacy_send_rrpc_old_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
+                               _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0;
 
-    _dm_api_lock();
-
-    res = dm_mgr_upstream_rrpc_old_version_response(devid, msgid, code, identifier, identifier_len, payload, payload_len);
-
-    _dm_api_unlock();
-    return res;
-}
-
-int iotx_dm_legacy_send_rrpc_new_version_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
-{
-    int res = 0;
+    if (devid < 0 || msgid == NULL || msgid_len <= 0 || rrpcid == NULL || rrpcid_len <= 0 || payload == NULL
+        || payload_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
 
     _dm_api_lock();
 
-    res = dm_mgr_upstream_rrpc_new_version_response(devid, msgid, code, identifier, identifier_len, payload, payload_len);
+    res = dm_mgr_upstream_rrpc_response(devid, msgid, msgid_len, code, rrpcid, rrpcid_len, payload, payload_len);
 
     _dm_api_unlock();
     return res;

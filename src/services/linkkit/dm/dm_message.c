@@ -1352,24 +1352,19 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
 }
 #else
 const char DM_MSG_SERVICE_REQUEST_FMT[] DM_READ_ONLY =
-            "{\"id\":%d,\"devid\":%d,\"serviceid\":\"%.*s\",\"payload\":%.*s}";
+            "{\"id\":\"%.*s\",\"devid\":%d,\"serviceid\":\"%.*s\",\"payload\":%.*s}";
 int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                                  char *identifier, int identifier_len, dm_msg_request_payload_t *request)
 {
-    int res = 0, id = 0, devid = 0, message_len = 0;
+    int res = 0, devid = 0, message_len = 0;
     char *message = NULL;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-
-    /* Message ID */
-    memcpy(int_id, request->id.value, request->id.value_length);
-    id = atoi(int_id);
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
-    message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len +
+    message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + request->id.value_length + DM_UTILS_UINT32_STRLEN + identifier_len +
                   request->params.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
@@ -1377,7 +1372,8 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
         return FAIL_RETURN;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier,
+    HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, request->id.value_length, request->id.value, devid,
+                 identifier_len, identifier,
                  request->params.value_length, request->params.value);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_THING_SERVICE_REQUEST, message);
@@ -1389,6 +1385,53 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
     return SUCCESS_RETURN;
 }
 #endif
+
+const char DM_MSG_EVENT_RRPC_REQUEST_FMT[] DM_READ_ONLY =
+            "{\"id\":\"%.*s\",\"devid\":%d,\"serviceid\":\"%.*s\",\"rrpcid\":\"%.*s\",\"payload\":%.*s}";
+int dm_msg_rrpc_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
+                        char *rrpcid, int rrpcid_len, dm_msg_request_payload_t *request)
+{
+    int res = 0, devid = 0, message_len = 0;
+    int service_offset = 0, serviceid_len = 0;
+    char *serviceid = NULL, *message = NULL;
+
+    /* Get Devid */
+    res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Get Service ID */
+    res = dm_utils_memtok(request->method.value, request->method.value_length, '.', 2, &service_offset);
+    if (res != SUCCESS_RETURN || service_offset >= request->method.value_length - 1) {
+        return FAIL_RETURN;
+    }
+    serviceid_len = request->method.value_length - service_offset - 1;
+    serviceid = request->method.value + service_offset + 1;
+    dm_log_info("Current RRPC Service ID: %.*s", serviceid_len, serviceid);
+
+    /* Send Message To User */
+    message_len = strlen(DM_MSG_EVENT_RRPC_REQUEST_FMT) + request->id.value_length + DM_UTILS_UINT32_STRLEN + serviceid_len
+                  + rrpcid_len +
+                  request->params.value_length + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        return FAIL_RETURN;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_RRPC_REQUEST_FMT, request->id.value_length, request->id.value, devid,
+                 serviceid_len, serviceid, rrpcid_len, rrpcid,
+                 request->params.value_length, request->params.value);
+
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_RRPC_REQUEST, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
 
 const char DM_MSG_EVENT_THING_DISABLE_FMT[] DM_READ_ONLY = "{\"devid\":%d}";
 int dm_msg_thing_disable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN])

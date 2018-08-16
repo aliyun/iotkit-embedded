@@ -1310,7 +1310,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = _linkkit_gateway_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
         HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
@@ -1319,11 +1319,11 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     }
 
     /* Get Gateway TSL From Cloud */
-    res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, NULL, 0);
+    res = iotx_dm_deprecated_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_CLOUD, NULL, 0);
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
         HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
-        iotx_dm_destroy();
+        iotx_dm_deprecated_destroy();
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -1332,7 +1332,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
         HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
-        iotx_dm_destroy();
+        iotx_dm_deprecated_destroy();
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -1344,7 +1344,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
         HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
-        iotx_dm_destroy();
+        iotx_dm_deprecated_destroy();
         HAL_ThreadDelete(linkkit_gateway_ctx->dispatch_thread);
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
@@ -1372,7 +1372,7 @@ int linkkit_gateway_stop(int devid)
     _linkkit_gateway_upstream_mutex_lock();
     linkkit_gateway_ctx->is_started = 0;
     HAL_ThreadDelete(linkkit_gateway_ctx->dispatch_thread);
-    iotx_dm_destroy();
+    iotx_dm_deprecated_destroy();
     HAL_SleepMs(200);
     _linkkit_gateway_callback_list_destroy();
     _linkkit_gateway_upstream_sync_callback_list_destroy();

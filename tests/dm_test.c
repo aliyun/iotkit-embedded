@@ -189,7 +189,7 @@ void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
     }
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut001)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut001)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -205,11 +205,11 @@ CASE(DM_TEST, iotx_dm_construct_ut001)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = linkkit_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut002)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut002)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -224,11 +224,11 @@ CASE(DM_TEST, iotx_dm_construct_ut002)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = linkkit_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut003)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut003)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -244,11 +244,11 @@ CASE(DM_TEST, iotx_dm_construct_ut003)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = linkkit_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut004)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut004)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -264,11 +264,11 @@ CASE(DM_TEST, iotx_dm_construct_ut004)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = linkkit_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut005)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut005)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -284,11 +284,11 @@ CASE(DM_TEST, iotx_dm_construct_ut005)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = linkkit_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut006)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut006)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -304,11 +304,11 @@ CASE(DM_TEST, iotx_dm_construct_ut006)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_MAX;
     dm_init_params.event_callback = linkkit_event_callback;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut007)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut007)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -324,11 +324,11 @@ CASE(DM_TEST, iotx_dm_construct_ut007)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = NULL;
 
-    res = iotx_dm_construct(&dm_init_params);
+    res = iotx_dm_deprecated_construct(&dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_construct_ut008)
+CASE(DM_TEST, iotx_dm_deprecated_construct_ut008)
 {
     int res = 0;
     LITE_openlog("linkkit");
@@ -340,15 +340,15 @@ CASE(DM_TEST, iotx_dm_construct_ut008)
     /* DM Construct */
     iotx_dm_init_params_t *dm_init_params = NULL;
 
-    res = iotx_dm_construct(dm_init_params);
+    res = iotx_dm_deprecated_construct(dm_init_params);
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_set_tsl_ut001)
+CASE(DM_TEST, iotx_dm_deprecated_set_tsl_ut001)
 {
     int res = 0;
-    res = iotx_dm_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,
-                          strlen(LINKKIT_TSL_STRING_TEST));
+    res = iotx_dm_deprecated_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,
+                                     strlen(LINKKIT_TSL_STRING_TEST));
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
@@ -364,40 +364,40 @@ CASE(DM_TEST, IOT_DM_Yield_ut001)
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
-CASE(DM_TEST, iotx_dm_destroy_ut001)
+CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001)
 {
     int res = 0;
-    res = iotx_dm_destroy();
+    res = iotx_dm_deprecated_destroy();
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
 SUITE(DM_TEST) = {
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut001),
-    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001),
 
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut002),
-    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut002),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001),
 
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut003),
-    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut003),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001),
 
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut004),
-    ADD_CASE(DM_TEST, iotx_dm_set_tsl_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut004),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_set_tsl_ut001),
     ADD_CASE(DM_TEST, IOT_DM_Yield_ut001),
-    ADD_CASE(DM_TEST, iotx_dm_destroy_ut001),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001),
 
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut005),
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut006),
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut007),
-    ADD_CASE(DM_TEST, iotx_dm_construct_ut008),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut005),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut006),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut007),
+    ADD_CASE(DM_TEST, iotx_dm_deprecated_construct_ut008),
     ADD_CASE_NULL
 };
 #endif
