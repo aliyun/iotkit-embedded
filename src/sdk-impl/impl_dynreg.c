@@ -18,6 +18,8 @@
 
 #include "sdk-impl_internal.h"
 
+#define HTTP_RESPONSE_PAYLOAD_LEN           256
+
 static const char *_get_domain_region(void)
 {
     sdk_impl_ctx_t *ctx = sdk_impl_get_ctx();
@@ -75,14 +77,13 @@ static int _calc_dynreg_sign(
     return SUCCESS_RETURN;
 }
 
-static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
+static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *response_payload, _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
     int                 res = 0;
-    char                response_payload[256] = {0};
     const char         *url = NULL;
     httpclient_t        http_client;
     httpclient_data_t   http_client_data;
-    lite_cjson_t        lite, lite_item_code, lite_item_data, lite_item_pk, lite_item_dn, lite_item_ds;
+    lite_cjson_t        lite, lite_item_code, lite_item_data, lite_item_ds;
 
     memset(&http_client, 0, sizeof(httpclient_t));
     memset(&http_client_data, 0, sizeof(httpclient_data_t));
@@ -99,7 +100,7 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _OU_ char device_
     http_client_data.post_buf = request_payload;
     http_client_data.post_buf_len = strlen(request_payload);
     http_client_data.response_buf = response_payload;
-    http_client_data.response_buf_len = 256;
+    http_client_data.response_buf_len = HTTP_RESPONSE_PAYLOAD_LEN;
 
     res = httpclient_common(&http_client, url, 443, iotx_ca_get(), HTTPCLIENT_POST, 10000, &http_client_data);
     if (res != SUCCESS_RETURN) {
@@ -137,25 +138,7 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _OU_ char device_
         return FAIL_RETURN;
     }
 
-    /* Parse Product Key */
-    memset(&lite_item_pk, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_object_item(&lite_item_data, "productKey", strlen("productKey"), &lite_item_pk);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk)) {
-        sdk_err("Http Response Payload Parse Failed");
-        return FAIL_RETURN;
-    }
-    sdk_info("Dynamic Register Product Key: %.*s", lite_item_pk.value_length, lite_item_pk.value);
-
-    /* Parse Device Name */
-    memset(&lite_item_dn, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_object_item(&lite_item_data, "deviceName", strlen("deviceName"), &lite_item_dn);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn)) {
-        sdk_err("Http Response Payload Parse Failed");
-        return FAIL_RETURN;
-    }
-    sdk_info("Dynamic Register Device Name: %.*s", lite_item_dn.value_length, lite_item_dn.value);
-
-    /* Parse Device Secret */
+    /* Ignore ProductKey and DeviceName, just parse DeviceSecret */
     memset(&lite_item_ds, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(&lite_item_data, "deviceSecret", strlen("deviceSecret"), &lite_item_ds);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_ds)) {
@@ -182,6 +165,7 @@ int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
     char            random[DYNAMIC_REGISTER_RANDOM_KEY_LENGTH + 1] = {0};
     const char     *dynamic_register_format = "productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s";
     char           *dynamic_register_request = NULL;
+    char           *dynamic_register_response = NULL;
 
     if ((product_key == NULL || strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         (product_secret == NULL || strlen(product_secret) >= PRODUCT_SECRET_MAXLEN) ||
@@ -210,9 +194,17 @@ int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
     HAL_Snprintf(dynamic_register_request, dynamic_register_request_len, dynamic_register_format,
                  product_key, device_name, random, sign, DYNAMIC_REGISTER_SIGN_METHOD_HMACSHA256);
 
+    dynamic_register_response = LITE_malloc(HTTP_RESPONSE_PAYLOAD_LEN);
+    if (dynamic_register_response == NULL) {
+        sdk_err("Not Enough Memory");
+        LITE_free(dynamic_register_request);
+        return FAIL_RETURN;
+    }
+
     /* Send Http Request For Getting Device Secret */
-    res = _fetch_dynreg_http_resp(dynamic_register_request, device_secret);
+    res = _fetch_dynreg_http_resp(dynamic_register_request, dynamic_register_response, device_secret);
     LITE_free(dynamic_register_request);
+    LITE_free(dynamic_register_response);
     if (res != SUCCESS_RETURN) {
         sdk_err("Get Device Secret Failed");
         return FAIL_RETURN;

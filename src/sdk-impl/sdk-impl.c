@@ -19,6 +19,8 @@
 
 #include "sdk-impl_internal.h"
 
+#define KV_KEY_DEVICE_SECRET            "DyncRegDeviceSecret"
+
 static sdk_impl_ctx_t g_sdk_impl_ctx = {0};
 
 sdk_impl_ctx_t *sdk_impl_get_ctx(void)
@@ -77,6 +79,7 @@ int IOT_SetupConnInfo(const char *product_key,
     int                 rc = 0;
     char                device_secret_actual[DEVICE_SECRET_MAXLEN] = {0};
     char                product_secret[PRODUCT_SECRET_MAXLEN] = {0};
+    int                 device_secret_len = DEVICE_SECRET_MAXLEN;
     sdk_impl_ctx_t     *ctx = sdk_impl_get_ctx();
 
     if (!info_ptr) {
@@ -92,20 +95,33 @@ int IOT_SetupConnInfo(const char *product_key,
         STRING_PTR_SANITY_CHECK(device_secret, -1);
         memcpy(device_secret_actual, device_secret, strlen(device_secret));
     } else {
-        sdk_info("Now We Need Dynamic Register...");
-        /* Check If Product Secret Exist */
-        HAL_GetProductSecret(product_secret);
-        if (strlen(product_secret) == 0) {
-            sdk_err("Product Secret Is Not Exist");
-            return FAIL_RETURN;
-        }
-        STRING_PTR_SANITY_CHECK(product_secret, -1);
+        /* Check if Device Secret exit in KV */
+        if (HAL_Kv_Get(KV_KEY_DEVICE_SECRET, device_secret_actual, &device_secret_len) != 0) {
+            /* KV not exit */
+            sdk_info("Now We Need Dynamic Register...");
 
-        rc = perform_dynamic_register((char *)product_key, (char *)product_secret, (char *)device_name, device_secret_actual);
-        if (rc != SUCCESS_RETURN) {
-            sdk_err("Dynamic Register Failed");
-            return FAIL_RETURN;
+            /* Get Device Secret from KV error, Check If Product Secret Exist */
+            HAL_GetProductSecret(product_secret);
+            if (strlen(product_secret) == 0) {
+                sdk_err("Product Secret Is Not Exist");
+                return FAIL_RETURN;
+            }
+            STRING_PTR_SANITY_CHECK(product_secret, -1);
+            
+            rc = perform_dynamic_register((char *)product_key, (char *)product_secret, (char *)device_name, device_secret_actual);
+            if (rc != SUCCESS_RETURN) {
+                sdk_err("Dynamic Register Failed");
+                return FAIL_RETURN;
+            }
+            
+            device_secret_len = strlen(device_secret_actual);
+            if (HAL_Kv_Set(KV_KEY_DEVICE_SECRET, device_secret_actual, device_secret_len, 1) != 0) {
+                sdk_err("Save Device Secret to KV Failed");
+                return FAIL_RETURN;
+            }
         }
+
+        *(device_secret_actual + device_secret_len) = 0;
         HAL_SetDeviceSecret(device_secret_actual);
     }
 
