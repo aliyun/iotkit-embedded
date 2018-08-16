@@ -297,7 +297,7 @@ static void serialize_params_data(void* _req_rsp_param, va_list* _params)
         if (len > (CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX - strlen(params))) {
             cmp_message_info->ret = -1;
 
-            dm_printf("\n[err] param buffer is short,len(%d) available(%lu)\n", len,(CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX - strlen(params)));
+            dm_printf("\n[err] param buffer is short,len(%d) available(%lu)\n", len,(long unsigned int)(CMP_MESSAGE_INFO_PARAMS_LENGTH_MAX - strlen(params)));
             return;
         }
 
