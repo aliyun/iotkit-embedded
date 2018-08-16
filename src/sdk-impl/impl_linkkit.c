@@ -725,7 +725,9 @@ int IOT_Linkkit_Close(int devid)
         return FAIL_RETURN;
     }
 
+    _iotx_linkkit_mutex_lock();
     if (ctx->is_opened == 0) {
+        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
     ctx->is_opened = 0;
@@ -733,9 +735,9 @@ int IOT_Linkkit_Close(int devid)
 #if (CONFIG_SDK_THREAD_COST == 1)
     HAL_ThreadDelete(ctx->dispatch_thread);
 #endif
-
-    HAL_MutexDestroy(ctx->mutex);
     iotx_dm_close();
+    _iotx_linkkit_mutex_unlock();
+    HAL_MutexDestroy(ctx->mutex);
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
 
     return SUCCESS_RETURN;
@@ -750,6 +752,7 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
         sdk_err("Invalid Parameter");
     }
 
+    _iotx_linkkit_mutex_lock();
     switch (msg_type) {
         case IOTX_LINKKIT_MSG_POST_PROPERTY: {
             res = iotx_dm_post_property(devid, (char *)payload, payload_len);
@@ -782,6 +785,6 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
         }
         break;
     }
-
+    _iotx_linkkit_mutex_unlock();
     return res;
 }
