@@ -49,7 +49,8 @@ static int user_async_service_request_event_handler(const int devid, const char 
     int contrastratio = 0;
     cJSON *root = NULL, *item_transparency = NULL;
     const char *response_fmt = "{\"Contrastratio\":%d}";
-    EXAMPLE_TRACE("Service Set Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len, serviceid,
+    EXAMPLE_TRACE("Async Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
+                  serviceid,
                   request);
 
     /* Parse Root */
@@ -94,7 +95,8 @@ static int user_sync_service_request_event_handler(const int devid, const char *
     int to_cloud = 0;
     cJSON *root = NULL, *item_from_cloud = NULL;
     const char *response_fmt = "{\"ToCloud\":%d}";
-    EXAMPLE_TRACE("Service Set Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len, serviceid,
+    EXAMPLE_TRACE("Sync Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
+                  serviceid,
                   request);
 
     /* Parse Root */
@@ -193,6 +195,16 @@ static uint64_t user_update_sec(void)
     return (HAL_UptimeMs() - time_start_ms) / 1000;
 }
 
+void user_post_property(void)
+{
+    int res = 0;
+    char *property_payload = "{\"LightSwitch\":1}";
+
+    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0,
+                           (unsigned char *)property_payload, strlen(property_payload));
+    EXAMPLE_TRACE("Post Property Message ID: %d", res);
+}
+
 void user_post_event(void)
 {
     int res = 0;
@@ -287,27 +299,33 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        /* Post Event Example */
+        /* Post Proprety Example */
         if (time_now_sec % 11 == 0) {
+            user_post_property();
+        }
+        /* Post Event Example */
+        if (time_now_sec % 17 == 0) {
             user_post_event();
         }
 
         /* Device Info Update Example */
-        if (time_now_sec % 13 == 0) {
+        if (time_now_sec % 23 == 0) {
             user_deviceinfo_update();
         }
 
         /* Device Info Delete Example */
-        if (time_now_sec % 17 == 0) {
+        if (time_now_sec % 29 == 0) {
             user_deviceinfo_delete();
         }
 
         /* Post Raw Example */
-        if (time_now_sec % 23 == 0) {
+        if (time_now_sec % 37 == 0) {
             user_post_raw_data();
         }
 
         time_prev_sec = time_now_sec;
     }
+
+    IOT_Linkkit_Close(master_devid);
     return 0;
 }
