@@ -367,11 +367,12 @@ static alcs_mqtt_status_e __alcs_mqtt_subscribe(void *ctx, char *topic)
                            ctx) != 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
 }
 
-
+#if 0
 static alcs_mqtt_status_e __alcs_mqtt_unsubscribe(void *ctx, char *topic)
 {
     return (mqtt_unsubscribe(topic) != 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
 }
+#endif
 
 alcs_mqtt_status_e alcs_mqtt_init(void *handle, char *product_key, char *device_name)
 {
@@ -424,6 +425,7 @@ alcs_mqtt_status_e alcs_mqtt_init(void *handle, char *product_key, char *device_
 
 alcs_mqtt_status_e alcs_mqtt_deinit(void *handle, char *product_key, char *device_name)
 {
+#if 0
     char topic[ALCS_MQTT_TOPIC_MAX_LEN] = {0};
     alcs_mqtt_status_e status = ALCS_MQTT_STATUS_SUCCESS;
     alcs_mqtt_ctx_t *ctx =  __alcs_mqtt_get_ctx();
@@ -461,6 +463,8 @@ alcs_mqtt_status_e alcs_mqtt_deinit(void *handle, char *product_key, char *devic
     }
 
     return status;
+#endif
+    return ALCS_MQTT_STATUS_SUCCESS;
 }
 
 void alcs_mqtt_add_srv_key(const char *prefix, const char *secret)
