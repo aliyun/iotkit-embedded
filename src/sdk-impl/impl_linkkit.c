@@ -600,6 +600,7 @@ static int _iotx_linkkit_master_start(void)
 
 #if (CONFIG_SDK_THREAD_COST == 1)
     int stack_used = 0;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     res = HAL_ThreadCreate(&ctx->dispatch_thread, _iotx_linkkit_dispatch, NULL, NULL, &stack_used);
     if (res != SUCCESS_RETURN) {
         iotx_dm_close();

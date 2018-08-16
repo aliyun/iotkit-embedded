@@ -2,6 +2,7 @@
 #include "linkkit_gateway_legacy.h"
 #include "dm_opt.h"
 
+#ifdef DEPRECATED_LINKKIT
 static linkkit_gateway_legacy_ctx_t g_linkkit_gateway_legacy_ctx = {0};
 
 static linkkit_gateway_legacy_ctx_t *_linkkit_gateway_legacy_get_ctx(void)
@@ -324,9 +325,11 @@ static void _linkkit_gateway_upstream_callback_remove(int msgid, int code)
         HAL_SemaphorePost(sync_node->semaphore);
     }
 }
+#endif
 
 linkkit_params_t *linkkit_gateway_get_default_params(void)
 {
+#ifdef DEPRECATED_LINKKIT
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     /* Legacy Parameter */
@@ -336,10 +339,14 @@ linkkit_params_t *linkkit_gateway_get_default_params(void)
     linkkit_gateway_ctx->init_params.threadStackSize = 8 * 1024;
 
     return &linkkit_gateway_ctx->init_params;
+#else
+    return NULL;
+#endif
 }
 
 int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, int value_len)
 {
+#ifdef DEPRECATED_LINKKIT
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (params == NULL || value == NULL) {
@@ -405,13 +412,14 @@ int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, in
             dm_log_err("unknow option: %d\n", option);
             return FAIL_RETURN;
     }
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev, void *ctx),
                                        void *ctx)
 {
+#ifdef DEPRECATED_LINKKIT
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (params == NULL || event_cb == NULL) {
@@ -421,12 +429,13 @@ int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)
 
     linkkit_gateway_ctx->init_params.event_cb = event_cb;
     linkkit_gateway_ctx->init_params.ctx = ctx;
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_init(linkkit_params_t *initParams)
 {
+#ifdef DEPRECATED_LINKKIT
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (initParams == NULL) {
@@ -438,22 +447,24 @@ int linkkit_gateway_init(linkkit_params_t *initParams)
         return FAIL_RETURN;
     }
     linkkit_gateway_ctx->is_inited = 1;
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_exit(void)
 {
+#ifdef DEPRECATED_LINKKIT
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (linkkit_gateway_ctx->is_inited == 0) {
         return FAIL_RETURN;
     }
     linkkit_gateway_ctx->is_inited = 0;
-
+#endif
     return SUCCESS_RETURN;
 }
 
+#ifdef DEPRECATED_LINKKIT
 static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *payload)
 {
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -881,11 +892,13 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
                     res = node->callback->call_service(identifier, input, output, linkkit_gateway_ctx->init_params.maxMsgSize,
                                                        node->callback_ctx);
                     if (res == SUCCESS_RETURN) {
-                        iotx_dm_legacy_send_service_response(lite_item_devid.value_int, lite_item_id.value_int, 200, lite_item_serviceid.value,
-                                                             lite_item_serviceid.value_length, output, strlen(output));
+                        iotx_dm_deprecated_legacy_send_service_response(lite_item_devid.value_int, lite_item_id.value_int, 200,
+                                lite_item_serviceid.value,
+                                lite_item_serviceid.value_length, output, strlen(output));
                     } else {
-                        iotx_dm_legacy_send_service_response(lite_item_devid.value_int, lite_item_id.value_int, 202, lite_item_serviceid.value,
-                                                             lite_item_serviceid.value_length, "{}", strlen("{}"));
+                        iotx_dm_deprecated_legacy_send_service_response(lite_item_devid.value_int, lite_item_id.value_int, 202,
+                                lite_item_serviceid.value,
+                                lite_item_serviceid.value_length, "{}", strlen("{}"));
                     }
                 }
             }
@@ -941,7 +954,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
                     res = node->callback->down_rawdata(lite_item_rawdata.value, lite_item_rawdata.value_length, output,
                                                        linkkit_gateway_ctx->init_params.maxMsgSize, node->callback_ctx);
                     if (res > 0) {
-                        iotx_dm_legacy_send_rawdata(lite_item_devid.value_int, output, res);
+                        iotx_dm_post_rawdata(lite_item_devid.value_int, output, res);
                     }
                 }
             }
@@ -1255,7 +1268,9 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
         break;
     }
 }
+#endif
 
+#ifdef DEPRECATED_LINKKIT
 static void *_linkkit_gateway_dispatch(void *params)
 {
     while (1) {
@@ -1264,9 +1279,11 @@ static void *_linkkit_gateway_dispatch(void *params)
     }
     return NULL;
 }
+#endif
 
 int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, stack_used = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     iotx_dm_init_params_t dm_init_params;
@@ -1353,12 +1370,13 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     /* Init Upstream Callback List */
     INIT_LIST_HEAD(&linkkit_gateway_ctx->upstream_sync_callback_list);
     INIT_LIST_HEAD(&linkkit_gateway_ctx->upstream_async_callback_list);
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_stop(int devid)
 {
+#ifdef DEPRECATED_LINKKIT
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (linkkit_gateway_ctx->is_started  == 0) {
@@ -1384,11 +1402,13 @@ int linkkit_gateway_stop(int devid)
     HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
 
     memset(linkkit_gateway_ctx, 0, sizeof(linkkit_gateway_legacy_ctx_t));
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *deviceSecret)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, msgid = 0, code = 0, devid = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
@@ -1405,7 +1425,7 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     }
 
     _linkkit_gateway_mutex_lock();
-    res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
+    res = iotx_dm_deprecated_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
@@ -1543,12 +1563,13 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, msgid = 0, code = 0, devid = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -1565,7 +1586,7 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
     }
 
     _linkkit_gateway_mutex_lock();
-    res = iotx_dm_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
+    res = iotx_dm_deprecated_legacy_get_devid_by_pkdn(productKey, deviceName, &devid);
     if (res != SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
@@ -1614,12 +1635,13 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cbs_t *cbs, void *ctx)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
@@ -1652,10 +1674,14 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
     _linkkit_gateway_mutex_unlock();
 
     return devid;
+#else
+    return SUCCESS_RETURN;
+#endif
 }
 
 int linkkit_gateway_subdev_destroy(int devid)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     if (devid <= 0) {
@@ -1683,11 +1709,13 @@ int linkkit_gateway_subdev_destroy(int devid)
         return FAIL_RETURN;
     }
     _linkkit_gateway_mutex_unlock();
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_login(int devid)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, msgid = 0, code = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -1745,12 +1773,13 @@ int linkkit_gateway_subdev_login(int devid)
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_subdev_logout(int devid)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, msgid = 0, code = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -1808,12 +1837,13 @@ int linkkit_gateway_subdev_logout(int devid)
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, type = 0;
     iotx_dm_dev_status_t status;
     iotx_dm_dev_avail_t available;
@@ -1830,7 +1860,7 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
 
     _linkkit_gateway_mutex_lock();
     memset(devinfo, 0, sizeof(linkkit_devinfo_t));
-    res = iotx_dm_legacy_get_pkdn_ptr_by_devid(devid, &(devinfo->productKey), &(devinfo->deviceName));
+    res = iotx_dm_deprecated_legacy_get_pkdn_ptr_by_devid(devid, &(devinfo->productKey), &(devinfo->deviceName));
     if (res != SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
@@ -1870,12 +1900,13 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
     }
     devinfo->state = available;
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *event, int timeout_ms)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, msgid = 0, code = 0, event_reply_value = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -1950,13 +1981,14 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event, int timeout_ms,
                                        void (*func)(int retval, void *ctx), void *ctx)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, event_reply_value = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
@@ -2004,12 +2036,13 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeout_ms)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, msgid = 0, code = 0, property_reply_value = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -2084,13 +2117,14 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms, void (*func)(int retval, void *ctx),
                                        void *ctx)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, property_reply_value = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
@@ -2136,12 +2170,13 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_post_rawdata(int devid, void *data, int len)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
@@ -2154,10 +2189,14 @@ int linkkit_gateway_post_rawdata(int devid, void *data, int len)
     _linkkit_gateway_mutex_unlock();
 
     return res;
+#else
+    return SUCCESS_RETURN;
+#endif
 }
 
 int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp)
 {
+#ifdef DEPRECATED_LINKKIT
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -2165,12 +2204,13 @@ int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp)
     }
 
     linkkit_gateway_ctx->fota_callback = callback_fp;
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_invoke_fota_service(void *data_buf, int data_buf_length)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
@@ -2179,14 +2219,18 @@ int linkkit_gateway_invoke_fota_service(void *data_buf, int data_buf_length)
     }
 
     _linkkit_gateway_mutex_lock();
-    res = iotx_dm_fota_perform_sync(data_buf, data_buf_length);
+    res = iotx_dm_deprecated_fota_perform_sync(data_buf, data_buf_length);
     _linkkit_gateway_mutex_unlock();
 
     return res;
+#else
+    return SUCCESS_RETURN;
+#endif
 }
 
 int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos, int timeout_ms)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, index = 0, msgid = 0, code = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -2294,12 +2338,13 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos, int timeout_ms)
 {
+#ifdef DEPRECATED_LINKKIT
     int res = 0, index = 0, msgid = 0, code = 0;
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
@@ -2406,12 +2451,13 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     }
     _linkkit_gateway_upstream_mutex_unlock();
     _linkkit_gateway_mutex_unlock();
-
+#endif
     return SUCCESS_RETURN;
 }
 
 int linkkit_gateway_get_num_devices(void)
 {
+#ifdef DEPRECATED_LINKKIT
     int dev_nums = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
@@ -2424,4 +2470,7 @@ int linkkit_gateway_get_num_devices(void)
     _linkkit_gateway_mutex_unlock();
 
     return dev_nums;
+#else
+    return SUCCESS_RETURN;
+#endif
 }

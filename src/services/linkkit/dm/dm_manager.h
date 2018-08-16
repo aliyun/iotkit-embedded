@@ -50,10 +50,7 @@ int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_
 int dm_mgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                                  _OU_ int *devid);
 int dm_mgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node);
-int dm_mgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid);
-int dm_mgr_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source);
-int dm_mgr_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source);
-int dm_mgr_get_shadow(_IN_ int devid, void **shadow);
+
 int dm_mgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type);
 int dm_mgr_set_dev_enable(_IN_ int devid);
 int dm_mgr_set_dev_disable(_IN_ int devid);
@@ -69,46 +66,12 @@ int dm_mgr_get_dev_sub_service_event_number(_IN_ int devid, _OU_ int *number);
 int dm_mgr_get_dev_sub_service_event_index(_IN_ int devid, _OU_ int *index);
 int dm_mgr_get_dev_sub_service_event(_IN_ int devid, _IN_ int index, _OU_ char **service_event);
 int dm_mgr_clear_dev_sub_service_event(_IN_ int devid);
-
 void dm_mgr_dev_sub_status_check(void);
-int dm_mgr_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, int tsl_len);
-int dm_mgr_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN]);
-int dm_mgr_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_MAXLEN]);
 int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN]);
-int dm_mgr_get_device_secret(_IN_ int devid, _OU_ char device_secret[DEVICE_SECRET_MAXLEN]);
-int dm_mgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
-int dm_mgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
-int dm_mgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
-int dm_mgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
-int dm_mgr_get_data_type(_IN_ void *property, _OU_ dm_shw_data_type_e *type);
-int dm_mgr_get_property_number(_IN_ int devid, _OU_ int *number);
-int dm_mgr_get_service_number(_IN_ int devid, _OU_ int *number);
-int dm_mgr_get_event_number(_IN_ int devid, _OU_ int *number);
-int dm_mgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property);
-int dm_mgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service);
-int dm_mgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event);
-int dm_mgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service);
-int dm_mgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event);
-int dm_mgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier);
-int dm_mgr_get_service_method(_IN_ void *service, _OU_ char **method);
-int dm_mgr_get_event_method(_IN_ void *event, _OU_ char **method);
-int dm_mgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
-int dm_mgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int dm_mgr_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                  _IN_ int value_len);
-int dm_mgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int dm_mgr_set_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                   _IN_ int value_len);
-int dm_mgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int dm_mgr_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                    _IN_ int value_len);
-int dm_mgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-int dm_mgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-                             _IN_ lite_cjson_item_t *lite);
-int dm_mgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-                                 _IN_ lite_cjson_item_t *lite);
-int dm_mgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-                                   _IN_ lite_cjson_item_t *lite);
+
+int dm_mgr_deprecated_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+                                        _IN_ lite_cjson_item_t *lite);
+
 int dm_mgr_upstream_thing_sub_register(_IN_ int devid);
 int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid);
 int dm_mgr_upstream_thing_topo_add(_IN_ int devid);
@@ -134,5 +97,45 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
 int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_lan_prefix_get(_IN_ int devid);
-
+#ifdef DEPRECATED_LINKKIT
+int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source);
+int dm_mgr_deprecated_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source);
+int dm_mgr_deprecated_get_shadow(_IN_ int devid, void **shadow);
+int dm_mgr_deprecated_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid);
+int dm_mgr_deprecated_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, int tsl_len);
+int dm_mgr_deprecated_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN]);
+int dm_mgr_deprecated_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_MAXLEN]);
+int dm_mgr_deprecated_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_mgr_deprecated_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_mgr_deprecated_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_mgr_deprecated_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_mgr_deprecated_get_data_type(_IN_ void *property, _OU_ dm_shw_data_type_e *type);
+int dm_mgr_deprecated_get_property_number(_IN_ int devid, _OU_ int *number);
+int dm_mgr_deprecated_get_service_number(_IN_ int devid, _OU_ int *number);
+int dm_mgr_deprecated_get_event_number(_IN_ int devid, _OU_ int *number);
+int dm_mgr_deprecated_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property);
+int dm_mgr_deprecated_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service);
+int dm_mgr_deprecated_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event);
+int dm_mgr_deprecated_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service);
+int dm_mgr_deprecated_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event);
+int dm_mgr_deprecated_get_property_identifier(_IN_ void *property, _OU_ char **identifier);
+int dm_mgr_deprecated_get_service_method(_IN_ void *service, _OU_ char **method);
+int dm_mgr_deprecated_get_event_method(_IN_ void *event, _OU_ char **method);
+int dm_mgr_deprecated_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len);
+int dm_mgr_deprecated_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_mgr_deprecated_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len);
+int dm_mgr_deprecated_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_mgr_deprecated_set_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len);
+int dm_mgr_deprecated_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_mgr_deprecated_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len);
+int dm_mgr_deprecated_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_mgr_deprecated_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+        _IN_ lite_cjson_item_t *lite);
+int dm_mgr_deprecated_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+        _IN_ lite_cjson_item_t *lite);
+#endif
 #endif

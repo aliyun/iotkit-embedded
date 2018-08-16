@@ -59,25 +59,6 @@ static int _dm_mgr_search_dev_by_devid(_IN_ int devid, _OU_ dm_mgr_dev_node_t **
     return FAIL_RETURN;
 }
 
-static int _dm_mgr_search_devid_by_node(_IN_ dm_mgr_dev_node_t *node, _OU_ int *devid)
-{
-    dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
-    dm_mgr_dev_node_t *search_node = NULL;
-
-    list_for_each_entry(search_node, &ctx->dev_list, linked_list, dm_mgr_dev_node_t) {
-        if (search_node == node) {
-            dm_log_debug("Device Found, node: %p", node);
-            if (devid) {
-                *devid = search_node->devid;
-            }
-            return SUCCESS_RETURN;
-        }
-    }
-
-    dm_log_debug("Device Not Found, node: %p", node);
-    return FAIL_RETURN;
-}
-
 static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
                                       _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ dm_mgr_dev_node_t **node)
 {
@@ -444,83 +425,6 @@ int dm_mgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node)
     if (node) {
         *node = (void *)search_node;
     }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid)
-{
-    int res = 0;
-
-    if (node == NULL || devid == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_devid_by_node((dm_mgr_dev_node_t *)node, devid);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || tsl_source < 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    node->tsl_source = tsl_source;
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || tsl_source == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    *tsl_source = node->tsl_source;
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_shadow(_IN_ int devid, void **shadow)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || shadow == NULL || *shadow != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    *shadow = node->dev_shadow;
 
     return SUCCESS_RETURN;
 }
@@ -916,70 +820,6 @@ void dm_mgr_dev_sub_status_check(void)
     _dm_mgr_mutex_unlock();
 }
 
-int dm_mgr_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, int tsl_len)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (tsl == NULL || tsl_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_DMGR_DEVICE_NOT_FOUND, devid);
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_create(tsl_type, tsl, tsl_len, &node->dev_shadow);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN])
-{
-    int res  = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || product_key == NULL || strlen(product_key) >= PRODUCT_KEY_MAXLEN) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    memcpy(product_key, node->product_key, strlen(node->product_key));
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_MAXLEN])
-{
-    int res  = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || device_name == NULL || strlen(device_name) >= DEVICE_NAME_MAXLEN) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    memcpy(device_name, node->device_name, strlen(node->device_name));
-
-    return SUCCESS_RETURN;
-}
-
 int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
     int res = 0;
@@ -1002,166 +842,7 @@ int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECR
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_device_secret(_IN_ int devid, _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || device_secret == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    memcpy(device_secret, node->device_secret, strlen(node->device_secret));
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_property_data(node->dev_shadow, key, key_len, data);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_service_input_data(node->dev_shadow, key, key_len, data);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_service_output_data(node->dev_shadow, key, key_len, data);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_event_output_data(node->dev_shadow, key, key_len, data);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_data_type(_IN_ void *data, _OU_ dm_shw_data_type_e *type)
-{
-    if (data == NULL || type == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_data_type(data, type);
-}
-
-int dm_mgr_get_property_number(_IN_ int devid, _OU_ int *number)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || number == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_property_number(node->dev_shadow, number);
-}
-
-
-int dm_mgr_get_service_number(_IN_ int devid, _OU_ int *number)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || number == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_service_number(node->dev_shadow, number);
-}
-
-int dm_mgr_get_event_number(_IN_ int devid, _OU_ int *number)
+int dm_mgr_deprecated_get_event_number(_IN_ int devid, _OU_ int *number)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1179,7 +860,7 @@ int dm_mgr_get_event_number(_IN_ int devid, _OU_ int *number)
     return dm_shw_get_event_number(node->dev_shadow, number);
 }
 
-int dm_mgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property)
+int dm_mgr_deprecated_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1197,7 +878,7 @@ int dm_mgr_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **pro
     return dm_shw_get_property_by_index(node->dev_shadow, index, property);
 }
 
-int dm_mgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service)
+int dm_mgr_deprecated_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1215,7 +896,7 @@ int dm_mgr_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **serv
     return dm_shw_get_service_by_index(node->dev_shadow, index, service);
 }
 
-int dm_mgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
+int dm_mgr_deprecated_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1233,7 +914,7 @@ int dm_mgr_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
     return dm_shw_get_event_by_index(node->dev_shadow, index, event);
 }
 
-int dm_mgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service)
+int dm_mgr_deprecated_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1250,7 +931,7 @@ int dm_mgr_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_
     return dm_shw_get_service_by_identifier(node->dev_shadow, identifier, service);
 }
 
-int dm_mgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event)
+int dm_mgr_deprecated_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1268,7 +949,7 @@ int dm_mgr_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ v
     return dm_shw_get_event_by_identifier(node->dev_shadow, identifier, event);
 }
 
-int dm_mgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
+int dm_mgr_deprecated_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
 {
     if (property == NULL || identifier == NULL) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1278,7 +959,7 @@ int dm_mgr_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
     return dm_shw_get_property_identifier(property, identifier);
 }
 
-int dm_mgr_get_service_method(_IN_ void *service, _OU_ char **method)
+int dm_mgr_deprecated_get_service_method(_IN_ void *service, _OU_ char **method)
 {
     if (service == NULL || method == NULL || *method != NULL) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1288,7 +969,7 @@ int dm_mgr_get_service_method(_IN_ void *service, _OU_ char **method)
     return dm_shw_get_service_method(service, method);
 }
 
-int dm_mgr_get_event_method(_IN_ void *event, _OU_ char **method)
+int dm_mgr_deprecated_get_event_method(_IN_ void *event, _OU_ char **method)
 {
     if (event == NULL || method == NULL) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -1298,7 +979,8 @@ int dm_mgr_get_event_method(_IN_ void *event, _OU_ char **method)
     return dm_shw_get_event_method(event, method);
 }
 
-int dm_mgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
+int dm_mgr_deprecated_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1321,7 +1003,7 @@ int dm_mgr_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, 
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_deprecated_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1344,8 +1026,8 @@ int dm_mgr_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, 
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                  _IN_ int value_len)
+int dm_mgr_deprecated_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1368,7 +1050,7 @@ int dm_mgr_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_l
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_deprecated_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1391,8 +1073,8 @@ int dm_mgr_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_l
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_set_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                   _IN_ int value_len)
+int dm_mgr_deprecated_set_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1415,7 +1097,7 @@ int dm_mgr_set_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_deprecated_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1438,8 +1120,8 @@ int dm_mgr_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                    _IN_ int value_len)
+int dm_mgr_deprecated_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1462,7 +1144,7 @@ int dm_mgr_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+int dm_mgr_deprecated_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1485,8 +1167,8 @@ int dm_mgr_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-                             _IN_ lite_cjson_item_t *lite)
+int dm_mgr_deprecated_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+                                        _IN_ lite_cjson_item_t *lite)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1509,8 +1191,8 @@ int dm_mgr_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int ide
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-                                 _IN_ lite_cjson_item_t *lite)
+int dm_mgr_deprecated_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+        _IN_ lite_cjson_item_t *lite)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1533,8 +1215,8 @@ int dm_mgr_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-                                   _IN_ lite_cjson_item_t *lite)
+int dm_mgr_deprecated_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+        _IN_ lite_cjson_item_t *lite)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -2526,3 +2208,302 @@ int dm_mgr_upstream_thing_lan_prefix_get(_IN_ int devid)
     return res;
 }
 
+#ifdef DEPRECATED_LINKKIT
+int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || tsl_source < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    node->tsl_source = tsl_source;
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || tsl_source == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    *tsl_source = node->tsl_source;
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_shadow(_IN_ int devid, void **shadow)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || shadow == NULL || *shadow != NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    *shadow = node->dev_shadow;
+
+    return SUCCESS_RETURN;
+}
+
+static int dm_mgr_deprecated_search_devid_by_node(_IN_ dm_mgr_dev_node_t *node, _OU_ int *devid)
+{
+    dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
+    dm_mgr_dev_node_t *search_node = NULL;
+
+    list_for_each_entry(search_node, &ctx->dev_list, linked_list, dm_mgr_dev_node_t) {
+        if (search_node == node) {
+            dm_log_debug("Device Found, node: %p", node);
+            if (devid) {
+                *devid = search_node->devid;
+            }
+            return SUCCESS_RETURN;
+        }
+    }
+
+    dm_log_debug("Device Not Found, node: %p", node);
+    return FAIL_RETURN;
+}
+
+int dm_mgr_deprecated_search_devid_by_device_node(_IN_ void *node, _OU_ int *devid)
+{
+    int res = 0;
+
+    if (node == NULL || devid == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = dm_mgr_deprecated_search_devid_by_node((dm_mgr_dev_node_t *)node, devid);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char *tsl, int tsl_len)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (tsl == NULL || tsl_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_DMGR_DEVICE_NOT_FOUND, devid);
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_create(tsl_type, tsl, tsl_len, &node->dev_shadow);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_product_key(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN])
+{
+    int res  = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || product_key == NULL || strlen(product_key) >= PRODUCT_KEY_MAXLEN) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    memcpy(product_key, node->product_key, strlen(node->product_key));
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_device_name(_IN_ int devid, _OU_ char device_name[DEVICE_NAME_MAXLEN])
+{
+    int res  = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || device_name == NULL || strlen(device_name) >= DEVICE_NAME_MAXLEN) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    memcpy(device_name, node->device_name, strlen(node->device_name));
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_property_data(node->dev_shadow, key, key_len, data);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_service_input_data(node->dev_shadow, key, key_len, data);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_service_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_service_output_data(node->dev_shadow, key, key_len, data);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _OU_ void **data)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_event_output_data(node->dev_shadow, key, key_len, data);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_data_type(_IN_ void *data, _OU_ dm_shw_data_type_e *type)
+{
+    if (data == NULL || type == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_data_type(data, type);
+}
+
+int dm_mgr_deprecated_get_property_number(_IN_ int devid, _OU_ int *number)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || number == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_property_number(node->dev_shadow, number);
+}
+
+int dm_mgr_deprecated_get_service_number(_IN_ int devid, _OU_ int *number)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || number == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_service_number(node->dev_shadow, number);
+}
+#endif

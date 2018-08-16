@@ -164,546 +164,6 @@ int iotx_dm_close(void)
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_deprecated_construct(_IN_ iotx_dm_init_params_t *init_params)
-{
-    int res = 0;
-    dm_api_ctx_t *ctx = _dm_api_get_ctx();
-
-    memset(ctx, 0, sizeof(dm_api_ctx_t));
-
-    if (init_params == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    /* DM Mutex Create*/
-    ctx->mutex = HAL_MutexCreate();
-    if (ctx->mutex == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
-    }
-
-    /* DM Event Callback */
-    if (init_params->event_callback != NULL) {
-        ctx->event_callback = init_params->event_callback;
-    }
-
-    /* DM Message Cache Init */
-    res = dm_msg_cache_init();
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_MESSAGE_CACHE_INIT_FAILED);
-        goto ERROR;
-    }
-
-    /* DM Cloud Message Parse And Assemble Module Init */
-    res = dm_msg_init();
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_MESSAGE_INIT_FAILED);
-        goto ERROR;
-    }
-
-    /* DM IPC Module Init */
-    res = dm_ipc_init(IOTX_DM_DIPC_MSGLIST_MAXLEN);
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_IPC_INIT_FAILED);
-        goto ERROR;
-    }
-
-    /* DM Manager Module Init */
-    res = dm_mgr_init();
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_DMGR_INIT_FAILED);
-        goto ERROR;
-    }
-
-    /* DM CM Wrapper Module Init */
-    res = dm_cmw_init(init_params->secret_type, init_params->domain_type);
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_CM_INIT_FAILED);
-        goto ERROR;
-    }
-
-    /* DM Connect Module Init */
-    res = dm_conn_init();
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_CM_INIT_FAILED);
-        goto ERROR;
-    }
-
-    return SUCCESS_RETURN;
-
-ERROR:
-    dm_conn_deinit();
-    dm_cmw_deinit();
-    dm_mgr_deinit();
-    dm_ipc_deinit();
-    dm_msg_deinit();
-    dm_msg_cache_deinit();
-
-    if (ctx->mutex) {
-        HAL_MutexDestroy(ctx->mutex);
-    }
-    return FAIL_RETURN;
-}
-
-int iotx_dm_deprecated_destroy(void)
-{
-    dm_api_ctx_t *ctx = _dm_api_get_ctx();
-    dm_conn_deinit();
-    dm_cmw_deinit();
-    dm_mgr_deinit();
-    dm_ipc_deinit();
-    dm_msg_deinit();
-    dm_msg_cache_deinit();
-    dm_cota_deinit();
-    dm_fota_deinit();
-    dm_ota_deinit();
-
-    if (ctx->mutex) {
-        HAL_MutexDestroy(ctx->mutex);
-    }
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_deprecated_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len)
-{
-    int res = 0;
-
-    if (devid < 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    if (source == IOTX_DM_TSL_SOURCE_CLOUD) {
-        int sub_generic_index = 0;
-
-        res = dm_mgr_set_tsl_source(devid, source);
-        if (res != SUCCESS_RETURN) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        res = dm_mgr_get_dev_sub_generic_index(devid, &sub_generic_index);
-        if (res != SUCCESS_RETURN) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        if (sub_generic_index != DM_MGR_DEV_SUB_END) {
-            _dm_api_unlock();
-            return SUCCESS_RETURN;
-        }
-
-        res = dm_mgr_upstream_thing_dynamictsl_get(devid);
-
-        _dm_api_unlock();
-        return res;
-    }
-
-    if (source == IOTX_DM_TSL_SOURCE_LOCAL) {
-        if (tsl == NULL || tsl_len <= 0) {
-            dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        res = dm_mgr_set_tsl(devid, IOTX_DM_TSL_TYPE_ALINK, tsl, tsl_len);
-        if (res != SUCCESS_RETURN) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        res = dm_sub_shadow_destroy(devid);
-        if (res != SUCCESS_RETURN) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        res = dm_sub_shadow_create(devid);
-        if (res != SUCCESS_RETURN) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        _dm_api_unlock();
-        return SUCCESS_RETURN;
-    }
-
-    _dm_api_unlock();
-    return FAIL_RETURN;
-}
-
-int iotx_dm_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len)
-{
-    int res = 0;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_set_property_value(devid, key, key_len, value, value_len);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_get_property_value(devid, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                   _IN_ int value_len)
-{
-    int res = 0;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_set_event_output_value(devid, key, key_len, value, value_len);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_get_event_output_value(devid, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_get_service_input_value(devid, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                     _IN_ int value_len)
-{
-    int res = 0;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_set_service_output_value(devid, key, key_len, value, value_len);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_get_service_output_value(devid, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_deprecated_post_property_start(_IN_ int devid, _OU_ void **handle)
-{
-    dm_api_property_t *dapi_property = NULL;
-
-    if (devid < 0 || handle == NULL || *handle != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    dapi_property = DM_malloc(sizeof(dm_api_property_t));
-    if (dapi_property == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-    memset(dapi_property, 0, sizeof(dm_api_property_t));
-
-
-    /* Create Mutex */
-    dapi_property->mutex = HAL_MutexCreate();
-    if (dapi_property->mutex == NULL) {
-        DM_free(dapi_property);
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    /* Set Devid */
-    dapi_property->devid = devid;
-
-    /* Init Json Object */
-    dapi_property->lite = lite_cjson_create_object();
-    if (dapi_property->lite == NULL) {
-        DM_free(dapi_property->mutex);
-        DM_free(dapi_property);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    *handle = (void *)dapi_property;
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-static int _iotx_dm_deprecated_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
-{
-    int res = 0;
-    dm_api_property_t *dapi_property = NULL;
-
-    if (handle == NULL || identifier == NULL || identifier_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-    dapi_property = (dm_api_property_t *)handle;
-
-    /* Assemble Property Payload */
-    res = dm_mgr_assemble_property(dapi_property->devid, identifier, identifier_len, dapi_property->lite);
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_ASSEMBLE_FAILED, identifier_len, identifier);
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_deprecated_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
-{
-    int ret = SUCCESS_RETURN, res = 0, index = 0, number = 0;
-    void *property_refer = NULL;
-    char *identifier_refer = NULL;
-    dm_api_property_t *dapi_property = NULL;
-
-    if (handle == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    dapi_property = (dm_api_property_t *)handle;
-
-    if (identifier != IOTX_DM_POST_PROPERTY_ALL) {
-        if (identifier_len <= 0) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-        ret = _iotx_dm_deprecated_post_property_add(handle, identifier, identifier_len);
-
-        _dm_api_unlock();
-        return ret;
-    }
-
-    res = dm_mgr_get_property_number(dapi_property->devid, &number);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    for (index = 0; index < number; index++) {
-        property_refer = NULL;
-        identifier_refer = NULL;
-
-        res = dm_mgr_get_property_by_index(dapi_property->devid, index, &property_refer);
-        if (res != SUCCESS_RETURN) {
-            continue;
-        }
-
-        res = dm_mgr_get_property_identifier(property_refer, &identifier_refer);
-        if (res != SUCCESS_RETURN) {
-            continue;
-        }
-
-        res = _iotx_dm_deprecated_post_property_add(handle, identifier_refer, strlen(identifier_refer));
-        if (res != SUCCESS_RETURN) {
-            ret = FAIL_RETURN;
-        }
-    }
-
-    _dm_api_unlock();
-    return ret;
-}
-
-int iotx_dm_deprecated_post_property_end(_IN_ void **handle)
-{
-    int res = 0;
-    char *payload = NULL;
-    dm_api_property_t *dapi_property = NULL;
-
-    if (handle == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    dapi_property = *((dm_api_property_t **)handle);
-
-    payload = lite_cjson_print_unformatted(dapi_property->lite);
-    if (payload == NULL) {
-        lite_cjson_delete(dapi_property->lite);
-        if (dapi_property->mutex) {
-            HAL_MutexDestroy(dapi_property->mutex);
-        }
-        DM_free(dapi_property);
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    dm_log_debug("Current Property Post Payload, Length: %d, Payload: %s", strlen(payload), payload);
-
-    res = dm_mgr_upstream_thing_property_post(dapi_property->devid, payload, strlen(payload));
-
-    free(payload);
-    lite_cjson_delete(dapi_property->lite);
-    if (dapi_property->mutex) {
-        HAL_MutexDestroy(dapi_property->mutex);
-    }
-    DM_free(dapi_property);
-    *handle = NULL;
-
-    _dm_api_unlock();
-    return res;
-}
-
-int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len)
-{
-    int res = 0;
-    void *event = NULL;
-    lite_cjson_item_t *lite = NULL;
-    char *method = NULL, *payload = NULL;
-
-    if (devid < 0 || identifier == NULL || identifier_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    lite = lite_cjson_create_object();
-    if (lite == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    res = dm_mgr_assemble_event_output(devid, identifier, identifier_len, lite);
-    if (res != SUCCESS_RETURN) {
-        lite_cjson_delete(lite);
-        dm_log_err(DM_UTILS_LOG_TSL_EVENT_OUTPUT_ASSEMBLE_FAILED, identifier_len, identifier);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    payload = lite_cjson_print_unformatted(lite);
-    lite_cjson_delete(lite);
-    if (payload == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    dm_log_debug("Current Event Post Payload, Length: %d, Payload: %s", strlen(payload), payload);
-
-    res = dm_mgr_get_event_by_identifier(devid, identifier, &event);
-    if (res != SUCCESS_RETURN) {
-        free(payload);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    res = dm_mgr_get_event_method(event, &method);
-    if (res != SUCCESS_RETURN) {
-        free(payload);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    dm_log_debug("Current Event Method: %s", method);
-
-    res = dm_mgr_upstream_thing_event_post(devid, identifier, identifier_len, method, payload, strlen(payload));
-
-    free(payload);
-    DM_free(method);
-
-    _dm_api_unlock();
-    return res;
-}
-
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0;
@@ -752,54 +212,6 @@ int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifie
     }
 
     DM_free(method);
-    _dm_api_unlock();
-    return res;
-}
-
-int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier,
-        _IN_ int identifier_len)
-{
-    int res = 0;
-    lite_cjson_item_t *lite = NULL;
-    char *payload = NULL;
-
-    if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    lite = lite_cjson_create_object();
-    if (lite == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    res = dm_mgr_assemble_service_output(devid, identifier, identifier_len, lite);
-    if (res != SUCCESS_RETURN) {
-        lite_cjson_delete(lite);
-        dm_log_err(DM_UTILS_LOG_TSL_EVENT_OUTPUT_ASSEMBLE_FAILED, strlen(identifier), identifier);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    payload = lite_cjson_print_unformatted(lite);
-    lite_cjson_delete(lite);
-    if (payload == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    dm_log_debug("Current Service Response Payload, Length: %d, Payload: %s", strlen(payload), payload);
-
-    res = dm_mgr_deprecated_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload,
-            strlen(payload));
-
-    free(payload);
-
     _dm_api_unlock();
     return res;
 }
@@ -1156,183 +568,583 @@ int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
     return res;
 }
 
-int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
+int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
+                               _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    if (devid < 0 || msgid == NULL || msgid_len <= 0 || rrpcid == NULL || rrpcid_len <= 0 || payload == NULL
+        || payload_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_rrpc_response(devid, msgid, msgid_len, code, rrpcid, rrpcid_len, payload, payload_len);
+
+    _dm_api_unlock();
+    return res;
+}
+
+#ifdef DEPRECATED_LINKKIT
+int iotx_dm_deprecated_construct(_IN_ iotx_dm_init_params_t *init_params)
+{
+    int res = 0;
+    dm_api_ctx_t *ctx = _dm_api_get_ctx();
+
+    memset(ctx, 0, sizeof(dm_api_ctx_t));
+
+    if (init_params == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    /* DM Mutex Create*/
+    ctx->mutex = HAL_MutexCreate();
+    if (ctx->mutex == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        return FAIL_RETURN;
+    }
+
+    /* DM Event Callback */
+    if (init_params->event_callback != NULL) {
+        ctx->event_callback = init_params->event_callback;
+    }
+
+    /* DM Message Cache Init */
+    res = dm_msg_cache_init();
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_MESSAGE_CACHE_INIT_FAILED);
+        goto ERROR;
+    }
+
+    /* DM Cloud Message Parse And Assemble Module Init */
+    res = dm_msg_init();
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_MESSAGE_INIT_FAILED);
+        goto ERROR;
+    }
+
+    /* DM IPC Module Init */
+    res = dm_ipc_init(IOTX_DM_DIPC_MSGLIST_MAXLEN);
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_IPC_INIT_FAILED);
+        goto ERROR;
+    }
+
+    /* DM Manager Module Init */
+    res = dm_mgr_init();
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_DMGR_INIT_FAILED);
+        goto ERROR;
+    }
+
+    /* DM CM Wrapper Module Init */
+    res = dm_cmw_init(init_params->secret_type, init_params->domain_type);
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_CM_INIT_FAILED);
+        goto ERROR;
+    }
+
+    /* DM Connect Module Init */
+    res = dm_conn_init();
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_CM_INIT_FAILED);
+        goto ERROR;
+    }
+
+    return SUCCESS_RETURN;
+
+ERROR:
+    dm_conn_deinit();
+    dm_cmw_deinit();
+    dm_mgr_deinit();
+    dm_ipc_deinit();
+    dm_msg_deinit();
+    dm_msg_cache_deinit();
+
+    if (ctx->mutex) {
+        HAL_MutexDestroy(ctx->mutex);
+    }
+    return FAIL_RETURN;
+}
+
+int iotx_dm_deprecated_destroy(void)
+{
+    dm_api_ctx_t *ctx = _dm_api_get_ctx();
+    dm_conn_deinit();
+    dm_cmw_deinit();
+    dm_mgr_deinit();
+    dm_ipc_deinit();
+    dm_msg_deinit();
+    dm_msg_cache_deinit();
+    dm_cota_deinit();
+    dm_fota_deinit();
+    dm_ota_deinit();
+
+    if (ctx->mutex) {
+        HAL_MutexDestroy(ctx->mutex);
+    }
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len)
+{
+    int res = 0;
+
+    if (devid < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    if (source == IOTX_DM_TSL_SOURCE_CLOUD) {
+        int sub_generic_index = 0;
+
+        res = dm_mgr_deprecated_set_tsl_source(devid, source);
+        if (res != SUCCESS_RETURN) {
+            _dm_api_unlock();
+            return FAIL_RETURN;
+        }
+
+        res = dm_mgr_get_dev_sub_generic_index(devid, &sub_generic_index);
+        if (res != SUCCESS_RETURN) {
+            _dm_api_unlock();
+            return FAIL_RETURN;
+        }
+
+        if (sub_generic_index != DM_MGR_DEV_SUB_END) {
+            _dm_api_unlock();
+            return SUCCESS_RETURN;
+        }
+
+        res = dm_mgr_upstream_thing_dynamictsl_get(devid);
+
+        _dm_api_unlock();
+        return res;
+    }
+
+    if (source == IOTX_DM_TSL_SOURCE_LOCAL) {
+        if (tsl == NULL || tsl_len <= 0) {
+            dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+            _dm_api_unlock();
+            return FAIL_RETURN;
+        }
+
+        res = dm_mgr_deprecated_set_tsl(devid, IOTX_DM_TSL_TYPE_ALINK, tsl, tsl_len);
+        if (res != SUCCESS_RETURN) {
+            _dm_api_unlock();
+            return FAIL_RETURN;
+        }
+
+        res = dm_sub_shadow_destroy(devid);
+        if (res != SUCCESS_RETURN) {
+            _dm_api_unlock();
+            return FAIL_RETURN;
+        }
+
+        res = dm_sub_deprecated_shadow_create(devid);
+        if (res != SUCCESS_RETURN) {
+            _dm_api_unlock();
+            return FAIL_RETURN;
+        }
+
+        _dm_api_unlock();
+        return SUCCESS_RETURN;
+    }
+
+    _dm_api_unlock();
+    return FAIL_RETURN;
+}
+
+int iotx_dm_deprecated_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
+{
+    int res = 0;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_set_property_value(devid, key, key_len, value, value_len);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_get_property_value(devid, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
+{
+    int res = 0;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_set_event_output_value(devid, key, key_len, value, value_len);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_get_event_output_value(devid, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_get_service_input_value(devid, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
+{
+    int res = 0;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_set_service_output_value(devid, key, key_len, value, value_len);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_get_service_output_value(devid, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_post_property_start(_IN_ int devid, _OU_ void **handle)
+{
+    dm_api_property_t *dapi_property = NULL;
+
+    if (devid < 0 || handle == NULL || *handle != NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    dapi_property = DM_malloc(sizeof(dm_api_property_t));
+    if (dapi_property == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+    memset(dapi_property, 0, sizeof(dm_api_property_t));
+
+
+    /* Create Mutex */
+    dapi_property->mutex = HAL_MutexCreate();
+    if (dapi_property->mutex == NULL) {
+        DM_free(dapi_property);
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    /* Set Devid */
+    dapi_property->devid = devid;
+
+    /* Init Json Object */
+    dapi_property->lite = lite_cjson_create_object();
+    if (dapi_property->lite == NULL) {
+        DM_free(dapi_property->mutex);
+        DM_free(dapi_property);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    *handle = (void *)dapi_property;
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+static int _iotx_dm_deprecated_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
+{
+    int res = 0;
+    dm_api_property_t *dapi_property = NULL;
+
+    if (handle == NULL || identifier == NULL || identifier_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+    dapi_property = (dm_api_property_t *)handle;
+
+    /* Assemble Property Payload */
+    res = dm_mgr_deprecated_assemble_property(dapi_property->devid, identifier, identifier_len, dapi_property->lite);
+    if (res != SUCCESS_RETURN) {
+        dm_log_err(DM_UTILS_LOG_TSL_PROPERTY_ASSEMBLE_FAILED, identifier_len, identifier);
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_post_property_add(_IN_ void *handle, _IN_ char *identifier, _IN_ int identifier_len)
+{
+    int ret = SUCCESS_RETURN, res = 0, index = 0, number = 0;
+    void *property_refer = NULL;
+    char *identifier_refer = NULL;
+    dm_api_property_t *dapi_property = NULL;
+
+    if (handle == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    dapi_property = (dm_api_property_t *)handle;
+
+    if (identifier != IOTX_DM_POST_PROPERTY_ALL) {
+        if (identifier_len <= 0) {
+            _dm_api_unlock();
+            return FAIL_RETURN;
+        }
+        ret = _iotx_dm_deprecated_post_property_add(handle, identifier, identifier_len);
+
+        _dm_api_unlock();
+        return ret;
+    }
+
+    res = dm_mgr_deprecated_get_property_number(dapi_property->devid, &number);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    for (index = 0; index < number; index++) {
+        property_refer = NULL;
+        identifier_refer = NULL;
+
+        res = dm_mgr_deprecated_get_property_by_index(dapi_property->devid, index, &property_refer);
+        if (res != SUCCESS_RETURN) {
+            continue;
+        }
+
+        res = dm_mgr_deprecated_get_property_identifier(property_refer, &identifier_refer);
+        if (res != SUCCESS_RETURN) {
+            continue;
+        }
+
+        res = _iotx_dm_deprecated_post_property_add(handle, identifier_refer, strlen(identifier_refer));
+        if (res != SUCCESS_RETURN) {
+            ret = FAIL_RETURN;
+        }
+    }
+
+    _dm_api_unlock();
+    return ret;
+}
+
+int iotx_dm_deprecated_post_property_end(_IN_ void **handle)
+{
+    int res = 0;
+    char *payload = NULL;
+    dm_api_property_t *dapi_property = NULL;
+
+    if (handle == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    dapi_property = *((dm_api_property_t **)handle);
+
+    payload = lite_cjson_print_unformatted(dapi_property->lite);
+    if (payload == NULL) {
+        lite_cjson_delete(dapi_property->lite);
+        if (dapi_property->mutex) {
+            HAL_MutexDestroy(dapi_property->mutex);
+        }
+        DM_free(dapi_property);
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    dm_log_debug("Current Property Post Payload, Length: %d, Payload: %s", strlen(payload), payload);
+
+    res = dm_mgr_upstream_thing_property_post(dapi_property->devid, payload, strlen(payload));
+
+    free(payload);
+    lite_cjson_delete(dapi_property->lite);
+    if (dapi_property->mutex) {
+        HAL_MutexDestroy(dapi_property->mutex);
+    }
+    DM_free(dapi_property);
+    *handle = NULL;
+
+    _dm_api_unlock();
+    return res;
+}
+
+int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len)
+{
+    int res = 0;
+    void *event = NULL;
+    lite_cjson_item_t *lite = NULL;
+    char *method = NULL, *payload = NULL;
+
+    if (devid < 0 || identifier == NULL || identifier_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    lite = lite_cjson_create_object();
+    if (lite == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    res = dm_mgr_deprecated_assemble_event_output(devid, identifier, identifier_len, lite);
+    if (res != SUCCESS_RETURN) {
+        lite_cjson_delete(lite);
+        dm_log_err(DM_UTILS_LOG_TSL_EVENT_OUTPUT_ASSEMBLE_FAILED, identifier_len, identifier);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    payload = lite_cjson_print_unformatted(lite);
+    lite_cjson_delete(lite);
+    if (payload == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    dm_log_debug("Current Event Post Payload, Length: %d, Payload: %s", strlen(payload), payload);
+
+    res = dm_mgr_deprecated_get_event_by_identifier(devid, identifier, &event);
+    if (res != SUCCESS_RETURN) {
+        free(payload);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    res = dm_mgr_deprecated_get_event_method(event, &method);
+    if (res != SUCCESS_RETURN) {
+        free(payload);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    dm_log_debug("Current Event Method: %s", method);
+
+    res = dm_mgr_upstream_thing_event_post(devid, identifier, identifier_len, method, payload, strlen(payload));
+
+    free(payload);
+    DM_free(method);
+
+    _dm_api_unlock();
+    return res;
+}
+
+int iotx_dm_deprecated_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
 {
     return dm_cota_perform_sync(buffer, buffer_len);
 }
 
-int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys)
+int iotx_dm_deprecated_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys)
 {
     return dm_cota_get_config(config_scope, get_type, attribute_keys);
 }
 
-int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
+int iotx_dm_deprecated_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
 {
     return dm_fota_perform_sync(buffer, buffer_len);
 }
 
-int iotx_dm_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                      _IN_ char *value_str)
-{
-    int res = 0;
-    void *data = NULL;
-    dm_shw_data_type_e type;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || ((value == NULL) && (value_str == NULL))) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_get_property_data(devid, key, key_len, &data);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    res = dm_mgr_get_data_type(data, &type);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    switch (type) {
-        case DM_SHW_DATA_TYPE_INT:
-        case DM_SHW_DATA_TYPE_ENUM:
-        case DM_SHW_DATA_TYPE_BOOL: {
-            int value_int = (value == NULL) ? (atoi(value_str)) : (*(int *)value);
-            res = dm_mgr_set_property_value(devid, key, key_len, &value_int, sizeof(int));
-        }
-        break;
-        case DM_SHW_DATA_TYPE_FLOAT: {
-            float value_float = (value == NULL) ? (atof(value_str)) : (*(float *)value);
-            res = dm_mgr_set_property_value(devid, key, key_len, &value_float, sizeof(float));
-        }
-        break;
-        case DM_SHW_DATA_TYPE_DOUBLE: {
-            double value_double = (value == NULL) ? (atof(value_str)) : (*(float *)value);
-            res = dm_mgr_set_property_value(devid, key, key_len, &value_double, sizeof(double));
-        }
-        break;
-        case DM_SHW_DATA_TYPE_TEXT:
-        case DM_SHW_DATA_TYPE_DATE: {
-            char *value_string = (value == NULL) ? (value_str) : (value);
-            res = dm_mgr_set_property_value(devid, key, key_len, value_string, strlen(value_string));
-        }
-        break;
-        default: {
-            res =  FAIL_RETURN;
-        }
-        break;
-    }
-
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_legacy_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-                                      _IN_ char **value_str)
-{
-    int res = 0;
-    void *data = NULL;
-    dm_shw_data_type_e type;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || ((value == NULL) && (value_str == NULL))) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-    res = dm_mgr_get_property_data(devid, key, key_len, &data);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    res = dm_mgr_get_data_type(data, &type);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    switch (type) {
-        case DM_SHW_DATA_TYPE_INT:
-        case DM_SHW_DATA_TYPE_ENUM:
-        case DM_SHW_DATA_TYPE_BOOL: {
-            int value_int = 0;
-            res = dm_mgr_get_property_value(devid, key, key_len, (void *)&value_int);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    *(int *)value = value_int;
-                }
-                if (value_str) {
-                    res = dm_utils_itoa_direct(value_int, value_str);
-                }
-            }
-        }
-        break;
-        case DM_SHW_DATA_TYPE_FLOAT: {
-            float value_float = 0;
-            res = dm_mgr_get_property_value(devid, key, key_len, (void *)&value_float);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    *(float *)value = value_float;
-                }
-                if (value_str) {
-                    res = dm_utils_ftoa_direct(value_float, value_str);
-                }
-            }
-        }
-        break;
-        case DM_SHW_DATA_TYPE_DOUBLE: {
-            double value_double = 0;
-            res = dm_mgr_get_property_value(devid, key, key_len, (void *)&value_double);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    *(double *)value = value_double;
-                }
-                if (value_str) {
-                    res = dm_utils_ftoa_direct(value_double, value_str);
-                }
-            }
-        }
-        break;
-        case DM_SHW_DATA_TYPE_TEXT:
-        case DM_SHW_DATA_TYPE_DATE: {
-            char *value_string = NULL;
-            res = dm_mgr_get_property_value(devid, key, key_len, (void *)&value_string);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    memcpy(value, value_string, strlen(value_string));
-                    free(value_string);
-                }
-                if (value_str) {
-                    *value_str = value_string;
-                }
-            }
-        }
-        break;
-        default: {
-            res =  FAIL_RETURN;
-        }
-        break;
-    }
-
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+int iotx_dm_deprecated_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
         _IN_ char *value_str)
 {
     int res = 0;
@@ -1345,13 +1157,13 @@ int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
     }
 
     _dm_api_lock();
-    res = dm_mgr_get_event_output_data(devid, key, key_len, &data);
+    res = dm_mgr_deprecated_get_property_data(devid, key, key_len, &data);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
     }
 
-    res = dm_mgr_get_data_type(data, &type);
+    res = dm_mgr_deprecated_get_data_type(data, &type);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
@@ -1362,23 +1174,23 @@ int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
         case DM_SHW_DATA_TYPE_ENUM:
         case DM_SHW_DATA_TYPE_BOOL: {
             int value_int = (value == NULL) ? (atoi(value_str)) : (*(int *)value);
-            res = dm_mgr_set_event_output_value(devid, key, key_len, &value_int, sizeof(int));
+            res = dm_mgr_deprecated_set_property_value(devid, key, key_len, &value_int, sizeof(int));
         }
         break;
         case DM_SHW_DATA_TYPE_FLOAT: {
             float value_float = (value == NULL) ? (atof(value_str)) : (*(float *)value);
-            res = dm_mgr_set_event_output_value(devid, key, key_len, &value_float, sizeof(float));
+            res = dm_mgr_deprecated_set_property_value(devid, key, key_len, &value_float, sizeof(float));
         }
         break;
         case DM_SHW_DATA_TYPE_DOUBLE: {
             double value_double = (value == NULL) ? (atof(value_str)) : (*(float *)value);
-            res = dm_mgr_set_event_output_value(devid, key, key_len, &value_double, sizeof(double));
+            res = dm_mgr_deprecated_set_property_value(devid, key, key_len, &value_double, sizeof(double));
         }
         break;
         case DM_SHW_DATA_TYPE_TEXT:
         case DM_SHW_DATA_TYPE_DATE: {
             char *value_string = (value == NULL) ? (value_str) : (value);
-            res = dm_mgr_set_event_output_value(devid, key, key_len, value_string, strlen(value_string));
+            res = dm_mgr_deprecated_set_property_value(devid, key, key_len, value_string, strlen(value_string));
         }
         break;
         default: {
@@ -1396,7 +1208,7 @@ int iotx_dm_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+int iotx_dm_deprecated_legacy_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
         _IN_ char **value_str)
 {
     int res = 0;
@@ -1409,13 +1221,13 @@ int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
     }
 
     _dm_api_lock();
-    res = dm_mgr_get_event_output_data(devid, key, key_len, &data);
+    res = dm_mgr_deprecated_get_property_data(devid, key, key_len, &data);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
     }
 
-    res = dm_mgr_get_data_type(data, &type);
+    res = dm_mgr_deprecated_get_data_type(data, &type);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
@@ -1426,7 +1238,7 @@ int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
         case DM_SHW_DATA_TYPE_ENUM:
         case DM_SHW_DATA_TYPE_BOOL: {
             int value_int = 0;
-            res = dm_mgr_get_event_output_value(devid, key, key_len, (void *)&value_int);
+            res = dm_mgr_deprecated_get_property_value(devid, key, key_len, (void *)&value_int);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     *(int *)value = value_int;
@@ -1439,7 +1251,7 @@ int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
         break;
         case DM_SHW_DATA_TYPE_FLOAT: {
             float value_float = 0;
-            res = dm_mgr_get_event_output_value(devid, key, key_len, (void *)&value_float);
+            res = dm_mgr_deprecated_get_property_value(devid, key, key_len, (void *)&value_float);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     *(float *)value = value_float;
@@ -1452,7 +1264,7 @@ int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
         break;
         case DM_SHW_DATA_TYPE_DOUBLE: {
             double value_double = 0;
-            res = dm_mgr_get_event_output_value(devid, key, key_len, (void *)&value_double);
+            res = dm_mgr_deprecated_get_property_value(devid, key, key_len, (void *)&value_double);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     *(double *)value = value_double;
@@ -1466,7 +1278,7 @@ int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
         case DM_SHW_DATA_TYPE_TEXT:
         case DM_SHW_DATA_TYPE_DATE: {
             char *value_string = NULL;
-            res = dm_mgr_get_event_output_value(devid, key, key_len, (void *)&value_string);
+            res = dm_mgr_deprecated_get_property_value(devid, key, key_len, (void *)&value_string);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     memcpy(value, value_string, strlen(value_string));
@@ -1493,105 +1305,7 @@ int iotx_dm_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ i
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-        _IN_ char **value_str)
-{
-    int res = 0;
-    void *data = NULL;
-    dm_shw_data_type_e type;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || ((value == NULL) && (value_str == NULL))) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    _dm_api_lock();
-
-    res = dm_mgr_get_service_input_data(devid, key, key_len, &data);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    res = dm_mgr_get_data_type(data, &type);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    switch (type) {
-        case DM_SHW_DATA_TYPE_INT:
-        case DM_SHW_DATA_TYPE_ENUM:
-        case DM_SHW_DATA_TYPE_BOOL: {
-            int value_int = 0;
-            res = dm_mgr_get_service_input_value(devid, key, key_len, (void *)&value_int);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    *(int *)value = value_int;
-                }
-                if (value_str) {
-                    res = dm_utils_itoa_direct(value_int, value_str);
-                }
-            }
-        }
-        break;
-        case DM_SHW_DATA_TYPE_FLOAT: {
-            float value_float = 0;
-            res = dm_mgr_get_service_input_value(devid, key, key_len, (void *)&value_float);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    *(float *)value = value_float;
-                }
-                if (value_str) {
-                    res = dm_utils_ftoa_direct(value_float, value_str);
-                }
-            }
-        }
-        break;
-        case DM_SHW_DATA_TYPE_DOUBLE: {
-            double value_double = 0;
-            res = dm_mgr_get_service_input_value(devid, key, key_len, (void *)&value_double);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    *(double *)value = value_double;
-                }
-                if (value_str) {
-                    res = dm_utils_ftoa_direct(value_double, value_str);
-                }
-            }
-        }
-        break;
-        case DM_SHW_DATA_TYPE_TEXT:
-        case DM_SHW_DATA_TYPE_DATE: {
-            char *value_string = NULL;
-            res = dm_mgr_get_service_input_value(devid, key, key_len, (void *)&value_string);
-            if (res == SUCCESS_RETURN) {
-                if (value) {
-                    memcpy(value, value_string, strlen(value_string));
-                    free(value_string);
-                }
-                if (value_str) {
-                    *value_str = value_string;
-                }
-            }
-        }
-        break;
-        default: {
-            res =  FAIL_RETURN;
-        }
-        break;
-    }
-
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+int iotx_dm_deprecated_legacy_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
         _IN_ char *value_str)
 {
     int res = 0;
@@ -1604,13 +1318,13 @@ int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
     }
 
     _dm_api_lock();
-    res = dm_mgr_get_service_output_data(devid, key, key_len, &data);
+    res = dm_mgr_deprecated_get_event_output_data(devid, key, key_len, &data);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
     }
 
-    res = dm_mgr_get_data_type(data, &type);
+    res = dm_mgr_deprecated_get_data_type(data, &type);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
@@ -1621,23 +1335,23 @@ int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
         case DM_SHW_DATA_TYPE_ENUM:
         case DM_SHW_DATA_TYPE_BOOL: {
             int value_int = (value == NULL) ? (atoi(value_str)) : (*(int *)value);
-            res = dm_mgr_set_service_output_value(devid, key, key_len, &value_int, sizeof(int));
+            res = dm_mgr_deprecated_set_event_output_value(devid, key, key_len, &value_int, sizeof(int));
         }
         break;
         case DM_SHW_DATA_TYPE_FLOAT: {
             float value_float = (value == NULL) ? (atof(value_str)) : (*(float *)value);
-            res = dm_mgr_set_service_output_value(devid, key, key_len, &value_float, sizeof(float));
+            res = dm_mgr_deprecated_set_event_output_value(devid, key, key_len, &value_float, sizeof(float));
         }
         break;
         case DM_SHW_DATA_TYPE_DOUBLE: {
             double value_double = (value == NULL) ? (atof(value_str)) : (*(float *)value);
-            res = dm_mgr_set_service_output_value(devid, key, key_len, &value_double, sizeof(double));
+            res = dm_mgr_deprecated_set_event_output_value(devid, key, key_len, &value_double, sizeof(double));
         }
         break;
         case DM_SHW_DATA_TYPE_TEXT:
         case DM_SHW_DATA_TYPE_DATE: {
             char *value_string = (value == NULL) ? (value_str) : (value);
-            res = dm_mgr_set_service_output_value(devid, key, key_len, value_string, strlen(value_string));
+            res = dm_mgr_deprecated_set_event_output_value(devid, key, key_len, value_string, strlen(value_string));
         }
         break;
         default: {
@@ -1655,7 +1369,7 @@ int iotx_dm_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+int iotx_dm_deprecated_legacy_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
         _IN_ char **value_str)
 {
     int res = 0;
@@ -1668,14 +1382,13 @@ int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
     }
 
     _dm_api_lock();
-
-    res = dm_mgr_get_service_output_data(devid, key, key_len, &data);
+    res = dm_mgr_deprecated_get_event_output_data(devid, key, key_len, &data);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
     }
 
-    res = dm_mgr_get_data_type(data, &type);
+    res = dm_mgr_deprecated_get_data_type(data, &type);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
@@ -1686,7 +1399,7 @@ int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
         case DM_SHW_DATA_TYPE_ENUM:
         case DM_SHW_DATA_TYPE_BOOL: {
             int value_int = 0;
-            res = dm_mgr_get_service_output_value(devid, key, key_len, (void *)&value_int);
+            res = dm_mgr_deprecated_get_event_output_value(devid, key, key_len, (void *)&value_int);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     *(int *)value = value_int;
@@ -1699,7 +1412,7 @@ int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
         break;
         case DM_SHW_DATA_TYPE_FLOAT: {
             float value_float = 0;
-            res = dm_mgr_get_service_output_value(devid, key, key_len, (void *)&value_float);
+            res = dm_mgr_deprecated_get_event_output_value(devid, key, key_len, (void *)&value_float);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     *(float *)value = value_float;
@@ -1712,7 +1425,7 @@ int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
         break;
         case DM_SHW_DATA_TYPE_DOUBLE: {
             double value_double = 0;
-            res = dm_mgr_get_service_output_value(devid, key, key_len, (void *)&value_double);
+            res = dm_mgr_deprecated_get_event_output_value(devid, key, key_len, (void *)&value_double);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     *(double *)value = value_double;
@@ -1726,7 +1439,7 @@ int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
         case DM_SHW_DATA_TYPE_TEXT:
         case DM_SHW_DATA_TYPE_DATE: {
             char *value_string = NULL;
-            res = dm_mgr_get_service_output_value(devid, key, key_len, (void *)&value_string);
+            res = dm_mgr_deprecated_get_event_output_value(devid, key, key_len, (void *)&value_string);
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     memcpy(value, value_string, strlen(value_string));
@@ -1753,8 +1466,271 @@ int iotx_dm_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN],
-                                     _OU_ char device_name[DEVICE_NAME_MAXLEN])
+int iotx_dm_deprecated_legacy_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len,
+        _IN_ void *value,
+        _IN_ char **value_str)
+{
+    int res = 0;
+    void *data = NULL;
+    dm_shw_data_type_e type;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || ((value == NULL) && (value_str == NULL))) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+
+    res = dm_mgr_deprecated_get_service_input_data(devid, key, key_len, &data);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    res = dm_mgr_deprecated_get_data_type(data, &type);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    switch (type) {
+        case DM_SHW_DATA_TYPE_INT:
+        case DM_SHW_DATA_TYPE_ENUM:
+        case DM_SHW_DATA_TYPE_BOOL: {
+            int value_int = 0;
+            res = dm_mgr_deprecated_get_service_input_value(devid, key, key_len, (void *)&value_int);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    *(int *)value = value_int;
+                }
+                if (value_str) {
+                    res = dm_utils_itoa_direct(value_int, value_str);
+                }
+            }
+        }
+        break;
+        case DM_SHW_DATA_TYPE_FLOAT: {
+            float value_float = 0;
+            res = dm_mgr_deprecated_get_service_input_value(devid, key, key_len, (void *)&value_float);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    *(float *)value = value_float;
+                }
+                if (value_str) {
+                    res = dm_utils_ftoa_direct(value_float, value_str);
+                }
+            }
+        }
+        break;
+        case DM_SHW_DATA_TYPE_DOUBLE: {
+            double value_double = 0;
+            res = dm_mgr_deprecated_get_service_input_value(devid, key, key_len, (void *)&value_double);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    *(double *)value = value_double;
+                }
+                if (value_str) {
+                    res = dm_utils_ftoa_direct(value_double, value_str);
+                }
+            }
+        }
+        break;
+        case DM_SHW_DATA_TYPE_TEXT:
+        case DM_SHW_DATA_TYPE_DATE: {
+            char *value_string = NULL;
+            res = dm_mgr_deprecated_get_service_input_value(devid, key, key_len, (void *)&value_string);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    memcpy(value, value_string, strlen(value_string));
+                    free(value_string);
+                }
+                if (value_str) {
+                    *value_str = value_string;
+                }
+            }
+        }
+        break;
+        default: {
+            res =  FAIL_RETURN;
+        }
+        break;
+    }
+
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_legacy_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len,
+        _IN_ void *value,
+        _IN_ char *value_str)
+{
+    int res = 0;
+    void *data = NULL;
+    dm_shw_data_type_e type;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || ((value == NULL) && (value_str == NULL))) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_deprecated_get_service_output_data(devid, key, key_len, &data);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    res = dm_mgr_deprecated_get_data_type(data, &type);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    switch (type) {
+        case DM_SHW_DATA_TYPE_INT:
+        case DM_SHW_DATA_TYPE_ENUM:
+        case DM_SHW_DATA_TYPE_BOOL: {
+            int value_int = (value == NULL) ? (atoi(value_str)) : (*(int *)value);
+            res = dm_mgr_deprecated_set_service_output_value(devid, key, key_len, &value_int, sizeof(int));
+        }
+        break;
+        case DM_SHW_DATA_TYPE_FLOAT: {
+            float value_float = (value == NULL) ? (atof(value_str)) : (*(float *)value);
+            res = dm_mgr_deprecated_set_service_output_value(devid, key, key_len, &value_float, sizeof(float));
+        }
+        break;
+        case DM_SHW_DATA_TYPE_DOUBLE: {
+            double value_double = (value == NULL) ? (atof(value_str)) : (*(float *)value);
+            res = dm_mgr_deprecated_set_service_output_value(devid, key, key_len, &value_double, sizeof(double));
+        }
+        break;
+        case DM_SHW_DATA_TYPE_TEXT:
+        case DM_SHW_DATA_TYPE_DATE: {
+            char *value_string = (value == NULL) ? (value_str) : (value);
+            res = dm_mgr_deprecated_set_service_output_value(devid, key, key_len, value_string, strlen(value_string));
+        }
+        break;
+        default: {
+            res =  FAIL_RETURN;
+        }
+        break;
+    }
+
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_legacy_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len,
+        _IN_ void *value,
+        _IN_ char **value_str)
+{
+    int res = 0;
+    void *data = NULL;
+    dm_shw_data_type_e type;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || ((value == NULL) && (value_str == NULL))) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+
+    res = dm_mgr_deprecated_get_service_output_data(devid, key, key_len, &data);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    res = dm_mgr_deprecated_get_data_type(data, &type);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    switch (type) {
+        case DM_SHW_DATA_TYPE_INT:
+        case DM_SHW_DATA_TYPE_ENUM:
+        case DM_SHW_DATA_TYPE_BOOL: {
+            int value_int = 0;
+            res = dm_mgr_deprecated_get_service_output_value(devid, key, key_len, (void *)&value_int);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    *(int *)value = value_int;
+                }
+                if (value_str) {
+                    res = dm_utils_itoa_direct(value_int, value_str);
+                }
+            }
+        }
+        break;
+        case DM_SHW_DATA_TYPE_FLOAT: {
+            float value_float = 0;
+            res = dm_mgr_deprecated_get_service_output_value(devid, key, key_len, (void *)&value_float);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    *(float *)value = value_float;
+                }
+                if (value_str) {
+                    res = dm_utils_ftoa_direct(value_float, value_str);
+                }
+            }
+        }
+        break;
+        case DM_SHW_DATA_TYPE_DOUBLE: {
+            double value_double = 0;
+            res = dm_mgr_deprecated_get_service_output_value(devid, key, key_len, (void *)&value_double);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    *(double *)value = value_double;
+                }
+                if (value_str) {
+                    res = dm_utils_ftoa_direct(value_double, value_str);
+                }
+            }
+        }
+        break;
+        case DM_SHW_DATA_TYPE_TEXT:
+        case DM_SHW_DATA_TYPE_DATE: {
+            char *value_string = NULL;
+            res = dm_mgr_deprecated_get_service_output_value(devid, key, key_len, (void *)&value_string);
+            if (res == SUCCESS_RETURN) {
+                if (value) {
+                    memcpy(value, value_string, strlen(value_string));
+                    free(value_string);
+                }
+                if (value_str) {
+                    *value_str = value_string;
+                }
+            }
+        }
+        break;
+        default: {
+            res =  FAIL_RETURN;
+        }
+        break;
+    }
+
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_deprecated_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN],
+        _OU_ char device_name[DEVICE_NAME_MAXLEN])
 {
     int res = 0;
 
@@ -1766,13 +1742,13 @@ int iotx_dm_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODU
     }
 
     _dm_api_lock();
-    res = dm_mgr_get_product_key(devid, product_key);
+    res = dm_mgr_deprecated_get_product_key(devid, product_key);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
     }
 
-    res = dm_mgr_get_device_name(devid, device_name);
+    res = dm_mgr_deprecated_get_device_name(devid, device_name);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
@@ -1782,8 +1758,8 @@ int iotx_dm_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODU
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_devid_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
-                                     _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
+int iotx_dm_deprecated_legacy_get_devid_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
+        _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
 {
     int res = 0;
 
@@ -1805,7 +1781,7 @@ int iotx_dm_legacy_get_devid_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_thingid_by_devid(_IN_ int devid, _OU_ void **thing_id)
+int iotx_dm_deprecated_legacy_get_thingid_by_devid(_IN_ int devid, _OU_ void **thing_id)
 {
     int res = 0;
 
@@ -1825,7 +1801,7 @@ int iotx_dm_legacy_get_thingid_by_devid(_IN_ int devid, _OU_ void **thing_id)
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid)
+int iotx_dm_deprecated_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid)
 {
     int res = 0;
 
@@ -1835,7 +1811,7 @@ int iotx_dm_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid)
     }
 
     _dm_api_lock();
-    res = dm_mgr_search_devid_by_device_node(thing_id, devid);
+    res = dm_mgr_deprecated_search_devid_by_device_node(thing_id, devid);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
@@ -1845,7 +1821,7 @@ int iotx_dm_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int *devid)
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name)
+int iotx_dm_deprecated_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -1870,7 +1846,7 @@ int iotx_dm_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
+int iotx_dm_deprecated_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
         _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0;
@@ -1884,33 +1860,51 @@ int iotx_dm_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ io
     return res;
 }
 
-int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
-                               _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
+int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
+        _IN_ char *identifier,
+        _IN_ int identifier_len)
 {
     int res = 0;
+    lite_cjson_item_t *lite = NULL;
+    char *payload = NULL;
 
-    if (devid < 0 || msgid == NULL || msgid_len <= 0 || rrpcid == NULL || rrpcid_len <= 0 || payload == NULL
-        || payload_len <= 0) {
+    if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 
     _dm_api_lock();
+    lite = lite_cjson_create_object();
+    if (lite == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
 
-    res = dm_mgr_upstream_rrpc_response(devid, msgid, msgid_len, code, rrpcid, rrpcid_len, payload, payload_len);
+    res = dm_mgr_deprecated_assemble_service_output(devid, identifier, identifier_len, lite);
+    if (res != SUCCESS_RETURN) {
+        lite_cjson_delete(lite);
+        dm_log_err(DM_UTILS_LOG_TSL_EVENT_OUTPUT_ASSEMBLE_FAILED, strlen(identifier), identifier);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    payload = lite_cjson_print_unformatted(lite);
+    lite_cjson_delete(lite);
+    if (payload == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    dm_log_debug("Current Service Response Payload, Length: %d, Payload: %s", strlen(payload), payload);
+
+    res = dm_mgr_deprecated_upstream_thing_service_response(devid, msgid, code, identifier, identifier_len, payload,
+            strlen(payload));
+
+    free(payload);
 
     _dm_api_unlock();
     return res;
 }
-
-int iotx_dm_legacy_send_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
-{
-    int res = 0;
-
-    _dm_api_lock();
-
-    res = dm_mgr_upstream_thing_model_up_raw(devid, payload, payload_len);
-
-    _dm_api_unlock();
-    return res;
-}
+#endif

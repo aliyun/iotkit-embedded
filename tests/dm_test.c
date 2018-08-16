@@ -72,9 +72,10 @@ static void _linkkit_event_thing_service_request(char *payload)
         return;
     }
     linkkit_log("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
-
+#ifdef DEPRECATED_LINKKIT
     iotx_dm_deprecated_send_service_response(lite_item_devid.value_int, lite_item_id.value_int, IOTX_DM_ERR_CODE_SUCCESS,
             lite_item_serviceid.value, lite_item_serviceid.value_length);
+#endif
 }
 
 static void _linkkit_event_subdev_register_reply(char *payload)
@@ -204,8 +205,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut001)
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = linkkit_event_callback;
-
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_construct(&dm_init_params);
+#endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
@@ -224,7 +226,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut002)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = linkkit_event_callback;
 
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_construct(&dm_init_params);
+#endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
@@ -244,7 +248,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut003)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = linkkit_event_callback;
 
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_construct(&dm_init_params);
+#endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
@@ -264,7 +270,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut004)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = linkkit_event_callback;
 
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_construct(&dm_init_params);
+#endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
@@ -283,8 +291,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut005)
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_TYPES_MAX;
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = linkkit_event_callback;
-
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_construct(&dm_init_params);
+#endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
@@ -303,8 +312,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut006)
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_PRODUCT;
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_MAX;
     dm_init_params.event_callback = linkkit_event_callback;
-
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_construct(&dm_init_params);
+#endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
@@ -324,7 +334,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut007)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = NULL;
 
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_construct(&dm_init_params);
+#endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
@@ -338,17 +350,20 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut008)
     HAL_SetDeviceName("gw_test001");
     HAL_SetDeviceSecret("36oIO0wOoXOcspodNz4OYJtXghZ6nX92");
     /* DM Construct */
+#ifdef DEPRECATED_LINKKIT
     iotx_dm_init_params_t *dm_init_params = NULL;
-
     res = iotx_dm_deprecated_construct(dm_init_params);
+#endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
 
 CASE(DM_TEST, iotx_dm_deprecated_set_tsl_ut001)
 {
     int res = 0;
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_set_tsl(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_TSL_SOURCE_LOCAL, LINKKIT_TSL_STRING_TEST,
                                      strlen(LINKKIT_TSL_STRING_TEST));
+#endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
@@ -367,9 +382,11 @@ CASE(DM_TEST, IOT_DM_Yield_ut001)
 CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001)
 {
     int res = 0;
+#ifdef DEPRECATED_LINKKIT
     res = iotx_dm_deprecated_destroy();
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
+#endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
 
