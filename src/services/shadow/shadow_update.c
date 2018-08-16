@@ -168,6 +168,7 @@ void iotx_ds_update_wait_ack_list_handle_response(
                     } else if (0 == strncmp(pdata, "error", strlen(pdata))) {
                         int ack_code;
 
+                        LITE_free(pdata);
                         pdata = LITE_json_value_of("content.errorcode", (char *)ppayload);
                         if (NULL == pdata) {
                             shadow_warning("Invalid JSON document: not 'content.errorcode' key");
