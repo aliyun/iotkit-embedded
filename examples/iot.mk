@@ -84,28 +84,22 @@ endif
 
 ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
 
-    ifneq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
-        ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
-        TARGET                          += linkkit-example-solo
-        SRCS_linkkit-example-solo       := linkkit/linkkit_example_solo.c
-        endif
+    ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
+    TARGET                          += linkkit-example-solo
+    SRCS_linkkit-example-solo       := linkkit/linkkit_example_solo.c
+    endif
     
-        ifneq (,$(filter -DCONFIG_DM_DEVTYPE_GATEWAY,$(CFLAGS)))
-        TARGET                          += linkkit-example-gw
-        SRCS_linkkit-example-gw         += linkkit/linkkit_example_gateway.c \
+    ifneq (,$(filter -DCONFIG_DM_DEVTYPE_GATEWAY,$(CFLAGS)))
+    TARGET                          += linkkit-example-gw
+    SRCS_linkkit-example-gw         += linkkit/linkkit_example_gateway.c \
                                        linkkit/light.c \
                                        linkkit/cJSON.c
-        endif
-
-		TARGET += linkkit-example-countdown
-		SRCS_linkkit-example-countdown = linkkit/linkkit_example_countdown.c
-
-        TARGET += linkkit-example-sched
-        SRCS_linkkit-example-sched = linkkit/linkkit_example_sched.c
     endif
+
+    TARGET += linkkit-example-countdown
+    SRCS_linkkit-example-countdown = linkkit/linkkit_example_countdown.c
+
+    TARGET += linkkit-example-sched
+    SRCS_linkkit-example-sched = linkkit/linkkit_example_sched.c
  
-    ifeq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
-        TARGET                         += iot-linkkit-example
-        SRCS_iot-linkkit-example       := linkkit/iot_linkkit_example.c
-    endif
 endif
