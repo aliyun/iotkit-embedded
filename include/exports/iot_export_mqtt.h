@@ -262,7 +262,28 @@ int IOT_MQTT_Subscribe(void *handle,
                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
                        void *pcontext);
 
-
+/**
+ * @brief Subscribe MQTT topic and wait suback.
+ *
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] topic_filter: specify the topic filter.
+ * @param [in] qos: specify the MQTT Requested QoS.
+ * @param [in] topic_handle_func: specify the topic handle callback-function.
+ * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
+ * @param [in] timeout_ms: time in ms to wait.
+ * @param [in] do_yield: 0:no internal yield;otherwise:has internal yield.
+ *
+ * @retval -1  : Subscribe failed.
+ * @retval >=0 : Subscribe successful.
+          The value is a unique ID of this request.
+          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+int IOT_MQTT_Subscribe_SYNC(void *handle,
+                       const char *topic_filter,
+                       iotx_mqtt_qos_t qos,
+                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                       void *pcontext,int timeout_ms,int do_yield);
 /**
  * @brief Unsubscribe MQTT topic.
  *
