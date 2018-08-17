@@ -131,12 +131,6 @@ int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
  */
 void     IOT_HTTP_Disconnect(void *handle);
 
-/*
-TEST MACROS
-    Daily Test Environment:         -DTEST_HTTP_DAILY
-    Pre-Online Test Environment:    -DTEST_HTTP_PRE
-*/
-
 /** @} */ /* end of api_http */
 /** @} */ /* end of api */
 

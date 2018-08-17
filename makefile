@@ -3,11 +3,6 @@ include make.settings
 include src/tools/default_settings.mk
 include src/tools/parse_make_settings.mk
 
-# CFLAGS  += -DTEST_MQTT_DAILY
-# CFLAGS  += -DTEST_HTTP_DAILY
-# CFLAGS  += -DTEST_COAP_DAILY
-# CFLAGS  += -DTEST_ITLS_DAILY
-# CFLAGS  += -DTEST_OTA_PRE
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 # CFLAGS  += -DINSPECT_MQTT_LIST
 

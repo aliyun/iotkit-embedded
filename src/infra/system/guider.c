@@ -695,7 +695,7 @@ int iotx_guider_authenticate(void)
 #endif  /* MQTT_DIRECT */
 
 
-#ifdef GATEWAY_SUPPORT
+#ifdef SUBDEVICE_ENABLED
     gw = 1;
 #endif
 
