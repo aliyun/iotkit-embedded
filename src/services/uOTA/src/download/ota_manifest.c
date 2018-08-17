@@ -90,6 +90,7 @@ int ota_set_resp_msg(const char *value)
 int8_t ota_if_need(ota_response_params *response_parmas,
                    ota_request_params  *request_parmas)
 {
+    int ret = 0;
     int is_primary_ota =
       strncmp(response_parmas->primary_version, request_parmas->primary_version,
               strlen(response_parmas->primary_version));
@@ -102,13 +103,17 @@ int8_t ota_if_need(ota_response_params *response_parmas,
     char ota_version[MAX_VERSION_LEN] = { 0 };
     if (is_primary_ota > 0) {
         if (strlen(request_parmas->secondary_version)) {
-            ota_snprintf(ota_version, MAX_VERSION_LEN, "%s_%s",
+            ret = ota_snprintf(ota_version, MAX_VERSION_LEN, "%s_%s",
                          response_parmas->primary_version,
                          (char *)ota_get_app_version);
             if (is_secondary_ota == 0) {
                 ota_set_update_type(OTA_KERNEL);
                 is_need_ota = 1;
             }
+	if ((ret > MAX_VERSION_LEN)||(ret < 0)) {
+             OTA_LOG_E("HAL_Snprintf failed");
+	     return 0;     
+	}
         } else {
             ota_snprintf(ota_version, MAX_VERSION_LEN, "%s",
                          response_parmas->primary_version);
@@ -117,9 +122,13 @@ int8_t ota_if_need(ota_response_params *response_parmas,
     }
 
     if (is_primary_ota == 0 && is_secondary_ota > 0) {
-        ota_snprintf(ota_version, MAX_VERSION_LEN, "%s_%s",
+        ret = ota_snprintf(ota_version, MAX_VERSION_LEN, "%s_%s",
                      response_parmas->primary_version,
                      response_parmas->secondary_version);
+	if ((ret > MAX_VERSION_LEN)||(ret < 0)) {
+             OTA_LOG_E("HAL_Snprintf failed");
+	     return 0;     
+	}
         ota_set_update_type(OTA_APP);
         is_need_ota = 1;
     }
