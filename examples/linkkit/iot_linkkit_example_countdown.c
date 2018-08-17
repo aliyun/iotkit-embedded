@@ -72,22 +72,23 @@ static void *app_get_context(void)
 }
 
 /*
- * Property CountDown paylaod construction
+ * Property CountDown paylaod construction and post
  */
-static char *app_construct_countdown_payload(int isrun, int timelf, int pwrsw, char* timestamp)
+static int app_post_countdown(int isrun, int timelf, int pwrsw, char* timestamp, app_context_t *app_ctx)
 {
+    int ret = -1;
     char *payload = NULL;
     cJSON *root, *prop;
 
     root = cJSON_CreateObject();
     if (root == NULL) {
-        return NULL;
+        return ret;
     }
 
     prop = cJSON_CreateObject();
     if (root == NULL) {
         cJSON_Delete(root);
-        return NULL;
+        return ret;
     }
 
     cJSON_AddItemToObject(root, PROPERTY_COUNTDOWN, prop);
@@ -99,37 +100,58 @@ static char *app_construct_countdown_payload(int isrun, int timelf, int pwrsw, c
     payload = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
 
-    return payload;
+    /* Post the CountDown property */
+    if (payload == NULL) {
+        return ret;
+    }
+    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
+    free(payload);
+    if (ret < 0) {
+        APP_TRACE("app post property \"CountDown\" failed");
+        return ret;
+    }
+    APP_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
+
+    return ret;
 }
 
 /*
- * Property PowerSwitch paylaod construction
+ * Property PowerSwitch paylaod construction and post
  */
-static char *app_construct_powerswitch_payload(int pwrsw)
+static int app_post_powerswitch(int pwrsw, app_context_t *app_ctx)
 {
+    int ret = -1;
     char *payload = NULL;
     cJSON *root = cJSON_CreateObject();
     if (root == NULL) {
-        return NULL;
+        return ret;
     }
 
     cJSON_AddNumberToObject(root, PROPERTY_POWERSWITCH, pwrsw);
-
     payload = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
 
-    return payload;
-}
+    /* Post the PowerSwitch property */
+    if (payload == NULL) {
+        return ret;
+    }
 
+    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
+    free(payload);
+    if (ret < 0) {
+        APP_TRACE("app post property \"PowerSwitch\" failed");
+        return ret; 
+    }
+    APP_TRACE("app post property \"PowerSwitch\" secceed, msgID = %d\r\n", ret);
+    
+    return ret;
+}
 
 /*
  * Timer expired handle funciton, trigger powerswitch action and post specific property here
  */
 static void app_timer_expired_handle(void *ctx)
 {
-    int ret = -1;
-    char *payload = NULL;
-
     app_context_t *app_ctx = app_get_context();
     if (NULL == app_ctx) {
         APP_TRACE("can't get app context, just return");
@@ -142,30 +164,10 @@ static void app_timer_expired_handle(void *ctx)
     app_ctx->powerSwitch_Actual = app_ctx->powerSwitch_Target;
 
     /* Set PowerSwitch property then post */
-    payload = app_construct_powerswitch_payload(app_ctx->powerSwitch_Actual);
-    if (payload == NULL) {
-        return;
-    }
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
-    free(payload);
-    if (ret < 0) {
-        APP_TRACE("app post property \"PowerSwitch\" failed");
-        return;        
-    }
-    APP_TRACE("app post property \"PowerSwitch\" succeed, msgID = %d\r\n", ret);
+    app_post_powerswitch(app_ctx->powerSwitch_Actual, app_ctx);
 
     /* Set CountDown property then post */
-    payload = app_construct_countdown_payload(0, 0, app_ctx->powerSwitch_Target, app_ctx->timestamp);
-    if (payload == NULL) {
-        return;
-    }
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
-    free(payload);
-    if (ret < 0) {
-        APP_TRACE("app post property \"CountDown\" failed");
-        return;
-    }
-    APP_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
+    app_post_countdown(0, 0, app_ctx->powerSwitch_Target, app_ctx->timestamp, app_ctx);
 }
 
 static void *app_timer_open(void *ctx)
@@ -261,10 +263,14 @@ static int property_set_handle(const int devid, const char *payload, const int p
             return ret;
         }
         APP_TRACE("property is PowerSwitch");
+
         app_ctx->powerSwitch_Actual = prop->valueint;
         APP_TRACE("PowerSwitch actual value set to %d\r\n", app_ctx->powerSwitch_Actual);
-
         cJSON_Delete(root);
+
+        /* Post PowerSwitch value */
+        app_post_powerswitch(app_ctx->powerSwitch_Actual, app_ctx);
+
         return ret;  
     }
 
@@ -331,15 +337,8 @@ static int property_set_handle(const int devid, const char *payload, const int p
     APP_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
 
     /* Post the PowerSwitch property, powerSwitch_Actual used */
-    char *payload_pwrsw = app_construct_powerswitch_payload(app_ctx->powerSwitch_Actual);
-
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload_pwrsw, strlen(payload_pwrsw));
-    free(payload_pwrsw);
-    if (ret < 0) {
-        APP_TRACE("app post property \"PowerSwitch\" failed");
-        return ret; 
-    }
-    APP_TRACE("app post property \"PowerSwitch\" secceed, msgID = %d\r\n", ret);
+            /* Post PowerSwitch value */
+    app_post_powerswitch(app_ctx->powerSwitch_Actual, app_ctx);
 
     return 0;
 }

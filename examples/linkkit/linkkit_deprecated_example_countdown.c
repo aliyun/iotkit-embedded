@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -441,6 +440,31 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
             return ret;
         }
         APP_TRACE("app post property \"%s\" succeed", property);
+
+        /* Set property "PowerSwitch" then post */
+        ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_powerswitch,
+                                &app_ctx->powerSwitch_Actual, NULL);
+        if (ret != SUCCESS_RETURN) {
+            APP_TRACE("app set property \"%s\" failed", app_ctx->prop_powerswitch);
+            return ret;
+        }
+
+        ret = linkkit_post_property(app_ctx->thing, app_ctx->prop_powerswitch, post_property_cb);
+        if (ret != SUCCESS_RETURN) {
+            APP_TRACE("app post property \"%s\" failed", app_ctx->prop_powerswitch);
+            return ret;
+        }
+        APP_TRACE("app post property \"%s\" succeed", app_ctx->prop_powerswitch);
+    }
+    else if (strstr(property, app_ctx->prop_powerswitch) != 0) {
+        int powerSwitch[1] = {0};
+
+        /* Get property value of "PowerSwitch" */
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, app_ctx->prop_powerswitch, powerSwitch, NULL);
+        APP_TRACE("app get property value, PowerSwitch = %d", powerSwitch[0]);
+
+        /* Trigger powerswitch action, just set value here */
+        app_ctx->powerSwitch_Actual = powerSwitch[0];
 
         /* Set property "PowerSwitch" then post */
         ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_powerswitch,

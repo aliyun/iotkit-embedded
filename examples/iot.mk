@@ -96,14 +96,8 @@ ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
                                        linkkit/cJSON.c
     endif
 
-    ifeq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
     TARGET += linkkit-example-countdown
-    SRCS_linkkit-example-countdown = linkkit/iot_linkkit_example_countdown.c
-    endif
-    ifneq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
-    TARGET += linkkit-example-countdown
-    SRCS_linkkit-example-countdown = linkkit/linkkit_example_countdown.c 
-    endif
+    SRCS_linkkit-example-countdown = linkkit/linkkit_example_cntdown.c
     
     TARGET += linkkit-example-sched
     SRCS_linkkit-example-sched = linkkit/linkkit_example_sched.c
