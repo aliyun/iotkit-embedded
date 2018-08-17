@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <math.h>
 #include <stdlib.h>
 #include <float.h>
@@ -134,7 +135,7 @@ CJSON_PUBLIC(void) cJSON_InitHooks(cJSON_Hooks* hooks)
 	global_hooks.allocate = malloc;
 	if (hooks->malloc_fn != NULL)
 	{
-		global_hooks.allocate = hooks->malloc_fn;
+		global_hooks.allocate = (void *(*)(size_t))hooks->malloc_fn;
 	}
 
 	global_hooks.deallocate = free;
