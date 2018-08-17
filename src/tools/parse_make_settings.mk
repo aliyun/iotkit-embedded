@@ -17,8 +17,10 @@ SWITCH_VARS :=  \
     FEATURE_SUBDEVICE_ENABLED \
     FEATURE_SDK_ENHANCE \
 
-SWITCH_VARS += $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(TOP_DIR)/make.settings|uniq)
+SWITCH_VARS += $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(TOP_DIR)/make.settings $(TOP_DIR)/src/tools/default_settings.mk|cut -d: -f2|uniq)
 SWITCH_VARS := $(sort $(SWITCH_VARS))
+
+$(warning $(SWITCH_VARS))
 
 $(foreach v, \
     $(SWITCH_VARS), \
