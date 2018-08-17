@@ -25,6 +25,19 @@ FEATURE_SUBDEVICE_ENABLED       ?= n
 ##
 FEATURE_COAP_COMM_ENABLED       ?= n
 
+## FEATURE_DEPRECATED_LINKKIT
+##
+## Brief:   Enable providing Thing-Model related functions via deprecated/old/obsoleted APIs
+##          They're named as linkkit_xxx() or linkkit_gateway_xxx(), declared in linkkit_export.h and linkkit_gateway_export.h
+##
+##          NOTE: These APIs are known carrying non-fixable bugs so deprecated
+##          NOTE: In long term we recommend migration to writing Thing-Model related applications with IOT_Linkkit_XXX() APIs
+##
+## Usage:   Switching to "y" leads to SDK providing APIs in linkkit_export.h + linkkit_gateway_export.h
+##          Switching to "n" leads to SDK providing APIs in iot_export_linkkit.h
+##
+FEATURE_DEPRECATED_LINKKIT      ?= y
+
 CONFIG_LIB_EXPORT               ?= static
 
 # gateway & subdevice
