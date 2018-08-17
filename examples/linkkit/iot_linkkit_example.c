@@ -16,17 +16,38 @@
         HAL_Printf("\033[0m\r\n");                                   \
     } while (0)
 
-static int master_devid = 0;
+typedef struct {
+    int master_devid;
+    int cloud_connected;
+    int master_initialized;
+} user_example_ctx_t;
+
+static user_example_ctx_t g_user_example_ctx;
+
+static user_example_ctx_t *user_example_get_ctx(void)
+{
+    return &g_user_example_ctx;
+}
 
 static int user_connected_event_handler(void)
 {
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
     EXAMPLE_TRACE("Cloud Connected");
+
+    user_example_ctx->cloud_connected = 1;
+
     return 0;
 }
 
 static int user_disconnected_event_handler(void)
 {
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
     EXAMPLE_TRACE("Cloud Disconnected");
+
+    user_example_ctx->cloud_connected = 0;
+
     return 0;
 }
 
@@ -137,9 +158,11 @@ static int user_sync_service_request_event_handler(const int devid, const char *
 static int user_property_set_event_handler(const int devid, const char *request, const int request_len)
 {
     int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
-    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)request, request_len);
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0,
+                           (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 
     return 0;
@@ -279,7 +302,12 @@ static int user_ntp_response_event_handler(const char *utc)
 
 static int user_initialized(const int devid)
 {
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     EXAMPLE_TRACE("Device Initialized, Devid: %d", devid);
+
+    if (user_example_ctx->master_devid == devid) {
+        user_example_ctx->master_initialized = 1;
+    }
 
     return 0;
 }
@@ -312,9 +340,10 @@ static uint64_t user_update_sec(void)
 void user_post_property(void)
 {
     int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *property_payload = "{\"LightSwitch\":1}";
 
-    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0,
                            (unsigned char *)property_payload, strlen(property_payload));
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
@@ -322,10 +351,11 @@ void user_post_property(void)
 void user_post_event(void)
 {
     int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *event_id = "Error";
     char *event_payload = "{\"ErrorCode\":0}";
 
-    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_EVENT, event_id, strlen(event_id),
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_EVENT, event_id, strlen(event_id),
                            (unsigned char *)event_payload, strlen(event_payload));
     EXAMPLE_TRACE("Post Event Message ID: %d", res);
 }
@@ -333,9 +363,10 @@ void user_post_event(void)
 void user_deviceinfo_update(void)
 {
     int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *device_info_update = "[{\"attrKey\":\"abc\",\"attrValue\":\"hello,world\"}]";
 
-    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE, NULL, 0,
                            (unsigned char *)device_info_update, strlen(device_info_update));
     EXAMPLE_TRACE("Device Info Update Message ID: %d", res);
 }
@@ -343,9 +374,10 @@ void user_deviceinfo_update(void)
 void user_deviceinfo_delete(void)
 {
     int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *device_info_delete = "[{\"attrKey\":\"abc\"}]";
 
-    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_DELETE, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_DELETE, NULL, 0,
                            (unsigned char *)device_info_delete, strlen(device_info_delete));
     EXAMPLE_TRACE("Device Info Delete Message ID: %d", res);
 }
@@ -353,21 +385,36 @@ void user_deviceinfo_delete(void)
 void user_post_raw_data(void)
 {
     int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     unsigned char raw_data[7] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
-    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_RAW_DATA, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_RAW_DATA, NULL, 0,
                            raw_data, 7);
     EXAMPLE_TRACE("Post Raw Data Message ID: %d", res);
+}
+
+static int user_master_dev_available(void)
+{
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    if (user_example_ctx->cloud_connected && user_example_ctx->master_initialized) {
+        return 1;
+    }
+
+    return 0;
 }
 
 int main(int argc, char *argv[])
 {
     int res = 0;
     uint64_t time_prev_sec = 0, time_now_sec = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
-    cJSON_Hooks cjson_hooks = {HAL_Malloc, HAL_Free};
+
+    memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
     /* Init cJSON Hooks */
+    cJSON_Hooks cjson_hooks = {HAL_Malloc, HAL_Free};
     cJSON_InitHooks(&cjson_hooks);
 
     IOT_OpenLog("iot_linkkit");
@@ -380,8 +427,8 @@ int main(int argc, char *argv[])
     memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
 
     /* Create Master Device Resources */
-    master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (master_devid < 0) {
+    user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+    if (user_example_ctx->master_devid < 0) {
         EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
         return -1;
     }
@@ -396,14 +443,15 @@ int main(int argc, char *argv[])
 
     /* Choose Whether You Need Post Property Reply */
     int post_property_reply = 0;
-    IOT_Linkkit_Ioctl(master_devid, IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY, (void *)&post_property_reply);
+    IOT_Linkkit_Ioctl(user_example_ctx->master_devid, IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY,
+                      (void *)&post_property_reply);
 
     /* Choose Whether You Need Post Event Reply */
     int post_event_reply = 0;
-    IOT_Linkkit_Ioctl(master_devid, IOTX_LINKKIT_CMD_OPTION_EVENT_POST_REPLY, (void *)&post_event_reply);
+    IOT_Linkkit_Ioctl(user_example_ctx->master_devid, IOTX_LINKKIT_CMD_OPTION_EVENT_POST_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Start(master_devid, &user_event_handler);
+    res = IOT_Linkkit_Start(user_example_ctx->master_devid, &user_event_handler);
     if (res < 0) {
         EXAMPLE_TRACE("IOT_Linkkit_Start Failed\n");
         return -1;
@@ -418,32 +466,32 @@ int main(int argc, char *argv[])
         }
 
         /* Post Proprety Example */
-        if (time_now_sec % 11 == 0) {
+        if (time_now_sec % 11 == 0 && user_master_dev_available()) {
             user_post_property();
         }
         /* Post Event Example */
-        if (time_now_sec % 17 == 0) {
+        if (time_now_sec % 17 == 0 && user_master_dev_available()) {
             user_post_event();
         }
 
         /* Device Info Update Example */
-        if (time_now_sec % 23 == 0) {
+        if (time_now_sec % 23 == 0 && user_master_dev_available()) {
             user_deviceinfo_update();
         }
 
         /* Device Info Delete Example */
-        if (time_now_sec % 29 == 0) {
+        if (time_now_sec % 29 == 0 && user_master_dev_available()) {
             user_deviceinfo_delete();
         }
 
         /* Post Raw Example */
-        if (time_now_sec % 37 == 0) {
+        if (time_now_sec % 37 == 0 && user_master_dev_available()) {
             user_post_raw_data();
         }
 
         time_prev_sec = time_now_sec;
     }
 
-    IOT_Linkkit_Close(master_devid);
+    IOT_Linkkit_Close(user_example_ctx->master_devid);
     return 0;
 }
