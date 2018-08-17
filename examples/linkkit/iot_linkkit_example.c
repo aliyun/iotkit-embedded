@@ -13,7 +13,7 @@
     do {                                                     \
         HAL_Printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
         HAL_Printf(__VA_ARGS__);                                 \
-        HAL_Printf("\033[0m\n\n");                                   \
+        HAL_Printf("\033[0m\r\n");                                   \
     } while (0)
 
 static int master_devid = 0;
@@ -99,7 +99,7 @@ static int user_sync_service_request_event_handler(const int devid, const char *
                   serviceid,
                   request);
 
-    /* Parse Root */
+    /* Parse Request */
     root = cJSON_Parse(request);
     if (root == NULL || !cJSON_IsObject(root)) {
         EXAMPLE_TRACE("JSON Parse Error");
@@ -134,26 +134,139 @@ static int user_sync_service_request_event_handler(const int devid, const char *
     return 0;
 }
 
-static int user_property_set_event_handler(const int devid, const char *payload, const int payload_len)
+static int user_property_set_event_handler(const int devid, const char *request, const int request_len)
 {
     int res = 0;
-    EXAMPLE_TRACE("Property Set Received, Devid: %d, Payload: %s", devid, payload);
+    EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
-    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, payload_len);
+    res = IOT_Linkkit_Post(master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 
     return 0;
 }
 
-static int user_post_reply_event_handler(const int devid, const int msgid, const int code, const char *payload,
-        const int payload_len)
+static int user_property_get_event_handler(const int devid, const char *request, const int request_len, char **response,
+        int *response_len)
 {
-    const char *reply = (payload == NULL) ? ("NULL") : (payload);
-    const int reply_len = (payload_len == 0) ? (strlen("NULL")) : (payload_len);
+    cJSON *request_root = NULL, *item_propertyid = NULL;
+    cJSON *response_root = NULL;
+    int index = 0;
+    EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
 
-    EXAMPLE_TRACE("Message Post Reply Received, Devid: %d, Message ID: %d, Code: %d, Payload: %.*s", devid, msgid, code,
-                  reply_len,
-                  reply);
+    /* Parse Request */
+    request_root = cJSON_Parse(request);
+    if (request_root == NULL || !cJSON_IsArray(request_root)) {
+        EXAMPLE_TRACE("JSON Parse Error");
+        return -1;
+    }
+
+    /* Prepare Response */
+    response_root = cJSON_CreateObject();
+    if (response_root == NULL) {
+        EXAMPLE_TRACE("No Enough Memory");
+        cJSON_Delete(request_root);
+        return -1;
+    }
+
+    for (index = 0; index < cJSON_GetArraySize(request_root); index++) {
+        item_propertyid = cJSON_GetArrayItem(request_root, index);
+        if (item_propertyid == NULL || !cJSON_IsString(item_propertyid)) {
+            EXAMPLE_TRACE("JSON Parse Error");
+            cJSON_Delete(request_root);
+            cJSON_Delete(response_root);
+            return -1;
+        }
+
+        EXAMPLE_TRACE("Property ID, index: %d, Value: %s", index, item_propertyid->valuestring);
+
+        if (strcmp("WIFI_Band", item_propertyid->valuestring) == 0) {
+            cJSON_AddStringToObject(response_root, "WIFI_Band", "2.4G");
+        } else if (strcmp("WIFI_Channel", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "WIFI_Channel", 3);
+        } else if (strcmp("WiFI_RSSI", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "WiFI_RSSI", -30);
+        } else if (strcmp("WiFI_SNR", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "WiFI_SNR", 100);
+        } else if (strcmp("WIFI_AP_BSSID", item_propertyid->valuestring) == 0) {
+            cJSON_AddStringToObject(response_root, "WIFI_AP_BSSID", "testap");
+        } else if (strcmp("WIFI_Tx_Rate", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "WIFI_Tx_Rate", 1111);
+        } else if (strcmp("WIFI_Rx_Rate", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "WIFI_Rx_Rate", 2222);
+        } else if (strcmp("RGBColor", item_propertyid->valuestring) == 0) {
+            cJSON *item_rgbcolor = cJSON_CreateObject();
+            if (item_rgbcolor == NULL) {
+                cJSON_Delete(request_root);
+                cJSON_Delete(response_root);
+                return -1;
+            }
+            cJSON_AddNumberToObject(item_rgbcolor, "Red", 100);
+            cJSON_AddNumberToObject(item_rgbcolor, "Green", 100);
+            cJSON_AddNumberToObject(item_rgbcolor, "Blue", 100);
+            cJSON_AddItemToObject(response_root, "RGBColor", item_rgbcolor);
+        } else if (strcmp("HSVColor", item_propertyid->valuestring) == 0) {
+            cJSON *item_hsvcolor = cJSON_CreateObject();
+            if (item_hsvcolor == NULL) {
+                cJSON_Delete(request_root);
+                cJSON_Delete(response_root);
+                return -1;
+            }
+            cJSON_AddNumberToObject(item_hsvcolor, "Hue", 50);
+            cJSON_AddNumberToObject(item_hsvcolor, "Saturation", 50);
+            cJSON_AddNumberToObject(item_hsvcolor, "Value", 50);
+            cJSON_AddItemToObject(response_root, "HSVColor", item_hsvcolor);
+        } else if (strcmp("HSLColor", item_propertyid->valuestring) == 0) {
+            cJSON *item_hslcolor = cJSON_CreateObject();
+            if (item_hslcolor == NULL) {
+                cJSON_Delete(request_root);
+                cJSON_Delete(response_root);
+                return -1;
+            }
+            cJSON_AddNumberToObject(item_hslcolor, "Hue", 70);
+            cJSON_AddNumberToObject(item_hslcolor, "Saturation", 70);
+            cJSON_AddNumberToObject(item_hslcolor, "Lightness", 70);
+            cJSON_AddItemToObject(response_root, "HSLColor", item_hslcolor);
+        } else if (strcmp("WorkMode", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "WorkMode", 4);
+        } else if (strcmp("NightLightSwitch", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "NightLightSwitch", 1);
+        } else if (strcmp("Brightness", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "Brightness", 30);
+        } else if (strcmp("LightSwitch", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "LightSwitch", 1);
+        } else if (strcmp("ColorTemperature", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "ColorTemperature", 2800);
+        } else if (strcmp("PropertyCharacter", item_propertyid->valuestring) == 0) {
+            cJSON_AddStringToObject(response_root, "PropertyCharacter", "testprop");
+        } else if (strcmp("Propertypoint", item_propertyid->valuestring) == 0) {
+            cJSON_AddNumberToObject(response_root, "Propertypoint", 50);
+        }
+    }
+    cJSON_Delete(request_root);
+
+    *response = cJSON_PrintUnformatted(response_root);
+    if (*response == NULL) {
+        EXAMPLE_TRACE("No Enough Memory");
+        cJSON_Delete(response_root);
+        return -1;
+    }
+    cJSON_Delete(response_root);
+    *response_len = strlen(*response);
+
+    EXAMPLE_TRACE("Property Get Response: %s", *response);
+
+    return SUCCESS_RETURN;
+}
+
+static int user_post_reply_event_handler(const int devid, const int msgid, const int code, const char *reply,
+        const int reply_len)
+{
+    const char *reply_value = (reply == NULL) ? ("NULL") : (reply);
+    const int reply_value_len = (reply_len == 0) ? (strlen("NULL")) : (reply_len);
+
+    EXAMPLE_TRACE("Message Post Reply Received, Devid: %d, Message ID: %d, Code: %d, Reply: %.*s", devid, msgid, code,
+                  reply_value_len,
+                  reply_value);
     return 0;
 }
 
@@ -179,6 +292,7 @@ static iotx_linkkit_event_handler_t user_event_handler = {
     .async_service_request = user_async_service_request_event_handler,
     .sync_service_request  = user_sync_service_request_event_handler,
     .property_set          = user_property_set_event_handler,
+    .property_get          = user_property_get_event_handler,
     .post_reply            = user_post_reply_event_handler,
     .ntp_response          = user_ntp_response_event_handler,
     .initialized           = user_initialized

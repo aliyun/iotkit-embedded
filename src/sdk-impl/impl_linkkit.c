@@ -19,6 +19,7 @@
 #define IOTX_LINKKIT_KEY_VERSION     "version"
 #define IOTX_LINKKIT_KEY_UTC         "utc"
 #define IOTX_LINKKIT_KEY_RRPCID      "rrpcid"
+#define IOTX_LINKKIT_KEY_CTX         "ctx"
 
 typedef struct {
     void *mutex;
@@ -210,6 +211,84 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             }
 
             HAL_Free(property_payload);
+        }
+        break;
+        case IOTX_DM_EVENT_PROPERTY_GET: {
+            int res = 0, response_len = 0;
+            char *request = NULL, *response = NULL;
+            uint64_t property_get_ctx_num = 0;
+            void *property_get_ctx = NULL;
+            lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_payload, lite_item_ctx;
+
+            /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse Id */
+            memset(&lite_item_id, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_ID, strlen(IOTX_LINKKIT_KEY_ID), &lite_item_id);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Id: %.*s", lite_item_id.value_length, lite_item_id.value);
+
+            /* Parse Devid */
+            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID), &lite_item_devid);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+
+            /* Parse Payload */
+            memset(&lite_item_payload, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_PAYLOAD, strlen(IOTX_LINKKIT_KEY_PAYLOAD),
+                                         &lite_item_payload);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+
+            /* Parse Ctx */
+            memset(&lite_item_ctx, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, IOTX_LINKKIT_KEY_CTX, strlen(IOTX_LINKKIT_KEY_CTX),
+                                         &lite_item_ctx);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            sdk_debug("Current Ctx: %.*s", lite_item_ctx.value_length, lite_item_ctx.value);
+
+            LITE_hexstr_convert(lite_item_ctx.value, lite_item_ctx.value_length, (unsigned char *)&property_get_ctx_num,
+                                sizeof(uint64_t));
+            property_get_ctx = (void *)property_get_ctx_num;
+            sdk_debug("property_get_ctx_num: %0x016llX", property_get_ctx_num);
+            sdk_debug("property_get_ctx: %p", property_get_ctx);
+
+            request = HAL_Malloc(lite_item_payload.value_length + 1);
+            if (request == NULL) {
+                sdk_err("No Enough Memory");
+                return;
+            }
+            memset(request, 0, lite_item_payload.value_length + 1);
+            memcpy(request, lite_item_payload.value, lite_item_payload.value_length);
+
+            if (ctx->user_event_handler->property_get) {
+                res = ctx->user_event_handler->property_get(lite_item_devid.value_int, request,
+                        lite_item_payload.value_length, &response, &response_len);
+
+                if (response != NULL && response_len > 0) {
+                    /* property get response exist */
+                    iotx_dm_error_code_t code = (res == 0) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
+                    iotx_dm_send_property_get_response(lite_item_devid.value_int, lite_item_id.value, lite_item_id.value_length, code,
+                                                       response, response_len, property_get_ctx);
+                    HAL_Free(response);
+                }
+            }
+
+            HAL_Free(request);
         }
         break;
         case IOTX_DM_EVENT_MODEL_DOWN_RAW: {

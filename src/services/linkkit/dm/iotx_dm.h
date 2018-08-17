@@ -64,6 +64,7 @@ typedef enum {
     IOTX_DM_EVENT_REMOVE_SERVICE_RESULT,
     IOTX_DM_EVENT_NEW_DATA_RECEIVED,
     IOTX_DM_EVENT_PROPERTY_SET,
+    IOTX_DM_EVENT_PROPERTY_GET,
     IOTX_DM_EVENT_TOPO_ADD_NOTIFY,
     IOTX_DM_EVENT_THING_SERVICE_REQUEST,
     IOTX_DM_EVENT_THING_DISABLE,
@@ -163,6 +164,9 @@ int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifie
 int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *identifier,
                                   _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_send_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
+                                       _IN_ iotx_dm_error_code_t code,
+                                       _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);
 int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);

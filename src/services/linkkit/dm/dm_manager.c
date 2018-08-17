@@ -2110,6 +2110,47 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
     return SUCCESS_RETURN;
 }
 
+int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
+        _IN_ iotx_dm_error_code_t code,
+        _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+    dm_msg_request_payload_t request;
+    dm_msg_response_t response;
+
+    if (devid < 0 || msgid == NULL || msgid_len <= 0 ||
+        payload == NULL || payload_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_payload_t));
+    memset(&response, 0, sizeof(dm_msg_response_t));
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Response Msg ID */
+    request.id.value = msgid;
+    request.id.value_length = msgid_len;
+
+    /* Response */
+    response.service_prefix = DM_DISP_SYS_PREFIX;
+    response.service_name = DM_DISP_THING_SERVICE_PROPERTY_GET;
+    memcpy(response.product_key, node->product_key, strlen(node->product_key));
+    memcpy(response.device_name, node->device_name, strlen(node->device_name));
+    response.code = code;
+
+    dm_log_debug("Current Service Name: %s", DM_DISP_THING_SERVICE_PROPERTY_GET);
+
+    /* Send Property Get Response Message To Local */
+    dm_msg_response_local_with_data(&request, &response, payload, payload_len, ctx);
+    return SUCCESS_RETURN;
+}
+
 int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
 {

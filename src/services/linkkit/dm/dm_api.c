@@ -229,10 +229,31 @@ int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
 
     _dm_api_lock();
 
-    dm_log_debug("Current Service Response Payload, Length: %d, Payload: %.*s", payload_len, payload);
+    dm_log_debug("Current Service Response Payload, Length: %d, Payload: %.*s", payload_len, payload_len, payload);
 
     res = dm_mgr_upstream_thing_service_response(devid, msgid, msgid_len, code, identifier, identifier_len, payload,
             payload_len);
+
+    _dm_api_unlock();
+    return res;
+}
+
+int iotx_dm_send_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
+                                       _IN_ iotx_dm_error_code_t code, _IN_ char *payload, _IN_ int payload_len, void *ctx)
+{
+    int res = 0;
+
+    if (devid < 0 || msgid < 0 || payload == NULL || payload_len <= 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    _dm_api_lock();
+
+    dm_log_debug("Current Property Get Response Payload, Length: %d, Payload: %.*s", payload_len, payload_len, payload);
+
+    res = dm_mgr_upstream_thing_property_get_response(devid, msgid, msgid_len, code, payload,
+            payload_len, ctx);
 
     _dm_api_unlock();
     return res;

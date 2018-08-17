@@ -571,66 +571,53 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
     }
     return SUCCESS_RETURN;
 }
-#endif
-int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, _IN_ char **payload,
-                        _IN_ int *payload_len)
+
+const char DM_MSG_THING_PROPERTY_GET_FMT[] DM_READ_ONLY =
+            "{\"id\":\"%.*s\",\"devid\":%d,\"payload\":%.*s,\"ctx\":\"%s\"}";
+int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, _IN_ void *ctx)
 {
-    int res = 0, index = 0;
-    lite_cjson_t lite, lite_item;
-    lite_cjson_item_t *lite_cjson_item = NULL;
+    int res = 0, message_len = 0;
+    uint64_t ctx_addr_num = (uint64_t)ctx;
+    char *ctx_addr_str = NULL, *message = NULL;
 
-    if (devid < 0 || request == NULL || payload == NULL || *payload != NULL || payload_len == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    lite_cjson_item = lite_cjson_create_object();
-    if (lite_cjson_item == NULL) {
+    ctx_addr_str = DM_malloc(sizeof(uint64_t) * 2 + 1);
+    if (ctx_addr_str == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         return FAIL_RETURN;
     }
+    memset(ctx_addr_str, 0, sizeof(uint64_t) * 2 + 1);
 
-    /* Parse Root */
-    memset(&lite, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_parse(request->params.value, request->params.value_length, &lite);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite)) {
-        dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED, request->params.value_length, request->params.value);
+    dm_log_debug("ctx: %p", ctx);
+    dm_log_debug("ctx_addr_num: %0x016llX", ctx_addr_num);
+    LITE_hexbuf_convert((unsigned char *)&ctx_addr_num, ctx_addr_str, sizeof(uint64_t), 1);
+    dm_log_debug("ctx_addr_str: %s", ctx_addr_str);
+
+    message_len = strlen(DM_MSG_THING_PROPERTY_GET_FMT) + request->id.value_length + DM_UTILS_UINT32_STRLEN +
+                  request->params.value_length + strlen(ctx_addr_str) + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         return FAIL_RETURN;
     }
-    dm_log_info("Property Get, Size: %d", lite.size);
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_THING_PROPERTY_GET_FMT, request->id.value_length, request->id.value, devid,
+                 request->params.value_length, request->params.value, ctx_addr_str);
 
-    /* Parse Params */
-    for (index = 0; index < lite.size; index++) {
-        memset(&lite_item, 0, sizeof(lite_cjson_t));
-        res = lite_cjson_array_item(&lite, index, &lite_item);
-        if (res != SUCCESS_RETURN) {
-            lite_cjson_delete(lite_cjson_item);
-            return FAIL_RETURN;
-        }
+    DM_free(ctx_addr_str);
 
-        if (!lite_cjson_is_string(&lite_item)) {
-            lite_cjson_delete(lite_cjson_item);
-            return FAIL_RETURN;
-        }
-
-        res = dm_mgr_deprecated_assemble_property(devid, lite_item.value, lite_item.value_length, lite_cjson_item);
-        if (res != SUCCESS_RETURN) {
-            lite_cjson_delete(lite_cjson_item);
-            return FAIL_RETURN;
-        }
-    }
-
-    *payload = lite_cjson_print_unformatted(lite_cjson_item);
-    if (*payload == NULL) {
-        lite_cjson_delete(lite_cjson_item);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_GET, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
         return FAIL_RETURN;
     }
-    lite_cjson_delete(lite_cjson_item);
-    *payload_len = strlen(*payload);
 
     return SUCCESS_RETURN;
 }
+#endif
 
+#ifdef DEPRECATED_LINKKIT
+
+#endif
 const char DM_MSG_TOPO_ADD_NOTIFY_USER_PAYLOAD[] DM_READ_ONLY =
             "{\"result\":%d,\"devid\":%d,\"product_key\":\"%s\",\"device_name\":\"%s\"}";
 int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
@@ -3080,6 +3067,65 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
         DM_free(message);
     }
 #endif
+
+    return SUCCESS_RETURN;
+}
+
+int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, _IN_ char **payload,
+                        _IN_ int *payload_len)
+{
+    int res = 0, index = 0;
+    lite_cjson_t lite, lite_item;
+    lite_cjson_item_t *lite_cjson_item = NULL;
+
+    if (devid < 0 || request == NULL || payload == NULL || *payload != NULL || payload_len == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    lite_cjson_item = lite_cjson_create_object();
+    if (lite_cjson_item == NULL) {
+        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        return FAIL_RETURN;
+    }
+
+    /* Parse Root */
+    memset(&lite, 0, sizeof(lite_cjson_t));
+    res = lite_cjson_parse(request->params.value, request->params.value_length, &lite);
+    if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite)) {
+        dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED, request->params.value_length, request->params.value);
+        return FAIL_RETURN;
+    }
+    dm_log_info("Property Get, Size: %d", lite.size);
+
+    /* Parse Params */
+    for (index = 0; index < lite.size; index++) {
+        memset(&lite_item, 0, sizeof(lite_cjson_t));
+        res = lite_cjson_array_item(&lite, index, &lite_item);
+        if (res != SUCCESS_RETURN) {
+            lite_cjson_delete(lite_cjson_item);
+            return FAIL_RETURN;
+        }
+
+        if (!lite_cjson_is_string(&lite_item)) {
+            lite_cjson_delete(lite_cjson_item);
+            return FAIL_RETURN;
+        }
+
+        res = dm_mgr_deprecated_assemble_property(devid, lite_item.value, lite_item.value_length, lite_cjson_item);
+        if (res != SUCCESS_RETURN) {
+            lite_cjson_delete(lite_cjson_item);
+            return FAIL_RETURN;
+        }
+    }
+
+    *payload = lite_cjson_print_unformatted(lite_cjson_item);
+    if (*payload == NULL) {
+        lite_cjson_delete(lite_cjson_item);
+        return FAIL_RETURN;
+    }
+    lite_cjson_delete(lite_cjson_item);
+    *payload_len = strlen(*payload);
 
     return SUCCESS_RETURN;
 }

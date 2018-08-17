@@ -121,16 +121,30 @@ typedef struct {
      * @brief property set message from cloud
      *
      * @param devid. device identifier
-     * @param payload. property set payload
-     * @param payload_len. length of property set payload
+     * @param request. property set payload
+     * @param request_len. length of property set payload
      *
      * @return service request success: 0, fail: -1.
      *
      */
-    int (* property_set)(const int devid, const char *payload, const int payload_len);
+    int (* property_set)(const int devid, const char *request, const int request_len);
 
     /**
-     * @brief reply message from cloud
+     * @brief property get message from cloud
+     *
+     * @param devid. device identifier
+     * @param request. property get payload
+     * @param request_len. length of property get payload
+     * @param response. user property get response payload, should use HAL_Malloc to malloc memory for *response if response exist
+     * @param response_len. length of user property get response payload.
+     *
+     * @return property get response success: 0, fail: -1.
+     *
+     */
+    int (* property_get)(const int devid, const char *request, const int request_len, char **response, int *response_len);
+
+    /**
+     * @brief response message from cloud
      *
      * @param devid. device identifier
      * @param msgid. message id, same with return value of IOT_Linkkit_Post
@@ -141,7 +155,7 @@ typedef struct {
      * @return service request success: 0, fail: -1.
      *
      */
-    int (* post_reply)(const int devid, const int msgid, const int code, const char *payload, const int payload_len);
+    int (* post_reply)(const int devid, const int msgid, const int code, const char *reply, const int reply_len);
 
     /**
      * @brief UTC timestamp from cloud

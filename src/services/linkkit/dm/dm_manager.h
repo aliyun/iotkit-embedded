@@ -94,6 +94,9 @@ int dm_mgr_deprecated_upstream_thing_service_response(_IN_ int devid, _IN_ int m
 int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
         _IN_ iotx_dm_error_code_t code,
         _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
+        _IN_ iotx_dm_error_code_t code,
+        _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);
 int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_lan_prefix_get(_IN_ int devid);
