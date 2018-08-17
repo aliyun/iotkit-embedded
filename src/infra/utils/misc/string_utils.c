@@ -73,6 +73,7 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
 
     dst = LITE_malloc(len + 1, magic, module_name);
     if (!dst) {
+        LITE_free(tmp);
         return NULL;
     }
     LITE_snprintf(dst, (len + 1), "%s", tmp);
