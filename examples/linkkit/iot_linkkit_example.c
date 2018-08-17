@@ -365,6 +365,10 @@ int main(int argc, char *argv[])
     int res = 0;
     uint64_t time_prev_sec = 0, time_now_sec = 0;
     iotx_linkkit_dev_meta_info_t master_meta_info;
+    cJSON_Hooks cjson_hooks = {HAL_Malloc, HAL_Free};
+
+    /* Init cJSON Hooks */
+    cJSON_InitHooks(&cjson_hooks);
 
     IOT_OpenLog("iot_linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);

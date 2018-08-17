@@ -71,7 +71,7 @@ extern "C"
 
 	typedef struct cJSON_Hooks
 	{
-		void *(*malloc_fn)(size_t sz);
+		void *(*malloc_fn)(uint32_t sz);
 		void(*free_fn)(void *ptr);
 	} cJSON_Hooks;
 

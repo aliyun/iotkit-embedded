@@ -530,7 +530,7 @@ void dm_disp_thing_service_property_get(iotx_cm_send_peer_t *source, iotx_cm_mes
 #else
     int payload_len = 0;
     char *payload = NULL;
-    res = dm_msg_property_get(devid, &request, &payload, &paylaod_len);
+    res = dm_msg_property_get(devid, &request, &payload, &payload_len);
 #endif
     if (res != SUCCESS_RETURN) {
         return;
@@ -544,7 +544,7 @@ void dm_disp_thing_service_property_get(iotx_cm_send_peer_t *source, iotx_cm_mes
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
 
 #ifdef DEPRECATED_LINKKIT
-    dm_msg_response_local_with_data(&request, &response, payload, paylaod_len, msg->conn_ctx);
+    dm_msg_response_local_with_data(&request, &response, payload, payload_len, msg->conn_ctx);
     DM_free(payload);
 #endif
 }
