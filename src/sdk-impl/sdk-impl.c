@@ -96,11 +96,17 @@ int IOT_SetupConnInfo(const char *product_key,
         memcpy(device_secret_actual, device_secret, strlen(device_secret));
     } else {
         /* Check if Device Secret exit in KV */
-        if (HAL_Kv_Get(KV_KEY_DEVICE_SECRET, device_secret_actual, &device_secret_len) != 0) {
-            /* KV not exit */
-            sdk_info("Now We Need Dynamic Register...");
+        if (HAL_Kv_Get(KV_KEY_DEVICE_SECRET, device_secret_actual, &device_secret_len) == 0) {
+            sdk_info("Get DeviceSecret from KV succeed");
 
-            /* Get Device Secret from KV error, Check If Product Secret Exist */
+            *(device_secret_actual + device_secret_len) = 0;
+            HAL_SetDeviceSecret(device_secret_actual);
+        }
+        else {
+            /* KV not exit, goto dynamic register */
+            sdk_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
+
+            /* Check If Product Secret Exist */
             HAL_GetProductSecret(product_secret);
             if (strlen(product_secret) == 0) {
                 sdk_err("Product Secret Is Not Exist");
@@ -119,10 +125,9 @@ int IOT_SetupConnInfo(const char *product_key,
                 sdk_err("Save Device Secret to KV Failed");
                 return FAIL_RETURN;
             }
-        }
 
-        *(device_secret_actual + device_secret_len) = 0;
-        HAL_SetDeviceSecret(device_secret_actual);
+            HAL_SetDeviceSecret(device_secret_actual);
+        }
     }
 
     iotx_device_info_init();

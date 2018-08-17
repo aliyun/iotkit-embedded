@@ -105,7 +105,7 @@ static int app_post_countdown(int isrun, int timelf, int pwrsw, char* timestamp,
         return ret;
     }
     ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
-    free(payload);
+    HAL_Free(payload);
     if (ret < 0) {
         APP_TRACE("app post property \"CountDown\" failed");
         return ret;
@@ -137,7 +137,7 @@ static int app_post_powerswitch(int pwrsw, app_context_t *app_ctx)
     }
 
     ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
-    free(payload);
+    HAL_Free(payload);
     if (ret < 0) {
         APP_TRACE("app post property \"PowerSwitch\" failed");
         return ret; 
