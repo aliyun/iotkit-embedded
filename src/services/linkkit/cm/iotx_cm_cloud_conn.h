@@ -17,7 +17,7 @@
  */
 
 
-#ifdef CM_VIA_CLOUD_CONN
+#ifdef CONFIG_CM_VIA_CLOUD_CONN
 
 #ifndef __CM_VIA_CLOUD_CONN_H__
 #define __CM_VIA_CLOUD_CONN_H__
@@ -60,6 +60,6 @@ void *iotx_cm_cloud_conn_process(void *pclient);
 #endif /* CONFIG_SDK_THREAD_COST */
 
 #endif /* __CM_VIA_CLOUD_CONN_H__ */
-#endif /* CM_VIA_CLOUD_CONN */
+#endif /* CONFIG_CM_VIA_CLOUD_CONN */
 
 

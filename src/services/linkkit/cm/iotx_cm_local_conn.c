@@ -16,7 +16,7 @@
  *
  */
 
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
 
 #include "iot_import.h"
 
@@ -1489,5 +1489,5 @@ void *iotx_cm_local_conn_process(void *pclient)
 }
 #endif /* CONFIG_SDK_THREAD_COST */
 
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
 

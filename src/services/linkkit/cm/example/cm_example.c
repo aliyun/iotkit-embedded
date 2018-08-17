@@ -643,7 +643,7 @@ int cm_client()
     void *alcs_connectivity = NULL;
     iotx_cm_init_param_t param = {0};
     iotx_cm_register_param_t register_param = {0};
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     iotx_cm_add_service_param_t add_service = {0};
 #endif
     iotx_cm_send_peer_t cloud_peer;
@@ -682,7 +682,7 @@ int cm_client()
         iotx_cm_deinit(NULL);
         return FAIL_RETURN;
     }
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     //#if 0
     iotx_cm_connectivity_alcs_param_t alcs_param = {0};
     alcs_param.protocol_type = IOTX_CM_CONNECTION_PROTOCOL_TYPE_ALCS;
@@ -753,7 +753,7 @@ int cm_client()
 
     EXAMPLE_TRACE("register success \n");
 
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     //#if 0
     add_service.auth_type = IOTX_CM_MESSAGE_NO_AUTH;
     add_service.message_type = IOTX_CM_MESSAGE_REQUEST;
@@ -761,7 +761,7 @@ int cm_client()
     add_service.URI = TOPIC_DATA;
     add_service.user_data = NULL;
     ret = iotx_cm_serv_add(alcs_connectivity, &add_service, NULL);
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
 
 #if (CONFIG_SDK_THREAD_COST == 0)
     ret = iotx_cm_yield(200, NULL);

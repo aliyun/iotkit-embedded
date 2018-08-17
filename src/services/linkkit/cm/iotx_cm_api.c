@@ -31,9 +31,9 @@
 
 static iotx_cm_conntext_t *g_cm_ctx = NULL;
 
-#ifdef CM_VIA_CLOUD_CONN
+#ifdef CONFIG_CM_VIA_CLOUD_CONN
     extern iotx_cm_send_peer_t *iotx_cm_cloud_conn_get_target();
-#endif /* CM_VIA_CLOUD_CONN */
+#endif /* CONFIG_CM_VIA_CLOUD_CONN */
 
 
 static void cm_trigger_connected_event_handler(void *list_node, va_list *params)

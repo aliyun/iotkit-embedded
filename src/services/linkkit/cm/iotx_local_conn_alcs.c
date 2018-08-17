@@ -17,7 +17,7 @@
  */
 
 
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
 
 #include <string.h>
 
@@ -299,4 +299,4 @@ int iotx_local_conn_alcs_yield(void *handle, int timeout_ms)
     return IOT_ALCS_Yield(connection->context);
 }
 
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */

@@ -16,7 +16,7 @@
  *
  */
 
-#ifdef CM_VIA_CLOUD_CONN
+#ifdef CONFIG_CM_VIA_CLOUD_CONN
 
 #include "iot_import.h"
 
@@ -1225,5 +1225,5 @@ void *iotx_cm_cloud_conn_process(void *pclient)
 }
 #endif /* CONFIG_SDK_THREAD_COST */
 
-#endif /* CM_VIA_CLOUD_CONN */
+#endif /* CONFIG_CM_VIA_CLOUD_CONN */
 

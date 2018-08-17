@@ -152,7 +152,7 @@ typedef struct {
     unsigned int                                payload_length;
 } iotx_cm_response_info_t;
 
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
 typedef struct iotx_cm_local_device_st {
     iotx_cm_send_peer_t                        *device_info;
     void                                       *addr;

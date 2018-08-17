@@ -21,7 +21,7 @@
 #ifndef __CM_VIA_LOCAL_CONN_H__
 #define __CM_VIA_LOCAL_CONN_H__
 
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
 
 #include "iot_import.h"
 
@@ -62,7 +62,7 @@ int iotx_cm_local_conn_add_send(void *handler, iotx_cm_send_peer_t *target, iotx
 void *iotx_cm_local_conn_process(void *pclient);
 #endif /* CONFIG_SDK_THREAD_COST */
 
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
 
 #endif /* __CM_VIA_LOCAL_CONN_H__ */
 

@@ -20,12 +20,12 @@
 
 #include "iotx_cm_common.h"
 #include "iotx_cm_connectivity.h"
-#ifdef CM_VIA_CLOUD_CONN
+#ifdef CONFIG_CM_VIA_CLOUD_CONN
     #include "iotx_cm_cloud_conn.h"
 #endif /* CM_SUPPORT_CLOUD_CONN */
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     #include "iotx_cm_local_conn.h"
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
 #include "utils_httpc.h"
 #include "utils_hmac.h"
 

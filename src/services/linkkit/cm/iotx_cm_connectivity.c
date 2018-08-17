@@ -20,21 +20,21 @@
 #include <string.h>
 
 #include "iotx_cm_connectivity.h"
-#ifdef CM_VIA_CLOUD_CONN
+#ifdef CONFIG_CM_VIA_CLOUD_CONN
     #include "iotx_cm_cloud_conn.h"
 #endif /* CM_SUPPORT_CLOUD_CONN */
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     #include "iotx_cm_local_conn.h"
 
     extern void _alcs_free_alcs_transfer_context(void *cntx);
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
 
 
 #ifdef CM_PROCESS_NODE_USE_POOL
     static iotx_cm_process_list_node_t g_cm_cloud_process_node_list[CM_SUPPORT_MAX_PROCESS_NODE_SIZE];
 #endif
 
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     #ifdef CM_PROCESS_NODE_USE_POOL
         static iotx_cm_process_list_node_t g_cm_local_process_node_list[CM_SUPPORT_MAX_PROCESS_NODE_SIZE];
     #endif
@@ -73,7 +73,7 @@ iotx_cm_connectivity_t  *iotx_cm_create_connectivity(iotx_cm_conntext_t *cm_ctx,
             break;
 
         case IOTX_CM_CONNECTIVITY_TYPE_LOCAL:
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
             connectivity = iotx_cm_local_conn_init(cm_ctx, param->alcs_param);
 #endif
             break;
@@ -264,7 +264,7 @@ iotx_cm_process_list_node_t *iotx_cm_get_list_node(iotx_cm_conntext_t *cm_ctx, i
     if (IOTX_CM_CONNECTIVITY_TYPE_CLOUD == type) {
         list = g_cm_cloud_process_node_list;
     }
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     else if (IOTX_CM_CONNECTIVITY_TYPE_LOCAL == type) {
         list = g_cm_local_process_node_list;
     }
@@ -310,7 +310,7 @@ int iotx_cm_free_list_node(iotx_cm_conntext_t *cm_ctx, iotx_cm_connectivity_type
         }
 
     }
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
     else if (IOTX_CM_CONNECTIVITY_TYPE_LOCAL == type) {
         connectivity = iotx_cm_find_connectivity(cm_ctx, iotx_cm_local_conn_get_target(), NULL);
         if (NULL == connectivity) {
@@ -405,11 +405,11 @@ void iotx_cm_free_process_list_handler(void *list_node, va_list *params)
                 if (send->target) {
                     LITE_free(send->target);
                 }
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
                 if (send->conn_ctx) {
                     _alcs_free_alcs_transfer_context(send->conn_ctx);
                 }
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
                 if (send->sem) {
                     HAL_SemaphorePost(send->sem);
                 }
@@ -440,7 +440,7 @@ void iotx_cm_free_process_list_handler(void *list_node, va_list *params)
             break;
 
             case IOTX_CM_PROCESS_ADD_DEVICE: {
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
                 iotx_cm_local_device_t *device = (iotx_cm_local_device_t *)node->msg;
                 if (device->addr) {
                     LITE_free(device->addr);
@@ -451,12 +451,12 @@ void iotx_cm_free_process_list_handler(void *list_node, va_list *params)
                 if (device) {
                     LITE_free(device);
                 }
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
             }
             break;
 
             case IOTX_CM_PROCESS_REMOVE_DEVICE: {
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
                 iotx_cm_local_device_t *device = (iotx_cm_local_device_t *)node->msg;
                 if (device->addr) {
                     LITE_free(device->addr);
@@ -467,7 +467,7 @@ void iotx_cm_free_process_list_handler(void *list_node, va_list *params)
                 if (device) {
                     LITE_free(device);
                 }
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
             }
             break;
 

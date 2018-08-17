@@ -2,7 +2,7 @@
 #ifndef SRC_LOCAL_CONNECTION_ALCS_H_
 #define SRC_LOCAL_CONNECTION_ALCS_H_
 
-#ifdef CM_SUPPORT_LOCAL_CONN
+#ifdef CONFIG_CM_SUPPORT_LOCAL_CONN
 #include "iotx_cm_connection.h"
 
 typedef struct iotx_alcs_transfer_msg_context {
@@ -32,5 +32,5 @@ int iotx_local_conn_alcs_deinit(void *handle);
 
 int iotx_local_conn_alcs_yield(void *handle, int timeout_ms);
 
-#endif /* CM_SUPPORT_LOCAL_CONN */
+#endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */
 #endif /* SRC_LOCAL_CONNECTION_ALCS_H_ */
