@@ -32,7 +32,7 @@
 int LITE_hexdump(const char *title, const void *buff, const int len)
 {
     int                     i, j, written;
-    unsigned char           ascii[16 + 1] = {0};
+    unsigned char           ascii[20] = {0};
     char                    header[64] = {0};
     unsigned char          *buf = (unsigned char *)buff;
 
@@ -56,7 +56,7 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
             LITE_printf(" ");
             written += 1;
         }
-        LITE_snprintf((char *)ascii + i % 16, sizeof(ascii), "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
+        LITE_snprintf((char *)ascii + i % 16, (1 + 1), "%c", ((buf[i] >= ' ' && buf[i] <= '~') ?  buf[i] : '.'));
 
         if (((i + 1) % 16 == 0) || (i == len - 1)) {
             for (j = 0; j < 48 - written; ++j) {
@@ -112,7 +112,7 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
         LITE_printf(" ...");
     }
 
-    if (tmpbuf[strlen(tmpbuf)-1] != '\n') {
+    if (tmpbuf[strlen(tmpbuf) - 1] != '\n') {
         LITE_printf("\r\n");
     }
 
