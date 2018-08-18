@@ -65,6 +65,7 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
 
     tmp = LITE_malloc(len + 2, magic, module_name);
     if (NULL == tmp) {
+        va_end(ap);
         return NULL;
     }
     memset(tmp, 0, len + 2);
