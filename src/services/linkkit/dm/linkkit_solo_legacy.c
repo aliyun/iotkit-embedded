@@ -767,6 +767,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     if (max_buffered_msg <= 0 || ops == NULL || (LOGLEVEL)log_level > LOG_DEBUG_LEVEL ||
         domain_type < 0 || domain_type >= linkkit_cloud_domain_max) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
 
@@ -774,6 +775,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     linkkit_solo_ctx->mutex = HAL_MutexCreate();
     if (linkkit_solo_ctx->mutex == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
 
@@ -781,6 +783,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     if (linkkit_solo_ctx->upstream_mutex == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         HAL_MutexDestroy(linkkit_solo_ctx->mutex);
+        linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
 
