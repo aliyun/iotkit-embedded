@@ -141,7 +141,7 @@ char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
     struct tm      tm;
     int str_len    = 0;
 
-    if (buf == NULL && len >= 28) {
+    if (buf == NULL || len < 28) {
         return NULL;
     }
     gettimeofday(&tv, NULL);
@@ -712,6 +712,7 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 
     if (timer_create(CLOCK_MONOTONIC, &ent, timer) != 0) {
         fprintf(stderr, "timer_create");
+        free(timer);
         return NULL;
     }
 
