@@ -13,11 +13,7 @@ CONFIG_ENV_CFLAGS   += \
     -DCONFIG_MQTT_TX_MAXLEN=640 \
     -DCONFIG_MQTT_RX_MAXLEN=1200 \
 
-CONFIG_ENV_CFLAGS   += \
-    -DOTA_WITH_LINKKIT \
-    -DOTA_HAL_MODULE
-
-#CONFIG_ENV_CFLAGS   += -Werror
+CONFIG_ENV_CFLAGS               += -Werror
 CONFIG_src/ref-impl/tls         :=
 CONFIG_src/ref-impl/hal         :=
 CONFIG_examples                 :=

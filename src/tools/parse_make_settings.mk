@@ -46,6 +46,8 @@ ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
 endif # HTTP2
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
+    CFLAGS += -DOTA_WITH_LINKKIT
+    CFLAGS += -DOTA_HAL_MODULE
     ifeq (n,$(strip $(FEATURE_SUPPORT_TLS)))
         ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
             $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
