@@ -63,6 +63,10 @@ void linked_list_destroy(linked_list_t *_linked_list)
 
     list_unit_t **p;
 
+    if (linked_list == NULL) {
+        return;
+    }
+
     if (linked_list->_mutex) {
         HAL_MutexLock(linked_list->_mutex);
     }
