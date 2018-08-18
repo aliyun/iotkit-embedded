@@ -78,7 +78,7 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
     return COAP_SUCCESS;
 }
 
-void CoAPSever_thread_leave()
+void CoAPServer_thread_leave()
 {
     g_coap_running = 0;
 }
