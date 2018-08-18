@@ -216,7 +216,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_PROPERTY_GET: {
             int res = 0, response_len = 0;
             char *request = NULL, *response = NULL;
-            uint64_t property_get_ctx_num = 0;
+            uintptr_t property_get_ctx_num = 0;
             void *property_get_ctx = NULL;
             lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_payload, lite_item_ctx;
 
