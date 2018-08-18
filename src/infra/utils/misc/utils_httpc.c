@@ -834,7 +834,8 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
         httpclient_close(client);
     }
 
-    return (ret = 0);
+    ret = 0;
+    return ret;
 }
 
 int utils_get_response_code(httpclient_t *client)

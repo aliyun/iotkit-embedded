@@ -176,6 +176,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_laod(const char *pk, uint16_t pk_len,
 
     memcpy(prefix, &value[2], value[0]);
     memcpy(secret, &value[2 + value[0]], value[1]);
+    LITE_free(key_source);
 
     return ALCS_MQTT_STATUS_SUCCESS;
 }
