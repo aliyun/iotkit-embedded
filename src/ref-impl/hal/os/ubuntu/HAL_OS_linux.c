@@ -711,7 +711,6 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
     printf("HAL_Timer_Create\n");
 
     if (timer_create(CLOCK_MONOTONIC, &ent, timer) != 0) {
-        fprintf(stderr, "timer_create");
         free(timer);
         return NULL;
     }
@@ -736,8 +735,6 @@ int HAL_Timer_Start(void *timer, int ms)
     ts.it_value.tv_sec = ms / 1000;
     ts.it_value.tv_nsec = (ms % 1000) * 1000;
 
-    printf("HAL_Timer_Start\n");
-
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
 
@@ -758,8 +755,6 @@ int HAL_Timer_Stop(void *timer)
     ts.it_value.tv_sec = 0;
     ts.it_value.tv_nsec = 0;
 
-    printf("HAL_Timer_Stop\n");
-
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
 
@@ -771,8 +766,6 @@ int HAL_Timer_Delete(void *timer)
     if (timer == NULL) {
         return -1;
     }
-
-    printf("HAL_Timer_Delete\n");
 
     ret = timer_delete(*(timer_t *)timer);
 

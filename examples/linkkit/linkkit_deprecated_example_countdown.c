@@ -577,7 +577,7 @@ int is_active(app_context_t *app_ctx)
 int linkkit_example()
 {
     app_context_t app_ctx = {0};
-    int execution_time = 1;
+    int execution_time = 20;
     int exit = 0;
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
