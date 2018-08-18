@@ -45,7 +45,7 @@
 #define PROPERTY_ITEM_TIMELEFT          "TimeLeft"
 #define PROPERTY_ITEM_ISRUNNING         "IsRunning"
 #define PROPERTY_ITEM_POWERSWITCH       "PowerSwitch"
-#define PROPERTY_ITEM_TIMESTAMP         "TimeStamp"
+#define PROPERTY_ITEM_TIMESTAMP         "Timestamp"
 
 /* app context type define */
 typedef struct _app_context {
