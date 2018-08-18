@@ -59,7 +59,7 @@ static int ota_read(hal_ota_module_t *m, volatile uint32_t *off_set,
     if (ota_fd == NULL) {
         ota_fd = fopen(OTA_IMAGE_FILE, "r");
     }
-    fseek(ota_fd, *off_set, SEEK_SET);
+    ret = fseek(ota_fd, *off_set, SEEK_SET);
     ret = fread(out_buf, out_buf_len, 1, ota_fd);
     if (ret != 1) {
         OTA_LOG_E("read: %d, %d ,%s\n", ret, out_buf_len, strerror(errno));

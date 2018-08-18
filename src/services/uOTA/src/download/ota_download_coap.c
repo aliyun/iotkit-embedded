@@ -99,7 +99,12 @@ static int ota_download_start(char *url, ota_write_cb_t func, void *cur_hash)
 
     while (coap_client_running && block_more) {
         iotx_req_block_from_server(download_topic_buf);
-        ota_semaphore_wait(&sem_send, 5000);
+        ret = ota_semaphore_wait(&sem_send, 5000);
+        if(ret < 0) {
+            ret = OTA_DOWNLOAD_FAILED;
+            OTA_LOG_E("download error %s", strerror(errno));
+            break;
+        }
     }
     if (block_more == 0 && block_cur_num) {
         OTA_LOG_I("----OTA_DOWNLOAD_FINISH------");

@@ -370,11 +370,6 @@ int ota_check_image(ota_read_cb_t read_fuc)
         OTA_LOG_E("ota image identity md5 final failed!");
         goto OTA_IMAGE_IDENTITY_FAILED;
     }
-    if (image_md5_value == NULL) {
-        ret = -1;
-        OTA_LOG_E("can't get identity image md5!");
-        goto OTA_IMAGE_IDENTITY_FAILED;
-    }
     memset(download_md5_str_value, 0x00, sizeof(download_md5_str_value));
     for (i = 0; i < 16; i++) {
         ota_snprintf((char *)download_md5_str_value + i * 2, 2 + 1, "%02X",

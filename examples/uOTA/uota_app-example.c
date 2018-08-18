@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "iot_export.h"
+#include "mqtt_instance.h"
 #include "ota_service.h"
 
 static void usage(void){
@@ -22,9 +23,9 @@ int main(int argc, char *argv[]){
         return 1;
     }
     ota_service_manager ctx = {0};
-    strcpy(ctx.pk,argv[1]);
-    strcpy(ctx.dn,argv[2]);
-    strcpy(ctx.ds,argv[3]);
+    strncpy(ctx.pk,argv[1],sizeof(ctx.pk)-1);
+    strncpy(ctx.dn,argv[2],sizeof(ctx.dn)-1);
+    strncpy(ctx.ds,argv[3],sizeof(ctx.ds)-1);
     ctx.trans_protcol = 0;
     ctx.dl_protcol = 3;
 
@@ -34,6 +35,8 @@ int main(int argc, char *argv[]){
 
     ota_service_init(&ctx);
     while(1){
+        IOT_MQTT_Yield((void *)mqtt_get_instance(), 200);
+        HAL_SleepMs(1000);
     };
 
     IOT_CloseLog();

@@ -24,7 +24,6 @@
 #define FOTA_FETCH_PERCENTAGE_MAX (100)
 #define OTA_VERSION_STR_LEN_MIN   (1)
 #define OTA_VERSION_STR_LEN_MAX   (32)
-#define OTA_CHECK_VER_DUARATION   (24 * 60 * 60 * 1000)
 
 typedef enum
 {
@@ -45,7 +44,6 @@ static int            otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id,
 static int         otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id,
                                        int progress, const char *msg_detail);
 static int         otacoap_report_version(const char *version);
-static void        otacoap_report_version_period();
 static const char *to_capital_letter(char *value, int len);
 
 // check whether the progress state is valid or not
@@ -227,23 +225,6 @@ static int otacoap_report_version(const char *version)
     return 0;
 }
 
-static void otacoap_report_version_period()
-{
-    int ota_code;
-    int max_retry = 3;
-
-    ota_code = otacoap_report_version(ota_get_system_version());
-
-    while (ota_code != 0 && (max_retry--) > 0) {
-        ota_code = otacoap_report_version(ota_get_system_version());
-        ota_msleep(2000);
-    }
-
-    void *timer = 0;
-    timer = (void *)ota_timer_create("ota_coap", otacoap_report_version_period,
-                                     (void *)NULL);
-    ota_timer_start(timer, OTA_CHECK_VER_DUARATION);
-}
 
 static const char *to_capital_letter(char *value, int len)
 {
@@ -260,21 +241,8 @@ static const char *to_capital_letter(char *value, int len)
     return value;
 }
 
-
-#define IOTX_DAILY_DTLS_SERVER_URI "coaps://10.125.7.82:5684"
-#define IOTX_DAILY_PSK_SERVER_URI  "coap-psk://10.101.83.159:5683"
-#define IOTX_PRE_DTLS_SERVER_URI \
-    "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
-#define IOTX_PRE_NOSEC_SERVER_URI \
-    "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
-#define IOTX_PRE_PSK_SERVER_URI \
-    "coap-psk://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 #define IOTX_ONLINE_DTLS_SERVER_URL \
     "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
-#define IOTX_ONLINE_PSK_SERVER_URL \
-    "coap-psk://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
-#define OTA_SECUR "dtls"
-#define OTA_ENV   "online"
 
 int ota_transport_init(void)
 {
@@ -287,40 +255,16 @@ int ota_transport_init(void)
     memset(&config, 0, sizeof(config));
     memset(&dev, 0, sizeof(dev));
 
-    strcpy(dev.device_id, ctx->ps);
-    strcpy(dev.product_key, ctx->pk);
-    strcpy(dev.device_name, ctx->dn);
-    strcpy(dev.device_secret, ctx->ds);
+    strncpy(dev.device_id, ctx->ps, sizeof(dev.device_id)-1);
+    strncpy(dev.product_key, ctx->pk, sizeof(dev.product_key)-1);
+    strncpy(dev.device_name, ctx->dn, sizeof(dev.device_name)-1);
+    strncpy(dev.device_secret, ctx->ds, sizeof(dev.device_secret)-1);
     config.p_devinfo = &dev;
 
-    if (0 == strncmp(OTA_ENV, "pre", strlen("pre"))) {
-        if (0 == strncmp(OTA_SECUR, "dtls", strlen("dtls"))) {
-            config.p_url = IOTX_PRE_DTLS_SERVER_URI;
-        } else if (0 == strncmp(OTA_SECUR, "psk", strlen("psk"))) {
-            config.p_url = IOTX_PRE_PSK_SERVER_URI;
-        } else {
-            config.p_url = IOTX_PRE_NOSEC_SERVER_URI;
-        }
-    } else if (0 == strncmp(OTA_ENV, "online", strlen("online"))) {
-        if (0 == strncmp(OTA_SECUR, "dtls", strlen("dtls"))) {
-            char url[256] = { 0 };
-            ota_snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL,
-                         ctx->pk);
-            config.p_url = url;
-        } else if (0 == strncmp(OTA_SECUR, "psk", strlen("psk"))) {
-            char url[256] = { 0 };
-            ota_snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, ctx->pk);
-            config.p_url = url;
-        } else {
-            OTA_LOG_E("Online DTLS/PSK\r\n");
-        }
-    } else if (0 == strncmp(OTA_ENV, "daily", strlen("daily"))) {
-        if (0 == strncmp(OTA_SECUR, "dtls", strlen("dtls"))) {
-            config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
-        } else if (0 == strncmp(OTA_SECUR, "psk", strlen("psk"))) {
-            config.p_url = IOTX_DAILY_PSK_SERVER_URI;
-        }
-    }
+    char url[256] = { 0 };
+    ota_snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL,
+                ctx->pk);
+    config.p_url = url;
     ctx->h_coap = (void *)ota_IOT_CoAP_Init(&config);
     if (ctx->h_coap) {
         ret = ota_IOT_CoAP_DeviceNameAuth(ctx->h_coap);
@@ -330,6 +274,7 @@ int ota_transport_init(void)
         }
         OTA_LOG_D("IOT_CoAP_DeviceNameAuth. success.");
     }
+    otacoap_report_version(ota_get_system_version());
     OTA_LOG_D("device_info:%s,%s %s", ctx->pk, ctx->dn, ctx->ps);
     return 0;
 }
@@ -494,7 +439,6 @@ static int8_t ota_cancel_upgrade(ota_cloud_cb_t msgCallback)
 static int8_t ota_subscribe_upgrade(ota_cloud_cb_t msgCallback)
 {
     ota_update = msgCallback;
-    otacoap_report_version_period();
     return 0;
 }
 

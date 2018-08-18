@@ -94,15 +94,8 @@ static void update_action(void *buf)
 
 static void do_update(int len, const char *buf)
 {
-#ifdef STM32_USE_SPI_WIFI
-    update_action((void *)buf);
-#else
-    void *timer                      = 0;
     ota_set_resp_msg(buf);
-    timer = (void *)ota_timer_create("ota_timer", update_action,
-                                     (void *)ota_get_resp_msg());
-    ota_timer_start(timer, 200);
-#endif
+    update_action((void *)ota_get_resp_msg());
 }
 
 static void cancel_update(int len, const char *buf)

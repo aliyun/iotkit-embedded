@@ -162,15 +162,11 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         strncpy(pkps, ctx->pk, len);
         HAL_GetProductSecret(pkps + len + 1);
         len += strlen(pkps + len + 1) + 2;
-#if defined ON_DAILY
-        ssl = ota_ssl_connect("11.160.112.156", 443, pkps,len);
-#else
         ssl = ota_ssl_connect(host_addr, port, pkps,len);
-#endif
 #else
         ssl = ota_ssl_connect(host_addr, port, ca, strlen(ca)+1);
 #endif
-        if (ssl < 0) {
+        if (ssl == NULL) {
             OTA_LOG_E("ota_ssl_socket_connect error\n ");
             ret = OTA_DOWNLOAD_SOCKET_FAIL;
             return ret;
@@ -187,6 +183,8 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
     if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL ||
         hash_ctx->ctx_size == 0) {
         OTA_LOG_E("ota get sign ctx fail\n ");
+        if(sockfd)
+        ota_socket_close(sockfd);
         ret = OTA_DOWNLOAD_FAIL;
         return ret;
     }
@@ -197,6 +195,8 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
     http_buffer = ota_malloc(OTA_BUFFER_MAX_SIZE);
     if(NULL == http_buffer) {
         OTA_LOG_E("memory fail\n ");
+        if(sockfd)
+        ota_socket_close(sockfd);
         ret = OTA_DOWNLOAD_FAIL;
         return ret;
     }
@@ -213,9 +213,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         if (ali_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) != 0) {
             OTA_LOG_E("ota sign init fail \n ");
             ret = OTA_DOWNLOAD_SIGN_INIT_FAIL;
-            if(http_buffer)
-            ota_free(http_buffer);
-            return ret;
+            goto DOWNLOAD_END;
         }
     }
     ota_set_cur_hash((char *)cur_hash);
@@ -254,7 +252,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
             if (errno != EINTR) {
                 break;
             }
-            if (ota_socket_check_conn(sockfd) < 0) {
+            if (sockfd&&(ota_socket_check_conn(sockfd)) < 0) {
                 OTA_LOG_E("download system error %s", strerror(errno));
                 break;
             } else {
@@ -265,7 +263,10 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
             if (!file_size) {
                 char *ptr = strstr(http_buffer, "Content-Length:");
                 if (ptr) {
-                    sscanf(ptr, "%*[^ ]%d", &file_size);
+                    ret = sscanf(ptr, "%*[^ ]%d", &file_size);
+                    if(ret < 0) {
+                        OTA_LOG_E("Content-Length error.");
+                    }
                 }
             }
             pos = strstr(http_buffer, "\r\n\r\n");
@@ -331,7 +332,8 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
 DOWNLOAD_END:
     if(http_buffer)
         ota_free(http_buffer);
-    ota_socket_close(sockfd);
+    if(sockfd)
+        ota_socket_close(sockfd);
     return ret;
 }
 
