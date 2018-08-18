@@ -1401,7 +1401,14 @@ int linkkit_gateway_stop(int devid)
     HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
     HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
 
-    memset(linkkit_gateway_ctx, 0, sizeof(linkkit_gateway_legacy_ctx_t));
+    linkkit_gateway_ctx->mutex = NULL;
+    linkkit_gateway_ctx->upstream_mutex = NULL;
+    memset(&init_params,0,sizeof(linkkit_params_t));
+    linkkit_gateway_ctx->dispatch_thread = NULL;
+    linkkti_gateway_ctx->fota_callback = NULL;
+    INIT_LIST_HEAD(&linkkti_gateway_ctx->dev_callback_list);
+    INIT_LIST_HEAD(&linkkti_gateway_ctx->upstream_sync_callback_list);
+    INIT_LIST_HEAD(&linkkti_gateway_ctx->upstream_async_callback_list);
 #endif
     return SUCCESS_RETURN;
 }

@@ -843,7 +843,13 @@ int deprecated linkkit_end(void)
     HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
     HAL_MutexDestroy(linkkit_solo_ctx->mutex);
 
-    memset(linkkit_solo_ctx,0,sizeof(linkkit_solo_legacy_ctx_t));
+    linkkit_solo_ctx->mutex = NULL;
+    linkkit_solo_ctx->upstream_mutex = NULL;
+    linkkit_solo_ctx->user_callback = NULL;
+    linkkit_solo_ctx->user_context = NULL;
+    linkkit_solo_ctx->cota_callback = NULL;
+    linkkit_solo_ctx->fota_callback = NULL;
+    INIT_LIST_HEAD(&linkkit_solo_ctx_>callback_list);
 #endif
     return SUCCESS_RETURN;
 }
