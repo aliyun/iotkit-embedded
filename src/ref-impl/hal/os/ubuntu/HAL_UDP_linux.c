@@ -361,9 +361,7 @@ int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
         if (NULL != p_remote) {
             p_remote->port = ntohs(addr.sin_port);
 
-            if (NULL != p_remote->addr) {
-                strcpy((char *)p_remote->addr, inet_ntoa(addr.sin_addr));
-            }
+            strcpy((char *)p_remote->addr, inet_ntoa(addr.sin_addr));
         }
 
         return ret;
