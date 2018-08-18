@@ -764,7 +764,8 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     }
     linkkit_solo_ctx->is_started = 1;
 
-    if (max_buffered_msg <= 0 || ops == NULL || (LOGLEVEL)log_level > LOG_DEBUG_LEVEL) {
+    if (max_buffered_msg <= 0 || ops == NULL || (LOGLEVEL)log_level > LOG_DEBUG_LEVEL ||
+        domain_type < 0 || domain_type >= linkkit_cloud_domain_max) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
