@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include "aes.h"
 #include "sha1.h"
-#include "sha256.h"
+#include "mbedtls/sha256.h"
 #include "sha512.h"
 #include "md.h"
 #include "hash.h"

@@ -186,7 +186,7 @@ int awss_online_switchap(char *topic, int topic_len, void *payload, int payload_
             /*
              * fix the format of bssid string is not legal.
              */
-            if ((uint32_t)((uint32_t)bssid_str - (uint32_t)elem) > AWSS_BSSID_STR_LEN) {
+            if ((uint32_t)(bssid_str - elem) > AWSS_BSSID_STR_LEN) {
                 memset(switchap_bssid, 0, sizeof(switchap_bssid));
                 break;
             }
