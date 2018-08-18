@@ -257,10 +257,12 @@ int iotx_alcs_adapter_deinit(void)
 
     if (adapter->alcs_send_list) {
         linked_list_destroy(adapter->alcs_send_list);
+        adapter->alcs_send_list = NULL;
     }
 
-    if (adapter->alcs_send_list) {
-        linked_list_destroy(adapter->alcs_send_list);
+    if (adapter->alcs_subdev_list) {
+        linked_list_destroy(adapter->alcs_subdev_list);
+        adapter->alcs_subdev_list = NULL;
     }
 
     if (adapter->alcs_event_handle) {
