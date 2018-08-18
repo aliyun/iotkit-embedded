@@ -836,10 +836,14 @@ int deprecated linkkit_end(void)
     linkkit_solo_ctx->is_started = 0;
     _linkkit_solo_upstream_callback_list_destroy();
     _linkkit_solo_upstream_mutex_unlock();
+
+    iotx_dm_deprecated_destroy();
     _linkkit_solo_mutex_unlock();
 
     HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
     HAL_MutexDestroy(linkkit_solo_ctx->mutex);
+
+    memset(linkkit_solo_ctx,0,sizeof(linkkit_solo_legacy_ctx_t));
 #endif
     return SUCCESS_RETURN;
 }
