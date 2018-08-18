@@ -1148,7 +1148,7 @@ void dm_disp_ext_error_response(iotx_cm_send_peer_t *source, iotx_cm_message_inf
 {
     int res = 0;
     dm_msg_response_payload_t response;
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    /* char int_id[DM_UTILS_UINT32_STRLEN] = {0}; */
 
     /* Response */
     res = dm_msg_response_parse(msg->payload, msg->payload_length, &response);
@@ -1163,8 +1163,8 @@ void dm_disp_ext_error_response(iotx_cm_send_peer_t *source, iotx_cm_message_inf
     }
 
     /* Remove Message From Cache */
-    memcpy(int_id, response.id.value, response.id.value_length);
-    dm_msg_cache_remove(atoi(int_id));
+    /* memcpy(int_id, response.id.value, response.id.value_length);
+    dm_msg_cache_remove(atoi(int_id)); */
 }
 
 void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
