@@ -43,15 +43,19 @@ static void _linkkit_solo_upstream_mutex_unlock(void)
 
 static int _linkkit_solo_upstream_callback_list_insert(int msgid, handle_post_cb_fp_t callback)
 {
+    int count = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     linkkit_solo_upstream_callback_node_t *search_node = NULL;
 
     list_for_each_entry(search_node, &linkkit_solo_ctx->callback_list, linked_list, linkkit_solo_upstream_callback_node_t) {
+        count++;
         if (search_node->msgid == msgid) {
             dm_log_info("Message ID Already Exist: %d", msgid);
             return FAIL_RETURN;
         }
     }
+
+    dm_log_info("linkkit_solo_upstream_callback_list node count: %d",count);
 
     search_node = DM_malloc(sizeof(linkkit_solo_upstream_callback_node_t));
     if (search_node == NULL) {
@@ -60,6 +64,7 @@ static int _linkkit_solo_upstream_callback_list_insert(int msgid, handle_post_cb
     memset(search_node, 0, sizeof(linkkit_solo_upstream_callback_node_t));
 
     search_node->msgid = msgid;
+    search_node->callback = callback;
     search_node->callback = callback;
     INIT_LIST_HEAD(&search_node->linked_list);
 
@@ -1143,7 +1148,7 @@ int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const
 int deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb)
 {
 #ifdef DEPRECATED_LINKKIT
-    int res = 0, devid = 0, msgid = 0;
+    int res = 0, devid = 0, msgid = 0, post_event_reply = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || event_identifier == NULL) {
@@ -1169,7 +1174,8 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
         return FAIL_RETURN;
     }
 
-    if (cb != NULL) {
+    res = iotx_dm_get_opt(linkkit_opt_event_post_reply,&post_event_reply);
+    if (cb != NULL && post_event_reply) {
         msgid = res;
         /* Insert Message ID Into Linked List */
         _linkkit_solo_upstream_mutex_lock();
@@ -1190,7 +1196,7 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
 int deprecated linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb)
 {
 #ifdef DEPRECATED_LINKKIT
-    int res = 0, devid = 0, msgid = 0, property_identifier_len = 0;
+    int res = 0, devid = 0, msgid = 0, property_identifier_len = 0, post_property_reply = 0;
     void *property_handle = NULL;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
@@ -1232,7 +1238,8 @@ int deprecated linkkit_post_property(const void *thing_id, const char *property_
         return FAIL_RETURN;
     }
 
-    if (cb != NULL) {
+    res = iotx_dm_get_opt(linkkit_opt_property_post_reply,&post_property_reply);
+    if (cb != NULL && post_property_reply) {
         msgid = res;
         /* Insert Message ID Into Linked List */
         _linkkit_solo_upstream_mutex_lock();
