@@ -849,7 +849,7 @@ int deprecated linkkit_end(void)
     linkkit_solo_ctx->user_context = NULL;
     linkkit_solo_ctx->cota_callback = NULL;
     linkkit_solo_ctx->fota_callback = NULL;
-    INIT_LIST_HEAD(&linkkit_solo_ctx_>callback_list);
+    INIT_LIST_HEAD(&linkkit_solo_ctx->callback_list);
 #endif
     return SUCCESS_RETURN;
 }
