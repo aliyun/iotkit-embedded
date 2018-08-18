@@ -94,6 +94,11 @@ ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
     SRCS_linkkit-example-gw         += linkkit/linkkit_example_gateway.c \
                                        linkkit/light.c \
                                        linkkit/cJSON.c
+
+    TARGET                          += linkkit-example-gw-test
+    SRCS_linkkit-example-gw-test    += linkkit/linkkit_example_gateway_test.c \
+                                       linkkit/light.c \
+                                       linkkit/cJSON.c
     endif
 
     TARGET += linkkit-example-countdown
