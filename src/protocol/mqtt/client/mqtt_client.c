@@ -863,7 +863,7 @@ static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
                     continue;
                 }
                 debug_handler = subInfo->handler;
-                topic_filter = (char *)((debug_handler)?(debug_handler->topic_filter):("NULL"));
+                topic_filter = (char *)((debug_handler) ? (debug_handler->topic_filter) : ("NULL"));
 #if 0
                 HEXDUMP_DEBUG(subInfo->handler->topic_filter, 32);
                 mqtt_debug("[%d] %-32s(%d) | %p | %-8s | %-6s |",
@@ -937,7 +937,7 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
 
         list_iterator_destroy(iter);
     }
-    _dump_wait_list(c,"sub");
+    _dump_wait_list(c, "sub");
     HAL_MutexUnlock(c->lock_list_sub);
 
     return SUCCESS_RETURN;
@@ -1308,9 +1308,9 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 #ifdef INSPECT_MQTT_FLOW
 #endif
 
-    #ifdef INSPECT_MQTT_LIST
-    mqtt_debug("receivce SUBACK, packetid: %d",mypacketid);
-    #endif
+#ifdef INSPECT_MQTT_LIST
+    mqtt_debug("receivce SUBACK, packetid: %d", mypacketid);
+#endif
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
     if ((NULL == messagehandler) || (NULL == messagehandler->handle.h_fp) || (NULL == messagehandler->topic_filter)) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
@@ -1466,9 +1466,9 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     }
 
     iotx_mc_topic_handle_t *messageHandler = NULL;
-    #ifdef INSPECT_MQTT_LIST
-    mqtt_debug("receivce UNSUBACK, packetid: %d",mypacketid);
-    #endif
+#ifdef INSPECT_MQTT_LIST
+    mqtt_debug("receivce UNSUBACK, packetid: %d", mypacketid);
+#endif
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
 
 
@@ -2170,15 +2170,15 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             node = list_iterator_next(iter);
 
             if (NULL != tempNode) {
-                #ifdef INSPECT_MQTT_LIST
+#ifdef INSPECT_MQTT_LIST
                 mqtt_debug("remove list_sub_wait_ack before");
-                #endif
-                _dump_wait_list(pClient,"sub");
+#endif
+                _dump_wait_list(pClient, "sub");
                 list_remove(pClient->list_sub_wait_ack, tempNode);
                 tempNode = NULL;
-                #ifdef INSPECT_MQTT_LIST
-                _dump_wait_list(pClient,"sub");
-                #endif
+#ifdef INSPECT_MQTT_LIST
+                _dump_wait_list(pClient, "sub");
+#endif
                 mqtt_debug("remove list_sub_wait_ack after");
             }
 
@@ -2228,9 +2228,9 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                 }
 
                 iotx_mc_topic_handle_t *messageHandler = NULL;
-                #ifdef INSPECT_MQTT_LIST
-                mqtt_debug("MQTTSubInfoProc Timeout, packetid: %d",subInfo->msg_id);
-                #endif
+#ifdef INSPECT_MQTT_LIST
+                mqtt_debug("MQTTSubInfoProc Timeout, packetid: %d", subInfo->msg_id);
+#endif
                 (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
 
                 if (messageHandler) {
@@ -3160,9 +3160,9 @@ int IOT_MQTT_Subscribe(void *handle,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
-    #ifdef INSPECT_MQTT_LIST
+#ifdef INSPECT_MQTT_LIST
     mqtt_debug("iotx_mc_subscribe before");
-    #endif
+#endif
     _dump_wait_list((iotx_mc_client_t *)handle, "sub");
     return iotx_mc_subscribe((iotx_mc_client_t *)handle, topic_filter, qos, topic_handle_func, pcontext);
 }
@@ -3171,128 +3171,127 @@ typedef struct {
     uintptr_t packet_id;
     int ack_type;
     struct list_head linked_list;
-}mqtt_sub_node_t;
+} mqtt_sub_node_t;
 
 static struct list_head g_mqtt_sub_list = LIST_HEAD_INIT(g_mqtt_sub_list);
 
 static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    if(pclient == NULL || msg == NULL) {
+    if (pclient == NULL || msg == NULL) {
         return;
     }
-    
-    iotx_mc_client_t * client = (iotx_mc_client_t *)pclient;
+
+    iotx_mc_client_t *client = (iotx_mc_client_t *)pclient;
     uintptr_t packet_id = (uintptr_t) msg->msg;
 
-    mqtt_debug("packet_id = %d, event_type=%d",packet_id,msg->event_type);
+    mqtt_debug("packet_id = %d, event_type=%d", packet_id, msg->event_type);
     mqtt_sub_node_t *node = NULL;
     mqtt_sub_node_t *next = NULL;
 
     HAL_MutexLock(client->lock_generic);
-    list_for_each_entry_safe(node,next,&g_mqtt_sub_list,linked_list,mqtt_sub_node_t) {
-        if(node->packet_id == packet_id) {
-            node->ack_type = msg->event_type;    
+    list_for_each_entry_safe(node, next, &g_mqtt_sub_list, linked_list, mqtt_sub_node_t) {
+        if (node->packet_id == packet_id) {
+            node->ack_type = msg->event_type;
         }
     }
     HAL_MutexUnlock(client->lock_generic);
 }
 
-int IOT_MQTT_Subscribe_SYNC(void *handle,
-                       const char *topic_filter,
-                       iotx_mqtt_qos_t qos,
-                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                       void *pcontext,int timeout_ms,int do_yield)
+int IOT_MQTT_Subscribe_Sync(void *handle,
+                            const char *topic_filter,
+                            iotx_mqtt_qos_t qos,
+                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                            void *pcontext,
+                            int timeout_ms,
+                            int do_yield)
 {
-    int ret;
-    int subed;
-    iotx_time_t timer;
-    
+    int             subed;
+    int             ret;
+    iotx_time_t     timer;
+
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
-    iotx_mc_client_t * client = (iotx_mc_client_t *)handle;
+    iotx_mc_client_t *client = (iotx_mc_client_t *)handle;
     if (qos > IOTX_MQTT_QOS2) {
         mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
                      qos,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
-    #ifdef INSPECT_MQTT_LIST
+#ifdef INSPECT_MQTT_LIST
     mqtt_debug("iotx_mc_subscribe before");
-    #endif
+#endif
     _dump_wait_list(client, "sub");
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
-    
+
     ret = -1;
     subed = 0;
-    int cnt =0;
-    do{
-        if(ret < 0) {
+    int cnt = 0;
+    do {
+        if (ret < 0) {
             ret = iotx_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
         }
-        if(!subed) {
+        if (!subed) {
             mqtt_sub_node_t *node = (mqtt_sub_node_t *)HAL_Malloc(sizeof(mqtt_sub_node_t));
-            if(node != NULL) {
-                mqtt_debug("packet_id = %d",ret);
+            if (node != NULL) {
+                mqtt_debug("packet_id = %d", ret);
                 node->packet_id = ret;
                 node->ack_type = 0;
                 HAL_MutexLock(client->lock_generic);
-                list_add_tail(&node->linked_list,&g_mqtt_sub_list);
+                list_add_tail(&node->linked_list, &g_mqtt_sub_list);
                 HAL_MutexUnlock(client->lock_generic);
                 subed = 1;
             }
 
         }
-    if(do_yield) {
-        IOT_MQTT_Yield(client,50);
-    }
-    else {
-        HAL_SleepMs(50);
-    }
-
-    mqtt_sub_node_t *node = NULL;
-    mqtt_sub_node_t *next = NULL;
-    
-    HAL_MutexLock(client->lock_generic);
-    list_for_each_entry_safe(node,next,&g_mqtt_sub_list,linked_list,mqtt_sub_node_t) {
-        if(node->packet_id == ret) {
-            mqtt_debug("node->ack_type=%d cnt=%d",node->ack_type,cnt++);
-            if(node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS) {         
-                list_del(&node->linked_list);
-                HAL_Free(node);
-                mqtt_debug("success!!");
-                HAL_MutexUnlock(client->lock_generic);
-                return 0;
-            }
-            else if(node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_NACK) {
-                list_del(&node->linked_list);
-                HAL_Free(node);
-                ret = -1; //resub
-                subed = 0;
-            }
-            else if(node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT) {
-                list_del(&node->linked_list);
-                HAL_Free(node);
-                ret = -1; //resub
-                subed = 0;
-            }
+        if (do_yield) {
+            IOT_MQTT_Yield(client, 50);
+        } else {
+            HAL_SleepMs(50);
         }
-        break;
-    }
-    HAL_MutexUnlock(client->lock_generic);
-    }while(!utils_time_is_expired(&timer));
+
+        mqtt_sub_node_t *node = NULL;
+        mqtt_sub_node_t *next = NULL;
+
+        HAL_MutexLock(client->lock_generic);
+        list_for_each_entry_safe(node, next, &g_mqtt_sub_list, linked_list, mqtt_sub_node_t) {
+            if (node->packet_id == ret) {
+                mqtt_debug("node->ack_type=%d cnt=%d", node->ack_type, cnt++);
+                if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS) {
+                    list_del(&node->linked_list);
+                    HAL_Free(node);
+                    mqtt_debug("success!!");
+                    HAL_MutexUnlock(client->lock_generic);
+                    return 0;
+                } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_NACK) {
+                    list_del(&node->linked_list);
+                    HAL_Free(node);
+                    ret = -1; //resub
+                    subed = 0;
+                } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT) {
+                    list_del(&node->linked_list);
+                    HAL_Free(node);
+                    ret = -1; //resub
+                    subed = 0;
+                }
+            }
+            break;
+        }
+        HAL_MutexUnlock(client->lock_generic);
+    } while (!utils_time_is_expired(&timer));
     mqtt_debug("time out!!");
     mqtt_sub_node_t *node = NULL;
     mqtt_sub_node_t *next = NULL;
 
     HAL_MutexLock(client->lock_generic);
-    list_for_each_entry_safe(node,next,&g_mqtt_sub_list,linked_list,mqtt_sub_node_t) {
-        if(node->packet_id == ret) {
+    list_for_each_entry_safe(node, next, &g_mqtt_sub_list, linked_list, mqtt_sub_node_t) {
+        if (node->packet_id == ret) {
             list_del(&node->linked_list);
             HAL_Free(node);
-            break;            
+            break;
         }
     }
     HAL_MutexUnlock(client->lock_generic);

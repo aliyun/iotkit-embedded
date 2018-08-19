@@ -279,11 +279,14 @@ int IOT_MQTT_Subscribe(void *handle,
           The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Subscribe_SYNC(void *handle,
-                       const char *topic_filter,
-                       iotx_mqtt_qos_t qos,
-                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                       void *pcontext,int timeout_ms,int do_yield);
+int IOT_MQTT_Subscribe_Sync(void *handle,
+                            const char *topic_filter,
+                            iotx_mqtt_qos_t qos,
+                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                            void *pcontext,
+                            int timeout_ms,
+                            int do_yield);
+
 /**
  * @brief Unsubscribe MQTT topic.
  *
