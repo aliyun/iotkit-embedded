@@ -1880,17 +1880,7 @@ int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
 
 int dm_msg_cloud_connected(void)
 {
-    int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    /* Send To User */
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_CONNECTED, NULL);
-
-    return res;
+    return _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_CONNECTED, NULL);
 }
 
 int dm_msg_cloud_disconnect(void)
@@ -3437,14 +3427,15 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
     res = lite_cjson_parse(request->params.value, request->params.value_length, &lite);
     if (res != SUCCESS_RETURN || (!lite_cjson_is_object(&lite) && !lite_cjson_is_array(&lite))) {
         dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED, request->params.value_length, request->params.value);
+        DM_free(key);
         return FAIL_RETURN;
     }
     dm_log_info("Service Request, Size: %d", lite.size);
 
     if (lite_cjson_is_object(&lite)) {
         res = _dm_msg_service_set_object(devid, key, &lite);
-        DM_free(key)
     }
+    DM_free(key);
 
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;

@@ -714,7 +714,7 @@ int dm_mgr_get_dev_sub_service_event(_IN_ int devid, _IN_ int index, _OU_ char *
         return FAIL_RETURN;
     }
 
-    if (index >= 0 || index < node->sub_status.service_event_number) {
+    if (index >= 0 && index < node->sub_status.service_event_number) {
         service_event_refer = *(node->sub_status.service_event + index);
         if (service_event_refer == NULL) {
             return FAIL_RETURN;

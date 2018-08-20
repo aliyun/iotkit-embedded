@@ -1187,18 +1187,22 @@ void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t *source, iotx_cm_mes
     }
 
     res = dm_msg_dev_core_service_dev(&payload, &payload_len);
-    if (res != SUCCESS_RETURN) {
-        return;
-    }
-
+    
     /* Response */
     response.service_prefix = NULL;
     response.service_name = DM_DISP_DEV_CORE_SERVICE_DEV;
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
 
+    if (res != SUCCESS_RETURN) {
+        payload = "{}";
+        payload_len = strlen(payload);
+    }
+
     dm_msg_response_local_with_data(&request, &response, payload, payload_len, msg->conn_ctx);
 
-    DM_free(payload);
+    if (response.code == IOTX_DM_ERR_CODE_SUCCESS) {
+        DM_free(payload);
+    }
 }
 
 void dm_disp_thing_lan_prefix_get_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)

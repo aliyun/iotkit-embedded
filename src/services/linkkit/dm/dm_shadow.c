@@ -145,8 +145,8 @@ static int _dm_shw_data_array_search(_IN_ dm_shw_data_t *input, _IN_ int input_i
 		case DM_SHW_DATA_TYPE_STRUCT:
 			{
 				dm_shw_data_t *search_data = NULL;
+				if (complex_struct->value == NULL) {return FAIL_RETURN;}
 				search_data = (dm_shw_data_t *)complex_struct->value + input_index;
-				if (search_data == NULL) {return FAIL_RETURN;}
 				return _dm_shw_data_struct_search(search_data,key,deli_offset,output,output_index);
 			}
 			break;
