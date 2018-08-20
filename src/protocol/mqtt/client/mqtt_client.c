@@ -2285,8 +2285,9 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 #ifdef INSPECT_MQTT_LIST
                 mqtt_debug("MQTTSubInfoProc Timeout, packetid: %d", subInfo->msg_id);
 #endif
+                HAL_MutexUnlock(pClient->lock_list_pub);
                 (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
-
+                HAL_MutexLock(pClient->lock_list_sub);
                 if (messageHandler) {
                     LITE_free(messageHandler->topic_filter);
                 }
