@@ -336,7 +336,7 @@ int do_auth (CoAPContext *ctx, NetworkAddr* addr, ctl_key_item* ctl_item, void *
         memset (session, 0, sizeof(session_item));
  
         char path[100] = {0};
-        strncpy(path, ctl_item->productKey, sizeof(path));
+        strncpy(path, ctl_item->productKey, sizeof(path) - 1);
         strncat(path, ctl_item->deviceName, sizeof(path)-strlen(path)-1);
         CoAPPathMD5_sum (path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
         COAP_INFO ("pk:%s, dn:%s, checksum:%s", devKey.pk, devKey.dn, session->pk_dn); 
@@ -530,7 +530,7 @@ void heart_beat_cb(CoAPContext *ctx, CoAPReqResult result, void *userdata, Netwo
                 unsigned int sessionId = 0;
                 CoAPUintOption_get (message, COAP_OPTION_SESSIONID, &sessionId);
 
-                if (!node || node->sessionId != sessionId) {
+                if (node->sessionId != sessionId) {
                     COAP_INFO ("receive stale heart beat response");
                     remove_session (ctx, node);
                 } else {

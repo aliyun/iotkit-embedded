@@ -263,9 +263,10 @@ CoAPContext* alcs_context_init(CoAPInitParam *param)
             g_alcs_ctx = NULL;
             return NULL;
         }
+        return g_alcs_ctx->ctx;
+    } else {
+        return NULL;
     }
-
-    return g_alcs_ctx->ctx;
 }
 
 void alcs_context_deinit()

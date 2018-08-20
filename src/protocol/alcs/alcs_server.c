@@ -437,7 +437,7 @@ int alcs_resource_register_secure (CoAPContext *context, const char* pk, const c
     CoAPPathMD5_sum (path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
 
     char pk_dn[100] = {0};
-    strncpy(pk_dn, pk, sizeof(pk_dn));
+    strncpy(pk_dn, pk, sizeof(pk_dn) - 1);
     strncat(pk_dn, dn, sizeof(pk_dn)-strlen(pk_dn)-1);
     CoAPPathMD5_sum (pk_dn, strlen(pk_dn), item->pk_dn, PK_DN_CHECKSUM_LEN);
     

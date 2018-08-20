@@ -88,7 +88,7 @@ static session_item* get_session (struct list_head* sessions, AlcsDeviceKey* dev
 
     char ck[PK_DN_CHECKSUM_LEN] = {0};
     char path[100] = {0};
-    strcpy(path, devKey->pk);
+    strncpy(path, devKey->pk, sizeof(path) - 1);
     strcat(path, devKey->dn);
     CoAPPathMD5_sum (path, strlen(path), ck, PK_DN_CHECKSUM_LEN);
 
@@ -582,7 +582,7 @@ int alcs_add_svr_group (CoAPContext *context, const char* groupid, const char* k
         item->keyInfo.secret = (char*) coap_malloc(strlen(secret) + 1);
         if (!item->keyInfo.secret) break;
     
-        strcpy (item->keyInfo.keyprefix, keyprefix);
+        strncpy (item->keyInfo.keyprefix, keyprefix, sizeof(item->keyInfo.keyprefix) - 1);
         strcpy (item->keyInfo.secret, secret);
         strcpy (item->id, groupid);
 
