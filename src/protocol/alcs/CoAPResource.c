@@ -53,9 +53,12 @@ int CoAPResource_init(CoAPContext *context, int res_maxcount)
     CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     ctx->resource.list_mutex = HAL_MutexCreate();
+
+    HAL_MutexLock(ctx->resource.list_mutex);
     INIT_LIST_HEAD(&ctx->resource.list);
     ctx->resource.count = 0;
     ctx->resource.maxcount = res_maxcount;
+    HAL_MutexUnlock(ctx->resource.list_mutex);
 
     return COAP_SUCCESS;
 }

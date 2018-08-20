@@ -30,9 +30,12 @@ int CoAPObsServer_init(CoAPContext *context, unsigned char        obs_maxcount)
     CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     ctx->obsserver.list_mutex = HAL_MutexCreate();
+
+    HAL_MutexLock(ctx->obsserver.list_mutex);
     INIT_LIST_HEAD(&ctx->obsserver.list);
     ctx->obsserver.count = 0;
     ctx->obsserver.maxcount = obs_maxcount;
+    HAL_MutexUnlock(ctx->obsserver.list_mutex);
 
     return COAP_SUCCESS;
 }
@@ -245,9 +248,12 @@ int CoAPObsClient_init(CoAPContext *context, unsigned char        obs_maxcount)
     CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     ctx->obsclient.list_mutex = HAL_MutexCreate();
+
+    HAL_MutexLock(ctx->obsclient.list_mutex);
     INIT_LIST_HEAD(&ctx->obsclient.list);
     ctx->obsclient.count = 0;
     ctx->obsclient.maxcount = obs_maxcount;
+    HAL_MutexUnlock(ctx->obsclient.list_mutex);
 
     return COAP_SUCCESS;
 }
