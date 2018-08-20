@@ -59,13 +59,13 @@ extern uint32_t os_htobe32(uint32_t data);
 extern uint64_t os_htobe64(uint64_t data);
 extern uint32_t os_be32toh(uint32_t data);
 
+#ifndef BUILD_AOS
 static uint8_t is_little_endian()
 {
     static uint32_t _endian_x_ = 1;
     return ((const uint8_t *)(& _endian_x_))[0];
 }
 
-#ifndef BUILD_AOS
 static uint8_t  is_big_endian()
 {
     return !is_little_endian();
