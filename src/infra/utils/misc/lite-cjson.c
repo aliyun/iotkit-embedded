@@ -1,3 +1,6 @@
+/* 
+ * based on cJSON 1.7.7 version, see https://github.com/DaveGamble/cJSON
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
