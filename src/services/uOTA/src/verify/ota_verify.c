@@ -268,8 +268,8 @@ int ota_check_image(ota_read_cb_t read_fuc)
     volatile unsigned int off_set = 0;
     CRC16_Context         bin_crc16_Context;
     unsigned short        bin_parse_context_crc = 0;
-    unsigned char         image_md5_value[16];
-    unsigned char         download_md5_str_value[33];
+    unsigned char         image_md5_value[33] = {0};
+    unsigned char         download_md5_str_value[33] = {0};
     unsigned int          read_size    = 0;
     unsigned char        *rd_buf       = NULL;
     unsigned char         test_buf[33] = { 0 };

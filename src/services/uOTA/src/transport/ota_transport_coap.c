@@ -107,8 +107,7 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len,
 {
     int                  ret;
     ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
-    if (buf == NULL || ota_topic_type == NULL || ctx->pk == NULL ||
-        ctx->dn == NULL) {
+    if (buf == NULL || ota_topic_type == NULL) {
         OTA_LOG_E("coap gen topic is null");
         return -1;
     }
