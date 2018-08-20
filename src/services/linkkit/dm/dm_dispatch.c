@@ -222,9 +222,6 @@ int dm_disp_uri_prefix_ext_ntp_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int 
     if (memcmp(DM_DISP_EXT_NTP_PREFIX, uri, offset + 1) != 0) {
         return FAIL_RETURN;
     }
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
 
     if (start) {
         *start = offset;
