@@ -2745,19 +2745,19 @@ unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
 // aos will implement this function
 void __attribute__((weak)) aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
 {
-    strncpy((char *)version, "\x02\x02\x00\x00", VERSION_NUM_SIZE);
+    memcpy(version, "\x02\x02\x01\x00", VERSION_NUM_SIZE);
 }
 
 // aos will implement this function
 void __attribute__((weak)) aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
 {
-    strncpy((char *)mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
+    memcpy(mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
 }
 
 // aos will implement this function
 void __attribute__((weak)) aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 {
-    strncpy((char *)chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
+    memcpy(chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
 }
 
 /* Report AOS Version */
