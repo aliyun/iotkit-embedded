@@ -76,10 +76,6 @@ char *tsl_read_from_file(const char *filename, int *buf_size)
     *buf_size = file_size;
     return buf;
 do_exit:
-    if (buf) {
-        free(buf);
-        buf = NULL;
-    }
     if (fp) {
         fclose(fp);
     }

@@ -94,7 +94,8 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
 {
 #ifdef OTA_ENABLED
     int res = 0;
-    uint32_t file_size = 0, file_downloaded = 0, file_download = 0;
+    int file_downloaded = 0;
+    uint32_t file_size = 0, file_download = 0;
     uint32_t percent_pre = 0, percent_now = 0;
     unsigned long long report_pre = 0, report_now = 0;
     dm_cota_ctx_t *ctx = _dm_cota_get_ctx();

@@ -1303,10 +1303,11 @@ int iotx_dm_deprecated_legacy_get_property_value(_IN_ int devid, _IN_ char *key,
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     memcpy(value, value_string, strlen(value_string));
-                    free(value_string);
                 }
                 if (value_str) {
                     *value_str = value_string;
+                }else{
+                    free(value_string);
                 }
             }
         }
@@ -1464,10 +1465,11 @@ int iotx_dm_deprecated_legacy_get_event_output_value(_IN_ int devid, _IN_ char *
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     memcpy(value, value_string, strlen(value_string));
-                    free(value_string);
                 }
                 if (value_str) {
                     *value_str = value_string;
+                }else{
+                    free(value_string);
                 }
             }
         }
@@ -1563,10 +1565,11 @@ int iotx_dm_deprecated_legacy_get_service_input_value(_IN_ int devid, _IN_ char 
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     memcpy(value, value_string, strlen(value_string));
-                    free(value_string);
                 }
                 if (value_str) {
                     *value_str = value_string;
+                }else{
+                    free(value_string);
                 }
             }
         }
@@ -1727,10 +1730,11 @@ int iotx_dm_deprecated_legacy_get_service_output_value(_IN_ int devid, _IN_ char
             if (res == SUCCESS_RETURN) {
                 if (value) {
                     memcpy(value, value_string, strlen(value_string));
-                    free(value_string);
                 }
                 if (value_str) {
                     *value_str = value_string;
+                }else{
+                    free(value_string);
                 }
             }
         }

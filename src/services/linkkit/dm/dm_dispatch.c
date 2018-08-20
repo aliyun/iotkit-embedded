@@ -566,9 +566,6 @@ void dm_disp_thing_service_property_post(iotx_cm_send_peer_t *source, iotx_cm_me
     }
 
     res = dm_msg_request_parse(msg->payload, msg->payload_length, &request);
-    if (res != SUCCESS_RETURN) {
-        return;
-    }
 
     /* Response */
     response.service_prefix = DM_DISP_SYS_PREFIX;
