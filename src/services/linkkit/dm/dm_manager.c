@@ -90,7 +90,7 @@ static int _dm_mgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_ke
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || product_key == NULL || strlen(product_key) >= PRODUCT_KEY_MAXLEN ||
-        device_name == NULL || strlen(device_name) >= PRODUCT_KEY_MAXLEN) {
+        device_name == NULL || strlen(device_name) >= DEVICE_NAME_MAXLEN) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
