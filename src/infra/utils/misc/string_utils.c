@@ -177,6 +177,10 @@ void LITE_replace_substr(char originalString[], char key[], char swap[])
     lengthOfKey = strlen(key);
     lengthOfSwap = strlen(swap);
 
+    if (lengthOfOriginalString >= 512 || (lengthOfOriginalString-lengthOfKey+lengthOfSwap) >= 512) {
+        return;
+    }
+
     for (i = 0; i <= lengthOfOriginalString - lengthOfKey; i++) {
         flag = 1;
         for (j  = 0; j < lengthOfKey; j++) {
