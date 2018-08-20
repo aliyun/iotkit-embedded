@@ -213,6 +213,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_del(const char *pk, uint16_t pk_len,
         return ALCS_MQTT_STATUS_ERROR;
     }
 
+    LITE_free(key_source);
     return ALCS_MQTT_STATUS_SUCCESS;
 }
 
