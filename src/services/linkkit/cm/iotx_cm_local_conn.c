@@ -59,9 +59,9 @@ static int iotx_cm_local_conn_add_device(iotx_cm_local_device_t *device)
             break;
         }
     }
-    
-    if(i == CM_SUPPORT_MAX_LOCAL_DEVICE) {
-        return FAIL_RETURN;        
+
+    if (i == CM_SUPPORT_MAX_LOCAL_DEVICE) {
+        return FAIL_RETURN;
     }
     iotx_cm_local_device_list[i].node = device;
 
@@ -257,7 +257,7 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
                 LITE_free(device);
                 return;
             }
-            device->addr = LITE_malloc(strlen(_device->addr));
+            device->addr = LITE_malloc(strlen(_device->addr) + 1);
             if (NULL == device->addr) {
                 LITE_free(device->device_info);
                 LITE_free(device);
@@ -310,7 +310,7 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
                 LITE_free(device);
                 return;
             }
-            device->addr = LITE_malloc(strlen(_device->addr));
+            device->addr = LITE_malloc(strlen(_device->addr) + 1);
             if (NULL == device->addr) {
                 LITE_free(device->device_info);
                 LITE_free(device);
@@ -1317,9 +1317,9 @@ void *iotx_cm_local_conn_process(void *pclient)
                         if (FAIL_RETURN == iotx_cm_local_conn_deinit(cm_ctx, connectivity)) {
                             CM_ERR(cm_log_error_fail);
                         } */
-                       /*  connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_UNCREATED;
-                        linked_list_remove(cm_ctx->list_connectivity, connectivity);
-                        LITE_free(connectivity); */
+                        /*  connectivity->status = IOTX_CM_CONNECTIVITY_STATUS_UNCREATED;
+                         linked_list_remove(cm_ctx->list_connectivity, connectivity);
+                         LITE_free(connectivity); */
                         /* return NULL; */
                     }
                     break;
@@ -1480,12 +1480,12 @@ void *iotx_cm_local_conn_process(void *pclient)
                 iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL, node);
             }
         }
-        /* local yield */      
+        /* local yield */
         if (connectivity && IOTX_CM_CONNECTIVITY_STATUS_CONNECTED == iotx_cm_get_connectivity_status(connectivity)) {
             connectivity->yield_func(cm_ctx, connectivity, 50);
         } else {
             HAL_SleepMs(50);
-        }       
+        }
     }
 
     return NULL;
