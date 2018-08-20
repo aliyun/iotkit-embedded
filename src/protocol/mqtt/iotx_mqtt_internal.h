@@ -39,7 +39,7 @@
         cli->b = LITE_malloc(tmpbuf_len, MEM_MAGIC, "mqtt"); \
         if (NULL == cli->b) { \
             mqtt_err("Unable to allocate %d bytes for '%s', abort!", tmpbuf_len, (n)?(n):""); \
-            return ERROR_NO_MEM; \
+            break;  \
         } \
         cli->s = tmpbuf_len; \
         mqtt_debug("ALLOC: curr buf = %p, curr buf_size = %d, required payload_len = %d", cli->b, cli->s, l); \

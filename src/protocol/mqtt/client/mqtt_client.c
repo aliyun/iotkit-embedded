@@ -163,6 +163,11 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
     HAL_MutexLock(pClient->lock_write_buf);
 
     ALLOC_SERIALIZE_BUF(pClient, buf_send, buf_size_send, 0, 0);
+    if (!pClient->buf_send) {
+        HAL_MutexUnlock(pClient->lock_write_buf);
+        return FAIL_RETURN;
+    }
+
     len = MQTTSerialize_pingreq((unsigned char *)pClient->buf_send, pClient->buf_size_send);
     mqtt_debug("len = MQTTSerialize_pingreq() = %d", len);
 
@@ -204,6 +209,11 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     HAL_MutexLock(pClient->lock_write_buf);
 
     ALLOC_SERIALIZE_BUF(pClient, buf_send, buf_size_send, MQTT_CONNECT_REQUIRED_BUFLEN, 0);
+    if (!pClient->buf_send) {
+        HAL_MutexUnlock(pClient->lock_write_buf);
+        return FAIL_RETURN;
+    }
+
     if ((len = MQTTSerialize_connect((unsigned char *)pClient->buf_send, pClient->buf_size_send, pConnectParams)) <= 0) {
         mqtt_err("Serialize connect packet failed,len = %d", len);
 
@@ -244,9 +254,14 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName) + topic_msg->payload_len, topicName);
-
     HAL_MutexLock(c->lock_write_buf);
+
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName) + topic_msg->payload_len, topicName);
+    if (!c->buf_send) {
+        HAL_MutexUnlock(c->lock_write_buf);
+        return FAIL_RETURN;
+    }
+
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
                                 c->buf_size_send,
                                 0,
@@ -320,12 +335,25 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
     HAL_MutexLock(c->lock_write_buf);
     if (type == PUBACK) {
         ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+        if (!c->buf_send) {
+            HAL_MutexUnlock(c->lock_write_buf);
+            return FAIL_RETURN;
+        }
+
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBACK, 0, msgId);
     } else if (type == PUBREC) {
         ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+        if (!c->buf_send) {
+            HAL_MutexUnlock(c->lock_write_buf);
+            return FAIL_RETURN;
+        }
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREC, 0, msgId);
     } else if (type == PUBREL) {
         ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+        if (!c->buf_send) {
+            HAL_MutexUnlock(c->lock_write_buf);
+            return FAIL_RETURN;
+        }
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREL, 0, msgId);
     } else {
         HAL_MutexUnlock(c->lock_write_buf);
@@ -401,6 +429,10 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
     HAL_MutexLock(c->lock_write_buf);
 
     ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, total_len, 0);
+    if (!c->buf_send) {
+        HAL_MutexUnlock(c->lock_write_buf);
+        return FAIL_RETURN;
+    }
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, list_size,
                                   topic, (int *)qos);
     if (len <= 0) {
@@ -448,7 +480,7 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
         list_remove(c->list_sub_wait_ack, node);
         HAL_MutexUnlock(c->lock_list_sub);
         HAL_MutexUnlock(c->lock_write_buf);
-        
+
         for (i = 0; i < list_size; i++) {
             LITE_free(handler[i].topic_filter);
         }
@@ -502,9 +534,15 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     handler->handle.h_fp = messageHandler;
     handler->handle.pcontext = pcontext;
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
-
     HAL_MutexLock(c->lock_write_buf);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
+    if (!c->buf_send) {
+        HAL_MutexUnlock(c->lock_write_buf);
+        LITE_free(handler->topic_filter);
+        LITE_free(handler);
+        return FAIL_RETURN;
+    }
+
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic,
                                   (int *)&qos);
     if (len <= 0) {
@@ -597,6 +635,13 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
     HAL_MutexLock(c->lock_write_buf);
 
     ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
+    if (NULL == c->buf_send) {
+        HAL_MutexUnlock(c->lock_write_buf);
+        LITE_free(handler->topic_filter);
+        LITE_free(handler);
+        return FAIL_RETURN;
+    }
+
     if ((len = MQTTSerialize_unsubscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1,
                                          &topic)) <= 0) {
         LITE_free(handler->topic_filter);
@@ -646,14 +691,15 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
     if (!c) {
         return FAIL_RETURN;
     }
-#if !(WITH_MQTT_DYNBUF)
-    if (!c->buf_send) {
-        return FAIL_RETURN;
-    }
-#endif
 
     HAL_MutexLock(c->lock_write_buf);
+
     ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+    if (!c->buf_send) {
+        HAL_MutexUnlock(c->lock_write_buf);
+        return FAIL_RETURN;
+    }
+
     len = MQTTSerialize_disconnect((unsigned char *)c->buf_send, c->buf_size_send);
 
     iotx_time_init(&timer);
