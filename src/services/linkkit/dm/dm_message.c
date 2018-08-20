@@ -1900,6 +1900,7 @@ int dm_msg_cloud_disconnect(void)
 
 int dm_msg_cloud_reconnect(void)
 {
+    int res = 0;
     char product_key[PRODUCT_KEY_MAXLEN] = {0};
     char device_name[DEVICE_NAME_MAXLEN] = {0};
 
@@ -1907,9 +1908,9 @@ int dm_msg_cloud_reconnect(void)
     HAL_GetDeviceName(device_name);
 
     /* Send To User */
-    _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
 
-    return SUCCESS_RETURN;
+    return res;
 }
 
 const char DM_MSG_EVENT_FOUND_DEVICE_FMT[] DM_READ_ONLY = "{\"product_key\":\"%s\",\"device_name\":\"%s\"}";

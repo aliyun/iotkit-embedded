@@ -222,7 +222,7 @@ int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
 {
     int res = 0;
 
-    if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0 || payload == NULL || payload_len <= 0) {
+    if (devid < 0 || msgid == NULL || msgid <= 0 || identifier == NULL || identifier_len <= 0 || payload == NULL || payload_len <= 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
