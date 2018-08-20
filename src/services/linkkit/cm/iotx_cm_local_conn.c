@@ -59,7 +59,10 @@ static int iotx_cm_local_conn_add_device(iotx_cm_local_device_t *device)
             break;
         }
     }
-
+    
+    if(i == CM_SUPPORT_MAX_LOCAL_DEVICE) {
+        return FAIL_RETURN;        
+    }
     iotx_cm_local_device_list[i].node = device;
 
     if (NULL == g_local_device) {
