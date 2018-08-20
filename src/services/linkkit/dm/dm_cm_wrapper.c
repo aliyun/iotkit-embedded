@@ -408,6 +408,9 @@ int dm_cmw_local_remove_service(void *conn_handle, char *uri)
         return FAIL_RETURN;
     }
 
+    memset(&cm_remove_servie_param,0,sizeof(iotx_cm_remove_service_param_t));
+    cm_remove_servie_param.URI = uri;
+
     return iotx_cm_serv_del(conn_handle, &cm_remove_servie_param, NULL);
 }
 

@@ -69,11 +69,12 @@ char *tsl_read_from_file(const char *filename, int *buf_size)
     }
 
     if (tsl_file_read(buf, fp, file_size)) {
-        buf = NULL;
+        free(buf);
         goto do_exit;
     }
     buf[file_size] = '\0';
     *buf_size = file_size;
+    fclose(fp);
     return buf;
 do_exit:
     if (fp) {
