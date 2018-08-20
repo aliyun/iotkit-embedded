@@ -350,6 +350,7 @@ int CoAPObsClient_add(CoAPContext *context, CoAPMessage *message, NetworkAddr *r
 
 int CoAPObsClient_delete(CoAPContext *context, CoAPMessage *message)
 {
+    int ret = COAP_SUCCESS;
     unsigned int observe_option = 0;
     CoAPObservable *node = NULL, *next = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
@@ -359,8 +360,8 @@ int CoAPObsClient_delete(CoAPContext *context, CoAPMessage *message)
     }
     if(COAP_MSG_CODE_GET == message->header.code){
         if(COAP_SUCCESS == CoAPOption_present(message, COAP_OPTION_OBSERVE)){
-            CoAPUintOption_get(message, COAP_OPTION_OBSERVE, &observe_option);
-            if(1 == observe_option){
+            ret = CoAPUintOption_get(message, COAP_OPTION_OBSERVE, &observe_option);
+            if(COAP_SUCCESS == ret && 1 == observe_option){
                 HAL_MutexLock(ctx->obsclient.list_mutex);
                 list_for_each_entry_safe(node, next, &ctx->obsclient.list, obslist, CoAPObservable) {
                     if(0 != node->tokenlen && node->tokenlen == message->header.tokenlen
