@@ -191,7 +191,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
         }
         break;
         case IOTX_DM_EVENT_CLOUD_DISCONNECT: {
-            if (linkkit_solo_ctx->user_callback->on_connect) {
+            if (linkkit_solo_ctx->user_callback->on_disconnect) {
                 linkkit_solo_ctx->user_callback->on_disconnect(linkkit_solo_ctx->user_context);
             }
         }

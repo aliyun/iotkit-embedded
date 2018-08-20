@@ -165,10 +165,16 @@ void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 
     switch (type) {
         case IOTX_DM_EVENT_THING_SERVICE_REQUEST: {
+            if (payload == NULL) {
+                return;
+            }
             _linkkit_event_thing_service_request(payload);
         }
         break;
         case IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY: {
+            if (payload == NULL) {
+                return;
+            }
             _linkkit_event_subdev_register_reply(payload);
         }
         break;
@@ -177,6 +183,9 @@ void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
         }
         break;
         case IOTX_DM_EVENT_TOPO_ADD_REPLY: {
+            if (payload == NULL) {
+                return;
+            }
             _linkkit_event_topo_add_reply(payload);
         }
         break;

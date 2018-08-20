@@ -77,6 +77,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0;
             lite_cjson_t lite, lite_item_devid;
 
+            if (payload == NULL) {
+                return;
+            }
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -101,6 +105,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0, response_len = 0;
             char *request = NULL, *response = NULL;
             lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload;
+
+            if (payload == NULL) {
+                return;
+            }
 
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
@@ -173,6 +181,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             char *property_payload = NULL;
             lite_cjson_t lite, lite_item_devid, lite_item_payload;
 
+            if (payload == NULL) {
+                return;
+            }
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -219,6 +231,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             uintptr_t property_get_ctx_num = 0;
             void *property_get_ctx = NULL;
             lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_payload, lite_item_ctx;
+
+            if (payload == NULL) {
+                return;
+            }
 
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
@@ -296,6 +312,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             unsigned char *raw_data = NULL;
             lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
 
+            if (payload == NULL) {
+                return;
+            }
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -342,6 +362,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0, raw_data_len = 0;
             unsigned char *raw_data = NULL;
             lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
+
+            if (payload == NULL) {
+                return;
+            }
 
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
@@ -391,6 +415,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0;
             lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
 
+            if (payload == NULL) {
+                return;
+            }
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -434,6 +462,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0;
             char *user_payload = NULL;
             lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid, lite_item_eventid;
+
+            if (payload == NULL) {
+                return;
+            }
 
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
@@ -498,6 +530,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             char *utc_payload = NULL;
             lite_cjson_t lite, lite_item_utc;
 
+            if (payload == NULL) {
+                return;
+            }
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -533,6 +569,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             char *rrpc_request = NULL, *rrpc_response = NULL;
             lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_rrpcid, lite_item_serviceid, lite_item_payload;
 
+            if (payload == NULL) {
+                return;
+            }
+            
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
