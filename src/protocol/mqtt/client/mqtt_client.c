@@ -245,7 +245,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName) + topic_msg->payload_len, topicName);
-    
+
     HAL_MutexLock(c->lock_write_buf);
     len = MQTTSerialize_publish((unsigned char *)c->buf_send,
                                 c->buf_size_send,
@@ -444,9 +444,11 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
 
     if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
         /* If send failed, remove it */
+        HAL_MutexLock(c->lock_list_sub);
         list_remove(c->list_sub_wait_ack, node);
         HAL_MutexUnlock(c->lock_list_sub);
         HAL_MutexUnlock(c->lock_write_buf);
+        
         for (i = 0; i < list_size; i++) {
             LITE_free(handler[i].topic_filter);
         }
@@ -454,7 +456,7 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
         mqtt_err("run sendPacket error!");
 
         RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
-        HAL_MutexLock(c->lock_list_sub);
+
         return MQTT_NETWORK_ERROR;
     }
 
