@@ -125,6 +125,8 @@ int iotx_cm_init(iotx_cm_init_param_t *init_param, void *option)
 
     if (g_cm_ctx->list_event_callback) {
         linked_list_insert(g_cm_ctx->list_event_callback, cb_usr_ctx);
+    } else {
+        LITE_free(cb_usr_ctx);
     }
 
     if (g_cm_ctx->inited == 0) {
@@ -188,24 +190,26 @@ void *iotx_cm_get_protocol_handle(void *connectivity)
     }
 
     connection_ptr = (iotx_cm_connection_t *)connectivity_ptr->context;
-    if (connection_ptr == NULL) {return NULL;}
+    if (connection_ptr == NULL) {
+        return NULL;
+    }
 
     switch (connectivity_ptr->type) {
-        case IOTX_CM_CONNECTIVITY_TYPE_CLOUD:
-            {
-                iotx_cloud_conn_mqtt_t *mqtt_ctx = NULL;
+        case IOTX_CM_CONNECTIVITY_TYPE_CLOUD: {
+            iotx_cloud_conn_mqtt_t *mqtt_ctx = NULL;
 
-                mqtt_ctx = (iotx_cloud_conn_mqtt_t *)connection_ptr->context;
-                if (mqtt_ctx == NULL) {return NULL;}
+            mqtt_ctx = (iotx_cloud_conn_mqtt_t *)connection_ptr->context;
+            if (mqtt_ctx == NULL) {
+                return NULL;
+            }
 
-                return mqtt_ctx->mqtt_handler;
-            }
-            break;
-        case IOTX_CM_CONNECTIVITY_TYPE_LOCAL:
-            {
-                return connection_ptr->context;
-            }
-            break;
+            return mqtt_ctx->mqtt_handler;
+        }
+        break;
+        case IOTX_CM_CONNECTIVITY_TYPE_LOCAL: {
+            return connection_ptr->context;
+        }
+        break;
         default:
             break;
     }
@@ -285,7 +289,7 @@ int iotx_cm_close(void **connectivity, void *option)
 #if (CONFIG_SDK_THREAD_COST == 1)
     {
         iotx_cm_connectivity_t *connectivity_node = (iotx_cm_connectivity_t *)(*connectivity);
-        connectivity_node->deinit_func(g_cm_ctx,connectivity_node);
+        connectivity_node->deinit_func(g_cm_ctx, connectivity_node);
         /* send message to itself thread */
         /* iotx_cm_process_list_node_t *node = NULL;
 
@@ -1001,7 +1005,7 @@ int iotx_cm_send(void *_connectivity, iotx_cm_send_peer_t *target, iotx_cm_messa
  *
  */
 int iotx_cm_send_sync(void *_connectivity, iotx_cm_send_peer_t *target, iotx_cm_message_info_t *message_info,
-                     void *option)
+                      void *option)
 {
 #if (CONFIG_SDK_THREAD_COST == 1)
     int ret = 0;
