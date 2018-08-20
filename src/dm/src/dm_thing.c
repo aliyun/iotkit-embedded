@@ -207,7 +207,8 @@ static int get_type_size(data_type_type_t type)
 
 static data_type_type_t detect_data_type_type(const char* const type_str)
 {
-    data_type_type_t type;
+    data_type_type_t type = data_type_type_text;
+
     if (strcmp(type_str, string_text) == 0) {
         type = data_type_type_text;
     } else if (strcmp(type_str, string_enum) == 0) {
@@ -230,6 +231,7 @@ static data_type_type_t detect_data_type_type(const char* const type_str)
         dm_printf("%s: unknown data type: %s\n", __func__, type_str);
         assert(0);
     }
+
     return type;
 }
 
