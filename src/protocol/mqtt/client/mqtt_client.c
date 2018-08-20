@@ -382,11 +382,11 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
         qos[i] = sub_info_list[i]->qos;
         handler[i].topic_filter = mqtt_malloc(strlen(sub_info_list[i]->topicFilter) + 1);
         if (NULL == handler[i].topic_filter) {
-            LITE_free(handler);
             i--;
             for (; i >= 0; i--) {
                 LITE_free(handler[i].topic_filter);
             }
+            LITE_free(handler);
             return FAIL_RETURN;
         }
         memcpy((char *)handler[i].topic_filter, sub_info_list[i]->topicFilter, strlen(sub_info_list[i]->topicFilter) + 1);
@@ -432,7 +432,9 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
     /* push the element to list of wait subscribe ACK */
     if (SUCCESS_RETURN != iotx_mc_push_subInfo_to(c, len, msgId, SUBSCRIBE, handler, &node)) {
         mqtt_err("push publish into to pubInfolist failed!");
-        LITE_free(handler[i].topic_filter);
+        for (i = 0; i < list_size; i++) {
+            LITE_free(handler[i].topic_filter);
+        }
         LITE_free(handler);
 
         RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
@@ -445,7 +447,9 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
         list_remove(c->list_sub_wait_ack, node);
         HAL_MutexUnlock(c->lock_list_sub);
         HAL_MutexUnlock(c->lock_write_buf);
-        LITE_free(handler[i].topic_filter);
+        for (i = 0; i < list_size; i++) {
+            LITE_free(handler[i].topic_filter);
+        }
         LITE_free(handler);
         mqtt_err("run sendPacket error!");
 
