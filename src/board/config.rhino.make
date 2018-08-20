@@ -1,8 +1,7 @@
 -include $(TOP_DIR)/aos_board_conf.mk
 
 CONFIG_ENV_CFLAGS   += \
-    -g3 --coverage \
-    -DBUILD_AOS \
+    -Os -DBUILD_AOS \
     -I$(TOP_DIR)/../../../../../include \
     -I$(TOP_DIR)/../../../../activation \
 
