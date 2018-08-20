@@ -479,12 +479,6 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
     }
 
     if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
-        /* If send failed, remove it */
-        HAL_MutexLock(c->lock_list_sub);
-        list_remove(c->list_sub_wait_ack, node);
-        HAL_MutexUnlock(c->lock_list_sub);
-        HAL_MutexUnlock(c->lock_write_buf);
-
         for (i = 0; i < list_size; i++) {
             LITE_free(handler[i].topic_filter);
         }
@@ -492,7 +486,11 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
         mqtt_err("run sendPacket error!");
 
         RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
-
+        /* If send failed, remove it */
+        HAL_MutexLock(c->lock_list_sub);
+        list_remove(c->list_sub_wait_ack, node);
+        HAL_MutexUnlock(c->lock_list_sub);
+        HAL_MutexUnlock(c->lock_write_buf);
         return MQTT_NETWORK_ERROR;
     }
 
@@ -2404,6 +2402,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
         }
 
         for (;;) {
+
             node = list_iterator_next(iter);
 
             if (NULL != tempNode) {
