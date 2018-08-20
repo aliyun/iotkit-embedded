@@ -2875,7 +2875,7 @@ static int iotx_mc_report_linkkit_version(iotx_mc_client_t *pclient)
 
     /* generate linkkit version json data */
     ret = HAL_Snprintf(msg,
-                       AOS_VERSON_MSG_LEN,
+                       LINKKIT_VERSION_MSG_LEN,
                        "{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}],\"method\":\"thing.deviceinfo.update\"}",
                        2,
                        LINKKIT_VERSION
