@@ -597,6 +597,7 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
     message = DM_malloc(message_len);
     if (message == NULL) {
         dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+        DM_free(ctx_addr_str);
         return FAIL_RETURN;
     }
     memset(message, 0, message_len);
@@ -615,9 +616,6 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
 }
 #endif
 
-#ifdef DEPRECATED_LINKKIT
-
-#endif
 const char DM_MSG_TOPO_ADD_NOTIFY_USER_PAYLOAD[] DM_READ_ONLY =
             "{\"result\":%d,\"devid\":%d,\"product_key\":\"%s\",\"device_name\":\"%s\"}";
 int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
@@ -1101,7 +1099,9 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
         return FAIL_RETURN;
     }
 
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1137,7 +1137,9 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
     dm_msg_cache_node_t *node = NULL;
     char *message = NULL;
 
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1179,7 +1181,9 @@ int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
     dm_msg_cache_node_t *node = NULL;
     char *message = NULL;
 
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1226,7 +1230,9 @@ int dm_msg_topo_get_reply(dm_msg_response_payload_t *response)
     }
 
     /* Message ID */
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1265,7 +1271,9 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
     dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1305,7 +1313,9 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
     dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1344,7 +1354,9 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
     dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1382,7 +1394,9 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
     dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1423,7 +1437,9 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
     }
 
     /* Message ID */
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
@@ -1457,7 +1473,9 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
     }
 
     /* Message ID */
-    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {return FAIL_RETURN;}
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
     memcpy(int_id, response->id.value, response->id.value_length);
     id = atoi(int_id);
 
