@@ -1880,6 +1880,7 @@ int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
 
 int dm_msg_cloud_connected(void)
 {
+    int res = 0;
     char product_key[PRODUCT_KEY_MAXLEN] = {0};
     char device_name[DEVICE_NAME_MAXLEN] = {0};
 
@@ -1887,9 +1888,9 @@ int dm_msg_cloud_connected(void)
     HAL_GetDeviceName(device_name);
 
     /* Send To User */
-    _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_CONNECTED, NULL);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_CONNECTED, NULL);
 
-    return SUCCESS_RETURN;
+    return res;
 }
 
 int dm_msg_cloud_disconnect(void)
@@ -3403,12 +3404,6 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
     char *key = NULL, *message = NULL;;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
-    /* Message ID */
-    memcpy(int_id, request->id.value, request->id.value_length);
-    id = atoi(int_id);
-
-    dm_log_debug("Current ID: %d", id);
-
     if (product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
@@ -3416,6 +3411,12 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
+
+    /* Message ID */
+    memcpy(int_id, request->id.value, request->id.value_length);
+    id = atoi(int_id);
+
+    dm_log_debug("Current ID: %d", id);
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
     if (res != SUCCESS_RETURN) {

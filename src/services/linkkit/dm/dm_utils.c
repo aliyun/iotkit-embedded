@@ -286,7 +286,7 @@ int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char
 
     for (index = 0; index < input_len; index++) {
         iter_char = (input[index] >> 4) & 0x0F;
-        if (iter_char >= 0x00 && iter_char <= 0x09) {
+        if (iter_char <= 0x09) {
             iter_char += '0';
         } else if (iter_char >= 0x0A && iter_char <= 0x0F) {
             iter_char += 'A' - 0x0A;
@@ -294,7 +294,7 @@ int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char
         (*output)[index * 2] = iter_char;
 
         iter_char = (input[index]) & 0x0F;
-        if (iter_char >= 0x00 && iter_char <= 0x09) {
+        if (iter_char <= 0x09) {
             iter_char += '0';
         } else if (iter_char >= 0x0A && iter_char <= 0x0F) {
             iter_char += 'A' - 0x0A;

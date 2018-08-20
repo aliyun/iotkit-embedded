@@ -193,9 +193,6 @@ int dm_disp_uri_prefix_ext_session_split(_IN_ char *uri, _IN_ int uri_len, _OU_ 
     if (memcmp(DM_DISP_EXT_SESSION_PREFIX, uri, offset + 1) != 0) {
         return FAIL_RETURN;
     }
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
 
     if (start) {
         *start = offset;
@@ -1297,6 +1294,8 @@ void dm_disp_event_cloud_reconnect_handler(void *pcontext, iotx_cm_event_msg_t *
 
 void dm_disp_event_local_connected_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
+    int res = 0;
+
     dm_log_info("IOTX_CM_EVENT_LOCAL_CONNECTED");
 
     dm_conn_set_local_conn_state(1);
@@ -1309,25 +1308,38 @@ void dm_disp_event_local_connected_handler(void *pcontext, iotx_cm_event_msg_t *
     dm_sub_local_register();
 #endif
 
-    _dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_CONNECTED, NULL);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_CONNECTED, NULL);
+    if (res != SUCCESS_RETURN) {
+        return;
+    }
 }
 
 void dm_disp_event_local_disconnect_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
+    int res = 0;
+
     dm_log_info("IOTX_CM_EVENT_LOCAL_DISCONNECT");
 
     dm_conn_set_local_conn_state(0);
 
-    _dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_DISCONNECT, NULL);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_DISCONNECT, NULL);
+    if (res != SUCCESS_RETURN) {
+        return;
+    }
 }
 
 void dm_disp_event_local_reconnect_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
+    int res = 0;
+
     dm_log_info("IOTX_CM_EVENT_LOCAL_RECONNECT");
 
     dm_conn_set_local_conn_state(1);
 
-    _dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_RECONNECT, NULL);
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_LOCAL_RECONNECT, NULL);
+    if (res != SUCCESS_RETURN) {
+        return;
+    }
 }
 
 void dm_disp_event_found_device_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)

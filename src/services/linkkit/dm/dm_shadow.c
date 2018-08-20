@@ -2186,9 +2186,9 @@ static void _dm_shw_array_free(_IN_ dm_shw_data_value_t *data_value)
 {
 	dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-	dm_log_err("complex_array->type: %d",complex_array->type);
 	//Free Value
 	if (complex_array) {
+		dm_log_err("complex_array->type: %d",complex_array->type);
 		if (g_iotx_data_type_mapping[complex_array->type].func_array_free != NULL) {
 			g_iotx_data_type_mapping[complex_array->type].func_array_free(data_value);
 		}
