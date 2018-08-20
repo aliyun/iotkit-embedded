@@ -500,9 +500,9 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     handler->handle.h_fp = messageHandler;
     handler->handle.pcontext = pcontext;
 
-    HAL_MutexLock(c->lock_write_buf);
-
     ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
+    
+    HAL_MutexLock(c->lock_write_buf);
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, 1, &topic,
                                   (int *)&qos);
     if (len <= 0) {
