@@ -44,7 +44,7 @@ $(TARGET): $(OBJS) FORCE
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q) \
 ( \
-	if [ "$(strip $(CC))" = "gcc" ] || [ "$(filter -D_PLATFORM_IS_LINUX_,$(CFLAGS))" != "" ]; then \
+	if true || [ "$(strip $(CC))" = "gcc" ] || [ "$(filter -D_PLATFORM_IS_LINUX_,$(CFLAGS))" != "" ]; then \
 	    $(call Brief_Log,"LD"); \
 	    mkdir -p $(OUTPUT_DIR)${bindir}; \
 	    $(CCLD) $(CFLAGS) -o $@ \
