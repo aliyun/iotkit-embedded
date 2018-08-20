@@ -276,6 +276,15 @@ int CoAPMessageUserData_set(CoAPMessage *message, void *userdata)
     return COAP_SUCCESS;
 }
 
+int CoAPMessageKeep_Set(CoAPMessage *message, int keep)
+{
+    if (NULL == message || keep < 0) {
+        return COAP_ERROR_NULL;
+    }
+    message->keep = keep;
+    return COAP_SUCCESS;
+}
+
 int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
                            unsigned short payloadlen)
 {

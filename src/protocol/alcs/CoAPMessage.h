@@ -72,6 +72,8 @@ int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
 
 int CoAPMessageUserData_set(CoAPMessage *message, void *userdata);
 
+int CoAPMessageKeep_Set(CoAPMessage *message, int keep);
+
 int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
                            unsigned short payloadlen);
 
