@@ -431,6 +431,10 @@ static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_i
     ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, total_len, 0);
     if (!c->buf_send) {
         HAL_MutexUnlock(c->lock_write_buf);
+        for (i = 0; i < list_size; i++) {
+            LITE_free(handler[i].topic_filter);
+        }
+        LITE_free(handler);
         return FAIL_RETURN;
     }
     len = MQTTSerialize_subscribe((unsigned char *)c->buf_send, c->buf_size_send, 0, (unsigned short)msgId, list_size,
