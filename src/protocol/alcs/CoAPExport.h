@@ -247,6 +247,8 @@ extern int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
 
 extern int CoAPMessageUserData_set(CoAPMessage *message, void *userdata);
 
+extern int CoAPMessageKeep_Set(CoAPMessage *message, int keep);
+
 extern int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
                                   unsigned short payloadlen);
 
