@@ -88,8 +88,7 @@ static session_item* get_session (struct list_head* sessions, AlcsDeviceKey* dev
 
     char ck[PK_DN_CHECKSUM_LEN] = {0};
     char path[100] = {0};
-    strncpy(path, devKey->pk, sizeof(path) - 1);
-    strcat(path, devKey->dn);
+    snprintf (path, sizeof(path), "%s%s", devKey->pk, devKey->dn);
     CoAPPathMD5_sum (path, strlen(path), ck, PK_DN_CHECKSUM_LEN);
 
     return get_session_by_checksum (sessions, &devKey->addr, ck);
