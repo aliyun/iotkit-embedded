@@ -193,6 +193,9 @@ void LITE_replace_substr(char originalString[], char key[], char swap[])
         if (flag) {
             strcpy(tmp, originalString);
             strcpy(&tmp[i], swap);
+            if (strlen(&originalString[i  + lengthOfKey]) >= (512 - i - lengthOfSwap)) {
+                return;
+            }
             strcpy(&tmp[i + lengthOfSwap], &originalString[i  + lengthOfKey]);
             strcpy(originalString, tmp);
             i += lengthOfSwap - 1;

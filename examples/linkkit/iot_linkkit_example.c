@@ -4,8 +4,8 @@
 
 #define PRODUCT_KEY     "a13Npv1vjZ4"
 #define PRODUCT_SECRET  "9MQCVFRsNcWTg7ak"
-#define DEVICE_NAME     "example_dync9"
-#define DEVICE_SECRET   "QsTYeEjIjyXt1JZWbfKcOqPIFM4UEY8h"
+#define DEVICE_NAME     "example1"
+#define DEVICE_SECRET   "T85uRb3b2L3rEMydTTAwgSkh78SJoTG6"
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
 
     /* Choose Login Method */
-    int dynamic_register = 1;
+    int dynamic_register = 0;
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
     /* Choose Whether You Need Post Property Reply */
