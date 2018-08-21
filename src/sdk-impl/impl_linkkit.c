@@ -572,7 +572,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             if (payload == NULL) {
                 return;
             }
-            
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -867,7 +867,7 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
 {
     int res = 0;
 
-    if (devid < 0 || msg_type < 0 || msg_type >= IOT_LINKKIT_MSG_MAX || payload == NULL || payload_len == 0) {
+    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX || payload == NULL || payload_len == 0) {
         sdk_err("Invalid Parameter");
     }
 

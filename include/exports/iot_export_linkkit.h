@@ -37,7 +37,7 @@ typedef enum {
     /* post raw data to cloud */
     IOTX_LINKKIT_MSG_POST_RAW_DATA,
 
-    IOT_LINKKIT_MSG_MAX
+    IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 
 typedef struct {
