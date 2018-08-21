@@ -254,11 +254,13 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
+    HAL_MutexLock(c->lock_list_pub);
     HAL_MutexLock(c->lock_write_buf);
 
     ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName) + topic_msg->payload_len, topicName);
     if (!c->buf_send) {
         HAL_MutexUnlock(c->lock_write_buf);
+        HAL_MutexUnlock(c->lock_list_pub);
         return FAIL_RETURN;
     }
 
@@ -279,6 +281,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
         RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
         HAL_MutexUnlock(c->lock_write_buf);
+        HAL_MutexUnlock(c->lock_list_pub);
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
@@ -291,6 +294,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
             RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
             HAL_MutexUnlock(c->lock_write_buf);
+            HAL_MutexUnlock(c->lock_list_pub);
             return MQTT_PUSH_TO_LIST_ERROR;
         }
     }
@@ -299,20 +303,19 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     if (iotx_mc_send_packet(c, c->buf_send, len, &timer) != SUCCESS_RETURN) {
         if (topic_msg->qos > IOTX_MQTT_QOS0) {
             /* If not even successfully sent to IP stack, meaningless to wait QOS1 ack, give up waiting */
-            HAL_MutexLock(c->lock_list_pub);
             list_remove(c->list_pub_wait_ack, node);
-
-            HAL_MutexUnlock(c->lock_list_pub);
         }
 
         RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
         HAL_MutexUnlock(c->lock_write_buf);
+        HAL_MutexUnlock(c->lock_list_pub);
         return MQTT_NETWORK_ERROR;
     }
 
     RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
     mqtt_debug("WRITE COMPLETED: curr buf_send = %p, curr buf_size_send = %d", c->buf_send, c->buf_size_send);
     HAL_MutexUnlock(c->lock_write_buf);
+    HAL_MutexUnlock(c->lock_list_pub);
 
     return SUCCESS_RETURN;
 }
@@ -776,17 +779,13 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
         return FAIL_RETURN;
     }
 
-    HAL_MutexLock(c->lock_list_pub);
-
     if (c->list_pub_wait_ack->len >= IOTX_MC_REPUB_NUM_MAX) {
-        HAL_MutexUnlock(c->lock_list_pub);
         mqtt_err("more than %u elements in republish list. List overflow!", c->list_pub_wait_ack->len);
         return FAIL_RETURN;
     }
 
     iotx_mc_pub_info_t *repubInfo = (iotx_mc_pub_info_t *)mqtt_malloc(sizeof(iotx_mc_pub_info_t) + len);
     if (NULL == repubInfo) {
-        HAL_MutexUnlock(c->lock_list_pub);
         mqtt_err("run iotx_memory_malloc is error!");
         return FAIL_RETURN;
     }
@@ -801,14 +800,11 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 
     *node = list_node_new(repubInfo);
     if (NULL == *node) {
-        HAL_MutexUnlock(c->lock_list_pub);
         mqtt_err("run list_node_new is error!");
         return FAIL_RETURN;
     }
 
     list_rpush(c->list_pub_wait_ack, *node);
-
-    HAL_MutexUnlock(c->lock_list_pub);
 
     return SUCCESS_RETURN;
 }
