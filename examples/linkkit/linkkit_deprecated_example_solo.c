@@ -684,7 +684,7 @@ int main(int argc, char **argv)
 
     HAL_SetProductKey("a13Npv1vjZ4");
     HAL_SetDeviceName("example1");
-    HAL_SetDeviceSecret("T85uRb3b2L3rEMydTTAwgSkh78SJoTG6");
+    HAL_SetDeviceSecret("2o8iZ3jLuDd40JIKlRRPAhQSfjqbhkkH");
 
     /*
      * linkkit dome
