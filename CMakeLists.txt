@@ -3,7 +3,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
-PROJECT (iotkit-embedded-V2.2 C)
+PROJECT (iotkit-embedded-V2.2.1 C)
 
 SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
@@ -22,7 +22,7 @@ MESSAGE ("System Platform           : " ${CMAKE_SYSTEM})
 MESSAGE ("C Compiler                : " ${CMAKE_C_COMPILER})
 MESSAGE ("Executable Dir            : " ${EXECUTABLE_OUTPUT_PATH})
 MESSAGE ("Library Dir               : " ${LIBRARY_OUTPUT_PATH})
-MESSAGE ("SDK Version               : " V2.2)
+MESSAGE ("SDK Version               : " V2.2.1)
 MESSAGE ("")
 
 IF (WIN32)
