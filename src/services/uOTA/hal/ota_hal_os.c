@@ -17,7 +17,7 @@
 #include "iot_export_coap.h"
 #include "mqtt_instance.h"
 
-#ifdef _PLATFORM_IS_LINUX_
+#ifndef BUILD_AOS
 #include <unistd.h>
 #include <sys/reboot.h>
 #include <semaphore.h>
@@ -38,12 +38,13 @@ int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path,
 /*Memory realloc*/
 void *ota_realloc(void *ptr, uint32_t size)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#ifdef BUILD_AOS
     return aos_realloc(ptr, size);
 #else
     return realloc(ptr, size);
 #endif
 }
+
 #ifndef OTA_WITH_LINKKIT
 /*Memory malloc*/
 void *ota_malloc(uint32_t size)
@@ -778,7 +779,7 @@ int ota_HAL_GetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN])
 /*Reboot*/
 void ota_reboot(void)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#ifdef BUILD_AOS
     aos_reboot();
 #else
     reboot(0);
