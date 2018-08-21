@@ -1,4 +1,4 @@
-LIBA_TARGET     := libywss.a
+LIBA_TARGET     := libawss.a
 
 CFLAGS          := $(filter-out -Werror,$(CFLAGS))
 
