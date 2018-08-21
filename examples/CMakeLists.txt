@@ -52,6 +52,10 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/id2)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/km)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/awss)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/awss/os)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/awss/os/product)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/awss/utility)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/file_upload)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm)
@@ -91,17 +95,14 @@ ADD_EXECUTABLE (ota_mqtt-example
 ADD_EXECUTABLE (uota_app-example
     uOTA/uota_app-example.c
 )
-ADD_EXECUTABLE (http-example
-    http/http-example.c
-)
 ADD_EXECUTABLE (linkkit-example-solo
     linkkit/linkkit_example_solo.c
 )
+ADD_EXECUTABLE (linkkit-example-countdown
+    linkkit/linkkit_example_cntdown.c
+)
 ADD_EXECUTABLE (linkkit-example-sched
     linkkit/linkkit_example_sched.c
-)
-ADD_EXECUTABLE (linkkit-example-countdown
-    linkkit/linkkit_example_countdown.c
 )
 
 TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
@@ -144,14 +145,6 @@ TARGET_LINK_LIBRARIES (uota_app-example pthread)
 ENDIF (NOT MSVC)
 TARGET_LINK_LIBRARIES (uota_app-example rt)
 
-TARGET_LINK_LIBRARIES (http-example iot_sdk)
-TARGET_LINK_LIBRARIES (http-example iot_hal)
-TARGET_LINK_LIBRARIES (http-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (http-example pthread)
-ENDIF (NOT MSVC)
-TARGET_LINK_LIBRARIES (http-example rt)
-
 TARGET_LINK_LIBRARIES (linkkit-example-solo iot_sdk)
 TARGET_LINK_LIBRARIES (linkkit-example-solo iot_hal)
 TARGET_LINK_LIBRARIES (linkkit-example-solo iot_tls)
@@ -159,6 +152,14 @@ IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit-example-solo pthread)
 ENDIF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit-example-solo rt)
+
+TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_sdk)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_hal)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_tls)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown pthread)
+ENDIF (NOT MSVC)
+TARGET_LINK_LIBRARIES (linkkit-example-countdown rt)
 
 TARGET_LINK_LIBRARIES (linkkit-example-sched iot_sdk)
 TARGET_LINK_LIBRARIES (linkkit-example-sched iot_hal)
@@ -168,10 +169,3 @@ TARGET_LINK_LIBRARIES (linkkit-example-sched pthread)
 ENDIF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit-example-sched rt)
 
-TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_sdk)
-TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_hal)
-TARGET_LINK_LIBRARIES (linkkit-example-countdown iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (linkkit-example-countdown pthread)
-ENDIF (NOT MSVC)
-TARGET_LINK_LIBRARIES (linkkit-example-countdown rt)

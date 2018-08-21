@@ -18,7 +18,6 @@ ADD_LIBRARY (iot_utils OBJECT
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_httpc.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/mem_stats.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_timer.c
-    ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/lite_queue.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/lite-cjson.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/misc/utils_net.c
     ${PROJECT_SOURCE_DIR}/src/infra/utils/digest/utils_hmac.c
