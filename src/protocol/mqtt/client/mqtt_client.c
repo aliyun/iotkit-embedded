@@ -959,14 +959,12 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
         return FAIL_RETURN;
     }
 
-    HAL_MutexLock(c->lock_list_sub);
     if (c->list_sub_wait_ack->len) {
         list_iterator_t *iter;
         list_node_t *node = NULL;
         iotx_mc_subsribe_info_t *subInfo = NULL;
 
         if (NULL == (iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL))) {
-            HAL_MutexUnlock(c->lock_list_sub);
             return SUCCESS_RETURN;
         }
 
@@ -992,7 +990,6 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
         list_iterator_destroy(iter);
     }
     _dump_wait_list(c, "sub");
-    HAL_MutexUnlock(c->lock_list_sub);
 
     return SUCCESS_RETURN;
 }
@@ -1365,7 +1362,9 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 #ifdef INSPECT_MQTT_LIST
     mqtt_debug("receivce SUBACK, packetid: %d", mypacketid);
 #endif
+    HAL_MutexLock(c->lock_list_sub);
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
+    HAL_MutexUnlock(c->lock_list_sub);
     if ((NULL == messagehandler) || (NULL == messagehandler->handle.h_fp) || (NULL == messagehandler->topic_filter)) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
@@ -1523,8 +1522,9 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 #ifdef INSPECT_MQTT_LIST
     mqtt_debug("receivce UNSUBACK, packetid: %d", mypacketid);
 #endif
+    HAL_MutexLock(c->lock_list_sub);
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
-
+    HAL_MutexUnlock(c->lock_list_sub);
 
     if (NULL == messageHandler || NULL == messageHandler->topic_filter) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
@@ -2285,9 +2285,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 #ifdef INSPECT_MQTT_LIST
                 mqtt_debug("MQTTSubInfoProc Timeout, packetid: %d", subInfo->msg_id);
 #endif
-                HAL_MutexUnlock(pClient->lock_list_pub);
                 (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
-                HAL_MutexLock(pClient->lock_list_sub);
                 if (messageHandler) {
                     LITE_free(messageHandler->topic_filter);
                 }
@@ -2439,10 +2437,8 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
             }
 
             /* If wait ACK timeout, republish */
-            HAL_MutexUnlock(pClient->lock_list_pub);
             rc = MQTTRePublish(pClient, (char *)repubInfo->buf, repubInfo->len);
             iotx_time_start(&repubInfo->pub_start_time);
-            HAL_MutexLock(pClient->lock_list_pub);
 
             if (MQTT_NETWORK_ERROR == rc) {
                 iotx_mc_set_client_state(pClient, IOTX_MC_STATE_DISCONNECTED);
