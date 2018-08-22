@@ -270,7 +270,7 @@ int dm_msg_request_all(_IN_ dm_msg_request_t *request)
 
     dm_log_info("DM Send Message, URI: %s, Payload: %s", uri, payload);
 
-    res = dm_cmw_send_to_all(uri, payload, NULL);
+    res = dm_cmw_send_to_all(uri, payload, strlen(payload), NULL);
     if (res != SUCCESS_RETURN) {
         DM_free(uri);
         DM_free(payload);
@@ -404,7 +404,7 @@ int dm_msg_response_with_data(_IN_ dm_msg_request_payload_t *request, _IN_ dm_ms
 
     dm_log_debug("Send URI: %s, Payload: %s", uri, payload);
 
-    res = dm_cmw_send_to_all(uri, payload, NULL);
+    res = dm_cmw_send_to_all(uri, payload, strlen(payload), NULL);
     if (res != SUCCESS_RETURN) {
         DM_free(uri);
         DM_free(payload);

@@ -1909,7 +1909,7 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
-    char *cloud_payload = NULL, *uri = NULL;
+    char *uri = NULL;
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
@@ -1935,25 +1935,17 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
         return FAIL_RETURN;
     }
 
-    cloud_payload = DM_malloc(payload_len + 1);
-    if (cloud_payload == NULL) {
-        DM_free(uri);
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
-    }
-    memset(cloud_payload, 0, payload_len + 1);
-    memcpy(cloud_payload, payload, payload_len);
+    dm_log_info("DM Send Raw Data:");
+    HEXDUMP_INFO(payload, payload_len);
 
-    res = dm_cmw_send_to_all(uri, cloud_payload, NULL);
+    res = dm_cmw_send_to_all(uri, payload, payload_len, NULL);
     if (res != SUCCESS_RETURN) {
         DM_free(uri);
-        DM_free(cloud_payload);
         dm_log_err(DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED);
         return FAIL_RETURN;
     }
 
     DM_free(uri);
-    DM_free(cloud_payload);
     return SUCCESS_RETURN;
 }
 

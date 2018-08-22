@@ -408,7 +408,7 @@ int dm_cmw_local_remove_service(void *conn_handle, char *uri)
         return FAIL_RETURN;
     }
 
-    memset(&cm_remove_servie_param,0,sizeof(iotx_cm_remove_service_param_t));
+    memset(&cm_remove_servie_param, 0, sizeof(iotx_cm_remove_service_param_t));
     cm_remove_servie_param.URI = uri;
 
     return iotx_cm_serv_del(conn_handle, &cm_remove_servie_param, NULL);
@@ -439,7 +439,7 @@ int dm_cmw_local_remove_subdev(void *conn_handle, char *product_key, char *devic
 }
 
 
-int dm_cmw_send_to_all(char *uri, char *payload, void *user_data)
+int dm_cmw_send_to_all(char *uri, char *payload, int payload_len, void *user_data)
 {
     int res = 0;
     iotx_cm_message_info_t cm_message_info;
@@ -455,7 +455,7 @@ int dm_cmw_send_to_all(char *uri, char *payload, void *user_data)
     cm_message_info.URI = uri;
     cm_message_info.URI_length = strlen(uri);
     cm_message_info.payload = payload;
-    cm_message_info.payload_length = strlen(payload);
+    cm_message_info.payload_length = payload_len;
     cm_message_info.conn_ctx = user_data;
 
     memset(&cm_send_peer, 0, sizeof(iotx_cm_send_peer_t));
