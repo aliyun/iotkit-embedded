@@ -23,7 +23,6 @@ all: .O/usr/lib/libiot_sdk.a
     .O/src/infra/utils/misc/utils_httpc.o \
     .O/src/infra/utils/misc/mem_stats.o \
     .O/src/infra/utils/misc/utils_timer.o \
-    .O/src/infra/utils/misc/lite_queue.o \
     .O/src/infra/utils/misc/lite-cjson.o \
     .O/src/infra/utils/misc/utils_net.o \
     .O/src/infra/utils/digest/utils_hmac.o \
@@ -37,6 +36,9 @@ all: .O/usr/lib/libiot_sdk.a
     .O/src/infra/system/device.o \
     .O/src/infra/system/ca.o \
     .O/src/sdk-impl/sdk-impl.o \
+    .O/src/sdk-impl/impl_linkkit.o \
+    .O/src/sdk-impl/impl_logpost.o \
+    .O/src/sdk-impl/impl_dynreg.o \
     .O/src/protocol/mqtt/client/mqtt_client.o \
     .O/src/protocol/mqtt/client/mqtt_instance.o \
     .O/src/protocol/mqtt/MQTTPacket/MQTTPacket.o \
@@ -87,8 +89,10 @@ all: .O/usr/lib/libiot_sdk.a
     .O/src/services/linkkit/dm/dm_subscribe.o \
     .O/src/services/linkkit/dm/dm_tsl_alink.o \
     .O/src/services/linkkit/dm/dm_utils.o \
-    .O/src/services/linkkit/dm/linkkit_api.o \
-    ./.O/src/services/linkkit/dm/linkkit_gateway_legacy.o \
+    .O/src/services/linkkit/dm/linkkit_gateway_legacy.o \
+    .O/src/services/subdev/iotx_subdev_api.o \
+    .O/src/services/subdev/iotx_subdev_common.o \
+    .O/src/services/linkkit/dm/linkkit_solo_legacy.o \
 
 	$(Q)mkdir -p $$(dirname $@)
 	$(Q)$(call Brief_Log,"AR",$$(basename $@),"...")
