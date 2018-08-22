@@ -2216,7 +2216,6 @@ int dm_msg_thing_sub_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ ch
     if (request == NULL || product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
-        request->product_key == NULL || request->device_name == NULL ||
         (strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -2252,7 +2251,6 @@ int dm_msg_thing_sub_unregister(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ 
     if (request == NULL || product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
-        request->product_key == NULL || request->device_name == NULL ||
         (strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -2299,7 +2297,6 @@ int dm_msg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char d
         (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
         (strlen(device_secret) >= DEVICE_SECRET_MAXLEN) ||
-        request->product_key == NULL || request->device_name == NULL ||
         (strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -2372,7 +2369,6 @@ int dm_msg_thing_topo_delete(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ cha
         device_name == NULL ||
         (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
-        request->product_key == NULL || request->device_name == NULL ||
         (strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
@@ -2652,7 +2648,6 @@ int dm_msg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
         (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
         (strlen(device_secret) >= DEVICE_SECRET_MAXLEN) ||
-        request->product_key == NULL || request->device_name == NULL ||
         (strlen(request->product_key) >= PRODUCT_KEY_MAXLEN) ||
         (strlen(request->device_name) >= DEVICE_NAME_MAXLEN)) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
