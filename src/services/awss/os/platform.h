@@ -374,7 +374,7 @@ extern "C"
 #define platform_wifi_get_mac(mac) HAL_Wifi_Get_Mac(mac);
 
 
-#define PLATFORM_IP_LEN    (HAL_IP_LEN)
+#define PLATFORM_IP_LEN    (NETWORK_ADDR_LEN)
 /**
  * @brief Get WIFI IP string with format like: xx:xx:xx:xx:xx:xx,
    and return IP with binary form, in network byte order.
