@@ -506,6 +506,22 @@ static inline void *os_zalloc(uint32_t size) {
 
 /*************************************** wifi module Interface ***************************************/
 
+/** @defgroup group_os_wifi_module wifi
+ *  @{
+ */
+
+/**
+ * @brief Get WIFI received signal strength indication(rssi).
+ *
+ * @param None.
+ * @return The level number, in dBm.
+ * @see None.
+ * @note None.
+ */
+	static inline int os_wifi_get_rssi_dbm(void) {
+		return platform_wifi_get_rssi_dbm();
+	}
+
 /**
  * @brief Get encrypt type for smartconfig.
  *
@@ -579,6 +595,31 @@ static inline uint32_t os_wifi_get_ip(char ip_str[OS_IP_LEN], const char *ifname
     return platform_wifi_get_ip(ip_str, ifname);
 }
 
+/**
+ * @brief wifi module enter power saving mode for a period
+ *
+ * @param[in] timeout_ms @n during this period, wifi module enter power saving
+ *          mode
+ * @return 0 for success, -1 otherwise
+ * @see None.
+ * @note None.
+ */
+static inline int os_wifi_low_power(int timeout_ms) {
+    return platform_wifi_low_power(timeout_ms);
+}
+
+/**
+ * @brief Get unique chip id string.
+ *
+ * @param[out] cid_str @n Buffer for using to store chip id string.
+ * @return A pointer to the start address of cid_str.
+ * @see None.
+ * @note None.
+ */
+	static inline void* os_get_chipid(char cid_str[OS_CID_LEN]) {
+		return platform_get_chipid(cid_str);
+	}
+
 	/** @} */// end of os_wifi_module
 
 /*************************************** awss interface ***************************************/
@@ -597,6 +638,19 @@ static inline uint32_t os_wifi_get_ip(char ip_str[OS_IP_LEN], const char *ifname
  */
 	static inline int os_awss_get_timeout_interval_ms(void) {
 		return platform_awss_get_timeout_interval_ms();
+	}
+
+/**
+ * @brief Get timeout interval in millisecond to connect the default SSID if awss timeout happens.
+ *
+ * @param None.
+ * @return The timeout interval.
+ * @see None.
+ * @note The recommended value is 0ms, which mean forever.
+ */
+	static inline int os_awss_get_connect_default_ssid_timeout_interval_ms( void )
+	{
+		return platform_awss_get_connect_default_ssid_timeout_interval_ms();
 	}
 
 /**

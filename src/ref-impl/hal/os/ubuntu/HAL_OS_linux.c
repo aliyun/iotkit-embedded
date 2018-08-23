@@ -592,25 +592,6 @@ out:
     return result;
 }
 
-/**
- * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
- *
- * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
- * @return  指向缓冲区数组起始位置的字符指针
- */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
-{
-    /*
-    uint8_t mac[6] = { 0 };
-
-    hal_wifi_get_mac_addr(NULL, mac);
-
-    snprintf(mac_str, HAL_MAC_LEN, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0],
-                mac[1], mac[2], mac[3], mac[4], mac[5]);
-    */
-    return mac_str;
-}
-
 
 uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
 {
