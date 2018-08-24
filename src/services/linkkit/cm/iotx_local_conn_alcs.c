@@ -178,7 +178,7 @@ void *iotx_local_conn_alcs_init(void *handle, void *param)
 
     alcs_param.handle_event = &event_handle;
 
-    if (NULL == (pclient = IOT_ALCS_Construct(&alcs_param))) {
+    if (NULL == (pclient = iotx_alcs_construct(&alcs_param))) {
         CM_ERR(cm_log_error_fail);
         return NULL;
     }
@@ -190,7 +190,7 @@ int iotx_local_conn_alcs_cloud_init(void *handle)
 {
     iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
 
-    return IOT_ALCS_Cloud_Init(connection->context);
+    return iotx_alcs_cloud_init(connection->context);
 }
 
 int iotx_local_conn_alcs_add_service(void *handle,
@@ -206,7 +206,7 @@ int iotx_local_conn_alcs_add_service(void *handle,
     alcs_res.msg_perm = IOTX_ALCS_MESSAGE_PERM_GET;
     alcs_res.maxage = 60;
     alcs_res.need_auth = auth_type;
-    return IOT_ALCS_Register_Resource(connection->context, &alcs_res);
+    return iotx_alcs_register_resource(connection->context, &alcs_res);
 }
 
 
@@ -215,7 +215,7 @@ int iotx_local_conn_alcs_remove_service(void *handle,
 {
     iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
 
-    return IOT_ALCS_Unregister_Resource(connection->context, (char *)topic_filter);
+    return iotx_alcs_unregister_resource(connection->context, (char *)topic_filter);
 }
 
 
@@ -246,15 +246,15 @@ int iotx_local_conn_alcs_send(void *handle,
     alcs_msg.payload = message->payload;
     alcs_msg.payload_len = message->payload_length;
 
-    // there is no target call IOT_ALCS_Observe_Notify
-    // there is target call IOT_ALCS_Send
-    // there is context call IOT_ALCS_Send_Response
+    // there is no target call iotx_alcs_observe_notify
+    // there is target call iotx_alcs_send
+    // there is context call iotx_alcs_send_Response
     if (NULL == context) {
-        ret = IOT_ALCS_Observe_Notify(connection->context, alcs_msg.uri, alcs_msg.payload_len, alcs_msg.payload);
+        ret = iotx_alcs_observe_notify(connection->context, alcs_msg.uri, alcs_msg.payload_len, alcs_msg.payload);
     } else if (context->ip && context->port && NULL == context->token) {
-        ret = IOT_ALCS_Send(connection->context, &alcs_msg);
+        ret = iotx_alcs_send(connection->context, &alcs_msg);
     } else if (context->ip && context->port && context->token_len && context->token) {
-        ret = IOT_ALCS_Send_Response(connection->context, &alcs_msg, (uint8_t)context->token_len, (uint8_t *)context->token);
+        ret = iotx_alcs_send_Response(connection->context, &alcs_msg, (uint8_t)context->token_len, (uint8_t *)context->token);
     }
 
     if (context && context->ip) {
@@ -273,7 +273,7 @@ int iotx_local_conn_alcs_send(void *handle,
 int iotx_local_conn_alcs_add_subdevice(void *handle, const char *pk, const char *dn)
 {
     //    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
-    //    return IOT_ALCS_Add_Sub_Device(connection->context, pk, dn);
+    //    return iotx_alcs_add_sub_device(connection->context, pk, dn);
     return SUCCESS_RETURN;
 }
 
@@ -281,7 +281,7 @@ int iotx_local_conn_alcs_add_subdevice(void *handle, const char *pk, const char 
 int iotx_local_conn_alcs_remove_subdevice(void *handle, const char *pk, const char *dn)
 {
     //    iotx_cm_connection_t* connection = (iotx_cm_connection_t*)handle;
-    //    return IOT_ALCS_Remove_Sub_Device(connection->context, pk, dn);
+    //    return iotx_alcs_remove_sub_device(connection->context, pk, dn);
     return SUCCESS_RETURN;
 }
 
@@ -289,14 +289,14 @@ int iotx_local_conn_alcs_remove_subdevice(void *handle, const char *pk, const ch
 int iotx_local_conn_alcs_deinit(void *handle)
 {
     iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
-    return IOT_ALCS_Destroy(&connection->context);
+    return iotx_alcs_destroy(&connection->context);
 }
 
 
 int iotx_local_conn_alcs_yield(void *handle, int timeout_ms)
 {
     iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
-    return IOT_ALCS_Yield(connection->context);
+    return iotx_alcs_yield(connection->context);
 }
 
 #endif /* CONFIG_CM_SUPPORT_LOCAL_CONN */

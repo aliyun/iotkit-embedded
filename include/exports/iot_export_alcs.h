@@ -8,7 +8,7 @@
 
 typedef enum {
 
-    /*IOT_ALCS_Send Message Result And Receive Message*/
+    /*iotx_alcs_send Message Result And Receive Message*/
     IOTX_ALCS_EVENT_MSG_SEND_MESSAGE_SUCCESS,
     IOTX_ALCS_EVENT_MSG_SEND_MESSAGE_RESP_TIMEOUT,
     IOTX_ALCS_EVENT_MSG_RECV_MESSAGE,
@@ -154,7 +154,7 @@ typedef struct iotx_alcs_res_st {
  * @retval NOT_NULL : The handle of ALCS.
  * @see None.
  */
-void *IOT_ALCS_Construct(iotx_alcs_param_t *params);
+void *iotx_alcs_construct(iotx_alcs_param_t *params);
 
 /**
  * @brief Init Cloud Part
@@ -166,7 +166,7 @@ void *IOT_ALCS_Construct(iotx_alcs_param_t *params);
  * @retval NOT_NULL : The handle of ALCS.
  * @see None.
  */
-int IOT_ALCS_Cloud_Init(void *handle);
+int iotx_alcs_cloud_init(void *handle);
 
 /**
  * @brief Deconstruct the ALCS handle
@@ -178,7 +178,7 @@ int IOT_ALCS_Cloud_Init(void *handle);
  * @retval -1 : Deconstruct failed.
  * @see None.
  */
-int IOT_ALCS_Destroy(void **phandle);
+int iotx_alcs_destroy(void **phandle);
 
 /**
  * @brief Handle ALCS message from specific udp port
@@ -188,7 +188,7 @@ int IOT_ALCS_Destroy(void **phandle);
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Yield(void *handle);
+int iotx_alcs_yield(void *handle);
 
 /**
  * @brief Send Message To Secific Deivce
@@ -198,7 +198,7 @@ int IOT_ALCS_Yield(void *handle);
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Send(void *handle, iotx_alcs_msg_t *msg);
+int iotx_alcs_send(void *handle, iotx_alcs_msg_t *msg);
 
 /**
  * @brief Send Response Message To Secific Deivce
@@ -208,7 +208,7 @@ int IOT_ALCS_Send(void *handle, iotx_alcs_msg_t *msg);
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Send_Response(void *handle, iotx_alcs_msg_t *msg, uint8_t token_len, uint8_t *token);
+int iotx_alcs_send_Response(void *handle, iotx_alcs_msg_t *msg, uint8_t token_len, uint8_t *token);
 
 /**
  * @brief Register Resource
@@ -219,7 +219,7 @@ int IOT_ALCS_Send_Response(void *handle, iotx_alcs_msg_t *msg, uint8_t token_len
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Register_Resource(void *handle, iotx_alcs_res_t *resource);
+int iotx_alcs_register_resource(void *handle, iotx_alcs_res_t *resource);
 
 /**
  * @brief ALCS Observe Notify
@@ -230,7 +230,7 @@ int IOT_ALCS_Register_Resource(void *handle, iotx_alcs_res_t *resource);
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Observe_Notify(void *handle, const char *uri, uint32_t payload_len, uint8_t *payload);
+int iotx_alcs_observe_notify(void *handle, const char *uri, uint32_t payload_len, uint8_t *payload);
 
 /**
  * @brief Unregister Resource
@@ -241,7 +241,7 @@ int IOT_ALCS_Observe_Notify(void *handle, const char *uri, uint32_t payload_len,
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Unregister_Resource(void *handle, char *uri);
+int iotx_alcs_unregister_resource(void *handle, char *uri);
 
 /**
  * @brief Add sub device
@@ -253,7 +253,7 @@ int IOT_ALCS_Unregister_Resource(void *handle, char *uri);
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Add_Sub_Device(void *handle, const char *pk, const char *dn);
+int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn);
 
 /**
  * @brief remove sub device
@@ -265,6 +265,6 @@ int IOT_ALCS_Add_Sub_Device(void *handle, const char *pk, const char *dn);
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Remove_Sub_Device(void *handle, const char *pk, const char *dn);
+int iotx_alcs_remove_sub_device(void *handle, const char *pk, const char *dn);
 
 #endif

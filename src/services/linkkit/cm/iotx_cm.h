@@ -399,7 +399,7 @@ void *iotx_cm_open(iotx_cm_connectivity_param_t *connectivity_param, void *optio
  * @brief Get protocol connection handle from connectivity
  *        This function use to get protocol connection handler from connectivity.
  *        ex: mqtt handler returned by IOT_MQTT_Construct
- *            alcs handler returned by IOT_ALCS_Construct
+ *            alcs handler returned by iotx_alcs_construct
  * @param connectivity, the return by iotx_cm_open.
  *
  * @return Connectivity handle.

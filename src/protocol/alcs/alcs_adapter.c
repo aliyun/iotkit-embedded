@@ -517,9 +517,9 @@ void iotx_alcs_subdev_stage_check(void)
     linked_list_iterator(adapter->alcs_subdev_list, iotx_alcs_subdev_stage_iterator);
 }
 
-void *IOT_ALCS_Construct(iotx_alcs_param_t *params)
+void *iotx_alcs_construct(iotx_alcs_param_t *params)
 {
-    COAP_INFO("IOT_ALCS_Construct enter");
+    COAP_INFO("iotx_alcs_construct enter");
 
     int res = 0;
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
@@ -538,7 +538,7 @@ void *IOT_ALCS_Construct(iotx_alcs_param_t *params)
     return (void *)adapter;
 }
 
-int IOT_ALCS_Cloud_Init(void *handle)
+int iotx_alcs_cloud_init(void *handle)
 {
     COAP_ERR("Start ALCS Cloud Init");
     int res = 0;
@@ -579,7 +579,7 @@ int IOT_ALCS_Cloud_Init(void *handle)
     return SUCCESS_RETURN;
 }
 
-int IOT_ALCS_Destroy(void **phandle)
+int iotx_alcs_destroy(void **phandle)
 {
     POINTER_SANITY_CHECK(phandle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(*phandle, NULL_VALUE_ERROR);
@@ -601,7 +601,7 @@ static void alcs_heartbeat(void *handle)
         adapter->alcs_client_auth_timer_func(adapter->coap_ctx);
     }
 }
-int IOT_ALCS_Yield(void *handle)
+int iotx_alcs_yield(void *handle)
 {
     int res = 0;
     iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)handle;
@@ -619,7 +619,7 @@ int IOT_ALCS_Yield(void *handle)
     return res;
 }
 
-int IOT_ALCS_Send(void *handle, iotx_alcs_msg_t *msg)
+int iotx_alcs_send(void *handle, iotx_alcs_msg_t *msg)
 {
     int res = 0;
     iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)handle;
@@ -727,7 +727,7 @@ int IOT_ALCS_Send(void *handle, iotx_alcs_msg_t *msg)
     return SUCCESS_RETURN;
 }
 
-int IOT_ALCS_Send_Response(void *handle, iotx_alcs_msg_t *msg, uint8_t token_len, uint8_t *token)
+int iotx_alcs_send_Response(void *handle, iotx_alcs_msg_t *msg, uint8_t token_len, uint8_t *token)
 {
     int res = 0;
     iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)handle;
@@ -817,7 +817,7 @@ int IOT_ALCS_Send_Response(void *handle, iotx_alcs_msg_t *msg, uint8_t token_len
     return SUCCESS_RETURN;
 }
 
-int IOT_ALCS_Register_Resource(void *handle, iotx_alcs_res_t *resource)
+int iotx_alcs_register_resource(void *handle, iotx_alcs_res_t *resource)
 {
     int res = 0;
     iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)handle;
@@ -865,7 +865,7 @@ int IOT_ALCS_Register_Resource(void *handle, iotx_alcs_res_t *resource)
     return SUCCESS_RETURN;
 }
 
-int IOT_ALCS_Observe_Notify(void *handle, const char *uri, uint32_t payload_len, uint8_t *payload)
+int iotx_alcs_observe_notify(void *handle, const char *uri, uint32_t payload_len, uint8_t *payload)
 {
     int res = 0;
     iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)handle;
@@ -883,12 +883,12 @@ int IOT_ALCS_Observe_Notify(void *handle, const char *uri, uint32_t payload_len,
     return SUCCESS_RETURN;
 }
 
-int IOT_ALCS_Unregister_Resource(void *handle, char *uri)
+int iotx_alcs_unregister_resource(void *handle, char *uri)
 {
     return SUCCESS_RETURN;
 }
 
-int IOT_ALCS_Add_Sub_Device(void *handle, const char *pk, const char *dn)
+int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
 {
     if (handle == NULL || pk == NULL || strlen(pk) >= PRODUCT_KEY_MAXLEN ||
         dn == NULL || strlen(dn) >= DEVICE_NAME_MAXLEN) {
@@ -948,7 +948,7 @@ int IOT_ALCS_Add_Sub_Device(void *handle, const char *pk, const char *dn)
     return SUCCESS_RETURN;
 }
 
-int IOT_ALCS_Remove_Sub_Device(void *handle, const char *pk, const char *dn)
+int iotx_alcs_remove_sub_device(void *handle, const char *pk, const char *dn)
 {
     if (handle == NULL || pk == NULL || strlen(pk) >= PRODUCT_KEY_MAXLEN ||
         dn == NULL || strlen(dn) >= DEVICE_NAME_MAXLEN) {
