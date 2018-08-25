@@ -27,7 +27,7 @@
 #include "iotx_system.h"
 #include "iot_export.h"
 #include "iotx_cm.h"
-#include "iot_export_alcs.h"
+#include "iotx_alcs.h"
 
 #include "iotx_cm_common.h"
 #include "iotx_cm_connectivity.h"
