@@ -61,8 +61,8 @@ for mod in ${MODS}; do
 done | sort -nr
 
  echo "                             "
- echo "     ROM_TOTAL = ${TOTAL}"
- echo "     RAM_TATAL = ${RAM_TOTAL}"
+ echo "     Section sum of {.text} + {.data}: ${TOTAL}"
+ echo "     Section sum of {.bss } + {.data}: ${RAM_TOTAL}"
  
 cd ${OLDPWD}
 rm -rf ${TEMPD}
