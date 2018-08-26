@@ -40,11 +40,6 @@ FEATURE_DEPRECATED_LINKKIT      ?= y
 
 CONFIG_LIB_EXPORT               ?= static
 
-# gateway & subdevice
-FEATURE_SUBDEVICE_STATUS        ?= gateway   
-# MQTT & CLOUD_CONN
-FEATURE_SUBDEVICE_CHANNEL       ?= MQTT 
-
 CFLAGS  += -DOTA_WITH_LINKKIT
 CFLAGS  += -DFORCE_SSL_VERIFY
 CFLAGS  += \
