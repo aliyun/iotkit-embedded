@@ -93,7 +93,9 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 	            printf "CONFIGURE .............................. [%s]\n" $${i}; \
 	        fi; \
 	        $(SED) -i "1iCONFIG_$${i} = y" $(CONFIG_TPL); \
-	        echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
+	        if ! grep -q "target-$${i}:" $(STAMP_POST_RULE) 2>/dev/null; then \
+	            echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
+	        fi; \
 	    fi; \
 	    $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \
 	        bash $(RULE_DIR)/pre-build.sh $${i} makefile-only > /dev/null; \

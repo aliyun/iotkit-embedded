@@ -32,6 +32,7 @@ PRJ_VERSION     ?= LITE-build.ver
 #
 CONFIG_TPL      := $(TOP_DIR)/.config
 OUTPUT_DIR      ?= $(TOP_DIR)/.O
+SHADOW_DIR      ?= aos
 DIST_DIR        ?= $(TOP_DIR)/output
 LCOV_DIR        ?= Coverage
 FINAL_DIR       ?= $(DIST_DIR)/release

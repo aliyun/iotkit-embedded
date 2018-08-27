@@ -44,7 +44,10 @@ endif
 COMP_LIB_NAME   := $(subst lib,,$(subst .so,,$(subst .a,,$(COMP_LIB))))
 COMP_LIB_OBJS    = $(foreach d,$(COMP_LIB_COMPONENTS),$(LIBOBJ_TMPDIR)/$(d)/*.o)
 RECURSIVE_MAKE  := $(MAKE) $(if $(TOP_Q),-s) -C $(TOP_DIR) -f $(TOP_MAKEFILE)
-ALL_SUB_DIRS    := $(shell find -L $(TOP_DIR) ! -path "$(OUTPUT_DIR)/*" -name "$(MAKE_SEGMENT)" 2>/dev/null \
+ALL_SUB_DIRS    := $(shell find -L $(TOP_DIR) \
+                                ! -path "$(OUTPUT_DIR)/*" \
+                                ! -path "$(TOP_DIR)/$(SHADOW_DIR)/*" \
+                                  -name "$(MAKE_SEGMENT)" 2>/dev/null \
                            | $(SED) 's,$(TOP_DIR)[/]*,,;s,[/]*$(MAKE_SEGMENT),,')
 
 SHOW_ENV_VARS   := \

@@ -82,8 +82,8 @@ config:
 
 	$(TOP_Q) \
 	if [ -f $(STAMP_BLD_VAR) ]; then \
-	    if [ "$$($(SED) '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l|$(SED) 's:^  *::g')" != "0" ]; then \
-	        rm -f $(STAMP_BLD_VAR); \
+	    if [ "$$($(SED) '/[-_/a-zA-Z0-9]* = *..*/d' $(STAMP_BLD_VAR)|wc -l|$(SED) 's:^  *::g')" != "0" ]; then \
+	        rm -vf $(STAMP_BLD_VAR); \
 	    fi \
 	fi
 
