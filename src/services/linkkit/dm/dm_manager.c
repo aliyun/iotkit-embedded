@@ -138,7 +138,9 @@ static void _dm_mgr_destroy_devlist(void)
         if (del_node->sub_status.service_event) {
             DM_free(del_node->sub_status.service_event);
         }
+        #ifdef DEPRECATED_LINKKIT
         dm_shw_destroy(&del_node->dev_shadow);
+        #endif
         DM_free(del_node);
     }
 }
@@ -300,7 +302,9 @@ int dm_mgr_device_destroy(_IN_ int devid)
     list_del(&node->linked_list);
 
     if (node->dev_shadow) {
+        #ifdef DEPRECATED_LINKKIT
         dm_shw_destroy(&node->dev_shadow);
+        #endif
     }
     DM_free(node);
 
@@ -839,403 +843,6 @@ int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECR
 
     memset(node->device_secret, 0, DEVICE_SECRET_MAXLEN);
     memcpy(node->device_secret, device_secret, strlen(device_secret));
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_get_event_number(_IN_ int devid, _OU_ int *number)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || number == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_event_number(node->dev_shadow, number);
-}
-
-int dm_mgr_deprecated_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || index < 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_property_by_index(node->dev_shadow, index, property);
-}
-
-int dm_mgr_deprecated_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || index < 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_service_by_index(node->dev_shadow, index, service);
-}
-
-int dm_mgr_deprecated_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || index < 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_event_by_index(node->dev_shadow, index, event);
-}
-
-int dm_mgr_deprecated_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || identifier == NULL || service == NULL || *service != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_service_by_identifier(node->dev_shadow, identifier, service);
-}
-
-int dm_mgr_deprecated_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || identifier == NULL || event == NULL || *event != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_event_by_identifier(node->dev_shadow, identifier, event);
-}
-
-int dm_mgr_deprecated_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
-{
-    if (property == NULL || identifier == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_property_identifier(property, identifier);
-}
-
-int dm_mgr_deprecated_get_service_method(_IN_ void *service, _OU_ char **method)
-{
-    if (service == NULL || method == NULL || *method != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_service_method(service, method);
-}
-
-int dm_mgr_deprecated_get_event_method(_IN_ void *event, _OU_ char **method)
-{
-    if (event == NULL || method == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    return dm_shw_get_event_method(event, method);
-}
-
-int dm_mgr_deprecated_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-        _IN_ int value_len)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_set_property_value(node->dev_shadow, key, key_len, value, value_len);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_property_value(node->dev_shadow, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-        _IN_ int value_len)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_set_event_output_value(node->dev_shadow, key, key_len, value, value_len);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_event_output_value(node->dev_shadow, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_set_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-        _IN_ int value_len)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_set_service_input_value(node->dev_shadow, key, key_len, value, value_len);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_service_input_value(node->dev_shadow, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
-        _IN_ int value_len)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_set_service_output_value(node->dev_shadow, key, key_len, value, value_len);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_get_service_output_value(node->dev_shadow, key, key_len, value);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-                                        _IN_ lite_cjson_item_t *lite)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_assemble_property(node->dev_shadow, identifier, identifier_len, lite);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-        _IN_ lite_cjson_item_t *lite)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_assemble_event_output(node->dev_shadow, identifier, identifier_len, lite);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_deprecated_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
-        _IN_ lite_cjson_item_t *lite)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_shw_assemble_service_output(node->dev_shadow, identifier, identifier_len, lite);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
 
     return SUCCESS_RETURN;
 }
@@ -2537,5 +2144,402 @@ int dm_mgr_deprecated_get_service_number(_IN_ int devid, _OU_ int *number)
     }
 
     return dm_shw_get_service_number(node->dev_shadow, number);
+}
+
+int dm_mgr_deprecated_get_event_number(_IN_ int devid, _OU_ int *number)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || number == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_event_number(node->dev_shadow, number);
+}
+
+int dm_mgr_deprecated_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_ void **property)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || index < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_property_by_index(node->dev_shadow, index, property);
+}
+
+int dm_mgr_deprecated_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ void **service)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || index < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_service_by_index(node->dev_shadow, index, service);
+}
+
+int dm_mgr_deprecated_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ void **event)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || index < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_event_by_index(node->dev_shadow, index, event);
+}
+
+int dm_mgr_deprecated_get_service_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **service)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || identifier == NULL || service == NULL || *service != NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_service_by_identifier(node->dev_shadow, identifier, service);
+}
+
+int dm_mgr_deprecated_get_event_by_identifier(_IN_ int devid, _IN_ char *identifier, _OU_ void **event)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || identifier == NULL || event == NULL || *event != NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_event_by_identifier(node->dev_shadow, identifier, event);
+}
+
+int dm_mgr_deprecated_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
+{
+    if (property == NULL || identifier == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_property_identifier(property, identifier);
+}
+
+int dm_mgr_deprecated_get_service_method(_IN_ void *service, _OU_ char **method)
+{
+    if (service == NULL || method == NULL || *method != NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_service_method(service, method);
+}
+
+int dm_mgr_deprecated_get_event_method(_IN_ void *event, _OU_ char **method)
+{
+    if (event == NULL || method == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    return dm_shw_get_event_method(event, method);
+}
+
+int dm_mgr_deprecated_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_set_property_value(node->dev_shadow, key, key_len, value, value_len);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_property_value(node->dev_shadow, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_set_event_output_value(node->dev_shadow, key, key_len, value, value_len);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_event_output_value(node->dev_shadow, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_set_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_set_service_input_value(node->dev_shadow, key, key_len, value, value_len);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_service_input_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_service_input_value(node->dev_shadow, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_set_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+        _IN_ int value_len)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_set_service_output_value(node->dev_shadow, key, key_len, value, value_len);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_get_service_output_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_get_service_output_value(node->dev_shadow, key, key_len, value);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_assemble_property(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+                                        _IN_ lite_cjson_item_t *lite)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_assemble_property(node->dev_shadow, identifier, identifier_len, lite);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_assemble_event_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+        _IN_ lite_cjson_item_t *lite)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_assemble_event_output(node->dev_shadow, identifier, identifier_len, lite);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_deprecated_assemble_service_output(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len,
+        _IN_ lite_cjson_item_t *lite)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    res = dm_shw_assemble_service_output(node->dev_shadow, identifier, identifier_len, lite);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
 }
 #endif

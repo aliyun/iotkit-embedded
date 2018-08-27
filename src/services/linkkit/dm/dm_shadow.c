@@ -1,3 +1,4 @@
+#ifdef DEPRECATED_LINKKIT
 #include "iotx_dm_internal.h"
 #include "dm_shadow.h"
 #include "dm_tsl_alink.h"
@@ -2623,3 +2624,4 @@ void dm_shw_print(_IN_ dm_shw_t *shadow)
 	_dm_shw_services_print(shadow->services,shadow->service_number);
 }
 
+#endif
