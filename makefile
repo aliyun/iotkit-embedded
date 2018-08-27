@@ -29,5 +29,4 @@ $(call CompLib_Map, HTTP2_COMM_ENABLED, \
     src/protocol/http2)
 
 include $(RULE_DIR)/rules.mk
-include src/tools/mock_build_options.mk
 
