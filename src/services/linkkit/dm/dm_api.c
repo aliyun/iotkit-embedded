@@ -356,6 +356,7 @@ void iotx_dm_dispatch(void)
     }
 }
 
+#ifdef CONFIG_DM_DEVTYPE_GATEWAY
 int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                           _OU_ int *devid)
 {
@@ -588,7 +589,7 @@ int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 
     return res;
 }
-
+#endif
 int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
 {

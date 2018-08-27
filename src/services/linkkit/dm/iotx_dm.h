@@ -175,6 +175,7 @@ int iotx_dm_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int paylo
 int iotx_dm_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_yield(int timeout_ms);
 void iotx_dm_dispatch(void);
+#ifdef CONFIG_DM_DEVTYPE_GATEWAY
 int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                           _OU_ int *devid);
 int iotx_dm_subdev_destroy(_IN_ int devid);
@@ -185,10 +186,11 @@ int iotx_dm_subdev_topo_add(_IN_ int devid);
 int iotx_dm_subdev_topo_del(_IN_ int devid);
 int iotx_dm_subdev_login(_IN_ int devid);
 int iotx_dm_subdev_logout(_IN_ int devid);
-
 int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type);
 int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status);
 int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
+#endif
+
 
 #ifdef DEPRECATED_LINKKIT
 int iotx_dm_deprecated_construct(_IN_ iotx_dm_init_params_t *init_params);

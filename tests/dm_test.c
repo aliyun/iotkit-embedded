@@ -114,7 +114,9 @@ static void _linkkit_event_subdev_register_reply(char *payload)
     }
     linkkit_log("Current devid: %d", lite_item_devid.value_int);
 
+    #ifdef CONFIG_DM_DEVTYPE_GATEWAY
     iotx_dm_subdev_topo_add(lite_item_devid.value_int);
+    #endif
 }
 
 static void _linkkit_event_topo_add_reply(char *payload)
@@ -153,7 +155,9 @@ static void _linkkit_event_topo_add_reply(char *payload)
     }
     linkkit_log("Current devid: %d", lite_item_devid.value_int);
 
+    #ifdef CONFIG_DM_DEVTYPE_GATEWAY
     iotx_dm_subdev_login(lite_item_devid.value_int);
+    #endif
 }
 
 void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)

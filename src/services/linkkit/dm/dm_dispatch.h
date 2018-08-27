@@ -15,38 +15,27 @@ extern const char DM_DISP_RRPC_RESPONSE_OLD_VERSION[]         DM_READ_ONLY;
 extern const char DM_DISP_RRPC_RESPONSE_NEW_VERSION[]         DM_READ_ONLY;
 
 /* From Cloud To Local Request And Response*/
-extern const char DM_DISP_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY;
-extern const char DM_DISP_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY;
 extern const char DM_DISP_THING_SERVICE_PROPERTY_SET[]        DM_READ_ONLY;
 extern const char DM_DISP_THING_SERVICE_PROPERTY_SET_REPLY[]  DM_READ_ONLY;
 extern const char DM_DISP_THING_SERVICE_PROPERTY_GET[]        DM_READ_ONLY;
 extern const char DM_DISP_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY;
 extern const char DM_DISP_THING_SERVICE_REQUEST[]             DM_READ_ONLY;
 extern const char DM_DISP_THING_SERVICE_RESPONSE[]            DM_READ_ONLY;
+extern const char DM_DISP_THING_MODEL_DOWN_RAW[]              DM_READ_ONLY;
+extern const char DM_DISP_THING_MODEL_DOWN_RAW_REPLY[]        DM_READ_ONLY;
+#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+extern const char DM_DISP_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY;
+extern const char DM_DISP_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY;
 extern const char DM_DISP_THING_DISABLE[]                     DM_READ_ONLY;
 extern const char DM_DISP_THING_DISABLE_REPLY[]               DM_READ_ONLY;
 extern const char DM_DISP_THING_ENABLE[]                      DM_READ_ONLY;
 extern const char DM_DISP_THING_ENABLE_REPLY[]                DM_READ_ONLY;
 extern const char DM_DISP_THING_DELETE[]                      DM_READ_ONLY;
 extern const char DM_DISP_THING_DELETE_REPLY[]                DM_READ_ONLY;
-extern const char DM_DISP_THING_MODEL_DOWN_RAW[]              DM_READ_ONLY;
-extern const char DM_DISP_THING_MODEL_DOWN_RAW_REPLY[]        DM_READ_ONLY;
 extern const char DM_DISP_THING_GATEWAY_PERMIT[]              DM_READ_ONLY;
 extern const char DM_DISP_THING_GATEWAY_PERMIT_REPLY[]        DM_READ_ONLY;
-
+#endif
 /* From Local To Cloud Request And Response*/
-extern const char DM_DISP_THING_SUB_REGISTER[]                DM_READ_ONLY;
-extern const char DM_DISP_THING_SUB_REGISTER_REPLY[]          DM_READ_ONLY;
-extern const char DM_DISP_THING_SUB_UNREGISTER[]              DM_READ_ONLY;
-extern const char DM_DISP_THING_SUB_UNREGISTER_REPLY[]        DM_READ_ONLY;
-extern const char DM_DISP_THING_TOPO_ADD[]                    DM_READ_ONLY;
-extern const char DM_DISP_THING_TOPO_ADD_REPLY[]              DM_READ_ONLY;
-extern const char DM_DISP_THING_TOPO_DELETE[]                 DM_READ_ONLY;
-extern const char DM_DISP_THING_TOPO_DELETE_REPLY[]           DM_READ_ONLY;
-extern const char DM_DISP_THING_TOPO_GET[]                    DM_READ_ONLY;
-extern const char DM_DISP_THING_TOPO_GET_REPLY[]              DM_READ_ONLY;
-extern const char DM_DISP_THING_LIST_FOUND[]                  DM_READ_ONLY;
-extern const char DM_DISP_THING_LIST_FOUND_REPLY[]            DM_READ_ONLY;
 extern const char DM_DISP_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY;
 extern const char DM_DISP_THING_EVENT_PROPERTY_POST_REPLY[]   DM_READ_ONLY;
 extern const char DM_DISP_THING_EVENT_POST[]                  DM_READ_ONLY;
@@ -60,10 +49,6 @@ extern const char DM_DISP_THING_DSLTEMPLATE_GET[]             DM_READ_ONLY;
 extern const char DM_DISP_THING_DSLTEMPLATE_GET_REPLY[]       DM_READ_ONLY;
 extern const char DM_DISP_THING_DYNAMICTSL_GET[]              DM_READ_ONLY;
 extern const char DM_DISP_THING_DYNAMICTSL_GET_REPLY[]        DM_READ_ONLY;
-extern const char DM_DISP_COMBINE_LOGIN[]                     DM_READ_ONLY;
-extern const char DM_DISP_COMBINE_LOGIN_REPLY[]               DM_READ_ONLY;
-extern const char DM_DISP_COMBINE_LOGOUT[]                    DM_READ_ONLY;
-extern const char DM_DISP_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY;
 extern const char DM_DISP_THING_MODEL_UP_RAW[]                DM_READ_ONLY;
 extern const char DM_DISP_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY;
 extern const char DM_DISP_NTP_REQUEST[]                       DM_READ_ONLY;
@@ -76,6 +61,24 @@ extern const char DM_DISP_THING_LAN_PREFIX_UPDATE_REPLY[]     DM_READ_ONLY;
 extern const char DM_DISP_THING_LAN_PREFIX_UPDATE_REPLY[]     DM_READ_ONLY;
 extern const char DM_DISP_THING_LAN_BLACKLIST_UPDATE[]        DM_READ_ONLY;
 extern const char DM_DISP_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY;
+#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+extern const char DM_DISP_THING_SUB_REGISTER[]                DM_READ_ONLY;
+extern const char DM_DISP_THING_SUB_REGISTER_REPLY[]          DM_READ_ONLY;
+extern const char DM_DISP_THING_SUB_UNREGISTER[]              DM_READ_ONLY;
+extern const char DM_DISP_THING_SUB_UNREGISTER_REPLY[]        DM_READ_ONLY;
+extern const char DM_DISP_THING_TOPO_ADD[]                    DM_READ_ONLY;
+extern const char DM_DISP_THING_TOPO_ADD_REPLY[]              DM_READ_ONLY;
+extern const char DM_DISP_THING_TOPO_DELETE[]                 DM_READ_ONLY;
+extern const char DM_DISP_THING_TOPO_DELETE_REPLY[]           DM_READ_ONLY;
+extern const char DM_DISP_THING_TOPO_GET[]                    DM_READ_ONLY;
+extern const char DM_DISP_THING_TOPO_GET_REPLY[]              DM_READ_ONLY;
+extern const char DM_DISP_THING_LIST_FOUND[]                  DM_READ_ONLY;
+extern const char DM_DISP_THING_LIST_FOUND_REPLY[]            DM_READ_ONLY;
+extern const char DM_DISP_COMBINE_LOGIN[]                     DM_READ_ONLY;
+extern const char DM_DISP_COMBINE_LOGIN_REPLY[]               DM_READ_ONLY;
+extern const char DM_DISP_COMBINE_LOGOUT[]                    DM_READ_ONLY;
+extern const char DM_DISP_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY;
+#endif
 
 #define DM_DISP_MULTI_SUBSCRIBE_MAX (1)
 
@@ -118,7 +121,7 @@ int dm_disp_uri_service_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ in
 int dm_disp_uri_rrpc_request_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 int dm_disp_uri_event_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end);
 
-void dm_disp_thing_topo_add_notify(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+
 void dm_disp_thing_service_property_set(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_service_property_get(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_service_property_post(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
@@ -126,17 +129,7 @@ void dm_disp_thing_service_request(iotx_cm_send_peer_t *source, iotx_cm_message_
                                    int identifier_len, void *user_data);
 void dm_disp_rrpc_request(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, char *messageid,
                           int messageid_len, void *user_data);
-void dm_disp_thing_disable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_enable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_delete(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_model_down_raw(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_gateway_permit(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_sub_register_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_sub_unregister_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_topo_add_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_topo_delete_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_topo_get_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_thing_list_found_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_event_property_post_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_event_post_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, char *identifier,
                                     int identifier_len, void *user_data);
@@ -144,12 +137,25 @@ void dm_disp_thing_deviceinfo_update_reply(iotx_cm_send_peer_t *source, iotx_cm_
 void dm_disp_thing_deviceinfo_delete_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_dsltemplate_get_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_dynamictsl_get_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_combine_login_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
-void dm_disp_combine_logout_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_model_up_raw_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_rrpc_request_plus(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_ntp_response(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_ext_error_response(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+void dm_disp_thing_topo_add_notify(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_disable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_enable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_delete(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_gateway_permit(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_sub_register_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_sub_unregister_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_topo_add_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_topo_delete_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_topo_get_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_thing_list_found_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_combine_login_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+void dm_disp_combine_logout_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
+#endif
 void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_lan_prefix_get_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 void dm_disp_thing_lan_prefix_update_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);

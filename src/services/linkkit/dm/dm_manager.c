@@ -1240,6 +1240,7 @@ int dm_mgr_deprecated_assemble_service_output(_IN_ int devid, _IN_ char *identif
     return SUCCESS_RETURN;
 }
 
+#ifdef CONFIG_DM_DEVTYPE_GATEWAY
 int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 {
     int res = 0;
@@ -1510,6 +1511,103 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
 
     return res;
 }
+
+int dm_mgr_upstream_combine_login(_IN_ int devid)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+    dm_msg_request_t request;
+
+    if (devid < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
+    request.service_name = DM_DISP_COMBINE_LOGIN;
+    HAL_GetProductKey(request.product_key);
+    HAL_GetDeviceName(request.device_name);
+
+    /* Get Params And Method */
+    res = dm_msg_combine_login(node->product_key, node->device_name, node->device_secret, &request);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Get Msg ID */
+    request.msgid = dm_msg_get_id();
+
+    /* Get Dev ID */
+    request.devid = devid;
+
+    /* Send Message To Cloud */
+    res = dm_msg_request_cloud(&request);
+    if (res == SUCCESS_RETURN) {
+        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGIN_REPLY, NULL);
+        res = request.msgid;
+    }
+
+    DM_free(request.params);
+
+    return res;
+}
+
+int dm_mgr_upstream_combine_logout(_IN_ int devid)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+    dm_msg_request_t request;
+
+    if (devid < 0) {
+        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        return FAIL_RETURN;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    if (node->dev_status < IOTX_DM_DEV_STATUS_LOGINED) {
+        return FAIL_RETURN;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
+    request.service_name = DM_DISP_COMBINE_LOGOUT;
+    HAL_GetProductKey(request.product_key);
+    HAL_GetDeviceName(request.device_name);
+
+    /* Get Params And Method */
+    res = dm_msg_combine_logout(node->product_key, node->device_name, &request);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Get Msg ID */
+    request.msgid = dm_msg_get_id();
+
+    /* Get Dev ID */
+    request.devid = devid;
+
+    /* Send Message To Cloud */
+    res = dm_msg_request_cloud(&request);
+    if (res == SUCCESS_RETURN) {
+        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY, NULL);
+        res = request.msgid;
+    }
+
+    DM_free(request.params);
+
+    return res;
+}
+#endif
 
 int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
@@ -1801,102 +1899,6 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
     res = dm_msg_request_cloud(&request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY, NULL);
-        res = request.msgid;
-    }
-
-    DM_free(request.params);
-
-    return res;
-}
-
-int dm_mgr_upstream_combine_login(_IN_ int devid)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-    dm_msg_request_t request;
-
-    if (devid < 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
-    request.service_name = DM_DISP_COMBINE_LOGIN;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
-
-    /* Get Params And Method */
-    res = dm_msg_combine_login(node->product_key, node->device_name, node->device_secret, &request);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    /* Get Msg ID */
-    request.msgid = dm_msg_get_id();
-
-    /* Get Dev ID */
-    request.devid = devid;
-
-    /* Send Message To Cloud */
-    res = dm_msg_request_cloud(&request);
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGIN_REPLY, NULL);
-        res = request.msgid;
-    }
-
-    DM_free(request.params);
-
-    return res;
-}
-
-int dm_mgr_upstream_combine_logout(_IN_ int devid)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-    dm_msg_request_t request;
-
-    if (devid < 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    if (node->dev_status < IOTX_DM_DEV_STATUS_LOGINED) {
-        return FAIL_RETURN;
-    }
-
-    memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
-    request.service_name = DM_DISP_COMBINE_LOGOUT;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
-
-    /* Get Params And Method */
-    res = dm_msg_combine_logout(node->product_key, node->device_name, &request);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    /* Get Msg ID */
-    request.msgid = dm_msg_get_id();
-
-    /* Get Dev ID */
-    request.devid = devid;
-
-    /* Send Message To Cloud */
-    res = dm_msg_request_cloud(&request);
-    if (res == SUCCESS_RETURN) {
-        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY, NULL);
         res = request.msgid;
     }
 
