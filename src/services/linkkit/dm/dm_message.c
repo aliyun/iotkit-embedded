@@ -577,19 +577,19 @@ const char DM_MSG_THING_PROPERTY_GET_FMT[] DM_READ_ONLY =
 int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, _IN_ void *ctx)
 {
     int res = 0, message_len = 0;
-    uint64_t ctx_addr_num = (uint64_t)ctx;
+    uintptr_t ctx_addr_num = (uintptr_t)ctx;
     char *ctx_addr_str = NULL, *message = NULL;
 
-    ctx_addr_str = DM_malloc(sizeof(uint64_t) * 2 + 1);
+    ctx_addr_str = DM_malloc(sizeof(uintptr_t) * 2 + 1);
     if (ctx_addr_str == NULL) {
         dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         return FAIL_RETURN;
     }
-    memset(ctx_addr_str, 0, sizeof(uint64_t) * 2 + 1);
+    memset(ctx_addr_str, 0, sizeof(uintptr_t) * 2 + 1);
 
     dm_log_debug("ctx: %p", ctx);
     dm_log_debug("ctx_addr_num: %0x016llX", ctx_addr_num);
-    LITE_hexbuf_convert((unsigned char *)&ctx_addr_num, ctx_addr_str, sizeof(uint64_t), 1);
+    LITE_hexbuf_convert((unsigned char *)&ctx_addr_num, ctx_addr_str, sizeof(uintptr_t), 1);
     dm_log_debug("ctx_addr_str: %s", ctx_addr_str);
 
     message_len = strlen(DM_MSG_THING_PROPERTY_GET_FMT) + request->id.value_length + DM_UTILS_UINT32_STRLEN +

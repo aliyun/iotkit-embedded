@@ -279,7 +279,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current Ctx: %.*s", lite_item_ctx.value_length, lite_item_ctx.value);
 
             LITE_hexstr_convert(lite_item_ctx.value, lite_item_ctx.value_length, (unsigned char *)&property_get_ctx_num,
-                                sizeof(uint64_t));
+                                sizeof(uintptr_t));
             property_get_ctx = (void *)property_get_ctx_num;
             sdk_debug("property_get_ctx_num: %0x016llX", property_get_ctx_num);
             sdk_debug("property_get_ctx: %p", property_get_ctx);
