@@ -8,8 +8,6 @@ extern "C" {
 #include <stdint.h>
 #include <unistd.h>
 
-#include "iotx_dm.h"
-
 typedef void (*handle_post_cb_fp_t)(const void *thing_id, int respons_id, int code, const char *response_message,
                                     void *ctx);
 typedef void (*handle_subdev_cb_fp_t)(const void *thing_id, int code, const char *response_message, int success,

@@ -1,3 +1,5 @@
+#if defined(SDK_ENHANCE)
+
 #include "iot_export_linkkit.h"
 #include "sdk-impl_internal.h"
 #include "lite-cjson.h"
@@ -933,3 +935,5 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
     _iotx_linkkit_mutex_unlock();
     return res;
 }
+
+#endif  /* defined(SDK_ENHANCE) */

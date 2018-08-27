@@ -106,7 +106,15 @@ endif   # ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
 ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
 
     ifeq (y,$(strip $(FEATURE_ALCS_ENABLED)))
-    $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_ALCS_ENABLED=y!)
+        $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_ALCS_ENABLED=y!)
+    endif
+
+    ifeq (y,$(strip $(FEATURE_WIFI_AWSS_ENABLED)))
+        $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_WIFI_AWSS_ENABLED=y!)
+    endif
+
+    ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
+        $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_SDK_ENHANCE=y!)
     endif
 
 else    # ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
