@@ -1,3 +1,5 @@
+#ifndef _IOT_EXPORT_LINKKIT_H_
+#define _IOT_EXPORT_LINKKIT_H_
 
 #include "iot_export.h"
 
@@ -262,3 +264,5 @@ int IOT_Linkkit_Logout(int devid);
  */
 int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifier, int identifier_len,
                      unsigned char *payload, int payload_len);
+
+#endif
