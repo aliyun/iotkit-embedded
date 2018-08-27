@@ -25,6 +25,7 @@ typedef struct {
     void *mutex;
     void *dispatch_thread;
     int is_opened;
+    int is_started;
     iotx_linkkit_event_handler_t *user_event_handler;
 } iotx_linkkit_ctx_t;
 
@@ -702,7 +703,13 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
 static int _iotx_linkkit_master_start(void)
 {
     int res = 0, domain_type = 0, dynamic_register = 0;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     iotx_dm_init_params_t dm_init_params;
+
+    if (ctx->is_started) {
+        return FAIL_RETURN;
+    }
+    ctx->is_started = 1;
 
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     IOT_Ioctl(IOTX_IOCTL_GET_DOMAIN, &domain_type);
@@ -714,15 +721,16 @@ static int _iotx_linkkit_master_start(void)
     res = iotx_dm_start(&dm_init_params);
     if (res != SUCCESS_RETURN) {
         sdk_err("DM Start Failed");
+        ctx->is_started = 0;
         return FAIL_RETURN;
     }
 
 #if (CONFIG_SDK_THREAD_COST == 1)
     int stack_used = 0;
-    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     res = HAL_ThreadCreate(&ctx->dispatch_thread, _iotx_linkkit_dispatch, NULL, NULL, &stack_used);
     if (res != SUCCESS_RETURN) {
         iotx_dm_close();
+        ctx->is_started = 0;
         return FAIL_RETURN;
     }
 #endif
@@ -825,7 +833,7 @@ void IOT_Linkkit_Yield(int timeout_ms)
         return;
     }
 
-    if (ctx->is_opened == 0) {
+    if (ctx->is_opened == 0 || ctx->is_started == 0) {
         return;
     }
 
@@ -866,9 +874,14 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
                      unsigned char *payload, int payload_len)
 {
     int res = 0;
-
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    
     if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX || payload == NULL || payload_len == 0) {
         sdk_err("Invalid Parameter");
+    }
+
+    if (ctx->is_opened == 0 || ctx->is_started == 0) {
+        return FAIL_RETURN;
     }
 
     _iotx_linkkit_mutex_lock();
