@@ -139,9 +139,9 @@ $(ALL_SUB_DIRS): $(if $(filter 0,$(MAKELEVEL)),toolchain) $(STAMP_BLD_VAR)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 	$(TOP_Q)$(MAKE) --no-print-directory pre-build target-$@
 ifeq (0,$(MAKELEVEL))
-	$(TOP_Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
+	$(Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
 endif
-	$(TOP_Q) \
+	$(Q) \
 	if [ "$$( $(call Require_Build,$@) )" = "TRUE" ]; then \
 	    $(call Build_Depends,$@) && \
 	    $(call Build_CompLib,$@) && \

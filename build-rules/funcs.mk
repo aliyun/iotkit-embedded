@@ -91,8 +91,9 @@ endef
 
 define Require_Build
 ( \
-    [ "$(PKG_SWITCH_$(1))" != "y" ] && \
-        echo "FALSE" && exit; \
+    SW=$$(grep -m 1 "^PKG_SWITCH_$(1) =" $(STAMP_BLD_VAR)|awk '{ print $$NF }'); \
+    [ "$${SW}" != "y" ] && \
+        echo "FALSE" && exit; set +x; \
 \
     [ "$(LIBA_TARGET_$(1))" != "" ] && \
     $(foreach L,$(LIBA_TARGET_$(1)),[ -f $(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)/$(L) ] && ) \
