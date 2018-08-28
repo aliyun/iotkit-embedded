@@ -27,9 +27,6 @@ typedef enum {
     /* post property value to cloud */
     IOTX_LINKKIT_MSG_POST_PROPERTY,
 
-    /* post event output value to cloud , need fill event identifier in IOT_Linkkit_Post */
-    IOTX_LINKKIT_MSG_POST_EVENT,
-
     /* post device info update message to cloud */
     IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE,
 
