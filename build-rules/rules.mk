@@ -90,7 +90,7 @@ endif # CONFIG_LIB_EXPORT
 
 ifneq (,$(shell ls $(STAMP_BLD_VAR) 2>/dev/null))
 ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
-ifeq (0,$(strip $(shell $(SED) '/[-_/a-zA-Z0-9]* = ..*/d' $(STAMP_BLD_VAR)|wc -l)))
+ifeq (0,$(strip $(shell $(SED) '/[-_/a-zA-Z0-9]* = *..*/d' $(STAMP_BLD_VAR)|wc -l)))
 include $(STAMP_BLD_VAR)
 endif
 endif

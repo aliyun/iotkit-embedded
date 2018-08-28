@@ -6,8 +6,9 @@ rm -f ${TARGET_FILE}
 CONFIG_VERNDOR=$(grep -m 1 "VENDOR *:" .config|awk '{ print $NF }')
 IFLAGS=$( \
 for iter in \
-    $(find \
+    $(find -L \
         ${COMP_LIB_COMPONENTS} \
+        ${EXPORT_DIR} \
         ${EXTRA_INCLUDE_DIRS} \
         ${IMPORT_DIR}/${CONFIG_VENDOR}/include \
             -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
