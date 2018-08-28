@@ -440,9 +440,9 @@ int linkkit_example()
     /*
      * Start device network connection
      */
-    ret = IOT_Linkkit_Start(app_ctx.devid, &linkkit_event_handler);
+    ret = IOT_Linkkit_Connect(app_ctx.devid, &linkkit_event_handler);
     if (ret < 0) {
-        APP_TRACE("linkkit start fail");
+        APP_TRACE("linkkit connect fail");
         return -1;
     }
 

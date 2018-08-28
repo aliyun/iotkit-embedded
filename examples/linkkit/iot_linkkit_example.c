@@ -451,9 +451,9 @@ int main(int argc, char *argv[])
     IOT_Linkkit_Ioctl(user_example_ctx->master_devid, IOTX_LINKKIT_CMD_OPTION_EVENT_POST_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Start(user_example_ctx->master_devid, &user_event_handler);
+    res = IOT_Linkkit_Connect(user_example_ctx->master_devid, &user_event_handler);
     if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Start Failed\n");
+        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
         return -1;
     }
 

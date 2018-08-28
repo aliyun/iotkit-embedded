@@ -817,7 +817,7 @@ int IOT_Linkkit_Ioctl(int devid, iotx_linkkit_ioctl_cmd_t cmd, void *arg)
     return res;
 }
 
-int IOT_Linkkit_Start(int devid, iotx_linkkit_event_handler_t *hdlrs)
+int IOT_Linkkit_Connect(int devid, iotx_linkkit_event_handler_t *hdlrs)
 {
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();

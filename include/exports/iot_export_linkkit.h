@@ -206,7 +206,7 @@ int IOT_Linkkit_Ioctl(int devid, iotx_linkkit_ioctl_cmd_t cmd, void *arg);
  * @return success: device id (>=0), fail: -1.
  *
  */
-int IOT_Linkkit_Start(int devid, iotx_linkkit_event_handler_t *hdlrs);
+int IOT_Linkkit_Connect(int devid, iotx_linkkit_event_handler_t *hdlrs);
 
 /**
  * @brief try to receive message from cloud and dispatch these message to user event callback
