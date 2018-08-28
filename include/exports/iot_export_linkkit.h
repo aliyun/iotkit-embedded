@@ -239,7 +239,7 @@ int IOT_Linkkit_Close(int devid);
  * @param payload. message payload.
  * @param payload_len. message payload length.
  *
- * @return success: 0 or message id (>1), fail: -1.
+ * @return success: 0 or message id (>=1), fail: -1.
  *
  */
 int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
@@ -253,7 +253,7 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char 
  * @param payload. event payload.
  * @param payload_len. event payload length.
  *
- * @return success: 0 or message id (>1), fail: -1.
+ * @return success: message id (>=1), fail: -1.
  *
  */
 int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
