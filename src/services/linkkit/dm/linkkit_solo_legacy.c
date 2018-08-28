@@ -1213,10 +1213,10 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
-
+    msgid = res;
+    
     res = iotx_dm_get_opt(linkkit_opt_event_post_reply,&post_event_reply);
     if (cb != NULL && post_event_reply) {
-        msgid = res;
         /* Insert Message ID Into Linked List */
         _linkkit_solo_upstream_mutex_lock();
         res = _linkkit_solo_upstream_callback_list_insert(msgid, cb);
@@ -1277,10 +1277,10 @@ int deprecated linkkit_post_property(const void *thing_id, const char *property_
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
+    msgid = res;
 
     res = iotx_dm_get_opt(linkkit_opt_property_post_reply,&post_property_reply);
     if (cb != NULL && post_property_reply) {
-        msgid = res;
         /* Insert Message ID Into Linked List */
         _linkkit_solo_upstream_mutex_lock();
         res = _linkkit_solo_upstream_callback_list_insert(msgid, cb);
