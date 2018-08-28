@@ -40,6 +40,8 @@ FEATURE_DEPRECATED_LINKKIT      ?= y
 
 CONFIG_LIB_EXPORT               ?= static
 
+CFLAGS  += -Iexamples
+
 CFLAGS  += -DOTA_WITH_LINKKIT
 CFLAGS  += -DFORCE_SSL_VERIFY
 CFLAGS  += \

@@ -27,6 +27,9 @@ extern "C" {
 #include <stdlib.h>
 #include <stdarg.h>
 #include <inttypes.h>
+#if defined(_PLATFORM_IS_LINUX_)
+#include <pthread.h>
+#endif
 
 #include "iot_export.h"
 #include "imports/iot_import_config.h"
