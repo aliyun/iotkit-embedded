@@ -32,3 +32,9 @@ GPATH
 GRTAGS
 GTAGS
 iotx-sdk-c-test/
+
+sdk-c/examples/coapapp
+sdk-c/examples/linkkit_gateway
+sdk-c/examples/linkkit_newapi
+sdk-c/examples/linkkitapp
+sdk-c/examples/mqttapp
