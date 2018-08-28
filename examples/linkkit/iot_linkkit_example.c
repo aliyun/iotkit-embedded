@@ -161,7 +161,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY,
                            (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 
@@ -343,7 +343,7 @@ void user_post_property(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *property_payload = "{\"LightSwitch\":1}";
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY,
                            (unsigned char *)property_payload, strlen(property_payload));
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
@@ -355,8 +355,8 @@ void user_post_event(void)
     char *event_id = "Error";
     char *event_payload = "{\"ErrorCode\":0}";
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_EVENT, event_id, strlen(event_id),
-                           (unsigned char *)event_payload, strlen(event_payload));
+    res = IOT_Linkkit_TriggerEvent(user_example_ctx->master_devid, event_id, strlen(event_id),
+                                   event_payload, strlen(event_payload));
     EXAMPLE_TRACE("Post Event Message ID: %d", res);
 }
 
@@ -366,7 +366,7 @@ void user_deviceinfo_update(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *device_info_update = "[{\"attrKey\":\"abc\",\"attrValue\":\"hello,world\"}]";
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE,
                            (unsigned char *)device_info_update, strlen(device_info_update));
     EXAMPLE_TRACE("Device Info Update Message ID: %d", res);
 }
@@ -377,7 +377,7 @@ void user_deviceinfo_delete(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *device_info_delete = "[{\"attrKey\":\"abc\"}]";
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_DELETE, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_DELETE,
                            (unsigned char *)device_info_delete, strlen(device_info_delete));
     EXAMPLE_TRACE("Device Info Delete Message ID: %d", res);
 }
@@ -388,7 +388,7 @@ void user_post_raw_data(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     unsigned char raw_data[7] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_RAW_DATA, NULL, 0,
+    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_RAW_DATA,
                            raw_data, 7);
     EXAMPLE_TRACE("Post Raw Data Message ID: %d", res);
 }

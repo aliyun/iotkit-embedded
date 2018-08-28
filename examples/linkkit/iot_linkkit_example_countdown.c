@@ -74,7 +74,7 @@ static void *app_get_context(void)
 /*
  * Property CountDown paylaod construction and post
  */
-static int app_post_countdown(int isrun, int timelf, int pwrsw, char* timestamp, app_context_t *app_ctx)
+static int app_post_countdown(int isrun, int timelf, int pwrsw, char *timestamp, app_context_t *app_ctx)
 {
     int ret = -1;
     char *payload = NULL;
@@ -104,7 +104,7 @@ static int app_post_countdown(int isrun, int timelf, int pwrsw, char* timestamp,
     if (payload == NULL) {
         return ret;
     }
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
+    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
     HAL_Free(payload);
     if (ret < 0) {
         APP_TRACE("app post property \"CountDown\" failed");
@@ -136,14 +136,14 @@ static int app_post_powerswitch(int pwrsw, app_context_t *app_ctx)
         return ret;
     }
 
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, strlen(payload));
+    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
     HAL_Free(payload);
     if (ret < 0) {
         APP_TRACE("app post property \"PowerSwitch\" failed");
-        return ret; 
+        return ret;
     }
     APP_TRACE("app post property \"PowerSwitch\" secceed, msgID = %d\r\n", ret);
-    
+
     return ret;
 }
 
@@ -192,8 +192,8 @@ static void app_timer_start(void *timer, int s)
     APP_TRACE("app timer start");
 }
 
-/* 
- * cloud connected 
+/*
+ * cloud connected
  */
 static int on_connect(void)
 {
@@ -212,7 +212,7 @@ static int on_connect(void)
     return 0;
 }
 
-/* 
+/*
  * cloud disconnected
  */
 static int on_disconnect(void)
@@ -233,7 +233,7 @@ static int on_disconnect(void)
 }
 
 /*
- * Property set from cloud handler 
+ * Property set from cloud handler
  */
 static int property_set_handle(const int devid, const char *payload, const int payload_len)
 {
@@ -271,7 +271,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
         /* Post PowerSwitch value */
         app_post_powerswitch(app_ctx->powerSwitch_Actual, app_ctx);
 
-        return ret;  
+        return ret;
     }
 
     APP_TRACE("property is CountDown");
@@ -329,21 +329,22 @@ static int property_set_handle(const int devid, const char *payload, const int p
     }
 
     /* Just echo the CountDown property */
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, NULL, 0, (unsigned char *)payload, payload_len);
+    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, payload_len);
     if (ret < 0) {
         APP_TRACE("app post property \"CountDown\" failed");
-        return ret; 
+        return ret;
     }
     APP_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
 
     /* Post the PowerSwitch property, powerSwitch_Actual used */
-            /* Post PowerSwitch value */
+    /* Post PowerSwitch value */
     app_post_powerswitch(app_ctx->powerSwitch_Actual, app_ctx);
 
     return 0;
 }
 
-static int post_reply_handle(const int devid, const int msgid, const int code, const char *payload, const int payload_len)
+static int post_reply_handle(const int devid, const int msgid, const int code, const char *payload,
+                             const int payload_len)
 {
     APP_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", devid, msgid, code,
               payload == NULL ? "NULL" : payload);
@@ -356,7 +357,7 @@ static int post_reply_handle(const int devid, const int msgid, const int code, c
 }
 
 /*
- * Device inited handle 
+ * Device inited handle
  */
 static int initialized_handle(const int devid)
 {
@@ -384,7 +385,7 @@ static uint64_t user_update_sec(void)
 }
 
 /*
- * linkkit timer countdown example routine 
+ * linkkit timer countdown example routine
  */
 int linkkit_example()
 {
@@ -430,26 +431,26 @@ int linkkit_example()
         APP_TRACE("linkkit device open fail");
         return -1;
     }
-    
+
     /*
-     * Config linkkit device option 
+     * Config linkkit device option
      */
     IOT_Linkkit_Ioctl(app_ctx.devid, IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY, &property_opt);
 
     /*
      * Start device network connection
-     */ 
+     */
     ret = IOT_Linkkit_Start(app_ctx.devid, &linkkit_event_handler);
     if (ret < 0) {
         APP_TRACE("linkkit start fail");
-        return -1;  
+        return -1;
     }
 
     APP_TRACE("linkkit started, enter loop");
     while (1) {
         /* Do linkkit yeild first */
         IOT_Linkkit_Yield(200);
-        
+
         time_now_sec = user_update_sec();
         if (time_prev_sec == time_now_sec) {
             continue;

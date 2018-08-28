@@ -749,7 +749,7 @@ static int _iotx_linkkit_master_close(void)
         return FAIL_RETURN;
     }
     ctx->is_opened = 0;
-    
+
 #if (CONFIG_SDK_THREAD_COST == 1)
     HAL_ThreadDelete(ctx->dispatch_thread);
 #endif
@@ -877,22 +877,22 @@ int IOT_Linkkit_Close(int devid)
     }
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
-       res = _iotx_linkkit_master_close();
-    }else{
+        res = _iotx_linkkit_master_close();
+    } else {
         return FAIL_RETURN;
     }
 
     return res;
 }
 
-int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifier, int identifier_len,
-                     unsigned char *payload, int payload_len)
+int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len)
 {
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
-    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX || payload == NULL || payload_len == 0) {
+    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX || payload == NULL || payload_len <= 0) {
         sdk_err("Invalid Parameter");
+        return FAIL_RETURN;
     }
 
     if (ctx->is_opened == 0 || ctx->is_started == 0) {
@@ -903,15 +903,6 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
     switch (msg_type) {
         case IOTX_LINKKIT_MSG_POST_PROPERTY: {
             res = iotx_dm_post_property(devid, (char *)payload, payload_len);
-        }
-        break;
-        case IOTX_LINKKIT_MSG_POST_EVENT: {
-            if (identifier == NULL || identifier_len <= 0) {
-                sdk_err("Invalid Parameter");
-                res = FAIL_RETURN;
-            } else {
-                res = iotx_dm_post_event(devid, identifier, identifier_len, (char *)payload, payload_len);
-            }
         }
         break;
         case IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE: {
@@ -936,4 +927,25 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifi
     return res;
 }
 
-#endif  /* defined(SDK_ENHANCE) */
+int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len)
+{
+    int res = 0;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
+    if (devid < 0 || eventid == NULL || eventid_len <= 0 || payload == NULL || payload_len <= 0) {
+        sdk_err("Invalid Parameter");
+        return FAIL_RETURN;
+    }
+
+    if (ctx->is_opened == 0 || ctx->is_started == 0) {
+        return FAIL_RETURN;
+    }
+
+    _iotx_linkkit_mutex_lock();
+    res = iotx_dm_post_event(devid, eventid, eventid_len, payload, payload_len);
+    _iotx_linkkit_mutex_unlock();
+
+    return res;
+}
+
+#endif

@@ -231,26 +231,6 @@ void IOT_Linkkit_Yield(int timeout_ms);
 int IOT_Linkkit_Close(int devid);
 
 /**
- * @brief slave device login to cloud. slave device can transfer message with cloud only when logined.
- *
- * @param devid. device identifier.
- *
- * @return success: 0, fail: -1.
- *
- */
-int IOT_Linkkit_Login(int devid);
-
-/**
- * @brief slave device logout from cloud
- *
- * @param devid. device identifier.
- *
- * @return success: 0, fail: -1.
- *
- */
-int IOT_Linkkit_Logout(int devid);
-
-/**
  * @brief post message to cloud
  *
  * @param devid. device identifier.
@@ -262,7 +242,20 @@ int IOT_Linkkit_Logout(int devid);
  * @return success: 0 or message id (>1), fail: -1.
  *
  */
-int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, char *identifier, int identifier_len,
-                     unsigned char *payload, int payload_len);
+int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
+
+/**
+ * @brief post event to cloud
+ *
+ * @param devid. device identifier.
+ * @param eventid. tsl event id.
+ * @param eventid_len. length of tsl event id.
+ * @param payload. event payload.
+ * @param payload_len. event payload length.
+ *
+ * @return success: 0 or message id (>1), fail: -1.
+ *
+ */
+int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
 
 #endif
