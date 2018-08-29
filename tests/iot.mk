@@ -11,7 +11,15 @@ LDFLAGS     += -liot_sdk
 LDFLAGS     += -liot_hal
 
 ifneq (,$(filter -DSUPPORT_ITLS,$(CFLAGS)))
-LDFLAGS     += -litls -liot_tfs -liot_sdk
+LDFLAGS += \
+            -litls \
+            -lid2client \
+            -lkm \
+            -lplat_gen \
+            -lalicrypto \
+            -lmbedcrypto \
+
+LDFLAGS     += -liot_sdk
 endif
 
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
