@@ -63,7 +63,7 @@ static int awss_enrollee_get_dev_info(char *payload, int payload_len, char *prod
 /* registrar send pkt interval in ms */
 #define REGISTRAR_TIMEOUT               (60)
 
-static struct enrollee_info enrollee_info[MAX_ENROLLEE_NUM] = {0};
+static struct enrollee_info enrollee_info[MAX_ENROLLEE_NUM];
 static char registrar_inited = 0;
 static char registrar_id = 0;
 

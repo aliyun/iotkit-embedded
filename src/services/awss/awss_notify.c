@@ -186,8 +186,9 @@ extern "C"
     int awss_notify_dev_info(int type, int count)
     {
         char *buf      = NULL;
-        char *dev_info = NULL;
-        int   i;
+        char                *dev_info = NULL;
+        int                 i;
+        platform_netaddr_t  notify_sa;
 
         do {
             void *cb     = NULL;
@@ -212,7 +213,7 @@ extern "C"
                 break;
             }
 
-            platform_netaddr_t notify_sa = { 0 };
+            memset(&notify_sa, 0, sizeof(notify_sa));
 
             memcpy(notify_sa.host, AWSS_NOTIFY_HOST, strlen(AWSS_NOTIFY_HOST));
             notify_sa.port = AWSS_NOTIFY_PORT;
