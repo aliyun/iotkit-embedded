@@ -92,7 +92,9 @@ int IOT_SetupConnInfo(const char *product_key,
 
     /* Dynamic Register Device If Need */
     if (ctx->dynamic_register == 0) {
+#if !defined(SUPPORT_ITLS)
         STRING_PTR_SANITY_CHECK(device_secret, -1);
+#endif
         memcpy(device_secret_actual, device_secret, strlen(device_secret));
     } else {
         /* Check if Device Secret exit in KV */
