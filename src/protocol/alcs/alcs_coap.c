@@ -95,7 +95,8 @@ int alcs_sendrsp(CoAPContext *context, NetworkAddr* addr, CoAPMessage *message, 
 int alcs_observe_notify(CoAPContext *context, const char *path, CoAPLenString* payload)
 {
     int  needAuth = alcs_resource_need_auth (context, path);
-    COAP_INFO("alcs_observe_notify, payload: %.*s", payload->len, payload->data);
+    COAP_INFO("alcs_observe_notify, payload:");
+    HEXDUMP_INFO(payload->data, payload->len);
     return CoAPObsServer_notify (context, path, payload->data, payload->len,
 #ifdef USE_ALCS_SECURE
                                  needAuth? &observe_data_encrypt : NULL);
