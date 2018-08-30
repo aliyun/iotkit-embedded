@@ -12,13 +12,14 @@ static void usage(void){
 	printf("usage:[OPTIONS] \n\n"
 		"  $1, Product Key.\n"
 		"  $2, Device Name.\n"
-                "  $3, Device Secret.\n"
+        "  $3, Device Secret.\n"
+        "  $4, Product Secret.\n"
 		"\n");
 }
 
 
 int main(int argc, char *argv[]){
-    if(argc <= 2) {
+    if(argc <= 4) {
         usage();
         return 1;
     }
@@ -26,6 +27,10 @@ int main(int argc, char *argv[]){
     strncpy(ctx.pk,argv[1],sizeof(ctx.pk)-1);
     strncpy(ctx.dn,argv[2],sizeof(ctx.dn)-1);
     strncpy(ctx.ds,argv[3],sizeof(ctx.ds)-1);
+    strncpy(ctx.ps,argv[4],sizeof(ctx.ps)-1);
+    HAL_SetProductSecret(ctx.ps);
+    printf("%s", ctx.ps);
+
     ctx.trans_protcol = 0;
     ctx.dl_protcol = 3;
 
