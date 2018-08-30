@@ -2005,19 +2005,19 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
 
 static int32_t iotx_mc_calc_seed(uint32_t *p_seed)
 {
-    char                   *device_secret;
+    char                   *device_name;
     iotx_device_info_pt     pdev = iotx_device_info_get();
     uint32_t                seed = 0;
 
     POINTER_SANITY_CHECK(p_seed, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(pdev, NULL_VALUE_ERROR);
 
-    device_secret = pdev->device_secret;
-    STRING_PTR_SANITY_CHECK(device_secret, NULL_VALUE_ERROR);
+    device_name = pdev->device_name;
+    STRING_PTR_SANITY_CHECK(device_name, NULL_VALUE_ERROR);
 
-    while ('\0' != *device_secret) {
-        seed += *device_secret;
-        device_secret++;
+    while ('\0' != *device_name) {
+        seed += *device_name;
+        device_name++;
     }
     seed += (HAL_UptimeMs() / 1000);
     seed %= UINT32_MAX;

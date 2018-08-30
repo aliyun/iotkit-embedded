@@ -94,8 +94,14 @@ int IOT_SetupConnInfo(const char *product_key,
     if (ctx->dynamic_register == 0) {
 #if !defined(SUPPORT_ITLS)
         STRING_PTR_SANITY_CHECK(device_secret, -1);
-#endif
         memcpy(device_secret_actual, device_secret, strlen(device_secret));
+#else
+        if (device_secret == NULL || strlen(device_secret) == 0) {
+            LITE_get_randstr(device_secret_actual, DEVICE_SECRET_MAXLEN -1 );
+        } else {
+            memcpy(device_secret_actual, device_secret, strlen(device_secret));
+        }
+#endif
     } else {
         /* Check if Device Secret exit in KV */
         if (HAL_Kv_Get(KV_KEY_DEVICE_SECRET, device_secret_actual, &device_secret_len) == 0) {
