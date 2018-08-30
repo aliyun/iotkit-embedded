@@ -1,7 +1,3 @@
-#ifdef DEPRECATED_LINKKIT
-#include "deprecated/countdown.c"
-#else
-
 /*
  * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
  * License-Identifier: Apache-2.0
@@ -19,7 +15,6 @@
  * limitations under the License.
  *
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,7 +54,11 @@ typedef struct _app_context {
     int        thing_enabled;
 } app_context_t;
 
-#include "deprecated/countdown_tsl.data"
+/*
+ * TSL of Timer countdown example, please modify this string follow as product's TSL.
+ */
+#include "countdown_tsl.data"
+
 /* json data of property "CountDown", used for debugging in AliCloud console
 {
   "CountDown": {"IsRunning":1,"TimeLeft":10,"PowerSwitch":1,"Timestamp":"1534314100000"}
@@ -455,7 +454,8 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
             return ret;
         }
         APP_TRACE("app post property \"%s\" succeed", app_ctx->prop_powerswitch);
-    } else if (strstr(property, app_ctx->prop_powerswitch) != 0) {
+    }
+    else if (strstr(property, app_ctx->prop_powerswitch) != 0) {
         int powerSwitch[1] = {0};
 
         /* Get property value of "PowerSwitch" */
@@ -711,5 +711,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
-#endif  /* #ifdef DEPRECATED_LINKKIT */
