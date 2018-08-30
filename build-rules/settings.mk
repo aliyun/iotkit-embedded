@@ -79,6 +79,9 @@ ifdef DEBUG_SHELL
 SHELL_DBG       := set -x;
 endif
 
+# Setting of downloading toolchains
+TOOLCHAIN_DLDIR := $(OUTPUT_DIR)/compiler
+
 # Setting of directory for origin modules
 #
 export INSTALL_DIR     = $(OUTPUT_DIR)/usr

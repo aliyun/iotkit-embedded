@@ -171,3 +171,22 @@ define Build_CompLib
 true
 endef
 endif
+
+define Relative_TcPath
+( \
+    case $(1) in \
+        xtensa-lx106-elf-gcc ) \
+            echo "gcc-xtensa-lx106-linux/main/bin" ;; \
+    esac \
+)
+endef
+
+define Gitrepo_TcPath
+( \
+    case $(1) in \
+        xtensa-lx106-elf-gcc ) \
+            echo "gcc-xtensa-lx106-linux" ;; \
+    esac \
+)
+endef
+

@@ -2,6 +2,7 @@ include  $(RULE_DIR)/settings.mk
 sinclude $(CONFIG_TPL)
 include  $(RULE_DIR)/funcs.mk
 
+export PATH := $(PATH):$(TOOLCHAIN_DLDIR)/main/bin
 unexport VERBOSE
 unexport DEBUG
 
@@ -122,6 +123,15 @@ endif
 
 ifeq (gcc,$(strip $(CC)))
 export STRIP    := strip
+endif
+
+ifneq (y,$(shell which $(CC) > /dev/null && echo 'y'))
+LOCAL_TCDIR     := $(TOOLCHAIN_DLDIR)/$(shell $(call Relative_TcPath,$(CC)))
+export CC       := $(LOCAL_TCDIR)/$(CC)
+export AR       := $(LOCAL_TCDIR)/$(AR)
+export LD       := $(LOCAL_TCDIR)/$(LD)
+export OBJCOPY  := $(LOCAL_TCDIR)/$(OBJCOPY)
+export STRIP    := $(LOCAL_TCDIR)/$(STRIP)
 endif
 
 ifneq (,$(filter -m32,$(strip $(CFLAGS))))
