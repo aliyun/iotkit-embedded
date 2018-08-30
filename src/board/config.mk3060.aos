@@ -1,11 +1,6 @@
 CONFIG_ENV_CFLAGS   += \
-    -DBOARD_ESP8266 -u call_user_start \
-    -fno-inline-functions \
-    -ffunction-sections \
-    -fdata-sections \
-    -mlongcalls \
-    -DESPOS_FOR_ESP8266 -Wl,-static \
-    -DXT_USE_THREAD_SAFE_CLIB=0 \
+    -mcpu=arm968e-s -march=armv5te -mthumb \
+    -mthumb-interwork -mlittle-endian
 
 CONFIG_ENV_CFLAGS   += \
     -Os \
@@ -22,4 +17,4 @@ CONFIG_src/services/uOTA        :=
 CONFIG_tests                    :=
 CONFIG_src/tools/linkkit_tsl_convert :=
 
-CROSS_PREFIX        := xtensa-lx106-elf-
+CROSS_PREFIX        := arm-none-eabi-

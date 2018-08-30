@@ -273,7 +273,7 @@ void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int k
     char buf[SHA1_DIGEST_SIZE];
     utils_hmac_sha1_raw(msg, msg_len, buf, key, key_len);
 
-    unsigned int outlen;
+    uint32_t outlen;
     utils_base64encode((unsigned char *)buf, SHA1_DIGEST_SIZE, *digest_len, (unsigned char *)digest, &outlen);
     *digest_len = outlen;
 }

@@ -11,7 +11,7 @@ LOCAL_AR=${TOOLCHAIN_DLDIR}/${RELPATH}/${AR}
 which ${CC} > /dev/null
 
 if [ $? != 0 ] && [ ! -f ${LOCAL_CC} ]; then
-    echo "${GIT_PREFIX}${GITPATH} -> ${TOOLCHAIN_DLDIR}" > /dev/stderr
+    echo "${GIT_PREFIX}/${GITPATH} -> ${TOOLCHAIN_DLDIR}" > /dev/stderr
     echo "---" > /dev/stderr
     mkdir -p ${TOOLCHAIN_DLDIR}
     cd ${TOOLCHAIN_DLDIR}
