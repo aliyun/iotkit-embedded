@@ -1,6 +1,8 @@
 CONFIG_ENV_CFLAGS   += \
-    -mcpu=arm968e-s -march=armv5te -mthumb \
+    -mcpu=cortex-m4 -march=armv7-m -mthumb \
     -mthumb-interwork -mlittle-endian \
+    -fno-short-enums \
+    -DCONFIG_PLATFORM_8711B -DM3 -w \
 
 CONFIG_ENV_CFLAGS   += \
     -Os \
