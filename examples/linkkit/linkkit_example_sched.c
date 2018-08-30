@@ -312,13 +312,18 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         uint64_t utc = 0;
 
         /* Get LocalTimer[0] */
-        id = 0; timer = NULL; enable = 0;
+        id = 0;
+        timer = NULL;
+        enable = 0;
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].ID", &id, NULL);
         EXAMPLE_TRACE("LocalTimer[0].ID: %d\n", id);
 
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Timer", NULL, &timer);
         EXAMPLE_TRACE("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-        if (timer) {free(timer);timer = NULL;}
+        if (timer) {
+            free(timer);
+            timer = NULL;
+        }
 
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Enable", &enable, NULL);
         EXAMPLE_TRACE("LocalTimer[0].Enable: %d\n", enable);
@@ -452,13 +457,18 @@ int get_scheduler_prop(sample_context_t *sample)
     int enable = 0;
 
     /* Get LocalTimer[0] */
-    id = 0; timer = NULL; enable = 0;
+    id = 0;
+    timer = NULL;
+    enable = 0;
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
     printf("LocalTimer[0].ID: %d\n", id);
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", NULL, &timer);
     printf("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-    if (timer) {free(timer);timer = NULL;}
+    if (timer) {
+        free(timer);
+        timer = NULL;
+    }
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
     printf("LocalTimer[0].Enable: %d\n", enable);

@@ -33,11 +33,11 @@
 #define LINKKIT_OTA_BUFFER_SIZE (512)
 
 #define EXAMPLE_TRACE(...)                                      \
-do {                                                     \
-    printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
-    printf(__VA_ARGS__);                                 \
-    printf("\033[0m");                                   \
-} while (0)
+    do {                                                     \
+        printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
+        printf(__VA_ARGS__);                                 \
+        printf("\033[0m");                                   \
+    } while (0)
 
 typedef struct {
     int  ZB_Band;
@@ -49,7 +49,7 @@ typedef struct {
     char NETWORK_KEY[32 + 1];
 
     int connected;
-	int register_completed;
+    int register_completed;
     int lk_dev;
 } gateway_t;
 
@@ -61,7 +61,7 @@ static int gateway_call_service(char *identifier, char *in, char *out, int out_l
 
 /* callback function */
 static linkkit_cbs_t linkkit_cbs = {
-	.register_complete = gateway_register_complete,
+    .register_complete = gateway_register_complete,
     .get_property = gateway_get_property,
     .set_property = gateway_set_property,
     .call_service = gateway_call_service,
@@ -69,15 +69,15 @@ static linkkit_cbs_t linkkit_cbs = {
 
 static int gateway_register_complete(void *ctx)
 {
-	gateway_t *gw = (gateway_t *)ctx;
-    
+    gateway_t *gw = (gateway_t *)ctx;
+
     if (gw == NULL) {
         return -1;
     }
 
-	gw->register_completed = 1;
-    EXAMPLE_TRACE("Current Device %d Register ALL Service Completed\n",gw->lk_dev);
-	return 0;
+    gw->register_completed = 1;
+    EXAMPLE_TRACE("Current Device %d Register ALL Service Completed\n", gw->lk_dev);
+    return 0;
 }
 
 /*
@@ -100,8 +100,9 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
 
     /* parse input json */
     rJson = cJSON_Parse(in);
-    if (!rJson)
+    if (!rJson) {
         return -1;
+    }
 
     iSize = cJSON_GetArraySize(rJson);
     if (iSize <= 0) {
@@ -174,33 +175,40 @@ static int gateway_set_property(char *in, void *ctx)
     EXAMPLE_TRACE("in: %s\n", in);
 
     rJson = cJSON_Parse(in);
-    if (!rJson)
+    if (!rJson) {
         return -1;
+    }
 
     /* parse input json, set the gateway value */
     ZB_Band = cJSON_GetObjectItem(rJson, "ZB_Band");
-    if (ZB_Band)
+    if (ZB_Band) {
         gw->ZB_Band = ZB_Band->valueint;
+    }
 
     ZB_Channel = cJSON_GetObjectItem(rJson, "ZB_Channel");
-    if (ZB_Channel)
+    if (ZB_Channel) {
         gw->ZB_Channel = ZB_Channel->valueint;
+    }
 
     ZB_PAN_ID = cJSON_GetObjectItem(rJson, "ZB_PAN_ID");
-    if (ZB_PAN_ID)
+    if (ZB_PAN_ID) {
         strncpy(gw->ZB_PAN_ID, ZB_PAN_ID->valuestring, sizeof(gw->ZB_PAN_ID) - 1);
+    }
 
     EXT_PAN_ID = cJSON_GetObjectItem(rJson, "EXT_PAN_ID");
-    if (EXT_PAN_ID)
+    if (EXT_PAN_ID) {
         strncpy(gw->EXT_PAN_ID, EXT_PAN_ID->valuestring, sizeof(gw->EXT_PAN_ID) - 1);
+    }
 
     ZB_CO_MAC = cJSON_GetObjectItem(rJson, "ZB_CO_MAC");
-    if (ZB_CO_MAC)
+    if (ZB_CO_MAC) {
         strncpy(gw->ZB_CO_MAC, ZB_CO_MAC->valuestring, sizeof(gw->ZB_CO_MAC) - 1);
+    }
 
     NETWORK_KEY = cJSON_GetObjectItem(rJson, "NETWORK_KEY");
-    if (NETWORK_KEY)
+    if (NETWORK_KEY) {
         strncpy(gw->NETWORK_KEY, NETWORK_KEY->valuestring, sizeof(gw->NETWORK_KEY) - 1);
+    }
 
     linkkit_gateway_post_property_json_sync(gw->lk_dev, in, 5000);
     cJSON_Delete(rJson);
@@ -234,9 +242,10 @@ static int gateway_call_service(char *identifier, char *in, char *out, int out_l
 static int post_all_properties(gateway_t *gw)
 {
     cJSON *pJson = cJSON_CreateObject();
-    char* p = NULL;
-    if (!pJson)
+    char *p = NULL;
+    if (!pJson) {
         return -1;
+    }
 
     cJSON_AddNumberToObject(pJson, "ZB_Band",     gw->ZB_Band);
     cJSON_AddNumberToObject(pJson, "ZB_Channel",  gw->ZB_Channel);
@@ -268,34 +277,33 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
 
     switch (ev->event_type) {
         /* cloud connected */
-    case LINKKIT_EVENT_CLOUD_CONNECTED: {
-        EXAMPLE_TRACE("cloud connected\n");
+        case LINKKIT_EVENT_CLOUD_CONNECTED: {
+            EXAMPLE_TRACE("cloud connected\n");
 
-        /* modify user's logic in there */
-        /* example case just post all property */
-        post_all_properties(gw);    /* sync to cloud */
-        gw->connected = 1;
-    }
+            /* modify user's logic in there */
+            /* example case just post all property */
+            post_all_properties(gw);    /* sync to cloud */
+            gw->connected = 1;
+        }
         break;
 
         /* cloud disconnected */
-    case LINKKIT_EVENT_CLOUD_DISCONNECTED: {
-        gw->connected = 0;
-        EXAMPLE_TRACE("cloud disconnected\n");
-    }
+        case LINKKIT_EVENT_CLOUD_DISCONNECTED: {
+            gw->connected = 0;
+            EXAMPLE_TRACE("cloud disconnected\n");
+        }
         break;
 
         /* subdev delete */
-    case LINKKIT_EVENT_SUBDEV_DELETED: {
-        char *productKey = ev->event_data.subdev_deleted.productKey;
-        char *deviceName = ev->event_data.subdev_deleted.deviceName;
-        EXAMPLE_TRACE("delete subdev %s<%s>\n", productKey, deviceName);
-    }
+        case LINKKIT_EVENT_SUBDEV_DELETED: {
+            char *productKey = ev->event_data.subdev_deleted.productKey;
+            char *deviceName = ev->event_data.subdev_deleted.deviceName;
+            EXAMPLE_TRACE("delete subdev %s<%s>\n", productKey, deviceName);
+        }
         break;
 
         /* between timeoutSec, subdev of productKey can be register */
-    case LINKKIT_EVENT_SUBDEV_PERMITED:
-        {
+        case LINKKIT_EVENT_SUBDEV_PERMITED: {
             char *productKey = ev->event_data.subdev_permited.productKey;
             int   timeoutSec = ev->event_data.subdev_permited.timeoutSec;
             EXAMPLE_TRACE("permit subdev %s in %d seconds\n", productKey, timeoutSec);
@@ -308,18 +316,18 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
     return 0;
 }
 
-void linkkit_fota_callback(service_fota_callback_type_t callback_type, const char* version)
+void linkkit_fota_callback(service_fota_callback_type_t callback_type, const char *version)
 {
     char fota_buffer[LINKKIT_OTA_BUFFER_SIZE] = {0};
 
-    EXAMPLE_TRACE("Fota Version: %s\n",version);
+    EXAMPLE_TRACE("Fota Version: %s\n", version);
 
-    linkkit_gateway_invoke_fota_service(fota_buffer,LINKKIT_OTA_BUFFER_SIZE);
+    linkkit_gateway_invoke_fota_service(fota_buffer, LINKKIT_OTA_BUFFER_SIZE);
 }
 
-void trigger_event_callback(int ret,void *ctx)
+void trigger_event_callback(int ret, void *ctx)
 {
-    EXAMPLE_TRACE("Trigger Event Result: %d\n",ret);
+    EXAMPLE_TRACE("Trigger Event Result: %d\n", ret);
 }
 
 int main(void)
@@ -348,7 +356,7 @@ int main(void)
     gateway.ZB_Channel = 16;
 
     strcpy(gateway.ZB_PAN_ID,   "8215");
-    strcpy(gateway.EXT_PAN_ID,  "000D6F000ED34E34"); 
+    strcpy(gateway.EXT_PAN_ID,  "000D6F000ED34E34");
     strcpy(gateway.ZB_CO_MAC,   "000D6F000ED34E34");
     strcpy(gateway.NETWORK_KEY, "21B9F385F114B1C4AE07D5753B95355D");
 
@@ -356,21 +364,22 @@ int main(void)
      * please set init parameter
      */
     initParams = linkkit_gateway_get_default_params();
-    if (!initParams)
+    if (!initParams) {
         return -1;
+    }
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
     maxMsgSize = 20 * 1024;
-    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));    
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
     maxMsgQueueSize = 8;
-    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));    
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));
 
-	prop_post_reply = 1;
-	linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY, &prop_post_reply, sizeof(int));
-		
-	event_post_reply = 1;
-	linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY, &event_post_reply, sizeof(int));
-	
+    prop_post_reply = 1;
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY, &prop_post_reply, sizeof(int));
+
+    event_post_reply = 1;
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY, &event_post_reply, sizeof(int));
+
     /* set event handler */
     linkkit_gateway_set_event_callback(initParams, event_handler, &gateway);
 
@@ -387,8 +396,9 @@ int main(void)
         return -1;
     }
 
-    while (gateway.register_completed == 0)
+    while (gateway.register_completed == 0) {
         HAL_SleepMs(1000);
+    }
 
     linkkit_gateway_fota_init(linkkit_fota_callback);
 
@@ -410,41 +420,55 @@ int main(void)
         /* linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "testEventODmkIIcDwj", "{\"output\":0}", 10000); */
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_create=======================================\n");
         HAL_SleepMs(2000);
-        res = linkkit_gateway_subdev_create(subdev_pk,subdev_dn,&linkkit_cbs,(void *)&subdev);
-        if (res < SUCCESS_RETURN) {break;}
+        res = linkkit_gateway_subdev_create(subdev_pk, subdev_dn, &linkkit_cbs, (void *)&subdev);
+        if (res < SUCCESS_RETURN) {
+            break;
+        }
         devid = res;
         subdev.lk_dev = devid;
-        EXAMPLE_TRACE("linkkit_gateway_subdev_create, devid: %d\n",devid);
-        
+        EXAMPLE_TRACE("linkkit_gateway_subdev_create, devid: %d\n", devid);
+
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_register=======================================\n");
         HAL_SleepMs(2000);
-        res = linkkit_gateway_subdev_register(subdev_pk,subdev_dn,subdev_ds);
-        if (res != SUCCESS_RETURN) {break;}
-        
+        res = linkkit_gateway_subdev_register(subdev_pk, subdev_dn, subdev_ds);
+        if (res != SUCCESS_RETURN) {
+            break;
+        }
+
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_login=======================================\n");
         HAL_SleepMs(2000);
         res = linkkit_gateway_subdev_login(devid);
-        if (res != SUCCESS_RETURN) {break;}
+        if (res != SUCCESS_RETURN) {
+            break;
+        }
 
         EXAMPLE_TRACE("=================================linkkit_gateway_post_property_json_sync=======================================\n");
         HAL_SleepMs(2000);
-        res = linkkit_gateway_post_property_json_sync(devid,"{\"LightSwitch\":1}",10000);
-        if (res != SUCCESS_RETURN) {break;}
+        res = linkkit_gateway_post_property_json_sync(devid, "{\"LightSwitch\":1}", 10000);
+        if (res != SUCCESS_RETURN) {
+            break;
+        }
 
         EXAMPLE_TRACE("=================================linkkit_gateway_trigger_event_json_sync=======================================\n");
         HAL_SleepMs(2000);
-        res = linkkit_gateway_trigger_event_json_sync(devid,"Error","{\"ErrorCode\":0}",10000);
-        if (res != SUCCESS_RETURN) {break;}
+        res = linkkit_gateway_trigger_event_json_sync(devid, "Error", "{\"ErrorCode\":0}", 10000);
+        if (res != SUCCESS_RETURN) {
+            break;
+        }
 
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_logout=======================================\n");
         HAL_SleepMs(2000);
         res = linkkit_gateway_subdev_logout(devid);
-        if (res != SUCCESS_RETURN) {break;}
+        if (res != SUCCESS_RETURN) {
+            break;
+        }
 
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_unregister=======================================\n");
         HAL_SleepMs(2000);
-        res = linkkit_gateway_subdev_unregister(subdev_pk,subdev_dn);
-        if (res != SUCCESS_RETURN) {break;}
+        res = linkkit_gateway_subdev_unregister(subdev_pk, subdev_dn);
+        if (res != SUCCESS_RETURN) {
+            break;
+        }
 
         EXAMPLE_TRACE("=================================linkkit_gateway_subdev_destroy=======================================\n");
         HAL_SleepMs(2000);

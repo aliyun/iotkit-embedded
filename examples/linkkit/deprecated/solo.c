@@ -47,7 +47,7 @@ typedef struct _sample_context {
 /*
  * please modify this string follow as product's TSL.
  */
-#include "example_tsl_solo.data"
+#include "solo_tsl.data"
 
 /*
  * the callback of linkkit_post_property.
@@ -335,19 +335,28 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         /* generate property identifier HSVColor.Saturation */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Saturation");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &saturation, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         /* generate property identifier HSVColor.Value */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Value");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &value, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Value:%d\n", property, hue, saturation, value);
     } else if (strstr(property, "HSLColor") != 0) {
@@ -357,19 +366,28 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         /* generate property identifier HSLColor.Saturation */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Saturation");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &saturation, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         /* generate property identifier HSLColor.Lightness */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Lightness");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &lightness, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Lightness:%d\n", property, hue, saturation, lightness);
     }  else if (strstr(property, "RGBColor") != 0) {
@@ -379,19 +397,28 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Red");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &red, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         /* generate property identifier RGBColor.Green */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Green");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &green, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         /* generate property identifier RGBColor.Blue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Blue");
         /* get value by linkkit_get_value */
         linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &blue, &value_str);
-        if (value_str) {free(value_str);value_str = NULL;}
+        if (value_str) {
+            free(value_str);
+            value_str = NULL;
+        }
 
         EXAMPLE_TRACE("property(%s), Red:%d, Green:%d, Blue:%d\n", property, red, green, blue);
     }
@@ -452,16 +479,16 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
         rx_rate = wireless_info.rx_rate;
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Band", band, NULL);
-        linkkit_post_property(sample_ctx->thing,"WIFI_Band",post_property_cb);
+        linkkit_post_property(sample_ctx->thing, "WIFI_Band", post_property_cb);
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Channel", &channel, NULL);
-        linkkit_post_property(sample_ctx->thing,"WIFI_Channel",post_property_cb);
+        linkkit_post_property(sample_ctx->thing, "WIFI_Channel", post_property_cb);
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WiFI_RSSI", &rssi, NULL);
-        linkkit_post_property(sample_ctx->thing,"WiFI_RSSI",post_property_cb);
+        linkkit_post_property(sample_ctx->thing, "WiFI_RSSI", post_property_cb);
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WiFI_SNR", &snr, NULL);
-        linkkit_post_property(sample_ctx->thing,"WiFI_SNR",post_property_cb);
+        linkkit_post_property(sample_ctx->thing, "WiFI_SNR", post_property_cb);
 
         memset(val_buf, 0, sizeof(val_buf));
         for (i = 0; i < ETH_ALEN; i++) {
@@ -472,13 +499,13 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
         }
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_AP_BSSID", val_buf, NULL);
-        linkkit_post_property(sample_ctx->thing,"WIFI_AP_BSSID",post_property_cb);
+        linkkit_post_property(sample_ctx->thing, "WIFI_AP_BSSID", post_property_cb);
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Tx_Rate", &tx_rate, NULL);
-        linkkit_post_property(sample_ctx->thing,"WIFI_Tx_Rate",post_property_cb);
+        linkkit_post_property(sample_ctx->thing, "WIFI_Tx_Rate", post_property_cb);
 
         linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Rx_Rate", &rx_rate, NULL);
-        linkkit_post_property(sample_ctx->thing,"WIFI_Rx_Rate",post_property_cb);
+        linkkit_post_property(sample_ctx->thing, "WIFI_Rx_Rate", post_property_cb);
 
         is_post = 1;
         ret = 0;
@@ -510,7 +537,8 @@ int post_all_prop(sample_context_t *sample)
 int trigger_event(sample_context_t *sample)
 {
     char event_output_identifier[64];
-    snprintf(event_output_identifier, sizeof(event_output_identifier), "%s.%s", EVENT_ERROR_IDENTIFIER, EVENT_ERROR_OUTPUT_INFO_IDENTIFIER);
+    snprintf(event_output_identifier, sizeof(event_output_identifier), "%s.%s", EVENT_ERROR_IDENTIFIER,
+             EVENT_ERROR_OUTPUT_INFO_IDENTIFIER);
 
     int errorCode = 0;
     linkkit_set_value(linkkit_method_set_event_output_value,
@@ -538,27 +566,28 @@ int is_active(sample_context_t *sample_ctx)
 #endif
 }
 
-void linkkit_cota_callback(service_cota_callback_type_t callback_type, const char *configid, uint32_t configsize, const char *gettype, const char *sign, const char *signmethod, const char *cota_url)
+void linkkit_cota_callback(service_cota_callback_type_t callback_type, const char *configid, uint32_t configsize,
+                           const char *gettype, const char *sign, const char *signmethod, const char *cota_url)
 {
     char cota_buffer[LINKKIT_OTA_BUFFER_SIZE] = {0};
 
-    EXAMPLE_TRACE("Cota Config ID: %s",configid);
-    EXAMPLE_TRACE("Cota Config Size: %d",configsize);
-    EXAMPLE_TRACE("Cota Get Type: %s",gettype);
-    EXAMPLE_TRACE("Cota Sign: %s",sign);
-    EXAMPLE_TRACE("Cota Sign Method: %s",signmethod);
-    EXAMPLE_TRACE("Cota URL: %s",cota_url);
+    EXAMPLE_TRACE("Cota Config ID: %s", configid);
+    EXAMPLE_TRACE("Cota Config Size: %d", configsize);
+    EXAMPLE_TRACE("Cota Get Type: %s", gettype);
+    EXAMPLE_TRACE("Cota Sign: %s", sign);
+    EXAMPLE_TRACE("Cota Sign Method: %s", signmethod);
+    EXAMPLE_TRACE("Cota URL: %s", cota_url);
 
-    linkkit_invoke_cota_service(cota_buffer,LINKKIT_OTA_BUFFER_SIZE);
+    linkkit_invoke_cota_service(cota_buffer, LINKKIT_OTA_BUFFER_SIZE);
 }
 
-void linkkit_fota_callback(service_fota_callback_type_t callback_type, const char* version)
+void linkkit_fota_callback(service_fota_callback_type_t callback_type, const char *version)
 {
     char fota_buffer[LINKKIT_OTA_BUFFER_SIZE] = {0};
 
-    EXAMPLE_TRACE("Fota Version: %s",version);
+    EXAMPLE_TRACE("Fota Version: %s", version);
 
-    linkkit_invoke_fota_service(fota_buffer,LINKKIT_OTA_BUFFER_SIZE);
+    linkkit_invoke_fota_service(fota_buffer, LINKKIT_OTA_BUFFER_SIZE);
 }
 
 int linkkit_example()

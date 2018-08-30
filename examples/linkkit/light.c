@@ -29,11 +29,11 @@
 #define NELEMS(x)   (sizeof(x) / sizeof((x)[0]))
 
 #define EXAMPLE_TRACE(...)                                      \
-do {                                                     \
-    printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
-    printf(__VA_ARGS__);                                 \
-    printf("\033[0m");                                   \
-} while (0)
+    do {                                                     \
+        printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
+        printf(__VA_ARGS__);                                 \
+        printf("\033[0m");                                   \
+    } while (0)
 
 /* subdev max number
  * please modify this setting to support more subdev, but please note the memory.
@@ -97,8 +97,9 @@ static int light_get_property(char *in, char *out, int out_len, void *ctx)
 
     /* parse input json */
     rJson = cJSON_Parse(in);
-    if (!rJson)
+    if (!rJson) {
         return -1;
+    }
 
     iSize = cJSON_GetArraySize(rJson);
     if (iSize <= 0) {
@@ -166,20 +167,24 @@ static int light_set_property(char *in, void *ctx)
 
     /* parse input json, set the gateway value */
     rJson = cJSON_Parse(in);
-    if (!rJson)
+    if (!rJson) {
         return -1;
+    }
 
     LightSwitch = cJSON_GetObjectItem(rJson, "LightSwitch");
-    if (LightSwitch)
+    if (LightSwitch) {
         light->LightSwitch = LightSwitch->valueint;
+    }
 
     NightLightSwitch = cJSON_GetObjectItem(rJson, "NightLightSwitch");
-    if (NightLightSwitch)
+    if (NightLightSwitch) {
         light->NightLightSwitch = NightLightSwitch->valueint;
+    }
 
     ColorTemperature = cJSON_GetObjectItem(rJson, "ColorTemperature");
-    if (ColorTemperature)
+    if (ColorTemperature) {
         light->ColorTemperature = ColorTemperature->valueint;
+    }
 
     cJSON_Delete(rJson);
 
@@ -218,8 +223,9 @@ int light_init(void)
     int i;
     for (i = 0; i < LIGHT_MAX_NUM; i++) {
         light_t *light = malloc(sizeof(light_t));
-        if (!light)
+        if (!light) {
             break;
+        }
         memset(light, 0, sizeof(light_t));
 
         const light_conf_t *conf = &light_maps[i];
@@ -255,7 +261,7 @@ int light_init(void)
         /*
          * login subdev
          */
-        #if (0)
+#if (0)
         if (linkkit_gateway_subdev_login(light->devid) < 0) {
             EXAMPLE_TRACE("linkkit_gateway_subdev_login %s<%s> failed\n", light->deviceName, light->productKey);
             linkkit_gateway_subdev_destroy(light->devid);
@@ -263,7 +269,7 @@ int light_init(void)
             free(light);
             break;
         }
-        #endif
+#endif
 
         lights[i] = light;
     }
@@ -278,8 +284,9 @@ int light_exit(void)
     int i;
     for (i = 0; i < LIGHT_MAX_NUM; i++) {
         light_t *light = lights[i];
-        if (!light)
+        if (!light) {
             continue;
+        }
 
         /*
          * logout subdev

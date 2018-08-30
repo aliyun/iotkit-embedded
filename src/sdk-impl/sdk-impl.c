@@ -97,7 +97,7 @@ int IOT_SetupConnInfo(const char *product_key,
         memcpy(device_secret_actual, device_secret, strlen(device_secret));
 #else
         if (device_secret == NULL || strlen(device_secret) == 0) {
-            LITE_get_randstr(device_secret_actual, DEVICE_SECRET_MAXLEN -1 );
+            LITE_get_randstr(device_secret_actual, DEVICE_SECRET_MAXLEN - 1);
         } else {
             memcpy(device_secret_actual, device_secret, strlen(device_secret));
         }
@@ -109,8 +109,7 @@ int IOT_SetupConnInfo(const char *product_key,
 
             *(device_secret_actual + device_secret_len) = 0;
             HAL_SetDeviceSecret(device_secret_actual);
-        }
-        else {
+        } else {
             /* KV not exit, goto dynamic register */
             sdk_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
 
@@ -121,13 +120,13 @@ int IOT_SetupConnInfo(const char *product_key,
                 return FAIL_RETURN;
             }
             STRING_PTR_SANITY_CHECK(product_secret, -1);
-            
+
             rc = perform_dynamic_register((char *)product_key, (char *)product_secret, (char *)device_name, device_secret_actual);
             if (rc != SUCCESS_RETURN) {
                 sdk_err("Dynamic Register Failed");
                 return FAIL_RETURN;
             }
-            
+
             device_secret_len = strlen(device_secret_actual);
             if (HAL_Kv_Set(KV_KEY_DEVICE_SECRET, device_secret_actual, device_secret_len, 1) != 0) {
                 sdk_err("Save Device Secret to KV Failed");
