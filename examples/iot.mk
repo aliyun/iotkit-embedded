@@ -16,10 +16,10 @@ CFLAGS              := $(filter-out -DCOAP_COMM_ENABLED,$(CFLAGS))
 endif
 
 ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
-TARGET                          += mqtt-example mqtt_example_rrpc mqtt_example_multithread
+TARGET                          += mqtt-example mqtt-example-rrpc mqtt-example-multithread
 SRCS_mqtt-example               := mqtt/mqtt-example.c
-SRCS_mqtt_example_rrpc          := mqtt/mqtt_example_rrpc.c
-SRCS_mqtt_example_multithread   := mqtt/mqtt_example_multithread.c
+SRCS_mqtt-example-rrpc          := mqtt/mqtt_example_rrpc.c
+SRCS_mqtt-example-multithread   := mqtt/mqtt_example_multithread.c
 
     ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
     ifneq (,$(filter -DOTA_SIGNAL_CHANNEL=1,$(CFLAGS)))
