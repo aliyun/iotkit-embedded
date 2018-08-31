@@ -133,6 +133,7 @@ config:
 
 DL_TOOLCHAIN_VARS = \
     TOOLCHAIN_DLDIR \
+    OUTPUT_DIR \
 
 toolchain:
 	@$(foreach V,$(DL_TOOLCHAIN_VARS),$(V)=$($(V))) \
