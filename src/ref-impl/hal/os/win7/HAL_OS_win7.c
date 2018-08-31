@@ -90,6 +90,7 @@ uint64_t HAL_UptimeMs(void)
     return (uint64_t)(GetTickCount());
 }
 
+#if 0
 char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
 {
     time_t t;
@@ -104,6 +105,7 @@ char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
     strftime(buf, 28, "%m-%d %H:%M:%S", local);
     return buf;
 }
+#endif  /* #if 0 */
 
 void HAL_SleepMs(_IN_ uint32_t ms)
 {
@@ -301,6 +303,7 @@ int HAL_GetFirmwareVesion(_OU_ char* version)
     return strlen(version);
 }
 
+#if 0
 void *HAL_SemaphoreCreate(void)
 {
     sem_t *sem = (sem_t *)malloc(sizeof(sem_t));
@@ -387,6 +390,7 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
         pthread_cancel((pthread_t)thread_handle);
     }
 }
+#endif  /* #if 0 */
 
 #ifdef __DEMO__
 static FILE *fp;
@@ -427,6 +431,17 @@ int HAL_Firmware_Persistence_Stop(void)
     /* check file md5, and burning it to flash ... finally reboot system */
     return 0;
 }
+
+int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
+{
+    return 0;
+}
+
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
+{
+    return 0;
+}
+
 
 void HAL_UTC_Set(int64_t ms)
 {

@@ -1,3 +1,4 @@
+#if defined(OTA_ENABLED)
 /**
  * Copyright (C) 2017 The YunOS Project. All rights reserved.
  */
@@ -399,3 +400,4 @@ ali_crypto_result ali_hash_copy_context(void *dst_ctx, void *src_ctx)
     OSA_memcpy(hash_ctx_dst, hash_ctx_src, sizeof(hash_ctx_t));
     return ALI_CRYPTO_SUCCESS;
 }
+#endif  /* #if defined(OTA_ENABLED) */

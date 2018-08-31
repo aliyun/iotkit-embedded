@@ -108,3 +108,8 @@ ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
     SRCS_linkkit-example-sched = linkkit/linkkit_example_sched.c
  
 endif
+
+ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
+    TARGET                          := mqtt-example
+    SRCS                            := mqtt/mqtt-example.c
+endif

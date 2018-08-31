@@ -34,3 +34,6 @@ endif
 ifeq ($(strip $(HAS_POST_HOOK)), 1)
 	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))
 endif
+ifneq (,$(filter all,$(strip $(MAKECMDGOALS))))
+	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))
+endif
