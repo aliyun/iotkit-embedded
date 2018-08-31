@@ -240,7 +240,6 @@ static int property_set_handle(const int devid, const char *payload, const int p
 {
     int ret = -1;
     int powerSwitch = 0;
-    int timeLeft = 0;
     int isRunning = 0;
     cJSON *root, *prop, *item;
     app_context_t *app_ctx = app_get_context();
@@ -290,8 +289,8 @@ static int property_set_handle(const int devid, const char *payload, const int p
     /* Get timeLeft value */
     item = cJSON_GetObjectItem(prop, PROPERTY_ITEM_TIMELEFT);
     if (item != NULL && cJSON_IsNumber(item)) {
-        timeLeft = item->valueint;
-        APP_TRACE("TimeLeft is %d", timeLeft);
+        app_ctx->timeleft = item->valueint;
+        APP_TRACE("TimeLeft is %d", app_ctx->timeleft);
     } else {
         cJSON_Delete(root);
         return ret;
@@ -322,7 +321,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
 
     /* Start or stop timer according to "IsRunning" */
     if (isRunning == 1) {
-        app_timer_start(app_ctx->timerHandle, timeLeft);
+        app_timer_start(app_ctx->timerHandle, app_ctx->timeleft);
         /* temp powerswitch value to app context */
         app_ctx->powerSwitch_Target = powerSwitch;
     } else if (isRunning == 0) {
@@ -399,6 +398,7 @@ int linkkit_example()
     app_ctx.timerHandle = app_timer_open(NULL);
     app_ctx.powerSwitch_Actual = 0;     /* assume initial status of PowerSwitch is 0 */
     app_ctx.powerSwitch_Target = 0;
+    app_ctx.timeleft = 0;
     app_set_context(&app_ctx);
 
     /* init linkkit device metadata */

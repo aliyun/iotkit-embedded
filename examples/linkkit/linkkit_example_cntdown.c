@@ -89,7 +89,6 @@ static void app_timer_expired_handle(void *ctx)
 {
     int ret = -1;
     app_context_t *app_ctx = (app_context_t *)ctx;
-    int timeLeft = 0;
     int isrunning = 0;
 
     APP_TRACE("app timer expired!\r\n");
@@ -117,13 +116,6 @@ static void app_timer_expired_handle(void *ctx)
     APP_TRACE("app post property \"%s\" succeed", app_ctx->prop_powerswitch);
 
     /* Set CountDown property then post */
-    ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_countdown_timelf, &timeLeft,
-                            NULL);
-    if (ret != SUCCESS_RETURN) {
-        APP_TRACE("app set property \"%s\" failed", app_ctx->prop_countdown);
-        return;
-    }
-
     ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_countdown_isrun, &isrunning,
                             NULL);
     if (ret != SUCCESS_RETURN) {
