@@ -31,9 +31,14 @@ endif
 	if [ "$$(ls $(FINAL_DIR)/lib/*.so 2>/dev/null)" != "" ]; then \
 	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" && exit 1); \
 	fi
+
 ifeq ($(strip $(HAS_POST_HOOK)), 1)
 	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))
 endif
 ifneq (,$(filter all,$(strip $(MAKECMDGOALS))))
 	$(TOP_Q)+$(call $(POST_FINAL_OUT_HOOK))
 endif
+
+	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
+	    CFLAGS=$(CFLAGS) \
+	    bash $(RULE_DIR)/scripts/gen_rom_stats.sh

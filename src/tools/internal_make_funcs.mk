@@ -39,14 +39,6 @@ define Post_Distro
         } \
         print "+-- "$$NF}' FS='/' | sed 's!\(.*\)!    &!g'
     @echo ""
-
-    @if [ "$(CONFIG_LIB_EXPORT)" = "static" ]; then \
-        echo "o BINARY FOOTPRINT CONSIST:"; \
-        echo "----"; \
-        STAGED=$(LIBOBJ_TMPDIR) STRIP=$(strip $(STRIP)) bash $(RULE_DIR)/scripts/stats_static_lib.sh $(FINAL_DIR)/lib/$(COMP_LIB); \
-    fi
-
     @echo "========================================================================="
-    @echo ""
 endef
 
