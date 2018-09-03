@@ -18,10 +18,13 @@
 #include "mqtt_instance.h"
 
 #ifndef BUILD_AOS
+#ifdef _PLATFORM_IS_LINUX_
 #include <unistd.h>
-#include <sys/reboot.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <sys/reboot.h>
+#include "network.h"
+#endif
 #else
 #include <aos/aos.h>
 #include <aos/yloop.h>
@@ -733,6 +736,26 @@ int ota_timer_start(void *timer, int ms)
 #endif /*Linux end*/
 #endif/*Linkkit end*/
 
+/*Socket API*/
+int ota_socket_connect(char *host, int port)
+{
+   return HAL_TCP_Establish(host, port);
+}
+
+int ota_socket_send(int fd, char *buf, size_t len)
+{
+   return HAL_TCP_Write((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
+}
+
+int ota_socket_recv(int fd,  char *buf, size_t len)
+{
+   return HAL_TCP_Read((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
+}
+
+void ota_socket_close(int fd)
+{
+   HAL_TCP_Destroy((uintptr_t)fd);
+}
 
 /*SSL connect*/
 void *ota_ssl_connect(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len)
@@ -779,11 +802,7 @@ int ota_HAL_GetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN])
 /*Reboot*/
 void ota_reboot(void)
 {
-#ifdef BUILD_AOS
-    aos_reboot();
-#else
-    reboot(0);
-#endif
+   HAL_Sys_reboot();
 }
 
 

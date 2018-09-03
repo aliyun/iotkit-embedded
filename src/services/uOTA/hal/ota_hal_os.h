@@ -79,6 +79,12 @@ int ota_HAL_GetProductSecret(char ps[PRODUCT_SECRET_MAXLEN]);
 int ota_HAL_GetDeviceName(char dn[DEVICE_NAME_MAXLEN]);
 int ota_HAL_GetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN]);
 
+/*Socket API*/
+int ota_socket_connect(char *host, int port);
+int ota_socket_send(int fd,  char *buf, size_t len);
+int ota_socket_recv(int fd,  char *buf, size_t len);
+void ota_socket_close(int fd);
+
 /*SSL*/
 void* ota_ssl_connect(const char *host, uint16_t port, const char *ca_crt,uint32_t ca_crt_len);
 int32_t ota_ssl_send(void* ssl,  char *buf, uint32_t len);

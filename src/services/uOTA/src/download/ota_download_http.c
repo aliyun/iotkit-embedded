@@ -13,7 +13,6 @@
 #include "ota_util.h"
 #include "ota_log.h"
 #include "ota_manifest.h"
-#include "ota_socket.h"
 #include "ota_verify.h"
 #include "ota_hal_os.h"
 
@@ -240,7 +239,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
          ((isHttps) ? ota_ssl_recv(ssl, http_buffer, OTA_BUFFER_MAX_SIZE - 1)
                     : ota_socket_recv(sockfd, http_buffer,
                                       OTA_BUFFER_MAX_SIZE - 1))) != 0) {
-        if((nbytes <= 0)&&(retry <= 3)){
+        if((nbytes <= 0)&&(retry <= 5)){
              retry++;
              OTA_LOG_I("retry cn:%d",retry);
              continue;
@@ -251,11 +250,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
             OTA_LOG_I("ota_socket_recv nbytes < 0");
             if (errno != EINTR) {
                 break;
-            }
-            if (sockfd&&(ota_socket_check_conn(sockfd)) < 0) {
-                OTA_LOG_E("download system error %s", strerror(errno));
-                break;
-            } else {
+            }else {
                 continue;
             }
         }

@@ -9,7 +9,6 @@ LIB_SRCS_PATTERN    := \
     src/download/ota_manifest.c \
     src/download/ota_download_http.c \
     src/download/ota_download_coap.c \
-    src/download/ota_socket.c \
     src/verify/ota_util.c \
     src/verify/ota_verify.c \
     src/utility/chip_code/chip_code.c \
