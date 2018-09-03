@@ -265,7 +265,7 @@ int ota_check_image(ota_read_cb_t read_fuc)
 {
     int                   ret     = 0;
     int                   i       = 0;
-    volatile unsigned int off_set = 0;
+    volatile uint32_t off_set = 0;
     CRC16_Context         bin_crc16_Context;
     unsigned short        bin_parse_context_crc = 0;
     unsigned char         image_md5_value[33] = {0};
