@@ -24,6 +24,14 @@ endif
 	fi
 
 	$(TOP_Q) \
+( \
+	mkdir -p $(FINAL_DIR)/include && \
+	if [ "$$(ls -d $(FINAL_DIR)/include/)" != "" ]; then \
+	    cp -fr src/sdk-impl/* $(FINAL_DIR)/include; \
+	fi; \
+)
+
+	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/bin/)" != "" ]; then \
 	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
 	fi
