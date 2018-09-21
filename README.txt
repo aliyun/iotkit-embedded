@@ -1,4 +1,4 @@
-阿里云IoT嵌入式 C Link Kit SDK v2.2.1 说明
+阿里云IoT嵌入式 C Link Kit SDK v2.2.1.1 说明
 
 1. 用途
 

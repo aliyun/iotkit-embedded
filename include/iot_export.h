@@ -65,7 +65,7 @@ typedef enum IOTX_CLOUD_DOMAIN_TYPES {
 #define DEVICE_SECRET_LEN   (64)
 #define PRODUCT_SECRET_LEN  (64)
 
-#define LINKKIT_VERSION     "2.2.1"
+#define LINKKIT_VERSION     "2.2.1.1"
 #define MODULE_VENDOR_ID    (32)    /* Partner ID */
 
 #define HOST_ADDRESS_LEN    (128)
