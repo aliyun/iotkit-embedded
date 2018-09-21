@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
 
     printf("Hello OTA.\n");
     IOT_OpenLog("uOTA");
-    IOT_SetLogLevel(LOG_DEBUG_LEVEL);
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     ota_service_init(&ctx);
     while(1){

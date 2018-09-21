@@ -29,7 +29,7 @@
 #define LOG_H
 #include <stdio.h>
 #include "os.h"
-//#include "lite-log.h"
+#include "iotx_log.h"
 extern unsigned int log_level;
 static inline unsigned int log_get_level(void)
 {
