@@ -62,7 +62,9 @@ static const char string_profile_deviceName[] __DM_READ_ONLY__ = "profile.device
 static const char string_input[] __DM_READ_ONLY__ = "input";
 static const char string_output[] __DM_READ_ONLY__ = "output";
 static const char string_false[] __DM_READ_ONLY__ = "false";
+#ifdef ENABLE_THING_DEBUG
 static const char string_true[] __DM_READ_ONLY__ = "true";
+#endif
 
 #ifdef USING_UTILS_JSON
 #define KEY_BUFF_SIZE 32

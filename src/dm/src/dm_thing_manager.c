@@ -30,7 +30,6 @@ static const char string_thing_event_property_post[] __DM_READ_ONLY__ = "thing.e
 static const char string_method_name_thing_enable[] __DM_READ_ONLY__ = METHOD_NAME_THING_ENABLE;
 static const char string_method_name_thing_disable[] __DM_READ_ONLY__ = METHOD_NAME_THING_DISABLE;
 static const char string_method_name_thing_delete[] __DM_READ_ONLY__ = METHOD_NAME_THING_DELETE;
-static const char string_method_name_thing_dsl_post_reply[] __DM_READ_ONLY__ = METHOD_NAME_THING_DSL_POST_REPLY;
 static const char string_method_name_thing_dsl_get[] __DM_READ_ONLY__ = METHOD_NAME_THING_DSL_GET;
 static const char string_method_name_thing_dsl_get_reply[] __DM_READ_ONLY__ = METHOD_NAME_THING_DSL_GET_REPLY;
 static const char string_method_name_down_raw[] __DM_READ_ONLY__ = METHOD_NAME_DOWN_RAW;
