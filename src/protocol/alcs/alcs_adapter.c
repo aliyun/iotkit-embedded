@@ -1,9 +1,14 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+
+
 #include <stddef.h>
 #include <string.h>
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "linked_list.h"
 #include "alcs_api.h"
 #include "alcs_coap.h"
 #include "alcs_mqtt.h"
@@ -12,12 +17,10 @@
 #include "CoAPServer.h"
 #include "alcs_adapter.h"
 #include "alcs_mqtt.h"
+#include "alcs_localsetup.h"
 #include "CoAPPlatform.h"
 
 static iotx_alcs_adapter_t g_alcs_adapter;
-
-extern void on_client_auth_timer(CoAPContext *);
-extern void on_svr_auth_timer(CoAPContext *);
 
 static void alcs_heartbeat(void *handle);
 
@@ -82,18 +85,22 @@ static char *iotx_alcs_topic_parse_dn(char *topic, uint16_t *length)
     return pos;
 }
 
-int iotx_alcs_coap_ack_send(CoAPContext *context, NetworkAddr *remote, unsigned short msgid)
+static int _iotx_alcs_send_list_search_and_remove(iotx_alcs_adapter_t *adapter, CoAPMessage *message,
+        iotx_alcs_send_msg_t **send_msg)
 {
-    int ret   = COAP_SUCCESS;
-    CoAPMessage message;
-    CoAPIntContext *ctx = (CoAPIntContext *)context;
+    iotx_alcs_send_msg_t *node = NULL;
+    iotx_alcs_send_msg_t *next = NULL;
 
-    CoAPMessage_init(&message);
-    CoAPMessageId_set(&message, msgid);
-    COAP_INFO("Send Ack Response Message: %d", msgid);
-    ret = CoAPMessage_send(ctx, remote, &message);
-    CoAPMessage_destory(&message);
-    return ret;
+    list_for_each_entry_safe(node, next, &adapter->alcs_send_list, linked_list, iotx_alcs_send_msg_t) {
+        if (message->header.tokenlen == node->token_len &&
+            memcmp(message->token, node->token, node->token_len) == 0) {
+            *send_msg = node;
+            list_del(&node->linked_list);
+            return SUCCESS_RETURN;
+        }
+    }
+
+    return FAIL_RETURN;
 }
 
 void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
@@ -102,6 +109,7 @@ void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
         NetworkAddr *remote,
         CoAPMessage *message)
 {
+    int res = 0;
     iotx_alcs_adapter_t *adapter = (iotx_alcs_adapter_t *)userdata;
     iotx_alcs_event_msg_t event;
     memset(&event, 0, sizeof(iotx_alcs_event_msg_t));
@@ -115,11 +123,11 @@ void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
 
             transfer_msg.ip = (char *)remote->addr;
             transfer_msg.port = remote->port;
-            linked_list_iterator(adapter->alcs_send_list,
-                                 iotx_alcs_send_list_handle,
-                                 &send_msg,
-                                 message->token);
-            if (send_msg == NULL) {
+            HAL_MutexLock(adapter->mutex);
+            res = _iotx_alcs_send_list_search_and_remove(adapter, message, &send_msg);
+            HAL_MutexUnlock(adapter->mutex);
+
+            if (res < SUCCESS_RETURN) {
                 return;
             }
 
@@ -134,7 +142,6 @@ void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
 
             adapter->alcs_event_handle->h_fp(adapter->alcs_event_handle->pcontext, (void *)adapter, &event);
 
-            linked_list_remove(adapter->alcs_send_list, send_msg);
             LITE_free(send_msg->token);
             LITE_free(send_msg->uri);
             LITE_free(send_msg);
@@ -148,12 +155,11 @@ void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
 
             transfer_msg.ip = (char *)remote->addr;
             transfer_msg.port = remote->port;
-            linked_list_iterator(adapter->alcs_send_list,
-                                 iotx_alcs_send_list_handle,
-                                 &send_msg,
-                                 message->token);
+            HAL_MutexLock(adapter->mutex);
+            res = _iotx_alcs_send_list_search_and_remove(adapter, message, &send_msg);
+            HAL_MutexUnlock(adapter->mutex);
 
-            if (send_msg == NULL) {
+            if (res < SUCCESS_RETURN) {
                 return;
             }
 
@@ -168,7 +174,6 @@ void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
 
             adapter->alcs_event_handle->h_fp(adapter->alcs_event_handle->pcontext, (void *)adapter, &event);
 
-            linked_list_remove(adapter->alcs_send_list, send_msg);
             LITE_free(send_msg->token);
             LITE_free(send_msg->uri);
             LITE_free(send_msg);
@@ -180,68 +185,43 @@ void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
     }
 }
 
-void iotx_alcs_coap_adapter_recv_msg_handle(CoAPContext *context, const char *paths, NetworkAddr *remote,
-        CoAPMessage *message)
-{
-    iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
-    iotx_alcs_transfer_msg_t transfer_msg;
-    iotx_alcs_event_msg_t event;
-
-    memset(&transfer_msg, 0, sizeof(iotx_alcs_transfer_msg_t));
-    memset(&event, 0, sizeof(iotx_alcs_event_msg_t));
-
-    transfer_msg.ip = (char *)remote->addr;
-    transfer_msg.port = remote->port;
-    transfer_msg.uri = (char *)paths;
-    transfer_msg.token_len = message->header.tokenlen;
-    transfer_msg.token = message->token;
-    transfer_msg.payload_len = message->payloadlen;
-    transfer_msg.payload = message->payload;
-
-    event.event_type = IOTX_ALCS_EVENT_MSG_RECV_MESSAGE;
-    event.msg = (void *)&transfer_msg;
-
-    iotx_alcs_coap_ack_send(context, remote, message->header.msgid);
-
-    adapter->alcs_event_handle->h_fp(adapter->alcs_event_handle->pcontext, (void *)adapter, &event);
-}
-
 void iotx_alcs_coap_adapter_event_notifier(unsigned int event, NetworkAddr *remote, void *message)
 {
     COAP_INFO("ALCS Coap Event: %d, Remote Device Address: %s, Remote Device Port: %d",
               event, remote->addr, remote->port);
 }
 
-void iotx_alcs_send_list_handle(void *list_node, va_list *params)
-{
-    iotx_alcs_send_msg_t *send_msg = (iotx_alcs_send_msg_t *)list_node;
-
-    iotx_alcs_send_msg_t **match_msg = NULL;
-    unsigned char *token = NULL;
-
-    match_msg = va_arg(*params, iotx_alcs_send_msg_t **);
-    token = va_arg(*params, unsigned char *);
-
-    if (memcmp(send_msg->token, token, send_msg->token_len) == 0) {
-        *match_msg = send_msg;
-    }
-}
-
 int iotx_alcs_adapter_list_init(iotx_alcs_adapter_t *adapter)
 {
     //initialze send list
-    adapter->alcs_send_list = linked_list_create("alcs send list", 1);
-    if (adapter->alcs_send_list == NULL) {
-        return FAIL_RETURN;
-    }
-
-    adapter->alcs_subdev_list = linked_list_create("alcs subdev list", 1);
-    if (adapter->alcs_subdev_list == NULL) {
-        linked_list_destroy(adapter->alcs_send_list);
-        return FAIL_RETURN;
-    }
+    INIT_LIST_HEAD(&adapter->alcs_send_list);
+    INIT_LIST_HEAD(&adapter->alcs_subdev_list);
 
     return SUCCESS_RETURN;
+}
+
+static void _iotx_alcs_adapter_send_list_destroy(iotx_alcs_adapter_t *adapter)
+{
+    iotx_alcs_send_msg_t *node = NULL;
+    iotx_alcs_send_msg_t *next = NULL;
+
+    list_for_each_entry_safe(node, next, &adapter->alcs_send_list, linked_list, iotx_alcs_send_msg_t) {
+        list_del(&node->linked_list);
+        LITE_free(node->token);
+        LITE_free(node->uri);
+        LITE_free(node);
+    }
+}
+
+static void _iotx_alcs_adapter_subdev_list_destroy(iotx_alcs_adapter_t *adapter)
+{
+    iotx_alcs_send_msg_t *node = NULL;
+    iotx_alcs_send_msg_t *next = NULL;
+
+    list_for_each_entry_safe(node, next, &adapter->alcs_send_list, linked_list, iotx_alcs_send_msg_t) {
+        list_del(&node->linked_list);
+        LITE_free(node);
+    }
 }
 
 int iotx_alcs_adapter_deinit(void)
@@ -253,23 +233,16 @@ int iotx_alcs_adapter_deinit(void)
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
 
-    if (adapter->alcs_send_list) {
-        linked_list_destroy(adapter->alcs_send_list);
-        adapter->alcs_send_list = NULL;
-    }
-
-    if (adapter->alcs_subdev_list) {
-        linked_list_destroy(adapter->alcs_subdev_list);
-        adapter->alcs_subdev_list = NULL;
-    }
+    HAL_MutexLock(adapter->mutex);
+    _iotx_alcs_adapter_send_list_destroy(adapter);
+    _iotx_alcs_adapter_subdev_list_destroy(adapter);
+    HAL_MutexUnlock(adapter->mutex);
 
     if (adapter->alcs_event_handle) {
         LITE_free(adapter->alcs_event_handle);
     }
 
-    if (adapter->mutex) {
-        HAL_MutexDestroy(adapter->mutex);
-    }
+    HAL_MutexDestroy(adapter->mutex);
 
     alcs_mqtt_deinit(adapter->coap_ctx, product_key, device_name);
 
@@ -340,14 +313,19 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
         return FAIL_RETURN;
     }
     adapter->role = param->role;
-
+#ifdef ALCS_SERVER_ENABLED
+    extern void on_svr_auth_timer(CoAPContext *);
     if (adapter->role & IOTX_ALCS_ROLE_SERVER) {
         adapter->alcs_server_auth_timer_func = on_svr_auth_timer;
     }
+#endif
 
+#ifdef ALCS_CLIENT_ENABLED
+    extern void on_client_auth_timer(CoAPContext *);
     if (adapter->role & IOTX_ALCS_ROLE_CLIENT) {
         adapter->alcs_client_auth_timer_func = on_client_auth_timer;
     }
+#endif
 
     adapter->alcs_event_handle = (iotx_alcs_event_handle_t *)ALCS_ADAPTER_malloc(sizeof(iotx_alcs_event_handle_t));
     if (adapter->alcs_event_handle == NULL) {
@@ -363,112 +341,64 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
         return FAIL_RETURN;
     }
 
-    return SUCCESS_RETURN;
-}
-
-void iotx_alcs_subdev_search_iterator(void *list_node, va_list *params)
-{
-    iotx_alcs_subdev_item_t *item_node = (iotx_alcs_subdev_item_t *)list_node;
-
-    if (item_node == NULL) {
-        COAP_ERR("Not Found Item Node");
-        return;
-    }
-
-    const char *pk = va_arg(*params, const char *);
-    const char *dn = va_arg(*params, const char *);
-    iotx_alcs_subdev_item_t **subdev_item = va_arg(*params, iotx_alcs_subdev_item_t **);
-
-    if (memcmp(item_node->product_key, pk, strlen(pk)) == 0 &&
-        memcmp(item_node->device_name, dn, strlen(dn)) == 0) {
-        *subdev_item = item_node;
-    }
-}
-
-int iotx_alcs_subdev_insert(iotx_alcs_subdev_item_t *item)
-{
-    iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
-
-    if (item == NULL) {
-        COAP_ERR("Invalid Parameter");
-        return FAIL_RETURN;
-    }
-
-    linked_list_insert(adapter->alcs_subdev_list, item);
+    alcs_localsetup_init(adapter, coap_ctx, product_key, device_name);
 
     return SUCCESS_RETURN;
 }
 
-int iotx_alcs_subdev_remove(const char *pk, const char *dn)
+static int _iotx_alcs_subdev_list_search(const char *pk, const char *dn, iotx_alcs_subdev_item_t **subdev_item)
 {
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
+    iotx_alcs_subdev_item_t *node = NULL;
 
     if (pk == NULL || dn == NULL) {
         COAP_ERR("Invalid Parameter");
         return FAIL_RETURN;
     }
 
-    iotx_alcs_subdev_item_t *subdev_item = NULL;
-    linked_list_iterator(adapter->alcs_subdev_list, iotx_alcs_subdev_search_iterator, pk, dn, &subdev_item);
+    list_for_each_entry(node, &adapter->alcs_subdev_list, linked_list, iotx_alcs_subdev_item_t) {
+        if (strlen(node->product_key) == strlen(pk) &&
+            memcmp(node->product_key, pk, strlen(pk)) == 0 &&
+            strlen(node->device_name) == strlen(dn) &&
+            memcmp(node->device_name, dn, strlen(dn)) == 0) {
+            *subdev_item = node;
+            return SUCCESS_RETURN;
+        }
+    }
 
-    if (subdev_item == NULL) {
-        COAP_ERR("No Matched Item");
+    return FAIL_RETURN;
+}
+
+int iotx_alcs_subdev_remove(const char *pk, const char *dn)
+{
+    int res = 0;
+    iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
+    iotx_alcs_subdev_item_t *subdev_item = NULL;
+
+    if (pk == NULL || dn == NULL) {
+        COAP_ERR("Invalid Parameter");
         return FAIL_RETURN;
     }
 
-    linked_list_remove(adapter->alcs_subdev_list, (void *)subdev_item);
+    HAL_MutexLock(adapter->mutex);
+    res = _iotx_alcs_subdev_list_search(pk, dn, &subdev_item);
+    if (res < SUCCESS_RETURN) {
+        COAP_ERR("No Matched Item");
+        HAL_MutexUnlock(adapter->mutex);
+        return FAIL_RETURN;
+    }
+
+    list_del(&subdev_item->linked_list);
+    HAL_MutexUnlock(adapter->mutex);
+
     LITE_free(subdev_item);
-
-    return SUCCESS_RETURN;
-}
-
-int iotx_alcs_subdev_search(const char *pk, const char *dn, iotx_alcs_subdev_item_t **item)
-{
-    iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
-
-    if (pk == NULL || strlen(pk) >= PRODUCT_KEY_MAXLEN ||
-        dn == NULL || strlen(dn) >= DEVICE_NAME_MAXLEN ||
-        item == NULL || *item != NULL) {
-        COAP_ERR("Invalid Parameter");
-        return FAIL_RETURN;
-    }
-
-    linked_list_iterator(adapter->alcs_subdev_list, iotx_alcs_subdev_search_iterator, pk, dn, item);
-
-    if (*item == NULL) {
-        COAP_ERR("No Matched Subdev");
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int iotx_alcs_subdev_update_prefix_secret(iotx_alcs_subdev_item_t *item)
-{
-    iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
-    iotx_alcs_subdev_item_t *subdev_item = NULL;
-
-    if (item == NULL) {
-        COAP_ERR("Invalid Parameter");
-        return FAIL_RETURN;
-    }
-
-    linked_list_iterator(adapter->alcs_subdev_list, iotx_alcs_subdev_search_iterator,
-                         item->product_key, item->device_name, &subdev_item);
-
-    if (subdev_item == NULL) {
-        COAP_ERR("No Matched Item");
-        return FAIL_RETURN;
-    }
-
-    memcpy(subdev_item->prefix, item->prefix, ALCS_MQTT_PREFIX_MAX_LEN);
-    memcpy(subdev_item->secret, item->secret, ALCS_MQTT_SECRET_MAX_LEN);
 
     return SUCCESS_RETURN;
 }
 
 int iotx_alcs_subdev_update_stage(iotx_alcs_subdev_item_t *item)
 {
+    int res = 0;
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
     iotx_alcs_subdev_item_t *subdev_item = NULL;
 
@@ -477,42 +407,41 @@ int iotx_alcs_subdev_update_stage(iotx_alcs_subdev_item_t *item)
         return FAIL_RETURN;
     }
 
-    linked_list_iterator(adapter->alcs_subdev_list, iotx_alcs_subdev_search_iterator,
-                         item->product_key, item->device_name, &subdev_item);
+    HAL_MutexLock(adapter->mutex);
+    res = _iotx_alcs_subdev_list_search(item->product_key, item->device_name, &subdev_item);
 
-    if (subdev_item == NULL) {
-        COAP_ERR("No Matched Item");
+    if (res < SUCCESS_RETURN) {
+        COAP_WRN("No Matched Item");
+        HAL_MutexUnlock(adapter->mutex);
         return FAIL_RETURN;
     }
 
     subdev_item->stage = item->stage;
 
+    HAL_MutexUnlock(adapter->mutex);
     return SUCCESS_RETURN;
-}
-
-void iotx_alcs_subdev_stage_iterator(void *list_node, va_list *params)
-{
-    iotx_alcs_subdev_item_t *item_node = (iotx_alcs_subdev_item_t *)list_node;
-
-    uint64_t time_now = HAL_UptimeMs();
-
-    if (item_node->stage == IOTX_ALCS_SUBDEV_DISCONNCET_CLOUD) {
-        if (((time_now > item_node->retry_ms) &&
-             (time_now - item_node->retry_ms >= IOTX_ALCS_SUBDEV_RETRY_INTERVAL_MS)) ||
-            ((time_now <= item_node->retry_ms) &&
-             ((0xFFFFFFFFFFFFFFFF - item_node->retry_ms) + time_now >= IOTX_ALCS_SUBDEV_RETRY_INTERVAL_MS))) {
-            //Get Prefix And Secret From Cloud
-            alcs_mqtt_subdev_prefix_get(item_node->product_key, item_node->device_name);
-            item_node->retry_ms = time_now;
-        }
-    }
 }
 
 void iotx_alcs_subdev_stage_check(void)
 {
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
+    iotx_alcs_subdev_item_t *node = NULL;
+    uint64_t time_now = HAL_UptimeMs();
 
-    linked_list_iterator(adapter->alcs_subdev_list, iotx_alcs_subdev_stage_iterator);
+    HAL_MutexLock(adapter->mutex);
+    list_for_each_entry(node, &adapter->alcs_subdev_list, linked_list, iotx_alcs_subdev_item_t) {
+        if (node->stage == IOTX_ALCS_SUBDEV_DISCONNCET_CLOUD) {
+            if (((time_now > node->retry_ms) &&
+                 (time_now - node->retry_ms >= IOTX_ALCS_SUBDEV_RETRY_INTERVAL_MS)) ||
+                ((time_now <= node->retry_ms) &&
+                 ((0xFFFFFFFFFFFFFFFF - node->retry_ms) + time_now >= IOTX_ALCS_SUBDEV_RETRY_INTERVAL_MS))) {
+                //Get Prefix And Secret From Cloud
+                alcs_mqtt_subdev_prefix_get(node->product_key, node->device_name);
+                node->retry_ms = time_now;
+            }
+        }
+    }
+    HAL_MutexUnlock(adapter->mutex);
 }
 
 void *iotx_alcs_construct(iotx_alcs_param_t *params)
@@ -538,7 +467,7 @@ void *iotx_alcs_construct(iotx_alcs_param_t *params)
 
 int iotx_alcs_cloud_init(void *handle)
 {
-    COAP_ERR("Start ALCS Cloud Init");
+    COAP_INFO("Start ALCS Cloud Init");
     int res = 0;
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
     char product_key[PRODUCT_KEY_MAXLEN] = {0};
@@ -719,8 +648,11 @@ int iotx_alcs_send(void *handle, iotx_alcs_msg_t *msg)
     }
     memset(alcs_send_msg->uri, 0, strlen(msg->uri) + 1);
     memcpy(alcs_send_msg->uri, msg->uri, strlen(msg->uri));
+    INIT_LIST_HEAD(&alcs_send_msg->linked_list);
 
-    linked_list_insert(adapter->alcs_send_list, (void *)alcs_send_msg);
+    HAL_MutexLock(adapter->mutex);
+    list_add_tail(&adapter->alcs_send_list, &alcs_send_msg->linked_list);
+    HAL_MutexUnlock(adapter->mutex);
 
     return SUCCESS_RETURN;
 }
@@ -853,7 +785,8 @@ int iotx_alcs_register_resource(void *handle, iotx_alcs_res_t *resource)
                                  resource->msg_ct,
                                  resource->maxage,
                                  needAuth,
-                                 iotx_alcs_coap_adapter_recv_msg_handle);
+                                 (void (*)(CoAPContext * context, const char *paths, NetworkAddr * remote,
+                                           CoAPMessage * message))resource->callback);
 
     if (res != COAP_SUCCESS) {
         COAP_ERR("ALCS Register Resource Failed, Code: %d", res);
@@ -903,11 +836,14 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
     }
 
     //Search Subdev In Linked List
-    res = iotx_alcs_subdev_search(pk, dn, &subdev_item);
+    HAL_MutexLock(adapter->mutex);
+    res = _iotx_alcs_subdev_list_search(pk, dn, &subdev_item);
     if (res == SUCCESS_RETURN) {
         COAP_INFO("This Product Key And Device Name Have Been Added");
+        HAL_MutexUnlock(adapter->mutex);
         return SUCCESS_RETURN;
     }
+    HAL_MutexUnlock(adapter->mutex);
 
     //Insert New Subdev Into Linked List
     subdev_item = (iotx_alcs_subdev_item_t *)ALCS_ADAPTER_malloc(sizeof(iotx_alcs_subdev_item_t));
@@ -922,18 +858,19 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
     memcpy(subdev_item->device_name, dn, strlen(dn));
     subdev_item->stage = IOTX_ALCS_SUBDEV_DISCONNCET_CLOUD;
     subdev_item->retry_ms = HAL_UptimeMs();
+    INIT_LIST_HEAD(&subdev_item->linked_list);
 
-    res = iotx_alcs_subdev_insert(subdev_item);
-    if (res != SUCCESS_RETURN) {
-        COAP_ERR("Insert New Subdev Failed");
-        LITE_free(subdev_item);
-        return FAIL_RETURN;
-    }
+    HAL_MutexLock(adapter->mutex);
+    list_add_tail(&subdev_item->linked_list, &adapter->alcs_subdev_list);
+    HAL_MutexUnlock(adapter->mutex);
+
+    alcs_localsetup_add_sub_device(adapter, subdev_item->product_key, subdev_item->device_name);
+
     //Get Prefix And Secret From KV
     char prefix[ALCS_MQTT_PREFIX_MAX_LEN] = {0};
     char secret[ALCS_MQTT_SECRET_MAX_LEN] = {0};
 
-    res = alcs_mqtt_prefix_secret_laod(pk, strlen(pk), dn, strlen(dn), prefix, secret);
+    res = alcs_mqtt_prefix_secret_load(pk, strlen(pk), dn, strlen(dn), prefix, secret);
     if (res == SUCCESS_RETURN) {
         memcpy(subdev_item->prefix, prefix, strlen(prefix));
         memcpy(subdev_item->secret, secret, strlen(secret));

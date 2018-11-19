@@ -1,38 +1,11 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- *
- * Alibaba Group retains all right, title and interest (including all
- * intellectual property rights) in and to this computer program, which is
- * protected by applicable intellectual property laws.  Unless you have
- * obtained a separate written license from Alibaba Group., you are not
- * authorized to utilize all or a part of this computer program for any
- * purpose (including reproduction, distribution, modification, and
- * compilation into object code), and you must immediately destroy or
- * return to Alibaba Group all copies of this computer program.  If you
- * are licensed by Alibaba Group, your rights to utilize this computer
- * program are limited by the terms of that license.  To obtain a license,
- * please contact Alibaba Group.
- *
- * This computer program contains trade secrets owned by Alibaba Group.
- * and, unless unauthorized by Alibaba Group in writing, you agree to
- * maintain the confidentiality of this computer program and related
- * information and to not disclose this computer program and related
- * information to any other person or entity.
- *
- * THIS COMPUTER PROGRAM IS PROVIDED AS IS WITHOUT ANY WARRANTIES, AND
- * Alibaba Group EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
- * INCLUDING THE WARRANTIES OF MERCHANTIBILITY, FITNESS FOR A PARTICULAR
- * PURPOSE, TITLE, AND NONINFRINGEMENT.
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef __ZCONFIG_LIB_H
-#define __ZCONFIG_LIB_H
+#ifndef __ZCONFIG_LIB_H__
+#define __ZCONFIG_LIB_H__
 
-#ifndef u8
-#define u8                  unsigned char
-#define u16                 unsigned short
-#define u32                 unsigned int
-#endif
+#include "os.h"
 
 #ifndef ETH_ALEN
 #define ETH_ALEN            (6)
@@ -46,14 +19,6 @@
 extern "C"
 {
 #endif
-
-enum _ZC_LOGLEVEL_ {
-    LOGLEVEL_NONE,
-    LOGLEVEL_ERROR,
-    LOGLEVEL_WARN,
-    LOGLEVEL_INFO,
-    LOGLEVEL_DEBUG
-};
 
 enum _ZC_AUTH_TYPE_ {
     ZC_AUTH_TYPE_OPEN,
@@ -92,7 +57,6 @@ enum _ZC_PKG_TYPE_ {
      */
 };
 
-
 //进入monitor模式前后调用该函数
 void zconfig_init();
 //配网成功后，调用该函数，释放内存资源
@@ -110,30 +74,32 @@ void zconfig_destroy(void);
     return:
     见enum _PKG_TYPE_结构体说明
 */
-int zconfig_recv_callback(void *pkt_data, u32 pkt_length, u8 channel,
+int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
                           int link_type, int with_fcs, signed char rssi);
 
 /*
  * save apinfo
  * 0 -- success, otherwise, failed.
  */
-int zconfig_set_apinfo(u8 *ssid, u8* bssid, u8 channel, u8 auth,
-                       u8 pairwise_cipher, u8 group_cipher, signed char rssi);
+int zconfig_set_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
+                       uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi);
 
 /* helper function, auth/encry type to string */
-const char *zconfig_auth_str(u8 auth);
-const char *zconfig_encry_str(u8 encry);
-
-const char *zconfig_lib_version(void);
+const char *zconfig_auth_str(uint8_t auth);
+const char *zconfig_encry_str(uint8_t encry);
+uint8_t zconfig_get_lock_chn(void);
 
 /* add channel to global scanning channel list */
 int zconfig_add_active_channel(int channel);
 /* channel locked callback */
-void zconfig_channel_locked_callback(u8 primary_channel,
-                                     u8 secondary_channel, u8 *bssid);
+void zconfig_channel_locked_callback(uint8_t primary_channel,
+                                     uint8_t secondary_channel, uint8_t *bssid);
 /* got ssid&passwd callback */
-void zconfig_got_ssid_passwd_callback(u8 *ssid, u8 *passwd, u8 *bssid,
-                                      u8 auth, u8 encry, u8 channel);
+void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid,
+                                      uint8_t auth, uint8_t encry, uint8_t channel);
+void zconfig_force_rescan(void);
+void aws_set_dst_chan(int channel);
+void aws_switch_channel(void);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

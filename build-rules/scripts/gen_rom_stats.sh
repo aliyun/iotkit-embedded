@@ -7,7 +7,9 @@ echo ""
 printf "    | %-5s | %-35s | %14s | %26s |\n" "RATE" "OBJ NAME" "BYTES/TOTAL" "MODULE NAME"
 
 for iter in ${ALL_SUB_DIRS}; do
-    cd ${OUTPUT_DIR}/${iter}
+    [ ! -d ${LIBOBJ_TMPDIR}/${iter} ] && continue
+
+    cd ${LIBOBJ_TMPDIR}/${iter}
 
     ITER_OBJS=$(find . -name "*.o")
     [ "${ITER_OBJS}" != "" ] || continue
@@ -48,14 +50,16 @@ printf "    |-%-.5s-|-%-.35s-|-%-.9s-|-%-.9s-|-%-.10s-|-%-.6s-|\n" \
     "-------------" \
     "-------------"
 
-cd ${OUTPUT_DIR}
-TOTAL_ROM=$(find . -name "*.o" -not -path "*$(basename ${LIBOBJ_TMPDIR})*" \
+cd ${LIBOBJ_TMPDIR}
+TOTAL_ROM=$(find $(for i in ${COMP_LIB_COMPONENTS}; do echo "${OUTPUT_DIR}/${i}"; done) -name "*.o" \
     | xargs size \
     | awk '{ sum += $1 } END { print sum }')
 cd ${OLDPWD}
 
-for iter in ${ALL_SUB_DIRS}; do
-    cd ${OUTPUT_DIR}/${iter}
+for iter in ${COMP_LIB_COMPONENTS}; do
+    [ ! -d ${LIBOBJ_TMPDIR}/${iter} ] && continue
+
+    cd ${LIBOBJ_TMPDIR}/${iter}
 
     ITER_OBJS=$(find . -name "*.o")
     [ "${ITER_OBJS}" != "" ] || continue
@@ -100,7 +104,10 @@ done \
         END {
             rate = sum_rom / total_rom * 100;
             printf("    |-------|-------------------------------------|-----------|-----------|------------|--------|\n");
-            printf("    |  %.3s%% | %-35s | %-9s | %-9s | %-10s | %-6s |\n", rate, "- IN TOTAL -", sum_rom, sum_ram, sum_bss, sum_data);
+            if (rate < 100)
+                printf("    | %.4s%% | %-35s | %-9s | %-9s | %-10s | %-6s |\n", rate, "- IN TOTAL -", sum_rom, sum_ram, sum_bss, sum_data);
+            else
+                printf("    |  %.3s%% | %-35s | %-9s | %-9s | %-10s | %-6s |\n", rate, "- IN TOTAL -", sum_rom, sum_ram, sum_bss, sum_data);
         }
         '
 

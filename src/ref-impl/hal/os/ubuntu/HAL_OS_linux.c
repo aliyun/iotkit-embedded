@@ -1,20 +1,8 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
 
 
 
@@ -89,7 +77,7 @@ void HAL_MutexLock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
-        hal_err("lock mutex failed: '%s' (%d)", strerror(err_num), err_num);
+        hal_err("lock mutex failed: - '%s' (%d)", strerror(err_num), err_num);
     }
 }
 
@@ -97,13 +85,23 @@ void HAL_MutexUnlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
-        hal_err("unlock mutex failed- '%s' (%d)", strerror(err_num), err_num);
+        hal_err("unlock mutex failed - '%s' (%d)", strerror(err_num), err_num);
     }
 }
 
 void *HAL_Malloc(_IN_ uint32_t size)
 {
     return malloc(size);
+}
+
+void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size)
+{
+    return realloc(ptr, size);
+}
+
+void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size)
+{
+    return calloc(nmemb, size);
 }
 
 void HAL_Free(_IN_ void *ptr)
@@ -350,7 +348,7 @@ int HAL_GetDeviceSecret(_OU_ char *device_secret)
     #endif
  *
  */
-int HAL_GetFirmwareVesion(_OU_ char *version)
+int HAL_GetFirmwareVersion(_OU_ char *version)
 {
     char *ver = "app-1.0.0-20180101.1000";
     int len = strlen(ver);
@@ -536,10 +534,10 @@ int HAL_Config_Read(char *buffer, int length)
 }
 
 #define REBOOT_CMD "reboot"
-void HAL_Sys_reboot(void)
+void HAL_Reboot(void)
 {
     if (system(REBOOT_CMD)) {
-        perror("HAL_Sys_reboot failed");
+        perror("HAL_Reboot failed");
     }
 }
 
@@ -774,9 +772,16 @@ int HAL_Timer_Delete(void *timer)
     return ret;
 }
 
-void HAL_Reboot(void)
+int HAL_GetNetifInfo(char *nif_str)
 {
-    reboot(0);
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
 }
-
-

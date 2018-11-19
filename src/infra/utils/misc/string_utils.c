@@ -1,87 +1,13 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 
 #include "iotx_utils_internal.h"
 #include "string_utils.h"
 #include "iotx_utils_internal.h"
 
-char *LITE_format_string(const char *fmt, ...)
-{
-#define TEMP_STRING_MAXLEN      (512)
-
-    va_list         ap;
-    char           *tmp = NULL;
-    char           *dst;
-    int             rc = -1;
-
-    va_start(ap, fmt);
-    tmp = HAL_Malloc(TEMP_STRING_MAXLEN);
-    LITE_ASSERT(tmp);
-    memset(tmp, 0, TEMP_STRING_MAXLEN);
-    rc = HAL_Vsnprintf(tmp, TEMP_STRING_MAXLEN, fmt, ap);
-    va_end(ap);
-    LITE_ASSERT(rc < 1024);
-
-    dst = LITE_strdup(tmp);
-    HAL_Free(tmp);
-
-    return dst;
-
-#undef TEMP_STRING_MAXLEN
-}
-
-char *LITE_format_nstring(const int len, const char *fmt, ...)
-{
-    char           *tmp = NULL;
-    char           *dst;
-    char           *module_name = NULL;
-    int             magic = 0;
-    va_list         ap;
-
-    va_start(ap, fmt);
-    magic = va_arg(ap, int);
-    if (MEM_MAGIC == magic) {
-        module_name = va_arg(ap, char *);
-    }
-    if (!module_name) {
-        va_start(ap, fmt);
-    }
-
-    tmp = LITE_malloc(len + 2, magic, module_name);
-    if (NULL == tmp) {
-        va_end(ap);
-        return NULL;
-    }
-    memset(tmp, 0, len + 2);
-    UTILS_vsnprintf(tmp, len + 1, fmt, ap);
-    va_end(ap);
-
-    dst = LITE_malloc(len + 1, magic, module_name);
-    if (!dst) {
-        LITE_free(tmp);
-        return NULL;
-    }
-    LITE_snprintf(dst, (len + 1), "%s", tmp);
-    LITE_free(tmp);
-    return dst;
-
-}
+#define UTILS_STRING_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "utils.string")
+#define UTILS_STRING_FREE(ptr)    LITE_free(ptr)
 
 char *LITE_strdup(const char *src, ...)
 {
@@ -100,7 +26,6 @@ char *LITE_strdup(const char *src, ...)
     }
 
 #if WITH_MEM_STATS_PER_MODULE
-
     va_list         ap;
     va_start(ap, src);
     magic = va_arg(ap, int);
@@ -168,42 +93,6 @@ void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int 
     }
 }
 
-void LITE_replace_substr(char originalString[], char key[], char swap[])
-{
-    int         lengthOfOriginalString, lengthOfKey, lengthOfSwap, i, j, flag;
-    char        tmp[512];
-
-    lengthOfOriginalString = strlen(originalString);
-    lengthOfKey = strlen(key);
-    lengthOfSwap = strlen(swap);
-
-    if (lengthOfOriginalString >= 512 || (lengthOfOriginalString-lengthOfKey+lengthOfSwap) >= 512) {
-        return;
-    }
-
-    for (i = 0; i <= lengthOfOriginalString - lengthOfKey; i++) {
-        flag = 1;
-        for (j  = 0; j < lengthOfKey; j++) {
-            if (originalString[i + j] != key[j]) {
-                flag = 0;
-                break;
-            }
-        }
-
-        if (flag) {
-            strcpy(tmp, originalString);
-            strcpy(&tmp[i], swap);
-            if (strlen(&originalString[i  + lengthOfKey]) >= (512 - i - lengthOfSwap)) {
-                return;
-            }
-            strcpy(&tmp[i + lengthOfSwap], &originalString[i  + lengthOfKey]);
-            strcpy(originalString, tmp);
-            i += lengthOfSwap - 1;
-            lengthOfOriginalString = strlen(originalString);
-        }
-    }
-}
-
 int LITE_get_randstr(_OU_ char *random, _IN_ int length)
 {
     int index = 0;
@@ -239,4 +128,107 @@ int LITE_get_randstr(_OU_ char *random, _IN_ int length)
     return SUCCESS_RETURN;
 }
 
+#if WITH_STRING_UTILS_EXT
+char *LITE_format_string(const char *fmt, ...)
+{
+#define TEMP_STRING_MAXLEN      (512)
+
+    va_list         ap;
+    char           *tmp = NULL;
+    char           *dst;
+    int             rc = -1;
+
+    va_start(ap, fmt);
+    tmp = UTILS_STRING_MALLOC(TEMP_STRING_MAXLEN);
+    LITE_ASSERT(tmp);
+    memset(tmp, 0, TEMP_STRING_MAXLEN);
+    rc = HAL_Vsnprintf(tmp, TEMP_STRING_MAXLEN, fmt, ap);
+    va_end(ap);
+    LITE_ASSERT(rc < 1024);
+
+    dst = LITE_strdup(tmp);
+    UTILS_STRING_FREE(tmp);
+
+    return dst;
+
+#undef TEMP_STRING_MAXLEN
+}
+
+char *LITE_format_nstring(const int len, const char *fmt, ...)
+{
+    char           *tmp = NULL;
+    char           *dst;
+    char           *module_name = NULL;
+    int             magic = 0;
+    va_list         ap;
+
+    va_start(ap, fmt);
+    magic = va_arg(ap, int);
+    if (MEM_MAGIC == magic) {
+        module_name = va_arg(ap, char *);
+    }
+    if (!module_name) {
+        va_start(ap, fmt);
+    }
+
+    tmp = LITE_malloc(len + 2, magic, module_name);
+    if (NULL == tmp) {
+        va_end(ap);
+        return NULL;
+    }
+    memset(tmp, 0, len + 2);
+    UTILS_vsnprintf(tmp, len + 1, fmt, ap);
+    va_end(ap);
+
+    dst = LITE_malloc(len + 1, magic, module_name);
+    if (!dst) {
+        LITE_free(tmp);
+        return NULL;
+    }
+    LITE_snprintf(dst, (len + 1), "%s", tmp);
+    LITE_free(tmp);
+    return dst;
+
+}
+
+void LITE_replace_substr(char originalString[], char key[], char swap[])
+{
+    int         lengthOfOriginalString, lengthOfKey, lengthOfSwap, lengthOfRemain, i, j, flag;
+    char        tmp[512] = {0};
+
+    lengthOfOriginalString = strlen(originalString);
+    lengthOfKey = strlen(key);
+    lengthOfSwap = strlen(swap);
+
+    if (lengthOfOriginalString >= 512 || (lengthOfOriginalString - lengthOfKey + lengthOfSwap) >= 512) {
+        return;
+    }
+
+    for (i = 0; i <= lengthOfOriginalString - lengthOfKey; i++) {
+        flag = 1;
+        for (j  = 0; j < lengthOfKey; j++) {
+            if (originalString[i + j] != key[j]) {
+                flag = 0;
+                break;
+            }
+        }
+
+        if (flag) {
+            memcpy(tmp, originalString, lengthOfOriginalString + 1);
+            memcpy(&tmp[i], swap, lengthOfSwap + 1);
+
+            lengthOfRemain = strlen(&originalString[i  + lengthOfKey]);
+            if (lengthOfRemain >= (512 - i - lengthOfSwap)) {
+                return;
+            }
+
+            memcpy(tmp + i + lengthOfSwap, originalString + i + lengthOfKey, lengthOfRemain + 1);
+            memcpy(originalString, tmp, strlen(tmp) + 1);
+            i += lengthOfSwap - 1;
+            lengthOfOriginalString = strlen(originalString);
+        }
+    }
+}
+
+#endif  /* #if WITH_STRING_UTILS_EXT */
 

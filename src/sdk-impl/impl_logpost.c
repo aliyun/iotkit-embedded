@@ -1,20 +1,8 @@
 /*
- * Copyright (c) 2014-2018 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#ifdef MQTT_COMM_ENABLED
 #include "sdk-impl_internal.h"
 
 #define LOG_PUBLISH_MSG_MAXLEN   (255)
@@ -22,7 +10,7 @@
 static int iotx_mc_log_post(void *pclient, char *payload);
 
 static const char THING_LOG_POST_PARAMS[] =
-            "{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"timestamp\":%lld,\"logLevel\":\"%s\",\"module\":\"%s\",\"logContent\":\"%s";
+            "{\"id\":\"%d\",\"version\":\"1.0\",\"params\":[{\"timestamp\":%lld,\"logLevel\":\"%s\",\"module\":\"%s\",\"logContent\":\"%s";
 
 static const char THING_LOG_POST_PARAMS_TAIL[] =
             "...\"}],\"method\":\"thing.log.post\"}";
@@ -74,8 +62,14 @@ static int iotx_mc_log_post(void *pclient, char *payload)
 {
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
+
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+
     iotx_mqtt_topic_info_t topic_info;
-    iotx_device_info_pt dev = iotx_device_info_get();
+    
 
     if (!payload || !pclient) {
         return FAIL_RETURN;
@@ -85,8 +79,8 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     ret = HAL_Snprintf(topic_name,
                        IOTX_URI_MAX_LEN,
                        "/sys/%s/%s/thing/log/post",
-                       dev->product_key,
-                       dev->device_name);
+                       product_key,
+                       device_name);
     if (ret <= 0) {
         log_err("logpost", "log topic generate err");
         return FAIL_RETURN;
@@ -111,3 +105,4 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     return SUCCESS_RETURN;
 }
 
+#endif

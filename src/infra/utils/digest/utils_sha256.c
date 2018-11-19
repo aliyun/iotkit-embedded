@@ -1,9 +1,10 @@
 /*
- * utils_sha256.c
- *
- *  Created on: 2018��1��17��
- *      Author: wb-jn347227
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
+
+
 #include <stdlib.h>
 #include <string.h>
 #include "iot_import.h"

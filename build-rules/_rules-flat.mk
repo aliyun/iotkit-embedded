@@ -45,7 +45,7 @@ endif
 # CFLAGS  := $(sort $(strip $(CFLAGS)))
 
 LDFLAGS += -L$(SYSROOT_LIB)
-ifeq (y,$(shell [ -d $(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR) ] && echo y))
+ifeq (y,$(shell [ -e $(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR) ] && echo y))
 LDFLAGS += -L$(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)
 endif
 

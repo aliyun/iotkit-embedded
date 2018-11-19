@@ -1,4 +1,4 @@
-阿里云IoT嵌入式 C Link Kit SDK v2.2.1.1 说明
+阿里云IoT嵌入式 C Link Kit SDK 说明
 
 1. 用途
 
@@ -31,7 +31,6 @@
     WiFi配网支持
     WiFi/以太网设备绑定token生成以及通告
     设备reset支持
-    本地定时
 
 2.4 子设备管理框架
 
@@ -49,4 +48,5 @@
 3. 文档说明
 
     https://code.aliyun.com/edward.yangx/public-docs/wikis/user-guide/Linkkit_User_Manual
+
 
