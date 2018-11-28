@@ -73,7 +73,7 @@ int iotx_cm_conn_http_send(void *handle, void *_context, iotx_connection_msg_t *
     msg_param.timeout_ms = 2000;
     msg_param.request_payload = (char *)message->payload;
     msg_param.request_payload_len = message->payload_length;
-    msg_param.response_payload = LITE_malloc(IOTX_CLOUD_CLIENT_HTTP_RSP_LEN);
+    msg_param.response_payload = CM_malloc(IOTX_CLOUD_CLIENT_HTTP_RSP_LEN);
     if (NULL == msg_param.response_payload) {
         CM_ERR(cm_log_error_parameter);
         return FAIL_RETURN;

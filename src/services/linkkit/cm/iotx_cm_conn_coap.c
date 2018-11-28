@@ -193,14 +193,14 @@ int iotx_cm_conn_coap_send(void *handle, void *_context, iotx_connection_msg_t *
         return FAIL_RETURN;
     }
 
-    coap_pt = LITE_malloc(sizeof(iotx_cloud_conn_coap_t));
+    coap_pt = CM_malloc(sizeof(iotx_cloud_conn_coap_t));
     if (NULL == coap_pt) {
         CM_ERR(cm_log_error_memory);
         return FAIL_RETURN;
     }
     memset(coap_pt, 0x0, sizeof(iotx_cloud_conn_coap_t));
 
-    coap_pt->URI = LITE_malloc(message->URI_length + 1);
+    coap_pt->URI = CM_malloc(message->URI_length + 1);
     if (NULL == coap_pt) {
         CM_ERR(cm_log_error_memory);
         LITE_free(coap_pt);

@@ -100,7 +100,6 @@
 
 #define LITE_calloc(num, size, ...)     LITE_malloc_internal(__func__, __LINE__, (num * size), ##__VA_ARGS__)
 #define LITE_malloc(size, ...)          LITE_malloc_internal(__func__, __LINE__, size, ##__VA_ARGS__)
-#define LITE_realloc(ptr, size, ...)    LITE_realloc_internal(__func__, __LINE__, ptr, size, ##__VA_ARGS__)
 #define LITE_free(ptr)              \
     do { \
         if(!ptr) { \
@@ -113,7 +112,6 @@
     } while(0)
 
 void       *LITE_malloc_internal(const char *f, const int l, int size, ...);
-void       *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...);
 void        LITE_free_internal(void *ptr);
 void       *LITE_malloc_routine(int size, ...);
 void        LITE_free_routine(void *ptr);
@@ -159,5 +157,9 @@ typedef struct _json_key_t {
 int unittest_string_utils(void);
 int unittest_json_parser(void);
 int unittest_json_token(void);
+
+#if WITH_MEM_STATS
+    void **LITE_get_mem_mutex(void);
+#endif
 
 #endif  /* __LITE_UTILS_H__ */

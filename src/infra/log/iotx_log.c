@@ -138,6 +138,16 @@ void LITE_openlog(const char *ident)
     strncpy(logcb.name, ident, LOG_MOD_NAME_LEN);
     logcb.name[LOG_MOD_NAME_LEN] = 0;
     logcb.priority = 0;
+
+#if WITH_MEM_STATS
+    void **mutex = LITE_get_mem_mutex();
+    if (*mutex == NULL) {
+        *mutex = HAL_MutexCreate();
+        if (*mutex == NULL) {
+            LITE_printf("\nCreate memStats mutex error\n");
+        }
+    }
+#endif
 }
 
 void LITE_closelog(void)
@@ -145,6 +155,14 @@ void LITE_closelog(void)
     strncpy(logcb.name, "", LOG_MOD_NAME_LEN);
     logcb.name[LOG_MOD_NAME_LEN] = 0;
     logcb.priority = 0;
+
+#if WITH_MEM_STATS
+    void **mutex = LITE_get_mem_mutex();
+    if (*mutex != NULL){
+        HAL_MutexDestroy(*mutex);
+        *mutex = NULL;
+    }
+#endif
 }
 
 char *LITE_get_logname(void)

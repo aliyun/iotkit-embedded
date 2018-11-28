@@ -18,6 +18,9 @@
 
 #include "iotx_system_internal.h"
 
+#define SYS_GUIDER_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.guider")
+#define SYS_GUIDER_FREE(ptr)    LITE_free(ptr)
+
 #ifndef CONFIG_GUIDER_AUTH_TIMEOUT
     #define CONFIG_GUIDER_AUTH_TIMEOUT  (10 * 1000)
 #endif
@@ -145,7 +148,7 @@ int _http_response(char *payload,
 
     httpc.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
-    requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN);
+    requ_payload = (char *)SYS_GUIDER_MALLOC(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
         sys_err("Allocate HTTP request buf failed!");
         return ERROR_MALLOC;
@@ -159,7 +162,7 @@ int _http_response(char *payload,
     LITE_ASSERT(len < HTTP_POST_MAX_LEN);
     sys_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
-    resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
+    resp_payload = (char *)SYS_GUIDER_MALLOC(HTTP_RESP_MAX_LEN);
     if (!resp_payload) {
         goto RETURN;
     }
@@ -188,11 +191,11 @@ int _http_response(char *payload,
 
 RETURN:
     if (requ_payload) {
-        LITE_free(requ_payload);
+        SYS_GUIDER_FREE(requ_payload);
         requ_payload = NULL;
     }
     if (resp_payload) {
-        LITE_free(resp_payload);
+        SYS_GUIDER_FREE(resp_payload);
         resp_payload = NULL;
     }
 
@@ -417,7 +420,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
 
-    ret = LITE_malloc(AUTH_STRING_MAXLEN);
+    ret = SYS_GUIDER_MALLOC(AUTH_STRING_MAXLEN);
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
@@ -485,7 +488,7 @@ static int guider_get_iotId_iotToken(
             "message":"success"
         }
     */
-    iotx_payload = LITE_malloc(PAYLOAD_STRING_MAXLEN);
+    iotx_payload = SYS_GUIDER_MALLOC(PAYLOAD_STRING_MAXLEN);
     LITE_ASSERT(iotx_payload);
     memset(iotx_payload, 0, PAYLOAD_STRING_MAXLEN);
     _http_response(iotx_payload,
@@ -622,7 +625,7 @@ int iotx_guider_authenticate(void)
                                        iotx_conn_host,
                                        &iotx_conn_port)) {
         if (req_str) {
-            LITE_free(req_str);
+            SYS_GUIDER_FREE(req_str);
         }
 
         sys_err("_iotId_iotToken_http() failed");
@@ -743,7 +746,7 @@ int iotx_guider_authenticate(void)
     guider_print_conn_info(conn);
 
     if (req_str) {
-        LITE_free(req_str);
+        SYS_GUIDER_FREE(req_str);
     }
 
     return 0;

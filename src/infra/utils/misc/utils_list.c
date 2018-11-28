@@ -26,6 +26,8 @@
 #include "iotx_utils_internal.h"
 #include "utils_list.h"
 
+#define UTILS_LIST_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "utils.list")
+#define UTILS_LIST_FREE(ptr)    LITE_free(ptr)
 
 /*
  * Allocate a new list_t. NULL on failure.
@@ -33,7 +35,7 @@
 list_t *list_new(void)
 {
     list_t *self;
-    self = LITE_malloc(sizeof(list_t));
+    self = UTILS_LIST_MALLOC(sizeof(list_t));
     if (!self) {
         return NULL;
     }
@@ -59,11 +61,11 @@ void list_destroy(list_t *self)
         if (self->free) {
             self->free(curr->val);
         }
-        LITE_free(curr);
+        UTILS_LIST_FREE(curr);
         curr = next;
     }
 
-    LITE_free(self);
+    UTILS_LIST_FREE(self);
 }
 
 /*
@@ -233,7 +235,7 @@ void list_remove(list_t *self, list_node_t *node)
         self->free(node->val);
     }
 
-    LITE_free(node);
+    UTILS_LIST_FREE(node);
     --self->len;
 }
 
@@ -254,7 +256,7 @@ list_iterator_t *list_iterator_new(list_t *list, list_direction_t direction)
 list_iterator_t *list_iterator_new_from_node(list_node_t *node, list_direction_t direction)
 {
     list_iterator_t *self;
-    self = LITE_malloc(sizeof(list_iterator_t));
+    self = UTILS_LIST_MALLOC(sizeof(list_iterator_t));
     if (!self) {
         return NULL;
     }
@@ -281,7 +283,7 @@ list_node_t *list_iterator_next(list_iterator_t *self)
  */
 void list_iterator_destroy(list_iterator_t *self)
 {
-    LITE_free(self);
+    UTILS_LIST_FREE(self);
     self = NULL;
 }
 
@@ -291,7 +293,7 @@ void list_iterator_destroy(list_iterator_t *self)
 list_node_t *list_node_new(void *val)
 {
     list_node_t *self;
-    self = LITE_malloc(sizeof(list_node_t));
+    self = UTILS_LIST_MALLOC(sizeof(list_node_t));
     if (!self) {
         return NULL;
     }

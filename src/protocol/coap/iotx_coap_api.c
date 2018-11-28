@@ -377,7 +377,7 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
                          p_iotx_coap->p_devinfo->product_key,
                          p_iotx_coap->p_devinfo->device_name);
     /* 1,generate json data */
-    char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
+    char *msg = coap_malloc(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
         COAP_ERR("allocate mem failed");
         return FAIL_RETURN;
@@ -408,16 +408,16 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
 
     if (ret < 0) {
         COAP_ERR("generate topic name of info failed");
-        HAL_Free(msg);
+        coap_free(msg);
         return FAIL_RETURN;
     }
 
     if (IOTX_SUCCESS != (ret = IOT_CoAP_SendMessage(p_context, topic_name, &message))) {
         COAP_ERR("send CoAP msg failed, ret = %d", ret);
-        HAL_Free(msg);
+        coap_free(msg);
         return FAIL_RETURN;
     }
-    HAL_Free(msg);
+    coap_free(msg);
     COAP_DEBUG("MID Report: IOT_CoAP_SendMessage() = %d", ret);
 
     ret = CoAPMessage_recv(p_coap_ctx, CONFIG_COAP_AUTH_TIMEOUT, 1);

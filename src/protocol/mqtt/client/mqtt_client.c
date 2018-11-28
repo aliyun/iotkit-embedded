@@ -2989,7 +2989,7 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
                          dev->product_key,
                          dev->device_name);
     /* 1,generate json data */
-    char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
+    char *msg = mqtt_malloc(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
         mqtt_err("allocate mem failed");
         return FAIL_RETURN;
@@ -3020,18 +3020,18 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
 
     if (ret < 0) {
         mqtt_err("generate topic name of info failed");
-        HAL_Free(msg);
+        mqtt_free(msg);
         return FAIL_RETURN;
     }
 
     ret = IOT_MQTT_Publish(pclient, topic_name, &topic_info);
     if (ret < 0) {
         mqtt_err("publish failed");
-        HAL_Free(msg);
+        mqtt_free(msg);
         return FAIL_RETURN;
     }
 
-    HAL_Free(msg);
+    mqtt_free(msg);
 
     mqtt_debug("MID Report: finished, IOT_MQTT_Publish() = %d", ret);
     return SUCCESS_RETURN;
@@ -3283,7 +3283,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
             ret = iotx_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
         }
         if (!subed) {
-            mqtt_sub_node_t *node = (mqtt_sub_node_t *)HAL_Malloc(sizeof(mqtt_sub_node_t));
+            mqtt_sub_node_t *node = (mqtt_sub_node_t *)mqtt_malloc(sizeof(mqtt_sub_node_t));
             if (node != NULL) {
                 mqtt_debug("packet_id = %d", ret);
                 node->packet_id = ret;
@@ -3310,18 +3310,18 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
                 mqtt_debug("node->ack_type=%d cnt=%d", node->ack_type, cnt++);
                 if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS) {
                     list_del(&node->linked_list);
-                    HAL_Free(node);
+                    mqtt_free(node);
                     mqtt_debug("success!!");
                     HAL_MutexUnlock(client->lock_generic);
                     return 0;
                 } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_NACK) {
                     list_del(&node->linked_list);
-                    HAL_Free(node);
+                    mqtt_free(node);
                     ret = -1; //resub
                     subed = 0;
                 } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT) {
                     list_del(&node->linked_list);
-                    HAL_Free(node);
+                    mqtt_free(node);
                     ret = -1; //resub
                     subed = 0;
                 }
@@ -3338,7 +3338,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
     list_for_each_entry_safe(node, next, &g_mqtt_sub_list, linked_list, mqtt_sub_node_t) {
         if (node->packet_id == ret) {
             list_del(&node->linked_list);
-            HAL_Free(node);
+            mqtt_free(node);
             break;
         }
     }

@@ -113,12 +113,12 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
         return -1;
     }
 
-    mqtt_rbuf = LITE_malloc(maxMsgSize);
+    mqtt_rbuf = mqtt_malloc(maxMsgSize);
     if (!mqtt_rbuf) {
         return -1;
     }
 
-    mqtt_wbuf = LITE_malloc(maxMsgSize);
+    mqtt_wbuf = mqtt_malloc(maxMsgSize);
     if (!mqtt_wbuf) {
         goto fail;
     }
@@ -162,12 +162,12 @@ int mqtt_deinit_instance(void)
     abort_request = 1;
 
     if (mqtt_rbuf) {
-        LITE_free(mqtt_rbuf);
+        mqtt_free(mqtt_rbuf);
         mqtt_rbuf = NULL;
     }
 
     if (mqtt_wbuf) {
-        LITE_free(mqtt_wbuf);
+        mqtt_free(mqtt_wbuf);
         mqtt_wbuf = NULL;
     }
 
@@ -180,7 +180,7 @@ int mqtt_deinit_instance(void)
     for (ev = first_event; ev; ev = ev_next) {
         ev_next = ev->next;
         event_list_remove(ev);
-        LITE_free(ev);
+        mqtt_free(ev);
     }
 
     first_event = NULL;
@@ -200,7 +200,7 @@ int mqtt_set_event_cb(void (*event_cb)(int event, void *ctx), void *ctx)
         return -1;
     }
 
-    mqtt_instance_event_t *ev = LITE_malloc(sizeof(mqtt_instance_event_t));
+    mqtt_instance_event_t *ev = mqtt_malloc(sizeof(mqtt_instance_event_t));
     if (!ev) {
         return -1;
     }
@@ -268,15 +268,15 @@ int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *pay
         return -1;
     }
 
-    mqtt_instance_topic_t *t = LITE_malloc(sizeof(mqtt_instance_topic_t));
+    mqtt_instance_topic_t *t = mqtt_malloc(sizeof(mqtt_instance_topic_t));
     if (!t) {
         return -1;
     }
     memset(t, 0, sizeof(mqtt_instance_topic_t));
 
-    t->topic = LITE_malloc(strlen(topic) + 1);
+    t->topic = mqtt_malloc(strlen(topic) + 1);
     if (!t->topic) {
-        LITE_free(t);
+        mqtt_free(t);
         return -1;
     }
     strcpy(t->topic, topic);
@@ -286,8 +286,8 @@ int mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, void *pay
 
     int ret = IOT_MQTT_Subscribe(mqtt_client, t->topic, IOTX_MQTT_QOS1, subscriber_cb, t);
     if (ret < 0) {
-        LITE_free(t->topic);
-        LITE_free(t);
+        mqtt_free(t->topic);
+        mqtt_free(t);
         return -1;
     }
 
@@ -310,8 +310,8 @@ int mqtt_unsubscribe(char *topic)
         if (strcmp(t->topic, topic) == 0) {
             IOT_MQTT_Unsubscribe(mqtt_client, topic);
             topic_list_remove(t);
-            LITE_free(t->topic);
-            LITE_free(t);
+            mqtt_free(t->topic);
+            mqtt_free(t);
             t = NULL;
         }
     }

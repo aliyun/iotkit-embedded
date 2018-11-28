@@ -21,7 +21,7 @@
 #define __COAP_PLATFORM_H__
 #include "iot_import.h"
 
-#define coap_malloc(size)       HAL_Malloc(size)
-#define coap_free(ptr)          HAL_Free(ptr)
+#define coap_malloc(size)       LITE_malloc(size, MEM_MAGIC, "coap.local")
+#define coap_free(ptr)          LITE_free(ptr)
 
 #endif

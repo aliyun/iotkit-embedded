@@ -248,16 +248,16 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
 
             CM_INFO(cm_log_info_add_device);
 
-            device = LITE_malloc(sizeof(iotx_cm_local_device_t));
+            device = CM_malloc(sizeof(iotx_cm_local_device_t));
             if (NULL == device) {
                 return;
             }
-            device->device_info = LITE_malloc(sizeof(iotx_cm_send_peer_t));
+            device->device_info = CM_malloc(sizeof(iotx_cm_send_peer_t));
             if (NULL == device->device_info) {
                 LITE_free(device);
                 return;
             }
-            device->addr = LITE_malloc(strlen(_device->addr) + 1);
+            device->addr = CM_malloc(strlen(_device->addr) + 1);
             if (NULL == device->addr) {
                 LITE_free(device->device_info);
                 LITE_free(device);
@@ -301,16 +301,16 @@ static void iotx_local_conn_event_callback(void *pcontext, iotx_connection_event
 
             CM_INFO(cm_log_info_remove_device);
 
-            device = LITE_malloc(sizeof(iotx_cm_local_device_t));
+            device = CM_malloc(sizeof(iotx_cm_local_device_t));
             if (NULL == device) {
                 return;
             }
-            device->device_info = LITE_malloc(sizeof(iotx_cm_send_peer_t));
+            device->device_info = CM_malloc(sizeof(iotx_cm_send_peer_t));
             if (NULL == device->device_info) {
                 LITE_free(device);
                 return;
             }
-            device->addr = LITE_malloc(strlen(_device->addr) + 1);
+            device->addr = CM_malloc(strlen(_device->addr) + 1);
             if (NULL == device->addr) {
                 LITE_free(device->device_info);
                 LITE_free(device);
@@ -376,7 +376,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
                 }
 
                 node->type = IOTX_CM_PROCESS_ADD_SERVICE_RESULT;
-                node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
+                node->msg = CM_malloc(sizeof(iotx_cm_process_service_result_t));
                 if (NULL == node)
                 {
                     CM_ERR(cm_log_error_memory);
@@ -386,7 +386,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
 
                 result_msg = node->msg;
 
-                result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
+                result_msg->URI = CM_malloc(strlen(msg->URI) + 1);
                 if (NULL == result_msg->URI)
                 {
                     LITE_free(node->msg);
@@ -428,7 +428,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
                 }
 
                 node->type = IOTX_CM_PROCESS_ADD_SERVICE_RESULT;
-                node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
+                node->msg = CM_malloc(sizeof(iotx_cm_process_service_result_t));
                 if (NULL == node)
                 {
                     CM_ERR(cm_log_error_memory);
@@ -438,7 +438,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
 
                 result_msg = node->msg;
 
-                result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
+                result_msg->URI = CM_malloc(strlen(msg->URI) + 1);
                 if (NULL == result_msg->URI)
                 {
                     LITE_free(node->msg);
@@ -480,7 +480,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
                 }
 
                 node->type = IOTX_CM_PROCESS_REMOVE_SERVICE_RESULT;
-                node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
+                node->msg = CM_malloc(sizeof(iotx_cm_process_service_result_t));
                 if (NULL == node)
                 {
                     CM_ERR(cm_log_error_memory);
@@ -490,7 +490,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
 
                 result_msg = node->msg;
 
-                result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
+                result_msg->URI = CM_malloc(strlen(msg->URI) + 1);
                 if (NULL == result_msg->URI)
                 {
                     LITE_free(node->msg);
@@ -531,7 +531,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
                 }
 
                 node->type = IOTX_CM_PROCESS_REMOVE_SERVICE_RESULT;
-                node->msg = LITE_malloc(sizeof(iotx_cm_process_service_result_t));
+                node->msg = CM_malloc(sizeof(iotx_cm_process_service_result_t));
                 if (NULL == node)
                 {
                     CM_ERR(cm_log_error_memory);
@@ -541,7 +541,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
 
                 result_msg = node->msg;
 
-                result_msg->URI = LITE_malloc(strlen(msg->URI) + 1);
+                result_msg->URI = CM_malloc(strlen(msg->URI) + 1);
                 if (NULL == result_msg->URI)
                 {
                     LITE_free(node->msg);
@@ -586,7 +586,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
                 }
 
                 node->type = IOTX_CM_PROCESS_LOCAL_NEW_DATA;
-                node->msg = LITE_malloc(sizeof(iotx_cm_message_info_t));
+                node->msg = CM_malloc(sizeof(iotx_cm_message_info_t));
                 if (NULL == node->msg)
                 {
                     CM_ERR(cm_log_error_memory);
@@ -596,7 +596,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
 
                 msg_info = node->msg;
 
-                msg_info->URI = LITE_malloc(msg->URI_length + 1);
+                msg_info->URI = CM_malloc(msg->URI_length + 1);
                 if (msg_info->URI)
                 {
                     strncpy(msg_info->URI, msg->URI, msg->URI_length);
@@ -669,7 +669,7 @@ static int iotx_cm_local_conn_response_callback(void *pcontext, iotx_connection_
             message_info.payload_length = msg->payload_length;
             message_info.conn_ctx = msg->conn_ctx;
 
-            //        message_info.URI = LITE_malloc(msg->URI_length + 1);
+            //        message_info.URI = CM_malloc(msg->URI_length + 1);
             //        if (message_info.URI) {
             //            strncpy(message_info.URI, msg->URI, msg->URI_length);
             //        } else {
@@ -719,7 +719,7 @@ int iotx_cm_local_conn_service_handler(iotx_cm_conntext_t *cm_ctx, char *URI, in
     }
 
     event_result.result = result;
-    event_result.URI = LITE_malloc(CM_TOPIC_LEN_MAX);
+    event_result.URI = CM_malloc(CM_TOPIC_LEN_MAX);
     if (event_result.URI) {
         strncpy(event_result.URI, URI, CM_TOPIC_LEN_MAX);
     } else {
@@ -910,7 +910,7 @@ void *iotx_cm_local_conn_init(void *handler, void *param)
         return NULL;
     }
 
-    connectivity = LITE_malloc(sizeof(iotx_cm_connectivity_t));
+    connectivity = CM_malloc(sizeof(iotx_cm_connectivity_t));
     if (NULL == connectivity) {
         CM_ERR(cm_log_error_memory);
         connection->deinit_func(connection);

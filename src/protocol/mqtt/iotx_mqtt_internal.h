@@ -16,7 +16,8 @@
 #define mqtt_info(...)              log_info("MQTT", __VA_ARGS__)
 #define mqtt_debug(...)             log_debug("MQTT", __VA_ARGS__)
 
-#define mqtt_malloc(...)            LITE_malloc(__VA_ARGS__, MEM_MAGIC, "mqtt")
+#define mqtt_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
+#define mqtt_free                    LITE_free
 
 #define MQTT_DYNBUF_MARGIN                      (64)
 #define MQTT_CONNECT_REQUIRED_BUFLEN            (256)
