@@ -20,7 +20,7 @@
 #define IOTX_DEVICE_SECRET      "XZjhoJclBJpvcEoa8eLYSxnb3ksRVd3W"
 #define IOTX_DEVICE_ID          "stMRPCR0yQu.xikan_ota"
 
-//#define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
+/* #define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684" */
 #define IOTX_PRE_NOSEC_SERVER_URI "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 
 
