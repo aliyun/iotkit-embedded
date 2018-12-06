@@ -1308,6 +1308,45 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
+        case IOTX_DM_EVENT_TOPO_GET_REPLY:{
+            int res = 0;
+            lite_cjson_t lite, lite_item_topo;
+
+            if (payload == NULL) {
+                return;
+            }
+             /* Parse Payload */
+            memset(&lite, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_parse(payload, strlen(payload), &lite);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+
+            /* Parse TOPO */
+            memset(&lite_item_topo, 0, sizeof(lite_cjson_t));
+            res = lite_cjson_object_item(&lite, "topo", strlen("topo"),
+                                         &lite_item_topo);
+            if (res != SUCCESS_RETURN) {
+                return;
+            }
+            dm_log_debug("Current topo:%.*s",lite_item_topo.value_length,lite_item_topo.value);
+
+            if (linkkit_gateway_ctx->init_params.event_cb) {
+                linkkit_event_t event;
+                char topo[lite_item_topo.value_length+1];
+
+                memset(&event, 0, sizeof(linkkit_event_t));
+                memset(topo, 0, sizeof(topo));
+                
+                memcpy(topo, lite_item_topo.value, lite_item_topo.value_length);
+
+                event.event_type = LINKKIT_EVENT_SUBDEV_SETUP;
+                event.event_data.subdev_install.subdevList = topo;
+
+                linkkit_gateway_ctx->init_params.event_cb(&event, linkkit_gateway_ctx->init_params.ctx);
+            }
+        }
+        break;
         default: {
             dm_log_info("Not Found Type For Now, Smile");
         }
@@ -1414,6 +1453,11 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     INIT_LIST_HEAD(&linkkit_gateway_ctx->upstream_async_callback_list);
 
     return SUCCESS_RETURN;
+}
+
+int linkkit_gateway_get_topo(){
+    /* Gateway Get Topo */
+    return iotx_dm_gateway_topo_get();
 }
 
 int linkkit_gateway_stop(int devid)

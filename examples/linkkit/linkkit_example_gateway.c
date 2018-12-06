@@ -311,6 +311,13 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
             /* please enter user's logic in there */
         }
         break;
+        case LINKKIT_EVENT_SUBDEV_SETUP: {
+            char *subdevList = ev->event_data.subdev_install.subdevList;
+            EXAMPLE_TRACE("get subdev list: %s\n", subdevList);
+
+            /* please enter user's logic in there */
+        }
+        break;
     }
 
     return 0;
@@ -406,6 +413,11 @@ int main(void)
      * subdev start
      */
     int res = 0;
+    res = linkkit_gateway_get_topo();
+    if(res < SUCCESS_RETURN){
+        EXAMPLE_TRACE("=================linkkit_gateway_get_topo error");
+    }
+
     char *subdev_pk = "a1NGqAVowRX";
     char *subdev_dn = "example1";
     char *subdev_ds = "HSbPuKvf0ekZff5ARWJDWKuyPTdQh5wb";

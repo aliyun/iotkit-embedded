@@ -362,6 +362,13 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
             /* please enter user's logic in there */
         }
         break;
+        case LINKKIT_EVENT_SUBDEV_SETUP: {
+            char *subdevList = ev->event_data.subdev_install.subdevList;
+            EXAMPLE_TRACE("permit subdev %s\n", subdevList);
+
+            /* please enter user's logic in there */
+        }
+        break;
     }
 
     return 0;

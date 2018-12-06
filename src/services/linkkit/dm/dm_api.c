@@ -357,6 +357,17 @@ void iotx_dm_dispatch(void)
 }
 
 #ifdef CONFIG_DM_DEVTYPE_GATEWAY
+int iotx_dm_gateway_topo_get(){
+    int res = 0;
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_thing_topo_get();
+
+    _dm_api_unlock();
+    return res;  
+}
+
 int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                           _OU_ int *devid)
 {
