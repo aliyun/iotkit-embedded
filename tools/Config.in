@@ -1,0 +1,4 @@
+mainmenu "Main Menu"
+comment "Configure C-SDK for IoT Embedded Devices"
+
+source "src/utils/Config.in"

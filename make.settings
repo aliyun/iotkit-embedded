@@ -1,0 +1,17 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Main Menu
+#
+
+#
+# Configure C-SDK for IoT Embedded Devices
+#
+# FEATURE_UTILS_LITE_CJSON is not set
+# FEATURE_UTILS_JSON_PARSER is not set
+# FEATURE_UTILS_HTTPC is not set
+# FEATURE_UTILS_BASE64 is not set
+FEATURE_UTILS_STRING=y
+# FEATURE_UTILS_MD5 is not set
+# FEATURE_UTILS_SHA1 is not set
+# FEATURE_UTILS_SHA256 is not set
+# FEATURE_UTILS_EVENT is not set

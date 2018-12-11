@@ -1,15 +1,14 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef UTILS_SHA256
 
 #include <stdlib.h>
 #include <string.h>
 #include "iot_import.h"
 #include "iotx_log.h"
 #include "utils_sha256.h"
+
 /* Shift-right (used in SHA-256, SHA-384, and SHA-512): */
 #define R(b,x)      ((x) >> (b))
 /* 32-bit Rotate-right (used in SHA-256): */
@@ -60,7 +59,6 @@ extern uint32_t os_htobe32(uint32_t data);
 extern uint64_t os_htobe64(uint64_t data);
 extern uint32_t os_be32toh(uint32_t data);
 
-#ifndef BUILD_AOS
 static uint8_t is_little_endian()
 {
     static uint32_t _endian_x_ = 1;
@@ -71,16 +69,14 @@ static uint8_t  is_big_endian()
 {
     return !is_little_endian();
 }
-//reverse byte order
+/* reverse byte order */
 static  uint32_t reverse_32bit(uint32_t data)
 {
     data = (data >> 16) | (data << 16);
     return ((data & 0xff00ff00UL) >> 8) | ((data & 0x00ff00ffUL) << 8);
 }
-#endif
 
-#ifndef BUILD_AOS
-//host byte order to big endian
+/* host byte order to big endian */
 uint32_t os_htobe32(uint32_t data)
 {
     if (is_big_endian()) {
@@ -88,12 +84,13 @@ uint32_t os_htobe32(uint32_t data)
     }
     return reverse_32bit(data);
 }
-//big endian to host byte order
+/* big endian to host byte order */
 uint32_t os_be32toh(uint32_t data)
 {
     return os_htobe32(data);
 }
-static inline uint64_t reverse_64bit(uint64_t data)
+
+static __inline uint64_t reverse_64bit(uint64_t data)
 {
     data = (data >> 32) | (data << 32);
     data = ((data & 0xff00ff00ff00ff00ULL) >> 8) | ((data & 0x00ff00ff00ff00ffULL) << 8);
@@ -101,7 +98,7 @@ static inline uint64_t reverse_64bit(uint64_t data)
     return ((data & 0xffff0000ffff0000ULL) >> 16) | ((data & 0x0000ffff0000ffffULL) << 16);
 }
 
-//host to big endian
+/* host to big endian */
 uint64_t os_htobe64(uint64_t data)
 {
     if (is_big_endian()) {
@@ -110,7 +107,7 @@ uint64_t os_htobe64(uint64_t data)
 
     return reverse_64bit(data);
 }
-#endif
+
 static void utils_sha256_zeroize(void *v, size_t n)
 {
     volatile unsigned char *p = v;
@@ -271,7 +268,7 @@ void utils_sha256_update(iot_sha256_context *ctx, const unsigned char *input, si
 }
 void utils_sha256_finish(iot_sha256_context *ctx, unsigned char output[32])
 {
-    //  int icount = 0;
+    /* int icount = 0; */
     uint32_t *d = (uint32_t *) output;
     unsigned int usedspace;
 
@@ -341,3 +338,5 @@ void utils_sha256(const unsigned char *input, size_t ilen, unsigned char output[
     utils_sha256_finish(&ctx, output);
     utils_sha256_free(&ctx);
 }
+
+#endif
