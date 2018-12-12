@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #ifdef SUPPORT_TLS
-static const char *iotx_ca_crt = \
+const char *iotx_ca_crt = \
 {
     \
     "-----BEGIN CERTIFICATE-----\r\n"
@@ -34,12 +34,3 @@ static const char *iotx_ca_crt = \
     "-----END CERTIFICATE-----"
 };
 #endif  /* #ifdef SUPPORT_TLS */
-
-const char *iotx_ca_get(void)
-{
-#ifdef SUPPORT_TLS
-    return iotx_ca_crt;
-#else
-    return NULL;
-#endif
-}
