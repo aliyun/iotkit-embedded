@@ -21,7 +21,9 @@ endif
 ifdef LIBA_TARGET
 $(TARGET): $(LIBA_TARGET)
 
+ifeq (,$(filter $(MODULE_NAME),$(COMP_LIB_COMPONENTS)))
 LDFLAGS := -l$(subst .a,,$(subst lib,,$(LIBA_TARGET))) $(LDFLAGS)
+endif
 endif
 
 ifdef LIBSO_TARGET

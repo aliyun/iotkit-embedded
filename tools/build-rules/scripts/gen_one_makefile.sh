@@ -166,7 +166,7 @@ for i in ${ALL_PROG}; do
     if [ "$(grep -m 1 "^TARGET_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-|awk '{ print NF }')" = "1" ]; then
         k=""
     fi
-    LFLAGS=$(grep -m 1 "^LDFLAGS_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
+    LFLAGS=$(grep -m 1 "^LDFLAGS_${q}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
     if [ "${CC}" = "gcc" ]; then
         if [ "$(uname)" != "Darwin" ]; then
             LFLAGS="${LFLAGS} -lgcov"
