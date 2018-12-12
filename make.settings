@@ -15,3 +15,7 @@ FEATURE_UTILS_STRING=y
 # FEATURE_UTILS_SHA1 is not set
 # FEATURE_UTILS_SHA256 is not set
 # FEATURE_UTILS_EVENT is not set
+# FEATURE_HAL_KV is not set
+# FEATURE_HAL_CRYPTO is not set
+# FEATURE_HAL_UDP is not set
+# FEATURE_HAL_TCP is not set
