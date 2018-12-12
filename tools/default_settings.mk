@@ -4,6 +4,7 @@ POST_FINAL_OUT_HOOK     := Post_Distro
 SUBDIRS                 := directory-not-exist-actually
 
 SUBDIRS                 += wrappers
+SUBDIRS                 += external_libs/mbedtls
 
 ifeq (Darwin,$(shell uname))
 POST_FINAL_OUT_HOOK     :=
