@@ -1,1 +1,1 @@
-LIBA_TARGET := libiot_utils.a
+LIBA_TARGET := libiot_infra.a

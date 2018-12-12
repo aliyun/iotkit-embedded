@@ -9,6 +9,7 @@
 extern int HAL_SetProductKey(_IN_ char *product_key);
 extern int HAL_SetDeviceName(_IN_ char *device_name);
 extern int HAL_SetDeviceSecret(_IN_ char *device_secret);
+
 int main(int argc, char *argv[])
 {
     iotx_cloud_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;

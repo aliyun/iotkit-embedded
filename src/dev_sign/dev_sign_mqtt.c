@@ -105,7 +105,9 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
     signout->username = g_sign_mqtt_username;
     signout->password = g_sign_mqtt_password;
     signout->clientid = g_sign_mqtt_clientid;
+#ifdef SUPPORT_TLS
     signout->pub_key = iotx_ca_crt;
+#endif
 
     return 0;
 }
