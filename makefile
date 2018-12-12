@@ -9,7 +9,7 @@ include $(RULE_DIR)/funcs.mk
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
-    src/utils \
-    src/auth \
+    src/infra \
+    src/dev_sign \
 
 include $(RULE_DIR)/rules.mk
