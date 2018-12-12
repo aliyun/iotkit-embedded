@@ -6,6 +6,7 @@
 #
 # Configure C-SDK for IoT Embedded Devices
 #
+FEATURE_PLATFORM_HAS_STDINT=y
 # FEATURE_UTILS_LITE_CJSON is not set
 # FEATURE_UTILS_JSON_PARSER is not set
 # FEATURE_UTILS_HTTPC is not set
@@ -19,4 +20,3 @@ FEATURE_UTILS_STRING=y
 # FEATURE_HAL_CRYPTO is not set
 # FEATURE_HAL_UDP is not set
 # FEATURE_HAL_TCP is not set
-FEATURE_SUPPORT_TLS=y

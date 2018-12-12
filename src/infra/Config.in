@@ -1,3 +1,7 @@
+config PLATFORM_HAS_STDINT
+    bool "PLATFORM_HAS_STDINT"
+    default y
+
 config UTILS_LITE_CJSON
     bool
     default n
