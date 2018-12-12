@@ -6,6 +6,7 @@
 
 typedef struct {
     char *hostname;
+    uint16_t port;
     char *clientid;
     char *username;
     char *password;

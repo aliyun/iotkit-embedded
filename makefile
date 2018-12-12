@@ -12,6 +12,5 @@ COMP_LIB_COMPONENTS := \
     external_libs/mbedtls \
     src/infra \
     src/dev_sign \
-    
 
 include $(RULE_DIR)/rules.mk

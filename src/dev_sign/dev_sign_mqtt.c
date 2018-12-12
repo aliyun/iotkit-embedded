@@ -16,6 +16,11 @@
 #define SIGN_MQTT_USERNAME_LEN (IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2)
 #define SIGN_MQTT_PASSWORD_LEN (128)
 
+typedef enum {
+    MODE_TLS_DIRECT             = 2,
+    MODE_TCP_DIRECT_PLAIN       = 3,
+} secure_mode_t;
+
 static char *g_sign_mqtt_direct[] = {
     "iot-as-mqtt.cn-shanghai.aliyuncs.com",         /* Shanghai */
     "iot-as-mqtt.ap-southeast-1.aliyuncs.com",      /* Singapore */
@@ -23,11 +28,6 @@ static char *g_sign_mqtt_direct[] = {
     "iot-as-mqtt.us-west-1.aliyuncs.com",           /* America */
     "iot-as-mqtt.eu-central-1.aliyuncs.com"         /* Germany */
 };
-
-typedef enum {
-    MODE_TLS_DIRECT             = 2,
-    MODE_TCP_DIRECT_PLAIN       = 3,
-} secure_mode_t;
 
 char g_sign_mqtt_hostname[SIGN_MQTT_HOSTNAME_LEN] = {0};
 char g_sign_mqtt_username[SIGN_MQTT_USERNAME_LEN] = {0};
@@ -101,6 +101,7 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
     HAL_Snprintf(g_sign_mqtt_clientid,SIGN_MQTT_CLIENTID_LEN,clientid_fmt,device_id,_get_secure_mode(),timestamp,0,0,partner_id,module_id,IOTX_SDK_VERSION);
 
     signout->hostname = g_sign_mqtt_hostname;
+    signout->port = 1883;
     signout->username = g_sign_mqtt_username;
     signout->password = g_sign_mqtt_password;
     signout->clientid = g_sign_mqtt_clientid;
