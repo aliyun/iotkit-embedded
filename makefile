@@ -9,7 +9,7 @@ include $(RULE_DIR)/funcs.mk
 
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
-    external_libs/mbedtls \
+    external_libs/references \
     src/infra \
     src/dev_sign \
 

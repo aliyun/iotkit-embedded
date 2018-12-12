@@ -1,7 +1,7 @@
 LIBA_TARGET := libiot_hal.a
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 
-HDR_REFS    += external_libs/mbedtls src/infra
+HDR_REFS    += external_libs/references src/infra
 
 LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
 ifneq (,$(filter -DSUPPORT_TLS,$(CFLAGS)))

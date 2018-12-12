@@ -14,12 +14,4 @@ typedef signed int        int32_t;
 typedef unsigned long int uint64_t;
 typedef signed long int   int64_t;
 
-#ifndef _IN_
-#define _IN_
-#endif
-
-#ifndef _OU_
-#define _OU_
-#endif
-
 #endif

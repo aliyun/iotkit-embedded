@@ -6,9 +6,9 @@
 #define DEVICE_NAME    "example_zc"
 #define DEVICE_SECRET  "XZvZ1295n3mzGFYWHUnjy1xkdHb919C8"
 
-extern int HAL_SetProductKey(_IN_ char *product_key);
-extern int HAL_SetDeviceName(_IN_ char *device_name);
-extern int HAL_SetDeviceSecret(_IN_ char *device_secret);
+extern int HAL_SetProductKey(char *product_key);
+extern int HAL_SetDeviceName(char *device_name);
+extern int HAL_SetDeviceSecret(char *device_secret);
 
 int main(int argc, char *argv[])
 {
