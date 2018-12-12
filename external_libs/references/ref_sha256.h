@@ -5,7 +5,7 @@
 #ifndef _IOTX_COMMON_SHA256_H_
 #define _IOTX_COMMON_SHA256_H_
 
-#include "infra_types.h"
+#include <stdint.h>
 
 #define SHA256_BLOCK_LENGTH     64
 #define SHA256_DIGEST_LENGTH    32
