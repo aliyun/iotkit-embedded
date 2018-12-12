@@ -13,4 +13,8 @@ COMP_LIB_COMPONENTS := \
     src/infra \
     src/dev_sign \
 
+SUBDIRS                 += wrappers
+SUBDIRS                 += external_libs/mbedtls
+SUBDIRS                 += external_libs/references
+
 include $(RULE_DIR)/rules.mk

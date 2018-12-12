@@ -1,10 +1,6 @@
 DEFAULT_BLD             ?= $(CONFIG_DIR)/config.ubuntu.x86
 POST_ENV_HOOK           := Post_Env
 POST_FINAL_OUT_HOOK     := Post_Distro
-SUBDIRS                 := directory-not-exist-actually
-
-SUBDIRS                 += wrappers
-SUBDIRS                 += external_libs/mbedtls
 
 ifeq (Darwin,$(shell uname))
 POST_FINAL_OUT_HOOK     :=
