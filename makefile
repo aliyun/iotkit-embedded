@@ -10,5 +10,6 @@ include $(RULE_DIR)/funcs.mk
 COMP_LIB            := libiot_sdk.a
 COMP_LIB_COMPONENTS := \
     src/utils \
+    src/auth \
 
 include $(RULE_DIR)/rules.mk

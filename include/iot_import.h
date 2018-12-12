@@ -517,10 +517,10 @@ DLL_HAL_API long HAL_Ftell(void *stream);
 
 #include "iot_export.h"
 #include "imports/iot_import_tcp.h"
-
-#if 0
 #include "imports/iot_import_config.h"
 #include "imports/iot_import_product.h"
+
+#if 0
 #include "imports/iot_import_crypt.h"
 #include "imports/iot_import_awss.h"
 #include "imports/iot_import_dtls.h"
