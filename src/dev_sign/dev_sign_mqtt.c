@@ -65,7 +65,7 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
     uint16_t signsource_len = 0;
     uint8_t sign[32] = {0};
     const char *sign_fmt = "clientId%sdeviceName%sproductKey%stimestamp%s";
-    const char *clientid_fmt = "%s|securemode=%d,timestamp=%s,signmethod=hmacsha256,gw=%d,ext=%d%s%s,ver=c-sdk-%s|";
+    const char *clientid_fmt = "%s|securemode=%d,timestamp=%s,signmethod=hmacsha256,gw=%d,ext=%d,partner_id=%s,module_id=%s,ver=c-sdk-%s|";
 
     if (signout == NULL || region >= sizeof(g_sign_mqtt_direct)/sizeof(char *)) {
         return -1;
