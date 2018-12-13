@@ -1,0 +1,22 @@
+config MQTT_COMM_ENABLED
+    bool "FEATURE_MQTT_COMM_ENABLED"
+    default n
+    select ALGO_SHA256_WRAPPER
+    select HAL_TCP
+
+    help
+        Establish persistent connection with AliCloud via MQTT-based protocol
+
+        Switching to "y" leads to building MQTT related implementation into SDK and MQTT_COMM_ENABLED included into CFLAGS
+        Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
+
+# menu "MQTT Configurations"
+#     depends on MQTT_COMM_ENABLED
+# 
+#     config MQTT_LOGPOST
+#         bool "FEATURE_MQTT_LOGPOST"
+#         default n
+#         help
+#             Enable capability of publishing important device running log messages to IoT cloud
+# 
+# endmenu

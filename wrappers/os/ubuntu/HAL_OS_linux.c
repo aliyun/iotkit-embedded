@@ -30,6 +30,7 @@ char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1X2bEnP82z";
 char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "";
 char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example_zc";
 char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "XZvZ1295n3mzGFYWHUnjy1xkdHb919C8";
+char _firmware_version[IOTX_FIRMWARE_VER_LEN] = "app-1.0.0-20180101.1000";
 
 void *HAL_Malloc(uint32_t size)
 {
@@ -160,4 +161,14 @@ void HAL_Reboot(void)
     if (system("reboot")) {
         perror("HAL_Reboot failed");
     }
+}
+
+int HAL_GetFirmwareVersion(char *version)
+{
+    char *ver = "app-1.0.0-20180101.1000";
+    int len = strlen(ver);
+    memset(version, 0x0, IOTX_FIRMWARE_VER_LEN);
+    strncpy(version, ver, len);
+    version[len] = '\0';
+    return strlen(version);
 }

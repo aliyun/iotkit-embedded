@@ -1,3 +1,11 @@
 config PLATFORM_HAS_STDINT
     bool "PLATFORM_HAS_STDINT"
     default y
+
+config INFRA_LOG
+    bool
+    default n
+
+config INFRA_MEM_STATS
+    bool
+    default n

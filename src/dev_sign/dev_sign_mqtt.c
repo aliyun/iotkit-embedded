@@ -3,18 +3,8 @@
 #include "dev_sign_api.h"
 #include "dev_sign_wrapper.h"
 
-#ifdef INFRA_MEM_STATS
-#define DEV_SIGN_MQTT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "devsign.mqtt")
-#define DEV_SIGN_MQTT_FREE(ptr)    LITE_free(ptr)
-#else
 #define DEV_SIGN_MQTT_MALLOC(size) HAL_Malloc(size)
 #define DEV_SIGN_MQTT_FREE(ptr)    HAL_Free(ptr)
-#endif
-
-#define SIGN_MQTT_HOSTNAME_LEN (128)
-#define SIGN_MQTT_CLIENTID_LEN (256)
-#define SIGN_MQTT_USERNAME_LEN (IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2)
-#define SIGN_MQTT_PASSWORD_LEN (128)
 
 #define SIGN_MQTT_PORT (1883)
 
@@ -31,11 +21,7 @@ static char *g_sign_mqtt_direct[] = {
     "iot-as-mqtt.eu-central-1.aliyuncs.com"         /* Germany */
 };
 
-char g_sign_mqtt_hostname[SIGN_MQTT_HOSTNAME_LEN] = {0};
-char g_sign_mqtt_username[SIGN_MQTT_USERNAME_LEN] = {0};
-char g_sign_mqtt_password[SIGN_MQTT_PASSWORD_LEN] = {0};
-char g_sign_mqtt_clientid[SIGN_MQTT_CLIENTID_LEN] = {0};
-extern const char *iotx_ca_crt;
+iotx_cloud_region_types_t g_sign_mqtt_region = IOTX_CLOUD_REGION_SHANGHAI;
 
 static secure_mode_t _get_secure_mode(void)
 {
@@ -52,7 +38,7 @@ static secure_mode_t _get_secure_mode(void)
 
 uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signout)
 {
-    int res = 0;
+    uint16_t res = 0, length = 0;
     char partner_id[IOTX_PARTNER_ID_LEN + 1] = {0};
     char module_id[IOTX_MODULE_ID_LEN + 1] = {0};
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
@@ -71,10 +57,11 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
         return -1;
     }
 
-    memset(g_sign_mqtt_hostname,0,SIGN_MQTT_HOSTNAME_LEN);
-    memset(g_sign_mqtt_clientid,0,SIGN_MQTT_CLIENTID_LEN);
-    memset(g_sign_mqtt_username,0,SIGN_MQTT_USERNAME_LEN);
-    memset(g_sign_mqtt_password,0,SIGN_MQTT_PASSWORD_LEN);
+    memset(signout,0,sizeof(iotx_sign_mqtt_t));
+
+    if (region >= 0) {
+        g_sign_mqtt_region = region;
+    }
 
     HAL_GetPartnerID(partner_id);
     HAL_GetModuleID(module_id);
@@ -84,29 +71,63 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
     HAL_Snprintf(device_id,IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1,"%s.%s",product_key,device_name);
     HAL_Snprintf(timestamp,20,"%lld",HAL_UptimeMs());
 
-    signsource_len = strlen(sign_fmt) + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(timestamp) + 1;
-    signsource = DEV_SIGN_MQTT_MALLOC(signsource_len);
-    if (signsource == NULL) {
-        return -1;
-    }
-    memset(signsource,0,signsource_len);
-    HAL_Snprintf(signsource,signsource_len,sign_fmt,device_id,device_name,product_key,timestamp);
+    do {
+        signsource_len = strlen(sign_fmt) + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(timestamp) + 1;
+        signsource = DEV_SIGN_MQTT_MALLOC(signsource_len);
+        if (signsource == NULL) {
+            break;
+        }
+        memset(signsource,0,signsource_len);
+        HAL_Snprintf(signsource,signsource_len,sign_fmt,device_id,device_name,product_key,timestamp);
 
-    res = algo_hmac_sha256_wrapper((uint8_t *)signsource,strlen(signsource),(uint8_t *)device_secret,strlen(device_secret),sign);
-    if (res < 0) {
-        return -1;
-    }
+        res = algo_hmac_sha256_wrapper((uint8_t *)signsource,strlen(signsource),(uint8_t *)device_secret,strlen(device_secret),sign);
+        if (res < 0) {
+            break;
+        }
 
-    HAL_Snprintf(g_sign_mqtt_hostname,SIGN_MQTT_HOSTNAME_LEN,"%s.%s",product_key,g_sign_mqtt_direct[region]);
-    HAL_Snprintf(g_sign_mqtt_username,SIGN_MQTT_USERNAME_LEN,"%s.%s",device_name,product_key);
-    infra_hex2str(sign,32,g_sign_mqtt_password);
-    HAL_Snprintf(g_sign_mqtt_clientid,SIGN_MQTT_CLIENTID_LEN,clientid_fmt,device_id,_get_secure_mode(),timestamp,0,0,partner_id,module_id,IOTX_SDK_VERSION);
+        /* Get Sign Information For MQTT */
+        length = strlen(product_key) + strlen(g_sign_mqtt_direct[g_sign_mqtt_region]) + 2;
+        signout->hostname = DEV_SIGN_MQTT_MALLOC(length);
+        if (signout->hostname == NULL) {
+            break;
+        }
+        memset(signout->hostname,0,length);
+        HAL_Snprintf(signout->hostname,length,"%s.%s",product_key,g_sign_mqtt_direct[g_sign_mqtt_region]);
 
-    signout->hostname = g_sign_mqtt_hostname;
-    signout->port = SIGN_MQTT_PORT;
-    signout->username = g_sign_mqtt_username;
-    signout->password = g_sign_mqtt_password;
-    signout->clientid = g_sign_mqtt_clientid;
+        length = strlen(device_name) + strlen(product_key) + 2;
+        signout->username = DEV_SIGN_MQTT_MALLOC(length);
+        if (signout->username == NULL) {
+            break;
+        }
+        memset(signout->username,0,length);
+        HAL_Snprintf(signout->username,length,"%s.%s",device_name,product_key);
 
-    return 0;
+        length = 32 * 2 + 1;
+        signout->password = DEV_SIGN_MQTT_MALLOC(length);
+        if (signout->password == NULL) {
+            break;
+        }
+        memset(signout->password,0,length);
+        infra_hex2str(sign,32,signout->password);
+
+        length = strlen(clientid_fmt) + strlen(device_id) + strlen(timestamp) + strlen(partner_id) + strlen(module_id) + strlen(IOTX_SDK_VERSION) + 30 + 1;
+        signout->clientid = DEV_SIGN_MQTT_MALLOC(length);
+        if (signout->clientid == NULL) {
+            break;
+        }
+        memset(signout->clientid,0,length);
+        HAL_Snprintf(signout->clientid,length,clientid_fmt,device_id,_get_secure_mode(),timestamp,0,0,partner_id,module_id,IOTX_SDK_VERSION);
+
+        signout->port = SIGN_MQTT_PORT;
+
+        return 0;
+    }while(0);
+    
+    if (signsource) {DEV_SIGN_MQTT_FREE(signsource);}
+    if (signout->hostname) {DEV_SIGN_MQTT_FREE(signout->hostname);}
+    if (signout->username) {DEV_SIGN_MQTT_FREE(signout->username);}
+    if (signout->password) {DEV_SIGN_MQTT_FREE(signout->password);}
+    if (signout->clientid) {DEV_SIGN_MQTT_FREE(signout->clientid);}
+
+    return -1;
 }
