@@ -1,7 +1,9 @@
 config MQTT_COMM_ENABLED
     bool "FEATURE_MQTT_COMM_ENABLED"
     default n
+    select DEV_SIGN
     select ALGO_SHA256_WRAPPER
+    select INFRA_NET
     select HAL_TCP
 
     help

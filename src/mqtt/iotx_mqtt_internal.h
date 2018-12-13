@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "mqtt_wrapper.h"
-#include "iot_export_mqtt.h"
+#include "mqtt_api.h"
 
 #ifdef INFRA_LOG
 #define mqtt_emerg(...)             log_emerg("MQTT", __VA_ARGS__)

@@ -14,9 +14,6 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 
-#include "iot_import.h"
-#include "iotx_hal_internal.h"
-
 static uint64_t _linux_get_time_ms(void)
 {
     struct timeval tv = { 0 };
@@ -53,7 +50,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     memset(&hints, 0, sizeof(hints));
 
-    hal_info("establish tcp connection with server(host='%s', port=[%u])", host, port);
+    printf("establish tcp connection with server(host='%s', port=[%u])\n", host, port);
 
     hints.ai_family = AF_INET; /* only IPv4 */
     hints.ai_socktype = SOCK_STREAM;
@@ -61,20 +58,20 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     sprintf(service, "%u", port);
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        hal_err("getaddrinfo error(%d), host = '%s', port = [%d]", rc, host, port);
+        printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
         return -1;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
-            hal_err("socket type error");
+            printf("socket type error\n");
             rc = -1;
             continue;
         }
 
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
-            hal_err("create socket error");
+            printf("create socket error\n");
             rc = -1;
             continue;
         }
@@ -85,14 +82,14 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
         }
 
         close(fd);
-        hal_err("connect error");
+        printf("connect error\n");
         rc = -1;
     }
 
     if (-1 == rc) {
-        hal_err("fail to establish tcp");
+        printf("fail to establish tcp\n");
     } else {
-        hal_info("success to establish tcp, fd=%d", rc);
+        printf("success to establish tcp, fd=%d\n", rc);
     }
     freeaddrinfo(addrInfoList);
 
@@ -106,13 +103,13 @@ int HAL_TCP_Destroy(uintptr_t fd)
     /* Shutdown both send and receive operations. */
     rc = shutdown((int) fd, 2);
     if (0 != rc) {
-        hal_err("shutdown error");
+        printf("shutdown error\n");
         return -1;
     }
 
     rc = close((int) fd);
     if (0 != rc) {
-        hal_err("closesocket error");
+        printf("closesocket error\n");
         return -1;
     }
 
@@ -146,21 +143,21 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             ret = select(fd + 1, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
                 if (0 == FD_ISSET(fd, &sets)) {
-                    hal_err("Should NOT arrive");
+                    printf("Should NOT arrive\n");
                     /* If timeout in next loop, it will not sent any data */
                     ret = 0;
                     continue;
                 }
             } else if (0 == ret) {
-                hal_err("select-write timeout %d", (int)fd);
+                printf("select-write timeout %d\n", (int)fd);
                 break;
             } else {
                 if (EINTR == errno) {
-                    hal_err("EINTR be caught");
+                    printf("EINTR be caught\n");
                     continue;
                 }
 
-                hal_err("select-write fail, ret = select() = %d", ret);
+                printf("select-write fail, ret = select() = %d\n", ret);
                 net_err = 1;
                 break;
             }
@@ -171,14 +168,14 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             if (ret > 0) {
                 len_sent += ret;
             } else if (0 == ret) {
-                hal_err("No data be sent");
+                printf("No data be sent\n");
             } else {
                 if (EINTR == errno) {
-                    hal_err("EINTR be caught");
+                    printf("EINTR be caught\n");
                     continue;
                 }
 
-                hal_err("send fail, ret = send() = %d", ret);
+                printf("send fail, ret = send() = %d\n", ret);
                 net_err = 1;
                 break;
             }
@@ -221,22 +218,22 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {
-                hal_err("connection is closed");
+                printf("connection is closed\n");
                 err_code = -1;
                 break;
             } else {
                 if (EINTR == errno) {
-                    hal_err("EINTR be caught");
+                    printf("EINTR be caught\n");
                     continue;
                 }
-                hal_err("recv fail");
+                printf("recv fail\n");
                 err_code = -2;
                 break;
             }
         } else if (0 == ret) {
             break;
         } else {
-            hal_err("select-recv fail");
+            printf("select-recv fail\n");
             err_code = -2;
             break;
         }

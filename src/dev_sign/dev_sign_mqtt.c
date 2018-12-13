@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "infra_string.h"
 #include "dev_sign_api.h"
@@ -69,7 +70,7 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
     HAL_GetDeviceName(device_name);
     HAL_GetDeviceSecret(device_secret);
     HAL_Snprintf(device_id,IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1,"%s.%s",product_key,device_name);
-    HAL_Snprintf(timestamp,20,"%lld",HAL_UptimeMs());
+    HAL_Snprintf(timestamp,20,"%s","2524608000000");
 
     do {
         signsource_len = strlen(sign_fmt) + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(timestamp) + 1;
@@ -79,6 +80,8 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
         }
         memset(signsource,0,signsource_len);
         HAL_Snprintf(signsource,signsource_len,sign_fmt,device_id,device_name,product_key,timestamp);
+
+        printf("signsource: %s\n",signsource);
 
         res = algo_hmac_sha256_wrapper((uint8_t *)signsource,strlen(signsource),(uint8_t *)device_secret,strlen(device_secret),sign);
         if (res < 0) {
@@ -100,7 +103,7 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
             break;
         }
         memset(signout->username,0,length);
-        HAL_Snprintf(signout->username,length,"%s.%s",device_name,product_key);
+        HAL_Snprintf(signout->username,length,"%s&%s",device_name,product_key);
 
         length = 32 * 2 + 1;
         signout->password = DEV_SIGN_MQTT_MALLOC(length);

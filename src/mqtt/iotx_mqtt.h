@@ -10,7 +10,7 @@
 #include "infra_types.h"
 #include "infra_list.h"
 #include "iotx_mqtt_config.h"
-#include "iot_export_mqtt.h"
+#include "mqtt_api.h"
 #ifdef BUILD_AOS
 #include "MQTTPacket/MQTTPacket.h"
 #else

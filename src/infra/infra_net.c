@@ -6,23 +6,22 @@
 #include <string.h>
 
 #include "infra_net.h"
+uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
+int HAL_TCP_Destroy(uintptr_t fd);
+int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
 
 /*** TCP connection ***/
-#ifdef NET_TCP_WRAPPER
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     return HAL_TCP_Read(pNetwork->handle, buffer, len, timeout_ms);
 }
-#endif
 
-#ifdef NET_TCP_WRAPPER
 static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     return HAL_TCP_Write(pNetwork->handle, buffer, len, timeout_ms);
 }
-#endif
 
-#ifdef NET_TCP_WRAPPER
 static int disconnect_tcp(utils_network_pt pNetwork)
 {
     if (pNetwork->handle == (uintptr_t)(-1)) {
@@ -33,9 +32,7 @@ static int disconnect_tcp(utils_network_pt pNetwork)
     pNetwork->handle = -1;
     return 0;
 }
-#endif
 
-#ifdef NET_TCP_WRAPPER
 static int connect_tcp(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
@@ -49,7 +46,6 @@ static int connect_tcp(utils_network_pt pNetwork)
 
     return 0;
 }
-#endif
 
 /*** SSL connection ***/
 #ifdef SUPPORT_TLS
@@ -186,9 +182,7 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
     int     ret = 0;
 
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-#ifdef NET_TCP_WRAPPER
         ret = read_tcp(pNetwork, buffer, len, timeout_ms);
-#endif
     }
 #if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
@@ -212,9 +206,7 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
     int     ret = 0;
 
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-#ifdef NET_TCP_WRAPPER
         ret = write_tcp(pNetwork, buffer, len, timeout_ms);
-#endif
     }
 #if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
@@ -238,9 +230,7 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
     int     ret = 0;
 
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-#ifdef NET_TCP_WRAPPER
         ret = disconnect_tcp(pNetwork);
-#endif
     }
 #if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
@@ -264,9 +254,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
     int     ret = 0;
 
     if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-#ifdef NET_TCP_WRAPPER
         ret = connect_tcp(pNetwork);
-#endif
     }
 #if defined(SUPPORT_ITLS)
     else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
