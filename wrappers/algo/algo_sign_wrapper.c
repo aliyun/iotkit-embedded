@@ -3,8 +3,9 @@
  */
 
 #include <stdio.h>
-#include "ref_sha256.h"
 
+#ifdef ALGO_SHA256_WRAPPER
+#include "ref_sha256.h"
 uint8_t algo_sha256_wrapper(uint8_t *input, uint16_t input_len, uint8_t output[32])
 {
     utils_sha256(input, input_len,output);
@@ -16,3 +17,4 @@ uint8_t algo_hmac_sha256_wrapper(uint8_t *input, uint16_t input_len, uint8_t *ke
     utils_hmac_sha256(input, input_len, key, key_len, output);
     return 0;
 }
+#endif

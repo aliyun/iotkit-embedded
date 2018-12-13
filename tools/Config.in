@@ -2,4 +2,5 @@ mainmenu "Main Menu"
 comment "Configure C-SDK for IoT Embedded Devices"
 
 source "src/infra/Config.in"
+source "src/dev_sign/Config.in"
 source "wrappers/Config.in"
