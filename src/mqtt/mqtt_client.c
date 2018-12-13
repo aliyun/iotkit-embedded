@@ -263,56 +263,39 @@ static int iotx_mc_get_zip_topic(const char *path, int len, char outbuf[], int o
 }
 #endif
 
-static int _conn_info_dynamic_create(iotx_mqtt_param_t *mqtt_param)
-{
-
-    iotx_conn_info_pt pconn_info = iotx_conn_info_get();
-    if (pconn_info->init != 0) {
-        return 0;
-    }
-    if (iotx_guider_authenticate(pconn_info) < 0) {
-        return -1;
-    }
-    mqtt_param->port = pconn_info->port;
-    mqtt_param->host = pconn_info->host_name;
-    mqtt_param->client_id = pconn_info->client_id;
-    mqtt_param->username = pconn_info->username;
-    mqtt_param->password = pconn_info->password;
-    mqtt_param->pub_key = pconn_info->pub_key;
-
-    return 0;
-}
-
-static void _conn_info_dynamic_release()
-{
-#if WITH_MQTT_DYN_CONNINFO
-    iotx_conn_info_release();
-#endif
-}
-
 /* set MQTT connection parameter */
 static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
 {
 #if WITH_MQTT_DYN_CONNINFO
-    int rc;
+    int res = 0;
+    iotx_sign_mqtt_t sign_mqtt;
+    const char *pub_key = NULL;
+
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-    iotx_conn_info_pt pconn;
-    pconn = iotx_conn_info_reload();
-    if (pconn == NULL) {
-        return NULL_VALUE_ERROR;
+
+    memset(&sign_mqtt,0,sizeof(iotx_sign_mqtt_t));    
+    res = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &sign_mqtt);
+    if (res < 0) {
+        return -1;
     }
-    pClient->connect_data.clientID.cstring = pconn->client_id;
-    pClient->connect_data.username.cstring = pconn->username;
-    pClient->connect_data.password.cstring = pconn->password;
+
+    pClient->connect_data.clientID.cstring = sign_mqtt.clientid;
+    pClient->connect_data.username.cstring = sign_mqtt.username;
+    pClient->connect_data.password.cstring = sign_mqtt.password;
 
     HAL_GetProductKey(product_key);
-    rc = iotx_net_init(pClient->ipstack, pconn->host_name, pconn->port, pconn->pub_key, product_key);
-    if (SUCCESS_RETURN != rc) {
+
+#ifdef SUPPORT_TLS
+    extern const char *iotx_ca_crt;
+    pub_key = iotx_ca_crt;
+#endif
+
+    res = iotx_net_init(pClient->ipstack, sign_mqtt.hostname, sign_mqtt.port, pub_key, product_key);
+    if (SUCCESS_RETURN != res) {
         mqtt_err("iotx_net_init err");
-        _conn_info_dynamic_release();
         return -1;
     }
 #endif
@@ -2937,7 +2920,6 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
     int             rc = FAIL_RETURN;
     uint32_t        interval_ms = 0;
-    iotx_conn_info_t *pconn = NULL;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2951,20 +2933,13 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 
     mqtt_info("start to reconnect");
 
-    pconn = iotx_conn_info_get();
-    if (pconn == NULL) {
-        return NULL_VALUE_ERROR;
-    }
-
     rc = _conn_info_dynamic_reload(pClient);
     if (SUCCESS_RETURN != rc) {
         mqtt_err("update connect info err");
-        _conn_info_dynamic_release();
         return -1;
     }
 
     rc = iotx_mc_attempt_reconnect(pClient);
-    _conn_info_dynamic_release();
     if (SUCCESS_RETURN == rc) {
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
         return SUCCESS_RETURN;
@@ -3078,7 +3053,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
             handler = next_handler;
         }
     }
-    iotx_conn_info_release();
+
     HAL_MutexDestroy(pClient->lock_generic);
     HAL_MutexDestroy(pClient->lock_list_sub);
     HAL_MutexDestroy(pClient->lock_list_pub);
@@ -3196,7 +3171,7 @@ static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt
 
 static int _get_report_devinfo(char *pk, char *dn, char **url, char **payload)
 {
-    int res = 0, url_len = 0, payload_len = 0;
+    int url_len = 0, payload_len = 0;
     const char *url_fmt = "/sys/%s/%s/thing/deviceinfo/update";
     const char *payload_fmt = "{\"id\":\"11111111112\",\"version\":\"1.0\",\"params\":["
                                      "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
@@ -3283,14 +3258,12 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                 err;
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
-    iotx_conn_info_t *conn_info = NULL;
+    iotx_sign_mqtt_t sign_mqtt;
 
-    if (pInitParams != NULL) {
-        if (g_mqtt_client != NULL) {
-            IOT_MQTT_Destroy(&g_mqtt_client);
-        }
-        _conn_info_dynamic_create(pInitParams);
-    } else {
+    memset(&sign_mqtt,0,sizeof(iotx_sign_mqtt_t));
+
+    if (pInitParams == NULL) {
+
         if (g_mqtt_client != NULL) {
             return NULL;
         }
@@ -3299,8 +3272,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params == NULL) {
             return NULL;
         }
-
-        int ret = IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&conn_info);
+        
+        int ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &sign_mqtt);
         if (ret != SUCCESS_RETURN) {
             mqtt_free(mqtt_params);
             return NULL;
@@ -3308,13 +3281,15 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         /* Initialize MQTT parameter */
         memset(mqtt_params, 0x0, sizeof(iotx_mqtt_param_t));
 
-        mqtt_params->port = conn_info->port;
-        mqtt_params->host = conn_info->host_name;
-        mqtt_params->client_id = conn_info->client_id;
-        mqtt_params->username = conn_info->username;
-        mqtt_params->password = conn_info->password;
-        mqtt_params->pub_key = conn_info->pub_key;
-
+        mqtt_params->port = sign_mqtt.port;
+        mqtt_params->host = sign_mqtt.hostname;
+        mqtt_params->client_id = sign_mqtt.clientid;
+        mqtt_params->username = sign_mqtt.username;
+        mqtt_params->password = sign_mqtt.password;
+#ifdef SUPPORT_TLS
+        extern const char *iotx_ca_crt;
+        mqtt_params->pub_key = iotx_ca_crt;
+#endif
         mqtt_params->request_timeout_ms    = 2000;
         mqtt_params->clean_session         = 0;
         mqtt_params->keepalive_interval_ms = 60000;
@@ -3333,7 +3308,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             mqtt_free(mqtt_params);
 
         }
-        _conn_info_dynamic_release();
         return NULL;
     }
 
@@ -3343,7 +3317,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params != NULL) {
             mqtt_free(mqtt_params);
         }
-        _conn_info_dynamic_release();
         return NULL;
     }
 
@@ -3355,7 +3328,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params != NULL) {
             mqtt_free(mqtt_params);
         }
-        _conn_info_dynamic_release();
         return NULL;
     }
 
@@ -3364,7 +3336,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     err = iotx_mc_connect(pclient);
-    _conn_info_dynamic_release();
     if (SUCCESS_RETURN != err) {
         mqtt_err("iotx_mc_connect failed");
         iotx_mc_release(pclient);
@@ -3624,7 +3595,9 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter)
         return NULL_VALUE_ERROR;
     }
 
-    STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
+    if (topic_filter == NULL || strlen(topic_filter) == 0) {
+        return NULL_VALUE_ERROR;
+    }
 
     return iotx_mc_unsubscribe(client, topic_filter);
 }
@@ -3638,7 +3611,9 @@ int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_
         return NULL_VALUE_ERROR;
     }
 
-    STRING_PTR_SANITY_CHECK(topic_name, NULL_VALUE_ERROR);
+    if (topic_name == NULL || strlen(topic_name) == 0) {
+        return NULL_VALUE_ERROR;
+    }
 
     rc = iotx_mc_publish(client, topic_name, topic_msg);
     return rc;

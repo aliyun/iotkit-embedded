@@ -172,3 +172,51 @@ int HAL_GetFirmwareVersion(char *version)
     version[len] = '\0';
     return strlen(version);
 }
+
+void *HAL_MutexCreate(void)
+{
+    int err_num;
+    pthread_mutex_t *mutex = (pthread_mutex_t *)HAL_Malloc(sizeof(pthread_mutex_t));
+    if (NULL == mutex) {
+        return NULL;
+    }
+
+    if (0 != (err_num = pthread_mutex_init(mutex, NULL))) {
+        printf("create mutex failed\n");
+        HAL_Free(mutex);
+        return NULL;
+    }
+
+    return mutex;
+}
+
+void HAL_MutexDestroy(void *mutex)
+{
+    int err_num;
+
+    if (!mutex) {
+        printf("mutex want to destroy is NULL!\n");
+        return;
+    }
+    if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
+        printf("destroy mutex failed\n");
+    }
+
+    HAL_Free(mutex);
+}
+
+void HAL_MutexLock(void *mutex)
+{
+    int err_num;
+    if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
+        printf("lock mutex failed: - '%s' (%d)\n", strerror(err_num), err_num);
+    }
+}
+
+void HAL_MutexUnlock(void *mutex)
+{
+    int err_num;
+    if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
+        printf("unlock mutex failed - '%s' (%d)\n", strerror(err_num), err_num);
+    }
+}
