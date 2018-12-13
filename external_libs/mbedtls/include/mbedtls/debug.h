@@ -14,7 +14,6 @@
 #endif
 
 #include "ssl.h"
-#include "iotx_log.h"
 
 #define tls_info(...)     log_info("tls", __VA_ARGS__)
 
