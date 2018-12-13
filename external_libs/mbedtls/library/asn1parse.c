@@ -1,7 +1,8 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef SUPPORT_TLS
+
+
 
 
 #if !defined(MBEDTLS_CONFIG_FILE)
@@ -376,4 +377,3 @@ mbedtls_asn1_named_data *mbedtls_asn1_find_named_data( mbedtls_asn1_named_data *
 }
 
 #endif /* MBEDTLS_ASN1_PARSE_C */
-#endif

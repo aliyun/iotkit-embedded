@@ -10,7 +10,6 @@
  *  http://csrc.nist.gov/encryption/aes/rijndael/Rijndael.pdf
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
-#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -1480,4 +1479,3 @@ exit:
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_AES_C */
-#endif

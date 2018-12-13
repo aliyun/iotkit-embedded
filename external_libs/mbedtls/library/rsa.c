@@ -21,7 +21,6 @@
  *      https://arxiv.org/abs/1702.08719v2
  *
  */
-#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -1845,4 +1844,3 @@ cleanup:
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_RSA_C */
-#endif

@@ -9,7 +9,6 @@
  *
  *  http://csrc.nist.gov/publications/nistpubs/800-90/SP800-90revised_March2007.pdf
  */
-#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -581,4 +580,3 @@ int mbedtls_ctr_drbg_self_test( int verbose )
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_CTR_DRBG_C */
-#endif

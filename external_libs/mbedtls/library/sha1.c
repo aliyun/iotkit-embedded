@@ -9,7 +9,6 @@
  *
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
-#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -435,4 +434,3 @@ exit:
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_SHA1_C */
-#endif

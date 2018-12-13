@@ -1,7 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef SUPPORT_TLS
+
+
+
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -690,4 +692,3 @@ int mbedtls_oid_get_numeric_string( char *buf, size_t size,
 }
 
 #endif /* MBEDTLS_OID_C */
-#endif

@@ -8,7 +8,6 @@
  * These session callbacks use a simple chained list
  * to store and retrieve the session information.
  */
-#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -245,4 +244,3 @@ int mbedtls_ssl_cookie_check( void *p_ctx,
     return( 0 );
 }
 #endif /* MBEDTLS_SSL_COOKIE_C */
-#endif

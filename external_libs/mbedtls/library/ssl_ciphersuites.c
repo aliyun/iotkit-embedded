@@ -1,7 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef SUPPORT_TLS
+
+
+
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -1837,4 +1839,3 @@ int mbedtls_ssl_ciphersuite_uses_psk( const mbedtls_ssl_ciphersuite_t *info )
 #endif /* MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED */
 
 #endif /* MBEDTLS_SSL_TLS_C */
-#endif

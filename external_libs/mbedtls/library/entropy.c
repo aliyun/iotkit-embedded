@@ -1,7 +1,8 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef SUPPORT_TLS
+
+
 
 
 #if !defined(MBEDTLS_CONFIG_FILE)
@@ -640,4 +641,3 @@ cleanup:
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_ENTROPY_C */
-#endif

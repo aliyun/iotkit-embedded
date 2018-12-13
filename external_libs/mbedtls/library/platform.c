@@ -1,7 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef SUPPORT_TLS
+
+
+
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -289,4 +291,3 @@ int mbedtls_platform_set_nv_seed(
 #endif /* MBEDTLS_ENTROPY_NV_SEED */
 
 #endif /* MBEDTLS_PLATFORM_C */
-#endif

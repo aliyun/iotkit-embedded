@@ -1,7 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef SUPPORT_TLS
+
+
+
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -431,4 +433,3 @@ int mbedtls_pem_write_buffer( const char *header, const char *footer,
 }
 #endif /* MBEDTLS_PEM_WRITE_C */
 #endif /* MBEDTLS_PEM_PARSE_C || MBEDTLS_PEM_WRITE_C */
-#endif
