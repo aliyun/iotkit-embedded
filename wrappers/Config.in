@@ -1,16 +1,3 @@
-config HAL_KV
+config ALGO_SHA256
     bool
     default n
-
-config HAL_CRYPTO
-    bool
-    default n
-
-config HAL_UDP
-    bool
-    default n
-
-config HAL_TCP
-    bool
-    default n
-

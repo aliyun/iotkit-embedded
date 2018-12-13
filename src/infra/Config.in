@@ -1,39 +1,3 @@
 config PLATFORM_HAS_STDINT
     bool "PLATFORM_HAS_STDINT"
     default y
-
-config UTILS_LITE_CJSON
-    bool
-    default n
-
-config UTILS_JSON_PARSER
-    bool
-    default n
-
-config UTILS_HTTPC
-    bool
-    default n
-
-config UTILS_BASE64
-    bool
-    default n
-
-config UTILS_STRING
-    bool
-    default y
-
-config UTILS_MD5
-    bool
-    default n
-
-config UTILS_SHA1
-    bool
-    default n
-
-config UTILS_SHA256
-    bool
-    default n
-
-config UTILS_EVENT
-    bool
-    default n

@@ -14,7 +14,7 @@ COMP_LIB_COMPONENTS := \
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
-SUBDIRS                 += external_libs/references
+SUBDIRS                 += external_libs/refs
 
 CFLAGS += $(foreach V,$(shell find external_libs -type d),-I$(V))
 
