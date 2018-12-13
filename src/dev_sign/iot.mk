@@ -2,6 +2,7 @@ LIBA_TARGET     := libiot_auth.a
 
 HDR_REFS        := src/infra
 
+DEPENDS         += external_libs/references wrappers
 LDFLAGS         += -liot_sdk -liot_hal -liot_refs
 
 TARGET          := dev-sign-example

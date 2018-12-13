@@ -16,6 +16,8 @@
 #define SIGN_MQTT_USERNAME_LEN (IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2)
 #define SIGN_MQTT_PASSWORD_LEN (128)
 
+#define SIGN_MQTT_PORT (1883)
+
 typedef enum {
     MODE_TLS_DIRECT             = 2,
     MODE_TCP_DIRECT_PLAIN       = 3,
@@ -101,13 +103,10 @@ uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
     HAL_Snprintf(g_sign_mqtt_clientid,SIGN_MQTT_CLIENTID_LEN,clientid_fmt,device_id,_get_secure_mode(),timestamp,0,0,partner_id,module_id,IOTX_SDK_VERSION);
 
     signout->hostname = g_sign_mqtt_hostname;
-    signout->port = 1883;
+    signout->port = SIGN_MQTT_PORT;
     signout->username = g_sign_mqtt_username;
     signout->password = g_sign_mqtt_password;
     signout->clientid = g_sign_mqtt_clientid;
-#ifdef SUPPORT_TLS
-    signout->pub_key = iotx_ca_crt;
-#endif
 
     return 0;
 }
