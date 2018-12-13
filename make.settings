@@ -7,6 +7,8 @@
 # Configure C-SDK for IoT Embedded Devices
 #
 FEATURE_PLATFORM_HAS_STDINT=y
+FEATURE_INFRA_STRING=y
+# FEATURE_INFRA_NET is not set
 # FEATURE_INFRA_LOG is not set
 # FEATURE_INFRA_MEM_STATS is not set
 FEATURE_DEV_SIGN=y

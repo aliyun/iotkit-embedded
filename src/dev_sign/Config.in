@@ -2,3 +2,4 @@ config DEV_SIGN
     bool
     default y
     select ALGO_SHA256_WRAPPER
+    select INFRA_STRING

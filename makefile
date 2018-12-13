@@ -16,6 +16,8 @@ ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
     COMP_LIB_COMPONENTS += src/mqtt
 endif
 
+
+
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
 SUBDIRS                 += external_libs/refs

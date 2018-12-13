@@ -1,3 +1,4 @@
+#ifdef INFRA_STRING
 #include "infra_string.h"
 
 void infra_hex2str(uint8_t *input, uint16_t input_len, char *output)
@@ -10,3 +11,4 @@ void infra_hex2str(uint8_t *input, uint16_t input_len, char *output)
         output[j++] = zEncode[(input[i]) & 0xf];
     }
 }
+#endif
