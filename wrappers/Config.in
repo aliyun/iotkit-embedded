@@ -2,10 +2,6 @@ config ALGO_SHA256_WRAPPER
     bool
     default n
 
-config HAL_TCP
-    bool
-    default n
-
 config SUPPORT_TLS
     bool "Support TLS"
     default n
