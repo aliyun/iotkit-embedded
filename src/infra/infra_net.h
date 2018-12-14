@@ -40,6 +40,10 @@ struct utils_network {
     int (*connect)(utils_network_pt);
 };
 
+typedef struct {
+    void *(*malloc)(uint32_t size);
+    void (*free)(void *ptr);
+} ssl_hooks_t;
 
 int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms);
 int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);

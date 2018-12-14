@@ -3,6 +3,7 @@
  */
 
 #ifdef INFRA_NET
+#include <stdio.h>
 #include <string.h>
 
 #include "infra_net.h"
@@ -10,6 +11,16 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
 int HAL_TCP_Destroy(uintptr_t fd);
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+void *HAL_Malloc(uint32_t size);
+void HAL_Free(void *ptr);
+uintptr_t HAL_SSL_Establish(const char *host,
+                            uint16_t port,
+                            const char *ca_crt,
+                            size_t ca_crt_len);
+int32_t HAL_SSL_Destroy(uintptr_t handle);
+int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
+int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms);
+int HAL_SSLHooks_set(ssl_hooks_t *hooks);
 
 /*** TCP connection ***/
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -51,11 +62,19 @@ static int connect_tcp(utils_network_pt pNetwork)
 #ifdef SUPPORT_TLS
 static void *ssl_malloc(uint32_t size)
 {
+#ifdef INFRA_MEM_STATS
     return LITE_malloc(size, MEM_MAGIC, "tls");
+#else
+    return HAL_Malloc(size);
+#endif
 }
 static void ssl_free(void *ptr)
 {
+#ifdef INFRA_MEM_STATS
     LITE_free(ptr);
+#else
+    HAL_Free(ptr);
+#endif
 }
 
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -112,7 +131,9 @@ static int connect_ssl(utils_network_pt pNetwork)
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
+#if 0
         iotx_event_post(IOTX_CONN_CLOUD_FAIL);
+#endif
         return -1;
     }
 }

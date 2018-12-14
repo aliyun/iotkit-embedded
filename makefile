@@ -16,7 +16,9 @@ ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
     COMP_LIB_COMPONENTS += src/mqtt
 endif
 
-
+ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
+    COMP_LIB_COMPONENTS += certs
+endif
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls

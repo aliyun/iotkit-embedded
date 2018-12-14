@@ -2458,6 +2458,12 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
     memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     HAL_GetProductKey(product_key);
+
+#ifdef SUPPORT_TLS
+    extern const char *iotx_ca_crt;
+    pInitParams->pub_key = iotx_ca_crt;
+#endif
+
     rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key, product_key);
 
     if (SUCCESS_RETURN != rc) {

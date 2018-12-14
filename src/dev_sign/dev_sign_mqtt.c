@@ -37,7 +37,7 @@ static secure_mode_t _get_secure_mode(void)
     return  res;
 }
 
-uint8_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signout)
+int32_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signout)
 {
     uint16_t res = 0, length = 0;
     char partner_id[IOTX_PARTNER_ID_LEN + 1] = {0};
