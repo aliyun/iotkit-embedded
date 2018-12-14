@@ -263,7 +263,7 @@ static int iotx_mc_get_zip_topic(const char *path, int len, char outbuf[], int o
 }
 #endif
 
-static int _conn_info_dynamic_reload_clear(iotx_mc_client_t *pClient)
+static void _conn_info_dynamic_reload_clear(iotx_mc_client_t *pClient)
 {
 #if WITH_MQTT_DYN_CONNINFO
     mqtt_free(pClient->connect_data.clientID.cstring);
