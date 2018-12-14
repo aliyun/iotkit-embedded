@@ -263,6 +263,16 @@ static int iotx_mc_get_zip_topic(const char *path, int len, char outbuf[], int o
 }
 #endif
 
+static int _conn_info_dynamic_reload_clear(iotx_mc_client_t *pClient)
+{
+#if WITH_MQTT_DYN_CONNINFO
+    mqtt_free(pClient->connect_data.clientID.cstring);
+    mqtt_free(pClient->connect_data.username.cstring);
+    mqtt_free(pClient->connect_data.password.cstring);
+    mqtt_free(pClient->ipstack->pHostAddress);
+#endif
+}
+
 /* set MQTT connection parameter */
 static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
 {
@@ -2948,6 +2958,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     rc = iotx_mc_attempt_reconnect(pClient);
     if (SUCCESS_RETURN == rc) {
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
+        _conn_info_dynamic_reload_clear(pClient);
         return SUCCESS_RETURN;
     } else {
         /* if reconnect network failed, then increase currentReconnectWaitInterval */
@@ -2959,6 +2970,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         }
     }
 
+    _conn_info_dynamic_reload_clear(pClient);
     interval_ms = pClient->reconnect_param.reconnect_time_interval_ms;
     interval_ms += HAL_Random(pClient->reconnect_param.reconnect_time_interval_ms);
     if (IOTX_MC_RECONNECT_INTERVAL_MAX_MS < interval_ms) {
