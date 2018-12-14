@@ -80,6 +80,11 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...)
     return rc;
 }
 
+int HAL_Vsnprintf(char *str, const int len, const char *format, va_list ap)
+{
+    return vsnprintf(str, len, format, ap);
+}
+
 void HAL_Printf(const char *fmt, ...)
 {
     va_list args;
