@@ -12,13 +12,8 @@ COMP_LIB_COMPONENTS := \
     src/infra \
     src/dev_sign \
 
-ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-    COMP_LIB_COMPONENTS += src/mqtt
-endif
-
-ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
-    COMP_LIB_COMPONENTS += certs
-endif
+$(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/mqtt)
+$(call CompLib_Map, FEATURE_SUPPORT_TLS, certs)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
