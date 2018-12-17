@@ -9,15 +9,27 @@
 
 #include "infra_types.h"
 #include "infra_list.h"
+#include "infra_timer.h"
 #include "iotx_mqtt_config.h"
 #include "mqtt_api.h"
+
 #ifdef BUILD_AOS
-#include "MQTTPacket/MQTTPacket.h"
+    #include "MQTTPacket/MQTTPacket.h"
 #else
-#include "MQTTPacket.h"
+    #include "MQTTPacket.h"
 #endif
 
-#include "infra_timer.h"
+#ifdef INFRA_MEM_STATS
+    #define mqtt_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
+    #define mqtt_free(ptr)               LITE_free(ptr)
+#else
+    #define mqtt_malloc(size)            HAL_Malloc(size)
+    #define mqtt_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
+
+#define MQTT_DYNBUF_SEND_MARGIN                      (64)
+
+#define MQTT_DYNBUF_RECV_MARGIN                      (8)
 
 typedef enum {
     IOTX_MC_CONNECTION_ACCEPTED = 0,
@@ -54,15 +66,6 @@ typedef struct iotx_mc_topic_handle_s {
     iotx_mqtt_event_handle_t handle;
     struct iotx_mc_topic_handle_s *next;
 } iotx_mc_topic_handle_t;
-
-/* Handle structure of subscribed topic */
-typedef struct  {
-    char *topic_filter;
-    iotx_mqtt_event_handle_func_fpt handle;
-    void *user_data;
-    iotx_mqtt_qos_t qos;
-    struct list_head linked_list;
-} iotx_mc_offline_subs_t;
 
 /* Information structure of subscribed topic */
 typedef struct SUBSCRIBE_INFO {
@@ -133,23 +136,5 @@ typedef struct {
     iotx_mqtt_event_handle_func_fpt                messageHandler;
 } iotx_mutli_sub_info_t, *iotx_mutli_sub_info_pt;
 
-typedef struct {
-    struct list_head offline_sub_list;
-    void *mutex;
-} offline_sub_list_t;
-
-int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams);
-int iotx_mc_connect(iotx_mc_client_t *pClient);
-int iotx_mc_disconnect(iotx_mc_client_t *pClient);
-int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient);
-int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient);
-
-int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter);
-int iotx_mc_subscribe(iotx_mc_client_t *c,
-                      const char *topicFilter,
-                      iotx_mqtt_qos_t qos,
-                      iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                      void *pcontext);
-int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg);
 
 #endif  /* __IOTX_MQTT_H__ */

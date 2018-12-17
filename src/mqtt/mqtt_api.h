@@ -4,6 +4,7 @@
 
 #ifndef _IOT_EXPORT_MQTT_H_
 #define _IOT_EXPORT_MQTT_H_
+#include "infra_types.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -168,16 +169,16 @@ void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
 int MAL_MQTT_Destroy(void **phandle);
 int MAL_MQTT_Yield(void *handle, int timeout_ms);
 int MAL_MQTT_Subscribe(void *handle,
-                                   const char *topic_filter,
-                                   iotx_mqtt_qos_t qos,
-                                   iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                                   void *pcontext);
+                       const char *topic_filter,
+                       iotx_mqtt_qos_t qos,
+                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                       void *pcontext);
 int MAL_MQTT_Subscribe_Sync(void *handle,
-                                        const char *topic_filter,
-                                        iotx_mqtt_qos_t qos,
-                                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                                        void *pcontext,
-                                        int timeout_ms);
+                            const char *topic_filter,
+                            iotx_mqtt_qos_t qos,
+                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                            void *pcontext,
+                            int timeout_ms);
 int MAL_MQTT_Unsubscribe(void *handle, const char *topic_filter);
 int MAL_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
 int MAL_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
@@ -271,10 +272,10 @@ int IOT_MQTT_CheckStateNormal(void *handle);
  * @see None.
  */
 int IOT_MQTT_Subscribe(void *handle,
-                                   const char *topic_filter,
-                                   iotx_mqtt_qos_t qos,
-                                   iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                                   void *pcontext);
+                       const char *topic_filter,
+                       iotx_mqtt_qos_t qos,
+                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                       void *pcontext);
 
 /**
  * @brief Subscribe MQTT topic and wait suback.
@@ -293,11 +294,11 @@ int IOT_MQTT_Subscribe(void *handle,
  * @see None.
  */
 int IOT_MQTT_Subscribe_Sync(void *handle,
-                                        const char *topic_filter,
-                                        iotx_mqtt_qos_t qos,
-                                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                                        void *pcontext,
-                                        int timeout_ms);
+                            const char *topic_filter,
+                            iotx_mqtt_qos_t qos,
+                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                            void *pcontext,
+                            int timeout_ms);
 
 
 /**
