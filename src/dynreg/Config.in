@@ -1,0 +1,7 @@
+config DYNAMIC_REGISTER
+    bool "FEATURE_DYNAMIC_REGISTER"
+    default n
+    select ALGO_SHA256_WRAPPER
+    select INFRA_STRING
+    select INFRA_RANDOM
+    select INFRA_HTTPC

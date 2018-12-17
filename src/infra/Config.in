@@ -17,3 +17,13 @@ config INFRA_LOG
 config INFRA_MEM_STATS
     bool
     default n
+
+config INFRA_TIMER
+    bool
+    default n
+
+config INFRA_HTTPC
+    bool
+    default n
+    select INFRA_NET
+    select INFRA_TIMER

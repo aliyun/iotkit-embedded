@@ -12,3 +12,34 @@ void infra_hex2str(uint8_t *input, uint16_t input_len, char *output)
     }
 }
 #endif
+
+#ifdef INFRA_RANDOM
+int infra_randstr(char *random, int length)
+{
+    int index = 0;
+
+    HAL_Srandom(HAL_UptimeMs());
+
+    for (index = 0; index < length; index++) {
+        switch (HAL_Random(3)) {
+            case 0: {
+                random[index] = 'A' + HAL_Random(26);
+            }
+            break;
+            case 1: {
+                random[index]  = 'a' + HAL_Random(26);
+            }
+            break;
+            case 2: {
+                random[index] = '0' + HAL_Random(10);
+            }
+            break;
+            default: {
+                return -1;
+            }
+        }
+    }
+
+    return 0;
+}
+#endif

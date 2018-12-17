@@ -14,6 +14,7 @@ COMP_LIB_COMPONENTS := \
 
 $(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/mqtt)
 $(call CompLib_Map, FEATURE_SUPPORT_TLS, certs)
+$(call CompLib_Map, FEATURE_DYNAMIC_REGISTER, src/dynreg)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls

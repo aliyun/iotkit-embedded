@@ -17,9 +17,7 @@
 #include "MQTTPacket.h"
 #endif
 
-typedef struct {
-    uint32_t time;
-} iotx_time_t;
+#include "infra_timer.h"
 
 typedef enum {
     IOTX_MC_CONNECTION_ACCEPTED = 0,

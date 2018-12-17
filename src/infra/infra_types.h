@@ -1,11 +1,10 @@
-#if !defined(PLATFORM_HAS_STDINT)
-
 #ifndef _INFRA_TYPES_H_
 #define _INFRA_TYPES_H_
 
-// #ifndef NULL
-// #define NULL ((void*)0)
-// #endif
+#define IOT_TRUE            (1)     /* indicate boolean value true */
+#define IOT_FALSE           (0)     /* indicate boolean value false */
+
+#if !defined(PLATFORM_HAS_STDINT)
 
 typedef unsigned char       uint8_t;
 typedef signed char         int8_t;
@@ -16,9 +15,9 @@ typedef signed int          int32_t;
 typedef unsigned long int   uint64_t;
 typedef signed long int     int64_t;
 
-#endif
 #else
 
 #include <stdint.h>
 
 #endif  /* #if !defined(PLATFORM_HAS_STDINT) */
+#endif
