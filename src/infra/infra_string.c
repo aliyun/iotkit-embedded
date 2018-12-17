@@ -14,6 +14,11 @@ void infra_hex2str(uint8_t *input, uint16_t input_len, char *output)
 #endif
 
 #ifdef INFRA_RANDOM
+
+uint64_t HAL_UptimeMs(void);
+void HAL_Srandom(uint32_t seed);
+uint32_t HAL_Random(uint32_t region);
+
 int infra_randstr(char *random, int length)
 {
     int index = 0;

@@ -12,6 +12,6 @@ typedef struct {
     char *password;
 } iotx_sign_mqtt_t;
 
-int32_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signout);
+int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_sign_mqtt_t *signout);
 
 #endif

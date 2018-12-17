@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    iotx_cloud_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
+    iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
     iotx_sign_mqtt_t sign_mqtt;
 
     printf("mqtt example\n");

@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     int res = 0;
     void *pclient = NULL;
     uint64_t time_prev = 0;
-    iotx_cloud_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
+    iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
     iotx_sign_mqtt_t sign_mqtt;
     iotx_mqtt_param_t mqtt_params;
 

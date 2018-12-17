@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "infra_defs.h"
 #include "infra_string.h"
 #include "dev_sign_api.h"
 #include "dev_sign_wrapper.h"
@@ -14,15 +15,7 @@ typedef enum {
     MODE_TCP_DIRECT_PLAIN       = 3,
 } secure_mode_t;
 
-static char *g_sign_mqtt_direct[] = {
-    "iot-as-mqtt.cn-shanghai.aliyuncs.com",         /* Shanghai */
-    "iot-as-mqtt.ap-southeast-1.aliyuncs.com",      /* Singapore */
-    "iot-as-mqtt.ap-northeast-1.aliyuncs.com",      /* Japan */
-    "iot-as-mqtt.us-west-1.aliyuncs.com",           /* America */
-    "iot-as-mqtt.eu-central-1.aliyuncs.com"         /* Germany */
-};
-
-iotx_cloud_region_types_t g_sign_mqtt_region = IOTX_CLOUD_REGION_SHANGHAI;
+iotx_mqtt_region_types_t g_sign_mqtt_region = IOTX_CLOUD_REGION_SHANGHAI;
 
 static secure_mode_t _get_secure_mode(void)
 {
@@ -37,7 +30,7 @@ static secure_mode_t _get_secure_mode(void)
     return  res;
 }
 
-int32_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signout)
+int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_sign_mqtt_t *signout)
 {
     uint16_t res = 0, length = 0;
     char partner_id[IOTX_PARTNER_ID_LEN + 1] = {0};
@@ -54,7 +47,7 @@ int32_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
     const char *sign_fmt = "clientId%sdeviceName%sproductKey%stimestamp%s";
     const char *clientid_fmt = "%s|securemode=%d,timestamp=%s,signmethod=hmacsha256,gw=%d,ext=%d,partner_id=%s,module_id=%s,ver=c-sdk-%s|";
 
-    if (signout == NULL || region >= sizeof(g_sign_mqtt_direct)/sizeof(char *)) {
+    if (signout == NULL || region >= sizeof(g_infra_mqtt_domain)/sizeof(char *)) {
         return -1;
     }
 
@@ -89,13 +82,13 @@ int32_t IOT_Sign_MQTT(iotx_cloud_region_types_t region, iotx_sign_mqtt_t *signou
         }
 
         /* Get Sign Information For MQTT */
-        length = strlen(product_key) + strlen(g_sign_mqtt_direct[g_sign_mqtt_region]) + 2;
+        length = strlen(product_key) + strlen(g_infra_mqtt_domain[g_sign_mqtt_region]) + 2;
         signout->hostname = DEV_SIGN_MQTT_MALLOC(length);
         if (signout->hostname == NULL) {
             break;
         }
         memset(signout->hostname,0,length);
-        HAL_Snprintf(signout->hostname,length,"%s.%s",product_key,g_sign_mqtt_direct[g_sign_mqtt_region]);
+        HAL_Snprintf(signout->hostname,length,"%s.%s",product_key,g_infra_mqtt_domain[g_sign_mqtt_region]);
 
         length = strlen(device_name) + strlen(product_key) + 2;
         signout->username = DEV_SIGN_MQTT_MALLOC(length);

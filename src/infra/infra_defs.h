@@ -241,6 +241,13 @@ typedef enum IOT_RETURN_CODES {
 
 } iotx_err_t;
 
+typedef struct {
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
+    char device_name[IOTX_DEVICE_NAME_LEN + 1];
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
+} iotx_dev_meta_info_t;
+
 typedef enum {
     IOTX_CLOUD_REGION_SHANGHAI,   /* Shanghai */
     IOTX_CLOUD_REGION_SINGAPORE,  /* Singapore */
@@ -249,6 +256,21 @@ typedef enum {
     IOTX_CLOUD_REGION_GERMANY,    /* Germany */
     IOTX_CLOUD_REGION_CUSTOM,     /* Custom setting */
     IOTX_CLOUD_DOMAIN_MAX         /* Maximum number of domain */
-} iotx_cloud_region_types_t;
+} iotx_mqtt_region_types_t;
+
+#define IOTX_MQTT_DOMAIN_NUMBER (5)
+extern const char *g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
+
+typedef enum {
+    IOTX_HTTP_REGION_SHANGHAI,   /* Shanghai */
+    IOTX_HTTP_REGION_SINGAPORE,  /* Singapore */
+    IOTX_HTTP_REGION_JAPAN,      /* Japan */
+    IOTX_HTTP_REGION_AMERICA,    /* America */
+    IOTX_HTTP_REGION_GERMANY,    /* Germany */
+    IOTX_HTTP_REGION_MAX         /* Maximum number of domain */
+} iotx_http_region_types_t;
+
+#define IOTX_HTTP_DOMAIN_NUMBER (5)
+extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
 
 #endif

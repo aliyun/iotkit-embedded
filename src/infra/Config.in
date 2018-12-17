@@ -22,6 +22,14 @@ config INFRA_TIMER
     bool
     default n
 
+config INFRA_RANDOM
+    bool
+    default n
+
+config INFRA_CJSON
+    bool
+    default n
+
 config INFRA_HTTPC
     bool
     default n
