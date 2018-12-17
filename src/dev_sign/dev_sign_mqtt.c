@@ -2,6 +2,7 @@
 #include <string.h>
 #include "infra_defs.h"
 #include "infra_string.h"
+#include "infra_sha256.h"
 #include "dev_sign_api.h"
 #include "dev_sign_wrapper.h"
 
@@ -32,7 +33,7 @@ static secure_mode_t _get_secure_mode(void)
 
 int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *meta, iotx_sign_mqtt_t *signout)
 {
-    uint16_t res = 0, length = 0;
+    uint16_t length = 0;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
     char timestamp[20] = {0};
 
@@ -66,10 +67,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
         printf("signsource: %s\n",signsource);
 
-        res = algo_hmac_sha256_wrapper((uint8_t *)signsource,strlen(signsource),(uint8_t *)meta->device_secret,strlen(meta->device_secret),sign);
-        if (res < 0) {
-            break;
-        }
+        utils_hmac_sha256((uint8_t *)signsource,strlen(signsource),(uint8_t *)meta->device_secret,strlen(meta->device_secret),sign);
 
         /* Get Sign Information For MQTT */
         length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[g_sign_mqtt_region]) + 2;

@@ -2,7 +2,7 @@ config MQTT_COMM_ENABLED
     bool "FEATURE_MQTT_COMM_ENABLED"
     default y
     select DEV_SIGN
-    select ALGO_SHA256_WRAPPER
+    select INFRA_SHA256
     select INFRA_NET
     select INFRA_TIMER
     select HAL_TCP

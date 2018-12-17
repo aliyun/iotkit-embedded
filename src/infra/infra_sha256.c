@@ -1,10 +1,11 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#ifdef INFRA_SHA256
 
 #include <stdlib.h>
 #include <string.h>
-#include "ref_sha256.h"
+#include "infra_sha256.h"
 
 #define SHA256_KEY_IOPAD_SIZE  (64)
 #define SHA256_DIGEST_SIZE     (32)
@@ -381,3 +382,5 @@ void utils_hmac_sha256(const uint8_t *msg, uint32_t msg_len, const uint8_t *key,
     utils_sha256_update(&context, output, SHA256_DIGEST_SIZE);     /* then results of 1st hash */
     utils_sha256_finish(&context, output);                       /* finish up 2nd pass */
 }
+
+#endif

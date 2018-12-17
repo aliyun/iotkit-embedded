@@ -8,6 +8,7 @@
 #include "infra_defs.h"
 #include "infra_types.h"
 #include "infra_net.h"
+#include "infra_sha256.h"
 #include "MQTTPacket.h"
 #include "iotx_mqtt.h"
 #include "iotx_mqtt_internal.h"
@@ -172,7 +173,7 @@ static int iotx_mc_get_zip_topic(const char *path, int len, char outbuf[], int o
         return -1;
     }
 
-    algo_sha256_wrapper((unsigned char *)path, (size_t)len, comp_data);
+    utils_sha256((unsigned char *)path, (size_t)len, comp_data);
 
     memcpy(outbuf, comp_data, outlen > MQTT_ZIP_PATH_DEFAULT_LEN ? MQTT_ZIP_PATH_DEFAULT_LEN : outlen);
     return 0;

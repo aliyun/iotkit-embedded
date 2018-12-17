@@ -30,6 +30,10 @@ config INFRA_CJSON
     bool
     default n
 
+config INFRA_SHA256
+    bool
+    default n
+
 config INFRA_HTTPC
     bool
     default n

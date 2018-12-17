@@ -3,7 +3,7 @@ LIBA_TARGET := libiot_mqtt.a
 HDR_REFS        := src/infra
 
 DEPENDS         += external_libs/refs wrappers
-LDFLAGS         += -liot_sdk -liot_hal -liot_refs -liot_tls
+LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 
 TARGET          := mqtt-example
 

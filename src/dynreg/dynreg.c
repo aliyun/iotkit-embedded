@@ -8,6 +8,7 @@
 #include "infra_string.h"
 #include "infra_httpc.h"
 #include "infra_cjson.h"
+#include "infra_sha256.h"
 #include "dynreg_internal.h"
 #include "dynreg_wrapper.h"
 
@@ -46,7 +47,7 @@ static int _calc_dynreg_sign(
     memset(sign_source, 0, sign_source_len);
     HAL_Snprintf((char *)sign_source, sign_source_len, dynamic_register_sign_fmt, device_name, product_key, random);
 
-    algo_hmac_sha256_wrapper(sign_source,strlen((const char *)sign_source),(uint8_t *)product_secret,strlen(product_secret),signnum);
+    utils_hmac_sha256(sign_source,strlen((const char *)sign_source),(uint8_t *)product_secret,strlen(product_secret),signnum);
     infra_hex2str(signnum,32,sign);
     dynreg_free(sign_source);
     dynreg_info("Sign: %s", sign);

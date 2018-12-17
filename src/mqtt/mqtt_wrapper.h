@@ -25,5 +25,3 @@ void HAL_MutexUnlock(void *mutex);
 void HAL_SleepMs(uint32_t ms);
 uint32_t HAL_Random(uint32_t region);
 int HAL_GetFirmwareVersion(char *version);
-
-uint8_t algo_sha256_wrapper(uint8_t *input, uint16_t input_len, uint8_t output[32]);
