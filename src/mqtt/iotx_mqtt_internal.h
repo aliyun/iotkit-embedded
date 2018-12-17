@@ -15,6 +15,7 @@
 #include "mqtt_api.h"
 
 #ifdef INFRA_LOG
+#include "infra_log.h"
 #define mqtt_emerg(...)             log_emerg("MQTT", __VA_ARGS__)
 #define mqtt_crit(...)              log_crit("MQTT", __VA_ARGS__)
 #define mqtt_err(...)               log_err("MQTT", __VA_ARGS__)
