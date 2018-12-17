@@ -1,6 +1,6 @@
 config MQTT_COMM_ENABLED
     bool "FEATURE_MQTT_COMM_ENABLED"
-    default y
+    default n
     select DEV_SIGN
     select INFRA_SHA256
     select INFRA_NET

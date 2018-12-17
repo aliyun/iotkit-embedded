@@ -7,7 +7,6 @@
 #include "infra_defs.h"
 #include "infra_string.h"
 #include "infra_httpc.h"
-#include "infra_cjson.h"
 #include "infra_sha256.h"
 #include "dynreg_internal.h"
 #include "dynreg_wrapper.h"
@@ -17,6 +16,100 @@
 #define DYNREG_RANDOM_KEY_LENGTH            (15)
 #define DYNREG_SIGN_LENGTH                  (65)
 #define DYNREG_SIGN_METHOD_HMACSHA256       "hmacsha256"
+
+static int _parse_string_value(char *payload,int *pos, int *start, int *end)
+{
+    int idx = 0;
+
+    for (idx = *pos + 1;idx < strlen(payload);idx++) {
+        if (payload[idx] == '\"') {
+            break;
+        }
+    }
+    *start = *pos + 1;
+    *end = idx - 1;
+    *pos = idx;
+
+    return 0;
+}
+
+static int _parse_dynreg_value(char *payload,char *key, int *pos,int *start, int *end)
+{
+    int idx = 0;
+    /* printf("=====%s\n",&payload[*pos]); */
+
+    if (memcmp(key,"code",strlen("code")) == 0) {
+        for (idx = *pos;idx < strlen(payload);idx++) {
+            if (payload[idx] < '0' || payload[idx] > '9') {
+               break;
+            }
+        }
+        *start = *pos;
+        *end = idx - 1;
+        *pos = *end;
+        return 0;
+    }else if (memcmp(key,"data",strlen("data")) == 0) {
+        int bracket_cnt = 0;
+        if (payload[*pos] != '{') {
+            return -1;
+        }
+        for (idx = *pos;idx < strlen(payload);idx++) {
+            if (payload[idx] == '{') {
+                bracket_cnt++;
+            }else if (payload[idx] == '}') {
+                bracket_cnt--;
+            }
+            if (bracket_cnt == 0) {
+                break;
+            }
+        }
+        *start = *pos;
+        *end = idx;
+        *pos = *end;
+        return 0;
+    }else{
+        if (payload[*pos] != '\"') {
+            return -1;
+        }
+        return _parse_string_value(payload,pos,start,end);
+    }
+
+    return -1;
+}
+
+static int _parse_dynreg_result(char *payload, char *key, int *start, int *end)
+{
+	int res = 0, idx = 0, pos = 0;
+
+	for (idx = 0; idx < strlen(payload); idx++)
+	{
+        /* printf("loop start: %s\n",&payload[idx]); */
+		if (payload[idx] == '\"') {
+			for (pos = idx+1;pos < strlen(payload);pos++) {
+				if (payload[pos] == '\"') {
+					/* printf("key: %.*s\n",pos - idx - 1, &payload[idx+1]); */
+                    break;
+				}
+			}
+
+            if (pos == strlen(payload) || payload[pos+1] != ':') {
+                return -1;
+            }
+
+            pos += 2;
+            res = _parse_dynreg_value(payload,key, &pos,start,end);
+            if (res == 0 && memcmp(key,&payload[idx+1],strlen(key)) == 0) {
+                /* printf("value: %.*s\n",*end - *start + 1,&payload[*start]); */
+                return 0;
+            }
+
+            idx = pos;
+		}
+	}
+
+    printf("exit 4\n");
+    return -1;
+}
 
 static int _calc_dynreg_sign(
             char product_key[IOTX_PRODUCT_KEY_LEN],
@@ -66,7 +159,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     const char          *pub_key = NULL;
     httpclient_t        http_client;
     httpclient_data_t   http_client_data;
-    lite_cjson_t        lite, lite_item_code, lite_item_data, lite_item_ds;
+    int                 start = 0, end = 0, data_start = 0, data_end = 0;
 
     memset(&http_client, 0, sizeof(httpclient_t));
     memset(&http_client_data, 0, sizeof(httpclient_data_t));
@@ -107,48 +200,24 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     dynreg_free(url);
     dynreg_info("Http Response Payload: %s", http_client_data.response_buf);
 
-    /* Parse Http Response */
-    memset(&lite, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_parse(response_payload, strlen(response_payload), &lite);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
-        dynreg_err("Http Response Payload Parse Failed");
+    _parse_dynreg_result(response_payload,"code",&start,&end);
+    dynreg_info("Dynamic Register Code: %.*s", end - start + 1,&response_payload[start]);
+
+    if (memcmp(&response_payload[start],"200",strlen("200")) != 0) {
         return FAIL_RETURN;
     }
 
-    /* Parse Code */
-    memset(&lite_item_code, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_object_item(&lite, "code", strlen("code"), &lite_item_code);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_code)) {
-        dynreg_err("Http Response Payload Parse Failed");
-        return FAIL_RETURN;
-    }
-    dynreg_info("Dynamic Register Code: %d", lite_item_code.value_int);
+	_parse_dynreg_result(response_payload,"data",&data_start,&data_end);
+   /*  dynreg_info("value: %.*s\n",data_end - data_start + 1,&response_payload[data_start]); */
 
-    if (lite_item_code.value_int != 200) {
+    _parse_dynreg_result(&response_payload[data_start + 1],"deviceSecret",&start,&end);
+    dynreg_info("Dynamic Register Device Secret: %.*s",end - start + 1,&response_payload[data_start + 1 + start]);
+
+    if (end - start + 1 > IOTX_DEVICE_SECRET_LEN) {
         return FAIL_RETURN;
     }
 
-    /* Parse Data */
-    memset(&lite_item_data, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_object_item(&lite, "data", strlen("data"), &lite_item_data);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item_data)) {
-        dynreg_err("Http Response Payload Parse Failed");
-        return FAIL_RETURN;
-    }
-
-    /* Ignore ProductKey and DeviceName, just parse DeviceSecret */
-    memset(&lite_item_ds, 0, sizeof(lite_cjson_t));
-    res = lite_cjson_object_item(&lite_item_data, "deviceSecret", strlen("deviceSecret"), &lite_item_ds);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_ds)) {
-        dynreg_err("Http Response Payload Parse Failed");
-        return FAIL_RETURN;
-    }
-    dynreg_info("Dynamic Register Device Secret: %.*s", lite_item_ds.value_length, lite_item_ds.value);
-    if (lite_item_ds.value_length > IOTX_DEVICE_SECRET_LEN) {
-        return FAIL_RETURN;
-    }
-
-    memcpy(device_secret, lite_item_ds.value, lite_item_ds.value_length);
+    memcpy(device_secret, &response_payload[data_start + 1 + start], end - start + 1);
 
     return SUCCESS_RETURN;
 }

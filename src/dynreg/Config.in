@@ -4,5 +4,4 @@ config DYNAMIC_REGISTER
     select INFRA_STRING
     select INFRA_RANDOM
     select INFRA_HTTPC
-    select INFRA_CJSON
     select INFRA_SHA256
