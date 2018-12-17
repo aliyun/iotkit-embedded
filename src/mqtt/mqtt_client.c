@@ -194,6 +194,7 @@ static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
 {
 #if WITH_MQTT_DYN_CONNINFO
     int res = 0;
+    iotx_dev_meta_info_t meta;
     iotx_sign_mqtt_t sign_mqtt;
     const char *pub_key = NULL;
 
@@ -202,8 +203,13 @@ static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
     }
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
 
+    memset(&meta,0,sizeof(iotx_dev_meta_info_t));
+    HAL_GetProductKey(meta.product_key);
+    HAL_GetDeviceName(meta.device_name);
+    HAL_GetDeviceSecret(meta.device_secret);
+
     memset(&sign_mqtt,0,sizeof(iotx_sign_mqtt_t));    
-    res = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &sign_mqtt);
+    res = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &sign_mqtt);
     if (res < 0) {
         return -1;
     }
@@ -3192,6 +3198,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                 err;
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
+    iotx_dev_meta_info_t meta;
     iotx_sign_mqtt_t sign_mqtt;
 
     memset(&sign_mqtt,0,sizeof(iotx_sign_mqtt_t));
@@ -3206,8 +3213,15 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params == NULL) {
             return NULL;
         }
-        
-        int ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &sign_mqtt);
+
+        memset(&meta,0,sizeof(iotx_dev_meta_info_t));
+        HAL_GetProductKey(meta.product_key);
+        HAL_GetDeviceName(meta.device_name);
+        HAL_GetDeviceSecret(meta.device_secret);
+
+        memset(&sign_mqtt,0,sizeof(iotx_sign_mqtt_t));
+
+        int ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &sign_mqtt);
         if (ret != SUCCESS_RETURN) {
             mqtt_free(mqtt_params);
             return NULL;

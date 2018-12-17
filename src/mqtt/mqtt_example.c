@@ -5,6 +5,15 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 
+#define EXAMPLE_PRODUCT_KEY     "a1X2bEnP82z"
+#define EXAMPLE_PRODUCT_SECRET  "7jluWm1zql7bt8qK"
+#define EXAMPLE_DEVICE_NAME     "example1"
+#define EXAMPLE_DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
+
+int HAL_SetProductKey(char *product_key);
+int HAL_SetProductSecret(char *product_secret);
+int HAL_SetDeviceName(char *device_name);
+int HAL_SetDeviceSecret(char *device_secret);
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
@@ -124,12 +133,24 @@ int main(int argc, char *argv[])
     void *pclient = NULL;
     uint64_t time_prev = 0;
     iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
+    iotx_dev_meta_info_t meta;
     iotx_sign_mqtt_t sign_mqtt;
     iotx_mqtt_param_t mqtt_params;
 
+    memset(&meta,0,sizeof(iotx_dev_meta_info_t));
+    memcpy(meta.product_key,EXAMPLE_PRODUCT_KEY,strlen(EXAMPLE_PRODUCT_KEY));
+    memcpy(meta.product_secret,EXAMPLE_PRODUCT_SECRET,strlen(EXAMPLE_PRODUCT_SECRET));
+    memcpy(meta.device_name,EXAMPLE_DEVICE_NAME,strlen(EXAMPLE_DEVICE_NAME));
+    memcpy(meta.device_secret,EXAMPLE_DEVICE_SECRET,strlen(EXAMPLE_DEVICE_SECRET));
+
+    HAL_SetProductKey(EXAMPLE_PRODUCT_KEY);
+    HAL_SetProductSecret(EXAMPLE_PRODUCT_SECRET);
+    HAL_SetDeviceName(EXAMPLE_DEVICE_NAME);
+    HAL_SetDeviceSecret(EXAMPLE_DEVICE_SECRET);
+
     memset(&sign_mqtt, 0x0, sizeof(iotx_sign_mqtt_t));
 
-    if (IOT_Sign_MQTT(region,&sign_mqtt) < 0) {
+    if (IOT_Sign_MQTT(region,&meta,&sign_mqtt) < 0) {
         return -1;
     }
 
