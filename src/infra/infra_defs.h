@@ -1,6 +1,20 @@
 #ifndef _INFRA_DEFS_H_
 #define _INFRA_DEFS_H_
 
+#ifdef _WIN32
+#if !defined(CC_IS_MINGW32)
+#ifdef DLL_IOT_EXPORTS
+#define DLL_IOT_API __declspec(dllexport)
+#else
+#define DLL_IOT_API __declspec(dllimport)
+#endif
+#else
+#define DLL_IOT_API
+#endif
+#else
+#define DLL_IOT_API
+#endif
+
 #define IOTX_SDK_VERSION     "2.3.0"
 #define IOTX_FIRMWARE_VERSION_LEN     (32)
 #define IOTX_PRODUCT_KEY_LEN     (20)

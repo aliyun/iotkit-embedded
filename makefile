@@ -19,6 +19,7 @@ $(call CompLib_Map, FEATURE_ALINK_PROTOCOL_ENABLE, src/alink)
 $(call CompLib_Map, FEATURE_SAL_ENABLED, external_libs/sal)
 $(call CompLib_Map, FEATURE_DEV_RESET, src/dev_reset)
 $(call CompLib_Map, FEATURE_ALINK_PROTOCOL_ENABLE, src/device_model)
+$(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls

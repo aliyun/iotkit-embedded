@@ -26,7 +26,15 @@ config INFRA_RANDOM
     bool
     default n
 
+config INFRA_JSON_PARSER
+    bool
+    default n
+
 config INFRA_CJSON
+    bool
+    default n
+
+config INFRA_MD5
     bool
     default n
 

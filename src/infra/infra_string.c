@@ -1,6 +1,12 @@
 #ifdef INFRA_STRING
 #include "infra_string.h"
 
+int8_t infra_hex2char(uint8_t hex)
+{
+    hex = hex & 0xF;
+    return (int8_t)(hex < 10 ? '0' + hex : hex - 10 + 'a');
+}
+
 void infra_hex2str(uint8_t *input, uint16_t input_len, char *output)
 {
     char *zEncode = "0123456789ABCDEF";
