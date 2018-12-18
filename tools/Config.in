@@ -3,6 +3,7 @@ comment "Configure C-SDK for IoT Embedded Devices"
 
 source "src/infra/Config.in"
 source "src/dev_sign/Config.in"
+source "src/dev_reset/Config.in"
 source "src/mqtt/Config.in"
 source "src/dynreg/Config.in"
 source "src/alink/Config.in"

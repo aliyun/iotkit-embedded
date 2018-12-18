@@ -7,8 +7,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#include "iotx_hal_internal.h"
+#include "infra_defs.h"
 
 #define TABLE_COL_SIZE    (384)
 #define TABLE_ROW_SIZE    (2)
@@ -18,6 +17,8 @@
 #define ITEM_MAX_LEN         sizeof(kv_item_t)
 
 #define KV_FILE_NAME         "linkkit_kv.bin"
+
+#define kv_err(...)               do{printf(__VA_ARGS__);printf("\r\n");}while(0)
 
 typedef struct kv {
     char key[ITEM_MAX_KEY_LEN];
@@ -62,22 +63,22 @@ static unsigned int hash_gen(const char *key)
 static int hash_table_put(kv_file_t *file, const  char *key, void *value, int value_len)
 {
     if (!file || !file->filename ||  !key || !value  || value_len <= 0) {
-        hal_err("paras err");
+        kv_err("paras err");
         return -1;
     }
 
     int i = hash_gen(key);
-    hal_err("hash i= %d", i);
+    kv_err("hash i= %d", i);
     int read_size = ITEM_MAX_LEN * TABLE_ROW_SIZE;
     kv_item_t *kv = malloc(read_size);
     if (kv == NULL) {
-        hal_err("malloc kv err");
+        kv_err("malloc kv err");
         return -1;
     }
 
     memset(kv, 0, read_size);
     if (read_kv_item(file->filename, kv, i) != 0) {
-        hal_err("read kv err");
+        kv_err("read kv err");
         free_kv(kv);
         return -1;
     }
@@ -95,7 +96,7 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
         }
 
         if (++j == TABLE_ROW_SIZE) {
-            hal_err("hash row full");
+            kv_err("hash row full");
             free(kv);
             return -1;
         }
@@ -111,7 +112,7 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
     }
 
     if (write_kv_item(file->filename, kv, i) < 0) {
-        hal_err("write_kv_item err");
+        kv_err("write_kv_item err");
         free(kv);
         return -1;
     }
@@ -124,7 +125,7 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
 {
 
     if (!file || !file->filename || !key || !value || !len  || *len <= 0) {
-        hal_err("paras err");
+        kv_err("paras err");
         return -1;
     }
 
@@ -134,13 +135,13 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
     int read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
     kv_item_t *kv = malloc(read_size);
     if (kv == NULL) {
-        hal_err("malloc kv err");
+        kv_err("malloc kv err");
         return -1;
     }
 
     memset(kv, 0, read_size);
     if (read_kv_item(file->filename, kv, i) != 0) {
-        hal_err("read kv err");
+        kv_err("read kv err");
         free_kv(kv);
         return -1;
     }
@@ -162,7 +163,7 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
         p = &kv[j];
     }
     free_kv(kv);
-    hal_err("not found");
+    kv_err("not found");
     return -1;
 }
 
@@ -210,19 +211,19 @@ static int read_kv_item(const char *filename, void *buf, int location)
 {
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
-        hal_err("open err");
+        kv_err("open err");
         return -1;
     }
 
     struct stat st;
     if (fstat(fd, &st) < 0) {
-        hal_err("fstat err");
+        kv_err("fstat err");
         close(fd);
         return -1;
     }
 
     if (st.st_size < (location + 1) *ITEM_MAX_LEN * TABLE_ROW_SIZE) {
-        hal_err("read overstep");
+        kv_err("read overstep");
         close(fd);
         return -1;
     }
@@ -231,7 +232,7 @@ static int read_kv_item(const char *filename, void *buf, int location)
     lseek(fd, offset, SEEK_SET);
 
     if (read(fd, buf, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN * TABLE_ROW_SIZE) {
-        hal_err("read err");
+        kv_err("read err");
         close(fd);
         return -1;
     }
@@ -249,13 +250,13 @@ static int write_kv_item(const char *filename, void *data, int location)
 
     struct stat st;
     if (fstat(fd, &st) < 0) {
-        hal_err("fstat err");
+        kv_err("fstat err");
         close(fd);
         return -1;
     }
 
     if (st.st_size < (location + 1) *ITEM_MAX_LEN * TABLE_ROW_SIZE) {
-        hal_err("overstep st.st_size = %ld location =%d cur loc=%ld", st.st_size, location,
+        kv_err("overstep st.st_size = %ld location =%d cur loc=%ld", st.st_size, location,
                 (location + 1) *ITEM_MAX_LEN * TABLE_ROW_SIZE);
         close(fd);
         return -1;
@@ -265,7 +266,7 @@ static int write_kv_item(const char *filename, void *data, int location)
     lseek(fd, offset, SEEK_SET);
 
     if (write(fd, data, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN * TABLE_ROW_SIZE) {
-        hal_err("kv write failed");
+        kv_err("kv write failed");
         close(fd);
         return -1;
     }
@@ -292,7 +293,7 @@ static int create_hash_file(kv_file_t *hash_kv)
 
         if (write(fd, init_data, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN *
             TABLE_ROW_SIZE) { /* 3 = '{}' + null terminator */
-            hal_err("write err");
+            kv_err("write err");
             close(fd);
             return -1;
         }
@@ -381,7 +382,7 @@ static int kv_get(const char *key, void *value, int *value_len)
     if (!file) {
         file = kv_open(KV_FILE_NAME);
         if (!file) {
-            hal_err("kv_open failed");
+            kv_err("kv_open failed");
             return -1;
         }
     }
@@ -394,7 +395,7 @@ static int kv_set(const char *key, void *value, int value_len)
     if (!file) {
         file = kv_open(KV_FILE_NAME);
         if (!file) {
-            hal_err("kv_open failed");
+            kv_err("kv_open failed");
             return -1;
         }
     }
@@ -407,7 +408,7 @@ static int kv_del(const char *key)
     if (!file) {
         file = kv_open(KV_FILE_NAME);
         if (!file) {
-            hal_err("kv_open failed");
+            kv_err("kv_open failed");
             return -1;
         }
     }
