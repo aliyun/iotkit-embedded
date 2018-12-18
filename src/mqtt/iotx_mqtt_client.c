@@ -2837,12 +2837,12 @@ int mqtt_connect_wrapper(void *client)
 }
 
 /* release MQTT resource */
-int mqtt_release_wrapper(void **pclient)
+int mqtt_release_wrapper(void **c)
 {
     if (NULL == pclient) {
         return NULL_VALUE_ERROR;
     }
-    iotx_mc_client_t *pClient = (iotx_mc_client_t *)*pclient;
+    iotx_mc_client_t *pClient = (iotx_mc_client_t *)*c;
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
@@ -2890,10 +2890,11 @@ int mqtt_release_wrapper(void **pclient)
     if (NULL != pClient->ipstack) {
         mqtt_free(pClient->ipstack);
     }
+    mqtt_free(pClient);
+    *c = NULL;
     mqtt_info("mqtt release!");
     return SUCCESS_RETURN;
-    mqtt_free(pClient);
-    *pclient = NULL;
+
 }
 
 int mqtt_yield_wrapper(void *client, int timeout_ms)
