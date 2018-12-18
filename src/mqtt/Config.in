@@ -5,6 +5,7 @@ config MQTT_COMM_ENABLED
     select INFRA_SHA256
     select INFRA_NET
     select INFRA_TIMER
+    select INFRA_REPORT
     select HAL_TCP
 
     help

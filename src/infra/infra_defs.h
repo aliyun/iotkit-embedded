@@ -2,7 +2,7 @@
 #define _INFRA_DEFS_H_
 
 #define IOTX_SDK_VERSION     "2.3.0"
-
+#define IOTX_FIRMWARE_VERSION_LEN     (32)
 #define IOTX_PRODUCT_KEY_LEN     (20)
 #define IOTX_DEVICE_NAME_LEN     (32)
 #define IOTX_DEVICE_SECRET_LEN   (64)
@@ -11,6 +11,7 @@
 #define IOTX_MODULE_ID_LEN       (64)
 #define IOTX_NETWORK_IF_LEN      (160)
 #define IOTX_FIRMWARE_VER_LEN    (32)
+#define IOTX_URI_MAX_LEN         (135)
 
 typedef enum IOT_RETURN_CODES {
     ERROR_DEVICE_NOT_EXSIT = -311,

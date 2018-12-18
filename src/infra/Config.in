@@ -34,6 +34,11 @@ config INFRA_SHA256
     bool
     default n
 
+config INFRA_REPORT
+    bool
+    default n
+    select INFRA_STRING
+
 config INFRA_HTTPC
     bool
     default n

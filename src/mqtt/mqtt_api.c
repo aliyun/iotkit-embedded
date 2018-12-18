@@ -6,6 +6,7 @@
 #include "mqtt_wrapper.h"
 #include "infra_defs.h"
 #include "infra_list.h"
+#include "infra_report.h"
 #include "mqtt_internal.h"
 
 #ifdef INFRA_MEM_STATS
@@ -147,89 +148,6 @@ static int iotx_mqtt_deal_offline_subs(void *client)
     return SUCCESS_RETURN;
 }
 
-static int _get_report_devinfo(char *pk, char *dn, char **url, char **payload)
-{
-    int url_len = 0, payload_len = 0;
-    const char *url_fmt = "/sys/%s/%s/thing/deviceinfo/update";
-    const char *payload_fmt = "{\"id\":\"11111111112\",\"version\":\"1.0\",\"params\":["
-                              "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                              "],\"method\":\"thing.deviceinfo.update\"}";
-
-    url_len = strlen(url_fmt) + strlen(pk) + strlen(pk) + 1;
-    *url = mqtt_api_malloc(url_len);
-    if (url == NULL) {
-        return FAIL_RETURN;
-    }
-    memset(*url, 0, url_len);
-    HAL_Snprintf(*url, url_len, url_fmt, pk, dn);
-
-    payload_len = strlen(payload_fmt) + strlen(IOTX_SDK_VERSION) + 1;
-    *payload = mqtt_api_malloc(payload_len);
-    if (payload == NULL) {
-        mqtt_api_free(*url);
-        return FAIL_RETURN;
-    }
-    memset(*payload, 0, payload_len);
-    HAL_Snprintf(*payload, payload_len, payload_fmt, IOTX_SDK_VERSION);
-
-    return SUCCESS_RETURN;
-}
-
-static int _get_report_version(char *pk, char *dn, char **url, char **payload)
-{
-    int url_len = 0, payload_len = 0;
-    char firmware_version[] = {0};
-    const char *url_fmt = "/ota/device/inform/%s/%s";
-    const char *payload_fmt = "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}";
-
-    HAL_GetFirmwareVersion(firmware_version);
-
-    url_len = strlen(url_fmt) + strlen(pk) + strlen(pk) + 1;
-    *url = mqtt_api_malloc(url_len);
-    if (url == NULL) {
-        return FAIL_RETURN;
-    }
-    memset(*url, 0, url_len);
-    HAL_Snprintf(*url, url_len, url_fmt, pk, dn);
-
-    payload_len = strlen(payload_fmt) + strlen(firmware_version) + 1;
-    *payload = mqtt_api_malloc(payload_len);
-    if (payload == NULL) {
-        mqtt_api_free(*url);
-        return FAIL_RETURN;
-    }
-    memset(*payload, 0, payload_len);
-    HAL_Snprintf(*payload, payload_len, payload_fmt, firmware_version);
-
-    return SUCCESS_RETURN;
-}
-
-static void _report_device_info(void *pclient)
-{
-    int res = 0;
-    char *url = NULL, *payload = NULL;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    res = _get_report_devinfo(product_key, device_name, &url, &payload);
-    if (res > 0) {
-        IOT_MQTT_Publish_Simple(pclient, url, IOTX_MQTT_QOS0, payload, strlen(payload));
-        mqtt_api_free(url);
-        mqtt_api_free(payload);
-    }
-
-
-    res = _get_report_version(product_key, device_name, &url, &payload);
-    if (res >= 0) {
-        IOT_MQTT_Publish_Simple(pclient, url, IOTX_MQTT_QOS0, payload, strlen(payload));
-        mqtt_api_free(url);
-        mqtt_api_free(payload);
-    }
-}
-
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -312,7 +230,33 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     iotx_mqtt_deal_offline_subs(pclient);
-    _report_device_info(pclient);
+
+#ifndef ATHOST_MQTT_REPORT_DISBALED
+    iotx_set_report_func(IOT_MQTT_Publish_Simple);
+    /* report module id */
+    err = iotx_report_mid(pclient);
+    if (SUCCESS_RETURN != err) {
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report mid");
+#endif
+    }
+
+    /* report device info */
+    err = iotx_report_devinfo(pclient);
+    if (SUCCESS_RETURN != err) {
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report devinfo");
+#endif
+    }
+
+    /* report firmware version */
+    err = iotx_report_firmware_version(pclient);
+    if (SUCCESS_RETURN != err) {
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report firmware version");
+#endif
+    }
+#endif
 
     g_mqtt_client = pclient;
 
