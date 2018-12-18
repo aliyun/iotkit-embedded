@@ -2839,7 +2839,7 @@ int mqtt_connect_wrapper(void *client)
 /* release MQTT resource */
 int mqtt_release_wrapper(void **c)
 {
-    if (NULL == pclient) {
+    if (NULL == c) {
         return NULL_VALUE_ERROR;
     }
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)*c;
