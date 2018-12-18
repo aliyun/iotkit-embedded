@@ -19,17 +19,16 @@ typedef enum {
 typedef struct _alink_bearer_ctx alink_bearer_ctx_t;
 
 
-typedef void (*alink_bearer_rx_cb_t)(const char *topic, const char *payload, uint32_t payload_len);   // TODO
-typedef void (*alink_bearer_event_cb_t)(const char *topic, const char *payload, uint32_t payload_len);
+typedef void (*alink_bearer_rx_cb_t)(const char *uri, const char *payload, uint32_t payload_len);   // TODO
+typedef void (*alink_bearer_event_cb_t)(const char *uri, const char *payload, uint32_t payload_len);
 
 /* copy from CM, TODO */
 typedef int (*alink_bearer_connect_func_t)(alink_bearer_ctx_t *p_bearer_ctx, uint32_t timeout);
 typedef int (*alink_bearer_close_func_t)(alink_bearer_ctx_t *p_bearer_ctx);
 typedef int (*alink_bearer_yield_func_t)(alink_bearer_ctx_t *p_bearer_ctx, uint32_t timeout);
-typedef int (*alink_bearer_sub_func_t)(alink_bearer_ctx_t *p_bearer_ctx, const char *topic, alink_bearer_rx_cb_t topic_handle_func, uint8_t qos, uint32_t timeout);
-typedef int (*alink_bearer_unsub_func_t)(alink_bearer_ctx_t *p_bearer_ctx, const char *topic);
-typedef int (*alink_bearer_pub_func_t)(alink_bearer_ctx_t *p_bearer_ctx, uint8_t qos, const char *topic, const char *payload, unsigned int payload_len);
-
+typedef int (*alink_bearer_sub_func_t)(alink_bearer_ctx_t *p_bearer_ctx, const char *uri, alink_bearer_rx_cb_t topic_handle_func, uint8_t qos, uint32_t timeout);
+typedef int (*alink_bearer_unsub_func_t)(alink_bearer_ctx_t *p_bearer_ctx, const char *uri);
+typedef int (*alink_bearer_pub_func_t)(alink_bearer_ctx_t *p_bearer_ctx, const char *uri, const uint8_t *payload, uint32_t payload_len, uint8_t qos);
 
 
 typedef struct {
@@ -59,7 +58,7 @@ struct _alink_bearer_ctx {
 
 int alink_bearer_open(void);
 int alink_bearer_conect(void);
-
+int alink_bearer_send(alink_bearer_type_t bearer, char *uri, uint8_t *payload, uint32_t len);
 
 
 #endif /* #ifndef __ALINK_BEARER_H__ */

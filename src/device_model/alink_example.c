@@ -22,5 +22,9 @@ int main(int argc, char **argv)
     IOT_Linkkit_Connect(0);
 
 
+    IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)"{\"switch\": 1}", strlen("{\"switch\": 1}"));
+
+
+
     printf("alink stop\r\n");
 }

@@ -7,13 +7,25 @@
 
 #include "alink_wrapper.h"
 
+
+/**
+ * mqtt link status
+ */
+typedef enum {
+    BEARER_MQTT_STATUS_OPENED,
+    BEARER_MQTT_STATUS_CLOSED,
+    BEARER_MQTT_STATUS_CONNECTED,
+    BEARER_MQTT_STATUS_DISCONNECTED,
+    BEARER_MQTT_STATUS_RECONNECTING
+} alink_bearer_mqtt_status_t;
+
+/**
+ * mqtt link context
+ */
 typedef struct {
-
-
-} alink_bearer_mqtt_t;
-
-
-int alink_bearer_mqtt_open(alink_bearer_ctx_t *p_bearer_ctx);
+    alink_bearer_mqtt_status_t      status;
+    alink_bearer_ctx_t              bearer_ctx;
+} alink_bearer_mqtt_ctx_t;
 
 
 /* copy from cm, TODO */
@@ -36,6 +48,9 @@ typedef enum {
     /* Maximum number of event */
     IOTX_CM_EVENT_MAX
 } alink_bearer_event_type_t;
+
+
+int32_t alink_bearer_mqtt_open(alink_bearer_ctx_t *p_bearer_ctx);
 
 
 #endif /* #ifndef __ALINK_BEARER_MQTT__ */

@@ -4,31 +4,62 @@
 
 #include "iotx_alink_internal.h"
 
-#if 0
+
+typedef struct {
+    int8_t *pk;
+    int8_t *dn;
+    alink_msg_type_t type;
+    alink_msg_layer_t layer;
+    int8_t *resource;
+
+} alink_upstream_params_t;
+
+
+const char path_upstream_property_post[] = "thing/property/notify";
+
+
+
+
 /***************************************************************
  * device model management upstream message
  ***************************************************************/
-int alink_upstream_thing_property_post_req(uint8_t *payload, uint16_t len)
+
+int alink_upstream_thing_property_post_req(int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
+{
+    int res;
+    alink_msg_uri_metadata_t uri_meta;
+    uri_meta.dist.type = ALINK_MSG_DIST_TYPE_CLOUD;
+    
+    uri_meta.type = ALINK_MSG_TYPE_REQ;
+    uri_meta.layer = ALINK_MSG_LAYER_SYS;
+    uri_meta.path = path_upstream_property_post;
+
+    uri_meta.dist.dest_str = "c/iot";
+    uri_meta.query = "?i=1";
+
+    res = alink_core_send_msg(&uri_meta, payload, len);
+
+    return res;
+}
+
+#if 0
+
+int alink_upstream_thing_property_set_rsp(int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
 {
 
 }
 
-int alink_upstream_thing_property_set_rsp(uint8_t *payload, uint16_t len)
+int alink_upstream_thing_property_get_rsp(int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
 {
 
 }
 
-int alink_upstream_thing_property_get_rsp(uint8_t *payload, uint16_t len)
+int alink_upstream_thing_event_post_req(int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
 {
 
 }
 
-int alink_upstream_thing_event_post_req(uint8_t *payload, uint16_t len)
-{
-
-}
-
-int alink_upstream_thing_service_invoke_rsp(uint8_t *payload, uint16_t len)
+int alink_upstream_thing_service_invoke_rsp(int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
 {
 
 }

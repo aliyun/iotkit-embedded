@@ -10,7 +10,6 @@
 #include "iot_import_config.h"
 
 
-
 /** **/
 #define ALINK_BEARER_MQTT_REQUEST_TIMEOUT_MS        (2000)
 /** **/
@@ -31,7 +30,7 @@ static int _mqtt_close(alink_bearer_ctx_t *p_bearer_ctx);
 static int _mqtt_yield(alink_bearer_ctx_t *p_bearer_ctx, uint32_t timeout);
 static int _mqtt_sub(alink_bearer_ctx_t *p_bearer_ctx, const char *topic, alink_bearer_rx_cb_t topic_handle_func, uint8_t qos, uint32_t timeout);
 static int _mqtt_unsub(alink_bearer_ctx_t *p_bearer_ctx, const char *topic);
-static int _mqtt_publish(alink_bearer_ctx_t *p_bearer_ctx, uint8_t qos, const char *topic, const char *payload, uint32_t payload_len);
+static int _mqtt_publish(alink_bearer_ctx_t *p_bearer_ctx, const char *topic, const uint8_t *payload, uint32_t payload_len, uint8_t qos);
 
 
 /**
@@ -118,7 +117,6 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
 static int _mqtt_connect(alink_bearer_ctx_t *p_bearer_ctx, uint32_t timeout)
 {
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
-    ALINK_ASSERT_DEBUG(device_info != NULL);
 
     (void)timeout;      // TODO
 
@@ -225,7 +223,7 @@ static int _mqtt_unsub(alink_bearer_ctx_t *p_bearer_ctx, const char *topic)
     return SUCCESS_RETURN;
 }
 
-static int _mqtt_publish(alink_bearer_ctx_t *p_bearer_ctx, uint8_t qos, const char *topic, const char *payload, uint32_t payload_len)
+static int _mqtt_publish(alink_bearer_ctx_t *p_bearer_ctx, const char *topic, const uint8_t *payload, uint32_t payload_len, uint8_t qos)
 {
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
 

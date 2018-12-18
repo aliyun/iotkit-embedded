@@ -47,7 +47,31 @@ int IOT_Linkkit_Close(int devid)
 int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
                                    int payload_len)
 {
-    return 0;
+    int res = FAIL_RETURN;
+
+    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
+        alink_err("invalid parameter");
+        return FAIL_RETURN;         // TODO: add errorCode: FAIL_PARAMETER_ERROR
+    }
+
+    switch (msg_type) {
+        case ITM_MSG_POST_PROPERTY: {
+            if (payload == NULL || payload_len <= 0) {
+                alink_err("Invalid Parameter");
+                return FAIL_RETURN;
+            }
+            res = alink_upstream_thing_property_post_req(NULL,NULL, payload, payload_len);
+        }
+        break;
+        case ITM_MSG_DEVICEINFO_UPDATE:
+        case ITM_MSG_DEVICEINFO_DELETE:
+        case ITM_MSG_POST_RAW_DATA:
+        case ITM_MSG_LOGIN: 
+        case ITM_MSG_LOGOUT:
+        default: break;
+    }
+    
+    return res;
 }
 
 int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,

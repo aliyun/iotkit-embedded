@@ -9,11 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "alink_format.h"
 #include "alink_core.h"
 #include "alink_bearer.h"
 #include "alink_bearer_mqtt.h"
 #include "alink_utils.h"
 #include "alink_wrapper.h"
+#include "alink_upstream.h"
 
 #ifdef INFRA_LOG
 #include "infra_log.h"
@@ -41,6 +43,7 @@
 #endif
 
 
+#define ALINK_DEBUG     // TODO
 #ifdef ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \
         do { \

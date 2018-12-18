@@ -11,6 +11,7 @@ extern "C" {
 
 #include "infra_defs.h"
 
+
 typedef enum {
     IOTX_LINKKIT_DEV_TYPE_MASTER,
     IOTX_LINKKIT_DEV_TYPE_SLAVE,
