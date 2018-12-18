@@ -411,10 +411,18 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
         timeout_ms = SUBSCRIBE_SYNC_TIMEOUT_MAX;
     }
 
-    if (topic_filter == NULL || strlen(topic_filter) == 0) {
+    if (topic_filter == NULL || strlen(topic_filter) == 0 || topic_handle_func == NULL) {
         mqtt_err("params err");
         return NULL_VALUE_ERROR;
     }
+
+    if (qos > IOTX_MQTT_QOS2) {
+        mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
+                     qos,
+                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
+        qos = IOTX_MQTT_QOS0;
+    }
+
     return mqtt_subscribe_sync_wrapper(client, topic_filter, qos, topic_handle_func, pcontext, timeout_ms);
 }
 
