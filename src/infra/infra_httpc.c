@@ -19,7 +19,9 @@
 #define httpc_info(...)  log_info("httpc", __VA_ARGS__)
 #define httpc_debug(...) log_debug("httpc", __VA_ARGS__)
 #else
-#define httpc_err
+#define httpc_err(...)
+#define httpc_info(...)
+#define httpc_debug(...)
 #endif
 
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
@@ -508,7 +510,7 @@ static int _http_send(httpclient_t *client, const char *url, int port, const cha
 
     if (0 == client->net.handle) {
         /* Establish connection if no. */
-        ret = iotx_net_init(&client->net, host, port, ca_crt, NULL);
+        ret = iotx_net_init(&client->net, host, port, ca_crt);
         if (0 != ret) {
             return ret;
         }
