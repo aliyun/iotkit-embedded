@@ -224,8 +224,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     err = mqtt_connect_wrapper(pclient);
     if (SUCCESS_RETURN != err) {
         mqtt_err("mqtt_connect_wrapper failed");
-        mqtt_release_wrapper(pclient);
-        mqtt_api_free(pclient);
+        mqtt_release_wrapper(&pclient);
         return NULL;
     }
 
