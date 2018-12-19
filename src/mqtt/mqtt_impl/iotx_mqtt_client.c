@@ -3059,7 +3059,7 @@ int mqtt_subscribe_sync_wrapper(void *c,
             }
 
         }
-        IOT_MQTT_Yield(client, 100);
+        mqtt_yield_wrapper(client, 100);
 
         mqtt_sub_node_t *node = NULL;
         mqtt_sub_node_t *next = NULL;
