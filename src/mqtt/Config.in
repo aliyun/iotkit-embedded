@@ -14,6 +14,22 @@ config MQTT_COMM_ENABLED
         Switching to "y" leads to building MQTT related implementation into SDK and MQTT_COMM_ENABLED included into CFLAGS
         Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
 
+config MQTT_DEFAULT_IMPL
+    bool "FEATURE_MQTT_DEFAULT_IMPL"
+    default y
+
+    depends on MQTT_COMM_ENABLED
+    select INFRA_SHA256
+    select INFRA_NET
+    select INFRA_TIMER
+    select HAL_TCP
+
+    help
+        Use SDK default MQTT implementation
+
+        Switching to "y" leads to building MQTT related implementation into SDK and MQTT_DEFAULT_IMPL included into CFLAGS
+        Switching to "n" seldom happens unless you're using other MQTT implementations
+
 # menu "MQTT Configurations"
 #     depends on MQTT_COMM_ENABLED
 # 
