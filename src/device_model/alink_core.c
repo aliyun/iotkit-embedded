@@ -3,27 +3,46 @@
  */
 
 #include "iotx_alink_internal.h"
+#include "alink_wrapper.h"
+
 #include "alink_core.h"
 
+#include "infra_defs.h"
 
 
 typedef struct {
-    void *proto_bearer_p;
-    uint16_t supported_protocal;
+    uint8_t current_link_idx;
+} alink_core_ctx_t;
 
 
+static alink_core_ctx_t *alink_core_ctx = NULL;
 
-} alink_procotol_ctx_t;
 
-
-int alink_core_init(void)
+/**
+ * 
+ */
+int alink_core_open(iotx_dev_meta_info_t *dev_info)
 {
     /* ota module init */
-
-    
+    if (alink_core_ctx == NULL) {
+        if ((alink_core_ctx = HAL_Malloc(sizeof(alink_core_ctx_t))) == NULL) {
+            alink_info("alink core malloc fail");
+            return FAIL_RETURN;
+        }
+    }
+    else {
+        return FAIL_RETURN;
+    }
     
     /* add the bearer protocol */
-    alink_bearer_open();
+    alink_core_ctx->current_link_idx = alink_bearer_open(ALINK_BEARER_MQTT, dev_info);
+    if (alink_core_ctx->current_link_idx == FAIL_RETURN) {
+        alink_info("bearer open fail");
+    }
+    else {
+        alink_info("bearer open success");
+    }
+
 
     return SUCCESS_RETURN;
 }

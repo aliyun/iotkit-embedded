@@ -45,7 +45,8 @@ int alink_format_assamble_uri(alink_msg_uri_metadata_t *uri_meta, char *uri_outp
 
     int res;
 
-    uri_meta->dist.dest_str = (char *)alink_uri_dest;
+    
+
 
     res = HAL_Snprintf(uri_output, len, alink_uri_fmt, uri_meta->dist.dest_str, 
                                                  alink_uri_type[uri_meta->type], 

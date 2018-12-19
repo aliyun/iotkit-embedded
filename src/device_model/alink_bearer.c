@@ -3,28 +3,84 @@
  */
 
 #include "iotx_alink_internal.h"
+#include "alink_wrapper.h"
+
+#include "infra_defs.h"
+
+#if 0
+static alink_bearer_mqtt_ctx_t p_alink_bearer_mqtt;
+#endif
 
 
-static alink_bearer_ctx_t alink_bearer_mqtt;
+typedef struct {
+    uint8_t     link_num;
+    list_head_t bearer_node_list;
+} alink_bearer_ctx_t;
 
+//static alink_bearer_ctx_t alink_bearer_ctx;
 
+static alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt = NULL;
 
-int alink_bearer_open(void)
+/**
+ * return a linkId if open seccessfully
+ */
+int alink_bearer_open(alink_bearer_type_t protocol_type, iotx_dev_meta_info_t *dev_info)
 {
-    memset(&alink_bearer_mqtt, 0, sizeof(alink_bearer_ctx_t));
-    return alink_bearer_mqtt_open(&alink_bearer_mqtt);
-}
+    /* check if protocal support, TODO */
 
+    if (protocol_type == ALINK_BEARER_MQTT) {
+        //alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt;
+
+        p_alink_bearer_mqtt = HAL_Malloc(sizeof(alink_bearer_mqtt_ctx_t));
+        if (NULL == p_alink_bearer_mqtt) {
+            alink_info("bearer malloc fail");
+            return FAIL_RETURN;
+        }
+
+        memset(p_alink_bearer_mqtt, 0, sizeof(alink_bearer_mqtt_ctx_t));
+        p_alink_bearer_mqtt->dev_info = dev_info;
+        p_alink_bearer_mqtt->region = IOTX_CLOUD_REGION_SHANGHAI;         // TODO
+
+        return alink_bearer_mqtt_open(p_alink_bearer_mqtt);
+    }
+    else if (protocol_type == ALINK_BEARER_MQTT) {
+        return FAIL_RETURN;
+    }
+
+    return FAIL_RETURN;
+}
 
 int alink_bearer_conect(void)
 {
-    return alink_bearer_mqtt.p_api.bearer_connect(&alink_bearer_mqtt, 20000);
+    if (p_alink_bearer_mqtt == NULL) {
+        alink_info("bearer no exist");
+        return FAIL_RETURN;
+    }
+    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
+
+    alink_info("bearer connect");
+
+    return bearer.p_api.bearer_connect(&p_alink_bearer_mqtt->bearer, 20000);
 }
 
 
-int alink_bearer_send(alink_bearer_type_t bearer, char *uri, uint8_t *payload, uint32_t len)
+int alink_bearer_send(uint8_t link_id, char *uri, uint8_t *payload, uint32_t len)
 {
-    (void)bearer;
+    /* assert */
+    (void)link_id;
 
-    return alink_bearer_mqtt.p_api.bearer_pub(&alink_bearer_mqtt, uri, payload, len, 0);
+    if (p_alink_bearer_mqtt == NULL) {
+        return FAIL_RETURN;
+    }
+    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
+
+    return bearer.p_api.bearer_pub(&bearer, uri, payload, len, 0);
+}
+
+/**
+ * 
+ */
+int alink_bearer_send_proto(uint8_t protocal, char *uri, uint8_t *payload, uint32_t len)
+{
+    return 1;
 }

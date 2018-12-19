@@ -5,7 +5,7 @@
 #ifndef __ALINK_BEARER_MQTT__
 #define __ALINK_BEARER_MQTT__
 
-#include "alink_wrapper.h"
+#include "iotx_alink_internal.h"
 
 
 /**
@@ -24,7 +24,9 @@ typedef enum {
  */
 typedef struct {
     alink_bearer_mqtt_status_t      status;
-    alink_bearer_ctx_t              bearer_ctx;
+    iotx_mqtt_region_types_t        region;
+    iotx_dev_meta_info_t           *dev_info;
+    alink_bearer_node_t             bearer;
 } alink_bearer_mqtt_ctx_t;
 
 
@@ -50,7 +52,7 @@ typedef enum {
 } alink_bearer_event_type_t;
 
 
-int32_t alink_bearer_mqtt_open(alink_bearer_ctx_t *p_bearer_ctx);
+int32_t alink_bearer_mqtt_open(alink_bearer_mqtt_ctx_t *p_bearer_mqtt_ctx);
 
 
 #endif /* #ifndef __ALINK_BEARER_MQTT__ */

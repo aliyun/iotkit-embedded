@@ -6,6 +6,9 @@
 #include "alink_api.h"
 
 
+/**
+ * 
+ */
 int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = FAIL_RETURN;
@@ -16,7 +19,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
 
     if (IOTX_LINKKIT_DEV_TYPE_MASTER == dev_type) {
         alink_info("this is a log test");
-        alink_core_init();
+        alink_core_open((iotx_dev_meta_info_t *)meta_info);
     }
     else if (IOTX_LINKKIT_DEV_TYPE_SLAVE == dev_type) {
         ;
