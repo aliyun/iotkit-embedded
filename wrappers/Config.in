@@ -26,3 +26,5 @@ choice
             iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
 
 endchoice
+
+source "wrappers/sal/Config.in"

@@ -8,10 +8,7 @@
 
 #include "iot_import.h"
 
-#include "atcmd_config_platform.h"
-#include "atcmd_config_module.h"
 #include "uart.h"
-
 #include "atparser.h"
 #include "atparser_internal.h"
 

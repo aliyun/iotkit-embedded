@@ -4,8 +4,7 @@ config MAL_ENABLED
     depends on MQTT_COMM_ENABLED
     depends on !MQTT_DEFAULT_IMPL
     default n
-    select UTILS_SHA1
-    select INFRA_TIMER
+
     help
         Establish persistent connection with AliCloud via MAL(MQTT Adapter Layer).
 

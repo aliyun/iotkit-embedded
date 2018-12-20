@@ -2,7 +2,15 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "internal/sal_sockets_internal.h"
+#include "../include/internal/sal_sockets_internal.h"
+
+#ifdef INFRA_MEM_STATS
+#define sal_malloc(size)            LITE_malloc(size, MEM_MAGIC, "sal.sockets")
+#define sal_free(ptr)               LITE_free(ptr)
+#else
+#define sal_malloc(size)            HAL_Malloc(size)
+#define sal_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
 
 static void sal_deal_event(int s, enum netconn_evt evt);
 static int  sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
