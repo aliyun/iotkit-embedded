@@ -1,6 +1,8 @@
 config MAL_ENABLED
     bool "FEATURE_MAL_ENABLED"
-    depends on !FEATURE_MQTT_DEFAULT_IMPL
+
+    depends on MQTT_COMM_ENABLED
+    depends on !MQTT_DEFAULT_IMPL
     default n
     select UTILS_SHA1
     select INFRA_TIMER
@@ -12,15 +14,6 @@ config MAL_ENABLED
 
 menu "MAL Configurations"
     depends on MAL_ENABLED
-
-    config MQTT_DIRECT
-        bool "FEATURE_MQTT_DIRECT"
-        default y
-        help
-            Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
-
-            Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
-            Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
 
     config MAL_ICA_ENABLED
         bool "FEATURE_MAL_ICA_ENABLED"

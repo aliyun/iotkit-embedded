@@ -788,6 +788,11 @@ static int mal_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams
 
     memset(pClient, 0, sizeof(iotx_mc_client_t));
 
+    if (HAL_MDAL_MAL_Init() != 0) {
+        mal_err("low layer init failed");
+        return FAIL_RETURN;
+    }
+
     pClient->lock_generic = HAL_MutexCreate();
     if (!pClient->lock_generic) {
         return FAIL_RETURN;

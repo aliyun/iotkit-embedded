@@ -49,12 +49,7 @@ extern "C"
 
 #define AT_MQTT_WAIT_TIMEOUT            10*1000
 
-#ifdef INFRA_LOG
-#include "infra_log.h"
-#define mdal_err(...)               log_err("MAL", __VA_ARGS__)
-#else
 #define mal_err(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#endif
 
 typedef struct mqtt_state_s {
     uint8_t  auto_report_flag;

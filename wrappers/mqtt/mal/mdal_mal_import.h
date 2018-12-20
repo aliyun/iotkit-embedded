@@ -12,6 +12,8 @@ extern "C"
 
 typedef int (*recv_cb)(char* topic, char* message);
 
+int HAL_MDAL_MAL_Init();
+int HAL_MDAL_MAL_Deinit();
 int HAL_MDAL_MAL_Connect(char *proKey, char *devName, char *devSecret);
 int HAL_MDAL_MAL_Disconnect(void);
 int HAL_MDAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms);
