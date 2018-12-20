@@ -9,7 +9,7 @@
 /**
  * 
  */
-int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info)
+int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *meta_info)
 {
     int res = FAIL_RETURN;
 
@@ -18,8 +18,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
     }
 
     if (IOTX_LINKKIT_DEV_TYPE_MASTER == dev_type) {
-        alink_info("this is a log test");
-        alink_core_open((iotx_dev_meta_info_t *)meta_info);
+        alink_core_open(meta_info);
     }
     else if (IOTX_LINKKIT_DEV_TYPE_SLAVE == dev_type) {
         ;
@@ -30,15 +29,29 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
 
 int IOT_Linkkit_Connect(int devid)
 {
-    (void)devid;
+    if (devid < 0) {
+        return IOTX_CODE_PARAMS_ERROR;
+    }
 
-    alink_core_connect_cloud();
+    int res = 0;
 
-    return 0;
+    if (devid == IOTX_LINKKIT_DEV_TYPE_MASTER) {
+        res = alink_core_connect_cloud();
+    } else {
+#ifdef DEVICE_MODEL_GATEWAY
+        res = alink_core_subdev_connect_cloud(devid);
+#else
+        res = IOTX_CODE_GATEWAY_UNSUPPORTED;
+#endif
+    }
+
+    return res;
 }
 
 void IOT_Linkkit_Yield(int timeout_ms)
 {
+    alink_core_yield(timeout_ms);
+
     return;
 }
 
@@ -63,7 +76,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
                 alink_err("Invalid Parameter");
                 return FAIL_RETURN;
             }
-            res = alink_upstream_thing_property_post_req(NULL,NULL, payload, payload_len);
+            res = alink_upstream_thing_property_post_req(1, "pk1", "dn2", payload, payload_len);
         }
         break;
         case ITM_MSG_DEVICEINFO_UPDATE:

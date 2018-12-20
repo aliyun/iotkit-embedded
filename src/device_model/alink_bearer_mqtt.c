@@ -33,7 +33,6 @@ static int _mqtt_sub(alink_bearer_node_t *p_bearer_ctx, const char *topic, alink
 static int _mqtt_unsub(alink_bearer_node_t *p_bearer_ctx, const char *topic);
 static int _mqtt_publish(alink_bearer_node_t *p_bearer_ctx, const char *topic, const uint8_t *payload, uint32_t payload_len, uint8_t qos);
 
-
 /**
  * add mqtt bearer, TODO, used the complete mqtt bearer context!!!!
  */
@@ -153,13 +152,13 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
     params_mqtt.handle_event.h_fp = alink_bearer_mqtt_general_event_handle;         // TODO
 
     p_bearer_ctx->p_handle = IOT_MQTT_Construct(&params_mqtt);
-    if (p_bearer_ctx->p_handle != NULL) {
-        res = SUCCESS_RETURN;
+    if (p_bearer_ctx->p_handle == NULL) {
+        res = FAIL_RETURN;
         alink_info("mqtt construct fail");
     }
     else {
-        res = FAIL_RETURN;
-        alink_info("mqtt construct fail");
+        res = SUCCESS_RETURN;
+        alink_info("mqtt construct success");
     }
 
     HAL_Free(sign_mqtt.hostname);
@@ -237,6 +236,17 @@ static int _mqtt_publish(alink_bearer_node_t *p_bearer_ctx, const char *topic, c
 {
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
 
-    return IOT_MQTT_Publish_Simple(p_bearer_ctx->p_handle, topic, qos, (void *)payload, payload_len);
+    int res = FAIL_RETURN;
+
+    res = IOT_MQTT_Publish_Simple(p_bearer_ctx->p_handle, topic, qos, (void *)payload, payload_len);
+
+    if (res == FAIL_RETURN) {
+        alink_err("mqtt pub fail");
+    }
+    else {
+        alink_info("mqtt pub success, msgId = %d", res);
+    }
+
+    return res;
 }
 

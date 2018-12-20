@@ -24,7 +24,7 @@ static alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt = NULL;
 /**
  * return a linkId if open seccessfully
  */
-int alink_bearer_open(alink_bearer_type_t protocol_type, iotx_dev_meta_info_t *dev_info)
+alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t protocol_type, iotx_dev_meta_info_t *dev_info)
 {
     /* check if protocal support, TODO */
 
@@ -34,20 +34,23 @@ int alink_bearer_open(alink_bearer_type_t protocol_type, iotx_dev_meta_info_t *d
         p_alink_bearer_mqtt = HAL_Malloc(sizeof(alink_bearer_mqtt_ctx_t));
         if (NULL == p_alink_bearer_mqtt) {
             alink_info("bearer malloc fail");
-            return FAIL_RETURN;
+            return NULL;
         }
 
         memset(p_alink_bearer_mqtt, 0, sizeof(alink_bearer_mqtt_ctx_t));
         p_alink_bearer_mqtt->dev_info = dev_info;
-        p_alink_bearer_mqtt->region = IOTX_CLOUD_REGION_SHANGHAI;         // TODO
+        p_alink_bearer_mqtt->region = IOTX_CLOUD_REGION_SHANGHAI;           // TODO
 
-        return alink_bearer_mqtt_open(p_alink_bearer_mqtt);
+        alink_bearer_mqtt_open(p_alink_bearer_mqtt);                        // TODO            
+
+        return &p_alink_bearer_mqtt->bearer;
     }
     else if (protocol_type == ALINK_BEARER_MQTT) {
-        return FAIL_RETURN;
+        return NULL;
     }
-
-    return FAIL_RETURN;
+    else {
+        return NULL;
+    }
 }
 
 int alink_bearer_conect(void)
@@ -63,7 +66,9 @@ int alink_bearer_conect(void)
     return bearer.p_api.bearer_connect(&p_alink_bearer_mqtt->bearer, 20000);
 }
 
-
+/**
+ * 
+ */
 int alink_bearer_send(uint8_t link_id, char *uri, uint8_t *payload, uint32_t len)
 {
     /* assert */
@@ -74,7 +79,17 @@ int alink_bearer_send(uint8_t link_id, char *uri, uint8_t *payload, uint32_t len
     }
     alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
 
-    return bearer.p_api.bearer_pub(&bearer, uri, payload, len, 0);
+    return bearer.p_api.bearer_pub(&p_alink_bearer_mqtt->bearer, uri, payload, len, 0);
+}
+
+/**
+ * 
+ */
+int alink_bearer_yield(uint32_t timeout_ms)
+{
+    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
+
+    return bearer.p_api.bearer_yield(&p_alink_bearer_mqtt->bearer, timeout_ms);
 }
 
 /**

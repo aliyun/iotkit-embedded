@@ -74,7 +74,7 @@ typedef enum {
  * @return success: device id (>=0), fail: -1.
  *
  */
-int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info);
+int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *meta_info);
 
 /**
  * @brief start device network connection.
@@ -165,6 +165,17 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
  *
  */
 int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
+
+
+typedef enum {
+    IOTX_CODE_PARAMS_ERROR          = -4001,
+    IOTX_CODE_STATE_ERROR           = -4002,   
+    IOTX_CODE_NETWORK_ERROR         = -4003,
+    IOTX_CODE_AUTH_ERROR            = -4004,
+    IOTX_CODE_GATEWAY_UNSUPPORTED   = -4005,
+} iotx_linkkit_errorcode_t;
+
+
 
 #if defined(__cplusplus)
 }

@@ -76,8 +76,10 @@ struct _alink_bearer_node {
 };
 
 
-int alink_bearer_open(alink_bearer_type_t bearer_type, iotx_dev_meta_info_t *dev_info);
+alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t bearer_type, iotx_dev_meta_info_t *dev_info);
 int alink_bearer_conect(void);
+int alink_bearer_yield(uint32_t timeout_ms);
+
 int alink_bearer_send(uint8_t link_id, char *uri, uint8_t *payload, uint32_t len);
 
 

@@ -22,5 +22,12 @@ void HAL_Free(void *ptr);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 uint64_t HAL_UptimeMs(void);
 
+void HAL_SleepMs(uint32_t ms);
+
+void *HAL_MutexCreate(void);
+void HAL_MutexDestroy(void *mutex);
+void HAL_MutexLock(void *mutex);
+void HAL_MutexUnlock(void *mutex);
+
 
 #endif /* #ifndef __ALINK_WRAPPER_H__ */

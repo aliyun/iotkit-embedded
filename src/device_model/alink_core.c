@@ -10,40 +10,99 @@
 #include "infra_defs.h"
 
 
+#define ALINK_SUPPORT_BEARER_NUM                (1)
+#define ALINK_DEFAULT_BEARER_PROTOCOL           (ALINK_BEARER_MQTT)
+
+
 typedef struct {
-    uint8_t current_link_idx;
+    uint8_t                 is_inited;
+    uint8_t                 bearer_num;
+    void                   *mutex;
+
+    alink_bearer_node_t    *p_activce_bearer;
+    uint32_t                msgid;              // TODO
 } alink_core_ctx_t;
 
+static alink_core_ctx_t alink_core_ctx = {
+    .is_inited          = 0,
+    .bearer_num         = 0,
+    .p_activce_bearer   = NULL,
+    .mutex              = NULL
+};
 
-static alink_core_ctx_t *alink_core_ctx = NULL;
+static void _alink_core_lock(void) 
+{
+    if (alink_core_ctx.mutex) {
+        HAL_MutexLock(alink_core_ctx.mutex);
+    }
+}
 
+static void _alink_core_unlock(void) 
+{
+    if (alink_core_ctx.mutex) {
+        HAL_MutexUnlock(alink_core_ctx.mutex);
+    }
+}
+
+uint32_t alink_core_get_msgid(void)
+{
+    uint32_t msgid;
+
+    _alink_core_lock();
+    msgid = alink_core_ctx.msgid++;
+    _alink_core_unlock();
+
+    return (msgid & 0x7FFFFFFF);
+}
+
+int alink_core_init(void)
+{
+    if (alink_core_ctx.is_inited) {
+        return FAIL_RETURN;
+    }
+
+    alink_core_ctx.is_inited = 1;
+    alink_core_ctx.mutex = HAL_MutexCreate();
+
+    return SUCCESS_RETURN;
+}
+
+int alink_core_deinit(void) 
+{
+    if (!alink_core_ctx.is_inited) {
+        return FAIL_RETURN;
+    }
+
+    alink_core_ctx.is_inited = 0;
+    HAL_MutexDestroy(alink_core_ctx.mutex);
+
+    return SUCCESS_RETURN;
+}
 
 /**
  * 
  */
 int alink_core_open(iotx_dev_meta_info_t *dev_info)
 {
-    /* ota module init */
-    if (alink_core_ctx == NULL) {
-        if ((alink_core_ctx = HAL_Malloc(sizeof(alink_core_ctx_t))) == NULL) {
-            alink_info("alink core malloc fail");
-            return FAIL_RETURN;
-        }
-    }
-    else {
+    ALINK_ASSERT_DEBUG(dev_info != NULL);
+
+    if (alink_core_ctx.bearer_num >= ALINK_SUPPORT_BEARER_NUM) {
         return FAIL_RETURN;
     }
-    
-    /* add the bearer protocol */
-    alink_core_ctx->current_link_idx = alink_bearer_open(ALINK_BEARER_MQTT, dev_info);
-    if (alink_core_ctx->current_link_idx == FAIL_RETURN) {
+    alink_core_ctx.bearer_num++;
+
+    /* add one default bearer protocol */
+    alink_core_ctx.p_activce_bearer = alink_bearer_open(ALINK_DEFAULT_BEARER_PROTOCOL, dev_info);
+    if (alink_core_ctx.p_activce_bearer == NULL) {
         alink_info("bearer open fail");
-    }
-    else {
-        alink_info("bearer open success");
+        return FAIL_RETURN;
     }
 
+    /* TOOD */
+    _alink_core_lock();
+    _alink_core_unlock();
 
+    alink_info("bearer open succeed");
     return SUCCESS_RETURN;
 }
 
@@ -63,16 +122,20 @@ int alink_core_connect_cloud(void)
     return res;
 }
 
-int alink_core_send_msg(alink_msg_uri_metadata_t *uri_meta, uint8_t *payload, uint32_t len)
+int alink_core_send_req_msg(char *uri, uint8_t *payload, uint32_t len)
 {
-    char uri[50] = {0};
+    ALINK_ASSERT_DEBUG(uri != NULL);
 
-    alink_format_assamble_uri(uri_meta, uri, sizeof(uri));
+    int res = FAIL_RETURN;
+
+    /* append query */
     alink_info("uri: %s", uri);
 
     alink_bearer_send(0, uri, payload, len);
 
-    return 1;
+    HAL_Free(uri);
+
+    return res;
 }
 
 int alink_core_subdev_connect_cloud()
@@ -96,16 +159,11 @@ int alink_core_unsubscribe_topic()
     return res;
 }
 
-int alink_core_yield()
+int alink_core_yield(uint32_t timeout_ms)
 {
     int res = FAIL_RETURN;
 
-    return res;
-}
-
-int alink_core_deinit()
-{
-    int res = FAIL_RETURN;
+    res = alink_bearer_yield(timeout_ms);
 
     return res;
 }

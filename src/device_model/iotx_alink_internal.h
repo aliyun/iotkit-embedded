@@ -15,7 +15,7 @@
 #include "alink_bearer_mqtt.h"
 #include "alink_utils.h"
 #include "alink_upstream.h"
-
+#include "alink_wrapper.h"
 
 
 #ifdef INFRA_LOG

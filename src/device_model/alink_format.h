@@ -7,38 +7,30 @@
 
 #include "infra_types.h"
 
-typedef enum {
-    ALINK_MSG_DIST_TYPE_CLOUD,
-    ALINK_MSG_DIST_TYPE_DEVICE,
-    ALINK_MSG_DIST_TYPE_NUM
-} alink_msg_dist_type_t;
 
-typedef struct {
-    alink_msg_dist_type_t   type;
-    char                   *dest_str;
-} alink_msg_dest_t;
 
 typedef enum {
-    ALINK_MSG_TYPE_REQ,
-    ALINK_MSG_TYPE_RSP,
-    ALINK_MSG_TYPE_NUM
-} alink_msg_type_t;
+    ALINK_URI_UP_REQ_PROPERTY_POST = 0,
+    ALINK_URI_UP_RSP_PROPERTY_POST,
+    ALINK_URI_UP_RSP_PROPERTY_GET,
+    ALINK_URI_UP_REQ_EVENT_POST,
+    ALINK_URI_UP_RSP_SERVICE_POST,
+    ALINK_URI_UP_REQ_RAW_POST,
+    ALINK_URI_UP_RSP_RAW_POST,
 
-typedef enum {
-    ALINK_MSG_LAYER_SYS,
-    ALINK_MSG_LAYER_EXT,
-    ALINK_MSG_LAYER_PROXY,
-    ALINK_MSG_LAYER_NUM
-} alink_msg_layer_t;
+    ALINK_URI_UP_REQ_SUBDEV_REGISTER_POST,
+    ALINK_URI_UP_REQ_SUBDEV_REGISTER_DELETE,
+    ALINK_URI_UP_REQ_SUBDEV_TOPO_POST,
+    ALINK_URI_UP_MAX
+} alink_msg_uri_index_t;
 
-typedef struct {
-    alink_msg_dest_t    dist;
-    alink_msg_type_t    type;
-    alink_msg_layer_t   layer;
-    const char          *path;
-    char                *query;
-} alink_msg_uri_metadata_t;
 
-int alink_format_assamble_uri(alink_msg_uri_metadata_t *uri_meta, char *uri_output, uint32_t len);
+
+int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const char *query, char **p_uri);
+int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, const char *pk, const char *dn, const char *uri_query, char **p_uri);
 
 #endif /* #ifndef __ALINK_FORMAT__ */
+
+
+
+
