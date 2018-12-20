@@ -25,6 +25,9 @@
 #include <signal.h>
 
 #include "infra_defs.h"
+#include "wrappers.h"
+
+#define PLATFORM_WAIT_INFINITE (~0)
 
 char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1X2bEnP82z";
 char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "";
@@ -218,6 +221,95 @@ int HAL_GetFirmwareVersion(char *version)
     strncpy(version, ver, len);
     version[len] = '\0';
     return strlen(version);
+}
+
+void *HAL_SemaphoreCreate(void)
+{
+    sem_t *sem = (sem_t *)malloc(sizeof(sem_t));
+    if (NULL == sem) {
+        return NULL;
+    }
+
+    if (0 != sem_init(sem, 0, 0)) {
+        free(sem);
+        return NULL;
+    }
+
+    return sem;
+}
+
+void HAL_SemaphoreDestroy(void *sem)
+{
+    sem_destroy((sem_t *)sem);
+    free(sem);
+}
+
+void HAL_SemaphorePost(void *sem)
+{
+    sem_post((sem_t *)sem);
+}
+
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms)
+{
+    if (PLATFORM_WAIT_INFINITE == timeout_ms) {
+        sem_wait(sem);
+        return 0;
+    } else {
+        struct timespec ts;
+        int s;
+        /* Restart if interrupted by handler */
+        do {
+            if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+                return -1;
+            }
+
+            s = 0;
+            ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+            if (ts.tv_nsec >= 1000000000) {
+                ts.tv_nsec -= 1000000000;
+                s = 1;
+            }
+
+            ts.tv_sec += timeout_ms / 1000 + s;
+
+        } while (((s = sem_timedwait(sem, &ts)) != 0) && errno == EINTR);
+
+        return (s == 0) ? 0 : -1;
+    }
+}
+
+int HAL_ThreadCreate(
+            void **thread_handle,
+            void *(*work_routine)(void *),
+            void *arg,
+            hal_os_thread_param_t *hal_os_thread_param,
+            int *stack_used)
+{
+    int ret = -1;
+
+    if (stack_used) {
+        *stack_used = 0;
+    }
+
+    ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
+
+    return ret;
+}
+
+void HAL_ThreadDetach(void *thread_handle)
+{
+    pthread_detach((pthread_t)thread_handle);
+}
+
+void HAL_ThreadDelete(void *thread_handle)
+{
+    if (NULL == thread_handle) {
+        pthread_exit(0);
+    } else {
+        /*main thread delete child thread*/
+        pthread_cancel((pthread_t)thread_handle);
+        pthread_join((pthread_t)thread_handle, 0);
+    }
 }
 
 void *HAL_MutexCreate(void)
