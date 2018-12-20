@@ -1,4 +1,0 @@
-config ALINK_PROTOCOL_ENABLE
-    bool "ALINK_PROTOCOL_ENABLE"
-    default n
-    select DEV_SIGN
