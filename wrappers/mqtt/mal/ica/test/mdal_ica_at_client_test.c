@@ -3,9 +3,9 @@
  */
 
 #include <string.h>
-#include <atparser.h>
+#include "../../../../at/atparser.h"
 #include "mdal_ica_at_client_test.h"
-#include "mdal_mal_import.h"
+#include "../../mdal_mal_import.h"
 
 #define TAG "mdal_ica_at_client"
 

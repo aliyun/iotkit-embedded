@@ -18,6 +18,9 @@ ifneq (,$(filter -DMAL_ENABLED, $(CFLAGS)))
 LIB_SRCS_PATTERN += mqtt/mal/mal.c
 
 ifneq (,$(filter -DMAL_ICA_ENABLED, $(CFLAGS)))
+
+LIB_SRCS_PATTERN += at/*.c
+
 LIB_SRCS_PATTERN += mqtt/mal/ica/*.c  \
                     mqtt/mal/ica/test/*.c
 endif
