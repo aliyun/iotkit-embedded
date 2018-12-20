@@ -36,10 +36,10 @@ void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             /* print topic name and topic message */
-            printf("Message Arrived: \n");
-            printf("Topic  : %.*s\n", topic_info->topic_len, topic_info->ptopic);
-            printf("Payload: %.*s\n", topic_info->payload_len, topic_info->payload);
-            printf("\n");
+            HAL_Printf("Message Arrived: \n");
+            HAL_Printf("Topic  : %.*s\n", topic_info->topic_len, topic_info->ptopic);
+            HAL_Printf("Payload: %.*s\n", topic_info->payload_len, topic_info->payload);
+            HAL_Printf("\n");
             break;
         default:
             break;
@@ -61,7 +61,7 @@ int example_subscribe(void *handle)
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
-        printf("memory not enough\n");
+        HAL_Printf("memory not enough\n");
         return -1;
     }
     memset(topic, 0, topic_len);
@@ -69,7 +69,7 @@ int example_subscribe(void *handle)
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
     if (res < 0) {
-        printf("subscribe failed\n");
+        HAL_Printf("subscribe failed\n");
         HAL_Free(topic);
         return -1;
     }
@@ -96,7 +96,7 @@ int example_publish(void *handle)
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
-        printf("memory not enough\n");
+        HAL_Printf("memory not enough\n");
         return -1;
     }
     memset(topic, 0, topic_len);
@@ -112,7 +112,7 @@ int example_publish(void *handle)
 
     res = IOT_MQTT_Publish(handle, topic, &topic_msg);
     if (res < 0) {
-        printf("publish failed\n");
+        HAL_Printf("publish failed\n");
         HAL_Free(topic);
         return -1;
     }
@@ -123,12 +123,12 @@ int example_publish(void *handle)
 
 void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    printf("msg->event_type : %d\n", msg->event_type);
+    HAL_Printf("msg->event_type : %d\n", msg->event_type);
 }
 
 int main(int argc, char *argv[])
 {
-    printf("mqtt example\n");
+    HAL_Printf("mqtt example\n");
 
     int res = 0;
     void *pclient = NULL;
@@ -155,11 +155,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    printf("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
-    printf("sign_mqtt.port    : %d\n", sign_mqtt.port);
-    printf("sign_mqtt.username: %s\n", sign_mqtt.username);
-    printf("sign_mqtt.password: %s\n", sign_mqtt.password);
-    printf("sign_mqtt.clientid: %s\n", sign_mqtt.clientid);
+    HAL_Printf("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
+    HAL_Printf("sign_mqtt.port    : %d\n", sign_mqtt.port);
+    HAL_Printf("sign_mqtt.username: %s\n", sign_mqtt.username);
+    HAL_Printf("sign_mqtt.password: %s\n", sign_mqtt.password);
+    HAL_Printf("sign_mqtt.clientid: %s\n", sign_mqtt.clientid);
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
