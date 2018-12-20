@@ -13,5 +13,10 @@ LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 
 TARGET          := mqtt-example
 
-LIB_SRCS_EXCLUDE        := mqtt_example.c
+LIB_SRCS_EXCLUDE        := mqtt_example.c mqtt_example_at.c
+
+ifneq (,$(filter -DSAL_ENABLED -DMAL_ENABLED, $(CFLAGS)))
+SRCS_mqtt-example       += mqtt_example_at.c
+else
 SRCS_mqtt-example       += mqtt_example.c
+endif
