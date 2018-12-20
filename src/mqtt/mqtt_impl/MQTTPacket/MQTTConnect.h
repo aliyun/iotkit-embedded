@@ -109,10 +109,6 @@ typedef union
 } MQTTConnackFlags;	/**< connack flags byte */
 
 
-#define KEEP_ALIVE_INTERVAL_DEFAULT_MIN 60
-#define KEEP_ALIVE_INTERVAL_DEFAULT_MAX 180
-
-
 #define MQTTPacket_connectData_initializer { {'M', 'Q', 'T', 'C'}, 0, 4, {NULL, {0, NULL}}, KEEP_ALIVE_INTERVAL_DEFAULT_MIN, 1, 0, \
 		MQTTPacket_willOptions_initializer, {NULL, {0, NULL}}, {NULL, {0, NULL}} }
 
