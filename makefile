@@ -20,9 +20,8 @@ $(call CompLib_Map, FEATURE_SAL_ENABLED, external_libs/sal)
 $(call CompLib_Map, FEATURE_DEV_RESET, src/dev_reset)
 $(call CompLib_Map, FEATURE_ALINK_PROTOCOL_ENABLE, src/device_model)
 $(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
-$(call CompLib_Map, FEATURE_MAL_ENABLED, wrappers/mqtt/mal)
 
-SUBDIRS                 += hal
+SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
 SUBDIRS                 += external_libs/refs
 
