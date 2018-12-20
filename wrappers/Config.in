@@ -6,25 +6,18 @@ config HAL_KV
     bool
     default n
 
-choice
-    prompt "Security Option"
-    default SUPPORT_TCP
+config SUPPORT_TLS
+    bool "FEATURE_SUPPORT_TLS"
+    default n
+    help
+        This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
 
-    config SUPPORT_TCP
-        bool "FEATURE_SUPPORT_TCP"
-
-    config SUPPORT_TLS
-        bool "FEATURE_SUPPORT_TLS"
-        help
-            This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
-
-    config SUPPORT_ITLS
-        bool "FEATURE_SUPPORT_ITLS"
-        help
-            This option is mutually exclusive with SUPPORT_TLS, only less than one of them can be switched to "y"
-
-            iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
-
-endchoice
+config SUPPORT_ITLS
+    bool "FEATURE_SUPPORT_ITLS"
+    depends on !SUPPORT_TLS
+    default n
+    help
+        This option is mutually exclusive with SUPPORT_TLS, only less than one of them can be switched to "y"
+        iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
 
 source "wrappers/sal/Config.in"

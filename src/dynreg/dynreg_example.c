@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     int32_t res = 0;
     iotx_dev_meta_info_t meta;
     iotx_http_region_types_t region = IOTX_HTTP_REGION_SHANGHAI;
-    HAL_Printf("dynreg example\r\n");
+    HAL_Printf("dynreg example\n");
 
     memset(&meta,0,sizeof(iotx_dev_meta_info_t));
     memcpy(meta.product_key,EXAMPLE_PRODUCT_KEY,strlen(EXAMPLE_PRODUCT_KEY));
@@ -24,11 +24,11 @@ int main(int argc, char *argv[])
 
     res = IOT_Dynamic_Register(region, &meta);
     if (res < 0) {
-        HAL_Printf("IOT_Dynamic_Register failed\r\n");
+        HAL_Printf("IOT_Dynamic_Register failed\n");
         return -1;
     }
 
-    HAL_Printf("Device Secret: %s\r\n",meta.device_secret);
+    HAL_Printf("\nDevice Secret: %s\n\n",meta.device_secret);
 
     return 0;
 }

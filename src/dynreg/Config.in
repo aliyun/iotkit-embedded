@@ -5,3 +5,4 @@ config DYNAMIC_REGISTER
     select INFRA_RANDOM
     select INFRA_HTTPC
     select INFRA_SHA256
+    select SUPPORT_TLS
