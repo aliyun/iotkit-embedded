@@ -763,7 +763,11 @@ int at_ica_mqtt_client_init(void)
 
     g_mqtt_connect_state = 0;
 
-    HAL_MDAL_MAL_ICA_Init();
+    if (HAL_MDAL_MAL_ICA_Init() != 0) {
+        mdal_err("at ica mqtt client create sem failed");
+
+        return -1;
+    }
 
     HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTRCV,
                              AT_ICA_MQTT_POSTFIX,

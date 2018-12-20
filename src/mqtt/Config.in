@@ -30,6 +30,9 @@ config MQTT_DEFAULT_IMPL
         Switching to "y" leads to building MQTT related implementation into SDK and MQTT_DEFAULT_IMPL included into CFLAGS
         Switching to "n" seldom happens unless you're using other MQTT implementations
 
+
+source "wrappers/mqtt/mal/Config.in"
+
 # menu "MQTT Configurations"
 #     depends on MQTT_COMM_ENABLED
 # 
