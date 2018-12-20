@@ -9,18 +9,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "infra_log.h"
-
-#include "sal_opts.h"
-#include "sal_arch.h"
-#include "sal_def.h"
-#include "sal_ipaddr.h"
-#include "sal_err.h"
+#include "../../sal_opts.h"
+#include "../sal_arch.h"
+#include "../sal_def.h"
+#include "../sal_ipaddr.h"
+#include "../sal_err.h"
 #include "sal_pcb.h"
 #include "sal_arch_internal.h"
-#include "sal_import.h"
-#include "sal_sockets.h"
+#include "../../sal_import.h"
+#include "../sal_sockets.h"
 
+#include "iot_import.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,11 +30,9 @@ extern "C" {
 #define SAL_TAG  "sal"
 
 #if SAL_USE_DEBUG
-#define SAL_DEBUG(format, ...)  log_debug(SAL_TAG, format, ##__VA_ARGS__)
-#define SAL_ERROR(format, ...)  log_err(SAL_TAG, format, ##__VA_ARGS__)
-#define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
-            log_err(SAL_TAG, msg);} \
-        } while (0)
+#define SAL_DEBUG   do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define SAL_ERROR   do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define SAL_ASSERT  do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #else
 #define SAL_DEBUG(format, ...)
 #define SAL_ERROR(format, ...)

@@ -5,7 +5,7 @@
 #include "iot_import.h"
 #include "infra_log.h"
 
-#include "sal_util.h"
+#include "../include/internal/sal_util.h"
 
 #define TAG "SAL_UTIL"
 

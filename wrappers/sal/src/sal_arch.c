@@ -5,21 +5,13 @@
 /* system includes */
 #include "iot_import.h"
 
-#include "sal_opts.h"
-#include "sal_err.h"
-#include "sal_arch.h"
-#include "internal/sal_arch_internal.h"
-#include "internal/sal_util.h"
+#include "../sal_opts.h"
+#include "../include/sal_err.h"
+#include "../include/sal_arch.h"
+#include "../include/internal/sal_arch_internal.h"
+#include "../include/internal/sal_util.h"
 
 static sal_mutex_t sal_arch_mutex;
-
-#ifdef INFRA_MEM_STATS
-#define sal_malloc(size)            LITE_malloc(size, MEM_MAGIC, "sal.arch")
-#define sal_free(ptr)               LITE_free(ptr)
-#else
-#define sal_malloc(size)            HAL_Malloc(size)
-#define sal_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
-#endif
 
 void sal_msleep(uint32_t ms)
 {

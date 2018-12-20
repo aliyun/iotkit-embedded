@@ -5,6 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#ifdef SAL_ENABLED
+#include "../../sal/include/sal_arch.h"
+#include "../../sal/include/sal_def.h"
+#include "../../sal/include/sal_ipaddr.h"
+#include "../../sal/include/sal_sockets.h"
+#include "../../sal/include/sal_err.h"
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -12,6 +19,7 @@
 #include <fcntl.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
+#endif
 
 static uint64_t _linux_get_time_ms(void)
 {
