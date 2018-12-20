@@ -12,3 +12,13 @@ endif
 endif
 
 LIB_SRCS_PATTERN    += algo/*.c
+
+
+ifneq (,$(filter -DMAL_ENABLED, $(CFLAGS)))
+LIB_SRCS_PATTERN += mqtt/mal/mal.c
+
+ifneq (,$(filter -DMAL_ICA_ENABLED, $(CFLAGS)))
+LIB_SRCS_PATTERN += mqtt/mal/ica/*.c  \
+                    mqtt/mal/ica/test/*.c
+endif
+endif

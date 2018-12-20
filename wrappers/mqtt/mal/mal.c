@@ -6,8 +6,6 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "infra_defs.h"
-#include "infra_timer.h"
 #include "mqtt_api.h"
 #include "mqtt_wrapper.h"
 
@@ -24,22 +22,13 @@
 
 #define MAL_MC_DEAFULT_TIMEOUT   (8000)
 
-#ifdef INFRA_LOG
-    #include "infra_log.h"
-    #define mal_emerg(...)             log_emerg("MAL", __VA_ARGS__)
-    #define mal_crit(...)              log_crit("MAL", __VA_ARGS__)
-    #define mal_err(...)               log_err("MAL", __VA_ARGS__)
-    #define mal_warning(...)           log_warning("MAL", __VA_ARGS__)
-    #define mal_info(...)              log_info("MAL", __VA_ARGS__)
-    #define mal_debug(...)             log_debug("MAL", __VA_ARGS__)
-#else
-    #define mal_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-    #define mal_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-    #define mal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-    #define mal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-    #define mal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-    #define mal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#endif
+#define mal_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define mal_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define mal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define mal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define mal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define mal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+
 
 #ifdef INFRA_MEM_STATS
     #define mal_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
@@ -66,6 +55,67 @@ static char g_at_mqtt_msg_data[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_MAX_MSG_LEN];
 static iotx_mc_state_t mal_mc_get_client_state(iotx_mc_client_t *pClient);
 static void mal_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
 static int mal_mc_data_copy_from_buf(char *topic, char *message);
+
+typedef struct {
+    uint32_t time;
+} mal_time_t;
+
+static uint32_t mal_time_is_expired(mal_time_t *timer)
+{
+    uint32_t cur_time;
+
+    if (!timer) {
+        return 1;
+    }
+
+    cur_time = HAL_UptimeMs();
+    /*
+     *  WARNING: Do NOT change the following code until you know exactly what it do!
+     *
+     *  check whether it reach destination time or not.
+     */
+    if ((cur_time - timer->time) < (UINT32_MAX / 2)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+static uint32_t mal_time_left(mal_time_t *end)
+{
+    uint32_t now, res;
+
+    if (!end) {
+        return 0;
+    }
+
+    if (mal_time_is_expired(end)) {
+        return 0;
+    }
+
+    now = HAL_UptimeMs();
+    res = end->time - now;
+    return res;
+}
+
+static void mal_time_init(mal_time_t *timer)
+{
+    if (!timer) {
+        return;
+    }
+
+    timer->time = 0;
+}
+
+static void mal_time_countdown_ms(mal_time_t *timer, uint32_t millisecond)
+{
+    if (!timer) {
+        return;
+    }
+
+    timer->time = HAL_UptimeMs() + millisecond;
+}
+
 
 #ifndef MAL_ICA_ENABLED
 int HAL_MDAL_MAL_Init()
@@ -453,7 +503,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
 }
 
 /* MQTT cycle to handle packet from remote broker */
-static int mal_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
+static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
 {
     int rc = SUCCESS_RETURN;
     char msg[MAL_MC_MAX_MSG_LEN] = {0};
@@ -571,14 +621,14 @@ static void mal_mc_recv_buf_deinit()
 
 static int mal_mc_wait_for_result()
 {
-    iotx_time_t         time;
+    mal_time_t         time;
     int state = 0;
     int timeout_ms = MAL_MC_DEAFULT_TIMEOUT;
-    iotx_time_init(&time);
-    utils_time_countdown_ms(&time, timeout_ms);
+    mal_time_init(&time);
+    mal_time_countdown_ms(&time, timeout_ms);
     do {
         unsigned int left_t;
-        left_t = iotx_time_left(&time);
+        left_t = mal_time_left(&time);
         if (left_t < 100) {
             HAL_SleepMs(left_t);
         } else {
@@ -586,7 +636,7 @@ static int mal_mc_wait_for_result()
         }
 
         state = HAL_MDAL_MAL_State();
-    } while (!utils_time_is_expired(&time) && (state != IOTX_MC_STATE_CONNECTED));
+    } while (!mal_time_is_expired(&time) && (state != IOTX_MC_STATE_CONNECTED));
 
     if (state == IOTX_MC_STATE_CONNECTED) {
         return SUCCESS_RETURN;
@@ -826,7 +876,7 @@ int mqtt_connect_wrapper(void *client)
 int mqtt_yield_wrapper(void *client, int timeout_ms)
 {
     int                 rc = SUCCESS_RETURN;
-    iotx_time_t         time;
+    mal_time_t         time;
 
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
 
@@ -842,12 +892,12 @@ int mqtt_yield_wrapper(void *client, int timeout_ms)
         timeout_ms = 10;
     }
 
-    iotx_time_init(&time);
-    utils_time_countdown_ms(&time, timeout_ms);
+    mal_time_init(&time);
+    mal_time_countdown_ms(&time, timeout_ms);
 
     do {
         if (SUCCESS_RETURN != rc) {
-            unsigned int left_t = iotx_time_left(&time);
+            unsigned int left_t = mal_time_left(&time);
             /*mal_info("error occur or no data");*/
             if (left_t < 20) {
                 HAL_SleepMs(left_t);
@@ -861,13 +911,13 @@ int mqtt_yield_wrapper(void *client, int timeout_ms)
         rc = mal_mc_cycle(pClient, &time);
         HAL_MutexUnlock(pClient->lock_yield);
 
-        unsigned int left_t = iotx_time_left(&time);
+        unsigned int left_t = mal_time_left(&time);
         if (left_t < 10) {
             HAL_SleepMs(left_t);
         } else {
             HAL_SleepMs(10);
         }
-    } while (!utils_time_is_expired(&time));
+    } while (!mal_time_is_expired(&time));
 
     return 0;
 }
