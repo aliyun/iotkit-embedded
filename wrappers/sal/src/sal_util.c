@@ -3,9 +3,8 @@
  */
 
 #include "iot_import.h"
-#include "infra_log.h"
 
-#include "../include/internal/sal_util.h"
+#include "sal_util.h"
 
 #define TAG "SAL_UTIL"
 
@@ -16,6 +15,8 @@
 #define SAL_UTILS_MALLOC(size)            HAL_Malloc(size)
 #define SAL_UTILS_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
+
+#define SAL_UTILS_ERR(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 
 static sal_ringbuf_t *sal_ringbuf_create(int length);
 static void sal_ringbuf_destroy(sal_ringbuf_t *buffer);
@@ -152,7 +153,7 @@ static int sal_ringbuf_write(sal_ringbuf_t *ringbuf, void *data, int size)
     }
 
     if (sal_ringbuf_full(ringbuf)) {
-        log_err(TAG, "sal ringbuf full!");
+        SAL_UTILS_ERR("sal ringbuf full!");
         return -1;
     }
 

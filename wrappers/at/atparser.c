@@ -585,7 +585,7 @@ static void* at_worker(void *arg)
                 (offset >= strlen(oob->prefix) &&
                  memcmp(oob->prefix, buf + offset - strlen(oob->prefix),
                         strlen(oob->prefix)) == 0)) {
-                atparser_debug("AT! %s\r\n", oob->prefix);
+                //atparser_debug("AT! %s\r\n", oob->prefix);
                 if (oob->postfix == NULL) {
                     oob->cb(oob->arg, NULL, 0);
                     memset(buf, 0, offset);
@@ -643,7 +643,7 @@ static void* at_worker(void *arg)
 
         // if no task, continue recv
         if (at_task_empty) {
-            atparser_debug("No task in queue");
+            //atparser_debug("No task in queue");
             goto check_buffer;
         }
 
@@ -707,7 +707,7 @@ static void* at_worker(void *arg)
     check_buffer:
         // in case buffer is full
         if (offset > (RECV_BUFFER_SIZE - 2)) {
-            printf("buffer full \r\n");
+            atparser_debug("buffer full \r\n");
             memcpy_size = rsp_prefix_len > rsp_success_postfix_len
                             ? rsp_prefix_len
                             : rsp_success_postfix_len;
