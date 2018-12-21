@@ -197,7 +197,7 @@ COMMON_CONFIG_ENV = \
     KCONFIG_AUTOCONFIG=$(OUTPUT_DIR)/auto.conf \
     KCONFIG_AUTOHEADER=$(OUTPUT_DIR)/autoconf.h \
 
-menuconfig: prebuilt/ubuntu/bin/kconfig-mconf
+menuconfig: tools/prebuilt/ubuntu/bin/kconfig-mconf
 	$(TOP_Q)$(COMMON_CONFIG_ENV) $^ -s $(TOP_DIR)/tools/Config.in $(if $(TOP_Q),2>/dev/null)
 	$(TOP_Q) \
 ( \
