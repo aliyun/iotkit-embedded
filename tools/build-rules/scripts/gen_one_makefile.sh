@@ -20,6 +20,7 @@ for iter in \
     $(find -L \
         ${COMP_LIB_COMPONENTS} \
         ${EXPORT_DIR} \
+        ${SUBDIRS} \
         ${EXTRA_INCLUDE_DIRS} \
         ${IMPORT_DIR}/${CONFIG_VENDOR}/include \
             -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \

@@ -24,7 +24,4 @@ SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
 SUBDIRS                 += external_libs/refs
 
-CFLAGS += $(foreach V,$(shell find external_libs -type d),-I$(V))
-CFLAGS += $(foreach V,$(shell find wrappers -type d),-I$(V))
-
 include $(RULE_DIR)/rules.mk
