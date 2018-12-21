@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "../include/internal/sal_sockets_internal.h"
+#include "sal_sockets_internal.h"
 
 #ifdef INFRA_MEM_STATS
 #define sal_malloc(size)            LITE_malloc(size, MEM_MAGIC, "sal.sockets")

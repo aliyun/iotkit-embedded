@@ -5,11 +5,11 @@
 /* system includes */
 #include "iot_import.h"
 
-#include "../sal_opts.h"
-#include "../include/sal_err.h"
-#include "../include/sal_arch.h"
-#include "../include/internal/sal_arch_internal.h"
-#include "../include/internal/sal_util.h"
+#include "sal_opts.h"
+#include "sal_err.h"
+#include "sal_arch.h"
+#include "sal_arch_internal.h"
+#include "sal_util.h"
 
 static sal_mutex_t sal_arch_mutex;
 

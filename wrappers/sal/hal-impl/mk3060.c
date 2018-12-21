@@ -6,8 +6,8 @@
 #include <string.h>
 
 #include "iot_import.h"
-#include "../../at/atparser.h"
-#include "../sal_import.h"
+#include "atparser.h"
+#include "sal_import.h"
 
 #define TAG "sal_wifi"
 
