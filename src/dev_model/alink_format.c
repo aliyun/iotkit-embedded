@@ -3,7 +3,6 @@
  */
 
 #include "iotx_alink_internal.h"
-
 #include "alink_wrapper.h"
 
 
@@ -98,30 +97,162 @@ typedef int (*alink_downstream_handle_func_t)(const char *query, const char *pk,
 typedef struct {
     const char *uri_string;
     alink_downstream_handle_func_t  handle_func;
-} alink_downstream_uri_handle_t;
+} alink_uri_handle_pair_t;
 
 int test(const char *query, const char *pk, const char *dn)
 {
+    alink_info("%s\r\n", query);
     return 0;
 }
 
-const alink_downstream_uri_handle_t c_alink_down_uri_handle_map[] = {
-    { "/rsp/sys/dt/property/post",          test},
-    { "/req/sys/thing/property/post",       test},
-    { "/req/sys/thing/property/get",        test},
-    { "/rsp/sys/dt/event/post",             test},
-    { "/req/sys/thing/service/post",        test},
-    { "/rsp/sys/dt/raw/post",               test},
-    { "/req/sys/thing/raw/post",            test},
+const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
+    { "/rsp/sys/dt/property/post",  test    },
+    { "/req/sys/thing/property/post",   test    },
+    { "/req/sys/thing/property/get",    test    },
+    { "/rsp/sys/dt/event/post", test    },
+    { "/req/sys/thing/service/post",    test    },
+    { "/rsp/sys/dt/raw/post",   test    },
+    { "/req/sys/thing/raw/post",    test    },
 
-    { "/rsp/sys/subdev/register/post",      test},
-    { "/rsp/sys/subdev/register/delete",    test},
-    { "/rsp/sys/dt/topo/post",              test},
+    { "/rsp/sys/subdev/register/post",  test    },
+    { "/rsp/sys/subdev/register/delete",    test    },
+    { "/rsp/sys/dt/topo/post",  test    },
+    { "/rsp/sys/dt/topo/delete",    test    },
+    { "/rsp/sys/dt/topo/get",   test    },
+    { "/req/sys/subdev/topo/post",  test    },
+    { "/rsp/sys/subdev/login/post", test    },
+    { "/rsp/sys/subdev/logout/post",    test    },
+    { "/rsp/sys/dt/list/post",  test    },
+    { "/req/sys/subdev/permit/post",    test    },
+    { "/req/sys/subdev/config/post",    test    },
+    { "/rsp/sys/dt/deviceinfo/post",    test    },
+    { "/rsp/sys/dt/deviceinfo/get", test    },
+    { "/rsp/sys/dt/deviceinfo/delete",  test    },
 };
 
+/**********************************
+ * local function
+ **********************************/
+#define ALINK_URI_MAX_LEN           50
+#define MAX_HASH_TABLE_SIZE         37
+
+
+typedef struct _hash_node {
+    alink_uri_handle_pair_t pair;
+    struct _hash_node *next;
+} uri_hash_node_t;
+
+uri_hash_node_t *uri_hash_table[MAX_HASH_TABLE_SIZE] = { NULL };
+
+
+static uint8_t _uri_to_hash(const char *uri)
+{
+    uint8_t i, nameLen;
+    uint32_t sum = 0;
+
+    nameLen = strlen (uri);
+
+    /* Sum the ascii values of the header names */
+    for (i = 0; i < nameLen; i++)
+    {
+        sum += uri[i];
+    }
+
+    /* Sum the rest of the length until we get to the maximum length */
+    for (; i < ALINK_URI_MAX_LEN; i++)
+    {
+        sum++;
+    }
+
+    sum += nameLen;
+    sum = sum % MAX_HASH_TABLE_SIZE;
+
+    if (0 == sum) {
+        sum = 1;
+    }
+
+    return sum;
+}
+
+uri_hash_node_t *_uri_hash_node_malloc(alink_uri_handle_pair_t pair)
+{
+    uri_hash_node_t *node = HAL_Malloc(sizeof(uri_hash_node_t));
+    if (node == NULL) {
+        return NULL;
+    }
+
+    node->pair = pair;  // TODO
+    node->next = NULL;
+    
+    return node;
+}
+
+static int _uri_hash_insert(alink_uri_handle_pair_t pair) {
+
+    uint8_t hash = _uri_to_hash(pair.uri_string);
+
+    uri_hash_node_t *node = HAL_Malloc(sizeof(uri_hash_node_t));
+    if (node == NULL) {
+        return FAIL_RETURN;
+    }
+    node->pair = pair;  // TODO
+    node->next = NULL;
+
+    if (uri_hash_table[hash] == NULL) {
+        uri_hash_table[hash] = node;
+    }
+    else {
+        uri_hash_node_t *search_node = uri_hash_table[hash];
+        while (search_node->next) {
+            search_node = search_node->next;
+        }
+
+        search_node->next = node;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+static uri_hash_node_t * _uri_hash_search(const char *uri_string)
+{
+    uint16_t str_len = strlen(uri_string);
+    uint8_t hash = _uri_to_hash(uri_string);
+
+    uri_hash_node_t *node = uri_hash_table[hash];
+
+    // TEST
+    //uint8_t i = 0;
+
+    while (node) {
+        //alink_info("hash search time %d", ++i);
+        if (str_len == strlen(node->pair.uri_string) && !memcmp(uri_string, node->pair.uri_string, str_len)) {
+            return node;
+        }
+        else {
+            node = node->next;
+        }
+    }
+
+    return NULL;
+}
+
+/* _uri_hash_iterator(); */
+
+
+int alink_format_handle_uri(const char *uri_string)
+{
+    uri_hash_node_t *search_node = _uri_hash_search(uri_string);
+
+    search_node->pair.handle_func(search_node->pair.uri_string, "2", "3");
+
+    return 1;
+}
 
 
 
+/**********************************
+ * global function
+ **********************************/
 int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const char *uri_query, char **p_uri)
 {
     //int res = FAIL_RETURN;
@@ -204,6 +335,7 @@ int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_quer
 {
     const char *p = uri + uri_len;
     uint8_t len = 0;
+    uint8_t i = 0;
     char temp[30] = {0};        // TODO, malloc
 
     while (--p != uri) {
@@ -226,8 +358,6 @@ int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_quer
     memcpy(temp, p, len);
     alink_info("query = %s", temp);
 
-    uint8_t i = 0;
-
     while (i++ < len) {
         switch (temp[i]) {
             case 'f': {
@@ -248,13 +378,27 @@ int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_quer
             }
             case 'r': {
                 i += 2;
-                query->code = atoi(temp+i);                
+                query->code = atoi(temp+i);     // atoi used
             }
             default: continue;
         }
     }
 
     return 0;
+}
+
+int alink_format_create_hash_table(void)
+{
+    uint8_t i;
+    uint8_t hash_temp;
+
+    for (i=0; i<(sizeof(c_alink_down_uri_handle_map)/sizeof(alink_uri_handle_pair_t)); i++) {
+        hash_temp = _uri_to_hash(c_alink_down_uri_handle_map[i].uri_string);
+        alink_info("[%d] = %d", i, hash_temp);
+        _uri_hash_insert(c_alink_down_uri_handle_map[i]);
+    }
+
+    return FAIL_RETURN;
 }
 
 int _alink_format_reslove_uri()

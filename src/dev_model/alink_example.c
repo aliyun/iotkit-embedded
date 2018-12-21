@@ -11,6 +11,8 @@
 
 #define PROP_ALINK1_TEST   "{\"id\":\"123\",\"version\":\"1.0\",\"params\":{\"test1\":1234},\"method\":\"thing.event.property.post\"}"
 
+extern int alink_format_handle_uri(const char *uri_string);
+
 
 int main(int argc, char **argv)
 {
@@ -45,6 +47,29 @@ int main(int argc, char **argv)
         IOT_Linkkit_Yield(200);
 
         HAL_SleepMs(2000);
+
+        /* test */
+        alink_format_handle_uri("/rsp/sys/dt/property/post");
+        alink_format_handle_uri("/req/sys/thing/property/post");
+        alink_format_handle_uri("/req/sys/thing/property/get");
+        alink_format_handle_uri("/rsp/sys/dt/event/post");
+        alink_format_handle_uri("/req/sys/thing/service/post");
+        alink_format_handle_uri("/rsp/sys/dt/raw/post");
+        alink_format_handle_uri("/req/sys/thing/raw/post");
+        alink_format_handle_uri("/rsp/sys/subdev/register/post");
+        alink_format_handle_uri("/rsp/sys/subdev/register/delete");
+        alink_format_handle_uri("/rsp/sys/dt/topo/post");
+        alink_format_handle_uri("/rsp/sys/dt/topo/delete");
+        alink_format_handle_uri("/rsp/sys/dt/topo/get");
+        alink_format_handle_uri("/req/sys/subdev/topo/post");
+        alink_format_handle_uri("/rsp/sys/subdev/login/post");
+        alink_format_handle_uri("/rsp/sys/subdev/logout/post");
+        alink_format_handle_uri("/rsp/sys/dt/list/post");
+        alink_format_handle_uri("/req/sys/subdev/permit/post");
+        alink_format_handle_uri("/req/sys/subdev/config/post");
+        alink_format_handle_uri("/rsp/sys/dt/deviceinfo/post");
+        alink_format_handle_uri("/rsp/sys/dt/deviceinfo/get");
+        alink_format_handle_uri("/rsp/sys/dt/deviceinfo/delete");
 
         IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)PROP_ALINK1_TEST, strlen(PROP_ALINK1_TEST));
     }

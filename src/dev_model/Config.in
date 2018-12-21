@@ -1,9 +1,4 @@
-config ALINK_PROTOCOL_ENABLE
-    bool "ALINK_PROTOCOL_ENABLE"
+config DEVICE_MODEL_ENABLE
+    bool "FEATURE_DEVICE_MODEL_ENABLE"
     default n
     select DEV_SIGN
-
-config ALINK_PROTOCOL_RAW_DATA
-    bool "ALINK_PROTOCOL_RAW_DATA"
-    default n
-    depends on ALINK_PROTOCOL_ENABLE

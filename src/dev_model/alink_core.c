@@ -167,6 +167,11 @@ extern int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_u
  */
 void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len)
 {
+    /* reslove the uri query */
+
+    /* reslove layer level, is proxy */
+
+    /* reslove the uri path */
     alink_info("rx data, uri = %.*s", uri_len, uri);
     alink_info("rx data, data = %.*s", payload_len, payload);
 
@@ -176,13 +181,16 @@ void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t uri_len
     alink_format_resolve_query(uri, uri_len, &query, &query_len);
     
     alink_info("query_len = %d", query_len);        /* not include '/' */
-
     alink_info("query id = %d", query.id);
     alink_info("query format = %c", query.format);
     alink_info("query compress = %c", query.compress);
     alink_info("query code = %d", query.code);
     alink_info("query ack = %c", query.ack);
 }
+
+
+extern int alink_format_create_hash_table(void);
+
 
 /**
  * 
@@ -192,6 +200,13 @@ int alink_core_subscribe_downstream(void)
     int res = FAIL_RETURN;
 
     const char *uri = "/sys/a1OFrRjV8nz/develop_01/thing/service/property/set";
+
+
+
+    // for test
+    alink_format_create_hash_table();
+
+
 
     res = alink_bearer_register(alink_core_ctx.p_activce_bearer, uri, (alink_bearer_rx_cb_t)_alink_core_rx_event_handle);
 
