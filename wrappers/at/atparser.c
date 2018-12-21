@@ -385,6 +385,30 @@ int at_send_no_reply(const char *data, int datalen, bool delimiter)
     return 0;
 }
 
+int at_connect_wifi(char *ssid, char *pwd)
+{
+    char conn_str[100]= {0};
+    char out[20] = {0};
+
+    sprintf(conn_str, "AT+WJAP=%s,%s", ssid, pwd);
+
+    if (at_send_wait_reply(conn_str, strlen(conn_str), true,
+                       out, sizeof(out), NULL) < 0){
+        atparser_err("%s %d failed", __func__, __LINE__);
+        return -1;
+    }
+
+    if (strstr(out, "ERROR") != NULL) {
+        atparser_err("%s %d failed", __func__, __LINE__);
+        return -1;
+    }
+
+    HAL_SleepMs(3000);
+
+    return 0;
+}
+
+
 static int at_getc(char *c)
 {
     int      ret = 0;
