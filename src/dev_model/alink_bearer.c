@@ -66,6 +66,32 @@ int alink_bearer_conect(void)
     return bearer.p_api.bearer_connect(&p_alink_bearer_mqtt->bearer, 20000);
 }
 
+
+void alink_bearer_rx_handle(alink_bearer_node_t *p_bearer_ctx, const char *uri, const char *payload, uint32_t payload_len)
+{
+
+
+
+
+
+
+
+
+
+}
+
+/**
+ * 
+ */
+int alink_bearer_register(void *handle, const char *uri, alink_bearer_rx_cb_t cb)
+{
+    alink_bearer_node_t *bearer = handle;
+
+
+
+    return bearer->p_api.bearer_sub(bearer, uri, cb, 0, 0);
+}
+
 /**
  * 
  */
@@ -98,4 +124,15 @@ int alink_bearer_yield(uint32_t timeout_ms)
 int alink_bearer_send_proto(uint8_t protocal, char *uri, uint8_t *payload, uint32_t len)
 {
     return 1;
+}
+
+
+int alink_bearer_disconnect(void)
+{
+    return 0;
+}
+
+int alink_bearer_close(void)
+{
+    return 0;
 }

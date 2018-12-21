@@ -7,8 +7,6 @@
 
 #include "infra_types.h"
 
-
-
 typedef enum {
     ALINK_URI_UP_REQ_PROPERTY_POST = 0,
     ALINK_URI_UP_RSP_PROPERTY_POST,
@@ -26,8 +24,24 @@ typedef enum {
 
 
 
+typedef struct {
+    char query_key;
+    char value;
+} alink_uri_query_item_t;
+
+typedef struct {
+    uint32_t id;
+    uint32_t code;
+    char format;
+    char compress;
+    char ack;
+} alink_uri_query_t;
+
+
+
 int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const char *query, char **p_uri);
 int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, const char *pk, const char *dn, const char *uri_query, char **p_uri);
+
 
 #endif /* #ifndef __ALINK_FORMAT__ */
 

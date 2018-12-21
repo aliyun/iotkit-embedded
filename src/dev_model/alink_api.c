@@ -30,7 +30,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *met
 int IOT_Linkkit_Connect(int devid)
 {
     if (devid < 0) {
-        return IOTX_CODE_PARAMS_ERROR;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     int res = 0;
@@ -50,6 +50,10 @@ int IOT_Linkkit_Connect(int devid)
 
 void IOT_Linkkit_Yield(int timeout_ms)
 {
+    if (timeout_ms < 0) {
+        return;
+    }
+
     alink_core_yield(timeout_ms);
 
     return;

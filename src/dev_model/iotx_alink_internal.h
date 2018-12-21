@@ -44,6 +44,8 @@
 #endif
 
 
+
+#define TEST_MOCK       // TODO
 #define ALINK_DEBUG     // TODO
 #ifdef ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \

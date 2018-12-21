@@ -93,6 +93,35 @@ const char *alink_msg_uri_short_alias[] = {
     "10",           /* subdev add topo */
 };
 
+typedef int (*alink_downstream_handle_func_t)(const char *query, const char *pk, const char *dn);
+
+typedef struct {
+    const char *uri_string;
+    alink_downstream_handle_func_t  handle_func;
+} alink_downstream_uri_handle_t;
+
+int test(const char *query, const char *pk, const char *dn)
+{
+    return 0;
+}
+
+const alink_downstream_uri_handle_t c_alink_down_uri_handle_map[] = {
+    { "/rsp/sys/dt/property/post",          test},
+    { "/req/sys/thing/property/post",       test},
+    { "/req/sys/thing/property/get",        test},
+    { "/rsp/sys/dt/event/post",             test},
+    { "/req/sys/thing/service/post",        test},
+    { "/rsp/sys/dt/raw/post",               test},
+    { "/req/sys/thing/raw/post",            test},
+
+    { "/rsp/sys/subdev/register/post",      test},
+    { "/rsp/sys/subdev/register/delete",    test},
+    { "/rsp/sys/dt/topo/post",              test},
+};
+
+
+
+
 int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const char *uri_query, char **p_uri)
 {
     //int res = FAIL_RETURN;
@@ -157,27 +186,13 @@ int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, c
     return SUCCESS_RETURN;
 }
 
-
+/**
+ * 
+ */
 const char *alink_format_get_upstream_alias_uri(alink_msg_uri_index_t index)
 {
     return alink_msg_uri_short_alias[index];
 }
-
-
-#if 0
-int alink_format_assamble_subdev_uri(alink_msg_uri_metadata_t *uri_meta, char *uri_output, uint32_t len)
-{
-    int res = FAIL_RETURN;
-
-    ALINK_ASSERT_DEBUG(uri_meta != NULL);
-
-
-
-    return res;
-}
-#endif
-
-
 
 
 int _alink_format_append_extend_string()
@@ -185,8 +200,60 @@ int _alink_format_append_extend_string()
     return 0;
 }
 
-int _alink_format_resolve_extend_string()
+int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_query_t *query, uint8_t *query_len)
 {
+    const char *p = uri + uri_len;
+    uint8_t len = 0;
+    char temp[30] = {0};        // TODO, malloc
+
+    while (--p != uri) {
+        len++;
+        if (*p == '?') {
+            break;
+        }
+        else if (*p == '/') {
+            return FAIL_RETURN;
+        }
+    }
+
+    *query_len = len;
+    
+
+    if (len >= 30) {      // TODO
+        return FAIL_RETURN;
+    }
+
+    memcpy(temp, p, len);
+    alink_info("query = %s", temp);
+
+    uint8_t i = 0;
+
+    while (i++ < len) {
+        switch (temp[i]) {
+            case 'f': {
+                i += 2;
+                query->format = temp[i]; 
+            } break;
+            case 'i': {
+                i += 2;
+                query->id = atoi(temp+i);
+            } break;
+            case 'c': {
+                i += 2;
+                query->compress = temp[i]; 
+            } break;
+            case 'a': {
+                i += 2;
+                query->ack =  temp[i]; 
+            }
+            case 'r': {
+                i += 2;
+                query->code = atoi(temp+i);                
+            }
+            default: continue;
+        }
+    }
+
     return 0;
 }
 

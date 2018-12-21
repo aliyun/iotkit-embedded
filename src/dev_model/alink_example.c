@@ -26,6 +26,11 @@ int main(int argc, char **argv)
         .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
     };
 
+    HAL_SetProductKey(dev_info.product_key);
+    HAL_SetProductSecret(dev_info.product_secret);
+    HAL_SetDeviceName(dev_info.device_name);
+    HAL_SetDeviceSecret(dev_info.device_secret);
+
     IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
 
     IOT_Linkkit_Connect(0);

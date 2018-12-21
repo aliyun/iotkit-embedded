@@ -168,7 +168,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
 
 
 typedef enum {
-    IOTX_CODE_PARAMS_ERROR          = -4001,
+    IOTX_CODE_PARAMS_INVALID        = -4001,
     IOTX_CODE_STATE_ERROR           = -4002,   
     IOTX_CODE_NETWORK_ERROR         = -4003,
     IOTX_CODE_AUTH_ERROR            = -4004,

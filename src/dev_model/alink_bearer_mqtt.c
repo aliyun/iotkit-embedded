@@ -34,6 +34,12 @@ static int _mqtt_unsub(alink_bearer_node_t *p_bearer_ctx, const char *topic);
 static int _mqtt_publish(alink_bearer_node_t *p_bearer_ctx, const char *topic, const uint8_t *payload, uint32_t payload_len, uint8_t qos);
 
 /**
+ * 
+ */
+static alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt_ctx;
+
+
+/**
  * add mqtt bearer, TODO, used the complete mqtt bearer context!!!!
  */
 int alink_bearer_mqtt_open(alink_bearer_mqtt_ctx_t *p_bearer_mqtt_ctx)
@@ -46,6 +52,9 @@ int alink_bearer_mqtt_open(alink_bearer_mqtt_ctx_t *p_bearer_mqtt_ctx)
     p_bearer_mqtt_ctx->bearer.p_api.bearer_sub      = _mqtt_sub;
     p_bearer_mqtt_ctx->bearer.p_api.bearer_unsub    = _mqtt_unsub;
     p_bearer_mqtt_ctx->bearer.p_api.bearer_pub      = _mqtt_publish;
+
+    /* hehe, todo */
+    p_alink_bearer_mqtt_ctx = p_bearer_mqtt_ctx;
 
     return SUCCESS_RETURN;
 }
@@ -104,12 +113,25 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
     iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
     alink_bearer_rx_cb_t topic_handle_func = pcontext;
 
+    /* only process publish rx event */
     if (IOTX_MQTT_EVENT_PUBLISH_RECEIVED != msg->event_type) {
         return;
     }
 
     if (topic_handle_func != NULL) {
-        topic_handle_func(topic_info->ptopic, topic_info->payload, topic_info->payload_len);    // TODO
+
+        #ifdef TEST_MOCK
+        (void)topic_info;
+
+        char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/post/?i=898789&c=b&a=y&c=n&r=400";
+        uint32_t topic_len = strlen(topic);
+        char *payload = "{\"test\": 12344}";
+        uint32_t payload_len = strlen(payload);
+
+        topic_handle_func(NULL, topic, topic_len, payload, payload_len);
+        #else
+        topic_handle_func(NULL, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len);    // TODO
+        #endif
     }
 }
 
@@ -184,7 +206,9 @@ static int _mqtt_close(alink_bearer_node_t *p_bearer_ctx)
 static int _mqtt_yield(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
 {
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
+    ALINK_ASSERT_DEBUG(timeout > 0);
 
+    /* IOT_MQTT_Yield always return SUCCESS_RETURN now */
     return IOT_MQTT_Yield(p_bearer_ctx->p_handle, timeout);   
 }
 

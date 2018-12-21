@@ -30,6 +30,10 @@ static alink_core_ctx_t alink_core_ctx = {
     .mutex              = NULL
 };
 
+
+/****************
+ * 
+ *******************/
 static void _alink_core_lock(void) 
 {
     if (alink_core_ctx.mutex) {
@@ -43,6 +47,10 @@ static void _alink_core_unlock(void)
         HAL_MutexUnlock(alink_core_ctx.mutex);
     }
 }
+
+
+
+
 
 uint32_t alink_core_get_msgid(void)
 {
@@ -117,7 +125,13 @@ int alink_core_connect_cloud(void)
 {
     int res = FAIL_RETURN;
 
-    alink_bearer_conect();
+    res = alink_bearer_conect();
+    if (res == FAIL_RETURN) {
+        return res;
+    }
+
+    /*  */
+    alink_core_subscribe_downstream();
 
     return res;
 }
@@ -145,27 +159,58 @@ int alink_core_subdev_connect_cloud()
     return res;
 }
 
-int alink_core_subscribe_topic()
+
+extern int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_query_t *query, uint8_t *query_len);
+
+/**
+ * 
+ */
+void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len)
+{
+    alink_info("rx data, uri = %.*s", uri_len, uri);
+    alink_info("rx data, data = %.*s", payload_len, payload);
+
+    alink_uri_query_t query = {0};
+    uint8_t query_len = 0;
+
+    alink_format_resolve_query(uri, uri_len, &query, &query_len);
+    
+    alink_info("query_len = %d", query_len);        /* not include '/' */
+
+    alink_info("query id = %d", query.id);
+    alink_info("query format = %c", query.format);
+    alink_info("query compress = %c", query.compress);
+    alink_info("query code = %d", query.code);
+    alink_info("query ack = %c", query.ack);
+}
+
+/**
+ * 
+ */
+int alink_core_subscribe_downstream(void)
+{
+    int res = FAIL_RETURN;
+
+    const char *uri = "/sys/a1OFrRjV8nz/develop_01/thing/service/property/set";
+
+    res = alink_bearer_register(alink_core_ctx.p_activce_bearer, uri, (alink_bearer_rx_cb_t)_alink_core_rx_event_handle);
+
+    return res;
+}
+
+int alink_core_unsubscribe_downstream_uri()
 {
     int res = FAIL_RETURN;
 
     return res;
 }
 
-int alink_core_unsubscribe_topic()
-{
-    int res = FAIL_RETURN;
-
-    return res;
-}
-
+/**
+ * 
+ */
 int alink_core_yield(uint32_t timeout_ms)
 {
-    int res = FAIL_RETURN;
-
-    res = alink_bearer_yield(timeout_ms);
-
-    return res;
+    return alink_bearer_yield(timeout_ms);
 }
 
 int alink_core_subdev_deinit()

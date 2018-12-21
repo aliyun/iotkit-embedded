@@ -20,4 +20,8 @@ uint32_t alink_core_get_msgid(void);
 int alink_core_send_req_msg(char *uri, uint8_t *payload, uint32_t len);
 
 
+int alink_core_subscribe_downstream(void);
+
+
+
 #endif /* #ifndef __ALINK_CORE_H__ */
