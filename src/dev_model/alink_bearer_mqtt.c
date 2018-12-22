@@ -7,7 +7,6 @@
 
 #include "mqtt_api.h"
 #include "dev_sign_api.h"
-#include "iot_import_config.h"
 #include "infra_list.h"
 
 

@@ -3,7 +3,6 @@
  */
 
 /* system includes */
-#include "iot_import.h"
 
 #include "sal_opts.h"
 #include "sal_err.h"

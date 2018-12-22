@@ -61,6 +61,13 @@
 #endif
 
 
+#ifndef CONFIG_MQTT_TX_MAXLEN
+    #define CONFIG_MQTT_TX_MAXLEN           (1024)
+#endif
+
+#ifndef CONFIG_MQTT_RX_MAXLEN
+    #define CONFIG_MQTT_RX_MAXLEN           (1024)
+#endif
 
 
 #endif /* #ifndef __IOTX_ALINK_INTERNAL_H__ */
