@@ -27,21 +27,21 @@ uint32_t HAL_Random(uint32_t region);
 int HAL_GetFirmwareVersion(char *version);
 
 //mqtt protocol wrapper
-void *mqtt_init_wrapper(iotx_mqtt_param_t *mqtt_params);
-int mqtt_connect_wrapper(void *client);
-int mqtt_yield_wrapper(void *client, int timeout_ms);
-int mqtt_check_state_wrapper(void *client);
-int mqtt_subscribe_wrapper(void *client,
+void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params);
+int wrapper_mqtt_connect(void *client);
+int wrapper_mqtt_yield(void *client, int timeout_ms);
+int wrapper_mqtt_check_state(void *client);
+int wrapper_mqtt_subscribe(void *client,
                            const char *topicFilter,
                            iotx_mqtt_qos_t qos,
                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
                            void *pcontext);
-int mqtt_subscribe_sync_wrapper(void *client,
+int wrapper_mqtt_subscribe_sync(void *client,
                                 const char *topic_filter,
                                 iotx_mqtt_qos_t qos,
                                 iotx_mqtt_event_handle_func_fpt topic_handle_func,
                                 void *pcontext,
                                 int timeout_ms);
-int mqtt_unsubscribe_wrapper(void *client, const char *topicFilter);
-int mqtt_publish_wrapper(void *client, const char *topicName, iotx_mqtt_topic_info_pt topic_msg);
-int mqtt_release_wrapper(void **pclient);
+int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter);
+int wrapper_mqtt_publish(void *client, const char *topicName, iotx_mqtt_topic_info_pt topic_msg);
+int wrapper_mqtt_release(void **pclient);

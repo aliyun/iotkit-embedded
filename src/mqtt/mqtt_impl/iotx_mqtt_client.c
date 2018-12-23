@@ -2524,7 +2524,7 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
               pClient->connect_data.username.cstring);
 
     /* Ignoring return code. failures expected if network is disconnected */
-    rc = mqtt_connect_wrapper(pClient);
+    rc = wrapper_mqtt_connect(pClient);
 
     if (SUCCESS_RETURN != rc) {
         mqtt_err("run iotx_mqtt_connect() error!");
@@ -2598,7 +2598,7 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    if (mqtt_check_state_wrapper(pClient)) {
+    if (wrapper_mqtt_check_state(pClient)) {
         rc = MQTTDisconnect(pClient);
         mqtt_debug("rc = MQTTDisconnect() = %d", rc);
     }
@@ -2678,7 +2678,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
     }
 
     /* if in disabled state, without having to send ping packets */
-    if (!mqtt_check_state_wrapper(pClient)) {
+    if (!wrapper_mqtt_check_state(pClient)) {
         return SUCCESS_RETURN;
     }
 
@@ -2742,7 +2742,7 @@ static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt
 }
 
 /************************  Public Interface ************************/
-void *mqtt_init_wrapper(iotx_mqtt_param_t *mqtt_params)
+void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
 {
     iotx_mc_client_t *pclient = (iotx_mc_client_t *)mqtt_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
@@ -2765,7 +2765,7 @@ void *mqtt_init_wrapper(iotx_mqtt_param_t *mqtt_params)
 }
 
 /* connect */
-int mqtt_connect_wrapper(void *client)
+int wrapper_mqtt_connect(void *client)
 {
 #define RETRY_TIME_LIMIT    (8+1)
 #define RETRY_INTV_PERIOD   (2000)
@@ -2835,7 +2835,7 @@ int mqtt_connect_wrapper(void *client)
 }
 
 /* release MQTT resource */
-int mqtt_release_wrapper(void **c)
+int wrapper_mqtt_release(void **c)
 {
     if (NULL == c) {
         return NULL_VALUE_ERROR;
@@ -2895,7 +2895,7 @@ int mqtt_release_wrapper(void **c)
 
 }
 
-int mqtt_yield_wrapper(void *client, int timeout_ms)
+int wrapper_mqtt_yield(void *client, int timeout_ms)
 {
     int                 rc = SUCCESS_RETURN;
     iotx_time_t         time;
@@ -2953,7 +2953,7 @@ int mqtt_yield_wrapper(void *client, int timeout_ms)
 
 /* check MQTT client is in normal state */
 /* 0, in abnormal state; 1, in normal state */
-int mqtt_check_state_wrapper(void *client)
+int wrapper_mqtt_check_state(void *client)
 {
     if (!client) {
         return 0;
@@ -2967,7 +2967,7 @@ int mqtt_check_state_wrapper(void *client)
 }
 
 /* subscribe */
-int mqtt_subscribe_wrapper(void *client,
+int wrapper_mqtt_subscribe(void *client,
                            const char *topicFilter,
                            iotx_mqtt_qos_t qos,
                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
@@ -2984,7 +2984,7 @@ int mqtt_subscribe_wrapper(void *client,
 
     msgId = iotx_mc_get_next_packetid(c);
 
-    if (!mqtt_check_state_wrapper(c)) {
+    if (!wrapper_mqtt_check_state(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
@@ -3009,7 +3009,7 @@ int mqtt_subscribe_wrapper(void *client,
     return msgId;
 }
 
-int mqtt_subscribe_sync_wrapper(void *c,
+int wrapper_mqtt_subscribe_sync(void *c,
                                 const char *topic_filter,
                                 iotx_mqtt_qos_t qos,
                                 iotx_mqtt_event_handle_func_fpt topic_handle_func,
@@ -3040,7 +3040,7 @@ int mqtt_subscribe_sync_wrapper(void *c,
     int cnt = 0;
     do {
         if (ret < 0) {
-            ret = mqtt_subscribe_wrapper(client, topic_filter, qos, topic_handle_func, pcontext);
+            ret = wrapper_mqtt_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
             if (_is_in_yield_cb() != 0) {
                 return ret;
             }
@@ -3059,7 +3059,7 @@ int mqtt_subscribe_sync_wrapper(void *c,
             }
 
         }
-        mqtt_yield_wrapper(client, 100);
+        wrapper_mqtt_yield(client, 100);
 
         mqtt_sub_node_t *node = NULL;
         mqtt_sub_node_t *next = NULL;
@@ -3107,7 +3107,7 @@ int mqtt_subscribe_sync_wrapper(void *c,
 }
 
 /* unsubscribe */
-int mqtt_unsubscribe_wrapper(void *client, const char *topicFilter)
+int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter)
 {
     int rc = FAIL_RETURN;
     iotx_mc_client_t *c = (iotx_mc_client_t *)client;
@@ -3122,7 +3122,7 @@ int mqtt_unsubscribe_wrapper(void *client, const char *topicFilter)
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
-    if (!mqtt_check_state_wrapper(c)) {
+    if (!wrapper_mqtt_check_state(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
@@ -3142,7 +3142,7 @@ int mqtt_unsubscribe_wrapper(void *client, const char *topicFilter)
 }
 
 /* publish */
-int mqtt_publish_wrapper(void *client, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
+int wrapper_mqtt_publish(void *client, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
     uint16_t msg_id = 0;
     int rc = FAIL_RETURN;
@@ -3156,7 +3156,7 @@ int mqtt_publish_wrapper(void *client, const char *topicName, iotx_mqtt_topic_in
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
-    if (!mqtt_check_state_wrapper(c)) {
+    if (!wrapper_mqtt_check_state(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }

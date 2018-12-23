@@ -138,7 +138,7 @@ static int iotx_mqtt_deal_offline_subs(void *client)
     list_for_each_entry_safe(node, next_node, &_mqtt_offline_subs_list->offline_sub_list, linked_list,
                              iotx_mc_offline_subs_t) {
         list_del(&node->linked_list);
-        mqtt_subscribe_wrapper(client, node->topic_filter, node->qos, node->handle, node->user_data);
+        wrapper_mqtt_subscribe(client, node->topic_filter, node->qos, node->handle, node->user_data);
         mqtt_api_free(node->topic_filter);
         mqtt_api_free(node);
     }
@@ -214,17 +214,17 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
-    pclient = mqtt_init_wrapper(pInitParams);
+    pclient = wrapper_mqtt_init(pInitParams);
     if (pclient == NULL) {
         if (mqtt_params != NULL) {
             mqtt_api_free(mqtt_params);
         }
     }
 
-    err = mqtt_connect_wrapper(pclient);
+    err = wrapper_mqtt_connect(pclient);
     if (SUCCESS_RETURN != err) {
-        mqtt_err("mqtt_connect_wrapper failed");
-        mqtt_release_wrapper(&pclient);
+        mqtt_err("wrapper_mqtt_connect failed");
+        wrapper_mqtt_release(&pclient);
         return NULL;
     }
 
@@ -286,7 +286,7 @@ int IOT_MQTT_Destroy(void **phandler)
         return NULL_VALUE_ERROR;
     }
 
-    mqtt_release_wrapper(&client);
+    wrapper_mqtt_release(&client);
     g_mqtt_client = NULL;
 
     return SUCCESS_RETURN;
@@ -295,7 +295,7 @@ int IOT_MQTT_Destroy(void **phandler)
 int IOT_MQTT_Yield(void *handle, int timeout_ms)
 {
     void *pClient = (handle ? handle : g_mqtt_client);
-    return mqtt_yield_wrapper(pClient, timeout_ms);
+    return wrapper_mqtt_yield(pClient, timeout_ms);
 }
 
 /* check whether MQTT connection is established or not */
@@ -307,7 +307,7 @@ int IOT_MQTT_CheckStateNormal(void *handle)
         return NULL_VALUE_ERROR;
     }
 
-    return mqtt_check_state_wrapper(pClient);
+    return wrapper_mqtt_check_state(pClient);
 }
 
 int IOT_MQTT_Subscribe(void *handle,
@@ -334,7 +334,7 @@ int IOT_MQTT_Subscribe(void *handle,
         qos = IOTX_MQTT_QOS0;
     }
 
-    return mqtt_subscribe_wrapper(client, topic_filter, qos, topic_handle_func, pcontext);
+    return wrapper_mqtt_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
 }
 
 #define SUBSCRIBE_SYNC_TIMEOUT_MAX 10000
@@ -366,7 +366,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
         qos = IOTX_MQTT_QOS0;
     }
 
-    return mqtt_subscribe_sync_wrapper(client, topic_filter, qos, topic_handle_func, pcontext, timeout_ms);
+    return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, timeout_ms);
 }
 
 
@@ -380,7 +380,7 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter)
         return NULL_VALUE_ERROR;
     }
 
-    return mqtt_unsubscribe_wrapper(client, topic_filter);
+    return wrapper_mqtt_unsubscribe(client, topic_filter);
 }
 
 int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg)
@@ -393,7 +393,7 @@ int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_
         return NULL_VALUE_ERROR;
     }
 
-    rc = mqtt_publish_wrapper(client, topic_name, topic_msg);
+    rc = wrapper_mqtt_publish(client, topic_name, topic_msg);
     return rc;
 }
 
@@ -416,7 +416,7 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
     mqtt_msg.payload     = (void *)data;
     mqtt_msg.payload_len = len;
 
-    rc = mqtt_publish_wrapper(client, topic_name, &mqtt_msg);
+    rc = wrapper_mqtt_publish(client, topic_name, &mqtt_msg);
 
     if (rc < 0) {
         mqtt_err("IOT_MQTT_Publish failed\n");

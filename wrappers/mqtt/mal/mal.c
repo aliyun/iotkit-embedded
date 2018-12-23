@@ -653,7 +653,7 @@ static int mal_mc_disconnect(iotx_mc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    if (mqtt_check_state_wrapper(pClient)) {
+    if (wrapper_mqtt_check_state(pClient)) {
         rc = MALMQTTDisconnect(pClient);
         mal_debug("rc = MALMQTTDisconnect() = %d", rc);
     }
@@ -831,7 +831,7 @@ RETURN:
 }
 
 /************************  Public Interface ************************/
-void *mqtt_init_wrapper(iotx_mqtt_param_t *mqtt_params) 
+void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params) 
 {
     iotx_mc_client_t   *pclient;
 
@@ -854,7 +854,7 @@ void *mqtt_init_wrapper(iotx_mqtt_param_t *mqtt_params)
     return pclient;
 }
 
-int mqtt_connect_wrapper(void *client)
+int wrapper_mqtt_connect(void *client)
 {
     int rc = FAIL_RETURN;
 
@@ -878,7 +878,7 @@ int mqtt_connect_wrapper(void *client)
     return SUCCESS_RETURN;
 }
 
-int mqtt_yield_wrapper(void *client, int timeout_ms)
+int wrapper_mqtt_yield(void *client, int timeout_ms)
 {
     int                 rc = SUCCESS_RETURN;
     mal_time_t         time;
@@ -927,7 +927,7 @@ int mqtt_yield_wrapper(void *client, int timeout_ms)
     return 0;
 }
 
-int mqtt_check_state_wrapper(void *client)
+int wrapper_mqtt_check_state(void *client)
 {
     if (!client) {
         return 0;
@@ -940,7 +940,7 @@ int mqtt_check_state_wrapper(void *client)
     return 0;
 }
 
-int mqtt_subscribe_sync_wrapper(void *client,
+int wrapper_mqtt_subscribe_sync(void *client,
                                 const char *topicFilter,
                                 iotx_mqtt_qos_t qos,
                                 iotx_mqtt_event_handle_func_fpt topic_handle_func,
@@ -959,7 +959,7 @@ int mqtt_subscribe_sync_wrapper(void *client,
     c = (iotx_mc_client_t *)client;
     msgId = mal_mc_get_next_packetid(c);
 
-    if (!mqtt_check_state_wrapper(c)) {
+    if (!wrapper_mqtt_check_state(c)) {
         mal_err("mqtt client state is error,state = %d", mal_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
@@ -984,16 +984,16 @@ int mqtt_subscribe_sync_wrapper(void *client,
     return msgId;
 }
 
-int mqtt_subscribe_wrapper(void *client,
+int wrapper_mqtt_subscribe(void *client,
                            const char *topic_filter,
                            iotx_mqtt_qos_t qos,
                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
                            void *pcontext)
 {
-    return mqtt_subscribe_sync_wrapper(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_FOREVER);
+    return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_FOREVER);
 }
 
-int mqtt_unsubscribe_wrapper(void *client, const char *topicFilter)
+int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter)
 {
     int rc = FAIL_RETURN;
     unsigned int msgId;
@@ -1011,7 +1011,7 @@ int mqtt_unsubscribe_wrapper(void *client, const char *topicFilter)
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
-    if (!mqtt_check_state_wrapper(c)) {
+    if (!wrapper_mqtt_check_state(c)) {
         mal_err("mqtt client state is error,state = %d", mal_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
@@ -1030,7 +1030,7 @@ int mqtt_unsubscribe_wrapper(void *client, const char *topicFilter)
     return (int)msgId;
 }
 
-int mqtt_publish_wrapper(void *client, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
+int wrapper_mqtt_publish(void *client, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
     uint16_t msg_id = 0;
     int rc = FAIL_RETURN;
@@ -1045,7 +1045,7 @@ int mqtt_publish_wrapper(void *client, const char *topicName, iotx_mqtt_topic_in
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
-    if (!mqtt_check_state_wrapper(c)) {
+    if (!wrapper_mqtt_check_state(c)) {
         mal_err("mqtt client state is error,state = %d", mal_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
@@ -1072,7 +1072,7 @@ int mqtt_publish_wrapper(void *client, const char *topicName, iotx_mqtt_topic_in
     return (int)msg_id;
 }
 
-int mqtt_release_wrapper(void **client)
+int wrapper_mqtt_release(void **client)
 {
     iotx_mc_client_t *pClient;
 
