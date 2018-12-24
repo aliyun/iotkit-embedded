@@ -17,6 +17,21 @@ void infra_hex2str(uint8_t *input, uint16_t input_len, char *output)
         output[j++] = zEncode[(input[i]) & 0xf];
     }
 }
+
+void infra_int2str(uint32_t input, char output[10])
+{
+    uint8_t i = 0, j = 0;
+    char tmp[10] = {0};
+
+    do {
+        tmp[i++] = input%10 + '0';
+    }while((input/=10)>0);
+
+    do {
+        output[--i] = tmp[j++];
+    }while(i > 0);
+}
+
 #endif
 
 #ifdef INFRA_RANDOM
