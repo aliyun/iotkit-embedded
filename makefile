@@ -15,7 +15,7 @@ COMP_LIB_COMPONENTS := \
 $(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/mqtt)
 $(call CompLib_Map, FEATURE_SUPPORT_TLS, certs)
 $(call CompLib_Map, FEATURE_DYNAMIC_REGISTER, src/dynamic_register)
-$(call CompLib_Map, FEATURE_SAL_ENABLED, external_libs/sal)
+$(call CompLib_Map, FEATURE_SAL_ENABLED, wrappers/sal)
 $(call CompLib_Map, FEATURE_DEV_RESET, src/dev_reset)
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLE, src/dev_model)
 $(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
