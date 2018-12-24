@@ -9,8 +9,6 @@
 #define EXAMPLE_DEVICE_NAME     "example1"
 #define EXAMPLE_DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 
-void HAL_Printf(const char *fmt, ...);
-
 int main(int argc, char *argv[])
 {
     iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
