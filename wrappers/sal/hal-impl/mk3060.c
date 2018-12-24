@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "iot_import.h"
+#include "sal_wrapper.h"
 #include "atparser.h"
 #include "sal_import.h"
 

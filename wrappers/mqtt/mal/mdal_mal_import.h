@@ -10,6 +10,23 @@ extern "C"
 {
 #endif
 
+#include <stdint.h>
+
+void *HAL_Malloc(uint32_t size);
+void HAL_Free(void *ptr);
+void HAL_Printf(const char *fmt, ...);
+int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+uint64_t HAL_UptimeMs(void);
+void *HAL_MutexCreate(void);
+void HAL_MutexDestroy(void *mutex);
+void HAL_MutexLock(void *mutex);
+void HAL_MutexUnlock(void *mutex);
+void HAL_SleepMs(uint32_t ms);
+void *HAL_SemaphoreCreate(void);
+void HAL_SemaphoreDestroy(void *sem);
+void HAL_SemaphorePost(void *sem);
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
+
 typedef int (*recv_cb)(char* topic, char* message);
 
 int HAL_MDAL_MAL_Init();

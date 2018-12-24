@@ -4,10 +4,10 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "mdal_ica_at_client.h"
-#include "../mdal_mal_import.h"
-#include "iot_import.h"
+#include "mdal_mal_import.h"
 
 #ifdef INFRA_MEM_STATS
     #define MDAL_ICA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "mdal.ica")

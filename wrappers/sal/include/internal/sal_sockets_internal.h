@@ -19,7 +19,7 @@
 #include "sal_import.h"
 #include "sal_sockets.h"
 
-#include "iot_import.h"
+#include "sal_wrapper.h"
 
 #ifdef __cplusplus
 extern "C" {
