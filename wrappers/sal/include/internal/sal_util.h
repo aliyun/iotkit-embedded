@@ -5,6 +5,8 @@
 #ifndef _SAL_UTIL_H_
 #define _SAL_UTIL_H_
 
+#include "sal_wrapper.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

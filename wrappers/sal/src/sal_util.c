@@ -2,8 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "iot_import.h"
-
+#include "sal_wrapper.h"
 #include "sal_util.h"
 
 #define TAG "SAL_UTIL"

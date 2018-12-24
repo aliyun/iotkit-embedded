@@ -6,11 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #ifdef SAL_ENABLED
-#include "../../sal/include/sal_arch.h"
-#include "../../sal/include/sal_def.h"
-#include "../../sal/include/sal_ipaddr.h"
-#include "../../sal/include/sal_sockets.h"
-#include "../../sal/include/sal_err.h"
+#include <sal_export.h>
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
