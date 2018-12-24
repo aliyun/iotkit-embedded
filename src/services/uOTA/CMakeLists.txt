@@ -37,7 +37,6 @@ ADD_LIBRARY (iot_ota OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/download/ota_manifest.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/download/ota_download_http.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/download/ota_download_coap.c
-    ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/download/ota_socket.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/verify/ota_util.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/verify/ota_verify.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/utility/crc/crc.c
