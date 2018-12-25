@@ -26,7 +26,7 @@ gen_infra_default () {
 gen_infra_module() {
     M_INFRA=$(echo "${1}" | grep 'INFRA')
     echo "extract infra module..."
-    echo "${M_INFRA}"
+    echo -e "${M_INFRA}\n"
     find . -path ./${OUTPUT_DIR} -prune -type f -o -name "infra_types.h" | xargs -i cp -f {} ${INFRA_DIR}
     find . -path ./${OUTPUT_DIR} -prune -type f -o -name "infra_defs.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
     find . -path ./${OUTPUT_DIR} -prune -type f -o -name "infra_compat.h" | xargs -i cp -f {} ${INFRA_DIR}
@@ -42,7 +42,7 @@ gen_dev_sign_module() {
     DEV_SIGN_DIR=${OUTPUT_DIR}/eng/dev_sign
     mkdir -p ${DEV_SIGN_DIR}
     echo "extract dev_sign module..."
-    echo "${M_DEV_SIGN}"
+    echo -e "${M_DEV_SIGN}\n"
 
     SRC_DEV_SIGN=$([[ ${M_DEV_SIGN} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname ${M_DEV_SIGN} -type d)
     if [ ${SRC_DEV_SIGN} ];then
@@ -57,6 +57,7 @@ gen_mqtt_module() {
     MQTT_DIR=${OUTPUT_DIR}/eng/mqtt
     mkdir -p ${MQTT_DIR}
     echo "extract mqtt module..."
+    echo -e "$(echo "${1}" | grep 'MQTT')\n"
 
     SRC_MQTT_SIGN=$([[ ${M_MQTT_COMM_ENABLED} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mqtt" -type d)
     if [ ${SRC_MQTT_SIGN} ];then
