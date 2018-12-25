@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include "infra_defs.h"
-#include "dev_sign_api.h"
-#include "dev_sign_wrapper.h"
+#include "dev_sign_internal.h"
 
 #define EXAMPLE_PRODUCT_KEY     "a1X2bEnP82z"
 #define EXAMPLE_PRODUCT_SECRET  "7jluWm1zql7bt8qK"
