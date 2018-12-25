@@ -16,13 +16,8 @@ void HAL_Printf(const char *fmt, ...);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
-void HAL_Srandom(uint32_t seed);
-uint32_t HAL_Random(uint32_t region);
 uint64_t HAL_UptimeMs(void);
-int HAL_GetNetifInfo(char *nif_str);
 int HAL_GetFirmwareVersion(char *version);
-int HAL_GetPartnerID(char *pid_str);
-int HAL_GetModuleID(char *mid_str);
 
 #ifdef INFRA_MEM_STATS
 #define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.report")
@@ -47,45 +42,6 @@ int iotx_report_id(void)
 {
     return g_report_id++;
 }
-
-int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name)
-{
-    int ret;
-    /* requestId = pk+devicename+mid */
-    ret = HAL_Snprintf(requestId,
-                       MIDREPORT_REQID_LEN,
-                       "%s_%s_mid",
-                       product_key,
-                       device_name);
-    return ret;
-}
-
-int iotx_midreport_payload(char *msg, char *requestId, char *mid, char *pid)
-{
-    int ret;
-    /*topic's json data: {"id":"requestId" ,"params":{"_sys_device_mid":mid,"_sys_device_pid":pid }}*/
-    ret = HAL_Snprintf(msg,
-                       MIDREPORT_PAYLOAD_LEN,
-                       "{\"id\":\"%s\",\"params\":{\"_sys_device_mid\":\"%s\",\"_sys_device_pid\":\"%s\"}}",
-                       requestId,
-                       mid,
-                       pid);
-    return ret;
-}
-
-int iotx_midreport_topic(char *topic_name, char *topic_head, char *product_key, char *device_name)
-{
-    int ret;
-    /* reported topic name: "/sys/${productKey}/${deviceName}/thing/status/update" */
-    ret = HAL_Snprintf(topic_name,
-                       IOTX_URI_MAX_LEN,
-                       "%s/sys/%s/%s/thing/status/update",
-                       topic_head,
-                       product_key,
-                       device_name);
-    return ret;
-}
-
 
 static info_report_func_pt info_report_func = NULL;
 
@@ -137,23 +93,14 @@ void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 #endif
 
 const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"%d\",\"version\":\"1.0\",\"params\":["
-                                     "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
                                      "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                                     "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
-                                     "{\"attrKey\":\"SYS_SDK_IF_INFO\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
+                                     "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"}"
                                      "],\"method\":\"thing.deviceinfo.update\"}";
 
 int iotx_report_devinfo(void *pclient)
 {
     int ret = 0;
-    int i;
-    char mac[MAC_ADDRESS_SIZE] = {0};
-    char version[VERSION_NUM_SIZE] = {0};
-    char random_num[RANDOM_NUM_SIZE];
-    char chip_code[CHIP_CODE_SIZE] = {0};
-    char output[AOS_ACTIVE_INFO_LEN] = {0};
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
-    char network_interfaces[IOTX_NETWORK_IF_LEN] = {0};
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     char *msg = NULL;
@@ -169,34 +116,6 @@ int iotx_report_devinfo(void *pclient)
     HAL_GetDeviceName(device_name);
     VERSION_DEBUG("devinfo report");
 
-    /* Construct aos activation data */
-    aos_get_version_hex((unsigned char *)version);
-    aos_get_mac_hex((unsigned char *)mac);
-    mac[6] = ACTIVE_SINGLE_GW;
-#ifdef BUILD_AOS
-    mac[7] = ACTIVE_LINKKIT_AOS;
-#else
-    mac[7] = ACTIVE_LINKKIT_ONLY;
-#endif
-
-    HAL_Srandom(HAL_UptimeMs());
-    for (i = 0; i < 4; i ++) {
-        random_num[i] = (char)HAL_Random(0xFF);
-    }
-    aos_get_chip_code((unsigned char *)chip_code);
-    /*
-    input: version 4byte + random 4 byte + mac 4byte + chip_code 4byte
-    output: output_buffer store the version info process. length at least OUTPUT_SPACE_SIZE
-    return: 0 success, 1 failed
-    */
-    ret = aos_get_version_info((unsigned char *)version, (unsigned char *)random_num, (unsigned char *)mac,
-                               (unsigned char *)chip_code, (unsigned char *)output, AOS_ACTIVE_INFO_LEN);
-    if (ret) {
-        VERSION_ERR("aos_get_version_info failed");
-        return FAIL_RETURN;
-    }
-    VERSION_DEBUG("get aos avtive info: %s", output);
-
     /* devinfo update topic name */
     ret = HAL_Snprintf(topic_name,
                        IOTX_URI_MAX_LEN,
@@ -209,15 +128,7 @@ int iotx_report_devinfo(void *pclient)
     }
     VERSION_DEBUG("devinfo report topic: %s", topic_name);
 
-    ret = HAL_GetNetifInfo(network_interfaces);
-    if (ret <= 0 || ret >= IOTX_NETWORK_IF_LEN) {
-        VERSION_ERR("the network interface info set failed or not set, writen len is %d", ret);
-        const char *default_network_info = "invalid network interface info";
-        strncpy(network_interfaces, default_network_info, strlen(default_network_info));
-    }
-
-    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + 10 + strlen(IOTX_SDK_VERSION) + AOS_ACTIVE_INFO_LEN + \
-              + strlen(network_interfaces) + 1;
+    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + 10 + strlen(IOTX_SDK_VERSION) + 1;
     msg = (char *)SYS_REPORT_MALLOC(msg_len);
     if (msg == NULL) {
         VERSION_ERR("malloc err");
@@ -230,9 +141,7 @@ int iotx_report_devinfo(void *pclient)
                        msg_len,
                        DEVICE_INFO_UPDATE_FMT,
                        iotx_report_id(),
-                       output,
-                       IOTX_SDK_VERSION,
-                       network_interfaces
+                       IOTX_SDK_VERSION
                       );
     if (ret <= 0) {
         VERSION_ERR("topic msg generate err");
@@ -321,76 +230,6 @@ int iotx_report_firmware_version(void *pclient)
 /* report ModuleID */
 int iotx_report_mid(void *pclient)
 {
-    int  ret;
-    char topic_name[IOTX_URI_MAX_LEN + 1];
-    char requestId[MIDREPORT_REQID_LEN + 1] = {0};
-    char pid[IOTX_PARTNER_ID_LEN + 1] = {0};
-    char mid[IOTX_MODULE_ID_LEN + 1] = {0};
-    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-
-    if (info_report_func == NULL) {
-        VERSION_ERR("report func not register!");
-        return -1;
-    }
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    memset(pid, 0, sizeof(pid));
-    memset(mid, 0, sizeof(mid));
-
-    if (0 == HAL_GetPartnerID(pid)) {
-        VERSION_DEBUG("PartnerID is Null");
-        return SUCCESS_RETURN;
-    }
-    if (0 == HAL_GetModuleID(mid)) {
-        VERSION_DEBUG("ModuleID is Null");
-        return SUCCESS_RETURN;
-    }
-
-    VERSION_DEBUG("MID Report: started in MQTT");
-
-    iotx_midreport_reqid(requestId,
-                         product_key,
-                         device_name);
-    /* 1,generate json data */
-    char *msg = SYS_REPORT_MALLOC(MIDREPORT_PAYLOAD_LEN);
-    if (NULL == msg) {
-        VERSION_ERR("allocate mem failed");
-        return FAIL_RETURN;
-    }
-
-    iotx_midreport_payload(msg,
-                           requestId,
-                           mid,
-                           pid);
-
-    VERSION_DEBUG("MID Report: json data = '%s'", msg);
-
-    ret = iotx_midreport_topic(topic_name,
-                               "",
-                               product_key,
-                               device_name);
-
-    VERSION_DEBUG("MID Report: topic name = '%s'", topic_name);
-
-    if (ret < 0) {
-        VERSION_ERR("generate topic name of info failed");
-        SYS_REPORT_FREE(msg);
-        return FAIL_RETURN;
-    }
-
-    ret = info_report_func(pclient, topic_name, 1, msg, strlen(msg));
-    if (ret < 0) {
-        VERSION_ERR("publish failed, ret = %d", ret);
-        SYS_REPORT_FREE(msg);
-        return FAIL_RETURN;
-    }
-
-    SYS_REPORT_FREE(msg);
-
-    VERSION_DEBUG("MID Report: finished, IOT_MQTT_Publish() = %d", ret);
     return SUCCESS_RETURN;
 }
 

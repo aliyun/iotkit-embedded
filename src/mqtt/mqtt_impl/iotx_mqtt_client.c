@@ -2110,40 +2110,6 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
     return SUCCESS_RETURN;
 }
 
-static int32_t iotx_mc_calc_seed(uint32_t *p_seed)
-{
-    char                    device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
-    uint32_t                seed = 0;
-    char                    *pdevice_name = device_name;
-
-    if (p_seed == NULL) {
-        return NULL_VALUE_ERROR;
-    }
-
-    HAL_GetDeviceName(device_name);
-
-    while ('\0' != *pdevice_name) {
-        seed += *pdevice_name;
-        pdevice_name++;
-    }
-    seed += (HAL_UptimeMs() / 1000);
-    seed %= UINT32_MAX;
-    *p_seed = seed;
-    return SUCCESS_RETURN;
-}
-
-static int32_t iotx_mc_calc_random_init()
-{
-    uint32_t                seed;
-
-    if (SUCCESS_RETURN != iotx_mc_calc_seed(&seed)) {
-        return FAIL_RETURN;
-    }
-
-    HAL_Srandom(seed);
-    return SUCCESS_RETURN;
-}
-
 /* Initialize MQTT client */
 static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
 {
@@ -2262,11 +2228,6 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
 
     if (SUCCESS_RETURN != rc) {
         mc_state = IOTX_MC_STATE_INVALID;
-        goto RETURN;
-    }
-    if (SUCCESS_RETURN != iotx_mc_calc_random_init()) {
-        mqtt_err("iotx_mc_calc_random_init failed");
-        rc = FAIL_RETURN;
         goto RETURN;
     }
 
@@ -2579,7 +2540,6 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         _conn_info_dynamic_reload_clear(pClient);
     */
     interval_ms = pClient->reconnect_param.reconnect_time_interval_ms;
-    interval_ms += HAL_Random(pClient->reconnect_param.reconnect_time_interval_ms);
     if (IOTX_MC_RECONNECT_INTERVAL_MAX_MS < interval_ms) {
         interval_ms = IOTX_MC_RECONNECT_INTERVAL_MAX_MS;
     }

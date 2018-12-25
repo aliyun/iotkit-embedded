@@ -17,12 +17,6 @@ int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
 int8_t HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 int8_t HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 
-int HAL_SetProductKey(char *product_key);
-int HAL_SetProductSecret(char *product_secret);
-int HAL_SetDeviceName(char *device_name);
-int HAL_SetDeviceSecret(char *device_secret);
-
-
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);

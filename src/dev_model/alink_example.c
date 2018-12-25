@@ -8,6 +8,10 @@
 
 #include "alink_wrapper.h"
 
+extern char _product_key[IOTX_PRODUCT_KEY_LEN + 1];
+extern char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
+extern char _device_name[IOTX_DEVICE_NAME_LEN + 1];
+extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 
 #define PROP_ALINK1_TEST   "{\"id\":\"123\",\"version\":\"1.0\",\"params\":{\"test1\":1234},\"method\":\"thing.event.property.post\"}"
 
@@ -28,10 +32,17 @@ int main(int argc, char **argv)
         .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
     };
 
-    HAL_SetProductKey(dev_info.product_key);
-    HAL_SetProductSecret(dev_info.product_secret);
-    HAL_SetDeviceName(dev_info.device_name);
-    HAL_SetDeviceSecret(dev_info.device_secret);
+    memset(_product_key,0,IOTX_PRODUCT_KEY_LEN + 1);
+    memcpy(_product_key,dev_info.product_key,strlen(dev_info.product_key));
+
+    memset(_product_secret,0,IOTX_PRODUCT_SECRET_LEN + 1);
+    memcpy(_product_secret,dev_info.product_secret,strlen(dev_info.product_secret));
+
+    memset(_device_name,0,IOTX_DEVICE_NAME_LEN + 1);
+    memcpy(_device_name,dev_info.device_name,strlen(dev_info.device_name));
+
+    memset(_device_secret,0,IOTX_DEVICE_SECRET_LEN + 1);
+    memcpy(_device_secret,dev_info.device_secret,strlen(dev_info.device_secret));
 
     IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
 

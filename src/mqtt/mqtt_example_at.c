@@ -10,10 +10,11 @@
 #define EXAMPLE_DEVICE_NAME     "example1"
 #define EXAMPLE_DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 
-int HAL_SetProductKey(char *product_key);
-int HAL_SetProductSecret(char *product_secret);
-int HAL_SetDeviceName(char *device_name);
-int HAL_SetDeviceSecret(char *device_secret);
+extern char _product_key[IOTX_PRODUCT_KEY_LEN + 1];
+extern char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
+extern char _device_name[IOTX_DEVICE_NAME_LEN + 1];
+extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
+
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
@@ -172,10 +173,17 @@ int main(int argc, char *argv[])
     memcpy(meta.device_name, EXAMPLE_DEVICE_NAME, strlen(EXAMPLE_DEVICE_NAME));
     memcpy(meta.device_secret, EXAMPLE_DEVICE_SECRET, strlen(EXAMPLE_DEVICE_SECRET));
 
-    HAL_SetProductKey(EXAMPLE_PRODUCT_KEY);
-    HAL_SetProductSecret(EXAMPLE_PRODUCT_SECRET);
-    HAL_SetDeviceName(EXAMPLE_DEVICE_NAME);
-    HAL_SetDeviceSecret(EXAMPLE_DEVICE_SECRET);
+    memset(_product_key,0,IOTX_PRODUCT_KEY_LEN + 1);
+    memcpy(_product_key,EXAMPLE_PRODUCT_KEY,strlen(EXAMPLE_PRODUCT_KEY));
+
+    memset(_product_secret,0,IOTX_PRODUCT_SECRET_LEN + 1);
+    memcpy(_product_secret,EXAMPLE_PRODUCT_SECRET,strlen(EXAMPLE_PRODUCT_SECRET));
+
+    memset(_device_name,0,IOTX_DEVICE_NAME_LEN + 1);
+    memcpy(_device_name,EXAMPLE_DEVICE_NAME,strlen(EXAMPLE_DEVICE_NAME));
+
+    memset(_device_secret,0,IOTX_DEVICE_SECRET_LEN + 1);
+    memcpy(_device_secret,EXAMPLE_DEVICE_SECRET,strlen(EXAMPLE_DEVICE_SECRET));
 
     memset(&sign_mqtt, 0x0, sizeof(iotx_sign_mqtt_t));
 

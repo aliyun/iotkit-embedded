@@ -113,46 +113,6 @@ int HAL_GetModuleID(char *mid_str)
     return strlen(mid_str);
 }
 
-int HAL_SetProductKey(char *product_key)
-{
-    int len = strlen(product_key);
-
-    if (len > IOTX_PRODUCT_KEY_LEN) {
-        return -1;
-    }
-    memset(_product_key, 0x0, IOTX_PRODUCT_KEY_LEN + 1);
-    strncpy(_product_key, product_key, len);
-
-    return len;
-}
-
-int HAL_SetProductSecret(char *product_secret)
-{
-    int len = strlen(product_secret);
-
-    if (len > IOTX_PRODUCT_SECRET_LEN) {
-        return -1;
-    }
-    memset(_product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN + 1);
-    strncpy(_product_secret, product_secret, len);
-
-    return len;
-}
-
-int HAL_SetDeviceName(char *device_name)
-{
-    int len = strlen(device_name);
-
-    if (len > IOTX_DEVICE_NAME_LEN) {
-        return -1;
-    }
-    memset(_device_name, 0x0, IOTX_DEVICE_NAME_LEN + 1);
-    strncpy(_device_name, device_name, len);
-
-    return len;
-}
-
-
 int HAL_SetDeviceSecret(char *device_secret)
 {
     int len = strlen(device_secret);
