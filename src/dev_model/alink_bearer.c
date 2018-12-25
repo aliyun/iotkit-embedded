@@ -69,7 +69,9 @@ int alink_bearer_conect(void)
 
 void alink_bearer_rx_handle(alink_bearer_node_t *p_bearer_ctx, const char *uri, const char *payload, uint32_t payload_len)
 {
+    (void)p_bearer_ctx;
 
+    
 
 
 

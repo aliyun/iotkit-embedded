@@ -92,162 +92,9 @@ const char *alink_msg_uri_short_alias[] = {
     "10",           /* subdev add topo */
 };
 
-typedef int (*alink_downstream_handle_func_t)(const char *query, const char *pk, const char *dn);
-
-typedef struct {
-    const char *uri_string;
-    alink_downstream_handle_func_t  handle_func;
-} alink_uri_handle_pair_t;
-
-int test(const char *query, const char *pk, const char *dn)
-{
-    alink_info("%s\r\n", query);
-    return 0;
-}
-
-const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
-    { "/rsp/sys/dt/property/post",  test    },
-    { "/req/sys/thing/property/post",   test    },
-    { "/req/sys/thing/property/get",    test    },
-    { "/rsp/sys/dt/event/post", test    },
-    { "/req/sys/thing/service/post",    test    },
-    { "/rsp/sys/dt/raw/post",   test    },
-    { "/req/sys/thing/raw/post",    test    },
-
-    { "/rsp/sys/subdev/register/post",  test    },
-    { "/rsp/sys/subdev/register/delete",    test    },
-    { "/rsp/sys/dt/topo/post",  test    },
-    { "/rsp/sys/dt/topo/delete",    test    },
-    { "/rsp/sys/dt/topo/get",   test    },
-    { "/req/sys/subdev/topo/post",  test    },
-    { "/rsp/sys/subdev/login/post", test    },
-    { "/rsp/sys/subdev/logout/post",    test    },
-    { "/rsp/sys/dt/list/post",  test    },
-    { "/req/sys/subdev/permit/post",    test    },
-    { "/req/sys/subdev/config/post",    test    },
-    { "/rsp/sys/dt/deviceinfo/post",    test    },
-    { "/rsp/sys/dt/deviceinfo/get", test    },
-    { "/rsp/sys/dt/deviceinfo/delete",  test    },
-};
-
 /**********************************
  * local function
  **********************************/
-#define ALINK_URI_MAX_LEN           50
-#define MAX_HASH_TABLE_SIZE         37
-
-
-typedef struct _hash_node {
-    alink_uri_handle_pair_t pair;
-    struct _hash_node *next;
-} uri_hash_node_t;
-
-uri_hash_node_t *uri_hash_table[MAX_HASH_TABLE_SIZE] = { NULL };
-
-
-static uint8_t _uri_to_hash(const char *uri)
-{
-    uint8_t i, nameLen;
-    uint32_t sum = 0;
-
-    nameLen = strlen (uri);
-
-    /* Sum the ascii values of the header names */
-    for (i = 0; i < nameLen; i++)
-    {
-        sum += uri[i];
-    }
-
-    /* Sum the rest of the length until we get to the maximum length */
-    for (; i < ALINK_URI_MAX_LEN; i++)
-    {
-        sum++;
-    }
-
-    sum += nameLen;
-    sum = sum % MAX_HASH_TABLE_SIZE;
-
-    if (0 == sum) {
-        sum = 1;
-    }
-
-    return sum;
-}
-
-uri_hash_node_t *_uri_hash_node_malloc(alink_uri_handle_pair_t pair)
-{
-    uri_hash_node_t *node = HAL_Malloc(sizeof(uri_hash_node_t));
-    if (node == NULL) {
-        return NULL;
-    }
-
-    node->pair = pair;  // TODO
-    node->next = NULL;
-    
-    return node;
-}
-
-static int _uri_hash_insert(alink_uri_handle_pair_t pair) {
-
-    uint8_t hash = _uri_to_hash(pair.uri_string);
-
-    uri_hash_node_t *node = HAL_Malloc(sizeof(uri_hash_node_t));
-    if (node == NULL) {
-        return FAIL_RETURN;
-    }
-    node->pair = pair;  // TODO
-    node->next = NULL;
-
-    if (uri_hash_table[hash] == NULL) {
-        uri_hash_table[hash] = node;
-    }
-    else {
-        uri_hash_node_t *search_node = uri_hash_table[hash];
-        while (search_node->next) {
-            search_node = search_node->next;
-        }
-
-        search_node->next = node;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-static uri_hash_node_t * _uri_hash_search(const char *uri_string)
-{
-    uint16_t str_len = strlen(uri_string);
-    uint8_t hash = _uri_to_hash(uri_string);
-
-    uri_hash_node_t *node = uri_hash_table[hash];
-
-    // TEST
-    //uint8_t i = 0;
-
-    while (node) {
-        //alink_info("hash search time %d", ++i);
-        if (str_len == strlen(node->pair.uri_string) && !memcmp(uri_string, node->pair.uri_string, str_len)) {
-            return node;
-        }
-        else {
-            node = node->next;
-        }
-    }
-
-    return NULL;
-}
-
-/* _uri_hash_iterator(); */
-
-
-int alink_format_handle_uri(const char *uri_string)
-{
-    uri_hash_node_t *search_node = _uri_hash_search(uri_string);
-
-    search_node->pair.handle_func(search_node->pair.uri_string, "2", "3");
-
-    return 1;
-}
-
 
 
 /**********************************
@@ -281,11 +128,11 @@ int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const ch
 /**
  * /c/iot/req/proxy/{subdev-productkey}/{subdev-devicename}/sys/dt/property/post
  */
-int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, const char *pk, const char *dn, const char *uri_query, char **p_uri)
+int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, const char *subdev_pk, const char *subdev_dn, const char *uri_query, char **p_uri)
 {
     ALINK_ASSERT_DEBUG(index < ALINK_URI_UP_MAX && index >= 0 );
-    ALINK_ASSERT_DEBUG(pk != NULL);
-    ALINK_ASSERT_DEBUG(dn != NULL);
+    ALINK_ASSERT_DEBUG(subdev_pk != NULL);
+    ALINK_ASSERT_DEBUG(subdev_dn != NULL);
     ALINK_ASSERT_DEBUG(uri_query != NULL);
     ALINK_ASSERT_DEBUG(p_uri != NULL);
 
@@ -298,7 +145,7 @@ int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, c
     const char *uri_method = alink_uri_method[(c_alink_uri_string_map[index].layer_method & 0x0F)];
 
     len = strlen(uri_dist) + strlen(uri_act) + strlen(uri_layer) + strlen(uri_path) + strlen(uri_method) 
-        + strlen(uri_query) + strlen(pk) + strlen(dn) + strlen(alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4]) + 3;    /* add 2 "/" delimiter */
+        + strlen(uri_query) + strlen(subdev_pk) + strlen(subdev_dn) + strlen(alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4]) + 3;    /* add 2 "/" delimiter */
 
     char *uri = HAL_Malloc(len);
     if (uri == NULL) {
@@ -310,7 +157,7 @@ int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, c
 
     /* e... - -! */
     HAL_Snprintf(uri, len, "%s%s%s/%s/%s%s%s%s%s", uri_dist, uri_act, 
-                alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4], pk, dn, uri_layer, uri_path, uri_method, uri_query);
+                alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4], subdev_pk, subdev_dn, uri_layer, uri_path, uri_method, uri_query);
 
     *p_uri = uri;
 
@@ -325,15 +172,23 @@ const char *alink_format_get_upstream_alias_uri(alink_msg_uri_index_t index)
     return alink_msg_uri_short_alias[index];
 }
 
-
-int _alink_format_append_extend_string()
+/**
+ * 
+ */
+int alink_format_assemble_query(alink_uri_query_t *query, char *query_string)
 {
-    return 0;
+    if (query->ack == '\0') {
+        ;
+    }
+
+
+    return SUCCESS_RETURN;
 }
 
-int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_query_t *query, uint8_t *query_len)
+// TODO: not good enough!!!
+int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_query_t *query)
 {
-    const char *p = uri + uri_len;
+    const char *p = uri + *uri_len;
     uint8_t len = 0;
     uint8_t i = 0;
     char temp[30] = {0};        // TODO, malloc
@@ -347,13 +202,12 @@ int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_quer
             return FAIL_RETURN;
         }
     }
-
-    *query_len = len;
     
-
     if (len >= 30) {      // TODO
         return FAIL_RETURN;
     }
+
+    *uri_len -= (len+1);    // query_len not include '/'
 
     memcpy(temp, p, len);
     alink_info("query = %s", temp);
@@ -375,10 +229,10 @@ int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_quer
             case 'a': {
                 i += 2;
                 query->ack =  temp[i]; 
-            }
+            } break;
             case 'r': {
                 i += 2;
-                query->code = atoi(temp+i);     // atoi used
+                query->code = atoi(&temp[i]);     // tood, atoi() used!!!
             }
             default: continue;
         }
@@ -387,21 +241,112 @@ int alink_format_resolve_query(const char *uri, uint32_t uri_len, alink_uri_quer
     return 0;
 }
 
-int alink_format_create_hash_table(void)
+/**
+ * no include char '/', level start from 1, not support the last level, todo!!!
+ */
+int _alink_get_uri_level_value(const char *uri, uint8_t uri_len, uint8_t level, char *value)
 {
-    uint8_t i;
-    uint8_t hash_temp;
+    ALINK_ASSERT_DEBUG(uri != NULL);
+    ALINK_ASSERT_DEBUG(uri_len != 0);
+    ALINK_ASSERT_DEBUG(value != NULL);
 
-    for (i=0; i<(sizeof(c_alink_down_uri_handle_map)/sizeof(alink_uri_handle_pair_t)); i++) {
-        hash_temp = _uri_to_hash(c_alink_down_uri_handle_map[i].uri_string);
-        alink_info("[%d] = %d", i, hash_temp);
-        _uri_hash_insert(c_alink_down_uri_handle_map[i]);
+    uint8_t idx = 0;
+    uint8_t cnt = 0;
+    char *p1 = NULL;
+    char *p2 = NULL;
+
+    for (idx = 0; idx < uri_len; idx++) {
+        if (*(uri+idx) == '/' && (idx + 1) < uri_len) {
+            cnt++;
+            if (cnt == level) {
+                p1 = (char *)(uri + idx + 1);
+            } 
+            else if (cnt == level+1) {
+                p2 = (char *)(uri + idx + 1);
+            }
+        }
+    }
+
+    if (!p1 || !p2 ) {
+        return FAIL_RETURN;
+    }    
+
+    memcpy(value, p1, p2-p1-1); 
+    value[p2-p1-1] = 0;
+
+    return SUCCESS_RETURN;
+}
+
+
+/**
+ * not include '/'
+ */
+int _alink_get_uri_level_pointer(const char *uri, uint8_t uri_len, uint8_t level, char **p_value)
+{
+    ALINK_ASSERT_DEBUG(uri != NULL);
+    ALINK_ASSERT_DEBUG(uri_len != 0);
+    ALINK_ASSERT_DEBUG(p_value != NULL);
+
+    uint8_t idx = 0;
+    uint8_t cnt = 0;
+
+    for (idx = 0; idx < uri_len; idx++) {
+        if (*(uri+idx) == '/' && (idx + 1) < uri_len) {
+            cnt++;
+            if (cnt == level) {
+                *p_value = (char *)(uri + idx + 1);
+
+                return SUCCESS_RETURN;
+            }
+        }
     }
 
     return FAIL_RETURN;
 }
 
-int _alink_format_reslove_uri()
+/**
+ * TODO, not good!!!
+ */
+int alink_format_reslove_uri(const char *uri, uint8_t uri_len, char *pk, char *dn, char *path, alink_uri_query_t *query, uint8_t *is_subdev)
 {
-    return 0;
+    char value[33] = {0};
+    uint8_t value_len = 0;
+    char *p = NULL;
+
+    uint8_t uri_len_temp = uri_len;
+
+
+    alink_format_resolve_query(uri, &uri_len_temp, query);
+
+
+    /* is proxy */
+    _alink_get_uri_level_value(uri, uri_len_temp, 4, value);
+    value_len = strlen(value);
+
+    if (value_len == strlen("proxy") && !memcmp(value, "proxy", value_len))
+    {
+        *is_subdev = IOT_TRUE;
+
+        _alink_get_uri_level_value(uri, uri_len_temp, 5, pk);
+        _alink_get_uri_level_value(uri, uri_len_temp, 6, dn);
+
+        _alink_get_uri_level_value(uri, uri_len_temp, 3, path);
+        memcpy(path+strlen(path), "/", 1);
+
+        _alink_get_uri_level_pointer(uri, uri_len_temp, 7, &p);
+        memcpy(path+strlen(path), p, (uri_len_temp - (uint8_t)(p - uri)));
+    }
+    else {
+        *is_subdev = IOT_FALSE;
+
+        _alink_get_uri_level_value(uri, uri_len_temp, 1, pk);
+        _alink_get_uri_level_value(uri, uri_len_temp, 2, dn);
+
+        _alink_get_uri_level_pointer(uri, uri_len_temp, 3, &p);
+        memcpy(path, p, (uri_len_temp - (uint8_t)(p - uri)));
+    }
+
+    
+
+    return SUCCESS_RETURN;
 }

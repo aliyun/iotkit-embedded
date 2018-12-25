@@ -65,6 +65,72 @@ typedef enum {
     IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 
+typedef enum {
+    ITE_AWSS_STATUS = 0,
+    ITE_CONNECT_SUCC,
+    ITE_CONNECT_FAIL,
+    ITE_DISCONNECTED,
+    ITE_RAWDATA_ARRIVED,
+    ITE_SERVICE_REQUST,
+    ITE_PROPERTY_SET,
+    ITE_PROPERTY_GET,
+    ITE_REPORT_REPLY,
+    ITE_TRIGGER_EVENT_REPLY,
+    ITE_TIMESTAMP_REPLY,
+    ITE_TOPOLIST_REPLY,
+    ITE_PERMIT_JOIN,
+    ITE_INITIALIZE_COMPLETED,
+    ITE_FOTA,
+    ITE_COTA,
+    ITE_MQTT_CONNECT_SUCC,
+    ITE_EVENT_NUM
+} iotx_linkkit_event_typde_t;
+
+typedef int (*linkkit_event_cb_t)();
+
+int IOT_RegisterCallback(iotx_linkkit_event_typde_t event_id, linkkit_event_cb_t callback);
+
+
+typedef int (*linkkit_awss_status_cb_t)(int);
+
+typedef int (*linkkit_connect_success_cb_t)(void);
+
+typedef int (*linkkit_connect_fail_cb_t)(void);
+
+typedef int (*linkkit_disconnected_cb_t)(void);
+
+typedef int (*linkkit_rawdata_rx_cb_t)(int device_id, const uint8_t *payload, int payload_len);
+
+typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid, int serviceid_len, 
+                                            const char *request, int request_len, 
+                                            char **response, int *response_len);
+
+typedef int (*linkkit_property_set_cb_t)(int device_id, const char *request, int request_len);
+
+typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int request_len,
+                                                        char **response, int **response_len);
+
+typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
+                                        const char *reply, int reply_len);
+
+typedef int (*linkkit_trigger_event_reply_cb_t)(int device_id, int msg_id, int code, 
+                                                const char *eventid, int eventid_len,
+                                                const char *message, int message_len);
+
+typedef int (*linkkit_timestamp_reply_cb_t)();
+
+typedef int (*linkkit_topo_list_reply_cb_t)();
+
+typedef int (*linkkit_permit_join_cb_t)();
+
+typedef int (*linkkit_inited_cb_t)();
+
+typedef int (*linkkit_fata_event_cb_t)(int type, const char *version);
+
+typedef int (*linkkit_cota_event_cb_t)(int type);
+
+typedef int (*linkkit_mqtt_connected_cb_t)(void);
+
 /**
  * @brief create a new device
  *

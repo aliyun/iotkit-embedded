@@ -2,3 +2,18 @@ config DEVICE_MODEL_ENABLE
     bool "FEATURE_DEVICE_MODEL_ENABLE"
     default n
     select DEV_SIGN
+    select INFRA_LOG
+    select INFRA_CJSON
+    help
+        Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
+ 
+        Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
+        Those capabilities are provided via IOT_Linkkit_XXX() APIs
+
+
+config DEVICE_MODEL_GATEWAY
+    bool "FEATURE_DEVICE_MODEL_GATEWAY"
+    depends on DEVICE_MODEL_ENABLE
+    default n
+    help
+        Switching Thing-Model related implementations provided in gateway oriented way

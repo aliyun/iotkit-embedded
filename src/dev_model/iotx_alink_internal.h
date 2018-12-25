@@ -13,9 +13,27 @@
 #include "alink_core.h"
 #include "alink_bearer.h"
 #include "alink_bearer_mqtt.h"
-#include "alink_utils.h"
 #include "alink_upstream.h"
+#include "alink_downstream.h"
 #include "alink_wrapper.h"
+#include "alink_utils.h"
+
+#include "alink_api.h"        // TODO
+
+
+
+/** TODO **/
+#define ALINK_URI_MAX_LEN           50
+#define HASH_TABLE_SIZE_MAX         29 /* 13, 17, 19 ,23, 29, 31, 37, 41, 43, 47, 53, 59*/
+
+
+typedef enum {
+    ALINK_DEV_TYPE_MASTER,
+    ALINK_DEV_TYPE_SUBDEV,
+    ALINK_DEV_TYPE_MAX
+} alink_dev_type_t;
+
+linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_typde_t event_id);
 
 
 #ifdef INFRA_LOG
@@ -45,9 +63,11 @@
 
 
 
+#define UTILS_HASH_TABLE_ITERATOR_ENABLE       (1) 
+#define ALINK_DEBUG                     (1)
 #define TEST_MOCK       // TODO
-#define ALINK_DEBUG     // TODO
-#ifdef ALINK_DEBUG
+
+#if ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \
         do { \
             if (!(expr)) { \
@@ -68,6 +88,15 @@
 #ifndef CONFIG_MQTT_RX_MAXLEN
     #define CONFIG_MQTT_RX_MAXLEN           (1024)
 #endif
+
+typedef enum {
+    ALINK_CODE_PARAMS_INVALID        = -4001,
+    ALINK_CODE_STATE_ERROR           = -4002,   
+    ALINK_CODE_NETWORK_ERROR         = -4003,
+    ALINK_CODE_AUTH_ERROR            = -4004,
+    ALINK_CODE_GATEWAY_UNSUPPORTED   = -4005,
+    ALINK_CODE_MEMORY_NOT_ENOUGH     = -4006,
+} iotx_alink_errorcode_t;
 
 
 #endif /* #ifndef __IOTX_ALINK_INTERNAL_H__ */

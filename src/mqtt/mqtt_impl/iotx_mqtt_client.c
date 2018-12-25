@@ -3175,6 +3175,7 @@ int wrapper_mqtt_publish(void *client, const char *topicName, iotx_mqtt_topic_in
 #endif
 
 #if defined(INSPECT_MQTT_FLOW)
+    HEXDUMP_DEBUG(topicName, strlen(topicName));
     HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
 #endif
 

@@ -17,11 +17,10 @@ typedef struct {
 
 
 
-static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn, uint8_t *payload, uint16_t len)
+static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, alink_dev_type_t dev_type, const char *pk, const char *dn, uint8_t *payload, uint16_t len)
 {
     int res = FAIL_RETURN;
 
-    uint8_t dev_type = 1;
     char *uri;
     uint32_t msgid = alink_core_get_msgid();
     char uri_query[20] = {0};
@@ -29,11 +28,13 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, const cha
     /* setup query string */
     HAL_Snprintf(uri_query, sizeof(uri_query), "/?i=%d", msgid);
 
-    if (dev_type == 0) {
-        alink_format_get_upstream_complete_uri(ALINK_URI_UP_REQ_PROPERTY_POST, uri_query, &uri);
+    if (dev_type == ALINK_DEV_TYPE_MASTER) {
+        (void)pk;
+        (void)dn;
+        alink_format_get_upstream_complete_uri(idx, uri_query, &uri);
     }
     else {
-        alink_format_get_upstream_subdev_complete_url(ALINK_URI_UP_REQ_PROPERTY_POST, pk, dn, uri_query, &uri);
+        alink_format_get_upstream_subdev_complete_url(idx, pk, dn, uri_query, &uri);
     }
 
     res = alink_core_send_req_msg(uri, payload, len);
@@ -57,12 +58,12 @@ int alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const char *pk, 
 /***************************************************************
  * device model management upstream message
  ***************************************************************/
-int alink_upstream_thing_property_post_req(uint16_t devid, char *pk, char *dn, uint8_t *payload, uint16_t len)
+int alink_upstream_thing_property_post_req(char *pk, char *dn, uint8_t *payload, uint16_t len)
 {
-    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_PROPERTY_POST, pk, dn, payload, len);
+    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_PROPERTY_POST, ALINK_DEV_TYPE_MASTER, pk, dn, payload, len);
 }
 
-int alink_upstream_thing_event_post_req(int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
+int alink_upstream_thing_event_post_req(alink_dev_type_t dev_type, int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
 {
     int res = FAIL_RETURN;
 
@@ -70,7 +71,7 @@ int alink_upstream_thing_event_post_req(int8_t *pk, int8_t *dn, uint8_t *payload
     return res;
 }
 
-int alink_upstream_thing_property_set_rsp(uint16_t devid, int8_t *pk, int8_t *dn, uint8_t *payload, uint16_t len)
+int alink_upstream_thing_property_set_rsp(char *pk, char *dn, uint8_t *payload, uint16_t len)
 {
     int res = FAIL_RETURN;
 

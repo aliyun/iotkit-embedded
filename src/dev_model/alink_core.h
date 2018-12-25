@@ -15,6 +15,9 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info);
 int alink_core_connect_cloud(void);
 int alink_core_yield(uint32_t timeout_ms);
 
+int alink_subdev_open(iotx_dev_meta_info_t *dev_info);
+int alink_core_subdev_connect_cloud(uint32_t devid);
+
 uint32_t alink_core_get_msgid(void);
 
 int alink_core_send_req_msg(char *uri, uint8_t *payload, uint32_t len);
