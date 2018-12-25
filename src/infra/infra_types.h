@@ -1,6 +1,8 @@
 #ifndef _INFRA_TYPES_H_
 #define _INFRA_TYPES_H_
 
+#include "infra_config.h"
+
 #define IOT_TRUE            (1)     /* indicate boolean value true */
 #define IOT_FALSE           (0)     /* indicate boolean value false */
 

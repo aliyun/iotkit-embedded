@@ -3,48 +3,76 @@
 # Prepare Directory
 OUTPUT_DIR=output
 OUTPUT_TMPDIR=.O
-INFRA_DIR=${OUTPUT_DIR}/eng/src/infra
-DEV_SIGN_DIR=${OUTPUT_DIR}/eng/src/dev_sign
+INFRA_DIR=${OUTPUT_DIR}/eng/infra
+EXAMPLES_DIR=${OUTPUT_DIR}/eng/examples
 
-mkdir -p ${INFRA_DIR}
-mkdir -p ${DEV_SIGN_DIR}
+gen_eng_dir() {
+    mkdir -p ${INFRA_DIR}
+    mkdir -p ${EXAMPLES_DIR}
+}
 
 # Prepare Config Macro In make.settings
 MACRO_LIST=$(sed -n '/=y/p' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
-CONFIG_H=$(echo "${MACRO_LIST}" | sed -n 's/^/#define /p')
 
 # Function
 gen_infra_default () {
+    CONFIG_H=$(echo "${1}" | sed -n 's/^/#define /p')
     echo "#ifndef _INFRA_CONFIG_H_" > ${INFRA_DIR}/infra_config.h
-    echo "#define _INFRA_CONFIG_H_" >> ${INFRA_DIR}/infra_config.h
-    echo "$1" >> ${INFRA_DIR}/infra_config.h
-    echo "#endif" >> ${INFRA_DIR}/infra_config.h
+    echo -e "#define _INFRA_CONFIG_H_\n" >> ${INFRA_DIR}/infra_config.h
+    echo "${CONFIG_H}" >> ${INFRA_DIR}/infra_config.h
+    echo -e "\n#endif" >> ${INFRA_DIR}/infra_config.h
 }
 
 gen_infra_module() {
+    M_INFRA=$(echo "${1}" | grep 'INFRA')
+    echo "extract infra module..."
+    echo "${M_INFRA}"
     find . -path ./${OUTPUT_DIR} -prune -type f -o -name "infra_types.h" | xargs -i cp -f {} ${INFRA_DIR}
     find . -path ./${OUTPUT_DIR} -prune -type f -o -name "infra_defs.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
     find . -path ./${OUTPUT_DIR} -prune -type f -o -name "infra_compat.h" | xargs -i cp -f {} ${INFRA_DIR}
-    [[ ${1} =~ "INFRA" ]] && find . \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "${1}.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
+
+    echo "${M_INFRA}" | while read line;
+    do
+        find . \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "${line}.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
+    done
 }
 
 gen_dev_sign_module() {
-    SRC_DEV_SIGN=$([[ ${1} =~ "DEV_SIGN" ]] && find . \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname ${1} -type d)
+    M_DEV_SIGN=$(echo "${1}" | grep -w 'DEV_SIGN')
+    DEV_SIGN_DIR=${OUTPUT_DIR}/eng/dev_sign
+    mkdir -p ${DEV_SIGN_DIR}
+    echo "extract dev_sign module..."
+    echo "${M_DEV_SIGN}"
+
+    SRC_DEV_SIGN=$([[ ${M_DEV_SIGN} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname ${M_DEV_SIGN} -type d)
     if [ ${SRC_DEV_SIGN} ];then
         find ${SRC_DEV_SIGN} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${DEV_SIGN_DIR}
-        echo ${SRC_DEV_SIGN}
+        find ${SRC_DEV_SIGN} -maxdepth 1 -name *example*.c | xargs -i cp -f {} ${EXAMPLES_DIR}
     fi
 }
 
-# echo "${MACRO_LIST}"
-# echo "${CONFIG_H}"
+gen_mqtt_module() {
+    M_MQTT_COMM_ENABLED=$(echo "${1}" | grep -w 'MQTT_COMM_ENABLED')
+    M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
+    MQTT_DIR=${OUTPUT_DIR}/eng/mqtt
+    mkdir -p ${MQTT_DIR}
+    echo "extract mqtt module..."
+
+    SRC_MQTT_SIGN=$([[ ${M_MQTT_COMM_ENABLED} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mqtt" -type d)
+    if [ ${SRC_MQTT_SIGN} ];then
+        find ${SRC_MQTT_SIGN} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${MQTT_DIR}
+        [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -name mqtt_impl -type d | xargs -i cp -rf {} ${MQTT_DIR}
+        [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -maxdepth 1 -name *example.c | xargs -i cp -f {} ${EXAMPLES_DIR}
+    fi
+}
+
+# Generate Directory
+gen_eng_dir
 
 # Generate infra_config.h
-gen_infra_default "${CONFIG_H}"
+gen_infra_default "${MACRO_LIST}"
 
-echo "${MACRO_LIST}" | while read line;
-do
-    echo ${line}
-    gen_infra_module ${line}
-    gen_dev_sign_module ${line}
-done
+# Generate Module Code
+gen_infra_module "${MACRO_LIST}"
+gen_dev_sign_module "${MACRO_LIST}"
+gen_mqtt_module "${MACRO_LIST}"
