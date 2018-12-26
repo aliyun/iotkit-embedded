@@ -50,8 +50,8 @@ gen_wrapper_c() {
 
     echo -e "${WRAPPER_FUNCS}" | while read func
     do
-        # func="wrapper_mqtt_subscribe"
-        
+        [[ ! ${func} ]] && return
+
         FUNC_DEC=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {} 2>/dev/null | sed -n '/.*'$func'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
         DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F'wrapper|HAL' '{print $1}' | sed s/[[:space:]]//g)
 
