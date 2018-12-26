@@ -12,6 +12,7 @@ gen_eng_dir() {
     mkdir -p ${INFRA_DIR}
     mkdir -p ${EXAMPLES_DIR}
     mkdir -p ${WRAPPERS_DIR}
+    echo "" > ${WRAPPERS_DIR}/wrapper.c
 }
 
 # Prepare Config Macro In make.settings
@@ -40,8 +41,34 @@ gen_infra_module() {
     done
 }
 
+gen_wrapper_c() {
+    WRAPPER_FUNCS=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "HAL_.*(" {} | sed 's/(//g' | sort -u)"\n"
+    WRAPPER_FUNCS+=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "wrapper_.*(" {} | sed 's/(//g' | sort -u)
+
+    echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
+    echo -e "#include \"infra_defs.h\"\n" >> ${WRAPPERS_DIR}/wrapper.c
+
+    echo -e "${WRAPPER_FUNCS}" | while read func
+    do
+        # func="wrapper_mqtt_subscribe"
+        
+        FUNC_DEC=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {} 2>/dev/null | sed -n '/.*'$func'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
+        DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F'wrapper|HAL' '{print $1}' | sed s/[[:space:]]//g)
+
+        if [ "${DATA_TYPE}" == "void" ];then
+            echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrapper.c
+        else
+            echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn ('${DATA_TYPE}')1;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrapper.c
+        fi
+    done
+
+}
+
 gen_dev_sign_module() {
     M_DEV_SIGN=$(echo "${1}" | grep -w 'DEV_SIGN')
+
+    [[ ! ${M_DEV_SIGN} ]] && return
+
     DEV_SIGN_DIR=${OUTPUT_DIR}/eng/dev_sign
     mkdir -p ${DEV_SIGN_DIR}
     echo "extract dev_sign module..."
@@ -59,6 +86,8 @@ gen_mqtt_module() {
     M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
     M_MAL_ENABLED=$(echo "${1}" | grep -w 'MAL_ENABLED')
     M_MAL_ICA_ENABLED=$(echo "${1}" | grep -w 'MAL_ICA_ENABLED')
+
+    [[ ! ${M_MQTT_COMM_ENABLED} ]] && return
 
     MQTT_DIR=${OUTPUT_DIR}/eng/mqtt
     mkdir -p ${MQTT_DIR}
@@ -90,3 +119,4 @@ gen_infra_default "${MACRO_LIST}"
 gen_infra_module "${MACRO_LIST}"
 gen_dev_sign_module "${MACRO_LIST}"
 gen_mqtt_module "${MACRO_LIST}"
+gen_wrapper_c
