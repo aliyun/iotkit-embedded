@@ -18,6 +18,11 @@ int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 int HAL_GetFirmwareVersion(char *version);
 
+uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
+int HAL_TCP_Destroy(uintptr_t fd);
+int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+
 //mqtt protocol wrapper
 void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params);
 int wrapper_mqtt_connect(void *client);
