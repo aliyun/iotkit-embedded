@@ -16,7 +16,7 @@ gen_eng_dir() {
 }
 
 # Prepare Config Macro In make.settings
-MACRO_LIST=$(sed -n '/=y/p' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
+MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
 
 # Function
 gen_infra_default () {
