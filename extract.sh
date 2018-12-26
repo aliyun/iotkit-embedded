@@ -4,11 +4,14 @@
 OUTPUT_DIR=output
 OUTPUT_TMPDIR=.O
 INFRA_DIR=${OUTPUT_DIR}/eng/infra
+WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
 EXAMPLES_DIR=${OUTPUT_DIR}/eng/examples
 
 gen_eng_dir() {
+    rm -rf ${OUTPUT_DIR}/eng
     mkdir -p ${INFRA_DIR}
     mkdir -p ${EXAMPLES_DIR}
+    mkdir -p ${WRAPPERS_DIR}
 }
 
 # Prepare Config Macro In make.settings
@@ -54,16 +57,26 @@ gen_dev_sign_module() {
 gen_mqtt_module() {
     M_MQTT_COMM_ENABLED=$(echo "${1}" | grep -w 'MQTT_COMM_ENABLED')
     M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
+    M_MAL_ENABLED=$(echo "${1}" | grep -w 'MAL_ENABLED')
+    M_MAL_ICA_ENABLED=$(echo "${1}" | grep -w 'MAL_ICA_ENABLED')
+
     MQTT_DIR=${OUTPUT_DIR}/eng/mqtt
     mkdir -p ${MQTT_DIR}
     echo "extract mqtt module..."
-    echo -e "$(echo "${1}" | grep 'MQTT')\n"
+    echo -e "$(echo "${1}" | grep -E 'MQTT|MAL')\n"
 
     SRC_MQTT_SIGN=$([[ ${M_MQTT_COMM_ENABLED} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mqtt" -type d)
     if [ ${SRC_MQTT_SIGN} ];then
         find ${SRC_MQTT_SIGN} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${MQTT_DIR}
         [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -name mqtt_impl -type d | xargs -i cp -rf {} ${MQTT_DIR}
         [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -maxdepth 1 -name *example.c | xargs -i cp -f {} ${EXAMPLES_DIR}
+    fi
+
+    SRC_MAL_WRAPPER=$([[ ${M_MAL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mal" -type d)
+    if [ ${SRC_MAL_WRAPPER} ];then
+        mkdir -p ${WRAPPERS_DIR}/mqtt/mal
+        find ${SRC_MAL_WRAPPER} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${WRAPPERS_DIR}/mqtt/mal
+        [[ ${M_MAL_ICA_ENABLED} ]] && find ${SRC_MAL_WRAPPER} -name ica -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/mqtt/mal
     fi
 }
 
