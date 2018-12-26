@@ -63,17 +63,34 @@ const char *alink_uri_method[] = {
 };
 
 const alink_uri_string_map_t c_alink_uri_string_map[] = {
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/dt/property"      },  /* "/c/iot/req/sys/dt/property/post" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/property"   },  /* "/c/iot/rsp/sys/thing/property/post" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_GET),       "/thing/property"   },  /* "/c/iot/rsp/sys/thing/property/get" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/dt/property"      },  /* "/c/iot/req/sys/dt/event/post" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/property"   },  /* "/c/iot/rsp/sys/thing/service/post" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/dt/property"      },  /* "/c/iot/req/sys/dt/raw/post" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/property"   },  /* "/c/iot/rsp/sys/thing/raw/post" */
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/property"       },  /* "/c/iot/req/sys/thing/property/post" */
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_PUT),       "/thing/property"       },  /* "/c/iot/rsp/sys/thing/property/put" */
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_GET),       "/thing/property"       },  /* "/c/iot/rsp/sys/thing/property/get" */
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/event"          },  /* "/c/iot/req/sys/thing/event/post" */
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_PUT),       "/thing/service"        },  /* "/c/iot/rsp/sys/thing/service/put" */
 
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/subdev/register"  },  /* "/c/iot/req/sys/subdev/register/post" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_DELETE),    "/subdev/register"  },  /* "/c/iot/req/sys/subdev/register/delete" */
-    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/dt/topo"          },  /* "/c/iot/req/sys/dt/topo/post" */
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/raw"            },  /* "/c/iot/req/sys/thing/raw/post" */
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_PUT),       "/thing/raw"            },  /* "/c/iot/rsp/sys/thing/raw/post" */
+
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/sub/register"         },
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_DELETE),    "/sub/register"         },
+
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/sub/login"            },  
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_DELETE),    "/sub/login"            },  
+    
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/topo"           }, 
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_DELETE),    "/thing/topo"           },  
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_GET),       "/thing/topo"           }, 
+
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/sub/list"             },  
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_PUT),       "/sub/list"             },  
+
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_PUT),       "/gw/permit"            },  
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_RSP),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_PUT),       "/gw/config"            },  
+
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_POST),      "/thing/devinfo"        }, 
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_GET),       "/thing/devinfo"        }, 
+    { (ALINK_URI_DIST_CLOUD | ALINK_URI_ACT_REQ),   (ALINK_URI_LAYER_SYS | ALINK_URI_METHOD_DELETE),    "/thing/devinfo"        }, 
 };
 
 /**
@@ -113,7 +130,7 @@ int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const ch
 
     len = strlen(uri_dist) + strlen(uri_act) + strlen(uri_layer) + strlen(uri_path) + strlen(uri_method) + strlen(uri_query) + 1;
 
-    char *uri = HAL_Malloc(len);
+    char *uri = alink_malloc(len);
     if (uri == NULL) {
         return FAIL_RETURN;
     }
@@ -126,7 +143,7 @@ int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const ch
 }
 
 /**
- * /c/iot/req/proxy/{subdev-productkey}/{subdev-devicename}/sys/dt/property/post
+ * /c/iot/req/proxy/{subdev-productkey}/{subdev-devicename}/sys/thing/property/post
  */
 int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, const char *subdev_pk, const char *subdev_dn, const char *uri_query, char **p_uri)
 {
@@ -147,7 +164,7 @@ int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, c
     len = strlen(uri_dist) + strlen(uri_act) + strlen(uri_layer) + strlen(uri_path) + strlen(uri_method) 
         + strlen(uri_query) + strlen(subdev_pk) + strlen(subdev_dn) + strlen(alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4]) + 3;    /* add 2 "/" delimiter */
 
-    char *uri = HAL_Malloc(len);
+    char *uri = alink_malloc(len);
     if (uri == NULL) {
         return FAIL_RETURN;
     }
@@ -236,6 +253,11 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
             }
             default: continue;
         }
+    }
+
+    // set default value if absence
+    if (query->ack == '\0') {
+        query->ack = 'y';
     }
 
     return 0;

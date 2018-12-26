@@ -31,7 +31,7 @@ static int _uri_hash_insert(const alink_uri_handle_pair_t *pair, uri_hash_table_
     uint8_t hash = _uri_to_hash(pair->uri_string, strlen(pair->uri_string));
     uri_hash_node_t *node, *search_node;
 
-    node = HAL_Malloc(sizeof(uri_hash_node_t));
+    node = alink_malloc(sizeof(uri_hash_node_t));
     if (node == NULL) {
         return FAIL_RETURN;
     }
@@ -133,12 +133,79 @@ void utils_uri_hash_destroy(uri_hash_table_t *table)
         node = table[idx];
         table[idx] = NULL;
         temp = node->next;
-        HAL_Free(node);
+        alink_free(node);
 
         while (temp) {
             node = temp;
             temp = temp->next;
-            HAL_Free(node);
+            alink_free(node);
         }
     }
+}
+
+
+
+char *alink_utils_strdup(const char *string, uint32_t string_len)
+{
+    if (string == NULL || string_len == 0) {
+        return NULL;
+    }
+
+    char *copy = alink_malloc(string_len + 1);
+    if (copy == NULL) {
+        return NULL;
+    }
+
+    memcpy(copy, string, string_len);
+    *(copy + string_len) = '\0';
+
+    return copy;
+}
+
+int alink_utils_json_parse(const char *payload, uint32_t payload_len, uint32_t type, lite_cjson_t *lite)
+{
+    int res = 0;
+
+    if (payload == NULL || payload_len == 0 || type == cJSON_Invalid || lite == NULL) {
+        return ALINK_CODE_PARAMS_INVALID;
+    }
+    memset(lite, 0, sizeof(lite_cjson_t));
+
+    res = lite_cjson_parse(payload, payload_len, lite);
+    if (res != SUCCESS_RETURN) {
+        memset(lite, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    if (lite->type != type) {
+        memset(lite, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int alink_utils_json_object_item(lite_cjson_t *lite, const char *key, uint32_t key_len, uint32_t type, lite_cjson_t *lite_item)
+{
+    int res = 0;
+
+    // TODO
+    if (lite == NULL || lite->type != cJSON_Object || key == NULL || key_len == 0 || type == cJSON_Invalid || lite_item == NULL) {
+        return ALINK_CODE_PARAMS_INVALID;
+    }
+
+    memset(lite_item, 0, sizeof(lite_cjson_t));
+
+    res = lite_cjson_object_item(lite, key, key_len, lite_item);
+    if (res != SUCCESS_RETURN) {
+        memset(lite_item, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    if (lite_item->type != type) {
+        memset(lite_item, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
 }

@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include "infra_defs.h"
+#include "infra_types.h"
 
 
 typedef enum {
@@ -31,6 +32,9 @@ typedef enum {
 
     /* post device info update message to cloud */
     ITM_MSG_DEVICEINFO_UPDATE,
+
+    /* send a get device info request to cloud */
+    ITM_MSG_DEVICEINFO_GET,
 
     /* post device info delete message to cloud */
     ITM_MSG_DEVICEINFO_DELETE,
@@ -71,7 +75,7 @@ typedef enum {
     ITE_CONNECT_FAIL,
     ITE_DISCONNECTED,
     ITE_RAWDATA_ARRIVED,
-    ITE_SERVICE_REQUST,
+    ITE_SERVICE_REQUEST,
     ITE_PROPERTY_SET,
     ITE_PROPERTY_GET,
     ITE_REPORT_REPLY,
@@ -84,12 +88,9 @@ typedef enum {
     ITE_COTA,
     ITE_MQTT_CONNECT_SUCC,
     ITE_EVENT_NUM
-} iotx_linkkit_event_typde_t;
+} iotx_linkkit_event_type_t;
 
 typedef int (*linkkit_event_cb_t)();
-
-int IOT_RegisterCallback(iotx_linkkit_event_typde_t event_id, linkkit_event_cb_t callback);
-
 
 typedef int (*linkkit_awss_status_cb_t)(int);
 
@@ -108,7 +109,7 @@ typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid
 typedef int (*linkkit_property_set_cb_t)(int device_id, const char *request, int request_len);
 
 typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int request_len,
-                                                        char **response, int **response_len);
+                                                        char **response, int *response_len);
 
 typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
                                         const char *reply, int reply_len);
@@ -130,6 +131,18 @@ typedef int (*linkkit_fata_event_cb_t)(int type, const char *version);
 typedef int (*linkkit_cota_event_cb_t)(int type);
 
 typedef int (*linkkit_mqtt_connected_cb_t)(void);
+
+
+/**
+ * @brief register event callback function for specific event id.
+ *
+ * @param event_id. type of event id. see iotx_linkkit_event_type_t.
+ * @param callback. callback function for different event handle, check the function prototypes.
+ *
+ * @return success: device id (>=0), fail: -1.
+ *
+ */
+int IOT_RegisterCallback(iotx_linkkit_event_type_t event_id, linkkit_event_cb_t callback);
 
 /**
  * @brief create a new device
@@ -239,6 +252,7 @@ typedef enum {
     IOTX_CODE_NETWORK_ERROR         = -4003,
     IOTX_CODE_AUTH_ERROR            = -4004,
     IOTX_CODE_GATEWAY_UNSUPPORTED   = -4005,
+    IOTX_CODE_UNKNOWN_MSG_TYPE      = -4006,
 } iotx_linkkit_errorcode_t;
 
 

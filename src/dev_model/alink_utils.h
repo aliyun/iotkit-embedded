@@ -24,5 +24,8 @@ int utils_uri_hash_init(const alink_uri_handle_pair_t *uri_handle_pair, uint8_t 
 uri_hash_node_t *utils_uri_hash_search(const char *uri_string, uint8_t uri_len, uri_hash_table_t *table);
 void utils_uri_hash_destroy(uri_hash_table_t *table);
 
+char *alink_utils_strdup(const char *string, uint32_t string_len);
+int alink_utils_json_parse(const char *payload, uint32_t payload_len, uint32_t type, lite_cjson_t *lite);
+int alink_utils_json_object_item(lite_cjson_t *lite, const char *key, uint32_t key_len, uint32_t type, lite_cjson_t *lite_item);
 
 #endif /* #ifndef __ALINK_UTILS_H__ */
