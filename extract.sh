@@ -48,6 +48,8 @@ gen_wrapper_c() {
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "#include \"infra_defs.h\"\n" >> ${WRAPPERS_DIR}/wrapper.c
 
+    # echo -e "${WRAPPER_FUNCS}" |awk '{ printf("%03d %s\n", NR, $0); }'
+
     echo -e "${WRAPPER_FUNCS}" | while read func
     do
         [[ ! ${func} ]] && return
