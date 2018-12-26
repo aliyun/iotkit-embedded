@@ -109,6 +109,29 @@ gen_mqtt_module() {
     fi
 }
 
+gen_sal_module() {
+    M_SAL_ENABLED=$(echo "${1}" | grep -w 'SAL_ENABLED')
+    M_SAL_HAL_IMPL_ENABLED=$(echo "${1}" | grep -w 'SAL_HAL_IMPL_ENABLED')
+
+    [[ ! ${M_SAL_ENABLED} ]] && return
+
+    echo "extract sal module..."
+    echo -e "$(echo "${1}" | grep -E 'SAL')\n"
+
+    SRC_SAL=$([[ ${M_SAL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "sal" -type d)
+    if [ ${SRC_SAL} ];then
+        mkdir -p ${WRAPPERS_DIR}/sal/
+        find ${SRC_SAL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${WRAPPERS_DIR}/sal/
+        find ${SRC_SAL} -name src -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+        find ${SRC_SAL} -name include -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+
+        SRC_SAL_AT=$([[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d)
+        [[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+        [[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ${SRC_SAL_AT} -name at -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}
+    fi
+    # mkdir -p ${WRAPPERS_DIR}/sal
+}
+
 # Generate Directory
 gen_eng_dir
 
@@ -119,4 +142,5 @@ gen_infra_default "${MACRO_LIST}"
 gen_infra_module "${MACRO_LIST}"
 gen_dev_sign_module "${MACRO_LIST}"
 gen_mqtt_module "${MACRO_LIST}"
+gen_sal_module "${MACRO_LIST}"
 gen_wrapper_c
