@@ -22,8 +22,6 @@ typedef enum {
     MODE_TCP_DIRECT_PLAIN       = 3,
 } secure_mode_t;
 
-iotx_mqtt_region_types_t g_sign_mqtt_region = IOTX_CLOUD_REGION_SHANGHAI;
-
 static secure_mode_t _get_secure_mode(void)
 {
     secure_mode_t res = MODE_TCP_DIRECT_PLAIN;
@@ -49,15 +47,11 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     const char *sign_fmt = "clientId%sdeviceName%sproductKey%stimestamp%s";
     const char *clientid_fmt = "%s|securemode=%d,timestamp=%s,signmethod=hmacsha256,gw=%d,ext=%d,ver=c-sdk-%s|";
 
-    if (region < 0 || region >= IOTX_MQTT_DOMAIN_NUMBER || meta == NULL) {
+    if (region >= IOTX_MQTT_DOMAIN_NUMBER || meta == NULL) {
         return -1;
     }
 
     memset(signout,0,sizeof(iotx_sign_mqtt_t));
-
-    if (region >= 0) {
-        g_sign_mqtt_region = region;
-    }
 
     HAL_Snprintf(device_id,IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1,"%s.%s",meta->product_key,meta->device_name);
     HAL_Snprintf(timestamp,20,"%s","2524608000000");
@@ -76,13 +70,13 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         utils_hmac_sha256((uint8_t *)signsource,strlen(signsource),(uint8_t *)meta->device_secret,strlen(meta->device_secret),sign);
 
         /* Get Sign Information For MQTT */
-        length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[g_sign_mqtt_region]) + 2;
+        length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
         signout->hostname = DEV_SIGN_MQTT_MALLOC(length);
         if (signout->hostname == NULL) {
             break;
         }
         memset(signout->hostname,0,length);
-        HAL_Snprintf(signout->hostname,length,"%s.%s",meta->product_key,g_infra_mqtt_domain[g_sign_mqtt_region]);
+        HAL_Snprintf(signout->hostname,length,"%s.%s",meta->product_key,g_infra_mqtt_domain[region]);
 
         length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
         signout->username = DEV_SIGN_MQTT_MALLOC(length);
