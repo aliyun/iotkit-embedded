@@ -43,6 +43,7 @@ gen_infra_module() {
 }
 
 gen_wrapper_c() {
+    M_MQTT_COMM_ENABLED=$(echo "${1}" | grep -w 'MQTT_COMM_ENABLED')
     M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
 
     WRAPPER_FUNCS=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "HAL_.*(" {} | sed 's/(//g' | sort -u)"\n"
@@ -51,7 +52,9 @@ gen_wrapper_c() {
     [[ ${M_MQTT_DEFAULT_IMPL} ]] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/wrapper_mqtt/!{p}')
 
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
-    echo -e "#include \"infra_defs.h\"\n" >> ${WRAPPERS_DIR}/wrapper.c
+    echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
+    [[ ${M_MQTT_COMM_ENABLED} ]] && echo -e "#include \"mqtt_api.h\"" >> ${WRAPPERS_DIR}/wrapper.c
+    echo -e "\n" >> ${WRAPPERS_DIR}/wrapper.c
 
     # echo -e "${WRAPPER_FUNCS}" |awk '{ printf("%03d %s\n", NR, $0); }'
 

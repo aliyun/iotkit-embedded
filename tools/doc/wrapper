@@ -121,7 +121,7 @@ HAL_GetDeviceName:
  */
 
 HAL_GetDeviceSecret:
- /**
+/**
  * @brief Get device secret from user's system persistent storage
  *
  * @param [ou] device_secret: array to store device secret, max length is IOTX_DEVICE_SECRET_LEN
@@ -129,7 +129,7 @@ HAL_GetDeviceSecret:
  */
 
 HAL_GetFirmwareVersion:
- /**
+/**
  * @brief Get firmware version
  *
  * @param [ou] version: array to store firmware version, max length is IOTX_FIRMWARE_VER_LEN
@@ -191,5 +191,131 @@ HAL_TCP_Read:
  * @retval        0 : No any data be received in 'timeout_ms' timeout period.
  * @retval (0, len] : The total number of bytes be received in 'timeout_ms' timeout period.
 
+ * @see None.
+ */
+
+wrapper_mqtt_init:
+/**
+ * @brief Init the MQTT client
+ *        This function initialize the data structures.
+ *
+ * @param [in] mqtt_params: specify the MQTT client parameter.
+ *
+ * @retval     NULL : Init failed.
+ * @retval NOT_NULL : The handle of MQTT client.
+ * @see None.
+ */
+
+wrapper_mqtt_connect:
+/**
+ * @brief Establish MQTT connection.
+ *        This function establish MQTT connection.
+ *
+ * @param [in] client: The handle of MQTT client.
+ *
+ * @retval     0 : MQTT connect seccuss.
+ * @retval   < 0 : MQTT connect failed.
+ * @see None.
+ */
+
+
+wrapper_mqtt_yield:
+/**
+ * @brief Handle MQTT packet from remote server and process timeout request
+ *        which include the MQTT subscribe, unsubscribe, publish(QOS >= 1), reconnect, etc..
+ *
+ * @param [in] client: specify the MQTT client.
+ * @param [in] timeout_ms: specify the timeout in millisecond in this loop.
+ *
+ * @return status.
+ * @see None.
+ */
+
+wrapper_mqtt_check_state:
+/**
+ * @brief check whether MQTT connection is established or not.
+ *
+ * @param [in] client: specify the MQTT client.
+ *
+ * @retval  1 : MQTT in abnormal state.
+ * @retval  0 : MQTT in normal state.
+ * @see None.
+ */
+
+wrapper_mqtt_subscribe:
+/**
+ * @brief Subscribe MQTT topic.
+ *
+ * @param [in] client: specify the MQTT client.
+ * @param [in] topic_filter: specify the topic filter.
+ * @param [in] qos: specify the MQTT Requested QoS.
+ * @param [in] topic_handle_func: specify the topic handle callback-function.
+ * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
+ *
+ * @retval -1  : Subscribe failed.
+ * @retval >=0 : Subscribe successful.
+          The value is a unique ID of this request.
+          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+
+
+wrapper_mqtt_subscribe_sync:
+/**
+ * @brief Subscribe MQTT topic and wait suback.
+ *
+ * @param [in] client: specify the MQTT client.
+ * @param [in] topic_filter: specify the topic filter.
+ * @param [in] qos: specify the MQTT Requested QoS.
+ * @param [in] topic_handle_func: specify the topic handle callback-function.
+ * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
+ * @param [in] timeout_ms: time in ms to wait.
+ *
+ * @retval -1  : Subscribe failed.
+ * @retval >=0 : Subscribe successful.
+          The value is a unique ID of this request.
+          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+
+wrapper_mqtt_unsubscribe:
+/**
+ * @brief Unsubscribe MQTT topic.
+ *
+ * @param [in] client: specify the MQTT client.
+ * @param [in] topic_filter: specify the topic filter.
+ *
+ * @retval -1  : Unsubscribe failed.
+ * @retval >=0 : Unsubscribe successful.
+          The value is a unique ID of this request.
+          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+
+wrapper_mqtt_publish:
+/**
+ * @brief Publish message to specific topic.
+ *
+ * @param [in] client: specify the MQTT client.
+ * @param [in] topic_name: specify the topic name.
+ * @param [in] topic_msg: specify the topic message.
+ *
+ * @retval -1 :  Publish failed.
+ * @retval  0 :  Publish successful, where QoS is 0.
+ * @retval >0 :  Publish successful, where QoS is >= 0.
+        The value is a unique ID of this request.
+        The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+
+wrapper_mqtt_release:
+/**
+ * @brief Release the MQTT client
+ *        This function disconnect MQTT connection and release the related resource.
+ *
+ * @param [in] pclient: pointer of handle, specify the MQTT client.
+ *
+ * @retval  0 : Release success.
+ * @retval -1 : Release failed.
  * @see None.
  */
