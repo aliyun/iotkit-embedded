@@ -53,7 +53,7 @@ gen_wrapper_c() {
 
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
-    [[ ${M_MQTT_COMM_ENABLED} ]] && echo -e "#include \"mqtt_api.h\"" >> ${WRAPPERS_DIR}/wrapper.c
+    [[ ! ${M_MQTT_DEFAULT_IMPL} ]] && echo -e "#include \"mqtt_api.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "\n" >> ${WRAPPERS_DIR}/wrapper.c
 
     # echo -e "${WRAPPER_FUNCS}" |awk '{ printf("%03d %s\n", NR, $0); }'
