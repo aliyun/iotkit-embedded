@@ -2,8 +2,8 @@
 
 #include <string.h>
 #include <stdarg.h>
+#include "infra_config.h"
 #include "infra_log.h"
-
 
 static log_client logcb = {
     .name       = "linkkit",

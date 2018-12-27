@@ -1,4 +1,5 @@
 
+#include "infra_config.h"
 #include "infra_defs.h"
 
 const char *IOTX_HTTP_DOMAIN_SHANGHAI   =  "iot-auth.cn-shanghai.aliyuncs.com";             /* Shanghai */

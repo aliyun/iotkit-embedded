@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "infra_config.h"
 #include "infra_md5.h"
 
 #define MD5_DIGEST_SIZE 16

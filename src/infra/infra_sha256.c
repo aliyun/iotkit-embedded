@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "infra_config.h"
 #include "infra_sha256.h"
 
 #define SHA256_KEY_IOPAD_SIZE  (64)

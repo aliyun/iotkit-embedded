@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "infra_config.h"
 #include "infra_types.h"
 #include "infra_json_parser.h"
 

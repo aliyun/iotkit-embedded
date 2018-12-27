@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "infra_config.h"
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_httpc.h"

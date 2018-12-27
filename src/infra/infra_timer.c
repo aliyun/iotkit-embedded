@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
+#include "infra_config.h"
 #include "infra_types.h"
 #include "infra_timer.h"
 

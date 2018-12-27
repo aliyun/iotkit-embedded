@@ -5,6 +5,7 @@
 #ifdef INFRA_NET
 #include <stdio.h>
 #include <string.h>
+#include "infra_config.h"
 #include "infra_defs.h"
 #include "infra_net.h"
 

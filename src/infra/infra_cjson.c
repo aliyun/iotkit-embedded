@@ -12,6 +12,7 @@
 #include <float.h>
 #include <ctype.h>
 
+#include "infra_config.h"
 #include "infra_cjson.h"
 
 typedef struct {
