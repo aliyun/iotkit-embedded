@@ -6,6 +6,7 @@ OUTPUT_TMPDIR=.O
 INFRA_DIR=${OUTPUT_DIR}/eng/infra
 WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
 EXAMPLES_DIR=${OUTPUT_DIR}/eng/examples
+WRAPPER_DOC=./tools/doc/wrapper
 
 gen_eng_dir() {
     rm -rf ${OUTPUT_DIR}/eng
@@ -60,6 +61,9 @@ gen_wrapper_c() {
 
         FUNC_DEC=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {} 2>/dev/null | sed -n '/.*'$func'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
         DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F'wrapper|HAL' '{print $1}' | sed s/[[:space:]]//g)
+        # echo "${func}"
+
+        sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
 
         if [ "${DATA_TYPE}" == "void" ];then
             echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrapper.c

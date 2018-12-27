@@ -1,0 +1,195 @@
+
+HAL_Malloc:
+/**
+ * @brief Allocates a block of size bytes of memory, returning a pointer to the beginning of the block.
+ *
+ * @param [in] size @n specify block size in bytes.
+ * @return A pointer to the beginning of the block.
+ * @see None.
+ * @note Block value is indeterminate.
+ */
+
+HAL_Free:
+/**
+ * @brief Deallocate memory block
+ *
+ * @param[in] ptr @n Pointer to a memory block previously allocated with platform_malloc.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_Printf:
+/**
+ * @brief Writes formatted data to stream.
+ *
+ * @param [in] fmt: @n String that contains the text to be written, it can optionally contain embedded format specifiers
+     that specifies how subsequent arguments are converted for output.
+ * @param [in] ...: @n the variable argument list, for formatted and inserted in the resulting string replacing their respective specifiers.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_Snprintf:
+/**
+ * @brief Writes formatted data to string.
+ *
+ * @param [out] str: @n String that holds written text.
+ * @param [in] len: @n Maximum length of character will be written
+ * @param [in] fmt: @n Format that contains the text to be written, it can optionally contain embedded format specifiers
+     that specifies how subsequent arguments are converted for output.
+ * @param [in] ...: @n the variable argument list, for formatted and inserted in the resulting string replacing their respective specifiers.
+ * @return bytes of character successfully written into string.
+ * @see None.
+ * @note None.
+ */
+
+HAL_SleepMs:
+/**
+ * @brief Sleep thread itself.
+ *
+ * @param [in] ms @n the time interval for which execution is to be suspended, in milliseconds.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_UptimeMs:
+/**
+ * @brief Retrieves the number of milliseconds that have elapsed since the system was boot.
+ *
+ * @return the number of milliseconds.
+ * @see None.
+ * @note None.
+ */
+
+HAL_MutexCreate:
+/**
+ * @brief Create a mutex.
+ *
+ * @retval NULL : Initialize mutex failed.
+ * @retval NOT_NULL : The mutex handle.
+ * @see None.
+ * @note None.
+ */
+
+HAL_MutexDestroy:
+/**
+ * @brief Destroy the specified mutex object, it will release related resource.
+ *
+ * @param [in] mutex @n The specified mutex.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_MutexLock:
+/**
+ * @brief Waits until the specified mutex is in the signaled state.
+ *
+ * @param [in] mutex @n the specified mutex.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_MutexUnlock:
+/**
+ * @brief Releases ownership of the specified mutex object..
+ *
+ * @param [in] mutex @n the specified mutex.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_GetProductKey:
+/**
+ * @brief Get product key from user's system persistent storage
+ *
+ * @param [ou] product_key: array to store product key, max length is IOTX_PRODUCT_KEY_LEN
+ * @return  the actual length of product key
+ */
+
+HAL_GetDeviceName:
+/**
+ * @brief Get device name from user's system persistent storage
+ *
+ * @param [ou] device_name: array to store device name, max length is IOTX_DEVICE_NAME_LEN
+ * @return the actual length of device name
+ */
+
+HAL_GetDeviceSecret:
+ /**
+ * @brief Get device secret from user's system persistent storage
+ *
+ * @param [ou] device_secret: array to store device secret, max length is IOTX_DEVICE_SECRET_LEN
+ * @return the actual length of device secret
+ */
+
+HAL_GetFirmwareVersion:
+ /**
+ * @brief Get firmware version
+ *
+ * @param [ou] version: array to store firmware version, max length is IOTX_FIRMWARE_VER_LEN
+ * @return the actual length of firmware version
+ */
+
+HAL_TCP_Establish:
+/**
+ * @brief Establish a TCP connection.
+ *
+ * @param [in] host: @n Specify the hostname(IP) of the TCP server
+ * @param [in] port: @n Specify the TCP port of TCP server
+ *
+ * @return The handle of TCP connection.
+   @retval   0 : Fail.
+   @retval > 0 : Success, the value is handle of this TCP connection.
+ */
+
+HAL_TCP_Destroy:
+/**
+ * @brief Destroy the specific TCP connection.
+ *
+ * @param [in] fd: @n Specify the TCP connection by handle.
+ *
+ * @return The result of destroy TCP connection.
+ * @retval < 0 : Fail.
+ * @retval   0 : Success.
+ */
+
+HAL_TCP_Write:
+/**
+ * @brief Write data into the specific TCP connection.
+ *        The API will return immediately if 'len' be written into the specific TCP connection.
+ *
+ * @param [in] fd @n A descriptor identifying a connection.
+ * @param [in] buf @n A pointer to a buffer containing the data to be transmitted.
+ * @param [in] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+ * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+ *
+ * @retval      < 0 : TCP connection error occur..
+ * @retval        0 : No any data be write into the TCP connection in 'timeout_ms' timeout period.
+ * @retval (0, len] : The total number of bytes be written in 'timeout_ms' timeout period.
+
+ * @see None.
+ */
+
+HAL_TCP_Read:
+/**
+ * @brief Read data from the specific TCP connection with timeout parameter.
+ *        The API will return immediately if 'len' be received from the specific TCP connection.
+ *
+ * @param [in] fd @n A descriptor identifying a TCP connection.
+ * @param [out] buf @n A pointer to a buffer to receive incoming data.
+ * @param [out] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+ * @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+ *
+ * @retval       -2 : TCP connection error occur.
+ * @retval       -1 : TCP connection be closed by remote server.
+ * @retval        0 : No any data be received in 'timeout_ms' timeout period.
+ * @retval (0, len] : The total number of bytes be received in 'timeout_ms' timeout period.
+
+ * @see None.
+ */
