@@ -104,6 +104,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
         signout->port = SIGN_MQTT_PORT;
 
+        if (signsource) {DEV_SIGN_MQTT_FREE(signsource);}
         return 0;
     }while(0);
     
