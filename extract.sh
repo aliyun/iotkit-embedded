@@ -42,8 +42,12 @@ gen_infra_module() {
 }
 
 gen_wrapper_c() {
+    M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
+
     WRAPPER_FUNCS=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "HAL_.*(" {} | sed 's/(//g' | sort -u)"\n"
     WRAPPER_FUNCS+=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "wrapper_.*(" {} | sed 's/(//g' | sort -u)
+
+    [[ ${M_MQTT_DEFAULT_IMPL} ]] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/wrapper_mqtt/!{p}')
 
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "#include \"infra_defs.h\"\n" >> ${WRAPPERS_DIR}/wrapper.c
@@ -145,4 +149,4 @@ gen_infra_module "${MACRO_LIST}"
 gen_dev_sign_module "${MACRO_LIST}"
 gen_mqtt_module "${MACRO_LIST}"
 gen_sal_module "${MACRO_LIST}"
-gen_wrapper_c
+gen_wrapper_c "${MACRO_LIST}"
