@@ -128,8 +128,12 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
         // char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/property/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}";
         // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/get/?i=898789&c=b&a=y&c=n"; char *payload = "{\"params\":[\"test\", \"alink\"]}";
         // char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/event/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}";
-        char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/service/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"serviceId\":\"ACControl\",\"params\":{\"Action\":\"On\",\"FandSpeed\":123}}";
+        // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/service/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"serviceId\":\"ACControl\",\"params\":{\"Action\":\"On\",\"FandSpeed\":123}}";
 
+        // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=898789&c=b&a=y&c=n"; char *payload = "\x01\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7;
+        // char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/raw/post/?i=898789&c=b&a=y&c=n"; char *payload = "\x00\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7;
+
+        char *topic = "/a1OFrRjV8nz/develop_01/req/sys/gw/permit/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"productKey\":\"1234abcd\", \"timeoutSec\":60}";
 
         uint32_t topic_len = strlen(topic);
         uint32_t payload_len = strlen(payload);
@@ -159,7 +163,7 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
 
     res = IOT_Sign_MQTT(p_mqtt_ctx->region, p_mqtt_ctx->dev_info, &sign_mqtt);
 
-    if (res == FAIL_RETURN) {
+    if (res < SUCCESS_RETURN) {
         alink_err("sign fail");
         return res;
     }
@@ -202,9 +206,8 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
 static int _mqtt_close(alink_bearer_node_t *p_bearer_ctx)
 {
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
-
-    p_bearer_ctx->p_handle = NULL;
     // TODO, update state
+
     IOT_MQTT_Destroy(&p_bearer_ctx->p_handle);
     return SUCCESS_RETURN;
 }
@@ -270,7 +273,7 @@ static int _mqtt_publish(alink_bearer_node_t *p_bearer_ctx, const char *topic, c
 
     res = IOT_MQTT_Publish_Simple(p_bearer_ctx->p_handle, topic, qos, (void *)payload, payload_len);
 
-    if (res == FAIL_RETURN) {
+    if (res < SUCCESS_RETURN) {
         alink_err("mqtt pub fail");
     }
     else {

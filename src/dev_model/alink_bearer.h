@@ -6,8 +6,7 @@
 #define __ALINK_BEARER_H__
 
 #include "iotx_alink_internal.h"
-#include "infra_list.h"     // TODO
-#include "infra_defs.h"     // TODO
+#include "alink_wrapper.h"
 
 
 typedef enum {
@@ -76,18 +75,11 @@ struct _alink_bearer_node {
 };
 
 
-
-
 alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t bearer_type, iotx_dev_meta_info_t *dev_info);
 int alink_bearer_conect(void);
 int alink_bearer_yield(uint32_t timeout_ms);
-
-
 int alink_bearer_send(uint8_t link_id, char *uri, uint8_t *payload, uint32_t len);
-
-
-// TODO
 int alink_bearer_register(void *handle, const char *uri, alink_bearer_rx_cb_t cb);
-
+void alink_bearer_close(void);
 
 #endif /* #ifndef __ALINK_BEARER_H__ */

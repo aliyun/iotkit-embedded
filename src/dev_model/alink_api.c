@@ -50,7 +50,7 @@ int IOT_Linkkit_Connect(int devid)
         res = alink_core_connect_cloud();
     } else {
 #ifdef DEVICE_MODEL_GATEWAY
-        res = alink_core_subdev_connect_cloud(devid);
+        res = alink_subdev_connect_cloud(devid);
 #else
         res = IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif
@@ -78,7 +78,7 @@ int IOT_Linkkit_Close(int devid)
     int res = FAIL_RETURN;
 
     if (devid == IOTX_LINKKIT_DEV_TYPE_MASTER) {
-        ;       // TODO
+        res = alink_core_close();
     } 
     else {
 #ifdef DEVICE_MODEL_GATEWAY

@@ -85,7 +85,7 @@ int utils_uri_hash_init(const alink_uri_handle_pair_t *uri_handle_pair, uint8_t 
 
     for (i = 0; i < pair_num; i++) {
         res = _uri_hash_insert(&uri_handle_pair[i], table);
-        if (res == FAIL_RETURN) {
+        if (res < SUCCESS_RETURN) {
             return res;
         }
     }
@@ -142,8 +142,6 @@ void utils_uri_hash_destroy(uri_hash_table_t *table)
         }
     }
 }
-
-
 
 char *alink_utils_strdup(const char *string, uint32_t string_len)
 {

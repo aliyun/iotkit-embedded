@@ -11,6 +11,7 @@
 
 #include "alink_format.h"
 #include "alink_core.h"
+#include "alink_subdev.h"
 #include "alink_bearer.h"
 #include "alink_bearer_mqtt.h"
 #include "alink_upstream.h"

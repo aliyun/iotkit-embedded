@@ -259,6 +259,9 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
     if (query->ack == '\0') {
         query->ack = 'y';
     }
+    if (query->format == '\0') {
+        query->format = 'j';
+    }
 
     return 0;
 }

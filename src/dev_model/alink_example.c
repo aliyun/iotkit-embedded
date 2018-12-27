@@ -8,6 +8,8 @@ extern char _product_key[IOTX_PRODUCT_KEY_LEN + 1];
 extern char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
 extern char _device_name[IOTX_DEVICE_NAME_LEN + 1];
 extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
+
+
 #define EXAMPLE_TRACE(...)                               \
     do {                                                     \
         HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);  \
@@ -116,8 +118,40 @@ static int user_down_raw_data_arrived_event_handler(const int devid, const unsig
         const int payload_len)
 {
     EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
+
+    for (uint32_t i = 0; i<payload_len; i++) {
+        printf("0x%02x ", payload[i]);
+    }
+    printf("\r\n");
+
+
     return 0;
 }
+
+
+
+
+
+
+
+
+
+/** permit join **/
+int user_permit_join_event_handler(const char *product_key, const int time)
+{
+    //user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    EXAMPLE_TRACE("Product Key: %s, Time: %d", product_key, time);
+
+    //user_example_ctx->permit_join = 1;
+
+    return 0;
+}
+
+
+
+
+
 
 
 
@@ -161,6 +195,9 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);    
 
 
+    IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
+
+
     /* Create Master Device Resources */
     user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
     if (user_example_ctx->master_devid < 0) {
@@ -168,49 +205,48 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    
-
     IOT_Linkkit_Connect(0);
 
-
-    //IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)"{\"switch\": 1}", strlen("{\"switch\": 1}"));
-
-    IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)PROP_ALINK1_TEST, strlen(PROP_ALINK1_TEST));
-
-
+    uint32_t cnt = 0;
     while (1) {
         IOT_Linkkit_Yield(200);
 
         HAL_SleepMs(2000);
 
-        /* test */
-        alink_downstream_invoke_mock("rsp/sys/dt/property/post");
-        alink_downstream_invoke_mock("req/sys/thing/property/post");
+        #if (0)
+        alink_downstream_invoke_mock("rsp/sys/thing/property/post");
+        alink_downstream_invoke_mock("req/sys/thing/property/put");
         alink_downstream_invoke_mock("req/sys/thing/property/get");
-        alink_downstream_invoke_mock("rsp/sys/dt/event/post");
-        alink_downstream_invoke_mock("req/sys/thing/service/post");
-        alink_downstream_invoke_mock("rsp/sys/dt/raw/post");
-        alink_downstream_invoke_mock("req/sys/thing/raw/post");
-        alink_downstream_invoke_mock("rsp/sys/subdev/register/post");
-        alink_downstream_invoke_mock("rsp/sys/subdev/register/delete");
-        alink_downstream_invoke_mock("rsp/sys/dt/topo/post");
-        alink_downstream_invoke_mock("rsp/sys/dt/topo/delete");
-        alink_downstream_invoke_mock("rsp/sys/dt/topo/get");
-        alink_downstream_invoke_mock("req/sys/subdev/topo/post");
-        alink_downstream_invoke_mock("rsp/sys/subdev/login/post");
-        alink_downstream_invoke_mock("rsp/sys/subdev/logout/post");
-        alink_downstream_invoke_mock("rsp/sys/dt/list/post");
-        alink_downstream_invoke_mock("req/sys/subdev/permit/post");
-        alink_downstream_invoke_mock("req/sys/subdev/config/post");
-        alink_downstream_invoke_mock("rsp/sys/dt/deviceinfo/post");
-        alink_downstream_invoke_mock("rsp/sys/dt/deviceinfo/get");
-        alink_downstream_invoke_mock("rsp/sys/dt/deviceinfo/delete");
+        alink_downstream_invoke_mock("rsp/sys/thing/event/post");
+        alink_downstream_invoke_mock("req/sys/thing/service/put");
+        alink_downstream_invoke_mock("rsp/sys/thing/raw/post");
+        alink_downstream_invoke_mock("req/sys/thing/raw/put");
+        alink_downstream_invoke_mock("rsp/sys/sub/register/post");
+        alink_downstream_invoke_mock("rsp/sys/sub/register/delete");
+        alink_downstream_invoke_mock("rsp/sys/sub/login/post");
+        alink_downstream_invoke_mock("rsp/sys/sub/login/delete");
+        alink_downstream_invoke_mock("rsp/sys/thing/topo/post");
+        alink_downstream_invoke_mock("rsp/sys/thing/topo/delete");
+        alink_downstream_invoke_mock("rsp/sys/thing/topo/get");
+        alink_downstream_invoke_mock("rsp/sys/sub/list/post");
+        alink_downstream_invoke_mock("rsp/sys/sub/list/put");
+        alink_downstream_invoke_mock("req/sys/gw/permit/put");
+        alink_downstream_invoke_mock("req/sys/gw/config/put");
+        alink_downstream_invoke_mock("rsp/sys/thing/devinfo/post");
+        alink_downstream_invoke_mock("rsp/sys/thing/devinfo/get");
+        alink_downstream_invoke_mock("rsp/sys/thing/devinfo/delete");
+        #endif
 
         IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)PROP_ALINK1_TEST, strlen(PROP_ALINK1_TEST));
 
         IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
-    }
 
+
+        if (++cnt > 10) {
+            IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
+            break;
+        }
+    }
 
     printf("alink stop\r\n");
 }

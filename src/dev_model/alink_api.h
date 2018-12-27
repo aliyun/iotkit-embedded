@@ -122,7 +122,7 @@ typedef int (*linkkit_timestamp_reply_cb_t)();
 
 typedef int (*linkkit_topo_list_reply_cb_t)();
 
-typedef int (*linkkit_permit_join_cb_t)();
+typedef int (*linkkit_permit_join_cb_t)(const char *productKey, const int timeout);
 
 typedef int (*linkkit_inited_cb_t)();
 

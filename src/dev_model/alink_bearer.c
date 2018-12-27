@@ -31,7 +31,7 @@ alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t protocol_type, iotx_d
     if (protocol_type == ALINK_BEARER_MQTT) {
         //alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt;
 
-        p_alink_bearer_mqtt = HAL_Malloc(sizeof(alink_bearer_mqtt_ctx_t));
+        p_alink_bearer_mqtt = alink_malloc(sizeof(alink_bearer_mqtt_ctx_t));
         if (NULL == p_alink_bearer_mqtt) {
             alink_info("bearer malloc fail");
             return NULL;
@@ -45,7 +45,7 @@ alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t protocol_type, iotx_d
 
         return &p_alink_bearer_mqtt->bearer;
     }
-    else if (protocol_type == ALINK_BEARER_MQTT) {
+    else if (protocol_type == ALINK_BEARER_COAP) {
         return NULL;
     }
     else {
@@ -60,26 +60,12 @@ int alink_bearer_conect(void)
         return FAIL_RETURN;
     }
     alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
-
-    alink_info("bearer connect");
-
     return bearer.p_api.bearer_connect(&p_alink_bearer_mqtt->bearer, 20000);
 }
-
 
 void alink_bearer_rx_handle(alink_bearer_node_t *p_bearer_ctx, const char *uri, const char *payload, uint32_t payload_len)
 {
     (void)p_bearer_ctx;
-
-    
-
-
-
-
-
-
-
-
 }
 
 /**
@@ -88,9 +74,6 @@ void alink_bearer_rx_handle(alink_bearer_node_t *p_bearer_ctx, const char *uri, 
 int alink_bearer_register(void *handle, const char *uri, alink_bearer_rx_cb_t cb)
 {
     alink_bearer_node_t *bearer = handle;
-
-
-
     return bearer->p_api.bearer_sub(bearer, uri, cb, 0, 0);
 }
 
@@ -116,25 +99,16 @@ int alink_bearer_send(uint8_t link_id, char *uri, uint8_t *payload, uint32_t len
 int alink_bearer_yield(uint32_t timeout_ms)
 {
     alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
-
     return bearer.p_api.bearer_yield(&p_alink_bearer_mqtt->bearer, timeout_ms);
 }
 
 /**
  * 
  */
-int alink_bearer_send_proto(uint8_t protocal, char *uri, uint8_t *payload, uint32_t len)
+void alink_bearer_close(void)
 {
-    return 1;
-}
+    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
+    bearer.p_api.bearer_close(&p_alink_bearer_mqtt->bearer);
 
-
-int alink_bearer_disconnect(void)
-{
-    return 0;
-}
-
-int alink_bearer_close(void)
-{
-    return 0;
+    alink_free(p_alink_bearer_mqtt);
 }
