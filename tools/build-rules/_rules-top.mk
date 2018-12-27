@@ -191,21 +191,24 @@ distclean:
 	    fi \
 	fi
 
+ifeq ($(shell uname),Darwin)
+KCONFIG_MCONF := tools/prebuilt/macos/kconfig-frontends-mac/kconfig-mconf
+else
+KCONFIG_MCONF := tools/prebuilt/ubuntu/bin/kconfig-mconf
+endif
 
 COMMON_CONFIG_ENV = \
     KCONFIG_CONFIG=mconf.config \
     KCONFIG_AUTOCONFIG=$(OUTPUT_DIR)/auto.conf \
     KCONFIG_AUTOHEADER=$(OUTPUT_DIR)/autoconf.h \
+	CONFIG_=FEATURE_ \
 
-menuconfig: tools/prebuilt/ubuntu/bin/kconfig-mconf
+menuconfig: $(KCONFIG_MCONF)
 	$(TOP_Q)$(COMMON_CONFIG_ENV) $^ -s $(TOP_DIR)/tools/Config.in $(if $(TOP_Q),2>/dev/null)
 	$(TOP_Q) \
 ( \
     if [ ! -f mconf.config ]; then exit 0; fi; \
     \
-    sed -i 's:^CONFIG_:FEATURE_:g' mconf.config; \
-	sed -i 's:^# CONFIG_:# FEATURE_:g' mconf.config; \
 	cp -Lf mconf.config make.settings; \
 	rm -f mconf.config*; \
 )
-
