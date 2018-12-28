@@ -11,7 +11,7 @@ CONFIG_LIB_EXPORT       ?= static
 # Default CFLAGS setting
 #
 CFLAGS  += -ansi
-CFLAGS  += -pedantic
+#CFLAGS  += -pedantic
 CFLAGS  += -DFORCE_SSL_VERIFY
 
 # Default INCLUDE list
