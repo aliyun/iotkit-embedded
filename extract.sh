@@ -88,19 +88,19 @@ gen_wrapper_c() {
 
 gen_dev_sign() {
     M_DEV_SIGN=$(echo "${1}" | grep -w 'DEV_SIGN')
-
     [[ ! ${M_DEV_SIGN} ]] && return
 
-    DEV_SIGN_DIR=${OUTPUT_DIR}/eng/dev_sign
-    mkdir -p ${DEV_SIGN_DIR}
     echo "extract dev_sign module..."
     echo -e "${M_DEV_SIGN}\n"
 
     SRC_DEV_SIGN=$([[ ${M_DEV_SIGN} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname ${M_DEV_SIGN} -type d)
-    if [ ${SRC_DEV_SIGN} ];then
-        find ${SRC_DEV_SIGN} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${DEV_SIGN_DIR}
-        find ${SRC_DEV_SIGN} -maxdepth 1 -name *example*.c | xargs -i cp -f {} ${EXAMPLES_DIR}
-    fi
+    [[ ! ${SRC_DEV_SIGN} ]] &&return
+
+    DEV_SIGN_DIR=$(echo "${SRC_DEV_SIGN}" | sed -n 's/.*\///p' | sed -n 's/^/'${OUTPUT_DIR}'\/eng\//p')
+    mkdir -p ${DEV_SIGN_DIR}
+
+    find ${SRC_DEV_SIGN} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${DEV_SIGN_DIR}
+    find ${SRC_DEV_SIGN} -maxdepth 1 -name *example*.c | xargs -i cp -f {} ${EXAMPLES_DIR}
 }
 
 gen_dynreg() {
@@ -129,24 +129,27 @@ gen_mqtt() {
 
     [[ ! ${M_MQTT_COMM_ENABLED} ]] && return
 
-    MQTT_DIR=${OUTPUT_DIR}/eng/mqtt
-    mkdir -p ${MQTT_DIR}
     echo "extract mqtt module..."
     echo -e "$(echo "${1}" | grep -E 'MQTT|MAL')\n"
 
+    # extract src/mqtt
     SRC_MQTT_SIGN=$([[ ${M_MQTT_COMM_ENABLED} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mqtt" -type d)
-    if [ ${SRC_MQTT_SIGN} ];then
-        find ${SRC_MQTT_SIGN} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${MQTT_DIR}
-        [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -name mqtt_impl -type d | xargs -i cp -rf {} ${MQTT_DIR}
-        [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -maxdepth 1 -name *example.c | xargs -i cp -f {} ${EXAMPLES_DIR}
-    fi
+    [[ !${SRC_MQTT_SIGN} ]] && return
 
+    mkdir -p ${OUTPUT_DIR}/eng/mqtt
+
+    find ${SRC_MQTT_SIGN} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${OUTPUT_DIR}/eng/mqtt
+    [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -name mqtt_impl -type d | xargs -i cp -rf {} ${OUTPUT_DIR}/eng/mqtt
+    [[ ${M_MQTT_DEFAULT_IMPL} ]] && find ${SRC_MQTT_SIGN} -maxdepth 1 -name *example.c | xargs -i cp -f {} ${EXAMPLES_DIR}
+
+    # extract wrappers/mqtt/mal
     SRC_MAL_WRAPPER=$([[ ${M_MAL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mal" -type d)
-    if [ ${SRC_MAL_WRAPPER} ];then
-        mkdir -p ${WRAPPERS_DIR}/mqtt/mal
-        find ${SRC_MAL_WRAPPER} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${WRAPPERS_DIR}/mqtt/mal
-        [[ ${M_MAL_ICA_ENABLED} ]] && find ${SRC_MAL_WRAPPER} -name ica -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/mqtt/mal
-    fi
+    [[ !${SRC_MAL_WRAPPER} ]] && return
+
+    mkdir -p ${WRAPPERS_DIR}/mqtt/mal
+
+    find ${SRC_MAL_WRAPPER} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${WRAPPERS_DIR}/mqtt/mal
+    [[ ${M_MAL_ICA_ENABLED} ]] && find ${SRC_MAL_WRAPPER} -name ica -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/mqtt/mal
 }
 
 gen_sal() {
@@ -158,17 +161,20 @@ gen_sal() {
     echo "extract sal module..."
     echo -e "$(echo "${1}" | grep -E 'SAL')\n"
 
+    # extract wrappers/sal and wrappers/at
     SRC_SAL=$([[ ${M_SAL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "sal" -type d)
-    if [ ${SRC_SAL} ];then
-        mkdir -p ${WRAPPERS_DIR}/sal/
-        find ${SRC_SAL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${WRAPPERS_DIR}/sal/
-        find ${SRC_SAL} -name src -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
-        find ${SRC_SAL} -name include -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+    [[ ! ${SRC_SAL} ]] && return
 
-        SRC_SAL_AT=$([[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d)
-        [[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
-        [[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ${SRC_SAL_AT} -name at -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}
-    fi
+    mkdir -p ${WRAPPERS_DIR}/sal/
+
+    find ${SRC_SAL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${WRAPPERS_DIR}/sal/
+    find ${SRC_SAL} -name src -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+    find ${SRC_SAL} -name include -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+
+    [[ ! ${M_SAL_HAL_IMPL_ENABLED} ]] && return
+
+    find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+    find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}
 }
 
 # Generate Directory
