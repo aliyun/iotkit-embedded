@@ -187,7 +187,7 @@ int alink_utils_json_object_item(lite_cjson_t *lite, const char *key, uint32_t k
 {
     int res = 0;
 
-    // TODO
+    /* TODO */
     if (lite == NULL || lite->type != cJSON_Object || key == NULL || key_len == 0 || type == cJSON_Invalid || lite_item == NULL) {
         return IOTX_CODE_PARAMS_INVALID;
     }

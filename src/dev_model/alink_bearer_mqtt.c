@@ -122,16 +122,16 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
         #ifdef TEST_MOCK
         (void)topic_info;
 
-        // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/post/?i=898789&c=b&r=400&a=y&c=n";
-        // char *topic = "/gw_pk/gw_dn/req/proxy/a1OFrRjV8nz/develop_01/sys/thing/property/post/?i=898789&c=b&a=y&r=400&c=n";
-        // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"test\": 12344}";
-        // char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/property/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}";
-        // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/get/?i=898789&c=b&a=y&c=n"; char *payload = "{\"params\":[\"test\", \"alink\"]}";
-        // char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/event/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}";
-        // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/service/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"serviceId\":\"ACControl\",\"params\":{\"Action\":\"On\",\"FandSpeed\":123}}";
+        /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/post/?i=898789&c=b&r=400&a=y&c=n"; */
+        /* char *topic = "/gw_pk/gw_dn/req/proxy/a1OFrRjV8nz/develop_01/sys/thing/property/post/?i=898789&c=b&a=y&r=400&c=n"; */
+        /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"test\": 12344}"; */
+        /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/property/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}"; */
+        /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/get/?i=898789&c=b&a=y&c=n"; char *payload = "{\"params\":[\"test\", \"alink\"]}"; */
+        /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/event/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}"; */
+        /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/service/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"serviceId\":\"ACControl\",\"params\":{\"Action\":\"On\",\"FandSpeed\":123}}"; */
 
-        // char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=898789&c=b&a=y&c=n"; char *payload = "\x01\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7;
-        // char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/raw/post/?i=898789&c=b&a=y&c=n"; char *payload = "\x00\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7;
+        /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=898789&c=b&a=y&c=n"; char *payload = "\x01\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
+        /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/raw/post/?i=898789&c=b&a=y&c=n"; char *payload = "\x00\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
 
         char *topic = "/a1OFrRjV8nz/develop_01/req/sys/gw/permit/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"productKey\":\"1234abcd\", \"timeoutSec\":60}";
 
@@ -140,7 +140,7 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
 
         topic_handle_func(NULL, topic, topic_len, payload, payload_len);
         #else
-        topic_handle_func(NULL, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len);    // TODO
+        topic_handle_func(NULL, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len);    /* TODO */
         #endif
     }
 }
@@ -150,7 +150,7 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
 
     alink_bearer_mqtt_ctx_t *p_mqtt_ctx;
-    (void)timeout;      // TODO
+    (void)timeout;      /* TODO */
 
     int res = FAIL_RETURN;
     iotx_sign_mqtt_t sign_mqtt;
@@ -176,8 +176,8 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
     params_mqtt.keepalive_interval_ms = ALINK_BEARER_MQTT_KEEPALIVE_INTERVAL_MS;
     params_mqtt.read_buf_size = ALINK_BEARER_MQTT_RX_MAXLEN;
     params_mqtt.write_buf_size = ALINK_BEARER_MQTT_TX_MAXLEN;
-    params_mqtt.handle_event.pcontext = p_bearer_ctx;                               // TODO
-    params_mqtt.handle_event.h_fp = alink_bearer_mqtt_general_event_handle;         // TODO
+    params_mqtt.handle_event.pcontext = p_bearer_ctx;                               /* TODO */
+    params_mqtt.handle_event.h_fp = alink_bearer_mqtt_general_event_handle;         /* TODO */
 
     p_bearer_ctx->p_handle = IOT_MQTT_Construct(&params_mqtt);
     if (p_bearer_ctx->p_handle == NULL) {
@@ -194,7 +194,7 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
     HAL_Free(sign_mqtt.password);
     HAL_Free(sign_mqtt.clientid);
 
-    // TODO connection event
+    /* TODO connection event */
     
     return res;
 }
@@ -202,7 +202,7 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
 static int _mqtt_close(alink_bearer_node_t *p_bearer_ctx)
 {
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
-    // TODO, update state
+    /* TODO, update state */
 
     IOT_MQTT_Destroy(&p_bearer_ctx->p_handle);
     return SUCCESS_RETURN;

@@ -119,7 +119,7 @@ const char *alink_msg_uri_short_alias[] = {
  **********************************/
 int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const char *uri_query, char **p_uri)
 {
-    //int res = FAIL_RETURN;
+    /* int res = FAIL_RETURN; */
     uint16_t len;
 
     const char *uri_dist = alink_uri_dist[(c_alink_uri_string_map[index].dist_act >> 4)];
@@ -202,13 +202,13 @@ int alink_format_assemble_query(alink_uri_query_t *query, char *query_string)
     return SUCCESS_RETURN;
 }
 
-// TODO: not good enough!!!
+/*  TODO: not good enough!!! */
 int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_query_t *query)
 {
     const char *p = uri + *uri_len;
     uint8_t len = 0;
     uint8_t i = 0;
-    char temp[30] = {0};        // TODO, malloc
+    char temp[30] = {0};        /* TODO, malloc */
 
     while (--p != uri) {
         len++;
@@ -220,11 +220,11 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
         }
     }
     
-    if (len >= 30) {      // TODO
+    if (len >= 30) {      /* TODO */
         return FAIL_RETURN;
     }
 
-    *uri_len -= (len+1);    // query_len not include '/'
+    *uri_len -= (len+1);    /* query_len not include '/' */
 
     memcpy(temp, p, len);
     alink_info("query = %s", temp);
@@ -249,13 +249,13 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
             } break;
             case 'r': {
                 i += 2;
-                query->code = atoi(&temp[i]);     // tood, atoi() used!!!
+                query->code = atoi(&temp[i]);     /* tood, atoi() used!!! */
             }
             default: continue;
         }
     }
 
-    // set default value if absence
+    /* set default value if absence */
     if (query->ack == '\0') {
         query->ack = 'y';
     }

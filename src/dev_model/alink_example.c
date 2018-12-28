@@ -91,7 +91,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
     *response = rsp;
     *response_len = len;
 
-    //return SUCCESS_RETURN;
+    /* return SUCCESS_RETURN; */
     return FAIL_RETURN;
 }
 
@@ -142,11 +142,11 @@ static int user_down_raw_data_arrived_event_handler(const int devid, const unsig
 /** permit join **/
 int user_permit_join_event_handler(const char *product_key, const int time)
 {
-    //user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+    /* user_example_ctx_t *user_example_ctx = user_example_get_ctx(); */
 
     EXAMPLE_TRACE("Product Key: %s, Time: %d", product_key, time);
 
-    //user_example_ctx->permit_join = 1;
+    /* user_example_ctx->permit_join = 1; */
 
     return 0;
 }

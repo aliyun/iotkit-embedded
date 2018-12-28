@@ -19,7 +19,7 @@
 #include "alink_wrapper.h"
 #include "alink_utils.h"
 
-#include "alink_api.h"        // TODO
+#include "alink_api.h"        /* TODO */
 
 
 #define ALINK_DEVICE_SELF_ID        (0)
@@ -70,7 +70,7 @@ linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);
 
 #define UTILS_HASH_TABLE_ITERATOR_ENABLE        (1) 
 #define ALINK_DEBUG                             (1)
-#define TEST_MOCK       // TODO
+#define TEST_MOCK       /* TODO */
 
 #if ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \
@@ -137,15 +137,15 @@ typedef enum {
     IOTX_DM_EVENT_EVENT_SPECIFIC_POST_REPLY,
     IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY,
     IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY,
-    IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,        // DEPRE
+    IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY,        /* DEPRE */
     IOTX_DM_EVENT_COMBINE_LOGIN_REPLY,
     IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY,
     IOTX_DM_EVENT_MODEL_UP_RAW_REPLY,
-    IOTX_DM_EVENT_LEGACY_THING_CREATED,         // DEPRE
+    IOTX_DM_EVENT_LEGACY_THING_CREATED,         /* DEPRE */
     IOTX_DM_EVENT_COTA_NEW_CONFIG,
     IOTX_DM_EVENT_FOTA_NEW_FIRMWARE,
     IOTX_DM_EVENT_NTP_RESPONSE,
-    IOTX_DM_EVENT_RRPC_REQUEST,                 // DEPRE
+    IOTX_DM_EVENT_RRPC_REQUEST,                 /* DEPRE */
     IOTX_DM_EVENT_MAX
 } iotx_dm_event_types_t;
 

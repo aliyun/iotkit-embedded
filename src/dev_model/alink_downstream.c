@@ -114,7 +114,7 @@ alink_downstream_handle_func_t alink_downstream_get_handle_func(const char *uri_
     return search_node->pair->handle_func;
 }
 
-// TODO
+/*  TODO */
 int alink_downstream_invoke_mock(const char *uri_string)
 {
     alink_downstream_handle_func_t p_handle_func;
@@ -176,7 +176,7 @@ static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char 
 static void alink_downstream_thing_property_set_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     alink_info("property set req recv");
-    // TODO: parameter check???
+    /* TODO: parameter check??? */
 
     int res = FAIL_RETURN;
     
@@ -315,7 +315,7 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
 static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     alink_info("raw data recv");
-    // TODO: parameter check???
+    /* TODO: parameter check??? */
     
 #if (CONFIG_SDK_THREAD_COST == 0)
     /* just invoke the user callback funciton */
@@ -350,17 +350,17 @@ static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const ch
 
 static void alink_downstream_subdev_topo_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    // not implement now
+    /* not implement now */
 }
 
 static void alink_downstream_subdev_topo_delete_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    // not implement now
+    /* not implement now */
 }
 
 static void alink_downstream_subdev_topo_get_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    // not implement now
+    /* not implement now */
 }
 
 

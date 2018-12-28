@@ -23,7 +23,7 @@ typedef struct {
 
 
 
-// TODO, add query params!!!
+/*  TODO, add query params!!! */
 static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn, const uint8_t *payload, uint32_t len, 
                                             alink_uri_query_t *query)
 {
@@ -118,7 +118,7 @@ static int _alink_upstream_thing_status_code_rsp(alink_msg_uri_index_t idx, cons
     return _alink_upstream_send_request_msg(idx, pk, dn, (uint8_t *)payload, strlen(payload), query);
 }
 
-int alink_upstream_thing_property_set_rsp(const char *pk, const char *dn, uint32_t code, alink_uri_query_t *query)      // TODO
+int alink_upstream_thing_property_set_rsp(const char *pk, const char *dn, uint32_t code, alink_uri_query_t *query)      /* TODO */
 {
     return _alink_upstream_thing_status_code_rsp(ALINK_URI_UP_RSP_PROPERTY_PUT, pk, dn, code, query);
 }

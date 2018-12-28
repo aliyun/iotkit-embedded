@@ -17,23 +17,23 @@ typedef enum {
 } alink_bearer_type_t;
 
 
-// #ifndef ALINK_BEARER_MQTT
-// #define ALINK_BEARER_MQTT   (0)
-// #endif
+/*  #ifndef ALINK_BEARER_MQTT */
+/*  #define ALINK_BEARER_MQTT   (0) */
+/*  #endif */
 
-// #ifndef ALINK_BEARER_COAP
-// #define ALINK_BEARER_COAP   (0)
-// #endif
+/*  #ifndef ALINK_BEARER_COAP */
+/*  #define ALINK_BEARER_COAP   (0) */
+/*  #endif */
 
-// #ifndef ALINK_BEARER_HTTP
-// #define ALINK_BEARER_HTTP   (0)
-// #endif
+/*  #ifndef ALINK_BEARER_HTTP */
+/*  #define ALINK_BEARER_HTTP   (0) */
+/*  #endif */
 
-// #ifndef ALINK_BEARER_HTTP2
-// #define ALINK_BEARER_HTTP2  (0)
-// #endif
+/*  #ifndef ALINK_BEARER_HTTP2 */
+/*  #define ALINK_BEARER_HTTP2  (0) */
+/*  #endif */
 
-// #define ALINK_SUPPORT_BEARER_ALL    (ALINK_BEARER_MQTT | ALINK_BEARER_COAP | ALINK_BEARER_HTTP | ALINK_BEARER_HTTP2)
+/*  #define ALINK_SUPPORT_BEARER_ALL    (ALINK_BEARER_MQTT | ALINK_BEARER_COAP | ALINK_BEARER_HTTP | ALINK_BEARER_HTTP2) */
 
 
 typedef struct _alink_bearer_node alink_bearer_node_t;
@@ -70,7 +70,7 @@ struct _alink_bearer_node {
     list_head_t                 bearer_node;
     alink_bearer_type_t         type;
     alink_bearer_api_t          p_api;
-    alink_bearer_callback_t     p_cb;       // TODO
+    alink_bearer_callback_t     p_cb;       /* TODO */
     void                       *p_handle;
 };
 

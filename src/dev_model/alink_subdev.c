@@ -8,12 +8,12 @@
 #include "infra_defs.h"
 
 
-#define ALINK_SUBDEV_NUM_MAX                1000000     // TODO, overflow!
+#define ALINK_SUBDEV_NUM_MAX                1000000     /* TODO, overflow! */
 
 #define ALINK_SUBDEV_HTABLE_SIZE_MAX        2000
 
 
-#define ALINK_SUBDEV_HTABLE_SIZE            53          // TODO, 151
+#define ALINK_SUBDEV_HTABLE_SIZE            53          /* TODO, 151 */
 
 typedef struct _subdev_hash_node *subdev_hash_table_t;
 
@@ -74,7 +74,7 @@ int alink_subdev_mgr_init(void)
         return FAIL_RETURN;
     }
 
-    subdev_mgr_htable.table_size = ALINK_SUBDEV_HTABLE_SIZE;     // TODO!!!
+    subdev_mgr_htable.table_size = ALINK_SUBDEV_HTABLE_SIZE;     /* TODO!!! */
     subdev_mgr_htable.subdev_num = 0;
     subdev_mgr_htable.devid_alloc = 1;
 
@@ -152,7 +152,7 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
     subdev_hash_node_t *node, *temp;
 
     if (subdev_mgr_htable.devid_alloc++ >= ALINK_SUBDEV_NUM_MAX) {
-        ;       // TODO!!!!!!!!
+        ;       /* TODO!!!!!!!! */
     }
     if (subdev_mgr_htable.subdev_num >= ALINK_SUBDEV_NUM_MAX) {
         return IOTX_CODE_TOO_MANY_SUBDEV;
@@ -192,7 +192,7 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
         node->next = temp;
     }
 
-    node->devid = hash * ALINK_SUBDEV_NUM_MAX + subdev_mgr_htable.devid_alloc;     // TODO
+    node->devid = hash * ALINK_SUBDEV_NUM_MAX + subdev_mgr_htable.devid_alloc;     /* TODO */
 
     return node->devid;
 }
@@ -302,7 +302,7 @@ subdev_hash_node_t *_subdev_hash_search_by_devid(uint32_t devid)
     uint32_t hash;
     subdev_hash_node_t *node;
 
-    hash = devid / ALINK_SUBDEV_NUM_MAX;     // TODO
+    hash = devid / ALINK_SUBDEV_NUM_MAX;     /* TODO */
     node = subdev_mgr_htable.hash_table[hash];
 
     while (node) {
@@ -377,7 +377,7 @@ int alink_subdev_connect_cloud(uint32_t devid)
 {
     ALINK_ASSERT_DEBUG(devid != 0);
 
-    // TODO: get core status first
+    /* TODO: get core status first */
 
     subdev_hash_node_t *node;
     node = _subdev_hash_search_by_devid(devid);

@@ -28,7 +28,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *met
         res = alink_core_open(meta_info);
         if (SUCCESS_RETURN == res) {
 #ifdef DEVICE_MODEL_GATEWAY             
-            res = alink_subdev_mgr_init();       // TODO!!!
+            res = alink_subdev_mgr_init();       /* TODO!!! */
             if (SUCCESS_RETURN == res)
 #endif            
                 res = ALINK_DEVICE_SELF_ID;
@@ -89,7 +89,7 @@ int IOT_Linkkit_Close(int devid)
     } 
     else {
 #ifdef DEVICE_MODEL_GATEWAY
-        ;       // TODO
+        ;       /* TODO */
 #else
         res = IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif

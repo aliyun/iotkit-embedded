@@ -26,7 +26,7 @@ typedef struct {
     char                   *device_secret;
 
     alink_bearer_node_t    *p_activce_bearer;
-    uint32_t                msgid;              // TODO
+    uint32_t                msgid;              /* TODO */
 
 } alink_core_ctx_t;
 
@@ -47,7 +47,7 @@ static linkkit_event_cb_t g_linkkit_event_array[ITE_EVENT_NUM] = { NULL };
 static alink_core_ctx_t alink_core_ctx = { 0 };
 
 
-// static uint8_t alink_qos_option = 0x00;      // TOOD
+/*  static uint8_t alink_qos_option = 0x00;      /* TOOD */ */
 
 
 
@@ -209,7 +209,7 @@ static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t 
     uint32_t devid = 0;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
-    char path[50] = {0};        // TODO: len?
+    char path[50] = {0};        /* TODO: len? */
     uint8_t is_subdev;
 
     alink_downstream_handle_func_t handle_func;
@@ -256,7 +256,7 @@ static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t 
 
     handle_func = alink_downstream_get_handle_func(path, strlen(path));
 
-    // TODO: for test!!!
+    /* TODO: for test!!! */
     if (handle_func != NULL) {
         handle_func(devid, product_key, device_name, (const uint8_t *)payload, payload_len, &query);
     }
@@ -363,7 +363,7 @@ int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len)
 
     alink_info("uri: %s", uri);
 
-    return alink_bearer_send(0, uri, (uint8_t *)payload, len);     // TODO, parameters type
+    return alink_bearer_send(0, uri, (uint8_t *)payload, len);     /* TODO, parameters type */
 }
 
 /** **/

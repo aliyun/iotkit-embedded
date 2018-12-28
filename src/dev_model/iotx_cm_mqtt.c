@@ -214,7 +214,7 @@ static int  _mqtt_connect(uint32_t timeout)
     HAL_GetDeviceSecret(dev_info.device_secret);
 
     /* Device AUTH */
-    if (SUCCESS_RETURN != IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &dev_info, &mqtt_sign)) {         // TODO: can't get region params!!!
+    if (SUCCESS_RETURN != IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &dev_info, &mqtt_sign)) {         /* TODO: can't get region params!!! */
         cm_err("sign failed");
         return FAIL_RETURN;
     }

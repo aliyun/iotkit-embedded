@@ -17,7 +17,7 @@ typedef struct {
     list_head_t bearer_node_list;
 } alink_bearer_ctx_t;
 
-//static alink_bearer_ctx_t alink_bearer_ctx;
+/* static alink_bearer_ctx_t alink_bearer_ctx; */
 
 static alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt = NULL;
 
@@ -29,7 +29,7 @@ alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t protocol_type, iotx_d
     /* check if protocal support, TODO */
 
     if (protocol_type == ALINK_BEARER_MQTT) {
-        //alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt;
+        /* alink_bearer_mqtt_ctx_t *p_alink_bearer_mqtt; */
 
         p_alink_bearer_mqtt = alink_malloc(sizeof(alink_bearer_mqtt_ctx_t));
         if (NULL == p_alink_bearer_mqtt) {
@@ -39,9 +39,9 @@ alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t protocol_type, iotx_d
 
         memset(p_alink_bearer_mqtt, 0, sizeof(alink_bearer_mqtt_ctx_t));
         p_alink_bearer_mqtt->dev_info = dev_info;
-        p_alink_bearer_mqtt->region = IOTX_CLOUD_REGION_SHANGHAI;           // TODO
+        p_alink_bearer_mqtt->region = IOTX_CLOUD_REGION_SHANGHAI;           /* TODO */
 
-        alink_bearer_mqtt_open(p_alink_bearer_mqtt);                        // TODO            
+        alink_bearer_mqtt_open(p_alink_bearer_mqtt);                        /* TODO             */
 
         return &p_alink_bearer_mqtt->bearer;
     }
