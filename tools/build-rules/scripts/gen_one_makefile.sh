@@ -113,7 +113,7 @@ done
     if echo \$\${S//.o/.c} | grep -q 'mbedtls\|HAL_'; then \\
         ${CC} -c \\
             -o \$@ \\
-            \$(filter-out -pedantic -ansi,\$(CFLAGS)) \\
+            \$(filter-out -ansi,\$(CFLAGS)) \\
             \$(IFLAGS) \\
             \$\${S//.o/.c}; \\
     else \\
