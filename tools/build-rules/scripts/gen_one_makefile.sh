@@ -110,11 +110,19 @@ done
 	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
 	\$(Q)mkdir -p \$\$(dirname \$@)
 	\$(Q)S=\$\$(echo \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
-    ${CC} -c \\
-        -o \$@ \\
-        \$(CFLAGS) \\
-        \$(IFLAGS) \\
-        \$\${S//.o/.c}
+    if echo \$\${S//.o/.c} | grep -q 'mbedtls'; then \\
+        ${CC} -c \\
+            -o \$@ \\
+            \$(filter-out -ansi,\$(CFLAGS)) \\
+            \$(IFLAGS) \\
+            \$\${S//.o/.c}; \\
+    else \\
+        ${CC} -c \\
+            -o \$@ \\
+            \$(CFLAGS) \\
+            \$(IFLAGS) \\
+            \$\${S//.o/.c}; \\
+    fi
 
 ifneq (,\$(findstring gcc,\$(CC)))
 %.d:
@@ -126,7 +134,7 @@ ifneq (,\$(findstring gcc,\$(CC)))
 	mkdir -p \$\$(dirname \$@); \\
 	${CC} -MM -I\$(CURDIR) \\
 	    \$(IFLAGS) \\
-	    \$(CFLAGS) \\
+	    \$(filter-out -ansi,\$(CFLAGS)) \\
 	\$\${D}/\$\${F} > \$@.\$\$\$\$; \\
 	sed -i 's!\$(shell basename \$*)\.o[ :]!\$*.o:!1' \$@.\$\$\$\$; \\
 	mv \$@.\$\$\$\$ \$@; \\
@@ -167,7 +175,7 @@ for i in ${ALL_PROG}; do
     if [ "$(grep -m 1 "^TARGET_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-|awk '{ print NF }')" = "1" ]; then
         k=""
     fi
-    LFLAGS=$(grep -m 1 "^LDFLAGS_${q}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
+    LFLAGS=$(grep -m 1 "^LDFLAGS_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
     if [ "${CC}" = "gcc" ]; then
         if [ "$(uname)" != "Darwin" ]; then
             LFLAGS="${LFLAGS} -lgcov"
@@ -185,7 +193,7 @@ done)
 	\$(Q)${CC} \\
         -o \$@ \\
         $([ "$i" != "sdk-testsuites" ] && echo "\$(IFLAGS)" || echo "\$(EXT_IFLAGS)") \\
-        \$(CFLAGS) \\
+        \$(filter-out -ansi,\$(CFLAGS)) \\
         \$(filter-out %.a,\$^) \\
         $( if [ "${i}" = "sdk-testsuites" ] && uname -a|grep -qw Ubuntu; then echo "${TOP_DIR}/${IMPORT_VDRDIR}/${PREBUILT_LIBDIR}/libcurl.a"; fi ) \\
         -L${OUTPUT_DIR}/usr/lib \\

@@ -10,6 +10,7 @@ CONFIG_LIB_EXPORT       ?= static
 
 # Default CFLAGS setting
 #
+CFLAGS  += -ansi
 CFLAGS  += -DFORCE_SSL_VERIFY
 
 # Default INCLUDE list
