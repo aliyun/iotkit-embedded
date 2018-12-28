@@ -134,7 +134,7 @@ gen_mqtt() {
 
     # extract src/mqtt
     SRC_MQTT_SIGN=$([[ ${M_MQTT_COMM_ENABLED} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mqtt" -type d)
-    [[ !${SRC_MQTT_SIGN} ]] && return
+    [[ ! ${SRC_MQTT_SIGN} ]] && return
 
     mkdir -p ${OUTPUT_DIR}/eng/mqtt
 
@@ -144,7 +144,7 @@ gen_mqtt() {
 
     # extract wrappers/mqtt/mal
     SRC_MAL_WRAPPER=$([[ ${M_MAL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "mal" -type d)
-    [[ !${SRC_MAL_WRAPPER} ]] && return
+    [[ ! ${SRC_MAL_WRAPPER} ]] && return
 
     mkdir -p ${WRAPPERS_DIR}/mqtt/mal
 
