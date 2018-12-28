@@ -23,7 +23,7 @@ int HAL_TCP_Destroy(uintptr_t fd);
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
 
-//mqtt protocol wrapper
+/* mqtt protocol wrapper */
 void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params);
 int wrapper_mqtt_connect(void *client);
 int wrapper_mqtt_yield(void *client, int timeout_ms);
