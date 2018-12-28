@@ -274,6 +274,7 @@ void utils_sha256_finish(iot_sha256_context *ctx, uint8_t output[32])
     /* int icount = 0; */
     uint32_t *d = (uint32_t *) output;
     uint32_t usedspace;
+    u_retLen tmp;
 
     /* Sanity check: */
     if (ctx == (iot_sha256_context *) 0) {
@@ -309,7 +310,6 @@ void utils_sha256_finish(iot_sha256_context *ctx, uint8_t output[32])
             *ctx->buffer = 0x80;
         }
         /* Set the bit count: */
-        u_retLen tmp;
         tmp.lint = ctx->bitcount;
         memcpy(&ctx->buffer[SHA256_SHORT_BLOCK_LENGTH], tmp.sptr, 8);
 
@@ -345,6 +345,11 @@ void utils_sha256(const uint8_t *input, uint32_t ilen, uint8_t output[32])
 
 void utils_hmac_sha256(const uint8_t *msg, uint32_t msg_len, const uint8_t *key, uint32_t key_len, uint8_t output[32])
 {
+    iot_sha256_context context;
+    uint8_t k_ipad[SHA256_KEY_IOPAD_SIZE];    /* inner padding - key XORd with ipad  */
+    uint8_t k_opad[SHA256_KEY_IOPAD_SIZE];    /* outer padding - key XORd with opad */
+    int32_t i;
+
     if ((NULL == msg) || (NULL == key) || (NULL == output)) {
         return;
     }
@@ -352,11 +357,6 @@ void utils_hmac_sha256(const uint8_t *msg, uint32_t msg_len, const uint8_t *key,
     if (key_len > SHA256_KEY_IOPAD_SIZE) {
         return;
     }
-
-    iot_sha256_context context;
-    uint8_t k_ipad[SHA256_KEY_IOPAD_SIZE];    /* inner padding - key XORd with ipad  */
-    uint8_t k_opad[SHA256_KEY_IOPAD_SIZE];    /* outer padding - key XORd with opad */
-    int32_t i;
 
     /* start out by storing key in pads */
     memset(k_ipad, 0, sizeof(k_ipad));
