@@ -67,6 +67,9 @@ gen_wrapper_c() {
 
     # echo -e "${WRAPPER_FUNCS}" |awk '{ printf("%03d %s\n", NR, $0); }'
 
+    sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
+    echo -e "\n" >> ${WRAPPERS_DIR}/wrapper.c
+
     echo -e "${WRAPPER_FUNCS}" | while read func
     do
         [[ ! ${func} ]] && return

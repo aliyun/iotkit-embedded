@@ -1,3 +1,10 @@
+WRAPPER_NOTE:
+/**
+ * NOTE:
+ *
+ * HAL_TCP_xxx API reference implementation: wrappers/os/ubuntu/HAL_TCP_linux.c
+ *
+ */
 
 HAL_Malloc:
 /**
