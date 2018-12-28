@@ -63,10 +63,10 @@ int alink_bearer_mqtt_open(alink_bearer_mqtt_ctx_t *p_bearer_mqtt_ctx)
  */
 int alink_bearer_mqtt_set_qos(alink_bearer_node_t *p_bearer_ctx, uint8_t qos)
 {
+    int res = FAIL_RETURN;
+
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
     (void)qos;
-
-    int res = FAIL_RETURN;
 
     return res;
 }
@@ -120,8 +120,6 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
     if (topic_handle_func != NULL) {
 
         #ifdef TEST_MOCK
-        (void)topic_info;
-
         /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/post/?i=898789&c=b&r=400&a=y&c=n"; */
         /* char *topic = "/gw_pk/gw_dn/req/proxy/a1OFrRjV8nz/develop_01/sys/thing/property/post/?i=898789&c=b&a=y&r=400&c=n"; */
         /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"test\": 12344}"; */
@@ -138,6 +136,7 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
         uint32_t topic_len = strlen(topic);
         uint32_t payload_len = strlen(payload);
 
+        (void)topic_info;
         topic_handle_func(NULL, topic, topic_len, payload, payload_len);
         #else
         topic_handle_func(NULL, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len);    /* TODO */
@@ -147,14 +146,13 @@ void alink_bearer_mqtt_rx_evnet_handle(void *pcontext, void *pclient, iotx_mqtt_
 
 static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
 {
-    ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
-
-    alink_bearer_mqtt_ctx_t *p_mqtt_ctx;
-    (void)timeout;      /* TODO */
-
     int res = FAIL_RETURN;
+    alink_bearer_mqtt_ctx_t *p_mqtt_ctx;
     iotx_sign_mqtt_t sign_mqtt;
     iotx_mqtt_param_t params_mqtt;
+
+    ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
+    (void)timeout;      /* TODO */
     p_mqtt_ctx = container_of(p_bearer_ctx, alink_bearer_mqtt_ctx_t, bearer);
 
     res = IOT_Sign_MQTT(p_mqtt_ctx->region, p_mqtt_ctx->dev_info, &sign_mqtt);
@@ -222,11 +220,11 @@ static int _mqtt_yield(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
  */
 static int _mqtt_sub(alink_bearer_node_t *p_bearer_ctx, const char *topic, alink_bearer_rx_cb_t topic_handle_func, uint8_t qos, uint32_t timeout)
 {
+    int res = FAIL_RETURN;
+
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
     ALINK_ASSERT_DEBUG(topic != NULL);
     ALINK_ASSERT_DEBUG(topic_handle_func != NULL);
-
-    int res = FAIL_RETURN;
 
     if (timeout == 0) {
         res = IOT_MQTT_Subscribe(p_bearer_ctx->p_handle,
@@ -249,9 +247,10 @@ static int _mqtt_sub(alink_bearer_node_t *p_bearer_ctx, const char *topic, alink
 
 static int _mqtt_unsub(alink_bearer_node_t *p_bearer_ctx, const char *topic) 
 {
+    int res = FAIL_RETURN;
+
     ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
 
-    int res = FAIL_RETURN;
     res = IOT_MQTT_Unsubscribe(p_bearer_ctx->p_handle, topic);
 
     if (res < 0) {
@@ -263,9 +262,9 @@ static int _mqtt_unsub(alink_bearer_node_t *p_bearer_ctx, const char *topic)
 
 static int _mqtt_publish(alink_bearer_node_t *p_bearer_ctx, const char *topic, const uint8_t *payload, uint32_t payload_len, uint8_t qos)
 {
-    ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
-
     int res = FAIL_RETURN;
+
+    ALINK_ASSERT_DEBUG(p_bearer_ctx != NULL);
 
     res = IOT_MQTT_Publish_Simple(p_bearer_ctx->p_handle, topic, qos, (void *)payload, payload_len);
 

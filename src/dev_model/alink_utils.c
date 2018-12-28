@@ -55,10 +55,10 @@ static int _uri_hash_insert(const alink_uri_handle_pair_t *pair, uri_hash_table_
 #if UTILS_HASH_TABLE_ITERATOR_ENABLE
 void _uri_hash_iterator(uri_hash_table_t *table)
 {
-    ALINK_ASSERT_DEBUG(table != NULL);
-
     uri_hash_node_t *node;
     uint8_t idx;
+
+    ALINK_ASSERT_DEBUG(table != NULL);
 
     for (idx = 0; idx < HASH_TABLE_SIZE_MAX; idx++) {
         if (table[idx] == NULL ) {
@@ -120,10 +120,10 @@ uri_hash_node_t *utils_uri_hash_search(const char *uri_string, uint8_t uri_len, 
 
 void utils_uri_hash_destroy(uri_hash_table_t *table)
 {
-    ALINK_ASSERT_DEBUG(table != NULL);
-
     uri_hash_node_t *node, *temp;
     uint8_t idx;
+
+    ALINK_ASSERT_DEBUG(table != NULL);
 
     for (idx = 0; idx < HASH_TABLE_SIZE_MAX; idx++) {
         if (table[idx] == NULL) {
@@ -145,11 +145,13 @@ void utils_uri_hash_destroy(uri_hash_table_t *table)
 
 char *alink_utils_strdup(const char *string, uint32_t string_len)
 {
+    char *copy;
+
     if (string == NULL /*|| string_len == 0*/) {        /* TODO */
         return NULL;
     }
 
-    char *copy = alink_malloc(string_len + 1);
+    copy = alink_malloc(string_len + 1);
     if (copy == NULL) {
         return NULL;
     }

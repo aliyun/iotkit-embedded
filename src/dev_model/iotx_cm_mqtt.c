@@ -63,6 +63,7 @@ failed:
 static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     uintptr_t packet_id = (uintptr_t)msg->msg;
+
     if (_mqtt_conncection == NULL) {
         return;
     }
@@ -70,8 +71,8 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
     switch (msg->event_type) {
 
         case IOTX_MQTT_EVENT_DISCONNECT: {
-            cm_info("disconnected,fd = %d", _mqtt_conncection->fd);
             iotx_cm_event_msg_t event;
+            cm_info("disconnected,fd = %d", _mqtt_conncection->fd);
             event.type = IOTX_CM_EVENT_CLOUD_DISCONNECT;
             event.msg = NULL;
             if (_mqtt_conncection->event_handler) {
@@ -81,8 +82,8 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         break;
 
         case IOTX_MQTT_EVENT_RECONNECT: {
-            cm_info("connected,fd = %d", _mqtt_conncection->fd);
             iotx_cm_event_msg_t event;
+            cm_info("connected,fd = %d", _mqtt_conncection->fd);
             event.type = IOTX_CM_EVENT_CLOUD_CONNECTED;
             event.msg = NULL;
             /* cm_info(cm_log_info_MQTT_reconnect); */
@@ -165,13 +166,14 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
             iotx_cm_data_handle_cb topic_handle_func = pcontext;
+            char *topic;            /* TODO: modify the callback!!! */
 
-            if (topic_handle_func == NULL) {
+            if (topic_handle_func == NULL) {    
                 cm_err("sub handle is null!");
                 return;
             }
 
-            char *topic = cm_malloc(topic_info->topic_len + 1);
+            topic = cm_malloc(topic_info->topic_len + 1);
             if (topic == NULL) {
                 cm_err("topic malloc failed");
                 return;

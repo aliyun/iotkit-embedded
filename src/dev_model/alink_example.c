@@ -80,10 +80,10 @@ static int user_report_reply_event_handler(const int devid, const int msgid, con
 /** **/
 static int user_property_get_event_handler(const int devid, const char *request, const int request_len, char **response, int *response_len)
 {
-    EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
-
     uint32_t len = strlen("{\"test\": 12344}");
     char *rsp = HAL_Malloc(len);
+
+    EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
     
     memset(rsp, 0, len);
     memcpy(rsp, "{\"test\": 12344}", len);
@@ -100,13 +100,13 @@ static int user_service_request_event_handler(const int devid, const char *servi
         const char *request, const int request_len,
         char **response, int *response_len)
 {
+    uint32_t len = strlen("{\"test\": 12344}");
+    char *rsp = HAL_Malloc(len);
+
     EXAMPLE_TRACE("Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
                   serviceid,
                   request);
 
-    uint32_t len = strlen("{\"test\": 12344}");
-    char *rsp = HAL_Malloc(len);
-    
     memset(rsp, 0, len);
     memcpy(rsp, "{\"test\": 12344}", len);
 
@@ -120,9 +120,10 @@ static int user_service_request_event_handler(const int devid, const char *servi
 static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload,
         const int payload_len)
 {
+    uint32_t i;
     EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
 
-    for (uint32_t i = 0; i<payload_len; i++) {
+    for (i = 0; i<payload_len; i++) {
         printf("0x%02x ", payload[i]);
     }
     printf("\r\n");
@@ -163,19 +164,22 @@ int user_permit_join_event_handler(const char *product_key, const int time)
 
 int main(int argc, char **argv)
 {
-    printf("alink start\r\n");
-
-    LITE_set_loglevel(5);
-
-    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
-
+    user_example_ctx_t *user_example_ctx;
+    uint32_t cnt = 0;
     static iotx_dev_meta_info_t dev_info = {
         .product_key = "a1OFrRjV8nz",
         .product_secret = "EfFYTuX1GjMDvw6l",
         .device_name = "develop_01",
         .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
     };
+
+    printf("alink start\r\n");
+
+    LITE_set_loglevel(5);
+
+    user_example_ctx = user_example_get_ctx();
+    memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
+
 
     memset(_product_key,0,IOTX_PRODUCT_KEY_LEN + 1);
     memcpy(_product_key,dev_info.product_key,strlen(dev_info.product_key));
@@ -210,24 +214,23 @@ int main(int argc, char **argv)
 
     IOT_Linkkit_Connect(0);
 
-    uint32_t devid[160];
-    int i = 0;
-    for (i=0; i<160; i++) {
-        dev_info.device_name[9]++;
-        devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &dev_info);
+    {
+        uint32_t devid[160];
+        int i = 0;
+        for (i=0; i<160; i++) {
+            dev_info.device_name[9]++;
+            devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &dev_info);
+        }
+        subdev_hash_iterator();
+
+        for (i=159; i>=0; --i) {
+            printf("removed devid[%d] = %d", i, devid[i]);
+
+            subdev_hash_remove(devid[i]);
+        }
+        subdev_hash_iterator();
     }
-    subdev_hash_iterator();
 
-    for (i=159; i>=0; --i) {
-        printf("removed devid[%d] = %d", i, devid[i]);
-
-        subdev_hash_remove(devid[i]);
-    }
-
-    subdev_hash_iterator();
-
-
-    uint32_t cnt = 0;
     while (1) {
         IOT_Linkkit_Yield(200);
 

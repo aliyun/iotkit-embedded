@@ -121,6 +121,7 @@ int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const ch
 {
     /* int res = FAIL_RETURN; */
     uint16_t len;
+    char *uri;
 
     const char *uri_dist = alink_uri_dist[(c_alink_uri_string_map[index].dist_act >> 4)];
     const char *uri_act = alink_uri_act[(c_alink_uri_string_map[index].dist_act & 0x0F)];
@@ -130,7 +131,7 @@ int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const ch
 
     len = strlen(uri_dist) + strlen(uri_act) + strlen(uri_layer) + strlen(uri_path) + strlen(uri_method) + strlen(uri_query) + 1;
 
-    char *uri = alink_malloc(len);
+    uri = alink_malloc(len);
     if (uri == NULL) {
         return FAIL_RETURN;
     }
@@ -147,24 +148,30 @@ int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const ch
  */
 int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, const char *subdev_pk, const char *subdev_dn, const char *uri_query, char **p_uri)
 {
+    uint16_t len;
+    char *uri;
+    const char *uri_dist;
+    const char *uri_act;
+    const char *uri_layer;
+    const char *uri_path;
+    const char *uri_method;
+
     ALINK_ASSERT_DEBUG(index < ALINK_URI_UP_MAX && index >= 0 );
     ALINK_ASSERT_DEBUG(subdev_pk != NULL);
     ALINK_ASSERT_DEBUG(subdev_dn != NULL);
     ALINK_ASSERT_DEBUG(uri_query != NULL);
     ALINK_ASSERT_DEBUG(p_uri != NULL);
 
-    uint16_t len;
-
-    const char *uri_dist = alink_uri_dist[(c_alink_uri_string_map[index].dist_act >> 4)];
-    const char *uri_act = alink_uri_act[(c_alink_uri_string_map[index].dist_act & 0x0F)];
-    const char *uri_layer = alink_uri_layer[(c_alink_uri_string_map[index].layer_method >> 4)];
-    const char *uri_path = c_alink_uri_string_map[index].path;
-    const char *uri_method = alink_uri_method[(c_alink_uri_string_map[index].layer_method & 0x0F)];
+    uri_dist = alink_uri_dist[(c_alink_uri_string_map[index].dist_act >> 4)];
+    uri_act = alink_uri_act[(c_alink_uri_string_map[index].dist_act & 0x0F)];
+    uri_layer = alink_uri_layer[(c_alink_uri_string_map[index].layer_method >> 4)];
+    uri_path = c_alink_uri_string_map[index].path;
+    uri_method = alink_uri_method[(c_alink_uri_string_map[index].layer_method & 0x0F)];
 
     len = strlen(uri_dist) + strlen(uri_act) + strlen(uri_layer) + strlen(uri_path) + strlen(uri_method) 
         + strlen(uri_query) + strlen(subdev_pk) + strlen(subdev_dn) + strlen(alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4]) + 3;    /* add 2 "/" delimiter */
 
-    char *uri = alink_malloc(len);
+    uri = alink_malloc(len);
     if (uri == NULL) {
         return FAIL_RETURN;
     }
@@ -271,14 +278,14 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
  */
 int _alink_get_uri_level_value(const char *uri, uint8_t uri_len, uint8_t level, char *value)
 {
-    ALINK_ASSERT_DEBUG(uri != NULL);
-    ALINK_ASSERT_DEBUG(uri_len != 0);
-    ALINK_ASSERT_DEBUG(value != NULL);
-
     uint8_t idx = 0;
     uint8_t cnt = 0;
     char *p1 = NULL;
     char *p2 = NULL;
+
+    ALINK_ASSERT_DEBUG(uri != NULL);
+    ALINK_ASSERT_DEBUG(uri_len != 0);
+    ALINK_ASSERT_DEBUG(value != NULL);
 
     for (idx = 0; idx < uri_len; idx++) {
         if (*(uri+idx) == '/' && (idx + 1) < uri_len) {
@@ -308,12 +315,12 @@ int _alink_get_uri_level_value(const char *uri, uint8_t uri_len, uint8_t level, 
  */
 int _alink_get_uri_level_pointer(const char *uri, uint8_t uri_len, uint8_t level, char **p_value)
 {
+    uint8_t idx = 0;
+    uint8_t cnt = 0;
+
     ALINK_ASSERT_DEBUG(uri != NULL);
     ALINK_ASSERT_DEBUG(uri_len != 0);
     ALINK_ASSERT_DEBUG(p_value != NULL);
-
-    uint8_t idx = 0;
-    uint8_t cnt = 0;
 
     for (idx = 0; idx < uri_len; idx++) {
         if (*(uri+idx) == '/' && (idx + 1) < uri_len) {

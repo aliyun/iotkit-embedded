@@ -200,10 +200,10 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
 /** TODO **/
 int subdev_hash_remove(uint32_t devid)
 {
-    ALINK_ASSERT_DEBUG(devid != 0);
-
     uint32_t hash;
     subdev_hash_node_t *node, *temp;
+
+    ALINK_ASSERT_DEBUG(devid != 0);
 
     hash = devid / ALINK_SUBDEV_NUM_MAX;
     if (hash >= subdev_mgr_htable.table_size) {
@@ -277,12 +277,14 @@ subdev_hash_node_t *_subdev_hash_search_by_pkdn(const char *pk, const char *dn)
 {
     uint32_t hash;
     subdev_hash_node_t *node;
+    uint8_t pk_len;
+    uint8_t dn_len;
 
     hash = _pkdn_to_hash(pk, dn);
     node = subdev_mgr_htable.hash_table[hash];
 
-    uint8_t pk_len = strlen(pk);
-    uint8_t dn_len = strlen(dn);
+    pk_len = strlen(pk);
+    dn_len = strlen(dn);
 
     while (node) {
         if (pk_len == strlen(node->product_key) && !memcmp(pk, node->product_key, pk_len) &&
@@ -375,11 +377,12 @@ int alink_subdev_open(iotx_dev_meta_info_t *dev_info)
 
 int alink_subdev_connect_cloud(uint32_t devid)
 {
+    subdev_hash_node_t *node;
+    
     ALINK_ASSERT_DEBUG(devid != 0);
 
     /* TODO: get core status first */
 
-    subdev_hash_node_t *node;
     node = _subdev_hash_search_by_devid(devid);
     if (node == NULL) {
         return IOTX_CODE_DEVID_NOT_EXIST;

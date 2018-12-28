@@ -55,11 +55,13 @@ alink_bearer_node_t *alink_bearer_open(alink_bearer_type_t protocol_type, iotx_d
 
 int alink_bearer_conect(void)
 {
+    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
+
     if (p_alink_bearer_mqtt == NULL) {
         alink_info("bearer no exist");
         return FAIL_RETURN;
     }
-    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
+
     return bearer.p_api.bearer_connect(&p_alink_bearer_mqtt->bearer, 20000);
 }
 
@@ -82,13 +84,13 @@ int alink_bearer_register(void *handle, const char *uri, alink_bearer_rx_cb_t cb
  */
 int alink_bearer_send(uint8_t link_id, char *uri, uint8_t *payload, uint32_t len)
 {
+    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
     /* assert */
     (void)link_id;
 
     if (p_alink_bearer_mqtt == NULL) {
         return FAIL_RETURN;
     }
-    alink_bearer_node_t bearer = p_alink_bearer_mqtt->bearer;
 
     return bearer.p_api.bearer_pub(&p_alink_bearer_mqtt->bearer, uri, payload, len, 0);
 }

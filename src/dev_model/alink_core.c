@@ -47,7 +47,7 @@ static linkkit_event_cb_t g_linkkit_event_array[ITE_EVENT_NUM] = { NULL };
 static alink_core_ctx_t alink_core_ctx = { 0 };
 
 
-/*  static uint8_t alink_qos_option = 0x00;      /* TOOD */ */
+/*  static uint8_t alink_qos_option = 0x00;  TOOD */
 
 
 
@@ -172,9 +172,6 @@ static int _alink_core_deinit(void)
  */
 int _alink_core_register_downstream(const char *level, alink_bearer_rx_cb_t rx_func)
 {
-    ALINK_ASSERT_DEBUG(level != NULL);
-    ALINK_ASSERT_DEBUG(rx_func != NULL);
-
 #ifdef TEST_MOCK
     const char *uri = "/sys/a1OFrRjV8nz/develop_01/thing/service/property/set";
     int res = alink_bearer_register(alink_core_ctx.p_activce_bearer, uri, rx_func);
@@ -183,6 +180,9 @@ int _alink_core_register_downstream(const char *level, alink_bearer_rx_cb_t rx_f
     const char *uri_fmt = "/%s/%s%s";
     uint32_t pk_len = strlen(alink_core_ctx.product_key);
     uint32_t dn_len = strlen(alink_core_ctx.device_name);
+
+    ALINK_ASSERT_DEBUG(level != NULL);
+    ALINK_ASSERT_DEBUG(rx_func != NULL);
 
     char *uri = alink_malloc(strlen(uri_fmt) + pk_len + dn_len);
     if (uri == NULL) {
@@ -201,18 +201,17 @@ int _alink_core_register_downstream(const char *level, alink_bearer_rx_cb_t rx_f
  */
 static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len)
 {   
-    if (uri == NULL || uri_len == 0 || payload == NULL || payload_len == 0) {
-        return;
-    } 
-
     alink_uri_query_t query = { 0 };
     uint32_t devid = 0;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
     char path[50] = {0};        /* TODO: len? */
     uint8_t is_subdev;
-
     alink_downstream_handle_func_t handle_func;
+
+    if (uri == NULL || uri_len == 0 || payload == NULL || payload_len == 0) {
+        return;
+    } 
 
     /* reslove the uri query */
     alink_format_reslove_uri(uri, uri_len, product_key, device_name, path, &query, &is_subdev);
@@ -273,10 +272,11 @@ static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t 
  */
 int alink_core_open(iotx_dev_meta_info_t *dev_info)
 {
+    int res = _alink_core_init(dev_info);
+
     ALINK_ASSERT_DEBUG(dev_info != NULL);
 
     /* init core in open api */
-    int res = _alink_core_init(dev_info);
     if (res < SUCCESS_RETURN) {
         return res;
     }

@@ -63,16 +63,18 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 
 int iotx_cm_connect(int fd, uint32_t timeout)
 {
+    iotx_cm_connect_fp connect_func;
+    int ret;
+
     if (_fd_is_valid(fd) == -1) {
         cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
-    iotx_cm_connect_fp connect_func;
     HAL_MutexLock(fd_lock);
     connect_func = _cm_fd[fd]->connect_func;
     HAL_MutexUnlock(fd_lock);
 
-    int ret = connect_func(timeout);
+    ret = connect_func(timeout);
 
     if (ret == 0) {
         inited_conn_num++;
@@ -97,11 +99,11 @@ int iotx_cm_connect(int fd, uint32_t timeout)
 
 static int _iotx_cm_yield(int fd, unsigned int timeout)
 {
+    iotx_cm_yield_fp yield_func;
+
     if (fd_lock == NULL) {
         return FAIL_RETURN;
     }
-
-    iotx_cm_yield_fp yield_func;
 
     if (fd == -1) {
         int i;
@@ -156,12 +158,13 @@ int iotx_cm_yield(int fd, unsigned int timeout)
 int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
                 iotx_cm_data_handle_cb topic_handle_func, void *pcontext)
 {
+    iotx_cm_sub_fp sub_func;
+
     if (_fd_is_valid(fd) == -1) {
         cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
-    iotx_cm_sub_fp sub_func;
     HAL_MutexLock(fd_lock);
     sub_func =  _cm_fd[fd]->sub_func;
     HAL_MutexUnlock(fd_lock);
@@ -170,12 +173,13 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
 
 int iotx_cm_unsub(int fd, const char *topic)
 {
+    iotx_cm_unsub_fp unsub_func;
+
     if (_fd_is_valid(fd) == -1) {
         cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
-    iotx_cm_unsub_fp unsub_func;
     HAL_MutexLock(fd_lock);
     unsub_func =  _cm_fd[fd]->unsub_func;
     HAL_MutexUnlock(fd_lock);
@@ -186,12 +190,13 @@ int iotx_cm_unsub(int fd, const char *topic)
 
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len)
 {
+    iotx_cm_pub_fp pub_func;
+    
     if (_fd_is_valid(fd) == -1) {
         cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
-    iotx_cm_pub_fp pub_func;
     HAL_MutexLock(fd_lock);
     pub_func =  _cm_fd[fd]->pub_func;
     HAL_MutexUnlock(fd_lock);
@@ -200,6 +205,8 @@ int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char
 
 int iotx_cm_close(int fd)
 {
+    iotx_cm_close_fp close_func;
+
     if (_fd_is_valid(fd) != 0) {
         cm_err(ERR_INVALID_PARAMS);
         return -1;
@@ -214,7 +221,6 @@ int iotx_cm_close(int fd)
 #endif
     }
 
-    iotx_cm_close_fp close_func;
     HAL_MutexLock(fd_lock);
     close_func = _cm_fd[fd]->close_func;
     HAL_MutexUnlock(fd_lock);
@@ -238,12 +244,14 @@ int iotx_cm_close(int fd)
 
 static int inline _fd_is_valid(int fd)
 {
+    int ret;
+
     if (fd_lock == NULL) {
         return FAIL_RETURN;
     }
 
     HAL_MutexLock(fd_lock);
-    int ret = (fd >= 0 && fd < CM_MAX_FD_NUM && _cm_fd[fd] != NULL) ? 0 : -1;
+    ret = (fd >= 0 && fd < CM_MAX_FD_NUM && _cm_fd[fd] != NULL) ? 0 : -1;
     HAL_MutexUnlock(fd_lock);
     return ret;
 }

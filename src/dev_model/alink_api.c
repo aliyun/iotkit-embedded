@@ -47,11 +47,11 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *met
 
 int IOT_Linkkit_Connect(int devid)
 {
+    int res = FAIL_RETURN;
+
     if (devid < 0) {
         return IOTX_CODE_PARAMS_INVALID;
     }
-
-    int res = FAIL_RETURN;
 
     if (devid == IOTX_LINKKIT_DEV_TYPE_MASTER) {
         res = alink_core_connect_cloud();
@@ -78,11 +78,11 @@ void IOT_Linkkit_Yield(int timeout_ms)
 
 int IOT_Linkkit_Close(int devid)
 {
+    int res = FAIL_RETURN;
+
     if (devid < 0) {
         return IOTX_CODE_PARAMS_INVALID;
     }
-
-    int res = FAIL_RETURN;
 
     if (devid == IOTX_LINKKIT_DEV_TYPE_MASTER) {
         res = alink_core_close();
