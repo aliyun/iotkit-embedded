@@ -110,7 +110,7 @@ done
 	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
 	\$(Q)mkdir -p \$\$(dirname \$@)
 	\$(Q)S=\$\$(echo \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
-    if echo \$\${S//.o/.c} | grep -q 'mbedtls\|HAL_'; then \\
+    if echo \$\${S//.o/.c} | grep -q 'mbedtls\|HAL_\|hal-impl'; then \\
         ${CC} -c \\
             -o \$@ \\
             \$(filter-out -ansi,\$(CFLAGS)) \\
