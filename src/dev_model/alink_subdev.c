@@ -128,7 +128,7 @@ static uint32_t _pkdn_to_hash(const char *pk, const char *dn)
     {
         sum += dn[i];
         if (dn[i] >= '0' && dn[i] <= '9') {
-            sum <<= (dn[i] - '0');
+            sum >>= (dn[i] - '0');
         }
     }
 
@@ -151,7 +151,7 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
     struct _subdev_hash_node **table = subdev_mgr_htable.hash_table;
     subdev_hash_node_t *node, *temp;
 
-    if (subdev_mgr_htable.devid_alloc >= ALINK_SUBDEV_NUM_MAX) {
+    if (subdev_mgr_htable.devid_alloc++ >= ALINK_SUBDEV_NUM_MAX) {
         ;       // TODO!!!!!!!!
     }
     if (subdev_mgr_htable.subdev_num >= ALINK_SUBDEV_NUM_MAX) {
@@ -192,7 +192,7 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
         node->next = temp;
     }
 
-    node->devid = hash * 1000000 + subdev_mgr_htable.devid_alloc++;     // TODO
+    node->devid = hash * ALINK_SUBDEV_NUM_MAX + subdev_mgr_htable.devid_alloc;     // TODO
 
     return node->devid;
 }
@@ -205,7 +205,7 @@ int subdev_hash_remove(uint32_t devid)
     uint32_t hash;
     subdev_hash_node_t *node, *temp;
 
-    hash = devid / 1000000;
+    hash = devid / ALINK_SUBDEV_NUM_MAX;
     if (hash >= subdev_mgr_htable.table_size) {
         return FAIL_RETURN;
     }
@@ -302,7 +302,7 @@ subdev_hash_node_t *_subdev_hash_search_by_devid(uint32_t devid)
     uint32_t hash;
     subdev_hash_node_t *node;
 
-    hash = devid / 1000000;     // TODO
+    hash = devid / ALINK_SUBDEV_NUM_MAX;     // TODO
     node = subdev_mgr_htable.hash_table[hash];
 
     while (node) {
@@ -390,6 +390,8 @@ int alink_subdev_connect_cloud(uint32_t devid)
 
 
     }
+
+    /* check subdev status first */
 
     /* login */
 

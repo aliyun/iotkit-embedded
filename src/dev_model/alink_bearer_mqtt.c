@@ -155,11 +155,7 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
     int res = FAIL_RETURN;
     iotx_sign_mqtt_t sign_mqtt;
     iotx_mqtt_param_t params_mqtt;
-
-
     p_mqtt_ctx = container_of(p_bearer_ctx, alink_bearer_mqtt_ctx_t, bearer);
-
-    alink_info("%d", p_mqtt_ctx->region);
 
     res = IOT_Sign_MQTT(p_mqtt_ctx->region, p_mqtt_ctx->dev_info, &sign_mqtt);
 
@@ -174,7 +170,7 @@ static int _mqtt_connect(alink_bearer_node_t *p_bearer_ctx, uint32_t timeout)
     params_mqtt.username = sign_mqtt.username;
     params_mqtt.password = sign_mqtt.password;
 
-    params_mqtt.pub_key = NULL;                 // TODO
+    params_mqtt.pub_key = NULL;
     params_mqtt.clean_session = ALINK_BEARER_MQTT_IS_CLEAN_SESSION;
     params_mqtt.request_timeout_ms = ALINK_BEARER_MQTT_REQUEST_TIMEOUT_MS;
     params_mqtt.keepalive_interval_ms = ALINK_BEARER_MQTT_KEEPALIVE_INTERVAL_MS;

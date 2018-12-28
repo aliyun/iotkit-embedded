@@ -5,24 +5,41 @@
 
 #ifndef _IOTX_CM_INTERNAL_H_
 #define _IOTX_CM_INTERNAL_H_
-#include "iot_import.h"
-#include "iotx_log.h"
-#include "iotx_utils.h"
 
-#define cm_malloc(size)     LITE_malloc(size, MEM_MAGIC, "cm")
-#define cm_free(p)          LITE_free(p)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#ifdef ESP8266
-    #include "esp_common.h"
-    #define CM_READ_ONLY ICACHE_RODATA_ATTR STORE_ATTR
+#include "alink_wrapper.h"
+#include "infra_log.h"
+#include "mqtt_api.h"
+
+
+#ifdef INFRA_MEM_STATS
+#define cm_malloc(size)              LITE_malloc(size, MEM_MAGIC, "dm")
+#define cm_free(ptr)                 LITE_free(ptr)
 #else
-    #define CM_READ_ONLY
+#define cm_malloc(size)              HAL_Malloc(size)
+#define cm_free(ptr)                 {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-#define CM_DEBUG(...)        log_debug("CM", __VA_ARGS__)
-#define CM_INFO(...)         log_info("CM", __VA_ARGS__)
-#define CM_WARN(...)         log_warning("CM", __VA_ARGS__)
-#define CM_ERR(...)          log_err("CM", __VA_ARGS__)
+
+#ifdef INFRA_LOG
+#include "infra_log.h"
+#define cm_emerg(...)                log_emerg("ALINK", __VA_ARGS__)
+#define cm_crit(...)                 log_crit("ALINK", __VA_ARGS__)
+#define cm_err(...)                  log_err("ALINK", __VA_ARGS__)
+#define cm_warning(...)              log_warning("ALINK", __VA_ARGS__)
+#define cm_info(...)                 log_info("ALINK", __VA_ARGS__)
+#define cm_debug(...)                log_debug("ALINK", __VA_ARGS__)
+#else
+#define cm_emerg(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define cm_crit(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define cm_err(...)                  do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define cm_warning(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define cm_info(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define cm_debug(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#endif
 
 typedef int (*iotx_cm_connect_fp)(uint32_t timeout);
 typedef int (*iotx_cm_yield_fp)(unsigned int timeout);
@@ -51,5 +68,5 @@ typedef struct iotx_connection_st {
 
 } iotx_cm_connection_t;
 
-extern const char ERR_INVALID_PARAMS[] CM_READ_ONLY;
+extern const char ERR_INVALID_PARAMS[];
 #endif /* _LINKKIT_CM_H_ */

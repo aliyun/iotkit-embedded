@@ -5,7 +5,8 @@
 
 #ifndef _IOTX_CM_H_
 #define _IOTX_CM_H_
-#include "iot_import.h"
+
+#include "alink_wrapper.h"
 
 #define CM_MAX_FD_NUM             3
 #define CM_DEFAULT_YIELD_TIMEOUT  200

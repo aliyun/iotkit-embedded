@@ -321,6 +321,9 @@ int alink_core_connect_cloud(void)
         alink_debug("connected fail");
     }
 
+    /* TODO: invoke the connected event, event post for awss immediately, indicate success for fail, hehe */
+
+
     alink_debug("connected, start sub");
     _alink_core_register_downstream(ALINK_DEFAULT_SUB_LEVEL, (alink_bearer_rx_cb_t)_alink_core_rx_event_handle);
 

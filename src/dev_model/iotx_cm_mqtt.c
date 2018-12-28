@@ -1,14 +1,23 @@
-#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
-#include "iot_import.h"
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iotx_cm_mqtt.h"
-#include "lite-list.h"
-#include "utils_timer.h"
-#include "iotx_utils.h"
-#include "iotx_system.h"
+
+#include "infra_list.h"
+#include "infra_timer.h"
+#include "alink_wrapper.h"
+#include "iotx_alink_internal.h"
+#include "dev_sign_api.h"
+
+/** CM default parameters define **/
+#define CM_MQTT_IS_CLEAN_SESSION            (0)
+#define CM_MQTT_REQUEST_TIMEOUT_MS          (2000)
+#define CM_MQTT_KEEPALIVE_INTERVAL_MS       (60000)
+#define CM_MQTT_RX_MAXLEN                   (CONFIG_MQTT_RX_MAXLEN)
+#define CM_MQTT_TX_MAXLEN                   (CONFIG_MQTT_TX_MAXLEN)
+
 
 static iotx_cm_connection_t *_mqtt_conncection = NULL;
+
 static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
 static int  _mqtt_connect(uint32_t timeout);
 static int _mqtt_publish(iotx_cm_ext_params_t *params, const char *topic, const char *payload,
@@ -22,52 +31,29 @@ static void _set_common_handlers();
 
 iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
 {
-    iotx_mqtt_param_t *mqtt_param = NULL;
+    ALINK_ASSERT_DEBUG(params != NULL);
 
     if (_mqtt_conncection != NULL) {
-        CM_WARN("mqtt connection is opened already,return it");
         return _mqtt_conncection;
     }
 
-    POINTER_SANITY_CHECK(params, NULL);
-
     _mqtt_conncection = (iotx_cm_connection_t *)cm_malloc(sizeof(iotx_cm_connection_t));
     if (_mqtt_conncection == NULL) {
-        CM_ERR("_mqtt_conncection malloc failed!");
+        cm_err("_mqtt_conncection malloc failed!");
         goto failed;
     }
 
-    mqtt_param = (iotx_mqtt_param_t *)cm_malloc(sizeof(iotx_mqtt_param_t));
-    if (mqtt_param == NULL) {
-        CM_ERR("mqtt_param malloc failed!");
-        goto failed;
-    }
-    _mqtt_conncection->open_params = mqtt_param;
-
-    mqtt_param->request_timeout_ms = params->request_timeout_ms;
-    mqtt_param->clean_session = 0;
-    mqtt_param->keepalive_interval_ms = params->keepalive_interval_ms;
-    mqtt_param->read_buf_size = params->read_buf_size;
-    mqtt_param->write_buf_size = params->write_buf_size;
-
-    mqtt_param->handle_event.h_fp = iotx_cloud_conn_mqtt_event_handle;
-    mqtt_param->handle_event.pcontext = NULL;
-
+    _mqtt_conncection->open_params = NULL;
     _mqtt_conncection->event_handler = params->handle_event;
     _mqtt_conncection->cb_data = params->context;
     _set_common_handlers();
 
     return _mqtt_conncection;
-
 failed:
 
     if (_mqtt_conncection != NULL) {
         cm_free(_mqtt_conncection);
         _mqtt_conncection = NULL;
-    }
-
-    if (mqtt_param != NULL) {
-        cm_free(mqtt_param);
     }
 
     return NULL;
@@ -84,7 +70,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
     switch (msg->event_type) {
 
         case IOTX_MQTT_EVENT_DISCONNECT: {
-            CM_INFO("disconnected,fd = %d", _mqtt_conncection->fd);
+            cm_info("disconnected,fd = %d", _mqtt_conncection->fd);
             iotx_cm_event_msg_t event;
             event.type = IOTX_CM_EVENT_CLOUD_DISCONNECT;
             event.msg = NULL;
@@ -95,11 +81,11 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         break;
 
         case IOTX_MQTT_EVENT_RECONNECT: {
-            CM_INFO("connected,fd = %d", _mqtt_conncection->fd);
+            cm_info("connected,fd = %d", _mqtt_conncection->fd);
             iotx_cm_event_msg_t event;
             event.type = IOTX_CM_EVENT_CLOUD_CONNECTED;
             event.msg = NULL;
-            /* CM_INFO(cm_log_info_MQTT_reconnect); */
+            /* cm_info(cm_log_info_MQTT_reconnect); */
 
             if (_mqtt_conncection->event_handler) {
                 _mqtt_conncection->event_handler(_mqtt_conncection->fd, &event, _mqtt_conncection->cb_data);
@@ -181,13 +167,13 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             iotx_cm_data_handle_cb topic_handle_func = pcontext;
 
             if (topic_handle_func == NULL) {
-                CM_ERR("sub handle is null!");
+                cm_err("sub handle is null!");
                 return;
             }
 
             char *topic = cm_malloc(topic_info->topic_len + 1);
             if (topic == NULL) {
-                CM_ERR("topic malloc failed");
+                cm_err("topic malloc failed");
                 return;
             }
             memset(topic, 0, topic_info->topic_len + 1);
@@ -200,11 +186,11 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         break;
 
         case IOTX_MQTT_EVENT_BUFFER_OVERFLOW:
-            CM_WARN("buffer overflow", msg->msg);
+            cm_warning("buffer overflow", msg->msg);
             break;
 
         default:
-            CM_WARN("msg type unkown, type = %d", msg->event_type);
+            cm_warning("msg type unkown, type = %d", msg->event_type);
             break;
     }
 }
@@ -214,67 +200,52 @@ static int  _mqtt_connect(uint32_t timeout)
 {
     void *pclient;
     iotx_time_t timer;
-    iotx_mqtt_param_t *mqtt_param = NULL;
-    iotx_conn_info_pt pconn_info = NULL;
+    iotx_mqtt_param_t mqtt_param;
+    iotx_sign_mqtt_t mqtt_sign;
+    iotx_dev_meta_info_t dev_info;
 
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
-    char device_id[DEVICE_ID_LEN + 1] = {0};
-
-    POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
-
-    mqtt_param = _mqtt_conncection->open_params;
-    POINTER_SANITY_CHECK(mqtt_param, NULL_VALUE_ERROR);
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
-    device_id[DEVICE_ID_LEN-1] = '\0';
-    HAL_GetDeviceSecret(device_secret);
-
-    ARGUMENT_SANITY_CHECK(strlen(device_name), FAIL_RETURN);
-    ARGUMENT_SANITY_CHECK(strlen(product_key), FAIL_RETURN);
-    ARGUMENT_SANITY_CHECK(strlen(device_id), FAIL_RETURN);
-    /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
-        CM_ERR("IOT_SetupConnInfo failed");
-        return -1;
+    if (_mqtt_conncection == NULL) {
+        return FAIL_RETURN;
     }
 
-    mqtt_param->port = pconn_info->port;
-    mqtt_param->host = pconn_info->host_name;
-    mqtt_param->client_id = pconn_info->client_id;
-    mqtt_param->username = pconn_info->username;
-    mqtt_param->password = pconn_info->password;
-    mqtt_param->pub_key = pconn_info->pub_key;
+    HAL_GetProductKey(dev_info.product_key);
+    HAL_GetProductSecret(dev_info.product_secret);
+    HAL_GetDeviceName(dev_info.device_name);
+    HAL_GetDeviceSecret(dev_info.device_secret);
+
+    /* Device AUTH */
+    if (SUCCESS_RETURN != IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &dev_info, &mqtt_sign)) {         // TODO: can't get region params!!!
+        cm_err("sign failed");
+        return FAIL_RETURN;
+    }
+
+    mqtt_param.port = mqtt_sign.port;
+    mqtt_param.host = mqtt_sign.hostname;
+    mqtt_param.client_id = mqtt_sign.clientid;
+    mqtt_param.username = mqtt_sign.username;
+    mqtt_param.password = mqtt_sign.password;
+
+    mqtt_param.pub_key = NULL;
+    mqtt_param.clean_session = CM_MQTT_IS_CLEAN_SESSION;
+    mqtt_param.request_timeout_ms = CM_MQTT_REQUEST_TIMEOUT_MS;
+    mqtt_param.keepalive_interval_ms = CM_MQTT_KEEPALIVE_INTERVAL_MS;
+    mqtt_param.read_buf_size = CM_MQTT_RX_MAXLEN;
+    mqtt_param.write_buf_size = CM_MQTT_TX_MAXLEN;
+    mqtt_param.handle_event.pcontext = NULL;
+    mqtt_param.handle_event.h_fp = iotx_cloud_conn_mqtt_event_handle;
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout);
 
     do {
-        pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)_mqtt_conncection->open_params);
+        pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)&mqtt_param);
         if (pclient != NULL) {
             _mqtt_conncection->context = pclient;
-            iotx_cm_event_msg_t event;
-            event.type = IOTX_CM_EVENT_CLOUD_CONNECTED;
-            event.msg = NULL;
-
-            if (_mqtt_conncection->event_handler) {
-                _mqtt_conncection->event_handler(_mqtt_conncection->fd, &event, (void *)_mqtt_conncection);
-            }
             return 0;
         }
     } while (!utils_time_is_expired(&timer));
 
-    iotx_cm_event_msg_t event;
-    event.type = IOTX_CM_EVENT_CLOUD_CONNECT_FAILED;
-    event.msg = NULL;
-
-    if (_mqtt_conncection->event_handler) {
-        _mqtt_conncection->event_handler(_mqtt_conncection->fd, &event, (void *)_mqtt_conncection);
-    }
-    CM_ERR("mqtt connect failed");
+    cm_err("mqtt connect failed");
     return -1;
 }
 
@@ -282,7 +253,9 @@ static int _mqtt_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
 {
     int qos = 0;
 
-    POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
+    if (_mqtt_conncection == NULL) {
+        return FAIL_RETURN;
+    }
 
     if (ext != NULL) {
         qos = (int)_get_mqtt_qos(ext->ack_type);
@@ -292,7 +265,9 @@ static int _mqtt_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
 
 static int _mqtt_yield(uint32_t timeout)
 {
-    POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
+    if (_mqtt_conncection == NULL) {
+        return FAIL_RETURN;
+    }
 
     return IOT_MQTT_Yield(_mqtt_conncection->context, timeout);
 }
@@ -300,15 +275,16 @@ static int _mqtt_yield(uint32_t timeout)
 static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
                      iotx_cm_data_handle_cb topic_handle_func, void *pcontext)
 {
-
     int sync = 0;
     int qos = 0;
     int timeout;
     int ret;
 
-    POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
-    POINTER_SANITY_CHECK(topic, NULL_VALUE_ERROR);
-    POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
+    if (_mqtt_conncection == NULL) {
+        return FAIL_RETURN;
+    }
+    ALINK_ASSERT_DEBUG(topic != NULL);
+    ALINK_ASSERT_DEBUG(topic_handle_func != NULL);
 
     if (ext != NULL) {
         if (ext->sync_mode == IOTX_CM_ASYNC) {
@@ -341,7 +317,11 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
 static int _mqtt_unsub(const char *topic)
 {
     int ret;
-    POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
+
+    if (_mqtt_conncection == NULL) {
+        return FAIL_RETURN;
+    }
+
     ret = IOT_MQTT_Unsubscribe(_mqtt_conncection->context, topic);
 
     if (ret < 0) {
@@ -353,7 +333,9 @@ static int _mqtt_unsub(const char *topic)
 
 static int _mqtt_close()
 {
-    POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
+    if (_mqtt_conncection == NULL) {
+        return FAIL_RETURN;
+    }
 
     cm_free(_mqtt_conncection->open_params);
     IOT_MQTT_Destroy(&_mqtt_conncection->context);
@@ -388,5 +370,3 @@ static void _set_common_handlers()
         _mqtt_conncection->close_func = _mqtt_close;
     }
 }
-
-#endif

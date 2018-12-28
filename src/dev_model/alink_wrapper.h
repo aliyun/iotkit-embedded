@@ -15,6 +15,7 @@
 int8_t HAL_GetPartnerID(char *pid_str);
 int8_t HAL_GetModuleID(char *mid_str);
 int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
+int8_t HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN]);
 int8_t HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 int8_t HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 

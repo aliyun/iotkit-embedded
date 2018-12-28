@@ -1,7 +1,7 @@
-#include "iot_import.h"
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
-#include "iot_export_event.h"
+#include "alink_wrapper.h"
+#include "iotx_alink_internal.h"
 
 #if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED) 
 #include "iotx_cm_mqtt.h"
@@ -24,13 +24,13 @@ static int inited_conn_num = 0;
     static int yield_task_leave = 1;
 #endif
 
-const char ERR_INVALID_PARAMS[] CM_READ_ONLY  = "invalid parameter";
+const char ERR_INVALID_PARAMS[] = "invalid parameter";
 int iotx_cm_open(iotx_cm_init_param_t *params)
 {
     int fd;
     iotx_cm_connection_t *connection = NULL;
 
-    POINTER_SANITY_CHECK(params, NULL_VALUE_ERROR);
+    ALINK_ASSERT_DEBUG(params != NULL);
 
     switch (params->protocol_type) {
         case IOTX_CM_PROTOCOL_TYPE_MQTT:
@@ -44,17 +44,16 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 #endif
             break;            
         default:
-            CM_WARN("protocol %d not support yet", params->protocol_type);
             break;
     }
 
     if (connection == NULL) {
-        CM_ERR("iotx_cm_open_mqtt failed");
+        cm_err("cm opon failed");
         return -1;
     }
     fd = _get_fd(connection);
     if (fd < 0) {
-        CM_ERR("get fd failed");
+        cm_err("get fd failed");
         connection->close_func();
         return -1;
     }
@@ -65,15 +64,13 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 int iotx_cm_connect(int fd, uint32_t timeout)
 {
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
     iotx_cm_connect_fp connect_func;
     HAL_MutexLock(fd_lock);
     connect_func = _cm_fd[fd]->connect_func;
     HAL_MutexUnlock(fd_lock);
-
-    iotx_event_post(IOTX_CONN_CLOUD);
 
     int ret = connect_func(timeout);
 
@@ -92,19 +89,18 @@ int iotx_cm_connect(int fd, uint32_t timeout)
                 inited_conn_num--;
             }
 #endif
-        }
-        iotx_event_post(IOTX_CONN_CLOUD_SUC);    
-    } else {
-        iotx_event_post(IOTX_CONN_CLOUD_FAIL);
+        } 
     }
-
 
     return ret;
 }
 
 static int _iotx_cm_yield(int fd, unsigned int timeout)
 {
-    POINTER_SANITY_CHECK(fd_lock, NULL_VALUE_ERROR);
+    if (fd_lock == NULL) {
+        return FAIL_RETURN;
+    }
+
     iotx_cm_yield_fp yield_func;
 
     if (fd == -1) {
@@ -124,7 +120,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     }
 
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
@@ -134,6 +130,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     return yield_func(timeout);
 
 }
+
 #if (CONFIG_SDK_THREAD_COST == 1)
 static void *_iotx_cm_yield_thread_func(void *params)
 {
@@ -160,7 +157,7 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
                 iotx_cm_data_handle_cb topic_handle_func, void *pcontext)
 {
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
@@ -174,7 +171,7 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
 int iotx_cm_unsub(int fd, const char *topic)
 {
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
@@ -190,7 +187,7 @@ int iotx_cm_unsub(int fd, const char *topic)
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len)
 {
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
@@ -204,7 +201,7 @@ int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char
 int iotx_cm_close(int fd)
 {
     if (_fd_is_valid(fd) != 0) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
@@ -241,7 +238,10 @@ int iotx_cm_close(int fd)
 
 static int inline _fd_is_valid(int fd)
 {
-    POINTER_SANITY_CHECK(fd_lock, NULL_VALUE_ERROR);
+    if (fd_lock == NULL) {
+        return FAIL_RETURN;
+    }
+
     HAL_MutexLock(fd_lock);
     int ret = (fd >= 0 && fd < CM_MAX_FD_NUM && _cm_fd[fd] != NULL) ? 0 : -1;
     HAL_MutexUnlock(fd_lock);
@@ -271,7 +271,9 @@ static int _recycle_fd(int fd)
 static int _get_fd(iotx_cm_connection_t *handle)
 {
     int i;
-    POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
+    if (handle == NULL) {
+        return FAIL_RETURN;
+    }
 
     if (fd_lock == NULL) {
         fd_lock = HAL_MutexCreate();
@@ -289,6 +291,6 @@ static int _get_fd(iotx_cm_connection_t *handle)
         }
     }
     HAL_MutexUnlock(fd_lock);
-    CM_ERR("cm fd reached the limit");
+    cm_err("cm fd reached the limit");
     return -1;
 }
