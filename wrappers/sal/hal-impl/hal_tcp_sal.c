@@ -2,34 +2,20 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#if 0
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#ifdef SAL_ENABLED
 #include <sal_export.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#endif
+#include <atparser.h>
 
-static uint64_t _linux_get_time_ms(void)
+extern uint64_t HAL_UptimeMs(void);
+static uint64_t _get_time_ms(void)
 {
-    struct timeval tv = { 0 };
-    uint64_t time_ms;
-
-    gettimeofday(&tv, NULL);
-
-    time_ms = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-
-    return time_ms;
+    return HAL_UptimeMs();
 }
 
-static uint64_t _linux_time_left(uint64_t t_end, uint64_t t_now)
+static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
 {
     uint64_t t_left;
 
@@ -123,67 +109,30 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
 {
     int ret;
     uint32_t len_sent;
-    uint64_t t_end, t_left;
-    fd_set sets;
+    uint64_t t_end;
     int net_err = 0;
 
-    t_end = _linux_get_time_ms() + timeout_ms;
+    t_end = _get_time_ms() + timeout_ms;
     len_sent = 0;
     ret = 1; /* send one time if timeout_ms is value 0 */
 
     do {
-        t_left = _linux_time_left(t_end, _linux_get_time_ms());
-
-        if (0 != t_left) {
-            struct timeval timeout;
-
-            FD_ZERO(&sets);
-            FD_SET(fd, &sets);
-
-            timeout.tv_sec = t_left / 1000;
-            timeout.tv_usec = (t_left % 1000) * 1000;
-
-            ret = select(fd + 1, NULL, &sets, NULL, &timeout);
-            if (ret > 0) {
-                if (0 == FD_ISSET(fd, &sets)) {
-                    printf("Should NOT arrive\n");
-                    /* If timeout in next loop, it will not sent any data */
-                    ret = 0;
-                    continue;
-                }
-            } else if (0 == ret) {
-                printf("select-write timeout %d\n", (int)fd);
-                break;
-            } else {
-                if (EINTR == errno) {
-                    printf("EINTR be caught\n");
-                    continue;
-                }
-
-                printf("select-write fail, ret = select() = %d\n", ret);
-                net_err = 1;
-                break;
-            }
-        }
-
+        ret = send(fd, buf + len_sent, len - len_sent, 0);
         if (ret > 0) {
-            ret = send(fd, buf + len_sent, len - len_sent, 0);
-            if (ret > 0) {
-                len_sent += ret;
-            } else if (0 == ret) {
-                printf("No data be sent\n");
-            } else {
-                if (EINTR == errno) {
-                    printf("EINTR be caught\n");
-                    continue;
-                }
-
-                printf("send fail, ret = send() = %d\n", ret);
-                net_err = 1;
-                break;
+            len_sent += ret;
+        } else if (0 == ret) {
+            printf("No data be sent\n");
+        } else {
+            if (EINTR == errno) {
+                printf("EINTR be caught\n");
+                continue;
             }
+
+            printf("send fail, ret = send() = %d\n", ret);
+            net_err = 1;
+            break;
         }
-    } while (!net_err && (len_sent < len) && (_linux_time_left(t_end, _linux_get_time_ms()) > 0));
+    } while (!net_err && (len_sent < len) && (_time_left(t_end, _get_time_ms()) > 0));
 
     if (net_err) {
         return -1;
@@ -197,25 +146,23 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     int ret, err_code;
     uint32_t len_recv;
     uint64_t t_end, t_left;
-    fd_set sets;
-    struct timeval timeout;
 
-    t_end = _linux_get_time_ms() + timeout_ms;
+
+    t_end = _get_time_ms() + timeout_ms;
     len_recv = 0;
     err_code = 0;
 
     do {
-        t_left = _linux_time_left(t_end, _linux_get_time_ms());
+        t_left = _time_left(t_end, _get_time_ms());
         if (0 == t_left) {
             break;
         }
-        FD_ZERO(&sets);
-        FD_SET(fd, &sets);
 
-        timeout.tv_sec = t_left / 1000;
-        timeout.tv_usec = (t_left % 1000) * 1000;
+        ret = 1;
+#if AT_SINGLE_TASK
+        at_yield(NULL, 0, NULL, AT_UART_TIMEOUT_MS);
+#endif
 
-        ret = select(fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
             ret = recv(fd, buf + len_recv, len - len_recv, 0);
             if (ret > 0) {
@@ -246,3 +193,4 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     /* It will get error code on next calling */
     return (0 != len_recv) ? len_recv : err_code;
 }
+#endif

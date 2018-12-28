@@ -202,12 +202,17 @@ static int mal_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 /* check whether the topic is matched or not */
 static char mal_mc_is_topic_matched(char *topicFilter, const char *topicName)
 {
+    char *curf;
+    const char *curn;
+    const char *curn_end;
+
     if (!topicFilter || !topicName) {
         return 0;
     }
-    char *curf = topicFilter;
-    const char *curn = topicName;
-    const char *curn_end = curn + strlen(topicName);
+
+    curf = topicFilter;
+    curn = topicName;
+    curn_end = curn + strlen(topicName);
 
     while (*curf && curn < curn_end) {
         if (*curn == '/' && *curf != '/') {
@@ -342,11 +347,12 @@ static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_m
                             iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext, int timeout_ms)
 {
     int status;
+    iotx_mc_topic_handle_t *h;
 
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
     }
-    iotx_mc_topic_handle_t *h = mal_malloc(sizeof(iotx_mc_topic_handle_t));
+    h = mal_malloc(sizeof(iotx_mc_topic_handle_t));
     if (h == NULL) {
         mal_err("maloc failed!");
         return FAIL_RETURN;
@@ -381,13 +387,13 @@ static int MALMQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsi
 {
     int status;
     int ret;
+    iotx_mc_topic_handle_t *h;
 
     ret = HAL_MDAL_MAL_Unsubscribe(topicFilter, &msgId, &status);
     if (ret != 0) {
         return -1;
     }
 
-    iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
         if (((strlen(topicFilter) == strlen(h->topic_filter))
              && (strcmp(topicFilter, (char *)h->topic_filter) == 0))
@@ -427,16 +433,17 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
 {
     iotx_mqtt_topic_info_t topic_msg = {0};
     int flag_matched = 0;
+    static uint64_t time_prev = 0;
+    uint64_t time_curr = 0;
+    /* flowControl for specific topic */
+    char *filterStr = "{\"method\":\"thing.service.property.set\"";
+    int filterLen = strlen(filterStr);
+    iotx_mc_topic_handle_t *h, *msg_handle;
 
     if (!c || !topic || !msg) {
         return FAIL_RETURN;
     }
     mal_debug("recv pub topic=%s msg=%s", topic, msg);
-    /* flowControl for specific topic */
-    static uint64_t time_prev = 0;
-    uint64_t time_curr = 0;
-    char *filterStr = "{\"method\":\"thing.service.property.set\"";
-    int filterLen = strlen(filterStr);
 
     if (0 == memcmp(msg, filterStr, filterLen)) {
         /* mal_debug("iotx_mc_handle_recv_PUBLISH match filterstring"); */
@@ -454,14 +461,13 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
 
     /* we have to find the right message handler - indexed by topic */
     HAL_MutexLock(c->lock_generic);
-    iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
         if (((strlen(topic) == strlen(h->topic_filter))
              && (strcmp(topic, (char *)h->topic_filter) == 0))
             || (mal_mc_is_topic_matched((char *)h->topic_filter, topic))) {
             mal_debug("pub topic is matched");
 
-            iotx_mc_topic_handle_t *msg_handle = h;
+            msg_handle = h;
             HAL_MutexUnlock(c->lock_generic);
 
             if (NULL != msg_handle->handle.h_fp) {
@@ -565,12 +571,12 @@ static void mal_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t n
 
 static int mal_mc_recv_buf_init()
 {
+    int i;
     g_at_mqtt_buff_mgr.read_index  = 0;
     g_at_mqtt_buff_mgr.write_index = 0;
     g_at_mqtt_buff_mgr.last_write_index = 0;
     g_at_mqtt_buff_mgr.buffer_num = MAL_MC_DEFAULT_BUFFER_NUM;
 
-    int i;
     for (i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
         if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
@@ -594,11 +600,11 @@ static int mal_mc_recv_buf_init()
 
 static void mal_mc_recv_buf_deinit()
 {
+    int i;
     g_at_mqtt_buff_mgr.read_index  = 0;
     g_at_mqtt_buff_mgr.write_index = 0;
     g_at_mqtt_buff_mgr.last_write_index = 0;
 
-    int i;
     for (i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
         if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
@@ -833,6 +839,7 @@ RETURN:
 /************************  Public Interface ************************/
 void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params) 
 {
+    int err;
     iotx_mc_client_t   *pclient;
 
     pclient = (iotx_mc_client_t *)mal_malloc(sizeof(iotx_mc_client_t));
@@ -844,7 +851,7 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
         return NULL;
     }
 
-    int err = mal_mc_init(pclient, mqtt_params);
+    err = mal_mc_init(pclient, mqtt_params);
     if (SUCCESS_RETURN != err) {
         mal_err("mal_mc_init failed");
         mal_free(pclient);
@@ -880,8 +887,9 @@ int wrapper_mqtt_connect(void *client)
 
 int wrapper_mqtt_yield(void *client, int timeout_ms)
 {
-    int                 rc = SUCCESS_RETURN;
+    int                rc = SUCCESS_RETURN;
     mal_time_t         time;
+    unsigned int       left_t;
 
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
 
@@ -916,7 +924,7 @@ int wrapper_mqtt_yield(void *client, int timeout_ms)
         rc = mal_mc_cycle(pClient, &time);
         HAL_MutexUnlock(pClient->lock_yield);
 
-        unsigned int left_t = mal_time_left(&time);
+        left_t = mal_time_left(&time);
         if (left_t < 10) {
             HAL_SleepMs(left_t);
         } else {

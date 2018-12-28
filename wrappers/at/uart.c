@@ -12,7 +12,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "atcmd_config_platform.h"
+#include "atparser_opts.h"
 #include "uart.h"
 
 static int at_uart_fd = -1;
@@ -20,6 +20,7 @@ static int at_uart_fd = -1;
 static int read_and_discard_all_data(const int fd)
 {
     int was_msg_already_printed = 0;
+    int errno_code;
 
     while (1) {
         char buffer[1024];
@@ -41,7 +42,7 @@ static int read_and_discard_all_data(const int fd)
 
         assert(read_count == -1);  /* According to the specification. */
 
-        const int errno_code = errno;
+        errno_code = errno;
 
         if (errno_code == EINTR)
             continue;
@@ -93,7 +94,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     if (0 != cfsetospeed(&t_opt, baud))
         return -1;
 
-    // 8N1, flow control, etc.
+    /* 8N1, flow control, etc. */
     t_opt.c_cflag |= (CLOCAL | CREAD);
     if (uart->config.parity == NO_PARITY)
         t_opt.c_cflag &= ~PARENB;
@@ -120,8 +121,10 @@ int32_t hal_uart_init(uart_dev_t *uart)
         break;
     }
     t_opt.c_lflag &= ~(ECHO | ECHOE | ISIG | ICANON);
+#if 0
     if (uart->config.flow_control == FLOW_CONTROL_DISABLED)
         t_opt.c_cflag &= ~CRTSCTS;
+#endif
 
     /**
      * AT is going to use a binary protocol, so make sure to
@@ -139,7 +142,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
     printf("open at uart succeed\r\n");
 
-    // clear uart buffer
+    /* clear uart buffer */
     read_and_discard_all_data(fd);
 
     return 0;
@@ -184,7 +187,6 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     else fd = 1;
 
     if ((n = read(fd, data, expect_size)) == -1) {
-        //printf("read failed\r\n");
         return -1;
     }
 

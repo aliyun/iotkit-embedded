@@ -10,6 +10,7 @@
 #include "sal_ipaddr.h"
 #include "sal_sockets.h"
 #include "sal_err.h"
+#include "sal_opts.h"
 
 #endif
 

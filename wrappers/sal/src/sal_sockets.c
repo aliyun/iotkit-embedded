@@ -13,9 +13,11 @@
 #endif
 
 static void sal_deal_event(int s, enum netconn_evt evt);
+#if SAL_SELECT_SUPPORT
 static int  sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
                         fd_set *exceptset_in, fd_set *readset_out,
                         fd_set *writeset_out, fd_set *exceptset_out);
+#endif
 
 static struct sal_sock *tryget_socket(int s);
 
@@ -76,6 +78,7 @@ union sockaddr_aligned {
     ((namelen) == sizeof(struct sockaddr_in))
 
 #ifndef set_errno
+    int errno;
     #define set_errno(err) do { if (err) { errno = (err); } } while(0)
 #endif
 
@@ -724,10 +727,10 @@ static err_t salnetconn_recv_data(sal_netconn_t *conn, sal_netbuf_t **new_buf)
 
 }
 
+#if SAL_SELECT_SUPPORT
 int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
                fd_set *exceptset, struct timeval *timeout)
 {
-#if SAL_SELECT_SUPPORT
     uint32_t waitres = 0;
     int nready;
     fd_set lreadset, lwriteset, lexceptset;
@@ -925,9 +928,6 @@ return_copy_fdsets:
         *exceptset = lexceptset;
     }
     return nready;
-#else
-    return SAL_SOCKET_UNSUPPORT;
-#endif
 }
 
 /* 把有事件的标出来 */
@@ -996,6 +996,7 @@ static int sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
     SAL_ASSERT("nready >= 0", nready >= 0);
     return nready;
 }
+#endif
 
 int sal_recvfrom(int s, void *mem, size_t len, int flags,
                  struct sockaddr *from, socklen_t *fromlen)
@@ -1333,11 +1334,13 @@ static void sal_deal_event(int s, enum netconn_evt evt)
 {
     struct sal_select_cb *scb;
     int last_select_cb_ctr;
+    SAL_ARCH_DECL_PROTECT(lev);
     struct sal_sock *sock = tryget_socket(s);
+
     if (!sock) {
         return;
     }
-    SAL_ARCH_DECL_PROTECT(lev);
+
     SAL_ARCH_PROTECT(lev);
     /* Set event as required */
     switch (evt) {
@@ -1805,6 +1808,7 @@ struct hostent *sal_gethostbyname(const char *name)
     return &s_hostent;
 }
 
+#if SAL_SOCK_OPTION
 int sal_getsockopt(int s, int level, int optname,
                    void *optval, socklen_t *optlen)
 {
@@ -1950,6 +1954,7 @@ int sal_fcntl(int s, int cmd, int val)
     }
     return ret;
 }
+#endif
 
 int sal_shutdown(int s, int how)
 {
@@ -1967,6 +1972,7 @@ int sal_getaddrinfo(const char *nodename, const char *servname,
     size_t total_size;
     size_t namelen = 0;
     int ai_family;
+    struct sockaddr_in *sa4;
 
     if (res == NULL) {
         return EAI_FAIL;
@@ -2047,7 +2053,7 @@ int sal_getaddrinfo(const char *nodename, const char *servname,
     memset(ai, 0, total_size);
     /* cast through void* to get rid of alignment warnings */
     sa = (struct sockaddr_storage *)(void *)((u8_t *)ai + sizeof(struct addrinfo));
-    struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
+    sa4 = (struct sockaddr_in *)sa;
     /* set up sockaddr */
     inet_addr_from_ipaddr(&sa4->sin_addr, ip_2_ip4(&addr));
     sa4->sin_family = AF_INET;
@@ -2082,6 +2088,3 @@ void sal_freeaddrinfo(struct addrinfo *ai)
         sal_free(ai);
     }
 }
-
-
-

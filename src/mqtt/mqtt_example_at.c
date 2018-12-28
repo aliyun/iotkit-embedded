@@ -4,6 +4,8 @@
 #include "infra_defs.h"
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
+#include "sal_export.h"
+#include "atparser.h"
 
 #define EXAMPLE_PRODUCT_KEY     "a1X2bEnP82z"
 #define EXAMPLE_PRODUCT_SECRET  "7jluWm1zql7bt8qK"
@@ -22,6 +24,7 @@ int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
 int8_t HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 uint64_t HAL_UptimeMs(void);
 int8_t HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+void HAL_SleepMs(uint32_t ms);
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -127,16 +130,36 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     printf("msg->event_type : %d\n", msg->event_type);
 }
 
+int at_connect_wifi(char *ssid, char *pwd)
+{
+    char conn_str[100]= {0};
+    char out[20] = {0};
+    int timeout_ms = 1000;
+    int wifi_got_ip_delay = 3000;
+
+    sprintf(conn_str, "AT+WJAP=%s,%s", ssid, pwd);
+
+    if (at_send_wait_reply(conn_str, strlen(conn_str), true,
+                           out, sizeof(out), NULL, timeout_ms) < 0){
+        return -1;
+    }
+
+    if (strstr(out, "ERROR") != NULL) {
+        return -1;
+    }
+    HAL_SleepMs(wifi_got_ip_delay);
+
+    return 0;
+}
+
 void at_comm_init()
 {
 #if defined(SAL_ENABLED) || defined(MAL_ENABLED)
-    extern int at_init();
     if (at_init() < 0) {
         printf("Error: at init failed!\n");
     }
 
 #if defined(SAL_ENABLED)
-    extern int sal_init();
     if (sal_init() < 0) {
         printf("Errro: sal init failed!\n");
     }
@@ -144,7 +167,6 @@ void at_comm_init()
 
 #define WIFI_SSID "Yuemewifi-3766"
 #define WIFI_PWD  "aos12345"
-    extern int at_connect_wifi(char *ssid, char *pwd);
     if (at_connect_wifi(WIFI_SSID, WIFI_PWD) < 0) {
         printf("wifi connect failed!\n");
     }
@@ -155,17 +177,18 @@ void at_comm_init()
 
 int main(int argc, char *argv[])
 {
-    at_comm_init();
-
-    printf("mqtt example\n");
-
     int res = 0;
     void *pclient = NULL;
     uint64_t time_prev = 0;
-    iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
+    iotx_mqtt_region_types_t region;
     iotx_dev_meta_info_t meta;
     iotx_sign_mqtt_t sign_mqtt;
     iotx_mqtt_param_t mqtt_params;
+
+    at_comm_init();
+    printf("mqtt example\n");
+
+    region = IOTX_CLOUD_REGION_SHANGHAI;
 
     memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
     memcpy(meta.product_key, EXAMPLE_PRODUCT_KEY, strlen(EXAMPLE_PRODUCT_KEY));

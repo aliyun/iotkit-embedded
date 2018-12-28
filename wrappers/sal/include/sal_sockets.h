@@ -5,8 +5,11 @@
 #ifndef _SAL_SOCKET_H_
 #define _SAL_SOCKET_H_
 
+#include "sal_opts.h"
 #include <stddef.h> /* for size_t */
+#if SAL_SELECT_SUPPORT
 #include <sys/time.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -193,8 +196,10 @@ typedef struct ip_mreq {
 #define SO_CONTIMEO    0x1009 /* Unimplemented: connect timeout */
 #define SO_NO_CHECK    0x100a /* don't create UDP checksum */
 
+#if SAL_SELECT_SUPPORT
 int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
                fd_set *exceptset, struct timeval *timeout);
+#endif
 
 int sal_socket(int domain, int type, int protocol);
 

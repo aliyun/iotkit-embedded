@@ -16,7 +16,6 @@
 #include "sal_err.h"
 #include "sal_pcb.h"
 #include "sal_arch_internal.h"
-#include "sal_import.h"
 #include "sal_sockets.h"
 
 #include "sal_wrapper.h"
