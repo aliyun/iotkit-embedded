@@ -2,7 +2,6 @@ LIBA_TARGET := libiot_mqtt.a
 
 HDR_REFS        := src/infra
 
-DEPENDS         += external_libs/refs hal
 LIB_SRCS_PATTERN := *.c
 
 ifneq (,$(filter -DMQTT_DEFAULT_IMPL,$(CFLAGS)))
