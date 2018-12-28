@@ -66,11 +66,12 @@ static int _offline_subs_list_init()
 
 static int _offline_subs_list_deinit()
 {
+    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
+
     if (_mqtt_offline_subs_list == NULL || _mqtt_offline_subs_list->mutex == NULL) {
         return NULL_VALUE_ERROR;
     }
 
-    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
     list_for_each_entry_safe(node, next_node, &_mqtt_offline_subs_list->offline_sub_list, linked_list,
                              iotx_mc_offline_subs_t) {
         list_del(&node->linked_list);
@@ -91,6 +92,8 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter,
                                        void *pcontext)
 {
     int ret;
+    iotx_mc_offline_subs_t *sub_info;
+
     if (topic_filter == NULL || topic_handle_func == NULL) {
         return NULL_VALUE_ERROR;
     }
@@ -100,7 +103,7 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter,
     if (ret != 0) {
         return ret;
     }
-    iotx_mc_offline_subs_t *sub_info = mqtt_api_malloc(sizeof(iotx_mc_offline_subs_t));
+    sub_info = mqtt_api_malloc(sizeof(iotx_mc_offline_subs_t));
     if (sub_info == NULL) {
         return ERROR_MALLOC;
     }
@@ -152,7 +155,8 @@ static int iotx_mqtt_deal_offline_subs(void *client)
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
     int                 err;
-    void   *pclient;
+    void *              pclient;
+    int                 ret;
     iotx_mqtt_param_t *mqtt_params = NULL;
 
     if (pInitParams == NULL) {
@@ -176,7 +180,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         HAL_GetDeviceSecret(meta.device_secret);
         memset(&sign_mqtt, 0, sizeof(iotx_sign_mqtt_t));
 
-        int ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &sign_mqtt);
+        ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &sign_mqtt);
         if (ret != SUCCESS_RETURN) {
             mqtt_api_free(mqtt_params);
             return NULL;
