@@ -8,6 +8,14 @@ WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
 EXAMPLES_DIR=${OUTPUT_DIR}/eng/examples
 WRAPPER_DOC=./tools/doc/wrapper
 
+MODULES=( \
+"gen_infra" \
+"gen_dev_sign" \
+"gen_mqtt" \
+"gen_sal" \
+"gen_dynreg" \
+)
+
 gen_eng_dir() {
     rm -rf ${OUTPUT_DIR}/eng
     mkdir -p ${INFRA_DIR}
@@ -28,7 +36,7 @@ gen_infra_default () {
     echo -e "\n#endif" >> ${INFRA_DIR}/infra_config.h
 }
 
-gen_infra_module() {
+gen_infra() {
     M_INFRA=$(echo "${1}" | grep 'INFRA')
     echo "extract infra module..."
     echo -e "${M_INFRA}\n"
@@ -49,12 +57,12 @@ gen_wrapper_c() {
     WRAPPER_FUNCS=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "HAL_.*(" {} | sed 's/(//g' | sort -u)"\n"
     WRAPPER_FUNCS+=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "wrapper_.*(" {} | sed 's/(//g' | sort -u)
 
-    [[ ${M_MQTT_DEFAULT_IMPL} ]] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/wrapper_mqtt/!{p}')
+    [[ ${M_MQTT_COMM_ENABLED} && ${M_MQTT_DEFAULT_IMPL} ]] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/wrapper_mqtt/!{p}')
 
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     find ./output/eng -name *wrapper.h | sed -n 's/.*\//#include "/p' | sed -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrapper.c
-    [[ ! ${M_MQTT_DEFAULT_IMPL} ]] && echo -e "#include \"mqtt_api.h\"" >> ${WRAPPERS_DIR}/wrapper.c
+    [[ ${M_MQTT_COMM_ENABLED} && ! ${M_MQTT_DEFAULT_IMPL} ]] && echo -e "#include \"mqtt_api.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "\n" >> ${WRAPPERS_DIR}/wrapper.c
 
     # echo -e "${WRAPPER_FUNCS}" |awk '{ printf("%03d %s\n", NR, $0); }'
@@ -78,7 +86,7 @@ gen_wrapper_c() {
 
 }
 
-gen_dev_sign_module() {
+gen_dev_sign() {
     M_DEV_SIGN=$(echo "${1}" | grep -w 'DEV_SIGN')
 
     [[ ! ${M_DEV_SIGN} ]] && return
@@ -95,7 +103,25 @@ gen_dev_sign_module() {
     fi
 }
 
-gen_mqtt_module() {
+gen_dynreg() {
+    M_DYNREG=$(echo "${1}" | grep -w 'DYNAMIC_REGISTER')
+    [[ ! ${M_DYNREG} ]] && return
+
+    echo "extract dynamic_register module..."
+    echo -e "${M_DYNREG}\n"
+
+    SRC_DYNREG=$(find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname ${M_DYNREG} -type d)
+    [[ ! ${SRC_DYNREG} ]] && return
+
+    DYNREG_DIR=$(echo "${SRC_DYNREG}" | sed -n 's/.*\///p' | sed -n 's/^/'${OUTPUT_DIR}'\/eng\//p')
+    mkdir -p ${DYNREG_DIR}
+
+    find ${SRC_DYNREG} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${DYNREG_DIR}
+    find ${SRC_DYNREG} -maxdepth 1 -name *example*.c | xargs -i cp -f {} ${EXAMPLES_DIR}
+    
+}
+
+gen_mqtt() {
     M_MQTT_COMM_ENABLED=$(echo "${1}" | grep -w 'MQTT_COMM_ENABLED')
     M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
     M_MAL_ENABLED=$(echo "${1}" | grep -w 'MAL_ENABLED')
@@ -123,7 +149,7 @@ gen_mqtt_module() {
     fi
 }
 
-gen_sal_module() {
+gen_sal() {
     M_SAL_ENABLED=$(echo "${1}" | grep -w 'SAL_ENABLED')
     M_SAL_HAL_IMPL_ENABLED=$(echo "${1}" | grep -w 'SAL_HAL_IMPL_ENABLED')
 
@@ -143,7 +169,6 @@ gen_sal_module() {
         [[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
         [[ ${M_SAL_HAL_IMPL_ENABLED} ]] && find ${SRC_SAL_AT} -name at -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}
     fi
-    # mkdir -p ${WRAPPERS_DIR}/sal
 }
 
 # Generate Directory
@@ -153,8 +178,10 @@ gen_eng_dir
 gen_infra_default "${MACRO_LIST}"
 
 # Generate Module Code
-gen_infra_module "${MACRO_LIST}"
-gen_dev_sign_module "${MACRO_LIST}"
-gen_mqtt_module "${MACRO_LIST}"
-gen_sal_module "${MACRO_LIST}"
+for mod in ${MODULES[*]}
+do
+    ${mod} "${MACRO_LIST}"
+done
+
+# Genrate wrapper.c
 gen_wrapper_c "${MACRO_LIST}"
