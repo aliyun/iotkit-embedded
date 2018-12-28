@@ -20,6 +20,9 @@
 /* debug, assert, error log support */
 #define SAL_USE_DEBUG                 SAL_OPT_DISABLED
 
+/* get/set socket option, fcntl */
+#define SAL_SOCK_OPTION               SAL_OPT_DISABLED
+
 /* input mbox default size */
 #define SAL_DEFAULT_INPUTMBOX_SIZE        8
 

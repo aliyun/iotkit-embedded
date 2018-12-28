@@ -5,8 +5,6 @@
 #ifndef _ATPARSER_INTERNAL_H_
 #define _ATPARSER_INTERNAL_H_
 
-#include "infra_list.h"
-
 #define OOB_MAX 5
 
 typedef struct oob_s
@@ -28,6 +26,8 @@ typedef struct oob_s
  *     | rsp   |     | rsp   |
  *     ---------     ---------
  */
+#if !AT_SINGLE_TASK
+#include "infra_list.h"
 typedef struct at_task_s
 {
     slist_t   next;
@@ -43,13 +43,13 @@ typedef struct at_task_s
     uint32_t  rsp_offset;
     uint32_t  rsp_len;
 } at_task_t;
+#endif
 
 /**
  * Parser structure for parsing AT commands
  */
 typedef struct
 {
-    /// used only internally
     uart_dev_t *_pstuart;
     int         _timeout;
     char *      _default_recv_prefix;
@@ -65,7 +65,9 @@ typedef struct
     void *      at_uart_recv_mutex;
     void *      at_uart_send_mutex;
     void *      task_mutex;
-    slist_t     task_l;    
+#if !AT_SINGLE_TASK
+    slist_t     task_l;
+#endif
 } at_parser_t;
 
 #define TASK_DEFAULT_WAIT_TIME 5000
@@ -74,28 +76,24 @@ typedef struct
 #define AT_WORKER_STACK_SIZE   1024
 #endif
 
-#ifndef AT_WORKER_PRIORITY
-#define AT_WORKER_PRIORITY     AOS_DEFAULT_APP_PRI
-#endif
-
 #ifndef AT_UART_TIMEOUT_MS
 #define AT_UART_TIMEOUT_MS     1000
 #endif
 
-#define atparser_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atparser_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atparser_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atparser_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atparser_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atparser_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 
 
 #ifdef INFRA_MEM_STATS
-#define atparser_malloc(size)            LITE_malloc(size, MEM_MAGIC, "atpaser")
-#define atparser_free(ptr)               LITE_free(ptr)
+#define atpsr_malloc(size)            LITE_malloc(size, MEM_MAGIC, "atpaser")
+#define atpsr_free(ptr)               LITE_free(ptr)
 #else
-#define atparser_malloc(size)            HAL_Malloc(size)
-#define atparser_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#define atpsr_malloc(size)            HAL_Malloc(size)
+#define atpsr_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 #endif
 

@@ -5,8 +5,7 @@
 #ifndef _AT_PARSER_H_
 #define _AT_PARSER_H_
 
-#include "atcmd_config_platform.h"
-#include "atcmd_config_module.h"
+#include "atparser_opts.h"
 
 #ifndef bool
 #define bool unsigned char
@@ -31,7 +30,7 @@ typedef void (*at_recv_cb)(void *arg, char *buf, int buflen);
  * initialization
  * 
  */
-int at_init();
+int at_init(void);
 
 /**
  * at send and wait reply
@@ -42,10 +41,12 @@ int at_init();
  * @param replybuf reply buffer.
  * @param bufsize reply buffer size
  * @param atcmdconfig AT cmd reply format config. Use default if NULL 
+ * @param timeout
  */
 int at_send_wait_reply(const char *data, int datalen, bool delimiter,
                        char *replybuf, int bufsize,
-                       const atcmd_config_t *atcmdconfig);
+                       const atcmd_config_t *atcmdconfig,
+                       int timeout_ms);
 
 /**
  * at send and does not wait reply
@@ -78,6 +79,17 @@ int at_read(char *outbuf, int readsize);
 int at_register_callback(const char *prefix, const char *postfix,
                          int maxlen, at_recv_cb cb, void *arg);
 
+
+/**
+ * at yield receive function. Only used in single task scenario
+ *
+ * @param replybuf reply buffer.
+ * @param bufsize reply buffer size.
+ * @param atcmdconfig AT cmd reply format config. Use default if NULL
+ * @param timeout_ms receive timeout in millisecond
+ */
+int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
+             int timeout_ms);
 #endif
 
 
