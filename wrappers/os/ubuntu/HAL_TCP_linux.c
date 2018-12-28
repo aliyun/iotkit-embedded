@@ -125,11 +125,11 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     uint32_t len_sent;
     uint64_t t_end, t_left;
     fd_set sets;
+    int net_err = 0;
 
     t_end = _linux_get_time_ms() + timeout_ms;
     len_sent = 0;
     ret = 1; /* send one time if timeout_ms is value 0 */
-    int net_err = 0;
 
     do {
         t_left = _linux_time_left(t_end, _linux_get_time_ms());

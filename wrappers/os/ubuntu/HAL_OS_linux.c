@@ -410,10 +410,11 @@ int HAL_Timer_Delete(void *timer)
 
 int HAL_GetNetifInfo(char *nif_str)
 {
+    const char *net_info = "WiFi|03ACDEFF0032";
+
     memset(nif_str, 0x0, IOTX_NETWORK_IF_LEN);
 
     /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    const char *net_info = "WiFi|03ACDEFF0032";
     strncpy(nif_str, net_info, strlen(net_info));
     /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
     // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");

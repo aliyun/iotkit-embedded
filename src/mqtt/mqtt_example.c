@@ -129,8 +129,6 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
 int main(int argc, char *argv[])
 {
-    HAL_Printf("mqtt example\n");
-
     int res = 0;
     void *pclient = NULL;
     uint64_t time_prev = 0;
@@ -138,6 +136,8 @@ int main(int argc, char *argv[])
     iotx_dev_meta_info_t meta;
     iotx_sign_mqtt_t sign_mqtt;
     iotx_mqtt_param_t mqtt_params;
+
+    HAL_Printf("mqtt example\n");
 
     memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
     memcpy(meta.product_key, EXAMPLE_PRODUCT_KEY, strlen(EXAMPLE_PRODUCT_KEY));
