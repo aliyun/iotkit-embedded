@@ -165,14 +165,6 @@ typedef enum {
 
 
 
-typedef enum {
-    ALINK_CODE_PARAMS_INVALID        = -4001,
-    ALINK_CODE_STATE_ERROR           = -4002,   
-    ALINK_CODE_NETWORK_ERROR         = -4003,
-    ALINK_CODE_AUTH_ERROR            = -4004,
-    ALINK_CODE_GATEWAY_UNSUPPORTED   = -4005,
-    ALINK_CODE_MEMORY_NOT_ENOUGH     = -4006,
-} iotx_alink_errorcode_t;
 
 
 #endif /* #ifndef __IOTX_ALINK_INTERNAL_H__ */

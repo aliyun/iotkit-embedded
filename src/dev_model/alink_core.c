@@ -16,6 +16,7 @@
 
 typedef struct {
     uint8_t                 is_inited;
+    alink_core_status_t     status;
     uint8_t                 bearer_num;
     void                   *mutex;
 
@@ -27,9 +28,6 @@ typedef struct {
     alink_bearer_node_t    *p_activce_bearer;
     uint32_t                msgid;              // TODO
 
-    uint16_t                subdev_num;
-    uint32_t                devid_alloc;
-    list_head_t             dev_list;           // still use a huge list, TODO
 } alink_core_ctx_t;
 
 
@@ -90,13 +88,13 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
     int res = FAIL_RETURN;
 
     if (strlen(dev_info->product_key) == 0 || strlen(dev_info->device_name) == 0) {
-        return ALINK_CODE_PARAMS_INVALID;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
-    if (alink_core_ctx.is_inited) {
-        return res;
+    if (alink_core_ctx.status > ALINK_CORE_STATUS_DEINIT) {
+        return SUCCESS_RETURN;          /* already init, just return success */
     }
-    alink_core_ctx.is_inited = 1;
+    alink_core_ctx.status = ALINK_CORE_STATUS_INITED;
 
     alink_core_ctx.mutex = HAL_MutexCreate();
     if (alink_core_ctx.mutex == NULL) {
@@ -138,10 +136,10 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 /** TODO: not multi thread safe **/
 static int _alink_core_deinit(void)
 {
-    if (!alink_core_ctx.is_inited) {
+    if (alink_core_ctx.status == ALINK_CORE_STATUS_DEINIT) {
         return FAIL_RETURN;
     }
-    alink_core_ctx.is_inited = 0;
+    alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;
 
     if (alink_core_ctx.mutex) {
         HAL_MutexDestroy(alink_core_ctx.mutex);
@@ -188,7 +186,7 @@ int _alink_core_register_downstream(const char *level, alink_bearer_rx_cb_t rx_f
 
     char *uri = alink_malloc(strlen(uri_fmt) + pk_len + dn_len);
     if (uri == NULL) {
-        return ALINK_CODE_MEMORY_NOT_ENOUGH;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
     HAL_Snprintf(uri, uri_fmt, alink_core_ctx.product_key, alink_core_ctx.device_name, level);
@@ -243,13 +241,17 @@ static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t 
         devid = 0;
     }
     else {
+#ifdef DEVICE_MODEL_GATEWAY                
         /* get the devid */
-        alink_subdev_search_devid_by_pkdn(product_key, device_name, &devid);
+        alink_subdev_get_devid_by_pkdn(product_key, device_name, &devid);
 
         if (0 == devid) {
             alink_err("subdev not exist");
             return;
         }
+#else
+        return;
+#endif
     }
 
     handle_func = alink_downstream_get_handle_func(path, strlen(path));
@@ -383,35 +385,4 @@ int alink_set_event_callback(iotx_linkkit_event_type_t event_id, linkkit_event_c
 }
 
 
-
-int alink_core_subdev_init()
-{
-    int res = FAIL_RETURN;
-
-    return res;
-}
-
-
-int alink_core_subdev_deinit()
-{
-    int res = FAIL_RETURN;
-
-    return res;
-}
-
-int alink_subdev_open(iotx_dev_meta_info_t *dev_info)
-{
-    if (alink_core_ctx.is_inited == IOT_FALSE) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int alink_subdev_connect_cloud(uint32_t devid)
-{
-    int res = FAIL_RETURN;
-
-    return res;
-}
 

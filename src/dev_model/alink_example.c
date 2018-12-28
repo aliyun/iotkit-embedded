@@ -34,8 +34,11 @@ static user_example_ctx_t g_user_example_ctx;
 
 
 
-extern int alink_downstream_invoke_mock(const char *uri_string);
 
+/** internal test **/
+extern int alink_downstream_invoke_mock(const char *uri_string);
+extern void subdev_hash_iterator(void);
+extern int subdev_hash_remove(uint32_t devid);
 
 
 
@@ -206,6 +209,23 @@ int main(int argc, char **argv)
     }
 
     IOT_Linkkit_Connect(0);
+
+    uint32_t devid[160];
+    int i = 0;
+    for (i=0; i<160; i++) {
+        dev_info.device_name[9]++;
+        devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &dev_info);
+    }
+    subdev_hash_iterator();
+
+    for (i=159; i>=0; --i) {
+        printf("removed devid[%d] = %d", i, devid[i]);
+
+        subdev_hash_remove(devid[i]);
+    }
+
+    subdev_hash_iterator();
+
 
     uint32_t cnt = 0;
     while (1) {

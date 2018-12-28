@@ -5,26 +5,33 @@
 #include "iotx_alink_internal.h"
 #include "alink_api.h"
 
-/**
- * 
- */
+
+/** **/
 int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *meta_info)
 {
     int res = FAIL_RETURN;
 
     if (dev_type < 0 || dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
-        return res;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     if (strlen(meta_info->product_key) > IOTX_PRODUCT_KEY_LEN || strlen(meta_info->product_secret) > IOTX_PRODUCT_SECRET_LEN
         || strlen(meta_info->device_name) > IOTX_DEVICE_NAME_LEN || strlen(meta_info->device_secret) > IOTX_DEVICE_SECRET_LEN) {
-        return res;
+        return IOTX_CODE_PARAMS_INVALID;
+    }
+
+    if (strlen(meta_info->product_key) == 0 || strlen(meta_info->device_name) == 0) {
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     if (IOTX_LINKKIT_DEV_TYPE_MASTER == dev_type) {
         res = alink_core_open(meta_info);
         if (SUCCESS_RETURN == res) {
-            res = ALINK_DEVICE_SELF_ID;
+#ifdef DEVICE_MODEL_GATEWAY             
+            res = alink_subdev_mgr_init();       // TODO!!!
+            if (SUCCESS_RETURN == res)
+#endif            
+                res = ALINK_DEVICE_SELF_ID;
         }
     }
     else if (IOTX_LINKKIT_DEV_TYPE_SLAVE == dev_type) {
@@ -109,7 +116,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
     if (devid != ALINK_DEVICE_SELF_ID) {
 #ifdef DEVICE_MODEL_GATEWAY
         (void)device_secret;
-
+        
 #else
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif

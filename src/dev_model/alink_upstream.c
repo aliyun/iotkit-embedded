@@ -99,7 +99,7 @@ int alink_upstream_thing_event_post_req(const char *pk, const char *dn, const ch
 
     char *payload = alink_malloc(len);
     if (payload == NULL) {
-        return ALINK_CODE_MEMORY_NOT_ENOUGH;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
     HAL_Snprintf(payload, len, c_event_post_fmt, id_len, event_id, data_len, user_data);
@@ -133,7 +133,7 @@ int alink_upstream_thing_property_get_rsp(const char *pk, const char *dn, uint32
 
     char *payload = alink_malloc(len);
     if (payload == NULL) {
-        return ALINK_CODE_MEMORY_NOT_ENOUGH;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
     HAL_Snprintf(payload, len, c_property_get_rsp_fmt, code, data_len, user_data);
@@ -153,7 +153,7 @@ int alink_upstream_thing_service_invoke_rsp(const char  *pk, const char *dn, uin
 
     char *payload = alink_malloc(len);
     if (payload == NULL) {
-        return ALINK_CODE_MEMORY_NOT_ENOUGH;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
     HAL_Snprintf(payload, len, c_property_get_rsp_fmt, code, data_len, user_data);
@@ -251,7 +251,7 @@ int alink_upstream_thing_deviceinfo_post_req(const char *pk, const char *dn, con
     uint32_t len = strlen(c_deviceinfo_alink_fmt) + data_len;
     char *payload = alink_malloc(len);
     if (payload == NULL) {
-        return ALINK_CODE_MEMORY_NOT_ENOUGH;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
     HAL_Snprintf(payload, len, c_deviceinfo_alink_fmt, data_len, user_data);
@@ -274,7 +274,7 @@ int alink_upstream_thing_deviceinfo_delete_req(const char *pk, const char *dn, c
     uint32_t len = strlen(c_deviceinfo_alink_fmt) + data_len;
     char *payload = alink_malloc(len);
     if (payload == NULL) {
-        return ALINK_CODE_MEMORY_NOT_ENOUGH;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
     HAL_Snprintf(payload, len, c_deviceinfo_alink_fmt, data_len, user_data);

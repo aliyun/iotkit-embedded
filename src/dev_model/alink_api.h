@@ -253,6 +253,11 @@ typedef enum {
     IOTX_CODE_AUTH_ERROR            = -4004,
     IOTX_CODE_GATEWAY_UNSUPPORTED   = -4005,
     IOTX_CODE_UNKNOWN_MSG_TYPE      = -4006,
+    IOTX_CODE_MEMORY_NOT_ENOUGH     = -4007,
+    IOTX_CODE_DUPLICATED_OPEN       = -4008,
+    IOTX_CODE_TOO_MANY_SUBDEV       = -4009,
+    IOTX_CODE_MUTEX_CREATE_ERROR    = -4010,
+    IOTX_CODE_DEVID_NOT_EXIST       = -4011,
 } iotx_linkkit_errorcode_t;
 
 

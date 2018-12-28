@@ -145,7 +145,7 @@ void utils_uri_hash_destroy(uri_hash_table_t *table)
 
 char *alink_utils_strdup(const char *string, uint32_t string_len)
 {
-    if (string == NULL || string_len == 0) {
+    if (string == NULL /*|| string_len == 0*/) {        /* TODO */
         return NULL;
     }
 
@@ -165,7 +165,7 @@ int alink_utils_json_parse(const char *payload, uint32_t payload_len, uint32_t t
     int res = 0;
 
     if (payload == NULL || payload_len == 0 || type == cJSON_Invalid || lite == NULL) {
-        return ALINK_CODE_PARAMS_INVALID;
+        return IOTX_CODE_PARAMS_INVALID;
     }
     memset(lite, 0, sizeof(lite_cjson_t));
 
@@ -189,7 +189,7 @@ int alink_utils_json_object_item(lite_cjson_t *lite, const char *key, uint32_t k
 
     // TODO
     if (lite == NULL || lite->type != cJSON_Object || key == NULL || key_len == 0 || type == cJSON_Invalid || lite_item == NULL) {
-        return ALINK_CODE_PARAMS_INVALID;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     memset(lite_item, 0, sizeof(lite_cjson_t));
