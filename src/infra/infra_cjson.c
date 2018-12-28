@@ -475,11 +475,11 @@ static int parse_value(lite_cjson_t *const lite, parse_buffer *const input_buffe
 
 int lite_cjson_parse(const char *src, int src_len, lite_cjson_t *lite)
 {
+    parse_buffer buffer;
+
     if (!lite || !src || !lite || src_len <= 0) {
         return -1;
     }
-
-    parse_buffer buffer;
 
     memset(&buffer, 0, sizeof(parse_buffer));
     buffer.content = (const unsigned char *)src;
@@ -563,22 +563,22 @@ int lite_cjson_is_object(lite_cjson_t *lite)
 
 int lite_cjson_array_item(lite_cjson_t *lite, int index, lite_cjson_t *lite_item)
 {
+    parse_buffer buffer;
+    parse_buffer *p_buffer = &buffer;
+    lite_cjson_t current_item;
+    int iter_index = 0;
+
     if (!lite || lite->type != cJSON_Array || !lite->value ||
         index < 0 || index >= lite->size || !lite_item) {
         return -1;
     }
-
-    parse_buffer buffer;
-    parse_buffer *p_buffer = &buffer;
 
     memset(&buffer, 0, sizeof(parse_buffer));
     buffer.content = (const unsigned char *)lite->value;
     buffer.length = lite->value_length;
     buffer.offset = 0;
 
-    lite_cjson_t current_item;
     /* int start_pos = p_buffer->offset; */
-    int iter_index = 0;
 
     if (buffer_at_offset(p_buffer)[0] != '[') {
         /* not an array */
@@ -629,22 +629,22 @@ int lite_cjson_array_item(lite_cjson_t *lite, int index, lite_cjson_t *lite_item
 static int _lite_cjson_object_item(lite_cjson_t *lite, const char *key, int key_len,
                                    lite_cjson_t *lite_item)
 {
+    parse_buffer buffer;
+    parse_buffer *p_buffer = &buffer;
+    lite_cjson_t current_item_key;
+    lite_cjson_t current_item_value;
+    int index = 0;
+
     if (!lite || lite->type != cJSON_Object || !lite->value || lite->size == 0 || !key || key_len <= 0 || !lite_item) {
         return -1;
     };
-
-    parse_buffer buffer;
-    parse_buffer *p_buffer = &buffer;
 
     memset(&buffer, 0, sizeof(parse_buffer));
     buffer.content = (const unsigned char *)lite->value;
     buffer.length = lite->value_length;
     buffer.offset = 0;
 
-    lite_cjson_t current_item_key;
-    lite_cjson_t current_item_value;
     /* int start_pos = p_buffer->offset; */
-    int index = 0;
 
     if (cannot_access_at_index(p_buffer, 0) || (buffer_at_offset(p_buffer)[0] != '{')) {
         return -1; /* not an object */
@@ -708,15 +708,15 @@ static int _lite_cjson_object_item(lite_cjson_t *lite, const char *key, int key_
 static int _lite_cjson_key_array_index(const char *key, int key_len,
                                        int *partial_key_len, int *array_key_len, int *array_index)
 {
-    if (!key || !partial_key_len || !array_key_len || !array_index) {
-        return -1;
-    }
-
     char *bracket_pre = NULL;
     char *bracket_suf = NULL;
     int index = 0;
     int deep = 0;
     char array_index_str[10] = {0};
+
+    if (!key || !partial_key_len || !array_key_len || !array_index) {
+        return -1;
+    }
 
     for (index = 0; index < key_len; index++) {
         switch (key[index]) {
@@ -765,21 +765,20 @@ static int _lite_cjson_key_array_index(const char *key, int key_len,
 int lite_cjson_object_item(lite_cjson_t *lite, const char *key, int key_len,
                            lite_cjson_t *lite_item)
 {
-    if (!lite || lite->type != cJSON_Object || !lite->value || lite->size == 0 || !key || key_len <= 0 || !lite_item) {
-        return -1;
-    };
-
     int res = 0;
     char *delim = NULL;
     lite_cjson_t lite_prev;
     lite_cjson_t lite_next;
     lite_cjson_t lite_iter;
-
     char *key_iter = (char *)key;
     int key_iter_len = 0;
     int partial_key_len = 0;
     int array_key_len = 0;
     int array_index = 0;
+
+    if (!lite || lite->type != cJSON_Object || !lite->value || lite->size == 0 || !key || key_len <= 0 || !lite_item) {
+        return -1;
+    };
 
     memcpy(&lite_iter, lite, sizeof(lite_cjson_t));
     memset(&lite_prev, 0, sizeof(lite_cjson_t));
