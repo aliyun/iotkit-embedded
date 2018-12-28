@@ -23,3 +23,4 @@ const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER] = {
     "iot-auth.us-west-1.aliyuncs.com",           /* America */
     "iot-auth.eu-central-1.aliyuncs.com"         /* Germany */
 };
+

@@ -41,3 +41,4 @@ int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_n
 
 
 #endif /* #ifndef __ALINK_SUBDEV_H__ */
+

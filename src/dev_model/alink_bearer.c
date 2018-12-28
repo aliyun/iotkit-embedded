@@ -112,3 +112,4 @@ void alink_bearer_close(void)
 
     alink_free(p_alink_bearer_mqtt);
 }
+

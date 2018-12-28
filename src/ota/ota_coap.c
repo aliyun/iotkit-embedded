@@ -156,3 +156,5 @@ int osc_ReportVersion(void *handle, const char *msg)
 #endif  /* #if (OTA_SIGNAL_CHANNEL) == 2 */
 #endif
 
+
+

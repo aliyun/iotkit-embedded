@@ -38,3 +38,5 @@ int HAL_MDAL_MAL_ICA_Write(const char* at_cmd)
 {
     return at_send_no_reply(at_cmd, strlen(at_cmd), false);
 }
+
+

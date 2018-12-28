@@ -15,3 +15,5 @@
 #define hal_debug(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
 
 #endif  /* __PLATFORM_DEBUG_H__ */
+
+

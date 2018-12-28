@@ -421,3 +421,4 @@ int HAL_GetNetifInfo(char *nif_str)
 
     return strlen(nif_str);
 }
+

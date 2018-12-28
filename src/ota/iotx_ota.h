@@ -11,3 +11,5 @@ int iotx_ota_get_config(void *handle, const char *configScope, const char *getTy
 int iotx_req_image(void *handle, const char *version);
 
 #endif  /* #ifndef __IOTX_OTA_H__ */
+
+

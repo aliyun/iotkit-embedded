@@ -425,3 +425,4 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
 
     return rc;
 }
+

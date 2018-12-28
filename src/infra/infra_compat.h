@@ -52,3 +52,5 @@ static inline int list_is_last(const struct list_head *list,
 }
 
 #endif  /* _INFRA_COMPAT_H_ */
+
+

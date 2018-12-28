@@ -206,3 +206,5 @@ int IOT_RegisterCallback(iotx_linkkit_event_type_t event_id, linkkit_event_cb_t 
 {
     return alink_set_event_callback(event_id, callback);
 }
+
+

@@ -340,3 +340,4 @@ static inline int slist_entry_number(slist_t *queue)
 #endif
 
 #endif /* AOS_LIST_H */
+

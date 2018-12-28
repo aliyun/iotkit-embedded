@@ -34,3 +34,4 @@ const char *iotx_ca_crt = \
     "-----END CERTIFICATE-----"
 };
 #endif  /* #ifdef SUPPORT_TLS */
+

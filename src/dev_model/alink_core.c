@@ -384,5 +384,3 @@ int alink_set_event_callback(iotx_linkkit_event_type_t event_id, linkkit_event_c
     return SUCCESS_RETURN;
 }
 
-
-

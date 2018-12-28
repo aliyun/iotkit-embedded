@@ -1114,3 +1114,5 @@ int wrapper_mqtt_release(void **client)
     mal_info("mqtt release!");
     return SUCCESS_RETURN;
 }
+
+

@@ -83,3 +83,4 @@ int alink_bearer_register(void *handle, const char *uri, alink_bearer_rx_cb_t cb
 void alink_bearer_close(void);
 
 #endif /* #ifndef __ALINK_BEARER_H__ */
+

@@ -261,3 +261,4 @@ unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
 }
 #endif
 #endif
+

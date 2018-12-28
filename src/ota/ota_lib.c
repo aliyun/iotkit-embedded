@@ -281,3 +281,5 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
 
     return 0;
 }
+
+

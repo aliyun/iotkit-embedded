@@ -385,3 +385,4 @@ void utils_hmac_sha256(const uint8_t *msg, uint32_t msg_len, const uint8_t *key,
 }
 
 #endif
+

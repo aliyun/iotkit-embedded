@@ -16,3 +16,4 @@ alink_downstream_handle_func_t alink_downstream_get_handle_func(const char *uri_
 
 
 #endif /* #ifndef __ALINK_DOWNSTREAM_H__ */
+

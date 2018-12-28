@@ -238,3 +238,5 @@ DLL_IOT_API int IOT_OTA_GetLastError(void *handle);
 #endif
 
 #endif /* __OTA_EXPORT_H__ */
+
+

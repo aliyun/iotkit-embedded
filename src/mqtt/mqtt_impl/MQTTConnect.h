@@ -122,3 +122,5 @@ DLLExport int MQTTSerialize_disconnect(unsigned char* buf, int buflen);
 DLLExport int MQTTSerialize_pingreq(unsigned char* buf, int buflen);
 
 #endif /* MQTTCONNECT_H_ */
+
+

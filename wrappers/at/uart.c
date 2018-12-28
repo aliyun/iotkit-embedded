@@ -195,3 +195,5 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     return 0;
 }
+
+

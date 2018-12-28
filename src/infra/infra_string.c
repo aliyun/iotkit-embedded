@@ -70,3 +70,4 @@ int infra_randstr(char *random, int length)
     return 0;
 }
 #endif
+

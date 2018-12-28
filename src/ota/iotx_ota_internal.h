@@ -97,3 +97,5 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 int ofc_Deinit(void *handle);
 
 #endif /* _IOTX_OTA_INTERNAL_H_ */
+
+

@@ -463,3 +463,5 @@ static void alink_downstream_thing_deviceinfo_delete_rsq(uint32_t devid, const c
 {
     alink_downstream_thing_property_post_rsp(devid, pk, dn, payload, len, query);
 }
+
+

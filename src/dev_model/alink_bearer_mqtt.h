@@ -56,3 +56,4 @@ int32_t alink_bearer_mqtt_open(alink_bearer_mqtt_ctx_t *p_bearer_mqtt_ctx);
 
 
 #endif /* #ifndef __ALINK_BEARER_MQTT__ */
+

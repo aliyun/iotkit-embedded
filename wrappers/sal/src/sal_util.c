@@ -201,3 +201,5 @@ static int sal_ringbuf_empty(sal_ringbuf_t *ringbuf)
 {
     return (sal_ringbuf_available_read_space(ringbuf) == 0);
 }
+
+

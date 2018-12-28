@@ -24,3 +24,4 @@ typedef unsigned int        uintptr_t;
 
 #endif  /* #if !defined(PLATFORM_HAS_STDINT) */
 #endif
+

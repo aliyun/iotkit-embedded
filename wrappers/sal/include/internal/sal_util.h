@@ -36,3 +36,4 @@ void *HAL_QueueBufPtr(void *queue);
 #endif
 
 #endif  /* _SAL_UTIL_H_ */
+

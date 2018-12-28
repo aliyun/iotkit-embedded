@@ -32,3 +32,4 @@ void HAL_MutexUnlock(void *mutex);
 
 
 #endif /* #ifndef __ALINK_WRAPPER_H__ */
+

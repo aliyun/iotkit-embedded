@@ -289,3 +289,5 @@ typedef enum {
 extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
 
 #endif
+
+

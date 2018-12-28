@@ -265,3 +265,5 @@ int HAL_Wifi_Get_Ap_Info(
 
 #endif  /* #if defined(HAL_AWSS) */
 
+
+

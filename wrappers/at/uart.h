@@ -143,3 +143,5 @@ int32_t hal_uart_finalize(uart_dev_t *uart);
 #endif /* __cplusplus */
 
 #endif /* HAL_UART_H */
+
+

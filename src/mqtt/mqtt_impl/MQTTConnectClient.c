@@ -192,3 +192,5 @@ int MQTTSerialize_pingreq(unsigned char* buf, int buflen)
 {
 	return MQTTSerialize_zero(buf, buflen, PINGREQ);
 }
+
+

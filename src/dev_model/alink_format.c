@@ -375,3 +375,5 @@ int alink_format_reslove_uri(const char *uri, uint8_t uri_len, char *pk, char *d
 
     return SUCCESS_RETURN;
 }
+
+

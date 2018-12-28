@@ -91,3 +91,4 @@ uint32_t utils_time_get_ms(void)
     return HAL_UptimeMs();
 }
 #endif
+

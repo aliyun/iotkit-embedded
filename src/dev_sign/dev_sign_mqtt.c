@@ -116,3 +116,4 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
     return -1;
 }
+

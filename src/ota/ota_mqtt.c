@@ -296,3 +296,5 @@ int osc_RequestConfig(void *handle, const char *topic_name, iotx_mqtt_topic_info
 
 #endif  /* #if (OTA_SIGNAL_CHANNEL) == 1 */
 #endif  /* #ifndef __OTA_MQTT_C_H__ */
+
+

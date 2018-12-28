@@ -21,3 +21,4 @@ typedef struct _hal_os_thread {
 } hal_os_thread_param_t;
 
 #endif
+

@@ -36,3 +36,4 @@ long HAL_Ftell(void *stream)
     return ftell((FILE *)stream);
 }
 #endif
+

@@ -38,3 +38,5 @@ typedef struct Client {
 } iotx_mc_client_t, *iotx_mc_client_pt;
 
 #endif
+
+

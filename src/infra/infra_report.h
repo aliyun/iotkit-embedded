@@ -68,3 +68,4 @@ int iotx_report_mid(void *pclient);
 int iotx_report_firmware_version(void *pclient);
 
 #endif
+

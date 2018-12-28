@@ -123,3 +123,4 @@ lite_cjson_item_t *lite_cjson_create_stringArray(const char **strings, int count
 #define lite_cjson_add_number_to_object(object,name,n)      lite_cjson_add_item_to_object(object, name, lite_cjson_create_number(n))
 #define lite_cjson_add_string_to_object(object,name,s)      lite_cjson_add_item_to_object(object, name, lite_cjson_create_string(s))
 #endif
+

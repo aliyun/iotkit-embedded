@@ -109,3 +109,4 @@ void    LITE_rich_hexdump(const char *f, const int l,
     LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, (const void *)buf, (const int)len)
 
 #endif
+

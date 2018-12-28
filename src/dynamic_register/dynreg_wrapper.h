@@ -8,3 +8,4 @@ void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
 
 #endif
+

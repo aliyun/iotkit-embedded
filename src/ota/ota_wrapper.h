@@ -9,3 +9,4 @@ void HAL_Printf(const char *fmt, ...);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
 #endif
+

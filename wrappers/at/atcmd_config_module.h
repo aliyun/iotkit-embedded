@@ -45,3 +45,5 @@
 //#define AT_WORKER_STACK_SIZE 4096
 //#define AT_WORKER_PRIORITY   (AOS_DEFAULT_APP_PRI - 2)
 #endif
+
+
