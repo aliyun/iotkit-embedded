@@ -1,13 +1,13 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "infra_config.h"
 
 #ifdef INFRA_MD5
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "infra_config.h"
 #include "infra_md5.h"
 
 #define MD5_DIGEST_SIZE 16

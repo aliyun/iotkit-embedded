@@ -1,5 +1,7 @@
-#ifdef INFRA_STRING
 #include "infra_config.h"
+
+#ifdef INFRA_STRING
+
 #include "infra_string.h"
 
 int8_t infra_hex2char(uint8_t hex)

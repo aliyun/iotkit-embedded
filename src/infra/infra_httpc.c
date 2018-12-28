@@ -1,13 +1,14 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "infra_config.h"
+
 #ifdef INFRA_HTTPC
 
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "infra_config.h"
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_httpc.h"

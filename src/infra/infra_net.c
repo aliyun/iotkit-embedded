@@ -2,10 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#include "infra_config.h"
+
 #ifdef INFRA_NET
 #include <stdio.h>
 #include <string.h>
-#include "infra_config.h"
 #include "infra_defs.h"
 #include "infra_net.h"
 
