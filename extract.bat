@@ -244,5 +244,3 @@ if "%DATA_TYPE%" == "void" (
 )
 
 GOTO:EOF
-
-pause
