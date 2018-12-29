@@ -24,7 +24,7 @@ Set WRAPPER_DOC=tools\doc\wrapper
 
 Set TMP_VARIABLE_DIR=%OUTPUT_DIR%\eng\tmp
 
-Set MODULES= gen_infra ^
+Set MODULES=gen_infra ^
 gen_dev_sign ^
 gen_mqtt ^
 gen_sal ^
@@ -39,8 +39,9 @@ call:gen_eng_dir
 :: Generate infra_config.h
 call:gen_infra_default
 
-for %%I in (%MODULES%) do ^
+for %%I in (%MODULES%) do (
 call:%%I
+)
 
 :: Genrate wrapper.c
 call:gen_wrapper_c
