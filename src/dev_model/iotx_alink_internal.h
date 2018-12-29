@@ -12,14 +12,13 @@
 #include "alink_format.h"
 #include "alink_core.h"
 #include "alink_subdev.h"
-#include "alink_bearer.h"
-#include "alink_bearer_mqtt.h"
 #include "alink_upstream.h"
 #include "alink_downstream.h"
 #include "alink_wrapper.h"
 #include "alink_utils.h"
 
 #include "alink_api.h"        /* TODO */
+#include "iotx_cm.h"
 
 
 #define ALINK_DEVICE_SELF_ID        (0)
@@ -67,6 +66,7 @@ linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);
 #endif
 
 
+#define ALINK_BEARER_USED                       (0)
 
 #define UTILS_HASH_TABLE_ITERATOR_ENABLE        (1) 
 #define ALINK_DEBUG                             (1)

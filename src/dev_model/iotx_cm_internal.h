@@ -6,12 +6,8 @@
 #ifndef _IOTX_CM_INTERNAL_H_
 #define _IOTX_CM_INTERNAL_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
-#include "infra_log.h"
 #include "mqtt_api.h"
 
 

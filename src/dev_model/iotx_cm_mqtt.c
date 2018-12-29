@@ -1,11 +1,10 @@
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iotx_cm_mqtt.h"
 
-#include "infra_list.h"
-#include "infra_timer.h"
-#include "alink_wrapper.h"
 #include "iotx_alink_internal.h"
+#include "alink_wrapper.h"
 #include "dev_sign_api.h"
 
 /** CM default parameters define **/
@@ -166,24 +165,36 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
             iotx_cm_data_handle_cb topic_handle_func = pcontext;
-            char *topic;            /* TODO: modify the callback!!! */
 
             if (topic_handle_func == NULL) {    
                 cm_err("sub handle is null!");
                 return;
             }
 
-            topic = cm_malloc(topic_info->topic_len + 1);
-            if (topic == NULL) {
-                cm_err("topic malloc failed");
-                return;
+            #ifdef TEST_MOCK
+            {
+                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/post/?i=898789&c=b&r=400&a=y&c=n"; */
+                /* char *topic = "/gw_pk/gw_dn/req/proxy/a1OFrRjV8nz/develop_01/sys/thing/property/post/?i=898789&c=b&a=y&r=400&c=n"; */
+                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"test\": 12344}"; */
+                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/property/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}"; */
+                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/get/?i=898789&c=b&a=y&c=n"; char *payload = "{\"params\":[\"test\", \"alink\"]}"; */
+                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/event/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}"; */
+                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/service/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"serviceId\":\"ACControl\",\"params\":{\"Action\":\"On\",\"FandSpeed\":123}}"; */
+
+                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=898789&c=b&a=y&c=n"; char *payload = "\x01\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
+                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/raw/post/?i=898789&c=b&a=y&c=n"; char *payload = "\x00\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
+
+                char *topic = "/a1OFrRjV8nz/develop_01/req/sys/gw/permit/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"productKey\":\"1234abcd\", \"timeoutSec\":60}";
+
+                uint32_t topic_len = strlen(topic);
+                uint32_t payload_len = strlen(payload);
+
+                (void)topic_info;
+                topic_handle_func(_mqtt_conncection->fd, topic, topic_len, payload, payload_len, NULL);
             }
-            memset(topic, 0, topic_info->topic_len + 1);
-            memcpy(topic, topic_info->ptopic, topic_info->topic_len);
-
-            topic_handle_func(_mqtt_conncection->fd, topic, topic_info->payload, topic_info->payload_len, NULL);
-
-            cm_free(topic);
+            #else
+            topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len, NULL);
+            #endif
         }
         break;
 
@@ -256,7 +267,7 @@ static int _mqtt_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
     int qos = 0;
 
     if (_mqtt_conncection == NULL) {
-        return FAIL_RETURN;
+        return NULL_VALUE_ERROR;
     }
 
     if (ext != NULL) {
@@ -268,7 +279,7 @@ static int _mqtt_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
 static int _mqtt_yield(uint32_t timeout)
 {
     if (_mqtt_conncection == NULL) {
-        return FAIL_RETURN;
+        return NULL_VALUE_ERROR;
     }
 
     return IOT_MQTT_Yield(_mqtt_conncection->context, timeout);
@@ -282,11 +293,9 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
     int timeout;
     int ret;
 
-    if (_mqtt_conncection == NULL) {
-        return FAIL_RETURN;
+    if (_mqtt_conncection == NULL || topic == NULL || topic_handle_func == NULL) {
+        return NULL_VALUE_ERROR;
     }
-    ALINK_ASSERT_DEBUG(topic != NULL);
-    ALINK_ASSERT_DEBUG(topic_handle_func != NULL);
 
     if (ext != NULL) {
         if (ext->sync_mode == IOTX_CM_ASYNC) {
@@ -321,7 +330,7 @@ static int _mqtt_unsub(const char *topic)
     int ret;
 
     if (_mqtt_conncection == NULL) {
-        return FAIL_RETURN;
+        return NULL_VALUE_ERROR;
     }
 
     ret = IOT_MQTT_Unsubscribe(_mqtt_conncection->context, topic);
@@ -336,7 +345,7 @@ static int _mqtt_unsub(const char *topic)
 static int _mqtt_close()
 {
     if (_mqtt_conncection == NULL) {
-        return FAIL_RETURN;
+        return NULL_VALUE_ERROR;
     }
 
     cm_free(_mqtt_conncection->open_params);
@@ -372,3 +381,5 @@ static void _set_common_handlers()
         _mqtt_conncection->close_func = _mqtt_close;
     }
 }
+
+#endif

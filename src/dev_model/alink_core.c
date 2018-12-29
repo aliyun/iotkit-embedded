@@ -8,10 +8,12 @@
 #include "infra_defs.h"
 
 
+#define ALINK_CORE_CONNECT_TIMEOUT              (10000)
+#define ALINK_CORE_SUBSCRIBE_TIMEOUT            (5000)
+
 #define ALINK_SUPPORT_BEARER_NUM                (1)
 #define ALINK_DEFAULT_BEARER_PROTOCOL           (ALINK_BEARER_MQTT)
 #define ALINK_DEFAULT_SUB_LEVEL                 "/rsp"
-
 
 
 typedef struct {
@@ -25,7 +27,8 @@ typedef struct {
     char                   *device_name;
     char                   *device_secret;
 
-    alink_bearer_node_t    *p_activce_bearer;
+    /*alink_bearer_node_t    *p_activce_bearer;*/
+    uint32_t                cm_fd;
     uint32_t                msgid;              /* TODO */
 
 } alink_core_ctx_t;
@@ -36,7 +39,9 @@ typedef struct {
  ***************************************************************/
 static int _alink_core_init(iotx_dev_meta_info_t *dev_info);
 static int _alink_core_deinit(void);
-static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len);
+
+
+static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len, void *context);
 
 
 /**
@@ -170,38 +175,43 @@ static int _alink_core_deinit(void)
 /**
  * 
  */
-int _alink_core_register_downstream(const char *level, alink_bearer_rx_cb_t rx_func)
+int _alink_core_register_downstream(const char *level, iotx_cm_data_handle_cb rx_func)
 {
+    iotx_cm_ext_params_t sub_params;
+    char *uri;
+    int res;
+    sub_params.ack_type = IOTX_CM_MESSAGE_NO_ACK;
+    sub_params.sync_mode = IOTX_CM_SYNC;
+    sub_params.sync_timeout = ALINK_CORE_SUBSCRIBE_TIMEOUT;
+    sub_params.ack_cb = NULL;
+
 #ifdef TEST_MOCK
-    const char *uri = "/sys/a1OFrRjV8nz/develop_01/thing/service/property/set";
-    int res = alink_bearer_register(alink_core_ctx.p_activce_bearer, uri, rx_func);
+    uri = "/sys/a1OFrRjV8nz/develop_01/thing/service/property/set";
+
+    res = iotx_cm_sub(alink_core_ctx.cm_fd, &sub_params, (const char *)uri, rx_func, NULL);
 #else
     int res = FAIL_RETURN;
     const char *uri_fmt = "/%s/%s%s";
     uint32_t pk_len = strlen(alink_core_ctx.product_key);
     uint32_t dn_len = strlen(alink_core_ctx.device_name);
+    
 
     ALINK_ASSERT_DEBUG(level != NULL);
     ALINK_ASSERT_DEBUG(rx_func != NULL);
 
-    char *uri = alink_malloc(strlen(uri_fmt) + pk_len + dn_len);
+    uri = alink_malloc(strlen(uri_fmt) + pk_len + dn_len);
     if (uri == NULL) {
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
-    HAL_Snprintf(uri, uri_fmt, alink_core_ctx.product_key, alink_core_ctx.device_name, level);
-    res = alink_bearer_register(alink_core_ctx.p_activce_bearer, uri, rx_func);
-    alink_free(uri);
+    res = iotx_cm_sub(alink_core_ctx.cm_fd, &sub_params, (const char *)uri, rx_func, NULL);
 #endif
     return res;
 }
 
-/**
- * TODO: handle is not used
- */
-static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len)
-{   
-    alink_uri_query_t query = { 0 };
+static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len, void *context)
+{
+   alink_uri_query_t query = { 0 };
     uint32_t devid = 0;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
@@ -264,6 +274,27 @@ static void _alink_core_rx_event_handle(void *handle, const char *uri, uint32_t 
     }
 }
 
+/** TODO: from dm **/
+void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context)
+{
+    switch (event->type) {
+        case IOTX_CM_EVENT_CLOUD_CONNECTED: {
+
+        }
+        break;
+        case IOTX_CM_EVENT_CLOUD_CONNECT_FAILED: {
+
+        }
+        break;
+        case IOTX_CM_EVENT_CLOUD_DISCONNECT: {
+
+        }
+        break;
+        default:
+            break;
+    }
+}
+
 /***************************************************************
  * global functions
  ***************************************************************/
@@ -286,12 +317,18 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info)
     }
     alink_core_ctx.bearer_num++;
 
-    /* add one default bearer protocol */
-    alink_core_ctx.p_activce_bearer = alink_bearer_open(ALINK_DEFAULT_BEARER_PROTOCOL, dev_info);
-    if (alink_core_ctx.p_activce_bearer == NULL) {
-        alink_info("bearer open fail");
-        _alink_core_deinit();
-        return FAIL_RETURN;
+    {
+        iotx_cm_init_param_t cm_param;
+        cm_param.dev_info = dev_info;
+        cm_param.region = IOTX_CLOUD_REGION_SHANGHAI;       /* pass region??? */
+#if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
+        cm_param.protocol_type = IOTX_CM_PROTOCOL_TYPE_COAP;
+#else
+        cm_param.protocol_type = IOTX_CM_PROTOCOL_TYPE_MQTT;
+#endif
+        cm_param.handle_event = dm_client_event_handle;
+
+        alink_core_ctx.cm_fd = iotx_cm_open(&cm_param);
     }
 
     alink_info("bearer open succeed");
@@ -304,7 +341,7 @@ int alink_core_close(void)
     
 #endif
 
-    alink_bearer_close();
+    iotx_cm_close(alink_core_ctx.cm_fd);
 
     _alink_core_deinit();
 
@@ -315,17 +352,18 @@ int alink_core_connect_cloud(void)
 {
     int res = FAIL_RETURN;
 
-    res = alink_bearer_conect();
+    res = iotx_cm_connect(alink_core_ctx.cm_fd, ALINK_CORE_CONNECT_TIMEOUT);
+
     if (res < SUCCESS_RETURN) {
         return res;
-        alink_debug("connected fail");
+        alink_info("connected fail");
     }
 
     /* TODO: invoke the connected event, event post for awss immediately, indicate success for fail, hehe */
 
 
-    alink_debug("connected, start sub");
-    _alink_core_register_downstream(ALINK_DEFAULT_SUB_LEVEL, (alink_bearer_rx_cb_t)_alink_core_rx_event_handle);
+    alink_info("connected, start sub");
+    _alink_core_register_downstream(ALINK_DEFAULT_SUB_LEVEL, _alink_core_rx_event_handle); /* (alink_bearer_rx_cb_t) */
 
     return res;
 }
@@ -352,7 +390,7 @@ int alink_core_unsubscribe_downstream_uri()
 /** **/
 int alink_core_yield(uint32_t timeout_ms)
 {
-    return alink_bearer_yield(timeout_ms);
+    return iotx_cm_yield(alink_core_ctx.cm_fd, timeout_ms);
 }
 
 /** **/
@@ -363,7 +401,16 @@ int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len)
 
     alink_info("uri: %s", uri);
 
-    return alink_bearer_send(0, uri, (uint8_t *)payload, len);     /* TODO, parameters type */
+
+    {
+        iotx_cm_ext_params_t pub_param;
+        memset(&pub_param, 0, sizeof(iotx_cm_ext_params_t));
+        pub_param.ack_type = IOTX_CM_MESSAGE_NO_ACK;
+        pub_param.sync_mode = IOTX_CM_ASYNC;
+        pub_param.sync_timeout = 0;
+        pub_param.ack_cb = NULL;
+        return iotx_cm_pub(alink_core_ctx.cm_fd, &pub_param, (const char *)uri, (const char *)payload, len);
+    }
 }
 
 /** **/

@@ -1,7 +1,8 @@
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
-#include "alink_wrapper.h"
+
 #include "iotx_alink_internal.h"
+#include "alink_wrapper.h"
 
 #if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED) 
 #include "iotx_cm_mqtt.h"
@@ -30,7 +31,6 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
     int fd;
     iotx_cm_connection_t *connection = NULL;
 
-    ALINK_ASSERT_DEBUG(params != NULL);
 
     switch (params->protocol_type) {
         case IOTX_CM_PROTOCOL_TYPE_MQTT:
@@ -102,7 +102,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     iotx_cm_yield_fp yield_func;
 
     if (fd_lock == NULL) {
-        return FAIL_RETURN;
+        return NULL_VALUE_ERROR;
     }
 
     if (fd == -1) {
@@ -247,7 +247,7 @@ static int inline _fd_is_valid(int fd)
     int ret;
 
     if (fd_lock == NULL) {
-        return FAIL_RETURN;
+        return NULL_VALUE_ERROR;
     }
 
     HAL_MutexLock(fd_lock);
@@ -280,7 +280,7 @@ static int _get_fd(iotx_cm_connection_t *handle)
 {
     int i;
     if (handle == NULL) {
-        return FAIL_RETURN;
+        return NULL_VALUE_ERROR;
     }
 
     if (fd_lock == NULL) {

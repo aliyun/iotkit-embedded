@@ -88,8 +88,8 @@ typedef struct {
     uint32_t  payload_len;
 } event_msg_data_t;
 
-typedef void (*iotx_cm_data_handle_cb)(int fd, const char *topic, const char *payload, unsigned int payload_len,
-                                       void *context);
+
+typedef void (*iotx_cm_data_handle_cb)(int fd, const char *topic, uint32_t topic_len, const char *payload, unsigned int payload_len, void *context);
 
 typedef void (*iotx_cm_event_handle_cb)(int fd, iotx_cm_event_msg_t *event, void *context);
 

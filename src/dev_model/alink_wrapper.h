@@ -11,6 +11,7 @@
 #include "infra_list.h"
 #include "infra_compat.h" 
 #include "infra_cjson.h"
+#include "infra_timer.h"
 
 int8_t HAL_GetPartnerID(char *pid_str);
 int8_t HAL_GetModuleID(char *mid_str);
