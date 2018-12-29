@@ -178,6 +178,7 @@ gen_sal() {
 
     find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
     find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}
+    rm -f ${WRAPPERS_DIR}/at/uart.c
 }
 
 # Generate Directory
