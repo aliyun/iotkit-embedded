@@ -45,6 +45,9 @@ call:%%I
 :: Genrate wrapper.c
 call:gen_wrapper_c
 
+:: Remove tmp folder
+%RM% -rf %TMP_VARIABLE_DIR%
+
 GOTO:EOF
 
 :: Functions
