@@ -17,7 +17,6 @@
 #define DATA_LEN_MAX 10
 #define LINK_ID_MAX 5
 #define SEM_WAIT_DURATION 5000
-#define DEFAULT_REPLY_TIMEOUT  1000
 
 #define STOP_CMD "AT+CIPSTOP"
 #define STOP_CMD_LEN (sizeof(STOP_CMD)+1+1+5+1)
@@ -408,7 +407,7 @@ static void mk3060_uart_echo_off()
     char out[64] = {0};
 
     at_send_wait_reply(at_echo_str, strlen(AT_CMD_EHCO_OFF), true,
-                       out, sizeof(out), NULL, DEFAULT_REPLY_TIMEOUT);
+                       NULL, 0, out, sizeof(out), NULL);
     sal_hal_debug("The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         sal_hal_err("%s %d failed", __func__, __LINE__);
@@ -445,8 +444,8 @@ int HAL_SAL_Init(void)
         snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
         sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-        at_send_wait_reply(cmd, strlen(cmd), true, out,
-                           sizeof(out), NULL, DEFAULT_REPLY_TIMEOUT);
+        at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
+                           sizeof(out), NULL);
         sal_hal_debug("The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
             sal_hal_debug("%s %d failed", __func__, __LINE__);
@@ -458,8 +457,8 @@ int HAL_SAL_Init(void)
         snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
         sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-        at_send_wait_reply(cmd, strlen(cmd), true, out,
-                           sizeof(out), NULL, DEFAULT_REPLY_TIMEOUT);
+        at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
+                           sizeof(out), NULL);
         sal_hal_debug("The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
             sal_hal_err("%s %d failed", __func__, __LINE__);
@@ -561,8 +560,8 @@ int HAL_SAL_Start(sal_conn_t *c)
 
     sal_hal_debug("\r\n%s %d - AT cmd to run: %s \r\n", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, out,
-                       sizeof(out), NULL, DEFAULT_REPLY_TIMEOUT);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
+                       sizeof(out), NULL);
     sal_hal_debug("The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         sal_hal_err("%s %d failed", __func__, __LINE__);
@@ -605,33 +604,6 @@ static int fd_to_linkid(int fd)
     HAL_MutexUnlock(g_link_mutex);
 
     return link_id;
-}
-
-static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
-                               char *rsp, uint32_t rsplen) 
-{
-    if (NULL == fst) {
-        sal_hal_err("%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (NULL == rsp || 0 == rsplen) {
-        sal_hal_err("%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (at_send_no_reply(fst, strlen(fst), true) != 0) {
-        sal_hal_err("at send %s failed\n", fst);
-        return -1;
-    }
-
-    if (at_send_wait_reply(data, len, false, rsp,
-                          rsplen, NULL, DEFAULT_REPLY_TIMEOUT) != 0) {
-        sal_hal_err("at send data len %d failed\n", len);
-        return -1;
-    }
-
-    return 0;
 }
 
 #define SEND_CMD "AT+CIPSEND"
@@ -688,10 +660,12 @@ int HAL_SAL_Send(int fd,
     }
     outdata[len] = checksum;
 
-    at_send_data_2stage((const char *)cmd, (const char *)outdata, len + 1, out, sizeof(out));
+    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)outdata, len + 1,
+                       out, sizeof(out), NULL);
     HAL_Free(outdata);
 #else
-    at_send_data_2stage((const char *)cmd, (const char *)data, len, out, sizeof(out));
+    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len,
+                       out, sizeof(out), NULL);
 #endif
 
     sal_hal_debug("\r\nThe AT response is: %s\r\n", out);
@@ -716,8 +690,8 @@ int HAL_SAL_DomainToIp(char *domain,
     snprintf(cmd, DOMAIN_CMD_LEN - 1, "%s=%s", DOMAIN_CMD, domain);
     sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, out,
-                       sizeof(out), NULL, DEFAULT_REPLY_TIMEOUT);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
+                       sizeof(out), NULL);
     sal_hal_debug("The AT response is: %s", out);
     if (strstr(out, AT_RECV_SUCCESS_POSTFIX) == NULL) {
         sal_hal_err("%s %d failed", __func__, __LINE__);
@@ -787,8 +761,8 @@ int HAL_SAL_Close(int fd,
     snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
     sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, out,
-                       sizeof(out), NULL, DEFAULT_REPLY_TIMEOUT);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
+                       sizeof(out), NULL);
     sal_hal_debug("The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         sal_hal_err("%s %d failed", __func__, __LINE__);
