@@ -31,6 +31,16 @@ config MQTT_DEFAULT_IMPL
         Switching to "y" leads to building MQTT related implementation into SDK and MQTT_DEFAULT_IMPL included into CFLAGS
         Switching to "n" seldom happens unless you're using other MQTT implementations
 
+config ASYNC_PROTOCOL_STACK
+    bool "FEATURE_ASYNC_PROTOCOL_STACK"
+    default n
+
+    depends on MQTT_DEFAULT_IMPL
+    help
+        Use async protocol stack for SDK default MQTT implementation
+
+        Switching to "y" leads to building MQTT async protocol stack related implementation into SDK and ASYNC_PROTOCOL_STACK included into CFLAGS
+        Switching to "n" seldom happens unless you're not using async protocol stack
 
 source "wrappers/mqtt/mal/Config.in"
 

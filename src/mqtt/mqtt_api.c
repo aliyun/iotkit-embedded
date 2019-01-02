@@ -151,6 +151,40 @@ static int iotx_mqtt_deal_offline_subs(void *client)
     return SUCCESS_RETURN;
 }
 
+static void iotx_mqtt_report_funcs(void *pclient)
+{
+    int                 err;
+
+    iotx_mqtt_deal_offline_subs(pclient);
+
+#ifndef ATHOST_MQTT_REPORT_DISBALED
+    iotx_set_report_func(IOT_MQTT_Publish_Simple);
+    /* report module id */
+    err = iotx_report_mid(pclient);
+    if (SUCCESS_RETURN != err) {
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report mid");
+#endif
+    }
+
+    /* report device info */
+    err = iotx_report_devinfo(pclient);
+    if (SUCCESS_RETURN != err) {
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report devinfo");
+#endif
+    }
+
+    /* report firmware version */
+    err = iotx_report_firmware_version(pclient);
+    if (SUCCESS_RETURN != err) {
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report firmware version");
+#endif
+    }
+#endif
+}
+
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -232,33 +266,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
-    iotx_mqtt_deal_offline_subs(pclient);
-
-#ifndef ATHOST_MQTT_REPORT_DISBALED
-    iotx_set_report_func(IOT_MQTT_Publish_Simple);
-    /* report module id */
-    err = iotx_report_mid(pclient);
-    if (SUCCESS_RETURN != err) {
-#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
-        mqtt_err("failed to report mid");
-#endif
-    }
-
-    /* report device info */
-    err = iotx_report_devinfo(pclient);
-    if (SUCCESS_RETURN != err) {
-#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
-        mqtt_err("failed to report devinfo");
-#endif
-    }
-
-    /* report firmware version */
-    err = iotx_report_firmware_version(pclient);
-    if (SUCCESS_RETURN != err) {
-#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
-        mqtt_err("failed to report firmware version");
-#endif
-    }
+#ifndef ASYNC_PROTOCOL_STACK
+    iotx_mqtt_report_funcs(pclient);
 #endif
 
     g_mqtt_client = pclient;
@@ -421,3 +430,36 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
     return rc;
 }
 
+int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_mqtt_nwk_param_t *param)
+{
+#ifdef ASYNC_PROTOCOL_STACK
+    void *client = handle ? handle : g_mqtt_client;
+    int rc = -1;
+
+    if (client == NULL || event >= IOTX_MQTT_SOC_MAX || param == NULL) {
+        mqtt_err("params err");
+        return NULL_VALUE_ERROR;
+    }
+
+    rc = wrapper_mqtt_nwk_event_handler(client, event, param);
+
+    if (rc < 0) {
+        mqtt_err("IOT_MQTT_Nwk_Event_Handler failed\n");
+        return -1;
+    }
+
+    switch(event) {
+        case IOTX_MQTT_SOC_CONNECTED: {
+            iotx_mqtt_report_funcs(client);
+        }
+        break;
+        default: {
+        }
+        break;
+    }
+
+    return rc;
+#else
+    return -1;
+#endif
+}

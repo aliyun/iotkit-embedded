@@ -154,6 +154,20 @@ typedef struct {
 
 } iotx_mqtt_param_t, *iotx_mqtt_param_pt;
 
+typedef enum {
+    IOTX_MQTT_SOC_CONNECTED,
+    IOTX_MQTT_SOC_CLOSE,
+    IOTX_MQTT_SOC_READ,
+    IOTX_MQTT_SOC_WRITE,
+    IOTX_MQTT_SOC_MAX
+} iotx_mqtt_nwk_event_t;
+
+typedef struct {
+    uintptr_t fd;
+    uint8_t *buffer;
+    uint16_t buffer_len;
+} iotx_mqtt_nwk_param_t;
+
 /** @defgroup group_api api
  *  @{
  */
@@ -308,6 +322,19 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
 /** @} */ /* end of api_mqtt */
 
 /** @} */ /* end of api */
+
+/**
+ * @brief Only used in async network stack and FEATURE_ASYNC_PROTOCOL_STACK must be selected
+ *
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] event: specify the network event.
+ * @param [in] param: specify the network params.
+ *
+ * @retval -1 :  Handle failed.
+ * @retval  0 :  Handle successful.
+ *
+ */
+int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_mqtt_nwk_param_t *param);
 
 #if defined(__cplusplus)
 }

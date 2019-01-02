@@ -47,6 +47,7 @@ typedef enum {
     IOTX_MC_STATE_CONNECTED = 2,                  /* MQTT in connected state */
     IOTX_MC_STATE_DISCONNECTED = 3,               /* MQTT in disconnected state */
     IOTX_MC_STATE_DISCONNECTED_RECONNECTING = 4,  /* MQTT in reconnecting state */
+    IOTX_MC_STATE_CONNECT_BLOCK = 5               /* MQTT in connecting state when using async protocol stack */
 } iotx_mc_state_t;
 
 typedef enum MQTT_NODE_STATE {
@@ -101,6 +102,7 @@ typedef struct Client {
     void                           *lock_generic;                               /* generic lock */
     uint32_t                        packet_id;                                  /* packet id */
     uint32_t                        request_timeout_ms;                         /* request timeout in millisecond */
+    uint32_t                        cycle_timeout_ms;
     uint32_t                        buf_size_send;                              /* send buffer size in byte */
 #if WITH_MQTT_DYN_BUF
     uint32_t                        buf_size_send_max;                          /* send buffer size max limit in byte */

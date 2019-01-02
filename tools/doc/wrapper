@@ -320,9 +320,23 @@ wrapper_mqtt_release:
  * @brief Release the MQTT client
  *        This function disconnect MQTT connection and release the related resource.
  *
- * @param [in] pclient: pointer of handle, specify the MQTT client.
+ * @param [in] client: pointer of handle, specify the MQTT client.
  *
  * @retval  0 : Release success.
  * @retval -1 : Release failed.
  * @see None.
  */
+
+ wrapper_mqtt_nwk_event_handler:
+ /**
+ * @brief Only used in async network stack and FEATURE_ASYNC_PROTOCOL_STACK must be selected
+ *
+ * @param [in] client: specify the MQTT client.
+ * @param [in] event: specify the network event.
+ * @param [in] param: specify the network params.
+ *
+ * @retval -1 :  Handle failed.
+ * @retval  0 :  Handle successful.
+ *
+ */
+ 
