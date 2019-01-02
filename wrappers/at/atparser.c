@@ -143,7 +143,7 @@ static void at_worker_uart_send_mutex_deinit()
 }
 #endif
 
-int at_init()
+int at_init(void)
 {
     char *recv_prefix = AT_RECV_PREFIX;
     char *recv_success_postfix = AT_RECV_SUCCESS_POSTFIX;
@@ -245,14 +245,22 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
 }
 
 #if AT_SINGLE_TASK
-int at_send_wait_reply(const char *data, int datalen, bool delimiter, char *replybuf,
-                       int bufsize, const atcmd_config_t *atcmdconfig, int timeout_ms)
+int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
+                       const char *data, int datalen,
+                       char *replybuf, int bufsize,
+                       const atcmd_config_t *atcmdconfig)
 {
-    if (at_send_no_reply(data, datalen, delimiter) < 0) {
+    if (at_send_no_reply(cmd, cmdlen, delimiter) < 0) {
         return -1;
     }
 
-    if (at_yield(replybuf, bufsize, atcmdconfig, timeout_ms) <  0) {
+    if (data && datalen) {
+        if (at_send_no_reply(data, datalen, false) < 0) {
+            return -1;
+        }
+    }
+
+    if (at_yield(replybuf, bufsize, atcmdconfig, at._timeout) <  0) {
         return -1;
     }
 
@@ -293,9 +301,10 @@ static int at_worker_task_del(at_task_t *tsk)
     return 0;
 }
 
-int at_send_wait_reply(const char *data, int datalen, bool delimiter,
+int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
+                       const char *data, int datalen,
                        char *replybuf, int bufsize,
-                       const atcmd_config_t *atcmdconfig, int timeout_ms)
+                       const atcmd_config_t *atcmdconfig)
 { 
     int ret = 0;
     at_task_t *tsk;
@@ -305,7 +314,7 @@ int at_send_wait_reply(const char *data, int datalen, bool delimiter,
         return -1;
     }
 
-    if (NULL == data || datalen <= 0) {
+    if (NULL == cmd || cmdlen <= 0) {
         atpsr_err("%s invalid input \r\n", __FUNCTION__);
         return -1;
     }
@@ -315,9 +324,11 @@ int at_send_wait_reply(const char *data, int datalen, bool delimiter,
         return -1;
     }
 
+    HAL_MutexLock(at.at_uart_send_mutex);
     tsk = (at_task_t *)atpsr_malloc(sizeof(at_task_t));
     if (NULL == tsk) {
         atpsr_err("tsk buffer allocating failed");
+        HAL_MutexUnlock(at.at_uart_send_mutex);
         return -1;
     }
     memset(tsk, 0, sizeof(at_task_t));
@@ -345,14 +356,13 @@ int at_send_wait_reply(const char *data, int datalen, bool delimiter,
         }
     }
 
-    tsk->command = (char *)data;
+    tsk->command = (char *)cmd;
     tsk->rsp     = replybuf;
     tsk->rsp_len = bufsize;
 
-    HAL_MutexLock(at.at_uart_send_mutex);
     at_worker_task_add(tsk);
 
-    if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen,
+    if ((ret = at_sendto_lower(at._pstuart, (void *)cmd, cmdlen,
                                at._timeout, true)) != 0) {
         atpsr_err("uart send command failed");
         goto end;
@@ -361,6 +371,13 @@ int at_send_wait_reply(const char *data, int datalen, bool delimiter,
     if (delimiter) {
         if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
                     strlen(at._send_delimiter), at._timeout, false)) != 0) {
+            atpsr_err("uart send delimiter failed");
+            goto end;
+        }
+    }
+
+    if (data && datalen > 0) {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen, at._timeout, true)) != 0) {
             atpsr_err("uart send delimiter failed");
             goto end;
         }

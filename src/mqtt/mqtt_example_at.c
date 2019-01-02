@@ -134,13 +134,12 @@ int at_connect_wifi(char *ssid, char *pwd)
 {
     char conn_str[100]= {0};
     char out[20] = {0};
-    int timeout_ms = 1000;
     int wifi_got_ip_delay = 3000;
 
     sprintf(conn_str, "AT+WJAP=%s,%s", ssid, pwd);
 
-    if (at_send_wait_reply(conn_str, strlen(conn_str), true,
-                           out, sizeof(out), NULL, timeout_ms) < 0){
+    if (at_send_wait_reply(conn_str, strlen(conn_str), true, NULL,
+                           0, out, sizeof(out), NULL) < 0){
         return -1;
     }
 
