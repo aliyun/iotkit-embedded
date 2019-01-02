@@ -26,11 +26,8 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *met
 
     if (IOTX_LINKKIT_DEV_TYPE_MASTER == dev_type) {
         res = alink_core_open(meta_info);
+
         if (SUCCESS_RETURN == res) {
-#ifdef DEVICE_MODEL_GATEWAY             
-            res = alink_subdev_mgr_init();       /* TODO!!! */
-            if (SUCCESS_RETURN == res)
-#endif            
                 res = ALINK_DEVICE_SELF_ID;
         }
     }
@@ -115,8 +112,8 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
     /* get device meta info while it's a subdev */
     if (devid != ALINK_DEVICE_SELF_ID) {
 #ifdef DEVICE_MODEL_GATEWAY
-        (void)device_secret;
-        
+        (void)device_secret;        /* TODO:??? */
+        alink_subdev_get_meta_info_by_devid(devid, product_key, device_name);
 #else
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif
@@ -127,14 +124,14 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
             if (payload == NULL || payload_len <= 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
-            res = alink_upstream_thing_property_post_req(product_key, device_name, (char *)payload, payload_len);
+            res = alink_upstream_thing_property_post_req(product_key, device_name, (const char *)payload, payload_len);
         } break;
 
         case ITM_MSG_DEVICEINFO_UPDATE: {
             if (payload == NULL || payload_len <= 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
-            res = alink_upstream_thing_deviceinfo_post_req(product_key, device_name, (char *)payload, payload_len);
+            res = alink_upstream_thing_deviceinfo_post_req(product_key, device_name, (const char *)payload, payload_len);
         } break;
 
         case ITM_MSG_DEVICEINFO_GET: {
@@ -191,8 +188,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
 
     if (devid != ALINK_DEVICE_SELF_ID) {
 #ifdef DEVICE_MODEL_GATEWAY 
-
-
+        alink_subdev_get_meta_info_by_devid(devid, product_key, device_name);
 #else
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif

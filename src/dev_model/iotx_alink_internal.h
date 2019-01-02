@@ -26,9 +26,7 @@
 
 
 
-/** TODO **/
-#define ALINK_URI_MAX_LEN           50
-#define HASH_TABLE_SIZE_MAX         29 /* 13, 17, 19 ,23, 29, 31, 37, 41, 43, 47, 53, 59*/
+
 
 
 typedef enum {

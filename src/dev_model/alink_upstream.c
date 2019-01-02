@@ -81,12 +81,26 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, const cha
 /***************************************************************
  * device model management upstream message
  ***************************************************************/
+const char *c_property_post_fmt = "{\"$p\":%.*s}";
 int alink_upstream_thing_property_post_req(const char *pk, const char *dn, const char *user_data, uint32_t data_len)
 {
-    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_PROPERTY_POST, pk, dn, (uint8_t *)user_data, data_len, NULL);
+    int res = FAIL_RETURN;
+
+    uint32_t len = strlen(c_property_post_fmt) + data_len;
+    char *payload = alink_malloc(len);
+    if (payload == NULL) {
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
+    }
+    
+    memset(payload, 0, len);
+    HAL_Snprintf(payload, len, c_property_post_fmt, data_len, user_data);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_PROPERTY_POST, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
+    alink_free(payload);
+
+    return res;
 }
 
-const char *c_event_post_fmt = "{\"eventId\":\"%.*s\",\"params\":%.*s}";
+const char *c_event_post_fmt = "{\"$id\":\"%.*s\",\"params\":%.*s}";
 /**
  * thing model post event to cloud 
  */
@@ -102,6 +116,7 @@ int alink_upstream_thing_event_post_req(const char *pk, const char *dn, const ch
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
+    memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_event_post_fmt, id_len, event_id, data_len, user_data);
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_EVENT_POST, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
@@ -109,18 +124,16 @@ int alink_upstream_thing_event_post_req(const char *pk, const char *dn, const ch
     return res;
 }
 
-const char *c_simple_rsp_fmt = "{\"code\":%d}";
-static int _alink_upstream_thing_status_code_rsp(alink_msg_uri_index_t idx, const char *pk, const char *dn, uint32_t code, alink_uri_query_t *query)
+static int _alink_upstream_empty_rsp(alink_msg_uri_index_t idx, const char *pk, const char *dn, alink_uri_query_t *query)
 {
-    char payload[20] = {0};
+    char payload[3] = "{}";
     
-    HAL_Snprintf(payload, sizeof(payload), c_simple_rsp_fmt, code);
     return _alink_upstream_send_request_msg(idx, pk, dn, (uint8_t *)payload, strlen(payload), query);
 }
 
-int alink_upstream_thing_property_set_rsp(const char *pk, const char *dn, uint32_t code, alink_uri_query_t *query)      /* TODO */
+int alink_upstream_thing_property_set_rsp(const char *pk, const char *dn, alink_uri_query_t *query)      /* TODO */
 {
-    return _alink_upstream_thing_status_code_rsp(ALINK_URI_UP_RSP_PROPERTY_PUT, pk, dn, code, query);
+    return _alink_upstream_empty_rsp(ALINK_URI_UP_RSP_PROPERTY_PUT, pk, dn, query);
 }
 
 const char *c_property_get_rsp_fmt = "{\"code\":%d,\"params\":%.*s}";
@@ -136,6 +149,7 @@ int alink_upstream_thing_property_get_rsp(const char *pk, const char *dn, uint32
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
+    memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_property_get_rsp_fmt, code, data_len, user_data);
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_RSP_PROPERTY_GET, pk, dn, (uint8_t *)payload, strlen(payload), query);
     alink_free(payload);
@@ -144,19 +158,21 @@ int alink_upstream_thing_property_get_rsp(const char *pk, const char *dn, uint32
 }
 
 /** TODO: same with property get rsp */
-int alink_upstream_thing_service_invoke_rsp(const char  *pk, const char *dn, uint32_t code, const char *user_data, uint32_t data_len, alink_uri_query_t *query)
+const char *c_service_invoke_rsp_fmt = "{\"$id\":\"%s\",\"params\":%.*s}";
+int alink_upstream_thing_service_invoke_rsp(const char  *pk, const char *dn, const char *service_id, const char *user_data, uint32_t data_len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
 
     /* alink payload format */
-    uint32_t len = strlen(c_property_get_rsp_fmt) + 10 + data_len;
+    uint32_t len = strlen(c_service_invoke_rsp_fmt) + strlen(service_id) + data_len;
 
     char *payload = alink_malloc(len);
     if (payload == NULL) {
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
-    HAL_Snprintf(payload, len, c_property_get_rsp_fmt, code, data_len, user_data);
+    memset(payload, 0, len);
+    HAL_Snprintf(payload, len, c_service_invoke_rsp_fmt, service_id, data_len, user_data);
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_RSP_SERVICE_PUT, pk, dn, (uint8_t *)payload, strlen(payload), query);
     alink_free(payload);
 
@@ -171,7 +187,7 @@ int alink_upstream_thing_raw_post_req(const char *pk, const char *dn, const uint
     return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_RAW_POST, pk, dn, user_data, data_len, NULL);
 }
 
-#if 0 /** this function is useless, as the script doesn't care about the topic of the raw data **/
+#if 0 /** this function is useless, as the script doesn't care about which topic the raw data come from **/
 int alink_upstream_thing_raw_post_rsp(const char *pk, const char *dn, const uint8_t *user_data, uint32_t data_len)
 {
     return 0;
@@ -181,25 +197,121 @@ int alink_upstream_thing_raw_post_rsp(const char *pk, const char *dn, const uint
 /***************************************************************
  * subdevice management upstream message
  ***************************************************************/
-
-int alink_upstream_subdev_register_post_req(void)
+char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_pair_t *pkdn_list)
 {
-    return 0;
+    uint8_t idx = 0;
+    uint8_t pair_num = pkdn_list->subdev_num;
+    pkdn_pair_t *pair_list = pkdn_list->subdev_pkdn;
+    lite_cjson_item_t *lite_root = NULL, *lite_object = NULL, *lite_array = NULL, *lite_array_item = NULL;
+    char *payload = NULL;
+
+    lite_root = lite_cjson_create_object();
+    if (lite_root == NULL) {
+        return NULL;
+    }
+
+    lite_object = lite_cjson_create_object();
+    if (lite_object == NULL) {
+        lite_cjson_delete(lite_root);
+        return NULL;
+    }
+    
+    lite_array = lite_cjson_create_array();
+    if (lite_array == NULL) {
+        lite_cjson_delete(lite_root);
+        return NULL;
+    }
+
+    lite_cjson_add_item_to_object(lite_root, "params", lite_object);
+    lite_cjson_add_item_to_object(lite_object, "subList", lite_array);
+
+    for (idx = 0; idx < pair_num; idx++) {
+        /* check parameters */
+        if (pair_list[idx].pk == NULL || pair_list[idx].dn == NULL) {
+            lite_cjson_delete(lite_root);
+            return NULL;
+        }
+
+        lite_array_item = lite_cjson_create_object();
+        if (lite_array_item == NULL) {
+            lite_cjson_delete(lite_root);
+            return NULL;
+        }
+
+        lite_cjson_add_string_to_object(lite_array_item, "productKey", pair_list[idx].pk);
+        lite_cjson_add_string_to_object(lite_array_item, "deviceName", pair_list[idx].dn);
+        lite_cjson_add_item_to_array(lite_array, lite_array_item);
+    }
+
+    payload = lite_cjson_print_unformatted(lite_root);
+    lite_cjson_delete(lite_root);
+
+    return payload;
 }
 
-int alink_upstream_subdev_register_delete_req(void)
+
+
+int alink_upstream_subdev_register_post_req(alink_subdev_pkdn_pair_t *pair_list)
 {
-    return 0;
+    int res = FAIL_RETURN;
+    char *payload = NULL;
+
+    payload = _alink_upstream_assamble_pkdn_pair_payload(pair_list);
+    if (payload == NULL) {
+        return res;
+    }
+    alink_info("subdev reg_post payload = %s", payload);
+
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_POST, "\0", "\0", (uint8_t *)payload, strlen(payload), NULL);
+    alink_free(payload);
+
+    return res;
+}
+
+int alink_upstream_subdev_register_delete_req(alink_subdev_pkdn_pair_t *pair_list)
+{
+    int res = FAIL_RETURN;
+    char *payload = NULL;
+
+    payload = _alink_upstream_assamble_pkdn_pair_payload(pair_list);
+    if (payload == NULL) {
+        return res;
+    }
+    alink_info("subdev reg_delete payload = %s", payload);
+
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_DELETE, "\0", "\0", (uint8_t *)payload, strlen(payload), NULL);
+    alink_free(payload);
+
+    return res;
 }
 
 int alink_upstream_subdev_login_post_req(void)
 {
+
+
+
+
+
+
+
     return 0;
 }
 
-int alink_upstream_subdev_login_delete_req(void)
+int alink_upstream_subdev_login_delete_req(alink_subdev_pkdn_pair_t *pair_list)
 {
-    return 0;
+    int res = FAIL_RETURN;
+    char *payload = NULL;
+
+    payload = _alink_upstream_assamble_pkdn_pair_payload(pair_list);
+    if (payload == NULL) {
+        return res;
+    }
+    alink_info("subdev login_delete payload = %s", payload);
+
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_DELETE, "\0", "\0", (uint8_t *)payload, strlen(payload), NULL);
+    alink_free(payload);
+
+    return res;
 }
 
 #if 0 /** all topo relatived funcitons are not implement **/
@@ -217,8 +329,6 @@ int alink_upstream_thing_topo_get()
 {
 
 }
-#endif
-
 
 int alink_upstream_subdev_list_post_req(void)
 {
@@ -229,15 +339,16 @@ int alink_upstream_subdev_list_put_rsp(void)
 {
     return 0;
 }
+#endif
 
 int alink_upstream_gw_permit_put_rsp(const char *pk, const char *dn, uint32_t code, alink_uri_query_t *query)
 {
-    return _alink_upstream_thing_status_code_rsp(ALINK_URI_UP_RSP_GW_PERMIT_PUT, pk, dn, code, query);
+    return _alink_upstream_empty_rsp(ALINK_URI_UP_RSP_GW_PERMIT_PUT, pk, dn, query);
 }
 
 int alink_upstream_gw_config_put_rsp(const char *pk, const char *dn, uint32_t code, alink_uri_query_t *query)
 {
-    return _alink_upstream_thing_status_code_rsp(ALINK_URI_UP_RSP_GW_CONIFG_PUT, pk, dn, code, query);
+    return _alink_upstream_empty_rsp(ALINK_URI_UP_RSP_GW_CONIFG_PUT, pk, dn, query);
 }
 
 /***************************************************************
@@ -254,6 +365,7 @@ int alink_upstream_thing_deviceinfo_post_req(const char *pk, const char *dn, con
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
+    memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_deviceinfo_alink_fmt, data_len, user_data);
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_POST, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
@@ -277,6 +389,7 @@ int alink_upstream_thing_deviceinfo_delete_req(const char *pk, const char *dn, c
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
+    memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_deviceinfo_alink_fmt, data_len, user_data);
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_DELETE, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);

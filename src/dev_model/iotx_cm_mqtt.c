@@ -252,13 +252,23 @@ static int  _mqtt_connect(uint32_t timeout)
 
     do {
         pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)&mqtt_param);
+
         if (pclient != NULL) {
+            HAL_Free(mqtt_sign.hostname);
+            HAL_Free(mqtt_sign.username);
+            HAL_Free(mqtt_sign.password);
+            HAL_Free(mqtt_sign.clientid);
             _mqtt_conncection->context = pclient;
             return 0;
         }
     } while (!utils_time_is_expired(&timer));
 
+    HAL_Free(mqtt_sign.hostname);
+    HAL_Free(mqtt_sign.username);
+    HAL_Free(mqtt_sign.password);
+    HAL_Free(mqtt_sign.clientid);
     cm_err("mqtt connect failed");
+
     return -1;
 }
 

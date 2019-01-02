@@ -28,6 +28,8 @@ int alink_core_connect_cloud(void);
 int alink_core_yield(uint32_t timeout_ms);
 
 uint32_t alink_core_get_msgid(void);
+alink_core_status_t alink_core_get_status(void);
+
 int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len);
 
 linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);

@@ -7,13 +7,15 @@
 #include "alink_core.h"
 #include "infra_defs.h"
 
+#define ALINK_SUBDEV_INDEX_VALUE_MAX        1000000     /* index value may overflow */ 
 
-#define ALINK_SUBDEV_NUM_MAX                1000000     /* TODO, overflow! */
+#define ALINK_SUBDEV_NUM_MAX                1000000
 
 #define ALINK_SUBDEV_HTABLE_SIZE_MAX        2000
 
-
 #define ALINK_SUBDEV_HTABLE_SIZE            53          /* TODO, 151 */
+
+
 
 typedef struct _subdev_hash_node *subdev_hash_table_t;
 
@@ -40,10 +42,9 @@ typedef struct {
 void _subdev_hash_destroy(subdev_hash_table_t *hash_table, uint32_t size);
 
 
-
-
-
-/** **/
+/***************************************************************
+ * local variables define
+ ***************************************************************/
 alink_subdev_mgr_htable_t subdev_mgr_htable = { 0 };
 
 
@@ -76,12 +77,13 @@ int alink_subdev_mgr_init(void)
 
     subdev_mgr_htable.table_size = ALINK_SUBDEV_HTABLE_SIZE;     /* TODO!!! */
     subdev_mgr_htable.subdev_num = 0;
-    subdev_mgr_htable.devid_alloc = 1;
+    subdev_mgr_htable.devid_alloc = 0;
 
     subdev_mgr_htable.hash_table = alink_malloc(sizeof(*subdev_mgr_htable.hash_table) * subdev_mgr_htable.table_size);
     if (subdev_mgr_htable.hash_table == NULL) {
         HAL_MutexDestroy(subdev_mgr_htable.mutex);
         subdev_mgr_htable.mutex = NULL;
+        subdev_mgr_htable.table_size = 0;
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
@@ -101,10 +103,10 @@ int alink_subdev_mgr_deinit(void)
 
     _alink_subdev_mgr_unlock();
 
-    if (subdev_mgr_htable.hash_table == NULL) {
+    if (subdev_mgr_htable.mutex != NULL) {
         HAL_MutexDestroy(subdev_mgr_htable.mutex);
         subdev_mgr_htable.mutex = NULL;
-    }    
+    }
 
     return SUCCESS_RETURN;    
 }
@@ -147,54 +149,66 @@ static uint32_t _pkdn_to_hash(const char *pk, const char *dn)
 /** TODO: add mutex **/
 int _subdev_hash_insert(const char *pk, const char *dn, const char *ds) 
 {
+    int res = FAIL_RETURN;
     uint32_t hash = _pkdn_to_hash(pk, dn);
     struct _subdev_hash_node **table = subdev_mgr_htable.hash_table;
     subdev_hash_node_t *node, *temp;
 
-    if (subdev_mgr_htable.devid_alloc++ >= ALINK_SUBDEV_NUM_MAX) {
-        ;       /* TODO!!!!!!!! */
-    }
-    if (subdev_mgr_htable.subdev_num >= ALINK_SUBDEV_NUM_MAX) {
-        return IOTX_CODE_TOO_MANY_SUBDEV;
-    }
+    _alink_subdev_mgr_lock();
 
-    node = (subdev_hash_node_t *)alink_malloc(sizeof(subdev_hash_node_t));
-    if (node == NULL) {
-        return IOTX_CODE_MEMORY_NOT_ENOUGH;
-    }
+    do {
+        if (subdev_mgr_htable.devid_alloc++ >= ALINK_SUBDEV_INDEX_VALUE_MAX) {
+            res = IOTX_CODE_SUBDEV_IDX_OVERFLOW;
+            break;
+        }
+        if (subdev_mgr_htable.subdev_num >= ALINK_SUBDEV_NUM_MAX) {
+            res = IOTX_CODE_TOO_MANY_SUBDEV;
+            break;
+        }
 
-    node->product_key = alink_utils_strdup(pk, strlen(pk));
-    if (node->product_key == NULL) {
-        alink_free(node);
-        return IOTX_CODE_MEMORY_NOT_ENOUGH;
-    }
-    node->device_name = alink_utils_strdup(dn, strlen(dn));
-    if (node->device_name == NULL) {
-        alink_free(node->product_key);
-        alink_free(node);
-        return IOTX_CODE_MEMORY_NOT_ENOUGH;
-    }
-    node->device_secret = alink_utils_strdup(ds, strlen(ds));
-    if (node->device_secret == NULL) {
-        alink_free(node->product_key);
-        alink_free(node->device_name);
-        alink_free(node);
-    }
+        node = (subdev_hash_node_t *)alink_malloc(sizeof(subdev_hash_node_t));
+        if (node == NULL) {
+            res = IOTX_CODE_MEMORY_NOT_ENOUGH;
+            break;
+        }
 
-    node->next = NULL;
+        node->product_key = alink_utils_strdup(pk, strlen(pk));
+        if (node->product_key == NULL) {
+            alink_free(node);
+            res = IOTX_CODE_MEMORY_NOT_ENOUGH;
+            break;
+        }
+        node->device_name = alink_utils_strdup(dn, strlen(dn));
+        if (node->device_name == NULL) {
+            alink_free(node->product_key);
+            alink_free(node);
+            res = IOTX_CODE_MEMORY_NOT_ENOUGH;
+            break;
+        }
+        node->device_secret = alink_utils_strdup(ds, strlen(ds));
+        if (node->device_secret == NULL) {
+            alink_free(node->product_key);
+            alink_free(node->device_name);
+            alink_free(node);
+            res = IOTX_CODE_MEMORY_NOT_ENOUGH;
+            break;
+        }
 
-    if (table[hash] == NULL) {
-        table[hash] = node;
-    }
-    else {
+        /* add list node */
+        node->next = NULL;
         temp = table[hash];
         table[hash] = node;
         node->next = temp;
-    }
 
-    node->devid = hash * ALINK_SUBDEV_NUM_MAX + subdev_mgr_htable.devid_alloc;     /* TODO */
+        node->devid = hash * ALINK_SUBDEV_INDEX_VALUE_MAX + subdev_mgr_htable.devid_alloc;
+        subdev_mgr_htable.subdev_num++;
+        _alink_subdev_mgr_unlock();
 
-    return node->devid;
+        return node->devid;
+    } while (0);
+
+    _alink_subdev_mgr_unlock();
+    return res;
 }
 
 /** TODO **/
@@ -205,7 +219,7 @@ int subdev_hash_remove(uint32_t devid)
 
     ALINK_ASSERT_DEBUG(devid != 0);
 
-    hash = devid / ALINK_SUBDEV_NUM_MAX;
+    hash = devid / ALINK_SUBDEV_INDEX_VALUE_MAX;
     if (hash >= subdev_mgr_htable.table_size) {
         return FAIL_RETURN;
     }
@@ -304,7 +318,7 @@ subdev_hash_node_t *_subdev_hash_search_by_devid(uint32_t devid)
     uint32_t hash;
     subdev_hash_node_t *node;
 
-    hash = devid / ALINK_SUBDEV_NUM_MAX;     /* TODO */
+    hash = devid / ALINK_SUBDEV_INDEX_VALUE_MAX;     /* TODO */
     node = subdev_mgr_htable.hash_table[hash];
 
     while (node) {
@@ -365,23 +379,25 @@ int alink_subdev_open(iotx_dev_meta_info_t *dev_info)
     /* return devid if insert successfully */
     res = _subdev_hash_insert(dev_info->product_key, dev_info->device_name, dev_info->device_secret);
     if (res <= SUCCESS_RETURN) {
-        alink_info("subdev add fail");
+        alink_info("subdev add failed");
         return res;
     }
-
-
-
+    alink_info("subdev add succeed");
 
     return res;
 }
 
 int alink_subdev_connect_cloud(uint32_t devid)
 {
+    int res = FAIL_RETURN;
     subdev_hash_node_t *node;
     
     ALINK_ASSERT_DEBUG(devid != 0);
 
-    /* TODO: get core status first */
+    /* check core status first */
+    if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
+        return IOTX_CODE_STATUS_ERROR;
+    }
 
     node = _subdev_hash_search_by_devid(devid);
     if (node == NULL) {
@@ -389,9 +405,21 @@ int alink_subdev_connect_cloud(uint32_t devid)
     }
 
     if (strlen(node->device_secret) == 0) {
+        alink_subdev_pkdn_pair_t info_list;
+        pkdn_pair_t pkdn_pair[1];
+
+        pkdn_pair[0].pk = node->product_key;
+        pkdn_pair[0].dn = node->device_name;
+        info_list.subdev_num = 1;
+        info_list.subdev_pkdn = pkdn_pair;
+
         /* dynamic register first */
-
-
+        res = alink_upstream_subdev_register_post_req(&info_list);
+        if (res < SUCCESS_RETURN) {
+            alink_info("subdev register failed");
+            return res;
+        }
+        alink_info("subdev register succeed");
     }
 
     /* check subdev status first */
@@ -402,11 +430,34 @@ int alink_subdev_connect_cloud(uint32_t devid)
     return 0;
 }
 
+
+int alink_subdev_get_meta_info_by_devid(uint32_t devid, char *product_key, char *device_name)
+{
+    subdev_hash_node_t *node;
+
+    node = _subdev_hash_search_by_devid(devid);
+    if (node == NULL) {
+        return FAIL_RETURN;
+    }
+    memcpy(product_key, node->product_key, strlen(node->product_key)+1);
+    memcpy(device_name, node->device_name, strlen(node->device_name)+1);
+
+    return SUCCESS_RETURN;
+}
+
+
 int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_name, uint32_t *devid)
 {
+    subdev_hash_node_t *node;
 
+    node = _subdev_hash_search_by_pkdn(product_key, device_name);
+    if (node == NULL) {
+        return FAIL_RETURN;
+    }
 
-    return 0;
+    *devid = node->devid;
+
+    return SUCCESS_RETURN;
 }
 
 

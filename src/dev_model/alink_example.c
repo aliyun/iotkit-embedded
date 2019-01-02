@@ -19,6 +19,8 @@ extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 
 
 #define PROP_ALINK1_TEST   "{\"id\":\"123\",\"version\":\"1.0\",\"params\":{\"test1\":1234},\"method\":\"thing.event.property.post\"}"
+
+#define ALINK2_PROP_POST_DATA       "{\"Data\": \"1024\"}"
 #define ALINK2_EVENT_POST_DATA      "{\"ErrorCode\": 400}"
 
 /** type define **/
@@ -39,7 +41,7 @@ static user_example_ctx_t g_user_example_ctx;
 extern int alink_downstream_invoke_mock(const char *uri_string);
 extern void subdev_hash_iterator(void);
 extern int subdev_hash_remove(uint32_t devid);
-
+int alink_subdev_mgr_deinit(void);
 
 
 
@@ -173,6 +175,13 @@ int main(int argc, char **argv)
         .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
     };
 
+    static iotx_dev_meta_info_t subdev_info = {
+        .product_key = "a1OFrRjV8nz",
+        .product_secret = "EfFYTuX1GjMDvw6l",
+        .device_name = "develop_02",
+        .device_secret = "\0"
+    };
+
     printf("alink start\r\n");
 
     LITE_set_loglevel(5);
@@ -215,11 +224,23 @@ int main(int argc, char **argv)
     IOT_Linkkit_Connect(0);
 
     {
+        int res;
+        int subdev_id = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &subdev_info);
+        printf("subdev id = %d\r\n", subdev_id);
+
+        res = IOT_Linkkit_Connect(subdev_id);
+        printf("subdev conn res = %d\r\n", res);
+    }
+
+
+    /*
+    {
         uint32_t devid[160];
         int i = 0;
         for (i=0; i<160; i++) {
             dev_info.device_name[9]++;
             devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &dev_info);
+            printf("open sudev, devid = %d", devid[i]);
         }
         subdev_hash_iterator();
 
@@ -228,8 +249,10 @@ int main(int argc, char **argv)
 
             subdev_hash_remove(devid[i]);
         }
+
         subdev_hash_iterator();
     }
+    */
 
     while (1) {
         IOT_Linkkit_Yield(200);
@@ -260,12 +283,12 @@ int main(int argc, char **argv)
         alink_downstream_invoke_mock("rsp/sys/thing/devinfo/delete");
         #endif
 
-        IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)PROP_ALINK1_TEST, strlen(PROP_ALINK1_TEST));
+        IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
 
         IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
 
 
-        if (++cnt > 10) {
+        if (++cnt > 5) {
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }

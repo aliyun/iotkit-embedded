@@ -15,6 +15,7 @@
 #include <ctype.h>
 
 #include "infra_cjson.h"
+#include "infra_types.h"
 
 typedef struct {
     const unsigned char *content;
@@ -832,7 +833,7 @@ int lite_cjson_object_item(lite_cjson_t *lite, const char *key, int key_len,
     return 0;
 }
 
-#ifdef DEPRECATED_LINKKIT
+#if (0)
 int lite_cjson_object_item_by_index(lite_cjson_t *lite, int index, lite_cjson_t *lite_item_key,
                                     lite_cjson_t *lite_item_value)
 {
@@ -919,10 +920,10 @@ int lite_cjson_object_item_by_index(lite_cjson_t *lite, int index, lite_cjson_t 
 
     return -1;
 }
-#endif  /* #ifdef DEPRECATED_LINKKIT */
+#endif  /* #if (0) */
 
 /*** cjson create, add and print ***/
-#if defined(ALCS_ENABLED) || defined(DEPRECATED_LINKKIT)
+#if defined(DEVICE_MODEL_GATEWAY)
 #define true ((cJSON_bool)1)
 #define false ((cJSON_bool)0)
 #define cjson_min(a, b) ((a < b) ? a : b)
@@ -942,6 +943,9 @@ typedef struct {
     cJSON_bool format; /* is this print a formatted print */
     internal_hooks hooks;
 } printbuffer;
+
+void *HAL_Malloc(uint32_t size);
+void HAL_Free(void *ptr);
 
 static void *internal_malloc(uint32_t size)
 {

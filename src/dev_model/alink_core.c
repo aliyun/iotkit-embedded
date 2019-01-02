@@ -5,7 +5,6 @@
 #include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
 #include "alink_core.h"
-#include "infra_defs.h"
 
 
 #define ALINK_CORE_CONNECT_TIMEOUT              (10000)
@@ -27,7 +26,6 @@ typedef struct {
     char                   *device_name;
     char                   *device_secret;
 
-    /*alink_bearer_node_t    *p_activce_bearer;*/
     uint32_t                cm_fd;
     uint32_t                msgid;              /* TODO */
 
@@ -43,19 +41,13 @@ static int _alink_core_deinit(void);
 
 static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len, void *context);
 
-
-/**
+/***************************************************************
  * local variables
- */
+ ***************************************************************/
 static linkkit_event_cb_t g_linkkit_event_array[ITE_EVENT_NUM] = { NULL };
-
 static alink_core_ctx_t alink_core_ctx = { 0 };
 
-
 /*  static uint8_t alink_qos_option = 0x00;  TOOD */
-
-
-
 
 
 /***************************************************************
@@ -92,48 +84,62 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 {
     int res = FAIL_RETURN;
 
-    if (strlen(dev_info->product_key) == 0 || strlen(dev_info->device_name) == 0) {
-        return IOTX_CODE_PARAMS_INVALID;
-    }
-
     if (alink_core_ctx.status > ALINK_CORE_STATUS_DEINIT) {
-        return SUCCESS_RETURN;          /* already init, just return success */
+        return IOTX_CODE_ALREADY_OPENED;
     }
     alink_core_ctx.status = ALINK_CORE_STATUS_INITED;
 
     alink_core_ctx.mutex = HAL_MutexCreate();
     if (alink_core_ctx.mutex == NULL) {
         _alink_core_deinit();
-        return res;
+        return IOTX_CODE_CREATE_MUTEX_FAILED;
     }
 
     /* store master device info duplication */
-    if ((res = _alink_core_store_dev_meta(&alink_core_ctx.product_key, dev_info->product_key)) < SUCCESS_RETURN) {
+    if ((alink_core_ctx.product_key = alink_utils_strdup(dev_info->product_key, strlen(dev_info->product_key))) == NULL) {
         _alink_core_deinit();
-        return res;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
-    if ((res = _alink_core_store_dev_meta(&alink_core_ctx.product_secret, dev_info->product_secret)) < SUCCESS_RETURN) {
+    if ((alink_core_ctx.product_secret = alink_utils_strdup(dev_info->product_secret, strlen(dev_info->product_secret))) == NULL) {
         _alink_core_deinit();
-        return res;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
-    if ((res = _alink_core_store_dev_meta(&alink_core_ctx.device_name, dev_info->device_name)) < SUCCESS_RETURN) {
+    if ((alink_core_ctx.device_name = alink_utils_strdup(dev_info->device_name, strlen(dev_info->device_name))) == NULL) {
         _alink_core_deinit();
-        return res;
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
-    if ((res = _alink_core_store_dev_meta(&alink_core_ctx.device_secret, dev_info->device_secret)) < SUCCESS_RETURN) {
+    if ((alink_core_ctx.device_secret = alink_utils_strdup(dev_info->device_secret, strlen(dev_info->device_secret))) == NULL) {
         _alink_core_deinit();
-        return res;
-    }            
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
+    }
 
+    /* init downstream topic hash table */
     res = alink_downstream_hash_table_init();
     if (res < SUCCESS_RETURN) {
         _alink_core_deinit();
         return res;
     }
 
+#ifdef DEVICE_MODEL_GATEWAY
+    /* init subdev hash table */        
+    res = alink_subdev_mgr_init();
+    if (res < SUCCESS_RETURN) {
+        _alink_core_deinit();
+        return res;
+    }
+
+    /* init lite_cjson hook */
+    {
+        lite_cjson_hooks hooks;
+        hooks.malloc_fn = alink_utils_malloc;
+        hooks.free_fn = alink_utils_free;
+        lite_cjson_init_hooks(&hooks);
+    }
+#endif
+    
     return SUCCESS_RETURN;
 }
 
@@ -167,7 +173,15 @@ static int _alink_core_deinit(void)
         alink_free(alink_core_ctx.device_secret);
     }
 
+    /* downstream topic hash table deinit */
     alink_downstream_hash_table_deinit();
+
+#ifdef DEVICE_MODEL_GATEWAY
+    /* subdev hash table deinit */
+    alink_subdev_mgr_deinit();
+#endif
+
+    alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;
 
     return SUCCESS_RETURN;
 }
@@ -298,16 +312,15 @@ void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context)
 /***************************************************************
  * global functions
  ***************************************************************/
-/**
- *
- */
+/** **/
 int alink_core_open(iotx_dev_meta_info_t *dev_info)
 {
-    int res = _alink_core_init(dev_info);
+    int res;
 
     ALINK_ASSERT_DEBUG(dev_info != NULL);
-
+    
     /* init core in open api */
+    res = _alink_core_init(dev_info);
     if (res < SUCCESS_RETURN) {
         return res;
     }
@@ -332,6 +345,8 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info)
     }
 
     alink_info("bearer open succeed");
+    alink_core_ctx.status = ALINK_CORE_STATUS_OPENED;
+
     return SUCCESS_RETURN;
 }
 
@@ -355,19 +370,31 @@ int alink_core_connect_cloud(void)
     res = iotx_cm_connect(alink_core_ctx.cm_fd, ALINK_CORE_CONNECT_TIMEOUT);
 
     if (res < SUCCESS_RETURN) {
+        alink_info("connect failed");
         return res;
-        alink_info("connected fail");
     }
+    alink_info("connect succeed");
 
     /* TODO: invoke the connected event, event post for awss immediately, indicate success for fail, hehe */
 
+    res = _alink_core_register_downstream(ALINK_DEFAULT_SUB_LEVEL, _alink_core_rx_event_handle);
+    if (res < SUCCESS_RETURN) {
+        alink_info("subscribe failed");
+        return res;
+    }
 
-    alink_info("connected, start sub");
-    _alink_core_register_downstream(ALINK_DEFAULT_SUB_LEVEL, _alink_core_rx_event_handle); /* (alink_bearer_rx_cb_t) */
-
-    return res;
+    alink_core_ctx.status = ALINK_CORE_STATUS_CONNECTED;
+    alink_info("subscribe succeed");
+    return SUCCESS_RETURN;
 }
 
+/** **/
+alink_core_status_t alink_core_get_status(void)
+{
+    return alink_core_ctx.status;
+}
+
+/** **/
 uint32_t alink_core_get_msgid(void)
 {
     uint32_t msgid;
