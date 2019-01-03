@@ -1,6 +1,11 @@
 #include "infra_types.h"
 #include "soc_api.h"
 
+typedef struct {
+  unsigned int end_time;
+  bool over_flow;
+}OsTimer;
+
 void HAL_Printf(const char *fmt, ...);
 
 unsigned int get_cur_time(void)

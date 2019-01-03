@@ -1942,9 +1942,6 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     return rc;
 }
 
-
-
-
 #if !(WITH_MQTT_SUB_SHORTCUT)
 /* return: 0, identical; NOT 0, different */
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
@@ -2920,15 +2917,19 @@ void _mqtt_cycle(void *client)
             mqtt_err("error occur rc=%d", rc);
         }
 
+        HAL_MutexLock(pClient->lock_yield);
+
         /* acquire package in cycle, such as PINGRESP or PUBLISH */
         rc = iotx_mc_cycle(pClient, &time);
         if (SUCCESS_RETURN == rc) {
+#ifndef ASYNC_PROTOCOL_STACK
 #if !WITH_MQTT_ONLY_QOS0
             /* check list of wait publish ACK to remove node that is ACKED or timeout */
             MQTTPubInfoProc(pClient);
 #endif
             /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
             MQTTSubInfoProc(pClient);
+#endif
         }
         HAL_MutexUnlock(pClient->lock_yield);
 
@@ -2967,6 +2968,14 @@ int wrapper_mqtt_yield(void *client, int timeout_ms)
 #ifndef ASYNC_PROTOCOL_STACK
     _mqtt_cycle(client);
 #else
+    if (pClient->client_state == IOTX_MC_STATE_CONNECTED) {
+#if !WITH_MQTT_ONLY_QOS0
+        /* check list of wait publish ACK to remove node that is ACKED or timeout */
+        MQTTPubInfoProc(pClient);
+#endif
+        /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
+        MQTTSubInfoProc(pClient);
+    }
     HAL_SleepMs(timeout_ms);
 #endif
 
@@ -3237,12 +3246,13 @@ int wrapper_mqtt_nwk_event_handler(void *client, iotx_mqtt_nwk_event_t event, io
         }
         break;
         case IOTX_MQTT_SOC_CLOSE: {
-            rc = iotx_mc_disconnect(pClient);
             iotx_mc_set_client_state(pClient, IOTX_MC_STATE_DISCONNECTED);
         }
         break;
         case IOTX_MQTT_SOC_READ: {
+            HAL_MutexLock(pClient->lock_yield);
             _mqtt_cycle(pClient);
+            HAL_MutexUnlock(pClient->lock_yield);
             rc = SUCCESS_RETURN;
         }
         break;
