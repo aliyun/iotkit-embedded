@@ -164,8 +164,6 @@ typedef enum {
 
 typedef struct {
     uintptr_t fd;
-    uint8_t *buffer;
-    uint16_t buffer_len;
 } iotx_mqtt_nwk_param_t;
 
 /** @defgroup group_api api

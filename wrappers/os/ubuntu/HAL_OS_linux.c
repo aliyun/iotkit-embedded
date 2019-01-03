@@ -29,10 +29,10 @@
 
 #define PLATFORM_WAIT_INFINITE (~0)
 
-char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1X2bEnP82z";
-char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "";
-char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example_zc";
-char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "XZvZ1295n3mzGFYWHUnjy1xkdHb919C8";
+char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1MZxOdcBnO";
+char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "h4I4dneEFp7EImTv";
+char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "test_01";
+char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56";
 char _firmware_version[IOTX_FIRMWARE_VER_LEN] = "app-1.0.0-20180101.1000";
 
 void *HAL_Malloc(uint32_t size)
