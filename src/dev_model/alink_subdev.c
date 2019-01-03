@@ -7,7 +7,7 @@
 #include "alink_core.h"
 #include "infra_defs.h"
 
-#define ALINK_SUBDEV_INDEX_VALUE_MAX        1000000     /* index value may overflow */ 
+#define ALINK_SUBDEV_INDEX_VALUE_MAX        1000000     /* index value may overflow! */ 
 
 #define ALINK_SUBDEV_NUM_MAX                1000000
 
@@ -405,7 +405,7 @@ int alink_subdev_connect_cloud(uint32_t devid)
     }
 
     if (strlen(node->device_secret) == 0) {
-        alink_subdev_pkdn_pair_t info_list;
+        alink_subdev_pkdn_list_t info_list;
         pkdn_pair_t pkdn_pair[1];
 
         pkdn_pair[0].pk = node->product_key;
@@ -422,10 +422,29 @@ int alink_subdev_connect_cloud(uint32_t devid)
         alink_info("subdev register succeed");
     }
 
+    node->status = ALINK_SUBDEV_STATUS_REGISTERED;
+
     /* check subdev status first */
 
-    /* login */
 
+    /* login */
+    {
+        alink_subdev_triple_list_t triple_list;
+        triple_meta_t triple_array[1];
+
+        triple_array[0].pk = node->product_key;
+        triple_array[0].dn = node->device_name;
+        triple_array[0].ds = node->device_secret;
+        triple_list.subdev_num = 1;
+        triple_list.subdev_triple = triple_array;
+
+        res = alink_upstream_subdev_login_post_req(&triple_list);
+        if (res < SUCCESS_RETURN) {
+            alink_info("subdev register failed");
+            return res;
+        }
+        alink_info("subdev register succeed");
+    }
 
     return 0;
 }

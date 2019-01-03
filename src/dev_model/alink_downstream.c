@@ -80,8 +80,8 @@ static uri_hash_table_t uri_hash_table[HASH_TABLE_SIZE_MAX] = { NULL };
 
 
 const char alink_proto_key_params[] = "params";
-const char alink_proto_key_property[] = "$p";
-const char alink_proto_key_id[] = "$id";
+const char alink_proto_key_property[] = "p";
+const char alink_proto_key_id[] = "id";
 const char alink_proto_key_productKey[] = "productKey";
 const char alink_proto_key_deviceName[] = "deviceName";
 const char alink_proto_key_timeoutSec[] = "timeoutSec";
@@ -282,9 +282,7 @@ int alink_downstream_invoke_mock(const char *uri_string)
  * device model management downstream message
  **/
 
-/**
- * 
- */
+/** **/
 static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;

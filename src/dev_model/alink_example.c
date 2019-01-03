@@ -179,7 +179,7 @@ int main(int argc, char **argv)
         .product_key = "a1OFrRjV8nz",
         .product_secret = "EfFYTuX1GjMDvw6l",
         .device_name = "develop_02",
-        .device_secret = "\0"
+        .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
     };
 
     printf("alink start\r\n");

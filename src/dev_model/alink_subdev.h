@@ -21,7 +21,17 @@ typedef enum {
     ALINK_DEV_STATUS_ONLINE,          /* After All Topic Subscribed */
     ALINK_DEV_STATUS_ENABLE,          /* enabled */
     ALINK_DEV_STATUS_DISABLE          /* disabled by cloud */
+} alink_dev_status_t;
+
+typedef enum {
+    ALINK_SUBDEV_STATUS_CLOSED = 0,
+    ALINK_SUBDEV_STATUS_OPENED,
+    ALINK_SUBDEV_STATUS_REGISTERED,
+    ALINK_SUBDEV_STATUS_ONLINE,
+    ALINK_SUBDEV_STATUS_DISABLED,
+    ALINK_SUBDEV_STATUS_OFFLINE,
 } alink_subdev_status_t;
+
 
 
 
