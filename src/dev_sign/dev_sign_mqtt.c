@@ -40,6 +40,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     uint16_t length = 0;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
     char timestamp[20] = {0};
+    char timp_intstr[20] = {0};
 
     char *signsource = NULL;
     uint16_t signsource_len = 0;
@@ -53,8 +54,11 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
     memset(signout,0,sizeof(iotx_sign_mqtt_t));
 
-    HAL_Snprintf(device_id,IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1,"%s.%s",meta->product_key,meta->device_name);
-    HAL_Snprintf(timestamp,20,"%s","2524608000000");
+    memcpy(device_id,meta->product_key,strlen(meta->product_key));
+    memcpy(device_id+strlen(device_id),".",strlen("."));
+    memcpy(device_id+strlen(device_id),meta->device_name,strlen(meta->device_name));
+
+    memcpy(timestamp,"2524608000000",strlen("2524608000000"));
 
     do {
         signsource_len = strlen(sign_fmt) + strlen(device_id) + strlen(meta->device_name) + strlen(meta->product_key) + strlen(timestamp) + 1;
@@ -63,7 +67,14 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
             break;
         }
         memset(signsource,0,signsource_len);
-        HAL_Snprintf(signsource,signsource_len,sign_fmt,device_id,meta->device_name,meta->product_key,timestamp);
+        memcpy(signsource,"clientId",strlen("clientId"));
+        memcpy(signsource+strlen(signsource),device_id,strlen(device_id));
+        memcpy(signsource+strlen(signsource),"deviceName",strlen("deviceName"));
+        memcpy(signsource+strlen(signsource),meta->device_name,strlen(meta->device_name));
+        memcpy(signsource+strlen(signsource),"productKey",strlen("productKey"));
+        memcpy(signsource+strlen(signsource),meta->product_key,strlen(meta->product_key));
+        memcpy(signsource+strlen(signsource),"timestamp",strlen("timestamp"));
+        memcpy(signsource+strlen(signsource),timestamp,strlen(timestamp));
 
         utils_hmac_sha256((uint8_t *)signsource,strlen(signsource),(uint8_t *)meta->device_secret,strlen(meta->device_secret),sign);
 
@@ -74,7 +85,9 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
             break;
         }
         memset(signout->hostname,0,length);
-        HAL_Snprintf(signout->hostname,length,"%s.%s",meta->product_key,g_infra_mqtt_domain[region]);
+        memcpy(signout->hostname,meta->product_key,strlen(meta->product_key));
+        memcpy(signout->hostname+strlen(signout->hostname),".",strlen("."));
+        memcpy(signout->hostname+strlen(signout->hostname),g_infra_mqtt_domain[region],strlen(g_infra_mqtt_domain[region]));
 
         length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
         signout->username = DEV_SIGN_MQTT_MALLOC(length);
@@ -82,7 +95,9 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
             break;
         }
         memset(signout->username,0,length);
-        HAL_Snprintf(signout->username,length,"%s&%s",meta->device_name,meta->product_key);
+        memcpy(signout->username,meta->device_name,strlen(meta->device_name));
+        memcpy(signout->username+strlen(signout->username),"&",strlen("&"));
+        memcpy(signout->username+strlen(signout->username),meta->product_key,strlen(meta->product_key));
 
         length = 32 * 2 + 1;
         signout->password = DEV_SIGN_MQTT_MALLOC(length);
@@ -98,7 +113,16 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
             break;
         }
         memset(signout->clientid,0,length);
-        HAL_Snprintf(signout->clientid,length,clientid_fmt,device_id,_get_secure_mode(),timestamp,0,0,IOTX_SDK_VERSION);
+        memcpy(signout->clientid,device_id,strlen(device_id));
+        memcpy(signout->clientid+strlen(signout->clientid),"|securemode=",strlen("|securemode="));
+        memset(timp_intstr,0,20);
+        infra_int2str(_get_secure_mode(),timp_intstr);
+        memcpy(signout->clientid+strlen(signout->clientid),timp_intstr,strlen(timp_intstr));
+        memcpy(signout->clientid+strlen(signout->clientid),",timestamp=",strlen(",timestamp="));
+        memcpy(signout->clientid+strlen(signout->clientid),timestamp,strlen(timestamp));
+        memcpy(signout->clientid+strlen(signout->clientid),",signmethod=hmacsha256,gw=0,ext=0,ver=c-sdk-",strlen(",signmethod=hmacsha256,gw=0,ext=0,ver=c-sdk-"));
+        memcpy(signout->clientid+strlen(signout->clientid),IOTX_SDK_VERSION,strlen(IOTX_SDK_VERSION));
+        memcpy(signout->clientid+strlen(signout->clientid),"|",strlen("|"));
 
         signout->port = SIGN_MQTT_PORT;
 
