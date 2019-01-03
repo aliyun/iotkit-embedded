@@ -5,21 +5,12 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 
-#define EXAMPLE_PRODUCT_KEY     "a1X2bEnP82z"
-#define EXAMPLE_PRODUCT_SECRET  "7jluWm1zql7bt8qK"
-#define EXAMPLE_DEVICE_NAME     "example1"
-#define EXAMPLE_DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
-
-extern char _product_key[IOTX_PRODUCT_KEY_LEN + 1];
-extern char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
-extern char _device_name[IOTX_DEVICE_NAME_LEN + 1];
-extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
-
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
 int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
 int8_t HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 uint64_t HAL_UptimeMs(void);
 int8_t HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
@@ -52,7 +43,7 @@ int example_subscribe(void *handle)
     int res = 0;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
-    const char *fmt = "/sys/%s/%s/thing/event/+/post_reply";
+    const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
 
@@ -85,11 +76,10 @@ int example_publish(void *handle)
     iotx_mqtt_topic_info_t topic_msg;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
-    const char *fmt = "/sys/%s/%s/thing/event/property/post";
+    const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
-    char *payload =
-                "{\"id\":\"1\",\"version\":\"1.0\",\"params\":{\"LightSwitch\":1},\"method\":\"thing.event.property.post\"}";
+    char *payload = "hello,world";
 
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
@@ -140,22 +130,9 @@ int main(int argc, char *argv[])
     HAL_Printf("mqtt example\n");
 
     memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
-    memcpy(meta.product_key, EXAMPLE_PRODUCT_KEY, strlen(EXAMPLE_PRODUCT_KEY));
-    memcpy(meta.product_secret, EXAMPLE_PRODUCT_SECRET, strlen(EXAMPLE_PRODUCT_SECRET));
-    memcpy(meta.device_name, EXAMPLE_DEVICE_NAME, strlen(EXAMPLE_DEVICE_NAME));
-    memcpy(meta.device_secret, EXAMPLE_DEVICE_SECRET, strlen(EXAMPLE_DEVICE_SECRET));
-
-    memset(_product_key,0,IOTX_PRODUCT_KEY_LEN + 1);
-    memcpy(_product_key,EXAMPLE_PRODUCT_KEY,strlen(EXAMPLE_PRODUCT_KEY));
-
-    memset(_product_secret,0,IOTX_PRODUCT_SECRET_LEN + 1);
-    memcpy(_product_secret,EXAMPLE_PRODUCT_SECRET,strlen(EXAMPLE_PRODUCT_SECRET));
-
-    memset(_device_name,0,IOTX_DEVICE_NAME_LEN + 1);
-    memcpy(_device_name,EXAMPLE_DEVICE_NAME,strlen(EXAMPLE_DEVICE_NAME));
-
-    memset(_device_secret,0,IOTX_DEVICE_SECRET_LEN + 1);
-    memcpy(_device_secret,EXAMPLE_DEVICE_SECRET,strlen(EXAMPLE_DEVICE_SECRET));
+    HAL_GetProductKey(meta.product_key);
+    HAL_GetDeviceName(meta.device_name);
+    HAL_GetDeviceSecret(meta.device_secret);
 
     memset(&sign_mqtt, 0x0, sizeof(iotx_sign_mqtt_t));
 
