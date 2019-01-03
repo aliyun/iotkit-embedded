@@ -5,9 +5,11 @@
 #include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
 
-
-/*  */
-#define ALINK_URI_HANDLE_PAIRE_NUM          (sizeof(c_alink_down_uri_handle_map)/sizeof(alink_uri_handle_pair_t))
+/****************************************
+ * local macro define
+ ****************************************/
+/* element number of uri/handler pair map */
+#define ALINK_URI_HANDLE_PAIR_NUM           (sizeof(c_alink_down_uri_handle_map)/sizeof(alink_uri_handle_pair_t))
 
 /****************************************
  * local function prototypes
@@ -41,11 +43,10 @@ static void alink_downstream_thing_deviceinfo_post_rsq(uint32_t devid, const cha
 static void alink_downstream_thing_deviceinfo_get_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_thing_deviceinfo_delete_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 
-
 /****************************************
  * local variables define
  ****************************************/
-/** not begin with char '/' **/
+/** uri/handle pair map **/
 const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
     { "rsp/sys/thing/property/post",                alink_downstream_thing_property_post_rsp        },
     { "req/sys/thing/property/put",                 alink_downstream_thing_property_set_req         },
@@ -75,10 +76,10 @@ const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
     { "rsp/sys/thing/devinfo/delete",               alink_downstream_thing_deviceinfo_delete_rsq    },
 };
 
-/*  */
+/** alink protocal uri hash table */
 static uri_hash_table_t uri_hash_table[HASH_TABLE_SIZE_MAX] = { NULL };
 
-
+/** alink protocal format key define **/
 const char alink_proto_key_params[] = "params";
 const char alink_proto_key_property[] = "p";
 const char alink_proto_key_id[] = "id";
@@ -86,10 +87,6 @@ const char alink_proto_key_productKey[] = "productKey";
 const char alink_proto_key_deviceName[] = "deviceName";
 const char alink_proto_key_timeoutSec[] = "timeoutSec";
 const char alink_proto_key_url[] = "url";
-
-
-
-
 
 
 
@@ -238,7 +235,7 @@ void utils_uri_hash_destroy(uri_hash_table_t *table)
  */
 int alink_downstream_hash_table_init(void)
 {
-    return utils_uri_hash_init(c_alink_down_uri_handle_map, ALINK_URI_HANDLE_PAIRE_NUM, uri_hash_table);
+    return utils_uri_hash_init(c_alink_down_uri_handle_map, ALINK_URI_HANDLE_PAIR_NUM, uri_hash_table);
 }
 
 void alink_downstream_hash_table_deinit(void)
@@ -276,12 +273,9 @@ int alink_downstream_invoke_mock(const char *uri_string)
 }
 
 
-
-
-/**
+/***************************************************************
  * device model management downstream message
- **/
-
+ ***************************************************************/
 /** **/
 static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
@@ -310,6 +304,7 @@ static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char 
 #endif
 }
 
+/** **/
 static void alink_downstream_thing_property_set_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
@@ -501,10 +496,11 @@ static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, c
 /***************************************************************
  * subdevice management downstream message
  ***************************************************************/
-
 static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-      
+    
+
+
 }
 
 static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -539,16 +535,13 @@ static void alink_downstream_subdev_topo_get_rsp(uint32_t devid, const char *pk,
 
 static void alink_downstream_subdev_list_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    
+    /* not implement now */
 }
 
 static void alink_downstream_subdev_list_put_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    
+    /* not implement now */
 }
-
-
-
 
 static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {

@@ -29,16 +29,20 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, const cha
 
     char *uri;
     uint32_t msgid = 0;
-    char uri_query[20] = {0};
+    char uri_query[45] = {0};
 
-    /* setup query string if parameters query is NULL */
+    /* append msgid if parameters query is NULL */
     if (query == NULL) {
         msgid = alink_core_get_msgid();
         HAL_Snprintf(uri_query, sizeof(uri_query), "/?i=%d", msgid);
     }
     else {
-        HAL_Snprintf(uri_query, sizeof(uri_query), "/?i=%d", query->id);
+        /* setup id if both id and return code are 0 */
+        if (0 == query->id && query->code == 0) {
+            query->id = alink_core_get_msgid();
+        } 
 
+        alink_format_assemble_query(query, uri_query, sizeof(uri_query));
     }
 
     if (query == NULL || query->format != 'b') {
@@ -192,6 +196,7 @@ int alink_upstream_thing_raw_post_rsp(const char *pk, const char *dn, const uint
 }
 #endif
 
+#ifdef DEVICE_MODEL_GATEWAY
 /***************************************************************
  * subdevice management upstream message
  ***************************************************************/
@@ -429,6 +434,7 @@ int alink_upstream_gw_config_put_rsp(const char *pk, const char *dn, uint32_t co
 {
     return _alink_upstream_empty_rsp(ALINK_URI_UP_RSP_GW_CONIFG_PUT, pk, dn, query);
 }
+#endif
 
 /***************************************************************
  * thing device information management upstream message

@@ -16,7 +16,6 @@
 #define ALINK_SUBDEV_HTABLE_SIZE            53          /* TODO, 151 */
 
 
-
 typedef struct _subdev_hash_node *subdev_hash_table_t;
 
 typedef struct _subdev_hash_node {
@@ -387,12 +386,18 @@ int alink_subdev_open(iotx_dev_meta_info_t *dev_info)
     return res;
 }
 
+int alink_subdev_close(uint32_t devid)
+{
+    int res = FAIL_RETURN;
+
+
+    return res;
+}
+
 int alink_subdev_connect_cloud(uint32_t devid)
 {
     int res = FAIL_RETURN;
     subdev_hash_node_t *node;
-    
-    ALINK_ASSERT_DEBUG(devid != 0);
 
     /* check core status first */
     if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
@@ -463,7 +468,6 @@ int alink_subdev_get_meta_info_by_devid(uint32_t devid, char *product_key, char 
 
     return SUCCESS_RETURN;
 }
-
 
 int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_name, uint32_t *devid)
 {

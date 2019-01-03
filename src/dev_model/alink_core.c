@@ -38,7 +38,6 @@ typedef struct {
 static int _alink_core_init(iotx_dev_meta_info_t *dev_info);
 static int _alink_core_deinit(void);
 
-
 static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len, void *context);
 
 /***************************************************************
@@ -65,19 +64,6 @@ static void _alink_core_unlock(void)
     if (alink_core_ctx.mutex) {
         HAL_MutexUnlock(alink_core_ctx.mutex);
     }
-}
-
-int _alink_core_store_dev_meta(char **dest, const char *source)
-{
-    uint32_t len = strlen(source);
-
-    if (len) {
-        if ( (*dest = alink_utils_strdup(source, len)) == NULL ) {
-            return FAIL_RETURN;
-        }
-    }
-
-    return SUCCESS_RETURN;
 }
 
 static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
@@ -223,9 +209,10 @@ int _alink_core_register_downstream(const char *level, iotx_cm_data_handle_cb rx
     return res;
 }
 
+/** core receive event handler, message dispatch and distribut **/
 static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len, void *context)
 {
-   alink_uri_query_t query = { 0 };
+    alink_uri_query_t query = { 0 };
     uint32_t devid = 0;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
@@ -235,7 +222,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
 
     if (uri == NULL || uri_len == 0 || payload == NULL || payload_len == 0) {
         return;
-    } 
+    }
 
     /* reslove the uri query */
     alink_format_reslove_uri(uri, uri_len, product_key, device_name, path, &query, &is_subdev);
@@ -256,7 +243,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     alink_info("query ack = %c", query.ack);
 
     if (is_subdev == IOT_FALSE) {
-        /* check the master pk, dn? */
+        /* TODO: check the master pk, dn? */
 
         /* clear up the pkdn, is useless for handle function if it indicate a master */
         product_key[0] = '\0';
@@ -265,26 +252,25 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     }
     else {
 #ifdef DEVICE_MODEL_GATEWAY                
-        /* get the devid */
+        /* get subdev devid */
         alink_subdev_get_devid_by_pkdn(product_key, device_name, &devid);
-
         if (0 == devid) {
-            alink_err("subdev not exist");
+            alink_err("downstream subdev not exist");
             return;
         }
 #else
+        alink_err("downstream uri error");
         return;
 #endif
     }
 
     handle_func = alink_downstream_get_handle_func(path, strlen(path));
-
-    /* TODO: for test!!! */
     if (handle_func != NULL) {
+        alink_debug("invoke downstream uri handler");
         handle_func(devid, product_key, device_name, (const uint8_t *)payload, payload_len, &query);
     }
     else {
-        alink_err("handle func of this path is NULL");
+        alink_info("downstream uri handler no exist");
     }
 }
 

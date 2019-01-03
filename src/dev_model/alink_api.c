@@ -86,7 +86,7 @@ int IOT_Linkkit_Close(int devid)
     } 
     else {
 #ifdef DEVICE_MODEL_GATEWAY
-        ;       /* TODO */
+        res = alink_subdev_close(devid);
 #else
         res = IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif
@@ -202,5 +202,4 @@ int IOT_RegisterCallback(iotx_linkkit_event_type_t event_id, linkkit_event_cb_t 
 {
     return alink_set_event_callback(event_id, callback);
 }
-
 

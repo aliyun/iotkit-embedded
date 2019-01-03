@@ -6,14 +6,16 @@
 #include "alink_wrapper.h"
 
 
-#define _ALINK_EXTEND_STRING_SPLIT_DELIMITER    "?"
-#define _ALINK_EXTEND_STRING_AND_DELIMITER      "&"
+#define _ALINK_QUERY_SPLIT_DELIMITER    "?"
+#define _ALINK_QUERY_AND_DELIMITER      "&"
 
-#define _ALINK_EXTEND_STRING_ACK                "a"     /* shortname of ack */
-#define _ALINK_EXTEND_STRING_CODE               "c"     /* shortname of code */
-#define _ALINK_EXTEND_STRING_FORMAT             "f"     /* shortname of format */
-#define _ALINK_EXTEND_STRING_ID                 "i"     /* shortname of id */
-#define _ALINK_EXTEND_STRING_COMPRESSION        "m"     /* shortname of compression */
+#define _ALINK_QUERY_KEY_ACK                "a"     /* shortname of ack */
+#define _ALINK_QUERY_KEY_CODE               "r"     /* shortname of code */
+#define _ALINK_QUERY_KEY_FORMAT             "f"     /* shortname of format */
+#define _ALINK_QUERY_KEY_ID                 "i"     /* shortname of id */
+#define _ALINK_QUERY_KEY_COMPRESSION        "c"     /* shortname of compression */
+#define QUERY_STRING_ID_LEN_MAX         15
+#define QUERY_STRING_CODE_LEN_MAX       14
 
 
 #define ALINK_URI_DIST_CLOUD        0x00
@@ -196,16 +198,46 @@ const char *alink_format_get_upstream_alias_uri(alink_msg_uri_index_t index)
     return alink_msg_uri_short_alias[index];
 }
 
-/**
- * 
- */
-int alink_format_assemble_query(alink_uri_query_t *query, char *query_string)
+/** assemble query string **/
+int alink_format_assemble_query(alink_uri_query_t *query, char *query_string, uint8_t query_len)
 {
-    if (query->ack == '\0') {
-        ;
+    char query_id[QUERY_STRING_ID_LEN_MAX] = {0};
+    char query_code[QUERY_STRING_CODE_LEN_MAX] = {0};
+    char query_format[5] = {0};
+    char query_compress[5] = {0};
+    char query_ack[5] = {0};
+    uint8_t len = 0;
+
+    ALINK_ASSERT_DEBUG(query != NULL);
+    ALINK_ASSERT_DEBUG(query_string != NULL);
+
+    /* query_id always exist */
+    HAL_Snprintf(query_id, sizeof(query_id), "/?i=%d", query->id);
+    len += strlen(query_id) + 1;
+    if (query->code != 0) {
+        HAL_Snprintf(query_code, sizeof(query_code), "&r=%d", query->code);
+        len += strlen(query_code);
+    }
+    if (query->format != 0) {
+        HAL_Snprintf(query_format, sizeof(query_format), "&f=%c", query->format);
+        len += strlen(query_format);
+    }
+    if (query->compress != 0) {
+        HAL_Snprintf(query_compress, sizeof(query_compress), "&c=%c", query->compress);
+        len += strlen(query_compress);
+    }
+    if (query->ack != 0) {
+        HAL_Snprintf(query_ack, sizeof(query_ack), "&a=%c", query->ack);
+        len += strlen(query_ack);
     }
 
+    if (len > query_len) {
+        alink_err("query string assemble error");
+        return FAIL_RETURN;
+    }
 
+    HAL_Snprintf(query_string, query_len, "%s%s%s%s%s", 
+                query_id, query_code, query_format, query_compress, query_ack);
     return SUCCESS_RETURN;
 }
 

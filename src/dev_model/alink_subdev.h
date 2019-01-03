@@ -44,6 +44,7 @@ typedef enum {
 int alink_subdev_mgr_init(void);
 int alink_subdev_mgr_deinit(void);
 int alink_subdev_open(iotx_dev_meta_info_t *dev_info);
+int alink_subdev_close(uint32_t devid);
 int alink_subdev_connect_cloud(uint32_t devid);
 
 int alink_subdev_get_meta_info_by_devid(uint32_t devid, char *product_key, char *device_name);

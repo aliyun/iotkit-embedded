@@ -4,6 +4,8 @@
 #include "alink_api.h"
 #include "alink_wrapper.h"
 
+#include "iotx_alink_internal.h"        /* test used */
+
 extern char _product_key[IOTX_PRODUCT_KEY_LEN + 1];
 extern char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
 extern char _device_name[IOTX_DEVICE_NAME_LEN + 1];
@@ -42,7 +44,7 @@ extern int alink_downstream_invoke_mock(const char *uri_string);
 extern void subdev_hash_iterator(void);
 extern int subdev_hash_remove(uint32_t devid);
 int alink_subdev_mgr_deinit(void);
-
+extern int alink_format_assemble_query(alink_uri_query_t *query, char *query_string, uint8_t query_len);
 
 
 static user_example_ctx_t *user_example_get_ctx(void)
@@ -253,6 +255,24 @@ int main(int argc, char **argv)
         subdev_hash_iterator();
     }
     */
+
+    
+    {
+        alink_uri_query_t query = {
+            .id = 1234567890,
+            .code = 0,
+            .format = 'j',
+            .compress = 0,
+            .ack = 'y'
+        };
+        char string[50] = {0};
+        alink_format_assemble_query(&query, string, sizeof(string));
+        printf("query = %s\r\n", string);
+    }
+
+
+
+
 
     while (1) {
         IOT_Linkkit_Yield(200);
