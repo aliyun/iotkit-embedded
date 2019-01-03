@@ -65,8 +65,6 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         memset(signsource,0,signsource_len);
         HAL_Snprintf(signsource,signsource_len,sign_fmt,device_id,meta->device_name,meta->product_key,timestamp);
 
-        printf("signsource: %s\n",signsource);
-
         utils_hmac_sha256((uint8_t *)signsource,strlen(signsource),(uint8_t *)meta->device_secret,strlen(meta->device_secret),sign);
 
         /* Get Sign Information For MQTT */
