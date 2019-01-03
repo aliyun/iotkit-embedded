@@ -98,11 +98,6 @@ int IOT_Linkkit_Close(int devid)
 int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len)
 {
     int res = FAIL_RETURN;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char device_name[IOTX_DEVICE_NAME_LEN] = { 0 };
-#ifdef DEVICE_MODEL_GATEWAY    
-    char device_secret[IOTX_DEVICE_SECRET_LEN] = { 0 };
-#endif
 
     /* parameters check */
     if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
@@ -111,10 +106,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 
     /* get device meta info while it's a subdev */
     if (devid != ALINK_DEVICE_SELF_ID) {
-#ifdef DEVICE_MODEL_GATEWAY
-        (void)device_secret;        /* TODO:??? */
-        alink_subdev_get_meta_info_by_devid(devid, product_key, device_name);
-#else
+#ifndef DEVICE_MODEL_GATEWAY
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif
     }
@@ -124,32 +116,32 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
             if (payload == NULL || payload_len <= 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
-            res = alink_upstream_thing_property_post_req(product_key, device_name, (const char *)payload, payload_len);
+            res = alink_upstream_thing_property_post_req(devid, (const char *)payload, payload_len);
         } break;
 
         case ITM_MSG_DEVICEINFO_UPDATE: {
             if (payload == NULL || payload_len <= 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
-            res = alink_upstream_thing_deviceinfo_post_req(product_key, device_name, (const char *)payload, payload_len);
+            res = alink_upstream_thing_deviceinfo_post_req(devid, (const char *)payload, payload_len);
         } break;
 
         case ITM_MSG_DEVICEINFO_GET: {
-            res = alink_upstream_thing_deviceinfo_get_req(product_key, device_name);
+            res = alink_upstream_thing_deviceinfo_get_req(devid);
         } break;
 
         case ITM_MSG_DEVICEINFO_DELETE: {
             if (payload == NULL || payload_len <= 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
-            res = alink_upstream_thing_deviceinfo_delete_req(product_key, device_name, (char *)payload, payload_len);
+            res = alink_upstream_thing_deviceinfo_delete_req(devid, (char *)payload, payload_len);
         } break;
 
         case ITM_MSG_POST_RAW_DATA: {
             if (payload == NULL || payload_len <= 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
-            res = alink_upstream_thing_raw_post_req(product_key, device_name, payload, payload_len);
+            res = alink_upstream_thing_raw_post_req(devid, payload, payload_len);
         } break;
 
 #ifdef DEVICE_MODEL_GATEWAY
@@ -178,8 +170,6 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
 int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len)
 {
     int res = FAIL_RETURN;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char device_name[IOTX_DEVICE_NAME_LEN] = { 0 };
 
     /* parameters check */
     if (devid < 0 || eventid == NULL || payload == NULL || 0 == payload_len) {
@@ -187,14 +177,12 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
     }
 
     if (devid != ALINK_DEVICE_SELF_ID) {
-#ifdef DEVICE_MODEL_GATEWAY 
-        alink_subdev_get_meta_info_by_devid(devid, product_key, device_name);
-#else
+#ifndef DEVICE_MODEL_GATEWAY 
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif
     }
 
-    res = alink_upstream_thing_event_post_req(product_key, device_name, eventid, eventid_len, payload, payload_len);
+    res = alink_upstream_thing_event_post_req(devid, eventid, eventid_len, payload, payload_len);
     return res;
 }
 

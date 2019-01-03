@@ -7,9 +7,11 @@
 #include "alink_core.h"
 #include "infra_defs.h"
 
-#define ALINK_SUBDEV_INDEX_VALUE_MAX        1000000     /* index value may overflow! */ 
+/* index value may overflow! */ 
+#define ALINK_SUBDEV_INDEX_VALUE_MAX        1000000     
 
-#define ALINK_SUBDEV_NUM_MAX                1000000
+/* upper limit of cloud is 1500 */ 
+#define ALINK_SUBDEV_NUM_MAX                1500        
 
 #define ALINK_SUBDEV_HTABLE_SIZE_MAX        2000
 
@@ -406,7 +408,7 @@ int alink_subdev_connect_cloud(uint32_t devid)
 
     node = _subdev_hash_search_by_devid(devid);
     if (node == NULL) {
-        return IOTX_CODE_DEVID_NOT_EXIST;
+        return IOTX_CODE_SUBDEV_NOT_EXIST;
     }
 
     if (strlen(node->device_secret) == 0) {
@@ -454,8 +456,7 @@ int alink_subdev_connect_cloud(uint32_t devid)
     return 0;
 }
 
-
-int alink_subdev_get_meta_info_by_devid(uint32_t devid, char *product_key, char *device_name)
+int alink_subdev_get_pkdn_by_devid(uint32_t devid, char *product_key, char *device_name)
 {
     subdev_hash_node_t *node;
 

@@ -5,73 +5,68 @@
 #include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
 
-typedef struct {
-    uint8_t                 is_subdev;
-    const char             *pk;
-    const char             *dn;
-
-    uint8_t                *user_data;
-    uint32_t                payload_len;
-} up_stream_msg_meta_t;
-
-typedef struct {
-    alink_dev_type_t    dev_type;   
-    const char          *pk;        /* only valid when dev_type is subdev */
-    const char          *dn;        /* only valid when dev_type is subdev */
-} alink_dev_info_t;
-
 
 /*  TODO, add query params!!! */
-static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn, const uint8_t *payload, uint32_t len, 
-                                            alink_uri_query_t *query)
+static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t devid, 
+                                            const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
-
     char *uri;
     uint32_t msgid = 0;
     char uri_query[45] = {0};
 
-    /* append msgid if parameters query is NULL */
+    /* msgid is generated internally */
+    msgid = alink_core_get_msgid();
+
     if (query == NULL) {
-        msgid = alink_core_get_msgid();
         HAL_Snprintf(uri_query, sizeof(uri_query), "/?i=%d", msgid);
     }
     else {
-        /* setup id if both id and return code are 0 */
-        if (0 == query->id && query->code == 0) {
-            query->id = alink_core_get_msgid();
-        } 
-
+        query->id = msgid;
         alink_format_assemble_query(query, uri_query, sizeof(uri_query));
     }
 
+    /* get specific uri of idx */
+    if (devid == 0) {
+        res = alink_format_get_upstream_complete_uri(idx, uri_query, &uri);
+    }
+    else {
+#ifdef DEVICE_MODEL_GATEWAY
+        char product_key[IOTX_PRODUCT_KEY_LEN] = { 0 };
+        char device_name[IOTX_DEVICE_NAME_LEN] = { 0 };
+
+        /* get subdev status first, TODO */
+        res = alink_subdev_get_pkdn_by_devid(devid, product_key, device_name);
+        if (res < SUCCESS_RETURN) {
+            return IOTX_CODE_SUBDEV_NOT_EXIST;
+        }
+
+        res = alink_format_get_upstream_subdev_complete_url(idx, product_key, device_name, uri_query, &uri);
+#else
+        return IOTX_CODE_GATEWAY_UNSUPPORTED;
+#endif        
+    }
+
+    if (res < 0) {
+        return res;
+    }    
+
+    /* parse the payload if it's json format */
     if (query == NULL || query->format != 'b') {
         lite_cjson_t lite;
         memset(&lite, 0, sizeof(lite_cjson_t));
         res = lite_cjson_parse((char *)payload, len, &lite);
         if (res < SUCCESS_RETURN) {
             alink_err("wrong json format: %.*s", len, payload);
+            alink_free(uri);
             return FAIL_RETURN;
         }
-    }
-
-    if (*pk == '\0' && *dn == '\0') {
-        res = alink_format_get_upstream_complete_uri(idx, uri_query, &uri);
-    }
-    else {
-        /* get subdev status first, TODO */
-
-        res = alink_format_get_upstream_subdev_complete_url(idx, pk, dn, uri_query, &uri);
-    }
-
-    if (res < 0) {
-        return res;
     }
 
     res = alink_core_send_req_msg(uri, payload, len);
     alink_free(uri);
 
-    alink_debug("core send return = %d", res);
+    alink_debug("core send req return = %d", res);
 
     if (res == SUCCESS_RETURN) {
         res = msgid;
@@ -80,11 +75,59 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, const cha
     return res;
 }
 
+static int 
+_alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn, 
+                                             const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
+{
+    int res = FAIL_RETURN;
+    char *uri;
+    char uri_query[45] = {0};
+
+    ALINK_ASSERT_DEBUG(query);
+
+    alink_format_assemble_query(query, uri_query, sizeof(uri_query));
+
+    /* get specific uri of idx */
+    if (*pk == '\0' && *dn == '\0') {
+        res = alink_format_get_upstream_complete_uri(idx, uri_query, &uri);
+    }
+    else {
+#ifdef DEVICE_MODEL_GATEWAY
+        res = alink_format_get_upstream_subdev_complete_url(idx, pk, dn, uri_query, &uri);
+#else
+        return IOTX_CODE_GATEWAY_UNSUPPORTED;
+#endif        
+    }
+
+    if (res < 0) {
+        return res;
+    }    
+
+    /* parse the payload if it's json format */
+    if (query->format != 'b') {
+        lite_cjson_t lite;
+        memset(&lite, 0, sizeof(lite_cjson_t));
+        res = lite_cjson_parse((char *)payload, len, &lite);
+        if (res < SUCCESS_RETURN) {
+            alink_err("wrong json format: %.*s", len, payload);
+            alink_free(uri);
+            return FAIL_RETURN;
+        }
+    }
+
+    res = alink_core_send_req_msg(uri, payload, len);
+    alink_free(uri);
+
+    alink_debug("core send rsp return = %d", res);
+    return res;
+}
+
+
 /***************************************************************
  * device model management upstream message
  ***************************************************************/
 const char *c_property_post_fmt = "{\"p\":%.*s}";
-int alink_upstream_thing_property_post_req(const char *pk, const char *dn, const char *user_data, uint32_t data_len)
+int alink_upstream_thing_property_post_req(uint32_t devid, const char *user_data, uint32_t data_len)
 {
     int res = FAIL_RETURN;
 
@@ -96,7 +139,7 @@ int alink_upstream_thing_property_post_req(const char *pk, const char *dn, const
     
     memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_property_post_fmt, data_len, user_data);
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_PROPERTY_POST, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_PROPERTY_POST, devid, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return res;
@@ -106,7 +149,7 @@ const char *c_event_post_fmt = "{\"id\":\"%.*s\",\"params\":%.*s}";
 /**
  * thing model post event to cloud 
  */
-int alink_upstream_thing_event_post_req(const char *pk, const char *dn, const char *event_id, uint8_t id_len, const char *user_data, uint32_t data_len)
+int alink_upstream_thing_event_post_req(uint32_t devid, const char *event_id, uint8_t id_len, const char *user_data, uint32_t data_len)
 {
     int res = FAIL_RETURN;
 
@@ -120,7 +163,7 @@ int alink_upstream_thing_event_post_req(const char *pk, const char *dn, const ch
 
     memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_event_post_fmt, id_len, event_id, data_len, user_data);
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_EVENT_POST, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_EVENT_POST, devid, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return res;
@@ -130,7 +173,7 @@ static int _alink_upstream_empty_rsp(alink_msg_uri_index_t idx, const char *pk, 
 {
     char payload[3] = "{}";
     
-    return _alink_upstream_send_request_msg(idx, pk, dn, (uint8_t *)payload, strlen(payload), query);
+    return _alink_upstream_send_response_msg(idx, pk, dn, (uint8_t *)payload, strlen(payload), query);
 }
 
 int alink_upstream_thing_property_set_rsp(const char *pk, const char *dn, alink_uri_query_t *query)      /* TODO */
@@ -153,7 +196,7 @@ int alink_upstream_thing_property_get_rsp(const char *pk, const char *dn, uint32
 
     memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_property_get_rsp_fmt, code, data_len, user_data);
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_RSP_PROPERTY_GET, pk, dn, (uint8_t *)payload, strlen(payload), query);
+    res = _alink_upstream_send_response_msg(ALINK_URI_UP_RSP_PROPERTY_GET, pk, dn, (uint8_t *)payload, strlen(payload), query);
     alink_free(payload);
 
     return res;
@@ -175,7 +218,7 @@ int alink_upstream_thing_service_invoke_rsp(const char  *pk, const char *dn, con
 
     memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_service_invoke_rsp_fmt, service_id, data_len, user_data);
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_RSP_SERVICE_PUT, pk, dn, (uint8_t *)payload, strlen(payload), query);
+    res = _alink_upstream_send_response_msg(ALINK_URI_UP_RSP_SERVICE_PUT, pk, dn, (uint8_t *)payload, strlen(payload), query);
     alink_free(payload);
 
     return res;
@@ -184,9 +227,9 @@ int alink_upstream_thing_service_invoke_rsp(const char  *pk, const char *dn, con
 /***************************************************************
  * device model management raw data mode upstream message
  ***************************************************************/
-int alink_upstream_thing_raw_post_req(const char *pk, const char *dn, const uint8_t *user_data, uint32_t data_len)
+int alink_upstream_thing_raw_post_req(uint32_t devid, const uint8_t *user_data, uint32_t data_len)
 {
-    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_RAW_POST, pk, dn, user_data, data_len, NULL);
+    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_RAW_POST, devid, user_data, data_len, NULL);
 }
 
 #if 0 /** this function is useless, as the script doesn't care about which topic the raw data come from **/
@@ -341,7 +384,7 @@ int alink_upstream_subdev_register_post_req(alink_subdev_pkdn_list_t *pair_list)
     }
     alink_info("subdev reg_post payload = %s", payload);
 
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_POST, "\0", "\0", (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_POST, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return res;
@@ -358,7 +401,7 @@ int alink_upstream_subdev_register_delete_req(alink_subdev_pkdn_list_t *pair_lis
     }
     alink_info("subdev reg_delete payload = %s", payload);
 
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_DELETE, "\0", "\0", (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_DELETE, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return res;
@@ -375,7 +418,7 @@ int alink_upstream_subdev_login_post_req(alink_subdev_triple_list_t *triple_list
     }
     alink_info("subdev login_post payload = %s", payload);
 
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_POST, "\0", "\0", (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_POST, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return 0;
@@ -392,36 +435,36 @@ int alink_upstream_subdev_login_delete_req(alink_subdev_pkdn_list_t *pair_list)
     }
     alink_info("subdev login_delete payload = %s", payload);
 
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_DELETE, "\0", "\0", (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_DELETE, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return res;
 }
 
 #if 0 /** all topo relatived funcitons are not implement **/
-int alink_upstream_thing_topo_post()
+int alink_upstream_thing_topo_post(void)
 {
 
 }
 
-int alink_upstream_thing_topo_delete()
+int alink_upstream_thing_topo_delete(void)
 {
 
 }
 
-int alink_upstream_thing_topo_get()
+int alink_upstream_thing_topo_get(void)
 {
 
 }
 
 int alink_upstream_subdev_list_post_req(void)
 {
-    return 0;
+
 }
 
 int alink_upstream_subdev_list_put_rsp(void)
 {
-    return 0;
+
 }
 #endif
 
@@ -440,7 +483,7 @@ int alink_upstream_gw_config_put_rsp(const char *pk, const char *dn, uint32_t co
  * thing device information management upstream message
  ***************************************************************/
 const char *c_deviceinfo_alink_fmt = "{\"params\":%.*s}";
-int alink_upstream_thing_deviceinfo_post_req(const char *pk, const char *dn, const char *user_data, uint32_t data_len)
+int alink_upstream_thing_deviceinfo_post_req(uint32_t devid, const char *user_data, uint32_t data_len)
 {
     int res = FAIL_RETURN;
 
@@ -452,19 +495,19 @@ int alink_upstream_thing_deviceinfo_post_req(const char *pk, const char *dn, con
 
     memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_deviceinfo_alink_fmt, data_len, user_data);
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_POST, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_POST, devid, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return res;
 }
 
-int alink_upstream_thing_deviceinfo_get_req(const char *pk, const char *dn)
+int alink_upstream_thing_deviceinfo_get_req(uint32_t devid)
 {
     char payload[] = "{}";
-    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_POST, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
+    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_POST, devid, (uint8_t *)payload, strlen(payload), NULL);
 }
 
-int alink_upstream_thing_deviceinfo_delete_req(const char *pk, const char *dn, const char *user_data, uint32_t data_len)
+int alink_upstream_thing_deviceinfo_delete_req(uint32_t devid, const char *user_data, uint32_t data_len)
 {
     int res = FAIL_RETURN;
 
@@ -476,7 +519,7 @@ int alink_upstream_thing_deviceinfo_delete_req(const char *pk, const char *dn, c
 
     memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_deviceinfo_alink_fmt, data_len, user_data);
-    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_DELETE, pk, dn, (uint8_t *)payload, strlen(payload), NULL);
+    res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_DELETE, devid, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
     return res;
