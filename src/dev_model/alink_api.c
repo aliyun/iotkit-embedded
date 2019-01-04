@@ -11,7 +11,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *met
 {
     int res = FAIL_RETURN;
 
-    if (dev_type < 0 || dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
+    if (dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
         return IOTX_CODE_PARAMS_INVALID;
     }
 
@@ -101,7 +101,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
     int res = FAIL_RETURN;
 
     /* parameters check */
-    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
+    if (devid < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
         return IOTX_CODE_PARAMS_INVALID;
     }
 

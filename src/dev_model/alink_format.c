@@ -159,7 +159,7 @@ int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, c
     const char *uri_path;
     const char *uri_method;
 
-    ALINK_ASSERT_DEBUG(index < ALINK_URI_UP_MAX && index >= 0 );
+    ALINK_ASSERT_DEBUG(index < ALINK_URI_UP_MAX);
     ALINK_ASSERT_DEBUG(subdev_pk != NULL);
     ALINK_ASSERT_DEBUG(subdev_dn != NULL);
     ALINK_ASSERT_DEBUG(uri_query != NULL);

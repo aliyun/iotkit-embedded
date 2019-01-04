@@ -429,7 +429,7 @@ int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len)
 /** **/
 linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id)
 {
-    if (event_id < 0 || event_id >= ITE_EVENT_NUM) {
+    if (event_id >= ITE_EVENT_NUM) {
         return NULL;
     }
 
@@ -439,7 +439,7 @@ linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id)
 /** **/
 int alink_set_event_callback(iotx_linkkit_event_type_t event_id, linkkit_event_cb_t callback)
 {
-    if (event_id < 0 || event_id >= ITE_EVENT_NUM || callback == NULL) {
+    if (event_id >= ITE_EVENT_NUM || callback == NULL) {
         return IOTX_CODE_PARAMS_INVALID;
     }
 
