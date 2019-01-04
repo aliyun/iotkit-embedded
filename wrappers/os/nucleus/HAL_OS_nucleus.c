@@ -11,12 +11,25 @@ uint64_t HAL_UptimeMs(void)
 
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...)
 {
-	return (int)1;
+    va_list args;
+    int     rc;
+
+    va_start(args, fmt);
+    rc = vsnprintf(str, len, fmt, args);
+    va_end(args);
+
+    return rc;
 }
 
 void HAL_Printf(const char *fmt, ...)
 {
-	return;
+    va_list args;
+
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+
+    fflush(stdout);
 }
 
 void *HAL_Malloc(uint32_t size)
