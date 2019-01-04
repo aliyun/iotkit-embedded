@@ -25,8 +25,8 @@ static int _mqtt_sub(iotx_cm_ext_params_t *params, const char *topic,
                      iotx_cm_data_handle_cb topic_handle_func, void *pcontext);
 static iotx_mqtt_qos_t _get_mqtt_qos(iotx_cm_ack_types_t ack_type);
 static int _mqtt_unsub(const char *topic);
-static int _mqtt_close();
-static void _set_common_handlers();
+static int _mqtt_close(void);
+static void _set_common_handlers(void);
 
 iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
 {
@@ -320,14 +320,14 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
     if (sync != 0) {
         ret = IOT_MQTT_Subscribe_Sync(_mqtt_conncection->context,
                                       topic,
-                                      qos,
+                                      (iotx_mqtt_qos_t)qos,
                                       iotx_cloud_conn_mqtt_event_handle,
                                       (void *)topic_handle_func,
                                       timeout);
     } else {
         ret = IOT_MQTT_Subscribe(_mqtt_conncection->context,
                                  topic,
-                                 qos,
+                                 (iotx_mqtt_qos_t)qos,
                                  iotx_cloud_conn_mqtt_event_handle,
                                  (void *)topic_handle_func);
     }
@@ -352,7 +352,7 @@ static int _mqtt_unsub(const char *topic)
     return ret;
 }
 
-static int _mqtt_close()
+static int _mqtt_close(void)
 {
     if (_mqtt_conncection == NULL) {
         return NULL_VALUE_ERROR;
@@ -380,7 +380,7 @@ static iotx_mqtt_qos_t _get_mqtt_qos(iotx_cm_ack_types_t ack_type)
 }
 
 
-static void _set_common_handlers()
+static void _set_common_handlers(void)
 {
     if (_mqtt_conncection != NULL) {
         _mqtt_conncection->connect_func = _mqtt_connect;

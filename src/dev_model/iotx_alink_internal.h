@@ -24,10 +24,7 @@
 #define ALINK_DEVICE_SELF_ID        (0)
 
 
-/* TOOD: test only */
-#ifndef DEVICE_MODEL_GATEWAY
-#define DEVICE_MODEL_GATEWAY
-#endif
+
 
 
 
