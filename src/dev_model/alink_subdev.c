@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 #include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
 #include "alink_core.h"
@@ -186,13 +185,16 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
             res = IOTX_CODE_MEMORY_NOT_ENOUGH;
             break;
         }
-        node->device_secret = alink_utils_strdup(ds, strlen(ds));
-        if (node->device_secret == NULL) {
-            alink_free(node->product_key);
-            alink_free(node->device_name);
-            alink_free(node);
-            res = IOTX_CODE_MEMORY_NOT_ENOUGH;
-            break;
+
+        if (strlen(ds)) {
+            node->device_secret = alink_utils_strdup(ds, strlen(ds));
+            if (node->device_secret == NULL) {
+                alink_free(node->product_key);
+                alink_free(node->device_name);
+                alink_free(node);
+                res = IOTX_CODE_MEMORY_NOT_ENOUGH;
+                break;
+            }
         }
 
         /* add list node */
@@ -411,7 +413,7 @@ int alink_subdev_connect_cloud(uint32_t devid)
         return IOTX_CODE_SUBDEV_NOT_EXIST;
     }
 
-    if (strlen(node->device_secret) == 0) {
+    if (node->device_secret == NULL) {
         alink_subdev_pkdn_list_t info_list;
         pkdn_pair_t pkdn_pair[1];
 
@@ -435,26 +437,53 @@ int alink_subdev_connect_cloud(uint32_t devid)
 
 
     /* login */
-    {
-        alink_subdev_triple_list_t triple_list;
-        triple_meta_t triple_array[1];
-
-        triple_array[0].pk = node->product_key;
-        triple_array[0].dn = node->device_name;
-        triple_array[0].ds = node->device_secret;
-        triple_list.subdev_num = 1;
-        triple_list.subdev_triple = triple_array;
-
-        res = alink_upstream_subdev_login_post_req(&triple_list);
-        if (res < SUCCESS_RETURN) {
-            alink_info("subdev register failed");
-            return res;
-        }
-        alink_info("subdev register succeed");
-    }
 
     return 0;
 }
+
+int alink_subdev_login(uint32_t devid)
+{
+    int res = FAIL_RETURN;
+    subdev_hash_node_t *node;
+    alink_subdev_triple_list_t triple_list;
+    triple_meta_t triple_array[1];
+
+    /* check core status first */
+    if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
+        return IOTX_CODE_STATUS_ERROR;
+    }
+
+    node = _subdev_hash_search_by_devid(devid);
+    if (node == NULL) {
+        return IOTX_CODE_SUBDEV_NOT_EXIST;
+    }
+
+    if (node->status < ALINK_SUBDEV_STATUS_REGISTERED) {
+        return IOTX_CODE_STATUS_ERROR;
+    }
+    
+    triple_array[0].pk = node->product_key;
+    triple_array[0].dn = node->device_name;
+    triple_array[0].ds = node->device_secret;
+    triple_list.subdev_num = 1;
+    triple_list.subdev_triple = triple_array;
+
+    res = alink_upstream_subdev_login_post_req(&triple_list);
+    if (res < SUCCESS_RETURN) {
+        alink_info("subdev login post failed");
+        return res;
+    }
+    alink_info("subdev login post succeed"); 
+    return res;
+}
+
+int alink_subdev_logout(uint32_t devid)
+{
+    int res = FAIL_RETURN;
+
+    return res;
+}
+
 
 int alink_subdev_get_pkdn_by_devid(uint32_t devid, char *product_key, char *device_name)
 {
@@ -483,6 +512,4 @@ int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_n
 
     return SUCCESS_RETURN;
 }
-
-
 

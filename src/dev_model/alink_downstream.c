@@ -23,6 +23,7 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
 static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 
+#ifdef DEVICE_MODEL_GATEWAY
 static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 
@@ -38,6 +39,7 @@ static void alink_downstream_subdev_list_put_req(uint32_t devid, const char *pk,
 
 static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_subdev_config_post_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
+#endif
 
 static void alink_downstream_thing_deviceinfo_post_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_thing_deviceinfo_get_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
@@ -57,6 +59,7 @@ const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
     { "rsp/sys/thing/raw/post",                     alink_downstream_thing_raw_post_rsp             },
     { "req/sys/thing/raw/put",                      alink_downstream_thing_raw_put_req              },
 
+#ifdef DEVICE_MODEL_GATEWAY   
     { "rsp/sys/sub/register/post",                  alink_downstream_subdev_register_post_rsp       },
     { "rsp/sys/sub/register/delete",                alink_downstream_subdev_unregister_post_rsp     },
     { "rsp/sys/sub/login/post",                     alink_downstream_subdev_login_post_rsp          },
@@ -70,7 +73,8 @@ const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
     
     { "req/sys/gw/permit/put",                      alink_downstream_subdev_permit_post_req         },
     { "req/sys/gw/config/put",                      alink_downstream_subdev_config_post_req         },
-    
+#endif
+
     { "rsp/sys/thing/devinfo/post",                 alink_downstream_thing_deviceinfo_post_rsq      },
     { "rsp/sys/thing/devinfo/get",                  alink_downstream_thing_deviceinfo_get_rsq       },
     { "rsp/sys/thing/devinfo/delete",               alink_downstream_thing_deviceinfo_delete_rsq    },
@@ -493,12 +497,19 @@ static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, c
     alink_downstream_thing_raw_post_rsp(devid, pk, dn, payload, len, query);
 }
 
+#ifdef DEVICE_MODEL_GATEWAY
 /***************************************************************
  * subdevice management downstream message
  ***************************************************************/
 static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
+    if (devid != 0) {
+        return;
+    }
+
     
+
+
 
 
 }
@@ -597,6 +608,8 @@ static void alink_downstream_subdev_config_post_req(uint32_t devid, const char *
     
 
 }
+
+#endif
 
 /***************************************************************
  * thing device information management downstream message

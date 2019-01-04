@@ -74,6 +74,7 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
         return IOTX_CODE_ALREADY_OPENED;
     }
     alink_core_ctx.status = ALINK_CORE_STATUS_INITED;
+    alink_core_ctx.msgid = 1;
 
     alink_core_ctx.mutex = HAL_MutexCreate();
     if (alink_core_ctx.mutex == NULL) {
@@ -413,7 +414,6 @@ int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len)
     ALINK_ASSERT_DEBUG(payload != NULL);
 
     alink_info("uri: %s", uri);
-
 
     {
         iotx_cm_ext_params_t pub_param;

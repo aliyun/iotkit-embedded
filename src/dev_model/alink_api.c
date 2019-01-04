@@ -20,6 +20,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *met
         return IOTX_CODE_PARAMS_INVALID;
     }
 
+    /* product_key and device_name shall not be empty string */
     if (strlen(meta_info->product_key) == 0 || strlen(meta_info->device_name) == 0) {
         return IOTX_CODE_PARAMS_INVALID;
     }
@@ -28,7 +29,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *met
         res = alink_core_open(meta_info);
 
         if (SUCCESS_RETURN == res) {
-                res = ALINK_DEVICE_SELF_ID;
+            res = ALINK_DEVICE_SELF_ID;
         }
     }
     else if (IOTX_LINKKIT_DEV_TYPE_SLAVE == dev_type) {
@@ -164,6 +165,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
                                   int payload_len)
 {
+    /* implement next version */
     return 0;
 }
 

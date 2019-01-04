@@ -14,6 +14,7 @@
 #define _ALINK_QUERY_KEY_FORMAT             "f"     /* shortname of format */
 #define _ALINK_QUERY_KEY_ID                 "i"     /* shortname of id */
 #define _ALINK_QUERY_KEY_COMPRESSION        "c"     /* shortname of compression */
+
 #define QUERY_STRING_ID_LEN_MAX         15
 #define QUERY_STRING_CODE_LEN_MAX       14
 

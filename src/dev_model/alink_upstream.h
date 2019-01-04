@@ -54,5 +54,10 @@ int alink_upstream_thing_deviceinfo_get_req(uint32_t devid);
 int alink_upstream_thing_deviceinfo_delete_req(uint32_t devid, const char *user_data, uint32_t data_len);
 
 
+
+int alink_upstream_req_ctx_init(void);
+
+
+
 #endif /* #ifndef __ALINK_UPSTREAM__ */
 

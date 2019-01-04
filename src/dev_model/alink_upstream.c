@@ -6,6 +6,137 @@
 #include "alink_wrapper.h"
 
 
+#define ALINK_REQ_LIST_NUM_MAX      50
+
+typedef struct {
+    uint32_t msgid;
+    uint32_t devid;
+    alink_msg_uri_index_t msg_uri;
+    list_head_t list;
+} alink_upstream_req_node_t;
+
+typedef struct {
+    void *mutex;
+    uint32_t list_num;
+    list_head_t req_list;
+} alink_upstream_req_ctx_t;
+
+alink_upstream_req_ctx_t alink_upstream_req_ctx = { 0 };
+
+
+int alink_upstream_req_ctx_init(void)
+{
+    alink_upstream_req_ctx.mutex = HAL_MutexCreate();
+    if (alink_upstream_req_ctx.mutex == NULL) {
+        return FAIL_RETURN;
+    }
+
+    alink_upstream_req_ctx.list_num = 0;
+    INIT_LIST_HEAD(&alink_upstream_req_ctx.req_list);
+
+    return SUCCESS_RETURN;
+}
+
+static void _alink_upstream_req_list_lock(void)
+{
+    if (alink_upstream_req_ctx.mutex) {
+        HAL_MutexLock(alink_upstream_req_ctx.mutex);
+    }
+}
+static void _alink_upstream_req_list_unlock(void)
+{
+    if (alink_upstream_req_ctx.mutex) {
+        HAL_MutexUnlock(alink_upstream_req_ctx.mutex);
+    }
+}
+
+int alink_upstream_req_list_insert(uint32_t msgid, uint32_t devid, alink_msg_uri_index_t msg_uri)
+{
+    alink_upstream_req_node_t *node;
+
+    alink_info("upstream req list num = %d", alink_upstream_req_ctx.list_num);
+    if (alink_upstream_req_ctx.list_num >= ALINK_REQ_LIST_NUM_MAX) {
+        node = list_entry(alink_upstream_req_ctx.req_list.next, alink_upstream_req_node_t, list);
+        list_del(&node->list);
+        alink_free(node);
+        alink_warning("response packet will be abandoned");
+        alink_upstream_req_ctx.list_num--;
+        /*return FAIL_RETURN; TODO!*/
+    }
+
+    node = alink_malloc(sizeof(alink_upstream_req_node_t));
+    if (node == NULL) {
+        return IOTX_CODE_MEMORY_NOT_ENOUGH;
+    }
+
+    node->msgid = msgid;
+    node->devid = devid;
+    node->msg_uri = msg_uri;
+    INIT_LIST_HEAD(&node->list);
+
+    _alink_upstream_req_list_lock();
+
+    list_add_tail(&node->list, &alink_upstream_req_ctx.req_list);
+    alink_upstream_req_ctx.list_num++;
+
+    _alink_upstream_req_list_unlock();
+    return SUCCESS_RETURN;
+}
+
+int alink_upstream_req_list_search(uint32_t msgid, alink_upstream_req_node_t **node)
+{
+    alink_upstream_req_node_t *search_node = NULL;
+
+    ALINK_ASSERT_DEBUG(msgid >= 0);
+    ALINK_ASSERT_DEBUG(node != NULL);
+
+    _alink_upstream_req_list_lock();
+
+    list_for_each_entry(search_node, &alink_upstream_req_ctx.req_list, list, alink_upstream_req_node_t) {
+        if (search_node->msgid == msgid) {
+            *node = search_node;
+            _alink_upstream_req_list_unlock();
+            return SUCCESS_RETURN;
+        }
+    }
+
+    _alink_upstream_req_list_unlock();
+    return FAIL_RETURN;
+}
+
+int alink_upstream_req_list_delete_by_msgid(int msgid)
+{
+    alink_upstream_req_node_t *search_node;
+    alink_upstream_req_node_t *next;
+
+    _alink_upstream_req_list_lock();
+    list_for_each_entry_safe(search_node, next, &alink_upstream_req_ctx.req_list, list, alink_upstream_req_node_t) {
+        if (search_node->msgid == msgid) {
+            list_del(&search_node->list);
+            alink_free(search_node);
+            alink_upstream_req_ctx.list_num--;
+            _alink_upstream_req_list_unlock();
+            return SUCCESS_RETURN;
+        }
+    }
+
+    _alink_upstream_req_list_unlock();
+    return FAIL_RETURN;
+}
+
+int alink_upstream_req_list_delete_by_node(alink_upstream_req_node_t *node)
+{
+    _alink_upstream_req_list_lock();
+
+    list_del(&node->list);
+    alink_free(node);
+    alink_upstream_req_ctx.list_num--;
+
+    _alink_upstream_req_list_unlock();
+    return SUCCESS_RETURN;
+}
+
+
 /*  TODO, add query params!!! */
 static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t devid, 
                                             const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
@@ -75,8 +206,7 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t 
     return res;
 }
 
-static int 
-_alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn, 
+static int _alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn, 
                                              const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
@@ -121,7 +251,6 @@ _alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const char *pk, con
     alink_debug("core send rsp return = %d", res);
     return res;
 }
-
 
 /***************************************************************
  * device model management upstream message
@@ -248,7 +377,7 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_list_t *pkdn_
     uint8_t idx = 0;
     uint8_t pair_num = pkdn_list->subdev_num;
     pkdn_pair_t *pair_list = pkdn_list->subdev_pkdn;
-    lite_cjson_item_t *lite_root = NULL, *lite_object = NULL, *lite_array = NULL, *lite_array_item = NULL;
+    lite_cjson_item_t *lite_root = NULL, /* *lite_object = NULL, */*lite_array = NULL, *lite_array_item = NULL;
     char *payload = NULL;
 
     lite_root = lite_cjson_create_object();
@@ -256,11 +385,13 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_list_t *pkdn_
         return NULL;
     }
 
+/*
     lite_object = lite_cjson_create_object();
     if (lite_object == NULL) {
         lite_cjson_delete(lite_root);
         return NULL;
     }
+*/
     
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
@@ -268,8 +399,8 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_list_t *pkdn_
         return NULL;
     }
 
-    lite_cjson_add_item_to_object(lite_root, "params", lite_object);
-    lite_cjson_add_item_to_object(lite_object, "subList", lite_array);
+    /* lite_cjson_add_item_to_object(lite_root, "params", lite_object); */
+    lite_cjson_add_item_to_object(lite_root, "subList", lite_array);
 
     for (idx = 0; idx < pair_num; idx++) {
         /* check parameters */
@@ -382,10 +513,11 @@ int alink_upstream_subdev_register_post_req(alink_subdev_pkdn_list_t *pair_list)
     if (payload == NULL) {
         return res;
     }
-    alink_info("subdev reg_post payload = %s", payload);
 
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_POST, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
+
+    alink_info("subdev reg_post msgid = %d", res);
 
     return res;
 }
@@ -421,7 +553,7 @@ int alink_upstream_subdev_login_post_req(alink_subdev_triple_list_t *triple_list
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_POST, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
 
-    return 0;
+    return res;
 }
 
 int alink_upstream_subdev_login_delete_req(alink_subdev_pkdn_list_t *pair_list)
@@ -482,7 +614,7 @@ int alink_upstream_gw_config_put_rsp(const char *pk, const char *dn, uint32_t co
 /***************************************************************
  * thing device information management upstream message
  ***************************************************************/
-const char *c_deviceinfo_alink_fmt = "{\"params\":%.*s}";
+const char *c_deviceinfo_alink_fmt = "{\"tagList\":%.*s}";
 int alink_upstream_thing_deviceinfo_post_req(uint32_t devid, const char *user_data, uint32_t data_len)
 {
     int res = FAIL_RETURN;
