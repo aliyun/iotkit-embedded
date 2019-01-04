@@ -210,6 +210,10 @@ if defined M_MQTT_COMM_ENABLED (
     if defined M_MQTT_DEFAULT_IMPL (
         %SED% -i "/wrapper_mqtt/d" %TMP_VARIABLE_DIR%\WRAPPER_FUNCS
     )
+
+    if defined M_MAL_ENABLED (
+        %SED% -i "/wrapper_mqtt/d" %TMP_VARIABLE_DIR%\WRAPPER_FUNCS
+    )
 )
 
 %ECHO% -e "#include \"infra_types.h\"" >> %WRAPPERS_DIR%\wrapper.c
