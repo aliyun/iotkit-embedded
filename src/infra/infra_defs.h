@@ -1,6 +1,8 @@
 #ifndef _INFRA_DEFS_H_
 #define _INFRA_DEFS_H_
 
+#include "infra_types.h"
+
 #ifdef _WIN32
 #if !defined(CC_IS_MINGW32)
 #ifdef DLL_IOT_EXPORTS
@@ -264,6 +266,11 @@ typedef struct {
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 } iotx_dev_meta_info_t;
 
+typedef struct {
+    const char *region;
+    uint16_t port;
+} iotx_region_item_t;
+
 typedef enum {
     IOTX_CLOUD_REGION_SHANGHAI,   /* Shanghai */
     IOTX_CLOUD_REGION_SINGAPORE,  /* Singapore */
@@ -275,7 +282,7 @@ typedef enum {
 } iotx_mqtt_region_types_t;
 
 #define IOTX_MQTT_DOMAIN_NUMBER (5)
-extern const char *g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
+extern iotx_region_item_t g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
 
 typedef enum {
     IOTX_HTTP_REGION_SHANGHAI,   /* Shanghai */

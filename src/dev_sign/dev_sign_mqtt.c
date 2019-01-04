@@ -79,15 +79,21 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         utils_hmac_sha256((uint8_t *)signsource,strlen(signsource),(uint8_t *)meta->device_secret,strlen(meta->device_secret),sign);
 
         /* Get Sign Information For MQTT */
-        length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
+#if !defined(ON_DAILY) && !defined(ON_PRE)
+        length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region].region) + 2;
+#else
+        length = strlen(g_infra_mqtt_domain[region].region) + 2;
+#endif
         signout->hostname = DEV_SIGN_MQTT_MALLOC(length);
         if (signout->hostname == NULL) {
             break;
         }
         memset(signout->hostname,0,length);
+#if !defined(ON_DAILY) && !defined(ON_PRE)
         memcpy(signout->hostname,meta->product_key,strlen(meta->product_key));
         memcpy(signout->hostname+strlen(signout->hostname),".",strlen("."));
-        memcpy(signout->hostname+strlen(signout->hostname),g_infra_mqtt_domain[region],strlen(g_infra_mqtt_domain[region]));
+#endif
+        memcpy(signout->hostname+strlen(signout->hostname),g_infra_mqtt_domain[region].region,strlen(g_infra_mqtt_domain[region].region));
 
         length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
         signout->username = DEV_SIGN_MQTT_MALLOC(length);
@@ -124,7 +130,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         memcpy(signout->clientid+strlen(signout->clientid),IOTX_SDK_VERSION,strlen(IOTX_SDK_VERSION));
         memcpy(signout->clientid+strlen(signout->clientid),"|",strlen("|"));
 
-        signout->port = SIGN_MQTT_PORT;
+        signout->port = g_infra_mqtt_domain[region].port;
 
         if (signsource) {DEV_SIGN_MQTT_FREE(signsource);}
         return 0;
