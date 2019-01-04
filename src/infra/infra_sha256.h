@@ -10,15 +10,7 @@
 #define SHA256_BLOCK_LENGTH     64
 #define SHA256_DIGEST_LENGTH    32
 #define SHA256_DIGEST_STRING_LENGTH (SHA256_DIGEST_LENGTH * 2 + 1)
-
 #define SHA256_SHORT_BLOCK_LENGTH   (SHA256_BLOCK_LENGTH - 8)
-
-
-#if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
-    !defined(inline) && !defined(__cplusplus)
-    #define inline __inline
-#endif
-
 
 typedef struct {
     uint32_t state[8];

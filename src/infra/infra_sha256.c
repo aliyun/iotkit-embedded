@@ -9,6 +9,11 @@
 #include <string.h>
 #include "infra_sha256.h"
 
+#if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) || defined(__GNUC__)) && \
+    !defined(inline) && !defined(__cplusplus)
+    #define inline __inline
+#endif
+
 #define SHA256_KEY_IOPAD_SIZE  (64)
 #define SHA256_DIGEST_SIZE     (32)
 

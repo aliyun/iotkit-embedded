@@ -1,4 +1,3 @@
-#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iotx_cm_mqtt.h"
@@ -7,6 +6,7 @@
 #include "alink_wrapper.h"
 #include "dev_sign_api.h"
 
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 /** CM default parameters define **/
 #define CM_MQTT_IS_CLEAN_SESSION            (0)
 #define CM_MQTT_REQUEST_TIMEOUT_MS          (2000)
@@ -164,7 +164,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
 
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
-            iotx_cm_data_handle_cb topic_handle_func = pcontext;
+            iotx_cm_data_handle_cb topic_handle_func = (iotx_cm_data_handle_cb)pcontext;
 
             if (topic_handle_func == NULL) {    
                 cm_err("sub handle is null!");
@@ -322,14 +322,14 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
                                       topic,
                                       qos,
                                       iotx_cloud_conn_mqtt_event_handle,
-                                      topic_handle_func,
+                                      (void *)topic_handle_func,
                                       timeout);
     } else {
         ret = IOT_MQTT_Subscribe(_mqtt_conncection->context,
                                  topic,
                                  qos,
                                  iotx_cloud_conn_mqtt_event_handle,
-                                 topic_handle_func);
+                                 (void *)topic_handle_func);
     }
 
     return ret;
@@ -393,3 +393,4 @@ static void _set_common_handlers()
 }
 
 #endif
+

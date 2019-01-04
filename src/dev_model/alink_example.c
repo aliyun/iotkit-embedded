@@ -6,12 +6,6 @@
 
 #include "iotx_alink_internal.h"        /* test used */
 
-extern char _product_key[IOTX_PRODUCT_KEY_LEN + 1];
-extern char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
-extern char _device_name[IOTX_DEVICE_NAME_LEN + 1];
-extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
-
-
 #define EXAMPLE_TRACE(...)                               \
     do {                                                     \
         HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);  \
@@ -186,24 +180,9 @@ int main(int argc, char **argv)
 
     printf("alink start\r\n");
 
-    LITE_set_loglevel(5);
 
     user_example_ctx = user_example_get_ctx();
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
-
-
-    memset(_product_key,0,IOTX_PRODUCT_KEY_LEN + 1);
-    memcpy(_product_key,dev_info.product_key,strlen(dev_info.product_key));
-
-    memset(_product_secret,0,IOTX_PRODUCT_SECRET_LEN + 1);
-    memcpy(_product_secret,dev_info.product_secret,strlen(dev_info.product_secret));
-
-    memset(_device_name,0,IOTX_DEVICE_NAME_LEN + 1);
-    memcpy(_device_name,dev_info.device_name,strlen(dev_info.device_name));
-
-    memset(_device_secret,0,IOTX_DEVICE_SECRET_LEN + 1);
-    memcpy(_device_secret,dev_info.device_secret,strlen(dev_info.device_secret));
-
 
 
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
@@ -274,7 +253,7 @@ int main(int argc, char **argv)
         alink_upstream_req_ctx_init();
 
 
-        
+
 
 
 

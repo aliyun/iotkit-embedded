@@ -513,3 +513,4 @@ int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_n
     return SUCCESS_RETURN;
 }
 
+

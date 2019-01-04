@@ -87,7 +87,6 @@ int alink_upstream_req_list_search(uint32_t msgid, alink_upstream_req_node_t **n
 {
     alink_upstream_req_node_t *search_node = NULL;
 
-    ALINK_ASSERT_DEBUG(msgid >= 0);
     ALINK_ASSERT_DEBUG(node != NULL);
 
     _alink_upstream_req_list_lock();

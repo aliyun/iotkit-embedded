@@ -26,3 +26,4 @@ iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params);
 
 
 #endif /* _LINKKIT_CM_H_ */
+

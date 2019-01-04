@@ -124,3 +124,4 @@ int iotx_cm_unsub(int fd, const char *topic);
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len);
 int iotx_cm_close(int fd);
 #endif /* _LINKKIT_CM_H_ */
+

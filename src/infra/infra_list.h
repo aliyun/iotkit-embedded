@@ -2,7 +2,7 @@
 #ifndef _INFRA_LIST_H_
 #define _INFRA_LIST_H_
 
-#if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
+#if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) || defined(__GNUC__)) && \
     !defined(inline) && !defined(__cplusplus)
     #define inline __inline
 #endif

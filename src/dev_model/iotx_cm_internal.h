@@ -66,3 +66,4 @@ typedef struct iotx_connection_st {
 
 extern const char ERR_INVALID_PARAMS[];
 #endif /* _LINKKIT_CM_H_ */
+
