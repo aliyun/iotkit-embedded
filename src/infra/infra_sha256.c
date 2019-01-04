@@ -93,7 +93,7 @@ uint32_t os_be32toh(uint32_t data)
     return os_htobe32(data);
 }
 
-static __inline uint64_t reverse_64bit(uint64_t data)
+static inline uint64_t reverse_64bit(uint64_t data)
 {
     data = (data >> 32) | (data << 32);
     data = ((data & 0xff00ff00ff00ff00ULL) >> 8) | ((data & 0x00ff00ff00ff00ffULL) << 8);

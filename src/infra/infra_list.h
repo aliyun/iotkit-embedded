@@ -2,7 +2,10 @@
 #ifndef _INFRA_LIST_H_
 #define _INFRA_LIST_H_
 
-#define inline __inline
+#if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
+    !defined(inline) && !defined(__cplusplus)
+    #define inline __inline
+#endif
 
 #ifdef __cplusplus
 extern "C" {

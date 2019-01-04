@@ -2007,8 +2007,6 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
 static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2)
 {
-    int i;
-
     if (!messageHandlers1 || !messageHandler2) {
         return 1;
     }
@@ -2028,26 +2026,29 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
         return 1;
     }
 #else
+    {
+        int i;
 
-    if (messageHandlers1->topic_type != messageHandler2->topic_type) {
-        return 1;
-    }
+        if (messageHandlers1->topic_type != messageHandler2->topic_type) {
+            return 1;
+        }
 
-    if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
-        for (i = 0; i < MQTT_ZIP_PATH_DEFAULT_LEN; i++) {
-            if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[1]) {
+        if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
+            for (i = 0; i < MQTT_ZIP_PATH_DEFAULT_LEN; i++) {
+                if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[1]) {
+                    return 1;
+                }
+            }
+        } else {
+            int topicNameLen = strlen(messageHandlers1->topic_filter);
+
+            if (topicNameLen != strlen(messageHandler2->topic_filter)) {
                 return 1;
             }
-        }
-    } else {
-        int topicNameLen = strlen(messageHandlers1->topic_filter);
 
-        if (topicNameLen != strlen(messageHandler2->topic_filter)) {
-            return 1;
-        }
-
-        if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
-            return 1;
+            if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
+                return 1;
+            }
         }
     }
 #endif
