@@ -238,16 +238,15 @@ for /f "delims=" %%I in (%TMP_VARIABLE_DIR%\WRAPPER_FUNCS) do (
 %CAT% %TMP_VARIABLE_DIR%\WRAPPER_FUNC_DEC | %HEAD% -1 | %AWK% -F "wrapper^|HAL" "{ print $1 }" | %SED% s/[[:space:]]//g >> %TMP_VARIABLE_DIR%\WRAPPER_FUNC_RETURN_TYPE
 %SED% -n "/%%I:/{:a;N;/*\//!ba;p}" %WRAPPER_DOC% | %SED% -n "1d;p" >> %WRAPPERS_DIR%\wrapper.c
 
-Set DATA_TYPE=
-for /f "delims=" %%J in ('%HEAD% -1 %TMP_VARIABLE_DIR%\WRAPPER_FUNC_RETURN_TYPE') do (Set DATA_TYPE=%%J)
-
-if "%DATA_TYPE%" == "void" (
-    %SED% -n "/;/{s/;/\n{\n\treturn;\n}\n\n/g};p" %TMP_VARIABLE_DIR%\WRAPPER_FUNC_DEC >> %WRAPPERS_DIR%\wrapper.c
-) else (
-    %SED% -n "/;/{s/;/\n{\n\treturn (%DATA_TYPE%)1;\n}\n\n/g};p" %TMP_VARIABLE_DIR%\WRAPPER_FUNC_DEC >> %WRAPPERS_DIR%\wrapper.c
+for /f "delims=" %%i in ('%SED% -n "1,1p" %TMP_VARIABLE_DIR%\WRAPPER_FUNC_RETURN_TYPE') do (
+    if "%%i" == "void" (
+        %SED% -n "/;/{s/;/\n{\n\treturn;\n}\n\n/g};p" %TMP_VARIABLE_DIR%\WRAPPER_FUNC_DEC >> %WRAPPERS_DIR%\wrapper.c
+    ) else (
+        %SED% -n "/;/{s/;/\n{\n\treturn (%%i)1;\n}\n\n/g};p" %TMP_VARIABLE_DIR%\WRAPPER_FUNC_DEC >> %WRAPPERS_DIR%\wrapper.c
+    )
 )
-%ECHO% "" > %TMP_VARIABLE_DIR%\WRAPPER_FUNC_DEC
-%ECHO% "" > %TMP_VARIABLE_DIR%\WRAPPER_FUNC_RETURN_TYPE
+%RM% -f %TMP_VARIABLE_DIR%\WRAPPER_FUNC_DEC
+%RM% -f %TMP_VARIABLE_DIR%\WRAPPER_FUNC_RETURN_TYPE
 
 )
 
