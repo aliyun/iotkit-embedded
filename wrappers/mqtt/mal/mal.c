@@ -116,55 +116,6 @@ static void mal_time_countdown_ms(mal_time_t *timer, uint32_t millisecond)
     timer->time = HAL_UptimeMs() + millisecond;
 }
 
-
-#ifndef MAL_ICA_ENABLED
-int HAL_MDAL_MAL_Init()
-{
-    return -1;
-}
-
-int HAL_MDAL_MAL_Deinit()
-{
-    return -1;
-}
-
-int HAL_MDAL_MAL_Connect(char *proKey, char *devName, char *devSecret)
-{
-    return -1;
-}
-
-int HAL_MDAL_MAL_Disconnect(void)
-{
-    return -1;
-}
-
-int HAL_MDAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms)
-{
-    return -1;
-}
-
-int HAL_MDAL_MAL_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status)
-{
-    return -1;
-}
-
-int HAL_MDAL_MAL_Publish(const char *topic, int qos, const char *message)
-{
-    return -1;
-}
-
-
-int HAL_MDAL_MAL_State(void)
-{
-    return -1;
-}
-
-void HAL_MDAL_MAL_RegRecvCb(recv_cb cb)
-{
-
-}
-#endif
-
 static int mal_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 {
     int i = 0;
@@ -318,7 +269,8 @@ static int MALMQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_
         return FAIL_RETURN;
     }
 
-    if (0 != HAL_MDAL_MAL_Publish(topicName, topic_msg->qos, topic_msg->payload)) {
+    if (0 != HAL_MDAL_MAL_Publish(topicName, topic_msg->qos, topic_msg->payload,
+                                  topic_msg->payload_len)) {
         mal_err("MALMQTTPublish publish failed\n");
         return FAIL_RETURN;
     }
@@ -794,7 +746,7 @@ static int mal_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams
 
     memset(pClient, 0, sizeof(iotx_mc_client_t));
 
-    if (HAL_MDAL_MAL_Init() != 0) {
+    if (HAL_MDAL_MAL_Init(pInitParams) != 0) {
         mal_err("low layer init failed");
         return FAIL_RETURN;
     }

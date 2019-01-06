@@ -11,6 +11,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include "mqtt_api.h"
 
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
@@ -29,13 +30,13 @@ int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
 
 typedef int (*recv_cb)(char* topic, char* message);
 
-int HAL_MDAL_MAL_Init();
+int HAL_MDAL_MAL_Init(iotx_mqtt_param_t *pInitParams);
 int HAL_MDAL_MAL_Deinit();
 int HAL_MDAL_MAL_Connect(char *proKey, char *devName, char *devSecret);
 int HAL_MDAL_MAL_Disconnect(void);
 int HAL_MDAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms);
 int HAL_MDAL_MAL_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status);
-int HAL_MDAL_MAL_Publish(const char *topic, int qos, const char *message);
+int HAL_MDAL_MAL_Publish(const char *topic, int qos, const char *message, unsigned int msg_len);
 int HAL_MDAL_MAL_State(void);
 
 void HAL_MDAL_MAL_RegRecvCb(recv_cb);
