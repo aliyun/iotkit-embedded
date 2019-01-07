@@ -32,7 +32,11 @@ extern "C" {
 #define AT_UART_MODE         MODE_TX_RX
 #define AT_UART_TIMEOUT_MS   1000
 
+#ifdef MULTI_TASK_MODE
 #define AT_SINGLE_TASK    0
+#else
+#define AT_SINGLE_TASK    1
+#endif
 
 #ifdef __cplusplus
 }

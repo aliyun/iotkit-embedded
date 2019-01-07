@@ -8,8 +8,13 @@
 #define SAL_OPT_ENABLED       1
 #define SAL_OPT_DISABLED      0
 
+#ifdef MULTI_TASK_MODE
 /* Socket API select support. */
 #define SAL_SELECT_SUPPORT            SAL_OPT_ENABLED
+#else
+/* Socket API select support. */
+#define SAL_SELECT_SUPPORT            SAL_OPT_DISABLED
+#endif
 
 /* UDP client support. */
 #define SAL_UDP_CLIENT_ENABLED        SAL_OPT_DISABLED

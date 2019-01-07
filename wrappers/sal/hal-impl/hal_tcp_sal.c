@@ -2,12 +2,13 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#if 0
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <sal_export.h>
+#ifdef ATPARSER_ENABLED
 #include <atparser.h>
+#endif
 
 extern uint64_t HAL_UptimeMs(void);
 static uint64_t _get_time_ms(void)
@@ -159,10 +160,12 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         }
 
         ret = 1;
+
+#ifdef ATPARSER_ENABLED
 #if AT_SINGLE_TASK
         at_yield(NULL, 0, NULL, AT_UART_TIMEOUT_MS);
 #endif
-
+#endif
         if (ret > 0) {
             ret = recv(fd, buf + len_recv, len - len_recv, 0);
             if (ret > 0) {
