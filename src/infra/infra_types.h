@@ -23,5 +23,10 @@ typedef unsigned int        uintptr_t;
 #include <stdint.h>
 
 #endif  /* #if !defined(PLATFORM_HAS_STDINT) */
+
+#ifndef NULL
+#define NULL (void*)0
+#endif
+
 #endif
 
