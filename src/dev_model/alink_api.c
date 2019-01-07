@@ -147,11 +147,30 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 
 #ifdef DEVICE_MODEL_GATEWAY
         case ITM_MSG_LOGIN: {
-
-
+            if (payload == NULL) {
+                uint32_t subdev_id = devid;
+                res = alink_subdev_login(&subdev_id, 1);
+            }
+            else {
+                uint32_t *subdev_id = (uint32_t *)payload;
+                uint8_t subdev_num = payload_len/(sizeof(uint32_t));
+                if (subdev_num != 0 && subdev_num < 5) {        /* support maximum 4 subdev mass login */
+                    res = alink_subdev_login(subdev_id, subdev_num);
+                }
+            }
         } break;
         case ITM_MSG_LOGOUT: {
-
+            if (payload == NULL) {
+                uint32_t subdev_id = devid;
+                res = alink_subdev_logout(&subdev_id, 1);
+            }
+            else {
+                uint32_t *subdev_id = (uint32_t *)payload;
+                uint8_t subdev_num = payload_len/(sizeof(uint32_t));
+                if (subdev_num != 0 && subdev_num < 5) {        /* support maximum 4 subdev mass logout */
+                    res = alink_subdev_logout(subdev_id, subdev_num);
+                }
+            }
         } break;
 #endif
         default: {

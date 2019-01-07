@@ -92,7 +92,7 @@ typedef enum {
 
 typedef int (*linkkit_event_cb_t)();
 
-typedef int (*linkkit_awss_status_cb_t)(int);
+typedef int (*linkkit_awss_status_cb_t)(int);       /* no implement this version */
 
 typedef int (*linkkit_connect_success_cb_t)(void);
 
@@ -108,7 +108,7 @@ typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid
 
 typedef int (*linkkit_property_set_cb_t)(int device_id, const char *request, int request_len);
 
-typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int request_len,
+typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int request_len,       /* no implement this version */
                                                         char **response, int *response_len);
 
 typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
@@ -118,17 +118,17 @@ typedef int (*linkkit_trigger_event_reply_cb_t)(int device_id, int msg_id, int c
                                                 const char *eventid, int eventid_len,
                                                 const char *message, int message_len);
 
-typedef int (*linkkit_timestamp_reply_cb_t)();
+typedef int (*linkkit_timestamp_reply_cb_t)();      /* no implement this version */
 
-typedef int (*linkkit_topo_list_reply_cb_t)();
+typedef int (*linkkit_topo_list_reply_cb_t)();      /* no implement this version */
 
-typedef int (*linkkit_permit_join_cb_t)(const char *productKey, const int timeout);
+typedef int (*linkkit_permit_join_cb_t)(const char *productKey, const int timeout);     /* no implement this version */
 
-typedef int (*linkkit_inited_cb_t)();
+typedef int (*linkkit_inited_cb_t)(uint32_t devid);
 
-typedef int (*linkkit_fata_event_cb_t)(int type, const char *version);
+typedef int (*linkkit_fata_event_cb_t)(int type, const char *version);      /* no implement this version */
 
-typedef int (*linkkit_cota_event_cb_t)(int type);
+typedef int (*linkkit_cota_event_cb_t)(int type);                           /* no implement this version */
 
 typedef int (*linkkit_mqtt_connected_cb_t)(void);
 

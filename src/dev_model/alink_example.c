@@ -34,9 +34,9 @@ static user_example_ctx_t g_user_example_ctx;
 
 
 /** internal test **/
-extern int alink_downstream_invoke_mock(const char *uri_string);
+extern int alink_downstream_invoke_mock(const char *uri_string, const uint8_t *payload, uint32_t payload_len);
 extern void subdev_hash_iterator(void);
-extern int subdev_hash_remove(uint32_t devid);
+extern int _subdev_hash_remove(uint32_t devid);
 int alink_subdev_mgr_deinit(void);
 extern int alink_format_assemble_query(alink_uri_query_t *query, char *query_string, uint8_t query_len);
 
@@ -45,7 +45,6 @@ static user_example_ctx_t *user_example_get_ctx(void)
 {
     return &g_user_example_ctx;
 }
-
 
 
 /** recv property set req from cloud **/
@@ -130,13 +129,12 @@ static int user_down_raw_data_arrived_event_handler(const int devid, const unsig
     return 0;
 }
 
+static int user_initialized(const int devid)
+{
+    EXAMPLE_TRACE("Device Initialized, Devid: %d", devid);
 
-
-
-
-
-
-
+    return 0;
+}
 
 /** permit join **/
 int user_permit_join_event_handler(const char *product_key, const int time)
@@ -157,13 +155,11 @@ int user_permit_join_event_handler(const char *product_key, const int time)
 
 
 
-
-
-
 int main(int argc, char **argv)
 {
     user_example_ctx_t *user_example_ctx;
     uint32_t cnt = 0;
+    int res = FAIL_RETURN;
     static iotx_dev_meta_info_t dev_info = {
         .product_key = "a1OFrRjV8nz",
         .product_secret = "EfFYTuX1GjMDvw6l",
@@ -175,11 +171,11 @@ int main(int argc, char **argv)
         .product_key = "a1OFrRjV8nz",
         .product_secret = "EfFYTuX1GjMDvw6l",
         .device_name = "develop_02",
-        .device_secret = ""
+        .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
     };
 
     printf("alink start\r\n");
-
+    LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     user_example_ctx = user_example_get_ctx();
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
@@ -190,10 +186,8 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);    
-
-
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
-
+    IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
 
     /* Create Master Device Resources */
     user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
@@ -201,17 +195,10 @@ int main(int argc, char **argv)
         EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
         return -1;
     }
+    EXAMPLE_TRACE("IOT_Linkkit_Open Succeed\n");
 
-    IOT_Linkkit_Connect(0);
-
-    {
-        int res;
-        int subdev_id = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &subdev_info);
-        printf("subdev id = %d\r\n", subdev_id);
-
-        res = IOT_Linkkit_Connect(subdev_id);
-        printf("subdev conn res = %d\r\n", res);
-    }
+    res = IOT_Linkkit_Connect(0);
+    EXAMPLE_TRACE("IOT_Linkkit_Connect, res = %d", res);
 
 
     /*
@@ -228,12 +215,30 @@ int main(int argc, char **argv)
         for (i=159; i>=0; --i) {
             printf("removed devid[%d] = %d", i, devid[i]);
 
-            subdev_hash_remove(devid[i]);
+            _subdev_hash_remove(devid[i]);
         }
 
         subdev_hash_iterator();
     }
     */
+
+    {
+        uint32_t i;
+        uint32_t devid[2];
+
+        for (i=0; i<2; i++) {
+            subdev_info.device_name[9]++;
+            devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &subdev_info);
+            EXAMPLE_TRACE("subdev open, id = %d", devid[i]);
+            res = IOT_Linkkit_Connect(devid[i]);
+            EXAMPLE_TRACE("subdev conn, res = %d", res);
+            res = IOT_Linkkit_Report(devid[i], ITM_MSG_LOGIN, NULL, 0);
+            EXAMPLE_TRACE("subdev login, res = %d", res);
+        }
+
+        res = IOT_Linkkit_Report(0, ITM_MSG_LOGIN, (uint8_t *)devid, 8);
+        EXAMPLE_TRACE("subdev login, res = %d", res); 
+    }
 
     
     {
@@ -249,53 +254,17 @@ int main(int argc, char **argv)
         printf("query = %s\r\n", string);
     }
 
-    {
-        alink_upstream_req_ctx_init();
-
-
-
-
-
-
-    }
-
-
 
     while (1) {
         IOT_Linkkit_Yield(200);
 
         HAL_SleepMs(2000);
 
-        #if (0)
-        alink_downstream_invoke_mock("rsp/sys/thing/property/post");
-        alink_downstream_invoke_mock("req/sys/thing/property/put");
-        alink_downstream_invoke_mock("req/sys/thing/property/get");
-        alink_downstream_invoke_mock("rsp/sys/thing/event/post");
-        alink_downstream_invoke_mock("req/sys/thing/service/put");
-        alink_downstream_invoke_mock("rsp/sys/thing/raw/post");
-        alink_downstream_invoke_mock("req/sys/thing/raw/put");
-        alink_downstream_invoke_mock("rsp/sys/sub/register/post");
-        alink_downstream_invoke_mock("rsp/sys/sub/register/delete");
-        alink_downstream_invoke_mock("rsp/sys/sub/login/post");
-        alink_downstream_invoke_mock("rsp/sys/sub/login/delete");
-        alink_downstream_invoke_mock("rsp/sys/thing/topo/post");
-        alink_downstream_invoke_mock("rsp/sys/thing/topo/delete");
-        alink_downstream_invoke_mock("rsp/sys/thing/topo/get");
-        alink_downstream_invoke_mock("rsp/sys/sub/list/post");
-        alink_downstream_invoke_mock("rsp/sys/sub/list/put");
-        alink_downstream_invoke_mock("req/sys/gw/permit/put");
-        alink_downstream_invoke_mock("req/sys/gw/config/put");
-        alink_downstream_invoke_mock("rsp/sys/thing/devinfo/post");
-        alink_downstream_invoke_mock("rsp/sys/thing/devinfo/get");
-        alink_downstream_invoke_mock("rsp/sys/thing/devinfo/delete");
-        #endif
-
         IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
 
         IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
 
-
-        if (++cnt > 5) {
+        if (++cnt > 20) {
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }

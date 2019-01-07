@@ -87,11 +87,14 @@ static uri_hash_table_t uri_hash_table[HASH_TABLE_SIZE_MAX] = { NULL };
 const char alink_proto_key_params[] = "params";
 const char alink_proto_key_property[] = "p";
 const char alink_proto_key_id[] = "id";
-const char alink_proto_key_productKey[] = "productKey";
-const char alink_proto_key_deviceName[] = "deviceName";
+const char alink_proto_key_subList[] = "subList";
+const char alink_proto_key_productKey[] = "pk";
+const char alink_proto_key_deviceName[] = "dn";
+const char alink_proto_key_deviceSecret[] = "ds";
+const char alink_proto_key_code[] = "code";
+const char alink_proto_key_data[] = "data";
 const char alink_proto_key_timeoutSec[] = "timeoutSec";
 const char alink_proto_key_url[] = "url";
-
 
 
 
@@ -259,7 +262,7 @@ alink_downstream_handle_func_t alink_downstream_get_handle_func(const char *uri_
 }
 
 /*  TODO */
-int alink_downstream_invoke_mock(const char *uri_string)
+int alink_downstream_invoke_mock(const char *uri_string, const uint8_t payload, uint32_t payload_len)
 {
     alink_downstream_handle_func_t p_handle_func;
     alink_uri_query_t query = { 0 };
@@ -503,30 +506,259 @@ static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, c
  ***************************************************************/
 static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
+    int res = 0, idx = 0;
+    uint32_t subdev_id = 0;
+    lite_cjson_t root, array, object, item_temp;
+    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN] = {0};
+
+    alink_info("register rsp recv");
+
+    if (query->code != 200) {   /* TODO: register error, send to api  */
+        alink_info("return code error");
+        return;
+    }
+
+    res = alink_utils_json_parse((const char *)payload, len, cJSON_Object, &root);
+    if (res < SUCCESS_RETURN) {
+        return;
+    }
+
+    res = alink_utils_json_object_item(&root, alink_proto_key_subList, sizeof(alink_proto_key_subList)-1, 
+                                        cJSON_Array, &array);
+    if (res < SUCCESS_RETURN) {
+        return;
+    }
+
+    for (idx = 0; idx < array.size; idx++) {
+        subdev_id = 0;
+        memset(product_key, 0, IOTX_PRODUCT_KEY_LEN);
+        memset(device_name, 0, IOTX_DEVICE_NAME_LEN);
+        memset(device_secret, 0, IOTX_DEVICE_SECRET_LEN);
+        memset(&item_temp, 0, sizeof(lite_cjson_t));
+
+        /* get array item */
+        res = lite_cjson_array_item(&array, idx, &object);
+        if (res < SUCCESS_RETURN || !lite_cjson_is_object(&object)) {
+            continue;
+        }
+
+        /* get product key */
+        res = alink_utils_json_object_item(&object, alink_proto_key_productKey, sizeof(alink_proto_key_productKey)-1, cJSON_String, &item_temp);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+        memcpy(product_key, item_temp.value, item_temp.value_length);
+        memset(&item_temp, 0, sizeof(lite_cjson_t));
+
+        /* get device name */
+        res = alink_utils_json_object_item(&object, alink_proto_key_deviceName, sizeof(alink_proto_key_deviceName)-1, cJSON_String, &item_temp);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+        memcpy(device_name, item_temp.value, item_temp.value_length);
+        memset(&item_temp, 0, sizeof(lite_cjson_t));
+
+        /* get device secret */
+        res = alink_utils_json_object_item(&object, alink_proto_key_deviceSecret, sizeof(alink_proto_key_deviceSecret)-1, cJSON_String, &item_temp);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+        memcpy(device_secret, item_temp.value, item_temp.value_length);
+        memset(&item_temp, 0, sizeof(lite_cjson_t));
+
+        alink_info("register rsp, idx = %d", idx);
+        alink_info("register rsp, pk = %s", product_key);
+        alink_info("register rsp, dn = %s", device_name);
+        alink_info("register rsp, ds = %s", device_secret);
+        
+        /* get subdev id */
+        res = alink_subdev_get_devid_by_pkdn(product_key, device_name, &subdev_id);
+        if (res != SUCCESS_RETURN) {
+            continue;
+        }
+
+        alink_info("register rsp, devid = %d", subdev_id);
+
+        /* update sebdev secret */
+        res = alink_subdev_update_device_secret(subdev_id, device_secret);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+
+        /* update subdev status */
+        alink_subdev_update_status(subdev_id, ALINK_SUBDEV_STATUS_REGISTERED);
+    }
+
+/*
+    alink_upstream_req_node_t *node;
+    alink_info("register rsp recv");
+
     if (devid != 0) {
         return;
     }
 
-    
 
+    alink_upstream_req_list_search(query->id, &node);
+    if (node == NULL) {
+        alink_info("reg rsp corresponding req no exist");
+        return;
+    }
 
+    alink_info("rsp devid = %d", node->devid);
 
+    alink_upstream_req_list_delete_by_node(node);
+*/
 
+#if (CONFIG_SDK_THREAD_COST == 0)
+
+#else
+
+#endif
 }
 
 static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-     
+    int res = FAIL_RETURN;
+    lite_cjson_t root;
+
+    alink_info("unregister rsp recv");
+    
+    res = alink_utils_json_parse((const char *)payload, len, cJSON_Object, &root);
+    if (res < SUCCESS_RETURN) {
+        return;
+    }
+
+    alink_debug("alink response = %.*s", root.value_length, root.value);
+
+#if (CONFIG_SDK_THREAD_COST == 0)
+    {
+        /* get unregister req list */
+    }
+#else
+#endif
 }
 
 static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    
+    int res = 0, idx = 0;
+    uint32_t subdev_id = 0;
+    lite_cjson_t root, array, object, item_data, item_temp;
+    int code = 0;
+    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
+
+    alink_info("login rsp recv");
+
+    if (query->code != 200) {   /* TODO: register error, send to api  */
+        alink_info("return code error");
+        return;
+    }
+
+    res = alink_utils_json_parse((const char *)payload, len, cJSON_Object, &root);
+    if (res < SUCCESS_RETURN) {
+        return;
+    }
+
+    res = alink_utils_json_object_item(&root, alink_proto_key_subList, sizeof(alink_proto_key_subList)-1, 
+                                        cJSON_Array, &array);
+    if (res < SUCCESS_RETURN) {
+        return;
+    }
+
+    for (idx = 0; idx < array.size; idx++) {
+        subdev_id = 0;
+        code = 0;
+        memset(product_key, 0, IOTX_PRODUCT_KEY_LEN);
+        memset(device_name, 0, IOTX_DEVICE_NAME_LEN);
+        memset(&item_temp, 0, sizeof(lite_cjson_t));
+
+        /* get array item */
+        res = lite_cjson_array_item(&array, idx, &object);
+        if (res < SUCCESS_RETURN || !lite_cjson_is_object(&object)) {
+            continue;
+        }
+
+        /* get code */
+        res = alink_utils_json_object_item(&object, alink_proto_key_code, sizeof(alink_proto_key_code)-1, cJSON_Number, &item_temp);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+        code = item_temp.value_int;
+        if (code != 200) {
+            continue;
+        }
+
+        /* get data object */
+        res = alink_utils_json_object_item(&object, alink_proto_key_data, sizeof(alink_proto_key_data)-1, cJSON_Object, &item_data);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+
+        /* get product key */
+        res = alink_utils_json_object_item(&item_data, alink_proto_key_productKey, sizeof(alink_proto_key_productKey)-1, cJSON_String, &item_temp);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+        memcpy(product_key, item_temp.value, item_temp.value_length);
+        memset(&item_temp, 0, sizeof(lite_cjson_t));
+
+        /* get device name */
+        res = alink_utils_json_object_item(&item_data, alink_proto_key_deviceName, sizeof(alink_proto_key_deviceName)-1, cJSON_String, &item_temp);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+        memcpy(device_name, item_temp.value, item_temp.value_length);
+        memset(&item_temp, 0, sizeof(lite_cjson_t));
+
+        alink_info("register rsp, idx = %d", idx);
+        alink_info("register rsp, pk = %s", product_key);
+        alink_info("register rsp, dn = %s", device_name);
+        
+        /* get subdev id */
+        res = alink_subdev_get_devid_by_pkdn(product_key, device_name, &subdev_id);
+        if (res != SUCCESS_RETURN) {
+            continue;
+        }
+
+        alink_info("register rsp, devid = %d", subdev_id);
+
+        /* update subdev status */
+        alink_subdev_update_status(subdev_id, ALINK_SUBDEV_STATUS_ONLINE);
+
+#if (CONFIG_SDK_THREAD_COST == 0)
+        /* invoke user callback function */
+        {
+            linkkit_inited_cb_t handle_func;
+            handle_func = (linkkit_inited_cb_t)alink_get_event_callback(ITE_INITIALIZE_COMPLETED);
+            if (handle_func != NULL) {
+                handle_func(subdev_id);
+            }
+        }
+#else
+        alink_upstream_req_node_t *node;
+        if (devid != 0) {
+            return;
+        }
+
+        alink_upstream_req_list_search(query->id, &node);
+        if (node == NULL) {
+            alink_info("reg rsp corresponding req no exist");
+            return;
+        }
+
+        alink_info("rsp devid = %d", node->devid);
+
+        alink_upstream_req_list_delete_by_node(node);
+#endif
+    }
 }
 
 static void alink_downstream_subdev_logout_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     
+
 }
 
 static void alink_downstream_subdev_topo_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)

@@ -33,10 +33,16 @@ int alink_subdev_open(iotx_dev_meta_info_t *dev_info);
 int alink_subdev_close(uint32_t devid);
 int alink_subdev_connect_cloud(uint32_t devid);
 
+int alink_subdev_register(uint32_t devid);
+int alink_subdev_unregister(uint32_t devid);
+int alink_subdev_login(uint32_t *devid, uint8_t devid_num);
+int alink_subdev_logout(uint32_t *devid, uint8_t devid_num);
+
 int alink_subdev_get_pkdn_by_devid(uint32_t devid, char *product_key, char *device_name);
+int alink_subdev_get_triple_by_devid(uint32_t devid, char *product_key, char *device_name, char *device_secret);
 int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_name, uint32_t *devid);
-
-
+int alink_subdev_update_status(uint32_t devid, alink_subdev_status_t status);
+int alink_subdev_update_device_secret(uint32_t devid, const char *device_secret);
 
 #endif /* #ifndef __ALINK_SUBDEV_H__ */
 

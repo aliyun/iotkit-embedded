@@ -184,7 +184,11 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
                 /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=898789&c=b&a=y&c=n"; char *payload = "\x01\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
                 /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/raw/post/?i=898789&c=b&a=y&c=n"; char *payload = "\x00\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
 
-                char *topic = "/a1OFrRjV8nz/develop_01/req/sys/gw/permit/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"productKey\":\"1234abcd\", \"timeoutSec\":60}";
+                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/gw/permit/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"productKey\":\"1234abcd\", \"timeoutSec\":60}"; */
+                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/register/post/?i=2&r=200"; char *payload = "{\"subList\":[{\"productKey\":\"pk123\",\"deviceName\":\"dn123\",\"deviceSecret\":\"ds123\"},{\"productKey\":\"pk456\",\"deviceName\":\"dn456\",\"deviceSecret\":\"ds456\"}]}"; */
+                char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/login/post/?i=2&r=200"; char *payload = "{\"subList\":[{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_03\"}},{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_04\"}}]}";
+
+
 
                 uint32_t topic_len = strlen(topic);
                 uint32_t payload_len = strlen(payload);

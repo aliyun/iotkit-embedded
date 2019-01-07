@@ -125,6 +125,9 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
         hooks.free_fn = alink_utils_free;
         lite_cjson_init_hooks(&hooks);
     }
+
+    /* TODO */
+    alink_upstream_req_ctx_init();
 #endif
     
     return SUCCESS_RETURN;
@@ -267,7 +270,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
 
     handle_func = alink_downstream_get_handle_func(path, strlen(path));
     if (handle_func != NULL) {
-        alink_debug("invoke downstream uri handler");
+        alink_info("invoke downstream uri handler");
         handle_func(devid, product_key, device_name, (const uint8_t *)payload, payload_len, &query);
     }
     else {

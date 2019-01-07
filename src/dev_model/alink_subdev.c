@@ -196,6 +196,9 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
                 break;
             }
         }
+        else {
+            node->device_secret = NULL;
+        }
 
         /* add list node */
         node->next = NULL;
@@ -215,7 +218,7 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
 }
 
 /** TODO **/
-int subdev_hash_remove(uint32_t devid)
+int _subdev_hash_remove(uint32_t devid)
 {
     uint32_t hash;
     subdev_hash_node_t *node, *temp;
@@ -234,7 +237,9 @@ int subdev_hash_remove(uint32_t devid)
         temp = node->next;
         alink_free(node->product_key);
         alink_free(node->device_name);
-        alink_free(node->device_secret);
+        if (node->device_secret) {
+            alink_free(node->device_secret);
+        }
         alink_free(node);
         subdev_mgr_htable.hash_table[hash] = temp;
         return SUCCESS_RETURN;
@@ -247,9 +252,10 @@ int subdev_hash_remove(uint32_t devid)
                 temp->next = node->next;
                 alink_free(node->product_key);
                 alink_free(node->device_name);
-                alink_free(node->device_secret);
+                if (node->device_secret) {
+                    alink_free(node->device_secret);
+                }
                 alink_free(node);
-
                 return SUCCESS_RETURN;
             }
             else {
@@ -352,7 +358,9 @@ void _subdev_hash_destroy(subdev_hash_table_t *hash_table, uint32_t size)
         temp = node->next;
         alink_free(node->product_key);
         alink_free(node->device_name);
-        alink_free(node->device_secret);
+        if (node->device_secret) {
+            alink_free(node->device_secret);
+        }
         alink_free(node);
 
         while (temp) {
@@ -360,8 +368,10 @@ void _subdev_hash_destroy(subdev_hash_table_t *hash_table, uint32_t size)
             temp = temp->next;
             alink_free(node->product_key);
             alink_free(node->device_name);
-            alink_free(node->device_secret);
-            alink_free(node);           
+            if (node->device_secret) {
+                alink_free(node->device_secret);
+            }
+            alink_free(node);
         }
     }
     alink_free(table);
@@ -394,13 +404,15 @@ int alink_subdev_close(uint32_t devid)
 {
     int res = FAIL_RETURN;
 
+    _alink_subdev_mgr_lock();
+    res = _subdev_hash_remove(devid);
+    _alink_subdev_mgr_unlock();
 
     return res;
 }
 
 int alink_subdev_connect_cloud(uint32_t devid)
 {
-    int res = FAIL_RETURN;
     subdev_hash_node_t *node;
 
     /* check core status first */
@@ -413,62 +425,70 @@ int alink_subdev_connect_cloud(uint32_t devid)
         return IOTX_CODE_SUBDEV_NOT_EXIST;
     }
 
+    /* dynamic register first if device_secret is NULL */
     if (node->device_secret == NULL) {
-        alink_subdev_pkdn_list_t info_list;
-        pkdn_pair_t pkdn_pair[1];
-
-        pkdn_pair[0].pk = node->product_key;
-        pkdn_pair[0].dn = node->device_name;
-        info_list.subdev_num = 1;
-        info_list.subdev_pkdn = pkdn_pair;
-
-        /* dynamic register first */
-        res = alink_upstream_subdev_register_post_req(&info_list);
-        if (res < SUCCESS_RETURN) {
-            alink_info("subdev register failed");
-            return res;
-        }
-        alink_info("subdev register succeed");
+        return alink_subdev_register(devid);
     }
 
+    /* TODO: reply */
     node->status = ALINK_SUBDEV_STATUS_REGISTERED;
 
-    /* check subdev status first */
+    /* TODO: login?? */
 
-
-    /* login */
-
-    return 0;
+    return SUCCESS_RETURN;
 }
 
-int alink_subdev_login(uint32_t devid)
+int alink_subdev_register(uint32_t devid)
 {
     int res = FAIL_RETURN;
-    subdev_hash_node_t *node;
-    alink_subdev_triple_list_t triple_list;
-    triple_meta_t triple_array[1];
+    uint32_t subdev_id = devid;
+
+    alink_subdev_id_list_t subdev_id_list;
+    subdev_id_list.subdev_array = &subdev_id;
+    subdev_id_list.subdev_num = 1; 
+
+    res = alink_upstream_subdev_register_post_req(&subdev_id_list);
+    if (res < SUCCESS_RETURN) {
+        alink_info("subdev register post failed");
+        return res;
+    }
+    alink_info("subdev register post succeed");
+
+    return SUCCESS_RETURN;
+}
+
+int alink_subdev_unregister(uint32_t devid)
+{
+    int res = FAIL_RETURN;
+    uint32_t subdev_id = devid;
+
+    alink_subdev_id_list_t subdev_id_list;
+    subdev_id_list.subdev_array = &subdev_id;
+    subdev_id_list.subdev_num = 1; 
+
+    res = alink_upstream_subdev_register_delete_req(&subdev_id_list);
+    if (res < SUCCESS_RETURN) {
+        alink_info("subdev unregister post failed");
+        return res;
+    }
+    alink_info("subdev unregister post succeed");
+
+    return SUCCESS_RETURN;
+}
+
+int alink_subdev_login(uint32_t *devid, uint8_t devid_num)
+{
+    int res = FAIL_RETURN;
+    alink_subdev_id_list_t subdev_id_list;
+    subdev_id_list.subdev_array = devid;
+    subdev_id_list.subdev_num = devid_num;
 
     /* check core status first */
     if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
         return IOTX_CODE_STATUS_ERROR;
     }
 
-    node = _subdev_hash_search_by_devid(devid);
-    if (node == NULL) {
-        return IOTX_CODE_SUBDEV_NOT_EXIST;
-    }
-
-    if (node->status < ALINK_SUBDEV_STATUS_REGISTERED) {
-        return IOTX_CODE_STATUS_ERROR;
-    }
-    
-    triple_array[0].pk = node->product_key;
-    triple_array[0].dn = node->device_name;
-    triple_array[0].ds = node->device_secret;
-    triple_list.subdev_num = 1;
-    triple_list.subdev_triple = triple_array;
-
-    res = alink_upstream_subdev_login_post_req(&triple_list);
+    res = alink_upstream_subdev_login_post_req(&subdev_id_list);
     if (res < SUCCESS_RETURN) {
         alink_info("subdev login post failed");
         return res;
@@ -477,10 +497,24 @@ int alink_subdev_login(uint32_t devid)
     return res;
 }
 
-int alink_subdev_logout(uint32_t devid)
+int alink_subdev_logout(uint32_t *devid, uint8_t devid_num)
 {
     int res = FAIL_RETURN;
+    alink_subdev_id_list_t subdev_id_list;
+    subdev_id_list.subdev_array = devid;
+    subdev_id_list.subdev_num = devid_num;
 
+    /* check core status first */
+    if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
+        return IOTX_CODE_STATUS_ERROR;
+    }
+
+    res = alink_upstream_subdev_login_delete_req(&subdev_id_list);
+    if (res < SUCCESS_RETURN) {
+        alink_info("subdev logout post failed");
+        return res;
+    }
+    alink_info("subdev logout post succeed"); 
     return res;
 }
 
@@ -489,28 +523,105 @@ int alink_subdev_get_pkdn_by_devid(uint32_t devid, char *product_key, char *devi
 {
     subdev_hash_node_t *node;
 
+    _alink_subdev_mgr_lock();
+
     node = _subdev_hash_search_by_devid(devid);
     if (node == NULL) {
+        _alink_subdev_mgr_unlock();
         return FAIL_RETURN;
     }
     memcpy(product_key, node->product_key, strlen(node->product_key)+1);
     memcpy(device_name, node->device_name, strlen(node->device_name)+1);
 
+    _alink_subdev_mgr_unlock();
+
     return SUCCESS_RETURN;
+}
+
+int alink_subdev_get_triple_by_devid(uint32_t devid, char *product_key, char *device_name, char *device_secret)
+{
+    subdev_hash_node_t *node;
+
+    _alink_subdev_mgr_lock();
+
+    node = _subdev_hash_search_by_devid(devid);
+    if (node == NULL) {
+        _alink_subdev_mgr_unlock();
+        return FAIL_RETURN;
+    }
+    memcpy(product_key, node->product_key, strlen(node->product_key)+1);
+    memcpy(device_name, node->device_name, strlen(node->device_name)+1);
+    if (node->device_secret) {
+        memcpy(device_secret, node->device_secret, strlen(node->device_secret)+1);
+    }
+
+    _alink_subdev_mgr_unlock();
+
+    return SUCCESS_RETURN; 
 }
 
 int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_name, uint32_t *devid)
 {
     subdev_hash_node_t *node;
 
+    _alink_subdev_mgr_lock();
+
     node = _subdev_hash_search_by_pkdn(product_key, device_name);
     if (node == NULL) {
+        _alink_subdev_mgr_unlock();
         return FAIL_RETURN;
     }
 
     *devid = node->devid;
 
+    _alink_subdev_mgr_unlock();
+
     return SUCCESS_RETURN;
 }
 
+int alink_subdev_update_status(uint32_t devid, alink_subdev_status_t status)
+{
+    subdev_hash_node_t *node;
 
+    _alink_subdev_mgr_lock();
+
+    node = _subdev_hash_search_by_devid(devid);
+    if (node == NULL) {
+        _alink_subdev_mgr_unlock();
+        return FAIL_RETURN;
+    }
+
+    node->status = status;
+
+    _alink_subdev_mgr_unlock();
+
+    return SUCCESS_RETURN;    
+}
+
+int alink_subdev_update_device_secret(uint32_t devid, const char *device_secret)
+{
+    subdev_hash_node_t *node;
+    char *temp;
+
+    temp = alink_utils_strdup(device_secret, strlen(device_secret));
+    if (temp == NULL) {
+        return IOTX_CODE_PARAMS_INVALID;
+    }
+
+    _alink_subdev_mgr_lock();
+
+    node = _subdev_hash_search_by_devid(devid);
+    if (node == NULL) {
+        _alink_subdev_mgr_unlock();
+        return FAIL_RETURN;
+    }
+
+    if (node->device_secret) {
+        alink_free(node->device_secret);
+    }
+    node->device_secret = temp;
+
+    _alink_subdev_mgr_unlock();
+
+    return SUCCESS_RETURN;    
+}

@@ -8,18 +8,7 @@
 
 #define ALINK_REQ_LIST_NUM_MAX      50
 
-typedef struct {
-    uint32_t msgid;
-    uint32_t devid;
-    alink_msg_uri_index_t msg_uri;
-    list_head_t list;
-} alink_upstream_req_node_t;
 
-typedef struct {
-    void *mutex;
-    uint32_t list_num;
-    list_head_t req_list;
-} alink_upstream_req_ctx_t;
 
 alink_upstream_req_ctx_t alink_upstream_req_ctx = { 0 };
 
@@ -50,7 +39,7 @@ static void _alink_upstream_req_list_unlock(void)
     }
 }
 
-int alink_upstream_req_list_insert(uint32_t msgid, uint32_t devid, alink_msg_uri_index_t msg_uri)
+int alink_upstream_req_list_insert(uint32_t msgid, uint32_t devid, alink_msg_uri_index_t msg_uri, void *data)
 {
     alink_upstream_req_node_t *node;
 
@@ -72,6 +61,7 @@ int alink_upstream_req_list_insert(uint32_t msgid, uint32_t devid, alink_msg_uri
     node->msgid = msgid;
     node->devid = devid;
     node->msg_uri = msg_uri;
+    node->data = data;
     INIT_LIST_HEAD(&node->list);
 
     _alink_upstream_req_list_lock();
@@ -80,33 +70,45 @@ int alink_upstream_req_list_insert(uint32_t msgid, uint32_t devid, alink_msg_uri
     alink_upstream_req_ctx.list_num++;
 
     _alink_upstream_req_list_unlock();
+
+    alink_info("upstream req add list succeed");
+
     return SUCCESS_RETURN;
 }
 
 int alink_upstream_req_list_search(uint32_t msgid, alink_upstream_req_node_t **node)
 {
-    alink_upstream_req_node_t *search_node = NULL;
+    alink_upstream_req_node_t *search_node, *next;
+    uint8_t idx = 0;
 
     ALINK_ASSERT_DEBUG(node != NULL);
 
     _alink_upstream_req_list_lock();
 
-    list_for_each_entry(search_node, &alink_upstream_req_ctx.req_list, list, alink_upstream_req_node_t) {
+    list_for_each_entry_safe(search_node, next, &alink_upstream_req_ctx.req_list, list, alink_upstream_req_node_t) {
+        alink_info("req_list idx %d, msgid = %d", idx, search_node->msgid);
         if (search_node->msgid == msgid) {
             *node = search_node;
             _alink_upstream_req_list_unlock();
+            alink_info("corresponding req exist");
             return SUCCESS_RETURN;
+        }
+
+        if (msgid > search_node->msgid && (msgid - search_node->msgid) > 25) {  /* TODO */
+            list_del(&search_node->list);
+            alink_free(search_node);
+            alink_upstream_req_ctx.list_num--;
         }
     }
 
     _alink_upstream_req_list_unlock();
+    alink_info("corresponding req no exist");
     return FAIL_RETURN;
 }
 
 int alink_upstream_req_list_delete_by_msgid(int msgid)
 {
-    alink_upstream_req_node_t *search_node;
-    alink_upstream_req_node_t *next;
+    alink_upstream_req_node_t *search_node, *next;
 
     _alink_upstream_req_list_lock();
     list_for_each_entry_safe(search_node, next, &alink_upstream_req_ctx.req_list, list, alink_upstream_req_node_t) {
@@ -122,9 +124,13 @@ int alink_upstream_req_list_delete_by_msgid(int msgid)
     _alink_upstream_req_list_unlock();
     return FAIL_RETURN;
 }
-
+ 
 int alink_upstream_req_list_delete_by_node(alink_upstream_req_node_t *node)
 {
+    if (node == NULL) {
+        return IOTX_CODE_PARAMS_INVALID;
+    }
+
     _alink_upstream_req_list_lock();
 
     list_del(&node->list);
@@ -371,26 +377,18 @@ int alink_upstream_thing_raw_post_rsp(const char *pk, const char *dn, const uint
 /***************************************************************
  * subdevice management upstream message
  ***************************************************************/
-char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_list_t *pkdn_list)
+char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_id_list_t *subdev_list)
 {
     uint8_t idx = 0;
-    uint8_t pair_num = pkdn_list->subdev_num;
-    pkdn_pair_t *pair_list = pkdn_list->subdev_pkdn;
-    lite_cjson_item_t *lite_root = NULL, /* *lite_object = NULL, */*lite_array = NULL, *lite_array_item = NULL;
+    uint8_t sudev_num = subdev_list->subdev_num;
+    uint32_t *subdev_id_array = subdev_list->subdev_array;
+    lite_cjson_item_t *lite_root = NULL, *lite_array = NULL, *lite_array_item = NULL;
     char *payload = NULL;
 
     lite_root = lite_cjson_create_object();
     if (lite_root == NULL) {
         return NULL;
     }
-
-/*
-    lite_object = lite_cjson_create_object();
-    if (lite_object == NULL) {
-        lite_cjson_delete(lite_root);
-        return NULL;
-    }
-*/
     
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
@@ -398,12 +396,16 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_list_t *pkdn_
         return NULL;
     }
 
-    /* lite_cjson_add_item_to_object(lite_root, "params", lite_object); */
     lite_cjson_add_item_to_object(lite_root, "subList", lite_array);
 
-    for (idx = 0; idx < pair_num; idx++) {
+    for (idx = 0; idx < sudev_num; idx++) {
+        char pk[IOTX_PRODUCT_KEY_LEN] = {0};
+        char dn[IOTX_DEVICE_NAME_LEN] = {0};
+
+        alink_subdev_get_pkdn_by_devid(subdev_id_array[idx], pk, dn);
+
         /* check parameters */
-        if (pair_list[idx].pk == NULL || pair_list[idx].dn == NULL) {
+        if (*pk == '\0' || *dn == '\0') {
             lite_cjson_delete(lite_root);
             return NULL;
         }
@@ -414,8 +416,8 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_list_t *pkdn_
             return NULL;
         }
 
-        lite_cjson_add_string_to_object(lite_array_item, "productKey", pair_list[idx].pk);
-        lite_cjson_add_string_to_object(lite_array_item, "deviceName", pair_list[idx].dn);
+        lite_cjson_add_string_to_object(lite_array_item, "productKey", pk);
+        lite_cjson_add_string_to_object(lite_array_item, "deviceName", dn);
         lite_cjson_add_item_to_array(lite_array, lite_array_item);
     }
 
@@ -426,22 +428,16 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_pkdn_list_t *pkdn_
 }
 
 const char *c_login_sign_source_fmt = "clientId%sdeviceName%sproductKey%stimestamp%s";   /* clientId is pk.dn */
-char *_alink_upstream_assamble_auth_list_payload(alink_subdev_triple_list_t *triple_list)
+char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_list)
 {
     uint8_t idx = 0;
-    uint8_t triple_num = triple_list->subdev_num;
-    triple_meta_t *triple_array = triple_list->subdev_triple;
-    lite_cjson_item_t *lite_root = NULL, *lite_object = NULL, *lite_array = NULL, *lite_array_item = NULL;
+    uint8_t subdev_num = subdev_list->subdev_num;
+    uint32_t *subdev_id_array = subdev_list->subdev_array;
+    lite_cjson_item_t *lite_root = NULL, *lite_array = NULL, *lite_array_item = NULL;
     char *payload = NULL;
 
     lite_root = lite_cjson_create_object();
     if (lite_root == NULL) {
-        return NULL;
-    }
-
-    lite_object = lite_cjson_create_object();
-    if (lite_object == NULL) {
-        lite_cjson_delete(lite_root);
         return NULL;
     }
     
@@ -451,22 +447,23 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_triple_list_t *tri
         return NULL;
     }
 
-    lite_cjson_add_item_to_object(lite_root, "params", lite_object);
-    lite_cjson_add_item_to_object(lite_object, "subList", lite_array);
+    lite_cjson_add_item_to_object(lite_root, "subList", lite_array);
 
-    for (idx = 0; idx < triple_num; idx++) {
+    for (idx = 0; idx < subdev_num; idx++) {
         char timestamp[20] = {0};
         char clientid[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2];
         char sign[32] = {0};
         char sign_string[65] = {0};
-        const char *pk = triple_array[idx].pk;
-        const char *dn = triple_array[idx].dn;
-        const char *ds = triple_array[idx].ds;
         char *sign_source;
         uint16_t sign_source_len;
+        char pk[IOTX_PRODUCT_KEY_LEN] = {0};
+        char dn[IOTX_DEVICE_NAME_LEN] = {0};
+        char ds[IOTX_DEVICE_SECRET_LEN] = {0};
+
+        alink_subdev_get_triple_by_devid(subdev_id_array[idx], pk, dn, ds);
 
         /* check parameters */
-        if (pk == NULL || dn == NULL || ds == NULL) {
+        if (*ds == '\0') {
             lite_cjson_delete(lite_root);
             return NULL;
         }
@@ -503,12 +500,12 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_triple_list_t *tri
     return payload;
 }
 
-int alink_upstream_subdev_register_post_req(alink_subdev_pkdn_list_t *pair_list)
+int alink_upstream_subdev_register_post_req(alink_subdev_id_list_t *subdev_list)
 {
     int res = FAIL_RETURN;
     char *payload = NULL;
 
-    payload = _alink_upstream_assamble_pkdn_pair_payload(pair_list);
+    payload = _alink_upstream_assamble_pkdn_pair_payload(subdev_list);
     if (payload == NULL) {
         return res;
     }
@@ -518,56 +515,69 @@ int alink_upstream_subdev_register_post_req(alink_subdev_pkdn_list_t *pair_list)
 
     alink_info("subdev reg_post msgid = %d", res);
 
+    /* TODO: subdev num should < 10 */
+    {
+        upstream_req_data_subdv_list_t *req_data = alink_malloc(sizeof(upstream_req_data_subdv_list_t));
+        if (req_data == NULL) {
+            return IOTX_CODE_MEMORY_NOT_ENOUGH;
+        }
+        memcpy(req_data->subdev_id, subdev_list->subdev_array, sizeof(uint32_t ) * (subdev_list->subdev_num));
+
+        /* todo */
+        alink_upstream_req_list_insert(res, 0, ALINK_URI_UP_REQ_SUB_REGISTER_POST, req_data);   /* res is msgid if post succeed */
+    }
+
     return res;
 }
 
-int alink_upstream_subdev_register_delete_req(alink_subdev_pkdn_list_t *pair_list)
+int alink_upstream_subdev_register_delete_req(alink_subdev_id_list_t *subdev_list)
 {
     int res = FAIL_RETURN;
     char *payload = NULL;
 
-    payload = _alink_upstream_assamble_pkdn_pair_payload(pair_list);
+    payload = _alink_upstream_assamble_pkdn_pair_payload(subdev_list);
     if (payload == NULL) {
         return res;
     }
-    alink_info("subdev reg_delete payload = %s", payload);
 
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_REGISTER_DELETE, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
+    alink_info("subdev reg_delete msgid = %d", res);
 
     return res;
 }
 
-int alink_upstream_subdev_login_post_req(alink_subdev_triple_list_t *triple_list)
+int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
 {
     int res = FAIL_RETURN;
     char *payload = NULL;
 
-    payload = _alink_upstream_assamble_auth_list_payload(triple_list);
+    payload = _alink_upstream_assamble_auth_list_payload(subdev_list);
     if (payload == NULL) {
+        alink_info("subdev login_post assamble payload failed");
         return res;
     }
-    alink_info("subdev login_post payload = %s", payload);
 
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_POST, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
+    alink_info("subdev login_post msgid = %d", res);
 
     return res;
 }
 
-int alink_upstream_subdev_login_delete_req(alink_subdev_pkdn_list_t *pair_list)
+int alink_upstream_subdev_login_delete_req(alink_subdev_id_list_t *subdev_list)
 {
     int res = FAIL_RETURN;
     char *payload = NULL;
 
-    payload = _alink_upstream_assamble_pkdn_pair_payload(pair_list);
+    payload = _alink_upstream_assamble_pkdn_pair_payload(subdev_list);
     if (payload == NULL) {
         return res;
     }
-    alink_info("subdev login_delete payload = %s", payload);
 
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_SUB_LOGIN_DELETE, 0, (uint8_t *)payload, strlen(payload), NULL);
     alink_free(payload);
+    alink_info("subdev login_delete msgid = %d", res);
 
     return res;
 }
