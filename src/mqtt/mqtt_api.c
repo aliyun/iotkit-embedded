@@ -228,8 +228,10 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_params->username = sign_mqtt.username;
         mqtt_params->password = sign_mqtt.password;
 #ifdef SUPPORT_TLS
-        extern const char *iotx_ca_crt;
-        mqtt_params->pub_key = iotx_ca_crt;
+        {
+            extern const char *iotx_ca_crt;
+            mqtt_params->pub_key = iotx_ca_crt;
+        }
 #endif
         mqtt_params->request_timeout_ms    = 2000;
         mqtt_params->clean_session         = 0;

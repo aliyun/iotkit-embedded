@@ -86,6 +86,7 @@ static int disconnect_ssl(utils_network_pt pNetwork)
 
 static int connect_ssl(utils_network_pt pNetwork)
 {
+    ssl_hooks_t ssl_hooks;
 
     if (NULL == pNetwork) {
         net_err("network is null");
@@ -107,7 +108,6 @@ static int connect_ssl(utils_network_pt pNetwork)
         return 0;
     }
 #else
-    ssl_hooks_t ssl_hooks;
     memset(&ssl_hooks, 0, sizeof(ssl_hooks_t));
     ssl_hooks.malloc = ssl_malloc;
     ssl_hooks.free = ssl_free;
