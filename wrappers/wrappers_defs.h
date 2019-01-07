@@ -1,5 +1,7 @@
-#ifndef _WRAPPERS_H_
-#define _WRAPPERS_H_
+#ifndef _WRAPPERS_DEFS_H_
+#define _WRAPPERS_DEFS_H_
+
+#define PLATFORM_WAIT_INFINITE (~0)
 
 typedef enum {
     os_thread_priority_idle = -3,        /* priority: idle (lowest) */

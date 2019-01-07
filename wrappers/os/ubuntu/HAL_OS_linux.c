@@ -25,7 +25,7 @@
 #include <signal.h>
 
 #include "infra_defs.h"
-#include "wrappers.h"
+#include "wrappers_defs.h"
 
 #define PLATFORM_WAIT_INFINITE (~0)
 
