@@ -30,16 +30,6 @@
 #endif
 
 
-
-typedef enum {
-    ALINK_DEV_TYPE_MASTER,
-    ALINK_DEV_TYPE_SUBDEV,
-    ALINK_DEV_TYPE_MAX
-} alink_dev_type_t;
-
-linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);
-
-
 #ifdef INFRA_LOG
 #include "infra_log.h"
 #define alink_emerg(...)                log_emerg("ALINK", __VA_ARGS__)
@@ -66,11 +56,9 @@ linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);
 #endif
 
 
-#define ALINK_BEARER_USED                       (0)
-
 #define UTILS_HASH_TABLE_ITERATOR_ENABLE        (1) 
 #define ALINK_DEBUG                             (1)
-#define TEST_MOCK       /* TODO */
+#define TEST_MOCK                               /* TODO, only for test!!! */
 
 #if ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \
@@ -84,8 +72,6 @@ linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);
 #else
     #define ALINK_ASSERT_DEBUG(expr)
 #endif
-
-
 
 
 #ifndef CONFIG_MQTT_TX_MAXLEN
@@ -160,9 +146,16 @@ typedef enum {
     ALINK_ERROR_CODE_200            = 200,
     ALINK_ERROR_CODE_400            = 400,
 
-
 } alink_protocol_error_code_t;
 
+
+typedef enum {
+    ALINK_DEV_TYPE_MASTER,
+    ALINK_DEV_TYPE_SUBDEV,
+    ALINK_DEV_TYPE_MAX
+} alink_dev_type_t;
+
+linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);
 
 
 

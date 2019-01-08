@@ -96,7 +96,7 @@ typedef int (*linkkit_awss_status_cb_t)(int);       /* no implement this version
 
 typedef int (*linkkit_connect_success_cb_t)(void);
 
-typedef int (*linkkit_connect_fail_cb_t)(void);
+typedef int (*linkkit_connect_fail_cb_t)(void);     /* no implement this version */
 
 typedef int (*linkkit_disconnected_cb_t)(void);
 
@@ -114,7 +114,7 @@ typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int
 typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
                                         const char *reply, int reply_len);
 
-typedef int (*linkkit_trigger_event_reply_cb_t)(int device_id, int msg_id, int code, 
+typedef int (*linkkit_trigger_event_reply_cb_t)(int device_id, int msg_id, int code,
                                                 const char *eventid, int eventid_len,
                                                 const char *message, int message_len);
 

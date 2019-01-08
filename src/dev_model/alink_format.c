@@ -17,6 +17,7 @@
 
 #define QUERY_STRING_ID_LEN_MAX         15
 #define QUERY_STRING_CODE_LEN_MAX       14
+#define QUERY_STRING_LEN_MAX         45
 
 
 #define ALINK_URI_DIST_CLOUD        0x00
@@ -28,7 +29,6 @@
 
 #define ALINK_URI_LAYER_SYS         0x00
 #define ALINK_URI_LAYER_EXT         0x10
-#define ALINK_URI_LAYER_PROXY       0x20
 
 #define ALINK_URI_METHOD_GET        0x00
 #define ALINK_URI_METHOD_POST       0x01
@@ -55,7 +55,6 @@ const char *alink_uri_act[] = {
 const char *alink_uri_layer[] = {
     "/sys",
     "/ext",
-    "/proxy"
 };
 
 const char *alink_uri_method[] = {
@@ -172,7 +171,7 @@ int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, c
     uri_method = alink_uri_method[(c_alink_uri_string_map[index].layer_method & 0x0F)];
 
     len = strlen(uri_dist) + strlen(uri_act) + strlen(uri_layer) + strlen(uri_path) + strlen(uri_method) 
-        + strlen(uri_query) + strlen(subdev_pk) + strlen(subdev_dn) + strlen(alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4]) + 3;    /* add 2 "/" delimiter */
+        + strlen(uri_query) + strlen(subdev_pk) + strlen(subdev_dn) + strlen(alink_uri_layer[ALINK_URI_LAYER_EXT >> 4]) + 9;    /* add 2 "/" delimiter strlen of "/proxy" */
 
     uri = alink_malloc(len);
     if (uri == NULL) {
@@ -183,8 +182,8 @@ int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, c
     alink_info("len = %d", len);
 
     /* e... - -! */
-    HAL_Snprintf(uri, len, "%s%s%s/%s/%s%s%s%s%s", uri_dist, uri_act, 
-                alink_uri_layer[ALINK_URI_LAYER_PROXY >> 4], subdev_pk, subdev_dn, uri_layer, uri_path, uri_method, uri_query);
+    HAL_Snprintf(uri, len, "%s%s%s/proxy/%s/%s%s%s%s%s", uri_dist, uri_act, 
+                alink_uri_layer[ALINK_URI_LAYER_EXT >> 4], subdev_pk, subdev_dn, uri_layer, uri_path, uri_method, uri_query);
 
     *p_uri = uri;
 
@@ -248,7 +247,7 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
     const char *p = uri + *uri_len;
     uint8_t len = 0;
     uint8_t i = 0;
-    char temp[30] = {0};        /* TODO, malloc */
+    char temp[QUERY_STRING_LEN_MAX] = {0};        /* TODO, malloc */
 
     while (--p != uri) {
         len++;
@@ -260,14 +259,12 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
         }
     }
     
-    if (len >= 30) {      /* TODO */
+    if (len >= QUERY_STRING_LEN_MAX) {
         return FAIL_RETURN;
     }
 
     *uri_len -= (len+1);    /* query_len not include '/' */
-
     memcpy(temp, p, len);
-    alink_info("query = %s", temp);
 
     while (i++ < len) {
         switch (temp[i]) {
@@ -289,7 +286,7 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
             } break;
             case 'r': {
                 i += 2;
-                query->code = atoi(&temp[i]);     /* tood, atoi() used!!! */
+                query->code = atoi(&temp[i]);
             }
             default: continue;
         }
@@ -372,46 +369,35 @@ int _alink_get_uri_level_pointer(const char *uri, uint8_t uri_len, uint8_t level
 /**
  * TODO, not good!!!
  */
-int alink_format_reslove_uri(const char *uri, uint8_t uri_len, char *pk, char *dn, char *path, alink_uri_query_t *query, uint8_t *is_subdev)
+int alink_format_reslove_uri(const char *uri, uint8_t uri_len, char *pk, char *dn, char *path, alink_uri_query_t *query)
 {
-    char value[33] = {0};
+    char value[20] = {0};
     uint8_t value_len = 0;
     char *p = NULL;
-
     uint8_t uri_len_temp = uri_len;
-
 
     alink_format_resolve_query(uri, &uri_len_temp, query);
 
-
-    /* is proxy */
-    _alink_get_uri_level_value(uri, uri_len_temp, 4, value);
+    /* check if ext/proxy */
+    _alink_get_uri_level_value(uri, uri_len_temp, 5, value);
     value_len = strlen(value);
 
     if (value_len == strlen("proxy") && !memcmp(value, "proxy", value_len))
     {
-        *is_subdev = IOT_TRUE;
-
-        _alink_get_uri_level_value(uri, uri_len_temp, 5, pk);
-        _alink_get_uri_level_value(uri, uri_len_temp, 6, dn);
+        _alink_get_uri_level_value(uri, uri_len_temp, 6, pk);
+        _alink_get_uri_level_value(uri, uri_len_temp, 7, dn);
 
         _alink_get_uri_level_value(uri, uri_len_temp, 3, path);
         memcpy(path+strlen(path), "/", 1);
 
-        _alink_get_uri_level_pointer(uri, uri_len_temp, 7, &p);
+        _alink_get_uri_level_pointer(uri, uri_len_temp, 8, &p);
         memcpy(path+strlen(path), p, (uri_len_temp - (uint8_t)(p - uri)));
     }
     else {
-        *is_subdev = IOT_FALSE;
-
-        _alink_get_uri_level_value(uri, uri_len_temp, 1, pk);
-        _alink_get_uri_level_value(uri, uri_len_temp, 2, dn);
-
+        /* is not subdev uri, just ignore the pk and dn */
         _alink_get_uri_level_pointer(uri, uri_len_temp, 3, &p);
         memcpy(path, p, (uri_len_temp - (uint8_t)(p - uri)));
     }
-
-    
 
     return SUCCESS_RETURN;
 }

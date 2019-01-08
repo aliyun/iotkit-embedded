@@ -93,6 +93,7 @@ const char alink_proto_key_deviceName[] = "dn";
 const char alink_proto_key_deviceSecret[] = "ds";
 const char alink_proto_key_code[] = "code";
 const char alink_proto_key_data[] = "data";
+
 const char alink_proto_key_timeoutSec[] = "timeoutSec";
 const char alink_proto_key_url[] = "url";
 
@@ -259,24 +260,6 @@ alink_downstream_handle_func_t alink_downstream_get_handle_func(const char *uri_
     }
 
     return search_node->pair->handle_func;
-}
-
-/*  TODO */
-int alink_downstream_invoke_mock(const char *uri_string, const uint8_t payload, uint32_t payload_len)
-{
-    alink_downstream_handle_func_t p_handle_func;
-    alink_uri_query_t query = { 0 };
-
-    p_handle_func = alink_downstream_get_handle_func(uri_string, strlen(uri_string));
-
-    if (p_handle_func != NULL) {
-        p_handle_func(0, "1", "2", (uint8_t *)"abc", 3, &query);
-    } 
-    else {
-        alink_info("handle func doesn't exit");
-    }
-
-    return 1;
 }
 
 
@@ -589,33 +572,31 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
 
         /* update subdev status */
         alink_subdev_update_status(subdev_id, ALINK_SUBDEV_STATUS_REGISTERED);
+
+        #if (CONFIG_SDK_THREAD_COST == 0)
+        /* just invoke user callback func */
+        #else
+        /* modify req list flag */
+
+            alink_upstream_req_node_t *node;
+            alink_info("register rsp recv");
+
+            if (devid != 0) {
+                return;
+            }
+
+
+            alink_upstream_req_list_search(query->id, &node);
+            if (node == NULL) {
+                alink_info("reg rsp corresponding req no exist");
+                return;
+            }
+
+            alink_info("rsp devid = %d", node->devid);
+
+            alink_upstream_req_list_delete_by_node(node);
+        #endif
     }
-
-/*
-    alink_upstream_req_node_t *node;
-    alink_info("register rsp recv");
-
-    if (devid != 0) {
-        return;
-    }
-
-
-    alink_upstream_req_list_search(query->id, &node);
-    if (node == NULL) {
-        alink_info("reg rsp corresponding req no exist");
-        return;
-    }
-
-    alink_info("rsp devid = %d", node->devid);
-
-    alink_upstream_req_list_delete_by_node(node);
-*/
-
-#if (CONFIG_SDK_THREAD_COST == 0)
-
-#else
-
-#endif
 }
 
 static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -712,9 +693,9 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
         memcpy(device_name, item_temp.value, item_temp.value_length);
         memset(&item_temp, 0, sizeof(lite_cjson_t));
 
-        alink_info("register rsp, idx = %d", idx);
-        alink_info("register rsp, pk = %s", product_key);
-        alink_info("register rsp, dn = %s", device_name);
+        alink_info("login rsp, idx = %d", idx);
+        alink_info("login rsp, pk = %s", product_key);
+        alink_info("login rsp, dn = %s", device_name);
         
         /* get subdev id */
         res = alink_subdev_get_devid_by_pkdn(product_key, device_name, &subdev_id);
@@ -722,13 +703,13 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
             continue;
         }
 
-        alink_info("register rsp, devid = %d", subdev_id);
+        alink_info("login rsp, devid = %d", subdev_id);
 
         /* update subdev status */
         alink_subdev_update_status(subdev_id, ALINK_SUBDEV_STATUS_ONLINE);
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-        /* invoke user callback function */
+        /* just invoke user callback function */
         {
             linkkit_inited_cb_t handle_func;
             handle_func = (linkkit_inited_cb_t)alink_get_event_callback(ITE_INITIALIZE_COMPLETED);
@@ -854,9 +835,6 @@ static void alink_downstream_thing_deviceinfo_post_rsq(uint32_t devid, const cha
 
 static void alink_downstream_thing_deviceinfo_get_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    
-
-
     
 }
 

@@ -171,34 +171,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
                 return;
             }
 
-            #ifdef TEST_MOCK
-            {
-                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/post/?i=898789&c=b&r=400&a=y&c=n"; */
-                /* char *topic = "/gw_pk/gw_dn/req/proxy/a1OFrRjV8nz/develop_01/sys/thing/property/post/?i=898789&c=b&a=y&r=400&c=n"; */
-                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"test\": 12344}"; */
-                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/property/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}"; */
-                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/get/?i=898789&c=b&a=y&c=n"; char *payload = "{\"params\":[\"test\", \"alink\"]}"; */
-                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/event/post/?i=898789&c=b&a=y&c=n"; char *payload = "{\"code\": 200}"; */
-                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/service/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"serviceId\":\"ACControl\",\"params\":{\"Action\":\"On\",\"FandSpeed\":123}}"; */
-
-                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=898789&c=b&a=y&c=n"; char *payload = "\x01\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
-                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/raw/post/?i=898789&c=b&a=y&c=n"; char *payload = "\x00\x02\x03\x04\xFF\x00\xFF"; uint32_t payload_len = 7; */
-
-                /* char *topic = "/a1OFrRjV8nz/develop_01/req/sys/gw/permit/put/?i=898789&c=b&a=y&c=n"; char *payload = "{\"productKey\":\"1234abcd\", \"timeoutSec\":60}"; */
-                /* char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/register/post/?i=2&r=200"; char *payload = "{\"subList\":[{\"productKey\":\"pk123\",\"deviceName\":\"dn123\",\"deviceSecret\":\"ds123\"},{\"productKey\":\"pk456\",\"deviceName\":\"dn456\",\"deviceSecret\":\"ds456\"}]}"; */
-                char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/login/post/?i=2&r=200"; char *payload = "{\"subList\":[{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_03\"}},{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_04\"}}]}";
-
-
-
-                uint32_t topic_len = strlen(topic);
-                uint32_t payload_len = strlen(payload);
-
-                (void)topic_info;
-                topic_handle_func(_mqtt_conncection->fd, topic, topic_len, payload, payload_len, NULL);
-            }
-            #else
             topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len, NULL);
-            #endif
         }
         break;
 

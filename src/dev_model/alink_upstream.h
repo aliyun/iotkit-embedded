@@ -78,6 +78,7 @@ typedef struct {
 } alink_upstream_req_ctx_t;
 
 int alink_upstream_req_ctx_init(void);
+int alink_upstream_req_ctx_deinit(void);
 int alink_upstream_req_list_search(uint32_t msgid, alink_upstream_req_node_t **node);
 int alink_upstream_req_list_delete_by_node(alink_upstream_req_node_t *node);
 

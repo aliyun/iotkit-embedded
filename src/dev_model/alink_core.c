@@ -10,7 +10,7 @@
 #define ALINK_CORE_CONNECT_TIMEOUT              (10000)
 #define ALINK_CORE_SUBSCRIBE_TIMEOUT            (5000)
 
-#define ALINK_SUPPORT_BEARER_NUM                (1)
+#define ALINK_SUPPORT_FD_NUM                    (1)
 #define ALINK_DEFAULT_BEARER_PROTOCOL           (ALINK_BEARER_MQTT)
 #define ALINK_DEFAULT_SUB_LEVEL                 "/rsp"
 
@@ -18,7 +18,7 @@
 typedef struct {
     uint8_t                 is_inited;
     alink_core_status_t     status;
-    uint8_t                 bearer_num;
+    uint8_t                 fd_num;
     void                   *mutex;
 
     char                   *product_key;
@@ -133,7 +133,6 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
     return SUCCESS_RETURN;
 }
 
-
 /** TODO: not multi thread safe **/
 static int _alink_core_deinit(void)
 {
@@ -176,6 +175,15 @@ static int _alink_core_deinit(void)
     return SUCCESS_RETURN;
 }
 
+void _alink_core_set_status(alink_core_status_t status)
+{
+    _alink_core_lock();
+
+    alink_core_ctx.status = status;
+
+    _alink_core_unlock();
+}
+
 /**
  * 
  */
@@ -216,12 +224,11 @@ int _alink_core_register_downstream(const char *level, iotx_cm_data_handle_cb rx
 /** core receive event handler, message dispatch and distribut **/
 static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_len, const char *payload, uint32_t payload_len, void *context)
 {
-    alink_uri_query_t query = { 0 };
+    alink_uri_query_t query = {0};
     uint32_t devid = 0;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
     char path[50] = {0};        /* TODO: len? */
-    uint8_t is_subdev;
     alink_downstream_handle_func_t handle_func;
 
     if (uri == NULL || uri_len == 0 || payload == NULL || payload_len == 0) {
@@ -229,7 +236,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     }
 
     /* reslove the uri query */
-    alink_format_reslove_uri(uri, uri_len, product_key, device_name, path, &query, &is_subdev);
+    alink_format_reslove_uri(uri, uri_len, product_key, device_name, path, &query);
 
     /* reslove the uri path */
     alink_info("rx data, uri = %.*s", uri_len, uri);
@@ -238,7 +245,6 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     alink_info("pk = %s", product_key);
     alink_info("dn = %s", device_name);
     alink_info("path = %s", path);
-    alink_info("is_subdev = %d", is_subdev);
 
     alink_info("query id = %d", query.id);
     alink_info("query format = %c", query.format);
@@ -246,12 +252,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     alink_info("query code = %d", query.code);
     alink_info("query ack = %c", query.ack);
 
-    if (is_subdev == IOT_FALSE) {
-        /* TODO: check the master pk, dn? */
-
-        /* clear up the pkdn, is useless for handle function if it indicate a master */
-        product_key[0] = '\0';
-        device_name[0] = '\0';
+    if (product_key[0] == '\0' && device_name[0] == '\0') {
         devid = 0;
     }
     else {
@@ -278,12 +279,36 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     }
 }
 
+void _alink_core_connected_event_handler(void)
+{
+    linkkit_connect_success_cb_t handle_func;
+
+    _alink_core_set_status(ALINK_CORE_STATUS_CONNECTED);
+
+    handle_func = alink_get_event_callback(ITE_CONNECT_SUCC);
+    if (handle_func) {
+        handle_func();
+    }
+}
+
+void _alink_core_disconnected_event_handler(void)
+{
+    linkkit_disconnected_cb_t handle_func;
+
+    _alink_core_set_status(ALINK_CORE_STATUS_DISCONNECTED);
+
+    handle_func = alink_get_event_callback(ITE_CONNECT_SUCC);
+    if (handle_func) {
+        handle_func();
+    }
+}
+
 /** TODO: from dm **/
-void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context)
+void alink_cm_event_handle(int fd, iotx_cm_event_msg_t *event, void *context)
 {
     switch (event->type) {
         case IOTX_CM_EVENT_CLOUD_CONNECTED: {
-
+            _alink_core_connected_event_handler();
         }
         break;
         case IOTX_CM_EVENT_CLOUD_CONNECT_FAILED: {
@@ -291,7 +316,7 @@ void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context)
         }
         break;
         case IOTX_CM_EVENT_CLOUD_DISCONNECT: {
-
+            _alink_core_disconnected_event_handler();
         }
         break;
         default:
@@ -315,10 +340,10 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info)
         return res;
     }
 
-    if (alink_core_ctx.bearer_num >= ALINK_SUPPORT_BEARER_NUM) {
+    if (alink_core_ctx.fd_num >= ALINK_SUPPORT_FD_NUM) {
         return FAIL_RETURN;
     }
-    alink_core_ctx.bearer_num++;
+    alink_core_ctx.fd_num++;
 
     {
         iotx_cm_init_param_t cm_param;
@@ -329,12 +354,12 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info)
 #else
         cm_param.protocol_type = IOTX_CM_PROTOCOL_TYPE_MQTT;
 #endif
-        cm_param.handle_event = dm_client_event_handle;
+        cm_param.handle_event = alink_cm_event_handle;
 
         alink_core_ctx.cm_fd = iotx_cm_open(&cm_param);
     }
 
-    alink_info("bearer open succeed");
+    alink_info("mqtt fd open succeed");
     alink_core_ctx.status = ALINK_CORE_STATUS_OPENED;
 
     return SUCCESS_RETURN;
@@ -343,7 +368,9 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info)
 int alink_core_close(void)
 {
 #ifdef DEVICE_MODEL_GATEWAY
-    
+    /* TODO */
+    alink_subdev_mgr_deinit();
+    alink_upstream_req_ctx_deinit();
 #endif
 
     iotx_cm_close(alink_core_ctx.cm_fd);
@@ -385,7 +412,7 @@ alink_core_status_t alink_core_get_status(void)
 }
 
 /** **/
-uint32_t alink_core_get_msgid(void)
+uint32_t alink_core_allocate_msgid(void)
 {
     uint32_t msgid;
 
@@ -417,6 +444,11 @@ int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len)
     ALINK_ASSERT_DEBUG(payload != NULL);
 
     alink_info("uri: %s", uri);
+
+    /* return error if status is not connected */
+    if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
+        return IOTX_CODE_STATE_ERROR;
+    }
 
     {
         iotx_cm_ext_params_t pub_param;
@@ -450,3 +482,10 @@ int alink_set_event_callback(iotx_linkkit_event_type_t event_id, linkkit_event_c
     return SUCCESS_RETURN;
 }
 
+/** TODO: only for test!!! **/
+void alink_downstream_mock(const char *uri_string, const char *payload)
+{
+    #ifdef TEST_MOCK
+    _alink_core_rx_event_handle(0, uri_string, strlen(uri_string), payload, strlen((const char *)payload), NULL);
+    #endif
+}

@@ -55,7 +55,7 @@ typedef struct {
 int alink_format_get_upstream_complete_uri(alink_msg_uri_index_t index, const char *query, char **p_uri);
 int alink_format_get_upstream_subdev_complete_url(alink_msg_uri_index_t index, const char *subdev_pk, const char *subdev_dn, const char *uri_query, char **p_uri);
 
-int alink_format_reslove_uri(const char *uri, uint8_t uri_len, char *pk, char *dn, char *path, alink_uri_query_t *query, uint8_t *is_subdev);
+int alink_format_reslove_uri(const char *uri, uint8_t uri_len, char *pk, char *dn, char *path, alink_uri_query_t *query);
 int alink_format_assemble_query(alink_uri_query_t *query, char *query_string, uint8_t query_len);
 
 #endif /* #ifndef __ALINK_FORMAT__ */

@@ -12,6 +12,18 @@
 
 alink_upstream_req_ctx_t alink_upstream_req_ctx = { 0 };
 
+static void _alink_upstream_req_list_lock(void)
+{
+    if (alink_upstream_req_ctx.mutex) {
+        HAL_MutexLock(alink_upstream_req_ctx.mutex);
+    }
+}
+static void _alink_upstream_req_list_unlock(void)
+{
+    if (alink_upstream_req_ctx.mutex) {
+        HAL_MutexUnlock(alink_upstream_req_ctx.mutex);
+    }
+}
 
 int alink_upstream_req_ctx_init(void)
 {
@@ -26,17 +38,26 @@ int alink_upstream_req_ctx_init(void)
     return SUCCESS_RETURN;
 }
 
-static void _alink_upstream_req_list_lock(void)
+int alink_upstream_req_ctx_deinit(void)
 {
-    if (alink_upstream_req_ctx.mutex) {
-        HAL_MutexLock(alink_upstream_req_ctx.mutex);
+    alink_upstream_req_node_t *search_node, *next;
+
+    _alink_upstream_req_list_lock();
+    list_for_each_entry_safe(search_node, next, &alink_upstream_req_ctx.req_list, list, alink_upstream_req_node_t) {
+        if (search_node->data) {
+            alink_free(search_node->data);
+        }
+        list_del(&search_node->list);
+        alink_free(search_node);
     }
-}
-static void _alink_upstream_req_list_unlock(void)
-{
+    alink_upstream_req_ctx.list_num = 0;
+    _alink_upstream_req_list_unlock();
+
     if (alink_upstream_req_ctx.mutex) {
-        HAL_MutexUnlock(alink_upstream_req_ctx.mutex);
+        HAL_MutexDestroy(alink_upstream_req_ctx.mutex);
     }
+
+    return SUCCESS_RETURN;
 }
 
 int alink_upstream_req_list_insert(uint32_t msgid, uint32_t devid, alink_msg_uri_index_t msg_uri, void *data)
@@ -141,8 +162,6 @@ int alink_upstream_req_list_delete_by_node(alink_upstream_req_node_t *node)
     return SUCCESS_RETURN;
 }
 
-
-/*  TODO, add query params!!! */
 static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t devid, 
                                             const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
 {
@@ -152,7 +171,7 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t 
     char uri_query[45] = {0};
 
     /* msgid is generated internally */
-    msgid = alink_core_get_msgid();
+    msgid = alink_core_allocate_msgid();
 
     if (query == NULL) {
         HAL_Snprintf(uri_query, sizeof(uri_query), "/?i=%d", msgid);
@@ -220,6 +239,8 @@ static int _alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const ch
 
     ALINK_ASSERT_DEBUG(query);
 
+    /* response msg doesn't need ack */
+    query->ack = '\0';
     alink_format_assemble_query(query, uri_query, sizeof(uri_query));
 
     /* get specific uri of idx */
@@ -363,7 +384,10 @@ int alink_upstream_thing_service_invoke_rsp(const char  *pk, const char *dn, con
  ***************************************************************/
 int alink_upstream_thing_raw_post_req(uint32_t devid, const uint8_t *user_data, uint32_t data_len)
 {
-    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_RAW_POST, devid, user_data, data_len, NULL);
+    alink_uri_query_t query;
+    query.format = 'b';         /* setup to binary format */
+
+    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_RAW_POST, devid, user_data, data_len, &query);
 }
 
 #if 0 /** this function is useless, as the script doesn't care about which topic the raw data come from **/

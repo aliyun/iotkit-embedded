@@ -10,7 +10,6 @@
 #include "alink_api.h"
 
 
-
 typedef enum {
     ALINK_CORE_STATUS_DEINIT = 0,
     ALINK_CORE_STATUS_INITED,
@@ -27,7 +26,7 @@ int alink_core_close(void);
 int alink_core_connect_cloud(void);
 int alink_core_yield(uint32_t timeout_ms);
 
-uint32_t alink_core_get_msgid(void);
+uint32_t alink_core_allocate_msgid(void);
 alink_core_status_t alink_core_get_status(void);
 
 int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len);

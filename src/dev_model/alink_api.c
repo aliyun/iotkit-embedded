@@ -6,7 +6,6 @@
 #include "alink_api.h"
 
 
-/** **/
 int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *meta_info)
 {
     int res = FAIL_RETURN;
