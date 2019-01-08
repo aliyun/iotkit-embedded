@@ -1,6 +1,7 @@
 #include "infra_config.h"
 
 #ifdef INFRA_STRING
+
 #include <stdio.h>
 #include <string.h>
 #include "infra_types.h"
