@@ -12,11 +12,16 @@
 #define SHA256_DIGEST_STRING_LENGTH (SHA256_DIGEST_LENGTH * 2 + 1)
 #define SHA256_SHORT_BLOCK_LENGTH   (SHA256_BLOCK_LENGTH - 8)
 
+/**
+ * \brief          SHA-256 context structure
+ */
 typedef struct {
-    uint32_t state[8];
-    uint64_t bitcount;
-    unsigned char buffer[SHA256_BLOCK_LENGTH];
+    uint32_t total[2];          /*!< number of bytes processed  */
+    uint32_t state[8];          /*!< intermediate digest state  */
+    unsigned char buffer[64];   /*!< data block being processed */
+    int is224;                  /*!< 0 => SHA-256, else SHA-224 */
 } iot_sha256_context;
+
 typedef union {
     char sptr[8];
     uint64_t lint;
@@ -70,7 +75,7 @@ void utils_sha256_update(iot_sha256_context *ctx, const unsigned char *input, ui
 void utils_sha256_finish(iot_sha256_context *ctx, uint8_t output[32]);
 
 /* Internal use */
-void utils_sha256_process(iot_sha256_context *ctx, const uint32_t *data);
+void utils_sha256_process(iot_sha256_context *ctx, const unsigned char data[64]);
 
 /**
  * \brief          Output = SHA-256( input buffer )
