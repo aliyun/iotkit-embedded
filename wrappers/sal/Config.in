@@ -5,7 +5,11 @@ config SAL_ENABLED
 choice
     prompt "SAL Configurations"
     depends on SAL_ENABLED
-    default SAL_HAL_IMPL_MK3060
+    default SAL_HAL_IMPL_NONE
+
+config SAL_HAL_IMPL_NONE
+        bool "FEATURE_SAL_HAL_IMPL_NONE"
+        default n
 
 config SAL_HAL_IMPL_MK3060
         bool "FEATURE_SAL_HAL_IMPL_MK3060"

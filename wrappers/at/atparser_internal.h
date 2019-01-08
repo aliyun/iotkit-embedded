@@ -80,6 +80,10 @@ typedef struct
 #define AT_UART_TIMEOUT_MS     1000
 #endif
 
+#ifndef AT_CMD_DATA_INTERVAL_MS
+#define AT_CMD_DATA_INTERVAL_MS   0
+#endif
+
 #define atpsr_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define atpsr_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define atpsr_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
