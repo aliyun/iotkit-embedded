@@ -220,7 +220,6 @@ static int  _mqtt_connect(uint32_t timeout)
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
     char device_name[DEVICE_NAME_LEN + 1] = {0};
     char device_secret[DEVICE_SECRET_LEN + 1] = {0};
-    char device_id[DEVICE_ID_LEN + 1] = {0};
 
     POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
 
@@ -229,27 +228,27 @@ static int  _mqtt_connect(uint32_t timeout)
 
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
-    HAL_GetDeviceID(device_id);
     HAL_GetDeviceSecret(device_secret);
 
     ARGUMENT_SANITY_CHECK(strlen(device_name), FAIL_RETURN);
     ARGUMENT_SANITY_CHECK(strlen(product_key), FAIL_RETURN);
-    ARGUMENT_SANITY_CHECK(strlen(device_id), FAIL_RETURN);
-    /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
-        CM_ERR("IOT_SetupConnInfo failed");
-        return -1;
-    }
-
-    mqtt_param->port = pconn_info->port;
-    mqtt_param->host = pconn_info->host_name;
-    mqtt_param->client_id = pconn_info->client_id;
-    mqtt_param->username = pconn_info->username;
-    mqtt_param->password = pconn_info->password;
-    mqtt_param->pub_key = pconn_info->pub_key;
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout);
+
+    do {
+        if (0 == IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
+            mqtt_param->port = pconn_info->port;
+            mqtt_param->host = pconn_info->host_name;
+            mqtt_param->client_id = pconn_info->client_id;
+            mqtt_param->username = pconn_info->username;
+            mqtt_param->password = pconn_info->password;
+            mqtt_param->pub_key = pconn_info->pub_key;
+            break;
+        }
+        CM_ERR("IOT_SetupConnInfo failed");
+        HAL_SleepMs(500);
+    } while (!utils_time_is_expired(&timer));
 
     do {
         pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)_mqtt_conncection->open_params);
@@ -264,6 +263,7 @@ static int  _mqtt_connect(uint32_t timeout)
             }
             return 0;
         }
+        HAL_SleepMs(500);
     } while (!utils_time_is_expired(&timer));
 
     iotx_cm_event_msg_t event;
