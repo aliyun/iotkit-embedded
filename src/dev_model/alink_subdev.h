@@ -21,11 +21,6 @@ typedef enum {
 
 
 
-/*  wait for test, todo */
-/* void _subdev_hash_destroy(subdev_hash_table_t *hash_table, uint32_t size); */
-
-
-
 /** **/
 int alink_subdev_mgr_init(void);
 int alink_subdev_mgr_deinit(void);

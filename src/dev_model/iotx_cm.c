@@ -91,7 +91,7 @@ int iotx_cm_connect(int fd, uint32_t timeout)
                 inited_conn_num--;
             }
 #endif
-        } 
+        }
     }
 
     return ret;

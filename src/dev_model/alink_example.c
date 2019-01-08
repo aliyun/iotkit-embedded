@@ -26,6 +26,9 @@ typedef struct {
     int master_devid;
     int cloud_connected;
     int master_initialized;
+    void *example_thread_yield;
+    void *example_thread1;
+    void *example_thread2;
 } user_example_ctx_t;
 
 
@@ -160,6 +163,47 @@ int user_permit_join_event_handler(const char *product_key, const int time)
 }
 
 
+void *example_yield_thread(void *args)
+{
+    /*user_example_ctx_t *user_example_ctx = user_example_get_ctx();*/
+
+    while (1) {
+        IOT_Linkkit_Yield(200);
+    }
+
+    return NULL;
+}
+
+void *example_thread1(void *args)
+{
+    int res;
+
+    while (1) {
+        HAL_SleepMs(200);
+        res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
+        EXAMPLE_TRACE("post property, res = %d", res);
+
+        _mock_property_post_rsp();
+    }
+
+    return NULL;
+}
+
+void *example_thread2(void *args)
+{
+    int res;
+
+    while (1) {
+        HAL_SleepMs(200);
+        res = IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
+        EXAMPLE_TRACE("post event, res = %d", res);
+
+        _mock_event_post_rsp();
+    }
+
+    return NULL; 
+}
+
 
 int main(int argc, char **argv)
 {
@@ -275,16 +319,42 @@ int main(int argc, char **argv)
     }
     #endif
 
+    res = HAL_ThreadCreate(&user_example_ctx->example_thread_yield, example_yield_thread, NULL, NULL, NULL);
+    if (res < 0) {
+        EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
+        IOT_Linkkit_Close(user_example_ctx->master_devid);
+        return -1;
+    }
+
+    res = HAL_ThreadCreate(&user_example_ctx->example_thread1, example_thread1, NULL, NULL, NULL);
+    if (res < 0) {
+        EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
+        IOT_Linkkit_Close(user_example_ctx->master_devid);
+        return -1;
+    }
+
+    res = HAL_ThreadCreate(&user_example_ctx->example_thread2, example_thread2, NULL, NULL, NULL);
+    if (res < 0) {
+        EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
+        IOT_Linkkit_Close(user_example_ctx->master_devid);
+        return -1;
+    }    
+
 
     while (1) {
-        IOT_Linkkit_Yield(200);
+        /* IOT_Linkkit_Yield(200); */
 
         HAL_SleepMs(2000);
 
+        /*
         IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
         IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
+        */
 
-        if (++cnt > 20) {
+        if (++cnt > 5) {
+            HAL_ThreadDelete(user_example_ctx->example_thread_yield);
+            HAL_ThreadDelete(user_example_ctx->example_thread1);
+             HAL_ThreadDelete(user_example_ctx->example_thread2);
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }
@@ -293,7 +363,7 @@ int main(int argc, char **argv)
     printf("alink stop\r\n");
 }
 
-
+/** mock function **/
 static void _mock_property_put_req(void)
 {
     char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/put/?i=1234567&a=y";

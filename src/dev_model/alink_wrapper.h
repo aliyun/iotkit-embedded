@@ -15,6 +15,8 @@
 #include "infra_sha256.h"
 #include "infra_string.h"
 
+#include "wrappers_defs.h"
+
 int8_t HAL_GetPartnerID(char *pid_str);
 int8_t HAL_GetModuleID(char *mid_str);
 int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
@@ -34,6 +36,13 @@ void HAL_MutexDestroy(void *mutex);
 void HAL_MutexLock(void *mutex);
 void HAL_MutexUnlock(void *mutex);
 
+int HAL_ThreadCreate(
+                     void **thread_handle,
+                     void *(*work_routine)(void *),
+                     void *arg,
+                     hal_os_thread_param_t *hal_os_thread_param,
+                     int *stack_used);
+void HAL_ThreadDelete(void *thread_handle);                     
 
 #endif /* #ifndef __ALINK_WRAPPER_H__ */
 

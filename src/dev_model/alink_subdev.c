@@ -79,7 +79,7 @@ int alink_subdev_mgr_init(void)
     subdev_mgr_htable.subdev_num = 0;
     subdev_mgr_htable.devid_alloc = 0;
 
-    subdev_mgr_htable.hash_table = alink_malloc(sizeof(*subdev_mgr_htable.hash_table) * subdev_mgr_htable.table_size);
+    subdev_mgr_htable.hash_table = alink_malloc(sizeof(subdev_hash_table_t *) * subdev_mgr_htable.table_size);
     if (subdev_mgr_htable.hash_table == NULL) {
         HAL_MutexDestroy(subdev_mgr_htable.mutex);
         subdev_mgr_htable.mutex = NULL;
@@ -97,6 +97,7 @@ int alink_subdev_mgr_deinit(void)
     _alink_subdev_mgr_lock();
 
     _subdev_hash_destroy(subdev_mgr_htable.hash_table, subdev_mgr_htable.table_size);
+    alink_free(subdev_mgr_htable.hash_table);
     subdev_mgr_htable.table_size = 0;
     subdev_mgr_htable.subdev_num = 0;
     subdev_mgr_htable.devid_alloc = 0;
@@ -374,7 +375,6 @@ void _subdev_hash_destroy(subdev_hash_table_t *hash_table, uint32_t size)
             alink_free(node);
         }
     }
-    alink_free(table);
 }
 
 
