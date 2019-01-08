@@ -20,7 +20,7 @@ Set OUTPUT_TMPDIR=.O
 Set INFRA_DIR=%OUTPUT_DIR%\eng\infra
 Set WRAPPERS_DIR=%OUTPUT_DIR%\eng\wrappers
 Set EXAMPLES_DIR=%OUTPUT_DIR%\eng\examples
-Set WRAPPER_DOC=tools\doc\wrapper
+Set WRAPPER_DOC=tools\misc\wrapper
 
 Set TMP_VARIABLE_DIR=%OUTPUT_DIR%\eng\tmp
 
@@ -251,3 +251,4 @@ for /f "delims=" %%i in ('%SED% -n "1,1p" %TMP_VARIABLE_DIR%\WRAPPER_FUNC_RETURN
 )
 
 GOTO:EOF
+

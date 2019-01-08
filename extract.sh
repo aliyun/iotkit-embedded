@@ -6,7 +6,7 @@ OUTPUT_TMPDIR=.O
 INFRA_DIR=${OUTPUT_DIR}/eng/infra
 WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
 EXAMPLES_DIR=${OUTPUT_DIR}/eng/examples
-WRAPPER_DOC=./tools/doc/wrapper
+WRAPPER_DOC=./tools/misc/wrapper
 
 MODULES=( \
 "gen_infra" \
@@ -197,3 +197,4 @@ done
 
 # Genrate wrapper.c
 gen_wrapper_c "${MACRO_LIST}"
+
