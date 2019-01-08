@@ -156,7 +156,7 @@ static int _http_send_header(httpclient_t *client, const char *host, const char 
 #endif
     ret = _utils_fill_tx_buffer(client, send_buf, &len, buf, strlen(buf));
     if (ret) {
-        // httpc_err("Could not write request");
+        /* httpc_err("Could not write request"); */
         return ERROR_HTTP_CONN;
     }
 
@@ -314,9 +314,10 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
         unsigned int dead_loop_count = 0;
         unsigned int extend_count = 0;
         do {
+            int res;
             /* move previous fetched data into response_buf */
             len_to_write_to_respons_buf = HTTPCLIENT_MIN(data_len_actually_received, client_data->retrieve_len);
-            int res = _utils_fill_rx_buf(&written_response_buf_len, len_to_write_to_respons_buf, client_data, data);
+            res = _utils_fill_rx_buf(&written_response_buf_len, len_to_write_to_respons_buf, client_data, data);
             if (HTTP_RETRIEVE_MORE_DATA == res) {
                 return HTTP_RETRIEVE_MORE_DATA;
             }
@@ -355,6 +356,7 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
     iotx_time_t timer;
     char *tmp_ptr, *ptr_body_end;
     int new_trf_len, ret;
+    char *crlf_ptr;
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
@@ -369,7 +371,7 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
        <blank line> (CRLF)
 
       [<response-body>] */
-    char *crlf_ptr = strstr(data, "\r\n");
+    crlf_ptr = strstr(data, "\r\n");
     if (crlf_ptr == NULL) {
         httpc_err("\r\n not found");
         return ERROR_HTTP_UNRESOLVED_DNS;

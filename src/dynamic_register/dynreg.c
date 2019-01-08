@@ -187,8 +187,10 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     http_client_data.response_buf_len = HTTP_RESPONSE_PAYLOAD_LEN;
 
 #ifdef SUPPORT_TLS
+    {
         extern const char *iotx_ca_crt;
         pub_key = iotx_ca_crt;
+    }
 #endif
 
     res = httpclient_common(&http_client, url, 443, pub_key, HTTPCLIENT_POST, 10000, &http_client_data);
