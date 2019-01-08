@@ -250,11 +250,16 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
                        char *replybuf, int bufsize,
                        const atcmd_config_t *atcmdconfig)
 {
+    int intval_ms = AT_CMD_DATA_INTERVAL_MS;
+
     if (at_send_no_reply(cmd, cmdlen, delimiter) < 0) {
         return -1;
     }
 
     if (data && datalen) {
+        if (intval_ms > 0)
+            HAL_SleepMs(intval_ms);
+
         if (at_send_no_reply(data, datalen, false) < 0) {
             return -1;
         }
@@ -307,6 +312,7 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
                        const atcmd_config_t *atcmdconfig)
 { 
     int ret = 0;
+    int intval_ms = AT_CMD_DATA_INTERVAL_MS;
     at_task_t *tsk;
 
     if (inited == 0) {
@@ -377,6 +383,9 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     if (data && datalen > 0) {
+        if (intval_ms > 0)
+            HAL_SleepMs(intval_ms);
+
         if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen, at._timeout, true)) != 0) {
             atpsr_err("uart send delimiter failed");
             goto end;

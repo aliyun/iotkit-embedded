@@ -32,6 +32,10 @@ extern "C" {
 #define AT_UART_MODE         MODE_TX_RX
 #define AT_UART_TIMEOUT_MS   1000
 
+#if defined(SAL_HAL_IMPL_SIM800)
+#define AT_CMD_DATA_INTERVAL_MS 50
+#endif
+
 #ifdef MULTI_TASK_MODE
 #define AT_SINGLE_TASK    0
 #else
