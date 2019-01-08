@@ -30,10 +30,9 @@ static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient);
 static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type,
                                    iotx_mc_topic_handle_t *handler,
                                    iotx_mc_subsribe_info_t **node);
-#if !(WITH_MQTT_SUB_SHORTCUT)
+
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2);
-#endif
 static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2);
 
@@ -666,10 +665,27 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     HAL_MutexUnlock(c->lock_write_buf);
 
 #if (WITH_MQTT_SUB_SHORTCUT)
-    HAL_MutexLock(c->lock_generic);
-    handler->next = c->first_sub_handle;
-    c->first_sub_handle = handler;
-    HAL_MutexUnlock(c->lock_generic);
+    {
+        uint8_t dup = 0;
+        iotx_mc_topic_handle_t *h;
+
+        HAL_MutexLock(c->lock_generic);
+        for (h = c->first_sub_handle; h; h = h->next) {
+            /* If subscribe the same topic and callback function, then ignore */
+            if (0 == iotx_mc_check_handle_is_identical(h, handler)) {
+                mqtt_warning("dup sub,topic = %s", topicFilter);
+                dup = 1;
+            }
+        }
+        if (dup == 0) {
+            handler->next = c->first_sub_handle;
+            c->first_sub_handle = handler;
+        } else {
+            mqtt_free(handler->topic_filter);
+            mqtt_free(handler);
+        }
+        HAL_MutexUnlock(c->lock_generic);
+    }
 #endif
     _dump_wait_list(c, "sub");
 
@@ -1912,9 +1928,8 @@ static int iotx_mc_check_state_normal(iotx_mc_client_t *c)
     return 0;
 }
 
-#if !(WITH_MQTT_SUB_SHORTCUT)
 /* return: 0, identical; NOT 0, different */
-static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
+static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2)
 {
     if (!messageHandlers1 || !messageHandler2) {
@@ -1960,6 +1975,18 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
         }
     }
 #endif
+
+    return 0;
+}
+
+/* return: 0, identical; NOT 0, different */
+static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
+        iotx_mc_topic_handle_t *messageHandler2)
+{
+    if (iotx_mc_check_handle_is_identical_ex(messageHandlers1, messageHandler2) != 0) {
+        return 1;
+    }
+
     if (messageHandlers1->handle.h_fp != messageHandler2->handle.h_fp) {
         return 1;
     }
@@ -1968,58 +1995,6 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
     if (messageHandlers1->handle.pcontext != messageHandler2->handle.pcontext) {
         return 1;
     }
-
-    return 0;
-}
-#endif
-
-/* return: 0, identical; NOT 0, different */
-static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
-        iotx_mc_topic_handle_t *messageHandler2)
-{
-    if (!messageHandlers1 || !messageHandler2) {
-        return 1;
-    }
-
-    if (!(messageHandlers1 ->topic_filter) || !(messageHandler2->topic_filter)) {
-        return 1;
-    }
-
-#if !(WITH_MQTT_ZIP_TOPIC)
-    int topicNameLen = strlen(messageHandlers1->topic_filter);
-
-    if (topicNameLen != strlen(messageHandler2->topic_filter)) {
-        return 1;
-    }
-
-    if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
-        return 1;
-    }
-#else
-    int i;
-
-    if (messageHandlers1->topic_type != messageHandler2->topic_type) {
-        return 1;
-    }
-
-    if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
-        for (i = 0; i < MQTT_MD5_PATH_DEFAULT_LEN; i++) {
-            if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[1]) {
-                return 1;
-            }
-        }
-    } else {
-        int topicNameLen = strlen(messageHandlers1->topic_filter);
-
-        if (topicNameLen != strlen(messageHandler2->topic_filter)) {
-            return 1;
-        }
-
-        if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
-            return 1;
-        }
-    }
-#endif
 
     return 0;
 }
