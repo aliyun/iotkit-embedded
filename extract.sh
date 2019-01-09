@@ -14,6 +14,7 @@ MODULES=( \
 "gen_mqtt" \
 "gen_sal" \
 "gen_dynreg" \
+"gen_atparser" \
 )
 
 gen_eng_dir() {
@@ -159,7 +160,7 @@ gen_mqtt() {
 
 gen_sal() {
     M_SAL_ENABLED=$(echo "${1}" | grep -w 'SAL_ENABLED')
-    M_SAL_HAL_IMPL_ENABLED=$(echo "${1}" | grep -w 'SAL_HAL_IMPL_ENABLED')
+    M_SAL_HAL_IMPL=$(echo "${1}" | grep 'SAL_HAL_IMPL')
 
     [[ ! ${M_SAL_ENABLED} ]] && return
 
@@ -167,20 +168,27 @@ gen_sal() {
     echo -e "$(echo "${1}" | grep -E 'SAL')\n"
 
     # extract wrappers/sal and wrappers/at
-    SRC_SAL=$([[ ${M_SAL_ENABLED} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "sal" -type d)
+    SRC_SAL=$(find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "sal" -type d)
     [[ ! ${SRC_SAL} ]] && return
 
     mkdir -p ${OUTPUT_DIR}/eng/sal/
 
     find ${SRC_SAL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${OUTPUT_DIR}/eng/sal/
-    find ${SRC_SAL} -name src -type d | xargs -i cp -rf {} ${OUTPUT_DIR}/eng/sal
-    find ${SRC_SAL} -name include -type d | xargs -i cp -rf {} ${OUTPUT_DIR}/eng/sal
 
-    [[ ! ${M_SAL_HAL_IMPL_ENABLED} ]] && return
+    echo "${M_SAL_HAL_IMPL}" | sed -n 's/SAL_HAL_IMPL_//p' | xargs -i find ${SRC_SAL} -iname {}.c | xargs -i cp -f {} ${OUTPUT_DIR}/eng/sal/
+}
 
-    find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${OUTPUT_DIR}/eng/sal
-    find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}
-    rm -f ${WRAPPERS_DIR}/at/uart.c
+gen_atparser() {
+    M_ATPARSER_ENABLED=$(echo "${1}" | grep -w 'ATPARSER_ENABLED')
+
+    [[ ! ${M_ATPARSER_ENABLED} ]] && return
+
+    echo "extract atparser module..."
+    echo -e "$(echo "${1}" | grep -E 'ATPARSER')\n"
+
+    SRC_ATPARSER=$(find ./external_libs \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d)
+
+    find ${SRC_ATPARSER} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${OUTPUT_DIR}/eng/sal/
 }
 
 # Generate Directory
