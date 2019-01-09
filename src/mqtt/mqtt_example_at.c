@@ -5,6 +5,7 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 #include "infra_config.h"
+#include "atparser.h"
 
 #ifdef SAL_ENABLED
 #include "sal_export.h"

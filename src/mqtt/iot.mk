@@ -8,7 +8,12 @@ ifneq (,$(filter -DMQTT_DEFAULT_IMPL,$(CFLAGS)))
 LIB_SRCS_PATTERN += mqtt_impl/*.c mqtt_impl/*/*.c
 endif
 
+
+ifneq (,$(filter -DATPARSER_ENABLED,$(CFLAGS)))
+LDFLAGS         += -liot_at -liot_sdk -liot_hal -liot_tls
+else
 LDFLAGS         += -liot_sdk -liot_hal -liot_tls
+endif
 
 TARGET          := mqtt-example
 

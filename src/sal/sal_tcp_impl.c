@@ -198,4 +198,4 @@ int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     /* It will get error code on next calling */
     return (0 != len_recv) ? len_recv : err_code;
 }
-#endif
+
