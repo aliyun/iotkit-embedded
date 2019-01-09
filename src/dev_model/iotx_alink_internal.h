@@ -24,11 +24,11 @@
 #define ALINK_DEVICE_SELF_ID        (0)
 
 
-/* TOOD: test only */
+/* TOOD: test only 
 #ifndef DEVICE_MODEL_GATEWAY
 #define DEVICE_MODEL_GATEWAY
 #endif
-
+*/
 
 #ifdef INFRA_LOG
 #include "infra_log.h"
@@ -58,6 +58,7 @@
 
 #define UTILS_HASH_TABLE_ITERATOR_ENABLE        (1) 
 #define ALINK_DEBUG                             (1)
+
 #define TEST_MOCK                               /* TODO, only for test!!! */
 
 #if ALINK_DEBUG
@@ -145,7 +146,6 @@ typedef enum {
 typedef enum {
     ALINK_ERROR_CODE_200            = 200,
     ALINK_ERROR_CODE_400            = 400,
-
 } alink_protocol_error_code_t;
 
 

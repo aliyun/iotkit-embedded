@@ -20,12 +20,14 @@
 #define ALINK2_EVENT_POST_DATA      "{\"ErrorCode\": 400}"
 #define ALINK2_DEVINFO_POST_DATA    "[{\"attrKey\":\"devinfo_k\",\"attrValue\":\"devinfo_v\"}]"
 
+#define ALINK2_PROP_POST_DATA_TMP   "{\"intProperty\": 12,\"arrayProperty\":[1, 2, 3],\"doubleProperty\": 3.12345697}"
 
 /** type define **/
 typedef struct {
     int master_devid;
     int cloud_connected;
     int master_initialized;
+    int thread_running;
     void *example_thread_yield;
     void *example_thread1;
     void *example_thread2;
@@ -42,6 +44,7 @@ extern void subdev_hash_iterator(void);
 extern int _subdev_hash_remove(uint32_t devid);
 
 /** mock **/
+#if (0)
 static void _mock_property_put_req(void);
 static void _mock_property_post_rsp(void);
 static void _mock_event_post_rsp(void);
@@ -50,9 +53,8 @@ static void _mock_raw_put_req(void);
 static void _mock_raw_post_rsp(void);
 static void _mock_register_post_rsp(void);
 static void _mock_login_post_rsp(void);
-
 static void _mock_subdev_property_put_req(void);
-
+#endif
 
 
 static user_example_ctx_t *user_example_get_ctx(void)
@@ -162,12 +164,12 @@ int user_permit_join_event_handler(const char *product_key, const int time)
     return 0;
 }
 
-
+#if 0
 void *example_yield_thread(void *args)
 {
-    /*user_example_ctx_t *user_example_ctx = user_example_get_ctx();*/
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
 
-    while (1) {
+    while (user_example_ctx->thread_running) {
         IOT_Linkkit_Yield(200);
     }
 
@@ -177,8 +179,9 @@ void *example_yield_thread(void *args)
 void *example_thread1(void *args)
 {
     int res;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
 
-    while (1) {
+    while (user_example_ctx->thread_running) {
         HAL_SleepMs(200);
         res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
         EXAMPLE_TRACE("post property, res = %d", res);
@@ -192,8 +195,9 @@ void *example_thread1(void *args)
 void *example_thread2(void *args)
 {
     int res;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
 
-    while (1) {
+    while (user_example_ctx->thread_running) {
         HAL_SleepMs(200);
         res = IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
         EXAMPLE_TRACE("post event, res = %d", res);
@@ -203,6 +207,7 @@ void *example_thread2(void *args)
 
     return NULL; 
 }
+#endif
 
 
 int main(int argc, char **argv)
@@ -210,25 +215,28 @@ int main(int argc, char **argv)
     user_example_ctx_t *user_example_ctx;
     uint32_t cnt = 0;
     int res = FAIL_RETURN;
+    #if 0
     static iotx_dev_meta_info_t dev_info = {
         .product_key = "a1OFrRjV8nz",
         .product_secret = "EfFYTuX1GjMDvw6l",
         .device_name = "develop_01",
         .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
     };
-
-    static iotx_dev_meta_info_t subdev_info = {
-        .product_key = "a1OFrRjV8nz",
+    #else
+    static iotx_dev_meta_info_t dev_info = {
+        .product_key = "a1h3anaxUXV",
         .product_secret = "EfFYTuX1GjMDvw6l",
-        .device_name = "develop_02",
-        .device_secret = ""
+        .device_name = "481eaba4658643fbaa77972821ab15",
+        .device_secret = "FXqFoOiVveqXPElSJQM7m8KM1QfY4c1c"
     };
+    #endif
 
     printf("alink start\r\n");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     user_example_ctx = user_example_get_ctx();
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
+    user_example_ctx->thread_running = 1;
 
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
@@ -251,6 +259,7 @@ int main(int argc, char **argv)
 
 
     /*** internel test start ***/
+    #if 0
     _mock_property_put_req();
 
     res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
@@ -272,6 +281,13 @@ int main(int argc, char **argv)
     EXAMPLE_TRACE("post devinfo, res = %d", res);
 
     {
+        static iotx_dev_meta_info_t subdev_info = {
+            .product_key = "a1OFrRjV8nz",
+            .product_secret = "EfFYTuX1GjMDvw6l",
+            .device_name = "develop_02",
+            .device_secret = ""
+        };
+
         uint32_t i;
         uint32_t devid[2];
 
@@ -297,8 +313,6 @@ int main(int argc, char **argv)
     _mock_subdev_property_put_req();
     /*** internel test end ***/
 
-
-    #if 0
     {
         uint32_t devid[160];
         int i = 0;
@@ -317,7 +331,6 @@ int main(int argc, char **argv)
 
         subdev_hash_iterator();
     }
-    #endif
 
     res = HAL_ThreadCreate(&user_example_ctx->example_thread_yield, example_yield_thread, NULL, NULL, NULL);
     if (res < 0) {
@@ -339,22 +352,27 @@ int main(int argc, char **argv)
         IOT_Linkkit_Close(user_example_ctx->master_devid);
         return -1;
     }    
-
+    #endif
 
     while (1) {
-        /* IOT_Linkkit_Yield(200); */
+        IOT_Linkkit_Yield(200);
 
         HAL_SleepMs(2000);
 
-        /*
-        IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
-        IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
-        */
+        
+        IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
+        /*IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));*/
+        
 
-        if (++cnt > 5) {
+        if (++cnt > 10) {
+            user_example_ctx->thread_running = 0;
+            HAL_SleepMs(1000);
+
+            #if 0
             HAL_ThreadDelete(user_example_ctx->example_thread_yield);
             HAL_ThreadDelete(user_example_ctx->example_thread1);
              HAL_ThreadDelete(user_example_ctx->example_thread2);
+            #endif
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }
@@ -363,6 +381,7 @@ int main(int argc, char **argv)
     printf("alink stop\r\n");
 }
 
+#if 0
 /** mock function **/
 static void _mock_property_put_req(void)
 {
@@ -436,7 +455,6 @@ static void _mock_login_post_rsp(void)
     alink_downstream_mock(topic, payload);
 }
 
-#if 0
 static void _mock_login_delete_rsp(void)
 {
     char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/login/delete/?i=6&r=200";

@@ -7,6 +7,8 @@
 
 #include "infra_types.h"
 
+#define ALINK_URI_PATH_LEN_MAX          50
+
 typedef enum {
     ALINK_URI_UP_REQ_PROPERTY_POST = 0,
     ALINK_URI_UP_RSP_PROPERTY_PUT,

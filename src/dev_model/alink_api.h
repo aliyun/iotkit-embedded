@@ -124,6 +124,7 @@ typedef int (*linkkit_topo_list_reply_cb_t)();      /* no implement this version
 
 typedef int (*linkkit_permit_join_cb_t)(const char *productKey, const int timeout);     /* no implement this version */
 
+/* master device register to cloud successfuly, or subdevice login successfuly */
 typedef int (*linkkit_inited_cb_t)(uint32_t devid);
 
 typedef int (*linkkit_fata_event_cb_t)(int type, const char *version);      /* no implement this version */
@@ -257,7 +258,7 @@ typedef enum {
     IOTX_CODE_ALREADY_OPENED        = -4008L,
     IOTX_CODE_TOO_MANY_SUBDEV       = -4009L,
     IOTX_CODE_MUTEX_CREATE_ERROR    = -4010L,
-    IOTX_CODE_SUBDEV_NOT_EXIST       = -4011L,
+    IOTX_CODE_SUBDEV_NOT_EXIST      = -4011L,
     IOTX_CODE_CREATE_MUTEX_FAILED   = -4012L,
     IOTX_CODE_SUBDEV_IDX_OVERFLOW   = -4013L,
     IOTX_CODE_STATUS_ERROR          = -4014L,

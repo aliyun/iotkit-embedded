@@ -9,7 +9,7 @@
 #define ALINK_REQ_LIST_NUM_MAX      50
 
 
-
+#if (CONFIG_SDK_THREAD_COST != 0)
 alink_upstream_req_ctx_t alink_upstream_req_ctx = { 0 };
 
 static void _alink_upstream_req_list_lock(void)
@@ -161,6 +161,8 @@ int alink_upstream_req_list_delete_by_node(alink_upstream_req_node_t *node)
     _alink_upstream_req_list_unlock();
     return SUCCESS_RETURN;
 }
+#endif
+
 
 static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t devid, 
                                             const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
@@ -539,6 +541,7 @@ int alink_upstream_subdev_register_post_req(alink_subdev_id_list_t *subdev_list)
 
     alink_info("subdev reg_post msgid = %d", res);
 
+#if (CONFIG_SDK_THREAD_COST != 0)
     /* TODO: subdev num should < 10 */
     {
         upstream_req_data_subdv_list_t *req_data = alink_malloc(sizeof(upstream_req_data_subdv_list_t));
@@ -550,6 +553,7 @@ int alink_upstream_subdev_register_post_req(alink_subdev_id_list_t *subdev_list)
         /* todo */
         alink_upstream_req_list_insert(res, 0, ALINK_URI_UP_REQ_SUB_REGISTER_POST, req_data);   /* res is msgid if post succeed */
     }
+#endif
 
     return res;
 }

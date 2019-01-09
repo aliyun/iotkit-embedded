@@ -99,6 +99,105 @@ const char alink_proto_key_timeoutSec[] = "timeoutSec";
 const char alink_proto_key_url[] = "url";
 
 
+#if (CONFIG_SDK_THREAD_COST != 0)
+
+#define ALINK_MSG_LIST_NUM_MAX              50
+
+
+
+#define ALINK_EVENT_PROPERTY_SET            0x01
+
+
+typedef union {
+
+} alink_msg_t;
+
+typedef struct {
+    uint32_t devid;
+    uint8_t type;
+    alink_msg_t msg;
+    list_head_t list;
+} alink_msg_event_t;
+
+typedef struct {
+    void *mutex;
+    uint32_t msg_num;
+    list_head_t msg_list;
+} alink_downstream_ctx_t;
+
+
+alink_downstream_ctx_t alink_msg_list_ctx = {0};
+
+static void _alink_msg_list_lock(void)
+{
+    if (alink_msg_list_ctx.mutex) {
+        HAL_MutexLock(alink_msg_list_ctx.mutex);
+    }
+}
+
+static void _alink_msg_list_unlock(void)
+{
+    if (alink_msg_list_ctx.mutex) {
+        HAL_MutexUnlock(alink_msg_list_ctx.mutex);
+    }
+}
+
+int alink_msg_list_init(void)
+{
+    alink_msg_list_ctx.mutex = HAL_MutexCreate();
+    if (alink_msg_list_ctx.mutex == NULL) {
+        return IOTX_CODE_CREATE_MUTEX_FAILED;
+    }
+
+    alink_msg_list_ctx.msg_num = 0;
+    INIT_LIST_HEAD(&alink_msg_list_ctx.msg_list);
+    return SUCCESS_RETURN;
+}
+
+void alink_msg_list_deinit(void)
+{
+    alink_msg_event_t *node, *next;
+
+    _alink_msg_list_lock();
+
+    list_for_each_entry_safe(node, next, &alink_msg_list_ctx.msg_list, list, alink_msg_event_t) {
+        list_del(&node->list);
+        /* TODO: if data exist */
+        alink_free(node);
+    }
+
+    alink_msg_list_ctx.msg_num = 0;
+    INIT_LIST_HEAD(&alink_msg_list_ctx.msg_list);
+
+    _alink_msg_list_unlock();
+
+    if (alink_msg_list_ctx.mutex) {
+        HAL_MutexDestroy(alink_msg_list_ctx.mutex);
+    }
+}
+
+int alink_msg_list_insert(uint32_t devid, alink_msg_event_t *msg_type)
+{
+    _alink_msg_list_lock();
+
+    if (alink_msg_list_ctx.msg_num >= ALINK_MSG_LIST_NUM_MAX) {
+        _alink_msg_list_unlock();
+        return FAIL_RETURN;
+    }
+
+    list_add_tail(&msg_type->list, &alink_msg_list_ctx.msg_list);
+    alink_msg_list_ctx.msg_num++;
+
+    _alink_msg_list_unlock();
+}
+
+
+
+
+
+#endif
+
+
 
 
 static uint8_t _uri_to_hash(const char *uri, uint8_t uri_len)
@@ -239,9 +338,6 @@ void utils_uri_hash_destroy(uri_hash_table_t *table)
     }
 }
 
-/**
- * 
- */
 int alink_downstream_hash_table_init(void)
 {
     return utils_uri_hash_init(c_alink_down_uri_handle_map, ALINK_URI_HANDLE_PAIR_NUM, uri_hash_table);
@@ -263,11 +359,9 @@ alink_downstream_handle_func_t alink_downstream_get_handle_func(const char *uri_
     return search_node->pair->handle_func;
 }
 
-
 /***************************************************************
  * device model management downstream message
  ***************************************************************/
-/** **/
 static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
@@ -295,7 +389,6 @@ static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char 
 #endif
 }
 
-/** **/
 static void alink_downstream_thing_property_set_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
@@ -303,7 +396,6 @@ static void alink_downstream_thing_property_set_req(uint32_t devid, const char *
     char *req_data;
 
     alink_info("property set req recv");
-    /* TODO: parameter check??? */
     
     res = alink_utils_json_parse((const char *)payload, len, cJSON_Object, &root);
     if (res < SUCCESS_RETURN) {
@@ -319,7 +411,7 @@ static void alink_downstream_thing_property_set_req(uint32_t devid, const char *
         return;
     }
 
-    alink_debug("property get req data = %s", req_data);    
+    alink_debug("property set req data = %s", req_data);    
 
 #if (CONFIG_SDK_THREAD_COST == 0)
     {
@@ -453,7 +545,6 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
     }
 #else
 
-
 #endif
     alink_free(service_id);
     alink_free(service_params);
@@ -464,8 +555,6 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
  ***************************************************************/
 static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    /* TODO: parameter check??? */
-    
 #if (CONFIG_SDK_THREAD_COST == 0)
     /* just invoke the user callback funciton */
     linkkit_rawdata_rx_cb_t handle_func;
@@ -576,16 +665,18 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
 
         #if (CONFIG_SDK_THREAD_COST == 0)
         /* just invoke user callback func */
+
+
+
         #else
         /* modify req list flag */
-
+        {
             alink_upstream_req_node_t *node;
             alink_info("register rsp recv");
 
             if (devid != 0) {
                 return;
             }
-
 
             alink_upstream_req_list_search(query->id, &node);
             if (node == NULL) {
@@ -596,6 +687,7 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
             alink_info("rsp devid = %d", node->devid);
 
             alink_upstream_req_list_delete_by_node(node);
+        }
         #endif
     }
 }
@@ -612,113 +704,47 @@ static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const ch
         return;
     }
 
-    alink_debug("alink response = %.*s", root.value_length, root.value);
+    /* it should be "{}" now */
+    alink_debug("alink response = %.*s", root.value_length, root.value);    
 
 #if (CONFIG_SDK_THREAD_COST == 0)
+    /* TODO: don't know which subdev unregistered, no user api, get unregister req list,  */
     {
-        /* get unregister req list */
+        
     }
 #else
 #endif
 }
 
+#if 0
+static void _subdev_login_rsp_payload_parse_handle(const uint8_t *payload, uint16_t len)
+{
+
+}
+#endif
+
 static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    int res = 0, idx = 0;
-    uint32_t subdev_id = 0;
-    lite_cjson_t root, array, object, item_data, item_temp;
-    int code = 0;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
+    int res = FAIL_RETURN;
+    lite_cjson_t root;
 
-    alink_info("login rsp recv");
-
-    if (query->code != 200) {   /* TODO: register error, send to api  */
-        alink_info("return code error");
-        return;
-    }
-
+    alink_info("unregister rsp recv");
+    
     res = alink_utils_json_parse((const char *)payload, len, cJSON_Object, &root);
     if (res < SUCCESS_RETURN) {
         return;
     }
 
-    res = alink_utils_json_object_item(&root, alink_proto_key_subList, sizeof(alink_proto_key_subList)-1, 
-                                        cJSON_Array, &array);
-    if (res < SUCCESS_RETURN) {
-        return;
-    }
-
-    for (idx = 0; idx < array.size; idx++) {
-        subdev_id = 0;
-        code = 0;
-        memset(product_key, 0, IOTX_PRODUCT_KEY_LEN);
-        memset(device_name, 0, IOTX_DEVICE_NAME_LEN);
-        memset(&item_temp, 0, sizeof(lite_cjson_t));
-
-        /* get array item */
-        res = lite_cjson_array_item(&array, idx, &object);
-        if (res < SUCCESS_RETURN || !lite_cjson_is_object(&object)) {
-            continue;
-        }
-
-        /* get code */
-        res = alink_utils_json_object_item(&object, alink_proto_key_code, sizeof(alink_proto_key_code)-1, cJSON_Number, &item_temp);
-        if (res < SUCCESS_RETURN) {
-            continue;
-        }
-        code = item_temp.value_int;
-        if (code != 200) {
-            continue;
-        }
-
-        /* get data object */
-        res = alink_utils_json_object_item(&object, alink_proto_key_data, sizeof(alink_proto_key_data)-1, cJSON_Object, &item_data);
-        if (res < SUCCESS_RETURN) {
-            continue;
-        }
-
-        /* get product key */
-        res = alink_utils_json_object_item(&item_data, alink_proto_key_productKey, sizeof(alink_proto_key_productKey)-1, cJSON_String, &item_temp);
-        if (res < SUCCESS_RETURN) {
-            continue;
-        }
-        memcpy(product_key, item_temp.value, item_temp.value_length);
-        memset(&item_temp, 0, sizeof(lite_cjson_t));
-
-        /* get device name */
-        res = alink_utils_json_object_item(&item_data, alink_proto_key_deviceName, sizeof(alink_proto_key_deviceName)-1, cJSON_String, &item_temp);
-        if (res < SUCCESS_RETURN) {
-            continue;
-        }
-        memcpy(device_name, item_temp.value, item_temp.value_length);
-        memset(&item_temp, 0, sizeof(lite_cjson_t));
-
-        alink_info("login rsp, idx = %d", idx);
-        alink_info("login rsp, pk = %s", product_key);
-        alink_info("login rsp, dn = %s", device_name);
-        
-        /* get subdev id */
-        res = alink_subdev_get_devid_by_pkdn(product_key, device_name, &subdev_id);
-        if (res != SUCCESS_RETURN) {
-            continue;
-        }
-
-        alink_info("login rsp, devid = %d", subdev_id);
-
-        /* update subdev status */
-        alink_subdev_update_status(subdev_id, ALINK_SUBDEV_STATUS_ONLINE);
+    /* it should be "{}" now */
+    alink_debug("alink response = %.*s", root.value_length, root.value);    
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-        /* just invoke user callback function */
-        {
-            linkkit_inited_cb_t handle_func;
-            handle_func = (linkkit_inited_cb_t)alink_get_event_callback(ITE_INITIALIZE_COMPLETED);
-            if (handle_func != NULL) {
-                handle_func(subdev_id);
-            }
-        }
+    /* TODO: don't know which subdev unregistered, no user api, get unregister req list,  */
+    {
+        
+    }
 #else
+    {
         alink_upstream_req_node_t *node;
         if (devid != 0) {
             return;
@@ -733,8 +759,8 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
         alink_info("rsp devid = %d", node->devid);
 
         alink_upstream_req_list_delete_by_node(node);
-#endif
     }
+#endif
 }
 
 static void alink_downstream_subdev_logout_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)

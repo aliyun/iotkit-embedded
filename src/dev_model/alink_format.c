@@ -241,13 +241,12 @@ int alink_format_assemble_query(alink_uri_query_t *query, char *query_string, ui
     return SUCCESS_RETURN;
 }
 
-/*  TODO: not good enough!!! */
 int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_query_t *query)
 {
     const char *p = uri + *uri_len;
     uint8_t len = 0;
     uint8_t i = 0;
-    char temp[QUERY_STRING_LEN_MAX] = {0};        /* TODO, malloc */
+    char temp[QUERY_STRING_LEN_MAX] = {0};
 
     while (--p != uri) {
         len++;
@@ -292,7 +291,7 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
         }
     }
 
-    /* set default value if absence */
+    /* set default value if value absence */
     if (query->ack == '\0') {
         query->ack = 'y';
     }
@@ -304,14 +303,15 @@ int alink_format_resolve_query(const char *uri, uint8_t *uri_len, alink_uri_quer
 }
 
 /**
- * no include char '/', level start from 1, not support the last level, todo!!!
+ * no include char '/', level start from 1, not support the last level, todo, overflow!!!
  */
-int _alink_get_uri_level_value(const char *uri, uint8_t uri_len, uint8_t level, char *value)
+int _alink_get_uri_level_value(const char *uri, uint8_t uri_len, uint8_t level, char *value, uint32_t value_len)
 {
     uint8_t idx = 0;
     uint8_t cnt = 0;
     char *p1 = NULL;
     char *p2 = NULL;
+    uint32_t len;
 
     ALINK_ASSERT_DEBUG(uri != NULL);
     ALINK_ASSERT_DEBUG(uri_len != 0);
@@ -333,7 +333,13 @@ int _alink_get_uri_level_value(const char *uri, uint8_t uri_len, uint8_t level, 
         return FAIL_RETURN;
     }    
 
-    memcpy(value, p1, p2-p1-1); 
+    len = p2-p1-1;
+    if (len >= value_len) {
+        alink_err("get uri level value error");
+        return FAIL_RETURN;
+    }
+
+    memcpy(value, p1, len); 
     value[p2-p1-1] = 0;
 
     return SUCCESS_RETURN;
@@ -379,15 +385,15 @@ int alink_format_reslove_uri(const char *uri, uint8_t uri_len, char *pk, char *d
     alink_format_resolve_query(uri, &uri_len_temp, query);
 
     /* check if ext/proxy */
-    _alink_get_uri_level_value(uri, uri_len_temp, 5, value);
+    _alink_get_uri_level_value(uri, uri_len_temp, 5, value, sizeof(value));
     value_len = strlen(value);
 
     if (value_len == strlen("proxy") && !memcmp(value, "proxy", value_len))
     {
-        _alink_get_uri_level_value(uri, uri_len_temp, 6, pk);
-        _alink_get_uri_level_value(uri, uri_len_temp, 7, dn);
+        _alink_get_uri_level_value(uri, uri_len_temp, 6, pk, IOTX_PRODUCT_KEY_LEN);
+        _alink_get_uri_level_value(uri, uri_len_temp, 7, dn, IOTX_DEVICE_NAME_LEN);
 
-        _alink_get_uri_level_value(uri, uri_len_temp, 3, path);
+        _alink_get_uri_level_value(uri, uri_len_temp, 3, path, ALINK_URI_PATH_LEN_MAX);
         memcpy(path+strlen(path), "/", 1);
 
         _alink_get_uri_level_pointer(uri, uri_len_temp, 8, &p);
