@@ -28,7 +28,8 @@ Set MODULES=gen_infra ^
 gen_dev_sign ^
 gen_mqtt ^
 gen_sal ^
-gen_dynreg
+gen_dynreg ^
+gen_atparser
 
 :: Generate Directory
 call:gen_eng_dir
@@ -154,28 +155,37 @@ GOTO:EOF
 Set M_SAL_ENABLED=
 for /f "delims=" %%I in ('%GREP% -w "SAL_ENABLED" %TMP_VARIABLE_DIR%\MACRO_LIST') do (Set M_SAL_ENABLED=%%I)
 
-Set M_SAL_HAL_IMPL_ENABLED=
-for /f "delims=" %%I in ('%GREP% -w "SAL_HAL_IMPL_ENABLED" %TMP_VARIABLE_DIR%\MACRO_LIST') do (Set M_SAL_HAL_IMPL_ENABLED=%%I)
+%GREP% "SAL_HAL_IMPL" %TMP_VARIABLE_DIR%\MACRO_LIST > %TMP_VARIABLE_DIR%\MACRO_SAL_HAL_IMPL
 
 if defined M_SAL_ENABLED (%ECHO% -e "\nextract sal module...") else (GOTO:EOF)
 %GREP% -E "SAL" %TMP_VARIABLE_DIR%\MACRO_LIST
 
 :: extract wrappers/sal and wrappers/at
 Set SRC_SAL=
-for /f "delims=" %%I in ('%FIND% wrappers ^( -path %OUTPUT_DIR% -o -path %OUTPUT_TMPDIR% ^) -prune -type f -o -iname "sal" -type d') do (Set SRC_SAL=%%I)
+for /f "delims=" %%I in ('%FIND% src ^( -path %OUTPUT_DIR% -o -path %OUTPUT_TMPDIR% ^) -prune -type f -o -iname "sal" -type d') do (Set SRC_SAL=%%I)
 if NOT defined SRC_SAL (GOTO:EOF)
 
-%MKDIR% -p %WRAPPERS_DIR%/sal
+%MKDIR% -p %OUTPUT_DIR%/eng/sal
 
-%FIND% %SRC_SAL% -maxdepth 1 -name *.[ch] | %GREP% -v example | %XARGS% -i %CP% -f {} %WRAPPERS_DIR%\sal\
-%FIND% %SRC_SAL% -name src -type d | %XARGS% -i %CP% -rf {} %WRAPPERS_DIR%\sal
-%FIND% %SRC_SAL% -name include -type d | %XARGS% -i %CP%  -rf {} %WRAPPERS_DIR%\sal
+%FIND% %SRC_SAL% -maxdepth 1 -name *.[ch] | %GREP% -v example | %XARGS% -i %CP% -f {} %OUTPUT_DIR%\eng\sal
 
-if NOT defined M_SAL_HAL_IMPL_ENABLED (GOTO:EOF)
+%SED% -n "s/SAL_HAL_IMPL_//p" %TMP_VARIABLE_DIR%\MACRO_SAL_HAL_IMPL | %XARGS% -i %FIND% %SRC_SAL% -iname {}.c | %XARGS% -i %CP% -f {} %OUTPUT_DIR%/eng/sal
 
-%FIND% %SRC_SAL% -name hal-impl -type d | %XARGS% -i %CP% -rf {} %WRAPPERS_DIR%\sal
-%FIND% wrappers ^( -path %OUTPUT_DIR% -o -path %OUTPUT_TMPDIR% ^) -prune -type f -o -iname "at" -type d | %XARGS% -i %CP% -rf {} %WRAPPERS_DIR%
-%RM% -f %WRAPPERS_DIR%\at\uart.c
+GOTO:EOF
+
+:gen_atparser
+
+Set M_ATPARSER_ENABLED=
+for /f "delims=" %%I in ('%GREP% -w "ATPARSER_ENABLED" %TMP_VARIABLE_DIR%\MACRO_LIST') do (Set M_ATPARSER_ENABLED=%%I)
+
+if defined M_ATPARSER_ENABLED (%ECHO% -e "\nextract atparser module...") else (GOTO:EOF)
+%GREP% -E "ATPARSER" %TMP_VARIABLE_DIR%\MACRO_LIST
+
+Set SRC_ATPARSER=
+for /f "delims=" %%I in ('%FIND% external_libs ^( -path %OUTPUT_DIR% -o -path %OUTPUT_TMPDIR% ^) -prune -type f -o -iname "at" -type d') do (Set SRC_ATPARSER=%%I)
+if NOT defined SRC_ATPARSER (GOTO:EOF)
+
+%FIND% %SRC_ATPARSER% -maxdepth 1 -name *.[ch] | %GREP% -v example | %XARGS% -i %CP% -f {} %OUTPUT_DIR%\eng\sal
 
 GOTO:EOF
 
@@ -213,6 +223,16 @@ if defined M_MQTT_COMM_ENABLED (
 
     if defined M_MAL_ENABLED (
         %SED% -i "/wrapper_mqtt/d" %TMP_VARIABLE_DIR%\WRAPPER_FUNCS
+    )
+)
+
+if defined M_SAL_ENABLED (
+    %SED% -i "/HAL_TCP/d" %TMP_VARIABLE_DIR%\WRAPPER_FUNCS
+)
+
+for /f "delims=" %%I in (%TMP_VARIABLE_DIR%\MACRO_SAL_HAL_IMPL) do (
+    if NOT "%%I"=="SAL_HAL_IMPL_NONE" (
+        %SED% -i "/HAL_SAL/d" %TMP_VARIABLE_DIR%\WRAPPER_FUNCS
     )
 )
 
