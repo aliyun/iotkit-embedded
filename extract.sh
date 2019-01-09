@@ -167,18 +167,18 @@ gen_sal() {
     echo -e "$(echo "${1}" | grep -E 'SAL')\n"
 
     # extract wrappers/sal and wrappers/at
-    SRC_SAL=$([[ ${M_SAL_ENABLED} ]] && find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "sal" -type d)
+    SRC_SAL=$([[ ${M_SAL_ENABLED} ]] && find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "sal" -type d)
     [[ ! ${SRC_SAL} ]] && return
 
-    mkdir -p ${WRAPPERS_DIR}/sal/
+    mkdir -p ${OUTPUT_DIR}/eng/sal/
 
-    find ${SRC_SAL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${WRAPPERS_DIR}/sal/
-    find ${SRC_SAL} -name src -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
-    find ${SRC_SAL} -name include -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+    find ${SRC_SAL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${OUTPUT_DIR}/eng/sal/
+    find ${SRC_SAL} -name src -type d | xargs -i cp -rf {} ${OUTPUT_DIR}/eng/sal
+    find ${SRC_SAL} -name include -type d | xargs -i cp -rf {} ${OUTPUT_DIR}/eng/sal
 
     [[ ! ${M_SAL_HAL_IMPL_ENABLED} ]] && return
 
-    find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}/sal
+    find ${SRC_SAL} -name hal-impl -type d | xargs -i cp -rf {} ${OUTPUT_DIR}/eng/sal
     find ./wrappers \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d | xargs -i cp -rf {} ${WRAPPERS_DIR}
     rm -f ${WRAPPERS_DIR}/at/uart.c
 }
