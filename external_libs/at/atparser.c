@@ -8,7 +8,6 @@
 
 #include "at_wrapper.h"
 
-#include "uart.h"
 #include "atparser.h"
 #include "atparser_internal.h"
 
@@ -47,7 +46,7 @@ static int at_init_uart()
 {
     at_uart_configure(&at_uart);
 
-    if (hal_uart_init(&at_uart) != 0) {
+    if (HAL_UART_Init(&at_uart) != 0) {
         return -1;
     }
 
@@ -223,7 +222,7 @@ static int at_sendto_lower(uart_dev_t *uart, void *data, uint32_t size,
                          size, timeout, ackreq);
 #else
     (void) ackreq;
-    ret = hal_uart_send(uart, data, size, timeout);
+    ret = HAL_UART_Send(uart, data, size, timeout);
 #endif
 
     return ret;
@@ -238,7 +237,7 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
     ret = hdlc_uart_recv(&hdlc_decode_ctx, uart, data, expect_size,
                          recv_size, timeout);
 #else
-    ret = hal_uart_recv_II(uart, data, expect_size, recv_size, timeout);
+    ret = HAL_UART_Recv(uart, data, expect_size, recv_size, timeout);
 #endif
 
     return ret;
@@ -461,10 +460,8 @@ static int at_getc(char *c, int timeout_ms)
     if (ret != 0) {
 #ifdef WORKAROUND_DEVELOPERBOARD_DMA_UART
         if (ret == 1) {
-            atpsr_warning("--->AT dma fail, restart!\n");
-            hal_uart_finalize(at._pstuart);
+            HAL_UART_Deinit(at._pstuart);
             at_init_uart();
-            atpsr_warning("<----AT dma fail, restart!\n");
         }
 #endif
         return -1;

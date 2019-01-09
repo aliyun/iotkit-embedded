@@ -25,17 +25,3 @@ else
 LIB_SRCS_PATTERN += mqtt/mal/mdal_mal_hal_default.c
 endif
 endif
-
-ifneq (,$(filter -DSAL_ENABLED, $(CFLAGS)))
-LIB_SRCS_PATTERN += sal/src/*.c
-
-ifneq (,$(filter -DSAL_HAL_IMPL_MK3060, $(CFLAGS)))
-LIB_SRCS_PATTERN += at/*.c
-LIB_SRCS_PATTERN += sal/hal-impl/mk3060.c
-endif
-
-ifneq (,$(filter -DSAL_HAL_IMPL_SIM800, $(CFLAGS)))
-LIB_SRCS_PATTERN += at/*.c
-LIB_SRCS_PATTERN += sal/hal-impl/sim800.c
-endif
-endif

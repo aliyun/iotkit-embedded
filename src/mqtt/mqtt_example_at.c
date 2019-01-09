@@ -147,15 +147,18 @@ int at_connect_wifi(char *ssid, char *pwd)
 
     sprintf(conn_str, "AT+WJAP=%s,%s", ssid, pwd);
 
+#if defined(ATPARSER_ENABLED)
     if (at_send_wait_reply(conn_str, strlen(conn_str), true, NULL,
                            0, out, sizeof(out), NULL) < 0){
         return -1;
     }
+#endif
 
     if (strstr(out, "ERROR") != NULL) {
         return -1;
     }
     HAL_SleepMs(wifi_got_ip_delay);
+
 
     return 0;
 }
@@ -163,9 +166,7 @@ int at_connect_wifi(char *ssid, char *pwd)
 void at_comm_init()
 {
 #if defined(SAL_ENABLED) || defined(MAL_ENABLED)
-#if defined(SAL_HAL_IMPL_SIM800) || \
-    defined(SAL_HAL_IMPL_MK3060) || \
-    defined(MAL_ICA_ENABLED)
+#if defined(ATPARSER_ENABLED)
     if (at_init() < 0) {
         printf("Error: at init failed!\n");
     }

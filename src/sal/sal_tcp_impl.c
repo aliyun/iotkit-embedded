@@ -5,12 +5,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <sal_export.h>
+
+#include "infra_config.h"
+#include "sal_export.h"
+#include "sal_wrapper.h"
 #ifdef ATPARSER_ENABLED
-#include <atparser.h>
+#include "atparser.h"
 #endif
 
-extern uint64_t HAL_UptimeMs(void);
 static uint64_t _get_time_ms(void)
 {
     return HAL_UptimeMs();
@@ -29,7 +31,7 @@ static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+uintptr_t SAL_TCP_Establish(const char *host, uint16_t port)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -40,28 +42,28 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     memset(&hints, 0, sizeof(hints));
 
-    printf("establish tcp connection with server(host='%s', port=[%u])\n", host, port);
+    HAL_Printf("establish tcp connection with server(host='%s', port=[%u])\n", host, port);
 
     hints.ai_family = AF_INET; /* only IPv4 */
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
-    sprintf(service, "%u", port);
+    HAL_Snprintf(service, sizeof(service), "%u", port);
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
+        HAL_Printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
         return -1;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
-            printf("socket type error\n");
+            HAL_Printf("socket type error\n");
             rc = -1;
             continue;
         }
 
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
-            printf("create socket error\n");
+            HAL_Printf("create socket error\n");
             rc = -1;
             continue;
         }
@@ -72,41 +74,41 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
         }
 
         close(fd);
-        printf("connect error\n");
+        HAL_Printf("connect error\n");
         rc = -1;
     }
 
     if (-1 == rc) {
-        printf("fail to establish tcp\n");
+        HAL_Printf("fail to establish tcp\n");
     } else {
-        printf("success to establish tcp, fd=%d\n", rc);
+        HAL_Printf("success to establish tcp, fd=%d\n", rc);
     }
     freeaddrinfo(addrInfoList);
 
     return (uintptr_t)rc;
 }
 
-int HAL_TCP_Destroy(uintptr_t fd)
+int SAL_TCP_Destroy(uintptr_t fd)
 {
     int rc;
 
     /* Shutdown both send and receive operations. */
     rc = shutdown((int) fd, 2);
     if (0 != rc) {
-        printf("shutdown error\n");
+        HAL_Printf("shutdown error\n");
         return -1;
     }
 
     rc = close((int) fd);
     if (0 != rc) {
-        printf("closesocket error\n");
+        HAL_Printf("closesocket error\n");
         return -1;
     }
 
     return 0;
 }
 
-int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t SAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret;
     uint32_t len_sent;
@@ -122,14 +124,14 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
         if (ret > 0) {
             len_sent += ret;
         } else if (0 == ret) {
-            printf("No data be sent\n");
+            HAL_Printf("No data be sent\n");
         } else {
             if (EINTR == errno) {
-                printf("EINTR be caught\n");
+                HAL_Printf("EINTR be caught\n");
                 continue;
             }
 
-            printf("send fail, ret = send() = %d\n", ret);
+            HAL_Printf("send fail, ret = send() = %d\n", ret);
             net_err = 1;
             break;
         }
@@ -142,7 +144,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     }
 }
 
-int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_recv;
@@ -171,22 +173,22 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {
-                printf("connection is closed\n");
+                HAL_Printf("connection is closed\n");
                 err_code = -1;
                 break;
             } else {
                 if (EINTR == errno) {
-                    printf("EINTR be caught\n");
+                    HAL_Printf("EINTR be caught\n");
                     continue;
                 }
-                printf("recv fail\n");
+                HAL_Printf("recv fail\n");
                 err_code = -2;
                 break;
             }
         } else if (0 == ret) {
             break;
         } else {
-            printf("select-recv fail\n");
+            HAL_Printf("select-recv fail\n");
             err_code = -2;
             break;
         }

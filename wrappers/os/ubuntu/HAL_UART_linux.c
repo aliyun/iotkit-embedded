@@ -13,7 +13,7 @@
 #include <assert.h>
 
 #include "atparser_opts.h"
-#include "uart.h"
+#include "at_wrapper.h"
 
 static int at_uart_fd = -1;
 
@@ -62,7 +62,7 @@ static int read_and_discard_all_data(const int fd)
     }
 }
 
-int32_t hal_uart_init(uart_dev_t *uart)
+int32_t HAL_UART_Init(uart_dev_t *uart)
 {
     int fd;
     struct termios t_opt;
@@ -121,10 +121,6 @@ int32_t hal_uart_init(uart_dev_t *uart)
         break;
     }
     t_opt.c_lflag &= ~(ECHO | ECHOE | ISIG | ICANON);
-#if 0
-    if (uart->config.flow_control == FLOW_CONTROL_DISABLED)
-        t_opt.c_cflag &= ~CRTSCTS;
-#endif
 
     /**
      * AT is going to use a binary protocol, so make sure to
@@ -148,13 +144,13 @@ int32_t hal_uart_init(uart_dev_t *uart)
     return 0;
 }
 
-int32_t hal_uart_finalize(uart_dev_t *uart)
+int32_t HAL_UART_Deinit(uart_dev_t *uart)
 {
     if (uart->port == AT_UART_PORT) close(at_uart_fd);
     return 0;
 }
 
-int32_t hal_uart_send(uart_dev_t *uart, const void *data,
+int32_t HAL_UART_Send(uart_dev_t *uart, const void *data,
                       uint32_t size, uint32_t timeout)
 {
     uint32_t ret, rmd = size;
@@ -178,7 +174,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data,
     return 0;
 }
 
-int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
+int32_t HAL_UART_Recv(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
     int fd, n;
@@ -197,5 +193,3 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     return 0;
 }
-
-

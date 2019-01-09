@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "infra_config.h"
+
 #define AT_UART_PORT 1
 #define AT_UART_LINUX_DEV "/dev/ttyUSB0"
 
@@ -36,10 +38,10 @@ extern "C" {
 #define AT_CMD_DATA_INTERVAL_MS 50
 #endif
 
-#ifdef MULTI_TASK_MODE
-#define AT_SINGLE_TASK    0
-#else
+#ifdef AT_SINGLE_TASK_ENABLED
 #define AT_SINGLE_TASK    1
+#else
+#define AT_SINGLE_TASK    0
 #endif
 
 #ifdef __cplusplus

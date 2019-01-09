@@ -5,15 +5,16 @@
 #ifndef _SAL_OPTS_H_
 #define _SAL_OPTS_H_
 
+#include "infra_config.h"
+
 #define SAL_OPT_ENABLED       1
 #define SAL_OPT_DISABLED      0
 
-#ifdef MULTI_TASK_MODE
 /* Socket API select support. */
-#define SAL_SELECT_SUPPORT            SAL_OPT_ENABLED
-#else
-/* Socket API select support. */
+#ifdef AT_SINGLE_TASK_ENABLED
 #define SAL_SELECT_SUPPORT            SAL_OPT_DISABLED
+#else
+#define SAL_SELECT_SUPPORT            SAL_OPT_ENABLED
 #endif
 
 /* UDP client support. */
