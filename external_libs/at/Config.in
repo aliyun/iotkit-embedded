@@ -1,0 +1,12 @@
+config ATPARSER_ENABLED
+    bool "FEATURE_ATPARSER_ENABLED"
+    default n
+
+menu "ATPARSER Configurations"
+      depends on ATPARSER_ENABLED
+
+    config AT_SINGLE_TASK_ENABLED
+        bool "FEATURE_AT_SINGLE_TASK_ENABLED"
+        default y
+
+endmenu

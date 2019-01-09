@@ -6,10 +6,6 @@ config SAL_ENABLED
 menu "SAL Configurations"
     depends on SAL_ENABLED
 
-config ATPARSER_ENABLED
-    bool "FEATURE_ATPARSER_ENABLED"
-    default n
-
 choice
     prompt "SAL HAL Configurations"
     depends on ATPARSER_ENABLED
@@ -28,8 +24,8 @@ config SAL_HAL_IMPL_SIM800
         default n
 endchoice
 
-config AT_SINGLE_TASK_ENABLED
-    bool "FEATURE_AT_SINGLE_TASK_ENABLED"
-    default y
+config SOCKET_SELECT_ENABLED
+    bool "FEATURE_SOCKET_SELECT_ENABLED"
+    default n
 
 endmenu

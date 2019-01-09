@@ -11,10 +11,10 @@
 #define SAL_OPT_DISABLED      0
 
 /* Socket API select support. */
-#ifdef AT_SINGLE_TASK_ENABLED
-#define SAL_SELECT_SUPPORT            SAL_OPT_DISABLED
-#else
+#ifdef SOCKET_SELECT_ENABLED
 #define SAL_SELECT_SUPPORT            SAL_OPT_ENABLED
+#else
+#define SAL_SELECT_SUPPORT            SAL_OPT_DISABLED
 #endif
 
 /* UDP client support. */
