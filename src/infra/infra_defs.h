@@ -18,6 +18,7 @@
 #endif
 
 #define IOTX_SDK_VERSION                "3.0.0"
+#define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
 #define IOTX_PRODUCT_KEY_LEN            (20)
 #define IOTX_DEVICE_NAME_LEN            (32)

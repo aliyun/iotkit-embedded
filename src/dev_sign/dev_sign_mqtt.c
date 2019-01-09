@@ -47,6 +47,9 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     uint8_t sign[32] = {0};
     const char *sign_fmt = "clientId%sdeviceName%sproductKey%stimestamp%s";
     const char *clientid_fmt = "%s|securemode=%d,timestamp=%s,signmethod=hmacsha256,gw=%d,ext=%d,ver=c-sdk-%s|";
+#ifdef DEVICE_MODEL_ENABLE
+    const char *alink_version = ",v="IOTX_ALINK_VERSION;
+#endif
 
     if (region >= IOTX_MQTT_DOMAIN_NUMBER || meta == NULL) {
         return -1;
@@ -128,6 +131,9 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         memcpy(signout->clientid+strlen(signout->clientid),timestamp,strlen(timestamp));
         memcpy(signout->clientid+strlen(signout->clientid),",signmethod=hmacsha256,gw=0,ext=0,ver=c-sdk-",strlen(",signmethod=hmacsha256,gw=0,ext=0,ver=c-sdk-"));
         memcpy(signout->clientid+strlen(signout->clientid),IOTX_SDK_VERSION,strlen(IOTX_SDK_VERSION));
+#ifdef DEVICE_MODEL_ENABLE
+        memcpy(signout->clientid+strlen(signout->clientid),alink_version,strlen(alink_version));
+#endif        
         memcpy(signout->clientid+strlen(signout->clientid),"|",strlen("|"));
 
         signout->port = g_infra_mqtt_domain[region].port;
