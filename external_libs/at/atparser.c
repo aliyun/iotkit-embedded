@@ -46,7 +46,7 @@ static int at_init_uart()
 {
     at_uart_configure(&at_uart);
 
-    if (HAL_UART_Init(&at_uart) != 0) {
+    if (HAL_AT_Uart_Init(&at_uart) != 0) {
         return -1;
     }
 
@@ -222,7 +222,7 @@ static int at_sendto_lower(uart_dev_t *uart, void *data, uint32_t size,
                          size, timeout, ackreq);
 #else
     (void) ackreq;
-    ret = HAL_UART_Send(uart, data, size, timeout);
+    ret = HAL_AT_Uart_Send(uart, data, size, timeout);
 #endif
 
     return ret;
@@ -237,7 +237,7 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
     ret = hdlc_uart_recv(&hdlc_decode_ctx, uart, data, expect_size,
                          recv_size, timeout);
 #else
-    ret = HAL_UART_Recv(uart, data, expect_size, recv_size, timeout);
+    ret = HAL_AT_Uart_Recv(uart, data, expect_size, recv_size, timeout);
 #endif
 
     return ret;
