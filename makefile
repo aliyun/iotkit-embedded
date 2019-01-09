@@ -22,6 +22,7 @@ $(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
+SUBDIRS                 += external_libs/at
 SUBDIRS                 += external_libs/refs
 
 include $(RULE_DIR)/rules.mk
