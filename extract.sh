@@ -54,13 +54,24 @@ gen_infra() {
 gen_wrapper_c() {
     M_MQTT_COMM_ENABLED=$(echo "${1}" | grep -w 'MQTT_COMM_ENABLED')
     M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
+    M_SAL_ENABLED=$(echo "${1}" | grep -w 'SAL_ENABLED')
     M_MAL_ENABLED=$(echo "${1}" | grep -w 'MAL_ENABLED')
+    M_SAL_HAL_IMPL=$(echo "${1}" | grep 'SAL_HAL_IMPL')
 
     WRAPPER_FUNCS=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "HAL_.*(" {} | sed 's/(//g' | sort -u)"\n"
     WRAPPER_FUNCS+=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "wrapper_.*(" {} | sed 's/(//g' | sort -u)
 
     [[ ${M_MQTT_COMM_ENABLED} && ( ${M_MQTT_DEFAULT_IMPL} || ${M_MAL_ENABLED} ) ]] && \
     WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/wrapper_mqtt/!{p}')
+
+    [[ ${M_SAL_ENABLED} ]] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/HAL_TCP/!{p}')
+
+    M_SAL_HAL_IMPL=$(echo "${M_SAL_HAL_IMPL}" | sed '/SAL_HAL_IMPL_NONE/d')
+
+    for i in ${M_SAL_HAL_IMPL}
+    do
+        [ "${i}" != "SAL_HAL_IMPL_NONE" ] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/HAL_SAL/!{p}') && break
+    done
 
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
