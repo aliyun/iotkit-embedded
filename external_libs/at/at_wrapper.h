@@ -119,7 +119,7 @@ typedef struct {
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t HAL_UART_Init(uart_dev_t *uart);
+int32_t HAL_AT_Uart_Init(uart_dev_t *uart);
 
 /**
  * Deinitialises a UART interface
@@ -128,7 +128,7 @@ int32_t HAL_UART_Init(uart_dev_t *uart);
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t HAL_UART_Deinit(uart_dev_t *uart);
+int32_t HAL_AT_Uart_Deinit(uart_dev_t *uart);
 
 /**
  * Transmit data on a UART interface
@@ -141,7 +141,7 @@ int32_t HAL_UART_Deinit(uart_dev_t *uart);
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t HAL_UART_Send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout);
+int32_t HAL_AT_Uart_Send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout);
 
 /**
  * Receive data on a UART interface
@@ -155,8 +155,8 @@ int32_t HAL_UART_Send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t HAL_UART_Recv(uart_dev_t *uart, void *data, uint32_t expect_size,
-                      uint32_t *recv_size, uint32_t timeout);
+int32_t HAL_AT_Uart_Recv(uart_dev_t *uart, void *data, uint32_t expect_size,
+                         uint32_t *recv_size, uint32_t timeout);
 
 #ifdef __cplusplus
 }

@@ -2,11 +2,20 @@ config ATPARSER_ENABLED
     bool "FEATURE_ATPARSER_ENABLED"
     default n
 
-menu "ATPARSER Configurations"
-      depends on ATPARSER_ENABLED
+choice
+    prompt "SAL HAL Configurations"
+    depends on ATPARSER_ENABLED
+    default SAL_HAL_IMPL_NONE
 
-    config AT_SINGLE_TASK_ENABLED
-        bool "FEATURE_AT_SINGLE_TASK_ENABLED"
-        default y
+config SAL_HAL_IMPL_NONE
+        bool "FEATURE_SAL_HAL_IMPL_NONE"
+        default n
 
-endmenu
+config SAL_HAL_IMPL_MK3060
+        bool "FEATURE_SAL_HAL_IMPL_MK3060"
+        default n
+
+config SAL_HAL_IMPL_SIM800
+        bool "FEATURE_SAL_HAL_IMPL_SIM800"
+        default n
+endchoice

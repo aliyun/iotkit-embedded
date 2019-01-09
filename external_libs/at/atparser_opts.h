@@ -38,10 +38,10 @@ extern "C" {
 #define AT_CMD_DATA_INTERVAL_MS 50
 #endif
 
-#ifdef AT_SINGLE_TASK_ENABLED
-#define AT_SINGLE_TASK    1
-#else
+#ifdef WITH_OS_ENABLED
 #define AT_SINGLE_TASK    0
+#else
+#define AT_SINGLE_TASK    1
 #endif
 
 #ifdef __cplusplus
