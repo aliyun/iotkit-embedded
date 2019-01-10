@@ -131,8 +131,6 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 #endif    
 
 #endif
-
-alink_upstream_req_ctx_init();  /* TODO: test only */
     
     return SUCCESS_RETURN;
 }

@@ -20,13 +20,7 @@
 #ifndef __IOTX_ALINK_INTERNAL_H__
 #define __IOTX_ALINK_INTERNAL_H__
 
-#define ALINK_DEVICE_SELF_ID        (0)
 
-
-/* TOOD: test only */
-#ifndef DEVICE_MODEL_GATEWAY
-#define DEVICE_MODEL_GATEWAY
-#endif
 
 #ifdef INFRA_LOG
 #include "infra_log.h"
@@ -53,7 +47,6 @@
 #define alink_free(ptr)                 {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-
 #define UTILS_HASH_TABLE_ITERATOR_ENABLE        (1) 
 #define ALINK_DEBUG                             (1)
 
@@ -70,7 +63,6 @@
     #define ALINK_ASSERT_DEBUG(expr)
 #endif
 
-
 #ifndef CONFIG_MQTT_TX_MAXLEN
     #define CONFIG_MQTT_TX_MAXLEN           (1024)
 #endif
@@ -80,21 +72,15 @@
 #endif
 
 #ifndef CONFIG_SDK_THREAD_COST
-    #define CONFIG_SDK_THREAD_COST          (1)
+    #define CONFIG_SDK_THREAD_COST          (0)
 #endif
 
+#define ALINK_DEVICE_SELF_ID                (0)
 
 typedef enum {
-    INTERNAL_EVNET_CLOUD_CONNECTED = 0
-
-} alink_internal_evnet_type_t;
-
-
-typedef enum {
-    ALINK_ERROR_CODE_200            = 200,
-    ALINK_ERROR_CODE_400            = 400,
+    ALINK_ERROR_CODE_200    = 200,
+    ALINK_ERROR_CODE_400    = 400,
 } alink_protocol_error_code_t;
-
 
 typedef enum {
     ALINK_DEV_TYPE_MASTER,

@@ -197,7 +197,7 @@ void alink_msg_list_deinit(void)
 
     list_for_each_entry_safe(node, next, &alink_msg_list_ctx.msg_list, list, alink_msg_event_t) {
         list_del(&node->list);
-        /* TODO: release case by case */
+        /* TODO: release node case by case */
         alink_free(node);
     }
 
@@ -212,7 +212,7 @@ void alink_msg_list_deinit(void)
     }
 }
 
-int alink_msg_list_insert(uint32_t devid, alink_msg_event_t *msg_type)
+int alink_msg_list_insert(alink_msg_event_t *msg_type)
 {
     if (alink_msg_list_ctx.status == ALINK_MSG_LIST_DEINITED) {
         return FAIL_RETURN;
@@ -295,15 +295,23 @@ int alink_msg_event_list_handler(void)
                 res = handle_func(msg->devid, (const char *)msg_data->payload, msg_data->len);
             }
 
+            /* send response if ack is y */
             if (msg->query.ack == 'y') {
+                char pk[IOTX_PRODUCT_KEY_LEN] = {0};
+                char dn[IOTX_DEVICE_NAME_LEN] = {0};
 
-                /* send upstream response 
-                alink_uri_query_t query;
-                query.id = msg->msgid;
-                query.code = (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400;
+                /* quite embarrassed, i have to get pk,dn again */
+                if (msg->devid != 0) {
+                    alink_subdev_get_pkdn_by_devid(msg->devid, pk, dn);
+                }
+                msg->query.code = (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400;
 
-                alink_upstream_thing_property_set_rsp(pk, dn, &query);       */
+                alink_upstream_thing_property_set_rsp(pk, dn, &msg->query);
             }
+
+            /* release the msg */
+            alink_free(msg->msg.property_put_req.payload);
+            alink_free(msg);
         } break;
 
         case ALINK_EVENT_PROPERTY_GET_REQ: {
@@ -558,6 +566,10 @@ static void alink_downstream_thing_property_set_req(uint32_t devid, const char *
         alink_upstream_thing_property_set_rsp(pk, dn, query);
     }
 #else
+
+
+
+
 #endif
 }
 
