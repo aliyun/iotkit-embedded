@@ -16,7 +16,7 @@
 
 
 static iotx_cm_connection_t *_mqtt_conncection = NULL;
-
+static iotx_sign_mqtt_t g_mqtt_sign;
 static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
 static int  _mqtt_connect(uint32_t timeout);
 static int _mqtt_publish(iotx_cm_ext_params_t *params, const char *topic, const char *payload,
@@ -191,7 +191,6 @@ static int  _mqtt_connect(uint32_t timeout)
     void *pclient;
     iotx_time_t timer;
     iotx_mqtt_param_t mqtt_param;
-    iotx_sign_mqtt_t mqtt_sign;
     iotx_dev_meta_info_t dev_info;
 
     if (_mqtt_conncection == NULL) {
@@ -204,16 +203,16 @@ static int  _mqtt_connect(uint32_t timeout)
     HAL_GetDeviceSecret(dev_info.device_secret);
 
     /* Device AUTH */
-    if (SUCCESS_RETURN != IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &dev_info, &mqtt_sign)) {         /* TODO: can't get region params!!! */
+    if (SUCCESS_RETURN != IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &dev_info, &g_mqtt_sign)) {         /* TODO: can't get region params!!! */
         cm_err("sign failed");
         return FAIL_RETURN;
     }
 
-    mqtt_param.port = mqtt_sign.port;
-    mqtt_param.host = mqtt_sign.hostname;
-    mqtt_param.client_id = mqtt_sign.clientid;
-    mqtt_param.username = mqtt_sign.username;
-    mqtt_param.password = mqtt_sign.password;
+    mqtt_param.port = g_mqtt_sign.port;
+    mqtt_param.host = g_mqtt_sign.hostname;
+    mqtt_param.client_id = g_mqtt_sign.clientid;
+    mqtt_param.username = g_mqtt_sign.username;
+    mqtt_param.password = g_mqtt_sign.password;
 
     mqtt_param.pub_key = NULL;
     mqtt_param.clean_session = CM_MQTT_IS_CLEAN_SESSION;
@@ -231,19 +230,11 @@ static int  _mqtt_connect(uint32_t timeout)
         pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)&mqtt_param);
 
         if (pclient != NULL) {
-            HAL_Free(mqtt_sign.hostname);
-            HAL_Free(mqtt_sign.username);
-            HAL_Free(mqtt_sign.password);
-            HAL_Free(mqtt_sign.clientid);
             _mqtt_conncection->context = pclient;
             return 0;
         }
     } while (!utils_time_is_expired(&timer));
 
-    HAL_Free(mqtt_sign.hostname);
-    HAL_Free(mqtt_sign.username);
-    HAL_Free(mqtt_sign.password);
-    HAL_Free(mqtt_sign.clientid);
     cm_err("mqtt connect failed");
 
     return -1;

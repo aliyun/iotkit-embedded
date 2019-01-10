@@ -173,10 +173,6 @@ int main(int argc, char *argv[])
     res = example_subscribe(pclient);
     if (res < 0) {
         IOT_MQTT_Destroy(&pclient);
-        HAL_Free(sign_mqtt.hostname);
-        HAL_Free(sign_mqtt.username);
-        HAL_Free(sign_mqtt.password);
-        HAL_Free(sign_mqtt.clientid);
         return -1;
     }
 

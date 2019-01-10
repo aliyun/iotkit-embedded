@@ -234,6 +234,17 @@ typedef enum IOT_RETURN_CODES {
      */
     ERROR_DEVICE_GROUP_NOT_FOUND = -6550, /**< device group not found*/
 
+    /**
+     * @brief dev_sign
+     * 
+     * -1100 ~ -1200
+     * 
+     */
+    ERROR_DEV_SIGN_SOURCE_TOO_SHORT = -1104,
+    ERROR_DEV_SIGN_PASSWORD_TOO_SHORT = -1103,
+    ERROR_DEV_SIGN_USERNAME_TOO_SHORT = -1102,
+    ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT = -1101,
+    ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT = -1100,
 
     ERROR_NO_MEM = -1016,
     ERROR_CERTIFICATE_EXPIRED = -1015,
