@@ -42,7 +42,14 @@ int HAL_ThreadCreate(
                      void *arg,
                      hal_os_thread_param_t *hal_os_thread_param,
                      int *stack_used);
-void HAL_ThreadDelete(void *thread_handle);                     
+void HAL_ThreadDelete(void *thread_handle);   
+
+/* TODO */
+void *HAL_SemaphoreCreate(void);
+void HAL_SemaphoreDestroy(void *sem);
+void HAL_SemaphorePost(void *sem);
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
+
 
 #endif /* #ifndef __ALINK_WRAPPER_H__ */
 

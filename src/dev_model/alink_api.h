@@ -114,7 +114,7 @@ typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int
 typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
                                         const char *reply, int reply_len);
 
-typedef int (*linkkit_trigger_event_reply_cb_t)(int device_id, int msg_id, int code,
+typedef int (*linkkit_trigger_event_reply_cb_t)(int device_id, int msg_id, int code,    /* deprecated in this version, use linkkit_report_reply_cb_t */
                                                 const char *eventid, int eventid_len,
                                                 const char *message, int message_len);
 
@@ -262,6 +262,9 @@ typedef enum {
     IOTX_CODE_CREATE_MUTEX_FAILED   = -4012L,
     IOTX_CODE_SUBDEV_IDX_OVERFLOW   = -4013L,
     IOTX_CODE_STATUS_ERROR          = -4014L,
+    IOTX_CODE_CLOUD_RETURN_ERROR    = -4015L,
+    IOTX_CODE_WAIT_RSP_TIMEOUT      = -4016L,
+    IOTX_CODE_LIST_INSERT_ERROR     = -4017L,
 } iotx_linkkit_errorcode_t;
 
 

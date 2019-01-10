@@ -625,3 +625,25 @@ int alink_subdev_update_device_secret(uint32_t devid, const char *device_secret)
 
     return SUCCESS_RETURN;    
 }
+
+int alink_subdev_update_mass_status(uint32_t *subdev_array, uint32_t subdev_num, alink_subdev_status_t status)
+{
+    int res;
+    uint8_t i;
+
+    for (i=0; i<subdev_num; i++) {
+        if (subdev_array[i] == 0) {
+            break;
+        }
+        
+        alink_debug("devid %d update status", subdev_array[i]);
+        res = alink_subdev_update_status(subdev_array[i], status);
+        if (res < SUCCESS_RETURN) {
+            alink_warning("update mass subdev status error");
+            return res;
+        }
+    }
+
+    return SUCCESS_RETURN;
+}
+

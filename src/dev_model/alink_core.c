@@ -131,6 +131,8 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 #endif    
 
 #endif
+
+alink_upstream_req_ctx_init();  /* TODO: test only */
     
     return SUCCESS_RETURN;
 }
@@ -475,7 +477,7 @@ int alink_set_event_callback(iotx_linkkit_event_type_t event_id, linkkit_event_c
 /** TODO: only for test!!! **/
 void alink_downstream_mock(const char *uri_string, const char *payload)
 {
-    #ifdef TEST_MOCK
     _alink_core_rx_event_handle(0, uri_string, strlen(uri_string), payload, strlen((const char *)payload), NULL);
-    #endif
 }
+
+

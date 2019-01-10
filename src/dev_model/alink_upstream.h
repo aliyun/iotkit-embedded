@@ -55,33 +55,36 @@ int alink_upstream_thing_deviceinfo_delete_req(uint32_t devid, const char *user_
 
 
 
+#define MASS_SUBDEV_REQ_NUM_MAX         10
 
 
-#define UPSTREAM_REQ_MASS_SUBDEV_NUM_MAX        10
+typedef struct {
+    uint32_t subdev_id[MASS_SUBDEV_REQ_NUM_MAX];
+} subdev_id_list_t;
 
-typedef struct upstream_req_subdev_list {
-    uint32_t subdev_id[UPSTREAM_REQ_MASS_SUBDEV_NUM_MAX];
-} upstream_req_data_subdv_list_t;
+typedef union {
+    subdev_id_list_t subdev_id_list;
+
+} req_msg_cache_t; 
 
 typedef struct {
     uint32_t msgid;
-    uint32_t devid;
-    alink_msg_uri_index_t msg_uri;
-    void *data;
+#if (CONFIG_SDK_THREAD_COST == 0)
+    req_msg_cache_t msg_data;
+#else
+    uint32_t result;
+    void *semaphore;
+#endif    
     list_head_t list;
-} alink_upstream_req_node_t;
+} alink_req_cache_node_t;
 
-typedef struct {
-    void *mutex;
-    uint32_t list_num;
-    list_head_t req_list;
-} alink_upstream_req_ctx_t;
+
 
 int alink_upstream_req_ctx_init(void);
 int alink_upstream_req_ctx_deinit(void);
-int alink_upstream_req_list_search(uint32_t msgid, alink_upstream_req_node_t **node);
-int alink_upstream_req_list_delete_by_node(alink_upstream_req_node_t *node);
-
+int alink_upstream_req_cache_search(uint32_t msgid, alink_req_cache_node_t **node);
+int alink_upstream_req_cache_delete_by_node(alink_req_cache_node_t *node);
+int alink_upstream_req_cache_delete_by_msgid(int msgid);
 
 
 #endif /* #ifndef __ALINK_UPSTREAM__ */

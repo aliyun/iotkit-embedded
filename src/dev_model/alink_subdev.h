@@ -38,6 +38,7 @@ int alink_subdev_get_triple_by_devid(uint32_t devid, char *product_key, char *de
 int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_name, uint32_t *devid);
 int alink_subdev_update_status(uint32_t devid, alink_subdev_status_t status);
 int alink_subdev_update_device_secret(uint32_t devid, const char *device_secret);
+int alink_subdev_update_mass_status(uint32_t *subdev_array, uint32_t subdev_num, alink_subdev_status_t status);
 
 #endif /* #ifndef __ALINK_SUBDEV_H__ */
 
