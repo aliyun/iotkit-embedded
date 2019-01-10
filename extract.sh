@@ -73,6 +73,8 @@ gen_wrapper_c() {
         [ "${i}" != "SAL_HAL_IMPL_NONE" ] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/HAL_SAL/!{p}') && break
     done
 
+    cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
+
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     find ./output/eng -name *wrapper.h | sed -n 's/.*\//#include "/p' | sed -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrapper.c
@@ -196,6 +198,8 @@ gen_atparser() {
 
     echo "extract atparser module..."
     echo -e "$(echo "${1}" | grep -E 'ATPARSER')\n"
+
+    mkdir -p ${OUTPUT_DIR}/eng/sal/
 
     SRC_ATPARSER=$(find ./external_libs \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d)
 
