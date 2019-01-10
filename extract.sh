@@ -77,6 +77,7 @@ gen_wrapper_c() {
 
     echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
+    echo -e "#include \"wrappers_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     find ./output/eng -name *wrapper.h | sed -n 's/.*\//#include "/p' | sed -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrapper.c
     [[ ${M_MQTT_COMM_ENABLED} && ! ${M_MQTT_DEFAULT_IMPL} ]] && echo -e "#include \"mqtt_api.h\"" >> ${WRAPPERS_DIR}/wrapper.c
     echo -e "\n" >> ${WRAPPERS_DIR}/wrapper.c
