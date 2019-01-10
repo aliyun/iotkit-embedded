@@ -242,6 +242,7 @@ for /f "delims=" %%I in (%TMP_VARIABLE_DIR%\MACRO_SAL_HAL_IMPL) do (
 
 %ECHO% -e "#include \"infra_types.h\"" >> %WRAPPERS_DIR%\wrapper.c
 %ECHO% -e "#include \"infra_defs.h\"" >> %WRAPPERS_DIR%\wrapper.c
+%ECHO% -e "#include \"wrappers_defs.h\"" >> %WRAPPERS_DIR%\wrapper.c
 %FIND% %OUTPUT_DIR%\eng -name *wrapper.h | %SED% -n "s/.*\\/#include \"/;s/$/\"/p" >> %WRAPPERS_DIR%\wrapper.c
 
 if defined M_MQTT_COMM_ENABLED (
