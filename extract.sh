@@ -15,6 +15,7 @@ MODULES=( \
 "gen_sal" \
 "gen_dynreg" \
 "gen_atparser" \
+"gen_dev_model" \
 )
 
 gen_eng_dir() {
@@ -205,6 +206,21 @@ gen_atparser() {
     SRC_ATPARSER=$(find ./external_libs \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "at" -type d)
 
     find ${SRC_ATPARSER} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${OUTPUT_DIR}/eng/sal/
+}
+
+gen_dev_model() {
+    M_DEVICE_MODEL_ENABLE=$(echo "${1}" | grep -w 'DEVICE_MODEL_ENABLE')
+
+    [[ ! ${M_DEVICE_MODEL_ENABLE} ]] && return
+
+    echo "extract dev_model module..."
+    echo -e "$(echo "${1}" | grep -E 'DEVICE_MODEL')\n"
+
+    mkdir -p ${OUTPUT_DIR}/eng/dev_model
+
+    SRC_DEVICE_MODEL=$(find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "dev_model" -type d)
+
+    find ${SRC_DEVICE_MODEL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${OUTPUT_DIR}/eng/dev_model/
 }
 
 # Generate Directory
