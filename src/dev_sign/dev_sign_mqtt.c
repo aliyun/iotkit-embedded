@@ -111,6 +111,9 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     infra_hex2str(sign,32,signout->password);
 
     length = strlen(clientid_fmt) + strlen(device_id) + strlen(timestamp) + strlen(IOTX_SDK_VERSION) + 30 + 1;
+#ifdef DEVICE_MODEL_ENABLE
+    length += strlen(alink_version);
+#endif
     if (length >= DEV_SIGN_CLIENT_ID_MAXLEN) {
         return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
     }
