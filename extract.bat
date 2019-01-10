@@ -29,7 +29,8 @@ gen_dev_sign ^
 gen_mqtt ^
 gen_sal ^
 gen_dynreg ^
-gen_atparser
+gen_atparser ^
+gen_dev_model
 
 :: Generate Directory
 call:gen_eng_dir
@@ -211,6 +212,24 @@ for /f "delims=" %%I in ('%ECHO% %SRC_DYNREG% ^| %SED% -n "s/.*\\//p" ^| %SED% -
 %FIND% %SRC_DYNREG% -maxdepth 1 -name *.[ch] | %GREP% -v example | %XARGS% -i %CP% -f {} %DYNREG_DIR%
 %FIND% %SRC_DYNREG% -maxdepth 1 -name *example*.c | %XARGS% -i %CP% -f {} %EXAMPLES_DIR%
     
+GOTO:EOF
+
+:gen_dev_model
+
+Set M_DEVICE_MODEL_ENABLE=
+for /f "delims=" %%I in ('%GREP% -w "DEVICE_MODEL_ENABLE" %TMP_VARIABLE_DIR%\MACRO_LIST') do (Set M_DEVICE_MODEL_ENABLE=%%I)
+
+if defined M_DEVICE_MODEL_ENABLE (%ECHO% -e "\nextract dev_model module...") else (GOTO:EOF)
+%GREP% -E "DEVICE_MODEL" %TMP_VARIABLE_DIR%\MACRO_LIST
+
+%MKDIR% -p %OUTPUT_DIR%/eng/dev_model
+
+Set SRC_DEVICE_MODEL=
+for /f "delims=" %%I in ('%FIND% src ^( -path %OUTPUT_DIR% -o -path %OUTPUT_TMPDIR% ^) -prune -type f -o -iname "dev_model" -type d') do (Set SRC_DEVICE_MODEL=%%I)
+if NOT defined SRC_DEVICE_MODEL (GOTO:EOF)
+
+%FIND% %SRC_DEVICE_MODEL% -maxdepth 1 -name *.[ch] | %GREP% -v example | %XARGS% -i %CP% -f {} %OUTPUT_DIR%\eng\dev_model
+
 GOTO:EOF
 
 :gen_wrapper_c
