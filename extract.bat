@@ -181,6 +181,8 @@ for /f "delims=" %%I in ('%GREP% -w "ATPARSER_ENABLED" %TMP_VARIABLE_DIR%\MACRO_
 if defined M_ATPARSER_ENABLED (%ECHO% -e "\nextract atparser module...") else (GOTO:EOF)
 %GREP% -E "ATPARSER" %TMP_VARIABLE_DIR%\MACRO_LIST
 
+%MKDIR% -p %OUTPUT_DIR%/eng/sal
+
 Set SRC_ATPARSER=
 for /f "delims=" %%I in ('%FIND% external_libs ^( -path %OUTPUT_DIR% -o -path %OUTPUT_TMPDIR% ^) -prune -type f -o -iname "at" -type d') do (Set SRC_ATPARSER=%%I)
 if NOT defined SRC_ATPARSER (GOTO:EOF)
@@ -235,6 +237,8 @@ for /f "delims=" %%I in (%TMP_VARIABLE_DIR%\MACRO_SAL_HAL_IMPL) do (
         %SED% -i "/HAL_SAL/d" %TMP_VARIABLE_DIR%\WRAPPER_FUNCS
     )
 )
+
+%CP% -f wrappers\wrappers_defs.h %WRAPPERS_DIR%\
 
 %ECHO% -e "#include \"infra_types.h\"" >> %WRAPPERS_DIR%\wrapper.c
 %ECHO% -e "#include \"infra_defs.h\"" >> %WRAPPERS_DIR%\wrapper.c
