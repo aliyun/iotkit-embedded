@@ -7,6 +7,7 @@
 
 #include "infra_defs.h"
 #include "infra_types.h"
+#include "infra_string.h"
 #include "infra_net.h"
 #include "infra_sha256.h"
 #include "MQTTPacket.h"
@@ -348,7 +349,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     memset(topicString, 0x0, IOTX_MC_TOPIC_NAME_MAX_LEN);
     strncpy(topicString, topicName, IOTX_MC_TOPIC_NAME_MAX_LEN - 1);
 
-    iterm = strtok(topicString, delim);
+    iterm = infra_strtok(topicString, delim);
 
     if (SUCCESS_RETURN != iotx_mc_check_rule(iterm, type)) {
         mqtt_err("run iotx_check_rule error");
@@ -356,7 +357,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     }
 
     for (;;) {
-        iterm = strtok(NULL, delim);
+        iterm = infra_strtok(NULL, delim);
 
         if (iterm == NULL) {
             break;
@@ -587,6 +588,9 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     MQTTString                  topic = MQTTString_initializer;
     /*iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};*/
     iotx_mc_topic_handle_t     *handler = NULL;
+#if !(WITH_MQTT_SUB_SHORTCUT)
+	iotx_mc_subsribe_info_t    *node = NULL;
+#endif
 
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
@@ -665,7 +669,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
      * */
 #if !(WITH_MQTT_SUB_SHORTCUT)
     /* push the element to list of wait subscribe ACK */
-    iotx_mc_subsribe_info_t    *node = NULL;
     if (SUCCESS_RETURN != iotx_mc_push_subInfo_to(c, len, msgId, SUBSCRIBE, handler, &node)) {
         mqtt_err("push publish into to pubInfolist failed!");
         mqtt_free(handler->topic_filter);
@@ -1349,6 +1352,8 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     char           *net_topic;
     uint32_t        net_topic_len;
     iotx_mc_topic_handle_t *h;
+#else
+	iotx_mc_topic_handle_t *h;
 #endif
     iotx_mc_topic_handle_t *msg_handle;
 
@@ -1379,7 +1384,6 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 #else
     /* we have to find the right message handler - indexed by topic */
     HAL_MutexLock(c->lock_generic);
-    iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
         if (MQTTPacket_equals(topicName, (char *)h->topic_filter)
             || iotx_mc_is_topic_matched((char *)h->topic_filter, topicName)) {
@@ -1499,6 +1503,12 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     int grantedQoS[MUTLI_SUBSCIRBE_MAX];
     int rc;
 
+#if !(WITH_MQTT_SUB_SHORTCUT)
+	iotx_mc_topic_handle_t *messagehandler = NULL;
+	int flag_dup = 0;
+	iotx_mc_topic_handle_t *h;
+#endif
+
     if (!c) {
         return FAIL_RETURN;
     }
@@ -1525,9 +1535,6 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 #endif
 
 #if !(WITH_MQTT_SUB_SHORTCUT)
-    iotx_mc_topic_handle_t *messagehandler = NULL;
-    int flag_dup = 0;
-
     HAL_MutexLock(c->lock_list_sub);
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
     HAL_MutexUnlock(c->lock_list_sub);
@@ -1557,9 +1564,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         }
 
 #if !(WITH_MQTT_SUB_SHORTCUT)
-        flag_dup = 0;
         HAL_MutexLock(c->lock_generic);
-        iotx_mc_topic_handle_t *h;
         for (h = c->first_sub_handle; h; h = h->next) {
             /* If subscribe the same topic and callback function, then ignore */
             if (0 == iotx_mc_check_handle_is_identical(h, messagehandler)) {
@@ -1947,6 +1952,8 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2)
 {
+	int topicNameLen = 0;
+
     if (!messageHandlers1 || !messageHandler2) {
         return 1;
     }
@@ -1956,7 +1963,7 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
     }
 
 #if !(WITH_MQTT_ZIP_TOPIC)
-    int topicNameLen = strlen(messageHandlers1->topic_filter);
+    topicNameLen = strlen(messageHandlers1->topic_filter);
 
     if (topicNameLen != strlen(messageHandler2->topic_filter)) {
         return 1;
@@ -1979,7 +1986,7 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
             }
         }
     } else {
-        int topicNameLen = strlen(messageHandlers1->topic_filter);
+        topicNameLen = strlen(messageHandlers1->topic_filter);
 
         if (topicNameLen != strlen(messageHandler2->topic_filter)) {
             return 1;
@@ -2007,6 +2014,8 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
 static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2)
 {
+	int topicNameLen = 0;
+
     if (!messageHandlers1 || !messageHandler2) {
         return 1;
     }
@@ -2016,7 +2025,7 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
     }
 
 #if !(WITH_MQTT_ZIP_TOPIC)
-    int topicNameLen = strlen(messageHandlers1->topic_filter);
+    topicNameLen = strlen(messageHandlers1->topic_filter);
 
     if (topicNameLen != strlen(messageHandler2->topic_filter)) {
         return 1;
@@ -2040,7 +2049,7 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
                 }
             }
         } else {
-            int topicNameLen = strlen(messageHandlers1->topic_filter);
+            topicNameLen = strlen(messageHandlers1->topic_filter);
 
             if (topicNameLen != strlen(messageHandler2->topic_filter)) {
                 return 1;
@@ -2831,7 +2840,7 @@ int wrapper_mqtt_connect(void *client)
         }
     }
 
-#ifdef FEATURE_ASYNC_PROTOCOL_STACK
+#ifdef ASYNC_PROTOCOL_STACK
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECT_BLOCK);
     rc = MQTT_CONNECT_BLOCK;
 #else
@@ -2977,6 +2986,7 @@ int wrapper_mqtt_yield(void *client, int timeout_ms)
         MQTTPubInfoProc(pClient);
 #endif
         /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
+
         MQTTSubInfoProc(pClient);
     }
     HAL_SleepMs(timeout_ms);

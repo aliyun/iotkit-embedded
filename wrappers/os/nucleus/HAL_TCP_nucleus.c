@@ -1,12 +1,12 @@
 #include "infra_types.h"
 #include "soc_api.h"
 
-typedef struct {
-  unsigned int end_time;
-  bool over_flow;
-}OsTimer;
+#include "kal_public_defs.h"
+#include "kal_public_api.h"
+#include "kal_general_types.h"
+#include "soc_api.h"
 
-void HAL_Printf(const char *fmt, ...);
+extern kal_uint32 g_ali_nwk_account_id;
 
 unsigned int get_cur_time(void)
 {
@@ -19,7 +19,7 @@ unsigned int get_cur_time(void)
 void InitTimer(OsTimer* timer)
 {
   timer->end_time = 0;
-  timer->over_flow = false;
+  timer->over_flow = FALSE;
 }
 
 void countdown_ms(OsTimer* timer, unsigned int timeout)
@@ -27,7 +27,7 @@ void countdown_ms(OsTimer* timer, unsigned int timeout)
   unsigned int current_time = get_cur_time();
   timer->end_time = current_time + timeout;
   if(timer->end_time < current_time) {
-     timer->over_flow = true;
+     timer->over_flow = TRUE;
   }
 }
 
@@ -55,30 +55,79 @@ int HAL_TCP_Destroy(uintptr_t fd)
 uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
 	int rc = -1, sock = 0;
+	/*set the socket as no blocking*/
+    kal_bool option = KAL_TRUE;
+	kal_uint8 socket_opt = 1;
+	sockaddr_struct addr;
+	char * p;
+	kal_uint8 idx = 0;
+	kal_uint8 tmp = 0;
 
-    sock = soc_create(SOC_PF_INET, SOC_SOCK_STREAM, 0, MOD_MMI, gaccount_id);
+	p = (char *)host;
+	/* parse ip addr string */
+	while(*p != '\0')
+	{
+		tmp = 0;
+		while((*p >= '0') && (*p <= '9'))
+		{
+			tmp = tmp*10 + *p - '0';
+			p++;
+		}
 
+		if((*p != '.') && (*p != '\0'))
+		{
+			ERROR_TRACE("init_socket.hostname error:%s", host);
+			return -1;
+		}
+	
+		addr.addr[idx++] = tmp;
+		
+		if((*p == '\0') || (idx > 3))
+			break;
+		
+		p++;
+	}
+	
+	addr.addr_len = 4;
+    addr.port = port;
+    addr.sock_type = SOC_SOCK_STREAM;
+
+	DEBUG_TRACE("[SOCKET]hostname:%s[%d.%d.%d.%d],port:%d,addr_len=%d", host, addr.addr[0], addr.addr[1], addr.addr[2], addr.addr[3], addr.port, addr.addr_len);
+	
+    sock = soc_create(SOC_PF_INET, SOC_SOCK_STREAM, 0, MOD_MQTT, g_ali_nwk_account_id);
+
+	ERROR_TRACE("soc_create: %d\n",sock);
+	
 	if (sock >= 0)
 	{
-		/*set the socket as no blocking*/
-        kal_bool option = KAL_TRUE;
-		kal_uint8 socket_opt = 1;
-        rc=soc_setsockopt(n->sock, SOC_NBIO, &option, sizeof(option));
-        HAL_Printf("soc_setsockopt return %d\n",rc);
+		
+        rc=soc_setsockopt(sock, SOC_NBIO, &option, sizeof(option));
+        ERROR_TRACE("soc_setsockopt1 return %d\n",rc);
 
-		socket_opt = SOC_READ | SOC_WRITE | SOC_CONNECT | SOC_CLOSE;
-		rc = soc_setsockopt(n->sock, SOC_ASYNC, &socket_opt, sizeof(socket_opt));
+		socket_opt = SOC_READ | SOC_WRITE | SOC_ACCEPT | SOC_CONNECT | SOC_CLOSE;
+		rc = soc_setsockopt(sock, SOC_ASYNC, &socket_opt, sizeof(kal_uint8));
 		if (rc < 0)
 		{
-			HAL_Printf("soc_setsockopt async return %d\n",rc);
+			ERROR_TRACE("soc_setsockopt async return %d\n",rc);
+			return -1;
+		}
+		ERROR_TRACE("soc_setsockopt2 return %d\n",rc);
+
+		rc = soc_connect(sock, &addr);
+		if (rc == SOC_SUCCESS) {
+			ERROR_TRACE("soc_connect succcess");
+		}else if (rc == SOC_WOULDBLOCK) {
+			ERROR_TRACE("soc_connect block");
+		}else{
+			ERROR_TRACE("soc_connect failed, rc: %d",rc);
 			return -1;
 		}
     }
 	else{
-        HAL_Printf("cmns create sock failed %d\n",n->sock);
+        ERROR_TRACE("cmns create sock failed %d\n",sock);
         rc = -1;
 	}
-    return (uintptr_t)rc;
+    return (uintptr_t)sock;
 }
 
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
@@ -87,30 +136,26 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 	OsTimer rtimer;
 	int bytes = 0;
 	int rc = 0;
-    soc_timeval_struct tv;
+	soc_timeval_struct tv;
+	int slectrc=0;
+	kal_bool is_ready = 0;
 
 	if(0 == timeout_ms){
 		timeout_ms = 10;
 	}
-    tv.tv_sec = timeout_ms / 1000;
-    tv.tv_usec = (timeout_ms % 1000) * 1000;
-    InitTimer(&rtimer);
-    countdown_ms(&rtimer, timeout_ms);
-    HAL_Printf("linkit_read,timeout is %d sec.%d us\n",tv.tv_sec,tv.tv_usec);
-    HAL_Printf("linkit_read want to read %d\n", len);
+	tv.tv_sec = timeout_ms / 1000;
+	tv.tv_usec = (timeout_ms % 1000) * 1000;
+	InitTimer(&rtimer);
+	countdown_ms(&rtimer, timeout_ms);
 
 	do{
-		int slectrc=0;
 		SOC_FD_ZERO(&readfds);
-    	SOC_FD_SET(n->sock, &readfds);
+		SOC_FD_SET(fd, &readfds);
 
-		slectrc = soc_select(n->sock+1, &readfds, NULL, NULL, &tv);
-        HAL_Printf("soc_select, return %d\n",slectrc);
-		if(slectrc>=1 && SOC_FD_ISSET(n->sock, &readfds)){
-            HAL_Printf("SOC_FD_ISSET\n");
+		slectrc = soc_select(fd+1, &readfds, NULL, NULL, &tv);
+		if(slectrc>=1 && SOC_FD_ISSET(fd, &readfds)){
 			do{
-				rc = soc_recv(n->sock, buffer+bytes, len-bytes, 0);
-                HAL_Printf("soc_recv=%d\n",rc);
+				rc = soc_recv(fd, buf+bytes, len-bytes, 0);
 				if(rc > 0){
 					bytes += rc;
 				}
@@ -121,8 +166,8 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 					}
 					else if(SOC_WOULDBLOCK == rc){
 						if(bytes>0 && bytes<len){
-	                        tv.tv_sec = timeout_ms / 1000;
-	                        tv.tv_usec = (timeout_ms % 1000) * 1000;
+							tv.tv_sec = timeout_ms / 1000;
+							tv.tv_usec = (timeout_ms % 1000) * 1000;
 							countdown_ms(&rtimer, timeout_ms);
 						}
 					}
@@ -139,7 +184,6 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 				tv.tv_sec = timeout_ms / 1000;
 				tv.tv_usec = (timeout_ms % 1000) * 1000;
 				countdown_ms(&rtimer, timeout_ms);
-				HAL_Printf("linkit_read soc read %d, wait remaining data\n", bytes);
 			}
 		}
 		else{
@@ -147,7 +191,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 			bytes = 0;
 			break;
 		}
-		HAL_Printf("linkit_read soc already read %d\n", bytes);
+		//DEBUG_TRACE("linkit_read soc already read %d\n", bytes);
 
 		tv.tv_sec = timeout_ms / 1000;
 		tv.tv_usec = (timeout_ms % 1000) * 1000;
@@ -166,13 +210,10 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
 
 	SOC_FD_ZERO(&writefds);
 	SOC_FD_SET(fd, &writefds);
-    HAL_Printf("send packet length is %d\n",len);
 	if(soc_select(fd+1, NULL, &writefds, NULL, &tv) >= 0){
 		if(SOC_FD_ISSET(fd, &writefds)){
 			rc = soc_send(fd, buf, len, 0);
-            HAL_Printf("send packet rc is %d\n",rc);
 		}
 	}
-	HAL_Printf("send packet length result is %d\n",rc);
 	return rc;
 }

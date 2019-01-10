@@ -263,9 +263,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     err = wrapper_mqtt_connect(pclient);
     if (SUCCESS_RETURN != err) {
-        mqtt_err("wrapper_mqtt_connect failed");
-        wrapper_mqtt_release(&pclient);
-        return NULL;
+		if (MQTT_CONNECT_BLOCK != err) {
+			mqtt_err("wrapper_mqtt_connect failed");
+	        wrapper_mqtt_release(&pclient);
+	        return NULL;
+		}
     }
 
 #ifndef ASYNC_PROTOCOL_STACK
