@@ -20,6 +20,3 @@ config SUPPORT_ITLS
         This option is mutually exclusive with SUPPORT_TLS, only less than one of them can be switched to "y"
         iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
 
-config WITH_OS_ENABLED
-        bool "FEATURE_WITH_OS_ENABLED"
-        default n

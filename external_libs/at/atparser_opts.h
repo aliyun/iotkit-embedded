@@ -38,7 +38,7 @@ extern "C" {
 #define AT_CMD_DATA_INTERVAL_MS 50
 #endif
 
-#ifdef WITH_OS_ENABLED
+#ifdef PLATFORM_HAS_OS
 #define AT_SINGLE_TASK    0
 #else
 #define AT_SINGLE_TASK    1

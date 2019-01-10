@@ -11,7 +11,7 @@
 #define SAL_OPT_DISABLED      0
 
 /* Socket API select support. */
-#ifdef WITH_OS_ENABLED
+#ifdef PLATFORM_HAS_OS
 #define SAL_SELECT_SUPPORT            SAL_OPT_ENABLED
 #else
 #define SAL_SELECT_SUPPORT            SAL_OPT_DISABLED
