@@ -71,34 +71,34 @@ typedef enum {
 
 typedef enum {
     ITE_AWSS_STATUS = 0,
-    ITE_CONNECT_SUCC,
+    ITE_CONNECT_SUCC,           
     ITE_CONNECT_FAIL,
     ITE_DISCONNECTED,
     ITE_RAWDATA_ARRIVED,
     ITE_SERVICE_REQUEST,
     ITE_PROPERTY_SET,
-    ITE_PROPERTY_GET,
+    ITE_PROPERTY_GET,           /* no implement this version */
     ITE_REPORT_REPLY,
-    ITE_TRIGGER_EVENT_REPLY,    /* deprecated in this version, use ITE_REPORT_REPLY event */
-    ITE_TIMESTAMP_REPLY,
-    ITE_TOPOLIST_REPLY,
-    ITE_PERMIT_JOIN,
+    ITE_TRIGGER_EVENT_REPLY,    /* deprecated, use ITE_REPORT_REPLY event */
+    ITE_TIMESTAMP_REPLY,        /* no implement this version */
+    ITE_TOPOLIST_REPLY,         /* no implement this version */
+    ITE_PERMIT_JOIN,            /* no implement this version */
     ITE_INITIALIZE_COMPLETED,
-    ITE_FOTA,
-    ITE_COTA,
+    ITE_FOTA,                   /* no implement this version */
+    ITE_COTA,                   /* no implement this version */
     ITE_MQTT_CONNECT_SUCC,
     ITE_EVENT_NUM
 } iotx_linkkit_event_type_t;
 
 typedef int (*linkkit_event_cb_t)();
 
-typedef int (*linkkit_awss_status_cb_t)(int);       /* no implement this version */
+typedef int (*linkkit_awss_status_cb_t)(int);       
 
-typedef int (*linkkit_connect_success_cb_t)(void);
+typedef int (*linkkit_connect_success_cb_t)(uint32_t devid);        /* modified, add parameter devid */
 
-typedef int (*linkkit_connect_fail_cb_t)(void);     /* no implement this version */
+typedef int (*linkkit_connect_fail_cb_t)(uint32_t devid);           /* modified, add parameter devid */
 
-typedef int (*linkkit_disconnected_cb_t)(void);
+typedef int (*linkkit_disconnected_cb_t)(uint32_t devid);           /* modified, add parameter devid */
 
 typedef int (*linkkit_rawdata_rx_cb_t)(int device_id, const uint8_t *payload, int payload_len);
 
@@ -108,24 +108,24 @@ typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid
 
 typedef int (*linkkit_property_set_cb_t)(int device_id, const char *request, int request_len);
 
-typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int request_len,       /* no implement this version */
+typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int request_len,       
                                                         char **response, int *response_len);
 
 typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
                                         const char *reply, int reply_len);
 
-typedef int (*linkkit_timestamp_reply_cb_t)(const char *timestamp);      /* no implement this version */
+typedef int (*linkkit_timestamp_reply_cb_t)(const char *timestamp);
 
-typedef int (*linkkit_topo_list_reply_cb_t)();      /* no implement this version */
+typedef int (*linkkit_topo_list_reply_cb_t)();
 
-typedef int (*linkkit_permit_join_cb_t)(const char *productKey, const int timeout);     /* no implement this version */
+typedef int (*linkkit_permit_join_cb_t)(const char *productKey, const int timeout);
 
 /* master device register to cloud successfuly, or subdevice login successfuly */
 typedef int (*linkkit_inited_cb_t)(uint32_t devid);
 
-typedef int (*linkkit_fata_event_cb_t)(int type, const char *version);      /* no implement this version */
+typedef int (*linkkit_fata_event_cb_t)(int type, const char *version);
 
-typedef int (*linkkit_cota_event_cb_t)(int type);                           /* no implement this version */
+typedef int (*linkkit_cota_event_cb_t)(int type);
 
 typedef int (*linkkit_mqtt_connected_cb_t)(void);
 

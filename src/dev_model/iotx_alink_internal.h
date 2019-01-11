@@ -2,24 +2,23 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#ifndef __IOTX_ALINK_INTERNAL_H__
+#define __IOTX_ALINK_INTERNAL_H__
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "alink_format.h"
-#include "alink_core.h"
-#include "alink_subdev.h"
-#include "alink_upstream.h"
-#include "alink_downstream.h"
 #include "alink_wrapper.h"
-#include "alink_utils.h"
 #include "iotx_cm.h"
-
+#include "alink_config.h"
+#include "alink_utils.h"
+#include "alink_format.h"
+#include "alink_upstream.h"
+#include "alink_subdev.h"
+#include "alink_downstream.h"
+#include "alink_core.h"
 #include "alink_api.h"        /* TODO */
-
-#ifndef __IOTX_ALINK_INTERNAL_H__
-#define __IOTX_ALINK_INTERNAL_H__
-
 
 
 #ifdef INFRA_LOG
@@ -47,11 +46,7 @@
 #define alink_free(ptr)                 {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-#define PACKET_LOSS_RATE_STATS                  (0)
-#define UTILS_HASH_TABLE_ITERATOR_ENABLE        (0)
-#define ALINK_DEBUG                             (0)
-
-#if ALINK_DEBUG
+#if CONFIG_ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \
         do { \
             if (!(expr)) { \
@@ -62,18 +57,6 @@
         } while(0)
 #else
     #define ALINK_ASSERT_DEBUG(expr)
-#endif
-
-#ifndef CONFIG_MQTT_TX_MAXLEN
-    #define CONFIG_MQTT_TX_MAXLEN           (1024)
-#endif
-
-#ifndef CONFIG_MQTT_RX_MAXLEN
-    #define CONFIG_MQTT_RX_MAXLEN           (1024)
-#endif
-
-#ifndef CONFIG_SDK_THREAD_COST
-    #define CONFIG_SDK_THREAD_COST          (0)
 #endif
 
 #define ALINK_DEVICE_SELF_ID                (0)

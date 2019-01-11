@@ -288,7 +288,7 @@ void _alink_core_connected_event_handler(void)
 
     handle_func = alink_get_event_callback(ITE_CONNECT_SUCC);
     if (handle_func) {
-        handle_func();
+        handle_func(ALINK_DEVICE_SELF_ID);
     }
 }
 
@@ -300,7 +300,7 @@ void _alink_core_disconnected_event_handler(void)
 
     handle_func = alink_get_event_callback(ITE_CONNECT_SUCC);
     if (handle_func) {
-        handle_func();
+        handle_func(ALINK_DEVICE_SELF_ID);
     }
 }
 
@@ -403,7 +403,9 @@ int alink_core_connect_cloud(void)
 /** **/
 alink_core_status_t alink_core_get_status(void)
 {
+    _alink_core_lock();
     return alink_core_ctx.status;
+    _alink_core_unlock();
 }
 
 /** **/
@@ -416,14 +418,6 @@ uint32_t alink_core_allocate_msgid(void)
     _alink_core_unlock();
 
     return (msgid & 0x7FFFFFFF);
-}
-
-/** TODO **/
-int alink_core_unsubscribe_downstream_uri()
-{
-    int res = FAIL_RETURN;
-
-    return res;
 }
 
 extern int alink_msg_event_list_handler(void);  /* TODO */

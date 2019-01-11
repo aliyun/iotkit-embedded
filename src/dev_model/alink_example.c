@@ -52,7 +52,7 @@ static user_example_ctx_t *user_example_get_ctx(void)
 }
 
 /** connected event **/
-static int user_connected_event_handler(void)
+static int user_connected_event_handler(uint32_t devid)
 {
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
 
@@ -404,7 +404,7 @@ int main(int argc, char **argv)
         res = IOT_Linkkit_Report(0, ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
 
         EXAMPLE_TRACE("post raw, res = %d", res);
-        if (++cnt > 5) {
+        if (++cnt > 30) {
             user_example_ctx->thread_running = 0;
             HAL_SleepMs(1000);
 
