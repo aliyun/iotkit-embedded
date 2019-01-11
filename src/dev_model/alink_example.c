@@ -17,10 +17,13 @@
 #define PROP_ALINK1_TEST   "{\"id\":\"123\",\"version\":\"1.0\",\"params\":{\"test1\":1234},\"method\":\"thing.event.property.post\"}"
 
 #define ALINK2_PROP_POST_DATA       "{\"Data\": \"1024\"}"
-#define ALINK2_EVENT_POST_DATA      "{\"ErrorCode\": 400}"
 #define ALINK2_DEVINFO_POST_DATA    "[{\"attrKey\":\"devinfo_k\",\"attrValue\":\"devinfo_v\"}]"
 
-#define ALINK2_PROP_POST_DATA_TMP   "{\"intProperty\": 12,\"arrayProperty\":[1, 2, 3],\"doubleProperty\": 3.12345697}"
+#define ALINK2_PROP_POST_DATA_TMP   "{\"BatteryRemain\": 2.9,\"TiltValue\":100,\"HeartBeatInterval\": 1234}"
+#define ALINK2_EVENT_POST_DATA      "{\"intParam\": 400}"
+
+#define MOCK_FUNCTION               (0)
+
 
 /** type define **/
 typedef struct {
@@ -39,22 +42,8 @@ static user_example_ctx_t g_user_example_ctx;
 
 
 /** internal test **/
-extern void alink_downstream_mock(const char *uri_string, const char *payload);
 extern void subdev_hash_iterator(void);
 extern int _subdev_hash_remove(uint32_t devid);
-
-/** mock **/
-#if (0)
-static void _mock_property_put_req(void);
-static void _mock_property_post_rsp(void);
-static void _mock_event_post_rsp(void);
-static void _mock_service_invoke_req(void);
-static void _mock_raw_put_req(void);
-static void _mock_raw_post_rsp(void);
-static void _mock_register_post_rsp(void);
-static void _mock_login_post_rsp(void);
-static void _mock_subdev_property_put_req(void);
-#endif
 
 
 static user_example_ctx_t *user_example_get_ctx(void)
@@ -62,6 +51,15 @@ static user_example_ctx_t *user_example_get_ctx(void)
     return &g_user_example_ctx;
 }
 
+/** connected event **/
+static int user_connected_event_handler(void)
+{
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    EXAMPLE_TRACE("Cloud Connected");
+    user_example_ctx->cloud_connected = 1;
+    return 0;
+}
 
 /** recv property set request from cloud **/
 static int user_property_set_event_handler(const int devid, const char *request, const int request_len)
@@ -152,19 +150,7 @@ static int user_initialized(const int devid)
     return 0;
 }
 
-/** permit join **/
-int user_permit_join_event_handler(const char *product_key, const int time)
-{
-    /* user_example_ctx_t *user_example_ctx = user_example_get_ctx(); */
 
-    EXAMPLE_TRACE("Product Key: %s, Time: %d", product_key, time);
-
-    /* user_example_ctx->permit_join = 1; */
-
-    return 0;
-}
-
-#if 0
 void *example_yield_thread(void *args)
 {
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
@@ -176,6 +162,7 @@ void *example_yield_thread(void *args)
     return NULL;
 }
 
+#if 0
 void *example_thread1(void *args)
 {
     int res;
@@ -215,19 +202,32 @@ int main(int argc, char **argv)
     user_example_ctx_t *user_example_ctx;
     uint32_t cnt = 0;
     int res = FAIL_RETURN;
-    #if 0
+    #if 1
     static iotx_dev_meta_info_t dev_info = {
-        .product_key = "a1OFrRjV8nz",
+        .product_key = "a1cZIolx3YE",
         .product_secret = "EfFYTuX1GjMDvw6l",
-        .device_name = "develop_01",
-        .device_secret = "7dqP7Sg1C2mKjajtFCQjyrh9ziR3wOMC"
+        .device_name = "TestAlink2RowDevice001",
+        .device_secret = "qoQjpFkhhZaUxxmaIofg2k4CmOi0jTdo"
     };
+
     #else
     static iotx_dev_meta_info_t dev_info = {
-        .product_key = "a1h3anaxUXV",
+        .product_key = "a1Tp6krL0KH",
         .product_secret = "EfFYTuX1GjMDvw6l",
-        .device_name = "481eaba4658643fbaa77972821ab15",
-        .device_secret = "FXqFoOiVveqXPElSJQM7m8KM1QfY4c1c"
+        .device_name = "TestAlink2Device001",
+        .device_secret = "uX5I81Zws2g5eFbkV9SuzZYEfiXMHpno"
+    };
+    static iotx_dev_meta_info_t dev_info = {
+        .product_key = "a1hKsL86jFv",
+        .product_secret = "lkpH3KOFOJUqu5uXqCB3Q8htivToy2em",
+        .device_name = "TestAlink2Gw001",
+        .device_secret = "lkpH3KOFOJUqu5uXqCB3Q8htivToy2em"
+    };
+    static iotx_dev_meta_info_t dev_info = {
+        .product_key = "a1EbseykAjo",
+        .product_secret = "EfFYTuX1GjMDvw6l",
+        .device_name = "gw_01",
+        .device_secret = "DTDcrlJXEmVFFDR7eY5MyfsInniLXjre"
     };
     #endif
 
@@ -238,12 +238,12 @@ int main(int argc, char **argv)
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
     user_example_ctx->thread_running = 1;
 
+    IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);    
-    IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
 
     /* Create Master Device Resources */
@@ -259,7 +259,7 @@ int main(int argc, char **argv)
 
 
     /*** internel test start ***/
-    #if 0
+    #if MOCK_FUNCTION
     _mock_property_put_req();
 
     res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
@@ -282,9 +282,9 @@ int main(int argc, char **argv)
 
     {
         static iotx_dev_meta_info_t subdev_info = {
-            .product_key = "a1OFrRjV8nz",
-            .product_secret = "EfFYTuX1GjMDvw6l",
-            .device_name = "develop_02",
+            .product_key = "a1Tp6krL0KH",
+            .product_secret = "TestAlink2Sub001",
+            .device_name = "TestAlink2Sub001",
             .device_secret = ""
         };
 
@@ -332,12 +332,6 @@ int main(int argc, char **argv)
         subdev_hash_iterator();
     }
 
-    res = HAL_ThreadCreate(&user_example_ctx->example_thread_yield, example_yield_thread, NULL, NULL, NULL);
-    if (res < 0) {
-        EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
-        IOT_Linkkit_Close(user_example_ctx->master_devid);
-        return -1;
-    }
 
     res = HAL_ThreadCreate(&user_example_ctx->example_thread1, example_thread1, NULL, NULL, NULL);
     if (res < 0) {
@@ -345,33 +339,78 @@ int main(int argc, char **argv)
         IOT_Linkkit_Close(user_example_ctx->master_devid);
         return -1;
     }
+    #endif
 
-    res = HAL_ThreadCreate(&user_example_ctx->example_thread2, example_thread2, NULL, NULL, NULL);
+    res = HAL_ThreadCreate(&user_example_ctx->example_thread_yield, example_yield_thread, NULL, NULL, NULL);
     if (res < 0) {
         EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
         IOT_Linkkit_Close(user_example_ctx->master_devid);
         return -1;
-    }    
-    #endif
+    }
+
+    /*
+    {
+        static iotx_dev_meta_info_t subdev_info[2] = {
+            {
+                .product_key = "a1Tp6krL0KH",
+                .product_secret = "TestAlink2Sub001",
+                .device_name = "TestAlink2Sub001",
+                .device_secret = ""
+            },
+            {
+                .product_key = "a1Tp6krL0KH",
+                .product_secret = "TestAlink2Sub001",
+                .device_name = "TestAlink2Sub002",
+                .device_secret = ""
+            }
+        };
+
+        uint32_t i;
+        uint32_t devid[2];
+
+        for (i=0; i<2; i++) {
+            devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &subdev_info[i]);
+            EXAMPLE_TRACE("subdev open, id = %d", devid[i]);
+            
+            res = IOT_Linkkit_Connect(devid[i]);
+            EXAMPLE_TRACE("subdev conn, res = %d", res);
+            
+        }
+        {
+        alink_subdev_id_list_t subdev_id_list;
+        subdev_id_list.subdev_array = devid;
+        subdev_id_list.subdev_num = 2; 
+        res = alink_upstream_subdev_register_delete_req(&subdev_id_list);
+        EXAMPLE_TRACE("subdev mass register, res = %d", res);
+        }
+    }
+    */
 
     while (1) {
-        IOT_Linkkit_Yield(200);
+        uint8_t raw_data[] = "\x00\x00\x22\x33\x44\x12\x32\x01\x3f\xa0\x00\x00";
+
+        IOT_Linkkit_Yield(2000);
 
         HAL_SleepMs(2000);
 
-        
         IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
-        /*IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));*/
+        /*  
+        IOT_Linkkit_TriggerEvent(0, "testEvent01", strlen("testEvent01"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
         
+        res = IOT_Linkkit_Report(0, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
+        EXAMPLE_TRACE("post devinfo, res = %d", res);
 
-        if (++cnt > 10) {
+        */
+        res = IOT_Linkkit_Report(0, ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
+
+        EXAMPLE_TRACE("post raw, res = %d", res);
+        if (++cnt > 5) {
             user_example_ctx->thread_running = 0;
             HAL_SleepMs(1000);
 
-            #if 0
             HAL_ThreadDelete(user_example_ctx->example_thread_yield);
+            #if 0
             HAL_ThreadDelete(user_example_ctx->example_thread1);
-             HAL_ThreadDelete(user_example_ctx->example_thread2);
             #endif
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
@@ -380,97 +419,5 @@ int main(int argc, char **argv)
 
     printf("alink stop\r\n");
 }
-
-#if 0
-/** mock function **/
-static void _mock_property_put_req(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/property/put/?i=1234567&a=y";
-    char *payload = "{\"p\":{\"test\": 123}}";
-
-    alink_downstream_mock(topic, payload);
-}
-
-static void _mock_subdev_property_put_req(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/req/ext/proxy/a1OFrRjV8nz/develop_03/sys/thing/property/put/?i=1000&a=y";
-    char *payload = "{\"p\":{\"test\": 123}}";
-
-    alink_downstream_mock(topic, payload);    
-}
-
-static void _mock_property_post_rsp(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/property/post/?i=1&r=200";
-    char *payload = "{}";
-
-    alink_downstream_mock(topic, payload);  
-}
-
-static void _mock_event_post_rsp(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/thing/event/post/?i=2&r=200";
-    char *payload = "{}";
-
-    alink_downstream_mock(topic, payload);  
-}
-
-static void _mock_service_invoke_req(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/service/put/?i=987654321&a=y";
-    char *payload = "{\"id\":\"ACControl\",\"params\":{\"Action\":\"On\",\"FandSpeed\":123}}";
-
-    alink_downstream_mock(topic, payload);
-}
-
-static void _mock_raw_put_req(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=123456789&f=b"; 
-    char *payload = "\x01\x02\x03\x04\xFF\x04\xFF";
-
-    alink_downstream_mock(topic, payload);
-}
-
-static void _mock_raw_post_rsp(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/req/sys/thing/raw/put/?i=3&f=b&r=200"; 
-    char *payload = "\xFF\x02\x03\x04\xFF\x04\xFF";
-
-    alink_downstream_mock(topic, payload);
-}
-
-static void _mock_register_post_rsp(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/register/post/?i=4&r=200"; 
-    char *payload = "{\"subList\":[{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_03\",\"ds\":\"ds123\"},{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_04\",\"ds\":\"ds456\"}]}";
-
-    alink_downstream_mock(topic, payload);
-}
-
-static void _mock_login_post_rsp(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/login/post/?i=5&r=200";
-    char *payload = "{\"subList\":[{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_03\"}},{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_04\"}}]}";
-
-    alink_downstream_mock(topic, payload);
-}
-
-static void _mock_login_delete_rsp(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/login/delete/?i=6&r=200";
-    char *payload = "{\"subList\":[{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_03\"}},{\"code\":200,\"data\":{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_04\"}}]}";
-
-    alink_downstream_mock(topic, payload);
-}
-
-
-static void _mock_register_delete_rsp(void)
-{
-    char *topic = "/a1OFrRjV8nz/develop_01/rsp/sys/sub/register/post/?i=4&r=200"; 
-    char *payload = "{\"subList\":[{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_03\",\"ds\":\"ds123\"},{\"pk\":\"a1OFrRjV8nz\",\"dn\":\"develop_04\",\"ds\":\"ds456\"}]}";
-
-    alink_downstream_mock(topic, payload);
-}
-#endif
 
 

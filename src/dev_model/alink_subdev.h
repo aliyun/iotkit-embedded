@@ -18,9 +18,6 @@ typedef enum {
     ALINK_SUBDEV_STATUS_DISABLED,
 } alink_subdev_status_t;
 
-
-
-
 /** **/
 int alink_subdev_mgr_init(void);
 int alink_subdev_mgr_deinit(void);

@@ -10,12 +10,29 @@
  ****************************************/
 /* element number of uri/handler pair map */
 #define ALINK_URI_HANDLE_PAIR_NUM           (sizeof(c_alink_down_uri_handle_map)/sizeof(alink_uri_handle_pair_t))
+#define HASH_TABLE_SIZE_MAX                 23 /* 13, 17, 19 ,23, 29, 31, 37, 41, 43, 47, 53, 59*/
+#define ALINK_URI_MAX_LEN                   50
+
+typedef struct _hash_node *uri_hash_table_t;
+
+typedef struct {
+    const char *uri_string;
+    alink_downstream_handle_func_t  handle_func;
+} alink_uri_handle_pair_t;
+
+typedef struct _hash_node {
+    const alink_uri_handle_pair_t *pair;
+    struct _hash_node *next;
+} uri_hash_node_t;
 
 /****************************************
  * local function prototypes
  ****************************************/
+static void _empty_rsp_handle(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
+
+/** all handlers of downstream uri below */
 static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
-static void alink_downstream_thing_property_set_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
+static void alink_downstream_thing_property_put_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_thing_property_get_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_thing_event_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
 static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query);
@@ -52,7 +69,7 @@ static void alink_downstream_subdev_config_post_req(uint32_t devid, const char *
 /** uri/handle pair map **/
 const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
     { "rsp/sys/thing/property/post",                alink_downstream_thing_property_post_rsp        },
-    { "req/sys/thing/property/put",                 alink_downstream_thing_property_set_req         },
+    { "req/sys/thing/property/put",                 alink_downstream_thing_property_put_req         },
     { "req/sys/thing/property/get",                 alink_downstream_thing_property_get_req         },
     { "rsp/sys/thing/event/post",                   alink_downstream_thing_event_post_rsp           },
     { "req/sys/thing/service/put",                  alink_downstream_thing_service_invoke_req       },
@@ -78,11 +95,10 @@ const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
     { "req/sys/gw/permit/put",                      alink_downstream_subdev_permit_post_req         },
     { "req/sys/gw/config/put",                      alink_downstream_subdev_config_post_req         },
 #endif
-
 };
 
 /** alink protocal uri hash table */
-static uri_hash_table_t uri_hash_table[HASH_TABLE_SIZE_MAX] = { NULL };
+static uri_hash_table_t g_uri_hash_table[HASH_TABLE_SIZE_MAX] = { NULL };
 
 /** alink protocal format key define **/
 const char alink_proto_key_params[] = "params";
@@ -100,7 +116,6 @@ const char alink_proto_key_url[] = "url";
 
 
 #if (CONFIG_SDK_THREAD_COST == 1)
-/*#if 0*/
 
 #define ALINK_MSG_LIST_DEINITED                 0x00
 #define ALINK_MSG_LIST_INITED                   0x01
@@ -138,11 +153,17 @@ typedef struct {
     uint8_t id_len;
 } msg_service_put_req_t;
 
+typedef struct {
+    uint8_t *data;
+    uint32_t len;
+} msg_raw_data_req_t;
+
 typedef union {
     msg_property_put_req_t property_put_req;
     msg_property_get_req_t property_get_req;
     msg_empty_rsp_t empty_rsp;
     msg_service_put_req_t service_put_req;
+    msg_raw_data_req_t raw_data;
 } alink_msg_t;
 
 typedef struct {
@@ -229,6 +250,9 @@ int alink_msg_list_insert(alink_msg_event_t *msg_type)
     list_add_tail(&msg_type->list, &alink_msg_list_ctx.msg_list);
     alink_msg_list_ctx.msg_num++;
 
+    alink_info("insert successfully, %d", msg_type->type);
+
+
     _alink_msg_list_unlock();
 
     return SUCCESS_RETURN;
@@ -275,72 +299,128 @@ int alink_msg_event_list_handler(void)
     int res;
     alink_msg_event_t *msg;
 
-    if (alink_msg_list_get_num() == 0) {
-        return FAIL_RETURN;
-    }
-    
-    res = alink_msg_list_next(&msg);
-    if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
+    while (1) {
+        res = alink_msg_list_next(&msg);
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }
 
-    switch (msg->type) {
-        case ALINK_EVENT_PROPERTY_PUT_REQ: {
-            linkkit_property_set_cb_t handle_func;
-            msg_property_put_req_t *msg_data = &(msg->msg.property_put_req);
+        switch (msg->type) {
+            case ALINK_EVENT_PROPERTY_PUT_REQ: {
+                linkkit_property_set_cb_t handle_func;
+                msg_property_put_req_t *msg_data = &(msg->msg.property_put_req);
 
-            /* invoke the user callback funciton */
-            handle_func = (linkkit_property_set_cb_t)alink_get_event_callback(ITE_PROPERTY_SET);
-            if (handle_func != NULL) {
-                res = handle_func(msg->devid, (const char *)msg_data->payload, msg_data->len);
-            }
-
-            /* send response if ack is y */
-            if (msg->query.ack == 'y') {
-                char pk[IOTX_PRODUCT_KEY_LEN] = {0};
-                char dn[IOTX_DEVICE_NAME_LEN] = {0};
-
-                /* quite embarrassed, i have to get pk,dn again */
-                if (msg->devid != 0) {
-                    alink_subdev_get_pkdn_by_devid(msg->devid, pk, dn);
+                /* invoke the user callback funciton */
+                handle_func = (linkkit_property_set_cb_t)alink_get_event_callback(ITE_PROPERTY_SET);
+                if (handle_func != NULL) {
+                    res = handle_func(msg->devid, (const char *)msg_data->payload, msg_data->len);
                 }
+
+                /* send response if ack is y */
+                if (msg->query.ack == 'y') {
+                    char pk[IOTX_PRODUCT_KEY_LEN] = {0};
+                    char dn[IOTX_DEVICE_NAME_LEN] = {0};
+
+#ifdef DEVICE_MODEL_GATEWAY
+                    /* quite embarrassed, i have to get pk,dn again */
+                    if (msg->devid != 0) {
+                        alink_subdev_get_pkdn_by_devid(msg->devid, pk, dn);
+                    }
+#endif                
+                    msg->query.code = (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400;
+
+                    alink_upstream_thing_property_set_rsp(pk, dn, &msg->query);
+                }
+
+                /* release the msg */
+                alink_free(msg->msg.property_put_req.payload);
+                alink_free(msg);
+            } break;
+
+            case ALINK_EVENT_PROPERTY_GET_REQ: {
+                /* implement next versin */
+            } break;
+
+            /* empty response event */
+            case ALINK_EVENT_EMPTY_RSP: {
+                linkkit_report_reply_cb_t handle_func;
+
+                handle_func = (linkkit_report_reply_cb_t)alink_get_event_callback(ITE_REPORT_REPLY);
+                if (handle_func != NULL) {
+                    handle_func(msg->devid, msg->query.id, msg->query.code, NULL, 0);
+                }
+
+                alink_free(msg);
+            } break;
+
+            case ALINK_EVENT_SERVICE_PUT_REQ: {
+                char *rsp_data = NULL;
+                uint32_t rsp_len;
+                linkkit_service_request_cb_t handle_func;
+                /* just invoke the user callback funciton */
+                handle_func = (linkkit_service_request_cb_t)alink_get_event_callback(ITE_SERVICE_REQUEST);
+                if (handle_func != NULL) {
+                    res = handle_func(msg->devid, msg->msg.service_put_req.id, msg->msg.service_put_req.id_len, 
+                                        msg->msg.service_put_req.payload, msg->msg.service_put_req.payload_len, &rsp_data, (int *)&rsp_len);
+                }
+
+                alink_debug("propery get user rsp = %.*s", rsp_len, rsp_data);
                 msg->query.code = (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400;
 
-                alink_upstream_thing_property_set_rsp(pk, dn, &msg->query);
-            }
+                /* send upstream response if ack is need */
+                if (msg->query.ack == 'y') {
+                    char pk[IOTX_PRODUCT_KEY_LEN] = {0};
+                    char dn[IOTX_DEVICE_NAME_LEN] = {0};
 
-            /* release the msg */
-            alink_free(msg->msg.property_put_req.payload);
-            alink_free(msg);
-        } break;
+#ifdef DEVICE_MODEL_GATEWAY
+                    /* quite embarrassed, i have to get pk,dn again */
+                    if (msg->devid != 0) {
+                        alink_subdev_get_pkdn_by_devid(msg->devid, pk, dn);
+                    }
+#endif   
+                    alink_upstream_thing_service_invoke_rsp(pk, dn, msg->msg.service_put_req.id, rsp_data, rsp_len, &msg->query);
+                }
+                if (rsp_data != NULL) {
+                    alink_free(rsp_data);
+                }
+                alink_free(msg->msg.service_put_req.id);
+                alink_free(msg->msg.service_put_req.payload);
+                alink_free(msg);
+            } break;
 
-        case ALINK_EVENT_PROPERTY_GET_REQ: {
+            case ALINK_EVENT_RAW_DATA_REQ: {
+                /* just invoke the user callback funciton */
+                linkkit_rawdata_rx_cb_t handle_func;
+                handle_func = (linkkit_rawdata_rx_cb_t)alink_get_event_callback(ITE_RAWDATA_ARRIVED);
+                if (handle_func != NULL) {
+                    handle_func(msg->devid, msg->msg.raw_data.data, msg->msg.raw_data.len);
+                }
 
-        } break;
+                /* release the msg */
+                if (msg->msg.raw_data.len > 0) {
+                    alink_free(msg->msg.raw_data.data);
+                }
+                alink_free(msg);
+            } break;
 
-        case ALINK_EVENT_EMPTY_RSP: {
-
-        } break;
-
-        case ALINK_EVENT_SERVICE_PUT_REQ: {
-
-        } break;
-        default: {
-            alink_err("unknown msg event recv");
-        } break;
+            default: {
+                alink_err("unknown msg event recv");
+                /* release the msg, memory leak may happen!!! */
+                alink_free(msg);
+            } break;
+        }
     }
 
-    return res;
+    return SUCCESS_RETURN;
 }
-
 #endif
 
-
-
-
-static uint8_t _uri_to_hash(const char *uri, uint8_t uri_len)
+/***************************************************************
+ * uri handler hash table management
+ ***************************************************************/
+static uint8_t _uri_to_hash(const char *uri, uint32_t uri_len)
 {
-    uint8_t i;
+    uint32_t i;
     uint32_t sum = 0;
 
     for (i = 0; i < uri_len; i++)
@@ -411,13 +491,13 @@ void _uri_hash_iterator(uri_hash_table_t *table)
 }
 #endif
 
-int utils_uri_hash_init(const alink_uri_handle_pair_t *uri_handle_pair, uint8_t pair_num, uri_hash_table_t *table)
+int alink_uri_hash_table_init(void)
 {
     uint8_t i;
     int res = FAIL_RETURN;
 
-    for (i = 0; i < pair_num; i++) {
-        res = _uri_hash_insert(&uri_handle_pair[i], table);
+    for (i = 0; i < ALINK_URI_HANDLE_PAIR_NUM; i++) {
+        res = _uri_hash_insert(&c_alink_down_uri_handle_map[i], g_uri_hash_table);
         if (res < SUCCESS_RETURN) {
             return res;
         }
@@ -425,23 +505,23 @@ int utils_uri_hash_init(const alink_uri_handle_pair_t *uri_handle_pair, uint8_t 
 
 #if UTILS_HASH_TABLE_ITERATOR_ENABLE
     alink_debug("print hash table");
-    _uri_hash_iterator(table);
+    _uri_hash_iterator(g_uri_hash_table);
 #endif
 
     return SUCCESS_RETURN;
 }
 
-uri_hash_node_t *utils_uri_hash_search(const char *uri_string, uint8_t uri_len, uri_hash_table_t *table)
+alink_downstream_handle_func_t alink_get_uri_handle_func(const char *uri_string, uint8_t uri_len)
 {
     uint8_t hash;
     uri_hash_node_t *node;
 
     hash = _uri_to_hash(uri_string, uri_len);
-    node = table[hash];
+    node = g_uri_hash_table[hash];
 
     while (node) {
         if (uri_len == strlen(node->pair->uri_string) && !memcmp(uri_string, node->pair->uri_string, uri_len)) {
-            return node;
+            return node->pair->handle_func;
         }
         else {
             node = node->next;
@@ -451,20 +531,18 @@ uri_hash_node_t *utils_uri_hash_search(const char *uri_string, uint8_t uri_len, 
     return NULL;
 }
 
-void utils_uri_hash_destroy(uri_hash_table_t *table)
+void alink_uri_hash_table_deinit(void)
 {
     uri_hash_node_t *node, *temp;
     uint8_t idx;
 
-    ALINK_ASSERT_DEBUG(table != NULL);
-
     for (idx = 0; idx < HASH_TABLE_SIZE_MAX; idx++) {
-        if (table[idx] == NULL) {
+        if (g_uri_hash_table[idx] == NULL) {
             continue;
         }
 
-        node = table[idx];
-        table[idx] = NULL;
+        node = g_uri_hash_table[idx];
+        g_uri_hash_table[idx] = NULL;
         temp = node->next;
         alink_free(node);
 
@@ -476,37 +554,12 @@ void utils_uri_hash_destroy(uri_hash_table_t *table)
     }
 }
 
-int alink_downstream_hash_table_init(void)
-{
-    return utils_uri_hash_init(c_alink_down_uri_handle_map, ALINK_URI_HANDLE_PAIR_NUM, uri_hash_table);
-}
-
-void alink_downstream_hash_table_deinit(void)
-{
-    utils_uri_hash_destroy(uri_hash_table);
-}
-
-alink_downstream_handle_func_t alink_downstream_get_handle_func(const char *uri_string, uint8_t uri_len)
-{
-    uri_hash_node_t *search_node = utils_uri_hash_search(uri_string, uri_len, uri_hash_table);
-
-    if (search_node == NULL) {
-        return NULL;
-    }
-
-    return search_node->pair->handle_func;
-}
-
 /***************************************************************
  * device model management downstream message
  ***************************************************************/
-static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
+static void _empty_rsp_handle(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    alink_info("empty rsp recv");
-    
     /* ignore the payload, just checkout the return code */
-    alink_debug("rsp payload = %.*s", len, payload);
-
 #if (CONFIG_SDK_THREAD_COST == 0)
     {
         linkkit_report_reply_cb_t handle_func;
@@ -517,13 +570,30 @@ static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char 
         }
     }
 #else
+    {
+        alink_msg_event_t *msg_data = alink_malloc(sizeof(alink_msg_event_t));
+        if (msg_data == NULL) {
+            alink_warning("malloc failed");
+            return;
+        }
 
+        msg_data->devid = devid;
+        msg_data->type = ALINK_EVENT_EMPTY_RSP;
+        memcpy(&msg_data->query, query, sizeof(alink_uri_query_t));
+        msg_data->msg.empty_rsp.code = query->code;
 
-
+        alink_msg_list_insert(msg_data);
+    }
 #endif
 }
 
-static void alink_downstream_thing_property_set_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
+static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
+{
+    alink_info("property post rsp recv");
+    _empty_rsp_handle(devid, pk, dn, payload, len, query);
+}
+
+static void alink_downstream_thing_property_put_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
     lite_cjson_t root, item;
@@ -553,7 +623,7 @@ static void alink_downstream_thing_property_set_req(uint32_t devid, const char *
         /* just invoke the user callback funciton */
         handle_func = (linkkit_property_set_cb_t)alink_get_event_callback(ITE_PROPERTY_SET);
         if (handle_func != NULL) {
-            res = handle_func(devid, (const char *)req_data, len);
+            res = handle_func(devid, (const char *)req_data, item.value_length);
         }
     }
     alink_free(req_data);
@@ -566,10 +636,21 @@ static void alink_downstream_thing_property_set_req(uint32_t devid, const char *
         alink_upstream_thing_property_set_rsp(pk, dn, query);
     }
 #else
+    {
+        alink_msg_event_t *msg_data = alink_malloc(sizeof(alink_msg_event_t));
+        if (msg_data == NULL) {
+            alink_warning("malloc failed");
+            return;
+        }
 
+        msg_data->devid = devid;
+        msg_data->type = ALINK_EVENT_PROPERTY_PUT_REQ;
+        memcpy(&msg_data->query, query, sizeof(alink_uri_query_t));
+        msg_data->msg.property_put_req.payload = req_data;
+        msg_data->msg.property_put_req.len = item.value_length;
 
-
-
+        alink_msg_list_insert(msg_data);
+    }
 #endif
 }
 
@@ -621,7 +702,8 @@ static void alink_downstream_thing_property_get_req(uint32_t devid, const char *
 
 static void alink_downstream_thing_event_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    alink_downstream_thing_property_post_rsp(devid, pk, dn, payload, len, query);
+    alink_info("event post rsp recv");
+    _empty_rsp_handle(devid, pk, dn, payload, len, query);
 }
 
 static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -681,36 +763,84 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
             alink_upstream_thing_service_invoke_rsp(pk, dn, service_id, rsp_data, rsp_len, query);
         }
         alink_free(rsp_data);
+        alink_free(service_id);
+        alink_free(service_params);
     }
 #else
+    {
+        alink_msg_event_t *msg_data = alink_malloc(sizeof(alink_msg_event_t));
+        if (msg_data == NULL) {
+            alink_warning("malloc failed");
+            return;
+        }
 
+        msg_data->devid = devid;
+        msg_data->type = ALINK_EVENT_SERVICE_PUT_REQ;
+        memcpy(&msg_data->query, query, sizeof(alink_uri_query_t));
+
+        msg_data->msg.service_put_req.payload_len = item_params.value_length;
+        msg_data->msg.service_put_req.id_len = item_id.value_length;
+        msg_data->msg.service_put_req.id = service_id;
+        msg_data->msg.service_put_req.payload = service_params;
+
+        alink_msg_list_insert(msg_data);
+    }
 #endif
-    alink_free(service_id);
-    alink_free(service_params);
 }
 
 /***************************************************************
  * device model management raw data mode downstream message
  ***************************************************************/
-static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
+static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-#if (CONFIG_SDK_THREAD_COST == 0)
-    /* just invoke the user callback funciton */
-    linkkit_rawdata_rx_cb_t handle_func;
     alink_info("raw data recv");
-    handle_func = (linkkit_rawdata_rx_cb_t)alink_get_event_callback(ITE_RAWDATA_ARRIVED);
-    if (handle_func != NULL) {
-        handle_func(devid, payload, len);
+
+#if (CONFIG_SDK_THREAD_COST == 0)
+    {
+        /* just invoke the user callback funciton */
+        linkkit_rawdata_rx_cb_t handle_func;
+        handle_func = (linkkit_rawdata_rx_cb_t)alink_get_event_callback(ITE_RAWDATA_ARRIVED);
+        if (handle_func != NULL) {
+            handle_func(devid, payload, len);
+        }
+        /* TODO: if ack == 'n' */
     }
-    /* TODO: if ack = 'n' */
 #else
+    {
+        alink_msg_event_t *msg_data = alink_malloc(sizeof(alink_msg_event_t));
+        if (msg_data == NULL) {
+            alink_warning("malloc failed");
+            return;
+        }
+
+        msg_data->devid = devid;
+        msg_data->type = ALINK_EVENT_RAW_DATA_REQ;
+        memcpy(&msg_data->query, query, sizeof(alink_uri_query_t));
+        if (query->code == 400) {
+            msg_data->msg.raw_data.len = 0;
+            msg_data->msg.raw_data.data = NULL;
+        }
+        else {
+            msg_data->msg.raw_data.len = len;
+            msg_data->msg.raw_data.data = alink_malloc(len);
+            if (msg_data->msg.raw_data.data == NULL) {
+                alink_free(msg_data);
+                return;
+            }
+            memcpy(msg_data->msg.raw_data.data, payload, len);
+        }
+
+        alink_msg_list_insert(msg_data);
+    }
 #endif
 }
 
-static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
+static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    /* it's just rawdata, don't care about it's a req or rsp */
-    alink_downstream_thing_raw_post_rsp(devid, pk, dn, payload, len, query);
+    if (query->code != 200) {
+        query->code = 400;
+    }
+    alink_downstream_thing_raw_put_req(devid, pk, dn, payload, len, query);
 }
 
 #ifdef DEVICE_MODEL_GATEWAY
@@ -1018,15 +1148,14 @@ static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *
         /* send upstream response */
         alink_upstream_gw_permit_put_rsp(pk, dn, (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400, query);
     }
+    alink_free(productKey);
 #else
 #endif
-    alink_free(productKey);
 }
 
 static void alink_downstream_subdev_config_post_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     
-
 }
 
 #endif
@@ -1037,7 +1166,7 @@ static void alink_downstream_subdev_config_post_req(uint32_t devid, const char *
 
 static void alink_downstream_thing_deviceinfo_post_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    alink_downstream_thing_property_post_rsp(devid, pk, dn, payload, len, query);
+    _empty_rsp_handle(devid, pk, dn, payload, len, query);
 }
 
 static void alink_downstream_thing_deviceinfo_get_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -1047,7 +1176,7 @@ static void alink_downstream_thing_deviceinfo_get_rsq(uint32_t devid, const char
 
 static void alink_downstream_thing_deviceinfo_delete_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    alink_downstream_thing_property_post_rsp(devid, pk, dn, payload, len, query);
+    _empty_rsp_handle(devid, pk, dn, payload, len, query);
 }
 
 

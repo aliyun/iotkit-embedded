@@ -64,7 +64,7 @@ static void _alink_core_unlock(void)
         HAL_MutexUnlock(alink_core_ctx.mutex);
     }
 }
-
+extern int alink_msg_list_init(void); /* TODO: test */
 static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 {
     int res = FAIL_RETURN;
@@ -103,7 +103,7 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
     }
 
     /* init downstream topic hash table */
-    res = alink_downstream_hash_table_init();
+    res = alink_uri_hash_table_init();
     if (res < SUCCESS_RETURN) {
         _alink_core_deinit();
         return res;
@@ -126,11 +126,14 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
     }
 
     /* TODO!!! */
-#if (CONFIG_SDK_THREAD_COST != 0)
+#if (CONFIG_SDK_THREAD_COST == 1)
     alink_upstream_req_ctx_init();
+    alink_msg_list_init();
 #endif    
 
 #endif
+
+
     
     return SUCCESS_RETURN;
 }
@@ -165,14 +168,15 @@ static int _alink_core_deinit(void)
     }
 
     /* downstream topic hash table deinit */
-    alink_downstream_hash_table_deinit();
+    alink_uri_hash_table_deinit();
 
 #ifdef DEVICE_MODEL_GATEWAY
     /* subdev hash table deinit, TODO */
     alink_subdev_mgr_deinit();
-#if (CONFIG_SDK_THREAD_COST != 0)
-    alink_upstream_req_ctx_deinit();
+#if (CONFIG_SDK_THREAD_COST == 0)
 #endif
+    alink_upstream_req_ctx_deinit();
+    alink_msg_list_deinit();
 #endif
 
     alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;
@@ -265,7 +269,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
 #endif
     }
 
-    handle_func = alink_downstream_get_handle_func(path, strlen(path));
+    handle_func = alink_get_uri_handle_func(path, strlen(path));
     if (handle_func != NULL) {
         alink_info("invoke downstream uri handler");
         handle_func(devid, product_key, device_name, (const uint8_t *)payload, payload_len, &query);
@@ -421,9 +425,16 @@ int alink_core_unsubscribe_downstream_uri()
     return res;
 }
 
+extern int alink_msg_event_list_handler(void);  /* TODO */
+
 /** **/
 int alink_core_yield(uint32_t timeout_ms)
 {
+#if (CONFIG_SDK_THREAD_COST == 1)
+    alink_msg_event_list_handler();
+    HAL_SleepMs(timeout_ms);
+#endif
+
     return iotx_cm_yield(alink_core_ctx.cm_fd, timeout_ms);
 }
 
@@ -472,10 +483,5 @@ int alink_set_event_callback(iotx_linkkit_event_type_t event_id, linkkit_event_c
     return SUCCESS_RETURN;
 }
 
-/** TODO: only for test!!! **/
-void alink_downstream_mock(const char *uri_string, const char *payload)
-{
-    _alink_core_rx_event_handle(0, uri_string, strlen(uri_string), payload, strlen((const char *)payload), NULL);
-}
 
 

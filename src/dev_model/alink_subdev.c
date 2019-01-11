@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#ifdef DEVICE_MODEL_GATEWAY
+
 #include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
 #include "alink_core.h"
@@ -647,3 +649,4 @@ int alink_subdev_update_mass_status(uint32_t *subdev_array, uint32_t subdev_num,
     return SUCCESS_RETURN;
 }
 
+#endif

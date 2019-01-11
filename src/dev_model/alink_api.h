@@ -79,7 +79,7 @@ typedef enum {
     ITE_PROPERTY_SET,
     ITE_PROPERTY_GET,
     ITE_REPORT_REPLY,
-    ITE_TRIGGER_EVENT_REPLY,
+    ITE_TRIGGER_EVENT_REPLY,    /* deprecated in this version, use ITE_REPORT_REPLY event */
     ITE_TIMESTAMP_REPLY,
     ITE_TOPOLIST_REPLY,
     ITE_PERMIT_JOIN,
@@ -114,11 +114,7 @@ typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int
 typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
                                         const char *reply, int reply_len);
 
-typedef int (*linkkit_trigger_event_reply_cb_t)(int device_id, int msg_id, int code,    /* deprecated in this version, use linkkit_report_reply_cb_t */
-                                                const char *eventid, int eventid_len,
-                                                const char *message, int message_len);
-
-typedef int (*linkkit_timestamp_reply_cb_t)();      /* no implement this version */
+typedef int (*linkkit_timestamp_reply_cb_t)(const char *timestamp);      /* no implement this version */
 
 typedef int (*linkkit_topo_list_reply_cb_t)();      /* no implement this version */
 

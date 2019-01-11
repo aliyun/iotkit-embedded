@@ -47,6 +47,7 @@
 #define alink_free(ptr)                 {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
+#define PACKET_LOSS_RATE_STATS                  (0)
 #define UTILS_HASH_TABLE_ITERATOR_ENABLE        (1) 
 #define ALINK_DEBUG                             (1)
 
@@ -72,7 +73,7 @@
 #endif
 
 #ifndef CONFIG_SDK_THREAD_COST
-    #define CONFIG_SDK_THREAD_COST          (0)
+    #define CONFIG_SDK_THREAD_COST          (1)
 #endif
 
 #define ALINK_DEVICE_SELF_ID                (0)
