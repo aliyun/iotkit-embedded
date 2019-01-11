@@ -125,9 +125,10 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
         lite_cjson_init_hooks(&hooks);
     }
 
-    /* TODO!!! */
-#if (CONFIG_SDK_THREAD_COST == 1)
+    /* use upstream req cache if gw enabled */
     alink_upstream_req_ctx_init();
+
+#if (CONFIG_SDK_THREAD_COST == 1)
     alink_msg_list_init();
 #endif    
 
@@ -400,12 +401,10 @@ int alink_core_connect_cloud(void)
     return SUCCESS_RETURN;
 }
 
-/** **/
+/** TODO: cause deadlock **/
 alink_core_status_t alink_core_get_status(void)
 {
-    _alink_core_lock();
     return alink_core_ctx.status;
-    _alink_core_unlock();
 }
 
 /** **/

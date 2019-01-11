@@ -202,34 +202,13 @@ int main(int argc, char **argv)
     user_example_ctx_t *user_example_ctx;
     uint32_t cnt = 0;
     int res = FAIL_RETURN;
-    #if 1
-    static iotx_dev_meta_info_t dev_info = {
-        .product_key = "a1cZIolx3YE",
-        .product_secret = "EfFYTuX1GjMDvw6l",
-        .device_name = "TestAlink2RowDevice001",
-        .device_secret = "qoQjpFkhhZaUxxmaIofg2k4CmOi0jTdo"
-    };
+    static iotx_dev_meta_info_t dev_info;
 
-    #else
-    static iotx_dev_meta_info_t dev_info = {
-        .product_key = "a1Tp6krL0KH",
-        .product_secret = "EfFYTuX1GjMDvw6l",
-        .device_name = "TestAlink2Device001",
-        .device_secret = "uX5I81Zws2g5eFbkV9SuzZYEfiXMHpno"
-    };
-    static iotx_dev_meta_info_t dev_info = {
-        .product_key = "a1hKsL86jFv",
-        .product_secret = "lkpH3KOFOJUqu5uXqCB3Q8htivToy2em",
-        .device_name = "TestAlink2Gw001",
-        .device_secret = "lkpH3KOFOJUqu5uXqCB3Q8htivToy2em"
-    };
-    static iotx_dev_meta_info_t dev_info = {
-        .product_key = "a1EbseykAjo",
-        .product_secret = "EfFYTuX1GjMDvw6l",
-        .device_name = "gw_01",
-        .device_secret = "DTDcrlJXEmVFFDR7eY5MyfsInniLXjre"
-    };
-    #endif
+    /* get triple metadata from HAL */
+    HAL_GetProductKey(dev_info.product_key);
+    HAL_GetProductSecret(dev_info.product_secret);
+    HAL_GetDeviceName(dev_info.device_name);
+    HAL_GetDeviceSecret(dev_info.device_secret);
 
     printf("alink start\r\n");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
@@ -255,84 +234,13 @@ int main(int argc, char **argv)
     EXAMPLE_TRACE("IOT_Linkkit_Open Succeed\n");
 
     res = IOT_Linkkit_Connect(0);
+    if (res < SUCCESS_RETURN) {
+        return -1;
+    }
     EXAMPLE_TRACE("IOT_Linkkit_Connect, res = %d", res);
-
 
     /*** internel test start ***/
     #if MOCK_FUNCTION
-    _mock_property_put_req();
-
-    res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
-    EXAMPLE_TRACE("post property, res = %d", res);
-    _mock_property_post_rsp();
-
-    res = IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
-    EXAMPLE_TRACE("post event, res = %d", res);
-    _mock_event_post_rsp();
-
-    _mock_service_invoke_req();
-
-    res = IOT_Linkkit_Report(0, ITM_MSG_POST_RAW_DATA, (uint8_t *)"\x01\x02\x03\xFF", 4);
-    EXAMPLE_TRACE("post raw, res = %d", res);
-    _mock_raw_put_req();
-    _mock_raw_post_rsp();
-
-    res = IOT_Linkkit_Report(0, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
-    EXAMPLE_TRACE("post devinfo, res = %d", res);
-
-    {
-        static iotx_dev_meta_info_t subdev_info = {
-            .product_key = "a1Tp6krL0KH",
-            .product_secret = "TestAlink2Sub001",
-            .device_name = "TestAlink2Sub001",
-            .device_secret = ""
-        };
-
-        uint32_t i;
-        uint32_t devid[2];
-
-        for (i=0; i<2; i++) {
-            subdev_info.device_name[9]++;
-            devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &subdev_info);
-            EXAMPLE_TRACE("subdev open, id = %d", devid[i]);
-            res = IOT_Linkkit_Connect(devid[i]);
-            EXAMPLE_TRACE("subdev conn, res = %d", res);
-
-            _mock_register_post_rsp();  /* check */
-        }
-
-        res = IOT_Linkkit_Report(0, ITM_MSG_LOGIN, (uint8_t *)devid, sizeof(devid));
-        EXAMPLE_TRACE("subdev login, res = %d", res);
-
-        _mock_login_post_rsp();  /* check */
-
-        res = IOT_Linkkit_Report(0, ITM_MSG_LOGOUT, (uint8_t *)devid, sizeof(devid));
-        EXAMPLE_TRACE("subdev login, res = %d", res);
-    }
-
-    _mock_subdev_property_put_req();
-    /*** internel test end ***/
-
-    {
-        uint32_t devid[160];
-        int i = 0;
-        for (i=0; i<160; i++) {
-            dev_info.device_name[9]++;
-            devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &dev_info);
-            printf("open sudev, devid = %d", devid[i]);
-        }
-        subdev_hash_iterator();
-
-        for (i=159; i>=0; --i) {
-            printf("removed devid[%d] = %d", i, devid[i]);
-
-            _subdev_hash_remove(devid[i]);
-        }
-
-        subdev_hash_iterator();
-    }
-
-
     res = HAL_ThreadCreate(&user_example_ctx->example_thread1, example_thread1, NULL, NULL, NULL);
     if (res < 0) {
         EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
@@ -347,21 +255,21 @@ int main(int argc, char **argv)
         IOT_Linkkit_Close(user_example_ctx->master_devid);
         return -1;
     }
-
-    /*
+    
+    /* subdev management test */
     {
         static iotx_dev_meta_info_t subdev_info[2] = {
             {
-                .product_key = "a1Tp6krL0KH",
-                .product_secret = "TestAlink2Sub001",
-                .device_name = "TestAlink2Sub001",
-                .device_secret = ""
+                .product_key = "a1coeSe36WO",
+                .product_secret = "",
+                .device_name = "subdev_01",
+                .device_secret = "H02vfH2RgJDcSlkPGUk69OgS7akadK8S"
             },
             {
-                .product_key = "a1Tp6krL0KH",
-                .product_secret = "TestAlink2Sub001",
-                .device_name = "TestAlink2Sub002",
-                .device_secret = ""
+                .product_key = "a1coeSe36WO",
+                .product_secret = "",
+                .device_name = "subdev_02",
+                .device_secret = "H02vfH2RgJDcSlkPGUk69OgS7akadK8S"
             }
         };
 
@@ -376,34 +284,34 @@ int main(int argc, char **argv)
             EXAMPLE_TRACE("subdev conn, res = %d", res);
             
         }
-        {
-        alink_subdev_id_list_t subdev_id_list;
-        subdev_id_list.subdev_array = devid;
-        subdev_id_list.subdev_num = 2; 
-        res = alink_upstream_subdev_register_delete_req(&subdev_id_list);
-        EXAMPLE_TRACE("subdev mass register, res = %d", res);
-        }
+        res = IOT_Linkkit_Report(0, ITM_MSG_LOGIN, (uint8_t *)devid, sizeof(devid));
+        EXAMPLE_TRACE("subdev login, res = %d", res);
     }
-    */
+    
 
     while (1) {
-        uint8_t raw_data[] = "\x00\x00\x22\x33\x44\x12\x32\x01\x3f\xa0\x00\x00";
 
         IOT_Linkkit_Yield(2000);
 
         HAL_SleepMs(2000);
 
-        IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
-        /*  
-        IOT_Linkkit_TriggerEvent(0, "testEvent01", strlen("testEvent01"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
-        
+        /*
+        res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
+        EXAMPLE_TRACE("post property, res = %d", res);
+
+        res = IOT_Linkkit_TriggerEvent(0, "testEvent01", strlen("testEvent01"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
+        EXAMPLE_TRACE("post event, res = %d", res);
+
+        {
+            uint8_t raw_data[] = "\x00\x00\x22\x33\x44\x12\x32\x01\x3f\xa0\x00\x00";
+            res = IOT_Linkkit_Report(0, ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
+            EXAMPLE_TRACE("post raw, res = %d", res);
+        }
+
         res = IOT_Linkkit_Report(0, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
         EXAMPLE_TRACE("post devinfo, res = %d", res);
-
         */
-        res = IOT_Linkkit_Report(0, ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
 
-        EXAMPLE_TRACE("post raw, res = %d", res);
         if (++cnt > 30) {
             user_example_ctx->thread_running = 0;
             HAL_SleepMs(1000);

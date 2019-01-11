@@ -689,6 +689,7 @@ int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
     }
 
 #if (CONFIG_SDK_THREAD_COST == 0)
+    alink_info("cache subdev list");
     return _alink_upstream_cache_subdev_list(res, subdev_list);
 #else
     res = _alink_upstream_subdev_msg_wait_rsp(res);
