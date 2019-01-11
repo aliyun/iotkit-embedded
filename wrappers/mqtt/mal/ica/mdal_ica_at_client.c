@@ -8,6 +8,9 @@
 #include <string.h>
 #include "mdal_ica_at_client.h"
 #include "mdal_mal_import.h"
+#ifndef PLATFORM_HAS_OS
+#include "atparser.h"
+#endif
 
 #ifdef INFRA_MEM_STATS
     #define MDAL_ICA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "mdal.ica")
@@ -141,7 +144,11 @@ static char              *g_ica_rsp_buff = NULL;
 static volatile int       g_mqtt_connect_state = 0;
 static volatile at_mqtt_send_type_t   g_ica_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
+#ifdef PLATFORM_HAS_OS
 static void              *g_sem_response;
+#else
+int                       g_at_response = 0;
+#endif
 static volatile int       g_response_msg_number = 0;
 static int                g_response_packetid = 0;
 static int                g_response_status = 0;
@@ -162,18 +169,24 @@ static void at_err_callback(char *at_rsp)
         g_at_response_result = -1;
     }
 
+#ifdef PLATFORM_HAS_OS
     /* notify the sender error; */
     HAL_SemaphorePost(g_sem_response);
-
+#else
+    g_at_response ++;
+#endif
     return;
 }
 
 static void at_succ_callback(void)
 {
     g_at_response_result = 0;
+#ifdef PLATFORM_HAS_OS
     /* notify the sender ok; */
     HAL_SemaphorePost(g_sem_response);
-
+#else
+    g_at_response ++;
+#endif
     return;
 }
 
@@ -184,9 +197,12 @@ static void sub_callback(char *at_rsp)
     if (strstr(at_rsp, AT_MQTT_CMD_ERROR_RSP)) {
         g_at_response_result = -1;
 
+#ifdef PLATFORM_HAS_OS
         /* notify the sender fail; */
         HAL_SemaphorePost(g_sem_response);
-
+#else
+    g_at_response ++;
+#endif
         return;
     } else if (NULL != strstr(at_rsp, AT_ICA_MQTT_MQTTSUBRSP)) {
         /* get status/packet_id */
@@ -201,7 +217,11 @@ static void sub_callback(char *at_rsp)
                 mdal_err("subscribe rsp param invalid 1");
                 g_at_response_result = -1;
 
+#ifdef PLATFORM_HAS_OS
                 HAL_SemaphorePost(g_sem_response);
+#else
+                g_at_response ++;
+#endif
                 return;
             }
 
@@ -213,7 +233,11 @@ static void sub_callback(char *at_rsp)
                 mdal_err("subscribe rsp param invalid 2");
                 g_at_response_result = -1;
 
+#ifdef PLATFORM_HAS_OS
                 HAL_SemaphorePost(g_sem_response);
+#else
+                g_at_response ++;
+#endif
                 return;
             }
 
@@ -223,12 +247,20 @@ static void sub_callback(char *at_rsp)
                 mdal_err("subscribe rsp param invalid 3");
                 g_at_response_result = -1;
 
+#ifdef PLATFORM_HAS_OS
                 HAL_SemaphorePost(g_sem_response);
+#else
+                g_at_response ++;
+#endif
                 return;
             }
 
+#ifdef PLATFORM_HAS_OS
             /* notify the sender ok; */
             HAL_SemaphorePost(g_sem_response);
+#else
+            g_at_response ++;
+#endif
         }
     }
 
@@ -241,8 +273,12 @@ static void unsub_callback(char *at_rsp)
     if (strstr(at_rsp, AT_MQTT_CMD_ERROR_RSP)) {
         g_at_response_result = -1;
 
+#ifdef PLATFORM_HAS_OS
         /* notify the sender fail; */
         HAL_SemaphorePost(g_sem_response);
+#else
+        g_at_response ++;
+#endif
 
         return;
     } else if (NULL != strstr(at_rsp, AT_ICA_MQTT_MQTTUNSUBRSP)) {
@@ -281,8 +317,12 @@ static void unsub_callback(char *at_rsp)
             mdal_err("unsub: %s", g_ica_rsp_buff);
             mdal_err("unsub packetid: %d, sta: %d", g_response_packetid, g_response_status);
 
+#ifdef PLATFORM_HAS_OS
             /* notify the sender ok; */
             HAL_SemaphorePost(g_sem_response);
+#else
+            g_at_response ++;
+#endif
         }
     }
 
@@ -295,8 +335,12 @@ static void pub_callback(char *at_rsp)
     if (strstr(at_rsp, AT_MQTT_CMD_ERROR_RSP)) {
         g_at_response_result = -1;
 
+#ifdef PLATFORM_HAS_OS
         /* notify the sender fail; */
         HAL_SemaphorePost(g_sem_response);
+#else
+        g_at_response ++;
+#endif
 
         return;
     } else if (NULL != strstr(at_rsp, AT_ICA_MQTT_MQTTPUBRSP)) {
@@ -340,8 +384,12 @@ static void pub_callback(char *at_rsp)
 
             g_at_response_result = 0;
 
+#ifdef PLATFORM_HAS_OS
             /* notify the sender ok; */
             HAL_SemaphorePost(g_sem_response);
+#else
+            g_at_response ++;
+#endif
         }
     }
 
@@ -750,6 +798,7 @@ int at_ica_mqtt_client_init(void)
         return -1;
     }
 
+#ifdef PLATFORM_HAS_OS
     if (NULL == (g_sem_response = HAL_SemaphoreCreate())) {
         if (NULL != g_ica_rsp_buff) {
             MDAL_ICA_FREE(g_ica_rsp_buff);
@@ -760,6 +809,9 @@ int at_ica_mqtt_client_init(void)
 
         return -1;
     }
+#else
+    g_at_response = 0;
+#endif
 
     g_mqtt_connect_state = 0;
 
@@ -797,7 +849,11 @@ int at_ica_mqtt_client_deinit(void)
         g_ica_rsp_buff = NULL;
     }
 
+#ifdef PLATFORM_HAS_OS
     HAL_SemaphoreDestroy(g_sem_response);
+#else
+    g_at_response ++;
+#endif
 
     g_mqtt_connect_state = 0;
 
@@ -839,7 +895,19 @@ int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms)
 
         return -1;
     }
+#ifdef PLATFORM_HAS_OS
     HAL_SemaphoreWait(g_sem_response, timeout_ms);
+#else
+    if(!g_at_response)
+    {
+       at_yield(NULL, 0, NULL, timeout_ms);
+    }
+    else
+    {
+       g_at_response --;
+    }
+#endif
+
     g_ica_at_response = AT_MQTT_IDLE;
 
     return g_at_response_result;

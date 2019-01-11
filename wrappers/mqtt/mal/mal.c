@@ -11,6 +11,9 @@
 
 #include "mdal_mal_import.h"
 #include "mal.h"
+#ifndef PLATFORM_HAS_OS
+#include "atparser.h"
+#endif
 
 #define MAL_TIMEOUT_FOREVER -1
 #define MAL_MC_PACKET_ID_MAX (65535)
@@ -477,12 +480,18 @@ static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
 
     if (mal_mc_get_client_state(c) != IOTX_MC_STATE_CONNECTED) {
         mal_err("mal state = %d error", mal_mc_get_client_state(c));
+#ifndef PLATFORM_HAS_OS
+        at_yield(NULL, 0, NULL, 100);
+#endif
         return MQTT_STATE_ERROR;
     }
 
     if (HAL_MDAL_MAL_State() != IOTX_MC_STATE_CONNECTED) {
         mal_err("hal mal state = %d error", HAL_MDAL_MAL_State());
         mal_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
+#ifndef PLATFORM_HAS_OS
+        at_yield(NULL, 0, NULL, 100);
+#endif
         return MQTT_NETWORK_ERROR;
     }
 
@@ -579,6 +588,7 @@ static void mal_mc_recv_buf_deinit()
 
 static int mal_mc_wait_for_result()
 {
+#ifdef PLATFORM_HAS_OS
     mal_time_t         time;
     int state = 0;
     int timeout_ms = MAL_MC_DEAFULT_TIMEOUT;
@@ -601,6 +611,21 @@ static int mal_mc_wait_for_result()
     } else {
         return FAIL_RETURN;
     }
+#else
+    int state = 0;
+    int timeout_ms = 1000;
+    int count = 10;
+    do {
+       at_yield(NULL, 0, NULL, timeout_ms);
+       count --;
+    }while((count > 0) &&((state = HAL_MDAL_MAL_State()) != IOTX_MC_STATE_CONNECTED));
+
+    if (state == IOTX_MC_STATE_CONNECTED) {
+        return SUCCESS_RETURN;
+    } else {
+        return FAIL_RETURN;
+    }
+#endif
 }
 
 static int mal_mc_disconnect(iotx_mc_client_t *pClient)

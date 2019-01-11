@@ -144,7 +144,7 @@ int at_connect_wifi(char *ssid, char *pwd)
 {
     char conn_str[100]= {0};
     char out[20] = {0};
-    int wifi_got_ip_delay = 3000;
+    int wifi_got_ip_delay = 4000;
 
     sprintf(conn_str, "AT+WJAP=%s,%s", ssid, pwd);
 
@@ -179,13 +179,11 @@ void at_comm_init()
     }
 #endif
 
-#if defined(SAL_HAL_IMPL_MK3060)
 #define WIFI_SSID "Yuemewifi-3766"
 #define WIFI_PWD  "aos12345"
     if (at_connect_wifi(WIFI_SSID, WIFI_PWD) < 0) {
         printf("wifi connect failed!\n");
     }
-#endif
 #endif
 
     printf("at commu init done\n");
