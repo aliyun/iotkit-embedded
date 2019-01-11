@@ -174,9 +174,10 @@ static int _alink_core_deinit(void)
     /* subdev hash table deinit, TODO */
     alink_subdev_mgr_deinit();
 #if (CONFIG_SDK_THREAD_COST == 0)
-#endif
+#else
     alink_upstream_req_ctx_deinit();
     alink_msg_list_deinit();
+#endif
 #endif
 
     alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;

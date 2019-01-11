@@ -48,8 +48,8 @@
 #endif
 
 #define PACKET_LOSS_RATE_STATS                  (0)
-#define UTILS_HASH_TABLE_ITERATOR_ENABLE        (1) 
-#define ALINK_DEBUG                             (1)
+#define UTILS_HASH_TABLE_ITERATOR_ENABLE        (0)
+#define ALINK_DEBUG                             (0)
 
 #if ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \
@@ -73,7 +73,7 @@
 #endif
 
 #ifndef CONFIG_SDK_THREAD_COST
-    #define CONFIG_SDK_THREAD_COST          (1)
+    #define CONFIG_SDK_THREAD_COST          (0)
 #endif
 
 #define ALINK_DEVICE_SELF_ID                (0)
