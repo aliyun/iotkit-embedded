@@ -68,18 +68,6 @@ typedef struct iotx_mc_topic_handle_s {
     struct iotx_mc_topic_handle_s *next;
 } iotx_mc_topic_handle_t;
 
-/* Information structure of subscribed topic */
-typedef struct SUBSCRIBE_INFO {
-    enum msgTypes               type;               /* type, (sub or unsub) */
-    uint16_t                    msg_id;             /* packet id of subscribe(unsubcribe) */
-    iotx_time_t                 sub_start_time;     /* start time of subscribe request */
-    iotx_mc_node_t              node_state;         /* state of this node */
-    iotx_mc_topic_handle_t     *handler;            /* handle of topic subscribed(unsubcribed) */
-    uint16_t                    len;                /* length of subscribe message */
-    unsigned char              *buf;                /* subscribe message */
-    struct list_head            linked_list;
-} iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
-
 #if !WITH_MQTT_ONLY_QOS0
 /* Information structure of published topic */
 typedef struct REPUBLISH_INFO {
@@ -122,9 +110,7 @@ typedef struct Client {
 #if !WITH_MQTT_ONLY_QOS0
     struct list_head                list_pub_wait_ack;                          /* list of wait publish ack */
 #endif
-    struct list_head                list_sub_wait_ack;                          /* list of subscribe or unsubscribe ack */
     void                           *lock_list_pub;                              /* lock for list of QoS1 pub */
-    void                           *lock_list_sub;                              /* lock for list of sub/unsub */
     void                           *lock_write_buf;                             /* lock of write */
     void                           *lock_read_buf;                             /* lock of write */
     void                           *lock_yield;
