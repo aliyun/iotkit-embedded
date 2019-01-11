@@ -22,6 +22,7 @@ uint64_t HAL_UptimeMs(void);
 int HAL_GetFirmwareVersion(char *version);
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.report")
 #define SYS_REPORT_FREE(ptr)    LITE_free(ptr)
 #else

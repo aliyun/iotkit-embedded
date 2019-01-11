@@ -5,6 +5,7 @@
 #include "sal_sockets_internal.h"
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define sal_malloc(size)            LITE_malloc(size, MEM_MAGIC, "sal.sockets")
 #define sal_free(ptr)               LITE_free(ptr)
 #else

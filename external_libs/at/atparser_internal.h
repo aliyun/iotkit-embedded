@@ -93,6 +93,7 @@ typedef struct
 
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define atpsr_malloc(size)            LITE_malloc(size, MEM_MAGIC, "atpaser")
 #define atpsr_free(ptr)               LITE_free(ptr)
 #else

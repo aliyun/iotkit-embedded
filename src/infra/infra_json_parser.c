@@ -25,6 +25,7 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 #endif
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define jparser_malloc(size)            LITE_malloc(size, MEM_MAGIC, "jparser")
 #define jparser_free(ptr)               LITE_free(ptr)
 #else

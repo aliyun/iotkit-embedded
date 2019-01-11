@@ -34,6 +34,7 @@
 
 
 #ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
     #define mal_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
     #define mal_free(ptr)               LITE_free(ptr)
 #else

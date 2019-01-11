@@ -13,6 +13,7 @@
 #endif
 
 #ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
     #define MDAL_ICA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "mdal.ica")
     #define MDAL_ICA_FREE(ptr)               LITE_free(ptr)
 #else

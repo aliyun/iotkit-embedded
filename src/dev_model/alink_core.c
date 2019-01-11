@@ -174,9 +174,9 @@ static int _alink_core_deinit(void)
 #ifdef DEVICE_MODEL_GATEWAY
     /* subdev hash table deinit, TODO */
     alink_subdev_mgr_deinit();
+    alink_upstream_req_ctx_deinit();
 #if (CONFIG_SDK_THREAD_COST == 0)
 #else
-    alink_upstream_req_ctx_deinit();
     alink_msg_list_deinit();
 #endif
 #endif

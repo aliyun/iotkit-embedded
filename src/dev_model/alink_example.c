@@ -295,7 +295,7 @@ int main(int argc, char **argv)
 
         HAL_SleepMs(2000);
 
-        /*
+        
         res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
         EXAMPLE_TRACE("post property, res = %d", res);
 
@@ -310,9 +310,9 @@ int main(int argc, char **argv)
 
         res = IOT_Linkkit_Report(0, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
         EXAMPLE_TRACE("post devinfo, res = %d", res);
-        */
+        
 
-        if (++cnt > 30) {
+        if (++cnt > 5) {
             user_example_ctx->thread_running = 0;
             HAL_SleepMs(1000);
 
@@ -324,6 +324,10 @@ int main(int argc, char **argv)
             break;
         }
     }
+
+#ifdef INFRA_MEM_STATS
+    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
+#endif
 
     printf("alink stop\r\n");
 }

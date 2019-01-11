@@ -15,5 +15,6 @@ config DEVICE_MODEL_GATEWAY
     bool "FEATURE_DEVICE_MODEL_GATEWAY"
     depends on DEVICE_MODEL_ENABLE
     default n
+    select INFRA_LIST
     help
         Switching Thing-Model related implementations provided in gateway oriented way

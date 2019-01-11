@@ -8,6 +8,7 @@
 #include "dev_sign_wrapper.h"
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define DEV_SIGN_MQTT_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "dev_sign")
 #define DEV_SIGN_MQTT_FREE(ptr)               LITE_free(ptr)
 #else

@@ -8,6 +8,7 @@
 #define TAG "SAL_UTIL"
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define SAL_UTILS_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "sal.util")
 #define SAL_UTILS_FREE(ptr)               LITE_free(ptr)
 #else

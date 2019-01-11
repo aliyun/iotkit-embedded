@@ -12,6 +12,7 @@
 
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define cm_malloc(size)              LITE_malloc(size, MEM_MAGIC, "dm")
 #define cm_free(ptr)                 LITE_free(ptr)
 #else

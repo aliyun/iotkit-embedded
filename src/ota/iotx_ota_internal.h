@@ -19,6 +19,7 @@
 #include "ota_wrapper.h"
 
 #ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
 #define OTA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "ota")
 #define OTA_FREE(ptr)               LITE_free(ptr)
 #define OTA_API_MALLOC(size)        LITE_malloc(size, MEM_MAGIC, "ota.api")

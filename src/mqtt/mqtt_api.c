@@ -10,6 +10,7 @@
 #include "mqtt_internal.h"
 
 #ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
     #define mqtt_api_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt-api")
     #define mqtt_api_free(ptr)               LITE_free(ptr)
 #else

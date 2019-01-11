@@ -60,3 +60,8 @@ config INFRA_HTTPC
     default n
     select INFRA_NET
     select INFRA_TIMER
+
+config INFRA_MEM_STATS
+    bool
+    default n
+    select INFRA_LIST

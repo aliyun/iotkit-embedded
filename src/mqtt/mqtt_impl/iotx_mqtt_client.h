@@ -20,6 +20,7 @@
 #endif
 
 #ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
     #define mqtt_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
     #define mqtt_free(ptr)               LITE_free(ptr)
 #else

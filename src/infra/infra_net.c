@@ -25,6 +25,7 @@ void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 
 #ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
     #define NET_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "infra_net")
     #define NET_FREE(ptr)    LITE_free(ptr)
 #else
