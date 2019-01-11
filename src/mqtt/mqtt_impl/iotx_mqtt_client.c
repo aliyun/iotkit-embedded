@@ -29,10 +29,9 @@ static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient);
 static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type,
                                    iotx_mc_topic_handle_t *handler,
                                    iotx_mc_subsribe_info_t **node);
-#if !(WITH_MQTT_SUB_SHORTCUT)
+
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2);
-#endif
 static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2);
 
@@ -180,64 +179,6 @@ static int iotx_mc_get_zip_topic(const char *path, int len, char outbuf[], int o
     return 0;
 }
 #endif
-
-/*
-static void _conn_info_dynamic_reload_clear(iotx_mc_client_t *pClient)
-{
-#if WITH_MQTT_DYN_CONNINFO
-    mqtt_free(pClient->connect_data.clientID.cstring);
-    mqtt_free(pClient->connect_data.username.cstring);
-    mqtt_free(pClient->connect_data.password.cstring);
-    mqtt_free(pClient->ipstack->pHostAddress);
-#endif
-}
-*/
-/* set MQTT connection parameter */
-/*
-static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
-{
-#if WITH_MQTT_DYN_CONNINFO
-    int res = 0;
-    iotx_dev_meta_info_t meta;
-    iotx_sign_mqtt_t sign_mqtt;
-    const char *pub_key = NULL;
-
-    if (NULL == pClient) {
-        return NULL_VALUE_ERROR;
-    }
-    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-
-    memset(&meta,0,sizeof(iotx_dev_meta_info_t));
-    HAL_GetProductKey(meta.product_key);
-    HAL_GetDeviceName(meta.device_name);
-    HAL_GetDeviceSecret(meta.device_secret);
-
-    memset(&sign_mqtt,0,sizeof(iotx_sign_mqtt_t));
-    res = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &sign_mqtt);
-    if (res < 0) {
-        return -1;
-    }
-
-    pClient->connect_data.clientID.cstring = sign_mqtt.clientid;
-    pClient->connect_data.username.cstring = sign_mqtt.username;
-    pClient->connect_data.password.cstring = sign_mqtt.password;
-
-    HAL_GetProductKey(product_key);
-
-#ifdef SUPPORT_TLS
-    extern const char *iotx_ca_crt;
-    pub_key = iotx_ca_crt;
-#endif
-
-    res = iotx_net_init(pClient->ipstack, sign_mqtt.hostname, sign_mqtt.port, pub_key, product_key);
-    if (SUCCESS_RETURN != res) {
-        mqtt_err("iotx_net_init err");
-        return -1;
-    }
-#endif
-    return 0;
-}
-*/
 
 static int _handle_event(iotx_mqtt_event_handle_pt handle, iotx_mc_client_t *c, iotx_mqtt_event_msg_pt msg)
 {
@@ -706,11 +647,28 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     HAL_MutexUnlock(c->lock_write_buf);
 
 #if (WITH_MQTT_SUB_SHORTCUT)
-    HAL_MutexLock(c->lock_generic);
-    handler->next = c->first_sub_handle;
-    c->first_sub_handle = handler;
-    HAL_MutexUnlock(c->lock_generic);
+    {
+        uint8_t dup = 0;
+        iotx_mc_topic_handle_t *h;
+        HAL_MutexLock(c->lock_generic);
+        for (h = c->first_sub_handle; h; h = h->next) {
+            /* If subscribe the same topic and callback function, then ignore */
+            if (0 == iotx_mc_check_handle_is_identical (h, handler)) {
+                mqtt_warning("dup sub,topic = %s", topicFilter);
+                dup = 1;
+            }
+        }
+        if (dup == 0) {
+            handler->next = c->first_sub_handle;
+            c->first_sub_handle = handler;
+        } else {
+            mqtt_free(handler->topic_filter);
+            mqtt_free(handler);
+        }
+        HAL_MutexUnlock(c->lock_generic);
+    }
 #endif
+
     _dump_wait_list(c, "sub");
 
     return SUCCESS_RETURN;
@@ -1947,9 +1905,9 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     return rc;
 }
 
-#if !(WITH_MQTT_SUB_SHORTCUT)
+
 /* return: 0, identical; NOT 0, different */
-static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
+static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
         iotx_mc_topic_handle_t *messageHandler2)
 {
 	int topicNameLen = 0;
@@ -1973,13 +1931,13 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
         return 1;
     }
 #else
-    int i;
 
     if (messageHandlers1->topic_type != messageHandler2->topic_type) {
         return 1;
     }
 
     if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
+        int i;
         for (i = 0; i < MQTT_ZIP_PATH_DEFAULT_LEN; i++) {
             if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[i]) {
                 return 1;
@@ -1997,6 +1955,19 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
         }
     }
 #endif
+
+    return 0;
+}
+
+
+/* return: 0, identical; NOT 0, different */
+static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
+        iotx_mc_topic_handle_t *messageHandler2)
+{
+    if (iotx_mc_check_handle_is_identical_ex(messageHandlers1, messageHandler2) != 0) {
+        return 1;
+    }
+
     if (messageHandlers1->handle.h_fp != messageHandler2->handle.h_fp) {
         return 1;
     }
@@ -2005,62 +1976,6 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
     if (messageHandlers1->handle.pcontext != messageHandler2->handle.pcontext) {
         return 1;
     }
-
-    return 0;
-}
-#endif
-
-/* return: 0, identical; NOT 0, different */
-static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
-        iotx_mc_topic_handle_t *messageHandler2)
-{
-	int topicNameLen = 0;
-
-    if (!messageHandlers1 || !messageHandler2) {
-        return 1;
-    }
-
-    if (!(messageHandlers1 ->topic_filter) || !(messageHandler2->topic_filter)) {
-        return 1;
-    }
-
-#if !(WITH_MQTT_ZIP_TOPIC)
-    topicNameLen = strlen(messageHandlers1->topic_filter);
-
-    if (topicNameLen != strlen(messageHandler2->topic_filter)) {
-        return 1;
-    }
-
-    if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
-        return 1;
-    }
-#else
-    {
-        int i;
-
-        if (messageHandlers1->topic_type != messageHandler2->topic_type) {
-            return 1;
-        }
-
-        if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
-            for (i = 0; i < MQTT_ZIP_PATH_DEFAULT_LEN; i++) {
-                if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[1]) {
-                    return 1;
-                }
-            }
-        } else {
-            topicNameLen = strlen(messageHandlers1->topic_filter);
-
-            if (topicNameLen != strlen(messageHandler2->topic_filter)) {
-                return 1;
-            }
-
-            if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
-                return 1;
-            }
-        }
-    }
-#endif
 
     return 0;
 }
