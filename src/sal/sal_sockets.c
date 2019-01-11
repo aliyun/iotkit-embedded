@@ -998,6 +998,28 @@ static int sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
 }
 #endif
 
+int sal_recvbufempty(int s)
+{
+    struct sal_sock *pstsock = NULL;
+
+    pstsock = get_socket(s);
+    if (NULL == pstsock || NULL == pstsock->conn) {
+        SAL_ERROR("sal_checkrecvdata cannot get socket %d\n", s);
+        return -1;
+    }
+
+    /* remain data */
+    if (pstsock->lastdata)
+        return 0;
+
+    if (!sal_mbox_valid(&pstsock->conn->recvmbox)) {
+        SAL_ERROR("socket %d connect invalid recvmbox\n", s);
+        return -1;
+    }
+
+    return sal_arch_mbox_empty(&pstsock->conn->recvmbox);
+}
+
 int sal_recvfrom(int s, void *mem, size_t len, int flags,
                  struct sockaddr *from, socklen_t *fromlen)
 {

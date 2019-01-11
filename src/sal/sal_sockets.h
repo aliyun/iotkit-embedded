@@ -201,6 +201,8 @@ int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
                fd_set *exceptset, struct timeval *timeout);
 #endif
 
+int sal_recvbufempty(int s);
+
 int sal_socket(int domain, int type, int protocol);
 
 int sal_write(int s, const void *data, size_t size);

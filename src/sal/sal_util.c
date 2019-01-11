@@ -57,6 +57,11 @@ void *HAL_QueueBufPtr(void *queue)
     return NULL;
 }
 
+int HAL_QueueEmpty(void *queue)
+{
+    return sal_ringbuf_empty((sal_ringbuf_t *)queue);
+}
+
 static sal_ringbuf_t *sal_ringbuf_create(int length)
 {
     sal_ringbuf_t *ringbuf = NULL;

@@ -149,7 +149,7 @@ int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     int ret, err_code;
     uint32_t len_recv;
     uint64_t t_end, t_left;
-
+    int empty;
 
     t_end = _get_time_ms() + timeout_ms;
     len_recv = 0;
@@ -161,13 +161,31 @@ int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             break;
         }
 
-        ret = 1;
+        while(1) {
+            empty = sal_recvbufempty(fd);
+            if (0 == empty) {
+                ret = 1;
+                break;
+            } else if (empty < 0) {
+                ret = -1;
+            }
 
 #ifdef ATPARSER_ENABLED
 #if AT_SINGLE_TASK
-        at_yield(NULL, 0, NULL, AT_UART_TIMEOUT_MS);
+            at_yield(NULL, 0, NULL, AT_UART_TIMEOUT_MS);
 #endif
 #endif
+            t_left = _time_left(t_end, _get_time_ms());
+            if (0 == t_left) {
+                ret = 0;
+                break;
+            }
+
+#ifdef PLATFORM_HAS_OS
+            HAL_SleepMs(10);
+#endif
+        }
+
         if (ret > 0) {
             ret = recv(fd, buf + len_recv, len - len_recv, 0);
             if (ret > 0) {
