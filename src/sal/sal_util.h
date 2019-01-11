@@ -31,6 +31,8 @@ int HAL_QueueRecv(void *queue, unsigned int ms, void *msg,
 
 void *HAL_QueueBufPtr(void *queue);
 
+int HAL_QueueEmpty(void *queue);
+
 #ifdef __cplusplus
 }
 #endif

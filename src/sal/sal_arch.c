@@ -280,6 +280,14 @@ u32_t sal_arch_mbox_tryfetch(sal_mbox_t *mb, void **msg)
     }
 }
 
+int sal_arch_mbox_empty(sal_mbox_t *mb)
+{
+    if (mb == NULL) {
+        return ERR_MEM;
+    }
+
+    return HAL_QueueEmpty(mb->hdl);
+}
 
 /** Create a new mutex
  * @param mutex pointer to the mutex to create

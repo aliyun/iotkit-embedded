@@ -240,6 +240,8 @@ int sal_mbox_valid(sal_mbox_t *mbox);
 void sal_mbox_set_invalid(sal_mbox_t *mbox);
 #endif
 
+int sal_arch_mbox_empty(sal_mbox_t *mb);
+
 /**
  * @ingroup sal_time
  * Returns the current time in milliseconds,
