@@ -905,7 +905,7 @@ int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms)
 #else
     if(!g_at_response)
     {
-       at_yield(NULL, 0, NULL, timeout_ms);
+       at_yield(NULL, 0, NULL, 500);
     }
     else
     {
