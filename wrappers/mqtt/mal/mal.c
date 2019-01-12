@@ -617,10 +617,10 @@ static int mal_mc_wait_for_result()
     int state = 0;
     int timeout_ms = 1000;
     int count = 10;
-    do {
+    while((count > 0) &&((state = HAL_MDAL_MAL_State()) != IOTX_MC_STATE_CONNECTED)){
        at_yield(NULL, 0, NULL, timeout_ms);
        count --;
-    }while((count > 0) &&((state = HAL_MDAL_MAL_State()) != IOTX_MC_STATE_CONNECTED));
+    }
 
     if (state == IOTX_MC_STATE_CONNECTED) {
         return SUCCESS_RETURN;
