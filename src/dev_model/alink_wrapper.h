@@ -28,13 +28,14 @@
 #define alink_info(...)                 log_info("ALINK", __VA_ARGS__)
 #define alink_debug(...)                log_debug("ALINK", __VA_ARGS__)
 #else
+void HAL_Printf(const char *fmt, ...);
 #define alink_emerg(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define alink_crit(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define alink_err(...)                  do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define alink_warning(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define alink_info(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define alink_debug(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#endif
+#endif /* #ifdef INFRA_LOG */
 
 #ifdef INFRA_MEM_STATS
 #include "infra_mem_stats.h"
@@ -43,15 +44,15 @@
 #else
 #define alink_malloc(size)              HAL_Malloc(size)
 #define alink_free(ptr)                 {HAL_Free((void *)ptr);ptr = NULL;}
-#endif
+#endif /* #ifdef INFRA_MEM_STATS */
 
 
-int8_t HAL_GetPartnerID(char *pid_str);
-int8_t HAL_GetModuleID(char *mid_str);
-int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int8_t HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN]);
-int8_t HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
-int8_t HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
+int HAL_GetPartnerID(char *pid_str);
+int HAL_GetModuleID(char *mid_str);
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
+int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN]);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);

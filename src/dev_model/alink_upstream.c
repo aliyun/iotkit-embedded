@@ -548,19 +548,21 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
         HAL_Snprintf(timestamp, sizeof(timestamp), "%llu", HAL_UptimeMs());
         sign_source_len = strlen(c_login_sign_source_fmt) + strlen(clientid) + strlen(pk) + strlen(dn) + strlen(timestamp);
         sign_source = alink_malloc(sign_source_len);
-        HAL_Snprintf(sign_source, sign_source_len, c_login_sign_source_fmt, clientid, pk, dn, timestamp);
+        HAL_Snprintf(sign_source, sign_source_len, c_login_sign_source_fmt, clientid, dn, pk, timestamp);
         utils_hmac_sha256((const uint8_t *)sign_source, strlen(sign_source), (const uint8_t *)ds, strlen(ds), (uint8_t *)sign);
         infra_hex2str((uint8_t *)sign, 32, sign_string);
-        alink_info("%s", sign_source);
+        alink_info("sign_src = %s", sign_source);
         alink_free(sign_source);
+        alink_debug("sign = %s", sign_string);
+
 
         lite_cjson_add_string_to_object(lite_array_item, "ci", clientid);
         lite_cjson_add_string_to_object(lite_array_item, "dn", dn);
         lite_cjson_add_string_to_object(lite_array_item, "pk", pk);
         lite_cjson_add_string_to_object(lite_array_item, "ts", timestamp);
-#if (0)        
+/*
         lite_cjson_add_string_to_object(lite_array_item, "sm", "hmacSha256");
-#endif      
+*/
         lite_cjson_add_string_to_object(lite_array_item, "sn", sign_string);
 
         lite_cjson_add_item_to_array(lite_array, lite_array_item);
@@ -568,6 +570,8 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
 
     payload = lite_cjson_print_unformatted(lite_root);
     lite_cjson_delete(lite_root);
+
+    alink_info("payload = %s", payload);
 
     return payload;
 }

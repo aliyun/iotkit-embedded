@@ -2,12 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include <stdlib.h>
 
-#ifdef SUPPORT_TLS
 const char *iotx_ca_crt = \
 {
     \
@@ -33,5 +29,3 @@ const char *iotx_ca_crt = \
     "HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==\r\n" \
     "-----END CERTIFICATE-----"
 };
-#endif  /* #ifdef SUPPORT_TLS */
-

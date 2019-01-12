@@ -801,7 +801,7 @@ static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, c
         linkkit_rawdata_rx_cb_t handle_func;
         handle_func = (linkkit_rawdata_rx_cb_t)alink_get_event_callback(ITE_RAWDATA_ARRIVED);
         if (handle_func != NULL) {
-            handle_func(devid, payload, len);
+            handle_func(devid, (query->code == 400)? NULL: payload, (query->code == 400)? 0: len);  /* return NULL if return code is error */
         }
         /* TODO: if ack == 'n' */
     }

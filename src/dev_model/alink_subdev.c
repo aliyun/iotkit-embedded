@@ -1,10 +1,11 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef DEVICE_MODEL_GATEWAY
 
 #include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
+
+#ifdef DEVICE_MODEL_GATEWAY
 #include "alink_core.h"
 #include "infra_defs.h"
 
@@ -16,7 +17,7 @@
 
 #define ALINK_SUBDEV_HTABLE_SIZE_MAX        2000
 
-#define ALINK_SUBDEV_HTABLE_SIZE            53          /* TODO, 151 */
+#define ALINK_SUBDEV_HTABLE_SIZE            CONFIG_SUBDEV_HASH_TABLE_SZIE   /* TODO */
 
 
 typedef struct _subdev_hash_node *subdev_hash_table_t;

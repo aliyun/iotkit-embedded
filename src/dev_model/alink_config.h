@@ -23,8 +23,7 @@
 
 #define UTILS_HASH_TABLE_ITERATOR_ENABLE    (0)
 
-
-
+#define CONFIG_SUBDEV_HASH_TABLE_SZIE       (17)    /* 17 19 23 29 31 37 47 59 73 89 97 113 131 149..., must < 2000 */
 
 
 
