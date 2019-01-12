@@ -578,7 +578,7 @@ static void at_scan_for_callback(char c, char *buf, int *index)
             (offset >= strlen(oob->prefix) &&
              memcmp(oob->prefix, buf + offset - strlen(oob->prefix),
                     strlen(oob->prefix)) == 0)) {
-            atpsr_debug("AT! %s\r\n", oob->prefix);
+            //atpsr_debug("AT! %s\r\n", oob->prefix);
             if (oob->postfix == NULL) {
                 oob->cb(oob->arg, NULL, 0);
                 memset(buf, 0, offset);
