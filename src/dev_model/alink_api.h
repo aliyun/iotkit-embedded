@@ -261,6 +261,7 @@ typedef enum {
     IOTX_CODE_CLOUD_RETURN_ERROR    = -4015L,
     IOTX_CODE_WAIT_RSP_TIMEOUT      = -4016L,
     IOTX_CODE_LIST_INSERT_ERROR     = -4017L,
+    IOTX_CODE_JSON_FORMAT_ERROR     = -4018L,
 } iotx_linkkit_errorcode_t;
 
 

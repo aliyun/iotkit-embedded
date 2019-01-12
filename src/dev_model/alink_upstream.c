@@ -641,7 +641,6 @@ int alink_upstream_subdev_register_post_req(alink_subdev_id_list_t *subdev_list)
     return _alink_upstream_subdev_msg_wait_rsp(res);
     /* not necessary to update subdev status double time */
 #endif
-    return SUCCESS_RETURN;
 }
 
 int alink_upstream_subdev_register_delete_req(alink_subdev_id_list_t *subdev_list)
