@@ -144,7 +144,7 @@ int at_connect_wifi(char *ssid, char *pwd)
 {
     char conn_str[100]= {0};
     char out[20] = {0};
-    int wifi_got_ip_delay = 4000;
+    int wifi_got_ip_delay = 6000;
 
     sprintf(conn_str, "AT+WJAP=%s,%s", ssid, pwd);
 

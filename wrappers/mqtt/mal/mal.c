@@ -16,6 +16,7 @@
 #endif
 
 #define MAL_TIMEOUT_FOREVER -1
+#define MAL_TIMEOUT_DEFAULT 3000
 #define MAL_MC_PACKET_ID_MAX (65535)
 #define MAL_MC_TOPIC_NAME_MAX_LEN (128)
 #define MAL_MC_DEFAULT_BUFFER_NUM  1
@@ -976,7 +977,11 @@ int wrapper_mqtt_subscribe(void *client,
                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
                            void *pcontext)
 {
+#if PLATFORM_HAS_OS
     return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_FOREVER);
+#else
+    return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_DEFAULT);
+#endif
 }
 
 int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter)

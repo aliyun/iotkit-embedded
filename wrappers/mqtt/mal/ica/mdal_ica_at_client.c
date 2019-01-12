@@ -140,8 +140,11 @@ int HAL_MDAL_MAL_Connectwifi(char *at_conn_wifi)
 #endif
     return -1;
 }
-
+#ifndef PLATFORM_HAS_OS
+char g_ica_rsp_buff[AT_MQTT_RSP_MAX_LEN];
+#else
 static char              *g_ica_rsp_buff = NULL;
+#endif
 static volatile int       g_mqtt_connect_state = 0;
 static volatile at_mqtt_send_type_t   g_ica_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
@@ -793,13 +796,13 @@ int at_ica_mqtt_client_state(void)
 
 int at_ica_mqtt_client_init(void)
 {
+#ifdef PLATFORM_HAS_OS
     g_ica_rsp_buff = MDAL_ICA_MALLOC(AT_MQTT_RSP_MAX_LEN);
     if (NULL == g_ica_rsp_buff) {
         mdal_err("at ica mqtt client malloc buff failed");
         return -1;
     }
 
-#ifdef PLATFORM_HAS_OS
     if (NULL == (g_sem_response = HAL_SemaphoreCreate())) {
         if (NULL != g_ica_rsp_buff) {
             MDAL_ICA_FREE(g_ica_rsp_buff);
@@ -811,6 +814,7 @@ int at_ica_mqtt_client_init(void)
         return -1;
     }
 #else
+    memset(g_ica_rsp_buff, 0, AT_MQTT_RSP_MAX_LEN);
     g_at_response = 0;
 #endif
 
@@ -845,15 +849,15 @@ int at_ica_mqtt_client_init(void)
 
 int at_ica_mqtt_client_deinit(void)
 {
+#ifdef PLATFORM_HAS_OS
     if (NULL != g_ica_rsp_buff) {
         MDAL_ICA_FREE(g_ica_rsp_buff);
         g_ica_rsp_buff = NULL;
     }
-
-#ifdef PLATFORM_HAS_OS
     HAL_SemaphoreDestroy(g_sem_response);
 #else
-    g_at_response ++;
+    memset(g_ica_rsp_buff, 0, AT_MQTT_RSP_MAX_LEN);
+    g_at_response = 0;
 #endif
 
     g_mqtt_connect_state = 0;
