@@ -9,6 +9,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "infra_config.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_log.h"
+#include "infra_list.h"
+#include "infra_compat.h"
+#include "infra_cjson.h"
+#include "infra_timer.h"
+#include "infra_sha256.h"
+#include "infra_string.h"
+
+#include "wrappers_defs.h"
 #include "alink_wrapper.h"
 #include "iotx_cm.h"
 #include "alink_config.h"
@@ -20,6 +32,32 @@
 #include "alink_core.h"
 #include "alink_api.h"        /* TODO */
 
+#ifdef INFRA_LOG
+#include "infra_log.h"
+#define alink_emerg(...)                log_emerg("ALINK", __VA_ARGS__)
+#define alink_crit(...)                 log_crit("ALINK", __VA_ARGS__)
+#define alink_err(...)                  log_err("ALINK", __VA_ARGS__)
+#define alink_warning(...)              log_warning("ALINK", __VA_ARGS__)
+#define alink_info(...)                 log_info("ALINK", __VA_ARGS__)
+#define alink_debug(...)                log_debug("ALINK", __VA_ARGS__)
+#else
+
+#define alink_emerg(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define alink_crit(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define alink_err(...)                  do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define alink_warning(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define alink_info(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define alink_debug(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#endif /* #ifdef INFRA_LOG */
+
+#ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
+#define alink_malloc(size)              LITE_malloc(size, MEM_MAGIC, "dm")
+#define alink_free(ptr)                 LITE_free(ptr)
+#else
+#define alink_malloc(size)              HAL_Malloc(size)
+#define alink_free(ptr)                 {HAL_Free((void *)ptr);ptr = NULL;}
+#endif /* #ifdef INFRA_MEM_STATS */
 
 #if CONFIG_ALINK_DEBUG
     #define ALINK_ASSERT_DEBUG(expr) \
