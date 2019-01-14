@@ -757,7 +757,6 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
 
         alink_debug("propery get user rsp = %.*s", rsp_len, rsp_data);
         query->code = (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400;
-e
         /* send upstream response if ack is need */
         if (query->ack == 'y') {
             alink_upstream_thing_service_invoke_rsp(pk, dn, service_id, rsp_data, rsp_len, query);
