@@ -10,7 +10,7 @@ endif
 
 
 ifneq (,$(filter -DATPARSER_ENABLED,$(CFLAGS)))
-LDFLAGS         += -liot_at -liot_sdk -liot_hal -liot_tls
+LDFLAGS         += -liot_sdk -liot_hal -liot_at -liot_hal -liot_tls
 else
 LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 endif
