@@ -55,24 +55,35 @@ gen_infra() {
 gen_wrapper_c() {
     M_MQTT_COMM_ENABLED=$(echo "${1}" | grep -w 'MQTT_COMM_ENABLED')
     M_MQTT_DEFAULT_IMPL=$(echo "${1}" | grep -w 'MQTT_DEFAULT_IMPL')
-    M_SAL_ENABLED=$(echo "${1}" | grep -w 'SAL_ENABLED')
     M_MAL_ENABLED=$(echo "${1}" | grep -w 'MAL_ENABLED')
-    M_SAL_HAL_IMPL=$(echo "${1}" | grep 'SAL_HAL_IMPL')
 
     WRAPPER_FUNCS=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "HAL_.*(" {} | sed 's/(//g' | sort -u)"\n"
-    WRAPPER_FUNCS+=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "wrapper_.*(" {} | sed 's/(//g' | sort -u)
+    WRAPPER_FUNCS+=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i grep -ro "wrapper_.*(" {} | sed 's/(//g' | sort -u)"\n"
 
     [[ ${M_MQTT_COMM_ENABLED} && ( ${M_MQTT_DEFAULT_IMPL} || ${M_MAL_ENABLED} ) ]] && \
     WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/wrapper_mqtt/!{p}')
 
-    [[ ${M_SAL_ENABLED} ]] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/HAL_TCP/!{p}')
+    # ATM wrapper/HAL
+    M_ATM_ENABLED=$(echo "${1}" | grep -w 'ATM_ENABLED')
+    M_AT_PARSER_ENABLED=$(echo "${1}" | grep 'AT_PARSER_ENABLED')
+    M_AT_TCP_ENABLED=$(echo "${1}" | grep 'AT_TCP_ENABLED')
+    M_AT_MQTT_ENABLED=$(echo "${1}" | grep 'AT_MQTT_ENABLED')
+    M_AT_TCP_HAL_MK3060=$(echo "${1}" | grep 'AT_TCP_HAL_MK3060')
+    M_AT_TCP_HAL_SIM800=$(echo "${1}" | grep 'AT_TCP_HAL_SIM800')
+    M_AT_MQTT_HAL_ICA=$(echo "${1}" | grep 'AT_MQTT_HAL_ICA')
 
-    M_SAL_HAL_IMPL=$(echo "${M_SAL_HAL_IMPL}" | sed '/SAL_HAL_IMPL_NONE/d')
+    [[ ${M_AT_PARSER_ENABLED} ]] && WRAPPER_FUNCS+="\n"$(find src/atm/at_wrapper.h | xargs -i grep -ro "HAL_AT_Uart_.*(" {} | sed 's/(//g' | sort -u)"\n"
+    [[ ${M_AT_TCP_ENABLED} ]] && WRAPPER_FUNCS+=$(find src/atm/at_wrapper.h | xargs -i grep -ro "HAL_AT_CONN_.*(" {} | sed 's/(//g' | sort -u)"\n"
+    [[ ${M_AT_MQTT_ENABLED} ]] && WRAPPER_FUNCS+=$(find src/atm/at_wrapper.h | xargs -i grep -ro "HAL_MDAL_MAL_.*(" {} | sed 's/(//g' | sort -u)"\n"
+    [[ ${M_AT_TCP_HAL_MK3060} ]] && WRAPPER_FUNCS+=$(find src/atm/at_wrapper.h | xargs -i grep -ro "HAL_AT_Uart_.*(" {} | sed 's/(//g' | sort -u)"\n"
+    [[ ${M_AT_TCP_HAL_SIM800} ]] && WRAPPER_FUNCS+=$(find src/atm/at_wrapper.h | xargs -i grep -ro "HAL_AT_Uart_.*(" {} | sed 's/(//g' | sort -u)"\n"
+    [[ ${M_AT_MQTT_HAL_ICA} ]] && WRAPPER_FUNCS+=$(find src/atm/at_wrapper.h | xargs -i grep -ro "HAL_AT_Uart_.*(" {} | sed 's/(//g' | sort -u)"\n"
 
-    for i in ${M_SAL_HAL_IMPL}
-    do
-        [ "${i}" != "SAL_HAL_IMPL_NONE" ] && WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sed -n '/HAL_SAL/!{p}') && break
-    done
+    WRAPPER_FUNCS=$(echo -e "${WRAPPER_FUNCS}" | sort -u)
+
+    # echo -e "${WRAPPER_FUNCS}"
+
+    cp src/atm/at_wrapper.h ${OUTPUT_DIR}/eng/atm/
 
     cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
@@ -90,7 +101,7 @@ gen_wrapper_c() {
 
     echo -e "${WRAPPER_FUNCS}" | while read func
     do
-        [[ ! ${func} ]] && return
+        [[ ! ${func} ]] && continue
 
         FUNC_DEC=$(find ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {} 2>/dev/null | sed -n '/.*'$func'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
         DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F'wrapper|HAL' '{print $1}' | sed s/[[:space:]]//g)
@@ -174,23 +185,35 @@ gen_mqtt() {
 }
 
 gen_sal() {
-    M_SAL_ENABLED=$(echo "${1}" | grep -w 'SAL_ENABLED')
-    M_SAL_HAL_IMPL=$(echo "${1}" | grep 'SAL_HAL_IMPL')
+    M_ATM_ENABLED=$(echo "${1}" | grep -w 'ATM_ENABLED')
+    M_AT_PARSER_ENABLED=$(echo "${1}" | grep 'AT_PARSER_ENABLED')
+    M_AT_TCP_ENABLED=$(echo "${1}" | grep 'AT_TCP_ENABLED')
+    M_AT_MQTT_ENABLED=$(echo "${1}" | grep 'AT_MQTT_ENABLED')
+    M_AT_TCP_HAL_MK3060=$(echo "${1}" | grep 'AT_TCP_HAL_MK3060')
+    M_AT_TCP_HAL_SIM800=$(echo "${1}" | grep 'AT_TCP_HAL_SIM800')
+    M_AT_MQTT_HAL_ICA=$(echo "${1}" | grep 'AT_MQTT_HAL_ICA')
 
-    [[ ! ${M_SAL_ENABLED} ]] && return
+    [[ ! ${M_ATM_ENABLED} ]] && return
 
-    echo "extract sal module..."
-    echo -e "$(echo "${1}" | grep -E 'SAL')\n"
+    echo "extract atm module..."
+    echo -e "$(echo "${1}" | grep -E 'ATM|^AT')\n"
 
     # extract wrappers/sal and wrappers/at
-    SRC_SAL=$(find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "sal" -type d)
-    [[ ! ${SRC_SAL} ]] && return
+    SRC_ATM=$(find ./src \( -path ./${OUTPUT_DIR} -o -path ./${OUTPUT_TMPDIR} \) -prune -type f -o -iname "atm" -type d)
+    [[ ! ${SRC_ATM} ]] && return
 
-    mkdir -p ${OUTPUT_DIR}/eng/sal/
+    mkdir -p ${OUTPUT_DIR}/eng/atm
+
+    cp ${SRC_ATM}/at_api.[ch] ${OUTPUT_DIR}/eng/atm/
+    [[ ${M_AT_PARSER_ENABLED} ]] && cp ${SRC_ATM}/at_parser.[ch] ${OUTPUT_DIR}/eng/atm/
+    [[ ${M_AT_PARSER_ENABLED} ]] && cp ${SRC_ATM}/at_parser.[ch] ${OUTPUT_DIR}/eng/atm/
+    [[ ${M_AT_TCP_ENABLED} ]] && cp ${SRC_ATM}/at_conn*.[ch] ${SRC_ATM}/at_tcp.c ${OUTPUT_DIR}/eng/atm/
+    [[ ${M_AT_MQTT_ENABLED} ]] && cp ${SRC_ATM}/at_mqtt.[ch] ${OUTPUT_DIR}/eng/atm/
+    [[ ${M_AT_TCP_HAL_SIM800} ]] && cp wrappers/atm//at_tcp/mk3060.c ${OUTPUT_DIR}/eng/atm/
+    [[ ${M_AT_TCP_HAL_MK3060} ]] && cp wrappers/atm//at_tcp/sim800.c ${OUTPUT_DIR}/eng/atm/
+    [[ ${M_AT_MQTT_HAL_ICA} ]] && cp wrappers/atm/at_mqtt/mdal􏰊_ica_at􏰃_c􏰊lient􏰇􏰃.c ${OUTPUT_DIR}/eng/atm/
 
     find ${SRC_SAL} -maxdepth 1 -name *.[ch] | grep -v example | xargs -i cp -f {} ${OUTPUT_DIR}/eng/sal/
-
-    echo "${M_SAL_HAL_IMPL}" | sed -n 's/SAL_HAL_IMPL_//p' | xargs -i find ${SRC_SAL} -iname {}.c | xargs -i cp -f {} ${OUTPUT_DIR}/eng/sal/
 }
 
 gen_atparser() {
