@@ -192,7 +192,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
     int res = FAIL_RETURN;
 
     /* parameters check */
-    if (devid < 0 || eventid == NULL || payload == NULL || 0 == payload_len) {
+    if (devid < 0 || eventid == NULL || 0 == eventid_len || payload == NULL || 0 == payload_len) {
         return IOTX_CODE_PARAMS_INVALID;
     }
 
