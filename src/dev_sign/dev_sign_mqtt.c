@@ -82,20 +82,14 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     utils_hmac_sha256((uint8_t *)signsource,strlen(signsource),(uint8_t *)meta->device_secret,strlen(meta->device_secret),sign);
 
     /* Get Sign Information For MQTT */
-#if !defined(ON_DAILY) && !defined(ON_PRE)
     length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region].region) + 2;
-#else
-    length = strlen(g_infra_mqtt_domain[region].region) + 2;
-#endif
     if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
         return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
     }
 
     memset(signout->hostname,0,DEV_SIGN_HOSTNAME_MAXLEN);
-#if !defined(ON_DAILY) && !defined(ON_PRE)
     memcpy(signout->hostname,meta->product_key,strlen(meta->product_key));
     memcpy(signout->hostname+strlen(signout->hostname),".",strlen("."));
-#endif
     memcpy(signout->hostname+strlen(signout->hostname),g_infra_mqtt_domain[region].region,strlen(g_infra_mqtt_domain[region].region));
 
     length = strlen(meta->device_name) + strlen(meta->product_key) + 2;

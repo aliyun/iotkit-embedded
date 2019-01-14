@@ -3,13 +3,7 @@
 #include "infra_defs.h"
 
 iotx_region_item_t g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER] = {
-#if defined(ON_DAILY)
-    {"10.125.3.189",    1883},   /* Shanghai */
-#elif defined(ON_PRE)
-    {"100.67.80.75",    80},   /* Shanghai */
-#else
     {"iot-as-mqtt.cn-shanghai.aliyuncs.com",    1883},   /* Shanghai */
-#endif
     {"iot-as-mqtt.ap-southeast-1.aliyuncs.com", 1883},   /* Singapore */
     {"iot-as-mqtt.ap-northeast-1.aliyuncs.com", 1883},   /* Japan */
     {"iot-as-mqtt.us-west-1.aliyuncs.com",      1883},   /* America */
