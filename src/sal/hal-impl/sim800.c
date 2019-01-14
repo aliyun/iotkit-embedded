@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "infra_config.h"
 #include "sal_wrapper.h"
 #include "atparser.h"
 
@@ -63,12 +64,23 @@
 
 #define SIM800_CONN_CMD_LEN   (SIM800_DOMAIN_MAX_LEN + SIM800_DEFAULT_CMD_LEN)
 
+#define SIM800_RETRY_MAX          50
+
+#ifdef AT_DEBUG_MODE
 #define sal_hal_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define sal_hal_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define sal_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define sal_hal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define sal_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define sal_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#else
+#define sal_hal_emerg(...)
+#define sal_hal_crit(...)
+#define sal_hal_err(...)
+#define sal_hal_warning(...)
+#define sal_hal_info(...)
+#define sal_hal_debug(...)
+#endif
 
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
@@ -81,8 +93,13 @@ static uint8_t inited = 0;
 static link_t g_link[SIM800_MAX_LINK_NUM];
 static void *g_link_mutex;
 static void *g_domain_mutex;
+#ifdef PLATFORM_HAS_OS
 static void *g_domain_sem;
-static char *g_pcdomain_rsp = NULL;
+#else
+static int  g_domain_mark = 0;
+#endif
+static char  g_pcdomain_rsp[SIM800_DOMAIN_RSP_MAX_LEN];
+static char  g_pccmd[SIM800_CONN_CMD_LEN];
 
 static netconn_data_input_cb_t g_netconn_data_input_cb;
 
@@ -109,13 +126,12 @@ static void sim800_gprs_domain_rsp_callback(void *arg, char *rspinfo, int rsplen
         return;
     }
 
-    if (NULL == g_pcdomain_rsp) {
-        sal_hal_err( "domain rsp is %s but buffer is NULL \r\n", rspinfo);
-        return;
-    }
-
     memcpy(g_pcdomain_rsp, rspinfo, rsplen);
+#ifdef PLATFORM_HAS_OS
     HAL_SemaphorePost(g_domain_sem);
+#else
+    g_domain_mark = 1;
+#endif
     return;
 }
 
@@ -239,30 +255,29 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
 
 int sim800_uart_selfadaption(const char *command, const char *rsp, uint32_t rsplen)
 {
-    char *buffer = NULL;
+    char buffer[SIM800_DEFAULT_RSP_LEN] = {0};
+    int retry = 0;
 
     if (NULL == command || NULL == rsp || 0 == rsplen) {
         sal_hal_err( "invalid input %s %d\r\n", __FILE__, __LINE__);
         return -1;
     }
 
-    buffer = HAL_Malloc(rsplen * 3 + 1);
-    if (NULL == buffer) {
-        sal_hal_err( "fail to malloc memory size %d at %s %d \r\n", rsplen * 3, __FILE__, __LINE__);
-        return -1;
-    }
-
-    memset(buffer, 0, rsplen * 3 + 1);
-
     while (true) {
+        retry++;
         at_send_wait_reply(command, strlen(command), true,
-                           NULL, 0, buffer, rsplen * 3, NULL);
-        if ((strstr(buffer, rsp) != NULL)) {
+                           NULL, 0, buffer, SIM800_DEFAULT_RSP_LEN, NULL);
+        if ((strstr(buffer, rsp) == NULL)) {
+             HAL_SleepMs(50);
+
+            if (retry > SIM800_RETRY_MAX) {
+                return -1;
+            }
+            sal_hal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
+        } else {
             break;
         }
     }
-
-    HAL_Free(buffer);
 
     return 0;
 }
@@ -321,13 +336,24 @@ static int sim800_uart_init(void)
 static int sim800_gprs_status_check(void)
 {
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
+    int retry = 0;
 
-    /*sim card status check*/
-    at_send_wait_reply(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
-                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-        sal_hal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
-        return -1;
+    while (true) {
+        retry++;
+        /*sim card status check*/
+        at_send_wait_reply(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
+                           NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
+            HAL_SleepMs(50);
+
+            if (retry > SIM800_RETRY_MAX) {
+                return -1;
+            }
+
+            sal_hal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
+        } else {
+            break;
+        }
     }
 
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
@@ -368,13 +394,24 @@ static int sim800_gprs_ip_init(void)
 {
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
+    int retry = 0;
 
-    /*Deactivate GPRS PDP Context*/
-    at_send_wait_reply(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
-                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-        sal_hal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
-        return -1;
+    while (true) {
+        retry++;
+        /*Deactivate GPRS PDP Context*/
+        at_send_wait_reply(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
+                           NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
+             HAL_SleepMs(50);
+
+            if (retry > SIM800_RETRY_MAX) {
+                return -1;
+            }
+
+            sal_hal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
+        } else {
+            break;
+        }
     }
 
     /*set multi ip connection mode*/
@@ -415,13 +452,24 @@ static int sim800_gprs_got_ip(void)
 {
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
     atcmd_config_t atcmd_config = {NULL, AT_RECV_PREFIX, NULL};
+    int retry = 0;
 
-    /*start gprs stask*/
-    at_send_wait_reply(AT_CMD_START_TASK, strlen(AT_CMD_START_TASK), true,
+    while (true) {
+        retry++;
+         /*start gprs stask*/
+        at_send_wait_reply(AT_CMD_START_TASK, strlen(AT_CMD_START_TASK), true,
                        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-        sal_hal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
-        return -1;
+        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
+            HAL_SleepMs(50);
+
+            if (retry > SIM800_RETRY_MAX) {
+                return -1;
+            }
+            sal_hal_err( "cmd %s rsp %s retry %d at %s %d fail \r\n", AT_CMD_START_TASK,
+                        rsp, retry, __func__, __LINE__);
+        } else {
+            break;
+        }
     }
 
     /*bring up wireless connectiong with gprs*/
@@ -467,12 +515,6 @@ int HAL_SAL_Init(void)
         return 0;
     }
 
-    g_pcdomain_rsp = HAL_Malloc(SIM800_DOMAIN_RSP_MAX_LEN);
-    if (NULL == g_pcdomain_rsp) {
-        sal_hal_err( "%s %d failed \r\n", __func__, __LINE__);
-        goto err;
-    }
-
     memset(g_pcdomain_rsp , 0, SIM800_DOMAIN_RSP_MAX_LEN);
 
     if (NULL == (g_link_mutex = HAL_MutexCreate())) {
@@ -485,10 +527,12 @@ int HAL_SAL_Init(void)
         goto err;
     }
 
+#ifdef PLATFORM_HAS_OS
     if (NULL == (g_domain_sem = HAL_SemaphoreCreate())) {
         sal_hal_err( "Creating domain mutex failed (%s %d).", __func__, __LINE__);
         goto err;
     }
+#endif
 
     memset(g_link, 0, sizeof(g_link));
 
@@ -528,11 +572,6 @@ int HAL_SAL_Init(void)
 
     return 0;
 err:
-    if (g_pcdomain_rsp != NULL) {
-        HAL_Free(g_pcdomain_rsp);
-        g_pcdomain_rsp = NULL;
-    }
-
     if (g_link_mutex != NULL) {
         HAL_MutexDestroy(g_link_mutex);
     }
@@ -541,9 +580,11 @@ err:
         HAL_MutexDestroy(g_domain_mutex);
     }
 
+#ifdef PLATFORM_HAS_OS
     if (g_domain_sem != NULL) {
         HAL_SemaphoreDestroy(g_domain_sem);
     }
+#endif
 
     return -1;
 }
@@ -581,14 +622,14 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
         return -1;
     }
 
-    pccmd = HAL_Malloc(SIM800_DOMAIN_CMD_LEN);
+    pccmd = g_pccmd;
     if (NULL == pccmd) {
         sal_hal_err( "fail to malloc memory %d at %s \r\n", SIM800_DOMAIN_CMD_LEN, __func__);
         return -1;
     }
 
     memset(pccmd, 0, SIM800_DOMAIN_CMD_LEN);
-    snprintf(pccmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%s", AT_CMD_DOMAIN_TO_IP, domain);
+    snprintf(pccmd, SIM800_DOMAIN_CMD_LEN - 1, "%s=%s", AT_CMD_DOMAIN_TO_IP, domain);
 
     HAL_MutexLock(g_domain_mutex);
 restart:
@@ -599,8 +640,17 @@ restart:
         goto err;
     }
 
+#ifdef PLATFORM_HAS_OS
     /*TODO wait for reponse for ever for now*/
     HAL_SemaphoreWait(g_domain_sem, PLATFORM_WAIT_INFINITE);
+#else
+    while(!g_domain_mark) {
+        at_yield(NULL, 0, NULL, 100);
+        HAL_SleepMs(50);
+    }
+    g_domain_mark = 0;
+#endif
+
     /*
      * formate is :
        +CDNSGIP: 1,"www.baidu.com","183.232.231.173","183.232.231.172"
@@ -637,7 +687,6 @@ err:
         goto restart;
     }
 
-    HAL_Free(pccmd);
     memset(g_pcdomain_rsp, 0, SIM800_DOMAIN_RSP_MAX_LEN);
     HAL_MutexUnlock(g_domain_mutex);
 
@@ -676,7 +725,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
         return -1;
     }
 
-    pccmd = HAL_Malloc(SIM800_CONN_CMD_LEN);
+    pccmd = g_pccmd;
     if (NULL == pccmd) {
         sal_hal_err( "fail to malloc %d at %s \r\n", SIM800_CONN_CMD_LEN, __func__);
         goto err;
@@ -722,10 +771,8 @@ int HAL_SAL_Start(sal_conn_t *conn)
             goto err;
     }
 
-    HAL_Free(pccmd);
     return 0;
 err:
-    HAL_Free(pccmd);
     HAL_MutexLock(g_link_mutex);
     g_link[linkid].fd = -1;
     HAL_MutexUnlock(g_link_mutex);
@@ -775,6 +822,7 @@ int HAL_SAL_Send(int fd,
     int  linkid;
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
+    int retry = 0;
 
     if (!inited) {
         sal_hal_err( "%s sim800 gprs module haven't init yet \r\n", __func__);
@@ -788,14 +836,23 @@ int HAL_SAL_Send(int fd,
     }
 
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_SEND_DATA, linkid, len);
+    
+    while (true) {
+        retry++;
+        /*TODO data send fail rsp is SEND FAIL*/
+        at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len,
+                            rsp, sizeof(rsp), NULL);
+        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
+            HAL_SleepMs(50);
 
-    /*TODO data send fail rsp is SEND FAIL*/
-    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len,
-                        rsp, sizeof(rsp), NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-        sal_hal_err( "cmd %s rsp %s at %s %d fail \r\n", cmd, rsp, __func__, __LINE__);
-        return -1;
-    } 
+            if (retry > SIM800_RETRY_MAX) {
+                return -1;
+            }
+            sal_hal_err( "cmd %s rsp %s retry %d at %s %d fail \r\n", cmd, rsp, retry, __func__, __LINE__);
+        } else {
+            break;
+        }
+    }
 
     return 0;
 }
