@@ -42,8 +42,6 @@ config ASYNC_PROTOCOL_STACK
         Switching to "y" leads to building MQTT async protocol stack related implementation into SDK and ASYNC_PROTOCOL_STACK included into CFLAGS
         Switching to "n" seldom happens unless you're not using async protocol stack
 
-source "wrappers/mqtt/mal/Config.in"
-
 # menu "MQTT Configurations"
 #     depends on MQTT_COMM_ENABLED
 # 

@@ -6,11 +6,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "mdal_ica_at_client.h"
-#include "mdal_mal_import.h"
-#ifndef PLATFORM_HAS_OS
-#include "atparser.h"
-#endif
+
+#include "infra_config.h"
+
+#include "at_wrapper.h"
+#include "at_parser.h"
+
+#define AT_ICA_MQTT_MQTTMODE        "AT+IMQTTMODE"
+#define AT_ICA_MQTT_MQTTOPEN        "AT+IMQTTOPEN"
+#define AT_ICA_MQTT_MQTTAUTH        "AT+IMQTTAUTH"
+#define AT_ICA_MQTT_MQTTPARA        "AT+IMQTTPARA"
+#define AT_ICA_MQTT_MQTTCONN        "AT+IMQTTCONN"
+#define AT_ICA_MQTT_MQTTPUB         "AT+IMQTTPUB"
+#define AT_ICA_MQTT_MQTTPUBIN       "AT+IMQTTPUBIN"
+#define AT_ICA_MQTT_MQTTSUB         "AT+IMQTTSUB"
+#define AT_ICA_MQTT_MQTTUNSUB       "AT+IMQTTUNSUB"
+#define AT_ICA_MQTT_MQTTSTATE       "AT+IMQTTSTATE"
+#define AT_ICA_MQTT_MQTTDISCONN     "AT+IMQTTDISCONN"
+#define AT_ICA_MQTT_MQTTDBG         "AT+IMQTTDBG"
+
+#define AT_ICA_MQTT_MQTTRCV         "+IMQTT"
+#define AT_ICA_MQTT_MQTTERROR       "+CME"
+#define AT_ICA_MQTT_MQTTOK          "OK"
+#define AT_ICA_MQTT_MQTTRCVPUB      "+IMQTTRCVPUB"
+#define AT_ICA_MQTT_MQTTRCVPUBIN    "+IMQTTRCVPUBIN"
+#define AT_ICA_MQTT_MQTTPINGRSP     "+IMQTTPINGRSP"
+#define AT_ICA_MQTT_MQTTAUTHRSP     "+IMQTTAUTH"
+#define AT_ICA_MQTT_MQTTPUBRSP      "+IMQTTPUB"
+#define AT_ICA_MQTT_MQTTSUBRSP      "+IMQTTSUB"
+#define AT_ICA_MQTT_MQTTUNSUBRSP    "+IMQTTUNSUB"
+#define AT_ICA_MQTT_MQTTSTATERSP    "+IMQTTSTATE"
+
+#define AT_ICA_MQTT_POSTFIX         "\r\n"
+
+#define AT_MQTT_MAX_MSG_LEN     1024
+#define AT_MQTT_MAX_TOPIC_LEN   256
+#define AT_MQTT_WAIT_FOREVER 0xffffffffu
+
+#define AT_MQTT_CMD_MAX_LEN             1024
+#define AT_MQTT_CMD_SUCCESS_RSP         "OK"
+#define AT_MQTT_CMD_FAIL_RSP            "FAIL"
+#define AT_MQTT_CMD_ERROR_RSP           "ERROR"
+#define AT_MQTT_SUBSCRIBE_FAIL          128
+#define AT_MQTT_RSP_MAX_LEN             1500
+
+#define AT_MQTT_WAIT_TIMEOUT            10*1000
+
+#define mdal_err(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
@@ -51,69 +93,44 @@ int at_ica_mqtt_client_disconn(void);
 
 int HAL_MDAL_MAL_Init(iotx_mqtt_param_t *pInitParams)
 {
-#ifdef MAL_ICA_ENABLED
     g_recv_cb = NULL;
     return at_ica_mqtt_client_init();
-#endif
-    return -1;
 }
 
 int HAL_MDAL_MAL_Deinit()
 {
-#ifdef MAL_ICA_ENABLED
     g_recv_cb = NULL;
     return at_ica_mqtt_client_deinit();
-#endif
-    return -1;
 }
 
 int HAL_MDAL_MAL_Connect(char *proKey, char *devName, char *devSecret)
 {
-#ifdef MAL_ICA_ENABLED
     return at_ica_mqtt_client_conn(proKey, devName, devSecret, 0);
-#endif
-    return -1;
 }
 
 int HAL_MDAL_MAL_Disconnect(void)
 {
-#ifdef MAL_ICA_ENABLED
     return at_ica_mqtt_client_disconn();
-#endif
-    return -1;
 }
 
 int HAL_MDAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms)
 {
-#ifdef MAL_ICA_ENABLED
     return at_ica_mqtt_client_subscribe(topic, qos, mqtt_packet_id, mqtt_status, timeout_ms);
-#endif
-    return -1;
 }
 
 int HAL_MDAL_MAL_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status)
 {
-#ifdef MAL_ICA_ENABLED
     return at_ica_mqtt_client_unsubscribe(topic, mqtt_packet_id, mqtt_status);
-#endif
-    return -1;
 }
 
 int HAL_MDAL_MAL_Publish(const char *topic, int qos, const char *message, unsigned int msg_len)
 {
-#ifdef MAL_ICA_ENABLED
     return at_ica_mqtt_client_publish(topic, qos, message);
-#endif
-    return -1;
 }
-
 
 int HAL_MDAL_MAL_State(void)
 {
-#ifdef MAL_ICA_ENABLED
     return at_ica_mqtt_client_state();
-#endif
-    return -1;
 }
 
 void HAL_MDAL_MAL_RegRecvCb(recv_cb cb)
@@ -820,25 +837,19 @@ int at_ica_mqtt_client_init(void)
 
     g_mqtt_connect_state = 0;
 
-    if (HAL_MDAL_MAL_ICA_Init() != 0) {
-        mdal_err("at ica mqtt client create sem failed");
-
-        return -1;
-    }
-
-    HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTRCV,
+    at_register_callback(AT_ICA_MQTT_MQTTRCV,
                              AT_ICA_MQTT_POSTFIX,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);
 
-    HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTERROR,
+    at_register_callback(AT_ICA_MQTT_MQTTERROR,
                              AT_ICA_MQTT_POSTFIX,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);
 
-    HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTOK,
+    at_register_callback(AT_ICA_MQTT_MQTTOK,
                              AT_ICA_MQTT_POSTFIX,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
@@ -892,7 +903,7 @@ int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms)
         g_ica_at_response = AT_MQTT_SEND_TYPE_SIMPLE;
     }
 
-    if (0 != HAL_MDAL_MAL_ICA_Write(at_cmd)) {
+    if (0 != at_send_no_reply(at_cmd, strlen(at_cmd), false)) {
 
         mdal_err("at send raw api fail");
 

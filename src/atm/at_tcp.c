@@ -6,11 +6,15 @@
 #include <string.h>
 #include <errno.h>
 
+#include "infra_types.h"
 #include "infra_config.h"
-#include "sal_export.h"
-#include "sal_wrapper.h"
-#ifdef ATPARSER_ENABLED
-#include "atparser.h"
+
+#include "at_conn_mgmt.h"
+
+#include "at_wrapper.h"
+
+#ifdef AT_PARSER_ENABLED
+#include "at_parser.h"
 #endif
 
 static uint64_t _get_time_ms(void)
@@ -31,49 +35,29 @@ static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-uintptr_t SAL_TCP_Establish(const char *host, uint16_t port)
+uintptr_t AT_TCP_Establish(const char *host, uint16_t port)
 {
-    struct addrinfo hints;
-    struct addrinfo *addrInfoList = NULL;
-    struct addrinfo *cur = NULL;
     int fd = 0;
     int rc = 0;
-    char service[6];
-
-    memset(&hints, 0, sizeof(hints));
+    char resultip[16];
 
     HAL_Printf("establish tcp connection with server(host='%s', port=[%u])\n", host, port);
 
-    hints.ai_family = AF_INET; /* only IPv4 */
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    HAL_Snprintf(service, sizeof(service), "%u", port);
-
-    if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
+    if ((rc = at_conn_getaddrinfo(host, resultip)) != 0) {
         HAL_Printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
         return -1;
     }
 
-    for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
-        if (cur->ai_family != AF_INET) {
-            HAL_Printf("socket type error\n");
-            rc = -1;
-            continue;
-        }
+    fd = at_conn_setup(NETCONN_TCP);
+    if (fd < 0) {
+        HAL_Printf("create at conn error\n");
+        return -1;
+    }
 
-        fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
-        if (fd < 0) {
-            HAL_Printf("create socket error\n");
-            rc = -1;
-            continue;
-        }
-
-        if (connect(fd, cur->ai_addr, cur->ai_addrlen) == 0) {
-            rc = fd;
-            break;
-        }
-
-        close(fd);
+    if (at_conn_start(fd, resultip, port) == 0) {
+        rc = fd;
+    } else {
+        at_conn_close(fd);
         HAL_Printf("connect error\n");
         rc = -1;
     }
@@ -83,23 +67,15 @@ uintptr_t SAL_TCP_Establish(const char *host, uint16_t port)
     } else {
         HAL_Printf("success to establish tcp, fd=%d\n", rc);
     }
-    freeaddrinfo(addrInfoList);
 
     return (uintptr_t)rc;
 }
 
-int SAL_TCP_Destroy(uintptr_t fd)
+int AT_TCP_Destroy(uintptr_t fd)
 {
     int rc;
 
-    /* Shutdown both send and receive operations. */
-    rc = shutdown((int) fd, 2);
-    if (0 != rc) {
-        HAL_Printf("shutdown error\n");
-        return -1;
-    }
-
-    rc = close((int) fd);
+    rc = at_conn_close((int) fd);
     if (0 != rc) {
         HAL_Printf("closesocket error\n");
         return -1;
@@ -108,7 +84,7 @@ int SAL_TCP_Destroy(uintptr_t fd)
     return 0;
 }
 
-int32_t SAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t AT_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret;
     uint32_t len_sent;
@@ -120,7 +96,7 @@ int32_t SAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     ret = 1; /* send one time if timeout_ms is value 0 */
 
     do {
-        ret = send(fd, buf + len_sent, len - len_sent, 0);
+        ret = at_conn_send(fd, buf + len_sent, len - len_sent);
         if (ret > 0) {
             len_sent += ret;
         } else if (0 == ret) {
@@ -144,7 +120,7 @@ int32_t SAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     }
 }
 
-int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
     uint32_t len_recv;
@@ -162,7 +138,7 @@ int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         }
 
         while(1) {
-            empty = sal_recvbufempty(fd);
+            empty = at_conn_recvbufempty(fd);
             if (0 == empty) {
                 ret = 1;
                 break;
@@ -170,7 +146,7 @@ int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                 ret = -1;
             }
 
-#ifdef ATPARSER_ENABLED
+#ifdef AT_PARSER_ENABLED
 #if AT_SINGLE_TASK
             at_yield(NULL, 0, NULL, AT_UART_TIMEOUT_MS);
 #endif
@@ -181,13 +157,11 @@ int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                 break;
             }
 
-#ifdef PLATFORM_HAS_OS
             HAL_SleepMs(10);
-#endif
         }
 
         if (ret > 0) {
-            ret = recv(fd, buf + len_recv, len - len_recv, 0);
+            ret = at_conn_recv(fd, buf + len_recv, len - len_recv);
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {

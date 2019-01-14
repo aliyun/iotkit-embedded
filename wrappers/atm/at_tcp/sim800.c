@@ -7,8 +7,9 @@
 #include <string.h>
 
 #include "infra_config.h"
-#include "sal_wrapper.h"
-#include "atparser.h"
+
+#include "at_wrapper.h"
+#include "at_parser.h"
 
 #define TAG "sim800_gprs_module"
 
@@ -81,6 +82,11 @@
 #define sal_hal_info(...)
 #define sal_hal_debug(...)
 #endif
+
+void *HAL_SemaphoreCreate(void);
+void HAL_SemaphoreDestroy(void *sem);
+void HAL_SemaphorePost(void *sem);
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
 
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
@@ -589,7 +595,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Deinit()
+int HAL_AT_CONN_Deinit()
 {
     if (!inited) {
         return 0;
@@ -600,7 +606,7 @@ int HAL_SAL_Deinit()
     return 0;
 }
 
-int HAL_SAL_DomainToIp(char *domain, char ip[16])
+int HAL_AT_CONN_DomainToIp(char *domain, char ip[16])
 {
     char *pccmd = NULL;
     char *head = NULL;
@@ -693,7 +699,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Start(sal_conn_t *conn)
+int HAL_AT_CONN_Start(sal_conn_t *conn)
 {
     int  linkid = 0;
     char *pccmd = NULL;
@@ -779,7 +785,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Close(int fd, int32_t remote_port)
+int HAL_AT_CONN_Close(int fd, int32_t remote_port)
 {
     int  linkid = 0;
     int  ret = 0;
@@ -812,7 +818,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     return ret;
 }
 
-int HAL_SAL_Send(int fd,
+int HAL_AT_CONN_Send(int fd,
                  uint8_t *data,
                  uint32_t len,
                  char remote_ip[16],
@@ -857,7 +863,7 @@ int HAL_SAL_Send(int fd,
     return 0;
 }
 
-int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
+int HAL_AT_CONN_RegInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;

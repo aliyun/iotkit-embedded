@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef _MAL_H_
-#define _MAL_H_
+#ifndef _AT_MQTT_H_
+#define _AT_MQTT_H_
 
 /* State of MQTT client */
 typedef enum {
@@ -38,5 +38,3 @@ typedef struct Client {
 } iotx_mc_client_t, *iotx_mc_client_pt;
 
 #endif
-
-

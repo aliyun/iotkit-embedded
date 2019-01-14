@@ -5,7 +5,34 @@
 #ifndef _AT_PARSER_H_
 #define _AT_PARSER_H_
 
-#include "atparser_opts.h"
+#include "infra_config.h"
+
+/* uart config */
+#define AT_UART_PORT 1
+#define AT_UART_LINUX_DEV    "/dev/ttyUSB0"
+#define AT_UART_BAUDRATE     115200
+#define AT_UART_DATA_WIDTH   DATA_WIDTH_8BIT
+#define AT_UART_PARITY       NO_PARITY
+#define AT_UART_STOP_BITS    STOP_BITS_1
+#define AT_UART_FLOW_CONTROL FLOW_CONTROL_DISABLED
+#define AT_UART_MODE         MODE_TX_RX
+#define AT_UART_TIMEOUT_MS   1000
+
+/* Delimiter */
+#define AT_RECV_PREFIX          "\r\n"
+#define AT_RECV_SUCCESS_POSTFIX "OK\r\n"
+#define AT_RECV_FAIL_POSTFIX    "ERROR\r\n"
+#define AT_SEND_DELIMITER       "\r"
+
+#if defined(SAL_HAL_IMPL_SIM800)
+#define AT_CMD_DATA_INTERVAL_MS 50
+#endif
+
+#ifdef PLATFORM_HAS_OS
+#define AT_SINGLE_TASK    0
+#else
+#define AT_SINGLE_TASK    1
+#endif
 
 #ifndef bool
 #define bool unsigned char
@@ -29,9 +56,9 @@ typedef void (*at_recv_cb)(void *arg, char *buf, int buflen);
 /**
  * initialization
  * Configuration (e.g. AT_UART_PORT, UART_BAUDRATE) can be found
- * in atparser_opts.h
+ * in above macro
  */
-int at_init(void);
+int at_parser_init(void);
 
 /**
  * at send (format: command + delimiter + data) and wait reply

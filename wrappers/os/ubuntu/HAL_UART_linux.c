@@ -12,7 +12,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "atparser_opts.h"
+#include "at_parser.h"
 #include "at_wrapper.h"
 
 static int at_uart_fd = -1;

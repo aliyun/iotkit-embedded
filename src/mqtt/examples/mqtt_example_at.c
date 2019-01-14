@@ -5,16 +5,9 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 #include "infra_config.h"
-#include "atparser.h"
 
-#ifdef SAL_ENABLED
-#include "sal_export.h"
-#endif
-
-#if defined(SAL_HAL_IMPL_SIM800) || \
-    defined(SAL_HAL_IMPL_MK3060) || \
-    defined(MAL_ICA_ENABLED)
-#include "atparser.h"
+#if defined(ATM_ENABLED)
+#include "at_api.h"
 #endif
 
 #define EXAMPLE_PRODUCT_KEY     "a1X2bEnP82z"
@@ -30,10 +23,10 @@ extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
+int8_t HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 uint64_t HAL_UptimeMs(void);
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+int8_t HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 void HAL_SleepMs(uint32_t ms);
 
 #define EXAMPLE_TRACE(fmt, ...)  \
@@ -140,55 +133,6 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     printf("msg->event_type : %d\n", msg->event_type);
 }
 
-int at_connect_wifi(char *ssid, char *pwd)
-{
-    char conn_str[100]= {0};
-    char out[20] = {0};
-    int wifi_got_ip_delay = 6000;
-
-    sprintf(conn_str, "AT+WJAP=%s,%s", ssid, pwd);
-
-#if defined(ATPARSER_ENABLED)
-    if (at_send_wait_reply(conn_str, strlen(conn_str), true, NULL,
-                           0, out, sizeof(out), NULL) < 0){
-        return -1;
-    }
-#endif
-
-    if (strstr(out, "ERROR") != NULL) {
-        return -1;
-    }
-    HAL_SleepMs(wifi_got_ip_delay);
-
-
-    return 0;
-}
-
-void at_comm_init()
-{
-#if defined(SAL_ENABLED) || defined(MAL_ENABLED)
-#if defined(ATPARSER_ENABLED)
-    if (at_init() < 0) {
-        printf("Error: at init failed!\n");
-    }
-#endif
-
-#if defined(SAL_ENABLED)
-    if (sal_init() < 0) {
-        printf("Errro: sal init failed!\n");
-    }
-#endif
-
-#define WIFI_SSID "Yuemewifi-3766"
-#define WIFI_PWD  "aos12345"
-    if (at_connect_wifi(WIFI_SSID, WIFI_PWD) < 0) {
-        printf("wifi connect failed!\n");
-    }
-#endif
-
-    printf("at commu init done\n");
-}
-
 int main(int argc, char *argv[])
 {
     int res = 0;
@@ -199,8 +143,11 @@ int main(int argc, char *argv[])
     iotx_sign_mqtt_t sign_mqtt;
     iotx_mqtt_param_t mqtt_params;
 
-    at_comm_init();
-    printf("mqtt example\n");
+#if defined(ATM_ENABLED)
+    if (IOT_ATM_Init() < 0) {
+        printf("ATM init fail!\n");
+    }
+#endif
 
     region = IOTX_CLOUD_REGION_SHANGHAI;
 
@@ -275,4 +222,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-

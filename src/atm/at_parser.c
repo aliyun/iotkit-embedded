@@ -4,26 +4,112 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
+#include "infra_types.h"
 #include "at_wrapper.h"
+#include "at_parser.h"
 
-#include "atparser.h"
-#include "atparser_internal.h"
+#define OOB_MAX 5
 
-#ifdef HDLC_UART
-#include "hdlc.h"
+typedef struct oob_s
+{
+    char *     prefix;
+    char *     postfix;
+    char *     oobinputdata;
+    uint32_t   reallen;
+    uint32_t   maxlen;
+    at_recv_cb cb;
+    void *     arg;
+} oob_t;
+
+/*
+ * --> | slist | --> | slist | --> NULL
+ *     ---------     ---------
+ *     | smhr  |     | smpr  |
+ *     ---------     ---------
+ *     | rsp   |     | rsp   |
+ *     ---------     ---------
+ */
+#if !AT_SINGLE_TASK
+#include "infra_list.h"
+typedef struct at_task_s
+{
+    slist_t   next;
+    void *    smpr;
+    char *    command;
+    char *    rsp;
+    char *    rsp_prefix;
+    char *    rsp_success_postfix;
+    char *    rsp_fail_postfix;
+    uint32_t  rsp_prefix_len;
+    uint32_t  rsp_success_postfix_len;
+    uint32_t  rsp_fail_postfix_len;
+    uint32_t  rsp_offset;
+    uint32_t  rsp_len;
+} at_task_t;
 #endif
 
-#define MODULE_NAME            "atparser"
+/**
+ * Parser structure for parsing AT commands
+ */
+typedef struct
+{
+    uart_dev_t *_pstuart;
+    int         _timeout;
+    char *      _default_recv_prefix;
+    char *      _default_recv_success_postfix;
+    char *      _default_recv_fail_postfix;
+    char *      _send_delimiter;
+    int         _recv_prefix_len;
+    int         _recv_success_postfix_len;
+    int         _recv_fail_postfix_len;
+    int         _send_delim_size;
+    oob_t       _oobs[OOB_MAX];
+    int         _oobs_num;
+    void *      at_uart_recv_mutex;
+    void *      at_uart_send_mutex;
+    void *      task_mutex;
+#if !AT_SINGLE_TASK
+    slist_t     task_l;
+#endif
+} at_parser_t;
+
+#define TASK_DEFAULT_WAIT_TIME 5000
+
+#ifndef AT_WORKER_STACK_SIZE
+#define AT_WORKER_STACK_SIZE   1024
+#endif
+
+#ifndef AT_UART_TIMEOUT_MS
+#define AT_UART_TIMEOUT_MS     1000
+#endif
+
+#ifndef AT_CMD_DATA_INTERVAL_MS
+#define AT_CMD_DATA_INTERVAL_MS   0
+#endif
+
+#ifdef AT_DEBUG_MODE
+#define atpsr_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#else
+#define atpsr_err(...)
+#define atpsr_warning(...)
+#define atpsr_info(...)
+#define atpsr_debug(...)
+#endif
+
+#ifdef INFRA_MEM_STATS
+#define atpsr_malloc(size)            LITE_malloc(size, MEM_MAGIC, "atpaser")
+#define atpsr_free(ptr)               LITE_free(ptr)
+#else
+#define atpsr_malloc(size)            HAL_Malloc(size)
+#define atpsr_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
 
 static uint8_t    inited = 0;
 static uart_dev_t at_uart;
-
-#ifdef HDLC_UART
-static encode_context_t hdlc_encode_ctx;
-static decode_context_t hdlc_decode_ctx;
-#endif
 
 static at_parser_t at;
 
@@ -49,13 +135,6 @@ static int at_init_uart()
     if (HAL_AT_Uart_Init(&at_uart) != 0) {
         return -1;
     }
-
-#ifdef HDLC_UART
-    if (hdlc_encode_context_init(&hdlc_encode_ctx) != 0 ||
-        hdlc_decode_context_init(&hdlc_decode_ctx, &at_uart) != 0) {
-        return -1;
-    }
-#endif
 
     at._pstuart = &at_uart;
 
@@ -142,7 +221,7 @@ static void at_worker_uart_send_mutex_deinit()
 }
 #endif
 
-int at_init(void)
+int at_parser_init(void)
 {
     char *recv_prefix = AT_RECV_PREFIX;
     char *recv_success_postfix = AT_RECV_SUCCESS_POSTFIX;
@@ -217,13 +296,8 @@ static int at_sendto_lower(uart_dev_t *uart, void *data, uint32_t size,
 {
     int ret = -1;
 
-#ifdef HDLC_UART
-    ret = hdlc_uart_send(&hdlc_encode_ctx, uart, data,
-                         size, timeout, ackreq);
-#else
     (void) ackreq;
     ret = HAL_AT_Uart_Send(uart, data, size, timeout);
-#endif
 
     return ret;
 }
@@ -233,12 +307,7 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
 {
     int ret = -1;
 
-#ifdef HDLC_UART
-    ret = hdlc_uart_recv(&hdlc_decode_ctx, uart, data, expect_size,
-                         recv_size, timeout);
-#else
     ret = HAL_AT_Uart_Recv(uart, data, expect_size, recv_size, timeout);
-#endif
 
     return ret;
 }
@@ -578,7 +647,7 @@ static void at_scan_for_callback(char c, char *buf, int *index)
             (offset >= strlen(oob->prefix) &&
              memcmp(oob->prefix, buf + offset - strlen(oob->prefix),
                     strlen(oob->prefix)) == 0)) {
-            /* atpsr_debug("AT! %s\r\n", oob->prefix); */
+            atpsr_debug("AT! %s\r\n", oob->prefix);
             if (oob->postfix == NULL) {
                 oob->cb(oob->arg, NULL, 0);
                 memset(buf, 0, offset);
