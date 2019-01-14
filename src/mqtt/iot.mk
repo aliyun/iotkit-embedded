@@ -12,7 +12,7 @@ ifneq (,$(filter -DAT_PARSER_ENABLED,$(CFLAGS)))
 LDFLAGS         += -liot_sdk -liot_hal -liot_sdk -liot_hal -liot_tls
 else
 LDFLAGS         += -liot_sdk -liot_hal -liot_tls
-
+endif
 
 TARGET          := mqtt-example mqtt-example-report
 

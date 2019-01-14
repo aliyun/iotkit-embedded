@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 #include "infra_types.h"
 #include "infra_config.h"
@@ -102,11 +101,6 @@ int32_t AT_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeo
         } else if (0 == ret) {
             HAL_Printf("No data be sent\n");
         } else {
-            if (EINTR == errno) {
-                HAL_Printf("EINTR be caught\n");
-                continue;
-            }
-
             HAL_Printf("send fail, ret = send() = %d\n", ret);
             net_err = 1;
             break;
@@ -169,10 +163,6 @@ int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                 err_code = -1;
                 break;
             } else {
-                if (EINTR == errno) {
-                    HAL_Printf("EINTR be caught\n");
-                    continue;
-                }
                 HAL_Printf("recv fail\n");
                 err_code = -2;
                 break;

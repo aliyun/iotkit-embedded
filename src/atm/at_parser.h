@@ -24,7 +24,7 @@
 #define AT_RECV_FAIL_POSTFIX    "ERROR\r\n"
 #define AT_SEND_DELIMITER       "\r"
 
-#if defined(SAL_HAL_IMPL_SIM800)
+#if defined(AT_TCP_HAL_SIM800)
 #define AT_CMD_DATA_INTERVAL_MS 50
 #endif
 
