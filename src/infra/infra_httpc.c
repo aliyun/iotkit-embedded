@@ -124,10 +124,6 @@ static int _utils_fill_tx_buffer(httpclient_t *client, char *send_buf, int *send
     return SUCCESS_RETURN;
 }
 
-#ifdef ON_PRE
-    extern int iotx_guider_get_region(void);
-#endif
-
 static int _http_send_header(httpclient_t *client, const char *host, const char *path, int method,
                              httpclient_data_t *client_data)
 {
@@ -143,17 +139,8 @@ static int _http_send_header(httpclient_t *client, const char *host, const char 
     memset(send_buf, 0, HTTPCLIENT_SEND_BUF_SIZE);
     len = 0; /* Reset send buffer */
 
-#ifdef ON_PRE
-    if (1 == iotx_guider_get_region()) {
-        utils_warning("hacking HTTP auth requeset for singapore+pre-online to 'iot-auth.ap-southeast-1.aliyuncs.com'");
-        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path,
-                     "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
-    } else {
-        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
-    }
-#else
     HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
-#endif
+
     ret = _utils_fill_tx_buffer(client, send_buf, &len, buf, strlen(buf));
     if (ret) {
         /* httpc_err("Could not write request"); */
