@@ -19,9 +19,8 @@
 #include "infra_timer.h"
 #include "infra_sha256.h"
 #include "infra_string.h"
-
 #include "wrappers_defs.h"
-#include "alink_wrapper.h"
+
 #include "iotx_cm.h"
 #include "alink_config.h"
 #include "alink_utils.h"
@@ -30,7 +29,7 @@
 #include "alink_subdev.h"
 #include "alink_downstream.h"
 #include "alink_core.h"
-#include "alink_api.h"        /* TODO */
+#include "alink_wrapper.h"
 
 #ifdef INFRA_LOG
 #include "infra_log.h"
@@ -84,8 +83,6 @@ typedef enum {
     ALINK_DEV_TYPE_SUBDEV,
     ALINK_DEV_TYPE_MAX
 } alink_dev_type_t;
-
-linkkit_event_cb_t alink_get_event_callback(iotx_linkkit_event_type_t event_id);
 
 
 #endif /* #ifndef __IOTX_ALINK_INTERNAL_H__ */

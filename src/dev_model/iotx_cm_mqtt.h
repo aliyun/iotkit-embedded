@@ -8,7 +8,6 @@
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 
-#include "iotx_alink_internal.h"
 #include "alink_wrapper.h"
 #include "mqtt_api.h"
 

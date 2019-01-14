@@ -5,10 +5,9 @@
 #ifndef __ALINK_CORE_H__
 #define __ALINK_CORE_H__
 
-#include "iotx_alink_internal.h"
-#include "alink_wrapper.h"
+#include "infra_types.h"
+#include "infra_defs.h"
 #include "alink_api.h"
-
 
 typedef enum {
     ALINK_CORE_STATUS_DEINIT = 0,

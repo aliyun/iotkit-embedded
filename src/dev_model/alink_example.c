@@ -168,9 +168,6 @@ int main(int argc, char **argv)
     HAL_GetDeviceSecret(dev_info.device_secret);
 
     printf("alink start\r\n");
-#ifdef INFRA_LOG
-    LITE_set_loglevel(LOG_DEBUG_LEVEL);
-#endif
 
     user_example_ctx = user_example_get_ctx();
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
@@ -228,10 +225,6 @@ int main(int argc, char **argv)
             break;
         }
     }
-
-#ifdef INFRA_MEM_STATS
-    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
-#endif
 
     printf("alink stop\r\n");
 }

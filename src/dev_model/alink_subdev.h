@@ -5,9 +5,8 @@
 #ifndef __ALINK_SUBDEV_H__
 #define __ALINK_SUBDEV_H__
 
-#include "iotx_alink_internal.h"
-#include "alink_wrapper.h"
-#include "alink_api.h"
+#include "infra_types.h"
+#include "infra_defs.h"
 
 typedef enum {
     ALINK_SUBDEV_STATUS_CLOSED = 0,

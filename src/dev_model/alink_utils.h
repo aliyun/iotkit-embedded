@@ -5,7 +5,8 @@
 #ifndef __ALINK_UTILS_H__
 #define __ALINK_UTILS_H__
 
-#include "iotx_alink_internal.h"
+#include "infra_types.h"
+#include "infra_cjson.h"
 
 char *alink_utils_strdup(const char *string, uint32_t string_len);
 int alink_utils_json_parse(const char *payload, uint32_t payload_len, uint32_t type, lite_cjson_t *lite);
