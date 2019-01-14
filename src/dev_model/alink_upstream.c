@@ -198,6 +198,12 @@ int alink_upstream_req_cache_delete_by_node(alink_req_cache_node_t *node)
     _alink_upstream_req_list_lock();
 
     list_del(&node->list);
+#if (CONFIG_SDK_THREAD_COST == 0)
+#else        
+    if (node->semaphore) {
+        HAL_SemaphoreDestroy(node->semaphore);
+    }
+#endif    
     alink_free(node);
     alink_upstream_req_ctx.list_num--;
 
@@ -560,9 +566,6 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
         lite_cjson_add_string_to_object(lite_array_item, "dn", dn);
         lite_cjson_add_string_to_object(lite_array_item, "pk", pk);
         lite_cjson_add_string_to_object(lite_array_item, "ts", timestamp);
-/*
-        lite_cjson_add_string_to_object(lite_array_item, "sm", "hmacSha256");
-*/
         lite_cjson_add_string_to_object(lite_array_item, "sn", sign_string);
 
         lite_cjson_add_item_to_array(lite_array, lite_array_item);

@@ -16,7 +16,7 @@
     } while (0)
 
 
-#define EXAMPLE_RUNNING_SECONE_MAX  1000
+#define EXAMPLE_RUNNING_SECONE_MAX  30
 
 #define ALINK2_PROP_POST_DATA       "{\"Data\": \"1024\"}"
 #define ALINK2_DEVINFO_POST_DATA    "[{\"attrKey\":\"devinfo_k\",\"attrValue\":\"devinfo_v\"}]"
@@ -233,8 +233,6 @@ int main(int argc, char **argv)
     
 
     while (1) {
-        IOT_Linkkit_Yield(200);
-
         time_now_sec = user_update_sec();
         if (time_prev_sec == time_now_sec) {
             continue;

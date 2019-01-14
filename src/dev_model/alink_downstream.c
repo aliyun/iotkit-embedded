@@ -138,12 +138,13 @@ typedef struct {
 } msg_property_put_req_t;
 
 typedef struct {
-    char *paylaod;
+    char *payload;
     uint32_t len;
 } msg_property_get_req_t;
 
 typedef struct {
-    uint32_t code;
+    char *payload;
+    uint32_t len;
 } msg_empty_rsp_t;
 
 typedef struct {
@@ -197,6 +198,42 @@ static void _alink_msg_list_unlock(void)
     }
 }
 
+static void _alink_msg_list_remove(alink_msg_event_t *msg)
+{
+    void *p_data = NULL;
+
+    ALINK_ASSERT_DEBUG(msg != NULL);
+
+    switch (msg->type) {
+        case ALINK_EVENT_PROPERTY_PUT_REQ: {
+            p_data = msg->msg.property_put_req.payload;
+        } break;
+
+        case ALINK_EVENT_PROPERTY_GET_REQ: {
+            /* implement next versin */
+        } break;
+
+        case ALINK_EVENT_EMPTY_RSP: {
+            p_data = msg->msg.empty_rsp.payload;
+        } break;
+
+        case ALINK_EVENT_SERVICE_PUT_REQ: {
+            alink_free(msg->msg.service_put_req.id);
+            p_data = msg->msg.service_put_req.payload;
+        } break;
+
+        case ALINK_EVENT_RAW_DATA_REQ: {
+            p_data = msg->msg.raw_data.data;
+        }
+        default: break;
+    }
+
+    if (p_data != NULL) {
+        alink_free(p_data);
+    }
+    alink_free(msg);
+}
+
 int alink_msg_list_init(void)
 {
     alink_msg_list_ctx.mutex = HAL_MutexCreate();
@@ -218,8 +255,8 @@ void alink_msg_list_deinit(void)
 
     list_for_each_entry_safe(node, next, &alink_msg_list_ctx.msg_list, list, alink_msg_event_t) {
         list_del(&node->list);
-        /* TODO: release node case by case */
-        alink_free(node);
+        /* release node case by case */
+        _alink_msg_list_remove(node);
     }
 
     alink_msg_list_ctx.status = ALINK_MSG_LIST_DEINITED;
@@ -344,12 +381,14 @@ int alink_msg_event_list_handler(void)
             /* empty response event */
             case ALINK_EVENT_EMPTY_RSP: {
                 linkkit_report_reply_cb_t handle_func;
+                msg_empty_rsp_t *msg_data = &(msg->msg.empty_rsp);
 
                 handle_func = (linkkit_report_reply_cb_t)alink_get_event_callback(ITE_REPORT_REPLY);
                 if (handle_func != NULL) {
-                    handle_func(msg->devid, msg->query.id, msg->query.code, NULL, 0);
+                    handle_func(msg->devid, msg->query.id, msg->query.code, msg_data->payload, msg_data->len);
                 }
 
+                alink_free(msg_data->payload);
                 alink_free(msg);
             } break;
 
@@ -361,7 +400,7 @@ int alink_msg_event_list_handler(void)
                 handle_func = (linkkit_service_request_cb_t)alink_get_event_callback(ITE_SERVICE_REQUEST);
                 if (handle_func != NULL) {
                     res = handle_func(msg->devid, msg->msg.service_put_req.id, msg->msg.service_put_req.id_len, 
-                                        msg->msg.service_put_req.payload, msg->msg.service_put_req.payload_len, &rsp_data, (int *)&rsp_len);
+                                        msg->msg.service_put_req.payload, msg->msg.service_put_req.payload_len, &rsp_data, &rsp_len);
                 }
 
                 alink_debug("propery get user rsp = %.*s", rsp_len, rsp_data);
@@ -566,7 +605,7 @@ static void _empty_rsp_handle(uint32_t devid, const char *pk, const char *dn, co
         /* just invoke the user callback funciton */
         handle_func = (linkkit_report_reply_cb_t)alink_get_event_callback(ITE_REPORT_REPLY);
         if (handle_func != NULL) {
-            handle_func(devid, query->id, query->code, NULL, 0);
+            handle_func(devid, query->id, query->code, (const char *)payload, len);
         }
     }
 #else
@@ -580,7 +619,13 @@ static void _empty_rsp_handle(uint32_t devid, const char *pk, const char *dn, co
         msg_data->devid = devid;
         msg_data->type = ALINK_EVENT_EMPTY_RSP;
         memcpy(&msg_data->query, query, sizeof(alink_uri_query_t));
-        msg_data->msg.empty_rsp.code = query->code;
+        msg_data->msg.empty_rsp.payload = alink_malloc(len);
+        if (msg_data->msg.empty_rsp.payload == NULL) {
+            alink_free(msg_data);
+            return;
+        }
+        memcpy(msg_data->msg.empty_rsp.payload, payload, len);
+        msg_data->msg.empty_rsp.len = len;
 
         alink_msg_list_insert(msg_data);
     }
