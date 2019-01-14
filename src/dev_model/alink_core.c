@@ -379,6 +379,15 @@ int alink_core_connect_cloud(void)
 {
     int res = FAIL_RETURN;
 
+    /* check the core status first */
+    if (alink_core_ctx.status < ALINK_CORE_STATUS_OPENED || alink_core_ctx.status == ALINK_CORE_STATUS_ERROR) {
+        return IOTX_CODE_STATE_ERROR;
+    }
+
+    if (alink_core_ctx.status == ALINK_CORE_STATUS_CONNECTED) {
+        return SUCCESS_RETURN;  /* return TRUE if already connected */
+    }
+
     res = iotx_cm_connect(alink_core_ctx.cm_fd, ALINK_CORE_CONNECT_TIMEOUT);
 
     if (res < SUCCESS_RETURN) {

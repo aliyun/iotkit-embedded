@@ -1,5 +1,5 @@
 config DEVICE_MODEL_ENABLE
-    bool "FEATURE_DEVICE_MODEL_ENABLE"
+    bool "FEATURE_DEVICE_MODEL_ENABLED"
     default n
     select DEV_SIGN
     select INFRA_LOG

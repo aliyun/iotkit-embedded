@@ -20,10 +20,10 @@ typedef enum {
 } iotx_linkkit_dev_type_t;
 
 typedef struct {
-    char product_key[IOTX_PRODUCT_KEY_LEN];
-    char product_secret[IOTX_PRODUCT_SECRET_LEN];
-    char device_name[IOTX_DEVICE_NAME_LEN];
-    char device_secret[IOTX_PRODUCT_SECRET_LEN];
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
+    char device_name[IOTX_DEVICE_NAME_LEN + 1];
+    char device_secret[IOTX_PRODUCT_SECRET_LEN + 1];
 } iotx_linkkit_dev_meta_info_t;
 
 typedef enum {
@@ -150,7 +150,7 @@ int IOT_RegisterCallback(iotx_linkkit_event_type_t event_id, linkkit_event_cb_t 
  * @return success: device id (>=0), fail: -1.
  *
  */
-int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_dev_meta_info_t *meta_info);
+int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info);
 
 /**
  * @brief start device network connection.

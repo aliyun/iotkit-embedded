@@ -4,8 +4,6 @@
 #include "alink_api.h"
 #include "alink_wrapper.h"
 
-#include "iotx_alink_internal.h"        /* test used */
-
 #define EXAMPLE_TRACE(...)                               \
     do {                                                     \
         HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);  \
@@ -21,8 +19,7 @@
 
 #define ALINK2_PROP_POST_DATA_TMP   "{\"BatteryRemain\": 2.9,\"TiltValue\":100,\"HeartBeatInterval\": 1234}"
 #define ALINK2_EVENT_POST_DATA      "{\"intParam\": 400}"
-
-#define MOCK_FUNCTION               (0)
+#define ALINK2_EVENT_POST_EMPTY     "{}"
 
 
 /** type define **/
@@ -39,12 +36,6 @@ typedef struct {
 
 /** local variables define */
 static user_example_ctx_t g_user_example_ctx;
-
-
-/** internal test **/
-extern void subdev_hash_iterator(void);
-extern int _subdev_hash_remove(uint32_t devid);
-
 
 static user_example_ctx_t *user_example_get_ctx(void)
 {
@@ -119,7 +110,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
                   request);
 
     memset(rsp, 0, len);
-    memcpy(rsp, "{\"test\": 12344}", len);
+    memcpy(rsp, "{\"Mode\": 1}", len);
 
     *response = rsp;
     *response_len = len;
@@ -162,50 +153,13 @@ void *example_yield_thread(void *args)
     return NULL;
 }
 
-#if 0
-void *example_thread1(void *args)
-{
-    int res;
-    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-
-    while (user_example_ctx->thread_running) {
-        HAL_SleepMs(200);
-        res = IOT_Linkkit_Report(0, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA, strlen(ALINK2_PROP_POST_DATA));
-        EXAMPLE_TRACE("post property, res = %d", res);
-
-        _mock_property_post_rsp();
-    }
-
-    return NULL;
-}
-
-void *example_thread2(void *args)
-{
-    int res;
-    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-
-    while (user_example_ctx->thread_running) {
-        HAL_SleepMs(200);
-        res = IOT_Linkkit_TriggerEvent(0, "Error", strlen("Error"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
-        EXAMPLE_TRACE("post event, res = %d", res);
-
-        _mock_event_post_rsp();
-    }
-
-    return NULL; 
-}
-#endif
-
 
 int main(int argc, char **argv)
 {
     user_example_ctx_t *user_example_ctx;
     uint32_t cnt = 0;
     int res = FAIL_RETURN;
-    static iotx_dev_meta_info_t dev_info;
-
-    uint32_t i;
-    uint32_t devid[2];
+    static iotx_linkkit_dev_meta_info_t dev_info;
 
     /* get triple metadata from HAL */
     HAL_GetProductKey(dev_info.product_key);
@@ -244,87 +198,32 @@ int main(int argc, char **argv)
     }
     EXAMPLE_TRACE("IOT_Linkkit_Connect, res = %d", res);
 
-    /*** internel test start ***/
-    #if MOCK_FUNCTION
-    res = HAL_ThreadCreate(&user_example_ctx->example_thread1, example_thread1, NULL, NULL, NULL);
-    if (res < 0) {
-        EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
-        IOT_Linkkit_Close(user_example_ctx->master_devid);
-        return -1;
-    }
-    #endif
-
-    res = HAL_ThreadCreate(&user_example_ctx->example_thread_yield, example_yield_thread, NULL, NULL, NULL);
-    if (res < 0) {
-        EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
-        IOT_Linkkit_Close(user_example_ctx->master_devid);
-        return -1;
-    }
-    
-    /* subdev management test */
-    {
-        static iotx_dev_meta_info_t subdev_info[2] = {
-            {
-                .product_key = "a1coeSe36WO",
-                .product_secret = "",
-                .device_name = "subdev_01",
-                .device_secret = "daqVxT6gM2YTW3YHvJQDSwQmB1NnOlwS"
-            },
-            {
-                .product_key = "a1coeSe36WO",
-                .product_secret = "",
-                .device_name = "subdev_02",
-                .device_secret = "H02vfH2RgJDcSlkPGUk69OgS7akadK8S"
-            }
-        };
-
-
-
-        for (i=0; i<2; i++) {
-            devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &subdev_info[i]);
-            EXAMPLE_TRACE("subdev open, id = %d", devid[i]);
-            
-            res = IOT_Linkkit_Connect(devid[i]);
-            EXAMPLE_TRACE("subdev conn, res = %d", res);
-            
-        }
-        res = IOT_Linkkit_Report(0, ITM_MSG_LOGIN, (uint8_t *)devid, sizeof(devid));
-        EXAMPLE_TRACE("subdev login, res = %d", res);
-    }
-    
-
     while (1) {
 
         IOT_Linkkit_Yield(2000);
 
         HAL_SleepMs(2000);
 
-        /*
-        res = IOT_Linkkit_Report(devid[0], ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
+        res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
         EXAMPLE_TRACE("post property, res = %d", res);
 
-        res = IOT_Linkkit_TriggerEvent(devid[1], "testEvent01", strlen("testEvent01"), ALINK2_EVENT_POST_DATA, strlen(ALINK2_EVENT_POST_DATA));
+        res = IOT_Linkkit_TriggerEvent(IOTX_LINKKIT_DEV_TYPE_MASTER, "Empty", strlen("Empty"), ALINK2_EVENT_POST_EMPTY, strlen(ALINK2_EVENT_POST_EMPTY));
         EXAMPLE_TRACE("post event, res = %d", res);
 
         {
             uint8_t raw_data[] = "\x00\x00\x22\x33\x44\x12\x32\x01\x3f\xa0\x00\x00";
-            res = IOT_Linkkit_Report(devid[1], ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
+            res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
             EXAMPLE_TRACE("post raw, res = %d", res);
         }
 
-        res = IOT_Linkkit_Report(devid[1], ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
+        res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
         EXAMPLE_TRACE("post devinfo, res = %d", res);    
-        */
-
 
         if (++cnt > 20) {
             user_example_ctx->thread_running = 0;
             HAL_SleepMs(1000);
 
             HAL_ThreadDelete(user_example_ctx->example_thread_yield);
-            #if 0
-            HAL_ThreadDelete(user_example_ctx->example_thread1);
-            #endif
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }
