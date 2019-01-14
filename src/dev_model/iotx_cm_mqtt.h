@@ -8,8 +8,8 @@
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 
-#include "alink_wrapper.h"
 #include "mqtt_api.h"
+#include "infra_list.h"
 
 
 typedef struct {
