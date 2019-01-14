@@ -7,5 +7,5 @@ LDFLAGS         += -liot_sdk -liot_hal
 
 TARGET          := dev-sign-example
 
-LIB_SRCS_EXCLUDE        := dev_sign_example.c
-SRCS_dev-sign-example   += dev_sign_example.c
+LIB_SRCS_EXCLUDE        := examples/dev_sign_example.c
+SRCS_dev-sign-example   += examples/dev_sign_example.c

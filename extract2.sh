@@ -52,6 +52,7 @@ cond_not_check()
 # Read xtrc_file_rules
 cat ${XTRC_FILE_RULS} | while read rule
 do
+    echo $rule
     COND_AND=$(echo $rule | awk -F'|' '{print $1}')
     COND_NOT=$(echo $rule | awk -F'|' '{print $2}')
     SRC_DIR=$(echo $rule | awk -F'|' '{print $3}')
@@ -65,6 +66,8 @@ do
     cond_not_check "${COND_NOT}"
     [[ $? -eq 0 ]] && continue
 
-    mkdir -p ${DEST_DIR}
-    find ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
+    # echo "${SRC_DIR}"
+    # echo "${DEST_DIR}"
+
+    [[ ${DEST_DIR} ]] && mkdir -p ${DEST_DIR} && find ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
 done

@@ -17,12 +17,12 @@ endif
 
 TARGET          := mqtt-example mqtt-example-report
 
-LIB_SRCS_EXCLUDE        := mqtt_example.c mqtt_example_at.c mqtt_example_report
+LIB_SRCS_EXCLUDE        := examples/mqtt_example.c examples/mqtt_example_at.c examples/mqtt_example_report
 
 ifneq (,$(filter -DSAL_ENABLED -DMAL_ENABLED, $(CFLAGS)))
-SRCS_mqtt-example       += mqtt_example_at.c
+SRCS_mqtt-example       += examples/mqtt_example_at.c
 else
-SRCS_mqtt-example       += mqtt_example.c
+SRCS_mqtt-example       += examples/mqtt_example.c
 endif
 
-SRCS_mqtt-example-report	+= mqtt_example_report.c
+SRCS_mqtt-example-report	+= examples/mqtt_example_report.c
