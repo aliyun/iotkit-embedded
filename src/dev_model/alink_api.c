@@ -95,7 +95,7 @@ int IOT_Linkkit_Close(int devid)
     return res;
 }
 
-int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len)
+int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, uint32_t payload_len)
 {
     int res = FAIL_RETURN;
 
@@ -113,14 +113,14 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 
     switch (msg_type) {
         case ITM_MSG_POST_PROPERTY: {
-            if (payload == NULL || payload_len <= 0) {
+            if (payload == NULL || payload_len == 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
             res = alink_upstream_thing_property_post_req(devid, (const char *)payload, payload_len);
         } break;
 
         case ITM_MSG_DEVICEINFO_UPDATE: {
-            if (payload == NULL || payload_len <= 0) {
+            if (payload == NULL || payload_len == 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
             res = alink_upstream_thing_deviceinfo_post_req(devid, (const char *)payload, payload_len);
@@ -131,14 +131,14 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         } break;
 
         case ITM_MSG_DEVICEINFO_DELETE: {
-            if (payload == NULL || payload_len <= 0) {
+            if (payload == NULL || payload_len == 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
             res = alink_upstream_thing_deviceinfo_delete_req(devid, (char *)payload, payload_len);
         } break;
 
         case ITM_MSG_POST_RAW_DATA: {
-            if (payload == NULL || payload_len <= 0) {
+            if (payload == NULL || payload_len == 0) {
                 return IOTX_CODE_PARAMS_INVALID;
             }
             res = alink_upstream_thing_raw_post_req(devid, payload, payload_len);
@@ -181,13 +181,13 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 }
 
 int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
-                                  int payload_len)
+                                  uint32_t payload_len)
 {
     /* implement next version */
     return 0;
 }
 
-int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len)
+int IOT_Linkkit_TriggerEvent(int devid, char *eventid, uint32_t eventid_len, char *payload, uint32_t payload_len)
 {
     int res = FAIL_RETURN;
 

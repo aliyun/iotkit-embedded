@@ -686,7 +686,7 @@ static void alink_downstream_thing_property_get_req(uint32_t devid, const char *
         linkkit_property_get_cb_t handle_func;
         handle_func = (linkkit_property_get_cb_t)alink_get_event_callback(ITE_PROPERTY_GET);
         if (handle_func != NULL) {
-            res = handle_func(devid, req_data, item.value_length, &rsp_data, (int *)&rsp_len);
+            res = handle_func(devid, req_data, item.value_length, &rsp_data, &rsp_len);
         }
 
         alink_debug("propery get user rsp = %.*s", rsp_len, rsp_data);
@@ -752,12 +752,12 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
         /* just invoke the user callback funciton */
         handle_func = (linkkit_service_request_cb_t)alink_get_event_callback(ITE_SERVICE_REQUEST);
         if (handle_func != NULL) {
-            res = handle_func(devid, service_id, item_id.value_length, service_params, item_params.value_length, &rsp_data, (int *)&rsp_len);
+            res = handle_func(devid, service_id, item_id.value_length, service_params, item_params.value_length, &rsp_data, &rsp_len);
         }
 
         alink_debug("propery get user rsp = %.*s", rsp_len, rsp_data);
         query->code = (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400;
-
+e
         /* send upstream response if ack is need */
         if (query->ack == 'y') {
             alink_upstream_thing_service_invoke_rsp(pk, dn, service_id, rsp_data, rsp_len, query);

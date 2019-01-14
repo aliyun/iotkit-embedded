@@ -141,7 +141,6 @@ static int user_initialized(const int devid)
     return 0;
 }
 
-
 void *example_yield_thread(void *args)
 {
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
@@ -152,7 +151,6 @@ void *example_yield_thread(void *args)
 
     return NULL;
 }
-
 
 int main(int argc, char **argv)
 {
@@ -216,17 +214,13 @@ int main(int argc, char **argv)
         res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
         EXAMPLE_TRACE("post devinfo, res = %d", res);    
 
-        if (++cnt > 20) {
-            user_example_ctx->thread_running = 0;
-            HAL_SleepMs(1000);
-
-            HAL_ThreadDelete(user_example_ctx->example_thread_yield);
+        if (++cnt > 2) {
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }
     }
 
     printf("alink stop\r\n");
+    return 0;
 }
-
 

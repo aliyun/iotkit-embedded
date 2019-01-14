@@ -9,6 +9,8 @@
 #include "infra_defs.h"
 #include "wrappers_defs.h"
 
+
+
 void HAL_Printf(const char *fmt, ...);
 int HAL_GetPartnerID(char *pid_str);
 int HAL_GetModuleID(char *mid_str);

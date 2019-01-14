@@ -69,7 +69,7 @@ typedef enum {
 } iotx_linkkit_msg_type_t;
 
 typedef enum {
-    ITE_AWSS_STATUS = 0,
+    ITE_AWSS_STATUS = 0,        /* no implement this version */
     ITE_CONNECT_SUCC,           
     ITE_CONNECT_FAIL,
     ITE_DISCONNECTED,
@@ -99,19 +99,19 @@ typedef int (*linkkit_connect_fail_cb_t)(uint32_t devid);           /* modified,
 
 typedef int (*linkkit_disconnected_cb_t)(uint32_t devid);           /* modified, add parameter devid */
 
-typedef int (*linkkit_rawdata_rx_cb_t)(int device_id, const uint8_t *payload, int payload_len);
+typedef int (*linkkit_rawdata_rx_cb_t)(int device_id, const uint8_t *payload, uint32_t payload_len);
 
-typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid, int serviceid_len, 
-                                            const char *request, int request_len, 
-                                            char **response, int *response_len);
+typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid, uint32_t serviceid_len, 
+                                            const char *request, uint32_t request_len, 
+                                            char **response, uint32_t *response_len);
 
-typedef int (*linkkit_property_set_cb_t)(int device_id, const char *request, int request_len);
+typedef int (*linkkit_property_set_cb_t)(int device_id, const char *request, uint32_t request_len);
 
-typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, int request_len,       
-                                                        char **response, int *response_len);
+typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, uint32_t request_len,       
+                                                        char **response, uint32_t *response_len);
 
 typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
-                                        const char *reply, int reply_len);
+                                        const char *reply, uint32_t reply_len);
 
 typedef int (*linkkit_timestamp_reply_cb_t)(const char *timestamp);
 
@@ -204,7 +204,7 @@ int IOT_Linkkit_Close(int devid);
  *
  */
 int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
-                                   int payload_len);
+                                   uint32_t payload_len);
 
 /**
  * @brief post message to cloud
@@ -224,8 +224,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
  * @return success: 0 or message id (>=1), fail: -1.
  *
  */
-int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
-                                  int payload_len);
+int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, uint32_t payload_len);
 
 /**
  * @brief post event to cloud
@@ -239,7 +238,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
  * @return success: message id (>=1), fail: -1.
  *
  */
-int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
+int IOT_Linkkit_TriggerEvent(int devid, char *eventid, uint32_t eventid_len, char *payload, uint32_t payload_len);
 
 
 typedef enum {
