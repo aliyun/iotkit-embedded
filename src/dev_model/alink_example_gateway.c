@@ -231,9 +231,8 @@ int main(int argc, char **argv)
         EXAMPLE_TRACE("subdev login, res = %d", res);
 
         res = IOT_Linkkit_Report(0, ITM_MSG_LOGOUT, (uint8_t *)devid, sizeof(devid));
-        EXAMPLE_TRACE("subdev login, res = %d", res);
+        EXAMPLE_TRACE("subdev logout, res = %d", res);
     }
-
 
     while (1) {
         time_now_sec = user_update_sec();
