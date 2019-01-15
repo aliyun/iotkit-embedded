@@ -30,6 +30,10 @@
 #ifndef WITH_MQTT_DYN_CONNINFO
     #define WITH_MQTT_DYN_CONNINFO              (0)
 #endif
+#ifndef WITH_MQTT_MULTI_INSTANCE
+    #define WITH_MQTT_MULTI_INSTANCE            (0)
+#endif
+
 
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)

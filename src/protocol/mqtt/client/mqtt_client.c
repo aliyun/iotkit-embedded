@@ -156,9 +156,10 @@ static int iotx_mc_get_md5_topic(const char *path, int len, char outbuf[], int o
 }
 #endif
 
+#if !(WITH_MQTT_MULTI_INSTANCE)
 static int _conn_info_dynamic_create(iotx_mqtt_param_t *mqtt_param)
 {
-
+#if WITH_MQTT_DYN_CONNINFO 
     iotx_conn_info_pt pconn_info = iotx_conn_info_get();
     if (pconn_info->init != 0) {
         return 0;
@@ -172,13 +173,14 @@ static int _conn_info_dynamic_create(iotx_mqtt_param_t *mqtt_param)
     mqtt_param->username = pconn_info->username;
     mqtt_param->password = pconn_info->password;
     mqtt_param->pub_key = pconn_info->pub_key;
-
+#endif
     return 0;
 }
+#endif
 
 static void _conn_info_dynamic_release()
 {
-#if WITH_MQTT_DYN_CONNINFO
+#if WITH_MQTT_DYN_CONNINFO && !(WITH_MQTT_MULTI_INSTANCE)
     iotx_conn_info_release();
 #endif
 }
@@ -186,7 +188,7 @@ static void _conn_info_dynamic_release()
 /* set MQTT connection parameter */
 static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
 {
-#if WITH_MQTT_DYN_CONNINFO
+#if WITH_MQTT_DYN_CONNINFO && !(WITH_MQTT_MULTI_INSTANCE)
     int rc;
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2776,7 +2778,6 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
     int             rc = FAIL_RETURN;
     uint32_t        interval_ms = 0;
-    iotx_conn_info_t *pconn = NULL;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2789,11 +2790,6 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     }
 
     mqtt_info("start to reconnect");
-
-    pconn = iotx_conn_info_get();
-    if (pconn == NULL) {
-        return NULL_VALUE_ERROR;
-    }
 
     rc = _conn_info_dynamic_reload(pClient);
     if (SUCCESS_RETURN != rc) {
@@ -3039,8 +3035,13 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                 err;
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
-    iotx_conn_info_t *conn_info = NULL;
     void *callback = NULL;
+#if (WITH_MQTT_MULTI_INSTANCE)
+    if (pInitParams == NULL) {
+        return NULL;
+    }
+#else
+    iotx_conn_info_t *conn_info = NULL;
 
     if (pInitParams != NULL) {
         if (g_mqtt_client != NULL) {
@@ -3088,6 +3089,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_params->handle_event.pcontext = NULL;
         pInitParams = mqtt_params;
     }
+#endif
 
     if (pInitParams->host == NULL || pInitParams->client_id == NULL ||
         pInitParams->username == NULL || pInitParams->password == NULL ||
