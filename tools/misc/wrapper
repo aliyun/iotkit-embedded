@@ -340,3 +340,274 @@ wrapper_mqtt_release:
  *
  */
  
+HAL_SemaphoreCreate:
+/**
+ * @brief   create a semaphore
+ *
+ * @return semaphore handle.
+ * @see None.
+ * @note The recommended value of maximum count of the semaphore is 255.
+ */
+
+HAL_SemaphoreDestroy:
+/**
+ * @brief   destory a semaphore
+ *
+ * @param[in] sem @n the specified sem.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_SemaphorePost:
+/**
+ * @brief   signal thread wait on a semaphore
+ *
+ * @param[in] sem @n the specified semaphore.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+HAL_SemaphoreWait:
+/**
+ * @brief   wait on a semaphore
+ *
+ * @param[in] sem @n the specified semaphore.
+ * @param[in] timeout_ms @n timeout interval in millisecond.
+     If timeout_ms is PLATFORM_WAIT_INFINITE, the function will return only when the semaphore is signaled.
+ * @return
+   @verbatim
+   =  0: The state of the specified object is signaled.
+   =  -1: The time-out interval elapsed, and the object's state is nonsignaled.
+   @endverbatim
+ * @see None.
+ * @note None.
+ */
+
+HAL_ThreadCreate:
+/**
+ * @brief  create a thread
+ *
+ * @param[out] thread_handle @n The new thread handle, memory allocated before thread created and return it, free it after thread joined or exit.
+ * @param[in] start_routine @n A pointer to the application-defined function to be executed by the thread.
+        This pointer represents the starting address of the thread.
+ * @param[in] arg @n A pointer to a variable to be passed to the start_routine.
+ * @param[in] hal_os_thread_param @n A pointer to stack params.
+ * @param[out] stack_used @n if platform used stack buffer, set stack_used to 1, otherwise set it to 0.
+ * @return
+   @verbatim
+     = 0: on success.
+     = -1: error occur.
+   @endverbatim
+ * @see None.
+ * @note None.
+ */
+
+HAL_AT_Uart_Init:
+/**
+ * Initialises a UART interface
+ *
+ *
+ * @param[in]  uart  the interface which should be initialised
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
+ */
+
+HAL_AT_Uart_Deinit:
+/**
+ * Deinitialises a UART interface
+ *
+ * @param[in]  uart  the interface which should be deinitialised
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
+ */
+
+HAL_AT_Uart_Send:
+/**
+ * Transmit data on a UART interface
+ *
+ * @param[in]  uart     the UART interface
+ * @param[in]  data     pointer to the start of data
+ * @param[in]  size     number of bytes to transmit
+ * @param[in]  timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
+ *                      if you want to wait forever
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
+ */
+
+HAL_AT_Uart_Recv:
+/**
+ * Receive data on a UART interface
+ *
+ * @param[in]   uart         the UART interface
+ * @param[out]  data         pointer to the buffer which will store incoming data
+ * @param[in]   expect_size  number of bytes to receive
+ * @param[out]  recv_size    number of bytes received
+ * @param[in]   timeout      timeout in milisecond, set this value to HAL_WAIT_FOREVER
+ *                           if you want to wait forever
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
+ */
+
+HAL_AT_CONN_Init:
+/**
+ * Module low level init so that it's ready to setup socket connection.
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_AT_CONN_Start:
+/**
+ * Start a socket connection via module.
+ *
+ * @param[in]  conn - connect parameters which are used to setup
+ *                 the socket connection.
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_AT_CONN_Send:
+/**
+ * Send data via module.
+ * This function does not return until all data sent.
+ *
+ * @param[in]  fd - the file descripter to operate on.
+ * @param[in]  data - pointer to data to send.
+ * @param[in]  len - length of the data.
+ * @param[in]  remote_ip - remote port number (optional).
+ * @param[in]  remote_port - remote port number (optional).
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_AT_CONN_DomainToIp:
+/**
+ * Get IP information of the corresponding domain.
+ * Currently only one IP string is returned (even when the domain
+ * coresponses to mutliple IPs). Note: only IPv4 is supported.
+ *
+ * @param[in]   domain - the domain string.
+ * @param[out]  ip - the place to hold the dot-formatted ip string.
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_AT_CONN_Close:
+/**
+ * Close the socket connection.
+ *
+ * @param[in]  fd - the file descripter to operate on.
+ * @param[in]  remote_port - remote port number (optional).
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_AT_CONN_Deinit:
+/**
+ * Destroy or exit low level state if necessary.
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_AT_CONN_RegInputCb:
+/**
+ * Register network connection data input function
+ * Input data from module.
+ * This callback should be called when the data is received from the module
+ * It should tell the sal where the data comes from.
+ * @param[in]  fd - the file descripter to operate on.
+ * @param[in]  data - the received data.
+ * @param[in]  len - expected length of the data when IN,
+ *                    and real read len when OUT.
+ * @param[in]  addr - remote ip address. Caller manages the
+                            memory (optional).
+ * @param[in]  port - remote port number (optional).
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+
+HAL_MDAL_MAL_Init:
+/**
+ * Initialize low layer
+ *
+ * @param[in]  iotx_mqtt_param_t a struct contain usename, password, etc.
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+int HAL_MDAL_MAL_Deinit:
+/**
+ * Deinit low layer
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+int HAL_MDAL_MAL_Connect:
+/**
+ * Setup MQTT Connection
+ *
+ * @param[in] product key (optional).
+ * @param[in] device name (optional).
+ * @param[in] device Secret (optional).
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_MDAL_MAL_Disconnect:
+/**
+ * Close MQTT connection
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_MDAL_MAL_Subscribe:
+/**
+ * Subscribe topic
+ *
+ * @param[in]  topic
+ * @param[in]  qos
+ * @param[in]  mqtt_packet_id
+ * @param[out] mqtt_status
+ * @param[in]  timeout_ms
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_MDAL_MAL_Unsubscribe:
+/**
+ * Unsubscribe topic
+ *
+ * @param[in]  topic
+ * @param[in]  mqtt_packet_id
+ * @param[out] mqtt_status
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_MDAL_MAL_Publish:
+/**
+ * Publish message
+ *
+ * @param[in] topic
+ * @param[in] qos
+ * @param[in] message
+ * @param[in] msg_len
+ *
+ * @return  0 - success, -1 - failure
+ */
+
+HAL_MDAL_MAL_State:
+/**
+ * Check connection status
+ *
+ * @return  0 - disconnected, -1 -connected
+ */
+
+HAL_MDAL_MAL_RegRecvCb:
+/**
+ * Register receive callback
+ *
+ * @return  0 - success, -1 - failure
+ */

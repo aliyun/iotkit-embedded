@@ -13,7 +13,7 @@
 
 #ifndef PLATFORM_HAS_OS
 #ifdef AT_PARSER_ENABLED
-#include "atparser.h"
+#include "at_parser.h"
 #endif
 #endif
 
