@@ -1,6 +1,6 @@
 config ATM_ENABLED
     bool "FEATURE_ATM_ENABLED"
-    default y
+    default n
 
 menu "ATM Configuration"
     depends on ATM_ENABLED
