@@ -127,14 +127,11 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 
     /* use upstream req cache if gw enabled */
     alink_upstream_req_ctx_init();
+#endif
 
 #if (CONFIG_SDK_THREAD_COST == 1)
     alink_msg_list_init();
 #endif
-
-#endif
-
-
 
     return SUCCESS_RETURN;
 }
@@ -175,10 +172,10 @@ static int _alink_core_deinit(void)
     /* subdev hash table deinit, TODO */
     alink_subdev_mgr_deinit();
     alink_upstream_req_ctx_deinit();
-#if (CONFIG_SDK_THREAD_COST == 0)
-#else
+#endif /* #ifdef DEVICE_MODEL_GATEWAY */
+
+#if (CONFIG_SDK_THREAD_COST == 1)
     alink_msg_list_deinit();
-#endif
 #endif
 
     alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;

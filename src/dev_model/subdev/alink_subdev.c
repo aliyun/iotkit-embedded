@@ -78,7 +78,7 @@ int alink_subdev_mgr_init(void)
         return FAIL_RETURN;
     }
 
-    subdev_mgr_htable.table_size = ALINK_SUBDEV_HTABLE_SIZE;     /* TODO!!! */
+    subdev_mgr_htable.table_size = ALINK_SUBDEV_HTABLE_SIZE;
     subdev_mgr_htable.subdev_num = 0;
     subdev_mgr_htable.devid_alloc = 0;
 
@@ -101,6 +101,7 @@ int alink_subdev_mgr_deinit(void)
 
     _subdev_hash_destroy(subdev_mgr_htable.hash_table, subdev_mgr_htable.table_size);
     alink_free(subdev_mgr_htable.hash_table);
+    subdev_mgr_htable.hash_table = NULL;
     subdev_mgr_htable.table_size = 0;
     subdev_mgr_htable.subdev_num = 0;
     subdev_mgr_htable.devid_alloc = 0;
@@ -157,6 +158,11 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
     uint32_t hash = _pkdn_to_hash(pk, dn);
     struct _subdev_hash_node **table = subdev_mgr_htable.hash_table;
     subdev_hash_node_t *node, *temp;
+
+    /* check if hash_tabla inited */
+    if (table == NULL) {
+        return IOTX_CODE_STATUS_ERROR;
+    }
 
     _alink_subdev_mgr_lock();
 
@@ -228,6 +234,10 @@ int _subdev_hash_remove(uint32_t devid)
     subdev_hash_node_t *node, *temp;
 
     ALINK_ASSERT_DEBUG(devid != 0);
+    /* check if hash_tabla inited */
+    if (subdev_mgr_htable.hash_table == NULL) {
+        return IOTX_CODE_STATUS_ERROR;
+    }
 
     hash = devid / ALINK_SUBDEV_INDEX_VALUE_MAX;
     if (hash >= subdev_mgr_htable.table_size) {
@@ -297,7 +307,6 @@ void subdev_hash_iterator(void)
     }
 }
 #endif
-
 
 /** TODO: add mutex **/
 subdev_hash_node_t *_subdev_hash_search_by_pkdn(const char *pk, const char *dn)
@@ -385,6 +394,11 @@ int alink_subdev_open(iotx_dev_meta_info_t *dev_info)
 {
     subdev_hash_node_t *node = NULL;
     int res = 0;
+
+    /* check core status first */
+    if (alink_core_get_status() < ALINK_CORE_STATUS_OPENED) {
+        return IOTX_CODE_STATUS_ERROR;
+    }
 
     node = _subdev_hash_search_by_pkdn(dev_info->product_key, dev_info->device_name);
     if (node != NULL) {
