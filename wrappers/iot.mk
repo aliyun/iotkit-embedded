@@ -9,6 +9,10 @@ ifneq (,$(filter -D_PLATFORM_IS_LINUX_,$(CFLAGS)))
 ifneq (,$(filter -DSUPPORT_TLS,$(CFLAGS)))
 LIB_SRCS_PATTERN    += tls/*.c
 endif
+
+ifeq (,$(filter -DAT_PARSER_ENABLED,$(CFLAGS)))
+LIB_SRCS_EXCLUDE   := os/ubuntu/HAL_UART_linux.c
+endif
 endif
 
 LIB_SRCS_PATTERN    += algo/*.c
