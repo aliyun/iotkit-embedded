@@ -53,8 +53,8 @@ cond_not_check()
 # Read xtrc_file_rules
 cat ${XTRC_FILE_RULS} | while read rule
 do
-    TEST=$(echo $rule | sed -n '/.*|.*|.*|.*/p')
-    [[ ! ${TEST} ]] && continue
+    TEST=$(echo $rule | awk -F'|' '{print NF}')
+    [[ ${TEST} -ne 4 ]] && continue
 
     COND_AND=$(echo $rule | awk -F'|' '{print $1}')
     COND_NOT=$(echo $rule | awk -F'|' '{print $2}')
@@ -82,8 +82,8 @@ cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 # Read xtrc_wrapper_rules
 while read rule
 do
-    TEST=$(echo $rule | sed -n '/.*|.*|.*|.*/p')
-    [[ ! ${TEST} ]] && continue
+    TEST=$(echo $rule | awk -F'|' '{print NF}')
+    [[ ${TEST} -ne 4 ]] && continue
 
     COND_AND=$(echo $rule | awk -F'|' '{print $1}')
     COND_NOT=$(echo $rule | awk -F'|' '{print $2}')
