@@ -7,14 +7,15 @@
 #include <string.h>
 
 #include "infra_config.h"
-#include "sal_wrapper.h"
-#include "atparser.h"
+
+#include "at_wrapper.h"
+#include "at_parser.h"
 
 #define TAG "sim800_gprs_module"
 
 #define SIM800_AT_CMD_SUCCESS_RSP "OK"
 #define SIM800_AT_CMD_FAIL_RSP "ERROR"
-
+#define AT_CMD_TEST  "AT"
 #define AT_CMD_TEST_RESULT "OK\r\n"
 
 #define AT_CMD_ECHO_OFF   "ATE0"
@@ -81,6 +82,11 @@
 #define sal_hal_info(...)
 #define sal_hal_debug(...)
 #endif
+
+void *HAL_SemaphoreCreate(void);
+void HAL_SemaphoreDestroy(void *sem);
+void HAL_SemaphorePost(void *sem);
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
 
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
@@ -304,7 +310,7 @@ static int sim800_uart_init(void)
     }
 
     /*set baudrate 115200*/
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_BAUDRATE_SET, AT_UART_BAUDRATE);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_BAUDRATE_SET, AT_UART_BAUDRATE);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         sal_hal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
@@ -314,7 +320,7 @@ static int sim800_uart_init(void)
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*turn off flow control*/
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_FLOW_CONTROL, 0, 0);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_FLOW_CONTROL, 0, 0);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         sal_hal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
@@ -416,7 +422,7 @@ static int sim800_gprs_ip_init(void)
 
     /*set multi ip connection mode*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_MULTI_IP_CONNECTION, 1);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_MULTI_IP_CONNECTION, 1);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0,
                        rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
@@ -427,7 +433,7 @@ static int sim800_gprs_ip_init(void)
     /*not prompt echo > when sending data*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_SEND_DATA_PROMPT_SET, 0);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_SEND_DATA_PROMPT_SET, 0);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, 
                        rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
@@ -438,7 +444,7 @@ static int sim800_gprs_ip_init(void)
     /*Show Remote ip and port when receive data*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_RECV_DATA_FORMAT_SET, 1);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_RECV_DATA_FORMAT_SET, 1);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         sal_hal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
@@ -505,7 +511,7 @@ static int sim800_gprs_get_ip_only()
     return 0;
 }
 
-int HAL_SAL_Init(void)
+int HAL_AT_CONN_Init(void)
 {
     int ret = 0;
     uint32_t linknum = 0;
@@ -589,7 +595,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Deinit()
+int HAL_AT_CONN_Deinit()
 {
     if (!inited) {
         return 0;
@@ -600,7 +606,7 @@ int HAL_SAL_Deinit()
     return 0;
 }
 
-int HAL_SAL_DomainToIp(char *domain, char ip[16])
+int HAL_AT_CONN_DomainToIp(char *domain, char ip[16])
 {
     char *pccmd = NULL;
     char *head = NULL;
@@ -629,7 +635,7 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
     }
 
     memset(pccmd, 0, SIM800_DOMAIN_CMD_LEN);
-    snprintf(pccmd, SIM800_DOMAIN_CMD_LEN - 1, "%s=%s", AT_CMD_DOMAIN_TO_IP, domain);
+    HAL_Snprintf(pccmd, SIM800_DOMAIN_CMD_LEN - 1, "%s=%s", AT_CMD_DOMAIN_TO_IP, domain);
 
     HAL_MutexLock(g_domain_mutex);
 restart:
@@ -693,7 +699,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Start(sal_conn_t *conn)
+int HAL_AT_CONN_Start(at_conn_t *conn)
 {
     int  linkid = 0;
     char *pccmd = NULL;
@@ -734,7 +740,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
 
     switch (conn->type) {
         case TCP_SERVER:
-            snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,%d", AT_CMD_START_TCP_SERVER, 1, conn->l_port);
+            HAL_Snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,%d", AT_CMD_START_TCP_SERVER, 1, conn->l_port);
             at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0,
                                rsp, SIM800_DEFAULT_RSP_LEN, NULL);
             if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
@@ -743,7 +749,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
             }
             break;
         case TCP_CLIENT:
-            snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
+            HAL_Snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
                      conn->r_port);
              
             at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, 
@@ -754,7 +760,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
             }
             break;
         case UDP_UNICAST:
-            snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"UDP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
+            HAL_Snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"UDP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
                      conn->r_port);
            
             at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN,
@@ -779,7 +785,7 @@ err:
     return -1;
 }
 
-int HAL_SAL_Close(int fd, int32_t remote_port)
+int HAL_AT_CONN_Close(int fd, int32_t remote_port)
 {
     int  linkid = 0;
     int  ret = 0;
@@ -797,7 +803,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
         return -1;
     }
 
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_STOP_CONN, linkid);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_STOP_CONN, linkid);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, 
                        rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
@@ -812,7 +818,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     return ret;
 }
 
-int HAL_SAL_Send(int fd,
+int HAL_AT_CONN_Send(int fd,
                  uint8_t *data,
                  uint32_t len,
                  char remote_ip[16],
@@ -835,7 +841,7 @@ int HAL_SAL_Send(int fd,
         return -1;
     }
 
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_SEND_DATA, linkid, len);
+    HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_SEND_DATA, linkid, len);
     
     while (true) {
         retry++;
@@ -857,7 +863,7 @@ int HAL_SAL_Send(int fd,
     return 0;
 }
 
-int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
+int HAL_AT_CONN_RegInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;

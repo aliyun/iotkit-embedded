@@ -13,15 +13,19 @@ endif
 
 LIB_SRCS_PATTERN    += algo/*.c
 
+ifneq (,$(filter -DAT_TCP_ENABLED, $(CFLAGS)))
+ifneq (,$(filter -DAT_TCP_HAL_MK3060, $(CFLAGS)))
+LIB_SRCS_PATTERN += atm/at_tcp/mk3060.c
+endif
 
-ifneq (,$(filter -DMAL_ENABLED, $(CFLAGS)))
-LIB_SRCS_PATTERN += mqtt/mal/mal.c
+ifneq (,$(filter -DAT_TCP_HAL_SIM800, $(CFLAGS)))
+LIB_SRCS_PATTERN += atm/at_tcp/sim800.c
+endif
+endif
 
-ifneq (,$(filter -DMAL_ICA_ENABLED, $(CFLAGS)))
-LIB_SRCS_PATTERN += at/*.c
-LIB_SRCS_PATTERN += mqtt/mal/ica/*.c  \
-                    mqtt/mal/ica/test/*.c
-else
-LIB_SRCS_PATTERN += mqtt/mal/mdal_mal_hal_default.c
+ifneq (,$(filter -DAT_MQTT_ENABLED, $(CFLAGS)))
+ifneq (,$(filter -DAT_MQTT_HAL_ICA, $(CFLAGS)))
+LIB_SRCS_PATTERN += atm/at_mqtt/mdal_ica_at_client.c
+LDFLAGS         += -liot_sdk
 endif
 endif

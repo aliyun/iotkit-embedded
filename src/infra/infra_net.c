@@ -133,23 +133,23 @@ static int connect_ssl(utils_network_pt pNetwork)
         return -1;
     }
 }
-#elif defined(SAL_ENABLED)
-uintptr_t SAL_TCP_Establish(const char *host, uint16_t port);
-int SAL_TCP_Destroy(uintptr_t fd);
-int32_t SAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
-int32_t SAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+#elif defined(AT_TCP_ENABLED)
+uintptr_t AT_TCP_Establish(const char *host, uint16_t port);
+int AT_TCP_Destroy(uintptr_t fd);
+int32_t AT_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
+int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 
 /*** TCP connection ***/
 static int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    return SAL_TCP_Read(pNetwork->handle, buffer, len, timeout_ms);
+    return AT_TCP_Read(pNetwork->handle, buffer, len, timeout_ms);
 }
 
 static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    return SAL_TCP_Write(pNetwork->handle, buffer, len, timeout_ms);
+    return AT_TCP_Write(pNetwork->handle, buffer, len, timeout_ms);
 }
 
 static int disconnect_tcp(utils_network_pt pNetwork)
@@ -159,7 +159,7 @@ static int disconnect_tcp(utils_network_pt pNetwork)
         return -1;
     }
 
-    SAL_TCP_Destroy(pNetwork->handle);
+    AT_TCP_Destroy(pNetwork->handle);
     pNetwork->handle = -1;
     return 0;
 }
@@ -171,7 +171,7 @@ static int connect_tcp(utils_network_pt pNetwork)
         return 1;
     }
 
-    pNetwork->handle = SAL_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
+    pNetwork->handle = AT_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
     if (pNetwork->handle == (uintptr_t)(-1)) {
         return -1;
     }

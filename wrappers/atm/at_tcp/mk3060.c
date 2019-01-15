@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "sal_wrapper.h"
-#include "atparser.h"
+#include "infra_config.h"
+
+#include "at_wrapper.h"
+#include "at_parser.h"
 
 #define TAG "sal_wifi"
 
@@ -18,21 +20,31 @@
 #define LINK_ID_MAX 5
 #define SEM_WAIT_DURATION 5000
 
+#define AT_CMD_EHCO_OFF "AT+UARTE=OFF"
 #define STOP_CMD "AT+CIPSTOP"
 #define STOP_CMD_LEN (sizeof(STOP_CMD)+1+1+5+1)
 
 #define STOP_AUTOCONN_CMD "AT+CIPAUTOCONN"
 #define STOP_AUTOCONN_CMD_LEN (sizeof(STOP_AUTOCONN_CMD)+1+1+5+1)
 
-
-#define sal_hal_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define sal_hal_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define sal_hal_err(...)
+#ifdef AT_DEBUG_MODE
+#define sal_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define sal_hal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define sal_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define sal_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#else
+#define sal_hal_err(...)           
+#define sal_hal_warning(...)           
+#define sal_hal_info(...)           
 #define sal_hal_debug(...)
+#endif
 
 typedef int (*at_data_check_cb_t)(char data);
+
+void *HAL_SemaphoreCreate(void);
+void HAL_SemaphoreDestroy(void *sem);
+void HAL_SemaphorePost(void *sem);
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
 
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
@@ -48,8 +60,63 @@ static netconn_data_input_cb_t g_netconn_data_input_cb;
 static char localipaddr[16];
 
 static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t valuecheck);
-static int socket_ip_info_check(char data);
 static int socket_data_len_check(char data);
+
+#define WIFI_SSID "Yuemewifi-3766"
+#define WIFI_PWD  "aos12345"
+#define WIFI_TIMEOUT  20000
+static uint8_t gotip = 0;
+
+static uint64_t _get_time_ms(void)
+{
+    return HAL_UptimeMs();
+}
+
+static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
+{
+    uint64_t t_left;
+
+    if (t_end > t_now) {
+        t_left = t_end - t_now;
+    } else {
+        t_left = 0;
+    }
+
+    return t_left;
+}
+
+static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
+{
+    char conn_str[100]= {0};
+    char out[20] = {0};
+    uint64_t t_end, t_left;
+
+    t_end = _get_time_ms() + timeout_ms;
+
+    HAL_Snprintf(conn_str, 100, "AT+WJAP=%s,%s", ssid, pwd);
+
+    if (at_send_wait_reply(conn_str, strlen(conn_str), true, NULL,
+                           0, out, sizeof(out), NULL) < 0){
+        return -1;
+    }
+
+    if (strstr(out, "ERROR") != NULL) {
+        return -1;
+    }
+
+    while(0 == gotip) {
+        HAL_SleepMs(100);
+
+        t_left = _time_left(t_end, _get_time_ms());
+        if (0 == t_left) {
+            sal_hal_err("wifi connect timeout!\n");
+            return -1;
+        }
+
+    }
+
+    return 0;
+}
 
 static void handle_tcp_udp_client_conn_state(uint8_t link_id)
 {
@@ -78,30 +145,11 @@ static void handle_tcp_udp_client_conn_state(uint8_t link_id)
     }
 }
 
-/*
- *  Handle client connect / closed event
- *  +CIPEVENT:CLIENT,CONNECTED,ip,port
- *  +CIPEVENT:CLIENT,CLOSED,ip,port
-*/
-static void handle_remote_client_conn_state()
-{
-
-}
-
 static int socket_data_len_check(char data)
 {
     if (data > '9' || data < '0') {
         return -1;
     }
-    return 0;
-}
-
-static int socket_ip_info_check(char data)
-{
-    if ((data > '9' || data < '0') && data != '.') {
-        return -1;
-    }
-
     return 0;
 }
 
@@ -208,89 +256,6 @@ err:
     HAL_Free(recvdata);
 }
 
-static void handle_udp_broadcast_data()
-{
-    uint32_t len = 0;
-    uint32_t remoteport = 0;
-    int32_t  linkid = 0;
-    int32_t  ret = 0;
-    char reader[16] = {0};
-    char ipaddr[16] = {0};
-    char *recvdata = NULL;
-
-    /* Eat the "DP_BROADCAST," */
-    at_read(reader, 13);
-    if (memcmp(reader, "DP_BROADCAST,", strlen("DP_BROADCAST,")) != 0) {
-        sal_hal_err("%s invalid event format!!!\r\n",
-             reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
-        return;
-    }
-
-    /* get ip addr */
-    ret = socket_data_info_get(ipaddr, sizeof(ipaddr), &socket_ip_info_check);
-    if (ret) {
-        sal_hal_err("Invalid ip addr %s !!!\r\n", ipaddr);
-        return;
-    }
-    sal_hal_debug("get broadcast form ip addr %s \r\n", ipaddr);
-
-    /* get ip port */
-    memset(reader, 0, sizeof(reader));
-    ret = socket_data_info_get(reader, sizeof(reader), &socket_data_len_check);
-    if (ret) {
-        sal_hal_err( "Invalid ip addr %s !!!\r\n", reader);
-        return;
-    }
-    sal_hal_debug("get broadcast form ip port %s \r\n", reader);
-    remoteport = atoi(reader);
-
-    memset(reader, 0, sizeof(reader));
-    ret = socket_data_info_get(reader, 1, &socket_data_len_check);
-    if (ret) {
-        sal_hal_err("Invalid link id 0x%02x !!!\r\n", reader[0]);
-        return;
-    }
-    linkid = reader[0] - '0';
-    sal_hal_debug("get udp broadcast linkid %d \r\n", linkid);
-
-    /* len */
-    memset(reader, 0, sizeof(reader));
-    ret = socket_data_info_get(reader, sizeof(reader), &socket_data_len_check);
-    if (ret) {
-        sal_hal_err("Invalid datalen %s !!!\r\n", reader);
-        return;
-    }
-
-    len = atoi(reader);
-    if (len > MAX_DATA_LEN) {
-        sal_hal_err( "invalid input socket data len %d \r\n", len);
-        return;
-    }
-
-    /* Prepare socket data */
-    recvdata = (char *)HAL_Malloc(len + 1);
-    if (!recvdata) {
-        sal_hal_err("Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
-        return;
-    }
-
-    at_read(recvdata, len);
-    recvdata[len] = '\0';
-
-    if (strcmp(ipaddr, localipaddr) != 0) {
-        if (g_netconn_data_input_cb && (g_link[linkid].fd >= 0)) {
-            if (g_netconn_data_input_cb(g_link[linkid].fd, recvdata, len, ipaddr, remoteport)) {
-                sal_hal_debug(" %s socket %d get data len %d fail to post to sal, drop it\n",
-                     __func__, g_link[linkid].fd, len);
-            }
-        }
-    } else {
-        sal_hal_debug("drop broadcast packet len %d \r\n", len);
-    }
-    HAL_Free(recvdata);
-
-}
-
 /*
  * Wifi station event handler. include:
  * +WEVENT:AP_UP
@@ -318,11 +283,12 @@ static void mk3060wifi_event_handler(void *arg, char *buf, int buflen)
     } else if (strcmp(eventhead, "STA") == 0) {
         at_read(eventotal, 7);
         if (strcmp(eventotal, "TION_UP") == 0) {
-            
+            gotip = 1;
         } else if (strcmp(eventotal, "TION_DO") == 0) {
             /*eat WN*/
             at_read(eventotal, 2);
             memset(localipaddr, 0, sizeof(localipaddr));
+            gotip = 0;
         } else {
             sal_hal_err("!!!Error: wrong WEVENT STATION string received. %s\r\n", eventotal);
             return;
@@ -387,12 +353,6 @@ static void net_event_handler(void *arg, char *buf, int buflen)
     } else if (c == 'S') {
         sal_hal_debug("%s socket data event.", __func__);
         handle_socket_data();
-    } else if (c == 'C') {
-        sal_hal_debug("%s client conn state event.", __func__);
-        handle_remote_client_conn_state();
-    } else if (c == 'U') {
-        sal_hal_debug("%s udp broadcast data event.", __func__);
-        handle_udp_broadcast_data();
     } else {
         sal_hal_err("!!!Error: wrong CIPEVENT string received. 0x%02x\r\n", c);
         return;
@@ -415,11 +375,12 @@ static void mk3060_uart_echo_off()
 
     return;
 }
+
 static uint8_t inited = 0;
 
 #define NET_OOB_PREFIX "+CIPEVENT:"
 #define WIFIEVENT_OOB_PREFIX "+WEVENT:"
-int HAL_SAL_Init(void)
+int HAL_AT_CONN_Init(void)
 {
     int link;
     char cmd[STOP_AUTOCONN_CMD_LEN] = {0};
@@ -441,7 +402,7 @@ int HAL_SAL_Init(void)
     for (link = 0; link < LINK_ID_MAX; link++) {
         g_link[link].fd = -1;
         /*close all link */
-        snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
+        HAL_Snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
         sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
         at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
@@ -454,7 +415,7 @@ int HAL_SAL_Init(void)
         memset(cmd, 0, sizeof(cmd));
 
         /*close all link auto reconnect */
-        snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
+        HAL_Snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
         sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
         at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
@@ -468,12 +429,18 @@ int HAL_SAL_Init(void)
 
     at_register_callback(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
     at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, 0, mk3060wifi_event_handler, NULL);
+    
+    if (at_connect_wifi(WIFI_SSID, WIFI_PWD, WIFI_TIMEOUT) < 0) {
+        sal_hal_err("%s %d failed", __func__, __LINE__);
+        return -1;
+    }
+
     inited = 1;
 
     return 0;
 }
 
-int HAL_SAL_Deinit(void)
+int HAL_AT_CONN_Deinit(void)
 {
     if (!inited) {
         return 0;
@@ -490,7 +457,7 @@ static char *start_cmd_type_str[] = {"tcp_server", "tcp_client", \
                                      "ssl_client", "udp_broadcast", "udp_unicast"
                                     };
 
-int HAL_SAL_Start(sal_conn_t *c)
+int HAL_AT_CONN_Start(at_conn_t *c)
 {
     int link_id;
     char cmd[START_CMD_LEN] = {0};
@@ -535,21 +502,21 @@ int HAL_SAL_Start(sal_conn_t *c)
 
     switch (c->type) {
         case TCP_SERVER:
-            snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%d,",
+            HAL_Snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%d,",
                      START_CMD, link_id, start_cmd_type_str[c->type], c->l_port);
             break;
         case TCP_CLIENT:
         case SSL_CLIENT:
-            snprintf(cmd, START_CMD_LEN - 5 - 1, "%s=%d,%s,%s,%d",
+            HAL_Snprintf(cmd, START_CMD_LEN - 5 - 1, "%s=%d,%s,%s,%d",
                      START_CMD, link_id, start_cmd_type_str[c->type],
                      c->addr, c->r_port);
             if (c->l_port >= 0) {
-                snprintf(cmd + strlen(cmd), 7, ",%d", c->l_port);
+                HAL_Snprintf(cmd + strlen(cmd), 7, ",%d", c->l_port);
             }
             break;
         case UDP_BROADCAST:
         case UDP_UNICAST:
-            snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%s,%d,%d",
+            HAL_Snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%s,%d,%d",
                      START_CMD, link_id, start_cmd_type_str[c->type],
                      c->addr, c->r_port, c->l_port);
             break;
@@ -608,7 +575,7 @@ static int fd_to_linkid(int fd)
 
 #define SEND_CMD "AT+CIPSEND"
 #define SEND_CMD_LEN (sizeof(SEND_CMD)+1+1+5+1+DATA_LEN_MAX+1)
-int HAL_SAL_Send(int fd,
+int HAL_AT_CONN_Send(int fd,
                  uint8_t *data,
                  uint32_t len,
                  char remote_ip[16],
@@ -631,16 +598,16 @@ int HAL_SAL_Send(int fd,
     }
 
     /* AT+CIPSEND=id, */
-    snprintf(cmd, SEND_CMD_LEN - 1, "%s=%d,", SEND_CMD, link_id);
+    HAL_Snprintf(cmd, SEND_CMD_LEN - 1, "%s=%d,", SEND_CMD, link_id);
     /* [remote_port,] */
     if (remote_port >= 0) {
-        snprintf(cmd + strlen(cmd), 7, "%d,", remote_port);
+        HAL_Snprintf(cmd + strlen(cmd), 7, "%d,", remote_port);
     }
     /* data_length */
 #if AT_CHECK_SUM
-    snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len + 1);
+    HAL_Snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len + 1);
 #else
-    snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len);
+    HAL_Snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len);
 #endif
 
     sal_hal_debug("\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);
@@ -682,12 +649,12 @@ int HAL_SAL_Send(int fd,
 #define DOMAIN_CMD "AT+CIPDOMAIN"
 #define DOMAIN_CMD_LEN (sizeof(DOMAIN_CMD)+MAX_DOMAIN_LEN+1)
 /* Return the first IP if multiple found. */
-int HAL_SAL_DomainToIp(char *domain,
+int HAL_AT_CONN_DomainToIp(char *domain,
                                  char ip[16])
 {
     char cmd[DOMAIN_CMD_LEN] = {0}, out[256] = {0}, *head, *end;
 
-    snprintf(cmd, DOMAIN_CMD_LEN - 1, "%s=%s", DOMAIN_CMD, domain);
+    HAL_Snprintf(cmd, DOMAIN_CMD_LEN - 1, "%s=%s", DOMAIN_CMD, domain);
     sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
@@ -746,7 +713,7 @@ err:
 }
 
 
-int HAL_SAL_Close(int fd,
+int HAL_AT_CONN_Close(int fd,
                   int32_t remote_port)
 {
     int link_id;
@@ -758,7 +725,7 @@ int HAL_SAL_Close(int fd,
         return -1;
     }
 
-    snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
+    HAL_Snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
     sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
@@ -791,13 +758,10 @@ err:
 
 }
 
-int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
+int HAL_AT_CONN_RegInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;
     }
     return 0;
 }
-
-
-

@@ -8,11 +8,13 @@
 
 #include "mqtt_api.h"
 #include "mqtt_wrapper.h"
+#include "at_mqtt.h"
+#include "at_wrapper.h"
 
-#include "mdal_mal_import.h"
-#include "mal.h"
 #ifndef PLATFORM_HAS_OS
+#ifdef AT_PARSER_ENABLED
 #include "atparser.h"
+#endif
 #endif
 
 #define MAL_TIMEOUT_FOREVER -1
@@ -483,7 +485,9 @@ static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
     if (mal_mc_get_client_state(c) != IOTX_MC_STATE_CONNECTED) {
         mal_err("mal state = %d error", mal_mc_get_client_state(c));
 #ifndef PLATFORM_HAS_OS
+#ifdef AT_PARSER_ENABLED
         at_yield(NULL, 0, NULL, 100);
+#endif
 #endif
         return MQTT_STATE_ERROR;
     }
@@ -492,7 +496,9 @@ static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
         mal_err("hal mal state = %d error", HAL_MDAL_MAL_State());
         mal_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
 #ifndef PLATFORM_HAS_OS
+#ifdef AT_PARSER_ENABLED
         at_yield(NULL, 0, NULL, 100);
+#endif
 #endif
         return MQTT_NETWORK_ERROR;
     }
@@ -618,7 +624,9 @@ static int mal_mc_wait_for_result()
     int timeout_ms = 1000;
     int count = 10;
     while((count > 0) &&((state = HAL_MDAL_MAL_State()) != IOTX_MC_STATE_CONNECTED)){
+#ifdef AT_PARSER_ENABLED
        at_yield(NULL, 0, NULL, timeout_ms);
+#endif
        count --;
     }
 
@@ -1105,5 +1113,3 @@ int wrapper_mqtt_release(void **client)
     mal_info("mqtt release!");
     return SUCCESS_RETURN;
 }
-
-
