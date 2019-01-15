@@ -119,13 +119,14 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
 int main(int argc, char *argv[])
 {
-    int res = 0;
-    void *pclient = NULL;
-    uint64_t time_prev = 0;
-    iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
-    iotx_dev_meta_info_t meta;
-    iotx_sign_mqtt_t sign_mqtt;
-    iotx_mqtt_param_t mqtt_params;
+    void *      pclient = NULL;
+    int         res = 0;
+    int         loop_cnt = 0;
+
+    iotx_mqtt_region_types_t    region = IOTX_CLOUD_REGION_SHANGHAI;
+    iotx_sign_mqtt_t            sign_mqtt;
+    iotx_dev_meta_info_t        meta;
+    iotx_mqtt_param_t           mqtt_params;
 
     HAL_Printf("mqtt example\n");
 
@@ -181,12 +182,13 @@ int main(int argc, char *argv[])
     }
 
     while (1) {
-        if (HAL_UptimeMs() - time_prev > 5000) {
+        if (0 == loop_cnt % 20) {
             example_publish(pclient);
-            time_prev = HAL_UptimeMs();
         }
 
         IOT_MQTT_Yield(pclient, 200);
+
+        loop_cnt += 1;
     }
 
     return 0;
