@@ -25,11 +25,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+#if 0   /* Uncomment this if you want to show more information */
     HAL_Printf("sign_mqtt.hostname: %s\n",sign_mqtt.hostname);
     HAL_Printf("sign_mqtt.port    : %d\n",sign_mqtt.port);
     HAL_Printf("sign_mqtt.username: %s\n",sign_mqtt.username);
     HAL_Printf("sign_mqtt.password: %s\n",sign_mqtt.password);
     HAL_Printf("sign_mqtt.clientid: %s\n",sign_mqtt.clientid);
+#endif
 
     return 0;
 }
