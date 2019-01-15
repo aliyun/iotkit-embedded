@@ -80,7 +80,7 @@ const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
     { "rsp/sys/dev/tag/post",                       alink_downstream_thing_deviceinfo_post_rsq      },
     { "rsp/sys/dev/tag/get",                        alink_downstream_thing_deviceinfo_get_rsq       },
     { "rsp/sys/dev/tag/delete",                     alink_downstream_thing_deviceinfo_delete_rsq    },
-#ifdef DEVICE_MODEL_GATEWAY   
+#ifdef DEVICE_MODEL_GATEWAY
     { "rsp/sys/sub/register/post",                  alink_downstream_subdev_register_post_rsp       },
     { "rsp/sys/sub/register/delete",                alink_downstream_subdev_unregister_post_rsp     },
     { "rsp/sys/sub/login/post",                     alink_downstream_subdev_login_post_rsp          },
@@ -91,7 +91,7 @@ const alink_uri_handle_pair_t c_alink_down_uri_handle_map[] = {
 
     { "rsp/sys/sub/list/post",                      alink_downstream_subdev_list_post_rsp           },
     { "req/sys/sub/list/put",                       alink_downstream_subdev_list_put_req            },
-    
+
     { "req/sys/gw/permit/put",                      alink_downstream_subdev_permit_post_req         },
     { "req/sys/gw/config/put",                      alink_downstream_subdev_config_post_req         },
 #endif
@@ -363,7 +363,7 @@ int alink_msg_event_list_handler(void)
                     if (msg->devid != 0) {
                         alink_subdev_get_pkdn_by_devid(msg->devid, pk, dn);
                     }
-#endif                
+#endif
                     msg->query.code = (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400;
 
                     alink_upstream_thing_property_set_rsp(pk, dn, &msg->query);
@@ -399,7 +399,7 @@ int alink_msg_event_list_handler(void)
                 /* just invoke the user callback funciton */
                 handle_func = (linkkit_service_request_cb_t)alink_get_event_callback(ITE_SERVICE_REQUEST);
                 if (handle_func != NULL) {
-                    res = handle_func(msg->devid, msg->msg.service_put_req.id, msg->msg.service_put_req.id_len, 
+                    res = handle_func(msg->devid, msg->msg.service_put_req.id, msg->msg.service_put_req.id_len,
                                         msg->msg.service_put_req.payload, msg->msg.service_put_req.payload_len, &rsp_data, &rsp_len);
                 }
 
@@ -416,7 +416,7 @@ int alink_msg_event_list_handler(void)
                     if (msg->devid != 0) {
                         alink_subdev_get_pkdn_by_devid(msg->devid, pk, dn);
                     }
-#endif   
+#endif
                     alink_upstream_thing_service_invoke_rsp(pk, dn, msg->msg.service_put_req.id, rsp_data, rsp_len, &msg->query);
                 }
                 if (rsp_data != NULL) {
@@ -478,7 +478,7 @@ static uint8_t _uri_to_hash(const char *uri, uint32_t uri_len)
     return sum;
 }
 
-static int _uri_hash_insert(const alink_uri_handle_pair_t *pair, uri_hash_table_t *table) 
+static int _uri_hash_insert(const alink_uri_handle_pair_t *pair, uri_hash_table_t *table)
 {
     uint8_t hash = _uri_to_hash(pair->uri_string, strlen(pair->uri_string));
     uri_hash_node_t *node, *search_node;
@@ -645,7 +645,7 @@ static void alink_downstream_thing_property_put_req(uint32_t devid, const char *
     char *req_data;
 
     alink_info("property put req recv");
-    
+
     res = alink_utils_json_parse((const char *)payload, len, cJSON_Object, &root);
     if (res < SUCCESS_RETURN) {
         return;
@@ -660,7 +660,7 @@ static void alink_downstream_thing_property_put_req(uint32_t devid, const char *
         return;
     }
 
-    alink_debug("property set req data = %s", req_data);    
+    alink_debug("property set req data = %s", req_data);
 
 #if (CONFIG_SDK_THREAD_COST == 0)
     {
@@ -722,7 +722,7 @@ static void alink_downstream_thing_property_get_req(uint32_t devid, const char *
     }
 
     alink_debug("property get req data = %s", req_data);
-    
+
 #if (CONFIG_SDK_THREAD_COST == 0)
     /* just invoke the user callback funciton */
     {
@@ -753,7 +753,7 @@ static void alink_downstream_thing_event_post_rsp(uint32_t devid, const char *pk
 
 static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    int res = FAIL_RETURN;    
+    int res = FAIL_RETURN;
     lite_cjson_t root, item_id, item_params;
     char *service_id;
     char *service_params;
@@ -897,14 +897,14 @@ static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, 
 static void _alink_downstream_subdev_rsp_notify(uint32_t msgid, uint32_t return_code)
 {
     alink_req_cache_node_t *node;
-    
+
     if (alink_upstream_req_cache_search(msgid, &node) == SUCCESS_RETURN) {
         alink_info("get msg in cache");
         node->result = return_code;
         if (node->semaphore) {
             HAL_SemaphorePost(node->semaphore);
         }
-    }    
+    }
 }
 #endif
 
@@ -920,15 +920,16 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
     alink_info("register rsp recv");
 
 #if (CONFIG_SDK_THREAD_COST == 0)
-    if (query->code == 200) {
-
-    }
-    else {
+    if (query->code != 200) {
         /* just delete the req cache, TODO: invoke user cb? miss ds information? */
         alink_upstream_req_cache_delete_by_msgid(query->id);
+        return;
     }
 #else
-    _alink_downstream_subdev_rsp_notify(query->id, query->code);
+    if (query->code != 200) {
+        _alink_downstream_subdev_rsp_notify(query->id, query->code);
+        return;
+    }
 #endif
 
     /* register failed, just return */
@@ -942,7 +943,7 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
         return;
     }
 
-    res = alink_utils_json_object_item(&root, alink_proto_key_subList, sizeof(alink_proto_key_subList)-1, 
+    res = alink_utils_json_object_item(&root, alink_proto_key_subList, sizeof(alink_proto_key_subList)-1,
                                         cJSON_Array, &array);
     if (res < SUCCESS_RETURN) {
         return;
@@ -992,7 +993,7 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
         alink_info("register rsp, pk = %s", product_key);
         alink_info("register rsp, dn = %s", device_name);
         alink_info("register rsp, ds = %s", device_secret);
-        
+
         /* get subdev id */
         res = alink_subdev_get_devid_by_pkdn(product_key, device_name, &subdev_id);
         if (res != SUCCESS_RETURN) {
@@ -1011,18 +1012,26 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
         alink_subdev_update_status(subdev_id, ALINK_SUBDEV_STATUS_REGISTERED);
 
         #if (CONFIG_SDK_THREAD_COST == 0)
-        /* just invoke user callback func */
-
-        #else
-
-        #endif
+        {
+            /* just invoke the user callback funciton */
+            linkkit_connect_success_cb_t handle_func;
+            handle_func = (linkkit_connect_success_cb_t)alink_get_event_callback(ITE_CONNECT_SUCC);
+            if (handle_func != NULL) {
+                handle_func(subdev_id);
+            }
+        }
+        #endif /* #if (CONFIG_SDK_THREAD_COST == 0) */
     }
+
+#if (CONFIG_SDK_THREAD_COST == 1)
+    _alink_downstream_subdev_rsp_notify(query->id, query->code);
+#endif /* #if (CONFIG_SDK_THREAD_COST == 1) */
 }
 
 static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     alink_info("unregister rsp recv");
-    
+
     /* ignore the payload, just checkout the return code */
     alink_debug("unregister rsp payload = %.*s", len, payload);
 
@@ -1031,23 +1040,25 @@ static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const ch
         alink_req_cache_node_t *req_msg;
         uint32_t *devid_array;
         uint8_t i;
-        alink_upstream_req_cache_search(query->id, &req_msg);
+        if (alink_upstream_req_cache_search(query->id, &req_msg) < SUCCESS_RETURN) {
+            return;
+        }
 
         devid_array = req_msg->msg_data.subdev_id_list.subdev_id;
         for (i=0; i<MASS_SUBDEV_REQ_NUM_MAX; i++) {
             if (devid_array[i] == 0) {
                 break;
             }
-            
+
             alink_debug("devid %d update status", devid_array[i]);
             alink_subdev_update_status(devid_array[i], ALINK_SUBDEV_STATUS_OPENED);
         }
 
         alink_upstream_req_cache_delete_by_msgid(query->id);
-        /* TODO: invoke user cb? */
+        /* TODO: user interface isn't provided */
     }
     else {
-        /* just delete the req cache, TODO: invoke user cb? */
+        /* just delete the req cache, TODO: user interface isn't provided */
         alink_upstream_req_cache_delete_by_msgid(query->id);
     }
 #else
@@ -1058,7 +1069,7 @@ static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const ch
 static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     alink_info("login rsp recv");
-    
+
     /* ignore the payload, just checkout the return code */
     alink_debug("login rsp payload = %.*s", len, payload);
 
@@ -1067,23 +1078,33 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
         alink_req_cache_node_t *req_msg;
         uint32_t *devid_array;
         uint8_t i;
-        alink_upstream_req_cache_search(query->id, &req_msg);
+        if (alink_upstream_req_cache_search(query->id, &req_msg) < SUCCESS_RETURN) {
+            return;
+        }
 
         devid_array = req_msg->msg_data.subdev_id_list.subdev_id;
         for (i=0; i<MASS_SUBDEV_REQ_NUM_MAX; i++) {
             if (devid_array[i] == 0) {
                 break;
             }
-            
+
             alink_debug("devid %d update status", devid_array[i]);
             alink_subdev_update_status(devid_array[i], ALINK_SUBDEV_STATUS_ONLINE);
+
+            /* invoke device inited evnet callback funciton, this is the only choice - -! */
+            {
+                linkkit_inited_cb_t handle_func;
+                handle_func = (linkkit_inited_cb_t)alink_get_event_callback(ITE_INITIALIZE_COMPLETED);
+                if (handle_func != NULL) {
+                    handle_func(devid_array[i]);
+                }
+            }
         }
 
         alink_upstream_req_cache_delete_by_msgid(query->id);
-        /* TODO: invoke user cb? */
     }
     else {
-        /* just delete the req cache, TODO: invoke user cb? */
+        /* just delete the req cache, TODO: user interface isn't provided */
         alink_upstream_req_cache_delete_by_msgid(query->id);
     }
 #else
@@ -1094,32 +1115,47 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
 static void alink_downstream_subdev_logout_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     alink_info("login rsp recv");
-    
+
     /* ignore the payload, just checkout the return code */
     alink_debug("login rsp payload = %.*s", len, payload);
 
 #if (CONFIG_SDK_THREAD_COST == 0)
     if (query->code == 200) {
         alink_req_cache_node_t *req_msg;
-
-        if (alink_upstream_req_cache_search(query->id, &req_msg) < SUCCESS_RETURN ) {
-            alink_warning("req msg lost");
+        uint32_t *devid_array;
+        uint8_t i;
+        if (alink_upstream_req_cache_search(query->id, &req_msg) < SUCCESS_RETURN) {
             return;
         }
 
-        alink_subdev_update_mass_status(req_msg->msg_data.subdev_id_list.subdev_id, 
-                                        MASS_SUBDEV_REQ_NUM_MAX, ALINK_SUBDEV_STATUS_REGISTERED);
+        devid_array = req_msg->msg_data.subdev_id_list.subdev_id;
+        for (i=0; i<MASS_SUBDEV_REQ_NUM_MAX; i++) {
+            if (devid_array[i] == 0) {
+                break;
+            }
+
+            alink_debug("devid %d update status", devid_array[i]);
+            alink_subdev_update_status(devid_array[i], ALINK_SUBDEV_STATUS_ONLINE);
+
+            /* invoke device disconnected evnet callback funciton, this is the only choice - -! */
+            {
+                linkkit_disconnected_cb_t handle_func;
+                handle_func = (linkkit_disconnected_cb_t)alink_get_event_callback(ITE_DISCONNECTED);
+                if (handle_func != NULL) {
+                    handle_func(devid_array[i]);
+                }
+            }
+        }
 
         alink_upstream_req_cache_delete_by_msgid(query->id);
-        /* TODO: invoke user cb? */
     }
     else {
-        /* just delete the req cache, TODO: invoke user cb? */
+        /* just delete the req cache, TODO: user interface isn't provided */
         alink_upstream_req_cache_delete_by_msgid(query->id);
     }
 #else
     _alink_downstream_subdev_rsp_notify(query->id, query->code);
-#endif    
+#endif
 
 }
 
@@ -1150,7 +1186,7 @@ static void alink_downstream_subdev_list_put_req(uint32_t devid, const char *pk,
 
 static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    int res = FAIL_RETURN;    
+    int res = FAIL_RETURN;
     lite_cjson_t root, item_pk, item_timeout;
     char *productKey;
     uint32_t timeoutSec;
@@ -1199,7 +1235,7 @@ static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *
 
 static void alink_downstream_subdev_config_post_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    
+
 }
 
 #endif
@@ -1215,7 +1251,7 @@ static void alink_downstream_thing_deviceinfo_post_rsq(uint32_t devid, const cha
 
 static void alink_downstream_thing_deviceinfo_get_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    
+
 }
 
 static void alink_downstream_thing_deviceinfo_delete_rsq(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)

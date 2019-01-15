@@ -62,11 +62,11 @@ int alink_upstream_req_ctx_deinit(void)
     _alink_upstream_req_list_lock();
     list_for_each_entry_safe(search_node, next, &alink_upstream_req_ctx.req_list, list, alink_req_cache_node_t) {
 #if (CONFIG_SDK_THREAD_COST == 0)
-#else        
+#else
         if (search_node->semaphore) {
             HAL_SemaphoreDestroy(search_node->semaphore);
         }
-#endif        
+#endif
         list_del(&search_node->list);
         alink_free(search_node);
     }
@@ -110,7 +110,7 @@ alink_req_cache_node_t *alink_upstream_req_list_insert(uint32_t msgid, req_msg_c
 
 #if (CONFIG_SDK_THREAD_COST == 0)
     ALINK_ASSERT_DEBUG(req_msg != NULL);
-    memcpy(&node->msg_data, req_msg, sizeof(req_msg_cache_t));    
+    memcpy(&node->msg_data, req_msg, sizeof(req_msg_cache_t));
 #else
     node->semaphore = HAL_SemaphoreCreate();
     if (node->semaphore == NULL) {
@@ -184,7 +184,7 @@ int alink_upstream_req_cache_delete_by_msgid(int msgid)
     _alink_upstream_req_list_unlock();
     return FAIL_RETURN;
 }
- 
+
 int alink_upstream_req_cache_delete_by_node(alink_req_cache_node_t *node)
 {
     if (node == NULL) {
@@ -199,11 +199,11 @@ int alink_upstream_req_cache_delete_by_node(alink_req_cache_node_t *node)
 
     list_del(&node->list);
 #if (CONFIG_SDK_THREAD_COST == 0)
-#else        
+#else
     if (node->semaphore) {
         HAL_SemaphoreDestroy(node->semaphore);
     }
-#endif    
+#endif
     alink_free(node);
     alink_upstream_req_ctx.list_num--;
 
@@ -213,7 +213,7 @@ int alink_upstream_req_cache_delete_by_node(alink_req_cache_node_t *node)
 #endif
 
 /** upstream request message send **/
-static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t devid, 
+static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t devid,
                                             const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
@@ -250,12 +250,12 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t 
         res = alink_format_get_upstream_subdev_complete_url(idx, product_key, device_name, uri_query, &uri);
 #else
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
-#endif        
+#endif
     }
 
     if (res < 0) {
         return res;
-    }    
+    }
 
     /* parse the payload if it's json format */
     if (query == NULL || query->format != 'b') {
@@ -282,7 +282,7 @@ static int _alink_upstream_send_request_msg(alink_msg_uri_index_t idx, uint32_t 
 }
 
 /** upstream response message send **/
-static int _alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn, 
+static int _alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const char *pk, const char *dn,
                                              const uint8_t *payload, uint32_t len, alink_uri_query_t *query)
 {
     int res = FAIL_RETURN;
@@ -304,12 +304,12 @@ static int _alink_upstream_send_response_msg(alink_msg_uri_index_t idx, const ch
         res = alink_format_get_upstream_subdev_complete_url(idx, pk, dn, uri_query, &uri);
 #else
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
-#endif        
+#endif
     }
 
     if (res < 0) {
         return res;
-    }    
+    }
 
     /* parse the payload if it's json format */
     if (query->format != 'b') {
@@ -343,7 +343,7 @@ int alink_upstream_thing_property_post_req(uint32_t devid, const char *user_data
     if (payload == NULL) {
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
-    
+
     memset(payload, 0, len);
     HAL_Snprintf(payload, len, c_property_post_fmt, data_len, user_data);
     res = _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_PROPERTY_POST, devid, (uint8_t *)payload, strlen(payload), NULL);
@@ -354,7 +354,7 @@ int alink_upstream_thing_property_post_req(uint32_t devid, const char *user_data
 
 const char *c_event_post_fmt = "{\"id\":\"%.*s\",\"params\":%.*s}";
 /**
- * thing model post event to cloud 
+ * thing model post event to cloud
  */
 int alink_upstream_thing_event_post_req(uint32_t devid, const char *event_id, uint8_t id_len, const char *user_data, uint32_t data_len)
 {
@@ -379,7 +379,7 @@ int alink_upstream_thing_event_post_req(uint32_t devid, const char *event_id, ui
 static int _alink_upstream_empty_rsp(alink_msg_uri_index_t idx, const char *pk, const char *dn, alink_uri_query_t *query)
 {
     char payload[3] = "{}";
-    
+
     return _alink_upstream_send_response_msg(idx, pk, dn, (uint8_t *)payload, strlen(payload), query);
 }
 
@@ -465,7 +465,7 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_id_list_t *subdev_
     if (lite_root == NULL) {
         return NULL;
     }
-    
+
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
         lite_cjson_delete(lite_root);
@@ -492,8 +492,8 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_id_list_t *subdev_
             return NULL;
         }
 
-        lite_cjson_add_string_to_object(lite_array_item, "productKey", pk);
-        lite_cjson_add_string_to_object(lite_array_item, "deviceName", dn);
+        lite_cjson_add_string_to_object(lite_array_item, "pk", pk);
+        lite_cjson_add_string_to_object(lite_array_item, "dn", dn);
         lite_cjson_add_item_to_array(lite_array, lite_array_item);
     }
 
@@ -516,7 +516,7 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
     if (lite_root == NULL) {
         return NULL;
     }
-    
+
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
         lite_cjson_delete(lite_root);
@@ -583,7 +583,7 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
 int _alink_upstream_cache_subdev_list(uint32_t msgid, alink_subdev_id_list_t *subdev_list)
 {
     req_msg_cache_t msg_data;
-    
+
     memset(&msg_data, 0, sizeof(req_msg_cache_t));
     memcpy(&msg_data.subdev_id_list, subdev_list->subdev_array, sizeof(uint32_t) * (subdev_list->subdev_num));
 
@@ -705,7 +705,7 @@ int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
 
     /* wait rsp succeed and cloud rsp 200, update mass subdev status */
     return alink_subdev_update_mass_status(subdev_list->subdev_array, subdev_list->subdev_num, ALINK_SUBDEV_STATUS_ONLINE);
-#endif    
+#endif
 }
 
 int alink_upstream_subdev_login_delete_req(alink_subdev_id_list_t *subdev_list)
@@ -735,7 +735,7 @@ int alink_upstream_subdev_login_delete_req(alink_subdev_id_list_t *subdev_list)
 
     /* wait rsp succeed and cloud rsp 200, update mass subdev status */
     return alink_subdev_update_mass_status(subdev_list->subdev_array, subdev_list->subdev_num, ALINK_SUBDEV_STATUS_REGISTERED);
-#endif  
+#endif
 }
 
 #if 0 /** all topo relatived funcitons are not implement **/

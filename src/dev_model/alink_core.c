@@ -110,7 +110,7 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
     }
 
 #ifdef DEVICE_MODEL_GATEWAY
-    /* init subdev hash table */        
+    /* init subdev hash table */
     res = alink_subdev_mgr_init();
     if (res < SUCCESS_RETURN) {
         _alink_core_deinit();
@@ -130,12 +130,12 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 
 #if (CONFIG_SDK_THREAD_COST == 1)
     alink_msg_list_init();
-#endif    
+#endif
 
 #endif
 
 
-    
+
     return SUCCESS_RETURN;
 }
 
@@ -242,15 +242,14 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     alink_format_reslove_uri(uri, uri_len, product_key, device_name, path, &query);
 
     /* reslove the uri path */
-    alink_info("rx data, uri = %.*s", uri_len, uri);
-    alink_info("rx data, data = %.*s", payload_len, payload);
+    alink_info("rx uri = %.*s", uri_len, uri);
+    alink_info("rx data = %.*s", payload_len, payload);
 
     alink_info("pk = %s", product_key);
     alink_info("dn = %s", device_name);
     alink_info("path = %s", path);
     alink_info("query id = %d", query.id);
     alink_info("query format = %c", query.format);
-    alink_info("query compress = %c", query.compress);
     alink_info("query code = %d", query.code);
     alink_info("query ack = %c", query.ack);
 
@@ -258,7 +257,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
         devid = 0;
     }
     else {
-#ifdef DEVICE_MODEL_GATEWAY                
+#ifdef DEVICE_MODEL_GATEWAY
         /* get subdev devid */
         alink_subdev_get_devid_by_pkdn(product_key, device_name, &devid);
         if (0 == devid) {
@@ -334,7 +333,7 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info)
     int res;
 
     ALINK_ASSERT_DEBUG(dev_info != NULL);
-    
+
     /* init core in open api */
     res = _alink_core_init(dev_info);
     if (res < SUCCESS_RETURN) {
@@ -381,7 +380,7 @@ int alink_core_connect_cloud(void)
 
     /* check the core status first */
     if (alink_core_ctx.status < ALINK_CORE_STATUS_OPENED || alink_core_ctx.status == ALINK_CORE_STATUS_ERROR) {
-        return IOTX_CODE_STATE_ERROR;
+        return IOTX_CODE_STATUS_ERROR;
     }
 
     if (alink_core_ctx.status == ALINK_CORE_STATUS_CONNECTED) {
@@ -397,8 +396,15 @@ int alink_core_connect_cloud(void)
     alink_info("connect succeed");
 
     /* TODO: invoke the connected event, event post for awss immediately, indicate success for fail, hehe */
+    {
+        linkkit_connect_success_cb_t handle_func;
+        handle_func = (linkkit_connect_success_cb_t)alink_get_event_callback(ITE_CONNECT_SUCC);
+        if (handle_func != NULL) {
+            handle_func(0);
+        }
+    }
 
-    /*  */
+    /* subscribe all topics */
     res = _alink_core_register_downstream(_alink_core_rx_event_handle);
     if (res < SUCCESS_RETURN) {
         alink_info("subscribe failed");
@@ -447,11 +453,12 @@ int alink_core_send_req_msg(char *uri, const uint8_t *payload, uint32_t len)
     ALINK_ASSERT_DEBUG(uri != NULL);
     ALINK_ASSERT_DEBUG(payload != NULL);
 
-    alink_info("uri: %s", uri);
+    alink_info("tx uri = %s", uri);
+    alink_info("tx data = %.*s", len, payload);
 
     /* return error if status is not connected */
     if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
-        return IOTX_CODE_STATE_ERROR;
+        return IOTX_CODE_STATUS_ERROR;
     }
 
     {

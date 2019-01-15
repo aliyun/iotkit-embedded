@@ -70,7 +70,7 @@ typedef enum {
 
 typedef enum {
     ITE_AWSS_STATUS = 0,        /* no implement this version */
-    ITE_CONNECT_SUCC,           
+    ITE_CONNECT_SUCC,
     ITE_CONNECT_FAIL,
     ITE_DISCONNECTED,
     ITE_RAWDATA_ARRIVED,
@@ -91,7 +91,7 @@ typedef enum {
 
 typedef int (*linkkit_event_cb_t)();
 
-typedef int (*linkkit_awss_status_cb_t)(int);       
+typedef int (*linkkit_awss_status_cb_t)(int);
 
 typedef int (*linkkit_connect_success_cb_t)(uint32_t devid);        /* modified, add parameter devid */
 
@@ -101,16 +101,16 @@ typedef int (*linkkit_disconnected_cb_t)(uint32_t devid);           /* modified,
 
 typedef int (*linkkit_rawdata_rx_cb_t)(int device_id, const uint8_t *payload, uint32_t payload_len);
 
-typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid, uint32_t serviceid_len, 
-                                            const char *request, uint32_t request_len, 
+typedef int (*linkkit_service_request_cb_t)(int device_id, const char *serviceid, uint32_t serviceid_len,
+                                            const char *request, uint32_t request_len,
                                             char **response, uint32_t *response_len);
 
 typedef int (*linkkit_property_set_cb_t)(int device_id, const char *request, uint32_t request_len);
 
-typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, uint32_t request_len,       
+typedef int (*linkkit_property_get_cb_t)(int device_id, const char *request, uint32_t request_len,
                                                         char **response, uint32_t *response_len);
 
-typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code, 
+typedef int (*linkkit_report_reply_cb_t)(int device_id, int msg_id, int code,
                                         const char *reply, uint32_t reply_len);
 
 typedef int (*linkkit_timestamp_reply_cb_t)(const char *timestamp);
@@ -243,7 +243,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, uint32_t eventid_len, cha
 
 typedef enum {
     IOTX_CODE_PARAMS_INVALID        = -4001L,
-    IOTX_CODE_STATE_ERROR           = -4002L,   
+    IOTX_CODE_STATUS_ERROR          = -4002L,
     IOTX_CODE_NETWORK_ERROR         = -4003L,
     IOTX_CODE_AUTH_ERROR            = -4004L,
     IOTX_CODE_GATEWAY_UNSUPPORTED   = -4005L,
@@ -255,7 +255,7 @@ typedef enum {
     IOTX_CODE_SUBDEV_NOT_EXIST      = -4011L,
     IOTX_CODE_CREATE_MUTEX_FAILED   = -4012L,
     IOTX_CODE_SUBDEV_IDX_OVERFLOW   = -4013L,
-    IOTX_CODE_STATUS_ERROR          = -4014L,
+    IOTX_CODE_UNKNOWN_ERROR         = -4014L,   /* TOOD */
     IOTX_CODE_CLOUD_RETURN_ERROR    = -4015L,
     IOTX_CODE_WAIT_RSP_TIMEOUT      = -4016L,
     IOTX_CODE_LIST_INSERT_ERROR     = -4017L,

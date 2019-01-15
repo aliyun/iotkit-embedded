@@ -51,7 +51,7 @@ static int user_connected_event_handler(uint32_t devid)
 {
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
 
-    EXAMPLE_TRACE("Cloud Connected");
+    EXAMPLE_TRACE("device %d connected", devid);
     user_example_ctx->cloud_connected = 1;
     return 0;
 }
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
-    IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);    
+    IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
 
     /* Create Master Device Resources */
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
         IOT_Linkkit_Close(user_example_ctx->master_devid);
         return -1;
     }
-    
+
     /* subdev management */
     {
         static iotx_linkkit_dev_meta_info_t subdev_info[2] = {
@@ -208,20 +208,20 @@ int main(int argc, char **argv)
                 .product_key = "a1coeSe36WO",
                 .product_secret = "",
                 .device_name = "subdev_01",
-                .device_secret = "daqVxT6gM2YTW3YHvJQDSwQmB1NnOlwS"
+                .device_secret = "" /* daqVxT6gM2YTW3YHvJQDSwQmB1NnOlwS */
             },
             {
                 .product_key = "a1coeSe36WO",
                 .product_secret = "",
                 .device_name = "subdev_02",
-                .device_secret = "H02vfH2RgJDcSlkPGUk69OgS7akadK8S"
+                .device_secret = "" /* H02vfH2RgJDcSlkPGUk69OgS7akadK8S */
             }
         };
 
         for (i=0; i<2; i++) {
             devid[i] = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, &subdev_info[i]);
             EXAMPLE_TRACE("subdev open, id = %d", devid[i]);
-            
+
             res = IOT_Linkkit_Connect(devid[i]);
             EXAMPLE_TRACE("subdev conn, res = %d", res);
         }
@@ -229,8 +229,11 @@ int main(int argc, char **argv)
         /* mass subdev login */
         res = IOT_Linkkit_Report(0, ITM_MSG_LOGIN, (uint8_t *)devid, sizeof(devid));
         EXAMPLE_TRACE("subdev login, res = %d", res);
+
+        res = IOT_Linkkit_Report(0, ITM_MSG_LOGOUT, (uint8_t *)devid, sizeof(devid));
+        EXAMPLE_TRACE("subdev login, res = %d", res);
     }
-    
+
 
     while (1) {
         time_now_sec = user_update_sec();
@@ -257,7 +260,7 @@ int main(int argc, char **argv)
         }
 
         res = IOT_Linkkit_Report(devid[1], ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
-        EXAMPLE_TRACE("post devinfo, res = %d", res);    
+        EXAMPLE_TRACE("post devinfo, res = %d", res);
 
         time_prev_sec = time_now_sec;
     }

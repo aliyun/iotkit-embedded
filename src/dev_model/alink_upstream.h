@@ -6,6 +6,7 @@
 #define __ALINK_UPSTREAM__
 
 #include "infra_types.h"
+#include "infra_list.h"
 #include "alink_format.h"
 
 #define MASS_SUBDEV_REQ_NUM_MAX         10
@@ -23,7 +24,7 @@ typedef struct {
 typedef union {
     subdev_id_list_t subdev_id_list;
 
-} req_msg_cache_t; 
+} req_msg_cache_t;
 
 typedef struct {
     uint32_t msgid;
@@ -32,7 +33,7 @@ typedef struct {
 #else
     uint32_t result;
     void *semaphore;
-#endif    
+#endif
     list_head_t list;
 } alink_req_cache_node_t;
 
