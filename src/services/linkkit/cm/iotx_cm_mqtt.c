@@ -73,6 +73,14 @@ failed:
     return NULL;
 }
 
+#ifdef DEV_BIND_ENABLED
+int awss_report_token_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+int awss_report_reset_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+int awss_enrollee_checkin(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+int awss_report_enrollee_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+int awss_get_cipher_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+int awss_online_switchap(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+#endif
 
 static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
@@ -193,6 +201,21 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             memset(topic,0,topic_info->topic_len + 1);
             memcpy(topic,topic_info->ptopic,topic_info->topic_len);
 
+#ifdef DEV_BIND_ENABLED
+            if (strstr(topic_info->ptopic,"thing/awss/enrollee/match_reply")) {
+                awss_report_token_reply((char *)topic_info->ptopic,topic_info->topic_len,(void *)topic_info->payload,topic_info->payload_len,NULL);
+            }else if (strstr(topic_info->ptopic,"thing/reset_reply")) {
+                awss_report_reset_reply((char *)topic_info->ptopic,topic_info->topic_len,(void *)topic_info->payload,topic_info->payload_len,NULL);
+            }else if (strstr(topic_info->ptopic,"thing/awss/enrollee/checkin")) {
+                awss_enrollee_checkin((char *)topic_info->ptopic,topic_info->topic_len,(void *)topic_info->payload,topic_info->payload_len,NULL);
+            }else if (strstr(topic_info->ptopic,"thing/awss/enrollee/found_reply")) {
+                awss_report_enrollee_reply((char *)topic_info->ptopic,topic_info->topic_len,(void *)topic_info->payload,topic_info->payload_len,NULL);
+            }else if (strstr(topic_info->ptopic,"thing/cipher/get_reply")) {
+                awss_get_cipher_reply((char *)topic_info->ptopic,topic_info->topic_len,(void *)topic_info->payload,topic_info->payload_len,NULL);
+            }else if (strstr(topic_info->ptopic,"thing/awss/device/switchap")) {
+                awss_online_switchap((char *)topic_info->ptopic,topic_info->topic_len,(void *)topic_info->payload,topic_info->payload_len,NULL);
+            }
+#endif
             topic_handle_func(_mqtt_conncection->fd, topic, topic_info->payload, topic_info->payload_len, NULL);
 
             cm_free(topic);
