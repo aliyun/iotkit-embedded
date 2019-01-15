@@ -108,11 +108,8 @@ FUNC_NAME_LIST=$(echo -e "${FUNC_NAME_LIST}" | sed -n '/^$/!{p}' | sort -u)
 HEADER_FILE_LIST=$(echo -e "${HEADER_FILE_LIST}" | sed -n '/^$/!{p}' | sort -u)
 
 # For Debug
-echo -e "\nHAL/Wrapper Function List:"
-echo -e "${FUNC_NAME_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }'
-echo -e "\nHAL/Wrapper Header File List:"
-echo -e "${HEADER_FILE_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }'
-echo ""
+[[ ${FUNC_NAME_LIST} ]] && echo -e "\nHAL/Wrapper Function List:" && echo -e "${FUNC_NAME_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }'
+[[ ${HEADER_FILE_LIST} ]] && echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }' && echo ""
 
 # Annotation For wrapper.c
 sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
