@@ -18,7 +18,16 @@ MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
 MQTT_DEFAULT_IMPL||src/mqtt/mqtt_impl|output/eng/mqtt
 MQTT_COMM_ENABLED||src/mqtt/examples|output/eng/examples
 
+
 DEVICE_MODEL_ENABLE||src/dev_model|output/eng/dev_model
 DEVICE_MODEL_ENABLE&DEVICE_MODEL_GATEWAY||src/dev_model/subdev|output/eng/dev_model
 DEVICE_MODEL_ENABLE||src/dev_model/examples/alink_example_solo.c|output/eng/examples
 DEVICE_MODEL_ENABLE&DEVICE_MODEL_GATEWAY||src/dev_model/examples/alink_example_gateway.c|output/eng/examples
+
+ATM_ENABLED||src/atm/at_api.[ch] src/atm/at_wrapper.h|output/eng/atm
+AT_PARSER_ENABLED||src/atm/at_parser.[ch]|output/eng/atm
+AT_TCP_ENABLED||src/atm/at_conn_mbox.[ch] src/atm/at_conn_mgmt.[ch] src/atm/at_tcp.c|output/eng/atm
+AT_MQTT_ENABLED|MQTT_DEFAULT_IMPL&AT_TCP_ENABLED|src/atm/at_mqtt.[ch]|output/eng/atm
+AT_TCP_ENABLED&AT_TCP_HAL_SIM800||wrappers/atm/at_tcp/sim800.c|output/eng/atm
+AT_TCP_ENABLED&AT_TCP_HAL_MK3060||wrappers/atm/at_tcp/mk3060.c|output/eng/atm
+AT_MQTT_ENABLED&AT_MQTT_HAL_ICA||wrappers/atm/at_mqtt/mdal_ica_at_client.c|output/eng/atm
