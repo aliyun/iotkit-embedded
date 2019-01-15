@@ -17,3 +17,8 @@ DEV_SIGN||src/dev_sign/examples|output/eng/examples
 MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
 MQTT_DEFAULT_IMPL||src/mqtt/mqtt_impl|output/eng/mqtt
 MQTT_COMM_ENABLED||src/mqtt/examples|output/eng/examples
+
+DEVICE_MODEL_ENABLE||src/dev_model|output/eng/dev_model
+DEVICE_MODEL_ENABLE&DEVICE_MODEL_GATEWAY||src/dev_model/subdev|output/eng/dev_model
+DEVICE_MODEL_ENABLE||src/dev_model/examples/alink_example_solo.c|output/eng/examples
+DEVICE_MODEL_ENABLE&DEVICE_MODEL_GATEWAY||src/dev_model/examples/alink_example_gateway.c|output/eng/examples

@@ -9,7 +9,7 @@ LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 
 TARGET          := alink-example-solo alink-example-gateway
 
-LIB_SRCS_PATTERN     := *.c
-LIB_SRCS_EXCLUDE     := alink_example_solo.c alink_example_gateway.c
-SRCS_alink-example-solo   	+= alink_example_solo.c
-SRCS_alink-example-gateway	+= alink_example_gateway.c
+LIB_SRCS_PATTERN     := *.c */*.c
+LIB_SRCS_EXCLUDE     := examples/alink_example_solo.c examples/alink_example_gateway.c
+SRCS_alink-example-solo   	+= examples/alink_example_solo.c
+SRCS_alink-example-gateway	+= examples/alink_example_gateway.c
