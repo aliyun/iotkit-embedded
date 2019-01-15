@@ -9,11 +9,11 @@
 #include "alink_core.h"
 #include "infra_defs.h"
 
-/* index value may overflow! */ 
-#define ALINK_SUBDEV_INDEX_VALUE_MAX        1000000     
+/* index value may overflow! */
+#define ALINK_SUBDEV_INDEX_VALUE_MAX        1000000
 
-/* upper limit of cloud is 1500 */ 
-#define ALINK_SUBDEV_NUM_MAX                1500        
+/* upper limit of cloud is 1500 */
+#define ALINK_SUBDEV_NUM_MAX                1500
 
 #define ALINK_SUBDEV_HTABLE_SIZE_MAX        2000
 
@@ -112,7 +112,7 @@ int alink_subdev_mgr_deinit(void)
         subdev_mgr_htable.mutex = NULL;
     }
 
-    return SUCCESS_RETURN;    
+    return SUCCESS_RETURN;
 }
 
 /** TODO **/
@@ -151,7 +151,7 @@ static uint32_t _pkdn_to_hash(const char *pk, const char *dn)
 }
 
 /** TODO: add mutex **/
-int _subdev_hash_insert(const char *pk, const char *dn, const char *ds) 
+int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
 {
     int res = FAIL_RETURN;
     uint32_t hash = _pkdn_to_hash(pk, dn);
@@ -385,7 +385,7 @@ int alink_subdev_open(iotx_dev_meta_info_t *dev_info)
 {
     subdev_hash_node_t *node = NULL;
     int res = 0;
-    
+
     node = _subdev_hash_search_by_pkdn(dev_info->product_key, dev_info->device_name);
     if (node != NULL) {
         /* subdev already add, just return the devid */
@@ -448,7 +448,7 @@ int alink_subdev_register(uint32_t devid)
 
     alink_subdev_id_list_t subdev_id_list;
     subdev_id_list.subdev_array = &subdev_id;
-    subdev_id_list.subdev_num = 1; 
+    subdev_id_list.subdev_num = 1;
 
     res = alink_upstream_subdev_register_post_req(&subdev_id_list);
     if (res < SUCCESS_RETURN) {
@@ -467,7 +467,7 @@ int alink_subdev_unregister(uint32_t devid)
 
     alink_subdev_id_list_t subdev_id_list;
     subdev_id_list.subdev_array = &subdev_id;
-    subdev_id_list.subdev_num = 1; 
+    subdev_id_list.subdev_num = 1;
 
     res = alink_upstream_subdev_register_delete_req(&subdev_id_list);
     if (res < SUCCESS_RETURN) {
@@ -496,7 +496,7 @@ int alink_subdev_login(uint32_t *devid, uint8_t devid_num)
         alink_info("subdev login post failed");
         return res;
     }
-    alink_info("subdev login post succeed"); 
+    alink_info("subdev login post succeed");
     return res;
 }
 
@@ -517,7 +517,7 @@ int alink_subdev_logout(uint32_t *devid, uint8_t devid_num)
         alink_info("subdev logout post failed");
         return res;
     }
-    alink_info("subdev logout post succeed"); 
+    alink_info("subdev logout post succeed");
     return res;
 }
 
@@ -560,7 +560,7 @@ int alink_subdev_get_triple_by_devid(uint32_t devid, char *product_key, char *de
 
     _alink_subdev_mgr_unlock();
 
-    return SUCCESS_RETURN; 
+    return SUCCESS_RETURN;
 }
 
 int alink_subdev_get_devid_by_pkdn(const char *product_key, const char *device_name, uint32_t *devid)
@@ -598,7 +598,7 @@ int alink_subdev_update_status(uint32_t devid, alink_subdev_status_t status)
 
     _alink_subdev_mgr_unlock();
 
-    return SUCCESS_RETURN;    
+    return SUCCESS_RETURN;
 }
 
 int alink_subdev_update_device_secret(uint32_t devid, const char *device_secret)
@@ -626,7 +626,7 @@ int alink_subdev_update_device_secret(uint32_t devid, const char *device_secret)
 
     _alink_subdev_mgr_unlock();
 
-    return SUCCESS_RETURN;    
+    return SUCCESS_RETURN;
 }
 
 int alink_subdev_update_mass_status(uint32_t *subdev_array, uint32_t subdev_num, alink_subdev_status_t status)
@@ -638,7 +638,7 @@ int alink_subdev_update_mass_status(uint32_t *subdev_array, uint32_t subdev_num,
         if (subdev_array[i] == 0) {
             break;
         }
-        
+
         alink_debug("devid %d update status", subdev_array[i]);
         res = alink_subdev_update_status(subdev_array[i], status);
         if (res < SUCCESS_RETURN) {
