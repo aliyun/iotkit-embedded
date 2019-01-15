@@ -61,12 +61,11 @@ int alink_upstream_req_ctx_deinit(void)
 
     _alink_upstream_req_list_lock();
     list_for_each_entry_safe(search_node, next, &alink_upstream_req_ctx.req_list, list, alink_req_cache_node_t) {
-#if (CONFIG_SDK_THREAD_COST == 0)
-#else
+#ifdef THREAD_COST_INTERNAL
         if (search_node->semaphore) {
             HAL_SemaphoreDestroy(search_node->semaphore);
         }
-#endif
+#endif /* #ifdef THREAD_COST_INTERNAL */
         list_del(&search_node->list);
         alink_free(search_node);
     }
@@ -108,7 +107,7 @@ alink_req_cache_node_t *alink_upstream_req_list_insert(uint32_t msgid, req_msg_c
     INIT_LIST_HEAD(&node->list);
     node->msgid = msgid;
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     ALINK_ASSERT_DEBUG(req_msg != NULL);
     memcpy(&node->msg_data, req_msg, sizeof(req_msg_cache_t));
 #else
@@ -118,7 +117,7 @@ alink_req_cache_node_t *alink_upstream_req_list_insert(uint32_t msgid, req_msg_c
         _alink_upstream_req_list_unlock();
         return NULL;
     }
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 
     list_add_tail(&node->list, &alink_upstream_req_ctx.req_list);
     alink_upstream_req_ctx.list_num++;
@@ -198,12 +197,11 @@ int alink_upstream_req_cache_delete_by_node(alink_req_cache_node_t *node)
     _alink_upstream_req_list_lock();
 
     list_del(&node->list);
-#if (CONFIG_SDK_THREAD_COST == 0)
-#else
+#ifdef THREAD_COST_INTERNAL
     if (node->semaphore) {
         HAL_SemaphoreDestroy(node->semaphore);
     }
-#endif
+#endif /* #ifdef THREAD_COST_INTERNAL */
     alink_free(node);
     alink_upstream_req_ctx.list_num--;
 
@@ -579,7 +577,7 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
     return payload;
 }
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
 int _alink_upstream_cache_subdev_list(uint32_t msgid, alink_subdev_id_list_t *subdev_list)
 {
     req_msg_cache_t msg_data;
@@ -618,7 +616,7 @@ int _alink_upstream_subdev_msg_wait_rsp(uint32_t msgid)
     alink_upstream_req_cache_delete_by_node(node);
     return SUCCESS_RETURN;
 }
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 
 int alink_upstream_subdev_register_post_req(alink_subdev_id_list_t *subdev_list)
 {
@@ -638,12 +636,12 @@ int alink_upstream_subdev_register_post_req(alink_subdev_id_list_t *subdev_list)
         return res;
     }
 
-#if (CONFIG_SDK_THREAD_COST == 0)
-    return _alink_upstream_cache_subdev_list(res, subdev_list);
-#else
+#ifdef THREAD_COST_INTERNAL
     return _alink_upstream_subdev_msg_wait_rsp(res);
     /* not necessary to update subdev status double time */
-#endif
+#else
+    return _alink_upstream_cache_subdev_list(res, subdev_list);
+#endif /* #ifdef THREAD_COST_INTERNAL */
 }
 
 int alink_upstream_subdev_register_delete_req(alink_subdev_id_list_t *subdev_list)
@@ -663,7 +661,7 @@ int alink_upstream_subdev_register_delete_req(alink_subdev_id_list_t *subdev_lis
         return res;
     }
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     return _alink_upstream_cache_subdev_list(res, subdev_list);
 #else
     res = _alink_upstream_subdev_msg_wait_rsp(res);
@@ -673,7 +671,7 @@ int alink_upstream_subdev_register_delete_req(alink_subdev_id_list_t *subdev_lis
 
     /* wait rsp succeed and cloud rsp 200, update mass subdev status */
     return alink_subdev_update_mass_status(subdev_list->subdev_array, subdev_list->subdev_num, ALINK_SUBDEV_STATUS_OPENED);
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
@@ -694,7 +692,7 @@ int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
         return res;
     }
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     alink_info("cache subdev list");
     return _alink_upstream_cache_subdev_list(res, subdev_list);
 #else
@@ -705,7 +703,7 @@ int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
 
     /* wait rsp succeed and cloud rsp 200, update mass subdev status */
     return alink_subdev_update_mass_status(subdev_list->subdev_array, subdev_list->subdev_num, ALINK_SUBDEV_STATUS_ONLINE);
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 int alink_upstream_subdev_login_delete_req(alink_subdev_id_list_t *subdev_list)
@@ -725,7 +723,7 @@ int alink_upstream_subdev_login_delete_req(alink_subdev_id_list_t *subdev_list)
         return res;
     }
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     return _alink_upstream_cache_subdev_list(res, subdev_list);
 #else
     res = _alink_upstream_subdev_msg_wait_rsp(res);
@@ -735,7 +733,7 @@ int alink_upstream_subdev_login_delete_req(alink_subdev_id_list_t *subdev_list)
 
     /* wait rsp succeed and cloud rsp 200, update mass subdev status */
     return alink_subdev_update_mass_status(subdev_list->subdev_array, subdev_list->subdev_num, ALINK_SUBDEV_STATUS_REGISTERED);
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 #if 0 /** all topo relatived funcitons are not implement **/

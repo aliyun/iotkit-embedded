@@ -28,12 +28,12 @@ typedef union {
 
 typedef struct {
     uint32_t msgid;
-#if (CONFIG_SDK_THREAD_COST == 0)
-    req_msg_cache_t msg_data;
-#else
+#ifdef THREAD_COST_INTERNAL
     uint32_t result;
     void *semaphore;
-#endif
+#else
+    req_msg_cache_t msg_data;
+#endif /* #ifdef THREAD_COST_INTERNAL */
     list_head_t list;
 } alink_req_cache_node_t;
 

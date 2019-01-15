@@ -282,7 +282,7 @@ int _subdev_hash_remove(uint32_t devid)
     return FAIL_RETURN;
 }
 
-#if UTILS_HASH_TABLE_ITERATOR_ENABLE
+#if CONFIG_ALINK_DEBUG
 void subdev_hash_iterator(void)
 {
     struct _subdev_hash_node **table = subdev_mgr_htable.hash_table;

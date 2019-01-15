@@ -6,15 +6,25 @@ config DEVICE_MODEL_ENABLE
     select INFRA_CJSON
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
- 
+
         Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
         Those capabilities are provided via IOT_Linkkit_XXX() APIs
-
 
 config DEVICE_MODEL_GATEWAY
     bool "FEATURE_DEVICE_MODEL_GATEWAY"
     depends on DEVICE_MODEL_ENABLE
     default n
+    select INFRA_STRING
+    select INFRA_SHA256
     select INFRA_LIST
+    select THREAD_COST_INTERNAL
     help
         Switching Thing-Model related implementations provided in gateway oriented way
+
+config THREAD_COST_INTERNAL
+    bool "FEATURE_THREAD_COST_INTERNAL"
+    depends on DEVICE_MODEL_ENABLE
+    default n
+    help
+        Create thread in device model internal, and some subdev opertion API will become sync interface(e.g. using IOT_Linkkit_Connect() to register subdevice and
+        using IOT_Linkkit_Report() to login or logout sudevice.

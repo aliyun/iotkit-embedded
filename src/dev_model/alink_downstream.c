@@ -115,7 +115,7 @@ const char alink_proto_key_timeoutSec[] = "timeoutSec";
 const char alink_proto_key_url[] = "url";
 
 
-#if (CONFIG_SDK_THREAD_COST == 1)
+#ifdef THREAD_COST_INTERNAL
 
 #define ALINK_MSG_LIST_DEINITED                 0x00
 #define ALINK_MSG_LIST_INITED                   0x01
@@ -452,7 +452,7 @@ int alink_msg_event_list_handler(void)
 
     return SUCCESS_RETURN;
 }
-#endif
+#endif /* #ifdef THREAD_COST_INTERNAL */
 
 /***************************************************************
  * uri handler hash table management
@@ -504,7 +504,7 @@ static int _uri_hash_insert(const alink_uri_handle_pair_t *pair, uri_hash_table_
     return SUCCESS_RETURN;
 }
 
-#if UTILS_HASH_TABLE_ITERATOR_ENABLE
+#if CONFIG_ALINK_DEBUG
 void _uri_hash_iterator(uri_hash_table_t *table)
 {
     uri_hash_node_t *node;
@@ -542,7 +542,7 @@ int alink_uri_hash_table_init(void)
         }
     }
 
-#if UTILS_HASH_TABLE_ITERATOR_ENABLE
+#if CONFIG_ALINK_DEBUG
     alink_debug("print hash table");
     _uri_hash_iterator(g_uri_hash_table);
 #endif
@@ -599,7 +599,7 @@ void alink_uri_hash_table_deinit(void)
 static void _empty_rsp_handle(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
     /* ignore the payload, just checkout the return code */
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     {
         linkkit_report_reply_cb_t handle_func;
         /* just invoke the user callback funciton */
@@ -629,7 +629,7 @@ static void _empty_rsp_handle(uint32_t devid, const char *pk, const char *dn, co
 
         alink_msg_list_insert(msg_data);
     }
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 static void alink_downstream_thing_property_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -662,7 +662,7 @@ static void alink_downstream_thing_property_put_req(uint32_t devid, const char *
 
     alink_debug("property set req data = %s", req_data);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     {
         linkkit_property_set_cb_t handle_func;
         /* just invoke the user callback funciton */
@@ -696,7 +696,7 @@ static void alink_downstream_thing_property_put_req(uint32_t devid, const char *
 
         alink_msg_list_insert(msg_data);
     }
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 static void alink_downstream_thing_property_get_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -723,7 +723,7 @@ static void alink_downstream_thing_property_get_req(uint32_t devid, const char *
 
     alink_debug("property get req data = %s", req_data);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     /* just invoke the user callback funciton */
     {
         char *rsp_data = NULL;
@@ -740,8 +740,7 @@ static void alink_downstream_thing_property_get_req(uint32_t devid, const char *
         alink_upstream_thing_property_get_rsp(pk, dn, (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400, rsp_data, rsp_len, query);
         alink_free(rsp_data);
     }
-#else
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
     alink_free(req_data);
 }
 
@@ -789,7 +788,7 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
     alink_debug("service id = %s", service_id);
     alink_debug("service params = %s", service_params);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     {
         char *rsp_data = NULL;
         uint32_t rsp_len;
@@ -829,7 +828,7 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
 
         alink_msg_list_insert(msg_data);
     }
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 /***************************************************************
@@ -839,7 +838,7 @@ static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, c
 {
     alink_info("raw data recv");
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     {
         /* just invoke the user callback funciton */
         linkkit_rawdata_rx_cb_t handle_func;
@@ -876,7 +875,7 @@ static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, c
 
         alink_msg_list_insert(msg_data);
     }
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -891,9 +890,7 @@ static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, 
 /***************************************************************
  * subdevice management downstream message
  ***************************************************************/
-#if (CONFIG_SDK_THREAD_COST == 0)
-
-#else
+#ifdef THREAD_COST_INTERNAL
 static void _alink_downstream_subdev_rsp_notify(uint32_t msgid, uint32_t return_code)
 {
     alink_req_cache_node_t *node;
@@ -906,7 +903,7 @@ static void _alink_downstream_subdev_rsp_notify(uint32_t msgid, uint32_t return_
         }
     }
 }
-#endif
+#endif /* #ifdef THREAD_COST_INTERNAL */
 
 static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
@@ -919,7 +916,7 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
 
     alink_info("register rsp recv");
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     if (query->code != 200) {
         /* just delete the req cache, TODO: invoke user cb? miss ds information? */
         alink_upstream_req_cache_delete_by_msgid(query->id);
@@ -930,7 +927,7 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
         _alink_downstream_subdev_rsp_notify(query->id, query->code);
         return;
     }
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 
     /* register failed, just return */
     if (query->code != 200) {
@@ -1011,7 +1008,7 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
         /* update subdev status */
         alink_subdev_update_status(subdev_id, ALINK_SUBDEV_STATUS_REGISTERED);
 
-        #if (CONFIG_SDK_THREAD_COST == 0)
+        #ifndef THREAD_COST_INTERNAL
         {
             /* just invoke the user callback funciton */
             linkkit_connect_success_cb_t handle_func;
@@ -1020,12 +1017,12 @@ static void alink_downstream_subdev_register_post_rsp(uint32_t devid, const char
                 handle_func(subdev_id);
             }
         }
-        #endif /* #if (CONFIG_SDK_THREAD_COST == 0) */
+        #endif /* #ifndef THREAD_COST_INTERNAL */
     }
 
-#if (CONFIG_SDK_THREAD_COST == 1)
+#ifdef THREAD_COST_INTERNAL
     _alink_downstream_subdev_rsp_notify(query->id, query->code);
-#endif /* #if (CONFIG_SDK_THREAD_COST == 1) */
+#endif /* #ifdef THREAD_COST_INTERNAL) */
 }
 
 static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -1035,7 +1032,7 @@ static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const ch
     /* ignore the payload, just checkout the return code */
     alink_debug("unregister rsp payload = %.*s", len, payload);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     if (query->code == 200) {
         alink_req_cache_node_t *req_msg;
         uint32_t *devid_array;
@@ -1063,7 +1060,7 @@ static void alink_downstream_subdev_unregister_post_rsp(uint32_t devid, const ch
     }
 #else
     _alink_downstream_subdev_rsp_notify(query->id, query->code);
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -1073,7 +1070,7 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
     /* ignore the payload, just checkout the return code */
     alink_debug("login rsp payload = %.*s", len, payload);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     if (query->code == 200) {
         alink_req_cache_node_t *req_msg;
         uint32_t *devid_array;
@@ -1109,7 +1106,7 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
     }
 #else
     _alink_downstream_subdev_rsp_notify(query->id, query->code);
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 static void alink_downstream_subdev_logout_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
@@ -1119,7 +1116,7 @@ static void alink_downstream_subdev_logout_post_rsp(uint32_t devid, const char *
     /* ignore the payload, just checkout the return code */
     alink_debug("login rsp payload = %.*s", len, payload);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     if (query->code == 200) {
         alink_req_cache_node_t *req_msg;
         uint32_t *devid_array;
@@ -1155,7 +1152,7 @@ static void alink_downstream_subdev_logout_post_rsp(uint32_t devid, const char *
     }
 #else
     _alink_downstream_subdev_rsp_notify(query->id, query->code);
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 
 }
 
@@ -1216,7 +1213,7 @@ static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *
     alink_debug("pk = %s", productKey);
     alink_debug("timeout = %d", timeoutSec);
 
-#if (CONFIG_SDK_THREAD_COST == 0)
+#ifndef THREAD_COST_INTERNAL
     {
         linkkit_permit_join_cb_t handle_func;
         /* just invoke the user callback funciton */
@@ -1229,8 +1226,7 @@ static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *
         alink_upstream_gw_permit_put_rsp(pk, dn, (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400, query);
     }
     alink_free(productKey);
-#else
-#endif
+#endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
 static void alink_downstream_subdev_config_post_req(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)

@@ -129,9 +129,9 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
     alink_upstream_req_ctx_init();
 #endif
 
-#if (CONFIG_SDK_THREAD_COST == 1)
+#ifdef THREAD_COST_INTERNAL
     alink_msg_list_init();
-#endif
+#endif /* #ifdef THREAD_COST_INTERNAL */
 
     return SUCCESS_RETURN;
 }
@@ -174,9 +174,9 @@ static int _alink_core_deinit(void)
     alink_upstream_req_ctx_deinit();
 #endif /* #ifdef DEVICE_MODEL_GATEWAY */
 
-#if (CONFIG_SDK_THREAD_COST == 1)
+#ifdef THREAD_COST_INTERNAL
     alink_msg_list_deinit();
-#endif
+#endif /* #ifdef THREAD_COST_INTERNAL */
 
     alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;
 
@@ -436,10 +436,10 @@ extern int alink_msg_event_list_handler(void);  /* TODO */
 /** **/
 int alink_core_yield(uint32_t timeout_ms)
 {
-#if (CONFIG_SDK_THREAD_COST == 1)
+#ifdef THREAD_COST_INTERNAL
     alink_msg_event_list_handler();
     HAL_SleepMs(timeout_ms);
-#endif
+#endif /* #ifdef THREAD_COST_INTERNAL */
 
     return iotx_cm_yield(alink_core_ctx.cm_fd, timeout_ms);
 }
