@@ -2,32 +2,22 @@
 #include <string.h>
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "infra_config.h"
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
-#include "infra_config.h"
 
-#if defined(ATM_ENABLED)
+#ifdef ATM_ENABLED
 #include "at_api.h"
 #endif
-
-#define EXAMPLE_PRODUCT_KEY     "a1X2bEnP82z"
-#define EXAMPLE_PRODUCT_SECRET  "7jluWm1zql7bt8qK"
-#define EXAMPLE_DEVICE_NAME     "example1"
-#define EXAMPLE_DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
-
-extern char _product_key[IOTX_PRODUCT_KEY_LEN + 1];
-extern char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
-extern char _device_name[IOTX_DEVICE_NAME_LEN + 1];
-extern char _device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
-int8_t HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int8_t HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 uint64_t HAL_UptimeMs(void);
-int8_t HAL_Snprintf(char *str, const int len, const char *fmt, ...);
-void HAL_SleepMs(uint32_t ms);
+int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -43,10 +33,10 @@ void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             /* print topic name and topic message */
-            printf("Message Arrived: \n");
-            printf("Topic  : %.*s\n", topic_info->topic_len, topic_info->ptopic);
-            printf("Payload: %.*s\n", topic_info->payload_len, topic_info->payload);
-            printf("\n");
+            HAL_Printf("Message Arrived: \n");
+            HAL_Printf("Topic  : %.*s\n", topic_info->topic_len, topic_info->ptopic);
+            HAL_Printf("Payload: %.*s\n", topic_info->payload_len, topic_info->payload);
+            HAL_Printf("\n");
             break;
         default:
             break;
@@ -58,7 +48,7 @@ int example_subscribe(void *handle)
     int res = 0;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
-    const char *fmt = "/sys/%s/%s/thing/event/+/post_reply";
+    const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
 
@@ -68,7 +58,7 @@ int example_subscribe(void *handle)
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
-        printf("memory not enough\n");
+        HAL_Printf("memory not enough\n");
         return -1;
     }
     memset(topic, 0, topic_len);
@@ -76,7 +66,7 @@ int example_subscribe(void *handle)
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
     if (res < 0) {
-        printf("subscribe failed\n");
+        HAL_Printf("subscribe failed\n");
         HAL_Free(topic);
         return -1;
     }
@@ -91,11 +81,10 @@ int example_publish(void *handle)
     iotx_mqtt_topic_info_t topic_msg;
     char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN] = {0};
-    const char *fmt = "/sys/%s/%s/thing/event/property/post";
+    const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
-    char *payload =
-                "{\"id\":\"1\",\"version\":\"1.0\",\"params\":{\"LightSwitch\":1},\"method\":\"thing.event.property.post\"}";
+    char *payload = "hello,world";
 
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
@@ -103,7 +92,7 @@ int example_publish(void *handle)
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
-        printf("memory not enough\n");
+        HAL_Printf("memory not enough\n");
         return -1;
     }
     memset(topic, 0, topic_len);
@@ -119,7 +108,7 @@ int example_publish(void *handle)
 
     res = IOT_MQTT_Publish(handle, topic, &topic_msg);
     if (res < 0) {
-        printf("publish failed\n");
+        HAL_Printf("publish failed\n");
         HAL_Free(topic);
         return -1;
     }
@@ -130,44 +119,45 @@ int example_publish(void *handle)
 
 void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    printf("msg->event_type : %d\n", msg->event_type);
+    HAL_Printf("msg->event_type : %d\n", msg->event_type);
 }
+
+/*
+ *  NOTE: About demo topic of /${productKey}/${deviceName}/get
+ *
+ *  The demo device has been configured in IoT console (https://iot.console.aliyun.com)
+ *  so that its /${productKey}/${deviceName}/get can both be subscribed and published
+ *
+ *  We design this to completely demostrate publish & subscribe process, in this way
+ *  MQTT client can receive original packet sent by itself
+ *
+ *  For new devices created by yourself, pub/sub privilege also required to be granted
+ *  to its /${productKey}/${deviceName}/get to run whole example
+ */
 
 int main(int argc, char *argv[])
 {
-    int res = 0;
-    void *pclient = NULL;
-    uint64_t time_prev = 0;
-    iotx_mqtt_region_types_t region;
-    iotx_dev_meta_info_t meta;
-    iotx_sign_mqtt_t sign_mqtt;
-    iotx_mqtt_param_t mqtt_params;
+    void *      pclient = NULL;
+    int         res = 0;
+    int         loop_cnt = 0;
 
-#if defined(ATM_ENABLED)
+    iotx_mqtt_region_types_t    region = IOTX_CLOUD_REGION_SHANGHAI;
+    iotx_sign_mqtt_t            sign_mqtt;
+    iotx_dev_meta_info_t        meta;
+    iotx_mqtt_param_t           mqtt_params;
+
+#ifdef ATM_ENABLED
     if (IOT_ATM_Init() < 0) {
-        printf("ATM init fail!\n");
+        HAL_Printf("IOT ATM init failed!\n");
+        return -1;
     }
 #endif
-
-    region = IOTX_CLOUD_REGION_SHANGHAI;
+    HAL_Printf("mqtt example\n");
 
     memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
-    memcpy(meta.product_key, EXAMPLE_PRODUCT_KEY, strlen(EXAMPLE_PRODUCT_KEY));
-    memcpy(meta.product_secret, EXAMPLE_PRODUCT_SECRET, strlen(EXAMPLE_PRODUCT_SECRET));
-    memcpy(meta.device_name, EXAMPLE_DEVICE_NAME, strlen(EXAMPLE_DEVICE_NAME));
-    memcpy(meta.device_secret, EXAMPLE_DEVICE_SECRET, strlen(EXAMPLE_DEVICE_SECRET));
-
-    memset(_product_key,0,IOTX_PRODUCT_KEY_LEN + 1);
-    memcpy(_product_key,EXAMPLE_PRODUCT_KEY,strlen(EXAMPLE_PRODUCT_KEY));
-
-    memset(_product_secret,0,IOTX_PRODUCT_SECRET_LEN + 1);
-    memcpy(_product_secret,EXAMPLE_PRODUCT_SECRET,strlen(EXAMPLE_PRODUCT_SECRET));
-
-    memset(_device_name,0,IOTX_DEVICE_NAME_LEN + 1);
-    memcpy(_device_name,EXAMPLE_DEVICE_NAME,strlen(EXAMPLE_DEVICE_NAME));
-
-    memset(_device_secret,0,IOTX_DEVICE_SECRET_LEN + 1);
-    memcpy(_device_secret,EXAMPLE_DEVICE_SECRET,strlen(EXAMPLE_DEVICE_SECRET));
+    HAL_GetProductKey(meta.product_key);
+    HAL_GetDeviceName(meta.device_name);
+    HAL_GetDeviceSecret(meta.device_secret);
 
     memset(&sign_mqtt, 0x0, sizeof(iotx_sign_mqtt_t));
 
@@ -175,11 +165,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    printf("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
-    printf("sign_mqtt.port    : %d\n", sign_mqtt.port);
-    printf("sign_mqtt.username: %s\n", sign_mqtt.username);
-    printf("sign_mqtt.password: %s\n", sign_mqtt.password);
-    printf("sign_mqtt.clientid: %s\n", sign_mqtt.clientid);
+#if 0   /* Uncomment this to show more information */
+    HAL_Printf("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
+    HAL_Printf("sign_mqtt.port    : %d\n", sign_mqtt.port);
+    HAL_Printf("sign_mqtt.username: %s\n", sign_mqtt.username);
+    HAL_Printf("sign_mqtt.password: %s\n", sign_mqtt.password);
+    HAL_Printf("sign_mqtt.clientid: %s\n", sign_mqtt.clientid);
+#endif
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
@@ -212,13 +204,15 @@ int main(int argc, char *argv[])
     }
 
     while (1) {
-        if (HAL_UptimeMs() - time_prev > 5000) {
+        if (0 == loop_cnt % 20) {
             example_publish(pclient);
-            time_prev = HAL_UptimeMs();
         }
 
         IOT_MQTT_Yield(pclient, 200);
+
+        loop_cnt += 1;
     }
 
     return 0;
 }
+
