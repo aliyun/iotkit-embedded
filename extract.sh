@@ -54,9 +54,11 @@ cond_not_check()
     return -1
 }
 
+echo -e "Extract Files\c"
 # Read xtrc_file_rules
 while read rule
 do
+    echo -e ".\c"
     TEST=$(echo $rule | awk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
         continue
@@ -87,13 +89,17 @@ do
     fi
 done < ${XTRC_FILE_RULS}
 
+echo -e ""
+
 # Generate wrapper.c
 mkdir -p ${WRAPPERS_DIR}
 cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
+echo -e "Extract HAL/Wrapper Function\c"
 # Read xtrc_wrapper_rules
 while read rule
 do
+    echo -e ".\c"
     TEST=$(echo $rule | awk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
         continue
@@ -124,6 +130,8 @@ do
     fi
 done < ${XTRC_WRAPPER_RULS}
 
+echo -e ""
+
 FUNC_NAME_LIST=$(echo -e "${FUNC_NAME_LIST}" | sed -n '/^$/!{p}' | sort -u)
 HEADER_FILE_LIST=$(echo -e "${HEADER_FILE_LIST}" | sed -n '/^$/!{p}' | sort -u)
 
@@ -136,6 +144,7 @@ if [ "${HEADER_FILE_LIST}" != "" ];then
     echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }' && echo ""
 fi
 
+echo -e "Generate wrapper.c\c"
 # Annotation For wrapper.c
 sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
 
@@ -149,6 +158,7 @@ echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
 # Generate Default Implenmentation For HAL/Wrapper Function
 for func in $(echo "${FUNC_NAME_LIST}")
 do
+    echo -e ".\c"
     # echo ${func}
     if [ "${func}" = "" ];then
         continue
@@ -168,3 +178,5 @@ do
         echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn ('${DATA_TYPE}')1;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrapper.c
     fi
 done
+
+echo -e ""
