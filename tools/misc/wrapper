@@ -604,10 +604,3 @@ HAL_AT_MQTT_State:
  *
  * @return  0 - disconnected, -1 -connected
  */
-
-HAL_AT_MQTT_RegRecvCb:
-/**
- * Register receive callback
- *
- * @return  0 - success, -1 - failure
- */

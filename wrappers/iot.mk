@@ -30,6 +30,10 @@ endif
 ifneq (,$(filter -DAT_MQTT_ENABLED, $(CFLAGS)))
 ifneq (,$(filter -DAT_MQTT_HAL_ICA, $(CFLAGS)))
 LIB_SRCS_PATTERN += atm/at_mqtt/mqtt_ica.c
+else
+ifneq (,$(filter -DAT_MQTT_HAL_SIM800, $(CFLAGS)))
+LIB_SRCS_PATTERN += atm/at_mqtt/mqtt_sim800.c
 LDFLAGS         += -liot_sdk
+endif
 endif
 endif

@@ -272,7 +272,6 @@ int at_conn_input(int fd, void *data, size_t len, char remote_ip[16], uint16_t r
 #elif defined(AT_MQTT_ENABLED)
 #include "mqtt_api.h"
 
-typedef int (*recv_cb)(char* topic, uint32_t topic_len, char* message, uint32_t message_len);
 int HAL_AT_MQTT_Init(iotx_mqtt_param_t *pInitParams);
 int HAL_AT_MQTT_Deinit();
 int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret);
@@ -282,9 +281,8 @@ int HAL_AT_MQTT_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int
 int HAL_AT_MQTT_Publish(const char *topic, int qos, const char *message, unsigned int msg_len);
 int HAL_AT_MQTT_State(void);
 
-void HAL_AT_MQTT_RegRecvCb(recv_cb);
+int AT_MQTT_Input(char *topic,  unsigned int topic_len, char *message, unsigned msg_len);
 #endif
-
 
 #ifdef __cplusplus
 }

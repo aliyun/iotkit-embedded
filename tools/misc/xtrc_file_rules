@@ -31,3 +31,4 @@ AT_MQTT_ENABLED|MQTT_DEFAULT_IMPL&AT_TCP_ENABLED|src/atm/at_mqtt.[ch]|output/eng
 AT_TCP_ENABLED&AT_TCP_HAL_SIM800||wrappers/atm/at_tcp/sim800.c|output/eng/atm
 AT_TCP_ENABLED&AT_TCP_HAL_MK3060||wrappers/atm/at_tcp/mk3060.c|output/eng/atm
 AT_MQTT_ENABLED&AT_MQTT_HAL_ICA||wrappers/atm/at_mqtt/mqtt_ica.c|output/eng/atm
+AT_MQTT_ENABLED&AT_MQTT_HAL_SIM800||wrappers/atm/at_mqtt/mqtt_sim800.c|output/eng/atm

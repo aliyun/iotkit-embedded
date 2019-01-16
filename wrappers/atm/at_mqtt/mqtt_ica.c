@@ -72,8 +72,6 @@ typedef enum {
     AT_MQTT_PUB,
 } at_mqtt_send_type_t;
 
-recv_cb g_recv_cb;
-
 int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms);
 int at_ica_mqtt_client_deinit(void);
 int at_ica_mqtt_client_init(void);
@@ -93,13 +91,11 @@ int at_ica_mqtt_client_disconn(void);
 
 int HAL_AT_MQTT_Init(iotx_mqtt_param_t *pInitParams)
 {
-    g_recv_cb = NULL;
     return at_ica_mqtt_client_init();
 }
 
 int HAL_AT_MQTT_Deinit()
 {
-    g_recv_cb = NULL;
     return at_ica_mqtt_client_deinit();
 }
 
@@ -131,11 +127,6 @@ int HAL_AT_MQTT_Publish(const char *topic, int qos, const char *message, unsigne
 int HAL_AT_MQTT_State(void)
 {
     return at_ica_mqtt_client_state();
-}
-
-void HAL_AT_MQTT_RegRecvCb(recv_cb cb)
-{
-    g_recv_cb = cb;
 }
 
 int HAL_AT_MQTT_Connectwifi(char *at_conn_wifi)
@@ -493,7 +484,7 @@ static void recv_data_callback(char *at_rsp)
 
         msg_ptr[msg_len] = '\0';
 
-        g_recv_cb(topic_ptr, strlen(topic_ptr), msg_ptr, strlen(msg_ptr));
+        AT_MQTT_Input(topic_ptr, strlen(topic_ptr), msg_ptr, strlen(msg_ptr));
 
         return;
     } else {
