@@ -528,7 +528,7 @@ HAL_AT_CONN_RegInputCb:
  */
 
 
-HAL_MDAL_MAL_Init:
+HAL_AT_MQTT_Init:
 /**
  * Initialize low layer
  *
@@ -537,14 +537,14 @@ HAL_MDAL_MAL_Init:
  * @return  0 - success, -1 - failure
  */
 
-int HAL_MDAL_MAL_Deinit:
+int HAL_AT_MQTT_Deinit:
 /**
  * Deinit low layer
  *
  * @return  0 - success, -1 - failure
  */
 
-int HAL_MDAL_MAL_Connect:
+int HAL_AT_MQTT_Connect:
 /**
  * Setup MQTT Connection
  *
@@ -555,14 +555,14 @@ int HAL_MDAL_MAL_Connect:
  * @return  0 - success, -1 - failure
  */
 
-HAL_MDAL_MAL_Disconnect:
+HAL_AT_MQTT_Disconnect:
 /**
  * Close MQTT connection
  *
  * @return  0 - success, -1 - failure
  */
 
-HAL_MDAL_MAL_Subscribe:
+HAL_AT_MQTT_Subscribe:
 /**
  * Subscribe topic
  *
@@ -575,7 +575,7 @@ HAL_MDAL_MAL_Subscribe:
  * @return  0 - success, -1 - failure
  */
 
-HAL_MDAL_MAL_Unsubscribe:
+HAL_AT_MQTT_Unsubscribe:
 /**
  * Unsubscribe topic
  *
@@ -586,7 +586,7 @@ HAL_MDAL_MAL_Unsubscribe:
  * @return  0 - success, -1 - failure
  */
 
-HAL_MDAL_MAL_Publish:
+HAL_AT_MQTT_Publish:
 /**
  * Publish message
  *
@@ -598,14 +598,14 @@ HAL_MDAL_MAL_Publish:
  * @return  0 - success, -1 - failure
  */
 
-HAL_MDAL_MAL_State:
+HAL_AT_MQTT_State:
 /**
  * Check connection status
  *
  * @return  0 - disconnected, -1 -connected
  */
 
-HAL_MDAL_MAL_RegRecvCb:
+HAL_AT_MQTT_RegRecvCb:
 /**
  * Register receive callback
  *

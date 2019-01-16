@@ -261,7 +261,7 @@ static int MALMQTTConnect(iotx_mc_client_t *pClient)
     HAL_GetDeviceName(device_name);
     HAL_GetDeviceSecret(device_secret);
 
-    if (0 != HAL_MDAL_MAL_Connect(product_key, device_name, device_secret)) {
+    if (0 != HAL_AT_MQTT_Connect(product_key, device_name, device_secret)) {
         return FAIL_RETURN;
     }
 
@@ -276,7 +276,7 @@ static int MALMQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_
         return FAIL_RETURN;
     }
 
-    if (0 != HAL_MDAL_MAL_Publish(topicName, topic_msg->qos, topic_msg->payload,
+    if (0 != HAL_AT_MQTT_Publish(topicName, topic_msg->qos, topic_msg->payload,
                                   topic_msg->payload_len)) {
         mal_err("MALMQTTPublish publish failed\n");
         return FAIL_RETURN;
@@ -334,7 +334,7 @@ static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_m
     h->next = c->first_sub_handle;
     c->first_sub_handle = h;
     HAL_MutexUnlock(c->lock_generic);
-    if (HAL_MDAL_MAL_Subscribe(topicFilter, qos, &msgId, &status, timeout_ms) != 0) {
+    if (HAL_AT_MQTT_Subscribe(topicFilter, qos, &msgId, &status, timeout_ms) != 0) {
         return FAIL_RETURN;
     }
     return SUCCESS_RETURN;
@@ -348,7 +348,7 @@ static int MALMQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsi
     int ret;
     iotx_mc_topic_handle_t *h;
 
-    ret = HAL_MDAL_MAL_Unsubscribe(topicFilter, &msgId, &status);
+    ret = HAL_AT_MQTT_Unsubscribe(topicFilter, &msgId, &status);
     if (ret != 0) {
         return -1;
     }
@@ -367,7 +367,7 @@ static int MALMQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsi
 /* MQTT send disconnect packet */
 static int MALMQTTDisconnect(iotx_mc_client_t *c)
 {
-    return HAL_MDAL_MAL_Disconnect();
+    return HAL_AT_MQTT_Disconnect();
 }
 
 /* get next packet-id */
@@ -478,7 +478,7 @@ static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
         return FAIL_RETURN;
     }
 
-    if (HAL_MDAL_MAL_State() == IOTX_MC_STATE_CONNECTED) {
+    if (HAL_AT_MQTT_State() == IOTX_MC_STATE_CONNECTED) {
         mal_mc_set_client_state(c, IOTX_MC_STATE_CONNECTED);
     }
 
@@ -492,8 +492,8 @@ static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
         return MQTT_STATE_ERROR;
     }
 
-    if (HAL_MDAL_MAL_State() != IOTX_MC_STATE_CONNECTED) {
-        mal_err("hal mal state = %d error", HAL_MDAL_MAL_State());
+    if (HAL_AT_MQTT_State() != IOTX_MC_STATE_CONNECTED) {
+        mal_err("hal mal state = %d error", HAL_AT_MQTT_State());
         mal_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
 #ifndef PLATFORM_HAS_OS
 #ifdef AT_PARSER_ENABLED
@@ -611,7 +611,7 @@ static int mal_mc_wait_for_result()
             HAL_SleepMs(100);
         }
 
-        state = HAL_MDAL_MAL_State();
+        state = HAL_AT_MQTT_State();
     } while (!mal_time_is_expired(&time) && (state != IOTX_MC_STATE_CONNECTED));
 
     if (state == IOTX_MC_STATE_CONNECTED) {
@@ -623,7 +623,7 @@ static int mal_mc_wait_for_result()
     int state = 0;
     int timeout_ms = 1000;
     int count = 10;
-    while((count > 0) &&((state = HAL_MDAL_MAL_State()) != IOTX_MC_STATE_CONNECTED)){
+    while((count > 0) &&((state = HAL_AT_MQTT_State()) != IOTX_MC_STATE_CONNECTED)){
 #ifdef AT_PARSER_ENABLED
        at_yield(NULL, 0, NULL, timeout_ms);
 #endif
@@ -657,7 +657,7 @@ static int mal_mc_disconnect(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-static int mal_mc_data_copy_to_buf(char *topic, char *message)
+static int mal_mc_data_copy_to_buf(char *topic,  uint32_t topic_len, char *message, uint32_t message_len)
 {
     uint8_t       write_index;
     char         *copy_ptr;
@@ -667,9 +667,9 @@ static int mal_mc_data_copy_to_buf(char *topic, char *message)
         return -1;
     }
 
-    if ((strlen(topic) >= MAL_MC_MAX_TOPIC_LEN) ||
-        (strlen(message) >= MAL_MC_MAX_MSG_LEN)) {
-        mal_err("topic(%d) or message(%d) too large", strlen(topic), strlen(message));
+    if ((topic_len >= MAL_MC_MAX_TOPIC_LEN) ||
+        (message_len >= MAL_MC_MAX_MSG_LEN)) {
+        mal_err("topic(%d) or message(%d) too large", topic_len, message_len);
         return -1;
     }
 
@@ -705,9 +705,9 @@ static int mal_mc_data_copy_to_buf(char *topic, char *message)
     }
 
     copy_ptr = g_at_mqtt_buff_mgr.topic[write_index];
-    memcpy(copy_ptr, topic, strlen(topic));
+    memcpy(copy_ptr, topic, topic_len);
     copy_ptr = g_at_mqtt_buff_mgr.msg_data[write_index];
-    memcpy(copy_ptr, message, strlen(message));
+    memcpy(copy_ptr, message, message_len);
 
     g_at_mqtt_buff_mgr.valid_flag[write_index] = 1;
     write_index++;
@@ -781,7 +781,7 @@ static int mal_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams
 
     memset(pClient, 0, sizeof(iotx_mc_client_t));
 
-    if (HAL_MDAL_MAL_Init(pInitParams) != 0) {
+    if (HAL_AT_MQTT_Init(pInitParams) != 0) {
         mal_err("low layer init failed");
         return FAIL_RETURN;
     }
@@ -800,7 +800,7 @@ static int mal_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams
     pClient->handle_event.pcontext = pInitParams->handle_event.pcontext;
 
     mal_mc_recv_buf_init();
-    HAL_MDAL_MAL_RegRecvCb(mal_mc_data_copy_to_buf);
+    HAL_AT_MQTT_RegRecvCb(mal_mc_data_copy_to_buf);
 
     mc_state = IOTX_MC_STATE_INITIALIZED;
     rc = SUCCESS_RETURN;
