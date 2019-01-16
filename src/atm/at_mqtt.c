@@ -657,7 +657,7 @@ static int mal_mc_disconnect(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-static int mal_mc_data_copy_to_buf(char *topic,  uint32_t topic_len, char *message, uint32_t message_len)
+int AT_MQTT_Input(char *topic,  uint32_t topic_len, char *message, uint32_t message_len)
 {
     uint8_t       write_index;
     char         *copy_ptr;
@@ -800,7 +800,6 @@ static int mal_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams
     pClient->handle_event.pcontext = pInitParams->handle_event.pcontext;
 
     mal_mc_recv_buf_init();
-    HAL_AT_MQTT_RegRecvCb(mal_mc_data_copy_to_buf);
 
     mc_state = IOTX_MC_STATE_INITIALIZED;
     rc = SUCCESS_RETURN;

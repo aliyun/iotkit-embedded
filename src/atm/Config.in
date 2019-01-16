@@ -44,6 +44,11 @@ config AT_MQTT_HAL_ICA
         default n
         depends on AT_MQTT_ENABLED
 
+config AT_MQTT_HAL_SIM800
+        bool "FEATURE_AT_MQTT_HAL_SIM800"
+        default n
+        depends on AT_MQTT_ENABLED
+
 endchoice
 
 endmenu
