@@ -9,6 +9,7 @@
 
 #include "at_wrapper.h"
 #include "at_parser.h"
+#include "at_api.h"
 
 #define TAG "at_mk3060_wifi"
 
@@ -33,9 +34,9 @@
 #define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #else
-#define at_conn_hal_err(...)
+#define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_warning(...)
-#define at_conn_hal_info(...)
+#define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_debug(...)
 #endif
 
@@ -189,7 +190,7 @@ static void handle_socket_data()
     uint32_t len = 0;
     char reader[16] = {0};
     char *recvdata = NULL;
-
+    struct at_conn_input param;
 
     /* Eat the "OCKET," */
     at_read(reader, 6);
@@ -241,8 +242,14 @@ static void handle_socket_data()
     }
 
     if (g_link[link_id].fd >= 0) {
+        param.fd = g_link[link_id].fd;
+        param.data = recvdata;
+        param.datalen = len;
+        param.remote_ip = NULL;
+        param.remote_port = 0;
+
         /* TODO get recv data src ip and port*/
-        if (at_conn_input(g_link[link_id].fd, recvdata, len, NULL, 0)) {
+        if (IOT_ATM_Input(&param) != 0) {
             at_conn_hal_err(" %s socket %d get data len %d fail to post to at_conn, drop it\n",
                  __func__, g_link[link_id].fd, len);
         }

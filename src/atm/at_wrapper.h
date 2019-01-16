@@ -187,6 +187,14 @@ typedef struct {
     uint32_t tcp_keep_alive; /* tcp keep alive value (set to 0 if not used) */
 } at_conn_t;
 
+struct at_conn_input {
+    int        fd;
+    void      *data;
+    uint32_t   datalen;
+    char      *remote_ip;
+    uint16_t   remote_port;
+};
+
 /**
  * Module low level init so that it's ready to setup socket connection.
  *
@@ -253,24 +261,15 @@ int HAL_AT_CONN_Close(int fd, int32_t remote_port);
  */
 int HAL_AT_CONN_Deinit(void);
 
-
-/**
- * Hand received data to upper layer
- * @param[in]  fd - the file descripter to operate on.
- * @param[in]  data - the received data.
- * @param[in]  len - expected length of the data when IN,
- *                    and real read len when OUT.
- * @param[in]  addr - remote ip address. Caller manages the
-                            memory (optional).
- * @param[in]  port - remote port number (optional).
- *
- * @return  0 - success, -1 - failure
- */
-int at_conn_input(int fd, void *data, size_t len, char remote_ip[16], uint16_t remote_port);
-
-
 #elif defined(AT_MQTT_ENABLED)
 #include "mqtt_api.h"
+
+struct at_mqtt_input {
+    char     *topic;
+    uint32_t  topic_len;
+    char     *message;
+    uint32_t  msg_len;
+};
 
 int HAL_AT_MQTT_Init(iotx_mqtt_param_t *pInitParams);
 int HAL_AT_MQTT_Deinit();
@@ -281,7 +280,6 @@ int HAL_AT_MQTT_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int
 int HAL_AT_MQTT_Publish(const char *topic, int qos, const char *message, unsigned int msg_len);
 int HAL_AT_MQTT_State(void);
 
-int AT_MQTT_Input(char *topic,  unsigned int topic_len, char *message, unsigned msg_len);
 #endif
 
 #ifdef __cplusplus

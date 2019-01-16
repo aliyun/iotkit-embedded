@@ -659,13 +659,28 @@ static int mal_mc_disconnect(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-int AT_MQTT_Input(char *topic,  uint32_t topic_len, char *message, uint32_t message_len)
+int at_mqtt_input(struct at_mqtt_input *param)
 {
+    char         *topic;
+    uint32_t      topic_len;
+    char         *message;
+    uint32_t      message_len;
     uint8_t       write_index;
     char         *copy_ptr;
+   
+    if (NULL == param) {
+        mal_err("input param null");
+        return -1;
+    }
 
-    if ((topic == NULL) || (message == NULL)) {
-        mal_err("write buffer is NULL");
+    topic = param->topic;
+    topic_len = param->topic_len;
+    message = param->message;
+    message_len = param->msg_len;
+
+    if ((topic == NULL) || (topic_len == 0) ||
+        (message == NULL) || (message_len == 0)) {
+        mal_err("input topic or message is NULL");
         return -1;
     }
 

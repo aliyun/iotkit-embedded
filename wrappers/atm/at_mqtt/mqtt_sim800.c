@@ -11,6 +11,7 @@
 
 #include "at_wrapper.h"
 #include "at_parser.h"
+#include "at_api.h"
 
 #define AT_SIM800_MQTT_IPCONN          "AT+SAPBR"
 #define AT_SIM800_MQTT_MQTTCONF        "AT+SMCONF"
@@ -453,7 +454,7 @@ static void recv_data_callback(char *at_rsp)
     char     *topic_ptr = NULL;
     char     *msg_ptr = NULL;
     unsigned int  msg_len = 0;
-    /* unsinged int  packet_id = 0; */
+    struct at_mqtt_input param;
 
     if (NULL == at_rsp) {
         return;
@@ -503,7 +504,14 @@ static void recv_data_callback(char *at_rsp)
 
         msg_ptr[msg_len] = '\0';
 
-        AT_MQTT_Input(topic_ptr, strlen(topic_ptr), msg_ptr, strlen(msg_ptr));
+        param.topic = topic_ptr;
+        param.topic_len = strlen(topic_ptr);
+        param.message = msg_ptr;
+        param.msg_len = strlen(msg_ptr);
+
+        if (IOT_ATM_Input(&param) != 0) {
+            mal_err("hand data to uplayer fail!\n");
+        }
 
         return;
     } else {
