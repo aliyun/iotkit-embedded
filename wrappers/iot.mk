@@ -8,5 +8,4 @@ $(call Append_Conditional, LIB_SRCS_PATTERN, atm/at_tcp/mk3060.c, AT_TCP_ENABLED
 $(call Append_Conditional, LIB_SRCS_PATTERN, atm/at_tcp/sim800.c, AT_TCP_ENABLED AT_TCP_HAL_SIM800)
 $(call Append_Conditional, LIB_SRCS_PATTERN, atm/at_mqtt/mqtt_ica.c, AT_MQTT_ENABLED AT_MQTT_HAL_ICA)
 $(call Append_Conditional, LIB_SRCS_PATTERN, atm/at_mqtt/mqtt_sim800.c, AT_MQTT_ENABLED AT_MQTT_HAL_SIM800)
-
 $(call Append_Conditional, LIB_SRCS_EXCLUDE, os/ubuntu/HAL_UART_linux.c, , AT_PARSER_ENABLED)

@@ -10,6 +10,7 @@
 
 #include "at_wrapper.h"
 #include "at_parser.h"
+#include "at_api.h"
 
 #define TAG "sim800_gprs_module"
 
@@ -68,18 +69,12 @@
 #define SIM800_RETRY_MAX          50
 
 #ifdef AT_DEBUG_MODE
-#define at_conn_hal_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define at_conn_hal_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define at_conn_hal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #else
-#define at_conn_hal_emerg(...)
-#define at_conn_hal_crit(...)
-#define at_conn_hal_err(...)
-#define at_conn_hal_warning(...)
-#define at_conn_hal_info(...)
+#define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_debug(...)
 #endif
 
@@ -152,6 +147,7 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     int           remoteport = 0;
     int           linkid = 0;
     char          *recvdata = NULL;
+    struct at_conn_input param;
 
     at_read((char *)&uclinkid, 1);
     linkid = uclinkid - '0';
@@ -246,7 +242,14 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     at_read(recvdata, len);
 
     if (g_link[linkid].fd >= 0) {
-        if (at_conn_input(g_link[linkid].fd, recvdata, len, (char *)ipaddr, remoteport)) {
+        param.fd = g_link[linkid].fd;
+        param.data = recvdata;
+        param.datalen = len;
+        param.remote_ip = (char *)ipaddr;
+        param.remote_port = remoteport;
+
+        /* TODO get recv data src ip and port*/
+        if (IOT_ATM_Input(&param) != 0) {
             at_conn_hal_err( " %s socket %d get data len %d fail to post to at_conn, drop it\n",
                  __func__, g_link[linkid].fd, len);
         }

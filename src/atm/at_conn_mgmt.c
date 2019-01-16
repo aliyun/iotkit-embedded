@@ -193,13 +193,35 @@ static int at_conn_fetch(struct at_conn *conn, at_netbuf_t **new_buf)
 }
 
 /****************************public interface*********************/
-int at_conn_input(int s, void *data, size_t len, char remote_ip[16], uint16_t remote_port)
+int at_conn_input(struct at_conn_input *param)
 {
+    int  s = -1;
+    void *data = NULL;
+    size_t len = 0;
+    char *remote_ip = NULL;
+    uint16_t remote_port = 0;
     struct at_conn *conn = NULL;
-    at_netbuf_t    *buf  = NULL;
+    at_netbuf_t *buf  = NULL;
+
+    if (NULL == param) {
+        AT_ERROR("at conn input param NULL\n");
+        return -1;
+    }
+
+    s = param->fd;
+    data = param->data;
+    len = param->datalen;
+    remote_ip = param->remote_ip;
+    remote_port = param->remote_port;
 
     if (NULL == data || 0 == len) {
         AT_ERROR("low level invalid input data\n");
+        return -1;
+    }
+
+    if (remote_ip != NULL &&
+        strlen(remote_ip) > IPV4_STR_MAX_LEN) {
+        AT_ERROR("invalid ip string");
         return -1;
     }
 
