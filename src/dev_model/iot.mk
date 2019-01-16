@@ -4,7 +4,7 @@ HDR_REFS        += src/infra
 HDR_REFS		+= src/mqtt
 HDR_REFS		+= src/dev_sign
 
-DEPENDS         += external_libs/refs wrappers
+DEPENDS         += wrappers
 LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 
 TARGET          := alink-example-solo alink-example-gateway

@@ -94,9 +94,7 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 	rm -f $(STAMP_BLD_VAR); \
 	for i in $(shell echo "$(ALL_SUB_DIRS)"|tr ' ' '\n'|sort -u); do \
 	    if [ "$${VERBOSE}" != "" ]; then \
-	        if [ ! -L $${i} ]; then \
-	            printf "CONFIGURE .............................. [%s]\n" $${i}; \
-	        fi; \
+	        printf "CONFIGURE .............................. [%s]\n" $${i}; \
 	        $(SED) -i "1iCONFIG_$${i} = y" $(CONFIG_TPL); \
 	        if ! grep -q "target-$${i}:" $(STAMP_POST_RULE) 2>/dev/null; then \
 	            echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
