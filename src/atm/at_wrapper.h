@@ -276,17 +276,17 @@ int HAL_AT_CONN_RegInputCb(netconn_data_input_cb_t cb);
 #elif defined(AT_MQTT_ENABLED)
 #include "mqtt_api.h"
 
-typedef int (*recv_cb)(char* topic, char* message);
-int HAL_MDAL_MAL_Init(iotx_mqtt_param_t *pInitParams);
-int HAL_MDAL_MAL_Deinit();
-int HAL_MDAL_MAL_Connect(char *proKey, char *devName, char *devSecret);
-int HAL_MDAL_MAL_Disconnect(void);
-int HAL_MDAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms);
-int HAL_MDAL_MAL_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status);
-int HAL_MDAL_MAL_Publish(const char *topic, int qos, const char *message, unsigned int msg_len);
-int HAL_MDAL_MAL_State(void);
+typedef int (*recv_cb)(char* topic, uint32_t topic_len, char* message, uint32_t message_len);
+int HAL_AT_MQTT_Init(iotx_mqtt_param_t *pInitParams);
+int HAL_AT_MQTT_Deinit();
+int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret);
+int HAL_AT_MQTT_Disconnect(void);
+int HAL_AT_MQTT_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms);
+int HAL_AT_MQTT_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status);
+int HAL_AT_MQTT_Publish(const char *topic, int qos, const char *message, unsigned int msg_len);
+int HAL_AT_MQTT_State(void);
 
-void HAL_MDAL_MAL_RegRecvCb(recv_cb);
+void HAL_AT_MQTT_RegRecvCb(recv_cb);
 #endif
 
 

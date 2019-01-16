@@ -29,7 +29,7 @@ endif
 
 ifneq (,$(filter -DAT_MQTT_ENABLED, $(CFLAGS)))
 ifneq (,$(filter -DAT_MQTT_HAL_ICA, $(CFLAGS)))
-LIB_SRCS_PATTERN += atm/at_mqtt/mdal_ica_at_client.c
+LIB_SRCS_PATTERN += atm/at_mqtt/mqtt_ica.c
 LDFLAGS         += -liot_sdk
 endif
 endif

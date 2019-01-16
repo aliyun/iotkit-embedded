@@ -68,16 +68,16 @@
 #define MQTT_STATE_CONNECTED      2               /* MQTT in connected state */
 #define MQTT_STATE_DISCONNECTED   3               /* MQTT in disconnected state */
 
-#define mdal_err(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define mdal_info(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define mal_err(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define mal_info(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
-    #define MDAL_SIM800_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "mdal.ica")
-    #define MDAL_SIM800_FREE(ptr)               LITE_free(ptr)
+    #define AT_MQTT_SIM800_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "mal.ica")
+    #define AT_MQTT_SIM800_FREE(ptr)               LITE_free(ptr)
 #else
-    #define MDAL_SIM800_MALLOC(size)            HAL_Malloc(size)
-    #define MDAL_SIM800_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+    #define AT_MQTT_SIM800_MALLOC(size)            HAL_Malloc(size)
+    #define AT_MQTT_SIM800_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
 iotx_mqtt_param_t *g_pInitParams = NULL;
@@ -111,54 +111,54 @@ int at_sim800_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int
 int at_sim800_mqtt_client_disconn(void);
 int at_sim800_mqtt_client_conn_retry(void);
 
-int HAL_MDAL_MAL_Init(iotx_mqtt_param_t *pInitParams)
+int HAL_AT_MQTT_Init(iotx_mqtt_param_t *pInitParams)
 {
     g_recv_cb = NULL;
     return at_sim800_mqtt_client_init(pInitParams);
 }
 
-int HAL_MDAL_MAL_Deinit()
+int HAL_AT_MQTT_Deinit()
 {
     g_recv_cb = NULL;
     return at_sim800_mqtt_client_deinit();
 }
 
-int HAL_MDAL_MAL_Connect(char *proKey, char *devName, char *devSecret)
+int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret)
 {
     return at_sim800_mqtt_client_conn(proKey, devName, devSecret, 0);
 }
 
-int HAL_MDAL_MAL_Disconnect(void)
+int HAL_AT_MQTT_Disconnect(void)
 {
     return at_sim800_mqtt_client_disconn();
 }
 
-int HAL_MDAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms)
+int HAL_AT_MQTT_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms)
 {
     return at_sim800_mqtt_client_subscribe(topic, qos, mqtt_packet_id, mqtt_status, timeout_ms);
 }
 
-int HAL_MDAL_MAL_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status)
+int HAL_AT_MQTT_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status)
 {
     return at_sim800_mqtt_client_unsubscribe(topic, mqtt_packet_id, mqtt_status);
 }
 
-int HAL_MDAL_MAL_Publish(const char *topic, int qos, const char *message, unsigned int msg_len)
+int HAL_AT_MQTT_Publish(const char *topic, int qos, const char *message, unsigned int msg_len)
 {
     return at_sim800_mqtt_client_publish(topic, qos, message);
 }
 
-int HAL_MDAL_MAL_State(void)
+int HAL_AT_MQTT_State(void)
 {
     return at_sim800_mqtt_client_state();
 }
 
-void HAL_MDAL_MAL_RegRecvCb(recv_cb cb)
+void HAL_AT_MQTT_RegRecvCb(recv_cb cb)
 {
     g_recv_cb = cb;
 }
 
-int HAL_MDAL_MAL_Connectwifi(char *at_conn_wifi)
+int HAL_AT_MQTT_Connectwifi(char *at_conn_wifi)
 {
     return -1;
 }
@@ -240,7 +240,7 @@ static void sub_callback(char *at_rsp)
             if (temp != NULL) {
                 temp            = strtok(NULL, ",");
             } else {
-                mdal_err("subscribe rsp param invalid 1");
+                mal_err("subscribe rsp param invalid 1");
                 g_at_response_result = -1;
 
 #ifdef PLATFORM_HAS_OS
@@ -256,7 +256,7 @@ static void sub_callback(char *at_rsp)
 
                 temp            = strtok(NULL, "\r\n");
             } else {
-                mdal_err("subscribe rsp param invalid 2");
+                mal_err("subscribe rsp param invalid 2");
                 g_at_response_result = -1;
 
 #ifdef PLATFORM_HAS_OS
@@ -270,7 +270,7 @@ static void sub_callback(char *at_rsp)
             if (temp != NULL) {
                 g_response_status = strtol(temp, NULL, 0);
             } else {
-                mdal_err("subscribe rsp param invalid 3");
+                mal_err("subscribe rsp param invalid 3");
                 g_at_response_result = -1;
 
 #ifdef PLATFORM_HAS_OS
@@ -317,7 +317,7 @@ static void unsub_callback(char *at_rsp)
             if (temp != NULL) {
                 temp            = strtok(NULL, ",");
             } else {
-                mdal_err("subscribe rsp param invalid 1");
+                mal_err("subscribe rsp param invalid 1");
 
                 return;
             }
@@ -327,7 +327,7 @@ static void unsub_callback(char *at_rsp)
 
                 temp            = strtok(NULL, "\r\n");
             } else {
-                mdal_err("subscribe rsp param invalid 2");
+                mal_err("subscribe rsp param invalid 2");
 
                 return;
             }
@@ -335,13 +335,13 @@ static void unsub_callback(char *at_rsp)
             if (temp != NULL) {
                 g_response_status = strtol(temp, NULL, 0);
             } else {
-                mdal_err("subscribe rsp param invalid 3");
+                mal_err("subscribe rsp param invalid 3");
 
                 return;
             }
 
-            mdal_err("unsub: %s", g_sim800_rsp_buff);
-            mdal_err("unsub packetid: %d, sta: %d", g_response_packetid, g_response_status);
+            mal_err("unsub: %s", g_sim800_rsp_buff);
+            mal_err("unsub packetid: %d, sta: %d", g_response_packetid, g_response_status);
 
 #ifdef PLATFORM_HAS_OS
             /* notify the sender ok; */
@@ -383,7 +383,7 @@ static void pub_callback(char *at_rsp)
                     temp    = strtok(NULL, ",");
                 }
             } else {
-                mdal_err("public get packetid error");
+                mal_err("public get packetid error");
 
                 return;
             }
@@ -391,7 +391,7 @@ static void pub_callback(char *at_rsp)
             if (temp != NULL) {
                 g_response_packetid = strtol(temp, NULL, 0);
             } else {
-                mdal_err("public parse packetid error");
+                mal_err("public parse packetid error");
 
                 return;
             }
@@ -402,7 +402,7 @@ static void pub_callback(char *at_rsp)
                 if (temp != NULL) {
                     g_response_status = strtol(temp, NULL, 0);
                 } else {
-                    mdal_err("public parse status error");
+                    mal_err("public parse status error");
 
                     return;
                 }
@@ -477,12 +477,12 @@ static void recv_data_callback(char *at_rsp)
         if (temp != NULL) {
             /* packet_id = strtol(temp, NULL, 0); */
         } else {
-            mdal_err("packet id error");
+            mal_err("packet id error");
 
             return;
         }
     } else {
-        mdal_err("packet id not found");
+        mal_err("packet id not found");
 
         return;
     }
@@ -495,7 +495,7 @@ static void recv_data_callback(char *at_rsp)
 
         topic_ptr = temp;
     } else {
-        mdal_err("publish topic not found");
+        mal_err("publish topic not found");
 
         return;
     }
@@ -512,11 +512,11 @@ static void recv_data_callback(char *at_rsp)
 
         msg_ptr[msg_len] = '\0';
 
-        g_recv_cb(topic_ptr, msg_ptr);
+        g_recv_cb(topic_ptr, strlen(topic_ptr), msg_ptr, strlen(msg_ptr));
 
         return;
     } else {
-        mdal_err("publish data not found");
+        mal_err("publish data not found");
 
         return;
     }
@@ -526,23 +526,23 @@ static void recv_data_callback(char *at_rsp)
 static void at_sim800_mqtt_client_rsp_callback(void *arg, char *rspinfo, int rsplen)
 {
     if (NULL == rspinfo || rsplen == 0) {
-        mdal_err("invalid input of rsp callback");
+        mal_err("invalid input of rsp callback");
         return;
     }
     if (NULL == g_sim800_rsp_buff) {
-        mdal_err("g_sim800_rsp_buff rsp is NULL");
+        mal_err("g_sim800_rsp_buff rsp is NULL");
         return;
     }
 
     if (rsplen > AT_MQTT_RSP_MAX_LEN) {
-        mdal_err("rsp len(%d) exceed max len", rsplen);
+        mal_err("rsp len(%d) exceed max len", rsplen);
         return;
     }
 
     memcpy(g_sim800_rsp_buff, rspinfo, rsplen);
     g_sim800_rsp_buff[rsplen] = '\0';
 
-    mdal_err("rsp_buff=%s", g_sim800_rsp_buff);
+    mal_err("rsp_buff=%s", g_sim800_rsp_buff);
 
     if (0 == memcmp(g_sim800_rsp_buff,
                     AT_SIM800_MQTT_MQTTERROR,
@@ -575,7 +575,7 @@ static void at_sim800_mqtt_client_rsp_callback(void *arg, char *rspinfo, int rsp
                     at_succ_callback();
                 } else {
 
-                    mdal_err("invalid success type %s", g_sim800_rsp_buff);
+                    mal_err("invalid success type %s", g_sim800_rsp_buff);
                 }
 
                 break;
@@ -628,7 +628,7 @@ int at_sim800_mqtt_client_disconn(void)
 
     /* disconnect from server */
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
-        mdal_err("disconnect at command fail");
+        mal_err("disconnect at command fail");
 
         return -1;
     }
@@ -642,7 +642,7 @@ int at_sim800_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int
 
     if ((proKey == NULL) || (devName == NULL) || (devSecret == NULL)) {
 
-        mdal_err("auth param should not be NULL");
+        mal_err("auth param should not be NULL");
 
         return -1;
     }
@@ -660,7 +660,7 @@ int at_sim800_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int
 
         if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-            mdal_err("tls at command fail");
+            mal_err("tls at command fail");
 
             return -1;
         }
@@ -676,14 +676,14 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if ((proKey == NULL) || (devName == NULL) || (devSecret == NULL)) {
 
-        mdal_err("conn param should not be NULL");
+        mal_err("conn param should not be NULL");
 
         return -1;
     }
 
     if (0 != at_sim800_mqtt_client_auth(proKey, devName, devSecret, tlsEnable)) {
 
-        mdal_err("authen fail");
+        mal_err("authen fail");
 
         return -1;
     }
@@ -698,7 +698,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("conn at command fail");
+        mal_err("conn at command fail");
 
         return -1;
     }
@@ -715,7 +715,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("conn at command fail");
+        mal_err("conn at command fail");
 
         return -1;
     }
@@ -732,7 +732,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("conn at command fail");
+        mal_err("conn at command fail");
 
         return -1;
     }
@@ -748,7 +748,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("conn at command fail");
+        mal_err("conn at command fail");
 
         return -1;
     }
@@ -766,7 +766,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("conn at command fail");
+        mal_err("conn at command fail");
 
         return -1;
     }
@@ -783,7 +783,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("conn at command fail");
+        mal_err("conn at command fail");
 
         return -1;
     }
@@ -800,7 +800,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("set username at command fail");
+        mal_err("set username at command fail");
 
         return -1;
     }
@@ -817,7 +817,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("set password at command fail");
+        mal_err("set password at command fail");
 
         return -1;
     }
@@ -834,7 +834,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("set clientid at command fail");
+        mal_err("set clientid at command fail");
 
         return -1;
     }
@@ -853,13 +853,13 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
         if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-            mdal_err("conn at command fail");
+            mal_err("conn at command fail");
 
             return -1;
         }
 
         retry ++;
-        mdal_info("try to connect mqtt server %d times", retry);
+        mal_info("try to connect mqtt server %d times", retry);
         
         HAL_SleepMs(500);
 
@@ -868,7 +868,7 @@ int at_sim800_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int
 
     if(retry == SIM800_RETRY_MAX)
     {
-       mdal_err("conn at command retry %d times failed", retry);
+       mal_err("conn at command retry %d times failed", retry);
        return -1;
     }
 
@@ -889,7 +889,7 @@ int at_sim800_mqtt_client_conn_retry()
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("conn at command fail");
+        mal_err("conn at command fail");
 
         return -1;
     }
@@ -909,7 +909,7 @@ int at_sim800_mqtt_client_subscribe(const char *topic,
 
     if ((topic == NULL) || (mqtt_packet_id == NULL) || (mqtt_status == NULL)) {
 
-        mdal_err("subscribe param should not be NULL");
+        mal_err("subscribe param should not be NULL");
 
         return -1;
     }
@@ -924,7 +924,7 @@ int at_sim800_mqtt_client_subscribe(const char *topic,
                  qos);
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, timeout_ms)) {
-        mdal_err("sub at command fail");
+        mal_err("sub at command fail");
 
         return -1;
     }
@@ -939,7 +939,7 @@ int at_sim800_mqtt_client_unsubscribe(const char *topic,
     char    at_cmd[AT_MQTT_CMD_MIN_LEN];
     if ((topic == NULL) || (mqtt_packet_id == NULL) || (mqtt_status == NULL)) {
 
-        mdal_err("unsubscribe param should not be NULL");
+        mal_err("unsubscribe param should not be NULL");
 
         return -1;
     }
@@ -954,7 +954,7 @@ int at_sim800_mqtt_client_unsubscribe(const char *topic,
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("unsub at command fail");
+        mal_err("unsub at command fail");
 
         return -1;
     }
@@ -969,7 +969,7 @@ int at_sim800_mqtt_client_publish(const char *topic, int qos, const char *messag
     char   *temp;
     if ((topic == NULL) || (message == NULL)) {
 
-        mdal_err("publish param should not be NULL");
+        mal_err("publish param should not be NULL");
 
         return -1;
     }
@@ -997,7 +997,7 @@ int at_sim800_mqtt_client_publish(const char *topic, int qos, const char *messag
     g_public_qos = qos;
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("pub at command fail");
+        mal_err("pub at command fail");
 
         return -1;
     }
@@ -1017,7 +1017,7 @@ int at_sim800_mqtt_client_state(void)
 
     if (0 != at_sim800_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
-        mdal_err("state at command fail");
+        mal_err("state at command fail");
 
         return -1;
     }
@@ -1049,7 +1049,7 @@ static int sim800_gprs_status_check(void)
                 return -1;
             }
 
-            mdal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
+            mal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
         } else {
             break;
         }
@@ -1060,20 +1060,20 @@ static int sim800_gprs_status_check(void)
     at_send_wait_reply(AT_CMD_SIGNAL_QUALITY_CHECK, strlen(AT_CMD_SIGNAL_QUALITY_CHECK), true,
                        NULL, 0, rsp, AT_MQTT_RSP_MAX_LEN, NULL);
     if (strstr(rsp, AT_SIM800_MQTT_MQTTOK) == NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-    mdal_info( "signal quality is %s \r\n", rsp);
+    mal_info( "signal quality is %s \r\n", rsp);
 
     memset(rsp, 0, sizeof(rsp));
     /*network registration check*/
     at_send_wait_reply(AT_CMD_NETWORK_REG_CHECK, strlen(AT_CMD_NETWORK_REG_CHECK), true,
                        NULL, 0, rsp, AT_MQTT_RSP_MAX_LEN, NULL);
     if (strstr(rsp, AT_SIM800_MQTT_MQTTOK) == NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-    mdal_info( "network registration is %s \r\n", rsp);
+    mal_info( "network registration is %s \r\n", rsp);
 
 
     memset(rsp, 0, sizeof(rsp));
@@ -1081,10 +1081,10 @@ static int sim800_gprs_status_check(void)
     at_send_wait_reply(AT_CMD_GPRS_ATTACH_CHECK, strlen(AT_CMD_GPRS_ATTACH_CHECK),true,
                        NULL, 0, rsp, AT_MQTT_RSP_MAX_LEN, NULL);
     if (strstr(rsp, AT_SIM800_MQTT_MQTTOK) == NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-    mdal_info( "gprs attach check %s \r\n", rsp);
+    mal_info( "gprs attach check %s \r\n", rsp);
 
     return 0;
 }
@@ -1107,7 +1107,7 @@ static int sim800_gprs_ip_init(void)
                 return -1;
             }
 
-            mdal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
+            mal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
         } else {
             break;
         }
@@ -1119,7 +1119,7 @@ static int sim800_gprs_ip_init(void)
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0,
                        rsp, AT_MQTT_RSP_MAX_LEN, NULL);
     if (strstr(rsp, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
 
@@ -1130,7 +1130,7 @@ static int sim800_gprs_ip_init(void)
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, 
                        rsp, AT_MQTT_RSP_MAX_LEN, NULL);
     if (strstr(rsp, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
    
@@ -1140,7 +1140,7 @@ static int sim800_gprs_ip_init(void)
     HAL_Snprintf(cmd, sizeof(cmd) - 1, "%s=%d", AT_CMD_RECV_DATA_FORMAT_SET, 1);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, AT_MQTT_RSP_MAX_LEN, NULL);
     if (strstr(rsp, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
 
@@ -1164,7 +1164,7 @@ static int sim800_gprs_got_ip(void)
             if (retry > SIM800_RETRY_MAX) {
                 return -1;
             }
-            mdal_err( "cmd %s rsp %s retry %d at %s %d fail \r\n", AT_CMD_START_TASK,
+            mal_err( "cmd %s rsp %s retry %d at %s %d fail \r\n", AT_CMD_START_TASK,
                         rsp, retry, __func__, __LINE__);
         } else {
             break;
@@ -1176,7 +1176,7 @@ static int sim800_gprs_got_ip(void)
     at_send_wait_reply(AT_CMD_BRING_UP_GPRS_CONNECT, strlen(AT_CMD_BRING_UP_GPRS_CONNECT), true,
                        NULL, 0, rsp, AT_MQTT_RSP_MAX_LEN, NULL);
     if (strstr(rsp, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
     }
 
     /*try to got ip*/
@@ -1185,7 +1185,7 @@ static int sim800_gprs_got_ip(void)
     at_send_wait_reply(AT_CMD_GOT_LOCAL_IP, strlen(AT_CMD_GOT_LOCAL_IP), true, NULL, 0,
                        rsp, AT_MQTT_RSP_MAX_LEN, &atcmd_config);
     if (strstr(rsp, AT_MQTT_CMD_ERROR_RSP) != NULL) {
-        mdal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
     }
 
     return 0;
@@ -1195,19 +1195,19 @@ int at_sim800_mqtt_client_init(iotx_mqtt_param_t * pInitParams)
 {
     int ret;
 #ifdef PLATFORM_HAS_OS
-    g_sim800_rsp_buff = MDAL_SIM800_MALLOC(AT_MQTT_RSP_MAX_LEN);
+    g_sim800_rsp_buff = AT_MQTT_SIM800_MALLOC(AT_MQTT_RSP_MAX_LEN);
     if (NULL == g_sim800_rsp_buff) {
-        mdal_err("at sim800 mqtt client malloc buff failed");
+        mal_err("at sim800 mqtt client malloc buff failed");
         return -1;
     }
 
     if (NULL == (g_sem_response = HAL_SemaphoreCreate())) {
         if (NULL != g_sim800_rsp_buff) {
-            MDAL_SIM800_FREE(g_sim800_rsp_buff);
+            AT_MQTT_SIM800_FREE(g_sim800_rsp_buff);
 
             g_sim800_rsp_buff = NULL;
         }
-        mdal_err("at sim800 mqtt client create sem failed");
+        mal_err("at sim800 mqtt client create sem failed");
 
         return -1;
     }
@@ -1240,17 +1240,17 @@ int at_sim800_mqtt_client_init(iotx_mqtt_param_t * pInitParams)
 
     ret = sim800_gprs_ip_init();
     if (ret) {
-        mdal_err( "%s %d failed \r\n", __func__, __LINE__);
+        mal_err( "%s %d failed \r\n", __func__, __LINE__);
     }
 
     ret = sim800_gprs_status_check();
     if (ret) {
-        mdal_err( "%s %d failed \r\n", __func__, __LINE__);
+        mal_err( "%s %d failed \r\n", __func__, __LINE__);
     }
 
     ret = sim800_gprs_got_ip();
     if (ret) {
-        mdal_err( "%s %d failed \r\n", __func__, __LINE__);
+        mal_err( "%s %d failed \r\n", __func__, __LINE__);
     }    
 
     return 0;
@@ -1260,7 +1260,7 @@ int at_sim800_mqtt_client_deinit(void)
 {
 #ifdef PLATFORM_HAS_OS
     if (NULL != g_sim800_rsp_buff) {
-        MDAL_SIM800_FREE(g_sim800_rsp_buff);
+        AT_MQTT_SIM800_FREE(g_sim800_rsp_buff);
         g_sim800_rsp_buff = NULL;
     }
     HAL_SemaphoreDestroy(g_sem_response);
@@ -1284,12 +1284,12 @@ int at_sim800_mqtt_atsend(char *at_cmd, int timeout_ms)
     /* state error */
     if (g_sim800_at_response != AT_MQTT_IDLE) {
 
-        mdal_err("at send state is not idle (%d)", g_sim800_at_response);
+        mal_err("at send state is not idle (%d)", g_sim800_at_response);
 
         return -1;
     }
 
-    mdal_err("send: %s", at_cmd);
+    mal_err("send: %s", at_cmd);
 #if 0
     if (NULL != strstr(at_cmd, AT_SIM800_MQTT_MQTTAUTH)) {
         g_sim800_at_response = AT_MQTT_AUTH;
@@ -1307,7 +1307,7 @@ int at_sim800_mqtt_atsend(char *at_cmd, int timeout_ms)
 
     if (0 != at_send_no_reply(at_cmd, strlen(at_cmd), false)) {
 
-        mdal_err("at send raw api fail");
+        mal_err("at send raw api fail");
 
         g_sim800_at_response = AT_MQTT_IDLE;
 
