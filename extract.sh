@@ -1,8 +1,5 @@
 #! /bin/bash
 
-OLD_IFS=$IFS
-IFS=$'\n'
-
 OUTPUT_DIR=output
 INFRA_DIR=${OUTPUT_DIR}/eng/infra
 WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
@@ -58,7 +55,7 @@ cond_not_check()
 }
 
 # Read xtrc_file_rules
-for rule in $(cat ${XTRC_FILE_RULS})
+while read rule
 do
     TEST=$(echo $rule | awk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
@@ -85,19 +82,17 @@ do
     # echo "${SRC_DIR}"
     # echo "${DEST_DIR}"
 
-    IFS=$OLD_IFS
     if [ "${DEST_DIR}" != "" ];then
         mkdir -p ${DEST_DIR} && find ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
     fi
-    IFS=$'\n'
-done
+done < ${XTRC_FILE_RULS}
 
 # Generate wrapper.c
 mkdir -p ${WRAPPERS_DIR}
 cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
 # Read xtrc_wrapper_rules
-for rule in $(cat ${XTRC_WRAPPER_RULS})
+while read rule
 do
     TEST=$(echo $rule | awk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
@@ -127,7 +122,7 @@ do
     if [ "${HEADER_FILE}" != "" ];then
         HEADER_FILE_LIST="${HEADER_FILE_LIST}""${HEADER_FILE}\n"
     fi
-done
+done < ${XTRC_WRAPPER_RULS}
 
 FUNC_NAME_LIST=$(echo -e "${FUNC_NAME_LIST}" | sed -n '/^$/!{p}' | sort -u)
 HEADER_FILE_LIST=$(echo -e "${HEADER_FILE_LIST}" | sed -n '/^$/!{p}' | sort -u)
