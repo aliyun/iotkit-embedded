@@ -117,6 +117,19 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     HAL_Printf("msg->event_type : %d\n", msg->event_type);
 }
 
+/*
+ *  NOTE: About demo topic of /${productKey}/${deviceName}/get
+ *
+ *  The demo device has been configured in IoT console (https://iot.console.aliyun.com)
+ *  so that its /${productKey}/${deviceName}/get can both be subscribed and published
+ *
+ *  We design this to completely demostrate publish & subscribe process, in this way
+ *  MQTT client can receive original packet sent by itself
+ *
+ *  For new devices created by yourself, pub/sub privilege also required to be granted
+ *  to its /${productKey}/${deviceName}/get to run whole example
+ */
+
 int main(int argc, char *argv[])
 {
     void *      pclient = NULL;
