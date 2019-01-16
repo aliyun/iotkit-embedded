@@ -1,3 +1,7 @@
+ifeq (1,$(words $(TARGET)))
+SRCS := $(SRCS_$(TARGET))
+endif
+
 VPATH   := $(TOP_DIR)/$(MODULE_NAME)
 SRCS    ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$(M))) $(wildcard *.c)
 OBJS    := $(SRCS:.c=.o)

@@ -1,7 +1,7 @@
 define Append_Conditional
 $(if $(strip $(foreach V,$(4),$(filter -D$(V),$(CFLAGS)))),, \
     $(if \
-        $(findstring $(foreach U,$(3),-D$(U)),$(foreach U,$(3),$(filter -D$(U),$(CFLAGS)))), \
+        $(if $(strip $(3)),,x)$(findstring $(foreach U,$(3),-D$(U)),$(foreach U,$(3),$(filter -D$(U),$(CFLAGS)))), \
             $(eval $(strip $(1)) += $(2)) \
     ) \
 )
