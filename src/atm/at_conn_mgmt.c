@@ -192,7 +192,8 @@ static int at_conn_fetch(struct at_conn *conn, at_netbuf_t **new_buf)
     return 0;
 }
 
-static int at_conn_input(int s, void *data, size_t len, char remote_ip[16], uint16_t remote_port)
+/****************************public interface*********************/
+int at_conn_input(int s, void *data, size_t len, char remote_ip[16], uint16_t remote_port)
 {
     struct at_conn *conn = NULL;
     at_netbuf_t    *buf  = NULL;
@@ -244,12 +245,10 @@ static int at_conn_input(int s, void *data, size_t len, char remote_ip[16], uint
         AT_ERROR("try post recv packet fail\n");
         return -1;
     }
-    printf("after post \n");
 
     return 0;
  }
 
-/****************************public interface*********************/
 int at_conn_init(void)
 {
     static int at_conn_init_done = 0;
@@ -267,12 +266,6 @@ int at_conn_init(void)
     g_atconnmutex = HAL_MutexCreate();
     if (g_atconnmutex == NULL) {
         AT_ERROR("failed to creat g_atconnmutex \n");
-        return -1;
-    }
-
-    if (HAL_AT_CONN_RegInputCb(&at_conn_input) != 0) {
-        AT_ERROR("failed to reg at conn input cb\n");
-        HAL_MutexDestroy(g_atconnmutex);
         return -1;
     }
 

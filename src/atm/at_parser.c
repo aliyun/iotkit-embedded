@@ -931,7 +931,6 @@ static void* at_worker(void *arg)
     check_buffer:
         /* in case buffer is full */
         if (offset > (RECV_BUFFER_SIZE - 2)) {
-            printf("buffer full \r\n");
             memcpy_size = rsp_prefix_len > rsp_success_postfix_len
                             ? rsp_prefix_len
                             : rsp_success_postfix_len;
