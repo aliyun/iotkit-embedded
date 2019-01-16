@@ -1,6 +1,0 @@
-https://sourceforge.net/projects/win-bash/files/shell-complete/1.1/shell.w32-ix86.zip/download
-
-win-bash is a Windows port of the famous GNU bash (see GNU Bash homepage).
-
-Unlike other bash ports for Windows (e.g. the cygwin bash ), the win-bash needs no special environment or DLLs. There is just one binary and that's it.
-
