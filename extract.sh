@@ -82,7 +82,7 @@ do
     # echo "${SRC_DIR}"
     # echo "${DEST_DIR}"
 
-    if [ ${DEST_DIR} ];then
+    if [ "${DEST_DIR}" != "" ];then
         mkdir -p ${DEST_DIR} && find ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
     fi
 done
@@ -116,10 +116,10 @@ do
         continue
     fi
 
-    if [ ${FUNC_NAME} ];then
+    if [ "${FUNC_NAME}" != "" ];then
         FUNC_NAME_LIST="${FUNC_NAME_LIST}""${FUNC_NAME}\n"
     fi
-    if [ ${HEADER_FILE} ];then
+    if [ "${HEADER_FILE}" != "" ];then
         HEADER_FILE_LIST="${HEADER_FILE_LIST}""${HEADER_FILE}\n"
     fi
 done
