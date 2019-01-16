@@ -141,10 +141,10 @@ if [ "${FUNC_NAME_LIST}" != "" ];then
 fi
 
 if [ "${HEADER_FILE_LIST}" != "" ];then
-    echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }' && echo ""
+    echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }'
 fi
 
-echo -e "Generate wrapper.c\c"
+echo -e "\nGenerate wrapper.c\c"
 # Annotation For wrapper.c
 sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
 
@@ -179,4 +179,4 @@ do
     fi
 done
 
-echo -e ""
+echo -e "\n"
