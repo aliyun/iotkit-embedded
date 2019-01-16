@@ -10,7 +10,7 @@
 #include "at_wrapper.h"
 #include "at_parser.h"
 
-#define TAG "sal_wifi"
+#define TAG "at_mk3060_wifi"
 
 #define CMD_FAIL_RSP "ERROR"
 
@@ -28,15 +28,15 @@
 #define STOP_AUTOCONN_CMD_LEN (sizeof(STOP_AUTOCONN_CMD)+1+1+5+1)
 
 #ifdef AT_DEBUG_MODE
-#define sal_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define sal_hal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define sal_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define sal_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define at_conn_hal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define at_conn_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #else
-#define sal_hal_err(...)           
-#define sal_hal_warning(...)           
-#define sal_hal_info(...)           
-#define sal_hal_debug(...)
+#define at_conn_hal_err(...)
+#define at_conn_hal_warning(...)
+#define at_conn_hal_info(...)
+#define at_conn_hal_debug(...)
 #endif
 
 typedef int (*at_data_check_cb_t)(char data);
@@ -55,7 +55,6 @@ typedef struct link_s {
 
 static link_t g_link[LINK_ID_MAX];
 static void* g_link_mutex;
-static netconn_data_input_cb_t g_netconn_data_input_cb;
 
 static char localipaddr[16];
 
@@ -109,7 +108,7 @@ static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
 
         t_left = _time_left(t_end, _get_time_ms());
         if (0 == t_left) {
-            sal_hal_err("wifi connect timeout!\n");
+            at_conn_hal_err("wifi connect timeout!\n");
             return -1;
         }
 
@@ -124,24 +123,24 @@ static void handle_tcp_udp_client_conn_state(uint8_t link_id)
 
     at_read(s, 6);
     if (strstr(s, "CLOSED") != NULL) {
-        sal_hal_info("Server closed event.");
+        at_conn_hal_info("Server closed event.");
         if (g_link[link_id].sem_close) {
-            sal_hal_debug(TAG, "sem is going to be waked up: 0x%x", &g_link[link_id].sem_close);
+            at_conn_hal_debug(TAG, "sem is going to be waked up: 0x%x", &g_link[link_id].sem_close);
             HAL_SemaphorePost(g_link[link_id].sem_close); /* wakeup send task */
         }
-        sal_hal_info("Server conn (%d) closed.", link_id);
+        at_conn_hal_info("Server conn (%d) closed.", link_id);
     } else if (strstr(s, "CONNEC") != NULL) {
-        sal_hal_info("Server conn (%d) successful.", link_id);
+        at_conn_hal_info("Server conn (%d) successful.", link_id);
         at_read(s, 3);
         if (g_link[link_id].sem_start) {
-            sal_hal_debug("sem is going to be waked up: 0x%x", &g_link[link_id].sem_start);
+            at_conn_hal_debug("sem is going to be waked up: 0x%x", &g_link[link_id].sem_start);
             HAL_SemaphorePost(g_link[link_id].sem_start); /*  wakeup send task */
         }
     } else if (strstr(s, "DISCON") != NULL) {
-        sal_hal_info("Server conn (%d) disconnected.", link_id);
+        at_conn_hal_info("Server conn (%d) disconnected.", link_id);
         at_read(s, 6);
     } else {
-        sal_hal_warning("No one handle this unkown event!!!");
+        at_conn_hal_warning("No one handle this unkown event!!!");
     }
 }
 
@@ -168,12 +167,12 @@ static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t v
             break;
         }
         if (i >= buflen) {
-            sal_hal_err("Too long length of data.reader is %s \r\n", buf);
+            at_conn_hal_err("Too long length of data.reader is %s \r\n", buf);
             return -1;
         }
         if (NULL != valuecheck) {
             if (valuecheck(buf[i])) {
-                sal_hal_err("Invalid string!!!, reader is %s \r\n", buf);
+                at_conn_hal_err("Invalid string!!!, reader is %s \r\n", buf);
                 return -1;
             }
         }
@@ -195,7 +194,7 @@ static void handle_socket_data()
     /* Eat the "OCKET," */
     at_read(reader, 6);
     if (memcmp(reader, "OCKET,", strlen("OCKET,")) != 0) {
-        sal_hal_err("0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x invalid event format!!!\r\n",
+        at_conn_hal_err("0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x invalid event format!!!\r\n",
              reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
         return;
     }
@@ -203,7 +202,7 @@ static void handle_socket_data()
     memset(reader, 0, sizeof(reader));
     ret = socket_data_info_get(reader, 1, &socket_data_len_check);
     if (ret) {
-        sal_hal_err("Invalid link id 0x%02x !!!\r\n", reader[0]);
+        at_conn_hal_err("Invalid link id 0x%02x !!!\r\n", reader[0]);
         return;
     }
     link_id = reader[0] - '0';
@@ -212,44 +211,44 @@ static void handle_socket_data()
     /* len */
     ret = socket_data_info_get(reader, sizeof(reader), &socket_data_len_check);
     if (ret) {
-        sal_hal_err("Invalid datalen %s !!!\r\n", reader);
+        at_conn_hal_err("Invalid datalen %s !!!\r\n", reader);
         return;
     }
 
     len = atoi(reader);
     if (len > MAX_DATA_LEN) {
-        sal_hal_err("invalid input socket data len %d \r\n", len);
+        at_conn_hal_err("invalid input socket data len %d \r\n", len);
         return;
     }
     /* Prepare socket data */
     recvdata = (char *)HAL_Malloc(len);
     if (!recvdata) {
-        sal_hal_err("Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
+        at_conn_hal_err("Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
         return;
     }
 
     ret = at_read(recvdata, len);
     if (ret != len) {
-        sal_hal_err("at read error recv %d want %d!\n", ret, len);
+        at_conn_hal_err("at read error recv %d want %d!\n", ret, len);
         goto err;
     }
 
     memset(reader, 0, sizeof(reader));
     at_read(reader, 2);
     if (strncmp(reader, AT_RECV_PREFIX, 2) != 0) {
-        sal_hal_err("at fail to read delimiter %s after data %s!\n", AT_RECV_PREFIX, reader);
+        at_conn_hal_err("at fail to read delimiter %s after data %s!\n", AT_RECV_PREFIX, reader);
         goto err;
     }
 
-    if (g_netconn_data_input_cb && (g_link[link_id].fd >= 0)) {
+    if (g_link[link_id].fd >= 0) {
         /* TODO get recv data src ip and port*/
-        if (g_netconn_data_input_cb(g_link[link_id].fd, recvdata, len, NULL, 0)) {
-            sal_hal_err(" %s socket %d get data len %d fail to post to sal, drop it\n",
+        if (at_conn_input(g_link[link_id].fd, recvdata, len, NULL, 0)) {
+            at_conn_hal_err(" %s socket %d get data len %d fail to post to at_conn, drop it\n",
                  __func__, g_link[link_id].fd, len);
         }
     }
 
-    sal_hal_debug("%s socket data on link %d with length %d posted to sal\n",
+    at_conn_hal_debug("%s socket data on link %d with length %d posted to at_conn\n",
          __func__, link_id, len);
 
 err:
@@ -277,7 +276,7 @@ static void mk3060wifi_event_handler(void *arg, char *buf, int buflen)
             /*eat WN*/
             at_read(eventotal, 2);
         } else {
-            sal_hal_err("!!!Error: wrong WEVENT AP string received. %s\r\n", eventotal);
+            at_conn_hal_err("!!!Error: wrong WEVENT AP string received. %s\r\n", eventotal);
             return;
         }
     } else if (strcmp(eventhead, "STA") == 0) {
@@ -290,11 +289,11 @@ static void mk3060wifi_event_handler(void *arg, char *buf, int buflen)
             memset(localipaddr, 0, sizeof(localipaddr));
             gotip = 0;
         } else {
-            sal_hal_err("!!!Error: wrong WEVENT STATION string received. %s\r\n", eventotal);
+            at_conn_hal_err("!!!Error: wrong WEVENT STATION string received. %s\r\n", eventotal);
             return;
         }
     } else {
-        sal_hal_err("!!!Error: wrong WEVENT string received. %s\r\n", eventhead);
+        at_conn_hal_err("!!!Error: wrong WEVENT string received. %s\r\n", eventhead);
         return;
     }
 
@@ -323,42 +322,42 @@ static void net_event_handler(void *arg, char *buf, int buflen)
         int link_id = c - '0';
         at_read(&c, 1);
         if (c != ',') {
-            sal_hal_err("!!!Error: wrong CIPEVENT string. 0x%02x\r\n", c);
+            at_conn_hal_err("!!!Error: wrong CIPEVENT string. 0x%02x\r\n", c);
             return;
         }
         at_read(&c, 1);
         if (c == 'S') {
-            sal_hal_debug("%s server conn state event, linkid: %d.", __func__, link_id);
+            at_conn_hal_debug("%s server conn state event, linkid: %d.", __func__, link_id);
             /* Eat the "ERVER," */
             at_read(s, 6);
             if (memcmp(s, "ERVER,", strlen("ERVER,")) != 0) {
-                sal_hal_err("invalid event format 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
+                at_conn_hal_err("invalid event format 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
                      s[0], s[1], s[2], s[3], s[4], s[5]);
                 return;
             }
             handle_tcp_udp_client_conn_state(link_id);
         } else if (c == 'U') {
-            sal_hal_debug("%s UDP conn state event.", __func__);
+            at_conn_hal_debug("%s UDP conn state event.", __func__);
             /* Eat the "DP," */
             at_read(s, 3);
             if (memcmp(s, "DP,", strlen("DP,")) != 0) {
-                sal_hal_err("%s invalid event format 0x%02x 0x%02x 0x%02x \r\n", __FUNCTION__, s[0], s[1], s[2]);
+                at_conn_hal_err("%s invalid event format 0x%02x 0x%02x 0x%02x \r\n", __FUNCTION__, s[0], s[1], s[2]);
                 return;
             }
             handle_tcp_udp_client_conn_state(link_id);
         } else {
-            sal_hal_err( "!!!Error: wrong CIPEVENT string 0x%02x at line %d\r\n", c, __LINE__);
+            at_conn_hal_err( "!!!Error: wrong CIPEVENT string 0x%02x at line %d\r\n", c, __LINE__);
             return ;
         }
     } else if (c == 'S') {
-        sal_hal_debug("%s socket data event.", __func__);
+        at_conn_hal_debug("%s socket data event.", __func__);
         handle_socket_data();
     } else {
-        sal_hal_err("!!!Error: wrong CIPEVENT string received. 0x%02x\r\n", c);
+        at_conn_hal_err("!!!Error: wrong CIPEVENT string received. 0x%02x\r\n", c);
         return;
     }
 
-    sal_hal_debug("%s exit.", __func__);
+    at_conn_hal_debug("%s exit.", __func__);
 }
 
 static void mk3060_uart_echo_off()
@@ -368,9 +367,9 @@ static void mk3060_uart_echo_off()
 
     at_send_wait_reply(at_echo_str, strlen(AT_CMD_EHCO_OFF), true,
                        NULL, 0, out, sizeof(out), NULL);
-    sal_hal_debug("The AT response is: %s", out);
+    at_conn_hal_debug("The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
-        sal_hal_err("%s %d failed", __func__, __LINE__);
+        at_conn_hal_err("%s %d failed", __func__, __LINE__);
     }
 
     return;
@@ -387,12 +386,12 @@ int HAL_AT_CONN_Init(void)
     char out[64] = {0};
 
     if (inited) {
-        sal_hal_warning("sal component is already initialized");
+        at_conn_hal_warning("at_conn component is already initialized");
         return 0;
     }
 
     if (NULL == (g_link_mutex = HAL_MutexCreate())) {
-        sal_hal_err("Creating link mutex failed (%s %d).", __func__, __LINE__);
+        at_conn_hal_err("Creating link mutex failed (%s %d).", __func__, __LINE__);
         return -1;
     }
 
@@ -403,26 +402,26 @@ int HAL_AT_CONN_Init(void)
         g_link[link].fd = -1;
         /*close all link */
         HAL_Snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
-        sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+        at_conn_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
         at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
                            sizeof(out), NULL);
-        sal_hal_debug("The AT response is: %s", out);
+        at_conn_hal_debug("The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
-            sal_hal_debug("%s %d failed", __func__, __LINE__);
+            at_conn_hal_debug("%s %d failed", __func__, __LINE__);
         }
 
         memset(cmd, 0, sizeof(cmd));
 
         /*close all link auto reconnect */
         HAL_Snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
-        sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+        at_conn_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
         at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
                            sizeof(out), NULL);
-        sal_hal_debug("The AT response is: %s", out);
+        at_conn_hal_debug("The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
-            sal_hal_err("%s %d failed", __func__, __LINE__);
+            at_conn_hal_err("%s %d failed", __func__, __LINE__);
         }
         memset(cmd, 0, sizeof(cmd));
     }
@@ -431,7 +430,7 @@ int HAL_AT_CONN_Init(void)
     at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, 0, mk3060wifi_event_handler, NULL);
     
     if (at_connect_wifi(WIFI_SSID, WIFI_PWD, WIFI_TIMEOUT) < 0) {
-        sal_hal_err("%s %d failed", __func__, __LINE__);
+        at_conn_hal_err("%s %d failed", __func__, __LINE__);
         return -1;
     }
 
@@ -464,7 +463,7 @@ int HAL_AT_CONN_Start(at_conn_t *c)
     char out[256] = {0};
 
     if (!c || !c->addr) {
-        sal_hal_err("%s %d - invalid argument", __func__, __LINE__);
+        at_conn_hal_err("%s %d - invalid argument", __func__, __LINE__);
         return -1;
     }
 
@@ -475,13 +474,13 @@ int HAL_AT_CONN_Start(at_conn_t *c)
         } else {
             g_link[link_id].fd = c->fd;
             if (NULL == (g_link[link_id].sem_start = HAL_SemaphoreCreate())) {
-                sal_hal_err("failed to allocate semaphore %s", __func__);
+                at_conn_hal_err("failed to allocate semaphore %s", __func__);
                 g_link[link_id].fd = -1;
                 return -1;
             }
 
             if (NULL == (g_link[link_id].sem_close = HAL_SemaphoreCreate())) {
-                sal_hal_err("failed to allocate semaphore %s", __func__);
+                at_conn_hal_err("failed to allocate semaphore %s", __func__);
                 HAL_SemaphoreDestroy(g_link[link_id].sem_start);
                 g_link[link_id].fd = -1;
                 return -1;
@@ -494,11 +493,11 @@ int HAL_AT_CONN_Start(at_conn_t *c)
 
     /* The caller should deal with this failure */
     if (link_id >= LINK_ID_MAX) {
-        sal_hal_info("No link available for now, %s failed.", __func__);
+        at_conn_hal_info("No link available for now, %s failed.", __func__);
         return -1;
     }
 
-    sal_hal_debug("Creating %s connection ...", start_cmd_type_str[c->type]);
+    at_conn_hal_debug("Creating %s connection ...", start_cmd_type_str[c->type]);
 
     switch (c->type) {
         case TCP_SERVER:
@@ -521,26 +520,26 @@ int HAL_AT_CONN_Start(at_conn_t *c)
                      c->addr, c->r_port, c->l_port);
             break;
         default:
-            sal_hal_err("Invalid connection type.");
+            at_conn_hal_err("Invalid connection type.");
             goto err;
     }
 
-    sal_hal_debug("\r\n%s %d - AT cmd to run: %s \r\n", __func__, __LINE__, cmd);
+    at_conn_hal_debug("\r\n%s %d - AT cmd to run: %s \r\n", __func__, __LINE__, cmd);
 
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
                        sizeof(out), NULL);
-    sal_hal_debug("The AT response is: %s", out);
+    at_conn_hal_debug("The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
-        sal_hal_err("%s %d failed", __func__, __LINE__);
+        at_conn_hal_err("%s %d failed", __func__, __LINE__);
         goto err;
     }
 
     if (HAL_SemaphoreWait(g_link[link_id].sem_start, SEM_WAIT_DURATION) != 0) {
-        sal_hal_err("%s sem_wait failed", __func__);
+        at_conn_hal_err("%s sem_wait failed", __func__);
         goto err;
     }
 
-    sal_hal_debug("%s sem_wait succeed.", __func__);
+    at_conn_hal_debug("%s sem_wait succeed.", __func__);
 
     return 0;
 err:
@@ -589,11 +588,11 @@ int HAL_AT_CONN_Send(int fd,
         return -1;
     }
 
-    sal_hal_debug("%s on fd %d", __func__, fd);
+    at_conn_hal_debug("%s on fd %d", __func__, fd);
 
     link_id = fd_to_linkid(fd);
     if (link_id < 0 || link_id >= LINK_ID_MAX) {
-        sal_hal_err("No connection found for fd (%d) in %s", fd, __func__);
+        at_conn_hal_err("No connection found for fd (%d) in %s", fd, __func__);
         return -1;
     }
 
@@ -610,14 +609,14 @@ int HAL_AT_CONN_Send(int fd,
     HAL_Snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len);
 #endif
 
-    sal_hal_debug("\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);
+    at_conn_hal_debug("\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);
 
 #if AT_CHECK_SUM
     uint8_t checksum = 0;
     uint8_t* outdata = NULL;
 
     if ((outdata = (uint8_t *)HAL_Malloc(len + 1)) == NULL) {
-        sal_hal_err("%s malloc failed!", __func__);
+        at_conn_hal_err("%s malloc failed!", __func__);
         return -1;
     }
 
@@ -635,10 +634,10 @@ int HAL_AT_CONN_Send(int fd,
                        out, sizeof(out), NULL);
 #endif
 
-    sal_hal_debug("\r\nThe AT response is: %s\r\n", out);
+    at_conn_hal_debug("\r\nThe AT response is: %s\r\n", out);
 
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
-        sal_hal_debug("%s %d failed", __func__, __LINE__);
+        at_conn_hal_debug("%s %d failed", __func__, __LINE__);
         return -1;
     }
 
@@ -655,13 +654,13 @@ int HAL_AT_CONN_DomainToIp(char *domain,
     char cmd[DOMAIN_CMD_LEN] = {0}, out[256] = {0}, *head, *end;
 
     HAL_Snprintf(cmd, DOMAIN_CMD_LEN - 1, "%s=%s", DOMAIN_CMD, domain);
-    sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+    at_conn_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
                        sizeof(out), NULL);
-    sal_hal_debug("The AT response is: %s", out);
+    at_conn_hal_debug("The AT response is: %s", out);
     if (strstr(out, AT_RECV_SUCCESS_POSTFIX) == NULL) {
-        sal_hal_err("%s %d failed", __func__, __LINE__);
+        at_conn_hal_err("%s %d failed", __func__, __LINE__);
         return -1;
     }
 
@@ -672,21 +671,21 @@ int HAL_AT_CONN_DomainToIp(char *domain,
      * OK\r\n
      */
     if ((head = strstr(out, DOMAIN_RSP)) == NULL) {
-        sal_hal_err("No IP info found in result string %s \r\n.", out);
+        at_conn_hal_err("No IP info found in result string %s \r\n.", out);
         return -1;
     }
 
     /* Check the format */
     head += strlen(DOMAIN_RSP);
     if (head[0] < '0' && head[0] >= ('0' + LINK_ID_MAX)) {
-        sal_hal_err("%s %d failed", __func__, __LINE__);
+        at_conn_hal_err("%s %d failed", __func__, __LINE__);
         goto err;
     }
 
 
     head++;
     if (memcmp(head, AT_RECV_PREFIX, strlen(AT_RECV_PREFIX)) != 0) {
-        sal_hal_err("%s %d failed", __func__, __LINE__);
+        at_conn_hal_err("%s %d failed", __func__, __LINE__);
         goto err;
     }
 
@@ -704,11 +703,11 @@ int HAL_AT_CONN_DomainToIp(char *domain,
     /* We find a good IP, save it. */
     memcpy(ip, head, end - head);
     ip[end - head] = '\0';
-    sal_hal_debug("get domain %s ip %s \r\n", domain, ip);
+    at_conn_hal_debug("get domain %s ip %s \r\n", domain, ip);
     return 0;
 
 err:
-    sal_hal_err("Failed to get IP due to unexpected result string %s \r\n.", out);
+    at_conn_hal_err("Failed to get IP due to unexpected result string %s \r\n.", out);
     return -1;
 }
 
@@ -721,27 +720,27 @@ int HAL_AT_CONN_Close(int fd,
 
     link_id = fd_to_linkid(fd);
     if (link_id < 0 || link_id >= LINK_ID_MAX) {
-        sal_hal_err("No connection found for fd (%d) in %s", fd, __func__);
+        at_conn_hal_err("No connection found for fd (%d) in %s", fd, __func__);
         return -1;
     }
 
     HAL_Snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
-    sal_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+    at_conn_hal_debug("%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out,
                        sizeof(out), NULL);
-    sal_hal_debug("The AT response is: %s", out);
+    at_conn_hal_debug("The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
-        sal_hal_err("%s %d failed", __func__, __LINE__);
+        at_conn_hal_err("%s %d failed", __func__, __LINE__);
         goto err;
     }
 
     if (HAL_SemaphoreWait(g_link[link_id].sem_close, SEM_WAIT_DURATION) != 0) {
-        sal_hal_err("%s sem_wait failed", __func__);
+        at_conn_hal_err("%s sem_wait failed", __func__);
         goto err;
     }
 
-    sal_hal_debug("%s sem_wait succeed.", __func__);
+    at_conn_hal_debug("%s sem_wait succeed.", __func__);
 err:
     HAL_MutexLock(g_link_mutex);
 
@@ -756,12 +755,4 @@ err:
     HAL_MutexUnlock(g_link_mutex);
     return -1;
 
-}
-
-int HAL_AT_CONN_RegInputCb(netconn_data_input_cb_t cb)
-{
-    if (cb) {
-        g_netconn_data_input_cb = cb;
-    }
-    return 0;
 }

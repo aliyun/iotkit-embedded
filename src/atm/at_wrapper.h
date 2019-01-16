@@ -187,8 +187,6 @@ typedef struct {
     uint32_t tcp_keep_alive; /* tcp keep alive value (set to 0 if not used) */
 } at_conn_t;
 
-typedef int (*netconn_data_input_cb_t)(int fd, void *data, size_t len, char remote_ip[16], uint16_t remote_port);
-
 /**
  * Module low level init so that it's ready to setup socket connection.
  *
@@ -257,10 +255,7 @@ int HAL_AT_CONN_Deinit(void);
 
 
 /**
- * Register network connection data input function
- * Input data from module.
- * This callback should be called when the data is received from the module
- * It should tell the sal where the data comes from.
+ * Hand received data to upper layer
  * @param[in]  fd - the file descripter to operate on.
  * @param[in]  data - the received data.
  * @param[in]  len - expected length of the data when IN,
@@ -271,7 +266,8 @@ int HAL_AT_CONN_Deinit(void);
  *
  * @return  0 - success, -1 - failure
  */
-int HAL_AT_CONN_RegInputCb(netconn_data_input_cb_t cb);
+int at_conn_input(int fd, void *data, size_t len, char remote_ip[16], uint16_t remote_port);
+
 
 #elif defined(AT_MQTT_ENABLED)
 #include "mqtt_api.h"
