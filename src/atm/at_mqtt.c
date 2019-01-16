@@ -621,7 +621,9 @@ static int mal_mc_wait_for_result()
     }
 #else
     int state = 0;
+#ifdef AT_PARSER_ENABLED
     int timeout_ms = 1000;
+#endif
     int count = 10;
     while((count > 0) &&((state = HAL_AT_MQTT_State()) != IOTX_MC_STATE_CONNECTED)){
 #ifdef AT_PARSER_ENABLED
