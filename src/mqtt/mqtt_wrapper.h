@@ -1,5 +1,6 @@
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "wrappers_defs.h"
 
 #include "mqtt_api.h"
 
@@ -26,7 +27,6 @@ int32_t HAL_SSL_Destroy(uintptr_t handle);
 int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms);
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
 #else
-#include "infra_net.h"
 int HAL_SSLHooks_set(ssl_hooks_t *hooks);
 uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
 int HAL_TCP_Destroy(uintptr_t fd);
