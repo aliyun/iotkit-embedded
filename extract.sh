@@ -161,7 +161,7 @@ echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/
 echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
 
 # Generate Default Implenmentation For HAL/Wrapper Function
-echo -e "\n"
+echo ""
 TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w)
 ITER=0
 for func in $(echo "${FUNC_NAME_LIST}")
