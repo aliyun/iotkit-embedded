@@ -82,7 +82,13 @@ int iotx_cm_connect(int fd, uint32_t timeout)
 
 #ifdef THREAD_COST_INTERNAL
             int stack_used;
-            hal_os_thread_param_t task_parms = {0};
+            hal_os_thread_param_t task_parms = {
+                os_thread_priority_normal,
+                NULL,
+                0,
+                0,
+                NULL
+            };
             task_parms.stack_size = 6144;
             task_parms.name = "cm_yield";
             ret = HAL_ThreadCreate(&yield_thread, _iotx_cm_yield_thread_func, NULL,
