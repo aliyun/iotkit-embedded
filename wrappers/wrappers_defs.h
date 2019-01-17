@@ -1,6 +1,9 @@
 #ifndef _WRAPPERS_DEFS_H_
 #define _WRAPPERS_DEFS_H_
 
+#include "infra_types.h"
+#include "infra_defs.h"
+
 #define PLATFORM_WAIT_INFINITE (~0)
 
 typedef struct {
