@@ -11,6 +11,8 @@ INFRA_REPORT||src/infra/infra_report.[ch]|output/eng/infra
 INFRA_SHA256||src/infra/infra_sha256.[ch]|output/eng/infra
 INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
 
+SUPPORT_TLS||certs/root_ca.c|output/eng/certs
+
 DEV_SIGN||src/dev_sign|output/eng/dev_sign
 DEV_SIGN||src/dev_sign/examples|output/eng/examples
 
