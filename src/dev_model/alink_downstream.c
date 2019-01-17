@@ -339,7 +339,7 @@ int alink_msg_event_list_handler(void)
     while (1) {
         res = alink_msg_list_next(&msg);
         if (res < SUCCESS_RETURN) {
-            return FAIL_RETURN;
+            break;
         }
 
         switch (msg->type) {

@@ -12,7 +12,6 @@
 #include "infra_config.h"
 #include "infra_types.h"
 #include "infra_defs.h"
-#include "infra_log.h"
 #include "infra_list.h"
 #include "infra_compat.h"
 #include "infra_cjson.h"
