@@ -1070,7 +1070,6 @@ static int _iotx_linkkit_slave_close(int devid)
         _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
-    ctx->is_opened = 0;
 
     /* Release Subdev Resources */
     iotx_dm_subdev_destroy(devid);
