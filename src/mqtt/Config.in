@@ -3,11 +3,9 @@ config MQTT_COMM_ENABLED
     default y
     select DEV_SIGN
     select INFRA_SHA256
-    select INFRA_NET
     select INFRA_LIST
     select INFRA_TIMER
     select INFRA_REPORT
-    select HAL_TCP
 
     help
         Establish persistent connection with AliCloud via MQTT-based protocol
@@ -23,7 +21,6 @@ config MQTT_DEFAULT_IMPL
     select INFRA_SHA256
     select INFRA_NET
     select INFRA_TIMER
-    select HAL_TCP
 
     help
         Use SDK default MQTT implementation
