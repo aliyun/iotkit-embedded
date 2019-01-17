@@ -163,7 +163,6 @@ int main(int argc, char **argv)
 
     /* get triple metadata from HAL */
     HAL_GetProductKey(dev_info.product_key);
-    HAL_GetProductSecret(dev_info.product_secret);
     HAL_GetDeviceName(dev_info.device_name);
     HAL_GetDeviceSecret(dev_info.device_secret);
 

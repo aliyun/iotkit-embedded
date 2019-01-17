@@ -15,7 +15,7 @@
 #define PROP_ALINK1_TEST   "{\"id\":\"123\",\"version\":\"1.0\",\"params\":{\"test1\":1234},\"method\":\"thing.event.property.post\"}"
 
 #define ALINK2_PROP_POST_DATA       "{\"Data\": \"1024\"}"
-#define ALINK2_DEVINFO_POST_DATA    "[{\"attrKey\":\"devinfo_k\",\"attrValue\":\"devinfo_v\"}]"
+#define ALINK2_DEVINFO_POST_DATA    "[{\"attrKey\":\"devinfo_key\",\"attrValue\":\"devinfo_value\"}]"
 
 #define ALINK2_PROP_POST_DATA_TMP   "{\"BatteryRemain\": 2.9,\"TiltValue\":100,\"HeartBeatInterval\": 1234}"
 #define ALINK2_EVENT_POST_DATA      "{\"intParam\": 400}"
@@ -86,7 +86,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
     char *rsp = HAL_Malloc(len);
 
     EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
-    
+
     memset(rsp, 0, len);
     memcpy(rsp, "{\"test\": 12344}", len);
 
@@ -161,7 +161,6 @@ int main(int argc, char **argv)
 
     /* get triple metadata from HAL */
     HAL_GetProductKey(dev_info.product_key);
-    HAL_GetProductSecret(dev_info.product_secret);
     HAL_GetDeviceName(dev_info.device_name);
     HAL_GetDeviceSecret(dev_info.device_secret);
 
@@ -176,7 +175,7 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
-    IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);    
+    IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
 
     /* Create Master Device Resources */
@@ -187,7 +186,7 @@ int main(int argc, char **argv)
     }
     EXAMPLE_TRACE("IOT_Linkkit_Open Succeed\n");
 
-    res = IOT_Linkkit_Connect(0);
+    res = IOT_Linkkit_Connect(IOTX_LINKKIT_DEV_TYPE_MASTER);
     if (res < SUCCESS_RETURN) {
         return -1;
     }
@@ -196,8 +195,6 @@ int main(int argc, char **argv)
     while (1) {
 
         IOT_Linkkit_Yield(2000);
-
-        HAL_SleepMs(2000);
 
         res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
         EXAMPLE_TRACE("post property, res = %d", res);
@@ -210,17 +207,17 @@ int main(int argc, char **argv)
             res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
             EXAMPLE_TRACE("post raw, res = %d", res);
         }
-
         res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
-        EXAMPLE_TRACE("post devinfo, res = %d", res);    
+        EXAMPLE_TRACE("post devinfo, res = %d", res);
 
-        if (++cnt > 2) {
+        if (++cnt > 100) {
             IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }
     }
 
     printf("alink stop\r\n");
+
     return 0;
 }
 
