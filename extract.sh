@@ -54,11 +54,15 @@ cond_not_check()
     return -1
 }
 
-echo -e "Extract Files\c"
+DOTS_LINE=".................................................................."
+
 # Read xtrc_file_rules
+TOTAL_ITERATION=$(wc -l ${XTRC_FILE_RULS}|awk '{ print $1 }')
+ITER=0
 while read rule
 do
-    echo -e ".\c"
+    ITER=$(( ${ITER} + 1 ))
+    printf "\r%.40s %.2f%%" "Extract Files ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
     TEST=$(echo $rule | awk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
         continue
@@ -95,11 +99,13 @@ echo -e ""
 mkdir -p ${WRAPPERS_DIR}
 cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
-echo -e "Extract HAL/Wrapper Function\c"
 # Read xtrc_wrapper_rules
+TOTAL_ITERATION=$(wc -l ${XTRC_WRAPPER_RULS}|awk '{ print $1 }')
+ITER=0
 while read rule
 do
-    echo -e ".\c"
+    ITER=$(( ${ITER} + 1 ))
+    printf "\r%.40s %.2f%%" "Extract HAL/Wrapper Functions ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
     TEST=$(echo $rule | awk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
         continue
@@ -144,7 +150,6 @@ if [ "${HEADER_FILE_LIST}" != "" ];then
     echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }'
 fi
 
-echo -e "\nGenerate wrapper.c\c"
 # Annotation For wrapper.c
 sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
 
@@ -156,9 +161,14 @@ echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/
 echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
 
 # Generate Default Implenmentation For HAL/Wrapper Function
+echo -e "\n"
+TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w)
+ITER=0
 for func in $(echo "${FUNC_NAME_LIST}")
 do
-    echo -e ".\c"
+    ITER=$(( ${ITER} + 1 ))
+    printf "\r%.40s %.2f%%" "Generate wrapper.c ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
+
     # echo ${func}
     if [ "${func}" = "" ];then
         continue
