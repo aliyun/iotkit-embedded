@@ -166,7 +166,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
             iotx_cm_data_handle_cb topic_handle_func = (iotx_cm_data_handle_cb)pcontext;
 
-            if (topic_handle_func == NULL) {    
+            if (topic_handle_func == NULL) {
                 cm_err("sub handle is null!");
                 return;
             }
@@ -199,7 +199,6 @@ static int  _mqtt_connect(uint32_t timeout)
     }
 
     HAL_GetProductKey(dev_info.product_key);
-    HAL_GetProductSecret(dev_info.product_secret);
     HAL_GetDeviceName(dev_info.device_name);
     HAL_GetDeviceSecret(dev_info.device_secret);
 

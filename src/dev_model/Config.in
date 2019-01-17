@@ -2,7 +2,6 @@ config DEVICE_MODEL_ENABLE
     bool "FEATURE_DEVICE_MODEL_ENABLED"
     default n
     select DEV_SIGN
-    select INFRA_LOG
     select INFRA_CJSON
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
