@@ -12,10 +12,7 @@
 
 
 void HAL_Printf(const char *fmt, ...);
-int HAL_GetPartnerID(char *pid_str);
-int HAL_GetModuleID(char *mid_str);
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN]);
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 
