@@ -576,7 +576,7 @@ int HAL_SSLHooks_set(ssl_hooks_t *hooks)
 uintptr_t HAL_SSL_Establish(const char *host,
                             uint16_t port,
                             const char *ca_crt,
-                            size_t ca_crt_len)
+                            uint32_t ca_crt_len)
 {
     char                port_str[6];
     const char         *alter = host;

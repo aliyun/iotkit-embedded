@@ -20,10 +20,17 @@ int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 int HAL_GetFirmwareVersion(char *version);
 
+#ifdef SUPPORT_TLS
+uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len);
+int32_t HAL_SSL_Destroy(uintptr_t handle);
+int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms);
+int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
+#else
 uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
 int HAL_TCP_Destroy(uintptr_t fd);
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
+#endif
 
 /* mqtt protocol wrapper */
 void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params);
