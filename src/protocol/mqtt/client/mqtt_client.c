@@ -156,10 +156,10 @@ static int iotx_mc_get_md5_topic(const char *path, int len, char outbuf[], int o
 }
 #endif
 
-#if WITH_MQTT_DYN_CONNINFO && !(WITH_MQTT_MULTI_INSTANCE)
+#if !(WITH_MQTT_MULTI_INSTANCE)
 static int _conn_info_dynamic_create(iotx_mqtt_param_t *mqtt_param)
 {
-
+#if WITH_MQTT_DYN_CONNINFO
     iotx_conn_info_pt pconn_info = iotx_conn_info_get();
     if (pconn_info->init != 0) {
         return 0;
@@ -173,6 +173,7 @@ static int _conn_info_dynamic_create(iotx_mqtt_param_t *mqtt_param)
     mqtt_param->username = pconn_info->username;
     mqtt_param->password = pconn_info->password;
     mqtt_param->pub_key = pconn_info->pub_key;
+#endif
     return 0;
 }
 #endif
