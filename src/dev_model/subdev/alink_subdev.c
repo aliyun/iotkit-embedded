@@ -17,7 +17,7 @@
 
 #define ALINK_SUBDEV_HTABLE_SIZE_MAX        2000
 
-#define ALINK_SUBDEV_HTABLE_SIZE            CONFIG_SUBDEV_HASH_TABLE_SZIE   /* TODO */
+#define ALINK_SUBDEV_HTABLE_SIZE            CONFIG_SUBDEV_HASH_TABLE_SZIE
 
 
 typedef struct _subdev_hash_node *subdev_hash_table_t;
@@ -135,13 +135,8 @@ static uint32_t _pkdn_to_hash(const char *pk, const char *dn)
     {
         sum += dn[i];
         if (dn[i] >= '0' && dn[i] <= '9') {
-            sum >>= (dn[i] - '0');
+            sum += (dn[i] - '0') * i;
         }
-    }
-
-    for (; i < 32; i++)
-    {
-        sum++;
     }
 
     sum += pk_len;
@@ -151,7 +146,6 @@ static uint32_t _pkdn_to_hash(const char *pk, const char *dn)
     return sum;
 }
 
-/** TODO: add mutex **/
 int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
 {
     int res = FAIL_RETURN;
@@ -292,16 +286,16 @@ void subdev_hash_iterator(void)
 
     for (idx = 0; idx < subdev_mgr_htable.table_size; idx++) {
         if (table[idx] == NULL ) {
-            alink_debug("hTable[%d] = NULL", idx);
+            alink_info("hTable[%d] = NULL", idx);
             continue;
         }
         else {
             node = table[idx];
-            alink_debug("hTable[%d] = %s", idx, node->device_name);
+            alink_info("hTable[%d] = %s", idx, node->device_name);
 
             while (node->next) {
                 node = node->next;
-                alink_debug("hTable[%d] = %s *", idx, node->device_name);
+                alink_info("hTable[%d] = %s *", idx, node->device_name);
             }
         }
     }
@@ -564,6 +558,7 @@ int alink_subdev_get_triple_by_devid(uint32_t devid, char *product_key, char *de
     node = _subdev_hash_search_by_devid(devid);
     if (node == NULL) {
         _alink_subdev_mgr_unlock();
+        alink_warning("subdev no exist");
         return FAIL_RETURN;
     }
     memcpy(product_key, node->product_key, strlen(node->product_key)+1);
@@ -571,9 +566,13 @@ int alink_subdev_get_triple_by_devid(uint32_t devid, char *product_key, char *de
     if (node->device_secret) {
         memcpy(device_secret, node->device_secret, strlen(node->device_secret)+1);
     }
+    else {
+        _alink_subdev_mgr_unlock();
+        alink_warning("subdev ds no exist");
+        return FAIL_RETURN;
+    }
 
     _alink_subdev_mgr_unlock();
-
     return SUCCESS_RETURN;
 }
 

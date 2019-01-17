@@ -279,7 +279,8 @@ int alink_msg_list_insert(alink_msg_event_t *msg_type)
     _alink_msg_list_lock();
 
     if (alink_msg_list_ctx.msg_num >= ALINK_MSG_LIST_NUM_MAX) {
-        /* msg event lost, TODO: stats lost rate */
+        /* msg event lost, TODO: stats msg loss rate */
+        alink_warning("msg event list overflow");
         _alink_msg_list_unlock();
         return FAIL_RETURN;
     }
@@ -287,8 +288,7 @@ int alink_msg_list_insert(alink_msg_event_t *msg_type)
     list_add_tail(&msg_type->list, &alink_msg_list_ctx.msg_list);
     alink_msg_list_ctx.msg_num++;
 
-    alink_info("insert successfully, %d", msg_type->type);
-
+    alink_info("msg event list inserted, %d", alink_msg_list_ctx.msg_num);
 
     _alink_msg_list_unlock();
 

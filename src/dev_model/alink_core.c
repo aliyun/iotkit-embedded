@@ -26,7 +26,7 @@ typedef struct {
     char                   *device_secret;
 
     uint32_t                cm_fd;
-    uint32_t                msgid;              /* TODO */
+    uint32_t                msgid;
 
 } alink_core_ctx_t;
 
@@ -64,7 +64,7 @@ static void _alink_core_unlock(void)
         HAL_MutexUnlock(alink_core_ctx.mutex);
     }
 }
-extern int alink_msg_list_init(void); /* TODO: test */
+
 static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
 {
     int res = FAIL_RETURN;
@@ -73,7 +73,7 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
         return IOTX_CODE_ALREADY_OPENED;
     }
     alink_core_ctx.status = ALINK_CORE_STATUS_INITED;
-    alink_core_ctx.msgid = 1;
+    alink_core_ctx.msgid = 1;       /* message id inited to 1 */
 
     alink_core_ctx.mutex = HAL_MutexCreate();
     if (alink_core_ctx.mutex == NULL) {
@@ -169,7 +169,7 @@ static int _alink_core_deinit(void)
     alink_uri_hash_table_deinit();
 
 #ifdef DEVICE_MODEL_GATEWAY
-    /* subdev hash table deinit, TODO */
+    /* subdev hash table deinit */
     alink_subdev_mgr_deinit();
     alink_upstream_req_ctx_deinit();
 #endif /* #ifdef DEVICE_MODEL_GATEWAY */
@@ -242,13 +242,15 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
     alink_info("rx uri = %.*s", uri_len, uri);
     alink_info("rx data = %.*s", payload_len, payload);
 
-    alink_info("pk = %s", product_key);
-    alink_info("dn = %s", device_name);
-    alink_info("path = %s", path);
-    alink_info("query id = %d", query.id);
-    alink_info("query format = %c", query.format);
-    alink_info("query code = %d", query.code);
-    alink_info("query ack = %c", query.ack);
+#if CONFIG_ALINK_DEBUG
+    alink_debug("pk = %s", product_key);
+    alink_debug("dn = %s", device_name);
+    alink_debug("path = %s", path);
+    alink_debug("query id = %d", query.id);
+    alink_debug("query format = %c", query.format);
+    alink_debug("query code = %d", query.code);
+    alink_debug("query ack = %c", query.ack);
+#endif
 
     if (product_key[0] == '\0' && device_name[0] == '\0') {
         devid = 0;
@@ -273,7 +275,7 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
         handle_func(devid, product_key, device_name, (const uint8_t *)payload, payload_len, &query);
     }
     else {
-        alink_info("downstream uri handler no exist");
+        alink_warning("downstream uri handler no exist");
     }
 }
 
@@ -430,8 +432,6 @@ uint32_t alink_core_allocate_msgid(void)
 
     return (msgid & 0x7FFFFFFF);
 }
-
-extern int alink_msg_event_list_handler(void);  /* TODO */
 
 /** **/
 int alink_core_yield(uint32_t timeout_ms)

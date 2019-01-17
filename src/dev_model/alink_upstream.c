@@ -131,7 +131,6 @@ alink_req_cache_node_t *alink_upstream_req_list_insert(uint32_t msgid, req_msg_c
 int alink_upstream_req_cache_search(uint32_t msgid, alink_req_cache_node_t **node)
 {
     alink_req_cache_node_t *search_node, *next;
-    uint8_t idx = 0;
 
     ALINK_ASSERT_DEBUG(node != NULL);
     if (alink_upstream_req_ctx.status == MSG_CACHE_STATUS_DEINITED) {
@@ -141,7 +140,6 @@ int alink_upstream_req_cache_search(uint32_t msgid, alink_req_cache_node_t **nod
     _alink_upstream_req_list_lock();
 
     list_for_each_entry_safe(search_node, next, &alink_upstream_req_ctx.req_list, list, alink_req_cache_node_t) {
-        alink_info("req_list idx %d, msgid = %d", idx, search_node->msgid);
         if (search_node->msgid == msgid) {
             *node = search_node;
             _alink_upstream_req_list_unlock();
@@ -534,10 +532,8 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
         char dn[IOTX_DEVICE_NAME_LEN] = {0};
         char ds[IOTX_DEVICE_SECRET_LEN] = {0};
 
-        alink_subdev_get_triple_by_devid(subdev_id_array[idx], pk, dn, ds);
-
-        /* check parameters */
-        if (*ds == '\0') {
+        alink_info("assamble subdev %d login msg", subdev_id_array[idx]);
+        if (alink_subdev_get_triple_by_devid(subdev_id_array[idx], pk, dn, ds) < SUCCESS_RETURN) {
             lite_cjson_delete(lite_root);
             return NULL;
         }
