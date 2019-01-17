@@ -9,6 +9,7 @@
 #include <string.h>
 #include "infra_defs.h"
 #include "infra_net.h"
+#include "wrappers_defs.h"
 
 #ifdef INFRA_LOG
     #include "infra_log.h"

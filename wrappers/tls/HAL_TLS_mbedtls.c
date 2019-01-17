@@ -27,6 +27,7 @@
 #include "mbedtls/platform.h"
 
 #include "infra_net.h"
+#include "wrappers_defs.h"
 
 #define SEND_TIMEOUT_SECONDS                (10)
 #define GUIDER_ONLINE_HOSTNAME              ("iot-auth.cn-shanghai.aliyuncs.com")

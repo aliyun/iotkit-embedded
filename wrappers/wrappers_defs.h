@@ -3,6 +3,11 @@
 
 #define PLATFORM_WAIT_INFINITE (~0)
 
+typedef struct {
+    void *(*malloc)(uint32_t size);
+    void (*free)(void *ptr);
+} ssl_hooks_t;
+
 typedef enum {
     os_thread_priority_idle = -3,        /* priority: idle (lowest) */
     os_thread_priority_low = -2,         /* priority: low */
