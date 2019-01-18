@@ -118,16 +118,13 @@ static int _calc_dynreg_sign(
             char random[DYNREG_RANDOM_KEY_LENGTH + 1],
             char sign[DYNREG_SIGN_LENGTH])
 {
-    int res = 0, sign_source_len = 0;
+    int sign_source_len = 0;
     uint8_t signnum[32];
     uint8_t  *sign_source = NULL;
     const char *dynamic_register_sign_fmt = "deviceName%sproductKey%srandom%s";
 
     /* Start Dynamic Register */
-    res = infra_randstr(random, DYNREG_RANDOM_KEY_LENGTH);
-    if (res != SUCCESS_RETURN) {
-        dynreg_err("Random Key Generate Failed");
-    }
+    memcpy(random,"8Ygb7ULYh53B6OA",strlen("8Ygb7ULYh53B6OA"));
     dynreg_info("Random Key: %s", random);
 
     /* Calculate SHA256 Value */

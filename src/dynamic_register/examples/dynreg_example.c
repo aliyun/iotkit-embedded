@@ -4,11 +4,11 @@
 #include "infra_defs.h"
 #include "dynreg_api.h"
 
-#define EXAMPLE_PRODUCT_KEY     "a1ZETBPbycq"
-#define EXAMPLE_PRODUCT_SECRET  "L68wCVXYUaNg1Ey9"
-#define EXAMPLE_DEVICE_NAME     "example1"
-
 void HAL_Printf(const char *fmt, ...);
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
+int HAL_GetProductSecret(char *product_secret);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int HAL_SetDeviceSecret(char *device_secret);
 
 int main(int argc, char *argv[])
 {
@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     HAL_Printf("dynreg example\n");
 
     memset(&meta,0,sizeof(iotx_dev_meta_info_t));
-    memcpy(meta.product_key,EXAMPLE_PRODUCT_KEY,strlen(EXAMPLE_PRODUCT_KEY));
-    memcpy(meta.product_secret,EXAMPLE_PRODUCT_SECRET,strlen(EXAMPLE_PRODUCT_SECRET));
-    memcpy(meta.device_name,EXAMPLE_DEVICE_NAME,strlen(EXAMPLE_DEVICE_NAME));
+    HAL_GetProductKey(meta.product_key);
+    HAL_GetProductSecret(meta.product_secret);
+    HAL_GetDeviceName(meta.device_name);
 
     res = IOT_Dynamic_Register(region, &meta);
     if (res < 0) {
@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
     }
 
     HAL_Printf("\nDevice Secret: %s\n\n",meta.device_secret);
+
+    HAL_SetDeviceSecret(meta.device_secret);
 
     return 0;
 }
