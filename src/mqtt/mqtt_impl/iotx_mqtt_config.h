@@ -31,6 +31,8 @@
     #define WITH_MQTT_ZIP_TOPIC                 (0)
 #endif
 
+#define IOTX_MC_DEFAULT_MSG_LEN                 (1024)
+
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
 
@@ -72,6 +74,50 @@
 
 /* Max times of keepalive which has been send and did not received response package */
 #define IOTX_MC_KEEPALIVE_PROBE_MAX             (1)
+
+
+/* Linked List Params When PLATFORM_HAS_DYNMEN Disabled */
+#ifndef PLATFORM_HAS_DYNMEN
+
+/* offline subscribe list max length */
+#ifndef IOTX_OFFLINE_LIST_MAX_LEN
+#define IOTX_OFFLINE_LIST_MAX_LEN               (5)
+#endif
+
+/* mqtt pub wait list max length, for QoS 1 */
+#ifndef IOTX_MC_PUBWAIT_LIST_MAX_LEN
+#define IOTX_MC_PUBWAIT_LIST_MAX_LEN            (5)
+#endif
+
+/* mqtt sub sync list max length */
+#ifndef IOTX_MC_SUBSYNC_LIST_MAX_LEN
+#define IOTX_MC_SUBSYNC_LIST_MAX_LEN            (5)
+#endif
+
+/* mqtt sub handle list max length */
+#ifndef IOTX_MC_SUBHANDLE_LIST_MAX_LEN
+#define IOTX_MC_SUBHANDLE_LIST_MAX_LEN          (5)
+#endif
+
+/* topic max length */
+#ifndef IOTX_MC_TOPIC_MAX_LEN
+#define IOTX_MC_TOPIC_MAX_LEN                   (50)
+#endif
+
+/* mqtt client max count */
+#ifndef IOTX_MC_CLIENT_MAX_COUNT
+#define IOTX_MC_CLIENT_MAX_COUNT                (1)
+#endif
+
+#ifndef IOTX_MC_TX_MAX_LEN
+#define IOTX_MC_TX_MAX_LEN                      (256)
+#endif
+
+#ifndef IOTX_MC_RX_MAX_LEN
+#define IOTX_MC_RX_MAX_LEN                      (256)
+#endif
+
+#endif /* PLATFORM_HAS_DYNMEM */
 
 #endif  /* IOTX_MQTT_CONFIG_H__ */
 

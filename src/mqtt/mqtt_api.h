@@ -5,8 +5,6 @@
 #ifndef _IOT_EXPORT_MQTT_H_
 #define _IOT_EXPORT_MQTT_H_
 
-#include "mqtt_internal.h"
-
 #if defined(__cplusplus)
 extern "C" {
 #endif

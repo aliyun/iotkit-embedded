@@ -1,14 +1,6 @@
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
-#include "mqtt_api.h"
-#include "dev_sign_api.h"
-#include "mqtt_wrapper.h"
-#include "infra_defs.h"
-#include "infra_list.h"
-#include "infra_report.h"
 #include "mqtt_internal.h"
 
+#ifdef PLATFORM_HAS_DYNMEM
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
     #define mqtt_api_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt-api")
@@ -18,93 +10,127 @@
     #define mqtt_api_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-
-#define MQTT_DEFAULT_MSG_LEN 1024
+#else
+static iotx_mqtt_param_t g_iotx_mqtt_param;
+#endif
 
 static void *g_mqtt_client = NULL;
 static iotx_sign_mqtt_t g_sign_mqtt;
 
-typedef struct {
-    struct list_head offline_sub_list;
-    void *mutex;
-} offline_sub_list_t;
-
 /* Handle structure of subscribed topic */
 typedef struct  {
+#ifdef PLATFORM_HAS_DYNMEM
     char *topic_filter;
+#else
+    char topic_filter[IOTX_MC_TOPIC_MAX_LEN];
+#endif
     iotx_mqtt_event_handle_func_fpt handle;
     void *user_data;
     iotx_mqtt_qos_t qos;
+#ifdef PLATFORM_HAS_DYNMEM
     struct list_head linked_list;
+#else
+    int used;
+#endif
 } iotx_mc_offline_subs_t;
 
-static offline_sub_list_t *_mqtt_offline_subs_list = NULL;
+typedef struct {
+#ifdef PLATFORM_HAS_DYNMEM
+    struct list_head offline_sub_list;
+#else
+    iotx_mc_offline_subs_t offline_sub_list[IOTX_OFFLINE_LIST_MAX_LEN];
+#endif
+    void *mutex;
+    int init;
+} offline_sub_list_t;
 
-static int _offline_subs_list_init()
+static offline_sub_list_t g_mqtt_offline_subs_list = {0};
+
+static iotx_mqtt_param_t* _iotx_mqtt_new_param(void)
 {
-    if (_mqtt_offline_subs_list != NULL) {
-        return 0;
-    }
-
-    _mqtt_offline_subs_list = mqtt_api_malloc(sizeof(offline_sub_list_t));
-
-    if (_mqtt_offline_subs_list == NULL) {
-        return ERROR_MALLOC;
-    }
-
-    memset(_mqtt_offline_subs_list, 0, sizeof(offline_sub_list_t));
-    INIT_LIST_HEAD(&_mqtt_offline_subs_list->offline_sub_list);
-
-    _mqtt_offline_subs_list->mutex = HAL_MutexCreate();
-
-    if (_mqtt_offline_subs_list->mutex == NULL) {
-        mqtt_api_free(_mqtt_offline_subs_list);
-        _mqtt_offline_subs_list = NULL;
-        return ERROR_MALLOC;
-    }
-
-    return 0;
+#ifdef PLATFORM_HAS_DYNMEM
+    return (iotx_mqtt_param_t *)mqtt_api_malloc(sizeof(iotx_mqtt_param_t));
+#else
+    return &g_iotx_mqtt_param;
+#endif
 }
 
-static int _offline_subs_list_deinit()
+static void _iotx_mqtt_free_param(iotx_mqtt_param_t* param)
 {
-    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
+#ifdef PLATFORM_HAS_DYNMEM
+    mqtt_api_free(param);
+#else
+    memset(&g_iotx_mqtt_param,0,sizeof(iotx_mqtt_param_t));
+#endif
+}
 
-    if (_mqtt_offline_subs_list == NULL || _mqtt_offline_subs_list->mutex == NULL) {
-        return NULL_VALUE_ERROR;
+static int _offline_subs_list_init(void)
+{
+    if (g_mqtt_offline_subs_list.init) {
+        return SUCCESS_RETURN;
     }
 
-    list_for_each_entry_safe(node, next_node, &_mqtt_offline_subs_list->offline_sub_list, linked_list,
+    memset(&g_mqtt_offline_subs_list, 0, sizeof(offline_sub_list_t));
+    g_mqtt_offline_subs_list.init = 1;
+
+#ifdef PLATFORM_HAS_DYNMEM
+    INIT_LIST_HEAD(&g_mqtt_offline_subs_list.offline_sub_list);
+#endif
+
+    g_mqtt_offline_subs_list.mutex = HAL_MutexCreate();
+
+    return SUCCESS_RETURN;
+}
+
+static int _offline_subs_list_deinit(void)
+{
+#ifdef PLATFORM_HAS_DYNMEM
+    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
+    list_for_each_entry_safe(node, next_node, &g_mqtt_offline_subs_list.offline_sub_list, linked_list,
                              iotx_mc_offline_subs_t) {
         list_del(&node->linked_list);
         mqtt_api_free(node->topic_filter);
         mqtt_api_free(node);
     }
+#endif
 
-    HAL_MutexDestroy(_mqtt_offline_subs_list->mutex);
-    mqtt_api_free(_mqtt_offline_subs_list);
-    _mqtt_offline_subs_list = NULL;
+    if (g_mqtt_offline_subs_list.mutex) {
+        HAL_MutexDestroy(g_mqtt_offline_subs_list.mutex);
+    }
+    memset(&g_mqtt_offline_subs_list, 0, sizeof(offline_sub_list_t));
+
     return 0;
-
 }
 
-static int iotx_mqtt_offline_subscribe(const char *topic_filter,
-                                       iotx_mqtt_qos_t qos,
-                                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                                       void *pcontext)
+static int iotx_mqtt_offline_subscribe(const char *topic_filter, iotx_mqtt_qos_t qos, iotx_mqtt_event_handle_func_fpt topic_handle_func, void *pcontext)
 {
     int ret;
-    iotx_mc_offline_subs_t *sub_info;
+#ifdef PLATFORM_HAS_DYNMEM
+    iotx_mc_offline_subs_t *sub_info = NULL;
+#else
+    int idx = 0;
+#endif
 
     if (topic_filter == NULL || topic_handle_func == NULL) {
         return NULL_VALUE_ERROR;
     }
 
-    ret = _offline_subs_list_init();
+    _offline_subs_list_init();
 
-    if (ret != 0) {
-        return ret;
+#ifdef PLATFORM_HAS_DYNMEM
+    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
+    list_for_each_entry(sub_info, &g_mqtt_offline_subs_list.offline_sub_list,linked_list,iotx_mc_offline_subs_t)
+    {
+        if ((strlen(sub_info->topic_filter) == strlen(topic_filter)) &&
+            memcmp(sub_info->topic_filter,topic_filter,strlen(topic_filter)) == 0) {
+            sub_info->qos = qos;
+            sub_info->handle = topic_handle_func;
+            sub_info->user_data = pcontext;
+            HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+            return SUCCESS_RETURN;
+        }
     }
+
     sub_info = mqtt_api_malloc(sizeof(iotx_mc_offline_subs_t));
     if (sub_info == NULL) {
         return ERROR_MALLOC;
@@ -123,33 +149,81 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter,
     sub_info->user_data = pcontext;
     INIT_LIST_HEAD(&sub_info->linked_list);
 
-    HAL_MutexLock(_mqtt_offline_subs_list->mutex);
-    list_add_tail(&sub_info->linked_list, &_mqtt_offline_subs_list->offline_sub_list);
-    HAL_MutexUnlock(_mqtt_offline_subs_list->mutex);
+    list_add_tail(&sub_info->linked_list, &g_mqtt_offline_subs_list.offline_sub_list);
+    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+    ret = SUCCESS_RETURN;
+#else
+    if (strlen(topic_filter) >= IOTX_MC_TOPIC_MAX_LEN) {
+        return MQTT_TOPIC_LEN_TOO_SHORT;
+    }
 
-    return 0;
+    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
+    for (idx = 0;idx < IOTX_OFFLINE_LIST_MAX_LEN;idx++) {
+        if (g_mqtt_offline_subs_list.offline_sub_list[idx].used &&
+            (strlen(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter) == strlen(topic_filter)) &&
+            memcmp(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter,topic_filter,strlen(topic_filter)) == 0) {
+            g_mqtt_offline_subs_list.offline_sub_list[idx].qos = qos;
+            g_mqtt_offline_subs_list.offline_sub_list[idx].handle = topic_handle_func;
+            g_mqtt_offline_subs_list.offline_sub_list[idx].user_data = pcontext;
+            HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+            return SUCCESS_RETURN;
+        }
+    }
+    for (idx = 0;idx < IOTX_OFFLINE_LIST_MAX_LEN;idx++) {
+        if (g_mqtt_offline_subs_list.offline_sub_list[idx].used == 0) {
+            memset(&g_mqtt_offline_subs_list.offline_sub_list[idx],0,sizeof(iotx_mc_offline_subs_t));
+            memcpy(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter,topic_filter,strlen(topic_filter));
+            g_mqtt_offline_subs_list.offline_sub_list[idx].qos = qos;
+            g_mqtt_offline_subs_list.offline_sub_list[idx].handle = topic_handle_func;
+            g_mqtt_offline_subs_list.offline_sub_list[idx].user_data = pcontext;
+            g_mqtt_offline_subs_list.offline_sub_list[idx].used = 1;
+            HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+            return SUCCESS_RETURN;
+        }
+    }
+    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+    ret = MQTT_OFFLINE_LIST_LEN_TOO_SHORT;
+#endif
+
+    return ret;
 }
-
 
 static int iotx_mqtt_deal_offline_subs(void *client)
 {
+#ifdef PLATFORM_HAS_DYNMEM
     iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
-
-    if (_mqtt_offline_subs_list == NULL) {
+#else
+    int idx;
+#endif
+    if (g_mqtt_offline_subs_list.init == 0) {
         return SUCCESS_RETURN;
     }
-
-    HAL_MutexLock(_mqtt_offline_subs_list->mutex);
-    list_for_each_entry_safe(node, next_node, &_mqtt_offline_subs_list->offline_sub_list, linked_list,
+#ifdef PLATFORM_HAS_DYNMEM
+    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
+    list_for_each_entry_safe(node, next_node, &g_mqtt_offline_subs_list.offline_sub_list, linked_list,
                              iotx_mc_offline_subs_t) {
         list_del(&node->linked_list);
         wrapper_mqtt_subscribe(client, node->topic_filter, node->qos, node->handle, node->user_data);
         mqtt_api_free(node->topic_filter);
         mqtt_api_free(node);
     }
-    HAL_MutexUnlock(_mqtt_offline_subs_list->mutex);
-
     _offline_subs_list_deinit();
+    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+#else
+    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
+    for (idx = 0;idx < IOTX_OFFLINE_LIST_MAX_LEN;idx++) {
+        if (g_mqtt_offline_subs_list.offline_sub_list[idx].used) {
+            wrapper_mqtt_subscribe(client, g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter, 
+                                            g_mqtt_offline_subs_list.offline_sub_list[idx].qos, 
+                                            g_mqtt_offline_subs_list.offline_sub_list[idx].handle, 
+                                            g_mqtt_offline_subs_list.offline_sub_list[idx].user_data);
+            g_mqtt_offline_subs_list.offline_sub_list[idx].used = 0;
+        }
+    }
+    _offline_subs_list_deinit();
+    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+#endif
+    
     return SUCCESS_RETURN;
 }
 
@@ -230,7 +304,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             return NULL;
         }
 
-        mqtt_params = (iotx_mqtt_param_t *)mqtt_api_malloc(sizeof(iotx_mqtt_param_t));
+        mqtt_params = _iotx_mqtt_new_param();
         if (mqtt_params == NULL) {
             return NULL;
         }
@@ -245,7 +319,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
         ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &g_sign_mqtt);
         if (ret != SUCCESS_RETURN) {
-            mqtt_api_free(mqtt_params);
+            _iotx_mqtt_free_param(mqtt_params);
             return NULL;
         }
         /* Initialize MQTT parameter */
@@ -265,8 +339,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_params->request_timeout_ms    = IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS;
         mqtt_params->clean_session         = 0;
         mqtt_params->keepalive_interval_ms = KEEP_ALIVE_INTERVAL_DEFAULT * 1000;
-        mqtt_params->read_buf_size         = MQTT_DEFAULT_MSG_LEN;
-        mqtt_params->write_buf_size        = MQTT_DEFAULT_MSG_LEN;
+        mqtt_params->read_buf_size         = IOTX_MC_DEFAULT_MSG_LEN;
+        mqtt_params->write_buf_size        = IOTX_MC_DEFAULT_MSG_LEN;
         mqtt_params->handle_event.h_fp     = NULL;
         mqtt_params->handle_event.pcontext = NULL;
         pInitParams = mqtt_params;
@@ -277,7 +351,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         pInitParams->port == 0 || !strlen(pInitParams->host)) {
         mqtt_err("init params is not complete");
         if (mqtt_params != NULL) {
-            mqtt_api_free(mqtt_params);
+            _iotx_mqtt_free_param(mqtt_params);
 
         }
         return NULL;
@@ -286,7 +360,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     pclient = wrapper_mqtt_init(pInitParams);
     if (pclient == NULL) {
         if (mqtt_params != NULL) {
-            mqtt_api_free(mqtt_params);
+            _iotx_mqtt_free_param(mqtt_params);
         }
     }
 
@@ -406,7 +480,6 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
     return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, timeout_ms);
 }
 
-
 int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter)
 {
     void *client = handle ? handle : g_mqtt_client;
@@ -496,4 +569,3 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
     return -1;
 #endif
 }
-

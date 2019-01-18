@@ -2,6 +2,10 @@ config PLATFORM_HAS_STDINT
     bool "PLATFORM_HAS_STDINT"
     default y
 
+config PLATFORM_HAS_DYNMEM
+        bool "PLATFORM_HAS_DYNMEM"
+        default y
+
 config PLATFORM_HAS_OS
         bool "PLATFORM_HAS_OS"
         default n

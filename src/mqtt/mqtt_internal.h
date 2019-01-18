@@ -10,6 +10,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
+
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_string.h"
+#include "infra_list.h"
+#include "infra_report.h"
+#include "infra_net.h"
+#include "infra_sha256.h"
+
+#include "dev_sign_api.h"
+#include "mqtt_wrapper.h"
+#include "iotx_mqtt_config.h"
+#include "iotx_mqtt_client.h"
+
+#include "MQTTPacket.h"
 
 #include "infra_types.h"
 #include "infra_defs.h"
