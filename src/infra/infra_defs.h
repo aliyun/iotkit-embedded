@@ -31,7 +31,7 @@
 #define IOTX_URI_MAX_LEN                (135)
 
 typedef enum IOT_RETURN_CODES {
-    ERROR_DEVICE_NOT_EXSIT = -311,
+    ERROR_DEVICE_NOT_EXIST = -311,
     ERROR_NET_TIMEOUT = -310,
     ERROR_CERT_VERIFY_FAIL  = -309,
     ERROR_NET_SETOPT_TIMEOUT = -308,
@@ -309,5 +309,4 @@ typedef enum {
 extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
 
 #endif
-
 
