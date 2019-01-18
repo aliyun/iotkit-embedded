@@ -1095,6 +1095,9 @@ static void alink_downstream_subdev_login_post_rsp(uint32_t devid, const char *p
                 if (handle_func != NULL) {
                     handle_func(devid_array[i]);
                 }
+
+                /* STATS POST */
+                subdev_stats_post_send(devid_array[i]);
             }
         }
 

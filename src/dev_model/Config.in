@@ -17,6 +17,7 @@ config DEVICE_MODEL_GATEWAY
     select INFRA_STRING
     select INFRA_SHA256
     select INFRA_LIST
+    select INFRA_REPORT
     select THREAD_COST_INTERNAL
     help
         Switching Thing-Model related implementations provided in gateway oriented way

@@ -697,6 +697,15 @@ int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
         return res;
     }
 
+    /* STATS POST */
+    {
+        uint8_t i;
+
+        for (i=0; i<subdev_list->subdev_num; i++) {
+            subdev_stats_post_send(subdev_list->subdev_array[i]);
+        }
+    }
+
     /* wait rsp succeed and cloud rsp 200, update mass subdev status */
     return alink_subdev_update_mass_status(subdev_list->subdev_array, subdev_list->subdev_num, ALINK_SUBDEV_STATUS_ONLINE);
 #endif /* #ifndef THREAD_COST_INTERNAL */
@@ -816,5 +825,61 @@ int alink_upstream_thing_deviceinfo_delete_req(uint32_t devid, const char *user_
     return res;
 }
 
+/***************************************************************
+ * STATS POST：subdev stats info post
+ ***************************************************************/
+#if DEVICE_MODEL_GATEWAY
+void _stats_post_get_version_num_hex(uint8_t version[VERSION_NUM_SIZE])
+{
+    const char *p_version = IOTX_SDK_VERSION;
+    int i = 0, j = 0;
+    uint8_t res = 0;
 
+    for (j = 0; j < 3; j++) {
+        for (res = 0; p_version[i] <= '9' && p_version[i] >= '0'; i++) {
+            res = res * 10 + p_version[i] - '0';
+        }
+        version[j] = res;
+        i++;
+    }
+    version[3] = 0x00;
+}
+
+int subdev_stats_post_send(int devid)
+{
+    char aos_active_data[AOS_ACTIVE_INFO_LEN] = {0};
+
+    uint8_t version_num_hex[VERSION_NUM_SIZE] = {0};
+    #if 0
+    uint8_t mac_address_hex[MAC_ADDRESS_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x00, 0x02};   /* subdev within linkkit, 0x00 = subdev, 0x02 = 3-party OS */
+    uint8_t chip_code_hex[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
+    uint8_t random_num[RANDOM_NUM_SIZE] = {0x01, 0x02, 0x03, 0x04};  /* use fixed num */
+    #endif
+    const char padding[] = "010203040102030405060002010203041111111111222222222233333333334444444444";
+
+    const char data_fmt[] = "{\"tagList\":[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]}";
+    char data[sizeof(data_fmt) + AOS_ACTIVE_INFO_LEN] = {0};
+
+    alink_uri_query_t query = {0};
+
+    /* assemble tagValue */
+    _stats_post_get_version_num_hex(version_num_hex);
+    infra_hex2str(version_num_hex, VERSION_NUM_SIZE, aos_active_data);
+    #if 0
+    infra_hex2str(random_num, RANDOM_NUM_SIZE, aos_active_data + strlen(aos_active_data));
+    infra_hex2str(mac_address_hex, MAC_ADDRESS_SIZE, aos_active_data + strlen(aos_active_data));
+    infra_hex2str(chip_code_hex, CHIP_CODE_SIZE, aos_active_data + strlen(aos_active_data));
+    #endif
+    memcpy(aos_active_data + strlen(aos_active_data), padding, sizeof(padding) - 1);
+
+    /* assemble data */
+    HAL_Snprintf(data, sizeof(data), data_fmt, aos_active_data);
+
+    /* TODO: cloud does not support ack = n now!!! */
+    query.ack = 'n';
+
+    /* send msg */
+    return _alink_upstream_send_request_msg(ALINK_URI_UP_REQ_DEVINFO_POST, devid, (uint8_t *)data, strlen(data), &query);
+}
+#endif
 

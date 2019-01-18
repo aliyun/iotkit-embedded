@@ -12,12 +12,17 @@
 #include "infra_config.h"
 #include "infra_types.h"
 #include "infra_defs.h"
-#include "infra_list.h"
-#include "infra_compat.h"
 #include "infra_cjson.h"
 #include "infra_timer.h"
-#include "infra_sha256.h"
+#if DEVICE_MODEL_GATEWAY
 #include "infra_string.h"
+#include "infra_sha256.h"
+#include "infra_report.h"
+#endif
+#if defined (DEVICE_MODEL_GATEWAY) || defined (THREAD_COST_INTERVAL)
+#include "infra_list.h"
+#include "infra_compat.h"
+#endif
 #include "wrappers_defs.h"
 
 #include "iotx_cm.h"

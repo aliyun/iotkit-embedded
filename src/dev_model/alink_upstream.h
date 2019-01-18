@@ -66,6 +66,8 @@ int alink_upstream_req_cache_search(uint32_t msgid, alink_req_cache_node_t **nod
 int alink_upstream_req_cache_delete_by_node(alink_req_cache_node_t *node);
 int alink_upstream_req_cache_delete_by_msgid(int msgid);
 
+/* subdev stats info post */
+int subdev_stats_post_send(int devid);
 
 #endif /* #ifndef __ALINK_UPSTREAM__ */
 
