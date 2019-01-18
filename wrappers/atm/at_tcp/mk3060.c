@@ -113,6 +113,9 @@ static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
             return -1;
         }
 
+#ifndef PLATFORM_HAS_OS
+        at_yield(NULL, 0, NULL, 200);
+#endif
     }
 
     return 0;
