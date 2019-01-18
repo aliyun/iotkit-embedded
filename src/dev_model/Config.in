@@ -3,6 +3,7 @@ config DEVICE_MODEL_ENABLE
     default n
     select DEV_SIGN
     select INFRA_CJSON
+    select INFRA_TIMER
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
 
@@ -24,6 +25,7 @@ config THREAD_COST_INTERNAL
     bool "FEATURE_THREAD_COST_INTERNAL"
     depends on DEVICE_MODEL_ENABLE
     default n
+    select INFRA_LIST
     help
         Create thread in device model internal, and some subdev opertion API will become sync interface(e.g. using IOT_Linkkit_Connect() to register subdevice and
         using IOT_Linkkit_Report() to login or logout sudevice.
