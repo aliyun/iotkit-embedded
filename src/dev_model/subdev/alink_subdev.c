@@ -237,7 +237,11 @@ int _subdev_hash_remove(uint32_t devid)
     if (hash >= subdev_mgr_htable.table_size) {
         return FAIL_RETURN;
     }
+
     node = subdev_mgr_htable.hash_table[hash];
+    if (node == NULL) {
+        return IOTX_CODE_SUBDEV_NOT_EXIST;
+    }
 
     alink_info("devid = %d", node->devid);
 
