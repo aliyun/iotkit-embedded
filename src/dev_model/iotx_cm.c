@@ -25,12 +25,10 @@ static int inited_conn_num = 0;
     static int yield_task_leave = 1;
 #endif /* #ifdef THREAD_COST_INTERNAL */
 
-const char ERR_INVALID_PARAMS[] = "invalid parameter";
 int iotx_cm_open(iotx_cm_init_param_t *params)
 {
     int fd;
     iotx_cm_connection_t *connection = NULL;
-
 
     switch (params->protocol_type) {
         case IOTX_CM_PROTOCOL_TYPE_MQTT:
@@ -67,8 +65,7 @@ int iotx_cm_connect(int fd, uint32_t timeout)
     int ret;
 
     if (_fd_is_valid(fd) == -1) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return IOTX_CODE_PARAMS_INVALID;
     }
     HAL_MutexLock(fd_lock);
     connect_func = _cm_fd[fd]->connect_func;
@@ -128,8 +125,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     }
 
     if (_fd_is_valid(fd) == -1) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     HAL_MutexLock(fd_lock);
@@ -167,8 +163,7 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
     iotx_cm_sub_fp sub_func;
 
     if (_fd_is_valid(fd) == -1) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     HAL_MutexLock(fd_lock);
@@ -182,8 +177,7 @@ int iotx_cm_unsub(int fd, const char *topic)
     iotx_cm_unsub_fp unsub_func;
 
     if (_fd_is_valid(fd) == -1) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     HAL_MutexLock(fd_lock);
@@ -199,8 +193,7 @@ int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char
     iotx_cm_pub_fp pub_func;
 
     if (_fd_is_valid(fd) == -1) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     HAL_MutexLock(fd_lock);
@@ -214,8 +207,7 @@ int iotx_cm_close(int fd)
     iotx_cm_close_fp close_func;
 
     if (_fd_is_valid(fd) != 0) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return IOTX_CODE_PARAMS_INVALID;
     }
 
     if (--inited_conn_num == 0) {

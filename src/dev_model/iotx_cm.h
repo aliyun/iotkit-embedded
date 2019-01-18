@@ -96,10 +96,6 @@ typedef void (*iotx_cm_event_handle_cb)(int fd, iotx_cm_event_msg_t *event, void
 
 /* IoTx initializa parameters */
 typedef struct {
-    uint32_t                      request_timeout_ms;
-    uint32_t                      keepalive_interval_ms;
-    uint32_t                      write_buf_size;
-    uint32_t                      read_buf_size;
     iotx_cm_protocol_types_t      protocol_type;
     iotx_cm_event_handle_cb       handle_event;             /* Specify MQTT event handle */
     void                          *context;
