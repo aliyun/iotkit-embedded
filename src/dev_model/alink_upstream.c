@@ -499,7 +499,7 @@ char *_alink_upstream_assamble_pkdn_pair_payload(alink_subdev_id_list_t *subdev_
     return payload;
 }
 
-const char *c_login_sign_source_fmt = "clientId%sdeviceName%sproductKey%stimestamp%s";   /* clientId is pk.dn */
+const char *c_login_sign_source_fmt = "clientId%sdeviceName%sproductKey%s";   /* clientId is pk.dn */
 char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_list)
 {
     uint8_t idx = 0;
@@ -522,7 +522,6 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
     lite_cjson_add_item_to_object(lite_root, "subList", lite_array);
 
     for (idx = 0; idx < subdev_num; idx++) {
-        char timestamp[20] = {0};
         char clientid[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2];
         char sign[32] = {0};
         char sign_string[65] = {0};
@@ -545,10 +544,9 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
         }
 
         HAL_Snprintf(clientid, sizeof(clientid), "%s.%s", pk, dn);
-        HAL_Snprintf(timestamp, sizeof(timestamp), "%llu", HAL_UptimeMs());
-        sign_source_len = strlen(c_login_sign_source_fmt) + strlen(clientid) + strlen(pk) + strlen(dn) + strlen(timestamp);
+        sign_source_len = strlen(c_login_sign_source_fmt) + strlen(clientid) + strlen(pk) + strlen(dn);
         sign_source = alink_malloc(sign_source_len);
-        HAL_Snprintf(sign_source, sign_source_len, c_login_sign_source_fmt, clientid, dn, pk, timestamp);
+        HAL_Snprintf(sign_source, sign_source_len, c_login_sign_source_fmt, clientid, dn, pk);
         utils_hmac_sha256((const uint8_t *)sign_source, strlen(sign_source), (const uint8_t *)ds, strlen(ds), (uint8_t *)sign);
         infra_hex2str((uint8_t *)sign, 32, sign_string);
         alink_info("sign_src = %s", sign_source);
@@ -559,7 +557,6 @@ char *_alink_upstream_assamble_auth_list_payload(alink_subdev_id_list_t *subdev_
         lite_cjson_add_string_to_object(lite_array_item, "ci", clientid);
         lite_cjson_add_string_to_object(lite_array_item, "dn", dn);
         lite_cjson_add_string_to_object(lite_array_item, "pk", pk);
-        lite_cjson_add_string_to_object(lite_array_item, "ts", timestamp);
         lite_cjson_add_string_to_object(lite_array_item, "sn", sign_string);
 
         lite_cjson_add_item_to_array(lite_array, lite_array_item);
