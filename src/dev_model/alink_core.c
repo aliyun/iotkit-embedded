@@ -143,6 +143,7 @@ static int _alink_core_deinit(void)
         return FAIL_RETURN;
     }
     alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;
+    alink_core_ctx.fd_num = 0;
 
     if (alink_core_ctx.mutex) {
         HAL_MutexDestroy(alink_core_ctx.mutex);
@@ -177,8 +178,6 @@ static int _alink_core_deinit(void)
 #ifdef THREAD_COST_INTERNAL
     alink_msg_list_deinit();
 #endif /* #ifdef THREAD_COST_INTERNAL */
-
-    alink_core_ctx.status = ALINK_CORE_STATUS_DEINIT;
 
     return SUCCESS_RETURN;
 }

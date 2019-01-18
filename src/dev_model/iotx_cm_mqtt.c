@@ -305,19 +305,11 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
 
 static int _mqtt_unsub(const char *topic)
 {
-    int ret;
-
     if (_mqtt_conncection == NULL) {
         return NULL_VALUE_ERROR;
     }
 
-    ret = IOT_MQTT_Unsubscribe(_mqtt_conncection->context, topic);
-
-    if (ret < 0) {
-        return -1;
-    }
-
-    return ret;
+    return IOT_MQTT_Unsubscribe(_mqtt_conncection->context, topic);
 }
 
 static int _mqtt_close(void)
@@ -327,7 +319,9 @@ static int _mqtt_close(void)
     }
 
     cm_free(_mqtt_conncection->open_params);
-    IOT_MQTT_Destroy(&_mqtt_conncection->context);
+    if (_mqtt_conncection->context != NULL) {
+        IOT_MQTT_Destroy(&_mqtt_conncection->context);
+    }
     cm_free(_mqtt_conncection);
     _mqtt_conncection = NULL;
     return 0;
