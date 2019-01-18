@@ -25,10 +25,12 @@
 #include "alink_utils.h"
 #include "alink_format.h"
 #include "alink_upstream.h"
-#include "alink_subdev.h"
 #include "alink_downstream.h"
 #include "alink_core.h"
 #include "alink_wrapper.h"
+#if DEVICE_MODEL_GATEWAY
+#include "alink_subdev.h"
+#endif
 
 #ifdef INFRA_LOG
 #include "infra_log.h"
