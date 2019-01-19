@@ -79,6 +79,8 @@
 
 #define ALINK_DEVICE_SELF_ID                (0)
 
+#define ALINK_SUBDEV_MASS_OPERATION_NUM     (10)
+
 typedef enum {
     ALINK_ERROR_CODE_200    = 200,
     ALINK_ERROR_CODE_400    = 400,

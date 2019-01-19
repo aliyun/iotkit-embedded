@@ -7,8 +7,8 @@
 #include "alink_core.h"
 
 
-#define ALINK_CORE_CONNECT_TIMEOUT              (10000)
-#define ALINK_CORE_SUBSCRIBE_TIMEOUT            (5000)
+#define ALINK_CORE_CONNECT_TIMEOUT              (10000)     /* TODO: move to config.h */
+#define ALINK_CORE_SUBSCRIBE_TIMEOUT            (5000)      /* TODO: move to config.h */
 
 #define ALINK_SUPPORT_FD_NUM                    (1)
 #define ALINK_DEFAULT_FD_PROTOCOL               (ALINK_BEARER_MQTT)
@@ -280,13 +280,13 @@ static void _alink_core_rx_event_handle(int fd, const char *uri, uint32_t uri_le
 
 void _alink_core_connected_event_handler(void)
 {
-    linkkit_connect_success_cb_t handle_func;
+    linkkit_mqtt_connected_cb_t handle_func;
 
     _alink_core_set_status(ALINK_CORE_STATUS_CONNECTED);
 
-    handle_func = alink_get_event_callback(ITE_CONNECT_SUCC);
+    handle_func = alink_get_event_callback(ITE_MQTT_CONNECT_SUCC);
     if (handle_func) {
-        handle_func(ALINK_DEVICE_SELF_ID);
+        handle_func();
     }
 }
 
@@ -393,6 +393,13 @@ int alink_core_connect_cloud(void)
     }
     alink_info("connect succeed");
 
+    /* subscribe all topics */
+    res = _alink_core_register_downstream(_alink_core_rx_event_handle);
+    if (res < SUCCESS_RETURN) {
+        alink_info("subscribe failed");
+        return res;
+    }
+
     /* TODO: invoke the connected event, event post for awss immediately, indicate success for fail, hehe */
     {
         linkkit_connect_success_cb_t handle_func;
@@ -400,13 +407,6 @@ int alink_core_connect_cloud(void)
         if (handle_func != NULL) {
             handle_func(0);
         }
-    }
-
-    /* subscribe all topics */
-    res = _alink_core_register_downstream(_alink_core_rx_event_handle);
-    if (res < SUCCESS_RETURN) {
-        alink_info("subscribe failed");
-        return res;
     }
 
     alink_core_ctx.status = ALINK_CORE_STATUS_CONNECTED;

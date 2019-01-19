@@ -39,11 +39,6 @@ typedef struct {
     void *mutex;
 } alink_subdev_mgr_htable_t;
 
-/***************************************************************
- * local function prototypes
- ***************************************************************/
-void _subdev_hash_destroy(subdev_hash_table_t *hash_table, uint32_t size);
-
 
 /***************************************************************
  * local variables define
@@ -97,9 +92,43 @@ int alink_subdev_mgr_init(void)
 
 int alink_subdev_mgr_deinit(void)
 {
+    subdev_hash_table_t *table = subdev_mgr_htable.hash_table;
+    subdev_hash_node_t *node, *temp;
+    uint8_t idx;
+
+    if (table == NULL) {
+        return FAIL_RETURN;
+    }
+
     _alink_subdev_mgr_lock();
 
-    _subdev_hash_destroy(subdev_mgr_htable.hash_table, subdev_mgr_htable.table_size);
+    for (idx = 0; idx < subdev_mgr_htable.table_size; idx++) {
+        if (table[idx] == NULL) {
+            continue;
+        }
+
+        node = table[idx];
+        table[idx] = NULL;
+        temp = node->next;
+        alink_free(node->product_key);
+        alink_free(node->device_name);
+        if (node->device_secret) {
+            alink_free(node->device_secret);
+        }
+        alink_free(node);
+
+        while (temp) {
+            node = temp;
+            temp = temp->next;
+            alink_free(node->product_key);
+            alink_free(node->device_name);
+            if (node->device_secret) {
+                alink_free(node->device_secret);
+            }
+            alink_free(node);
+        }
+    }
+
     alink_free(subdev_mgr_htable.hash_table);
     subdev_mgr_htable.hash_table = NULL;
     subdev_mgr_htable.table_size = 0;
@@ -153,7 +182,7 @@ int _subdev_hash_insert(const char *pk, const char *dn, const char *ds)
     struct _subdev_hash_node **table = subdev_mgr_htable.hash_table;
     subdev_hash_node_t *node, *temp;
 
-    /* check if hash_tabla inited */
+    /* check if hash_table inited */
     if (table == NULL) {
         return IOTX_CODE_STATUS_ERROR;
     }
@@ -228,7 +257,7 @@ int _subdev_hash_remove(uint32_t devid)
     subdev_hash_node_t *node, *temp;
 
     ALINK_ASSERT_DEBUG(devid != 0);
-    /* check if hash_tabla inited */
+    /* check if hash_table inited */
     if (subdev_mgr_htable.hash_table == NULL) {
         return IOTX_CODE_STATUS_ERROR;
     }
@@ -314,6 +343,11 @@ subdev_hash_node_t *_subdev_hash_search_by_pkdn(const char *pk, const char *dn)
     uint8_t pk_len;
     uint8_t dn_len;
 
+    /* check if hash_table inited */
+    if (subdev_mgr_htable.hash_table == NULL) {
+        return NULL;
+    }
+
     hash = _pkdn_to_hash(pk, dn);
     node = subdev_mgr_htable.hash_table[hash];
 
@@ -338,6 +372,16 @@ subdev_hash_node_t *_subdev_hash_search_by_devid(uint32_t devid)
     uint32_t hash;
     subdev_hash_node_t *node;
 
+    /* check if hash_table inited */
+    if (subdev_mgr_htable.hash_table == NULL) {
+        return NULL;
+    }
+
+    /* subdev id must not be 0 */
+    if (devid == ALINK_DEVICE_SELF_ID) {
+        return NULL;
+    }
+
     hash = devid / ALINK_SUBDEV_INDEX_VALUE_MAX;     /* TODO */
     node = subdev_mgr_htable.hash_table[hash];
 
@@ -352,41 +396,6 @@ subdev_hash_node_t *_subdev_hash_search_by_devid(uint32_t devid)
 
     return NULL;
 }
-
-void _subdev_hash_destroy(subdev_hash_table_t *hash_table, uint32_t size)
-{
-    subdev_hash_table_t *table = hash_table;
-    subdev_hash_node_t *node, *temp;
-    uint8_t idx;
-
-    for (idx = 0; idx < size; idx++) {
-        if (table[idx] == NULL) {
-            continue;
-        }
-
-        node = table[idx];
-        table[idx] = NULL;
-        temp = node->next;
-        alink_free(node->product_key);
-        alink_free(node->device_name);
-        if (node->device_secret) {
-            alink_free(node->device_secret);
-        }
-        alink_free(node);
-
-        while (temp) {
-            node = temp;
-            temp = temp->next;
-            alink_free(node->product_key);
-            alink_free(node->device_name);
-            if (node->device_secret) {
-                alink_free(node->device_secret);
-            }
-            alink_free(node);
-        }
-    }
-}
-
 
 int alink_subdev_open(iotx_dev_meta_info_t *dev_info)
 {
@@ -498,6 +507,9 @@ int alink_subdev_login(uint32_t *devid, uint8_t devid_num)
     subdev_id_list.subdev_array = devid;
     subdev_id_list.subdev_num = devid_num;
 
+    ALINK_ASSERT_DEBUG(devid != NULL);
+    ALINK_ASSERT_DEBUG(devid_num != 0);
+
     /* check core status first */
     if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {
         return IOTX_CODE_STATUS_ERROR;
@@ -518,6 +530,9 @@ int alink_subdev_logout(uint32_t *devid, uint8_t devid_num)
     alink_subdev_id_list_t subdev_id_list;
     subdev_id_list.subdev_array = devid;
     subdev_id_list.subdev_num = devid_num;
+
+    ALINK_ASSERT_DEBUG(devid != NULL);
+    ALINK_ASSERT_DEBUG(devid_num != 0);
 
     /* check core status first */
     if (alink_core_get_status() != ALINK_CORE_STATUS_CONNECTED) {

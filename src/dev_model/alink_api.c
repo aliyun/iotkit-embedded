@@ -32,7 +32,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
         }
     }
     else if (IOTX_LINKKIT_DEV_TYPE_SLAVE == dev_type) {
-#ifdef DEVICE_MODEL_GATEWAY        
+#ifdef DEVICE_MODEL_GATEWAY
         res = alink_subdev_open((iotx_dev_meta_info_t *)meta_info);
 #else
         res = IOTX_CODE_GATEWAY_UNSUPPORTED;
@@ -83,7 +83,7 @@ int IOT_Linkkit_Close(int devid)
 
     if (devid == IOTX_LINKKIT_DEV_TYPE_MASTER) {
         res = alink_core_close();
-    } 
+    }
     else {
 #ifdef DEVICE_MODEL_GATEWAY
         res = alink_subdev_close(devid);
@@ -146,27 +146,27 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 
 #ifdef DEVICE_MODEL_GATEWAY
         case ITM_MSG_LOGIN: {
-            if (payload == NULL) {
+            if (devid != ALINK_DEVICE_SELF_ID) {
                 uint32_t subdev_id = devid;
                 res = alink_subdev_login(&subdev_id, 1);
             }
-            else {
+            else if (payload != NULL && payload_len != 0) {
                 uint32_t *subdev_id = (uint32_t *)payload;
                 uint8_t subdev_num = payload_len/(sizeof(uint32_t));
-                if (subdev_num != 0 && subdev_num < 5) {        /* support maximum 4 subdev mass login */
+                if (subdev_num != 0 && subdev_num <= ALINK_SUBDEV_MASS_OPERATION_NUM) {
                     res = alink_subdev_login(subdev_id, subdev_num);
                 }
             }
         } break;
         case ITM_MSG_LOGOUT: {
-            if (payload == NULL) {
+            if (devid != ALINK_DEVICE_SELF_ID) {
                 uint32_t subdev_id = devid;
                 res = alink_subdev_logout(&subdev_id, 1);
             }
-            else {
+            else if (payload != NULL && payload_len != 0) {
                 uint32_t *subdev_id = (uint32_t *)payload;
                 uint8_t subdev_num = payload_len/(sizeof(uint32_t));
-                if (subdev_num != 0 && subdev_num < 5) {        /* support maximum 4 subdev mass logout */
+                if (subdev_num != 0 && subdev_num <= ALINK_SUBDEV_MASS_OPERATION_NUM) {
                     res = alink_subdev_logout(subdev_id, subdev_num);
                 }
             }
@@ -176,7 +176,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
             res = IOTX_CODE_UNKNOWN_MSG_TYPE;
         }break;
     }
-    
+
     return res;
 }
 
@@ -197,7 +197,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, uint32_t eventid_len, cha
     }
 
     if (devid != ALINK_DEVICE_SELF_ID) {
-#ifndef DEVICE_MODEL_GATEWAY 
+#ifndef DEVICE_MODEL_GATEWAY
         return IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif
     }
