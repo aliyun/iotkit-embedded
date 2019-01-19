@@ -349,6 +349,10 @@ subdev_hash_node_t *_subdev_hash_search_by_pkdn(const char *pk, const char *dn)
     }
 
     hash = _pkdn_to_hash(pk, dn);
+    if (hash >= subdev_mgr_htable.table_size) {
+        return NULL;
+    }
+
     node = subdev_mgr_htable.hash_table[hash];
 
     pk_len = strlen(pk);
@@ -382,7 +386,11 @@ subdev_hash_node_t *_subdev_hash_search_by_devid(uint32_t devid)
         return NULL;
     }
 
-    hash = devid / ALINK_SUBDEV_INDEX_VALUE_MAX;     /* TODO */
+    hash = devid / ALINK_SUBDEV_INDEX_VALUE_MAX;
+    if (hash >= subdev_mgr_htable.table_size) {
+        return NULL;
+    }
+
     node = subdev_mgr_htable.hash_table[hash];
 
     while (node) {

@@ -156,6 +156,9 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
                 if (subdev_num != 0 && subdev_num <= ALINK_SUBDEV_MASS_OPERATION_NUM) {
                     res = alink_subdev_login(subdev_id, subdev_num);
                 }
+                else {
+                    res = IOTX_CODE_TOO_MANY_SUBDEV;
+                }
             }
         } break;
         case ITM_MSG_LOGOUT: {
@@ -168,6 +171,9 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
                 uint8_t subdev_num = payload_len/(sizeof(uint32_t));
                 if (subdev_num != 0 && subdev_num <= ALINK_SUBDEV_MASS_OPERATION_NUM) {
                     res = alink_subdev_logout(subdev_id, subdev_num);
+                }
+                else {
+                    res = IOTX_CODE_TOO_MANY_SUBDEV;
                 }
             }
         } break;
