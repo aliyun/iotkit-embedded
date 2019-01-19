@@ -7,7 +7,7 @@ CONFIG_VERNDOR=$(grep -m 1 "VENDOR *:" .config|awk '{ print $NF }')
 EXT_IFLAGS=$( \
 for iter in \
     $(find -L \
-        build-rules/misc \
+        tools/build-rules/misc \
         include \
         tests \
         src/infra \
@@ -183,8 +183,11 @@ for i in ${ALL_PROG}; do
     fi
     j=$(for n in ${j}; do p=$(echo ${n}|cut -c1); [ "${p}" = "/" ] && echo -n "${n}" || echo -n "${TOP_DIR}/${q}/${n} "; done)
 
+    EXTRA_SRCS=$(grep -w -m 1 "^EXTRA_SRCS_${q}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
+
     cat << EOB >> ${TARGET_FILE}
 ${OUTPUT_DIR}/usr/bin/${i}: \\
+    ${EXTRA_SRCS} \\
 $(for m in ${j} ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS}; do
     echo "    ${m} \\"|sed 's!//*!/!g';
 done)

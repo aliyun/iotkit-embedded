@@ -4,7 +4,7 @@ TOP_DIR         := $(CURDIR)
 RULE_DIR        := $(TOP_DIR)/tools/build-rules
 CONFIG_DIR      := $(TOP_DIR)/tools/board
 EXPORT_DIR      := 
-IMPORT_DIR      := prebuilt
+IMPORT_DIR      := tools/prebuilt
 
 # Settings of output directory
 #

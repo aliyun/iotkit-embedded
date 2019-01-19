@@ -1,3 +1,9 @@
+ifndef LIBA_TARGET
+ifndef LIBSO_TARGET
+LIB_SRCS :=
+endif
+endif
+
 VPATH    := $(TOP_DIR)/$(MODULE_NAME)
 LIB_SRCS ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$(M))) $(wildcard *.c)
 

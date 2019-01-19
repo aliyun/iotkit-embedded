@@ -1,5 +1,5 @@
 ifeq (1,$(words $(TARGET)))
-SRCS := $(SRCS_$(TARGET))
+SRCS := $(if $(SRCS_$(TARGET)),$(SRCS_$(TARGET)),$(SRCS))
 endif
 
 VPATH   := $(TOP_DIR)/$(MODULE_NAME)
