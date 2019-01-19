@@ -11,16 +11,12 @@
         HAL_Printf("\033[0m\r\n");                                   \
     } while (0)
 
+#define EXAMPLE_MASTER_DEVID        (0)
 
-#define PROP_ALINK1_TEST   "{\"id\":\"123\",\"version\":\"1.0\",\"params\":{\"test1\":1234},\"method\":\"thing.event.property.post\"}"
-
-#define ALINK2_PROP_POST_DATA       "{\"Data\": \"1024\"}"
-#define ALINK2_DEVINFO_POST_DATA    "[{\"attrKey\":\"devinfo_key\",\"attrValue\":\"devinfo_value\"}]"
-
-#define ALINK2_PROP_POST_DATA_TMP   "{\"BatteryRemain\": 2.9,\"TiltValue\":100,\"HeartBeatInterval\": 1234}"
-#define ALINK2_EVENT_POST_DATA      "{\"intParam\": 400}"
-#define ALINK2_EVENT_POST_EMPTY     "{}"
-
+#define EXAMPLE_PROP_POST_DATA      "{\"WaterConsumption\": 100.123}"
+#define EXAMPLE_EVENT_POST_DATA     "{\"ErrorCode\": 1}"
+#define EXAMPLE_SERVICE_RSP_DATA    "{\"WaterConsumption\": 123.456}"
+#define EXAMPLE_DEVINFO_POST_DATA   "[{\"attrKey\":\"devinfo_key\",\"attrValue\":\"devinfo_value\"}]"
 
 /** type define **/
 typedef struct {
@@ -28,14 +24,11 @@ typedef struct {
     int cloud_connected;
     int master_initialized;
     int thread_running;
-    void *example_thread_yield;
-    void *example_thread1;
-    void *example_thread2;
 } user_example_ctx_t;
-
 
 /** local variables define */
 static user_example_ctx_t g_user_example_ctx;
+
 
 static user_example_ctx_t *user_example_get_ctx(void)
 {
@@ -66,7 +59,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
     return 0;
 }
 
-/** **/
+/** recv response message from cloud **/
 static int user_report_reply_event_handler(const int devid, const int msgid, const int code, const char *reply,
         const int reply_len)
 {
@@ -79,38 +72,23 @@ static int user_report_reply_event_handler(const int devid, const int msgid, con
     return 0;
 }
 
-/** porperty get **/
-static int user_property_get_event_handler(const int devid, const char *request, const int request_len, char **response, int *response_len)
-{
-    uint32_t len = strlen("{\"test\": 12344}");
-    char *rsp = HAL_Malloc(len);
-
-    EXAMPLE_TRACE("Property Get Received, Devid: %d, Request: %s", devid, request);
-
-    memset(rsp, 0, len);
-    memcpy(rsp, "{\"test\": 12344}", len);
-
-    *response = rsp;
-    *response_len = len;
-
-    /* return SUCCESS_RETURN; */
-    return FAIL_RETURN;
-}
-
-/** service request **/
+/** recv service request from cloud **/
 static int user_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
         const char *request, const int request_len,
         char **response, int *response_len)
 {
-    uint32_t len = strlen("{\"test\": 12344}");
+    uint32_t len = strlen(EXAMPLE_SERVICE_RSP_DATA);
     char *rsp = HAL_Malloc(len);
+    if (rsp == NULL) {
+        return -1;
+    }
 
     EXAMPLE_TRACE("Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
                   serviceid,
                   request);
 
     memset(rsp, 0, len);
-    memcpy(rsp, "{\"Mode\": 1}", len);
+    memcpy(rsp, EXAMPLE_SERVICE_RSP_DATA, len);
 
     *response = rsp;
     *response_len = len;
@@ -118,46 +96,12 @@ static int user_service_request_event_handler(const int devid, const char *servi
     return 0;
 }
 
-/** downstream raw data **/
-static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload,
-        const int payload_len)
-{
-    uint32_t i;
-    EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
-
-    for (i = 0; i<payload_len; i++) {
-        printf("0x%02x ", payload[i]);
-    }
-    printf("\r\n");
-
-    return 0;
-}
-
-/** device inited successfully **/
-static int user_initialized(const int devid)
-{
-    EXAMPLE_TRACE("Device Initialized, Devid: %d", devid);
-
-    return 0;
-}
-
-void *example_yield_thread(void *args)
-{
-    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-
-    while (user_example_ctx->thread_running) {
-        IOT_Linkkit_Yield(200);
-    }
-
-    return NULL;
-}
-
 int main(int argc, char **argv)
 {
-    user_example_ctx_t *user_example_ctx;
-    uint32_t cnt = 0;
     int res = FAIL_RETURN;
+    user_example_ctx_t *user_example_ctx;
     static iotx_linkkit_dev_meta_info_t dev_info;
+    uint32_t cnt = 0;
 
     /* get triple metadata from HAL */
     HAL_GetProductKey(dev_info.product_key);
@@ -173,49 +117,50 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
-    IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
-    IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
-    IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
 
-    /* Create Master Device Resources */
-    user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
-    if (user_example_ctx->master_devid < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
-        return -1;
-    }
-    EXAMPLE_TRACE("IOT_Linkkit_Open Succeed\n");
-
-    res = IOT_Linkkit_Connect(IOTX_LINKKIT_DEV_TYPE_MASTER);
+    /* init linkkit sdk and create device resource */
+    res = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
     if (res < SUCCESS_RETURN) {
+        EXAMPLE_TRACE("IOT_Linkkit_Open Failed, res = %d\n", res);
         return -1;
     }
-    EXAMPLE_TRACE("IOT_Linkkit_Connect, res = %d", res);
+    EXAMPLE_TRACE("IOT_Linkkit_Open Succeed");
+
+    res = IOT_Linkkit_Connect(EXAMPLE_MASTER_DEVID);
+    if (res < SUCCESS_RETURN) {
+        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed, res = %d\n", res);
+        return -1;
+    }
+    EXAMPLE_TRACE("IOT_Linkkit_Connect Succeed");
 
     while (1) {
 
         IOT_Linkkit_Yield(2000);
 
-        res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_POST_PROPERTY, (uint8_t *)ALINK2_PROP_POST_DATA_TMP, strlen(ALINK2_PROP_POST_DATA_TMP));
-        EXAMPLE_TRACE("post property, res = %d", res);
-
-        res = IOT_Linkkit_TriggerEvent(IOTX_LINKKIT_DEV_TYPE_MASTER, "Empty", strlen("Empty"), ALINK2_EVENT_POST_EMPTY, strlen(ALINK2_EVENT_POST_EMPTY));
-        EXAMPLE_TRACE("post event, res = %d", res);
-
-        {
-            uint8_t raw_data[] = "\x00\x00\x22\x33\x44\x12\x32\x01\x3f\xa0\x00\x00";
-            res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_POST_RAW_DATA, raw_data, sizeof(raw_data) - 1);
-            EXAMPLE_TRACE("post raw, res = %d", res);
+        /* post property every odd number */
+        if ((cnt % 2) != 0) {
+            res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_PROPERTY, (uint8_t *)EXAMPLE_PROP_POST_DATA, strlen(EXAMPLE_PROP_POST_DATA));
+            EXAMPLE_TRACE("post property, res = %d", res);
         }
-        res = IOT_Linkkit_Report(IOTX_LINKKIT_DEV_TYPE_MASTER, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)ALINK2_DEVINFO_POST_DATA, strlen(ALINK2_DEVINFO_POST_DATA));
-        EXAMPLE_TRACE("post devinfo, res = %d", res);
+
+        /* post event every even number */
+        if ((cnt % 2) == 0) {
+            res = IOT_Linkkit_TriggerEvent(EXAMPLE_MASTER_DEVID, "Error", strlen("Error"), EXAMPLE_EVENT_POST_DATA, strlen(EXAMPLE_EVENT_POST_DATA));
+            EXAMPLE_TRACE("post event, res = %d", res);
+        }
+
+        if (cnt == 10) {
+            res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)EXAMPLE_DEVINFO_POST_DATA, strlen(EXAMPLE_DEVINFO_POST_DATA));
+            EXAMPLE_TRACE("post devinfo, res = %d", res);
+        }
 
         if (++cnt > 100) {
-            IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
             break;
         }
     }
 
+    IOT_Linkkit_Close(EXAMPLE_MASTER_DEVID);
     printf("alink stop\r\n");
 
     return 0;

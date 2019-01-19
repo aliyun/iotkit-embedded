@@ -20,6 +20,7 @@
 #define EXAMPLE_RUNNING_SECONE_MAX      (60)
 
 #define SUBDEV_PROP_POST_DATA           "{\"WaterConsumption\": 123.456}"
+#define SUBDEV_SERVICE_RSP_DATA         "{\"WaterConsumption\": 100.456}"
 
 /* device metainfo of this demo
 char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a11YTWo4pMl";
@@ -83,8 +84,11 @@ static int user_service_request_event_handler(const int devid, const char *servi
         const char *request, const int request_len,
         char **response, int *response_len)
 {
-    uint32_t len = strlen("{\"test\": 12344}");
+    uint32_t len = strlen(SUBDEV_SERVICE_RSP_DATA);
     char *rsp = HAL_Malloc(len);
+    if (rsp == NULL) {
+        return -1;
+    }
 
     EXAMPLE_TRACE("Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
                   serviceid,
@@ -92,7 +96,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
 
     /* malloc response data */
     memset(rsp, 0, len);
-    memcpy(rsp, "{\"Mode\": 1}", len);
+    memcpy(rsp, SUBDEV_SERVICE_RSP_DATA, len);
 
     *response = rsp;
     *response_len = len;
@@ -262,8 +266,8 @@ int main(int argc, char **argv)
         res = IOT_Linkkit_Report(user_example_ctx->subdev_devid, ITM_MSG_POST_PROPERTY, (uint8_t *)SUBDEV_PROP_POST_DATA, strlen(SUBDEV_PROP_POST_DATA));
         EXAMPLE_TRACE("post property, res = %d", res);
 
-        /* runing mass subdev operation demo after about 20 seconds later */
-        if (running_cnt == 10) {
+        /* runing mass subdev operation demo after about 10 seconds later */
+        if (running_cnt == 5) {
             example_mass_subdev_operation_demo();
         }
 
