@@ -79,6 +79,8 @@
 
 #define ALINK_DEVICE_SELF_ID                (0)
 
+#define ALINK_EVENT_ID_LEN_MAX              (30)
+
 #define ALINK_SUBDEV_MASS_OPERATION_NUM     (10)
 
 typedef enum {
