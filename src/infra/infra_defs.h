@@ -294,7 +294,7 @@ typedef enum {
 } iotx_mqtt_region_types_t;
 
 #define IOTX_MQTT_DOMAIN_NUMBER (5)
-extern iotx_region_item_t g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
+extern const char * g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
 
 typedef enum {
     IOTX_HTTP_REGION_SHANGHAI,   /* Shanghai */

@@ -117,7 +117,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
                       strlen(meta->device_secret), sign);
 
     /* Get Sign Information For MQTT */
-    length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region].region) + 2;
+    length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
     if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
         return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
     }
@@ -125,8 +125,8 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
     memcpy(signout->hostname, meta->product_key, strlen(meta->product_key));
     memcpy(signout->hostname + strlen(signout->hostname), ".", strlen("."));
-    memcpy(signout->hostname + strlen(signout->hostname), g_infra_mqtt_domain[region].region,
-           strlen(g_infra_mqtt_domain[region].region));
+    memcpy(signout->hostname + strlen(signout->hostname), g_infra_mqtt_domain[region],
+           strlen(g_infra_mqtt_domain[region]));
 
     length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
     if (length >= DEV_SIGN_USERNAME_MAXLEN) {
@@ -144,8 +144,11 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     if (_sign_get_clientid(signout->clientid, device_id) != SUCCESS_RETURN) {
         return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
     }
-
-    signout->port = g_infra_mqtt_domain[region].port;
+#ifdef SUPPORT_TLS
+    signout->port = 443;
+#else
+    signout->port = 1883;
+#endif
 
     return SUCCESS_RETURN;
 }
