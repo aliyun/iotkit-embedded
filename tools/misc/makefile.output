@@ -31,7 +31,7 @@ SOURCE_FILES_C := $(shell find . -name *.c)
 
 CFLAGS := $(addprefix -I,$(HEADERDIR))
 
-LDFLAGS :=
+LDFLAGS := -lpthread -lrt
 ###############################################################################
 
 APPOBJS_TMP = $(SOURCE_FILES_C:.c=.o)

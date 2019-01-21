@@ -163,8 +163,8 @@ echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
 # Generate Default Implenmentation For HAL/Wrapper Function
 echo ""
 TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w|sed 's/[[:space:]]//g')
-
 ITER=0
+
 for func in $(echo "${FUNC_NAME_LIST}")
 do
     ITER=$(( ${ITER} + 1 ))
@@ -203,5 +203,8 @@ echo -e "\n"
 
 ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| awk -F ':' '{print $2}')
 if [ "${ENV_TEST}" = "ubuntu" ];then
+    rm -f ${WRAPPERS_DIR}/wrapper.c
+    cp -rf wrappers/os/ubuntu ${WRAPPERS_DIR}/
+    rm -f ${WRAPPERS_DIR}/ubuntu/HAL_UART_linux.c
     cp tools/misc/makefile.output output/eng/Makefile
 fi
