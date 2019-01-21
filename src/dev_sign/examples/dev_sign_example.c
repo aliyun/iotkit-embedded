@@ -32,6 +32,32 @@ int main(int argc, char *argv[])
     HAL_Printf("sign_mqtt.clientid: %s\n",sign_mqtt.clientid);
 #endif
 
+/*
+ * Then you can pass this output parameter to MQTT connect APIs to establish connection
+ *
+ * e.g.
+ *
+ *    memset(&mqtt_params, 0x0, sizeof(mqtt_params));
+ *
+ *    mqtt_params.port = sign_mqtt.port;
+ *    mqtt_params.host = sign_mqtt.hostname;
+ *    mqtt_params.client_id = sign_mqtt.clientid;
+ *    mqtt_params.username = sign_mqtt.username;
+ *    mqtt_params.password = sign_mqtt.password;
+ *
+ *    mqtt_params.request_timeout_ms = 2000;
+ *    mqtt_params.clean_session = 0;
+ *    mqtt_params.keepalive_interval_ms = 60000;
+ *    mqtt_params.read_buf_size = 1024;
+ *    mqtt_params.write_buf_size = 1024;
+ *
+ *    mqtt_params.handle_event.h_fp = example_event_handle;
+ *    mqtt_params.handle_event.pcontext = NULL;
+ *
+ *    pclient = IOT_MQTT_Construct(&mqtt_params);
+ *
+ */
+
     return 0;
 }
 
