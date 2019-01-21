@@ -200,3 +200,8 @@ echo ""
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
 
 echo -e "\n"
+
+ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| awk -F ':' '{print $2}')
+if [ "${ENV_TEST}" = "ubuntu" ];then
+    cp tools/misc/makefile.output output/eng/Makefile
+fi
