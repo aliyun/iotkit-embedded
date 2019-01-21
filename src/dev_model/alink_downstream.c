@@ -880,7 +880,7 @@ static void alink_downstream_thing_raw_put_req(uint32_t devid, const char *pk, c
 
 static void alink_downstream_thing_raw_post_rsp(uint32_t devid, const char *pk, const char *dn, const uint8_t *payload, uint16_t len, alink_uri_query_t *query)
 {
-    if (query->code != 200) {
+    if (query->code != 200 && query->code != 0) {   /* TODO: returnCode = 0 if it absence */
         query->code = 400;
     }
     alink_downstream_thing_raw_put_req(devid, pk, dn, payload, len, query);

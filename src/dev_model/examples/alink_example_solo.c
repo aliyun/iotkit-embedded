@@ -11,6 +11,7 @@
         HAL_Printf("\033[0m\r\n");                                   \
     } while (0)
 
+#define EXAMPLE_RAWDATA_DEVICE      (0) /* setup to 1 to support rawdata device demo */
 #define EXAMPLE_MASTER_DEVID        (0)
 
 #define EXAMPLE_PROP_POST_DATA      "{\"WaterConsumption\": 100.123}"
@@ -96,6 +97,22 @@ static int user_service_request_event_handler(const int devid, const char *servi
     return 0;
 }
 
+#if EXAMPLE_RAWDATA_DEVICE
+/** recv rawdata from cloud **/
+static int user_raw_data_arrived_event_handler(int devid, const uint8_t *payload, uint32_t payload_len)
+{
+    uint32_t i;
+    EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
+
+    for (i=0; i<payload_len; i++) {
+        printf("0x%02x ", payload[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+#endif
+
 int main(int argc, char **argv)
 {
     int res = FAIL_RETURN;
@@ -118,6 +135,9 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
+#if EXAMPLE_RAWDATA_DEVICE
+    IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_raw_data_arrived_event_handler);
+#endif
 
     /* init linkkit sdk and create device resource */
     res = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
@@ -138,6 +158,7 @@ int main(int argc, char **argv)
 
         IOT_Linkkit_Yield(2000);
 
+#if (EXAMPLE_RAWDATA_DEVICE == 0)
         /* post property every odd number */
         if ((cnt % 2) != 0) {
             res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_PROPERTY, (uint8_t *)EXAMPLE_PROP_POST_DATA, strlen(EXAMPLE_PROP_POST_DATA));
@@ -149,6 +170,14 @@ int main(int argc, char **argv)
             res = IOT_Linkkit_TriggerEvent(EXAMPLE_MASTER_DEVID, "Error", strlen("Error"), EXAMPLE_EVENT_POST_DATA, strlen(EXAMPLE_EVENT_POST_DATA));
             EXAMPLE_TRACE("post event, res = %d", res);
         }
+
+#else
+        /* post raw data to cloud */
+        if ((cnt % 3) == 0) {
+            res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_RAW_DATA, (uint8_t *)"\x02", 1);
+            EXAMPLE_TRACE("post rawdata, res = %d", res);
+        }
+#endif
 
         if (cnt == 10) {
             res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_DEVICEINFO_UPDATE, (uint8_t *)EXAMPLE_DEVINFO_POST_DATA, strlen(EXAMPLE_DEVINFO_POST_DATA));
