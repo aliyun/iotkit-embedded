@@ -163,6 +163,7 @@ echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
 # Generate Default Implenmentation For HAL/Wrapper Function
 echo ""
 TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w)
+
 ITER=0
 for func in $(echo "${FUNC_NAME_LIST}")
 do
@@ -189,7 +190,12 @@ do
     fi
 done
 
-echo ""
+if [ "${TOTAL_ITERATION}" = "0" ]; then
+    echo "Only [dev_sign] enabled, so NO function requires being implemented in [${WRAPPERS_DIR}/wrapper.c]"
+else
+    echo ""
+fi
+
 echo ""
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
 
