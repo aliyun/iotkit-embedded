@@ -162,7 +162,7 @@ echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
 
 # Generate Default Implenmentation For HAL/Wrapper Function
 echo ""
-TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w)
+TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w|sed -n 's/[[:space:]]//gp')
 
 ITER=0
 for func in $(echo "${FUNC_NAME_LIST}")
