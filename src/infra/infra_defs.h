@@ -236,9 +236,9 @@ typedef enum IOT_RETURN_CODES {
 
     /**
      * @brief dev_sign
-     * 
+     *
      * -1100 ~ -1200
-     * 
+     *
      */
     ERROR_DEV_SIGN_SOURCE_TOO_SHORT = -1104,
     ERROR_DEV_SIGN_PASSWORD_TOO_SHORT = -1103,
@@ -271,7 +271,7 @@ typedef enum IOT_RETURN_CODES {
 
 } iotx_err_t;
 
-typedef struct {
+typedef struct _iotx_dev_meta_info {
     char product_key[IOTX_PRODUCT_KEY_LEN + 1];
     char product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
     char device_name[IOTX_DEVICE_NAME_LEN + 1];

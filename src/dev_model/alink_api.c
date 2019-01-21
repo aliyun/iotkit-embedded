@@ -25,7 +25,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
     }
 
     if (IOTX_LINKKIT_DEV_TYPE_MASTER == dev_type) {
-        res = alink_core_open((iotx_dev_meta_info_t *)meta_info);
+        res = alink_core_open(meta_info);
 
         if (SUCCESS_RETURN == res) {
             res = ALINK_DEVICE_SELF_ID;
@@ -33,7 +33,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
     }
     else if (IOTX_LINKKIT_DEV_TYPE_SLAVE == dev_type) {
 #ifdef DEVICE_MODEL_GATEWAY
-        res = alink_subdev_open((iotx_dev_meta_info_t *)meta_info);
+        res = alink_subdev_open(meta_info);
 #else
         res = IOTX_CODE_GATEWAY_UNSUPPORTED;
 #endif
