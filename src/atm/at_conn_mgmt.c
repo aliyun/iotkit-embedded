@@ -149,20 +149,29 @@ static void at_drainconn(struct at_conn *conn)
 
 static int at_freeconn(struct at_conn *conn)
 {
+    at_netbuf_t  *buf = NULL;
+
     if (NULL == conn)
     	return -1;
     
     if (NULL != conn->lastdata) {
+        buf = (at_netbuf_t *) conn->lastdata;
+
+        if (buf->payload) {
+            HAL_Free(buf->payload);
+            buf->payload = NULL;
+        }
+
     	HAL_Free(conn->lastdata);
-    	conn->lastdata = NULL;
     }
+
+    conn->lastdata   = NULL;
+    conn->lastoffset = 0;
 
     at_drainconn(conn);   
 
     conn->type       = NETCONN_INVALID;
     conn->state      = NETCONN_NONE;
-    conn->lastdata   = NULL;
-    conn->lastoffset = 0;
     conn->connid     = UNUSED_ATCONN;
 
     return 0;
