@@ -12,7 +12,7 @@
 #include "at_wrapper.h"
 #include "at_parser.h"
 #include "at_api.h"
-
+#include "at_mqtt.h"
 #define AT_SIM800_MQTT_IPCONN          "AT+SAPBR"
 #define AT_SIM800_MQTT_MQTTCONF        "AT+SMCONF"
 #define AT_SIM800_MQTT_MQTTCONN        "AT+SMCONN"
@@ -62,10 +62,6 @@
 #define AT_CMD_GPRS_ATTACH_CHECK        "AT+CGATT?"
 
 #define SIM800_RETRY_MAX          50
-
-#define MQTT_STATE_INVALID        0               /* MQTT in invalid state */
-#define MQTT_STATE_CONNECTED      2               /* MQTT in connected state */
-#define MQTT_STATE_DISCONNECTED   3               /* MQTT in disconnected state */
 
 #define mal_err(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define mal_info(...) 
@@ -165,13 +161,19 @@ int HAL_AT_MQTT_State(void)
     return at_sim800_mqtt_client_state();
 }
 
+#define SAPBR_STATUS_CONNECTING        0
+#define SAPBR_STATUS_CONNECTED         1
+#define SAPBR_STATUS_CLOSING           2
+#define SAPBR_STATUS_CLOSED            3
+#define SAPBR_STATUS_INVALID           4
+
 #ifndef PLATFORM_HAS_OS
 char g_sim800_rsp_buff[AT_MQTT_RSP_MAX_LEN];
 #else
 static char              *g_sim800_rsp_buff = NULL;
 #endif
-static volatile int       g_mqtt_connect_state = 0;
-static volatile int       g_sapbr_status = MQTT_STATE_INVALID;
+static volatile int       g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
+static volatile int       g_sapbr_status = SAPBR_STATUS_INVALID;
 static volatile at_mqtt_send_type_t   g_sim800_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
 #ifdef PLATFORM_HAS_OS
@@ -181,12 +183,6 @@ static volatile int       g_response_msg_number = 0;
 static int                g_response_packetid = 0;
 static int                g_response_status = 0;
 static int                g_public_qos = 0;
-
-#define SAPBR_STATUS_CONNECTING        0
-#define SAPBR_STATUS_CONNECTED         1
-#define SAPBR_STATUS_CLOSING           2
-#define SAPBR_STATUS_CLOSED            3
-#define SAPBR_STATUS_INVALID           4
 
 int at_sim800_mqtt_atsend(char *at_cmd, int timeout_ms);
 
@@ -218,7 +214,7 @@ static void recv_sapbr_callback(char *at_rsp)
                     g_at_response_result = 0;
                     break;
                 default:
-                    g_sapbr_status = MQTT_STATE_INVALID;
+                    g_sapbr_status = SAPBR_STATUS_INVALID;
                     break;
             }
         }
@@ -464,15 +460,15 @@ static void state_change_callback(char *at_rsp)
             switch(state) {
                 /* disconnect */
                 case 0:
-                    g_mqtt_connect_state = MQTT_STATE_DISCONNECTED;
+                    g_mqtt_connect_state = IOTX_MC_STATE_DISCONNECTED;
                     break;
                 /* connected */
                 case 1:
-                    g_mqtt_connect_state = MQTT_STATE_CONNECTED;
+                    g_mqtt_connect_state = IOTX_MC_STATE_CONNECTED;
                     break;
                 /* invalid */
                 default:
-                    g_mqtt_connect_state = MQTT_STATE_INVALID;
+                    g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
                     break;
             }
         }
@@ -815,9 +811,9 @@ int at_sim800_mqtt_client_conn()
         return -1;
     }
 		
-    while((g_mqtt_connect_state != MQTT_STATE_CONNECTED) && (retry < AT_MQTT_WAIT_COUNT)) {
+    while((g_mqtt_connect_state != IOTX_MC_STATE_CONNECTED) && (retry < AT_MQTT_WAIT_COUNT)) {
         retry ++;
-		at_sim800_mqtt_client_state();
+        at_sim800_mqtt_client_state();
         mal_info("try to wait mqtt server ... mstate %d  retry %d", g_mqtt_connect_state, retry);
         HAL_SleepMs(AT_MQTT_WAIT_DEF_TIMEOUT);
     }
@@ -962,7 +958,7 @@ int at_sim800_mqtt_client_state(void)
     int mode;
     int retry = 0;
 
-    if((g_mqtt_connect_state == MQTT_STATE_CONNECTED)) {
+    if((g_mqtt_connect_state == IOTX_MC_STATE_CONNECTED)) {
         mode = 32;
     } else {
         mode = 1;
@@ -988,7 +984,7 @@ int at_sim800_mqtt_client_state(void)
         HAL_SleepMs(500);
     }
 		
-    while((g_mqtt_connect_state != MQTT_STATE_CONNECTED) &&( retry < SIM800_RETRY_MAX)) {
+    while((g_mqtt_connect_state != IOTX_MC_STATE_CONNECTED) &&( retry < SIM800_RETRY_MAX)) {
        at_sim800_mqtt_client_reconn();
        retry ++;
     }
@@ -1213,7 +1209,7 @@ int at_sim800_mqtt_client_init(iotx_mqtt_param_t * pInitParams)
     memset(g_sim800_rsp_buff, 0, sizeof(g_sim800_rsp_buff));
 #endif
 
-    g_mqtt_connect_state = MQTT_STATE_INVALID;
+    g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 
     g_pInitParams = pInitParams; 
 
@@ -1282,7 +1278,7 @@ int at_sim800_mqtt_client_deinit(void)
 
     g_pInitParams = NULL; 
 
-    g_mqtt_connect_state = MQTT_STATE_INVALID;
+    g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 
     return 0;
 }

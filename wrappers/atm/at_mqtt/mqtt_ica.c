@@ -12,6 +12,7 @@
 #include "at_wrapper.h"
 #include "at_parser.h"
 #include "at_api.h"
+#include "at_mqtt.h"
 
 #define AT_ICA_MQTT_MQTTMODE        "AT+IMQTTMODE"
 #define AT_ICA_MQTT_MQTTOPEN        "AT+IMQTTOPEN"
@@ -63,6 +64,8 @@
     #define AT_MQTT_ICA_MALLOC(size)            HAL_Malloc(size)
     #define AT_MQTT_ICA_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
+
+  
 
 typedef enum {
     AT_MQTT_IDLE = 0,
@@ -154,7 +157,7 @@ char g_ica_rsp_buff[AT_MQTT_RSP_MAX_LEN];
 #else
 static char              *g_ica_rsp_buff = NULL;
 #endif
-static volatile int       g_mqtt_connect_state = 0;
+static volatile int       g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 static volatile at_mqtt_send_type_t   g_ica_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
 #ifdef PLATFORM_HAS_OS
@@ -806,7 +809,21 @@ int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message)
 
 int at_ica_mqtt_client_state(void)
 {
-    return (int)g_mqtt_connect_state;
+    int state;
+
+    switch(g_mqtt_connect_state){
+    case 0:
+         state = IOTX_MC_STATE_DISCONNECTED;
+         break;
+    case 1:
+         state = IOTX_MC_STATE_CONNECTED;
+         break;
+    default:
+         state = IOTX_MC_STATE_INVALID;
+         break;
+    }
+
+    return state;
 }
 
 int at_ica_mqtt_client_init(void)
@@ -833,7 +850,7 @@ int at_ica_mqtt_client_init(void)
     g_at_response = 0;
 #endif
 
-    g_mqtt_connect_state = 0;
+    g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 
     at_register_callback(AT_ICA_MQTT_MQTTRCV,
                              AT_ICA_MQTT_POSTFIX,
@@ -869,7 +886,7 @@ int at_ica_mqtt_client_deinit(void)
     g_at_response = 0;
 #endif
 
-    g_mqtt_connect_state = 0;
+    g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 
     return 0;
 }
