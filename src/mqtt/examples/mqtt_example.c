@@ -28,10 +28,10 @@ void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             /* print topic name and topic message */
-            HAL_Printf("Message Arrived: \n");
-            HAL_Printf("Topic  : %.*s\n", topic_info->topic_len, topic_info->ptopic);
-            HAL_Printf("Payload: %.*s\n", topic_info->payload_len, topic_info->payload);
-            HAL_Printf("\n");
+            EXAMPLE_TRACE("Message Arrived:");
+            EXAMPLE_TRACE("Topic  : %.*s", topic_info->topic_len, topic_info->ptopic);
+            EXAMPLE_TRACE("Payload: %.*s", topic_info->payload_len, topic_info->payload);
+            EXAMPLE_TRACE("\n");
             break;
         default:
             break;
@@ -53,7 +53,7 @@ int example_subscribe(void *handle)
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
-        HAL_Printf("memory not enough\n");
+        EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
@@ -61,7 +61,7 @@ int example_subscribe(void *handle)
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
     if (res < 0) {
-        HAL_Printf("subscribe failed\n");
+        EXAMPLE_TRACE("subscribe failed");
         HAL_Free(topic);
         return -1;
     }
@@ -87,7 +87,7 @@ int example_publish(void *handle)
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
-        HAL_Printf("memory not enough\n");
+        EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
@@ -103,7 +103,7 @@ int example_publish(void *handle)
 
     res = IOT_MQTT_Publish(handle, topic, &topic_msg);
     if (res < 0) {
-        HAL_Printf("publish failed\n");
+        EXAMPLE_TRACE("publish failed");
         HAL_Free(topic);
         return -1;
     }
@@ -114,7 +114,7 @@ int example_publish(void *handle)
 
 void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    HAL_Printf("msg->event_type : %d\n", msg->event_type);
+    EXAMPLE_TRACE("msg->event_type : %d", msg->event_type);
 }
 
 /*
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     iotx_dev_meta_info_t        meta;
     iotx_mqtt_param_t           mqtt_params;
 
-    HAL_Printf("mqtt example\n");
+    EXAMPLE_TRACE("mqtt example");
 
     memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
     HAL_GetProductKey(meta.product_key);
@@ -155,11 +155,11 @@ int main(int argc, char *argv[])
     }
 
 #if 0   /* Uncomment this to show more information */
-    HAL_Printf("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
-    HAL_Printf("sign_mqtt.port    : %d\n", sign_mqtt.port);
-    HAL_Printf("sign_mqtt.username: %s\n", sign_mqtt.username);
-    HAL_Printf("sign_mqtt.password: %s\n", sign_mqtt.password);
-    HAL_Printf("sign_mqtt.clientid: %s\n", sign_mqtt.clientid);
+    EXAMPLE_TRACE("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
+    EXAMPLE_TRACE("sign_mqtt.port    : %d\n", sign_mqtt.port);
+    EXAMPLE_TRACE("sign_mqtt.username: %s\n", sign_mqtt.username);
+    EXAMPLE_TRACE("sign_mqtt.password: %s\n", sign_mqtt.password);
+    EXAMPLE_TRACE("sign_mqtt.clientid: %s\n", sign_mqtt.clientid);
 #endif
 
     /* Initialize MQTT parameter */

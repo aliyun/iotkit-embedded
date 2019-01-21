@@ -413,6 +413,9 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 #if !WITH_MQTT_ONLY_QOS0
     iotx_mc_pub_info_t  *node = NULL;
 #endif
+#if WITH_FAC_JSON_FLOW
+    const char     *json_payload = NULL;
+#endif
 
     if (!c || !topicName || !topic_msg) {
         return FAIL_RETURN;
@@ -481,7 +484,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     }
 
 #if WITH_FAC_JSON_FLOW
-    const char     *json_payload = (const char *)topic_msg->payload;
+    json_payload = (const char *)topic_msg->payload;
 
     mqtt_info("Upstream Topic: '%s'", topicName);
     mqtt_info("Upstream Payload:");
@@ -1336,6 +1339,9 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     iotx_mqtt_topic_info_t topic_msg;
     int qos = 0;
     uint32_t payload_len = 0;
+#if WITH_FAC_JSON_FLOW
+    const char     *json_payload = NULL;
+#endif
 
     if (!c) {
         return FAIL_RETURN;
@@ -1360,7 +1366,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 
 #if WITH_FAC_JSON_FLOW
 
-    const char     *json_payload = (const char *)topic_msg.payload;
+    json_payload = (const char *)topic_msg.payload;
     mqtt_info("Downstream Topic: '%.*s'", topicName.lenstring.len, topicName.lenstring.data);
     mqtt_info("Downstream Payload:");
     iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '<');

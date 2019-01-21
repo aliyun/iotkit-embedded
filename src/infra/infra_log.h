@@ -2,6 +2,7 @@
 #define _INFRA_LOG_H_
 
 #include <stdarg.h>
+#include "infra_defs.h"
 
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 void HAL_Printf(const char *fmt, ...);
@@ -39,6 +40,15 @@ int     LITE_hexdump(const char *title, const void *buf, const int len);
 
 void    LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params);
 void    LITE_syslog(char *m, const char *f, const int l, const int level, const char *fmt, ...);
+
+typedef enum _IOT_LogLevel {
+    IOT_LOG_NONE = 0,
+    IOT_LOG_CRIT,
+    IOT_LOG_ERROR,
+    IOT_LOG_WARNING,
+    IOT_LOG_INFO,
+    IOT_LOG_DEBUG,
+} IOT_LogLevel;
 
 #define LOG_NONE_LEVEL                  (0)     /* no log printed at all */
 #define LOG_CRIT_LEVEL                  (1)     /* current application aborting */
@@ -107,6 +117,9 @@ void    LITE_rich_hexdump(const char *f, const int l,
 
 #define HEXDUMP_INFO(buf, len)      \
     LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, (const void *)buf, (const int)len)
+
+int     iotx_facility_json_print(const char *str, int level, ...);
+DLL_IOT_API void IOT_SetLogLevel(IOT_LogLevel level);
 
 #endif
 
