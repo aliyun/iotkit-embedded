@@ -465,7 +465,8 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
     }
 
     switch (type) {
-        case IOTX_DM_EVENT_CLOUD_CONNECTED: {
+        case IOTX_DM_EVENT_CLOUD_CONNECTED:
+        case IOTX_DM_EVENT_CLOUD_RECONNECT: {
             if (linkkit_gateway_ctx->init_params.event_cb) {
                 linkkit_event_t event;
 
@@ -927,7 +928,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             linkkit_gateway_dev_callback_node_t *node = NULL;
             lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
             char *output = NULL;
-            
+
             if (payload == NULL) {
                 return;
             }
@@ -1268,7 +1269,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (payload == NULL) {
                 return;
             }
-            
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -1308,14 +1309,14 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             _linkkit_gateway_upstream_mutex_unlock();
         }
         break;
-        case IOTX_DM_EVENT_TOPO_GET_REPLY:{
+        case IOTX_DM_EVENT_TOPO_GET_REPLY: {
             int res = 0;
             lite_cjson_t lite, lite_item_topo;
 
             if (payload == NULL) {
                 return;
             }
-             /* Parse Payload */
+            /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
             if (res != SUCCESS_RETURN) {
@@ -1329,15 +1330,15 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (res != SUCCESS_RETURN) {
                 return;
             }
-            dm_log_debug("Current topo:%.*s",lite_item_topo.value_length,lite_item_topo.value);
+            dm_log_debug("Current topo:%.*s", lite_item_topo.value_length, lite_item_topo.value);
 
             if (linkkit_gateway_ctx->init_params.event_cb) {
                 linkkit_event_t event;
-                char topo[lite_item_topo.value_length+1];
+                char topo[lite_item_topo.value_length + 1];
 
                 memset(&event, 0, sizeof(linkkit_event_t));
                 memset(topo, 0, sizeof(topo));
-                
+
                 memcpy(topo, lite_item_topo.value, lite_item_topo.value_length);
 
                 event.event_type = LINKKIT_EVENT_SUBDEV_SETUP;
@@ -1455,7 +1456,8 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     return SUCCESS_RETURN;
 }
 
-int linkkit_gateway_get_topo(){
+int linkkit_gateway_get_topo()
+{
     /* Gateway Get Topo */
     return iotx_dm_gateway_topo_get();
 }
@@ -1488,7 +1490,7 @@ int linkkit_gateway_stop(int devid)
 
     linkkit_gateway_ctx->mutex = NULL;
     linkkit_gateway_ctx->upstream_mutex = NULL;
-    memset(&linkkit_gateway_ctx->init_params,0,sizeof(linkkit_params_t));
+    memset(&linkkit_gateway_ctx->init_params, 0, sizeof(linkkit_params_t));
     linkkit_gateway_ctx->dispatch_thread = NULL;
     linkkit_gateway_ctx->fota_callback = NULL;
     INIT_LIST_HEAD(&linkkit_gateway_ctx->dev_callback_list);

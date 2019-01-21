@@ -55,7 +55,7 @@ static int _linkkit_solo_upstream_callback_list_insert(int msgid, handle_post_cb
         }
     }
 
-    dm_log_info("linkkit_solo_upstream_callback_list node count: %d",count);
+    dm_log_info("linkkit_solo_upstream_callback_list node count: %d", count);
 
     search_node = DM_malloc(sizeof(linkkit_solo_upstream_callback_node_t));
     if (search_node == NULL) {
@@ -184,7 +184,8 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
     }
 
     switch (type) {
-        case IOTX_DM_EVENT_CLOUD_CONNECTED: {
+        case IOTX_DM_EVENT_CLOUD_CONNECTED:
+        case IOTX_DM_EVENT_CLOUD_RECONNECT: {
             if (linkkit_solo_ctx->user_callback->on_connect) {
                 linkkit_solo_ctx->user_callback->on_connect(linkkit_solo_ctx->user_context);
             }
@@ -742,7 +743,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             if (payload == NULL) {
                 return;
             }
-            
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -1214,8 +1215,8 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
         return FAIL_RETURN;
     }
     msgid = res;
-    
-    res = iotx_dm_get_opt(linkkit_opt_event_post_reply,&post_event_reply);
+
+    res = iotx_dm_get_opt(linkkit_opt_event_post_reply, &post_event_reply);
     if (cb != NULL && post_event_reply) {
         /* Insert Message ID Into Linked List */
         _linkkit_solo_upstream_mutex_lock();
@@ -1279,7 +1280,7 @@ int deprecated linkkit_post_property(const void *thing_id, const char *property_
     }
     msgid = res;
 
-    res = iotx_dm_get_opt(linkkit_opt_property_post_reply,&post_property_reply);
+    res = iotx_dm_get_opt(linkkit_opt_property_post_reply, &post_property_reply);
     if (cb != NULL && post_property_reply) {
         /* Insert Message ID Into Linked List */
         _linkkit_solo_upstream_mutex_lock();

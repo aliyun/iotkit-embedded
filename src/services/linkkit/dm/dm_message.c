@@ -1124,9 +1124,9 @@ int dm_msg_ext_error_reply(dm_msg_response_payload_t *response)
     /* Login again if error code is 520 */
     if (response->code.value_int == IOTX_DM_ERR_CODE_NO_ACTIVE_SESSION) {
         dm_log_err("log in again test\r\n");
-        #ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef CONFIG_DM_DEVTYPE_GATEWAY
         dm_mgr_upstream_combine_login(devid);
-        #endif
+#endif
     }
 
     return SUCCESS_RETURN;
@@ -1893,17 +1893,7 @@ int dm_msg_cloud_disconnect(void)
 
 int dm_msg_cloud_reconnect(void)
 {
-    int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    /* Send To User */
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
-
-    return res;
+    return _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
 }
 
 const char DM_MSG_EVENT_FOUND_DEVICE_FMT[] DM_READ_ONLY = "{\"product_key\":\"%s\",\"device_name\":\"%s\"}";
