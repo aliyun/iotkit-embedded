@@ -79,7 +79,7 @@ int example_publish(void *handle)
     const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
-    char *payload = "hello,world";
+    char *payload = "{\"message\":\"hello!\"}";
 
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);

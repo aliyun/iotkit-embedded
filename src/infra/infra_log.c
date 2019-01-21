@@ -5,7 +5,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include "infra_log.h"
+#if defined(INFRA_CJSON)
 #include "infra_cjson.h"
+#endif
 
 static log_client logcb = {
     .name       = "linkkit",
@@ -256,10 +258,12 @@ int iotx_facility_json_print(const char *str, int level, ...)
         return -1;
     }
 
+#if defined(INFRA_CJSON)
     res = lite_cjson_parse(str, strlen(str), &lite);
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
         return -2;
     }
+#endif
 
     length = strlen(str);
     HAL_Printf("%s%s", "\033", lvl_color[level]);
