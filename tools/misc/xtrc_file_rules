@@ -14,19 +14,14 @@ INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
 SUPPORT_TLS||certs/root_ca.c|output/eng/certs
 
 DEV_SIGN||src/dev_sign|output/eng/dev_sign
-DEV_SIGN||src/dev_sign/examples|output/eng/examples
 
 DYNAMIC_REGISTER||src/dynamic_register|output/eng/dynamic_register
-DYNAMIC_REGISTER||src/dynamic_register/examples|output/eng/examples
 
 MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
 MQTT_DEFAULT_IMPL||src/mqtt/mqtt_impl|output/eng/mqtt
-MQTT_COMM_ENABLED||src/mqtt/examples|output/eng/examples
 
 DEVICE_MODEL_ENABLE||src/dev_model|output/eng/dev_model
 DEVICE_MODEL_ENABLE&DEVICE_MODEL_GATEWAY||src/dev_model/subdev|output/eng/dev_model
-DEVICE_MODEL_ENABLE||src/dev_model/examples/alink_example_solo.c|output/eng/examples
-DEVICE_MODEL_ENABLE&DEVICE_MODEL_GATEWAY||src/dev_model/examples/alink_example_gateway.c|output/eng/examples
 
 ATM_ENABLED||src/atm/at_api.[ch] src/atm/at_wrapper.h|output/eng/atm
 AT_PARSER_ENABLED||src/atm/at_parser.[ch]|output/eng/atm
@@ -36,3 +31,11 @@ AT_TCP_ENABLED&AT_TCP_HAL_SIM800||wrappers/atm/at_tcp/sim800.c|output/eng/atm
 AT_TCP_ENABLED&AT_TCP_HAL_MK3060||wrappers/atm/at_tcp/mk3060.c|output/eng/atm
 AT_MQTT_ENABLED&AT_MQTT_HAL_ICA||wrappers/atm/at_mqtt/mqtt_ica.c|output/eng/atm
 AT_MQTT_ENABLED&AT_MQTT_HAL_SIM800||wrappers/atm/at_mqtt/mqtt_sim800.c|output/eng/atm
+
+# example rules
+DEV_SIGN|MQTT_COMM_ENABLED|src/dev_sign/examples|output/eng/examples
+DYNAMIC_REGISTER||src/dynamic_register/examples|output/eng/examples
+MQTT_COMM_ENABLED|ATM_ENABLED&DEVICE_MODEL_ENABLE|src/mqtt/examples/mqtt_example.c|output/eng/examples
+MQTT_COMM_ENABLED&ATM_ENABLED|DEVICE_MODEL_ENABLE|src/mqtt/examples/mqtt_example_at.c|output/eng/examples
+DEVICE_MODEL_ENABLE||src/dev_model/examples/alink_example_solo.c|output/eng/examples
+DEVICE_MODEL_ENABLE&DEVICE_MODEL_GATEWAY||src/dev_model/examples/alink_example_gateway.c|output/eng/examples

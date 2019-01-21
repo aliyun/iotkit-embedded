@@ -32,7 +32,7 @@ config ASYNC_PROTOCOL_STACK
     bool "FEATURE_ASYNC_PROTOCOL_STACK"
     default n
 
-    depends on MQTT_DEFAULT_IMPL
+    depends on MQTT_COMM_ENABLED
     help
         Use async protocol stack for SDK default MQTT implementation
 
