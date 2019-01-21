@@ -189,4 +189,8 @@ do
     fi
 done
 
+echo ""
+echo ""
+echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
+
 echo -e "\n"
