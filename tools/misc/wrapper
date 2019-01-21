@@ -602,5 +602,5 @@ HAL_AT_MQTT_State:
 /**
  * Check connection status
  *
- * @return  0 - disconnected, -1 -connected
+ * @return  0 - invalid, 1 - initialized, 2 - connected, 3 - disconnected, 4 - disconnect-reconnecting
  */
