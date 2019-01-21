@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "infra_types.h"
+#include "infra_defs.h"
+
 #ifdef INFRA_LOG
     #include "infra_log.h"
     #define mqtt_emerg(...)             log_emerg("MQTT", __VA_ARGS__)
