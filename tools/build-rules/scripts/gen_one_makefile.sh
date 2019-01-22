@@ -10,7 +10,7 @@ for iter in \
         tools/build-rules/misc \
         include \
         tests \
-        src/infra \
+        src \
         ${IMPORT_DIR}/${CONFIG_VENDOR}/include \
             -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
                 echo "    -I${iter} \\"; \
