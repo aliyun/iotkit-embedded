@@ -67,6 +67,7 @@
 #define SIM800_CONN_CMD_LEN   (SIM800_DOMAIN_MAX_LEN + SIM800_DEFAULT_CMD_LEN)
 
 #define SIM800_RETRY_MAX          50
+#define SIM800_WAIT_MAX_MS        10000
 
 #ifdef AT_DEBUG_MODE
 #define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
@@ -607,12 +608,32 @@ int HAL_AT_CONN_Deinit()
     return 0;
 }
 
+static uint64_t _get_time_ms(void)
+{
+    return HAL_UptimeMs();
+}
+
+static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
+{
+    uint64_t t_left;
+
+    if (t_end > t_now) {
+        t_left = t_end - t_now;
+    } else {
+        t_left = 0;
+    }
+
+    return t_left;
+}
+
 int HAL_AT_CONN_DomainToIp(char *domain, char ip[16])
 {
     char *pccmd = NULL;
     char *head = NULL;
     char *end = NULL;
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
+    int count = 0;
+    uint64_t t_end, t_left;
 
     if (!inited) {
         at_conn_hal_err( "%s sim800 gprs module haven't init yet \r\n", __func__);
@@ -640,6 +661,13 @@ int HAL_AT_CONN_DomainToIp(char *domain, char ip[16])
 
     HAL_MutexLock(g_domain_mutex);
 restart:
+    count++;
+    if (count > SIM800_RETRY_MAX) {
+        at_conn_hal_err( "domain to ip retry failed!\r\n");
+        HAL_MutexUnlock(g_domain_mutex);
+        return -1;
+    }
+
     at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp,
                        SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
@@ -648,11 +676,16 @@ restart:
     }
 
 #ifdef PLATFORM_HAS_OS
-    /*TODO wait for reponse for ever for now*/
-    HAL_SemaphoreWait(g_domain_sem, PLATFORM_WAIT_INFINITE);
+    HAL_SemaphoreWait(g_domain_sem, SIM800_WAIT_MAX_MS);
 #else
+    t_end = _get_time_ms() + SIM800_WAIT_MAX_MS;
     while(!g_domain_mark) {
         at_yield(NULL, 0, NULL, 100);
+
+        t_left = _time_left(t_end, _get_time_ms());
+        if (0 == t_left) {
+            break;
+        }
         HAL_SleepMs(50);
     }
     g_domain_mark = 0;
