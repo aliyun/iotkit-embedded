@@ -608,6 +608,7 @@ int HAL_AT_CONN_Deinit()
     return 0;
 }
 
+#ifndef PLATFORM_HAS_OS
 static uint64_t _get_time_ms(void)
 {
     return HAL_UptimeMs();
@@ -625,6 +626,7 @@ static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
 
     return t_left;
 }
+#endif
 
 int HAL_AT_CONN_DomainToIp(char *domain, char ip[16])
 {
@@ -633,7 +635,9 @@ int HAL_AT_CONN_DomainToIp(char *domain, char ip[16])
     char *end = NULL;
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
     int count = 0;
+#ifndef PLATFORM_HAS_OS
     uint64_t t_end, t_left;
+#endif
 
     if (!inited) {
         at_conn_hal_err( "%s sim800 gprs module haven't init yet \r\n", __func__);
