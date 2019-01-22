@@ -825,7 +825,7 @@ int alink_upstream_thing_deviceinfo_delete_req(uint32_t devid, const char *user_
 /***************************************************************
  * STATS POST：subdev stats info post
  ***************************************************************/
-#if DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 void _stats_post_get_version_num_hex(uint8_t version[VERSION_NUM_SIZE])
 {
     const char *p_version = IOTX_SDK_VERSION;

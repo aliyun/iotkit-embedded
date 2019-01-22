@@ -27,7 +27,7 @@ void HAL_MutexDestroy(void *mutex);
 void HAL_MutexLock(void *mutex);
 void HAL_MutexUnlock(void *mutex);
 
-#if THREAD_COST_INTERNAL
+#ifdef THREAD_COST_INTERNAL
 int HAL_ThreadCreate(
                      void **thread_handle,
                      void *(*work_routine)(void *),

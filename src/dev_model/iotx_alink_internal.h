@@ -14,7 +14,7 @@
 #include "infra_defs.h"
 #include "infra_cjson.h"
 #include "infra_timer.h"
-#if DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 #include "infra_string.h"
 #include "infra_sha256.h"
 #include "infra_report.h"
@@ -33,7 +33,7 @@
 #include "alink_downstream.h"
 #include "alink_core.h"
 #include "alink_wrapper.h"
-#if DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 #include "alink_subdev.h"
 #endif
 
