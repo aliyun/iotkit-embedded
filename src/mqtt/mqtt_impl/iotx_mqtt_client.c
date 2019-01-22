@@ -1743,18 +1743,18 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
                      (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
                     );
         mqtt_warning("Reset heartbeat interval => %d Millisecond",
-                     (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
+                     (KEEP_ALIVE_INTERVAL_DEFAULT * 1000)
                     );
-        pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MIN;
+        pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT;
     } else if (pConnectParams->keepAliveInterval > KEEP_ALIVE_INTERVAL_DEFAULT_MAX) {
         mqtt_warning("Input heartbeat interval(%d ms) > Allowed maximum(%d ms)",
                      (pConnectParams->keepAliveInterval * 1000),
                      (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
                     );
         mqtt_warning("Reset heartbeat interval => %d Millisecond",
-                     (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
+                     (KEEP_ALIVE_INTERVAL_DEFAULT * 1000)
                     );
-        pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MAX;
+        pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT;
     } else {
         pClient->connect_data.keepAliveInterval = pConnectParams->keepAliveInterval;
     }

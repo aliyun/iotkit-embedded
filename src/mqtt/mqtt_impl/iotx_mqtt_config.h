@@ -67,6 +67,9 @@
 /* Maximum keepalive interval of MQTT request in second */
 #define KEEP_ALIVE_INTERVAL_DEFAULT_MAX         (180)
 
+/* Default keepalive interval of MQTT request in second */
+#define KEEP_ALIVE_INTERVAL_DEFAULT             (60)
+
 /* Max times of keepalive which has been send and did not received response package */
 #define IOTX_MC_KEEPALIVE_PROBE_MAX             (1)
 

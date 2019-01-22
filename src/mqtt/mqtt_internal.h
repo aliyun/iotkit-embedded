@@ -13,6 +13,7 @@
 
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "iotx_mqtt_config.h"
 
 #ifdef INFRA_LOG
     #include "infra_log.h"
