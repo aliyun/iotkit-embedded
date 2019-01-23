@@ -28,8 +28,8 @@
 #include "iotx_system.h"
 #include "http_debug.h"
 
-#define HTTP_API_MALLOC(size)             HTTP_API_MALLOC(size, MEM_MAGIC, "http.api")
-#define HTTP_API_FREE(ptr)                HTTP_API_FREE(ptr)
+#define HTTP_API_MALLOC(size)       LITE_malloc(size, MEM_MAGIC, "http.api")
+#define HTTP_API_FREE(ptr)          LITE_free(ptr)
 
 /*
 #define IOTX_HTTP_TIMESTAMP_OPTIONAL_ENABLE
