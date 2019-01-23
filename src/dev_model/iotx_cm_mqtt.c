@@ -318,7 +318,6 @@ static int _mqtt_close(void)
         return NULL_VALUE_ERROR;
     }
 
-    cm_free(_mqtt_conncection->open_params);
     if (_mqtt_conncection->context != NULL) {
         IOT_MQTT_Destroy(&_mqtt_conncection->context);
     }

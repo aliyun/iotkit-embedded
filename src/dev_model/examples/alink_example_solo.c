@@ -105,9 +105,9 @@ static int user_raw_data_arrived_event_handler(int devid, const uint8_t *payload
     EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
 
     for (i=0; i<payload_len; i++) {
-        printf("0x%02x ", payload[i]);
+        HAL_Printf("0x%02x ", payload[i]);
     }
-    printf("\n");
+    HAL_Printf("\n");
 
     return 0;
 }
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     HAL_GetDeviceName(dev_info.device_name);
     HAL_GetDeviceSecret(dev_info.device_secret);
 
-    printf("alink start\r\n");
+    HAL_Printf("alink start\r\n");
 
     user_example_ctx = user_example_get_ctx();
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
     }
 
     IOT_Linkkit_Close(EXAMPLE_MASTER_DEVID);
-    printf("alink stop\r\n");
+    HAL_Printf("alink stop\r\n");
 
     return 0;
 }

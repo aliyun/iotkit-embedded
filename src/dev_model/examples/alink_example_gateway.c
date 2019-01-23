@@ -112,9 +112,9 @@ static int user_down_raw_data_arrived_event_handler(const int devid, const unsig
     EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
 
     for (i = 0; i<payload_len; i++) {
-        printf("0x%02x ", payload[i]);
+        HAL_Printf("0x%02x ", payload[i]);
     }
-    printf("\r\n");
+    HAL_Printf("\r\n");
 
     return 0;
 }
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_SERVICE_REQUEST, user_service_request_event_handler);
     IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
 
-    printf("alink start\r\n");
+    HAL_Printf("alink start\r\n");
 
     /* init linkkit sdk and create device resource */
     res = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &dev_info);
@@ -290,7 +290,7 @@ int main(int argc, char **argv)
 
     /* deinit the linkkit sdk */
     IOT_Linkkit_Close(IOTX_LINKKIT_DEV_TYPE_MASTER);
-    printf("alink stop\r\n");
+    HAL_Printf("alink stop\r\n");
     return 0;
 }
 
