@@ -1226,8 +1226,12 @@ static void alink_downstream_subdev_permit_post_req(uint32_t devid, const char *
 
         /* send upstream response */
         alink_upstream_gw_permit_put_rsp(pk, dn, (res == SUCCESS_RETURN) ? ALINK_ERROR_CODE_200: ALINK_ERROR_CODE_400, query);
+        alink_free(productKey);
     }
-    alink_free(productKey);
+#else
+    {
+        alink_free(productKey);
+    }
 #endif /* #ifndef THREAD_COST_INTERNAL */
 }
 
