@@ -262,7 +262,17 @@ static void iotx_mqtt_report_funcs(void *pclient)
 }
 
 /************************  Public Interface ************************/
-static iotx_sign_mqtt_t signout;
+typedef struct {
+    uint16_t        port;
+    uint8_t         init;
+    char            *host_name;
+    char            *client_id;
+    char            *username;
+    char            *password;
+    const char      *pub_key;
+} iotx_conn_info_t, *iotx_conn_info_pt;
+iotx_conn_info_t g_iotx_conn_info;
+
 int IOT_SetupConnInfo(const char *product_key,
                       const char *device_name,
                       const char *device_secret,
@@ -275,18 +285,30 @@ int IOT_SetupConnInfo(const char *product_key,
         return NULL_VALUE_ERROR;
     }
 
+    memset(&g_sign_mqtt, 0, sizeof(iotx_sign_mqtt_t));
+    memset(&g_iotx_conn_info,0,sizeof(iotx_conn_info_t));
+
     memset(&meta_data, 0, sizeof(iotx_dev_meta_info_t));
     memcpy(meta_data.product_key, product_key, strlen(product_key));
     memcpy(meta_data.device_name, device_name, strlen(device_name));
     memcpy(meta_data.device_secret, device_secret, strlen(device_secret));
 
     /* just connect shanghai region */
-    res = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta_data, &signout);
+    res = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta_data, &g_sign_mqtt);
     if (res < SUCCESS_RETURN) {
         return res;
     }
 
-    *info_ptr = &signout;
+    g_iotx_conn_info.host_name = g_sign_mqtt.hostname;
+    g_iotx_conn_info.client_id = g_sign_mqtt.clientid;
+    g_iotx_conn_info.username = g_sign_mqtt.username;
+    g_iotx_conn_info.password = g_sign_mqtt.password;
+#ifdef SUPPORT_TLS
+        {
+            extern const char *iotx_ca_crt;
+            g_iotx_conn_info.pub_key = iotx_ca_crt;
+        }
+#endif
     return SUCCESS_RETURN;
 }
 
