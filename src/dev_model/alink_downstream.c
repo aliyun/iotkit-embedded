@@ -394,7 +394,7 @@ int alink_msg_event_list_handler(void)
 
             case ALINK_EVENT_SERVICE_PUT_REQ: {
                 char *rsp_data = NULL;
-                uint32_t rsp_len;
+                uint32_t rsp_len = 0;
                 linkkit_service_request_cb_t handle_func;
                 /* just invoke the user callback funciton */
                 handle_func = (linkkit_service_request_cb_t)alink_get_event_callback(ITE_SERVICE_REQUEST);

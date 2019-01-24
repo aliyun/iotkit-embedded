@@ -84,7 +84,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
         const char *request, const int request_len,
         char **response, int *response_len)
 {
-    uint32_t len = strlen(SUBDEV_SERVICE_RSP_DATA);
+    uint32_t len = strlen(SUBDEV_SERVICE_RSP_DATA) + 1;
     char *rsp = HAL_Malloc(len);
     if (rsp == NULL) {
         return -1;

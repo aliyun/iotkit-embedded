@@ -656,6 +656,7 @@ int alink_subdev_update_device_secret(uint32_t devid, const char *device_secret)
     node = _subdev_hash_search_by_devid(devid);
     if (node == NULL) {
         _alink_subdev_mgr_unlock();
+        alink_free(temp);
         return FAIL_RETURN;
     }
 
