@@ -299,6 +299,7 @@ int IOT_SetupConnInfo(const char *product_key,
         return res;
     }
 
+    g_iotx_conn_info.port = g_sign_mqtt.port;
     g_iotx_conn_info.host_name = g_sign_mqtt.hostname;
     g_iotx_conn_info.client_id = g_sign_mqtt.clientid;
     g_iotx_conn_info.username = g_sign_mqtt.username;
@@ -309,6 +310,7 @@ int IOT_SetupConnInfo(const char *product_key,
             g_iotx_conn_info.pub_key = iotx_ca_crt;
         }
 #endif
+    *info_ptr = (void *)&g_iotx_conn_info;
     return SUCCESS_RETURN;
 }
 
@@ -383,6 +385,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (pclient == NULL) {
         if (mqtt_params != NULL) {
             _iotx_mqtt_free_param(mqtt_params);
+            mqtt_err("wrapper_mqtt_init error");
+            return NULL;
         }
     }
 
