@@ -188,6 +188,34 @@ static void iotx_mqtt_report_funcs(void *pclient)
 }
 
 /************************  Public Interface ************************/
+static iotx_sign_mqtt_t signout;
+int IOT_SetupConnInfo(const char *product_key,
+                      const char *device_name,
+                      const char *device_secret,
+                      void **info_ptr)
+{
+    int res = FAIL_RETURN;
+    iotx_dev_meta_info_t meta_data;
+
+    if (product_key == NULL || device_name == NULL || device_secret == NULL) {
+        return NULL_VALUE_ERROR;
+    }
+
+    memset(&meta_data, 0, sizeof(iotx_dev_meta_info_t));
+    memcpy(meta_data.product_key, product_key, strlen(product_key));
+    memcpy(meta_data.device_name, device_name, strlen(device_name));
+    memcpy(meta_data.device_secret, device_secret, strlen(device_secret));
+
+    /* just connect shanghai region */
+    res = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta_data, &signout);
+    if (res < SUCCESS_RETURN) {
+        return res;
+    }
+
+    *info_ptr = &signout;
+    return SUCCESS_RETURN;
+}
+
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
     int                 err;
