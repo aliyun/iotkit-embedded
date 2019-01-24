@@ -774,13 +774,11 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
 
     service_id = alink_utils_strdup(item_id.value, item_id.value_length);
     if (service_id == NULL) {
-        alink_err("memery not enough");
         return;
     }
 
     service_params = alink_utils_strdup(item_params.value, item_params.value_length);
-    if (service_id == NULL) {
-        alink_err("memery not enough");
+    if (service_params == NULL) {
         alink_free(service_id);
         return;
     }
@@ -813,7 +811,8 @@ static void alink_downstream_thing_service_invoke_req(uint32_t devid, const char
     {
         alink_msg_event_t *msg_data = alink_malloc(sizeof(alink_msg_event_t));
         if (msg_data == NULL) {
-            alink_warning("malloc failed");
+            alink_free(service_id);
+            alink_free(service_params);
             return;
         }
 
