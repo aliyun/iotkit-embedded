@@ -133,6 +133,7 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter, iotx_mqtt_qos_t
 
     sub_info = mqtt_api_malloc(sizeof(iotx_mc_offline_subs_t));
     if (sub_info == NULL) {
+        HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
         return ERROR_MALLOC;
     }
 
@@ -140,6 +141,7 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter, iotx_mqtt_qos_t
     sub_info->topic_filter = mqtt_api_malloc(strlen(topic_filter) + 1);
     if (sub_info->topic_filter == NULL) {
         mqtt_api_free(sub_info);
+        HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
         return ERROR_MALLOC;
     }
     memset(sub_info->topic_filter, 0, strlen(topic_filter) + 1);
