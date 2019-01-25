@@ -280,7 +280,10 @@ int IOT_SetupConnInfo(const char *product_key,
     int res = FAIL_RETURN;
     iotx_dev_meta_info_t meta_data;
 
-    if (product_key == NULL || device_name == NULL || device_secret == NULL) {
+    if (product_key == NULL || device_name == NULL || device_secret == NULL ||
+        strlen(product_key) >= IOTX_PRODUCT_KEY_LEN ||
+        strlen(device_name) >= IOTX_DEVICE_NAME_LEN ||
+        strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN) {
         return NULL_VALUE_ERROR;
     }
 
