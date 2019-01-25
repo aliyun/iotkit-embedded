@@ -77,11 +77,7 @@ char *infra_strtok(char *str, const char *delim)
         }
     }
 
-    if (target) {
-        return target;
-    }
-
-    return NULL;
+    return target;
 }
 
 #endif
