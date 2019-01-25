@@ -2300,7 +2300,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         }
         memset((char *)handler->topic_filter,0,MQTT_ZIP_PATH_DEFAULT_LEN);
 #else
-        if (strlen(topicFilter) >= MQTT_ZIP_PATH_DEFAULT_LEN) {
+        if (MQTT_ZIP_PATH_DEFAULT_LEN >= IOTX_MC_TOPIC_MAX_LEN) {
             return MQTT_TOPIC_LEN_TOO_SHORT;
         }
         memset((char *)handler->topic_filter,0,IOTX_MC_TOPIC_MAX_LEN);
@@ -2951,7 +2951,7 @@ int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter)
             iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         }
 
-        mqtt_err("run MQTTUnsubscribe error!");
+        mqtt_err("run MQTTUnsubscribe error!, rc = %d",rc);
         return rc;
     }
 
