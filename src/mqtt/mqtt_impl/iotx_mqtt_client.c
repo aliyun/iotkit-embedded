@@ -2663,7 +2663,7 @@ int wrapper_mqtt_release(void **c)
     }
     mqtt_free(pClient);
 #else
-    memset(pClient,0,sizeof(iotx_mc_client_t) * IOTX_MC_CLIENT_MAX_COUNT);
+    memset(pClient,0,sizeof(iotx_mc_client_t));
 #endif
     *c = NULL;
     mqtt_info("mqtt release!");
