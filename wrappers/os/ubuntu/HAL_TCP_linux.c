@@ -194,7 +194,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
 
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int ret, err_code;
+    int ret, err_code, tcp_fd;
     uint32_t len_recv;
     uint64_t t_end, t_left;
     fd_set sets;
@@ -207,6 +207,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     if (fd > FD_SETSIZE) {
         return -1;
     }
+    tcp_fd = (int)fd;
 
     do {
         t_left = _linux_time_left(t_end, _linux_get_time_ms());
@@ -214,14 +215,14 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             break;
         }
         FD_ZERO(&sets);
-        FD_SET(fd, &sets);
+        FD_SET(tcp_fd, &sets);
 
         timeout.tv_sec = t_left / 1000;
         timeout.tv_usec = (t_left % 1000) * 1000;
 
-        ret = select(fd + 1, &sets, NULL, NULL, &timeout);
+        ret = select(tcp_fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
-            ret = recv(fd, buf + len_recv, len - len_recv, 0);
+            ret = recv(tcp_fd, buf + len_recv, len - len_recv, 0);
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {
