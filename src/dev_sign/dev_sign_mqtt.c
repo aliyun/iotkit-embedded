@@ -54,7 +54,7 @@ static int _sign_get_clientid(char *clientid_string, char *device_id)
 {
     uint8_t i;
 
-    if (clientid_string == NULL || clientid_kv == NULL) {
+    if (clientid_string == NULL || device_id == NULL) {
         return FAIL_RETURN;
     }
 
