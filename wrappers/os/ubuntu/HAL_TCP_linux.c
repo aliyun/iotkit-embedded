@@ -117,7 +117,7 @@ int HAL_TCP_Destroy(uintptr_t fd)
 
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int ret;
+    int ret,tcp_fd;
     uint32_t len_sent;
     uint64_t t_end, t_left;
     fd_set sets;
@@ -130,6 +130,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     if (fd > FD_SETSIZE) {
         return -1;
     }
+    tcp_fd = (int)fd;
 
     do {
         t_left = _linux_time_left(t_end, _linux_get_time_ms());
@@ -138,21 +139,21 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
             struct timeval timeout;
 
             FD_ZERO(&sets);
-            FD_SET(fd, &sets);
+            FD_SET(tcp_fd, &sets);
 
             timeout.tv_sec = t_left / 1000;
             timeout.tv_usec = (t_left % 1000) * 1000;
 
-            ret = select(fd + 1, NULL, &sets, NULL, &timeout);
+            ret = select(tcp_fd + 1, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
-                if (0 == FD_ISSET(fd, &sets)) {
+                if (0 == FD_ISSET(tcp_fd, &sets)) {
                     printf("Should NOT arrive\n");
                     /* If timeout in next loop, it will not sent any data */
                     ret = 0;
                     continue;
                 }
             } else if (0 == ret) {
-                printf("select-write timeout %d\n", (int)fd);
+                printf("select-write timeout %d\n", tcp_fd);
                 break;
             } else {
                 if (EINTR == errno) {
@@ -167,7 +168,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
         }
 
         if (ret > 0) {
-            ret = send(fd, buf + len_sent, len - len_sent, 0);
+            ret = send(tcp_fd, buf + len_sent, len - len_sent, 0);
             if (ret > 0) {
                 len_sent += ret;
             } else if (0 == ret) {
