@@ -2804,8 +2804,8 @@ int wrapper_mqtt_subscribe_sync(void *c,
     subed = 0;
     cnt = 0;
     do {
-            mqtt_sub_sync_node_t *node = NULL;
 #ifdef PLATFORM_HAS_DYNMEM
+            mqtt_sub_sync_node_t *node = NULL;
             mqtt_sub_sync_node_t *next = NULL;
 #else
             int idx = 0;
@@ -2881,17 +2881,17 @@ int wrapper_mqtt_subscribe_sync(void *c,
             }
 
             if (client->list_sub_sync_ack[idx].packet_id == ret) {
-                mqtt_debug("node->ack_type=%d cnt=%d", node->ack_type, cnt++);
-                if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS) {
+                mqtt_debug("client->list_sub_sync_ack[%d].ack_type=%d cnt=%d", idx, client->list_sub_sync_ack[idx].ack_type, cnt++);
+                if (client->list_sub_sync_ack[idx].ack_type == IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS) {
                     memset(&client->list_sub_sync_ack[idx],0,sizeof(mqtt_sub_sync_node_t));
                     mqtt_debug("success!!");
                     HAL_MutexUnlock(client->lock_generic);
                     return ret;
-                } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_NACK) {
+                } else if (client->list_sub_sync_ack[idx].ack_type == IOTX_MQTT_EVENT_SUBCRIBE_NACK) {
                     memset(&client->list_sub_sync_ack[idx],0,sizeof(mqtt_sub_sync_node_t));
                     ret = -1; /* resub */
                     subed = 0;
-                } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT) {
+                } else if (client->list_sub_sync_ack[idx].ack_type == IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT) {
                     memset(&client->list_sub_sync_ack[idx],0,sizeof(mqtt_sub_sync_node_t));
                     ret = -1; /* resub */
                     subed = 0;

@@ -320,7 +320,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                 ret;
     iotx_mqtt_param_t *mqtt_params = NULL;
 
-    if (pInitParams == NULL) {
+    if (pInitParams != NULL) {
+        if (g_mqtt_client != NULL) {
+            IOT_MQTT_Destroy(&g_mqtt_client);
+        }
+    }else {
         iotx_dev_meta_info_t meta;
 
         if (g_mqtt_client != NULL) {
