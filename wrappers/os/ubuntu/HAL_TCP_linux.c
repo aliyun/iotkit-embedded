@@ -127,7 +127,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     len_sent = 0;
     ret = 1; /* send one time if timeout_ms is value 0 */
 
-    if (fd > FD_SETSIZE) {
+    if (fd >= FD_SETSIZE) {
         return -1;
     }
     tcp_fd = (int)fd;
@@ -205,7 +205,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     len_recv = 0;
     err_code = 0;
 
-    if (fd > FD_SETSIZE) {
+    if (fd >= FD_SETSIZE) {
         return -1;
     }
     tcp_fd = (int)fd;
