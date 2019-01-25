@@ -110,11 +110,11 @@
 #endif
 
 #ifndef IOTX_MC_TX_MAX_LEN
-#define IOTX_MC_TX_MAX_LEN                      (256)
+#define IOTX_MC_TX_MAX_LEN                      (512)
 #endif
 
 #ifndef IOTX_MC_RX_MAX_LEN
-#define IOTX_MC_RX_MAX_LEN                      (256)
+#define IOTX_MC_RX_MAX_LEN                      (512)
 #endif
 
 #endif /* PLATFORM_HAS_DYNMEM */

@@ -198,8 +198,9 @@ static int iotx_mqtt_deal_offline_subs(void *client)
     if (g_mqtt_offline_subs_list.init == 0) {
         return SUCCESS_RETURN;
     }
-#ifdef PLATFORM_HAS_DYNMEM
+
     HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
+#ifdef PLATFORM_HAS_DYNMEM
     list_for_each_entry_safe(node, next_node, &g_mqtt_offline_subs_list.offline_sub_list, linked_list,
                              iotx_mc_offline_subs_t) {
         list_del(&node->linked_list);
@@ -207,10 +208,7 @@ static int iotx_mqtt_deal_offline_subs(void *client)
         mqtt_api_free(node->topic_filter);
         mqtt_api_free(node);
     }
-    _offline_subs_list_deinit();
-    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
 #else
-    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
     for (idx = 0;idx < IOTX_OFFLINE_LIST_MAX_LEN;idx++) {
         if (g_mqtt_offline_subs_list.offline_sub_list[idx].used) {
             wrapper_mqtt_subscribe(client, g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter, 
@@ -220,10 +218,11 @@ static int iotx_mqtt_deal_offline_subs(void *client)
             g_mqtt_offline_subs_list.offline_sub_list[idx].used = 0;
         }
     }
-    _offline_subs_list_deinit();
-    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
 #endif
-    
+    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
+
+    _offline_subs_list_deinit();
+
     return SUCCESS_RETURN;
 }
 
