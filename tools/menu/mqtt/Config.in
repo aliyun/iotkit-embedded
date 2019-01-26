@@ -13,39 +13,41 @@ config MQTT_COMM_ENABLED
         Switching to "y" leads to building MQTT related implementation into SDK and MQTT_COMM_ENABLED included into CFLAGS
         Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
 
-config MQTT_DEFAULT_IMPL
-    bool "FEATURE_MQTT_DEFAULT_IMPL"
-    default y
-
+menu "MQTT Configurations"
     depends on MQTT_COMM_ENABLED
-    select INFRA_SHA256
-    select INFRA_NET
-    select INFRA_TIMER
 
-    help
-        Use SDK default MQTT implementation
+    config MQTT_DEFAULT_IMPL
+        bool "FEATURE_MQTT_DEFAULT_IMPL"
+        default y
 
-        Switching to "y" leads to building MQTT related implementation into SDK and MQTT_DEFAULT_IMPL included into CFLAGS
-        Switching to "n" seldom happens unless you're using other MQTT implementations
+        select INFRA_SHA256
+        select INFRA_NET
+        select INFRA_TIMER
 
-config ASYNC_PROTOCOL_STACK
-    bool "FEATURE_ASYNC_PROTOCOL_STACK"
-    default n
+        help
+            Use SDK default MQTT implementation
 
-    depends on MQTT_COMM_ENABLED
-    help
-        Use async protocol stack for SDK default MQTT implementation
+            Switching to "y" leads to building MQTT related implementation into SDK and MQTT_DEFAULT_IMPL included into CFLAGS
+            Switching to "n" seldom happens unless you're using other MQTT implementations
 
-        Switching to "y" leads to building MQTT async protocol stack related implementation into SDK and ASYNC_PROTOCOL_STACK included into CFLAGS
-        Switching to "n" seldom happens unless you're not using async protocol stack
+    config MQTT_DIRECT
+        bool "FEATURE_MQTT_DIRECT"
+        default y
+        help
+            Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
 
-# menu "MQTT Configurations"
-#     depends on MQTT_COMM_ENABLED
-# 
-#     config MQTT_LOGPOST
-#         bool "FEATURE_MQTT_LOGPOST"
-#         default n
-#         help
-#             Enable capability of publishing important device running log messages to IoT cloud
-# 
-# endmenu
+            Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
+            Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
+
+    config ASYNC_PROTOCOL_STACK
+        bool "FEATURE_ASYNC_PROTOCOL_STACK"
+        default n
+
+        help
+            Use async protocol stack for SDK default MQTT implementation
+
+            Switching to "y" leads to building MQTT async protocol stack related implementation into SDK and ASYNC_PROTOCOL_STACK included into CFLAGS
+            Switching to "n" seldom happens unless you're not using async protocol stack
+
+endmenu
+
