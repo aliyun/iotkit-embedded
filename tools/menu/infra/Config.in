@@ -69,3 +69,7 @@ config INFRA_MEM_STATS
     bool
     default n
     select INFRA_LIST
+
+config INFRA_PRE_AUTH
+    bool
+    default n

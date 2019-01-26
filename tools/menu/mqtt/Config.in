@@ -2,6 +2,7 @@ config MQTT_COMM_ENABLED
     bool "FEATURE_MQTT_COMM_ENABLED"
     default y
     select DEV_SIGN
+    select INFRA_PRE_AUTH if !MQTT_DIRECT
     select INFRA_SHA256
     select INFRA_LIST
     select INFRA_TIMER
