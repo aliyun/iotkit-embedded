@@ -17,22 +17,22 @@
  */
 #ifndef GET_UINT32_BE
 #define GET_UINT32_BE(n,b,i)                            \
-do {                                                    \
-    (n) = ( (uint32_t) (b)[(i)    ] << 24 )             \
-        | ( (uint32_t) (b)[(i) + 1] << 16 )             \
-        | ( (uint32_t) (b)[(i) + 2] <<  8 )             \
-        | ( (uint32_t) (b)[(i) + 3]       );            \
-} while( 0 )
+    do {                                                    \
+        (n) = ( (uint32_t) (b)[(i)    ] << 24 )             \
+              | ( (uint32_t) (b)[(i) + 1] << 16 )             \
+              | ( (uint32_t) (b)[(i) + 2] <<  8 )             \
+              | ( (uint32_t) (b)[(i) + 3]       );            \
+    } while( 0 )
 #endif
 
 #ifndef PUT_UINT32_BE
 #define PUT_UINT32_BE(n,b,i)                            \
-do {                                                    \
-    (b)[(i)    ] = (unsigned char) ( (n) >> 24 );       \
-    (b)[(i) + 1] = (unsigned char) ( (n) >> 16 );       \
-    (b)[(i) + 2] = (unsigned char) ( (n) >>  8 );       \
-    (b)[(i) + 3] = (unsigned char) ( (n)       );       \
-} while( 0 )
+    do {                                                    \
+        (b)[(i)    ] = (unsigned char) ( (n) >> 24 );       \
+        (b)[(i) + 1] = (unsigned char) ( (n) >> 16 );       \
+        (b)[(i) + 2] = (unsigned char) ( (n) >>  8 );       \
+        (b)[(i) + 3] = (unsigned char) ( (n)       );       \
+    } while( 0 )
 #endif
 
 
@@ -62,12 +62,11 @@ void utils_sha256_clone(iot_sha256_context *dst,
 }
 void utils_sha256_starts(iot_sha256_context *ctx)
 {
-	int is224 = 0;
+    int is224 = 0;
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
-    if( is224 == 0 )
-    {
+    if (is224 == 0) {
         /* SHA-256 */
         ctx->state[0] = 0x6A09E667;
         ctx->state[1] = 0xBB67AE85;
@@ -78,24 +77,11 @@ void utils_sha256_starts(iot_sha256_context *ctx)
         ctx->state[6] = 0x1F83D9AB;
         ctx->state[7] = 0x5BE0CD19;
     }
-    else
-    {
-        /* SHA-224 */
-        ctx->state[0] = 0xC1059ED8;
-        ctx->state[1] = 0x367CD507;
-        ctx->state[2] = 0x3070DD17;
-        ctx->state[3] = 0xF70E5939;
-        ctx->state[4] = 0xFFC00B31;
-        ctx->state[5] = 0x68581511;
-        ctx->state[6] = 0x64F98FA7;
-        ctx->state[7] = 0xBEFA4FA4;
-    }
 
     ctx->is224 = is224;
 }
 
-static const uint32_t K[] =
-{
+static const uint32_t K[] = {
     0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
     0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
     0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
@@ -127,17 +113,17 @@ static const uint32_t K[] =
 #define F1(x,y,z) (z ^ (x & (y ^ z)))
 
 #define R(t)                                    \
-(                                               \
-    W[t] = S1(W[t -  2]) + W[t -  7] +          \
-           S0(W[t - 15]) + W[t - 16]            \
-)
+    (                                               \
+            W[t] = S1(W[t -  2]) + W[t -  7] +          \
+                   S0(W[t - 15]) + W[t - 16]            \
+    )
 
 #define P(a,b,c,d,e,f,g,h,x,K)                  \
-{                                               \
-    temp1 = h + S3(e) + F1(e,f,g) + K + x;      \
-    temp2 = S2(a) + F0(a,b,c);                  \
-    d += temp1; h = temp1 + temp2;              \
-}
+    {                                               \
+        temp1 = h + S3(e) + F1(e,f,g) + K + x;      \
+        temp2 = S2(a) + F0(a,b,c);                  \
+        d += temp1; h = temp1 + temp2;              \
+    }
 
 void utils_sha256_process(iot_sha256_context *ctx, const unsigned char data[64])
 {
@@ -145,61 +131,70 @@ void utils_sha256_process(iot_sha256_context *ctx, const unsigned char data[64])
     uint32_t A[8];
     unsigned int i;
 
-    for( i = 0; i < 8; i++ )
+    for (i = 0; i < 8; i++) {
         A[i] = ctx->state[i];
+    }
 
 #if defined(INFRA_SHA256_SMALLER)
-    for( i = 0; i < 64; i++ )
-    {
-        if( i < 16 )
-            GET_UINT32_BE( W[i], data, 4 * i );
-        else
-            R( i );
+    for (i = 0; i < 64; i++) {
+        if (i < 16) {
+            GET_UINT32_BE(W[i], data, 4 * i);
+        } else {
+            R(i);
+        }
 
-        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i], K[i] );
+        P(A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i], K[i]);
 
-        temp1 = A[7]; A[7] = A[6]; A[6] = A[5]; A[5] = A[4]; A[4] = A[3];
-        A[3] = A[2]; A[2] = A[1]; A[1] = A[0]; A[0] = temp1;
+        temp1 = A[7];
+        A[7] = A[6];
+        A[6] = A[5];
+        A[5] = A[4];
+        A[4] = A[3];
+        A[3] = A[2];
+        A[2] = A[1];
+        A[1] = A[0];
+        A[0] = temp1;
     }
 #else /* INFRA_SHA256_SMALLER */
-    for( i = 0; i < 16; i++ )
-        GET_UINT32_BE( W[i], data, 4 * i );
-
-    for( i = 0; i < 16; i += 8 )
-    {
-        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i+0], K[i+0] );
-        P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], W[i+1], K[i+1] );
-        P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], W[i+2], K[i+2] );
-        P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], W[i+3], K[i+3] );
-        P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], W[i+4], K[i+4] );
-        P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], W[i+5], K[i+5] );
-        P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], W[i+6], K[i+6] );
-        P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], W[i+7], K[i+7] );
+    for (i = 0; i < 16; i++) {
+        GET_UINT32_BE(W[i], data, 4 * i);
     }
 
-    for( i = 16; i < 64; i += 8 )
-    {
-        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], R(i+0), K[i+0] );
-        P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], R(i+1), K[i+1] );
-        P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], R(i+2), K[i+2] );
-        P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], R(i+3), K[i+3] );
-        P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], R(i+4), K[i+4] );
-        P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], R(i+5), K[i+5] );
-        P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], R(i+6), K[i+6] );
-        P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], R(i+7), K[i+7] );
+    for (i = 0; i < 16; i += 8) {
+        P(A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i + 0], K[i + 0]);
+        P(A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], W[i + 1], K[i + 1]);
+        P(A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], W[i + 2], K[i + 2]);
+        P(A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], W[i + 3], K[i + 3]);
+        P(A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], W[i + 4], K[i + 4]);
+        P(A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], W[i + 5], K[i + 5]);
+        P(A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], W[i + 6], K[i + 6]);
+        P(A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], W[i + 7], K[i + 7]);
+    }
+
+    for (i = 16; i < 64; i += 8) {
+        P(A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], R(i + 0), K[i + 0]);
+        P(A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], R(i + 1), K[i + 1]);
+        P(A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], R(i + 2), K[i + 2]);
+        P(A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], R(i + 3), K[i + 3]);
+        P(A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], R(i + 4), K[i + 4]);
+        P(A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], R(i + 5), K[i + 5]);
+        P(A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], R(i + 6), K[i + 6]);
+        P(A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], R(i + 7), K[i + 7]);
     }
 #endif /* INFRA_SHA256_SMALLER */
 
-    for( i = 0; i < 8; i++ )
+    for (i = 0; i < 8; i++) {
         ctx->state[i] += A[i];
+    }
 }
 void utils_sha256_update(iot_sha256_context *ctx, const unsigned char *input, uint32_t ilen)
 {
     size_t fill;
     uint32_t left;
 
-    if( ilen == 0 )
+    if (ilen == 0) {
         return;
+    }
 
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
@@ -207,32 +202,31 @@ void utils_sha256_update(iot_sha256_context *ctx, const unsigned char *input, ui
     ctx->total[0] += (uint32_t) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (uint32_t) ilen )
+    if (ctx->total[0] < (uint32_t) ilen) {
         ctx->total[1]++;
+    }
 
-    if( left && ilen >= fill )
-    {
-        memcpy( (void *) (ctx->buffer + left), input, fill );
-        utils_sha256_process( ctx, ctx->buffer );
+    if (left && ilen >= fill) {
+        memcpy((void *)(ctx->buffer + left), input, fill);
+        utils_sha256_process(ctx, ctx->buffer);
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
-    while( ilen >= 64 )
-    {
-        utils_sha256_process( ctx, input );
+    while (ilen >= 64) {
+        utils_sha256_process(ctx, input);
         input += 64;
         ilen  -= 64;
     }
 
-    if( ilen > 0 )
-        memcpy( (void *) (ctx->buffer + left), input, ilen );
+    if (ilen > 0) {
+        memcpy((void *)(ctx->buffer + left), input, ilen);
+    }
 }
 
-static const unsigned char sha256_padding[64] =
-{
- 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+static const unsigned char sha256_padding[64] = {
+    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -244,29 +238,30 @@ void utils_sha256_finish(iot_sha256_context *ctx, uint8_t output[32])
     uint32_t high, low;
     unsigned char msglen[8];
 
-    high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
-    low  = ( ctx->total[0] <<  3 );
+    high = (ctx->total[0] >> 29)
+           | (ctx->total[1] <<  3);
+    low  = (ctx->total[0] <<  3);
 
-    PUT_UINT32_BE( high, msglen, 0 );
-    PUT_UINT32_BE( low,  msglen, 4 );
+    PUT_UINT32_BE(high, msglen, 0);
+    PUT_UINT32_BE(low,  msglen, 4);
 
     last = ctx->total[0] & 0x3F;
-    padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
+    padn = (last < 56) ? (56 - last) : (120 - last);
 
-    utils_sha256_update( ctx, sha256_padding, padn );
-    utils_sha256_update( ctx, msglen, 8 );
+    utils_sha256_update(ctx, sha256_padding, padn);
+    utils_sha256_update(ctx, msglen, 8);
 
-    PUT_UINT32_BE( ctx->state[0], output,  0 );
-    PUT_UINT32_BE( ctx->state[1], output,  4 );
-    PUT_UINT32_BE( ctx->state[2], output,  8 );
-    PUT_UINT32_BE( ctx->state[3], output, 12 );
-    PUT_UINT32_BE( ctx->state[4], output, 16 );
-    PUT_UINT32_BE( ctx->state[5], output, 20 );
-    PUT_UINT32_BE( ctx->state[6], output, 24 );
+    PUT_UINT32_BE(ctx->state[0], output,  0);
+    PUT_UINT32_BE(ctx->state[1], output,  4);
+    PUT_UINT32_BE(ctx->state[2], output,  8);
+    PUT_UINT32_BE(ctx->state[3], output, 12);
+    PUT_UINT32_BE(ctx->state[4], output, 16);
+    PUT_UINT32_BE(ctx->state[5], output, 20);
+    PUT_UINT32_BE(ctx->state[6], output, 24);
 
-    if( ctx->is224 == 0 )
-        PUT_UINT32_BE( ctx->state[7], output, 28 );
+    if (ctx->is224 == 0) {
+        PUT_UINT32_BE(ctx->state[7], output, 28);
+    }
 }
 
 void utils_sha256(const uint8_t *input, uint32_t ilen, uint8_t output[32])
@@ -311,7 +306,7 @@ void utils_hmac_sha256(const uint8_t *msg, uint32_t msg_len, const uint8_t *key,
     utils_sha256_init(&context);                                      /* init context for 1st pass */
     utils_sha256_starts(&context);                                    /* setup context for 1st pass */
     utils_sha256_update(&context, k_ipad, SHA256_KEY_IOPAD_SIZE);     /* start with inner pad */
-    utils_sha256_update(&context, msg, msg_len);                      /* then text of datagram */	
+    utils_sha256_update(&context, msg, msg_len);                      /* then text of datagram */
     utils_sha256_finish(&context, output);                            /* finish up 1st pass */
 
     /* perform outer SHA */
