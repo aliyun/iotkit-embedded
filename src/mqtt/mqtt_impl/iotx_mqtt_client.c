@@ -1447,7 +1447,6 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
         _handle_event(&c->handle_event, c, &msg);
     }
 
-    HAL_MutexUnlock(c->lock_generic);
     return SUCCESS_RETURN;
 }
 
