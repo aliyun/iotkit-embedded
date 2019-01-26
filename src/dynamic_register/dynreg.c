@@ -11,7 +11,7 @@
 #include "dynreg_internal.h"
 #include "dynreg_wrapper.h"
 
-#define HTTP_RESPONSE_PAYLOAD_LEN           256
+#define HTTP_RESPONSE_PAYLOAD_LEN           (256)
 
 #define DYNREG_RANDOM_KEY_LENGTH            (15)
 #define DYNREG_SIGN_LENGTH                  (65)

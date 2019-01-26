@@ -7,10 +7,10 @@
 
 #include <stdint.h>
 
-#define SHA256_BLOCK_LENGTH     64
-#define SHA256_DIGEST_LENGTH    32
-#define SHA256_DIGEST_STRING_LENGTH (SHA256_DIGEST_LENGTH * 2 + 1)
-#define SHA256_SHORT_BLOCK_LENGTH   (SHA256_BLOCK_LENGTH - 8)
+#define SHA256_DIGEST_LENGTH            (32)
+#define SHA256_BLOCK_LENGTH             (64)
+#define SHA256_SHORT_BLOCK_LENGTH       (SHA256_BLOCK_LENGTH - 8)
+#define SHA256_DIGEST_STRING_LENGTH     (SHA256_DIGEST_LENGTH * 2 + 1)
 
 /**
  * \brief          SHA-256 context structure

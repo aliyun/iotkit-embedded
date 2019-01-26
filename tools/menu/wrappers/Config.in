@@ -1,0 +1,11 @@
+config ALGO_SHA256_WRAPPER
+    bool
+    default n
+
+config HAL_KV
+    bool
+    default n
+
+config SUPPORT_TLS
+    bool "FEATURE_SUPPORT_TLS"
+    default n
