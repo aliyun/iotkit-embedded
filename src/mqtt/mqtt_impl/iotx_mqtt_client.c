@@ -769,6 +769,7 @@ static int _mqtt_connect(void *client)
             HAL_SleepMs(RETRY_INTV_PERIOD);
 
             pClient->ipstack.disconnect(&pClient->ipstack);
+            pClient->ipstack.connect(&pClient->ipstack);
             continue;
         } else {
             break;
