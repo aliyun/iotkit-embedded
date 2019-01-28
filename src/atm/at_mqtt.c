@@ -1101,11 +1101,8 @@ int wrapper_mqtt_release(void **client)
     }
 
     /* iotx_delete_thread(pClient); */
-    HAL_SleepMs(100);
-
     mal_mc_disconnect(pClient);
     mal_mc_set_client_state(pClient, IOTX_MC_STATE_INVALID);
-    HAL_SleepMs(100);
     if (pClient->first_sub_handle != NULL) {
         iotx_mc_topic_handle_t *handler = pClient->first_sub_handle;
         iotx_mc_topic_handle_t *next_handler = pClient->first_sub_handle;
