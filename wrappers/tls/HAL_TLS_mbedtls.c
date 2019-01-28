@@ -44,6 +44,7 @@ typedef struct _TLSDataParams {
 
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
+uint64_t HAL_UptimeMs(void);
 
 static unsigned int mbedtls_mem_used = 0;
 static unsigned int mbedtls_max_mem_used = 0;
@@ -58,7 +59,7 @@ typedef struct {
 
 static unsigned int _avRandom()
 {
-    return (((unsigned int)rand() << 16) + rand());
+    return (unsigned int)HAL_UptimeMs();
 }
 
 static int _ssl_random(void *p_rng, unsigned char *output, size_t output_len)
