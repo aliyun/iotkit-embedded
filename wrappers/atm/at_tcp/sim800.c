@@ -256,31 +256,48 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     return;
 }
 
+static int sim800_send_with_retry(const char *cmd, int cmdlen, bool delimiter, const char *data,
+                                  int datalen, char *rspbuf, int buflen, const char *expectrsp)
+{
+    int retry = 0;
+
+    if (NULL == cmd || 0 == cmdlen || NULL == rspbuf ||
+        0 == buflen || NULL == expectrsp) {
+        at_conn_hal_err("Invalid input %s %d\r\n", __func__, __LINE__);
+        return -1;
+    }
+
+    while(true) {
+        retry++;
+        memset(rspbuf, 0, buflen);
+        at_send_wait_reply(cmd, cmdlen, delimiter, data, datalen, rspbuf, buflen, NULL);
+        if (strstr(rspbuf, expectrsp) == NULL) {
+            if (retry > SIM800_RETRY_MAX) {
+                return -1;
+            }
+
+            at_conn_hal_err("%s %d cmd %s failed rsp %s retry count %d\r\n", __func__, __LINE__, cmd,rspbuf, retry);
+            HAL_SleepMs(50);
+        } else {
+            break;
+        }
+    }
+
+    return 0;
+}
+
 int sim800_uart_selfadaption(const char *command, const char *rsp, uint32_t rsplen)
 {
     char *buffer = g_rsp;
-    int retry = 0;
 
     if (NULL == command || NULL == rsp || 0 == rsplen) {
         at_conn_hal_err( "invalid input %s %d\r\n", __FILE__, __LINE__);
         return -1;
     }
 
-    while (true) {
-        retry++;
-        memset(buffer, 0, SIM800_DEFAULT_RSP_LEN);
-        at_send_wait_reply(command, strlen(command), true,
-                           NULL, 0, buffer, SIM800_DEFAULT_RSP_LEN, NULL);
-        if ((strstr(buffer, rsp) == NULL)) {
-             HAL_SleepMs(50);
-
-            if (retry > SIM800_RETRY_MAX) {
-                return -1;
-            }
-            at_conn_hal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
-        } else {
-            break;
-        }
+    if (sim800_send_with_retry(command, strlen(command), true, NULL, 0,
+                               buffer, SIM800_DEFAULT_RSP_LEN, rsp) < 0) {
+        return -1;
     }
 
     return 0;
@@ -343,25 +360,12 @@ static int sim800_uart_init(void)
 static int sim800_gprs_status_check(void)
 {
     char *rsp = g_rsp;
-    int retry = 0;
 
-    while (true) {
-        memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
-        retry++;
-        /*sim card status check*/
-        at_send_wait_reply(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
-                           NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-            HAL_SleepMs(50);
-
-            if (retry > SIM800_RETRY_MAX) {
-                return -1;
-            }
-
-            at_conn_hal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
-        } else {
-            break;
-        }
+    /*sim card status check*/
+    if (sim800_send_with_retry(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
+        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+        at_conn_hal_err("sim card status check failed\n");
+        return -1;
     }
 
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
@@ -402,25 +406,12 @@ static int sim800_gprs_ip_init(void)
 {
     char *cmd = g_cmd;
     char *rsp = g_rsp;
-    int retry = 0;
 
-    while (true) {
-        retry++;
-        memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
-        /*Deactivate GPRS PDP Context*/
-        at_send_wait_reply(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
-                           NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-             HAL_SleepMs(50);
-
-            if (retry > SIM800_RETRY_MAX) {
-                return -1;
-            }
-
-            at_conn_hal_err( "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rsp, retry);
-        } else {
-            break;
-        }
+    /*Deactivate GPRS PDP Context*/
+    if (sim800_send_with_retry(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
+        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+        at_conn_hal_err("Deactivate GPRS PDP Context failed\n");
+        return -1;
     }
 
     /*set multi ip connection mode*/
@@ -462,25 +453,12 @@ static int sim800_gprs_got_ip(void)
 {
     char *rsp = g_rsp;
     atcmd_config_t atcmd_config = {NULL, AT_RECV_PREFIX, NULL};
-    int retry = 0;
 
-    while (true) {
-        retry++;
-        memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
-         /*start gprs stask*/
-        at_send_wait_reply(AT_CMD_START_TASK, strlen(AT_CMD_START_TASK), true,
-                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-            HAL_SleepMs(50);
-
-            if (retry > SIM800_RETRY_MAX) {
-                return -1;
-            }
-            at_conn_hal_err( "cmd %s rsp %s retry %d at %s %d fail \r\n", AT_CMD_START_TASK,
-                        rsp, retry, __func__, __LINE__);
-        } else {
-            break;
-        }
+    /*start gprs stask*/
+    if (sim800_send_with_retry(AT_CMD_START_TASK, strlen(AT_CMD_START_TASK), true,
+        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+        at_conn_hal_err("%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        return -1;
     }
 
     /*bring up wireless connectiong with gprs*/
@@ -695,7 +673,6 @@ restart:
         if (0 == t_left) {
             break;
         }
-        HAL_SleepMs(50);
     }
     g_domain_mark = 0;
 #endif
@@ -852,7 +829,6 @@ int HAL_AT_CONN_Send(int fd,
     int  linkid;
     char *cmd = g_cmd;
     char *rsp = g_rsp;
-    int retry = 0;
 
     if (!inited) {
         at_conn_hal_err( "%s sim800 gprs module haven't init yet \r\n", __func__);
@@ -868,22 +844,10 @@ int HAL_AT_CONN_Send(int fd,
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     HAL_Snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_SEND_DATA, linkid, len);
     
-    while (true) {
-        retry++;
-        memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
-        /*TODO data send fail rsp is SEND FAIL*/
-        at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len,
-                            rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-        if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-            HAL_SleepMs(50);
-
-            if (retry > SIM800_RETRY_MAX) {
-                return -1;
-            }
-            at_conn_hal_err( "cmd %s rsp %s retry %d at %s %d fail \r\n", cmd, rsp, retry, __func__, __LINE__);
-        } else {
-            break;
-        }
+    if (sim800_send_with_retry((const char *)cmd, strlen(cmd), true, (const char *)data, len,
+        rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+        at_conn_hal_err("cmd %s rsp %s at %s %d failed \r\n", cmd, rsp, __func__, __LINE__);
+        return -1;
     }
 
     return 0;

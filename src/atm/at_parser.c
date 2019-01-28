@@ -284,8 +284,6 @@ int at_parser_init(void)
         atpsr_err("fail to creat at task\r\n");
         return -1;
     }
-
-    HAL_SleepMs(500);
 #endif
 
     return 0;
