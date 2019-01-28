@@ -77,7 +77,7 @@ int alink_subdev_mgr_init(void)
     subdev_mgr_htable.subdev_num = 0;
     subdev_mgr_htable.devid_alloc = 0;
 
-    subdev_mgr_htable.hash_table = alink_malloc(sizeof(subdev_hash_table_t *) * subdev_mgr_htable.table_size);
+    subdev_mgr_htable.hash_table = alink_malloc(sizeof(void *) * subdev_mgr_htable.table_size);
     if (subdev_mgr_htable.hash_table == NULL) {
         HAL_MutexDestroy(subdev_mgr_htable.mutex);
         subdev_mgr_htable.mutex = NULL;
@@ -85,7 +85,7 @@ int alink_subdev_mgr_init(void)
         return IOTX_CODE_MEMORY_NOT_ENOUGH;
     }
 
-    memset(subdev_mgr_htable.hash_table, 0, sizeof(*subdev_mgr_htable.hash_table) * subdev_mgr_htable.table_size);
+    memset(subdev_mgr_htable.hash_table, 0, sizeof(void *) * subdev_mgr_htable.table_size);
 
     return SUCCESS_RETURN;
 }
