@@ -682,8 +682,6 @@ int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tl
         return -1;
     }
 
-    HAL_SleepMs(500);
-
     /* connect to mqtt server */
     memset(at_cmd, 0, 64);
 

@@ -729,8 +729,6 @@ int at_sim800_mqtt_client_conn()
         return -1;
     }
 
-    HAL_SleepMs(500);
-
     /* clean mqtt session */
     memset(at_min_len_cmd, 0, sizeof(at_min_len_cmd));
 
@@ -746,8 +744,6 @@ int at_sim800_mqtt_client_conn()
         return -1;
     }
 
-    HAL_SleepMs(500);
-    
     /* set username */
     memset(at_def_len_cmd, 0, sizeof(at_def_len_cmd));
 
@@ -763,8 +759,6 @@ int at_sim800_mqtt_client_conn()
         return -1;
     }
     
-    HAL_SleepMs(500);
-
     /* set password */
     memset(at_def_len_cmd, 0, sizeof(at_def_len_cmd));
 
@@ -780,8 +774,6 @@ int at_sim800_mqtt_client_conn()
         return -1;
     }
 
-    HAL_SleepMs(500);
-    
     /* set clientid */
     memset(at_def_len_cmd, 0, sizeof(at_def_len_cmd));
 
@@ -827,7 +819,6 @@ int at_sim800_mqtt_client_conn()
         retry ++;
         at_sim800_mqtt_client_state();
         mal_info("try to wait mqtt server ... mstate %d  retry %d", g_mqtt_connect_state, retry);
-        HAL_SleepMs(AT_MQTT_WAIT_DEF_TIMEOUT);
     }
 
     if(retry == AT_MQTT_WAIT_COUNT) {
@@ -977,24 +968,33 @@ int at_sim800_mqtt_client_state(void)
 
     /* avoid sending too many state check request at commands */
     if(g_mqtt_client_count%mode == 0) {
-        /* set mqtt server */
+        /* check mqtt state */
+        memset(at_min_len_cmd, 0, sizeof(at_min_len_cmd));
+        HAL_Snprintf(at_min_len_cmd,
+             sizeof(at_min_len_cmd),
+             "%s?\r\n",
+             AT_SIM800_MQTT_MQTTSTATE);
+
+        if (0 != at_sim800_mqtt_atsend(at_min_len_cmd, AT_MQTT_WAIT_MIN_TIMEOUT)) {
+            mal_err("state at command fail");
+            return -1;
+        }
+    }
+
+    while((g_mqtt_connect_state != IOTX_MC_STATE_CONNECTED) &&( retry < SIM800_RETRY_MAX)) {
+       at_sim800_mqtt_client_reconn();
+       retry ++;
+
+       /* check mqtt state */
         memset(at_min_len_cmd, 0, sizeof(at_min_len_cmd));
         HAL_Snprintf(at_min_len_cmd,
                  sizeof(at_min_len_cmd),
                  "%s?\r\n",
                  AT_SIM800_MQTT_MQTTSTATE);
 
-        if (0 != at_sim800_mqtt_atsend(at_min_len_cmd, AT_MQTT_WAIT_MIN_TIMEOUT)) {
-            mal_err("state at command fail");
-            return -1;
+        if (0 != at_sim800_mqtt_atsend(at_min_len_cmd, AT_MQTT_WAIT_DEF_TIMEOUT)) {
+            mal_err("reconnect mqtt state at command fail");
         }
-
-        HAL_SleepMs(500);
-    }
-		
-    while((g_mqtt_connect_state != IOTX_MC_STATE_CONNECTED) &&( retry < SIM800_RETRY_MAX)) {
-       at_sim800_mqtt_client_reconn();
-       retry ++;
     }
 
     return (int)g_mqtt_connect_state;
@@ -1011,7 +1011,6 @@ static int at_sim800_gprs_status_check(void)
         at_send_wait_reply(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
                            NULL, 0, rsp, AT_MQTT_RSP_MIN_LEN, NULL);
         if (strstr(rsp, AT_SIM800_MQTT_MQTTOK) == NULL) {
-            HAL_SleepMs(50);
 
             if (retry > SIM800_RETRY_MAX) {
                 return -1;
@@ -1098,7 +1097,6 @@ static int at_sim800_gprs_ip_init(void)
                 return -1;
             }
         
-            HAL_SleepMs(500);
         }
     }
 #endif
@@ -1116,8 +1114,6 @@ static int at_sim800_gprs_ip_init(void)
         return -1;
     }
 		
-    HAL_SleepMs(500);
-
     /* set apn */
     memset(at_min_len_cmd, 0, sizeof(at_min_len_cmd));
 
@@ -1130,7 +1126,6 @@ static int at_sim800_gprs_ip_init(void)
 	mal_err("get set apn at command response fail %d", g_at_response_result);
         return -1;
     }
-    HAL_SleepMs(500);
 
     /* activate pdp */
     memset(at_min_len_cmd, 0, sizeof(at_min_len_cmd));
@@ -1144,10 +1139,8 @@ static int at_sim800_gprs_ip_init(void)
 	mal_err("get activate pdp at command response fail %d", g_at_response_result);
         return -1;
     }
-		
-    HAL_SleepMs(500);
 
-	  /* check pdp status */
+    /* check pdp status */
     memset(at_min_len_cmd, 0, sizeof(at_min_len_cmd));
 
     HAL_Snprintf(at_min_len_cmd,
@@ -1177,8 +1170,6 @@ static int at_sim800_gprs_got_ip(void)
         return -1;
     }
 		
-    HAL_SleepMs(500);
-    
     if(g_sapbr_status != SAPBR_STATUS_CONNECTED) {
         mal_err("check sapbr status =%d", g_sapbr_status);
         return -1;
@@ -1248,8 +1239,6 @@ int at_sim800_mqtt_client_init(iotx_mqtt_param_t * pInitParams)
         mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, at_min_len_cmd);
     }
 
-    HAL_SleepMs(1000);
-		
     ret = at_sim800_gprs_ip_init();
     if (ret) {
         mal_err( "%s %d failed \r\n", __func__, __LINE__);
