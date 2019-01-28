@@ -58,7 +58,7 @@ static dm_server_uri_map_t g_dm_server_uri_map[] = {
     {DM_URI_DEV_CORE_SERVICE_DEV,            NULL,                      IOTX_DM_LOCAL_NO_AUTH,   dm_server_thing_dev_core_service_dev         },
 };
 
-int dm_server_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN])
+int dm_server_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0, index = 0, auth = 0;
     int number = sizeof(g_dm_server_uri_map) / sizeof(dm_server_uri_map_t);

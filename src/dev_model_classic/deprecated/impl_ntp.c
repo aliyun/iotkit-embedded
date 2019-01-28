@@ -7,7 +7,6 @@
 #include <string.h>
 #include "iotx_utils.h"
 #include "json_parser.h"
-#include "iot_export.h"
 #include "iotx_log.h"
 #include "impl_ntp.h"
 

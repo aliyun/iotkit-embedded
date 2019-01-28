@@ -36,8 +36,8 @@ static dm_client_uri_map_t g_dm_client_uri_map[] = {
 #endif
 };
 
-static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_key[PRODUCT_KEY_MAXLEN],
-                                       char device_name[DEVICE_NAME_MAXLEN])
+static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                       char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     if (uri_name == NULL) {
         return SUCCESS_RETURN;
@@ -59,7 +59,7 @@ static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_k
     return SUCCESS_RETURN;
 }
 
-int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN], int dev_type)
+int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1], int dev_type)
 {
     int res = 0, index = 0, fail_count = 0;
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
@@ -386,7 +386,7 @@ void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigne
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY
-int dm_client_subdev_unsubscribe(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN])
+int dm_client_subdev_unsubscribe(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0, index = 0;
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);

@@ -775,7 +775,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
         break;
         case IOTX_DM_EVENT_GATEWAY_PERMIT: {
             int res = 0;
-            char product_key[PRODUCT_KEY_MAXLEN] = {0};
+            char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
             lite_cjson_t lite, lite_item_pk, lite_item_timeout;
 
             if (payload == NULL) {
@@ -793,7 +793,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             memset(&lite_item_pk, 0, sizeof(lite_cjson_t));
             res = lite_cjson_object_item(&lite, LINKKIT_GATEWAY_LEGACY_KEY_PRODUCT_KEY,
                                          strlen(LINKKIT_GATEWAY_LEGACY_KEY_PRODUCT_KEY), &lite_item_pk);
-            if (res != SUCCESS_RETURN || lite_item_pk.value_length >= PRODUCT_KEY_MAXLEN) {
+            if (res != SUCCESS_RETURN || lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1) {
                 return;
             }
             sdk_debug("Current Product Key: %.*s", lite_item_pk.value_length, lite_item_pk.value);
@@ -1472,8 +1472,8 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     linkkit_gateway_upstream_sync_callback_node_t *node = NULL;
     void *semaphore = NULL;
 
-    if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
-        deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN) {
+    if (productKey == NULL || strlen(productKey) >= IOTX_PRODUCT_KEY_LEN + 1 ||
+        deviceName == NULL || strlen(deviceName) >= IOTX_DEVICE_NAME_LEN + 1) {
         return FAIL_RETURN;
     }
 
@@ -1642,8 +1642,8 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     void *semaphore = NULL;
 
-    if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
-        deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN) {
+    if (productKey == NULL || strlen(productKey) >= IOTX_PRODUCT_KEY_LEN + 1 ||
+        deviceName == NULL || strlen(deviceName) >= IOTX_DEVICE_NAME_LEN + 1) {
         return FAIL_RETURN;
     }
 
@@ -1710,8 +1710,8 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
     int res = 0, devid = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
-    if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
-        deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN || cbs == NULL) {
+    if (productKey == NULL || strlen(productKey) >= IOTX_PRODUCT_KEY_LEN + 1 ||
+        deviceName == NULL || strlen(deviceName) >= IOTX_DEVICE_NAME_LEN + 1 || cbs == NULL) {
         return FAIL_RETURN;
     }
 

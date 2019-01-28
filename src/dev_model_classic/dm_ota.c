@@ -53,9 +53,9 @@ int dm_ota_deinit(void)
 #ifdef DEVICE_MODEL_SUBDEV_OTA
 int dm_ota_switch_device(int devid)
 {
-    char pk[PRODUCT_KEY_MAXLEN] = {0};
-    char dn[DEVICE_NAME_MAXLEN] = {0};
-    char ds[DEVICE_SECRET_MAXLEN] = {0};
+    char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char dn[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
     int ret = dm_mgr_search_device_by_devid(devid, pk, dn, ds);
     if (SUCCESS_RETURN != ret) {
         dm_log_err("could not find device by id, ret is %d", ret);

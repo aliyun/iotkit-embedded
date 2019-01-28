@@ -16,9 +16,9 @@ typedef struct {
     dm_shw_t *dev_shadow;
     iotx_dm_tsl_source_t tsl_source;
 #endif
-    char product_key[PRODUCT_KEY_MAXLEN];
-    char device_name[DEVICE_NAME_MAXLEN];
-    char device_secret[DEVICE_SECRET_MAXLEN];
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char device_name[IOTX_DEVICE_NAME_LEN + 1];
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
     iotx_dm_dev_avail_t status;
     iotx_dm_dev_status_t dev_status;
     struct list_head linked_list;
@@ -32,26 +32,26 @@ typedef struct {
 
 int dm_mgr_init(void);
 int dm_mgr_deinit(void);
-int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY_MAXLEN],
-                         _IN_ char device_name[DEVICE_NAME_MAXLEN], _IN_ char device_secret[DEVICE_SECRET_MAXLEN], _OU_ int *devid);
+int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid);
 int dm_mgr_device_destroy(_IN_ int devid);
 int dm_mgr_device_number(void);
 int dm_mgr_get_devid_by_index(_IN_ int index, _OU_ int *devid);
 int dm_mgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next);
-int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN],
-                                  _OU_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char device_secret[DEVICE_SECRET_MAXLEN]);
-int dm_mgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
+int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                  _OU_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
+int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                  _OU_ int *devid);
 int dm_mgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node);
 
 int dm_mgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type);
 int dm_mgr_set_dev_enable(_IN_ int devid);
 int dm_mgr_set_dev_disable(_IN_ int devid);
-int dm_mgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
+int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                          _OU_ iotx_dm_dev_avail_t *status);
 int dm_mgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status);
 int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
-int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN]);
+int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
 int dm_mgr_dev_initialized(int devid);
 int dm_mgr_upstream_thing_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);

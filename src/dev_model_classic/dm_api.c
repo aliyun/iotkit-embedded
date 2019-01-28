@@ -164,9 +164,9 @@ int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params)
 int iotx_dm_subscribe(_IN_ int devid)
 {
     int res = 0, dev_type = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-    char device_secret[DEVICE_SECRET_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
     if (devid < 0) {
         return DM_INVALID_PARAMETER;
@@ -601,19 +601,19 @@ int iotx_dm_query_topo_list(void)
     return res;
 }
 
-int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
-                          _IN_ char device_secret[DEVICE_SECRET_MAXLEN], _OU_ int *devid)
+int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+                          _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid)
 {
     int res = 0;
 
     if (product_key == NULL || device_name == NULL ||
-        (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
-        (strlen(device_name) >= DEVICE_NAME_MAXLEN) ||
+        (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
+        (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         devid == NULL) {
         return DM_INVALID_PARAMETER;
     }
 
-    if (device_secret != NULL && strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
+    if (device_secret != NULL && strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN + 1) {
         return DM_INVALID_PARAMETER;
     }
 
@@ -673,7 +673,7 @@ int iotx_dm_subdev_register(_IN_ int devid)
         return FAIL_RETURN;
     }
 
-    if ((strlen(search_node->device_secret) > 0) && (strlen(search_node->device_secret) < DEVICE_SECRET_MAXLEN)) {
+    if ((strlen(search_node->device_secret) > 0) && (strlen(search_node->device_secret) < IOTX_DEVICE_SECRET_LEN + 1)) {
         _dm_api_unlock();
         return SUCCESS_RETURN;
     }
@@ -786,9 +786,9 @@ int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type)
 int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-    char device_secret[DEVICE_SECRET_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
     if (devid < 0 || status == NULL) {
         return DM_INVALID_PARAMETER;
@@ -1843,11 +1843,11 @@ int iotx_dm_deprecated_legacy_get_service_output_value(_IN_ int devid, _IN_ char
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_deprecated_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN],
-        _OU_ char device_name[DEVICE_NAME_MAXLEN])
+int iotx_dm_deprecated_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+        _OU_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0;
-    char device_secret[DEVICE_SECRET_MAXLEN] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
     if (devid < 0 || product_key == NULL || device_name == NULL) {
         return DM_INVALID_PARAMETER;
@@ -1864,14 +1864,14 @@ int iotx_dm_deprecated_legacy_get_pkdn_by_devid(_IN_ int devid, _OU_ char produc
     return SUCCESS_RETURN;
 }
 
-int iotx_dm_deprecated_legacy_get_devid_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
-        _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ int *devid)
+int iotx_dm_deprecated_legacy_get_devid_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+        _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ int *devid)
 {
     int res = 0;
 
     if (devid == NULL || product_key == NULL || device_name == NULL ||
-        (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
-        (strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
+        (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
+        (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
         return DM_INVALID_PARAMETER;
     }
 
@@ -2007,7 +2007,7 @@ int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN
 }
 
 #ifdef DEVICE_MODEL_GATEWAY
-int iotx_dm_deprecated_subdev_register(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
+int iotx_dm_deprecated_subdev_register(_IN_ int devid, _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
     int res = 0;
     dm_mgr_dev_node_t *search_node = NULL;
@@ -2017,13 +2017,13 @@ int iotx_dm_deprecated_subdev_register(_IN_ int devid, _IN_ char device_secret[D
     }
 
     _dm_api_lock();
-    if ((device_secret != NULL) && (strlen(device_secret) > 0) && (strlen(device_secret) < DEVICE_SECRET_MAXLEN)) {
+    if ((device_secret != NULL) && (strlen(device_secret) > 0) && (strlen(device_secret) < IOTX_DEVICE_SECRET_LEN + 1)) {
         res = dm_mgr_search_device_node_by_devid(devid, (void **)&search_node);
         if (res != SUCCESS_RETURN) {
             _dm_api_unlock();
             return FAIL_RETURN;
         }
-        memset(search_node->device_secret, 0, DEVICE_SECRET_MAXLEN);
+        memset(search_node->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
         memcpy(search_node->device_secret, device_secret, strlen(device_secret));
         _dm_api_unlock();
         return SUCCESS_RETURN;

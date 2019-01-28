@@ -9,7 +9,6 @@
 extern "C" {
 #endif
 
-#include "iot_export.h"
 
 typedef enum {
     IOTX_LINKKIT_DEV_TYPE_MASTER,
@@ -18,10 +17,10 @@ typedef enum {
 } iotx_linkkit_dev_type_t;
 
 typedef struct {
-    char product_key[PRODUCT_KEY_MAXLEN];
-    char product_secret[PRODUCT_SECRET_MAXLEN];
-    char device_name[DEVICE_NAME_MAXLEN];
-    char device_secret[DEVICE_SECRET_MAXLEN];
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
+    char device_name[IOTX_DEVICE_NAME_LEN + 1];
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 } iotx_linkkit_dev_meta_info_t;
 
 typedef enum {

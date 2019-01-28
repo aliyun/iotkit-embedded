@@ -9,8 +9,8 @@
 
 typedef struct {
     void *ota_handle;
-    char product_key[PRODUCT_KEY_MAXLEN];
-    char device_name[DEVICE_NAME_MAXLEN];
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char device_name[IOTX_DEVICE_NAME_LEN + 1];
 } dm_ota_ctx_t;
 
 int dm_ota_init(void);

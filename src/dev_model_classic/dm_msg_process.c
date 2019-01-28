@@ -94,8 +94,8 @@ const char DM_URI_DEV_CORE_SERVICE_DEV[]              DM_READ_ONLY = "/dev/core/
 int dm_msg_proc_thing_model_down_raw(_IN_ dm_msg_source_t *source)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     /* Parse Product Key And Device Name */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
@@ -110,8 +110,8 @@ int dm_msg_proc_thing_model_down_raw(_IN_ dm_msg_source_t *source)
 int dm_msg_proc_thing_model_up_raw_reply(_IN_ dm_msg_source_t *source)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_MODEL_UP_RAW_REPLY);
 
@@ -135,8 +135,8 @@ int dm_msg_proc_thing_service_property_set(_IN_ dm_msg_source_t *source, _IN_ dm
         _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
     int res = 0, devid = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_SERVICE_PROPERTY_SET);
 
@@ -175,8 +175,8 @@ int dm_msg_proc_thing_service_property_get(_IN_ dm_msg_source_t *source, _IN_ dm
         _OU_ unsigned char **data, int *data_len)
 {
     int res = 0, devid = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_SERVICE_PROPERTY_GET);
 
@@ -235,8 +235,8 @@ int dm_msg_proc_thing_service_property_post(_IN_ dm_msg_source_t *source, _IN_ d
         _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_EVENT_PROPERTY_POST);
 
@@ -262,8 +262,8 @@ int dm_msg_proc_thing_service_property_post(_IN_ dm_msg_source_t *source, _IN_ d
 int dm_msg_proc_thing_service_request(_IN_ dm_msg_source_t *source)
 {
     int res = 0, serviceid_pos = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     dm_msg_request_payload_t request;
 
     memset(&request, 0, sizeof(dm_msg_request_payload_t));
@@ -464,8 +464,8 @@ int dm_msg_proc_thing_dynamictsl_get_reply(_IN_ dm_msg_source_t *source)
 int dm_msg_proc_rrpc_request(_IN_ dm_msg_source_t *source)
 {
     int res = 0, rrpcid_pos = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     dm_msg_request_payload_t request;
 
     memset(&request, 0, sizeof(dm_msg_request_payload_t));
@@ -524,8 +524,8 @@ int dm_msg_proc_thing_topo_add_notify(_IN_ dm_msg_source_t *source, _IN_ dm_msg_
                                       _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_TOPO_ADD_NOTIFY);
 
@@ -561,8 +561,8 @@ int dm_msg_proc_thing_disable(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *
                               _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_DISABLE);
 
@@ -595,8 +595,8 @@ int dm_msg_proc_thing_enable(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *d
                              _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_DISABLE);
 
@@ -629,8 +629,8 @@ int dm_msg_proc_thing_delete(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *d
                              _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_DELETE);
 
@@ -663,8 +663,8 @@ int dm_msg_proc_thing_gateway_permit(_IN_ dm_msg_source_t *source, _IN_ dm_msg_d
                                      _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
     int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     dm_log_info(DM_URI_THING_DELETE);
 

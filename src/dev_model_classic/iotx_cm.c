@@ -1,4 +1,3 @@
-#include "iot_import.h"
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iot_export_event.h"

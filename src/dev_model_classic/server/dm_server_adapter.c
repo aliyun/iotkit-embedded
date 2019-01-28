@@ -108,7 +108,7 @@ int dm_server_subscribe(char *uri, CoAPRecvMsgHandler callback, int auth_type)
     return res;
 }
 
-int dm_server_add_device(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN])
+int dm_server_add_device(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0;
     dm_server_ctx_t *ctx = dm_server_get_ctx();
@@ -119,7 +119,7 @@ int dm_server_add_device(char product_key[PRODUCT_KEY_MAXLEN], char device_name[
     return res;
 }
 
-int dm_server_del_device(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN])
+int dm_server_del_device(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0;
     dm_server_ctx_t *ctx = dm_server_get_ctx();

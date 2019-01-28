@@ -1,5 +1,4 @@
 #ifdef COAP_COMM_ENABLED
-#include "iot_import.h"
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iotx_cm_coap.h"

@@ -306,8 +306,8 @@ int dm_utils_replace_char(_IN_ char *input, _IN_ int input_len, _IN_ char src, _
     return SUCCESS_RETURN;
 }
 
-int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ char product_key[PRODUCT_KEY_MAXLEN],
-                          _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char **service_name)
+int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ char **service_name)
 {
     int prefix_len = (prefix == NULL) ? (0) : (strlen(prefix));
     int name_len = (name == NULL) ? (0) : (strlen(name));

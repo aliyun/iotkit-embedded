@@ -55,8 +55,8 @@ static int _dm_mgr_search_dev_by_devid(_IN_ int devid, _OU_ dm_mgr_dev_node_t **
     return FAIL_RETURN;
 }
 
-static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
-                                      _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ dm_mgr_dev_node_t **node)
+static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                      _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ dm_mgr_dev_node_t **node)
 {
     dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
     dm_mgr_dev_node_t *search_node = NULL;
@@ -78,15 +78,15 @@ static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
     return FAIL_RETURN;
 }
 
-static int _dm_mgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_key[PRODUCT_KEY_MAXLEN],
-                              char device_name[DEVICE_NAME_MAXLEN])
+static int _dm_mgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                              char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0;
     dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
     dm_mgr_dev_node_t *node = NULL;
 
-    if (devid < 0 || product_key == NULL || strlen(product_key) >= PRODUCT_KEY_MAXLEN ||
-        device_name == NULL || strlen(device_name) >= DEVICE_NAME_MAXLEN) {
+    if (devid < 0 || product_key == NULL || strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1 ||
+        device_name == NULL || strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) {
         return DM_INVALID_PARAMETER;
     }
 
@@ -156,8 +156,8 @@ int dm_mgr_init(void)
 {
     int res = 0;
     dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
     memset(ctx, 0, sizeof(dm_mgr_ctx));
 
@@ -210,20 +210,20 @@ int dm_mgr_deinit(void)
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY_MAXLEN],
-                         _IN_ char device_name[DEVICE_NAME_MAXLEN], _IN_ char device_secret[DEVICE_SECRET_MAXLEN], _OU_ int *devid)
+int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid)
 {
     int res = 0;
     dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
     dm_mgr_dev_node_t *node = NULL;
 
     if (product_key == NULL || device_name == NULL ||
-        strlen(product_key) >= PRODUCT_KEY_MAXLEN ||
-        strlen(device_name) >= DEVICE_NAME_MAXLEN) {
+        strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1 ||
+        strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) {
         return DM_INVALID_PARAMETER;
     }
 
-    if (device_secret != NULL && strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
+    if (device_secret != NULL && strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN + 1) {
         return DM_INVALID_PARAMETER;
     }
 
@@ -357,8 +357,8 @@ int dm_mgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
     return FAIL_RETURN;
 }
 
-int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_KEY_MAXLEN],
-                                  _OU_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
+int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                  _OU_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
@@ -379,7 +379,7 @@ int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[PRODUCT_
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_search_device_by_pkdn(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
+int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                  _OU_ int *devid)
 {
     int res = 0;
@@ -475,15 +475,15 @@ int dm_mgr_set_dev_disable(_IN_ int devid)
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
+int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                          _OU_ iotx_dm_dev_avail_t *status)
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
 
     if (product_key == NULL || device_name == NULL || status == NULL ||
-        (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
-        (strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
+        (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
+        (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
         return DM_INVALID_PARAMETER;
     }
 
@@ -535,13 +535,13 @@ int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
+int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || device_secret == NULL ||
-        strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
+        strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN + 1) {
         return DM_INVALID_PARAMETER;
     }
 
@@ -550,7 +550,7 @@ int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECR
         return FAIL_RETURN;
     }
 
-    memset(node->device_secret, 0, DEVICE_SECRET_MAXLEN);
+    memset(node->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
     memcpy(node->device_secret, device_secret, strlen(device_secret));
 
     return SUCCESS_RETURN;
