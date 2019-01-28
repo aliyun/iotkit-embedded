@@ -405,7 +405,16 @@ int alink_core_connect_cloud(void)
         linkkit_connect_success_cb_t handle_func;
         handle_func = (linkkit_connect_success_cb_t)alink_get_event_callback(ITE_CONNECT_SUCC);
         if (handle_func != NULL) {
-            handle_func(0);
+            handle_func(ALINK_DEVICE_SELF_ID);
+        }
+    }
+
+    /* TODO: meaningless, compatible need */
+    {
+        linkkit_inited_cb_t handle_func;
+        handle_func = (linkkit_inited_cb_t)alink_get_event_callback(ITE_INITIALIZE_COMPLETED);
+        if (handle_func != NULL) {
+            handle_func(ALINK_DEVICE_SELF_ID);
         }
     }
 

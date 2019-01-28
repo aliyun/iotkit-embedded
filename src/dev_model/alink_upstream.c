@@ -703,6 +703,19 @@ int alink_upstream_subdev_login_post_req(alink_subdev_id_list_t *subdev_list)
         }
     }
 
+    /* TODO: meaningless, compatible need */
+    {
+        linkkit_inited_cb_t handle_func;
+        handle_func = (linkkit_inited_cb_t)alink_get_event_callback(ITE_INITIALIZE_COMPLETED);
+        if (handle_func != NULL) {
+            uint8_t i;
+
+            for (i=0; i<subdev_list->subdev_num; i++) {
+                handle_func(subdev_list->subdev_array[i]);
+            }
+        }
+    }
+
     /* wait rsp succeed and cloud rsp 200, update mass subdev status */
     return alink_subdev_update_mass_status(subdev_list->subdev_array, subdev_list->subdev_num, ALINK_SUBDEV_STATUS_ONLINE);
 #endif /* #ifndef THREAD_COST_INTERNAL */
