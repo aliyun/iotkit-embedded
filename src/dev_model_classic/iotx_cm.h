@@ -6,6 +6,8 @@
 #ifndef _IOTX_CM_H_
 #define _IOTX_CM_H_
 
+#include "infra_types.h"
+
 #define CM_MAX_FD_NUM             3
 #define CM_DEFAULT_YIELD_TIMEOUT  200
 /* message confirmation type */

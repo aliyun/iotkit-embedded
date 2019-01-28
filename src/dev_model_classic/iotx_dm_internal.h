@@ -5,9 +5,22 @@
 #ifndef _IOTX_DM_INTERNAL_H_
 #define _IOTX_DM_INTERNAL_H_
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "infra_config.h"
+#ifndef INFRA_CLASSIC
+#define INFRA_CLASSIC
+#endif
+
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "infra_list.h"
+#include "infra_cjson.h"
+#include "infra_classic.h"
+#include "infra_report.h"
+#include "infra_string.h"
 
 #ifndef _IN_
     #define _IN_
@@ -39,6 +52,7 @@
 #endif
 
 /* DM Header File */
+#include "dm_wrapper.h"
 #include "iotx_dm_config.h"
 #include "iotx_dm.h"
 #include "dm_utils.h"
@@ -59,13 +73,14 @@
 #include "dm_server.h"
 #include "dm_api.h"
 
-#define DM_SUPPORT_MEMORY_MAGIC
-#ifdef DM_SUPPORT_MEMORY_MAGIC
-    #define DM_malloc(size) LITE_malloc(size, MEM_MAGIC, "dm")
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+    #define DM_malloc(size)            LITE_malloc(size, MEM_MAGIC, "dm")
+    #define DM_free(ptr)               LITE_free(ptr)
 #else
-    #define DM_malloc(size) LITE_malloc(size)
+    #define DM_malloc(size)            HAL_Malloc(size)
+    #define DM_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
-#define DM_free(ptr)   {LITE_free(ptr);ptr = NULL;}
 
 #if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
     #define DM_URI_OFFSET 1

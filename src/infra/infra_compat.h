@@ -1,6 +1,8 @@
 #ifndef _INFRA_COMPAT_H_
 #define _INFRA_COMPAT_H_
 
+#include "infra_list.h"
+
 #ifndef offset_of
     #define offset_of aos_offsetof
 #endif
@@ -51,6 +53,20 @@ static inline int list_is_last(const struct list_head *list,
     return list->next == head;
 }
 
+typedef struct {
+    uint16_t        port;
+    uint8_t         init;
+    char            *host_name;
+    char            *client_id;
+    char            *username;
+    char            *password;
+    const char      *pub_key;
+} iotx_conn_info_t, *iotx_conn_info_pt;
+iotx_conn_info_t g_iotx_conn_info;
+
+int IOT_SetupConnInfo(const char *product_key,
+                      const char *device_name,
+                      const char *device_secret,
+                      void **info_ptr);
+
 #endif  /* _INFRA_COMPAT_H_ */
-
-

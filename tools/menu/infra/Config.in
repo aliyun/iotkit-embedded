@@ -73,3 +73,7 @@ config INFRA_MEM_STATS
 config INFRA_PRE_AUTH
     bool
     default n
+
+config INFRA_COMPAT
+    bool
+    default n

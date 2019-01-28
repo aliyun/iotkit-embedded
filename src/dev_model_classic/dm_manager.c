@@ -1464,6 +1464,8 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     int res = 0;
     dm_msg_request_payload_t request;
     dm_msg_response_t response;
+    const char *reply_service_name = NULL;
+    dm_msg_dest_type_t reply_msg_type;
 
     if (devid < 0 || msgid == NULL || msgid_len <= 0 ||
         payload == NULL || payload_len <= 0) {
@@ -1474,8 +1476,8 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     memset(&response, 0, sizeof(dm_msg_response_t));
 
     /* Send Property Get Response Message To Local */
-    const char *reply_service_name = DM_URI_THING_SERVICE_PROPERTY_GET;
-    dm_msg_dest_type_t reply_msg_type = DM_MSG_DEST_LOCAL;
+    reply_service_name = DM_URI_THING_SERVICE_PROPERTY_GET;
+    reply_msg_type = DM_MSG_DEST_LOCAL;
 
     /* Send Property Get Response Message To Cloud */
     if (NULL == ctx) {

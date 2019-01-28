@@ -41,15 +41,15 @@ int dm_utils_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_
 int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
                           _OU_ int *partial_input_len, _OU_ int *array_input_len, _OU_ int *array_index)
 {
-    if (input == NULL || input_len <= 1 || array_index == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
     int index = 0;
     int deep = 0;
     char *bracket_pre = NULL;
     char *bracket_suf = NULL;
     char array_index_str[10] = {0};
+
+    if (input == NULL || input_len <= 1 || array_index == NULL) {
+        return DM_INVALID_PARAMETER;
+    }
 
     for (index = 0; index < input_len; index++) {
         switch (input[index]) {
@@ -411,10 +411,18 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
 
 void *dm_utils_malloc(unsigned int size)
 {
+#ifdef INFRA_MEM_STATS
     return LITE_malloc(size, MEM_MAGIC, "lite_cjson");
+#else
+    return HAL_Malloc(size);
+#endif
 }
 
 void dm_utils_free(void *ptr)
 {
+#ifdef INFRA_MEM_STATS
     LITE_free(ptr);
+#else
+    HAL_Free((void *)ptr);
+#endif
 }

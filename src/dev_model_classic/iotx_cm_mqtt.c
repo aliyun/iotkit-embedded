@@ -200,10 +200,11 @@ static int  _mqtt_connect(uint32_t timeout)
     iotx_time_t timer;
     iotx_mqtt_param_t *mqtt_param = NULL;
     iotx_conn_info_pt pconn_info = NULL;
+    iotx_cm_event_msg_t event;
 
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
     if (_mqtt_conncection == NULL) {
         return NULL_VALUE_ERROR;
@@ -215,8 +216,9 @@ static int  _mqtt_connect(uint32_t timeout)
     HAL_GetDeviceName(device_name);
     HAL_GetDeviceSecret(device_secret);
 
-    ARGUMENT_SANITY_CHECK(strlen(device_name), FAIL_RETURN);
-    ARGUMENT_SANITY_CHECK(strlen(product_key), FAIL_RETURN);
+    if (strlen(product_key) == 0 || strlen(device_name) == 0) {
+        return FAIL_RETURN;
+    }
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout);
@@ -238,8 +240,8 @@ static int  _mqtt_connect(uint32_t timeout)
     do {
         pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)_mqtt_conncection->open_params);
         if (pclient != NULL) {
-            _mqtt_conncection->context = pclient;
             iotx_cm_event_msg_t event;
+            _mqtt_conncection->context = pclient;
             event.type = IOTX_CM_EVENT_CLOUD_CONNECTED;
             event.msg = NULL;
 
@@ -251,7 +253,6 @@ static int  _mqtt_connect(uint32_t timeout)
         HAL_SleepMs(500);
     } while (!utils_time_is_expired(&timer));
 
-    iotx_cm_event_msg_t event;
     event.type = IOTX_CM_EVENT_CLOUD_CONNECT_FAILED;
     event.msg = NULL;
 

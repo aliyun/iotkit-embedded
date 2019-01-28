@@ -2,7 +2,6 @@
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iotx_cm_coap.h"
-#include "lite-list.h"
 #include "utils_timer.h"
 #include "iotx_utils.h"
 #include "iotx_system.h"

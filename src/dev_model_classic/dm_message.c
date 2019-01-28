@@ -411,7 +411,7 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
 
     /*  dm_log_debug("ctx: %p", ctx);
      dm_log_debug("ctx_addr_num: %0x016llX", ctx_addr_num); */
-    LITE_hexbuf_convert((unsigned char *)&ctx_addr_num, ctx_addr_str, sizeof(uintptr_t), 1);
+    infra_hex2str((unsigned char *)&ctx_addr_num, sizeof(uintptr_t), ctx_addr_str);
     /* dm_log_debug("ctx_addr_str: %s", ctx_addr_str); */
 
     message_len = strlen(DM_MSG_THING_PROPERTY_GET_FMT) + request->id.value_length + DM_UTILS_UINT32_STRLEN +
@@ -456,7 +456,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(ctx_addr_str, 0, sizeof(uintptr_t) * 2 + 1);
-    LITE_hexbuf_convert((unsigned char *)&ctx_addr_num, ctx_addr_str, sizeof(uintptr_t), 1);
+    infra_hex2str((unsigned char *)&ctx_addr_num, sizeof(uintptr_t), ctx_addr_str);
 
     message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + request->id.value_length + DM_UTILS_UINT32_STRLEN + identifier_len +
                   request->params.value_length + strlen(ctx_addr_str)  + 1;
@@ -535,6 +535,9 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
     int res = 0, devid = 0, id = 0, message_len = 0, payload_len = 0;
     char *message = NULL, *payload = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
 
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -546,7 +549,6 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -590,7 +592,9 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
     int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
         return FAIL_RETURN;
@@ -601,7 +605,6 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -719,6 +722,9 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
     int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
 
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -730,7 +736,6 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -761,6 +766,9 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
     int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
 
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -772,7 +780,6 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -872,10 +879,8 @@ int dm_msg_ntp_response(char *payload, int payload_len)
 {
     int res = 0, message_len = 0;
     char *message = NULL;
-    uint64_t utc = 0;
     lite_cjson_t lite, lite_item_server_send_time;
     const char *serverSendTime = "serverSendTime";
-    char uint64_str[DM_UTILS_UINT64_STRLEN] = {0};
 
     if (payload == NULL || payload_len <= 0) {
         return DM_INVALID_PARAMETER;
@@ -888,13 +893,6 @@ int dm_msg_ntp_response(char *payload, int payload_len)
     }
 
     /* dm_log_debug("NTP Time In String: %.*s", lite_item_server_send_time.value_length, lite_item_server_send_time.value); */
-
-    memcpy(uint64_str, lite_item_server_send_time.value, lite_item_server_send_time.value_length);
-    utc = atoll(uint64_str);
-
-    /* dm_log_debug("NTP Time In Number: %lld", utc); */
-
-    HAL_UTC_Set(utc);
 
     /* Send Message To User */
     message_len = strlen(DM_MSG_THING_NTP_RESPONSE_FMT) + DM_UTILS_UINT32_STRLEN + lite_item_server_send_time.value_length +

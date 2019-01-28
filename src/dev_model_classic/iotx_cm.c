@@ -1,6 +1,4 @@
-#include "iotx_cm.h"
 #include "iotx_cm_internal.h"
-#include "iot_export_event.h"
 
 #if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED) 
 #include "iotx_cm_mqtt.h"

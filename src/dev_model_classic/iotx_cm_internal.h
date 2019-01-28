@@ -6,15 +6,41 @@
 #ifndef _IOTX_CM_INTERNAL_H_
 #define _IOTX_CM_INTERNAL_H_
 
+#include <string.h>
+
 #include "infra_config.h"
+#ifndef INFRA_CLASSIC
+#define INFRA_CLASSIC
+#endif
+
+#ifndef INFRA_TIMER
+#define INFRA_TIMER
+#endif
+
+#ifndef INFRA_COMPAT
+#define INFRA_COMPAT
+#endif
+
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "infra_list.h"
+#include "infra_compat.h"
+#include "infra_classic.h"
+#include "infra_timer.h"
+
+#include "dm_wrapper.h"
+#include "mqtt_api.h"
 
 #include "iotx_cm.h"
-#include "iotx_cm_mqtt.h"
 
-#define cm_malloc(size)     LITE_malloc(size, MEM_MAGIC, "cm")
-#define cm_free(p)          LITE_free(p)
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+    #define cm_malloc(size)            LITE_malloc(size, MEM_MAGIC, "cm")
+    #define cm_free(ptr)               LITE_free(ptr)
+#else
+    #define cm_malloc(size)            HAL_Malloc(size)
+    #define cm_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
 
 #ifdef INFRA_LOG
     #include "infra_log.h"
@@ -55,6 +81,8 @@ typedef struct iotx_connection_st {
     void                             *cb_data;
 
 } iotx_cm_connection_t;
+
+#include "iotx_cm_mqtt.h"
 
 extern const char ERR_INVALID_PARAMS[];
 #endif /* _LINKKIT_CM_H_ */

@@ -110,6 +110,7 @@ int dm_ipc_msg_insert(void *data)
 int dm_ipc_msg_next(void **data)
 {
     dm_ipc_t *ctx = _dm_ipc_get_ctx();
+    dm_ipc_msg_node_t *node = NULL;
 
     if (data == NULL || *data != NULL) {
         return DM_INVALID_PARAMETER;
@@ -122,7 +123,7 @@ int dm_ipc_msg_next(void **data)
         return FAIL_RETURN;
     }
 
-    dm_ipc_msg_node_t *node = list_first_entry(&ctx->msg_list.message_list, dm_ipc_msg_node_t, linked_list);
+    node = list_first_entry(&ctx->msg_list.message_list, dm_ipc_msg_node_t, linked_list);
     list_del(&node->linked_list);
     ctx->msg_list.size--;
 
