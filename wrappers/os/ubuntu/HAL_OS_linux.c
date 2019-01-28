@@ -76,7 +76,22 @@ void HAL_Srandom(uint32_t seed)
 
 uint32_t HAL_Random(uint32_t region)
 {
-    return (region > 0) ? (random() % region) : 0;
+    FILE *handle;
+    ssize_t ret = 0;
+    uint32_t output = 0;
+    handle = fopen("/dev/urandom","r");
+    if (handle == NULL) {
+        printf("open /dev/urandom failed\n");
+        return 0;
+    }
+    ret = fread(&output,sizeof(uint32_t),1,handle);
+    if (ret != sizeof(uint32_t)) {
+        printf("fread error: %ld\n",ret);
+        fclose(handle);
+        return 0;
+    }
+    fclose(handle);
+    return (region > 0) ? (output % region) : 0;
 }
 
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...)
