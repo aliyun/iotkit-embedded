@@ -105,7 +105,7 @@ static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
     }
 
     while(0 == gotip) {
-        HAL_SleepMs(100);
+        HAL_SleepMs(50);
 
         t_left = _time_left(t_end, _get_time_ms());
         if (0 == t_left) {
