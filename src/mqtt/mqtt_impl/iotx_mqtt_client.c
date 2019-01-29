@@ -1966,7 +1966,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         mqtt_free(handler);
         return FAIL_RETURN;
     }
-    memset(handler->topic_filter,0,strlen(topicFilter) + 1);
+    memset((char *)handler->topic_filter,0,strlen(topicFilter) + 1);
 #else
     if (strlen(topicFilter) >= IOTX_MC_TOPIC_MAX_LEN) {
         memset(handler,0,sizeof(iotx_mc_topic_handle_t));
@@ -2082,10 +2082,22 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 #endif
         HAL_MutexLock(c->lock_generic);
 #ifdef PLATFORM_HAS_DYNMEM
+#if defined(INSPECT_MQTT_FLOW) && defined (INFRA_LOG)
+#if WITH_MQTT_ZIP_TOPIC
+    HEXDUMP_DEBUG(handler->topic_filter, MQTT_ZIP_PATH_DEFAULT_LEN);
+#else
+    mqtt_warning("handler->topic: %s",handler->topic_filter);
+#endif
+#endif
         list_for_each_entry(node,&c->list_sub_handle,linked_list,iotx_mc_topic_handle_t) {
             /* If subscribe the same topic and callback function, then ignore */
+#if defined(INSPECT_MQTT_FLOW) && defined (INFRA_LOG)
+#if WITH_MQTT_ZIP_TOPIC
+            HEXDUMP_DEBUG(node->topic_filter, MQTT_ZIP_PATH_DEFAULT_LEN);
+#else
             mqtt_warning("node->topic: %s",node->topic_filter);
-                mqtt_warning("handler->topic: %s",handler->topic_filter);
+#endif
+#endif
             if (0 == iotx_mc_check_handle_is_identical (node, handler)) {
                 mqtt_warning("dup sub,topic = %s", topicFilter);
                 dup = 1;
@@ -2266,7 +2278,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         mqtt_free(handler);
         return FAIL_RETURN;
     }
-    mmeset((char *)handler->topic_filter,0,strlen(topicFilter) + 1);
+    memset((char *)handler->topic_filter,0,strlen(topicFilter) + 1);
 #else
     if (strlen(topicFilter) >= IOTX_MC_TOPIC_MAX_LEN) {
         return MQTT_TOPIC_LEN_TOO_SHORT;
