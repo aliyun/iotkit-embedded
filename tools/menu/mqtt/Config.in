@@ -7,6 +7,7 @@ config MQTT_COMM_ENABLED
     select INFRA_LIST
     select INFRA_TIMER
     select INFRA_REPORT
+    select INFRA_COMPAT
 
     help
         Establish persistent connection with AliCloud via MQTT-based protocol
