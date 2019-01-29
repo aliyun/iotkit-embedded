@@ -60,7 +60,7 @@ int IOT_SetupConnInfo(const char *product_key,
 }
 #endif
 
-#if #if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
+#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
 #include "iotx_dm.h"
 #endif
 int IOT_Ioctl(int option, void *data)
