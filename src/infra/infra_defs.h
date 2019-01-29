@@ -296,7 +296,7 @@ typedef enum {
     IOTX_CLOUD_DOMAIN_MAX         /* Maximum number of domain */
 } iotx_mqtt_region_types_t;
 
-#define IOTX_MQTT_DOMAIN_NUMBER (5)
+#define IOTX_MQTT_DOMAIN_NUMBER (6)
 extern const char * g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
 
 typedef enum {
@@ -305,10 +305,11 @@ typedef enum {
     IOTX_HTTP_REGION_JAPAN,      /* Japan */
     IOTX_HTTP_REGION_AMERICA,    /* America */
     IOTX_HTTP_REGION_GERMANY,    /* Germany */
+    IOTX_HTTP_REGION_CUSTOM,     /* Custom setting */
     IOTX_HTTP_REGION_MAX         /* Maximum number of domain */
 } iotx_http_region_types_t;
 
-#define IOTX_HTTP_DOMAIN_NUMBER (5)
+#define IOTX_HTTP_DOMAIN_NUMBER (6)
 extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
 
 #endif

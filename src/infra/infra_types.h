@@ -1,6 +1,7 @@
 #ifndef _INFRA_TYPES_H_
 #define _INFRA_TYPES_H_
 
+#include <stddef.h>
 #include "infra_config.h"
 
 #define IOT_TRUE            (1)     /* indicate boolean value true */
@@ -23,10 +24,6 @@ typedef unsigned int        uintptr_t;
 #include <stdint.h>
 
 #endif  /* #if !defined(PLATFORM_HAS_STDINT) */
-
-#ifndef NULL
-#define NULL (void*)0
-#endif
 
 #endif
 

@@ -1,6 +1,7 @@
 #ifndef _INFRA_COMPAT_H_
 #define _INFRA_COMPAT_H_
 
+#include "infra_defs.h"
 #include "infra_list.h"
 
 #ifndef offset_of
@@ -62,11 +63,32 @@ typedef struct {
     char            *password;
     const char      *pub_key;
 } iotx_conn_info_t, *iotx_conn_info_pt;
-iotx_conn_info_t g_iotx_conn_info;
 
 int IOT_SetupConnInfo(const char *product_key,
                       const char *device_name,
                       const char *device_secret,
                       void **info_ptr);
+
+typedef struct {
+    int domain_type;
+    int dynamic_register;
+    char *cloud_custom_domain;
+    char *http_custom_domain;
+} sdk_impl_ctx_t;
+
+typedef enum {
+    IOTX_IOCTL_SET_REGION,              /* value(int*): iotx_cloud_region_types_t */
+    IOTX_IOCTL_GET_REGION,              /* value(int*) */
+    IOTX_IOCTL_SET_MQTT_DOMAIN,         /* value(const char*): point to mqtt domain string */
+    IOTX_IOCTL_SET_HTTP_DOMAIN,         /* value(const char*): point to http domain string */
+    IOTX_IOCTL_SET_DYNAMIC_REGISTER,    /* value(int*): 0 - Disable Dynamic Register, 1 - Enable Dynamic Register */
+    IOTX_IOCTL_GET_DYNAMIC_REGISTER,    /* value(int*) */
+    IOTX_IOCTL_RECV_PROP_REPLY,         /* value(int*): 0 - Disable property post reply by cloud; 1 - Enable property post reply by cloud */
+    IOTX_IOCTL_RECV_EVENT_REPLY,        /* value(int*): 0 - Disable event post reply by cloud; 1 - Enable event post reply by cloud */
+    IOTX_IOCTL_SEND_PROP_SET_REPLY,     /* value(int*): 0 - Disable send post set reply by devid; 1 - Enable property set reply by devid */
+    IOTX_IOCTL_SET_SUBDEV_SIGN,         /* value(const char*): only for slave device, set signature of subdevice */
+    IOTX_IOCTL_GET_SUBDEV_LOGIN,        /* value(int*): 0 - SubDev is logout; 1 - SubDev is login */
+    IOTX_IOCTL_SET_OTA_DEV_ID           /* value(int*):     select the device to do OTA according to devid */
+} iotx_ioctl_option_t;
 
 #endif  /* _INFRA_COMPAT_H_ */
