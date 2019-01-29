@@ -33,7 +33,7 @@ const char *clientid_kv[][2] = {
     {
         "signmethod", "hmacsha256"
     },
-#ifdef DEVICE_MODEL_ENABLE
+#ifdef DEVICE_MODEL_ENABLED
     {
         "v", IOTX_ALINK_VERSION
     },

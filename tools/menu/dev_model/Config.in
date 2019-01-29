@@ -1,4 +1,4 @@
-config DEVICE_MODEL_ENABLE
+config DEVICE_MODEL_ENABLED
     bool "FEATURE_DEVICE_MODEL_ENABLED"
     default n
     select DEV_SIGN
@@ -13,7 +13,7 @@ config DEVICE_MODEL_ENABLE
 
 config DEVICE_MODEL_GATEWAY
     bool "FEATURE_DEVICE_MODEL_GATEWAY"
-    depends on DEVICE_MODEL_ENABLE
+    depends on DEVICE_MODEL_ENABLED
     default n
     select INFRA_STRING
     select INFRA_SHA256
@@ -25,7 +25,7 @@ config DEVICE_MODEL_GATEWAY
 
 config THREAD_COST_INTERNAL
     bool "FEATURE_THREAD_COST_INTERNAL"
-    depends on DEVICE_MODEL_ENABLE
+    depends on DEVICE_MODEL_ENABLED
     default n
     select INFRA_LIST
     help
