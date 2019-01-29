@@ -91,6 +91,13 @@ typedef enum {
     IOTX_IOCTL_SET_OTA_DEV_ID           /* value(int*):     select the device to do OTA according to devid */
 } iotx_ioctl_option_t;
 
+typedef enum {
+    IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_POST_REPLY,           /* only for master device, choose whether you need receive property post reply message */
+    IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY,              /* only for master device, choose whether you need receive event post reply message */
+    IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY,            /* only for master device, choose whether you need send property set reply message */
+    IMPL_LINKKIT_IOCTL_MAX
+} impl_linkkit_ioctl_cmd_t;
+
 /**
  * @brief Setup Demain type, should be called before MQTT connection.
  *
@@ -100,6 +107,23 @@ typedef enum {
  * @see None.
  */
 int IOT_Ioctl(int option, void *data);
+
+#ifdef INFRA_LOG
+#include "infra_log.h"
+#else
+typedef enum _IOT_LogLevel {
+    IOT_LOG_NONE = 0,
+    IOT_LOG_CRIT,
+    IOT_LOG_ERROR,
+    IOT_LOG_WARNING,
+    IOT_LOG_INFO,
+    IOT_LOG_DEBUG,
+} IOT_LogLevel;
+#endif
+#ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
+#endif
+DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
 
 /* compatible for V2.3.0 */
 #define IOTX_CLOUD_DOMAIN_SH        IOTX_CLOUD_REGION_SHANGHAI

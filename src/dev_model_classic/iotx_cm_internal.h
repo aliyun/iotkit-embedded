@@ -9,18 +9,6 @@
 #include <string.h>
 
 #include "infra_config.h"
-#ifndef INFRA_CLASSIC
-#define INFRA_CLASSIC
-#endif
-
-#ifndef INFRA_TIMER
-#define INFRA_TIMER
-#endif
-
-#ifndef INFRA_COMPAT
-#define INFRA_COMPAT
-#endif
-
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_list.h"

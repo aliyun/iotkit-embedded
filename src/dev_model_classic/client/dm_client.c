@@ -39,12 +39,14 @@ static dm_client_uri_map_t g_dm_client_uri_map[] = {
 static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                                        char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    int res = 0;
+#endif
     if (uri_name == NULL) {
         return SUCCESS_RETURN;
     }
 
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-    int res = 0;
     if (strlen(uri_name) == strlen(DM_URI_THING_EVENT_POST_REPLY_WILDCARD) &&
         memcmp(uri_name, DM_URI_THING_EVENT_POST_REPLY_WILDCARD, strlen(uri_name)) == 0) {
         int event_post_reply_opt = 0;
@@ -177,6 +179,7 @@ void dm_client_thing_service_property_set(int fd, const char *topic, const char 
     dm_msg_dest_t dest;
     dm_msg_request_payload_t request;
     dm_msg_response_t response;
+    int prop_set_reply_opt = 0;
 
     memset(&source, 0, sizeof(dm_msg_source_t));
     memset(&dest, 0, sizeof(dm_msg_dest_t));
@@ -195,7 +198,7 @@ void dm_client_thing_service_property_set(int fd, const char *topic, const char 
         return;
     }
 
-    int prop_set_reply_opt = 0;
+    prop_set_reply_opt = 0;
     res = dm_opt_get(DM_OPT_UPSTREAM_PROPERTY_SET_REPLY, &prop_set_reply_opt);
     if (res == SUCCESS_RETURN) {
         if (prop_set_reply_opt) {

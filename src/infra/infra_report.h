@@ -56,6 +56,8 @@ int     iotx_midreport_topic(char *topic_name, char *topic_head, char *product_k
 int     iotx_gen_aos_report_topic(char *topic_name, char *product_key, char *device_name);
 int     iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData);
 
+void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
+
 #ifndef BUILD_AOS
 unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
                                   unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],

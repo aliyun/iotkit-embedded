@@ -80,6 +80,40 @@ char *infra_strtok(char *str, const char *delim)
     return target;
 }
 
+#define LITE_isdigit(c)             (((c) <= '9' && (c) >= '0') ? (1) : (0))
+
+static uint8_t _hexval_of_char(char hex)
+{
+    if (LITE_isdigit(hex)) {
+        return (hex - '0');
+    }
+    if (hex >= 'a' && hex <= 'f') {
+        return (hex - 'a' + 10);
+    }
+    if (hex >= 'A' && hex <= 'F') {
+        return (hex - 'A' + 10);
+    }
+
+    return 0;
+}
+
+void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len)
+{
+    int             i = 0;
+    uint8_t         ch0, ch1;
+
+    if (input_len % 2 != 0) {
+        return;
+    }
+
+    while (i < input_len / 2 && i < output_len) {
+        ch0 = _hexval_of_char((char)input[2 * i]);
+        ch1 = _hexval_of_char((char)input[2 * i + 1]);
+        output[i] = (ch0 << 4 | ch1);
+        i++;
+    }
+}
+
 #endif
 
 #ifdef INFRA_RANDOM

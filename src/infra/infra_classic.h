@@ -65,11 +65,63 @@ int iotx_event_regist_cb(void (*monitor_cb)(int event));
  */
 int iotx_event_post(int event);
 
-void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
-
 #ifndef BUILD_AOS
 unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
                                   unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],
                                   unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
 #endif
+
+typedef enum {
+    ITE_AWSS_STATUS,
+    ITE_CONNECT_SUCC,
+    ITE_CONNECT_FAIL,
+    ITE_DISCONNECTED,
+    ITE_RAWDATA_ARRIVED,
+    ITE_SERVICE_REQUEST,
+    ITE_PROPERTY_SET,
+    ITE_PROPERTY_GET,
+#ifdef DEVICE_MODEL_SHADOW
+    ITE_PROPERTY_DESIRED_GET_REPLY,
+#endif
+    ITE_REPORT_REPLY,
+    ITE_TRIGGER_EVENT_REPLY,
+    ITE_TIMESTAMP_REPLY,
+    ITE_TOPOLIST_REPLY,
+    ITE_PERMIT_JOIN,
+    ITE_INITIALIZE_COMPLETED,
+    ITE_FOTA,
+    ITE_COTA,
+    ITE_MQTT_CONNECT_SUCC
+} iotx_ioctl_event_t;
+
+#define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
+#define DECLARE_EVENT_CALLBACK(evt, cb)         DLL_IOT_API int iotx_register_for_##evt(cb);
+#define DEFINE_EVENT_CALLBACK(evt, cb)          DLL_IOT_API int iotx_register_for_##evt(cb) { \
+        if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {return -1;} \
+        g_impl_event_map[evt].callback = (void *)callback;return 0;}
+
+DECLARE_EVENT_CALLBACK(ITE_AWSS_STATUS,          int (*cb)(int))
+DECLARE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*cb)(void))
+DECLARE_EVENT_CALLBACK(ITE_CONNECT_FAIL,         int (*cb)(void))
+DECLARE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*cb)(void))
+DECLARE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*cb)(const int, const unsigned char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,       int (*cb)(const int, const char *, const int, const char *, const int,
+                       char **, int *))
+DECLARE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*cb)(const int, const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*cb)(const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*cb)(const int, const char *, const int, char **, int *))
+DECLARE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*cb)(const int, const int, const int, const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*cb)(const int, const int, const int, const char *, const int,
+                       const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_TIMESTAMP_REPLY,      int (*cb)(const char *))
+DECLARE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*cb)(const int, const int, const int, const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_PERMIT_JOIN,          int (*cb)(const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*cb)(const int))
+DECLARE_EVENT_CALLBACK(ITE_FOTA,                 int (*cb)(const int, const char *))
+DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char *, int, const char *, const char *,
+                       const char *, const char *))
+DECLARE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*cb)(void))
+
+void *iotx_event_callback(int evt);
+
 #endif

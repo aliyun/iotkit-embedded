@@ -706,5 +706,4 @@ void LITE_dump_malloc_free_stats(int level)
     return;
 }
 
-
 #endif

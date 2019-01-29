@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+#include "dm_wrapper.h"
 
 typedef enum {
     IOTX_LINKKIT_DEV_TYPE_MASTER,

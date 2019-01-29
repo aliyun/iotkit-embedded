@@ -7,9 +7,6 @@
 #ifndef _IOT_EXPORT_DM_H_
 #define _IOT_EXPORT_DM_H_
 
-#include "dm_utils.h"
-#include "dm_opt.h"
-
 #ifndef _IN_
     #define _IN_
 #endif

@@ -175,4 +175,18 @@ int IOT_Ioctl(int option, void *data)
     return res;
 }
 
+void IOT_DumpMemoryStats(IOT_LogLevel level)
+{
+#ifdef INFRA_MEM_STATS
+    int             lvl = (int)level;
+
+    if (lvl > LOG_DEBUG_LEVEL) {
+        lvl = LOG_DEBUG_LEVEL;
+        HAL_Printf("Invalid input level, using default: %d => %d", level, lvl);
+    }
+
+    LITE_dump_malloc_free_stats(lvl);
+#endif
+}
+
 #endif
