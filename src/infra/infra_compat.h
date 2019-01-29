@@ -91,4 +91,30 @@ typedef enum {
     IOTX_IOCTL_SET_OTA_DEV_ID           /* value(int*):     select the device to do OTA according to devid */
 } iotx_ioctl_option_t;
 
+/**
+ * @brief Setup Demain type, should be called before MQTT connection.
+ *
+ * @param [in] option: see iotx_ioctl_option_t.
+ *
+ * @return None.
+ * @see None.
+ */
+int IOT_Ioctl(int option, void *data);
+
+/* compatible for V2.3.0 */
+#define IOTX_CLOUD_DOMAIN_SH        IOTX_CLOUD_REGION_SHANGHAI
+#define IOTX_CLOUD_DOMAIN_SG        IOTX_CLOUD_REGION_SINGAPORE
+#define IOTX_CLOUD_DOMAIN_JP        IOTX_CLOUD_REGION_JAPAN
+#define IOTX_CLOUD_DOMAIN_US        IOTX_CLOUD_REGION_USA_WEST
+#define IOTX_CLOUD_DOMAIN_GER       IOTX_CLOUD_REGION_GERMANY
+#define IOTX_IOCTL_SET_DOMAIN       IOTX_IOCTL_SET_REGION
+#define IOTX_IOCTL_GET_DOMAIN       IOTX_IOCTL_GET_REGION
+
+#define IOT_OpenLog(arg)
+#define IOT_CloseLog()              IOT_SetLogLevel(IOT_LOG_NONE)
+#define IOT_LOG_EMERG               IOT_LOG_NONE
+
+#define IOT_Linkkit_Post            IOT_Linkkit_Report
+/* compatible for V2.3.0 end */
+
 #endif  /* _INFRA_COMPAT_H_ */
