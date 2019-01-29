@@ -15,3 +15,7 @@ $(foreach v, \
     $(if $(filter y,$($(v))), \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
+
+ifneq (,$(shell find src -maxdepth 1 -name "dev_model_classic"))
+    # CFLAGS += -DDEVICE_MODEL_CLASSIC -DINFRA_CLASSIC
+endif
