@@ -175,9 +175,7 @@ for i in ${ALL_PROG}; do
     if [ "$(grep -w -m 1 "^TARGET_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-|awk '{ print NF }')" = "1" ]; then
         k=""
     fi
-    set -x
     LFLAGS=$(grep -w -m 1 "^LDFLAGS_${q}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
-    set +x
     if [ "${CC}" = "gcc" ]; then
         if [ "$(uname)" != "Darwin" ]; then
             LFLAGS="${LFLAGS} -lgcov"
