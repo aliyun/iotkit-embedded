@@ -100,14 +100,6 @@ typedef struct
 #define atpsr_debug(...)
 #endif
 
-#ifdef INFRA_MEM_STATS
-#define atpsr_malloc(size)            LITE_malloc(size, MEM_MAGIC, "atpaser")
-#define atpsr_free(ptr)               LITE_free(ptr)
-#else
-#define atpsr_malloc(size)            HAL_Malloc(size)
-#define atpsr_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
-#endif
-
 static uint8_t    inited = 0;
 static uart_dev_t at_uart;
 
@@ -116,6 +108,42 @@ static at_parser_t at;
 #if !AT_SINGLE_TASK
 static void* at_worker(void *arg);
 #endif
+
+#ifndef PLATFORM_HAS_DYNMEM
+#if !AT_SINGLE_TASK
+static at_task_t g_at_task;
+#endif
+
+#define MAX_CALLBACK_INUPUT_LEN 256
+typedef struct cb_input {
+    uint8_t buf[MAX_CALLBACK_INUPUT_LEN];
+    uint8_t used;
+} cb_input_t;
+
+static cb_input_t callback_input[OOB_MAX] = {{{0}, 0}};
+#endif
+
+static void *alloc_callback_input(int size)
+{
+#ifdef PLATFORM_HAS_DYNMEM
+    return HAL_Malloc(size);
+#else
+    int i;
+
+    if (size <= 0 || size > MAX_CALLBACK_INUPUT_LEN) {
+        return NULL;
+    }
+
+    for (i = 0; i < OOB_MAX; i++) {
+        if (0 == callback_input[i].used) {
+            callback_input[i].used = 1;
+            return callback_input[i].buf;
+        }
+    }
+
+    return NULL;
+#endif
+}
 
 static void at_uart_configure(uart_dev_t *u)
 {
@@ -366,7 +394,9 @@ static int at_worker_task_del(at_task_t *tsk)
         HAL_SemaphoreDestroy(tsk->smpr);
     }
     if (tsk) {
-        atpsr_free(tsk);
+#ifdef PLATFORM_HAS_DYNMEM
+        HAL_Free(tsk);
+#endif
     }
 
     return 0;
@@ -397,7 +427,11 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     HAL_MutexLock(at.at_uart_send_mutex);
-    tsk = (at_task_t *)atpsr_malloc(sizeof(at_task_t));
+#ifdef PLATFORM_HAS_DYNMEM
+    tsk = (at_task_t *)HAL_Malloc(sizeof(at_task_t));
+#else
+    tsk = &g_at_task;
+#endif
     if (NULL == tsk) {
         atpsr_err("tsk buffer allocating failed");
         HAL_MutexUnlock(at.at_uart_send_mutex);
@@ -606,7 +640,7 @@ int at_register_callback(const char *prefix, const char *postfix,
 
     oob->oobinputdata = NULL;
     if (postfix != NULL) {
-        oob->oobinputdata = atpsr_malloc(maxlen);
+        oob->oobinputdata = alloc_callback_input(maxlen);
         if (NULL == oob->oobinputdata) {
             atpsr_err("fail to malloc len %d at %s for prefix %s \r\n",
                  maxlen, __func__, prefix);
@@ -629,6 +663,7 @@ int at_register_callback(const char *prefix, const char *postfix,
 }
 
 #define RECV_BUFFER_SIZE 512
+static char at_rx_buf[RECV_BUFFER_SIZE];
 static void at_scan_for_callback(char c, char *buf, int *index)
 {
     int     k;
@@ -699,7 +734,6 @@ static void at_scan_for_callback(char c, char *buf, int *index)
 }
 
 #if AT_SINGLE_TASK
-static char at_rx_buf[RECV_BUFFER_SIZE];
 int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
              int timeout_ms)
 {
@@ -831,7 +865,7 @@ static void* at_worker(void *arg)
 
     atpsr_debug("at_work started.");
 
-    buf = atpsr_malloc(RECV_BUFFER_SIZE);
+    buf = at_rx_buf;
     if (NULL == buf) {
         atpsr_err("AT worker fail to malloc ,task exist \r\n");
         return NULL;

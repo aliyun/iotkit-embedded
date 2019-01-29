@@ -11,7 +11,14 @@
 #include "at_conn_mbox.h"
 #include "at_conn_mgmt.h"
 
-#define AT_DEFAULT_INPUTMBOX_SIZE     8
+#ifndef AT_DEFAULT_INPUTMBOX_SIZE
+#define AT_DEFAULT_INPUTMBOX_SIZE  3
+#endif
+
+#ifndef AT_DEFAULT_PAYLOAD_SIZE
+#define AT_DEFAULT_PAYLOAD_SIZE    256
+#endif
+
 #define AT_DEFAULT_SEND_TIMEOUT_MS    1000
 #define AT_DEFAULT_RECV_TIMEOUT_MS    1000
 
@@ -59,6 +66,8 @@ struct at_conn {
     /** mbox where received packets are stored until they are fetched
         by the neconn application thread. */
     at_mbox_t recvmbox;
+    /** pointer buffer for mbox which is used by ringbuf module. */
+    void *recvbuf[AT_DEFAULT_INPUTMBOX_SIZE];
     /** timeout to wait for sending data (which means enqueueing data for sending
         in internal buffers) in milliseconds */
     int send_timeout_ms;
@@ -77,6 +86,80 @@ typedef struct at_netbuf {
 /** The global array of available at */
 static struct at_conn atconnects[NUM_ATCONN];
 static void *g_atconnmutex = NULL;
+
+#ifndef PLATFORM_HAS_DYNMEM
+static at_netbuf_t atnetbuf[AT_DEFAULT_INPUTMBOX_SIZE] =
+                            {{NULL, 0, 0, {'\0'}}};
+
+typedef struct at_payload {
+    uint8_t buf[AT_DEFAULT_PAYLOAD_SIZE];
+    uint8_t used;
+} at_payload_t;
+
+static at_payload_t atpayload[AT_DEFAULT_INPUTMBOX_SIZE] =
+                             {{{0}, 0}};
+#endif
+
+static void *alloc_payload(int size)
+{
+#ifdef PLATFORM_HAS_DYNMEM
+    return HAL_Malloc(size);
+#else
+    int i;
+
+    if (size <= 0 || size > AT_DEFAULT_PAYLOAD_SIZE) {
+        return NULL;
+    }
+
+    for (i = 0; i < AT_DEFAULT_INPUTMBOX_SIZE; i++) {
+        if (0 == atpayload[i].used) {
+            atpayload[i].used = 1;
+            return atpayload[i].buf;
+        }
+    }
+
+    return NULL;
+#endif
+}
+
+static void free_payload(void *payload)
+{
+    if (payload) {
+#ifdef PLATFORM_HAS_DYNMEM
+        HAL_Free(payload);
+#else
+        memset(payload, 0, sizeof(at_payload_t));
+#endif
+   }
+}
+
+static at_netbuf_t *alloc_atnetbuf(void)
+{
+#ifdef PLATFORM_HAS_DYNMEM
+    return HAL_Malloc(sizeof(at_netbuf_t));
+#else
+    int i;
+
+    for (i = 0; i < AT_DEFAULT_INPUTMBOX_SIZE; i++) {
+        if (NULL == atnetbuf[i].payload) {
+            return &atnetbuf[i];
+        }
+    }
+
+    return NULL;
+#endif
+}
+
+static void free_atnetbuf(at_netbuf_t *netbuf)
+{
+    if (netbuf) {
+#ifdef PLATFORM_HAS_DYNMEM
+        HAL_Free(netbuf);
+#else
+        memset(netbuf, 0, sizeof(at_netbuf_t));
+#endif
+    }
+}
 
 static struct at_conn *get_conn(int c)
 {
@@ -104,7 +187,8 @@ static int at_newconn(void)
     for (i = 0; i < NUM_ATCONN; i++) {     
         if (atconnects[i].connid == UNUSED_ATCONN) {
         	if (at_mbox_new(&atconnects[i].recvmbox,
-            	            AT_DEFAULT_INPUTMBOX_SIZE) != 0) {
+                            AT_DEFAULT_INPUTMBOX_SIZE,
+                            atconnects[i].recvbuf) != 0) {
                 AT_ERROR("fai to new input mail box size %d \n", AT_DEFAULT_INPUTMBOX_SIZE);
                 return -1;
             }
@@ -134,10 +218,10 @@ static void at_drainconn(struct at_conn *conn)
         while (at_mbox_tryfetch(&conn->recvmbox, (void **)(&mem)) != AT_MBOX_EMPTY) {
             if (mem != NULL) {
                 if (mem->payload) {
-                    HAL_Free(mem->payload);
+                    free_payload(mem->payload);
                     mem->payload = NULL;
                 }
-                HAL_Free(mem);
+                free_atnetbuf(mem);
             }
         }
         at_mbox_free(&conn->recvmbox);
@@ -158,11 +242,11 @@ static int at_freeconn(struct at_conn *conn)
         buf = (at_netbuf_t *) conn->lastdata;
 
         if (buf->payload) {
-            HAL_Free(buf->payload);
+            free_payload(buf->payload);
             buf->payload = NULL;
         }
 
-    	HAL_Free(conn->lastdata);
+        free_atnetbuf(buf);
     }
 
     conn->lastdata   = NULL;
@@ -206,7 +290,7 @@ int at_conn_input(struct at_conn_input *param)
 {
     int  s = -1;
     void *data = NULL;
-    size_t len = 0;
+    int len = 0;
     char *remote_ip = NULL;
     uint16_t remote_port = 0;
     struct at_conn *conn = NULL;
@@ -250,20 +334,20 @@ int at_conn_input(struct at_conn_input *param)
         return -1;
     }
 
-    buf = (at_netbuf_t *)HAL_Malloc(sizeof(at_netbuf_t));
+    buf = alloc_atnetbuf();
     if (NULL == buf) {
-        AT_ERROR("malloc size %d fail\n", sizeof(at_netbuf_t));
+        AT_ERROR("alloc at net buf size %d fail\n", sizeof(at_netbuf_t));
         return -1;
     }
     memset(buf, 0, sizeof(*buf));
 
-    buf->payload = HAL_Malloc(len);
+    buf->payload = alloc_payload(len);
     if (NULL == buf->payload) {
-        HAL_Free(buf);
-        AT_ERROR("malloc size %d fail\n", len);
+        free_atnetbuf(buf);
+        AT_ERROR("alloc payload size %d fail\n", len);
         return -1;
     }
-   
+
     memcpy(buf->payload, data, len);
     buf->len = len;
     buf->remote_port = remote_port;
@@ -271,8 +355,9 @@ int at_conn_input(struct at_conn_input *param)
         memcpy(buf->remote_ip, remote_ip, IPV4_STR_MAX_LEN);
     
     if (at_mbox_trypost(&conn->recvmbox, buf) != 0) {
-        HAL_Free(buf->payload);
-        HAL_Free(buf);
+        free_payload(buf->payload);
+        buf->payload = NULL;
+        free_atnetbuf(buf);
         AT_ERROR("try post recv packet fail\n");
         return -1;
     }
@@ -563,8 +648,9 @@ int at_conn_recv(int c, void *mem, uint32_t len)
         } else {
             conn->lastdata = NULL;
             conn->lastoffset = 0;
-            HAL_Free(buf->payload);
-            HAL_Free(buf);
+            free_payload(buf->payload);
+            buf->payload = NULL;
+            free_atnetbuf(buf);
             buf = NULL;
         }
     } while (!done);

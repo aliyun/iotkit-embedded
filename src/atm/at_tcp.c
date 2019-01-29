@@ -132,6 +132,11 @@ int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         }
 
         while(1) {
+#ifdef AT_PARSER_ENABLED
+#if AT_SINGLE_TASK
+            at_yield(NULL, 0, NULL, 100);
+#endif
+#endif
             empty = at_conn_recvbufempty(fd);
             if (0 == empty) {
                 ret = 1;
@@ -140,11 +145,6 @@ int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                 ret = -1;
             }
 
-#ifdef AT_PARSER_ENABLED
-#if AT_SINGLE_TASK
-            at_yield(NULL, 0, NULL, AT_UART_TIMEOUT_MS);
-#endif
-#endif
             t_left = _time_left(t_end, _get_time_ms());
             if (0 == t_left) {
                 ret = 0;

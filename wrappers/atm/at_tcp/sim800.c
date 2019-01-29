@@ -58,8 +58,8 @@
 
 #define SIM800_MAX_LINK_NUM       6
 
-#define SIM800_DOMAIN_MAX_LEN     256
-#define SIM800_DOMAIN_RSP_MAX_LEN 512
+#define SIM800_DOMAIN_MAX_LEN     64
+#define SIM800_DOMAIN_RSP_MAX_LEN 128
 #define SIM800_DOMAIN_CMD_LEN (sizeof(AT_CMD_DOMAIN_TO_IP) + SIM800_DOMAIN_MAX_LEN + 1)
 
 #define SIM800_CONN_CMD_LEN   (SIM800_DOMAIN_MAX_LEN + SIM800_DEFAULT_CMD_LEN)
@@ -75,6 +75,14 @@
 #define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define at_conn_hal_debug(...)
+#endif
+
+#ifndef AT_DEFAULT_PAYLOAD_SIZE
+#define AT_DEFAULT_PAYLOAD_SIZE 256
+#endif
+
+#ifndef PLATFORM_HAS_DYNMEM
+static uint8_t payload[AT_DEFAULT_PAYLOAD_SIZE] = {0};
 #endif
 
 /* Change to include data slink for each link id respectively. <TODO> */
@@ -226,14 +234,20 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
         remoteport = remoteport * 10 + port[j] - '0';
     }
 
+#ifdef PLATFORM_HAS_DYNMEM
     /* Prepare socket data */
-    recvdata = (char *)HAL_Malloc(len + 1);
+    recvdata = (char *)HAL_Malloc(len);
+#else
+    if (len <= AT_DEFAULT_PAYLOAD_SIZE) {
+        recvdata = (char *)payload;
+    }
+#endif
     if (!recvdata) {
         at_conn_hal_err( "Error: %s %d out of memory.", __func__, __LINE__);
         return;
     }
 
-    memset(recvdata, 0, len + 1);
+    memset(recvdata, 0, len);
 
     at_read(recvdata, len);
 
@@ -252,7 +266,9 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     }
     at_conn_hal_debug( "%s socket data on link %d with length %d posted to at_conn\n",
          __func__, linkid, len);
+#ifdef PLATFORM_HAS_DYNMEM
     HAL_Free(recvdata);
+#endif
     return;
 }
 
