@@ -1,10 +1,11 @@
 mainmenu "Main Menu"
 comment "Configure C-SDK for IoT Embedded Devices"
 
-source "tools/menu/infra/Config.in"
-source "tools/menu/dev_sign/Config.in"
-source "tools/menu/mqtt/Config.in"
-source "tools/menu/dynamic_register/Config.in"
-source "tools/menu/dev_model/Config.in"
-source "tools/menu/wrappers/Config.in"
-source "tools/menu/atm/Config.in"
+source "tools/menu/Config.infra"
+source "tools/menu/Config.dev_sign"
+source "tools/menu/Config.mqtt"
+source "tools/menu/Config.dynamic_register"
+source "tools/menu/Config.dev_model"
+source "tools/menu/Config.wrappers"
+source "tools/menu/Config.atm"
+
