@@ -186,6 +186,10 @@ int iotx_dm_subscribe(_IN_ int devid)
     }
 
 #ifdef ALCS_ENABLED
+    if (devid > 0) {
+        dm_server_add_device(product_key,device_name);
+    }
+
     res = dm_server_subscribe_all(product_key, device_name);
     if (res < SUCCESS_RETURN) {
         _dm_api_unlock();
