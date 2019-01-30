@@ -99,14 +99,15 @@ int at_read(char *outbuf, int readsize);
 /**
  * at register callback for recv
  *
- * @param prefix interested string.
- * @param postfix intersted postfix.
- * @param maxlen max recv data len
- * @param cb callback handle function
- * @param arg callback handle function args
+ * @param prefix interested string. Must not be NULL.
+ * @param postfix intersted postfix. NULL if postfix not provided.
+ * @param recvbuf recv data buffer provided by caller, NULL if postfix not provided
+ * @param bufsize buffer size for recv data, zero if postfix not provided
+ * @param cb callback handle function. Must not be NULL.
+ * @param arg callback handle function args. NULL if not used.
  */
-int at_register_callback(const char *prefix, const char *postfix,
-                         int maxlen, at_recv_cb cb, void *arg);
+int at_register_callback(const char *prefix, const char *postfix, char *recvbuf,
+                         int bufsize, at_recv_cb cb, void *arg);
 
 
 /**

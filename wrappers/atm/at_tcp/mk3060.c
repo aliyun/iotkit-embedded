@@ -278,6 +278,7 @@ err:
 #ifdef PLATFORM_HAS_DYNMEM
     HAL_Free(recvdata);
 #endif
+    return;
 }
 
 /*
@@ -451,8 +452,8 @@ int HAL_AT_CONN_Init(void)
         memset(cmd, 0, sizeof(cmd));
     }
 
-    at_register_callback(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
-    at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, 0, mk3060wifi_event_handler, NULL);
+    at_register_callback(NET_OOB_PREFIX, NULL, NULL, 0, net_event_handler, NULL);
+    at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, NULL, 0, mk3060wifi_event_handler, NULL);
     
     if (at_connect_wifi(WIFI_SSID, WIFI_PWD, WIFI_TIMEOUT) < 0) {
         at_conn_hal_err("%s %d failed", __func__, __LINE__);

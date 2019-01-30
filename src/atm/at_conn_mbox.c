@@ -17,7 +17,7 @@ typedef struct
 
 #ifndef PLATFORM_HAS_DYNMEM
 #ifndef AT_RINGBUF_NUM
-#define AT_RINGBUF_NUM 1
+#define AT_RINGBUF_NUM 3
 #endif
 
 static at_ringbuf_t ringbufs[AT_RINGBUF_NUM] = {{NULL, 0, 0, 0}};

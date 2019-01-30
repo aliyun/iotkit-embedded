@@ -113,37 +113,7 @@ static void* at_worker(void *arg);
 #if !AT_SINGLE_TASK
 static at_task_t g_at_task;
 #endif
-
-#define MAX_CALLBACK_INUPUT_LEN 256
-typedef struct cb_input {
-    uint8_t buf[MAX_CALLBACK_INUPUT_LEN];
-    uint8_t used;
-} cb_input_t;
-
-static cb_input_t callback_input[OOB_MAX] = {{{0}, 0}};
 #endif
-
-static void *alloc_callback_input(int size)
-{
-#ifdef PLATFORM_HAS_DYNMEM
-    return HAL_Malloc(size);
-#else
-    int i;
-
-    if (size <= 0 || size > MAX_CALLBACK_INUPUT_LEN) {
-        return NULL;
-    }
-
-    for (i = 0; i < OOB_MAX; i++) {
-        if (0 == callback_input[i].used) {
-            callback_input[i].used = 1;
-            return callback_input[i].buf;
-        }
-    }
-
-    return NULL;
-#endif
-}
 
 static void at_uart_configure(uart_dev_t *u)
 {
@@ -612,14 +582,21 @@ int at_read(char *outbuf, int readsize)
     return total_read;
 }
 
-int at_register_callback(const char *prefix, const char *postfix,
-                         int maxlen, at_recv_cb cb, void *arg)
+#define RECV_BUFFER_SIZE 512
+static char at_rx_buf[RECV_BUFFER_SIZE];
+int at_register_callback(const char *prefix, const char *postfix, char *recvbuf,
+                         int bufsize, at_recv_cb cb, void *arg)
 {
     oob_t *oob = NULL;
     int    i   = 0;
 
-    if (maxlen < 0 || NULL == prefix) {
+    if (bufsize < 0 || bufsize >= RECV_BUFFER_SIZE || NULL == prefix) {
         atpsr_err("%s invalid input \r\n", __func__);
+        return -1;
+    }
+
+    if (NULL != postfix && (NULL == recvbuf || 0 == bufsize)) {
+        atpsr_err("%s invalid postfix input \r\n", __func__);
         return -1;
     }
 
@@ -628,9 +605,10 @@ int at_register_callback(const char *prefix, const char *postfix,
         return -1;
     }
 
-    /*check oob is exit*/
+    /*check oob exist*/
     for (i = 0; i < at._oobs_num; i++) {
-        if (strcmp(prefix, at._oobs[i].prefix) == 0) {
+        if (NULL != at._oobs[i].prefix &&
+            strcmp(prefix, at._oobs[i].prefix) == 0) {
             atpsr_warning("oob prefix %s is already exist.\r\n", prefix);
             return -1;
         }
@@ -638,19 +616,11 @@ int at_register_callback(const char *prefix, const char *postfix,
 
     oob = &(at._oobs[at._oobs_num++]);
 
-    oob->oobinputdata = NULL;
-    if (postfix != NULL) {
-        oob->oobinputdata = alloc_callback_input(maxlen);
-        if (NULL == oob->oobinputdata) {
-            atpsr_err("fail to malloc len %d at %s for prefix %s \r\n",
-                 maxlen, __func__, prefix);
-            return -1;
-        }
-        memset(oob->oobinputdata, 0, maxlen);
+    oob->oobinputdata = recvbuf;
+    if (oob->oobinputdata != NULL) {
+        memset(oob->oobinputdata, 0, bufsize);
     }
-
-
-    oob->maxlen  = maxlen;
+    oob->maxlen  = bufsize;
     oob->prefix  = (char *)prefix;
     oob->postfix = (char *)postfix;
     oob->cb      = cb;
@@ -662,8 +632,6 @@ int at_register_callback(const char *prefix, const char *postfix,
     return 0;
 }
 
-#define RECV_BUFFER_SIZE 512
-static char at_rx_buf[RECV_BUFFER_SIZE];
 static void at_scan_for_callback(char c, char *buf, int *index)
 {
     int     k;

@@ -101,6 +101,7 @@ static void *g_domain_sem;
 #else
 static int  g_domain_mark = 0;
 #endif
+static char  g_pcdomain_buf[SIM800_DOMAIN_RSP_MAX_LEN];
 static char  g_pcdomain_rsp[SIM800_DOMAIN_RSP_MAX_LEN];
 static char  g_pccmd[SIM800_CONN_CMD_LEN];
 static char  g_cmd[SIM800_DEFAULT_CMD_LEN];
@@ -565,9 +566,9 @@ int HAL_AT_CONN_Init(void)
     }
 
     /* reg oob for domain and packet input*/
-    at_register_callback(AT_CMD_DOMAIN_RSP, AT_RECV_PREFIX, SIM800_DOMAIN_RSP_MAX_LEN,
+    at_register_callback(AT_CMD_DOMAIN_RSP, AT_RECV_PREFIX, g_pcdomain_buf, SIM800_DOMAIN_RSP_MAX_LEN,
                          sim800_gprs_domain_rsp_callback, NULL);
-    at_register_callback(AT_CMD_DATA_RECV, NULL, 0, sim800_gprs_module_socket_data_handle, NULL);
+    at_register_callback(AT_CMD_DATA_RECV, NULL, NULL, 0, sim800_gprs_module_socket_data_handle, NULL);
     ret = sim800_gprs_got_ip();
     if (ret) {
         at_conn_hal_err( "%s %d failed \r\n", __func__, __LINE__);
