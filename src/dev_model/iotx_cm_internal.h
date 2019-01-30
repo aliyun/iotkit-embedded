@@ -52,6 +52,7 @@ typedef struct iotx_connection_st {
     void                             *open_params;
     void                             *context;
     void                             *list_lock;
+    iotx_dev_meta_info_t             *dev_meta;
     iotx_cm_protocol_types_t         protocol_type;
     iotx_cm_connect_fp               connect_func;
     iotx_cm_sub_fp                   sub_func;

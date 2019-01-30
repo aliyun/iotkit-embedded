@@ -19,12 +19,7 @@ typedef struct {
     alink_core_status_t     status;
     uint8_t                 fd_num;
     void                   *mutex;
-
-    char                   *product_key;
-    char                   *product_secret;
-    char                   *device_name;
-    char                   *device_secret;
-
+    iotx_dev_meta_info_t    dev_meta;
     uint32_t                cm_fd;
     uint32_t                msgid;
 
@@ -82,25 +77,7 @@ static int _alink_core_init(iotx_dev_meta_info_t *dev_info)
     }
 
     /* store master device info duplication */
-    if ((alink_core_ctx.product_key = alink_utils_strdup(dev_info->product_key, strlen(dev_info->product_key))) == NULL) {
-        _alink_core_deinit();
-        return IOTX_CODE_MEMORY_NOT_ENOUGH;
-    }
-
-    if ((alink_core_ctx.product_secret = alink_utils_strdup(dev_info->product_secret, strlen(dev_info->product_secret))) == NULL) {
-        _alink_core_deinit();
-        return IOTX_CODE_MEMORY_NOT_ENOUGH;
-    }
-
-    if ((alink_core_ctx.device_name = alink_utils_strdup(dev_info->device_name, strlen(dev_info->device_name))) == NULL) {
-        _alink_core_deinit();
-        return IOTX_CODE_MEMORY_NOT_ENOUGH;
-    }
-
-    if ((alink_core_ctx.device_secret = alink_utils_strdup(dev_info->device_secret, strlen(dev_info->device_secret))) == NULL) {
-        _alink_core_deinit();
-        return IOTX_CODE_MEMORY_NOT_ENOUGH;
-    }
+    memcpy(&alink_core_ctx.dev_meta, dev_info, sizeof(iotx_dev_meta_info_t));
 
     /* init downstream topic hash table */
     res = alink_uri_hash_table_init();
@@ -150,21 +127,7 @@ static int _alink_core_deinit(void)
         alink_core_ctx.mutex = NULL;
     }
 
-    if (alink_core_ctx.product_key) {
-        alink_free(alink_core_ctx.product_key);
-    }
-
-    if (alink_core_ctx.product_secret) {
-        alink_free(alink_core_ctx.product_secret);
-    }
-
-    if (alink_core_ctx.device_name) {
-        alink_free(alink_core_ctx.device_name);
-    }
-
-    if (alink_core_ctx.device_secret) {
-        alink_free(alink_core_ctx.device_secret);
-    }
+    memset(&alink_core_ctx.dev_meta, 0, sizeof(iotx_dev_meta_info_t));
 
     /* downstream topic hash table deinit */
     alink_uri_hash_table_deinit();
@@ -207,14 +170,14 @@ int _alink_core_register_downstream(iotx_cm_data_handle_cb rx_func)
     sub_params.sync_timeout = ALINK_CORE_SUBSCRIBE_TIMEOUT;
     sub_params.ack_cb = NULL;
 
-    HAL_Snprintf(uri, sizeof(uri), uri_req_fmt, alink_core_ctx.product_key, alink_core_ctx.device_name);
+    HAL_Snprintf(uri, sizeof(uri), uri_req_fmt, alink_core_ctx.dev_meta.product_key, alink_core_ctx.dev_meta.device_name);
     alink_info("sub topic is %s", uri);
     res = iotx_cm_sub(alink_core_ctx.cm_fd, &sub_params, (const char *)uri, rx_func, NULL);
     if (res < SUCCESS_RETURN) {
         return res;
     }
 
-    HAL_Snprintf(uri, sizeof(uri), uri_rsp_fmt, alink_core_ctx.product_key, alink_core_ctx.device_name);
+    HAL_Snprintf(uri, sizeof(uri), uri_rsp_fmt, alink_core_ctx.dev_meta.product_key, alink_core_ctx.dev_meta.device_name);
     alink_info("sub topic is %s", uri);
     return iotx_cm_sub(alink_core_ctx.cm_fd, &sub_params, (const char *)uri, rx_func, NULL);
 
@@ -345,7 +308,7 @@ int alink_core_open(iotx_dev_meta_info_t *dev_info)
 
     {
         iotx_cm_init_param_t cm_param;
-        cm_param.dev_info = dev_info;
+        cm_param.dev_meta = &alink_core_ctx.dev_meta;
         cm_param.region = IOTX_CLOUD_REGION_SHANGHAI;       /* pass region??? */
 #if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
         cm_param.protocol_type = IOTX_CM_PROTOCOL_TYPE_COAP;
@@ -497,6 +460,4 @@ int alink_set_event_callback(iotx_linkkit_event_type_t event_id, linkkit_event_c
     g_linkkit_event_array[event_id] = callback;
     return SUCCESS_RETURN;
 }
-
-
 

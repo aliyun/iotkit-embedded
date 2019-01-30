@@ -99,7 +99,7 @@ typedef struct {
     iotx_cm_protocol_types_t      protocol_type;
     iotx_cm_event_handle_cb       handle_event;             /* Specify MQTT event handle */
     void                          *context;
-    iotx_dev_meta_info_t          *dev_info;
+    iotx_dev_meta_info_t          *dev_meta;
     iotx_mqtt_region_types_t      region;
 } iotx_cm_init_param_t;
 
