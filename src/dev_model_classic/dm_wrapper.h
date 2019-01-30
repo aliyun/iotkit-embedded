@@ -32,4 +32,9 @@ int HAL_ThreadCreate(
             int *stack_used);
 void HAL_ThreadDelete(void *thread_handle);
 
+void *HAL_SemaphoreCreate(void);
+void HAL_SemaphoreDestroy(void *sem);
+void HAL_SemaphorePost(void *sem);
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
+
 #endif

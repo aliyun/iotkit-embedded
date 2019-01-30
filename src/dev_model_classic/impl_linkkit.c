@@ -1270,6 +1270,7 @@ static int _iotx_linkkit_subdev_login(int devid)
     int res = 0, msgid = 0, code = 0;
     iotx_linkkit_upstream_sync_callback_node_t *node = NULL;
     void *semaphore = NULL;
+    void *callback = NULL;
 
     res = iotx_dm_subdev_login(devid);
     if (res < SUCCESS_RETURN) {
@@ -1314,7 +1315,7 @@ static int _iotx_linkkit_subdev_login(int devid)
     }
 
     iotx_dm_send_aos_active(devid);
-    void *callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
+    callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
     if (callback) {
         ((int (*)(const int))callback)(devid);
     }

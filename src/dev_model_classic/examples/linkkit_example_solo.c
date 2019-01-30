@@ -24,10 +24,10 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
-#define PRODUCT_KEY      "a1X2bEnP82z"
-#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "example1"
-#define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
+#define PRODUCT_KEY      "a1tlt4Sp8hK"
+#define PRODUCT_SECRET   "fSAF0hle6xL0oRWd"
+#define DEVICE_NAME      "example_zc"
+#define DEVICE_SECRET    "PMJgCFApCoOGAQEWurqOhZPhlaurN5R3"
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"

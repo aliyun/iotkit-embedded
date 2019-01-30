@@ -22,6 +22,9 @@ $(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
 
 ifneq (,$(findstring DEVICE_MODEL_CLASSIC,$(CFLAGS)))
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/dev_model_classic)
+ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_GATEWAY)))
+CFLAGS += -DINFRA_SHA1
+endif
 else
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/dev_model)
 endif

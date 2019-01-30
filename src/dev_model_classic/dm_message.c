@@ -1291,6 +1291,9 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
     int res = 0, devid = 0, id, message_len = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
     char *message = NULL;
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
 
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -1305,7 +1308,6 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -1335,6 +1337,9 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
     int res = 0, devid = 0, id = 0, message_len = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
     char *message = NULL;
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
 
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
         return FAIL_RETURN;
@@ -1345,7 +1350,6 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -1382,6 +1386,9 @@ int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
     int res = 0, devid = 0, id = 0, message_len = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
     char *message = NULL;
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
 
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
         return FAIL_RETURN;
@@ -1392,7 +1399,6 @@ int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;

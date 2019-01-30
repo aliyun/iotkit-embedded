@@ -10,10 +10,6 @@
 #include <stdlib.h>
 
 #include "infra_config.h"
-#ifndef INFRA_CLASSIC
-#define INFRA_CLASSIC
-#endif
-
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_list.h"
@@ -21,6 +17,10 @@
 #include "infra_classic.h"
 #include "infra_report.h"
 #include "infra_string.h"
+#if defined(DEVICE_MODEL_GATEWAY)
+#include "infra_sha1.h"
+#endif
+
 
 #ifndef _IN_
     #define _IN_

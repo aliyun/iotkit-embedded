@@ -50,6 +50,10 @@ config INFRA_MD5
     bool
     default n
 
+config INFRA_SHA1
+    bool
+    default n
+
 config INFRA_SHA256
     bool
     default n
