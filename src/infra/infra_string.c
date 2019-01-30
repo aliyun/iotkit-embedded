@@ -114,6 +114,44 @@ void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int 
     }
 }
 
+int infra_str2int(const char *input, int *val)
+{
+    int sign = 0;
+    int temp = 0;
+
+    if (input == NULL || val == NULL) {
+        return -1;
+    }
+
+    while(*input == ' ') {  /* only support skipping space */
+        input++;
+    }
+
+    if (*input == '+') {
+        input++;
+    }
+    else if (*input == '-') {
+        input++;
+        sign = -1;
+    }
+
+    while (*input != 0) {
+        if (*input < '0' || *input > '9') {
+            break;
+        }
+
+        temp = temp * 10 + (*input - '0');
+        input++;
+    }
+
+    if (sign == -1) {
+        temp = -temp;
+    }
+
+    *val = temp;
+    return 0;
+}
+
 #endif
 
 #ifdef INFRA_RANDOM

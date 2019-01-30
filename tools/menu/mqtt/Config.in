@@ -32,14 +32,27 @@ menu "MQTT Configurations"
             Switching to "y" leads to building MQTT related implementation into SDK and MQTT_DEFAULT_IMPL included into CFLAGS
             Switching to "n" seldom happens unless you're using other MQTT implementations
 
+    choice
+        prompt "MQTT Connection Mode"
+        default MQTT_DIRECT
+
+    config MQTT_PRE_AUTH
+        bool "FEATURE_MQTT_PRE_AUTH"
+        default n
+        select SUPPORT_TLS
+        select INFRA_PRE_AUTH
+
     config MQTT_DIRECT
         bool "FEATURE_MQTT_DIRECT"
-        default y
+        default n
+
         help
             Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
 
             Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
             Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
+
+    endchoice
 
     config ASYNC_PROTOCOL_STACK
         bool "FEATURE_ASYNC_PROTOCOL_STACK"

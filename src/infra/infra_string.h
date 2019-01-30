@@ -9,6 +9,7 @@ void infra_int2str(uint32_t input, char output[10]);
 char *infra_strtok(char *str, const char *delim);
 int infra_randstr(char *random, int length);
 void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len);
+int infra_str2int(const char *input, int *val);
 
 #endif
 

@@ -4,23 +4,33 @@
 #include "infra_config.h"
 #include "infra_string.h"
 #include "infra_sha256.h"
+#ifdef MQTT_PRE_AUTH
+#include "infra_preauth.h"
+#endif
+
 #include "dev_sign_api.h"
 #include "dev_sign_wrapper.h"
+
 
 #define SIGN_MQTT_PORT (1883)
 
 /* all secure mode define */
+#define MODE_TLS_GUIDER             "-1"
 #define MODE_TLS_DIRECT             "2"
 #define MODE_TCP_DIRECT_PLAIN       "3"
 
+#ifdef MQTT_PRE_AUTH
+    #define SECURE_MODE                 MODE_TLS_GUIDER
+#else
 #ifdef SUPPORT_TLS
     #define SECURE_MODE                 MODE_TLS_DIRECT
 #else
     #define SECURE_MODE                 MODE_TCP_DIRECT_PLAIN
 #endif
+#endif
 
 /* use fixed timestamp */
-#define TIMESTAMP_VALUE             "2524608000000"
+#define TIMESTAMP_VALUE                 "2524608000000"
 
 /* clientid key value pair define */
 const char *clientid_kv[][2] = {
@@ -116,40 +126,58 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     utils_hmac_sha256((uint8_t *)signsource, strlen(signsource), (uint8_t *)meta->device_secret,
                       strlen(meta->device_secret), sign);
 
-    /* Get Sign Information For MQTT */
+    /* setup clientid */
+    if (_sign_get_clientid(signout->clientid, device_id) != SUCCESS_RETURN) {
+        return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
+    }
+
+#ifdef MQTT_DIRECT
+    /* setup password */
+    memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
+    infra_hex2str(sign, 32, signout->password);
+
+    /* setup hostname */
     length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
     if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
         return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
     }
-
     memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
     memcpy(signout->hostname, meta->product_key, strlen(meta->product_key));
     memcpy(signout->hostname + strlen(signout->hostname), ".", strlen("."));
     memcpy(signout->hostname + strlen(signout->hostname), g_infra_mqtt_domain[region],
            strlen(g_infra_mqtt_domain[region]));
 
+    /* setup username */
     length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
     if (length >= DEV_SIGN_USERNAME_MAXLEN) {
         return ERROR_DEV_SIGN_USERNAME_TOO_SHORT;
     }
-
     memset(signout->username, 0, DEV_SIGN_USERNAME_MAXLEN);
     memcpy(signout->username, meta->device_name, strlen(meta->device_name));
     memcpy(signout->username + strlen(signout->username), "&", strlen("&"));
     memcpy(signout->username + strlen(signout->username), meta->product_key, strlen(meta->product_key));
 
-    memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
-    infra_hex2str(sign, 32, signout->password);
-
-    if (_sign_get_clientid(signout->clientid, device_id) != SUCCESS_RETURN) {
-        return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
-    }
+    /* setup port */
 #ifdef SUPPORT_TLS
     signout->port = 443;
 #else
     signout->port = 1883;
-#endif
-
+#endif /* #ifdef SUPPORT_TLS */
     return SUCCESS_RETURN;
+#else
+    {
+        char sign_string[DEV_SIGN_PASSWORD_MAXLEN];
+        (void)length;
+
+        infra_hex2str(sign, 32, sign_string);
+        memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
+        memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
+        memset(signout->username, 0, DEV_SIGN_USERNAME_MAXLEN);
+
+        preauth_get_connection_info(region, meta, sign_string, device_id,
+                                        signout->hostname, &signout->port, signout->username, signout->password);
+        return 0;
+    }
+#endif /* #ifdef MQTT_DIRECT */
 }
 
