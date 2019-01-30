@@ -6,7 +6,7 @@
 #ifndef _IOTX_CM_H_
 #define _IOTX_CM_H_
 
-#include "alink_wrapper.h"
+#include "infra_types.h"
 
 #define CM_MAX_FD_NUM             3
 #define CM_DEFAULT_YIELD_TIMEOUT  200
@@ -88,19 +88,29 @@ typedef struct {
     uint32_t  payload_len;
 } event_msg_data_t;
 
-
+#ifdef DEVICE_MODEL_ALINK2
 typedef void (*iotx_cm_data_handle_cb)(int fd, const char *topic, uint32_t topic_len, const char *payload, unsigned int payload_len, void *context);
+#else
+typedef void (*iotx_cm_data_handle_cb)(int fd, const char *topic, const char *payload, unsigned int payload_len,
+                                       void *context);
+#endif
 
 typedef void (*iotx_cm_event_handle_cb)(int fd, iotx_cm_event_msg_t *event, void *context);
 
 
 /* IoTx initializa parameters */
 typedef struct {
+    uint32_t                      request_timeout_ms;
+    uint32_t                      keepalive_interval_ms;
+    uint32_t                      write_buf_size;
+    uint32_t                      read_buf_size;
     iotx_cm_protocol_types_t      protocol_type;
     iotx_cm_event_handle_cb       handle_event;             /* Specify MQTT event handle */
     void                          *context;
-    iotx_dev_meta_info_t          *dev_meta;
+#ifdef DEVICE_MODEL_ALINK2
+    iotx_dev_meta_info_t         *dev_info;
     iotx_mqtt_region_types_t      region;
+#endif
 } iotx_cm_init_param_t;
 
 typedef struct {
@@ -120,4 +130,3 @@ int iotx_cm_unsub(int fd, const char *topic);
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len);
 int iotx_cm_close(int fd);
 #endif /* _LINKKIT_CM_H_ */
-

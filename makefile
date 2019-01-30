@@ -18,16 +18,7 @@ $(call CompLib_Map, FEATURE_DYNAMIC_REGISTER, src/dynamic_register)
 $(call CompLib_Map, FEATURE_ATM_ENABLED, src/atm)
 $(call CompLib_Map, FEATURE_DEV_RESET, src/dev_reset)
 $(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
-
-
-ifneq (,$(findstring DEVICE_MODEL_CLASSIC,$(CFLAGS)))
-$(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/dev_model_classic)
-ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_GATEWAY)))
-CFLAGS += -DINFRA_SHA1
-endif
-else
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/dev_model)
-endif
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls

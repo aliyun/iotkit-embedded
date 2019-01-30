@@ -6,35 +6,41 @@
 #ifndef _IOTX_CM_INTERNAL_H_
 #define _IOTX_CM_INTERNAL_H_
 
-#include "alink_wrapper.h"
+#include <string.h>
+
+#include "infra_config.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_list.h"
+#include "infra_compat.h"
+#include "infra_classic.h"
+#include "infra_timer.h"
+
+#include "dm_wrapper.h"
 #include "mqtt_api.h"
 
+#include "iotx_cm.h"
 
 #ifdef INFRA_MEM_STATS
-#include "infra_mem_stats.h"
-#define cm_malloc(size)              LITE_malloc(size, MEM_MAGIC, "dm")
-#define cm_free(ptr)                 LITE_free(ptr)
+    #include "infra_mem_stats.h"
+    #define cm_malloc(size)            LITE_malloc(size, MEM_MAGIC, "cm")
+    #define cm_free(ptr)               LITE_free(ptr)
 #else
-#define cm_malloc(size)              HAL_Malloc(size)
-#define cm_free(ptr)                 {HAL_Free((void *)ptr);ptr = NULL;}
+    #define cm_malloc(size)            HAL_Malloc(size)
+    #define cm_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-
 #ifdef INFRA_LOG
-#include "infra_log.h"
-#define cm_emerg(...)                log_emerg("ALINK", __VA_ARGS__)
-#define cm_crit(...)                 log_crit("ALINK", __VA_ARGS__)
-#define cm_err(...)                  log_err("ALINK", __VA_ARGS__)
-#define cm_warning(...)              log_warning("ALINK", __VA_ARGS__)
-#define cm_info(...)                 log_info("ALINK", __VA_ARGS__)
-#define cm_debug(...)                log_debug("ALINK", __VA_ARGS__)
+    #include "infra_log.h"
+    #define cm_debug(...)        log_debug("CM", __VA_ARGS__)
+    #define cm_info(...)         log_info("CM", __VA_ARGS__)
+    #define cm_warning(...)      log_warning("CM", __VA_ARGS__)
+    #define cm_err(...)          log_err("CM", __VA_ARGS__)
 #else
-#define cm_emerg(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define cm_crit(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define cm_err(...)                  do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define cm_warning(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define cm_info(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define cm_debug(...)                do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define cm_debug(...)        do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define cm_info(...)         do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define cm_warning(...)      do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define cm_err(...)          do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #endif
 
 typedef int (*iotx_cm_connect_fp)(uint32_t timeout);
@@ -52,7 +58,6 @@ typedef struct iotx_connection_st {
     void                             *open_params;
     void                             *context;
     void                             *list_lock;
-    iotx_dev_meta_info_t             *dev_meta;
     iotx_cm_protocol_types_t         protocol_type;
     iotx_cm_connect_fp               connect_func;
     iotx_cm_sub_fp                   sub_func;
@@ -65,5 +70,7 @@ typedef struct iotx_connection_st {
 
 } iotx_cm_connection_t;
 
-#endif /* _LINKKIT_CM_H_ */
+#include "iotx_cm_mqtt.h"
 
+extern const char ERR_INVALID_PARAMS[];
+#endif /* _LINKKIT_CM_H_ */

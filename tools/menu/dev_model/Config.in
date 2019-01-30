@@ -1,33 +1,33 @@
+
 config DEVICE_MODEL_ENABLED
     bool "FEATURE_DEVICE_MODEL_ENABLED"
-    default n
-    select DEV_SIGN
-    select INFRA_CJSON
-    select INFRA_TIMER
+    select INFRA_CLASSIC
     select INFRA_COMPAT
+    select INFRA_SHA1
+    default y
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
 
         Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
-        Those capabilities are provided via IOT_Linkkit_XXX() APIs
+        Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
 
-config DEVICE_MODEL_GATEWAY
-    bool "FEATURE_DEVICE_MODEL_GATEWAY"
+menu "Device Model Configurations"
     depends on DEVICE_MODEL_ENABLED
-    default n
-    select INFRA_STRING
-    select INFRA_SHA256
-    select INFRA_LIST
-    select INFRA_REPORT
-    select THREAD_COST_INTERNAL
-    help
-        Switching Thing-Model related implementations provided in gateway oriented way
 
-config THREAD_COST_INTERNAL
-    bool "FEATURE_THREAD_COST_INTERNAL"
-    depends on DEVICE_MODEL_ENABLED
-    default n
-    select INFRA_LIST
-    help
-        Create thread in device model internal, and some subdev opertion API will become sync interface(e.g. using IOT_Linkkit_Connect() to register subdevice and
-        using IOT_Linkkit_Report() to login or logout sudevice.
+    config DEVICE_MODEL_GATEWAY
+        bool "FEATURE_DEVICE_MODEL_GATEWAY"
+        default n
+        help
+            Switching Thing-Model related implementations provided in gateway oriented way
+
+    config DEVICE_MODEL_RAWDATA_SOLO
+        bool "FEATURE_DEVICE_MODEL_RAWDATA_SOLO"
+        depends on DEVICE_MODEL_ENABLED && !DEVICE_MODEL_GATEWAY && !DEPRECATED_LINKKIT
+        default n
+        help
+            Enable only raw data function via IOT_Linkkit_xxx new APIs
+
+            Switching to "y" leads to SDK being compiled only raw data function
+            Switching to "n" leads to SDK being compiled both raw data and thing model function
+endmenu
+

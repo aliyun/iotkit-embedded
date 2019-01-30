@@ -1,10 +1,6 @@
-#include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 
-#include "iotx_alink_internal.h"
-#include "alink_wrapper.h"
-
-#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED) 
 #include "iotx_cm_mqtt.h"
 #endif
 #ifdef COAP_COMM_ENABLED
@@ -19,12 +15,13 @@ static int _recycle_fd(int fd);
 static int inline _fd_is_valid(int fd);
 static int inited_conn_num = 0;
 
-#ifdef THREAD_COST_INTERNAL
+#if (CONFIG_SDK_THREAD_COST == 1)
     static void *_iotx_cm_yield_thread_func(void *params);
     static void *yield_thread = NULL;
     static int yield_task_leave = 1;
-#endif /* #ifdef THREAD_COST_INTERNAL */
+#endif
 
+const char ERR_INVALID_PARAMS[] = "invalid parameter";
 int iotx_cm_open(iotx_cm_init_param_t *params)
 {
     int fd;
@@ -40,7 +37,7 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 #ifdef COAP_COMM_ENABLED
             connection = iotx_cm_open_coap(params);
 #endif
-            break;
+            break;            
         default:
             break;
     }
@@ -65,11 +62,14 @@ int iotx_cm_connect(int fd, uint32_t timeout)
     int ret;
 
     if (_fd_is_valid(fd) == -1) {
-        return IOTX_CODE_PARAMS_INVALID;
+        cm_err(ERR_INVALID_PARAMS);
+        return -1;
     }
     HAL_MutexLock(fd_lock);
     connect_func = _cm_fd[fd]->connect_func;
     HAL_MutexUnlock(fd_lock);
+
+    iotx_event_post(IOTX_CONN_CLOUD);
 
     ret = connect_func(timeout);
 
@@ -77,15 +77,9 @@ int iotx_cm_connect(int fd, uint32_t timeout)
         inited_conn_num++;
         if (inited_conn_num == 1) {
 
-#ifdef THREAD_COST_INTERNAL
+#if (CONFIG_SDK_THREAD_COST == 1)
             int stack_used;
-            hal_os_thread_param_t task_parms = {
-                os_thread_priority_normal,
-                NULL,
-                0,
-                0,
-                NULL
-            };
+            hal_os_thread_param_t task_parms = {0};
             task_parms.stack_size = 6144;
             task_parms.name = "cm_yield";
             ret = HAL_ThreadCreate(&yield_thread, _iotx_cm_yield_thread_func, NULL,
@@ -93,9 +87,13 @@ int iotx_cm_connect(int fd, uint32_t timeout)
             if (ret < 0) {
                 inited_conn_num--;
             }
-#endif /* #ifdef THREAD_COST_INTERNAL */
+#endif
         }
+        iotx_event_post(IOTX_CONN_CLOUD_SUC);    
+    } else {
+        iotx_event_post(IOTX_CONN_CLOUD_FAIL);
     }
+
 
     return ret;
 }
@@ -125,7 +123,8 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     }
 
     if (_fd_is_valid(fd) == -1) {
-        return IOTX_CODE_PARAMS_INVALID;
+        cm_err(ERR_INVALID_PARAMS);
+        return -1;
     }
 
     HAL_MutexLock(fd_lock);
@@ -134,8 +133,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     return yield_func(timeout);
 
 }
-
-#ifdef THREAD_COST_INTERNAL
+#if (CONFIG_SDK_THREAD_COST == 1)
 static void *_iotx_cm_yield_thread_func(void *params)
 {
     yield_task_leave = 0;
@@ -145,15 +143,15 @@ static void *_iotx_cm_yield_thread_func(void *params)
     yield_task_leave = 1;
     return NULL;
 }
-#endif /* #ifdef THREAD_COST_INTERNAL */
+#endif
 
 int iotx_cm_yield(int fd, unsigned int timeout)
 {
-#ifdef THREAD_COST_INTERNAL
-    return 0;
-#else
+#if (CONFIG_SDK_THREAD_COST == 0)
     return _iotx_cm_yield(fd, timeout);
-#endif /* #ifdef THREAD_COST_INTERNAL */
+#else
+    return 0;
+#endif
 }
 
 
@@ -163,7 +161,8 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
     iotx_cm_sub_fp sub_func;
 
     if (_fd_is_valid(fd) == -1) {
-        return IOTX_CODE_PARAMS_INVALID;
+        cm_err(ERR_INVALID_PARAMS);
+        return -1;
     }
 
     HAL_MutexLock(fd_lock);
@@ -177,7 +176,8 @@ int iotx_cm_unsub(int fd, const char *topic)
     iotx_cm_unsub_fp unsub_func;
 
     if (_fd_is_valid(fd) == -1) {
-        return IOTX_CODE_PARAMS_INVALID;
+        cm_err(ERR_INVALID_PARAMS);
+        return -1;
     }
 
     HAL_MutexLock(fd_lock);
@@ -191,9 +191,10 @@ int iotx_cm_unsub(int fd, const char *topic)
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len)
 {
     iotx_cm_pub_fp pub_func;
-
+    
     if (_fd_is_valid(fd) == -1) {
-        return IOTX_CODE_PARAMS_INVALID;
+        cm_err(ERR_INVALID_PARAMS);
+        return -1;
     }
 
     HAL_MutexLock(fd_lock);
@@ -207,16 +208,17 @@ int iotx_cm_close(int fd)
     iotx_cm_close_fp close_func;
 
     if (_fd_is_valid(fd) != 0) {
-        return IOTX_CODE_PARAMS_INVALID;
+        cm_err(ERR_INVALID_PARAMS);
+        return -1;
     }
 
     if (--inited_conn_num == 0) {
-#ifdef THREAD_COST_INTERNAL
+#if (CONFIG_SDK_THREAD_COST == 1)
         while (!yield_task_leave) {
             HAL_SleepMs(10);
         }
         HAL_ThreadDelete(yield_thread);
-#endif /* #ifdef THREAD_COST_INTERNAL */
+#endif
     }
 
     HAL_MutexLock(fd_lock);
@@ -300,4 +302,3 @@ static int _get_fd(iotx_cm_connection_t *handle)
     cm_err("cm fd reached the limit");
     return -1;
 }
-
