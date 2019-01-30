@@ -67,7 +67,7 @@ int IOT_Ioctl(int option, void *data)
 {
     int                 res = SUCCESS_RETURN;
     sdk_impl_ctx_t     *ctx = NULL;
-    
+
     ctx = &g_sdk_impl_ctx;
 
     if (option < 0 || data == NULL) {
@@ -165,6 +165,13 @@ int IOT_Ioctl(int option, void *data)
         break;
 #endif
 #endif
+#else
+        case IOTX_IOCTL_RECV_EVENT_REPLY:
+        case IOTX_IOCTL_RECV_PROP_REPLY:
+        case IOTX_IOCTL_SEND_PROP_SET_REPLY:
+        case IOTX_IOCTL_GET_SUBDEV_LOGIN: {
+            res = SUCCESS_RETURN;
+        } break;
 #endif
         default: {
             res = FAIL_RETURN;
