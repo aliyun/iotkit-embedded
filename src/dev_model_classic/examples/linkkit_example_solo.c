@@ -24,10 +24,10 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
-#define PRODUCT_KEY      "a1tlt4Sp8hK"
-#define PRODUCT_SECRET   "fSAF0hle6xL0oRWd"
-#define DEVICE_NAME      "example_zc"
-#define DEVICE_SECRET    "PMJgCFApCoOGAQEWurqOhZPhlaurN5R3"
+#define PRODUCT_KEY      "a1X2bEnP82z"
+#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
+#define DEVICE_NAME      "test_06"
+#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -629,26 +629,26 @@ int linkkit_main(void *paras)
 
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
-            user_post_property();
+            // user_post_property();
         }
         /* Post Event Example */
         if (time_now_sec % 17 == 0 && user_master_dev_available()) {
-            user_post_event();
+            // user_post_event();
         }
 
         /* Device Info Update Example */
         if (time_now_sec % 23 == 0 && user_master_dev_available()) {
-            user_deviceinfo_update();
+            // user_deviceinfo_update();
         }
 
         /* Device Info Delete Example */
         if (time_now_sec % 29 == 0 && user_master_dev_available()) {
-            user_deviceinfo_delete();
+            // user_deviceinfo_delete();
         }
 
         /* Post Raw Example */
         if (time_now_sec % 37 == 0 && user_master_dev_available()) {
-            user_post_raw_data();
+            // user_post_raw_data();
         }
 
         time_prev_sec = time_now_sec;
