@@ -74,11 +74,6 @@ config INFRA_MEM_STATS
     default n
     select INFRA_LIST
 
-config INFRA_PRE_AUTH
-    bool
-    default n
-    select INFRA_HTTPC
-
 config INFRA_COMPAT
     bool
     default n

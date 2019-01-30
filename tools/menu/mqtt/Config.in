@@ -40,7 +40,12 @@ menu "MQTT Configurations"
         bool "FEATURE_MQTT_PRE_AUTH"
         default n
         select SUPPORT_TLS
-        select INFRA_PRE_AUTH
+        select INFRA_HTTPC
+
+        help
+            Connect HTTPS server to Pre-authenticate
+
+            Switching to "y" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
 
     config MQTT_DIRECT
         bool "FEATURE_MQTT_DIRECT"
@@ -50,7 +55,6 @@ menu "MQTT Configurations"
             Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
 
             Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
-            Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
 
     endchoice
 

@@ -174,9 +174,8 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
         memset(signout->username, 0, DEV_SIGN_USERNAME_MAXLEN);
 
-        preauth_get_connection_info(region, meta, sign_string, device_id,
+        return preauth_get_connection_info(region, meta, sign_string, device_id,
                                         signout->hostname, &signout->port, signout->username, signout->password);
-        return 0;
     }
 #endif /* #ifdef MQTT_DIRECT */
 }

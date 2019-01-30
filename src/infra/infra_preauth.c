@@ -3,7 +3,7 @@
  */
 #include "infra_config.h"
 
-#ifdef INFRA_PRE_AUTH
+#ifdef MQTT_PRE_AUTH
 
 #include <string.h>
 #include <stdlib.h>
@@ -228,4 +228,4 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     return res;
 }
 
-#endif
+#endif /* #ifdef MQTT_PRE_AUTH */
