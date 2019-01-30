@@ -2385,6 +2385,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
             mqtt_free(node);
         }
     }
+    mqtt_free(handler->topic_filter);
     mqtt_free(handler);
 #else
     for (idx = 0;idx < IOTX_MC_SUBHANDLE_LIST_MAX_LEN;idx++) {
