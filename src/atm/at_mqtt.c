@@ -22,11 +22,15 @@
 #define MAL_MC_PACKET_ID_MAX (65535)
 #define MAL_MC_TOPIC_NAME_MAX_LEN (128)
 #define MAL_MC_DEFAULT_BUFFER_NUM  1
+#ifdef PLATFORM_HAS_DYNMEM
 #define MAL_MC_MAX_BUFFER_NUM  14
+#else
+#define MAL_MC_MAX_BUFFER_NUM  1
+#endif
 #define MAL_MC_MAX_TOPIC_LEN   128
 #define MAL_MC_MAX_MSG_LEN     512
 
-#define MAL_MC_DEAFULT_TIMEOUT   (8000)
+#define MAL_MC_DEFAULT_TIMEOUT   (8000)
 
 #define mal_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define mal_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
@@ -35,7 +39,7 @@
 #define mal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #define mal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 
-
+#ifdef PLATFORM_HAS_DYNMEM
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
     #define mal_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
@@ -43,6 +47,9 @@
 #else
     #define mal_malloc(size)            HAL_Malloc(size)
     #define mal_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif /* INFRA_MEM_STATS */
+#else
+#define IOTX_MC_CLIENT_MAX_COUNT 1
 #endif
 
 typedef struct at_mqtt_msg_buff_s {
@@ -56,8 +63,14 @@ typedef struct at_mqtt_msg_buff_s {
     void    *buffer_mutex;
 } at_mqtt_msg_buff_t;
 static at_mqtt_msg_buff_t    g_at_mqtt_buff_mgr;
+#ifdef PLATFORM_HAS_DYNMEM
 static char g_at_mqtt_topic[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_TOPIC_NAME_MAX_LEN];
 static char g_at_mqtt_msg_data[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_MAX_MSG_LEN];
+#else
+static char g_at_mqtt_topic[MAL_MC_MAX_BUFFER_NUM][MAL_MC_TOPIC_NAME_MAX_LEN];
+static char g_at_mqtt_msg_data[MAL_MC_MAX_BUFFER_NUM][MAL_MC_MAX_MSG_LEN];
+iotx_mc_client_t g_iotx_mc_client[IOTX_MC_CLIENT_MAX_COUNT] = {0};
+#endif
 
 static iotx_mc_state_t mal_mc_get_client_state(iotx_mc_client_t *pClient);
 static void mal_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
@@ -250,6 +263,41 @@ static int mal_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     return SUCCESS_RETURN;
 }
 
+#ifndef PLATFORM_HAS_DYNMEM
+static int mal_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageHandlers1,
+        iotx_mc_topic_handle_t *messageHandler2)
+{
+	int topicNameLen = 0;
+    if (!messageHandlers1 || !messageHandler2) {
+        return 1;
+    }
+    if (!(messageHandlers1->topic_filter) || !(messageHandler2->topic_filter)) {
+        return 1;
+    }
+    topicNameLen = strlen(messageHandlers1->topic_filter);
+    if (topicNameLen != strlen(messageHandler2->topic_filter)) {
+        return 1;
+    }
+    if (0 != strncmp(messageHandlers1->topic_filter, messageHandler2->topic_filter, topicNameLen)) {
+        return 1;
+    }
+    return 0;
+}
+static int mal_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
+        iotx_mc_topic_handle_t *messageHandler2)
+{
+    if (mal_mc_check_handle_is_identical_ex(messageHandlers1, messageHandler2) != 0) {
+        return 1;
+    }
+    if (messageHandlers1->handle.h_fp != messageHandler2->handle.h_fp) {
+        return 1;
+    }
+    if (messageHandlers1->handle.pcontext != messageHandler2->handle.pcontext) {
+        return 1;
+    }
+    return 0;
+}
+#endif /* PLATFORM_HAS_DYNMEM */
 /* MQTT send connect packet */
 static int MALMQTTConnect(iotx_mc_client_t *pClient)
 {
@@ -285,6 +333,7 @@ static int MALMQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_
     return SUCCESS_RETURN;
 }
 
+#ifdef PLATFORM_HAS_DYNMEM
 static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *h)
 {
     iotx_mc_topic_handle_t **hp, *h1;
@@ -300,23 +349,44 @@ static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *
 
     return 0;
 }
+#endif
 
 /* MQTT send subscribe packet */
 static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt_qos_t qos, unsigned int msgId,
                             iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext, int timeout_ms)
 {
     int status;
-    iotx_mc_topic_handle_t *h;
+    iotx_mc_topic_handle_t *h = NULL;
+#ifndef PLATFORM_HAS_DYNMEM
+    int idx = 0;
+    int dup = 0;
+#endif
 
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
     }
+#ifdef PLATFORM_HAS_DYNMEM
     h = mal_malloc(sizeof(iotx_mc_topic_handle_t));
     if (h == NULL) {
         mal_err("maloc failed!");
         return FAIL_RETURN;
     }
+#else
+    for (idx = 0;idx < IOTX_MC_SUBHANDLE_LIST_MAX_LEN;idx++) {
+        if (c->list_sub_handle[idx].used == 0) {
+            h = &c->list_sub_handle[idx];
+            memset(h, 0, sizeof(iotx_mc_topic_handle_t));
+            c->list_sub_handle[idx].used = 1;
+            break;
+        }
+    }
 
+    if (h == NULL) {
+        mal_err("sub handle list is too short!");
+        return FAIL_RETURN;
+    }
+#endif
+#ifdef PLATFORM_HAS_DYNMEM
     memset(h, 0, sizeof(iotx_mc_topic_handle_t));
 
     h->topic_filter = mal_malloc(strlen(topicFilter) + 1);
@@ -324,6 +394,13 @@ static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_m
         mal_free(h);
         return FAIL_RETURN;
     }
+#else
+    if (strlen(topicFilter) >= IOTX_MC_TOPIC_MAX_LEN) {
+        mal_err("sub topic length is too large!");
+        memset(h, 0, sizeof(iotx_mc_topic_handle_t));
+        return FAIL_RETURN;
+    }
+#endif
     memcpy((char *)h->topic_filter, topicFilter, strlen(topicFilter) + 1);
 
     h->handle.h_fp = messageHandler;
@@ -331,8 +408,21 @@ static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_m
     h->topic_type =  TOPIC_NAME_TYPE;
 
     HAL_MutexLock(c->lock_generic);
+#ifdef PLATFORM_HAS_DYNMEM
     h->next = c->first_sub_handle;
     c->first_sub_handle = h;
+#else
+    for (idx = 0;idx < IOTX_MC_SUBHANDLE_LIST_MAX_LEN;idx++) {
+        if (&c->list_sub_handle[idx] != h &&
+            0 == mal_mc_check_handle_is_identical (&c->list_sub_handle[idx], h)) {
+            mal_warning("dup sub,topic = %s", topicFilter);
+            dup = 1;
+        }
+    }
+    if(dup == 1){
+        memset(h, 0, sizeof(iotx_mc_topic_handle_t));
+    }
+#endif
     HAL_MutexUnlock(c->lock_generic);
     if (HAL_AT_MQTT_Subscribe(topicFilter, qos, &msgId, &status, timeout_ms) != 0) {
         return FAIL_RETURN;
@@ -346,13 +436,18 @@ static int MALMQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsi
 {
     int status;
     int ret;
+#ifdef PLATFORM_HAS_DYNMEM
     iotx_mc_topic_handle_t *h;
+#else
+    int idx;
+#endif
 
     ret = HAL_AT_MQTT_Unsubscribe(topicFilter, &msgId, &status);
     if (ret != 0) {
         return -1;
     }
 
+#ifdef PLATFORM_HAS_DYNMEM
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
         if (((strlen(topicFilter) == strlen(h->topic_filter))
              && (strcmp(topicFilter, (char *)h->topic_filter) == 0))
@@ -360,6 +455,17 @@ static int MALMQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsi
             remove_handle_from_list(c, h);
         }
     }
+#else
+    for (idx = 0;idx < IOTX_MC_SUBHANDLE_LIST_MAX_LEN;idx++) {
+        if ((c->list_sub_handle[idx].used == 1) &&
+            (((strlen(topicFilter) == strlen(c->list_sub_handle[idx].topic_filter))
+             && (strcmp(topicFilter, (char *)c->list_sub_handle[idx].topic_filter) == 0)) ||
+            mal_mc_is_topic_matched((char *)c->list_sub_handle[idx].topic_filter, topicFilter))) {
+            mal_debug("topic be matched");
+            memset(&c->list_sub_handle[idx],0,sizeof(iotx_mc_topic_handle_t));
+        }
+    }
+#endif
 
     return 0;
 }
@@ -397,7 +503,12 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
     /* flowControl for specific topic */
     char *filterStr = "{\"method\":\"thing.service.property.set\"";
     int filterLen = strlen(filterStr);
+#ifdef PLATFORM_HAS_DYNMEM
     iotx_mc_topic_handle_t *h, *msg_handle;
+#else
+    iotx_mc_topic_handle_t *msg_handle;
+    int idx;
+#endif
 
     if (!c || !topic || !msg) {
         return FAIL_RETURN;
@@ -420,13 +531,22 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
 
     /* we have to find the right message handler - indexed by topic */
     HAL_MutexLock(c->lock_generic);
+#ifdef PLATFORM_HAS_DYNMEM
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
         if (((strlen(topic) == strlen(h->topic_filter))
              && (strcmp(topic, (char *)h->topic_filter) == 0))
             || (mal_mc_is_topic_matched((char *)h->topic_filter, topic))) {
+            msg_handle = h;
+#else
+    for (idx = 0;idx < IOTX_MC_SUBHANDLE_LIST_MAX_LEN;idx++) {
+        if ((c->list_sub_handle[idx].used == 1) &&
+             (((strlen(topic) == strlen(c->list_sub_handle[idx].topic_filter))
+              && (strcmp(topic, (char *)c->list_sub_handle[idx].topic_filter) == 0))
+             || (mal_mc_is_topic_matched((char *)c->list_sub_handle[idx].topic_filter, topic)))) {
+            msg_handle = &c->list_sub_handle[idx];
+#endif
             mal_debug("pub topic is matched");
 
-            msg_handle = h;
             HAL_MutexUnlock(c->lock_generic);
 
             if (NULL != msg_handle->handle.h_fp) {
@@ -548,6 +668,7 @@ static int mal_mc_recv_buf_init()
 
     for (i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
+#ifdef PLATFORM_HAS_DYNMEM
         if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
             g_at_mqtt_buff_mgr.topic[i] = g_at_mqtt_topic[i];
             g_at_mqtt_buff_mgr.msg_data[i] = g_at_mqtt_msg_data[i];
@@ -557,6 +678,12 @@ static int mal_mc_recv_buf_init()
             g_at_mqtt_buff_mgr.topic[i] = NULL;
             g_at_mqtt_buff_mgr.msg_data[i] = NULL;
         }
+#else
+        g_at_mqtt_buff_mgr.topic[i] = g_at_mqtt_topic[i];
+        g_at_mqtt_buff_mgr.msg_data[i] = g_at_mqtt_msg_data[i];
+        memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
+        memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
+#endif
     }
 
     if (NULL == (g_at_mqtt_buff_mgr.buffer_mutex = HAL_MutexCreate())) {
@@ -574,12 +701,14 @@ static void mal_mc_recv_buf_deinit()
     g_at_mqtt_buff_mgr.write_index = 0;
     g_at_mqtt_buff_mgr.last_write_index = 0;
 
+#ifdef PLATFORM_HAS_DYNMEM
     for (i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
         if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
             memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
             memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
-        } else {
+        }
+        else {
             if (i < g_at_mqtt_buff_mgr.buffer_num) {
                 if (g_at_mqtt_buff_mgr.topic[i] != NULL) {
                     mal_free(g_at_mqtt_buff_mgr.topic[i]);
@@ -590,6 +719,13 @@ static void mal_mc_recv_buf_deinit()
             }
         }
     }
+#else
+    for (i = 0; i < g_at_mqtt_buff_mgr.buffer_num; i++) {
+        g_at_mqtt_buff_mgr.valid_flag[i] = 0;
+        memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
+        memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
+    }
+#endif
 
     HAL_MutexDestroy(g_at_mqtt_buff_mgr.buffer_mutex);
 }
@@ -599,7 +735,7 @@ static int mal_mc_wait_for_result()
 #ifdef PLATFORM_HAS_OS
     mal_time_t         time;
     int state = 0;
-    int timeout_ms = MAL_MC_DEAFULT_TIMEOUT;
+    int timeout_ms = MAL_MC_DEFAULT_TIMEOUT;
     mal_time_init(&time);
     mal_time_countdown_ms(&time, timeout_ms);
     do {
@@ -705,6 +841,7 @@ int at_mqtt_input(struct at_mqtt_input *param)
         g_at_mqtt_buff_mgr.last_write_index = last_write_index;
         write_index = g_at_mqtt_buff_mgr.buffer_num;
         mal_err("increase buffer to %d", g_at_mqtt_buff_mgr.buffer_num);
+#ifdef PLATFORM_HAS_DYNMEM
         g_at_mqtt_buff_mgr.topic[write_index] = mal_malloc(MAL_MC_MAX_TOPIC_LEN);
         if (g_at_mqtt_buff_mgr.topic[write_index] == NULL) {
             mal_err("increase buffer failed, drop it");
@@ -717,6 +854,13 @@ int at_mqtt_input(struct at_mqtt_input *param)
             return -1;
         }
         g_at_mqtt_buff_mgr.buffer_num ++;
+#else
+        g_at_mqtt_buff_mgr.buffer_num ++;
+        g_at_mqtt_buff_mgr.topic[g_at_mqtt_buff_mgr.buffer_num] = g_at_mqtt_topic[g_at_mqtt_buff_mgr.buffer_num];
+        g_at_mqtt_buff_mgr.msg_data[g_at_mqtt_buff_mgr.buffer_num] = g_at_mqtt_msg_data[g_at_mqtt_buff_mgr.buffer_num];
+        memset(g_at_mqtt_buff_mgr.topic[g_at_mqtt_buff_mgr.buffer_num], 0, MAL_MC_MAX_TOPIC_LEN);
+        memset(g_at_mqtt_buff_mgr.msg_data[g_at_mqtt_buff_mgr.buffer_num], 0, MAL_MC_MAX_MSG_LEN);
+#endif
     } else {
         g_at_mqtt_buff_mgr.last_write_index = 0;
     }
@@ -844,7 +988,11 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
 {
     int err;
     iotx_mc_client_t   *pclient;
+#ifndef PLATFORM_HAS_DYNMEM
+    int idx;
+#endif
 
+#ifdef PLATFORM_HAS_DYNMEM
     pclient = (iotx_mc_client_t *)mal_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
         mal_err("not enough memory.");
@@ -853,11 +1001,28 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
         }
         return NULL;
     }
+#else
+    for(idx = 0;idx < IOTX_MC_CLIENT_MAX_COUNT;idx++) {
+        if (g_iotx_mc_client[idx].used == 0) {
+            g_iotx_mc_client[idx].used = 1;
+            pclient = &g_iotx_mc_client[idx];
+            break;
+        }
+    }
 
+    if (NULL == pclient) {
+        mal_err("wrapper_mqtt_init IOTX_MC_CLIENT_MAX_COUNT too short: %d",IOTX_MC_CLIENT_MAX_COUNT);
+        return NULL;
+    }
+#endif
     err = mal_mc_init(pclient, mqtt_params);
     if (SUCCESS_RETURN != err) {
         mal_err("mal_mc_init failed");
+#ifdef PLATFORM_HAS_DYNMEM
         mal_free(pclient);
+#else
+        memset(pclient, 0, sizeof(iotx_mc_client_t));
+#endif
         return NULL;
     }
 
@@ -1002,7 +1167,7 @@ int wrapper_mqtt_subscribe(void *client,
                            void *pcontext)
 {
 #if PLATFORM_HAS_OS
-    return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_FOREVER);
+    return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_DEFAULT);
 #else
     return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_DEFAULT);
 #endif
@@ -1103,6 +1268,7 @@ int wrapper_mqtt_release(void **client)
     /* iotx_delete_thread(pClient); */
     mal_mc_disconnect(pClient);
     mal_mc_set_client_state(pClient, IOTX_MC_STATE_INVALID);
+#ifdef PLATFORM_HAS_DYNMEM
     if (pClient->first_sub_handle != NULL) {
         iotx_mc_topic_handle_t *handler = pClient->first_sub_handle;
         iotx_mc_topic_handle_t *next_handler = pClient->first_sub_handle;
@@ -1116,13 +1282,19 @@ int wrapper_mqtt_release(void **client)
             handler = next_handler;
         }
     }
+#else
+    memset(pClient->list_sub_handle, 0, sizeof(iotx_mc_topic_handle_t) * IOTX_MC_SUBHANDLE_LIST_MAX_LEN);
+#endif
     HAL_MutexDestroy(pClient->lock_generic);
     HAL_MutexDestroy(pClient->lock_yield);
 
     mal_mc_recv_buf_deinit();
-
+#ifdef PLATFORM_HAS_DYNMEM
     mal_free(pClient);
     *client = NULL;
+#else
+    memset(pClient,0,sizeof(iotx_mc_client_t) * IOTX_MC_CLIENT_MAX_COUNT);
+#endif
     mal_info("mqtt release!");
     return SUCCESS_RETURN;
 }
