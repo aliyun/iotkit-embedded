@@ -5,7 +5,7 @@
 #include "iotx_mqtt_config.h"
 
 #ifdef ATM_ENABLED
-#include "at_api.h"
+    #include "at_api.h"
 #endif
 
 static char g_topic_name[IOTX_MC_TOPIC_NAME_MAX_LEN];
@@ -54,7 +54,7 @@ int example_subscribe(void *handle)
     HAL_GetDeviceName(device_name);
 
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
-    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN ) {
+    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN) {
         HAL_Printf("topic too long\n");
         return -1;
     }
@@ -86,7 +86,7 @@ int example_publish(void *handle)
     HAL_GetDeviceName(device_name);
 
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
-    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN ) {
+    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN) {
         HAL_Printf("topic too long\n");
         return -1;
     }
@@ -131,7 +131,7 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
 int main(int argc, char *argv[])
 {
-    void *      pclient = NULL;
+    void       *pclient = NULL;
     int         res = 0;
     int         loop_cnt = 0;
 

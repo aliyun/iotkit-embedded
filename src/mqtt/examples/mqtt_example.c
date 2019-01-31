@@ -170,26 +170,26 @@ int main(int argc, char *argv[])
     /* MQTT message request timeout for waiting ACK in MQTT Protocol, default value is 2000ms */
     /* mqtt_params.request_timeout_ms = 2000; */
 
-    /** 
-     * 
+    /**
+     *
      * MQTT clean session flag
-     * 
-     * If CleanSession is set to 0, the Server MUST resume communications with the Client based on state from 
-     * the current Session (as identified by the Client identifier).  
-     * 
+     *
+     * If CleanSession is set to 0, the Server MUST resume communications with the Client based on state from
+     * the current Session (as identified by the Client identifier).
+     *
      * If CleanSession is set to 1, the Client and Server MUST discard any previous Session and Start a new one.
-     * 
+     *
      * default value is 0.
      */
     /* mqtt_params.clean_session = 0; */
 
-    /** 
-     * 
+    /**
+     *
      * MQTT KeepAlive bytes
-     * 
-     * KeepAlive is the maximum time interval that is permitted to elapse between the point at which 
+     *
+     * KeepAlive is the maximum time interval that is permitted to elapse between the point at which
      * the Client finishes transmitting one Control Packet and the point it starts sending the next.
-     * 
+     *
      * default value is 60000.
      */
     /* mqtt_params.keepalive_interval_ms = 60000; */
@@ -224,4 +224,5 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
 
