@@ -18,6 +18,10 @@
 
 #include "app_entry.h"
 
+#ifdef ATM_ENABLED
+#include "at_api.h"
+#endif
+
 void HAL_Printf(const char *fmt, ...);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
@@ -552,6 +556,13 @@ int linkkit_main(void *paras)
             max_running_seconds = tmp;
             EXAMPLE_TRACE("set [max_running_seconds] = %d seconds\n", max_running_seconds);
         }
+    }
+#endif
+
+#ifdef ATM_ENABLED
+    if (IOT_ATM_Init() < 0) {
+        EXAMPLE_TRACE("IOT ATM init failed!\n");
+        return -1;
     }
 #endif
 
