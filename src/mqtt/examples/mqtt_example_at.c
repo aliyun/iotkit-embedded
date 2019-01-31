@@ -2,13 +2,14 @@
 #include <string.h>
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
+#include "iotx_mqtt_config.h"
 
 #ifdef ATM_ENABLED
 #include "at_api.h"
 #endif
 
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
+static char g_topic_name[IOTX_MC_TOPIC_NAME_MAX_LEN];
+
 void HAL_Printf(const char *fmt, ...);
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
@@ -53,22 +54,20 @@ int example_subscribe(void *handle)
     HAL_GetDeviceName(device_name);
 
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
-    topic = HAL_Malloc(topic_len);
-    if (topic == NULL) {
-        HAL_Printf("memory not enough\n");
+    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN ) {
+        HAL_Printf("topic too long\n");
         return -1;
     }
-    memset(topic, 0, topic_len);
+    topic = g_topic_name;
+    memset(topic, 0, IOTX_MC_TOPIC_NAME_MAX_LEN);
     HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
     if (res < 0) {
         HAL_Printf("subscribe failed\n");
-        HAL_Free(topic);
         return -1;
     }
 
-    HAL_Free(topic);
     return 0;
 }
 
@@ -87,12 +86,12 @@ int example_publish(void *handle)
     HAL_GetDeviceName(device_name);
 
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
-    topic = HAL_Malloc(topic_len);
-    if (topic == NULL) {
-        HAL_Printf("memory not enough\n");
+    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN ) {
+        HAL_Printf("topic too long\n");
         return -1;
     }
-    memset(topic, 0, topic_len);
+    topic = g_topic_name;
+    memset(topic, 0, IOTX_MC_TOPIC_NAME_MAX_LEN);
     HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
 
 
@@ -106,11 +105,9 @@ int example_publish(void *handle)
     res = IOT_MQTT_Publish(handle, topic, &topic_msg);
     if (res < 0) {
         HAL_Printf("publish failed\n");
-        HAL_Free(topic);
         return -1;
     }
 
-    HAL_Free(topic);
     return 0;
 }
 
