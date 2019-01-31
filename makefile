@@ -25,3 +25,4 @@ SUBDIRS                 += external_libs/mbedtls
 SUBDIRS                 += tests
 
 include $(RULE_DIR)/rules.mk
+
