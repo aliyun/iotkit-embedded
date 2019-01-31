@@ -3,6 +3,7 @@
 
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
+#include "iotx_mqtt_config.h"
 
 #ifdef ATM_ENABLED
     #include "at_api.h"
