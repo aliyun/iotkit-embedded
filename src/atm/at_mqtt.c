@@ -723,7 +723,8 @@ static void mal_mc_recv_buf_deinit()
         if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
             memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
             memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
-        } else {
+        }
+        else {
             if (i < g_at_mqtt_buff_mgr.buffer_num) {
                 if (g_at_mqtt_buff_mgr.topic[i] != NULL) {
                     mal_free(g_at_mqtt_buff_mgr.topic[i]);
