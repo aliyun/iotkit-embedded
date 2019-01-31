@@ -100,14 +100,6 @@ typedef struct
 #define atpsr_debug(...)
 #endif
 
-#ifdef INFRA_MEM_STATS
-#define atpsr_malloc(size)            LITE_malloc(size, MEM_MAGIC, "atpaser")
-#define atpsr_free(ptr)               LITE_free(ptr)
-#else
-#define atpsr_malloc(size)            HAL_Malloc(size)
-#define atpsr_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
-#endif
-
 static uint8_t    inited = 0;
 static uart_dev_t at_uart;
 
@@ -115,6 +107,12 @@ static at_parser_t at;
 
 #if !AT_SINGLE_TASK
 static void* at_worker(void *arg);
+#endif
+
+#ifndef PLATFORM_HAS_DYNMEM
+#if !AT_SINGLE_TASK
+static at_task_t g_at_task;
+#endif
 #endif
 
 static void at_uart_configure(uart_dev_t *u)
@@ -366,7 +364,9 @@ static int at_worker_task_del(at_task_t *tsk)
         HAL_SemaphoreDestroy(tsk->smpr);
     }
     if (tsk) {
-        atpsr_free(tsk);
+#ifdef PLATFORM_HAS_DYNMEM
+        HAL_Free(tsk);
+#endif
     }
 
     return 0;
@@ -397,7 +397,11 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     HAL_MutexLock(at.at_uart_send_mutex);
-    tsk = (at_task_t *)atpsr_malloc(sizeof(at_task_t));
+#ifdef PLATFORM_HAS_DYNMEM
+    tsk = (at_task_t *)HAL_Malloc(sizeof(at_task_t));
+#else
+    tsk = &g_at_task;
+#endif
     if (NULL == tsk) {
         atpsr_err("tsk buffer allocating failed");
         HAL_MutexUnlock(at.at_uart_send_mutex);
@@ -578,14 +582,21 @@ int at_read(char *outbuf, int readsize)
     return total_read;
 }
 
-int at_register_callback(const char *prefix, const char *postfix,
-                         int maxlen, at_recv_cb cb, void *arg)
+#define RECV_BUFFER_SIZE 512
+static char at_rx_buf[RECV_BUFFER_SIZE];
+int at_register_callback(const char *prefix, const char *postfix, char *recvbuf,
+                         int bufsize, at_recv_cb cb, void *arg)
 {
     oob_t *oob = NULL;
     int    i   = 0;
 
-    if (maxlen < 0 || NULL == prefix) {
+    if (bufsize < 0 || bufsize >= RECV_BUFFER_SIZE || NULL == prefix) {
         atpsr_err("%s invalid input \r\n", __func__);
+        return -1;
+    }
+
+    if (NULL != postfix && (NULL == recvbuf || 0 == bufsize)) {
+        atpsr_err("%s invalid postfix input \r\n", __func__);
         return -1;
     }
 
@@ -594,9 +605,10 @@ int at_register_callback(const char *prefix, const char *postfix,
         return -1;
     }
 
-    /*check oob is exit*/
+    /*check oob exist*/
     for (i = 0; i < at._oobs_num; i++) {
-        if (strcmp(prefix, at._oobs[i].prefix) == 0) {
+        if (NULL != at._oobs[i].prefix &&
+            strcmp(prefix, at._oobs[i].prefix) == 0) {
             atpsr_warning("oob prefix %s is already exist.\r\n", prefix);
             return -1;
         }
@@ -604,19 +616,11 @@ int at_register_callback(const char *prefix, const char *postfix,
 
     oob = &(at._oobs[at._oobs_num++]);
 
-    oob->oobinputdata = NULL;
-    if (postfix != NULL) {
-        oob->oobinputdata = atpsr_malloc(maxlen);
-        if (NULL == oob->oobinputdata) {
-            atpsr_err("fail to malloc len %d at %s for prefix %s \r\n",
-                 maxlen, __func__, prefix);
-            return -1;
-        }
-        memset(oob->oobinputdata, 0, maxlen);
+    oob->oobinputdata = recvbuf;
+    if (oob->oobinputdata != NULL) {
+        memset(oob->oobinputdata, 0, bufsize);
     }
-
-
-    oob->maxlen  = maxlen;
+    oob->maxlen  = bufsize;
     oob->prefix  = (char *)prefix;
     oob->postfix = (char *)postfix;
     oob->cb      = cb;
@@ -628,7 +632,6 @@ int at_register_callback(const char *prefix, const char *postfix,
     return 0;
 }
 
-#define RECV_BUFFER_SIZE 512
 static void at_scan_for_callback(char c, char *buf, int *index)
 {
     int     k;
@@ -699,7 +702,6 @@ static void at_scan_for_callback(char c, char *buf, int *index)
 }
 
 #if AT_SINGLE_TASK
-static char at_rx_buf[RECV_BUFFER_SIZE];
 int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
              int timeout_ms)
 {
@@ -831,7 +833,7 @@ static void* at_worker(void *arg)
 
     atpsr_debug("at_work started.");
 
-    buf = atpsr_malloc(RECV_BUFFER_SIZE);
+    buf = at_rx_buf;
     if (NULL == buf) {
         atpsr_err("AT worker fail to malloc ,task exist \r\n");
         return NULL;

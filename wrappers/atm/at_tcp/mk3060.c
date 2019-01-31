@@ -40,12 +40,11 @@
 #define at_conn_hal_debug(...)
 #endif
 
-typedef int (*at_data_check_cb_t)(char data);
-
 void *HAL_SemaphoreCreate(void);
 void HAL_SemaphoreDestroy(void *sem);
 void HAL_SemaphorePost(void *sem);
 int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
+typedef int (*at_data_check_cb_t)(char data);
 
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
@@ -66,6 +65,14 @@ static int socket_data_len_check(char data);
 #define WIFI_PWD  "aos12345"
 #define WIFI_TIMEOUT  20000
 static uint8_t gotip = 0;
+
+#ifndef AT_DEFAULT_PAYLOAD_SIZE
+#define AT_DEFAULT_PAYLOAD_SIZE 256
+#endif
+
+#ifndef PLATFORM_HAS_DYNMEM
+static uint8_t payload[AT_DEFAULT_PAYLOAD_SIZE] = {0};
+#endif
 
 static uint64_t _get_time_ms(void)
 {
@@ -114,7 +121,7 @@ static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
         }
 
 #ifndef PLATFORM_HAS_OS
-        at_yield(NULL, 0, NULL, 200);
+        at_yield(NULL, 0, NULL, 100);
 #endif
     }
 
@@ -225,7 +232,13 @@ static void handle_socket_data()
         return;
     }
     /* Prepare socket data */
+#ifdef PLATFORM_HAS_DYNMEM
     recvdata = (char *)HAL_Malloc(len);
+#else
+    if (len <= AT_DEFAULT_PAYLOAD_SIZE) {
+        recvdata = (char *)payload;
+    }
+#endif
     if (!recvdata) {
         at_conn_hal_err("Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
         return;
@@ -262,7 +275,10 @@ static void handle_socket_data()
          __func__, link_id, len);
 
 err:
+#ifdef PLATFORM_HAS_DYNMEM
     HAL_Free(recvdata);
+#endif
+    return;
 }
 
 /*
@@ -436,8 +452,8 @@ int HAL_AT_CONN_Init(void)
         memset(cmd, 0, sizeof(cmd));
     }
 
-    at_register_callback(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
-    at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, 0, mk3060wifi_event_handler, NULL);
+    at_register_callback(NET_OOB_PREFIX, NULL, NULL, 0, net_event_handler, NULL);
+    at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, NULL, 0, mk3060wifi_event_handler, NULL);
     
     if (at_connect_wifi(WIFI_SSID, WIFI_PWD, WIFI_TIMEOUT) < 0) {
         at_conn_hal_err("%s %d failed", __func__, __LINE__);
@@ -510,24 +526,13 @@ int HAL_AT_CONN_Start(at_conn_t *c)
     at_conn_hal_debug("Creating %s connection ...", start_cmd_type_str[c->type]);
 
     switch (c->type) {
-        case TCP_SERVER:
-            HAL_Snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%d,",
-                     START_CMD, link_id, start_cmd_type_str[c->type], c->l_port);
-            break;
         case TCP_CLIENT:
-        case SSL_CLIENT:
             HAL_Snprintf(cmd, START_CMD_LEN - 5 - 1, "%s=%d,%s,%s,%d",
                      START_CMD, link_id, start_cmd_type_str[c->type],
                      c->addr, c->r_port);
             if (c->l_port >= 0) {
                 HAL_Snprintf(cmd + strlen(cmd), 7, ",%d", c->l_port);
             }
-            break;
-        case UDP_BROADCAST:
-        case UDP_UNICAST:
-            HAL_Snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%s,%d,%d",
-                     START_CMD, link_id, start_cmd_type_str[c->type],
-                     c->addr, c->r_port, c->l_port);
             break;
         default:
             at_conn_hal_err("Invalid connection type.");
@@ -613,36 +618,11 @@ int HAL_AT_CONN_Send(int fd,
         HAL_Snprintf(cmd + strlen(cmd), 7, "%d,", remote_port);
     }
     /* data_length */
-#if AT_CHECK_SUM
-    HAL_Snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len + 1);
-#else
     HAL_Snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len);
-#endif
-
     at_conn_hal_debug("\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);
 
-#if AT_CHECK_SUM
-    uint8_t checksum = 0;
-    uint8_t* outdata = NULL;
-
-    if ((outdata = (uint8_t *)HAL_Malloc(len + 1)) == NULL) {
-        at_conn_hal_err("%s malloc failed!", __func__);
-        return -1;
-    }
-
-    for (int i = 0; i < len; i++) {
-       outdata[i] = data[i];
-       checksum += data[i];
-    }
-    outdata[len] = checksum;
-
-    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)outdata, len + 1,
-                       out, sizeof(out), NULL);
-    HAL_Free(outdata);
-#else
     at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len,
                        out, sizeof(out), NULL);
-#endif
 
     at_conn_hal_debug("\r\nThe AT response is: %s\r\n", out);
 

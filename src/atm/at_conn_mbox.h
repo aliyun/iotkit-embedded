@@ -24,7 +24,7 @@ typedef struct
  * @param size (minimum) number of messages in this mbox
  * @return 0 if successful, another err_t otherwise
  */
-int at_mbox_new(at_mbox_t *mbox, int size);
+int at_mbox_new(at_mbox_t *mbox, int size, void *buf);
 /**
  * @ingroup sys_mbox
  * Post a message to an mbox - may not fail

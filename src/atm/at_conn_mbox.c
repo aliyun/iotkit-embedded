@@ -15,6 +15,31 @@ typedef struct
     uint32_t tail;
 } at_ringbuf_t;
 
+#ifndef PLATFORM_HAS_DYNMEM
+#ifndef AT_RINGBUF_NUM
+#define AT_RINGBUF_NUM 3
+#endif
+
+static at_ringbuf_t ringbufs[AT_RINGBUF_NUM] = {{NULL, 0, 0, 0}};
+#endif
+
+static at_ringbuf_t *alloc_ringbuf(void)
+{
+#ifdef PLATFORM_HAS_DYNMEM
+    return HAL_Malloc(sizeof(at_ringbuf_t));
+#else
+    int i;
+
+    for (i = 0; i < AT_RINGBUF_NUM; i++) {
+        if (NULL == ringbufs[i].buffer) {
+            return &ringbufs[i];
+        }
+    }
+
+    return NULL;
+#endif
+}
+
 static int at_ringbuf_available_read_space(at_ringbuf_t *ringbuf)
 {
     if (ringbuf->head == ringbuf->tail) {
@@ -41,53 +66,29 @@ static int at_ringbuf_empty(at_ringbuf_t *ringbuf)
     return (at_ringbuf_available_read_space(ringbuf) == 0);
 }
 
-static at_ringbuf_t *at_ringbuf_create(int length)
+static at_ringbuf_t *at_ringbuf_create(int length, void *buf)
 {
     at_ringbuf_t *ringbuf = NULL;
 
-    if (length <= 0) {
+    if (length < 2 || NULL == buf) {
+        HAL_Printf("Error: ringbuf len MUST exceed one!");
         return NULL;
     }
 
-    ringbuf = HAL_Malloc(sizeof(at_ringbuf_t));
+    ringbuf = alloc_ringbuf();
     if (ringbuf == NULL) {
         return NULL;
     }
     memset(ringbuf, 0, sizeof(at_ringbuf_t));
 
-    ringbuf->length = length;
-    ringbuf->buffer = HAL_Malloc((ringbuf->length + 1) * sizeof(void *));
-    if (ringbuf->buffer == NULL) {
-        goto err;
-    }
+    ringbuf->length = length - 1;
+    ringbuf->buffer = buf;
 
     return ringbuf;
-
-err:
-    if (ringbuf) {
-        if (ringbuf->buffer) {
-            HAL_Free(ringbuf->buffer);
-            ringbuf->buffer = NULL;
-        }
-
-        HAL_Free(ringbuf);
-    }
-    return NULL;
 }
 
 static void at_ringbuf_clear_all(at_ringbuf_t *ringbuf)
 {
-    while (ringbuf->head != ringbuf->tail) {
-        HAL_Printf("Warning: unsafe buffer release!\n");
-
-        if (((void **)ringbuf->buffer)[ringbuf->head] != NULL) {
-            HAL_Free(((void **)ringbuf->buffer)[ringbuf->head]);
-            ((void **)ringbuf->buffer)[ringbuf->head] = NULL;
-        }
-
-        ringbuf->head = (ringbuf->head + 1) % (ringbuf->length + 1);
-    }
-
     ringbuf->head = ringbuf->tail = 0;
 }
 
@@ -97,11 +98,11 @@ static void at_ringbuf_destroy(at_ringbuf_t *ringbuf)
         if (ringbuf->buffer) {
             at_ringbuf_clear_all(ringbuf);
 
-            HAL_Free(ringbuf->buffer);
             ringbuf->buffer = NULL;
         }
-
+#ifdef PLATFORM_HAS_DYNMEM
         HAL_Free(ringbuf);
+#endif
     }
 }
 
@@ -145,15 +146,15 @@ static int at_ringbuf_read(at_ringbuf_t *ringbuf, void *target,
 }
 
 /**********************public interface***********************/
-int at_mbox_new(at_mbox_t *mb, int size)
+int at_mbox_new(at_mbox_t *mb, int size, void *buf)
 {
     void *hdl = NULL;
 
-    if (mb == NULL) {
+    if (NULL == mb || NULL == buf) {
         return  -1;
     }
 
-    hdl = at_ringbuf_create(size);
+    hdl = at_ringbuf_create(size, buf);
     if (hdl == NULL) {
         return -1;
     }
