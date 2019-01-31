@@ -41,7 +41,7 @@
 #define AT_MQTT_WAIT_FOREVER 0xffffffffu
 
 /* change AT_MQTT_CMD_MAX_LEN from 1024 to 300 */
-#define AT_MQTT_CMD_MAX_LEN             300
+#define AT_MQTT_CMD_MAX_LEN             400
 #define AT_MQTT_CMD_DEF_LEN             256
 #define AT_MQTT_CMD_MIN_LEN             64
 #define AT_MQTT_CMD_SUCCESS_RSP         "OK"
@@ -55,16 +55,16 @@
 
 #define AT_MQTT_WAIT_MAX_TIMEOUT            60*1000
 #define AT_MQTT_WAIT_DEF_TIMEOUT            3*1000
-#define AT_MQTT_WAIT_MIN_TIMEOUT            500
-
-#define AT_MQTT_WAIT_COUNT                  (AT_MQTT_WAIT_MAX_TIMEOUT)/(AT_MQTT_WAIT_DEF_TIMEOUT)
+#define AT_MQTT_WAIT_MIN_TIMEOUT            800
 
 #define AT_CMD_SIM_PIN_CHECK            "AT+CPIN?"
 #define AT_CMD_SIGNAL_QUALITY_CHECK     "AT+CSQ"
 #define AT_CMD_NETWORK_REG_CHECK        "AT+CREG?"
 #define AT_CMD_GPRS_ATTACH_CHECK        "AT+CGATT?"
 
-#define SIM800_RETRY_MAX          50
+#define AT_CMD_ECHO_OFF   "ATE0"
+
+#define SIM800_RETRY_MAX          80
 
 #define AT_DEBUG_MODE
 #ifdef AT_DEBUG_MODE
@@ -88,7 +88,9 @@ char   at_max_len_cmd[AT_MQTT_CMD_MAX_LEN];
 char   at_def_len_cmd[AT_MQTT_CMD_DEF_LEN];
 char   at_min_len_cmd[AT_MQTT_CMD_MIN_LEN];
 
-iotx_mqtt_param_t *g_pInitParams = NULL;
+char   at_recv_rsp_buf[AT_MQTT_CMD_MAX_LEN];
+iotx_mqtt_param_t g_pInitParams = {0};
+int               g_isInitParamsSet = 0;
 
 typedef enum {
     AT_MQTT_IDLE = 0,
@@ -140,7 +142,7 @@ int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret)
     (void) devName;
     (void) devSecret;
 	
-    if(g_pInitParams != NULL) {
+    if(g_isInitParamsSet != 0) {
         return at_sim800_mqtt_client_conn();
     }
     else {
@@ -704,7 +706,7 @@ int at_sim800_mqtt_client_conn()
     /* not enable ssl */
     int   tlsEnable = 0;
 
-    if(g_pInitParams == NULL) {
+    if(g_isInitParamsSet == 0) {
         mal_err("at_sim800_mqtt_client_conn init parms is not configured.");
         return -1;
     }
@@ -720,7 +722,7 @@ int at_sim800_mqtt_client_conn()
     HAL_Snprintf(at_def_len_cmd,
                  sizeof(at_def_len_cmd),
                  "%s=\"%s\",\"%s:%d\"\r\n",
-                 AT_SIM800_MQTT_MQTTCONF, "URL", g_pInitParams->host, g_pInitParams->port);
+                 AT_SIM800_MQTT_MQTTCONF, "URL", g_pInitParams.host, g_pInitParams.port);
 
     if (0 != at_sim800_mqtt_atsend(at_def_len_cmd, AT_MQTT_WAIT_DEF_TIMEOUT)) {
 
@@ -744,13 +746,23 @@ int at_sim800_mqtt_client_conn()
         return -1;
     }
 
+    do{
+        retry ++;
+        mal_err( "%s %d try to turn off echo: %s %d times\r\n", __func__, __LINE__, at_min_len_cmd, retry);
+        at_send_wait_reply(AT_CMD_ECHO_OFF, strlen(AT_CMD_ECHO_OFF), true, NULL, 0,
+                           at_min_len_cmd, sizeof(at_min_len_cmd), NULL);
+    }while((strstr(at_min_len_cmd, AT_MQTT_CMD_SUCCESS_RSP) == NULL) && (retry < SIM800_RETRY_MAX));
+    if(retry == SIM800_RETRY_MAX)
+    {
+       mal_err("try to turn off echo failed");
+    }
     /* set username */
     memset(at_def_len_cmd, 0, sizeof(at_def_len_cmd));
 
     HAL_Snprintf(at_def_len_cmd,
                  sizeof(at_def_len_cmd),
                  "%s=\"%s\",\"%s\"\r\n",
-                 AT_SIM800_MQTT_MQTTCONF, "USERNAME", g_pInitParams->username);
+                 AT_SIM800_MQTT_MQTTCONF, "USERNAME", g_pInitParams.username);
 
     if (0 != at_sim800_mqtt_atsend(at_def_len_cmd, AT_MQTT_WAIT_MIN_TIMEOUT)) {
 
@@ -765,7 +777,7 @@ int at_sim800_mqtt_client_conn()
     HAL_Snprintf(at_def_len_cmd,
                  sizeof(at_def_len_cmd),
                  "%s=\"%s\",\"%s\"\r\n",
-                 AT_SIM800_MQTT_MQTTCONF, "PASSWORD", g_pInitParams->password);
+                 AT_SIM800_MQTT_MQTTCONF, "PASSWORD", g_pInitParams.password);
 
     if (0 != at_sim800_mqtt_atsend(at_def_len_cmd, AT_MQTT_WAIT_MIN_TIMEOUT)) {
 
@@ -780,7 +792,7 @@ int at_sim800_mqtt_client_conn()
     HAL_Snprintf(at_def_len_cmd,
                  sizeof(at_def_len_cmd),
                  "%s=\"%s\",\"%s\"\r\n",
-                 AT_SIM800_MQTT_MQTTCONF, "CLIENTID", g_pInitParams->client_id);
+                 AT_SIM800_MQTT_MQTTCONF, "CLIENTID", g_pInitParams.client_id);
 
     if (0 != at_sim800_mqtt_atsend(at_def_len_cmd, AT_MQTT_WAIT_MIN_TIMEOUT)) {
 
@@ -815,13 +827,14 @@ int at_sim800_mqtt_client_conn()
         return -1;
     }
 		
-    while((g_mqtt_connect_state != IOTX_MC_STATE_CONNECTED) && (retry < AT_MQTT_WAIT_COUNT)) {
+    retry = 0;
+    while((g_mqtt_connect_state != IOTX_MC_STATE_CONNECTED) && (retry < SIM800_RETRY_MAX)) {
         retry ++;
         at_sim800_mqtt_client_state();
         mal_info("try to wait mqtt server ... mstate %d  retry %d", g_mqtt_connect_state, retry);
     }
 
-    if(retry == AT_MQTT_WAIT_COUNT) {
+    if(retry == SIM800_RETRY_MAX) {
        mal_err("conn at command wait timeout");
        return -1;
     }
@@ -1178,11 +1191,10 @@ static int at_sim800_gprs_got_ip(void)
     return 0;
 }
 
-#define AT_CMD_ECHO_OFF   "ATE0"
-
 int at_sim800_mqtt_client_init(iotx_mqtt_param_t * pInitParams)
 {
     int ret;
+    int retry = 0;
 #ifdef PLATFORM_HAS_OS
     g_sim800_rsp_buff = AT_MQTT_SIM800_MALLOC(AT_MQTT_RSP_MAX_LEN);
     if (NULL == g_sim800_rsp_buff) {
@@ -1206,37 +1218,54 @@ int at_sim800_mqtt_client_init(iotx_mqtt_param_t * pInitParams)
 
     g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 
-    g_pInitParams = pInitParams; 
+    g_pInitParams.port = pInitParams->port;
+    g_pInitParams.host = pInitParams->host;
+    g_pInitParams.client_id = pInitParams->client_id;
+    g_pInitParams.username = pInitParams->username;
+    g_pInitParams.password = pInitParams->password;
+    g_pInitParams.handle_event.pcontext = pInitParams->handle_event.pcontext;
+    g_pInitParams.handle_event.h_fp = pInitParams->handle_event.h_fp;
 
+    g_isInitParamsSet = 1;
     at_register_callback(AT_SIM800_MQTT_MQTTRCV,
                              AT_SIM800_MQTT_POSTFIX,
+                             at_recv_rsp_buf,
                              AT_MQTT_CMD_MAX_LEN,
                              at_sim800_mqtt_client_rsp_callback,
                              NULL);
 
     at_register_callback(AT_SIM800_MQTT_MQTTERROR,
                              AT_SIM800_MQTT_POSTFIX,
+                             at_recv_rsp_buf,
                              AT_MQTT_CMD_MIN_LEN,
                              at_sim800_mqtt_client_rsp_callback,
                              NULL);
 
     at_register_callback(AT_SIM800_MQTT_MQTTOK,
                              AT_SIM800_MQTT_POSTFIX,
+                             at_recv_rsp_buf,
                              AT_MQTT_CMD_MIN_LEN,
                              at_sim800_mqtt_client_rsp_callback,
                              NULL);
 
     at_register_callback(AT_SIM800_MQTT_MQTTSAPBR,
                              AT_SIM800_MQTT_POSTFIX,
+                             at_recv_rsp_buf,
                              AT_MQTT_CMD_DEF_LEN,
                              at_sim800_mqtt_client_rsp_callback,
                              NULL);
 
-		    /*turn off echo*/
+    /*turn off echo*/
+    do{
+        retry ++;
+        mal_err( "%s %d try to turn off echo: %s %d times\r\n", __func__, __LINE__, at_min_len_cmd, retry);
     at_send_wait_reply(AT_CMD_ECHO_OFF, strlen(AT_CMD_ECHO_OFF), true, NULL, 0,
                        at_min_len_cmd, sizeof(at_min_len_cmd), NULL);
-    if (strstr(at_min_len_cmd, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {
-        mal_err( "%s %d failed rsp %s\r\n", __func__, __LINE__, at_min_len_cmd);
+    }while((strstr(at_min_len_cmd, AT_MQTT_CMD_SUCCESS_RSP) == NULL) && (retry < SIM800_RETRY_MAX));
+    
+    if(retry == SIM800_RETRY_MAX)
+    {
+        mal_err("try to turn off echo failed");
     }
 
     ret = at_sim800_gprs_ip_init();
@@ -1269,7 +1298,7 @@ int at_sim800_mqtt_client_deinit(void)
     memset(g_sim800_rsp_buff, 0, sizeof(g_sim800_rsp_buff));
 #endif
 
-    g_pInitParams = NULL; 
+    g_isInitParamsSet = 0;
 
     g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 
