@@ -40,6 +40,17 @@ static at_ringbuf_t *alloc_ringbuf(void)
 #endif
 }
 
+static void free_ringbuf(at_ringbuf_t *ringbuf)
+{
+    if (ringbuf) {
+#ifdef PLATFORM_HAS_DYNMEM
+        HAL_Free(ringbuf);
+#else
+        memset(ringbuf, 0, sizeof(at_ringbuf_t));
+#endif
+   }
+}
+
 static int at_ringbuf_available_read_space(at_ringbuf_t *ringbuf)
 {
     if (ringbuf->head == ringbuf->tail) {
@@ -100,9 +111,7 @@ static void at_ringbuf_destroy(at_ringbuf_t *ringbuf)
 
             ringbuf->buffer = NULL;
         }
-#ifdef PLATFORM_HAS_DYNMEM
-        HAL_Free(ringbuf);
-#endif
+        free_ringbuf(ringbuf);
     }
 }
 
