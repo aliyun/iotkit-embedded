@@ -13,11 +13,7 @@
 #include "iotx_mqtt_config.h"
 #include "mqtt_api.h"
 
-#ifdef BUILD_AOS
-    #include "MQTTPacket/MQTTPacket.h"
-#else
-    #include "MQTTPacket.h"
-#endif
+#include "MQTTPacket.h"
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
@@ -133,7 +129,7 @@ typedef struct Client {
     struct list_head                list_sub_handle;                            /* list of subscribe handle */
 #else
     iotx_mc_topic_handle_t          list_sub_handle[IOTX_MC_SUBHANDLE_LIST_MAX_LEN];
-#endif                    
+#endif
     utils_network_t                 ipstack;                                    /* network parameter */
     iotx_time_t                     next_ping_time;                             /* next ping time */
     int                             ping_mark;                                  /* flag of ping */
