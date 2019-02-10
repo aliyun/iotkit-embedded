@@ -744,6 +744,12 @@ static int _mqtt_connect(void *client)
         return NULL_VALUE_ERROR;
     }
 
+    mqtt_info("connect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
+              pClient->connect_data.MQTTVersion,
+              pClient->connect_data.clientID.cstring,
+              pClient->connect_data.keepAliveInterval,
+              pClient->connect_data.username.cstring);
+
     /* Establish TCP or TLS connection */
     do {
         rc = MQTTConnect(pClient);
