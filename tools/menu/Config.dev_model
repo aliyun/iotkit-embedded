@@ -4,6 +4,7 @@ config DEVICE_MODEL_ENABLED
     select INFRA_CLASSIC
     select INFRA_COMPAT
     select INFRA_SHA1
+    select INFRA_CJSON
     default y
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
