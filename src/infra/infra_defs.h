@@ -17,7 +17,7 @@
 #define DLL_IOT_API
 #endif
 
-#define IOTX_SDK_VERSION                "3.0.0"
+#define IOTX_SDK_VERSION                "3.0.1"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
 #define IOTX_PRODUCT_KEY_LEN            (20)
