@@ -1,6 +1,10 @@
+config DEVICE_MODEL_CLASSIC
+    bool
+    default y
 
 config DEVICE_MODEL_ENABLED
     bool "FEATURE_DEVICE_MODEL_ENABLED"
+    select DEVICE_MODEL_CLASSIC
     select INFRA_CLASSIC
     select INFRA_COMPAT
     select INFRA_SHA1
