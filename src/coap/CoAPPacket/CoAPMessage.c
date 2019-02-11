@@ -15,9 +15,7 @@
 #include "CoAPObserve.h"
 #include "CoAPInternal.h"
 #endif
-#include "iot_import.h"
 #include "CoAPPlatform.h"
-#include "lite-list.h"
 
 #define COAPAckMsg(header) \
     ((header.code == COAP_MSG_CODE_EMPTY_MESSAGE) \

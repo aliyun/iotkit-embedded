@@ -10,20 +10,26 @@
 #include <string.h>
 #include <errno.h>
 
-#include "iot_import.h"
-#include "iotx_utils.h"
+#include "iotx_coap_internal.h"
 #include "Cloud_CoAPExport.h"
-#include "iot_import_dtls.h"
 #include "Cloud_CoAPNetwork.h"
 
 #ifdef COAP_DTLS_SUPPORT
 static void *Cloud_CoAPDTLS_Malloc(uint32_t size)
 {
+#ifdef INFRA_MEM_STATS
     return LITE_malloc(size, MEM_MAGIC, "dtls");
+#else
+    return HAL_Malloc(size);
+#endif
 }
 static void Cloud_CoAPDTLS_Free(void *ptr)
 {
+#ifdef INFRA_MEM_STATS
     LITE_free(ptr);
+#else
+    HAL_Free((void *)ptr);
+#endif
 }
 
 static void Cloud_CoAPNetworkDTLS_freeSession(void *p_session);

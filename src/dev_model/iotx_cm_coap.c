@@ -2,9 +2,7 @@
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iotx_cm_coap.h"
-#include "utils_timer.h"
-#include "iotx_utils.h"
-#include "iotx_system.h"
+#include "infra_timer.h"
 
 #ifdef COAP_DTLS_SUPPORT  /* DTLS */
     #ifdef ON_DAILY
@@ -140,8 +138,8 @@ static int iotx_set_devinfo(iotx_device_info_t *p_devinfo)
     HAL_GetProductKey(p_devinfo->product_key);
     HAL_GetDeviceName(p_devinfo->device_name);
     HAL_GetDeviceSecret(p_devinfo->device_secret);
-    HAL_Snprintf(p_devinfo->device_id, DEVICE_ID_LEN, "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
-    p_devinfo->device_id[DEVICE_ID_LEN-1] = '\0';
+    HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2, "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
+    p_devinfo->device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = '\0';
     /**< end*/
     cm_info("*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
     cm_info("*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
@@ -157,7 +155,7 @@ static int  _coap_connect(uint32_t timeout)
     iotx_time_t timer;
     iotx_coap_config_t *config = NULL;
     iotx_coap_context_t *p_ctx = NULL;
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
 
     if (_coap_conncection == NULL) {
         return NULL_VALUE_ERROR;
@@ -215,6 +213,8 @@ static void _coap_response_default(void *p_arg, void *p_message)
     unsigned char *p_payload = NULL;
     unsigned int token;
     iotx_coap_resp_code_t resp_code;
+    coap_response_node_t *node = NULL;
+    coap_response_node_t *next = NULL;
 
     if (_coap_conncection == NULL || p_message == NULL) {
         cm_err("paras err");
@@ -240,9 +240,6 @@ static void _coap_response_default(void *p_arg, void *p_message)
         cm_err("get msg token err");
         return;
     }
-
-    coap_response_node_t *node = NULL;
-    coap_response_node_t *next = NULL;
 
     HAL_MutexLock(_coap_conncection->list_lock);
     list_for_each_entry_safe(node, next, &g_coap_response_list, linked_list, coap_response_node_t) {
@@ -279,7 +276,10 @@ static int _coap_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
     uint32_t token;
     int topic_len;
     int ret;
-    POINTER_SANITY_CHECK(_coap_conncection, NULL_VALUE_ERROR);
+
+    if (_coap_conncection == NULL) {
+        return NULL_VALUE_ERROR;
+    }
 
     if (ext != NULL) {
         qos = _get_coap_qos(ext->ack_type);
@@ -330,7 +330,9 @@ static int _coap_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
 
 static int _coap_yield(uint32_t timeout)
 {
-    POINTER_SANITY_CHECK(_coap_conncection, NULL_VALUE_ERROR);
+    if (_coap_conncection == NULL) {
+        return NULL_VALUE_ERROR;
+    }
     return  IOT_CoAP_Yield((iotx_coap_context_t *)_coap_conncection->context);
 }
 
@@ -347,10 +349,16 @@ static int _coap_unsub(const char *topic)
 
 static int _coap_close()
 {
-    POINTER_SANITY_CHECK(_coap_conncection, NULL_VALUE_ERROR);
     coap_response_node_t *node = NULL;
     coap_response_node_t *next = NULL;
-    iotx_coap_config_t    *coap_config = (iotx_coap_config_t *)_coap_conncection->open_params;
+    iotx_coap_config_t    *coap_config = NULL;
+
+    if (_coap_conncection == NULL) {
+        return NULL_VALUE_ERROR;
+    }
+
+    coap_config = (iotx_coap_config_t *)_coap_conncection->open_params;
+
     HAL_MutexLock(_coap_conncection->list_lock);
     list_for_each_entry_safe(node, next, &g_coap_response_list, linked_list, coap_response_node_t) {
         cm_free(node->topic);

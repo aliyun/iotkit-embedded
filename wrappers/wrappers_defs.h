@@ -30,5 +30,29 @@ typedef struct _hal_os_thread {
     char                    *name;         /* thread name. */
 } hal_os_thread_param_t;
 
+#define DTLS_ERROR_BASE                (1<<24)
+#define DTLS_SUCCESS                   (0)
+#define DTLS_INVALID_PARAM             (DTLS_ERROR_BASE | 1)
+#define DTLS_INVALID_CA_CERTIFICATE    (DTLS_ERROR_BASE | 2)
+#define DTLS_HANDSHAKE_IN_PROGRESS     (DTLS_ERROR_BASE | 3)
+#define DTLS_HANDSHAKE_FAILED          (DTLS_ERROR_BASE | 4)
+#define DTLS_FATAL_ALERT_MESSAGE       (DTLS_ERROR_BASE | 5)
+#define DTLS_PEER_CLOSE_NOTIFY         (DTLS_ERROR_BASE | 6)
+#define DTLS_SESSION_CREATE_FAILED     (DTLS_ERROR_BASE | 7)
+#define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
+
+typedef struct {
+    void *(*malloc)(uint32_t size);
+    void (*free)(void *ptr);
+} dtls_hooks_t;
+
+typedef struct {
+    unsigned char             *p_ca_cert_pem;
+    char                      *p_host;
+    unsigned short             port;
+} coap_dtls_options_t;
+
+typedef void DTLSContext;
+
 #endif
 

@@ -30,8 +30,8 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 // for demo only
 #define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "test_06"
-#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+#define DEVICE_NAME      "example_zc"
+#define DEVICE_SECRET    "XZvZ1295n3mzGFYWHUnjy1xkdHb919C8"
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -640,6 +640,7 @@ int linkkit_main(void *paras)
 
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
+            IOT_Linkkit_Query(user_example_ctx->master_devid,ITM_MSG_REQUEST_FOTA_IMAGE,NULL,0);
             // user_post_property();
         }
         /* Post Event Example */

@@ -172,6 +172,8 @@ char *json_get_next_object(int type, char *str, char *str_end, char **key, int *
         *((char *)json_str + str_len) = register;    \
     }
 
+char *LITE_json_value_of(char *key, char *src, ...);
+
 #endif  /* __JSON_PARSER_H__ */
 
 

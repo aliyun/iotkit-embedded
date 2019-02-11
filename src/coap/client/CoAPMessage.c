@@ -2,12 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
-
-#include "stdio.h"
-#include "iotx_system.h"
+#include "iotx_coap_internal.h"
 #include "Cloud_CoAPExport.h"
 #include "CoAPSerialize.h"
 #include "CoAPDeserialize.h"
@@ -269,9 +264,9 @@ int Cloud_CoAPMessage_recv(Cloud_CoAPContext *context, unsigned int timeout, int
 int Cloud_CoAPMessage_cycle(Cloud_CoAPContext *context)
 {
     unsigned int ret = 0;
+    Cloud_CoAPSendNode *node = NULL, *next = NULL;
     Cloud_CoAPMessage_recv(context, context->waittime, 0);
 
-    Cloud_CoAPSendNode *node = NULL, *next = NULL;
     list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist, Cloud_CoAPSendNode) {
         if (NULL != node) {
             if (node->timeout == 0) {

@@ -3,7 +3,6 @@
  */
 
 #include <stdint.h>
-#include "iot_import.h"
 
 #ifndef COAP_TRANSPORT_H__
 #define COAP_TRANSPORT_H__

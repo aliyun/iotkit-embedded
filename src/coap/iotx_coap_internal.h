@@ -7,8 +7,19 @@
 #ifndef __IOTX_COAP_INTERNAL__
 #define __IOTX_COAP_INTERNAL__
 
-
-#include "iot_import.h"
+#include <stdio.h>
+#include <string.h>
+#include "infra_compat.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_json_parser.h"
+#include "infra_cjson.h"
+#include "infra_list.h"
+#include "infra_md5.h"
+#include "infra_sha256.h"
+#include "infra_report.h"
+#include "iotx_coap_config.h"
+#include "coap_wrapper.h"
 #include "iotx_coap_config.h"
 
 #ifdef __cplusplus

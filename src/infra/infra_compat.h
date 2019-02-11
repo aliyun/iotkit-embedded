@@ -141,4 +141,19 @@ DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
 #define IOT_Linkkit_Post            IOT_Linkkit_Report
 /* compatible for V2.3.0 end */
 
+typedef enum {
+    HAL_AES_ENCRYPTION = 0,
+    HAL_AES_DECRYPTION = 1,
+} AES_DIR_t;
+
+typedef void *p_HAL_Aes128_t;
+
+#define NETWORK_ADDR_LEN        (16)
+
+typedef struct _network_addr_t {
+    unsigned char
+    addr[NETWORK_ADDR_LEN];
+    unsigned short  port;
+} NetworkAddr;
+
 #endif  /* _INFRA_COMPAT_H_ */

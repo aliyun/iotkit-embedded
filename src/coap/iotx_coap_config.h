@@ -10,4 +10,8 @@
 #define COAP_MSG_MAX_PDU_LEN      4096
 #endif
 
+#ifndef CONFIG_COAP_AUTH_TIMEOUT
+    #define CONFIG_COAP_AUTH_TIMEOUT        (3 * 1000)
+#endif
+
 #endif

@@ -3,9 +3,7 @@
  */
 
 #include "Cloud_CoAPNetwork.h"
-#include "iotx_utils.h"
-#include "iotx_log.h"
-#include "../iotx_coap_internal.h"
+#include "iotx_coap_internal.h"
 
 #ifndef CLOUD__COAP_EXPORT_H__
 #define CLOUD__COAP_EXPORT_H__

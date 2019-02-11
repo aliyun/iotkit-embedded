@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdint.h>
 #ifdef COAP_DTLS_SUPPORT
+#include "wrappers_defs.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/sha256.h"
@@ -19,14 +20,16 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/net_sockets.h"
-#include "iotx_hal_internal.h"
+
+void *HAL_Malloc(uint32_t size);
+void HAL_Free(void *ptr);
+void HAL_Printf(const char *fmt, ...);
 
 #define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DEBUG(...)  HAL_Printf("[dbg] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_INFO(...)   HAL_Printf("[inf] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_ERR(...)    HAL_Printf("[err] "), HAL_Printf(__VA_ARGS__)
-
 
 #ifdef DTLS_SESSION_SAVE
     mbedtls_ssl_session *saved_session = NULL;

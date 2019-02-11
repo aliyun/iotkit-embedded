@@ -4,16 +4,12 @@
 
 #include <stdio.h>
 
-#include "iot_export_errno.h"
-#include "iotx_utils.h"
-#include "utils_hmac.h"
-#include "json_parser.h"
+#include "iot_export_coap.h"
+#include "iotx_coap_internal.h"
+#include "Cloud_CoAPPlatform.h"
 #include "Cloud_CoAPPlatform.h"
 #include "Cloud_CoAPMessage.h"
 #include "Cloud_CoAPExport.h"
-#include "iotx_system.h"
-#include "lite-cjson.h"
-#include "utils_sha256.h"
 
 #define IOTX_SIGN_LENGTH         (40+1)
 #define IOTX_SIGN_SOURCE_LEN     (256)
@@ -103,14 +99,18 @@ static int iotx_get_token_from_json(char *p_str, char *p_token, int len)
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    p_value = LITE_json_value_of("token", p_str, MEM_MAGIC, "coap.cloud");
+    p_value = LITE_json_value_of("token", p_str, 0x1234, "coap.cloud");
     if (NULL != p_value) {
         if (len - 1 < strlen(p_value)) {
             return IOTX_ERR_BUFF_TOO_SHORT;
         }
         memset(p_token, 0x00, len);
         strncpy(p_token, p_value, strlen(p_value));
+#ifdef INFRA_MEM_STATS
         LITE_free(p_value);
+#else
+        HAL_Free((void *)p_value);
+#endif
         return IOTX_SUCCESS;
     }
 
@@ -585,10 +585,12 @@ static int iotx_split_path_2_option(char *uri, Cloud_CoAPMessage *message)
 
 uint32_t IOT_CoAP_GetCurToken(iotx_coap_context_t *p_context)
 {
+    iotx_coap_t *p_iotx_coap = NULL;
+
     if (p_context == NULL) {
         return IOTX_ERR_INVALID_PARAM;
     }
-    iotx_coap_t *p_iotx_coap = (iotx_coap_t *)p_context;
+    p_iotx_coap = (iotx_coap_t *)p_context;
 
     return p_iotx_coap->coap_token;
 }
@@ -829,10 +831,10 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     /*It should be implement by the user*/
     if (NULL != p_config->p_devinfo) {
         memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
-        strncpy(p_iotx_coap->p_devinfo->device_id,    p_config->p_devinfo->device_id,   IOTX_DEVICE_ID_LEN);
-        strncpy(p_iotx_coap->p_devinfo->product_key,  p_config->p_devinfo->product_key, IOTX_PRODUCT_KEY_LEN);
-        strncpy(p_iotx_coap->p_devinfo->device_secret, p_config->p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
-        strncpy(p_iotx_coap->p_devinfo->device_name,  p_config->p_devinfo->device_name, IOTX_DEVICE_NAME_LEN);
+        strncpy(p_iotx_coap->p_devinfo->device_id,    p_config->p_devinfo->device_id,   strlen(p_config->p_devinfo->device_id));
+        strncpy(p_iotx_coap->p_devinfo->product_key,  p_config->p_devinfo->product_key, strlen(p_config->p_devinfo->product_key));
+        strncpy(p_iotx_coap->p_devinfo->device_secret, p_config->p_devinfo->device_secret, strlen(p_config->p_devinfo->device_secret));
+        strncpy(p_iotx_coap->p_devinfo->device_name,  p_config->p_devinfo->device_name, strlen(p_config->p_devinfo->device_name));
 
         HAL_SetDeviceName(p_config->p_devinfo->device_name);
         HAL_SetProductKey(p_config->p_devinfo->product_key);

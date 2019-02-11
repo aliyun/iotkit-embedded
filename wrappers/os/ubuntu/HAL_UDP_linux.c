@@ -14,8 +14,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "iotx_hal_internal.h"
-#include "iot_import.h"
+#include "infra_compat.h"
 
 intptr_t HAL_UDP_create(char *host, unsigned short port)
 {
@@ -41,7 +40,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        hal_err("getaddrinfo error");
+        printf("getaddrinfo error");
         return (-1);
     }
 
@@ -53,7 +52,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
             socket_id = socket(ainfo->ai_family, ainfo->ai_socktype, ainfo->ai_protocol);
             if (socket_id < 0) {
-                hal_err("create socket error");
+                printf("create socket error");
                 continue;
             }
             if (0 == connect(socket_id, ainfo->ai_addr, ainfo->ai_addrlen)) {
@@ -155,7 +154,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket,
     return HAL_UDP_read(p_socket, p_data, datalen);
 }
 
-intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
+intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
 {
     struct sockaddr_in addr;
     long sockfd;
@@ -166,7 +165,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
-        hal_err("socket");
+        printf("socket");
         return -1;
     }
     if (0 == port) {
@@ -176,7 +175,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
     memset(&addr, 0, sizeof(struct sockaddr_in));
 
     if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
-        hal_err("setsockopt");
+        printf("setsockopt");
         close(sockfd);
         return -1;
     }
@@ -189,7 +188,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
         } else {
             hp = gethostbyname(host);
             if (!hp) {
-                hal_err("can't resolute the host address \n");
+                printf("can't resolute the host address \n");
                 close(sockfd);
                 return -1;
             }
@@ -204,14 +203,14 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
         close(sockfd);
         return -1;
     }
-    hal_info("success to establish udp, fd=%d", sockfd);
+    printf("success to establish udp, fd=%ld", sockfd);
 
     return (intptr_t)sockfd;
 }
 
-int HAL_UDP_connect(_IN_ intptr_t sockfd,
-                    _IN_ const char *host,
-                    _IN_ unsigned short port)
+int HAL_UDP_connect(intptr_t sockfd,
+                    const char *host,
+                    unsigned short port)
 {
     int                     rc = -1;
     char                    port_ptr[6] = {0};
@@ -222,7 +221,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
         return -1;
     }
 
-    hal_info("HAL_UDP_connect, host=%s, port=%d", host, port);
+    printf("HAL_UDP_connect, host=%s, port=%d", host, port);
     sprintf(port_ptr, "%u", port);
     memset((char *)&hints, 0x00, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
@@ -231,7 +230,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        hal_err("getaddrinfo error");
+        printf("getaddrinfo error");
         return -1;
     }
 
@@ -248,48 +247,48 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
     return -1;
 }
 
-int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
+int HAL_UDP_close_without_connect(intptr_t sockfd)
 {
     return close((int)sockfd);
 }
 
-int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
-                          _IN_ char *p_group)
+int HAL_UDP_joinmulticast(intptr_t sockfd,
+                          char *p_group)
 {
     int err = -1;
     int socket_id = -1;
+    int loop = 0;
+    struct ip_mreq mreq;
 
     if (NULL == p_group) {
         return -1;
     }
 
     /*set loopback*/
-    int loop = 0;
     socket_id = (int)sockfd;
     err = setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
     if (err < 0) {
-        hal_err("setsockopt");
+        printf("setsockopt");
         return err;
     }
-
-    struct ip_mreq mreq;
+    
     mreq.imr_multiaddr.s_addr = inet_addr(p_group);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY); /*default networt interface*/
 
     /*join to the multicast group*/
     err = setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if (err < 0) {
-        hal_err("setsockopt");
+        printf("setsockopt");
         return err;
     }
 
     return 0;
 }
 
-int HAL_UDP_recv(_IN_ intptr_t sockfd,
-                 _OU_ unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms)
+int HAL_UDP_recv(intptr_t sockfd,
+                 unsigned char *p_data,
+                 unsigned int datalen,
+                 unsigned int timeout_ms)
 {
     int ret;
     fd_set read_fds;
@@ -314,11 +313,11 @@ int HAL_UDP_recv(_IN_ intptr_t sockfd,
     return ret;
 }
 
-int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
-                     _OU_ NetworkAddr *p_remote,
-                     _OU_ unsigned char *p_data,
-                     _IN_ unsigned int datalen,
-                     _IN_ unsigned int timeout_ms)
+int HAL_UDP_recvfrom(intptr_t sockfd,
+                     NetworkAddr *p_remote,
+                     unsigned char *p_data,
+                     unsigned int datalen,
+                     unsigned int timeout_ms)
 {
     int ret;
     struct sockaddr_in addr;
@@ -355,10 +354,10 @@ int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
     return -1;
 }
 
-int HAL_UDP_send(_IN_ intptr_t sockfd,
-                 _IN_ const unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms)
+int HAL_UDP_send(intptr_t sockfd,
+                 const unsigned char *p_data,
+                 unsigned int datalen,
+                 unsigned int timeout_ms)
 {
     int ret;
     fd_set write_fds;
@@ -382,18 +381,18 @@ int HAL_UDP_send(_IN_ intptr_t sockfd,
     ret = send(sockfd, (char *)p_data, (int)datalen, 0);
 
     if (ret < 0) {
-        hal_err("send");
+        printf("send");
     }
 
     return ret;
 
 }
 
-int HAL_UDP_sendto(_IN_ intptr_t sockfd,
-                   _IN_ const NetworkAddr *p_remote,
-                   _IN_ const unsigned char *p_data,
-                   _IN_ unsigned int datalen,
-                   _IN_ unsigned int timeout_ms)
+int HAL_UDP_sendto(intptr_t sockfd,
+                   const NetworkAddr *p_remote,
+                   const unsigned char *p_data,
+                   unsigned int datalen,
+                   unsigned int timeout_ms)
 {
     int ret;
     uint32_t ip;
@@ -408,7 +407,7 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
     } else {
         hp = gethostbyname((char *)p_remote->addr);
         if (!hp) {
-            hal_err("can't resolute the host address \n");
+            printf("can't resolute the host address \n");
             return -1;
         }
         ip = *(uint32_t *)(hp->h_addr);
@@ -436,7 +435,7 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
     ret = sendto(sockfd, p_data, datalen, 0, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
 
     if (ret < 0) {
-        hal_err("sendto");
+        printf("sendto");
     }
 
     return (ret) > 0 ? ret : -1;

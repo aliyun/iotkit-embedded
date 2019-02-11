@@ -5,7 +5,8 @@
  */
 
 #include <string.h>
-#include "iot_import.h"
+#include <stdlib.h>
+#include "infra_compat.h"
 #include "mbedtls/aes.h"
 
 #define AES_BLOCK_SIZE 16
@@ -17,9 +18,9 @@ typedef struct {
 } platform_aes_t;
 
 p_HAL_Aes128_t HAL_Aes128_Init(
-            _IN_ const uint8_t *key,
-            _IN_ const uint8_t *iv,
-            _IN_ AES_DIR_t dir)
+            const uint8_t *key,
+            const uint8_t *iv,
+            AES_DIR_t dir)
 {
     int ret = 0;
     platform_aes_t *p_aes128 = NULL;
@@ -48,7 +49,7 @@ p_HAL_Aes128_t HAL_Aes128_Init(
     return (p_HAL_Aes128_t *)p_aes128;
 }
 
-int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes)
+int HAL_Aes128_Destroy(p_HAL_Aes128_t aes)
 {
     if (!aes) return -1;
 
@@ -59,10 +60,10 @@ int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes)
 }
 
 int HAL_Aes128_Cbc_Encrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst)
+            p_HAL_Aes128_t aes,
+            const void *src,
+            size_t blockNum,
+            void *dst)
 {
     int i   = 0;
     int ret = ret;
@@ -81,10 +82,10 @@ int HAL_Aes128_Cbc_Encrypt(
 }
 
 int HAL_Aes128_Cbc_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst)
+            p_HAL_Aes128_t aes,
+            const void *src,
+            size_t blockNum,
+            void *dst)
 {
     int i   = 0;
     int ret = -1;
@@ -103,10 +104,10 @@ int HAL_Aes128_Cbc_Decrypt(
 }
 #if defined(MBEDTLS_CIPHER_MODE_CFB)
 int HAL_Aes128_Cfb_Encrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t length,
-            _OU_ void *dst)
+            p_HAL_Aes128_t aes,
+            const void *src,
+            size_t length,
+            void *dst)
 {
     size_t offset = 0;
     int ret = -1;
@@ -122,10 +123,10 @@ int HAL_Aes128_Cfb_Encrypt(
 
 #if defined(MBEDTLS_CIPHER_MODE_CFB)
 int HAL_Aes128_Cfb_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t length,
-            _OU_ void *dst)
+            p_HAL_Aes128_t aes,
+            const void *src,
+            size_t length,
+            void *dst)
 {
     size_t offset = 0;
     int ret = -1;

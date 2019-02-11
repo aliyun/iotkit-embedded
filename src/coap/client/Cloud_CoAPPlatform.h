@@ -5,15 +5,19 @@
 #ifndef __COAP_PLATFORM_OS_H__
 #define __COAP_PLATFORM_OS_H__
 #include <stdio.h>
-#include "iot_import.h"
-#include "iotx_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#define coap_malloc(size)       LITE_malloc(size, MEM_MAGIC, "coap.cloud")
-#define coap_free(ptr)          LITE_free(ptr)
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+    #define coap_malloc(size)            LITE_malloc(size, MEM_MAGIC, "coap.cloud")
+    #define coap_free(ptr)               LITE_free(ptr)
+#else
+    #define coap_malloc(size)            HAL_Malloc(size)
+    #define coap_free(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
 
 #ifdef __cplusplus
 }

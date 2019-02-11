@@ -6,12 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "iotx_coap_internal.h"
 #include "ctype.h"
 #include "Cloud_CoAPPlatform.h"
-
 #include "Cloud_CoAPNetwork.h"
 #include "Cloud_CoAPExport.h"
-#include "iotx_system.h"
 
 #define COAP_DEFAULT_PORT           5683 /* CoAP default UDP port */
 #define COAPS_DEFAULT_PORT          5684 /* CoAP default UDP port for secure transmission */
@@ -173,7 +172,8 @@ Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param)
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_ENDPOINT_DTLS == network_param.ep_type) {
-        network_param.p_ca_cert_pem  = (unsigned char *)iotx_ca_get();
+        extern const char *iotx_ca_crt;
+        network_param.p_ca_cert_pem  = (unsigned char *)iotx_ca_crt;
     }
 #endif
     if (COAP_ENDPOINT_NOSEC == network_param.ep_type
@@ -213,11 +213,11 @@ err:
 
 void Cloud_CoAPContext_free(Cloud_CoAPContext *p_ctx)
 {
+    Cloud_CoAPSendNode *cur, *next;
+
     if (NULL == p_ctx) {
         return;
     }
-
-    Cloud_CoAPSendNode *cur, *next;
 
     Cloud_CoAPNetwork_deinit(&p_ctx->network);
 

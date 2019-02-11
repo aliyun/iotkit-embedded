@@ -8,8 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "CoAPSerialize.h"
-#include "lite-list.h"
-#include "../iotx_coap_internal.h"
+#include "iotx_coap_internal.h"
 
 int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, unsigned short buflen)
 {
