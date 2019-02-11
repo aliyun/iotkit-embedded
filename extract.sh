@@ -1,5 +1,11 @@
 #! /bin/bash
 
+if [ "$(uname)" = "Linux" ]; then
+    FIND="find -L"
+else
+    FIND="find"
+fi
+
 OUTPUT_DIR=output
 INFRA_DIR=${OUTPUT_DIR}/eng/infra
 WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
@@ -20,9 +26,9 @@ echo -e "#define _INFRA_CONFIG_H_\n" >> ${INFRA_DIR}/infra_config.h
 echo "${MACRO_LIST}" | sed -n 's/^/#define /p' >> ${INFRA_DIR}/infra_config.h
 echo -e "\n#endif" >> ${INFRA_DIR}/infra_config.h
 
-find -L ./src -name "infra_types.h" | xargs -i cp -f {} ${INFRA_DIR}
-find -L ./src -name "infra_defs.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
-find -L ./src -name "infra_compat.h" | xargs -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_types.h" | xargs -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_defs.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_compat.h" | xargs -i cp -f {} ${INFRA_DIR}
 
 # echo -e "${MACRO_LIST}"
 
@@ -56,6 +62,7 @@ cond_not_check()
 
 DOTS_LINE=".................................................................."
 
+echo ""
 # Read xtrc_file_rules
 TOTAL_ITERATION=$(wc -l ${XTRC_FILE_RULS}|awk '{ print $1 }')
 ITER=0
@@ -89,7 +96,7 @@ do
     # echo "${DEST_DIR}"
 
     if [ "${DEST_DIR}" != "" ];then
-        mkdir -p ${DEST_DIR} && find -L ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
+        mkdir -p ${DEST_DIR} && ${FIND} ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
     fi
 done < ${XTRC_FILE_RULS}
 
@@ -175,7 +182,7 @@ do
         continue
     fi
 
-    FUNC_DEC=$(find -L ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {})
+    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {})
     FUNC_DEC=$(echo "${FUNC_DEC}" | sed -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
     
     DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F'wrapper|HAL' '{print $1}' | sed s/[[:space:]]//g)
