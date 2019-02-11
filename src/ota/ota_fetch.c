@@ -58,14 +58,23 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
     h_odc->http_data.response_buf = buf;
     h_odc->http_data.response_buf_len = buf_len;
     diff = h_odc->http_data.response_content_len - h_odc->http_data.retrieve_len;
+
 #if defined(SUPPORT_ITLS)
-    extern const char *iotx_ca_crt;
-    pub_key = iotx_ca_crt;
+    {
+        extern const char *iotx_ca_crt;
+        pub_key = iotx_ca_crt;
+    }
     if (0 != httpclient_common(&h_odc->http, h_odc->url, 80, pub_key, HTTPCLIENT_GET, timeout_s * 1000,
                                &h_odc->http_data)) {
-#else
+#elif defined(SUPPORT_TLS)
+    {
+        extern const char *iotx_ca_crt;
+        pub_key = iotx_ca_crt;
+    }
     if (0 != httpclient_common(&h_odc->http, h_odc->url, 443, pub_key, HTTPCLIENT_GET, timeout_s * 1000,
                                &h_odc->http_data)) {
+#else
+    {
 #endif
         OTA_LOG_ERROR("fetch firmware failed");
         return -1;
