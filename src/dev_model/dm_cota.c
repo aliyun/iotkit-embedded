@@ -4,8 +4,14 @@
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 #include "iotx_dm_internal.h"
 
-#define DM_COTA_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "dm.cota")
-#define DM_COTA_FREE(ptr)    LITE_free(ptr)
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+    #define DM_COTA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "dm.cota")
+    #define DM_COTA_FREE(ptr)               LITE_free(ptr)
+#else
+    #define DM_COTA_MALLOC(size)            HAL_Malloc(size)
+    #define DM_COTA_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
 
 static dm_cota_ctx_t g_dm_cota_ctx;
 

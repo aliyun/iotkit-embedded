@@ -37,4 +37,10 @@ void HAL_SemaphoreDestroy(void *sem);
 void HAL_SemaphorePost(void *sem);
 int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
 
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
+void HAL_Firmware_Persistence_Start(void);
+int HAL_Firmware_Persistence_Write(char *buffer, uint32_t length);
+int HAL_Firmware_Persistence_Stop(void);
+#endif
+
 #endif

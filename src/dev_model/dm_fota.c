@@ -69,6 +69,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
     dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
     void *ota_handle = NULL;
     uint32_t ota_type = IOT_OTAT_NONE;
+    int ret = 0;
 
     if (output == NULL || output_len <= 0) {
         return DM_INVALID_PARAMETER;
@@ -103,7 +104,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
         }
 
         /* Write Config File Into Stroage */
-        int ret = HAL_Firmware_Persistence_Write(output, file_download);
+        ret = HAL_Firmware_Persistence_Write(output, file_download);
         if (-1 == ret) {
             IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_BURN_FAILED, NULL);
             dm_log_err("Fota write firmware failed");
@@ -184,6 +185,7 @@ int dm_fota_request_image(const char *version, int buffer_len)
 {
     int res = 0;
     void *ota_handle = NULL;
+    char *version_str = NULL;
 
     if (NULL == version || buffer_len <= 0) {
         dm_log_info("invalid input");
@@ -196,7 +198,7 @@ int dm_fota_request_image(const char *version, int buffer_len)
         return FAIL_RETURN;
     }
 
-    char *version_str = DM_malloc(buffer_len + 1);
+    version_str = DM_malloc(buffer_len + 1);
     if (NULL == version_str) {
         dm_log_info("failed to malloc");
         return FAIL_RETURN;
@@ -204,8 +206,8 @@ int dm_fota_request_image(const char *version, int buffer_len)
     memset(version_str, 0, buffer_len + 1);
     memcpy(version_str, version, buffer_len);
 
-    int ret = iotx_req_image(ota_handle, version_str);
+    res = iotx_req_image(ota_handle, version_str);
     DM_free(version_str);
-    return ret;
+    return res;
 }
 #endif

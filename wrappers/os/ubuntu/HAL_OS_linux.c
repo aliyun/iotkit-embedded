@@ -335,6 +335,39 @@ void HAL_ThreadDelete(void *thread_handle)
     }
 }
 
+static FILE *fp;
+
+#define otafilename "/tmp/alinkota.bin"
+
+void HAL_Firmware_Persistence_Start(void)
+{
+    fp = fopen(otafilename, "w");
+    return;
+}
+
+int HAL_Firmware_Persistence_Write(char *buffer, uint32_t length)
+{
+    unsigned int written_len = 0;
+    written_len = fwrite(buffer, 1, length, fp);
+
+    if (written_len != length) {
+        return -1;
+    }
+
+    return 0;
+}
+
+int HAL_Firmware_Persistence_Stop(void)
+{
+    if (fp != NULL) {
+        fclose(fp);
+    }
+
+    /* check file md5, and burning it to flash ... finally reboot system */
+
+    return 0;
+}
+
 void *HAL_MutexCreate(void)
 {
     int err_num;

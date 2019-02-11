@@ -39,6 +39,7 @@
 #include <stdlib.h>
 
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
+    #include "iotx_ota.h"
     #include "ota_api.h"
 #endif
 
