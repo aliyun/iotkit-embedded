@@ -7,5 +7,5 @@ LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 
 TARGET          := dev-reset-example
 
-LIB_SRCS_EXCLUDE        := dev_reset_example.c
-SRCS_dev-sign-example   += dev_reset_example.c
+LIB_SRCS_EXCLUDE         += dev_reset_example.c
+SRCS_dev-reset-example   := dev_reset_example.c

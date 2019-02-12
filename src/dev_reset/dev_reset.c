@@ -58,16 +58,16 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
 
 static int awss_report_reset_to_cloud()
 {
-    if (awss_report_reset_suc) {
-        return 0;
-    }
-
     int ret = -1;
     int final_len = 0;
     char *topic = NULL;
     char *packet = NULL;
     int packet_len = AWSS_RESET_PKT_LEN;
     int topic_len = AWSS_RESET_TOPIC_LEN;
+
+    if (awss_report_reset_suc) {
+        return 0;
+    }
 
     if (report_reset_timer == NULL) {
         report_reset_timer = HAL_Timer_Create("report_rst", (void (*)(void *))awss_report_reset_to_cloud, NULL);
