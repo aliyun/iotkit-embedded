@@ -9,11 +9,11 @@ LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 
 LIB_SRCS_PATTERN     	:= *.c server/*.c client/*.c
 
-LIB_SRCS_EXCLUDE     	  := examples/linkkit_example_solo.c cJSON.c examples/app_entry.c
-SRCS_linkkit-example-solo := examples/linkkit_example_solo.c cJSON.c examples/app_entry.c
+LIB_SRCS_EXCLUDE     	  := examples/linkkit_example_solo.c cJSON.c
+SRCS_linkkit-example-solo := examples/linkkit_example_solo.c cJSON.c
 
-LIB_SRCS_EXCLUDE             += examples/linkkit_example_gateway.c examples/app_entry.c
-SRCS_linkkit-example-gateway := examples/linkkit_example_gateway.c examples/app_entry.c
+LIB_SRCS_EXCLUDE             += examples/linkkit_example_gateway.c
+SRCS_linkkit-example-gateway := examples/linkkit_example_gateway.c
 
 $(call Append_Conditional, LIB_SRCS_PATTERN, alcs/*.c, ALCS_ENABLED)
 

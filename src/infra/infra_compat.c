@@ -1,3 +1,5 @@
+#include "infra_config.h"
+
 #ifdef INFRA_COMPAT
 #include <string.h>
 #include "infra_types.h"
@@ -31,7 +33,7 @@ int IOT_SetupConnInfo(const char *product_key,
     }
 
     memset(&g_sign_mqtt, 0, sizeof(iotx_sign_mqtt_t));
-    memset(&g_iotx_conn_info,0,sizeof(iotx_conn_info_t));
+    memset(&g_iotx_conn_info, 0, sizeof(iotx_conn_info_t));
 
     memset(&meta_data, 0, sizeof(iotx_dev_meta_info_t));
     memcpy(meta_data.product_key, product_key, strlen(product_key));
@@ -50,10 +52,10 @@ int IOT_SetupConnInfo(const char *product_key,
     g_iotx_conn_info.username = g_sign_mqtt.username;
     g_iotx_conn_info.password = g_sign_mqtt.password;
 #ifdef SUPPORT_TLS
-        {
-            extern const char *iotx_ca_crt;
-            g_iotx_conn_info.pub_key = iotx_ca_crt;
-        }
+    {
+        extern const char *iotx_ca_crt;
+        g_iotx_conn_info.pub_key = iotx_ca_crt;
+    }
 #endif
     *info_ptr = (void *)&g_iotx_conn_info;
     return SUCCESS_RETURN;
@@ -61,8 +63,9 @@ int IOT_SetupConnInfo(const char *product_key,
 #endif
 
 #if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
-#include "iotx_dm.h"
+    #include "iotx_dm.h"
 #endif
+
 int IOT_Ioctl(int option, void *data)
 {
     int                 res = SUCCESS_RETURN;
@@ -100,8 +103,8 @@ int IOT_Ioctl(int option, void *data)
             if (ctx->cloud_custom_domain == NULL) {
                 return FAIL_RETURN;
             }
-            memset(ctx->cloud_custom_domain,0,strlen((char *)data) + 1);
-            memcpy(ctx->cloud_custom_domain,data,strlen((char *)data));
+            memset(ctx->cloud_custom_domain, 0, strlen((char *)data) + 1);
+            memcpy(ctx->cloud_custom_domain, data, strlen((char *)data));
             g_infra_mqtt_domain[IOTX_CLOUD_REGION_CUSTOM] = (const char *)ctx->cloud_custom_domain;
             res = SUCCESS_RETURN;
         }
@@ -118,8 +121,8 @@ int IOT_Ioctl(int option, void *data)
             if (ctx->http_custom_domain == NULL) {
                 return FAIL_RETURN;
             }
-            memset(ctx->http_custom_domain,0,strlen((char *)data) + 1);
-            memcpy(ctx->http_custom_domain,data,strlen((char *)data));
+            memset(ctx->http_custom_domain, 0, strlen((char *)data) + 1);
+            memcpy(ctx->http_custom_domain, data, strlen((char *)data));
             g_infra_http_domain[IOTX_CLOUD_REGION_CUSTOM] = (const char *)ctx->http_custom_domain;
             res = SUCCESS_RETURN;
         }
@@ -171,7 +174,8 @@ int IOT_Ioctl(int option, void *data)
         case IOTX_IOCTL_SEND_PROP_SET_REPLY:
         case IOTX_IOCTL_GET_SUBDEV_LOGIN: {
             res = SUCCESS_RETURN;
-        } break;
+        }
+        break;
 #endif
         default: {
             res = FAIL_RETURN;

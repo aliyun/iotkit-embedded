@@ -1,3 +1,5 @@
+#include "infra_config.h"
+
 #if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 #include "iotx_cm_internal.h"
 
@@ -173,12 +175,13 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
 #ifndef DEVICE_MODEL_ALINK2
             char *topic = NULL;
 #endif
-            if (topic_handle_func == NULL) {    
+            if (topic_handle_func == NULL) {
                 cm_err("sub handle is null!");
                 return;
             }
 #ifdef DEVICE_MODEL_ALINK2
-            topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len, NULL);
+            topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->topic_len, topic_info->payload,
+                              topic_info->payload_len, NULL);
 #else
             topic = cm_malloc(topic_info->topic_len + 1);
             if (topic == NULL) {

@@ -10,9 +10,13 @@ AR := ar
 # Path definitions
 
 TOPDIR  := .
-BLDDIR  := $(TOPDIR)/build
-SRCDIR  := $(TOPDIR)/eng
+BLDDIR  := build
+SRCDIR  := eng
+EXPDIR  := examples
 HDRDIR  := $(shell find $(SRCDIR) -type d)
+
+PROG_TARGET := $(shell ls $(EXPDIR)|grep example|sed 's:\.c::g;s:_:-:g')
+PROG_TARGET := $(foreach V,$(PROG_TARGET),$(BLDDIR)/$(V))
 
 ###############################################################################
 # Application source files
@@ -23,7 +27,7 @@ SOURCE_FILES_C := $(shell find $(SRCDIR) -name *.c)
 # Standard application lib/header search paths
 
 CFLAGS  := $(addprefix -I,$(HDRDIR))
-LDFLAGS := -lpthread -lrt
+LDFLAGS := -L$(BLDDIR) -liot_sdk -lpthread -lrt
 
 ###############################################################################
 # Dependency rules
@@ -33,17 +37,21 @@ LIBOBJS := $(subst $(SRCDIR),$(BLDDIR),$(LIBOBJS))
 
 .PHONY: prepare all clean
 
-all: prepare $(BLDDIR)/$(LIBA_TARGET)
+all: prepare $(BLDDIR)/$(LIBA_TARGET) $(PROG_TARGET)
 
 prepare:
 	-@mkdir -p $(BLDDIR)
 
 $(BLDDIR)/$(LIBA_TARGET): $(LIBOBJS)
-	@echo "Archiving $@ ..."
+	@echo "o Archiving $@ ..."
 	@$(AR) -rcs $@ $^
 
+$(PROG_TARGET): $(BLDDIR)/$(LIBA_TARGET)
+	@echo "+ Linking $@ ..."
+	@$(CC) -o $@ $(shell echo $@".c"|sed 's:$(BLDDIR):$(EXPDIR):g;s:-:_:g') $(CFLAGS) $(LDFLAGS)
+
 $(BLDDIR)/%.o: $(SRCDIR)/%.c
-	@echo "Compiling $< ..."
+	@echo ": Compiling $< ..."
 	@mkdir -p $(shell dirname $@)
 	@$(CC) -o $@ -c $< $(CFLAGS)
 

@@ -1334,7 +1334,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     iotx_mqtt_topic_info_t topic_msg;
     int qos = 0;
     uint32_t payload_len = 0;
-#if INFRA_LOG
+#ifdef INFRA_LOG
     const char     *json_payload = NULL;
 #endif
 
@@ -1359,14 +1359,14 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     topic_msg.qos = (unsigned char)qos;
     topic_msg.payload_len = payload_len;
 
-#if INFRA_LOG
+#ifdef INFRA_LOG
 
     json_payload = (const char *)topic_msg.payload;
     mqtt_info("Downstream Topic: '%.*s'", topicName.lenstring.len, topicName.lenstring.data);
     mqtt_info("Downstream Payload:");
     iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '<');
 
-#endif  /* #if INFRA_LOG */
+#endif  /* #ifdef INFRA_LOG */
 
     mqtt_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
     mqtt_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
@@ -1382,7 +1382,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 #if defined(INSPECT_MQTT_FLOW)
     mqtt_debug("%20s : %p", "Payload Buffer", topic_msg.payload);
     mqtt_debug("%20s : %p", "Receive Buffer", c->buf_read);
-#if INFRA_LOG
+#ifdef INFRA_LOG
     HEXDUMP_DEBUG(topic_msg.payload, topic_msg.payload_len);
 #endif
 #endif
@@ -2415,7 +2415,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 #if !WITH_MQTT_ONLY_QOS0
     iotx_mc_pub_info_t  *node = NULL;
 #endif
-#if INFRA_LOG
+#ifdef INFRA_LOG
     const char     *json_payload = NULL;
 #endif
 
@@ -2489,14 +2489,14 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         return MQTT_NETWORK_ERROR;
     }
 
-#if INFRA_LOG
+#ifdef INFRA_LOG
     json_payload = (const char *)topic_msg->payload;
 
     mqtt_info("Upstream Topic: '%s'", topicName);
     mqtt_info("Upstream Payload:");
     iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '>');
 
-#endif  /* #if INFRA_LOG */
+#endif  /* #ifdef INFRA_LOG */
     _reset_send_buffer(c);
     HAL_MutexUnlock(c->lock_write_buf);
     HAL_MutexUnlock(c->lock_list_pub);

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#include "infra_config.h"
 
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 
@@ -743,7 +743,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             }
 
             callback = iotx_event_callback(ITE_COTA);
-            if (callback) { 
+            if (callback) {
                 ((int (*)(const int, const char *, int, const char *, const char *, const char *, const char *))callback)(0, config_id,
                         lite_item_configsize.value_int, get_type, sign, sign_method, url);
             }
@@ -1478,7 +1478,8 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #else
             res = FAIL_RETURN;
 #endif
-        } break;
+        }
+        break;
 #ifdef DEVICE_MODEL_GATEWAY
 #ifdef DEVICE_MODEL_SUBDEV_OTA
         case ITM_MSG_REPORT_SUBDEV_FIRMWARE_VERSION: {

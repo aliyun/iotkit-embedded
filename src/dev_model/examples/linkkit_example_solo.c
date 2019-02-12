@@ -11,7 +11,9 @@
 #include "infra_compat.h"
 #include "infra_log.h"
 #include "infra_classic.h"
-#include "infra_mem_stats.h"
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+#endif
 #include "iot_export_linkkit.h"
 #include "dm_wrapper.h"
 #include "cJSON.h"
@@ -19,7 +21,7 @@
 #include "app_entry.h"
 
 #ifdef ATM_ENABLED
-#include "at_api.h"
+    #include "at_api.h"
 #endif
 
 void HAL_Printf(const char *fmt, ...);
@@ -672,4 +674,15 @@ int linkkit_main(void *paras)
 
     return 0;
 }
+
+int main(int argc, char **argv)
+{
+    app_main_paras_t paras;
+    paras.argc = argc;
+    paras.argv = argv;
+
+    linkkit_main((void *)&paras);
+    return 0;
+}
+
 #endif

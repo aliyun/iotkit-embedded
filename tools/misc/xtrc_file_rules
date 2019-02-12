@@ -10,6 +10,7 @@ INFRA_NET||src/infra/infra_net.[ch]|output/eng/infra
 INFRA_REPORT||src/infra/infra_report.[ch]|output/eng/infra
 INFRA_SHA256||src/infra/infra_sha256.[ch]|output/eng/infra
 INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
+INFRA_COMPAT||src/infra/infra_compat.[ch]|output/eng/infra
 INFRA_CLASSIC||src/infra/infra_classic.[ch]|output/eng/infra
 
 SUPPORT_TLS||certs/root_ca.c|output/eng/certs
@@ -41,4 +42,5 @@ DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples
 MQTT_COMM_ENABLED|ATM_ENABLED|src/mqtt/examples/mqtt_example.c|output/examples
 MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/examples
 DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/examples
+DEVICE_MODEL_ENABLED||src/dev_model/examples/app_entry.[ch]|output/examples
 DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/examples

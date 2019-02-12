@@ -1,3 +1,5 @@
+#include "infra_config.h"
+
 #ifdef INFRA_CLASSIC
 #include <string.h>
 #include "infra_string.h"
@@ -15,8 +17,9 @@ int iotx_event_regist_cb(void (*monitor_cb)(int event))
 
 int iotx_event_post(int event)
 {
-    if (g_event_monitor == NULL)
+    if (g_event_monitor == NULL) {
         return -1;
+    }
     ((void (*)(int))g_event_monitor)(event);
     return 0;
 }
