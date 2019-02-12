@@ -38,5 +38,4 @@ config COAP_SERVER
     select HAL_UDP
     select HAL_KV
     select HAL_CRYPTO
-    select COAP_DTLS_SUPPORT
     select COAP_PACKET
