@@ -80,5 +80,6 @@ void utils_sha1_process(iot_sha1_context *ctx, const unsigned char data[64]);
 void utils_sha1(const unsigned char *input, uint32_t ilen, unsigned char output[20]);
 
 void utils_hmac_sha1(const char *msg, int msg_len, char *digest, const char *key, int key_len);
+void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char *key, int key_len);
 
 #endif

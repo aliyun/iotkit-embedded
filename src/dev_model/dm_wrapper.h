@@ -36,7 +36,9 @@ void *HAL_SemaphoreCreate(void);
 void HAL_SemaphoreDestroy(void *sem);
 void HAL_SemaphorePost(void *sem);
 int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
-
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
+int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
+int HAL_Kv_Del(const char *key);
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 void HAL_Firmware_Persistence_Start(void);
 int HAL_Firmware_Persistence_Write(char *buffer, uint32_t length);

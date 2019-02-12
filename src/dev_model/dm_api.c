@@ -33,12 +33,13 @@ int iotx_dm_open(void)
 {
     int res = 0;
     dm_api_ctx_t *ctx = _dm_api_get_ctx();
-
+#if defined(ALCS_ENABLED) || defined(DEPRECATED_LINKKIT)
+    lite_cjson_hooks hooks;
+#endif
     memset(ctx, 0, sizeof(dm_api_ctx_t));
 
 #if defined(ALCS_ENABLED) || defined(DEPRECATED_LINKKIT)
     /* lite-cjson Hooks Init */
-    lite_cjson_hooks hooks;
     hooks.malloc_fn = dm_utils_malloc;
     hooks.free_fn = dm_utils_free;
     lite_cjson_init_hooks(&hooks);

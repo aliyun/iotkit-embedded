@@ -34,5 +34,22 @@ menu "Device Model Configurations"
 
             Switching to "y" leads to SDK being compiled only raw data function
             Switching to "n" leads to SDK being compiled both raw data and thing model function
+    
+    config ALCS_ENABLED
+        bool "FEATURE_ALCS_ENABLED"
+        default n
+        select INFRA_MD5
+        select INFRA_STRING
+        select INFRA_JSON_PARSER
+        select INFRA_SHA1
+        select HAL_UDP
+        select HAL_KV
+        select HAL_CRYPTO
+        select COAP_DTLS_SUPPORT
+        help
+            ALCS(alink local communication service) is a communication between phone and device
+
+            Switching to "y" leads to SDK being compiled with alcs function
+            Switching to "n" leads to SDK being compiled without alcs function
 endmenu
 

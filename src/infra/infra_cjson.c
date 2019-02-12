@@ -923,7 +923,7 @@ int lite_cjson_object_item_by_index(lite_cjson_t *lite, int index, lite_cjson_t 
 #endif  /* #if (0) */
 
 /*** cjson create, add and print ***/
-#if defined(DEVICE_MODEL_GATEWAY)
+#if defined(DEVICE_MODEL_GATEWAY) || defined(ALCS_ENABLED)
 #define true ((cJSON_bool)1)
 #define false ((cJSON_bool)0)
 #define cjson_min(a, b) ((a < b) ? a : b)

@@ -1466,6 +1466,9 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     dm_msg_response_t response;
     const char *reply_service_name = NULL;
     dm_msg_dest_type_t reply_msg_type;
+#ifdef ALCS_ENABLED
+    dm_server_alcs_context_t *alcs_context = NULL;
+#endif
 
     if (devid < 0 || msgid == NULL || msgid_len <= 0 ||
         payload == NULL || payload_len <= 0) {
@@ -1494,7 +1497,7 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     dm_msg_response(reply_msg_type, &request, &response, payload, payload_len, ctx);
 
 #ifdef ALCS_ENABLED
-    dm_server_alcs_context_t *alcs_context = (dm_server_alcs_context_t *)ctx;
+    alcs_context = (dm_server_alcs_context_t *)ctx;
 
     if (alcs_context) {
         DM_free(alcs_context->ip);
