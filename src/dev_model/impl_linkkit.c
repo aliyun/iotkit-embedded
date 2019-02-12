@@ -1233,7 +1233,7 @@ void IOT_Linkkit_Yield(int timeout_ms)
     iotx_dm_yield(timeout_ms);
     iotx_dm_dispatch();
 
-#if (CONFIG_SDK_THREAD_COST == 1)
+#if (DEVICE_MODEL_GATEWAY)
     HAL_SleepMs(timeout_ms);
 #endif
 }
