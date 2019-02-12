@@ -10,12 +10,9 @@
 #include <string.h>
 #include <errno.h>
 
-#include "iot_import.h"
+#include "iotx_coap_internal.h"
 #include "CoAPExport.h"
 #include "CoAPPlatform.h"
-#ifdef COAP_DTLS_SUPPORT
-    #include "iot_import_dtls.h"
-#endif
 #include "CoAPNetwork.h"
 
 int CoAPNetwork_read(NetworkContext         *p_context,

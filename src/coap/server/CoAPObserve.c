@@ -6,7 +6,7 @@
 #include "CoAPResource.h"
 #include "CoAPObserve.h"
 #include "CoAPMessage.h"
-#include "lite-list.h"
+#include "iotx_coap_internal.h"
 #include "CoAPPlatform.h"
 #include "CoAPInternal.h"
 

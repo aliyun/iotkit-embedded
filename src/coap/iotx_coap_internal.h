@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "infra_string.h"
 #include "infra_compat.h"
 #include "infra_types.h"
 #include "infra_defs.h"

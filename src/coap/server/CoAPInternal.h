@@ -8,8 +8,7 @@
 #define __COAP_INTERNAL_H__
 #include "CoAPNetwork.h"
 #include "CoAPExport.h"
-#include "lite-list.h"
-
+#include "iotx_coap_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

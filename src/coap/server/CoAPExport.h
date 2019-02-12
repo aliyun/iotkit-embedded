@@ -5,7 +5,6 @@
 #ifndef __COAP_EXPORT_H__
 #define __COAP_EXPORT_H__
 
-#include "iot_import.h"
 #include "../iotx_coap_internal.h"
 
 #ifdef __cplusplus

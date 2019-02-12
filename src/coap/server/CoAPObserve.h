@@ -8,7 +8,7 @@
 #include "CoAPExport.h"
 #include "CoAPMessage.h"
 #include "CoAPResource.h"
-#include "lite-list.h"
+#include "iotx_coap_internal.h"
 
 
 #ifdef __cplusplus

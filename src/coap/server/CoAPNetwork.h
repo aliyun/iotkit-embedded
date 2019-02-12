@@ -5,7 +5,6 @@
 #ifndef __CoAPNETWORK_H__
 #define __CoAPNETWORK_H__
 #include <stdint.h>
-#include "iot_import.h"
 
 #ifdef __cplusplus
 extern "C" {

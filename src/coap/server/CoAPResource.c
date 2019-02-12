@@ -10,8 +10,7 @@
 #include "CoAPResource.h"
 #include "CoAPPlatform.h"
 #include "CoAPInternal.h"
-#include "lite-list.h"
-#include "utils_md5.h"
+#include "iotx_coap_internal.h"
 
 #define COAP_PATH_DEFAULT_SUM_LEN (5)
 
@@ -55,7 +54,7 @@ int CoAPResource_deinit(CoAPContext *context)
             coap_free(node->filter_path);
         }
         list_del_init(&node->reslist);
-        LITE_hexbuf_convert((unsigned char *)node->path, tmpbuf, COAP_MAX_PATH_CHECKSUM_LEN, 0);
+        infra_hex2str((unsigned char *)node->path, COAP_MAX_PATH_CHECKSUM_LEN, tmpbuf);
         COAP_DEBUG("Release the resource %s", tmpbuf);
         coap_free(node);
     }
@@ -120,7 +119,10 @@ int CoAPResource_register(CoAPContext *context, const char *path,
     CoAPResource *node = NULL, *newnode = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
     path_type_t type = PATH_NORMAL;
-    ARGUMENT_SANITY_CHECK(context, FAIL_RETURN);
+
+    if (context == NULL) {
+        return FAIL_RETURN;
+    }
 
     HAL_MutexLock(ctx->resource.list_mutex);
     if (ctx->resource.count >= ctx->resource.maxcount) {

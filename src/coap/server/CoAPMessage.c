@@ -12,10 +12,9 @@
 #include "CoAPDeserialize.h"
 #include "CoAPResource.h"
 #include "CoAPObserve.h"
-#include "iot_import.h"
 #include "CoAPPlatform.h"
 #include "CoAPInternal.h"
-#include "lite-list.h"
+#include "iotx_coap_internal.h"
 
 #define COAPAckMsg(header) \
     ((header.code == COAP_MSG_CODE_EMPTY_MESSAGE) \
@@ -50,10 +49,11 @@
 unsigned short CoAPMessageId_gen(CoAPContext *context)
 {
     unsigned short msg_id = 0;
+    CoAPIntContext *ctx = NULL;
     if (!context) {
         return msg_id;
     }
-    CoAPIntContext *ctx = (CoAPIntContext *)context;
+    ctx = (CoAPIntContext *)context;
     HAL_MutexLock(ctx->mutex);
     msg_id = ((COAP_MAX_MESSAGE_ID == ctx->message_id)  ? (ctx->message_id = 1) : ctx->message_id++);
     HAL_MutexUnlock(ctx->mutex);
@@ -444,8 +444,15 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     unsigned char   path[COAP_MSG_MAX_PATH_LEN] = {0};
     unsigned char  *tmp = path;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
-    COAP_FLOW("CoAPRequestMessage_handle: %p", ctx);
 
+    /* CoAP request receive flowControl */
+    uint64_t time_curr = 0;
+    int64_t time_delta = 0;
+    int isOverThre = 0;
+    static uint64_t time_prev = 0;
+    static int count = 0;
+
+    COAP_FLOW("CoAPRequestMessage_handle: %p", ctx);
     /* TODO: if need only one callback */
     for (index = 0; index < message->optcount; index++) {
         if (COAP_OPTION_URI_PATH == message->options[index].num) {
@@ -462,12 +469,6 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     }
 
     /* CoAP request receive flowControl */
-    uint64_t time_curr = 0;
-    int64_t time_delta = 0;
-    int isOverThre = 0;
-    static uint64_t time_prev = 0;
-    static int count = 0;
-
     time_curr = HAL_UptimeMs();
     if (time_curr < time_prev) {
         time_curr = time_prev;

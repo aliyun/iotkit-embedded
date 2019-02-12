@@ -9,7 +9,7 @@
 #define __COAP_RESOURCE_H__
 
 #include <stdint.h>
-#include "lite-list.h"
+#include "iotx_coap_internal.h"
 #include "CoAPExport.h"
 
 #ifdef __cplusplus

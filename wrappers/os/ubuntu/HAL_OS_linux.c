@@ -236,6 +236,91 @@ void HAL_Reboot(void)
     }
 }
 
+
+#define ROUTER_INFO_PATH        "/proc/net/route"
+#define ROUTER_RECORD_SIZE      256
+
+char *_get_default_routing_ifname(char *ifname, int ifname_size)
+{
+    FILE *fp = NULL;
+    char line[ROUTER_RECORD_SIZE] = {0};
+    char iface[IFNAMSIZ] = {0};
+    char *result = NULL;
+    unsigned int destination, gateway, flags, mask;
+    unsigned int refCnt, use, metric, mtu, window, irtt;
+
+    fp = fopen(ROUTER_INFO_PATH, "r");
+    if (fp == NULL) {
+        perror("fopen");
+        return result;
+    }
+
+    char *buff = fgets(line, sizeof(line), fp);
+    if (buff == NULL) {
+        perror("fgets");
+        goto out;
+    }
+
+    while (fgets(line, sizeof(line), fp)) {
+        if (11 !=
+            sscanf(line, "%s %08x %08x %x %d %d %d %08x %d %d %d",
+                   iface, &destination, &gateway, &flags, &refCnt, &use,
+                   &metric, &mask, &mtu, &window, &irtt)) {
+            perror("sscanf");
+            continue;
+        }
+
+        /*default route */
+        if ((destination == 0) && (mask == 0)) {
+            strncpy(ifname, iface, ifname_size - 1);
+            result = ifname;
+            break;
+        }
+    }
+
+out:
+    if (fp) {
+        fclose(fp);
+    }
+
+    return result;
+}
+
+uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
+{
+    struct ifreq ifreq;
+    int sock = -1;
+    char ifname_buff[IFNAMSIZ] = {0};
+
+    if ((NULL == ifname || strlen(ifname) == 0) &&
+        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))) {
+        perror("get default routeing ifname");
+        return -1;
+    }
+
+    if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket");
+        return -1;
+    }
+
+    ifreq.ifr_addr.sa_family = AF_INET; //ipv4 address
+    strncpy(ifreq.ifr_name, ifname, IFNAMSIZ - 1);
+
+    if (ioctl(sock, SIOCGIFADDR, &ifreq) < 0) {
+        close(sock);
+        perror("ioctl");
+        return -1;
+    }
+
+    close(sock);
+
+    strncpy(ip_str,
+            inet_ntoa(((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr),
+            NETWORK_ADDR_LEN);
+
+    return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
+}
+
 int HAL_GetFirmwareVersion(char *version)
 {
     char *ver = "app-1.0.0-20180101.1000";
