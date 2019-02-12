@@ -1,74 +1,51 @@
-TARGET ?= output-example
+LIBA_TARGET := libiot_sdk.a
 
 ###############################################################################
 # Compiler
-CC ?= gcc
-STRIP ?= strip
 
-###############################################################################
-# Version
-MAJOR_VERSION ?= 1
-MINOR_VERSION ?= 0
+CC := gcc
+AR := ar
 
 ###############################################################################
 # Path definitions
 
-# Use if application directory contains multiple targets
-TOPDIR         = .
-BLDDIR         = $(TOPDIR)/build
-SRCDIR         = $(TOPDIR)
-HEADERDIR      = $(shell find . -type d)
+TOPDIR  := .
+BLDDIR  := $(TOPDIR)/build
+SRCDIR  := $(TOPDIR)/eng
+HDRDIR  := $(shell find $(SRCDIR) -type d)
 
 ###############################################################################
-# Application Source files
+# Application source files
 
-# Note: Path to source file is found using vpath below, so only .c filename is required
-SOURCE_FILES_C := $(shell find . -name *.c)
+SOURCE_FILES_C := $(shell find $(SRCDIR) -name *.c)
 
 ###############################################################################
+# Standard application lib/header search paths
 
-# Standard Application header search paths
-
-CFLAGS := $(addprefix -I,$(HEADERDIR))
-
+CFLAGS  := $(addprefix -I,$(HDRDIR))
 LDFLAGS := -lpthread -lrt
-###############################################################################
-
-APPOBJS_TMP = $(SOURCE_FILES_C:.c=.o)
-APPOBJS = $(subst src,build,$(APPOBJS_TMP))
-
-###############################################################################
-# Application dynamic dependencies
-
-APPDEPS := $(APPOBJS:.o=.d)
-
-###############################################################################
-# Linker
-
-# Add application libraries before chip specific libraries to linker so
-# symbols are resolved correctly (i.e. ordering is significant for GCC)
 
 ###############################################################################
 # Dependency rules
+
+LIBOBJS := $(SOURCE_FILES_C:.c=.o)
+LIBOBJS := $(subst $(SRCDIR),$(BLDDIR),$(LIBOBJS))
+
 .PHONY: prepare all clean
 
-all: | prepare $(BLDDIR)/$(TARGET)
+all: prepare $(BLDDIR)/$(LIBA_TARGET)
 
 prepare:
 	-@mkdir -p $(BLDDIR)
 
-$(BLDDIR)/%.o: $(SRCDIR)/%.c
-	$(info Compiling $< ...)
-	$(CC) -o $@ -c $< $(CFLAGS) -MD -MF $(BLDDIR)/$*.d -MP
+$(BLDDIR)/$(LIBA_TARGET): $(LIBOBJS)
+	@echo "Archiving $@ ..."
+	@$(AR) -rcs $@ $^
 
-$(BLDDIR)/$(TARGET): $(APPOBJS)
-	$(info Linking $@ ...)
-	$(CC) $(LDFLAGS) -o $@ $(APPOBJS) $(LDFLAGS)
-	$(STRIP) $@
-###############################################################################
+$(BLDDIR)/%.o: $(SRCDIR)/%.c
+	@echo "Compiling $< ..."
+	@mkdir -p $(shell dirname $@)
+	@$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
-	@find ./ -name *.o | xargs -i rm -rf {}
 	@rm -rf $(BLDDIR)
-
-###############################################################################

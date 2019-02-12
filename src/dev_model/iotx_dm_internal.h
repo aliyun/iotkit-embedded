@@ -18,7 +18,7 @@
 #include "infra_report.h"
 #include "infra_string.h"
 #if defined(DEVICE_MODEL_GATEWAY)
-#include "infra_sha1.h"
+    #include "infra_sha1.h"
 #endif
 
 
@@ -104,6 +104,8 @@
     #define dm_log_warning(...)
     #define dm_log_info(...)
     #define dm_log_debug(...)
+    #define HEXDUMP_INFO(...)
+    #define HEXDUMP_DEBUG(...)
 #endif
 
 #endif

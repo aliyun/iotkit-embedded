@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
 #include "iotx_dm_internal.h"
 
 static dm_msg_ctx_t g_dm_msg_ctx;
@@ -285,7 +284,8 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
 
 
 const char DM_MSG_THING_MODEL_DOWN_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"payload\":\"%.*s\"}";
-int dm_msg_thing_model_down_raw(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_model_down_raw(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                 _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0, devid = 0, message_len = 0;
@@ -438,7 +438,8 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
 
 const char DM_MSG_SERVICE_REQUEST_FMT[] DM_READ_ONLY =
             "{\"id\":\"%.*s\",\"devid\":%d,\"serviceid\":\"%.*s\",\"payload\":%.*s,\"ctx\":\"%s\"}";
-int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                 _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                  char *identifier, int identifier_len, dm_msg_request_payload_t *request,  _IN_ void *ctx)
 {
     int res = 0, devid = 0, message_len = 0;
@@ -484,7 +485,8 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
 
 const char DM_MSG_EVENT_RRPC_REQUEST_FMT[] DM_READ_ONLY =
             "{\"id\":\"%.*s\",\"devid\":%d,\"serviceid\":\"%.*s\",\"rrpcid\":\"%.*s\",\"payload\":%.*s}";
-int dm_msg_rrpc_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_rrpc_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                        _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                         char *rrpcid, int rrpcid_len, dm_msg_request_payload_t *request)
 {
     int res = 0, devid = 0, message_len = 0;
@@ -1039,7 +1041,8 @@ int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
 }
 
 const char DM_MSG_EVENT_THING_DISABLE_FMT[] DM_READ_ONLY = "{\"devid\":%d}";
-int dm_msg_thing_disable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
+int dm_msg_thing_disable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0, devid = 0, message_len = 0;
     char *message = NULL;
@@ -1075,7 +1078,8 @@ int dm_msg_thing_disable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ c
 }
 
 const char DM_MSG_EVENT_THING_ENABLE_FMT[] DM_READ_ONLY = "{\"devid\":%d}";
-int dm_msg_thing_enable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
+int dm_msg_thing_enable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                        _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0, devid = 0, message_len = 0;
     char *message = NULL;
@@ -1115,7 +1119,8 @@ int dm_msg_thing_enable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ ch
 
 const char DM_MSG_EVENT_THING_DELETE_FMT[] DM_READ_ONLY =
             "{\"res\":%d,\"productKey\":\"%s\",\"deviceName\":\"%s\",\"devid\":%d}";
-int dm_msg_thing_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
+int dm_msg_thing_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                        _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int res = 0, message_len = 0, devid = 0;
     char *message = NULL;
@@ -1496,14 +1501,16 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
 
     /* Parse Product Key */
     res = lite_cjson_object_item(&lite, DM_MSG_KEY_PRODUCT_KEY, strlen(DM_MSG_KEY_PRODUCT_KEY), &lite_item_pk);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk) || lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1) {
+    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk)
+        || lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1) {
         return DM_JSON_PARSE_FAILED;
     }
     memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
 
     /* Parse Device Name */
     res = lite_cjson_object_item(&lite, DM_MSG_KEY_DEVICE_NAME, strlen(DM_MSG_KEY_DEVICE_NAME), &lite_item_dn);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn) || lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1) {
+    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn)
+        || lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1) {
         return DM_JSON_PARSE_FAILED;
     }
     memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
@@ -1567,14 +1574,16 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
 
     /* Parse Product Key */
     res = lite_cjson_object_item(&lite, DM_MSG_KEY_PRODUCT_KEY, strlen(DM_MSG_KEY_PRODUCT_KEY), &lite_item_pk);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk) || lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1) {
+    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk)
+        || lite_item_pk.value_length >= IOTX_PRODUCT_KEY_LEN + 1) {
         return DM_JSON_PARSE_FAILED;
     }
     memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
 
     /* Parse Device Name */
     res = lite_cjson_object_item(&lite, DM_MSG_KEY_DEVICE_NAME, strlen(DM_MSG_KEY_DEVICE_NAME), &lite_item_dn);
-    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn) || lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1) {
+    if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn)
+        || lite_item_dn.value_length >= IOTX_DEVICE_NAME_LEN + 1) {
         return DM_JSON_PARSE_FAILED;
     }
     memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
@@ -1717,7 +1726,8 @@ int dm_msg_cloud_reconnect(void)
 #ifdef DEVICE_MODEL_GATEWAY
 const char DM_MSG_THING_SUB_REGISTER_METHOD[] DM_READ_ONLY = "thing.sub.register";
 const char DM_MSG_THING_SUB_REGISTER_PARAMS[] DM_READ_ONLY = "[{\"productKey\":\"%s\",\"deviceName\":\"%s\"}]";
-int dm_msg_thing_sub_register(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_sub_register(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                              _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                               _OU_ dm_msg_request_t *request)
 {
     int params_len = 0;
@@ -1751,7 +1761,8 @@ int dm_msg_thing_sub_register(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _
 
 const char DM_MSG_THING_SUB_UNREGISTER_METHOD[] DM_READ_ONLY = "thing.sub.unregister";
 const char DM_MSG_THING_SUB_UNREGISTER_PARAMS[] DM_READ_ONLY = "[{\"productKey\":\"%s\",\"deviceName\":\"%s\"}]";
-int dm_msg_thing_sub_unregister(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_sub_unregister(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                 _OU_ dm_msg_request_t *request)
 {
     int params_len = 0;
@@ -1787,7 +1798,8 @@ const char DM_MSG_THING_TOPO_ADD_SIGN_SOURCE[] DM_READ_ONLY = "clientId%sdeviceN
 const char DM_MSG_THING_TOPO_ADD_METHOD[] DM_READ_ONLY = "thing.topo.add";
 const char DM_MSG_THING_TOPO_ADD_PARAMS[] DM_READ_ONLY =
             "[{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"signmethod\":\"%s\",\"sign\":\"%s\",\"timestamp\":\"%s\",\"clientId\":\"%s\"}]";
-int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ dm_msg_request_t *request)
 {
     char *params = NULL;
@@ -1867,7 +1879,8 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ 
 
 const char DM_MSG_THING_TOPO_DELETE_METHOD[] DM_READ_ONLY = "thing.topo.delete";
 const char DM_MSG_THING_TOPO_DELETE_PARAMS[] DM_READ_ONLY = "[{\"productKey\":\"%s\",\"deviceName\":\"%s\"}]";
-int dm_msg_thing_topo_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_topo_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                             _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                              _OU_ dm_msg_request_t *request)
 {
     char *params = NULL;
@@ -1923,7 +1936,8 @@ int dm_msg_thing_topo_get(_OU_ dm_msg_request_t *request)
 
 const char DM_MSG_THING_LIST_FOUND_METHOD[] DM_READ_ONLY = "thing.list.found";
 const char DM_MSG_THING_LIST_FOUND_PARAMS[] DM_READ_ONLY = "[{\"productKey\":\"%s\",\"deviceName\":\"%s\"}]";
-int dm_msg_thing_list_found(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_list_found(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                            _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                             _OU_ dm_msg_request_t *request)
 {
     char *params = NULL;
@@ -1957,7 +1971,8 @@ const char DM_MSG_COMBINE_LOGIN_SIGN_SOURCE[] DM_READ_ONLY = "clientId%sdeviceNa
 const char DM_MSG_COMBINE_LOGIN_METHOD[] DM_READ_ONLY = "combine.login";
 const char DM_MSG_COMBINE_LOGIN_PARAMS[] DM_READ_ONLY =
             "{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"clientId\":\"%s\",\"timestamp\":\"%s\",\"signMethod\":\"%s\",\"sign\":\"%s\",\"cleanSession\":\"%s\"}";
-int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                          _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ dm_msg_request_t *request)
 {
     char *params = NULL;
@@ -2037,7 +2052,8 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ c
 
 const char DM_MSG_COMBINE_LOGOUT_METHOD[] DM_READ_ONLY = "combine.logout";
 const char DM_MSG_COMBINE_LOGOUT_PARAMS[] DM_READ_ONLY = "{\"productKey\":\"%s\",\"deviceName\":\"%s\"}";
-int dm_msg_combine_logout(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_combine_logout(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _OU_ dm_msg_request_t *request)
 {
     char *params = NULL;
@@ -2418,7 +2434,8 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
 #else
     const char DM_MSG_SERVICE_REQUEST_FMT[] DM_READ_ONLY = "{\"id\":%d,\"devid\":%d,\"serviceid\":\"%.*s\"}";
 #endif
-int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                 _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                  char *identifier, int identifier_len, dm_msg_request_payload_t *request,  _IN_ void *ctx)
 {
     int res = 0, id = 0, devid = 0, message_len = 0;

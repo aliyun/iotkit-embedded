@@ -10,6 +10,7 @@ INFRA_NET||src/infra/infra_net.[ch]|output/eng/infra
 INFRA_REPORT||src/infra/infra_report.[ch]|output/eng/infra
 INFRA_SHA256||src/infra/infra_sha256.[ch]|output/eng/infra
 INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
+INFRA_CLASSIC||src/infra/infra_classic.[ch]|output/eng/infra
 
 SUPPORT_TLS||certs/root_ca.c|output/eng/certs
 
@@ -21,6 +22,8 @@ MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
 MQTT_DEFAULT_IMPL||src/mqtt/mqtt_impl|output/eng/mqtt
 
 DEVICE_MODEL_ENABLED||src/dev_model|output/eng/dev_model
+DEVICE_MODEL_ENABLED||src/dev_model/client|output/eng/dev_model
+DEVICE_MODEL_ENABLED||src/dev_model/server|output/eng/dev_model
 DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/subdev|output/eng/dev_model
 
 ATM_ENABLED||src/atm/at_api.[ch] src/atm/at_wrapper.h|output/eng/atm

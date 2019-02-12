@@ -23,6 +23,8 @@ uint64_t HAL_UptimeMs(void);
 void HAL_SleepMs(uint32_t ms);
 void HAL_Srandom(uint32_t seed);
 uint32_t HAL_Random(uint32_t region);
+void HAL_Printf(const char *fmt, ...);
+int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
 int HAL_ThreadCreate(
             void **thread_handle,
@@ -40,9 +42,9 @@ int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 int HAL_Kv_Del(const char *key);
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
-void HAL_Firmware_Persistence_Start(void);
-int HAL_Firmware_Persistence_Write(char *buffer, uint32_t length);
-int HAL_Firmware_Persistence_Stop(void);
+    void HAL_Firmware_Persistence_Start(void);
+    int HAL_Firmware_Persistence_Write(char *buffer, uint32_t length);
+    int HAL_Firmware_Persistence_Stop(void);
 #endif
 
 #endif

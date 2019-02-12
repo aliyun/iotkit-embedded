@@ -17,7 +17,7 @@ WRAPPER_DOC=./tools/misc/wrapper
 # Prepare Config Macro In make.settings
 MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
 
-rm -rf ${OUTPUT_DIR}/eng
+rm -rf $(ls ${OUTPUT_DIR}|grep -v release)
 
 # Generate infra_config.h and extract necessary infra files
 mkdir -p ${INFRA_DIR}
@@ -213,5 +213,5 @@ if [ "${ENV_TEST}" = "ubuntu" ];then
     rm -f ${WRAPPERS_DIR}/wrapper.c
     cp -rf wrappers/os/ubuntu ${WRAPPERS_DIR}/
     rm -f ${WRAPPERS_DIR}/ubuntu/HAL_UART_linux.c
-    cp tools/misc/makefile.output output/eng/Makefile
+    cp tools/misc/makefile.output output/Makefile
 fi
