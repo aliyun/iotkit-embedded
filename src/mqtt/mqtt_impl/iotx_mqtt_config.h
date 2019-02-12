@@ -35,9 +35,6 @@
 /* MQTT client version number */
 #define IOTX_MC_MQTT_VERSION                    (4)
 
-/* maximum length of topic name in byte */
-#define CONFIG_MQTT_TOPIC_MAXLEN              (128)
-
 /* maximum MQTT packet-id */
 #define IOTX_MC_PACKET_ID_MAX                   (65535)
 
