@@ -20,15 +20,14 @@
 #define MAL_TIMEOUT_FOREVER -1
 #define MAL_TIMEOUT_DEFAULT 3000
 #define MAL_MC_PACKET_ID_MAX (65535)
-#define MAL_MC_TOPIC_NAME_MAX_LEN (128)
 #define MAL_MC_DEFAULT_BUFFER_NUM  1
 #ifdef PLATFORM_HAS_DYNMEM
     #define MAL_MC_MAX_BUFFER_NUM  14
 #else
     #define MAL_MC_MAX_BUFFER_NUM  1
 #endif
-#define MAL_MC_MAX_TOPIC_LEN   128
-#define MAL_MC_MAX_MSG_LEN     512
+#define MAL_MC_MAX_TOPIC_LEN   CONFIG_MQTT_TOPIC_MAXLEN
+#define MAL_MC_MAX_MSG_LEN     CONFIG_MQTT_MESSAGE_MAXLEN
 
 #define MAL_MC_DEFAULT_TIMEOUT   (8000)
 
@@ -64,17 +63,16 @@ typedef struct at_mqtt_msg_buff_s {
 } at_mqtt_msg_buff_t;
 static at_mqtt_msg_buff_t    g_at_mqtt_buff_mgr;
 #ifdef PLATFORM_HAS_DYNMEM
-static char g_at_mqtt_topic[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_TOPIC_NAME_MAX_LEN];
+static char g_at_mqtt_topic[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_MAX_TOPIC_LEN];
 static char g_at_mqtt_msg_data[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_MAX_MSG_LEN];
 #else
-static char g_at_mqtt_topic[MAL_MC_MAX_BUFFER_NUM][MAL_MC_TOPIC_NAME_MAX_LEN];
+static char g_at_mqtt_topic[MAL_MC_MAX_BUFFER_NUM][MAL_MC_MAX_TOPIC_LEN];
 static char g_at_mqtt_msg_data[MAL_MC_MAX_BUFFER_NUM][MAL_MC_MAX_MSG_LEN];
 iotx_mc_client_t g_iotx_mc_client[IOTX_MC_CLIENT_MAX_COUNT] = {0};
 #endif
 
 static iotx_mc_state_t mal_mc_get_client_state(iotx_mc_client_t *pClient);
 static void mal_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
-static int mal_mc_data_copy_from_buf(char *topic, char *message);
 
 typedef struct {
     uint32_t time;
@@ -217,18 +215,18 @@ static int mal_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     int mask = 0;
     char *delim = "/";
     char *iterm = NULL;
-    char topicString[MAL_MC_TOPIC_NAME_MAX_LEN];
+    char topicString[MAL_MC_MAX_TOPIC_LEN];
     if (NULL == topicName || '/' != topicName[0]) {
         return FAIL_RETURN;
     }
 
-    if (strlen(topicName) > MAL_MC_TOPIC_NAME_MAX_LEN) {
+    if (strlen(topicName) > MAL_MC_MAX_TOPIC_LEN) {
         mal_err("len of topicName(%d) exceeds 64", strlen(topicName));
         return FAIL_RETURN;
     }
 
-    memset(topicString, 0x0, MAL_MC_TOPIC_NAME_MAX_LEN);
-    strncpy(topicString, topicName, MAL_MC_TOPIC_NAME_MAX_LEN - 1);
+    memset(topicString, 0x0, MAL_MC_MAX_TOPIC_LEN);
+    strncpy(topicString, topicName, MAL_MC_MAX_TOPIC_LEN - 1);
 
     iterm = strtok(topicString, delim);
 
@@ -591,8 +589,9 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
 static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
 {
     int rc = SUCCESS_RETURN;
-    char msg[MAL_MC_MAX_MSG_LEN] = {0};
-    char topic[MAL_MC_MAX_MSG_LEN] = {0};
+    char *msg = NULL;
+    char *topic = NULL;
+    uint8_t read_index = 0;
 
     if (!c) {
         return FAIL_RETURN;
@@ -624,16 +623,33 @@ static int mal_mc_cycle(iotx_mc_client_t *c, mal_time_t *timer)
     }
 
     /* read the buf, see what work is due */
-    rc = mal_mc_data_copy_from_buf(topic, msg);
-    if (rc != SUCCESS_RETURN) {
-        /* mal_debug("wait data timeout"); */
-        return rc;
+    HAL_MutexLock(g_at_mqtt_buff_mgr.buffer_mutex);
+    read_index = g_at_mqtt_buff_mgr.read_index;
+
+    if (g_at_mqtt_buff_mgr.valid_flag[read_index] == 0) {
+        HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
+        return FAIL_RETURN;
     }
+
+    topic = g_at_mqtt_buff_mgr.topic[read_index];
+    msg   = g_at_mqtt_buff_mgr.msg_data[read_index];
 
     rc = iotx_mc_handle_recv_PUBLISH(c, topic, msg);
     if (SUCCESS_RETURN != rc) {
         mal_err("recvPublishProc error,result = %d", rc);
     }
+
+    memset(g_at_mqtt_buff_mgr.topic[read_index], 0, MAL_MC_MAX_TOPIC_LEN);
+    memset(g_at_mqtt_buff_mgr.msg_data[read_index], 0, MAL_MC_MAX_MSG_LEN);
+    g_at_mqtt_buff_mgr.valid_flag[read_index] = 0;
+
+    read_index++;
+    if (read_index >= g_at_mqtt_buff_mgr.buffer_num) {
+        read_index = 0;
+    }
+
+    g_at_mqtt_buff_mgr.read_index = read_index;
+    HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
 
     return rc;
 }
@@ -884,48 +900,6 @@ int at_mqtt_input(struct at_mqtt_input *param)
     HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
 
     return 0;
-}
-
-static int mal_mc_data_copy_from_buf(char *topic, char *message)
-{
-    uint8_t         read_index;
-    char           *copy_ptr;
-
-    if ((topic == NULL) || (message == NULL)) {
-        mal_err("read buffer is NULL");
-        return -1;
-    }
-
-    HAL_MutexLock(g_at_mqtt_buff_mgr.buffer_mutex);
-    read_index = g_at_mqtt_buff_mgr.read_index;
-
-    if (g_at_mqtt_buff_mgr.valid_flag[read_index] == 0) {
-        HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
-        return -1;
-    }
-
-    copy_ptr = g_at_mqtt_buff_mgr.topic[read_index];
-    memcpy(topic, copy_ptr, strlen(copy_ptr));
-    copy_ptr = g_at_mqtt_buff_mgr.msg_data[read_index];
-    memcpy(message, copy_ptr, strlen(copy_ptr));
-
-    memset(g_at_mqtt_buff_mgr.topic[read_index], 0, MAL_MC_MAX_TOPIC_LEN);
-    memset(g_at_mqtt_buff_mgr.msg_data[read_index], 0, MAL_MC_MAX_MSG_LEN);
-    g_at_mqtt_buff_mgr.valid_flag[read_index] = 0;
-    read_index++;
-
-    if (read_index >= g_at_mqtt_buff_mgr.buffer_num) {
-
-        read_index = 0;
-
-    }
-
-    g_at_mqtt_buff_mgr.read_index = read_index;
-
-    HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
-
-    return 0;
-
 }
 
 /* Initialize MQTT client */
