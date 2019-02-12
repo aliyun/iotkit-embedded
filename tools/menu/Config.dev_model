@@ -38,14 +38,7 @@ menu "Device Model Configurations"
     config ALCS_ENABLED
         bool "FEATURE_ALCS_ENABLED"
         default n
-        select INFRA_MD5
-        select INFRA_STRING
-        select INFRA_JSON_PARSER
-        select INFRA_SHA1
-        select HAL_UDP
-        select HAL_KV
-        select HAL_CRYPTO
-        select COAP_DTLS_SUPPORT
+        select COAP_SERVER
         help
             ALCS(alink local communication service) is a communication between phone and device
 

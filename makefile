@@ -13,8 +13,8 @@ COMP_LIB_COMPONENTS := \
     src/dev_sign \
 
 $(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/mqtt)
-$(call CompLib_Map, FEATURE_COAP_COMM_ENABLED, src/coap)
-$(call CompLib_Map, FEATURE_ALCS_ENABLED, src/coap)
+$(call CompLib_Map, FEATURE_COAP_CLIENT, src/coap)
+$(call CompLib_Map, FEATURE_COAP_SERVER, src/coap)
 $(call CompLib_Map, FEATURE_SUPPORT_TLS, certs)
 $(call CompLib_Map, FEATURE_COAP_DTLS_SUPPORT, certs)
 $(call CompLib_Map, FEATURE_DYNAMIC_REGISTER, src/dynamic_register)
