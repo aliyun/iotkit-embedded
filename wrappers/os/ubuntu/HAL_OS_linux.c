@@ -24,6 +24,7 @@
 #include <time.h>
 #include <signal.h>
 
+#include "infra_compat.h"
 #include "infra_defs.h"
 #include "wrappers_defs.h"
 
@@ -248,6 +249,7 @@ char *_get_default_routing_ifname(char *ifname, int ifname_size)
     char *result = NULL;
     unsigned int destination, gateway, flags, mask;
     unsigned int refCnt, use, metric, mtu, window, irtt;
+    char *buff = NULL;
 
     fp = fopen(ROUTER_INFO_PATH, "r");
     if (fp == NULL) {
@@ -255,7 +257,7 @@ char *_get_default_routing_ifname(char *ifname, int ifname_size)
         return result;
     }
 
-    char *buff = fgets(line, sizeof(line), fp);
+    buff = fgets(line, sizeof(line), fp);
     if (buff == NULL) {
         perror("fgets");
         goto out;
