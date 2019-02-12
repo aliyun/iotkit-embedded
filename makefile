@@ -22,6 +22,7 @@ $(call CompLib_Map, FEATURE_ATM_ENABLED, src/atm)
 $(call CompLib_Map, FEATURE_DEV_RESET, src/dev_reset)
 $(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/dev_model)
+$(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED, src/http)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
