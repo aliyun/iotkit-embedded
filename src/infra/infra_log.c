@@ -242,8 +242,10 @@ int iotx_facility_json_print(const char *str, int level, ...)
     int             indent  = 0;
     int             i = 0, j = 0;
     int             curr_level = LITE_get_loglevel();
+#if defined(INFRA_CJSON)
     int             res = -1;
     lite_cjson_t    lite;
+#endif
     va_list         ap;
     int             mark = ' ';
 

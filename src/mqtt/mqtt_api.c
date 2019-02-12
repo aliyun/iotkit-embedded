@@ -1,4 +1,13 @@
-#include "mqtt_internal.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_string.h"
+#include "infra_list.h"
+#include "infra_report.h"
+#include "infra_sha256.h"
+
+#include "dev_sign_api.h"
+#include "mqtt_api.h"
+#include "mqtt_wrapper.h"
 
 #ifdef PLATFORM_HAS_DYNMEM
     #ifdef INFRA_MEM_STATS
@@ -12,6 +21,23 @@
 
 #else
     static iotx_mqtt_param_t g_iotx_mqtt_param;
+#endif
+
+#ifdef INFRA_LOG
+    #include "infra_log.h"
+    #define mqtt_emerg(...)             log_emerg("MQTT", __VA_ARGS__)
+    #define mqtt_crit(...)              log_crit("MQTT", __VA_ARGS__)
+    #define mqtt_err(...)               log_err("MQTT", __VA_ARGS__)
+    #define mqtt_warning(...)           log_warning("MQTT", __VA_ARGS__)
+    #define mqtt_info(...)              log_info("MQTT", __VA_ARGS__)
+    #define mqtt_debug(...)             log_debug("MQTT", __VA_ARGS__)
+#else
+    #define mqtt_emerg(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define mqtt_crit(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define mqtt_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define mqtt_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define mqtt_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define mqtt_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #endif
 
 static void *g_mqtt_client = NULL;

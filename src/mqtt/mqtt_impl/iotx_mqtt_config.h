@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef IOTX_MQTT_CONFIG_H__
 #define IOTX_MQTT_CONFIG_H__
 
@@ -30,8 +28,6 @@
 #ifndef WITH_MQTT_ZIP_TOPIC
     #define WITH_MQTT_ZIP_TOPIC                 (0)
 #endif
-
-#define IOTX_MC_DEFAULT_MSG_LEN                 (1024)
 
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
@@ -60,17 +56,11 @@
 /* Maximum timeout interval of MQTT request in millisecond */
 #define IOTX_MC_REQUEST_TIMEOUT_MAX_MS          (5000)
 
-/* Default timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
-
 /* Minimum keepalive interval of MQTT request in second */
 #define KEEP_ALIVE_INTERVAL_DEFAULT_MIN         (30)
 
 /* Maximum keepalive interval of MQTT request in second */
 #define KEEP_ALIVE_INTERVAL_DEFAULT_MAX         (180)
-
-/* Default keepalive interval of MQTT request in second */
-#define KEEP_ALIVE_INTERVAL_DEFAULT             (60)
 
 /* Max times of keepalive which has been send and did not received response package */
 #define IOTX_MC_KEEPALIVE_PROBE_MAX             (1)
@@ -78,11 +68,6 @@
 
 /* Linked List Params When PLATFORM_HAS_DYNMEN Disabled */
 #ifndef PLATFORM_HAS_DYNMEN
-
-/* offline subscribe list max length */
-#ifndef IOTX_OFFLINE_LIST_MAX_LEN
-#define IOTX_OFFLINE_LIST_MAX_LEN               (5)
-#endif
 
 /* mqtt pub wait list max length, for QoS 1 */
 #ifndef IOTX_MC_PUBWAIT_LIST_MAX_LEN
@@ -97,11 +82,6 @@
 /* mqtt sub handle list max length */
 #ifndef IOTX_MC_SUBHANDLE_LIST_MAX_LEN
 #define IOTX_MC_SUBHANDLE_LIST_MAX_LEN          (5)
-#endif
-
-/* topic max length */
-#ifndef IOTX_MC_TOPIC_MAX_LEN
-#define IOTX_MC_TOPIC_MAX_LEN                   (50)
 #endif
 
 /* mqtt client max count */
