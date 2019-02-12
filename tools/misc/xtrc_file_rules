@@ -33,9 +33,9 @@ AT_MQTT_ENABLED&AT_MQTT_HAL_ICA||wrappers/atm/at_mqtt/mqtt_ica.c|output/eng/atm
 AT_MQTT_ENABLED&AT_MQTT_HAL_SIM800||wrappers/atm/at_mqtt/mqtt_sim800.c|output/eng/atm
 
 # example rules
-DEV_SIGN||src/dev_sign/examples|output/eng/examples
-DYNAMIC_REGISTER||src/dynamic_register/examples|output/eng/examples
-MQTT_COMM_ENABLED|ATM_ENABLED|src/mqtt/examples/mqtt_example.c|output/eng/examples
-MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/eng/examples
-DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/eng/examples
-DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/eng/examples
+DEV_SIGN||src/dev_sign/examples|output/examples
+DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples
+MQTT_COMM_ENABLED|ATM_ENABLED|src/mqtt/examples/mqtt_example.c|output/examples
+MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/examples
+DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/examples
+DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/examples
