@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "infra_config.h"
+#include "mqtt_api.h"
 
 #include "at_wrapper.h"
 #include "at_parser.h"
@@ -35,11 +36,6 @@
 
 #define AT_SIM800_MQTT_POSTFIX         "\r\n"
 
-/* change AT_MQTT_MAX_MSG_LEN from 1024 to 256 */
-#define AT_MQTT_MAX_MSG_LEN     256
-#define AT_MQTT_MAX_TOPIC_LEN   256
-#define AT_MQTT_WAIT_FOREVER 0xffffffffu
-
 /* change AT_MQTT_CMD_MAX_LEN from 1024 to 300 */
 #define AT_MQTT_CMD_MAX_LEN             400
 #define AT_MQTT_CMD_DEF_LEN             256
@@ -50,7 +46,7 @@
 
 #define AT_MQTT_SUBSCRIBE_FAIL          128
 /* change AT_MQTT_RSP_MAX_LEN from 1500 to 300 */
-#define AT_MQTT_RSP_MAX_LEN             300
+#define AT_MQTT_RSP_MAX_LEN             (CONFIG_MQTT_MESSAGE_MAXLEN + CONFIG_MQTT_TOPIC_MAXLEN + 20)
 #define AT_MQTT_RSP_MIN_LEN             64
 
 #define AT_MQTT_WAIT_MAX_TIMEOUT            60*1000
