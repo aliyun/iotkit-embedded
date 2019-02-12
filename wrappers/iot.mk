@@ -1,7 +1,7 @@
 LIBA_TARGET := libiot_hal.a
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 
-LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c algo/*.c
+LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
 
 $(call Append_Conditional, LIB_SRCS_PATTERN, tls/*.c, _PLATFORM_IS_LINUX_ SUPPORT_TLS)
 $(call Append_Conditional, LIB_SRCS_PATTERN, tls/*.c, _PLATFORM_IS_LINUX_ COAP_DTLS_SUPPORT)
