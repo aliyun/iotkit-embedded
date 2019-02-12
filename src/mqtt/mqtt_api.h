@@ -336,6 +336,34 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
  */
 int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_mqtt_nwk_param_t *param);
 
+/* MQTT Configurations
+ *
+ * These switches will affect mqtt_api.c and IOT_MQTT_XXX() functions' behaviour
+ *
+ */
+
+/* Default message length in bytes when PLATFORM_HAS_DYNMEM is not set */
+#define CONFIG_MQTT_MESSAGE_MAXLEN              (1024)
+
+/* Default maximum length of topic name in byte when PLATFORM_HAS_DYNMEM is not set */
+#ifdef PLATFORM_HAS_DYNMEM
+#define CONFIG_MQTT_TOPIC_MAXLEN                (128)
+#else
+#define CONFIG_MQTT_TOPIC_MAXLEN                (50)
+#endif
+
+/* Default keepalive interval of MQTT request in second */
+#define CONFIG_MQTT_KEEPALIVE_INTERVAL          (60)
+
+
+/* Default offline subscribe list max length when PLATFORM_HAS_DYNMEM is not set */
+#ifndef CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM
+#define CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM        (5)
+#endif
+
+/* Default timeout interval of MQTT request in millisecond */
+#define CONFIG_MQTT_REQUEST_TIMEOUT             (2000)
+
 #if defined(__cplusplus)
 }
 #endif

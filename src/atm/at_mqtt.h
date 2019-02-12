@@ -6,13 +6,13 @@
 #define _AT_MQTT_H_
 
 #ifndef PLATFORM_HAS_DYNMEM
-#ifndef IOTX_MC_SUBHANDLE_LIST_MAX_LEN
-#define IOTX_MC_SUBHANDLE_LIST_MAX_LEN          (5)
-#endif
+    #ifndef IOTX_MC_SUBHANDLE_LIST_MAX_LEN
+        #define IOTX_MC_SUBHANDLE_LIST_MAX_LEN          (5)
+    #endif
 
-#ifndef IOTX_MC_TOPIC_MAX_LEN
-#define IOTX_MC_TOPIC_MAX_LEN                   (128)
-#endif
+    #ifndef CONFIG_MQTT_TOPIC_MAXLEN
+        #define CONFIG_MQTT_TOPIC_MAXLEN                   (128)
+    #endif
 #endif
 
 /* State of MQTT client */
@@ -34,7 +34,7 @@ typedef struct iotx_mc_topic_handle_s {
 #ifdef PLATFORM_HAS_DYNMEM
     const char *topic_filter;
 #else
-    const char topic_filter[IOTX_MC_TOPIC_MAX_LEN];
+    const char topic_filter[CONFIG_MQTT_TOPIC_MAXLEN];
     int used;
 #endif
     iotx_mc_topic_type_t topic_type;

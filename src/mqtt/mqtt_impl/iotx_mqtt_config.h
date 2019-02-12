@@ -36,7 +36,7 @@
 #define IOTX_MC_MQTT_VERSION                    (4)
 
 /* maximum length of topic name in byte */
-#define IOTX_MC_TOPIC_NAME_MAX_LEN              (128)
+#define CONFIG_MQTT_TOPIC_MAXLEN              (128)
 
 /* maximum MQTT packet-id */
 #define IOTX_MC_PACKET_ID_MAX                   (65535)
@@ -69,33 +69,33 @@
 /* Linked List Params When PLATFORM_HAS_DYNMEN Disabled */
 #ifndef PLATFORM_HAS_DYNMEN
 
-/* mqtt pub wait list max length, for QoS 1 */
-#ifndef IOTX_MC_PUBWAIT_LIST_MAX_LEN
-#define IOTX_MC_PUBWAIT_LIST_MAX_LEN            (5)
-#endif
+    /* mqtt pub wait list max length, for QoS 1 */
+    #ifndef IOTX_MC_PUBWAIT_LIST_MAX_LEN
+        #define IOTX_MC_PUBWAIT_LIST_MAX_LEN            (5)
+    #endif
 
-/* mqtt sub sync list max length */
-#ifndef IOTX_MC_SUBSYNC_LIST_MAX_LEN
-#define IOTX_MC_SUBSYNC_LIST_MAX_LEN            (5)
-#endif
+    /* mqtt sub sync list max length */
+    #ifndef IOTX_MC_SUBSYNC_LIST_MAX_LEN
+        #define IOTX_MC_SUBSYNC_LIST_MAX_LEN            (5)
+    #endif
 
-/* mqtt sub handle list max length */
-#ifndef IOTX_MC_SUBHANDLE_LIST_MAX_LEN
-#define IOTX_MC_SUBHANDLE_LIST_MAX_LEN          (5)
-#endif
+    /* mqtt sub handle list max length */
+    #ifndef IOTX_MC_SUBHANDLE_LIST_MAX_LEN
+        #define IOTX_MC_SUBHANDLE_LIST_MAX_LEN          (5)
+    #endif
 
-/* mqtt client max count */
-#ifndef IOTX_MC_CLIENT_MAX_COUNT
-#define IOTX_MC_CLIENT_MAX_COUNT                (1)
-#endif
+    /* mqtt client max count */
+    #ifndef IOTX_MC_CLIENT_MAX_COUNT
+        #define IOTX_MC_CLIENT_MAX_COUNT                (1)
+    #endif
 
-#ifndef IOTX_MC_TX_MAX_LEN
-#define IOTX_MC_TX_MAX_LEN                      (512)
-#endif
+    #ifndef IOTX_MC_TX_MAX_LEN
+        #define IOTX_MC_TX_MAX_LEN                      (512)
+    #endif
 
-#ifndef IOTX_MC_RX_MAX_LEN
-#define IOTX_MC_RX_MAX_LEN                      (512)
-#endif
+    #ifndef IOTX_MC_RX_MAX_LEN
+        #define IOTX_MC_RX_MAX_LEN                      (512)
+    #endif
 
 #endif /* PLATFORM_HAS_DYNMEM */
 

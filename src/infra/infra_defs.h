@@ -4,17 +4,17 @@
 #include "infra_types.h"
 
 #ifdef _WIN32
-#if !defined(CC_IS_MINGW32)
-#ifdef DLL_IOT_EXPORTS
-#define DLL_IOT_API __declspec(dllexport)
+    #if !defined(CC_IS_MINGW32)
+        #ifdef DLL_IOT_EXPORTS
+            #define DLL_IOT_API __declspec(dllexport)
+        #else
+            #define DLL_IOT_API __declspec(dllimport)
+        #endif
+    #else
+        #define DLL_IOT_API
+    #endif
 #else
-#define DLL_IOT_API __declspec(dllimport)
-#endif
-#else
-#define DLL_IOT_API
-#endif
-#else
-#define DLL_IOT_API
+    #define DLL_IOT_API
 #endif
 
 #define IOTX_SDK_VERSION                "3.0.1"
@@ -297,7 +297,7 @@ typedef enum {
 } iotx_mqtt_region_types_t;
 
 #define IOTX_MQTT_DOMAIN_NUMBER (6)
-extern const char * g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
+extern const char *g_infra_mqtt_domain[IOTX_MQTT_DOMAIN_NUMBER];
 
 typedef enum {
     IOTX_HTTP_REGION_SHANGHAI,   /* Shanghai */
@@ -311,34 +311,6 @@ typedef enum {
 
 #define IOTX_HTTP_DOMAIN_NUMBER (6)
 extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
-
-/* MQTT Configurations
- *
- * These switches will affect mqtt_api.c and IOT_MQTT_XXX() functions' behaviour
- *
- */
-
-/* Default timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
-
-/* Default message length in bytes when PLATFORM_HAS_DYNMEM is not set */
-#define IOTX_MC_DEFAULT_MSG_LEN                 (1024)
-
-/* Default maximum length of topic name in byte when PLATFORM_HAS_DYNMEM is not set */
-#define IOTX_MC_TOPIC_NAME_MAX_LEN              (128)
-
-/* Default keepalive interval of MQTT request in second */
-#define KEEP_ALIVE_INTERVAL_DEFAULT             (60)
-
-/* Default topic length of MQTT when PLATFORM_HAS_DYNMEM is not set */
-#ifndef IOTX_MC_TOPIC_MAX_LEN
-#define IOTX_MC_TOPIC_MAX_LEN                   (50)
-#endif
-
-/* Default offline subscribe list max length when PLATFORM_HAS_DYNMEM is not set */
-#ifndef IOTX_OFFLINE_LIST_MAX_LEN
-#define IOTX_OFFLINE_LIST_MAX_LEN               (5)
-#endif
 
 #endif
 

@@ -8,7 +8,7 @@
     #include "at_api.h"
 #endif
 
-static char g_topic_name[IOTX_MC_TOPIC_NAME_MAX_LEN];
+static char g_topic_name[CONFIG_MQTT_TOPIC_MAXLEN];
 
 void HAL_Printf(const char *fmt, ...);
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
@@ -54,12 +54,12 @@ int example_subscribe(void *handle)
     HAL_GetDeviceName(device_name);
 
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
-    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN) {
+    if (topic_len > CONFIG_MQTT_TOPIC_MAXLEN) {
         HAL_Printf("topic too long\n");
         return -1;
     }
     topic = g_topic_name;
-    memset(topic, 0, IOTX_MC_TOPIC_NAME_MAX_LEN);
+    memset(topic, 0, CONFIG_MQTT_TOPIC_MAXLEN);
     HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
@@ -86,12 +86,12 @@ int example_publish(void *handle)
     HAL_GetDeviceName(device_name);
 
     topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
-    if (topic_len > IOTX_MC_TOPIC_NAME_MAX_LEN) {
+    if (topic_len > CONFIG_MQTT_TOPIC_MAXLEN) {
         HAL_Printf("topic too long\n");
         return -1;
     }
     topic = g_topic_name;
-    memset(topic, 0, IOTX_MC_TOPIC_NAME_MAX_LEN);
+    memset(topic, 0, CONFIG_MQTT_TOPIC_MAXLEN);
     HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
 
 

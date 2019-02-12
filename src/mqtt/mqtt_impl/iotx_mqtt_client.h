@@ -65,7 +65,7 @@ typedef struct iotx_mc_topic_handle_s {
     const char *topic_filter;
     struct list_head linked_list;
 #else
-    const char topic_filter[IOTX_MC_TOPIC_MAX_LEN];
+    const char topic_filter[CONFIG_MQTT_TOPIC_MAXLEN];
     int used;
 #endif
 } iotx_mc_topic_handle_t;

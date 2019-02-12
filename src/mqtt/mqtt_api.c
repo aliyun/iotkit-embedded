@@ -48,7 +48,7 @@ typedef struct  {
 #ifdef PLATFORM_HAS_DYNMEM
     char *topic_filter;
 #else
-    char topic_filter[IOTX_MC_TOPIC_MAX_LEN];
+    char topic_filter[CONFIG_MQTT_TOPIC_MAXLEN];
 #endif
     iotx_mqtt_event_handle_func_fpt handle;
     void *user_data;
@@ -64,7 +64,7 @@ typedef struct {
 #ifdef PLATFORM_HAS_DYNMEM
     struct list_head offline_sub_list;
 #else
-    iotx_mc_offline_subs_t offline_sub_list[IOTX_OFFLINE_LIST_MAX_LEN];
+    iotx_mc_offline_subs_t offline_sub_list[CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM];
 #endif
     void *mutex;
     int init;
@@ -181,12 +181,12 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter, iotx_mqtt_qos_t
     HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
     ret = SUCCESS_RETURN;
 #else
-    if (strlen(topic_filter) >= IOTX_MC_TOPIC_MAX_LEN) {
+    if (strlen(topic_filter) >= CONFIG_MQTT_TOPIC_MAXLEN) {
         return MQTT_TOPIC_LEN_TOO_SHORT;
     }
 
     HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
-    for (idx = 0; idx < IOTX_OFFLINE_LIST_MAX_LEN; idx++) {
+    for (idx = 0; idx < CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM; idx++) {
         if (g_mqtt_offline_subs_list.offline_sub_list[idx].used &&
             (strlen(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter) == strlen(topic_filter)) &&
             memcmp(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter, topic_filter, strlen(topic_filter)) == 0) {
@@ -197,7 +197,7 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter, iotx_mqtt_qos_t
             return SUCCESS_RETURN;
         }
     }
-    for (idx = 0; idx < IOTX_OFFLINE_LIST_MAX_LEN; idx++) {
+    for (idx = 0; idx < CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM; idx++) {
         if (g_mqtt_offline_subs_list.offline_sub_list[idx].used == 0) {
             memset(&g_mqtt_offline_subs_list.offline_sub_list[idx], 0, sizeof(iotx_mc_offline_subs_t));
             memcpy(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter, topic_filter, strlen(topic_filter));
@@ -237,7 +237,7 @@ static int iotx_mqtt_deal_offline_subs(void *client)
         mqtt_api_free(node);
     }
 #else
-    for (idx = 0; idx < IOTX_OFFLINE_LIST_MAX_LEN; idx++) {
+    for (idx = 0; idx < CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM; idx++) {
         if (g_mqtt_offline_subs_list.offline_sub_list[idx].used) {
             wrapper_mqtt_subscribe(client, g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter,
                                    g_mqtt_offline_subs_list.offline_sub_list[idx].qos,
@@ -339,11 +339,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             mqtt_params->pub_key = iotx_ca_crt;
         }
 #endif
-        mqtt_params->request_timeout_ms    = IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS;
+        mqtt_params->request_timeout_ms    = CONFIG_MQTT_REQUEST_TIMEOUT;
         mqtt_params->clean_session         = 0;
-        mqtt_params->keepalive_interval_ms = KEEP_ALIVE_INTERVAL_DEFAULT * 1000;
-        mqtt_params->read_buf_size         = IOTX_MC_DEFAULT_MSG_LEN;
-        mqtt_params->write_buf_size        = IOTX_MC_DEFAULT_MSG_LEN;
+        mqtt_params->keepalive_interval_ms = CONFIG_MQTT_KEEPALIVE_INTERVAL * 1000;
+        mqtt_params->read_buf_size         = CONFIG_MQTT_MESSAGE_MAXLEN;
+        mqtt_params->write_buf_size        = CONFIG_MQTT_MESSAGE_MAXLEN;
         mqtt_params->handle_event.h_fp     = NULL;
         mqtt_params->handle_event.pcontext = NULL;
         pInitParams = mqtt_params;
