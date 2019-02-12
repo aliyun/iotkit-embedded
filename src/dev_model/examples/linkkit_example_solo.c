@@ -640,7 +640,6 @@ int linkkit_main(void *paras)
 
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
-            IOT_Linkkit_Query(user_example_ctx->master_devid,ITM_MSG_REQUEST_FOTA_IMAGE,NULL,0);
             // user_post_property();
         }
         /* Post Event Example */
