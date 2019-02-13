@@ -39,7 +39,7 @@ static void build_decoding_table()
     return;
 }
 
-iotx_err_t utils_base64encode(const uint8_t *data, uint32_t inputLength, uint32_t outputLenMax,
+int utils_base64encode(const uint8_t *data, uint32_t inputLength, uint32_t outputLenMax,
                               uint8_t *encodedData, uint32_t *outputLength)
 {
     uint32_t i = 0;
@@ -75,7 +75,7 @@ iotx_err_t utils_base64encode(const uint8_t *data, uint32_t inputLength, uint32_
     return SUCCESS_RETURN;
 }
 
-iotx_err_t utils_base64decode(const uint8_t *data, uint32_t inputLength, uint32_t outputLenMax,
+int utils_base64decode(const uint8_t *data, uint32_t inputLength, uint32_t outputLenMax,
                               uint8_t *decodedData, uint32_t *outputLength)
 {
     uint32_t i = 0;
