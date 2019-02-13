@@ -9,7 +9,6 @@
 #include "infra_compat.h"
 #include "infra_log.h"
 #include "infra_classic.h"
-#include "infra_mem_stats.h"
 #include "iot_export_linkkit.h"
 #include "dm_wrapper.h"
 #include "cJSON.h"
@@ -218,5 +217,15 @@ int linkkit_main(void *paras)
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
 
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    app_main_paras_t paras;
+    paras.argc = argc;
+    paras.argv = argv;
+
+    linkkit_main((void *)&paras);
     return 0;
 }

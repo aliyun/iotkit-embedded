@@ -204,10 +204,11 @@ else
     echo ""
 fi
 
+echo ""
 bash tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
 
-echo ""
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
+echo ""
 
 ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| awk -F ':' '{print $2}')
 if [ "${ENV_TEST}" = "ubuntu" ];then
