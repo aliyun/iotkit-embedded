@@ -17,6 +17,7 @@ WRAPPER_DOC=./tools/misc/wrapper
 # Prepare Config Macro In make.settings
 MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
 
+mkdir -p ${OUTPUT_DIR} ${OUTPUT_DIR}/examples
 rm -rf $(${FIND} ${OUTPUT_DIR} -mindepth 1 -maxdepth 1|grep -v release)
 
 # Generate infra_config.h and extract necessary infra files
@@ -203,10 +204,10 @@ else
     echo ""
 fi
 
+tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
+
 echo ""
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
-
-echo -e "\n"
 
 ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| awk -F ':' '{print $2}')
 if [ "${ENV_TEST}" = "ubuntu" ];then

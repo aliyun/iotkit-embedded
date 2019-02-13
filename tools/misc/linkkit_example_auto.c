@@ -23,7 +23,7 @@
 void HAL_Printf(const char *fmt, ...);
 
 /* Fill in your device info here */
-#define PRODUCT_KEY      "a1h88DsZIaY"
+#define PRODUCT_KEY      " ###DEVICE_PK### "
 #define PRODUCT_SECRET   "0HxtPRZjwr14bi7K"
 #define DEVICE_NAME      "auto_example1"
 #define DEVICE_SECRET    "L1xQk7AntumkNNc8wvHwMJsh9PBoexN0"
@@ -112,7 +112,7 @@ void user_post_property(void)
     char *property_payload = "NULL";
 
     /* Normal Example */
-    property_payload = "{\"LightSwitch\":1}";
+    property_payload = "{\" ###DM_PROP_ID### \":0}";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid,
                              ITM_MSG_POST_PROPERTY,
@@ -126,11 +126,11 @@ void user_post_event(void)
 {
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    char *event_id = "Error";
+    char *event_id = " ###DM_EVT_ID### ";
     char *event_payload = "NULL";
 
     /* Normal Example */
-    event_payload = "{\"ErrorCode\":0}";
+    event_payload = "{\" ###DM_EVT_OU_KEY### \":0}";
 
     res = IOT_Linkkit_TriggerEvent(user_example_ctx->master_devid,
                                    event_id,
