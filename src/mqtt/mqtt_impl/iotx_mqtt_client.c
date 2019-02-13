@@ -2195,7 +2195,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     }
 
     if (strlen(topicName) > CONFIG_MQTT_TOPIC_MAXLEN) {
-        mqtt_err("len of topicName exceeds 64");
+        mqtt_err("len of topicName exceeds %d",CONFIG_MQTT_TOPIC_MAXLEN);
         return FAIL_RETURN;
     }
 
