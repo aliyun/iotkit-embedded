@@ -514,8 +514,9 @@ int iotx_dm_send_aos_active(int devid)
 
     aos_get_version_hex((unsigned char *)subdev_aos_verson);
 
+    HAL_Srandom(HAL_UptimeMs());
     for (i = 0; i < 4; i ++) {
-        random_num[i] = (char)(HAL_UptimeMs() >> i);
+        random_num[i] = (char)HAL_Random(0xFF);
     }
     aos_get_version_info((unsigned char *)subdev_aos_verson, (unsigned char *)random_num, (unsigned char *)subdev_mac_num,
                          (unsigned char *)subdev_chip_code, (unsigned char *)aos_active_data, AOS_ACTIVE_INFO_LEN);
