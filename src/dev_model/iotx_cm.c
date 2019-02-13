@@ -147,10 +147,10 @@ static void *_iotx_cm_yield_thread_func(void *params)
 
 int iotx_cm_yield(int fd, unsigned int timeout)
 {
-#if (CONFIG_SDK_THREAD_COST == 0)
-    return _iotx_cm_yield(fd, timeout);
-#else
+#ifdef DEVICE_MODEL_GATEWAY
     return 0;
+#else
+    return _iotx_cm_yield(fd, timeout);
 #endif
 }
 

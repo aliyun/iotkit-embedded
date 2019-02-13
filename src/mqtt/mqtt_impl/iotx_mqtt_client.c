@@ -2703,9 +2703,8 @@ int wrapper_mqtt_yield(void *client, int timeout_ms)
         timeout_ms = 10;
     }
 
-    pClient->cycle_timeout_ms = timeout_ms;
-
     HAL_MutexLock(pClient->lock_yield);
+    pClient->cycle_timeout_ms = timeout_ms;
     /* Keep MQTT alive or reconnect if connection abort */
     iotx_mc_keepalive(pClient);
     HAL_MutexUnlock(pClient->lock_yield);
