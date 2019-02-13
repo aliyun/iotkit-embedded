@@ -204,7 +204,7 @@ else
     echo ""
 fi
 
-tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
+bash tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
 
 echo ""
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
