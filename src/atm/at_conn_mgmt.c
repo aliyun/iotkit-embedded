@@ -6,18 +6,14 @@
 #include <string.h>
 
 #include "infra_types.h"
+#include "mqtt_api.h"
 #include "at_wrapper.h"
 
 #include "at_conn_mbox.h"
 #include "at_conn_mgmt.h"
 
-#ifndef AT_DEFAULT_INPUTMBOX_SIZE
 #define AT_DEFAULT_INPUTMBOX_SIZE  3
-#endif
-
-#ifndef AT_DEFAULT_PAYLOAD_SIZE
-#define AT_DEFAULT_PAYLOAD_SIZE    256
-#endif
+#define AT_DEFAULT_PAYLOAD_SIZE (CONFIG_MQTT_MESSAGE_MAXLEN + CONFIG_MQTT_TOPIC_MAXLEN + 20)
 
 #define AT_DEFAULT_SEND_TIMEOUT_MS    1000
 #define AT_DEFAULT_RECV_TIMEOUT_MS    1000
@@ -28,7 +24,6 @@
 
 #define AT_MAX_PAYLOAD_SIZE          1512
 
-#define NUM_ATCONN                    3
 #define UNUSED_ATCONN                -1
 
 #ifdef AT_DEBUG_MODE
@@ -84,7 +79,7 @@ typedef struct at_netbuf {
 } at_netbuf_t;
 
 /** The global array of available at */
-static struct at_conn atconnects[NUM_ATCONN];
+static struct at_conn atconnects[AT_CONN_NUM];
 static void *g_atconnmutex = NULL;
 
 #ifndef PLATFORM_HAS_DYNMEM
@@ -165,7 +160,7 @@ static struct at_conn *get_conn(int c)
 {
     struct at_conn *conn = NULL;
 
-    if ((c < 0) || (c >= NUM_ATCONN)) {
+    if ((c < 0) || (c >= AT_CONN_NUM)) {
         AT_DEBUG("get_conn(%d): invalid", c);
         return NULL;
     }
@@ -184,7 +179,7 @@ static int at_newconn(void)
 {
     int i;
 
-    for (i = 0; i < NUM_ATCONN; i++) {     
+    for (i = 0; i < AT_CONN_NUM; i++) {
         if (atconnects[i].connid == UNUSED_ATCONN) {
         	if (at_mbox_new(&atconnects[i].recvmbox,
                             AT_DEFAULT_INPUTMBOX_SIZE,
@@ -375,7 +370,7 @@ int at_conn_init(void)
         return 0;
     }
 
-	for (i = 0; i < NUM_ATCONN; i++) {
+	for (i = 0; i < AT_CONN_NUM; i++) {
 		atconnects[i].connid = UNUSED_ATCONN;
 	}
 

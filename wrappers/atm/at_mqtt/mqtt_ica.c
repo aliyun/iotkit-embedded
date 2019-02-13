@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "infra_config.h"
+#include "mqtt_api.h"
 
 #include "at_wrapper.h"
 #include "at_parser.h"
@@ -41,16 +42,14 @@
 
 #define AT_ICA_MQTT_POSTFIX         "\r\n"
 
-#define AT_MQTT_MAX_MSG_LEN     1024
-#define AT_MQTT_MAX_TOPIC_LEN   256
 #define AT_MQTT_WAIT_FOREVER 0xffffffffu
 
-#define AT_MQTT_CMD_MAX_LEN             1024
+#define AT_MQTT_CMD_MAX_LEN             400
 #define AT_MQTT_CMD_SUCCESS_RSP         "OK"
 #define AT_MQTT_CMD_FAIL_RSP            "FAIL"
 #define AT_MQTT_CMD_ERROR_RSP           "ERROR"
 #define AT_MQTT_SUBSCRIBE_FAIL          128
-#define AT_MQTT_RSP_MAX_LEN             1500
+#define AT_MQTT_RSP_MAX_LEN             (CONFIG_MQTT_MESSAGE_MAXLEN + CONFIG_MQTT_TOPIC_MAXLEN + 20)
 
 #define AT_MQTT_WAIT_TIMEOUT            10*1000
 
@@ -65,7 +64,7 @@
     #define AT_MQTT_ICA_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
-  
+char  at_recv_rsp_buf[AT_MQTT_CMD_MAX_LEN];
 
 typedef enum {
     AT_MQTT_IDLE = 0,
@@ -852,18 +851,21 @@ int at_ica_mqtt_client_init(void)
 
     at_register_callback(AT_ICA_MQTT_MQTTRCV,
                              AT_ICA_MQTT_POSTFIX,
+                             at_recv_rsp_buf,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);
 
     at_register_callback(AT_ICA_MQTT_MQTTERROR,
                              AT_ICA_MQTT_POSTFIX,
+                             at_recv_rsp_buf,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);
 
     at_register_callback(AT_ICA_MQTT_MQTTOK,
                              AT_ICA_MQTT_POSTFIX,
+                             at_recv_rsp_buf,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);

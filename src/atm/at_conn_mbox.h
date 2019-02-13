@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+#define AT_CONN_NUM      3
 #define AT_MBOX_TIMEOUT (~0)
 #define AT_MBOX_EMPTY   (~0)
 

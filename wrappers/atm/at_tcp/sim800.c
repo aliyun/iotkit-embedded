@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "infra_config.h"
+#include "mqtt_api.h"
 
 #include "at_wrapper.h"
 #include "at_parser.h"
@@ -77,12 +78,10 @@
 #define at_conn_hal_debug(...)
 #endif
 
-#ifndef AT_DEFAULT_PAYLOAD_SIZE
-#define AT_DEFAULT_PAYLOAD_SIZE 256
-#endif
+#define SIM800_MAX_PAYLOAD_SIZE (CONFIG_MQTT_MESSAGE_MAXLEN + CONFIG_MQTT_TOPIC_MAXLEN + 20)
 
 #ifndef PLATFORM_HAS_DYNMEM
-static uint8_t payload[AT_DEFAULT_PAYLOAD_SIZE] = {0};
+static uint8_t payload[SIM800_MAX_PAYLOAD_SIZE] = {0};
 #endif
 
 /* Change to include data slink for each link id respectively. <TODO> */
@@ -239,7 +238,7 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     /* Prepare socket data */
     recvdata = (char *)HAL_Malloc(len);
 #else
-    if (len <= AT_DEFAULT_PAYLOAD_SIZE) {
+    if (len <= SIM800_MAX_PAYLOAD_SIZE) {
         recvdata = (char *)payload;
     }
 #endif

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "infra_config.h"
+#include "mqtt_api.h"
 
 #include "at_wrapper.h"
 #include "at_parser.h"
@@ -66,12 +67,10 @@ static int socket_data_len_check(char data);
 #define WIFI_TIMEOUT  20000
 static uint8_t gotip = 0;
 
-#ifndef AT_DEFAULT_PAYLOAD_SIZE
-#define AT_DEFAULT_PAYLOAD_SIZE 256
-#endif
+#define MK3080_MAX_PAYLOAD_SIZE (CONFIG_MQTT_MESSAGE_MAXLEN + CONFIG_MQTT_TOPIC_MAXLEN + 20)
 
 #ifndef PLATFORM_HAS_DYNMEM
-static uint8_t payload[AT_DEFAULT_PAYLOAD_SIZE] = {0};
+static uint8_t payload[MK3080_MAX_PAYLOAD_SIZE] = {0};
 #endif
 
 static uint64_t _get_time_ms(void)
@@ -235,7 +234,7 @@ static void handle_socket_data()
 #ifdef PLATFORM_HAS_DYNMEM
     recvdata = (char *)HAL_Malloc(len);
 #else
-    if (len <= AT_DEFAULT_PAYLOAD_SIZE) {
+    if (len <= MK3080_MAX_PAYLOAD_SIZE) {
         recvdata = (char *)payload;
     }
 #endif

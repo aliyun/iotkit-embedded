@@ -13,14 +13,11 @@ typedef struct
     uint32_t length;
     uint32_t head;
     uint32_t tail;
+    uint8_t  full;
 } at_ringbuf_t;
 
 #ifndef PLATFORM_HAS_DYNMEM
-#ifndef AT_RINGBUF_NUM
-#define AT_RINGBUF_NUM 3
-#endif
-
-static at_ringbuf_t ringbufs[AT_RINGBUF_NUM] = {{NULL, 0, 0, 0}};
+static at_ringbuf_t ringbufs[AT_CONN_NUM] = {{NULL, 0, 0, 0, 0}};
 #endif
 
 static at_ringbuf_t *alloc_ringbuf(void)
@@ -30,7 +27,7 @@ static at_ringbuf_t *alloc_ringbuf(void)
 #else
     int i;
 
-    for (i = 0; i < AT_RINGBUF_NUM; i++) {
+    for (i = 0; i < AT_CONN_NUM; i++) {
         if (NULL == ringbufs[i].buffer) {
             return &ringbufs[i];
         }
@@ -53,23 +50,21 @@ static void free_ringbuf(at_ringbuf_t *ringbuf)
 
 static int at_ringbuf_available_read_space(at_ringbuf_t *ringbuf)
 {
+    if (ringbuf->full)
+        return ringbuf->length;
+
     if (ringbuf->head == ringbuf->tail) {
         return 0;
     } else if (ringbuf->head < ringbuf->tail) {
         return ringbuf->tail - ringbuf->head;
     } else {
-        return ringbuf->length + 1 - (ringbuf->head - ringbuf->tail);
+        return ringbuf->length - (ringbuf->head - ringbuf->tail);
     }
-}
-
-static int at_ringbuf_available_write_space(at_ringbuf_t *ringbuf)
-{
-    return (ringbuf->length - at_ringbuf_available_read_space(ringbuf));
 }
 
 static int at_ringbuf_full(at_ringbuf_t *ringbuf)
 {
-    return (at_ringbuf_available_write_space(ringbuf) == 0);
+    return ringbuf->full;
 }
 
 static int at_ringbuf_empty(at_ringbuf_t *ringbuf)
@@ -92,7 +87,7 @@ static at_ringbuf_t *at_ringbuf_create(int length, void *buf)
     }
     memset(ringbuf, 0, sizeof(at_ringbuf_t));
 
-    ringbuf->length = length - 1;
+    ringbuf->length = length;
     ringbuf->buffer = buf;
 
     return ringbuf;
@@ -117,6 +112,8 @@ static void at_ringbuf_destroy(at_ringbuf_t *ringbuf)
 
 static int at_ringbuf_write(at_ringbuf_t *ringbuf, void *data, int size)
 {
+    uint32_t next;
+
     if (ringbuf == NULL || data == NULL) {
         return -1;
     }
@@ -127,7 +124,12 @@ static int at_ringbuf_write(at_ringbuf_t *ringbuf, void *data, int size)
     }
 
     memcpy(&(((void **) ringbuf->buffer)[ringbuf->tail]), data, size);
-    ringbuf->tail = (ringbuf->tail + 1) % (ringbuf->length + 1);
+    next = (ringbuf->tail + 1) % (ringbuf->length);
+    if (next == ringbuf->head) {
+        ringbuf->full = 1;
+    } else {
+        ringbuf->tail = next;
+    }
 
     return 0;
 }
@@ -149,7 +151,12 @@ static int at_ringbuf_read(at_ringbuf_t *ringbuf, void *target,
     memcpy(((void **)target), &((void **)ringbuf->buffer)[ringbuf->head], sizeof(void *));
     ((void **)ringbuf->buffer)[ringbuf->head] = NULL;
     *size = sizeof(void *);
-    ringbuf->head = (ringbuf->head + 1) % (ringbuf->length + 1);
+    ringbuf->head = (ringbuf->head + 1) % (ringbuf->length);
+
+    if (ringbuf->full) {
+        ringbuf->full = 0;
+        ringbuf->tail = (ringbuf->tail + 1) % (ringbuf->length);
+    }
 
     return 0;
 }
