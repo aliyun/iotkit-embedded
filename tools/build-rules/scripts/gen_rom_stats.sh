@@ -54,7 +54,7 @@ printf "    |-%-.5s-|-%-.35s-|-%-.9s-|-%-.9s-|-%-.10s-|-%-.6s-|\n" \
     "-------------"
 
 cd ${LIBOBJ_TMPDIR}
-TOTAL_ROM=$(find $(for i in ${COMP_LIB_COMPONENTS}; do echo "${OUTPUT_DIR}/${i}"; done) -name "*.o" \
+TOTAL_ROM=$(find $(for i in ${COMP_LIB_COMPONENTS}; do echo "${OUTPUT_DIR}/${i}"; done) -name "*.o" 2>/dev/null \
     | xargs size \
     | awk '{ sum += $1 } END { print sum }')
 cd ${OLDPWD}
