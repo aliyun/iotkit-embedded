@@ -341,6 +341,9 @@ int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source)
 {
     int res = 0;
     dm_msg_response_payload_t response;
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+#endif
 
     dm_log_info(DM_URI_THING_PROPERTY_DESIRED_GET_REPLY);
 
@@ -355,7 +358,6 @@ int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source)
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif
@@ -366,6 +368,9 @@ int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source
 {
     int res = 0;
     dm_msg_response_payload_t response;
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+#endif
 
     dm_log_info(DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY);
 
@@ -380,7 +385,6 @@ int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source
 
     /* Remove Message From Cache */
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
     memcpy(int_id, response.id.value, response.id.value_length);
     dm_msg_cache_remove(atoi(int_id));
 #endif

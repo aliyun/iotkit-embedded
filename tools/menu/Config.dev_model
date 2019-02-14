@@ -51,7 +51,14 @@ menu "Device Model Configurations"
         default n
         select HAL_KV
         help
-            Enable this feature will enhance subscribe speed by storing mqtt subscribe infomation with HAL_KV, 
+            Enable this feature will enhance subscribe speed by storing mqtt subscribe infomation with HAL_KV
 
+    config DEVICE_MODEL_SUBDEV_OTA
+        bool "FEATURE_DEVICE_MODEL_SUBDEV_OTA"
+        default n
+
+    config DEVICE_MODEL_SHADOW
+        bool "FEATURE_DEVICE_MODEL_SHADOW"
+        default n
 endmenu
 

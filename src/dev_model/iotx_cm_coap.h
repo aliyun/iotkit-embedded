@@ -6,7 +6,7 @@
 #define _IOTX_CM_COAP_H_
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
-#include "iot_export_coap.h"
+#include "coap_api.h"
 
 
 typedef struct {
