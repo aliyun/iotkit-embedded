@@ -68,4 +68,15 @@ void *HAL_MutexCreate(void);
 void HAL_MutexDestroy(void *mutex);
 void HAL_MutexLock(void *mutex);
 void HAL_MutexUnlock(void *mutex);
+void *HAL_SemaphoreCreate(void);
+void HAL_SemaphoreDestroy(void *sem);
+int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
+void HAL_SemaphorePost(void *sem);
+int HAL_ThreadCreate(
+            void **thread_handle,
+            void *(*work_routine)(void *),
+            void *arg,
+            hal_os_thread_param_t *hal_os_thread_param,
+            int *stack_used);
+void HAL_ThreadDelete(void *thread_handle);
 #endif
