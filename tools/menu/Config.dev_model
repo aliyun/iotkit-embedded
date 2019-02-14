@@ -45,5 +45,13 @@ menu "Device Model Configurations"
 
             Switching to "y" leads to SDK being compiled with alcs function
             Switching to "n" leads to SDK being compiled without alcs function
+
+    config SUB_PERSISTENCE_ENABLED
+        bool "FEATURE_SUB_PERSISTENCE_ENABLED"
+        default n
+        select HAL_KV
+        help
+            Enable this feature will enhance subscribe speed by storing mqtt subscribe infomation with HAL_KV, 
+
 endmenu
 

@@ -2027,6 +2027,62 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     handler->handle.h_fp = messageHandler;
     handler->handle.pcontext = pcontext;
 
+#ifdef SUB_PERSISTENCE_ENABLED
+    if (qos == IOTX_MQTT_QOS3_SUB_LOCAL) {
+        uint8_t dup = 0;
+#ifdef PLATFORM_HAS_DYNMEM
+        iotx_mc_topic_handle_t *node;
+#endif
+        HAL_MutexLock(c->lock_generic);
+#ifdef PLATFORM_HAS_DYNMEM
+#if defined(INSPECT_MQTT_FLOW) && defined (INFRA_LOG)
+#if WITH_MQTT_ZIP_TOPIC
+        HEXDUMP_DEBUG(handler->topic_filter, MQTT_ZIP_PATH_DEFAULT_LEN);
+#else
+        mqtt_warning("handler->topic: %s", handler->topic_filter);
+#endif
+#endif
+        list_for_each_entry(node, &c->list_sub_handle, linked_list, iotx_mc_topic_handle_t) {
+            /* If subscribe the same topic and callback function, then ignore */
+#if defined(INSPECT_MQTT_FLOW) && defined (INFRA_LOG)
+#if WITH_MQTT_ZIP_TOPIC
+            HEXDUMP_DEBUG(node->topic_filter, MQTT_ZIP_PATH_DEFAULT_LEN);
+#else
+            mqtt_warning("node->topic: %s", node->topic_filter);
+#endif
+#endif
+            if (0 == iotx_mc_check_handle_is_identical(node, handler)) {
+                mqtt_warning("dup sub,topic = %s", topicFilter);
+                dup = 1;
+            }
+        }
+#else
+        for (idx = 0; idx < IOTX_MC_SUBHANDLE_LIST_MAX_LEN; idx++) {
+            /* If subscribe the same topic and callback function, then ignore */
+            if (&c->list_sub_handle[idx] != handler &&
+                0 == iotx_mc_check_handle_is_identical(&c->list_sub_handle[idx], handler)) {
+                mqtt_warning("dup sub,topic = %s", topicFilter);
+                dup = 1;
+            }
+        }
+#endif
+        if (dup == 0) {
+#ifdef PLATFORM_HAS_DYNMEM
+            list_add_tail(&handler->linked_list, &c->list_sub_handle);
+#endif
+        } else {
+#ifdef PLATFORM_HAS_DYNMEM
+            mqtt_free(handler->topic_filter);
+            mqtt_free(handler);
+#else
+            memset(handler, 0, sizeof(iotx_mc_topic_handle_t));
+#endif
+        }
+        HAL_MutexUnlock(c->lock_generic);
+        return SUCCESS_RETURN;
+    }
+#endif
+
     HAL_MutexLock(c->lock_write_buf);
 
     if (_alloc_send_buffer(c, strlen(topicFilter)) < 0) {
@@ -2806,12 +2862,21 @@ int wrapper_mqtt_subscribe_sync(void *c,
         return NULL_VALUE_ERROR;
     }
 
+#ifdef SUB_PERSISTENCE_ENABLED
+    if (qos > IOTX_MQTT_QOS3_SUB_LOCAL) {
+        mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
+                     qos,
+                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS3_SUB_LOCAL, IOTX_MQTT_QOS0);
+        qos = IOTX_MQTT_QOS0;
+    }
+#else
     if (qos > IOTX_MQTT_QOS2) {
         mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
                      qos,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
+#endif
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
@@ -2828,7 +2893,7 @@ int wrapper_mqtt_subscribe_sync(void *c,
 #endif
         if (ret < 0) {
             ret = wrapper_mqtt_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
-            if (_is_in_yield_cb() != 0) {
+            if (_is_in_yield_cb() != 0 || qos == IOTX_MQTT_QOS3_SUB_LOCAL) {
                 return ret;
             }
         }
