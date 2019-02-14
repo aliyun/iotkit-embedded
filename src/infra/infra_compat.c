@@ -10,8 +10,30 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 
+#ifdef DYNAMIC_REGISTER
+#include "dynreg_api.h"
+#endif
+
+#ifdef INFRA_LOG
+    #include "infra_log.h"
+    #define sdk_err(...)       log_err("infra_compat", __VA_ARGS__)
+    #define sdk_info(...)      log_info("infra_compat", __VA_ARGS__)
+#else
+    #define sdk_err(...)
+    #define sdk_info(...)
+#endif
+
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
+
+#ifdef DYNAMIC_REGISTER
+void HAL_Printf(const char *fmt, ...);
+int HAL_SetDeviceSecret(char *device_secret);
+int HAL_GetProductSecret(char *product_secret);
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
+int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
+#define KV_KEY_DEVICE_SECRET            "DyncRegDeviceSecret"
+#endif
 
 static iotx_conn_info_t g_iotx_conn_info = {0};
 static sdk_impl_ctx_t g_sdk_impl_ctx = {0};
@@ -24,6 +46,9 @@ int IOT_SetupConnInfo(const char *product_key,
 {
     int res = FAIL_RETURN;
     iotx_dev_meta_info_t meta_data;
+#ifdef DYNAMIC_REGISTER
+    sdk_impl_ctx_t     *ctx = &g_sdk_impl_ctx;
+#endif
 
     if (product_key == NULL || device_name == NULL || device_secret == NULL ||
         strlen(product_key) >= IOTX_PRODUCT_KEY_LEN ||
@@ -40,6 +65,53 @@ int IOT_SetupConnInfo(const char *product_key,
     memcpy(meta_data.device_name, device_name, strlen(device_name));
     memcpy(meta_data.device_secret, device_secret, strlen(device_secret));
 
+#ifdef DYNAMIC_REGISTER
+    if (ctx->dynamic_register) {
+        char device_secret_actual[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+        int device_secret_len = IOTX_DEVICE_SECRET_LEN;
+
+        /* Check if Device Secret exit in KV */
+        if (HAL_Kv_Get(KV_KEY_DEVICE_SECRET, device_secret_actual, &device_secret_len) == 0) {
+            sdk_info("Get DeviceSecret from KV succeed");
+
+            *(device_secret_actual + device_secret_len) = 0;
+            HAL_SetDeviceSecret(device_secret_actual);
+            memset(meta_data.device_secret,0,IOTX_DEVICE_SECRET_LEN + 1);
+            memcpy(meta_data.device_secret,device_secret_actual,strlen(device_secret_actual));
+        } else {
+            char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+
+            /* KV not exit, goto dynamic register */
+            sdk_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
+
+            /* Check If Product Secret Exist */
+            HAL_GetProductSecret(product_secret);
+            if (strlen(product_secret) == 0) {
+                sdk_err("Product Secret Is Not Exist");
+                return FAIL_RETURN;
+            }
+
+            if (strlen(product_secret) == 0) {
+                return FAIL_RETURN;
+            }
+            memcpy(meta_data.product_secret, product_secret, strlen(product_secret));
+
+            res = IOT_Dynamic_Register(ctx->domain_type,&meta_data);
+            if (res != SUCCESS_RETURN) {
+                sdk_err("Dynamic Register Failed");
+                return FAIL_RETURN;
+            }
+
+            device_secret_len = strlen(meta_data.device_secret);
+            if (HAL_Kv_Set(KV_KEY_DEVICE_SECRET, meta_data.device_secret, device_secret_len, 1) != 0) {
+                sdk_err("Save Device Secret to KV Failed");
+                return FAIL_RETURN;
+            }
+
+            HAL_SetDeviceSecret(meta_data.device_secret);
+        }
+    }
+#endif
     /* just connect shanghai region */
     res = IOT_Sign_MQTT(g_sdk_impl_ctx.domain_type, &meta_data, &g_sign_mqtt);
     if (res < SUCCESS_RETURN) {
