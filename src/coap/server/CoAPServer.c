@@ -110,6 +110,7 @@ CoAPContext *CoAPServer_init()
     CoAPInitParam param = {0};
 #ifdef COAP_SERV_MULTITHREAD
     int stack_used;
+    hal_os_thread_param_t task_parms = {0};
 #endif
 
     if (NULL == g_context) {
@@ -151,7 +152,6 @@ CoAPContext *CoAPServer_init()
         }
 #ifdef COAP_SERV_MULTITHREAD
         g_coap_running = 1;
-        hal_os_thread_param_t task_parms = {0};
         task_parms.stack_size = 4608;
         task_parms.name = "CoAPServer_yield";
         HAL_ThreadCreate(&g_coap_thread, CoAPServer_yield, (void *)g_context, &task_parms, &stack_used);
