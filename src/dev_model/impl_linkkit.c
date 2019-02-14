@@ -18,6 +18,10 @@
     #define IMPL_LINKKIT_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
+#ifdef DEV_BIND_ENABLED
+    #include "dev_bind.h"
+#endif
+
 #define IOTX_LINKKIT_KEY_ID          "id"
 #define IOTX_LINKKIT_KEY_CODE        "code"
 #define IOTX_LINKKIT_KEY_DEVID       "devid"
@@ -1250,7 +1254,6 @@ int IOT_Linkkit_Close(int devid)
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_close();
 #ifdef DEV_BIND_ENABLED
-        extern int awss_bind_deinit(void);
         awss_bind_deinit();
 #endif
     } else {

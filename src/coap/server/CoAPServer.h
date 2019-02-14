@@ -10,6 +10,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+#define COAP_SERV_MULTITHREAD
 
 CoAPContext *CoAPServer_init();
 

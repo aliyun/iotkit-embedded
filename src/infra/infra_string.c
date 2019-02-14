@@ -114,6 +114,21 @@ void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int 
     }
 }
 
+void LITE_hexbuf_convert(unsigned char *digest, char *out, int in_len, int uppercase)
+{
+    static char    *zEncode[] = {"0123456789abcdef", "0123456789ABCDEF"};
+    int             j = 0;
+    int             i = 0;
+    int             idx = uppercase ? 1 : 0;
+
+    for (i = 0; i < in_len; i ++) {
+        int         a = digest[i];
+
+        out[j++] = zEncode[idx][(a >> 4) & 0xf];
+        out[j++] = zEncode[idx][a & 0xf];
+    }
+}
+
 int infra_str2int(const char *input, int *val)
 {
     int sign = 0;

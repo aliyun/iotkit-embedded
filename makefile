@@ -23,6 +23,8 @@ $(call CompLib_Map, FEATURE_DEV_RESET, src/dev_reset)
 $(call CompLib_Map, FEATURE_OTA_ENABLED, src/ota)
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/dev_model)
 $(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED, src/http)
+$(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/dev_bind)
+$(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/wifi_provision)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls

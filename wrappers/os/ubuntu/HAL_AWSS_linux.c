@@ -4,7 +4,9 @@
  */
 
 #include <string.h>
-#include "iot_import.h"
+#include "infra_defs.h"
+#include "dev_bind_wrapper.h"
+#include "iot_import_awss.h"
 
 /**
  * @brief   获取`smartconfig`服务的安全等级
@@ -43,8 +45,9 @@ int HAL_Awss_Get_Encrypt_Type()
  */
 int HAL_Awss_Get_Conn_Encrypt_Type()
 {
-    char invalid_ds[DEVICE_SECRET_LEN + 1] = {0};
-    char ds[DEVICE_SECRET_LEN + 1] = {0};
+    char invalid_ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+    char ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+
 
     HAL_GetDeviceSecret(ds);
 
@@ -259,6 +262,20 @@ int HAL_Wifi_Get_Ap_Info(
             _OU_ char ssid[HAL_MAX_SSID_LEN],
             _OU_ char passwd[HAL_MAX_PASSWD_LEN],
             _OU_ uint8_t bssid[ETH_ALEN])
+{
+    return 0;
+}
+
+/* @brief   打开当前设备热点，并把设备由SoftAP模式切换到AP模式
+ */
+int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide)
+{
+    return 0;
+}
+
+/* @brief   关闭当前设备热点，并把设备由SoftAP模式切换到Station模式
+*/
+int HAL_Awss_Close_Ap()
 {
     return 0;
 }

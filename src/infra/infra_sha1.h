@@ -10,6 +10,7 @@
 
 #include "infra_types.h"
 
+#define SHA1_DIGEST_SIZE    (20)
 
 /**
  * \brief          SHA-1 context structure

@@ -1,0 +1,11 @@
+config DEV_BIND_ENABLED 
+    bool "DEV_BIND_ENABLED"
+    select INFRA_CLASSIC
+    select INFRA_COMPAT
+    select COAP_SERVER
+    select DEV_RESET
+    default n
+    help
+        Enable dev-bind in SDK
+
+

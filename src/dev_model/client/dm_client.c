@@ -1,4 +1,7 @@
 #include "iotx_dm_internal.h"
+#ifdef DEV_BIND_ENABLED
+#include "awss_api.h"
+#endif
 
 static dm_client_uri_map_t g_dm_client_uri_map[] = {
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)

@@ -44,6 +44,21 @@
 #define IOTX_FIRMWARE_VER_LEN           (32)
 #define IOTX_URI_MAX_LEN                (135)
 
+#ifndef _IN_
+    #define _IN_
+#endif
+
+#ifndef _OU_
+    #define _OU_
+#endif
+
+#ifndef _IN_OPT_
+    #define _IN_OPT_
+#endif
+
+#define NETWORK_ADDR_LEN        (16)
+#define HAL_MAC_LEN             (17 + 1)    /* MAC地址的长度 */
+
 typedef enum IOT_RETURN_CODES {
     ERROR_DEVICE_NOT_EXIST = -311,
     ERROR_NET_TIMEOUT = -310,

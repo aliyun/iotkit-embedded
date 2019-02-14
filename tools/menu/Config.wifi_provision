@@ -1,0 +1,47 @@
+config AWSS_SUPPORT_APLIST
+    bool 
+    default n
+
+config AWSS_SUPPORT_SMARTCONFIG
+    bool
+    default n
+
+config AWSS_SUPPORT_SMARTCONFIG_WPS
+    bool
+    default n
+
+
+config AWSS_SUPPORT_ZEROCONFIG
+    bool
+    default n
+
+config AWSS_SUPPORT_AHA
+    bool
+    default n
+
+config AWSS_SUPPORT_ADHA
+    bool
+    default n
+
+config AWSS_SUPPORT_DEV_AP
+    bool
+    default n
+
+config WIFI_PROVISION_ENABLED 
+    bool "WIFI_PROVISION_ENABLED"
+    select INFRA_CLASSIC
+    select INFRA_CJSON
+    select INFRA_COMPAT
+    select INFRA_LOG
+    select AWSS_SUPPORT_APLIST
+    select AWSS_SUPPORT_SMARTCONFIG_WPS
+    select AWSS_SUPPORT_SMARTCONFIG
+    select AWSS_SUPPORT_ZEROCONFIG
+    select AWSS_SUPPORT_AHA
+    select AWSS_SUPPORT_ADHA
+    select AWSS_SUPPORT_DEV_AP
+    default n 
+    help
+        Enable providing Wifi SSID/PASSWD configration in SDK
+
+
