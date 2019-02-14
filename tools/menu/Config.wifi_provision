@@ -28,7 +28,7 @@ config AWSS_SUPPORT_DEV_AP
     default n
 
 config WIFI_PROVISION_ENABLED 
-    bool "WIFI_PROVISION_ENABLED"
+    bool "FEATURE_WIFI_PROVISION_ENABLED"
     select INFRA_CLASSIC
     select INFRA_CJSON
     select INFRA_COMPAT

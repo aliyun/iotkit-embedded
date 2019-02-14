@@ -1,5 +1,5 @@
 config DEV_BIND_ENABLED 
-    bool "DEV_BIND_ENABLED"
+    bool "FEATURE_DEV_BIND_ENABLED"
     select INFRA_CLASSIC
     select INFRA_COMPAT
     select COAP_SERVER
