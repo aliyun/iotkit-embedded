@@ -196,7 +196,7 @@ done)
 	\$(Q)${CC} \\
         -o \$@ \\
         $([ "$i" != "sdk-testsuites" ] && echo "\$(IFLAGS)" || echo "\$(EXT_IFLAGS)") \\
-        \$(filter-out -ansi,\$(CFLAGS)) \\
+        \$(filter-out -Wdeclaration-after-statement -ansi,\$(CFLAGS)) \\
         \$(filter-out %.a,\$^) \\
         $( if [ "${i}" = "sdk-testsuites" ] && uname -a|grep -qw Ubuntu; then echo "${TOP_DIR}/${IMPORT_VDRDIR}/${PREBUILT_LIBDIR}/libcurl.a"; fi ) \\
         -L${OUTPUT_DIR}/usr/lib \\
