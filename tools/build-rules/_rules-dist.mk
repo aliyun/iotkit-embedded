@@ -11,7 +11,7 @@ endif
 
 	$(TOP_Q) \
 	if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
-	    rm -rf $(DIST_DIR); \
+	    rm -rf $(FINAL_DIR); \
 	    mkdir -p $(DIST_DIR) $(FINAL_DIR); \
 	    for i in bin lib include; do \
 	        if [ -d $(OUTPUT_DIR)/usr/$${i} ]; then \
