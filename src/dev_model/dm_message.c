@@ -266,11 +266,12 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
 
 #ifdef ALCS_ENABLED
      if (type & DM_MSG_DEST_LOCAL) {
+        char *end = NULL;
         do {
             if(strlen(uri) < 6) {
                 break;
             }
-            char *end = uri + strlen(uri) - 6;
+            end = uri + strlen(uri) - 6;
             if (strstr(end, "_reply") != 0) {
                 *end = '\0';
             }

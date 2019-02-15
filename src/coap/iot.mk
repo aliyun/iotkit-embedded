@@ -8,7 +8,6 @@ $(call Append_Conditional, LIB_SRCS_PATTERN, server/*.c, COAP_SERVER)
 
 LDFLAGS         	+= -liot_sdk -liot_hal -liot_tls
 
-TARGET          	:= coap-example
-
-LIB_SRCS_EXCLUDE  	:= examples/coap_example.c
-SRCS_coap-example 	+= examples/coap_example.c
+$(call Append_Conditional, LIB_SRCS_EXCLUDE, examples/coap_example.c, COAP_CLIENT)
+$(call Append_Conditional, SRCS_coap-example, examples/coap_example.c, COAP_CLIENT)
+$(call Append_Conditional, TARGET, coap-example, COAP_CLIENT)
