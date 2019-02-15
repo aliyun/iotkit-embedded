@@ -1,4 +1,4 @@
-LIBA_TARGET     := libiot_auth.a
+LIBA_TARGET     := libiot_sign.a
 
 HDR_REFS        := src/infra
 
