@@ -37,6 +37,7 @@
 #define IOTX_PRODUCT_KEY_LEN            (20)
 #define IOTX_DEVICE_NAME_LEN            (32)
 #define IOTX_DEVICE_SECRET_LEN          (64)
+#define IOTX_DEVICE_ID_LEN              (64)
 #define IOTX_PRODUCT_SECRET_LEN         (64)
 #define IOTX_PARTNER_ID_LEN             (64)
 #define IOTX_MODULE_ID_LEN              (64)

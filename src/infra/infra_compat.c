@@ -129,7 +129,9 @@ int IOT_SetupConnInfo(const char *product_key,
         g_iotx_conn_info.pub_key = iotx_ca_crt;
     }
 #endif
-    *info_ptr = (void *)&g_iotx_conn_info;
+    if (info_ptr) {
+        *info_ptr = (void *)&g_iotx_conn_info;
+    }
     return SUCCESS_RETURN;
 }
 #endif

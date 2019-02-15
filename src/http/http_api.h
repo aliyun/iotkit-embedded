@@ -12,7 +12,6 @@
 extern "C" {
 #endif
 
-#define IOTX_DEVICE_ID_LEN          64
 
 typedef struct {
     char        product_key[IOTX_PRODUCT_KEY_LEN + 1];

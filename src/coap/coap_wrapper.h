@@ -3,6 +3,7 @@
 
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "infra_compat.h"
 #include "wrappers_defs.h"
 
 void *HAL_Malloc(uint32_t size);
@@ -11,8 +12,15 @@ void HAL_SleepMs(uint32_t ms);
 uint64_t HAL_UptimeMs(void);
 void HAL_Srandom(uint32_t seed);
 uint32_t HAL_Random(uint32_t region);
+void HAL_Printf(const char *fmt, ...);
+int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 
 int HAL_SetProductKey(char *product_key);
+int HAL_SetProductSecret(char *product_secret);
 int HAL_SetDeviceName(char *device_name);
 int HAL_SetDeviceSecret(char *device_secret);
 
