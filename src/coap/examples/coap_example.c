@@ -9,7 +9,7 @@
     #include <unistd.h>
 #endif
 
-#include "iot_export_coap.h"
+#include "coap_api.h"
 #include "coap_wrapper.h"
 #include "app_entry.h"
 
