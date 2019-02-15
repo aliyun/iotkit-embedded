@@ -142,7 +142,7 @@ int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, 
 {
     if (g_coap_ctx == NULL) g_coap_ctx = (void *)CoAPServer_init();
 
-    return CoAPServerResp_send(g_coap_ctx, (NetworkAddr *)sa, (uint8_t *)buf, (uint16_t)len, req, uri);
+    return CoAPServerResp_send(g_coap_ctx, (NetworkAddr *)sa, (uint8_t *)buf, (uint16_t)len, req, uri, (CoAPSendMsgHandler)cb, msgid, qos);
 }
 
 int awss_cmp_coap_ob_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb)
