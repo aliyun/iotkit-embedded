@@ -26,6 +26,17 @@ menu "Device Model Configurations"
         help
             Switching Thing-Model related implementations provided in gateway oriented way
 
+    config DEPRECATED_LINKKIT
+        bool "FEATURE_DEPRECATED_LINKKIT"
+        default n
+        select INFRA_JSON_PARSER
+        help
+            Enable providing Thing-Model related functions via being_deprecated/old/obsoleted APIs
+            They are named as linkkit_xxx() or linkkit_gateway_xxx(), declared in linkkit_export.h and linkkit_gateway_export.h
+
+            Switching to "y" leads to SDK providing APIs in linkkit_export.h + linkkit_gateway_export.h
+            Switching to "n" leads to SDK providing APIs in iot_export_linkkit.h
+
     config DEVICE_MODEL_RAWDATA_SOLO
         bool "FEATURE_DEVICE_MODEL_RAWDATA_SOLO"
         depends on DEVICE_MODEL_ENABLED && !DEVICE_MODEL_GATEWAY && !DEPRECATED_LINKKIT

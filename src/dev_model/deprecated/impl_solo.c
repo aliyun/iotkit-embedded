@@ -4,9 +4,29 @@
 
 #ifdef DEPRECATED_LINKKIT
 
-#include "sdk-impl_internal.h"
+#include "iotx_dm_internal.h"
+#include "linkkit_export.h"
 #include "impl_solo.h"
-#include "iotx_dm.h"
+
+#ifdef INFRA_MEM_STATS
+    #include "infra_mem_stats.h"
+    #define IMPL_SOLO_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.solo")
+    #define IMPL_SOLO_FREE(ptr)               LITE_free(ptr)
+#else
+    #define IMPL_SOLO_MALLOC(size)            HAL_Malloc(size)
+    #define IMPL_SOLO_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
+
+#ifdef INFRA_LOG
+    #include "infra_log.h"
+    #define impl_solo_err(...)       log_err("impl.solo", __VA_ARGS__)
+    #define impl_solo_info(...)      log_info("impl.solo", __VA_ARGS__)
+    #define impl_solo_debug(...)     log_debug("impl.solo", __VA_ARGS__)
+#else
+    #define impl_solo_err(...)
+    #define impl_solo_info(...)
+    #define impl_solo_debug(...)
+#endif
 
 linkkit_solo_legacy_ctx_t g_linkkit_solo_legacy_ctx = {0};
 
@@ -53,7 +73,7 @@ static int _impl_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, 
         return DM_INVALID_PARAMETER;
     }
 
-    *output = sdk_malloc(output_len);
+    *output = IMPL_SOLO_MALLOC(output_len);
     if (*output == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
@@ -72,14 +92,14 @@ static int _linkkit_solo_upstream_callback_list_insert(int msgid, handle_post_cb
     list_for_each_entry(search_node, &linkkit_solo_ctx->callback_list, linked_list, linkkit_solo_upstream_callback_node_t) {
         count++;
         if (search_node->msgid == msgid) {
-            sdk_info("Message ID Already Exist: %d", msgid);
+            impl_solo_info("Message ID Already Exist: %d", msgid);
             return FAIL_RETURN;
         }
     }
 
-    sdk_info("linkkit_solo_upstream_callback_list node count: %d", count);
+    impl_solo_info("linkkit_solo_upstream_callback_list node count: %d", count);
 
-    search_node = sdk_malloc(sizeof(linkkit_solo_upstream_callback_node_t));
+    search_node = IMPL_SOLO_MALLOC(sizeof(linkkit_solo_upstream_callback_node_t));
     if (search_node == NULL) {
         return FAIL_RETURN;
     }
@@ -103,7 +123,7 @@ static int _linkkit_solo_upstream_callback_list_remove(int msgid)
     list_for_each_entry(search_node, &linkkit_solo_ctx->callback_list, linked_list, linkkit_solo_upstream_callback_node_t) {
         if (search_node->msgid == msgid) {
             list_del(&search_node->linked_list);
-            sdk_free(search_node);
+            IMPL_SOLO_FREE(search_node);
             return SUCCESS_RETURN;
         }
     }
@@ -134,7 +154,7 @@ static int _linkkit_solo_upstream_callback_list_destroy(void)
     list_for_each_entry_safe(search_node, next_node, &linkkit_solo_ctx->callback_list, linked_list,
                              linkkit_solo_upstream_callback_node_t) {
         list_del(&search_node->linked_list);
-        sdk_free(search_node);
+        IMPL_SOLO_FREE(search_node);
     }
 
     return FAIL_RETURN;
@@ -175,9 +195,9 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
     lite_cjson_t lite_item_propertyid, lite_item_eventid, lite_item_configid, lite_item_configsize, lite_item_gettype;
     lite_cjson_t lite_item_sign, lite_item_signmethod, lite_item_url, lite_item_version;
 
-    sdk_info("Receive Message Type: %d", type);
+    impl_solo_info("Receive Message Type: %d", type);
     if (payload) {
-        sdk_info("Receive Message: %s", payload);
+        impl_solo_info("Receive Message: %s", payload);
         res = dm_utils_json_parse(payload, strlen(payload), cJSON_Invalid, &lite);
         if (res != SUCCESS_RETURN) {
             return;
@@ -234,8 +254,8 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
-            sdk_debug("Current Raw Data: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current Raw Data: %.*s", lite_item_payload.value_length, lite_item_payload.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
@@ -252,7 +272,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 linkkit_solo_ctx->user_callback->raw_data_arrived(thing_id, raw_data, raw_data_len, linkkit_solo_ctx->user_context);
             }
 
-            sdk_free(raw_data);
+            IMPL_SOLO_FREE(raw_data);
         }
         break;
         case IOTX_DM_EVENT_THING_SERVICE_REQUEST: {
@@ -265,16 +285,16 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Id: %d", lite_item_id.value_int);
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
-            sdk_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
+            impl_solo_debug("Current Id: %d", lite_item_id.value_int);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
 
-            service = sdk_malloc(lite_item_serviceid.value_length + 1);
+            service = IMPL_SOLO_MALLOC(lite_item_serviceid.value_length + 1);
             if (service == NULL) {
                 return;
             }
@@ -286,7 +306,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                         linkkit_solo_ctx->user_context);
             }
 
-            sdk_free(service);
+            IMPL_SOLO_FREE(service);
         }
         break;
         case IOTX_DM_EVENT_LEGACY_THING_CREATED: {
@@ -297,7 +317,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
@@ -317,7 +337,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
@@ -337,7 +357,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
@@ -358,15 +378,15 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
-            sdk_debug("Current PropertyID: %.*s", lite_item_propertyid.value_length, lite_item_propertyid.value);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current PropertyID: %.*s", lite_item_propertyid.value_length, lite_item_propertyid.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
 
-            propertyid = sdk_malloc(lite_item_propertyid.value_length + 1);
+            propertyid = IMPL_SOLO_MALLOC(lite_item_propertyid.value_length + 1);
             if (propertyid == NULL) {
                 return;
             }
@@ -377,7 +397,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 linkkit_solo_ctx->user_callback->thing_prop_changed(thing_id, propertyid, linkkit_solo_ctx->user_context);
             }
 
-            sdk_free(propertyid);
+            IMPL_SOLO_FREE(propertyid);
         }
         break;
         case IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY: {
@@ -391,9 +411,9 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Id: %d", lite_item_id.value_int);
-            sdk_debug("Current Code: %d", lite_item_code.value_int);
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current Id: %d", lite_item_id.value_int);
+            impl_solo_debug("Current Code: %d", lite_item_code.value_int);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
@@ -427,10 +447,10 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Id: %d", lite_item_id.value_int);
-            sdk_debug("Current Code: %d", lite_item_code.value_int);
-            sdk_debug("Current Devid: %d", lite_item_devid.value_int);
-            sdk_debug("Current EventID: %.*s", lite_item_eventid.value_length, lite_item_eventid.value);
+            impl_solo_debug("Current Id: %d", lite_item_id.value_int);
+            impl_solo_debug("Current Code: %d", lite_item_code.value_int);
+            impl_solo_debug("Current Devid: %d", lite_item_devid.value_int);
+            impl_solo_debug("Current EventID: %.*s", lite_item_eventid.value_length, lite_item_eventid.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
@@ -463,12 +483,12 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Config ID: %.*s", lite_item_configid.value_length, lite_item_configid.value);
-            sdk_debug("Current Config Size: %d", lite_item_configsize.value_int);
-            sdk_debug("Current Get Type: %.*s", lite_item_gettype.value_length, lite_item_gettype.value);
-            sdk_debug("Current Sign: %.*s", lite_item_sign.value_length, lite_item_sign.value);
-            sdk_debug("Current Sign Method: %.*s", lite_item_signmethod.value_length, lite_item_signmethod.value);
-            sdk_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
+            impl_solo_debug("Current Config ID: %.*s", lite_item_configid.value_length, lite_item_configid.value);
+            impl_solo_debug("Current Config Size: %d", lite_item_configsize.value_int);
+            impl_solo_debug("Current Get Type: %.*s", lite_item_gettype.value_length, lite_item_gettype.value);
+            impl_solo_debug("Current Sign: %.*s", lite_item_sign.value_length, lite_item_sign.value);
+            impl_solo_debug("Current Sign Method: %.*s", lite_item_signmethod.value_length, lite_item_signmethod.value);
+            impl_solo_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
 
             _impl_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
                        lite_item_configid.value_length + 1);
@@ -481,19 +501,19 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
 
             if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
                 if (config_id) {
-                    sdk_free(config_id);
+                    IMPL_SOLO_FREE(config_id);
                 }
                 if (get_type) {
-                    sdk_free(get_type);
+                    IMPL_SOLO_FREE(get_type);
                 }
                 if (sign) {
-                    sdk_free(sign);
+                    IMPL_SOLO_FREE(sign);
                 }
                 if (sign_method) {
-                    sdk_free(sign_method);
+                    IMPL_SOLO_FREE(sign_method);
                 }
                 if (url) {
-                    sdk_free(url);
+                    IMPL_SOLO_FREE(url);
                 }
                 return;
             }
@@ -504,19 +524,19 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             }
 
             if (config_id) {
-                sdk_free(config_id);
+                IMPL_SOLO_FREE(config_id);
             }
             if (get_type) {
-                sdk_free(get_type);
+                IMPL_SOLO_FREE(get_type);
             }
             if (sign) {
-                sdk_free(sign);
+                IMPL_SOLO_FREE(sign);
             }
             if (sign_method) {
-                sdk_free(sign_method);
+                IMPL_SOLO_FREE(sign_method);
             }
             if (url) {
-                sdk_free(url);
+                IMPL_SOLO_FREE(url);
             }
         }
         break;
@@ -527,7 +547,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            sdk_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
+            impl_solo_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
 
             _impl_copy(lite_item_version.value, lite_item_version.value_length, (void **)&version,
                        lite_item_version.value_length + 1);
@@ -540,7 +560,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             }
 
             if (version) {
-                sdk_free(version);
+                IMPL_SOLO_FREE(version);
             }
         }
         break;
@@ -578,7 +598,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
 
     if (max_buffered_msg <= 0 || ops == NULL || log_level > LOG_DEBUG_LEVEL ||
         domain_type >= linkkit_cloud_domain_max) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -601,7 +621,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     LITE_set_loglevel(log_level);
 
     /* Set Region */
-    iotx_guider_set_region(domain_type);
+    IOT_Ioctl(IOTX_IOCTL_SET_REGION,&domain_type);
 
     /* Initialize Device Manager */
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
@@ -695,7 +715,7 @@ void *linkkit_set_tsl(const char *tsl, int tsl_len)
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (tsl == NULL || tsl_len <= 0) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return NULL;
     }
 
@@ -728,7 +748,7 @@ int being_deprecated linkkit_set_value(linkkit_method_set_t method_set, const vo
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || identifier == NULL || (value == NULL && value_str == NULL)) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -760,7 +780,7 @@ int being_deprecated linkkit_set_value(linkkit_method_set_t method_set, const vo
         }
         break;
         default: {
-            sdk_err("Invalid Parameter");
+            impl_solo_err("Invalid Parameter");
             res = FAIL_RETURN;
         }
         break;
@@ -784,7 +804,7 @@ int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const vo
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || identifier == NULL || (value == NULL && value_str == NULL)) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -819,7 +839,7 @@ int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const vo
         }
         break;
         default: {
-            sdk_err("Invalid Parameter");
+            impl_solo_err("Invalid Parameter");
             res = FAIL_RETURN;
         }
         break;
@@ -843,7 +863,7 @@ int being_deprecated linkkit_answer_service(const void *thing_id, const char *se
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || service_identifier == NULL) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -877,7 +897,7 @@ int being_deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || raw_data == NULL || raw_data_length <= 0) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -910,7 +930,7 @@ int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id,
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || params == NULL) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -935,7 +955,7 @@ int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id,
         }
         break;
         default: {
-            sdk_err("Invalid Parameter");
+            impl_solo_err("Invalid Parameter");
             res = FAIL_RETURN;
         }
         break;
@@ -957,7 +977,7 @@ int being_deprecated linkkit_trigger_event(const void *thing_id, const char *eve
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || event_identifier == NULL) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1004,7 +1024,7 @@ int being_deprecated linkkit_post_property(const void *thing_id, const char *pro
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1062,7 +1082,7 @@ int being_deprecated linkkit_yield(int timeout_ms)
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (timeout_ms <= 0) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1092,7 +1112,7 @@ int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_le
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (data_buf == NULL || data_buf_length <= 0) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1115,7 +1135,7 @@ int being_deprecated linkkit_invoke_cota_get_config(const char *config_scope, co
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (config_scope == NULL || get_type == NULL || attribute_Keys == NULL) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1149,7 +1169,7 @@ int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_le
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (data_buf == NULL || data_buf_length <= 0) {
-        sdk_err("Invalid Parameter");
+        impl_solo_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 

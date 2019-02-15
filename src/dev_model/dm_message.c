@@ -821,7 +821,9 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
 #ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0, id = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
     }
@@ -836,7 +838,6 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -856,7 +857,9 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
 #ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0, id = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+#endif
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
     }
@@ -871,7 +874,6 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
     /* dm_log_debug("Current ID: %d", id); */
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
-    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -2318,7 +2320,10 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
     int res = 0, message_len = 0;
     char *message = NULL;
     lite_cjson_t lite;
-
+#ifndef DEVICE_MODEL_GATEWAY
+    int index = 0;
+    lite_cjson_t lite_item_key, lite_item_value;
+#endif
     if (request == NULL) {
         return DM_INVALID_PARAMETER;
     }
@@ -2353,8 +2358,6 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
         DM_free(message);
     }
 #else
-    int index = 0;
-    lite_cjson_t lite_item_key, lite_item_value;
     for (index = 0; index < lite.size; index++) {
         memset(&lite_item_key, 0, sizeof(lite_cjson_t));
         memset(&lite_item_value, 0, sizeof(lite_cjson_t));
@@ -2450,7 +2453,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
 {
     int res = 0, id = 0, devid = 0, message_len = 0;
     lite_cjson_t lite;
-    char *key = NULL, *message = NULL;;
+    char *key = NULL, *message = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
     if (product_key == NULL || device_name == NULL ||

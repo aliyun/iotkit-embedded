@@ -55,11 +55,11 @@ static dm_tsl_alink_mapping_t g_dm_tsl_alink_mapping[] = {
 
 static int _dm_shw_get_type(_IN_ const char *name, _IN_ int name_len, _OU_ dm_shw_data_type_e *type)
 {
+    int index = 0;
+
     if (name == NULL || name_len <= 0 || type == NULL) {
         return DM_INVALID_PARAMETER;
     }
-
-    int index = 0;
 
     for (index = 0; index < sizeof(g_dm_tsl_alink_mapping) / sizeof(dm_tsl_alink_mapping_t); index++) {
         if (strlen(g_dm_tsl_alink_mapping[index].name) == name_len &&

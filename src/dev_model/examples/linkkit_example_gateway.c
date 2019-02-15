@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #ifdef DEPRECATED_LINKKIT
-#include "deprecated/gateway.c"
+#include "gateway.c"
 #else
 #include <stdio.h>
 #include <stdint.h>
@@ -29,7 +29,7 @@
     #include "ota_service.h"
 #endif
 
-// for demo only
+/* for demo only */
 #define PRODUCT_KEY      "a1RIsMLz2BJ"
 #define PRODUCT_SECRET   "fSAF0hle6xL0oRWd"
 #define DEVICE_NAME      "example1"

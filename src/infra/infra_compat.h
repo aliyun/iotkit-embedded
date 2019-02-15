@@ -4,6 +4,9 @@
 #include "infra_defs.h"
 #include "infra_list.h"
 
+#undef  being_deprecated
+#define being_deprecated
+
 #ifndef offset_of
     #define offset_of aos_offsetof
 #endif

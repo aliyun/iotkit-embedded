@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #ifdef DEPRECATED_LINKKIT
-#include "deprecated/solo.c"
+#include "solo.c"
 #else
 #include <stdio.h>
 #include <string.h>

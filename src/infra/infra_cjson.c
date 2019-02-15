@@ -833,26 +833,24 @@ int lite_cjson_object_item(lite_cjson_t *lite, const char *key, int key_len,
     return 0;
 }
 
-#if (0)
 int lite_cjson_object_item_by_index(lite_cjson_t *lite, int index, lite_cjson_t *lite_item_key,
                                     lite_cjson_t *lite_item_value)
 {
+    parse_buffer buffer;
+    parse_buffer *p_buffer = &buffer;
+    lite_cjson_t current_item_key;
+    lite_cjson_t current_item_value;
+    /* int start_pos = p_buffer->offset; */
+    int item_index = 0;
+
     if (!lite || lite->type != cJSON_Object || !lite->value || lite->size == 0 || index < 0 || index >= lite->size) {
         return -1;
     };
-
-    parse_buffer buffer;
-    parse_buffer *p_buffer = &buffer;
 
     memset(&buffer, 0, sizeof(parse_buffer));
     buffer.content = (const unsigned char *)lite->value;
     buffer.length = lite->value_length;
     buffer.offset = 0;
-
-    lite_cjson_t current_item_key;
-    lite_cjson_t current_item_value;
-    /* int start_pos = p_buffer->offset; */
-    int item_index = 0;
 
     if (cannot_access_at_index(p_buffer, 0) || (buffer_at_offset(p_buffer)[0] != '{')) {
         return -1; /* not an object */
@@ -920,10 +918,9 @@ int lite_cjson_object_item_by_index(lite_cjson_t *lite, int index, lite_cjson_t 
 
     return -1;
 }
-#endif  /* #if (0) */
 
 /*** cjson create, add and print ***/
-#if defined(DEVICE_MODEL_GATEWAY) || defined(ALCS_ENABLED)
+#if defined(DEVICE_MODEL_GATEWAY) || defined(ALCS_ENABLED) || defined(DEPRECATED_LINKKIT)
 #define true ((cJSON_bool)1)
 #define false ((cJSON_bool)0)
 #define cjson_min(a, b) ((a < b) ? a : b)
