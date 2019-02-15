@@ -35,9 +35,11 @@ LDFLAGS := -L$(BLDDIR) -liot_sdk -lpthread -lrt
 LIBOBJS := $(SOURCE_FILES_C:.c=.o)
 LIBOBJS := $(subst $(SRCDIR),$(BLDDIR),$(LIBOBJS))
 
-.PHONY: prepare all clean
+.PHONY: prepare all clean prog
 
-all: prepare $(BLDDIR)/$(LIBA_TARGET) $(PROG_TARGET)
+all: prepare $(BLDDIR)/$(LIBA_TARGET)
+
+prog: all $(PROG_TARGET)
 
 prepare:
 	-@mkdir -p $(BLDDIR)

@@ -210,10 +210,10 @@ bash tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
 echo ""
 
+cp tools/misc/makefile.output output/Makefile
 ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| awk -F ':' '{print $2}')
 if [ "${ENV_TEST}" = "ubuntu" ];then
     rm -f ${WRAPPERS_DIR}/wrapper.c
     cp -rf wrappers/os/ubuntu ${WRAPPERS_DIR}/
     rm -f ${WRAPPERS_DIR}/ubuntu/HAL_UART_linux.c
-    cp tools/misc/makefile.output output/Makefile
 fi
