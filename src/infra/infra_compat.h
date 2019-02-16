@@ -111,12 +111,14 @@ typedef enum {
  */
 int IOT_Ioctl(int option, void *data);
 
+#ifdef INFRA_LOG
 #include "infra_log.h"
+DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
+#endif
 
 #ifdef INFRA_MEM_STATS
 #include "infra_mem_stats.h"
 #endif
-DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
 
 /* compatible for V2.3.0 */
 #define IOTX_CLOUD_DOMAIN_SH        IOTX_CLOUD_REGION_SHANGHAI

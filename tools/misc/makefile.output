@@ -15,7 +15,7 @@ SRCDIR  := eng
 EXPDIR  := examples
 HDRDIR  := $(shell find $(SRCDIR) -type d)
 
-PROG_TARGET := $(shell ls $(EXPDIR)|grep example|sed 's:\.c::g;s:_:-:g')
+PROG_TARGET := $(shell ls $(EXPDIR) 2>/dev/null|grep example|sed 's:\.c::g;s:_:-:g')
 PROG_TARGET := $(foreach V,$(PROG_TARGET),$(BLDDIR)/$(V))
 
 ###############################################################################
