@@ -131,7 +131,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
     }
 
-#ifdef MQTT_DIRECT
+#if ( defined(MQTT_DEFAULT_IMPL) && defined(MQTT_DIRECT) ) || !defined(MQTT_DEFAULT_IMPL)
     /* setup password */
     memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
     infra_hex2str(sign, 32, signout->password);
@@ -164,7 +164,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     signout->port = 1883;
 #endif /* #ifdef SUPPORT_TLS */
     return SUCCESS_RETURN;
-#else
+#elif defined(MQTT_PRE_AUTH)
     {
         char sign_string[DEV_SIGN_PASSWORD_MAXLEN];
         (void)length;
@@ -177,6 +177,8 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         return preauth_get_connection_info(region, meta, sign_string, device_id,
                                         signout->hostname, &signout->port, signout->username, signout->password);
     }
+#else
+    #error Invalid Configuration
 #endif /* #ifdef MQTT_DIRECT */
 }
 
