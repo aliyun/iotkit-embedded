@@ -86,7 +86,7 @@ uint32_t HAL_Random(uint32_t region)
         return 0;
     }
     ret = fread(&output,sizeof(uint32_t),1,handle);
-    if (ret != sizeof(uint32_t)) {
+    if (ret != 1) {
         printf("fread error: %ld\n",ret);
         fclose(handle);
         return 0;
