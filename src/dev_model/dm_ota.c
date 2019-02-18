@@ -57,14 +57,19 @@ int dm_ota_switch_device(int devid)
     char dn[IOTX_DEVICE_NAME_LEN + 1] = {0};
     char ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
     int ret = dm_mgr_search_device_by_devid(devid, pk, dn, ds);
+    void *ota_handle = NULL;
+    int res = -1;
+    dm_ota_ctx_t *ctx = NULL;
+
     if (SUCCESS_RETURN != ret) {
         dm_log_err("could not find device by id, ret is %d", ret);
         return FAIL_RETURN;
     }
     dm_log_info("do subdevice ota, pk, dn is %s, %s", pk, dn);
 
-    void *ota_handle = NULL;
-    int res = dm_ota_get_ota_handle(&ota_handle);
+    ota_handle = NULL;
+    res = dm_ota_get_ota_handle(&ota_handle);
+
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
@@ -76,7 +81,7 @@ int dm_ota_switch_device(int devid)
     }
 
     dm_ota_deinit();
-    dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
+    ctx = _dm_ota_get_ctx();
     memset(ctx, 0, sizeof(dm_ota_ctx_t));
 
     memcpy(ctx->product_key, pk, strlen(pk) + 1);

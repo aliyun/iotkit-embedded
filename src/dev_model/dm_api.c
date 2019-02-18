@@ -188,7 +188,7 @@ int iotx_dm_subscribe(_IN_ int devid)
 
 #ifdef ALCS_ENABLED
     if (devid > 0) {
-        dm_server_add_device(product_key,device_name);
+        dm_server_add_device(product_key, device_name);
     }
 
     res = dm_server_subscribe_all(product_key, device_name);
@@ -606,7 +606,8 @@ int iotx_dm_query_topo_list(void)
     return res;
 }
 
-int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid)
 {
     int res = 0;
@@ -853,6 +854,7 @@ int iotx_dm_firmware_version_update(_IN_ int devid, _IN_ char *payload, _IN_ int
 int iotx_dm_send_firmware_version(int devid, const char *version)
 {
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
+    int msg_len = 0;
     /* firmware report message json data generate */
     int ret = HAL_Snprintf(msg,
                            FIRMWARE_VERSION_MSG_LEN,
@@ -864,7 +866,8 @@ int iotx_dm_send_firmware_version(int devid, const char *version)
         printf("firmware report message json data generate err");
         return FAIL_RETURN;
     }
-    int msg_len = strlen(msg);
+
+    msg_len = strlen(msg);
 
     ret = iotx_dm_firmware_version_update(devid, msg, msg_len);
     return SUCCESS_RETURN;
