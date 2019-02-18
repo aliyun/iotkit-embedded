@@ -213,7 +213,7 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
         char reply[TOPIC_LEN_MAX] = {0};
         awss_build_topic(TOPIC_SWITCHAP_REPLY, reply, TOPIC_LEN_MAX);
         awss_cmp_mqtt_send(reply, packet, packet_len, 1);
-        os_free(packet);
+        HAL_Free(packet);
     } while (0);
 
     /*
@@ -225,7 +225,7 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
     do {
         uint8_t bssid[ETH_ALEN] = {0};
         char ssid[OS_MAX_SSID_LEN + 1] = {0}, passwd[OS_MAX_PASSWD_LEN + 1] = {0};
-        os_wifi_get_ap_info(ssid, passwd, bssid);
+        HAL_Wifi_Get_Ap_Info(ssid, passwd, bssid);
         /*
          * switch ap when destination ap is differenct from current ap
          */
@@ -247,14 +247,14 @@ ONLINE_SWITCHAP_FAIL:
     memset(switchap_ssid, 0, sizeof(switchap_ssid));
     memset(switchap_bssid, 0, sizeof(switchap_bssid));
     memset(switchap_passwd, 0, sizeof(switchap_passwd));
-    if (packet) os_free(packet);
+    if (packet) HAL_Free(packet);
     return;
 }
 
 static void *reboot_timer = NULL;
 static int awss_switch_ap_online()
 {
-    os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, switchap_ssid, switchap_passwd,
+    HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, switchap_ssid, switchap_passwd,
                        AWSS_AUTH_TYPE_INVALID, AWSS_ENC_TYPE_INVALID, switchap_bssid, 0);
 
     awss_stop_timer(switchap_timer);
@@ -274,7 +274,7 @@ static int awss_reboot_system()
 {
     awss_stop_timer(reboot_timer);
     reboot_timer = NULL;
-    os_reboot();
+    HAL_Reboot();
     while (1);
     return 0;
 }
@@ -342,7 +342,7 @@ static int awss_report_token_to_cloud()
 
     ret = awss_cmp_mqtt_send(topic, packet, packet_len, 1);
     awss_info("report token res:%d\r\n", ret);
-    os_free(packet);
+    HAL_Free(packet);
 
     return ret;
 }

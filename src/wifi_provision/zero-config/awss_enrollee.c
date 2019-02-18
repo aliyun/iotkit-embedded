@@ -60,24 +60,24 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
     pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
 
-    os_product_get_key(pk);
+    HAL_GetProductKey(pk);
     pk_len = strlen(pk);
 
-    os_device_get_name(dev_name);
+    HAL_GetDeviceName(dev_name);
     dev_name_len = strlen(dev_name);
 
     len = RANDOM_MAX_LEN + dev_name_len + pk_len;
     text = os_zalloc(len + 1); /* +1 for string print */
 
     awss_build_sign_src(text, &len);
-    if (os_get_conn_encrypt_type() == 3) { /* aes-key per product */
-        os_product_get_secret(key);
+    if (HAL_Awss_Get_Conn_Encrypt_Type() == 3) { /* aes-key per product */
+        HAL_GetProductSecret(key);
     } else { /* aes-key per device */
-        os_device_get_secret(key);
+        HAL_GetDeviceSecret(key);
     }
     produce_signature(sign, (uint8_t *)text, len, key);
 
-    os_free(text);
+    HAL_Free(text);
 
     ie_len = pk_len + dev_name_len + ENROLLEE_IE_FIX_LEN;
     enrollee_frame_len = sizeof(probe_req_frame) + ie_len;
@@ -111,7 +111,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     memcpy(&enrollee_frame[len], aes_random, RANDOM_MAX_LEN);
     len += RANDOM_MAX_LEN;
 
-    enrollee_frame[len ++] = os_get_conn_encrypt_type();  /*encrypt type */
+    enrollee_frame[len ++] = HAL_Awss_Get_Conn_Encrypt_Type();  /*encrypt type */
     enrollee_frame[len ++] = 0;  /* signature method, 0: hmacsha1, 1: hmacsha256 */
     enrollee_frame[len ++] = ENROLLEE_SIGN_SIZE;  /* signature length */
     g_dev_sign = &enrollee_frame[len];
@@ -124,14 +124,14 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     /* update probe request frame src mac */
     os_wifi_get_mac(enrollee_frame + SA_POS);
 
-    os_free(pk);
-    os_free(dev_name);
+    HAL_Free(pk);
+    HAL_Free(dev_name);
 }
 
 void awss_destroy_enrollee_info(void)
 {
     if (enrollee_frame_len) {
-        os_free(enrollee_frame);
+        HAL_Free(enrollee_frame);
         enrollee_frame_len = 0;
         enrollee_frame = NULL;
         g_dev_sign = NULL;
@@ -144,7 +144,7 @@ void awss_broadcast_enrollee_info(void)
     if (enrollee_frame_len == 0 || enrollee_frame == NULL)
         return;
 
-    os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, enrollee_frame,
+    HAL_Wifi_Send_80211_Raw_Frame(FRAME_PROBE_REQ, enrollee_frame,
                                  enrollee_frame_len);
 }
 
@@ -209,7 +209,7 @@ static int decrypt_ssid_passwd(
     AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_START);
 
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
-            1, os_get_conn_encrypt_type(), 0, (const char *)aes_random); /* aes128 cfb */
+            1, HAL_Awss_Get_Conn_Encrypt_Type(), 0, (const char *)aes_random); /* aes128 cfb */
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         awss_debug("registrar(passwd invalid!");
         AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);

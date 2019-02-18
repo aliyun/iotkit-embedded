@@ -73,7 +73,7 @@ int __awss_start(void)
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
         }
 
-        ret = os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
+        ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
                                  auth, encry, bssid, channel);
         if (!ret) {
             awss_debug("awss connect ssid:%s success", ssid);
@@ -132,7 +132,7 @@ int __awss_stop(void)
 
     while (1) {
         if (awss_finished) break;
-        os_msleep(300);
+        HAL_SleepMs(300);
     }
     aws_release_mutex();
     awss_finished = 2;

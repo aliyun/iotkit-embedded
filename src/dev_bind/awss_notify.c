@@ -10,7 +10,6 @@
 #include "awss_timer.h"
 #include "awss_cmp.h"
 #include "awss_log.h"
-#include "awss_platform.h"
 #include "passwd.h"
 #include "os.h"
 #include "infra_classic.h"
@@ -88,7 +87,7 @@ static int awss_dev_bind_notify_resp(void *context, int result,
     if (res == 1) {
         awss_update_token();
 #ifdef DEV_BIND_TEST
-        os_reboot();
+        HAL_Reboot();
 #endif
     }
     return res;
@@ -211,15 +210,15 @@ int awss_notify_dev_info(int type, int count)
             int ret = awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id[type]);
             awss_info("send notify %s", ret == 0 ? "success" : "fail");
             if (count > 1)
-                os_msleep(200 + 100 * i);
+                HAL_SleepMs(200 + 100 * i);
 
             if (awss_notify_resp[type])
                 break;
         }
     } while (0);
 
-    if (buf) os_free(buf);
-    if (dev_info) os_free(dev_info);
+    if (buf) HAL_Free(buf);
+    if (dev_info) HAL_Free(dev_info);
 
     return awss_notify_resp[type];
 }
@@ -271,7 +270,7 @@ static int awss_process_get_devinfo()
         HAL_Snprintf(dev_info, DEV_INFO_LEN_MAX - 1, "{%s}", buf);
         memset(buf, 0x00, DEV_INFO_LEN_MAX);
         HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
-        os_free(dev_info);
+        HAL_Free(dev_info);
 
         awss_info("sending message to app: %s", buf);
         if (ctx->is_mcast) {
@@ -286,7 +285,7 @@ static int awss_process_get_devinfo()
         if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request, NULL, NULL, 0))
             awss_err("sending failed.");
 
-        os_free(buf);
+        HAL_Free(buf);
         awss_release_coap_ctx(coap_session_ctx);
         coap_session_ctx = NULL;
         awss_stop_timer(get_devinfo_timer);
@@ -301,8 +300,8 @@ GET_DEV_INFO_ERR:
     awss_stop_timer(get_devinfo_timer);
     get_devinfo_timer = NULL;
 
-    if (buf) os_free(buf);
-    if (dev_info) os_free(dev_info);
+    if (buf) HAL_Free(buf);
+    if (dev_info) HAL_Free(dev_info);
 
     return -1;
 }
@@ -403,7 +402,7 @@ static int __awss_dev_bind_notify()
         }
 #ifdef DEV_BIND_TEST
         if (dev_bind_cnt > 3)
-            os_reboot();
+            HAL_Reboot();
 #endif
 
         if (dev_bind_cnt < AWSS_NOTIFY_CNT_MAX &&

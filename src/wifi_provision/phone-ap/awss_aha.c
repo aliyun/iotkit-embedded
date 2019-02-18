@@ -96,7 +96,7 @@ int aws_send_aha_probe_req(void)
     uint8_t probe[AHA_PROBE_PKT_LEN];
     memcpy(probe, aha_probe_req_frame, sizeof(probe));
     os_wifi_get_mac(&probe[AHA_SA_OFFSET]);
-    os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, probe, sizeof(probe));
+    HAL_Wifi_Send_80211_Raw_Frame(FRAME_PROBE_REQ, probe, sizeof(probe));
     return 0;
 }
 

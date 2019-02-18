@@ -208,7 +208,7 @@ int zconfig_recv_completed(uint8_t tods)
                 pkg_len(i) = buf[i - 5] | (0x100 + 0x80 * ((i - 1) % GROUP_NUMBER));
                 pkg_score(i) =  SSID_AUTO_COMPLETE_SCORE;
             }
-            os_free(buf);
+            HAL_Free(buf);
         }
     }
 #endif
@@ -359,7 +359,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         passwd_len = passwd_cipher_len;
         memset(zc_passwd, 0, ZC_MAX_PASSWD_LEN);
         aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len,
-                1, os_get_encrypt_type(), 0, NULL);
+                1, HAL_Awss_Get_Encrypt_Type(), 0, NULL);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
             awss_trace("passwd err\r\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
@@ -386,8 +386,8 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     pbuf += passwd_len; /* passwd */
     ret = 0;
 exit:
-    os_free(buf);
-    os_free(tmp);
+    HAL_Free(buf);
+    HAL_Free(tmp);
 
     return ret;
 }

@@ -164,33 +164,33 @@ static void aws_switch_dst_chan(int channel);
 static int aws_amend_dst_chan = 0;
 void aws_switch_channel(void)
 {
-    os_mutex_lock(zc_mutex);
+    HAL_MutexLock(zc_mutex);
     if (aws_amend_dst_chan != 0) {
         aws_switch_dst_chan(aws_amend_dst_chan);
         aws_amend_dst_chan = 0;
-        os_mutex_unlock(zc_mutex);
+        HAL_MutexUnlock(zc_mutex);
         return;
     }
 
     if (aws_state == AWS_CHN_LOCKED) {
-        os_mutex_unlock(zc_mutex);
+        HAL_MutexUnlock(zc_mutex);
         return;
     }
 
     do {
         int channel = aws_next_channel();
         aws_chn_timestamp = os_get_time_ms();
-        os_awss_switch_channel(channel, 0, NULL);
+        HAL_Awss_Switch_Channel(channel, 0, NULL);
         awss_trace("chan %d\r\n", channel);
     } while (0);
-    os_mutex_unlock(zc_mutex);
+    HAL_MutexUnlock(zc_mutex);
 }
 
 void aws_set_dst_chan(int channel)
 {
-    os_mutex_lock(zc_mutex);
+    HAL_MutexLock(zc_mutex);
     aws_amend_dst_chan = channel;
-    os_mutex_unlock(zc_mutex);
+    HAL_MutexUnlock(zc_mutex);
 }
 
 static void aws_switch_dst_chan(int channel)
@@ -221,7 +221,7 @@ static void aws_switch_dst_chan(int channel)
     aws_chn_timestamp = os_get_time_ms();
     if (aws_state == AWS_SCANNING)
         aws_state = AWS_CHN_LOCKED;
-    os_awss_switch_channel(channel, 0, NULL);
+    HAL_Awss_Switch_Channel(channel, 0, NULL);
 
     awss_trace("adjust chan %d\r\n", channel);
 }
@@ -239,9 +239,9 @@ int aws_is_chnscan_timeout(void)
         return CHNSCAN_TIMEOUT;
     }
 
-    if (time_elapsed_ms_since(aws_chn_timestamp) > os_awss_get_channelscan_interval_ms()) {
-        if ((0 != os_awss_get_timeout_interval_ms()) &&
-            (time_elapsed_ms_since(aws_start_timestamp) > os_awss_get_timeout_interval_ms())) {
+    if (time_elapsed_ms_since(aws_chn_timestamp) > HAL_Awss_Get_Channelscan_Interval_Ms()) {
+        if ((0 != HAL_Awss_Get_Timeout_Interval_Ms()) &&
+            (time_elapsed_ms_since(aws_start_timestamp) > HAL_Awss_Get_Timeout_Interval_Ms())) {
             return CHNSCAN_TIMEOUT;
         } else {
             return CHNSCAN_NEXT_CHN;
@@ -270,7 +270,7 @@ int aws_force_scanning(void)
 {
 #ifdef WITH_AUTH_ENCRY
     int timeout = sizeof(aws_fixed_scanning_channels) / sizeof(uint8_t)
-                  * os_awss_get_timeout_interval_ms() * 2; /* 2 round */
+                  * HAL_Awss_Get_Timeout_Interval_Ms() * 2; /* 2 round */
 
     /* force scanning useful only when aws is success */
     if (aws_state != AWS_SUCCESS)
@@ -337,20 +337,20 @@ rescanning:
         if (aws_state != AWS_SCANNING)  /* channel is locked, don't need to tx probe req */
             break;
 
-        interval = (os_awss_get_channelscan_interval_ms() + 2) / 3;
+        interval = (HAL_Awss_Get_Channelscan_Interval_Ms() + 2) / 3;
         if (interval < 1)
             interval = 1;
 
         /* 80211 frame handled by callback */
-        os_msleep(interval);
+        HAL_SleepMs(interval);
 #ifndef AWSS_DISABLE_ENROLLEE
         awss_broadcast_enrollee_info();
 #endif
-        os_msleep(interval);
+        HAL_SleepMs(interval);
 #ifdef AWSS_SUPPORT_ADHA
         aws_send_adha_probe_req();
 #endif
-        os_msleep(interval);
+        HAL_SleepMs(interval);
 #ifdef AWSS_SUPPORT_AHA
         aws_send_aha_probe_req();
 #endif
@@ -371,7 +371,7 @@ rescanning:
 
     while (aws_state != AWS_SUCCESS) {
         /* 80211 frame handled by callback */
-        os_msleep(300);
+        HAL_SleepMs(300);
 
         if (aws_stop == AWS_STOPPING)
             goto timeout_recving;
@@ -403,14 +403,14 @@ timeout_recving:
             rescan_timer = HAL_Timer_Create("rescan", (void(*)(void *))rescan_monitor, NULL);
         HAL_Timer_Stop(rescan_timer);
         HAL_Timer_Start(rescan_timer, RESCAN_MONITOR_TIMEOUT_MS);
-        os_awss_close_monitor();
+        HAL_Awss_Close_Monitor();
         while (rescan_available == 0) {
             if (awss_get_config_press() ||
                 aws_stop == AWS_STOPPING) {  /* user interrupt sleep */
                 HAL_Timer_Stop(rescan_timer);
                 break;
             }
-            os_msleep(200);
+            HAL_SleepMs(200);
         }
         rescan_available = 0;
     } while (0);
@@ -427,15 +427,15 @@ timeout_recving:
 #endif
 
     aws_start_timestamp = os_get_time_ms();
-    os_awss_open_monitor(aws_80211_frame_handler);
+    HAL_Awss_Open_Monitor(aws_80211_frame_handler);
     goto rescanning;
 
 success:
     awss_stop_timer(rescan_timer);
     rescan_timer = NULL;
     /* don't destroy zconfig_data until monitor_cb is finished. */
-    os_mutex_lock(zc_mutex);
-    os_mutex_unlock(zc_mutex);
+    HAL_MutexLock(zc_mutex);
+    HAL_MutexUnlock(zc_mutex);
     /*
      * zconfig_destroy() after os_awss_monitor_close() beacause
      * zconfig_destroy will release mem/buffer that
@@ -512,7 +512,7 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     awss_open_aplist_monitor();
 #endif
 
-    os_awss_open_monitor(aws_80211_frame_handler);
+    HAL_Awss_Open_Monitor(aws_80211_frame_handler);
 
 #ifndef AWSS_DISABLE_ENROLLEE
     awss_init_enrollee_info();
@@ -538,15 +538,15 @@ void aws_destroy(void)
 
     aws_stop = AWS_STOPPING;
 
-    os_awss_close_monitor();
+    HAL_Awss_Close_Monitor();
 
     while (aws_stop != AWS_STOPPED) {
         if (aws_state == AWS_SUCCESS)
             break;
-        os_msleep(100);
+        HAL_SleepMs(100);
     }
 
-    os_free(aws_info);
+    HAL_Free(aws_info);
     aws_info = NULL;
 
 #ifndef AWSS_DISABLE_ENROLLEE

@@ -122,7 +122,7 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
     memset(buf, 0x00, DEV_INFO_LEN_MAX);
     HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
 
-    os_free(dev_info);
+    HAL_Free(dev_info);
 
     awss_info("tx msg to app: %s", buf);
 
@@ -131,12 +131,12 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
     if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request, NULL, NULL, 0))
         awss_err("tx dev info rsp fail.");
 
-    os_free(buf);
+    HAL_Free(buf);
     return 0;
 
 DEV_INFO_ERR:
-    if (buf) os_free(buf);
-    if (dev_info) os_free(dev_info);
+    if (buf) HAL_Free(buf);
+    if (dev_info) HAL_Free(dev_info);
 
     return -1;
 }

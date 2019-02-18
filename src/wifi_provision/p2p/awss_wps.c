@@ -204,8 +204,8 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             passwd_len = passwd_cipher_len;
             memset(tmp_passwd, 0, ZC_MAX_PASSWD_LEN);
             aes_decrypt_string((char *)passwd_cipher, (char *)tmp_passwd, passwd_len,
-                    1, os_get_encrypt_type(), 0, NULL);
-            os_free(passwd_cipher);
+                    1, HAL_Awss_Get_Encrypt_Type(), 0, NULL);
+            HAL_Free(passwd_cipher);
             if (is_utf8((const char *)tmp_passwd, passwd_len) == 0) {
                 /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */
                 memset(zc_android_src, 0, sizeof(zconfig_data->android_src));
@@ -284,7 +284,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
                     }
                 } else
 #endif
-                    if (time_elapsed_ms_since(start_time) > os_awss_get_channelscan_interval_ms() * (13 + 3) * 2) {
+                    if (time_elapsed_ms_since(start_time) > HAL_Awss_Get_Channelscan_Interval_Ms() * (13 + 3) * 2) {
                         start_time = 0;
                         strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
                     }

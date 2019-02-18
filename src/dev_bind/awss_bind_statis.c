@@ -74,14 +74,14 @@ int awss_bind_report_statis(const char *module)
     if (awss_statis_db_mutex)
         HAL_MutexUnlock(awss_statis_db_mutex);
 
-    os_free(log_buf);
-    os_free(log_content);
+    HAL_Free(log_buf);
+    HAL_Free(log_content);
 
     return 0;
 
 BIND_STATIS_ERR:
-    if (log_content) os_free(log_content);
-    if (log_buf) os_free(log_buf);
+    if (log_content) HAL_Free(log_content);
+    if (log_buf) HAL_Free(log_buf);
     return -1;
 }
 

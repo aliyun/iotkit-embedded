@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include "os.h"
 #include "awss_wifimgr.h"
-#include "os/awss_platform.h"
 #include "awss_main.h"
 #include "passwd.h"
 #include "infra_json_parser.h"
@@ -83,10 +82,10 @@ static void wifimgr_scan_tx_wifilist()
                                            &g_wifimgr_req_sa, topic, NULL)) {
                 awss_debug("sending failed.");
             }
-            os_free(item->data);
+            HAL_Free(item->data);
         }
         list_del(&item->entry);
-        os_free(item);
+        HAL_Free(item);
         item= NULL;
     }
     HAL_MutexUnlock(g_scan_mutex);
@@ -118,7 +117,7 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
         int ssid_len = strlen(ssid);
         ssid_len = ssid_len > OS_MAX_SSID_LEN - 1 ? OS_MAX_SSID_LEN - 1 : ssid_len;
 
-        os_wifi_get_ap_info(NULL, NULL, bssid_connected);
+        HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid_connected);
 
         if (other_apinfo && encode_ssid) {
             if (memcmp(bssid_connected, bssid, ETH_ALEN) == 0) {
@@ -141,8 +140,8 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
             }
         }
 
-        if (other_apinfo) os_free(other_apinfo);
-        if (encode_ssid) os_free(encode_ssid);
+        if (other_apinfo) HAL_Free(other_apinfo);
+        if (encode_ssid) HAL_Free(encode_ssid);
     }
     awss_debug("last_ap:%u\r\n", last_ap);
 
@@ -160,19 +159,19 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
         msg_len = 0;
         msg_aplist = os_zalloc(tlen + 1);
         if (!msg_aplist) {
-            os_free(aplist);
+            HAL_Free(aplist);
             aplist = NULL;
             return SHUB_ERR;
         }
 
         HAL_Snprintf(msg_aplist, tlen, AWSS_ACK_FMT, g_req_msg_id, 200, aplist);
-        os_free(aplist);
+        HAL_Free(aplist);
         aplist = NULL;
 
         list = (scan_list_t *)os_zalloc(sizeof(scan_list_t));
         if (!list) {
             awss_debug("scan list fail\n");
-            os_free(msg_aplist);
+            HAL_Free(msg_aplist);
             return SHUB_ERR;
         }
         list->data = msg_aplist;
@@ -197,7 +196,7 @@ static void wifimgr_scan_request()
     wifimgr_scan_init();
 
     AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_SCAN_START);
-    os_wifi_scan(&awss_scan_cb);
+    HAL_Wifi_Scan(&awss_scan_cb);
 }
 
 /*
@@ -314,7 +313,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
 
         enc_lvl = atoi(str);
-        if (enc_lvl != os_get_conn_encrypt_type()) {
+        if (enc_lvl != HAL_Awss_Get_Conn_Encrypt_Type()) {
             success = 0;
             HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -4, "\"security level error\"");
             break;
@@ -347,7 +346,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
                 char encoded[PLATFORM_MAX_PASSWD_LEN * 2 + 1] = {0};
                 memcpy(encoded, str, str_len);
                 aes_decrypt_string(encoded, passwd, str_len,
-                        0, os_get_conn_encrypt_type(), 1, (const char *)aes_random);
+                        0, HAL_Awss_Get_Conn_Encrypt_Type(), 1, (const char *)aes_random);
             } else {
                 HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
                 AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
@@ -377,7 +376,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
     }
 
-    os_msleep(1000);
+    HAL_SleepMs(1000);
 
     if (!success)
         goto SWITCH_AP_END;
@@ -394,7 +393,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     } while (0);
 #endif
     AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
-    if (0 != os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT,
+    if (0 != HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT,
                                 ssid, passwd,
                                 AWSS_AUTH_TYPE_INVALID,
                                 AWSS_ENC_TYPE_INVALID,

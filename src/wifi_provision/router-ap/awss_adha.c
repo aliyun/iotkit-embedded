@@ -102,7 +102,7 @@ int aws_send_adha_probe_req(void)
     uint8_t probe[ADHA_PROBE_PKT_LEN];
     memcpy(probe, adha_probe_req_frame, sizeof(probe));
     os_wifi_get_mac(&probe[ADHA_SA_OFFSET]);
-    os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, probe, sizeof(probe));
+    HAL_Wifi_Send_80211_Raw_Frame(FRAME_PROBE_REQ, probe, sizeof(probe));
     return 0;
 }
 
@@ -184,7 +184,7 @@ int awss_deinit_adha_aplist(void)
     if (adha_aplist == NULL)
         return 0;
 
-    os_free(adha_aplist);
+    HAL_Free(adha_aplist);
     adha_aplist = NULL;
     return 0;
 }

@@ -36,11 +36,11 @@ int awss_release_coap_ctx(void *session)
 
     if (ctx->request) {
         void *payload = ((struct CoAPMessage *)ctx->request)->payload;
-        if (payload) os_free(payload);
-        os_free(ctx->request);
+        if (payload) HAL_Free(payload);
+        HAL_Free(ctx->request);
     }
-    if (ctx->remote) os_free(ctx->remote);
-    os_free(ctx);
+    if (ctx->remote) HAL_Free(ctx->remote);
+    HAL_Free(ctx);
     return 0;
 }
 

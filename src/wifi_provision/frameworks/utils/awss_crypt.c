@@ -87,7 +87,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
         case SEC_LVL_AES128_PRODUCT:
         {
             char product_sec[OS_PRODUCT_SECRET_LEN + 1] = {0};
-            os_product_get_secret(product_sec);
+            HAL_GetProductSecret(product_sec);
             cal_passwd(product_sec, random, key);
             memcpy(iv, random, sizeof(random));
             break;
@@ -95,7 +95,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
         case SEC_LVL_AES128_DEVICE:
         {
             char dev_sec[OS_DEVICE_SECRET_LEN + 1] = {0};
-            os_device_get_secret(dev_sec);
+            HAL_GetDeviceSecret(dev_sec);
             cal_passwd(dev_sec, random, key);
             memcpy(iv, random, sizeof(random));
             break;
@@ -112,22 +112,22 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
     plain[0] = '\0';
 
     if (decrypt) {
-        p_aes128_t aes = os_aes128_init(key, iv, PLATFORM_AES_DECRYPTION);
+        p_aes128_t aes = HAL_Aes128_Init(key, iv, PLATFORM_AES_DECRYPTION);
         if (cbc) { /* AP */
             /*
              * mobile-ap, dev-ap, router
              */
-            os_aes128_cbc_decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
+            HAL_Aes128_Cbc_Decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
         } else {  /* smartconfig */
             /*
              * smartconfig/wps, zconfig
              */
-            os_aes128_cfb_decrypt(aes, decoded, len, plain);
+            HAL_Aes128_Cfb_Decrypt(aes, decoded, len, plain);
         }
-        os_aes128_destroy(aes);
+        HAL_Aes128_Destroy(aes);
     }
 
-    os_free(decoded);
+    HAL_Free(decoded);
 
     return res;
 }

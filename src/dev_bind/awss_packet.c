@@ -25,23 +25,23 @@ extern "C"
 
 static void * awss_get_dev_info(void *dev_info, int len)
 {
-    char dev_name[OS_DEVICE_NAME_LEN + 1] = {0};
-    char mac_str[OS_MAC_LEN + 1] = {0};
-    char pk[OS_PRODUCT_KEY_LEN + 1] = {0};
+    char dev_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char mac_str[HAL_MAC_LEN + 1] = {0};
+    char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char ip_str[OS_IP_LEN + 1] = {0};
 
     if (dev_info == NULL || len <= 0)
         return NULL;
 
-    os_product_get_key(pk);
-    os_device_get_name(dev_name);
+    HAL_GetProductKey(pk);
+    HAL_GetDeviceName(dev_name);
     os_wifi_get_mac_str(mac_str);
-    os_wifi_get_ip(ip_str, NULL);
+    HAL_Wifi_Get_IP(ip_str, NULL);
 #if 0
     awss_dict_crypt(NOTIFY_ENCODE_TABLE, (uint8_t *)pk, strlen(pk));
     awss_dict_crypt(NOTIFY_ENCODE_TABLE, (uint8_t *)dev_name, strlen(dev_name));
 #endif
-    HAL_Snprintf(dev_info, len - 1, AWSS_DEV_INFO_FMT, AWSS_VER, pk, dev_name, mac_str, ip_str, os_get_conn_encrypt_type());
+    HAL_Snprintf(dev_info, len - 1, AWSS_DEV_INFO_FMT, AWSS_VER, pk, dev_name, mac_str, ip_str, HAL_Awss_Get_Conn_Encrypt_Type());
 
     return dev_info;
 }
@@ -59,7 +59,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
         return NULL;
 
     len += HAL_Snprintf((char*)dev_info + len, info_len - len - 1, "%s", (char *)awss_get_dev_info(buf, DEV_INFO_LEN_MAX));
-    os_free(buf);
+    HAL_Free(buf);
     buf = NULL;
 
     switch (type) {
@@ -83,13 +83,13 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
             {
                 int txt_len = 80;
                 char txt[80] = {0};
-                char key[OS_DEVICE_SECRET_LEN + 1] = {0};
+                char key[IOTX_DEVICE_SECRET_LEN + 1] = {0};
                 uint8_t sign[DEV_SIGN_SIZE + 1] = {0};
 
-                if (os_get_conn_encrypt_type() == 3) /* aes-key per product */
-                    os_product_get_secret(key);
+                if (HAL_Awss_Get_Conn_Encrypt_Type() == 3) /* aes-key per product */
+                    HAL_GetProductSecret(key);
                 else  /* aes-key per device */
-                    os_device_get_secret(key);
+                    HAL_GetDeviceSecret(key);
                 awss_build_sign_src(txt, &txt_len);
                 produce_signature(sign, (uint8_t *)txt, txt_len, key);
                 utils_hex_to_str(sign, DEV_SIGN_SIZE, sign_str, sizeof(sign_str));
@@ -115,13 +115,13 @@ char *awss_build_sign_src(char *sign_src, int *sign_src_len)
     if (sign_src == NULL || sign_src_len == NULL)
         goto build_sign_src_err;
 
-    pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
-    dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
+    pk = os_zalloc(IOTX_PRODUCT_KEY_LEN + 1);
+    dev_name = os_zalloc(IOTX_DEVICE_NAME_LEN + 1);
     if (pk == NULL || dev_name == NULL)
         goto build_sign_src_err;
 
-    os_product_get_key(pk);
-    os_device_get_name(dev_name);
+    HAL_GetProductKey(pk);
+    HAL_GetDeviceName(dev_name);
 
     pk_len = strlen(pk);
     dev_name_len = strlen(dev_name);
@@ -136,26 +136,26 @@ char *awss_build_sign_src(char *sign_src, int *sign_src_len)
     memcpy(sign_src + RANDOM_MAX_LEN, dev_name, dev_name_len);
     memcpy(sign_src + RANDOM_MAX_LEN + dev_name_len, pk, pk_len);
 
-    os_free(pk);
-    os_free(dev_name);
+    HAL_Free(pk);
+    HAL_Free(dev_name);
 
     return sign_src;
 
 build_sign_src_err:
-    if (pk) os_free(pk);
-    if (dev_name) os_free(dev_name);
+    if (pk) HAL_Free(pk);
+    if (dev_name) HAL_Free(dev_name);
     return NULL;
 }
 #endif
 const char *awss_build_topic(const char *topic_fmt, char *topic, uint32_t tlen)
 {
-    char pk[OS_PRODUCT_KEY_LEN + 1] = {0};
-    char dev_name[OS_DEVICE_NAME_LEN + 1] = {0};
+    char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char dev_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     if (topic == NULL || topic_fmt == NULL || tlen == 0)
         return NULL;
 
-    os_product_get_key(pk);
-    os_device_get_name(dev_name);
+    HAL_GetProductKey(pk);
+    HAL_GetDeviceName(dev_name);
 
     HAL_Snprintf(topic, tlen - 1, topic_fmt, pk, dev_name);
 

@@ -19,26 +19,26 @@ void dump_hex(uint8_t *data, int len, int tab_num)
 {
     int i;
     for (i = 0; i < len; i++) {
-        os_printf("%02x ", data[i]);
+        HAL_Printf("%02x ", data[i]);
 
         if (!((i + 1) % tab_num))
-            os_printf("\r\n");
+            HAL_Printf("\r\n");
     }
 
-    os_printf("\r\n");
+    HAL_Printf("\r\n");
 }
 #if 0
 void dump_ascii(uint8_t *data, int len, int tab_num)
 {
     int i;
     for (i = 0; i < len; i++) {
-        os_printf("%-2c ", data[i]);
+        HAL_Printf("%-2c ", data[i]);
 
         if (!((i + 1) % tab_num))
-            os_printf("  ");
+            HAL_Printf("  ");
     }
 
-    os_printf("\r\n");
+    HAL_Printf("\r\n");
 }
 
 void dump_mac(uint8_t *src, uint8_t *dst)
@@ -46,11 +46,11 @@ void dump_mac(uint8_t *src, uint8_t *dst)
     uint8_t *mac;
 
     mac = src;
-    os_printf("%02x:%02x:%02x:%02x:%02x:%02x > ",
+    HAL_Printf("%02x:%02x:%02x:%02x:%02x:%02x > ",
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     mac = dst;
-    os_printf("%02x:%02x:%02x:%02x:%02x:%02x\r\n",
+    HAL_Printf("%02x:%02x:%02x:%02x:%02x:%02x\r\n",
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     /* elimite compiler warning */

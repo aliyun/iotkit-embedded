@@ -117,7 +117,7 @@ void decode_chinese(uint8_t *in, uint8_t in_len,
             }
         }
 
-        os_free(bit);
+        HAL_Free(bit);
         if (out_len) {
             *out_len = output_len;
         }
@@ -172,7 +172,7 @@ uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid)
 
     zconfig_finished = 1;
 
-    os_awss_close_monitor();
+    HAL_Awss_Close_Monitor();
 
     return 0;
 }
@@ -193,7 +193,7 @@ void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channel)
             break;
         case STATE_RCV_DONE:
             /* prevent main_thread_func to free zconfig_data until curent task is finished. */
-            os_mutex_lock(zc_mutex);
+            HAL_MutexLock(zc_mutex);
             /*
              * in case of p2p/router, direct into RCV_DONE state,
              * skiped the chn lock state, so better to call channel lock here
@@ -222,7 +222,7 @@ void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channel)
         zc_state = state;
     }
     if (state == STATE_RCV_DONE) {
-        os_mutex_unlock(zc_mutex);
+        HAL_MutexUnlock(zc_mutex);
     }
 }
 
@@ -294,7 +294,7 @@ void zconfig_init()
     if (zconfig_data == NULL) {
         goto ZCONFIG_INIT_FAIL;
     }
-    zc_mutex = os_mutex_init();
+    zc_mutex = HAL_MutexCreate();
     if (zc_mutex == NULL) {
         goto ZCONFIG_INIT_FAIL;
     }
@@ -332,9 +332,9 @@ void zconfig_destroy(void)
 {
     if (zconfig_data) {
         if (zc_mutex) {
-            os_mutex_destroy(zc_mutex);
+            HAL_MutexDestroy(zc_mutex);
         }
-        os_free((void *)zconfig_data);
+        HAL_Free((void *)zconfig_data);
         zconfig_data = NULL;
     }
 }

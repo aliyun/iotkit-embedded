@@ -87,7 +87,7 @@ int awss_deinit_ieee80211_aplist(void)
 {
     if (zconfig_aplist == NULL)
         return 0;
-    os_free(zconfig_aplist);
+    HAL_Free(zconfig_aplist);
     zconfig_aplist = NULL;
     zconfig_aplist_num = 0;
     return 0;

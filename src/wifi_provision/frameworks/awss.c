@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "awss_api.h"
+#include "os.h"
 #include "awss_main.h"
 #include "zconfig_utils.h"
 #include "awss_cmp.h"
@@ -66,19 +67,19 @@ int awss_start(void)
 #ifdef AWSS_SUPPORT_ADHA
             while (1) {
                 memset(ssid, 0, sizeof(ssid));
-                os_wifi_get_ap_info(ssid , NULL, NULL);
+                HAL_Wifi_Get_Ap_Info(ssid , NULL, NULL);
                 awss_debug("start, ssid:%s, strlen:%d\n", ssid, strlen(ssid));
                 if (strlen(ssid) > 0 && strcmp(ssid, ADHA_SSID))  /* not adha AP */
                     break;
 
-                if (os_sys_net_is_ready()) { /* skip the adha failed */
+                if (HAL_Sys_Net_Is_Ready()) { /* skip the adha failed */
                     awss_cmp_local_init(AWSS_LC_INIT_ROUTER);
 
                     awss_open_adha_monitor();
                     while (!awss_is_ready_switch_next_adha()) {
                         if (awss_stopped)
                             break;
-                        os_msleep(50);
+                        HAL_SleepMs(50);
                     }
                     awss_cmp_local_deinit(0);
                 }
@@ -94,26 +95,26 @@ int awss_start(void)
             if (switch_ap_done)
                 break;
 
-            os_wifi_get_ap_info(ssid , NULL, NULL);
+            HAL_Wifi_Get_Ap_Info(ssid , NULL, NULL);
             if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID))  /* not AHA */
                 break;
 
-            if (os_sys_net_is_ready()) {
+            if (HAL_Sys_Net_Is_Ready()) {
                 char dest_ap = 0;
                 awss_open_aha_monitor();
 
                 awss_cmp_local_init(AWSS_LC_INIT_PAP);
                 while (!awss_aha_monitor_is_timeout()) {
                     memset(ssid, 0, sizeof(ssid));
-                    os_wifi_get_ap_info(ssid , NULL, NULL);
-                    if (os_sys_net_is_ready() &&
+                    HAL_Wifi_Get_Ap_Info(ssid , NULL, NULL);
+                    if (HAL_Sys_Net_Is_Ready() &&
                         strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) {  /* not AHA */
                         dest_ap = 1;
                         break;
                     }
                     if (awss_stopped)
                         break;
-                    os_msleep(50);
+                    HAL_SleepMs(50);
                 }
 
                 awss_cmp_local_deinit(0);
@@ -131,7 +132,7 @@ int awss_start(void)
         if (awss_stopped)
             break;
 
-        if (os_sys_net_is_ready())
+        if (HAL_Sys_Net_Is_Ready())
             break;
     } while (1);
 
@@ -180,7 +181,7 @@ static void awss_press_timeout(void)
 
 int awss_config_press(void)
 {
-    int timeout = os_awss_get_timeout_interval_ms();
+    int timeout = HAL_Awss_Get_Timeout_Interval_Ms();
 
     awss_trace("enable awss\r\n");
 

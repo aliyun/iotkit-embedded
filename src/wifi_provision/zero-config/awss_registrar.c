@@ -58,14 +58,14 @@ void awss_registrar_init(void)
 
     memset(enrollee_info, 0, sizeof(enrollee_info));
     registrar_inited = 1;
-    os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
+    HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                      (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
 }
 
 void awss_registrar_deinit(void)
 {
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
-    os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
+    HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                      (uint8_t *)alibaba_oui, NULL);
 
     registrar_inited = 0;
@@ -114,8 +114,8 @@ int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *reque
     }
 
 CONNECTAP_MONITOR_END:
-    if (dev_name) os_free(dev_name);
-    if (key) os_free(key);
+    if (dev_name) HAL_Free(dev_name);
+    if (key) HAL_Free(key);
     return 0;
 }
 
@@ -168,15 +168,15 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
     awss_build_topic(TOPIC_ZC_CHECKIN_REPLY, reply, TOPIC_LEN_MAX);
     awss_cmp_mqtt_send(reply, packet, packet_len, 1);
 
-    os_free(dev_name);
-    os_free(packet);
-    os_free(key);
+    HAL_Free(dev_name);
+    HAL_Free(packet);
+    HAL_Free(key);
     return;
 
 CHECKIN_FAIL:
-    if (dev_name) os_free(dev_name);
-    if (packet) os_free(packet);
-    if (key) os_free(key);
+    if (dev_name) HAL_Free(dev_name);
+    if (packet) HAL_Free(packet);
+    if (key) HAL_Free(key);
 
     awss_warn("alink checkin failed");
     return;
@@ -209,7 +209,7 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
 
             memcpy((char *)&enrollee_info[i].key[0], key_byte, AES_KEY_LEN);
 
-            os_free(key_byte);
+            HAL_Free(key_byte);
 
             awss_debug("enrollee[%d] state %d->%d", i, enrollee_info[i].state,
                        ENR_CHECKIN_CIPHER);
@@ -289,19 +289,19 @@ static int awss_request_cipher_key(int i)
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_DEV_CIPHER_FMT,
                  AWSS_VER, enrollee_info[i].pk, enrollee_info[i].dev_name, enrollee_info[i].security, rand_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_CIPHER, param, 0, packet, &packet_len);
-        os_free(param);
+        HAL_Free(param);
     }
 
     awss_build_topic(TOPIC_ZC_CIPHER, topic, TOPIC_LEN_MAX);
     awss_cmp_mqtt_send(topic, packet, packet_len, 1);
 
-    os_free(packet);
+    HAL_Free(packet);
 
     return 0;
 
 REQ_CIPHER_ERR:
-    if (param) os_free(param);
-    if (packet) os_free(packet);
+    if (param) HAL_Free(param);
+    if (packet) HAL_Free(packet);
 
     return -1;
 }
@@ -340,15 +340,15 @@ void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
 
     enrollee_enable_somebody_cipher(key, dev_name, cipher);
 
-    os_free(dev_name);
-    os_free(cipher);
-    os_free(key);
+    HAL_Free(dev_name);
+    HAL_Free(cipher);
+    HAL_Free(key);
 
     return;
 CIPHER_ERR:
-    if (dev_name) os_free(dev_name);
-    if (cipher) os_free(cipher);
-    if (key) os_free(key);
+    if (dev_name) HAL_Free(dev_name);
+    if (cipher) HAL_Free(cipher);
+    if (key) HAL_Free(key);
     return;
 }
 
@@ -416,7 +416,7 @@ ongoing:
     }
 
     HAL_Timer_Stop(checkin_timer);
-    HAL_Timer_Start(checkin_timer, os_awss_get_channelscan_interval_ms() * 15 / 16);
+    HAL_Timer_Start(checkin_timer, HAL_Awss_Get_Channelscan_Interval_Ms() * 15 / 16);
 
     return 1;
 }
@@ -529,13 +529,13 @@ void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg)
         awss_report_set_interval(key, dev_name, interval);
     }
 
-    os_free(dev_name);
-    os_free(key);
+    HAL_Free(dev_name);
+    HAL_Free(key);
     return;
 
 REPORT_REPLY_FAIL:
-    if (dev_name) os_free(dev_name);
-    if (key) os_free(key);
+    if (dev_name) HAL_Free(dev_name);
+    if (key) HAL_Free(key);
 
     awss_warn("ilop report enrollee failed");
     return;
@@ -561,7 +561,7 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
         char ssid[OS_MAX_SSID_LEN + 1] = {0};
         char bssid_str[OS_ETH_ALEN * 2 + 6] = {0};
 
-        os_wifi_get_ap_info(ssid, NULL, bssid);
+        HAL_Wifi_Get_Ap_Info(ssid, NULL, bssid);
         sprintf(bssid_str, "%02X:%02X:%02X:%02X:%02X:%02X", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
         for (i = 0; i < payload_len; i ++)
@@ -573,9 +573,9 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
 
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_REPORT_PARAM_FMT,
                  AWSS_VER, ssid, bssid_str, rssi > 0 ? rssi - 256 : rssi, payload_str);
-        os_free(payload_str);
+        HAL_Free(payload_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_ENROLLEE, param, 0, packet, &packet_len);
-        os_free(param);
+        HAL_Free(param);
     }
 
     awss_build_topic(TOPIC_ZC_ENROLLEE, topic, TOPIC_LEN_MAX);
@@ -583,13 +583,13 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
 
     awss_cmp_mqtt_send(topic, packet, packet_len, 1);
 
-    os_free(packet);
+    HAL_Free(packet);
     return 0;
 
 REPORT_FAIL:
-    if (payload_str) os_free(payload_str);
-    if (packet) os_free(packet);
-    if (param) os_free(param);
+    if (payload_str) HAL_Free(payload_str);
+    if (packet) HAL_Free(packet);
+    if (param) HAL_Free(param);
 
     return -1;
 }
@@ -600,7 +600,7 @@ static void enrollee_report(void)
     int i;
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     char ssid[OS_MAX_SSID_LEN + 1] = {0};
-    os_wifi_get_ap_info(ssid, NULL, NULL);
+    HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
     if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID))
         return;    /* ignore enrollee in 'aha' or 'adha' mode */
 #endif
@@ -621,7 +621,7 @@ static void enrollee_report(void)
                 int ret = -1;
                 uint16_t payload_len = 1 + enrollee->dev_name_len + 1 + enrollee->pk_len +
                                        1 + enrollee->rand_len + 3 + enrollee->sign_len;
-                uint8_t *payload = os_malloc(payload_len + 1);
+                uint8_t *payload = HAL_Malloc(payload_len + 1);
                 if (payload == NULL) {
                     break;
                 }
@@ -653,7 +653,7 @@ static void enrollee_report(void)
                            ret == 0 ? "success" : "failed",
                            enrollee->interval * 1000);
 
-                os_free(payload);
+                HAL_Free(payload);
                 break;
             }
             default:
@@ -750,10 +750,10 @@ int enrollee_put(struct enrollee_info *in)
         char ssid[OS_MAX_SSID_LEN + 1] = {0};
 #endif
         /* reduce stack used */
-        if (in == NULL || !os_sys_net_is_ready())  /* not ready to work as registerar */
+        if (in == NULL || !HAL_Sys_Net_Is_Ready())  /* not ready to work as registerar */
             return -1;
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-        os_wifi_get_ap_info(ssid, NULL, NULL);
+        HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
         if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID))
             return -1;    /* ignore enrollee in 'aha' or 'adha' mode */
 #endif
@@ -896,7 +896,7 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
     uint8_t bssid[OS_ETH_ALEN] = {0};
     int ssid_len, passwd_len;
 
-    os_wifi_get_ap_info(ssid, passwd, bssid);
+    HAL_Wifi_Get_Ap_Info(ssid, passwd, bssid);
     ssid_len = strlen(ssid);
     if (ssid_len > OS_MAX_SSID_LEN - 1) {
         ssid_len = OS_MAX_SSID_LEN - 1;
@@ -910,7 +910,7 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
     ie_len = ENROLLEE_SIGN_SIZE + ssid_len + passwd_len + REGISTRAR_IE_FIX_LEN;
     registrar_frame_len = sizeof(probe_req_frame) + ie_len;
 
-    registrar_frame = os_malloc(registrar_frame_len);
+    registrar_frame = HAL_Malloc(registrar_frame_len);
     if (!registrar_frame) {
         awss_err("error: malloc size %d faild\r\n", registrar_frame_len);
         return;
@@ -939,9 +939,9 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
     registrar_frame[len ++] = passwd_len;
 
     {
-        p_aes128_t aes = os_aes128_init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
-        os_aes128_cfb_encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
-        os_aes128_destroy(aes);
+        p_aes128_t aes = HAL_Aes128_Init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
+        HAL_Aes128_Cfb_Encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
+        HAL_Aes128_Destroy(aes);
     }
 
     len += passwd_len;
@@ -965,7 +965,7 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
 static void registrar_raw_frame_destroy(void)
 {
     if (registrar_frame_len) {
-        os_free(registrar_frame);
+        HAL_Free(registrar_frame);
         registrar_frame = NULL;
         registrar_frame_len = 0;
     }
@@ -976,7 +976,7 @@ static void registrar_raw_frame_send(void)
     /* suppose registrar_frame was ready
      * @see enrollee_checkin()
      */
-    int ret = os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, registrar_frame,
+    int ret = HAL_Wifi_Send_80211_Raw_Frame(FRAME_PROBE_REQ, registrar_frame,
                                            registrar_frame_len);
     if (ret) {
         awss_warn("send failed");
