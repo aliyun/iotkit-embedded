@@ -8,4 +8,4 @@ LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 LIB_SRCS_EXCLUDE         += dev_reset_example.c
 SRCS_dev-reset-example   := dev_reset_example.c
 
-$(call Append_Conditional, TARGET, dev-sign-example, DEV_RESET, BUILD_AOS)
+$(call Append_Conditional, TARGET, dev-reset-example, DEV_RESET, BUILD_AOS)
