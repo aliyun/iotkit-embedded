@@ -28,10 +28,9 @@ $(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/wifi_provision)
 $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, src/http2)
 
 SUBDIRS                 += wrappers
-SUBDIRS                 += external_libs/mbedtls
-SUBDIRS                 += external_libs/nghttp2
+SUBDIRS                 += external/mbedtls
 SUBDIRS                 += tests
 
+$(call Append_Conditional, SUBDIRS, external_libs/nghttp2, HTTP2_COMM_ENABLED)
+
 include $(RULE_DIR)/rules.mk
-
-
