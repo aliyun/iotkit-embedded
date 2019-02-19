@@ -1195,6 +1195,53 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
     return res;
 }
 
+#ifdef LOG_REPORT_TO_CLOUD
+static unsigned int log_size = 0;
+int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len, int force_upload)
+{
+    int res = 0;
+    dm_msg_request_t request;
+    extern REPORT_STATE g_report_status;
+    extern char *g_log_poll;
+
+    if (0 == force_upload) {
+        if (devid < 0 || payload == NULL || payload_len <= 0) {
+            return DM_INVALID_PARAMETER;
+        }
+
+        if (log_size + payload_len < OVERFLOW_LEN) {
+            log_size = push_log(payload, payload_len);
+        } else {
+            /* it should NOT happen; it means that it is too late to upload log files */
+            reset_log_poll();
+            dm_log_err("it it too late to upload log, reset pool");
+            return FAIL_RETURN;
+        }
+
+        dm_log_info("push log, len is %d, log_size is %d\n", payload_len, log_size);
+        if (!(log_size > REPORT_LEN && DONE == g_report_status)) {
+            return SUCCESS_RETURN;
+        }
+    }
+
+    log_size = add_tail();
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_LOG_POST,
+                                            g_log_poll, log_size + 1, "thing.log.post", &request);
+
+    if (res != SUCCESS_RETURN) {
+        reset_log_poll();
+        return FAIL_RETURN;
+    }
+    /* Send Message To Cloud */
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
+    reset_log_poll();
+    return res;
+}
+#endif
+
+
+
 int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *method,
                                      _IN_ char *payload, _IN_ int payload_len)
 {

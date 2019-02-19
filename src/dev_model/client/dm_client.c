@@ -2,6 +2,9 @@
 #ifdef DEV_BIND_ENABLED
 #include "awss_api.h"
 #endif
+#ifdef LOG_REPORT_TO_CLOUD
+#include "iotx_log_report.h"
+#endif
 
 static dm_client_uri_map_t g_dm_client_uri_map[] = {
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
@@ -253,6 +256,11 @@ void dm_client_thing_service_property_set(int fd, const char *topic, const char 
     if (res == SUCCESS_RETURN) {
         if (prop_set_reply_opt) {
             dm_msg_response(DM_MSG_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
+#ifdef LOG_REPORT_TO_CLOUD
+            if (SUCCESS_RETURN == check_target_msg(request.id.value, request.id.value_length)) {
+                send_permance_info(request.id.value, request.id.value_length, "2", 1);
+            }
+#endif
         }
     }
 }

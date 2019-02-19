@@ -2,7 +2,9 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "mqtt_internal.h"
-
+#ifdef LOG_REPORT_TO_CLOUD
+    #include "iotx_log_report.h"
+#endif
 static int _in_yield_cb;
 
 #ifndef PLATFORM_HAS_DYNMEM
@@ -1385,6 +1387,9 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 #ifdef INFRA_LOG
     HEXDUMP_DEBUG(topic_msg.payload, topic_msg.payload_len);
 #endif
+#endif
+#ifdef LOG_REPORT_TO_CLOUD
+    get_msgid(topicName.lenstring.data, 1);
 #endif
 
     topic_msg.ptopic = NULL;

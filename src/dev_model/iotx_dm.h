@@ -180,6 +180,9 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int iotx_dm_set_opt(int opt, void *data);
 int iotx_dm_get_opt(int opt, void *data);
+#ifdef LOG_REPORT_TO_CLOUD
+    int iotx_dm_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+#endif
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_property_desired_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);

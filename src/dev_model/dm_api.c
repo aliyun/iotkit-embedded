@@ -233,6 +233,11 @@ int iotx_dm_close(void)
     if (ctx->mutex) {
         HAL_MutexDestroy(ctx->mutex);
     }
+
+#ifdef LOG_REPORT_TO_CLOUD
+    remove_log_poll();
+#endif
+
     return SUCCESS_RETURN;
 }
 
@@ -365,6 +370,25 @@ int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_l
     _dm_api_unlock();
     return res;
 }
+
+#ifdef LOG_REPORT_TO_CLOUD
+int iotx_dm_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_thing_log_post(devid, payload, payload_len, 0);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return res;
+}
+#endif
+
 
 int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
                        _IN_ int payload_len)

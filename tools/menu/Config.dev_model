@@ -2,6 +2,10 @@ config DEVICE_MODEL_CLASSIC
     bool
     default y
 
+config LOG_REPORT_TO_CLOUD
+    bool
+    default n
+
 config DEVICE_MODEL_ENABLED
     bool "FEATURE_DEVICE_MODEL_ENABLED"
     select DEVICE_MODEL_CLASSIC
@@ -10,6 +14,7 @@ config DEVICE_MODEL_ENABLED
     select INFRA_SHA1
     select INFRA_LOG
     select INFRA_CJSON
+    select LOG_REPORT_TO_CLOUD if MQTT_COMM_ENABLED
     default y
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK

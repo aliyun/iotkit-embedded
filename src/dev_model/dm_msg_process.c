@@ -40,6 +40,9 @@ const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/mode
         const char DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY[]  DM_READ_ONLY = "thing/property/desired/delete_reply";
     #endif
     /* From Local To Cloud Request And Response*/
+    #ifdef LOG_REPORT_TO_CLOUD
+        const char DM_URI_THING_LOG_POST[]                    DM_READ_ONLY = "thing/log/post";
+    #endif
     const char DM_URI_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY = "thing/event/property/post";
     const char DM_URI_THING_EVENT_PROPERTY_POST_REPLY[]   DM_READ_ONLY = "thing/event/property/post_reply";
     const char DM_URI_THING_EVENT_POST[]                  DM_READ_ONLY = "thing/event/%.*s/post";

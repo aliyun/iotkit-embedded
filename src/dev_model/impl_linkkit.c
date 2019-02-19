@@ -9,6 +9,10 @@
 #include "iot_export_linkkit.h"
 #include "iotx_dm_internal.h"
 
+#ifdef LOG_REPORT_TO_CLOUD
+#include "iotx_log_report.h"
+#endif
+
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
     #define IMPL_LINKKIT_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.linkkit")
@@ -218,6 +222,9 @@ static void _iotx_linkkit_upstream_callback_remove(int msgid, int code)
 }
 #endif
 
+#ifdef LOG_REPORT_TO_CLOUD
+    int  report_sample = 0;
+#endif
 #ifdef ALCS_ENABLED
     extern void dm_server_free_context(_IN_ void *ctx);
 #endif
@@ -226,6 +233,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 {
     int res = 0;
     void *callback;
+#ifdef LOG_REPORT_TO_CLOUD
+    lite_cjson_t msg_id;
+#endif
     lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload, lite_item_ctx;
     lite_cjson_t lite_item_code, lite_item_eventid, lite_item_utc, lite_item_rrpcid, lite_item_topo;
     lite_cjson_t lite_item_pk, lite_item_time;
@@ -239,6 +249,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         if (res != SUCCESS_RETURN) {
             return;
         }
+#ifdef LOG_REPORT_TO_CLOUD
+        dm_utils_json_object_item(&lite, "msgid", 5, cJSON_Invalid, &msg_id);
+#endif
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_ID, strlen(IOTX_LINKKIT_KEY_ID), cJSON_Invalid, &lite_item_id);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_DEVID, strlen(IOTX_LINKKIT_KEY_DEVID), cJSON_Invalid,
                                   &lite_item_devid);
@@ -324,7 +337,6 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             LITE_hexstr_convert(lite_item_payload.value, lite_item_payload.value_length, raw_data, raw_data_len);
 
             HEXDUMP_DEBUG(raw_data, raw_data_len);
-
             callback = iotx_event_callback(ITE_RAWDATA_ARRIVED);
             if (callback) {
                 ((int (*)(const int, const unsigned char *, const int))callback)(lite_item_devid.value_int, raw_data, raw_data_len);
@@ -434,12 +446,23 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             }
             memset(property_payload, 0, lite_item_payload.value_length + 1);
             memcpy(property_payload, lite_item_payload.value, lite_item_payload.value_length);
-
+#ifdef LOG_REPORT_TO_CLOUD
+            if (SUCCESS_RETURN == check_target_msg(msg_id.value, msg_id.value_length)) {
+                report_sample = 1;
+                send_permance_info(msg_id.value, msg_id.value_length, "3", 1);
+            }
+#endif
             callback = iotx_event_callback(ITE_PROPERTY_SET);
             if (callback) {
                 ((int (*)(const int, const char *, const int))callback)(lite_item_devid.value_int, property_payload,
                         lite_item_payload.value_length);
             }
+#ifdef LOG_REPORT_TO_CLOUD
+            if (1 == report_sample) {
+                send_permance_info(NULL, 0, "5", 2);
+                report_sample = 0;
+            }
+#endif
 
             IMPL_LINKKIT_FREE(property_payload);
         }
@@ -1397,6 +1420,11 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
                 return FAIL_RETURN;
             }
             res = iotx_dm_post_property(devid, (char *)payload, payload_len);
+#ifdef LOG_REPORT_TO_CLOUD
+            if (1 == report_sample) {
+                send_permance_info(NULL, 0, "4", 1);
+            }
+#endif
         }
         break;
 #ifdef DEVICE_MODEL_SHADOW

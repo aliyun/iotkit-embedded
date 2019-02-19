@@ -7,7 +7,9 @@
 #include "alcs_api_internal.h"
 #include "CoAPPlatform.h"
 #include "CoAPResource.h"
-
+#ifdef LOG_REPORT_TO_CLOUD
+#include "iotx_log_report.h"
+#endif
 #define RES_FORMAT "{\"id\":\"%.*s\",\"code\":%d,\"data\":{%s}}"
 
 #ifdef ALCS_SERVER_ENABLED
@@ -451,6 +453,9 @@ void call_cb(CoAPContext *context, const char *path, NetworkAddr *remote, CoAPMe
         int len = alcs_decrypt((const char *)message->payload, message->payloadlen, key, buf);
         tmpMsg.payload = (unsigned char *)buf;
         tmpMsg.payloadlen = len;
+#ifdef LOG_REPORT_TO_CLOUD
+        get_msgid(buf, 0);
+#endif
     } else {
         tmpMsg.payload = NULL;
         tmpMsg.payloadlen = 0;
