@@ -46,8 +46,8 @@ static void iotx_response_handler(void *arg, void *p_response)
 #else
     #define IOTX_PRODUCT_KEY         "a1RP1qZfrEi"
     #define IOTX_PRODUCT_SECRET      "wzrh2iC7CcN2Askq"
-    #define IOTX_DEVICE_NAME         "example1"
-    #define IOTX_DEVICE_SECRET       "fPloaszb6saUFJte4EhyuBHQpR9SuKHb"
+    #define IOTX_DEVICE_NAME         "example5"
+    #define IOTX_DEVICE_SECRET       "2BZJTMnTr1gja4y6eOMdHruVTUxtIazp"
 #endif
 
 int iotx_get_devinfo(iotx_deviceinfo_t *p_devinfo)

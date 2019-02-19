@@ -25,9 +25,11 @@ $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/dev_model)
 $(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED, src/http)
 $(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/dev_bind)
 $(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/wifi_provision)
+$(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, src/http2)
 
 SUBDIRS                 += wrappers
 SUBDIRS                 += external_libs/mbedtls
+SUBDIRS                 += external_libs/nghttp2
 SUBDIRS                 += tests
 
 include $(RULE_DIR)/rules.mk

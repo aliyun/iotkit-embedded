@@ -1,0 +1,8 @@
+
+config HTTP2_COMM_ENABLED
+    bool "FEATURE_HTTP2_COMM_ENABLED"
+    default n
+
+    help
+        Establish persistent connection with AliCloud via HTTP2-stream protocol
+
