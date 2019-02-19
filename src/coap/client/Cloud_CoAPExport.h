@@ -11,7 +11,7 @@
 /* #define COAP_DTLS_SUPPORT */
 typedef CoAPMsgOption Cloud_CoAPMsgOption;
 typedef CoAPMessageCode Cloud_CoAPMessageCode;
-typedef CoAPMessage  Cloud_CoAPMessage ;
+typedef CoAPMessage Cloud_CoAPMessage ;
 #define COAP_OPTION_SEQ            2089
 
 typedef void (*Cloud_CoAPRespMsgHandler)(void *data, void *message);

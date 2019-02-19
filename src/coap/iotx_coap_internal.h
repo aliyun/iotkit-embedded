@@ -162,15 +162,15 @@ typedef struct {
     unsigned char *val;
 } CoAPMsgOption;
 
-typedef void  CoAPContext;
-typedef struct CoAPMessage  CoAPMessage;
+typedef void CoAPContext;
+typedef struct CoAPMessage CoAPMessage;
 
 typedef void (*CoAPSendMsgHandler)(CoAPContext *context, CoAPReqResult result, void *userdata, NetworkAddr *remote,
                                    CoAPMessage *message);
 
 typedef void (*CoAPEventNotifier)(unsigned int event, NetworkAddr *remote, void *message);
 
-typedef void (*CoAPRecvMsgHandler) (CoAPContext *context, const char *paths, NetworkAddr *remote, CoAPMessage *message);
+typedef void (*CoAPRecvMsgHandler)(CoAPContext *context, const char *paths, NetworkAddr *remote, CoAPMessage *message);
 
 typedef int (*CoAPDataEncrypt)(CoAPContext *context, const char *paths, NetworkAddr *addr, CoAPMessage *message,
                                CoAPLenString *src, CoAPLenString *dest);
