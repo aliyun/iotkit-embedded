@@ -6,6 +6,7 @@ config DEV_BIND_ENABLED
     select INFRA_COMPAT
     select COAP_SERVER
     select DEV_RESET
+    select MQTT_COMM_ENABLED
     default n
     help
         Enable dev-bind in SDK
