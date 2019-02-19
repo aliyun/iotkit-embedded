@@ -10,6 +10,6 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <nghttp2/nghttp2.h>
+#include "nghttp2.h"
 
 #endif /* NGHTTP2_SUBMIT_H */

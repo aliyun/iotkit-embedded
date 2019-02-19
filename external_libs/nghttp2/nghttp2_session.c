@@ -18,7 +18,8 @@
 #include "nghttp2_http.h"
 #include "nghttp2_pq.h"
 #include "nghttp2_debug.h"
-#include "iot_import.h"
+
+extern int HAL_Vsnprintf(char *str, const int len, const char *format, va_list ap);
 
 /*
  * Returns non-zero if the number of outgoing opened streams is larger

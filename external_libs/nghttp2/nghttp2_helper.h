@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include <nghttp2/nghttp2.h>
+#include "nghttp2.h"
 #include "nghttp2_mem.h"
 
 #define nghttp2_min(A, B) ((A) < (B) ? (A) : (B))

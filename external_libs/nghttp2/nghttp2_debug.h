@@ -10,7 +10,7 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <nghttp2/nghttp2.h>
+#include "nghttp2.h"
 
 #ifdef DEBUGBUILD
 #define DEBUGF(...) nghttp2_debug_vprintf(__VA_ARGS__)

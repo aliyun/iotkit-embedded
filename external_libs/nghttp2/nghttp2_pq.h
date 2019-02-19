@@ -10,7 +10,7 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <nghttp2/nghttp2.h>
+#include "nghttp2.h"
 #include "nghttp2_int.h"
 #include "nghttp2_mem.h"
 

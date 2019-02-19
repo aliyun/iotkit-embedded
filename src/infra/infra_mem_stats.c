@@ -21,12 +21,12 @@
     #define utils_info(...)     log_info("util", __VA_ARGS__)
     #define utils_debug(...)    log_debug("util", __VA_ARGS__)
 #else
-    #define utils_emerg(...)    
-    #define utils_crit(...)     
-    #define utils_err(...)      
-    #define utils_warning(...)  
-    #define utils_info(...)     
-    #define utils_debug(...)    
+    #define utils_emerg(...)
+    #define utils_crit(...)
+    #define utils_err(...)
+    #define utils_warning(...)
+    #define utils_info(...)
+    #define utils_debug(...)
 #endif
 
 extern void *HAL_Malloc(uint32_t size);
@@ -191,7 +191,6 @@ void LITE_track_malloc_callstack(int state)
 
 #endif  /* defined(_PLATFORM_IS_LINUX_) */
 
-#if 0
 void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...)
 {
     void               *temp = NULL;
@@ -226,7 +225,6 @@ void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...
 
     return temp;
 }
-#endif
 
 void *_create_mem_table(char *module_name, struct list_head *list_head)
 {

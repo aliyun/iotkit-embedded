@@ -4,21 +4,32 @@
 
 
 #include "nghttp2_callbacks.h"
-
+#include <string.h>
 #include <stdlib.h>
-#include "iotx_utils.h"
+#ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
+#endif
 
+extern void *HAL_Malloc(uint32_t size);
+extern void *HAL_Realloc(void *ptr, uint32_t size);
+extern void HAL_Free(void *ptr);
+
+#if INFRA_MEM_STATS
 #define NGHTTP2_CB_MALLOC(size)         LITE_malloc(size, MEM_MAGIC, "nghttp2.cb")
-#define NGHTTP2_CB_CALLOC(num, size)    LITE_calloc(num, size, MEM_MAGIC, "nghttp2.cb")
-#define NGHTTP2_CB_FREE(ptr)    LITE_free(ptr)
+#define NGHTTP2_CB_FREE(ptr)            LITE_free(ptr)
+#else
+#define NGHTTP2_CB_MALLOC(size)         HAL_Malloc(size)
+#define NGHTTP2_CB_FREE(ptr)            {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
 
 int nghttp2_session_callbacks_new(nghttp2_session_callbacks **callbacks_ptr) {
-  *callbacks_ptr = NGHTTP2_CB_CALLOC(1, sizeof(nghttp2_session_callbacks));
+  *callbacks_ptr = NGHTTP2_CB_MALLOC(sizeof(nghttp2_session_callbacks));
 
   if (*callbacks_ptr == NULL) {
     return NGHTTP2_ERR_NOMEM;
   }
 
+  memset(*callbacks_ptr, 0, sizeof(nghttp2_session_callbacks));
   return 0;
 }
 

@@ -10,7 +10,7 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <nghttp2/nghttp2.h>
+#include "nghttp2.h"
 
 /*
  * This function normalizes pri_spec->weight if it is out of range.

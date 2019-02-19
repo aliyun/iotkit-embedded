@@ -2,24 +2,33 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#include <string.h>
 #include "nghttp2_option.h"
-
 #include "nghttp2_session.h"
+#ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
+#endif
 
-#include "iotx_utils.h"
+extern void *HAL_Malloc(uint32_t size);
+extern void *HAL_Realloc(void *ptr, uint32_t size);
+extern void HAL_Free(void *ptr);
 
+#if INFRA_MEM_STATS
 #define NGHTTP2_OPTION_MALLOC(size)         LITE_malloc(size, MEM_MAGIC, "nghttp2.option")
-#define NGHTTP2_OPTION_CALLOC(num, size)    LITE_calloc(num, size, MEM_MAGIC, "nghttp2.option")
 #define NGHTTP2_OPTION_FREE(ptr)            LITE_free(ptr)
+#else
+#define NGHTTP2_OPTION_MALLOC(size)         HAL_Malloc(size)
+#define NGHTTP2_OPTION_FREE(ptr)            {HAL_Free((void *)ptr);ptr = NULL;}
+#endif
 
 int nghttp2_option_new(nghttp2_option **option_ptr) {
-  *option_ptr = NGHTTP2_OPTION_CALLOC(1, sizeof(nghttp2_option));
+  *option_ptr = NGHTTP2_OPTION_MALLOC(sizeof(nghttp2_option));
 
   if (*option_ptr == NULL) {
     return NGHTTP2_ERR_NOMEM;
   }
 
+  memset(*option_ptr, 0, sizeof(nghttp2_option));
   return 0;
 }
 

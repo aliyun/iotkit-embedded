@@ -4,12 +4,11 @@
 
 
 #include <stdio.h>
-
-#include "iot_import.h"
+#include <stdint.h>
 #include "nghttp2_net.h"
 
 #if IOT_BYTE_ORDER == LITTLE_ENDIAN
-uint32_t nghttp2_htonl(uint32_t hostlong) {
+  uint32_t nghttp2_htonl(uint32_t hostlong) {
   uint32_t res;
   unsigned char *p = (unsigned char *)&res;
   *p++ = hostlong >> 24;

@@ -10,7 +10,10 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
-#include <nghttp2/nghttp2.h>
+#include "nghttp2.h"
+#ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
+#endif
 
 /* The default, system standard memory allocator */
 nghttp2_mem *nghttp2_mem_default(void);
