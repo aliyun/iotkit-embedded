@@ -1,6 +1,4 @@
 LIBA_TARGET         := libiot_dev_bind.a
-HDR_REFS            := src/awss
-HDR_REFS            := src/dev_bind
 LIB_SRCS_PATTERN    := *.c
+$(call Append_Conditional, LIB_SRCS_PATTERN, dev_bind_impl/*.c, DEV_BIND_ENABLED)
 
-LDFLAGS         += -liot_hal 

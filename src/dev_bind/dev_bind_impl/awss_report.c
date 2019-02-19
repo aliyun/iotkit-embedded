@@ -13,7 +13,7 @@
 #include "os.h"
 #include "stdio.h"
 #include "stdlib.h"
-
+#include "dev_bind_wrapper.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
