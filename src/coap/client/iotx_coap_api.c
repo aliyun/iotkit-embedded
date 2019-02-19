@@ -602,11 +602,11 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
 
     int len = 0;
     int ret = IOTX_SUCCESS;
-    Cloud_CoAPContext      *p_coap_ctx = NULL;
-    iotx_coap_t      *p_iotx_coap = NULL;
-    Cloud_CoAPMessage      message;
-    unsigned char    token[8] = {0};
-    unsigned char    *payload = NULL;
+    Cloud_CoAPContext *p_coap_ctx = NULL;
+    iotx_coap_t *p_iotx_coap = NULL;
+    Cloud_CoAPMessage message;
+    unsigned char token[8] = {0};
+    unsigned char *payload = NULL;
 
     p_iotx_coap = (iotx_coap_t *)p_context;
 
@@ -700,10 +700,13 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
             return IOTX_ERR_MSG_TOO_LOOG;
         }
 
-
         return IOTX_SUCCESS;
     } else {
-        /* COAP_INFO("The client hasn't auth success"); */
+        COAP_ERR("The client [%s/%s] still un-authorized yet, return %d",
+                 p_iotx_coap->p_devinfo->product_key,
+                 p_iotx_coap->p_devinfo->device_name,
+                 IOTX_ERR_NOT_AUTHED
+                );
         return IOTX_ERR_NOT_AUTHED;
     }
 }
