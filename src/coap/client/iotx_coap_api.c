@@ -452,8 +452,9 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     char sign[IOTX_SIGN_LENGTH]   = {0};
 
     p_iotx_coap = (iotx_coap_t *)p_context;
-    if (NULL == p_iotx_coap || (NULL != p_iotx_coap && (NULL == p_iotx_coap->p_auth_token
-                                || NULL == p_iotx_coap->p_coap_ctx || 0 == p_iotx_coap->auth_token_len))) {
+    if (NULL == p_iotx_coap ||
+        (NULL != p_iotx_coap &&
+         (NULL == p_iotx_coap->p_auth_token || NULL == p_iotx_coap->p_coap_ctx || 0 == p_iotx_coap->auth_token_len))) {
         COAP_DEBUG("Invalid paramter");
         return IOTX_ERR_INVALID_PARAM;
     }
@@ -524,21 +525,22 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     /* report module id */
     ret = iotx_report_mid(p_context);
     if (SUCCESS_RETURN != ret) {
-        COAP_DEBUG("Send ModuleId message to server(CoAP) failed, ret = %d", ret);
-        return IOTX_ERR_SEND_MSG_FAILED;
+        COAP_WRN("Send ModuleId message to server(CoAP) failed, ret = %d", ret);
     }
     /* report device information */
     ret = iotx_report_devinfo(p_context);
     if (SUCCESS_RETURN != ret) {
-        COAP_DEBUG("Send devinfo message to server(CoAP) failed, ret = %d", ret);
-        return IOTX_ERR_SEND_MSG_FAILED;
+        COAP_WRN("Send devinfo message to server(CoAP) failed, ret = %d", ret);
     }
-    /* report firmware */
+
+#if 0
+    /* report firmware version */
     ret = iotx_report_firmware_version(p_context);
     if (SUCCESS_RETURN != ret) {
         COAP_DEBUG("Send firmware message to server(CoAP) failed, ret = %d", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
+#endif
 
     return IOTX_SUCCESS;
 }

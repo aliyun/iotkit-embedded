@@ -22,21 +22,21 @@ uint64_t HAL_UptimeMs(void);
 int HAL_GetFirmwareVersion(char *version);
 
 #ifdef INFRA_MEM_STATS
-#include "infra_mem_stats.h"
-#define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.report")
-#define SYS_REPORT_FREE(ptr)    LITE_free(ptr)
+    #include "infra_mem_stats.h"
+    #define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.report")
+    #define SYS_REPORT_FREE(ptr)    LITE_free(ptr)
 #else
-#define SYS_REPORT_MALLOC(size) HAL_Malloc(size)
-#define SYS_REPORT_FREE(ptr)    HAL_Free(ptr)
+    #define SYS_REPORT_MALLOC(size) HAL_Malloc(size)
+    #define SYS_REPORT_FREE(ptr)    HAL_Free(ptr)
 #endif
 
 #ifdef INFRA_LOG
-#include "infra_log.h"
-#define VERSION_DEBUG(...)  log_debug("version", __VA_ARGS__)
-#define VERSION_ERR(...)    log_err("version", __VA_ARGS__)
+    #include "infra_log.h"
+    #define VERSION_DEBUG(...)  log_debug("version", __VA_ARGS__)
+    #define VERSION_ERR(...)    log_err("version", __VA_ARGS__)
 #else
-#define VERSION_DEBUG(...)  do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define VERSION_ERR(...)    do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define VERSION_DEBUG(...)  do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define VERSION_ERR(...)    do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #endif
 
 static unsigned int g_report_id = 0;
@@ -222,8 +222,8 @@ int iotx_report_firmware_version(void *pclient)
     ret = info_report_func(pclient, topic_name, 1, msg, strlen(msg));
 
     if (ret < 0) {
-        VERSION_ERR("publish failed");
-        return FAIL_RETURN;
+        VERSION_ERR("publish failed, ret = %d", ret);
+        return ret;
     }
 
     VERSION_DEBUG("firmware version report finished, iotx_publish() = %d", ret);
