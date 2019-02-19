@@ -2251,7 +2251,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     }
 
     if (strlen(topicName) > CONFIG_MQTT_TOPIC_MAXLEN) {
-        mqtt_err("len of topicName exceeds %d",CONFIG_MQTT_TOPIC_MAXLEN);
+        mqtt_err("len of topicName exceeds %d", CONFIG_MQTT_TOPIC_MAXLEN);
         return FAIL_RETURN;
     }
 
@@ -2657,6 +2657,9 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
 int wrapper_mqtt_connect(void *client)
 {
     int rc = FAIL_RETURN;
+    int retry_cnt = 1;
+    int retry_max = 3;
+    int retry_interval = 1000;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
 
     if (NULL == pClient) {
@@ -2664,18 +2667,29 @@ int wrapper_mqtt_connect(void *client)
     }
 
     /* Establish TCP or TLS connection */
-    rc = pClient->ipstack.connect(&pClient->ipstack);
-    if (SUCCESS_RETURN != rc) {
-        pClient->ipstack.disconnect(&pClient->ipstack);
-        mqtt_err("TCP or TLS Connection failed");
+    do {
+        mqtt_debug("calling TCP or TLS connect HAL for [%d/%d] iteration", retry_cnt, retry_max);
 
-        if (ERROR_CERTIFICATE_EXPIRED == rc) {
-            mqtt_err("certificate is expired!");
-            return ERROR_CERT_VERIFY_FAIL;
+        rc = pClient->ipstack.connect(&pClient->ipstack);
+        if (SUCCESS_RETURN != rc) {
+            pClient->ipstack.disconnect(&pClient->ipstack);
+            mqtt_err("TCP or TLS Connection failed");
+
+            if (ERROR_CERTIFICATE_EXPIRED == rc) {
+                mqtt_err("certificate is expired! rc = %d", rc);
+                rc = ERROR_CERT_VERIFY_FAIL;
+                HAL_SleepMs(retry_interval);
+                continue;
+            } else {
+                rc = MQTT_NETWORK_CONNECT_ERROR;
+                HAL_SleepMs(retry_interval);
+                continue;
+            }
         } else {
-            return MQTT_NETWORK_CONNECT_ERROR;
+            mqtt_debug("rc = pClient->ipstack.connect() = %d, success @ [%d/%d] iteration", rc, retry_cnt, retry_max);
+            break;
         }
-    }
+    } while (++retry_cnt <= retry_max);
 
 #ifdef ASYNC_PROTOCOL_STACK
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECT_BLOCK);
