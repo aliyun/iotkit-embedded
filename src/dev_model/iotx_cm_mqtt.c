@@ -176,7 +176,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             char *topic = NULL;
 #endif
             if (topic_handle_func == NULL) {
-                cm_err("sub handle is null!");
+                cm_warning("bypass %d bytes on [%.*s]", topic_info->payload_len, topic_info->topic_len, topic_info->ptopic);
                 return;
             }
 #ifdef DEVICE_MODEL_ALINK2
@@ -386,7 +386,7 @@ static iotx_mqtt_qos_t _get_mqtt_qos(iotx_cm_ack_types_t ack_type)
 
         default:
             return IOTX_MQTT_QOS0;
-    }   
+    }
 }
 
 
