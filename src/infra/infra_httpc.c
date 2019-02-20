@@ -16,17 +16,18 @@
 #include "infra_timer.h"
 
 #ifdef INFRA_LOG
-#include "infra_log.h"
-#define httpc_err(...)   log_err("httpc", __VA_ARGS__)
-#define httpc_info(...)  log_info("httpc", __VA_ARGS__)
-#define httpc_debug(...) log_debug("httpc", __VA_ARGS__)
+    #include "infra_log.h"
+    #define httpc_err(...)   log_err("httpc", __VA_ARGS__)
+    #define httpc_info(...)  log_info("httpc", __VA_ARGS__)
+    #define httpc_debug(...) log_debug("httpc", __VA_ARGS__)
 #else
-#define httpc_err(...)
-#define httpc_info(...)
-#define httpc_debug(...)
+    #define httpc_err(...)
+    #define httpc_info(...)
+    #define httpc_debug(...)
 #endif
 
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+void HAL_SleepMs(uint32_t ms);
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))
@@ -172,7 +173,7 @@ static int _http_send_header(httpclient_t *client, const char *host, const char 
     /* ret = httpclient_tcp_send_all(client->net.handle, send_buf, len); */
     ret = client->net.write(&client->net, send_buf, len, 5000);
     if (ret <= 0) {
-        httpc_err("ret =%d");
+        httpc_err("ret = client->net.write() = %d");
         return (ret == 0) ? ERROR_HTTP_CLOSED : ERROR_HTTP_CONN;
     }
 
@@ -405,11 +406,26 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
 
 int httpclient_connect(httpclient_t *client)
 {
-    client->net.handle = 0;
-    if (0 != client->net.connect(&client->net)) {
-        httpc_err("establish connection failed");
-        return ERROR_HTTP_CONN;
-    }
+    int retry_max = 3;
+    int retry_cnt = 1;
+    int retry_interval = 1000;
+    int rc = -1;
+
+    do {
+        client->net.handle = 0;
+        httpc_debug("calling TCP or TLS connect HAL for [%d/%d] iteration", retry_cnt, retry_max);
+
+        rc = client->net.connect(&client->net);
+        if (0 != rc) {
+            client->net.disconnect(&client->net);
+            httpc_err("TCP or TLS connect failed, rc = %d", rc);
+            HAL_SleepMs(retry_interval);
+            continue;
+        } else {
+            httpc_debug("rc = client->net.connect() = %d, success @ [%d/%d] iteration", rc, retry_cnt, retry_max);
+            break;
+        }
+    } while (++retry_cnt <= retry_max);
 
     return SUCCESS_RETURN;
 }

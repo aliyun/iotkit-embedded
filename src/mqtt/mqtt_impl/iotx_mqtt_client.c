@@ -2662,8 +2662,8 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
 int wrapper_mqtt_connect(void *client)
 {
     int rc = FAIL_RETURN;
-    int retry_cnt = 1;
     int retry_max = 3;
+    int retry_cnt = 1;
     int retry_interval = 1000;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
 
