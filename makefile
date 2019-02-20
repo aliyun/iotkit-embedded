@@ -34,3 +34,4 @@ SUBDIRS                 += tests
 $(call Append_Conditional, SUBDIRS, external_libs/nghttp2, HTTP2_COMM_ENABLED)
 
 include $(RULE_DIR)/rules.mk
+include tools/mock_build_options.mk
