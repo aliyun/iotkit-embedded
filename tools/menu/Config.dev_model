@@ -70,6 +70,7 @@ menu "Device Model Configurations"
             Enable this feature will enhance subscribe speed by storing mqtt subscribe infomation with HAL_KV
 
     config DEVICE_MODEL_SUBDEV_OTA
+        depends on DEVICE_MODEL_GATEWAY
         bool "FEATURE_DEVICE_MODEL_SUBDEV_OTA"
         default n
 
