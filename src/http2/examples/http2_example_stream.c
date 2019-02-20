@@ -5,10 +5,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "iot_export.h"
-#include "iot_export_http2_stream.h"
-#include "app_entry.h"
-#include "utils_httpc.h"
+#include "http2_api.h"
+#include "http2_wrapper.h"
 
 #ifndef ON_DAILY
 #define ON_DAILY
@@ -242,14 +240,11 @@ static int http2_stream_test()
     return 0;
 }
 
-int linkkit_main(void *paras)
+int main(int argc, char **argv)
 {
     int ret;
 
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
     ret = http2_stream_test();
 
-    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_SetLogLevel(IOT_LOG_NONE);
     return ret;
 }

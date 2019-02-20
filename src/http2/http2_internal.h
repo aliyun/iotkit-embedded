@@ -8,6 +8,51 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "http2_api.h"
+#include "http2_wrapper.h"
+
+#ifdef INFRA_LOG
+#include "infra_log.h"
+#define h2_emerg(...)                   log_emerg("h2", __VA_ARGS__)
+#define h2_crit(...)                    log_crit("h2", __VA_ARGS__)
+#define h2_err(...)                     log_err("h2", __VA_ARGS__)
+#define h2_warning(...)                 log_warning("h2", __VA_ARGS__)
+#define h2_info(...)                    log_info("h2", __VA_ARGS__)
+#define h2_debug(...)                   log_debug("h2", __VA_ARGS__)
+#else
+#define h2_emerg(...)                   do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define h2_crit(...)                    do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define h2_err(...)                     do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define h2_warning(...)                 do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define h2_info(...)                    do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define h2_debug(...)                   do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#endif
+
+#ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
+#define HTTP2_STREAM_MALLOC(size)       LITE_malloc(size, MEM_MAGIC, "http2.stream")
+#define HTTP2_STREAM_FREE(ptr)          LITE_free(ptr)
+#else
+#define HTTP2_STREAM_MALLOC(size)       HAL_Malloc(size)
+#define HTTP2_STREAM_FREE(ptr)          do{if(ptr != NULL) {HAL_Free(ptr);ptr = NULL;}}while(0)
+#endif /* #ifdef INFRA_MEM_STATS */
+
+#define POINTER_SANITY_CHECK(ptr, err) \
+    do { \
+        if (NULL == (ptr)) { \
+            return (err); \
+        } \
+    } while(0)
+
+#define ARGUMENT_SANITY_CHECK(expr, err) \
+    do { \
+        if (!(expr)) { \
+            return (err); \
+        } \
+    } while(0)
+
+
 typedef enum {
 
     HTTP2_FLAG_NONE = 0,
@@ -48,13 +93,6 @@ typedef struct http2_connection {
     int            status;
     http2_user_cb_t *cbs;
 } http2_connection_t;
-
-typedef struct http2_header_struct {
-    char *name;     /* header name */
-    char *value;    /* the value of name */
-    int  namelen;   /* the length of header name */
-    int  valuelen;  /* the length of value */
-} http2_header;
 
 typedef struct http2_data_struct {
     http2_header *header;  /* header data. */

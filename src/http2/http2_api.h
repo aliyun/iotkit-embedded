@@ -5,7 +5,8 @@
 #ifndef IOT_EXPORT_HTTP2_STREAM_H
 #define IOT_EXPORT_HTTP2_STREAM_H
 
-#include "iot_export_http2.h"
+#include "infra_types.h"
+#include "infra_defs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +33,13 @@ typedef struct {
     char  *url;
     int   port;
 } device_conn_info_t;
+
+typedef struct http2_header_struct {
+    char *name;     /* header name */
+    char *value;    /* the value of name */
+    int  namelen;   /* the length of header name */
+    int  valuelen;  /* the length of value */
+} http2_header;
 
 typedef struct {
     http2_header      *nva;

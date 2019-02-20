@@ -16,8 +16,3 @@ config FS_ENABLED
     help
         USE HAL fs api to enable file upload feature
 
-config ON_DAILY
-    bool
-    default n
-
-

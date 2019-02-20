@@ -2,25 +2,19 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "nghttp2/nghttp2.h"
+#include "nghttp2.h"
 #include "nghttp2_session.h"
-#include "utils_hmac.h"
-#include "iotx_utils.h"
-#include "h2_debug.h"
-#include "iot_export_http2.h"
+#include "infra_httpc.h"
+#include "http2_internal.h"
+#include "http2_wrapper.h"
 
-#define HTTP2_API_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "http2.api")
-#define HTTP2_API_FREE(ptr)    do{if(ptr != NULL) LITE_free(ptr);}while(0)
 
-#define MAX_HTTP2_HOST_LEN                   (128)
-
-#define NGHTTP2_DBG                     h2_info
+#define MAX_HTTP2_HOST_LEN                  (128)
+#define NGHTTP2_DBG                         h2_info
 
 enum { IO_NONE, WANT_READ, WANT_WRITE };
 
@@ -175,15 +169,15 @@ static int on_frame_recv_callback(nghttp2_session *session,
                                   const nghttp2_frame *frame,
                                   void *user_data)
 {
+    http2_connection_t *connection  = (http2_connection_t *)user_data;
+    http2_request *req;
     NGHTTP2_DBG("on_frame_recv_callback, type = %d\n", frame->hd.type);
     NGHTTP2_DBG("on_frame_recv_callback, stream_id = %d\n", frame->hd.stream_id);
-    http2_connection_t *connection  = (http2_connection_t *)user_data;
 
     if (connection == NULL) {
         return 0;
     }
 
-    http2_request *req;
     req = nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
     if (req == NULL) {
         NGHTTP2_DBG("stream user data is not exist\n");
@@ -236,12 +230,12 @@ static int on_h2_stream_close_callback(nghttp2_session *session, int32_t stream_
                                        uint32_t error_code,
                                        void *user_data)
 {
+    http2_request *req;
     http2_connection_t *connection  = (http2_connection_t *)user_data;
 
     if (connection == NULL) {
         return 0;
     }
-    http2_request *req;
     req = nghttp2_session_get_stream_user_data(session, stream_id);
     if (req) {
         int rv;
@@ -470,7 +464,9 @@ static int http2_client_conn(httpclient_t *pclient, char *url, int port)
     /*http2_parse_host(url, host, sizeof(host));*/
     if (0 == pclient->net.handle) {
         /* Establish connection if no. */
-        ret = iotx_net_init(&pclient->net, url, port, iotx_ca_get());
+        extern const char *iotx_ca_crt;
+
+        ret = iotx_net_init(&pclient->net, url, port, iotx_ca_crt);
 
         if (0 != ret) {
             return ret;
@@ -501,7 +497,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
 
 
     if (header != NULL && header_count != 0) {
-        nva = (nghttp2_nv *)HTTP2_API_MALLOC(sizeof(nghttp2_nv) * header_count);
+        nva = (nghttp2_nv *)HTTP2_STREAM_MALLOC(sizeof(nghttp2_nv) * header_count);
         if (nva == NULL) {
             return -1;
         }
@@ -522,7 +518,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
         rv = nghttp2_submit_request(conn->session, NULL, nva, nva_size, NULL, NULL);
         h2_data->stream_id = rv;
     }
-    HTTP2_API_FREE(nva);
+    HTTP2_STREAM_FREE(nva);
 
     if (rv < 0) {
         return rv;
@@ -570,13 +566,15 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
     int rv;
     int ret = 0;
 
-    connection = LITE_calloc(1, sizeof(http2_connection_t), MEM_MAGIC, "http2.api");
+    connection = HTTP2_STREAM_MALLOC(sizeof(http2_connection_t));
     if (connection == NULL) {
         return NULL;
     }
+    memset(connection, 0, sizeof(http2_connection_t));
+
     if (0 != (ret = http2_client_conn((httpclient_t *)pclient, url, port))) {
         NGHTTP2_DBG("https_client_conn failed %d\r\n", ret);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
     connection->network = pclient;
@@ -584,7 +582,7 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
     rv = nghttp2_session_callbacks_new(&callbacks);
     if (rv != 0) {
         NGHTTP2_DBG("nghttp2_session_callbacks_new1 %d", rv);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
 
@@ -592,7 +590,7 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
     rv = nghttp2_session_client_new((nghttp2_session **)&connection->session, callbacks, connection);
     if (rv != 0) {
         NGHTTP2_DBG("nghttp2_session_client_new3 %d", rv);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
     nghttp2_session_callbacks_del(callbacks);
@@ -610,7 +608,7 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
     /*request_free(&req);*/
     if (rv < 0) {
         NGHTTP2_DBG("nghttp2_session_send fail %d", rv);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
     connection->status = 1;
@@ -629,13 +627,15 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
     int rv;
     int ret = 0;
 
-    connection = LITE_calloc(1, sizeof(http2_connection_t), MEM_MAGIC, "http2.api");
+    connection = HTTP2_STREAM_MALLOC(sizeof(http2_connection_t));
     if (connection == NULL) {
         return NULL;
     }
+    memset(connection, 0, sizeof(http2_connection_t));
+
     if (0 != (ret = http2_client_conn((httpclient_t *)pclient, url, port))) {
         NGHTTP2_DBG("https_client_conn failed %d\r\n", ret);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
     connection->network = pclient;
@@ -643,7 +643,7 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
     rv = nghttp2_session_callbacks_new(&callbacks);
     if (rv != 0) {
         NGHTTP2_DBG("nghttp2_session_callbacks_new1 %d", rv);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
 
@@ -653,7 +653,7 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
     rv = nghttp2_session_client_new((nghttp2_session **)&connection->session, callbacks, connection);
     if (rv != 0) {
         NGHTTP2_DBG("nghttp2_session_client_new3 %d", rv);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
     nghttp2_session_callbacks_del(callbacks);
@@ -671,7 +671,7 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
     /*request_free(&req);*/
     if (rv < 0) {
         NGHTTP2_DBG("nghttp2_session_send fail %d", rv);
-        LITE_free(connection);
+        HTTP2_STREAM_FREE(connection);
         return NULL;
     }
     connection->status = 1;
@@ -686,7 +686,7 @@ int iotx_http2_client_disconnect(http2_connection_t *conn)
     }
     httpclient_close((httpclient_t *)conn->network);
     nghttp2_session_del(conn->session);
-    LITE_free(conn);
+    HTTP2_STREAM_FREE(conn);
     return 0;
 }
 

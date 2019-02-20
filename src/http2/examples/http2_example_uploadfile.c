@@ -5,12 +5,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "iot_export.h"
-#include "iot_export_http2_stream.h"
-#include "app_entry.h"
-#include "utils_httpc.h"
+#include "http2_api.h"
+#include "http2_wrapper.h"
 
-#define  ON_DAILY
+#ifndef ON_DAILY
+#define ON_DAILY
+#endif
 #if defined(ON_DAILY)
 	#define HTTP2_ONLINE_SERVER_URL       "10.101.12.205"
 	#define HTTP2_ONLINE_SERVER_PORT      9999
@@ -117,17 +117,9 @@ static int http2_stream_test(char **argv,int argc)
     return 0;
 }
 
-int linkkit_main(void *paras)
+int main(int argc, char **argv)
 {
     int ret;
-    int argc = 0;
-    char **argv = NULL;
-
-    if (paras != NULL) {
-        app_main_paras_t *p = (app_main_paras_t *)paras;
-        argc = p->argc;
-        argv = p->argv;
-    }
 
     if(argc >1) {
 
@@ -136,11 +128,7 @@ int linkkit_main(void *paras)
         return 0;
     }
 
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
-
     ret = http2_stream_test(argv,argc);
 
-    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_SetLogLevel(IOT_LOG_NONE);
     return ret;
 }
