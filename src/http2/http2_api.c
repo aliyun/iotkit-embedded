@@ -583,18 +583,18 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
             header_count = http2_nv_copy(nva, header_count, (http2_header *)header->nva, header->num);
         }
 
-    h2_data.header = (http2_header *)nva;
-    h2_data.header_count = header_count;
-    h2_data.data = NULL;
-    h2_data.len = 0;
-    h2_data.flag = 1 ;
-    h2_data.stream_id = 0;
+        h2_data.header = (http2_header *)nva;
+        h2_data.header_count = header_count;
+        h2_data.data = NULL;
+        h2_data.len = 0;
+        h2_data.flag = 1 ;
+        h2_data.stream_id = 0;
+
+        HAL_MutexLock(handle->mutex);
+        rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+        http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
+        HTTP2_STREAM_FREE(nva);
     }
-	
-    HAL_MutexLock(handle->mutex);
-    rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-    http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
-    HTTP2_STREAM_FREE(nva);
 
     if (rv < 0) {
         h2_err("client send error\n");
@@ -695,12 +695,13 @@ int IOT_HTTP2_Stream_Send_Message(void *hd, const char *identify,char *channel_i
         h2_data.data = data;
         h2_data.len = data_len;
         h2_data.flag = 1;
+
+        HAL_MutexLock(handle->mutex);
+        rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+        HAL_MutexUnlock(handle->mutex);
+        HTTP2_STREAM_FREE(nva);
     }
 
-    HAL_MutexLock(handle->mutex);
-    rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-    HAL_MutexUnlock(handle->mutex);
-    HTTP2_STREAM_FREE(nva);
     if (rv < 0) {
         h2_err("send failed!");
         return rv;
@@ -775,17 +776,18 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
             h2_data.header_count = header_count;
             h2_data.data = info->stream;
             h2_data.len = info->packet_len;
-        }
-        if (info->packet_len + info->send_len == info->stream_len) { /* last frame */
-            h2_data.flag = 1;
-        } else {
-            h2_data.flag = 0;
-        }
 
-        HAL_MutexLock(handle->mutex);
-        rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-        http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
-        HTTP2_STREAM_FREE(nva);
+            if (info->packet_len + info->send_len == info->stream_len) { /* last frame */
+                h2_data.flag = 1;
+            } else {
+                h2_data.flag = 0;
+            }
+
+            HAL_MutexLock(handle->mutex);
+            rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+            http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
+            HTTP2_STREAM_FREE(nva);
+        }
 
         if (rv < 0) {
             h2_err("send failed!");
@@ -896,12 +898,12 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
         h2_data.len = 0;
         h2_data.flag = 1;
         h2_data.stream_id = 0;
-    }
 
-    HAL_MutexLock(handle->mutex);
-    rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-    http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
-    HTTP2_STREAM_FREE(nva);
+        HAL_MutexLock(handle->mutex);
+        rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+        http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
+        HTTP2_STREAM_FREE(nva);
+    }
 
     if (rv < 0) {
         h2_err("client send error\n");
@@ -963,13 +965,13 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
         h2_data.len = 0;
         h2_data.flag = 1;
         h2_data.stream_id = 0;
-    }
 
-    HAL_MutexLock(handle->mutex);
-    if(info->send_len < info->stream_len)
-        iotx_http2_reset_stream(handle->http2_connect,info->h2_stream_id);
-    rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-    HAL_MutexUnlock(handle->mutex);
+        HAL_MutexLock(handle->mutex);
+        if(info->send_len < info->stream_len)
+            iotx_http2_reset_stream(handle->http2_connect,info->h2_stream_id);
+        rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+        HAL_MutexUnlock(handle->mutex);
+    }
 
     if (rv < 0) {
         h2_warning("client send error\n");
