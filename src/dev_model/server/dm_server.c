@@ -2,7 +2,7 @@
 #include "iotx_dm_internal.h"
 
 #ifdef LOG_REPORT_TO_CLOUD
-#include "iotx_log_report.h"
+    #include "iotx_log_report.h"
 #endif
 static int _dm_server_malloc_context(_IN_ NetworkAddr *remote, _IN_ CoAPMessage *message,
                                      _OU_ dm_server_alcs_context_t **context)
@@ -129,9 +129,11 @@ void dm_server_thing_service_property_set(CoAPContext *context, const char *path
     }
 
 #ifdef LOG_REPORT_TO_CLOUD
-    extern void send_permance_info(char *input, int input_len, char *comments, int report_format);
-    if (SUCCESS_RETURN == check_target_msg(request.id.value, request.id.value_length)) {
-        send_permance_info(request.id.value, request.id.value_length, "2", 1);
+    {
+        extern void send_permance_info(char *input, int input_len, char *comments, int report_format);
+        if (SUCCESS_RETURN == check_target_msg(request.id.value, request.id.value_length)) {
+            send_permance_info(request.id.value, request.id.value_length, "2", 1);
+        }
     }
 #endif
 
