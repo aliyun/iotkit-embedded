@@ -731,7 +731,7 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
     COAP_DEBUG("message->payload: %p", message->payload);
     COAP_DEBUG("message->payloadlen: %d", message->payloadlen);
 
-    if (message->payloadlen < 0 || message->payloadlen >= COAP_MSG_MAX_PDU_LEN) {
+    if (message->payloadlen >= COAP_MSG_MAX_PDU_LEN) {
         COAP_ERR("Invalid parameter: message->payloadlen(%d) out of [0, %d]",
                  message->payloadlen, COAP_MSG_MAX_PDU_LEN);
         return IOTX_ERR_INVALID_PARAM;
