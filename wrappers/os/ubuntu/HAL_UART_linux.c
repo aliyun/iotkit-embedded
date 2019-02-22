@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <errno.h>
-#include <execinfo.h>
+#if defined(__UBUNTU_SDK_DEMO__)
+    #include <execinfo.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/select.h>
@@ -44,8 +46,9 @@ static int read_and_discard_all_data(const int fd)
 
         errno_code = errno;
 
-        if (errno_code == EINTR)
+        if (errno_code == EINTR) {
             continue;
+        }
 
         if (errno_code == EAGAIN ||
             errno_code == EWOULDBLOCK) {
@@ -68,57 +71,70 @@ int32_t HAL_AT_Uart_Init(uart_dev_t *uart)
     struct termios t_opt;
     speed_t baud;
 
-    if (uart->port != AT_UART_PORT) return 0;
+    if (uart->port != AT_UART_PORT) {
+        return 0;
+    }
 
     if ((at_uart_fd = open(AT_UART_LINUX_DEV,
-      O_RDWR | O_NOCTTY | O_NDELAY)) == -1) {
+                           O_RDWR | O_NOCTTY | O_NDELAY)) == -1) {
         printf("open at uart failed\r\n");
         return -1;
     }
 
-    switch(uart->config.baud_rate) {
-        case 115200: baud = B115200; break;
-        case 921600: baud = B921600; break;
-        default: baud = B115200; break;
+    switch (uart->config.baud_rate) {
+        case 115200:
+            baud = B115200;
+            break;
+        case 921600:
+            baud = B921600;
+            break;
+        default:
+            baud = B115200;
+            break;
     }
 
     fd = at_uart_fd;
     /* set the serial port parameters */
     fcntl(fd, F_SETFL, 0);
-    if (0 != tcgetattr(fd, &t_opt))
+    if (0 != tcgetattr(fd, &t_opt)) {
         return -1;
+    }
 
-    if (0 != cfsetispeed(&t_opt, baud))
+    if (0 != cfsetispeed(&t_opt, baud)) {
         return -1;
+    }
 
-    if (0 != cfsetospeed(&t_opt, baud))
+    if (0 != cfsetospeed(&t_opt, baud)) {
         return -1;
+    }
 
     /* 8N1, flow control, etc. */
     t_opt.c_cflag |= (CLOCAL | CREAD);
-    if (uart->config.parity == NO_PARITY)
+    if (uart->config.parity == NO_PARITY) {
         t_opt.c_cflag &= ~PARENB;
-    if (uart->config.stop_bits == STOP_BITS_1)
+    }
+    if (uart->config.stop_bits == STOP_BITS_1) {
         t_opt.c_cflag &= ~CSTOPB;
-    else
+    } else {
         t_opt.c_cflag |= CSTOPB;
+    }
     t_opt.c_cflag &= ~CSIZE;
     switch (uart->config.data_width) {
-    case DATA_WIDTH_5BIT:
-        t_opt.c_cflag |= CS5;
-        break;
-    case DATA_WIDTH_6BIT:
-        t_opt.c_cflag |= CS6;
-        break;
-    case DATA_WIDTH_7BIT:
-        t_opt.c_cflag |= CS7;
-        break;
-    case DATA_WIDTH_8BIT:
-        t_opt.c_cflag |= CS8;
-        break;
-    default:
-        t_opt.c_cflag |= CS8;
-        break;
+        case DATA_WIDTH_5BIT:
+            t_opt.c_cflag |= CS5;
+            break;
+        case DATA_WIDTH_6BIT:
+            t_opt.c_cflag |= CS6;
+            break;
+        case DATA_WIDTH_7BIT:
+            t_opt.c_cflag |= CS7;
+            break;
+        case DATA_WIDTH_8BIT:
+            t_opt.c_cflag |= CS8;
+            break;
+        default:
+            t_opt.c_cflag |= CS8;
+            break;
     }
     t_opt.c_lflag &= ~(ECHO | ECHOE | ISIG | ICANON);
 
@@ -146,12 +162,14 @@ int32_t HAL_AT_Uart_Init(uart_dev_t *uart)
 
 int32_t HAL_AT_Uart_Deinit(uart_dev_t *uart)
 {
-    if (uart->port == AT_UART_PORT) close(at_uart_fd);
+    if (uart->port == AT_UART_PORT) {
+        close(at_uart_fd);
+    }
     return 0;
 }
 
 int32_t HAL_AT_Uart_Send(uart_dev_t *uart, const void *data,
-                      uint32_t size, uint32_t timeout)
+                         uint32_t size, uint32_t timeout)
 {
     uint32_t ret, rmd = size;
 
@@ -164,8 +182,7 @@ int32_t HAL_AT_Uart_Send(uart_dev_t *uart, const void *data,
             }
             rmd -= ret;
         }
-    }
-    else {
+    } else {
         if (write(1, data, size) < 0) {
             printf("write failed\n");
         }
@@ -175,21 +192,26 @@ int32_t HAL_AT_Uart_Send(uart_dev_t *uart, const void *data,
 }
 
 int32_t HAL_AT_Uart_Recv(uart_dev_t *uart, void *data, uint32_t expect_size,
-                      uint32_t *recv_size, uint32_t timeout)
+                         uint32_t *recv_size, uint32_t timeout)
 {
     int fd, n;
 
-    if (uart->port == AT_UART_PORT) fd = at_uart_fd;
-    else fd = 1;
+    if (uart->port == AT_UART_PORT) {
+        fd = at_uart_fd;
+    } else {
+        fd = 1;
+    }
 
     if ((n = read(fd, data, expect_size)) == -1) {
         return -1;
     }
 
-    if (uart->port != AT_UART_PORT && *(char *)data == '\n')
+    if (uart->port != AT_UART_PORT && *(char *)data == '\n') {
         *(char *)data = '\r';
-    if (recv_size)
+    }
+    if (recv_size) {
         *recv_size = n;
+    }
 
     return 0;
 }
