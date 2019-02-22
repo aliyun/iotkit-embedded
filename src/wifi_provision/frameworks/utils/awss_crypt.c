@@ -117,12 +117,12 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
             /*
              * mobile-ap, dev-ap, router
              */
-            HAL_Aes128_Cbc_Decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
+            res = HAL_Aes128_Cbc_Decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
         } else {  /* smartconfig */
             /*
              * smartconfig/wps, zconfig
              */
-            HAL_Aes128_Cfb_Decrypt(aes, decoded, len, plain);
+            res = HAL_Aes128_Cfb_Decrypt(aes, decoded, len, plain);
         }
         HAL_Aes128_Destroy(aes);
     }
