@@ -133,7 +133,7 @@ static int iterations_freed;
 static int iterations_in_use;
 static int iterations_max_in_use;
 
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
 
 static int tracking_malloc_callstack = 1;
 
@@ -189,19 +189,19 @@ void LITE_track_malloc_callstack(int state)
 
 }
 
-#endif  /* defined(_PLATFORM_IS_LINUX_) */
+#endif  /* defined(__UBUNTU_SDK_DEMO__) */
 
 void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...)
 {
     void               *temp = NULL;
     int                 magic = 0;
     char               *module_name = NULL;
+    va_list             ap;
 
     if (size <= 0) {
         return NULL;
     }
 
-    va_list             ap;
     va_start(ap, size);
     magic = va_arg(ap, int);
     if (MEM_MAGIC == magic) {
@@ -425,7 +425,7 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
     pos->buflen = size;
     pos->func = (char *)f;
     pos->line = (int)l;
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
     if (tracking_malloc_callstack) {
         record_backtrace(&pos->bt_level, &pos->bt_symbols);
     }
@@ -446,7 +446,7 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
 
         log_warning("utils", "large allocating @ %s(%d) for %04d bytes!", f, l, size);
         LITE_printf("\r\n");
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
         for (k = 0; k < pos->bt_level; ++k) {
             int             m;
             const char     *p = strchr(pos->bt_symbols[k], '(');
@@ -513,7 +513,7 @@ void LITE_free_internal(void *ptr)
         pos->buflen = 0;
         pos->func = "";
         pos->line = 0;
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
         pos->bt_level = 0;
         HAL_Free(pos->bt_symbols);
         pos->bt_symbols = 0;
@@ -676,7 +676,7 @@ void LITE_dump_malloc_free_stats(int level)
                 }
                 LITE_printf("]\r\n");
 
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
                 {
                     int             k;
                     LITE_printf("\r\n");

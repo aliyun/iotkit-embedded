@@ -7,7 +7,7 @@
 
 #include "infra_list.h"
 
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
     #include <execinfo.h>
 #endif
 
