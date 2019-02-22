@@ -4,8 +4,8 @@
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 uint64_t HAL_UptimeMs(void);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
@@ -37,8 +37,8 @@ void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
 int example_subscribe(void *handle)
 {
     int res = 0;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
@@ -70,8 +70,8 @@ int example_publish(void *handle)
 {
     int res = 0;
     iotx_mqtt_topic_info_t topic_msg;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
