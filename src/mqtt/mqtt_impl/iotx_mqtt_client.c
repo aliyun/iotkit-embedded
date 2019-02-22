@@ -1087,12 +1087,6 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     for (i = 0; i < count; ++i) {
         mqtt_debug("%16s[%02d] : %d", "Granted QoS", i, grantedQoS[i]);
     }
-#ifdef INSPECT_MQTT_FLOW
-#endif
-
-#ifdef INSPECT_MQTT_LIST
-    mqtt_debug("receivce SUBACK, packetid: %d", mypacketid);
-#endif
 
     for (j = 0; j <  count; j++) {
         fail_flag = 0;
@@ -1444,10 +1438,6 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     if (MQTTDeserialize_unsuback(&mypacketid, (unsigned char *)c->buf_read, c->buf_size_read) != 1) {
         return MQTT_UNSUBSCRIBE_ACK_PACKET_ERROR;
     }
-
-#ifdef INSPECT_MQTT_LIST
-    mqtt_debug("receivce UNSUBACK, packetid: %d", mypacketid);
-#endif
 
     if (NULL != c->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
