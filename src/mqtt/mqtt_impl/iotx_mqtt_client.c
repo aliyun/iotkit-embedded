@@ -1041,7 +1041,7 @@ static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt
     client = (iotx_mc_client_t *)pclient;
     packet_id = (uintptr_t) msg->msg;
 
-    mqtt_debug("packet_id = %d, event_type=%d", packet_id, msg->event_type);
+    mqtt_debug("packet_id = %lu, event_type=%d", packet_id, msg->event_type);
 
     HAL_MutexLock(client->lock_generic);
 #ifdef PLATFORM_HAS_DYNMEM
@@ -1376,10 +1376,10 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
                "Topic Name",
                topicName.lenstring.len,
                topicName.lenstring.data);
-    mqtt_debug("%20s : %d / %d", "Payload Len/Room",
+    mqtt_debug("%20s : %lu / %ld", "Payload Len/Room",
                topic_msg.payload_len,
                c->buf_read + c->buf_size_read - topic_msg.payload);
-    mqtt_debug("%20s : %d", "Receive Buflen", c->buf_size_read);
+    mqtt_debug("%20s : %lu", "Receive Buflen", c->buf_size_read);
 
 #if defined(INSPECT_MQTT_FLOW)
     mqtt_debug("%20s : %p", "Payload Buffer", topic_msg.payload);
