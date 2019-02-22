@@ -33,12 +33,14 @@ static char *iotx_alcs_topic_parse_pk(char *topic, uint16_t *length)
     char *pos = NULL;
     uint8_t slash_count = 0;
     uint16_t idx = 0;
-    uint16_t topic_len = strlen(topic);
+    uint16_t topic_len = 0;
 
     if (topic == NULL || length == NULL) {
         COAP_ERR("Invalid Parameter");
         return NULL;
     }
+
+    topic_len = strlen(topic);
 
     while (idx < topic_len) {
         if (topic[idx] == '/') {
@@ -61,12 +63,14 @@ static char *iotx_alcs_topic_parse_dn(char *topic, uint16_t *length)
     char *pos = NULL;
     uint8_t slash_count = 0;
     uint16_t idx = 0;
-    uint16_t topic_len = strlen(topic);
+    uint16_t topic_len = 0;
 
     if (topic == NULL || length == NULL) {
         COAP_ERR("Invalid Parameter");
         return NULL;
     }
+
+    topic_len = strlen(topic);
 
     while (idx < topic_len) {
         if (topic[idx] == '/') {
@@ -226,7 +230,7 @@ static void _iotx_alcs_adapter_subdev_list_destroy(iotx_alcs_adapter_t *adapter)
 int iotx_alcs_adapter_deinit(void)
 {
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
 
     HAL_GetProductKey(product_key);

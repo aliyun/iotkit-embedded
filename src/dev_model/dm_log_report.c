@@ -145,9 +145,21 @@ void parse_switch_info(_IN_ char *payload, _IN_ int payload_len)
         return;
     }
     dm_utils_json_parse(payload, payload_len, cJSON_Object, &lite);
-    lite_cjson_object_item(&lite, c1, strlen(c1), &lite_sample_count);
-    lite_cjson_object_item(&lite, c2, strlen(c2), &lite_sample_interval);
-    lite_cjson_object_item(&lite, c3, strlen(c3), &lite_sample_target);
+    ret = lite_cjson_object_item(&lite, c1, strlen(c1), &lite_sample_count);
+    if (ret < SUCCESS_RETURN) {
+        return;
+    }
+
+    ret = lite_cjson_object_item(&lite, c2, strlen(c2), &lite_sample_interval);
+    if (ret < SUCCESS_RETURN) {
+        return;
+    }
+
+    ret = lite_cjson_object_item(&lite, c3, strlen(c3), &lite_sample_target);
+    if (ret < SUCCESS_RETURN) {
+        return;
+    }
+
     sample_count = lite_sample_count.value_int;
     sample_interval = lite_sample_interval.value_int;
     sample_target = lite_sample_target.value;

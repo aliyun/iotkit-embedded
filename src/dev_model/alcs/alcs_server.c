@@ -54,9 +54,6 @@ void alcs_rec_auth_select(CoAPContext *ctx, const char *paths, NetworkAddr *from
             break;
         }
         lst = get_list(ctx);
-        if (!lst) {
-            break;
-        }
         
         accesskeys = json_get_value_by_name(data, datalen, "accessKeys", &keylen, NULL);
         if (!accesskeys || !keylen) {
@@ -310,11 +307,8 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
 static int alcs_remove_low_priority_key(CoAPContext *ctx, ServerKeyPriority priority)
 {
     auth_list *lst = get_list(ctx);
-
     svr_key_item *node = NULL, *next = NULL;
-    if (!lst) {
-        return COAP_ERROR_NULL;
-    }
+
     HAL_MutexLock(lst->list_mutex);
 
     list_for_each_entry_safe(node, next, &lst->lst_svr, lst, svr_key_item) {
@@ -364,7 +358,7 @@ static int add_svr_key(CoAPContext *ctx, const char *keyprefix, const char *secr
         return COAP_ERROR_MALLOC;
     }
     strcpy(item->keyInfo.secret, secret);
-    strcpy(item->keyInfo.keyprefix, keyprefix);
+    memcpy(item->keyInfo.keyprefix, keyprefix, KEYPREFIX_LEN);
     item->keyInfo.priority = priority;
 
     list_add_tail(&item->lst, &lst->lst_svr);
@@ -385,9 +379,6 @@ int alcs_remove_svr_key(CoAPContext *ctx, const char *keyprefix)
 {
     auth_list *lst = get_list(ctx);
     svr_key_item *node = NULL, *next = NULL;
-    if (!lst) {
-        return COAP_ERROR_NULL;
-    }
 
     HAL_MutexLock(lst->list_mutex);
 
@@ -409,9 +400,6 @@ int alcs_set_revocation(CoAPContext *ctx, const char *seqlist)
 {
     auth_list *lst = get_list(ctx);
     int len;
-    if (!lst) {
-        return COAP_ERROR_NULL;
-    }
 
     HAL_MutexLock(lst->list_mutex);
 

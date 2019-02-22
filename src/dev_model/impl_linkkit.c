@@ -471,6 +471,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_PROPERTY_DESIRED_GET_REPLY: {
             char *property_data = NULL;
             lite_cjson_t lite_item_data;
+
+            memset(&lite_item_data,0,sizeof(lite_cjson_t));
             dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_DATA, strlen(IOTX_LINKKIT_KEY_DATA), cJSON_Invalid,
                                       &lite_item_data);
             if (payload == NULL || lite_item_data.type != cJSON_Object) {
@@ -515,7 +517,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             LITE_hexstr_convert(lite_item_ctx.value, lite_item_ctx.value_length, (unsigned char *)&property_get_ctx_num,
                                 sizeof(uintptr_t));
             property_get_ctx = (void *)property_get_ctx_num;
-            dm_log_debug("property_get_ctx_num: %0x016llX", property_get_ctx_num);
+            dm_log_debug("property_get_ctx_num: %0x016llX", (unsigned int)property_get_ctx_num);
             dm_log_debug("property_get_ctx: %p", property_get_ctx);
 
             request = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
