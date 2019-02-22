@@ -1850,7 +1850,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     }
 
     /* TimeStamp */
-    HAL_Snprintf(timestamp, DM_UTILS_UINT64_STRLEN, "%llu", HAL_UptimeMs());
+    HAL_Snprintf(timestamp, DM_UTILS_UINT64_STRLEN, "%llu", (unsigned long long)HAL_UptimeMs());
     /* dm_log_debug("Time Stamp: %s", timestamp); */
 
     /* Client ID */
@@ -2023,7 +2023,7 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     }
 
     /* TimeStamp */
-    HAL_Snprintf(timestamp, DM_UTILS_UINT64_STRLEN, "%llu", HAL_UptimeMs());
+    HAL_Snprintf(timestamp, DM_UTILS_UINT64_STRLEN, "%llu", (unsigned long long)HAL_UptimeMs());
     /* dm_log_debug("Time Stamp: %s", timestamp); */
 
     /* Client ID */

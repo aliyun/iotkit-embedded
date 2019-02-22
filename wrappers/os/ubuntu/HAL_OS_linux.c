@@ -198,7 +198,7 @@ int HAL_SetDeviceSecret(char *device_secret)
 int HAL_GetProductKey(char *product_key)
 {
     int len = strlen(_product_key);
-    memset(product_key, 0x0, IOTX_PRODUCT_KEY_LEN);
+    memset(product_key, 0x0, IOTX_PRODUCT_KEY_LEN + 1);
 
     strncpy(product_key, _product_key, len);
 
@@ -208,7 +208,7 @@ int HAL_GetProductKey(char *product_key)
 int HAL_GetProductSecret(char *product_secret)
 {
     int len = strlen(_product_secret);
-    memset(product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN);
+    memset(product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN + 1);
 
     strncpy(product_secret, _product_secret, len);
 
@@ -218,7 +218,7 @@ int HAL_GetProductSecret(char *product_secret)
 int HAL_GetDeviceName(char *device_name)
 {
     int len = strlen(_device_name);
-    memset(device_name, 0x0, IOTX_DEVICE_NAME_LEN);
+    memset(device_name, 0x0, IOTX_DEVICE_NAME_LEN + 1);
 
     strncpy(device_name, _device_name, len);
 
@@ -228,7 +228,7 @@ int HAL_GetDeviceName(char *device_name)
 int HAL_GetDeviceSecret(char *device_secret)
 {
     int len = strlen(_device_secret);
-    memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN);
+    memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
 
     strncpy(device_secret, _device_secret, len);
 

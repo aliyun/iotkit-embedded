@@ -58,7 +58,7 @@ static alcs_mqtt_status_e __alcs_mqtt_kv_set(const char *key, const void *val, i
         return ALCS_MQTT_STATUS_ERROR;
     }
 
-    COAP_INFO("ALCS KV Set, Key: %s, Val: %s, Len: %d", key, val, len);
+    COAP_INFO("ALCS KV Set, Key: %s, Val: %s, Len: %d", key, (char *)val, len);
     return ALCS_MQTT_STATUS_SUCCESS;
 }
 
@@ -262,7 +262,7 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
                  alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
 
     COAP_INFO("Receivce Message, Topic: %.*s\n", topic_len, topic);
-    COAP_INFO("Receivce Message, Payload: %.*s\n", payload_len, payload);
+    COAP_INFO("Receivce Message, Payload: %.*s\n", payload_len, (char *)payload);
 
     if ((strlen(topic_compare) == topic_len) && (strncmp(topic_compare, topic, topic_len) == 0)) {
         int data_len = 0, prefix_len = 0, secret_len = 0, productKey_len = 0, deviceName_len = 0;

@@ -30,7 +30,7 @@ static localsetup_status __alcs_localsetup_kv_set(const char *key, const void *v
         return ALCS_LOCALSETUP_ERROR;
     }
 
-    COAP_INFO("ALCS KV Set, Key: %s, Val: %s, Len: %d", key, val, len);
+    COAP_INFO("ALCS KV Set, Key: %s, Val: %s, Len: %d", key, (char *)val, len);
     return ALCS_LOCALSETUP_SUCCESS;
 }
 
