@@ -173,7 +173,7 @@ static int _http_send_header(httpclient_t *client, const char *host, const char 
     /* ret = httpclient_tcp_send_all(client->net.handle, send_buf, len); */
     ret = client->net.write(&client->net, send_buf, len, 5000);
     if (ret <= 0) {
-        httpc_err("ret = client->net.write() = %d");
+        httpc_err("ret = client->net.write() = %d", ret);
         return (ret == 0) ? ERROR_HTTP_CLOSED : ERROR_HTTP_CONN;
     }
 
