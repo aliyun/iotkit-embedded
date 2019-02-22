@@ -10,7 +10,7 @@
 
 #include "iotx_utils_internal.h"
 
-#if defined(_PLATFORM_IS_LINUX_) && WITH_MEM_STATS
+#if defined(__UBUNTU_SDK_DEMO__) && WITH_MEM_STATS
     #include <execinfo.h>
 #endif
 
@@ -19,7 +19,7 @@ typedef struct {
     int                 buflen;
     char               *func;
     int                 line;
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
     char              **bt_symbols;
     int                 bt_level;
 #endif
