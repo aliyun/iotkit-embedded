@@ -157,7 +157,8 @@ static void otamqtt_UpgrageCb(void *pcontext, void *pclient, iotx_mqtt_event_msg
                              handle->device_name);
                 HAL_Snprintf(message,
                              OTA_MQTT_TOPIC_LEN,
-                             "\"id\":%d,\"code\":\"%d\",\"data\":{}",
+                             "\"id\":%.*s,\"code\":\"%d\",\"data\":{}",
+                             val_len,
                              pvalue,
                              400);
                 message_info.qos = IOTX_MQTT_QOS0;
