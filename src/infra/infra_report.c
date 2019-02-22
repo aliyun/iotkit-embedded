@@ -154,7 +154,7 @@ int iotx_report_devinfo(void *pclient)
     VERSION_DEBUG("devinfo report data: %s", msg);
 
     if (info_report_func != NULL) {
-        info_report_func(pclient, topic_name, 1, msg, strlen(msg));
+        info_report_func(pclient, topic_name, 0, msg, strlen(msg));
     }
 
     SYS_REPORT_FREE(msg);
@@ -219,7 +219,7 @@ int iotx_report_firmware_version(void *pclient)
     }
     VERSION_DEBUG("firmware report data: %s", msg);
 
-    ret = info_report_func(pclient, topic_name, 1, msg, strlen(msg));
+    ret = info_report_func(pclient, topic_name, 0, msg, strlen(msg));
 
     if (ret < 0) {
         VERSION_ERR("publish failed, ret = %d", ret);

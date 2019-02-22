@@ -402,7 +402,9 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
         if (ret == 0) {
             char pad = out_c[len - 1];
             out_c[len - pad] = 0;
+            /*
             COAP_DEBUG("decrypt data:%s, len:%d", out_c, len - pad);
+            */
             HAL_Aes128_Destroy(aes_d_h);
             return len - pad;
         }
@@ -747,7 +749,7 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
         HEXDUMP_DEBUG(message->payload, message->payloadlen);
 
         len = iotx_aes_cbc_decrypt(message->payload, message->payloadlen, p_iotx_coap->key, payload);
-        COAP_DEBUG("payload: %s, len %d", payload, len);
+        COAP_DEBUG("payload: %.*s, len %d", len, payload, len);
         if (len != 0) {
             memcpy(message->payload, payload, len);
             message->payloadlen = len;
