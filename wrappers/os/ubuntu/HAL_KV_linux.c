@@ -71,7 +71,8 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
         kv_err("paras err");
         return -1;
     }
-
+    
+    value_len = value_len > ITEM_MAX_VAL_LEN? ITEM_MAX_VAL_LEN:value_len;
     i = hash_gen(key);
     kv_err("hash i= %d", i);
     read_size = ITEM_MAX_LEN * TABLE_ROW_SIZE;
@@ -109,7 +110,7 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
     p = &kv[j];
     if (p && !p->value_len) {/* if key has not been stored, then add it */
         //p->next = NULL;
-        strcpy(p->key, key);
+        strncpy(p->key, key, ITEM_MAX_KEY_LEN - 1);
         memcpy(p->value, value, value_len);
         p->value_len = value_len;
     }
@@ -219,8 +220,10 @@ static int hash_table_rm(kv_file_t *file,  const  char *key)
 static int read_kv_item(const char *filename, void *buf, int location)
 {
     struct stat st;
-    int fd = open(filename, O_RDONLY);
+    int ret = 0;
     int offset;
+    int fd = open(filename, O_RDONLY);
+
     if (fd < 0) {
         kv_err("open err");
         return -1;
@@ -239,7 +242,12 @@ static int read_kv_item(const char *filename, void *buf, int location)
     }
 
     offset =  location * ITEM_MAX_LEN * TABLE_ROW_SIZE;
-    lseek(fd, offset, SEEK_SET);
+    ret = lseek(fd, offset, SEEK_SET);
+    if(ret < 0) {
+        kv_err("lseek err");
+        close(fd);
+        return -1;
+    }
 
     if (read(fd, buf, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN * TABLE_ROW_SIZE) {
         kv_err("read err");
@@ -255,6 +263,7 @@ static int write_kv_item(const char *filename, void *data, int location)
 {
     struct stat st;
     int offset;
+    int ret;
     int fd = open(filename, O_WRONLY);
     if (fd < 0) {
         return -1;
@@ -274,7 +283,12 @@ static int write_kv_item(const char *filename, void *data, int location)
     }
 
     offset = (location) * ITEM_MAX_LEN * TABLE_ROW_SIZE;
-    lseek(fd, offset, SEEK_SET);
+    ret = lseek(fd, offset, SEEK_SET);
+    if(ret < 0) {
+        kv_err("lseek err");
+        close(fd);
+        return -1;
+    }
 
     if (write(fd, data, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN * TABLE_ROW_SIZE) {
         kv_err("kv write failed");
