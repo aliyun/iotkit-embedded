@@ -303,7 +303,7 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
     }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
-        awss_debug("len:%u---%u, name:%s---%s\r\n",
+        awss_debug("len:%u---%lu, name:%s---%s\r\n",
                    enrollee_info[i].dev_name_len, strlen(dev_name),
                    enrollee_info[i].dev_name, dev_name);
         awss_debug("enrollee[%d] state %d", i, enrollee_info[i].state);
