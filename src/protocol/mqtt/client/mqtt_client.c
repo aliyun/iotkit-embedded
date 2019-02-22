@@ -39,8 +39,6 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
 static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
 static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
 
-static int _dump_wait_list(iotx_mc_client_t *c, const char *type);
-
 static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
 
 static void *g_mqtt_client = NULL;
@@ -689,7 +687,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         HAL_MutexUnlock(c->lock_generic);
     }
 #endif
-    _dump_wait_list(c, "sub");
 
     return SUCCESS_RETURN;
 }
@@ -1005,7 +1002,6 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     mqtt_debug("c->list_sub_wait_ack->len:IOTX_MC_SUB_REQUEST_NUM_MAX = %d:%d",
                list_number,
                IOTX_MC_SUB_REQUEST_NUM_MAX);
-    _dump_wait_list(c, "sub");
 
     if (list_number >= IOTX_MC_SUB_REQUEST_NUM_MAX) {
         HAL_MutexUnlock(c->lock_list_sub);
@@ -1042,55 +1038,6 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     return SUCCESS_RETURN;
 }
 
-/* Required to run in lock protection setup by caller */
-static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
-{
-#ifdef INSPECT_MQTT_LIST
-    iotx_mc_topic_handle_t *debug_handler = NULL;
-
-    ARGUMENT_SANITY_CHECK(c != NULL, FAIL_RETURN);
-    ARGUMENT_SANITY_CHECK(type != NULL, FAIL_RETURN);
-
-    if (strlen(type) && !strcmp(type, "sub")) {
-        iotx_mc_subsribe_info_t *node = NULL;
-
-        mqtt_debug("LIST type = %s, LIST len = %d", type, list_entry_number(&c->list_sub_wait_ack));
-        mqtt_debug("********");
-        list_for_each_entry(&node->linked_list, &c->list_sub_wait_ack, linked_list, iotx_mc_subsribe_info_t) {
-            debug_handler = subInfo->handler;
-            topic_filter = (char *)((debug_handler) ? (debug_handler->topic_filter) : ("NULL"));
-
-            mqtt_debug("[%d] %s(%d) | %p | %-8s | %-6s |",
-                       subInfo->msg_id,
-                       topic_filter,
-                       subInfo->len,
-                       debug_handler,
-                       (subInfo->node_state == IOTX_MC_NODE_STATE_INVALID) ? "INVALID" : "NORMAL",
-                       (subInfo->type == SUBSCRIBE) ? "SUB" : "UNSUB"
-                      );
-        }
-#if !WITH_MQTT_ONLY_QOS0
-    } else if (strlen(type) && !strcmp(type, "pub")) {
-        iotx_mc_pub_info_t *node = NULL;
-
-        mqtt_debug("LIST type = %s, LIST len = %d", type, list_entry_number(&c->list_pub_wait_ack));
-        mqtt_debug("********");
-        list_for_each_entry(&node->linked_list, &c->list_pub_wait_ack, linked_list, iotx_mc_pub_info_t) {
-            if (!pubInfo) {
-                mqtt_err("pub node's value is invalid!");
-            }
-        }
-#endif
-    } else {
-        mqtt_err("Invalid argument of type = '%s', abort", type);
-    }
-
-    mqtt_debug("********");
-
-#endif
-    return SUCCESS_RETURN;
-}
-
 /* remove the list element specified by @msgId from list of wait subscribe(unsubscribe) ACK */
 /* and return message handle by @messageHandler */
 /* return: 0, success; NOT 0, fail; */
@@ -1110,8 +1057,6 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
             break;
         }
     }
-
-    _dump_wait_list(c, "sub");
 
     return SUCCESS_RETURN;
 }
@@ -1149,7 +1094,7 @@ static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_
     while (sent < length && !utils_time_is_expired(time)) {
         left_t = iotx_time_left(time);
         left_t = (left_t == 0) ? 1 : left_t;
-        rc = c->ipstack->write(c->ipstack, &buf[sent], length, left_t);
+        rc = c->ipstack->write(c->ipstack, &buf[sent], length - sent, left_t);
         if (rc < 0) { /* there was an error writing the data */
             break;
         }
@@ -1491,12 +1436,6 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     for (i = 0; i < count; ++i) {
         mqtt_debug("%16s[%02d] : %d", "Granted QoS", i, grantedQoS[i]);
     }
-#ifdef INSPECT_MQTT_FLOW
-#endif
-
-#ifdef INSPECT_MQTT_LIST
-    mqtt_debug("receivce SUBACK, packetid: %d", mypacketid);
-#endif
 
 #if !(WITH_MQTT_SUB_SHORTCUT)
     iotx_mc_topic_handle_t *messagehandler = NULL;
@@ -1711,9 +1650,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     }
 
     iotx_mc_topic_handle_t *messageHandler = NULL;
-#ifdef INSPECT_MQTT_LIST
-    mqtt_debug("receivce UNSUBACK, packetid: %d", mypacketid);
-#endif
+
     HAL_MutexLock(c->lock_list_sub);
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
     HAL_MutexUnlock(c->lock_list_sub);
@@ -2540,10 +2477,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             continue;
         }
 
-#ifdef INSPECT_MQTT_LIST
-        mqtt_debug("MQTTSubInfoProc Timeout, packetid: %d", node->msg_id);
-#endif
-
         /* When arrive here, it means timeout to wait ACK */
         packet_id = node->msg_id;
         msg_type = node->type;
@@ -3277,10 +3210,7 @@ int IOT_MQTT_Subscribe(void *handle,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
-#ifdef INSPECT_MQTT_LIST
-    mqtt_debug("iotx_mc_subscribe before");
-#endif
-    _dump_wait_list(client, "sub");
+
     return iotx_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
 }
 
@@ -3312,10 +3242,6 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
-#ifdef INSPECT_MQTT_LIST
-    mqtt_debug("iotx_mc_subscribe before");
-#endif
-    _dump_wait_list(client, "sub");
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
