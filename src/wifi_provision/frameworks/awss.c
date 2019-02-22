@@ -68,7 +68,7 @@ int awss_start(void)
             while (1) {
                 memset(ssid, 0, sizeof(ssid));
                 HAL_Wifi_Get_Ap_Info(ssid , NULL, NULL);
-                awss_debug("start, ssid:%s, strlen:%d\n", ssid, strlen(ssid));
+                awss_debug("start, ssid:%s, strlen:%lu\n", ssid, strlen(ssid));
                 if (strlen(ssid) > 0 && strcmp(ssid, ADHA_SSID))  /* not adha AP */
                     break;
 
