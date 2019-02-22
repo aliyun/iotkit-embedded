@@ -41,8 +41,8 @@ static int awss_dev_ap_setup()
 
         HAL_GetProductKey(pk);
         os_wifi_get_mac_str(mac_str);
-        memcpy(mac_str + 11, mac_str + 12, 2);
-        memcpy(mac_str + 13, mac_str + 15, 2);
+        memmove(mac_str + 11, mac_str + 12, 2);
+        memmove(mac_str + 13, mac_str + 15, 2);
         mac_str[15] = '\0';
         HAL_Snprintf(ssid, PLATFORM_MAX_SSID_LEN, "adh_%s_%s", pk, &mac_str[9]);
     } while (0);
