@@ -387,14 +387,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         pInitParams->request_timeout_ms = mqtt_params->request_timeout_ms;
     }
 
-    if (pInitParams->keepalive_interval_ms < CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN ||
-        pInitParams->keepalive_interval_ms > CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX) {
+    if (pInitParams->keepalive_interval_ms < CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN * 1000 ||
+        pInitParams->keepalive_interval_ms > CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX * 1000) {
 
         mqtt_warning("Using default keepalive_interval_ms: %d, configured value(%d) out of [%d, %d]",
                      mqtt_params->keepalive_interval_ms,
                      pInitParams->keepalive_interval_ms,
-                     CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN,
-                     CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX);
+                     CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN * 1000,
+                     CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX * 1000);
 
         pInitParams->keepalive_interval_ms = mqtt_params->keepalive_interval_ms;
     }
