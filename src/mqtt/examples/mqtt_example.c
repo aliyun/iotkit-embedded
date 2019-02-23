@@ -136,7 +136,14 @@ int main(int argc, char *argv[])
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
-    /* MQTT message request timeout for waiting ACK in MQTT Protocol, default value is 2000ms */
+    /**
+     *
+     * MQTT request timeout interval
+     *
+     * MQTT message request timeout for waiting ACK in MQTT Protocol
+     *
+     * default value is 2000ms.
+     */
     /* mqtt_params.request_timeout_ms = 2000; */
 
     /**
