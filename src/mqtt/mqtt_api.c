@@ -288,7 +288,6 @@ static void iotx_mqtt_report_funcs(void *pclient)
 #endif
 }
 
-static iotx_mqtt_param_t *backup_mqtt_params;
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -340,8 +339,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_params->write_buf_size        = CONFIG_MQTT_MESSAGE_MAXLEN;
         mqtt_params->handle_event.h_fp     = NULL;
         mqtt_params->handle_event.pcontext = NULL;
-
-        backup_mqtt_params = mqtt_params;
 
     } while (0);
 
@@ -459,8 +456,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
 int IOT_MQTT_Destroy(void **phandler)
 {
-    void       *client;
-
+    void *client;
     if (phandler != NULL) {
         client = *phandler;
         *phandler = NULL;
@@ -470,18 +466,11 @@ int IOT_MQTT_Destroy(void **phandler)
 
     if (client == NULL) {
         mqtt_err("handler is null");
-        if (backup_mqtt_params) {
-            _iotx_mqtt_free_param(backup_mqtt_params);
-        }
         return NULL_VALUE_ERROR;
     }
 
     wrapper_mqtt_release(&client);
     g_mqtt_client = NULL;
-
-    if (backup_mqtt_params) {
-        _iotx_mqtt_free_param(backup_mqtt_params);
-    }
 
     return SUCCESS_RETURN;
 }
