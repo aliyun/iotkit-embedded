@@ -1,6 +1,10 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 
+#define DEMO_PRODUCT_KEY        "a1MZxOdcBnO"
+#define DEMO_DEVICE_NAME        "test_01"
+#define DEMO_DEVICE_SECRET      "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
+
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
