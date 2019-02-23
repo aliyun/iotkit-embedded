@@ -291,21 +291,13 @@ static void iotx_mqtt_report_funcs(void *pclient)
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
-    int                 err;
-    void               *pclient;
-    int                 ret;
-    iotx_mqtt_param_t *mqtt_params = NULL;
+    void                   *pclient;
+    int                     err;
+    int                     ret;
+    iotx_mqtt_param_t      *mqtt_params = NULL;
 
-    if (pInitParams != NULL) {
-        if (g_mqtt_client != NULL) {
-            IOT_MQTT_Destroy(&g_mqtt_client);
-        }
-    } else {
-        iotx_dev_meta_info_t meta;
-
-        if (g_mqtt_client != NULL) {
-            return NULL;
-        }
+    do {
+        iotx_dev_meta_info_t    meta;
 
         mqtt_params = _iotx_mqtt_new_param();
         if (mqtt_params == NULL) {
@@ -325,6 +317,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             _iotx_mqtt_free_param(mqtt_params);
             return NULL;
         }
+
         /* Initialize MQTT parameter */
         memset(mqtt_params, 0x0, sizeof(iotx_mqtt_param_t));
 
@@ -346,9 +339,82 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_params->write_buf_size        = CONFIG_MQTT_MESSAGE_MAXLEN;
         mqtt_params->handle_event.h_fp     = NULL;
         mqtt_params->handle_event.pcontext = NULL;
+
+    } while (0);
+
+    if (pInitParams == NULL) {
+        if (g_mqtt_client != NULL) {
+            mqtt_err("Already exist default MQTT connection, won't proceed another one");
+            return NULL;
+        }
+
         pInitParams = mqtt_params;
+    } else {
+        if (g_mqtt_client != NULL) {
+            IOT_MQTT_Destroy(&g_mqtt_client);
+        }
     }
 
+    if (!pInitParams->client_id) {
+        pInitParams->client_id = mqtt_params->client_id;
+        mqtt_warning("Using default client_id: %s", pInitParams->client_id);
+    }
+
+    if (!pInitParams->host) {
+        pInitParams->host = mqtt_params->host;
+        mqtt_warning("Using default host: %s", pInitParams->host);
+    }
+
+    if (!pInitParams->username) {
+        pInitParams->username = mqtt_params->username;
+        mqtt_warning("Using default username: %s", pInitParams->username);
+    }
+
+    if (!pInitParams->password) {
+        pInitParams->password = mqtt_params->password;
+        mqtt_warning("Using default password: %s", pInitParams->password);
+    }
+
+    if (pInitParams->request_timeout_ms < CONFIG_MQTT_REQ_TIMEOUT_MIN ||
+        pInitParams->request_timeout_ms > CONFIG_MQTT_REQ_TIMEOUT_MAX) {
+
+        mqtt_warning("Using default request_timeout_ms: %d, configured value(%d) out of [%d, %d]",
+                     mqtt_params->request_timeout_ms,
+                     pInitParams->request_timeout_ms,
+                     CONFIG_MQTT_REQ_TIMEOUT_MIN,
+                     CONFIG_MQTT_REQ_TIMEOUT_MAX);
+
+        pInitParams->request_timeout_ms = mqtt_params->request_timeout_ms;
+    }
+
+    if (pInitParams->keepalive_interval_ms < CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN ||
+        pInitParams->keepalive_interval_ms > CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX) {
+
+        mqtt_warning("Using default keepalive_interval_ms: %d, configured value(%d) out of [%d, %d]",
+                     mqtt_params->keepalive_interval_ms,
+                     pInitParams->keepalive_interval_ms,
+                     CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN,
+                     CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX);
+
+        pInitParams->keepalive_interval_ms = mqtt_params->keepalive_interval_ms;
+    }
+
+    if (!pInitParams->port) {
+        pInitParams->port = mqtt_params->port;
+        mqtt_warning("Using default port: %d", pInitParams->port);
+    }
+
+    if (!pInitParams->read_buf_size) {
+        pInitParams->read_buf_size = mqtt_params->read_buf_size;
+        mqtt_warning("Using default read_buf_size: %d", pInitParams->read_buf_size);
+    }
+
+    if (!pInitParams->write_buf_size) {
+        pInitParams->write_buf_size = mqtt_params->write_buf_size;
+        mqtt_warning("Using default write_buf_size: %d", pInitParams->write_buf_size);
+    }
+
+#if 0
     if (pInitParams->host == NULL || pInitParams->client_id == NULL ||
         pInitParams->username == NULL || pInitParams->password == NULL ||
         pInitParams->port == 0 || !strlen(pInitParams->host)) {
@@ -359,6 +425,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         }
         return NULL;
     }
+#endif
 
     pclient = wrapper_mqtt_init(pInitParams);
     if (pclient == NULL) {

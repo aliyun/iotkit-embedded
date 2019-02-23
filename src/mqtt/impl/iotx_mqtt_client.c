@@ -65,19 +65,19 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
     pClient->connect_data.will.qos = pConnectParams->will.qos;
     pClient->connect_data.will.retained = pConnectParams->will.retained;
 
-    if (pConnectParams->keepAliveInterval < KEEP_ALIVE_INTERVAL_DEFAULT_MIN) {
+    if (pConnectParams->keepAliveInterval < CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN) {
         mqtt_warning("Input heartbeat interval(%d ms) < Allowed minimum(%d ms)",
                      (pConnectParams->keepAliveInterval * 1000),
-                     (KEEP_ALIVE_INTERVAL_DEFAULT_MIN * 1000)
+                     (CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN * 1000)
                     );
         mqtt_warning("Reset heartbeat interval => %d Millisecond",
                      (CONFIG_MQTT_KEEPALIVE_INTERVAL * 1000)
                     );
         pClient->connect_data.keepAliveInterval = CONFIG_MQTT_KEEPALIVE_INTERVAL;
-    } else if (pConnectParams->keepAliveInterval > KEEP_ALIVE_INTERVAL_DEFAULT_MAX) {
+    } else if (pConnectParams->keepAliveInterval > CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX) {
         mqtt_warning("Input heartbeat interval(%d ms) > Allowed maximum(%d ms)",
                      (pConnectParams->keepAliveInterval * 1000),
-                     (KEEP_ALIVE_INTERVAL_DEFAULT_MAX * 1000)
+                     (CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX * 1000)
                     );
         mqtt_warning("Reset heartbeat interval => %d Millisecond",
                      (CONFIG_MQTT_KEEPALIVE_INTERVAL * 1000)
@@ -153,8 +153,8 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     connectdata.password.cstring = (char *)pInitParams->password;
     connectdata.cleansession = pInitParams->clean_session;
 
-    if (pInitParams->request_timeout_ms < IOTX_MC_REQUEST_TIMEOUT_MIN_MS
-        || pInitParams->request_timeout_ms > IOTX_MC_REQUEST_TIMEOUT_MAX_MS) {
+    if (pInitParams->request_timeout_ms < CONFIG_MQTT_REQ_TIMEOUT_MIN
+        || pInitParams->request_timeout_ms > CONFIG_MQTT_REQ_TIMEOUT_MAX) {
 
         pClient->request_timeout_ms = CONFIG_MQTT_REQUEST_TIMEOUT;
     } else {

@@ -47,18 +47,6 @@
 /* Maximum interval of MQTT reconnect in millisecond */
 #define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (60000)
 
-/* Minimum timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_MIN_MS          (500)
-
-/* Maximum timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_MAX_MS          (5000)
-
-/* Minimum keepalive interval of MQTT request in second */
-#define KEEP_ALIVE_INTERVAL_DEFAULT_MIN         (30)
-
-/* Maximum keepalive interval of MQTT request in second */
-#define KEEP_ALIVE_INTERVAL_DEFAULT_MAX         (180)
-
 /* Max times of keepalive which has been send and did not received response package */
 #define IOTX_MC_KEEPALIVE_PROBE_MAX             (1)
 

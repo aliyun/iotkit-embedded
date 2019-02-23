@@ -145,6 +145,7 @@ typedef struct {
      * If the value is NULL, it means that use TCP channel,
      * If the value is NOT NULL, it means that use SSL/TLS channel and
      *   @pub_key point to the CA certification */
+
     const char                 *pub_key;
 
     uint8_t                     clean_session;            /* Specify MQTT clean session or not*/
@@ -364,6 +365,18 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
 
 /* Default timeout interval of MQTT request in millisecond */
 #define CONFIG_MQTT_REQUEST_TIMEOUT             (2000)
+
+/* Minimum timeout interval of MQTT request in millisecond */
+#define CONFIG_MQTT_REQ_TIMEOUT_MIN             (500)
+
+/* Maximum timeout interval of MQTT request in millisecond */
+#define CONFIG_MQTT_REQ_TIMEOUT_MAX             (5000)
+
+/* Minimum keepalive interval of MQTT request in second */
+#define CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN      (30)
+
+/* Maximum keepalive interval of MQTT request in second */
+#define CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX      (180)
 
 #if defined(__cplusplus)
 }
