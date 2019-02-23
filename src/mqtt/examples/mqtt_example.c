@@ -67,12 +67,11 @@ int example_subscribe(void *handle)
 
 int example_publish(void *handle)
 {
-    int res = 0;
-    iotx_mqtt_topic_info_t topic_msg;
-    const char *fmt = "/%s/%s/get";
-    char *topic = NULL;
-    int topic_len = 0;
-    char *payload = "{\"message\":\"hello!\"}";
+    int             res = 0;
+    const char     *fmt = "/%s/%s/get";
+    char           *topic = NULL;
+    int             topic_len = 0;
+    char           *payload = "{\"message\":\"hello!\"}";
 
     topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
     topic = HAL_Malloc(topic_len);
@@ -83,17 +82,9 @@ int example_publish(void *handle)
     memset(topic, 0, topic_len);
     HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
 
-
-    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
-    topic_msg.qos = IOTX_MQTT_QOS0;
-    topic_msg.retain = 0;
-    topic_msg.dup = 0;
-    topic_msg.payload = (void *)payload;
-    topic_msg.payload_len = strlen(payload);
-
-    res = IOT_MQTT_Publish(handle, topic, &topic_msg);
+    res = IOT_MQTT_Publish_Simple(0, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
     if (res < 0) {
-        EXAMPLE_TRACE("publish failed");
+        EXAMPLE_TRACE("publish failed, res = %d", res);
         HAL_Free(topic);
         return -1;
     }
