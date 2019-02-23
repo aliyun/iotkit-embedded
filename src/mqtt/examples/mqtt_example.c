@@ -8,9 +8,9 @@
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
-int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
+int HAL_SetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
+int HAL_SetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+int HAL_SetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 uint64_t HAL_UptimeMs(void);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
@@ -41,23 +41,18 @@ void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
 int example_subscribe(void *handle)
 {
     int res = 0;
-    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
+    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
         EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
-    HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
+    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
     if (res < 0) {
@@ -74,24 +69,19 @@ int example_publish(void *handle)
 {
     int res = 0;
     iotx_mqtt_topic_info_t topic_msg;
-    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     const char *fmt = "/%s/%s/get";
     char *topic = NULL;
     int topic_len = 0;
     char *payload = "{\"message\":\"hello!\"}";
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
+    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
         EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
-    HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
+    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
 
 
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
@@ -136,6 +126,10 @@ int main(int argc, char *argv[])
     int                     res = 0;
     int                     loop_cnt = 0;
     iotx_mqtt_param_t       mqtt_params;
+
+    HAL_SetProductKey(DEMO_PRODUCT_KEY);
+    HAL_SetDeviceName(DEMO_DEVICE_NAME);
+    HAL_SetDeviceSecret(DEMO_DEVICE_SECRET);
 
     EXAMPLE_TRACE("mqtt example");
 
