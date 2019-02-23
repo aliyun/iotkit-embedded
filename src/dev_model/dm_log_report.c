@@ -1,7 +1,12 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include "infra_defs.h"
+#include "infra_config.h"
+
 #ifdef LOG_REPORT_TO_CLOUD
+
 #include "iotx_dm_internal.h"
 #include "iot_export_linkkit.h"
 
