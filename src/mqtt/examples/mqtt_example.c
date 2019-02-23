@@ -128,44 +128,15 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
 int main(int argc, char *argv[])
 {
-    void       *pclient = NULL;
-    int         res = 0;
-    int         loop_cnt = 0;
-
-    iotx_mqtt_region_types_t    region = IOTX_CLOUD_REGION_SHANGHAI;
-    iotx_sign_mqtt_t            sign_mqtt;
-    iotx_dev_meta_info_t        meta;
-    iotx_mqtt_param_t           mqtt_params;
+    void                   *pclient = NULL;
+    int                     res = 0;
+    int                     loop_cnt = 0;
+    iotx_mqtt_param_t       mqtt_params;
 
     EXAMPLE_TRACE("mqtt example");
 
-    memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
-    HAL_GetProductKey(meta.product_key);
-    HAL_GetDeviceName(meta.device_name);
-    HAL_GetDeviceSecret(meta.device_secret);
-
-    memset(&sign_mqtt, 0x0, sizeof(iotx_sign_mqtt_t));
-
-    if (IOT_Sign_MQTT(region, &meta, &sign_mqtt) < 0) {
-        return -1;
-    }
-
-#if 0   /* Uncomment this to show more information */
-    EXAMPLE_TRACE("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
-    EXAMPLE_TRACE("sign_mqtt.port    : %d\n", sign_mqtt.port);
-    EXAMPLE_TRACE("sign_mqtt.username: %s\n", sign_mqtt.username);
-    EXAMPLE_TRACE("sign_mqtt.password: %s\n", sign_mqtt.password);
-    EXAMPLE_TRACE("sign_mqtt.clientid: %s\n", sign_mqtt.clientid);
-#endif
-
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
-
-    mqtt_params.port = sign_mqtt.port;
-    mqtt_params.host = sign_mqtt.hostname;
-    mqtt_params.client_id = sign_mqtt.clientid;
-    mqtt_params.username = sign_mqtt.username;
-    mqtt_params.password = sign_mqtt.password;
 
     /* MQTT message request timeout for waiting ACK in MQTT Protocol, default value is 2000ms */
     /* mqtt_params.request_timeout_ms = 2000; */
@@ -198,7 +169,6 @@ int main(int argc, char *argv[])
     mqtt_params.write_buf_size = 1024;
 
     mqtt_params.handle_event.h_fp = example_event_handle;
-    mqtt_params.handle_event.pcontext = NULL;
 
     pclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == pclient) {
@@ -224,5 +194,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
 

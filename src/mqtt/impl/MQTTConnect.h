@@ -101,7 +101,7 @@ typedef union {
 } MQTTConnackFlags; /**< connack flags byte */
 
 
-#define MQTTPacket_connectData_initializer { {'M', 'Q', 'T', 'C'}, 0, 4, {NULL, {0, NULL}}, KEEP_ALIVE_INTERVAL_DEFAULT_MIN, 1, 0, \
+#define MQTTPacket_connectData_initializer { {'M', 'Q', 'T', 'C'}, 0, 4, {NULL, {0, NULL}}, CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN, 1, 0, \
         MQTTPacket_willOptions_initializer, {NULL, {0, NULL}}, {NULL, {0, NULL}} }
 
 DLLExport int MQTTSerialize_connect(unsigned char *buf, int buflen, MQTTPacket_connectData *options);
