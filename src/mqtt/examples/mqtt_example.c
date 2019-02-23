@@ -1,6 +1,10 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 
+#define DEMO_PRODUCT_KEY        "a1MZxOdcBnO"
+#define DEMO_DEVICE_NAME        "test_01"
+#define DEMO_DEVICE_SECRET      "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
+
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
@@ -150,7 +154,7 @@ int main(int argc, char *argv[])
 
     /**
      *
-     * MQTT KeepAlive bytes
+     * MQTT keepAlive interval
      *
      * KeepAlive is the maximum time interval that is permitted to elapse between the point at which
      * the Client finishes transmitting one Control Packet and the point it starts sending the next.
@@ -159,9 +163,39 @@ int main(int argc, char *argv[])
      */
     /* mqtt_params.keepalive_interval_ms = 60000; */
 
-    mqtt_params.read_buf_size = 1024;
-    mqtt_params.write_buf_size = 1024;
+    /**
+     *
+     * MQTT write buffer size
+     *
+     * Write buffer is allocated to place upstream MQTT messages, MQTT client will be limitted
+     * to send packet no longer than this to Cloud
+     *
+     * default value is 1024.
+     *
+     */
+    /* mqtt_params.write_buf_size = 1024; */
 
+    /**
+     *
+     * MQTT read buffer size
+     *
+     * Write buffer is allocated to place downstream MQTT messages, MQTT client will be limitted
+     * to recv packet no longer than this from Cloud
+     *
+     * default value is 1024.
+     *
+     */
+    /* mqtt_params.read_buf_size = 1024; */
+
+    /**
+     *
+     * MQTT event callback function
+     *
+     * Event callback function will be called by SDK when it want to notify user what is happening inside itself
+     *
+     * default value is NULL, which means PUB/SUB event won't be exposed.
+     *
+     */
     mqtt_params.handle_event.h_fp = example_event_handle;
 
     pclient = IOT_MQTT_Construct(&mqtt_params);
