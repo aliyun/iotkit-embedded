@@ -21,7 +21,7 @@ DEV_SIGN||src/dev_sign|output/eng/dev_sign
 DYNAMIC_REGISTER||src/dynamic_register|output/eng/dynamic_register
 
 MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
-MQTT_DEFAULT_IMPL||src/mqtt/mqtt_impl|output/eng/mqtt
+MQTT_DEFAULT_IMPL||src/mqtt/impl|output/eng/mqtt
 
 DEVICE_MODEL_ENABLED||src/dev_model|output/eng/dev_model
 DEVICE_MODEL_ENABLED||src/dev_model/client|output/eng/dev_model

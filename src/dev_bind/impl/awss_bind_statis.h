@@ -6,7 +6,7 @@
 #define __AWSS_BIND_STATIS_H__
 
 #ifndef AWSS_SUPPORT_DEV_BIND_STATIS
-#define AWSS_SUPPORT_DEV_BIND_STATIS
+    #define AWSS_SUPPORT_DEV_BIND_STATIS
 #endif
 
 enum {

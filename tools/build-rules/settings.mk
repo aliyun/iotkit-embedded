@@ -8,7 +8,7 @@ SED             := gsed
 STRIP_DBGOPT    :=
 else
 SED             := sed
-STRIP_DBGOPT    := --strip-debug
+STRIP_DBGOPT    := --strip-dwo
 endif
 
 # Settings of input directory and file

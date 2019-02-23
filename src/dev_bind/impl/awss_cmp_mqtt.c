@@ -20,8 +20,9 @@ static char online_init = 0;
 
 int awss_cmp_mqtt_register_cb(char *topic, void *cb)
 {
-    if (topic == NULL)
+    if (topic == NULL) {
         return -1;
+    }
 
     return IOT_MQTT_Subscribe(NULL, topic, 0, (iotx_mqtt_event_handle_func_fpt)cb, NULL);
 }
@@ -52,8 +53,9 @@ int awss_cmp_online_init()
 {
     int i;
     char topic[TOPIC_LEN_MAX] = {0};
-    if (online_init)
+    if (online_init) {
         return 0;
+    }
 
 
     for (i = 0; i < sizeof(awss_online_couple) / sizeof(awss_online_couple[0]); i ++) {
@@ -74,8 +76,9 @@ int awss_cmp_online_deinit()
     uint8_t i;
     char topic[TOPIC_LEN_MAX] = {0};
 
-    if (!online_init)
+    if (!online_init) {
         return 0;
+    }
 
     awss_dev_bind_notify_stop();
 
@@ -94,8 +97,9 @@ int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len
 {
     iotx_mqtt_event_msg_pt msg;
     iotx_mqtt_topic_info_pt ptopic_info;
-    if (mesg == NULL || payload == NULL || playload_len == NULL)
+    if (mesg == NULL || payload == NULL || playload_len == NULL) {
         return - 1;
+    }
 
     msg = (iotx_mqtt_event_msg_pt)mesg;
     ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;

@@ -8,8 +8,7 @@
 #include <stdio.h>
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 int process_get_device_info(void *ctx, void *resource, void *remote, void *request, char is_mcast, int type);
