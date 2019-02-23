@@ -8,31 +8,34 @@
 #include "dev_bind_wrapper.h"
 
 #ifdef WIFI_PROVISION_ENABLED
-#include "awss_statis.h"
+    #include "awss_statis.h"
 #endif
 
 #ifdef DEVICE_MODEL_ENABLED
-#include "dev_reset_api.h"
+    #include "dev_reset_api.h"
 #endif
 
 #ifndef AWSS_DISABLE_REGISTRAR
-#include "awss_enrollee.h"
+    #include "awss_enrollee.h"
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 static void *awss_bind_mutex = NULL;
-int awss_stop_report_reset(){return 0;};
+int awss_stop_report_reset()
+{
+    return 0;
+};
 
 int awss_report_cloud()
 {
     if (awss_bind_mutex == NULL) {
         awss_bind_mutex = HAL_MutexCreate();
-        if (awss_bind_mutex == NULL)
+        if (awss_bind_mutex == NULL) {
             return -1;
+        }
     }
 
     HAL_MutexLock(awss_bind_mutex);
@@ -61,8 +64,9 @@ int awss_report_cloud()
 
 int awss_bind_deinit()
 {
-    if (awss_bind_mutex)
+    if (awss_bind_mutex) {
         HAL_MutexLock(awss_bind_mutex);
+    }
 
 #ifdef DEVICE_MODEL_ENABLED
     IOT_ResetReportStop();

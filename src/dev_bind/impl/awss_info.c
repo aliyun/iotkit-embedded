@@ -14,8 +14,7 @@
 #include "awss_packet.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 #define AWSS_CONNAP_MONITOR_TIMEOUT_MS  (60 * 1000)
 
@@ -39,8 +38,9 @@ static void awss_release_connectap_monitor()
 
 static void awss_connectap_monitor(void *param)
 {
-    if (connectap_monitor_mutex)
+    if (connectap_monitor_mutex) {
         HAL_MutexLock(connectap_monitor_mutex);
+    }
     g_awss_connectap_info_avaliable = 0;
     awss_release_connectap_monitor();
 }
@@ -69,7 +69,7 @@ int awss_start_connectap_monitor()
     HAL_MutexLock(connectap_monitor_mutex);
 
     connectap_monitor_timer = HAL_Timer_Create("connap_monitor",
-            awss_connectap_monitor, NULL);
+                              awss_connectap_monitor, NULL);
     if (connectap_monitor_timer == NULL) {
         awss_err("connap alloc-t fail");
         goto CONNAP_M_FAIL;
@@ -97,17 +97,20 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
 
     buf = os_zalloc(DEV_INFO_LEN_MAX);
-    if (!buf)
+    if (!buf) {
         goto DEV_INFO_ERR;
+    }
 
     dev_info = os_zalloc(DEV_INFO_LEN_MAX);
-    if (!dev_info)
+    if (!dev_info) {
         goto DEV_INFO_ERR;
+    }
 
     msg = awss_cmp_get_coap_payload(request, &len);
     id = json_get_value_by_name(msg, len, "id", &id_len, 0);
-    if (id && id_len < MSG_REQ_ID_LEN)
+    if (id && id_len < MSG_REQ_ID_LEN) {
         memcpy(req_msg_id, id, id_len);
+    }
 
     if (type == AWSS_NOTIFY_DEV_RAND_SIGN) {
         topic_fmt = is_mcast ? TOPIC_AWSS_GETDEVICEINFO_MCAST : TOPIC_AWSS_GETDEVICEINFO_UCAST;
@@ -128,30 +131,37 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
 
     awss_build_topic(topic_fmt, topic, TOPIC_LEN_MAX);
 
-    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request, NULL, NULL, 0))
+    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request, NULL, NULL, 0)) {
         awss_err("tx dev info rsp fail.");
+    }
 
     HAL_Free(buf);
     return 0;
 
 DEV_INFO_ERR:
-    if (buf) HAL_Free(buf);
-    if (dev_info) HAL_Free(dev_info);
+    if (buf) {
+        HAL_Free(buf);
+    }
+    if (dev_info) {
+        HAL_Free(dev_info);
+    }
 
     return -1;
 }
 
 int awss_process_mcast_get_connectap_info(void *ctx, void *resource, void *remote, void *request)
 {
-    if (g_awss_connectap_info_avaliable == 0)
+    if (g_awss_connectap_info_avaliable == 0) {
         return -1;
+    }
     return process_get_device_info(ctx, resource, remote, request, 1, AWSS_NOTIFY_SUCCESS);
 }
 
 int awss_process_ucast_get_connectap_info(void *ctx, void *resource, void *remote, void *request)
 {
-    if (g_awss_connectap_info_avaliable == 0)
+    if (g_awss_connectap_info_avaliable == 0) {
         return -1;
+    }
     return process_get_device_info(ctx, resource, remote, request, 0, AWSS_NOTIFY_SUCCESS);
 }
 
