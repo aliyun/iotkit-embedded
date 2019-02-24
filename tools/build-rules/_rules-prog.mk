@@ -48,6 +48,7 @@ ifeq (1,$(words $(TARGET)))
 
 $(TARGET): $(OBJS) FORCE
 	$(call Inspect_Env,$(WATCHED_VARS))
+	$(Q)$(MAKE) comp-lib 2>/dev/null || true
 	$(Q) \
 ( \
 	if [ "$(strip $(CC))" = "gcc" -o "$(strip $(CC))" = "i686-w64-mingw32-gcc" ] \
