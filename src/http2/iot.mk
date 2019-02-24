@@ -2,7 +2,7 @@ LIBA_TARGET     := libiot_http2.a
 
 HDR_REFS        += src/infra
 
-DEPENDS         += wrappers
+DEPENDS         += wrappers external_libs/nghttp2
 LDFLAGS         += -liot_sdk -liot_hal -liot_tls -liot_nghttp2
 
 LIB_SRCS_EXCLUDE        := examples/http2_example_stream.c examples/http2_example_uploadfile.c

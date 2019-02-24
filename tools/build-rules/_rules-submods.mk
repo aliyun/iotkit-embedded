@@ -1,7 +1,7 @@
 SUB_LOG_OPTION := $(if $(Q),,| tee -a $(OUTPUT_DIR)/$${i}/$(COMPILE_LOG))
 ALL_LOG_OPTION := $(if $(Q),,| tee -a $(COMPILE_LOG))
 
-sub-mods: toolchain
+sub-mods: toolchain config
 	$(Q) \
 	if [ -f $(STAMP_ONE_MK) ] && [ "$(MAKECMDGOALS)" = "" ]; then \
 	    CORE_NUM=$$(cat /proc/cpuinfo 2>/dev/null| grep processor | tail -1 | awk '{ print $$NF }'); \
