@@ -15,7 +15,7 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
 #include "mqtt_api.h"
 
 #ifdef DYNAMIC_REGISTER
-#include "dynreg_api.h"
+    #include "dynreg_api.h"
 #endif
 
 #ifdef INFRA_LOG
@@ -31,12 +31,12 @@ void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 
 #ifdef DYNAMIC_REGISTER
-void HAL_Printf(const char *fmt, ...);
-int HAL_SetDeviceSecret(char *device_secret);
-int HAL_GetProductSecret(char *product_secret);
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
-#define KV_KEY_DEVICE_SECRET            "DyncRegDeviceSecret"
+    void HAL_Printf(const char *fmt, ...);
+    int HAL_SetDeviceSecret(char *device_secret);
+    int HAL_GetProductSecret(char *product_secret);
+    int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
+    int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
+    #define KV_KEY_DEVICE_SECRET            "DyncRegDeviceSecret"
 #endif
 
 static iotx_conn_info_t g_iotx_conn_info = {0};
@@ -80,8 +80,8 @@ int IOT_SetupConnInfo(const char *product_key,
 
             *(device_secret_actual + device_secret_len) = 0;
             HAL_SetDeviceSecret(device_secret_actual);
-            memset(meta_data.device_secret,0,IOTX_DEVICE_SECRET_LEN + 1);
-            memcpy(meta_data.device_secret,device_secret_actual,strlen(device_secret_actual));
+            memset(meta_data.device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
+            memcpy(meta_data.device_secret, device_secret_actual, strlen(device_secret_actual));
         } else {
             char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
 
@@ -100,7 +100,7 @@ int IOT_SetupConnInfo(const char *product_key,
             }
             memcpy(meta_data.product_secret, product_secret, strlen(product_secret));
 
-            res = IOT_Dynamic_Register(ctx->domain_type,&meta_data);
+            res = IOT_Dynamic_Register(ctx->domain_type, &meta_data);
             if (res != SUCCESS_RETURN) {
                 sdk_err("Dynamic Register Failed");
                 return FAIL_RETURN;
@@ -277,5 +277,84 @@ void IOT_DumpMemoryStats(IOT_LogLevel level)
     LITE_dump_malloc_free_stats(lvl);
 #endif
 }
+
+static void *g_event_monitor = NULL;
+
+int iotx_event_regist_cb(void (*monitor_cb)(int event))
+{
+    g_event_monitor = monitor_cb;
+    return 0;
+}
+
+int iotx_event_post(int event)
+{
+    if (g_event_monitor == NULL) {
+        return -1;
+    }
+    ((void (*)(int))g_event_monitor)(event);
+    return 0;
+}
+
+typedef struct {
+    int eventid;
+    void *callback;
+} impl_event_map_t;
+
+static impl_event_map_t g_impl_event_map[] = {
+    {ITE_AWSS_STATUS,          NULL},
+    {ITE_CONNECT_SUCC,         NULL},
+    {ITE_CONNECT_FAIL,         NULL},
+    {ITE_DISCONNECTED,         NULL},
+    {ITE_RAWDATA_ARRIVED,      NULL},
+    {ITE_SERVICE_REQUEST,       NULL},
+    {ITE_PROPERTY_SET,         NULL},
+    {ITE_PROPERTY_GET,         NULL},
+#ifdef DEVICE_MODEL_SHADOW
+    {ITE_PROPERTY_DESIRED_GET_REPLY,         NULL},
+#endif
+    {ITE_REPORT_REPLY,         NULL},
+    {ITE_TRIGGER_EVENT_REPLY,  NULL},
+    {ITE_TIMESTAMP_REPLY,      NULL},
+    {ITE_TOPOLIST_REPLY,       NULL},
+    {ITE_PERMIT_JOIN,          NULL},
+    {ITE_INITIALIZE_COMPLETED, NULL},
+    {ITE_FOTA,                 NULL},
+    {ITE_COTA,                 NULL},
+    {ITE_MQTT_CONNECT_SUCC,    NULL}
+};
+
+void *iotx_event_callback(int evt)
+{
+    if (evt < 0 || evt >= sizeof(g_impl_event_map) / sizeof(impl_event_map_t)) {
+        return NULL;
+    }
+    return g_impl_event_map[evt].callback;
+}
+
+DEFINE_EVENT_CALLBACK(ITE_AWSS_STATUS,          int (*callback)(int))
+DEFINE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*callback)(void))
+DEFINE_EVENT_CALLBACK(ITE_CONNECT_FAIL,         int (*callback)(void))
+DEFINE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*callback)(void))
+DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const unsigned char *, const int))
+DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,       int (*callback)(const int, const char *, const int, const char *,
+                      const int, char **, int *))
+DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
+#ifdef DEVICE_MODEL_SHADOW
+    DEFINE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*callback)(const char *, const int))
+#endif
+DEFINE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*callback)(const int, const char *, const int, char **, int *))
+DEFINE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*callback)(const int, const int, const int, const char *,
+                      const int))
+DEFINE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*callback)(const int, const int, const int, const char *,
+                      const int, const char *, const int))
+DEFINE_EVENT_CALLBACK(ITE_TIMESTAMP_REPLY,      int (*callback)(const char *))
+DEFINE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*callback)(const int, const int, const int, const char *,
+                      const int))
+DEFINE_EVENT_CALLBACK(ITE_PERMIT_JOIN,          int (*callback)(const char *, int))
+DEFINE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*callback)(const int))
+DEFINE_EVENT_CALLBACK(ITE_FOTA,                 int (*callback)(const int, const char *))
+DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *,
+                      const char *, const char *, const char *))
+DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))
 
 #endif

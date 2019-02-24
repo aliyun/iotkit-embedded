@@ -12,7 +12,7 @@
 #include "awss_log.h"
 #include "passwd.h"
 #include "os.h"
-#include "infra_classic.h"
+#include "infra_compat.h"
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 extern "C" {

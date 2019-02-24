@@ -7,7 +7,7 @@
 #include "zconfig_lib.h"
 #include "zconfig_utils.h"
 #ifndef AWSS_DISABLE_ENROLLEE
-#include "awss_enrollee.h"
+    #include "awss_enrollee.h"
 #endif
 #include "awss_packet.h"
 #include "awss_notify.h"
@@ -18,11 +18,10 @@
 #include "passwd.h"
 #include "awss_api.h"
 #include "os.h"
-#include "infra_classic.h"
+#include "infra_compat.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 char awss_finished = 2;
@@ -42,9 +41,10 @@ int __awss_start(void)
     aws_start(NULL, NULL, NULL, NULL);
 
     ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0],
-            (char *)&auth, (char *)&encry, &channel);
-    if (!ret)
-	    awss_warn("awss timeout!");
+                              (char *)&auth, (char *)&encry, &channel);
+    if (!ret) {
+        awss_warn("awss timeout!");
+    }
 
     if (awss_stop_connecting) {
         awss_finished = 1;
@@ -74,7 +74,7 @@ int __awss_start(void)
         }
 
         ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
-                                 auth, encry, bssid, channel);
+                                  auth, encry, bssid, channel);
         if (!ret) {
             awss_debug("awss connect ssid:%s success", ssid);
             awss_event_post(IOTX_AWSS_GOT_IP);
@@ -85,8 +85,9 @@ int __awss_start(void)
                 awss_suc_notify_stop();
                 awss_cmp_local_init(adha == 0 ? AWSS_LC_INIT_ROUTER : AWSS_LC_INIT_PAP);
                 awss_devinfo_notify();
-                if (adha == 0)
+                if (adha == 0) {
                     AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+                }
                 awss_event_post(IOTX_AWSS_SETUP_NOTIFY);
             } else
 #endif
@@ -131,7 +132,9 @@ int __awss_stop(void)
     }
 
     while (1) {
-        if (awss_finished) break;
+        if (awss_finished) {
+            break;
+        }
         HAL_SleepMs(300);
     }
     aws_release_mutex();
