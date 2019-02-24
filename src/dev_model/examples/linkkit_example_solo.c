@@ -1,6 +1,10 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+void HAL_Printf(const char *fmt, ...);
+int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+
 #ifdef DEPRECATED_LINKKIT
 #include "solo.c"
 #else
@@ -22,9 +26,6 @@
 #ifdef ATM_ENABLED
     #include "at_api.h"
 #endif
-
-void HAL_Printf(const char *fmt, ...);
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
 #define USE_CUSTOME_DOMAIN      (0)
 
