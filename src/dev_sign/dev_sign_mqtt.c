@@ -5,7 +5,7 @@
 #include "infra_string.h"
 #include "infra_sha256.h"
 #ifdef MQTT_PRE_AUTH
-#include "infra_preauth.h"
+    #include "infra_preauth.h"
 #endif
 
 #include "dev_sign_api.h"
@@ -22,11 +22,11 @@
 #ifdef MQTT_PRE_AUTH
     #define SECURE_MODE                 MODE_TLS_GUIDER
 #else
-#ifdef SUPPORT_TLS
-    #define SECURE_MODE                 MODE_TLS_DIRECT
-#else
-    #define SECURE_MODE                 MODE_TCP_DIRECT_PLAIN
-#endif
+    #ifdef SUPPORT_TLS
+        #define SECURE_MODE                 MODE_TLS_DIRECT
+    #else
+        #define SECURE_MODE                 MODE_TCP_DIRECT_PLAIN
+    #endif
 #endif
 
 /* use fixed timestamp */
@@ -175,10 +175,10 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         memset(signout->username, 0, DEV_SIGN_USERNAME_MAXLEN);
 
         return preauth_get_connection_info(region, meta, sign_string, device_id,
-                                        signout->hostname, &signout->port, signout->username, signout->password);
+                                           signout->hostname, &signout->port, signout->username, signout->password);
     }
 #else
-    #error Invalid Configuration
+#error Invalid Configuration
 #endif /* #ifdef MQTT_DIRECT */
 }
 
