@@ -3,7 +3,9 @@ LIBA_TARGET     := libiot_sign.a
 HDR_REFS        := src/infra
 
 DEPENDS         += wrappers
-LDFLAGS         += -liot_sdk -liot_hal
+LDFLAGS         += -liot_sdk -liot_hal -liot_tls
+
+DEPENDS         += external_libs/mbedtls
 
 LIB_SRCS_EXCLUDE        := examples/dev_sign_example.c
 SRCS_dev-sign-example   += examples/dev_sign_example.c
