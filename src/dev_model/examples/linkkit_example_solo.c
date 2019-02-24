@@ -29,7 +29,13 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
 #define USE_CUSTOME_DOMAIN      (0)
 
-// for demo only
+/**
+ * These PRODUCT_KEY|PRODUCT_SECRET|DEVICE_NAME|DEVICE_SECRET are listed for demo only
+ *
+ * When you created your own devices on iot.console.com, you SHOULD replace them with what you got from console
+ *
+ */
+
 #define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
 #define DEVICE_NAME      "test_06"
