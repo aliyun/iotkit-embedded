@@ -7,6 +7,18 @@
 #undef  being_deprecated
 #define being_deprecated
 
+typedef enum _IOT_LogLevel {
+    IOT_LOG_NONE = 0,
+    IOT_LOG_CRIT,
+    IOT_LOG_ERROR,
+    IOT_LOG_WARNING,
+    IOT_LOG_INFO,
+    IOT_LOG_DEBUG,
+} IOT_LogLevel;
+
+DLL_IOT_API void IOT_SetLogLevel(IOT_LogLevel level);
+DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
+
 #ifndef offset_of
     #define offset_of aos_offsetof
 #endif
@@ -110,11 +122,6 @@ typedef enum {
  * @see None.
  */
 int IOT_Ioctl(int option, void *data);
-
-#ifdef INFRA_LOG
-#include "infra_log.h"
-DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
-#endif
 
 #ifdef INFRA_MEM_STATS
 #include "infra_mem_stats.h"
