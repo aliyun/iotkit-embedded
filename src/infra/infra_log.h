@@ -41,15 +41,6 @@ int     LITE_hexdump(const char *title, const void *buf, const int len);
 void    LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params);
 void    LITE_syslog(char *m, const char *f, const int l, const int level, const char *fmt, ...);
 
-typedef enum _IOT_LogLevel {
-    IOT_LOG_NONE = 0,
-    IOT_LOG_CRIT,
-    IOT_LOG_ERROR,
-    IOT_LOG_WARNING,
-    IOT_LOG_INFO,
-    IOT_LOG_DEBUG,
-} IOT_LogLevel;
-
 #define LOG_NONE_LEVEL                  (0)     /* no log printed at all */
 #define LOG_CRIT_LEVEL                  (1)     /* current application aborting */
 #define LOG_ERR_LEVEL                   (2)     /* current app-module error */
@@ -119,7 +110,6 @@ void    LITE_rich_hexdump(const char *f, const int l,
     LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, (const void *)buf, (const int)len)
 
 int     iotx_facility_json_print(const char *str, int level, ...);
-DLL_IOT_API void IOT_SetLogLevel(IOT_LogLevel level);
 
 #endif
 

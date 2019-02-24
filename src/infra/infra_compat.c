@@ -6,6 +6,10 @@
 #include "infra_defs.h"
 #include "infra_compat.h"
 
+#if !defined(INFRA_LOG)
+void IOT_SetLogLevel(IOT_LogLevel level) {}
+#endif
+
 #ifdef MQTT_COMM_ENABLED
 #include "dev_sign_api.h"
 #include "mqtt_api.h"

@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <stdarg.h>
+#include "infra_compat.h"
 #include "infra_log.h"
 #if defined(INFRA_CJSON)
 #include "infra_cjson.h"
