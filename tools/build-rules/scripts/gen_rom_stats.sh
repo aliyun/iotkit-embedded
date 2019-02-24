@@ -3,6 +3,21 @@
 #echo "COMP_LIB = ${COMP_LIB}"
 #echo "STRIP = ${STRIP}"
 
+bash ${TOP_DIR}/extract.sh
+
+cd ${DIST_DIR}/eng
+
+cp -f infra/*.h ${FINAL_DIR}/include
+
+echo "Selected functions:"
+echo ""
+for iter in $(ls|grep -v 'wrappers\|infra'); do
+    echo " . [${iter}]"
+    cp -f ${iter}/${iter}_api.h ${FINAL_DIR}/include 2>/dev/null
+done
+
+cd ${OLDPWD}
+
 echo ""
 printf "    | %-5s | %-35s | %14s | %26s |\n" "RATE" "OBJ NAME" "BYTES/TOTAL" "MODULE NAME"
 
