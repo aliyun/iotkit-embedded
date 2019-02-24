@@ -131,7 +131,9 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
 void awss_destroy_enrollee_info(void)
 {
     if (enrollee_frame_len) {
-        HAL_Free(enrollee_frame);
+        if (NULL != enrollee_frame) {
+            HAL_Free(enrollee_frame);
+        }
         enrollee_frame_len = 0;
         enrollee_frame = NULL;
         g_dev_sign = NULL;
