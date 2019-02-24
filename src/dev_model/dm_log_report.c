@@ -8,7 +8,7 @@
 #ifdef LOG_REPORT_TO_CLOUD
 
 #include "iotx_dm_internal.h"
-#include "iot_export_linkkit.h"
+#include "dev_model_api.h"
 
 const char THING_LOG_POST_PARAMS_HEAD[] =
             "\"%.*s %s %ld ";
@@ -126,9 +126,10 @@ void parse_msg_id(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_request_
     dm_utils_json_object_item(&lite, DM_MSG_KEY_ID, strlen(DM_MSG_KEY_ID), cJSON_String, &request->id);
 }
 
-int stop_sample() {
+int stop_sample()
+{
     if (current_log_pos > g_log_poll) {
-       dm_mgr_upstream_thing_log_post(0, NULL, 0, 1);
+        dm_mgr_upstream_thing_log_post(0, NULL, 0, 1);
     }
     switch_status = 0;
     dm_log_info("stop sample");
@@ -170,7 +171,7 @@ void parse_switch_info(_IN_ char *payload, _IN_ int payload_len)
     sample_target = lite_sample_target.value;
     sample_target_len  = lite_sample_target.value_length;
     dm_log_info("switch count is %d, interval is %d, target is %.*s\n", sample_count, sample_interval,
-                 sample_target_len, sample_target);
+                sample_target_len, sample_target);
     /* if the target is not property set, return */
     if (0 != strncmp(sample_target, target, sample_target_len)) {
         dm_log_info("target is not propSet, return\n");

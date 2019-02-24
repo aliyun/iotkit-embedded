@@ -779,7 +779,7 @@ void set_iotx_info()
 }
 
 int linkkit_main(void *paras)
-{  
+{
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif

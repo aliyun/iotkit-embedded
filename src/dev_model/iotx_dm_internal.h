@@ -71,7 +71,7 @@
 #include "dm_client.h"
 #include "dm_server_adapter.h"
 #include "dm_server.h"
-#include "dm_api.h"
+#include "dm_intf.h"
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"

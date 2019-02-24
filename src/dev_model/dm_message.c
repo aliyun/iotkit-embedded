@@ -265,10 +265,10 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
     }
 
 #ifdef ALCS_ENABLED
-     if (type & DM_MSG_DEST_LOCAL) {
+    if (type & DM_MSG_DEST_LOCAL) {
         char *end = NULL;
         do {
-            if(strlen(uri) < 6) {
+            if (strlen(uri) < 6) {
                 break;
             }
             end = uri + strlen(uri) - 6;
@@ -276,9 +276,9 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
                 *end = '\0';
             }
             dm_server_send(uri, (unsigned char *)payload, strlen(payload), user_data);
-        }while(0);
+        } while (0);
 
-     }
+    }
 #endif
 
     DM_free(uri);

@@ -13,7 +13,7 @@
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
 #endif
-#include "iot_export_linkkit.h"
+#include "dev_model_api.h"
 #include "dm_wrapper.h"
 #include "cJSON.h"
 

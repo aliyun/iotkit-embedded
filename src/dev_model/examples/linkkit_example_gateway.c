@@ -17,7 +17,7 @@
 #include "infra_log.h"
 #include "infra_compat.h"
 #include "infra_log.h"
-#include "iot_export_linkkit.h"
+#include "dev_model_api.h"
 #include "app_entry.h"
 #include "dm_wrapper.h"
 

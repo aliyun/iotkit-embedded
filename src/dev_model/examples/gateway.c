@@ -401,7 +401,7 @@ int linkkit_main(void *p)
     int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-    
+
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif

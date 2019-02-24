@@ -6,11 +6,11 @@
 
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 
-#include "iot_export_linkkit.h"
+#include "dev_model_api.h"
 #include "iotx_dm_internal.h"
 
 #ifdef LOG_REPORT_TO_CLOUD
-#include "iotx_log_report.h"
+    #include "iotx_log_report.h"
 #endif
 
 #ifdef INFRA_MEM_STATS
@@ -472,7 +472,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             char *property_data = NULL;
             lite_cjson_t lite_item_data;
 
-            memset(&lite_item_data,0,sizeof(lite_cjson_t));
+            memset(&lite_item_data, 0, sizeof(lite_cjson_t));
             dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_DATA, strlen(IOTX_LINKKIT_KEY_DATA), cJSON_Invalid,
                                       &lite_item_data);
             if (payload == NULL || lite_item_data.type != cJSON_Object) {

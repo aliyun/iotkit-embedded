@@ -275,7 +275,8 @@ int dm_msg_proc_thing_service_request(_IN_ dm_msg_source_t *source)
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
-    dm_log_info("Service Identifier: %.*s", (int)(strlen(source->uri) - serviceid_pos - 1), source->uri + serviceid_pos + 1);
+    dm_log_info("Service Identifier: %.*s", (int)(strlen(source->uri) - serviceid_pos - 1),
+                source->uri + serviceid_pos + 1);
 
     /* Parse Product Key And Device Name */
     res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2 + DM_URI_OFFSET, 4 + DM_URI_OFFSET, product_key,
