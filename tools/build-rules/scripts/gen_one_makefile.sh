@@ -54,7 +54,7 @@ ALL_LIBS=$(for iter in ${ALL_LIBS}; do echo -n "${OUTPUT_DIR}/usr/lib/${iter} ";
 ALL_BINS=$(for iter in ${ALL_PROG}; do echo -n "${OUTPUT_DIR}/usr/bin/${iter} "; done)
 OUTPUT_D=$(basename ${OUTPUT_DIR})
 
-if [ "${CC}" != "gcc" ]; then
+if [ "$(echo ${CFLAGS}|grep -w '\-D_PLATFORM_IS_LINUX_')" = "" ]; then
     ALL_BINS=""
 fi
 

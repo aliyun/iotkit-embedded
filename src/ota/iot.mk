@@ -10,4 +10,4 @@ LIB_SRCS_PATTERN := *.c
 LIB_SRCS_EXCLUDE        += examples/ota_example_mqtt.c
 SRCS_ota-example-mqtt   := examples/ota_example_mqtt.c
 
-$(call Append_Conditional, TARGET, ota-example-mqtt, OTA_ENABLED, BUILD_AOS)
+$(call Append_Conditional, TARGET, ota-example-mqtt, OTA_ENABLED, BUILD_AOS NO_EXECUTABLES)
