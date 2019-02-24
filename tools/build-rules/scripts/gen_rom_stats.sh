@@ -7,7 +7,7 @@ bash ${TOP_DIR}/extract.sh
 
 cd ${DIST_DIR}/eng
 
-cp -f infra/*.h ${FINAL_DIR}/include
+cp -rf infra/ ${FINAL_DIR}/include
 
 echo "Selected functions:"
 echo ""
