@@ -534,10 +534,13 @@ void aws_destroy(void)
         if (aws_state == AWS_SUCCESS) {
             break;
         }
+        HAL_MutexUnLock(aws_mutex);
         HAL_SleepMs(100);
+        HAL_MutexLock(aws_mutex);
     }
-
-    HAL_Free(aws_info);
+    if (NULL != awss_info) {
+        HAL_Free(aws_info);
+    }
     aws_info = NULL;
 
 #ifndef AWSS_DISABLE_ENROLLEE
