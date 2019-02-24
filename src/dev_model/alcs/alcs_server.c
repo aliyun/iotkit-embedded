@@ -8,7 +8,7 @@
 #include "CoAPPlatform.h"
 #include "CoAPResource.h"
 #ifdef LOG_REPORT_TO_CLOUD
-#include "iotx_log_report.h"
+    #include "iotx_log_report.h"
 #endif
 #define RES_FORMAT "{\"id\":\"%.*s\",\"code\":%d,\"data\":{%s}}"
 
@@ -54,13 +54,13 @@ void alcs_rec_auth_select(CoAPContext *ctx, const char *paths, NetworkAddr *from
             break;
         }
         lst = get_list(ctx);
-        
+
         accesskeys = json_get_value_by_name(data, datalen, "accessKeys", &keylen, NULL);
         if (!accesskeys || !keylen) {
             break;
         }
         COAP_DEBUG("accessKeys:%.*s", keylen, accesskeys);
-       
+
         backup_json_str_last_char(accesskeys, keylen, back);
         json_array_for_each_entry(accesskeys, keylen, str_pos, entry, entry_len, type) {
             svr_key_item *node = NULL, *next = NULL;
@@ -78,7 +78,7 @@ void alcs_rec_auth_select(CoAPContext *ctx, const char *paths, NetworkAddr *from
             if (targetKey) {
                 break;
             }
-            
+
             list_for_each_entry_safe(gnode, gnext, &lst->lst_svr_group, lst, svr_group_item) {
                 COAP_DEBUG("keyprefix:%s", gnode->keyInfo.keyprefix);
                 if (strstr(entry, gnode->keyInfo.keyprefix) == entry) {
@@ -98,9 +98,9 @@ void alcs_rec_auth_select(CoAPContext *ctx, const char *paths, NetworkAddr *from
 
     COAP_DEBUG("key:%s", targetKey);
 
-    
+
     HAL_Snprintf(keybuf, sizeof(keybuf), "\"accessKey\":\"%.*s\"", targetLen, targetKey);
-    
+
     HAL_Snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, targetKey ? 200 : COAP_MSG_CODE_401_UNAUTHORIZED,
                  keybuf);
     payload.data = (unsigned char *)payloadbuf;
@@ -199,7 +199,7 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
         if (!req_payload_parser((const char *)resMsg->payload, resMsg->payloadlen, &seq, &seqlen, &data, &datalen)) {
             break;
         }
-        
+
         accesskey = json_get_value_by_name(data, datalen, "accessKey", &tmplen, NULL);
         COAP_INFO("accesskey:%.*s", tmplen, accesskey);
 
@@ -227,7 +227,7 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
         }
 
         /*calc sign, save in buf*/
-       
+
         calc_sign_len = sizeof(buf);
         utils_hmac_sha1_base64(randomkey, randomkeylen, accessToken, tokenlen, buf, &calc_sign_len);
 
@@ -252,7 +252,7 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
         pk[pklen] = 0;
         dn[dnlen] = 0;
 
-       
+
         memset(&devKey, 0x00, sizeof(AlcsDeviceKey));
         memcpy(&devKey.addr, from, sizeof(NetworkAddr));
         devKey.pk = pk;
@@ -265,7 +265,7 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
             session = (session_item *)coap_malloc(sizeof(session_item));
             gen_random_key((unsigned char *)session->randomKey, RANDOMKEY_LEN);
             session->sessionId = ++sessionid_seed;
-            
+
             strncpy(path, pk, sizeof(path));
             strncat(path, dn, sizeof(path) - strlen(path) - 1);
             CoAPPathMD5_sum(path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
@@ -626,7 +626,7 @@ void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote
         COAP_INFO("receive stale heart beat");
     }
 
-    
+
     if (!req_payload_parser((const char *)request->payload, request->payloadlen, &seq, &seqlen, &data, &datalen)) {
         /* do nothing */
     }
@@ -683,7 +683,7 @@ void on_svr_auth_timer(CoAPContext *ctx)
     struct list_head *head = get_svr_session_list(ctx);
     int tick;
     session_item *node = NULL, *next = NULL;
-    
+
     if (!head || list_empty(head)) {
         return;
     }

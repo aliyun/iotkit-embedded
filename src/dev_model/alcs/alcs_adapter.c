@@ -579,7 +579,7 @@ int iotx_alcs_send(void *handle, iotx_alcs_msg_t *msg)
         msg == NULL || msg->payload == NULL ||
         msg->ip == NULL || strlen(msg->ip) == 0 ||
         msg->uri == NULL || strlen(msg->uri) == 0) {
-            return NULL_VALUE_ERROR;
+        return NULL_VALUE_ERROR;
     }
 
     if (strlen(msg->ip) > NETWORK_ADDR_LEN) {

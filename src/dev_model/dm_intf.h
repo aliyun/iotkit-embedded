@@ -7,9 +7,6 @@
 #ifndef _IOT_DM_API_H_
 #define _IOT_DM_API_H_
 
-/* #include "lite-cjson.h"
-#include "iotx_dm.h" */
-
 typedef struct {
     void *mutex;
     void *cloud_connectivity;

@@ -8,7 +8,7 @@
 #include "infra_defs.h"
 #include "infra_compat.h"
 #include "infra_compat.h"
-#include "iot_export_linkkit.h"
+#include "dev_model_api.h"
 #include "dm_wrapper.h"
 #include "cJSON.h"
 

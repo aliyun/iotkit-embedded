@@ -325,28 +325,28 @@ int alcs_decrypt(const char *src, int len, const char *key, void *out)
 
     do {
         if (n > 1) {
-            aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
+            aes_d_h  = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
             if (!aes_d_h) {
-                COAP_ERR ("fail to decrypt init");
+                COAP_ERR("fail to decrypt init");
                 break;
             }
 
             ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
             HAL_Aes128_Destroy(aes_d_h);
 
-            if (ret != 0){
-                COAP_ERR ("fail to decrypt");
+            if (ret != 0) {
+                COAP_ERR("fail to decrypt");
                 break;
             }
         }
 
-        out_c = (char*)out;
-        offset = n > 0? ((n - 1) << 4) : 0;
+        out_c = (char *)out;
+        offset = n > 0 ? ((n - 1) << 4) : 0;
         out_c[offset] = 0;
 
-        aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
+        aes_d_h  = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
         if (!aes_d_h) {
-            COAP_ERR ("fail to decrypt init");
+            COAP_ERR("fail to decrypt init");
             break;
         }
 
@@ -354,13 +354,13 @@ int alcs_decrypt(const char *src, int len, const char *key, void *out)
         HAL_Aes128_Destroy(aes_d_h);
 
         if (ret != 0) {
-            COAP_ERR ("fail to decrypt remain data");
+            COAP_ERR("fail to decrypt remain data");
             break;
         }
 
         pad = out_c[len - 1];
         out_c[len - pad] = 0;
-        COAP_DEBUG ("decrypt data:%s, len:%d", out_c, len - pad);
+        COAP_DEBUG("decrypt data:%s, len:%d", out_c, len - pad);
         return len - pad;
     } while (0);
 
@@ -566,16 +566,16 @@ void on_auth_timer(void *param)
 
     ctx = (CoAPContext *) param;
 #ifdef ALCS_CLIENT_ENABLED
-{
-    extern void on_client_auth_timer(CoAPContext *);
-    on_client_auth_timer(ctx);
-}
+    {
+        extern void on_client_auth_timer(CoAPContext *);
+        on_client_auth_timer(ctx);
+    }
 #endif
 #ifdef ALCS_SERVER_ENABLED
-{
-    extern void on_svr_auth_timer(CoAPContext *);
-    on_svr_auth_timer(ctx);
-}
+    {
+        extern void on_svr_auth_timer(CoAPContext *);
+        on_svr_auth_timer(ctx);
+    }
 #endif
 }
 

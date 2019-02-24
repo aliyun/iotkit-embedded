@@ -13,12 +13,12 @@ extern "C" {
 #endif
 
 #ifdef INFRA_MEM_STATS
-    #include "infra_mem_stats.h"
-    #define IMPL_NTP_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.ntp")
-    #define IMPL_NTP_FREE(ptr)               LITE_free(ptr)
+#include "infra_mem_stats.h"
+#define IMPL_NTP_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "impl.ntp")
+#define IMPL_NTP_FREE(ptr)               LITE_free(ptr)
 #else
-    #define IMPL_NTP_MALLOC(size)            HAL_Malloc(size)
-    #define IMPL_NTP_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+#define IMPL_NTP_MALLOC(size)            HAL_Malloc(size)
+#define IMPL_NTP_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
 typedef void (*ntp_reply_cb_t)(const char *);
