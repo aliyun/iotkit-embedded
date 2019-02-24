@@ -12,7 +12,6 @@ INFRA_SHA256||src/infra/infra_sha256.[ch]|output/eng/infra
 INFRA_SHA1||src/infra/infra_sha1.[ch]|output/eng/infra
 INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
 INFRA_COMPAT||src/infra/infra_compat.[ch]|output/eng/infra
-INFRA_CLASSIC||src/infra/infra_classic.[ch]|output/eng/infra
 
 SUPPORT_TLS||certs/root_ca.c|output/eng/certs
 

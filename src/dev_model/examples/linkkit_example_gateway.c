@@ -15,7 +15,7 @@
 #include "infra_defs.h"
 #include "infra_compat.h"
 #include "infra_log.h"
-#include "infra_classic.h"
+#include "infra_compat.h"
 #include "infra_log.h"
 #include "iot_export_linkkit.h"
 #include "app_entry.h"

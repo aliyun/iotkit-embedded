@@ -1053,7 +1053,7 @@ static int remove_zero(unsigned char buffer[26], int length)
 {
     int idx = 0, found = 0;
 
-    for (idx = 0;idx < 26;idx++) {
+    for (idx = 0; idx < 26; idx++) {
         if (buffer[idx] == '.') {
             found = 1;
             continue;
@@ -1067,13 +1067,13 @@ static int remove_zero(unsigned char buffer[26], int length)
         return length;
     }
 
-    for (;idx > 0;idx--) {
-        if (buffer[idx-1] == '0') {
-            buffer[idx-1] = '\0';
+    for (; idx > 0; idx--) {
+        if (buffer[idx - 1] == '0') {
+            buffer[idx - 1] = '\0';
             length--;
-        }else{
-            if (buffer[idx-1] == '.') {
-                buffer[idx-1] = '\0';
+        } else {
+            if (buffer[idx - 1] == '.') {
+                buffer[idx - 1] = '\0';
                 length--;
             }
             break;
@@ -1115,8 +1115,8 @@ static cJSON_bool print_number(const lite_cjson_item_t *const item, printbuffer 
                 /* If not, print with 17 decimal places of precision */
                 length = sprintf((char *)number_buffer, "%1.17g", d);
             }
-        }else{
-            length = remove_zero(number_buffer,length);
+        } else {
+            length = remove_zero(number_buffer, length);
         }
     }
 

@@ -13,7 +13,6 @@
 #include "infra_defs.h"
 #include "infra_list.h"
 #include "infra_compat.h"
-#include "infra_classic.h"
 #include "infra_timer.h"
 
 #include "dm_wrapper.h"

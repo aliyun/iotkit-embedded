@@ -13,17 +13,16 @@
 #include "awss_statis.h"
 #include "awss_event.h"
 #ifdef AWSS_SUPPORT_ADHA
-#include "awss_adha.h"
+    #include "awss_adha.h"
 #endif
 #ifdef AWSS_SUPPORT_AHA
-#include "awss_aha.h"
+    #include "awss_aha.h"
 #endif
 #include "passwd.h"
-#include "infra_classic.h"
+#include "infra_compat.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define AWSS_PRESS_TIMEOUT_MS  (60000)
@@ -67,37 +66,43 @@ int awss_start(void)
 #ifdef AWSS_SUPPORT_ADHA
             while (1) {
                 memset(ssid, 0, sizeof(ssid));
-                HAL_Wifi_Get_Ap_Info(ssid , NULL, NULL);
+                HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
                 awss_debug("start, ssid:%s, strlen:%lu\n", ssid, strlen(ssid));
-                if (strlen(ssid) > 0 && strcmp(ssid, ADHA_SSID))  /* not adha AP */
+                if (strlen(ssid) > 0 && strcmp(ssid, ADHA_SSID)) { /* not adha AP */
                     break;
+                }
 
                 if (HAL_Sys_Net_Is_Ready()) { /* skip the adha failed */
                     awss_cmp_local_init(AWSS_LC_INIT_ROUTER);
 
                     awss_open_adha_monitor();
                     while (!awss_is_ready_switch_next_adha()) {
-                        if (awss_stopped)
+                        if (awss_stopped) {
                             break;
+                        }
                         HAL_SleepMs(50);
                     }
                     awss_cmp_local_deinit(0);
                 }
 
-                if (switch_ap_done || awss_stopped)
+                if (switch_ap_done || awss_stopped) {
                     break;
+                }
                 __awss_start();
             }
 #endif
-            if (awss_stopped)
+            if (awss_stopped) {
                 break;
+            }
 
-            if (switch_ap_done)
+            if (switch_ap_done) {
                 break;
+            }
 
-            HAL_Wifi_Get_Ap_Info(ssid , NULL, NULL);
-            if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID))  /* not AHA */
+            HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
+            if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) { /* not AHA */
                 break;
+            }
 
             if (HAL_Sys_Net_Is_Ready()) {
                 char dest_ap = 0;
@@ -106,38 +111,44 @@ int awss_start(void)
                 awss_cmp_local_init(AWSS_LC_INIT_PAP);
                 while (!awss_aha_monitor_is_timeout()) {
                     memset(ssid, 0, sizeof(ssid));
-                    HAL_Wifi_Get_Ap_Info(ssid , NULL, NULL);
+                    HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
                     if (HAL_Sys_Net_Is_Ready() &&
                         strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) {  /* not AHA */
                         dest_ap = 1;
                         break;
                     }
-                    if (awss_stopped)
+                    if (awss_stopped) {
                         break;
+                    }
                     HAL_SleepMs(50);
                 }
 
                 awss_cmp_local_deinit(0);
 
-                if (switch_ap_done || awss_stopped)
+                if (switch_ap_done || awss_stopped) {
                     break;
+                }
 
-                if (dest_ap == 1)
+                if (dest_ap == 1) {
                     break;
+                }
             }
             awss_event_post(IOTX_AWSS_ENABLE_TIMEOUT);
             __awss_start();
         } while (1);
 #endif
-        if (awss_stopped)
+        if (awss_stopped) {
             break;
+        }
 
-        if (HAL_Sys_Net_Is_Ready())
+        if (HAL_Sys_Net_Is_Ready()) {
             break;
+        }
     } while (1);
 
-    if (awss_stopped)
+    if (awss_stopped) {
         return -1;
+    }
 
 #ifdef AWSS_SUPPORT_AHA
     awss_close_aha_monitor();
@@ -174,8 +185,9 @@ static void awss_press_timeout(void)
 {
     awss_stop_timer(press_timer);
     press_timer = NULL;
-    if (g_user_press)
+    if (g_user_press) {
         awss_event_post(IOTX_AWSS_ENABLE_TIMEOUT);
+    }
     g_user_press = 0;
 }
 
@@ -189,15 +201,18 @@ int awss_config_press(void)
 
     awss_event_post(IOTX_AWSS_ENABLE);
 
-    if (press_timer == NULL)
+    if (press_timer == NULL) {
         press_timer = HAL_Timer_Create("press", (void (*)(void *))awss_press_timeout, NULL);
-    if (press_timer == NULL)
+    }
+    if (press_timer == NULL) {
         return -1;
+    }
 
     HAL_Timer_Stop(press_timer);
 
-    if (timeout < AWSS_PRESS_TIMEOUT_MS)
+    if (timeout < AWSS_PRESS_TIMEOUT_MS) {
         timeout = AWSS_PRESS_TIMEOUT_MS;
+    }
     HAL_Timer_Start(press_timer, timeout);
 
     return 0;

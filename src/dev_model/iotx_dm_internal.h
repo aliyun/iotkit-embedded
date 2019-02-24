@@ -14,7 +14,6 @@
 #include "infra_defs.h"
 #include "infra_list.h"
 #include "infra_cjson.h"
-#include "infra_classic.h"
 #include "infra_report.h"
 #include "infra_string.h"
 #if defined(DEVICE_MODEL_GATEWAY)
