@@ -534,11 +534,11 @@ void aws_destroy(void)
         if (aws_state == AWS_SUCCESS) {
             break;
         }
-        HAL_MutexUnLock(aws_mutex);
+        HAL_MutexUnlock(aws_mutex);
         HAL_SleepMs(100);
         HAL_MutexLock(aws_mutex);
     }
-    if (NULL != awss_info) {
+    if (NULL != aws_info) {
         HAL_Free(aws_info);
     }
     aws_info = NULL;
