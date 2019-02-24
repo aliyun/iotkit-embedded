@@ -758,9 +758,12 @@ int linkkit_example()
 
         /* after all, this is an sample, give a chance to return... */
         /* modify this value for this sample executaion time period */
-        // if (now > 60 * execution_time) {
-        //     exit = 1;
-        // }
+
+#if 0
+        if (now > 60 * execution_time) {
+            exit = 1;
+        }
+#endif
 
         prev_sec = now;
     }

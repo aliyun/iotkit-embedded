@@ -648,26 +648,26 @@ int linkkit_main(void *paras)
 
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
-            // user_post_property();
+            /* user_post_property(); */
         }
         /* Post Event Example */
         if (time_now_sec % 17 == 0 && user_master_dev_available()) {
-            // user_post_event();
+            /* user_post_event(); */
         }
 
         /* Device Info Update Example */
         if (time_now_sec % 23 == 0 && user_master_dev_available()) {
-            // user_deviceinfo_update();
+            /* user_deviceinfo_update(); */
         }
 
         /* Device Info Delete Example */
         if (time_now_sec % 29 == 0 && user_master_dev_available()) {
-            // user_deviceinfo_delete();
+            /* user_deviceinfo_delete(); */
         }
 
         /* Post Raw Example */
         if (time_now_sec % 37 == 0 && user_master_dev_available()) {
-            // user_post_raw_data();
+            /* user_post_raw_data(); */
         }
 
         time_prev_sec = time_now_sec;
