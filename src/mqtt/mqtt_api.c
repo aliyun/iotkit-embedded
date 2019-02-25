@@ -345,6 +345,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (pInitParams == NULL) {
         if (g_mqtt_client != NULL) {
             mqtt_err("Already exist default MQTT connection, won't proceed another one");
+            _iotx_mqtt_free_param(mqtt_params);
             return NULL;
         }
 
