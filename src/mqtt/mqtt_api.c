@@ -453,6 +453,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     g_mqtt_client = pclient;
 
+    _iotx_mqtt_free_param(mqtt_params);
     return pclient;
 }
 
