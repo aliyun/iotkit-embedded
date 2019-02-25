@@ -1100,7 +1100,7 @@ int IOT_HTTP2_Disconnect(void *hd)
     return ret;
 }
 
-/* #ifdef FS_ENABLED */
+#ifdef FS_ENABLED
 #define PACKET_LEN 16384
 
 static int http2_stream_get_file_size(const char *file_name)
@@ -1390,7 +1390,7 @@ int IOT_HTTP2_Stream_UploadFile(void *hd, const char *filename, const char *iden
     POINTER_SANITY_CHECK(filename, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(identify, NULL_VALUE_ERROR);
 
-    if (opt->if_override) {
+    if (opt->opt_bit_map & UPLOAD_FILE_OPT_BIT_OVERWRITE) {
         /* just insert the fs node if it's a override operation */
         http2_stream_file_t *file_node = (http2_stream_file_t *)HTTP2_STREAM_MALLOC(sizeof(http2_stream_file_t));
         if (file_node == NULL) {
@@ -1451,7 +1451,6 @@ int IOT_HTTP2_Stream_UploadFile(void *hd, const char *filename, const char *iden
         }
         HAL_ThreadDetach(handle->file_thread);
     }
-    HAL_MutexUnlock(handle->mutex);
     return 0;
 }
-/* #endif */
+#endif
