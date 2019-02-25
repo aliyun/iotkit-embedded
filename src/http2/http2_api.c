@@ -1212,7 +1212,7 @@ static void *http_upload_one(void *user)
 
         } break;
         case FS_TYPE_CONTINUE: {
-            if (fs_node->upload_id == NULL) {
+            if (fs_node->upload_id[0] == '\0') {
                 /* upload id not exist, use override operation */
                 fs_node->type = FS_TYPE_OVERRIDE;
                 header_ext_info.num = 2;
