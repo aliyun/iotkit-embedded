@@ -298,6 +298,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     do {
         iotx_dev_meta_info_t    meta;
+        iotx_sign_mqtt_t        sign;
 
         mqtt_params = _iotx_mqtt_new_param();
         if (mqtt_params == NULL) {
@@ -305,14 +306,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         }
 
         memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
-        memset(&g_sign_mqtt, 0, sizeof(iotx_sign_mqtt_t));
+        memset(&sign, 0, sizeof(iotx_sign_mqtt_t));
 
         HAL_GetProductKey(meta.product_key);
         HAL_GetDeviceName(meta.device_name);
         HAL_GetDeviceSecret(meta.device_secret);
-        memset(&g_sign_mqtt, 0, sizeof(iotx_sign_mqtt_t));
+        memset(&sign, 0, sizeof(iotx_sign_mqtt_t));
 
-        ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &g_sign_mqtt);
+        ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &sign);
         if (ret != SUCCESS_RETURN) {
             _iotx_mqtt_free_param(mqtt_params);
             return NULL;
@@ -321,11 +322,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         /* Initialize MQTT parameter */
         memset(mqtt_params, 0x0, sizeof(iotx_mqtt_param_t));
 
-        mqtt_params->port = g_sign_mqtt.port;
-        mqtt_params->host = g_sign_mqtt.hostname;
-        mqtt_params->client_id = g_sign_mqtt.clientid;
-        mqtt_params->username = g_sign_mqtt.username;
-        mqtt_params->password = g_sign_mqtt.password;
+        mqtt_params->port = sign.port;
+        mqtt_params->host = sign.hostname;
+        mqtt_params->client_id = sign.clientid;
+        mqtt_params->username = sign.username;
+        mqtt_params->password = sign.password;
 #ifdef SUPPORT_TLS
         {
             extern const char *iotx_ca_crt;
