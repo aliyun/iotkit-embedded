@@ -1,6 +1,6 @@
 LIBA_TARGET     := libiot_awss.a
 
-LIB_SRCS_PATTERN    := *.c
+LIB_SRCS_PATTERN    := *.c dev_reset/*.c
 
 $(call Append_Conditional, LIB_SRCS_PATTERN, smartconfig/*.c, AWSS_SUPPORT_SMARTCONFIG)
 $(call Append_Conditional, LIB_SRCS_PATTERN, p2p/*.c, AWSS_SUPPORT_SMARTCONFIG_WPS)
