@@ -51,7 +51,7 @@ static http2_stream_cb_t my_cb = {
 void upload_file_result(const char * path,int result, void * user_data)
 {
     upload_end ++;
-    EXAMPLE_TRACE("===========path = %s,result =%d,finish num =%d=========", path,result,upload_end);
+    EXAMPLE_TRACE("===========filename = %s,result =%d,finish num =%d=========", path,result,upload_end);
 
 }
 
@@ -76,7 +76,7 @@ static int http2_stream_test(char **argv,int argc)
 
     for (i=1; i<argc; i++) {
         http2_file_upload_opt_t opt = {
-            0
+            UPLOAD_FILE_OPT_BIT_OVERWRITE   /* setup to 0 if you wouldn't overrite the file */
         };
         ret = IOT_HTTP2_Stream_UploadFile(handle, argv[i], "c/iot/sys/thing/file/upload", upload_file_result, &opt, NULL);
         if(ret == 0) {

@@ -1241,6 +1241,7 @@ static void *http_upload_one(void *user)
         fs_node->status = FS_STATUS_END;
         return NULL;
     }
+    h2_info("http2 stream open succeed");
     h2_debug("upload_id = %s", fs_user_data.fs_upload_id);
     h2_debug("upload_offset = %d", fs_user_data.fs_offset);
 
