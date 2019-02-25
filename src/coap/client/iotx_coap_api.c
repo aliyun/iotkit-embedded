@@ -312,7 +312,7 @@ static void iotx_coap_report_rsphdl(void *arg, void *p_response)
     COAP_DEBUG("Report response: CoAP response code = %d", resp_code);
     COAP_DEBUG("Report response: CoAP msg_len = %d", p_payload_len);
     if (p_payload_len > 0) {
-        COAP_DEBUG("Report response: CoAP msg = '%s'", p_payload);
+        COAP_DEBUG("Report response: CoAP msg = '%.*s'", p_payload_len, p_payload);
         msg = json_get_value_by_name((char *)p_payload, p_payload_len, "id", &p_payload_len, 0);
         if (NULL != msg) {
             COAP_DEBUG("Report response: CoAP mid_report responseID = '%s'", msg);
@@ -746,7 +746,9 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
         HEXDUMP_DEBUG(message->payload, message->payloadlen);
 
         len = iotx_aes_cbc_decrypt(message->payload, message->payloadlen, p_iotx_coap->key, payload);
-        COAP_DEBUG("payload: %.*s, len %d", len, payload, len);
+        if (len > 0) {
+            COAP_DEBUG("payload: %.*s, len %d", len, payload, len);
+        }
         if (len != 0) {
             memcpy(message->payload, payload, len);
             message->payloadlen = len;
