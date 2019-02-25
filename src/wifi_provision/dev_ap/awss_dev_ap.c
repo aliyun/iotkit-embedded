@@ -76,11 +76,16 @@ int awss_dev_ap_start(void)
     awss_dev_ap_switchap_resp_suc = 0;
 
     ret = awss_dev_ap_setup();
+    HAL_MutexUnlock(g_awss_dev_ap_mutex);
     HAL_SleepMs(1000);  /* wait for dev ap to work well */
-    awss_cmp_local_init(AWSS_LC_INIT_DEV_AP);
-
+    HAL_MutexLock(g_awss_dev_ap_mutex);
+    if (awss_dev_ap_ongoing) {
+        awss_cmp_local_init(AWSS_LC_INIT_DEV_AP);
+    }
     while (awss_dev_ap_ongoing) {
+        HAL_MutexUnlock(g_awss_dev_ap_mutex);
         HAL_SleepMs(200);
+        HAL_MutexLock(g_awss_dev_ap_mutex);
         if (awss_dev_ap_switchap_done)
             break;
     }
