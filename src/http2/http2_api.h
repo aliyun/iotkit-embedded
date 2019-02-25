@@ -102,10 +102,15 @@ typedef enum {
     UPLOAD_SUCCESS            = 0,
 } http2_file_upload_result_t;
 
-typedef void (* upload_file_result_cb)(const char *path, int result, void *user_data);
-DLL_IOT_API int IOT_HTTP2_Stream_UploadFile(void *handle, const char *file_path, const char *identify,
-        header_ext_info_t *header,
-        upload_file_result_cb cb, void *user_data);
+typedef struct {
+    uint8_t if_override;
+} http2_file_upload_opt_t;
+
+typedef void (* upload_file_result_cb_t)(const char *path, int result, void *user_data);
+DLL_IOT_API int IOT_HTTP2_Stream_UploadFile(void *handle, const char *file_name, const char *identify,
+                                            upload_file_result_cb_t cb,
+                                            http2_file_upload_opt_t *opt,
+                                            void *user_data);
 #endif
 DLL_IOT_API void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
 DLL_IOT_API int IOT_HTTP2_Stream_Open(void *handle, stream_data_info_t *info, header_ext_info_t *header);
