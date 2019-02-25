@@ -486,7 +486,10 @@ static int iotx_mc_decode_packet(iotx_mc_client_t *c, int *value, int timeout)
         }
 
         rc = c->ipstack.read(&c->ipstack, &i, 1, timeout == 0 ? 1 : timeout);
-        if (rc != 1) {
+        if(rc == 0) {
+            return FAIL_RETURN; 
+        }
+        else if (rc != 1) {
             return MQTT_NETWORK_ERROR;
         }
 
@@ -535,9 +538,9 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         HAL_MutexUnlock(c->lock_read_buf);
         return SUCCESS_RETURN;
     } else if (1 != rc) {
-        mqtt_debug("mqtt read error, rc=%d", rc);
+        mqtt_err("mqtt read error, rc=%d", rc);
         HAL_MutexUnlock(c->lock_read_buf);
-        return FAIL_RETURN;
+        return MQTT_NETWORK_ERROR;
     }
 
     len = 1;
@@ -573,8 +576,14 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         needReadLen = c->buf_size_read - len;
         left_t = iotx_time_left(timer);
         left_t = (left_t == 0) ? 1 : left_t;
-        if (c->ipstack.read(&c->ipstack, c->buf_read + len, needReadLen, left_t) != needReadLen) {
+        rc = c->ipstack.read(&c->ipstack, c->buf_read + len, needReadLen, left_t);
+        if (rc < 0) {
             mqtt_err("mqtt read error");
+            HAL_MutexUnlock(c->lock_read_buf);
+            return MQTT_NETWORK_ERROR;
+        }
+        else if (rc!= needReadLen) {
+            mqtt_warning("mqtt read timeout");
             HAL_MutexUnlock(c->lock_read_buf);
             return FAIL_RETURN;
         }
@@ -598,8 +607,18 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
         left_t = iotx_time_left(timer);
         left_t = (left_t == 0) ? 1 : left_t;
-        if (c->ipstack.read(&c->ipstack, remainDataBuf, remainDataLen, left_t) != remainDataLen) {
+        rc = c->ipstack.read(&c->ipstack, remainDataBuf, remainDataLen, left_t);
+        if (rc < 0) {
             mqtt_err("mqtt read error");
+#ifdef PLATFORM_HAS_DYNMEM
+            mqtt_free(remainDataBuf);
+            remainDataBuf = NULL;
+#endif
+            HAL_MutexUnlock(c->lock_read_buf);
+            return MQTT_NETWORK_ERROR;
+        }
+        else if (rc != remainDataLen) {
+            mqtt_warning("mqtt read timeout");
 #ifdef PLATFORM_HAS_DYNMEM
             mqtt_free(remainDataBuf);
             remainDataBuf = NULL;
@@ -628,10 +647,19 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     /* 3. read the rest of the buffer using a callback to supply the rest of the data */
     left_t = iotx_time_left(timer);
     left_t = (left_t == 0) ? 1 : left_t;
-    if (rem_len > 0 && (c->ipstack.read(&c->ipstack, c->buf_read + len, rem_len, left_t) != rem_len)) {
-        mqtt_err("mqtt read error");
-        HAL_MutexUnlock(c->lock_read_buf);
-        return FAIL_RETURN;
+
+    rc = c->ipstack.read(&c->ipstack, c->buf_read + len, rem_len, left_t);
+    if(rem_len > 0) {
+        if(rc < 0) {
+            mqtt_err("mqtt read error");
+            HAL_MutexUnlock(c->lock_read_buf);
+            return MQTT_NETWORK_ERROR;            
+        }
+        else if(rc != rem_len) {
+            mqtt_warning("mqtt read timeout");
+            HAL_MutexUnlock(c->lock_read_buf);
+            return FAIL_RETURN;            
+        }
     }
 
     header.byte = c->buf_read[0];
@@ -710,7 +738,7 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
             HAL_MutexLock(c->lock_read_buf);
             _reset_recv_buffer(c);
             HAL_MutexUnlock(c->lock_read_buf);
-            return MQTT_NETWORK_ERROR;
+            return rc;
         }
 
         if (++wait_connack > WAIT_CONNACK_MAX) {
@@ -1252,7 +1280,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     HAL_MutexUnlock(c->lock_generic);
 
     if (0 == flag_matched) {
-        mqtt_debug("NO matching any topic, call default handle function");
+        mqtt_info("NO matching any topic, call default handle function");
 
         if (NULL != c->handle_event.h_fp) {
             iotx_mqtt_event_msg_t msg;
@@ -1477,8 +1505,10 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         HAL_MutexLock(c->lock_read_buf);
         _reset_recv_buffer(c);
         HAL_MutexUnlock(c->lock_read_buf);
-        iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
-        mqtt_debug("readPacket error,result = %d", rc);
+        if(rc == MQTT_NETWORK_ERROR) {
+            iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
+        }
+        mqtt_err("readPacket error,result = %d", rc);
         return MQTT_NETWORK_ERROR;
     }
 
@@ -1810,7 +1840,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             HAL_MutexUnlock(pClient->lock_generic);
             rc = iotx_mc_handle_reconnect(pClient);
             if (SUCCESS_RETURN != rc) {
-                mqtt_debug("reconnect network fail, rc = %d", rc);
+                mqtt_err("reconnect network fail, rc = %d", rc);
             } else if (MQTT_CONNECT_BLOCK == rc) {
                 mqtt_debug("now using async protocol stack, wait network connected...");
             } else {
@@ -2992,7 +3022,7 @@ int wrapper_mqtt_subscribe_sync(void *c,
 #endif
         HAL_MutexUnlock(client->lock_generic);
     } while (!utils_time_is_expired(&timer));
-    mqtt_debug("time out!!");
+    mqtt_warning("sync subscribe time out!!");
 
     HAL_MutexLock(client->lock_generic);
 #ifdef PLATFORM_HAS_DYNMEM
