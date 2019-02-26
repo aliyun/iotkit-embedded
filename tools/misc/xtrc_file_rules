@@ -36,6 +36,8 @@ AT_TCP_ENABLED&AT_TCP_HAL_MK3060||wrappers/atm/at_tcp/mk3060.c|output/eng/atm
 AT_MQTT_ENABLED&AT_MQTT_HAL_ICA||wrappers/atm/at_mqtt/mqtt_ica.c|output/eng/atm
 AT_MQTT_ENABLED&AT_MQTT_HAL_SIM800||wrappers/atm/at_mqtt/mqtt_sim800.c|output/eng/atm
 
+DEV_RESET||src/dev_reset|output/eng/dev_reset
+
 # example rules
 DEV_SIGN||src/dev_sign/examples|output/examples
 DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples
@@ -44,3 +46,4 @@ MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/exampl
 DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/examples
 DEVICE_MODEL_ENABLED||src/dev_model/examples/app_entry.[ch]|output/examples
 DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/examples
+DEV_RESET||src/dev_reset/examples|output/examples
