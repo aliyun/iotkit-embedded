@@ -232,7 +232,6 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                 break;
             } else {
                 if (EINTR == errno) {
-                    printf("EINTR be caught\n");
                     continue;
                 }
                 printf("recv fail\n");
@@ -242,6 +241,9 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         } else if (0 == ret) {
             break;
         } else {
+            if (EINTR == errno) {
+                continue;
+            }
             printf("select-recv fail\n");
             err_code = -2;
             break;
