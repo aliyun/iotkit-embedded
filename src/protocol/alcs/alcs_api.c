@@ -250,6 +250,17 @@ void alcs_auth_deinit(void)
 {
 	alcs_resource_cb_deinit();
     alcs_auth_list_deinit();
+
+#ifndef SUPPORT_MULTI_DEVICES
+    struct list_head* head = get_svr_session_list(NULL);
+    if (head) {
+        session_item *node = NULL, *next = NULL;
+        list_for_each_entry_safe(node, next, head, lst, session_item) {
+            list_del(&node->lst);
+            coap_free(node);
+        }
+    }
+#endif
 }
 
 bool is_networkadd_same (NetworkAddr* addr1, NetworkAddr* addr2)
@@ -336,7 +347,7 @@ static int do_secure_send (CoAPContext *ctx, NetworkAddr* addr, CoAPMessage *mes
 
 	void* payload_old = message->payload;
 	int len_old = message->payloadlen;
-	
+
     message->payload = (unsigned char *)buf;
     message->payloadlen = alcs_encrypt ((const char *)payload_old, len_old, key, message->payload);
     ret = CoAPMessage_send (ctx, addr, message);
@@ -361,7 +372,7 @@ int internal_secure_send (CoAPContext *ctx, session_item* session, NetworkAddr *
         item->orig_user_data = message->user;
         item->orig_handler = handler;
         memcpy (item->pk_dn, session->pk_dn, PK_DN_CHECKSUM_LEN);
-        
+
         message->handler = secure_sendmsg_handler;
         message->user = item;
     }
@@ -524,17 +535,17 @@ int alcs_add_ctl_group (CoAPContext *context, const char* groupid, const char* a
         return COAP_ERROR_MALLOC;
     }
     memset (item, 0, sizeof(ctl_group_item));
-  
+
     do {
         item->id = (char*) coap_malloc(strlen(groupid) + 1);
         if (!item->id) break;
 
         item->accessKey = (char*) coap_malloc(strlen(accesskey) + 1);
         if (!item->accessKey) break;
-    
+
         item->accessToken = (char*) coap_malloc(strlen(accesstoken) + 1);
         if (!item->accessToken) break;
-    
+
         strcpy (item->accessKey, accesskey);
         strcpy (item->accessToken, accesstoken);
         strcpy (item->id, groupid);
@@ -555,7 +566,7 @@ int alcs_add_ctl_group (CoAPContext *context, const char* groupid, const char* a
 
     return COAP_ERROR_MALLOC;
 }
-    
+
 int alcs_remove_ctl_group (CoAPContext *context, const char* groupid)
 {
     return 0;
@@ -573,14 +584,14 @@ int alcs_add_svr_group (CoAPContext *context, const char* groupid, const char* k
         return COAP_ERROR_MALLOC;
     }
     memset (item, 0, sizeof(svr_group_item));
-  
+
     do {
         item->id = (char*) coap_malloc(strlen(groupid) + 1);
         if (!item->id) break;
-     
+
         item->keyInfo.secret = (char*) coap_malloc(strlen(secret) + 1);
         if (!item->keyInfo.secret) break;
-    
+
         strncpy (item->keyInfo.keyprefix, keyprefix, sizeof(item->keyInfo.keyprefix) - 1);
         strcpy (item->keyInfo.secret, secret);
         strcpy (item->id, groupid);
@@ -593,7 +604,7 @@ int alcs_add_svr_group (CoAPContext *context, const char* groupid, const char* k
         return 0;
 
     } while (0);
- 
+
     if (item->id) coap_free(item->id);
     if (item->keyInfo.secret) coap_free(item->keyInfo.secret);
     coap_free (item);
