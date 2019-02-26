@@ -1080,7 +1080,7 @@ int IOT_HTTP2_Disconnect(void *hd)
     }
     HAL_MutexUnlock(handle->mutex);
     g_stream_handle = NULL;
-#if FS_ENABLED
+#ifdef FS_ENABLED
     {
         http2_stream_file_t *node, *next;
         HAL_MutexLock(handle->mutex);
