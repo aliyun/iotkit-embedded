@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "iotx_dm_internal.h"
 
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-#include "iotx_dm_internal.h"
 
 static dm_opt_ctx g_dm_opt = {
     0, 0, 1, 1, 1

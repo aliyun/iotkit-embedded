@@ -1,6 +1,7 @@
 #ifndef _ALCS_INTERNAL_H_
 #define _ALCS_INTERNAL_H_
 
+#include "infra_config.h"
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_md5.h"

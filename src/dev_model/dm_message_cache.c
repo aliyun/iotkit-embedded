@@ -1,8 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#if !defined(DM_MESSAGE_CACHE_DISABLED)
 #include "iotx_dm_internal.h"
+
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
 
 dm_msg_cache_ctx_t g_dm_msg_cache_ctx;
 

@@ -2,12 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "infra_config.h"
+#include "iotx_dm_internal.h"
 
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
-
 #include "dev_model_api.h"
-#include "iotx_dm_internal.h"
 
 #ifdef LOG_REPORT_TO_CLOUD
     #include "iotx_log_report.h"

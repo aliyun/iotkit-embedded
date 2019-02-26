@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "iotx_dm_internal.h"
 
 #ifdef DEPRECATED_LINKKIT
 
-#include "iotx_dm_internal.h"
 #include "linkkit_export.h"
 #include "impl_solo.h"
 

@@ -1,8 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 #include "iotx_dm_internal.h"
+
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"

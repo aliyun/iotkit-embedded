@@ -1,4 +1,5 @@
 #include "iotx_dm_internal.h"
+
 #ifdef DEV_BIND_ENABLED
 #include "awss_api.h"
 #endif

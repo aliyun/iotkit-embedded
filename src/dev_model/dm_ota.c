@@ -1,8 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 #include "iotx_dm_internal.h"
+
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 
 static dm_ota_ctx_t g_dm_ota_ctx;
 

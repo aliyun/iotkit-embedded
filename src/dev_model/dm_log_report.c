@@ -2,12 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "infra_defs.h"
-#include "infra_config.h"
+#include "iotx_dm_internal.h"
 
 #ifdef LOG_REPORT_TO_CLOUD
 
-#include "iotx_dm_internal.h"
 #include "dev_model_api.h"
 
 const char THING_LOG_POST_PARAMS_HEAD[] =
