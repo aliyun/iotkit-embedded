@@ -11,7 +11,6 @@
 
 #include "coap_api.h"
 #include "coap_wrapper.h"
-#include "app_entry.h"
 
 #define IOTX_DAILY_DTLS_SERVER_URI      "coaps://11.239.164.238:5684"
 #define IOTX_DAILY_PSK_SERVER_URI       "coap-psk://10.101.83.159:5682"
