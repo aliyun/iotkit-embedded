@@ -14,6 +14,7 @@ int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
         HAL_Printf("%s", "\r\n"); \
     } while(0)
 
+static int reset_mqtt_packet_id = 0;
 static int reset_reply_received = 0;
 
 void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
@@ -23,7 +24,23 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
 void example_sub_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    printf("mqtt sub handle\n");
+    switch (msg->event_type)
+    {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
+            iotx_mqtt_topic_info_t *packet_info = (iotx_mqtt_topic_info_t *)msg->msg;
+            if (packet_info->packet_id != reset_mqtt_packet_id) {
+                return;
+            }
+            EXAMPLE_TRACE("Receive MQTT Package");
+            EXAMPLE_TRACE("Package ID: %d", packet_info->packet_id);
+            EXAMPLE_TRACE("Topic: %.*s", packet_info->topic_len, packet_info->ptopic);
+            EXAMPLE_TRACE("Payload: %.*s", packet_info->payload_len, packet_info->payload);
+        }
+        break;
+
+        default:
+            break;
+    }
     reset_reply_received = 1;
 }
 
@@ -52,11 +69,14 @@ int main(int argc, char *argv[])
     if (res < 0) {
         return -1;
     }
+    reset_mqtt_packet_id = res;
 
     while (!reset_reply_received) {
 
         IOT_MQTT_Yield(pclient, 200);
     }
+
+    EXAMPLE_TRACE("Example Execute Success, Now Exit...");
 
     return 0;
 }

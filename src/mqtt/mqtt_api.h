@@ -105,7 +105,7 @@ typedef struct {
      *      Its data type is @uint32_t and the value is MQTT packet identifier.
      *
      * 3) IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
-     *      Its data type is @iotx_mqtt_packet_info_t and see detail at the declare of this type.
+     *      Its data type is @iotx_mqtt_topic_info_pt and see detail at the declare of this type.
      *
      * */
     void *msg;
