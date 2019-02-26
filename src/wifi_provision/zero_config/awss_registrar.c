@@ -10,7 +10,9 @@
 #include "awss_main.h"
 #include "os.h"
 #include "awss_cmp.h"
+#if defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ADHA)
 #include "awss_wifimgr.h"
+#endif
 #include "awss_timer.h"
 #include "awss_packet.h"
 #include "zconfig_utils.h"

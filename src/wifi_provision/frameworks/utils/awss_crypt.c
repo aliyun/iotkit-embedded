@@ -9,7 +9,9 @@
 #include "awss_utils.h"
 #include "passwd.h"
 #include "awss_log.h"
+#if defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ADHA)
 #include "awss_wifimgr.h"
+#endif
 #include "awss_crypt.h"
 #include "sha256.h"
 
