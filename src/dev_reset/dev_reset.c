@@ -6,6 +6,7 @@
 #include <string.h>
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "infra_report.h"
 #include "dev_reset_internal.h"
 #include "dev_reset_wrapper.h"
 #include "dev_reset_api.h"
@@ -15,157 +16,41 @@
 extern "C" {
 #endif
 
-static uint8_t awss_report_reset_suc = 0;
-static uint16_t awss_report_reset_id = 0;
-static void *report_reset_timer = NULL;
+static int g_dev_reset_sub_flag = 0;
 
-static int awss_report_reset_to_cloud();
-
-void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
+int IOT_DevReset_Report(iotx_dev_meta_info_t *meta_info, iotx_mqtt_event_handle_func_fpt handle, void *extended)
 {
-    char rst = 0;
+    int res = 0;
+    const char *reset_fmt = "/sys/%s/%s/thing/reset";
+    const char *reset_reply_fmt = "/sys/%s/%s/thing/reset_reply";
+    const char *payload_fmt = "{\"id\":%d, \"version\":\"1.0\", \"method\":\"thing.reset\", \"params\":{}}";
+    char topic[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 30] = {0};
+    char payload[128] = {0};
 
-    iotx_mqtt_event_msg_pt msg = (iotx_mqtt_event_msg_pt)mesg;
-
-    switch (msg->event_type) {
-        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
-            break;
-        default:
-            return;
+    if (meta_info == NULL || handle== NULL ) {
+        return FAIL_RETURN;
     }
 
-    devrst_debug("[RST]", "%s\r\n", __func__);
+    memset(topic, 0, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 30);
+    HAL_Snprintf(topic,IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 30, reset_reply_fmt, meta_info->product_key, meta_info->device_name);
 
-    awss_report_reset_suc = 1;
-    HAL_Kv_Set(AWSS_KV_RST, &rst, sizeof(rst), 0);
-
-    HAL_Timer_Stop(report_reset_timer);
-    HAL_Timer_Delete(report_reset_timer);
-    report_reset_timer = NULL;
-
-#ifdef INFRA_EVENT
-    iotx_event_post(IOTX_RESET);  /* for old version of event */
-    do {  /* for new version of event */
-        void *cb = NULL;
-        cb = (void *)iotx_event_callback(ITE_AWSS_STATUS);
-        if (cb == NULL) {
-            break;
+    if (g_dev_reset_sub_flag == 0) {
+        res = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0, handle, NULL, 5000);
+        if (res < 0 ) {
+            return FAIL_RETURN;
         }
-        ((int (*)(int))cb)(IOTX_RESET);
-    } while (0);
-#endif
-}
-
-static int awss_report_reset_to_cloud()
-{
-    int ret = -1;
-    int final_len = 0;
-    char *topic = NULL;
-    char *packet = NULL;
-    int packet_len = AWSS_RESET_PKT_LEN;
-    int topic_len = AWSS_RESET_TOPIC_LEN;
-
-    if (awss_report_reset_suc) {
-        return 0;
+        g_dev_reset_sub_flag = 1;
     }
 
-    if (report_reset_timer == NULL) {
-        report_reset_timer = HAL_Timer_Create("report_rst", (void (*)(void *))awss_report_reset_to_cloud, NULL);
-    }
-    HAL_Timer_Stop(report_reset_timer);
-    HAL_Timer_Start(report_reset_timer, 3000);
-    do {
-        char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-        char dn[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    memset(topic, 0, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 30);
+    HAL_Snprintf(topic, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 30, reset_fmt, meta_info->product_key, meta_info->device_name);
 
-        HAL_GetProductKey(pk);
-        HAL_GetDeviceName(dn);
+    memset(payload, 0, 128);
+    HAL_Snprintf(payload, 128, payload_fmt, iotx_report_id());
 
-        topic = (char *)devrst_malloc(topic_len + 1);
-        if (topic == NULL) {
-            goto REPORT_RST_ERR;
-        }
-        memset(topic, 0, topic_len + 1);
+    res = IOT_MQTT_Publish_Simple(NULL, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
 
-        HAL_Snprintf(topic, topic_len, TOPIC_RESET_REPORT_REPLY, pk, dn);
-
-        ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
-                                      (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL, 1000);
-        if (ret < 0) {
-            goto REPORT_RST_ERR;
-        }
-
-        memset(topic, 0, topic_len + 1);
-        HAL_Snprintf(topic, topic_len, TOPIC_RESET_REPORT, pk, dn);
-    } while (0);
-
-    packet = devrst_malloc(packet_len + 1);
-    if (packet == NULL) {
-        ret = -1;
-        goto REPORT_RST_ERR;
-    }
-    memset(packet, 0, packet_len + 1);
-
-    do {
-        char id_str[AWSS_RESET_MSG_ID_LEN + 1] = {0};
-        HAL_Snprintf(id_str, AWSS_RESET_MSG_ID_LEN, "\"%u\"", awss_report_reset_id ++);
-        final_len = HAL_Snprintf(packet, packet_len, AWSS_RESET_REQ_FMT, id_str, METHOD_RESET_REPORT, "{}");
-    } while (0);
-
-    devrst_debug("[RST]", "report reset:%s\r\n", packet);
-
-    ret = IOT_MQTT_Publish_Simple(NULL, topic, IOTX_MQTT_QOS0, packet, final_len);
-    devrst_debug("[RST]", "report reset result:%d\r\n", ret);
-
-REPORT_RST_ERR:
-    if (packet) {
-        devrst_free(packet);
-    }
-    if (topic) {
-        devrst_free(topic);
-    }
-    return ret;
-}
-
-int IOT_ResetReport()
-{
-    char rst = 0x01;
-
-    awss_report_reset_suc = 0;
-
-    HAL_Kv_Set(AWSS_KV_RST, &rst, sizeof(rst), 0);
-
-    return awss_report_reset_to_cloud();
-}
-
-int IOT_ResetCheck()
-{
-    int len = 1;
-    char rst = 0;
-
-    HAL_Kv_Get(AWSS_KV_RST, &rst, &len);
-
-    if (rst != 0x01) { /* reset flag is not set */
-        devrst_debug("[RST]", "no rst\r\n");
-        return 0;
-    }
-
-    awss_report_reset_suc = 0;
-
-    return awss_report_reset_to_cloud();
-}
-
-int IOT_ResetReportStop()
-{
-    if (report_reset_timer == NULL) {
-        return 0;
-    }
-
-    HAL_Timer_Stop(report_reset_timer);
-    HAL_Timer_Delete(report_reset_timer);
-    report_reset_timer = NULL;
-
-    return 0;
+    return res;
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

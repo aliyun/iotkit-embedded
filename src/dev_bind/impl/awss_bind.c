@@ -11,9 +11,7 @@
     #include "awss_statis.h"
 #endif
 
-#ifdef DEVICE_MODEL_ENABLED
-    #include "dev_reset_api.h"
-#endif
+#include "awss_api.h"
 
 #ifndef AWSS_DISABLE_REGISTRAR
     #include "awss_enrollee.h"
@@ -24,10 +22,6 @@ extern "C" {
 #endif
 
 static void *awss_bind_mutex = NULL;
-int awss_stop_report_reset()
-{
-    return 0;
-};
 
 int awss_report_cloud()
 {
@@ -42,7 +36,7 @@ int awss_report_cloud()
 
     awss_cmp_online_init();
 #ifdef DEVICE_MODEL_ENABLED
-    IOT_ResetCheck();
+    awss_check_reset();
 #endif
     awss_report_token();
 
@@ -69,7 +63,7 @@ int awss_bind_deinit()
     }
 
 #ifdef DEVICE_MODEL_ENABLED
-    IOT_ResetReportStop();
+    awss_stop_report_reset();
 #endif
     awss_stop_report_token();
     awss_cmp_online_deinit();

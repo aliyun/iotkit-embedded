@@ -5,7 +5,6 @@ config DEV_BIND_ENABLED
     select INFRA_CLASSIC
     select INFRA_COMPAT
     select COAP_SERVER
-    select DEV_RESET
     select MQTT_COMM_ENABLED
     default n
     help
