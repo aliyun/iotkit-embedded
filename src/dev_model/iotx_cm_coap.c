@@ -1,6 +1,7 @@
+#include "iotx_cm_internal.h"
+
 #ifdef COAP_COMM_ENABLED
 #include "iotx_cm.h"
-#include "iotx_cm_internal.h"
 #include "iotx_cm_coap.h"
 #include "infra_timer.h"
 

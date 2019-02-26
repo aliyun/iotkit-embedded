@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "iotx_dm_internal.h"
 
 #if defined (DEPRECATED_LINKKIT) &&  (DEVICE_MODEL_GATEWAY)
 
-#include "iotx_dm_internal.h"
 #include "impl_gateway.h"
 
 #ifdef INFRA_MEM_STATS

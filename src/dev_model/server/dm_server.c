@@ -1,5 +1,6 @@
-#ifdef ALCS_ENABLED
 #include "iotx_dm_internal.h"
+
+#ifdef ALCS_ENABLED
 
 #ifdef LOG_REPORT_TO_CLOUD
     #include "iotx_log_report.h"

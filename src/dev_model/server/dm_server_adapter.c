@@ -1,5 +1,6 @@
-#ifdef ALCS_ENABLED
 #include "iotx_dm_internal.h"
+
+#ifdef ALCS_ENABLED
 
 static dm_server_ctx_t g_dm_server_ctx = {0};
 

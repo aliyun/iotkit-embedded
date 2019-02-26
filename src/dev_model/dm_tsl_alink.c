@@ -2,10 +2,9 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#include "iotx_dm_internal.h"
 
 #ifdef DEPRECATED_LINKKIT
-#include "iotx_dm_internal.h"
 
 typedef int (*dm_shw_data_parse)(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 typedef int (*dm_shw_array_parse)(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);

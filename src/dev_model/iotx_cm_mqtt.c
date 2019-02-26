@@ -1,7 +1,6 @@
-#include "infra_config.h"
+#include "iotx_cm_internal.h"
 
 #if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
-#include "iotx_cm_internal.h"
 
 static iotx_cm_connection_t *_mqtt_conncection = NULL;
 static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
