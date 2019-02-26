@@ -40,8 +40,9 @@
     #define mqtt_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #endif
 
-static void *g_mqtt_client = NULL;
-iotx_sign_mqtt_t g_sign_mqtt;
+static void        *g_mqtt_client = NULL;
+iotx_sign_mqtt_t    g_sign_mqtt;
+iotx_sign_mqtt_t    g_default_sign;
 
 /* Handle structure of subscribed topic */
 typedef struct  {
@@ -295,7 +296,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                     err;
     int                     ret;
     iotx_mqtt_param_t      *mqtt_params = NULL;
-    iotx_sign_mqtt_t        sign;
 
     do {
         iotx_dev_meta_info_t    meta;
@@ -306,14 +306,13 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         }
 
         memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
-        memset(&sign, 0, sizeof(iotx_sign_mqtt_t));
-
         HAL_GetProductKey(meta.product_key);
         HAL_GetDeviceName(meta.device_name);
         HAL_GetDeviceSecret(meta.device_secret);
-        memset(&sign, 0, sizeof(iotx_sign_mqtt_t));
 
-        ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &sign);
+        memset(&g_default_sign, 0, sizeof(iotx_sign_mqtt_t));
+
+        ret = IOT_Sign_MQTT(IOTX_CLOUD_REGION_SHANGHAI, &meta, &g_default_sign);
         if (ret != SUCCESS_RETURN) {
             _iotx_mqtt_free_param(mqtt_params);
             return NULL;
@@ -322,11 +321,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         /* Initialize MQTT parameter */
         memset(mqtt_params, 0x0, sizeof(iotx_mqtt_param_t));
 
-        mqtt_params->port = sign.port;
-        mqtt_params->host = sign.hostname;
-        mqtt_params->client_id = sign.clientid;
-        mqtt_params->username = sign.username;
-        mqtt_params->password = sign.password;
+        mqtt_params->port = g_default_sign.port;
+        mqtt_params->host = g_default_sign.hostname;
+        mqtt_params->client_id = g_default_sign.clientid;
+        mqtt_params->username = g_default_sign.username;
+        mqtt_params->password = g_default_sign.password;
 #ifdef SUPPORT_TLS
         {
             extern const char *iotx_ca_crt;
