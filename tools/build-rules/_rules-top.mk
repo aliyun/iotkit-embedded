@@ -204,6 +204,7 @@ COMMON_CONFIG_ENV = \
 	CONFIG_=FEATURE_ \
 
 menuconfig: $(KCONFIG_MCONF)
+	$(TOP_Q)chmod a+x $(KCONFIG_MCONF) $(if $(TOP_Q),2>/dev/null) || true
 	$(TOP_Q)$(COMMON_CONFIG_ENV) $^ -s $(TOP_DIR)/tools/Config.in $(if $(TOP_Q),2>/dev/null)
 	$(TOP_Q) \
 ( \
