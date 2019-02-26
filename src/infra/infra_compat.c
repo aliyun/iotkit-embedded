@@ -36,6 +36,9 @@ void HAL_Free(void *ptr);
     int HAL_GetProductSecret(char *product_secret);
     int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
     int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
+
+    #define DYNAMIC_REG_KV_PREFIX       "DYNAMIC_REG_"
+    #define DYNAMIC_REG_KV_PREFIX_LEN   12
 #endif
 
 static iotx_conn_info_t g_iotx_conn_info = {0};
@@ -72,9 +75,11 @@ int IOT_SetupConnInfo(const char *product_key,
     if (ctx->dynamic_register) {
         char device_secret_actual[IOTX_DEVICE_SECRET_LEN + 1] = {0};
         int device_secret_len = IOTX_DEVICE_SECRET_LEN;
+        char kv_key[IOTX_DEVICE_NAME_LEN + DYNAMIC_REG_KV_PREFIX_LEN] = DYNAMIC_REG_KV_PREFIX;
+        memcpy(kv_key + strlen(kv_key), device_name, strlen(device_name));
 
         /* Check if Device Secret exit in KV */
-        if (HAL_Kv_Get(device_name, device_secret_actual, &device_secret_len) == 0) {
+        if (HAL_Kv_Get(kv_key, device_secret_actual, &device_secret_len) == 0) {
             sdk_info("Get DeviceSecret from KV succeed");
 
             *(device_secret_actual + device_secret_len) = 0;
@@ -106,7 +111,7 @@ int IOT_SetupConnInfo(const char *product_key,
             }
 
             device_secret_len = strlen(meta_data.device_secret);
-            if (HAL_Kv_Set(device_name, meta_data.device_secret, device_secret_len, 1) != 0) {
+            if (HAL_Kv_Set(kv_key, meta_data.device_secret, device_secret_len, 1) != 0) {
                 sdk_err("Save Device Secret to KV Failed");
                 return FAIL_RETURN;
             }
