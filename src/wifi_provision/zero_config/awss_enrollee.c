@@ -11,7 +11,9 @@
 #include "passwd.h"
 #include "awss_cmp.h"
 #include "awss_packet.h"
+#if defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ADHA)
 #include "awss_wifimgr.h"
+#endif
 #include "awss_statis.h"
 #include "awss_crypt.h"
 #include "zconfig_utils.h"
