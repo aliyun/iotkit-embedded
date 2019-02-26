@@ -48,7 +48,6 @@ DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples
 MQTT_COMM_ENABLED|ATM_ENABLED|src/mqtt/examples/mqtt_example.c|output/examples
 MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/examples
 DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/examples
-DEVICE_MODEL_ENABLED||src/dev_model/examples/app_entry.[ch]|output/examples
 DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/examples
 DEV_RESET||src/dev_reset/examples|output/examples
 HTTP_COMM_ENABLED||src/http/examples|output/examples
