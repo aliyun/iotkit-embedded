@@ -56,4 +56,4 @@ DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_exampl
 DEV_RESET||src/dev_reset/examples|output/examples
 HTTP_COMM_ENABLED||src/http/examples|output/examples
 HTTP2_COMM_ENABLED||src/http2/examples|output/examples
-FEATURE_COAP_COMM_ENABLED||src/coap/examples|output/examples
+COAP_COMM_ENABLED||src/coap/examples|output/examples
