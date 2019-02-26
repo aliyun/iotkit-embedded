@@ -41,7 +41,7 @@ cond_and_check()
     do
         echo ${MACRO_LIST} | grep -wo ${item} > /dev/null
         if [ $? -ne 0 ];then
-            return -1
+            return 1
         fi
     done
     return 0
@@ -58,7 +58,7 @@ cond_not_check()
             return 0
         fi
     done
-    return -1
+    return 1
 }
 
 DOTS_LINE=".................................................................."
