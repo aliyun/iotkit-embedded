@@ -17,11 +17,11 @@
 #define DYNREG_SIGN_LENGTH                  (65)
 #define DYNREG_SIGN_METHOD_HMACSHA256       "hmacsha256"
 
-static int _parse_string_value(char *payload,int *pos, int *start, int *end)
+static int _parse_string_value(char *payload, int *pos, int *start, int *end)
 {
     int idx = 0;
 
-    for (idx = *pos + 1;idx < strlen(payload);idx++) {
+    for (idx = *pos + 1; idx < strlen(payload); idx++) {
         if (payload[idx] == '\"') {
             break;
         }
@@ -33,30 +33,30 @@ static int _parse_string_value(char *payload,int *pos, int *start, int *end)
     return 0;
 }
 
-static int _parse_dynreg_value(char *payload,char *key, int *pos,int *start, int *end)
+static int _parse_dynreg_value(char *payload, char *key, int *pos, int *start, int *end)
 {
     int idx = 0;
     /* printf("=====%s\n",&payload[*pos]); */
 
-    if (memcmp(key,"code",strlen("code")) == 0) {
-        for (idx = *pos;idx < strlen(payload);idx++) {
+    if (memcmp(key, "code", strlen("code")) == 0) {
+        for (idx = *pos; idx < strlen(payload); idx++) {
             if (payload[idx] < '0' || payload[idx] > '9') {
-               break;
+                break;
             }
         }
         *start = *pos;
         *end = idx - 1;
         *pos = *end;
         return 0;
-    }else if (memcmp(key,"data",strlen("data")) == 0) {
+    } else if (memcmp(key, "data", strlen("data")) == 0) {
         int bracket_cnt = 0;
         if (payload[*pos] != '{') {
             return -1;
         }
-        for (idx = *pos;idx < strlen(payload);idx++) {
+        for (idx = *pos; idx < strlen(payload); idx++) {
             if (payload[idx] == '{') {
                 bracket_cnt++;
-            }else if (payload[idx] == '}') {
+            } else if (payload[idx] == '}') {
                 bracket_cnt--;
             }
             if (bracket_cnt == 0) {
@@ -67,11 +67,11 @@ static int _parse_dynreg_value(char *payload,char *key, int *pos,int *start, int
         *end = idx;
         *pos = *end;
         return 0;
-    }else{
+    } else {
         if (payload[*pos] != '\"') {
             return -1;
         }
-        return _parse_string_value(payload,pos,start,end);
+        return _parse_string_value(payload, pos, start, end);
     }
 
     return -1;
@@ -79,33 +79,32 @@ static int _parse_dynreg_value(char *payload,char *key, int *pos,int *start, int
 
 static int _parse_dynreg_result(char *payload, char *key, int *start, int *end)
 {
-	int res = 0, idx = 0, pos = 0;
+    int res = 0, idx = 0, pos = 0;
 
-	for (idx = 0; idx < strlen(payload); idx++)
-	{
+    for (idx = 0; idx < strlen(payload); idx++) {
         /* printf("loop start: %s\n",&payload[idx]); */
-		if (payload[idx] == '\"') {
-			for (pos = idx+1;pos < strlen(payload);pos++) {
-				if (payload[pos] == '\"') {
-					/* printf("key: %.*s\n",pos - idx - 1, &payload[idx+1]); */
+        if (payload[idx] == '\"') {
+            for (pos = idx + 1; pos < strlen(payload); pos++) {
+                if (payload[pos] == '\"') {
+                    /* printf("key: %.*s\n",pos - idx - 1, &payload[idx+1]); */
                     break;
-				}
-			}
+                }
+            }
 
-            if (pos == strlen(payload) || payload[pos+1] != ':') {
+            if (pos == strlen(payload) || payload[pos + 1] != ':') {
                 return -1;
             }
 
             pos += 2;
-            res = _parse_dynreg_value(payload,key, &pos,start,end);
-            if (res == 0 && memcmp(key,&payload[idx+1],strlen(key)) == 0) {
+            res = _parse_dynreg_value(payload, key, &pos, start, end);
+            if (res == 0 && memcmp(key, &payload[idx + 1], strlen(key)) == 0) {
                 /* printf("value: %.*s\n",*end - *start + 1,&payload[*start]); */
                 return 0;
             }
 
             idx = pos;
-		}
-	}
+        }
+    }
 
     printf("exit 4\n");
     return -1;
@@ -124,7 +123,7 @@ static int _calc_dynreg_sign(
     const char *dynamic_register_sign_fmt = "deviceName%sproductKey%srandom%s";
 
     /* Start Dynamic Register */
-    memcpy(random,"8Ygb7ULYh53B6OA",strlen("8Ygb7ULYh53B6OA"));
+    memcpy(random, "8Ygb7ULYh53B6OA", strlen("8Ygb7ULYh53B6OA"));
     dynreg_info("Random Key: %s", random);
 
     /* Calculate SHA256 Value */
@@ -137,16 +136,17 @@ static int _calc_dynreg_sign(
     memset(sign_source, 0, sign_source_len);
     HAL_Snprintf((char *)sign_source, sign_source_len, dynamic_register_sign_fmt, device_name, product_key, random);
 
-    utils_hmac_sha256(sign_source,strlen((const char *)sign_source),(uint8_t *)product_secret,strlen(product_secret),signnum);
-    infra_hex2str(signnum,32,sign);
+    utils_hmac_sha256(sign_source, strlen((const char *)sign_source), (uint8_t *)product_secret, strlen(product_secret),
+                      signnum);
+    infra_hex2str(signnum, 32, sign);
     dynreg_free(sign_source);
     dynreg_info("Sign: %s", sign);
 
     return SUCCESS_RETURN;
 }
 
-static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload, 
-                                    iotx_http_region_types_t region, char device_secret[IOTX_DEVICE_SECRET_LEN])
+static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload,
+                                   iotx_http_region_types_t region, char device_secret[IOTX_DEVICE_SECRET_LEN])
 {
     int                 res = 0;
     const char         *domain = NULL;
@@ -199,18 +199,18 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     dynreg_free(url);
     dynreg_info("Http Response Payload: %s", http_client_data.response_buf);
 
-    _parse_dynreg_result(response_payload,"code",&start,&end);
-    dynreg_info("Dynamic Register Code: %.*s", end - start + 1,&response_payload[start]);
+    _parse_dynreg_result(response_payload, "code", &start, &end);
+    dynreg_info("Dynamic Register Code: %.*s", end - start + 1, &response_payload[start]);
 
-    if (memcmp(&response_payload[start],"200",strlen("200")) != 0) {
+    if (memcmp(&response_payload[start], "200", strlen("200")) != 0) {
         return FAIL_RETURN;
     }
 
-	_parse_dynreg_result(response_payload,"data",&data_start,&data_end);
-   /*  dynreg_info("value: %.*s\n",data_end - data_start + 1,&response_payload[data_start]); */
+    _parse_dynreg_result(response_payload, "data", &data_start, &data_end);
+    /*  dynreg_info("value: %.*s\n",data_end - data_start + 1,&response_payload[data_start]); */
 
-    _parse_dynreg_result(&response_payload[data_start + 1],"deviceSecret",&start,&end);
-    dynreg_info("Dynamic Register Device Secret: %.*s",end - start + 1,&response_payload[data_start + 1 + start]);
+    _parse_dynreg_result(&response_payload[data_start + 1], "deviceSecret", &start, &end);
+    dynreg_info("Dynamic Register Device Secret: %.*s", end - start + 1, &response_payload[data_start + 1 + start]);
 
     if (end - start + 1 > IOTX_DEVICE_SECRET_LEN) {
         return FAIL_RETURN;
@@ -266,7 +266,7 @@ int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info
     res = _fetch_dynreg_http_resp(dynamic_register_request, dynamic_register_response, region, meta->device_secret);
 
 #ifdef INFRA_LOG
-    dynreg_info("Downstream Payload:");
+    dynreg_dbg("Downstream Payload:");
     iotx_facility_json_print(dynamic_register_response, LOG_DEBUG_LEVEL, '<');
 #endif
 
