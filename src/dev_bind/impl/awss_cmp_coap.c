@@ -15,7 +15,9 @@
 #include "awss_packet.h"
 #ifdef WIFI_PROVISION_ENABLED
     #include "awss_info.h"
-    #include "awss_wifimgr.h"
+    #if defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ADHA)
+        #include "awss_wifimgr.h"
+    #endif
     #ifdef AWSS_SUPPORT_DEV_AP
         #include "awss_dev_ap.h"
     #endif
