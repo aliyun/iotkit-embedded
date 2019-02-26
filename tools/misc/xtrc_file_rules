@@ -38,6 +38,10 @@ AT_MQTT_ENABLED&AT_MQTT_HAL_SIM800||wrappers/atm/at_mqtt/mqtt_sim800.c|output/en
 
 DEV_RESET||src/dev_reset|output/eng/dev_reset
 
+HTTP_COMM_ENABLED||src/http|output/eng/http
+
+HTTP2_COMM_ENABLED||src/http2|output/eng/http2
+
 # example rules
 DEV_SIGN||src/dev_sign/examples|output/examples
 DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples
@@ -47,3 +51,5 @@ DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/examp
 DEVICE_MODEL_ENABLED||src/dev_model/examples/app_entry.[ch]|output/examples
 DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/examples
 DEV_RESET||src/dev_reset/examples|output/examples
+HTTP_COMM_ENABLED||src/http/examples|output/examples
+HTTP2_COMM_ENABLED||src/http2/examples|output/examples
