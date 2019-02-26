@@ -3,7 +3,7 @@
 #echo "COMP_LIB = ${COMP_LIB}"
 #echo "STRIP = ${STRIP}"
 
-bash ${TOP_DIR}/extract.sh
+bash ${TOP_DIR}/extract.sh test
 
 cd ${DIST_DIR}/eng
 

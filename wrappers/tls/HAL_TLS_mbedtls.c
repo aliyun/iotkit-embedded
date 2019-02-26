@@ -33,6 +33,10 @@
 #define GUIDER_ONLINE_HOSTNAME              ("iot-auth.cn-shanghai.aliyuncs.com")
 #define GUIDER_PRE_ADDRESS                  ("100.67.80.107")
 
+#ifndef CONFIG_MBEDTLS_DEBUG_LEVEL
+    #define CONFIG_MBEDTLS_DEBUG_LEVEL 0
+#endif
+
 typedef struct _TLSDataParams {
     mbedtls_ssl_context ssl;          /**< mbed TLS control context. */
     mbedtls_net_context fd;           /**< mbed TLS network context. */
