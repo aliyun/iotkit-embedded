@@ -295,10 +295,10 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                     err;
     int                     ret;
     iotx_mqtt_param_t      *mqtt_params = NULL;
+    iotx_sign_mqtt_t        sign;
 
     do {
         iotx_dev_meta_info_t    meta;
-        iotx_sign_mqtt_t        sign;
 
         mqtt_params = _iotx_mqtt_new_param();
         if (mqtt_params == NULL) {
