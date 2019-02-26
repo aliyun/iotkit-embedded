@@ -1833,7 +1833,8 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
     currentState = iotx_mc_get_client_state(pClient);
     do {
         /* if Exceeds the maximum delay time, then return reconnect timeout */
-        if (IOTX_MC_STATE_DISCONNECTED_RECONNECTING == currentState) {
+        if (IOTX_MC_STATE_DISCONNECTED_RECONNECTING == currentState ||
+            IOTX_MC_STATE_CONNECT_BLOCK == currentState) {
             /* Reconnection is successful, Resume regularly ping packets */
             HAL_MutexLock(pClient->lock_generic);
             pClient->ping_mark = 0;
