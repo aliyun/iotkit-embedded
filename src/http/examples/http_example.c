@@ -9,7 +9,6 @@
 #include "infra_httpc.h"
 #include "http_api.h"
 #include "http_wrapper.h"
-#include "app_entry.h"
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \
@@ -93,7 +92,7 @@ static int http_upload_test()
     return 0;
 }
 
-int linkkit_main(void *paras)
+int main(int argc, char **argv)
 {
 #if (defined(ON_DAILY)) || (defined(ON_PRE))
     EXAMPLE_TRACE("the device name/device secrete/product name is only valid for ONLINE, EXIT!");

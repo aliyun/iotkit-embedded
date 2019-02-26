@@ -12,7 +12,6 @@
 #include "infra_compat.h"
 #include "infra_defs.h"
 #include "linkkit_gateway_export.h"
-#include "app_entry.h"
 #ifdef LINKKIT_GATEWAY_TEST_CMD
     #include "simulate_subdev/testcmd.h"
 #endif
@@ -395,7 +394,7 @@ void set_iotx_info()
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
 
-int linkkit_main(void *p)
+int main(int argc, char **argv)
 {
     linkkit_params_t *initParams = NULL;
     int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
@@ -487,15 +486,5 @@ int linkkit_main(void *p)
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
 
     EXAMPLE_TRACE("out of sample!\n");
-    return 0;
-}
-
-int main(int argc, char **argv)
-{
-    app_main_paras_t paras;
-    paras.argc = argc;
-    paras.argv = argv;
-
-    linkkit_main((void *)&paras);
     return 0;
 }

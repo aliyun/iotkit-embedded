@@ -7,5 +7,5 @@ LDFLAGS         += -liot_sdk -liot_hal -liot_tls
 
 TARGET          := http-example
 
-LIB_SRCS_EXCLUDE        := examples/http_example.c examples/app_entry.c
-SRCS_http-example   	+= examples/http_example.c examples/app_entry.c
+LIB_SRCS_EXCLUDE        := examples/http_example.c
+SRCS_http-example   	+= examples/http_example.c

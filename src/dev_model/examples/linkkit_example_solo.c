@@ -10,6 +10,7 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 #else
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
@@ -21,7 +22,6 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 #include "dm_wrapper.h"
 #include "cJSON.h"
 
-#include "app_entry.h"
 
 #ifdef ATM_ENABLED
     #include "at_api.h"
@@ -543,9 +543,9 @@ void set_iotx_info()
 }
 
 static int max_running_seconds = 0;
-int linkkit_main(void *paras)
-{
 
+int main(int argc, char **argv)
+{
     uint64_t                        time_prev_sec = 0, time_now_sec = 0;
     uint64_t                        time_begin_sec = 0;
     int                             res = 0;
@@ -554,9 +554,6 @@ int linkkit_main(void *paras)
     int domain_type = 0, dynamic_register = 0, post_event_reply = 0;
 
 #if defined(__UBUNTU_SDK_DEMO__)
-    int                             argc = ((app_main_paras_t *)paras)->argc;
-    char                          **argv = ((app_main_paras_t *)paras)->argv;
-
     if (argc > 1) {
         int     tmp = atoi(argv[1]);
 
@@ -678,16 +675,6 @@ int linkkit_main(void *paras)
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
 
-    return 0;
-}
-
-int main(int argc, char **argv)
-{
-    app_main_paras_t paras;
-    paras.argc = argc;
-    paras.argv = argv;
-
-    linkkit_main((void *)&paras);
     return 0;
 }
 
