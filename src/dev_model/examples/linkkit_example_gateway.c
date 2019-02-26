@@ -18,7 +18,6 @@
 #include "infra_compat.h"
 #include "infra_log.h"
 #include "dev_model_api.h"
-#include "app_entry.h"
 #include "dm_wrapper.h"
 
 #ifdef LINKKIT_GATEWAY_TEST_CMD
@@ -379,7 +378,7 @@ void *user_dispatch_yield(void *args)
 }
 
 static int max_running_seconds = 0;
-int linkkit_main(void *paras)
+int main(int argc, char **argv)
 {
     int res = 0;
     uint64_t time_prev_sec = 0, time_now_sec = 0, time_begin_sec = 0;
@@ -389,16 +388,9 @@ int linkkit_main(void *paras)
     int dynamic_register = 0;
     int post_event_reply = 0;
 
-#if defined(__UBUNTU_SDK_DEMO__)
-    int                             argc = 0;
-    char                          **argv = NULL;
-#endif
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
 #if defined(__UBUNTU_SDK_DEMO__)
-    argc = ((app_main_paras_t *)paras)->argc;
-    argv = ((app_main_paras_t *)paras)->argv;
-
     if (argc > 1) {
         int tmp = atoi(argv[1]);
 
@@ -525,16 +517,6 @@ int linkkit_main(void *paras)
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
-    return 0;
-}
-
-int main(int argc, char **argv)
-{
-    app_main_paras_t paras;
-    paras.argc = argc;
-    paras.argv = argv;
-
-    linkkit_main((void *)&paras);
     return 0;
 }
 
