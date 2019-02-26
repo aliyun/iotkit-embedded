@@ -9,7 +9,6 @@
 #include "infra_compat.h"
 #include "infra_defs.h"
 #include "linkkit_export.h"
-#include "app_entry.h"
 /*
  * please modify this string follow as product's TSL.
  */
@@ -781,7 +780,7 @@ void set_iotx_info()
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
 
-int linkkit_main(void *paras)
+int main(int argc, char *argv[])
 {
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
@@ -799,15 +798,5 @@ int linkkit_main(void *paras)
 
     EXAMPLE_TRACE("out of sample!\n");
 
-    return 0;
-}
-
-int main(int argc, char **argv)
-{
-    app_main_paras_t paras;
-    paras.argc = argc;
-    paras.argv = argv;
-
-    linkkit_main((void *)&paras);
     return 0;
 }

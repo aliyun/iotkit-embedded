@@ -12,8 +12,6 @@
 #include "dm_wrapper.h"
 #include "cJSON.h"
 
-#include "app_entry.h"
-
 #ifdef ATM_ENABLED
     #include "at_api.h"
 #endif
@@ -146,7 +144,7 @@ void set_iotx_info()
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
 
-int linkkit_main(void *paras)
+int main(void)
 {
     unsigned int                    loop_cnt = 0;
     int                             res = 0;
@@ -216,15 +214,5 @@ int linkkit_main(void *paras)
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
 
-    return 0;
-}
-
-int main(int argc, char **argv)
-{
-    app_main_paras_t paras;
-    paras.argc = argc;
-    paras.argv = argv;
-
-    linkkit_main((void *)&paras);
     return 0;
 }
