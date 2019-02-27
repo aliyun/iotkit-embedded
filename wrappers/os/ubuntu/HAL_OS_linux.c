@@ -24,6 +24,7 @@
 #include <time.h>
 #include <signal.h>
 
+#include "infra_config.h"
 #include "infra_compat.h"
 #include "infra_defs.h"
 #include "wrappers_defs.h"

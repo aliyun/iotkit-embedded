@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
+#include "infra_config.h"
 
 static uint64_t _linux_get_time_ms(void)
 {

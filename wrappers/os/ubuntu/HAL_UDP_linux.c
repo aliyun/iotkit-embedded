@@ -14,6 +14,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
+
+#include "infra_config.h"
 #include "infra_compat.h"
 
 intptr_t HAL_UDP_create(char *host, unsigned short port)

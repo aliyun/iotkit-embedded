@@ -14,6 +14,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "infra_config.h"
 #include "at_parser.h"
 #include "at_wrapper.h"
 

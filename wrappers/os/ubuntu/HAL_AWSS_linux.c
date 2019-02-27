@@ -1,3 +1,5 @@
+#include "infra_config.h"
+
 #if defined(DEV_BIND_ENABLED)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
