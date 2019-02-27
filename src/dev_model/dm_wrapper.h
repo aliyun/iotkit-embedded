@@ -3,6 +3,7 @@
 
 #include "wrappers_defs.h"
 
+
 int HAL_SetProductKey(char *product_key);
 int HAL_SetDeviceName(char *device_name);
 int HAL_SetProductSecret(char *product_secret);
@@ -25,6 +26,11 @@ void HAL_Srandom(uint32_t seed);
 uint32_t HAL_Random(uint32_t region);
 void HAL_Printf(const char *fmt, ...);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+
+#ifdef INFRA_LOG
+#include <stdarg.h>
+int HAL_Vsnprintf(char *str, const int len, const char *format, va_list ap);
+#endif
 
 int HAL_ThreadCreate(
             void **thread_handle,
