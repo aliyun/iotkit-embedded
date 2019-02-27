@@ -7,7 +7,7 @@
 
 
 #include <stdio.h>
-#include "../iotx_coap_internal.h"
+#include "iotx_coap_internal.h"
 #include "CoAPSerialize.h"
 #include "CoAPDeserialize.h"
 #if 0
