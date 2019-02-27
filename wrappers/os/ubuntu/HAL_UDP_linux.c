@@ -1,3 +1,5 @@
+#include "infra_config.h"
+
 #if defined(HAL_UDP)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "infra_config.h"
 #ifdef COAP_DTLS_SUPPORT
 #include "wrappers_defs.h"
 #include "mbedtls/ssl.h"
