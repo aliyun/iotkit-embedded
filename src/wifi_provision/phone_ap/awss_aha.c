@@ -1,19 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "wifi_provision_internal.h"
 
 #ifdef AWSS_SUPPORT_AHA
-#include <stdio.h>
-#include <stdint.h>
-#include "os.h"
-#include "awss_api.h"
-#include "awss_aha.h"
-#include "awss_adha.h"
-#include "awss_statis.h"
-#include "awss_aplist.h"
-#include "awss_main.h"
-#include "awss_timer.h"
-#include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"

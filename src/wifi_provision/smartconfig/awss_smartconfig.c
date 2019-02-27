@@ -1,22 +1,4 @@
-#include <stdint.h>
-#include <stdio.h>
-#include "awss_api.h"
-#if defined(AWSS_SUPPORT_AHA)
-    #include "awss_aha.h"
-#endif
-#include "awss_log.h"
-#if defined(AWSS_SUPPORT_ADHA)
-    #include "awss_adha.h"
-#endif
-#include "awss_main.h"
-#include "awss_event.h"
-#include "awss_crypt.h"
-#include "awss_aplist.h"
-#include "awss_statis.h"
-#include "awss_smartconfig.h"
-#include "zconfig_ieee80211.h"
-#include "zconfig_protocol.h"
-#include "infra_compat.h"
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

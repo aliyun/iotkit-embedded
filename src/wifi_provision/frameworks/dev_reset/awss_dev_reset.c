@@ -1,14 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <stdio.h>
-#include <string.h>
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "awss_dev_reset_internal.h"
-#include "awss_api.h"
-#include "mqtt_api.h"
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

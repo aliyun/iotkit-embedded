@@ -1,21 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include <stdio.h>
-#include "awss_cmp.h"
-#include "awss_notify.h"
-#include "awss_bind_statis.h"
-#include "dev_bind_wrapper.h"
-
-#ifdef WIFI_PROVISION_ENABLED
-    #include "awss_statis.h"
-#endif
-
-#include "awss_api.h"
-
-#ifndef AWSS_DISABLE_REGISTRAR
-    #include "awss_enrollee.h"
-#endif
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

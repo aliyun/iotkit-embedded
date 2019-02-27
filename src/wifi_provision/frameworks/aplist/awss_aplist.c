@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -8,16 +9,6 @@ extern "C"
 #endif
 
 #ifdef AWSS_SUPPORT_APLIST
-#include <stdio.h>
-#include <stdint.h>
-#include "awss_log.h"
-#if defined(AWSS_SUPPORT_ADHA)
-#include "awss_adha.h"
-#endif
-#include "awss_timer.h"
-#include "awss_aplist.h"
-#include "zconfig_protocol.h"
-#include "zconfig_ieee80211.h"
 
 #define CLR_APLIST_MONITOR_TIMEOUT_MS    (24 * 60 *60 * 1000)
 /* storage to store apinfo */

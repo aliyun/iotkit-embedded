@@ -46,6 +46,28 @@ COAP_COMM_ENABLED||src/coap/client|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap/CoAPPacket|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap|output/eng/coap_cloud
 
+COAP_PACKET||src/coap|output/eng/coap
+COAP_PACKET||src/coap/CoAPPacket|output/eng/coap/CoAPPacket
+COAP_SERVER||src/coap/server|output/eng/coap/server
+
+WIFI_PROVISION_ENABLED||src/wifi_provision|output/eng/wifi_provision
+AWSS_SUPPORT_SMARTCONFIG||src/wifi_provision/smartconfig|output/eng/wifi_provision/smartconfig
+AWSS_SUPPORT_AHA||src/wifi_provision/phone_ap|output/eng/wifi_provision/phone_ap
+AWSS_SUPPORT_ADHA||src/wifi_provision/router_ap|output/eng/wifi_provision/router_ap
+AWSS_SUPPORT_SMARTCONFIG_WPS||src/wifi_provision/p2p|output/eng/wifi_provision/p2p
+AWSS_SUPPORT_ZEROCONFIG||src/wifi_provision/zero_config|output/eng/wifi_provision/zero_config
+AWSS_SUPPORT_DEV_AP||src/wifi_provision/dev_ap|output/eng/wifi_provision/dev_ap
+AWSS_FRAMEWORKS||src/wifi_provision/frameworks|output/eng/wifi_provision/frameworks
+AWSS_FRAMEWORKS||src/wifi_provision/frameworks/aplist|output/eng/wifi_provision/frameworks/aplist
+AWSS_FRAMEWORKS||src/wifi_provision/frameworks/dev_reset|output/eng/wifi_provision/frameworks/dev_reset
+AWSS_FRAMEWORKS||src/wifi_provision/frameworks/ieee80211|output/eng/wifi_provision/frameworks/ieee80211
+AWSS_FRAMEWORKS||src/wifi_provision/frameworks/os|output/eng/wifi_provision/frameworks/os
+AWSS_FRAMEWORKS||src/wifi_provision/frameworks/statics|output/eng/wifi_provision/frameworks/statics
+AWSS_FRAMEWORKS||src/wifi_provision/frameworks/utils|output/eng/wifi_provision/frameworks/utils
+AWSS_SUPPORT_APLIST||src/wifi_provision/frameworks/aplist|output/eng/wifi_provision/frameworks/aplist
+DEV_BIND_ENABLED||src/dev_bind/|output/eng/dev_bind
+DEV_BIND_ENABLED||src/dev_bind/impl|output/eng/dev_bind/impl
+
 # example rules
 DEV_SIGN||src/dev_sign/examples|output/examples
 DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples

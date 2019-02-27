@@ -1,30 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <string.h>
-#include <stdio.h>
-#include "aws_lib.h"
-#if defined(AWSS_SUPPORT_AHA)
-    #include "awss_aha.h"
-#endif
-#if defined(AWSS_SUPPORT_ADHA)
-    #include "awss_adha.h"
-#endif
-#include "awss_aplist.h"
-#include "zconfig_lib.h"
-#include "zconfig_utils.h"
-#include "zconfig_protocol.h"
-#include "zconfig_ieee80211.h"
-#ifndef AWSS_DISABLE_ENROLLEE
-    #include "awss_enrollee.h"
-#endif
-#include "awss_event.h"
-#include "awss_timer.h"
-#include "awss_main.h"
-#include "awss_api.h"
-#include "os.h"
-#include "infra_compat.h"
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

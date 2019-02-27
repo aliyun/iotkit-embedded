@@ -50,26 +50,6 @@ extern "C" {
 typedef void *p_HAL_Aes128_t;
 #define p_aes128_t p_HAL_Aes128_t
 
-#ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
-#include "p2p_wrapper.h"
-#endif
-
-#ifdef AWSS_SUPPORT_SMARTCONFIG
-#include "smartconfig_wrapper.h"
-#endif
-
-#ifdef AWSS_SUPPORT_ZEROCONFIG
-#include "zeroconfig_wrapper.h"
-#endif
-
-#ifdef AWSS_SUPPORT_AHA
-#include "aha_wrapper.h"
-#endif
-
-#ifdef AWSS_SUPPORT_DEV_AP
-#include "dev_ap_wrapper.h"
-#endif
-
 char *os_wifi_get_mac_str(char mac_str[HAL_MAC_LEN]);
 char *os_wifi_str2mac(char mac_str[HAL_MAC_LEN], char mac[ETH_ALEN]);
 uint8_t *os_wifi_get_mac(uint8_t mac[ETH_ALEN]);

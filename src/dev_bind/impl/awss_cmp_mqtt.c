@@ -1,16 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
-#include <stdio.h>
-#include "os.h"
-#include "mqtt_api.h"
-#include "awss_cmp.h"
-#include "awss_notify.h"
-#include "awss_packet.h"
-#include "awss_log.h"
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

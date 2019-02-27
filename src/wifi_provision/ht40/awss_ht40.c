@@ -2,16 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#include "wifi_provision_internal.h"
 #ifdef  AWSS_SUPPORT_HT40
-
-#include <stdint.h>
-#include <stdio.h>
-#include "awss_api.h"
-#include "awss_log.h"
-#include "awss_ht40.h"
-#include "awss_smartconfig.h"
-#include "zconfig_protocol.h"
-#include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"

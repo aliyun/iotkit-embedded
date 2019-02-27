@@ -1,23 +1,9 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
+#include "wifi_provision_internal.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include "os.h"
-#include "awss_api.h"
-#include "passwd.h"
-#include "awss_log.h"
-#include "awss_wps.h"
-#include "awss_main.h"
-#include "awss_event.h"
-#include "awss_crypt.h"
-#include "awss_aplist.h"
-#include "awss_statis.h"
-#include "zconfig_ieee80211.h"
-#include "zconfig_protocol.h"
-#include "infra_compat.h"
+#ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

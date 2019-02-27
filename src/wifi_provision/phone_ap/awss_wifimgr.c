@@ -1,34 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <stdlib.h>
-#include <stdint.h>
-#include "os.h"
-#include "awss_wifimgr.h"
-#include "awss_main.h"
-#include "passwd.h"
-#include "infra_json_parser.h"
-#include "awss_utils.h"
-#include "awss_crypt.h"
-#if defined(AWSS_SUPPORT_AHA)
-#include "awss_aha.h"
-#endif
-#if defined(AWSS_SUPPORT_ADHA)
-#include "awss_adha.h"
-#endif
-#include "awss_aplist.h"
-#include "awss_cmp.h"
-#include "awss_info.h"
-#include "awss_notify.h"
-#include "awss_timer.h"
-#include "awss_packet.h"
-#include "awss_statis.h"
-#include "zconfig_utils.h"
-#include "zconfig_lib.h"
-#include "zconfig_protocol.h"
-#include "zconfig_ieee80211.h"
-#include "infra_compat.h"
+#include "wifi_provision_internal.h"
 
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
 #define WIFI_APINFO_LIST_LEN    (512)

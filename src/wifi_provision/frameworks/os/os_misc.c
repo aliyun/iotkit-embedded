@@ -1,10 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <stdlib.h>
-#include "os.h"
-#include "awss_log.h"
+#include "wifi_provision_internal.h"
 
 /****** Convert values between host and big-/little-endian byte order ******/
 
