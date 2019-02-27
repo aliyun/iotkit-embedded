@@ -14,6 +14,7 @@ WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
 
 XTRC_FILE_RULS=./tools/misc/xtrc_file_rules
 XTRC_WRAPPER_RULS=./tools/misc/xtrc_wrapper_rules
+TEMP_WRAPPER_FILE="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
 
 # Prepare Config Macro In make.settings
@@ -124,6 +125,10 @@ echo -e ""
 mkdir -p ${WRAPPERS_DIR}
 cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
+L=$(cat make.settings | grep -v '^#' | sed '/^$/d;s:FEATURE_::g;s:=.*::g')
+L="$(echo $L|sed 's: :\\\|:g')"
+grep $L tools/misc/xtrc_wrapper_rules > ${TEMP_WRAPPER_FILE}
+
 # Read xtrc_wrapper_rules
 TOTAL_ITERATION=$(wc -l ${XTRC_WRAPPER_RULS}|awk '{ print $1 }')
 ITER=0
@@ -159,7 +164,8 @@ do
     if [ "${HEADER_FILE}" != "" ];then
         HEADER_FILE_LIST="${HEADER_FILE_LIST}""${HEADER_FILE}\n"
     fi
-done < ${XTRC_WRAPPER_RULS}
+done < ${TEMP_WRAPPER_FILE}
+rm -f ${TEMP_WRAPPER_FILE}
 
 echo -e ""
 
