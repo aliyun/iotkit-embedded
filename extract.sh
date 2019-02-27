@@ -13,8 +13,10 @@ INFRA_DIR=${OUTPUT_DIR}/eng/infra
 WRAPPERS_DIR=${OUTPUT_DIR}/eng/wrappers
 
 XTRC_FILE_RULS=./tools/misc/xtrc_file_rules
+TEMP_FILE_RULS="${PWD}/.temp_file_rule_filter"
+
 XTRC_WRAPPER_RULS=./tools/misc/xtrc_wrapper_rules
-TEMP_WRAPPER_FILE="${PWD}/.temp_wrapper_rule_filter"
+TEMP_WRAPPER_RULS="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
 
 # Prepare Config Macro In make.settings
@@ -95,9 +97,14 @@ extract_file_by()
     fi
 }
 
+L=$(cat make.settings | grep -v '^#' | sed '/^$/d;s:FEATURE_::g;s:=.*::g')
+L="$(echo $L|sed 's: :\\\|:g')"
+grep $L ${XTRC_FILE_RULS} > ${TEMP_FILE_RULS}
+grep $L ${XTRC_WRAPPER_RULS} > ${TEMP_WRAPPER_RULS}
+
 echo ""
 # Read xtrc_file_rules
-TOTAL_ITERATION=$(wc -l ${XTRC_FILE_RULS}|awk '{ print $1 }')
+TOTAL_ITERATION=$(wc -l ${TEMP_FILE_RULS}|awk '{ print $1 }')
 ITER=0
 
 while read rule
@@ -115,22 +122,19 @@ do
         extract_file_by ${rule}
     fi
 
-done < ${XTRC_FILE_RULS}
+done < ${TEMP_FILE_RULS}
 
 [ "${OS}" = "Linux" ] && wait
 
+rm -f ${TEMP_FILE_RULS}
 echo -e ""
 
 # Generate wrapper.c
 mkdir -p ${WRAPPERS_DIR}
 cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
-L=$(cat make.settings | grep -v '^#' | sed '/^$/d;s:FEATURE_::g;s:=.*::g')
-L="$(echo $L|sed 's: :\\\|:g')"
-grep $L tools/misc/xtrc_wrapper_rules > ${TEMP_WRAPPER_FILE}
-
 # Read xtrc_wrapper_rules
-TOTAL_ITERATION=$(wc -l ${XTRC_WRAPPER_RULS}|awk '{ print $1 }')
+TOTAL_ITERATION=$(wc -l ${TEMP_WRAPPER_RULS}|awk '{ print $1 }')
 ITER=0
 while read rule
 do
@@ -164,8 +168,8 @@ do
     if [ "${HEADER_FILE}" != "" ];then
         HEADER_FILE_LIST="${HEADER_FILE_LIST}""${HEADER_FILE}\n"
     fi
-done < ${TEMP_WRAPPER_FILE}
-rm -f ${TEMP_WRAPPER_FILE}
+done < ${TEMP_WRAPPER_RULS}
+rm -f ${TEMP_WRAPPER_RULS}
 
 echo -e ""
 
