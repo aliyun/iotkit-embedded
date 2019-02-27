@@ -51,7 +51,7 @@ DEV_SIGN||src/dev_sign/examples|output/examples
 DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples
 MQTT_COMM_ENABLED|ATM_ENABLED|src/mqtt/examples/mqtt_example.c|output/examples
 MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/examples
-DEVICE_MODEL_ENABLED||src/dev_model/examples/cJSON.[ch]|output/eng/external_libs
+DEVICE_MODEL_ENABLED||src/dev_model/examples/cJSON.[ch]|output/eng/wrappers/external_libs
 DEVICE_MODEL_ENABLED||src/dev_model/examples/linkkit_example_solo.c|output/examples
 DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model/examples/linkkit_example_gateway.c|output/examples
 DEV_RESET||src/dev_reset/examples|output/examples
