@@ -97,10 +97,30 @@ extract_file_by()
     fi
 }
 
-L=$(cat make.settings | grep -v '^#' | sed '/^$/d;s:FEATURE_::g;s:=.*::g')
-L="$(echo $L|sed 's: :\\\|:g')"
-grep $L ${XTRC_FILE_RULS} > ${TEMP_FILE_RULS}
-grep $L ${XTRC_WRAPPER_RULS} > ${TEMP_WRAPPER_RULS}
+SWITCHES=$(cat make.settings | grep -v '^#' | sed '/^$/d;s:FEATURE_::g;s:=.*::g')
+SWCH_PAT="$(echo ${SWITCHES}|sed 's: :\\\|:g')"
+SPEC_PAT="$(echo ${SWITCHES}|sed 's:\([_A-Z]*\) :^\1||\\\|:g')"
+SPEC_PAT="${SPEC_PAT}||"
+
+grep ${SWCH_PAT} ${XTRC_FILE_RULS} > ${TEMP_FILE_RULS}
+grep ${SWCH_PAT} ${XTRC_WRAPPER_RULS} > ${TEMP_WRAPPER_RULS}
+
+FUNC_NAME_LIST=""
+HEADER_FILE_LIST=""
+
+FUNC_NAME_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|awk -F '|' '{ print $3 }'|sort -u)
+HEADER_FILE_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|awk -F '|' '{ print $4 }'|sort -u)
+
+FUNC_PAT="$(echo ${FUNC_NAME_LIST}|sed 's: :\\\|:g')"
+HDER_PAT="$(echo ${HEADER_FILE_LIST}|sed 's: :\\\|:g')"
+
+[ "${FUNC_PAT}" != "" ] && sed -i "/${FUNC_PAT}/d" ${TEMP_WRAPPER_RULS}
+[ "${HDER_PAT}" != "" ] && sed -i "/${HDER_PAT}/d" ${TEMP_WRAPPER_RULS}
+
+echo "Interpret [$(cat ${TEMP_WRAPPER_RULS}|wc -l)] rules from [$(cat ${XTRC_WRAPPER_RULS}|wc -l)] base"
+
+FUNC_NAME_LIST="$(echo ${FUNC_NAME_LIST}|tr ' ' '\n')\n"
+HEADER_FILE_LIST="$(echo ${HEADER_FILE_LIST}|tr ' ' '\n')\n"
 
 echo ""
 # Read xtrc_file_rules
@@ -136,6 +156,7 @@ cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 # Read xtrc_wrapper_rules
 TOTAL_ITERATION=$(wc -l ${TEMP_WRAPPER_RULS}|awk '{ print $1 }')
 ITER=0
+
 while read rule
 do
     ITER=$(( ${ITER} + 1 ))
