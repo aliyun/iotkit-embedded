@@ -17,6 +17,8 @@ DEV_SIGN||src/dev_sign|output/eng/dev_sign
 
 DYNAMIC_REGISTER||src/dynamic_register|output/eng/dynamic_register
 
+OTA_ENABLED||src/ota|output/eng/ota
+
 MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
 MQTT_DEFAULT_IMPL||src/mqtt/impl|output/eng/mqtt
 
@@ -69,6 +71,7 @@ DEV_BIND_ENABLED||src/dev_bind/impl|output/eng/dev_bind/impl
 # example rules
 DEV_SIGN||src/dev_sign/examples|output/examples
 DYNAMIC_REGISTER||src/dynamic_register/examples|output/examples
+OTA_ENABLED||src/ota/examples|output/examples
 MQTT_COMM_ENABLED|ATM_ENABLED|src/mqtt/examples/mqtt_example.c|output/examples
 MQTT_COMM_ENABLED&ATM_ENABLED||src/mqtt/examples/mqtt_example_at.c|output/examples
 DEVICE_MODEL_ENABLED||src/dev_model/examples/cJSON.[ch]|output/eng/wrappers/external_libs

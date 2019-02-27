@@ -8,7 +8,6 @@
 #include <stdarg.h>
 
 #include "infra_compat.h"
-#include "infra_log.h"
 #include "mqtt_api.h"
 #include "ota_api.h"
 
@@ -18,6 +17,7 @@ int HAL_SetProductKey(char *product_key);
 int HAL_SetDeviceName(char *device_name);
 int HAL_SetDeviceSecret(char *device_secret);
 
+void HAL_Printf(const char *fmt, ...);
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
@@ -26,7 +26,6 @@ void HAL_SleepMs(uint32_t ms);
 #define PRODUCT_KEY             "a1MZxOdcBnO"
 #define DEVICE_NAME             "test_01"
 #define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
-
 
 char g_product_key[IOTX_PRODUCT_KEY_LEN + 1];
 char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1];

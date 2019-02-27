@@ -13,7 +13,7 @@ echo "Selected functions:"
 echo ""
 for iter in $(ls|grep -v 'wrappers\|infra'); do
     echo " . [${iter}]"
-    cp -f ${iter}/${iter}_api.h ${FINAL_DIR}/include 2>/dev/null
+    cp -f ${iter}/*_api.h ${FINAL_DIR}/include 2>/dev/null
 done
 
 cd ${OLDPWD}
