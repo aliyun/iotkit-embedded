@@ -7,7 +7,7 @@
 #ifndef __COAP_DESERIALIZE_H__
 #define __COAP_DESERIALIZE_H__
 #include <stdio.h>
-#include "../iotx_coap_internal.h"
+#include "iotx_coap_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

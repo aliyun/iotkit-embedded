@@ -6,7 +6,7 @@
 
 #ifndef __COAP_SERIALIZE_H__
 #define __COAP_SERIALIZE_H__
-#include "../iotx_coap_internal.h"
+#include "iotx_coap_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
