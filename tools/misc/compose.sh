@@ -15,7 +15,7 @@ JPARSER=${SELF_DIR}/JSON.sh
 MODEL_FL="${SELF_DIR}/../../model.json"
 SRC_FL="${SELF_DIR}/linkkit_example_auto.c"
 DST_FL="$1"
-VARS_FL=$(mktemp)
+VARS_FL="${PWD}/.temp_dm_auto_cache"
 VARS_LIST=""
 
 if [ -f ${MODEL_FL} ]; then
