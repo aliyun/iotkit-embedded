@@ -117,11 +117,13 @@ HDER_PAT="$(echo ${HEADER_FILE_LIST}|sed 's: :\\\|:g')"
 [ "${FUNC_PAT}" != "" ] && sed -i "/${FUNC_PAT}/d" ${TEMP_WRAPPER_RULS}
 [ "${HDER_PAT}" != "" ] && sed -i "/${HDER_PAT}/d" ${TEMP_WRAPPER_RULS}
 
-echo -n "Interpret [$(cat ${TEMP_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')] sources rules"
-echo " from [$(cat ${XTRC_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')] base"
+printf "Interpret [%03d] sources rules" $(cat ${TEMP_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')
+printf " from [%03d] base\n" $(cat ${XTRC_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')
 
-echo -n "Interpret [$(cat ${TEMP_WRAPPER_RULS}|wc -l|sed 's/[[:space:]]//g')] wrapper rules"
-echo " from [$(cat ${XTRC_WRAPPER_RULS}|wc -l|sed 's/[[:space:]]//g')] base"
+printf "Interpret [%03d] wrapper rules" $(cat ${TEMP_WRAPPER_RULS}|wc -l|sed 's/[[:space:]]//g')
+printf " from [%03d] base" $(cat ${XTRC_WRAPPER_RULS}|wc -l|sed 's/[[:space:]]//g')
+
+echo ""
 
 FUNC_NAME_LIST="$(echo ${FUNC_NAME_LIST}|tr ' ' '\n')\n"
 HEADER_FILE_LIST="$(echo ${HEADER_FILE_LIST}|tr ' ' '\n')\n"
