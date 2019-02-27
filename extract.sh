@@ -97,6 +97,9 @@ extract_file_by()
     fi
 }
 
+echo "Analysing extract rules for sources and wrappers ..."
+echo ""
+
 SWITCHES=$(cat make.settings | grep -v '^#' | sed '/^$/d;s:FEATURE_::g;s:=.*::g')
 SWCH_PAT="$(echo ${SWITCHES}|sed 's: :\\\|:g')"
 SPEC_PAT="$(echo ${SWITCHES}|sed 's:\([_A-Z]*\) :^\1||\\\|:g')"
