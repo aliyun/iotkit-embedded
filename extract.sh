@@ -35,7 +35,7 @@ echo -e "\n#endif" >> ${INFRA_DIR}/infra_config.h
 ${FIND} ./src -name "infra_types.h" | xargs -i cp -f {} ${INFRA_DIR}
 ${FIND} ./src -name "infra_defs.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
 ${FIND} ./src -name "infra_list.h" | xargs -i cp -f {} ${INFRA_DIR}
-${FIND} ./src -name "infra_compat.h" | xargs -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_compat.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
 
 # echo -e "${MACRO_LIST}"
 
@@ -268,6 +268,7 @@ if echo "${SWITCHES}"|grep -qw "DEVICE_MODEL_ENABLED"; then
     bash tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
 fi
 
+echo ""
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
 echo ""
 
