@@ -1,21 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-#include <stdlib.h>
-#include "infra_json_parser.h"
-#include "awss_enrollee.h"
-#include "awss_utils.h"
-#include "awss_main.h"
-#include "os.h"
-#include "awss_cmp.h"
-#if defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ADHA)
-#include "awss_wifimgr.h"
-#endif
-#include "awss_timer.h"
-#include "awss_packet.h"
-#include "zconfig_utils.h"
+#include "wifi_provision_internal.h"
 
 #ifndef AWSS_DISABLE_REGISTRAR
 

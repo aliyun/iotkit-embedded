@@ -1,13 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <stdlib.h>
-
-#include "os.h"
-#include "passwd.h"
-#include "awss_utils.h"
-#include "infra_sha1.h"
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"

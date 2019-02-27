@@ -1,17 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <stdint.h>
-#include <string.h>
-#if 0
-#include "iot_import.h"
-#endif
-#include "os.h"
-#include "awss_log.h"
-#include "awss_cmp.h"
-#include "awss_packet.h"
-#include "awss_statis.h"
+#include "wifi_provision_internal.h"
 
 #ifdef AWSS_SUPPORT_STATIS
 

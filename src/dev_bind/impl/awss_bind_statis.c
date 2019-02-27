@@ -1,12 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include "os.h"
-#include "awss_log.h"
-#include "awss_cmp.h"
-#include "awss_packet.h"
-#include "awss_bind_statis.h"
+#include "wifi_provision_internal.h"
 
 #ifdef AWSS_SUPPORT_DEV_BIND_STATIS
 static struct awss_statis_dev_bind_t g_db_statis = {0};

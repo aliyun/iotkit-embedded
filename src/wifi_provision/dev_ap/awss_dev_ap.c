@@ -1,21 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <stdio.h>
-#include <string.h>
-#include "os.h"
-#include "passwd.h"
-#include "awss_log.h"
-#include "awss_cmp.h"
-#include "awss_utils.h"
-#include "awss_notify.h"
-#include "awss_dev_ap.h"
-#include "infra_json_parser.h"
-#include "awss_packet.h"
-#include "awss_crypt.h"
-#include "awss_statis.h"
-#include "zconfig_utils.h"
+#include "wifi_provision_internal.h"
 
 #ifdef AWSS_SUPPORT_DEV_AP
 

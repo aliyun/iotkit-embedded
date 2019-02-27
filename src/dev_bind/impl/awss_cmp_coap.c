@@ -1,27 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
-#include <stdio.h>
-#include "os.h"
-#if defined(WIFI_PROVISION_ENABLED) || defined(DEV_BIND_ENABLED)
-    #include "coap_api.h"
-    #include "iotx_coap.h"
-#endif
-#include "awss_cmp.h"
-#include "awss_notify.h"
-#include "awss_packet.h"
-#ifdef WIFI_PROVISION_ENABLED
-    #include "awss_info.h"
-    #if defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ADHA)
-        #include "awss_wifimgr.h"
-    #endif
-    #ifdef AWSS_SUPPORT_DEV_AP
-        #include "awss_dev_ap.h"
-    #endif
-#endif
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {

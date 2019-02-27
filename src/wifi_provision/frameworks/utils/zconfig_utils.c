@@ -1,14 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
-#include <string.h>
-#include <time.h>
-#include "zconfig_lib.h"
-#include "zconfig_utils.h"
-#include "awss_main.h"
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"

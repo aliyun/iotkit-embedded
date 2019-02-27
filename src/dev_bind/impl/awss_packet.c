@@ -1,17 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
-#include <stdint.h>
-#include "os.h"
-#include "passwd.h"
-#include "awss_cmp.h"
-#include "awss_notify.h"
-#include "awss_packet.h"
-#include "awss_utils.h"
-#include "dev_bind_wrapper.h"
+#include "wifi_provision_internal.h"
 
 #define AWSS_DEV_RAND_SIGN_FMT  ",\"random\":\"%s\",\"signMethod\":%d,\"sign\":\"%s\""
 #define AWSS_DEV_BIND_TOKEN_FMT ",\"token\":\"%s\",\"remainTime\":%d,\"type\":%d"

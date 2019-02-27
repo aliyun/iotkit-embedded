@@ -4,13 +4,7 @@
 
 
 /* Optimized for minimal code size. */
-#include <stdio.h>
-#include <string.h>
-#if 0
-#include "os.h"
-#endif
-#include "infra_types.h"
-#include "sha256.h"
+#include "wifi_provision_internal.h"
 
 #define ror(value, bits) (((value) >> (bits)) | ((value) << (32 - (bits))))
 #define shr(value, bits) ((value) >> (bits))

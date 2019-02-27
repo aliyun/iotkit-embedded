@@ -1,7 +1,7 @@
 #include "iotx_dm_internal.h"
 
 #ifdef DEV_BIND_ENABLED
-#include "awss_api.h"
+#include "wifi_provision_internal.h"
 #endif
 #ifdef LOG_REPORT_TO_CLOUD
 #include "iotx_log_report.h"

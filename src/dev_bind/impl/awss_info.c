@@ -1,17 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include <stdio.h>
-#include <string.h>
-
-#include "infra_json_parser.h"
-#include "os.h"
-#include "awss_log.h"
-#include "awss_cmp.h"
-#include "awss_info.h"
-#include "awss_notify.h"
-#include "awss_packet.h"
+#include "wifi_provision_internal.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
