@@ -1,3 +1,5 @@
+#include "infra_config.h"
+
 #if defined(HAL_KV)
 #include <stdlib.h>
 #include <string.h>

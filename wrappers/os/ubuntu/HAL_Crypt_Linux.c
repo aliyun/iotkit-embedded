@@ -1,3 +1,5 @@
+#include "infra_config.h"
+
 #if defined(HAL_CRYPTO)
 
 /*
