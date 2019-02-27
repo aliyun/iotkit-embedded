@@ -1,7 +1,16 @@
 #ifndef _DEV_RESET_INTERNAL_H_
 #define _DEV_RESET_INTERNAL_H_
 
+#include <stdio.h>
+#include <string.h>
+#include "infra_config.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_report.h"
+#include "dev_reset_internal.h"
 #include "dev_reset_wrapper.h"
+#include "dev_reset_api.h"
+#include "mqtt_api.h"
 
 #ifdef INFRA_LOG
 #include "infra_log.h"
