@@ -44,9 +44,9 @@ COAP_COMM_ENABLED||src/coap/client|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap/CoAPPacket|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap|output/eng/coap_cloud
 
-COAP_PACKET||src/coap|output/eng/coap
-COAP_PACKET||src/coap/CoAPPacket|output/eng/coap/CoAPPacket
-COAP_SERVER||src/coap/server|output/eng/coap/server
+COAP_PACKET||src/coap|output/eng/coap_server
+COAP_PACKET||src/coap/CoAPPacket|output/eng/coap_server/CoAPPacket
+COAP_SERVER||src/coap/server|output/eng/coap_server/server
 
 WIFI_PROVISION_ENABLED||src/wifi_provision|output/eng/wifi_provision
 AWSS_SUPPORT_SMARTCONFIG||src/wifi_provision/smartconfig|output/eng/wifi_provision/smartconfig
