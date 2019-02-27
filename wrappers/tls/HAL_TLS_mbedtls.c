@@ -27,7 +27,6 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 
-#include "infra_net.h"
 #include "wrappers_defs.h"
 
 #define SEND_TIMEOUT_SECONDS                (10)
