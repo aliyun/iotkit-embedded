@@ -2,15 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <string.h>
-#include "infra_types.h"
-#include "infra_defs.h"
-#include "infra_report.h"
 #include "dev_reset_internal.h"
-#include "dev_reset_wrapper.h"
-#include "dev_reset_api.h"
-#include "mqtt_api.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
