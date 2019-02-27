@@ -1,6 +1,8 @@
 #! /bin/bash
 
-if [ "$(uname)" = "Linux" ]; then
+OS="$(uname)"
+
+if [ "${OS}" = "Linux" ]; then
     FIND="find -L"
 else
     FIND="find"
@@ -63,10 +65,40 @@ cond_not_check()
 
 DOTS_LINE=".................................................................."
 
+extract_file_by()
+{
+    local rule="$*"
+
+    COND_AND=$(echo $rule | awk -F'|' '{print $1}')
+    COND_NOT=$(echo $rule | awk -F'|' '{print $2}')
+    SRC_DIR=$(echo $rule | awk -F'|' '{print $3}')
+    DEST_DIR=$(echo $rule | awk -F'|' '{print $4}')
+
+    # echo "${COND_AND}"
+    cond_and_check "${COND_AND}"
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+
+    # echo "${COND_NOT}"
+    cond_not_check "${COND_NOT}"
+    if [ $? -eq 0 ]; then
+        return 1
+    fi
+
+    # echo "${SRC_DIR}"
+    # echo "${DEST_DIR}"
+
+    if [ "${DEST_DIR}" != "" ];then
+        mkdir -p ${DEST_DIR} && ${FIND} ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
+    fi
+}
+
 echo ""
 # Read xtrc_file_rules
 TOTAL_ITERATION=$(wc -l ${XTRC_FILE_RULS}|awk '{ print $1 }')
 ITER=0
+
 while read rule
 do
     ITER=$(( ${ITER} + 1 ))
@@ -76,30 +108,15 @@ do
         continue
     fi
 
-    COND_AND=$(echo $rule | awk -F'|' '{print $1}')
-    COND_NOT=$(echo $rule | awk -F'|' '{print $2}')
-    SRC_DIR=$(echo $rule | awk -F'|' '{print $3}')
-    DEST_DIR=$(echo $rule | awk -F'|' '{print $4}')
-
-    # echo "${COND_AND}"
-    cond_and_check "${COND_AND}"
-    if [ $? -ne 0 ];then
-        continue
+    if [ "${OS}" = "Linux" ]; then
+        extract_file_by ${rule} &
+    else
+        extract_file_by ${rule}
     fi
 
-    # echo "${COND_NOT}"
-    cond_not_check "${COND_NOT}"
-    if [ $? -eq 0 ];then
-        continue
-    fi
-
-    # echo "${SRC_DIR}"
-    # echo "${DEST_DIR}"
-
-    if [ "${DEST_DIR}" != "" ];then
-        mkdir -p ${DEST_DIR} && ${FIND} ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
-    fi
 done < ${XTRC_FILE_RULS}
+
+[ "${OS}" = "Linux" ] && wait
 
 echo -e ""
 
