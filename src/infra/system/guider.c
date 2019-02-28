@@ -667,7 +667,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
     char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
 
     p_domain = iotx_guider_get_domain(GUIDER_DOMAIN_HTTP);
-    HAL_Snprintf(guider_url, sizeof(guider_url), "http://%s/auth/devicename", p_domain);
+    HAL_Snprintf(guider_url, sizeof(guider_url), "https://%s/auth/devicename", p_domain);
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str);
 
     guider_print_dev_guider_info(&dev, partner_id, module_id, guider_url, secure_mode,
