@@ -245,7 +245,7 @@ do
     FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {})
     FUNC_DEC=$(echo "${FUNC_DEC}" | sed -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
     
-    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F' ' '{print $1}' | sed s/[[:space:]]//g)
+    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F' ' '{if ($1~/^DLL/) print $2; else print $1}' | sed s/[[:space:]]//g)
     # echo -e "\n${DATA_TYPE}"
 
     sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
