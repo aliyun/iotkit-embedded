@@ -305,7 +305,7 @@ static void guider_get_url(char *buf, int len)
 #ifdef MQTT_DIRECT
     HAL_Snprintf(buf, len, "%s", "");
 #else
-    HAL_Snprintf(buf, len, "%s", "http://");
+    HAL_Snprintf(buf, len, "%s", "https://");
 
     switch (g_domain_type) {
         case GUIDER_DOMAIN_SH:
