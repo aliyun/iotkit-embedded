@@ -47,7 +47,6 @@ DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
             _OU_ void *dst);
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
 int HAL_Awss_Get_Conn_Encrypt_Type(void);
-void HAL_Reboot();
 int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
             _IN_ char ssid[HAL_MAX_SSID_LEN],
