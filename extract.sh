@@ -1,5 +1,13 @@
 #! /bin/bash
 
+if [ "${1}" = "cloud" ];then
+    curl -F "file=@make.settings" --url http://30.42.83.101:7001/upload/config?pk=a1AuWIoEr4Z >> output.zip
+    rm -rf output
+    unzip output.zip
+    rm -rf output.zip
+    exit
+fi
+
 OS="$(uname)"
 
 if [ "${OS}" = "Linux" ]; then
