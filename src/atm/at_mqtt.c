@@ -1139,11 +1139,7 @@ int wrapper_mqtt_subscribe(void *client,
                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
                            void *pcontext)
 {
-#if PLATFORM_HAS_OS
     return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_DEFAULT);
-#else
-    return wrapper_mqtt_subscribe_sync(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_DEFAULT);
-#endif
 }
 
 int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter)
