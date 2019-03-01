@@ -566,6 +566,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
     /*
       * 4. Handshake
       */
+    mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), 10000);
     printf("Performing the SSL/TLS handshake...\n");
 
     while ((ret = mbedtls_ssl_handshake(&(pTlsData->ssl))) != 0) {
