@@ -35,13 +35,13 @@ void example_sub_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt ms
             EXAMPLE_TRACE("Package ID: %d", packet_info->packet_id);
             EXAMPLE_TRACE("Topic: %.*s", packet_info->topic_len, packet_info->ptopic);
             EXAMPLE_TRACE("Payload: %.*s", packet_info->payload_len, packet_info->payload);
+            reset_reply_received = 1;
         }
         break;
 
         default:
             break;
     }
-    reset_reply_received = 1;
 }
 
 int main(int argc, char *argv[])
