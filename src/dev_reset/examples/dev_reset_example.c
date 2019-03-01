@@ -22,19 +22,18 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     EXAMPLE_TRACE("msg->event_type : %d", msg->event_type);
 }
 
-void example_sub_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+void example_devrst_evt_handle(iotx_devrst_evt_type_t evt, void *msg)
 {
-    switch (msg->event_type)
+    switch (evt)
     {
-        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
-            iotx_mqtt_topic_info_t *packet_info = (iotx_mqtt_topic_info_t *)msg->msg;
-            if (packet_info->packet_id != reset_mqtt_packet_id) {
+        case IOTX_DEVRST_EVT_RECEIVED: {
+            iotx_devrst_evt_recv_msg_t *recv_msg = (iotx_devrst_evt_recv_msg_t *)msg;
+            if (recv_msg->msgid != reset_mqtt_packet_id) {
                 return;
             }
-            EXAMPLE_TRACE("Receive MQTT Package");
-            EXAMPLE_TRACE("Package ID: %d", packet_info->packet_id);
-            EXAMPLE_TRACE("Topic: %.*s", packet_info->topic_len, packet_info->ptopic);
-            EXAMPLE_TRACE("Payload: %.*s", packet_info->payload_len, packet_info->payload);
+            EXAMPLE_TRACE("Receive Reset Responst");
+            EXAMPLE_TRACE("Msg ID: %d", recv_msg->msgid);
+            EXAMPLE_TRACE("Payload: %.*s", recv_msg->payload_len, recv_msg->payload);
             reset_reply_received = 1;
         }
         break;
@@ -65,7 +64,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    res = IOT_DevReset_Report(&meta_info, example_sub_handle, NULL);
+    res = IOT_DevReset_Report(&meta_info, example_devrst_evt_handle, NULL);
     if (res < 0) {
         return -1;
     }
