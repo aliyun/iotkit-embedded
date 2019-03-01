@@ -483,8 +483,6 @@ int HAL_Firmware_Persistence_Stop(void)
     }
 #endif
 
-    /* check file md5, and burning it to flash ... finally reboot system */
-
     return 0;
 }
 
