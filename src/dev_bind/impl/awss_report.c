@@ -280,7 +280,6 @@ static int awss_reboot_system()
     awss_stop_timer(reboot_timer);
     reboot_timer = NULL;
     HAL_Reboot();
-    while (1);
     return 0;
 }
 #endif
