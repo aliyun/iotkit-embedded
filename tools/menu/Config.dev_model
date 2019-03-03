@@ -71,6 +71,7 @@ menu "Device Model Configurations"
 
     config DEVICE_MODEL_SUBDEV_OTA
         depends on DEVICE_MODEL_GATEWAY
+        depends on OTA_ENABLED
         bool "FEATURE_DEVICE_MODEL_SUBDEV_OTA"
         default n
 
