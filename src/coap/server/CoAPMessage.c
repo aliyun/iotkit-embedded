@@ -450,13 +450,6 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     unsigned char  *tmp = path;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
 
-    /* CoAP request receive flowControl */
-    uint64_t time_curr = 0;
-    int64_t time_delta = 0;
-    int isOverThre = 0;
-    static uint64_t time_prev = 0;
-    static int count = 0;
-
     COAP_FLOW("CoAPRequestMessage_handle: %p", ctx);
     /* TODO: if need only one callback */
     for (index = 0; index < message->optcount; index++) {
@@ -473,29 +466,10 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
         COAP_DEBUG("Request path is %s", path);
     }
 
-    /* CoAP request receive flowControl */
-    time_curr = HAL_UptimeMs();
-    if (time_curr < time_prev) {
-        time_curr = time_prev;
-    }
-    time_delta = time_curr - time_prev;
-
-    if (time_delta < (uint64_t)PACKET_INTERVAL_THRE_MS) {
-        if (++count > PACKET_TRIGGER_NUM) {
-            count = PACKET_TRIGGER_NUM;
-            isOverThre = 1;
-        }
-    } else {
-        time_prev = time_curr;
-
-        count -= (time_delta - PACKET_INTERVAL_THRE_MS) / PACKET_INTERVAL_THRE_MS;
-        count = (count < 0) ? 0 : count;
-    }
-
     resource = CoAPResourceByPath_get(ctx, (char *)path);
     if (NULL != resource) {
         if (NULL != resource->callback) {
-            if ((((resource->permission) & (1 << ((message->header.code) - 1))) > 0) && !isOverThre) {
+            if (((resource->permission) & (1 << ((message->header.code) - 1))) > 0) {
                 if (message->header.type == COAP_MESSAGE_TYPE_CON) {
                     CoAPRequestMessage_ack_send(ctx, remote, message->header.msgid);
                 }
