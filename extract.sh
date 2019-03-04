@@ -127,8 +127,12 @@ HEADER_FILE_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|awk -F '|' '{ print $
 FUNC_PAT="$(echo ${FUNC_NAME_LIST}|sed 's: :\\\|:g')"
 HDER_PAT="$(echo ${HEADER_FILE_LIST}|sed 's: :\\\|:g')"
 
-[ "${FUNC_PAT}" != "" ] && sed -i "/${FUNC_PAT}/d" ${TEMP_WRAPPER_RULS}
-[ "${HDER_PAT}" != "" ] && sed -i "/${HDER_PAT}/d" ${TEMP_WRAPPER_RULS}
+# [ "${FUNC_PAT}" != "" ] && sed -i "/${FUNC_PAT}/d" ${TEMP_WRAPPER_RULS}
+# [ "${HDER_PAT}" != "" ] && sed -i "/${HDER_PAT}/d" ${TEMP_WRAPPER_RULS}
+
+if [ "${FUNC_PAT}" != "" ] && [ "${HDER_PAT}" != "" ]; then
+    sed -i "/${FUNC_PAT}/{/${HDER_PAT}/d}" ${TEMP_WRAPPER_RULS}
+fi
 
 printf "Interpret [%03d] sources rules" $(cat ${TEMP_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')
 printf " from [%03d] base\n" $(cat ${XTRC_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')
