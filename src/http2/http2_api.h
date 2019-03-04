@@ -93,14 +93,25 @@ typedef struct {
 #ifdef FS_ENABLED
 /* bit define of file override option */
 #define UPLOAD_FILE_OPT_BIT_OVERWRITE       (0x00000001)
+#define UPLOAD_FILE_OPT_BIT_RESUME          (0x00000002)
+#define UPLOAD_FILE_OPT_BIT_CRC64           (0x00000004)
+#define UPLOAD_FILE_OPT_BIT_SPECIFIC_LEN    (0x00000008)
 
 /* file upload option define */
 typedef struct {
+    const char *file_path;
+    const char *upload_id;      /* a specific id used to indicate one upload session, only required when UPLOAD_FILE_OPT_BIT_RESUME option set */
+    uint32_t upload_len;        /* used to indicate the upload length, only required when UPLOAD_FILE_OPT_BIT_SPECIFIC_LEN option set */
     uint32_t opt_bit_map;
-} http2_file_upload_opt_t;
+} http2_file_upload_params_t;
 
 /* error code for file upload */
 typedef enum {
+    UPLOAD_STOP_BY_IOCTL        = -14,
+    UPLOAD_HTTP2_HANDLE_NULL    = -13,
+    UPLOAD_LEN_IS_ZERO          = -12,
+    UPLOAD_FILE_PATH_IS_NULL    = -11,
+    UPLOAD_ID_IS_NULL           = -10,
     UPLOAD_FILE_NOT_EXIST     = -9,
     UPLOAD_FILE_READ_FAILED   = -8,
     UPLOAD_STREAM_OPEN_FAILED = -7,
@@ -112,12 +123,9 @@ typedef enum {
 } http2_file_upload_result_t;
 
 /* callback function type define */
-typedef void (* upload_file_result_cb_t)(const char *path, int result, void *user_data);
+typedef void (* http2_file_upload_cb_t)(const char *file_path, const char *upload_id, int result, void *user_data);
 
-DLL_IOT_API int IOT_HTTP2_Stream_UploadFile(void *handle, const char *file_name, const char *identify,
-                                            upload_file_result_cb_t cb,
-                                            http2_file_upload_opt_t *opt,
-                                            void *user_data);
+DLL_IOT_API int IOT_HTTP2_Stream_UploadFile(void *http2_handle, http2_file_upload_params_t *params, http2_file_upload_cb_t cb, void *user_data);
 #endif /* #ifdef FS_ENABLED */
 
 DLL_IOT_API void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);

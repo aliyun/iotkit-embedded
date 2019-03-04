@@ -47,7 +47,7 @@ extern uint32_t HAL_Fwrite(const void *ptr, uint32_t size, uint32_t count, void 
 extern int HAL_Fseek(void *stream, long offset, int framewhere);
 extern int HAL_Fclose(void *stream);
 extern long HAL_Ftell(void *stream);
-#endif
+#endif /* #ifdef FS_ENABLED */
 
 #endif /* #ifndef __HTTP2_WRAPPER_H__ */
 
