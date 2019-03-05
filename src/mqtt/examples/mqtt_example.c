@@ -125,6 +125,13 @@ int main(int argc, char *argv[])
     EXAMPLE_TRACE("mqtt example");
 
     /* Initialize MQTT parameter */
+    /*
+     * Note:
+     *
+     * If you did NOT set value for members of mqtt_params, SDK will use their default values
+     * If you wish to customize some parameter, just un-comment value assigning expressions below
+     *
+     **/
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
     /**
