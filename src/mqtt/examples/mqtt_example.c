@@ -1,16 +1,16 @@
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 
-#define DEMO_PRODUCT_KEY        "a1MZxOdcBnO"
-#define DEMO_DEVICE_NAME        "test_01"
-#define DEMO_DEVICE_SECRET      "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
+char DEMO_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char DEMO_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
+char DEMO_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
-int HAL_SetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
-int HAL_SetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
-int HAL_SetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 uint64_t HAL_UptimeMs(void);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
     int                     loop_cnt = 0;
     iotx_mqtt_param_t       mqtt_params;
 
-    HAL_SetProductKey(DEMO_PRODUCT_KEY);
-    HAL_SetDeviceName(DEMO_DEVICE_NAME);
-    HAL_SetDeviceSecret(DEMO_DEVICE_SECRET);
+    HAL_GetProductKey(DEMO_PRODUCT_KEY);
+    HAL_GetDeviceName(DEMO_DEVICE_NAME);
+    HAL_GetDeviceSecret(DEMO_DEVICE_SECRET);
 
     EXAMPLE_TRACE("mqtt example");
 
