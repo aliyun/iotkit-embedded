@@ -17,6 +17,10 @@
 #endif
 
 void HAL_Printf(const char *fmt, ...);
+int HAL_SetProductKey(char *product_key);
+int HAL_SetDeviceName(char *device_name);
+int HAL_SetProductSecret(char *product_secret);
+int HAL_SetDeviceSecret(char *device_secret);
 
 /* Fill in your device info here */
 #define PRODUCT_KEY      " ###DEVICE_PK### "
