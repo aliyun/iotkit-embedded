@@ -36,10 +36,10 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
  *
  */
 
-#define PRODUCT_KEY      "a1X2bEnP82z"
-#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "test_06"
-#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+char PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char PRODUCT_SECRET[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
+char DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -534,14 +534,6 @@ static int user_master_dev_available(void)
     return 0;
 }
 
-void set_iotx_info()
-{
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
-}
-
 static int max_running_seconds = 0;
 
 int main(int argc, char **argv)
@@ -571,11 +563,12 @@ int main(int argc, char **argv)
     }
 #endif
 
-#if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
-    set_iotx_info();
-#endif
-
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
+
+    HAL_GetProductKey(PRODUCT_KEY);
+    HAL_GetProductSecret(PRODUCT_SECRET);
+    HAL_GetDeviceName(DEVICE_NAME);
+    HAL_GetDeviceSecret(DEVICE_SECRET);
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 

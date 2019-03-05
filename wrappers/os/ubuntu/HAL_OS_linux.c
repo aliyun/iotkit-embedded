@@ -37,10 +37,17 @@ char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "L68wCVXYUaNg1Ey9";
 char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
 char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "";
 #else
+#ifdef DEVICE_MODEL_ENABLED
+char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
+char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
+#else
 char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1MZxOdcBnO";
 char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "h4I4dneEFp7EImTv";
 char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "test_01";
 char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56";
+#endif
 #endif
 
 char _firmware_version[IOTX_FIRMWARE_VER_LEN] = "app-1.0.0-20180101.1000";
@@ -196,7 +203,7 @@ int HAL_SetDeviceSecret(char *device_secret)
     return len;
 }
 
-int HAL_GetProductKey(char *product_key)
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1])
 {
     int len = strlen(_product_key);
     memset(product_key, 0x0, IOTX_PRODUCT_KEY_LEN + 1);
@@ -206,7 +213,7 @@ int HAL_GetProductKey(char *product_key)
     return len;
 }
 
-int HAL_GetProductSecret(char *product_secret)
+int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
 {
     int len = strlen(_product_secret);
     memset(product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN + 1);
@@ -216,7 +223,7 @@ int HAL_GetProductSecret(char *product_secret)
     return len;
 }
 
-int HAL_GetDeviceName(char *device_name)
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
     int len = strlen(_device_name);
     memset(device_name, 0x0, IOTX_DEVICE_NAME_LEN + 1);
@@ -226,7 +233,7 @@ int HAL_GetDeviceName(char *device_name)
     return strlen(device_name);
 }
 
-int HAL_GetDeviceSecret(char *device_secret)
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
     int len = strlen(_device_secret);
     memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);

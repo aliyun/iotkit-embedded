@@ -28,11 +28,10 @@
     #include "ota_service.h"
 #endif
 
-/* for demo only */
-#define PRODUCT_KEY      "a1RIsMLz2BJ"
-#define PRODUCT_SECRET   "fSAF0hle6xL0oRWd"
-#define DEVICE_NAME      "example1"
-#define DEVICE_SECRET    "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE"
+char PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char PRODUCT_SECRET[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
+char DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
@@ -204,9 +203,7 @@ static int user_connected_event_handler(void)
     EXAMPLE_TRACE("Cloud Connected");
 
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    ota_service_init(NULL);
-#endif
+
     return 0;
 }
 
@@ -321,14 +318,6 @@ static int user_master_dev_available(void)
     return 0;
 }
 
-void set_iotx_info()
-{
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
-}
-
 static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0, devid = -1;
@@ -408,9 +397,10 @@ int main(int argc, char **argv)
     }
 #endif
 
-#if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
-    set_iotx_info();
-#endif
+    HAL_GetProductKey(PRODUCT_KEY);
+    HAL_GetProductSecret(PRODUCT_SECRET);
+    HAL_GetDeviceName(DEVICE_NAME);
+    HAL_GetDeviceSecret(DEVICE_SECRET);
 
     user_example_ctx->subdev_index = -1;
 
