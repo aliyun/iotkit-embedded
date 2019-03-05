@@ -16,9 +16,9 @@ void HAL_MutexDestroy(void *mutex);
 void HAL_MutexLock(void *mutex);
 void HAL_MutexUnlock(void *mutex);
 
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
-int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
 int HAL_GetFirmwareVersion(char *version);
 
 #ifdef SUPPORT_TLS
