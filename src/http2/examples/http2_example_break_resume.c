@@ -22,15 +22,15 @@
         HAL_Printf("%s", "\r\n");                      \
     } while (0)
 
-static uint8_t upload_end = 0;
+static int upload_result = 1;
 static char g_upload_id[50] = {0};
-static uint8_t if_connected = 0;
+static uint8_t is_connected = 0;
 
 void upload_file_result(const char *file_path, int result, void *user_data)
 {
-    upload_end = 1;
+    upload_result = result;
 
-    EXAMPLE_TRACE("=========== file_path = %s, result = %d, finish num = %d ===========", file_path, result, upload_end);
+    EXAMPLE_TRACE("=========== file_path = %s, result = %d ===========", file_path, upload_result);
 }
 
 void upload_id_received_handle(const char *file_path, const char *upload_id, void *user_data)
@@ -46,14 +46,14 @@ static void _on_http2_reconnect(void)
 {
     EXAMPLE_TRACE("http2 reconnected");
 
-    if_connected = 1;
+    is_connected = 1;
 }
 
 static void _on_http2_disconnect(void)
 {
     EXAMPLE_TRACE("http2 disconnected");
 
-    if_connected = 0;
+    is_connected = 0;
 }
 
 static int http2_stream_test(char **argv,int argc)
@@ -83,13 +83,12 @@ static int http2_stream_test(char **argv,int argc)
     if(handle == NULL) {
         return -1;
     }
-    if_connected = 1;
+    is_connected = 1;
 
     http2_upload_params_t fs_params;
     memset(&fs_params, 0, sizeof(fs_params));
     fs_params.file_path = argv[1];
-    fs_params.upload_len = 1024 * 100;
-    fs_params.opt_bit_map = UPLOAD_FILE_OPT_BIT_OVERWRITE  | UPLOAD_FILE_OPT_BIT_SPECIFIC_LEN;
+    fs_params.opt_bit_map = UPLOAD_FILE_OPT_BIT_OVERWRITE;
 
     ret = IOT_HTTP2_UploadFile_Request(handle, &fs_params, &result_cb, NULL);
     if(ret < 0) {
@@ -97,31 +96,58 @@ static int http2_stream_test(char **argv,int argc)
     }
 
     /* wait until upload end */
-    while (!upload_end) {
+    while (upload_result == 1) {
         HAL_SleepMs(200);
     }
-    upload_end = 0;
-    EXAMPLE_TRACE("upload specific len end");
 
-    if (g_upload_id[0] == '\0') {
-        return -1;
+    /* check the result */
+    if (upload_result == UPLOAD_SUCCESS) {
+        EXAMPLE_TRACE("upload succeed");
+        ret = IOT_HTTP2_UploadFile_Disconnect(handle);
+        EXAMPLE_TRACE("close connect %d\n", ret);
+        return 0;
+    }
+    else {
+        /* check if upload_id receivced */
+        if (g_upload_id[0] == '\0') {
+            EXAMPLE_TRACE("upload id is NULL, resume is impossible!");
+            return -1;
+        }
     }
 
-    fs_params.file_path = argv[1];
-    fs_params.upload_len = 0;
-    fs_params.upload_id = g_upload_id;
-    fs_params.opt_bit_map = UPLOAD_FILE_OPT_BIT_RESUME;
+    /* into resume routine */
+    do {
+        /* TODO: assume that http2 disconnected */
+        if (upload_result == UPLOAD_STREAM_SEND_FAILED) {
+	        is_connected = 0;
+        }
 
-    ret = IOT_HTTP2_UploadFile_Request(handle, &fs_params, &result_cb, NULL);
-    if(ret < 0) {
-        EXAMPLE_TRACE("ret = %d", ret);
-        return -1;
-    }
+        /* wait until connected */
+        while (is_connected == 0) {
+            HAL_SleepMs(200);
+        }
 
-    /* wait until upload end */
-    while (!upload_end) {
-        HAL_SleepMs(200);
-    }
+        /* reset upload result */
+        upload_result = 1;
+
+        /* use resume option to upload file */
+        fs_params.file_path = argv[1];
+        fs_params.upload_len = 0;
+        fs_params.upload_id = g_upload_id;
+        fs_params.opt_bit_map = UPLOAD_FILE_OPT_BIT_RESUME; /* resume option used */
+        ret = IOT_HTTP2_UploadFile_Request(handle, &fs_params, &result_cb, NULL);
+        if (ret < 0) {
+            EXAMPLE_TRACE("upload file request error");
+            return -1;
+        }
+
+        while (upload_result == 1) {
+            HAL_SleepMs(200);
+        }
+
+    } while (upload_result != UPLOAD_SUCCESS);
+
+    EXAMPLE_TRACE("upload succeed %d\n", ret);
 
     ret = IOT_HTTP2_UploadFile_Disconnect(handle);
     EXAMPLE_TRACE("close connect %d\n", ret);
