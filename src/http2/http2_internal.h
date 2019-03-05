@@ -103,6 +103,29 @@ typedef struct http2_data_struct {
     int flag;              /* send data flag. */
 } http2_data;
 
+typedef struct {
+    http2_connection_t   *http2_connect;
+    void                 *mutex;
+    void                 *semaphore;
+    void                 *rw_thread;
+    http2_list_t         stream_list;
+    int                  init_state;
+    http2_stream_cb_t    *cbs;
+    uint8_t              connect_state;
+    uint8_t              retry_cnt;
+} stream_handle_t;
+
+#ifdef FS_ENABLED
+
+typedef struct {
+    char fs_upload_id[50];
+    int fs_offset;
+} fs_rsp_header_val_t;
+
+int IOT_HTTP2_FS_Close(void *hd, stream_data_info_t *info, header_ext_info_t *header);
+
+#endif /* #ifdef FS_ENABLED */
+
 /**
 * @brief          the http2 client connect.
 * @param[in]      pclient: http client. <struct httpclient_t>
