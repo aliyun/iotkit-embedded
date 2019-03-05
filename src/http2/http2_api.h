@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #define IOT_HTTP2_RES_OVERTIME_MS                 (10000)
-#define IOT_HTTP2_KEEP_ALIVE_CNT                  (2)
+#define IOT_HTTP2_KEEP_ALIVE_CNT                  (1)
 #define IOT_HTTP2_KEEP_ALIVE_TIME                 (30*1000) /* in seconds */
 
 #define MAKE_HEADER(NAME, VALUE)                                             \
