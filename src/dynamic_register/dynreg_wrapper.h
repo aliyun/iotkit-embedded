@@ -10,7 +10,6 @@ void HAL_Printf(const char *fmt, ...);
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
 int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1]);
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
-int HAL_SetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
 
 #endif
 
