@@ -41,6 +41,7 @@ DEV_RESET||src/dev_reset|output/eng/dev_reset
 HTTP_COMM_ENABLED||src/http|output/eng/http
 
 HTTP2_COMM_ENABLED||src/http2|output/eng/http2
+HTTP2_COMM_ENABLED||external_libs/nghttp2|output/eng/wrappers/external_libs/nghttp2
 
 COAP_COMM_ENABLED||src/coap/client|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap/CoAPPacket|output/eng/coap_cloud
