@@ -719,6 +719,10 @@ int iotx_http2_get_available_window_size(http2_connection_t *conn)
 {
     int windows_size = 0;
 
+    if (conn == NULL) {
+        return -1;
+    }
+
     windows_size = nghttp2_session_get_remote_window_size(conn->session);
     return windows_size;
 }
@@ -727,6 +731,10 @@ int iotx_http2_get_available_window_size(http2_connection_t *conn)
 int iotx_http2_update_window_size(http2_connection_t *conn)
 {
     int rv;
+
+    if (conn == NULL) {
+        return -1;
+    }
 
     rv = nghttp2_session_recv(conn->session);
     if (rv < 0) {
