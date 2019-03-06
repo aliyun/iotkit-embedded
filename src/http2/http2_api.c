@@ -335,20 +335,31 @@ static void *http2_io(void *user_data)
 {
     stream_handle_t *handle = (stream_handle_t *)user_data;
     int rv = 0;
-    iotx_time_t timer;
+    iotx_time_t timer, timer_rsp;
+    static uint8_t timer_valid = 0;
     POINTER_SANITY_CHECK(handle, NULL);
     iotx_time_init(&timer);
+    iotx_time_init(&timer_rsp);
     while (handle->init_state) {
         if (handle->connect_state) {
             HAL_MutexLock(handle->mutex);
             rv = iotx_http2_exec_io(handle->http2_connect);
             HAL_MutexUnlock(handle->mutex);
         }
-        if (utils_time_is_expired(&timer) && handle->connect_state) {
+        if (utils_time_is_expired(&timer)) {
             HAL_MutexLock(handle->mutex);
             rv = iotx_http2_client_send_ping(handle->http2_connect);
             HAL_MutexUnlock(handle->mutex);
             utils_time_countdown_ms(&timer, IOT_HTTP2_KEEP_ALIVE_TIME);
+            if (rv >= 0) {
+                utils_time_countdown_ms(&timer_rsp, 3000);
+                timer_valid = 1;
+            }
+        }
+
+        if (timer_valid && utils_time_is_expired(&timer_rsp)) {
+            timer_valid = 0;
+            rv = iotx_http2_client_recv_ping();
         }
 
         if (rv < 0) {

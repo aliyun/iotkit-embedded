@@ -349,16 +349,20 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
         h2_info("file offset = %d now", send_ext_info.file_offset);
     } while (send_ext_info.file_offset < upload_len);
 
+    if (res < 0) {
+        if (fs_node->end_cb) {
+            fs_node->end_cb(fs_node->file_path, res, fs_node->user_data);
+        }
+
+        HTTP2_STREAM_FREE(send_ext_info.send_buffer);
+        return NULL;        
+    }
+
     /* close http2 file upload channel */
     IOT_HTTP2_FS_Close(h2_handle, &channel_info, NULL);
 
     if (fs_node->end_cb) {
-        if (res < 0) {
-            res = UPLOAD_STREAM_SEND_FAILED;
-        } else {
-            res = UPLOAD_SUCCESS;
-        }
-        fs_node->end_cb(fs_node->file_path, res, fs_node->user_data);
+        fs_node->end_cb(fs_node->file_path, UPLOAD_SUCCESS, fs_node->user_data);
     }
 
     HTTP2_STREAM_FREE(send_ext_info.send_buffer);

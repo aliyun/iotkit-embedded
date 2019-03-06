@@ -22,6 +22,8 @@
         HAL_Printf("%s", "\r\n");                      \
     } while (0)
 
+#define UPLOAD_RETRY_TIME               50
+
 static int upload_result = 1;
 static char g_upload_id[50] = {0};
 static uint8_t is_connected = 0;
@@ -62,6 +64,7 @@ static int http2_stream_test(char **argv,int argc)
     http2_status_cb_t status_cb;
     http2_upload_result_cb_t result_cb;
     void *handle;
+    uint32_t retry_time = 0;
     int ret;
 
     memset(&conn_info, 0, sizeof( http2_upload_conn_info_t));
@@ -145,7 +148,7 @@ static int http2_stream_test(char **argv,int argc)
             HAL_SleepMs(200);
         }
 
-    } while (upload_result != UPLOAD_SUCCESS);
+    } while (upload_result != UPLOAD_SUCCESS && (++retry_time < UPLOAD_RETRY_TIME));
 
     EXAMPLE_TRACE("upload succeed %d\n", ret);
 

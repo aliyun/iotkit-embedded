@@ -182,6 +182,8 @@ extern int iotx_http2_update_window_size(http2_connection_t *conn);
 */
 extern int iotx_http2_exec_io(http2_connection_t *connection);
 
+extern int iotx_http2_client_recv_ping(void);
+
 int iotx_http2_reset_stream(http2_connection_t *connection, int32_t stream_id);
 #ifdef __cplusplus
 }
