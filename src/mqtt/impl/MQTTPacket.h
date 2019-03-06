@@ -37,22 +37,25 @@ enum msgTypes {
 /**
  * Bitfields for the MQTT header byte.
  */
-typedef union {
-    unsigned char byte;                 /**< the whole byte */
-#if defined(REVERSED)
-    struct {
-        unsigned int type : 4;          /**< message type nibble */
-        unsigned int dup : 1;               /**< DUP flag bit */
-        unsigned int qos : 2;               /**< QoS value, 0, 1 or 2 */
-        unsigned int retain : 1;        /**< retained flag bit */
-    } bits;
+typedef union
+{
+	unsigned char byte;	                /**< the whole byte */
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+	struct
+	{
+		unsigned int type : 4;			/**< message type nibble */
+		unsigned int dup : 1;				/**< DUP flag bit */
+		unsigned int qos : 2;				/**< QoS value, 0, 1 or 2 */
+		unsigned int retain : 1;		/**< retained flag bit */
+	} bits;
 #else
-    struct {
-        unsigned int retain : 1;        /**< retained flag bit */
-        unsigned int qos : 2;               /**< QoS value, 0, 1 or 2 */
-        unsigned int dup : 1;               /**< DUP flag bit */
-        unsigned int type : 4;          /**< message type nibble */
-    } bits;
+	struct
+	{
+		unsigned int retain : 1;		/**< retained flag bit */
+		unsigned int qos : 2;				/**< QoS value, 0, 1 or 2 */
+		unsigned int dup : 1;				/**< DUP flag bit */
+		unsigned int type : 4;			/**< message type nibble */
+	} bits;
 #endif
 } MQTTHeader;
 
