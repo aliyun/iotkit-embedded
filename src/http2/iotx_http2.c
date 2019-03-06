@@ -495,6 +495,9 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
     int stream_id = h2_data->stream_id;
     int flags = h2_data->flag;
 
+    if (conn == NULL) {
+        return -1;
+    }
 
     if (header != NULL && header_count != 0) {
         nva = (nghttp2_nv *)HTTP2_STREAM_MALLOC(sizeof(nghttp2_nv) * header_count);
