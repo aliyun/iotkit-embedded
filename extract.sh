@@ -275,10 +275,10 @@ else
     echo ""
 fi
 
-if echo "${SWITCHES}"|grep -qw "DEVICE_MODEL_ENABLED"; then
-    echo ""
-    bash tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
-fi
+# if echo "${SWITCHES}"|grep -qw "DEVICE_MODEL_ENABLED"; then
+#     echo ""
+#     bash tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
+# fi
 
 echo ""
 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
