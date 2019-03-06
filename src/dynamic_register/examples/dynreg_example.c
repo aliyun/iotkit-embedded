@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
     int32_t res = 0;
     iotx_dev_meta_info_t meta;
-    iotx_http_region_types_t region = IOTX_HTTP_REGION_SHANGHAI;
+    iotx_http_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
     HAL_Printf("dynreg example\n");
 
     memset(&meta,0,sizeof(iotx_dev_meta_info_t));
