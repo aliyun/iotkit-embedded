@@ -16,6 +16,14 @@
 #define MAX_HTTP2_HOST_LEN                  (128)
 #define NGHTTP2_DBG                         h2_info
 
+typedef enum {
+    PING_IDLE,
+    PING_SENDING,
+    PING_SENT,
+    PING_RECVED,
+} http2_ping_state_t;
+
+
 enum { IO_NONE, WANT_READ, WANT_WRITE };
 
 typedef struct _http2_request_struct_ {
@@ -28,6 +36,8 @@ extern const char *iotx_ca_get(void);
 extern int httpclient_connect(httpclient_t *client);
 static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nva_copy, int end);
 /*static int http2_parse_host(char *url, char *host, size_t maxHostLen);*/
+
+static http2_ping_state_t ping_state = PING_IDLE;
 
 int g_recv_timeout = 10;
 
@@ -122,19 +132,23 @@ static int on_frame_send_callback(nghttp2_session *session,
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS: {
             const nghttp2_nv *nva = frame->headers.nva;
-            NGHTTP2_DBG("[INFO] C --------> S (HEADERS) stream_id [%d]\n", frame->hd.stream_id);
+            NGHTTP2_DBG("[INFO] C ---------> S (HEADERS) stream_id [%d]\n", frame->hd.stream_id);
             for (i = 0; i < frame->headers.nvlen; ++i) {
                 NGHTTP2_DBG("> %s: %s\n", nva[i].name, nva[i].value);
             }
             (void)nva;
-        }
-        break;
-        case NGHTTP2_RST_STREAM:
-            NGHTTP2_DBG("[INFO] C ------> S (RST_STREAM)\n");
-            break;
-        case NGHTTP2_GOAWAY:
-            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n",frame->goaway.error_code);
-            break;
+        } break;
+        case NGHTTP2_RST_STREAM: {
+            NGHTTP2_DBG("[INFO] C ---------> S (RST_STREAM)\n");
+        } break;
+        case NGHTTP2_GOAWAY: {
+            NGHTTP2_DBG("[INFO] C ---------> S (GOAWAY) code = %d\n",frame->goaway.error_code);
+        } break;
+        case NGHTTP2_PING: {
+            NGHTTP2_DBG("[INFO] C ---------> S (PING)\n");
+            ping_state = PING_SENDING;
+        } break;
+        default: break;
     }
 
     if (connection->cbs && connection->cbs->on_user_frame_send_cb) {
@@ -184,24 +198,28 @@ static int on_frame_recv_callback(nghttp2_session *session,
     }
 
     switch (frame->hd.type) {
-        case NGHTTP2_HEADERS:
+        case NGHTTP2_HEADERS: {
             if (frame->headers.cat == NGHTTP2_HCAT_RESPONSE) {
 
             }
-            break;
-        case NGHTTP2_RST_STREAM:
+        } break;
+        case NGHTTP2_RST_STREAM: {
             connection->status = 0;
             NGHTTP2_DBG("[INFO] C <--------- S (RST_STREAM)\n");
-            break;
-        case NGHTTP2_GOAWAY:
+        } break;
+        case NGHTTP2_GOAWAY: {
             connection->status = 0;
             NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n",frame->goaway.error_code);
-            break;
-        case NGHTTP2_DATA:
+        } break;
+        case NGHTTP2_DATA: {
             if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
                 NGHTTP2_DBG("end stream flag\r\n");
             }
-            break;
+        } break;
+        case NGHTTP2_PING: {
+            NGHTTP2_DBG("[INFO] C <--------- S (PING)\n");
+            ping_state = PING_RECVED;
+        } break;            
     }
 
     if (connection->cbs && connection->cbs->on_user_frame_recv_cb) {
@@ -697,6 +715,9 @@ int iotx_http2_client_send_ping(http2_connection_t *conn)
 {
     int rv = 0;
     int send_flag;
+
+    ping_state = PING_IDLE;
+
     if (conn == NULL) {
         return -1;
     }
@@ -712,7 +733,21 @@ int iotx_http2_client_send_ping(http2_connection_t *conn)
             return rv;
         }
     }
+
+    ping_state = PING_SENDING;
     return 0;
+}
+
+int iotx_http2_client_recv_ping(void)
+{
+    if (ping_state == PING_RECVED || ping_state == PING_IDLE) {
+        NGHTTP2_DBG("ping recv secceed\r\n");
+        return 0;
+    }
+    else {
+        NGHTTP2_DBG("ping recv timeout");
+        return -1;
+    }
 }
 
 int iotx_http2_get_available_window_size(http2_connection_t *conn)
@@ -748,6 +783,10 @@ int iotx_http2_update_window_size(http2_connection_t *conn)
  */
 int iotx_http2_exec_io(http2_connection_t *connection)
 {
+    if (connection == NULL) {
+        return -1;
+    }
+
     if (nghttp2_session_want_read(connection->session) /*||
         nghttp2_session_want_write(connection->session)*/) {
 
