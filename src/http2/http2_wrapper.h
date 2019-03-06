@@ -13,6 +13,7 @@ extern void HAL_Printf(const char *fmt, ...);
 extern void HAL_SleepMs(uint32_t ms);
 
 extern void *HAL_Malloc(uint32_t size);
+extern void *HAL_Realloc(void *ptr, uint32_t size);
 extern void HAL_Free(void *ptr);
 
 extern void *HAL_MutexCreate(void);
