@@ -118,8 +118,8 @@ static int http2_stream_test(char **argv,int argc)
     /* into resume routine */
     do {
         /* TODO: assume that http2 disconnected */
-        if (upload_result == UPLOAD_STREAM_SEND_FAILED) {
-	        is_connected = 0;
+        if (upload_result < 0 && is_connected == 1) {
+            HAL_SleepMs(30000);
         }
 
         /* wait until connected */
