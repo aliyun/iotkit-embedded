@@ -7,7 +7,7 @@
 
 /* maximum packet len in one http2 frame */
 #ifndef FS_UPLOAD_PACKET_LEN
-#define FS_UPLOAD_PACKET_LEN        10240                   /* < 65535 */
+#define FS_UPLOAD_PACKET_LEN        10240                   /* must < 16384 */
 #endif
 
 /* maximum content len of the http2 request */
