@@ -979,6 +979,7 @@ int IOT_HTTP2_FS_Close(void *hd, stream_data_info_t *info, header_ext_info_t *he
         nva = (http2_header *)HTTP2_STREAM_MALLOC(sizeof(http2_header) * header_num);
         if (nva == NULL) {
             h2_err("nva malloc failed\n");
+            HTTP2_STREAM_FREE(info->channel_id);
             return FAIL_RETURN;
         }
 
@@ -1008,12 +1009,14 @@ int IOT_HTTP2_FS_Close(void *hd, stream_data_info_t *info, header_ext_info_t *he
     if (rv < 0) {
         h2_err("client send error\n");
         HAL_MutexUnlock(handle->mutex);
+        HTTP2_STREAM_FREE(info->channel_id);
         return rv;
     }
 
     if (node == NULL) {
         h2_err("node insert failed!");
         HAL_MutexUnlock(handle->mutex);
+        HTTP2_STREAM_FREE(info->channel_id);
         return FAIL_RETURN;
     }
 

@@ -27,7 +27,7 @@
 #include "wrappers_defs.h"
 
 #define PACKET_LEN                  16384
-#define HTTP2_FS_CHANNEL_ID         "c/iot/sys/thing/file/upload"
+#define HTTP2_FS_SERVICE_ID         "c/iot/sys/thing/file/upload"
 
 
 typedef enum {
@@ -63,7 +63,7 @@ typedef struct {
 
 typedef struct {
     stream_handle_t    *http2_handle;
-    const char         *channel_id;
+    const char         *service_id;
     http2_list_t        file_list;
     void               *list_mutex;
     void               *file_thread;
@@ -290,7 +290,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
 
     /* open http2 file upload channel */
     memset(&channel_info, 0, sizeof(stream_data_info_t));
-    channel_info.identify = g_http2_fs_ctx.channel_id;
+    channel_info.identify = g_http2_fs_ctx.service_id;
     channel_info.user_data = (void *)&rsp_data;
 
     res = _http2_fs_open_channel(fs_node, &channel_info);
@@ -355,6 +355,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
             fs_node->end_cb(fs_node->file_path, res, fs_node->user_data);
         }
 
+        HTTP2_STREAM_FREE(channel_info.channel_id);
         HTTP2_STREAM_FREE(send_ext_info.send_buffer);
         return NULL;        
     }
@@ -495,7 +496,7 @@ void *IOT_HTTP2_UploadFile_Connect(http2_upload_conn_info_t *conn_info, http2_st
 
     INIT_LIST_HEAD((list_head_t *)&(g_http2_fs_ctx.file_list));
     g_http2_fs_ctx.http2_handle = handle;
-    g_http2_fs_ctx.channel_id = HTTP2_FS_CHANNEL_ID;
+    g_http2_fs_ctx.service_id = HTTP2_FS_SERVICE_ID;
 
     return handle;
 }
