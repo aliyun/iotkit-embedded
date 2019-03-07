@@ -1996,7 +1996,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         return FAIL_RETURN;
     }
     memset((char *)handler->topic_filter, 0, strlen(topicFilter) + 1);
-    123
 #else
     if (strlen(topicFilter) >= CONFIG_MQTT_TOPIC_MAXLEN) {
         memset(handler, 0, sizeof(iotx_mc_topic_handle_t));
