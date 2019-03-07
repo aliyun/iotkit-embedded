@@ -686,6 +686,7 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
     rv = nghttp2_session_client_new((nghttp2_session **)&connection->session, callbacks, connection);
     if (rv != 0) {
         NGHTTP2_DBG("nghttp2_session_client_new3 %d", rv);
+        nghttp2_session_callbacks_del(callbacks);
         HTTP2_STREAM_FREE(connection);
         return NULL;
     }
@@ -703,6 +704,7 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
     rv = nghttp2_session_send(connection->session);
     /*request_free(&req);*/
     if (rv < 0) {
+        nghttp2_session_del(connection->session);
         NGHTTP2_DBG("nghttp2_session_send fail %d", rv);
         HTTP2_STREAM_FREE(connection);
         return NULL;
