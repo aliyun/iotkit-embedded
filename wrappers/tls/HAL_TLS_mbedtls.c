@@ -760,7 +760,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     }
 
     if (!strlen(host) || (strlen(host) < 8)) {
-        printf("invalid host: '%s'(len=%ld), abort\n", host, strlen(host));
+        printf("invalid host: '%s'(len=%d), abort\n", host, (int)strlen(host));
         return 0;
     }
 
