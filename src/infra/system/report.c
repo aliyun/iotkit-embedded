@@ -194,7 +194,7 @@ int iotx_report_devinfo(void *pclient)
     if (ret <= 0 || ret >= NIF_STRLEN_MAX) {
         VERSION_ERR("the network interface info set failed or not set, writen len is %d", ret);
         const char *default_network_info = "invalid network interface info";
-        strncpy(network_interfaces, default_network_info, strlen(default_network_info));
+        strncpy(network_interfaces, default_network_info, sizeof(network_interfaces));
     }
 
     msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + 10 + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + \
