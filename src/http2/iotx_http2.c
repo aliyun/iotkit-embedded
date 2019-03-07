@@ -53,7 +53,11 @@ static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
     http2_connection_t *connection;
     httpclient_t  *client;
     int rv;
+
     connection = (http2_connection_t *)user_data;
+    if (connection == NULL) {
+        return 0;
+    }
 
     NGHTTP2_DBG("send_callback data len %d, session->remote_window_size=%d!\r\n", (int)length,
                 session->remote_window_size);
@@ -94,6 +98,10 @@ static ssize_t recv_callback(nghttp2_session *session, uint8_t *buf,
     httpclient_t  *client;
 
     connection = (http2_connection_t *)user_data;
+    if (connection == NULL) {
+        return 0;
+    }
+
     client = (httpclient_t *)connection->network;
 
     rv = client->net.read(&client->net, (char *)buf, length, g_recv_timeout);
@@ -125,10 +133,10 @@ static int on_frame_send_callback(nghttp2_session *session,
     size_t i;
 
     http2_connection_t *connection  = (http2_connection_t *)user_data;
-
     if (connection == NULL) {
         return 0;
     }
+
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS: {
             const nghttp2_nv *nva = frame->headers.nva;
@@ -219,7 +227,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
         case NGHTTP2_PING: {
             NGHTTP2_DBG("[INFO] C <--------- S (PING)\n");
             ping_state = PING_RECVED;
-        } break;            
+        } break;
     }
 
     if (connection->cbs && connection->cbs->on_user_frame_recv_cb) {
@@ -432,6 +440,10 @@ static ssize_t data_read_callback(nghttp2_session *session, int32_t stream_id,
 {
     int len = 0;
     http2_connection_t *connection = (http2_connection_t *)user_data;
+    if (connection == NULL) {
+        return 0;
+    }
+
     if (source->ptr == NULL) {
         return 0;
     }
