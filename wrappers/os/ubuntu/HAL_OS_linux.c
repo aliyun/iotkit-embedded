@@ -341,7 +341,7 @@ int HAL_GetFirmwareVersion(char *version)
     char *ver = "app-1.0.0-20180101.1000";
     int len = strlen(ver);
     memset(version, 0x0, IOTX_FIRMWARE_VER_LEN);
-    strncpy(version, ver, len);
+    strncpy(version, ver, IOTX_FIRMWARE_VER_LEN);
     version[len] = '\0';
     return strlen(version);
 }
@@ -611,7 +611,7 @@ int HAL_GetNetifInfo(char *nif_str)
     memset(nif_str, 0x0, IOTX_NETWORK_IF_LEN);
 
     /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    strncpy(nif_str, net_info, strlen(net_info));
+    strncpy(nif_str, net_info, IOTX_NETWORK_IF_LEN);
     /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
     /* const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab"); */
     /* strncpy(nif_str, multi_net_info, strlen(multi_net_info)); */
