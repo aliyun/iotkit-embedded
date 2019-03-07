@@ -487,7 +487,7 @@ static int iotx_mc_decode_packet(iotx_mc_client_t *c, int *value, int timeout)
 
         rc = c->ipstack.read(&c->ipstack, &i, 1, timeout == 0 ? 1 : timeout);
         if(rc == 0) {
-            return FAIL_RETURN; 
+            return FAIL_RETURN;
         }
         else if (rc != 1) {
             return MQTT_NETWORK_ERROR;
@@ -653,12 +653,12 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         if(rc < 0) {
             mqtt_err("mqtt read error");
             HAL_MutexUnlock(c->lock_read_buf);
-            return MQTT_NETWORK_ERROR;            
+            return MQTT_NETWORK_ERROR;
         }
         else if(rc != rem_len) {
             mqtt_warning("mqtt read timeout");
             HAL_MutexUnlock(c->lock_read_buf);
-            return FAIL_RETURN;            
+            return FAIL_RETURN;
         }
     }
 
@@ -1996,12 +1996,14 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         return FAIL_RETURN;
     }
     memset((char *)handler->topic_filter, 0, strlen(topicFilter) + 1);
+    123
 #else
     if (strlen(topicFilter) >= CONFIG_MQTT_TOPIC_MAXLEN) {
         memset(handler, 0, sizeof(iotx_mc_topic_handle_t));
         return MQTT_TOPIC_LEN_TOO_SHORT;
     }
-    memset(handler->topic_filter, 0, CONFIG_MQTT_TOPIC_MAXLEN);
+
+    memset((char *)handler->topic_filter, 0, CONFIG_MQTT_TOPIC_MAXLEN);
 #endif
     memcpy((char *)handler->topic_filter, topicFilter, strlen(topicFilter) + 1);
 #else
