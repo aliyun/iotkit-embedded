@@ -130,7 +130,7 @@ static int _calc_hmac_signature(
             const int hmac_buflen,
             const char *timestamp_str)
 {
-    char                    signature[64];
+    char                    signature[GUIDER_SIGN_LEN];
     char                    hmac_source[512];
     int                     rc = -1;
     iotx_device_info_t     dev;

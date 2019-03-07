@@ -354,7 +354,7 @@ int HAL_GetFirmwareVersion(_OU_ char *version)
     int len = strlen(ver);
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__
-    strncpy(version, ver, len);
+    strncpy(version, ver, FIRMWARE_VERSION_MAXLEN);
     version[len] = '\0';
 #endif
     return strlen(version);
@@ -776,7 +776,7 @@ int HAL_GetNetifInfo(char *nif_str)
 #ifdef __DEMO__
     /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
     const char *net_info = "WiFi|03ACDEFF0032";
-    strncpy(nif_str, net_info, strlen(net_info));
+    strncpy(nif_str, net_info, NIF_STRLEN_MAX);
     /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
     // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
     // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
