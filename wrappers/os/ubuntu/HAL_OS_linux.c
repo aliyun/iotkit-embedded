@@ -14,7 +14,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <assert.h>
-#include <net/if.h>       // struct ifreq
+#include <net/if.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -318,7 +318,7 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
         return -1;
     }
 
-    ifreq.ifr_addr.sa_family = AF_INET; //ipv4 address
+    ifreq.ifr_addr.sa_family = AF_INET;
     strncpy(ifreq.ifr_name, ifname, IFNAMSIZ - 1);
 
     if (ioctl(sock, SIOCGIFADDR, &ifreq) < 0) {
