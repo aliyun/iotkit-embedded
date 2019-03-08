@@ -34,29 +34,27 @@ enum msgTypes {
     PINGREQ, PINGRESP, DISCONNECT
 };
 
+#define MQTT_HEADER_BIT_MASK_TYPE               (0xF0)
+#define MQTT_HEADER_BIT_MASK_DUP                (0x08)
+#define MQTT_HEADER_BIT_MASK_QOS                (0x06)
+#define MQTT_HEADER_BIT_MASK_RETAIN             (0x01)
+
+#define MQTT_HEADER_GET_TYPE(head)              ((head & 0xF0) >> 4)
+#define MQTT_HEADER_GET_DUP(head)               ((head & 0x08) >> 3)
+#define MQTT_HEADER_GET_QOS(head)               ((head & 0x06) >> 1)
+#define MQTT_HEADER_GET_RETAIN(head)            (head & 0x01)
+
+#define MQTT_HEADER_SET_TYPE(head, type)        do {head |= ((type << 4) & 0xF0); } while (0)
+#define MQTT_HEADER_SET_DUP(head, dup)          do {head |= ((dup << 3) & 0x08); } while (0)
+#define MQTT_HEADER_SET_QOS(head, qos)          do {head |= ((qos << 1) & 0x06); } while (0)
+#define MQTT_HEADER_SET_RETAIN(head, retain)    do {head |= (retain & 0x01); } while (0)
+
 /**
  * Bitfields for the MQTT header byte.
  */
 typedef union
 {
 	unsigned char byte;	                /**< the whole byte */
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-	struct
-	{
-		unsigned int type : 4;			/**< message type nibble */
-		unsigned int dup : 1;				/**< DUP flag bit */
-		unsigned int qos : 2;				/**< QoS value, 0, 1 or 2 */
-		unsigned int retain : 1;		/**< retained flag bit */
-	} bits;
-#else
-	struct
-	{
-		unsigned int retain : 1;		/**< retained flag bit */
-		unsigned int qos : 2;				/**< QoS value, 0, 1 or 2 */
-		unsigned int dup : 1;				/**< DUP flag bit */
-		unsigned int type : 4;			/**< message type nibble */
-	} bits;
-#endif
 } MQTTHeader;
 
 typedef struct {

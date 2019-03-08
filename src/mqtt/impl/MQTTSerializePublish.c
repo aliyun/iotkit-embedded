@@ -53,10 +53,10 @@ int MQTTSerialize_publish(unsigned char *buf, int buflen, unsigned char dup, int
         goto exit;
     }
 
-    header.bits.type = PUBLISH;
-    header.bits.dup = dup;
-    header.bits.qos = qos;
-    header.bits.retain = retained;
+    MQTT_HEADER_SET_TYPE(header.byte, PUBLISH);
+    MQTT_HEADER_SET_DUP(header.byte, dup);
+    MQTT_HEADER_SET_QOS(header.byte, qos);
+    MQTT_HEADER_SET_RETAIN(header.byte, retained);
     writeChar(&ptr, header.byte); /* write header */
 
     ptr += MQTTPacket_encode(ptr, rem_len); /* write remaining length */;
@@ -98,9 +98,9 @@ int MQTTSerialize_ack(unsigned char *buf, int buflen, unsigned char packettype, 
         rc = MQTTPACKET_BUFFER_TOO_SHORT;
         goto exit;
     }
-    header.bits.type = packettype;
-    header.bits.dup = dup;
-    header.bits.qos = (packettype == PUBREL) ? 1 : 0;
+    MQTT_HEADER_SET_TYPE(header.byte, packettype);
+    MQTT_HEADER_SET_DUP(header.byte, dup);
+    MQTT_HEADER_SET_QOS(header.byte, ((packettype == PUBREL) ? 1 : 0));
     writeChar(&ptr, header.byte); /* write header */
 
     ptr += MQTTPacket_encode(ptr, 2); /* write remaining length */

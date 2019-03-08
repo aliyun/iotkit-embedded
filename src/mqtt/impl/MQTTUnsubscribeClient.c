@@ -49,9 +49,9 @@ int MQTTSerialize_unsubscribe(unsigned char *buf, int buflen, unsigned char dup,
     }
 
     header.byte = 0;
-    header.bits.type = UNSUBSCRIBE;
-    header.bits.dup = dup;
-    header.bits.qos = 1;
+    MQTT_HEADER_SET_TYPE(header.byte, UNSUBSCRIBE);
+    MQTT_HEADER_SET_DUP(header.byte, dup);
+    MQTT_HEADER_SET_QOS(header.byte, 1);
     writeChar(&ptr, header.byte); /* write header */
 
     ptr += MQTTPacket_encode(ptr, rem_len); /* write remaining length */;
