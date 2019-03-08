@@ -1,14 +1,28 @@
 config PLATFORM_HAS_STDINT
     bool "PLATFORM_HAS_STDINT"
     default y
+    help
+        Tell if you have <stdint.h> when build image for target board
+
+        Switching to "n" leads to SDK use self-defined data-type in src/infra/infra_types.h
 
 config PLATFORM_HAS_DYNMEM
-        bool "PLATFORM_HAS_DYNMEM"
-        default y
+    bool "PLATFORM_HAS_DYNMEM"
+    default y
+    help
+        Tell if you have malloc() and free() style capability on target board via HAL_Malloc() and HAL_Free()
+
+        Switching to "y" leads to SDK invoking HAL_Malloc() and HAL_Free() so runtime memory is dynamic
+        Switching to "n" leads to SDK use global static array instead of heap so process capability is more limited
 
 config PLATFORM_HAS_OS
-        bool "PLATFORM_HAS_OS"
-        default n
+    bool "PLATFORM_HAS_OS"
+    default n
+    help
+        Tell if you have Operation System on target board
+
+        Switching to "y" leads to SDK invoking HAL_Mutex_Lock() / HAL_Semaphore_Wait() etc
+        Switching to "n" leads to SDK avoid using mutex and semaphore, and avoid using multi-task as well
 
 config INFRA_STRING
     bool
