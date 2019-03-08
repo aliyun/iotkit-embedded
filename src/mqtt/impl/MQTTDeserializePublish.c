@@ -31,12 +31,12 @@ int MQTTDeserialize_publish(unsigned char *dup, int *qos, unsigned char *retaine
     int mylen = 0;
 
     header.byte = readChar(&curdata);
-    if (header.bits.type != PUBLISH) {
+    if (MQTT_HEADER_GET_TYPE(header.byte) != PUBLISH) {
         goto exit;
     }
-    *dup = header.bits.dup;
-    *qos = header.bits.qos;
-    *retained = header.bits.retain;
+    *dup = MQTT_HEADER_GET_DUP(header.byte);
+    *qos = MQTT_HEADER_GET_QOS(header.byte);
+    *retained = MQTT_HEADER_GET_RETAIN(header.byte);
 
     curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
     enddata = curdata + mylen;
@@ -78,8 +78,8 @@ int MQTTDeserialize_ack(unsigned char *packettype, unsigned char *dup, unsigned 
     int mylen;
 
     header.byte = readChar(&curdata);
-    *dup = header.bits.dup;
-    *packettype = header.bits.type;
+    *dup = MQTT_HEADER_GET_DUP(header.byte);
+    *packettype = MQTT_HEADER_GET_TYPE(header.byte);
 
     curdata += (rc = MQTTPacket_decodeBuf(curdata, &mylen)); /* read remaining length */
     enddata = curdata + mylen;

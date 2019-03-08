@@ -663,7 +663,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     }
 
     header.byte = c->buf_read[0];
-    *packet_type = header.bits.type;
+    *packet_type = MQTT_HEADER_GET_TYPE(header.byte);
     if ((len + rem_len) < c->buf_size_read) {
         c->buf_read[len + rem_len] = '\0';
     }
