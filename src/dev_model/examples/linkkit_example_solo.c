@@ -46,9 +46,7 @@ typedef struct {
  * These PRODUCT_KEY|PRODUCT_SECRET|DEVICE_NAME|DEVICE_SECRET are listed for demo only
  *
  * When you created your own devices on iot.console.com, you SHOULD replace them with what you got from console
- * ProductKey: a1pkcDf0Xv0
- * DeviceName: demo_device_01
- * DeviceSecret: O2ARuVZDENnv0FPcIjEOjudN7IUtviBH
+ *
  */
 
 char PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
@@ -313,7 +311,7 @@ int main(int argc, char **argv)
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
     /* post reply doesn't need */
-    post_reply_need = 0;
+    post_reply_need = 1;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_reply_need);
 
     /* Create Master Device Resources */
