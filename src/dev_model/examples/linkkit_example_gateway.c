@@ -278,7 +278,7 @@ void user_post_property(void)
 {
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    char *property_payload = "{\"LightSwitch\":1}";
+    char *property_payload = "{\"Counter\":1}";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)property_payload, strlen(property_payload));

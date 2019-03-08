@@ -9,8 +9,8 @@
 #include "http2_wrapper.h"
 
 
-#define HTTP2_ONLINE_SERVER_URL       "100.67.141.158"
-#define HTTP2_ONLINE_SERVER_PORT      8443
+#define HTTP2_ONLINE_SERVER_URL       "a1IgnOND7vI.iot-as-http2.cn-shanghai.aliyuncs.com"
+#define HTTP2_ONLINE_SERVER_PORT      443
 #define HTTP2_PRODUCT_KEY             "a1IgnOND7vI"
 #define HTTP2_DEVICE_NAME             "H2_FS01"
 #define HTTP2_DEVICE_SECRET           "r9XSyeZOu6swgV8etCcCGmgQhBSpGBau"
