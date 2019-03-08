@@ -289,6 +289,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
     h2_info("filesize = %d", filesize);
 
     /* open http2 file upload channel */
+    memset(&rsp_data, 0, sizeof(fs_rsp_header_val_t));
     memset(&channel_info, 0, sizeof(stream_data_info_t));
     channel_info.identify = g_http2_fs_ctx.service_id;
     channel_info.user_data = (void *)&rsp_data;
@@ -357,7 +358,7 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
 
         HTTP2_STREAM_FREE(channel_info.channel_id);
         HTTP2_STREAM_FREE(send_ext_info.send_buffer);
-        return NULL;        
+        return NULL;
     }
 
     /* close http2 file upload channel */
