@@ -26,6 +26,8 @@
 #define IOTX_AUTH_DEVICENAME_STR_WITH_SEQ "{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"clientId\":\"%s\",\"sign\":\"%s\",\"seq\":\"%d\"}"
 
 #define IOTX_COAP_ONLINE_DTLS_SERVER_URL "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
+#define IOTX_COAP_ONLINE_PSK_SERVER_URL "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
+
 iotx_coap_context_t *g_coap_context = NULL;
 
 typedef struct {
@@ -304,7 +306,6 @@ static void iotx_coap_report_rsphdl(void *arg, void *p_response)
 {
     int                     p_payload_len = 0;
     unsigned char          *p_payload = NULL;
-    char                   *msg = NULL;
     iotx_coap_resp_code_t   resp_code;
 
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
@@ -313,12 +314,6 @@ static void iotx_coap_report_rsphdl(void *arg, void *p_response)
     COAP_DEBUG("Report response: CoAP msg_len = %d", p_payload_len);
     if (p_payload_len > 0) {
         COAP_DEBUG("Report response: CoAP msg = '%.*s'", p_payload_len, p_payload);
-        msg = json_get_value_by_name((char *)p_payload, p_payload_len, "id", &p_payload_len, 0);
-        if (NULL != msg) {
-            COAP_DEBUG("Report response: CoAP mid_report responseID = '%s'", msg);
-        } else {
-            COAP_WRN("Report response: CoAP mid_report responseID not found in msg");
-        }
     } else {
         COAP_WRN("Report response: CoAP response payload_len = 0");
     }
@@ -336,7 +331,6 @@ static int coap_report_func(void *handle, const char *topic_name, int req_ack, v
     message.resp_callback = iotx_coap_report_rsphdl;
     message.msg_type = IOTX_MESSAGE_NON;
     message.content_type = IOTX_CONTENT_TYPE_JSON;
-
     HAL_Snprintf(coap_topic, 100, "/topic%s", topic_name);
     return IOT_CoAP_SendMessage(handle, (char *)coap_topic, &message);
 }
@@ -871,7 +865,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     if (NULL !=  p_config->p_url) {
         param.url = p_config->p_url;
     } else {
-        HAL_Snprintf(url, sizeof(url), IOTX_COAP_ONLINE_DTLS_SERVER_URL, p_iotx_coap->p_devinfo->product_key);
+        HAL_Snprintf(url, sizeof(url), IOTX_COAP_ONLINE_PSK_SERVER_URL, p_iotx_coap->p_devinfo->product_key);
         param.url = url;
         COAP_INFO("Using default CoAP server: %s", url);
     }
