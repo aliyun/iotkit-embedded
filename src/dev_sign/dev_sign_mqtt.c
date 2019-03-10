@@ -2,7 +2,6 @@
 #include <string.h>
 #include "infra_defs.h"
 #include "infra_config.h"
-#include "infra_string.h"
 #include "infra_sha256.h"
 #ifdef MQTT_PRE_AUTH
     #include "infra_preauth.h"
@@ -59,6 +58,17 @@ const char *clientid_kv[][2] = {
         "a", "sdk-c-"IOTX_SDK_VERSION
     },
 };
+
+static void _hex2str(uint8_t *input, uint16_t input_len, char *output)
+{
+    char *zEncode = "0123456789ABCDEF";
+    int i = 0, j = 0;
+
+    for (i = 0; i < input_len; i++) {
+        output[j++] = zEncode[(input[i] >> 4) & 0xf];
+        output[j++] = zEncode[(input[i]) & 0xf];
+    }
+}
 
 static int _sign_get_clientid(char *clientid_string, char *device_id)
 {
@@ -134,7 +144,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 #if ( defined(MQTT_DEFAULT_IMPL) && defined(MQTT_DIRECT) ) || !defined(MQTT_DEFAULT_IMPL)
     /* setup password */
     memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
-    infra_hex2str(sign, 32, signout->password);
+    _hex2str(sign, 32, signout->password);
 
     /* setup hostname */
     length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
@@ -169,7 +179,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         char sign_string[DEV_SIGN_PASSWORD_MAXLEN];
         (void)length;
 
-        infra_hex2str(sign, 32, sign_string);
+        _hex2str(sign, 32, sign_string);
         memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
         memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
         memset(signout->username, 0, DEV_SIGN_USERNAME_MAXLEN);
