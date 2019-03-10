@@ -9,8 +9,8 @@
 #include <string.h>
 #include "infra_sha256.h"
 
-#define SHA256_KEY_IOPAD_SIZE (64)
-#define SHA256_DIGEST_SIZE    (32)
+#define SHA256_KEY_IOPAD_SIZE   (64)
+#define SHA256_DIGEST_SIZE      (32)
 
 /*
  * 32-bit integer manipulation macros (big endian)
@@ -43,10 +43,12 @@ static void utils_sha256_zeroize(void *v, uint32_t n)
         *p++ = 0;
     }
 }
+
 void utils_sha256_init(iot_sha256_context *ctx)
 {
     memset(ctx, 0, sizeof(iot_sha256_context));
 }
+
 void utils_sha256_free(iot_sha256_context *ctx)
 {
     if (NULL == ctx) {
@@ -55,11 +57,7 @@ void utils_sha256_free(iot_sha256_context *ctx)
 
     utils_sha256_zeroize(ctx, sizeof(iot_sha256_context));
 }
-void utils_sha256_clone(iot_sha256_context *dst,
-                        const iot_sha256_context *src)
-{
-    *dst = *src;
-}
+
 void utils_sha256_starts(iot_sha256_context *ctx)
 {
     int is224 = 0;

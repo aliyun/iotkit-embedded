@@ -41,14 +41,6 @@ void utils_sha256_init(iot_sha256_context *ctx);
  */
 void utils_sha256_free(iot_sha256_context *ctx);
 
-/**
- * \brief          Clone (the state of) a SHA-256 context
- *
- * \param dst      The destination context
- * \param src      The context to be cloned
- */
-void utils_sha256_clone(iot_sha256_context *dst,
-                        const iot_sha256_context *src);
 
 /**
  * \brief          SHA-256 context setup
