@@ -44,6 +44,7 @@ void HAL_SleepMs(uint32_t ms);
 #if defined(MBEDTLS_DEBUG_C)
     #define DEBUG_LEVEL 2
 #endif
+#define HTTPCLIENT_CHUNK_SIZE (1024)
 
 static int _utils_parse_url(const char *url, char *host, char *path);
 static int _http_recv(httpclient_t *client, char *buf, int max_len, int *p_read_len,
@@ -313,14 +314,14 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
             /* get data from internet and put into "data" buf temporary */
             if (client_data->retrieve_len) {
                 int ret;
-                int max_len_to_receive = client_data->response_buf_len - 1 - written_response_buf_len;
+                int max_len_to_receive = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - written_response_buf_len);
                 max_len_to_receive = HTTPCLIENT_MIN(max_len_to_receive, client_data->retrieve_len);
 
                 ret = _http_recv(client, data, max_len_to_receive, &data_len_actually_received, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
-                httpc_debug("Total-Payload: %d Bytes; Read: %d Bytes", client_data->retrieve_len, data_len_actually_received);
+                httpc_debug("Total- remaind Payload: %d Bytes; currently Read: %d Bytes", client_data->retrieve_len, data_len_actually_received);
 
                 /* TODO  add deadloop processing*/
                 ret = _utils_check_deadloop(data_len_actually_received, &timer, ret, &dead_loop_count,
