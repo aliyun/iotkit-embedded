@@ -8,7 +8,7 @@ config HAL_KV
 
 config SUPPORT_TLS
     bool "FEATURE_SUPPORT_TLS"
-    default n
+    default y if OTA_ENABLED
 
 config HAL_CRYPTO
     bool
