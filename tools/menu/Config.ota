@@ -1,7 +1,6 @@
 config OTA_ENABLED
     bool "FEATURE_OTA_ENABLED"
     depends on MQTT_COMM_ENABLED || COAP_COMM_ENABLED
-    select SUPPORT_TLS
     select INFRA_STRING
     select INFRA_JSON_PARSER
     select INFRA_HTTPC
