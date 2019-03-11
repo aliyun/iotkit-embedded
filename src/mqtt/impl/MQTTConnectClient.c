@@ -73,18 +73,18 @@ int MQTTSerialize_connect(unsigned char *buf, int buflen, MQTTPacket_connectData
     }
 
     flags.all = 0;
-    flags.bits.cleansession = options->cleansession;
-    flags.bits.will = (options->willFlag) ? 1 : 0;
-    if (flags.bits.will) {
-        flags.bits.willQoS = options->will.qos;
-        flags.bits.willRetain = options->will.retained;
+    flags.all |= (options->cleansession) ? MQTT_CONN_FLAG_CLEAN_SESSION : 0;
+    flags.all |= (options->willFlag) ? MQTT_CONN_FLAG_WILL_FLAG : 0;
+    if (flags.all & MQTT_CONN_FLAG_WILL_FLAG) {
+        flags.all |= ((options->will.qos & 0x03) << 3);
+        flags.all |= (options->will.retained) ? MQTT_CONN_FLAG_WILL_RETAIN : 0;
     }
 
     if (options->username.cstring || options->username.lenstring.data) {
-        flags.bits.username = 1;
+        flags.all |= MQTT_CONN_FLAG_USER_NAME;
     }
     if (options->password.cstring || options->password.lenstring.data) {
-        flags.bits.password = 1;
+        flags.all |= MQTT_CONN_FLAG_PASSWORD;
     }
 
     writeChar(&ptr, flags.all);
@@ -94,10 +94,10 @@ int MQTTSerialize_connect(unsigned char *buf, int buflen, MQTTPacket_connectData
         writeMQTTString(&ptr, options->will.topicName);
         writeMQTTString(&ptr, options->will.message);
     }
-    if (flags.bits.username) {
+    if (flags.all & MQTT_CONN_FLAG_USER_NAME) {
         writeMQTTString(&ptr, options->username);
     }
-    if (flags.bits.password) {
+    if (flags.all & MQTT_CONN_FLAG_PASSWORD) {
         writeMQTTString(&ptr, options->password);
     }
 
