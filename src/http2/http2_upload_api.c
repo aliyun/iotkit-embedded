@@ -545,7 +545,7 @@ int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *para
     }
     else if (params->opt_bit_map & UPLOAD_FILE_OPT_BIT_RESUME) {
         file_node->type = FS_TYPE_CONTINUE;
-        strncpy(file_node->upload_id, params->upload_id, sizeof(file_node->upload_id));
+        memcpy(file_node->upload_id, params->upload_id, sizeof(file_node->upload_id));
     }
 
     /* inset http2_fs node */
