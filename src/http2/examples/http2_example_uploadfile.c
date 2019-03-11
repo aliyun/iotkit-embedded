@@ -37,7 +37,7 @@ void upload_id_received_handle(const char *file_path, const char *upload_id, voi
     EXAMPLE_TRACE("=========== file_path = %s, upload_id = %s ===========", file_path, upload_id);
 
     if (upload_id != NULL) {
-        memcpy(g_upload_id, upload_id, strlen(upload_id));
+        strncpy(g_upload_id, upload_id, sizeof(g_upload_id));
     }
 }
 
