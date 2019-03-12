@@ -30,7 +30,6 @@ config WIFI_PROVISION_ENABLED
     select INFRA_CLASSIC if AWSS_FRAMEWORKS
     select INFRA_CJSON if AWSS_FRAMEWORKS
     select INFRA_COMPAT if AWSS_FRAMEWORKS
-    select INFRA_LOG if AWSS_FRAMEWORKS
     default n 
     help
         Enable providing Wifi SSID/PASSWD configration in SDK

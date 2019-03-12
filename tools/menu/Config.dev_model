@@ -12,7 +12,6 @@ config DEVICE_MODEL_ENABLED
     select INFRA_CLASSIC
     select INFRA_COMPAT
     select INFRA_SHA1
-    select INFRA_LOG
     select INFRA_CJSON
     select LOG_REPORT_TO_CLOUD if MQTT_COMM_ENABLED
     default y
