@@ -38,13 +38,11 @@ menu "Wifi Provision Configurations"
     depends on WIFI_PROVISION_ENABLED
 
     config AWSS_SUPPORT_SMARTCONFIG_WPS
-        bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG_WPS"
         default n
-        help
-            Switching on a wifi provision method based on wifi-direct, which is only applicable in Android 
 
     config AWSS_SUPPORT_SMARTCONFIG
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG"
+        select AWSS_SUPPORT_SMARTCONFIG_WPS
         default y
         help
             Switching on a wifi provision method based on len-encoding
