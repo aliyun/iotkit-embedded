@@ -2,7 +2,7 @@ config ATM_ENABLED
     bool "FEATURE_ATM_ENABLED"
     default n
 
-menu "ATM Configuration"
+menu "ATM Configurations"
     depends on ATM_ENABLED
 
 config AT_TCP_ENABLED

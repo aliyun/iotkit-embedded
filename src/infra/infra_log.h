@@ -49,46 +49,51 @@ void    LITE_syslog(char *m, const char *f, const int l, const int level, const 
 #define LOG_DEBUG_LEVEL                 (5)     /* debugging messages */
 #define LOG_FLOW_LEVEL                  (6)     /* code/packet flow messages */
 
-#if (CONFIG_BLDTIME_MUTE_DBGLOG)
+#if defined(INFRA_LOG)
+#if defined(INFRA_LOG_MUTE_FLW)
+#define log_flow(mod, ...)
+#else
+#define log_flow(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_FLOW_LEVEL, __VA_ARGS__)
+#endif
+
+#if defined(INFRA_LOG_MUTE_DBG)
 #define log_debug(mod, ...)
 #else
-
-#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_FLOW_LEVEL)
-#define log_flow(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_FLOW_LEVEL, __VA_ARGS__)
-#else
-#define log_flow(mod, ...)          do {LITE_printf("[flw] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
-#endif
-
-#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_DEBUG_LEVEL)
 #define log_debug(mod, ...)         LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
-#else
-#define log_debug(mod, ...)         do {LITE_printf("[dbg] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
 #endif
 
-#endif  /* CONFIG_BLDTIME_MUTE_DBGLOG */
-
-#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_INFO_LEVEL)
+#if defined(INFRA_LOG_MUTE_INF)
+#define log_info(mod, ...)
+#else
 #define log_info(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
-#else
-#define log_info(mod, ...)          do {LITE_printf("[inf] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
 #endif
 
-#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_WARNING_LEVEL)
+#if defined(INFRA_LOG_MUTE_WRN)
+#define log_warning(mod, ...)
+#else
 #define log_warning(mod, ...)       LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
-#else
-#define log_warning(mod, ...)       do {LITE_printf("[wrn] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
 #endif
 
-#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_ERR_LEVEL)
+#if defined(INFRA_LOG_MUTE_ERR)
+#define log_err(mod, ...)
+#else
 #define log_err(mod, ...)           LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
-#else
-#define log_err(mod, ...)           do {LITE_printf("[err] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
 #endif
 
-#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_CRIT_LEVEL)
-#define log_crit(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
+#if defined(INFRA_LOG_MUTE_CRT)
+#define log_crit(mod, ...)
 #else
-#define log_crit(mod, ...)          do {LITE_printf("[crt] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
+#define log_crit(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
+#endif
+#else   /* #if defined(INFRA_LOG) */
+
+#define log_flow(mod, ...)
+#define log_debug(mod, ...)
+#define log_info(mod, ...)
+#define log_warning(mod, ...)
+#define log_err(mod, ...)
+#define log_crit(mod, ...)
+
 #endif
 
 int     log_multi_line_internal(const char *f, const int l,
