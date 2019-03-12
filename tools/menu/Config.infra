@@ -36,36 +36,45 @@ config INFRA_LIST
     bool
     default n
 
+config INFRA_LOG_NETWORK_PAYLOAD
+    bool "FEATURE_INFRA_NETWORK_PAYLOAD"
+    default y if MQTT_COMM_ENABLED || COAP_COMM_ENABLED || HTTP_COMM_ENABLED || DEVICE_MODEL_ENABLED
+    help
+        Parse and print JSON format upstream and downstream network packet payload when SDK communicates with cloud
+        
+
 config INFRA_LOG
     bool "FEATURE_INFRA_LOG"
-    default y if DEVICE_MODEL_ENABLED
+    default y
+    help
+        Control SDK print formatted log but all levels are muted by default, enable them in sub-menu of "Log Configurations"
 
 menu "Log Configurations"
     depends on INFRA_LOG
 
 config INFRA_LOG_MUTE_FLW
     bool "MUTE LEVEL of FLOW  (6)"
-    default n
+    default y
 
 config INFRA_LOG_MUTE_DBG
     bool "MUTE LEVEL of DEBUG (5)"
-    default n
+    default y
 
 config INFRA_LOG_MUTE_INF
     bool "MUTE LEVEL of INFO  (4)"
-    default n
+    default y
 
 config INFRA_LOG_MUTE_WRN
     bool "MUTE LEVEL of WARN  (3)"
-    default n
+    default y
 
 config INFRA_LOG_MUTE_ERR
     bool "MUTE LEVEL of ERROR (2)"
-    default n
+    default y
 
 config INFRA_LOG_MUTE_CRT
     bool "MUTE LEVEL of CRIT  (1)"
-    default n
+    default y
 
 endmenu
 

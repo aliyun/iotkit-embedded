@@ -344,3 +344,5 @@ extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
 
 #endif
 
+extern int iotx_facility_json_print(const char *str, int level, ...);
+

@@ -212,7 +212,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
         return res;
     }
 
-#ifdef INFRA_LOG
+#ifdef INFRA_LOG_NETWORK_PAYLOAD
     preauth_info("Downstream Payload:");
     iotx_facility_json_print(response_buff, LOG_INFO_LEVEL, '<');
 #endif

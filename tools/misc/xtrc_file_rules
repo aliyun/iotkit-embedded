@@ -10,6 +10,7 @@ INFRA_REPORT||src/infra/infra_report.[ch]|output/eng/infra
 INFRA_SHA256||src/infra/infra_sha256.[ch]|output/eng/infra
 INFRA_SHA1||src/infra/infra_sha1.[ch]|output/eng/infra
 INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
+INFRA_LOG_NETWORK_PAYLOAD||src/infra/infra_prt_nwk_payload.c|output/eng/infra
 
 SUPPORT_TLS||certs/root_ca.c|output/eng/certs
 

@@ -14,6 +14,7 @@
 #include "infra_defs.h"
 #include "infra_string.h"
 #include "infra_list.h"
+#include "infra_log.h"
 #include "infra_report.h"
 #include "infra_net.h"
 #include "infra_sha256.h"
