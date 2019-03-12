@@ -34,11 +34,12 @@ config WIFI_PROVISION_ENABLED
     help
         Enable providing Wifi SSID/PASSWD configration in SDK
 
+config AWSS_SUPPORT_SMARTCONFIG_WPS
+    bool
+    default n
+
 menu "Wifi Provision Configurations"
     depends on WIFI_PROVISION_ENABLED
-
-    config AWSS_SUPPORT_SMARTCONFIG_WPS
-        default n
 
     config AWSS_SUPPORT_SMARTCONFIG
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG"
