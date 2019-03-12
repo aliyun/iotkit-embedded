@@ -1,11 +1,30 @@
 #! /bin/bash
 
 if [ "${1}" = "cloud" ];then
-    curl -F "file=@make.settings" --url http://30.42.83.101:7001/upload/config?pk=a1AuWIoEr4Z >> output.zip
-    rm -rf output
-    unzip output.zip
-    rm -rf output.zip
-    exit
+    EXTRACT_ID=$(curl -sF "file=@make.settings" --url http://10.101.12.81/upload/config?pk=a1AuWIoEr4Z)
+    if [ "${EXTRACT_ID}" = "" ];then
+        echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
+        exit
+    fi
+    # echo ${EXTRACT_ID}
+    while :
+    do
+        DOWNLOAD_FILE=$(curl -s http://10.101.12.81/get/linkkit?extractId=${EXTRACT_ID})
+        # echo ${DOWNLOAD_FILE}
+        if [ "${DOWNLOAD_FILE}" = "404" ] || [ "${DOWNLOAD_FILE}" = "" ];then
+            echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
+            exit
+        elif [ "${DOWNLOAD_FILE}" = "406" ];then
+            echo -e "\nLinkkit Files Are Not Ready Yet, Please Wait..."
+            sleep 2
+        else
+            curl -s ${DOWNLOAD_FILE} > output.zip
+            rm -rf output
+            unzip output.zip
+            rm -rf output.zip
+            exit
+        fi
+    done
 fi
 
 OS="$(uname)"
