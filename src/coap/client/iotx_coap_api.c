@@ -17,6 +17,13 @@
 #define IOTX_COAP_INIT_TOKEN     (0x01020304)
 #define IOTX_LIST_MAX_ITEM       (10)
 
+#ifndef INFRA_LOG
+    #undef HEXDUMP_DEBUG
+    #undef HEXDUMP_INFO
+
+    #define HEXDUMP_DEBUG(...)
+    #define HEXDUMP_INFO(...)
+#endif
 
 #define IOTX_AUTH_STR      "auth"
 #define IOTX_SIGN_SRC_STR  "clientId%sdeviceName%sproductKey%s"
@@ -610,7 +617,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
         return IOTX_ERR_INVALID_PARAM;
     }
 
-#if defined(WITH_FAC_JSON_FLOW)
+#ifdef INFRA_LOG_NETWORK_PAYLOAD
     COAP_INFO("Upstream Topic: '%s'", p_path);
     COAP_INFO("Upstream Payload:");
     iotx_facility_json_print((const char *)p_message->p_payload, LOG_INFO_LEVEL, '>');

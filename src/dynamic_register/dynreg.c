@@ -265,7 +265,7 @@ int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info
     /* Send Http Request For Getting Device Secret */
     res = _fetch_dynreg_http_resp(dynamic_register_request, dynamic_register_response, region, meta->device_secret);
 
-#ifdef INFRA_LOG
+#ifdef INFRA_LOG_NETWORK_PAYLOAD
     dynreg_dbg("Downstream Payload:");
     iotx_facility_json_print(dynamic_register_response, LOG_DEBUG_LEVEL, '<');
 #endif

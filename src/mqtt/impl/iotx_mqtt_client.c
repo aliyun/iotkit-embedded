@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "mqtt_internal.h"
+
 #ifdef LOG_REPORT_TO_CLOUD
     #include "iotx_log_report.h"
 #endif
@@ -486,10 +487,9 @@ static int iotx_mc_decode_packet(iotx_mc_client_t *c, int *value, int timeout)
         }
 
         rc = c->ipstack.read(&c->ipstack, &i, 1, timeout == 0 ? 1 : timeout);
-        if(rc == 0) {
+        if (rc == 0) {
             return FAIL_RETURN;
-        }
-        else if (rc != 1) {
+        } else if (rc != 1) {
             return MQTT_NETWORK_ERROR;
         }
 
@@ -581,8 +581,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
             mqtt_err("mqtt read error");
             HAL_MutexUnlock(c->lock_read_buf);
             return MQTT_NETWORK_ERROR;
-        }
-        else if (rc!= needReadLen) {
+        } else if (rc != needReadLen) {
             mqtt_warning("mqtt read timeout");
             HAL_MutexUnlock(c->lock_read_buf);
             return FAIL_RETURN;
@@ -616,8 +615,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 #endif
             HAL_MutexUnlock(c->lock_read_buf);
             return MQTT_NETWORK_ERROR;
-        }
-        else if (rc != remainDataLen) {
+        } else if (rc != remainDataLen) {
             mqtt_warning("mqtt read timeout");
 #ifdef PLATFORM_HAS_DYNMEM
             mqtt_free(remainDataBuf);
@@ -649,13 +647,12 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     left_t = (left_t == 0) ? 1 : left_t;
 
     rc = c->ipstack.read(&c->ipstack, c->buf_read + len, rem_len, left_t);
-    if(rem_len > 0) {
-        if(rc < 0) {
+    if (rem_len > 0) {
+        if (rc < 0) {
             mqtt_err("mqtt read error");
             HAL_MutexUnlock(c->lock_read_buf);
             return MQTT_NETWORK_ERROR;
-        }
-        else if(rc != rem_len) {
+        } else if (rc != rem_len) {
             mqtt_warning("mqtt read timeout");
             HAL_MutexUnlock(c->lock_read_buf);
             return FAIL_RETURN;
@@ -1358,7 +1355,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     iotx_mqtt_topic_info_t topic_msg;
     int qos = 0;
     uint32_t payload_len = 0;
-#ifdef INFRA_LOG
+#ifdef INFRA_LOG_NETWORK_PAYLOAD
     const char     *json_payload = NULL;
 #endif
 
@@ -1383,7 +1380,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     topic_msg.qos = (unsigned char)qos;
     topic_msg.payload_len = payload_len;
 
-#ifdef INFRA_LOG
+#ifdef INFRA_LOG_NETWORK_PAYLOAD
 
     json_payload = (const char *)topic_msg.payload;
     mqtt_info("Downstream Topic: '%.*s'", topicName.lenstring.len, topicName.lenstring.data);
@@ -1505,7 +1502,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         HAL_MutexLock(c->lock_read_buf);
         _reset_recv_buffer(c);
         HAL_MutexUnlock(c->lock_read_buf);
-        if(rc == MQTT_NETWORK_ERROR) {
+        if (rc == MQTT_NETWORK_ERROR) {
             iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         }
         mqtt_err("readPacket error,result = %d", rc);
@@ -2498,7 +2495,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 #if !WITH_MQTT_ONLY_QOS0
     iotx_mc_pub_info_t  *node = NULL;
 #endif
-#ifdef INFRA_LOG
+#ifdef INFRA_LOG_NETWORK_PAYLOAD
     const char     *json_payload = NULL;
 #endif
 
@@ -2572,7 +2569,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         return MQTT_NETWORK_ERROR;
     }
 
-#ifdef INFRA_LOG
+#ifdef INFRA_LOG_NETWORK_PAYLOAD
     json_payload = (const char *)topic_msg->payload;
 
     mqtt_info("Upstream Topic: '%s'", topicName);
@@ -2580,6 +2577,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '>');
 
 #endif  /* #ifdef INFRA_LOG */
+
     _reset_send_buffer(c);
     HAL_MutexUnlock(c->lock_write_buf);
     HAL_MutexUnlock(c->lock_list_pub);
@@ -2628,6 +2626,7 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
     if (wrapper_mqtt_check_state(pClient)) {
         rc = MQTTDisconnect(pClient);
         mqtt_debug("rc = MQTTDisconnect() = %d", rc);
+        rc = rc;
     }
 
     /* close tcp/ip socket or free tls resources */
@@ -2925,6 +2924,7 @@ int wrapper_mqtt_subscribe_sync(void *c,
     ret = -1;
     subed = 0;
     cnt = 0;
+    cnt = cnt;
     do {
 #ifdef PLATFORM_HAS_DYNMEM
         mqtt_sub_sync_node_t *node = NULL;
