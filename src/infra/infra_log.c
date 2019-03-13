@@ -1,6 +1,9 @@
 #include "infra_config.h"
 
 #ifdef INFRA_LOG
+extern void **LITE_get_mem_mutex(void);
+extern void *HAL_MutexCreate(void);
+extern void HAL_MutexDestroy(void *);
 
 #include <string.h>
 #include <stdarg.h>
@@ -84,10 +87,11 @@ int LITE_get_loglevel(void)
 
 void LITE_set_loglevel(int pri)
 {
+    void **mutex = NULL;
     logcb.priority = pri;
 
 #if WITH_MEM_STATS
-    void **mutex = LITE_get_mem_mutex();
+    mutex = LITE_get_mem_mutex();
     if (pri != LOG_NONE_LEVEL) {
         if (*mutex == NULL) {
             *mutex = HAL_MutexCreate();

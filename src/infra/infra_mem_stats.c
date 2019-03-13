@@ -704,4 +704,8 @@ void LITE_dump_malloc_free_stats(int level)
     return;
 }
 
+void **LITE_get_mem_mutex(void)
+{
+    return &mutex_mem_stats;
+}
 #endif
