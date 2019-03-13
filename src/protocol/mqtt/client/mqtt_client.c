@@ -191,7 +191,7 @@ static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+
     iotx_conn_info_pt pconn;
     pconn = iotx_conn_info_reload();
     if (pconn == NULL) {
@@ -201,8 +201,8 @@ static int _conn_info_dynamic_reload(iotx_mc_client_t *pClient)
     pClient->connect_data.username.cstring = pconn->username;
     pClient->connect_data.password.cstring = pconn->password;
 
-    HAL_GetProductKey(product_key);
-    rc = iotx_net_init(pClient->ipstack, pconn->host_name, pconn->port, pconn->pub_key, product_key);
+
+    rc = iotx_net_init(pClient->ipstack, pconn->host_name, pconn->port, pconn->pub_key);
     if (SUCCESS_RETURN != rc) {
         mqtt_err("iotx_net_init err");
         _conn_info_dynamic_release();
@@ -2273,9 +2273,7 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
         goto RETURN;
     }
     memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    HAL_GetProductKey(product_key);
-    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key, product_key);
+    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key);
 
     if (SUCCESS_RETURN != rc) {
         mc_state = IOTX_MC_STATE_INVALID;
@@ -2725,6 +2723,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     mqtt_info("start to reconnect");
 
     rc = _conn_info_dynamic_reload(pClient);
+
     if (SUCCESS_RETURN != rc) {
         mqtt_err("update connect info err");
         _conn_info_dynamic_release();
