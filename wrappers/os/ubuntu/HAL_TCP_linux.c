@@ -59,7 +59,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
         printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
-        return -1;
+        return (uintptr_t)(-1);
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {

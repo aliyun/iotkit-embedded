@@ -44,13 +44,13 @@ uintptr_t AT_TCP_Establish(const char *host, uint16_t port)
 
     if ((rc = at_conn_getaddrinfo(host, resultip)) != 0) {
         HAL_Printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
-        return -1;
+        return (uintptr_t)(-1);
     }
 
     fd = at_conn_setup(NETCONN_TCP);
     if (fd < 0) {
         HAL_Printf("create at conn error\n");
-        return -1;
+        return (uintptr_t)(-1);
     }
 
     if (at_conn_start(fd, resultip, port) == 0) {

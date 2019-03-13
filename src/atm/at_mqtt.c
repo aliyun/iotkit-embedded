@@ -548,7 +548,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
             HAL_MutexUnlock(c->lock_generic);
 
             if (NULL != msg_handle->handle.h_fp) {
-                iotx_mqtt_event_msg_t event_msg = {0};
+                iotx_mqtt_event_msg_t event_msg;
                 topic_msg.payload = msg;
                 topic_msg.payload_len = strlen(msg);
                 topic_msg.ptopic = topic;
@@ -569,7 +569,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
         mal_debug("NO matching any topic, call default handle function");
 
         if (NULL != c->handle_event.h_fp) {
-            iotx_mqtt_event_msg_t event_msg = {0};
+            iotx_mqtt_event_msg_t event_msg;
 
             topic_msg.payload = msg;
             topic_msg.payload_len = strlen(msg);
