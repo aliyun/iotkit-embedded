@@ -49,7 +49,7 @@ void    LITE_syslog(char *m, const char *f, const int l, const int level, const 
 #define LOG_DEBUG_LEVEL                 (5)     /* debugging messages */
 #define LOG_FLOW_LEVEL                  (6)     /* code/packet flow messages */
 
-#if defined(INFRA_LOG)
+#if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED)
 #if defined(INFRA_LOG_MUTE_FLW)
 #define log_flow(mod, ...)
 #else
