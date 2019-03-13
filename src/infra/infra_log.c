@@ -1,6 +1,6 @@
 #include "infra_config.h"
 
-#ifdef INFRA_LOG
+#if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED)
 extern void **LITE_get_mem_mutex(void);
 extern void *HAL_MutexCreate(void);
 extern void HAL_MutexDestroy(void *);
