@@ -1,6 +1,5 @@
 #include "infra_config.h"
 
-#if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED)
 extern void **LITE_get_mem_mutex(void);
 extern void *HAL_MutexCreate(void);
 extern void HAL_MutexDestroy(void *);
@@ -13,6 +12,7 @@ extern void HAL_MutexDestroy(void *);
     #include "infra_cjson.h"
 #endif
 
+#if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED)
 static log_client logcb = {
     .name       = "linkkit",
     .priority   = LOG_DEBUG_LEVEL,
@@ -240,5 +240,27 @@ void IOT_SetLogLevel(IOT_LogLevel level)
     HAL_Printf("[prt] log level set as: [ %d ]\r\n", lvl);
 }
 
-#endif
+#else
+
+void IOT_SetLogLevel(IOT_LogLevel level)
+{
+    return;
+}
+
+int log_multi_line_internal(const char *f, const int l,
+                            const char *title, int level, char *payload, const char *mark)
+{
+    return 0;
+}
+
+void LITE_rich_hexdump(const char *f, const int l,
+                       const int level,
+                       const char *buf_str,
+                       const void *buf_ptr,
+                       const int buf_len)
+{
+    return;
+}
+
+#endif  /* #if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED) */
 
