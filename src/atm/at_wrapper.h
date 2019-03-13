@@ -272,7 +272,7 @@ struct at_mqtt_input {
 };
 
 int HAL_AT_MQTT_Init(iotx_mqtt_param_t *pInitParams);
-int HAL_AT_MQTT_Deinit();
+int HAL_AT_MQTT_Deinit(void);
 int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret);
 int HAL_AT_MQTT_Disconnect(void);
 int HAL_AT_MQTT_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms);

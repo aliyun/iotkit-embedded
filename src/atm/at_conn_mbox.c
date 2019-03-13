@@ -254,7 +254,7 @@ uint32_t at_mbox_tryfetch(at_mbox_t *mb, void **msg)
     uint32_t len;
 
     if (mb == NULL) {
-        return -1;
+        return AT_MBOX_EMPTY;
     }
 
     if (at_ringbuf_read((at_ringbuf_t *)mb->hdl, msg, 0u, &len) != 0) {

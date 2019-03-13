@@ -5,12 +5,12 @@
 #ifndef _AT_CONN_MGMT_H_
 #define _AT_CONN_MGMT_H_
 
-enum netconn_type {
+typedef enum netconn_type {
     NETCONN_INVALID  = 0,
     /** TCP IPv4 */
     NETCONN_TCP,
     NETCONN_TYPE_NUM
-};
+} netconn_type_t;
 
 /**
  * at connection module initialization
@@ -50,7 +50,7 @@ int at_conn_getaddrinfo(const char *nodename, char resultip[16]);
  *
  * @return  0 : on success, -1: error
  */
-int at_conn_setup(int type);
+int at_conn_setup(netconn_type_t type);
 
 /**
  * start an at connection
