@@ -44,6 +44,7 @@ typedef struct {
 void *LITE_malloc_internal(const char *f, const int l, int size, ...);
 void LITE_free_internal(void *ptr);
 void LITE_dump_malloc_free_stats(int level);
+void **LITE_get_mem_mutex(void);
 
 #endif  /* __MEM_STATS_H__ */
 
