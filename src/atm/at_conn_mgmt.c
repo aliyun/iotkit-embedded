@@ -411,7 +411,7 @@ int at_conn_getaddrinfo(const char *nodename, char resultip[16])
     return 0;
 }
 
-int at_conn_setup(int type)
+int at_conn_setup(netconn_type_t type)
 {
 	struct at_conn *conn = NULL;
     int connid = -1;

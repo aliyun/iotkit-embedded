@@ -476,7 +476,7 @@ end:
 
 int at_send_no_reply(const char *data, int datalen, bool delimiter)
 {
-    int ret;
+    int ret = 0;
 
     if (inited == 0) {
         atpsr_err("at have not init yet\r\n");
@@ -506,7 +506,7 @@ int at_send_no_reply(const char *data, int datalen, bool delimiter)
     }
     HAL_MutexUnlock(at.at_uart_send_mutex);
 
-    return 0;
+    return ret;
 }
 
 static int at_getc(char *c, int timeout_ms)

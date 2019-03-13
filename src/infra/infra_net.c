@@ -161,7 +161,7 @@ static int disconnect_tcp(utils_network_pt pNetwork)
     }
 
     AT_TCP_Destroy(pNetwork->handle);
-    pNetwork->handle = -1;
+    pNetwork->handle = (uintptr_t)(-1);
     return 0;
 }
 
@@ -208,7 +208,7 @@ static int disconnect_tcp(utils_network_pt pNetwork)
     }
 
     HAL_TCP_Destroy(pNetwork->handle);
-    pNetwork->handle = -1;
+    pNetwork->handle = (uintptr_t)(-1);
     return 0;
 }
 
