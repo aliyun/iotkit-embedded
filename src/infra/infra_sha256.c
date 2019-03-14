@@ -5,6 +5,8 @@
 
 #ifdef INFRA_SHA256
 
+#define INFRA_SHA256_SMALLER
+
 #include <stdlib.h>
 #include <string.h>
 #include "infra_sha256.h"
