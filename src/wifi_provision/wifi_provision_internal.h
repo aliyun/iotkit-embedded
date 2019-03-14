@@ -10,6 +10,7 @@
 #include "awss_event.h"
 #include "awss_timer.h"
 #include "awss_main.h"
+#include "iot_import_awss.h"
 #include "os.h"
 #include "infra_compat.h"
 #include "awss_smartconfig.h"

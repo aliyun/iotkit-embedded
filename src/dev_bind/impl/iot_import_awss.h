@@ -6,28 +6,12 @@
 #define __IOT_IMPORT_AWSS_H__
 
 #include "infra_types.h"
+#include "infra_defs.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef _IN_OPT_
-#define _IN_OPT_
-#endif
-
-#define STR_SHORT_LEN                   (32)
-#ifndef ETH_ALEN
-#define ETH_ALEN                        (6)
-#endif
-#define HAL_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
-#define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
-#define WLAN_CONNECTION_TIMEOUT_MS      (30 * 1000)
-/**
- * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
- *
- * @return  超时时长, 单位是毫秒
- * @note    推荐时长是60,0000毫秒
- */
 #ifndef DLL_HAL_API
   #define DLL_HAL_API
 #endif
@@ -36,6 +20,9 @@ extern "C" {
 #endif
 #ifndef _OU_
   #define _OU_ 
+#endif
+#ifndef _IN_OPT_
+#define _IN_OPT_
 #endif
 
 /* link type */

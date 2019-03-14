@@ -1,7 +1,12 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "wifi_provision_internal.h"
+#include "dev_bind_internal.h"
+#ifdef WIFI_PROVISION_ENABLED
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#include "awss_wifimgr.h"
+#endif
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -186,8 +191,8 @@ const struct awss_cmp_couple awss_local_couple[] = {
     {AWSS_LC_INIT_BIND,                      TOPIC_NOTIFY,                        online_dev_bind_monitor},
 #endif
 #endif
-    {AWSS_LC_INIT_SUC,                       TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},
-    {AWSS_LC_INIT_SUC,                       TOPIC_GETDEVICEINFO_UCAST,           online_ucast_get_device_info}
+    {AWSS_LC_INIT_SUC | AWSS_LC_INIT_BIND,  TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},
+    {AWSS_LC_INIT_SUC | AWSS_LC_INIT_BIND,  TOPIC_GETDEVICEINFO_UCAST,           online_ucast_get_device_info},
 };
 
 int awss_cmp_local_init(int init_stage)

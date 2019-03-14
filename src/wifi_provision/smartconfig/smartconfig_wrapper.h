@@ -46,7 +46,6 @@ DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
             _IN_ size_t length,
             _OU_ void *dst);
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
-int HAL_Awss_Get_Conn_Encrypt_Type(void);
 int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
             _IN_ char ssid[HAL_MAX_SSID_LEN],
@@ -55,8 +54,5 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ enum AWSS_ENC_TYPE encry,
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
-/* dev reset */
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 /*************************************** smartconfig special hals ***************************************/
 int HAL_Awss_Get_Encrypt_Type(void);

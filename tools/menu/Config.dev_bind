@@ -1,5 +1,4 @@
 config DEV_BIND_ENABLED
-   depends on AWSS_FRAMEWORKS
 
     bool "FEATURE_DEV_BIND_ENABLED"
     select INFRA_CLASSIC

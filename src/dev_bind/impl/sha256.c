@@ -4,7 +4,7 @@
 
 
 /* Optimized for minimal code size. */
-#include "wifi_provision_internal.h"
+#include "dev_bind_internal.h"
 
 #define ror(value, bits) (((value) >> (bits)) | ((value) << (32 - (bits))))
 #define shr(value, bits) ((value) >> (bits))

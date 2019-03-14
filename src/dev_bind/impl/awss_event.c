@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "wifi_provision_internal.h"
+#include "dev_bind_internal.h"
 
 extern int iotx_event_post(int event);
 
