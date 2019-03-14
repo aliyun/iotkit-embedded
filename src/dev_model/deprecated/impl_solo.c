@@ -618,7 +618,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     }
 
     /* Set Linkkit Log Level */
-    LITE_set_loglevel(log_level);
+    IOT_SetLogLevel(log_level);
 
     /* Set Region */
     IOT_Ioctl(IOTX_IOCTL_SET_REGION, &domain_type);
