@@ -291,6 +291,7 @@ char *LITE_json_value_of(char *key, char *src, ...)
     }
 
 #if WITH_MEM_STATS_PER_MODULE
+{
     char       *module_name = NULL;
     int         magic = 0;
     va_list     ap;
@@ -300,6 +301,7 @@ char *LITE_json_value_of(char *key, char *src, ...)
         module_name = va_arg(ap, char *);
     }
     va_end(ap);
+}
 #endif
 
     src_iter = src;
@@ -328,11 +330,9 @@ char *LITE_json_value_of(char *key, char *src, ...)
     if (NULL == value) {
         return NULL;
     }
-#if WITH_MEM_STATS_PER_MODULE
-    ret = jparser_malloc((value_len + 1) * sizeof(char), magic, module_name);
-#else
+
     ret = jparser_malloc((value_len + 1) * sizeof(char));
-#endif
+
     if (NULL == ret) {
         return NULL;
     }
