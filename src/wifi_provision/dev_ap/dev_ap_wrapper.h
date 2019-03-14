@@ -57,9 +57,6 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ enum AWSS_ENC_TYPE encry,
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
-/* dev reset */
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 /*************************************** dev-ap special hals ***************************************/
 int HAL_Awss_Get_Encrypt_Type();
 int HAL_Awss_Close_Ap();
