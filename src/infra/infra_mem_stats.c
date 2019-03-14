@@ -4,7 +4,7 @@
 
 #include "infra_config.h"
 
-#if INFRA_MEM_STATS
+#ifdef INFRA_MEM_STATS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
