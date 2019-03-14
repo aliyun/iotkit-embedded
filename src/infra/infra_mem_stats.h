@@ -6,6 +6,7 @@
 #define __MEM_STATS_H__
 
 #include "infra_list.h"
+#include "infra_log.h"
 
 #if defined(__UBUNTU_SDK_DEMO__)
     #include <execinfo.h>
@@ -42,6 +43,7 @@ typedef struct {
     } while(0)
 
 void *LITE_malloc_internal(const char *f, const int l, int size, ...);
+void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...);
 void LITE_free_internal(void *ptr);
 void LITE_dump_malloc_free_stats(int level);
 void **LITE_get_mem_mutex(void);

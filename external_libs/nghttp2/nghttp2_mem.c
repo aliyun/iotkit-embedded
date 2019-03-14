@@ -4,7 +4,9 @@
 
 #include <string.h>
 #include "nghttp2_mem.h"
-
+#ifdef INFRA_MEM_STATS
+#include "infra_mem_stats.h"
+#endif
 
 extern void *HAL_Malloc(uint32_t size);
 extern void *HAL_Realloc(void *ptr, uint32_t size);
