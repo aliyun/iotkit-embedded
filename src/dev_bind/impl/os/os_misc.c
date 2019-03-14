@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "wifi_provision_internal.h"
+#include "dev_bind_internal.h"
 
 /****** Convert values between host and big-/little-endian byte order ******/
 
@@ -90,7 +90,6 @@ char *os_wifi_get_mac_str(char mac_str[OS_MAC_LEN])
 
     return mac_str;
 }
-
 char *os_wifi_str2mac(char mac_str[OS_MAC_LEN], char mac[OS_ETH_ALEN])
 {
     int i = 0;

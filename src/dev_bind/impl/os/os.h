@@ -12,7 +12,6 @@ extern "C" {
 #include "infra_defs.h"
 #include <stdio.h>
 #include <string.h>
-#include "iot_import_awss.h"
 #include "infra_compat.h"
 
 #ifndef _IN_OPT_

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "wifi_provision_internal.h"
+#include "dev_bind_internal.h"
 
 #define AWSS_DEV_RAND_SIGN_FMT  ",\"random\":\"%s\",\"signMethod\":%d,\"sign\":\"%s\""
 #define AWSS_DEV_BIND_TOKEN_FMT ",\"token\":\"%s\",\"remainTime\":%d,\"type\":%d"

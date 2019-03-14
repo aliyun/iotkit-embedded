@@ -17,13 +17,6 @@ extern "C"
     #define _IN_
 #endif
 
-/**
- * @brief   start wifi setup service
- *
- * @retval  -1 : wifi setup fail
- * @retval  0 : sucess
- * @note: awss_report_cloud must been called to enable wifi setup service
- */
 DLL_IOT_API int awss_start(void);
 
 /**
@@ -53,14 +46,6 @@ DLL_IOT_API int awss_config_press(void);
  */
 DLL_IOT_API uint8_t awss_get_config_press(void);
 DLL_IOT_API void awss_set_config_press(uint8_t press);
-
-/**
- * @brief   report token to cloud after wifi setup success
- *
- * @retval  -1 : failure
- * @retval  0 : sucess
- */
-DLL_IOT_API int awss_report_cloud(void);
 
 /**
  * @brief   check reset flag in perisistent storage.

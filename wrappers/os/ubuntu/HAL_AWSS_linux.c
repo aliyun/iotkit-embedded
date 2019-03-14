@@ -1,13 +1,16 @@
-#include "infra_config.h"
 
-#if defined(DEV_BIND_ENABLED)
+#ifdef DEV_BIND_ENABLED
+#include "infra_config.h"
+#include <string.h>
+#include "infra_defs.h"
+#include "dev_bind_wrapper.h"
+#endif
+
+#if defined(WIFI_PROVISION_ENABLED)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <string.h>
-#include "infra_defs.h"
-#include "dev_bind_wrapper.h"
 #include "iot_import_awss.h"
 
 /**
@@ -31,49 +34,7 @@ int HAL_Awss_Get_Encrypt_Type()
     return 3;
 }
 
-/**
- * @brief    Get Security level for wifi configuration with connection.
- *           Used for AP solution of router and App.
- *
- * @param None.
- * @return The security level:
-   @verbatim
-    3: aes128cfb with aes-key per product and aes-iv = random
-    4: aes128cfb with aes-key per device and aes-iv = random
-    5: aes128cfb with aes-key per manufacture and aes-iv = random
-    others: invalid
-   @endverbatim
- * @see None.
- */
-int HAL_Awss_Get_Conn_Encrypt_Type()
-{
-    char invalid_ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    char ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
-
-    HAL_GetDeviceSecret(ds);
-
-    if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
-        return 3;
-
-    memset(invalid_ds, 0xff, sizeof(invalid_ds));
-    if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
-        return 3;
-
-    return 4;
-}
-
-/**
- * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
- *
- * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
- * @return  指向缓冲区数组起始位置的字符指针
- */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
-{
-    strcpy(mac_str, "18:FE:34:12:33:44");
-    return mac_str;
-}
 
 /**
  * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
@@ -284,5 +245,48 @@ int HAL_Awss_Close_Ap()
 
 #endif  /* #if defined(HAL_AWSS) */
 
+#ifdef DEV_BIND_ENABLED
+/**
+ * @brief    Get Security level for wifi configuration with connection.
+ *           Used for AP solution of router and App.
+ *
+ * @param None.
+ * @return The security level:
+   @verbatim
+    3: aes128cfb with aes-key per product and aes-iv = random
+    4: aes128cfb with aes-key per device and aes-iv = random
+    5: aes128cfb with aes-key per manufacture and aes-iv = random
+    others: invalid
+   @endverbatim
+ * @see None.
+ */
+int HAL_Awss_Get_Conn_Encrypt_Type()
+{
+    char invalid_ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+    char ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
+    HAL_GetDeviceSecret(ds);
+
+    if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
+        return 3;
+
+    memset(invalid_ds, 0xff, sizeof(invalid_ds));
+    if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
+        return 3;
+
+    return 4;
+}
+
+/**
+ * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
+ *
+ * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
+ * @return  指向缓冲区数组起始位置的字符指针
+ */
+char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
+{
+    strcpy(mac_str, "18:FE:34:12:33:44");
+    return mac_str;
+}
+#endif
 

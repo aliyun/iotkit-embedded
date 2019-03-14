@@ -61,14 +61,14 @@ AWSS_SUPPORT_ZEROCONFIG||src/wifi_provision/zero_config|output/eng/wifi_provisio
 AWSS_SUPPORT_DEV_AP||src/wifi_provision/dev_ap|output/eng/wifi_provision/dev_ap
 AWSS_FRAMEWORKS||src/wifi_provision/frameworks|output/eng/wifi_provision/frameworks
 AWSS_FRAMEWORKS||src/wifi_provision/frameworks/aplist|output/eng/wifi_provision/frameworks/aplist
-AWSS_FRAMEWORKS||src/wifi_provision/frameworks/dev_reset|output/eng/wifi_provision/frameworks/dev_reset
 AWSS_FRAMEWORKS||src/wifi_provision/frameworks/ieee80211|output/eng/wifi_provision/frameworks/ieee80211
-AWSS_FRAMEWORKS||src/wifi_provision/frameworks/os|output/eng/wifi_provision/frameworks/os
 AWSS_FRAMEWORKS||src/wifi_provision/frameworks/statics|output/eng/wifi_provision/frameworks/statics
 AWSS_FRAMEWORKS||src/wifi_provision/frameworks/utils|output/eng/wifi_provision/frameworks/utils
 AWSS_SUPPORT_APLIST||src/wifi_provision/frameworks/aplist|output/eng/wifi_provision/frameworks/aplist
 DEV_BIND_ENABLED||src/dev_bind/|output/eng/dev_bind
 DEV_BIND_ENABLED||src/dev_bind/impl|output/eng/dev_bind/impl
+DEV_BIND_ENABLED||src/dev_bind/impl/os|output/eng/dev_bind/impl/os
+DEV_BIND_ENABLED||src/dev_bind/impl/awss_reset|output/eng/dev_bind/impl/awss_reset
 
 # example rules
 DEV_SIGN||src/dev_sign/examples|output/examples

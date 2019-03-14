@@ -1,14 +1,18 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include "wifi_provision_internal.h"
+#include "dev_bind_internal.h"
+#ifdef WIFI_PROVISION_ENABLED
+#ifndef AWSS_DISABLE_REGISTRAR
+#include "awss_enrollee.h"
+#endif
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
 
 static void *awss_bind_mutex = NULL;
-
 int awss_report_cloud()
 {
     if (awss_bind_mutex == NULL) {

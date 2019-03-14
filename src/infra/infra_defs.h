@@ -59,6 +59,13 @@
 
 #define NETWORK_ADDR_LEN        (16)
 #define HAL_MAC_LEN             (17 + 1)    /* MAC地址的长度 */
+#define STR_SHORT_LEN                   (32)
+#ifndef ETH_ALEN
+#define ETH_ALEN                        (6)
+#endif
+#define HAL_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
+#define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
+#define WLAN_CONNECTION_TIMEOUT_MS      (30 * 1000)
 
 typedef enum IOT_RETURN_CODES {
     ERROR_DEVICE_NOT_EXIST = -311,
