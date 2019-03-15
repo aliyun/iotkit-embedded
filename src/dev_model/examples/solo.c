@@ -23,6 +23,7 @@
 #define DEVICE_NAME     "test_06"
 #define DEVICE_SECRET   "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
 
+void HAL_Printf(const char *fmt, ...);
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \
