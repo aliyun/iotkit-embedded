@@ -113,7 +113,12 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
     while (p < (json_string + string_len)) {
         while (*(++p) != ':') {
             if (p >= (json_string + string_len)) {
-                return FAIL_RETURN;
+                if (code != 200) {
+                    return FAIL_RETURN;
+                }
+                else {
+                    return SUCCESS_RETURN;
+                }
             }
         }
 
@@ -146,12 +151,12 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
                 return res;
             }
         } else if (strlen("iotToken") == len && !memcmp(p_start, "iotToken", len)) {
-            _preauth_get_string_value(p, iotToken, PREAUTH_IOT_TOKEN_MAXLEN);
+            res = _preauth_get_string_value(p, iotToken, PREAUTH_IOT_TOKEN_MAXLEN);
             if (res < SUCCESS_RETURN) {
                 return res;
             }
         } else if (strlen("host") == len && !memcmp(p_start, "host", len)) {
-            _preauth_get_string_value(p, host, PREAUTH_IOT_HOST_MAXLEN);
+            res = _preauth_get_string_value(p, host, PREAUTH_IOT_HOST_MAXLEN);
             if (res < SUCCESS_RETURN) {
                 return res;
             }
@@ -216,7 +221,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     preauth_info("Downstream Payload:");
     iotx_facility_json_print(response_buff, LOG_INFO_LEVEL, '<');
 #endif
-    _preauth_parse_auth_rsp_string(response_buff, strlen(response_buff), username, password, hostname, port);
+    res = _preauth_parse_auth_rsp_string(response_buff, strlen(response_buff), username, password, hostname, port);
 
     return res;
 }
