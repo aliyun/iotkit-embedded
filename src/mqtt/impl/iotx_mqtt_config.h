@@ -6,7 +6,7 @@
 #define IOTX_MQTT_CONFIG_H__
 
 #ifndef WITH_MQTT_DYN_BUF
-    #define WITH_MQTT_DYN_BUF                   (0)
+    #define WITH_MQTT_DYN_BUF                   (1)
 #endif
 
 #ifndef WITH_MQTT_QOS2_PACKET
