@@ -62,13 +62,14 @@ typedef struct  {
 } iotx_mc_offline_subs_t;
 
 typedef struct {
+    int init;
+    void *mutex;
 #ifdef PLATFORM_HAS_DYNMEM
     struct list_head offline_sub_list;
 #else
     iotx_mc_offline_subs_t offline_sub_list[CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM];
 #endif
-    void *mutex;
-    int init;
+
 } offline_sub_list_t;
 
 static offline_sub_list_t g_mqtt_offline_subs_list = {0};
