@@ -71,7 +71,7 @@ typedef struct {
     int init;
 } offline_sub_list_t;
 
-static offline_sub_list_t g_mqtt_offline_subs_list = {0};
+static offline_sub_list_t g_mqtt_offline_subs_list;
 
 static iotx_mqtt_param_t *_iotx_mqtt_new_param(void)
 {
