@@ -547,10 +547,6 @@ int iotx_alcs_yield(void *handle)
         return NULL_VALUE_ERROR;
     }
 
-#ifndef DEV_BIND_ENABLED
-    res = (CoAPMessage_cycle(adapter->coap_ctx) != COAP_SUCCESS) ? (FAIL_RETURN) : (SUCCESS_RETURN);
-    CoAPServer_thread_leave();
-#endif
     alcs_heartbeat(handle);
 
     iotx_alcs_subdev_stage_check();
