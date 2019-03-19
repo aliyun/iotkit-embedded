@@ -529,6 +529,9 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
     }
 
     timer = (timer_t *)malloc(sizeof(time_t));
+    if (timer == NULL) {
+        return NULL;
+    }
 
     /* Init */
     memset(&ent, 0x00, sizeof(struct sigevent));
