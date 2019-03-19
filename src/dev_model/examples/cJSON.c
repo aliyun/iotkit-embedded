@@ -1700,16 +1700,25 @@ CJSON_PUBLIC(cJSON_bool) cJSON_ReplaceItemViaPointer(cJSON *const parent, cJSON 
 
 CJSON_PUBLIC(void) cJSON_ReplaceItemInArray(cJSON *array, int which, cJSON *newitem)
 {
+    cJSON *obj = NULL;
+
     if (which < 0) {
         return;
     }
 
-    cJSON_ReplaceItemViaPointer(array, get_array_item(array, (size_t)which), newitem);
+    obj = get_array_item(array, (size_t)which);
+    if (obj == NULL) {
+        return;
+    }
+
+    cJSON_ReplaceItemViaPointer(array, obj, newitem);
 }
 
 static cJSON_bool replace_item_in_object(cJSON *object, const char *string, cJSON *replacement,
         cJSON_bool case_sensitive)
 {
+    cJSON *obj = NULL;
+
     if (replacement == NULL) {
         return false;
     }
@@ -1721,7 +1730,12 @@ static cJSON_bool replace_item_in_object(cJSON *object, const char *string, cJSO
     replacement->string = (char *)cJSON_strdup((const unsigned char *)string, &global_hooks);
     replacement->type &= ~cJSON_StringIsConst;
 
-    cJSON_ReplaceItemViaPointer(object, get_object_item(object, string, case_sensitive), replacement);
+    obj = get_object_item(object, string, case_sensitive);
+    if (obj == NULL) {
+        return false;
+    }
+
+    cJSON_ReplaceItemViaPointer(object, obj, replacement);
 
     return true;
 }
