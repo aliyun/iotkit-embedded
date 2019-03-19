@@ -14,10 +14,6 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 
-#ifdef DYNAMIC_REGISTER
-    #include "dynreg_api.h"
-#endif
-
 #ifdef INFRA_LOG
     #include "infra_log.h"
     #define sdk_err(...)       log_err("infra_compat", __VA_ARGS__)
@@ -30,32 +26,16 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 
-#ifdef DYNAMIC_REGISTER
-    void HAL_Printf(const char *fmt, ...);
-    int HAL_SetDeviceSecret(char *device_secret);
-    int HAL_GetProductSecret(char *product_secret);
-    int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-    int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
-
-    #define DYNAMIC_REG_KV_PREFIX       "DYNAMIC_REG_"
-    #define DYNAMIC_REG_KV_PREFIX_LEN   12
-#endif
-
-static iotx_conn_info_t g_iotx_conn_info = {0};
 static sdk_impl_ctx_t g_sdk_impl_ctx = {0};
+/* global variable for mqtt construction */
+static iotx_conn_info_t g_iotx_conn_info = {0};
+static char g_empty_string[1] = "";
 
-extern iotx_sign_mqtt_t g_sign_mqtt;
 int IOT_SetupConnInfo(const char *product_key,
                       const char *device_name,
                       const char *device_secret,
                       void **info_ptr)
 {
-    int res = FAIL_RETURN;
-    iotx_dev_meta_info_t meta_data;
-#ifdef DYNAMIC_REGISTER
-    sdk_impl_ctx_t     *ctx = &g_sdk_impl_ctx;
-#endif
-
     if (product_key == NULL || device_name == NULL || device_secret == NULL ||
         strlen(product_key) > IOTX_PRODUCT_KEY_LEN ||
         strlen(device_name) > IOTX_DEVICE_NAME_LEN ||
@@ -63,86 +43,19 @@ int IOT_SetupConnInfo(const char *product_key,
         return NULL_VALUE_ERROR;
     }
 
-    memset(&g_sign_mqtt, 0, sizeof(iotx_sign_mqtt_t));
-    memset(&g_iotx_conn_info, 0, sizeof(iotx_conn_info_t));
-
-    memset(&meta_data, 0, sizeof(iotx_dev_meta_info_t));
-    memcpy(meta_data.product_key, product_key, strlen(product_key));
-    memcpy(meta_data.device_name, device_name, strlen(device_name));
-    memcpy(meta_data.device_secret, device_secret, strlen(device_secret));
-
-#ifdef DYNAMIC_REGISTER
-    if (ctx->dynamic_register) {
-        char device_secret_actual[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-        int device_secret_len = IOTX_DEVICE_SECRET_LEN;
-        char kv_key[IOTX_DEVICE_NAME_LEN + DYNAMIC_REG_KV_PREFIX_LEN] = DYNAMIC_REG_KV_PREFIX;
-        memcpy(kv_key + strlen(kv_key), device_name, strlen(device_name));
-
-        /* Check if Device Secret exit in KV */
-        if (HAL_Kv_Get(kv_key, device_secret_actual, &device_secret_len) == 0) {
-            sdk_info("Get DeviceSecret from KV succeed");
-
-            *(device_secret_actual + device_secret_len) = 0;
-            HAL_SetDeviceSecret(device_secret_actual);
-            memset(meta_data.device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
-            memcpy(meta_data.device_secret, device_secret_actual, strlen(device_secret_actual));
-        } else {
-            char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
-
-            /* KV not exit, goto dynamic register */
-            sdk_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
-
-            /* Check If Product Secret Exist */
-            HAL_GetProductSecret(product_secret);
-            if (strlen(product_secret) == 0) {
-                sdk_err("Product Secret Is Not Exist");
-                return FAIL_RETURN;
-            }
-
-            if (strlen(product_secret) == 0) {
-                return FAIL_RETURN;
-            }
-            memcpy(meta_data.product_secret, product_secret, strlen(product_secret));
-
-            res = IOT_Dynamic_Register(ctx->domain_type, &meta_data);
-            if (res != SUCCESS_RETURN) {
-                sdk_err("Dynamic Register Failed");
-                return FAIL_RETURN;
-            }
-
-            device_secret_len = strlen(meta_data.device_secret);
-            if (HAL_Kv_Set(kv_key, meta_data.device_secret, device_secret_len, 1) != 0) {
-                sdk_err("Save Device Secret to KV Failed");
-                return FAIL_RETURN;
-            }
-
-            HAL_SetDeviceSecret(meta_data.device_secret);
-        }
-    }
-#endif
-    /* just connect shanghai region */
-    res = IOT_Sign_MQTT(g_sdk_impl_ctx.domain_type, &meta_data, &g_sign_mqtt);
-    if (res < SUCCESS_RETURN) {
-        return res;
-    }
-
-    g_iotx_conn_info.port = g_sign_mqtt.port;
-    g_iotx_conn_info.host_name = g_sign_mqtt.hostname;
-    g_iotx_conn_info.client_id = g_sign_mqtt.clientid;
-    g_iotx_conn_info.username = g_sign_mqtt.username;
-    g_iotx_conn_info.password = g_sign_mqtt.password;
-#ifdef SUPPORT_TLS
-    {
-        extern const char *iotx_ca_crt;
-        g_iotx_conn_info.pub_key = iotx_ca_crt;
-    }
-#endif
     if (info_ptr) {
-        *info_ptr = (void *)&g_iotx_conn_info;
+        memset(&g_iotx_conn_info, 0, sizeof(iotx_conn_info_t));
+        g_iotx_conn_info.host_name = g_empty_string;
+        g_iotx_conn_info.client_id = g_empty_string;
+        g_iotx_conn_info.username = g_empty_string;
+        g_iotx_conn_info.password = g_empty_string;
+        g_iotx_conn_info.pub_key = g_empty_string;
+
+        *info_ptr = &g_iotx_conn_info;
     }
     return SUCCESS_RETURN;
 }
-#endif
+#endif /* #ifdef MQTT_COMM_ENABLED */
 
 #if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
     #include "iotx_dm.h"
