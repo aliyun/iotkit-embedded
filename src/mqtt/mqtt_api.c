@@ -265,13 +265,14 @@ static void iotx_mqtt_report_funcs(void *pclient)
     /* report firmware version */
 #if !defined(BUILD_AOS) && !defined(MUTE_VERSION_REPORT)
     err = iotx_report_firmware_version(pclient);
-#endif
 
     if (SUCCESS_RETURN != err) {
 #ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
         mqtt_err("failed to report firmware version");
 #endif
     }
+#endif
+
 #endif
 }
 
