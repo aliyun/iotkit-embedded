@@ -366,6 +366,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     iotx_mqtt_param_t mqtt_params;
     int region;
     int ret;
+    void *callback;
 
     if (g_mqtt_client != NULL) {
         mqtt_err("Already exist default MQTT connection, won't proceed another one");
@@ -504,6 +505,13 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #endif
 
     g_mqtt_client = pclient;
+
+   /* Mqtt Connect Callback */
+   callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
+   if (callback) {
+       ((int (*)(void))callback)();
+   }
+
     return pclient;
 }
 
