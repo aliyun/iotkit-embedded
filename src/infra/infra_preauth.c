@@ -101,8 +101,7 @@ static int _preauth_get_string_value(char *p_string, char *value_buff, uint32_t 
     return SUCCESS_RETURN;
 }
 
-static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len,
-        char *iotId, char *iotToken, char *host, uint16_t *port)
+static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len, iotx_pre_auth_output_t *output)
 {
     int res = FAIL_RETURN;
     char *p = json_string;
@@ -146,24 +145,24 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
                 return FAIL_RETURN;
             }
         } else if (strlen("iotId") == len && !memcmp(p_start, "iotId", len)) {
-            res = _preauth_get_string_value(p, iotId, PREAUTH_IOT_ID_MAXLEN);
+            res = _preauth_get_string_value(p, output->username, PREAUTH_IOT_ID_MAXLEN);
             if (res < SUCCESS_RETURN) {
                 return res;
             }
         } else if (strlen("iotToken") == len && !memcmp(p_start, "iotToken", len)) {
-            res = _preauth_get_string_value(p, iotToken, PREAUTH_IOT_TOKEN_MAXLEN);
+            res = _preauth_get_string_value(p, output->password, PREAUTH_IOT_TOKEN_MAXLEN);
             if (res < SUCCESS_RETURN) {
                 return res;
             }
         } else if (strlen("host") == len && !memcmp(p_start, "host", len)) {
-            res = _preauth_get_string_value(p, host, PREAUTH_IOT_HOST_MAXLEN);
+            res = _preauth_get_string_value(p, output->hostname, PREAUTH_IOT_HOST_MAXLEN);
             if (res < SUCCESS_RETURN) {
                 return res;
             }
         } else if (strlen("port") == len && !memcmp(p_start, "port", len)) {
             int port_temp;
             infra_str2int(++p, &port_temp);
-            *port = port_temp;
+            output->port = port_temp;
         }
     }
 
@@ -171,8 +170,7 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
 }
 
 int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *dev_meta,
-                                const char *sign, const char *device_id,
-                                char *hostname, uint16_t *port, char *username, char *password)
+                                const char *sign, const char *device_id, iotx_pre_auth_output_t *preauth_output)
 {
     char http_url[128] = "http://";
     char http_url_frag[] = "/auth/devicename";
@@ -221,7 +219,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     preauth_info("Downstream Payload:");
     iotx_facility_json_print(response_buff, LOG_INFO_LEVEL, '<');
 #endif
-    res = _preauth_parse_auth_rsp_string(response_buff, strlen(response_buff), username, password, hostname, port);
+    res = _preauth_parse_auth_rsp_string(response_buff, strlen(response_buff), preauth_output);
 
     return res;
 }
