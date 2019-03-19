@@ -499,6 +499,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         else {
             mqtt_params.write_buf_size = pInitParams->write_buf_size;
         }
+
+        if (pInitParams->handle_event.h_fp != NULL) {
+            mqtt_params.handle_event.h_fp = pInitParams->handle_event.h_fp;
+        }
+
+        if (pInitParams->handle_event.pcontext != NULL) {
+            mqtt_params.handle_event.pcontext = pInitParams->handle_event.pcontext;
+        }
     }
 
     pclient = wrapper_mqtt_init(&mqtt_params);
