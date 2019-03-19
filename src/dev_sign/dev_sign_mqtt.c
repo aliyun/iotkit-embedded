@@ -52,7 +52,7 @@ const char *clientid_kv[][2] = {
     },
 #endif
     {
-        "a", "sdk-c-"IOTX_SDK_VERSION
+        "_v", "sdk-c-"IOTX_SDK_VERSION
     },
 };
 
