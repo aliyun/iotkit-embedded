@@ -369,6 +369,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     iotx_dev_meta_info_t meta_info;
     iotx_mqtt_param_t mqtt_params;
     int region;
+    int dynamic;
     int ret;
     void *callback;
 
@@ -379,6 +380,9 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     /* get region */
     IOT_Ioctl(IOTX_IOCTL_GET_REGION, (void*)&region);
+
+    /* get dynamic option */
+    IOT_Ioctl(IOTX_IOCTL_GET_DYNAMIC_REGISTER, (void*)&dynamic);
 
     /* get meta_info from hal */
     memset(&meta_info, 0, sizeof(iotx_dev_meta_info_t));
@@ -393,15 +397,23 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
 #ifdef DYNAMIC_REGISTER /* get device secret through https dynamic register */
-    HAL_GetProductSecret(meta_info.product_secret);
-    if (meta_info.product_secret[0] == '\0' || meta_info.product_secret[IOTX_PRODUCT_SECRET_LEN] != '\0') {
-        mqtt_err("Product Secret isn't exist");
-        return NULL;
-    }
+    if (dynamic) {
+        HAL_GetProductSecret(meta_info.product_secret);
+        if (meta_info.product_secret[0] == '\0' || meta_info.product_secret[IOTX_PRODUCT_SECRET_LEN] != '\0') {
+            mqtt_err("Product Secret isn't exist");
+            return NULL;
+        }
 
-    ret = _iotx_dynamic_register(region, &meta_info);
-    if (ret < SUCCESS_RETURN) {
-        return NULL;
+        ret = _iotx_dynamic_register(region, &meta_info);
+        if (ret < SUCCESS_RETURN) {
+            return NULL;
+        }
+    }
+    else {
+        HAL_GetDeviceSecret(meta_info.device_secret);
+        if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
+            return NULL;
+        }
     }
 #else /* get device secret from hal */
     HAL_GetDeviceSecret(meta_info.device_secret);
