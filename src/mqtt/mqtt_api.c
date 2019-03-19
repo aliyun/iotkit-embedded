@@ -368,8 +368,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     void *pclient;
     iotx_dev_meta_info_t meta_info;
     iotx_mqtt_param_t mqtt_params;
-    int region;
-    int dynamic;
+    int region = 0;
+    int dynamic = 0;
     int ret;
     void *callback;
 
