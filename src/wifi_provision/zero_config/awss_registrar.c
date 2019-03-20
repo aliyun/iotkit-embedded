@@ -259,6 +259,9 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
             0 == memcmp(key, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
 
             uint8_t *key_byte = os_zalloc(MAX_KEY_LEN + 1);
+            if (NULL == key_byte) {
+                goto out;
+            }
 
             utils_str_to_hex(cipher, strlen(cipher), key_byte, MAX_KEY_LEN);
 
