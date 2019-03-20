@@ -45,8 +45,12 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
         return;
 
     dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
+    if (NULL == dev_name) {
+        return;
+    }
     pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
-    if (NULL == pk || NULL == dev_name) {
+    if (NULL == pk) {
+        HAL_Free(dev_name);
         return;
     }
 

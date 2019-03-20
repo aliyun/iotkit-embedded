@@ -235,8 +235,13 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     }
 
     buf = os_zalloc(256);
+    if (NULL == buf) {
+        awss_crit("malloc failed!\r\n");
+        return -1;
+    }
     tmp = os_zalloc(128);
-    if (buf == NULL || tmp == NULL) {
+    if (NULL == tmp) {
+        HAL_Free(buf);
         awss_crit("malloc failed!\r\n");
         return -1;
     }
