@@ -20,6 +20,12 @@ int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
 int HAL_GetFirmwareVersion(char *version);
 
+#ifdef DYNAMIC_REGISTER
+int HAL_SetDeviceSecret(char *device_secret);
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
+int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
+#endif
+
 #ifdef SUPPORT_TLS
     uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len);
     int32_t HAL_SSL_Destroy(uintptr_t handle);
