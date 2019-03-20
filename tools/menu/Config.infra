@@ -139,3 +139,7 @@ config INFRA_COMPAT
 config INFRA_CLASSIC
     bool
     default n
+
+config INFRA_PREAUTH
+    bool
+    default n

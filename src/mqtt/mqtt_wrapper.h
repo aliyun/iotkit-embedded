@@ -9,6 +9,7 @@ void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
 uint64_t HAL_UptimeMs(void);
 void HAL_SleepMs(uint32_t ms);
+int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
 void *HAL_MutexCreate(void);
 void HAL_MutexDestroy(void *mutex);
@@ -22,6 +23,7 @@ int HAL_GetFirmwareVersion(char *version);
 
 #ifdef DYNAMIC_REGISTER
 int HAL_SetDeviceSecret(char *device_secret);
+int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1]);
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 #endif

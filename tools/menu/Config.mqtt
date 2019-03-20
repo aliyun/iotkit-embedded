@@ -37,6 +37,7 @@ menu "MQTT Configurations"
         default n
         select SUPPORT_TLS
         select INFRA_HTTPC
+        select INFRA_PREAUTH
 
     config MQTT_DIRECT
         bool "FEATURE_MQTT_DIRECT"

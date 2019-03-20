@@ -3,7 +3,7 @@
  */
 #include "infra_config.h"
 
-#ifdef MQTT_PRE_AUTH
+#ifdef INFRA_PREAUTH
 
 #include <string.h>
 #include <stdlib.h>
