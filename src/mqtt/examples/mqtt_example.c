@@ -136,6 +136,26 @@ int main(int argc, char *argv[])
 
     /**
      *
+     *  MQTT connect hostname string
+     *
+     *  MQTT server's hostname can be customized here
+     *
+     *  default value is ${productKey}.iot-as-mqtt.cn-shanghai.aliyuncs.com
+     */
+    /* mqtt_params.host = "something.iot-as-mqtt.cn-shanghai.aliyuncs.com"; */
+
+    /**
+     *
+     *  MQTT connect port number
+     *
+     *  TCP/TLS port which can be 443 or 1883 or 80 or etc, you can customize it here
+     *
+     *  default value is 80 in TCP case, and 443 in TLS case
+     */
+    /* mqtt_params.port = 1883; */
+
+    /**
+     *
      * MQTT request timeout interval
      *
      * MQTT message request timeout for waiting ACK in MQTT Protocol

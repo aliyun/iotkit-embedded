@@ -331,9 +331,11 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
 #ifdef MQTT_PRE_AUTH
 #include "infra_preauth.h"
 extern int _sign_get_clientid(char *clientid_string, const char *device_id);
-extern int _iotx_generate_sign_string(const char *device_id, const char *device_name, const char *product_key, const char *device_secret, char *sign_string);
+extern int _iotx_generate_sign_string(const char *device_id, const char *device_name, const char *product_key,
+                                      const char *device_secret, char *sign_string);
 
-static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *meta, iotx_pre_auth_output_t *preauth_out)
+static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *meta,
+                         iotx_pre_auth_output_t *preauth_out)
 {
     uint16_t length = 0;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
@@ -379,10 +381,10 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     /* get region */
-    IOT_Ioctl(IOTX_IOCTL_GET_REGION, (void*)&region);
+    IOT_Ioctl(IOTX_IOCTL_GET_REGION, (void *)&region);
 
     /* get dynamic option */
-    IOT_Ioctl(IOTX_IOCTL_GET_DYNAMIC_REGISTER, (void*)&dynamic);
+    IOT_Ioctl(IOTX_IOCTL_GET_DYNAMIC_REGISTER, (void *)&dynamic);
 
     /* get meta_info from hal */
     memset(&meta_info, 0, sizeof(iotx_dev_meta_info_t));
@@ -390,9 +392,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     HAL_GetDeviceName(meta_info.device_name);
 
     if (meta_info.product_key[0] == '\0' || meta_info.product_key[IOTX_PRODUCT_KEY_LEN] != '\0') {
+        mqtt_err("Invalid product key, abort!");
         return NULL;
     }
     if (meta_info.device_name[0] == '\0' || meta_info.device_name[IOTX_DEVICE_NAME_LEN] != '\0') {
+        mqtt_err("Invalid device name, abort!");
         return NULL;
     }
 
@@ -400,24 +404,26 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (dynamic) {
         HAL_GetProductSecret(meta_info.product_secret);
         if (meta_info.product_secret[0] == '\0' || meta_info.product_secret[IOTX_PRODUCT_SECRET_LEN] != '\0') {
-            mqtt_err("Product Secret isn't exist");
+            mqtt_err("Product Secret doesn't exist");
             return NULL;
         }
 
         ret = _iotx_dynamic_register(region, &meta_info);
         if (ret < SUCCESS_RETURN) {
+            mqtt_err("ret = _iotx_dynamic_register() = %d, abort", ret);
             return NULL;
         }
-    }
-    else {
+    } else {
         HAL_GetDeviceSecret(meta_info.device_secret);
         if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
+            mqtt_err("Invalid device secret, abort!");
             return NULL;
         }
     }
 #else /* get device secret from hal */
     HAL_GetDeviceSecret(meta_info.device_secret);
     if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
+        mqtt_err("Invalid device secret, abort!");
         return NULL;
     }
 #endif /* #ifdef DYNAMIC_REGISTER */
@@ -425,11 +431,13 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #ifdef MQTT_PRE_AUTH /* preauth mode through https */
     ret = _iotx_preauth(region, &meta_info, (iotx_pre_auth_output_t *)&g_default_sign); /* type convert */
     if (ret < SUCCESS_RETURN) {
+        mqtt_err("ret = _iotx_preauth() = %d, abort", ret);
         return NULL;
     }
 #else /* direct mode */
     ret = IOT_Sign_MQTT(region, &meta_info, &g_default_sign);
     if (ret < SUCCESS_RETURN) {
+        mqtt_err("ret = IOT_Sign_MQTT() = %d, abort", ret);
         return NULL;
     }
 #endif /* #ifdef MQTT_PRE_AUTH */
@@ -437,11 +445,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(iotx_mqtt_param_t));
 
-    mqtt_params.port = g_default_sign.port;
-    mqtt_params.host = g_default_sign.hostname;
-    mqtt_params.client_id = g_default_sign.clientid;
-    mqtt_params.username = g_default_sign.username;
-    mqtt_params.password = g_default_sign.password;
 #ifdef SUPPORT_TLS
     {
         extern const char *iotx_ca_crt;
@@ -458,15 +461,53 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     /* optional configuration */
     if (pInitParams != NULL) {
+        if (pInitParams->host && strlen(pInitParams->host)) {
+            mqtt_params.host = pInitParams->host;
+        } else {
+            mqtt_warning("Using default hostname: '%s'", g_default_sign.hostname);
+            mqtt_params.host = g_default_sign.hostname;
+        }
+
+        if (pInitParams->port) {
+            mqtt_params.port = pInitParams->port;
+        } else {
+            mqtt_warning("Using default port: [%d]", g_default_sign.port);
+            mqtt_params.port = g_default_sign.port;
+        }
+
+        if (pInitParams->client_id && strlen(pInitParams->client_id)) {
+            mqtt_params.client_id = pInitParams->client_id;
+        } else {
+            mqtt_warning("Using default client_id: %s", g_default_sign.clientid);
+            mqtt_params.client_id = g_default_sign.clientid;
+        }
+
+        if (pInitParams->username && strlen(pInitParams->username)) {
+            mqtt_params.username = pInitParams->username;
+        } else {
+            mqtt_warning("Using default username: %s", g_default_sign.username);
+            mqtt_params.username = g_default_sign.username;
+        }
+
+        if (pInitParams->password && strlen(pInitParams->password)) {
+            mqtt_params.password = pInitParams->password;
+        } else {
+#if 1
+            mqtt_warning("Using default password: %s", "******");
+#else
+            mqtt_warning("Using default password: %s", g_default_sign.password);
+#endif
+            mqtt_params.password = g_default_sign.password;
+        }
+
         if (pInitParams->request_timeout_ms < CONFIG_MQTT_REQ_TIMEOUT_MIN ||
             pInitParams->request_timeout_ms > CONFIG_MQTT_REQ_TIMEOUT_MAX) {
             mqtt_warning("Using default request_timeout_ms: %d, configured value(%d) out of [%d, %d]",
-                        mqtt_params.request_timeout_ms,
-                        pInitParams->request_timeout_ms,
-                        CONFIG_MQTT_REQ_TIMEOUT_MIN,
-                        CONFIG_MQTT_REQ_TIMEOUT_MAX);
-        }
-        else {
+                         mqtt_params.request_timeout_ms,
+                         pInitParams->request_timeout_ms,
+                         CONFIG_MQTT_REQ_TIMEOUT_MIN,
+                         CONFIG_MQTT_REQ_TIMEOUT_MAX);
+        } else {
             mqtt_params.request_timeout_ms = pInitParams->request_timeout_ms;
         }
 
@@ -477,26 +518,23 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (pInitParams->keepalive_interval_ms < CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN * 1000 ||
             pInitParams->keepalive_interval_ms > CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX * 1000) {
             mqtt_warning("Using default keepalive_interval_ms: %d, configured value(%d) out of [%d, %d]",
-                        mqtt_params.keepalive_interval_ms,
-                        pInitParams->keepalive_interval_ms,
-                        CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN * 1000,
-                        CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX * 1000);
-        }
-        else {
+                         mqtt_params.keepalive_interval_ms,
+                         pInitParams->keepalive_interval_ms,
+                         CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN * 1000,
+                         CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX * 1000);
+        } else {
             mqtt_params.keepalive_interval_ms = pInitParams->keepalive_interval_ms;
         }
 
         if (!pInitParams->read_buf_size) {
             mqtt_warning("Using default read_buf_size: %d", mqtt_params.read_buf_size);
-        }
-        else {
+        } else {
             mqtt_params.read_buf_size = pInitParams->read_buf_size;
         }
 
         if (!pInitParams->write_buf_size) {
             mqtt_warning("Using default write_buf_size: %d", mqtt_params.write_buf_size);
-        }
-        else {
+        } else {
             mqtt_params.write_buf_size = pInitParams->write_buf_size;
         }
 
@@ -530,11 +568,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     g_mqtt_client = pclient;
 
-   /* Mqtt Connect Callback */
-   callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
-   if (callback) {
-       ((int (*)(void))callback)();
-   }
+    /* Mqtt Connect Callback */
+    callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
+    if (callback) {
+        ((int (*)(void))callback)();
+    }
 
     return pclient;
 }
