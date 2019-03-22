@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
      *
      *  TCP/TLS port which can be 443 or 1883 or 80 or etc, you can customize it here
      *
-     *  default value is 80 in TCP case, and 443 in TLS case
+     *  default value is 1883 in TCP case, and 443 in TLS case
      */
     /* mqtt_params.port = 1883; */
 
