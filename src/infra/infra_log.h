@@ -16,7 +16,6 @@ int HAL_Vsnprintf(char *str, const int len, const char *format, va_list ap);
 #define LOG_MSG_MAXLEN                  (255)
 #define LOG_MOD_NAME_LEN                (7)
 #define LOG_PREFIX_FMT                  "[%s] %s(%d): "
-#define LOG_PREFIX_FMT_ONLINE           "%ld %s %s "
 
 #define HEXDUMP_SEP_LINE                "+" \
     "-----------------------" \
@@ -50,49 +49,49 @@ void    LITE_syslog(char *m, const char *f, const int l, const int level, const 
 #define LOG_FLOW_LEVEL                  (6)     /* code/packet flow messages */
 
 #if defined(INFRA_LOG) && !defined(INFRA_LOG_ALL_MUTED)
-#if defined(INFRA_LOG_MUTE_FLW)
-#define log_flow(mod, ...)
-#else
-#define log_flow(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_FLOW_LEVEL, __VA_ARGS__)
-#endif
+    #if defined(INFRA_LOG_MUTE_FLW)
+        #define log_flow(mod, ...)
+    #else
+        #define log_flow(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_FLOW_LEVEL, __VA_ARGS__)
+    #endif
 
-#if defined(INFRA_LOG_MUTE_DBG)
-#define log_debug(mod, ...)
-#else
-#define log_debug(mod, ...)         LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
-#endif
+    #if defined(INFRA_LOG_MUTE_DBG)
+        #define log_debug(mod, ...)
+    #else
+        #define log_debug(mod, ...)         LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
+    #endif
 
-#if defined(INFRA_LOG_MUTE_INF)
-#define log_info(mod, ...)
-#else
-#define log_info(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
-#endif
+    #if defined(INFRA_LOG_MUTE_INF)
+        #define log_info(mod, ...)
+    #else
+        #define log_info(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_INFO_LEVEL, __VA_ARGS__)
+    #endif
 
-#if defined(INFRA_LOG_MUTE_WRN)
-#define log_warning(mod, ...)
-#else
-#define log_warning(mod, ...)       LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
-#endif
+    #if defined(INFRA_LOG_MUTE_WRN)
+        #define log_warning(mod, ...)
+    #else
+        #define log_warning(mod, ...)       LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_WARNING_LEVEL, __VA_ARGS__)
+    #endif
 
-#if defined(INFRA_LOG_MUTE_ERR)
-#define log_err(mod, ...)
-#else
-#define log_err(mod, ...)           LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
-#endif
+    #if defined(INFRA_LOG_MUTE_ERR)
+        #define log_err(mod, ...)
+    #else
+        #define log_err(mod, ...)           LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_ERR_LEVEL, __VA_ARGS__)
+    #endif
 
-#if defined(INFRA_LOG_MUTE_CRT)
-#define log_crit(mod, ...)
-#else
-#define log_crit(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
-#endif
+    #if defined(INFRA_LOG_MUTE_CRT)
+        #define log_crit(mod, ...)
+    #else
+        #define log_crit(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
+    #endif
 #else   /* #if defined(INFRA_LOG) */
 
-#define log_flow(mod, ...)
-#define log_debug(mod, ...)
-#define log_info(mod, ...)
-#define log_warning(mod, ...)
-#define log_err(mod, ...)
-#define log_crit(mod, ...)
+    #define log_flow(mod, ...)
+    #define log_debug(mod, ...)
+    #define log_info(mod, ...)
+    #define log_warning(mod, ...)
+    #define log_err(mod, ...)
+    #define log_crit(mod, ...)
 
 #endif
 

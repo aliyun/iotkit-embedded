@@ -117,7 +117,7 @@ static int ssl_deserialize_session(mbedtls_ssl_session *session,
 #endif
 
 #if defined(MBEDTLS_SSL_SESSION_TICKETS) && defined(MBEDTLS_SSL_CLI_C)
-    if(session->ticket_len > 0) {
+    if (session->ticket_len > 0) {
         if (session->ticket_len > (size_t)(end - p)) {
             return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
         }
@@ -338,7 +338,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
             perror("setsockopt");
             printf("setsockopt error\n");
         }
-        printf("setsockopt SO_SNDTIMEO timeout: %lds\n", sendtimeout.tv_sec);
+        printf("setsockopt SO_SNDTIMEO timeout: %ds\n", (int)sendtimeout.tv_sec);
 
         inet_ntop(AF_INET, &((const struct sockaddr_in *)cur->ai_addr)->sin_addr, ip4_str, INET_ADDRSTRLEN);
         printf("connecting IP_ADDRESS: %s\n", ip4_str);

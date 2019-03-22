@@ -1395,9 +1395,9 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
                "Topic Name",
                topicName.lenstring.len,
                topicName.lenstring.data);
-    mqtt_debug("%20s : %lu / %ld", "Payload Len/Room",
-               topic_msg.payload_len,
-               c->buf_read + c->buf_size_read - topic_msg.payload);
+    mqtt_debug("%20s : %u / %d", "Payload Len/Room",
+               (unsigned int)topic_msg.payload_len,
+               (int)c->buf_read + c->buf_size_read - topic_msg.payload);
     mqtt_debug("%20s : %lu", "Receive Buflen", c->buf_size_read);
 
 #if defined(INSPECT_MQTT_FLOW)
