@@ -155,15 +155,30 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     }
 
     /* setup hostname */
-    length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
-    if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
-        return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
+    if (IOTX_CLOUD_REGION_CUSTOM == region) {
+        if (g_infra_mqtt_domain[region] == NULL) {
+            return ERROR_DEV_SIGN_CUSTOM_DOMAIN_IS_NULL;
+        }
+
+        length = strlen(g_infra_mqtt_domain[region]) + 1;
+        if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
+            return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
+        }
+
+        memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
+        memcpy(signout->hostname, g_infra_mqtt_domain[region], strlen(g_infra_mqtt_domain[region]));
     }
-    memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
-    memcpy(signout->hostname, meta->product_key, strlen(meta->product_key));
-    memcpy(signout->hostname + strlen(signout->hostname), ".", strlen("."));
-    memcpy(signout->hostname + strlen(signout->hostname), g_infra_mqtt_domain[region],
-           strlen(g_infra_mqtt_domain[region]));
+    else {
+        length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
+        if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
+            return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
+        }
+        memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
+        memcpy(signout->hostname, meta->product_key, strlen(meta->product_key));
+        memcpy(signout->hostname + strlen(signout->hostname), ".", strlen("."));
+        memcpy(signout->hostname + strlen(signout->hostname), g_infra_mqtt_domain[region],
+            strlen(g_infra_mqtt_domain[region]));
+    }
 
     /* setup username */
     length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
