@@ -73,8 +73,8 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
         kv_err("paras err");
         return -1;
     }
-    
-    value_len = value_len > ITEM_MAX_VAL_LEN? ITEM_MAX_VAL_LEN:value_len;
+
+    value_len = value_len > ITEM_MAX_VAL_LEN ? ITEM_MAX_VAL_LEN : value_len;
     i = hash_gen(key);
     kv_err("hash i= %d", i);
     read_size = ITEM_MAX_LEN * TABLE_ROW_SIZE;
@@ -138,7 +138,7 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
         kv_err("paras err");
         return -1;
     }
-    
+
     i = hash_gen(key);
 
     read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
@@ -230,7 +230,7 @@ static int read_kv_item(const char *filename, void *buf, int location)
         kv_err("open err");
         return -1;
     }
-    
+
     if (fstat(fd, &st) < 0) {
         kv_err("fstat err");
         close(fd);
@@ -245,7 +245,7 @@ static int read_kv_item(const char *filename, void *buf, int location)
 
     offset =  location * ITEM_MAX_LEN * TABLE_ROW_SIZE;
     ret = lseek(fd, offset, SEEK_SET);
-    if(ret < 0) {
+    if (ret < 0) {
         kv_err("lseek err");
         close(fd);
         return -1;
@@ -278,15 +278,17 @@ static int write_kv_item(const char *filename, void *data, int location)
     }
 
     if (st.st_size < (location + 1) *ITEM_MAX_LEN * TABLE_ROW_SIZE) {
-        kv_err("overstep st.st_size = %ld location =%d cur loc=%ld", st.st_size, location,
-                (location + 1) *ITEM_MAX_LEN * TABLE_ROW_SIZE);
+        kv_err("overstep st.st_size = %d location =%d cur loc=%d",
+               (int)st.st_size,
+               (int)location,
+               (int)((location + 1) *ITEM_MAX_LEN * TABLE_ROW_SIZE));
         close(fd);
         return -1;
     }
 
     offset = (location) * ITEM_MAX_LEN * TABLE_ROW_SIZE;
     ret = lseek(fd, offset, SEEK_SET);
-    if(ret < 0) {
+    if (ret < 0) {
         kv_err("lseek err");
         close(fd);
         return -1;

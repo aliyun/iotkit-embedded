@@ -207,7 +207,7 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
         close(sockfd);
         return -1;
     }
-    printf("success to establish udp, fd=%ld", sockfd);
+    printf("success to establish udp, fd=%d", (int)sockfd);
 
     return (intptr_t)sockfd;
 }
@@ -275,7 +275,7 @@ int HAL_UDP_joinmulticast(intptr_t sockfd,
         printf("setsockopt");
         return err;
     }
-    
+
     mreq.imr_multiaddr.s_addr = inet_addr(p_group);
     mreq.imr_interface.s_addr = htonl(INADDR_ANY); /*default networt interface*/
 
