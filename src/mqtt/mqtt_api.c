@@ -545,11 +545,24 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (pInitParams->handle_event.pcontext != NULL) {
             mqtt_params.handle_event.pcontext = pInitParams->handle_event.pcontext;
         }
-    }else{
+    } else {
+        mqtt_warning("Using default port: [%d]", g_default_sign.port);
         mqtt_params.port = g_default_sign.port;
+
+        mqtt_warning("Using default hostname: '%s'", g_default_sign.hostname);
         mqtt_params.host = g_default_sign.hostname;
+
+        mqtt_warning("Using default client_id: %s", g_default_sign.clientid);
         mqtt_params.client_id = g_default_sign.clientid;
+
+        mqtt_warning("Using default username: %s", g_default_sign.username);
         mqtt_params.username = g_default_sign.username;
+
+#if 1
+        mqtt_warning("Using default password: %s", "******");
+#else
+        mqtt_warning("Using default password: %s", g_default_sign.password);
+#endif
         mqtt_params.password = g_default_sign.password;
     }
 
