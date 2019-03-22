@@ -545,6 +545,12 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (pInitParams->handle_event.pcontext != NULL) {
             mqtt_params.handle_event.pcontext = pInitParams->handle_event.pcontext;
         }
+    }else{
+        mqtt_params.port = g_default_sign.port;
+        mqtt_params.host = g_default_sign.hostname;
+        mqtt_params.client_id = g_default_sign.clientid;
+        mqtt_params.username = g_default_sign.username;
+        mqtt_params.password = g_default_sign.password;
     }
 
     pclient = wrapper_mqtt_init(&mqtt_params);
