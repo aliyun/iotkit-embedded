@@ -185,6 +185,10 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     char request_buff[PREAUTH_HTTP_REQ_LEN] = {0};
     char response_buff[PREAUTH_HTTP_RSP_LEN] = {0};
 
+    if (g_infra_http_domain[region] == NULL) {
+        return FAIL_RETURN;
+    }
+
     memset(&httpc, 0, sizeof(httpclient_t));
     memset(&httpc_data, 0, sizeof(httpclient_data_t));
     memcpy(http_url + strlen(http_url), g_infra_http_domain[region], strlen(g_infra_http_domain[region]));
