@@ -13,19 +13,12 @@
 
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
-int HAL_SetProductKey(char *product_key);
-int HAL_SetDeviceName(char *device_name);
-int HAL_SetDeviceSecret(char *device_secret);
 
 void HAL_Printf(const char *fmt, ...);
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
 void HAL_SleepMs(uint32_t ms);
-
-#define PRODUCT_KEY             "a1MZxOdcBnO"
-#define DEVICE_NAME             "test_01"
-#define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
 
 char g_product_key[IOTX_PRODUCT_KEY_LEN + 1];
 char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
@@ -182,7 +175,7 @@ static int _ota_mqtt_client(void)
         rc = -1;
         goto do_exit;
     }
-    h_ota = IOT_OTA_Init(PRODUCT_KEY, DEVICE_NAME, pclient);
+    h_ota = IOT_OTA_Init(g_product_key, g_device_name, pclient);
     if (NULL == h_ota) {
         rc = -1;
         EXAMPLE_TRACE("initialize OTA failed");
@@ -288,9 +281,6 @@ int main(int argc, char *argv[])
     user_argc = argc;
     user_argv = argv;
 
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
     _ota_mqtt_client();
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);

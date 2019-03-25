@@ -12,7 +12,7 @@
 /*
  * please modify this string follow as product's TSL.
  */
-#include "data/solo_tsl.data"
+#include "data/solo_tsl.c"
 
 #define EVENT_ERROR_IDENTIFIER "Error"
 #define EVENT_ERROR_OUTPUT_INFO_IDENTIFIER "ErrorCode"

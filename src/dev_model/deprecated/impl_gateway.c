@@ -3,7 +3,7 @@
  */
 #include "iotx_dm_internal.h"
 
-#if defined (DEPRECATED_LINKKIT) &&  (DEVICE_MODEL_GATEWAY)
+#if defined(DEPRECATED_LINKKIT) && defined(DEVICE_MODEL_GATEWAY)
 
 #include "impl_gateway.h"
 

@@ -38,16 +38,9 @@ static void iotx_response_handler(void *arg, void *p_response)
     HAL_Printf("[APPL]: Len: %d, Payload: %s\r\n", len, p_payload);
 }
 
-#ifdef TEST_COAP_DAILY
-    #define IOTX_PRODUCT_KEY         "zPygj0yP3UF"
-    #define IOTX_DEVICE_NAME         "device_2"
-    #define IOTX_DEVICE_SECRET       "5FQbVOPWNwhEuCvnVcP1Mvyjmvt8ECQi"
-#else
-    #define IOTX_PRODUCT_KEY         "a1RP1qZfrEi"
-    #define IOTX_PRODUCT_SECRET      "wzrh2iC7CcN2Askq"
-    #define IOTX_DEVICE_NAME         "example5"
-    #define IOTX_DEVICE_SECRET       "2BZJTMnTr1gja4y6eOMdHruVTUxtIazp"
-#endif
+char IOTX_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char IOTX_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
+char IOTX_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
 int iotx_get_devinfo(iotx_deviceinfo_t *p_devinfo)
 {
@@ -116,10 +109,9 @@ int main(int argc, char **argv)
     iotx_deviceinfo_t       deviceinfo;
 
     /* set device info use HAL function */
-    HAL_SetProductKey(IOTX_PRODUCT_KEY);
-    HAL_SetProductSecret(IOTX_PRODUCT_SECRET);
-    HAL_SetDeviceName(IOTX_DEVICE_NAME);
-    HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
+    HAL_GetProductKey(IOTX_PRODUCT_KEY);
+    HAL_GetDeviceName(IOTX_DEVICE_NAME);
+    HAL_GetDeviceSecret(IOTX_DEVICE_SECRET);
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
