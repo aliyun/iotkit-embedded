@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "infra_config.h"
 #ifdef DEPRECATED_LINKKIT
 #include "gateway.c"
 #else

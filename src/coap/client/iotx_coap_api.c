@@ -855,10 +855,6 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
                 strlen(p_config->p_devinfo->device_secret));
         strncpy(p_iotx_coap->p_devinfo->device_name,  p_config->p_devinfo->device_name,
                 strlen(p_config->p_devinfo->device_name));
-
-        HAL_SetDeviceName(p_config->p_devinfo->device_name);
-        HAL_SetProductKey(p_config->p_devinfo->product_key);
-        HAL_SetDeviceSecret(p_config->p_devinfo->device_secret);
     }
 
     /*Init coap token*/

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "infra_config.h"
 
 void HAL_Printf(const char *fmt, ...);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
