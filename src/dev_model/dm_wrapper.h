@@ -1,6 +1,7 @@
 #ifndef _DM_WRAPPER_H_
 #define _DM_WRAPPER_H_
 
+#include "infra_compat.h"
 #include "wrappers_defs.h"
 
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
@@ -53,6 +54,24 @@ int HAL_SetProductKey(char *product_key);
 int HAL_SetProductSecret(char *product_secret);
 int HAL_SetDeviceName(char *device_name);
 int HAL_SetDeviceSecret(char *device_secret);
+#endif
+
+#ifdef ALCS_ENABLED
+p_HAL_Aes128_t HAL_Aes128_Init(
+            const uint8_t *key,
+            const uint8_t *iv,
+            AES_DIR_t dir);
+int HAL_Aes128_Cbc_Encrypt(
+            p_HAL_Aes128_t aes,
+            const void *src,
+            size_t blockNum,
+            void *dst);
+int HAL_Aes128_Destroy(p_HAL_Aes128_t aes);
+int HAL_Aes128_Cbc_Decrypt(
+            p_HAL_Aes128_t aes,
+            const void *src,
+            size_t blockNum,
+            void *dst);
 #endif
 
 #endif

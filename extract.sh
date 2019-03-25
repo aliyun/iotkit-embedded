@@ -254,6 +254,7 @@ sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${W
 # Output Header File Into wrapper.c
 echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
 echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
+echo -e "#include \"infra_compat.h\"" >> ${WRAPPERS_DIR}/wrapper.c
 echo -e "#include \"wrappers_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
 echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrapper.c
 echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
