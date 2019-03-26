@@ -59,28 +59,19 @@ typedef enum {
 /* Callback function to notify the application events.*/
 typedef void (*iotx_event_handle_t)(void *context, iotx_coap_event_t event, void *p_data);
 
-/*IoTx device*/
-typedef struct {
-    char     product_key[IOTX_PRODUCT_KEY_LEN + 1];
-    char     device_name[IOTX_DEVICE_NAME_LEN + 1];
-    char     device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2];
-    char     device_secret[IOTX_DEVICE_SECRET_LEN + 1];
-} iotx_deviceinfo_t;
-
 typedef struct {
     char        product_key[IOTX_PRODUCT_KEY_LEN + 1];
     char        device_name[IOTX_DEVICE_NAME_LEN + 1];
-    char        device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2];
+    char        device_id[IOTX_DEVICE_ID_LEN + 1];
     char        device_secret[IOTX_DEVICE_SECRET_LEN + 1];
-    char        module_vendor_id[IOTX_PARTNER_ID_LEN + 1];
-} iotx_device_info_t;
+} iotx_coap_device_info_t;
 
 /* IoTx initializa parameters */
 typedef struct {
-    char                 *p_url;        /*Can be NULL*/
-    int                   wait_time_ms; /*unit is micro second*/
-    iotx_device_info_t   *p_devinfo;    /*Device info*/
-    iotx_event_handle_t   event_handle; /*TODO, not supported now*/
+    char                      *p_url;        /*Can be NULL*/
+    int                       wait_time_ms; /*unit is micro second*/
+    iotx_coap_device_info_t   *p_devinfo;    /*Device info*/
+    iotx_event_handle_t       event_handle; /*TODO, not supported now*/
 } iotx_coap_config_t;
 
 /* Callback function to handle the response message.*/

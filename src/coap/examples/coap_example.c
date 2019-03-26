@@ -42,13 +42,13 @@ char IOTX_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
 char IOTX_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
 char IOTX_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
-int iotx_get_devinfo(iotx_deviceinfo_t *p_devinfo)
+int iotx_get_devinfo(iotx_coap_device_info_t *p_devinfo)
 {
     if (NULL == p_devinfo) {
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    memset(p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
+    memset(p_devinfo, 0x00, sizeof(iotx_coap_device_info_t));
 
     /**< get device info*/
     HAL_GetProductKey(p_devinfo->product_key);
@@ -70,10 +70,10 @@ static void iotx_post_data_to_server(void *param)
 {
     char               path[IOTX_URI_MAX_LEN + 1] = {0};
     iotx_message_t     message;
-    iotx_deviceinfo_t  devinfo;
+    iotx_coap_device_info_t  devinfo;
 
     memset(&message, 0, sizeof(iotx_message_t));
-    memset(&devinfo, 0, sizeof(iotx_deviceinfo_t));
+    memset(&devinfo, 0, sizeof(iotx_coap_device_info_t));
 
     message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
     message.payload_len = strlen("{\"name\":\"hello world\"}");
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     char                    env[32] = {0};
     int                     opt;
     iotx_coap_config_t      config;
-    iotx_deviceinfo_t       deviceinfo;
+    iotx_coap_device_info_t       deviceinfo;
 
     /* set device info use HAL function */
     HAL_GetProductKey(IOTX_PRODUCT_KEY);
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
     }
 
     iotx_get_devinfo(&deviceinfo);
-    config.p_devinfo = (iotx_device_info_t *)&deviceinfo;
+    config.p_devinfo = (iotx_coap_device_info_t *)&deviceinfo;
     config.wait_time_ms = 3000;
 
     iotx_coap_context_t *p_ctx = NULL;

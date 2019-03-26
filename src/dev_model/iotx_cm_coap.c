@@ -47,7 +47,7 @@ int  IOT_CoAP_GetMessageToken(void *p_message, unsigned int *token);
 static struct list_head g_coap_response_list = LIST_HEAD_INIT(g_coap_response_list);
 
 static iotx_cm_connection_t *_coap_conncection = NULL;
-static int iotx_set_devinfo(iotx_device_info_t *p_devinfo);
+static int iotx_set_devinfo(iotx_coap_device_info_t *p_devinfo);
 
 static int  _coap_connect(uint32_t timeout);
 static int _coap_publish(iotx_cm_ext_params_t *params, const char *topic, const char *payload,
@@ -62,7 +62,7 @@ static void _set_common_handlers();
 iotx_cm_connection_t *iotx_cm_open_coap(iotx_cm_init_param_t *params)
 {
     iotx_coap_config_t      *coap_config = NULL;
-    iotx_device_info_t       *deviceinfo = NULL;
+    iotx_coap_device_info_t       *deviceinfo = NULL;
 
     if (_coap_conncection != NULL) {
         cm_warning("mqtt connection is opened already,return it");
@@ -87,7 +87,7 @@ iotx_cm_connection_t *iotx_cm_open_coap(iotx_cm_init_param_t *params)
         goto failed;
     }
     memset(coap_config, 0, sizeof(iotx_coap_config_t));
-    deviceinfo = (iotx_device_info_t *)cm_malloc(sizeof(iotx_device_info_t));
+    deviceinfo = (iotx_coap_device_info_t *)cm_malloc(sizeof(iotx_coap_device_info_t));
     if (deviceinfo == NULL) {
         cm_err("deviceinfo malloc failed!");
         goto failed;
@@ -95,7 +95,7 @@ iotx_cm_connection_t *iotx_cm_open_coap(iotx_cm_init_param_t *params)
 
     _coap_conncection->open_params = coap_config;
 
-    memset(deviceinfo, 0, sizeof(iotx_device_info_t));
+    memset(deviceinfo, 0, sizeof(iotx_coap_device_info_t));
 
     iotx_set_devinfo(deviceinfo);
     coap_config->wait_time_ms = params->request_timeout_ms;
@@ -127,13 +127,13 @@ failed:
     return NULL;
 }
 
-static int iotx_set_devinfo(iotx_device_info_t *p_devinfo)
+static int iotx_set_devinfo(iotx_coap_device_info_t *p_devinfo)
 {
     if (NULL == p_devinfo) {
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    memset(p_devinfo, 0x00, sizeof(iotx_device_info_t));
+    memset(p_devinfo, 0x00, sizeof(iotx_coap_device_info_t));
 
     /**< get device info*/
     HAL_GetProductKey(p_devinfo->product_key);

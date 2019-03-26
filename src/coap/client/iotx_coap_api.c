@@ -41,7 +41,7 @@ typedef struct {
     char                *p_auth_token;
     int                  auth_token_len;
     char                 is_authed;
-    iotx_deviceinfo_t   *p_devinfo;
+    iotx_coap_device_info_t   *p_devinfo;
     Cloud_CoAPContext         *p_coap_ctx;
     unsigned int         coap_token;
     unsigned int         seq;
@@ -838,16 +838,16 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
     p_iotx_coap->auth_token_len = IOTX_AUTH_TOKEN_LEN;
 
     /*Get deivce information*/
-    p_iotx_coap->p_devinfo = coap_malloc(sizeof(iotx_deviceinfo_t));
+    p_iotx_coap->p_devinfo = coap_malloc(sizeof(iotx_coap_device_info_t));
     if (NULL == p_iotx_coap->p_devinfo) {
-        COAP_ERR(" Allocate memory for iotx_deviceinfo_t failed");
+        COAP_ERR(" Allocate memory for iotx_coap_device_info_t failed");
         goto err;
     }
-    memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
+    memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_coap_device_info_t));
 
     /*It should be implement by the user*/
     if (NULL != p_config->p_devinfo) {
-        memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
+        memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_coap_device_info_t));
         strncpy(p_iotx_coap->p_devinfo->device_id,    p_config->p_devinfo->device_id,   strlen(p_config->p_devinfo->device_id));
         strncpy(p_iotx_coap->p_devinfo->product_key,  p_config->p_devinfo->product_key,
                 strlen(p_config->p_devinfo->product_key));
