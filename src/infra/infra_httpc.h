@@ -103,7 +103,9 @@ void httpclient_close(httpclient_t *client);
 
 typedef enum {
     IOTX_HTTP_GET,
-    IOTX_HTTP_POST
+    IOTX_HTTP_POST,
+    IOTX_HTTP_PUT,
+    IOTX_HTTP_DELETE
 } iotx_http_method_t;
 
 typedef enum {
@@ -122,7 +124,7 @@ typedef int (*recvcallback)(char *ptr, int length, int total_length, void *userd
 void *wrapper_http_init(void);
 int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data);
 int wrapper_http_perform(void *handle, void *data, int length);
-void wrapper_http_deinit(void *handle);
+void wrapper_http_deinit(void **handle);
 /**********************************************************************************/
 #ifdef __cplusplus
 }

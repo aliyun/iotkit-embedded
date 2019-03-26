@@ -214,7 +214,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
 
     res = wrapper_http_perform(http_handle, request_payload, strlen(request_payload));
-    wrapper_http_deinit(http_handle);
+    wrapper_http_deinit(&http_handle);
 
     if (res != SUCCESS_RETURN) {
         dynreg_err("Http Download Failed");

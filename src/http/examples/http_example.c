@@ -54,6 +54,7 @@ void looptest(void *handle)
     msg.topic_path = path;
 
     while (cnt++ < loop_cnt) {
+        memset(msg.response_payload, 0, msg.response_payload_len);
         if (0 == IOT_HTTP_SendMessage(handle, &msg)) {
             success_cnt++;
         }
