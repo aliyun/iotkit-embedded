@@ -145,6 +145,13 @@ static int _calc_dynreg_sign(
     return SUCCESS_RETURN;
 }
 
+static int _recv_callback(char *ptr, uint32_t length, uint32_t total_length, void *userdata)
+{
+    memcpy(userdata, ptr, length);
+
+    return length;
+}
+
 static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload,
                                    iotx_http_region_types_t region, char device_secret[IOTX_DEVICE_SECRET_LEN])
 {
@@ -154,12 +161,13 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     char               *url = NULL;
     int                 url_len = 0;
     const char          *pub_key = NULL;
-    httpclient_t        http_client;
-    httpclient_data_t   http_client_data;
+    void                *http_handle = NULL;
+    int                  port = 443;
+    iotx_http_method_t   method = IOTX_HTTP_POST;
+    int                  timeout_ms = 10000;
+    char                 *header = "Accept: text/xml,text/javascript,text/html,application/json\r\n" \
+                                    "Content-Type: application/x-www-form-urlencoded\r\n";
     int                 start = 0, end = 0, data_start = 0, data_end = 0;
-
-    memset(&http_client, 0, sizeof(httpclient_t));
-    memset(&http_client_data, 0, sizeof(httpclient_data_t));
 
     domain = g_infra_http_domain[region];
     if (NULL == domain) {
@@ -175,14 +183,6 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     memset(url, 0, url_len);
     HAL_Snprintf(url, url_len, url_format, domain);
 
-    http_client.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
-
-    http_client_data.post_content_type = "application/x-www-form-urlencoded";
-    http_client_data.post_buf = request_payload;
-    http_client_data.post_buf_len = strlen(request_payload);
-    http_client_data.response_buf = response_payload;
-    http_client_data.response_buf_len = HTTP_RESPONSE_PAYLOAD_LEN;
-
 #ifdef SUPPORT_TLS
     {
         extern const char *iotx_ca_crt;
@@ -190,14 +190,26 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     }
 #endif
 
-    res = httpclient_common(&http_client, url, 443, pub_key, HTTPCLIENT_POST, 10000, &http_client_data);
+    http_handle = wrapper_http_init();
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_URL, (void *)url);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_PORT, (void *)&port);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_METHOD, (void *)&method);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_HEADER, (void *)header);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_CERT, (void *)pub_key);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&timeout_ms);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_recv_callback);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)response_payload);
+
+    res = wrapper_http_perform(http_handle, request_payload, strlen(request_payload));
+    wrapper_http_deinit(http_handle);
+
     if (res != SUCCESS_RETURN) {
         dynreg_err("Http Download Failed");
         dynreg_free(url);
         return FAIL_RETURN;
     }
     dynreg_free(url);
-    dynreg_info("Http Response Payload: %s", http_client_data.response_buf);
+    dynreg_info("Http Response Payload: %s", response_payload);
 
     _parse_dynreg_result(response_payload, "code", &start, &end);
     dynreg_info("Dynamic Register Code: %.*s", end - start + 1, &response_payload[start]);

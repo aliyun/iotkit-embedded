@@ -98,9 +98,37 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
 
 void httpclient_close(httpclient_t *client);
 
+
+/**********************************************************************************/
+
+typedef enum {
+    IOTX_HTTP_GET,
+    IOTX_HTTP_POST
+} iotx_http_method_t;
+
+typedef enum {
+  IOTX_HTTPOPT_URL,
+  IOTX_HTTPOPT_PORT,
+  IOTX_HTTPOPT_METHOD,
+  IOTX_HTTPOPT_HEADER,
+  IOTX_HTTPOPT_CERT,
+  IOTX_HTTPOPT_TIMEOUT,
+  IOTX_HTTPOPT_RECVCALLBACK,
+  IOTX_HTTPOPT_RECVCONTEXT
+} iotx_http_option_t;
+
+typedef int (*recvcallback)(char *ptr, uint32_t length, uint32_t total_length, void *userdata);
+
+void *wrapper_http_init(void);
+int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data);
+int wrapper_http_perform(void *handle, void *data, uint32_t length);
+void wrapper_http_deinit(void *handle);
+/**********************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+
+
 
 #endif /* __HTTPCLIENT_H__ */
 

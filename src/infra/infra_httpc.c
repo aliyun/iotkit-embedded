@@ -26,6 +26,8 @@
     #define httpc_debug(...)
 #endif
 
+void *HAL_Malloc(uint32_t size);
+void HAL_Free(void *ptr);
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 void HAL_SleepMs(uint32_t ms);
 
@@ -579,5 +581,168 @@ int iotx_post(httpclient_t *client,
 {
     return _http_send(client, url, port, ca_crt, HTTPCLIENT_POST, client_data);
 }
+
+/**********************************************************************************/
+
+typedef struct {
+    char *url;
+    int port;
+    iotx_http_method_t method;
+    char *header;
+    char *cert;
+    int timeout;
+    recvcallback recv_cb;
+    void *recv_ctx;
+} wrapper_http_handle_t;
+
+static int _replase_str(char **ptr, void *data) {
+    if (*ptr != NULL) {
+        HAL_Free(*ptr);
+    }
+    *ptr = HAL_Malloc(strlen(data) + 1);
+    if (*ptr == NULL) {
+        return FAIL_RETURN;
+    }
+    memset(*ptr, 0, strlen(data) + 1);
+    memcpy(*ptr, data, strlen(data));
+
+    return SUCCESS_RETURN;
+}
+
+void *wrapper_http_init(void)
+{
+    wrapper_http_handle_t *handle = HAL_Malloc(sizeof(wrapper_http_handle_t));
+    if (handle == NULL) {
+        return NULL;
+    }
+    memset(handle, 0,sizeof(wrapper_http_handle_t));
+
+    return handle;
+}
+
+int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
+{
+    int res = 0;
+    wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
+
+    if (handle == NULL || data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    switch (option) {
+        case IOTX_HTTPOPT_URL: {
+            res = _replase_str(&http_handle->url, data);
+        }
+        break;
+        case IOTX_HTTPOPT_PORT: {
+            if (*(int *)(data) < 0) {
+                return FAIL_RETURN;
+            }
+            http_handle->port = *(int *)(data);
+        }
+        break;
+        case IOTX_HTTPOPT_METHOD: {
+            http_handle->method = *(iotx_http_method_t *)data;
+        }
+        break;
+        case IOTX_HTTPOPT_HEADER: {
+            res = _replase_str(&http_handle->header, data);
+        }
+        break;
+        case IOTX_HTTPOPT_CERT: {
+            http_handle->cert = data;
+        }
+        break;
+        case IOTX_HTTPOPT_TIMEOUT: {
+            if (*(int *)(data) < 0) {
+                return FAIL_RETURN;
+            }
+            http_handle->timeout = *(int *)(data);
+        }
+        break;
+        case IOTX_HTTPOPT_RECVCALLBACK: {
+            http_handle->recv_cb = data;
+        }
+        break;
+        case IOTX_HTTPOPT_RECVCONTEXT: {
+            http_handle->recv_ctx = data;
+        }
+        break;
+        default: {
+            httpc_err("Unknown Option");
+            return FAIL_RETURN;
+        }
+        break;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int wrapper_http_perform(void *handle, void *data, uint32_t length)
+{
+    int res = 0;
+    wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
+    httpclient_t httpclient;
+    httpclient_data_t http_client_data;
+    char *response_payload = NULL;
+
+    if (handle == NULL || data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    if ((http_handle->method == IOTX_HTTP_POST) &&
+        (data == NULL || length == 0)) {
+        return FAIL_RETURN;
+    }
+
+    memset(&httpclient, 0, sizeof(httpclient_t));
+    memset(&http_client_data, 0, sizeof(httpclient_data_t));
+
+    response_payload = HAL_Malloc(HTTPCLIENT_READ_BUF_SIZE);
+    if (response_payload == NULL) {
+        return FAIL_RETURN;
+    }
+    memset(response_payload, 0, HTTPCLIENT_READ_BUF_SIZE);
+
+    httpclient.header = http_handle->header;
+    /* http_client_data.post_content_type = "application/x-www-form-urlencoded"; */
+    http_client_data.post_buf = data;
+    http_client_data.post_buf_len = length;
+    http_client_data.response_buf = response_payload;
+    http_client_data.response_buf_len = HTTPCLIENT_READ_BUF_SIZE;
+    
+
+    res = httpclient_common(&httpclient, http_handle->url, http_handle->port, http_handle->cert,
+                      http_handle->method, http_handle->timeout, &http_client_data);
+    if (res == SUCCESS_RETURN) {
+        if (http_handle->recv_cb) {
+            http_handle->recv_cb(response_payload, strlen(response_payload), strlen(response_payload), http_handle->recv_ctx);
+        }
+    }
+
+    HAL_Free(response_payload);
+
+    return res;
+}
+
+void wrapper_http_deinit(void *handle)
+{
+    wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
+
+    if (handle == NULL) {
+        return;
+    }
+
+    if (http_handle->url) {
+        HAL_Free(http_handle->url);
+    }
+
+    if (http_handle->header) {
+        HAL_Free(http_handle->header);
+    }
+}
+
+/**********************************************************************************/
+
 #endif
 
