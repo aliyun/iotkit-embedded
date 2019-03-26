@@ -32,9 +32,9 @@
 #define PLATFORM_WAIT_INFINITE (~0)
 
 #ifdef DYNAMIC_REGISTER
-    char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1D9tKSsX6C";
-    char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "FuwY0bVPr3NUZEa5";
-    char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "dynamic_test_01";
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1ZETBPbycq";
+    char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "L68wCVXYUaNg1Ey9";
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
     char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "";
 #else
     #ifdef DEVICE_MODEL_ENABLED

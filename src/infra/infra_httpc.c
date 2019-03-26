@@ -678,7 +678,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
     return SUCCESS_RETURN;
 }
 
-int wrapper_http_perform(void *handle, void *data, uint32_t length)
+int wrapper_http_perform(void *handle, void *data, int length)
 {
     int res = 0;
     wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
