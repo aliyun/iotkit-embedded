@@ -8,6 +8,7 @@
 
 typedef struct {
     char *payload;
+    int alread_download;
     int payload_len;
 } ota_http_response_t;
 
@@ -66,10 +67,12 @@ void *ofc_Init(char *url)
 static int _ota_fetch_callback(char *ptr, int length, int total_length, void *userdata)
 {
     ota_http_response_t *response = (ota_http_response_t *)userdata;
-    if (strlen(response->payload) + length >= response->payload_len) {
+    if (response->alread_download + length > response->payload_len) {
         return FAIL_RETURN;
     }
-    memcpy(response->payload + strlen(response->payload), ptr, length);
+
+    memcpy(response->payload + response->alread_download, ptr, length);
+    response->alread_download += length;
 
     return length;
 }
@@ -77,8 +80,8 @@ static int _ota_fetch_callback(char *ptr, int length, int total_length, void *us
 int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 {
     int                 current_fetch_size = 0;
-    int                 diff = 0;
     int                 http_timeout_s = timeout_s * 1000;
+    int                 http_recv_maxlen = buf_len;
     otahttp_Struct_pt   h_odc = (otahttp_Struct_pt)handle;
     ota_http_response_t response;
 
@@ -89,6 +92,7 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&http_timeout_s);
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_ota_fetch_callback);
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVMAXLEN, (void *)&http_recv_maxlen);
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
     current_fetch_size = wrapper_http_perform(h_odc->http_handle,NULL,0);
 
@@ -97,13 +101,12 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
         return -1;
     }
 
-    diff = current_fetch_size - h_odc->fetch_size;
-    h_odc->fetch_size = current_fetch_size;
+    h_odc->fetch_size += current_fetch_size;
 
-    OTA_LOG_ERROR("Download This Time: %d",diff);
-    OTA_LOG_ERROR("Download Total    : %d",h_odc->fetch_size);
+/*     OTA_LOG_ERROR("Download This Time: %d",current_fetch_size);
+    OTA_LOG_ERROR("Download Total    : %d",h_odc->fetch_size); */
 
-    return diff;
+    return current_fetch_size;
 }
 
 

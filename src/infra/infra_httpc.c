@@ -587,6 +587,8 @@ int iotx_post(httpclient_t *client,
 typedef struct {
     httpclient_t client;
     httpclient_data_t http_client_data;
+    int receive_maxlen;
+    int already_received;
     char *url;
     int port;
     iotx_http_method_t method;
@@ -666,6 +668,10 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
             http_handle->recv_cb = data;
         }
         break;
+        case IOTX_HTTPOPT_RECVMAXLEN: {
+            http_handle->receive_maxlen = *(int *)(data);
+        }
+        break;
         case IOTX_HTTPOPT_RECVCONTEXT: {
             http_handle->recv_ctx = data;
         }
@@ -682,7 +688,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
 
 int wrapper_http_perform(void *handle, void *data, int length)
 {
-    int res = 0;
+    int res = 0, received_this_time = 0;
     iotx_time_t timer;
     wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
     char *response_payload = NULL;
@@ -696,18 +702,21 @@ int wrapper_http_perform(void *handle, void *data, int length)
         return FAIL_RETURN;
     }
 
-    response_payload = HAL_Malloc(HTTPCLIENT_READ_BUF_SIZE);
+    if (http_handle->receive_maxlen <= 0) {
+        return FAIL_RETURN;
+    }
+
+    response_payload = HAL_Malloc(http_handle->receive_maxlen);
     if (response_payload == NULL) {
         return FAIL_RETURN;
     }
-    memset(response_payload, 0, HTTPCLIENT_READ_BUF_SIZE);
+    memset(response_payload, 0, http_handle->receive_maxlen);
 
     http_handle->client.header = http_handle->header;
-    /* http_client_data.post_content_type = "application/x-www-form-urlencoded"; */
     http_handle->http_client_data.post_buf = data;
     http_handle->http_client_data.post_buf_len = length;
     http_handle->http_client_data.response_buf = response_payload;
-    http_handle->http_client_data.response_buf_len = HTTPCLIENT_READ_BUF_SIZE;
+    http_handle->http_client_data.response_buf_len = http_handle->receive_maxlen;
     
 
     res = _http_send(&http_handle->client, http_handle->url, http_handle->port, 
@@ -727,15 +736,18 @@ int wrapper_http_perform(void *handle, void *data, int length)
         return res;
     }
 
+    received_this_time = http_handle->http_client_data.response_content_len - http_handle->http_client_data.retrieve_len - http_handle->already_received;
+    http_handle->already_received = http_handle->http_client_data.response_content_len - http_handle->http_client_data.retrieve_len;
+
     if (res >= SUCCESS_RETURN) {
         if (http_handle->recv_cb) {
-            http_handle->recv_cb(response_payload, strlen(response_payload), http_handle->http_client_data.response_content_len, http_handle->recv_ctx);
+            http_handle->recv_cb(response_payload, received_this_time, http_handle->http_client_data.response_content_len, http_handle->recv_ctx);
         }
     }
 
     HAL_Free(response_payload);
 
-    return http_handle->http_client_data.response_content_len - http_handle->http_client_data.retrieve_len;
+    return received_this_time;
 }
 
 void wrapper_http_deinit(void **handle)

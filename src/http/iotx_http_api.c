@@ -86,7 +86,8 @@
 
 typedef struct {
     char *payload;
-    int payload_length;
+    int alread_download;
+    int payload_len;
 } http_recv_message_t;
 
 static iotx_http_t *iotx_http_context_bak = NULL;
@@ -206,10 +207,12 @@ static void *verify_iotx_http_context(void *handle)
 static int _http_recv_callback(char *ptr, int length, int total_length, void *userdata)
 {
     http_recv_message_t *response = (http_recv_message_t *)userdata;
-    if (strlen(response->payload) + length >= response->payload_length) {
+    if (response->alread_download + length > response->payload_len) {
         return FAIL_RETURN;
     }
-    memcpy(response->payload + strlen(response->payload), ptr, length);
+
+    memcpy(response->payload + response->alread_download, ptr, length);
+    response->alread_download += length;
 
     return length;
 }
@@ -337,6 +340,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     int                 http_port = IOTX_HTTP_ONLINE_SERVER_PORT;
     iotx_http_method_t  http_method = IOTX_HTTP_POST;
     int                 http_timeout_ms = CONFIG_HTTP_AUTH_TIMEOUT;
+    int                 http_recv_maxlen = 0;
     http_recv_message_t recv_message;
 
     /* */
@@ -421,10 +425,12 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     /* Construct Auth Url */
     construct_full_http_authenticate_url(http_url);
 
+    http_recv_maxlen = HTTP_AUTH_RESP_MAX_LEN;
+
     /* Set httpclient and httpclient_data */
     memset(&recv_message, 0, sizeof(http_recv_message_t));
     recv_message.payload = rsp_payload;
-    recv_message.payload_length = HTTP_AUTH_RESP_MAX_LEN;
+    recv_message.payload_len = HTTP_AUTH_RESP_MAX_LEN;
 
     /*
     Test Code
@@ -453,6 +459,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_CERT, (void *)pub_key);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&http_timeout_ms);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_http_recv_callback);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVMAXLEN, (void *)&http_recv_maxlen);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&recv_message);
 
     /* Send Request and Get Response */
@@ -584,6 +591,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     int                 http_port = IOTX_HTTP_ONLINE_SERVER_PORT;
     iotx_http_method_t  http_method = IOTX_HTTP_POST;
     int                 http_timeout_ms = 0;
+    int                 http_recv_maxlen = 0;
     http_recv_message_t recv_message;
 
     /*
@@ -656,9 +664,11 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
         goto do_exit_pre;
     }
 
+    http_recv_maxlen = msg_param->response_payload_len;
+
     memset(&recv_message, 0, sizeof(http_recv_message_t));
     recv_message.payload = msg_param->response_payload;
-    recv_message.payload_length = msg_param->response_payload_len;
+    recv_message.payload_len = msg_param->response_payload_len;
 
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_URL, (void *)http_url);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_PORT, (void *)&http_port);
@@ -667,6 +677,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_CERT, (void *)pub_key);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&http_timeout_ms);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_http_recv_callback);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVMAXLEN, (void *)&http_recv_maxlen);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&recv_message);
 
     /* Send Request and Get Response */

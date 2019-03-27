@@ -177,7 +177,7 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
 static int _preauth_recv_callback(char *ptr, int length, int total_length, void *userdata)
 {
     preauth_http_response_t *response = (preauth_http_response_t *)userdata;
-    if (strlen(response->payload) + length >= response->payload_len) {
+    if (strlen(response->payload) + length > response->payload_len) {
         return FAIL_RETURN;
     }
     memcpy(response->payload + strlen(response->payload), ptr, length);
@@ -204,6 +204,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     preauth_http_response_t response; 
     char *http_header = "Accept: text/xml,text/javascript,text/html,application/json\r\n" \
                         "Content-Type: application/x-www-form-urlencoded;charset=utf-8\r\n";
+    int http_recv_maxlen = PREAUTH_HTTP_RSP_LEN;
     char request_buff[PREAUTH_HTTP_REQ_LEN] = {0};
     char response_buff[PREAUTH_HTTP_RSP_LEN] = {0};
 
@@ -228,6 +229,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_CERT, (void *)pub_key);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&http_timeout_ms);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_preauth_recv_callback);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVMAXLEN, (void *)&http_recv_maxlen);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
 
     res = wrapper_http_perform(http_handle, request_buff, strlen(request_buff));

@@ -153,7 +153,7 @@ static int _calc_dynreg_sign(
 static int _recv_callback(char *ptr, int length, int total_length, void *userdata)
 {
     dynreg_http_response_t *response = (dynreg_http_response_t *)userdata;
-    if (strlen(response->payload) + length >= response->payload_len) {
+    if (strlen(response->payload) + length > response->payload_len) {
         return FAIL_RETURN;
     }
     memcpy(response->payload + strlen(response->payload), ptr, length);
@@ -176,6 +176,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     int                  timeout_ms = 10000;
     char                 *header = "Accept: text/xml,text/javascript,text/html,application/json\r\n" \
                                     "Content-Type: application/x-www-form-urlencoded\r\n";
+    int                  http_recv_maxlen = HTTP_RESPONSE_PAYLOAD_LEN;
     dynreg_http_response_t      response;
     int                 start = 0, end = 0, data_start = 0, data_end = 0;
 
@@ -211,6 +212,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_CERT, (void *)pub_key);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&timeout_ms);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_recv_callback);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVMAXLEN, (void *)&http_recv_maxlen);
     wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
 
     res = wrapper_http_perform(http_handle, request_payload, strlen(request_payload));
