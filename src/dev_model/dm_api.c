@@ -265,7 +265,7 @@ void iotx_dm_dispatch(void)
     dm_msg_cache_tick();
 #endif
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO) && !defined(DEPRECATED_LINKKIT)
     iotx_linkkit_service_list_overtime_handle();
 #endif
 
