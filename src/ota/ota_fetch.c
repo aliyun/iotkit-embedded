@@ -7,24 +7,31 @@
 /* ofc, OTA fetch channel */
 
 typedef struct {
+    char *payload;
+    int payload_len;
+} ota_http_response_t;
+
+typedef struct {
 
     const char *url;
-    httpclient_t http;              /* http client */
-    httpclient_data_t http_data;    /* http client data */
-
+    void *http_handle;
+    int fetch_size;
 } otahttp_Struct_t, *otahttp_Struct_pt;
-
-extern int httpclient_common(httpclient_t *client,
-                             const char *url,
-                             int port,
-                             const char *ca_crt,
-                             HTTPCLIENT_REQUEST_TYPE method,
-                             uint32_t timeout_ms,
-                             httpclient_data_t *client_data);
 
 void *ofc_Init(char *url)
 {
     otahttp_Struct_pt h_odc;
+    char *header = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
+                         "Accept-Encoding: gzip, deflate\r\n";
+#if defined(SUPPORT_TLS)
+    extern const char *iotx_ca_crt;
+    char *pub_key = (char *)iotx_ca_crt;
+    int port = 443;
+#else
+    char *pub_key = NULL;
+    int port = 80;
+#endif
+    iotx_http_method_t method = IOTX_HTTP_GET;
 
     if (NULL == (h_odc = OTA_MALLOC(sizeof(otahttp_Struct_t)))) {
         OTA_LOG_ERROR("allocate for h_odc failed");
@@ -33,9 +40,12 @@ void *ofc_Init(char *url)
 
     memset(h_odc, 0, sizeof(otahttp_Struct_t));
 
-    /* set http request-header parameter */
-    h_odc->http.header = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
-                         "Accept-Encoding: gzip, deflate\r\n";
+    h_odc->http_handle = wrapper_http_init();
+    if (h_odc->http_handle == NULL) {
+        OTA_FREE(h_odc);
+        return NULL;
+    }
+
 #if defined(SUPPORT_ITLS)
     char *s_ptr = strstr(url, "://");
     if (strlen("https") == (s_ptr - url) && (0 == strncmp(url, "https", strlen("https")))) {
@@ -43,35 +53,57 @@ void *ofc_Init(char *url)
         url++;
     }
 #endif
-    h_odc->url = url;
+
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_URL, (void *)url);
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_PORT, (void *)&port);
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_METHOD, (void *)&method);
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_HEADER, (void *)header);
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_CERT, (void *)pub_key);
 
     return h_odc;
 }
 
+static int _ota_fetch_callback(char *ptr, int length, int total_length, void *userdata)
+{
+    ota_http_response_t *response = (ota_http_response_t *)userdata;
+    if (strlen(response->payload) + length >= response->payload_len) {
+        return FAIL_RETURN;
+    }
+    memcpy(response->payload + strlen(response->payload), ptr, length);
 
-extern const char *iotx_ca_crt;
+    return length;
+}
 
 int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 {
-    int                 diff;
+    int                 current_fetch_size = 0;
+    int                 diff = 0;
+    int                 http_timeout_s = timeout_s * 1000;
     otahttp_Struct_pt   h_odc = (otahttp_Struct_pt)handle;
+    ota_http_response_t response;
 
-    h_odc->http_data.response_buf = buf;
-    h_odc->http_data.response_buf_len = buf_len;
-    diff = h_odc->http_data.response_content_len - h_odc->http_data.retrieve_len;
+    memset(&response, 0, sizeof(ota_http_response_t));
+    memset(buf, 0, buf_len);
+    response.payload = buf;
+    response.payload_len = buf_len;
 
-#if !defined(SUPPORT_TLS)
-    if (0 != httpclient_common(&h_odc->http, h_odc->url, 80, 0, HTTPCLIENT_GET, timeout_s * 1000,
-                               &h_odc->http_data)) {
-#else
-    if (0 != httpclient_common(&h_odc->http, h_odc->url, 443, iotx_ca_crt, HTTPCLIENT_GET, timeout_s * 1000,
-                               &h_odc->http_data)) {
-#endif
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&http_timeout_s);
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_ota_fetch_callback);
+    wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
+    current_fetch_size = wrapper_http_perform(h_odc->http_handle,NULL,0);
+
+    if (current_fetch_size < 0) {
         OTA_LOG_ERROR("fetch firmware failed");
         return -1;
     }
 
-    return h_odc->http_data.response_content_len - h_odc->http_data.retrieve_len - diff;
+    diff = current_fetch_size - h_odc->fetch_size;
+    h_odc->fetch_size = current_fetch_size;
+
+    OTA_LOG_ERROR("Download This Time: %d",diff);
+    OTA_LOG_ERROR("Download Total    : %d",h_odc->fetch_size);
+
+    return diff;
 }
 
 

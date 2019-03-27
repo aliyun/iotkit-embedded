@@ -586,6 +586,7 @@ int iotx_post(httpclient_t *client,
 
 typedef struct {
     httpclient_t client;
+    httpclient_data_t http_client_data;
     char *url;
     int port;
     iotx_http_method_t method;
@@ -684,10 +685,9 @@ int wrapper_http_perform(void *handle, void *data, int length)
     int res = 0;
     iotx_time_t timer;
     wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
-    httpclient_data_t http_client_data;
     char *response_payload = NULL;
 
-    if (handle == NULL || data == NULL) {
+    if (handle == NULL) {
         return FAIL_RETURN;
     }
 
@@ -695,8 +695,6 @@ int wrapper_http_perform(void *handle, void *data, int length)
         (data == NULL || length <= 0)) {
         return FAIL_RETURN;
     }
-
-    memset(&http_client_data, 0, sizeof(httpclient_data_t));
 
     response_payload = HAL_Malloc(HTTPCLIENT_READ_BUF_SIZE);
     if (response_payload == NULL) {
@@ -706,14 +704,14 @@ int wrapper_http_perform(void *handle, void *data, int length)
 
     http_handle->client.header = http_handle->header;
     /* http_client_data.post_content_type = "application/x-www-form-urlencoded"; */
-    http_client_data.post_buf = data;
-    http_client_data.post_buf_len = length;
-    http_client_data.response_buf = response_payload;
-    http_client_data.response_buf_len = HTTPCLIENT_READ_BUF_SIZE;
+    http_handle->http_client_data.post_buf = data;
+    http_handle->http_client_data.post_buf_len = length;
+    http_handle->http_client_data.response_buf = response_payload;
+    http_handle->http_client_data.response_buf_len = HTTPCLIENT_READ_BUF_SIZE;
     
 
     res = _http_send(&http_handle->client, http_handle->url, http_handle->port, 
-                        http_handle->cert, http_handle->method, &http_client_data);
+                        http_handle->cert, http_handle->method, &http_handle->http_client_data);
     if (SUCCESS_RETURN != res) {
         HAL_Free(response_payload);
         return res;
@@ -722,22 +720,22 @@ int wrapper_http_perform(void *handle, void *data, int length)
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, http_handle->timeout);
 
-    res = httpclient_recv_response(&http_handle->client, iotx_time_left(&timer), &http_client_data);
+    res = httpclient_recv_response(&http_handle->client, iotx_time_left(&timer), &http_handle->http_client_data);
     if (res < 0) {
         httpc_err("httpclient_recv_response is error,res = %d", res);
         HAL_Free(response_payload);
         return res;
     }
 
-    if (res == SUCCESS_RETURN) {
+    if (res >= SUCCESS_RETURN) {
         if (http_handle->recv_cb) {
-            http_handle->recv_cb(response_payload, strlen(response_payload), strlen(response_payload), http_handle->recv_ctx);
+            http_handle->recv_cb(response_payload, strlen(response_payload), http_handle->http_client_data.response_content_len, http_handle->recv_ctx);
         }
     }
 
     HAL_Free(response_payload);
 
-    return res;
+    return http_handle->http_client_data.response_content_len - http_handle->http_client_data.retrieve_len;
 }
 
 void wrapper_http_deinit(void **handle)
