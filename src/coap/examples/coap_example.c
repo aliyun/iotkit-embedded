@@ -12,8 +12,6 @@
 #include "coap_api.h"
 #include "coap_wrapper.h"
 
-#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://11.239.164.238:5684"
-#define IOTX_DAILY_PSK_SERVER_URI       "coap-psk://10.101.83.159:5682"
 
 #define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.coap.cn-shanghai.link.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI       "coap://pre.coap.cn-shanghai.link.aliyuncs.com:5683"
@@ -24,6 +22,9 @@
 #define IOTX_ONLINE_NOSEC_SERVER_URI    "coap://%s.coap.cn-shanghai.link.aliyuncs.com:5683"
 #define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
 
+char IOTX_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+char IOTX_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
+char IOTX_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 char m_coap_client_running = 0;
 char m_coap_reconnect = 0;
 
@@ -38,11 +39,25 @@ static void iotx_response_handler(void *arg, void *p_response)
     HAL_Printf("[APPL]: Len: %d, Payload: %s\r\n", len, p_payload);
 }
 
-char IOTX_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-char IOTX_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
-char IOTX_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+static void iotx_post_data_to_server(void *param)
+{
+    char path[IOTX_URI_MAX_LEN + 1] = {0};
+    iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
+    iotx_message_t message;
 
-int iotx_get_devinfo(iotx_coap_device_info_t *p_devinfo)
+    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", IOTX_PRODUCT_KEY, IOTX_DEVICE_NAME);
+
+    memset(&message, 0, sizeof(iotx_message_t));
+    message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
+    message.payload_len = strlen("{\"name\":\"hello world\"}");
+    message.resp_callback = iotx_response_handler;
+    message.msg_type = IOTX_MESSAGE_CON;
+    message.content_type = IOTX_CONTENT_TYPE_JSON;
+
+    IOT_CoAP_SendMessage(p_ctx, path, &message);
+}
+
+static int iotx_get_devinfo(iotx_coap_device_info_t *p_devinfo)
 {
     if (NULL == p_devinfo) {
         return IOTX_ERR_INVALID_PARAM;
@@ -50,46 +65,22 @@ int iotx_get_devinfo(iotx_coap_device_info_t *p_devinfo)
 
     memset(p_devinfo, 0x00, sizeof(iotx_coap_device_info_t));
 
-    /**< get device info*/
+    /* get device info */
     HAL_GetProductKey(p_devinfo->product_key);
     HAL_GetDeviceName(p_devinfo->device_name);
     HAL_GetDeviceSecret(p_devinfo->device_secret);
     memset(p_devinfo->device_id, 0, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2);
-    HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2, 
+    HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2,
                 "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
-    /**< end*/
 
-    fprintf(stderr, "*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
-    fprintf(stderr, "*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
-    fprintf(stderr, "*****The Device Secret: %s *****\r\n", p_devinfo->device_secret);
-    fprintf(stderr, "*****The Device ID    : %s *****\r\n", p_devinfo->device_id);
+    HAL_Printf("*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
+    HAL_Printf("*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
+    HAL_Printf("*****The Device Secret: %s *****\r\n", p_devinfo->device_secret);
+    HAL_Printf("*****The Device ID    : %s *****\r\n", p_devinfo->device_id);
     return IOTX_SUCCESS;
 }
 
-static void iotx_post_data_to_server(void *param)
-{
-    char               path[IOTX_URI_MAX_LEN + 1] = {0};
-    iotx_message_t     message;
-    iotx_coap_device_info_t  devinfo;
-
-    memset(&message, 0, sizeof(iotx_message_t));
-    memset(&devinfo, 0, sizeof(iotx_coap_device_info_t));
-
-    message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
-    message.payload_len = strlen("{\"name\":\"hello world\"}");
-    message.resp_callback = iotx_response_handler;
-    message.msg_type = IOTX_MESSAGE_CON;
-    message.content_type = IOTX_CONTENT_TYPE_JSON;
-    iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
-
-    iotx_get_devinfo(&devinfo);
-    snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", (char *)devinfo.product_key,
-             (char *)devinfo.device_name);
-
-    IOT_CoAP_SendMessage(p_ctx, path, &message);
-}
-
-void show_usage()
+static void show_usage()
 {
     HAL_Printf("\r\nusage: coap-example [OPTION]...\r\n");
     HAL_Printf("\t-e pre|online|daily\t\tSet the cloud environment.\r\n");
@@ -106,7 +97,7 @@ int main(int argc, char **argv)
     char                    env[32] = {0};
     int                     opt;
     iotx_coap_config_t      config;
-    iotx_coap_device_info_t       deviceinfo;
+    iotx_coap_device_info_t deviceinfo;
 
     /* set device info use HAL function */
     HAL_GetProductKey(IOTX_PRODUCT_KEY);
@@ -177,18 +168,10 @@ int main(int argc, char **argv)
             char url[256] = {0};
             snprintf(url, sizeof(url), IOTX_ONLINE_PSK_SERVER_URL, IOTX_PRODUCT_KEY);
             config.p_url = url;
-
         } else {
             HAL_Printf("Online environment must access with DTLS/PSK\r\n");
             IOT_SetLogLevel(IOT_LOG_NONE);
             return -1;
-        }
-    } else if (0 == strncmp(env, "daily", strlen("daily"))) {
-        if (0 == strncmp(secur, "dtls", strlen("dtls"))) {
-            config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
-        } else if (0 == strncmp(secur, "psk", strlen("psk"))) {
-            config.p_url = IOTX_DAILY_PSK_SERVER_URI;
-
         }
     }
 
@@ -220,7 +203,6 @@ reconnect:
         goto reconnect;
     }
 
-    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
     HAL_Printf("[COAP-Client]: Exit Coap Client\r\n");
     return 0;
