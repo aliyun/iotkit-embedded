@@ -94,6 +94,10 @@ typedef struct {
 
 static iotx_linkkit_ctx_t g_iotx_linkkit_ctx = {0};
 
+#ifdef ALCS_ENABLED
+    extern void dm_server_free_context(_IN_ void *ctx);
+#endif
+
 static iotx_linkkit_ctx_t *_iotx_linkkit_get_ctx(void)
 {
     return &g_iotx_linkkit_ctx;
@@ -395,9 +399,6 @@ static void _iotx_linkkit_upstream_callback_remove(int msgid, int code)
 
 #ifdef LOG_REPORT_TO_CLOUD
     int  report_sample = 0;
-#endif
-#ifdef ALCS_ENABLED
-    extern void dm_server_free_context(_IN_ void *ctx);
 #endif
 
 static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
