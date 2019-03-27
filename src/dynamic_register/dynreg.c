@@ -19,8 +19,8 @@
 
 typedef struct {
     char *payload;
-    int payload_length;
-} dynreg_http_response;
+    int payload_len;
+} dynreg_http_response_t;
 
 static int _parse_string_value(char *payload, int *pos, int *start, int *end)
 {
@@ -152,8 +152,8 @@ static int _calc_dynreg_sign(
 
 static int _recv_callback(char *ptr, int length, int total_length, void *userdata)
 {
-    dynreg_http_response *response = (dynreg_http_response *)userdata;
-    if (strlen(response->payload) + length >= response->payload_length) {
+    dynreg_http_response_t *response = (dynreg_http_response_t *)userdata;
+    if (strlen(response->payload) + length >= response->payload_len) {
         return FAIL_RETURN;
     }
     memcpy(response->payload + strlen(response->payload), ptr, length);
@@ -176,7 +176,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     int                  timeout_ms = 10000;
     char                 *header = "Accept: text/xml,text/javascript,text/html,application/json\r\n" \
                                     "Content-Type: application/x-www-form-urlencoded\r\n";
-    dynreg_http_response      response;
+    dynreg_http_response_t      response;
     int                 start = 0, end = 0, data_start = 0, data_end = 0;
 
     domain = g_infra_http_domain[region];
@@ -193,9 +193,9 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     memset(url, 0, url_len);
     HAL_Snprintf(url, url_len, url_format, domain);
 
-    memset(&response, 0, sizeof(dynreg_http_response));
+    memset(&response, 0, sizeof(dynreg_http_response_t));
     response.payload = response_payload;
-    response.payload_length = HTTP_RESPONSE_PAYLOAD_LEN;
+    response.payload_len = HTTP_RESPONSE_PAYLOAD_LEN;
 #ifdef SUPPORT_TLS
     {
         extern const char *iotx_ca_crt;

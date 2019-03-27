@@ -30,6 +30,11 @@
     extern const char *iotx_ca_crt;
 #endif
 
+typedef struct {
+    char *payload;
+    int payload_len;
+} preauth_http_response_t;
+
 int _preauth_assemble_auth_req_string(const iotx_dev_meta_info_t *dev_meta, const char *sign,
                                       const char *device_id, char *request_buff, uint32_t buff_len)
 {
@@ -169,6 +174,17 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
     return SUCCESS_RETURN;
 }
 
+static int _preauth_recv_callback(char *ptr, int length, int total_length, void *userdata)
+{
+    preauth_http_response_t *response = (preauth_http_response_t *)userdata;
+    if (strlen(response->payload) + length >= response->payload_len) {
+        return FAIL_RETURN;
+    }
+    memcpy(response->payload + strlen(response->payload), ptr, length);
+
+    return length;
+}
+
 int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *dev_meta,
                                 const char *sign, const char *device_id, iotx_pre_auth_output_t *preauth_output)
 {
@@ -176,12 +192,18 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     char http_url_frag[] = "/auth/devicename";
 #ifdef SUPPORT_TLS
     int http_port = 443;
+    char *pub_key = (char *)iotx_ca_crt;
 #else
     int http_port = 80;
+    char *pub_key = NULL;
 #endif
     int res = FAIL_RETURN;
-    httpclient_t httpc;
-    httpclient_data_t httpc_data;
+    void *http_handle = NULL;
+    iotx_http_method_t http_method = IOTX_HTTP_POST;
+    int http_timeout_ms = CONFIG_GUIDER_AUTH_TIMEOUT;
+    preauth_http_response_t response; 
+    char *http_header = "Accept: text/xml,text/javascript,text/html,application/json\r\n" \
+                        "Content-Type: application/x-www-form-urlencoded;charset=utf-8\r\n";
     char request_buff[PREAUTH_HTTP_REQ_LEN] = {0};
     char response_buff[PREAUTH_HTTP_RSP_LEN] = {0};
 
@@ -189,32 +211,28 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
         return FAIL_RETURN;
     }
 
-    memset(&httpc, 0, sizeof(httpclient_t));
-    memset(&httpc_data, 0, sizeof(httpclient_data_t));
+    memset(&response, 0, sizeof(preauth_http_response_t));
     memcpy(http_url + strlen(http_url), g_infra_http_domain[region], strlen(g_infra_http_domain[region]));
     memcpy(http_url + strlen(http_url), http_url_frag, sizeof(http_url_frag));
 
-    httpc.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
-
     _preauth_assemble_auth_req_string(dev_meta, sign, device_id, request_buff, sizeof(request_buff));
 
-    httpc_data.post_content_type = "application/x-www-form-urlencoded;charset=utf-8";
-    httpc_data.post_buf = request_buff;
-    httpc_data.post_buf_len = strlen(request_buff);
-    httpc_data.response_buf = response_buff;
-    httpc_data.response_buf_len = sizeof(response_buff);
+    response.payload = response_buff;
+    response.payload_len = PREAUTH_HTTP_RSP_LEN;
 
-    res = httpclient_common(&httpc,
-                            http_url,
-                            http_port,
-#ifdef SUPPORT_TLS
-                            iotx_ca_crt,
-#else
-                            NULL,
-#endif
-                            HTTPCLIENT_POST,
-                            CONFIG_GUIDER_AUTH_TIMEOUT,
-                            &httpc_data);
+    http_handle = wrapper_http_init();
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_URL, (void *)http_url);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_PORT, (void *)&http_port);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_METHOD, (void *)&http_method);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_HEADER, (void *)http_header);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_CERT, (void *)pub_key);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_TIMEOUT, (void *)&http_timeout_ms);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_preauth_recv_callback);
+    wrapper_http_setopt(http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
+
+    res = wrapper_http_perform(http_handle, request_buff, strlen(request_buff));
+    wrapper_http_deinit(&http_handle);
+
     if (res < SUCCESS_RETURN) {
         return res;
     }
