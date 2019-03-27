@@ -100,6 +100,7 @@ typedef enum {
     ITE_DISCONNECTED,
     ITE_RAWDATA_ARRIVED,
     ITE_SERVICE_REQUEST,
+    ITE_SERVICE_REQUEST_EXT,
     ITE_PROPERTY_SET,
     ITE_PROPERTY_GET,
 #ifdef DEVICE_MODEL_SHADOW
@@ -116,7 +117,7 @@ typedef enum {
     ITE_MQTT_CONNECT_SUCC
 } iotx_ioctl_event_t;
 
-#define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
+#define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb)
 #define DECLARE_EVENT_CALLBACK(evt, cb)         DLL_IOT_API int iotx_register_for_##evt(cb);
 #define DEFINE_EVENT_CALLBACK(evt, cb)          DLL_IOT_API int iotx_register_for_##evt(cb) { \
         if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {return -1;} \
@@ -127,8 +128,9 @@ DECLARE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_CONNECT_FAIL,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*cb)(const int, const unsigned char *, const int))
-DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,       int (*cb)(const int, const char *, const int, const char *, const int,
+DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,      int (*cb)(const int, const char *, const int, const char *, const int,
                        char **, int *))
+DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*cb)(int, const char *, int, const char *, int, void *))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*cb)(const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*cb)(const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*cb)(const int, const char *, const int, char **, int *))

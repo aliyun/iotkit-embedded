@@ -178,6 +178,22 @@ DLL_IOT_API int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, u
  */
 DLL_IOT_API int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
 
+
+/**
+ * @brief post service response to cloud
+ *
+ * @param devid. device identifier.
+ * @param serviceid. tsl service id.
+ * @param serviceid_len. length of tsl service id.
+ * @param payload. service response payload.
+ * @param payload_len. service response payload length.
+ *
+ * @return success: 0, fail: -1.
+ *
+ */
+DLL_IOT_API int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, char *payload, int payload_len,
+                              void *p_service_ctx);
+
 #if defined(__cplusplus)
 }
 #endif

@@ -123,4 +123,8 @@ int remove_log_poll();
 unsigned int push_log(const char *perform_data, int perform_data_size);
 #endif
 
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+void iotx_linkkit_service_list_overtime_handle(void);
+#endif
+
 #endif

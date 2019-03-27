@@ -264,6 +264,11 @@ void iotx_dm_dispatch(void)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_tick();
 #endif
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    iotx_linkkit_service_list_overtime_handle();
+#endif
+
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     dm_cota_status_check();
     dm_fota_status_check();

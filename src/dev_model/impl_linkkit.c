@@ -46,7 +46,34 @@
 #define IOTX_LINKKIT_KEY_TIME        "time"
 #define IOTX_LINKKIT_KEY_DATA        "data"
 
-#define IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS 10000
+#define IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS    10000
+#define IOTX_LINKKIT_RRPC_ID_LEN                25
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+typedef enum {
+    IOTX_SERVICE_REQ_TYPE_RRPC,
+    IOTX_SERVICE_REQ_TYPE_GENERAL,
+} iotx_service_req_type_t;
+
+typedef struct {
+    char rrpc_id[IOTX_LINKKIT_RRPC_ID_LEN+1];
+} service_meta_rrpc_t;
+
+typedef struct {
+    void *alcs_ctx;
+} service_meta_general_t;
+
+typedef struct {
+    int msgid;
+    int type;
+    union {
+        service_meta_rrpc_t rrpc;
+        service_meta_general_t general;
+    } service_meta;
+    uint64_t ctime;
+    struct list_head linked_list;
+} iotx_service_ctx_node_t;
+#endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
 
 typedef struct {
     int msgid;
@@ -58,9 +85,11 @@ typedef struct {
 typedef struct {
     void *mutex;
     void *upstream_mutex;
+    void *service_list_mutex;
     int is_opened;
     int is_connected;
     struct list_head upstream_sync_callback_list;
+    struct list_head downstream_service_list;
 } iotx_linkkit_ctx_t;
 
 static iotx_linkkit_ctx_t g_iotx_linkkit_ctx = {0};
@@ -102,6 +131,151 @@ static int _impl_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, 
     return SUCCESS_RETURN;
 }
 
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+static void _linkkit_service_list_mutex_lock(void)
+{
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    if (ctx->service_list_mutex) {
+        HAL_MutexLock(ctx->service_list_mutex);
+    }
+}
+
+static void _linkkit_service_list_mutex_unlock(void)
+{
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    if (ctx->service_list_mutex) {
+        HAL_MutexUnlock(ctx->service_list_mutex);
+    }
+}
+
+static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgid, char *rrpcid, int rrpcid_len,
+                                         void *alcs_ctx, void **p_node)
+{
+    iotx_service_ctx_node_t *insert_node = NULL;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
+    insert_node = (iotx_service_ctx_node_t *)IMPL_LINKKIT_MALLOC(sizeof(iotx_service_ctx_node_t));
+    if (insert_node == NULL) {
+        dm_log_err("malloc error");
+        return FAIL_RETURN;
+    }
+    memset(insert_node, 0, sizeof(iotx_service_ctx_node_t));
+
+    infra_str2int(msgid, &insert_node->msgid);
+    insert_node->type = type;
+    insert_node->ctime = HAL_UptimeMs();
+
+    if (type == IOTX_SERVICE_REQ_TYPE_RRPC) {
+        if (rrpcid_len > IOTX_LINKKIT_RRPC_ID_LEN) {
+            dm_log_err("rrpcid len error");
+            IMPL_LINKKIT_FREE(insert_node);
+            return FAIL_RETURN;
+        }
+        memcpy(insert_node->service_meta.rrpc.rrpc_id, rrpcid, rrpcid_len);
+    }
+    else if (type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+        insert_node->service_meta.general.alcs_ctx = alcs_ctx;
+    }
+
+    _linkkit_service_list_mutex_lock();
+    list_add(&insert_node->linked_list, &ctx->downstream_service_list);
+    _linkkit_service_list_mutex_unlock();
+
+    *p_node = insert_node;
+    dm_log_debug("servcie node inserted");
+    return SUCCESS_RETURN;
+}
+
+static int _linkkit_service_list_search(iotx_service_ctx_node_t *node)
+{
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    iotx_service_ctx_node_t *search_node;
+
+    _linkkit_service_list_mutex_lock();
+    list_for_each_entry(search_node, &ctx->downstream_service_list, linked_list, iotx_service_ctx_node_t) {
+        if (search_node == node) {
+            _linkkit_service_list_mutex_unlock();
+            dm_log_debug("servcie node searched");
+            return SUCCESS_RETURN;
+        }
+    }
+    _linkkit_service_list_mutex_unlock();
+
+    return FAIL_RETURN;
+}
+
+static int _linkkit_service_list_delete(iotx_service_ctx_node_t *node)
+{
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
+    if (node->type == IOTX_SERVICE_REQ_TYPE_RRPC) {
+        list_del(&node->linked_list);
+        IMPL_LINKKIT_FREE(node);
+    }
+    else if (node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+        void *alcs_ctx = node->service_meta.general.alcs_ctx;
+        list_del(&node->linked_list);
+#ifdef ALCS_ENABLED
+        if (alcs_ctx) {
+            dm_server_free_context(alcs_ctx);
+        }
+#endif
+        IMPL_LINKKIT_FREE(node);
+    }
+
+    dm_log_debug("servcie node deleted");
+    return SUCCESS_RETURN;
+}
+
+static int _linkkit_service_list_destroy(void)
+{
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    iotx_service_ctx_node_t *search_node, *temp;
+
+    _linkkit_service_list_mutex_lock();
+    list_for_each_entry_safe(search_node, temp, &ctx->downstream_service_list, linked_list, iotx_service_ctx_node_t) {
+        if (search_node->type == IOTX_SERVICE_REQ_TYPE_RRPC ||
+            search_node->type == IOTX_SERVICE_REQ_TYPE_GENERAL ) {
+            list_del(&search_node->linked_list);
+            IMPL_LINKKIT_FREE(search_node);
+        }
+        else if (search_node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+            void *alcs_ctx = search_node->service_meta.general.alcs_ctx;
+            list_del(&search_node->linked_list);
+#ifdef ALCS_ENABLED
+            if (alcs_ctx) {
+                dm_server_free_context(alcs_ctx);
+            }
+#endif
+            IMPL_LINKKIT_FREE(search_node);
+        }
+    }
+    _linkkit_service_list_mutex_unlock();
+
+    return SUCCESS_RETURN;
+}
+
+void iotx_linkkit_service_list_overtime_handle(void)
+{
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    iotx_service_ctx_node_t *search_node, *temp;
+    uint64_t current_time = HAL_UptimeMs();
+
+    _linkkit_service_list_mutex_lock();
+    list_for_each_entry_safe(search_node, temp, &ctx->downstream_service_list, linked_list, iotx_service_ctx_node_t) {
+        if (current_time < search_node->ctime) {
+            search_node->ctime = current_time;
+        }
+        if (current_time - search_node->ctime >= DM_MSG_CACHE_TIMEOUT_MS_DEFAULT) {
+            dm_log_warning("service request timeout, msgid = %d", search_node->msgid);
+            /* TODO: notify user? */
+            _linkkit_service_list_delete(search_node);
+        }
+    }
+    _linkkit_service_list_mutex_unlock();
+}
+#endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
+
 #ifdef DEVICE_MODEL_GATEWAY
 static void _iotx_linkkit_upstream_mutex_lock(void)
 {
@@ -118,7 +292,6 @@ static void _iotx_linkkit_upstream_mutex_unlock(void)
         HAL_MutexUnlock(ctx->upstream_mutex);
     }
 }
-
 
 static int _iotx_linkkit_upstream_sync_callback_list_insert(int msgid, void *semaphore,
         iotx_linkkit_upstream_sync_callback_node_t **node)
@@ -419,11 +592,17 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                     HAL_Free(response);
                 }
             }
-#ifdef ALCS_ENABLED
-            if (property_get_ctx) {
-                dm_server_free_context(property_get_ctx);
+
+            callback = iotx_event_callback(ITE_SERVICE_REQUEST_EXT);
+            if (callback) {
+                void *service_ctx = NULL;
+                _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_GENERAL, lite_item_id.value, NULL, 0, property_get_ctx, &service_ctx);
+                if (service_ctx != NULL) {
+                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
+                                                    lite_item_serviceid.value_length, request, lite_item_payload.value_length, service_ctx);
+                }
             }
-#endif
+
             IMPL_LINKKIT_FREE(request);
         }
         break;
@@ -694,6 +873,17 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 }
             }
 
+            callback = iotx_event_callback(ITE_SERVICE_REQUEST_EXT);
+            if (callback) {
+                void *service_ctx = NULL;
+                _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_RRPC, lite_item_id.value, lite_item_rrpcid.value,
+                                            lite_item_rrpcid.value_length, NULL, &service_ctx);
+                if (service_ctx != NULL) {
+                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
+                                                    lite_item_serviceid.value_length, rrpc_request, lite_item_payload.value_length, service_ctx);
+                }
+            }
+
             IMPL_LINKKIT_FREE(rrpc_request);
         }
         break;
@@ -905,17 +1095,32 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
     }
 #endif
 
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    ctx->service_list_mutex = HAL_MutexCreate();
+    if (ctx->service_list_mutex == NULL) {
+        HAL_MutexDestroy(ctx->mutex);
+        HAL_MutexDestroy(ctx->upstream_mutex);
+        dm_log_err("Not Enough Memory");
+        ctx->is_opened = 0;
+        return FAIL_RETURN;
+    }
+#endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
+
     res = iotx_dm_open();
     if (res != SUCCESS_RETURN) {
 #ifdef DEVICE_MODEL_GATEWAY
         HAL_MutexDestroy(ctx->upstream_mutex);
 #endif
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+        HAL_MutexDestroy(ctx->service_list_mutex);
+#endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
         HAL_MutexDestroy(ctx->mutex);
         ctx->is_opened = 0;
         return FAIL_RETURN;
     }
 
     INIT_LIST_HEAD(&ctx->upstream_sync_callback_list);
+    INIT_LIST_HEAD(&ctx->downstream_service_list);
 
     return SUCCESS_RETURN;
 }
@@ -1152,6 +1357,10 @@ static int _iotx_linkkit_master_close(void)
 #endif
     _iotx_linkkit_mutex_unlock();
     HAL_MutexDestroy(ctx->mutex);
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    _linkkit_service_list_destroy();
+    HAL_MutexDestroy(ctx->service_list_mutex);
+#endif
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
 
     return SUCCESS_RETURN;
@@ -1608,5 +1817,51 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
     return -1;
 #endif
 }
+
+int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, char *payload, int payload_len,
+                              void *p_service_ctx)
+{
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    int res = FAIL_RETURN;
+    char msgid[11] = {0};
+    int msgid_len = 0;
+    iotx_service_ctx_node_t *service_ctx = (iotx_service_ctx_node_t *)p_service_ctx;
+
+    if (devid < 0 || serviceid == NULL || serviceid_len == 0
+        || payload == NULL || payload_len == 0 || service_ctx == NULL) {
+        return FAIL_RETURN;
+    }
+
+    /* check if service ctx exist */
+    if (_linkkit_service_list_search(service_ctx) != SUCCESS_RETURN) {
+        dm_log_err("service ctx not exist");
+        return FAIL_RETURN;
+    }
+
+    /* msgid int to string */
+    infra_int2str(service_ctx->msgid, msgid);
+
+    /* rrpc service response */
+    if (service_ctx->type == IOTX_SERVICE_REQ_TYPE_RRPC) {
+        char *rrpc_id = service_ctx->service_meta.rrpc.rrpc_id;
+        res = iotx_dm_send_rrpc_response(devid, msgid, strlen(msgid), 200, rrpc_id, strlen(rrpc_id),
+                                payload, payload_len);
+    }
+    else if (service_ctx->type == IOTX_SERVICE_REQ_TYPE_GENERAL) { /* alcs/normal service response */
+        void *alcs_ctx = service_ctx->service_meta.general.alcs_ctx;
+        res = iotx_dm_send_service_response(devid, msgid, strlen(msgid), 200, serviceid, serviceid_len,
+                                      payload, payload_len, alcs_ctx);
+    }
+
+    _linkkit_service_list_mutex_lock();
+    _linkkit_service_list_delete(service_ctx);
+    _linkkit_service_list_mutex_unlock();
+
+    return res;
+#else
+    return FAIL_RETURN;
+#endif
+}
+
 
 #endif
