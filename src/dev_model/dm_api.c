@@ -234,7 +234,7 @@ int iotx_dm_close(void)
         HAL_MutexDestroy(ctx->mutex);
     }
 
-#ifdef LOG_REPORT_TO_CLOUD
+#if defined(LOG_REPORT_TO_CLOUD) && !defined(DEVICE_MODEL_RAWDATA_SOLO)
     remove_log_poll();
 #endif
 
