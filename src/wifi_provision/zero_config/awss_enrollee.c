@@ -40,7 +40,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     char key[OS_DEVICE_SECRET_LEN + 1] = {0};
     int dev_name_len, pk_len;
     int len, ie_len;
-
+    
     if (enrollee_frame_len)
         return;
 
@@ -64,7 +64,8 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     text = os_zalloc(len + 1); /* +1 for string print */
 
     awss_build_sign_src(text, &len);
-    if (HAL_Awss_Get_Conn_Encrypt_Type() == 3) { /* aes-key per product */
+
+    if (awss_get_encrypt_type() == 3) { /* aes-key per product */
         HAL_GetProductSecret(key);
     } else { /* aes-key per device */
         HAL_GetDeviceSecret(key);
@@ -105,7 +106,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     memcpy(&enrollee_frame[len], aes_random, RANDOM_MAX_LEN);
     len += RANDOM_MAX_LEN;
 
-    enrollee_frame[len ++] = HAL_Awss_Get_Conn_Encrypt_Type();  /*encrypt type */
+    enrollee_frame[len ++] = awss_get_encrypt_type();  /*encrypt type */
     enrollee_frame[len ++] = 0;  /* signature method, 0: hmacsha1, 1: hmacsha256 */
     enrollee_frame[len ++] = ENROLLEE_SIGN_SIZE;  /* signature length */
     g_dev_sign = &enrollee_frame[len];
@@ -205,7 +206,7 @@ static int decrypt_ssid_passwd(
     AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_START);
 
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
-            1, HAL_Awss_Get_Conn_Encrypt_Type(), 0, (const char *)aes_random); /* aes128 cfb */
+            1, awss_get_encrypt_type(), 0, (const char *)aes_random); /* aes128 cfb */
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         awss_debug("registrar(passwd invalid!");
         AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);

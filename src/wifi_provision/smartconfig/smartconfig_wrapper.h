@@ -54,5 +54,4 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ enum AWSS_ENC_TYPE encry,
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
-/*************************************** smartconfig special hals ***************************************/
-int HAL_Awss_Get_Encrypt_Type(void);
+

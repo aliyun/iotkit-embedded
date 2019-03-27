@@ -196,7 +196,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             passwd_len = passwd_cipher_len;
             memset(tmp_passwd, 0, ZC_MAX_PASSWD_LEN);
             aes_decrypt_string((char *)passwd_cipher, (char *)tmp_passwd, passwd_len,
-                               1, HAL_Awss_Get_Encrypt_Type(), 0, NULL);
+                               1, awss_get_encrypt_type(), 0, NULL);
             HAL_Free(passwd_cipher);
             if (is_utf8((const char *)tmp_passwd, passwd_len) == 0) {
                 /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */

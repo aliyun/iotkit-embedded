@@ -12,6 +12,11 @@
 extern "C" {
 #endif
 
+static inline int bind_get_encrypt_type()
+{
+    return 3;
+}
+
 static void *awss_get_dev_info(void *dev_info, int len)
 {
     char dev_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
@@ -32,7 +37,7 @@ static void *awss_get_dev_info(void *dev_info, int len)
     awss_dict_crypt(NOTIFY_ENCODE_TABLE, (uint8_t *)dev_name, strlen(dev_name));
 #endif
     HAL_Snprintf(dev_info, len - 1, AWSS_DEV_INFO_FMT, AWSS_VER, pk, dev_name, mac_str, ip_str,
-                 HAL_Awss_Get_Conn_Encrypt_Type());
+                 bind_get_encrypt_type());
 
     return dev_info;
 }
@@ -77,7 +82,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
                 char key[IOTX_DEVICE_SECRET_LEN + 1] = {0};
                 uint8_t sign[DEV_SIGN_SIZE + 1] = {0};
 
-                if (HAL_Awss_Get_Conn_Encrypt_Type() == 3) { /* aes-key per product */
+                if (bind_get_encrypt_type() == 3) { /* aes-key per product */
                     HAL_GetProductSecret(key);
                 } else { /* aes-key per device */
                     HAL_GetDeviceSecret(key);

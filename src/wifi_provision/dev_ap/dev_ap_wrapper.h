@@ -47,7 +47,6 @@ DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
             _OU_ void *dst);
 /* os_misc.c */
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
-int HAL_Awss_Get_Conn_Encrypt_Type(void);
 /* awss_main.c */
 int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
@@ -58,6 +57,4 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
 /*************************************** dev-ap special hals ***************************************/
-int HAL_Awss_Get_Encrypt_Type();
-int HAL_Awss_Close_Ap();
 int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide);
