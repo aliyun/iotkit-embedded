@@ -692,7 +692,7 @@ int wrapper_http_perform(void *handle, void *data, int length)
     }
 
     if ((http_handle->method == IOTX_HTTP_POST) &&
-        (data == NULL || length == 0)) {
+        (data == NULL || length <= 0)) {
         return FAIL_RETURN;
     }
 
@@ -715,19 +715,18 @@ int wrapper_http_perform(void *handle, void *data, int length)
     res = _http_send(&http_handle->client, http_handle->url, http_handle->port, 
                         http_handle->cert, http_handle->method, &http_client_data);
     if (SUCCESS_RETURN != res) {
+        HAL_Free(response_payload);
         return res;
     }
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, http_handle->timeout);
 
-    if ((NULL != http_client_data.response_buf)
-        && (0 != http_client_data.response_buf_len)) {
-        res = httpclient_recv_response(&http_handle->client, iotx_time_left(&timer), &http_client_data);
-        if (res < 0) {
-            httpc_err("httpclient_recv_response is error,res = %d", res);
-            return res;
-        }
+    res = httpclient_recv_response(&http_handle->client, iotx_time_left(&timer), &http_client_data);
+    if (res < 0) {
+        httpc_err("httpclient_recv_response is error,res = %d", res);
+        HAL_Free(response_payload);
+        return res;
     }
 
     if (res == SUCCESS_RETURN) {

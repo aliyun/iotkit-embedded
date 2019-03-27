@@ -583,7 +583,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
                                        "Content-Type: application/octet-stream\r\n";
     int                 http_port = IOTX_HTTP_ONLINE_SERVER_PORT;
     iotx_http_method_t  http_method = IOTX_HTTP_POST;
-    int                 http_timeout_ms = msg_param->timeout_ms;
+    int                 http_timeout_ms = 0;
     http_recv_message_t recv_message;
 
     /*
@@ -622,7 +622,9 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
         goto do_exit;
     }
 
+    http_timeout_ms = msg_param->timeout_ms;
     payload_len = strlen(msg_param->request_payload) + 1;
+
     msg_param->request_payload_len = msg_param->request_payload_len > payload_len \
                                      ? payload_len : msg_param->request_payload_len;
 
