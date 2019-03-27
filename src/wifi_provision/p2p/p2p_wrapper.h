@@ -46,7 +46,6 @@ DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
             _IN_ size_t length,
             _OU_ void *dst);
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
-int HAL_Awss_Get_Conn_Encrypt_Type(void);
 int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
             _IN_ char ssid[HAL_MAX_SSID_LEN],
@@ -56,5 +55,3 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
 
-/*************************************** p2p special required hals ***************************************/
-int HAL_Awss_Get_Encrypt_Type(void);

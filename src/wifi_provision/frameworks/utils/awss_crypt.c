@@ -122,6 +122,30 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
     return res;
 }
 
+
+
+/**
+ * @brief   获取配网服务的安全等级
+ *
+ * @param None.
+ * @return The security level:
+   @verbatim
+    0: open (no encrypt)
+    1: aes256cfb with default aes-key and aes-iv
+    2: aes128cfb with default aes-key and aes-iv
+    3: aes128cfb with aes-key per product and aes-iv = 0
+    4: aes128cfb with aes-key per device and aes-iv = 0
+    5: aes128cfb with aes-key per manufacture and aes-iv = 0
+    others: invalid
+   @endverbatim
+ * @see None.
+ */
+
+int awss_get_encrypt_type()
+{
+    return 3;
+}
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

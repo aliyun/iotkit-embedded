@@ -27,7 +27,6 @@ void HAL_Free(void *ptr);
 int HAL_Sys_Net_Is_Ready();
 uint64_t HAL_UptimeMs(void);
 uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname);
-int HAL_Awss_Get_Conn_Encrypt_Type(void);
 #ifdef WIFI_PROVISION_ENABLED
 int HAL_Wifi_Get_Ap_Info(char ssid[HAL_MAX_SSID_LEN],char passwd[HAL_MAX_PASSWD_LEN],uint8_t bssid[ETH_ALEN]);
 int HAL_Awss_Connect_Ap(

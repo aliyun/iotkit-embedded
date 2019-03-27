@@ -228,7 +228,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
             char encoded[PLATFORM_MAX_PASSWD_LEN * 2 + 1] = {0};
             memcpy(encoded, str, str_len);
             aes_decrypt_string(encoded, passwd, str_len,
-                    0, HAL_Awss_Get_Encrypt_Type(), 1, random); /* 64bytes=2x32bytes */
+                    0, awss_get_encrypt_type(), 1, random); /* 64bytes=2x32bytes */
         } else {
             HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
             success = 0;

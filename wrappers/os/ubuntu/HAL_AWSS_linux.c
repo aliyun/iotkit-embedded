@@ -14,29 +14,6 @@
 #include "iot_import_awss.h"
 
 /**
- * @brief   获取`smartconfig`服务的安全等级
- *
- * @param None.
- * @return The security level:
-   @verbatim
-    0: open (no encrypt)
-    1: aes256cfb with default aes-key and aes-iv
-    2: aes128cfb with default aes-key and aes-iv
-    3: aes128cfb with aes-key per product and aes-iv = 0
-    4: aes128cfb with aes-key per device and aes-iv = 0
-    5: aes128cfb with aes-key per manufacture and aes-iv = 0
-    others: invalid
-   @endverbatim
- * @see None.
- */
-int HAL_Awss_Get_Encrypt_Type()
-{
-    return 3;
-}
-
-
-
-/**
  * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
  *
  * @return  超时时长, 单位是毫秒
@@ -246,36 +223,6 @@ int HAL_Awss_Close_Ap()
 #endif  /* #if defined(HAL_AWSS) */
 
 #ifdef DEV_BIND_ENABLED
-/**
- * @brief    Get Security level for wifi configuration with connection.
- *           Used for AP solution of router and App.
- *
- * @param None.
- * @return The security level:
-   @verbatim
-    3: aes128cfb with aes-key per product and aes-iv = random
-    4: aes128cfb with aes-key per device and aes-iv = random
-    5: aes128cfb with aes-key per manufacture and aes-iv = random
-    others: invalid
-   @endverbatim
- * @see None.
- */
-int HAL_Awss_Get_Conn_Encrypt_Type()
-{
-    char invalid_ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    char ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-
-    HAL_GetDeviceSecret(ds);
-
-    if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
-        return 3;
-
-    memset(invalid_ds, 0xff, sizeof(invalid_ds));
-    if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
-        return 3;
-
-    return 4;
-}
 
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"

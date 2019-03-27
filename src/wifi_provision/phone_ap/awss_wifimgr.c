@@ -286,7 +286,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
 
         enc_lvl = atoi(str);
-        if (enc_lvl != HAL_Awss_Get_Conn_Encrypt_Type()) {
+        if (enc_lvl != awss_get_encrypt_type()) {
             success = 0;
             HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -4, "\"security level error\"");
             break;
@@ -319,7 +319,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
                 char encoded[PLATFORM_MAX_PASSWD_LEN * 2 + 1] = {0};
                 memcpy(encoded, str, str_len);
                 aes_decrypt_string(encoded, passwd, str_len,
-                        0, HAL_Awss_Get_Conn_Encrypt_Type(), 1, (const char *)aes_random);
+                        0, awss_get_encrypt_type(), 1, (const char *)aes_random);
             } else {
                 HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
                 AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
