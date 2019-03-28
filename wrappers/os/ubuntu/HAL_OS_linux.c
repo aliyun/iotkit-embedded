@@ -212,7 +212,15 @@ int HAL_SetDeviceSecret(char *device_secret)
     fclose(stream);
     return len;
 #else
-    return -1;
+    int len = strlen(device_secret);
+
+    if (len > IOTX_DEVICE_SECRET_LEN) {
+        return -1;
+    }
+    memset(_device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
+    strncpy(_device_secret, device_secret, len);
+
+    return len;
 #endif /* #ifdef DYNAMIC_REGISTER */
 }
 
