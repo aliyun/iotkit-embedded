@@ -204,12 +204,14 @@ int HAL_SetDeviceSecret(char *device_secret)
     }
 
     ret = fwrite(device_secret, len + 1, sizeof(char), stream);
+    fclose(stream);
     if (ret < len) {
-        fclose(stream);
-        remove(PATH_DEVICE_SECRET_BIN);
+        ret = remove(PATH_DEVICE_SECRET_BIN);
+        if (ret < 0) {
+            perror("remove");
+        }
         return -1;
     }
-    fclose(stream);
     return len;
 #else
     int len = strlen(device_secret);
