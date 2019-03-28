@@ -86,6 +86,7 @@ typedef struct {
     void *mutex;
     void *upstream_mutex;
     void *service_list_mutex;
+    int service_list_num;
     int is_opened;
     int is_connected;
     struct list_head upstream_sync_callback_list;
@@ -158,6 +159,11 @@ static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgi
     iotx_service_ctx_node_t *insert_node = NULL;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
+    if (ctx->service_list_num >= CONFIG_SERVICE_LIST_MAXLEN) {
+        dm_log_err("service list full");
+        return FAIL_RETURN;
+    }
+
     insert_node = (iotx_service_ctx_node_t *)IMPL_LINKKIT_MALLOC(sizeof(iotx_service_ctx_node_t));
     if (insert_node == NULL) {
         dm_log_err("malloc error");
@@ -183,6 +189,7 @@ static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgi
 
     _linkkit_service_list_mutex_lock();
     list_add(&insert_node->linked_list, &ctx->downstream_service_list);
+    ctx->service_list_num++;
     _linkkit_service_list_mutex_unlock();
 
     *p_node = insert_node;
@@ -227,6 +234,10 @@ static int _linkkit_service_list_delete(iotx_service_ctx_node_t *node)
         IMPL_LINKKIT_FREE(node);
     }
 
+    if (ctx->service_list_num > 0) {
+        ctx->service_list_num--;
+    }
+
     dm_log_debug("servcie node deleted");
     return SUCCESS_RETURN;
 }
@@ -254,6 +265,7 @@ static int _linkkit_service_list_destroy(void)
             IMPL_LINKKIT_FREE(search_node);
         }
     }
+    ctx->service_list_num = 0;
     _linkkit_service_list_mutex_unlock();
 
     return SUCCESS_RETURN;
@@ -270,7 +282,7 @@ void iotx_linkkit_service_list_overtime_handle(void)
         if (current_time < search_node->ctime) {
             search_node->ctime = current_time;
         }
-        if (current_time - search_node->ctime >= DM_MSG_CACHE_TIMEOUT_MS_DEFAULT) {
+        if (current_time - search_node->ctime >= CONFIG_SERVICE_REQUEST_TIMEOUT) {
             dm_log_warning("service request timeout, msgid = %d", search_node->msgid);
             /* TODO: notify user? */
             _linkkit_service_list_delete(search_node);
@@ -1105,6 +1117,7 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
         ctx->is_opened = 0;
         return FAIL_RETURN;
     }
+    ctx->service_list_num = 0;
 #endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
 
     res = iotx_dm_open();
