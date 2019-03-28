@@ -112,9 +112,13 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 
 int ofc_Deinit(void *handle)
 {
+    otahttp_Struct_pt h_odc = (otahttp_Struct_pt)handle;
+
     if (NULL != handle) {
         OTA_FREE(handle);
     }
+
+    wrapper_http_deinit(&h_odc->http_handle);
 
     return 0;
 }
