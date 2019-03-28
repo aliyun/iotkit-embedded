@@ -7,9 +7,6 @@
 #include "dev_sign_api.h"
 #include "dev_sign_wrapper.h"
 
-
-#define SIGN_MQTT_PORT (1883)
-
 /* all secure mode define */
 #define MODE_TLS_GUIDER             "-1"
 #define MODE_TLS_DIRECT             "2"
@@ -96,14 +93,16 @@ int _sign_get_clientid(char *clientid_string, const char *device_id)
     return SUCCESS_RETURN;
 }
 
-int _iotx_generate_sign_string(const char *device_id, const char *device_name, const char *product_key, const char *device_secret, char *sign_string)
+int _iotx_generate_sign_string(const char *device_id, const char *device_name, const char *product_key,
+                               const char *device_secret, char *sign_string)
 {
     char signsource[DEV_SIGN_SOURCE_MAXLEN] = {0};
     uint16_t signsource_len = 0;
     const char sign_fmt[] = "clientId%sdeviceName%sproductKey%stimestamp%s";
     uint8_t sign_hex[32] = {0};
 
-    signsource_len = sizeof(sign_fmt) + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(TIMESTAMP_VALUE);
+    signsource_len = sizeof(sign_fmt) + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(
+                                 TIMESTAMP_VALUE);
     if (signsource_len >= DEV_SIGN_SOURCE_MAXLEN) {
         return ERROR_DEV_SIGN_SOURCE_TOO_SHORT;
     }
@@ -149,7 +148,8 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
     /* setup password */
     memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
-    res = _iotx_generate_sign_string(device_id, meta->device_name, meta->product_key, meta->device_secret, signout->password);
+    res = _iotx_generate_sign_string(device_id, meta->device_name, meta->product_key, meta->device_secret,
+                                     signout->password);
     if (res < SUCCESS_RETURN) {
         return res;
     }
@@ -167,8 +167,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
         memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
         memcpy(signout->hostname, g_infra_mqtt_domain[region], strlen(g_infra_mqtt_domain[region]));
-    }
-    else {
+    } else {
         length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
         if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
             return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
@@ -177,7 +176,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
         memcpy(signout->hostname, meta->product_key, strlen(meta->product_key));
         memcpy(signout->hostname + strlen(signout->hostname), ".", strlen("."));
         memcpy(signout->hostname + strlen(signout->hostname), g_infra_mqtt_domain[region],
-            strlen(g_infra_mqtt_domain[region]));
+               strlen(g_infra_mqtt_domain[region]));
     }
 
     /* setup username */

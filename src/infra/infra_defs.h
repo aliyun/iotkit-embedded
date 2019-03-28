@@ -31,7 +31,7 @@
     #define DLL_IOT_API
 #endif
 
-#define IOTX_SDK_VERSION                "3.0.1"
+#define IOTX_SDK_VERSION                "3.0.1.1"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
 #define IOTX_PRODUCT_KEY_LEN            (20)
@@ -57,11 +57,11 @@
     #define _IN_OPT_
 #endif
 
-#define NETWORK_ADDR_LEN        (16)
-#define HAL_MAC_LEN             (17 + 1)    /* MAC地址的长度 */
+#define NETWORK_ADDR_LEN                (16)
+#define HAL_MAC_LEN                     (17 + 1)    /* MAC地址的长度 */
 #define STR_SHORT_LEN                   (32)
 #ifndef ETH_ALEN
-#define ETH_ALEN                        (6)
+    #define ETH_ALEN                    (6)
 #endif
 #define HAL_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
 #define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
