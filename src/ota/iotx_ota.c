@@ -91,7 +91,7 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
                 return -1;
             }
 
-            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->purl))) {
+            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->purl,h_ota->size_fetched))) {
                 OTA_LOG_ERROR("Initialize fetch module failed");
                 return -1;
             }
@@ -139,7 +139,7 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             }
             h_ota->sha256 = otalib_Sha256Init();
 
-            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url))) {
+            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url,h_ota->size_fetched))) {
                 OTA_LOG_ERROR("Initialize fetch module failed");
                 return -1;
             }
@@ -175,7 +175,7 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             }
             h_ota->sha256 = otalib_Sha256Init();
 
-            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url))) {
+            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url,h_ota->size_fetched))) {
                 OTA_LOG_ERROR("Initialize fetch module failed");
                 return -1;
             }
@@ -288,7 +288,7 @@ int IOT_OTA_Deinit(void *handle)
     }
 
     if (NULL != h_ota->ch_fetch) {
-        ofc_Deinit(h_ota->ch_fetch);
+        ofc_Deinit(&h_ota->ch_fetch);
     }
 
     if (NULL != h_ota->md5) {
@@ -643,14 +643,25 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         return IOT_OTAE_INVALID_STATE;
     }
 
+    if (h_ota->ch_fetch == NULL) {
+        if (h_ota->type == IOT_OTAT_FOTA) {
+            OTA_LOG_ERROR("h_ota->size_fetched: %d",h_ota->size_fetched);
+            h_ota->ch_fetch = ofc_Init(h_ota->purl, h_ota->size_fetched);
+        }else if (h_ota->type == IOT_OTAT_COTA) {
+            h_ota->ch_fetch = ofc_Init(h_ota->cota_url, h_ota->size_fetched);
+        }
+
+        if (h_ota->ch_fetch == NULL) {
+            OTA_LOG_ERROR("Re-Initialize HTTP handle failed");
+            return FAIL_RETURN;
+        }
+    }
+
     ret = ofc_Fetch(h_ota->ch_fetch, buf, buf_len, timeout_s);
     if (ret < 0) {
-        OTA_LOG_ERROR("Fetch firmware failed");
-        h_ota->state = IOT_OTAS_FETCHED;
-        h_ota->type = IOT_OTAT_NONE;
-        h_ota->err = IOT_OTAE_FETCH_FAILED;
-        h_ota->size_fetched = 0;
-        return -1;
+        OTA_LOG_ERROR("OTA Internal Error: %d",ret);
+        ofc_Deinit(&h_ota->ch_fetch);
+        return ret;
     } else if (0 == h_ota->size_fetched) {
         /* force report status in the first */
         IOT_OTA_ReportProgress(h_ota, IOT_OTAP_FETCH_PERCENTAGE_MIN, "Enter in downloading state");

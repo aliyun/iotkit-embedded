@@ -85,9 +85,9 @@ int otalib_GetConfigParams(const char *json_doc, uint32_t json_len, char **confi
 int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *version);
 int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, const char *msg_detail);
 
-void *ofc_Init(char *url);
+void *ofc_Init(char *url, int offset);
 int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
-int ofc_Deinit(void *handle);
+int ofc_Deinit(void **handle);
 
 #endif /* _IOTX_OTA_INTERNAL_H_ */
 

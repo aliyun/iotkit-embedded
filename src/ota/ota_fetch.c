@@ -6,6 +6,8 @@
 
 /* ofc, OTA fetch channel */
 
+#define OFC_HTTP_HEADER_MAXLEN (128)
+
 typedef struct {
     char *payload;
     int alread_download;
@@ -19,11 +21,14 @@ typedef struct {
     int fetch_size;
 } otahttp_Struct_t, *otahttp_Struct_pt;
 
-void *ofc_Init(char *url)
+void *ofc_Init(char *url, int offset)
 {
     otahttp_Struct_pt h_odc;
-    char *header = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
-                         "Accept-Encoding: gzip, deflate\r\n";
+    char header[OFC_HTTP_HEADER_MAXLEN] = {0};
+    char *header_fmt = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
+                   "Accept-Encoding: gzip, deflate\r\n" \
+                   "Range: bytes=%d-\r\n";
+
 #if defined(SUPPORT_TLS)
     extern const char *iotx_ca_crt;
     char *pub_key = (char *)iotx_ca_crt;
@@ -33,6 +38,8 @@ void *ofc_Init(char *url)
     int port = 80;
 #endif
     iotx_http_method_t method = IOTX_HTTP_GET;
+
+    HAL_Snprintf(header, OFC_HTTP_HEADER_MAXLEN, header_fmt, offset);
 
     if (NULL == (h_odc = OTA_MALLOC(sizeof(otahttp_Struct_t)))) {
         OTA_LOG_ERROR("allocate for h_odc failed");
@@ -98,7 +105,7 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 
     if (current_fetch_size < 0) {
         OTA_LOG_ERROR("fetch firmware failed");
-        return -1;
+        return current_fetch_size;
     }
 
     h_odc->fetch_size += current_fetch_size;
@@ -110,15 +117,19 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 }
 
 
-int ofc_Deinit(void *handle)
+int ofc_Deinit(void **handle)
 {
-    otahttp_Struct_pt h_odc = (otahttp_Struct_pt)handle;
+    otahttp_Struct_t *h_odc = NULL;
 
-    wrapper_http_deinit(&h_odc->http_handle);
-
-    if (NULL != handle) {
-        OTA_FREE(handle);
+    if (handle == NULL || *handle == NULL) {
+        return FAIL_RETURN;
     }
+
+    h_odc = *(otahttp_Struct_t **)handle;
+    wrapper_http_deinit(&h_odc->http_handle);
+    OTA_FREE(h_odc);
+
+    *handle = NULL;
 
     return 0;
 }

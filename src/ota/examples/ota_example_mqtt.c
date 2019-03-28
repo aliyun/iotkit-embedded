@@ -107,7 +107,7 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
 static int _ota_mqtt_client(void)
 {
-#define OTA_BUF_LEN        (5000)
+#define OTA_BUF_LEN        (128)
 
     int rc = 0, ota_over = 0;
     void *pclient = NULL, *h_ota = NULL;
@@ -202,10 +202,11 @@ static int _ota_mqtt_client(void)
             uint32_t last_percent = 0, percent = 0;
             char md5sum[33];
             char version[128] = {0};
-            uint32_t len, size_downloaded, size_file;
+            int len, size_downloaded, size_file;
             do {
 
                 len = IOT_OTA_FetchYield(h_ota, buf_ota, OTA_BUF_LEN, 1);
+                EXAMPLE_TRACE("IOT_OTA_FetchYield result: %d",len);
                 if (len > 0) {
                     if (1 != fwrite(buf_ota, len, 1, fp)) {
                         EXAMPLE_TRACE("write data to file failed");
@@ -213,8 +214,8 @@ static int _ota_mqtt_client(void)
                         break;
                     }
                 } else {
-                    IOT_OTA_ReportProgress(h_ota, IOT_OTAP_FETCH_FAILED, NULL);
-                    EXAMPLE_TRACE("ota fetch fail");
+                    HAL_SleepMs(500);
+                    continue;
                 }
 
                 /* get OTA information */
