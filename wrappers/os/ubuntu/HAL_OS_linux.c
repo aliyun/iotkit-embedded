@@ -263,6 +263,7 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
     /* get ds from file stream */
     stream = fopen(PATH_DEVICE_SECRET_BIN, "r");
     if (stream == NULL) {
+        /* still make a copy to compat non dynamic register case  */
         memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
         strncpy(device_secret, _device_secret, IOTX_DEVICE_SECRET_LEN + 1);
         /* return -1 to indicate getting dynamic registered device secret failed */
@@ -272,6 +273,8 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
     ret = fread(device_secret, IOTX_DEVICE_SECRET_LEN + 1, sizeof(char), stream);
     fclose(stream);
     if (0 == ret) {
+        memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
+        strncpy(device_secret, _device_secret, IOTX_DEVICE_SECRET_LEN + 1);
         return -1;
     }
     return ret;
