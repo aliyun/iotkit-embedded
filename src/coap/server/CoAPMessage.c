@@ -636,7 +636,7 @@ static void Retansmit (void *context)
                 node->timeout = tick + node->timeout_val;
             }
 
-            COAP_FLOW("node->timeout_val = %d , node->timeout=%d ,tick=%d", node->timeout_val,node->timeout,tick);
+            COAP_FLOW("node->timeout_val = %d , node->timeout=%llu ,tick=%llu", node->timeout_val,node->timeout,tick);
         }
     }
     HAL_MutexUnlock(ctx->sendlist.list_mutex);
