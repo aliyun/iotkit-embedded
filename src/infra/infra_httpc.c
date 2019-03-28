@@ -444,13 +444,13 @@ int _http_send_request(httpclient_t *client, const char *host, const char *path,
 
     ret = _http_send_header(client, host, path, method, client_data);
     if (ret != 0) {
-        return -2;
+        return ret;
     }
 
     if (method == HTTPCLIENT_POST || method == HTTPCLIENT_PUT) {
         ret = _http_send_userdata(client, client_data);
         if (ret < 0) {
-            ret = -3;
+            ret = ret;
         }
     }
 
@@ -534,7 +534,6 @@ static int _http_send(httpclient_t *client, const char *url, int port, const cha
         ret = _http_send_request(client, host, path, method, client_data);
         if (0 != ret) {
             httpc_err("_http_send_request is error, ret = %d", ret);
-            httpclient_close(client);
             return ret;
         }
     }
@@ -547,6 +546,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
     iotx_time_t timer;
     int ret = _http_send(client, url, port, ca_crt, method, client_data);
     if (SUCCESS_RETURN != ret) {
+        httpclient_close(client);
         return ret;
     }
 
