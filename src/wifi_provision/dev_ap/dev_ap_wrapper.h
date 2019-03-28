@@ -58,3 +58,4 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ uint8_t channel);
 /*************************************** dev-ap special hals ***************************************/
 int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide);
+int HAL_Awss_Close_Ap();
