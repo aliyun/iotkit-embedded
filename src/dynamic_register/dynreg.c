@@ -288,6 +288,7 @@ int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info
         dynreg_free(dynamic_register_request);
         return FAIL_RETURN;
     }
+    memset(dynamic_register_response, 0, HTTP_RESPONSE_PAYLOAD_LEN);
 
     /* Send Http Request For Getting Device Secret */
     res = _fetch_dynreg_http_resp(dynamic_register_request, dynamic_register_response, region, meta->device_secret);
