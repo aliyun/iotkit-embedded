@@ -41,13 +41,6 @@ typedef struct  {
     char *getType;
 
     int err;                    /* last error code */
-
-    ota_fetch_cb_fpt  fetch_cb;  /* fetch_callback */
-    void  *user_data;            /* fetch_callback's user_data */
-
-    cota_fetch_cb_fpt fetch_cota_cb;
-    void  *cota_user_data;
-
 } OTA_Struct_t, *OTA_Struct_pt;
 
 
@@ -58,35 +51,6 @@ static int ota_check_progress(IOT_OTA_Progress_t progress)
     return ((progress >= IOT_OTAP_BURN_FAILED)
             && (progress <= IOT_OTAP_FETCH_PERCENTAGE_MAX));
 }
-
-
-int iotx_ota_set_fetch_callback(void *pt, ota_fetch_cb_fpt fetch_cb, void *user_data)
-{
-    OTA_Struct_pt ota_pt = (OTA_Struct_pt)pt;
-
-    if (NULL == ota_pt || NULL == fetch_cb) {
-        return -1;
-    }
-
-    ota_pt->fetch_cb = fetch_cb;
-    ota_pt->user_data = user_data;
-    return 0;
-}
-
-
-int iotx_ota_set_cota_fetch_callback(void *pt, cota_fetch_cb_fpt fetch_cb, void *user_data)
-{
-    OTA_Struct_pt ota_pt = (OTA_Struct_pt)pt;
-
-    if (NULL == ota_pt || NULL == fetch_cb) {
-        return -1;
-    }
-
-    ota_pt->fetch_cota_cb = fetch_cb;
-    ota_pt->cota_user_data = user_data;
-    return 0;
-}
-
 
 static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_ota_topic_types_t type)
 {
@@ -134,10 +98,6 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
 
             h_ota->type = IOT_OTAT_FOTA;
             h_ota->state = IOT_OTAS_FETCHING;
-
-            if (h_ota->fetch_cb) {
-                h_ota->fetch_cb(h_ota->user_data, 0, h_ota->size_file, h_ota->purl, h_ota->version);
-            }
         }
         break;
 
@@ -186,11 +146,6 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
 
             h_ota->type = IOT_OTAT_COTA;
             h_ota->state = IOT_OTAS_FETCHING;
-
-            if (h_ota->fetch_cota_cb) {
-                h_ota->fetch_cota_cb(h_ota->user_data, 0, h_ota->configId, h_ota->configSize, h_ota->sign, h_ota->signMethod,
-                                     h_ota->cota_url, h_ota->getType);
-            }
         }
         break;
 
@@ -227,11 +182,6 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
 
             h_ota->type = IOT_OTAT_COTA;
             h_ota->state = IOT_OTAS_FETCHING;
-
-            if (h_ota->fetch_cota_cb) {
-                h_ota->fetch_cota_cb(h_ota->user_data, 0, h_ota->configId, h_ota->configSize, h_ota->sign, h_ota->signMethod,
-                                     h_ota->cota_url, h_ota->getType);
-            }
         }
         break;
 
@@ -699,17 +649,6 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         h_ota->state = IOT_OTAS_FETCHED;
         h_ota->type = IOT_OTAT_NONE;
         h_ota->err = IOT_OTAE_FETCH_FAILED;
-
-        if (h_ota->fetch_cb && h_ota->purl) {
-            h_ota->fetch_cb(h_ota->user_data, 1, h_ota->size_file, h_ota->purl, h_ota->version);
-            /* remove */
-            h_ota->purl = NULL;
-        } else if (h_ota->fetch_cota_cb && h_ota->cota_url) {
-            h_ota->fetch_cota_cb(h_ota->user_data, 1, h_ota->configId, h_ota->configSize, h_ota->sign, h_ota->signMethod,
-                                 h_ota->cota_url, h_ota->getType);
-            /* remove */
-            h_ota->cota_url = NULL;
-        }
         h_ota->size_fetched = 0;
         return -1;
     } else if (0 == h_ota->size_fetched) {
@@ -725,16 +664,6 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
     if (h_ota->size_fetched >= h_ota->size_file) {
         h_ota->type = IOT_OTAT_NONE;
         h_ota->state = IOT_OTAS_FETCHED;
-        if (h_ota->fetch_cb && h_ota->purl) {
-            h_ota->fetch_cb(h_ota->user_data, 1, h_ota->size_file, h_ota->purl, h_ota->version);
-            /* remove */
-            h_ota->purl = NULL;
-        } else if (h_ota->fetch_cota_cb && h_ota->cota_url) {
-            h_ota->fetch_cota_cb(h_ota->user_data, 1, h_ota->configId, h_ota->configSize, h_ota->sign, h_ota->signMethod,
-                                 h_ota->cota_url, h_ota->getType);
-            /* remove */
-            h_ota->cota_url = NULL;
-        }
     }
 
     return ret;

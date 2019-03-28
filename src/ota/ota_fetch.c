@@ -114,11 +114,11 @@ int ofc_Deinit(void *handle)
 {
     otahttp_Struct_pt h_odc = (otahttp_Struct_pt)handle;
 
+    wrapper_http_deinit(&h_odc->http_handle);
+
     if (NULL != handle) {
         OTA_FREE(handle);
     }
-
-    wrapper_http_deinit(&h_odc->http_handle);
 
     return 0;
 }

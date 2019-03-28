@@ -59,14 +59,6 @@ typedef enum {
 typedef int (*ota_cb_fpt)(void *pcontext, const char *msg, uint32_t msg_len, iotx_ota_topic_types_t type);
 /* is_fetch = 0; start fetch */
 /* is_fetch = 1; stop fetch */
-typedef void(*ota_fetch_cb_fpt)(void *user_data, int is_fetch, uint32_t size_file, char *purl, char *version);
-/* is_fetch = 0; start fetch */
-/* is_fetch = 1; stop fetch */
-typedef void(*cota_fetch_cb_fpt)(void *user_data, int is_fetch, char *configId, uint32_t configSize, char *sign, \
-                                 char *signMethod, char *url, char *getType);
-
-int iotx_ota_set_fetch_callback(void *pt, ota_fetch_cb_fpt fetch_cb, void *user_data);
-int iotx_ota_set_cota_fetch_callback(void *pt, cota_fetch_cb_fpt fetch_cb, void *user_data);
 
 const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const char *key, uint32_t *val_len);
 void *otalib_MD5Init(void);
