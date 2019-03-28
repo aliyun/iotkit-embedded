@@ -177,6 +177,7 @@ int HAL_SetDeviceName(char *device_name)
     return len;
 }
 
+#define PATH_DEVICE_SECRET_BIN          "linkkit_ds.bin"
 int HAL_SetProductSecret(char *product_secret)
 {
     int len = strlen(product_secret);
@@ -192,15 +193,27 @@ int HAL_SetProductSecret(char *product_secret)
 
 int HAL_SetDeviceSecret(char *device_secret)
 {
+#ifdef DYNAMIC_REGISTER
+    FILE *stream;
     int len = strlen(device_secret);
+    int ret;
 
-    if (len > IOTX_DEVICE_SECRET_LEN) {
+    stream = fopen(PATH_DEVICE_SECRET_BIN, "w+");
+    if (stream == NULL) {
         return -1;
     }
-    memset(_device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
-    strncpy(_device_secret, device_secret, len);
 
+    ret = fwrite(device_secret, len + 1, sizeof(char), stream);
+    if (ret < len) {
+        fclose(stream);
+        remove(PATH_DEVICE_SECRET_BIN);
+        return -1;
+    }
+    fclose(stream);
     return len;
+#else
+    return -1;
+#endif /* #ifdef DYNAMIC_REGISTER */
 }
 
 int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1])
@@ -235,12 +248,33 @@ int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1])
 
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
+#ifdef DYNAMIC_REGISTER
+    FILE *stream;
+    int ret;
+
+    /* get ds from file stream */
+    stream = fopen(PATH_DEVICE_SECRET_BIN, "r");
+    if (stream == NULL) {
+        memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
+        strncpy(device_secret, _device_secret, IOTX_DEVICE_SECRET_LEN + 1);
+        /* return -1 to indicate getting dynamic registered device secret failed */
+        return -1;
+    }
+
+    ret = fread(device_secret, IOTX_DEVICE_SECRET_LEN + 1, sizeof(char), stream);
+    fclose(stream);
+    if (0 == ret) {
+        return -1;
+    }
+    return ret;
+#else
     int len = strlen(_device_secret);
     memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
 
     strncpy(device_secret, _device_secret, len);
 
     return len;
+#endif /* #ifdef DYNAMIC_REGISTER */
 }
 
 void HAL_Reboot(void)

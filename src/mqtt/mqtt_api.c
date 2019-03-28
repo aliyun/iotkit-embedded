@@ -280,34 +280,21 @@ static void iotx_mqtt_report_funcs(void *pclient)
 #include "dynreg_api.h"
 int HAL_SetDeviceSecret(char *device_secret);
 int HAL_GetProductSecret(char *product_secret);
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
-
-#define DYNAMIC_REG_KV_PREFIX       "DYNAMIC_REG_"
-#define DYNAMIC_REG_KV_PREFIX_LEN   12
 
 static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta_info)
 {
-    char device_secret_kv[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    int device_secret_len = IOTX_DEVICE_SECRET_LEN;
-    char kv_key[IOTX_DEVICE_NAME_LEN + DYNAMIC_REG_KV_PREFIX_LEN] = DYNAMIC_REG_KV_PREFIX;
+    char device_secret_hal[IOTX_DEVICE_SECRET_LEN + 1] = {0};
     int res = FAIL_RETURN;
 
-    memcpy(kv_key + strlen(kv_key), meta_info->device_name, strlen(meta_info->device_name));
+    /* Check if Device Secret exists in HAL */
+    if (HAL_GetDeviceSecret(device_secret_hal) > 0) {
+        mqtt_info("Get DeviceSecret from HAL succeed");
 
-    /* Check if Device Secret exist in KV */
-    if (HAL_Kv_Get(kv_key, device_secret_kv, &device_secret_len) == 0) {
-        mqtt_info("Get DeviceSecret from KV succeed");
-
-        *(device_secret_kv + device_secret_len) = 0;
-        HAL_SetDeviceSecret(device_secret_kv);
         memset(meta_info->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
-        memcpy(meta_info->device_secret, device_secret_kv, strlen(device_secret_kv));
+        memcpy(meta_info->device_secret, device_secret_hal, strlen(device_secret_hal));
     } else {
-        char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
-
-        /* KV not exit, goto dynamic register */
-        mqtt_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
+        /* Device Secret doesn't exit in HAL, goto dynamic register */
+        mqtt_info("DeviceSecret not exist, Now We Need Dynamic Register...");
 
         res = IOT_Dynamic_Register(region, meta_info);
         if (res != SUCCESS_RETURN) {
@@ -315,13 +302,10 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
             return FAIL_RETURN;
         }
 
-        device_secret_len = strlen(meta_info->device_secret);
-        if (HAL_Kv_Set(kv_key, meta_info->device_secret, device_secret_len, 1) != 0) {
-            mqtt_err("Save Device Secret to KV Failed");
+        if (HAL_SetDeviceSecret(meta_info->device_secret) > 0) {
+            mqtt_err("Save Device Secret to HAL Failed");
             return FAIL_RETURN;
         }
-
-        HAL_SetDeviceSecret(meta_info->device_secret);
     }
 
     return SUCCESS_RETURN;
