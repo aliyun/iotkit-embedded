@@ -34,8 +34,8 @@ iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
         cm_err("mqtt_param malloc failed!");
         goto failed;
     }
-    _mqtt_conncection->open_params = mqtt_param;
 
+    memset(mqtt_param, 0, sizeof(iotx_mqtt_param_t));
     mqtt_param->request_timeout_ms = params->request_timeout_ms;
     mqtt_param->clean_session = 0;
     mqtt_param->keepalive_interval_ms = params->keepalive_interval_ms;
@@ -45,6 +45,7 @@ iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
     mqtt_param->handle_event.h_fp = iotx_cloud_conn_mqtt_event_handle;
     mqtt_param->handle_event.pcontext = NULL;
 
+    _mqtt_conncection->open_params = mqtt_param;
     _mqtt_conncection->event_handler = params->handle_event;
     _mqtt_conncection->cb_data = params->context;
     _set_common_handlers();
@@ -212,7 +213,6 @@ static int  _mqtt_connect(uint32_t timeout)
 {
     void *pclient;
     iotx_time_t timer;
-    iotx_mqtt_param_t *mqtt_param = NULL;
     iotx_conn_info_pt pconn_info = NULL;
     iotx_cm_event_msg_t event;
 
@@ -223,8 +223,6 @@ static int  _mqtt_connect(uint32_t timeout)
     if (_mqtt_conncection == NULL) {
         return NULL_VALUE_ERROR;
     }
-
-    mqtt_param = _mqtt_conncection->open_params;
 
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
