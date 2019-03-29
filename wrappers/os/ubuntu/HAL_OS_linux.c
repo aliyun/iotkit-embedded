@@ -203,7 +203,7 @@ int HAL_SetDeviceSecret(char *device_secret)
         return -1;
     }
 
-    ret = fwrite(device_secret, len + 1, sizeof(char), stream);
+    ret = fwrite(device_secret, sizeof(char), len + 1, stream);
     fclose(stream);
     if (ret < len) {
         ret = remove(PATH_DEVICE_SECRET_BIN);
@@ -272,7 +272,7 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
         return -1;
     }
 
-    ret = fread(device_secret, IOTX_DEVICE_SECRET_LEN + 1, sizeof(char), stream);
+    ret = fread(device_secret, sizeof(char), IOTX_DEVICE_SECRET_LEN + 1, stream);
     fclose(stream);
     if (0 == ret) {
         memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);

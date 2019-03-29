@@ -302,7 +302,7 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
             return FAIL_RETURN;
         }
 
-        if (HAL_SetDeviceSecret(meta_info->device_secret) > 0) {
+        if (HAL_SetDeviceSecret(meta_info->device_secret) <= 0) {
             mqtt_err("Save Device Secret to HAL Failed");
             return FAIL_RETURN;
         }
