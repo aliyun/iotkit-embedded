@@ -643,6 +643,19 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         return IOT_OTAE_INVALID_STATE;
     }
 
+    if (h_ota->md5 == NULL) {
+        h_ota->md5 = otalib_MD5Init();
+        if (h_ota->md5 == NULL) {
+            return FAIL_RETURN;
+        }
+    }
+    if (h_ota->sha256 == NULL) {
+        h_ota->sha256 = otalib_Sha256Init();
+        if (h_ota->sha256 == NULL) {
+            return FAIL_RETURN;
+        }
+    }
+
     if (h_ota->ch_fetch == NULL) {
         if (h_ota->type == IOT_OTAT_FOTA) {
             OTA_LOG_ERROR("h_ota->size_fetched: %d",h_ota->size_fetched);
@@ -851,6 +864,9 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, int buf_len)
             } else {
                 char md5_str[33];
                 otalib_MD5Finalize(h_ota->md5, md5_str);
+                otalib_MD5Deinit(h_ota->md5);
+                h_ota->md5 = NULL;
+
                 OTA_LOG_DEBUG("origin=%s, now=%s", h_ota->md5sum, md5_str);
                 if (0 == strcmp(h_ota->md5sum, md5_str)) {
                     *((uint32_t *)buf) = 1;

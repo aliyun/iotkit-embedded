@@ -63,7 +63,7 @@ static int _dm_fota_send_new_config_to_user(void *ota_handle)
 
 int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
 {
-    int res = 0, file_download = 0;
+    int res = 0, file_download = 0, retry_timeout = 0, retry_max_timeout = 0;
     uint32_t file_size = 0, file_downloaded = 0;
     uint32_t percent_pre = 0, percent_now = 0;
     unsigned long long report_pre = 0, report_now = 0;
@@ -98,11 +98,19 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
     while (1) {
         file_download = IOT_OTA_FetchYield(ota_handle, output, output_len, 1);
         if (file_download < 0) {
-            IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_FETCH_FAILED, NULL);
-            HAL_Firmware_Persistence_Stop();
-            ctx->is_report_new_config = 0;
-            return FAIL_RETURN;
+            res = dm_opt_get(DM_OPT_FOTA_RETRY_TIMEOUT_MS,&retry_max_timeout);
+            if (res == SUCCESS_RETURN && retry_timeout >= retry_max_timeout) {
+                IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_FETCH_FAILED, NULL);
+                HAL_Firmware_Persistence_Stop();
+                ctx->is_report_new_config = 0;
+                return FAIL_RETURN;
+            }
+            retry_timeout += CONFIG_FOTA_RETRY_INTERNAL_MS;
+            HAL_SleepMs(CONFIG_FOTA_RETRY_INTERNAL_MS);
+            dm_log_err("IOT_OTA_FetchYield next time");
+            continue;
         }
+        retry_timeout = 0;
 
         /* Write Config File Into Stroage */
         ret = HAL_Firmware_Persistence_Write(output, file_download);

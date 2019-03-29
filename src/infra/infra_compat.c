@@ -59,6 +59,7 @@ int IOT_SetupConnInfo(const char *product_key,
 
 #if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
     #include "iotx_dm.h"
+    #include "dm_opt.h"
 #endif
 
 int IOT_Ioctl(int option, void *data)
@@ -171,6 +172,11 @@ int IOT_Ioctl(int option, void *data)
             res = SUCCESS_RETURN;
         }
         break;
+#endif
+#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
+        case IOTX_IOCTL_FOTA_TIMEOUT_MS: {
+            res = iotx_dm_set_opt(DM_OPT_FOTA_RETRY_TIMEOUT_MS, data);
+        }
 #endif
         default: {
             res = FAIL_RETURN;

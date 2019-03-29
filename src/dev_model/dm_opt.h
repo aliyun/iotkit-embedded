@@ -11,7 +11,8 @@ typedef enum {
     DM_OPT_DOWNSTREAM_EVENT_POST_REPLY,
     DM_OPT_UPSTREAM_PROPERTY_SET_REPLY,
     DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_DELETE_REPLY,
-    DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_GET_REPLY
+    DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_GET_REPLY,
+    DM_OPT_FOTA_RETRY_TIMEOUT_MS
 } dm_opt_t;
 
 typedef struct {
@@ -20,6 +21,7 @@ typedef struct {
     int prop_set_reply_opt;
     int prop_desired_get_reply_opt;
     int prop_desired_delete_reply_opt;
+    int fota_retry_timeout_ms;
 } dm_opt_ctx;
 
 int dm_opt_set(dm_opt_t opt, void *data);

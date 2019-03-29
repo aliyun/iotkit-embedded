@@ -35,4 +35,8 @@
     #define CONFIG_MSGCACHE_QUEUE_MAXLEN    (50)
 #endif
 
+#ifndef CONFIG_FOTA_RETRY_INTERNAL_MS
+    #define CONFIG_FOTA_RETRY_INTERNAL_MS   (100)
+#endif
+
 #endif

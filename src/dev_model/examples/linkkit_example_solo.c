@@ -269,7 +269,7 @@ int main(int argc, char **argv)
     int res = 0;
     int cnt = 0;
     iotx_linkkit_dev_meta_info_t master_meta_info;
-    int domain_type = 0, dynamic_register = 0, post_reply_need = 0;
+    int domain_type = 0, dynamic_register = 0, post_reply_need = 0, fota_timeout = 30;
 
 #ifdef ATM_ENABLED
     if (IOT_ATM_Init() < 0) {
@@ -315,6 +315,8 @@ int main(int argc, char **argv)
     post_reply_need = 1;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_reply_need);
 
+    IOT_Ioctl(IOTX_IOCTL_FOTA_TIMEOUT_MS, (void *)&fota_timeout);
+
     /* Create Master Device Resources */
     g_user_example_ctx.master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
     if (g_user_example_ctx.master_devid < 0) {
@@ -334,12 +336,12 @@ int main(int argc, char **argv)
 
         /* Post Proprety Example */
         if ((cnt % 2) == 0) {
-            user_post_property();
+            /* user_post_property(); */
         }
 
         /* Post Event Example */
         if ((cnt % 10) == 0) {
-            user_post_event();
+            /* user_post_event(); */
         }
 
         if (++cnt > 3600) {
