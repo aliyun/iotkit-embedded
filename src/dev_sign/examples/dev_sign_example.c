@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-#if 1   /* Uncomment this if you want to show more information */
+#if 0   /* Uncomment this if you want to show more information */
     HAL_Printf("sign_mqtt.hostname: %s\n", sign_mqtt.hostname);
     HAL_Printf("sign_mqtt.port    : %d\n", sign_mqtt.port);
     HAL_Printf("sign_mqtt.username: %s\n", sign_mqtt.username);
