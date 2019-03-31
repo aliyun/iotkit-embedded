@@ -177,6 +177,7 @@ int IOT_Ioctl(int option, void *data)
         case IOTX_IOCTL_FOTA_TIMEOUT_MS: {
             res = iotx_dm_set_opt(DM_OPT_FOTA_RETRY_TIMEOUT_MS, data);
         }
+        break;
 #endif
         default: {
             res = FAIL_RETURN;
