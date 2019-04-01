@@ -6,6 +6,7 @@
 
 #include <string.h>
 
+#include "mqtt_internal.h"
 /**
  * Encodes the message length according to the MQTT algorithm
  * @param buf the buffer into which the encoded data is written
@@ -201,12 +202,25 @@ int readMQTTLenString(MQTTString *mqttstring, unsigned char **pptr, unsigned cha
     /* the first two bytes are the length of the string */
     if (enddata - (*pptr) > 1) { /* enough length to read the integer? */
         mqttstring->lenstring.len = readInt(pptr); /* increments pptr to point past length */
-        if (&(*pptr)[mqttstring->lenstring.len] <= enddata) {
+
+        /* verify topic len*/
+        if ((mqttstring->lenstring.len > 0) &&
+            (mqttstring->lenstring.len < CONFIG_MQTT_TOPIC_MAXLEN) &&
+            (&(*pptr)[mqttstring->lenstring.len] <= enddata)) {
             mqttstring->lenstring.data = (char *)*pptr;
             *pptr += mqttstring->lenstring.len;
             rc = 1;
+        } else {
+            mqtt_err("topicName too long: %d", mqttstring->lenstring.len);
         }
     }
+
+    /* verify topic content */
+    if (NULL == mqttstring->lenstring.data) {
+        rc = 0;
+        mqtt_err("topicName is NULL");
+    }
+
     mqttstring->cstring = NULL;
     return rc;
 }
