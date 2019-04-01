@@ -30,3 +30,4 @@ GPATH
 GRTAGS
 GTAGS
 iotx-sdk-c-test/
+aos_board_conf.mk
