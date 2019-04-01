@@ -64,7 +64,7 @@ static void _hex2str(uint8_t *input, uint16_t input_len, char *output)
     }
 }
 
-int _sign_get_clientid(char *clientid_string, const char *device_id)
+int _sign_get_clientid(char *clientid_string, const char *device_id, const char *custom_kv)
 {
     uint8_t i;
 
@@ -85,6 +85,14 @@ int _sign_get_clientid(char *clientid_string, const char *device_id)
         memcpy(clientid_string + strlen(clientid_string), clientid_kv[i][0], strlen(clientid_kv[i][0]));
         memcpy(clientid_string + strlen(clientid_string), "=", 1);
         memcpy(clientid_string + strlen(clientid_string), clientid_kv[i][1], strlen(clientid_kv[i][1]));
+        memcpy(clientid_string + strlen(clientid_string), ",", 1);
+    }
+
+    if (custom_kv != NULL) {
+        if ((strlen(clientid_string) + strlen(custom_kv) + 1) >= DEV_SIGN_CLIENT_ID_MAXLEN) {
+            return FAIL_RETURN;
+        }
+        memcpy(clientid_string + strlen(clientid_string), custom_kv, strlen(custom_kv));
         memcpy(clientid_string + strlen(clientid_string), ",", 1);
     }
 
@@ -142,7 +150,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     memcpy(device_id + strlen(device_id), meta->device_name, strlen(meta->device_name));
 
     /* setup clientid */
-    if (_sign_get_clientid(signout->clientid, device_id) != SUCCESS_RETURN) {
+    if (_sign_get_clientid(signout->clientid, device_id, NULL) != SUCCESS_RETURN) {
         return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
     }
 

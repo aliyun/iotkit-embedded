@@ -330,7 +330,6 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
 
 #ifdef MQTT_PRE_AUTH
 #include "infra_preauth.h"
-extern int _sign_get_clientid(char *clientid_string, const char *device_id);
 extern int _iotx_generate_sign_string(const char *device_id, const char *device_name, const char *product_key,
                                       const char *device_secret, char *sign_string);
 
@@ -349,11 +348,6 @@ static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *
     memcpy(device_id + strlen(device_id), ".", strlen("."));
     memcpy(device_id + strlen(device_id), meta->device_name, strlen(meta->device_name));
 
-    /* setup clientid */
-    if (_sign_get_clientid(preauth_out->clientid, device_id) != SUCCESS_RETURN) {
-        return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
-    }
-
     /* setup sign_string */
     res = _iotx_generate_sign_string(device_id, meta->device_name, meta->product_key, meta->device_secret, sign_string);
     if (res < SUCCESS_RETURN) {
@@ -364,12 +358,15 @@ static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *
 }
 #endif /* #ifdef MQTT_PRE_AUTH */
 
+extern int _sign_get_clientid(char *clientid_string, const char *device_id, const char *custom_kv);
+
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
     void *pclient;
     iotx_dev_meta_info_t meta_info;
     iotx_mqtt_param_t mqtt_params;
+    char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
     int region = 0;
     int dynamic = 0;
     int ret;
@@ -441,6 +438,16 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 #endif /* #ifdef MQTT_PRE_AUTH */
+
+    /* setup device_id */
+    memcpy(device_id, meta_info.product_key, strlen(meta_info.product_key));
+    memcpy(device_id + strlen(device_id), ".", strlen("."));
+    memcpy(device_id + strlen(device_id), meta_info.device_name, strlen(meta_info.device_name));
+
+    /* setup clientid */
+    if (_sign_get_clientid(g_default_sign.clientid, device_id, (pInitParams != NULL)? pInitParams->customize_info: NULL) != SUCCESS_RETURN) {
+        return NULL;
+    }
 
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(iotx_mqtt_param_t));
