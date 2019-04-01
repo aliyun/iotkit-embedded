@@ -12,38 +12,6 @@
     #error "NOT support yet!"
 #endif
 
-
-typedef struct  {
-    const char *product_key;    /* point to product key */
-    const char *device_name;    /* point to device name */
-
-    uint32_t id;                /* message id */
-    IOT_OTA_State_t state;      /* OTA state */
-    IOT_OTA_Type_t type;        /* OTA Type */
-    uint32_t size_last_fetched; /* size of last downloaded */
-    uint32_t size_fetched;      /* size of already downloaded */
-    uint32_t size_file;         /* size of file */
-    char *purl;                 /* point to URL */
-    char *version;              /* point to string */
-    char md5sum[33];            /* MD5 string */
-
-    void *md5;                  /* MD5 handle */
-    void *sha256;               /* Sha256 handle */
-    void *ch_signal;            /* channel handle of signal exchanged with OTA server */
-    void *ch_fetch;             /* channel handle of download */
-
-    /* cota */
-    char *configId;
-    uint32_t configSize;
-    char *sign;
-    char *signMethod;
-    char *cota_url;
-    char *getType;
-
-    int err;                    /* last error code */
-} OTA_Struct_t, *OTA_Struct_pt;
-
-
 /* check whether the progress state is valid or not */
 /* return: true, valid progress state; false, invalid progress state. */
 static int ota_check_progress(IOT_OTA_Progress_t progress)

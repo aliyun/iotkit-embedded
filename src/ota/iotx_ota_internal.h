@@ -14,6 +14,7 @@
 #include "infra_md5.h"
 #include "infra_sha256.h"
 #include "infra_json_parser.h"
+#include "iotx_ota.h"
 #include "ota_api.h"
 #include "iotx_ota_config.h"
 #include "ota_wrapper.h"
