@@ -1,8 +1,15 @@
 #! /bin/bash
+cleanup ()
+{
+    rm -f bash_lock.$$
+}
 
-LOCK_FILE=bash_lock
+trap cleanup EXIT
 
-if [ ! -f ${LOCK_FILE} ];then
+LOCK_PATTERN=bash_lock
+LOCK_FILE=${LOCK_PATTERN}.$$
+
+if [ "$(ls ${LOCK_PATTERN}.* 2>/dev/null)" = "" ];then
     echo "LOCK" > ${LOCK_FILE}
 else
     echo "Another Extract Script Is Running, Exit..."
