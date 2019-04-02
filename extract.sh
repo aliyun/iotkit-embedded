@@ -1,31 +1,38 @@
 #! /bin/bash
 
-if [ "${1}" = "cloud" ];then
-    EXTRACT_ID=$(curl -sF "file=@make.settings" --url http://10.101.12.81/upload/config?pk=a1AuWIoEr4Z)
-    if [ "${EXTRACT_ID}" = "" ];then
-        echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
-        exit
-    fi
+extract_from_cloud()
+{
+    EXTRACT_ID=$(curl -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z)
     # echo ${EXTRACT_ID}
-    while :
-    do
-        DOWNLOAD_FILE=$(curl -s http://127.0.0.1/get/linkkit?extractId=${EXTRACT_ID})
-        # echo ${DOWNLOAD_FILE}
-        if [ "${DOWNLOAD_FILE}" = "404" ] || [ "${DOWNLOAD_FILE}" = "" ];then
-            echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
-            exit
-        elif [ "${DOWNLOAD_FILE}" = "406" ];then
-            echo -e "\nLinkkit Files Are Not Ready Yet, Please Wait..."
-            sleep 2
-        else
-            curl -s ${DOWNLOAD_FILE} > output.zip
-            rm -rf output
-            unzip output.zip
-            rm -rf output.zip
-            exit
-        fi
-    done
-fi
+    RETRY_COUNT=0
+    if [ "${EXTRACT_ID}" != "" ];then
+        while :
+        do
+            DOWNLOAD_FILE=$(curl -s https://linkkit.aliyuncs.com/get/linkkit?extractId=${EXTRACT_ID})
+            # echo ${DOWNLOAD_FILE}
+            if [ "${DOWNLOAD_FILE}" = "404" ] || [ "${DOWNLOAD_FILE}" = "" ];then
+                # echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
+                break
+            elif [ "${DOWNLOAD_FILE}" = "406" ];then
+                # echo -e "\nLinkkit Files Are Not Ready Yet, Please Wait..."
+                if [ "${RETRY_COUNT}" = "3" ];then
+                    break
+                fi
+                RETRY_COUNT=$[RETRY_COUNT+1]
+                sleep 2
+            else
+                curl -s ${DOWNLOAD_FILE} > output.zip
+                rm -rf output
+                unzip -q output.zip
+                rm -rf output.zip
+                echo ""
+                echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
+                echo ""
+                exit
+            fi
+        done
+    fi
+}
 
 OS="$(uname)"
 
@@ -45,6 +52,9 @@ TEMP_FILE_RULS="${PWD}/.temp_file_rule_filter"
 XTRC_WRAPPER_RULS=./tools/misc/xtrc_wrapper_rules
 TEMP_WRAPPER_RULS="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
+
+# Try Extract Linkkit From Cloud
+extract_from_cloud
 
 # Prepare Config Macro In make.settings
 MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
