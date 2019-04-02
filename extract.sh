@@ -1,13 +1,14 @@
 #! /bin/bash
-cleanup ()
-{
-    rm -f bash_lock.$$
-}
-
-trap cleanup EXIT
 
 LOCK_PATTERN=bash_lock
 LOCK_FILE=${LOCK_PATTERN}.$$
+
+cleanup ()
+{
+    rm -f ${LOCK_FILE}
+}
+
+trap cleanup EXIT
 
 if [ "$(ls ${LOCK_PATTERN}.* 2>/dev/null)" = "" ];then
     echo "LOCK" > ${LOCK_FILE}
