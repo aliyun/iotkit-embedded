@@ -1,7 +1,7 @@
 #! /bin/bash
 
 if [ "${1}" = "cloud" ];then
-    EXTRACT_ID=$(curl -sF "file=@make.settings" --url http://10.101.12.81/upload/config?pk=a1AuWIoEr4Z)
+    EXTRACT_ID=$(curl -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z)
     if [ "${EXTRACT_ID}" = "" ];then
         echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
         exit
@@ -9,7 +9,7 @@ if [ "${1}" = "cloud" ];then
     # echo ${EXTRACT_ID}
     while :
     do
-        DOWNLOAD_FILE=$(curl -s http://127.0.0.1/get/linkkit?extractId=${EXTRACT_ID})
+        DOWNLOAD_FILE=$(curl -s https://linkkit.aliyuncs.com/get/linkkit?extractId=${EXTRACT_ID})
         # echo ${DOWNLOAD_FILE}
         if [ "${DOWNLOAD_FILE}" = "404" ] || [ "${DOWNLOAD_FILE}" = "" ];then
             echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
