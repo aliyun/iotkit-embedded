@@ -7,6 +7,10 @@
 #ifndef _INFRA_REPORT_H_
 #define _INFRA_REPORT_H_
 
+#ifdef BUILD_AOS
+    #include "activation.h"
+#endif
+
 #ifndef VERSION_NUM_SIZE
     #define VERSION_NUM_SIZE    4
 #endif
