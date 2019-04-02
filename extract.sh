@@ -1,5 +1,14 @@
 #! /bin/bash
 
+LOCK_FILE=bash_lock
+
+if [ ! -f ${LOCK_FILE} ];then
+    echo "LOCK" > ${LOCK_FILE}
+else
+    echo "Another Extract Script Is Running, Exit..."
+    exit
+fi
+
 extract_from_cloud()
 {
     EXTRACT_ID=$(curl -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z)
@@ -28,6 +37,7 @@ extract_from_cloud()
                 echo ""
                 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
                 echo ""
+                rm -rf ${LOCK_FILE}
                 exit
             fi
         done
@@ -325,3 +335,5 @@ if [ "${1}" = "test" ];then
         rm -f ${WRAPPERS_DIR}/ubuntu/HAL_UART_linux.c
     fi
 fi
+
+rm -rf ${LOCK_FILE}
