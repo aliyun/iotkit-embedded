@@ -72,7 +72,10 @@ TEMP_WRAPPER_RULS="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
 
 # Try Extract Linkkit From Cloud
-extract_from_cloud
+#
+if [ "$1" != "test" ]; then
+    extract_from_cloud
+fi
 
 # Prepare Config Macro In make.settings
 MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
