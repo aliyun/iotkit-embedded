@@ -178,8 +178,14 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
 
     memset(&addr, 0, sizeof(struct sockaddr_in));
 
-    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
-        printf("setsockopt");
+    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &opt_val, sizeof(opt_val))) {
+        printf("setsockopt(SO_BROADCAST) falied\n");
+        close(sockfd);
+        return -1;
+    }
+
+    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val))) {
+        printf("setsockopt(SO_REUSEADDR) falied\n");
         close(sockfd);
         return -1;
     }
@@ -192,7 +198,7 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
         } else {
             hp = gethostbyname(host);
             if (!hp) {
-                printf("can't resolute the host address \n");
+                printf("can't resolve the host address - '%s'\n", host);
                 close(sockfd);
                 return -1;
             }
@@ -204,10 +210,11 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
     addr.sin_port = htons(port);
 
     if (-1 == bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in))) {
+        printf("bind(%d) falied\n", (int)sockfd);
         close(sockfd);
         return -1;
     }
-    printf("success to establish udp, fd=%d", (int)sockfd);
+    printf("success to establish udp, fd = %d", (int)sockfd);
 
     return (intptr_t)sockfd;
 }
