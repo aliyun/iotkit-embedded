@@ -1,13 +1,21 @@
 #! /bin/bash
 
-LOCK_FILE=bash_lock
+# LOCK_PATTERN=bash_lock
+# LOCK_FILE=${LOCK_PATTERN}.$$
 
-if [ ! -f ${LOCK_FILE} ];then
-    echo "LOCK" > ${LOCK_FILE}
-else
-    echo "Another Extract Script Is Running, Exit..."
-    exit
-fi
+# cleanup ()
+# {
+#     rm -f ${LOCK_FILE}
+# }
+
+# trap cleanup EXIT
+
+# if [ "$(ls ${LOCK_PATTERN}.* 2>/dev/null)" = "" ];then
+#     echo "LOCK" > ${LOCK_FILE}
+# else
+#     echo "Another Extract Script Is Running, Exit..."
+#     exit
+# fi
 
 extract_from_cloud()
 {
@@ -37,7 +45,7 @@ extract_from_cloud()
                 echo ""
                 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
                 echo ""
-                rm -rf ${LOCK_FILE}
+                # rm -rf ${LOCK_FILE}
                 exit
             fi
         done
@@ -64,7 +72,10 @@ TEMP_WRAPPER_RULS="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
 
 # Try Extract Linkkit From Cloud
-extract_from_cloud
+#
+if [ "$1" != "test" ]; then
+    extract_from_cloud
+fi
 
 # Prepare Config Macro In make.settings
 MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
@@ -336,4 +347,4 @@ if [ "${1}" = "test" ];then
     fi
 fi
 
-rm -rf ${LOCK_FILE}
+# rm -rf ${LOCK_FILE}
