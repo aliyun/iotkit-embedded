@@ -19,13 +19,13 @@
 
 extract_from_cloud()
 {
-    EXTRACT_ID=$(curl -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z)
+    EXTRACT_ID=$(curl --connect-timeout 5 -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z)
     # echo ${EXTRACT_ID}
     RETRY_COUNT=0
     if [ "${EXTRACT_ID}" != "" ];then
         while :
         do
-            DOWNLOAD_FILE=$(curl -s https://linkkit.aliyuncs.com/get/linkkit?extractId=${EXTRACT_ID})
+            DOWNLOAD_FILE=$(curl -s --connect-timeout 5 https://linkkit.aliyuncs.com/get/linkkit?extractId=${EXTRACT_ID})
             # echo ${DOWNLOAD_FILE}
             if [ "${DOWNLOAD_FILE}" = "404" ] || [ "${DOWNLOAD_FILE}" = "" ];then
                 # echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
