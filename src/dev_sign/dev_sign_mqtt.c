@@ -51,6 +51,9 @@ const char *clientid_kv[][2] = {
     {
         "_v", "sdk-c-"IOTX_SDK_VERSION
     },
+    {
+        "lan", "C"
+    }
 };
 
 static void _hex2str(uint8_t *input, uint16_t input_len, char *output)
