@@ -73,7 +73,7 @@ WRAPPER_DOC=./tools/misc/wrapper
 
 # Try Extract Linkkit From Cloud
 #
-if [ "$1" != "test" ]; then
+if [ "$1" != "test" ] && [ "$1" != "local" ]; then
     extract_from_cloud
 fi
 
