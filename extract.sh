@@ -1,21 +1,21 @@
 #! /bin/bash
 
-LOCK_PATTERN=bash_lock
-LOCK_FILE=${LOCK_PATTERN}.$$
+# LOCK_PATTERN=bash_lock
+# LOCK_FILE=${LOCK_PATTERN}.$$
 
-cleanup ()
-{
-    rm -f ${LOCK_FILE}
-}
+# cleanup ()
+# {
+#     rm -f ${LOCK_FILE}
+# }
 
-trap cleanup EXIT
+# trap cleanup EXIT
 
-if [ "$(ls ${LOCK_PATTERN}.* 2>/dev/null)" = "" ];then
-    echo "LOCK" > ${LOCK_FILE}
-else
-    echo "Another Extract Script Is Running, Exit..."
-    exit
-fi
+# if [ "$(ls ${LOCK_PATTERN}.* 2>/dev/null)" = "" ];then
+#     echo "LOCK" > ${LOCK_FILE}
+# else
+#     echo "Another Extract Script Is Running, Exit..."
+#     exit
+# fi
 
 extract_from_cloud()
 {
@@ -45,7 +45,7 @@ extract_from_cloud()
                 echo ""
                 echo "Please pick up extracted source files in [${PWD}/${OUTPUT_DIR}]"
                 echo ""
-                rm -rf ${LOCK_FILE}
+                # rm -rf ${LOCK_FILE}
                 exit
             fi
         done
@@ -347,4 +347,4 @@ if [ "${1}" = "test" ];then
     fi
 fi
 
-rm -rf ${LOCK_FILE}
+# rm -rf ${LOCK_FILE}
