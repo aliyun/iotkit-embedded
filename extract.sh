@@ -23,6 +23,7 @@ extract_from_cloud()
     # echo ${EXTRACT_ID}
     RETRY_COUNT=0
     if [ "${EXTRACT_ID}" != "" ];then
+	sleep 2
         while :
         do
             DOWNLOAD_FILE=$(curl -s --connect-timeout 5 https://linkkit.aliyuncs.com/get/linkkit?extractId=${EXTRACT_ID})
@@ -32,7 +33,7 @@ extract_from_cloud()
                 break
             elif [ "${DOWNLOAD_FILE}" = "406" ];then
                 # echo -e "\nLinkkit Files Are Not Ready Yet, Please Wait..."
-                if [ "${RETRY_COUNT}" = "3" ];then
+                if [ "${RETRY_COUNT}" = "10" ];then
                     break
                 fi
                 RETRY_COUNT=$[RETRY_COUNT+1]
