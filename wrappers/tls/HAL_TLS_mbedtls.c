@@ -433,6 +433,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
                               const char *client_key,   size_t client_key_len,
                               const char *client_pwd, size_t client_pwd_len)
 {
+    struct in_addr in;
     int ret = -1;
     /*
      * 0. Init
@@ -505,11 +506,11 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         printf("failed! mbedtls_ssl_setup returned %d\n", ret);
         return ret;
     }
-#if defined(ON_PRE) || defined(ON_DAILY)
-    printf("SKIPPING mbedtls_ssl_set_hostname() when ON_PRE or ON_DAILY defined!\n");
-#else
-    mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
-#endif
+
+    /* only set hostname when addr isn't ip string */
+    if (inet_aton(addr, &in) == 0) {
+        mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
+    }
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
 #if defined(TLS_SAVE_TICKET)
