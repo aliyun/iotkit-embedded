@@ -30,8 +30,6 @@
 #include "wrappers_defs.h"
 
 #define SEND_TIMEOUT_SECONDS                (10)
-#define GUIDER_ONLINE_HOSTNAME              ("iot-auth.cn-shanghai.aliyuncs.com")
-#define GUIDER_PRE_ADDRESS                  ("100.67.80.107")
 
 #ifndef CONFIG_MBEDTLS_DEBUG_LEVEL
     #define CONFIG_MBEDTLS_DEBUG_LEVEL 0
@@ -507,8 +505,8 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         return ret;
     }
 
-    /* only set hostname when addr isn't ip string */
-    if (inet_aton(addr, &in) == 0) {
+    /* only set hostname when addr isn't ip string and hostname isn't preauth_shanghai */
+    if (inet_aton(addr, &in) == 0 && strcmp("iot-auth-pre.cn-shanghai.aliyuncs.com", addr)) {
         mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
     }
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
@@ -772,13 +770,6 @@ uintptr_t HAL_SSL_Establish(const char *host,
     memset(pTlsData, 0x0, sizeof(TLSDataParams_t));
 
     sprintf(port_str, "%u", port);
-
-#if defined(ON_PRE)
-    if (!strcmp(GUIDER_ONLINE_HOSTNAME, host)) {
-        printf("ALTERING '%s' to '%s' since ON_PRE defined!\n", host, GUIDER_PRE_ADDRESS);
-        alter = GUIDER_PRE_ADDRESS;
-    }
-#endif
 
     mbedtls_platform_set_calloc_free(_SSLCalloc_wrapper, _SSLFree_wrapper);
 
