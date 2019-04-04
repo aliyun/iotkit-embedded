@@ -168,6 +168,7 @@ void dm_msg_cache_tick(void)
                 DM_free(node->data);
             }
             DM_free(node);
+			ctx->dmc_list_size--;
         }
     }
     _dm_msg_cache_mutex_unlock();
