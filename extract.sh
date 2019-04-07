@@ -74,8 +74,8 @@ WRAPPER_DOC=./tools/misc/wrapper
 
 # Try Extract Linkkit From Cloud
 #
-if [ "$1" != "test" ] && [ "$1" != "local" ]; then
-    extract_from_cloud
+if [ "$1" = "" ] || ( [ "$1" != "test" ] && [ "$1" != "local" ] ) then
+        extract_from_cloud
 fi
 
 # Prepare Config Macro In make.settings
