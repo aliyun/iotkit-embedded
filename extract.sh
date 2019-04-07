@@ -23,23 +23,33 @@ extract_from_cloud()
     # echo ${EXTRACT_ID}
     RETRY_COUNT=0
     if [ "${EXTRACT_ID}" != "" ];then
-	sleep 2
+        echo ". Download request sent, waiting respond ..."
+        sleep 2
+
         while :
         do
             DOWNLOAD_FILE=$(curl -s --connect-timeout 5 https://linkkit.aliyuncs.com/get/linkkit?extractId=${EXTRACT_ID})
             # echo ${DOWNLOAD_FILE}
+
             if [ "${DOWNLOAD_FILE}" = "404" ] || [ "${DOWNLOAD_FILE}" = "" ];then
-                # echo -e "\nCannot Download Linkkit, Please Try Again Later\n"
                 break
+
             elif [ "${DOWNLOAD_FILE}" = "406" ];then
-                # echo -e "\nLinkkit Files Are Not Ready Yet, Please Wait..."
+                echo ". Respond generating, wait longer"
+
                 if [ "${RETRY_COUNT}" = "10" ];then
                     break
                 fi
+
                 RETRY_COUNT=$[RETRY_COUNT+1]
+
+                echo ". Retried ${RETRY_COUNT}/10"
                 sleep 2
+
             else
-                curl -s ${DOWNLOAD_FILE} > output.zip
+
+                echo ""
+                curl ${DOWNLOAD_FILE} > output.zip
                 rm -rf output
                 unzip -q output.zip
                 rm -rf output.zip
