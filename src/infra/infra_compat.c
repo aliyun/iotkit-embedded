@@ -57,7 +57,7 @@ int IOT_SetupConnInfo(const char *product_key,
 }
 #endif /* #ifdef MQTT_COMM_ENABLED */
 
-#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
+#if defined(DEVICE_MODEL_ENABLED)
     #include "iotx_dm.h"
     #include "dm_opt.h"
 #endif
@@ -135,7 +135,7 @@ int IOT_Ioctl(int option, void *data)
             res = SUCCESS_RETURN;
         }
         break;
-#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
+#if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case IOTX_IOCTL_RECV_EVENT_REPLY:
         case IOTX_IOCTL_RECV_PROP_REPLY: {
@@ -155,7 +155,7 @@ int IOT_Ioctl(int option, void *data)
             /* todo */
         }
         break;
-#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_GATEWAY)
+#if defined(DEVICE_MODEL_GATEWAY)
 #ifdef DEVICE_MODEL_SUBDEV_OTA
         case IOTX_IOCTL_SET_OTA_DEV_ID: {
             int devid = *(int *)(data);
@@ -173,7 +173,7 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #endif
-#if defined(DEVICE_MODEL_CLASSIC) && defined(DEVICE_MODEL_ENABLED)
+#if defined(DEVICE_MODEL_ENABLED)
         case IOTX_IOCTL_FOTA_TIMEOUT_MS: {
             res = iotx_dm_set_opt(DM_OPT_FOTA_RETRY_TIMEOUT_MS, data);
         }
@@ -260,7 +260,7 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_FOTA,                 NULL},
     {ITE_COTA,                 NULL},
     {ITE_MQTT_CONNECT_SUCC,    NULL},
-    {ITE_CLOUD_ERROR,          NULL} 
+    {ITE_CLOUD_ERROR,          NULL}
 };
 
 void *iotx_event_callback(int evt)
