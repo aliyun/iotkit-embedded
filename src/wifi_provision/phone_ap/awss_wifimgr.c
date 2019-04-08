@@ -231,8 +231,9 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     char bssid[ETH_ALEN] = {0};
     char msg[128] = {0};
     char ssid_found = 0;
+    char token_found = 0;
     char topic[TOPIC_LEN_MAX] = {0};
-
+    uint8_t token[RANDOM_MAX_LEN + 1] = {0};
     static char switch_ap_parsed = 0;
     if (switch_ap_parsed != 0)
         return SHUB_ERR;
@@ -291,6 +292,13 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
             HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -4, "\"security level error\"");
             break;
         }
+
+        str_len = 0;
+        str = json_get_value_by_name(buf, len, "token", &str_len, 0);
+        if (str && str_len ==  RANDOM_MAX_LEN * 2) {  /*token len equal to random len*/
+            utils_str_to_hex(str, str_len, (unsigned char *)token, RANDOM_MAX_LEN);
+            token_found = 1;
+        } 
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "passwd", &str_len, 0);
@@ -366,11 +374,8 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     } while (0);
 #endif
     AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
-    if (0 != HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT,
-                                ssid, passwd,
-                                AWSS_AUTH_TYPE_INVALID,
-                                AWSS_ENC_TYPE_INVALID,
-                                (uint8_t *)bssid, 0)) {
+
+    if (0 != awss_connect(ssid, passwd,(uint8_t *)bssid, (token_found == 1? token : NULL))) {
     } else {
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);
@@ -385,8 +390,9 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         scan_tx_wifilist_timer = NULL;
 
         zconfig_force_destroy();
-
-        produce_random(aes_random, sizeof(aes_random));
+        if(token_found == 0) {
+            produce_random(aes_random, sizeof(aes_random));
+        }
     }
     awss_debug("connect '%s' %s\r\n", ssid, switch_ap_done == 1 ? "success" : "fail");
 

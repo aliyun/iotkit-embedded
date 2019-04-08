@@ -55,9 +55,9 @@ int __awss_start(void)
             awss_event_post(IOTX_AWSS_CONNECT_ROUTER);
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
         }
-
-        ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
-                                  auth, encry, bssid, channel);
+        ret = awss_connect(ssid, passwd, bssid,NULL);
+        /*ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
+                                  auth, encry, bssid, channel);*/
         if (!ret) {
             awss_debug("awss connect ssid:%s success", ssid);
             awss_event_post(IOTX_AWSS_GOT_IP);

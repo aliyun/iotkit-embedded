@@ -142,11 +142,14 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     int str_len = 0, success = 1, len = 0;
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
     char random[RANDOM_MAX_LEN + 1] = {0};
+    uint8_t token[RANDOM_MAX_LEN + 1] = {0};
     char *msg = NULL, *dev_info = NULL;
     char *str = NULL, *buf = NULL;
     char bssid[ETH_ALEN] = {0};
+    char token_found = 0;
     char ssid_found = 0;
     int ret = -1;
+
 
     static char dev_ap_switchap_parsed = 0;
     char topic[TOPIC_LEN_MAX] = {0};
@@ -175,12 +178,6 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         goto DEV_AP_SWITCHAP_END;
 
     do {
-        produce_random(aes_random, sizeof(aes_random));
-        dev_info[0] = '{';
-        awss_build_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, dev_info + 1, AWSS_DEV_AP_SWITCHA_RSP_LEN - 1);
-        dev_info[strlen(dev_info)] = '}';
-        dev_info[AWSS_DEV_AP_SWITCHA_RSP_LEN - 1] = '\0';
-        HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "ssid", &str_len, 0);
@@ -218,6 +215,13 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         }
 
         str_len = 0;
+        str = json_get_value_by_name(buf, len, "token", &str_len, 0);
+        if (str && str_len ==  RANDOM_MAX_LEN * 2) {  /* token len equal to random len */
+            utils_str_to_hex(str, str_len, (unsigned char *)token, RANDOM_MAX_LEN);
+            token_found = 1;
+        } 
+
+        str_len = 0;
         str = json_get_value_by_name(buf, len, "bssid", &str_len, 0);
         if (str) os_wifi_str2mac(str, bssid);
 
@@ -244,6 +248,16 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 
     awss_trace("Sending message to app: %s", msg);
     awss_trace("switch to ap: '%s'", ssid);
+    if(success == 1) {
+        if(token_found == 0) {
+            produce_random(aes_random, sizeof(aes_random));
+        }
+        dev_info[0] = '{';
+        awss_build_dev_info(token_found == 1? AWSS_NOTIFY_TYPE_MAX : AWSS_NOTIFY_DEV_BIND_TOKEN, dev_info + 1, AWSS_DEV_AP_SWITCHA_RSP_LEN - 1);
+        dev_info[strlen(dev_info)] = '}';
+        dev_info[AWSS_DEV_AP_SWITCHA_RSP_LEN - 1] = '\0';
+        HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
+    }
     awss_build_topic((const char *)TOPIC_AWSS_DEV_AP_SWITCHAP, topic, TOPIC_LEN_MAX);
     result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request, awss_dev_ap_switchap_resp, &msgid, 1);
     (void)result;  /* remove complier warnings */
@@ -266,7 +280,8 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         }
         HAL_Awss_Close_Ap();
 
-        ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);
+        ret = awss_connect(ssid, passwd, (uint8_t *)bssid, token_found == 1? token: NULL);
+        /*ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);*/
         if (ret == 0) {
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
             awss_dev_ap_switchap_done = 1;

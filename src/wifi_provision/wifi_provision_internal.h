@@ -34,7 +34,7 @@
 #include "awss_bind_statis.h"
 #include "dev_bind_wrapper.h"
 #include "awss_aplist.h"
-
+#include "connect_ap.h"
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
 #include "awss_wps.h"
 #endif

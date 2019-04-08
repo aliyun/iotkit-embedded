@@ -9,6 +9,14 @@ extern "C"
 #endif
 
 uint8_t aes_random[RANDOM_MAX_LEN] = {0};
+
+int awss_set_token(uint8_t token[RANDOM_MAX_LEN])
+{
+    if(token != NULL){
+        memcpy(aes_random, token, RANDOM_MAX_LEN); 
+    }
+    return 0;
+}
 #ifdef WIFI_PROVISION_ENABLED
 /*
  * 1. place 0 @ 0, because of java modified-UTF8

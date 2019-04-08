@@ -9,6 +9,7 @@
 #define AES128_KEY_LEN  (16)
 #define RANDOM_MAX_LEN  (16)
 
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
@@ -23,10 +24,10 @@ enum {
 int awss_dict_crypt(char tab_idx, uint8_t *data, uint8_t len);
 #ifdef WIFI_PROVISION_ENABLED
 int produce_signature(uint8_t *sign, uint8_t *txt, uint32_t txt_len, const char *key);
+int awss_set_token(uint8_t token[RANDOM_MAX_LEN]);
 #endif
 
 extern uint8_t aes_random[RANDOM_MAX_LEN];
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
