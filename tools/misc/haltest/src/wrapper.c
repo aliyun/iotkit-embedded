@@ -26,7 +26,7 @@ static void * func_Sniffer(void *cb)
     char rev_buffer[MAX_REV_BUFFER];
 
     int skipLen = 26;/* radiotap 默认长度为26 */
-    printf("Sniffer Thread Create\r\n");
+    /* printf("Sniffer Thread Create\r\n"); */
     if(sock < 0)
     {
         printf("Sniffer Socket Alloc Fails %d \r\n", sock);
@@ -90,13 +90,13 @@ void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
 {
     extern void start_sniff(awss_recv_80211_frame_cb_t cb);
     int ret = system("ifconfig wlan0 down; ifconfig wlan0 up");
-    printf("wlan0 up ret is %d", ret);
+    /* printf("wlan0 up ret is %d", ret); */
     assert(0 == ret);
     ret = system("iwconfig wlan0 mode monitor");
-    printf("wlan0 mode monitor ret is %d", ret);
+    /* printf("wlan0 mode monitor ret is %d", ret); */
     assert(0 == ret);
     ret = system("echo \"10 1 1\" > /proc/net/rtl8188fu/wlan0/monitor");
-    printf("wlan0 echo data to monitor ret is  %d", ret);
+    /* printf("wlan0 echo data to monitor ret is  %d", ret); */
     assert(0 == ret);
     start_sniff(cb);
 }

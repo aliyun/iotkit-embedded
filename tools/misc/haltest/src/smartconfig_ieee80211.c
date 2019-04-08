@@ -170,38 +170,23 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     res->u.br.data_len -= zconfig_fixed_offset[encry][0];
     /* printf("data_len: 0x%04X\n",res->u.br.data_len); */
 
-    if (is_start_frame(res->u.br.data_len)) {
-        printf("verify smartconfig start frame: 0x%04X\n",res->u.br.data_len);
-    }else if (is_group_frame(res->u.br.data_len)) {
-        printf("verify smartconfig group frame: 0x%04X\n",res->u.br.data_len);
-    }else if (is_data_frame(res->u.br.data_len)) {
-        printf("fromds: %d\n",ieee80211_has_fromds(fc));
-        printf("tods: %d\n",ieee80211_has_tods(fc));
-        printf("verify smartconfig data frame: 0x%04X\n",res->u.br.data_len);
+    /* 
+     * |    Smart Config Frame Type   | From DS | To DS | Length |
+     * 
+     */
+    
+    if (is_start_frame(res->u.br.data_len) || is_group_frame(res->u.br.data_len) || is_data_frame(res->u.br.data_len)) {
+        char *frame_type = NULL;
+        if (is_start_frame(res->u.br.data_len)) {
+            frame_type = "SmartConfig Start Frame";
+        }else if (is_group_frame(res->u.br.data_len)) {
+            frame_type = "SmartConfig Group Frame";
+        }else if (is_data_frame(res->u.br.data_len)) {
+            frame_type = "SmartConfig  Data Frame";
+        }
+        printf("|   %23s   |    %d    |  %04d (0x%04X)  |\n",
+                frame_type,ieee80211_has_fromds(fc),res->u.br.data_len,res->u.br.data_len);
     }
 
     return ALINK_BROADCAST;
-}
-
-int smartconfig_80211_frame_handler(char *buf, int length, aws_link_type_t link_type, int with_fcs, signed char rssi)
-{
-    struct parser_res res;
-    memset(&res, 0, sizeof(res));
-
-    /* remove FCS filed */
-    if (with_fcs) {
-        length -= 4;
-    }
-
-    /* useless, will be removed */
-    if (is_invalid_pkg(buf, length)) {
-        return -1;
-    }
-
-    return awss_ieee80211_smartconfig_process(buf, length, AWSS_LINK_TYPE_80211_RADIO, &res, rssi);
-}
-
-void verify_smartconfig_raw_frame()
-{
-    HAL_Awss_Open_Monitor(smartconfig_80211_frame_handler);
 }
