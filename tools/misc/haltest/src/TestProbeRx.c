@@ -140,9 +140,3 @@ extern void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb);
 void verify_rx_mng_raw_frame() {
     HAL_Awss_Open_Monitor(demo_aws_80211_frame_handler);
 }
-
-int main(int argc, char *argv[])
-{
-    printf("hello haltest\n");
-    return 0;
-}

@@ -1,9 +1,8 @@
-TARGET ?= test
+TARGET ?= haltest
 
 ###############################################################################
 # Compiler
-CC ?= gcc
-STRIP ?= strip
+CC := arm-buildroot-linux-uclibcgnueabihf-gcc
 
 ###############################################################################
 # Version
@@ -64,7 +63,6 @@ $(BLDDIR)/%.o: $(SRCDIR)/%.c
 $(BLDDIR)/$(TARGET): $(APPOBJS)
 	$(info Linking $@ ...)
 	$(CC) $(LDFLAGS) -o $@ $(APPOBJS) $(LDFLAGS)
-	$(STRIP) $@
 ###############################################################################
 
 clean:
