@@ -115,7 +115,7 @@ typedef enum {
     ITE_FOTA,
     ITE_COTA,
     ITE_MQTT_CONNECT_SUCC,
-    ITE_CLOUD_ERROR  
+    ITE_CLOUD_ERROR
 } iotx_ioctl_event_t;
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb)
@@ -219,6 +219,7 @@ typedef struct {
     int domain_type;
     int dynamic_register;
     char *cloud_custom_domain;
+    uint16_t mqtt_port_num;
     char *http_custom_domain;
     char *mqtt_customzie_info;
 } sdk_impl_ctx_t;
@@ -238,6 +239,7 @@ typedef enum {
     IOTX_IOCTL_SET_OTA_DEV_ID,          /* value(int*):     select the device to do OTA according to devid */
     IOTX_IOCTL_FOTA_TIMEOUT_MS,         /* value(int*): set Firmware OTA max retry timeout */
     IOTX_IOCTL_SET_CUSTOMIZE_INFO,      /* value(char*): set mqtt clientID customize information */
+    IOTX_IOCTL_SET_MQTT_PORT            /* value(uint16_t *) modify mqtt server port number */
 } iotx_ioctl_option_t;
 
 typedef enum {

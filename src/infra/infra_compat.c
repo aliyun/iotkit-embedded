@@ -193,6 +193,11 @@ int IOT_Ioctl(int option, void *data)
             res = SUCCESS_RETURN;
         }
         break;
+        case IOTX_IOCTL_SET_MQTT_PORT: {
+            ctx->mqtt_port_num = *(uint16_t *)data;
+            res = SUCCESS_RETURN;
+        }
+        break;
         default: {
             res = FAIL_RETURN;
         }

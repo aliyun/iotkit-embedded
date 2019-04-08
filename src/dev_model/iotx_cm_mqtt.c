@@ -238,6 +238,9 @@ static int  _mqtt_connect(uint32_t timeout)
     if (g_sdk_impl_ctx.mqtt_customzie_info) {
         ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->customize_info = g_sdk_impl_ctx.mqtt_customzie_info;
     }
+    if (g_sdk_impl_ctx.mqtt_port_num != 0) {
+        ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->port = g_sdk_impl_ctx.mqtt_port_num;
+    }
 
     do {
         pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)_mqtt_conncection->open_params);
