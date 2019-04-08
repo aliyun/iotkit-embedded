@@ -63,7 +63,7 @@ static localsetup_status __fill_key(const char *pk, uint16_t pk_len,
                                     const char *dn, uint16_t dn_len, char key_md5_hexstr[33])
 {
     uint8_t key_md5[16] = {0};
-    char key_source[IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 1 + 3];
+    char key_source[IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 1 + 3] = {0};
 
     if (pk == NULL || pk_len >= IOTX_PRODUCT_KEY_LEN + 1 ||
         dn == NULL || dn_len >= IOTX_DEVICE_NAME_LEN + 1) {
@@ -72,7 +72,7 @@ static localsetup_status __fill_key(const char *pk, uint16_t pk_len,
     }
 
     /* Calculate Key */
-    HAL_Snprintf(key_source, sizeof(key_source), "%.*s%.*s.l", pk_len, pk, dn_len, dn);
+    HAL_Snprintf(key_source, sizeof(key_source), "%.*s%.*s", pk_len, pk, dn_len, dn);
 
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
     alcs_utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);

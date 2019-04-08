@@ -2,11 +2,63 @@
 
 #ifdef ALCS_ENABLED
 
+#define ALCS_NOTIFY_PORT     (5683)
+#define ALCS_NOTIFY_HOST     "255.255.255.255"
+#define ALCS_NOTIFY_METHOD   "core.service.dev.notify"
+
+const char DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY[] DM_READ_ONLY = "/dev/core/service/dev/notify";
+
+extern const char DM_MSG_REQUEST[]; 
+
 static dm_server_ctx_t g_dm_server_ctx = {0};
 
 static dm_server_ctx_t *dm_server_get_ctx(void)
 {
     return &g_dm_server_ctx;
+}
+
+static int _dm_server_dev_notify(void *handle)
+{
+    int ret, i;
+    iotx_alcs_msg_t alcs_msg;
+    char * data = NULL;
+    char * payload = NULL;
+    int data_len = 0;
+    int payload_len = 0;
+
+    memset(&alcs_msg, 0, sizeof(iotx_alcs_msg_t));
+    
+    alcs_msg.group_id = 0;
+    alcs_msg.ip = (char *)ALCS_NOTIFY_HOST;
+    alcs_msg.port = ALCS_NOTIFY_PORT;
+    alcs_msg.msg_code = ITOX_ALCS_COAP_MSG_CODE_GET;
+    alcs_msg.msg_type = IOTX_ALCS_MESSAGE_TYPE_NON;
+    alcs_msg.uri = (char *)DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY;
+
+    dm_msg_dev_core_service_dev(&data, &data_len);
+
+    payload_len = strlen(DM_MSG_REQUEST) + 10 + strlen(DM_MSG_VERSION) + data_len + strlen(
+                              ALCS_NOTIFY_METHOD) + 1;
+    payload = DM_malloc(payload_len);
+    if (payload == NULL) {
+        DM_free(data);
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(payload, 0, payload_len);
+    HAL_Snprintf(payload, payload_len, DM_MSG_REQUEST, iotx_report_id(),
+                 DM_MSG_VERSION, data_len, data, ALCS_NOTIFY_METHOD);
+
+
+    alcs_msg.payload = (uint8_t *)payload;
+    alcs_msg.payload_len = payload_len;
+    
+    dm_log_debug("notify path:%s; payload = %s", alcs_msg.uri, alcs_msg.payload);
+    for (i = 0; i < 2; i++) {
+        ret = iotx_alcs_send(handle, &alcs_msg);
+    }
+    DM_free(payload);
+    DM_free(data);
+    return ret;
 }
 
 int dm_server_open(void)
@@ -35,16 +87,18 @@ int dm_server_open(void)
         return FAIL_RETURN;
     }
 
+    _dm_server_dev_notify(ctx->conn_handle);
+
     return SUCCESS_RETURN;
 }
 
 int dm_server_connect(void)
 {
-
     dm_server_ctx_t *ctx = dm_server_get_ctx();
-
     return iotx_alcs_cloud_init(ctx->conn_handle);
 }
+
+
 
 int dm_server_close(void)
 {
