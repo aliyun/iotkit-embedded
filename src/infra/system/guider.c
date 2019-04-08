@@ -248,7 +248,7 @@ void _ident_partner(char *buf, int len)
     memset(tmp, 0, sizeof(tmp));
     HAL_GetPartnerID(tmp);
     if (strlen(tmp)) {
-        HAL_Snprintf(buf, len, ",partner_id=%s", tmp);
+        HAL_Snprintf(buf, len, ",pid=%s", tmp);
     } else {
         strcpy(buf, "");
     }
@@ -263,7 +263,7 @@ void _ident_module(char *buf, int len)
     memset(tmp, 0, sizeof(tmp));
     HAL_GetModuleID(tmp);
     if (strlen(tmp)) {
-        HAL_Snprintf(buf, len, ",module_id=%s", tmp);
+        HAL_Snprintf(buf, len, ",mid=%s", tmp);
     } else {
         strcpy(buf, "");
     }
@@ -729,6 +729,8 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
                       "%s"
                       "|securemode=%d"
                       ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
+                      ",_v=sdk-c-"LINKKIT_VERSION
+                      ",lan=C"
                       "%s"
                       "%s"
 #ifdef SUPPORT_ITLS
