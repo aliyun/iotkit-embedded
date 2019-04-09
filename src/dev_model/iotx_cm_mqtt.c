@@ -170,7 +170,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
 
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
-            iotx_cm_data_handle_cb topic_handle_func = pcontext;
+            iotx_cm_data_handle_cb topic_handle_func = (iotx_cm_data_handle_cb)pcontext;
 #ifndef DEVICE_MODEL_ALINK2
             char *topic = NULL;
 #endif
@@ -328,14 +328,14 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
                                       topic,
                                       qos,
                                       iotx_cloud_conn_mqtt_event_handle,
-                                      topic_handle_func,
+                                      (void *)topic_handle_func,
                                       timeout);
     } else {
         ret = IOT_MQTT_Subscribe(_mqtt_conncection->context,
                                  topic,
                                  qos,
                                  iotx_cloud_conn_mqtt_event_handle,
-                                 topic_handle_func);
+                                 (void *)topic_handle_func);
     }
 
     return ret;
