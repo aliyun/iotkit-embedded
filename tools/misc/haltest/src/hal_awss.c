@@ -47,7 +47,7 @@ void verify_awss_close_monitor()
     HAL_Awss_Close_Monitor();
 }
 
-void verify_awss_preprocess(char channel)
+void verify_awss_preprocess()
 {
     int timeout = 0;
     char mac_str[HAL_MAC_LEN] = {0};
@@ -62,7 +62,7 @@ void verify_awss_preprocess(char channel)
     printf("/***********************************************/\n");
     printf("/* Verify HAL_Awss_Get_Channelscan_Interval_Ms */\n");
     timeout = HAL_Awss_Get_Channelscan_Interval_Ms();
-    printf("/* Awss Channel Scan Interval Ms: %9d ms */\n");
+    printf("/* Awss Channel Scan Interval Ms: %9d ms */\n",timeout);
     printf("/***********************************************/\n\n");
 
     printf("/***********************************************/\n");
@@ -72,9 +72,12 @@ void verify_awss_preprocess(char channel)
     printf("/***********************************************/\n\n");
 
     printf("/***********************************************/\n");
-    printf("/*       Verify HAL_Awss_Switch_Channel        */\n");
-    HAL_Awss_Switch_Channel(channel,0,NULL);
-    printf("/*            Wifi Channel Set: %3d            */\n",channel);
+    printf("/*   Verify HAL_Awss_Switch_Channel In Loop    */\n");
     printf("/***********************************************/\n\n");
     
+}
+
+void verify_awss_switch_channel(char channel)
+{
+    HAL_Awss_Switch_Channel(channel,0,NULL);
 }

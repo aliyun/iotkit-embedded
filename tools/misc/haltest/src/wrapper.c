@@ -133,7 +133,7 @@ void HAL_Awss_Switch_Channel(char primary_channel,char secondary_channel,uint8_t
     char cmd[255] = {0};
     int ret = -1;
     snprintf(cmd, 255, "iwconfig wlan0 channel %d", primary_channel);
-    // printf("switch:%s\n", cmd);
+    /* printf("switch:%s\n", cmd); */
     system(cmd);
 }
 
