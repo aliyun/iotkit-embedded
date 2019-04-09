@@ -19,7 +19,6 @@
 
 /* online url */
 #define IOTX_ONLINE_DTLS_SERVER_URL     "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
-#define IOTX_ONLINE_NOSEC_SERVER_URI    "coap://%s.coap.cn-shanghai.link.aliyuncs.com:5683"
 #define IOTX_ONLINE_PSK_SERVER_URL      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
 
 char IOTX_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
