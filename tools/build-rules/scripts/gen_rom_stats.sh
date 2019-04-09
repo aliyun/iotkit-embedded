@@ -4,13 +4,14 @@ bash ${TOP_DIR}/extract.sh test
 
 cd ${DIST_DIR}/eng
 
-cp -rf infra/ ${FINAL_DIR}/include
+cp -rf wrappers/wrappers_defs.h infra/ ${FINAL_DIR}/include
 
 echo "Selected functions:"
 echo ""
 for iter in $(ls|grep -v 'wrappers\|infra'); do
     echo " . [${iter}]"
     cp -f ${iter}/*_api.h ${FINAL_DIR}/include 2>/dev/null
+    cp -f ${iter}/*_wrapper.h ${FINAL_DIR}/include 2>/dev/null
 done
 
 cd ${OLDPWD}
