@@ -19,7 +19,7 @@
 
 env_check()
 {
-    awk --help >> /dev/null
+    awk --help > /dev/null 2>&1
     if [ "$?" != "0" ];then
         echo "Please install gawk, using sudo apt-get install gawk for ubuntu 16.04"
         exit
