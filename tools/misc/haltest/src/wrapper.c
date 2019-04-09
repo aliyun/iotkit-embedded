@@ -149,6 +149,14 @@ int HAL_Awss_Connect_Ap(
     return 0;
 }
 
+int HAL_Wifi_Get_Ap_Info(
+            char ssid[HAL_MAX_SSID_LEN],
+            char passwd[HAL_MAX_PASSWD_LEN],
+            uint8_t bssid[ETH_ALEN])
+{
+    return 0;
+}
+
 int HAL_ThreadCreate(
             void **thread_handle,
             void *(*work_routine)(void *),

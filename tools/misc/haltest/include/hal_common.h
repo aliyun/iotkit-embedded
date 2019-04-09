@@ -89,4 +89,8 @@ int HAL_Awss_Connect_Ap(
             enum AWSS_ENC_TYPE encry,
             uint8_t bssid[ETH_ALEN],
             uint8_t channel);
+int HAL_Wifi_Get_Ap_Info(
+            char ssid[HAL_MAX_SSID_LEN],
+            char passwd[HAL_MAX_PASSWD_LEN],
+            uint8_t bssid[ETH_ALEN]);
 #endif
