@@ -169,39 +169,3 @@ int infra_str2int(const char *input, int *val)
 
 #endif
 
-#ifdef INFRA_RANDOM
-
-uint64_t HAL_UptimeMs(void);
-void HAL_Srandom(uint32_t seed);
-uint32_t HAL_Random(uint32_t region);
-
-int infra_randstr(char *random, int length)
-{
-    int index = 0;
-
-    HAL_Srandom(HAL_UptimeMs());
-
-    for (index = 0; index < length; index++) {
-        switch (HAL_Random(3)) {
-            case 0: {
-                random[index] = 'A' + HAL_Random(26);
-            }
-            break;
-            case 1: {
-                random[index]  = 'a' + HAL_Random(26);
-            }
-            break;
-            case 2: {
-                random[index] = '0' + HAL_Random(10);
-            }
-            break;
-            default: {
-                return -1;
-            }
-        }
-    }
-
-    return 0;
-}
-#endif
-

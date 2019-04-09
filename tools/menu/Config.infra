@@ -91,10 +91,6 @@ config INFRA_TIMER
     bool
     default n
 
-config INFRA_RANDOM
-    bool
-    default n
-
 config INFRA_JSON_PARSER
     bool
     default n
