@@ -3,7 +3,7 @@
  */
 #include "hal_common.h"
 #include "hal_awss.h"
-#include "zconfig_ieee80211.h"
+#include "ieee80211.h"
 #include <stdio.h>
 #include <string.h>
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

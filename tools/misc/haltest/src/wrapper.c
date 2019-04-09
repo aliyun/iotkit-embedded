@@ -88,7 +88,7 @@ void start_sniff(awss_recv_80211_frame_cb_t cb){
 
 void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
 {
-    extern void start_sniff(awss_recv_80211_frame_cb_t cb);
+    s_enable_sniffer = 1;
     int ret = system("ifconfig wlan0 down; ifconfig wlan0 up");
     /* printf("wlan0 up ret is %d", ret); */
     assert(0 == ret);
@@ -99,6 +99,54 @@ void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
     /* printf("wlan0 echo data to monitor ret is  %d", ret); */
     assert(0 == ret);
     start_sniff(cb);
+}
+
+void HAL_Awss_Close_Monitor(void)
+{
+    int ret = -1;
+    s_enable_sniffer = 0;
+    system("iwconfig wlan0 mode managed");
+    /* printf("close monitor ret is %d", ret); */
+}
+
+int HAL_Awss_Get_Timeout_Interval_Ms(void)
+{
+    return 60*10000;
+}
+
+int HAL_Awss_Get_Channelscan_Interval_Ms(void)
+{
+    return 250;
+}
+
+char *HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
+{
+    char *test_mac = "11:22:33:44:55:66";
+
+    memset(mac_str,0,HAL_MAC_LEN);
+    memcpy(mac_str,test_mac,strlen(test_mac));
+    return mac_str;
+}
+
+void HAL_Awss_Switch_Channel(char primary_channel,char secondary_channel,uint8_t bssid[ETH_ALEN])
+{
+    char cmd[255] = {0};
+    int ret = -1;
+    snprintf(cmd, 255, "iwconfig wlan0 channel %d", primary_channel);
+    // printf("switch:%s\n", cmd);
+    system(cmd);
+}
+
+int HAL_Awss_Connect_Ap(
+            uint32_t connection_timeout_ms,
+            char ssid[HAL_MAX_SSID_LEN],
+            char passwd[HAL_MAX_PASSWD_LEN],
+            enum AWSS_AUTH_TYPE auth,
+            enum AWSS_ENC_TYPE encry,
+            uint8_t bssid[ETH_ALEN],
+            uint8_t channel)
+{
+    return 0;
 }
 
 int HAL_ThreadCreate(

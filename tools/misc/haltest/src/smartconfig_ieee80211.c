@@ -1,6 +1,6 @@
 #include "hal_awss.h"
 #include "hal_common.h"
-#include "zconfig_ieee80211.h"
+#include "ieee80211.h"
 #include "smartconfig_ieee80211.h"
 
 uint8_t br_mac[ETH_ALEN];

@@ -1,7 +1,7 @@
 #include "hal_common.h"
 #include "hal_awss.h"
 #include "zconfig_protocol.h"
-#include "zconfig_ieee80211.h"
+#include "ieee80211.h"
 
  int is_invalid_pkg(void *pkt_data, uint32_t pkt_length);
 /*
