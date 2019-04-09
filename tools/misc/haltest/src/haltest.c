@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-    verify_awss_rx_frame();
+    verify_awss_smartconfig_rx_frame();
     while(1) {
         sleep(2);
     }

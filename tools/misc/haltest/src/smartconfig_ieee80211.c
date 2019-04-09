@@ -177,6 +177,7 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     
     if (is_start_frame(res->u.br.data_len) || is_group_frame(res->u.br.data_len) || is_data_frame(res->u.br.data_len)) {
         char *frame_type = NULL;
+        char *direction = NULL;
         if (is_start_frame(res->u.br.data_len)) {
             frame_type = "SmartConfig Start Frame";
         }else if (is_group_frame(res->u.br.data_len)) {
@@ -184,8 +185,15 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
         }else if (is_data_frame(res->u.br.data_len)) {
             frame_type = "SmartConfig  Data Frame";
         }
-        printf("|   %23s   |    %d    |  %04d (0x%04X)  |\n",
-                frame_type,ieee80211_has_fromds(fc),res->u.br.data_len,res->u.br.data_len);
+
+        if (ieee80211_has_fromds(fc)) {
+            direction = "FromDS";
+        }else{
+            direction = "ToDS";
+        }
+
+        printf("|   %23s   |   %6s  |  %04d (0x%04X)  |\n",
+                frame_type,direction,res->u.br.data_len,res->u.br.data_len);
     }
 
     return ALINK_BROADCAST;
