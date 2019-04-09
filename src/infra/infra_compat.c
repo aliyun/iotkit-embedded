@@ -225,7 +225,7 @@ static void *g_event_monitor = NULL;
 
 int iotx_event_regist_cb(void (*monitor_cb)(int event))
 {
-    g_event_monitor = monitor_cb;
+    g_event_monitor = (void *)monitor_cb;
     return 0;
 }
 
