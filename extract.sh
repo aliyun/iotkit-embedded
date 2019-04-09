@@ -46,13 +46,13 @@ extract_from_cloud()
             elif [ "${DOWNLOAD_FILE}" = "406" ];then
                 echo ". Respond generating, wait longer"
 
-                if [ "${RETRY_COUNT}" = "10" ];then
+                if [ "${RETRY_COUNT}" = "20" ];then
                     break
                 fi
 
                 RETRY_COUNT=$[RETRY_COUNT+1]
 
-                echo ". Retried ${RETRY_COUNT}/10"
+                echo ". Retried ${RETRY_COUNT}/20"
                 sleep 2
 
             else
