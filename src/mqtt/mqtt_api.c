@@ -338,7 +338,7 @@ static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *
 {
     uint16_t length = 0;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
-    char sign_string[65];
+    char sign_string[65] = {0};
     int res;
 
     memset(preauth_out, 0, sizeof(iotx_pre_auth_output_t));
