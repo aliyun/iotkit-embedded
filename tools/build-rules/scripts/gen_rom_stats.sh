@@ -7,7 +7,7 @@ bash ${TOP_DIR}/extract.sh test
 
 cd ${DIST_DIR}/eng
 
-cp -rf wrappers/wrappers_defs.h infra/ ${FINAL_DIR}/include
+cp -rf wrappers/wrappers_defs.h infra/*.h ${FINAL_DIR}/include
 
 echo "Selected functions:"
 echo ""
