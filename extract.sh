@@ -91,14 +91,14 @@ XTRC_WRAPPER_RULS=./tools/misc/xtrc_wrapper_rules
 TEMP_WRAPPER_RULS="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
 
-# environment check
-env_check
-
 # Try Extract Linkkit From Cloud
 #
 if [ "$1" = "" ] || ( [ "$1" != "test" ] && [ "$1" != "local" ] ) then
         extract_from_cloud
 fi
+
+# environment check
+env_check
 
 # Prepare Config Macro In make.settings
 MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
