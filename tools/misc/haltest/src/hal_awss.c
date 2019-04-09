@@ -3,7 +3,8 @@
 #include "ieee80211.h"
 #include "smartconfig_ieee80211.h"
 
-static int first_call_flag = 1;
+static int g_first_call_flag = 1;
+int g_channel = 1;
 
 int awss_80211_frame_handler(char *buf, int length, aws_link_type_t link_type, int with_fcs, signed char rssi)
 {
@@ -28,10 +29,11 @@ void verify_awss_open_monitor()
     printf("\n/***********************************************/\n");
     printf("/*        Verify HAL_Awss_Open_Monitor         */\n");
     printf("/***********************************************/\n");
-    if (first_call_flag) {
-        printf("\n|          Frame Type         | Direction |  Packet Length  |\n");
-        printf("|-----------------------------|-----------|-----------------|\n");
-        first_call_flag = 0;
+    if (g_first_call_flag) {
+        printf("\n|---------------------------------------------------------------------|\n");
+        printf("|          Frame Type         | Direction |  Packet Length  | Channel |\n");
+        printf("|-----------------------------|-----------|-----------------|---------|\n");
+        g_first_call_flag = 0;
     }
 
     HAL_Awss_Open_Monitor(awss_80211_frame_handler);
@@ -39,7 +41,7 @@ void verify_awss_open_monitor()
 
 void verify_awss_close_monitor()
 {
-    first_call_flag = 1;
+    g_first_call_flag = 1;
 
     printf("\n/***********************************************/\n");
     printf("/*        Verify HAL_Awss_Close_Monitor        */\n");
@@ -79,6 +81,7 @@ void verify_awss_preprocess()
 void verify_awss_switch_channel(char channel)
 {
     HAL_Awss_Switch_Channel(channel,0,NULL);
+    g_channel = channel;
 }
 
 void verfiy_awss_connect_ap(uint32_t connection_timeout_ms,

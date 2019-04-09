@@ -4,6 +4,7 @@
 #include "smartconfig_ieee80211.h"
 
 uint8_t br_mac[ETH_ALEN];
+extern int g_channel;
 
 const uint8_t zconfig_fixed_offset[ZC_ENC_TYPE_MAX + 1][2] = {
     {  /* open, none, ip(20) + udp(8) + 8(LLC) */
@@ -192,8 +193,8 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
             direction = "ToDS";
         }
 
-        printf("|   %23s   |   %6s  |  %04d (0x%04X)  |\n",
-                frame_type,direction,res->u.br.data_len,res->u.br.data_len);
+        printf("|   %23s   |   %6s  |  %04d (0x%04X)  |    %2d   |\n",
+                frame_type,direction,res->u.br.data_len,res->u.br.data_len,g_channel);
     }
 
     return ALINK_BROADCAST;
