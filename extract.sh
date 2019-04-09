@@ -17,6 +17,15 @@
 #     exit
 # fi
 
+env_check()
+{
+    awk --help >> /dev/null
+    if [ "$?" != "0" ];then
+        echo "Please install gawk, using sudo apt-get install gawk for ubuntu 16.04"
+        exit
+    fi
+}
+
 extract_from_cloud()
 {
     EXTRACT_ID=$(curl --connect-timeout 5 -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z)
@@ -81,6 +90,9 @@ TEMP_FILE_RULS="${PWD}/.temp_file_rule_filter"
 XTRC_WRAPPER_RULS=./tools/misc/xtrc_wrapper_rules
 TEMP_WRAPPER_RULS="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
+
+# environment check
+env_check
 
 # Try Extract Linkkit From Cloud
 #
