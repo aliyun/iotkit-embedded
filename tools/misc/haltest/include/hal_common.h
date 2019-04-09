@@ -93,4 +93,6 @@ int HAL_Wifi_Get_Ap_Info(
             char ssid[HAL_MAX_SSID_LEN],
             char passwd[HAL_MAX_PASSWD_LEN],
             uint8_t bssid[ETH_ALEN]);
+int HAL_Sys_Net_Is_Ready(void);
+
 #endif

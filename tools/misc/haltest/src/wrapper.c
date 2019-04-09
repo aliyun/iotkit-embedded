@@ -157,6 +157,13 @@ int HAL_Wifi_Get_Ap_Info(
     return 0;
 }
 
+int HAL_Sys_Net_Is_Ready(void)
+{
+   int ret = system("ifconfig wlan0 | grep inet ");
+   /* printf("cxc net_is_ready ret is %d\n", ret); */ 
+    return (0 == ret);
+}
+
 int HAL_ThreadCreate(
             void **thread_handle,
             void *(*work_routine)(void *),

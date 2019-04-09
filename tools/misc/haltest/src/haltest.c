@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 
     verfiy_awss_connect_ap(5000, "ssid", "passwd", AWSS_AUTH_TYPE_WPAPSKWPA2PSK, AWSS_ENC_TYPE_AES, bssid, 6);
     verify_awss_get_ap_info("ssid", "passwd", bssid);
+    verify_awss_net_is_ready();
 
     return 0;
 }

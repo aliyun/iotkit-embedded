@@ -111,3 +111,14 @@ void verify_awss_get_ap_info(char ssid[HAL_MAX_SSID_LEN],char passwd[HAL_MAX_PAS
     printf("/*                  Result: %2d                 */\n",res);
     printf("/***********************************************/\n");
 }
+
+void verify_awss_net_is_ready(void)
+{
+    int res = 0;
+
+    printf("\n/***********************************************/\n");
+    printf("/*         Verify HAL_Wifi_Get_Ap_Info         */\n");
+    res = HAL_Sys_Net_Is_Ready();
+    printf("/*                  Result: %2d                 */\n",res);
+    printf("/***********************************************/\n");
+}
