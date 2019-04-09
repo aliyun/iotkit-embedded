@@ -70,9 +70,9 @@ int awss_cmp_online_deinit()
     if (!online_init) {
         return 0;
     }
-
+#ifdef  DEV_BIND_NOTIFY
     awss_dev_bind_notify_stop();
-
+#endif
     for (i = 0; i < sizeof(awss_online_couple) / sizeof(awss_online_couple[0]); i ++) {
         memset(topic, 0, sizeof(topic));
         awss_build_topic(awss_online_couple[i].topic, topic, TOPIC_LEN_MAX);

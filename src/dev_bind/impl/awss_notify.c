@@ -36,9 +36,13 @@ static void *dev_bind_notify_mutex = NULL;
 extern char awss_report_token_suc;
 extern char awss_report_token_cnt;
 
+#ifdef  DEV_BIND_NOTIFY
 static int awss_dev_bind_notify_resp(void *context, int result,
                                      void *userdata, void *remote,
                                      void *message);
+int awss_dev_bind_notify();
+#endif
+
 #ifdef WIFI_PROVISION_ENABLED
 static int awss_devinfo_notify_resp(void *context, int result,
                                     void *userdata, void *remote,
@@ -51,36 +55,16 @@ int awss_suc_notify();
 #endif
 static int awss_notify_response(int type, int result, void *message);
 static int awss_process_get_devinfo();
-int awss_dev_bind_notify();
 
 static const struct notify_map_t notify_map[] = {
+#ifdef  DEV_BIND_NOTIFY
     {AWSS_NOTIFY_DEV_BIND_TOKEN, METHOD_DEV_INFO_NOTIFY,       TOPIC_NOTIFY,                awss_dev_bind_notify_resp},
+#endif
 #ifdef WIFI_PROVISION_ENABLED
     {AWSS_NOTIFY_DEV_RAND_SIGN,  METHOD_AWSS_DEV_INFO_NOTIFY,  TOPIC_AWSS_NOTIFY,           awss_devinfo_notify_resp},
     {AWSS_NOTIFY_SUCCESS,        METHOD_AWSS_CONNECTAP_NOTIFY, TOPIC_AWSS_CONNECTAP_NOTIFY, awss_suc_notify_resp}
 #endif
 };
-
-/*
- * {
- *  "id": "123",
- *  "code": 200,
- *  "data": {}
- * }
- */
-static int awss_dev_bind_notify_resp(void *context, int result,
-                                     void *userdata, void *remote,
-                                     void *message)
-{
-    int res = awss_notify_response(AWSS_NOTIFY_DEV_BIND_TOKEN, result, message);
-    if (res == 1) {
-        awss_update_token();
-#ifdef DEV_BIND_TEST
-        HAL_Reboot();
-#endif
-    }
-    return res;
-}
 
 #ifdef WIFI_PROVISION_ENABLED
 static int awss_devinfo_notify_resp(void *context, int result,
@@ -371,6 +355,29 @@ int online_ucast_get_device_info(void *ctx, void *resource, void *remote, void *
 
 static int dev_bind_interval = 0;
 static char dev_bind_cnt = 0;
+
+#ifdef  DEV_BIND_NOTIFY
+/*
+ * {
+ *  "id": "123",
+ *  "code": 200,
+ *  "data": {}
+ * }
+ */
+static int awss_dev_bind_notify_resp(void *context, int result,
+                                     void *userdata, void *remote,
+                                     void *message)
+{
+    int res = awss_notify_response(AWSS_NOTIFY_DEV_BIND_TOKEN, result, message);
+    if (res == 1) {
+        awss_update_token();
+#ifdef DEV_BIND_TEST
+        HAL_Reboot();
+#endif
+    }
+    return res;
+}
+
 static int __awss_dev_bind_notify()
 {
     /*
@@ -490,6 +497,7 @@ int awss_dev_bind_notify_stop()
     }
     return 0;
 }
+#endif
 
 #ifdef WIFI_PROVISION_ENABLED
 static int suc_interval = 0;

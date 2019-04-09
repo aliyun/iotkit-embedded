@@ -64,7 +64,9 @@ int __awss_start(void)
 
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
+#ifdef  DEV_BIND_NOTIFY
                 awss_dev_bind_notify_stop();
+#endif
                 awss_suc_notify_stop();
                 awss_cmp_local_init(adha == 0 ? AWSS_LC_INIT_ROUTER : AWSS_LC_INIT_PAP);
                 awss_devinfo_notify();

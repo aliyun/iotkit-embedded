@@ -31,8 +31,11 @@ int awss_report_cloud()
     awss_report_token();
 
     awss_cmp_local_init(AWSS_LC_INIT_BIND);
+#ifdef  DEV_BIND_NOTIFY
     awss_dev_bind_notify_stop();
     awss_dev_bind_notify();
+#endif
+
 #ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     awss_registrar_init();
@@ -57,9 +60,9 @@ int awss_bind_deinit()
 #endif
     awss_stop_report_token();
     awss_cmp_online_deinit();
-
+#ifdef  DEV_BIND_NOTIFY
     awss_dev_bind_notify_stop();
-
+#endif
     awss_cmp_local_deinit(1);
 #ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
