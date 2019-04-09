@@ -136,10 +136,6 @@ config INFRA_COMPAT
     default n
     select HAL_KV if DYNAMIC_REGISTER
 
-config INFRA_CLASSIC
-    bool
-    default n
-
 config INFRA_PREAUTH
     bool
     default n
