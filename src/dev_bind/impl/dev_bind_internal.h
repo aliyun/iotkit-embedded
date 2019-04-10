@@ -13,7 +13,6 @@
 #include "awss_notify.h"
 #include "awss_cmp.h"
 #include "awss_cmp.h"
-#include "sha256.h"
 #include "infra_json_parser.h"
 #include "mqtt_api.h"
 #include "awss_dev_reset_internal.h"

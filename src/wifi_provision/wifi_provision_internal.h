@@ -24,7 +24,6 @@
 #include "wifi_provision_api.h"
 #include "awss_cmp.h"
 #include "awss_crypt.h"
-#include "sha256.h"
 #include <stdlib.h>
 #include "infra_json_parser.h"
 #include "mqtt_api.h"
