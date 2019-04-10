@@ -27,26 +27,21 @@ choice
 
 config AT_HAL_NONE
         bool "FEATURE_AT_HAL_NONE"
-        default n
 
 config AT_TCP_HAL_MK3060
         bool "FEATURE_AT_TCP_HAL_MK3060"
-        default n
         depends on AT_TCP_ENABLED
 
 config AT_TCP_HAL_SIM800
         bool "FEATURE_AT_TCP_HAL_SIM800"
-        default n
         depends on AT_TCP_ENABLED
 
 config AT_MQTT_HAL_ICA
         bool "FEATURE_AT_MQTT_HAL_ICA"
-        default n
         depends on AT_MQTT_ENABLED
 
 config AT_MQTT_HAL_SIM800
         bool "FEATURE_AT_MQTT_HAL_SIM800"
-        default n
         depends on AT_MQTT_ENABLED
 
 endchoice
