@@ -349,6 +349,11 @@ else
     echo ""
 fi
 
+echo -e "#ifndef _SDK_INCLUDE_H_" > ${OUTPUT_DIR}/eng/sdk_include.h
+echo -e "#define _SDK_INCLUDE_H_\n" >> ${OUTPUT_DIR}/eng/sdk_include.h
+find ${OUTPUT_DIR}/eng -name "*api.h" | awk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
+echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/sdk_include.h
+
 # if echo "${SWITCHES}"|grep -qw "DEVICE_MODEL_ENABLED"; then
 #     echo ""
 #     bash tools/misc/compose.sh ${PWD}/output/examples/linkkit_example_auto.c
