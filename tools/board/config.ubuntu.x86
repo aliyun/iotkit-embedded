@@ -25,5 +25,3 @@ CONFIG_ENV_CFLAGS   += -rdynamic
 CONFIG_ENV_CFLAGS   += -Werror -Wno-unused
 
 CONFIG_ENV_LDFLAGS  += -lpthread -lrt
-
-OVERRIDE_STRIP      := strip
