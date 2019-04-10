@@ -101,14 +101,21 @@ void verfiy_awss_connect_ap(uint32_t connection_timeout_ms,
     printf("/***********************************************/\n");
 }
 
-void verify_awss_get_ap_info(char ssid[HAL_MAX_SSID_LEN],char passwd[HAL_MAX_PASSWD_LEN],uint8_t bssid[ETH_ALEN])
+void verify_awss_get_ap_info(void)
 {
     int res = 0;
+    uint8_t ssid[HAL_MAX_SSID_LEN] = {0};
+    uint8_t passwd[HAL_MAX_PASSWD_LEN] = {0};
+    uint8_t bssid[ETH_ALEN] = {0x11,0x22,0x33,0x44,0x55,0x66};
 
     printf("\n/***********************************************/\n");
     printf("/*         Verify HAL_Wifi_Get_Ap_Info         */\n");
     res = HAL_Wifi_Get_Ap_Info(ssid, passwd,bssid);
     printf("/*                  Result: %2d                 */\n",res);
+    printf("/*           SSID: %15s             */\n",ssid);
+    printf("/*           PASSWD: %15s           */\n",passwd);
+    printf("/*           BSSID: %02X:%02X:%02X:%02X:%02X:%02X          */\n",
+            bssid[0],bssid[1],bssid[2],bssid[3],bssid[4],bssid[5]);
     printf("/***********************************************/\n");
 }
 
@@ -117,7 +124,7 @@ void verify_awss_net_is_ready(void)
     int res = 0;
 
     printf("\n/***********************************************/\n");
-    printf("/*         Verify HAL_Wifi_Get_Ap_Info         */\n");
+    printf("/*         Verify HAL_Sys_Net_Is_Ready         */\n");
     res = HAL_Sys_Net_Is_Ready();
     printf("/*                  Result: %2d                 */\n",res);
     printf("/***********************************************/\n");

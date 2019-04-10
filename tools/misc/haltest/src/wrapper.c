@@ -154,6 +154,14 @@ int HAL_Wifi_Get_Ap_Info(
             char passwd[HAL_MAX_PASSWD_LEN],
             uint8_t bssid[ETH_ALEN])
 {
+    uint8_t test_bssid[ETH_ALEN] = {0x11,0x22,0x33,0x44,0x55,0x66};
+    char *test_ssid = "test_ssid";
+    char *test_passwd = "test_passwd";
+
+    memcpy(ssid,test_ssid,strlen(test_ssid));
+    memcpy(passwd,test_passwd,strlen(test_passwd));
+    memcpy(bssid,test_bssid,ETH_ALEN);
+
     return 0;
 }
 
