@@ -21,7 +21,7 @@
 
 
 /*** SSL connection ***/
-#ifdef  SUPPORT_TLS
+#if defined(SUPPORT_TLS)
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 
@@ -44,7 +44,7 @@ static void ssl_free(void *ptr)
 }
 #endif
 
-#if  defined(SUPPORT_TLS) || defined(SUPPORT_ITLS)
+#if defined(SUPPORT_TLS)
 uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt, size_t ca_crt_len);
 int32_t HAL_SSL_Destroy(uintptr_t handle);
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
@@ -95,21 +95,6 @@ static int connect_ssl(utils_network_pt pNetwork)
         return 1;
     }
 
-#if defined(SUPPORT_ITLS)
-    char pkps[IOTX_PRODUCT_KEY_LEN + IOTX_PRODUCT_SECRET_LEN + 3] = {0};
-
-    HAL_GetProductKey(pkps);
-    int len = strlen(pkps);
-    HAL_GetProductSecret(pkps + len + 1);
-    len += strlen(pkps + len + 1) + 2;
-
-    if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
-            pNetwork->pHostAddress,
-            pNetwork->port,
-            pkps, len))) {
-        return 0;
-    }
-#else
     memset(&ssl_hooks, 0, sizeof(ssl_hooks_t));
     ssl_hooks.malloc = ssl_malloc;
     ssl_hooks.free = ssl_free;
@@ -121,10 +106,12 @@ static int connect_ssl(utils_network_pt pNetwork)
             pNetwork->port,
             pNetwork->ca_crt,
             pNetwork->ca_crt_len + 1))) {
+
+        net_err("infra net, handle = %p\n", pNetwork->handle);
         return 0;
     }
-#endif
     else {
+        net_err("infra net, handle = %p\n", pNetwork->handle);
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
@@ -231,97 +218,48 @@ static int connect_tcp(utils_network_pt pNetwork)
 /****** network interface ******/
 int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    int     ret = 0;
-#ifdef SUPPORT_TLS
-    if (NULL != pNetwork->ca_crt) {
-        ret = read_ssl(pNetwork, buffer, len, timeout_ms);
-    }
+    int ret = 0;
+#if defined(SUPPORT_TLS)
+    ret = read_ssl(pNetwork, buffer, len, timeout_ms);
 #else
-    if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = read_ssl(pNetwork, buffer, len, timeout_ms);
-#else
-        ret = read_tcp(pNetwork, buffer, len, timeout_ms);
+    ret = read_tcp(pNetwork, buffer, len, timeout_ms);
 #endif
-    }
-#endif
-    else {
-        ret = -1;
-        net_err("no method match!");
-    }
 
     return ret;
 }
 
 int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    int     ret = 0;
-#ifdef SUPPORT_TLS
-    if (NULL != pNetwork->ca_crt) {
-        ret = write_ssl(pNetwork, buffer, len, timeout_ms);
-    }
+    int ret = 0;
+#if defined(SUPPORT_TLS)
+    ret = write_ssl(pNetwork, buffer, len, timeout_ms);
 #else
-    if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = write_ssl(pNetwork, buffer, len, timeout_ms);
-#else
-        ret = write_tcp(pNetwork, buffer, len, timeout_ms);
+    ret = write_tcp(pNetwork, buffer, len, timeout_ms);
 #endif
-    }
-#endif
-
-    else {
-        ret = -1;
-        net_err("no method match!");
-    }
 
     return ret;
 }
 
 int iotx_net_disconnect(utils_network_pt pNetwork)
 {
-    int     ret = 0;
-#ifdef SUPPORT_TLS
-    if (NULL != pNetwork->ca_crt) {
-        ret = disconnect_ssl(pNetwork);
-    }
+    int ret = 0;
+#if defined(SUPPORT_TLS)
+    ret = disconnect_ssl(pNetwork);
 #else
-    if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = disconnect_ssl(pNetwork);
-#else
-        ret = disconnect_tcp(pNetwork);
+    ret = disconnect_tcp(pNetwork);
 #endif
-    }
-#endif
-    else {
-        ret = -1;
-        net_err("no method match!");
-    }
 
     return  ret;
 }
 
 int iotx_net_connect(utils_network_pt pNetwork)
 {
-    int     ret = 0;
-#ifdef SUPPORT_TLS
-    if (NULL != pNetwork->ca_crt) {
-        ret = connect_ssl(pNetwork);
-    }
+    int ret = 0;
+#if defined(SUPPORT_TLS)
+    ret = connect_ssl(pNetwork);
 #else
-    if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = connect_ssl(pNetwork);
-#else
-        ret = connect_tcp(pNetwork);
+    ret = connect_tcp(pNetwork);
 #endif
-    }
-#endif
-    else {
-        ret = -1;
-        net_err("no method match!");
-    }
 
     return ret;
 }
