@@ -18,7 +18,6 @@ config COAP_CLIENT
     default n
     select INFRA_CJSON
     select INFRA_JSON_PARSER
-    select INFRA_HTTPC
     select INFRA_SHA256
     select INFRA_MD5
     select INFRA_REPORT
