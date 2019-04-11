@@ -11,15 +11,16 @@
 #define MODE_TLS_GUIDER             "-1"
 #define MODE_TLS_DIRECT             "2"
 #define MODE_TCP_DIRECT_PLAIN       "3"
+#define MODE_ITLS_DNS_ID2           "8"
 
-#ifdef MQTT_PRE_AUTH
+#if defined(MQTT_PRE_AUTH)
     #define SECURE_MODE             MODE_TLS_GUIDER
+#elif defined(SUPPORT_ITLS)
+    #define SECURE_MODE             MODE_ITLS_DNS_ID2
+#elif defined(SUPPORT_TLS)
+    #define SECURE_MODE             MODE_TLS_DIRECT
 #else
-    #ifdef SUPPORT_TLS
-        #define SECURE_MODE         MODE_TLS_DIRECT
-    #else
-        #define SECURE_MODE         MODE_TCP_DIRECT_PLAIN
-    #endif
+    #define SECURE_MODE             MODE_TCP_DIRECT_PLAIN
 #endif
 
 /* use fixed timestamp */
@@ -53,7 +54,12 @@ const char *clientid_kv[][2] = {
     },
     {
         "lan", "C"
+    },
+#ifdef SUPPORT_ITLS
+    {
+        "authtype", "id2"
     }
+#endif
 };
 
 static void _hex2str(uint8_t *input, uint16_t input_len, char *output)
