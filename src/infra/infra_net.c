@@ -106,8 +106,6 @@ static int connect_ssl(utils_network_pt pNetwork)
             pNetwork->port,
             pNetwork->ca_crt,
             pNetwork->ca_crt_len + 1))) {
-
-        net_err("infra net, handle = %p\n", pNetwork->handle);
         return 0;
     }
     else {
