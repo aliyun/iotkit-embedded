@@ -435,6 +435,7 @@ int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type
             case PKG_START_FRAME:
             case PKG_DATA_FRAME:
             case PKG_GROUP_FRAME:
+            case PKG_MCAST_FRAME:
                 lock_start = os_get_time_ms();
                 break;
             default:
@@ -562,6 +563,26 @@ int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
     }
     return 1;
 }
+
+#if defined(AWSS_SUPPORT_SMARTCONFIG_MCAST) || defined(AWSS_SUPPORT_SMARTCONFIG)
+const uint8_t zconfig_fixed_offset[ZC_ENC_TYPE_MAX + 1][2] = {
+    {  /* open, none, ip(20) + udp(8) + 8(LLC) */
+        36, 36
+    },
+    {  /* wep, + iv(4) + data + ICV(4) */
+        44, 44  /* feixun, wep64(10byte), wep128(26byte) */
+    },
+    {  /* tkip, + iv/keyID(4) + Ext IV(4) + data + MIC(8) + ICV(4) */
+        56, 56  /* tkip(10byte, 20byte), wpa2+tkip(20byte) */
+    },
+    {  /* aes, + ccmp header(8) + data + MIC(8) + ICV(4) */
+        52, 52
+    },
+    {  /* tkip-aes */
+        56, 52  /* fromDs==tkip,toDs==aes */
+    }
+};
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

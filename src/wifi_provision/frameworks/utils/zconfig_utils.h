@@ -17,6 +17,7 @@ void dump_hex(uint8_t *data, int len, int tab_num);
 void dump_ascii(uint8_t *data, int len, int tab_num);
 
 uint16_t zconfig_checksum_v3(uint8_t *data, uint8_t len);
+uint16_t zconfig_checksum_v5(uint8_t *data, uint8_t len);
 char is_utf8(const char *ansi_str, int length);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

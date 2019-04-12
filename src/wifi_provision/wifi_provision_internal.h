@@ -66,7 +66,7 @@
 #include "p2p_wrapper.h"
 #endif
 
-#ifdef AWSS_SUPPORT_SMARTCONFIG
+#if defined(AWSS_SUPPORT_SMARTCONFIG) || defined(AWSS_SUPPORT_SMARTCONFIG_MCAST)
 #include "smartconfig_wrapper.h"
 #endif
 

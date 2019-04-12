@@ -49,6 +49,7 @@ enum _ZC_PKG_TYPE_ {
     PKG_DATA_FRAME,    /* data frame, --数据包，锁定信道后长时间T2收不到数据包，需重新进入扫描阶段 */
     PKG_ALINK_ROUTER,  /* alink router */
     PKG_GROUP_FRAME,   /* group frame */
+    PKG_MCAST_FRAME,   /* group frame */
     PKG_END            /* --配网结束事件，已拿到ssid和passwd，通过回调函数去获取ssid和passwd */
     /*
      * 参考值：

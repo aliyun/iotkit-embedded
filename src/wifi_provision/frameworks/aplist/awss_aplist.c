@@ -96,6 +96,20 @@ struct ap_info *zconfig_get_apinfo(uint8_t *mac)
     return NULL;
 }
 
+struct ap_info *zconfig_get_apinfo_by_3_byte_mac(uint8_t *last_3_Byte_mac)
+{
+    int i;
+    uint8_t *local_mac;
+
+    for (i = 1; i < zconfig_aplist_num; i++) {
+        local_mac = (uint8_t *)(zconfig_aplist[i].mac) + 3;
+        if (!memcmp(local_mac, last_3_Byte_mac, ETH_ALEN - 3))
+            return &zconfig_aplist[i];
+    }
+
+    return NULL;
+}
+
 struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid)
 {
     int i;

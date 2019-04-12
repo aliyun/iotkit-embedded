@@ -18,6 +18,7 @@ extern "C"
 enum state_machine {
     STATE_CHN_SCANNING,
     STATE_CHN_LOCKED_BY_P2P,  /* wps/action used for enrollee */
+    STATE_CHN_LOCKED_BY_MCAST,   /* broadcast used for smartconfig */
     STATE_CHN_LOCKED_BY_BR,   /* broadcast used for smartconfig */
     STATE_GOT_BEACON,
     STATE_RCV_IN_PROGRESS,
@@ -183,6 +184,25 @@ extern uint8_t zconfig_finished;
 extern uint8_t br_mac[ETH_ALEN];
 /* all zero mac address */
 extern uint8_t zero_mac[ETH_ALEN];
+
+#define MCAST_MAX_LEN (127)
+struct mcast_smartconfig_data_type {
+    /* result, final result */
+    uint8_t tlen;
+    uint8_t flag;
+    uint8_t passwd_len;
+    uint8_t *passwd;
+    uint8_t ssid_len;
+    uint8_t *ssid;
+    uint8_t token_len;
+    uint8_t *token;
+    uint8_t bssid_type_len;
+    uint8_t *bssid;
+    uint8_t ssid_is_gbk;
+    uint8_t ssid_auto_complete_disable;
+    uint8_t data[MCAST_MAX_LEN];
+    uint8_t checksum;
+} mcast_smartconfig_data;
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

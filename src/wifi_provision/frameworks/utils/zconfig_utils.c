@@ -70,6 +70,20 @@ uint16_t zconfig_checksum_v3(uint8_t *data, uint8_t len)
     return res;
 }
 
+
+uint16_t zconfig_checksum_v5(uint8_t *data, uint8_t len)
+{
+    uint8_t i;
+    uint16_t sum = 0, res;
+
+    for (i = 0; i < len; i++)
+        sum += data[i];
+
+    res = sum ;
+    return res;
+}
+
+
 char is_utf8(const char *ansi_str, int length)
 {
     int i = 0;
