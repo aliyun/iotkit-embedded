@@ -226,6 +226,7 @@ void dm_server_thing_dev_core_service_dev(CoAPContext *context, const char *path
 
     res = dm_msg_proc_thing_dev_core_service_dev(&source, &dest, &request, &response, &data, &data_len);
     if (res < SUCCESS_RETURN) {
+        _dm_server_free_context(alcs_context);
         return;
     }
 

@@ -208,12 +208,18 @@ int iotx_cm_close(int fd)
         return -1;
     }
 
-    if (--inited_conn_num == 0) {
+    if (inited_conn_num > 0) {
+        inited_conn_num--;
+    }
+
+    if (inited_conn_num == 0) {
 #if (CONFIG_SDK_THREAD_COST == 1)
         while (!yield_task_leave) {
             HAL_SleepMs(10);
         }
-        HAL_ThreadDelete(yield_thread);
+        if (yield_thread != NULL) {
+            HAL_ThreadDelete(yield_thread);
+        }
 #endif
     }
 
