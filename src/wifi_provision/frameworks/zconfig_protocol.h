@@ -202,7 +202,7 @@ struct mcast_smartconfig_data_type {
     uint8_t ssid_auto_complete_disable;
     uint8_t data[MCAST_MAX_LEN];
     uint8_t checksum;
-} mcast_smartconfig_data;
+};
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

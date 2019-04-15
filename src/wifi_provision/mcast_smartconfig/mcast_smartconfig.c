@@ -7,6 +7,7 @@ extern "C" {
 static int loop_count = 0;
 static char bssid0[ETH_ALEN] = {0};
 static int mcast_locked_channel = -1;
+static struct mcast_smartconfig_data_type mcast_smartconfig_data = {0};
 
 uint8_t receive_record[MCAST_MAX_LEN] = {0};
 int check_if_all_received()
