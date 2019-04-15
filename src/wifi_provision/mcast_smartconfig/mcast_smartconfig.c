@@ -72,30 +72,35 @@ void set_zc_bssid()
     }
 }
 
-unsigned char output_token[16] = {0};
-void gen16ByteToken()
+static void set_zc_token()
 {
-    unsigned char buff[256] = {0};
-    unsigned char gen_token[32] = {0};
     int len = 0;
-    memcpy(buff, zc_bssid, ETH_ALEN);
-    len += ETH_ALEN;
-    memcpy(buff + len, mcast_smartconfig_data.bssid, mcast_smartconfig_data.token_len);
-    len += mcast_smartconfig_data.token_len;
-    memcpy(buff + len, zc_passwd, mcast_smartconfig_data.passwd_len);
-    len += mcast_smartconfig_data.passwd_len;
-    utils_sha256(buff, len, gen_token);
-    memcpy(output_token, gen_token, 16);
-#ifdef MCAST_DEBUG
-    {
-        int iter = 0;
-        for (iter = 0; iter < 16; iter++) {
-            printf("mcast: iter is, data is %d, %d\n", iter, output_token[iter]);
-        }
-    }
-#endif
-}
+    int org_token_len = 0;
+    unsigned char buff[128] = {0};
+    unsigned char gen_token[32] = {0};
 
+    uint8_t bssid_len = mcast_smartconfig_data.bssid_type_len & 0x1f;
+    uint8_t pwd_len = strlen(zc_passwd);
+    uint8_t token_len = mcast_smartconfig_data.token_len;
+    awss_debug("set_zc_token bssid_len=%d pwd_len=%d token_len=%d", bssid_len, pwd_len, token_len);
+    if(bssid_len != 0 && mcast_smartconfig_data.bssid != NULL) {
+        memcpy(buff + org_token_len, mcast_smartconfig_data.bssid, bssid_len);
+        org_token_len += bssid_len;
+    }
+
+    if(token_len != 0 && mcast_smartconfig_data.token != NULL) {
+        memcpy(buff + org_token_len, mcast_smartconfig_data.token, token_len);
+        org_token_len += token_len;
+    }
+
+    if(pwd_len != 0 && 128 >= pwd_len + org_token_len) {
+        memcpy(buff + org_token_len, zc_passwd, pwd_len);
+        org_token_len += pwd_len; 
+    }
+
+    utils_sha256(buff, org_token_len, gen_token);
+    memcpy(zc_token, gen_token, 16);
+}
 
 int parse_result()
 {
@@ -170,7 +175,7 @@ int parse_result()
     /* TODO: add check return value */
     set_zc_bssid();
     /* TODO: add check return value */
-    gen16ByteToken();
+    set_zc_token();
     /* TODO: check channel info*/
     zconfig_set_state(STATE_RCV_DONE, 0, mcast_locked_channel);
     return 0;

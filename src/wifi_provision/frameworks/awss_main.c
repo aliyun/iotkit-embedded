@@ -12,21 +12,31 @@ char awss_stop_connecting = 0;
 int __awss_start(void)
 {
     char ssid[OS_MAX_SSID_LEN + 1] = {0}, passwd[OS_MAX_PASSWD_LEN + 1] = {0};
-    enum AWSS_AUTH_TYPE auth = AWSS_AUTH_TYPE_INVALID;
+/*    enum AWSS_AUTH_TYPE auth = AWSS_AUTH_TYPE_INVALID;
     enum AWSS_ENC_TYPE encry = AWSS_ENC_TYPE_INVALID;
-    uint8_t bssid[OS_ETH_ALEN] = {0};
     uint8_t channel = 0;
-    int ret;
+    */
+    uint8_t bssid[OS_ETH_ALEN] = {0};
+    uint8_t token[ZC_MAX_TOKEN_LEN] = {0};
 
+    uint8_t find_token = 0;
+    int ret;
+    uint8_t i;
     awss_stop_connecting = 0;
     awss_finished = 0;
     /* these params is useless, keep it for compatible reason */
     aws_start(NULL, NULL, NULL, NULL);
 
-    ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0],
-                              (char *)&auth, (char *)&encry, &channel);
+    ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0],&token[0],
+                              NULL, NULL, NULL);
     if (!ret) {
         awss_warn("awss timeout!");
+    }
+    for(i = 0; i<ZC_MAX_TOKEN_LEN;i++) {
+        if(token[i] != 0) {
+            find_token = 1;
+            break;
+        }
     }
 
     if (awss_stop_connecting) {
@@ -55,7 +65,8 @@ int __awss_start(void)
             awss_event_post(IOTX_AWSS_CONNECT_ROUTER);
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
         }
-        ret = awss_connect(ssid, passwd, bssid,NULL);
+
+        ret = awss_connect(ssid, passwd, bssid, find_token != 0?token : NULL);
         /*ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
                                   auth, encry, bssid, channel);*/
         if (!ret) {

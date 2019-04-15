@@ -11,9 +11,11 @@
 #define ETH_ALEN            (6)
 #endif
 
+
 #define ZC_MAX_SSID_LEN     (32 + 1)/* ssid: 32 octets at most, include the NULL-terminated */
 #define ZC_MAX_PASSWD_LEN   (64 + 1)/* 8-63 ascii */
 #define MAX_APLIST_NUM      (100)
+#define ZC_MAX_TOKEN_LEN    (16)
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -93,8 +95,8 @@ int zconfig_add_active_channel(int channel);
 void zconfig_channel_locked_callback(uint8_t primary_channel,
                                      uint8_t secondary_channel, uint8_t *bssid);
 /* got ssid&passwd callback */
-void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid,
-                                      uint8_t auth, uint8_t encry, uint8_t channel);
+void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
+                                      uint8_t *bssid, uint8_t *token, uint8_t auth, uint8_t encry, uint8_t channel);
 void zconfig_force_rescan(void);
 void aws_set_dst_chan(int channel);
 void aws_switch_channel(void);

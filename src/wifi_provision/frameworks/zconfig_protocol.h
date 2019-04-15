@@ -111,9 +111,9 @@ struct zconfig_data {
     uint8_t ssid[ZC_MAX_SSID_LEN];
     uint8_t passwd[ZC_MAX_PASSWD_LEN];
     uint8_t bssid[ETH_ALEN];
+    uint8_t token[ZC_MAX_TOKEN_LEN];
     uint8_t ssid_is_gbk;
     uint8_t ssid_auto_complete_disable;
-
     /* used by v2 android p2p protocol, for gbk ssid correctness */
     uint8_t android_pre_ssid[ZC_MAX_SSID_LEN];
     uint8_t android_ssid[ZC_MAX_SSID_LEN];
@@ -143,6 +143,7 @@ struct zconfig_data {
 #define zc_ssid                        (&zconfig_data->ssid[0])
 #define zc_passwd                      (&zconfig_data->passwd[0])
 #define zc_bssid                       (&zconfig_data->bssid[0])
+#define zc_token                       (&zconfig_data->token[0])
 #define zc_ssid_is_gbk                 (zconfig_data->ssid_is_gbk)
 #define zc_ssid_auto_complete_disable  (zconfig_data->ssid_auto_complete_disable)
 
@@ -171,7 +172,7 @@ int is_ascii_string(uint8_t *str);
  * [OUT] auth, encry, channel
  */
 uint8_t zconfig_get_auth_info(uint8_t *ssid, uint8_t *bssid, uint8_t *auth, uint8_t *encry, uint8_t *channel);
-uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid);
+uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid, uint8_t *token);
 
 #define MAC_FORMAT                "%02x%02x%02x%02x%02x%02x"
 #define MAC_VALUE(mac)            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
