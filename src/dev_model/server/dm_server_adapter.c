@@ -20,25 +20,18 @@ static dm_server_ctx_t *dm_server_get_ctx(void)
 static int _dm_server_dev_notify(void *handle)
 {
     int ret, i;
-    iotx_alcs_msg_t alcs_msg;
     char * data = NULL;
     char * payload = NULL;
     int data_len = 0;
     int payload_len = 0;
-
-    memset(&alcs_msg, 0, sizeof(iotx_alcs_msg_t));
-    
-    alcs_msg.group_id = 0;
-    alcs_msg.ip = (char *)ALCS_NOTIFY_HOST;
-    alcs_msg.port = ALCS_NOTIFY_PORT;
-    alcs_msg.msg_code = ITOX_ALCS_COAP_MSG_CODE_GET;
-    alcs_msg.msg_type = IOTX_ALCS_MESSAGE_TYPE_NON;
-    alcs_msg.uri = (char *)DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY;
+    NetworkAddr notify_sa;
+    CoAPContext  *g_coap_ctx = CoAPServer_init();    
 
     dm_msg_dev_core_service_dev(&data, &data_len);
 
     payload_len = strlen(DM_MSG_REQUEST) + 10 + strlen(DM_MSG_VERSION) + data_len + strlen(
                               ALCS_NOTIFY_METHOD) + 1;
+
     payload = DM_malloc(payload_len);
     if (payload == NULL) {
         DM_free(data);
@@ -47,14 +40,16 @@ static int _dm_server_dev_notify(void *handle)
     memset(payload, 0, payload_len);
     HAL_Snprintf(payload, payload_len, DM_MSG_REQUEST, iotx_report_id(),
                  DM_MSG_VERSION, data_len, data, ALCS_NOTIFY_METHOD);
-
-
-    alcs_msg.payload = (uint8_t *)payload;
-    alcs_msg.payload_len = payload_len;
     
-    dm_log_debug("notify path:%s; payload = %s", alcs_msg.uri, alcs_msg.payload);
+    memset(&notify_sa, 0, sizeof(notify_sa));
+    memcpy(notify_sa.addr, ALCS_NOTIFY_HOST, strlen(ALCS_NOTIFY_HOST));
+    notify_sa.port = ALCS_NOTIFY_PORT;
+
+    dm_log_debug("notify path:%s; payload = %s", DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, payload);
+    
     for (i = 0; i < 2; i++) {
-        ret = iotx_alcs_send(handle, &alcs_msg);
+        ret = CoAPServerMultiCast_send(g_coap_ctx, &notify_sa, DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, (uint8_t *)payload,
+                                    (uint16_t)payload_len, NULL, NULL);
     }
     DM_free(payload);
     DM_free(data);
