@@ -109,7 +109,6 @@ static int connect_ssl(utils_network_pt pNetwork)
         return 0;
     }
     else {
-        net_err("infra net, handle = %p\n", pNetwork->handle);
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
