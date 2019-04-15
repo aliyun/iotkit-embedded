@@ -67,7 +67,8 @@ cmake:
 
 one: COMP_LIB_OBJS = $(foreach V,$(COMP_LIB_COMPONENTS),$(foreach U,$(LIB_OBJS_$(V)),$(V)/$(U)))
 one:
-	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") CFLAGS=$(CFLAGS) \
+	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
+	    CFLAGS="$(subst ",,$(CFLAGS))" \
 	    ALL_LIBS="$(strip $(foreach V,$(SUBDIRS),$(LIBA_TARGET_$(V))))" \
 	    ALL_PROG="$(strip $(foreach V,$(SUBDIRS),$(TARGET_$(V))))" \
 	    COMP_LIB_OBJS="$(COMP_LIB_OBJS)" \
