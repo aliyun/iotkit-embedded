@@ -4,11 +4,13 @@
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_reset.h"
+#include <stdio.h>
+#include "iot_import.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
+void *awss_token_mutex = NULL;
 
 int awss_report_cloud()
 {
@@ -27,6 +29,13 @@ int awss_report_cloud()
 #endif
 #endif
     return 0;
+}
+
+void awss_bind_deinit()
+{
+    if (NULL != awss_token_mutex) {
+        HAL_MutexDestroy(awss_token_mutex);
+    }
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

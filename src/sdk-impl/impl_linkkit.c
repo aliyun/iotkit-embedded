@@ -1201,6 +1201,10 @@ int IOT_Linkkit_Close(int devid)
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_close();
+#ifdef DEV_BIND_ENABLED
+        extern int awss_bind_deinit(void);
+        awss_bind_deinit();
+#endif
     } else {
 #ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_close(devid);
@@ -1407,7 +1411,8 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #else
             res = FAIL_RETURN;
 #endif
-        } break;
+        }
+        break;
         default: {
             sdk_err("Unknown Message Type");
             res = FAIL_RETURN;
