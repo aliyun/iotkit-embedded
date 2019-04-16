@@ -28,45 +28,47 @@ void *ofc_Init(char *url, int offset)
     int port = 0;
     char header[OFC_HTTP_HEADER_MAXLEN] = {0};
     char *header_fmt = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
-                   "Accept-Encoding: gzip, deflate\r\n" \
-                   "Range: bytes=%d-\r\n";
+                       "Accept-Encoding: gzip, deflate\r\n" \
+                       "Range: bytes=%d-\r\n";
     char *protocol_end = NULL, *port_start = NULL, *port_end = NULL;
-	int protocol_len = 0;
+    int protocol_len = 0;
     iotx_http_method_t method = IOTX_HTTP_GET;
 
     /* protocol end location */
-	protocol_end = strstr(url,"://");
-	if (protocol_end == NULL) {
-        OTA_LOG_ERROR("Invalid URL");
-		return NULL;
-	}
-	protocol_len = strlen(url) - strlen(protocol_end);
+    protocol_end = strstr(url, "://");
+    if (protocol_end != NULL) {
+        protocol_len = strlen(url) - strlen(protocol_end);
 
-    /* check protocol, http or https, and assign default port*/
-	if ((strlen("http") == protocol_len) && (memcmp("http",url,protocol_len) == 0)) {
-		OTA_LOG_INFO("protocol: http");
-        port = 80;
-	}else if ((strlen("https") == protocol_len) && (memcmp("https",url,protocol_len) == 0)) {
-		OTA_LOG_INFO("protocol: https");
-        {
-            extern const char *iotx_ca_crt;
-            pub_key = (char *)iotx_ca_crt;
+        /* check protocol, http or https, and assign default port*/
+        if ((strlen("http") == protocol_len) && (memcmp("http", url, protocol_len) == 0)) {
+            OTA_LOG_INFO("protocol: http");
+            port = 80;
+        } else if ((strlen("https") == protocol_len) && (memcmp("https", url, protocol_len) == 0)) {
+            OTA_LOG_INFO("protocol: https");
+            {
+                extern const char *iotx_ca_crt;
+                pub_key = (char *)iotx_ca_crt;
+            }
+            port = 443;
+        } else {
+            OTA_LOG_ERROR("Invalid URL");
+            return NULL;
         }
-        port = 443;
-	}else{
-        OTA_LOG_ERROR("Invalid URL");
-		return NULL;
-	}
+    } else {
+        OTA_LOG_INFO("protocol: http");
+        protocol_end = url;
+        port = 80;
+    }
 
     /* check port, if exist, override port */
-	port_start = strstr(protocol_end + 1, ":");
-	if (port_start != NULL) {
-		port_end = strstr(port_start + 1, "/");
-		if (port_end != NULL) {
-			OTA_LOG_INFO("port exist: %.*s",(int)(port_end - port_start - 1),port_start + 1);
-			infra_str2int((const char *)(port_start + 1), &port);
-		}
-	}
+    port_start = strstr(protocol_end + 1, ":");
+    if (port_start != NULL) {
+        port_end = strstr(port_start + 1, "/");
+        if (port_end != NULL) {
+            OTA_LOG_INFO("port exist: %.*s", (int)(port_end - port_start - 1), port_start + 1);
+            infra_str2int((const char *)(port_start + 1), &port);
+        }
+    }
 
     HAL_Snprintf(header, OFC_HTTP_HEADER_MAXLEN, header_fmt, offset);
 
@@ -122,7 +124,7 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVCALLBACK, (void *)_ota_fetch_callback);
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVMAXLEN, (void *)&http_recv_maxlen);
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_RECVCONTEXT, (void *)&response);
-    current_fetch_size = wrapper_http_perform(h_odc->http_handle,NULL,0);
+    current_fetch_size = wrapper_http_perform(h_odc->http_handle, NULL, 0);
 
     if (current_fetch_size < 0) {
         OTA_LOG_ERROR("fetch firmware failed");
@@ -131,8 +133,8 @@ int32_t ofc_Fetch(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 
     h_odc->fetch_size += current_fetch_size;
 
-/*     OTA_LOG_ERROR("Download This Time: %d",current_fetch_size);
-    OTA_LOG_ERROR("Download Total    : %d",h_odc->fetch_size); */
+    /*     OTA_LOG_ERROR("Download This Time: %d",current_fetch_size);
+        OTA_LOG_ERROR("Download Total    : %d",h_odc->fetch_size); */
 
     return current_fetch_size;
 }
