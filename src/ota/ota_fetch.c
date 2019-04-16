@@ -24,20 +24,49 @@ typedef struct {
 void *ofc_Init(char *url, int offset)
 {
     otahttp_Struct_pt h_odc;
+    char *pub_key = NULL;
+    int port = 0;
     char header[OFC_HTTP_HEADER_MAXLEN] = {0};
     char *header_fmt = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" \
                    "Accept-Encoding: gzip, deflate\r\n" \
                    "Range: bytes=%d-\r\n";
-
-#if defined(SUPPORT_TLS)
-    extern const char *iotx_ca_crt;
-    char *pub_key = (char *)iotx_ca_crt;
-    int port = 443;
-#else
-    char *pub_key = NULL;
-    int port = 80;
-#endif
+    char *protocol_end = NULL, *port_start = NULL, *port_end = NULL;
+	int protocol_len = 0;
     iotx_http_method_t method = IOTX_HTTP_GET;
+
+    /* protocol end location */
+	protocol_end = strstr(url,"://");
+	if (protocol_end == NULL) {
+        OTA_LOG_ERROR("Invalid URL");
+		return NULL;
+	}
+	protocol_len = strlen(url) - strlen(protocol_end);
+
+    /* check protocol, http or https, and assign default port*/
+	if ((strlen("http") == protocol_len) && (memcmp("http",url,protocol_len) == 0)) {
+		OTA_LOG_INFO("protocol: http");
+        port = 80;
+	}else if ((strlen("https") == protocol_len) && (memcmp("https",url,protocol_len) == 0)) {
+		OTA_LOG_INFO("protocol: https");
+        {
+            extern const char *iotx_ca_crt;
+            pub_key = (char *)iotx_ca_crt;
+        }
+        port = 443;
+	}else{
+        OTA_LOG_ERROR("Invalid URL");
+		return NULL;
+	}
+
+    /* check port, if exist, override port */
+	port_start = strstr(protocol_end + 1, ":");
+	if (port_start != NULL) {
+		port_end = strstr(port_start + 1, "/");
+		if (port_end != NULL) {
+			OTA_LOG_INFO("port exist: %.*s",(int)(port_end - port_start - 1),port_start + 1);
+			infra_str2int((const char *)(port_start + 1), &port);
+		}
+	}
 
     HAL_Snprintf(header, OFC_HTTP_HEADER_MAXLEN, header_fmt, offset);
 
@@ -53,14 +82,6 @@ void *ofc_Init(char *url, int offset)
         OTA_FREE(h_odc);
         return NULL;
     }
-
-#if defined(SUPPORT_ITLS)
-    char *s_ptr = strstr(url, "://");
-    if (strlen("https") == (s_ptr - url) && (0 == strncmp(url, "https", strlen("https")))) {
-        strncpy(url + 1, url, strlen("http"));
-        url++;
-    }
-#endif
 
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_URL, (void *)url);
     wrapper_http_setopt(h_odc->http_handle, IOTX_HTTPOPT_PORT, (void *)&port);
