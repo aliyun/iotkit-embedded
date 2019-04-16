@@ -45,10 +45,12 @@ void *ofc_Init(char *url, int offset)
             port = 80;
         } else if ((strlen("https") == protocol_len) && (memcmp("https", url, protocol_len) == 0)) {
             OTA_LOG_INFO("protocol: https");
+#ifdef SUPPORT_TLS
             {
                 extern const char *iotx_ca_crt;
                 pub_key = (char *)iotx_ca_crt;
             }
+#endif
             port = 443;
         } else {
             OTA_LOG_ERROR("Invalid URL");
