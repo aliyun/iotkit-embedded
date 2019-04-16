@@ -80,7 +80,7 @@ static void set_zc_token()
     unsigned char gen_token[32] = {0};
 
     uint8_t bssid_len = mcast_smartconfig_data.bssid_type_len & 0x1f;
-    uint8_t pwd_len = strlen(zc_passwd);
+    uint8_t pwd_len = mcast_smartconfig_data.passwd_len;
     uint8_t token_len = mcast_smartconfig_data.token_len;
     awss_debug("set_zc_token bssid_len=%d pwd_len=%d token_len=%d", bssid_len, pwd_len, token_len);
     if(bssid_len != 0 && mcast_smartconfig_data.bssid != NULL) {
