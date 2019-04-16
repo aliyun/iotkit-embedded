@@ -697,11 +697,11 @@ REPORT_FAIL:
 static void enrollee_report(void)
 {
     int i;
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
     char ssid[OS_MAX_SSID_LEN + 1] = {0};
     HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
-    if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID)) {
-        return;    /* ignore enrollee in 'aha' or 'adha' mode */
+    if (!strcmp(ssid, DEFAULT_SSID)) {
+        return;    /* ignore enrollee in 'aha' mode */
     }
 #endif
 
@@ -846,17 +846,17 @@ int enrollee_put(struct enrollee_info *in)
 {
     uint8_t i, empty_slot = MAX_ENROLLEE_NUM;
     do {
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
         char ssid[OS_MAX_SSID_LEN + 1] = {0};
 #endif
         /* reduce stack used */
         if (in == NULL || !HAL_Sys_Net_Is_Ready()) { /* not ready to work as registerar */
             return -1;
         }
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
         HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
-        if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID)) {
-            return -1;    /* ignore enrollee in 'aha' or 'adha' mode */
+        if (!strcmp(ssid, DEFAULT_SSID)){
+            return -1;    /* ignore enrollee in 'aha' mode */
         }
 #endif
     } while (0);

@@ -335,9 +335,8 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             if (ap == NULL || ap->ssid[0] == '\0') {
                 break;
             }
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-            if (strncmp(ap->ssid, zc_adha_ssid, ZC_MAX_SSID_LEN) == 0 ||
-                strncmp(ap->ssid, zc_default_ssid, ZC_MAX_SSID_LEN) == 0) {
+#if defined(AWSS_SUPPORT_AHA)
+            if (strncmp(ap->ssid, zc_default_ssid, ZC_MAX_SSID_LEN) == 0) {
                 memset(zc_bssid, 0, ETH_ALEN);
                 break;
             }
@@ -784,7 +783,7 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     uint8_t tods;
 
     /*
-     * when device try to connect current router (include adha and aha)
+     * when device try to connect current router (include aha)
      * skip the new packet.
      */
     if (ieee80211 == NULL || zconfig_finished) {

@@ -307,9 +307,6 @@ rescanning:
         awss_broadcast_enrollee_info();
 #endif
         HAL_SleepMs(interval);
-#ifdef AWSS_SUPPORT_ADHA
-        aws_send_adha_probe_req();
-#endif
         HAL_SleepMs(interval);
 #ifdef AWSS_SUPPORT_AHA
         aws_send_aha_probe_req();
@@ -412,9 +409,8 @@ success:
     if (aws_stop == AWS_STOPPED) {
         zconfig_force_destroy();
     }
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    else if (strcmp((const char *)aws_result_ssid, (const char *)zc_adha_ssid) == 0 ||
-             strcmp((const char *)aws_result_ssid, (const char *)zc_default_ssid) == 0) {
+#if defined(AWSS_SUPPORT_AHA)
+    else if (strcmp((const char *)aws_result_ssid, (const char *)zc_default_ssid) == 0) {
         zconfig_destroy();
     }
 #endif

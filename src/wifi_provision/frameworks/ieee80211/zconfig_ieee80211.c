@@ -742,9 +742,6 @@ struct awss_protocol_couple_type awss_protocol_couple_array[] = {
 #ifdef AWSS_SUPPORT_AHA
     {ALINK_DEFAULT_SSID, awss_ieee80211_aha_process,         awss_recv_callback_aha_ssid},
 #endif
-#ifdef AWSS_SUPPORT_ADHA
-    {ALINK_ADHA_SSID,    awss_ieee80211_adha_process,        awss_recv_callback_adha_ssid},
-#endif
 #ifndef AWSS_DISABLE_ENROLLEE
     {ALINK_ZERO_CONFIG,  awss_ieee80211_zconfig_process,     awss_recv_callback_zconfig},
 #endif

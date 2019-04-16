@@ -3,7 +3,7 @@
  */
 #include "dev_bind_internal.h"
 #ifdef WIFI_PROVISION_ENABLED
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
 #include "awss_wifimgr.h"
 #endif
 #endif
@@ -176,7 +176,7 @@ int awss_cmp_coap_deinit()
 
 const struct awss_cmp_couple awss_local_couple[] = {
 #ifdef WIFI_PROVISION_ENABLED
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
     {AWSS_LC_INIT_PAP,                       TOPIC_AWSS_SWITCHAP,                 wifimgr_process_switch_ap_request},
     {AWSS_LC_INIT_PAP,                       TOPIC_AWSS_WIFILIST,                 wifimgr_process_get_wifilist_request},
     {AWSS_LC_INIT_ROUTER | AWSS_LC_INIT_PAP, TOPIC_AWSS_GETDEVICEINFO_MCAST,      wifimgr_process_mcast_get_device_info},
@@ -219,7 +219,7 @@ int awss_cmp_local_deinit(int force)
         return 0;
     }
 #ifdef WIFI_PROVISION_ENABLED
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
     awss_devinfo_notify_stop();
 #endif
     awss_suc_notify_stop();

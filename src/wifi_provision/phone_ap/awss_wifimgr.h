@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
 
 enum {
     SHUB_ERR,

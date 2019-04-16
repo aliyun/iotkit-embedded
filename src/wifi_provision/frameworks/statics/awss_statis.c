@@ -56,16 +56,6 @@
 #define DAP_PW_ERR      g_awss_statis.dap.dev_ap_passwd_err
 #endif
 
-#ifdef  AWSS_SUPPORT_ADHA
-#define ROUTE_CNT       g_awss_statis.route.adha_cnt
-#define ROUTE_SUC       g_awss_statis.route.adha_suc
-#define ROUTE_TMIN      g_awss_statis.route.adha_time_min
-#define ROUTE_TMAX      g_awss_statis.route.adha_time_max
-#define ROUTE_TMEAN     g_awss_statis.route.adha_time_mean
-#define ROUTE_START     g_awss_statis.route.adha_start
-#define ROUTE_END       g_awss_statis.route.adha_end
-#endif
-
 #ifndef AWSS_DISABLE_ENROLLEE
 #define ZC_CNT          g_awss_statis.zconfig.zc_cnt
 #define ZC_SUC          g_awss_statis.zconfig.zc_suc
@@ -126,12 +116,6 @@ int awss_report_statis(const char *module)
     if (PAP_CNT > 0) {
         len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "Aha",
                 PAP_TMAX, PAP_TMIN, PAP_TMEAN, PAP_CNT, PAP_SUC, 0, PAP_PW_ERR);
-    }
-#endif
-#ifdef AWSS_SUPPORT_ADHA
-    if (ROUTE_CNT > 0) {
-        len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "Adha",
-                ROUTE_TMAX, ROUTE_TMIN, ROUTE_TMEAN, ROUTE_CNT, ROUTE_SUC, 0, 0);
     }
 #endif
 #ifndef AWSS_DISABLE_ENROLLEE
@@ -201,10 +185,6 @@ void awss_disp_statis()
 #ifdef AWSS_SUPPORT_AHA
     awss_debug("Aha             \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             PAP_TMAX, PAP_TMIN, PAP_TMEAN, PAP_CNT, PAP_SUC, 0, PAP_PW_ERR);
-#endif
-#ifdef AWSS_SUPPORT_ADHA
-    awss_debug("Adha            \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
-            ROUTE_TMAX, ROUTE_TMIN, ROUTE_TMEAN, ROUTE_CNT, ROUTE_SUC, 0, 0);
 #endif
 #ifndef AWSS_DISABLE_ENROLLEE
     awss_debug("Zconfig         \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
@@ -397,34 +377,6 @@ void awss_update_statis(int awss_statis_idx, int type)
                     break;
                 case AWSS_STATIS_TYPE_PASSWD_ERR:
                     DAP_PW_ERR ++;
-                    break;
-                default:
-                    break;
-            }
-            break;
-#endif
-#ifdef AWSS_SUPPORT_ADHA
-        case AWSS_STATIS_ROUTE_IDX:
-            switch (type) {
-                case AWSS_STATIS_TYPE_TIME_START:
-                    ROUTE_CNT ++;
-                    ROUTE_START = time;
-                    break;
-                case AWSS_STATIS_TYPE_TIME_SUC:
-                    ROUTE_SUC ++;
-                    ROUTE_END = time;
-                    time = (uint32_t)(ROUTE_END - ROUTE_START);
-                    if (ROUTE_SUC > 0) {
-                        ROUTE_TMEAN = (ROUTE_TMEAN + time) / (ROUTE_SUC);
-                    } else {
-                        ROUTE_TMEAN = time;
-                        ROUTE_SUC = 1;
-                    }
-
-                    if (ROUTE_TMIN == 0 || ROUTE_TMIN > time)
-                        ROUTE_TMIN = time;
-                    if (ROUTE_TMAX == 0 || ROUTE_TMAX < time)
-                        ROUTE_TMAX = time;
                     break;
                 default:
                     break;

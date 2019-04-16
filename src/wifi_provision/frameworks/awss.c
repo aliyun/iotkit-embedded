@@ -42,37 +42,9 @@ int awss_start(void)
 
     do {
         __awss_start();
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
         do {
             char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
-#ifdef AWSS_SUPPORT_ADHA
-            while (1) {
-                memset(ssid, 0, sizeof(ssid));
-                HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
-                awss_debug("start, ssid:%s, strlen:%lu\n", ssid, strlen(ssid));
-                if (strlen(ssid) > 0 && strcmp(ssid, ADHA_SSID)) { /* not adha AP */
-                    break;
-                }
-
-                if (HAL_Sys_Net_Is_Ready()) { /* skip the adha failed */
-                    awss_cmp_local_init(AWSS_LC_INIT_ROUTER);
-
-                    awss_open_adha_monitor();
-                    while (!awss_is_ready_switch_next_adha()) {
-                        if (awss_stopped) {
-                            break;
-                        }
-                        HAL_SleepMs(50);
-                    }
-                    awss_cmp_local_deinit(0);
-                }
-
-                if (switch_ap_done || awss_stopped) {
-                    break;
-                }
-                __awss_start();
-            }
-#endif
             if (awss_stopped) {
                 break;
             }
@@ -135,9 +107,6 @@ int awss_start(void)
 #ifdef AWSS_SUPPORT_AHA
     awss_close_aha_monitor();
 #endif
-#ifdef AWSS_SUPPORT_ADHA
-    awss_close_adha_monitor();
-#endif
 
     awss_success_notify();
     awss_stopped = 1;
@@ -150,9 +119,6 @@ int awss_stop(void)
     awss_stopped = 1;
 #ifdef AWSS_SUPPORT_AHA
     awss_close_aha_monitor();
-#endif
-#ifdef AWSS_SUPPORT_ADHA
-    awss_close_adha_monitor();
 #endif
     awss_stop_connectap_monitor();
     g_user_press = 0;

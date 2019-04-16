@@ -341,7 +341,7 @@ int awss_ieee80211_wps_process(uint8_t *mgmt_header, int len, int link_type, str
     int fc;
 
     /*
-     * when device try to connect current router (include adha and aha)
+     * when device try to connect current router (include aha)
      * skip the wps packet.
      */
     if (mgmt_header == NULL || zconfig_finished) {

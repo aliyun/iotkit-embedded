@@ -14,13 +14,9 @@ extern "C"
 
 #define DEFAULT_SSID                   zc_default_ssid
 #define DEFAULT_PASSWD                 zc_default_passwd
-#define ADHA_SSID                      zc_adha_ssid
-#define ADHA_PASSWD                    zc_adha_passwd
 
 extern const char *zc_default_ssid;
 extern const char *zc_default_passwd;
-extern const char *zc_adha_ssid;
-extern const char *zc_adha_passwd;
 
 int __awss_start(void);
 int __awss_stop(void);

@@ -191,7 +191,7 @@ int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int li
     uint8_t tods;
 
     /*
-     * when device try to connect current router (include adha and aha)
+     * when device try to connect current router (include aha)
      * skip the new packet.
      */
     if (ieee80211 == NULL || zconfig_finished) {

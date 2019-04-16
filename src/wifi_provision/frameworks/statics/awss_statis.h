@@ -90,16 +90,6 @@ struct awss_statis_dev_ap_t {
     uint32_t dev_ap_passwd_err;
 };  /* device work as AP */
 
-struct awss_statis_route_t {
-    uint32_t adha_cnt;
-    uint32_t adha_suc;
-    uint32_t adha_time_mean;       /* mean time of discovery of route solution */
-    uint32_t adha_time_max;        /* min time of discovery of route solution */
-    uint32_t adha_time_min;        /* max time of discovery of route solution */
-    uint32_t adha_start;
-    uint32_t adha_end;
-};  /* discovery of route solution */
-
 struct awss_statis_zconfig_t {
     uint32_t zc_cnt;
     uint32_t zc_suc;
@@ -119,9 +109,6 @@ struct awss_statis_t {
 #endif
 #ifdef AWSS_SUPPORT_DEV_AP
     struct awss_statis_dev_ap_t dap;
-#endif
-#ifdef AWSS_SUPPORT_ADHA
-    struct awss_statis_route_t route;
 #endif
 #ifndef AWSS_DISABLE_ENROLLEE
     struct awss_statis_zconfig_t zconfig;

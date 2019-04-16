@@ -98,7 +98,7 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
     int fc, ret, channel;
 
     /*
-     * when device try to connect current router (include adha and aha)
+     * when device try to connect current router (include aha)
      * skip the new aha and process the new aha in the next scope.
      */
     if (mgmt_header == NULL || zconfig_finished)
@@ -128,7 +128,6 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
      */
     if (strcmp((const char *)ssid, zc_default_ssid))
         return ALINK_INVALID;
-
     channel = cfg80211_get_bss_channel(mgmt_header, len);
     rssi = rssi > 0 ? rssi - 256 : rssi;
 
@@ -136,19 +135,7 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
                              &pairwise_cipher, &group_cipher);
     awss_save_apinfo(ssid, bssid, channel, auth,
                      pairwise_cipher, group_cipher, rssi);
-    /*
-     * If user press the configure button,
-     * device just process aha, and skip all the adha.
-     */
-    if (adha_aplist->cnt > adha_aplist->try_idx) {
-        uint8_t ap_idx = adha_aplist->aplist[adha_aplist->try_idx ++];
-#ifdef AWSS_SUPPORT_APLIST
-        memcpy(zc_bssid, zconfig_aplist[ap_idx].mac, ETH_ALEN);
-#endif
-        awss_set_config_press(0);
-        return ALINK_DEFAULT_SSID;
-    }
-    return ALINK_INVALID;
+   return ALINK_DEFAULT_SSID;
 }
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

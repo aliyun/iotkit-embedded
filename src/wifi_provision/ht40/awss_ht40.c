@@ -180,7 +180,7 @@ int awss_ieee80211_ht_ctrl_process(uint8_t *ht_ctrl, int len, int link_type, str
 {
     struct ht40_ctrl *ctrl = NULL;
     /*
-     * when device try to connect current router (include adha and aha)
+     * when device try to connect current router (include aha)
      * skip the new packet.
      */
     if (ht_ctrl == NULL || zconfig_finished)

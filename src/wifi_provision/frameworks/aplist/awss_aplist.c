@@ -33,9 +33,6 @@ int awss_is_ready_clr_aplist(void)
 int awss_clear_aplist(void)
 {
     memset(zconfig_aplist, 0, sizeof(struct ap_info) * MAX_APLIST_NUM);
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    memset(adha_aplist, 0, sizeof(*adha_aplist));
-#endif
     zconfig_aplist_num = 0;
     clr_aplist = 0;
 
@@ -256,34 +253,10 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
     zconfig_aplist[i].encry[0] = group_cipher;
     zconfig_aplist[i].encry[1] = pairwise_cipher;
 
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    do {
-        char save_adha = 0;
-#ifdef AWSS_SUPPORT_ADHA
-        if (!strcmp((void *)ssid, zc_adha_ssid))
-            save_adha = 1;
-#endif
-#ifdef AWSS_SUPPORT_AHA
-        if (!strcmp((void *)ssid, zc_default_ssid))
-            save_adha = 1;
-#endif
-        if (save_adha) {
-            if (adha_aplist->cnt < MAX_APLIST_NUM)
-                adha_aplist->aplist[adha_aplist->cnt ++] = i;
-        }
-    } while(0);
-#endif
-
-    do {
-        char adha = 0;
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-        adha = adha_aplist->cnt;
-#endif
-    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, rssi:%d, adha:%d\r\n",
+    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, rssi:%d\r\n",
         i, ssid, bssid[0], bssid[1], bssid[2],
         bssid[3], bssid[4], bssid[5], channel,
-        rssi > 0 ? rssi - 256 : rssi, adha);
-    } while (0);
+        rssi > 0 ? rssi - 256 : rssi);
     /*
      * if chn already locked(zc_bssid set),
      * copy ssid to zc_ssid for ssid-auto-completiont
@@ -353,11 +326,6 @@ void aws_try_adjust_chan(void)
         strncmp(ap->ssid, zc_default_ssid, strlen(zc_default_ssid)) == 0)
         return;
 #endif
-#ifdef AWSS_SUPPORT_ADHA
-    if (strlen(ssid) == strlen(zc_adha_ssid) &&
-        strncmp(ap->ssid, zc_adha_ssid, strlen(zc_adha_ssid)) == 0)
-        return;
-#endif
 
     aws_set_dst_chan(ap->channel);
     aws_switch_channel();
@@ -391,14 +359,10 @@ int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, 
         return ALINK_INVALID;
 
     /*
-     * skip all the adha and aha
+     * skip all the aha
      */
 #ifdef AWSS_SUPPORT_AHA
     if (strcmp((const char *)ssid, zc_default_ssid) == 0)
-        return ALINK_INVALID;
-#endif
-#ifdef AWSS_SUPPORT_ADHA
-    if (strcmp((const char *)ssid, zc_adha_ssid) == 0)
         return ALINK_INVALID;
 #endif
 

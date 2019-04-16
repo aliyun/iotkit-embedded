@@ -280,11 +280,6 @@ void zconfig_init()
         goto ZCONFIG_INIT_FAIL;
     }
 #endif
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    if (awss_init_adha_aplist()) {
-        goto ZCONFIG_INIT_FAIL;
-    }
-#endif
 
 #ifdef AWSS_SUPPORT_HT40
     ht40_init();
@@ -297,9 +292,6 @@ ZCONFIG_INIT_FAIL:
 
 #ifdef AWSS_SUPPORT_APLIST
     awss_deinit_ieee80211_aplist();
-#endif
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    awss_deinit_adha_aplist();
 #endif
     return;
 }
@@ -322,10 +314,6 @@ void zconfig_force_destroy(void)
 #ifdef AWSS_SUPPORT_APLIST
     awss_deinit_ieee80211_aplist();
     awss_close_aplist_monitor();
-#endif
-
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    awss_deinit_adha_aplist();
 #endif
 }
 

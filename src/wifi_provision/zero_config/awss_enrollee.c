@@ -229,7 +229,7 @@ int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type,
     int fc;
 
     /*
-     * when device try to connect current router (include adha and aha)
+     * when device try to connect current router (include aha)
      * skip the new aha and process the new aha in the next scope.
      */
     if (mgmt_header == NULL || zconfig_finished)

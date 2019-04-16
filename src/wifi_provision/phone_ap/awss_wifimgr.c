@@ -3,7 +3,7 @@
  */
 #include "wifi_provision_internal.h"
 
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+#if defined(AWSS_SUPPORT_AHA)
 #define WIFI_APINFO_LIST_LEN    (512)
 #define DEV_SIMPLE_ACK_LEN      (64)
 

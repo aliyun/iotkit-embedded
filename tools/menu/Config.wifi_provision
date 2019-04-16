@@ -62,7 +62,6 @@ menu "Wifi Provision Configurations"
 
     config AWSS_SUPPORT_AHA
         bool "FEATURE_AWSS_SUPPORT_AHA, ADHA"
-        select AWSS_SUPPORT_ADHA
         default n
         help
             Switching on a wifi provision method based on phone-ap, which tells the ssid/passwd to the devices connected to it

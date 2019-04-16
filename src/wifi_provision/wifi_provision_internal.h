@@ -42,7 +42,7 @@
 #include "awss_ht40.h"
 #endif
 
-#if defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ADHA)
+#if defined(AWSS_SUPPORT_AHA)
 #include "awss_wifimgr.h"
 #endif
 
@@ -52,9 +52,6 @@
 
 #if defined(AWSS_SUPPORT_AHA)
     #include "awss_aha.h"
-#endif
-#if defined(AWSS_SUPPORT_ADHA)
-    #include "awss_adha.h"
 #endif
 
 #if defined(WIFI_PROVISION_ENABLED) || defined(DEV_BIND_ENABLED)
