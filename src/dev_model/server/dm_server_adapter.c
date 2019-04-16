@@ -1,6 +1,7 @@
 #include "iotx_dm_internal.h"
 
 #ifdef ALCS_ENABLED
+#include "CoAPServer.h"
 
 #define ALCS_NOTIFY_PORT     (5683)
 #define ALCS_NOTIFY_HOST     "255.255.255.255"
