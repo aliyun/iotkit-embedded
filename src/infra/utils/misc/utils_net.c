@@ -160,12 +160,12 @@ static int connect_itls(utils_network_pt pNetwork)
         utils_err("network is null");
         return 1;
     }
-
-    char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
-    int len = strlen(pNetwork->product_key);
-    strncpy(pkps, pNetwork->product_key, len);
-    HAL_GetProductSecret(pkps + len + 1);
-    len += strlen(pkps + len + 1) + 2;
+    char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN + 2] = {0};
+    int len = 0;
+    HAL_GetProductKey(pkps);
+    len = strlen(pkps) + 1;
+    HAL_GetProductSecret(pkps + len);
+    len += strlen(pkps + len) + 1;
 
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,
