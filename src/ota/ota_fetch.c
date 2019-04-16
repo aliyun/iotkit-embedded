@@ -50,8 +50,11 @@ void *ofc_Init(char *url, int offset)
                 extern const char *iotx_ca_crt;
                 pub_key = (char *)iotx_ca_crt;
             }
-#endif
             port = 443;
+#else
+            port = 80;
+#endif
+
         } else {
             OTA_LOG_ERROR("Invalid URL");
             return NULL;
