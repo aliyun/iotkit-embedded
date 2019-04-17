@@ -17,7 +17,7 @@ config AWSS_FRAMEWORKS
 config WIFI_PROVISION_ENABLED 
     bool "FEATURE_WIFI_PROVISION_ENABLED"
     select DEV_BIND_ENABLED
-    select AWSS_FRAMEWORKS if AWSS_SUPPORT_SMARTCONFIG_WPS || AWSS_SUPPORT_SMARTCONFIG || AWSS_SUPPORT_SMARTCONFIG_MCAST
+    select AWSS_FRAMEWORKS if AWSS_SUPPORT_SMARTCONFIG
     select AWSS_FRAMEWORKS if AWSS_SUPPORT_ZEROCONFIG || AWSS_SUPPORT_DEV_AP
     select AWSS_FRAMEWORKS if AWSS_SUPPORT_AHA
     select AWSS_DISABLE_ENROLLEE if !AWSS_SUPPORT_ZEROCONFIG
@@ -37,14 +37,13 @@ menu "Wifi Provision Configurations"
     depends on WIFI_PROVISION_ENABLED
 
     config AWSS_SUPPORT_SMARTCONFIG_MCAST
-        bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG_MCAST"
+        bool
         default n
-        help
-            Switching on a wifi provision method based on multi-cast smartconfig
 
     config AWSS_SUPPORT_SMARTCONFIG
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG"
         select AWSS_SUPPORT_SMARTCONFIG_WPS
+        select AWSS_SUPPORT_SMARTCONFIG_MCAST
         default y
         help
             Switching on a wifi provision method based on length-encoding

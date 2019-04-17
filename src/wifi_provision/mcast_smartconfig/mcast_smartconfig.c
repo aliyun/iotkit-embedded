@@ -1,9 +1,8 @@
 #include "wifi_provision_internal.h"
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
-
+#ifndef DISABLE_SMARTCONFIG_MCAST
 static int loop_count = 0;
 static char bssid0[ETH_ALEN] = {0};
 static int mcast_locked_channel = -1;
@@ -396,3 +395,7 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
     }
     return PKG_MCAST_FRAME;
 }
+#endif
+#if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
+}
+#endif
