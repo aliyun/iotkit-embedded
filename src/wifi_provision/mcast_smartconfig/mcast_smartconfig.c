@@ -1,27 +1,25 @@
 #include "wifi_provision_internal.h"
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
 #ifndef DISABLE_SMARTCONFIG_MCAST
-static int loop_count = 0;
-static char bssid0[ETH_ALEN] = {0};
+
+#define SUCCESS_RETURN (0)
+static int processed_packet = 0;
+static uint8_t bssid0[ETH_ALEN] = {0};
 static int mcast_locked_channel = -1;
 static struct mcast_smartconfig_data_type mcast_smartconfig_data = {0};
-
-uint8_t receive_record[MCAST_MAX_LEN] = {0};
-int check_if_all_received()
+static uint8_t receive_record[MCAST_MAX_LEN] = {0};
+int mcast_receive_done()
 {
     int iter = 0;
-    int total = 0;
     while (iter < mcast_smartconfig_data.tlen) {
-        total += receive_record[iter];
-#ifdef MCAST_DEBUG
-        awss_debug("mcast: current recored at iter is %d, %d, data is %d\n", iter, receive_record[iter],
-                   mcast_smartconfig_data.data[iter]);
-#endif
-        iter++;
+        if (0 == receive_record[iter++]) {
+             return -1;
+         }
     }
-    return total - mcast_smartconfig_data.tlen;
+    return SUCCESS_RETURN;
 }
 
 int decode_passwd()
@@ -39,7 +37,7 @@ int decode_passwd()
         AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         return -1;
     }
-    return 0;
+    return SUCCESS_RETURN;
 }
 
 int verify_checksum()
@@ -54,57 +52,77 @@ int verify_checksum()
 
 }
 
-void set_zc_bssid()
+void set_zc_ssid(int valid_bssid)
 {
+#ifdef AWSS_SUPPORT_APLIST
+    do {  /* amend SSID automatically */
+        struct ap_info *ap = NULL;
+        if (SUCCESS_RETURN != valid_bssid) {
+            break;
+        }
+        ap = zconfig_get_apinfo(zc_bssid);
+        if (ap == NULL || ap->ssid[0] == '\0') {
+            break;
+        }
+        strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
+        return;
+    } while (0);
+#endif
+    /* if we can't find ssid form aplist, we should take the default one */
+    strncpy((char *)zc_ssid, (char const *)mcast_smartconfig_data.ssid, mcast_smartconfig_data.ssid_len);
+    return;
+}
+
+int set_zc_bssid()
+{
+    /* compare the last 3 bytes of bssid from apist with the one from app */
     if (!memcmp(mcast_smartconfig_data.bssid, (uint8_t *)bssid0 + 3, 3)) {
         memcpy(zc_bssid, bssid0, ETH_ALEN);
-        awss_debug("bssid0");
+        awss_debug("bssid0 from aplist");
+        return SUCCESS_RETURN;
     } else {
 #ifdef AWSS_SUPPORT_APLIST
         struct ap_info *ap_info = zconfig_get_apinfo_by_3_byte_mac(mcast_smartconfig_data.bssid);
         if (NULL != ap_info) {
             memcpy(zc_bssid, ap_info->mac, 6);
             awss_debug("bssid1: bssid is %x,%x,%x,%x,%x,%x", zc_bssid[0], zc_bssid[1], zc_bssid[2],
-                   zc_bssid[3], zc_bssid[4], zc_bssid[5]);
+                       zc_bssid[3], zc_bssid[4], zc_bssid[5]);
+            return SUCCESS_RETURN;
         }
 #endif
     }
+    return -1;
 }
 
-static void set_zc_token()
+unsigned char output_token[16] = {0};
+void gen16ByteToken()
 {
-    int len = 0;
-    int org_token_len = 0;
-    unsigned char buff[128] = {0};
+    unsigned char buff[256] = {0};
     unsigned char gen_token[32] = {0};
-
-    uint8_t bssid_len = mcast_smartconfig_data.bssid_type_len & 0x1f;
-    uint8_t pwd_len = mcast_smartconfig_data.passwd_len;
-    uint8_t token_len = mcast_smartconfig_data.token_len;
-    awss_debug("set_zc_token bssid_len=%d pwd_len=%d token_len=%d", bssid_len, pwd_len, token_len);
-    if(bssid_len != 0 && mcast_smartconfig_data.bssid != NULL) {
-        memcpy(buff + org_token_len, mcast_smartconfig_data.bssid, bssid_len);
-        org_token_len += bssid_len;
+    int len = 0;
+    memcpy(buff, zc_bssid, ETH_ALEN);
+    len += ETH_ALEN;
+    memcpy(buff + len, mcast_smartconfig_data.bssid, mcast_smartconfig_data.token_len);
+    len += mcast_smartconfig_data.token_len;
+    memcpy(buff + len, zc_passwd, mcast_smartconfig_data.passwd_len);
+    len += mcast_smartconfig_data.passwd_len;
+    utils_sha256(buff, len, gen_token);
+    memcpy(output_token, gen_token, 16);
+#ifdef MCAST_DEBUG
+    {
+        int iter = 0;
+        for (iter = 0; iter < 16; iter++) {
+            printf("mcast: iter is, data is %d, %d\n", iter, output_token[iter]);
+        }
     }
-
-    if(token_len != 0 && mcast_smartconfig_data.token != NULL) {
-        memcpy(buff + org_token_len, mcast_smartconfig_data.token, token_len);
-        org_token_len += token_len;
-    }
-
-    if(pwd_len != 0 && 128 >= pwd_len + org_token_len) {
-        memcpy(buff + org_token_len, zc_passwd, pwd_len);
-        org_token_len += pwd_len; 
-    }
-
-    utils_sha256(buff, org_token_len, gen_token);
-    memcpy(zc_token, gen_token, 16);
+#endif
 }
+
 
 int parse_result()
 {
     int offset = 0;
-    int ret1, ret2;
+    int ret, valid_bssid;
     uint8_t BIT0_passwd = 0;
     uint8_t BIT1_ssid = 0;
     uint8_t BIT2_token = 0;
@@ -155,29 +173,30 @@ int parse_result()
     awss_debug("mcast: bssid_type_len is %d\n", mcast_smartconfig_data.bssid_type_len);
     offset++;
     mcast_smartconfig_data.bssid = &(mcast_smartconfig_data.data[offset]);
+    /* get bssid len from last 5 bits from bssid_type_len */
     offset += mcast_smartconfig_data.bssid_type_len & 0b11111;
     mcast_smartconfig_data.checksum = mcast_smartconfig_data.data[offset];
     awss_debug("mcast: checksum is %d\n", mcast_smartconfig_data.checksum);
-    awss_debug("mcast: loopcount is %d\n", loop_count);
+    awss_debug("mcast: loopcount is %d\n", processed_packet);
 
-    strncpy((char *)zc_ssid, (char const *)mcast_smartconfig_data.ssid, mcast_smartconfig_data.ssid_len);
-    ret1 = verify_checksum();
-    if (0 != ret1) {
+    /* set zc_bssid*/
+    valid_bssid = set_zc_bssid();
+    /* set zc_ssid */
+    set_zc_ssid(valid_bssid);
+    ret = verify_checksum();
+    if (SUCCESS_RETURN != ret) {
         awss_err("mcast: checksum mismatch\n");
         return -1;
     }
-    ret2 = decode_passwd();
-    if (0 != ret2) {
+    ret = decode_passwd();
+    if (SUCCESS_RETURN != ret) {
         awss_err("mcast: passwd error\n");
         return -1;
     }
-    /* TODO: add check return value */
-    set_zc_bssid();
-    /* TODO: add check return value */
-    set_zc_token();
+    gen16ByteToken();
     /* TODO: check channel info*/
     zconfig_set_state(STATE_RCV_DONE, 0, mcast_locked_channel);
-    return 0;
+    return SUCCESS_RETURN;
 }
 
 int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int link_type, struct parser_res *res,
@@ -226,6 +245,7 @@ int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int li
     }
 
     dst_mac = (uint8_t *)ieee80211_get_DA(hdr);
+    /* only multicast is passed */
     if (0x1 != dst_mac[0] || 0x0 != dst_mac[1] || 0x5e != dst_mac[2]) {
         awss_debug("error type, %x, %x, %x\n", dst_mac[0], dst_mac[1], dst_mac[2]);
         return ALINK_INVALID;    /* only handle br frame */
@@ -311,6 +331,40 @@ int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int li
 int static get_all = 0;
 int find_channel_from_aplist = 0;
 
+int lock_mcast_channel(struct parser_res *res, int encry_type)
+{
+#ifdef AWSS_SUPPORT_APLIST
+    /* fix channel with apinfo if exist, otherwise return anyway. */
+    do {
+        struct ap_info *ap_info = zconfig_get_apinfo(res->bssid);
+        extern void aws_set_dst_chan(int channel);
+        int tods = res->tods;
+        if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX) {
+            awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
+        }
+
+        if (ap_info && ap_info->encry[tods] == encry_type && ap_info->channel) {
+            if (res->channel != ap_info->channel) {
+                awss_info("fix channel from %d to %d\r\n", res->channel, ap_info->channel);
+                zc_channel = ap_info->channel;  /* fix by ap_info channel */
+                aws_set_dst_chan(zc_channel);
+            }
+        } else {
+            /* warning: channel may eq 0! */
+        };
+
+        if (ap_info) { /* save ssid */
+            strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
+        }
+        find_channel_from_aplist = 1;
+        zconfig_set_state(STATE_CHN_LOCKED_BY_MCAST, 0, res->channel);
+        memcpy(bssid0, res->bssid, ETH_ALEN);
+        mcast_locked_channel = res->channel;
+    } while (0);
+#endif
+    return  SUCCESS_RETURN;
+}
+
 int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
 {
     uint8_t index = *(res->dst + 3)  & (0x7f) ;
@@ -341,39 +395,12 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
         return -1;
     }
 
-    if (0 == find_channel_from_aplist) {
+    /* lock channel */
+    if (SUCCESS_RETURN == find_channel_from_aplist) {
         memset(zc_ssid, 0, ZC_MAX_SSID_LEN);
-#ifdef AWSS_SUPPORT_APLIST
-        /* fix channel with apinfo if exist, otherwise return anyway. */
-        do {
-            struct ap_info *ap_info = zconfig_get_apinfo(res->bssid);
-            extern void aws_set_dst_chan(int channel);
-            int tods = res->tods;
-            if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX) {
-                awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
-            }
-
-            if (ap_info && ap_info->encry[tods] == encry_type && ap_info->channel) {
-                if (res->channel != ap_info->channel) {
-                    awss_info("fix channel from %d to %d\r\n", res->channel, ap_info->channel);
-                    zc_channel = ap_info->channel;  /* fix by ap_info channel */
-                    aws_set_dst_chan(zc_channel);
-                }
-            } else {
-                /* warning: channel may eq 0! */
-            };
-
-            if (ap_info) { /* save ssid */
-                strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
-            }
-            find_channel_from_aplist = 1;
-            zconfig_set_state(STATE_CHN_LOCKED_BY_MCAST, 0, res->channel);
-            memcpy(bssid0, res->bssid, ETH_ALEN);
-            mcast_locked_channel = res->channel;
-        } while (0);
-#endif
+        lock_mcast_channel(res, encry_type);
     }
-    loop_count++;
+    processed_packet++;
 
     awss_debug("mcast: index is %d, %d, %d, %d\n", index, payload1, payload2, len);
 
@@ -386,8 +413,7 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
     if (0 != receive_record[0]) {
         int remain = -1;
         mcast_smartconfig_data.tlen = mcast_smartconfig_data.data[0];
-        remain = check_if_all_received();
-        awss_debug("mcast: cur remain is %d\n", remain);
+        remain = mcast_receive_done();
         if (0 == remain) {
             get_all = 1;
             parse_result();
@@ -397,5 +423,5 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
 }
 #endif
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-}
+
 #endif
