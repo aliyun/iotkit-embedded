@@ -246,21 +246,6 @@ static void iotx_mqtt_report_funcs(void *pclient)
 
 #ifndef ATHOST_MQTT_REPORT_DISBALED
     iotx_set_report_func(IOT_MQTT_Publish_Simple);
-    /* report module id */
-    err = iotx_report_mid(pclient);
-    if (SUCCESS_RETURN != err) {
-#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
-        mqtt_err("failed to report mid");
-#endif
-    }
-
-    /* report device info */
-    err = iotx_report_devinfo(pclient);
-    if (SUCCESS_RETURN != err) {
-#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
-        mqtt_err("failed to report devinfo");
-#endif
-    }
 
     /* report firmware version */
 #if !defined(BUILD_AOS) && !defined(MUTE_VERSION_REPORT)
