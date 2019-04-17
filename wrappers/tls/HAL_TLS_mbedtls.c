@@ -431,7 +431,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
                               const char *client_key,   size_t client_key_len,
                               const char *client_pwd, size_t client_pwd_len)
 {
+#if defined(_PLATFORM_IS_LINUX_)
     struct in_addr in;
+#endif /* #if defined(_PLATFORM_IS_LINUX_) */
     int ret = -1;
     /*
      * 0. Init
@@ -505,10 +507,16 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         return ret;
     }
 
+#if defined(_PLATFORM_IS_LINUX_)
     /* only set hostname when addr isn't ip string and hostname isn't preauth_shanghai */
     if (inet_aton(addr, &in) == 0 && strcmp("iot-auth-pre.cn-shanghai.aliyuncs.com", addr)) {
         mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
     }
+#else
+    if (strcmp("iot-auth-pre.cn-shanghai.aliyuncs.com", addr)) {
+        mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
+    }
+#endif /* #if defined(_PLATFORM_IS_LINUX_) */
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
 #if defined(TLS_SAVE_TICKET)
