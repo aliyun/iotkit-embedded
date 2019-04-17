@@ -51,7 +51,7 @@ menu "Wifi Provision Configurations"
         select AWSS_SUPPORT_SMARTCONFIG_WPS
         default y
         help
-            Switching on a wifi provision method based on len-encoding
+            Switching on a wifi provision method based on length-encoding
 
     config AWSS_SUPPORT_ZEROCONFIG
         bool "FEATURE_AWSS_SUPPORT_ZEROCONFIG"
@@ -61,11 +61,10 @@ menu "Wifi Provision Configurations"
             Switching on a wifi provision method based on zero-config, which shares ssid/passwd between devices
 
     config AWSS_SUPPORT_AHA
-        bool "FEATURE_AWSS_SUPPORT_AHA, ADHA"
+        bool "FEATURE_AWSS_SUPPORT_AHA"
         default n
         help
             Switching on a wifi provision method based on phone-ap, which tells the ssid/passwd to the devices connected to it
-            Switching on a wifi provision method based on router-ap, which tells the ssid/passwd to the devices connected to it
 
     config AWSS_SUPPORT_DEV_AP
         bool "FEATURE_AWSS_SUPPORT_DEV_AP"
