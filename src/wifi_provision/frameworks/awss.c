@@ -171,11 +171,6 @@ uint8_t awss_get_config_press(void)
     return g_user_press;
 }
 
-void awss_set_config_press(uint8_t press)
-{
-    g_user_press = press;
-}
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

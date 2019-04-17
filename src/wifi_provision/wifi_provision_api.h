@@ -45,7 +45,6 @@ DLL_IOT_API int awss_config_press(void);
  * @retval  0 : user don't touch device
  */
 DLL_IOT_API uint8_t awss_get_config_press(void);
-DLL_IOT_API void awss_set_config_press(uint8_t press);
 
 /**
  * @brief   check reset flag in perisistent storage.
