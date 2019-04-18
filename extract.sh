@@ -28,7 +28,8 @@ env_check()
 
 extract_from_cloud()
 {
-    EXTRACT_ID=$(curl --connect-timeout 5 -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z)
+    OS=$(uname)
+    EXTRACT_ID=$(curl --connect-timeout 5 -sF "file=@make.settings" --url https://linkkit.aliyuncs.com/upload/config?pk=a1AuWIoEr4Z\&os=${OS})
     # echo ${EXTRACT_ID}
     RETRY_COUNT=0
     if [ "${EXTRACT_ID}" != "" ];then
