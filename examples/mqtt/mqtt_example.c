@@ -19,8 +19,8 @@
 /* These are pre-defined topics */
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
-#define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
-#define TOPIC_DATA               "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
+#define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/user/get"
+#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/user/data"
 
 #define MQTT_MSGLEN             (1024)
 
