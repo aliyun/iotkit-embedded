@@ -33,8 +33,6 @@
     #define DM_READ_ONLY
 #endif
 
-#define _BSD_SOURCE
-
 #include <stdlib.h>
 
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
