@@ -49,7 +49,7 @@ uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt,
 int32_t HAL_SSL_Destroy(uintptr_t handle);
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
 int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms);
-int HAL_SSLHooks_set(ssl_hooks_t *hooks);
+int ssl_hooks_set(ssl_hooks_t *hooks);
 int HAL_GetProductKey(char *product_key);
 int HAL_GetProductSecret(char *product_secret);
 
@@ -114,7 +114,7 @@ static int connect_ssl(utils_network_pt pNetwork)
     ssl_hooks.malloc = ssl_malloc;
     ssl_hooks.free = ssl_free;
 
-    HAL_SSLHooks_set(&ssl_hooks);
+    ssl_hooks_set(&ssl_hooks);
 
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,

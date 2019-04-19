@@ -733,7 +733,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     return 0;
 }
 
-int HAL_SSLHooks_set(ssl_hooks_t *hooks)
+int ssl_hooks_set(ssl_hooks_t *hooks)
 {
     if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
         return -1;
