@@ -30,10 +30,10 @@ char g_device_name[DEVICE_NAME_LEN + 1];
 char g_device_secret[DEVICE_SECRET_LEN + 1];
 
 /* These are pre-defined topics */
-#define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
-#define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
-#define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
-#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
+#define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/user/update"
+#define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/user/update/error"
+#define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/user/get"
+#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/user/data"
 
 #define OTA_MQTT_MSGLEN         (2048)
 

@@ -20,8 +20,8 @@
 /* These are pre-defined topics */
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
-#define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
-#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
+#define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/user/get"
+#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/user/data"
 
 #define MQTT_MSGLEN             (1024)
 
@@ -390,7 +390,7 @@ int mqtt_client(void *params)
     g_thread_pub_2_running = 0;
     g_thread_yield_running = 0;
     HAL_SleepMs(5000);
-    
+
 do_exit:
 
     HAL_ThreadDelete(g_thread_sub_unsub_1);

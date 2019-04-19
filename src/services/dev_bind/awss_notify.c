@@ -270,7 +270,7 @@ static int awss_process_get_devinfo()
         } else {
             awss_build_topic((const char *)TOPIC_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
         }
-
+        awss_update_token();
         if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request))
             awss_debug("sending failed.");
 
@@ -279,7 +279,7 @@ static int awss_process_get_devinfo()
         coap_session_ctx = NULL;
         awss_stop_timer(get_devinfo_timer);
         get_devinfo_timer = NULL;
-        awss_update_token();
+
     } while (0);
 
     return 0;
