@@ -19,7 +19,10 @@
 
 env_check()
 {
-    awk --help > /dev/null 2>&1
+    if [ "${OS}" = "Linux" ]; then
+        export PATH=tools/prebuilt/ubuntu/bin:${PATH}
+    fi
+    gawk --help > /dev/null 2>&1
     if [ "$?" != "0" ];then
         echo "Please install gawk, using sudo apt-get install gawk for ubuntu 16.04"
         exit
@@ -123,7 +126,7 @@ ${FIND} ./src -name "infra_compat.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
 
 cond_and_check()
 {
-    COND_AND_VAR=$(echo $1 | awk -F '&' '{for(i=1;i<=NF;i++){print $i;}}')
+    COND_AND_VAR=$(echo $1 | gawk -F '&' '{for(i=1;i<=NF;i++){print $i;}}')
     # echo "${COND_AND_VAR}"
     for item in ${COND_AND_VAR}
     do
@@ -137,7 +140,7 @@ cond_and_check()
 
 cond_not_check()
 {
-    COND_NOT_VAR=$(echo $1 | awk -F '&' '{for(i=1;i<=NF;i++){print $i;}}')
+    COND_NOT_VAR=$(echo $1 | gawk -F '&' '{for(i=1;i<=NF;i++){print $i;}}')
     # echo "${COND_AND_VAR}"
     for item in ${COND_NOT_VAR}
     do
@@ -155,10 +158,10 @@ extract_file_by()
 {
     local rule="$*"
 
-    COND_AND=$(echo $rule | awk -F'|' '{print $1}')
-    COND_NOT=$(echo $rule | awk -F'|' '{print $2}')
-    SRC_DIR=$(echo $rule | awk -F'|' '{print $3}')
-    DEST_DIR=$(echo $rule | awk -F'|' '{print $4}')
+    COND_AND=$(echo $rule | gawk -F'|' '{print $1}')
+    COND_NOT=$(echo $rule | gawk -F'|' '{print $2}')
+    SRC_DIR=$(echo $rule | gawk -F'|' '{print $3}')
+    DEST_DIR=$(echo $rule | gawk -F'|' '{print $4}')
 
     # echo "${COND_AND}"
     cond_and_check "${COND_AND}"
@@ -195,8 +198,8 @@ grep ${SWCH_PAT} ${XTRC_WRAPPER_RULS} > ${TEMP_WRAPPER_RULS}
 FUNC_NAME_LIST=""
 HEADER_FILE_LIST=""
 
-FUNC_NAME_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|awk -F '|' '{ print $3 }'|sort -u)
-HEADER_FILE_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|awk -F '|' '{ print $4 }'|sort -u)
+FUNC_NAME_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|gawk -F '|' '{ print $3 }'|sort -u)
+HEADER_FILE_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|gawk -F '|' '{ print $4 }'|sort -u)
 
 FUNC_PAT="$(echo ${FUNC_NAME_LIST}|sed 's: :\\\|:g')"
 HDER_PAT="$(echo ${HEADER_FILE_LIST}|sed 's: :\\\|:g')"
@@ -221,14 +224,14 @@ HEADER_FILE_LIST="$(echo ${HEADER_FILE_LIST}|tr ' ' '\n')\n"
 
 echo ""
 # Read xtrc_file_rules
-TOTAL_ITERATION=$(wc -l ${TEMP_FILE_RULS}|awk '{ print $1 }')
+TOTAL_ITERATION=$(wc -l ${TEMP_FILE_RULS}|gawk '{ print $1 }')
 ITER=0
 
 while read rule
 do
     ITER=$(( ${ITER} + 1 ))
     printf "\r%.40s %.2f%%" "Extract Files ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
-    TEST=$(echo $rule | awk -F'|' '{print NF}')
+    TEST=$(echo $rule | gawk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
         continue
     fi
@@ -251,22 +254,22 @@ mkdir -p ${WRAPPERS_DIR}
 cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
 # Read xtrc_wrapper_rules
-TOTAL_ITERATION=$(wc -l ${TEMP_WRAPPER_RULS}|awk '{ print $1 }')
+TOTAL_ITERATION=$(wc -l ${TEMP_WRAPPER_RULS}|gawk '{ print $1 }')
 ITER=0
 
 while read rule
 do
     ITER=$(( ${ITER} + 1 ))
     printf "\r%.40s %.2f%%" "Extract HAL/Wrapper Functions ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
-    TEST=$(echo $rule | awk -F'|' '{print NF}')
+    TEST=$(echo $rule | gawk -F'|' '{print NF}')
     if [ ${TEST} -ne 4 ];then
         continue
     fi
 
-    COND_AND=$(echo $rule | awk -F'|' '{print $1}')
-    COND_NOT=$(echo $rule | awk -F'|' '{print $2}')
-    FUNC_NAME=$(echo $rule | awk -F'|' '{print $3}')
-    HEADER_FILE=$(echo $rule | awk -F'|' '{print $4}')
+    COND_AND=$(echo $rule | gawk -F'|' '{print $1}')
+    COND_NOT=$(echo $rule | gawk -F'|' '{print $2}')
+    FUNC_NAME=$(echo $rule | gawk -F'|' '{print $3}')
+    HEADER_FILE=$(echo $rule | gawk -F'|' '{print $4}')
 
     # echo "${COND_AND}"
     cond_and_check "${COND_AND}"
@@ -296,11 +299,11 @@ HEADER_FILE_LIST=$(echo -e "${HEADER_FILE_LIST}" | sed -n '/^$/!{p}' | sort -u)
 
 # For Debug
 if [ "${FUNC_NAME_LIST}" != "" ];then
-    echo -e "\nHAL/Wrapper Function List:" && echo -e "${FUNC_NAME_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }'
+    echo -e "\nHAL/Wrapper Function List:" && echo -e "${FUNC_NAME_LIST}" |gawk '{ printf("%03d %s\n", NR, $0); }'
 fi
 
 if [ "${HEADER_FILE_LIST}" != "" ];then
-    echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |awk '{ printf("%03d %s\n", NR, $0); }'
+    echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |gawk '{ printf("%03d %s\n", NR, $0); }'
 fi
 
 # Annotation For wrapper.c
@@ -332,7 +335,7 @@ do
     FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {})
     FUNC_DEC=$(echo "${FUNC_DEC}" | sed -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
     
-    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | awk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | sed s/[[:space:]]//g)
+    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | sed s/[[:space:]]//g)
     # echo -e "\n${DATA_TYPE}"
 
     sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
@@ -356,8 +359,8 @@ echo -e "#include \"infra_types.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"infra_compat.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
-find ${OUTPUT_DIR}/eng -name "*wrapper.h" | awk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
-find ${OUTPUT_DIR}/eng -name "*api.h" | awk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
+find ${OUTPUT_DIR}/eng -name "*wrapper.h" | gawk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
+find ${OUTPUT_DIR}/eng -name "*api.h" | gawk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/sdk_include.h
 
 # if echo "${SWITCHES}"|grep -qw "DEVICE_MODEL_ENABLED"; then
@@ -371,7 +374,7 @@ echo ""
 
 cp tools/misc/makefile.output output/Makefile
 if [ "${1}" = "test" ];then
-    ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| awk -F ':' '{print $2}')
+    ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| gawk -F ':' '{print $2}')
     if [ "${ENV_TEST}" = "ubuntu" ];then
         rm -f ${WRAPPERS_DIR}/wrapper.c
         cp -rf wrappers/os/ubuntu ${WRAPPERS_DIR}/
