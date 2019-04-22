@@ -239,7 +239,8 @@ typedef enum {
     IOTX_IOCTL_SET_OTA_DEV_ID,          /* value(int*):     select the device to do OTA according to devid */
     IOTX_IOCTL_FOTA_TIMEOUT_MS,         /* value(int*): set Firmware OTA max retry timeout */
     IOTX_IOCTL_SET_CUSTOMIZE_INFO,      /* value(char*): set mqtt clientID customize information */
-    IOTX_IOCTL_SET_MQTT_PORT            /* value(uint16_t *) modify mqtt server port number */
+    IOTX_IOCTL_SET_MQTT_PORT,           /* value(uint16_t *) modify mqtt server port number */
+    IOTX_IOCTL_SET_PROXY_REGISTER       /* value(int*): 0 - Disable proxy product register, 1 - Enable proxy product register */
 } iotx_ioctl_option_t;
 
 typedef enum {

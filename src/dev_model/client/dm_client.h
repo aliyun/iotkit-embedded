@@ -10,7 +10,8 @@ typedef struct {
 
 void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context);
 
-int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1], int dev_type);
+int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1],
+                            int dev_type);
 
 void dm_client_thing_model_down_raw(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                     void *context);
@@ -47,7 +48,8 @@ void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigne
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY
-int dm_client_subdev_unsubscribe(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+int dm_client_subdev_unsubscribe(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                 char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 void dm_client_thing_topo_add_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                      void *context);
 void dm_client_thing_disable(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context);
@@ -57,6 +59,9 @@ void dm_client_thing_gateway_permit(int fd, const char *topic, const char *paylo
                                     void *context);
 void dm_client_thing_sub_register_reply(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                         void *context);
+void dm_client_thing_proxy_product_register_reply(int fd, const char *topic, const char *payload,
+        unsigned int payload_len,
+        void *context);
 void dm_client_thing_sub_unregister_reply(int fd, const char *topic, const char *payload, unsigned int payload_len,
         void *context);
 void dm_client_thing_topo_add_reply(int fd, const char *topic, const char *payload, unsigned int payload_len,

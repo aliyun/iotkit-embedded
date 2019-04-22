@@ -636,6 +636,7 @@ int iotx_dm_query_topo_list(void)
 }
 
 int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                          _IN_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1],
                           _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid)
 {
@@ -653,7 +654,7 @@ int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     }
 
     _dm_api_lock();
-    res = dm_mgr_device_create(IOTX_DM_DEVICE_SUBDEV, product_key, device_name, device_secret, devid);
+    res = dm_mgr_device_create(IOTX_DM_DEVICE_SUBDEV, product_key, product_secret, device_name, device_secret, devid);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
         return FAIL_RETURN;
@@ -714,6 +715,33 @@ int iotx_dm_subdev_register(_IN_ int devid)
     }
 
     res = dm_mgr_upstream_thing_sub_register(devid);
+
+    _dm_api_unlock();
+    return res;
+}
+
+int iotx_dm_subdev_proxy_register(_IN_ int devid)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *search_node = NULL;
+
+    if (devid < 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_search_device_node_by_devid(devid, (void **)&search_node);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    if ((strlen(search_node->device_secret) > 0) && (strlen(search_node->device_secret) < IOTX_DEVICE_SECRET_LEN + 1)) {
+        _dm_api_unlock();
+        return SUCCESS_RETURN;
+    }
+
+    res = dm_mgr_upstream_thing_proxy_product_register(devid);
 
     _dm_api_unlock();
     return res;

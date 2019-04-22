@@ -6,6 +6,7 @@
 
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 #include "dev_model_api.h"
+#include "dm_opt.h"
 
 #ifdef LOG_REPORT_TO_CLOUD
     #include "iotx_log_report.h"
@@ -58,7 +59,7 @@ typedef enum {
 } iotx_service_req_type_t;
 
 typedef struct {
-    char rrpc_id[IOTX_LINKKIT_RRPC_ID_LEN+1];
+    char rrpc_id[IOTX_LINKKIT_RRPC_ID_LEN + 1];
 } service_meta_rrpc_t;
 
 typedef struct {
@@ -156,7 +157,7 @@ static void _linkkit_service_list_mutex_unlock(void)
 }
 
 static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgid, char *rrpcid, int rrpcid_len,
-                                         void *alcs_ctx, void **p_node)
+                                        void *alcs_ctx, void **p_node)
 {
     iotx_service_ctx_node_t *insert_node = NULL;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
@@ -184,8 +185,7 @@ static int _linkkit_service_list_insert(iotx_service_req_type_t type, char *msgi
             return FAIL_RETURN;
         }
         memcpy(insert_node->service_meta.rrpc.rrpc_id, rrpcid, rrpcid_len);
-    }
-    else if (type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+    } else if (type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
         insert_node->service_meta.general.alcs_ctx = alcs_ctx;
     }
 
@@ -224,8 +224,7 @@ static int _linkkit_service_list_delete(iotx_service_ctx_node_t *node)
     if (node->type == IOTX_SERVICE_REQ_TYPE_RRPC) {
         list_del(&node->linked_list);
         IMPL_LINKKIT_FREE(node);
-    }
-    else if (node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+    } else if (node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
         void *alcs_ctx = node->service_meta.general.alcs_ctx;
         list_del(&node->linked_list);
 #ifdef ALCS_ENABLED
@@ -252,11 +251,10 @@ static int _linkkit_service_list_destroy(void)
     _linkkit_service_list_mutex_lock();
     list_for_each_entry_safe(search_node, temp, &ctx->downstream_service_list, linked_list, iotx_service_ctx_node_t) {
         if (search_node->type == IOTX_SERVICE_REQ_TYPE_RRPC ||
-            search_node->type == IOTX_SERVICE_REQ_TYPE_GENERAL ) {
+            search_node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
             list_del(&search_node->linked_list);
             IMPL_LINKKIT_FREE(search_node);
-        }
-        else if (search_node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+        } else if (search_node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
             void *alcs_ctx = search_node->service_meta.general.alcs_ctx;
             list_del(&search_node->linked_list);
 #ifdef ALCS_ENABLED
@@ -614,10 +612,12 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             callback = iotx_event_callback(ITE_SERVICE_REQUEST_EXT);
             if (callback) {
                 void *service_ctx = NULL;
-                _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_GENERAL, lite_item_id.value, NULL, 0, property_get_ctx, &service_ctx);
+                _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_GENERAL, lite_item_id.value, NULL, 0, property_get_ctx,
+                                             &service_ctx);
                 if (service_ctx != NULL) {
-                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
-                                                    lite_item_serviceid.value_length, request, lite_item_payload.value_length, service_ctx);
+                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
+                            lite_item_serviceid.value,
+                            lite_item_serviceid.value_length, request, lite_item_payload.value_length, service_ctx);
                 }
             }
 
@@ -895,10 +895,11 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             if (callback) {
                 void *service_ctx = NULL;
                 _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_RRPC, lite_item_id.value, lite_item_rrpcid.value,
-                                            lite_item_rrpcid.value_length, NULL, &service_ctx);
+                                             lite_item_rrpcid.value_length, NULL, &service_ctx);
                 if (service_ctx != NULL) {
-                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
-                                                    lite_item_serviceid.value_length, rrpc_request, lite_item_payload.value_length, service_ctx);
+                    res = ((int (*)(int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
+                            lite_item_serviceid.value,
+                            lite_item_serviceid.value_length, rrpc_request, lite_item_payload.value_length, service_ctx);
                 }
             }
 
@@ -1032,7 +1033,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = iotx_event_callback(ITE_CLOUD_ERROR);
             if (callback) {
-                ((int (*)(int ,const char *,const char *))callback)(lite_item_code.value_int, err_data, err_detail);
+                ((int (*)(int, const char *, const char *))callback)(lite_item_code.value_int, err_data, err_detail);
             }
             IMPL_LINKKIT_FREE(err_data);
             IMPL_LINKKIT_FREE(err_detail);
@@ -1072,6 +1073,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_TOPO_DELETE_REPLY:
         case IOTX_DM_EVENT_TOPO_ADD_REPLY:
         case IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY:
+        case IOTX_DM_EVENT_PROXY_PRODUCT_REGISTER_REPLY:
         case IOTX_DM_EVENT_COMBINE_LOGIN_REPLY:
         case IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY: {
             if (payload == NULL || lite_item_id.type != cJSON_Number || lite_item_devid.type != cJSON_Number ||
@@ -1192,7 +1194,8 @@ static int _iotx_linkkit_slave_open(iotx_linkkit_dev_meta_info_t *meta_info)
         return FAIL_RETURN;
     }
 
-    res = iotx_dm_subdev_create(meta_info->product_key, meta_info->device_name, meta_info->device_secret, &devid);
+    res = iotx_dm_subdev_create(meta_info->product_key, meta_info->product_secret, meta_info->device_name,
+                                meta_info->device_secret, &devid);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
@@ -1240,6 +1243,7 @@ static int _iotx_linkkit_master_connect(void)
 static int _iotx_linkkit_slave_connect(int devid)
 {
     int res = 0, msgid = 0, code = 0;
+    int proxy_product_register = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     iotx_linkkit_upstream_sync_callback_node_t *node = NULL;
     void *semaphore = NULL;
@@ -1254,10 +1258,23 @@ static int _iotx_linkkit_slave_connect(int devid)
         return FAIL_RETURN;
     }
 
-    /* Subdev Register */
-    res = iotx_dm_subdev_register(devid);
+    res = iotx_dm_get_opt(DM_OPT_PROXY_PRODUCT_REGISTER, (void *)&proxy_product_register);
     if (res < SUCCESS_RETURN) {
+        dm_log_err("get proxy_product_register opt failed");
         return FAIL_RETURN;
+    }
+
+    /* Subdev Register */
+    if (proxy_product_register) {
+        res = iotx_dm_subdev_proxy_register(devid);
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }
+    } else {
+        res = iotx_dm_subdev_register(devid);
+        if (res < SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }
     }
 
     if (res > SUCCESS_RETURN) {
@@ -1902,12 +1919,11 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
     if (service_ctx->type == IOTX_SERVICE_REQ_TYPE_RRPC) {
         char *rrpc_id = service_ctx->service_meta.rrpc.rrpc_id;
         res = iotx_dm_send_rrpc_response(devid, msgid, strlen(msgid), 200, rrpc_id, strlen(rrpc_id),
-                                payload, payload_len);
-    }
-    else if (service_ctx->type == IOTX_SERVICE_REQ_TYPE_GENERAL) { /* alcs/normal service response */
+                                         payload, payload_len);
+    } else if (service_ctx->type == IOTX_SERVICE_REQ_TYPE_GENERAL) { /* alcs/normal service response */
         void *alcs_ctx = service_ctx->service_meta.general.alcs_ctx;
         res = iotx_dm_send_service_response(devid, msgid, strlen(msgid), 200, serviceid, serviceid_len,
-                                      payload, payload_len, alcs_ctx);
+                                            payload, payload_len, alcs_ctx);
     }
 
     _linkkit_service_list_mutex_lock();

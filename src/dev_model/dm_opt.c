@@ -6,7 +6,7 @@
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 
 static dm_opt_ctx g_dm_opt = {
-    0, 0, 1, 1, 1, 60*1000
+    0, 0, 1, 1, 1, 60 * 1000, 0
 };
 
 int dm_opt_set(dm_opt_t opt, void *data)
@@ -48,6 +48,11 @@ int dm_opt_set(dm_opt_t opt, void *data)
         case DM_OPT_FOTA_RETRY_TIMEOUT_MS: {
             int opt = *(int *)(data);
             g_dm_opt.fota_retry_timeout_ms = opt;
+        }
+        break;
+        case DM_OPT_PROXY_PRODUCT_REGISTER: {
+            int opt = *(int *)(data);
+            g_dm_opt.proxy_product_register = opt;
         }
         break;
         default: {
@@ -92,6 +97,10 @@ int dm_opt_get(dm_opt_t opt, void *data)
 #endif
         case DM_OPT_FOTA_RETRY_TIMEOUT_MS: {
             *(int *)(data) = g_dm_opt.fota_retry_timeout_ms;
+        }
+        break;
+        case DM_OPT_PROXY_PRODUCT_REGISTER: {
+            *(int *)(data) = g_dm_opt.proxy_product_register;
         }
         break;
         default: {

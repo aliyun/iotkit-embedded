@@ -76,22 +76,24 @@ const char DM_URI_DEV_CORE_SERVICE_DEV[]              DM_READ_ONLY = "/dev/core/
     const char DM_URI_THING_GATEWAY_PERMIT_REPLY[]        DM_READ_ONLY = "thing/gateway/permit_reply";
 
     /* From Local To Cloud Request And Response*/
-    const char DM_URI_THING_SUB_REGISTER[]                DM_READ_ONLY = "thing/sub/register";
-    const char DM_URI_THING_SUB_REGISTER_REPLY[]          DM_READ_ONLY = "thing/sub/register_reply";
-    const char DM_URI_THING_SUB_UNREGISTER[]              DM_READ_ONLY = "thing/sub/unregister";
-    const char DM_URI_THING_SUB_UNREGISTER_REPLY[]        DM_READ_ONLY = "thing/sub/unregister_reply";
-    const char DM_URI_THING_TOPO_ADD[]                    DM_READ_ONLY = "thing/topo/add";
-    const char DM_URI_THING_TOPO_ADD_REPLY[]              DM_READ_ONLY = "thing/topo/add_reply";
-    const char DM_URI_THING_TOPO_DELETE[]                 DM_READ_ONLY = "thing/topo/delete";
-    const char DM_URI_THING_TOPO_DELETE_REPLY[]           DM_READ_ONLY = "thing/topo/delete_reply";
-    const char DM_URI_THING_TOPO_GET[]                    DM_READ_ONLY = "thing/topo/get";
-    const char DM_URI_THING_TOPO_GET_REPLY[]              DM_READ_ONLY = "thing/topo/get_reply";
-    const char DM_URI_THING_LIST_FOUND[]                  DM_READ_ONLY = "thing/list/found";
-    const char DM_URI_THING_LIST_FOUND_REPLY[]            DM_READ_ONLY = "thing/list/found_reply";
-    const char DM_URI_COMBINE_LOGIN[]                     DM_READ_ONLY = "combine/login";
-    const char DM_URI_COMBINE_LOGIN_REPLY[]               DM_READ_ONLY = "combine/login_reply";
-    const char DM_URI_COMBINE_LOGOUT[]                    DM_READ_ONLY = "combine/logout";
-    const char DM_URI_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY = "combine/logout_reply";
+    const char DM_URI_THING_SUB_REGISTER[]                 DM_READ_ONLY = "thing/sub/register";
+    const char DM_URI_THING_SUB_REGISTER_REPLY[]           DM_READ_ONLY = "thing/sub/register_reply";
+    const char DM_URI_THING_PROXY_PRODUCT_REGISTER[]       DM_READ_ONLY = "thing/proxy/provisioning/product_register";
+    const char DM_URI_THING_PROXY_PRODUCT_REGISTER_REPLY[] DM_READ_ONLY = "thing/proxy/provisioning/product_register_reply";
+    const char DM_URI_THING_SUB_UNREGISTER[]               DM_READ_ONLY = "thing/sub/unregister";
+    const char DM_URI_THING_SUB_UNREGISTER_REPLY[]         DM_READ_ONLY = "thing/sub/unregister_reply";
+    const char DM_URI_THING_TOPO_ADD[]                     DM_READ_ONLY = "thing/topo/add";
+    const char DM_URI_THING_TOPO_ADD_REPLY[]               DM_READ_ONLY = "thing/topo/add_reply";
+    const char DM_URI_THING_TOPO_DELETE[]                  DM_READ_ONLY = "thing/topo/delete";
+    const char DM_URI_THING_TOPO_DELETE_REPLY[]            DM_READ_ONLY = "thing/topo/delete_reply";
+    const char DM_URI_THING_TOPO_GET[]                     DM_READ_ONLY = "thing/topo/get";
+    const char DM_URI_THING_TOPO_GET_REPLY[]               DM_READ_ONLY = "thing/topo/get_reply";
+    const char DM_URI_THING_LIST_FOUND[]                   DM_READ_ONLY = "thing/list/found";
+    const char DM_URI_THING_LIST_FOUND_REPLY[]             DM_READ_ONLY = "thing/list/found_reply";
+    const char DM_URI_COMBINE_LOGIN[]                      DM_READ_ONLY = "combine/login";
+    const char DM_URI_COMBINE_LOGIN_REPLY[]                DM_READ_ONLY = "combine/login_reply";
+    const char DM_URI_COMBINE_LOGOUT[]                     DM_READ_ONLY = "combine/logout";
+    const char DM_URI_COMBINE_LOGOUT_REPLY[]               DM_READ_ONLY = "combine/logout_reply";
 #endif
 
 int dm_msg_proc_thing_model_down_raw(_IN_ dm_msg_source_t *source)
@@ -726,6 +728,37 @@ int dm_msg_proc_thing_sub_register_reply(_IN_ dm_msg_source_t *source)
 #endif
 
     return SUCCESS_RETURN;
+}
+
+int dm_msg_proc_thing_proxy_product_register_reply(_IN_ dm_msg_source_t *source)
+{
+    int res = 0;
+    dm_msg_response_payload_t response;
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+#endif
+
+    dm_log_info(DM_URI_THING_PROXY_PRODUCT_REGISTER_REPLY);
+
+    memset(&response, 0, sizeof(dm_msg_response_payload_t));
+
+    /* Response */
+    res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Operation */
+    dm_msg_thing_proxy_product_register_reply(&response);
+
+    /* Remove Message From Cache */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    memcpy(int_id, response.id.value, response.id.value_length);
+    dm_msg_cache_remove(atoi(int_id));
+#endif
+    return SUCCESS_RETURN;
+
+    return 0;
 }
 
 int dm_msg_proc_thing_sub_unregister_reply(_IN_ dm_msg_source_t *source)

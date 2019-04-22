@@ -77,6 +77,7 @@ typedef enum {
     IOTX_DM_EVENT_MODEL_DOWN_RAW,
     IOTX_DM_EVENT_GATEWAY_PERMIT,
     IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY,
+    IOTX_DM_EVENT_PROXY_PRODUCT_REGISTER_REPLY,
     IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY,
     IOTX_DM_EVENT_TOPO_ADD_REPLY,
     IOTX_DM_EVENT_TOPO_DELETE_REPLY,
@@ -211,11 +212,14 @@ int iotx_dm_fota_request_image(_IN_ const char *version, _IN_ int buffer_len);
 
 #ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void);
-int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                          _IN_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1],
+                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid);
 int iotx_dm_subdev_destroy(_IN_ int devid);
 int iotx_dm_subdev_number(void);
 int iotx_dm_subdev_register(_IN_ int devid);
+int iotx_dm_subdev_proxy_register(_IN_ int devid);
 int iotx_dm_subdev_unregister(_IN_ int devid);
 int iotx_dm_subdev_topo_add(_IN_ int devid);
 int iotx_dm_subdev_topo_del(_IN_ int devid);

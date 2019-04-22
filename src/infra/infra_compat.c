@@ -198,6 +198,12 @@ int IOT_Ioctl(int option, void *data)
             res = SUCCESS_RETURN;
         }
         break;
+#if defined(DEVICE_MODEL_GATEWAY)
+        case IOTX_IOCTL_SET_PROXY_REGISTER: {
+            res = iotx_dm_set_opt(DM_OPT_PROXY_PRODUCT_REGISTER, data);
+        }
+        break;
+#endif
         default: {
             res = FAIL_RETURN;
         }

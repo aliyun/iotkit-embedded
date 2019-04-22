@@ -211,14 +211,16 @@ int dm_mgr_deinit(void)
 }
 
 int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1],
                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid)
 {
     int res = 0;
     dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
     dm_mgr_dev_node_t *node = NULL;
 
-    if (product_key == NULL || device_name == NULL ||
+    if (product_key == NULL || product_secret == NULL || device_name == NULL ||
         strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1 ||
+        strlen(product_secret) >= IOTX_PRODUCT_SECRET_LEN + 1 ||
         strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) {
         return DM_INVALID_PARAMETER;
     }
@@ -248,6 +250,7 @@ int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_K
     node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
 #endif
     memcpy(node->product_key, product_key, strlen(product_key));
+    memcpy(node->product_secret, product_secret, strlen(product_secret));
     memcpy(node->device_name, device_name, strlen(device_name));
     if (device_secret != NULL) {
         memcpy(node->device_secret, device_secret, strlen(device_secret));
@@ -291,7 +294,7 @@ int dm_mgr_device_destroy(_IN_ int devid)
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY
-    dm_client_subdev_unsubscribe(node->product_key,node->device_name);
+    dm_client_subdev_unsubscribe(node->product_key, node->device_name);
 #endif
 
     DM_free(node);
@@ -379,7 +382,8 @@ int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[IOTX_PRO
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                 _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                  _OU_ int *devid)
 {
     int res = 0;
@@ -475,7 +479,8 @@ int dm_mgr_set_dev_disable(_IN_ int devid)
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                          _OU_ iotx_dm_dev_avail_t *status)
 {
     int res = 0;
@@ -615,6 +620,55 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 
     /* Callback */
     request.callback = dm_client_thing_sub_register_reply;
+
+    /* Send Message To Cloud */
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (res == SUCCESS_RETURN) {
+        dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY, NULL);
+        res = request.msgid;
+    }
+#endif
+    DM_free(request.params);
+
+    return res;
+}
+
+int dm_mgr_upstream_thing_proxy_product_register(_IN_ int devid)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+    dm_msg_request_t request;
+
+    if (devid < 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_PROXY_PRODUCT_REGISTER;
+    HAL_GetProductKey(request.product_key);
+    HAL_GetDeviceName(request.device_name);
+
+    /* Get Params And Method */
+    res = dm_msg_thing_proxy_product_register(node->product_key, node->product_secret, node->device_name, &request);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Get Msg ID */
+    request.msgid = iotx_report_id();
+
+    /* Get Dev ID */
+    request.devid = devid;
+
+    /* Callback */
+    request.callback = dm_client_thing_proxy_product_register_reply;
 
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);

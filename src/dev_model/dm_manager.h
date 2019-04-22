@@ -17,6 +17,7 @@ typedef struct {
     iotx_dm_tsl_source_t tsl_source;
 #endif
     char product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
     char device_name[IOTX_DEVICE_NAME_LEN + 1];
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
     iotx_dm_dev_avail_t status;
@@ -33,6 +34,7 @@ typedef struct {
 int dm_mgr_init(void);
 int dm_mgr_deinit(void);
 int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1],
                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid);
 int dm_mgr_device_destroy(_IN_ int devid);
 int dm_mgr_device_number(void);
@@ -40,14 +42,16 @@ int dm_mgr_get_devid_by_index(_IN_ int index, _OU_ int *devid);
 int dm_mgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next);
 int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                                   _OU_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
-int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                 _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                                  _OU_ int *devid);
 int dm_mgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node);
 
 int dm_mgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type);
 int dm_mgr_set_dev_enable(_IN_ int devid);
 int dm_mgr_set_dev_disable(_IN_ int devid);
-int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                          _OU_ iotx_dm_dev_avail_t *status);
 int dm_mgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status);
 int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
@@ -58,6 +62,7 @@ int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *pay
 
 #ifdef DEVICE_MODEL_GATEWAY
     int dm_mgr_upstream_thing_sub_register(_IN_ int devid);
+    int dm_mgr_upstream_thing_proxy_product_register(_IN_ int devid);
     int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid);
     int dm_mgr_upstream_thing_topo_add(_IN_ int devid);
     int dm_mgr_upstream_thing_topo_delete(_IN_ int devid);

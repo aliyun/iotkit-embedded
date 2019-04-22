@@ -960,7 +960,7 @@ int dm_msg_ext_error_response(char *payload, int payload_len)
     strncpy(message, payload, payload_len);
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_ERROR, message);
     if (res != SUCCESS_RETURN) {
-         DM_free(message);
+        DM_free(message);
         return FAIL_RETURN;
     }
 
@@ -1026,7 +1026,7 @@ int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
         memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
         memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
 
-        res = dm_mgr_device_create(IOTX_DM_DEVICE_SUBDEV, product_key, device_name, NULL, &devid);
+        res = dm_mgr_device_create(IOTX_DM_DEVICE_SUBDEV, product_key, "", device_name, NULL, &devid);
         if (res != SUCCESS_RETURN) {
             ret = FAIL_RETURN;
         }
@@ -1216,6 +1216,24 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
         return DM_INVALID_PARAMETER;
     }
 
+    if (response->code.value_int != IOTX_DM_ERR_CODE_SUCCESS) {
+        /* Send Message To User */
+        memcpy(temp_id, response->id.value, response->id.value_length);
+        message_len = strlen(DM_MSG_EVENT_SUBDEV_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
+        message = DM_malloc(message_len);
+        if (message == NULL) {
+            dm_log_warning("Memory Not Enough");
+            return FAIL_RETURN;
+        }
+        memset(message, 0, message_len);
+        HAL_Snprintf(message, message_len, DM_MSG_EVENT_SUBDEV_REGISTER_REPLY_FMT, atoi(temp_id), response->code.value_int, 0);
+
+        res = _dm_msg_send_to_user(IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY, message);
+        if (res != SUCCESS_RETURN) {
+            DM_free(message);
+        }
+    }
+
     res = lite_cjson_parse(response->data.value, response->data.value_length, &lite);
     if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite)) {
         return DM_JSON_PARSE_FAILED;
@@ -1300,6 +1318,222 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
     }
 
     return SUCCESS_RETURN;
+}
+
+const char DM_MSG_EVENT_PROXY_PRODUCT_REGISTER_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
+
+static void dm_msg_thing_proxy_product_register_reply_successes(dm_msg_response_payload_t *response, lite_cjson_t *lite)
+{
+    int res = 0, index = 0, message_len = 0, devid = 0;
+    char *message = NULL;
+    lite_cjson_t lite_item, lite_item_pk, lite_item_dn, lite_item_ds;
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+
+    for (index; index < lite->size; index++) {
+        devid = 0;
+        message_len = 0;
+        message = NULL;
+        memset(temp_id, 0, DM_UTILS_UINT32_STRLEN);
+        memset(product_key, 0, IOTX_PRODUCT_KEY_LEN + 1);
+        memset(device_name, 0, IOTX_DEVICE_NAME_LEN + 1);
+        memset(&lite_item, 0, sizeof(lite_cjson_t));
+        memset(&lite_item_pk, 0, sizeof(lite_cjson_t));
+        memset(&lite_item_dn, 0, sizeof(lite_cjson_t));
+        memset(&lite_item_ds, 0, sizeof(lite_cjson_t));
+
+        /* dm_log_debug("Current Index: %d", index); */
+        /* Item */
+        res = lite_cjson_array_item(lite, index, &lite_item);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
+            continue;
+        }
+
+        /* Product Key */
+        res = lite_cjson_object_item(&lite_item, DM_MSG_KEY_PRODUCT_KEY, strlen(DM_MSG_KEY_PRODUCT_KEY), &lite_item_pk);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk)) {
+            continue;
+        }
+        /* dm_log_debug("Current Product Key: %.*s", lite_item_pk.value_length, lite_item_pk.value); */
+
+        /* Device Name */
+        res = lite_cjson_object_item(&lite_item, DM_MSG_KEY_DEVICE_NAME, strlen(DM_MSG_KEY_DEVICE_NAME), &lite_item_dn);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn)) {
+            continue;
+        }
+        /* dm_log_debug("Current Device Name: %.*s", lite_item_dn.value_length, lite_item_dn.value); */
+
+        /* Device Secret */
+        res = lite_cjson_object_item(&lite_item, DM_MSG_KEY_DEVICE_SECRET, strlen(DM_MSG_KEY_DEVICE_SECRET), &lite_item_ds);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_ds)) {
+            continue;
+        }
+        /* dm_log_debug("Current Device Secret: %.*s", lite_item_ds.value_length, lite_item_ds.value); */
+
+        /* Get Device ID */
+        memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
+        memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
+        memcpy(device_secret, lite_item_ds.value, lite_item_ds.value_length);
+        res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
+        if (res != SUCCESS_RETURN) {
+            continue;
+        }
+
+        /* Update State Machine */
+        if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS) {
+            dm_mgr_set_dev_status(devid, IOTX_DM_DEV_STATUS_REGISTERED);
+        }
+
+        /* Set Device Secret */
+        res = dm_mgr_set_device_secret(devid, device_secret);
+        if (res != SUCCESS_RETURN) {
+            continue;
+        }
+
+        /* Send Message To User */
+        memcpy(temp_id, response->id.value, response->id.value_length);
+        message_len = strlen(DM_MSG_EVENT_PROXY_PRODUCT_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
+        message = DM_malloc(message_len);
+        if (message == NULL) {
+            dm_log_warning("Memory Not Enough");
+            continue;
+        }
+        memset(message, 0, message_len);
+        HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROXY_PRODUCT_REGISTER_REPLY_FMT, atoi(temp_id),
+                     response->code.value_int,
+                     devid);
+
+        res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROXY_PRODUCT_REGISTER_REPLY, message);
+        if (res != SUCCESS_RETURN) {
+            DM_free(message);
+        }
+    }
+}
+
+static void dm_msg_thing_proxy_product_register_reply_failures(dm_msg_response_payload_t *response, lite_cjson_t *lite)
+{
+    int res = 0, index = 0, message_len = 0, devid = 0;
+    char *message = NULL;
+    lite_cjson_t lite_item, lite_item_pk, lite_item_dn, lite_item_ed, lite_item_code;
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
+
+    for (index; index < lite->size; index++) {
+        devid = 0;
+        message_len = 0;
+        message = NULL;
+        memset(temp_id, 0, DM_UTILS_UINT32_STRLEN);
+        memset(product_key, 0, IOTX_PRODUCT_KEY_LEN + 1);
+        memset(device_name, 0, IOTX_DEVICE_NAME_LEN + 1);
+        memset(&lite_item, 0, sizeof(lite_cjson_t));
+        memset(&lite_item_pk, 0, sizeof(lite_cjson_t));
+        memset(&lite_item_dn, 0, sizeof(lite_cjson_t));
+        memset(&lite_item_ed, 0, sizeof(lite_cjson_t));
+        memset(&lite_item_code, 0, sizeof(lite_cjson_t));
+
+        /* dm_log_debug("Current Index: %d", index); */
+        /* Item */
+        res = lite_cjson_array_item(lite, index, &lite_item);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
+            continue;
+        }
+
+        /* Product Key */
+        res = lite_cjson_object_item(&lite_item, DM_MSG_KEY_PRODUCT_KEY, strlen(DM_MSG_KEY_PRODUCT_KEY), &lite_item_pk);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_pk)) {
+            continue;
+        }
+        /* dm_log_debug("Current Product Key: %.*s", lite_item_pk.value_length, lite_item_pk.value); */
+
+        /* Device Name */
+        res = lite_cjson_object_item(&lite_item, DM_MSG_KEY_DEVICE_NAME, strlen(DM_MSG_KEY_DEVICE_NAME), &lite_item_dn);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_dn)) {
+            continue;
+        }
+        /* dm_log_debug("Current Device Name: %.*s", lite_item_dn.value_length, lite_item_dn.value); */
+
+        /* Error Detail */
+        res = lite_cjson_object_item(&lite_item, DM_MSG_KEY_ERRORDETAIL, strlen(DM_MSG_KEY_ERRORDETAIL), &lite_item_ed);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item_ed)) {
+            continue;
+        }
+        /* dm_log_debug("Current Device Secret: %.*s", lite_item_ds.value_length, lite_item_ds.value); */
+
+        /* Error Detail Code */
+        res = lite_cjson_object_item(&lite_item_ed, DM_MSG_KEY_CODE, strlen(DM_MSG_KEY_CODE), &lite_item_code);
+        if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_code)) {
+            continue;
+        }
+
+        /* Get Device ID */
+        memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
+        memcpy(device_name, lite_item_dn.value, lite_item_dn.value_length);
+        res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
+        if (res != SUCCESS_RETURN) {
+            continue;
+        }
+
+        /* Update State Machine */
+        if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS) {
+            dm_mgr_set_dev_status(devid, IOTX_DM_DEV_STATUS_REGISTERED);
+        }
+
+        /* Send Message To User */
+        memcpy(temp_id, response->id.value, response->id.value_length);
+        message_len = strlen(DM_MSG_EVENT_PROXY_PRODUCT_REGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1;
+        message = DM_malloc(message_len);
+        if (message == NULL) {
+            dm_log_warning("Memory Not Enough");
+            continue;
+        }
+        memset(message, 0, message_len);
+        HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROXY_PRODUCT_REGISTER_REPLY_FMT, atoi(temp_id),
+                     lite_item_code.value_int,
+                     devid);
+
+        res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROXY_PRODUCT_REGISTER_REPLY, message);
+        if (res != SUCCESS_RETURN) {
+            DM_free(message);
+        }
+    }
+}
+
+int dm_msg_thing_proxy_product_register_reply(dm_msg_response_payload_t *response)
+{
+    int res = 0, index = 0, message_len = 0, devid = 0;
+    lite_cjson_t lite, lite_failures, lite_successes, lite_item, lite_item_pk, lite_item_dn, lite_item_ds;
+    char *message = NULL;
+
+
+    if (response == NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    res = lite_cjson_parse(response->data.value, response->data.value_length, &lite);
+    if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
+        return DM_JSON_PARSE_FAILED;
+    }
+
+    /* handle successes */
+    res = lite_cjson_object_item(&lite, DM_MSG_KEY_SUCCESSES, strlen(DM_MSG_KEY_SUCCESSES), &lite_successes);
+    if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite_successes)) {
+        return DM_JSON_PARSE_FAILED;
+    }
+
+    dm_msg_thing_proxy_product_register_reply_successes(response, &lite_successes);
+
+    /* handle failures */
+    res = lite_cjson_object_item(&lite, DM_MSG_KEY_FAILURES, strlen(DM_MSG_KEY_FAILURES), &lite_failures);
+    if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite_failures)) {
+        return DM_JSON_PARSE_FAILED;
+    }
+
+    dm_msg_thing_proxy_product_register_reply_failures(response, &lite_failures);
+
+    return 0;
 }
 
 const char DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
@@ -1767,6 +2001,67 @@ int dm_msg_thing_sub_register(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
 
     /* Get Method */
     request->method = (char *)DM_MSG_THING_SUB_REGISTER_METHOD;
+
+    return SUCCESS_RETURN;
+}
+const char DM_MSG_THING_PROXY_PRODUCT_REGISTER_SIGN_SOURCE[] DM_READ_ONLY = "deviceName%sproductKey%srandom%s";
+const char DM_MSG_THING_PROXY_PRODUCT_REGISTER_METHOD[] DM_READ_ONLY = "thing.proxy.provisioning.product_register";
+const char DM_MSG_THING_PROXY_PRODUCT_REGISTER_PARAMS[] DM_READ_ONLY =
+            "{\"proxieds\":[{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"signMethod\":\"%s\",\"sign\":\"%s\",\"random\":\"%s\"}]}";
+int dm_msg_thing_proxy_product_register(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                        _IN_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1],
+                                        _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ dm_msg_request_t *request)
+{
+    int params_len = 0;
+    char *params = NULL;
+    char random[DM_UTILS_UINT64_STRLEN] = {0};
+    char *sign_source = NULL;
+    int sign_source_len = 0;
+    char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA1;
+    char sign[65] = {0};
+
+    if (request == NULL || product_key == NULL ||
+        product_secret == NULL || device_name == NULL ||
+        (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
+        (strlen(product_secret) >= IOTX_PRODUCT_SECRET_LEN + 1) ||
+        (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
+        (strlen(request->product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
+        (strlen(request->device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    /* Random */
+    HAL_Snprintf(random, DM_UTILS_UINT64_STRLEN, "%llu", (unsigned long long)HAL_UptimeMs());
+
+    /* Sign */
+    sign_source_len = strlen(DM_MSG_THING_PROXY_PRODUCT_REGISTER_SIGN_SOURCE) + strlen(device_name) + strlen(
+                                  product_key) + strlen(random) + 1;
+    sign_source = DM_malloc(sign_source_len);
+    if (sign_source == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(sign_source, 0, sign_source_len);
+    HAL_Snprintf(sign_source, sign_source_len, DM_MSG_THING_PROXY_PRODUCT_REGISTER_SIGN_SOURCE,
+                 device_name, product_key, random);
+    utils_hmac_sha1(sign_source, strlen(sign_source), sign, product_secret, strlen(product_secret));
+    DM_free(sign_source);
+    /* dm_log_debug("Sign : %s", sign); */
+
+    /* Params */
+    request->method = (char *)DM_MSG_THING_PROXY_PRODUCT_REGISTER_METHOD;
+    params_len = strlen(DM_MSG_THING_PROXY_PRODUCT_REGISTER_PARAMS) + strlen(product_key) + strlen(device_name) +
+                 strlen(sign_method) + strlen(sign) + strlen(random) + 1;
+    params = DM_malloc(params_len);
+
+    if (params == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(params, 0, params_len);
+    HAL_Snprintf(params, params_len, DM_MSG_THING_PROXY_PRODUCT_REGISTER_PARAMS, product_key, device_name,
+                 sign_method, sign, random);
+
+    request->params = params;
+    request->params_len = strlen(request->params);
 
     return SUCCESS_RETURN;
 }

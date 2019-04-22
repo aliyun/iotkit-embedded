@@ -1739,7 +1739,7 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
     }
 
     _linkkit_gateway_mutex_lock();
-    res = iotx_dm_subdev_create(productKey, deviceName, NULL, &devid);
+    res = iotx_dm_subdev_create(productKey, "", deviceName, NULL, &devid);
     if (res != SUCCESS_RETURN) {
         _linkkit_gateway_mutex_unlock();
         return FAIL_RETURN;
