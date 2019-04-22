@@ -32,7 +32,9 @@ THE SOFTWARE.
 #include <float.h>
 #include <limits.h>
 #include <ctype.h>
+#ifdef ENABLE_LOCALES
 #include <locale.h>
+#endif
 
 #ifdef __GNUC__
     #pragma GCC visibility pop
@@ -150,8 +152,12 @@ CJSON_PUBLIC(void) cJSON_Delete(cJSON *item)
 /* get the decimal point character of the current locale */
 static unsigned char get_decimal_point(void)
 {
+#ifdef ENABLE_LOCALES
     struct lconv *lconv = localeconv();
-    return (unsigned char)lconv->decimal_point[0];
+    return (unsigned char) lconv->decimal_point[0];
+#else
+    return '.';
+#endif
 }
 
 typedef struct {
