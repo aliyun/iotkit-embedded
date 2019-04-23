@@ -34,10 +34,16 @@ const char *clientid_kv[][2] = {
         "timestamp", TIMESTAMP_VALUE
     },
     {
+        "_v", "sdk-c-"IOTX_SDK_VERSION
+    },
+    {
         "securemode", SECURE_MODE
     },
     {
         "signmethod", "hmacsha256"
+    },
+    {
+        "lan", "C"
     },
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEVICE_MODEL_CLASSIC)
     {
@@ -51,9 +57,6 @@ const char *clientid_kv[][2] = {
         "ext", "0"
     },
 #endif
-    {
-        "_v", "sdk-c-"IOTX_SDK_VERSION
-    },
 };
 
 static void _hex2str(uint8_t *input, uint16_t input_len, char *output)
