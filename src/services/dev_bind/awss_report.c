@@ -88,6 +88,10 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     uint32_t payload_len;
     char *payload;
 
+    if (NULL == awss_token_mutex) {
+        return;
+    }
+
     ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
 
     if (ret != 0) {
@@ -355,6 +359,18 @@ int awss_report_token()
     awss_report_token_suc = 0;
 
     return awss_report_token_to_cloud();
+}
+
+int awss_stop_report_token()
+{
+    if (report_token_timer) {
+        awss_stop_timer(report_token_timer);
+        report_token_timer = NULL;
+    }
+
+    memset(aes_random, 0x00, sizeof(aes_random));
+
+    return 0;
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

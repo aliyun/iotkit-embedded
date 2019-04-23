@@ -11,6 +11,7 @@
 extern "C" {
 #endif
 void *awss_token_mutex = NULL;
+extern int awss_stop_report_token();
 
 int awss_report_cloud()
 {
@@ -33,9 +34,13 @@ int awss_report_cloud()
 
 void awss_bind_deinit()
 {
+    awss_stop_report_token();
+    awss_dev_bind_notify_stop();
+
     if (NULL != awss_token_mutex) {
         HAL_MutexDestroy(awss_token_mutex);
     }
+    awss_token_mutex = NULL;
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
