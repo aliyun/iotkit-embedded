@@ -35,11 +35,6 @@ DLL_HAL_API p_HAL_Aes128_t HAL_Aes128_Init(
             _IN_ const uint8_t *iv,
             _IN_ AES_DIR_t dir);
 DLL_HAL_API int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
-DLL_HAL_API int HAL_Aes128_Cbc_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst);
 DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
