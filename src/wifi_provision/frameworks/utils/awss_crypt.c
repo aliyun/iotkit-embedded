@@ -3,10 +3,15 @@
  */
 #include "wifi_provision_internal.h"
 #include "awss_aes_wrapper.h"
+#include "infra_sha256.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
+#endif
+
+#ifndef SHA256_DIGEST_SIZE
+#define SHA256_DIGEST_SIZE      (32)
 #endif
 
 static const char *cal_passwd(void *key, void *random, void *passwd)
@@ -27,13 +32,7 @@ static const char *cal_passwd(void *key, void *random, void *passwd)
     memcpy(passwd_src + key_len, random, RANDOM_MAX_LEN);
     key_len += RANDOM_MAX_LEN;
 
-    SHA256_hash(passwd_src, key_len, digest);
-  #if 0
-    TODO 
-    /* produce digest using combination of key and random */
-    utils_sha256_hash(passwd_src, key_len, digest);
-#endif
-
+    utils_sha256(passwd_src, key_len, digest);
     /* use the first 128bits as AES-Key */
     memcpy(passwd, digest, AES128_KEY_LEN);
 
