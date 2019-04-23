@@ -41,11 +41,6 @@ DLL_HAL_API int HAL_Aes128_Cbc_Decrypt(
             _IN_ const void *src,
             _IN_ size_t blockNum,
             _OU_ void *dst);
-DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t length,
-            _OU_ void *dst);
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
 int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,

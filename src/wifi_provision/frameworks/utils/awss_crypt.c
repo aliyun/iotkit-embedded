@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "wifi_provision_internal.h"
+#include "awss_aes_wrapper.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -102,19 +103,19 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
     plain[0] = '\0';
 
     if (decrypt) {
-        p_aes128_t aes = HAL_Aes128_Init(key, iv, PLATFORM_AES_DECRYPTION);
+        p_aes128_t aes = (p_aes128_t)awss_Aes128_Init(key, iv);
         if (cbc) { /* AP */
             /*
              * mobile-ap, dev-ap, router
              */
-            res = HAL_Aes128_Cbc_Decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
+            res = awss_Aes128_Cbc_Decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
         } else {  /* smartconfig */
             /*
              * smartconfig/wps, zconfig
              */
-            res = HAL_Aes128_Cfb_Decrypt(aes, decoded, len, plain);
+            res = awss_Aes128_Cfb_Decrypt(aes, decoded, len, plain);
         }
-        HAL_Aes128_Destroy(aes);
+        awss_Aes128_Destroy(aes);
     }
 
     HAL_Free(decoded);

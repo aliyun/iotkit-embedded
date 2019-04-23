@@ -40,11 +40,6 @@ DLL_HAL_API int HAL_Aes128_Cbc_Decrypt(
             _IN_ const void *src,
             _IN_ size_t blockNum,
             _OU_ void *dst);
-DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t length,
-            _OU_ void *dst);
 /* os_misc.c */
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
 /* awss_main.c */
