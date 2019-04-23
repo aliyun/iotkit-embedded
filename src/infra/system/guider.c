@@ -706,32 +706,17 @@ int iotx_guider_authenticate(void)
     ext = 1;
 #endif
 
-
-#if !defined(SUPPORT_ITLS)
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
-                      "|securemode=%d"
-                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
+                      "|securemode=%d" ",_v=sdk-c-"LINKKIT_VERSION
+                      ",timestamp=%s" ",signmethod="SHA_METHOD ",lan=C"
+                      ",gw=%d"
+                      ",ext=%d"
                       "%s"
                       "%s"
-                      "|"
-                      , dev->device_id
-                      , secure_mode
-                      , timestamp_str
-                      , gw
-                      , ext
-                      , partner_id
-                      , module_id
-                     );
-#else
-    /* add "aututype=1d2" string as ITLS used */
-    _fill_conn_string(conn->client_id, sizeof(conn->client_id),
-                      "%s"
-                      "|securemode=%d"
-                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
-                      "%s"
-                      "%s"
+#ifdef SUPPORT_ITLS
                       ",authtype=id2"
+#endif
                       "|"
                       , dev->device_id
                       , secure_mode
@@ -741,7 +726,6 @@ int iotx_guider_authenticate(void)
                       , partner_id
                       , module_id
                      );
-#endif  /* SUPPORT_ITLS */
 
     guider_print_conn_info(conn);
 
