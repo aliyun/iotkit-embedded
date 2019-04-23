@@ -728,10 +728,10 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
     }
     _fill_conn_string(conn->client_id, len,
                       "%s"
-                      "|securemode=%d"
-                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
-                      ",_v=sdk-c-"LINKKIT_VERSION
-                      ",lan=C"
+                      "|securemode=%d" ",_v=sdk-c-"LINKKIT_VERSION
+                      ",timestamp=%s" ",signmethod="SHA_METHOD ",lan=C"
+                      ",gw=%d"
+                      ",ext=%d"
                       "%s"
                       "%s"
 #ifdef SUPPORT_ITLS
