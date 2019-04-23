@@ -2592,7 +2592,7 @@ int dm_msg_thing_dsltemplate_get(_OU_ dm_msg_request_t *request)
 
 const char DM_MSG_THING_DYNAMICTSL_GET_METHOD[] DM_READ_ONLY = "thing.dynamicTsl.get";
 const char DM_MSG_THING_DYNAMICTSL_GET_PARAMS[] DM_READ_ONLY =
-            "{\"nodes\":[\"type\",\"identifier\"],\"addDefault\":false}";
+            "{\"nodes\":[\"type\",\"identifier\",\"size\"],\"addDefault\":false}";
 int dm_msg_thing_dynamictsl_get(_OU_ dm_msg_request_t *request)
 {
     char *params = NULL;
