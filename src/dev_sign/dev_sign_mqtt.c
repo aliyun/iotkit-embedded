@@ -40,6 +40,9 @@ const char *clientid_kv[][2] = {
     {
         "signmethod", "hmacsha256"
     },
+    {
+        "lan", "C"
+    },
 #if 0
     {
         "v", IOTX_ALINK_VERSION
@@ -52,9 +55,6 @@ const char *clientid_kv[][2] = {
         "ext", "0"
     },
 #endif
-    {
-        "lan", "C"
-    },
 #ifdef SUPPORT_ITLS
     {
         "authtype", "id2"
