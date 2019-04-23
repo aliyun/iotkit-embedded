@@ -44,6 +44,8 @@ void otalib_MD5Finalize(void *md5, char *output_str)
         output_str[i * 2 + 1] = utils_hb2hex(buf_out[i]);
     }
     output_str[32] = '\0';
+    utils_md5_init(md5);
+    utils_md5_starts(md5);
 }
 
 void otalib_MD5Deinit(void *md5)
