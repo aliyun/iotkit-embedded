@@ -537,10 +537,11 @@ int iotx_guider_authenticate(void)
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
+                      ",_v=sdk-c-"LINKKIT_VERSION
 #if USING_SHA1_IN_HMAC
-                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=0"
+                      ",timestamp=%s,signmethod=" SHA_METHOD ",lan=C,gw=0"
 #else
-                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=0"
+                      ",timestamp=%s,signmethod=" MD5_METHOD ",lan=C,gw=0"
 #endif
                       "%s|"
                       , dev->device_id
