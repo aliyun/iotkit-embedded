@@ -32,6 +32,9 @@ const char *clientid_kv[][2] = {
         "timestamp", TIMESTAMP_VALUE
     },
     {
+        "_v", "sdk-c-"IOTX_SDK_VERSION
+    },
+    {
         "securemode", SECURE_MODE
     },
     {
@@ -49,9 +52,6 @@ const char *clientid_kv[][2] = {
         "ext", "0"
     },
 #endif
-    {
-        "_v", "sdk-c-"IOTX_SDK_VERSION
-    },
     {
         "lan", "C"
     },
