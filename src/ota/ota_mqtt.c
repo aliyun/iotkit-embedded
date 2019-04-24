@@ -192,7 +192,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
         goto do_exit;
     }
 
-    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_request, IOTX_MQTT_QOS1, otamqtt_UpgrageCb, h_osc);
+    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_request, IOTX_MQTT_QOS3_SUB_LOCAL, otamqtt_UpgrageCb, h_osc);
     if (ret < 0) {
         OTA_LOG_ERROR("mqtt subscribe failed");
         goto do_exit;
@@ -205,7 +205,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
         goto do_exit;
     }
 
-    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_upgrade, IOTX_MQTT_QOS1, otamqtt_UpgrageCb, h_osc);
+    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_upgrade, IOTX_MQTT_QOS3_SUB_LOCAL, otamqtt_UpgrageCb, h_osc);
     if (ret < 0) {
         OTA_LOG_ERROR("mqtt subscribe failed");
         goto do_exit;
@@ -222,7 +222,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
         goto do_exit;
     }
 
-    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_config_get, IOTX_MQTT_QOS0, otamqtt_UpgrageCb, h_osc);
+    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_config_get, IOTX_MQTT_QOS3_SUB_LOCAL, otamqtt_UpgrageCb, h_osc);
     if (ret < 0) {
         OTA_LOG_ERROR("mqtt subscribe failed");
         goto do_exit;
@@ -239,7 +239,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
         goto do_exit;
     }
 
-    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_config_push, IOTX_MQTT_QOS0, otamqtt_UpgrageCb, h_osc);
+    ret = IOT_MQTT_Subscribe(ch_signal, h_osc->topic_config_push, IOTX_MQTT_QOS3_SUB_LOCAL, otamqtt_UpgrageCb, h_osc);
     if (ret < 0) {
         OTA_LOG_ERROR("mqtt subscribe failed");
         goto do_exit;

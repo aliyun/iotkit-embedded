@@ -45,101 +45,67 @@ static dm_client_uri_map_t g_dm_client_uri_map[] = {
 #endif
 };
 
-static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_key[IOTX_PRODUCT_KEY_LEN + 1],
-                                       char device_name[IOTX_DEVICE_NAME_LEN + 1])
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+/* property/event post reply filter */
+static int _dm_client_subscribe_filter(char *uri, iotx_cm_data_handle_cb cb)
 {
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     int res = 0;
-#endif
-    if (uri_name == NULL) {
-        return SUCCESS_RETURN;
+    int event_post_reply_opt = 0;
+    int retry_cnt = IOTX_DM_CLIENT_SUB_RETRY_MAX_COUNTS;
+
+    res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &event_post_reply_opt);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
     }
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-    if (strlen(uri_name) == strlen(DM_URI_THING_EVENT_POST_REPLY_WILDCARD) &&
-        memcmp(uri_name, DM_URI_THING_EVENT_POST_REPLY_WILDCARD, strlen(uri_name)) == 0) {
-        int event_post_reply_opt = 0;
-        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &event_post_reply_opt);
-        if (res == SUCCESS_RETURN && event_post_reply_opt == 0) {
-            dm_client_unsubscribe(uri);
-            return FAIL_RETURN;
+    if (event_post_reply_opt == 0) {
+        res = dm_client_unsubscribe(uri);
+        return (res >= 0)? SUCCESS_RETURN: FAIL_RETURN;
+    }
+    else {
+        res = FAIL_RETURN;
+        while (res < SUCCESS_RETURN && retry_cnt--) {
+            res = dm_client_subscribe(uri, cb, 0);
         }
+        return res;
     }
-#endif
-
-    return SUCCESS_RETURN;
 }
+#endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
 
 int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1],
                             int dev_type)
 {
-    int res = 0, index = 0, fail_count = 0;
+    int res = 0, index = 0;
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
     char *uri = NULL;
-    uint8_t local_sub = 0;
+    uint8_t local_sub = 1;
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-    index = 1;
-
-    for (fail_count = 0; fail_count < IOTX_DM_CLIENT_SUB_RETRY_MAX_COUNTS; fail_count++) {
-
-        res = dm_utils_service_name((char *)g_dm_client_uri_map[0].uri_prefix, (char *)g_dm_client_uri_map[0].uri_name,
-                                    product_key, device_name, &uri);
-        if (res < SUCCESS_RETURN) {
-            continue;
-        }
-        res = _dm_client_subscribe_filter(uri, (char *)g_dm_client_uri_map[0].uri_name, product_key, device_name);
-        if (res < SUCCESS_RETURN) {
-            DM_free(uri);
-            continue;
-        }
-
-        res = dm_client_subscribe(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[0].callback, 0);
-        if (res < SUCCESS_RETURN) {
-            DM_free(uri);
-            continue;
-        }
-
-        DM_free(uri);
-        break;
-    }
-#else
-    index = 0;
-#endif
-    fail_count = 0;
-
-    for (; index < number; index++) {
+    for (index = 0; index < number; index++) {
         if ((g_dm_client_uri_map[index].dev_type & dev_type) == 0) {
             continue;
         }
         dm_log_info("index: %d", index);
 
-        if (fail_count >= IOTX_DM_CLIENT_SUB_RETRY_MAX_COUNTS) {
-            fail_count = 0;
-            continue;
-        }
         res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
                                     product_key, device_name, &uri);
         if (res < SUCCESS_RETURN) {
-            index--;
             continue;
         }
-
-        res = _dm_client_subscribe_filter(uri, (char *)g_dm_client_uri_map[index].uri_name, product_key, device_name);
-        if (res < SUCCESS_RETURN) {
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+        /* index 0 must be DM_URI_THING_EVENT_POST_REPLY_WILDCARD */
+        if (index == 0) {
+            _dm_client_subscribe_filter(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback);
             DM_free(uri);
             continue;
         }
+#endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
 
         res = dm_client_subscribe(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback, &local_sub);
         if (res < SUCCESS_RETURN) {
-            index--;
-            fail_count++;
             DM_free(uri);
             continue;
         }
 
-        fail_count = 0;
         DM_free(uri);
     }
 

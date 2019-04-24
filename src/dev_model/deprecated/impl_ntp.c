@@ -144,7 +144,8 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
         memset(topic, 0, topic_len + 1);
 
         HAL_Snprintf(topic, topic_len, TOPIC_NTP_REPLY, pk, dn);
-        ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
+        /* local subscribe used */
+        ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS3_SUB_LOCAL,
                                       (iotx_mqtt_event_handle_func_fpt)linkkit_ntp_time_reply, NULL, 1000);
         if (ret < 0) {
             goto NTP_REQ_ERR;

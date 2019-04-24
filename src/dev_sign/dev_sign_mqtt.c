@@ -43,6 +43,9 @@ const char *clientid_kv[][2] = {
     {
         "lan", "C"
     },
+    {
+        "_ss", "1"
+    },
 #if 0
     {
         "v", IOTX_ALINK_VERSION
