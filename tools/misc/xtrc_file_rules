@@ -63,7 +63,6 @@ AWSS_SUPPORT_SMARTCONFIG||src/wifi_provision/smartconfig|output/eng/wifi_provisi
 AWSS_SUPPORT_AHA||src/wifi_provision/phone_ap|output/eng/wifi_provision/phone_ap
 AWSS_SUPPORT_ADHA||src/wifi_provision/router_ap|output/eng/wifi_provision/router_ap
 AWSS_SUPPORT_SMARTCONFIG_WPS||src/wifi_provision/p2p|output/eng/wifi_provision/p2p
-AWSS_SUPPORT_SMARTCONFIG_MCAST||src/wifi_provision/mcast_smartconfig|output/eng/wifi_provision/mcast_smartconfig
 AWSS_SUPPORT_ZEROCONFIG||src/wifi_provision/zero_config|output/eng/wifi_provision/zero_config
 AWSS_SUPPORT_DEV_AP||src/wifi_provision/dev_ap|output/eng/wifi_provision/dev_ap
 AWSS_FRAMEWORKS||src/wifi_provision/frameworks|output/eng/wifi_provision/frameworks
