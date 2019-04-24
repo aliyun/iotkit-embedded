@@ -77,9 +77,6 @@ int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char dev
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
     char *uri = NULL;
     uint8_t local_sub = 0;
-#ifdef SUB_PERSISTENCE_ENABLED
-    char device_key[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 4] = {0};
-#endif
 
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     index = 1;
@@ -110,13 +107,6 @@ int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char dev
     index = 0;
 #endif
     fail_count = 0;
-#ifdef SUB_PERSISTENCE_ENABLED
-    {
-        int len = 1;
-        HAL_Snprintf(device_key, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN, "qub_%s%s", product_key, device_name);
-        HAL_Kv_Get(device_key, &local_sub, &len);
-    }
-#endif
 
     for (; index < number; index++) {
         if ((g_dm_client_uri_map[index].dev_type & dev_type) == 0) {
@@ -152,10 +142,6 @@ int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char dev
         fail_count = 0;
         DM_free(uri);
     }
-#ifdef SUB_PERSISTENCE_ENABLED
-    local_sub = 1;
-    HAL_Kv_Set(device_key, &local_sub, 1, 1);
-#endif
 
     return SUCCESS_RETURN;
 }

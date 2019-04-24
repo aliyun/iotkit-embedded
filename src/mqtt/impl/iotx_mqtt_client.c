@@ -2053,7 +2053,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     handler->handle.h_fp = messageHandler;
     handler->handle.pcontext = pcontext;
 
-#ifdef SUB_PERSISTENCE_ENABLED
     if (qos == IOTX_MQTT_QOS3_SUB_LOCAL) {
         uint8_t dup = 0;
 #ifdef PLATFORM_HAS_DYNMEM
@@ -2107,7 +2106,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         HAL_MutexUnlock(c->lock_generic);
         return SUCCESS_RETURN;
     }
-#endif
 
     HAL_MutexLock(c->lock_write_buf);
 
@@ -2904,21 +2902,12 @@ int wrapper_mqtt_subscribe_sync(void *c,
         return NULL_VALUE_ERROR;
     }
 
-#ifdef SUB_PERSISTENCE_ENABLED
     if (qos > IOTX_MQTT_QOS3_SUB_LOCAL) {
         mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
                      qos,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS3_SUB_LOCAL, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
-#else
-    if (qos > IOTX_MQTT_QOS2) {
-        mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
-                     qos,
-                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
-        qos = IOTX_MQTT_QOS0;
-    }
-#endif
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
