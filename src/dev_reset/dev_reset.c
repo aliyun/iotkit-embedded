@@ -53,8 +53,11 @@ int IOT_DevReset_Report(iotx_dev_meta_info_t *meta_info, iotx_devrst_evt_handle_
     HAL_Snprintf(topic,IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 30, reset_reply_fmt, meta_info->product_key, meta_info->device_name);
 
     if (g_dev_reset_sub_flag == 0) {
-        /* local subscribe used */
+#ifdef MQTT_AUTO_SUBSCRIBE
         res = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS3_SUB_LOCAL, mqtt_sub_handle, NULL, 5000);
+#else
+        res = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0, mqtt_sub_handle, NULL, 5000);
+#endif
         if (res < 0 ) {
             return FAIL_RETURN;
         }

@@ -198,6 +198,14 @@ int iotx_dm_subscribe(_IN_ int devid)
     }
 #endif
 
+#ifdef MQTT_AUTO_SUBSCRIBE
+    if (devid != 0) {
+        _dm_api_unlock();
+        dm_log_info("Devid %d bypass Subscribe", devid);
+        return SUCCESS_RETURN;
+    }
+#endif /* #ifdef MQTT_AUTO_SUBSCRIBE */
+
     res = dm_client_subscribe_all(product_key, device_name, dev_type);
     if (res < SUCCESS_RETURN) {
         _dm_api_unlock();

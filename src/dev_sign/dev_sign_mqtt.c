@@ -43,9 +43,11 @@ const char *clientid_kv[][2] = {
     {
         "lan", "C"
     },
+#ifdef MQTT_AUTO_SUBSCRIBE
     {
         "_ss", "1"
     },
+#endif
 #if 0
     {
         "v", IOTX_ALINK_VERSION

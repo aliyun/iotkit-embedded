@@ -78,7 +78,12 @@ int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char dev
     int res = 0, index = 0;
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
     char *uri = NULL;
+
+#ifdef MQTT_AUTO_SUBSCRIBE
     uint8_t local_sub = 1;
+#else
+    uint8_t local_sub = 0;
+#endif
 
     for (index = 0; index < number; index++) {
         if ((g_dm_client_uri_map[index].dev_type & dev_type) == 0) {
@@ -86,19 +91,31 @@ int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char dev
         }
         dm_log_info("index: %d", index);
 
-        res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
-                                    product_key, device_name, &uri);
-        if (res < SUCCESS_RETURN) {
-            continue;
-        }
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-        /* index 0 must be DM_URI_THING_EVENT_POST_REPLY_WILDCARD */
         if (index == 0) {
+            /* index 0 must be DM_URI_THING_EVENT_POST_REPLY_WILDCARD */
+            res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
+                            product_key, device_name, &uri);
+            if (res < SUCCESS_RETURN) {
+                continue;
+            }
+
             _dm_client_subscribe_filter(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback);
             DM_free(uri);
             continue;
         }
 #endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
+
+#ifdef MQTT_AUTO_SUBSCRIBE
+        res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
+                                    "+", "+", &uri);    /* plus sign wildcards used */
+#else
+        res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
+                                    product_key, device_name, &uri);
+#endif /* #ifdef MQTT_AUTO_SUBSCRIBE */
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
 
         res = dm_client_subscribe(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback, &local_sub);
         if (res < SUCCESS_RETURN) {

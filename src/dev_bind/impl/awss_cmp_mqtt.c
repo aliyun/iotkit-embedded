@@ -14,8 +14,11 @@ int awss_cmp_mqtt_register_cb(char *topic, void *cb)
     if (topic == NULL) {
         return -1;
     }
-
+#ifdef MQTT_AUTO_SUBSCRIBE
     return IOT_MQTT_Subscribe(NULL, topic, IOTX_MQTT_QOS3_SUB_LOCAL, (iotx_mqtt_event_handle_func_fpt)cb, NULL);
+#else
+    return IOT_MQTT_Subscribe(NULL, topic, IOTX_MQTT_QOS0, (iotx_mqtt_event_handle_func_fpt)cb, NULL);
+#endif
 }
 
 int awss_cmp_mqtt_unregister_cb(char *topic)
