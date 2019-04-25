@@ -2381,6 +2381,8 @@ static int iotx_mqtt_offline_subscribe(const char *topic_filter,
                                        void *pcontext)
 {
     int ret;
+    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
+    
     POINTER_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
 
