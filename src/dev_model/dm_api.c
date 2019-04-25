@@ -198,15 +198,7 @@ int iotx_dm_subscribe(_IN_ int devid)
     }
 #endif
 
-#ifdef MQTT_AUTO_SUBSCRIBE
-    if (devid != 0) {
-        _dm_api_unlock();
-        dm_log_info("Devid %d bypass Subscribe", devid);
-        return SUCCESS_RETURN;
-    }
-#endif /* #ifdef MQTT_AUTO_SUBSCRIBE */
-
-    res = dm_client_subscribe_all(product_key, device_name, dev_type);
+    res = dm_client_subscribe_all(devid, product_key, device_name, dev_type);
     if (res < SUCCESS_RETURN) {
         _dm_api_unlock();
         return res;
@@ -320,7 +312,6 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
     return SUCCESS_RETURN;
 }
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int iotx_dm_set_opt(int opt, void *data)
 {
     return dm_opt_set(opt, data);
@@ -334,6 +325,8 @@ int iotx_dm_get_opt(int opt, void *data)
 
     return dm_opt_get(opt, data);
 }
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 #ifdef DEVICE_MODEL_SHADOW
 int iotx_dm_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {

@@ -3,7 +3,7 @@
  */
 #include "iotx_dm_internal.h"
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+#ifdef DEVICE_MODEL_ENABLED
 
 static dm_opt_ctx g_dm_opt = {
     0, 0, 1, 1, 1, 60 * 1000, 0
@@ -18,6 +18,7 @@ int dm_opt_set(dm_opt_t opt, void *data)
     }
 
     switch (opt) {
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY: {
             int opt = *(int *)(data);
             g_dm_opt.prop_post_reply_opt = opt;
@@ -33,6 +34,7 @@ int dm_opt_set(dm_opt_t opt, void *data)
             g_dm_opt.prop_set_reply_opt = opt;
         }
         break;
+#endif
 #ifdef DEVICE_MODEL_SHADOW
         case DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_GET_REPLY: {
             int opt = *(int *)(data);
@@ -73,6 +75,7 @@ int dm_opt_get(dm_opt_t opt, void *data)
     }
 
     switch (opt) {
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY: {
             *(int *)(data) = g_dm_opt.prop_post_reply_opt;
         }
@@ -85,6 +88,7 @@ int dm_opt_get(dm_opt_t opt, void *data)
             *(int *)(data) = g_dm_opt.prop_set_reply_opt;
         }
         break;
+#endif
 #ifdef DEVICE_MODEL_SHADOW
         case DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_DELETE_REPLY: {
             *(int *)(data) = g_dm_opt.prop_desired_delete_reply_opt;

@@ -72,58 +72,68 @@ static int _dm_client_subscribe_filter(char *uri, iotx_cm_data_handle_cb cb)
 }
 #endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
 
-int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1],
                             int dev_type)
 {
     int res = 0, index = 0;
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
     char *uri = NULL;
-
-#ifdef MQTT_AUTO_SUBSCRIBE
-    uint8_t local_sub = 1;
-#else
     uint8_t local_sub = 0;
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    /* index 0 must be DM_URI_THING_EVENT_POST_REPLY_WILDCARD */
+    res = dm_utils_service_name((char *)g_dm_client_uri_map[0].uri_prefix, (char *)g_dm_client_uri_map[0].uri_name,
+                    product_key, device_name, &uri);
+    if (res == SUCCESS_RETURN) {
+        _dm_client_subscribe_filter(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[0].callback);
+        DM_free(uri);
+    }
+    index = 1;
+#else
+    index = 0;
 #endif
 
-    for (index = 0; index < number; index++) {
+#ifdef MQTT_AUTO_SUBSCRIBE
+    if (devid != 0) {
+        dm_log_info("Devid %d bypass Subscribe", devid);
+        return SUCCESS_RETURN;
+    }
+#else
+    (void)devid;
+#endif  /* #ifdef MQTT_AUTO_SUBSCRIBE */
+
+    for (; index < number; index++) {
         if ((g_dm_client_uri_map[index].dev_type & dev_type) == 0) {
             continue;
         }
         dm_log_info("index: %d", index);
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-        if (index == 0) {
-            /* index 0 must be DM_URI_THING_EVENT_POST_REPLY_WILDCARD */
-            res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
-                            product_key, device_name, &uri);
-            if (res < SUCCESS_RETURN) {
-                continue;
-            }
-
-            _dm_client_subscribe_filter(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback);
-            DM_free(uri);
-            continue;
-        }
-#endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
-
 #ifdef MQTT_AUTO_SUBSCRIBE
         res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
                                     "+", "+", &uri);    /* plus sign wildcards used */
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+
+        local_sub = 1;
+        res = dm_client_subscribe(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback, &local_sub);
+        DM_free(uri);
 #else
         res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
                                     product_key, device_name, &uri);
-#endif /* #ifdef MQTT_AUTO_SUBSCRIBE */
         if (res < SUCCESS_RETURN) {
             continue;
         }
 
-        res = dm_client_subscribe(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback, &local_sub);
-        if (res < SUCCESS_RETURN) {
+        {
+            int retry_cnt = IOTX_DM_CLIENT_SUB_RETRY_MAX_COUNTS;
+            local_sub = 0;
+            do {
+                res = dm_client_subscribe(uri, (iotx_cm_data_handle_cb)g_dm_client_uri_map[index].callback, &local_sub);
+            } while (res < SUCCESS_RETURN && --retry_cnt);
             DM_free(uri);
-            continue;
         }
-
-        DM_free(uri);
+#endif /*  MQTT_AUTO_SUBSCRIBE */
     }
 
     return SUCCESS_RETURN;

@@ -10,7 +10,7 @@ typedef struct {
 
 void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context);
 
-int dm_client_subscribe_all(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1],
+int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1],
                             int dev_type);
 
 void dm_client_thing_model_down_raw(int fd, const char *topic, const char *payload, unsigned int payload_len,
