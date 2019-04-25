@@ -37,6 +37,7 @@ detect:
 	        cp -f $$i .git/hooks && chmod a+x .git/hooks/$$(basename $$i); \
 	    done; \
 	fi
+	$(TOP_Q)bash $(RULE_DIR)/scripts/old2new_config.sh
 
 prune:
 	@echo "$(TOP_DIR).pkgs directory removed!"|grep --color ".*"
