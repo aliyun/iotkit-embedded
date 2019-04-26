@@ -16,6 +16,7 @@ ltmain.sh
 /Default/
 .O/
 .config
+.config.old
 output/
 ota.bin
 src/packages/*.git/hooks/*.sample
