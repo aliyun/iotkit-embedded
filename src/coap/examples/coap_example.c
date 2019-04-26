@@ -44,7 +44,7 @@ static void iotx_post_data_to_server(void *param)
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
     iotx_message_t message;
 
-    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", IOTX_PRODUCT_KEY, IOTX_DEVICE_NAME);
+    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/user/update/", IOTX_PRODUCT_KEY, IOTX_DEVICE_NAME);
 
     memset(&message, 0, sizeof(iotx_message_t));
     message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
