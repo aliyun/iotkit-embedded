@@ -49,6 +49,10 @@ menu "MQTT Configurations"
             Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
             Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
 
+    config MQTT_AUTO_SUBSCRIBE
+        bool
+        default y
+
     config ASYNC_PROTOCOL_STACK
         bool "FEATURE_ASYNC_PROTOCOL_STACK"
         default n
@@ -58,11 +62,6 @@ menu "MQTT Configurations"
 
             Switching to "y" leads to building MQTT async protocol stack related implementation into SDK and ASYNC_PROTOCOL_STACK included into CFLAGS
             Switching to "n" seldom happens unless you're not using async protocol stack
-
-    config MQTT_AUTO_SUBSCRIBE
-        depends on MQTT_COMM_ENABLED
-        bool "FEATURE_MQTT_AUTO_SUBSCRIBE"
-        default n
 
 endmenu
 
