@@ -51,7 +51,7 @@ menu "MQTT Configurations"
 
     config MQTT_AUTO_SUBSCRIBE
         bool
-        default y
+        default n
 
     config ASYNC_PROTOCOL_STACK
         bool "FEATURE_ASYNC_PROTOCOL_STACK"
