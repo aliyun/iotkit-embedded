@@ -8,16 +8,63 @@
 extern "C" {
 #endif
 
-int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], uint8_t bssid[ETH_ALEN], 
-                 uint8_t token[AWSS_TOKEN_LEN] )
+int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], uint8_t *bssid, uint8_t bssid_len, 
+                uint8_t *token, uint8_t token_len)
 {
+    unsigned char final_token[16] = {0};
+    unsigned char final_bssid[6] = {0};
+    uint8_t has_token = 1;
+    uint8_t has_bssid = 1;
 
-    if(token != NULL) {    
-        awss_set_token(token);
+    /*need to complete the token*/
+    if(token_len != 0 && token_len < 16 && token != NULL) { 
+        int org_token_len = 0;
+        unsigned char buff[128] = {0};
+        unsigned char gen_token[32] = {0};
+        uint8_t pwd_len = strlen(passwd);
+
+        if(bssid != NULL) {
+            memcpy(buff + org_token_len, bssid, bssid_len);
+            org_token_len += bssid_len;
+        }
+
+        memcpy(buff + org_token_len, token, token_len);
+        org_token_len += token_len;
+        
+        if(pwd_len != 0 && 128 >= pwd_len + org_token_len) {
+            memcpy(buff + org_token_len, passwd, pwd_len);
+            org_token_len += pwd_len; 
+        }
+        
+        utils_sha256(buff, org_token_len, gen_token);
+        memcpy(final_token, gen_token, 16);
+
+    } else if (token_len == 16 && token != NULL) {
+       memcpy(final_token, token, 16); 
+    } else {
+        has_token = 0;
     }
-    return HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);
 
+    if(has_token == 1) {    
+        awss_set_token(final_token);
+    }
+    
+    /*need to complete the bssid */
+    if(bssid_len > 0 && bssid_len < 6 && bssid != NULL) {
+        if(zc_bssid != NULL) {
+            memcpy(final_bssid, zc_bssid, 6); 
+        }else {
+            has_bssid = 0;
+        }
+    } else if (bssid_len == 6 && bssid != NULL){
+        memcpy(final_bssid, bssid, 6); 
+    } else {
+        has_bssid = 0;
+    }
+
+    return HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd, 0, 0, has_bssid ? final_bssid : NULL, 0);
 }
+
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

@@ -376,7 +376,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
 #endif
     AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
 
-    if (0 != awss_connect(ssid, passwd,(uint8_t *)bssid, (token_found == 1? token : NULL))) {
+    if (0 != awss_connect(ssid, passwd,(uint8_t *)bssid, ETH_ALEN, token_found == 1 ? token : NULL, token_found == 1 ? RANDOM_MAX_LEN : 0)) {
     } else {
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);

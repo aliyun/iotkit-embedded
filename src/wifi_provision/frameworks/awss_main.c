@@ -65,7 +65,7 @@ int __awss_start(void)
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
         }
 
-        ret = awss_connect(ssid, passwd, bssid, find_token != 0?token : NULL);
+        ret = awss_connect(ssid, passwd, bssid, ETH_ALEN, find_token != 0 ? token : NULL, find_token == 1 ? ZC_MAX_TOKEN_LEN : 0);
         /*ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
                                   auth, encry, bssid, channel);*/
         if (!ret) {

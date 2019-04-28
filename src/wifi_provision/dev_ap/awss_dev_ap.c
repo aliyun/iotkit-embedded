@@ -304,7 +304,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         }
         HAL_Awss_Close_Ap();
 
-        ret = awss_connect(ssid, passwd, (uint8_t *)bssid, token_found == 1 ? token : NULL);
+        ret = awss_connect(ssid, passwd, (uint8_t *)bssid, ETH_ALEN, token_found == 1 ? token : NULL, token_found == 1 ? RANDOM_MAX_LEN : 0);
         /*ret = HAL_Awss_Connect_Ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);*/
         if (ret == 0) {
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
