@@ -16,8 +16,8 @@ int mcast_receive_done()
     int iter = 0;
     while (iter < mcast_smartconfig_data.tlen) {
         if (0 == receive_record[iter++]) {
-             return -1;
-         }
+            return -1;
+        }
     }
     return SUCCESS_RETURN;
 }
@@ -94,30 +94,12 @@ int set_zc_bssid()
     return -1;
 }
 
-unsigned char output_token[16] = {0};
 void gen16ByteToken()
 {
-    unsigned char buff[256] = {0};
-    unsigned char gen_token[32] = {0};
-    int len = 0;
-    memcpy(buff, zc_bssid, ETH_ALEN);
-    len += ETH_ALEN;
-    memcpy(buff + len, mcast_smartconfig_data.bssid, mcast_smartconfig_data.token_len);
-    len += mcast_smartconfig_data.token_len;
-    memcpy(buff + len, zc_passwd, mcast_smartconfig_data.passwd_len);
-    len += mcast_smartconfig_data.passwd_len;
-    utils_sha256(buff, len, gen_token);
-    memcpy(output_token, gen_token, 16);
-#ifdef MCAST_DEBUG
-    {
-        int iter = 0;
-        for (iter = 0; iter < 16; iter++) {
-            printf("mcast: iter is, data is %d, %d\n", iter, output_token[iter]);
-        }
-    }
-#endif
+    int bssid_len = mcast_smartconfig_data.bssid_type_len & 0b11111;
+    awss_complete_token((char *)zc_passwd, mcast_smartconfig_data.bssid, bssid_len,
+                        mcast_smartconfig_data.token, mcast_smartconfig_data.token_len, zc_token);
 }
-
 
 int parse_result()
 {
