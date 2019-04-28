@@ -429,8 +429,11 @@ int HAL_ThreadCreate(
     }
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
-
-    return ret;
+    if (ret != 0) {
+       printf("pthread_create failed,ret = %d", ret);
+       return -1;
+    }
+    return 0;
 }
 
 void HAL_ThreadDetach(_IN_ void *thread_handle)
