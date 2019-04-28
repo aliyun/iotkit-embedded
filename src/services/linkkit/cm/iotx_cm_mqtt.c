@@ -201,7 +201,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             memset(topic,0,topic_info->topic_len + 1);
             memcpy(topic,topic_info->ptopic,topic_info->topic_len);
 
-#ifdef DEV_BIND_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
             if (strstr(topic_info->ptopic,"thing/awss/enrollee/match_reply")) {
                 awss_report_token_reply((char *)topic_info->ptopic,topic_info->topic_len,(void *)topic_info->payload,topic_info->payload_len,NULL);
             }else if (strstr(topic_info->ptopic,"thing/reset_reply")) {
