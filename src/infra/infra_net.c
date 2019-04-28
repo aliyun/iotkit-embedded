@@ -95,11 +95,15 @@ static int connect_ssl(utils_network_pt pNetwork)
         return 1;
     }
 
+#ifdef INFRA_MEM_STATS
     memset(&ssl_hooks, 0, sizeof(ssl_hooks_t));
     ssl_hooks.malloc = ssl_malloc;
     ssl_hooks.free = ssl_free;
 
     ssl_hooks_set(&ssl_hooks);
+#else
+    (void)ssl_hooks;
+#endif
 
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,
