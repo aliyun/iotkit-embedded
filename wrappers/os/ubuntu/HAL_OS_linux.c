@@ -95,7 +95,7 @@ uint32_t HAL_Random(uint32_t region)
     uint32_t output = 0;
     handle = fopen("/dev/urandom", "r");
     if (handle == NULL) {
-        printf("open /dev/urandom failed\n");
+        perror("open /dev/urandom failed\n");
         return 0;
     }
     ret = fread(&output, sizeof(uint32_t), 1, handle);
@@ -415,8 +415,11 @@ int HAL_ThreadCreate(
     }
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
-
-    return ret;
+    if(ret != 0) {
+        printf("pthread_create error: %d\n", (int)ret);
+        return -1;
+    }
+    return 0;
 }
 
 void HAL_ThreadDetach(void *thread_handle)
@@ -477,7 +480,7 @@ void *HAL_MutexCreate(void)
     }
 
     if (0 != (err_num = pthread_mutex_init(mutex, NULL))) {
-        printf("create mutex failed\n");
+        perror("create mutex failed\n");
         HAL_Free(mutex);
         return NULL;
     }
@@ -490,11 +493,11 @@ void HAL_MutexDestroy(void *mutex)
     int err_num;
 
     if (!mutex) {
-        printf("mutex want to destroy is NULL!\n");
+        perror("mutex want to destroy is NULL!\n");
         return;
     }
     if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
-        printf("destroy mutex failed\n");
+        perror("destroy mutex failed\n");
     }
 
     HAL_Free(mutex);
@@ -541,9 +544,8 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
     ent.sigev_notify_function = (void (*)(union sigval))func;
     ent.sigev_value.sival_ptr = user_data;
 
-    printf("HAL_Timer_Create\n");
-
     if (timer_create(CLOCK_MONOTONIC, &ent, timer) != 0) {
+        perror("timer_create failed\n");
         free(timer);
         return NULL;
     }
