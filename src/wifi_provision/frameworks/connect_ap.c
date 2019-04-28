@@ -8,16 +8,12 @@
 extern "C" {
 #endif
 
-int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], uint8_t *bssid, uint8_t bssid_len, 
-                uint8_t *token, uint8_t token_len)
+int awss_complete_token(char passwd[HAL_MAX_PASSWD_LEN], uint8_t *bssid, uint8_t bssid_len, 
+                        uint8_t *token_in, uint8_t token_len, uint8_t token_out[AWSS_TOKEN_LEN])
 {
-    unsigned char final_token[16] = {0};
-    unsigned char final_bssid[6] = {0};
-    uint8_t has_token = 1;
-    uint8_t has_bssid = 1;
-
     /*need to complete the token*/
-    if(token_len != 0 && token_len < 16 && token != NULL) { 
+    int ret = 0;
+    if(token_len != 0 && token_len < 16 && token_in != NULL) { 
         int org_token_len = 0;
         unsigned char buff[128] = {0};
         unsigned char gen_token[32] = {0};
@@ -28,7 +24,7 @@ int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], u
             org_token_len += bssid_len;
         }
 
-        memcpy(buff + org_token_len, token, token_len);
+        memcpy(buff + org_token_len, token_in, token_len);
         org_token_len += token_len;
         
         if(pwd_len != 0 && 128 >= pwd_len + org_token_len) {
@@ -37,15 +33,29 @@ int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], u
         }
         
         utils_sha256(buff, org_token_len, gen_token);
-        memcpy(final_token, gen_token, 16);
+        memcpy(token_out, gen_token, AWSS_TOKEN_LEN);
 
-    } else if (token_len == 16 && token != NULL) {
-       memcpy(final_token, token, 16); 
+    } else if (token_len == AWSS_TOKEN_LEN && token_in != NULL) {
+       memcpy(token_out, token_in, AWSS_TOKEN_LEN); 
     } else {
-        has_token = 0;
+        ret = -1;
     }
 
-    if(has_token == 1) {    
+    return ret; 
+}
+int awss_connect(char ssid[HAL_MAX_SSID_LEN], char passwd[HAL_MAX_PASSWD_LEN], uint8_t *bssid, uint8_t bssid_len, 
+                uint8_t *token, uint8_t token_len)
+{
+    unsigned char final_token[AWSS_TOKEN_LEN] = {0};
+    unsigned char final_bssid[6] = {0};
+    
+    uint8_t has_bssid = 1;
+    int ret;
+
+    /*need to complete the token*/
+    ret = awss_complete_token(passwd, bssid, bssid_len, token, token_len, final_token);
+
+    if(ret == 0) {  
         awss_set_token(final_token);
     }
     
