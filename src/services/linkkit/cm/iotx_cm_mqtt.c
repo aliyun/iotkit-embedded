@@ -73,7 +73,7 @@ failed:
     return NULL;
 }
 
-#ifdef DEV_BIND_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 int awss_report_token_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
 int awss_report_reset_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
 int awss_enrollee_checkin(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
