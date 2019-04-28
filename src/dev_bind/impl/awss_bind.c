@@ -31,7 +31,7 @@ int awss_report_cloud()
     awss_report_token();
 
     awss_cmp_local_init(AWSS_LC_INIT_BIND);
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
     awss_dev_bind_notify_stop();
     awss_dev_bind_notify();
 #endif
@@ -60,7 +60,7 @@ int awss_bind_deinit()
 #endif
     awss_stop_report_token();
     awss_cmp_online_deinit();
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
     awss_dev_bind_notify_stop();
 #endif
     awss_cmp_local_deinit(1);

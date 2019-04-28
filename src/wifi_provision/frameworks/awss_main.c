@@ -74,7 +74,7 @@ int __awss_start(void)
 
 #if defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
                 awss_dev_bind_notify_stop();
 #endif
                 awss_suc_notify_stop();

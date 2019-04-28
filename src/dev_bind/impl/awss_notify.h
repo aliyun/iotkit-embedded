@@ -24,7 +24,7 @@ int awss_devinfo_notify();
 int awss_suc_notify_stop();
 int awss_devinfo_notify_stop();
 #endif
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
 int awss_dev_bind_notify();
 int awss_dev_bind_notify_stop();
 #endif

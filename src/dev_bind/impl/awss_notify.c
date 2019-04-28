@@ -36,7 +36,7 @@ static void *dev_bind_notify_mutex = NULL;
 extern char awss_report_token_suc;
 extern char awss_report_token_cnt;
 
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
 static int awss_dev_bind_notify_resp(void *context, int result,
                                      void *userdata, void *remote,
                                      void *message);
@@ -57,7 +57,7 @@ static int awss_notify_response(int type, int result, void *message);
 static int awss_process_get_devinfo();
 
 static const struct notify_map_t notify_map[] = {
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
     {AWSS_NOTIFY_DEV_BIND_TOKEN, METHOD_DEV_INFO_NOTIFY,       TOPIC_NOTIFY,                awss_dev_bind_notify_resp},
 #endif
 #ifdef WIFI_PROVISION_ENABLED
@@ -356,7 +356,7 @@ int online_ucast_get_device_info(void *ctx, void *resource, void *remote, void *
 static int dev_bind_interval = 0;
 static char dev_bind_cnt = 0;
 
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
 /*
  * {
  *  "id": "123",

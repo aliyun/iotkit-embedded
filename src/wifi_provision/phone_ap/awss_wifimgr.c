@@ -344,7 +344,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     } while (0);
 
     awss_devinfo_notify_stop();
-#ifdef  DEV_BIND_NOTIFY
+#ifndef DEV_BIND_DISABLE_NOTIFY
     awss_dev_bind_notify_stop();
 #endif
     awss_debug("Sending message to app: %s", msg);
