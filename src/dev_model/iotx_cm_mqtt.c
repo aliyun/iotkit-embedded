@@ -213,7 +213,6 @@ static int  _mqtt_connect(uint32_t timeout)
 {
     void *pclient;
     iotx_time_t timer;
-    iotx_conn_info_pt pconn_info = NULL;
     iotx_cm_event_msg_t event;
 
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};

@@ -87,7 +87,9 @@ int LITE_get_loglevel(void)
 
 void LITE_set_loglevel(int pri)
 {
+#if WITH_MEM_STATS
     void **mutex = NULL;
+#endif
     logcb.priority = pri;
 
 #if WITH_MEM_STATS

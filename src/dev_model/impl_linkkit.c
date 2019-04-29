@@ -225,7 +225,9 @@ static int _linkkit_service_list_delete(iotx_service_ctx_node_t *node)
         list_del(&node->linked_list);
         IMPL_LINKKIT_FREE(node);
     } else if (node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+#ifdef ALCS_ENABLED
         void *alcs_ctx = node->service_meta.general.alcs_ctx;
+#endif
         list_del(&node->linked_list);
 #ifdef ALCS_ENABLED
         if (alcs_ctx) {
@@ -255,7 +257,9 @@ static int _linkkit_service_list_destroy(void)
             list_del(&search_node->linked_list);
             IMPL_LINKKIT_FREE(search_node);
         } else if (search_node->type == IOTX_SERVICE_REQ_TYPE_GENERAL) {
+#ifdef ALCS_ENABLED
             void *alcs_ctx = search_node->service_meta.general.alcs_ctx;
+#endif
             list_del(&search_node->linked_list);
 #ifdef ALCS_ENABLED
             if (alcs_ctx) {
@@ -1898,7 +1902,6 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     int res = FAIL_RETURN;
     char msgid[11] = {0};
-    int msgid_len = 0;
     iotx_service_ctx_node_t *service_ctx = (iotx_service_ctx_node_t *)p_service_ctx;
 
     if (devid < 0 || serviceid == NULL || serviceid_len == 0
