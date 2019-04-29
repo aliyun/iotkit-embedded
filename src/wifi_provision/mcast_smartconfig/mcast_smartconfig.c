@@ -6,17 +6,19 @@ extern "C" {
 #ifndef DISABLE_SMARTCONFIG_MCAST
 
 #define SUCCESS_RETURN (0)
+#define FAILURE_RETURN (-1)
 static int processed_packet = 0;
 static uint8_t bssid0[ETH_ALEN] = {0};
 static int mcast_locked_channel = -1;
 static struct mcast_smartconfig_data_type mcast_smartconfig_data = {0};
 static uint8_t receive_record[MCAST_MAX_LEN] = {0};
+
 int mcast_receive_done()
 {
     int iter = 0;
     while (iter < mcast_smartconfig_data.tlen) {
         if (0 == receive_record[iter++]) {
-            return -1;
+            return FAILURE_RETURN;
         }
     }
     return SUCCESS_RETURN;
@@ -35,7 +37,7 @@ int decode_passwd()
         awss_trace("passwd err\r\n");
         awss_event_post(IOTX_AWSS_PASSWD_ERR);
         AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
-        return -1;
+        return FAILURE_RETURN;
     }
     return SUCCESS_RETURN;
 }
@@ -119,7 +121,6 @@ int parse_result()
     BIT1_ssid = 0x1 & (mcast_smartconfig_data.flag >> 1);
     BIT2_token = 0x1 & (mcast_smartconfig_data.flag >> 2);
     BIT6_7_version = 0x3 & (mcast_smartconfig_data.flag >> 6);
-    printf("mcast: passwd, ssid, token, version is %d,%d,%d,%d\n", BIT0_passwd, BIT1_ssid, BIT2_token, BIT6_7_version);
 
     if (0x3 != BIT6_7_version) {
         awss_err("error version");
@@ -159,7 +160,7 @@ int parse_result()
     offset += mcast_smartconfig_data.bssid_type_len & 0b11111;
     mcast_smartconfig_data.checksum = mcast_smartconfig_data.data[offset];
     awss_debug("mcast: checksum is %d\n", mcast_smartconfig_data.checksum);
-    awss_debug("mcast: loopcount is %d\n", processed_packet);
+    awss_debug("mcast: total processed %d packagets \n", processed_packet);
 
     /* set zc_bssid*/
     valid_bssid = set_zc_bssid();
@@ -229,7 +230,9 @@ int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int li
     dst_mac = (uint8_t *)ieee80211_get_DA(hdr);
     /* only multicast is passed */
     if (0x1 != dst_mac[0] || 0x0 != dst_mac[1] || 0x5e != dst_mac[2]) {
+#ifdef VERBOSE_MCAST_DEBUG
         awss_debug("error type, %x, %x, %x\n", dst_mac[0], dst_mac[1], dst_mac[2]);
+#endif
         return ALINK_INVALID;    /* only handle br frame */
     }
 
@@ -321,9 +324,6 @@ int lock_mcast_channel(struct parser_res *res, int encry_type)
         struct ap_info *ap_info = zconfig_get_apinfo(res->bssid);
         extern void aws_set_dst_chan(int channel);
         int tods = res->tods;
-        if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX) {
-            awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
-        }
 
         if (ap_info && ap_info->encry[tods] == encry_type && ap_info->channel) {
             if (res->channel != ap_info->channel) {
@@ -335,12 +335,8 @@ int lock_mcast_channel(struct parser_res *res, int encry_type)
             /* warning: channel may eq 0! */
         };
 
-        if (ap_info) { /* save ssid */
-            strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
-        }
         find_channel_from_aplist = 1;
         zconfig_set_state(STATE_CHN_LOCKED_BY_MCAST, 0, res->channel);
-        memcpy(bssid0, res->bssid, ETH_ALEN);
         mcast_locked_channel = res->channel;
     } while (0);
 #endif
@@ -359,12 +355,14 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
     /* since put 2 bytes one time, so it has to mulitplied by 2 */
     index = index << 1;
     if (1 == get_all) {
-        return -1;
+        return FAILURE_RETURN;
     }
 
     if (index > MCAST_MAX_LEN) {
+#ifdef VERBOSE_MCAST_DEBUG
         awss_debug("error index\n");
-        return -1;
+#endif
+        return FAILURE_RETURN;
     }
     len = res->u.br.data_len;
     encry_type = res->u.br.encry_type;
@@ -373,13 +371,16 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
 
     len -= frame_offset;
     if (len != 1) {
+#ifdef VERBOSE_MCAST_DEBUG
         awss_debug("error len, len is %d\n", len);
-        return -1;
+#endif
+        return FAILURE_RETURN;
     }
+    /* TODO this should not execture each packet */
+    memcpy(bssid0, res->bssid, ETH_ALEN);
 
     /* lock channel */
-    if (SUCCESS_RETURN == find_channel_from_aplist) {
-        memset(zc_ssid, 0, ZC_MAX_SSID_LEN);
+    if (0 == find_channel_from_aplist) {
         lock_mcast_channel(res, encry_type);
     }
     processed_packet++;
