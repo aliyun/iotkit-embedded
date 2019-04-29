@@ -51,6 +51,12 @@ uint64_t HAL_UptimeMs(void);
 static unsigned int mbedtls_mem_used = 0;
 static unsigned int mbedtls_max_mem_used = 0;
 static ssl_hooks_t g_ssl_hooks = {HAL_Malloc, HAL_Free};
+#if defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)
+int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
+int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
+const int ciphersuites[] = {MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256};
+#endif
 
 #define MBEDTLS_MEM_INFO_MAGIC   0x12345678
 
@@ -215,6 +221,9 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     mbedtls_net_init(tcp_fd);
     mbedtls_ssl_init(ssl);
     mbedtls_ssl_config_init(conf);
+
+/* Setup Client Cert/Key */
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt_init(crt509_ca);
 
     /*verify_source->trusted_ca_crt==NULL
@@ -230,9 +239,6 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     }
     printf(" ok (%d skipped)\n", ret);
 
-
-    /* Setup Client Cert/Key */
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
 #if defined(MBEDTLS_CERTS_C)
     mbedtls_x509_crt_init(crt509_cli);
     mbedtls_pk_init(pk_cli);
@@ -435,6 +441,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
     struct in_addr in;
 #endif /* #if defined(_PLATFORM_IS_LINUX_) */
     int ret = -1;
+
     /*
      * 0. Init
      */
@@ -497,7 +504,25 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         printf(" failed\n  ! mbedtls_ssl_conf_own_cert returned %d\n", ret);
         return ret;
     }
-#endif
+#elif defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED) /* MBEDTLS_X509_CRT_PARSE_C */
+    {
+        char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+        char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+        char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+        char psk_identity[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2] = {0};
+        HAL_GetProductKey(product_key);
+        HAL_GetDeviceName(device_name);
+        HAL_GetDeviceSecret(device_secret);
+        memcpy(psk_identity,product_key,strlen(product_key));
+        memcpy(psk_identity,".",strlen("."));
+        memcpy(psk_identity,device_name,strlen(device_name));
+        mbedtls_ssl_conf_psk(&(pTlsData->conf),(const unsigned char *)device_secret,strlen(device_secret),
+                                (const unsigned char *)psk_identity,strlen(psk_identity));
+        mbedtls_ssl_conf_ciphersuites(&(pTlsData->conf),ciphersuites);
+        printf("mbedtls psk config finished\n");
+    }
+#endif /* MBEDTLS_KEY_EXCHANGE_PSK_ENABLED */
+
     mbedtls_ssl_conf_rng(&(pTlsData->conf), _ssl_random, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, stdout);
@@ -507,6 +532,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         return ret;
     }
 
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
 #if defined(_PLATFORM_IS_LINUX_)
     /* only set hostname when addr isn't ip string and hostname isn't preauth_shanghai */
     if (inet_aton(addr, &in) == 0 && strcmp("iot-auth-pre.cn-shanghai.aliyuncs.com", addr)) {
@@ -517,6 +543,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
     }
 #endif /* #if defined(_PLATFORM_IS_LINUX_) */
+#endif
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
 #if defined(TLS_SAVE_TICKET)
@@ -626,6 +653,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         printf(" failed  ! verify result not confirmed.\n");
         return ret;
     }
+
     /* n->my_socket = (int)((n->tlsdataparams.fd).fd); */
     /* WRITE_IOT_DEBUG_LOG("my_socket=%d", n->my_socket); */
 
