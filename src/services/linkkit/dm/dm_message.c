@@ -1853,7 +1853,7 @@ int dm_msg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
     char *params = NULL;
     int params_len = 0;
     char timestamp[DM_UTILS_UINT64_STRLEN] = {0};
-    char client_id[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 1] = {0};
+    char client_id[PRODUCT_KEY_MAXLEN + 1 + DEVICE_NAME_MAXLEN + 21] = {0};
     char *sign_source = NULL;
     int sign_source_len = 0;
     char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA1;
@@ -1875,7 +1875,7 @@ int dm_msg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
     /* dm_log_debug("Time Stamp: %s", timestamp); */
 
     /* Client ID */
-    HAL_Snprintf(client_id, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 1, "%s.%s", product_key, device_name);
+    HAL_Snprintf(client_id, PRODUCT_KEY_MAXLEN + 1 + DEVICE_NAME_MAXLEN + 21, "%s.%s|_v=sdk-c-"LINKKIT_VERSION"|", product_key, device_name);
 
     /* Sign */
     sign_source_len = strlen(DM_MSG_COMBINE_LOGIN_SIGN_SOURCE) + strlen(client_id) +
