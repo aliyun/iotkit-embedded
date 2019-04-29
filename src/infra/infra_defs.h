@@ -3,6 +3,10 @@
 
 #include "infra_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef _WIN32
     #if !defined(CC_IS_MINGW32)
         #ifdef DLL_HAL_EXPORTS
@@ -350,7 +354,11 @@ typedef enum {
 #define IOTX_HTTP_DOMAIN_NUMBER (6)
 extern const char *g_infra_http_domain[IOTX_HTTP_DOMAIN_NUMBER];
 
+extern int iotx_facility_json_print(const char *str, int level, ...);
+#ifdef __cplusplus
+}
+#endif
 #endif
 
-extern int iotx_facility_json_print(const char *str, int level, ...);
+
 
