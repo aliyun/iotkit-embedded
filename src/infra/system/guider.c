@@ -621,7 +621,11 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
     _fill_conn_string(conn->host_name, sizeof(GUIDER_DIRECT_DOMAIN_PRE),
                       GUIDER_DIRECT_DOMAIN_PRE);
 #else
+#ifdef SUPPORT_TLS
+    conn->port = 443;
+#else
     conn->port = 1883;
+#endif
     len = strlen(dev.product_key) + 2 + strlen(iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
     conn->host_name = SYS_GUIDER_MALLOC(len);
     if (conn->host_name == NULL) {
