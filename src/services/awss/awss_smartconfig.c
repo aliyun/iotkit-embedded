@@ -327,6 +327,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
 #ifdef AWSS_SUPPORT_APLIST
         do {  // amend SSID automatically
             struct ap_info *ap = NULL;
+            int ssid_len = ZC_MAX_SSID_LEN - 1;
             ap = zconfig_get_apinfo(zc_bssid);
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
             if (ap == NULL || ap->ssid[0] == '\0' ||
@@ -336,7 +337,10 @@ int zconfig_get_ssid_passwd(uint8_t tods)
                 break;
             }
 #endif
-            strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
+            ssid_len = strlen((const char *)ap->ssid) > ssid_len ? ssid_len : strlen((const char *)ap->ssid);
+            if (is_utf8((const char *)ap->ssid, ssid_len) == 0) {
+                strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
+            }
         } while (0);
 #endif
     } else {
