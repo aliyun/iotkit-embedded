@@ -13,6 +13,8 @@ extern "C" {
 #endif
 
 static void *awss_bind_mutex = NULL;
+int awss_start_bind();
+
 int awss_report_cloud()
 {
     if (awss_bind_mutex == NULL) {
@@ -23,11 +25,33 @@ int awss_report_cloud()
     }
 
     HAL_MutexLock(awss_bind_mutex);
-
     awss_cmp_online_init();
+    HAL_MutexUnlock(awss_bind_mutex);
 #ifdef DEVICE_MODEL_ENABLED
-    awss_check_reset();
+    if(awss_check_reset()) {
+        return awss_report_reset_to_cloud();
+    }
 #endif
+    awss_start_bind();
+    return 0;
+}
+
+int awss_start_bind()
+{
+    static int awss_bind_inited = 0;
+
+    if (awss_bind_mutex == NULL) {
+        awss_bind_mutex = HAL_MutexCreate();
+        if (awss_bind_mutex == NULL)
+            return -1;
+    }
+
+    HAL_MutexLock(awss_bind_mutex);
+    if(awss_bind_inited == 1) {
+        HAL_MutexUnlock(awss_bind_mutex);
+        return 0;
+    }
+
     awss_report_token();
 
     awss_cmp_local_init(AWSS_LC_INIT_BIND);
@@ -35,7 +59,6 @@ int awss_report_cloud()
     awss_dev_bind_notify_stop();
     awss_dev_bind_notify();
 #endif
-
 #ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     awss_registrar_init();
@@ -45,6 +68,7 @@ int awss_report_cloud()
 #endif
     AWSS_DB_DISP_STATIS();
     AWSS_DB_REPORT_STATIS("RDA5981");
+    awss_bind_inited = 1;
     HAL_MutexUnlock(awss_bind_mutex);
     return 0;
 }

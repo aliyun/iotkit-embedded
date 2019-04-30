@@ -22,9 +22,11 @@ extern "C" {
 static uint8_t awss_report_reset_suc = 0;
 static uint16_t awss_report_reset_id = 0;
 static void *report_reset_timer = NULL;
+#ifdef DEV_BIND_ENABLED
+extern int awss_start_bind();
+#endif
 
-static int awss_report_reset_to_cloud();
-
+int awss_report_reset_to_cloud();
 void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
 {
     char rst = 0;
@@ -47,6 +49,10 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
     HAL_Timer_Delete(report_reset_timer);
     report_reset_timer = NULL;
 
+#ifdef DEV_BIND_ENABLED
+    awss_start_bind();
+#endif
+
 #ifdef INFRA_EVENT
     iotx_event_post(IOTX_RESET);  /* for old version of event */
     do {  /* for new version of event */
@@ -58,9 +64,10 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
         ((int (*)(int))cb)(IOTX_RESET);
     } while (0);
 #endif
+
 }
 
-static int awss_report_reset_to_cloud()
+int awss_report_reset_to_cloud()
 {
     int ret = -1;
     int final_len = 0;
@@ -160,8 +167,9 @@ int awss_check_reset()
     }
 
     awss_report_reset_suc = 0;
+    log_info("[RST]", "need report rst\r\n");
 
-    return awss_report_reset_to_cloud();
+    return 1;
 }
 
 int awss_stop_report_reset()

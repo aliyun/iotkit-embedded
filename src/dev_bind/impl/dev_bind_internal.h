@@ -7,7 +7,6 @@
 #include "awss_log.h"
 #include "passwd.h"
 #include "awss_utils.h"
-#include "awss_reset.h"
 #include "infra_compat.h"
 #include "awss_packet.h"
 #include "awss_notify.h"
@@ -21,6 +20,7 @@
 #include "dev_bind_wrapper.h"
 #include "coap_api.h"
 #include "iotx_coap.h"
+#include "awss_dev_reset.h"
 #ifdef WIFI_PROVISION_ENABLED
 #include "awss_statis.h"
 #endif
