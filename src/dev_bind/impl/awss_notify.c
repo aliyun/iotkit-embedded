@@ -318,7 +318,7 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
     }
 
     if(awss_check_reset()) {
-        return awss_report_reset_to_cloud();
+        return -1;
     }
     /*
      * if the last one is not finished, drop current request
