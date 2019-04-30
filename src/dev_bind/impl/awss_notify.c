@@ -234,7 +234,7 @@ static int awss_process_get_devinfo()
     do {
         int len = 0, id_len = 0;
         char *msg = NULL, *id = NULL;
-        char req_msg_id[MSG_REQ_ID_LEN];
+        char req_msg_id[MSG_REQ_ID_LEN + 1];
         char topic[TOPIC_LEN_MAX] = { 0 };
         struct coap_session_ctx_t *ctx = (struct coap_session_ctx_t *)coap_session_ctx;
 
@@ -255,6 +255,10 @@ static int awss_process_get_devinfo()
 
         id = json_get_value_by_name(msg, len, "id", &id_len, 0);
         memset(req_msg_id, 0, sizeof(req_msg_id));
+
+        if(id_len > MSG_REQ_ID_LEN) {
+            goto GET_DEV_INFO_ERR;     
+        }
         memcpy(req_msg_id, id, id_len);
 
         awss_build_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, buf, DEV_INFO_LEN_MAX);
