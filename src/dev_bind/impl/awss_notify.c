@@ -250,7 +250,7 @@ static int awss_process_get_devinfo()
     do {
         int len = 0, id_len = 0;
         char *msg = NULL, *id = NULL;
-        char req_msg_id[MSG_REQ_ID_LEN];
+        char req_msg_id[MSG_REQ_ID_LEN + 1];
         char topic[TOPIC_LEN_MAX] = { 0 };
         struct coap_session_ctx_t *ctx = (struct coap_session_ctx_t *)coap_session_ctx;
 
@@ -271,6 +271,10 @@ static int awss_process_get_devinfo()
 
         id = json_get_value_by_name(msg, len, "id", &id_len, 0);
         memset(req_msg_id, 0, sizeof(req_msg_id));
+
+        if(id_len > MSG_REQ_ID_LEN) {
+            goto GET_DEV_INFO_ERR;     
+        }
         memcpy(req_msg_id, id, id_len);
 
         awss_build_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, buf, DEV_INFO_LEN_MAX);
@@ -322,10 +326,8 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
                                   void *request, char is_mcast)
 {
     int timeout = 0;
-    /*
-     * if cloud is not ready, don't response token
-     */
-    if (awss_report_token_cnt == 0) {
+
+    if(awss_check_reset()) {
         return -1;
     }
     /*

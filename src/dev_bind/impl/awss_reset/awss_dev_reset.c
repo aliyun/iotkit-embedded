@@ -19,11 +19,15 @@ extern "C" {
 
 #define AWSS_KV_RST                "awss.rst"
 
+#ifdef DEV_BIND_ENABLED
+extern int awss_start_bind();
+#endif
+
 static uint8_t awss_report_reset_suc = 0;
 static uint16_t awss_report_reset_id = 0;
 static void *report_reset_timer = NULL;
 
-static int awss_report_reset_to_cloud();
+int awss_report_reset_to_cloud();
 
 void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
 {
@@ -58,9 +62,13 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
         ((int (*)(int))cb)(IOTX_RESET);
     } while (0);
 #endif
+
+#ifdef DEV_BIND_ENABLED
+    awss_start_bind();
+#endif
 }
 
-static int awss_report_reset_to_cloud()
+int awss_report_reset_to_cloud()
 {
     int ret = -1;
     int final_len = 0;
@@ -153,10 +161,10 @@ int awss_check_reset()
         devrst_debug("[RST]", "no rst\r\n");
         return 0;
     }
-
+    log_info("[RST]", "need report rst\r\n");
     awss_report_reset_suc = 0;
 
-    return awss_report_reset_to_cloud();
+    return 1;
 }
 
 int awss_stop_report_reset()
