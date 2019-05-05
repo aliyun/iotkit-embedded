@@ -136,20 +136,6 @@ void HAL_Printf(const char *fmt, ...)
     fflush(stdout);
 }
 
-int HAL_GetPartnerID(char *pid_str)
-{
-    memset(pid_str, 0x0, IOTX_PARTNER_ID_LEN);
-    strcpy(pid_str, "c-sdk-2.3.0-pid");
-    return strlen(pid_str);
-}
-
-int HAL_GetModuleID(char *mid_str)
-{
-    memset(mid_str, 0x0, IOTX_MODULE_ID_LEN);
-    strcpy(mid_str, "c-sdk-2.3.0-mid");
-    return strlen(mid_str);
-}
-
 int HAL_SetProductKey(char *product_key)
 {
     int len = strlen(product_key);
