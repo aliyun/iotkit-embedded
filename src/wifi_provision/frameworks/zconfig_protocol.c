@@ -255,7 +255,7 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
     return pkt_type;
 }
 
-/* init mem & timer */
+/* init mem */
 void zconfig_init()
 {
     awss_info("%s\r\n", __func__);
