@@ -10,55 +10,13 @@ extern "C"
 
 #ifdef AWSS_SUPPORT_APLIST
 
-#define CLR_APLIST_MONITOR_TIMEOUT_MS    (24 * 60 *60 * 1000)
 /* storage to store apinfo */
 struct ap_info *zconfig_aplist = NULL;
 /* aplist num, less than MAX_APLIST_NUM */
 uint8_t zconfig_aplist_num = 0;
+uint8_t zconfig_aplist_id = 0;
 
 static uint8_t clr_aplist = 0;
-static void *clr_aplist_timer = NULL;
-
-static void awss_clr_aplist_monitor()
-{
-    clr_aplist = 1;
-    HAL_Timer_Start(clr_aplist_timer, CLR_APLIST_MONITOR_TIMEOUT_MS);
-}
-
-int awss_is_ready_clr_aplist(void)
-{
-    return clr_aplist;
-}
-
-int awss_clear_aplist(void)
-{
-    memset(zconfig_aplist, 0, sizeof(struct ap_info) * MAX_APLIST_NUM);
-    zconfig_aplist_num = 0;
-    clr_aplist = 0;
-
-    return 0;
-}
-
-int awss_open_aplist_monitor(void)
-{
-    if (clr_aplist_timer == NULL)
-        clr_aplist_timer = HAL_Timer_Create("clr_aplist", (void (*)(void *))awss_clr_aplist_monitor, (void *)NULL);
-    if (clr_aplist_timer == NULL)
-        return -1;
-
-    HAL_Timer_Stop(clr_aplist_timer);
-    HAL_Timer_Start(clr_aplist_timer, CLR_APLIST_MONITOR_TIMEOUT_MS);
-    return 0;
-}
-
-int awss_close_aplist_monitor(void)
-{
-    if (clr_aplist_timer == NULL)
-        return 0;
-    awss_stop_timer(clr_aplist_timer);
-    clr_aplist_timer = NULL;
-    return 0;
-}
 
 int awss_init_ieee80211_aplist(void)
 {
@@ -85,7 +43,7 @@ struct ap_info *zconfig_get_apinfo(uint8_t *mac)
 {
     int i;
 
-    for (i = 1; i < zconfig_aplist_num; i++) {
+    for (i = 0; i < zconfig_aplist_num; i++) {
         if (!memcmp(zconfig_aplist[i].mac, mac, ETH_ALEN))
             return &zconfig_aplist[i];
     }
@@ -98,7 +56,7 @@ struct ap_info *zconfig_get_apinfo_by_3_byte_mac(uint8_t *last_3_Byte_mac)
     int i;
     uint8_t *local_mac;
 
-    for (i = 1; i < zconfig_aplist_num; i++) {
+    for (i = 0; i < zconfig_aplist_num; i++) {
         local_mac = (uint8_t *)(zconfig_aplist[i].mac) + 3;
         if (!memcmp(local_mac, last_3_Byte_mac, ETH_ALEN - 3))
             return &zconfig_aplist[i];
@@ -111,7 +69,7 @@ struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid)
 {
     int i;
 
-    for (i = 1; i < zconfig_aplist_num; i ++) {
+    for (i = 0; i < zconfig_aplist_num; i ++) {
         if (!strcmp((char *)zconfig_aplist[i].ssid, (char *)ssid))
             return &zconfig_aplist[i];
     }
@@ -127,7 +85,7 @@ struct ap_info *zconfig_get_apinfo_by_ssid_prefix(uint8_t *ssid_prefix)
     if (!len)
         return NULL;
 
-    for (i = 1; i < zconfig_aplist_num; i++) {
+    for (i = 0; i < zconfig_aplist_num; i++) {
         if (!strncmp((char *)zconfig_aplist[i].ssid, (char *)ssid_prefix, len)) {
             /* TODO: first match or best match??? */
             return &zconfig_aplist[i];/* first match */
@@ -157,7 +115,7 @@ struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix)
     if (!len)
         return NULL;
 
-    for (i = 1; i < zconfig_aplist_num; i++) {
+    for (i = 0; i < zconfig_aplist_num; i++) {
         if (str_end_with((char *)zconfig_aplist[i].ssid, (char *)ssid_suffix)) {
             /* TODO: first match or best match??? */
             return &zconfig_aplist[i];/* first match */
@@ -213,15 +171,8 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
     if (pairwise_cipher == ZC_ENC_TYPE_TKIPAES)
         pairwise_cipher = ZC_ENC_TYPE_AES; /* tods */
 
-    /*
-     * start from zconfig_aplist[1], leave [0] for temp use
-     * if zconfig_aplist[] is full, always replace [0]
-     */
-    if (!zconfig_aplist_num) {
-        zconfig_aplist_num = 1;
-    }
 
-    for (i = 1; i < zconfig_aplist_num; i++) {
+    for (i = 0; i < zconfig_aplist_num; i++) {
         if(!strncmp(zconfig_aplist[i].ssid, (char *)ssid, ZC_MAX_SSID_LEN)
            && !memcmp(zconfig_aplist[i].mac, bssid, ETH_ALEN)) {
             /* FIXME: useless? */
@@ -239,11 +190,8 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
         }
     }
 
-    if (i < MAX_APLIST_NUM) {
-        zconfig_aplist_num ++;
-    } else {
-        i = 0;    /* [0] for temp use, always replace [0] */
-    }
+    i = zconfig_aplist_id % MAX_APLIST_NUM;
+    zconfig_aplist_id++;
 
     strncpy((char *)&zconfig_aplist[i].ssid, (const char *)&ssid[0], ZC_MAX_SSID_LEN - 1);
     memcpy(&zconfig_aplist[i].mac, bssid, ETH_ALEN);
@@ -264,6 +212,9 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
     if (!memcmp(zc_bssid, bssid, ETH_ALEN) && ssid[0] != '\0') {
         strncpy((char *)zc_ssid, (char const *)ssid, ZC_MAX_SSID_LEN - 1);
     }
+
+    zconfig_aplist_num ++;
+    zconfig_aplist_num = zconfig_aplist_num >= MAX_APLIST_NUM ? MAX_APLIST_NUM : zconfig_aplist_num;
 
     return 0;
 }

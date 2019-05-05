@@ -376,11 +376,6 @@ timeout_recving:
     }
 
     aws_state = AWS_SCANNING;
-#ifdef AWSS_SUPPORT_APLIST
-    if (awss_is_ready_clr_aplist()) {
-        awss_clear_aplist();
-    }
-#endif
 
     aws_start_timestamp = os_get_time_ms();
     HAL_Awss_Open_Monitor(aws_80211_frame_handler);
@@ -459,9 +454,6 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     aws_result_channel = 0;
 
     zconfig_init();
-#ifdef AWSS_SUPPORT_APLIST
-    awss_open_aplist_monitor();
-#endif
 
     HAL_Awss_Open_Monitor(aws_80211_frame_handler);
 

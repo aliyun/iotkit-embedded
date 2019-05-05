@@ -313,7 +313,6 @@ void zconfig_force_destroy(void)
 
 #ifdef AWSS_SUPPORT_APLIST
     awss_deinit_ieee80211_aplist();
-    awss_close_aplist_monitor();
 #endif
 }
 
