@@ -14,9 +14,6 @@ extern "C"
 {
 #endif
 
-int awss_open_aha_monitor(void);
-int awss_close_aha_monitor(void);
-int awss_aha_monitor_is_timeout(void);
 int aws_send_aha_probe_req(void);
 int awss_recv_callback_aha_ssid(struct parser_res *res);
 int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi);

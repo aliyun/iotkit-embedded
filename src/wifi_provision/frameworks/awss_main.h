@@ -21,8 +21,6 @@ extern const char *zc_default_passwd;
 int __awss_start(void);
 int __awss_stop(void);
 
-int awss_cancel_aha_monitor(void);
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

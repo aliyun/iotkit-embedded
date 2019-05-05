@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 #define AWSS_PRESS_TIMEOUT_MS  (60000)
+#define AHA_MONITOR_TIMEOUT_MS  (1 * 60 * 1000)
 
 extern int switch_ap_done;
 static uint8_t awss_stopped = 1;
@@ -27,6 +28,28 @@ int awss_success_notify(void)
     awss_start_connectap_monitor();
     AWSS_DISP_STATIS();
     return 0;
+}
+
+char awss_aha_connect_to_router()
+{
+    int iter = 0;
+    char dest_ap = 0;
+    char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
+    int count = AHA_MONITOR_TIMEOUT_MS / 50;
+    for (iter = 0; iter < count; iter++) {
+        memset(ssid, 0, sizeof(ssid));
+        HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
+        if (HAL_Sys_Net_Is_Ready() &&
+            strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) {  /* not AHA */
+            dest_ap = 1;
+            break;
+        }
+        if (awss_stopped) {
+            break;
+        }
+        HAL_SleepMs(50);
+    }
+    return dest_ap;
 }
 
 int awss_start(void)
@@ -60,22 +83,9 @@ int awss_start(void)
 
             if (HAL_Sys_Net_Is_Ready()) {
                 char dest_ap = 0;
-                awss_open_aha_monitor();
 
                 awss_cmp_local_init(AWSS_LC_INIT_PAP);
-                while (!awss_aha_monitor_is_timeout()) {
-                    memset(ssid, 0, sizeof(ssid));
-                    HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
-                    if (HAL_Sys_Net_Is_Ready() &&
-                        strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) {  /* not AHA */
-                        dest_ap = 1;
-                        break;
-                    }
-                    if (awss_stopped) {
-                        break;
-                    }
-                    HAL_SleepMs(50);
-                }
+                dest_ap = awss_aha_connect_to_router();
 
                 awss_cmp_local_deinit(0);
 
@@ -104,10 +114,6 @@ int awss_start(void)
         return -1;
     }
 
-#ifdef AWSS_SUPPORT_AHA
-    awss_close_aha_monitor();
-#endif
-
     awss_success_notify();
     awss_stopped = 1;
 
@@ -117,9 +123,6 @@ int awss_start(void)
 int awss_stop(void)
 {
     awss_stopped = 1;
-#ifdef AWSS_SUPPORT_AHA
-    awss_close_aha_monitor();
-#endif
     awss_stop_connectap_monitor();
     g_user_press = 0;
     awss_press_timeout();

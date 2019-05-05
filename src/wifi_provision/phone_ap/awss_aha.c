@@ -12,7 +12,6 @@ extern "C"
 
 #define AHA_SA_OFFSET           (10)
 #define AHA_PROBE_PKT_LEN       (49)
-#define AHA_MONITOR_TIMEOUT_MS  (1 * 60 * 1000)
 
 const char *zc_default_ssid = "aha";
 const char *zc_default_passwd = "12345678";
@@ -32,39 +31,6 @@ static const uint8_t aha_probe_req_frame[AHA_PROBE_PKT_LEN] = {
 
 static void *aha_timer = NULL;
 static volatile char aha_timeout = 0;
-
-static void aha_monitor(void);
-
-static void aha_monitor(void)
-{
-    aha_timeout = 1;
-}
-
-int awss_aha_monitor_is_timeout(void)
-{
-    return aha_timeout > 0;
-}
-
-int awss_open_aha_monitor(void)
-{
-    aha_timeout = 0;
-    if (aha_timer == NULL)
-        aha_timer = (void *)HAL_Timer_Create("aha", (void (*)(void *))aha_monitor, NULL);
-    if (aha_timer == NULL)
-        return -1;
-
-    HAL_Timer_Stop(aha_timer);
-    HAL_Timer_Start(aha_timer, AHA_MONITOR_TIMEOUT_MS);
-    return 0;
-}
-
-int awss_close_aha_monitor(void)
-{
-    awss_stop_timer(aha_timer);
-    aha_timer = NULL;
-    aha_timeout = 0;
-    return 0;
-}
 
 int awss_recv_callback_aha_ssid(struct parser_res *res)
 {

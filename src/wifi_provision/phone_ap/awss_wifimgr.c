@@ -381,7 +381,6 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         switch_ap_done = 1;
-        awss_close_aha_monitor();
         HAL_MutexDestroy(g_scan_mutex);
         g_scan_mutex = NULL;
         wifi_scan_runninng = 0;
