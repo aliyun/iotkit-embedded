@@ -50,12 +50,8 @@ static const uint8_t aws_fixed_scanning_channels[] = {
     1, 6, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 };
 
-static void *rescan_timer = NULL;
-
-static void rescan_monitor(void);
 
 #define RESCAN_MONITOR_TIMEOUT_MS     (5 * 60 * 1000)
-static uint8_t rescan_available = 0;
 
 /*
  * sniffer result/storage
@@ -359,21 +355,19 @@ timeout_recving:
         if (aws_stop == AWS_STOPPING) {
             break;
         }
-        if (rescan_timer == NULL) {
-            rescan_timer = HAL_Timer_Create("rescan", (void(*)(void *))rescan_monitor, NULL);
-        }
-        HAL_Timer_Stop(rescan_timer);
-        HAL_Timer_Start(rescan_timer, RESCAN_MONITOR_TIMEOUT_MS);
         HAL_Awss_Close_Monitor();
-        while (rescan_available == 0) {
-            if (awss_get_config_press() ||
-                aws_stop == AWS_STOPPING) {  /* user interrupt sleep */
-                HAL_Timer_Stop(rescan_timer);
-                break;
+        /* sleep for RESCAN_MONITOR_TIMEOUT_MS if no one interrupts */
+        {
+            int iter = 0;
+            int count = RESCAN_MONITOR_TIMEOUT_MS / 200;
+            for (iter = 0; iter < count; iter++) {
+                if (awss_get_config_press() ||
+                    aws_stop == AWS_STOPPING) {  /* user interrupt sleep */
+                    break;
+                }
+                HAL_SleepMs(200);
             }
-            HAL_SleepMs(200);
         }
-        rescan_available = 0;
     } while (0);
 
     if (aws_stop == AWS_STOPPING) {  /* interrupt by user */
@@ -393,8 +387,6 @@ timeout_recving:
     goto rescanning;
 
 success:
-    awss_stop_timer(rescan_timer);
-    rescan_timer = NULL;
     /* don't destroy zconfig_data until monitor_cb is finished. */
     HAL_MutexLock(zc_mutex);
     HAL_MutexUnlock(zc_mutex);
@@ -417,11 +409,6 @@ success:
     else {
         zconfig_force_destroy();
     }
-}
-
-static void rescan_monitor(void)
-{
-    rescan_available = 1;
 }
 
 int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi)
@@ -537,7 +524,7 @@ void aws_release_mutex()
     }
 }
 
-int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid, uint8_t *token, 
+int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid, uint8_t *token,
                         char *auth, char *encry, uint8_t *channel)
 {
     if (aws_state != AWS_SUCCESS) {
