@@ -109,12 +109,12 @@ typedef struct {
     hal_uart_stop_bits_t    stop_bits;
     hal_uart_flow_control_t flow_control;
     hal_uart_mode_t         mode;
-} uart_config_t;
+} at_uart_config_t;
 
 typedef struct {
-    uint8_t       port;   /* uart port */
-    uart_config_t config; /* uart config */
-    void         *priv;   /* priv data */
+    uint8_t          port;   /* uart port */
+    at_uart_config_t config; /* uart config */
+    void             *priv;   /* priv data */
 } uart_dev_t;
 
 /**
