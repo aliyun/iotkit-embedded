@@ -29,9 +29,6 @@ static const uint8_t aha_probe_req_frame[AHA_PROBE_PKT_LEN] = {
     0x3F, 0x84, 0x10, 0x9E  /* FCS */
 };
 
-static void *aha_timer = NULL;
-static volatile char aha_timeout = 0;
-
 int awss_recv_callback_aha_ssid(struct parser_res *res)
 {
     uint8_t tods = res->tods;
