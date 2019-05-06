@@ -13,12 +13,13 @@ extern "C" {
 void *awss_token_mutex = NULL;
 extern int awss_stop_report_token();
 
-int awss_report_cloud()
+int awss_start_bind()
 {
-    awss_cmp_online_init();
-#ifdef DEVICE_MODEL_ENABLED
-    awss_check_reset();
-#endif
+    static uint8_t awss_bind_inited = 0;
+    if(awss_bind_inited == 1) {
+        return 0;
+    }
+    awss_bind_inited = 1;
     awss_report_token();
     awss_cmp_local_init();
     awss_dev_bind_notify_stop();
@@ -30,6 +31,19 @@ int awss_report_cloud()
 #endif
 #endif
     return 0;
+}
+
+int awss_report_cloud()
+{
+    awss_cmp_online_init();
+#ifdef DEVICE_MODEL_ENABLED
+    extern int awss_check_reset();
+    extern int awss_report_reset_to_cloud();
+    if(awss_check_reset()) {
+        return awss_report_reset_to_cloud();
+    }
+#endif
+    return awss_start_bind();
 }
 
 void awss_bind_deinit()
