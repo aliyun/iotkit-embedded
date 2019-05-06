@@ -54,4 +54,3 @@ int HAL_Awss_Connect_Ap(
 /*************************************** phone ap specially required hals ***************************************/
 int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
                                   _IN_ uint8_t *buffer, _IN_ int len);
-DLL_HAL_API int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);

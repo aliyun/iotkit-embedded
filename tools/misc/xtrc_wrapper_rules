@@ -425,5 +425,4 @@ AWSS_SUPPORT_DEV_AP||HAL_Awss_Connect_Ap|iot_import_awss.h
 AWSS_SUPPORT_DEV_AP||HAL_Awss_Close_Ap|
 AWSS_SUPPORT_DEV_AP||HAL_Awss_Open_Ap|
 
-AWSS_SUPPORT_AHA||HAL_Wifi_Scan|
 AWSS_SUPPORT_AHA||HAL_Wifi_Send_80211_Raw_Frame|

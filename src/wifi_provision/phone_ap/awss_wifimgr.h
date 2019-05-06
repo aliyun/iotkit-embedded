@@ -17,7 +17,6 @@ enum {
     SHUB_OK
 };
 
-int wifimgr_process_get_wifilist_request(void *ctx, void *resource, void *remote, void *request);
 int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, void *request);

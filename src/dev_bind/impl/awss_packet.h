@@ -14,7 +14,6 @@
 #define ILOP_VER                             "1.0"
 #define AWSS_VER                             "{\"smartconfig\":\"2.0\",\"zconfig\":\"2.0\",\"router\":\"2.0\",\"ap\":\"2.0\",\"softap\":\"2.0\"}"
 
-#define TOPIC_AWSS_WIFILIST                  "/sys/%s/%s/awss/event/wifilist/get"
 #define TOPIC_AWSS_SWITCHAP                  "/sys/%s/%s/awss/device/switchap"
 #define TOPIC_AWSS_GETDEVICEINFO_MCAST       "/sys/awss/device/info/get"
 #define TOPIC_AWSS_GETDEVICEINFO_UCAST       "/sys/%s/%s/awss/device/info/get"

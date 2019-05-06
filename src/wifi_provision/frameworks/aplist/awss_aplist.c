@@ -26,6 +26,7 @@ int awss_init_ieee80211_aplist(void)
     if (zconfig_aplist == NULL)
         return -1;
     zconfig_aplist_num = 0;
+    zconfig_aplist_id = 0;
     return 0;
 }
 
@@ -36,6 +37,7 @@ int awss_deinit_ieee80211_aplist(void)
     HAL_Free(zconfig_aplist);
     zconfig_aplist = NULL;
     zconfig_aplist_num = 0;
+    zconfig_aplist_id = 0;
     return 0;
 }
 
