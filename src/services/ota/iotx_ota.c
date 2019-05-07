@@ -716,6 +716,20 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         return -1;
     } else if (0 == h_ota->size_fetched) {
         /* force report status in the first */
+        otalib_MD5Deinit(h_ota->md5);
+        h_ota->md5 = otalib_MD5Init();
+        if(h_ota->md5 == NULL) {
+            OTA_LOG_ERROR("md5 init failed");
+            return -1;
+        }
+
+        otalib_Sha256Deinit(h_ota->sha256);
+        h_ota->sha256 = otalib_Sha256Init();
+        if(h_ota->sha256 == NULL) {
+            OTA_LOG_ERROR("sha256 init failed");
+            return -1;
+        }
+
         IOT_OTA_ReportProgress(h_ota, IOT_OTAP_FETCH_PERCENTAGE_MIN, "Enter in downloading state");
     }
 
