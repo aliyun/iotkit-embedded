@@ -228,8 +228,8 @@ int aws_is_chnscan_timeout(void)
     }
 
     if (time_elapsed_ms_since(aws_chn_timestamp) > HAL_Awss_Get_Channelscan_Interval_Ms()) {
-        if ((0 != HAL_Awss_Get_Timeout_Interval_Ms()) &&
-            (time_elapsed_ms_since(aws_start_timestamp) > HAL_Awss_Get_Timeout_Interval_Ms())) {
+        if ((0 != awss_get_press_timeout_ms()) &&
+            (time_elapsed_ms_since(aws_start_timestamp) > awss_get_press_timeout_ms())) {
             return CHNSCAN_TIMEOUT;
         } else {
             return CHNSCAN_NEXT_CHN;
@@ -286,6 +286,7 @@ rescanning:
     /* start scaning channel */
     memset(zc_bssid, 0, ETH_ALEN);
     while (aws_amend_dst_chan != 0 || aws_state == AWS_SCANNING) {
+        awss_update_config_press();
         switch (aws_is_chnscan_timeout()) {
             case CHNSCAN_ONGOING:
                 break;
@@ -337,6 +338,7 @@ rescanning:
     awss_debug("final channel %d\r\n", aws_locked_chn);
 
     while (aws_state != AWS_SUCCESS) {
+        awss_update_config_press();
         /* 80211 frame handled by callback */
         HAL_SleepMs(300);
 

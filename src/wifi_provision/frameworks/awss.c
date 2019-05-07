@@ -7,15 +7,36 @@
 extern "C" {
 #endif
 
-#define AWSS_PRESS_TIMEOUT_MS  (60000)
+#define AWSS_PRESS_TIMEOUT_MS  (60 * 1000)
 #define AHA_MONITOR_TIMEOUT_MS  (1 * 60 * 1000)
 
 extern int switch_ap_done;
 static uint8_t awss_stopped = 1;
 static uint8_t g_user_press = 0;
-static void *press_timer = NULL;
+static uint32_t g_config_press_timeout_ms = 2 * 60 * 1000;
+static uint32_t config_press_start_timestamp = 0;
 
 static void awss_press_timeout(void);
+
+void awss_set_press_timeout_ms(unsigned int timeout_ms)
+{
+    if (timeout_ms < AWSS_PRESS_TIMEOUT_MS) {
+        timeout_ms = AWSS_PRESS_TIMEOUT_MS;
+    }
+    g_config_press_timeout_ms = timeout_ms;
+}
+
+uint32_t awss_get_press_timeout_ms()
+{
+    return g_config_press_timeout_ms;
+}
+
+void awss_update_config_press()
+{
+    if (g_user_press && time_elapsed_ms_since(config_press_start_timestamp) > g_config_press_timeout_ms) {
+        awss_press_timeout();
+    }
+}
 
 int awss_success_notify(void)
 {
@@ -134,8 +155,6 @@ int awss_stop(void)
 
 static void awss_press_timeout(void)
 {
-    awss_stop_timer(press_timer);
-    press_timer = NULL;
     if (g_user_press) {
         awss_event_post(IOTX_AWSS_ENABLE_TIMEOUT);
     }
@@ -144,34 +163,12 @@ static void awss_press_timeout(void)
 
 int awss_config_press(void)
 {
-    int timeout = HAL_Awss_Get_Timeout_Interval_Ms();
-
+    config_press_start_timestamp = os_get_time_ms();
     awss_trace("enable awss\r\n");
-
     g_user_press = 1;
-
     awss_event_post(IOTX_AWSS_ENABLE);
 
-    if (press_timer == NULL) {
-        press_timer = HAL_Timer_Create("press", (void (*)(void *))awss_press_timeout, NULL);
-    }
-    if (press_timer == NULL) {
-        return -1;
-    }
-
-    HAL_Timer_Stop(press_timer);
-
-    if (timeout < AWSS_PRESS_TIMEOUT_MS) {
-        timeout = AWSS_PRESS_TIMEOUT_MS;
-    }
-    HAL_Timer_Start(press_timer, timeout);
-
     return 0;
-}
-
-void awss_set_config_press(uint8_t press)
-{
-    g_user_press = press;
 }
 
 uint8_t awss_get_config_press(void)
