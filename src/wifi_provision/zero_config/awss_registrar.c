@@ -37,7 +37,6 @@ static char registrar_inited = 0;
 static char registrar_id = 0;
 
 static void *checkin_timer = NULL;
-static void *enrollee_report_timer = NULL;
 static void *registrar_sched_timer = NULL;
 
 #define ALIBABA_OUI                     {0xD8, 0x96, 0xE0}
@@ -106,8 +105,6 @@ void awss_registrar_deinit(void)
     registrar_sched_cnt = 0;
     awss_stop_timer(checkin_timer);
     checkin_timer = NULL;
-    awss_stop_timer(enrollee_report_timer);
-    enrollee_report_timer = NULL;
     awss_stop_timer(registrar_sched_timer);
     registrar_sched_timer = NULL;
 }
@@ -869,11 +866,7 @@ int enrollee_put(struct enrollee_info *in)
                 0 == memcmp(in->pk, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
                 if (enrollee_info[i].state == ENR_FOUND &&
                     time_elapsed_ms_since(enrollee_info[i].report_timestamp) > enrollee_info[i].interval * 1000) {
-                    if (enrollee_report_timer == NULL) {
-                        enrollee_report_timer = HAL_Timer_Create("enrollee", (void (*)(void *))enrollee_report, NULL);
-                    }
-                    HAL_Timer_Stop(enrollee_report_timer);
-                    HAL_Timer_Start(enrollee_report_timer, 1);
+                    enrollee_report();
                 }
                 if (enrollee_info[i].state != ENR_IN_QUEUE) { /* already reported */
                     return 1;
@@ -901,12 +894,7 @@ int enrollee_put(struct enrollee_info *in)
     enrollee_info[empty_slot].checkin_timeout = REGISTRAR_TIMEOUT;
     awss_debug("new enrollee[%d] dev_name:%s time:%x",
                empty_slot, in->dev_name, os_get_time_ms());
-
-    if (enrollee_report_timer == NULL) {
-        enrollee_report_timer = HAL_Timer_Create("enrollee", (void (*)(void *))enrollee_report, NULL);
-    }
-    HAL_Timer_Stop(enrollee_report_timer);
-    HAL_Timer_Start(enrollee_report_timer, 1);
+    enrollee_report();
 
     return 0;
 }
