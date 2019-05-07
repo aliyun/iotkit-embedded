@@ -21,7 +21,7 @@ menu "Device Model Configurations"
 
     config DEVICE_MODEL_GATEWAY
         bool "FEATURE_DEVICE_MODEL_GATEWAY"
-        select INFRA_SHA1
+        select INFRA_SHA256
         default n
         help
             Switching Thing-Model related implementations provided in gateway oriented way

@@ -2017,8 +2017,9 @@ int dm_msg_thing_proxy_product_register(_IN_ char product_key[IOTX_PRODUCT_KEY_L
     char random[DM_UTILS_UINT64_STRLEN] = {0};
     char *sign_source = NULL;
     int sign_source_len = 0;
-    char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA1;
-    char sign[65] = {0};
+    char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA256;
+    uint8_t sign[32] = {0};
+    char sign_str[65] = {0};
 
     if (request == NULL || product_key == NULL ||
         product_secret == NULL || device_name == NULL ||
@@ -2043,14 +2044,16 @@ int dm_msg_thing_proxy_product_register(_IN_ char product_key[IOTX_PRODUCT_KEY_L
     memset(sign_source, 0, sign_source_len);
     HAL_Snprintf(sign_source, sign_source_len, DM_MSG_THING_PROXY_PRODUCT_REGISTER_SIGN_SOURCE,
                  device_name, product_key, random);
-    utils_hmac_sha1(sign_source, strlen(sign_source), sign, product_secret, strlen(product_secret));
+    utils_hmac_sha256((uint8_t *)sign_source, strlen(sign_source), (uint8_t *)product_secret, strlen(product_secret), sign);
+    infra_hex2str(sign, 32, sign_str);
+
     DM_free(sign_source);
-    /* dm_log_debug("Sign : %s", sign); */
+    /* dm_log_debug("Sign : %s", sign_str); */
 
     /* Params */
     request->method = (char *)DM_MSG_THING_PROXY_PRODUCT_REGISTER_METHOD;
     params_len = strlen(DM_MSG_THING_PROXY_PRODUCT_REGISTER_PARAMS) + strlen(product_key) + strlen(device_name) +
-                 strlen(sign_method) + strlen(sign) + strlen(random) + 1;
+                 strlen(sign_method) + strlen(sign_str) + strlen(random) + 1;
     params = DM_malloc(params_len);
 
     if (params == NULL) {
@@ -2058,7 +2061,7 @@ int dm_msg_thing_proxy_product_register(_IN_ char product_key[IOTX_PRODUCT_KEY_L
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_PROXY_PRODUCT_REGISTER_PARAMS, product_key, device_name,
-                 sign_method, sign, random);
+                 sign_method, sign_str, random);
 
     request->params = params;
     request->params_len = strlen(request->params);
@@ -2115,8 +2118,9 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     char client_id[IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 1 + 1] = {0};
     char *sign_source = NULL;
     int sign_source_len = 0;
-    char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA1;
-    char sign[65] = {0};
+    char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA256;
+    uint8_t sign[32] = {0};
+    char sign_str[65] = {0};
 
 
     if (request == NULL || product_key == NULL ||
@@ -2148,27 +2152,16 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                  device_name, product_key, timestamp);
 
     /* dm_log_debug("Sign Srouce: %s", sign_source); */
-#if 0
-    if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACMD5) == 0) {
-        utils_hmac_md5(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-    } else if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACSHA1) == 0) {
-        utils_hmac_sha1(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-    } else if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACSHA256) == 0) {
-        utils_hmac_sha256(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-    } else {
-        DM_free(sign_source);
-        return FAIL_RETURN;
-    }
-#else
-    utils_hmac_sha1(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-#endif
+    utils_hmac_sha256((uint8_t *)sign_source,strlen(sign_source), (uint8_t *)device_secret, strlen(device_secret), sign);
+    infra_hex2str(sign, 32, sign_str);
+
     DM_free(sign_source);
     /* dm_log_debug("Sign : %s", sign); */
 
     /* Params */
     request->method = (char *)DM_MSG_THING_TOPO_ADD_METHOD;
     params_len = strlen(DM_MSG_THING_TOPO_ADD_PARAMS) + strlen(product_key) + strlen(device_name) +
-                 strlen(sign_method) + strlen(sign) + strlen(timestamp) + strlen(client_id) + 1;
+                 strlen(sign_method) + strlen(sign_str) + strlen(timestamp) + strlen(client_id) + 1;
     params = DM_malloc(params_len);
 
     if (params == NULL) {
@@ -2176,7 +2169,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_TOPO_ADD_PARAMS, product_key, device_name,
-                 sign_method, sign, timestamp, client_id);
+                 sign_method, sign_str, timestamp, client_id);
 
     request->params = params;
     request->params_len = strlen(request->params);
@@ -2288,8 +2281,9 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     char client_id[IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 21] = {0};
     char *sign_source = NULL;
     int sign_source_len = 0;
-    char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA1;
-    char sign[64] = {0};
+    char *sign_method = DM_MSG_SIGN_METHOD_HMACSHA256;
+    uint8_t sign[32] = {0};
+    char sign_str[65] = {0};
 
 
     if (request == NULL || product_key == NULL ||
@@ -2321,27 +2315,16 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                  device_name, product_key, timestamp);
 
     /* dm_log_debug("Sign Srouce: %s", sign_source); */
-#if 0
-    if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACMD5) == 0) {
-        utils_hmac_md5(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-    } else if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACSHA1) == 0) {
-        utils_hmac_sha1(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-    } else if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACSHA256) == 0) {
-        utils_hmac_sha256(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-    } else {
-        DM_free(sign_source);
-        return FAIL_RETURN;
-    }
-#else
-    utils_hmac_sha1(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
-#endif
+    utils_hmac_sha256((uint8_t *)sign_source, strlen(sign_source), (uint8_t *)device_secret, strlen(device_secret), sign);
+    infra_hex2str(sign, 32, sign_str);
+
     DM_free(sign_source);
-    /* dm_log_debug("Sign : %s", sign); */
+    /* dm_log_debug("Sign : %s", sign_str); */
 
     /* Params */
     request->method = (char *)DM_MSG_COMBINE_LOGIN_METHOD;
     params_len = strlen(DM_MSG_COMBINE_LOGIN_PARAMS) + strlen(product_key) + strlen(device_name) +
-                 strlen(sign_method) + strlen(sign) + strlen(timestamp) + strlen(client_id) + 1;
+                 strlen(sign_method) + strlen(sign_str) + strlen(timestamp) + strlen(client_id) + 1;
     params = DM_malloc(params_len);
 
     if (params == NULL) {
@@ -2349,7 +2332,7 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_COMBINE_LOGIN_PARAMS, product_key, device_name,
-                 client_id, timestamp, sign_method, sign, "true");
+                 client_id, timestamp, sign_method, sign_str, "true");
 
     request->params = params;
     request->params_len = strlen(request->params);

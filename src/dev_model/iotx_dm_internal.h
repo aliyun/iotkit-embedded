@@ -17,7 +17,7 @@
 #include "infra_report.h"
 #include "infra_string.h"
 #if defined(DEVICE_MODEL_GATEWAY)
-    #include "infra_sha1.h"
+    #include "infra_sha256.h"
 #endif
 
 
