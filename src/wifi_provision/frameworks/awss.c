@@ -169,6 +169,11 @@ int awss_config_press(void)
     return 0;
 }
 
+void awss_set_config_press(uint8_t press)
+{
+    g_user_press = press;
+}
+
 uint8_t awss_get_config_press(void)
 {
     return g_user_press;

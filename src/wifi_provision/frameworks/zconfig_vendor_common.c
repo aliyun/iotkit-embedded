@@ -251,6 +251,20 @@ int zconfig_add_active_channel(int channel)
     return 0;
 }
 
+/* sleep for RESCAN_MONITOR_TIMEOUT_MS if no one interrupts */
+void zconfig_sleep_before_rescan()
+{
+    int iter = 0;
+    int count = RESCAN_MONITOR_TIMEOUT_MS / 200;
+    for (iter = 0; iter < count; iter++) {
+        if (awss_get_config_press() ||
+            aws_stop == AWS_STOPPING) {  /* user interrupt sleep */
+            break;
+        }
+        HAL_SleepMs(200);
+    }
+}
+
 /*
  * channel scanning/re-scanning control
  * Note: 修改该函数时，需考虑到各平台差异
@@ -356,18 +370,7 @@ timeout_recving:
             break;
         }
         HAL_Awss_Close_Monitor();
-        /* sleep for RESCAN_MONITOR_TIMEOUT_MS if no one interrupts */
-        {
-            int iter = 0;
-            int count = RESCAN_MONITOR_TIMEOUT_MS / 200;
-            for (iter = 0; iter < count; iter++) {
-                if (awss_get_config_press() ||
-                    aws_stop == AWS_STOPPING) {  /* user interrupt sleep */
-                    break;
-                }
-                HAL_SleepMs(200);
-            }
-        }
+        zconfig_sleep_before_rescan();
     } while (0);
 
     if (aws_stop == AWS_STOPPING) {  /* interrupt by user */
