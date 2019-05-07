@@ -13,10 +13,6 @@ extern "C"
 {
 #endif
 
-#ifndef _IN_
-    #define _IN_
-#endif
-
 DLL_IOT_API int awss_start(void);
 
 /**

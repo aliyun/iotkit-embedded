@@ -18,7 +18,6 @@ void HAL_MutexDestroy(void *mutex);
 
 /*************************************** wifi provision frameworks hals ***************************************/
 /* frameworks/awss.c*/
-int HAL_Awss_Get_Timeout_Interval_Ms(void);
 int HAL_Sys_Net_Is_Ready();
 int HAL_Wifi_Get_Ap_Info(char ssid[HAL_MAX_SSID_LEN],char passwd[HAL_MAX_PASSWD_LEN],uint8_t bssid[ETH_ALEN]);
 /* awss_crypt.c */

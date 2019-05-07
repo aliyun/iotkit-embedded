@@ -21,6 +21,9 @@ extern const char *zc_default_passwd;
 int __awss_start(void);
 int __awss_stop(void);
 
+void awss_update_config_press();
+uint32_t awss_get_press_timeout_ms();
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
