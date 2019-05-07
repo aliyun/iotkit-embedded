@@ -45,204 +45,9 @@ static void        *g_mqtt_client = NULL;
 iotx_sign_mqtt_t    g_default_sign;
 
 /* Handle structure of subscribed topic */
-typedef struct  {
-#ifdef PLATFORM_HAS_DYNMEM
-    char *topic_filter;
-#else
-    char topic_filter[CONFIG_MQTT_TOPIC_MAXLEN];
-#endif
-    iotx_mqtt_event_handle_func_fpt handle;
-    void *user_data;
-    iotx_mqtt_qos_t qos;
-#ifdef PLATFORM_HAS_DYNMEM
-    struct list_head linked_list;
-#else
-    int used;
-#endif
-} iotx_mc_offline_subs_t;
-
-typedef struct {
-    int init;
-    void *mutex;
-#ifdef PLATFORM_HAS_DYNMEM
-    struct list_head offline_sub_list;
-#else
-    iotx_mc_offline_subs_t offline_sub_list[CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM];
-#endif
-
-} offline_sub_list_t;
-
-static offline_sub_list_t g_mqtt_offline_subs_list = {0};
-
-static int _offline_subs_list_init(void)
-{
-    if (g_mqtt_offline_subs_list.init) {
-        return SUCCESS_RETURN;
-    }
-
-    memset(&g_mqtt_offline_subs_list, 0, sizeof(offline_sub_list_t));
-    g_mqtt_offline_subs_list.init = 1;
-
-#ifdef PLATFORM_HAS_DYNMEM
-    INIT_LIST_HEAD(&g_mqtt_offline_subs_list.offline_sub_list);
-#endif
-
-    g_mqtt_offline_subs_list.mutex = HAL_MutexCreate();
-
-    return SUCCESS_RETURN;
-}
-
-static int _offline_subs_list_deinit(void)
-{
-#ifdef PLATFORM_HAS_DYNMEM
-    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
-    list_for_each_entry_safe(node, next_node, &g_mqtt_offline_subs_list.offline_sub_list, linked_list,
-                             iotx_mc_offline_subs_t) {
-        list_del(&node->linked_list);
-        mqtt_api_free(node->topic_filter);
-        mqtt_api_free(node);
-    }
-#endif
-
-    if (g_mqtt_offline_subs_list.mutex) {
-        HAL_MutexDestroy(g_mqtt_offline_subs_list.mutex);
-    }
-    memset(&g_mqtt_offline_subs_list, 0, sizeof(offline_sub_list_t));
-
-    return 0;
-}
-
-static int iotx_mqtt_offline_subscribe(const char *topic_filter, iotx_mqtt_qos_t qos,
-                                       iotx_mqtt_event_handle_func_fpt topic_handle_func, void *pcontext)
-{
-    int ret;
-#ifdef PLATFORM_HAS_DYNMEM
-    iotx_mc_offline_subs_t *sub_info = NULL;
-#else
-    int idx = 0;
-#endif
-
-    if (topic_filter == NULL || topic_handle_func == NULL) {
-        return NULL_VALUE_ERROR;
-    }
-
-    _offline_subs_list_init();
-
-#ifdef PLATFORM_HAS_DYNMEM
-    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
-    list_for_each_entry(sub_info, &g_mqtt_offline_subs_list.offline_sub_list, linked_list, iotx_mc_offline_subs_t) {
-        if ((strlen(sub_info->topic_filter) == strlen(topic_filter)) &&
-            memcmp(sub_info->topic_filter, topic_filter, strlen(topic_filter)) == 0) {
-            sub_info->qos = qos;
-            sub_info->handle = topic_handle_func;
-            sub_info->user_data = pcontext;
-            HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-            return SUCCESS_RETURN;
-        }
-    }
-
-    sub_info = mqtt_api_malloc(sizeof(iotx_mc_offline_subs_t));
-    if (sub_info == NULL) {
-        HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-        return ERROR_MALLOC;
-    }
-
-    memset(sub_info, 0, sizeof(iotx_mc_offline_subs_t));
-    sub_info->topic_filter = mqtt_api_malloc(strlen(topic_filter) + 1);
-    if (sub_info->topic_filter == NULL) {
-        mqtt_api_free(sub_info);
-        HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-        return ERROR_MALLOC;
-    }
-    memset(sub_info->topic_filter, 0, strlen(topic_filter) + 1);
-    strncpy(sub_info->topic_filter, topic_filter, strlen(topic_filter));
-    sub_info->qos = qos;
-    sub_info->handle = topic_handle_func;
-    sub_info->user_data = pcontext;
-    INIT_LIST_HEAD(&sub_info->linked_list);
-
-    list_add_tail(&sub_info->linked_list, &g_mqtt_offline_subs_list.offline_sub_list);
-    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-    ret = SUCCESS_RETURN;
-#else
-    if (strlen(topic_filter) >= CONFIG_MQTT_TOPIC_MAXLEN) {
-        return MQTT_TOPIC_LEN_TOO_SHORT;
-    }
-
-    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
-    for (idx = 0; idx < CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM; idx++) {
-        if (g_mqtt_offline_subs_list.offline_sub_list[idx].used &&
-            (strlen(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter) == strlen(topic_filter)) &&
-            memcmp(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter, topic_filter, strlen(topic_filter)) == 0) {
-            g_mqtt_offline_subs_list.offline_sub_list[idx].qos = qos;
-            g_mqtt_offline_subs_list.offline_sub_list[idx].handle = topic_handle_func;
-            g_mqtt_offline_subs_list.offline_sub_list[idx].user_data = pcontext;
-            HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-            return SUCCESS_RETURN;
-        }
-    }
-    for (idx = 0; idx < CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM; idx++) {
-        if (g_mqtt_offline_subs_list.offline_sub_list[idx].used == 0) {
-            memset(&g_mqtt_offline_subs_list.offline_sub_list[idx], 0, sizeof(iotx_mc_offline_subs_t));
-            memcpy(g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter, topic_filter, strlen(topic_filter));
-            g_mqtt_offline_subs_list.offline_sub_list[idx].qos = qos;
-            g_mqtt_offline_subs_list.offline_sub_list[idx].handle = topic_handle_func;
-            g_mqtt_offline_subs_list.offline_sub_list[idx].user_data = pcontext;
-            g_mqtt_offline_subs_list.offline_sub_list[idx].used = 1;
-            HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-            return SUCCESS_RETURN;
-        }
-    }
-    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-    ret = MQTT_OFFLINE_LIST_LEN_TOO_SHORT;
-#endif
-
-    return ret;
-}
-
-static int iotx_mqtt_deal_offline_subs(void *client)
-{
-#ifdef PLATFORM_HAS_DYNMEM
-    iotx_mc_offline_subs_t *node = NULL, *next_node = NULL;
-#else
-    int idx;
-#endif
-    if (g_mqtt_offline_subs_list.init == 0) {
-        return SUCCESS_RETURN;
-    }
-
-    HAL_MutexLock(g_mqtt_offline_subs_list.mutex);
-#ifdef PLATFORM_HAS_DYNMEM
-    list_for_each_entry_safe(node, next_node, &g_mqtt_offline_subs_list.offline_sub_list, linked_list,
-                             iotx_mc_offline_subs_t) {
-        list_del(&node->linked_list);
-        wrapper_mqtt_subscribe(client, node->topic_filter, node->qos, node->handle, node->user_data);
-        mqtt_api_free(node->topic_filter);
-        mqtt_api_free(node);
-    }
-#else
-    for (idx = 0; idx < CONFIG_MQTT_OFFLINE_TOPIC_MAXNUM; idx++) {
-        if (g_mqtt_offline_subs_list.offline_sub_list[idx].used) {
-            wrapper_mqtt_subscribe(client, g_mqtt_offline_subs_list.offline_sub_list[idx].topic_filter,
-                                   g_mqtt_offline_subs_list.offline_sub_list[idx].qos,
-                                   g_mqtt_offline_subs_list.offline_sub_list[idx].handle,
-                                   g_mqtt_offline_subs_list.offline_sub_list[idx].user_data);
-            g_mqtt_offline_subs_list.offline_sub_list[idx].used = 0;
-        }
-    }
-#endif
-    HAL_MutexUnlock(g_mqtt_offline_subs_list.mutex);
-
-    _offline_subs_list_deinit();
-
-    return SUCCESS_RETURN;
-}
-
 static void iotx_mqtt_report_funcs(void *pclient)
 {
     int                 err;
-
-    iotx_mqtt_deal_offline_subs(pclient);
 
 #ifndef ATHOST_MQTT_REPORT_DISBALED
     iotx_set_report_func(IOT_MQTT_Publish_Simple);
@@ -252,9 +57,7 @@ static void iotx_mqtt_report_funcs(void *pclient)
     err = iotx_report_firmware_version(pclient);
 
     if (SUCCESS_RETURN != err) {
-#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
         mqtt_err("failed to report firmware version");
-#endif
     }
 #endif
 
@@ -635,10 +438,6 @@ int IOT_MQTT_Subscribe(void *handle,
 {
     void *client = handle ? handle : g_mqtt_client;
 
-    if (client == NULL) { /* do offline subscribe */
-        return iotx_mqtt_offline_subscribe(topic_filter, qos, topic_handle_func, pcontext);
-    }
-
     if (topic_filter == NULL || strlen(topic_filter) == 0 || topic_handle_func == NULL) {
         mqtt_err("params err");
         return NULL_VALUE_ERROR;
@@ -664,9 +463,6 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
 {
     void *client = handle ? handle : g_mqtt_client;
 
-    if (client == NULL) { /* do offline subscribe */
-        return iotx_mqtt_offline_subscribe(topic_filter, qos, topic_handle_func, pcontext);
-    }
     if (timeout_ms > SUBSCRIBE_SYNC_TIMEOUT_MAX) {
         timeout_ms = SUBSCRIBE_SYNC_TIMEOUT_MAX;
     }
