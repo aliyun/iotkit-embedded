@@ -91,17 +91,6 @@ int iotx_dm_open(void)
         goto ERROR;
     }
 #endif
-#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
-    /* DM OTA Module Init */
-    res = dm_ota_sub();
-    if (res == SUCCESS_RETURN) {
-        /* DM Config OTA Module Init */
-        dm_cota_init();
-
-        /* DM Firmware OTA Mudule Init */
-        dm_fota_init();
-    }
-#endif
 
     /* Open Cloud Connection */
     res = dm_client_open();
@@ -150,6 +139,18 @@ int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params)
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
+    /* DM OTA Module Init */
+    res = dm_ota_sub();
+    if (res == SUCCESS_RETURN) {
+        /* DM Config OTA Module Init */
+        dm_cota_init();
+
+        /* DM Firmware OTA Mudule Init */
+        dm_fota_init();
+    }
+#endif
 
 #ifdef ALCS_ENABLED
     /* DM Connect Local */
