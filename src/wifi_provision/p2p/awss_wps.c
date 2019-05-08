@@ -276,7 +276,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
                     }
                 } else
 #endif
-                    if (time_elapsed_ms_since(start_time) > HAL_Awss_Get_Channelscan_Interval_Ms() * (13 + 3) * 2) {
+                    if (time_elapsed_ms_since(start_time) > awss_get_channel_scan_interval_ms() * (13 + 3) * 2) {
                         start_time = 0;
                         strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
                     }

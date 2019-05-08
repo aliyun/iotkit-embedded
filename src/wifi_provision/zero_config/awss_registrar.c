@@ -489,7 +489,7 @@ ongoing:
     }
 
     HAL_Timer_Stop(checkin_timer);
-    HAL_Timer_Start(checkin_timer, HAL_Awss_Get_Channelscan_Interval_Ms() * 15 / 16);
+    HAL_Timer_Start(checkin_timer, awss_get_channel_scan_interval_ms() * 15 / 16);
 
     return 1;
 }

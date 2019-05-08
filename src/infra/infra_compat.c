@@ -5,6 +5,9 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
+#if defined(WIFI_PROVISION_ENABLED)
+#include "wifi_provision_internal.h"
+#endif
 
 #if !defined(INFRA_LOG)
 void IOT_SetLogLevel(IOT_LogLevel level) {}
@@ -201,6 +204,18 @@ int IOT_Ioctl(int option, void *data)
 #if defined(DEVICE_MODEL_GATEWAY)
         case IOTX_IOCTL_SET_PROXY_REGISTER: {
             res = iotx_dm_set_opt(DM_OPT_PROXY_PRODUCT_REGISTER, data);
+        }
+        break;
+#endif
+#if defined(WIFI_PROVISION_ENABLED)
+        case IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL: {
+            uint32_t timeout = *(uint32_t *) data;
+            awss_set_press_timeout_ms(timeout);
+        }
+        break;
+        case IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL: {
+            uint32_t timeout = *(uint32_t *) data;
+            awss_set_channel_scan_interval_ms(timeout);
         }
         break;
 #endif

@@ -13,7 +13,8 @@ extern "C" {
 extern int switch_ap_done;
 static uint8_t awss_stopped = 1;
 static uint8_t g_user_press = 0;
-static uint32_t g_config_press_timeout_ms = 2 * 60 * 1000;
+static uint32_t g_config_press_timeout_ms = 3 * 60 * 1000;
+static uint32_t g_channel_scan_timeout_ms = 250;
 static uint32_t config_press_start_timestamp = 0;
 
 static void awss_press_timeout(void);
@@ -36,6 +37,14 @@ void awss_update_config_press()
     if (g_user_press && time_elapsed_ms_since(config_press_start_timestamp) > g_config_press_timeout_ms) {
         awss_press_timeout();
     }
+}
+
+uint32_t awss_get_channel_scan_interval_ms(){
+    return g_channel_scan_timeout_ms;
+}
+
+void awss_set_channel_scan_interval_ms(uint32_t timeout_ms){
+    g_channel_scan_timeout_ms = timeout_ms;
 }
 
 int awss_success_notify(void)

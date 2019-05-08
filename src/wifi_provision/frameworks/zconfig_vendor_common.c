@@ -227,7 +227,7 @@ int aws_is_chnscan_timeout(void)
         return CHNSCAN_TIMEOUT;
     }
 
-    if (time_elapsed_ms_since(aws_chn_timestamp) > HAL_Awss_Get_Channelscan_Interval_Ms()) {
+    if (time_elapsed_ms_since(aws_chn_timestamp) > awss_get_channel_scan_interval_ms()) {
         if ((0 != awss_get_press_timeout_ms()) &&
             (time_elapsed_ms_since(aws_start_timestamp) > awss_get_press_timeout_ms())) {
             return CHNSCAN_TIMEOUT;
@@ -307,7 +307,7 @@ rescanning:
             break;
         }
 
-        interval = (HAL_Awss_Get_Channelscan_Interval_Ms() + 2) / 3;
+        interval = (awss_get_channel_scan_interval_ms() + 2) / 3;
         if (interval < 1) {
             interval = 1;
         }
