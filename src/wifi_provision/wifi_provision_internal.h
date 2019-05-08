@@ -34,16 +34,18 @@
 #include "dev_bind_wrapper.h"
 #include "awss_aplist.h"
 #include "connect_ap.h"
+#include "awss_info_notify.h"
+
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
-#include "awss_wps.h"
+    #include "awss_wps.h"
 #endif
 
 #ifdef AWSS_SUPPORT_HT40
-#include "awss_ht40.h"
+    #include "awss_ht40.h"
 #endif
 
 #if defined(AWSS_SUPPORT_AHA)
-#include "awss_wifimgr.h"
+    #include "awss_wifimgr.h"
 #endif
 
 #ifndef AWSS_DISABLE_ENROLLEE
@@ -60,21 +62,21 @@
 #endif
 
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
-#include "p2p_wrapper.h"
+    #include "p2p_wrapper.h"
 #endif
 
 #if defined(AWSS_SUPPORT_SMARTCONFIG) || defined(AWSS_SUPPORT_SMARTCONFIG_MCAST)
-#include "smartconfig_wrapper.h"
+    #include "smartconfig_wrapper.h"
 #endif
 
 #ifdef AWSS_SUPPORT_ZEROCONFIG
-#include "zeroconfig_wrapper.h"
+    #include "zeroconfig_wrapper.h"
 #endif
 
 #ifdef AWSS_SUPPORT_AHA
-#include "aha_wrapper.h"
+    #include "aha_wrapper.h"
 #endif
 
 #ifdef AWSS_SUPPORT_DEV_AP
-#include "dev_ap_wrapper.h"
+    #include "dev_ap_wrapper.h"
 #endif

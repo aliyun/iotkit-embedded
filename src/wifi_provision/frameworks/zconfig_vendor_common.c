@@ -318,6 +318,7 @@ rescanning:
         awss_broadcast_enrollee_info();
 #endif
         HAL_SleepMs(interval);
+        aws_send_info_notify();
         HAL_SleepMs(interval);
 #ifdef AWSS_SUPPORT_AHA
         aws_send_aha_probe_req();
