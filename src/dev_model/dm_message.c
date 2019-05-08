@@ -2301,7 +2301,7 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     /* dm_log_debug("Time Stamp: %s", timestamp); */
 
     /* Client ID */
-    HAL_Snprintf(client_id, IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 21, "%s.%s|_v=sdk-c-"IOTX_SDK_VERSION"|", product_key, device_name);
+    HAL_Snprintf(client_id, IOTX_PRODUCT_KEY_LEN + 1 + IOTX_DEVICE_NAME_LEN + 21, "%s.%s|_ss=1,_v=sdk-c-"IOTX_SDK_VERSION"|", product_key, device_name);
 
     /* Sign */
     sign_source_len = strlen(DM_MSG_COMBINE_LOGIN_SIGN_SOURCE) + strlen(client_id) +
