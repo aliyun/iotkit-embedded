@@ -1609,4 +1609,19 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
 #endif
 }
 
+#ifdef DEVICE_MODEL_GATEWAY
+int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1])
+{
+    int res = -1;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
+    if (ctx->is_opened == 0) {
+        return res;
+    }
+
+    iotx_dm_subdev_query(product_key, device_name, &res);
+    return res;
+}
+#endif /* #ifdef DEVICE_MODEL_GATEWAY */
+
 #endif
