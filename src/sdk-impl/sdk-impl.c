@@ -125,7 +125,7 @@ int IOT_SetupConnInfo(const char *product_key,
     return rc;
 }
 
-#if defined(DEVICE_MODEL_GATEWAY)
+#if defined(DEVICE_MODEL_GATEWAY) && !defined(DEPRECATED_LINKKIT)
     extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 #endif
 
@@ -200,7 +200,7 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #endif
-#if defined(DEVICE_MODEL_GATEWAY)
+#if defined(DEVICE_MODEL_GATEWAY) && !defined(DEPRECATED_LINKKIT)
         case IOTX_IOCTL_QUERY_DEVID: {
             iotx_linkkit_dev_meta_info_t *dev_info = (iotx_linkkit_dev_meta_info_t *)data;
 
