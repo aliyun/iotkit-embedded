@@ -26,6 +26,7 @@ static int enrollee_checkin(void);
 static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeout);
 static int awss_enrollee_get_dev_info(char *payload, int payload_len, char *product_key,
                                       char *dev_name, char *cipher, int *timeout);
+static int registar_yield();
 
 /* registrar send pkt interval in ms */
 #define REGISTRAR_TIMEOUT               (60)
@@ -36,30 +37,32 @@ static char registrar_sched_cnt = 0;
 static char registrar_inited = 0;
 static char registrar_id = 0;
 
-static void *checkin_timer = NULL;
-static void *registrar_sched_timer = NULL;
 
 #define ALIBABA_OUI                     {0xD8, 0x96, 0xE0}
 #ifdef REGISTRAR_IDLE_DUTY
 #if REGISTRAR_IDLE_DUTY > 0
-void registrar_schedule(void *param)
+uint32_t schedule_timestamp = 0;
+uint32_t schedule_duration = REGISTRAR_WORK_TIME;
+uint8_t last_open = 1;
+void registrar_schedule()
 {
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
-    char last_open = registrar_sched_cnt & 0x01;
     unsigned int idle_duty = REGISTRAR_IDLE_DUTY;
-
-    HAL_Timer_Stop(registrar_sched_timer);
-    registrar_sched_cnt ++;
+    if ((time_elapsed_ms_since(schedule_timestamp)) < schedule_duration) {
+        return;
+    }
 
     if (last_open) {  /* need to close */
         HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
-                                         (uint8_t *)alibaba_oui, NULL);
-        HAL_Timer_Start(registrar_sched_timer, REGISTRAR_WORK_TIME * idle_duty);
+                                          (uint8_t *)alibaba_oui, NULL);
+        schedule_duration = REGISTRAR_WORK_TIME * idle_duty;
     } else {
         HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
-                                         (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
-        HAL_Timer_Start(registrar_sched_timer, REGISTRAR_WORK_TIME);
+                                          (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
+        schedule_duration = REGISTRAR_WORK_TIME;
     }
+    schedule_timestamp = os_get_time_ms();
+    last_open = 1 - last_open;
 }
 #endif
 #endif
@@ -74,25 +77,14 @@ void awss_registrar_init(void)
     memset(enrollee_info, 0, sizeof(enrollee_info));
     registrar_inited = 1;
 
-
-    /*
-    * if idle duty is zero, don't need to care about power consumption
-    */
-#ifdef REGISTRAR_IDLE_DUTY
-#if REGISTRAR_IDLE_DUTY > 0
-    if (registrar_sched_timer == NULL) {
-        registrar_sched_timer = HAL_Timer_Create("sched", (void (*)(void *))registrar_schedule, NULL);
-    }
-    if (registrar_sched_timer) {
-        registrar_sched_cnt ++;
-        HAL_Timer_Stop(registrar_sched_timer);
-        HAL_Timer_Start(registrar_sched_timer, REGISTRAR_WORK_TIME);
-    }
-#endif
-#endif
-
     HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                       (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
+#ifdef REGISTRAR_IDLE_DUTY
+    schedule_timestamp = os_get_time_ms();
+    schedule_duration = REGISTRAR_WORK_TIME;
+    last_open = 1;
+#endif
+    IOT_RegisterCallback(ITE_AWSS_ZERO_CONFIG, registar_yield);
 }
 
 void awss_registrar_deinit(void)
@@ -103,10 +95,6 @@ void awss_registrar_deinit(void)
 
     registrar_inited = 0;
     registrar_sched_cnt = 0;
-    awss_stop_timer(checkin_timer);
-    checkin_timer = NULL;
-    awss_stop_timer(registrar_sched_timer);
-    registrar_sched_timer = NULL;
 }
 
 int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *request)
@@ -269,9 +257,8 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
             awss_debug("enrollee[%d] state %d->%d", i, enrollee_info[i].state,
                        ENR_CHECKIN_CIPHER);
             enrollee_info[i].state = ENR_CHECKIN_CIPHER;
+            enrollee_checkin();
 
-            HAL_Timer_Stop(checkin_timer);
-            HAL_Timer_Start(checkin_timer, 1);
             return 1;/* match */
         }
     }
@@ -308,9 +295,7 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
             enrollee_info[i].checkin_priority = 1;  /* TODO: not implement yet */
             enrollee_info[i].checkin_timeout = timeout <= 0 ? REGISTRAR_TIMEOUT : timeout;
             enrollee_info[i].checkin_timestamp = os_get_time_ms();
-
-            HAL_Timer_Stop(checkin_timer);
-            HAL_Timer_Start(checkin_timer, 1);
+            enrollee_checkin();
             return 1;/* match */
         }
     }
@@ -450,11 +435,12 @@ static int enrollee_checkin(void)
         }
     }
 
-    awss_debug("cn:%d, ci:%d, c:%d\r\n", checkin_new, get_cipher, check);
     /* no device need to setup */
     if (check == 0) {
         return 0;
     }
+
+    awss_debug("cn:%d, ci:%d, c:%d\r\n", checkin_new, get_cipher, check);
 
     if (get_cipher != 0xff) {
         goto checkin_ongoing;
@@ -488,9 +474,6 @@ ongoing:
         registrar_raw_frame_destroy();
     }
 
-    HAL_Timer_Stop(checkin_timer);
-    HAL_Timer_Start(checkin_timer, awss_get_channel_scan_interval_ms() * 15 / 16);
-
     return 1;
 }
 
@@ -515,11 +498,7 @@ int awss_report_set_interval(char *key, char *dev_name, int interval)
             0 == memcmp(key, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
 
             enrollee_info[i].interval = interval <= 0 ? REGISTRAR_TIMEOUT : interval;
-            if (checkin_timer == NULL) {
-                checkin_timer = HAL_Timer_Create("checkin", (void (*)(void *))enrollee_checkin, NULL);
-            }
-            HAL_Timer_Stop(checkin_timer);
-            HAL_Timer_Start(checkin_timer, 1);
+            enrollee_checkin();
             return 0;/* match */
         }
     }
@@ -852,7 +831,7 @@ int enrollee_put(struct enrollee_info *in)
         }
 #if defined(AWSS_SUPPORT_AHA)
         HAL_Wifi_Get_Ap_Info(ssid, NULL, NULL);
-        if (!strcmp(ssid, DEFAULT_SSID)){
+        if (!strcmp(ssid, DEFAULT_SSID)) {
             return -1;    /* ignore enrollee in 'aha' mode */
         }
 #endif
@@ -1073,6 +1052,15 @@ static void registrar_raw_frame_send(void)
     }
 }
 
+
+static int registar_yield()
+{
+#ifdef REGISTRAR_IDLE_DUTY
+    registrar_schedule();
+#endif
+    enrollee_checkin();
+    return 0;
+}
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

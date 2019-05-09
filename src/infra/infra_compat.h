@@ -115,7 +115,8 @@ typedef enum {
     ITE_FOTA,
     ITE_COTA,
     ITE_MQTT_CONNECT_SUCC,
-    ITE_CLOUD_ERROR
+    ITE_CLOUD_ERROR,
+    ITE_AWSS_ZERO_CONFIG
 } iotx_ioctl_event_t;
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb)
@@ -146,6 +147,7 @@ DECLARE_EVENT_CALLBACK(ITE_FOTA,                 int (*cb)(const int, const char
 DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char *, int, const char *, const char *,
                        const char *, const char *))
 DECLARE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*cb)(void))
+DECLARE_EVENT_CALLBACK(ITE_AWSS_ZERO_CONFIG,     int (*cb)(void))
 
 
 void *iotx_event_callback(int evt);

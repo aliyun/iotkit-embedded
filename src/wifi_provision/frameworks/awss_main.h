@@ -25,6 +25,7 @@ void awss_update_config_press();
 uint32_t awss_get_press_timeout_ms();
 void awss_set_channel_scan_interval_ms(uint32_t timeout);
 uint32_t awss_get_channel_scan_interval_ms();
+void awss_set_press_timeout_ms(unsigned int timeout_ms);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

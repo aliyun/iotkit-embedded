@@ -2786,6 +2786,7 @@ int wrapper_mqtt_release(void **c)
 int wrapper_mqtt_yield(void *client, int timeout_ms)
 {
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
+    void *callback;
 
     if (pClient == NULL) {
         return NULL_VALUE_ERROR;
@@ -2816,6 +2817,11 @@ int wrapper_mqtt_yield(void *client, int timeout_ms)
     }
     HAL_SleepMs(timeout_ms);
 #endif
+
+   callback = iotx_event_callback(ITE_AWSS_ZERO_CONFIG);
+   if (callback) {
+       ((int (*)(void))callback)();
+   }
 
     return 0;
 }

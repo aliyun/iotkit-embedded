@@ -2,10 +2,6 @@
 #include "infra_defs.h"
 #include "wrappers_defs.h"
 /*************************************** common hals ***************************************/
-int HAL_Timer_Stop(void *timer);
-int HAL_Timer_Delete(void *timer);
-void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data);
-int HAL_Timer_Start(void *timer, int ms);
 void HAL_SleepMs(uint32_t ms);
 void *HAL_Malloc(uint32_t size);
 void HAL_MutexLock(void *mutex);
