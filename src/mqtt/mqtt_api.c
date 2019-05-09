@@ -233,7 +233,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     memcpy(device_id + strlen(device_id), meta_info.device_name, strlen(meta_info.device_name));
 
     /* setup clientid */
-    if (_sign_get_clientid(g_default_sign.clientid, device_id, (pInitParams != NULL)? pInitParams->customize_info: NULL) != SUCCESS_RETURN) {
+    if (_sign_get_clientid(g_default_sign.clientid, device_id,
+                           (pInitParams != NULL) ? pInitParams->customize_info : NULL) != SUCCESS_RETURN) {
         return NULL;
     }
 
@@ -415,6 +416,11 @@ int IOT_MQTT_Destroy(void **phandler)
 int IOT_MQTT_Yield(void *handle, int timeout_ms)
 {
     void *pClient = (handle ? handle : g_mqtt_client);
+    void *callback = iotx_event_callback(ITE_AWSS_ZERO_CONFIG);
+    if (callback) {
+        ((int (*)(void))callback)();
+    }
+
     return wrapper_mqtt_yield(pClient, timeout_ms);
 }
 
