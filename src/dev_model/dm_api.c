@@ -630,6 +630,29 @@ int iotx_dm_query_topo_list(void)
     return res;
 }
 
+int iotx_dm_subdev_query(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+                         _OU_ int *devid)
+{
+    int res = 0;
+
+    if (product_key == NULL || device_name == NULL ||
+        (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
+        (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
+        devid == NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_device_query(product_key, device_name, devid);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
 int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                           _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid)

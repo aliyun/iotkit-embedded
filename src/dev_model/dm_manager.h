@@ -32,6 +32,7 @@ typedef struct {
 
 int dm_mgr_init(void);
 int dm_mgr_deinit(void);
+int dm_mgr_device_query(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ int *devid);
 int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                          _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid);
 int dm_mgr_device_destroy(_IN_ int devid);

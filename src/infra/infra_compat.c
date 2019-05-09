@@ -172,6 +172,15 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #endif
+#if defined(DEVICE_MODEL_GATEWAY)
+        case IOTX_IOCTL_QUERY_DEVID: {
+            iotx_dev_meta_info_t *dev_info = (iotx_dev_meta_info_t *)data;
+            res = -1;
+
+            iotx_dm_subdev_query(dev_info->product_key, dev_info->device_name, &res);
+        }
+        break;
+#endif
         default: {
             res = FAIL_RETURN;
         }

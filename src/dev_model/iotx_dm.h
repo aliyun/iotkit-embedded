@@ -210,6 +210,9 @@ int iotx_dm_fota_request_image(_IN_ const char *version, _IN_ int buffer_len);
 
 #ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void);
+int iotx_dm_subdev_query(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
+                         _OU_ int *devid);
 int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1], _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1],
                           _IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1], _OU_ int *devid);
 int iotx_dm_subdev_destroy(_IN_ int devid);
