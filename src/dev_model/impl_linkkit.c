@@ -1900,11 +1900,17 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
 {
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     int res = FAIL_RETURN;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
     char msgid[11] = {0};
     iotx_service_ctx_node_t *service_ctx = (iotx_service_ctx_node_t *)p_service_ctx;
 
     if (devid < 0 || serviceid == NULL || serviceid_len == 0
         || payload == NULL || payload_len == 0 || service_ctx == NULL) {
+        return FAIL_RETURN;
+    }
+
+    if (ctx->is_opened == 0 || ctx->is_connected == 0) {
         return FAIL_RETURN;
     }
 
@@ -1938,5 +1944,19 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
 #endif
 }
 
+#ifdef DEVICE_MODEL_GATEWAY
+int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1])
+{
+    int res = -1;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
+    if (ctx->is_opened == 0) {
+        return res;
+    }
+
+    iotx_dm_subdev_query(product_key, device_name, &res);
+    return res;
+}
+#endif /* #ifdef DEVICE_MODEL_GATEWAY */
 
 #endif
