@@ -6,6 +6,7 @@
 
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
     #include "iotx_dm.h"
+    #include "iot_export_linkkit.h"
 #endif
 
 #define KV_KEY_DEVICE_SECRET            "DyncRegDeviceSecret"
@@ -192,6 +193,15 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_GET_SUBDEV_LOGIN: {
             /* todo */
+        }
+        break;
+#endif
+#if defined(DEVICE_MODEL_GATEWAY)
+        case IOTX_IOCTL_QUERY_DEVID: {
+            iotx_linkkit_dev_meta_info_t *dev_info = (iotx_linkkit_dev_meta_info_t *)data;
+            res = -1;
+
+            iotx_dm_subdev_query(dev_info->product_key, dev_info->device_name, &res);
         }
         break;
 #endif
