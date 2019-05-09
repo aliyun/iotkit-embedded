@@ -206,6 +206,13 @@ int IOT_Ioctl(int option, void *data)
             res = iotx_dm_set_opt(DM_OPT_PROXY_PRODUCT_REGISTER, data);
         }
         break;
+        case IOTX_IOCTL_QUERY_DEVID: {
+            iotx_dev_meta_info_t *dev_info = (iotx_dev_meta_info_t *)data;
+            res = -1;
+
+            iotx_dm_subdev_query(dev_info->product_key, dev_info->device_name, &res);
+        }
+        break;
 #endif
 #if defined(WIFI_PROVISION_ENABLED)
         case IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL: {

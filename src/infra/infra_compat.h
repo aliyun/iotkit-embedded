@@ -240,9 +240,10 @@ typedef enum {
     IOTX_IOCTL_FOTA_TIMEOUT_MS,         /* value(int*): set Firmware OTA max retry timeout */
     IOTX_IOCTL_SET_CUSTOMIZE_INFO,      /* value(char*): set mqtt clientID customize information */
     IOTX_IOCTL_SET_MQTT_PORT,           /* value(uint16_t *) modify mqtt server port number */
-    IOTX_IOCTL_SET_PROXY_REGISTER,       /* value(int*): 0 - Disable proxy product register, 1 - Enable proxy product register */
     IOTX_IOCTL_SET_AWSS_ENABLE_INTERVAL, /* value(uint32_t*): - set an interval during which wifi-provision is enabled, unit is Ms*/
-    IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL /* value(uint32_t*): - set an interval during which a channel is scanned, unit is Ms*/
+    IOTX_IOCTL_SET_AWSS_CHANNEL_SCAN_INTERVAL, /* value(uint32_t*): - set an interval during which a channel is scanned, unit is Ms*/
+    IOTX_IOCTL_SET_PROXY_REGISTER,      /* value(int*): 0 - Disable proxy product register, 1 - Enable proxy product register */
+    IOTX_IOCTL_QUERY_DEVID,             /* value(iotx_dev_meta_info_t*): device meta info, only productKey and deviceName is required, ret value is subdev_id or -1 */
 } iotx_ioctl_option_t;
 
 typedef enum {
