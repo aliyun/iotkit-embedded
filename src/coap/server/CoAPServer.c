@@ -78,10 +78,16 @@ void *coap_yield_mutex = NULL;
 static void *CoAPServer_yield(void *param)
 {
     CoAPContext *context = (CoAPContext *)param;
+#ifndef AWSS_DISABLE_REGISTRAR
+    extern int registar_yield();
+#endif
     COAP_DEBUG("Enter to CoAP daemon task");
 
     while (g_coap_running) {
         CoAPMessage_cycle(context);
+#ifndef AWSS_DISABLE_REGISTRAR
+        registar_yield();
+#endif
     }
 
 #ifdef COAP_SERV_MULTITHREAD

@@ -416,11 +416,6 @@ int IOT_MQTT_Destroy(void **phandler)
 int IOT_MQTT_Yield(void *handle, int timeout_ms)
 {
     void *pClient = (handle ? handle : g_mqtt_client);
-    void *callback = iotx_event_callback(ITE_AWSS_ZERO_CONFIG);
-    if (callback) {
-        ((int (*)(void))callback)();
-    }
-
     return wrapper_mqtt_yield(pClient, timeout_ms);
 }
 

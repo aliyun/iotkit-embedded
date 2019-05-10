@@ -26,7 +26,7 @@ static int enrollee_checkin(void);
 static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeout);
 static int awss_enrollee_get_dev_info(char *payload, int payload_len, char *product_key,
                                       char *dev_name, char *cipher, int *timeout);
-static int registar_yield();
+int registar_yield();
 
 /* registrar send pkt interval in ms */
 #define REGISTRAR_TIMEOUT               (60)
@@ -84,7 +84,6 @@ void awss_registrar_init(void)
     schedule_duration = REGISTRAR_WORK_TIME;
     last_open = 1;
 #endif
-    IOT_RegisterCallback(ITE_AWSS_ZERO_CONFIG, registar_yield);
 }
 
 void awss_registrar_deinit(void)
@@ -1053,7 +1052,7 @@ static void registrar_raw_frame_send(void)
 }
 
 
-static int registar_yield()
+int registar_yield()
 {
 #ifdef REGISTRAR_IDLE_DUTY
     registrar_schedule();
