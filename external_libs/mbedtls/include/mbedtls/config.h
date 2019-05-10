@@ -6,10 +6,14 @@
 #define MBEDTLS_CONFIG_H
 
 #ifdef _WIN32
-    #ifdef DLL_TLS_EXPORTS
-        #define DLL_TLS_API __declspec(dllexport)
+    #if !defined(CC_IS_MINGW32)
+        #ifdef DLL_HAL_EXPORTS
+            #define DLL_TLS_API __declspec(dllexport)
+        #else
+            #define DLL_TLS_API __declspec(dllimport)
+        #endif
     #else
-        #define DLL_TLS_API __declspec(dllimport)
+        #define DLL_TLS_API
     #endif
 #else
     #define DLL_TLS_API

@@ -10,13 +10,17 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef _WIN32
-#ifdef DLL_IOT_EXPORTS
-#define DLL_IOT_API __declspec(dllexport)
+    #if !defined(CC_IS_MINGW32)
+        #ifdef DLL_HAL_EXPORTS
+            #define DLL_IOT_API __declspec(dllexport)
+        #else
+            #define DLL_IOT_API __declspec(dllimport)
+        #endif
+    #else
+        #define DLL_IOT_API
+    #endif
 #else
-#define DLL_IOT_API __declspec(dllimport)
-#endif
-#else
-#define DLL_IOT_API
+    #define DLL_IOT_API
 #endif
 
 #if defined (__CC_ARM)

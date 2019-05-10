@@ -19,6 +19,15 @@
 #include "infra_defs.h"
 #include "wrappers_defs.h"
 
+void HAL_Printf(_IN_ const char *fmt, ...);
+#define hal_emerg(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_crit(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_err(...)        HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_warning(...)    HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_info(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_debug(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+
+
 #define __DEMO__
 
 #ifdef __DEMO__
@@ -148,10 +157,10 @@ int HAL_SetProductKey(_IN_ char *product_key)
 {
     int len = strlen(product_key);
 #ifdef __DEMO__
-    if (len > PRODUCT_KEY_LEN) {
+    if (len > IOTX_PRODUCT_KEY_LEN) {
         return -1;
     }
-    memset(_product_key, 0x0, PRODUCT_KEY_LEN + 1);
+    memset(_product_key, 0x0, IOTX_PRODUCT_KEY_LEN + 1);
     strncpy(_product_key, product_key, len);
 #endif
     return len;
@@ -162,10 +171,10 @@ int HAL_SetDeviceName(_IN_ char *device_name)
 {
     int len = strlen(device_name);
 #ifdef __DEMO__
-    if (len > DEVICE_NAME_LEN) {
+    if (len > IOTX_DEVICE_NAME_LEN) {
         return -1;
     }
-    memset(_device_name, 0x0, DEVICE_NAME_LEN + 1);
+    memset(_device_name, 0x0, IOTX_DEVICE_NAME_LEN + 1);
     strncpy(_device_name, device_name, len);
 #endif
     return len;
@@ -176,10 +185,10 @@ int HAL_SetDeviceSecret(_IN_ char *device_secret)
 {
     int len = strlen(device_secret);
 #ifdef __DEMO__
-    if (len > DEVICE_SECRET_LEN) {
+    if (len > IOTX_DEVICE_SECRET_LEN) {
         return -1;
     }
-    memset(_device_secret, 0x0, DEVICE_SECRET_LEN + 1);
+    memset(_device_secret, 0x0, IOTX_DEVICE_SECRET_LEN + 1);
     strncpy(_device_secret, device_secret, len);
 #endif
     return len;
@@ -190,10 +199,10 @@ int HAL_SetProductSecret(_IN_ char *product_secret)
 {
     int len = strlen(product_secret);
 #ifdef __DEMO__
-    if (len > PRODUCT_SECRET_LEN) {
+    if (len > IOTX_PRODUCT_SECRET_LEN) {
         return -1;
     }
-    memset(_product_secret, 0x0, PRODUCT_SECRET_LEN + 1);
+    memset(_product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN + 1);
     strncpy(_product_secret, product_secret, len);
 #endif
     return len;
@@ -202,7 +211,7 @@ int HAL_SetProductSecret(_IN_ char *product_secret)
 int HAL_GetProductKey(_OU_ char *product_key)
 {
     int len = strlen(_product_key);
-    memset(product_key, 0x0, PRODUCT_KEY_LEN);
+    memset(product_key, 0x0, IOTX_PRODUCT_KEY_LEN);
 
 #ifdef __DEMO__
     strncpy(product_key, _product_key, len);
@@ -214,7 +223,7 @@ int HAL_GetProductKey(_OU_ char *product_key)
 int HAL_GetProductSecret(_OU_ char *product_secret)
 {
     int len = strlen(_product_secret);
-    memset(product_secret, 0x0, PRODUCT_SECRET_LEN);
+    memset(product_secret, 0x0, IOTX_PRODUCT_SECRET_LEN);
 
 #ifdef __DEMO__
     strncpy(product_secret, _product_secret, len);
@@ -226,7 +235,7 @@ int HAL_GetProductSecret(_OU_ char *product_secret)
 int HAL_GetDeviceName(_OU_ char *device_name)
 {
     int len = strlen(_device_name);
-    memset(device_name, 0x0, DEVICE_NAME_LEN);
+    memset(device_name, 0x0, IOTX_DEVICE_NAME_LEN);
 
 #ifdef __DEMO__
     strncpy(device_name, _device_name, len);
@@ -238,7 +247,7 @@ int HAL_GetDeviceName(_OU_ char *device_name)
 int HAL_GetDeviceSecret(_OU_ char *device_secret)
 {
     int len = strlen(_device_secret);
-    memset(device_secret, 0x0, DEVICE_SECRET_LEN);
+    memset(device_secret, 0x0, IOTX_DEVICE_SECRET_LEN);
 
 #ifdef __DEMO__
     strncpy(device_secret, _device_secret, len);
@@ -247,14 +256,14 @@ int HAL_GetDeviceSecret(_OU_ char *device_secret)
     return len;
 }
 
-int HAL_GetFirmwareVersion(_OU_ char *version)
-{
-    memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
-#ifdef __DEMO__
-    strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
-    version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
-#endif
 
+int HAL_GetFirmwareVersion(char *version)
+{
+    char *ver = "app-1.0.0-20180101.1000";
+    int len = strlen(ver);
+    memset(version, 0x0, IOTX_FIRMWARE_VER_LEN);
+    strncpy(version, ver, IOTX_FIRMWARE_VER_LEN);
+    version[len] = '\0';
     return strlen(version);
 }
 
@@ -382,10 +391,10 @@ int64_t HAL_UTC_Get(void)
 
 int HAL_GetNetifInfo(char *nif_str)
 {
-    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+    const char *net_info = "WiFi|03ACDEFF0032";
+    memset(nif_str, 0x0, IOTX_NETWORK_IF_LEN);
 #ifdef __DEMO__
     /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    const char *net_info = "WiFi|03ACDEFF0032";
     strncpy(nif_str, net_info, strlen(net_info));
     /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
     // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
@@ -454,115 +463,7 @@ int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
     return 0;
 }
 
-int HAL_Awss_Connect_Ap(
-            _IN_ uint32_t connection_timeout_ms,
-            _IN_ char ssid[HAL_MAX_SSID_LEN],
-            _IN_ char passwd[HAL_MAX_PASSWD_LEN],
-            _IN_OPT_ enum AWSS_AUTH_TYPE auth,
-            _IN_OPT_ enum AWSS_ENC_TYPE encry,
-            _IN_OPT_ uint8_t bssid[ETH_ALEN],
-            _IN_OPT_ uint8_t channel)
-{
-    return 0;
-}
-
-int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
-{
-    return 0;
-}
-
-int HAL_Wifi_Get_Ap_Info(
-            _OU_ char ssid[HAL_MAX_SSID_LEN],
-            _OU_ char passwd[HAL_MAX_PASSWD_LEN],
-            _OU_ uint8_t bssid[ETH_ALEN])
-{
-    return 0;
-}
-
-int HAL_Awss_Get_Conn_Encrypt_Type(void)
-{
-    return 0;
-}
-
-
-int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
-                                  _IN_ uint8_t *buffer, _IN_ int len)
-{
-    return 0;
-}
-
-int HAL_Awss_Get_Encrypt_Type(void)
-{
-    return 0;
-}
-
-int HAL_Awss_Get_Timeout_Interval_Ms(void)
-{
-    return 0;
-}
-
-int HAL_Awss_Get_Channelscan_Interval_Ms(void)
-{
-    return 0;
-}
-
-void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
-{
-    return;
-}
-
-void HAL_Awss_Switch_Channel(
-            _IN_ char primary_channel,
-            _IN_OPT_ char secondary_channel,
-            _IN_OPT_ uint8_t bssid[ETH_ALEN])
-{
-    return;
-}
-
-void HAL_Awss_Close_Monitor(void)
-{
-    return;
-}
-
-int HAL_Sys_Net_Is_Ready()
-{
-    return 0;
-}
-
-p_HAL_Aes128_t HAL_Aes128_Init(
-            _IN_ const uint8_t *key,
-            _IN_ const uint8_t *iv,
-            _IN_ AES_DIR_t dir)
-{
-    return 0;
-}
-
-int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes)
-{
-    return 0;
-}
-
-int HAL_Aes128_Cbc_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst)
-{
-    return 0;
-}
-
-
-int HAL_Aes128_Cfb_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t length,
-            _OU_ void *dst)
-
-{
-    return 0;
-}
-
-void    HAL_Reboot(void)
+void  HAL_Reboot(void)
 {
     return;
 }

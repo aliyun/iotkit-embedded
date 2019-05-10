@@ -9,13 +9,21 @@
 #include <string.h>
 #include <windows.h>
 #include <winsock.h>
-#include "infra_config.h"
 
+#include "infra_defs.h"
+#include "infra_config.h"
 #ifdef _MSC_BUILD
 #include <Winbase.h>
 #pragma comment(lib,"ws2_32")
 #endif
 
+extern void HAL_Printf(_IN_ const char *fmt, ...);
+#define hal_emerg(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_crit(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_err(...)        HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_warning(...)    HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_info(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_debug(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
 
 static uint64_t time_left(uint64_t t_end, uint64_t t_now)
 {
