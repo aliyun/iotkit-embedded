@@ -378,17 +378,6 @@ int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
     return 0;
 }
 
-
-void HAL_UTC_Set(int64_t ms)
-{
-
-}
-
-int64_t HAL_UTC_Get(void)
-{
-    return 0;
-}
-
 int HAL_GetNetifInfo(char *nif_str)
 {
     const char *net_info = "WiFi|03ACDEFF0032";
