@@ -60,7 +60,8 @@ int awss_success_notify(void)
     return 0;
 }
 
-char awss_aha_connect_to_router()
+#if defined(AWSS_SUPPORT_AHA)
+static char awss_aha_connect_to_router()
 {
     int iter = 0;
     char dest_ap = 0;
@@ -81,7 +82,7 @@ char awss_aha_connect_to_router()
     }
     return dest_ap;
 }
-
+#endif
 int awss_start(void)
 {
     if (awss_stopped == 0) {

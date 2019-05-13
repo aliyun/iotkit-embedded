@@ -34,7 +34,6 @@
 #include "dev_bind_wrapper.h"
 #include "awss_aplist.h"
 #include "connect_ap.h"
-#include "awss_info_notify.h"
 #include "awss_aes_wrapper.h"
 
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
@@ -80,4 +79,10 @@
 
 #ifdef AWSS_SUPPORT_DEV_AP
     #include "dev_ap_wrapper.h"
+#endif
+#if defined(AWSS_SUPPORT_SMARTCONFIG) || defined(AWSS_SUPPORT_AHA) || defined(AWSS_SUPPORT_ZEROCONFIG)
+#define AWSS_SUPPORT_BEACON_ANNOUNCE
+#endif
+#ifdef AWSS_SUPPORT_BEACON_ANNOUNCE
+#include "awss_beacon_announce.h"
 #endif

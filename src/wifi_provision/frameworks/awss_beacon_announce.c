@@ -4,20 +4,23 @@
 #include "wifi_provision_internal.h"
 #include "infra_defs.h"
 
+#if defined(AWSS_SUPPORT_BEACON_ANNOUNCE)
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
 
-
 #define POLY  0x04C11DB7
 
-#define MAX_BEACON_NOTIFY_LEN 80
+#define MAX_BEACON_ANNOUNCE_LEN 80
 
 #define AWSS_USE_QUICK_CRC
 
 static const char HEADER[] = {0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static const char BEACON_INTER[] = {0x2c, 0x01, 0x01, 0x00};
 
+extern int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
+                                  _IN_ uint8_t *buffer, _IN_ int len);
+                                  
 typedef struct simulate_ap {
     uint8_t bssid[6];
     uint16_t  seq_id;
@@ -171,7 +174,7 @@ static uint16_t  create_beacon_frame(uint8_t *p_buffer, simulate_ap_t  *p_ap)
     return len;
 }
 
-static int awss_set_notify_content(simulate_ap_t *ap, char *data)
+static int awss_set_announce_content(simulate_ap_t *ap, char *data)
 {
     uint8_t len = strlen(data);
     if (data == NULL || ap == NULL) {
@@ -232,11 +235,11 @@ static int get_ability(char *src, uint8_t mac[6])
     }
     return 8;
 }
-int aws_send_info_notify(void)
+int aws_send_beacon_announce(void)
 {
     int len;
     int ssid_len;
-    uint8_t probe[MAX_BEACON_NOTIFY_LEN] = {0};
+    uint8_t probe[MAX_BEACON_ANNOUNCE_LEN] = {0};
     char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char ssid[33] = {0};
     simulate_ap_t ap;
@@ -252,7 +255,7 @@ int aws_send_info_notify(void)
     ssid_len += 1;
     ssid_len += get_ability(ssid + ssid_len, ap.bssid);
 
-    awss_set_notify_content(&ap, ssid);
+    awss_set_announce_content(&ap, ssid);
 
     len = create_beacon_frame(probe, &ap);
 
@@ -262,4 +265,5 @@ int aws_send_info_notify(void)
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
+#endif
 #endif

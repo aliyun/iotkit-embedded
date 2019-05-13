@@ -318,7 +318,9 @@ rescanning:
         awss_broadcast_enrollee_info();
 #endif
         HAL_SleepMs(interval);
-        aws_send_info_notify();
+#ifdef AWSS_SUPPORT_BEACON_ANNOUNCE
+        aws_send_beacon_announce();
+#endif
         HAL_SleepMs(interval);
 #ifdef AWSS_SUPPORT_AHA
         aws_send_aha_probe_req();
