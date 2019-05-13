@@ -48,4 +48,11 @@ endif
 	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
 	    CFLAGS=$(CFLAGS) SED=$(SED) \
 	    bash $(RULE_DIR)/scripts/gen_rom_stats.sh
+
+ifeq (i686-w64-mingw32-gcc,$(CC))
+	$(TOP_Q)for iter in $(FINAL_DIR)/bin/*; do \
+	    mv $${iter} $${iter}.exe; \
+	done
+endif
+
 endif
