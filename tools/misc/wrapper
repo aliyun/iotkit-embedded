@@ -151,8 +151,8 @@ HAL_TCP_Establish:
  * @param [in] port: @n Specify the TCP port of TCP server
  *
  * @return The handle of TCP connection.
-   @retval   0 : Fail.
-   @retval > 0 : Success, the value is handle of this TCP connection.
+   @retval (uintptr_t)(-1): Fail.
+   @retval All other values(0 included): Success, the value is handle of this TCP connection.
  */
 
 HAL_TCP_Destroy:
