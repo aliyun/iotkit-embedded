@@ -682,7 +682,7 @@ exit:
  * AES-ECB block encryption
  */
 #if !defined(INFRA_AES_ENCRYPT_ALT)
-int infra_aes_internal_aes_encrypt( infra_aes_context *ctx,
+static int infra_aes_internal_aes_encrypt( infra_aes_context *ctx,
                                   const unsigned char input[16],
                                   unsigned char output[16] )
 {
@@ -741,7 +741,7 @@ int infra_aes_internal_aes_encrypt( infra_aes_context *ctx,
  * AES-ECB block decryption
  */
 #if !defined(INFRA_AES_DECRYPT_ALT)
-int infra_aes_internal_aes_decrypt( infra_aes_context *ctx,
+static int infra_aes_internal_aes_decrypt( infra_aes_context *ctx,
                                   const unsigned char input[16],
                                   unsigned char output[16] )
 {
@@ -875,6 +875,7 @@ int infra_aes_crypt_cbc( infra_aes_context *ctx,
     }
     else
     {
+#if 0
         while( length > 0 )
         {
             for( i = 0; i < 16; i++ )
@@ -887,6 +888,7 @@ int infra_aes_crypt_cbc( infra_aes_context *ctx,
             output += 16;
             length -= 16;
         }
+#endif
     }
 
     return( 0 );
@@ -924,6 +926,7 @@ int infra_aes_crypt_cfb128( infra_aes_context *ctx,
     }
     else
     {
+#if 0
         while( length-- )
         {
             if( n == 0 )
@@ -933,6 +936,7 @@ int infra_aes_crypt_cfb128( infra_aes_context *ctx,
 
             n = ( n + 1 ) & 0x0F;
         }
+#endif
     }
 
     *iv_off = n;
@@ -943,6 +947,7 @@ int infra_aes_crypt_cfb128( infra_aes_context *ctx,
 /*
  * AES-CFB8 buffer encryption/decryption
  */
+#if 0
 int infra_aes_crypt_cfb8( infra_aes_context *ctx,
                        int mode,
                        size_t length,
@@ -971,12 +976,14 @@ int infra_aes_crypt_cfb8( infra_aes_context *ctx,
 
     return( 0 );
 }
+#endif
 #endif /*INFRA_CIPHER_MODE_CFB */
 
 #if defined(INFRA_CIPHER_MODE_CTR)
 /*
  * AES-CTR buffer encryption/decryption
  */
+#if 0
 int infra_aes_crypt_ctr( infra_aes_context *ctx,
                        size_t length,
                        size_t *nc_off,
@@ -1007,6 +1014,7 @@ int infra_aes_crypt_ctr( infra_aes_context *ctx,
 
     return( 0 );
 }
+#endif
 #endif /* INFRA_CIPHER_MODE_CTR */
 
 #endif /* !INFRA_AES_ALT */

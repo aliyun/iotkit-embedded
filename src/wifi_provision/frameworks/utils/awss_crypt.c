@@ -102,7 +102,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
     plain[0] = '\0';
 
     if (decrypt) {
-        p_aes128_t aes = (p_aes128_t)awss_Aes128_Init(key, iv);
+        p_aes128_t aes = (p_aes128_t)awss_Aes128_Init(key, iv, AES_DECRYPTION);
         if (cbc) { /* AP */
             /*
              * mobile-ap, dev-ap, router

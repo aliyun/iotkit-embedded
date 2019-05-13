@@ -329,6 +329,35 @@ extern "C" {
  */
 DLL_TLS_API int infra_aes_self_test(int verbose);
 
+
+#if !defined(INFRA_AES)
+typedef infra_aes_context mbedtls_aes_context;
+void mbedtls_aes_free( mbedtls_aes_context *ctx );
+void mbedtls_aes_init(mbedtls_aes_context *ctx);
+int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx, const unsigned char *key,
+                                       unsigned int keybits);
+int mbedtls_aes_setkey_dec(mbedtls_aes_context *ctx, const unsigned char *key,
+                                        unsigned int keybits);
+int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
+                                      int mode,
+                                      size_t length,
+                                      unsigned char iv[16],
+                                      const unsigned char *input,
+                                      unsigned char *output);
+int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
+        int mode,
+        size_t length,
+        size_t *iv_off,
+        unsigned char iv[16],
+        const unsigned char *input,
+        unsigned char *output);
+
+#define MBEDTLS_AES_DECRYPT INFRA_AES_DECRYPT
+#define MBEDTLS_AES_ENCRYPT INFRA_AES_ENCRYPT
+#endif
+
+#define AES_BLOCK_SIZE (16)
+
 #ifdef __cplusplus
 }
 #endif

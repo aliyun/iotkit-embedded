@@ -1,20 +1,28 @@
+#include "infra_compat.h"
 
-#include "wifi_provision_internal.h"
+typedef void *p_Aes128_t;
 
-p_HAL_Aes128_t awss_Aes128_Init(
+p_Aes128_t awss_Aes128_Init(
             const uint8_t *key,
-            const uint8_t *iv);
+            const uint8_t *iv,
+            AES_DIR_t dir);
 
-int awss_Aes128_Destroy(p_HAL_Aes128_t aes);
+int awss_Aes128_Destroy(p_Aes128_t aes);
 
 int awss_Aes128_Cbc_Decrypt(
-            p_HAL_Aes128_t aes,
+            p_Aes128_t aes,
             const void *src,
             size_t blockNum,
             void *dst);
 
 int awss_Aes128_Cfb_Decrypt(
-            p_HAL_Aes128_t aes,
+            p_Aes128_t aes,
+            const void *src,
+            size_t length,
+            void *dst);
+
+int awss_Aes128_Cfb_Encrypt(
+            p_Aes128_t aes,
             const void *src,
             size_t length,
             void *dst);

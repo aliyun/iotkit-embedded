@@ -1007,9 +1007,9 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
     registrar_frame[len ++] = passwd_len;
 
     {
-        p_aes128_t aes = HAL_Aes128_Init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
-        HAL_Aes128_Cfb_Encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
-        HAL_Aes128_Destroy(aes);
+        p_aes128_t aes = awss_Aes128_Init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
+        awss_Aes128_Cfb_Encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
+        awss_Aes128_Destroy(aes);
     }
 
     len += passwd_len;

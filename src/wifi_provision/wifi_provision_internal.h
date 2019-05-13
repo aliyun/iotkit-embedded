@@ -35,6 +35,7 @@
 #include "awss_aplist.h"
 #include "connect_ap.h"
 #include "awss_info_notify.h"
+#include "awss_aes_wrapper.h"
 
 #ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
     #include "awss_wps.h"

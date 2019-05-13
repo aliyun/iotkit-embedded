@@ -6,6 +6,10 @@ config SUPPORT_TLS
     bool "FEATURE_SUPPORT_TLS"
     default y if OTA_ENABLED
 
+config PLATFORM_HAS_MBEDTLS
+    bool "PLATFROM_HAS_MBEDTLS"
+    default y if SUPPORT_TLS
+
 config HAL_CRYPTO
     bool
     default n
