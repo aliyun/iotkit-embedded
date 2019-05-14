@@ -132,7 +132,6 @@ typedef struct Client {
 #endif
     utils_network_t                 ipstack;                                    /* network parameter */
     iotx_time_t                     next_ping_time;                             /* next ping time */
-    int                             ping_mark;                                  /* flag of ping */
     iotx_mc_state_t                 client_state;                               /* state of MQTT client */
     iotx_mc_reconnect_param_t       reconnect_param;                            /* reconnect parameter */
     MQTTPacket_connectData          connect_data;                               /* connection parameter */

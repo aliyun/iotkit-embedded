@@ -48,7 +48,7 @@
 #define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (60000)
 
 /* Max times of keepalive which has been send and did not received response package */
-#define IOTX_MC_KEEPALIVE_PROBE_MAX             (1)
+#define IOTX_MC_KEEPALIVE_PROBE_MAX             (2)
 
 
 /* Linked List Params When PLATFORM_HAS_DYNMEN Disabled */
