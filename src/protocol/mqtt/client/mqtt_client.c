@@ -1789,7 +1789,6 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 
     /* clear ping mark when any data received from MQTT broker */
     HAL_MutexLock(c->lock_generic);
-    c->ping_mark = 0;
     c->keepalive_probes = 0;
     HAL_MutexUnlock(c->lock_generic);
     HAL_MutexLock(c->lock_read_buf);
@@ -2545,9 +2544,6 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
         /* if Exceeds the maximum delay time, then return reconnect timeout */
         if (IOTX_MC_STATE_DISCONNECTED_RECONNECTING == currentState) {
             /* Reconnection is successful, Resume regularly ping packets */
-            HAL_MutexLock(pClient->lock_generic);
-            pClient->ping_mark = 0;
-            HAL_MutexUnlock(pClient->lock_generic);
             rc = iotx_mc_handle_reconnect(pClient);
             if (SUCCESS_RETURN != rc) {
                 mqtt_debug("reconnect network fail, rc = %d", rc);
@@ -2685,7 +2681,7 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
         mqtt_err("wait connect ACK timeout, or receive a ACK indicating error!");
         return MQTT_CONNECT_ERROR;
     }
-
+    pClient->keepalive_probes = 0;
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
 
     utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
@@ -2939,7 +2935,6 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
     mqtt_info("send MQTT ping...");
 
     HAL_MutexLock(pClient->lock_generic);
-    pClient->ping_mark = 1;
     pClient->keepalive_probes++;
     HAL_MutexUnlock(pClient->lock_generic);
 
@@ -3029,7 +3024,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_params->password = conn_info->password;
         mqtt_params->pub_key = conn_info->pub_key;
 
-        mqtt_params->request_timeout_ms    = 2000;
+        mqtt_params->request_timeout_ms    = IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS;
         mqtt_params->clean_session         = 0;
         mqtt_params->keepalive_interval_ms = 60000;
         mqtt_params->read_buf_size         = MQTT_DEFAULT_MSG_LEN;
