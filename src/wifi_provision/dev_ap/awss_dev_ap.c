@@ -25,8 +25,7 @@ typedef struct {
     uint8_t cnt;
     uint8_t token_found;
 } ap_info_t;
-ap_info_t dev_ap_info = {0};
-ap_info_t *g_dev_ap_info_ptr = &dev_ap_info;
+ap_info_t *g_dev_ap_info_ptr = NULL;
 
 
 static int awss_dev_ap_setup()
@@ -60,17 +59,23 @@ static int awss_dev_ap_setup()
 
 static void try_to_do_connect_ap()
 {
-    ap_info_t *info = g_dev_ap_info_ptr;
     int ret;
+    ap_info_t *info = g_dev_ap_info_ptr;
+    if (NULL == info) {
+        return;
+    }
     if (awss_dev_ap_ongoing == 0) {
         awss_cmp_coap_cancel_packet(info->msgid);
+        return;
+    }
+    if ((strlen(info->ssid) == 0) && (strlen(info->passwd) == 0)) {
         return;
     }
 
     if (awss_dev_ap_switchap_resp_suc || ++info->cnt == TIMEOUT_CNT) {
         start_connect_ap();
         /* reset ssid/passwd data to 0 */
-        memset(g_dev_ap_info_ptr, 0, sizeof(ap_info_t));
+        memset(info, 0, sizeof(ap_info_t));
     }
 }
 
@@ -78,6 +83,7 @@ extern int awss_success_notify(void);
 int awss_dev_ap_start(void)
 {
     int ret = -1;
+    ap_info_t dev_ap_info = {0};
 
     if (g_awss_dev_ap_mutex || awss_dev_ap_ongoing) {
         awss_trace("dev ap already running");
@@ -97,6 +103,7 @@ int awss_dev_ap_start(void)
     awss_dev_ap_ongoing = 1;
     awss_dev_ap_switchap_done = 0;
     awss_dev_ap_switchap_resp_suc = 0;
+    g_dev_ap_info_ptr = &dev_ap_info;
 
     HAL_MutexUnlock(g_awss_dev_ap_mutex);
     ret = awss_dev_ap_setup();
@@ -119,6 +126,7 @@ int awss_dev_ap_start(void)
         }
         try_to_do_connect_ap();
     }
+    g_dev_ap_info_ptr = NULL;
     HAL_MutexUnlock(g_awss_dev_ap_mutex);
 
     ret = awss_dev_ap_switchap_done == 0 ? -1 : 0;
@@ -137,6 +145,7 @@ AWSS_DEV_AP_FAIL:
         HAL_MutexDestroy(g_awss_dev_ap_mutex);
     }
     g_awss_dev_ap_mutex = NULL;
+    g_dev_ap_info_ptr = NULL;
     return ret;
 }
 
@@ -166,6 +175,7 @@ int awss_dev_ap_stop(void)
 
     awss_dev_ap_switchap_done = 0;
     awss_dev_ap_switchap_resp_suc = 0;
+    g_dev_ap_info_ptr = NULL;
 
     awss_trace("%s exit", __func__);
 
@@ -185,7 +195,11 @@ static int awss_dev_ap_switchap_resp(void *context, int result,
 static void start_connect_ap()
 {
     int ret = 0;
-    awss_cmp_coap_cancel_packet(g_dev_ap_info_ptr->msgid);
+    ap_info_t *info = g_dev_ap_info_ptr;
+    if (NULL == info) {
+        return;
+    }
+    awss_cmp_coap_cancel_packet(info->msgid);
     AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
     if (awss_dev_ap_ongoing == 0) {  /* interrupt by user */
         ret = -1;
@@ -193,9 +207,9 @@ static void start_connect_ap()
     }
     HAL_Awss_Close_Ap();
 
-    ret = awss_connect(g_dev_ap_info_ptr->ssid, g_dev_ap_info_ptr->passwd, g_dev_ap_info_ptr->bssid, ETH_ALEN,
-                       g_dev_ap_info_ptr->token_found == 1 ? g_dev_ap_info_ptr->token : NULL,
-                       g_dev_ap_info_ptr->token_found == 1 ? RANDOM_MAX_LEN : 0);
+    ret = awss_connect(info->ssid, info->passwd, info->bssid, ETH_ALEN,
+                       info->token_found == 1 ? info->token : NULL,
+                       info->token_found == 1 ? RANDOM_MAX_LEN : 0);
     if (ret == 0) {
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         awss_dev_ap_switchap_done = 1;
@@ -206,30 +220,39 @@ static void start_connect_ap()
             awss_trace("retry, but awss dev ap setup fail");
         }
     }
-    awss_trace("connect '%s' %s\r\n", g_dev_ap_info_ptr->ssid, ret == 0 ? "success" : "fail");
+    awss_trace("connect '%s' %s\r\n", info->ssid, ret == 0 ? "success" : "fail");
 }
 
 int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *remote, void *request)
 {
 #define AWSS_DEV_AP_SWITCHA_RSP_LEN (512)
-    char *ssid = g_dev_ap_info_ptr->ssid;
-    char *passwd = g_dev_ap_info_ptr->passwd;
     int str_len = 0, success = 1, len = 0;
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
     char random[RANDOM_MAX_LEN + 1] = {0};
-    uint8_t *token = g_dev_ap_info_ptr->token;
     char *msg = NULL, *dev_info = NULL;
     char *str = NULL, *buf = NULL;
-    uint8_t *bssid = g_dev_ap_info_ptr->bssid;
-    uint8_t *token_found = &(g_dev_ap_info_ptr->token_found);
     char ssid_found = 0;
     int ret = -1;
-
-
+    char *ssid;
+    char *passwd;
+    uint8_t *bssid;
+    uint8_t *token_found;
+    uint8_t *token;
     static char dev_ap_switchap_parsed = 0;
     char topic[TOPIC_LEN_MAX] = {0};
     uint16_t msgid = -1;
     int result = 0;
+
+    ap_info_t *info = g_dev_ap_info_ptr;
+    if (NULL == info) {
+        return -1;
+    }
+
+    ssid = info->ssid;
+    passwd = info->passwd;
+    bssid = info->bssid;
+    token_found = &(info->token_found);
+    token = info->token;
 
     if (dev_ap_switchap_parsed != 0) {
         goto DEV_AP_SWITCHAP_END;
@@ -342,7 +365,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     }
     awss_build_topic((const char *)TOPIC_AWSS_DEV_AP_SWITCHAP, topic, TOPIC_LEN_MAX);
     result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request, awss_dev_ap_switchap_resp,
-                                     &(g_dev_ap_info_ptr->msgid), 1);
+                                     &(info->msgid), 1);
     (void)result;  /* remove complier warnings */
     awss_trace("sending %s.", result == 0 ? "success" : "fail");
 
