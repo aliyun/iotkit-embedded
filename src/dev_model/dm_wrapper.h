@@ -57,18 +57,18 @@ int HAL_SetDeviceSecret(char *device_secret);
 #endif
 
 #ifdef ALCS_ENABLED
-p_HAL_Aes128_t HAL_Aes128_Init(
+p_Aes128_t Infra_Aes128_Init(
             const uint8_t *key,
             const uint8_t *iv,
             AES_DIR_t dir);
-int HAL_Aes128_Cbc_Encrypt(
-            p_HAL_Aes128_t aes,
+int Infra_Aes128_Cbc_Encrypt(
+            p_Aes128_t aes,
             const void *src,
             size_t blockNum,
             void *dst);
-int HAL_Aes128_Destroy(p_HAL_Aes128_t aes);
-int HAL_Aes128_Cbc_Decrypt(
-            p_HAL_Aes128_t aes,
+int Infra_Aes128_Destroy(p_Aes128_t aes);
+int Infra_Aes128_Cbc_Decrypt(
+            p_Aes128_t aes,
             const void *src,
             size_t blockNum,
             void *dst);

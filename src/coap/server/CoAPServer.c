@@ -85,7 +85,7 @@ static void *CoAPServer_yield(void *param)
 
     while (g_coap_running) {
         CoAPMessage_cycle(context);
-#ifndef AWSS_DISABLE_REGISTRAR
+#if defined(WIFI_PROVISION_ENABLED) && !defined(AWSS_DISABLE_REGISTRAR)
         registar_yield();
 #endif
     }

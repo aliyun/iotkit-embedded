@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "wifi_provision_internal.h"
-
 #ifndef AWSS_DISABLE_REGISTRAR
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -1007,9 +1006,9 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
     registrar_frame[len ++] = passwd_len;
 
     {
-        p_aes128_t aes = awss_Aes128_Init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
-        awss_Aes128_Cfb_Encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
-        awss_Aes128_Destroy(aes);
+        p_Aes128_t aes = Infra_Aes128_Init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
+        Infra_Aes128_Cfb_Encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
+        Infra_Aes128_Destroy(aes);
     }
 
     len += passwd_len;

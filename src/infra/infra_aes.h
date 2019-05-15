@@ -1,9 +1,6 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
 #ifndef INFRA_AES_H
 #define INFRA_AES_H
 
@@ -13,6 +10,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "infra_compat.h"
 
 /* padlock.c and aesni.c rely on these values! */
 #define INFRA_AES_ENCRYPT     1
@@ -329,9 +327,9 @@ extern "C" {
  */
 DLL_TLS_API int infra_aes_self_test(int verbose);
 
+typedef infra_aes_context mbedtls_aes_context;
 
 #if !defined(INFRA_AES)
-typedef infra_aes_context mbedtls_aes_context;
 void mbedtls_aes_free( mbedtls_aes_context *ctx );
 void mbedtls_aes_init(mbedtls_aes_context *ctx);
 int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx, const unsigned char *key,
@@ -361,5 +359,36 @@ int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
 #ifdef __cplusplus
 }
 #endif
+
+p_Aes128_t Infra_Aes128_Init(
+            const uint8_t *key,
+            const uint8_t *iv,
+            AES_DIR_t dir);
+
+int Infra_Aes128_Destroy(p_Aes128_t aes);
+
+int Infra_Aes128_Cbc_Decrypt(
+            p_Aes128_t aes,
+            const void *src,
+            size_t blockNum,
+            void *dst);
+
+int Infra_Aes128_Cfb_Decrypt(
+            p_Aes128_t aes,
+            const void *src,
+            size_t length,
+            void *dst);
+
+int Infra_Aes128_Cfb_Encrypt(
+            p_Aes128_t aes,
+            const void *src,
+            size_t length,
+            void *dst);
+
+int Infra_Aes128_Cbc_Encrypt(
+            p_Aes128_t aes,
+            const void *src,
+            size_t blockNum,
+            void *dst);
 
 #endif /* aes.h */

@@ -57,21 +57,6 @@ int HAL_UDP_sendto(intptr_t sockfd,
 int HAL_UDP_joinmulticast(intptr_t sockfd,
                           char *p_group);
 uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname);
-p_HAL_Aes128_t HAL_Aes128_Init(
-            const uint8_t *key,
-            const uint8_t *iv,
-            AES_DIR_t dir);
-int HAL_Aes128_Destroy(p_HAL_Aes128_t aes);
-int HAL_Aes128_Cbc_Encrypt(
-            p_HAL_Aes128_t aes,
-            const void *src,
-            size_t blockNum,
-            void *dst);
-int HAL_Aes128_Cbc_Decrypt(
-            p_HAL_Aes128_t aes,
-            const void *src,
-            size_t blockNum,
-            void *dst);
 void *HAL_MutexCreate(void);
 void HAL_MutexDestroy(void *mutex);
 void HAL_MutexLock(void *mutex);

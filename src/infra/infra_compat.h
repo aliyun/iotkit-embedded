@@ -288,7 +288,11 @@ typedef enum {
     HAL_AES_DECRYPTION = 1,
 } AES_DIR_t;
 
+#define AES_DECRYPTION HAL_AES_DECRYPTION
+#define AES_ENCRYPTION HAL_AES_ENCRYPTION
+
 typedef void *p_HAL_Aes128_t;
+typedef void *p_Aes128_t;
 
 #define NETWORK_ADDR_LEN        (16)
 

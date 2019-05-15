@@ -293,18 +293,18 @@ int alcs_encrypt(const char *src, int len, const char *key, void *out)
     int ret = 0;
 
     if (len1) {
-        p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_ENCRYPTION);
-        ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, src, len1 >> 4, out);
-        HAL_Aes128_Destroy(aes_e_h);
+        p_Aes128_t aes_e_h = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_ENCRYPTION);
+        ret = Infra_Aes128_Cbc_Encrypt(aes_e_h, src, len1 >> 4, out);
+        Infra_Aes128_Destroy(aes_e_h);
     }
     if (!ret && pad) {
         char buf[16];
-        p_HAL_Aes128_t aes_e_h = NULL;
+        p_Aes128_t aes_e_h = NULL;
         memcpy(buf, src + len1, len - len1);
         memset(buf + len - len1, pad, pad);
-        aes_e_h = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_ENCRYPTION);
-        ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, (uint8_t *)out + len1);
-        HAL_Aes128_Destroy(aes_e_h);
+        aes_e_h = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_ENCRYPTION);
+        ret = Infra_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, (uint8_t *)out + len1);
+        Infra_Aes128_Destroy(aes_e_h);
     }
 
     COAP_DEBUG("to encrypt src:%s, len:%d", src, len2);
@@ -314,7 +314,7 @@ int alcs_encrypt(const char *src, int len, const char *key, void *out)
 int alcs_decrypt(const char *src, int len, const char *key, void *out)
 {
     char *iv = "a1b1c1d1e1f1g1h1";
-    p_HAL_Aes128_t aes_d_h;
+    p_Aes128_t aes_d_h;
     int n = len >> 4;
     char *out_c = NULL;
     int offset = 0;
@@ -325,14 +325,14 @@ int alcs_decrypt(const char *src, int len, const char *key, void *out)
 
     do {
         if (n > 1) {
-            aes_d_h  = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
+            aes_d_h  = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
             if (!aes_d_h) {
                 COAP_ERR("fail to decrypt init");
                 break;
             }
 
-            ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
-            HAL_Aes128_Destroy(aes_d_h);
+            ret = Infra_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
+            Infra_Aes128_Destroy(aes_d_h);
 
             if (ret != 0) {
                 COAP_ERR("fail to decrypt");
@@ -344,14 +344,14 @@ int alcs_decrypt(const char *src, int len, const char *key, void *out)
         offset = n > 0 ? ((n - 1) << 4) : 0;
         out_c[offset] = 0;
 
-        aes_d_h  = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
+        aes_d_h  = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
         if (!aes_d_h) {
             COAP_ERR("fail to decrypt init");
             break;
         }
 
-        ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
-        HAL_Aes128_Destroy(aes_d_h);
+        ret = Infra_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
+        Infra_Aes128_Destroy(aes_d_h);
 
         if (ret != 0) {
             COAP_ERR("fail to decrypt remain data");
