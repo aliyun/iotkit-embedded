@@ -706,8 +706,6 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
     ent.sigev_notify_function = (void (*)(union sigval))func;
     ent.sigev_value.sival_ptr = user_data;
 
-    printf("HAL_Timer_Create\n");
-
     if (timer_create(CLOCK_MONOTONIC, &ent, timer) != 0) {
         free(timer);
         return NULL;
@@ -731,7 +729,7 @@ int HAL_Timer_Start(void *timer, int ms)
 
     /* it_value=0: stop timer */
     ts.it_value.tv_sec = ms / 1000;
-    ts.it_value.tv_nsec = (ms % 1000) * 1000;
+    ts.it_value.tv_nsec = (ms % 1000) * 1000000;
 
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
