@@ -15,22 +15,7 @@
 #include "Cloud_CoAPNetwork.h"
 
 #ifdef COAP_DTLS_SUPPORT
-static void *Cloud_CoAPDTLS_Malloc(uint32_t size)
-{
-#ifdef INFRA_MEM_STATS
-    return LITE_malloc(size, MEM_MAGIC, "dtls");
-#else
-    return HAL_Malloc(size);
-#endif
-}
-static void Cloud_CoAPDTLS_Free(void *ptr)
-{
-#ifdef INFRA_MEM_STATS
-    LITE_free(ptr);
-#else
-    HAL_Free((void *)ptr);
-#endif
-}
+
 
 static void Cloud_CoAPNetworkDTLS_freeSession(void *p_session);
 
@@ -91,14 +76,8 @@ void *Cloud_CoAPNetworkDTLS_createSession(char *p_host,
         unsigned char         *p_ca_cert_pem)
 {
     DTLSContext *context = NULL;
-    dtls_hooks_t dtls_hooks;
+
     coap_dtls_options_t dtls_options;
-
-    memset(&dtls_hooks, 0, sizeof(dtls_hooks_t));
-    dtls_hooks.malloc = Cloud_CoAPDTLS_Malloc;
-    dtls_hooks.free = Cloud_CoAPDTLS_Free;
-
-    HAL_DTLSHooks_set(&dtls_hooks);
 
     memset(&dtls_options, 0x00, sizeof(coap_dtls_options_t));
     dtls_options.p_ca_cert_pem     = p_ca_cert_pem;

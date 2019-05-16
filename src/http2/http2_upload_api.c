@@ -22,9 +22,7 @@
 #include "http2_api.h"
 #include "http2_upload_api.h"
 #include "http2_config.h"
-#include "http2_wrapper.h"
-
-#include "wrappers_defs.h"
+#include "wrappers.h"
 
 #define PACKET_LEN                  16384
 #define HTTP2_FS_SERVICE_ID         "c/iot/sys/thing/file/upload"
@@ -178,20 +176,24 @@ static int _http2_fs_open_channel(http2_file_stream_t *fs_node, stream_data_info
             ext_header.num = 1;
             ext_header.nva = header_filename;
 
-        } break;
+        }
+        break;
         case FS_TYPE_OVERRIDE: {
             ext_header.num = 2;
             ext_header.nva = header_overwrite;
 
-        } break;
+        }
+        break;
         case FS_TYPE_CONTINUE: {
             /* upload id must be exist */
             header_uploadid[0].value = fs_node->upload_id;
             header_uploadid[0].valuelen = strlen(fs_node->upload_id);
             ext_header.num = 1;
             ext_header.nva = header_uploadid;
-        } break;
-        default: break;
+        }
+        break;
+        default:
+            break;
     }
 
     ret = IOT_HTTP2_Stream_Open(h2_handle, info, &ext_header);
@@ -205,7 +207,8 @@ static int _http2_fs_open_channel(http2_file_stream_t *fs_node, stream_data_info
 
 
 /* file part data send sync api */
-static int _http2_fs_part_send_sync(http2_file_stream_t *fs_node, stream_data_info_t *info, fs_send_ext_info_t *ext_info)
+static int _http2_fs_part_send_sync(http2_file_stream_t *fs_node, stream_data_info_t *info,
+                                    fs_send_ext_info_t *ext_info)
 {
     stream_handle_t *h2_handle = g_http2_fs_ctx.http2_handle;
     header_ext_info_t ext_header;
@@ -230,7 +233,8 @@ static int _http2_fs_part_send_sync(http2_file_stream_t *fs_node, stream_data_in
             break;
         }
 
-        res = http2_stream_get_file_data(fs_node->file_path, ext_info->send_buffer, FS_UPLOAD_PACKET_LEN, (info->send_len + ext_info->file_offset)); /* offset used */
+        res = http2_stream_get_file_data(fs_node->file_path, ext_info->send_buffer, FS_UPLOAD_PACKET_LEN,
+                                         (info->send_len + ext_info->file_offset)); /* offset used */
         if (res <= 0) {
             res = UPLOAD_FILE_READ_FAILED;
             break;
@@ -311,16 +315,14 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
 
     if (fs_node->spec_len && (fs_node->spec_len + rsp_data.fs_offset < filesize)) {
         upload_len = fs_node->spec_len + rsp_data.fs_offset;
-    }
-    else {
+    } else {
         upload_len = filesize;
     }
 
     /* setup send part len */
     if ((fs_node->part_len < (1024 * 100)) || (fs_node->part_len > (1024 * 1024 * 100))) {
         part_len = FS_UPLOAD_PART_LEN;
-    }
-    else {
+    } else {
         part_len = fs_node->part_len;
     }
 
@@ -338,8 +340,8 @@ void *_http2_fs_node_handle(http2_file_stream_t *fs_node)
 
     do {
         /* setup the part len */
-        send_ext_info.part_len = ((upload_len - send_ext_info.file_offset) < part_len)?
-                                (upload_len - send_ext_info.file_offset): part_len;
+        send_ext_info.part_len = ((upload_len - send_ext_info.file_offset) < part_len) ?
+                                 (upload_len - send_ext_info.file_offset) : part_len;
 
         res = _http2_fs_part_send_sync(fs_node, &channel_info, &send_ext_info);
         if (res < SUCCESS_RETURN) {
@@ -394,8 +396,7 @@ static void *http_upload_file_func(void *fs_data)
             list_del((list_head_t *)&node->list);
             HTTP2_STREAM_FREE(node);
             HAL_MutexUnlock(fs_ctx->list_mutex);
-        }
-        else {
+        } else {
             HAL_MutexUnlock(fs_ctx->list_mutex);
             h2_debug("file list is empty, file upload thread exit\n");
             g_http2_fs_ctx.file_thread = NULL;
@@ -458,11 +459,11 @@ int IOT_HTTP2_Ioctl(int upload_idx, int command, void *data)
                 node->if_stop = 1;
                 HAL_MutexUnlock(g_http2_fs_ctx.list_mutex);
                 return SUCCESS_RETURN;
-            }
-            else {
+            } else {
                 return UPLOAD_ERROR_COMMON;
             }
-        } break;
+        }
+        break;
         default: {
             return UPLOAD_ERROR_COMMON;
         }
@@ -495,14 +496,15 @@ void *IOT_HTTP2_UploadFile_Connect(http2_upload_conn_info_t *conn_info, http2_st
         return NULL;
     }
 
-    INIT_LIST_HEAD((list_head_t *)&(g_http2_fs_ctx.file_list));
+    INIT_LIST_HEAD((list_head_t *) & (g_http2_fs_ctx.file_list));
     g_http2_fs_ctx.http2_handle = handle;
     g_http2_fs_ctx.service_id = HTTP2_FS_SERVICE_ID;
 
     return handle;
 }
 
-int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *params, http2_upload_result_cb_t *cb, void *user_data)
+int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *params, http2_upload_result_cb_t *cb,
+                                 void *user_data)
 {
     int ret;
     http2_file_stream_t *file_node = NULL;
@@ -515,11 +517,11 @@ int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *para
         return UPLOAD_FILE_PATH_IS_NULL;
     }
 
-    if ( (params->opt_bit_map & UPLOAD_FILE_OPT_BIT_RESUME) && params->upload_id == NULL) {
+    if ((params->opt_bit_map & UPLOAD_FILE_OPT_BIT_RESUME) && params->upload_id == NULL) {
         return UPLOAD_ID_IS_NULL;
     }
 
-    if ( (params->opt_bit_map & UPLOAD_FILE_OPT_BIT_SPECIFIC_LEN) && params->upload_len == 0) {
+    if ((params->opt_bit_map & UPLOAD_FILE_OPT_BIT_SPECIFIC_LEN) && params->upload_len == 0) {
         return UPLOAD_LEN_IS_ZERO;
     }
 
@@ -542,8 +544,7 @@ int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *para
     }
     if (params->opt_bit_map & UPLOAD_FILE_OPT_BIT_OVERWRITE) {
         file_node->type = FS_TYPE_OVERRIDE;
-    }
-    else if (params->opt_bit_map & UPLOAD_FILE_OPT_BIT_RESUME) {
+    } else if (params->opt_bit_map & UPLOAD_FILE_OPT_BIT_RESUME) {
         file_node->type = FS_TYPE_CONTINUE;
         memcpy(file_node->upload_id, params->upload_id, sizeof(file_node->upload_id));
     }
@@ -555,12 +556,13 @@ int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *para
         hal_os_thread_param_t thread_parms = {0};
         thread_parms.stack_size = 6144;
         thread_parms.name = "file_upload";
-        ret = HAL_ThreadCreate(&g_http2_fs_ctx.file_thread, http_upload_file_func, (void *)&g_http2_fs_ctx, &thread_parms, NULL);
+        ret = HAL_ThreadCreate(&g_http2_fs_ctx.file_thread, http_upload_file_func, (void *)&g_http2_fs_ctx, &thread_parms,
+                               NULL);
         if (ret != 0) {
             h2_err("file upload thread create error\n");
             return -1;
         }
-        HAL_ThreadDetach(g_http2_fs_ctx.file_thread);
+
     }
 
     return SUCCESS_RETURN;
@@ -574,8 +576,7 @@ int IOT_HTTP2_UploadFile_Disconnect(void *handle)
 
     if (g_http2_fs_ctx.list_mutex == NULL) {
         memset(&g_http2_fs_ctx, 0, sizeof(g_http2_fs_ctx));
-    }
-    else {
+    } else {
         http2_file_stream_t *node, *next;
         HAL_MutexLock(g_http2_fs_ctx.list_mutex);
         list_for_each_entry_safe(node, next, &g_http2_fs_ctx.file_list, list, http2_file_stream_t) {

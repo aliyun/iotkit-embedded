@@ -21,10 +21,7 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/net_sockets.h"
-
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
-void HAL_Printf(const char *fmt, ...);
+#include "wrappers_os.h"
 
 #define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__)
@@ -49,6 +46,11 @@ typedef struct {
     mbedtls_ssl_cookie_ctx       cookie_ctx;
 } dtls_session_t;
 
+typedef struct {
+    void *(*malloc)(uint32_t size);
+    void (*free)(void *ptr);
+} dtls_hooks_t;
+
 #define MBEDTLS_MEM_TEST 1
 
 #ifdef MBEDTLS_MEM_TEST
@@ -64,7 +66,13 @@ typedef struct {
     int size;
 } mbedtls_mem_info_t;
 
-void *_DTLSCalloc_wrapper(size_t n, size_t size)
+static void *_DTLSMalloc_wrapper(uint32_t size)
+{
+    return HAL_Malloc(size);
+
+}
+
+static void *_DTLSCalloc_wrapper(size_t n, size_t size)
 {
     void *buf = NULL;
     mbedtls_mem_info_t *mem_info = NULL;
@@ -341,8 +349,8 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 
     return DTLS_SUCCESS;
 }
-
-DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks)
+/*
+DLL_HAL_API int _DTLSHooks_set(dtls_hooks_t *hooks)
 {
     if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
         return DTLS_INVALID_PARAM;
@@ -353,13 +361,22 @@ DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks)
 
     return DTLS_SUCCESS;
 }
+*/
 
 DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
 {
     char port[6] = {0};
     int result = 0;
     dtls_session_t *p_dtls_session = NULL;
+    /*
+    dtls_hooks_t dtls_hooks;
 
+    memset(&dtls_hooks, 0, sizeof(dtls_hooks_t));
+    dtls_hooks.malloc = _DTLSMalloc_wrapper;
+    dtls_hooks.free = _DTLSFree_wrapper;
+
+    _DTLSHooks_set(&dtls_hooks);
+    */
     p_dtls_session = _DTLSSession_init();
     if (NULL != p_dtls_session) {
         mbedtls_ssl_config_init(&p_dtls_session->conf);

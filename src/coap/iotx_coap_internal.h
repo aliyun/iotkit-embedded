@@ -21,9 +21,7 @@
 #include "infra_sha256.h"
 #include "infra_report.h"
 #include "iotx_coap_config.h"
-#include "coap_wrapper.h"
-#include "iotx_coap_config.h"
-
+#include "wrappers.h"
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

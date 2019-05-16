@@ -17,36 +17,36 @@
 #include "iotx_ota.h"
 #include "ota_api.h"
 #include "iotx_ota_config.h"
-#include "ota_wrapper.h"
+#include "wrappers.h"
 
 #ifdef INFRA_MEM_STATS
-#include "infra_mem_stats.h"
-#define OTA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "ota")
-#define OTA_FREE(ptr)               LITE_free(ptr)
-#define OTA_API_MALLOC(size)        LITE_malloc(size, MEM_MAGIC, "ota.api")
-#define OTA_API_FREE(ptr)           LITE_free(ptr)
+    #include "infra_mem_stats.h"
+    #define OTA_MALLOC(size)            LITE_malloc(size, MEM_MAGIC, "ota")
+    #define OTA_FREE(ptr)               LITE_free(ptr)
+    #define OTA_API_MALLOC(size)        LITE_malloc(size, MEM_MAGIC, "ota.api")
+    #define OTA_API_FREE(ptr)           LITE_free(ptr)
 #else
-#define OTA_MALLOC(size)            HAL_Malloc(size)
-#define OTA_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
-#define OTA_API_MALLOC(size)        HAL_Malloc(size)
-#define OTA_API_FREE(ptr)           {HAL_Free((void *)ptr);ptr = NULL;}
+    #define OTA_MALLOC(size)            HAL_Malloc(size)
+    #define OTA_FREE(ptr)               {HAL_Free((void *)ptr);ptr = NULL;}
+    #define OTA_API_MALLOC(size)        HAL_Malloc(size)
+    #define OTA_API_FREE(ptr)           {HAL_Free((void *)ptr);ptr = NULL;}
 #endif
 
 #define OTA_SNPRINTF                HAL_Snprintf
 
 #ifdef INFRA_LOG
-#include "infra_log.h"
-#define OTA_LOG_CRIT(...)       log_crit("ota", __VA_ARGS__)
-#define OTA_LOG_ERROR(...)      log_err("ota", __VA_ARGS__)
-#define OTA_LOG_WRN(...)        log_warning("ota", __VA_ARGS__)
-#define OTA_LOG_INFO(...)       log_info("ota", __VA_ARGS__)
-#define OTA_LOG_DEBUG(...)      log_debug("ota", __VA_ARGS__)
+    #include "infra_log.h"
+    #define OTA_LOG_CRIT(...)       log_crit("ota", __VA_ARGS__)
+    #define OTA_LOG_ERROR(...)      log_err("ota", __VA_ARGS__)
+    #define OTA_LOG_WRN(...)        log_warning("ota", __VA_ARGS__)
+    #define OTA_LOG_INFO(...)       log_info("ota", __VA_ARGS__)
+    #define OTA_LOG_DEBUG(...)      log_debug("ota", __VA_ARGS__)
 #else
-#define OTA_LOG_CRIT(...)       do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define OTA_LOG_ERROR(...)      do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define OTA_LOG_WRN(...)        do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define OTA_LOG_INFO(...)       do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define OTA_LOG_DEBUG(...)      do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define OTA_LOG_CRIT(...)       do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define OTA_LOG_ERROR(...)      do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define OTA_LOG_WRN(...)        do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define OTA_LOG_INFO(...)       do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define OTA_LOG_DEBUG(...)      do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #endif
 
 typedef enum {

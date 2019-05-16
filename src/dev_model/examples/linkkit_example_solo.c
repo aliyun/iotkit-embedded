@@ -20,7 +20,7 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
     #include "infra_mem_stats.h"
 #endif
 #include "dev_model_api.h"
-#include "dm_wrapper.h"
+#include "wrappers.h"
 #include "cJSON.h"
 #ifdef ATM_ENABLED
     #include "at_api.h"
@@ -91,7 +91,7 @@ static int user_report_reply_event_handler(const int devid, const int msgid, con
 {
     EXAMPLE_TRACE("Message Post Reply Received, Message ID: %d, Code: %d, Reply: %.*s", msgid, code,
                   reply_len,
-                  (reply == NULL)? ("NULL") : (reply));
+                  (reply == NULL) ? ("NULL") : (reply));
     return 0;
 }
 
@@ -122,8 +122,8 @@ static int user_property_set_event_handler(const int devid, const char *request,
 
 
 static int user_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
-                                              const char *request, const int request_len,
-                                              char **response, int *response_len)
+        const char *request, const int request_len,
+        char **response, int *response_len)
 {
     int add_result = 0;
     cJSON *root = NULL, *item_number_a = NULL, *item_number_b = NULL;

@@ -9,6 +9,7 @@
 #include "infra_compat.h"
 #include "infra_defs.h"
 #include "linkkit_export.h"
+#include "wrappers.h"
 /*
  * please modify this string follow as product's TSL.
  */
@@ -23,8 +24,6 @@
 #define DEVICE_NAME     "test_06"
 #define DEVICE_SECRET   "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
 
-void HAL_Printf(const char *fmt, ...);
-
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
@@ -38,13 +37,6 @@ typedef struct _sample_context {
     int         local_connected;
     int         thing_enabled;
 } sample_context_t;
-
-void HAL_Free(void *ptr);
-uint64_t HAL_UptimeMs(void);
-int HAL_SetProductKey(char *product_key);
-int HAL_SetDeviceName(char *device_name);
-int HAL_SetProductSecret(char *product_secret);
-int HAL_SetDeviceSecret(char *device_secret);
 
 /*
  * the callback of linkkit_post_property.

@@ -94,7 +94,6 @@ static void *CoAPServer_yield(void *param)
     HAL_SemaphorePost(g_semphore);
     COAP_INFO("Exit the CoAP daemon task, Post semphore");
 
-    HAL_ThreadDelete(NULL);
     g_coap_thread = NULL;
 #endif
     return NULL;
@@ -214,7 +213,7 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     unsigned char token[COAP_MSG_MAX_TOKEN_LEN] = {0};
 
     if (NULL == context || g_context != context || NULL == remote
-        || NULL == uri || NULL == buff ) {
+        || NULL == uri || NULL == buff) {
         return COAP_ERROR_INVALID_PARAM;
     }
 
@@ -231,7 +230,9 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     CoAPServerPath_2_option((char *)uri, &message);
     CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
     CoAPMessagePayload_set(&message, buff, len);
-    if (msgid) *msgid = message.header.msgid;
+    if (msgid) {
+        *msgid = message.header.msgid;
+    }
     ret = CoAPMessage_send(context, remote, &message);
 
     CoAPMessage_destory(&message);
@@ -253,12 +254,14 @@ int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char
     }
 
     CoAPMessage_init(&response);
-    CoAPMessageType_set(&response, qos == 0 ? COAP_MESSAGE_TYPE_NON :COAP_MESSAGE_TYPE_CON);
+    CoAPMessageType_set(&response, qos == 0 ? COAP_MESSAGE_TYPE_NON : COAP_MESSAGE_TYPE_CON);
     CoAPMessageCode_set(&response, COAP_MSG_CODE_205_CONTENT);
     CoAPMessageId_set(&response, request->header.msgid);
     CoAPMessageToken_set(&response, request->token, request->header.tokenlen);
     CoAPMessageHandler_set(&response, callback);
-    if (msgid) *msgid = response.header.msgid;
+    if (msgid) {
+        *msgid = response.header.msgid;
+    }
 
     ret = CoAPUintOption_get(request, COAP_OPTION_OBSERVE, &observe);
     if (COAP_SUCCESS == ret && 0 == observe) {

@@ -12,18 +12,15 @@
 
 #include "infra_defs.h"
 #include "infra_config.h"
+#include "wrappers_defs.h"
 #ifdef _MSC_BUILD
-#include <Winbase.h>
-#pragma comment(lib,"ws2_32")
+    #include <Winbase.h>
+    #pragma comment(lib,"ws2_32")
 #endif
 
-extern void HAL_Printf(_IN_ const char *fmt, ...);
-#define hal_emerg(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_crit(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_err(...)        HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_warning(...)    HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_info(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_debug(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define hal_err(...)        do{HAL_Printf("[prt] "); HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define hal_info(...)       do{HAL_Printf("[prt] "); HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define hal_debug(...)      do{HAL_Printf("[prt] "); HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 
 static uint64_t time_left(uint64_t t_end, uint64_t t_now)
 {
@@ -58,10 +55,10 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     memcpy(&(addrServer.sin_addr), hp->h_addr, hp->h_length);
 
     hal_info("ip = %u.%u.%u.%u",
-                         addrServer.sin_addr.S_un.S_un_b.s_b1,
-                         addrServer.sin_addr.S_un.S_un_b.s_b2,
-                         addrServer.sin_addr.S_un.S_un_b.s_b3,
-                         addrServer.sin_addr.S_un.S_un_b.s_b4);
+             addrServer.sin_addr.S_un.S_un_b.s_b1,
+             addrServer.sin_addr.S_un.S_un_b.s_b2,
+             addrServer.sin_addr.S_un.S_un_b.s_b3,
+             addrServer.sin_addr.S_un.S_un_b.s_b4);
 
     addrServer.sin_family = AF_INET;
     addrServer.sin_port = htons((unsigned short)1883);

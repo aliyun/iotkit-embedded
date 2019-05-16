@@ -1333,7 +1333,11 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 
 static void *_linkkit_gateway_dispatch(void *params)
 {
-    while (1) {
+    if (params == NULL) {
+        return NULL;
+    }
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx  = (linkkit_gateway_legacy_ctx_t *)params;
+    while (linkkit_gateway_ctx->is_started) {
         iotx_dm_dispatch();
         HAL_SleepMs(20);
     }
@@ -1408,7 +1412,8 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
         return FAIL_RETURN;
     }
 
-    res = HAL_ThreadCreate(&linkkit_gateway_ctx->dispatch_thread, _linkkit_gateway_dispatch, NULL, NULL, &stack_used);
+    res = HAL_ThreadCreate(&linkkit_gateway_ctx->dispatch_thread, _linkkit_gateway_dispatch, linkkit_gateway_ctx, NULL,
+                           &stack_used);
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
         HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
@@ -1425,7 +1430,6 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
         HAL_MutexDestroy(linkkit_gateway_ctx->mutex);
         HAL_MutexDestroy(linkkit_gateway_ctx->upstream_mutex);
         iotx_dm_close();
-        HAL_ThreadDelete(linkkit_gateway_ctx->dispatch_thread);
         linkkit_gateway_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -1460,7 +1464,6 @@ int linkkit_gateway_stop(int devid)
     _linkkit_gateway_mutex_lock();
     _linkkit_gateway_upstream_mutex_lock();
     linkkit_gateway_ctx->is_started = 0;
-    HAL_ThreadDelete(linkkit_gateway_ctx->dispatch_thread);
     iotx_dm_close();
     HAL_SleepMs(200);
     _linkkit_gateway_callback_list_destroy();

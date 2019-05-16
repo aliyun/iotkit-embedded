@@ -3,19 +3,13 @@
 
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
+#include "wrappers.h"
 
 #ifdef ATM_ENABLED
     #include "at_api.h"
 #endif
 
 static char g_topic_name[CONFIG_MQTT_TOPIC_MAXLEN];
-
-void HAL_Printf(const char *fmt, ...);
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
-int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
-uint64_t HAL_UptimeMs(void);
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \

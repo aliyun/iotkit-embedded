@@ -1,3 +1,4 @@
+#if defined(AT_PARSER_ENABLED)
 #include <stdint.h>
 #include <errno.h>
 #if defined(__UBUNTU_SDK_DEMO__)
@@ -216,3 +217,4 @@ int32_t HAL_AT_Uart_Recv(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     return 0;
 }
+#endif

@@ -18,9 +18,7 @@
 #include "http2_internal.h"
 #include "http2_api.h"
 #include "http2_config.h"
-#include "http2_wrapper.h"
 
-#include "wrappers_defs.h"
 
 #define URL_MAX_LEN                     (100)
 
@@ -201,12 +199,10 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, ui
                 else if (strncmp((char *)name, "x-file-upload-id", (int)namelen) == 0) {
                     fs_rsp_header_val_t *rsp_data = (fs_rsp_header_val_t *)user_data;
                     memcpy(rsp_data->fs_upload_id, value, valuelen);
-                }
-                else if (strncmp((char *)name, "x-next-append-position", (int)namelen) == 0) {
+                } else if (strncmp((char *)name, "x-next-append-position", (int)namelen) == 0) {
                     fs_rsp_header_val_t *rsp_data = (fs_rsp_header_val_t *)user_data;
                     rsp_data->fs_offset = atoi((char *)value);
-                }
-                else if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
+                } else if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
                     strncpy(node->status_code, (char *)value, sizeof(node->status_code) - 1);
                     if (++node->rcv_hd_cnt == 2) {
                         HAL_SemaphorePost(node->semaphore);
@@ -527,7 +523,6 @@ void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_c
         IOT_HTTP2_Disconnect(stream_handle);
         return NULL;
     }
-    HAL_ThreadDetach(stream_handle->rw_thread);
 
     return stream_handle;
 }
@@ -564,19 +559,19 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
 
     {
         const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
-                                            MAKE_HEADER_CS(":path", path),
-                                            MAKE_HEADER(":scheme", "https"),
-                                            MAKE_HEADER("x-auth-name", "devicename"),
-                                            MAKE_HEADER_CS("x-auth-param-client-id", client_id),
-                                            MAKE_HEADER("x-auth-param-signmethod", "hmacsha1"),
-                                            MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
-                                            MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
-                                            MAKE_HEADER_CS("x-auth-param-sign", sign),
-                                            MAKE_HEADER_CS("x-sdk-version", version),
-                                            MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
-                                            MAKE_HEADER("x-sdk-platform", "c"),
-                                            MAKE_HEADER("content-length", "0"),
-                                            };
+                                               MAKE_HEADER_CS(":path", path),
+                                               MAKE_HEADER(":scheme", "https"),
+                                               MAKE_HEADER("x-auth-name", "devicename"),
+                                               MAKE_HEADER_CS("x-auth-param-client-id", client_id),
+                                               MAKE_HEADER("x-auth-param-signmethod", "hmacsha1"),
+                                               MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
+                                               MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
+                                               MAKE_HEADER_CS("x-auth-param-sign", sign),
+                                               MAKE_HEADER_CS("x-sdk-version", version),
+                                               MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
+                                               MAKE_HEADER("x-sdk-platform", "c"),
+                                               MAKE_HEADER("content-length", "0"),
+                                             };
 
         header_num = sizeof(static_header) / sizeof(static_header[0]);
         if (header != NULL) {
@@ -644,7 +639,8 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
     return SUCCESS_RETURN;
 }
 
-int IOT_HTTP2_Stream_Send_Message(void *hd, const char *identify,char *channel_id, char *data, uint32_t data_len, header_ext_info_t *header)
+int IOT_HTTP2_Stream_Send_Message(void *hd, const char *identify, char *channel_id, char *data, uint32_t data_len,
+                                  header_ext_info_t *header)
 {
     int rv = 0;
     http2_data h2_data;
@@ -676,14 +672,14 @@ int IOT_HTTP2_Stream_Send_Message(void *hd, const char *identify,char *channel_i
 
     {
         const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
-                                                MAKE_HEADER_CS(":path", path),
-                                                MAKE_HEADER(":scheme", "https"),
-                                                MAKE_HEADER_CS("content-length", data_len_str),
-                                                MAKE_HEADER_CS("x-data-stream-id", channel_id),
-                                                MAKE_HEADER_CS("x-sdk-version", version),
-                                                MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
-                                                MAKE_HEADER("x-sdk-platform", "c"),
-                                                };
+                                               MAKE_HEADER_CS(":path", path),
+                                               MAKE_HEADER(":scheme", "https"),
+                                               MAKE_HEADER_CS("content-length", data_len_str),
+                                               MAKE_HEADER_CS("x-data-stream-id", channel_id),
+                                               MAKE_HEADER_CS("x-sdk-version", version),
+                                               MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
+                                               MAKE_HEADER("x-sdk-platform", "c"),
+                                             };
 
         header_num = sizeof(static_header) / sizeof(static_header[0]);
         if (header != NULL) {
@@ -758,14 +754,14 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         HAL_Snprintf(version, sizeof(version), "%d", get_version_int());
         {
             const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
-                                                MAKE_HEADER_CS(":path", path),
-                                                MAKE_HEADER(":scheme", "https"),
-                                                MAKE_HEADER_CS("content-length", data_len_str),
-                                                MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
-                                                MAKE_HEADER_CS("x-sdk-version", version),
-                                                MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
-                                                MAKE_HEADER("x-sdk-platform", "c"),
-                                                };
+                                                   MAKE_HEADER_CS(":path", path),
+                                                   MAKE_HEADER(":scheme", "https"),
+                                                   MAKE_HEADER_CS("content-length", data_len_str),
+                                                   MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
+                                                   MAKE_HEADER_CS("x-sdk-version", version),
+                                                   MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
+                                                   MAKE_HEADER("x-sdk-platform", "c"),
+                                                 };
 
             header_num = sizeof(static_header) / sizeof(static_header[0]);
             if (header != NULL) {
@@ -879,14 +875,14 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
     HAL_Snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     {
         const http2_header static_header[] = { MAKE_HEADER(":method", "GET"),
-                                            MAKE_HEADER_CS(":path", path),
-                                            MAKE_HEADER(":scheme", "https"),
-                                            MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
-                                            MAKE_HEADER("x-test-downstream", "1"),
-                                            MAKE_HEADER_CS("x-sdk-version", version),
-                                            MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
-                                            MAKE_HEADER("x-sdk-platform", "c"),
-                                            };
+                                               MAKE_HEADER_CS(":path", path),
+                                               MAKE_HEADER(":scheme", "https"),
+                                               MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
+                                               MAKE_HEADER("x-test-downstream", "1"),
+                                               MAKE_HEADER_CS("x-sdk-version", version),
+                                               MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
+                                               MAKE_HEADER("x-sdk-platform", "c"),
+                                             };
 
         header_num = sizeof(static_header) / sizeof(static_header[0]);
         if (header != NULL) {
@@ -964,13 +960,13 @@ int IOT_HTTP2_FS_Close(void *hd, stream_data_info_t *info, header_ext_info_t *he
     HAL_Snprintf(path, sizeof(path), "/stream/close/%s", info->identify);
     {
         const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
-                                            MAKE_HEADER_CS(":path", path),
-                                            MAKE_HEADER(":scheme", "https"),
-                                            MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
-                                            MAKE_HEADER_CS("x-sdk-version", version),
-                                            MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
-                                            MAKE_HEADER("x-sdk-platform", "c"),
-                                            };
+                                               MAKE_HEADER_CS(":path", path),
+                                               MAKE_HEADER(":scheme", "https"),
+                                               MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
+                                               MAKE_HEADER_CS("x-sdk-version", version),
+                                               MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
+                                               MAKE_HEADER("x-sdk-platform", "c"),
+                                             };
 
         header_num = sizeof(static_header) / sizeof(static_header[0]);
         if (header != NULL) {
@@ -998,8 +994,8 @@ int IOT_HTTP2_FS_Close(void *hd, stream_data_info_t *info, header_ext_info_t *he
         h2_data.stream_id = 0;
 
         HAL_MutexLock(handle->mutex);
-        if(info->send_len < info->stream_len) {
-            iotx_http2_reset_stream(handle->http2_connect,info->h2_stream_id);
+        if (info->send_len < info->stream_len) {
+            iotx_http2_reset_stream(handle->http2_connect, info->h2_stream_id);
         }
         rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
         http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
@@ -1073,13 +1069,13 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
     HAL_Snprintf(path, sizeof(path), "/stream/close/%s", info->identify);
     {
         const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
-                                            MAKE_HEADER_CS(":path", path),
-                                            MAKE_HEADER(":scheme", "https"),
-                                            MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
-                                            MAKE_HEADER_CS("x-sdk-version", version),
-                                            MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
-                                            MAKE_HEADER("x-sdk-platform", "c"),
-                                            };
+                                               MAKE_HEADER_CS(":path", path),
+                                               MAKE_HEADER(":scheme", "https"),
+                                               MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
+                                               MAKE_HEADER_CS("x-sdk-version", version),
+                                               MAKE_HEADER_CS("x-sdk-version-name", IOTX_SDK_VERSION),
+                                               MAKE_HEADER("x-sdk-platform", "c"),
+                                             };
 
         int header_count = sizeof(static_header) / sizeof(static_header[0]);
         h2_data.header = (http2_header *)static_header;
@@ -1090,8 +1086,9 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
         h2_data.stream_id = 0;
 
         HAL_MutexLock(handle->mutex);
-        if(info->send_len < info->stream_len)
-            iotx_http2_reset_stream(handle->http2_connect,info->h2_stream_id);
+        if (info->send_len < info->stream_len) {
+            iotx_http2_reset_stream(handle->http2_connect, info->h2_stream_id);
+        }
         rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
         HAL_MutexUnlock(handle->mutex);
     }

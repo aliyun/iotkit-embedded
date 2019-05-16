@@ -8,7 +8,7 @@
 #include "infra_sha1.h"
 #include "infra_json_parser.h"
 #include "alcs_base64.h"
-#include "dm_wrapper.h"
+#include "wrappers.h"
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"

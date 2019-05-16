@@ -3,6 +3,8 @@ CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 
 LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
 
+HDR_REFS            += include
+
 $(call Append_Conditional, LIB_SRCS_PATTERN, tls/*.c, _PLATFORM_IS_LINUX_ SUPPORT_TLS)
 $(call Append_Conditional, LIB_SRCS_PATTERN, tls/*.c, _PLATFORM_IS_LINUX_ COAP_DTLS_SUPPORT)
 $(call Append_Conditional, LIB_SRCS_PATTERN, atm/at_tcp/mk3060.c, AT_TCP_ENABLED AT_TCP_HAL_MK3060)

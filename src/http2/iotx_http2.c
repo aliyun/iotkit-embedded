@@ -10,8 +10,6 @@
 #include "nghttp2_session.h"
 #include "infra_httpc.h"
 #include "http2_internal.h"
-#include "http2_wrapper.h"
-
 
 #define MAX_HTTP2_HOST_LEN                  (128)
 #define NGHTTP2_DBG                         h2_info
@@ -145,18 +143,23 @@ static int on_frame_send_callback(nghttp2_session *session,
                 NGHTTP2_DBG("> %s: %s\n", nva[i].name, nva[i].value);
             }
             (void)nva;
-        } break;
+        }
+        break;
         case NGHTTP2_RST_STREAM: {
             NGHTTP2_DBG("[INFO] C ---------> S (RST_STREAM)\n");
-        } break;
+        }
+        break;
         case NGHTTP2_GOAWAY: {
-            NGHTTP2_DBG("[INFO] C ---------> S (GOAWAY) code = %d\n",frame->goaway.error_code);
-        } break;
+            NGHTTP2_DBG("[INFO] C ---------> S (GOAWAY) code = %d\n", frame->goaway.error_code);
+        }
+        break;
         case NGHTTP2_PING: {
             NGHTTP2_DBG("[INFO] C ---------> S (PING)\n");
             ping_state = PING_SENDING;
-        } break;
-        default: break;
+        }
+        break;
+        default:
+            break;
     }
 
     if (connection->cbs && connection->cbs->on_user_frame_send_cb) {
@@ -214,20 +217,24 @@ static int on_frame_recv_callback(nghttp2_session *session,
         case NGHTTP2_RST_STREAM: {
             connection->status = 0;
             NGHTTP2_DBG("[INFO] C <--------- S (RST_STREAM)\n");
-        } break;
+        }
+        break;
         case NGHTTP2_GOAWAY: {
             connection->status = 0;
-            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n",frame->goaway.error_code);
-        } break;
+            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n", frame->goaway.error_code);
+        }
+        break;
         case NGHTTP2_DATA: {
             if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
                 NGHTTP2_DBG("end stream flag\r\n");
             }
-        } break;
+        }
+        break;
         case NGHTTP2_PING: {
             NGHTTP2_DBG("[INFO] C <--------- S (PING)\n");
             ping_state = PING_RECVED;
-        } break;
+        }
+        break;
     }
 
     if (connection->cbs && connection->cbs->on_user_frame_recv_cb) {
@@ -757,8 +764,7 @@ int iotx_http2_client_recv_ping(void)
     if (ping_state == PING_RECVED || ping_state == PING_IDLE) {
         NGHTTP2_DBG("ping recv secceed\r\n");
         return 0;
-    }
-    else {
+    } else {
         NGHTTP2_DBG("ping recv timeout");
         return -1;
     }
@@ -822,11 +828,11 @@ int iotx_http2_exec_io(http2_connection_t *connection)
 int iotx_http2_reset_stream(http2_connection_t *connection, int32_t stream_id)
 {
     int rv = 0;
-    if(connection == NULL){
+    if (connection == NULL) {
         return -1;
     }
-    if(!nghttp2_session_get_stream_local_close(connection->session,stream_id)) {
-        rv = nghttp2_submit_rst_stream(connection->session,0, stream_id, NGHTTP2_NO_ERROR);
+    if (!nghttp2_session_get_stream_local_close(connection->session, stream_id)) {
+        rv = nghttp2_submit_rst_stream(connection->session, 0, stream_id, NGHTTP2_NO_ERROR);
     }
     if (rv < 0) {
         return rv;

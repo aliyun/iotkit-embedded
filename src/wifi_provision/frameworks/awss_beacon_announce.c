@@ -18,9 +18,6 @@ extern "C" {
 static const char HEADER[] = {0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 static const char BEACON_INTER[] = {0x2c, 0x01, 0x01, 0x00};
 
-extern int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
-                                  _IN_ uint8_t *buffer, _IN_ int len);
-                                  
 typedef struct simulate_ap {
     uint8_t bssid[6];
     uint16_t  seq_id;

@@ -5,7 +5,7 @@
 #include "infra_sha256.h"
 
 #include "dev_sign_api.h"
-#include "dev_sign_wrapper.h"
+#include "wrappers.h"
 
 /* all secure mode define */
 #define MODE_TLS_GUIDER             "-1"

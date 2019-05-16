@@ -10,15 +10,7 @@
 #include "infra_compat.h"
 #include "mqtt_api.h"
 #include "ota_api.h"
-
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
-
-void HAL_Printf(const char *fmt, ...);
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
-int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN]);
-void HAL_SleepMs(uint32_t ms);
+#include "wrappers.h"
 
 char g_product_key[IOTX_PRODUCT_KEY_LEN + 1];
 char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
@@ -206,7 +198,7 @@ static int _ota_mqtt_client(void)
             do {
 
                 len = IOT_OTA_FetchYield(h_ota, buf_ota, OTA_BUF_LEN, 1);
-                EXAMPLE_TRACE("IOT_OTA_FetchYield result: %d",len);
+                EXAMPLE_TRACE("IOT_OTA_FetchYield result: %d", len);
                 if (len > 0) {
                     if (1 != fwrite(buf_ota, len, 1, fp)) {
                         EXAMPLE_TRACE("write data to file failed");

@@ -10,7 +10,7 @@
 #endif
 
 #include "coap_api.h"
-#include "coap_wrapper.h"
+#include "wrappers.h"
 
 
 #define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.coap.cn-shanghai.link.aliyuncs.com:5684"
@@ -70,7 +70,7 @@ static int iotx_get_devinfo(iotx_coap_device_info_t *p_devinfo)
     HAL_GetDeviceSecret(p_devinfo->device_secret);
     memset(p_devinfo->device_id, 0, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2);
     HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2,
-                "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
+                 "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
 
     HAL_Printf("*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
     HAL_Printf("*****The Device Name  : %s *****\r\n", p_devinfo->device_name);

@@ -14,10 +14,6 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <assert.h>
-#include <net/if.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <sys/reboot.h>
 #include <sys/time.h>
@@ -125,17 +121,6 @@ int HAL_Vsnprintf(char *str, const int len, const char *format, va_list ap)
     return vsnprintf(str, len, format, ap);
 }
 
-void HAL_Printf(const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-
-    fflush(stdout);
-}
-
 int HAL_SetProductKey(char *product_key)
 {
     int len = strlen(product_key);
@@ -237,91 +222,6 @@ void HAL_Reboot(void)
 }
 
 
-#define ROUTER_INFO_PATH        "/proc/net/route"
-#define ROUTER_RECORD_SIZE      256
-
-char *_get_default_routing_ifname(char *ifname, int ifname_size)
-{
-    FILE *fp = NULL;
-    char line[ROUTER_RECORD_SIZE] = {0};
-    char iface[IFNAMSIZ] = {0};
-    char *result = NULL;
-    unsigned int destination, gateway, flags, mask;
-    unsigned int refCnt, use, metric, mtu, window, irtt;
-    char *buff = NULL;
-
-    fp = fopen(ROUTER_INFO_PATH, "r");
-    if (fp == NULL) {
-        perror("fopen");
-        return result;
-    }
-
-    buff = fgets(line, sizeof(line), fp);
-    if (buff == NULL) {
-        perror("fgets");
-        goto out;
-    }
-
-    while (fgets(line, sizeof(line), fp)) {
-        if (11 !=
-            sscanf(line, "%s %08x %08x %x %d %d %d %08x %d %d %d",
-                   iface, &destination, &gateway, &flags, &refCnt, &use,
-                   &metric, &mask, &mtu, &window, &irtt)) {
-            perror("sscanf");
-            continue;
-        }
-
-        /*default route */
-        if ((destination == 0) && (mask == 0)) {
-            strncpy(ifname, iface, ifname_size - 1);
-            result = ifname;
-            break;
-        }
-    }
-
-out:
-    if (fp) {
-        fclose(fp);
-    }
-
-    return result;
-}
-
-uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
-{
-    struct ifreq ifreq;
-    int sock = -1;
-    char ifname_buff[IFNAMSIZ] = {0};
-
-    if ((NULL == ifname || strlen(ifname) == 0) &&
-        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))) {
-        perror("get default routeing ifname");
-        return -1;
-    }
-
-    if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("socket");
-        return -1;
-    }
-
-    ifreq.ifr_addr.sa_family = AF_INET;
-    strncpy(ifreq.ifr_name, ifname, IFNAMSIZ - 1);
-
-    if (ioctl(sock, SIOCGIFADDR, &ifreq) < 0) {
-        close(sock);
-        perror("ioctl");
-        return -1;
-    }
-
-    close(sock);
-
-    strncpy(ip_str,
-            inet_ntoa(((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr),
-            NETWORK_ADDR_LEN);
-
-    return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
-}
-
 int HAL_GetFirmwareVersion(char *version)
 {
     char *ver = "app-1.0.0-20180101.1000";
@@ -401,28 +301,14 @@ int HAL_ThreadCreate(
     }
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
-    if(ret != 0) {
+    if (ret != 0) {
         printf("pthread_create error: %d\n", (int)ret);
         return -1;
     }
+    pthread_detach((pthread_t) *thread_handle);
     return 0;
 }
 
-void HAL_ThreadDetach(void *thread_handle)
-{
-    pthread_detach((pthread_t)thread_handle);
-}
-
-void HAL_ThreadDelete(void *thread_handle)
-{
-    if (NULL == thread_handle) {
-        pthread_exit(0);
-    } else {
-        /*main thread delete child thread*/
-        pthread_cancel((pthread_t)thread_handle);
-        pthread_join((pthread_t)thread_handle, 0);
-    }
-}
 
 static FILE *fp;
 
@@ -554,7 +440,7 @@ int HAL_Timer_Start(void *timer, int ms)
 
     /* it_value=0: stop timer */
     ts.it_value.tv_sec = ms / 1000;
-    ts.it_value.tv_nsec = (ms % 1000) * 1000;
+    ts.it_value.tv_nsec = (ms % 1000) * 1000000;
 
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
@@ -593,20 +479,5 @@ int HAL_Timer_Delete(void *timer)
     free(timer);
 
     return ret;
-}
-
-int HAL_GetNetifInfo(char *nif_str)
-{
-    const char *net_info = "WiFi|03ACDEFF0032";
-
-    memset(nif_str, 0x0, IOTX_NETWORK_IF_LEN);
-
-    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    strncpy(nif_str, net_info, IOTX_NETWORK_IF_LEN);
-    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    /* const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab"); */
-    /* strncpy(nif_str, multi_net_info, strlen(multi_net_info)); */
-
-    return strlen(nif_str);
 }
 

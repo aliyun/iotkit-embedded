@@ -8,7 +8,7 @@
 #include "infra_defs.h"
 #include "infra_httpc.h"
 #include "http_api.h"
-#include "http_wrapper.h"
+#include "wrappers.h"
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \

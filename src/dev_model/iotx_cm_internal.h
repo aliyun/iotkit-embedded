@@ -15,7 +15,7 @@
 #include "infra_compat.h"
 #include "infra_timer.h"
 
-#include "dm_wrapper.h"
+#include "wrappers.h"
 #include "mqtt_api.h"
 
 #include "iotx_cm.h"

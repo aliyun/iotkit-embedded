@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #include "http2_api.h"
-#include "http2_wrapper.h"
+#include "wrappers.h"
 
 #ifdef INFRA_LOG
 #include "infra_log.h"

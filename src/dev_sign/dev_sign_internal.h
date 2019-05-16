@@ -7,7 +7,7 @@
 #include "infra_defs.h"
 #include "dev_sign_config.h"
 #include "dev_sign_api.h"
-#include "dev_sign_wrapper.h"
+#include "wrappers.h"
 
 #endif
 

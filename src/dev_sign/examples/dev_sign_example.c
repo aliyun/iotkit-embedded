@@ -1,4 +1,5 @@
 #include "dev_sign_api.h"
+#include "wrappers.h"
 
 #define EXAMPLE_PRODUCT_KEY     "a1X2bEnP82z"
 #define EXAMPLE_PRODUCT_SECRET  "7jluWm1zql7bt8qK"
@@ -6,7 +7,7 @@
 #define EXAMPLE_DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 
 /* Implenment this HAL or using "printf" of your own system if you want to print something in example*/
-void HAL_Printf(const char *fmt, ...);
+
 
 int main(int argc, char *argv[])
 {

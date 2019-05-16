@@ -50,7 +50,7 @@
 #endif
 
 /* DM Header File */
-#include "dm_wrapper.h"
+#include "wrappers.h"
 #include "iotx_dm_config.h"
 #include "iotx_dm.h"
 #include "dm_utils.h"

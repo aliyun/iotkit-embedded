@@ -5,10 +5,9 @@
 #include "infra_report.h"
 #include "infra_sha256.h"
 #include "infra_compat.h"
-
+#include "mqtt_wrapper.h"
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
-#include "mqtt_wrapper.h"
 
 #ifdef PLATFORM_HAS_DYNMEM
     #ifdef INFRA_MEM_STATS

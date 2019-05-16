@@ -12,7 +12,7 @@
 
 #include "iot_import_awss.h"
 
-
+#define  HAL_DEBUG_OUT 1
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
  *
@@ -208,10 +208,46 @@ int HAL_Awss_Close_Ap()
  * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
  * @return  指向缓冲区数组起始位置的字符指针
  */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
+char *HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
 {
-    strcpy(mac_str, "18:FE:34:12:33:44");
-    return mac_str;
+    MIB_IFTABLE *pIfTable = NULL;
+    MIB_IFROW *pIfRow;
+    DWORD dwSize = 0;
+    int i;
+
+    mac_str[0] = 0;
+    if (GetIfTable((MIB_IFTABLE *)&dwSize, &dwSize, 0) != ERROR_INSUFFICIENT_BUFFER) {
+        printf("Failed to get if table at step 1 in HAL_Wifi_Get_Mac\n\r");
+        return (NULL);
+    }
+    pIfTable = (MIB_IFTABLE *) malloc(dwSize);
+    if (pIfTable == NULL) {
+        return (NULL);
+    }
+    if (GetIfTable((MIB_IFTABLE *)pIfTable, &dwSize, 0) != NO_ERROR) {
+        free(pIfTable);
+        printf("Failed to get if table (HAL_Wifi_Get_Mac)\n\r");
+        return (NULL);
+    }
+
+    for (i = 0; i < pIfTable->dwNumEntries; i++) {
+        pIfRow = (MIB_IFROW *) & pIfTable->table[i];
+        if (wcscmp(pIfRow->wszName, gIfName) == 0) {
+            break;
+        }
+    }
+    if (i < pIfTable->dwNumEntries) {
+        snprintf(mac_str, HAL_MAC_LEN, "%02X:%02X:%02X:%02X:%02X:%02X",
+                 pIfRow->bPhysAddr[0], pIfRow->bPhysAddr[1], pIfRow->bPhysAddr[2],
+                 pIfRow->bPhysAddr[3], pIfRow->bPhysAddr[4], pIfRow->bPhysAddr[5]);
+        if (HAL_DEBUG_OUT) {
+            printf("WIFI MAC is %s\n\r", mac_str);
+        }
+    }
+
+    free(pIfTable);
+    return (mac_str);
 }
+
 #endif
 

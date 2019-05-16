@@ -1,10 +1,10 @@
 #include "iotx_cm_internal.h"
 
-#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED) 
-#include "iotx_cm_mqtt.h"
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
+    #include "iotx_cm_mqtt.h"
 #endif
 #ifdef COAP_COMM_ENABLED
-#include "iotx_cm_coap.h"
+    #include "iotx_cm_coap.h"
 #endif
 
 
@@ -37,7 +37,7 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 #ifdef COAP_COMM_ENABLED
             connection = iotx_cm_open_coap(params);
 #endif
-            break;            
+            break;
         default:
             break;
     }
@@ -89,7 +89,7 @@ int iotx_cm_connect(int fd, uint32_t timeout)
             }
 #endif
         }
-        iotx_event_post(IOTX_CONN_CLOUD_SUC);    
+        iotx_event_post(IOTX_CONN_CLOUD_SUC);
     } else {
         iotx_event_post(IOTX_CONN_CLOUD_FAIL);
     }
@@ -191,7 +191,7 @@ int iotx_cm_unsub(int fd, const char *topic)
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len)
 {
     iotx_cm_pub_fp pub_func;
-    
+
     if (_fd_is_valid(fd) < 0) {
         cm_err(ERR_INVALID_PARAMS);
         return -1;
@@ -221,9 +221,7 @@ int iotx_cm_close(int fd)
         while (!yield_task_leave) {
             HAL_SleepMs(10);
         }
-        if (yield_thread != NULL) {
-            HAL_ThreadDelete(yield_thread);
-        }
+        yield_thread = NULL;
 #endif
     }
 

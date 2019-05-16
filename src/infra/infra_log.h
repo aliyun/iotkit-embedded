@@ -3,10 +3,8 @@
 
 #include <stdarg.h>
 #include "infra_defs.h"
+#include "wrappers.h"
 
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
-void HAL_Printf(const char *fmt, ...);
-int HAL_Vsnprintf(char *str, const int len, const char *format, va_list ap);
 
 #define LITE_printf                     HAL_Printf
 #define LITE_snprintf                   HAL_Snprintf

@@ -2,10 +2,7 @@
 #include <string.h>
 #include "mqtt_api.h"
 #include "dev_reset_api.h"
-
-void HAL_Printf(const char *fmt, ...);
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
+#include "wrappers.h"
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -24,8 +21,7 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 
 void example_devrst_evt_handle(iotx_devrst_evt_type_t evt, void *msg)
 {
-    switch (evt)
-    {
+    switch (evt) {
         case IOTX_DEVRST_EVT_RECEIVED: {
             iotx_devrst_evt_recv_msg_t *recv_msg = (iotx_devrst_evt_recv_msg_t *)msg;
             if (recv_msg->msgid != reset_mqtt_packet_id) {

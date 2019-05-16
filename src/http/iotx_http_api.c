@@ -14,7 +14,7 @@
 #include "infra_report.h"
 #include "http_debug.h"
 #include "http_api.h"
-#include "http_wrapper.h"
+#include "wrappers.h"
 
 
 
@@ -235,11 +235,11 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
 
     p_devinfo = pInitParams->device_info;
 
-/*
-    HAL_SetProductKey(p_devinfo->product_key);
-    HAL_SetDeviceName(p_devinfo->device_name);
-    HAL_SetDeviceSecret(p_devinfo->device_secret);
-*/
+    /*
+        HAL_SetProductKey(p_devinfo->product_key);
+        HAL_SetDeviceName(p_devinfo->device_name);
+        HAL_SetDeviceSecret(p_devinfo->device_secret);
+    */
 
     iotx_http_context = (iotx_http_t *)HTTP_API_MALLOC(sizeof(iotx_http_t));
 

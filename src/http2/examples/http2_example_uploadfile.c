@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "http2_upload_api.h"
-#include "http2_wrapper.h"
+#include "wrappers.h"
 
 
 #define HTTP2_ONLINE_SERVER_URL       "a1IgnOND7vI.iot-as-http2.cn-shanghai.aliyuncs.com"
@@ -42,7 +42,7 @@ void upload_id_received_handle(const char *file_path, const char *upload_id, voi
     }
 }
 
-static int http2_stream_test(char **argv,int argc)
+static int http2_stream_test(char **argv, int argc)
 {
     int ret;
     http2_upload_conn_info_t conn_info;
@@ -63,11 +63,11 @@ static int http2_stream_test(char **argv,int argc)
     result_cb.upload_id_received_cb = upload_id_received_handle;
 
     handle = IOT_HTTP2_UploadFile_Connect(&conn_info, NULL);
-    if(handle == NULL) {
+    if (handle == NULL) {
         return -1;
     }
 
-    for (i=1; i<argc; i++) {
+    for (i = 1; i < argc; i++) {
         http2_upload_params_t fs_params;
         memset(&fs_params, 0, sizeof(fs_params));
         fs_params.file_path = argv[i];
@@ -75,16 +75,16 @@ static int http2_stream_test(char **argv,int argc)
         fs_params.opt_bit_map = UPLOAD_FILE_OPT_BIT_OVERWRITE;
 
         ret = IOT_HTTP2_UploadFile_Request(handle, &fs_params, &result_cb, NULL);
-        if(ret == 0) {
+        if (ret == 0) {
             goal_num++;
         }
     }
-    while(upload_end != goal_num) {
+    while (upload_end != goal_num) {
         HAL_SleepMs(200);
     }
 
     ret = IOT_HTTP2_UploadFile_Disconnect(handle);
-    EXAMPLE_TRACE("close connect %d\n",ret);
+    EXAMPLE_TRACE("close connect %d\n", ret);
     return 0;
 }
 

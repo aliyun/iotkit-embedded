@@ -19,14 +19,8 @@
 #include "infra_defs.h"
 #include "wrappers_defs.h"
 
-void HAL_Printf(_IN_ const char *fmt, ...);
-#define hal_emerg(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_crit(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
 #define hal_err(...)        HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_warning(...)    HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define hal_info(...)       HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
 #define hal_debug(...)      HAL_Printf("[prt] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-
 
 #define __DEMO__
 
@@ -117,18 +111,6 @@ uint32_t HAL_Random(uint32_t region)
     orig_seed = 1664525 * orig_seed + 1013904223;
     return (region > 0) ? (orig_seed % region) : 0;
 }
-
-void HAL_Printf(_IN_ const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-
-    fflush(stdout);
-}
-
 
 int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)
 {
@@ -318,10 +300,6 @@ int HAL_ThreadCreate(
     return 0;
 }
 
-void HAL_ThreadDetach(_IN_ void *thread_handle)
-{
-    (void)thread_handle;
-}
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
@@ -368,141 +346,127 @@ int HAL_Firmware_Persistence_Stop(void)
     return 0;
 }
 
-int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
+
+typedef struct {
+    char name[32];
+    void (*func)(void *);
+    void *user_data;
+    HANDLE tmr;
+    int index;
+} timer_t;
+
+#define HAL_TIMER_SIZE  10
+
+static int timerInited = 0;
+static HANDLE hTimerQueue = NULL;
+static timer_t *gTimerTable[HAL_TIMER_SIZE] = {0};
+
+static void timer_init()
 {
-    return 0;
+    if (timerInited) {
+        return;
+    }
+    hTimerQueue = CreateTimerQueue();
+    if (NULL == hTimerQueue) {
+        printf("Failed to create timer queue\n\r");
+        return;
+    }
+    timerInited = 1;
 }
 
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
+static void CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
-    return 0;
+    timer_t *pTimer = (timer_t *)lpParam;
+
+    hal_debug("Timer %s(%d) expired\n\r", pTimer->name, pTimer->index);
+    pTimer->func(pTimer->user_data);
 }
 
-int HAL_GetNetifInfo(char *nif_str)
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 {
-    const char *net_info = "WiFi|03ACDEFF0032";
-    memset(nif_str, 0x0, IOTX_NETWORK_IF_LEN);
-#ifdef __DEMO__
-    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    strncpy(nif_str, net_info, strlen(net_info));
-    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
-    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
-#endif
-    return strlen(nif_str);
-}
+    int i;
+    timer_t *pTimer;
 
-uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN], _IN_ const char *ifname)
-{
-    return 0;
-}
+    timer_init();
+    for (i = 0; i < HAL_TIMER_SIZE; i++) {
+        if (gTimerTable[i] == NULL) {
+            break;
+        }
+    }
+    if (i >= HAL_TIMER_SIZE) {
+        printf("HAL_Timer_Create failed, increase HAL_TIMER_SIZE\n\r");
+        return (NULL);
+    }
 
-void   *HAL_Timer_Create(const char *name, void(*func)(void *), void *user_data)
-{
-    return 0;
-}
+    pTimer = (timer_t *)malloc(sizeof(timer_t));
+    if (pTimer == NULL) {
+        return (NULL);
+    }
+    memset(pTimer, 0, sizeof(timer_t));
+    pTimer->index = i;
+    pTimer->user_data = user_data;
+    pTimer->func = func;
+    if (name) {
+        snprintf(pTimer->name, sizeof(pTimer->name), "%s", name);
+    }
 
-int     HAL_Timer_Start(void *t, int ms)
-{
-    return 0;
-}
+    gTimerTable[i] = pTimer;
 
-
-int     HAL_Timer_Stop(void *t)
-{
-    return 0;
-}
-
-int     HAL_Timer_Delete(void *timer)
-{
-    return 0;
-}
-
-intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
-{
-    return 0;
-}
-
-int HAL_UDP_sendto(_IN_ intptr_t sockfd,
-                   _IN_ const NetworkAddr *p_remote,
-                   _IN_ const unsigned char *p_data,
-                   _IN_ unsigned int datalen,
-                   _IN_ unsigned int timeout_ms)
-{
-    return 0;
-}
-
-int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
-                     _OU_ NetworkAddr *p_remote,
-                     _OU_ unsigned char *p_data,
-                     _IN_ unsigned int datalen,
-                     _IN_ unsigned int timeout_ms)
-{
-    return 0;
-}
-
-int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
-                          _IN_ char *p_group)
-{
-    return 0;
-}
-
-int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
-{
-    return 0;
-}
-
-void  HAL_Reboot(void)
-{
-    return;
-}
-
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
-{
-    return 0;
-}
-
-int     HAL_Kv_Del(const char *key)
-{
-    return 0;
+    hal_debug("Create timer %d %s\n\r", pTimer->index, pTimer->name);
+    return (void *)pTimer;
 }
 
 
-int HAL_Aes128_Cbc_Encrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst)
+int HAL_Timer_Delete(void *timer)
 {
-    return 0;
+    timer_t *pTimer = (timer_t *)timer;
+
+    if (pTimer == NULL) {
+        return (-1);
+    }
+    hal_debug("Delete timer %d %s\n\r", pTimer->index, pTimer->name);
+    gTimerTable[pTimer->index] = NULL;
+    free(pTimer);
+    return (0);
 }
 
-void *HAL_Fopen(const char *path, const char *mode)
+
+int HAL_Timer_Start(void *timer, int ms)
 {
-    return (void *)fopen(path, mode);
+    timer_t *pTimer = (timer_t *)timer;
+
+    if (pTimer == NULL) {
+        return (-1);
+    }
+
+    hal_debug("Start timer %d %s\n\r", pTimer->index, pTimer->name);
+    if (!CreateTimerQueueTimer(&pTimer->tmr, hTimerQueue,
+                               (WAITORTIMERCALLBACK)TimerRoutine, (void *)pTimer, ms, 0, 0)) {
+        hal_debug("CreateTimerQueueTimer failed (%d)\n", (int)GetLastError());
+        return (-1);
+    }
+    return (0);
 }
 
-uint32_t HAL_Fread(void *buff, uint32_t size, uint32_t count, void *stream)
+
+int HAL_Timer_Stop(void *timer)
 {
-    return fread(buff, size, count, (FILE *)stream);
+    timer_t *pTimer = (timer_t *)timer;
+
+    if (pTimer == NULL) {
+        return (-1);
+    }
+
+    hal_debug("Stop timer %d %s\n\r", pTimer->index, pTimer->name);
+    if (pTimer->index >= HAL_TIMER_SIZE) {
+        return (-1);
+    }
+    if (pTimer->tmr) {
+        DeleteTimerQueueTimer(hTimerQueue, pTimer->tmr, NULL);
+        pTimer->tmr = NULL;
+    }
+    return (int)0;
 }
 
-uint32_t HAL_Fwrite(const void *ptr, uint32_t size, uint32_t count, void *stream)
-{
-    return fwrite(ptr, size, count, (FILE *)stream);
-}
 
-int HAL_Fseek(void *stream, long offset, int framewhere)
-{
-    return fseek((FILE *)stream, offset, framewhere);
-}
 
-int HAL_Fclose(void *stream)
-{
-    return fclose((FILE *)stream);
-}
-
-long HAL_Ftell(void *stream)
-{
-    return ftell((FILE *)stream);
-}

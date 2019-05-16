@@ -1,10 +1,8 @@
-#include "infra_config.h"
 
-#if defined(HAL_UDP)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
+#if defined(COAP_CLIENT) || defined(COAP_SERVER)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,14 +13,18 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
-#include <pthread.h>
-
+#include <net/if.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "infra_config.h"
 #include "infra_compat.h"
+#include <sys/ioctl.h>
 
+#define NETWORK_ADDR_LEN    (16)
 intptr_t HAL_UDP_create(char *host, unsigned short port)
 {
-#define NETWORK_ADDR_LEN    (16)
+
 
     int                     rc = -1;
     long                    socket_id = -1;
@@ -70,15 +72,6 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
     return socket_id;
 
-#undef NETWORK_ADDR_LEN
-}
-
-void HAL_UDP_close(intptr_t p_socket)
-{
-    long socket_id = -1;
-
-    socket_id = p_socket;
-    close(socket_id);
 }
 
 int HAL_UDP_write(intptr_t p_socket,
@@ -95,23 +88,6 @@ int HAL_UDP_write(intptr_t p_socket,
     }
 
     return rc;
-}
-
-int HAL_UDP_read(intptr_t p_socket,
-                 unsigned char *p_data,
-                 unsigned int datalen)
-{
-    long            socket_id = -1;
-    int             count = -1;
-
-    if (NULL == p_data || 0 == p_socket) {
-        return -1;
-    }
-
-    socket_id = (long)p_socket;
-    count = (int)read(socket_id, p_data, datalen);
-
-    return count;
 }
 
 int HAL_UDP_readTimeout(intptr_t p_socket,
@@ -155,7 +131,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket,
     }
 
     /* This call will not block */
-    return HAL_UDP_read(p_socket, p_data, datalen);
+    return read(p_socket, p_data, datalen);
 }
 
 intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
@@ -219,44 +195,6 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
     return (intptr_t)sockfd;
 }
 
-int HAL_UDP_connect(intptr_t sockfd,
-                    const char *host,
-                    unsigned short port)
-{
-    int                     rc = -1;
-    char                    port_ptr[6] = {0};
-    struct addrinfo         hints;
-    struct addrinfo        *res, *ainfo;
-
-    if (NULL == host) {
-        return -1;
-    }
-
-    printf("HAL_UDP_connect, host=%s, port=%d", host, port);
-    sprintf(port_ptr, "%u", port);
-    memset((char *)&hints, 0x00, sizeof(hints));
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_family = AF_INET;
-    hints.ai_protocol = IPPROTO_UDP;
-
-    rc = getaddrinfo(host, port_ptr, &hints, &res);
-    if (0 != rc) {
-        printf("getaddrinfo error");
-        return -1;
-    }
-
-    for (ainfo = res; ainfo != NULL; ainfo = ainfo->ai_next) {
-        if (AF_INET == ainfo->ai_family) {
-            if (0 == connect(sockfd, ainfo->ai_addr, ainfo->ai_addrlen)) {
-                freeaddrinfo(res);
-                return 0;
-            }
-        }
-    }
-    freeaddrinfo(res);
-
-    return -1;
-}
 
 int HAL_UDP_close_without_connect(intptr_t sockfd)
 {
@@ -294,34 +232,6 @@ int HAL_UDP_joinmulticast(intptr_t sockfd,
     }
 
     return 0;
-}
-
-int HAL_UDP_recv(intptr_t sockfd,
-                 unsigned char *p_data,
-                 unsigned int datalen,
-                 unsigned int timeout_ms)
-{
-    int ret;
-    fd_set read_fds;
-    struct timeval timeout = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};
-
-    FD_ZERO(&read_fds);
-    FD_SET(sockfd, &read_fds);
-
-    ret = select(sockfd + 1, &read_fds, NULL, NULL, &timeout);
-    if (ret == 0) {
-        return 0;    /* receive timeout */
-    }
-
-    if (ret < 0) {
-        if (errno == EINTR) {
-            return -3;    /* want read */
-        }
-        return -4; /* receive failed */
-    }
-
-    ret = read(sockfd, p_data, datalen);
-    return ret;
 }
 
 int HAL_UDP_recvfrom(intptr_t sockfd,
@@ -363,40 +273,6 @@ int HAL_UDP_recvfrom(intptr_t sockfd,
     }
 
     return -1;
-}
-
-int HAL_UDP_send(intptr_t sockfd,
-                 const unsigned char *p_data,
-                 unsigned int datalen,
-                 unsigned int timeout_ms)
-{
-    int ret;
-    fd_set write_fds;
-    struct timeval timeout = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};
-
-    FD_ZERO(&write_fds);
-    FD_SET(sockfd, &write_fds);
-
-    ret = select(sockfd + 1, NULL, &write_fds, NULL, &timeout);
-    if (ret == 0) {
-        return 0;    /* write timeout */
-    }
-
-    if (ret < 0) {
-        if (errno == EINTR) {
-            return -3;    /* want write */
-        }
-        return -4; /* write failed */
-    }
-
-    ret = send(sockfd, (char *)p_data, (int)datalen, 0);
-
-    if (ret < 0) {
-        printf("send");
-    }
-
-    return ret;
-
 }
 
 int HAL_UDP_sendto(intptr_t sockfd,
@@ -452,6 +328,90 @@ int HAL_UDP_sendto(intptr_t sockfd,
     return (ret) > 0 ? ret : -1;
 }
 
+#define ROUTER_INFO_PATH        "/proc/net/route"
+#define ROUTER_RECORD_SIZE      256
+
+char *_get_default_routing_ifname(char *ifname, int ifname_size)
+{
+    FILE *fp = NULL;
+    char line[ROUTER_RECORD_SIZE] = {0};
+    char iface[IFNAMSIZ] = {0};
+    char *result = NULL;
+    unsigned int destination, gateway, flags, mask;
+    unsigned int refCnt, use, metric, mtu, window, irtt;
+    char *buff = NULL;
+
+    fp = fopen(ROUTER_INFO_PATH, "r");
+    if (fp == NULL) {
+        perror("fopen");
+        return result;
+    }
+
+    buff = fgets(line, sizeof(line), fp);
+    if (buff == NULL) {
+        perror("fgets");
+        goto out;
+    }
+
+    while (fgets(line, sizeof(line), fp)) {
+        if (11 !=
+            sscanf(line, "%s %08x %08x %x %d %d %d %08x %d %d %d",
+                   iface, &destination, &gateway, &flags, &refCnt, &use,
+                   &metric, &mask, &mtu, &window, &irtt)) {
+            perror("sscanf");
+            continue;
+        }
+
+        /*default route */
+        if ((destination == 0) && (mask == 0)) {
+            strncpy(ifname, iface, ifname_size - 1);
+            result = ifname;
+            break;
+        }
+    }
+
+out:
+    if (fp) {
+        fclose(fp);
+    }
+
+    return result;
+}
+
+uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
+{
+    struct ifreq ifreq;
+    int sock = -1;
+    char ifname_buff[IFNAMSIZ] = {0};
+
+    if ((NULL == ifname || strlen(ifname) == 0) &&
+        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))) {
+        perror("get default routeing ifname");
+        return -1;
+    }
+
+    if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket");
+        return -1;
+    }
+
+    ifreq.ifr_addr.sa_family = AF_INET;
+    strncpy(ifreq.ifr_name, ifname, IFNAMSIZ - 1);
+
+    if (ioctl(sock, SIOCGIFADDR, &ifreq) < 0) {
+        close(sock);
+        perror("ioctl");
+        return -1;
+    }
+
+    close(sock);
+
+    strncpy(ip_str,
+            inet_ntoa(((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr),
+            NETWORK_ADDR_LEN);
+
+    return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
+}
 #endif  /* #if defined(HAL_UDP) */
 
 

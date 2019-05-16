@@ -9,7 +9,7 @@
 #include "infra_compat.h"
 #include "infra_compat.h"
 #include "dev_model_api.h"
-#include "dm_wrapper.h"
+#include "wrappers.h"
 #include "cJSON.h"
 
 #ifdef ATM_ENABLED

@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "http2_upload_api.h"
-#include "http2_wrapper.h"
+#include "wrappers.h"
 
 
 #define HTTP2_ONLINE_SERVER_URL       "a1IgnOND7vI.iot-as-http2.cn-shanghai.aliyuncs.com"
@@ -59,7 +59,7 @@ static void _on_http2_disconnect(void)
     is_connected = 0;
 }
 
-static int http2_stream_test(char **argv,int argc)
+static int http2_stream_test(char **argv, int argc)
 {
     http2_upload_conn_info_t conn_info;
     http2_status_cb_t status_cb;
@@ -68,7 +68,7 @@ static int http2_stream_test(char **argv,int argc)
     uint32_t retry_time = 0;
     int ret;
 
-    memset(&conn_info, 0, sizeof( http2_upload_conn_info_t));
+    memset(&conn_info, 0, sizeof(http2_upload_conn_info_t));
     conn_info.product_key = HTTP2_PRODUCT_KEY;
     conn_info.device_name = HTTP2_DEVICE_NAME;
     conn_info.device_secret = HTTP2_DEVICE_SECRET;
@@ -84,7 +84,7 @@ static int http2_stream_test(char **argv,int argc)
     result_cb.upload_id_received_cb = upload_id_received_handle;
 
     handle = IOT_HTTP2_UploadFile_Connect(&conn_info, &status_cb);
-    if(handle == NULL) {
+    if (handle == NULL) {
         return -1;
     }
     is_connected = 1;
@@ -95,7 +95,7 @@ static int http2_stream_test(char **argv,int argc)
     fs_params.opt_bit_map = UPLOAD_FILE_OPT_BIT_OVERWRITE;
 
     ret = IOT_HTTP2_UploadFile_Request(handle, &fs_params, &result_cb, NULL);
-    if(ret < 0) {
+    if (ret < 0) {
         return -1;
     }
 
@@ -110,8 +110,7 @@ static int http2_stream_test(char **argv,int argc)
         ret = IOT_HTTP2_UploadFile_Disconnect(handle);
         EXAMPLE_TRACE("close connect %d\n", ret);
         return 0;
-    }
-    else {
+    } else {
         /* check if upload_id receivced */
         if (g_upload_id[0] == '\0') {
             EXAMPLE_TRACE("upload id is NULL, resume is impossible!");

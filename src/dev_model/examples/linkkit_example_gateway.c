@@ -19,7 +19,7 @@
 #include "infra_compat.h"
 #include "infra_log.h"
 #include "dev_model_api.h"
-#include "dm_wrapper.h"
+#include "wrappers.h"
 
 #ifdef LINKKIT_GATEWAY_TEST_CMD
     #include "simulate_subdev/testcmd.h"
@@ -504,8 +504,6 @@ int main(int argc, char **argv)
 
     user_example_ctx->g_user_dispatch_thread_running = 0;
     IOT_Linkkit_Close(user_example_ctx->master_devid);
-    HAL_ThreadDelete(user_example_ctx->g_user_dispatch_thread);
-
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
     return 0;
