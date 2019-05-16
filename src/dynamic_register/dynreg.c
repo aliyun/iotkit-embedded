@@ -9,7 +9,6 @@
 #include "infra_httpc.h"
 #include "infra_sha256.h"
 #include "dynreg_internal.h"
-#include "dynreg_wrapper.h"
 
 #define HTTP_RESPONSE_PAYLOAD_LEN           (256)
 
