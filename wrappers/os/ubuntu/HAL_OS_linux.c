@@ -566,7 +566,7 @@ int HAL_Timer_Start(void *timer, int ms)
 
     /* it_value=0: stop timer */
     ts.it_value.tv_sec = ms / 1000;
-    ts.it_value.tv_nsec = (ms % 1000) * 1000;
+    ts.it_value.tv_nsec = (ms % 1000) * 1000000;
 
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
