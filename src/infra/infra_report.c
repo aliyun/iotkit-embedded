@@ -11,15 +11,7 @@
 #include "infra_defs.h"
 #include "infra_string.h"
 #include "infra_report.h"
-
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
-void HAL_Printf(const char *fmt, ...);
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN]);
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN]);
-uint64_t HAL_UptimeMs(void);
-int HAL_GetFirmwareVersion(char *version);
+#include "wrappers.h"
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"

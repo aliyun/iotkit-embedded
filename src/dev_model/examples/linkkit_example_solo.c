@@ -3,9 +3,6 @@
  */
 #include "infra_config.h"
 
-void HAL_Printf(const char *fmt, ...);
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
-
 #ifdef DEPRECATED_LINKKIT
 #include "solo.c"
 #else

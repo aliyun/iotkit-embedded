@@ -40,16 +40,6 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...)
     return rc;
 }
 
-void HAL_Printf(const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-
-    fflush(stdout);
-}
 
 void *HAL_Malloc(uint32_t size)
 {

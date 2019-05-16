@@ -36,7 +36,6 @@ char DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
-void HAL_Printf(const char *fmt, ...);
 #define EXAMPLE_TRACE(...) \
     do { \
         HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__); \

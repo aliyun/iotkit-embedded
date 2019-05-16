@@ -1333,10 +1333,11 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 
 static void *_linkkit_gateway_dispatch(void *params)
 {
+    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx  = (linkkit_gateway_legacy_ctx_t *)params;
+    
     if (params == NULL) {
         return NULL;
     }
-    linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx  = (linkkit_gateway_legacy_ctx_t *)params;
     while (linkkit_gateway_ctx->is_started) {
         iotx_dm_dispatch();
         HAL_SleepMs(20);

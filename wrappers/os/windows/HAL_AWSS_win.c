@@ -1,18 +1,27 @@
-
-#ifdef DEV_BIND_ENABLED
-    #include "infra_config.h"
-    #include <string.h>
-    #include "infra_defs.h"
-#endif
-
-#if defined(WIFI_PROVISION_ENABLED)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#include <winsock2.h>
+#include <iphlpapi.h>
+#include <ws2tcpip.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include "infra_config.h"
+#include "infra_defs.h"
+
+#if defined(WIFI_PROVISION_ENABLED)
+
+
+
+
 #include "iot_import_awss.h"
 
 #define  HAL_DEBUG_OUT 1
+
+/*This variable is to define the name of the network interface, you must change it to yours*/
+static wchar_t* gIfName = L"\\DEVICE\\TCPIP_{C9E93150-C6B1-4B15-8A2E-C08747261CD2}";
+
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
  *
@@ -211,7 +220,7 @@ int HAL_Awss_Close_Ap()
 char *HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
 {
     MIB_IFTABLE *pIfTable = NULL;
-    MIB_IFROW *pIfRow;
+    MIB_IFROW *pIfRow = NULL;
     DWORD dwSize = 0;
     int i;
 
@@ -236,6 +245,11 @@ char *HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
             break;
         }
     }
+    if(pIfRow == NULL) {
+        free(pIfTable);
+        return NULL;
+    }
+
     if (i < pIfTable->dwNumEntries) {
         snprintf(mac_str, HAL_MAC_LEN, "%02X:%02X:%02X:%02X:%02X:%02X",
                  pIfRow->bPhysAddr[0], pIfRow->bPhysAddr[1], pIfRow->bPhysAddr[2],

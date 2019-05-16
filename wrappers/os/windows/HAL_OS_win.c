@@ -468,5 +468,8 @@ int HAL_Timer_Stop(void *timer)
     return (int)0;
 }
 
-
+void HAL_Reboot(void)
+{
+    hal_err("not support HAL_Reboot! \n\r");
+}
 

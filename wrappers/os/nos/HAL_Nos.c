@@ -92,25 +92,6 @@ void HAL_MutexUnlock(void *mutex)
 
 
 /**
- * @brief Writes formatted data to stream.
- *
- * @param [in] fmt: @n String that contains the text to be written, it can optionally contain embedded format specifiers
-     that specifies how subsequent arguments are converted for output.
- * @param [in] ...: @n the variable argument list, for formatted and inserted in the resulting string replacing their respective specifiers.
- * @return None.
- * @see None.
- * @note None.
- */
-void HAL_Printf(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-    fflush(stdout);
-}
-
-/**
  * @brief Writes formatted data to string.
  *
  * @param [out] str: @n String that holds written text.

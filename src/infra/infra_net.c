@@ -10,6 +10,7 @@
 #include "infra_defs.h"
 #include "infra_net.h"
 #include "wrappers_defs.h"
+#include "wrappers.h"
 
 #ifdef INFRA_LOG
     #include "infra_log.h"
@@ -18,12 +19,8 @@
     #define net_err(...)
 #endif
 
-
-
 /*** SSL connection ***/
 #if defined(SUPPORT_TLS) || defined(SUPPORT_ITLS)
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
 
 #ifdef INFRA_MEM_STATS
     #include "infra_mem_stats.h"
@@ -42,16 +39,6 @@ static void ssl_free(void *ptr)
 {
     NET_FREE(ptr);
 }
-#endif
-
-#if defined(SUPPORT_TLS) || defined(SUPPORT_ITLS)
-uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt, size_t ca_crt_len);
-int32_t HAL_SSL_Destroy(uintptr_t handle);
-int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
-int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms);
-int ssl_hooks_set(ssl_hooks_t *hooks);
-int HAL_GetProductKey(char *product_key);
-int HAL_GetProductSecret(char *product_secret);
 
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
@@ -123,12 +110,6 @@ static int connect_ssl(utils_network_pt pNetwork)
     }
 }
 #elif defined(AT_TCP_ENABLED)
-uintptr_t AT_TCP_Establish(const char *host, uint16_t port);
-int AT_TCP_Destroy(uintptr_t fd);
-int32_t AT_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
-int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
 
 /*** TCP connection ***/
 static int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -169,13 +150,6 @@ static int connect_tcp(utils_network_pt pNetwork)
 }
 
 #else
-uintptr_t HAL_TCP_Establish(const char *host, uint16_t port);
-int HAL_TCP_Destroy(uintptr_t fd);
-int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms);
-int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms);
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
-
 /*** TCP connection ***/
 static int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
