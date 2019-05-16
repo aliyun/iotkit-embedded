@@ -101,19 +101,19 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
     plain[0] = '\0';
 
     if (decrypt) {
-        p_Aes128_t aes = (p_Aes128_t)Infra_Aes128_Init(key, iv, AES_DECRYPTION);
+        p_Aes128_t aes = (p_Aes128_t)infra_aes128_init(key, iv, AES_DECRYPTION);
         if (cbc) { /* AP */
             /*
              * mobile-ap, dev-ap, router
              */
-            res = Infra_Aes128_Cbc_Decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
+            res = infra_aes128_cbc_decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
         } else {  /* smartconfig */
             /*
              * smartconfig/wps, zconfig
              */
-            res = Infra_Aes128_Cfb_Decrypt(aes, decoded, len, plain);
+            res = infra_aes128_cfb_decrypt(aes, decoded, len, plain);
         }
-        Infra_Aes128_Destroy(aes);
+        infra_aes128_destroy(aes);
     }
 
     HAL_Free(decoded);

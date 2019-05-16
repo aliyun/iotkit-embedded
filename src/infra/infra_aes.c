@@ -877,7 +877,6 @@ int infra_aes_crypt_cbc( infra_aes_context *ctx,
     }
     else
     {
-#if 0
         while( length > 0 )
         {
             for( i = 0; i < 16; i++ )
@@ -890,7 +889,6 @@ int infra_aes_crypt_cbc( infra_aes_context *ctx,
             output += 16;
             length -= 16;
         }
-#endif
     }
 
     return( 0 );
@@ -928,7 +926,6 @@ int infra_aes_crypt_cfb128( infra_aes_context *ctx,
     }
     else
     {
-#if 0
         while( length-- )
         {
             if( n == 0 )
@@ -938,7 +935,6 @@ int infra_aes_crypt_cfb128( infra_aes_context *ctx,
 
             n = ( n + 1 ) & 0x0F;
         }
-#endif
     }
 
     *iv_off = n;
@@ -1041,7 +1037,7 @@ typedef struct {
 } platform_aes_t;
 
 
-p_Aes128_t Infra_Aes128_Init(
+p_Aes128_t infra_aes128_init(
             const uint8_t *key,
             const uint8_t *iv,
             AES_DIR_t dir)
@@ -1082,7 +1078,7 @@ p_Aes128_t Infra_Aes128_Init(
     return (p_Aes128_t) p_aes128;
 }
 
-int Infra_Aes128_Destroy(p_Aes128_t aes)
+int infra_aes128_destroy(p_Aes128_t aes)
 {
     if (!aes) return -1;
 
@@ -1097,7 +1093,7 @@ int Infra_Aes128_Destroy(p_Aes128_t aes)
     return 0;
 }
 
-int Infra_Aes128_Cbc_Decrypt(
+int infra_aes128_cbc_decrypt(
             p_Aes128_t aes,
             const void *src,
             size_t blockNum,
@@ -1124,7 +1120,7 @@ int Infra_Aes128_Cbc_Decrypt(
     return ret;
 }
 
-int Infra_Aes128_Cfb_Decrypt(
+int infra_aes128_cfb_decrypt(
             p_Aes128_t aes,
             const void *src,
             size_t length,
@@ -1149,7 +1145,7 @@ int Infra_Aes128_Cfb_Decrypt(
     return ret;
 }
 
-int Infra_Aes128_Cfb_Encrypt(
+int infra_aes128_cfb_encrypt(
             p_Aes128_t aes,
             const void *src,
             size_t length,
@@ -1171,7 +1167,7 @@ int Infra_Aes128_Cfb_Encrypt(
     return ret;
 }
 
-int Infra_Aes128_Cbc_Encrypt(
+int infra_aes128_cbc_encrypt(
             p_Aes128_t aes,
             const void *src,
             size_t blockNum,

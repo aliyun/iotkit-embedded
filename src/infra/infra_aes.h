@@ -360,32 +360,32 @@ int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
 }
 #endif
 
-p_Aes128_t Infra_Aes128_Init(
+p_Aes128_t infra_aes128_init(
             const uint8_t *key,
             const uint8_t *iv,
             AES_DIR_t dir);
 
-int Infra_Aes128_Destroy(p_Aes128_t aes);
+int infra_aes128_destroy(p_Aes128_t aes);
 
-int Infra_Aes128_Cbc_Decrypt(
+int infra_aes128_cbc_decrypt(
             p_Aes128_t aes,
             const void *src,
             size_t blockNum,
             void *dst);
 
-int Infra_Aes128_Cfb_Decrypt(
+int infra_aes128_cfb_decrypt(
             p_Aes128_t aes,
             const void *src,
             size_t length,
             void *dst);
 
-int Infra_Aes128_Cfb_Encrypt(
+int infra_aes128_cfb_encrypt(
             p_Aes128_t aes,
             const void *src,
             size_t length,
             void *dst);
 
-int Infra_Aes128_Cbc_Encrypt(
+int infra_aes128_cbc_encrypt(
             p_Aes128_t aes,
             const void *src,
             size_t blockNum,

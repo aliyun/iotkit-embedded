@@ -1006,9 +1006,9 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
     registrar_frame[len ++] = passwd_len;
 
     {
-        p_Aes128_t aes = Infra_Aes128_Init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
-        Infra_Aes128_Cfb_Encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
-        Infra_Aes128_Destroy(aes);
+        p_Aes128_t aes = infra_aes128_init(&enr->key[0], enr->random, PLATFORM_AES_ENCRYPTION);
+        infra_aes128_cfb_encrypt(aes, (uint8_t *)passwd, passwd_len, (uint8_t *)&registrar_frame[len]);
+        infra_aes128_destroy(aes);
     }
 
     len += passwd_len;

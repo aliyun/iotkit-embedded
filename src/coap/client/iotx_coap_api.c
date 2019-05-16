@@ -352,19 +352,19 @@ int iotx_aes_cbc_encrypt(const unsigned char *src, int len, const unsigned char 
     int pad = len2 - len;
     int ret = 0;
 
-    p_Aes128_t aes_e_h = Infra_Aes128_Init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
+    p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
     if (len1) {
-        ret = Infra_Aes128_Cbc_Encrypt(aes_e_h, src, len1 >> 4, out);
+        ret = infra_aes128_cbc_encrypt(aes_e_h, src, len1 >> 4, out);
     }
     if (!ret && pad) {
         char buf[16] = {0};
         memcpy(buf, src + len1, len - len1);
         memset(buf + len - len1, pad, pad);
-        ret = Infra_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, (unsigned char *)out + len1);
+        ret = infra_aes128_cbc_encrypt(aes_e_h, buf, 1, (unsigned char *)out + len1);
 
     }
 
-    Infra_Aes128_Destroy(aes_e_h);
+    infra_aes128_destroy(aes_e_h);
 
     COAP_DEBUG("to encrypt src: %s, len: %d", src, len2);
     return ret == 0 ? len2 : 0;
@@ -378,13 +378,13 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
     int ret = 0;
     int n = len >> 4;
 
-    aes_d_h  = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
+    aes_d_h  = infra_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
     if (!aes_d_h) {
         COAP_INFO("fail to decrypt");
         return  0;
     }
     if (n > 1) {
-        ret = Infra_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
+        ret = infra_aes128_cbc_decrypt(aes_d_h, src, n - 1, out);
     }
 
     if (ret == 0) {
@@ -393,7 +393,7 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
         out_c[offset] = 0;
 
         if (aes_d_h) {
-            ret = Infra_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
+            ret = infra_aes128_cbc_decrypt(aes_d_h, src + offset, 1, out_c + offset);
         } else {
             COAP_ERR("fail to decrypt remain data");
         }
@@ -404,11 +404,11 @@ int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char 
             /*
             COAP_DEBUG("decrypt data:%s, len:%d", out_c, len - pad);
             */
-            Infra_Aes128_Destroy(aes_d_h);
+            infra_aes128_destroy(aes_d_h);
             return len - pad;
         }
     }
-    Infra_Aes128_Destroy(aes_d_h);
+    infra_aes128_destroy(aes_d_h);
 
     return 0;
 }
@@ -420,9 +420,9 @@ static int iotx_aes_cfb_encrypt(const unsigned char *src, int len, const unsigne
     int ret = -1;
     char *iv = "543yhjy97ae7fyfg";
 
-    p_Aes128_t aes_e_h = Infra_Aes128_Init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
-    ret = Infra_Aes128_Cfb_Encrypt(aes_e_h, src, len, out);
-    Infra_Aes128_Destroy(aes_e_h);
+    p_Aes128_t aes_e_h = infra_aes128_init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
+    ret = infra_aes128_cfb_encrypt(aes_e_h, src, len, out);
+    infra_aes128_destroy(aes_e_h);
 
     COAP_DEBUG("to encrypt src:%s, len:%d", src, len);
     return len;
@@ -433,9 +433,9 @@ int iotx_aes_cfb_decrypt(const unsigned char *src, int len, const unsigned char 
     int ret = -1;
     char *iv = "543yhjy97ae7fyfg";
 
-    p_Aes128_t aes_d_h = Infra_Aes128_Init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
-    ret = Infra_Aes128_Cfb_Decrypt(aes_d_h, src, len, out);
-    Infra_Aes128_Destroy(aes_d_h);
+    p_Aes128_t aes_d_h = infra_aes128_init((unsigned char *)key, (unsigned char *)iv, AES_ENCRYPTION);
+    ret = infra_aes128_cfb_decrypt(aes_d_h, src, len, out);
+    infra_aes128_destroy(aes_d_h);
 
     return ret;
 }

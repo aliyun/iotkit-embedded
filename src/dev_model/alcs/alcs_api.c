@@ -293,18 +293,18 @@ int alcs_encrypt(const char *src, int len, const char *key, void *out)
     int ret = 0;
 
     if (len1) {
-        p_Aes128_t aes_e_h = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_ENCRYPTION);
-        ret = Infra_Aes128_Cbc_Encrypt(aes_e_h, src, len1 >> 4, out);
-        Infra_Aes128_Destroy(aes_e_h);
+        p_Aes128_t aes_e_h = infra_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_ENCRYPTION);
+        ret = infra_aes128_cbc_encrypt(aes_e_h, src, len1 >> 4, out);
+        infra_aes128_destroy(aes_e_h);
     }
     if (!ret && pad) {
         char buf[16];
         p_Aes128_t aes_e_h = NULL;
         memcpy(buf, src + len1, len - len1);
         memset(buf + len - len1, pad, pad);
-        aes_e_h = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_ENCRYPTION);
-        ret = Infra_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, (uint8_t *)out + len1);
-        Infra_Aes128_Destroy(aes_e_h);
+        aes_e_h = infra_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_ENCRYPTION);
+        ret = infra_aes128_cbc_encrypt(aes_e_h, buf, 1, (uint8_t *)out + len1);
+        infra_aes128_destroy(aes_e_h);
     }
 
     COAP_DEBUG("to encrypt src:%s, len:%d", src, len2);
@@ -325,14 +325,14 @@ int alcs_decrypt(const char *src, int len, const char *key, void *out)
 
     do {
         if (n > 1) {
-            aes_d_h  = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
+            aes_d_h  = infra_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
             if (!aes_d_h) {
                 COAP_ERR("fail to decrypt init");
                 break;
             }
 
-            ret = Infra_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
-            Infra_Aes128_Destroy(aes_d_h);
+            ret = infra_aes128_cbc_decrypt(aes_d_h, src, n - 1, out);
+            infra_aes128_destroy(aes_d_h);
 
             if (ret != 0) {
                 COAP_ERR("fail to decrypt");
@@ -344,14 +344,14 @@ int alcs_decrypt(const char *src, int len, const char *key, void *out)
         offset = n > 0 ? ((n - 1) << 4) : 0;
         out_c[offset] = 0;
 
-        aes_d_h  = Infra_Aes128_Init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
+        aes_d_h  = infra_aes128_init((uint8_t *)key, (uint8_t *)iv, AES_DECRYPTION);
         if (!aes_d_h) {
             COAP_ERR("fail to decrypt init");
             break;
         }
 
-        ret = Infra_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
-        Infra_Aes128_Destroy(aes_d_h);
+        ret = infra_aes128_cbc_decrypt(aes_d_h, src + offset, 1, out_c + offset);
+        infra_aes128_destroy(aes_d_h);
 
         if (ret != 0) {
             COAP_ERR("fail to decrypt remain data");
