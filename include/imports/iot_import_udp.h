@@ -131,23 +131,6 @@ DLL_HAL_API int HAL_UDP_sendto(_IN_ intptr_t sockfd,
                                _IN_ unsigned int datalen,
                                _IN_ unsigned int timeout_ms);
 
-/**
- * @brief   在指定的UDP socket上发送指定缓冲区的指定长度, 阻塞时间不超过指定时长, 且指定长度若发送完需提前返回
- * @param   sockfd : UDP socket的句柄
- * @param   p_data : 被发送的缓冲区起始地址
- * @param   datalen: 被发送的数据长度, 单位是字节(Byte)
- * @param   timeout_ms : 可能阻塞的最大时间长度, 单位是毫秒
- *
- * @retval  < 0 : 发送过程中出现错误或异常
- * @retval  0 : 在指定的'timeout_ms'时间间隔内, 没有任何数据被成功发送
- * @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功发送的数据长度, 单位是字节(Byte)
- *
- * @note    调用该接口之前需要调用HAL_UDP_connect设置好目的地址和端口。
- */
-DLL_HAL_API int HAL_UDP_send(_IN_ intptr_t sockfd,
-                             _IN_ const unsigned char *p_data,
-                             _IN_ unsigned int datalen,
-                             _IN_ unsigned int timeout_ms);
 
 /**
  * @brief   从指定的UDP句柄接收指定长度数据到缓冲区, 阻塞时间不超过指定时长, 且指定长度若接收完需提前返回, 源地址保存在出参中
@@ -167,23 +150,6 @@ DLL_HAL_API int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
                                  _OU_ unsigned char *p_data,
                                  _IN_ unsigned int datalen,
                                  _IN_ unsigned int timeout_ms);
-
-/**
-* @brief   从指定的UDP句柄接收指定长度数据到缓冲区, 阻塞时间不超过指定时长, 且指定长度若接收完需提前返回, 源地址保存在出参中
-*          调用该接口之前需要调用HAL_UDP_connect设置好目的地址和端口。
-* @param   fd : UDP socket的句柄
-* @param   p_data : 存放被接收数据的缓冲区起始地址
-* @param   datalen : 接收并存放到缓冲区中数据的最大长度, 单位是字节(Byte)
-* @param   timeout_ms : 可能阻塞的最大时间长度, 单位是毫秒
-*
-* @retval  < 0 : 接收过程中出现错误或异常
-* @retval  0 : 在指定的'timeout_ms'时间间隔内, 没有任何数据被成功接收
-* @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功接收的数据长度, 单位是字节(Byte)
-*/
-DLL_HAL_API int HAL_UDP_recv(_IN_ intptr_t sockfd,
-                             _OU_ unsigned char *p_data,
-                             _IN_ unsigned int datalen,
-                             _IN_ unsigned int timeout_ms);
 
 
 /**

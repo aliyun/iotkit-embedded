@@ -289,33 +289,6 @@ int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
     return 0;
 }
 
-int HAL_UDP_recv(_IN_ intptr_t sockfd,
-                 _OU_ unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms)
-{
-    int ret;
-    fd_set read_fds;
-    struct timeval timeout = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};
-
-    FD_ZERO(&read_fds);
-    FD_SET(sockfd, &read_fds);
-
-    ret = select(sockfd + 1, &read_fds, NULL, NULL, &timeout);
-    if (ret == 0) {
-        return 0;    /* receive timeout */
-    }
-
-    if (ret < 0) {
-        if (errno == EINTR) {
-            return -3;    /* want read */
-        }
-        return -4; /* receive failed */
-    }
-
-    ret = read(sockfd, p_data, datalen);
-    return ret;
-}
 
 int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
                      _OU_ NetworkAddr *p_remote,
@@ -355,40 +328,6 @@ int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
     }
 
     return -1;
-}
-
-int HAL_UDP_send(_IN_ intptr_t sockfd,
-                 _IN_ const unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms)
-{
-    int ret;
-    fd_set write_fds;
-    struct timeval timeout = {timeout_ms / 1000, (timeout_ms % 1000) * 1000};
-
-    FD_ZERO(&write_fds);
-    FD_SET(sockfd, &write_fds);
-
-    ret = select(sockfd + 1, NULL, &write_fds, NULL, &timeout);
-    if (ret == 0) {
-        return 0;    /* write timeout */
-    }
-
-    if (ret < 0) {
-        if (errno == EINTR) {
-            return -3;    /* want write */
-        }
-        return -4; /* write failed */
-    }
-
-    ret = send(sockfd, (char *)p_data, (int)datalen, 0);
-
-    if (ret < 0) {
-        hal_err("send");
-    }
-
-    return ret;
-
 }
 
 int HAL_UDP_sendto(_IN_ intptr_t sockfd,
