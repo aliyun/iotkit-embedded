@@ -1,7 +1,7 @@
 #ifndef _DYNREG_INTERNAL_H_
 #define _DYNREG_INTERNAL_H_
 
-#include "dynreg_wrapper.h"
+#include "wrappers.h"
 
 #ifdef INFRA_LOG
     #include "infra_log.h"
