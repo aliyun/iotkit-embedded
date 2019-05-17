@@ -13,9 +13,40 @@
 #include <string.h>
 #include <stdlib.h>
 #include "infra_defs.h"
-#include "iot_import_awss.h"
+#include "wrappers.h"
 #include "assert.h"
 #include "stdio.h"
+#include <net/if.h>
+#include <ieee80211_radiotap.h>
+#include <netinet/ip.h>
+#include <sys/time.h>
+#include <net/ethernet.h>
+#include <net/if.h>
+#include <linux/if_packet.h>
+#include <sys/ioctl.h>
+#include "iot_import_awss.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <linux/if.h>
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
+#include <net/ethernet.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <pthread.h>
+#include "wrappers_defs.h"
+
+int HAL_ThreadCreate(
+    void **thread_handle,
+    void *(*work_routine)(void *),
+    void *arg,
+    hal_os_thread_param_t *hal_os_thread_param,
+    int *stack_used);
 
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
@@ -34,7 +65,103 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
  *
  * @param[in] cb @n A function pointer, called back when wifi receive a frame.
  */
+#define MAX_REV_BUFFER 8000
 char *g_ifname = "wlx00259ce04ceb";
+
+static int s_enable_sniffer = 1;
+extern char *g_ifname;
+static void *func_Sniffer(void *cb)
+{
+    int32_t raw_socket = 0;
+    struct ifreq ifr;
+    struct sockaddr_ll sll;
+    char rev_buffer[MAX_REV_BUFFER];
+    int skipLen = 26;/* radiotap 默认长度为26 */
+    char *ifname = g_ifname;
+    memset(&ifr, 0, sizeof(struct ifreq));
+    memset(&sll, 0, sizeof(struct sockaddr_ll));
+    raw_socket = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    if (raw_socket < 0) {
+        perror("raw socket error: ");
+        return NULL ;
+    }
+
+    memcpy(ifr.ifr_name, ifname , strlen(ifname));
+    if (ioctl(raw_socket, SIOCGIFINDEX, &ifr) < 0) {
+        perror("SIOCGIFINDED error: ");
+        return NULL ;
+    }
+
+    sll.sll_family = AF_PACKET;
+    sll.sll_ifindex = ifr.ifr_ifindex;
+    sll.sll_protocol = htons(ETH_P_ALL);
+    if (bind(raw_socket, (struct sockaddr *)&sll, sizeof(sll)) < 0) {
+        perror("bind error: ");
+        return NULL ;
+    }
+
+      if (ioctl(raw_socket, SIOCGIFFLAGS, &ifr) < 0) {
+        perror("SIOCGIFFLAGS error: ");
+        return NULL ;
+    }
+    ifr.ifr_flags |= IFF_PROMISC;
+    if (ioctl(raw_socket, SIOCSIFFLAGS, &ifr) < 0) {
+        perror("SIOCSIFFLAGS error: ");
+        return NULL ;
+    }
+
+    printf("Sniffer Thread Create\r\n");
+    if (raw_socket < 0) {
+        perror("Sniffer Socket Alloc failed");
+        return (void *)0;
+    }
+
+    while ((1 == s_enable_sniffer)) {
+        int rev_num = recvfrom(raw_socket, rev_buffer, MAX_REV_BUFFER, 0, NULL, NULL);
+        struct ieee80211_radiotap_header *pHeader = (struct ieee80211_radiotap_header *)rev_buffer;
+        skipLen = pHeader->it_len;
+
+#ifdef WIFI_CHIP_7601
+        skipLen = 144;
+#endif
+        if (skipLen >= MAX_REV_BUFFER) {
+            continue;
+        }
+        if (0) {
+            int index = 0;
+            /* printf("skipLen:%d ", skipLen); */
+            for (index = 0; index < 180; index++) {
+                printf("%02X-", rev_buffer[index]);
+            }
+            printf("\r\n");
+        }
+        if (rev_num > skipLen) {
+            /* TODO fix the link type, with fcs, rssi */
+            ((awss_recv_80211_frame_cb_t)cb)(rev_buffer + skipLen, rev_num - skipLen, AWSS_LINK_TYPE_NONE, 0, 0);
+        }
+    }
+
+    close(raw_socket);
+
+    printf("Sniffer Proc Finish\r\n");
+    return (void *)0;
+}
+
+void stop_sniff()
+{
+    s_enable_sniffer = 0;
+}
+
+void start_sniff(_IN_ awss_recv_80211_frame_cb_t cb)
+{
+    static void *g_sniff_thread = NULL;
+    int stack_used;
+    hal_os_thread_param_t task_parms = {0};
+    HAL_ThreadCreate(&g_sniff_thread, func_Sniffer, (void *)cb, &task_parms, &stack_used);
+}
+
+
+
 void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
 {
     extern void start_sniff(_IN_ awss_recv_80211_frame_cb_t cb);
@@ -68,7 +195,6 @@ void HAL_Awss_Close_Monitor(void)
 {
 
     int ret = -1;
-    extern int stop_sniff();
     char buffer[256] = {0};
     char *ifname = g_ifname;
     stop_sniff();
@@ -357,9 +483,7 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
 
     if (strlen(ap_passwd) == 0) {
         memset(buffer, 0, 256);
-        snprintf(buffer, 256,
-                 "nmcli connection modify %s 802-11-wireless.mode ap 802-11-wireless-security.key-mgmt wpa-none ipv4.method shared",
-                 ap_ssid);
+        snprintf(buffer, 256, "nmcli connection modify %s 802-11-wireless.mode ap ipv4.method shared", ap_ssid);
         ret = system(buffer);
     } else {
         memset(buffer, 0, 256);
