@@ -173,11 +173,12 @@ static uint16_t  create_beacon_frame(uint8_t *p_buffer, simulate_ap_t  *p_ap)
 
 static int awss_set_announce_content(simulate_ap_t *ap, char *data)
 {
-    uint8_t len = strlen(data);
+    uint8_t len;
     if (data == NULL || ap == NULL) {
         return -1;
     }
-
+    
+    len = strlen(data);
     if (len > 32) {
         len = 32;
     }
