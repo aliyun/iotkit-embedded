@@ -605,18 +605,6 @@ HAL_AT_MQTT_State:
  * @return  0 - invalid, 1 - initialized, 2 - connected, 3 - disconnected, 4 - disconnect-reconnecting
  */
 
-HAL_DTLSHooks_set:
-/**
- * @brief Set malloc/free function.
- *
- * @param [in] hooks: @n Specify malloc/free function you want to use
- *
- * @retval DTLS_SUCCESS : Success.
-   @retval        other : Fail.
- * @see None.
- * @note None.
- */
-
  HAL_DTLSSession_create:
  /**
  * @brief Establish a DSSL connection.
