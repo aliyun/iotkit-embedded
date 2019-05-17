@@ -1,25 +1,64 @@
-
-#ifdef DEV_BIND_ENABLED
-    #include "infra_config.h"
-    #include <string.h>
-    #include "infra_defs.h"
-#endif
-
-#if defined(WIFI_PROVISION_ENABLED)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ * This file provided HALs for smartconfig and phone ap wifi-provision,
+ * which have been verified with wireless card Linksys思科wusb600n双频无线网卡
+ * To buy this card, pls visit:
+    https://item.taobao.com/item.htm?ut_sk=1.XGVDbbjwimoDAP/KhyE3F1/y_21380790_1557922170221.DingTalk.1&id=10929152134&sourceType=item&price=499&suid=E8AE39DE-B83A-466C-AC66-7E23B81B371F&un=a6384eb589484e4b132b0f6991806569&share_crt_v=1&cpp=1&shareurl=true&spm=a313p.22.7k.1033739374611&short_name=h.edXpfty&app=chrome
  */
 
-#include "iot_import_awss.h"
+#include "infra_config.h"
 
+#if defined(DEV_BIND_ENABLED)
+
+#include <string.h>
+#include <stdlib.h>
+#include "infra_defs.h"
+#include "iot_import_awss.h"
+#include "assert.h"
+#include "stdio.h"
+
+/**
+ * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
+ *
+ * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
+ * @return  指向缓冲区数组起始位置的字符指针
+ */
+char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
+{
+    strcpy(mac_str, "18:FE:34:12:33:44");
+    return mac_str;
+}
 
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
  *
  * @param[in] cb @n A function pointer, called back when wifi receive a frame.
  */
+char *g_ifname = "wlx00259ce04ceb";
 void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
 {
+    extern void start_sniff(_IN_ awss_recv_80211_frame_cb_t cb);
+    char *ifname = g_ifname;
+
+    char buffer[256] = {0};
+    int ret = 0;
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "ifconfig %s down", ifname);
+    ret = system(buffer);
+    printf("ret1 is %d\r\n", ret);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "iwconfig %s mode monitor", ifname);
+    ret = system(buffer);
+    printf("ret2 is %d\r\n", ret);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "ifconfig %s up", ifname);
+    ret = system(buffer);
+
+    printf("ret3 is %d\r\n", ret);
+
+    start_sniff(cb);
 }
 
 /**
@@ -27,6 +66,23 @@ void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
  */
 void HAL_Awss_Close_Monitor(void)
 {
+
+    int ret = -1;
+    extern int stop_sniff();
+    char buffer[256] = {0};
+    char *ifname = g_ifname;
+    stop_sniff();
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "ifconfig %s down", ifname);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "iwconfig %s mode managed", ifname);
+    ret =  system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "ifconfig %s up", ifname);
+    ret = system(buffer);
 }
 
 /**
@@ -43,6 +99,12 @@ void HAL_Awss_Switch_Channel(
             _IN_OPT_ char secondary_channel,
             _IN_OPT_ uint8_t bssid[ETH_ALEN])
 {
+    char cmd[255] = {0};
+    int ret = -1;
+    snprintf(cmd, 255, "iwconfig %s channel %d", g_ifname, primary_channel);
+    printf("switch:%s\n", cmd);
+    ret = system(cmd);
+    assert(0 == ret);
 }
 
 /**
@@ -74,6 +136,52 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel)
 {
+    char buffer[128] = {0};
+    char *wifi_name = "linkkit";
+    int ret = -1;
+
+    printf("ssid  : %s\n", ssid);
+    printf("passwd: %s\n", passwd);
+
+    /**
+     * using ubuntu network manager for connecting ap
+     * reference:
+     * https://developer.gnome.org/NetworkManager/stable/nmcli.html
+     * https://www.96boards.org/documentation/consumer/guides/wifi_commandline.md.html     */
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection down %s", wifi_name);
+    ret = system(buffer);
+
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection delete %s", wifi_name);
+    ret = system(buffer);
+
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection add con-name %s ifname %s type wifi ssid %s", wifi_name, g_ifname,
+             ssid);
+    ret = system(buffer);
+
+    /**
+     * security reference:
+     * https://developer.gnome.org/NetworkManager/stable/settings-802-11-wireless-security.html
+     */
+    if (strlen(passwd) == 0) {
+        memset(buffer, 0, 128);
+        snprintf(buffer, 128, "nmcli connection modify %s wifi-sec.key-mgmt %s", "none", wifi_name);
+        ret = system(buffer);
+    } else {
+        memset(buffer, 0, 128);
+        snprintf(buffer, 128, "nmcli connection modify %s wifi-sec.key-mgmt %s", wifi_name, "wpa-psk");
+        ret = system(buffer);
+        memset(buffer, 0, 128);
+        snprintf(buffer, 128, "nmcli connection modify %s wifi-sec.psk %s", wifi_name, passwd);
+        ret = system(buffer);
+    }
+
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection up %s", wifi_name);
+    ret = system(buffer);
+
     return 0;
 }
 
@@ -87,7 +195,12 @@ int HAL_Awss_Connect_Ap(
  */
 int HAL_Sys_Net_Is_Ready()
 {
-    return 0;
+    char buffer[256] = {0};
+    int ret = 0;
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "ifconfig %s | grep 'inet addr'", g_ifname);
+    ret = system(buffer);
+    return (0 == ret);
 }
 
 /**
@@ -181,6 +294,28 @@ int HAL_Wifi_Get_Ap_Info(
             _OU_ char passwd[HAL_MAX_PASSWD_LEN],
             _OU_ uint8_t bssid[ETH_ALEN])
 {
+#define MAXLINE 256
+    FILE *fp;
+    char *p1, *p2;
+    char buffer[256] = {0};
+    int ret = 0;
+    char *data;
+    int lSize;
+    ret = system("wpa_cli status | grep ^ssid | sed 's/^ssid=//g' | tee /tmp/ssid");
+
+    fp = fopen("/tmp/ssid", "r");
+    if (NULL == fp) {
+        return -1;
+    }
+    fseek(fp, 0, SEEK_END);
+    lSize = ftell(fp);
+    rewind(fp);
+    ret = fread(ssid, 1, lSize, fp);
+    if (lSize >= 1) {
+        ssid[lSize - 1] = 0;
+    }
+    pclose(fp);
+
     return 0;
 }
 
@@ -188,7 +323,95 @@ int HAL_Wifi_Get_Ap_Info(
  */
 int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide)
 {
+    char buffer[256] = {0};
+    char *sta_ssid = "linkkit";
+    const char *ap_ssid = ssid; /*  "linkkit-ap"; */
+    char *ap_passwd = "";
+    int ret = -1;
+    /**
+     * using ubuntu16.04 network manager to create wireless access point
+     * reference:
+     * https://developer.gnome.org/NetworkManager/stable/nmcli.html
+     * https://unix.stackexchange.com/questions/234552/create-wireless-access-point-and-share-internet-connection-with-nmcli
+     */
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "ifconfig %s down", g_ifname);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection down %s", ap_ssid);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection delete %s", sta_ssid);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection delete %s", ap_ssid);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection add con-name %s type wifi ifname %s autoconnect yes ssid %s mode ap", ap_ssid,
+             g_ifname, ap_ssid);
+    ret = system(buffer);
+
+    if (strlen(ap_passwd) == 0) {
+        memset(buffer, 0, 256);
+        snprintf(buffer, 256,
+                 "nmcli connection modify %s 802-11-wireless.mode ap 802-11-wireless-security.key-mgmt wpa-none ipv4.method shared",
+                 ap_ssid);
+        ret = system(buffer);
+    } else {
+        memset(buffer, 0, 256);
+        snprintf(buffer, 256,
+                 "nmcli connection modify %s 802-11-wireless.mode ap 802-11-wireless-security.key-mgmt wpa-psk ipv4.method shared 802-11-wireless-security.psk %s",
+                 ap_ssid, ap_passwd);
+        ret = system(buffer);
+    }
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection up %s", ap_ssid);
+    ret = system(buffer);
+
     return 0;
+
+#if 0
+    char buffer[256] = {0};
+    const char *ap_ssid = ssid;
+    const char *ap_passwd = passwd;
+    int ret = 0;
+
+    /**
+     * using ubuntu16.04 network manager to create wireless access point
+     * reference:
+     * https://developer.gnome.org/NetworkManager/stable/nmcli.html
+     * https://unix.stackexchange.com/questions/234552/create-wireless-access-point-and-share-internet-connection-with-nmcli
+     */
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection down %s", ap_ssid);
+    ret = system(buffer);
+
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection delete %s", ap_ssid);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection add con-name %s type wifi ifname %s autoconnect yes ssid %s mode ap", ap_ssid,
+             g_ifname, ap_ssid);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256,
+             "nmcli connection modify %s 802-11-wireless.mode ap 802-11-wireless-security.key-mgmt wpa-psk ipv4.method shared 802-11-wireless-security.psk %s",
+             ap_ssid, ap_passwd);
+    ret = system(buffer);
+
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection up %s", ap_ssid);
+    ret = system(buffer);
+
+    return 0;
+#endif
 }
 
 /* @brief   关闭当前设备热点，并把设备由SoftAP模式切换到Station模式
@@ -200,18 +423,5 @@ int HAL_Awss_Close_Ap()
 
 #endif  /* #if defined(HAL_AWSS) */
 
-#ifdef DEV_BIND_ENABLED
 
-/**
- * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
- *
- * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
- * @return  指向缓冲区数组起始位置的字符指针
- */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
-{
-    strcpy(mac_str, "18:FE:34:12:33:44");
-    return mac_str;
-}
-#endif
 
