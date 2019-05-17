@@ -109,6 +109,9 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
         if (-1 == ret) {
             IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_BURN_FAILED, NULL);
             dm_log_err("Fota write firmware failed");
+            HAL_Firmware_Persistence_Stop();
+            ctx->is_report_new_config = 0;
+            return FAIL_RETURN;
         }
 
         /* Get OTA information */
@@ -136,6 +139,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
             IOT_OTA_Ioctl(ota_handle, IOT_OTAG_CHECK_FIRMWARE, &file_isvalid, 4);
             if (file_isvalid == 0) {
                 HAL_Firmware_Persistence_Stop();
+                IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_CHECK_FALIED, NULL);
                 ctx->is_report_new_config = 0;
                 return FAIL_RETURN;
             } else {
