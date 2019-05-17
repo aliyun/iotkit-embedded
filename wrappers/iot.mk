@@ -1,9 +1,7 @@
-LIBA_TARGET :
-    = libiot_hal.a
-      CFLAGS      :
-      = $(filter - out - ansi, $(CFLAGS))
+LIBA_TARGET := libiot_hal.a
+CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 
-        LIB_SRCS_PATTERN    += os / $(CONFIG_VENDOR)/*.c
+LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
 
 HDR_REFS            += include
 
