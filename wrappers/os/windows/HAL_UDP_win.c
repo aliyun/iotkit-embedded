@@ -18,43 +18,44 @@
 
 #define HAL_DEBUG_OUT 1
 
-static wchar_t* gIfName = L"\\DEVICE\\TCPIP_{C9E93150-C6B1-4B15-8A2E-C08747261CD2}";
+static wchar_t *gIfName = L"\\DEVICE\\TCPIP_{C9E93150-C6B1-4B15-8A2E-C08747261CD2}";
 /*The return value will be bigger than zero if it gets the index successfully*/
 static DWORD get_interface_index()
 {
-	MIB_IFTABLE *pIfTable = NULL;
-	MIB_IFROW *pIfRow;
-	DWORD dwSize = 0, ifIndex = 0;
-	int i;
+    MIB_IFTABLE *pIfTable = NULL;
+    MIB_IFROW *pIfRow;
+    DWORD dwSize = 0, ifIndex = 0;
+    int i;
 
-	if (GetIfTable((MIB_IFTABLE *)&dwSize, &dwSize, 0) != ERROR_INSUFFICIENT_BUFFER){
-		printf("Failed to get if table at step 1\n\r");
-		return(0);
-	}
-	pIfTable = (MIB_IFTABLE *) malloc(dwSize);
-	if(pIfTable==NULL)
-		return(0);
-	if (GetIfTable((MIB_IFTABLE *)pIfTable, &dwSize, 0) != NO_ERROR) {
-		free(pIfTable);
-		printf("Failed to get if table\n\r");
-		return(0);
-	}
+    if (GetIfTable((MIB_IFTABLE *)&dwSize, &dwSize, 0) != ERROR_INSUFFICIENT_BUFFER) {
+        printf("Failed to get if table at step 1\n\r");
+        return (0);
+    }
+    pIfTable = (MIB_IFTABLE *) malloc(dwSize);
+    if (pIfTable == NULL) {
+        return (0);
+    }
+    if (GetIfTable((MIB_IFTABLE *)pIfTable, &dwSize, 0) != NO_ERROR) {
+        free(pIfTable);
+        printf("Failed to get if table\n\r");
+        return (0);
+    }
 
-	for (i = 0; i < pIfTable->dwNumEntries; i++) {
-		pIfRow = (MIB_IFROW *) & pIfTable->table[i];
-		if(wcscmp(pIfRow->wszName,gIfName)==0){
-			ifIndex = pIfRow->dwIndex;
-			break;
-		}
-	}
-	if(i>=pIfTable->dwNumEntries){
-		free(pIfTable);
-		printf("Failed to find the network interface \n\r");
-		return(0);
-	}
+    for (i = 0; i < pIfTable->dwNumEntries; i++) {
+        pIfRow = (MIB_IFROW *) & pIfTable->table[i];
+        if (wcscmp(pIfRow->wszName, gIfName) == 0) {
+            ifIndex = pIfRow->dwIndex;
+            break;
+        }
+    }
+    if (i >= pIfTable->dwNumEntries) {
+        free(pIfTable);
+        printf("Failed to find the network interface \n\r");
+        return (0);
+    }
 
-	free(pIfTable);
-	return(ifIndex);
+    free(pIfTable);
+    return (ifIndex);
 }
 
 static uint32_t get_subnet_bcast()

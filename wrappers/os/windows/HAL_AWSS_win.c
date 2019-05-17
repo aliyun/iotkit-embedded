@@ -20,7 +20,7 @@
 #define  HAL_DEBUG_OUT 1
 
 /*This variable is to define the name of the network interface, you must change it to yours*/
-static wchar_t* gIfName = L"\\DEVICE\\TCPIP_{C9E93150-C6B1-4B15-8A2E-C08747261CD2}";
+static wchar_t *gIfName = L"\\DEVICE\\TCPIP_{C9E93150-C6B1-4B15-8A2E-C08747261CD2}";
 
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
@@ -245,7 +245,7 @@ char *HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
             break;
         }
     }
-    if(pIfRow == NULL) {
+    if (pIfRow == NULL) {
         free(pIfTable);
         return NULL;
     }

@@ -30,15 +30,15 @@
 #define STOP_AUTOCONN_CMD_LEN (sizeof(STOP_AUTOCONN_CMD)+1+1+5+1)
 
 #ifdef AT_DEBUG_MODE
-#define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define at_conn_hal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define at_conn_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define at_conn_hal_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define at_conn_hal_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
 #else
-#define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define at_conn_hal_warning(...)
-#define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define at_conn_hal_debug(...)
+    #define at_conn_hal_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define at_conn_hal_warning(...)
+    #define at_conn_hal_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+    #define at_conn_hal_debug(...)
 #endif
 
 void *HAL_SemaphoreCreate(void);
@@ -50,12 +50,12 @@ typedef int (*at_data_check_cb_t)(char data);
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
     int fd;
-    void* sem_start;
-    void* sem_close;
+    void *sem_start;
+    void *sem_close;
 } link_t;
 
 static link_t g_link[LINK_ID_MAX];
-static void* g_link_mutex;
+static void *g_link_mutex;
 
 static char localipaddr[16];
 
@@ -93,7 +93,7 @@ static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
 
 static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
 {
-    char conn_str[100]= {0};
+    char conn_str[100] = {0};
     char out[20] = {0};
     uint64_t t_end, t_left;
 
@@ -102,7 +102,7 @@ static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
     HAL_Snprintf(conn_str, 100, "AT+WJAP=%s,%s", ssid, pwd);
 
     if (at_send_wait_reply(conn_str, strlen(conn_str), true, NULL,
-                           0, out, sizeof(out), NULL) < 0){
+                           0, out, sizeof(out), NULL) < 0) {
         return -1;
     }
 
@@ -110,7 +110,7 @@ static int at_connect_wifi(char *ssid, char *pwd, uint32_t timeout_ms)
         return -1;
     }
 
-    while(0 == gotip) {
+    while (0 == gotip) {
         HAL_SleepMs(50);
 
         t_left = _time_left(t_end, _get_time_ms());
@@ -205,7 +205,7 @@ static void handle_socket_data()
     at_read(reader, 6);
     if (memcmp(reader, "OCKET,", strlen("OCKET,")) != 0) {
         at_conn_hal_err("0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x invalid event format!!!\r\n",
-             reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
+                        reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
         return;
     }
 
@@ -266,12 +266,12 @@ static void handle_socket_data()
         /* TODO get recv data src ip and port*/
         if (IOT_ATM_Input(&param) != 0) {
             at_conn_hal_err(" %s socket %d get data len %d fail to post to at_conn, drop it\n",
-                 __func__, g_link[link_id].fd, len);
+                            __func__, g_link[link_id].fd, len);
         }
     }
 
     at_conn_hal_debug("%s socket data on link %d with length %d posted to at_conn\n",
-         __func__, link_id, len);
+                      __func__, link_id, len);
 
 err:
 #ifdef PLATFORM_HAS_DYNMEM
@@ -357,7 +357,7 @@ static void net_event_handler(void *arg, char *buf, int buflen)
             at_read(s, 6);
             if (memcmp(s, "ERVER,", strlen("ERVER,")) != 0) {
                 at_conn_hal_err("invalid event format 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
-                     s[0], s[1], s[2], s[3], s[4], s[5]);
+                                s[0], s[1], s[2], s[3], s[4], s[5]);
                 return;
             }
             handle_tcp_udp_client_conn_state(link_id);
@@ -371,7 +371,7 @@ static void net_event_handler(void *arg, char *buf, int buflen)
             }
             handle_tcp_udp_client_conn_state(link_id);
         } else {
-            at_conn_hal_err( "!!!Error: wrong CIPEVENT string 0x%02x at line %d\r\n", c, __LINE__);
+            at_conn_hal_err("!!!Error: wrong CIPEVENT string 0x%02x at line %d\r\n", c, __LINE__);
             return ;
         }
     } else if (c == 'S') {
@@ -453,7 +453,7 @@ int HAL_AT_CONN_Init(void)
 
     at_register_callback(NET_OOB_PREFIX, NULL, NULL, 0, net_event_handler, NULL);
     at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, NULL, 0, mk3060wifi_event_handler, NULL);
-    
+
     if (at_connect_wifi(WIFI_SSID, WIFI_PWD, WIFI_TIMEOUT) < 0) {
         at_conn_hal_err("%s %d failed", __func__, __LINE__);
         return -1;
@@ -527,8 +527,8 @@ int HAL_AT_CONN_Start(at_conn_t *c)
     switch (c->type) {
         case TCP_CLIENT:
             HAL_Snprintf(cmd, START_CMD_LEN - 5 - 1, "%s=%d,%s,%s,%d",
-                     START_CMD, link_id, start_cmd_type_str[c->type],
-                     c->addr, c->r_port);
+                         START_CMD, link_id, start_cmd_type_str[c->type],
+                         c->addr, c->r_port);
             if (c->l_port >= 0) {
                 HAL_Snprintf(cmd + strlen(cmd), 7, ",%d", c->l_port);
             }
@@ -589,11 +589,11 @@ static int fd_to_linkid(int fd)
 #define SEND_CMD "AT+CIPSEND"
 #define SEND_CMD_LEN (sizeof(SEND_CMD)+1+1+5+1+DATA_LEN_MAX+1)
 int HAL_AT_CONN_Send(int fd,
-                 uint8_t *data,
-                 uint32_t len,
-                 char remote_ip[16],
-                 int32_t remote_port,
-                 int32_t timeout)
+                     uint8_t *data,
+                     uint32_t len,
+                     char remote_ip[16],
+                     int32_t remote_port,
+                     int32_t timeout)
 {
     int link_id;
     char cmd[SEND_CMD_LEN] = {0}, out[128] = {0};
@@ -638,7 +638,7 @@ int HAL_AT_CONN_Send(int fd,
 #define DOMAIN_CMD_LEN (sizeof(DOMAIN_CMD)+MAX_DOMAIN_LEN+1)
 /* Return the first IP if multiple found. */
 int HAL_AT_CONN_DomainToIp(char *domain,
-                                 char ip[16])
+                           char ip[16])
 {
     char cmd[DOMAIN_CMD_LEN] = {0}, out[256] = {0}, *head, *end;
 
@@ -702,7 +702,7 @@ err:
 
 
 int HAL_AT_CONN_Close(int fd,
-                  int32_t remote_port)
+                      int32_t remote_port)
 {
     int link_id;
     char cmd[STOP_CMD_LEN] = {0}, out[64];

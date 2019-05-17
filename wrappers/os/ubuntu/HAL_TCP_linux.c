@@ -118,7 +118,7 @@ int HAL_TCP_Destroy(uintptr_t fd)
 
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int ret,tcp_fd;
+    int ret, tcp_fd;
     uint32_t len_sent;
     uint64_t t_end, t_left;
     fd_set sets;

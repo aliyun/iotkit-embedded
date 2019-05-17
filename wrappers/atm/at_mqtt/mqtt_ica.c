@@ -152,17 +152,17 @@ int HAL_AT_MQTT_Connectwifi(char *at_conn_wifi)
     return -1;
 }
 #ifndef PLATFORM_HAS_OS
-char g_ica_rsp_buff[AT_MQTT_RSP_MAX_LEN];
+    char g_ica_rsp_buff[AT_MQTT_RSP_MAX_LEN];
 #else
-static char              *g_ica_rsp_buff = NULL;
+    static char              *g_ica_rsp_buff = NULL;
 #endif
 static volatile int       g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 static volatile at_mqtt_send_type_t   g_ica_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
 #ifdef PLATFORM_HAS_OS
-static void              *g_sem_response;
+    static void              *g_sem_response;
 #else
-int                       g_at_response = 0;
+    int                       g_at_response = 0;
 #endif
 static volatile int       g_response_msg_number = 0;
 static int                g_response_packetid = 0;
@@ -216,7 +216,7 @@ static void sub_callback(char *at_rsp)
         /* notify the sender fail; */
         HAL_SemaphorePost(g_sem_response);
 #else
-    g_at_response ++;
+        g_at_response ++;
 #endif
         return;
     } else if (NULL != strstr(at_rsp, AT_ICA_MQTT_MQTTSUBRSP)) {
@@ -808,16 +808,16 @@ int at_ica_mqtt_client_state(void)
 {
     int state;
 
-    switch(g_mqtt_connect_state){
-    case 0:
-         state = IOTX_MC_STATE_DISCONNECTED;
-         break;
-    case 1:
-         state = IOTX_MC_STATE_CONNECTED;
-         break;
-    default:
-         state = IOTX_MC_STATE_INVALID;
-         break;
+    switch (g_mqtt_connect_state) {
+        case 0:
+            state = IOTX_MC_STATE_DISCONNECTED;
+            break;
+        case 1:
+            state = IOTX_MC_STATE_CONNECTED;
+            break;
+        default:
+            state = IOTX_MC_STATE_INVALID;
+            break;
     }
 
     return state;
@@ -850,25 +850,25 @@ int at_ica_mqtt_client_init(void)
     g_mqtt_connect_state = IOTX_MC_STATE_INVALID;
 
     at_register_callback(AT_ICA_MQTT_MQTTRCV,
-                             AT_ICA_MQTT_POSTFIX,
-                             at_recv_rsp_buf,
-                             AT_MQTT_CMD_MAX_LEN,
-                             at_ica_mqtt_client_rsp_callback,
-                             NULL);
+                         AT_ICA_MQTT_POSTFIX,
+                         at_recv_rsp_buf,
+                         AT_MQTT_CMD_MAX_LEN,
+                         at_ica_mqtt_client_rsp_callback,
+                         NULL);
 
     at_register_callback(AT_ICA_MQTT_MQTTERROR,
-                             AT_ICA_MQTT_POSTFIX,
-                             at_recv_rsp_buf,
-                             AT_MQTT_CMD_MAX_LEN,
-                             at_ica_mqtt_client_rsp_callback,
-                             NULL);
+                         AT_ICA_MQTT_POSTFIX,
+                         at_recv_rsp_buf,
+                         AT_MQTT_CMD_MAX_LEN,
+                         at_ica_mqtt_client_rsp_callback,
+                         NULL);
 
     at_register_callback(AT_ICA_MQTT_MQTTOK,
-                             AT_ICA_MQTT_POSTFIX,
-                             at_recv_rsp_buf,
-                             AT_MQTT_CMD_MAX_LEN,
-                             at_ica_mqtt_client_rsp_callback,
-                             NULL);
+                         AT_ICA_MQTT_POSTFIX,
+                         at_recv_rsp_buf,
+                         AT_MQTT_CMD_MAX_LEN,
+                         at_ica_mqtt_client_rsp_callback,
+                         NULL);
 
     return 0;
 }
@@ -929,13 +929,10 @@ int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms)
 #ifdef PLATFORM_HAS_OS
     HAL_SemaphoreWait(g_sem_response, timeout_ms);
 #else
-    if(!g_at_response)
-    {
-       at_yield(NULL, 0, NULL, 500);
-    }
-    else
-    {
-       g_at_response --;
+    if (!g_at_response) {
+        at_yield(NULL, 0, NULL, 500);
+    } else {
+        g_at_response --;
     }
 #endif
 
