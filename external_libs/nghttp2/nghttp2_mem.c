@@ -9,7 +9,6 @@
 #endif
 
 extern void *HAL_Malloc(uint32_t size);
-extern void *HAL_Realloc(void *ptr, uint32_t size);
 extern void HAL_Free(void *ptr);
 
 
@@ -59,7 +58,7 @@ static void *default_realloc(void *ptr, size_t size, void *mem_user_data)
 #ifdef INFRA_MEM_STATS
     return LITE_realloc(ptr, size, MEM_MAGIC, "nghttp2");
 #else
-    return HAL_Realloc(ptr, size);
+    return realloc(ptr, size);
 #endif
 }
 

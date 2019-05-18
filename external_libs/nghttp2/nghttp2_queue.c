@@ -11,7 +11,6 @@
 #endif
 
 extern void *HAL_Malloc(uint32_t size);
-extern void *HAL_Realloc(void *ptr, uint32_t size);
 extern void HAL_Free(void *ptr);
 
 #if INFRA_MEM_STATS
