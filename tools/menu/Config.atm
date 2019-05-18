@@ -11,7 +11,7 @@ config PLATFORM_HAS_OS
     help
         Tell if you have Operation System on target board
 
-        Switching to "y" leads to SDK invoking HAL_Mutex_Lock() / HAL_Semaphore_Wait() etc
+        Switching to "y" leads to SDK invoking HAL_MutexLock() / HAL_SemaphoreWait() etc
         Switching to "n" leads to SDK avoid using mutex and semaphore, and avoid using multi-task as well
 
 config AT_TCP_ENABLED

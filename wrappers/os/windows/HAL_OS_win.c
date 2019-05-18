@@ -80,11 +80,6 @@ void *HAL_Malloc(_IN_ uint32_t size)
     return malloc(size);
 }
 
-void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size)
-{
-    return realloc(ptr, size);
-}
-
 void HAL_Free(_IN_ void *ptr)
 {
     free(ptr);

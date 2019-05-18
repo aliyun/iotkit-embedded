@@ -6,8 +6,6 @@
 
 void *HAL_Malloc(uint32_t size);
 
-void *HAL_Realloc(void *ptr, uint32_t size);
-
 void HAL_Free(void *ptr);
 
 uint64_t HAL_UptimeMs(void);
