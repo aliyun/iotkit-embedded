@@ -21,7 +21,6 @@
 #include <netinet/ip.h>
 #include <sys/time.h>
 #include <net/ethernet.h>
-#include <net/if.h>
 #include <linux/if_packet.h>
 #include <sys/ioctl.h>
 #include "iot_import_awss.h"
@@ -32,7 +31,6 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <linux/if.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
 #include <net/ethernet.h>
@@ -42,11 +40,11 @@
 #include "wrappers_defs.h"
 
 int HAL_ThreadCreate(
-    void **thread_handle,
-    void *(*work_routine)(void *),
-    void *arg,
-    hal_os_thread_param_t *hal_os_thread_param,
-    int *stack_used);
+            void **thread_handle,
+            void *(*work_routine)(void *),
+            void *arg,
+            hal_os_thread_param_t *hal_os_thread_param,
+            int *stack_used);
 
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
@@ -85,9 +83,14 @@ static void *func_Sniffer(void *cb)
         perror("raw socket error: ");
         return NULL ;
     }
+    /* ifr.ifr_name can take 16 chars at most*/
+    if (strlen(ifname) > 15) {
+        return NULL;
+    }
 
-    memcpy(ifr.ifr_name, ifname , strlen(ifname));
+    memcpy(ifr.ifr_name, ifname, strlen(ifname));
     if (ioctl(raw_socket, SIOCGIFINDEX, &ifr) < 0) {
+        close(raw_socket);
         perror("SIOCGIFINDED error: ");
         return NULL ;
     }
@@ -96,25 +99,24 @@ static void *func_Sniffer(void *cb)
     sll.sll_ifindex = ifr.ifr_ifindex;
     sll.sll_protocol = htons(ETH_P_ALL);
     if (bind(raw_socket, (struct sockaddr *)&sll, sizeof(sll)) < 0) {
+        close(raw_socket);
         perror("bind error: ");
         return NULL ;
     }
 
-      if (ioctl(raw_socket, SIOCGIFFLAGS, &ifr) < 0) {
+    if (ioctl(raw_socket, SIOCGIFFLAGS, &ifr) < 0) {
+        close(raw_socket);
         perror("SIOCGIFFLAGS error: ");
         return NULL ;
     }
     ifr.ifr_flags |= IFF_PROMISC;
     if (ioctl(raw_socket, SIOCSIFFLAGS, &ifr) < 0) {
+        close(raw_socket);
         perror("SIOCSIFFLAGS error: ");
         return NULL ;
     }
 
     printf("Sniffer Thread Create\r\n");
-    if (raw_socket < 0) {
-        perror("Sniffer Socket Alloc failed");
-        return (void *)0;
-    }
 
     while ((1 == s_enable_sniffer)) {
         int rev_num = recvfrom(raw_socket, rev_buffer, MAX_REV_BUFFER, 0, NULL, NULL);
@@ -415,32 +417,62 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
  * @note
  *     If the STA dosen't connect AP successfully, HAL should return -1 and not touch the ssid/passwd/bssid buffer.
  */
+
+static void read_string_from_file(char *dst, const char *file, int dst_max_len)
+{
+    FILE *fp;
+    int ret = 0;
+    int lSize;
+    char buffer[256] = {0};
+    fp = fopen(file, "r");
+    if (NULL == fp) {
+        return;
+    }
+    fseek(fp, 0, SEEK_END);
+    lSize = ftell(fp);
+    rewind(fp);
+    if (lSize > 1 && lSize <= dst_max_len) {
+        unsigned char pos = lSize - 1;
+        ret = fread(dst, 1, lSize, fp);
+        dst[pos] = 0;
+    } else {
+        /* the ssid has only one char, or illeagal */
+        /*  put terminator at the first position */
+        dst[0] = 0;
+    }
+    fclose(fp);
+    snprintf(buffer, 256, "rm %s -f", file);
+    ret = system(buffer);
+    if (ret != 0) {
+        printf("delete file %s error", file);
+    }
+}
+
+
 int HAL_Wifi_Get_Ap_Info(
             _OU_ char ssid[HAL_MAX_SSID_LEN],
             _OU_ char passwd[HAL_MAX_PASSWD_LEN],
             _OU_ uint8_t bssid[ETH_ALEN])
 {
 #define MAXLINE 256
-    FILE *fp;
-    char *p1, *p2;
     char buffer[256] = {0};
     int ret = 0;
     char *data;
-    int lSize;
-    ret = system("wpa_cli status | grep ^ssid | sed 's/^ssid=//g' | tee /tmp/ssid");
 
-    fp = fopen("/tmp/ssid", "r");
-    if (NULL == fp) {
-        return -1;
+    if (NULL != ssid) {
+        ret = system("wpa_cli status | grep ^ssid | sed 's/^ssid=//g' | tee /tmp/ssid");
+        read_string_from_file(ssid, "/tmp/ssid", HAL_MAX_SSID_LEN);
     }
-    fseek(fp, 0, SEEK_END);
-    lSize = ftell(fp);
-    rewind(fp);
-    ret = fread(ssid, 1, lSize, fp);
-    if (lSize >= 1) {
-        ssid[lSize - 1] = 0;
+
+    if (NULL != passwd) {
+        ret = system("wpa_cli status | grep ^passphrase | sed 's/^passphrase=//g' | tee /tmp/passphrase");
+        read_string_from_file(passwd, "/tmp/passphrase", HAL_MAX_PASSWD_LEN);
     }
-    pclose(fp);
+
+    if (NULL != bssid) {
+        ret = system("wpa_cli status | grep ^bssid | sed 's/^bssid=//g' | tee /tmp/bssid");
+        read_string_from_file((char *)bssid, "/tmp/bssid", ETH_ALEN);
+    }
 
     return 0;
 }
