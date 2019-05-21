@@ -398,28 +398,6 @@ int HAL_Wifi_Enable_Mgmt_Frame_Filter(
 }
 
 /**
- * @brief   启动一次Wi-Fi的空中扫描(Scan)
- *
- * @param[in] cb @n pass ssid info(scan result) to this callback one by one
- * @return 0 for wifi scan is done, otherwise return -1
- * @see None.
- * @note
- *      This API should NOT exit before the invoking for cb is finished.
- *      This rule is something like the following :
- *      HAL_Wifi_Scan() is invoked...
- *      ...
- *      for (ap = first_ap; ap <= last_ap; ap = next_ap){
- *        cb(ap)
- *      }
- *      ...
- *      HAL_Wifi_Scan() exit...
- */
-int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
-{
-    return 0;
-}
-
-/**
  * @brief   获取所连接的热点(Access Point)的信息
  *
  * @param[out] ssid: array to store ap ssid. It will be null if ssid is not required.
