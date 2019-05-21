@@ -38,13 +38,14 @@
 #include <netdb.h>
 #include <pthread.h>
 #include "wrappers_defs.h"
+char *g_ifname = "wlx00259ce04ceb";
 
 int HAL_ThreadCreate(
-            void **thread_handle,
-            void *(*work_routine)(void *),
-            void *arg,
-            hal_os_thread_param_t *hal_os_thread_param,
-            int *stack_used);
+    void **thread_handle,
+    void *(*work_routine)(void *),
+    void *arg,
+    hal_os_thread_param_t *hal_os_thread_param,
+    int *stack_used);
 
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
@@ -54,7 +55,24 @@ int HAL_ThreadCreate(
  */
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 {
-    strcpy(mac_str, "18:FE:34:12:33:44");
+    uint32_t fd = -1;
+    int ret = -1;
+    struct ifreq if_hwaddr;
+
+    fd = socket(PF_INET, SOCK_STREAM, 0);
+
+    memset(&if_hwaddr, 0, sizeof(if_hwaddr));
+    strncpy(if_hwaddr.ifr_name, g_ifname, sizeof(if_hwaddr.ifr_name));
+
+    ret = ioctl(fd, SIOCGIFHWADDR, &if_hwaddr);
+    if (ret >= 0) {
+        unsigned char *hwaddr = (unsigned char *)if_hwaddr.ifr_hwaddr.sa_data;
+        sprintf(mac_str, "%2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
+                hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
+    }
+
+    close(fd);
+    printf("mac_str: %s\n", mac_str);
     return mac_str;
 }
 
@@ -64,7 +82,6 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
  * @param[in] cb @n A function pointer, called back when wifi receive a frame.
  */
 #define MAX_REV_BUFFER 8000
-char *g_ifname = "wlx00259ce04ceb";
 
 static int s_enable_sniffer = 1;
 extern char *g_ifname;
@@ -223,9 +240,9 @@ void HAL_Awss_Close_Monitor(void)
  *              may ignore it.
  */
 void HAL_Awss_Switch_Channel(
-            _IN_ char primary_channel,
-            _IN_OPT_ char secondary_channel,
-            _IN_OPT_ uint8_t bssid[ETH_ALEN])
+    _IN_ char primary_channel,
+    _IN_OPT_ char secondary_channel,
+    _IN_OPT_ uint8_t bssid[ETH_ALEN])
 {
     char cmd[255] = {0};
     int ret = -1;
@@ -256,13 +273,13 @@ void HAL_Awss_Switch_Channel(
  *      If bssid specifies the dest AP, HAL should use bssid to connect dest AP.
  */
 int HAL_Awss_Connect_Ap(
-            _IN_ uint32_t connection_timeout_ms,
-            _IN_ char ssid[HAL_MAX_SSID_LEN],
-            _IN_ char passwd[HAL_MAX_PASSWD_LEN],
-            _IN_OPT_ enum AWSS_AUTH_TYPE auth,
-            _IN_OPT_ enum AWSS_ENC_TYPE encry,
-            _IN_OPT_ uint8_t bssid[ETH_ALEN],
-            _IN_OPT_ uint8_t channel)
+    _IN_ uint32_t connection_timeout_ms,
+    _IN_ char ssid[HAL_MAX_SSID_LEN],
+    _IN_ char passwd[HAL_MAX_PASSWD_LEN],
+    _IN_OPT_ enum AWSS_AUTH_TYPE auth,
+    _IN_OPT_ enum AWSS_ENC_TYPE encry,
+    _IN_OPT_ uint8_t bssid[ETH_ALEN],
+    _IN_OPT_ uint8_t channel)
 {
     char buffer[128] = {0};
     char *wifi_name = "linkkit";
@@ -373,9 +390,9 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  * @note awss use this API to filter specific mgnt frame in wifi station mode
  */
 int HAL_Wifi_Enable_Mgmt_Frame_Filter(
-            _IN_ uint32_t filter_mask,
-            _IN_OPT_ uint8_t vendor_oui[3],
-            _IN_ awss_wifi_mgmt_frame_cb_t callback)
+    _IN_ uint32_t filter_mask,
+    _IN_OPT_ uint8_t vendor_oui[3],
+    _IN_ awss_wifi_mgmt_frame_cb_t callback)
 {
     return 0;
 }
@@ -450,9 +467,9 @@ static void read_string_from_file(char *dst, const char *file, int dst_max_len)
 
 
 int HAL_Wifi_Get_Ap_Info(
-            _OU_ char ssid[HAL_MAX_SSID_LEN],
-            _OU_ char passwd[HAL_MAX_PASSWD_LEN],
-            _OU_ uint8_t bssid[ETH_ALEN])
+    _OU_ char ssid[HAL_MAX_SSID_LEN],
+    _OU_ char passwd[HAL_MAX_PASSWD_LEN],
+    _OU_ uint8_t bssid[ETH_ALEN])
 {
 #define MAXLINE 256
     char buffer[256] = {0};
