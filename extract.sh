@@ -95,6 +95,7 @@ XTRC_WRAPPER_RULS=./tools/misc/xtrc_wrapper_rules
 TEMP_WRAPPER_RULS="${PWD}/.temp_wrapper_rule_filter"
 WRAPPER_DOC=./tools/misc/wrapper
 
+
 # Try Extract Linkkit From Cloud
 #
 if [ "$1" = "" ] || ( [ "$1" != "test" ] && [ "$1" != "local" ] ) then
@@ -249,7 +250,7 @@ done < ${TEMP_FILE_RULS}
 rm -f ${TEMP_FILE_RULS}
 echo -e ""
 
-# Generate wrapper.c
+# Generate wrappers.c
 mkdir -p ${WRAPPERS_DIR}
 cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
 
@@ -296,7 +297,6 @@ echo -e ""
 
 FUNC_NAME_LIST=$(echo -e "${FUNC_NAME_LIST}" | sed -n '/^$/!{p}' | sort -u)
 HEADER_FILE_LIST=$(echo -e "${HEADER_FILE_LIST}" | sed -n '/^$/!{p}' | sort -u)
-
 # For Debug
 if [ "${FUNC_NAME_LIST}" != "" ];then
     echo -e "\nHAL/Wrapper Function List:" && echo -e "${FUNC_NAME_LIST}" |gawk '{ printf("%03d %s\n", NR, $0); }'
@@ -306,16 +306,16 @@ if [ "${HEADER_FILE_LIST}" != "" ];then
     echo -e "\nHAL/Wrapper Header File List:" && echo -e "${HEADER_FILE_LIST}" |gawk '{ printf("%03d %s\n", NR, $0); }'
 fi
 
-# Annotation For wrapper.c
-sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
+# Annotation For wrappers.c
+sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.c
 
-# Output Header File Into wrapper.c
-echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrapper.c
-echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
-echo -e "#include \"infra_compat.h\"" >> ${WRAPPERS_DIR}/wrapper.c
-echo -e "#include \"wrappers_defs.h\"" >> ${WRAPPERS_DIR}/wrapper.c
-echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrapper.c
-echo -e "" >> ${WRAPPERS_DIR}/wrapper.c
+# Output Header File Into wrappers.c
+echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrappers.c
+echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrappers.c
+echo -e "#include \"infra_compat.h\"" >> ${WRAPPERS_DIR}/wrappers.c
+echo -e "#include \"wrappers_defs.h\"" >> ${WRAPPERS_DIR}/wrappers.c
+echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrappers.c
+echo -e "" >> ${WRAPPERS_DIR}/wrappers.c
 
 # Generate Default Implenmentation For HAL/Wrapper Function
 echo ""
@@ -325,30 +325,65 @@ ITER=0
 for func in $(echo "${FUNC_NAME_LIST}")
 do
     ITER=$(( ${ITER} + 1 ))
-    printf "\r%.40s %.2f%%" "Generate wrapper.c ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
+    printf "\r%.40s %.2f%%" "Generate wrappers.c ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
 
     # echo ${func}
     if [ "${func}" = "" ];then
         continue
     fi
 
-    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng -name *wrapper.h | xargs -i cat {})
+    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | xargs -i cat {})
     FUNC_DEC=$(echo "${FUNC_DEC}" | sed -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
     
     DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | sed s/[[:space:]]//g)
     # echo -e "\n${DATA_TYPE}"
 
-    sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrapper.c
+    sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.c
 
     if [ "${DATA_TYPE}" = "void" ];then
-        echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrapper.c
+        echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.c
     else
-        echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn ('${DATA_TYPE}')1;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrapper.c
+        echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn ('${DATA_TYPE}')1;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.c
     fi
 done
 
 if [ "${TOTAL_ITERATION}" = "0" ]; then
-    echo "Only [dev_sign] enabled, so NO function requires being implemented in [${WRAPPERS_DIR}/wrapper.c]"
+    echo "Only [dev_sign] enabled, so NO function requires being implemented in [${WRAPPERS_DIR}/wrappers.c]"
+else
+    echo ""
+fi
+
+echo -e "#ifndef _WRAPPERS_H_" > ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#define _WRAPPERS_H_\n" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#include \"infra_types.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#include \"infra_compat.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/p' >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+for func in $(echo "${FUNC_NAME_LIST}")
+do
+#    ITER=$(( ${ITER} + 1 ))
+    printf "\r%.40s %.2f%%" "Generate wrappers.h ${DOTS_LINE}" $(echo 100*${ITER}/${TOTAL_ITERATION}|bc -l)
+
+    # echo ${func}
+    if [ "${func}" = "" ];then
+        continue
+    fi
+
+    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | xargs -i cat {})
+    FUNC_DEC=$(echo "${FUNC_DEC}" | sed -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
+    
+    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | sed s/[[:space:]]//g)
+    # echo -e "\n${DATA_TYPE}"
+
+    sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.h
+    echo "${FUNC_DEC}" | sed -n '/;/{s/;/;\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.h
+    
+done
+echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+
+if [ "${TOTAL_ITERATION}" = "0" ]; then
+    echo "Only [dev_sign] enabled, so NO function requires being implemented in [${WRAPPERS_DIR}/wrappers.h]"
 else
     echo ""
 fi
@@ -359,9 +394,11 @@ echo -e "#include \"infra_types.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"infra_compat.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
-find ${OUTPUT_DIR}/eng -name "*wrapper.h" | gawk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
+echo -e "#include \"wrappers.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 find ${OUTPUT_DIR}/eng -name "*api.h" | gawk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/sdk_include.h
+
+rm ./${OUTPUT_DIR}/eng/wrappers/temp/ -rf
 
 # if echo "${SWITCHES}"|grep -qw "DEVICE_MODEL_ENABLED"; then
 #     echo ""
@@ -376,7 +413,7 @@ cp tools/misc/makefile.output output/Makefile
 if [ "${1}" = "test" ];then
     ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| gawk -F ':' '{print $2}')
     if [ "${ENV_TEST}" = "ubuntu" ];then
-        rm -f ${WRAPPERS_DIR}/wrapper.c
+        rm -f ${WRAPPERS_DIR}/wrappers.c
         cp -rf wrappers/os/ubuntu ${WRAPPERS_DIR}/
         cp -rf wrappers/tls ${WRAPPERS_DIR}/
         cp -rfl external_libs ${WRAPPERS_DIR}/

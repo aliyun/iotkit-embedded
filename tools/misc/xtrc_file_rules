@@ -15,20 +15,26 @@ INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
 INFRA_TIMER||src/infra/infra_timer.[ch]|output/eng/infra
 INFRA_PREAUTH||src/infra/infra_preauth.[ch]|output/eng/infra
 INFRA_LOG_NETWORK_PAYLOAD||src/infra/infra_prt_nwk_payload.c|output/eng/infra
-
-SUPPORT_TLS||certs/root_ca.c|output/eng/certs
+INFRA_NET|SUPPORT_TLS|wrappers/wrappers_tcp.h|output/eng/wrappers/temp
+PLATFORM_HAS_MBEDTLS||src/infra/infra_aes.[ch]|output/eng/infra
 
 DEV_SIGN||src/dev_sign|output/eng/dev_sign
+SUPPORT_TLS||certs/root_ca.c|output/eng/certs
 
+COAP_DTLS_SUPPORT||wrappers/wrappers_dtls.h|output/eng/wrappers/temp
+SUPPORT_TLS||wrappers/wrappers_tls.h|output/eng/wrappers/temp
 DYNAMIC_REGISTER||src/dynamic_register|output/eng/dynamic_register
 
 OTA_ENABLED||src/ota|output/eng/ota
 
 MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
+MQTT_COMM_ENABLED||src/mqtt|output/eng/mqtt
 MQTT_DEFAULT_IMPL||src/mqtt/impl|output/eng/mqtt
+MQTT_COMM_ENABLED||wrappers/wrappers_os.h|output/eng/wrappers/temp
 
 DEVICE_MODEL_ENABLED||src/dev_model|output/eng/dev_model
 DEVICE_MODEL_ENABLED||src/dev_model/client|output/eng/dev_model
+
 DEVICE_MODEL_ENABLED||src/dev_model/server|output/eng/dev_model
 DEVICE_MODEL_ENABLED||src/dev_model/deprecated|output/eng/dev_model
 DEVICE_MODEL_ENABLED&ALCS_ENABLED||src/dev_model/alcs|output/eng/dev_model
@@ -36,6 +42,8 @@ DEVICE_MODEL_ENABLED&DEVICE_MODEL_GATEWAY||src/dev_model|output/eng/dev_model
 
 ATM_ENABLED||src/atm/at_api.[ch] src/atm/at_wrapper.h|output/eng/atm
 AT_PARSER_ENABLED||src/atm/at_parser.[ch]|output/eng/atm
+AT_PARSER_ENABLED||wrappers/wrappers_uart.h|output/eng/wrappers/temp
+
 AT_TCP_ENABLED||src/atm/at_conn_mbox.[ch] src/atm/at_conn_mgmt.[ch] src/atm/at_tcp.c|output/eng/atm
 AT_MQTT_ENABLED|MQTT_DEFAULT_IMPL&AT_TCP_ENABLED|src/atm/at_mqtt.[ch]|output/eng/atm
 AT_TCP_ENABLED&AT_TCP_HAL_SIM800||wrappers/atm/at_tcp/sim800.c|output/eng/atm
@@ -46,19 +54,25 @@ AT_MQTT_ENABLED&AT_MQTT_HAL_SIM800||wrappers/atm/at_mqtt/mqtt_sim800.c|output/en
 DEV_RESET||src/dev_reset|output/eng/dev_reset
 
 HTTP_COMM_ENABLED||src/http|output/eng/http
+HTTP_COMM_ENABLED||wrappers/wrappers_os.h|output/eng/wrappers/temp
 
 HTTP2_COMM_ENABLED||src/http2|output/eng/http2
 HTTP2_COMM_ENABLED||external_libs/nghttp2|output/eng/wrappers/external_libs/nghttp2
+HTTP2_COMM_ENABLED||wrappers/wrappers_os.h|output/eng/wrappers/temp
+FS_ENABLED||wrappers/wrappers_fs.h|output/eng/wrappers/temp
 
 COAP_COMM_ENABLED||src/coap/client|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap/CoAPPacket|output/eng/coap_cloud
 COAP_COMM_ENABLED||src/coap|output/eng/coap_cloud
-
+COAP_COMM_ENABLED||wrappers/wrappers_os.h|output/eng/wrappers/temp
 COAP_PACKET||src/coap|output/eng/coap_server
 COAP_PACKET||src/coap/CoAPPacket|output/eng/coap_server/CoAPPacket
+COAP_COMM_ENABLED||wrappers/wrappers_udp.h|output/eng/wrappers/temp
 COAP_SERVER||src/coap/server|output/eng/coap_server/server
 
 WIFI_PROVISION_ENABLED||src/wifi_provision|output/eng/wifi_provision
+WIFI_PROVISION_ENABLED||wrappers/wrappers_awss.h|output/eng/wrappers/temp
+WIFI_PROVISION_ENABLED||wrappers/wrappers_os.h|output/eng/wrappers/temp
 AWSS_SUPPORT_SMARTCONFIG||src/wifi_provision/smartconfig|output/eng/wifi_provision/smartconfig
 AWSS_SUPPORT_AHA||src/wifi_provision/phone_ap|output/eng/wifi_provision/phone_ap
 AWSS_SUPPORT_SMARTCONFIG_WPS||src/wifi_provision/p2p|output/eng/wifi_provision/p2p
@@ -75,6 +89,7 @@ DEV_BIND_ENABLED||src/dev_bind/|output/eng/dev_bind
 DEV_BIND_ENABLED||src/dev_bind/impl|output/eng/dev_bind/impl
 DEV_BIND_ENABLED||src/dev_bind/impl/os|output/eng/dev_bind/impl/os
 DEV_BIND_ENABLED||src/dev_bind/impl/awss_reset|output/eng/dev_bind/impl/awss_reset
+HAL_KV||wrappers/wrappers_kv.h|output/eng/wrappers/temp
 
 # example rules
 DEV_SIGN||src/dev_sign/examples|output/examples
@@ -92,3 +107,6 @@ DEV_RESET||src/dev_reset/examples|output/examples
 HTTP_COMM_ENABLED||src/http/examples|output/examples
 HTTP2_COMM_ENABLED||src/http2/examples|output/examples
 COAP_COMM_ENABLED||src/coap/examples|output/examples
+
+
+

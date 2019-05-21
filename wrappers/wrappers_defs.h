@@ -54,6 +54,12 @@ typedef struct {
     unsigned short             port;
 } coap_dtls_options_t;
 
+typedef enum {
+    HAL_SEEK_SET,
+    HAL_SEEK_CUR,
+    HAL_SEEK_END
+} hal_fs_seek_type_t;
+
 typedef void DTLSContext;
 
 #endif

@@ -10,6 +10,11 @@ config AWSS_DISABLE_REGISTRAR
     bool
     default n
 
+config AWSS_SUPPORT_BEACON_ANNOUNCE
+    bool
+    default n
+    AWSS_SUPPORT_BEACON_ANNOUNCE
+
 config AWSS_FRAMEWORKS
      bool
      default n
@@ -45,6 +50,7 @@ menu "Wifi Provision Configurations"
         bool "FEATURE_AWSS_SUPPORT_SMARTCONFIG"
         select AWSS_SUPPORT_SMARTCONFIG_WPS
         select AWSS_SUPPORT_SMARTCONFIG_MCAST
+        select AWSS_SUPPORT_BEACON_ANNOUNCE
         default y
         help
             Switching on a wifi provision method based on length-encoding
@@ -52,12 +58,14 @@ menu "Wifi Provision Configurations"
     config AWSS_SUPPORT_ZEROCONFIG
         bool "FEATURE_AWSS_SUPPORT_ZEROCONFIG"
         select MQTT_COMM_ENABLED
+        select AWSS_SUPPORT_BEACON_ANNOUNCE
         default n
         help
             Switching on a wifi provision method based on zero-config, which shares ssid/passwd between devices
 
     config AWSS_SUPPORT_AHA
         bool "FEATURE_AWSS_SUPPORT_AHA"
+        select AWSS_SUPPORT_BEACON_ANNOUNCE
         default n
         help
             Switching on a wifi provision method based on phone-ap, which tells the ssid/passwd to the devices connected to it

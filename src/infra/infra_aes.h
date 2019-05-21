@@ -4,13 +4,19 @@
 #ifndef INFRA_AES_H
 #define INFRA_AES_H
 
-#if !defined(INFRA_AES_CONFIG_FILE)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if defined(INFRA_AES)
     #include "infra_aes_config.h"
 #endif
 
 #include <stddef.h>
 #include <stdint.h>
 #include "infra_compat.h"
+
+
 
 /* padlock.c and aesni.c rely on these values! */
 #define INFRA_AES_ENCRYPT     1
@@ -26,9 +32,7 @@
 
 #if !defined(INFRA_AES_ALT)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 /**
  * \brief          AES context structure
@@ -50,14 +54,15 @@ infra_aes_context;
  *
  * \param ctx      AES context to be initialized
  */
-DLL_TLS_API void infra_aes_init(infra_aes_context *ctx);
+
+ void infra_aes_init(infra_aes_context *ctx);
 
 /**
  * \brief          Clear AES context
  *
  * \param ctx      AES context to be cleared
  */
-DLL_TLS_API void infra_aes_free(infra_aes_context *ctx);
+void infra_aes_free(infra_aes_context *ctx);
 
 /**
  * \brief          AES key schedule (encryption)
@@ -68,7 +73,7 @@ DLL_TLS_API void infra_aes_free(infra_aes_context *ctx);
  *
  * \return         0 if successful, or INFRA_ERR_AES_INVALID_KEY_LENGTH
  */
-DLL_TLS_API int infra_aes_setkey_enc(infra_aes_context *ctx, const unsigned char *key,
+int infra_aes_setkey_enc(infra_aes_context *ctx, const unsigned char *key,
                                        unsigned int keybits);
 
 /**
@@ -80,7 +85,7 @@ DLL_TLS_API int infra_aes_setkey_enc(infra_aes_context *ctx, const unsigned char
  *
  * \return         0 if successful, or INFRA_ERR_AES_INVALID_KEY_LENGTH
  */
-DLL_TLS_API int infra_aes_setkey_dec(infra_aes_context *ctx, const unsigned char *key,
+int infra_aes_setkey_dec(infra_aes_context *ctx, const unsigned char *key,
                                        unsigned int keybits);
 
 /**
@@ -93,7 +98,7 @@ DLL_TLS_API int infra_aes_setkey_dec(infra_aes_context *ctx, const unsigned char
  *
  * \return         0 if successful
  */
-DLL_TLS_API int infra_aes_crypt_ecb(infra_aes_context *ctx,
+int infra_aes_crypt_ecb(infra_aes_context *ctx,
                                       int mode,
                                       const unsigned char input[16],
                                       unsigned char output[16]);
@@ -121,7 +126,7 @@ DLL_TLS_API int infra_aes_crypt_ecb(infra_aes_context *ctx,
  *
  * \return         0 if successful, or INFRA_ERR_AES_INVALID_INPUT_LENGTH
  */
-DLL_TLS_API int infra_aes_crypt_cbc(infra_aes_context *ctx,
+int infra_aes_crypt_cbc(infra_aes_context *ctx,
                                       int mode,
                                       size_t length,
                                       unsigned char iv[16],
@@ -155,7 +160,7 @@ DLL_TLS_API int infra_aes_crypt_cbc(infra_aes_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_TLS_API int infra_aes_crypt_cfb128(infra_aes_context *ctx,
+int infra_aes_crypt_cfb128(infra_aes_context *ctx,
         int mode,
         size_t length,
         size_t *iv_off,
@@ -187,7 +192,7 @@ DLL_TLS_API int infra_aes_crypt_cfb128(infra_aes_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_TLS_API int infra_aes_crypt_cfb8(infra_aes_context *ctx,
+int infra_aes_crypt_cfb8(infra_aes_context *ctx,
                                        int mode,
                                        size_t length,
                                        unsigned char iv[16],
@@ -218,7 +223,7 @@ DLL_TLS_API int infra_aes_crypt_cfb8(infra_aes_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_TLS_API int infra_aes_crypt_ctr(infra_aes_context *ctx,
+int infra_aes_crypt_ctr(infra_aes_context *ctx,
                                       size_t length,
                                       size_t *nc_off,
                                       unsigned char nonce_counter[16],
@@ -238,7 +243,7 @@ DLL_TLS_API int infra_aes_crypt_ctr(infra_aes_context *ctx,
  *
  * \return          0 if successful
  */
-DLL_TLS_API int infra_internal_aes_encrypt(infra_aes_context *ctx,
+int infra_internal_aes_encrypt(infra_aes_context *ctx,
         const unsigned char input[16],
         unsigned char output[16]);
 
@@ -253,7 +258,7 @@ DLL_TLS_API int infra_internal_aes_encrypt(infra_aes_context *ctx,
  *
  * \return          0 if successful
  */
-DLL_TLS_API int infra_internal_aes_decrypt(infra_aes_context *ctx,
+int infra_internal_aes_decrypt(infra_aes_context *ctx,
         const unsigned char input[16],
         unsigned char output[16]);
 
@@ -325,7 +330,7 @@ extern "C" {
  *
  * \return         0 if successful, or 1 if the test failed
  */
-DLL_TLS_API int infra_aes_self_test(int verbose);
+int infra_aes_self_test(int verbose);
 
 typedef infra_aes_context mbedtls_aes_context;
 
@@ -356,9 +361,7 @@ int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
 
 #define AES_BLOCK_SIZE (16)
 
-#ifdef __cplusplus
-}
-#endif
+
 
 p_Aes128_t infra_aes128_init(
             const uint8_t *key,
@@ -391,4 +394,7 @@ int infra_aes128_cbc_encrypt(
             size_t blockNum,
             void *dst);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* aes.h */
