@@ -39,6 +39,7 @@
 #include <pthread.h>
 #include "wrappers_defs.h"
 char *g_ifname = "wlx00259ce04ceb";
+char g_opened_ap[32] = {0};
 
 int HAL_ThreadCreate(
             void **thread_handle,
@@ -531,6 +532,7 @@ int HAL_Wifi_Get_Ap_Info(
 
 /* @brief   打开当前设备热点，并把设备由SoftAP模式切换到AP模式
  */
+
 int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide)
 {
     char buffer[256] = {0};
@@ -580,52 +582,18 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
     memset(buffer, 0, 256);
     snprintf(buffer, 256, "nmcli connection up %s", ap_ssid);
     ret = system(buffer);
-
+    memcpy(g_opened_ap, ap_ssid, strlen(ap_ssid));
     return 0;
-
-#if 0
-    char buffer[256] = {0};
-    const char *ap_ssid = ssid;
-    const char *ap_passwd = passwd;
-    int ret = 0;
-
-    /**
-     * using ubuntu16.04 network manager to create wireless access point
-     * reference:
-     * https://developer.gnome.org/NetworkManager/stable/nmcli.html
-     * https://unix.stackexchange.com/questions/234552/create-wireless-access-point-and-share-internet-connection-with-nmcli
-     */
-    memset(buffer, 0, 128);
-    snprintf(buffer, 128, "nmcli connection down %s", ap_ssid);
-    ret = system(buffer);
-
-    memset(buffer, 0, 128);
-    snprintf(buffer, 128, "nmcli connection delete %s", ap_ssid);
-    ret = system(buffer);
-
-    memset(buffer, 0, 256);
-    snprintf(buffer, 256, "nmcli connection add con-name %s type wifi ifname %s autoconnect yes ssid %s mode ap", ap_ssid,
-             g_ifname, ap_ssid);
-    ret = system(buffer);
-
-    memset(buffer, 0, 256);
-    snprintf(buffer, 256,
-             "nmcli connection modify %s 802-11-wireless.mode ap 802-11-wireless-security.key-mgmt wpa-psk ipv4.method shared 802-11-wireless-security.psk %s",
-             ap_ssid, ap_passwd);
-    ret = system(buffer);
-
-    memset(buffer, 0, 256);
-    snprintf(buffer, 256, "nmcli connection up %s", ap_ssid);
-    ret = system(buffer);
-
-    return 0;
-#endif
 }
 
 /* @brief   关闭当前设备热点，并把设备由SoftAP模式切换到Station模式
 */
 int HAL_Awss_Close_Ap()
 {
+    char buffer[255] = {0};
+    memset(buffer, 0, 256);
+    snprintf(buffer, 256, "nmcli connection down %s", g_opened_ap);
+    ret = system(buffer);
     return 0;
 }
 
