@@ -13,7 +13,6 @@ config AWSS_DISABLE_REGISTRAR
 config AWSS_SUPPORT_BEACON_ANNOUNCE
     bool
     default n
-    AWSS_SUPPORT_BEACON_ANNOUNCE
 
 config AWSS_FRAMEWORKS
      bool
