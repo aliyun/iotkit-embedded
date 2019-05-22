@@ -41,11 +41,11 @@
 char *g_ifname = "wlx00259ce04ceb";
 
 int HAL_ThreadCreate(
-    void **thread_handle,
-    void *(*work_routine)(void *),
-    void *arg,
-    hal_os_thread_param_t *hal_os_thread_param,
-    int *stack_used);
+            void **thread_handle,
+            void *(*work_routine)(void *),
+            void *arg,
+            hal_os_thread_param_t *hal_os_thread_param,
+            int *stack_used);
 
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
@@ -97,7 +97,7 @@ static void *func_Sniffer(void *cb)
     memset(&sll, 0, sizeof(struct sockaddr_ll));
     raw_socket = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (raw_socket < 0) {
-        perror("raw socket error: ");
+        printf("raw socket error: ");
         return NULL ;
     }
     /* ifr.ifr_name can take 16 chars at most*/
@@ -108,7 +108,7 @@ static void *func_Sniffer(void *cb)
     memcpy(ifr.ifr_name, ifname, strlen(ifname));
     if (ioctl(raw_socket, SIOCGIFINDEX, &ifr) < 0) {
         close(raw_socket);
-        perror("SIOCGIFINDED error: ");
+        printf("SIOCGIFINDED error: ");
         return NULL ;
     }
 
@@ -117,19 +117,19 @@ static void *func_Sniffer(void *cb)
     sll.sll_protocol = htons(ETH_P_ALL);
     if (bind(raw_socket, (struct sockaddr *)&sll, sizeof(sll)) < 0) {
         close(raw_socket);
-        perror("bind error: ");
+        printf("bind error: ");
         return NULL ;
     }
 
     if (ioctl(raw_socket, SIOCGIFFLAGS, &ifr) < 0) {
         close(raw_socket);
-        perror("SIOCGIFFLAGS error: ");
+        printf("SIOCGIFFLAGS error: ");
         return NULL ;
     }
     ifr.ifr_flags |= IFF_PROMISC;
     if (ioctl(raw_socket, SIOCSIFFLAGS, &ifr) < 0) {
         close(raw_socket);
-        perror("SIOCSIFFLAGS error: ");
+        printf("SIOCSIFFLAGS error: ");
         return NULL ;
     }
 
@@ -240,9 +240,9 @@ void HAL_Awss_Close_Monitor(void)
  *              may ignore it.
  */
 void HAL_Awss_Switch_Channel(
-    _IN_ char primary_channel,
-    _IN_OPT_ char secondary_channel,
-    _IN_OPT_ uint8_t bssid[ETH_ALEN])
+            _IN_ char primary_channel,
+            _IN_OPT_ char secondary_channel,
+            _IN_OPT_ uint8_t bssid[ETH_ALEN])
 {
     char cmd[255] = {0};
     int ret = -1;
@@ -273,13 +273,13 @@ void HAL_Awss_Switch_Channel(
  *      If bssid specifies the dest AP, HAL should use bssid to connect dest AP.
  */
 int HAL_Awss_Connect_Ap(
-    _IN_ uint32_t connection_timeout_ms,
-    _IN_ char ssid[HAL_MAX_SSID_LEN],
-    _IN_ char passwd[HAL_MAX_PASSWD_LEN],
-    _IN_OPT_ enum AWSS_AUTH_TYPE auth,
-    _IN_OPT_ enum AWSS_ENC_TYPE encry,
-    _IN_OPT_ uint8_t bssid[ETH_ALEN],
-    _IN_OPT_ uint8_t channel)
+            _IN_ uint32_t connection_timeout_ms,
+            _IN_ char ssid[HAL_MAX_SSID_LEN],
+            _IN_ char passwd[HAL_MAX_PASSWD_LEN],
+            _IN_OPT_ enum AWSS_AUTH_TYPE auth,
+            _IN_OPT_ enum AWSS_ENC_TYPE encry,
+            _IN_OPT_ uint8_t bssid[ETH_ALEN],
+            _IN_OPT_ uint8_t channel)
 {
     char buffer[128] = {0};
     char *wifi_name = "linkkit";
@@ -364,10 +364,68 @@ int HAL_Sys_Net_Is_Ready()
  * @see None.
  * @note awss use this API send raw frame in wifi monitor mode & station mode
  */
+
+
 int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
                                   _IN_ uint8_t *buffer, _IN_ int len)
 {
-    return 0;
+    /* new raw socket */
+    uint8_t t_buffer[512];
+    struct ifreq t_ifr;
+    struct sockaddr_ll t_sll;
+    struct packet_mreq t_mr;
+    int32_t t_size;
+
+    uint8_t t_radiotap[] = {0x00, 0x00, 0x0d, 0x00, 0x04, 0x80, 0x02, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00};
+    static int32_t t_socket = -1;
+
+    if (t_socket < 0) {
+        t_socket = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+
+        if (t_socket < 0) {
+            printf("<create_raw_socket> socket(PF_PACKET,SOCK_RAW,htons(ETH_P_ALL)) failed!");
+            return -1;
+        }
+        /* get the index of the interface */
+        memset(&t_ifr, 0, sizeof(t_ifr));
+        strncpy(t_ifr.ifr_name, g_ifname, sizeof(t_ifr.ifr_name) - 1);
+        if (ioctl(t_socket, SIOCGIFINDEX, &t_ifr) < 0) {
+            printf("<create_raw_socket> ioctl(SIOCGIFINDEX) failed!");
+            return -1;
+        }
+        /* bind the raw socket to the interface */
+
+        memset(&t_sll, 0, sizeof(t_sll));
+        t_sll.sll_family = AF_PACKET;
+        t_sll.sll_ifindex = t_ifr.ifr_ifindex;
+        t_sll.sll_protocol = htons(ETH_P_ALL);
+        if (bind(t_socket, (struct sockaddr *)&t_sll, sizeof(t_sll)) < 0) {
+            printf("<create_raw_socket> bind(ETH_P_ALL) failed!");
+            return -1;
+        }
+        /* open promisc */
+        memset(&t_mr, 0, sizeof(t_mr));
+        t_mr.mr_ifindex = t_sll.sll_ifindex;
+        t_mr.mr_type = PACKET_MR_PROMISC;
+        if (setsockopt(t_socket, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &t_mr, sizeof(t_mr)) < 0) {
+            printf("<create_raw_socket> setsockopt(PACKET_MR_PROMISC) failed!");
+            return -1;
+        }
+    }
+    //return t_socket;
+
+    memcpy(t_buffer, t_radiotap, 13);
+    len -= 4;
+    memcpy(t_buffer + 13, buffer, len);
+    len += 13;
+    t_size = write(t_socket, t_buffer, len);
+    if (t_size < 0) {
+        printf("<send_80211_frame> write() failed!");
+        return -1;
+    }
+    return t_size;
+
+#endif
 }
 
 
@@ -390,9 +448,9 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  * @note awss use this API to filter specific mgnt frame in wifi station mode
  */
 int HAL_Wifi_Enable_Mgmt_Frame_Filter(
-    _IN_ uint32_t filter_mask,
-    _IN_OPT_ uint8_t vendor_oui[3],
-    _IN_ awss_wifi_mgmt_frame_cb_t callback)
+            _IN_ uint32_t filter_mask,
+            _IN_OPT_ uint8_t vendor_oui[3],
+            _IN_ awss_wifi_mgmt_frame_cb_t callback)
 {
     return 0;
 }
@@ -445,9 +503,9 @@ static void read_string_from_file(char *dst, const char *file, int dst_max_len)
 
 
 int HAL_Wifi_Get_Ap_Info(
-    _OU_ char ssid[HAL_MAX_SSID_LEN],
-    _OU_ char passwd[HAL_MAX_PASSWD_LEN],
-    _OU_ uint8_t bssid[ETH_ALEN])
+            _OU_ char ssid[HAL_MAX_SSID_LEN],
+            _OU_ char passwd[HAL_MAX_PASSWD_LEN],
+            _OU_ uint8_t bssid[ETH_ALEN])
 {
 #define MAXLINE 256
     char buffer[256] = {0};
