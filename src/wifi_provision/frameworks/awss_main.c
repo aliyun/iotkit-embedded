@@ -87,7 +87,7 @@ int __awss_start(void)
             {
                 AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
                 awss_devinfo_notify_stop();
-                produce_random(aes_random, sizeof(aes_random));
+                /*produce_random(aes_random, sizeof(aes_random));*/
             }
         } else {
             awss_debug("awss connect ssid:%s fail", ssid);

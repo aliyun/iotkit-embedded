@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 #define AWSS_REPORT_LEN_MAX       (256)
-#define AWSS_TOKEN_TIMEOUT_MS     (45 * 1000)
+#define AWSS_TOKEN_TIMEOUT_MS     (120 * 1000)
 #define MATCH_MONITOR_TIMEOUT_MS  (10 * 1000)
 #define MATCH_REPORT_CNT_MAX      (2)
 
