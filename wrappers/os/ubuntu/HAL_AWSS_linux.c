@@ -425,7 +425,6 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
     }
     return t_size;
 
-#endif
 }
 
 
