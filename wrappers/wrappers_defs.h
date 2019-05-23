@@ -43,11 +43,6 @@ typedef struct _hal_os_thread {
 #define DTLS_SESSION_CREATE_FAILED     (DTLS_ERROR_BASE | 7)
 #define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
 
-
-#ifndef HAL_Printf
-    #define HAL_Printf printf
-#endif
-
 typedef struct {
     unsigned char             *p_ca_cert_pem;
     char                      *p_host;

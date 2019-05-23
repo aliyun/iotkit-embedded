@@ -360,6 +360,8 @@ echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"infra_compat.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/p' >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#define HAL_Printf printf" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 for func in $(echo "${FUNC_NAME_LIST}")
 do
 #    ITER=$(( ${ITER} + 1 ))
