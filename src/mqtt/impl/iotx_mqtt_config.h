@@ -30,16 +30,14 @@
 #endif
 
 /* maximum republish elements in list */
-#define IOTX_MC_REPUB_NUM_MAX                   (20)
-
+#ifndef IOTX_MC_REPUB_NUM_MAX
+    #define IOTX_MC_REPUB_NUM_MAX                   (10)
+#endif
 /* MQTT client version number */
 #define IOTX_MC_MQTT_VERSION                    (4)
 
 /* maximum MQTT packet-id */
 #define IOTX_MC_PACKET_ID_MAX                   (65535)
-
-/* maximum number of simultaneously invoke subscribe request */
-#define IOTX_MC_SUB_REQUEST_NUM_MAX             (256)
 
 /* Minimum interval of MQTT reconnect in millisecond */
 #define IOTX_MC_RECONNECT_INTERVAL_MIN_MS       (1000)
@@ -53,11 +51,6 @@
 
 /* Linked List Params When PLATFORM_HAS_DYNMEN Disabled */
 #ifndef PLATFORM_HAS_DYNMEN
-
-    /* mqtt pub wait list max length, for QoS 1 */
-    #ifndef IOTX_MC_PUBWAIT_LIST_MAX_LEN
-        #define IOTX_MC_PUBWAIT_LIST_MAX_LEN            (5)
-    #endif
 
     /* mqtt sub sync list max length */
     #ifndef IOTX_MC_SUBSYNC_LIST_MAX_LEN
@@ -75,11 +68,11 @@
     #endif
 
     #ifndef IOTX_MC_TX_MAX_LEN
-        #define IOTX_MC_TX_MAX_LEN                      (512)
+        #define IOTX_MC_TX_MAX_LEN                      (1024)
     #endif
 
     #ifndef IOTX_MC_RX_MAX_LEN
-        #define IOTX_MC_RX_MAX_LEN                      (512)
+        #define IOTX_MC_RX_MAX_LEN                      (1024)
     #endif
 
 #endif /* PLATFORM_HAS_DYNMEM */

@@ -27,7 +27,7 @@ static void iotx_mc_pub_wait_list_init(iotx_mc_client_t *pClient)
 #ifdef PLATFORM_HAS_DYNMEM
     INIT_LIST_HEAD(&pClient->list_pub_wait_ack);
 #else
-    memset(pClient->list_pub_wait_ack, 0, sizeof(iotx_mc_pub_info_t) * IOTX_MC_PUBWAIT_LIST_MAX_LEN);
+    memset(pClient->list_pub_wait_ack, 0, sizeof(iotx_mc_pub_info_t) * IOTX_MC_REPUB_NUM_MAX);
 #endif
 }
 
@@ -40,7 +40,7 @@ static void iotx_mc_pub_wait_list_deinit(iotx_mc_client_t *pClient)
         mqtt_free(node);
     }
 #else
-    memset(pClient->list_pub_wait_ack, 0, sizeof(iotx_mc_pub_info_t) * IOTX_MC_PUBWAIT_LIST_MAX_LEN);
+    memset(pClient->list_pub_wait_ack, 0, sizeof(iotx_mc_pub_info_t) * IOTX_MC_REPUB_NUM_MAX);
 #endif
 }
 #endif
@@ -877,7 +877,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     *node = repubInfo;
     return SUCCESS_RETURN;
 #else
-    for (idx = 0; idx < IOTX_MC_PUBWAIT_LIST_MAX_LEN; idx++) {
+    for (idx = 0; idx < IOTX_MC_REPUB_NUM_MAX; idx++) {
         if (c->list_pub_wait_ack[idx].used == 0) {
             c->list_pub_wait_ack[idx].node_state = IOTX_MC_NODE_STATE_NORMANL;
             c->list_pub_wait_ack[idx].msg_id = msgId;
@@ -890,7 +890,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
         }
     }
 
-    mqtt_err("IOTX_MC_PUBWAIT_LIST_MAX_LEN is too short");
+    mqtt_err("IOTX_MC_REPUB_NUM_MAX is too short");
 
     return FAIL_RETURN;
 #endif
@@ -915,7 +915,7 @@ static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
 #else
     int idx;
 
-    for (idx = 0; idx < IOTX_MC_PUBWAIT_LIST_MAX_LEN; idx++) {
+    for (idx = 0; idx < IOTX_MC_REPUB_NUM_MAX; idx++) {
         if (c->list_pub_wait_ack[idx].used &&
             c->list_pub_wait_ack[idx].msg_id == msgId) {
             c->list_pub_wait_ack[idx].node_state = IOTX_MC_NODE_STATE_INVALID; /* mark as invalid node */
@@ -986,7 +986,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
         }
     }
 #else
-    for (idx = 0; idx < IOTX_MC_PUBWAIT_LIST_MAX_LEN; idx++) {
+    for (idx = 0; idx < IOTX_MC_REPUB_NUM_MAX; idx++) {
         if (pClient->list_pub_wait_ack[idx].used == 0) {
             continue;
         }
