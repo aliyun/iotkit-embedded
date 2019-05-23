@@ -139,7 +139,7 @@ typedef struct Client {
 #ifdef PLATFORM_HAS_DYNMEM
     struct list_head                list_pub_wait_ack;                          /* list of wait publish ack */
 #else
-    iotx_mc_pub_info_t              list_pub_wait_ack[IOTX_MC_PUBWAIT_LIST_MAX_LEN];
+    iotx_mc_pub_info_t              list_pub_wait_ack[IOTX_MC_REPUB_NUM_MAX];
 #endif
 #endif
 #ifdef PLATFORM_HAS_DYNMEM
