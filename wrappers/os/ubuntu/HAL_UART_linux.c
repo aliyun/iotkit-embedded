@@ -17,7 +17,7 @@
 
 #include "infra_config.h"
 #include "at_parser.h"
-#include "at_wrapper.h"
+#include "wrappers_atm.h"
 
 static int at_uart_fd = -1;
 

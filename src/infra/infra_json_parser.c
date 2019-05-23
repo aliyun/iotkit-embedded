@@ -12,10 +12,7 @@
 
 #include "infra_types.h"
 #include "infra_json_parser.h"
-
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
+#include "wrappers.h"
 
 #ifdef INFRA_LOG
 #include "infra_log.h"

@@ -1,13 +1,9 @@
 #include "infra_config.h"
-
-extern void **LITE_get_mem_mutex(void);
-extern void *HAL_MutexCreate(void);
-extern void HAL_MutexDestroy(void *);
-
 #include <string.h>
 #include <stdarg.h>
 #include "infra_compat.h"
 #include "infra_log.h"
+#include "wrappers.h"
 #if defined(INFRA_CJSON)
     #include "infra_cjson.h"
 #endif

@@ -29,14 +29,6 @@
     #define utils_debug(...)
 #endif
 
-extern void *HAL_Malloc(uint32_t size);
-extern void HAL_Free(void *ptr);
-void *HAL_MutexCreate(void);
-void HAL_MutexDestroy(void *mutex);
-void HAL_MutexLock(void *mutex);
-void HAL_MutexUnlock(void *mutex);
-
-
 LIST_HEAD(mem_recs);
 LIST_HEAD(mem_module_statis);
 

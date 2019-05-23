@@ -9,7 +9,7 @@
 #include "mqtt_api.h"
 #include "mqtt_wrapper.h"
 #include "at_mqtt.h"
-#include "at_wrapper.h"
+#include "wrappers.h"
 
 #ifndef PLATFORM_HAS_OS
     #ifdef AT_PARSER_ENABLED

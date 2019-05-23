@@ -26,8 +26,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
-#include "wrappers_defs.h"
-#include "wrappers_os.h"
+#include "wrappers.h"
 
 #define SEND_TIMEOUT_SECONDS                (10)
 

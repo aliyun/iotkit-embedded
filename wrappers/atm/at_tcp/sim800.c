@@ -9,7 +9,7 @@
 #include "infra_config.h"
 #include "mqtt_api.h"
 
-#include "at_wrapper.h"
+#include "wrappers.h"
 #include "at_parser.h"
 #include "at_api.h"
 

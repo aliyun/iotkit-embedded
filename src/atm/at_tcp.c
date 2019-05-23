@@ -10,7 +10,7 @@
 
 #include "at_conn_mgmt.h"
 
-#include "at_wrapper.h"
+#include "wrappers.h"
 
 #ifdef AT_PARSER_ENABLED
 #include "at_parser.h"

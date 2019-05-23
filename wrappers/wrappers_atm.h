@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef _AT_WRAPPER_H_
-#define _AT_WRAPPER_H_
+#ifndef _WRAPPERS_ATM_H_
+#define _WRAPPERS_ATM_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +17,7 @@ extern "C" {
 #include <inttypes.h>
 
 #include "infra_config.h"
+#include "wrappers_defs.h"
 #include "wrappers.h"
 
 #ifndef NULL
@@ -27,70 +28,7 @@ extern "C" {
 
 
 #if defined(AT_PARSER_ENABLED)
-/*
- * UART data width
- */
-typedef enum {
-    DATA_WIDTH_5BIT,
-    DATA_WIDTH_6BIT,
-    DATA_WIDTH_7BIT,
-    DATA_WIDTH_8BIT,
-    DATA_WIDTH_9BIT
-} hal_uart_data_width_t;
 
-/*
- * UART stop bits
- */
-typedef enum {
-    STOP_BITS_1,
-    STOP_BITS_2
-} hal_uart_stop_bits_t;
-
-/*
- * UART flow control
- */
-typedef enum {
-    FLOW_CONTROL_DISABLED,
-    FLOW_CONTROL_CTS,
-    FLOW_CONTROL_RTS,
-    FLOW_CONTROL_CTS_RTS
-} hal_uart_flow_control_t;
-
-/*
- * UART parity
- */
-typedef enum {
-    NO_PARITY,
-    ODD_PARITY,
-    EVEN_PARITY
-} hal_uart_parity_t;
-
-/*
- * UART mode
- */
-typedef enum {
-    MODE_TX,
-    MODE_RX,
-    MODE_TX_RX
-} hal_uart_mode_t;
-
-/*
- * UART configuration
- */
-typedef struct {
-    uint32_t                baud_rate;
-    hal_uart_data_width_t   data_width;
-    hal_uart_parity_t       parity;
-    hal_uart_stop_bits_t    stop_bits;
-    hal_uart_flow_control_t flow_control;
-    hal_uart_mode_t         mode;
-} at_uart_config_t;
-
-typedef struct {
-    uint8_t          port;   /* uart port */
-    at_uart_config_t config; /* uart config */
-    void             *priv;   /* priv data */
-} uart_dev_t;
 
 /**
  * Initialises a UART interface
@@ -141,34 +79,7 @@ int32_t HAL_AT_Uart_Recv(uart_dev_t *uart, void *data, uint32_t expect_size,
 #endif
 
 #if defined(AT_TCP_ENABLED)
-typedef enum {
-    /* WiFi */
-    TCP_SERVER,
-    TCP_CLIENT,
-    SSL_CLIENT,
-    UDP_BROADCAST,
-    UDP_UNICAST,
-    /*WiFi end */
-    /* Add others hereafter */
-} CONN_TYPE;
 
-/* Fill necessary fileds according to the socket type. */
-typedef struct {
-    int fd; /* fd that are used in socket level */
-    CONN_TYPE type;
-    char *addr; /* remote ip or domain */
-    int32_t r_port; /* remote port (set to -1 if not used) */
-    int32_t l_port; /* local port (set to -1 if not used) */
-    uint32_t tcp_keep_alive; /* tcp keep alive value (set to 0 if not used) */
-} at_conn_t;
-
-struct at_conn_input {
-    int        fd;
-    void      *data;
-    uint32_t   datalen;
-    char      *remote_ip;
-    uint16_t   remote_port;
-};
 
 /**
  * Module low level init so that it's ready to setup socket connection.

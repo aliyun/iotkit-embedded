@@ -6,8 +6,7 @@
  */
 #include "infra_types.h"
 #include "infra_timer.h"
-
-uint64_t HAL_UptimeMs(void);
+#include "wrappers.h"
 
 void iotx_time_start(iotx_time_t *timer)
 {

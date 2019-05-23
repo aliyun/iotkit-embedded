@@ -7,7 +7,7 @@
 int at_conn_init(void);
 int at_parser_init(void);
 
-/* See detail struct definition in at_wrapper.h */
+/* See detail struct definition in wrappers_atm.h */
 struct at_conn_input;
 struct at_mqtt_input;
 int at_conn_input(struct at_conn_input *param);

@@ -8,7 +8,7 @@
 #include "infra_config.h"
 #include "mqtt_api.h"
 
-#include "at_wrapper.h"
+#include "wrappers.h"
 #include "at_parser.h"
 #include "at_api.h"
 
@@ -47,6 +47,7 @@ void HAL_SemaphorePost(void *sem);
 int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms);
 typedef int (*at_data_check_cb_t)(char data);
 
+int IOT_ATM_Input(void * param);
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
     int fd;

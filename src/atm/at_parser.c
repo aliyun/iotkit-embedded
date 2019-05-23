@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "infra_types.h"
-#include "at_wrapper.h"
+#include "wrappers.h"
 #include "at_parser.h"
 
 #define OOB_MAX 5

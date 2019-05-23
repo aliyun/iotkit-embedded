@@ -110,7 +110,7 @@ static int connect_ssl(utils_network_pt pNetwork)
     }
 }
 #elif defined(AT_TCP_ENABLED)
-
+#include "at_tcp.h"
 /*** TCP connection ***/
 static int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {

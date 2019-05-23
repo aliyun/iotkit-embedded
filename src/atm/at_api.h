@@ -21,7 +21,7 @@ int IOT_ATM_Init(void);
  * Call this function in low-layer HAL.
  * @param[in] param pointer to input struct.
  *            See struct at_conn_input and struct at_mqtt_input
- *            in at_wrapper.h
+ *            in wrappers_atm.h
  *
  * @return  0 - success, -1 - failure
  */

@@ -7,7 +7,7 @@
 
 #include "infra_types.h"
 #include "mqtt_api.h"
-#include "at_wrapper.h"
+#include "wrappers.h"
 
 #include "at_conn_mbox.h"
 #include "at_conn_mgmt.h"

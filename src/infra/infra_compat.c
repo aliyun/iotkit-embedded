@@ -5,6 +5,7 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
+#include "wrappers.h"
 #if defined(WIFI_PROVISION_ENABLED)
 #include "wifi_provision_internal.h"
 #endif
@@ -25,9 +26,6 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
     #define sdk_err(...)
     #define sdk_info(...)
 #endif
-
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
 
 sdk_impl_ctx_t g_sdk_impl_ctx = {0};
 /* global variable for mqtt construction */

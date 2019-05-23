@@ -14,6 +14,7 @@
 #include "infra_httpc.h"
 #include "infra_net.h"
 #include "infra_timer.h"
+#include "wrappers.h"
 
 #ifdef INFRA_LOG
     #include "infra_log.h"
@@ -25,11 +26,6 @@
     #define httpc_info(...)
     #define httpc_debug(...)
 #endif
-
-void *HAL_Malloc(uint32_t size);
-void HAL_Free(void *ptr);
-int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
-void HAL_SleepMs(uint32_t ms);
 
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))
