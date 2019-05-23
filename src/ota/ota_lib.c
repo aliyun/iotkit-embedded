@@ -148,7 +148,7 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
                      uint32_t *file_size)
 {
 #define OTA_FILESIZE_STR_LEN    (16)
-    char file_size_str[OTA_FILESIZE_STR_LEN + 1];
+    char file_size_str[OTA_FILESIZE_STR_LEN + 1] = {0};
 
     /* get version */
     if (0 != otalib_GetFirmwareVarlenPara(json_doc, json_len, "version", version)) {
