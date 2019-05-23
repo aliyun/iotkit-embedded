@@ -96,6 +96,7 @@ AWSS_DEV_AP_FAIL:
     return ret;
 }
 
+extern int HAL_Awss_Close_Ap(void);
 int awss_dev_ap_stop(void)
 {
     if (awss_dev_ap_ongoing == 0)
