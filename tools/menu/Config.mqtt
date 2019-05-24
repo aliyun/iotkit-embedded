@@ -62,6 +62,10 @@ menu "MQTT Configurations"
 
             Switching to "y" leads to building MQTT async protocol stack related implementation into SDK and ASYNC_PROTOCOL_STACK included into CFLAGS
             Switching to "n" seldom happens unless you're not using async protocol stack
+ 
+    config MQTT_DYNAMIC_REGISTER
+        bool "FEATURE_MQTT_DYNAMIC_REGISTER"
+        default n
 
 endmenu
 
