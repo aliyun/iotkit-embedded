@@ -7,7 +7,6 @@ sub-mods: toolchain
 	    CORE_NUM=$$(cat /proc/cpuinfo 2>/dev/null| grep processor | tail -1 | awk '{ print $$NF }'); \
 	    JOBS_NUM=32; \
 	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
-	    if [ "$(Q)" != "@" ] || [ "$(CC)" != "gcc" ]; then JOBS_NUM=0; fi; \
 	    rm -rf $(OUTPUT_DIR)${bindir}/* && \
 	    if [ -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" != "1" ]; then \
 	        $(MAKE) --no-print-directory clean; \
