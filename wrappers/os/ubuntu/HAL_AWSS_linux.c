@@ -590,8 +590,9 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
 */
 int HAL_Awss_Close_Ap()
 {
-    char buffer[255] = {0};
-    memset(buffer, 0, 256);
+    char buffer[256] = {0};
+    int ret = 0;
+    /* use nmcli commands to close the previous open Ap */
     snprintf(buffer, 256, "nmcli connection down %s", g_opened_ap);
     ret = system(buffer);
     return 0;
