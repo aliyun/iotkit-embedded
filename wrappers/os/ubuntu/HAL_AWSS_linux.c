@@ -67,7 +67,7 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
     }
 
     memset(&if_hwaddr, 0, sizeof(if_hwaddr));
-    strncpy(if_hwaddr.ifr_name, g_ifname, sizeof(if_hwaddr.ifr_name));
+    strncpy(if_hwaddr.ifr_name, g_ifname, sizeof(if_hwaddr.ifr_name) - 1);
 
     ret = ioctl(fd, SIOCGIFHWADDR, &if_hwaddr);
     if (ret >= 0) {
