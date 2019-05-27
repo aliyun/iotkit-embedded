@@ -356,8 +356,10 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         memset(zc_passwd, 0, ZC_MAX_PASSWD_LEN);
         aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len, os_get_encrypt_type(), 0);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
+            void *tmp_mutex = zc_mutex;
             awss_trace("passwd err\r\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
+            zc_mutex = tmp_mutex;
             awss_event_post(AWSS_PASSWD_ERR);
             ret = -1;
             goto exit;
