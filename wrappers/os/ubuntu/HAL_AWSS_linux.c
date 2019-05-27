@@ -61,6 +61,10 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
     struct ifreq if_hwaddr;
 
     fd = socket(PF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        printf("socket error: ");
+        return NULL ;
+    }
 
     memset(&if_hwaddr, 0, sizeof(if_hwaddr));
     strncpy(if_hwaddr.ifr_name, g_ifname, sizeof(if_hwaddr.ifr_name));
