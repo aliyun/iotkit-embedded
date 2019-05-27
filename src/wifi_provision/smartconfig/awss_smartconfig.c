@@ -361,8 +361,10 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len,
                            1, awss_get_encrypt_type(), 0, NULL);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
+            void * tmp_mutex = zc_mutex;
             awss_trace("passwd err\r\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
+            zc_mutex = tmp_mutex;
             awss_event_post(IOTX_AWSS_PASSWD_ERR);
             AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
             ret = -1;
