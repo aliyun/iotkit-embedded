@@ -17,6 +17,7 @@
     #include <netdb.h>
     #include <signal.h>
     #include <unistd.h>
+    #include <sys/time.h>
 #endif
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
