@@ -33,7 +33,7 @@ unsigned int push_log(const char *input_log, int input_log_size)
 {
     if (NULL == current_log_pos || NULL == input_log || input_log_size <= 0) {
         dm_log_debug("invalid params");
-        return -1;
+        return (unsigned int)-1;
     }
     memcpy(current_log_pos, input_log, input_log_size);
     current_log_pos += input_log_size;
