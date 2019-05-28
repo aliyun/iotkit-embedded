@@ -10,8 +10,7 @@ int main(int argc, char *argv[])
 {
     int32_t res = 0;
     iotx_dev_meta_info_t meta;
-    iotx_http_region_types_t region = IOTX_HTTP_REGION_CUSTOM;
-    char *custom_domain = "100.67.80.75";
+    iotx_http_region_types_t region = IOTX_HTTP_REGION_SHANGHAI;
     
     HAL_Printf("dynreg example\n");
 
@@ -19,8 +18,6 @@ int main(int argc, char *argv[])
     HAL_GetProductKey(meta.product_key);
     HAL_GetProductSecret(meta.product_secret);
     HAL_GetDeviceName(meta.device_name);
-
-    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)custom_domain);
 
     res = IOT_Dynamic_Register(region, &meta);
     if (res < 0) {

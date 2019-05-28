@@ -66,6 +66,7 @@ menu "MQTT Configurations"
     config MQTT_DYNAMIC_REGISTER
         bool "FEATURE_MQTT_DYNAMIC_REGISTER"
         default n
+        depends on DYNAMIC_REGISTER
         select SUPPORT_TLS
 
 endmenu
