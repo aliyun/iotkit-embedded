@@ -38,8 +38,11 @@
 #include <netdb.h>
 #include <pthread.h>
 #include "wrappers_defs.h"
+
+/* please use ifconfig to get your wireless card's name, and replace g_ifname */
 char *g_ifname = "wlx00259ce04ceb";
-char g_opened_ap[32] = {0};
+
+char g_opened_ap[36] = {0};
 
 int HAL_ThreadCreate(
             void **thread_handle,
@@ -586,7 +589,9 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
     memset(buffer, 0, 256);
     snprintf(buffer, 256, "nmcli connection up %s", ap_ssid);
     ret = system(buffer);
-    memcpy(g_opened_ap, ap_ssid, strlen(ap_ssid));
+    if (strlen(ap_ssid) < sizeof(g_opened_ap)) {
+        memcpy(g_opened_ap, ap_ssid, strlen(ap_ssid));
+    }
     return 0;
 }
 
@@ -599,6 +604,7 @@ int HAL_Awss_Close_Ap()
     /* use nmcli commands to close the previous open Ap */
     snprintf(buffer, 256, "nmcli connection down %s", g_opened_ap);
     ret = system(buffer);
+    memset(g_opened_ap, 0, sizeof(g_opened_ap));
     return 0;
 }
 
