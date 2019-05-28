@@ -169,3 +169,33 @@ int infra_str2int(const char *input, int *val)
 
 #endif
 
+int32_t infra_json_value(const char *input, uint32_t input_len, const char *key, uint32_t key_len, char **value, uint32_t *value_len)
+{
+    uint32_t idx = 0;
+
+    for (idx = 0;idx < input_len;idx++) {
+        if (idx + key_len >= input_len) {
+            return -1;
+        }
+        if (memcmp(&input[idx], key, key_len) == 0) {
+            idx += key_len;
+            /* shortest ":x, or ":x} or ":x] */
+            if ((idx + 4 >= input_len) ||
+                (input[idx+1] != ':')) {
+                return -1;
+            }
+            idx+=2;
+            *value = (char *)&input[idx];
+            for (;idx < input_len;idx++) {
+                if ((input[idx] == ',') ||
+                    (input[idx] == '}') ||
+                    (input[idx] == ']')) {
+                    *value_len = idx - (*value - input);
+                    return 0;
+                }
+            }
+        }
+    }
+
+    return -1;
+}

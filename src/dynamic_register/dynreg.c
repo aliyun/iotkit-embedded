@@ -9,6 +9,11 @@
 #include "infra_httpc.h"
 #include "infra_sha256.h"
 #include "dynreg_internal.h"
+#include "dynreg_api.h"
+#ifdef MQTT_DYNAMIC_REGISTER
+#include "dev_sign_api.h"
+#include "mqtt_api.h"
+#endif
 
 #define HTTP_RESPONSE_PAYLOAD_LEN           (256)
 
@@ -247,7 +252,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     return SUCCESS_RETURN;
 }
 
-int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta)
+int32_t _http_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta)
 {
     int             res = 0, dynamic_register_request_len = 0;
     char            sign[DYNREG_SIGN_LENGTH] = {0};
@@ -305,5 +310,217 @@ int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info
     }
 
     return SUCCESS_RETURN;
+}
+
+#ifdef MQTT_DYNAMIC_REGISTER
+static int _mqtt_dynreg_sign_password(iotx_dev_meta_info_t *meta_info, iotx_sign_mqtt_t *signout, char *rand)
+{
+    char signsource[DEV_SIGN_SOURCE_MAXLEN] = {0};
+    uint16_t signsource_len = 0;
+    const char sign_fmt[] = "deviceName%sproductKey%srandom%s";
+    uint8_t sign_hex[32] = {0};
+
+    signsource_len = strlen(sign_fmt) + strlen(meta_info->device_name) + 1 + strlen(meta_info->product_key) + strlen(rand) + 1;
+    if (signsource_len >= DEV_SIGN_SOURCE_MAXLEN) {
+        return ERROR_DEV_SIGN_SOURCE_TOO_SHORT;
+    }
+    memset(signsource, 0, signsource_len);
+    memcpy(signsource, "deviceName",strlen("deviceName"));
+    memcpy(signsource + strlen(signsource), meta_info->device_name, strlen(meta_info->device_name));
+    memcpy(signsource + strlen(signsource), "productKey",strlen("productKey"));
+    memcpy(signsource + strlen(signsource), meta_info->product_key, strlen(meta_info->product_key));
+    memcpy(signsource + strlen(signsource), "random", strlen("random"));
+    memcpy(signsource + strlen(signsource), rand, strlen(rand));
+
+    utils_hmac_sha256((const uint8_t *)signsource, strlen(signsource), (uint8_t *)meta_info->product_secret,
+                      strlen(meta_info->product_secret), sign_hex);
+    infra_hex2str(sign_hex, 32, signout->password);
+
+    return SUCCESS_RETURN;
+}
+
+static int32_t _mqtt_dynreg_sign_clientid(iotx_dev_meta_info_t *meta_info, iotx_sign_mqtt_t *signout, char *rand)
+{
+    const char *clientid1 = "|authType=register,random=";
+    const char *clientid2 = ",signmethod=hmacsha256,securemode=2|";
+    uint32_t clientid_len = 0;
+
+    clientid_len = strlen(meta_info->product_key) + 1 + strlen(meta_info->device_name) +
+                    strlen(clientid1) + strlen(rand) + strlen(clientid2) + 1;
+    if (clientid_len >= DEV_SIGN_CLIENT_ID_MAXLEN) {
+        return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
+    }
+    memset(signout->clientid, 0, clientid_len);
+    memcpy(signout->clientid, meta_info->product_key, strlen(meta_info->product_key));
+    memcpy(signout->clientid + strlen(signout->clientid), ".", strlen("."));
+    memcpy(signout->clientid + strlen(signout->clientid), meta_info->device_name, strlen(meta_info->device_name));
+    memcpy(signout->clientid + strlen(signout->clientid), clientid1, strlen(clientid1));
+    memcpy(signout->clientid + strlen(signout->clientid), rand, strlen(rand));
+    memcpy(signout->clientid + strlen(signout->clientid), clientid2, strlen(clientid2));
+
+    return SUCCESS_RETURN;
+}
+
+void _mqtt_dynreg_topic_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+{
+    int32_t res = 0;
+    char *ds = (char *)pcontext;
+    iotx_mqtt_topic_info_t     *topic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+    const char *asterisk = "**********************";
+
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
+            /* print topic name and topic message */
+            char *device_secret = NULL;
+            uint32_t device_secret_len = 0;
+
+            /* parse secret */
+            res = infra_json_value((char *)topic_info->payload, topic_info->payload_len, "deviceSecret", strlen("deviceSecret"), &device_secret, &device_secret_len);
+            if (res == SUCCESS_RETURN) {
+                memcpy(device_secret + 1 + 5, asterisk, strlen(asterisk));
+                memcpy(ds, device_secret + 1, device_secret_len - 2);
+                dynreg_info("Topic  : %.*s", topic_info->topic_len, topic_info->ptopic);
+                dynreg_info("Payload: %.*s", topic_info->payload_len, topic_info->payload);
+            }
+        }
+        break;
+        default:
+            break;
+    }
+}
+
+int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta)
+{
+    void *pClient = NULL;
+    iotx_mqtt_param_t mqtt_params;
+    int32_t res = 0;
+    uint32_t length = 0, rand = 0;
+    char rand_str[9] = {0};
+    iotx_sign_mqtt_t signout;
+    uint64_t timestart = 0, timenow = 0;
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+
+    memset(&signout, 0, sizeof(iotx_sign_mqtt_t));
+
+    /* setup hostname */
+    if (IOTX_HTTP_REGION_CUSTOM == region) {
+        if (g_infra_mqtt_domain[region] == NULL) {
+            return ERROR_DEV_SIGN_CUSTOM_DOMAIN_IS_NULL;
+        }
+
+        length = strlen(g_infra_mqtt_domain[region]) + 1;
+        if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
+            return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
+        }
+
+        memset(signout.hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
+        memcpy(signout.hostname, g_infra_mqtt_domain[region], strlen(g_infra_mqtt_domain[region]));
+    } else {
+        length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
+        if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
+            return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
+        }
+        memset(signout.hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
+        memcpy(signout.hostname, meta->product_key, strlen(meta->product_key));
+        memcpy(signout.hostname + strlen(signout.hostname), ".", strlen("."));
+        memcpy(signout.hostname + strlen(signout.hostname), g_infra_mqtt_domain[region],
+               strlen(g_infra_mqtt_domain[region]));
+    }
+
+    /* setup port */
+    signout.port = 443;
+
+    /* setup username */
+    length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
+    if (length >= DEV_SIGN_USERNAME_MAXLEN) {
+        return ERROR_DEV_SIGN_USERNAME_TOO_SHORT;
+    }
+    memset(signout.username, 0, DEV_SIGN_USERNAME_MAXLEN);
+    memcpy(signout.username, meta->device_name, strlen(meta->device_name));
+    memcpy(signout.username + strlen(signout.username), "&", strlen("&"));
+    memcpy(signout.username + strlen(signout.username), meta->product_key, strlen(meta->product_key));
+
+    /* password */
+    rand = HAL_Random(0xffffffff);
+    infra_hex2str((unsigned char *)&rand, 4, rand_str);
+    res = _mqtt_dynreg_sign_password(meta, &signout, rand_str);
+    if (res < 0) {
+        return res;
+    }
+
+    /* client id */
+    res = _mqtt_dynreg_sign_clientid(meta, &signout, rand_str);
+    if (res < 0) {
+        return res;
+    }
+
+    memset(&mqtt_params, 0, sizeof(iotx_mqtt_param_t));
+    mqtt_params.host = signout.hostname;
+    mqtt_params.port = signout.port;
+    mqtt_params.username = signout.username;
+    mqtt_params.password = signout.password;
+    mqtt_params.client_id = signout.clientid;
+    mqtt_params.request_timeout_ms = 5000;
+    mqtt_params.clean_session = 1;
+    mqtt_params.keepalive_interval_ms = 60000;
+    mqtt_params.read_buf_size = 1000;
+    mqtt_params.write_buf_size = 1000;
+
+    pClient =  wrapper_mqtt_init(&mqtt_params);
+    if (pClient == NULL) {
+        return FAIL_RETURN;
+    }
+
+    res = wrapper_mqtt_connect(pClient);
+    if (res < SUCCESS_RETURN) {
+        wrapper_mqtt_release(&pClient);
+        return FAIL_RETURN;
+    }
+
+    res = wrapper_mqtt_subscribe(pClient, "/ext/register", IOTX_MQTT_QOS1, _mqtt_dynreg_topic_handle, device_secret);
+    if (res < 0) {
+        wrapper_mqtt_release(&pClient);
+        return FAIL_RETURN;
+    }
+
+    timestart = HAL_UptimeMs();
+    while(1) {
+        timenow = HAL_UptimeMs();
+        if (timenow < timestart) {
+            timestart = timenow;
+        }
+
+        if (timestart - timenow >= MQTT_DYNREG_TIMEOUT_MS) {
+            break;
+        }
+
+        wrapper_mqtt_yield(pClient, 200);
+
+        if (strlen(device_secret) > 0) {
+            break;
+        }
+    }
+
+    if (strlen(device_secret) > 0) {
+        res = SUCCESS_RETURN;
+    }else{
+        res = FAIL_RETURN;
+    }
+
+    wrapper_mqtt_release(&pClient);
+
+    memcpy(meta->device_secret, device_secret, strlen(device_secret));
+
+    return res;
+}
+#endif
+
+int32_t IOT_Dynamic_Register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta)
+{
+#ifdef MQTT_DYNAMIC_REGISTER
+    return _mqtt_dynamic_register(region, meta);
+#else
+    return _http_dynamic_register(region, meta);
+#endif
 }
 

@@ -25,3 +25,15 @@
 
 #endif
 
+#ifdef MQTT_DYNAMIC_REGISTER
+#include "mqtt_api.h"
+void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params);
+int wrapper_mqtt_connect(void *client);
+int wrapper_mqtt_yield(void *client, int timeout_ms);
+int wrapper_mqtt_subscribe(void *client,
+                           const char *topicFilter,
+                           iotx_mqtt_qos_t qos,
+                           iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                           void *pcontext);
+int wrapper_mqtt_release(void **pclient);
+#endif
