@@ -103,14 +103,14 @@ static void *func_Sniffer(void *cb)
     char *ifname = g_ifname;
     memset(&ifr, 0, sizeof(struct ifreq));
     memset(&sll, 0, sizeof(struct sockaddr_ll));
+    /* ifr.ifr_name can take 16 chars at most*/
+    if (strlen(ifname) > 15) {
+        return NULL;
+    }
     raw_socket = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (raw_socket < 0) {
         printf("raw socket error: ");
         return NULL ;
-    }
-    /* ifr.ifr_name can take 16 chars at most*/
-    if (strlen(ifname) > 15) {
-        return NULL;
     }
 
     memcpy(ifr.ifr_name, ifname, strlen(ifname));
