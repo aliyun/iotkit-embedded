@@ -551,11 +551,11 @@ int dm_msg_rrpc_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
 }
 
 const char DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT[] DM_READ_ONLY =
-            "{\"id\":%d,\"code\":%d,\"devid\":%d,\"payload\":\"%.*s\"}";
+            "{\"id\":%d,\"code\":%d,\"devid\":%d,\"payload\":%.*s}";
 int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id = 0, message_len = 0, payload_len = 0;
-    char *message = NULL, *payload = NULL;
+    char *message = NULL, *payload = NULL, *str_payload = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_node_t *node = NULL;
@@ -583,19 +583,35 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
         payload = response->data.value;
         payload_len = response->data.value_length;
     } else {
-        payload = response->message.value;
-        payload_len = response->message.value_length;
+        if (response->message.type == cJSON_String) {
+            str_payload = DM_malloc(response->message.value_length + 3);
+            if (str_payload == NULL) {
+                return FAIL_RETURN;
+            }
+            memset(str_payload, 0, response->message.value_length + 3);
+            str_payload[0] = '\"';
+            memcpy(str_payload + 1, response->message.value, response->message.value_length);
+            str_payload[1 + response->message.value_length] = '\"';
+
+            payload = str_payload;
+            payload_len = strlen(str_payload);
+        }else{
+            payload = response->message.value;
+            payload_len = response->message.value_length;
+        }
     }
 
     message_len = strlen(DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + payload_len +
                   1;
     message = DM_malloc(message_len);
     if (message == NULL) {
+        DM_free(str_payload);
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT, id, response->code.value_int, devid,
                  payload_len, payload);
+    DM_free(str_payload);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, message);
     if (res != SUCCESS_RETURN) {
