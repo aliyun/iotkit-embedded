@@ -17,6 +17,7 @@
     #include <netdb.h>
     #include <signal.h>
     #include <unistd.h>
+    #include <sys/time.h>
 #endif
 #include "infra_config.h"
 #include "mbedtls/error.h"
@@ -669,8 +670,60 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 
 static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int len, int timeout_ms)
 {
+#if defined(_PLATFORM_IS_LINUX_)
+    int32_t res = 0;
+    int32_t write_bytes = 0;
+    uint64_t timestart_ms = 0, timenow_ms = 0;
+    struct timeval timestart, timenow, timeout;
+
+    if (pTlsData == NULL) {
+        return -1;
+    }
+
+    /* timeout */
+    timeout.tv_sec = timeout_ms/1000;
+    timeout.tv_usec = (timeout_ms % 1000) * 1000;
+
+    /* Start Time */
+    gettimeofday(&timestart, NULL);
+    timestart_ms = timestart.tv_sec * 1000 + timestart.tv_usec / 1000;
+    timenow_ms = timestart_ms;
+
+    res = setsockopt(pTlsData->fd.fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
+    if (res < 0) {
+        return -1;
+    }
+
+    do {
+        gettimeofday(&timenow, NULL);
+        timenow_ms = timenow.tv_sec * 1000 + timenow.tv_usec / 1000;
+
+        if (timenow_ms - timestart_ms >= timenow_ms ||
+            timeout_ms - (timenow_ms - timestart_ms) > timeout_ms) {
+            break;
+        }
+
+        res = mbedtls_ssl_write(&(pTlsData->ssl), (unsigned char *)buffer + write_bytes, len - write_bytes);
+        if (res < 0) {
+            if (res != MBEDTLS_ERR_SSL_WANT_READ &&
+                res != MBEDTLS_ERR_SSL_WANT_WRITE) {
+                break;
+            }
+        }else if (res == 0) {
+            break;
+        }else{
+            write_bytes += res;
+        }
+    }while(((timenow_ms - timestart_ms) < timeout_ms) && (write_bytes < len));
+
+    return write_bytes;
+#else
     uint32_t writtenLen = 0;
     int ret = -1;
+
+    if (pTlsData == NULL) {
+        return -1;
+    }
 
     while (writtenLen < len) {
         ret = mbedtls_ssl_write(&(pTlsData->ssl), (unsigned char *)(buffer + writtenLen), (len - writtenLen));
@@ -689,6 +742,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
     }
 
     return writtenLen;
+#endif
 }
 
 static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
