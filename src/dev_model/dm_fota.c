@@ -7,14 +7,14 @@
 
 static dm_fota_ctx_t g_dm_fota_ctx;
 
-static dm_fota_ctx_t *_dm_fota_get_ctx(void)
+dm_fota_ctx_t *dm_fota_get_ctx(void)
 {
     return &g_dm_fota_ctx;
 }
 
 int dm_fota_init(void)
 {
-    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
+    dm_fota_ctx_t *ctx = dm_fota_get_ctx();
 
     memset(ctx, 0, sizeof(dm_fota_ctx_t));
 
@@ -23,7 +23,7 @@ int dm_fota_init(void)
 
 int dm_fota_deinit(void)
 {
-    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
+    dm_fota_ctx_t *ctx = dm_fota_get_ctx();
 
     memset(ctx, 0, sizeof(dm_fota_ctx_t));
 
@@ -67,7 +67,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
     uint32_t file_size = 0, file_downloaded = 0;
     uint32_t percent_pre = 0, percent_now = 0;
     unsigned long long report_pre = 0, report_now = 0;
-    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
+    dm_fota_ctx_t *ctx = dm_fota_get_ctx();
     void *ota_handle = NULL;
     uint32_t ota_type = IOT_OTAT_NONE;
     int ret = 0;
@@ -98,9 +98,10 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
     while (1) {
         file_download = IOT_OTA_FetchYield(ota_handle, output, output_len, 1);
         if (file_download < 0) {
-            res = dm_opt_get(DM_OPT_FOTA_RETRY_TIMEOUT_MS,&retry_max_timeout);
+            res = dm_opt_get(DM_OPT_FOTA_RETRY_TIMEOUT_MS, &retry_max_timeout);
             if (res == SUCCESS_RETURN && retry_timeout >= retry_max_timeout) {
                 IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_FETCH_FAILED, NULL);
+                IOT_OTA_Ioctl(ota_handle, IOT_OTAG_RESET_STATE, NULL, 0);
                 HAL_Firmware_Persistence_Stop();
                 ctx->is_report_new_config = 0;
                 return FAIL_RETURN;
@@ -116,6 +117,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
         ret = HAL_Firmware_Persistence_Write(output, file_download);
         if (-1 == ret) {
             IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_BURN_FAILED, NULL);
+            IOT_OTA_Ioctl(ota_handle, IOT_OTAG_RESET_STATE, NULL, 0);
             dm_log_err("Fota write firmware failed");
             HAL_Firmware_Persistence_Stop();
             ctx->is_report_new_config = 0;
@@ -146,8 +148,9 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
             uint32_t file_isvalid = 0;
             IOT_OTA_Ioctl(ota_handle, IOT_OTAG_CHECK_FIRMWARE, &file_isvalid, 4);
             if (file_isvalid == 0) {
-                HAL_Firmware_Persistence_Stop();
                 IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_CHECK_FALIED, NULL);
+                IOT_OTA_Ioctl(ota_handle, IOT_OTAG_RESET_STATE, NULL, 0);
+                HAL_Firmware_Persistence_Stop();
                 ctx->is_report_new_config = 0;
                 return FAIL_RETURN;
             } else {
@@ -165,7 +168,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
 int dm_fota_status_check(void)
 {
     int res = 0;
-    dm_fota_ctx_t *ctx = _dm_fota_get_ctx();
+    dm_fota_ctx_t *ctx = dm_fota_get_ctx();
     void *ota_handle = NULL;
 
     /* Get Ota Handle */
@@ -223,4 +226,5 @@ int dm_fota_request_image(const char *version, int buffer_len)
     DM_free(version_str);
     return res;
 }
+
 #endif

@@ -12,6 +12,20 @@ static dm_ota_ctx_t *_dm_ota_get_ctx(void)
     return &g_dm_ota_ctx;
 }
 
+static int _dm_ota_clean_state(void *context)
+{
+    dm_cota_ctx_t *cota = dm_cota_get_ctx();
+    dm_fota_ctx_t *fota = dm_fota_get_ctx();
+    if(cota != NULL) {
+        cota->is_report_new_config = 0;
+    }
+
+    if(fota != NULL) {
+        fota->is_report_new_config = 0;
+    }
+    return 0;
+} 
+
 int dm_ota_init(void)
 {
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
@@ -33,7 +47,7 @@ int dm_ota_sub(void)
     if (handle == NULL) {
         return FAIL_RETURN;
     }
-
+    IOT_OTA_SetOnPushedCallback(handle, _dm_ota_clean_state);
     ctx->ota_handle = handle;
 
     return SUCCESS_RETURN;

@@ -16,5 +16,5 @@ int dm_cota_deinit(void);
 int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len);
 int dm_cota_get_config(const char *config_scope, const char *get_type, const char *attribute_keys);
 int dm_cota_status_check(void);
-
+dm_cota_ctx_t *dm_cota_get_ctx(void);
 #endif

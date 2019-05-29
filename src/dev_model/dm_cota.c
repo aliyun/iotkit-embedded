@@ -16,14 +16,14 @@
 
 static dm_cota_ctx_t g_dm_cota_ctx;
 
-static dm_cota_ctx_t *_dm_cota_get_ctx(void)
+dm_cota_ctx_t *dm_cota_get_ctx(void)
 {
     return &g_dm_cota_ctx;
 }
 
 int dm_cota_init(void)
 {
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_cota_ctx_t *ctx = dm_cota_get_ctx();
 
     memset(ctx, 0, sizeof(dm_cota_ctx_t));
 
@@ -32,7 +32,7 @@ int dm_cota_init(void)
 
 int dm_cota_deinit(void)
 {
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_cota_ctx_t *ctx = dm_cota_get_ctx();
 
     memset(ctx, 0, sizeof(dm_cota_ctx_t));
 
@@ -109,7 +109,7 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     uint32_t file_size = 0, file_downloaded = 0;
     uint32_t percent_pre = 0, percent_now = 0;
     unsigned long long report_pre = 0, report_now = 0;
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_cota_ctx_t *ctx = dm_cota_get_ctx();
     void *ota_handle = NULL;
     uint32_t ota_type = IOT_OTAT_NONE;
 
@@ -205,7 +205,7 @@ int dm_cota_get_config(const char *config_scope, const char *get_type, const cha
 int dm_cota_status_check(void)
 {
     int res = 0;
-    dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
+    dm_cota_ctx_t *ctx = dm_cota_get_ctx();
     void *ota_handle = NULL;
 
     /* Get Ota Handle */

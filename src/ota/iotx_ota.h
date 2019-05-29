@@ -33,8 +33,8 @@ typedef struct  {
     char *signMethod;
     char *cota_url;
     char *getType;
-
     int err;                    /* last error code */
+    ota_event_fpt  ota_event_cb;  
 } OTA_Struct_t, *OTA_Struct_pt;
 
 int iotx_ota_get_config(void *handle, const char *configScope, const char *getType,

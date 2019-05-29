@@ -59,13 +59,13 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
                 return -1;
             }
 
-            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->purl,h_ota->size_fetched))) {
+            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->purl, h_ota->size_fetched))) {
                 OTA_LOG_ERROR("Initialize fetch module failed");
                 return -1;
             }
 
             h_ota->type = IOT_OTAT_FOTA;
-            h_ota->state = IOT_OTAS_FETCHING;
+            h_ota->state = IOT_OTAS_PUSHED;
         }
         break;
 
@@ -107,13 +107,13 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             }
             h_ota->sha256 = otalib_Sha256Init();
 
-            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url,h_ota->size_fetched))) {
+            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url, h_ota->size_fetched))) {
                 OTA_LOG_ERROR("Initialize fetch module failed");
                 return -1;
             }
 
             h_ota->type = IOT_OTAT_COTA;
-            h_ota->state = IOT_OTAS_FETCHING;
+            h_ota->state = IOT_OTAS_PUSHED;
         }
         break;
 
@@ -143,13 +143,13 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             }
             h_ota->sha256 = otalib_Sha256Init();
 
-            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url,h_ota->size_fetched))) {
+            if (NULL == (h_ota->ch_fetch = ofc_Init(h_ota->cota_url, h_ota->size_fetched))) {
                 OTA_LOG_ERROR("Initialize fetch module failed");
                 return -1;
             }
 
             h_ota->type = IOT_OTAT_COTA;
-            h_ota->state = IOT_OTAS_FETCHING;
+            h_ota->state = IOT_OTAS_PUSHED;
         }
         break;
 
@@ -157,12 +157,25 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
             return -1;
             break;
     }
-
+    
+    if(h_ota->ota_event_cb != NULL) {
+        h_ota->ota_event_cb(h_ota);
+    }
     return 0;
 }
 
 static int g_ota_is_initialized = 0;
 
+int IOT_OTA_SetOnPushedCallback(void * handle, int (*cb)(void * context))
+{
+    OTA_Struct_pt h_ota = (OTA_Struct_pt)handle;
+    if(h_ota == NULL ) {
+        return -1;
+    }
+
+    h_ota->ota_event_cb = cb;
+    return 0;    
+}
 /* Initialize OTA module */
 void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal)
 {
@@ -572,7 +585,7 @@ int IOT_OTA_IsFetching(void *handle)
         return 0;
     }
 
-    return (IOT_OTAS_FETCHING == h_ota->state);
+    return (IOT_OTAS_PUSHED == h_ota->state || IOT_OTAS_FETCHING == h_ota->state);
 }
 
 
@@ -595,7 +608,6 @@ int IOT_OTA_IsFetchFinish(void *handle)
     return (IOT_OTAS_FETCHED == h_ota->state);
 }
 
-
 int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 {
     int ret;
@@ -606,7 +618,9 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         return IOT_OTAE_INVALID_PARAM;
     }
 
-    if (IOT_OTAS_FETCHING != h_ota->state) {
+    if (IOT_OTAS_PUSHED == h_ota->state) {
+        h_ota->state = IOT_OTAS_FETCHING;
+    } else if (IOT_OTAS_FETCHING != h_ota->state) {
         h_ota->err = IOT_OTAE_INVALID_STATE;
         return IOT_OTAE_INVALID_STATE;
     }
@@ -626,9 +640,9 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
 
     if (h_ota->ch_fetch == NULL) {
         if (h_ota->type == IOT_OTAT_FOTA) {
-            OTA_LOG_ERROR("h_ota->size_fetched: %d",h_ota->size_fetched);
+            OTA_LOG_ERROR("h_ota->size_fetched: %d", h_ota->size_fetched);
             h_ota->ch_fetch = ofc_Init(h_ota->purl, h_ota->size_fetched);
-        }else if (h_ota->type == IOT_OTAT_COTA) {
+        } else if (h_ota->type == IOT_OTAT_COTA) {
             h_ota->ch_fetch = ofc_Init(h_ota->cota_url, h_ota->size_fetched);
         }
 
@@ -640,20 +654,20 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
 
     ret = ofc_Fetch(h_ota->ch_fetch, buf, buf_len, timeout_s);
     if (ret < 0) {
-        OTA_LOG_ERROR("OTA Internal Error: %d",ret);
+        OTA_LOG_ERROR("OTA Internal Error: %d", ret);
         ofc_Deinit(&h_ota->ch_fetch);
         return ret;
     } else if (0 == h_ota->size_fetched) {
         otalib_MD5Deinit(h_ota->md5);
         h_ota->md5 = otalib_MD5Init();
-        if(h_ota->md5 == NULL) {
+        if (h_ota->md5 == NULL) {
             OTA_LOG_ERROR("md5 init failed");
             return -1;
         }
 
         otalib_Sha256Deinit(h_ota->sha256);
         h_ota->sha256 = otalib_Sha256Init();
-        if(h_ota->sha256 == NULL) {
+        if (h_ota->sha256 == NULL) {
             OTA_LOG_ERROR("sha256 init failed");
             return -1;
         }
@@ -684,7 +698,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, int buf_len)
         return IOT_OTAE_INVALID_PARAM;
     }
 
-    if (h_ota->state < IOT_OTAS_FETCHING) {
+    if (h_ota->state < IOT_OTAS_PUSHED) {
         h_ota->err = IOT_OTAE_INVALID_STATE;
         return IOT_OTAE_INVALID_STATE;
     }
@@ -891,6 +905,12 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, int buf_len)
                 return 0;
             }
         case IOT_OTAG_RESET_FETCHED_SIZE: {
+            h_ota->size_fetched = 0;
+            return 0;
+        }
+        case IOT_OTAG_RESET_STATE: {
+            h_ota->type = IOT_OTAT_NONE;
+            h_ota->state = IOT_OTAS_INITED;
             h_ota->size_fetched = 0;
             return 0;
         }

@@ -35,6 +35,7 @@ typedef enum {
 typedef enum {
     IOT_OTAS_UNINITED = 0,  /* Uninitialized State */
     IOT_OTAS_INITED,        /* Initialized State */
+    IOT_OTAS_PUSHED,         /* The mission has been pushed down */
     IOT_OTAS_FETCHING,      /* Fetching firmware */
     IOT_OTAS_FETCHED        /* Fetching firmware finish */
 } IOT_OTA_State_t;
@@ -86,9 +87,11 @@ typedef enum {
     IOT_OTAG_VERSION,          /* version in string format */
     IOT_OTAG_CHECK_FIRMWARE,    /* Check firmware is valid or not */
     IOT_OTAG_CHECK_CONFIG,      /* Check config file is valid or not */
-    IOT_OTAG_RESET_FETCHED_SIZE /* reset the size_fetched parameter to be 0 */
+    IOT_OTAG_RESET_FETCHED_SIZE,/* reset the size_fetched parameter to be 0 */
+    IOT_OTAG_RESET_STATE        /* reset the ota state to inited  */
 } IOT_OTA_CmdType_t;
 
+typedef int (* ota_event_fpt)(void *);
 /** @defgroup group_api api
  *  @{
  */
@@ -176,7 +179,6 @@ DLL_IOT_API int IOT_OTA_IsFetching(void *handle);
  */
 DLL_IOT_API int IOT_OTA_IsFetchFinish(void *handle);
 
-
 /**
  * @brief fetch firmware from remote server with specific timeout value.
  *        NOTE: If you want to download more faster, the bigger 'buf' should be given.
@@ -192,7 +194,6 @@ DLL_IOT_API int IOT_OTA_IsFetchFinish(void *handle);
  * @see None.
  */
 DLL_IOT_API int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
-
 
 /**
  * @brief Get OTA information specified by 'type'.
@@ -230,6 +231,17 @@ DLL_IOT_API int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, i
  */
 DLL_IOT_API int IOT_OTA_GetLastError(void *handle);
 
+/**
+ * @brief set ota event callback.
+ *
+ * @param [in] handle: specify the OTA module.
+ *
+ * @param [in] cb: user callback.
+ * 
+ * @return The error code.
+ * @see None.
+ */
+DLL_IOT_API int IOT_OTA_SetOnPushedCallback(void * handle, int (*cb)(void * context));
 /** @} */ /* end of api_ota */
 /** @} */ /* end of api */
 

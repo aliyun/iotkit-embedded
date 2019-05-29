@@ -202,6 +202,7 @@ static int _ota_mqtt_client(void)
                 if (len > 0) {
                     if (1 != fwrite(buf_ota, len, 1, fp)) {
                         EXAMPLE_TRACE("write data to file failed");
+                        IOT_OTA_Ioctl(h_ota, IOT_OTAG_RESET_STATE, NULL, 0);
                         rc = -1;
                         break;
                     }
