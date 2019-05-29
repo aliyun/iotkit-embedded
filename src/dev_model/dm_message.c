@@ -551,7 +551,7 @@ int dm_msg_rrpc_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
 }
 
 const char DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT[] DM_READ_ONLY =
-            "{\"id\":%d,\"code\":%d,\"devid\":%d,\"payload\":%.*s}";
+            "{\"id\":%d,\"code\":%d,\"devid\":%d,\"payload\":\"%.*s\"}";
 int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, devid = 0, id = 0, message_len = 0, payload_len = 0;
