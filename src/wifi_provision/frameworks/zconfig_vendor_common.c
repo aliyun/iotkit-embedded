@@ -391,8 +391,6 @@ timeout_recving:
 
 success:
     /* don't destroy zconfig_data until monitor_cb is finished. */
-    HAL_MutexLock(zc_mutex);
-    HAL_MutexUnlock(zc_mutex);
     /*
      * zconfig_destroy() after os_awss_monitor_close() beacause
      * zconfig_destroy will release mem/buffer that
