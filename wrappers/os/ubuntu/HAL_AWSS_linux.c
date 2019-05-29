@@ -59,7 +59,7 @@ int HAL_ThreadCreate(
  */
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 {
-    uint32_t fd = -1;
+    int fd = -1;
     int ret = -1;
     struct ifreq if_hwaddr;
 
