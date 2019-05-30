@@ -112,7 +112,7 @@ typedef int (* ota_event_fpt)(void *);
  * @retval -1 : Failed.
  * @see None.
  */
-DLL_IOT_API void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal);
+void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal);
 
 
 /**
@@ -125,7 +125,7 @@ DLL_IOT_API void *IOT_OTA_Init(const char *product_key, const char *device_name,
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_Deinit(void *handle);
+int IOT_OTA_Deinit(void *handle);
 
 
 /**
@@ -139,7 +139,7 @@ DLL_IOT_API int IOT_OTA_Deinit(void *handle);
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_ReportVersion(void *handle, const char *version);
+int IOT_OTA_ReportVersion(void *handle, const char *version);
 
 /**
  * @brief Report detail progress to OTA server (optional).
@@ -153,7 +153,7 @@ DLL_IOT_API int IOT_OTA_ReportVersion(void *handle, const char *version);
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg);
+int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg);
 
 
 /**
@@ -165,7 +165,7 @@ DLL_IOT_API int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress
  * @retval 0 : No.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_IsFetching(void *handle);
+int IOT_OTA_IsFetching(void *handle);
 
 
 /**
@@ -177,7 +177,7 @@ DLL_IOT_API int IOT_OTA_IsFetching(void *handle);
  * @retval 0 : False.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_IsFetchFinish(void *handle);
+int IOT_OTA_IsFetchFinish(void *handle);
 
 /**
  * @brief fetch firmware from remote server with specific timeout value.
@@ -193,7 +193,7 @@ DLL_IOT_API int IOT_OTA_IsFetchFinish(void *handle);
  * @retval (0, len] : The length of data be downloaded in 'timeout_s' timeout period in bytes.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
+int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
 
 /**
  * @brief Get OTA information specified by 'type'.
@@ -218,7 +218,7 @@ DLL_IOT_API int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, ui
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, int buf_len);
+int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, int buf_len);
 
 
 /**
@@ -229,7 +229,7 @@ DLL_IOT_API int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, i
  * @return The error code.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_GetLastError(void *handle);
+int IOT_OTA_GetLastError(void *handle);
 
 /**
  * @brief set ota event callback.

@@ -41,7 +41,7 @@ int mbedtls_null_entropy_poll(void *data,
 /**
  * \brief           Platform-specific entropy poll callback
  */
-DLL_TLS_API int mbedtls_platform_entropy_poll(void *data,
+int mbedtls_platform_entropy_poll(void *data,
         unsigned char *output, size_t len, size_t *olen);
 #endif
 
@@ -51,7 +51,7 @@ DLL_TLS_API int mbedtls_platform_entropy_poll(void *data,
  *
  * Requires an HAVEGE state as its data pointer.
  */
-DLL_TLS_API int mbedtls_havege_poll(void *data,
+int mbedtls_havege_poll(void *data,
                                     unsigned char *output, size_t len, size_t *olen);
 #endif
 
@@ -59,7 +59,7 @@ DLL_TLS_API int mbedtls_havege_poll(void *data,
 /**
  * \brief           mbedtls_timing_hardclock-based entropy poll callback
  */
-DLL_TLS_API int mbedtls_hardclock_poll(void *data,
+int mbedtls_hardclock_poll(void *data,
                                        unsigned char *output, size_t len, size_t *olen);
 #endif
 
@@ -72,7 +72,7 @@ DLL_TLS_API int mbedtls_hardclock_poll(void *data,
  *
  * \note            This must accept NULL as its first argument.
  */
-DLL_TLS_API int mbedtls_hardware_poll(void *data,
+int mbedtls_hardware_poll(void *data,
                                       unsigned char *output, size_t len, size_t *olen);
 #endif
 
@@ -82,7 +82,7 @@ DLL_TLS_API int mbedtls_hardware_poll(void *data,
  *
  * \note            This must accept NULL as its first argument.
  */
-DLL_TLS_API int mbedtls_nv_seed_poll(void *data,
+int mbedtls_nv_seed_poll(void *data,
                                      unsigned char *output, size_t len, size_t *olen);
 #endif
 

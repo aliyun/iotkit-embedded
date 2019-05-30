@@ -153,7 +153,7 @@ extern const mbedtls_x509_crt_profile mbedtls_x509_crt_profile_suiteb;
  *
  * \return         0 if successful, or a specific X509 or PEM error code
  */
-DLL_TLS_API int mbedtls_x509_crt_parse_der(mbedtls_x509_crt *chain, const unsigned char *buf,
+int mbedtls_x509_crt_parse_der(mbedtls_x509_crt *chain, const unsigned char *buf,
         size_t buflen);
 
 /**
@@ -171,7 +171,7 @@ DLL_TLS_API int mbedtls_x509_crt_parse_der(mbedtls_x509_crt *chain, const unsign
  * \return         0 if all certificates parsed successfully, a positive number
  *                 if partly successful or a specific X509 or PEM error code
  */
-DLL_TLS_API int mbedtls_x509_crt_parse(mbedtls_x509_crt *chain, const unsigned char *buf, size_t buflen);
+int mbedtls_x509_crt_parse(mbedtls_x509_crt *chain, const unsigned char *buf, size_t buflen);
 
 #if defined(MBEDTLS_FS_IO)
 /**
@@ -187,7 +187,7 @@ DLL_TLS_API int mbedtls_x509_crt_parse(mbedtls_x509_crt *chain, const unsigned c
  * \return         0 if all certificates parsed successfully, a positive number
  *                 if partly successful or a specific X509 or PEM error code
  */
-DLL_TLS_API int mbedtls_x509_crt_parse_file(mbedtls_x509_crt *chain, const char *path);
+int mbedtls_x509_crt_parse_file(mbedtls_x509_crt *chain, const char *path);
 
 /**
  * \brief          Load one or more certificate files from a path and add them
@@ -202,7 +202,7 @@ DLL_TLS_API int mbedtls_x509_crt_parse_file(mbedtls_x509_crt *chain, const char 
  * \return         0 if all certificates parsed successfully, a positive number
  *                 if partly successful or a specific X509 or PEM error code
  */
-DLL_TLS_API int mbedtls_x509_crt_parse_path(mbedtls_x509_crt *chain, const char *path);
+int mbedtls_x509_crt_parse_path(mbedtls_x509_crt *chain, const char *path);
 #endif /* MBEDTLS_FS_IO */
 
 /**
@@ -217,7 +217,7 @@ DLL_TLS_API int mbedtls_x509_crt_parse_path(mbedtls_x509_crt *chain, const char 
  * \return         The length of the string written (not including the
  *                 terminated nul byte), or a negative error code.
  */
-DLL_TLS_API int mbedtls_x509_crt_info(char *buf, size_t size, const char *prefix,
+int mbedtls_x509_crt_info(char *buf, size_t size, const char *prefix,
                                       const mbedtls_x509_crt *crt);
 
 /**
@@ -232,7 +232,7 @@ DLL_TLS_API int mbedtls_x509_crt_info(char *buf, size_t size, const char *prefix
  * \return         The length of the string written (not including the
  *                 terminated nul byte), or a negative error code.
  */
-DLL_TLS_API int mbedtls_x509_crt_verify_info(char *buf, size_t size, const char *prefix,
+int mbedtls_x509_crt_verify_info(char *buf, size_t size, const char *prefix,
         uint32_t flags);
 
 /**
@@ -279,7 +279,7 @@ DLL_TLS_API int mbedtls_x509_crt_verify_info(char *buf, size_t size, const char 
  *                 or another error in case of a fatal error encountered
  *                 during the verification process.
  */
-DLL_TLS_API int mbedtls_x509_crt_verify(mbedtls_x509_crt *crt,
+int mbedtls_x509_crt_verify(mbedtls_x509_crt *crt,
                                         mbedtls_x509_crt *trust_ca,
                                         mbedtls_x509_crl *ca_crl,
                                         const char *cn, uint32_t *flags,
@@ -313,7 +313,7 @@ DLL_TLS_API int mbedtls_x509_crt_verify(mbedtls_x509_crt *crt,
  *                 or another error in case of a fatal error encountered
  *                 during the verification process.
  */
-DLL_TLS_API int mbedtls_x509_crt_verify_with_profile(mbedtls_x509_crt *crt,
+int mbedtls_x509_crt_verify_with_profile(mbedtls_x509_crt *crt,
         mbedtls_x509_crt *trust_ca,
         mbedtls_x509_crl *ca_crl,
         const mbedtls_x509_crt_profile *profile,
@@ -343,7 +343,7 @@ DLL_TLS_API int mbedtls_x509_crt_verify_with_profile(mbedtls_x509_crt *crt,
  *                 (intermediate) CAs the keyUsage extension is automatically
  *                 checked by \c mbedtls_x509_crt_verify().
  */
-DLL_TLS_API int mbedtls_x509_crt_check_key_usage(const mbedtls_x509_crt *crt,
+int mbedtls_x509_crt_check_key_usage(const mbedtls_x509_crt *crt,
         unsigned int usage);
 #endif /* MBEDTLS_X509_CHECK_KEY_USAGE) */
 
@@ -360,7 +360,7 @@ DLL_TLS_API int mbedtls_x509_crt_check_key_usage(const mbedtls_x509_crt *crt,
  *
  * \note           Usually only makes sense on leaf certificates.
  */
-DLL_TLS_API int mbedtls_x509_crt_check_extended_key_usage(const mbedtls_x509_crt *crt,
+int mbedtls_x509_crt_check_extended_key_usage(const mbedtls_x509_crt *crt,
         const char *usage_oid,
         size_t usage_len);
 #endif /* MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE) */
@@ -375,7 +375,7 @@ DLL_TLS_API int mbedtls_x509_crt_check_extended_key_usage(const mbedtls_x509_crt
  * \return         1 if the certificate is revoked, 0 otherwise
  *
  */
-DLL_TLS_API int mbedtls_x509_crt_is_revoked(const mbedtls_x509_crt *crt, const mbedtls_x509_crl *crl);
+int mbedtls_x509_crt_is_revoked(const mbedtls_x509_crt *crt, const mbedtls_x509_crl *crl);
 #endif /* MBEDTLS_X509_CRL_PARSE_C */
 
 /**
@@ -383,14 +383,14 @@ DLL_TLS_API int mbedtls_x509_crt_is_revoked(const mbedtls_x509_crt *crt, const m
  *
  * \param crt      Certificate chain to initialize
  */
-DLL_TLS_API void mbedtls_x509_crt_init(mbedtls_x509_crt *crt);
+void mbedtls_x509_crt_init(mbedtls_x509_crt *crt);
 
 /**
  * \brief          Unallocate all certificate data
  *
  * \param crt      Certificate chain to free
  */
-DLL_TLS_API void mbedtls_x509_crt_free(mbedtls_x509_crt *crt);
+void mbedtls_x509_crt_free(mbedtls_x509_crt *crt);
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 
 /* \} name */
@@ -402,7 +402,7 @@ DLL_TLS_API void mbedtls_x509_crt_free(mbedtls_x509_crt *crt);
  *
  * \param ctx       CRT context to initialize
  */
-DLL_TLS_API void mbedtls_x509write_crt_init(mbedtls_x509write_cert *ctx);
+void mbedtls_x509write_crt_init(mbedtls_x509write_cert *ctx);
 
 /**
  * \brief           Set the verion for a Certificate
@@ -412,7 +412,7 @@ DLL_TLS_API void mbedtls_x509write_crt_init(mbedtls_x509write_cert *ctx);
  * \param version   version to set (MBEDTLS_X509_CRT_VERSION_1, MBEDTLS_X509_CRT_VERSION_2 or
  *                                  MBEDTLS_X509_CRT_VERSION_3)
  */
-DLL_TLS_API void mbedtls_x509write_crt_set_version(mbedtls_x509write_cert *ctx, int version);
+void mbedtls_x509write_crt_set_version(mbedtls_x509write_cert *ctx, int version);
 
 /**
  * \brief           Set the serial number for a Certificate.
@@ -422,7 +422,7 @@ DLL_TLS_API void mbedtls_x509write_crt_set_version(mbedtls_x509write_cert *ctx, 
  *
  * \return          0 if successful
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_serial(mbedtls_x509write_cert *ctx, const mbedtls_mpi *serial);
+int mbedtls_x509write_crt_set_serial(mbedtls_x509write_cert *ctx, const mbedtls_mpi *serial);
 
 /**
  * \brief           Set the validity period for a Certificate
@@ -438,7 +438,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_serial(mbedtls_x509write_cert *ctx, co
  * \return          0 if timestamp was parsed successfully, or
  *                  a specific error code
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_validity(mbedtls_x509write_cert *ctx, const char *not_before,
+int mbedtls_x509write_crt_set_validity(mbedtls_x509write_cert *ctx, const char *not_before,
         const char *not_after);
 
 /**
@@ -453,7 +453,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_validity(mbedtls_x509write_cert *ctx, 
  * \return          0 if issuer name was parsed successfully, or
  *                  a specific error code
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_issuer_name(mbedtls_x509write_cert *ctx,
+int mbedtls_x509write_crt_set_issuer_name(mbedtls_x509write_cert *ctx,
         const char *issuer_name);
 
 /**
@@ -468,7 +468,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_issuer_name(mbedtls_x509write_cert *ct
  * \return          0 if subject name was parsed successfully, or
  *                  a specific error code
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_subject_name(mbedtls_x509write_cert *ctx,
+int mbedtls_x509write_crt_set_subject_name(mbedtls_x509write_cert *ctx,
         const char *subject_name);
 
 /**
@@ -477,7 +477,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_subject_name(mbedtls_x509write_cert *c
  * \param ctx       CRT context to use
  * \param key       public key to include
  */
-DLL_TLS_API void mbedtls_x509write_crt_set_subject_key(mbedtls_x509write_cert *ctx, mbedtls_pk_context *key);
+void mbedtls_x509write_crt_set_subject_key(mbedtls_x509write_cert *ctx, mbedtls_pk_context *key);
 
 /**
  * \brief           Set the issuer key used for signing the certificate
@@ -485,7 +485,7 @@ DLL_TLS_API void mbedtls_x509write_crt_set_subject_key(mbedtls_x509write_cert *c
  * \param ctx       CRT context to use
  * \param key       private key to sign with
  */
-DLL_TLS_API void mbedtls_x509write_crt_set_issuer_key(mbedtls_x509write_cert *ctx, mbedtls_pk_context *key);
+void mbedtls_x509write_crt_set_issuer_key(mbedtls_x509write_cert *ctx, mbedtls_pk_context *key);
 
 /**
  * \brief           Set the MD algorithm to use for the signature
@@ -494,7 +494,7 @@ DLL_TLS_API void mbedtls_x509write_crt_set_issuer_key(mbedtls_x509write_cert *ct
  * \param ctx       CRT context to use
  * \param md_alg    MD algorithm to use
  */
-DLL_TLS_API void mbedtls_x509write_crt_set_md_alg(mbedtls_x509write_cert *ctx, mbedtls_md_type_t md_alg);
+void mbedtls_x509write_crt_set_md_alg(mbedtls_x509write_cert *ctx, mbedtls_md_type_t md_alg);
 
 /**
  * \brief           Generic function to add to or replace an extension in the
@@ -509,7 +509,7 @@ DLL_TLS_API void mbedtls_x509write_crt_set_md_alg(mbedtls_x509write_cert *ctx, m
  *
  * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_extension(mbedtls_x509write_cert *ctx,
+int mbedtls_x509write_crt_set_extension(mbedtls_x509write_cert *ctx,
         const char *oid, size_t oid_len,
         int critical,
         const unsigned char *val, size_t val_len);
@@ -525,7 +525,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_extension(mbedtls_x509write_cert *ctx,
  *
  * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_basic_constraints(mbedtls_x509write_cert *ctx,
+int mbedtls_x509write_crt_set_basic_constraints(mbedtls_x509write_cert *ctx,
         int is_ca, int max_pathlen);
 
 #if defined(MBEDTLS_SHA1_C)
@@ -538,7 +538,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_basic_constraints(mbedtls_x509write_ce
  *
  * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_subject_key_identifier(mbedtls_x509write_cert *ctx);
+int mbedtls_x509write_crt_set_subject_key_identifier(mbedtls_x509write_cert *ctx);
 
 /**
  * \brief           Set the authorityKeyIdentifier extension for a CRT
@@ -549,7 +549,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_subject_key_identifier(mbedtls_x509wri
  *
  * \return          0 if successful, or a MBEDTLS_ERR_X509_ALLOC_FAILED
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_authority_key_identifier(mbedtls_x509write_cert *ctx);
+int mbedtls_x509write_crt_set_authority_key_identifier(mbedtls_x509write_cert *ctx);
 #endif /* MBEDTLS_SHA1_C */
 
 /**
@@ -561,7 +561,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_authority_key_identifier(mbedtls_x509w
  *
  * \return          0 if successful, or MBEDTLS_ERR_X509_ALLOC_FAILED
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_key_usage(mbedtls_x509write_cert *ctx,
+int mbedtls_x509write_crt_set_key_usage(mbedtls_x509write_cert *ctx,
         unsigned int key_usage);
 
 /**
@@ -573,7 +573,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_key_usage(mbedtls_x509write_cert *ctx,
  *
  * \return          0 if successful, or MBEDTLS_ERR_X509_ALLOC_FAILED
  */
-DLL_TLS_API int mbedtls_x509write_crt_set_ns_cert_type(mbedtls_x509write_cert *ctx,
+int mbedtls_x509write_crt_set_ns_cert_type(mbedtls_x509write_cert *ctx,
         unsigned char ns_cert_type);
 
 /**
@@ -581,7 +581,7 @@ DLL_TLS_API int mbedtls_x509write_crt_set_ns_cert_type(mbedtls_x509write_cert *c
  *
  * \param ctx       CRT context to free
  */
-DLL_TLS_API void mbedtls_x509write_crt_free(mbedtls_x509write_cert *ctx);
+void mbedtls_x509write_crt_free(mbedtls_x509write_cert *ctx);
 
 /**
  * \brief           Write a built up certificate to a X509 DER structure
@@ -603,7 +603,7 @@ DLL_TLS_API void mbedtls_x509write_crt_free(mbedtls_x509write_cert *ctx);
  *                  for countermeasures against timing attacks).
  *                  ECDSA signatures always require a non-NULL f_rng.
  */
-DLL_TLS_API int mbedtls_x509write_crt_der(mbedtls_x509write_cert *ctx, unsigned char *buf, size_t size,
+int mbedtls_x509write_crt_der(mbedtls_x509write_cert *ctx, unsigned char *buf, size_t size,
         int (*f_rng)(void *, unsigned char *, size_t),
         void *p_rng);
 
@@ -624,7 +624,7 @@ DLL_TLS_API int mbedtls_x509write_crt_der(mbedtls_x509write_cert *ctx, unsigned 
  *                  for countermeasures against timing attacks).
  *                  ECDSA signatures always require a non-NULL f_rng.
  */
-DLL_TLS_API int mbedtls_x509write_crt_pem(mbedtls_x509write_cert *ctx, unsigned char *buf, size_t size,
+int mbedtls_x509write_crt_pem(mbedtls_x509write_cert *ctx, unsigned char *buf, size_t size,
         int (*f_rng)(void *, unsigned char *, size_t),
         void *p_rng);
 #endif /* MBEDTLS_PEM_WRITE_C */

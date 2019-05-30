@@ -5,20 +5,6 @@
 #ifndef MBEDTLS_CONFIG_H
 #define MBEDTLS_CONFIG_H
 
-#ifdef _WIN32
-    #if !defined(CC_IS_MINGW32)
-        #ifdef DLL_HAL_EXPORTS
-            #define DLL_TLS_API __declspec(dllexport)
-        #else
-            #define DLL_TLS_API __declspec(dllimport)
-        #endif
-    #else
-        #define DLL_TLS_API
-    #endif
-#else
-    #define DLL_TLS_API
-#endif
-
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
     #define _CRT_SECURE_NO_DEPRECATE 1
 #endif

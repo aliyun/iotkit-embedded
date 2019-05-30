@@ -88,7 +88,7 @@ typedef enum {
  * @retval NOT_NULL : The contex of HTTP client.
  * @see None.
  */
-DLL_IOT_API void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
+void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
 
 /**
  * @brief   De-initialize the HTTP client
@@ -98,7 +98,7 @@ DLL_IOT_API void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
  * @return None.
  * @see None.
  */
-DLL_IOT_API void    IOT_HTTP_DeInit(void **handle);
+void    IOT_HTTP_DeInit(void **handle);
 
 /**
  * @brief   Handle device name authentication with remote server.
@@ -109,7 +109,7 @@ DLL_IOT_API void    IOT_HTTP_DeInit(void **handle);
  * @retval -1 : Authenticate failed.
  * @see iotx_err_t.
  */
-DLL_IOT_API int     IOT_HTTP_DeviceNameAuth(void *handle);
+int     IOT_HTTP_DeviceNameAuth(void *handle);
 
 /**
  * @brief   Send a message with specific path to server.
@@ -122,7 +122,7 @@ DLL_IOT_API int     IOT_HTTP_DeviceNameAuth(void *handle);
  * @retval -1 : Failed.
  * @see iotx_err_t.
  */
-DLL_IOT_API int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param);
+int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param);
 
 /**
  * @brief   close tcp connection from client to server.
@@ -131,7 +131,7 @@ DLL_IOT_API int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t
  * @return None.
  * @see None.
  */
-DLL_IOT_API void     IOT_HTTP_Disconnect(void *handle);
+void     IOT_HTTP_Disconnect(void *handle);
 
 /** @} */ /* end of api_http */
 /** @} */ /* end of api */
