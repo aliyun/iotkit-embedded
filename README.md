@@ -13,7 +13,7 @@
 # 移植说明
 C-SDK与OS/硬件平台无关, 全部部分用C编写, 它定义了HAL层来对接与硬件相关的功能, 因此在使用C-SDK时用户需要去实现相关的HAL函数
 
-目前C-SDK已实现了在Linux/Windows/AliOS上HAL的实现, 同时对于一些常见的OS或者模组也进行了适配, 可以[访问此处](https://code.aliyun.com/edward.yangx/public-docs/wikis/user-guide/linkkit/Port_Guide/Porting_Overview)查看如何在相应平台上进行SDK的编译与集成
+目前C-SDK已提供了在Linux/Windows上HAL的参考实现, 同时对于一些常见的OS或者模组也进行了适配, 可以[访问此处](https://code.aliyun.com/edward.yangx/public-docs/wikis/user-guide/linkkit/Port_Guide/Porting_Overview)查看如何在相应平台上进行SDK的编译与集成
 
 
 # 编程文档
