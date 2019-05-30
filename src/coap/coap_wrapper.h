@@ -24,16 +24,16 @@ int HAL_SetProductSecret(char *product_secret);
 int HAL_SetDeviceName(char *device_name);
 int HAL_SetDeviceSecret(char *device_secret);
 
-DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks);
-DLL_HAL_API DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t  *p_options);
-DLL_HAL_API unsigned int HAL_DTLSSession_write(DTLSContext *context,
+int HAL_DTLSHooks_set(dtls_hooks_t *hooks);
+DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t  *p_options);
+unsigned int HAL_DTLSSession_write(DTLSContext *context,
         const unsigned char *p_data,
         unsigned int *p_datalen);
-DLL_HAL_API unsigned int HAL_DTLSSession_read(DTLSContext *context,
+unsigned int HAL_DTLSSession_read(DTLSContext *context,
         unsigned char *p_data,
         unsigned int *p_datalen,
         unsigned int timeout_ms);
-DLL_HAL_API unsigned int HAL_DTLSSession_free(DTLSContext *context);
+unsigned int HAL_DTLSSession_free(DTLSContext *context);
 intptr_t HAL_UDP_create(char *host, unsigned short port);
 intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port);
 int HAL_UDP_write(intptr_t p_socket,

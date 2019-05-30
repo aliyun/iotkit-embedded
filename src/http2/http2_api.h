@@ -90,14 +90,14 @@ typedef struct {
     void                *user_data;         /* user data brought in at stream open */
 } stream_data_info_t;
 
-DLL_IOT_API void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
-DLL_IOT_API int IOT_HTTP2_Stream_Open(void *handle, stream_data_info_t *info, header_ext_info_t *header);
-DLL_IOT_API int IOT_HTTP2_Stream_Send(void *handle, stream_data_info_t *info, header_ext_info_t *header);
-DLL_IOT_API int IOT_HTTP2_Stream_Query(void *handle, stream_data_info_t *info, header_ext_info_t *header);
-DLL_IOT_API int IOT_HTTP2_Stream_Close(void *handle, stream_data_info_t *info);
-DLL_IOT_API int IOT_HTTP2_Stream_Send_Message(void *handle, const char *identify,char *channel_id, char *data,
+void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
+int IOT_HTTP2_Stream_Open(void *handle, stream_data_info_t *info, header_ext_info_t *header);
+int IOT_HTTP2_Stream_Send(void *handle, stream_data_info_t *info, header_ext_info_t *header);
+int IOT_HTTP2_Stream_Query(void *handle, stream_data_info_t *info, header_ext_info_t *header);
+int IOT_HTTP2_Stream_Close(void *handle, stream_data_info_t *info);
+int IOT_HTTP2_Stream_Send_Message(void *handle, const char *identify,char *channel_id, char *data,
                                               uint32_t data_len, header_ext_info_t *header);
-DLL_IOT_API int IOT_HTTP2_Disconnect(void *handle);
+int IOT_HTTP2_Disconnect(void *handle);
 
 #ifdef __cplusplus
 }

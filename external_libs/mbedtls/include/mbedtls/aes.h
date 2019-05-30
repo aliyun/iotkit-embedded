@@ -56,14 +56,14 @@ mbedtls_aes_context;
  *
  * \param ctx      AES context to be initialized
  */
-DLL_TLS_API void mbedtls_aes_init(mbedtls_aes_context *ctx);
+void mbedtls_aes_init(mbedtls_aes_context *ctx);
 
 /**
  * \brief          Clear AES context
  *
  * \param ctx      AES context to be cleared
  */
-DLL_TLS_API void mbedtls_aes_free(mbedtls_aes_context *ctx);
+void mbedtls_aes_free(mbedtls_aes_context *ctx);
 
 /**
  * \brief          AES key schedule (encryption)
@@ -74,7 +74,7 @@ DLL_TLS_API void mbedtls_aes_free(mbedtls_aes_context *ctx);
  *
  * \return         0 if successful, or MBEDTLS_ERR_AES_INVALID_KEY_LENGTH
  */
-DLL_TLS_API int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx, const unsigned char *key,
+int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx, const unsigned char *key,
                                        unsigned int keybits);
 
 /**
@@ -86,7 +86,7 @@ DLL_TLS_API int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx, const unsigned 
  *
  * \return         0 if successful, or MBEDTLS_ERR_AES_INVALID_KEY_LENGTH
  */
-DLL_TLS_API int mbedtls_aes_setkey_dec(mbedtls_aes_context *ctx, const unsigned char *key,
+int mbedtls_aes_setkey_dec(mbedtls_aes_context *ctx, const unsigned char *key,
                                        unsigned int keybits);
 
 /**
@@ -99,7 +99,7 @@ DLL_TLS_API int mbedtls_aes_setkey_dec(mbedtls_aes_context *ctx, const unsigned 
  *
  * \return         0 if successful
  */
-DLL_TLS_API int mbedtls_aes_crypt_ecb(mbedtls_aes_context *ctx,
+int mbedtls_aes_crypt_ecb(mbedtls_aes_context *ctx,
                                       int mode,
                                       const unsigned char input[16],
                                       unsigned char output[16]);
@@ -127,7 +127,7 @@ DLL_TLS_API int mbedtls_aes_crypt_ecb(mbedtls_aes_context *ctx,
  *
  * \return         0 if successful, or MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH
  */
-DLL_TLS_API int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
+int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
                                       int mode,
                                       size_t length,
                                       unsigned char iv[16],
@@ -161,7 +161,7 @@ DLL_TLS_API int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_TLS_API int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
+int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
         int mode,
         size_t length,
         size_t *iv_off,
@@ -193,7 +193,7 @@ DLL_TLS_API int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_TLS_API int mbedtls_aes_crypt_cfb8(mbedtls_aes_context *ctx,
+int mbedtls_aes_crypt_cfb8(mbedtls_aes_context *ctx,
                                        int mode,
                                        size_t length,
                                        unsigned char iv[16],
@@ -224,7 +224,7 @@ DLL_TLS_API int mbedtls_aes_crypt_cfb8(mbedtls_aes_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_TLS_API int mbedtls_aes_crypt_ctr(mbedtls_aes_context *ctx,
+int mbedtls_aes_crypt_ctr(mbedtls_aes_context *ctx,
                                       size_t length,
                                       size_t *nc_off,
                                       unsigned char nonce_counter[16],
@@ -244,7 +244,7 @@ DLL_TLS_API int mbedtls_aes_crypt_ctr(mbedtls_aes_context *ctx,
  *
  * \return          0 if successful
  */
-DLL_TLS_API int mbedtls_internal_aes_encrypt(mbedtls_aes_context *ctx,
+int mbedtls_internal_aes_encrypt(mbedtls_aes_context *ctx,
         const unsigned char input[16],
         unsigned char output[16]);
 
@@ -259,7 +259,7 @@ DLL_TLS_API int mbedtls_internal_aes_encrypt(mbedtls_aes_context *ctx,
  *
  * \return          0 if successful
  */
-DLL_TLS_API int mbedtls_internal_aes_decrypt(mbedtls_aes_context *ctx,
+int mbedtls_internal_aes_decrypt(mbedtls_aes_context *ctx,
         const unsigned char input[16],
         unsigned char output[16]);
 
@@ -327,7 +327,7 @@ extern "C" {
  *
  * \return         0 if successful, or 1 if the test failed
  */
-DLL_TLS_API int mbedtls_aes_self_test(int verbose);
+int mbedtls_aes_self_test(int verbose);
 
 #ifdef __cplusplus
 }

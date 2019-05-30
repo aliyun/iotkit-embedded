@@ -225,7 +225,7 @@ mbedtls_ecp_keypair;
  *
  * \return          A statically allocated array, the last entry is 0.
  */
-DLL_TLS_API const mbedtls_ecp_curve_info *mbedtls_ecp_curve_list(void);
+const mbedtls_ecp_curve_info *mbedtls_ecp_curve_list(void);
 
 /**
  * \brief           Get the list of supported curves in order of preferrence
@@ -234,7 +234,7 @@ DLL_TLS_API const mbedtls_ecp_curve_info *mbedtls_ecp_curve_list(void);
  * \return          A statically allocated array,
  *                  terminated with MBEDTLS_ECP_DP_NONE.
  */
-DLL_TLS_API const mbedtls_ecp_group_id *mbedtls_ecp_grp_id_list(void);
+const mbedtls_ecp_group_id *mbedtls_ecp_grp_id_list(void);
 
 /**
  * \brief           Get curve information from an internal group identifier
@@ -243,7 +243,7 @@ DLL_TLS_API const mbedtls_ecp_group_id *mbedtls_ecp_grp_id_list(void);
  *
  * \return          The associated curve information or NULL
  */
-DLL_TLS_API const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_grp_id(mbedtls_ecp_group_id grp_id);
+const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_grp_id(mbedtls_ecp_group_id grp_id);
 
 /**
  * \brief           Get curve information from a TLS NamedCurve value
@@ -252,7 +252,7 @@ DLL_TLS_API const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_grp_id(mbe
  *
  * \return          The associated curve information or NULL
  */
-DLL_TLS_API const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_tls_id(uint16_t tls_id);
+const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_tls_id(uint16_t tls_id);
 
 /**
  * \brief           Get curve information from a human-readable name
@@ -261,37 +261,37 @@ DLL_TLS_API const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_tls_id(uin
  *
  * \return          The associated curve information or NULL
  */
-DLL_TLS_API const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_name(const char *name);
+const mbedtls_ecp_curve_info *mbedtls_ecp_curve_info_from_name(const char *name);
 
 /**
  * \brief           Initialize a point (as zero)
  */
-DLL_TLS_API void mbedtls_ecp_point_init(mbedtls_ecp_point *pt);
+void mbedtls_ecp_point_init(mbedtls_ecp_point *pt);
 
 /**
  * \brief           Initialize a group (to something meaningless)
  */
-DLL_TLS_API void mbedtls_ecp_group_init(mbedtls_ecp_group *grp);
+void mbedtls_ecp_group_init(mbedtls_ecp_group *grp);
 
 /**
  * \brief           Initialize a key pair (as an invalid one)
  */
-DLL_TLS_API void mbedtls_ecp_keypair_init(mbedtls_ecp_keypair *key);
+void mbedtls_ecp_keypair_init(mbedtls_ecp_keypair *key);
 
 /**
  * \brief           Free the components of a point
  */
-DLL_TLS_API void mbedtls_ecp_point_free(mbedtls_ecp_point *pt);
+void mbedtls_ecp_point_free(mbedtls_ecp_point *pt);
 
 /**
  * \brief           Free the components of an ECP group
  */
-DLL_TLS_API void mbedtls_ecp_group_free(mbedtls_ecp_group *grp);
+void mbedtls_ecp_group_free(mbedtls_ecp_group *grp);
 
 /**
  * \brief           Free the components of a key pair
  */
-DLL_TLS_API void mbedtls_ecp_keypair_free(mbedtls_ecp_keypair *key);
+void mbedtls_ecp_keypair_free(mbedtls_ecp_keypair *key);
 
 /**
  * \brief           Copy the contents of point Q into P
@@ -302,7 +302,7 @@ DLL_TLS_API void mbedtls_ecp_keypair_free(mbedtls_ecp_keypair *key);
  * \return          0 if successful,
  *                  MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-DLL_TLS_API int mbedtls_ecp_copy(mbedtls_ecp_point *P, const mbedtls_ecp_point *Q);
+int mbedtls_ecp_copy(mbedtls_ecp_point *P, const mbedtls_ecp_point *Q);
 
 /**
  * \brief           Copy the contents of a group object
@@ -313,7 +313,7 @@ DLL_TLS_API int mbedtls_ecp_copy(mbedtls_ecp_point *P, const mbedtls_ecp_point *
  * \return          0 if successful,
  *                  MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-DLL_TLS_API int mbedtls_ecp_group_copy(mbedtls_ecp_group *dst, const mbedtls_ecp_group *src);
+int mbedtls_ecp_group_copy(mbedtls_ecp_group *dst, const mbedtls_ecp_group *src);
 
 /**
  * \brief           Set a point to zero
@@ -323,7 +323,7 @@ DLL_TLS_API int mbedtls_ecp_group_copy(mbedtls_ecp_group *dst, const mbedtls_ecp
  * \return          0 if successful,
  *                  MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-DLL_TLS_API int mbedtls_ecp_set_zero(mbedtls_ecp_point *pt);
+int mbedtls_ecp_set_zero(mbedtls_ecp_point *pt);
 
 /**
  * \brief           Tell if a point is zero
@@ -332,7 +332,7 @@ DLL_TLS_API int mbedtls_ecp_set_zero(mbedtls_ecp_point *pt);
  *
  * \return          1 if point is zero, 0 otherwise
  */
-DLL_TLS_API int mbedtls_ecp_is_zero(mbedtls_ecp_point *pt);
+int mbedtls_ecp_is_zero(mbedtls_ecp_point *pt);
 
 /**
  * \brief           Compare two points
@@ -346,7 +346,7 @@ DLL_TLS_API int mbedtls_ecp_is_zero(mbedtls_ecp_point *pt);
  * \return          0 if the points are equal,
  *                  MBEDTLS_ERR_ECP_BAD_INPUT_DATA otherwise
  */
-DLL_TLS_API int mbedtls_ecp_point_cmp(const mbedtls_ecp_point *P,
+int mbedtls_ecp_point_cmp(const mbedtls_ecp_point *P,
                                       const mbedtls_ecp_point *Q);
 
 /**
@@ -359,7 +359,7 @@ DLL_TLS_API int mbedtls_ecp_point_cmp(const mbedtls_ecp_point *P,
  *
  * \return          0 if successful, or a MBEDTLS_ERR_MPI_XXX error code
  */
-DLL_TLS_API int mbedtls_ecp_point_read_string(mbedtls_ecp_point *P, int radix,
+int mbedtls_ecp_point_read_string(mbedtls_ecp_point *P, int radix,
         const char *x, const char *y);
 
 /**
@@ -376,7 +376,7 @@ DLL_TLS_API int mbedtls_ecp_point_read_string(mbedtls_ecp_point *P, int radix,
  *                  or MBEDTLS_ERR_ECP_BAD_INPUT_DATA
  *                  or MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL
  */
-DLL_TLS_API int mbedtls_ecp_point_write_binary(const mbedtls_ecp_group *grp, const mbedtls_ecp_point *P,
+int mbedtls_ecp_point_write_binary(const mbedtls_ecp_group *grp, const mbedtls_ecp_point *P,
         int format, size_t *olen,
         unsigned char *buf, size_t buflen);
 
@@ -398,7 +398,7 @@ DLL_TLS_API int mbedtls_ecp_point_write_binary(const mbedtls_ecp_group *grp, con
  *                  belongs to the given group, see mbedtls_ecp_check_pubkey() for
  *                  that.
  */
-DLL_TLS_API int mbedtls_ecp_point_read_binary(const mbedtls_ecp_group *grp, mbedtls_ecp_point *P,
+int mbedtls_ecp_point_read_binary(const mbedtls_ecp_group *grp, mbedtls_ecp_point *P,
         const unsigned char *buf, size_t ilen);
 
 /**
@@ -415,7 +415,7 @@ DLL_TLS_API int mbedtls_ecp_point_read_binary(const mbedtls_ecp_group *grp, mbed
  *                  MBEDTLS_ERR_MPI_XXX if initialization failed
  *                  MBEDTLS_ERR_ECP_BAD_INPUT_DATA if input is invalid
  */
-DLL_TLS_API int mbedtls_ecp_tls_read_point(const mbedtls_ecp_group *grp, mbedtls_ecp_point *pt,
+int mbedtls_ecp_tls_read_point(const mbedtls_ecp_group *grp, mbedtls_ecp_point *pt,
         const unsigned char **buf, size_t len);
 
 /**
@@ -432,7 +432,7 @@ DLL_TLS_API int mbedtls_ecp_tls_read_point(const mbedtls_ecp_group *grp, mbedtls
  *                  or MBEDTLS_ERR_ECP_BAD_INPUT_DATA
  *                  or MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL
  */
-DLL_TLS_API int mbedtls_ecp_tls_write_point(const mbedtls_ecp_group *grp, const mbedtls_ecp_point *pt,
+int mbedtls_ecp_tls_write_point(const mbedtls_ecp_group *grp, const mbedtls_ecp_point *pt,
         int format, size_t *olen,
         unsigned char *buf, size_t blen);
 
@@ -449,7 +449,7 @@ DLL_TLS_API int mbedtls_ecp_tls_write_point(const mbedtls_ecp_group *grp, const 
  * \note            Index should be a value of RFC 4492's enum NamedCurve,
  *                  usually in the form of a MBEDTLS_ECP_DP_XXX macro.
  */
-DLL_TLS_API int mbedtls_ecp_group_load(mbedtls_ecp_group *grp, mbedtls_ecp_group_id index);
+int mbedtls_ecp_group_load(mbedtls_ecp_group *grp, mbedtls_ecp_group_id index);
 
 /**
  * \brief           Set a group from a TLS ECParameters record
@@ -464,7 +464,7 @@ DLL_TLS_API int mbedtls_ecp_group_load(mbedtls_ecp_group *grp, mbedtls_ecp_group
  *                  MBEDTLS_ERR_MPI_XXX if initialization failed
  *                  MBEDTLS_ERR_ECP_BAD_INPUT_DATA if input is invalid
  */
-DLL_TLS_API int mbedtls_ecp_tls_read_group(mbedtls_ecp_group *grp, const unsigned char **buf, size_t len);
+int mbedtls_ecp_tls_read_group(mbedtls_ecp_group *grp, const unsigned char **buf, size_t len);
 
 /**
  * \brief           Write the TLS ECParameters record for a group
@@ -477,7 +477,7 @@ DLL_TLS_API int mbedtls_ecp_tls_read_group(mbedtls_ecp_group *grp, const unsigne
  * \return          0 if successful,
  *                  or MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL
  */
-DLL_TLS_API int mbedtls_ecp_tls_write_group(const mbedtls_ecp_group *grp, size_t *olen,
+int mbedtls_ecp_tls_write_group(const mbedtls_ecp_group *grp, size_t *olen,
         unsigned char *buf, size_t blen);
 
 /**
@@ -506,7 +506,7 @@ DLL_TLS_API int mbedtls_ecp_tls_write_group(const mbedtls_ecp_group *grp, size_t
  *                  or P is not a valid pubkey,
  *                  MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-DLL_TLS_API int mbedtls_ecp_mul(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
+int mbedtls_ecp_mul(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
                                 const mbedtls_mpi *m, const mbedtls_ecp_point *P,
                                 int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
 
@@ -530,7 +530,7 @@ DLL_TLS_API int mbedtls_ecp_mul(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
  *                  or P or Q is not a valid pubkey,
  *                  MBEDTLS_ERR_MPI_ALLOC_FAILED if memory allocation failed
  */
-DLL_TLS_API int mbedtls_ecp_muladd(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
+int mbedtls_ecp_muladd(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
                                    const mbedtls_mpi *m, const mbedtls_ecp_point *P,
                                    const mbedtls_mpi *n, const mbedtls_ecp_point *Q);
 
@@ -555,7 +555,7 @@ DLL_TLS_API int mbedtls_ecp_muladd(mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
  *                  in order to ease use with other structures such as
  *                  mbedtls_ecdh_context of mbedtls_ecdsa_context.
  */
-DLL_TLS_API int mbedtls_ecp_check_pubkey(const mbedtls_ecp_group *grp, const mbedtls_ecp_point *pt);
+int mbedtls_ecp_check_pubkey(const mbedtls_ecp_group *grp, const mbedtls_ecp_point *pt);
 
 /**
  * \brief           Check that an mbedtls_mpi is a valid private key for this curve
@@ -570,7 +570,7 @@ DLL_TLS_API int mbedtls_ecp_check_pubkey(const mbedtls_ecp_group *grp, const mbe
  *                  in order to ease use with other structures such as
  *                  mbedtls_ecdh_context of mbedtls_ecdsa_context.
  */
-DLL_TLS_API int mbedtls_ecp_check_privkey(const mbedtls_ecp_group *grp, const mbedtls_mpi *d);
+int mbedtls_ecp_check_privkey(const mbedtls_ecp_group *grp, const mbedtls_mpi *d);
 
 /**
  * \brief           Generate a keypair with configurable base point
@@ -589,7 +589,7 @@ DLL_TLS_API int mbedtls_ecp_check_privkey(const mbedtls_ecp_group *grp, const mb
  *                  in order to ease use with other structures such as
  *                  mbedtls_ecdh_context of mbedtls_ecdsa_context.
  */
-DLL_TLS_API int mbedtls_ecp_gen_keypair_base(mbedtls_ecp_group *grp,
+int mbedtls_ecp_gen_keypair_base(mbedtls_ecp_group *grp,
         const mbedtls_ecp_point *G,
         mbedtls_mpi *d, mbedtls_ecp_point *Q,
         int (*f_rng)(void *, unsigned char *, size_t),
@@ -611,7 +611,7 @@ DLL_TLS_API int mbedtls_ecp_gen_keypair_base(mbedtls_ecp_group *grp,
  *                  in order to ease use with other structures such as
  *                  mbedtls_ecdh_context of mbedtls_ecdsa_context.
  */
-DLL_TLS_API int mbedtls_ecp_gen_keypair(mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp_point *Q,
+int mbedtls_ecp_gen_keypair(mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp_point *Q,
                                         int (*f_rng)(void *, unsigned char *, size_t),
                                         void *p_rng);
 
@@ -626,7 +626,7 @@ DLL_TLS_API int mbedtls_ecp_gen_keypair(mbedtls_ecp_group *grp, mbedtls_mpi *d, 
  * \return          0 if successful,
  *                  or a MBEDTLS_ERR_ECP_XXX or MBEDTLS_MPI_XXX error code
  */
-DLL_TLS_API int mbedtls_ecp_gen_key(mbedtls_ecp_group_id grp_id, mbedtls_ecp_keypair *key,
+int mbedtls_ecp_gen_key(mbedtls_ecp_group_id grp_id, mbedtls_ecp_keypair *key,
                                     int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
 
 /**
@@ -639,7 +639,7 @@ DLL_TLS_API int mbedtls_ecp_gen_key(mbedtls_ecp_group_id grp_id, mbedtls_ecp_key
  *                  MBEDTLS_ERR_ECP_BAD_INPUT_DATA, or
  *                  a MBEDTLS_ERR_ECP_XXX or MBEDTLS_ERR_MPI_XXX code.
  */
-DLL_TLS_API int mbedtls_ecp_check_pub_priv(const mbedtls_ecp_keypair *pub, const mbedtls_ecp_keypair *prv);
+int mbedtls_ecp_check_pub_priv(const mbedtls_ecp_keypair *pub, const mbedtls_ecp_keypair *prv);
 
 #if defined(MBEDTLS_SELF_TEST)
 
@@ -648,7 +648,7 @@ DLL_TLS_API int mbedtls_ecp_check_pub_priv(const mbedtls_ecp_keypair *pub, const
  *
  * \return         0 if successful, or 1 if a test failed
  */
-DLL_TLS_API int mbedtls_ecp_self_test(int verbose);
+int mbedtls_ecp_self_test(int verbose);
 
 #endif /* MBEDTLS_SELF_TEST */
 

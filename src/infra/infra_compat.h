@@ -16,8 +16,8 @@ typedef enum _IOT_LogLevel {
     IOT_LOG_DEBUG,
 } IOT_LogLevel;
 
-DLL_IOT_API void IOT_SetLogLevel(IOT_LogLevel level);
-DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
+void IOT_SetLogLevel(IOT_LogLevel level);
+void IOT_DumpMemoryStats(IOT_LogLevel level);
 
 /**
  * @brief event list used for iotx_regist_event_monitor_cb
@@ -117,8 +117,8 @@ typedef enum {
 } iotx_ioctl_event_t;
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
-#define DECLARE_EVENT_CALLBACK(evt, cb)         DLL_IOT_API int iotx_register_for_##evt(cb);
-#define DEFINE_EVENT_CALLBACK(evt, cb)          DLL_IOT_API int iotx_register_for_##evt(cb) { \
+#define DECLARE_EVENT_CALLBACK(evt, cb)         int iotx_register_for_##evt(cb);
+#define DEFINE_EVENT_CALLBACK(evt, cb)          int iotx_register_for_##evt(cb) { \
         if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {return -1;} \
         g_impl_event_map[evt].callback = (void *)callback;return 0;}
 

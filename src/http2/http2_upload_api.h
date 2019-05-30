@@ -77,13 +77,13 @@ typedef struct {
 } http2_upload_result_cb_t;
 
 /* http2 uploadfile connect api, http2 handle returned */
-DLL_IOT_API void *IOT_HTTP2_UploadFile_Connect(http2_upload_conn_info_t *conn_info, http2_status_cb_t *cb);
+void *IOT_HTTP2_UploadFile_Connect(http2_upload_conn_info_t *conn_info, http2_status_cb_t *cb);
 
 /* http2 uploadfile start api */
-DLL_IOT_API int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *params, http2_upload_result_cb_t *cb, void *user_data);
+int IOT_HTTP2_UploadFile_Request(void *http2_handle, http2_upload_params_t *params, http2_upload_result_cb_t *cb, void *user_data);
 
 /* http2 uploadfile disconnect api */
-DLL_IOT_API int IOT_HTTP2_UploadFile_Disconnect(void *handle);
+int IOT_HTTP2_UploadFile_Disconnect(void *handle);
 
 #ifdef __cplusplus
 }

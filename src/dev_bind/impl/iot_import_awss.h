@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-#ifndef DLL_HAL_API
-  #define DLL_HAL_API
+#ifndef 
+  #define 
 #endif
 #ifndef _IN_ 
   #define _IN_ 

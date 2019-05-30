@@ -80,7 +80,7 @@ extern "C" {
  *                              - 3 Informational
  *                              - 4 Verbose
  */
-DLL_TLS_API void mbedtls_debug_set_threshold(int threshold);
+void mbedtls_debug_set_threshold(int threshold);
 
 /**
  * \brief    Print a message to the debug output. This function is always used
@@ -97,7 +97,7 @@ DLL_TLS_API void mbedtls_debug_set_threshold(int threshold);
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-DLL_TLS_API void mbedtls_debug_print_msg(const mbedtls_ssl_context *ssl, int level,
+void mbedtls_debug_print_msg(const mbedtls_ssl_context *ssl, int level,
         const char *file, int line,
         const char *format, ...);
 
@@ -116,7 +116,7 @@ DLL_TLS_API void mbedtls_debug_print_msg(const mbedtls_ssl_context *ssl, int lev
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-DLL_TLS_API void mbedtls_debug_print_ret(const mbedtls_ssl_context *ssl, int level,
+void mbedtls_debug_print_ret(const mbedtls_ssl_context *ssl, int level,
         const char *file, int line,
         const char *text, int ret);
 
@@ -137,7 +137,7 @@ DLL_TLS_API void mbedtls_debug_print_ret(const mbedtls_ssl_context *ssl, int lev
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-DLL_TLS_API void mbedtls_debug_print_buf(const mbedtls_ssl_context *ssl, int level,
+void mbedtls_debug_print_buf(const mbedtls_ssl_context *ssl, int level,
         const char *file, int line, const char *text,
         const unsigned char *buf, size_t len);
 
@@ -158,7 +158,7 @@ DLL_TLS_API void mbedtls_debug_print_buf(const mbedtls_ssl_context *ssl, int lev
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-DLL_TLS_API void mbedtls_debug_print_mpi(const mbedtls_ssl_context *ssl, int level,
+void mbedtls_debug_print_mpi(const mbedtls_ssl_context *ssl, int level,
         const char *file, int line,
         const char *text, const mbedtls_mpi *X);
 #endif
@@ -180,7 +180,7 @@ DLL_TLS_API void mbedtls_debug_print_mpi(const mbedtls_ssl_context *ssl, int lev
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-DLL_TLS_API void mbedtls_debug_print_ecp(const mbedtls_ssl_context *ssl, int level,
+void mbedtls_debug_print_ecp(const mbedtls_ssl_context *ssl, int level,
         const char *file, int line,
         const char *text, const mbedtls_ecp_point *X);
 #endif
@@ -201,7 +201,7 @@ DLL_TLS_API void mbedtls_debug_print_ecp(const mbedtls_ssl_context *ssl, int lev
  * \attention       This function is intended for INTERNAL usage within the
  *                  library only.
  */
-DLL_TLS_API void mbedtls_debug_print_crt(const mbedtls_ssl_context *ssl, int level,
+void mbedtls_debug_print_crt(const mbedtls_ssl_context *ssl, int level,
         const char *file, int line,
         const char *text, const mbedtls_x509_crt *crt);
 #endif

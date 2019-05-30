@@ -86,7 +86,7 @@ typedef enum {
  * @return success: device id (>=0), fail: -1.
  *
  */
-DLL_IOT_API int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info);
+int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info);
 
 /**
  * @brief start device network connection.
@@ -98,7 +98,7 @@ DLL_IOT_API int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_
  * @return success: device id (>=0), fail: -1.
  *
  */
-DLL_IOT_API int IOT_Linkkit_Connect(int devid);
+int IOT_Linkkit_Connect(int devid);
 
 /**
  * @brief try to receive message from cloud and dispatch these message to user event callback
@@ -108,7 +108,7 @@ DLL_IOT_API int IOT_Linkkit_Connect(int devid);
  * @return void.
  *
  */
-DLL_IOT_API void IOT_Linkkit_Yield(int timeout_ms);
+void IOT_Linkkit_Yield(int timeout_ms);
 
 /**
  * @brief close device network connection and release resources.
@@ -120,7 +120,7 @@ DLL_IOT_API void IOT_Linkkit_Yield(int timeout_ms);
  * @return success: 0, fail: -1.
  *
  */
-DLL_IOT_API int IOT_Linkkit_Close(int devid);
+int IOT_Linkkit_Close(int devid);
 
 /**
  * @brief Report message to cloud
@@ -140,7 +140,7 @@ DLL_IOT_API int IOT_Linkkit_Close(int devid);
  * @return success: 0 or message id (>=1), fail: -1.
  *
  */
-DLL_IOT_API int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
+int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
                                    int payload_len);
 
 /**
@@ -161,7 +161,7 @@ DLL_IOT_API int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, 
  * @return success: 0 or message id (>=1), fail: -1.
  *
  */
-DLL_IOT_API int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
+int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload,
                                   int payload_len);
 
 /**
@@ -176,7 +176,7 @@ DLL_IOT_API int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, u
  * @return success: message id (>=1), fail: -1.
  *
  */
-DLL_IOT_API int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
+int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
 
 #if defined(__cplusplus)
 }

@@ -31,12 +31,12 @@ void HAL_Awss_Switch_Channel(char primary_channel, char secondary_channel, uint8
 void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb);
 int HAL_Awss_Get_Channelscan_Interval_Ms(void);
 /* zconfig_vendor_common.c */
-DLL_HAL_API p_HAL_Aes128_t HAL_Aes128_Init(
+p_HAL_Aes128_t HAL_Aes128_Init(
             _IN_ const uint8_t *key,
             _IN_ const uint8_t *iv,
             _IN_ AES_DIR_t dir);
-DLL_HAL_API int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
-DLL_HAL_API int HAL_Aes128_Cbc_Decrypt(
+int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
+int HAL_Aes128_Cbc_Decrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t blockNum,
@@ -54,4 +54,4 @@ int HAL_Awss_Connect_Ap(
 /*************************************** phone ap specially required hals ***************************************/
 int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
                                   _IN_ uint8_t *buffer, _IN_ int len);
-DLL_HAL_API int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
+int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);

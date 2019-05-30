@@ -9,16 +9,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#ifdef _WIN32
-#ifdef DLL_IOT_EXPORTS
-#define DLL_IOT_API __declspec(dllexport)
-#else
-#define DLL_IOT_API __declspec(dllimport)
-#endif
-#else
-#define DLL_IOT_API
-#endif
-
 #if defined (__CC_ARM)
 #define ssize_t int
 #elif defined (__ICCARM__)
@@ -105,7 +95,7 @@ linkkit_params_t *linkkit_gateway_get_default_params(void);
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, int value_len);
+int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, int value_len);
 
 /**
  * @brief set event callback
@@ -116,7 +106,7 @@ DLL_IOT_API int linkkit_gateway_setopt(linkkit_params_t *params, int option, voi
  *
  * @return 0 when success, < 0 when fail.
  */
-DLL_IOT_API int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev,
+int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev,
         void *ctx),
         void *ctx);
 
@@ -127,14 +117,14 @@ DLL_IOT_API int linkkit_gateway_set_event_callback(linkkit_params_t *params, int
  *
  * @return 0 when success, < 0 when fail.
  */
-DLL_IOT_API int linkkit_gateway_init(linkkit_params_t *initParams);
+int linkkit_gateway_init(linkkit_params_t *initParams);
 
 /**
  * @brief linkkit deinitialization.
  *
  * @return 0 when success, < 0 when fail.
  */
-DLL_IOT_API int linkkit_gateway_exit(void);
+int linkkit_gateway_exit(void);
 
 typedef struct {
 
@@ -207,7 +197,7 @@ typedef struct {
  *
  * @return device id, 0 > when success, < 0 when fail.
  */
-DLL_IOT_API int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx);
+int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx);
 
 /**
  * @brief stop linkkit gateway.
@@ -216,7 +206,7 @@ DLL_IOT_API int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx);
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_stop(int devid);
+int linkkit_gateway_stop(int devid);
 
 /**
  * @brief register subdev to gateway.
@@ -227,7 +217,7 @@ DLL_IOT_API int linkkit_gateway_stop(int devid);
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *deviceSecret);
+int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *deviceSecret);
 
 /**
  * @brief deregister subdev from gateway.
@@ -237,7 +227,7 @@ DLL_IOT_API int linkkit_gateway_subdev_register(char *productKey, char *deviceNa
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName);
+int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName);
 
 /**
  * @brief create subdev and install callback funstions.
@@ -249,7 +239,7 @@ DLL_IOT_API int linkkit_gateway_subdev_unregister(char *productKey, char *device
  *
  * @return device id, 0 > when success, < 0 when fail.
  */
-DLL_IOT_API int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cbs_t *cbs, void *ctx);
+int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cbs_t *cbs, void *ctx);
 
 /**
  * @brief destroy subdev by device id.
@@ -258,7 +248,7 @@ DLL_IOT_API int linkkit_gateway_subdev_create(char *productKey, char *deviceName
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_subdev_destroy(int devid);
+int linkkit_gateway_subdev_destroy(int devid);
 
 /**
  * @brief make subdev accessible from cloud.
@@ -267,7 +257,7 @@ DLL_IOT_API int linkkit_gateway_subdev_destroy(int devid);
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_subdev_login(int devid);
+int linkkit_gateway_subdev_login(int devid);
 
 /**
  * @brief make subdev inaccessible on cloud.
@@ -276,7 +266,7 @@ DLL_IOT_API int linkkit_gateway_subdev_login(int devid);
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_subdev_logout(int devid);
+int linkkit_gateway_subdev_logout(int devid);
 
 enum {
     LINKKIT_STATE_ENABLED  = 0, /* device is enabled by cloud  */
@@ -301,7 +291,7 @@ typedef struct {
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo);
+int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo);
 
 /**
  * @brief post event to cloud.
@@ -313,7 +303,7 @@ DLL_IOT_API int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinf
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *event, int timeout_ms);
+int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *event, int timeout_ms);
 
 /**
  * @brief post event to cloud asynchronously.
@@ -327,7 +317,7 @@ DLL_IOT_API int linkkit_gateway_trigger_event_json_sync(int devid, char *identif
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event, int timeout_ms,
+int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event, int timeout_ms,
         void (*func)(int retval, void *ctx), void *ctx);
 
 
@@ -340,7 +330,7 @@ DLL_IOT_API int linkkit_gateway_trigger_event_json(int devid, char *identifier, 
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeout_ms);
+int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeout_ms);
 
 /**
  * @brief post property to cloud asynchronously.
@@ -353,7 +343,7 @@ DLL_IOT_API int linkkit_gateway_post_property_json_sync(int devid, char *propert
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms,
+int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms,
         void (*func)(int retval, void *ctx),
         void *ctx);
 
@@ -366,7 +356,7 @@ DLL_IOT_API int linkkit_gateway_post_property_json(int devid, char *property, in
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_post_rawdata(int devid, void *data, int len);
+int linkkit_gateway_post_rawdata(int devid, void *data, int len);
 
 typedef enum {
     LINKKIT_OTA_EVENT_NEW_VERSION_DETECTED = 1,
@@ -387,7 +377,7 @@ typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t c
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp);
+int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp);
 
 /**
  * @brief this function used to execute fota process.
@@ -397,7 +387,7 @@ DLL_IOT_API int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t call
  *
  * @return 0 when success, -1 when fail.
  */
-DLL_IOT_API int linkkit_gateway_invoke_fota_service(void *data_buf, int data_buf_length);
+int linkkit_gateway_invoke_fota_service(void *data_buf, int data_buf_length);
 
 typedef struct {
     char *attrKey;    /* the key of extend info. */
@@ -414,7 +404,7 @@ typedef struct {
  *
  * @return 0 when success, < 0 when fail.
  */
-DLL_IOT_API int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos,
+int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos,
         int timeout_ms);
 
 /**
@@ -427,7 +417,7 @@ DLL_IOT_API int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *exti
  *
  * @return 0 when success, < 0 when fail.
  */
-DLL_IOT_API int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos,
+int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb_extinfos,
         int timeout_ms);
 
 /**
@@ -435,7 +425,7 @@ DLL_IOT_API int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *ex
  *
  * @return number devinfos.
  */
-DLL_IOT_API int linkkit_gateway_get_num_devices(void);
+int linkkit_gateway_get_num_devices(void);
 
 #ifdef __cplusplus
 }

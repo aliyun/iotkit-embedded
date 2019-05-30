@@ -30,12 +30,12 @@ void HAL_Awss_Close_Monitor(void);
 void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb);
 void HAL_Awss_Switch_Channel(char primary_channel, char secondary_channel, uint8_t bssid[ETH_ALEN]);
 int HAL_Awss_Get_Channelscan_Interval_Ms(void);
-DLL_HAL_API p_HAL_Aes128_t HAL_Aes128_Init(
+p_HAL_Aes128_t HAL_Aes128_Init(
             _IN_ const uint8_t *key,
             _IN_ const uint8_t *iv,
             _IN_ AES_DIR_t dir);
-DLL_HAL_API int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
-DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
+int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
+int HAL_Aes128_Cfb_Decrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t length,

@@ -132,7 +132,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config);
  * @return None.
  * @see None.
  */
-DLL_IOT_API void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
+void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
 
 
 /**
@@ -145,7 +145,7 @@ DLL_IOT_API void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
  * @retval IOTX_ERR_AUTH_FAILED     : Authenticate failed or timeout.
  * @see iotx_ret_code_t.
  */
-DLL_IOT_API int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
+int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 
 
 /**
@@ -157,7 +157,7 @@ DLL_IOT_API int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
  * @return status.
  * @see iotx_ret_code_t.
  */
-DLL_IOT_API int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
+int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
 
 /**
@@ -173,7 +173,7 @@ DLL_IOT_API int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
  * @retval IOTX_ERR_NOT_AUTHED      : The client hasn't authenticated with server
  * @see iotx_ret_code_t.
  */
-DLL_IOT_API int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
+int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
 
 /**
 * @brief Retrieves the length and payload pointer of specified message.
@@ -186,7 +186,7 @@ DLL_IOT_API int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_
 * @retval IOTX_ERR_INVALID_PARAM    : Can't get the payload due to invalid parameter.
 * @see iotx_ret_code_t.
 **/
-DLL_IOT_API int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
+int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 
 /**
 * @brief Get the response code from a CoAP message.
@@ -199,7 +199,7 @@ DLL_IOT_API int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_
 * @retval  IOTX_ERR_INVALID_PARAM   : Pointer to the message is NULL.
 * @see iotx_ret_code_t.
 **/
-DLL_IOT_API int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);
+int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);
 
 /** @} */ /* end of api_coap */
 /** @} */ /* end of api */

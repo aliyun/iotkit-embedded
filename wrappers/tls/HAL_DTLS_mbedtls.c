@@ -342,7 +342,7 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
     return DTLS_SUCCESS;
 }
 
-DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks)
+int HAL_DTLSHooks_set(dtls_hooks_t *hooks)
 {
     if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
         return DTLS_INVALID_PARAM;

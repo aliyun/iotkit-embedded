@@ -67,7 +67,7 @@ unsigned long mbedtls_timing_get_timer(struct mbedtls_timing_hr_time *val, int r
  *                 context, this means one for the whole process, not one per
  *                 thread.
  */
-DLL_TLS_API void mbedtls_set_alarm(int seconds);
+void mbedtls_set_alarm(int seconds);
 
 /**
  * \brief          Set a pair of delays to watch
@@ -79,7 +79,7 @@ DLL_TLS_API void mbedtls_set_alarm(int seconds);
  * \param fin_ms   Second (final) delay in milliseconds.
  *                 Pass 0 to cancel the current delay.
  */
-DLL_TLS_API void mbedtls_timing_set_delay(void *data, uint32_t int_ms, uint32_t fin_ms);
+void mbedtls_timing_set_delay(void *data, uint32_t int_ms, uint32_t fin_ms);
 
 /**
  * \brief          Get the status of delays
@@ -93,7 +93,7 @@ DLL_TLS_API void mbedtls_timing_set_delay(void *data, uint32_t int_ms, uint32_t 
  *                  1 if only the intermediate delay is passed,
  *                  2 if the final delay is passed.
  */
-DLL_TLS_API int mbedtls_timing_get_delay(void *data);
+int mbedtls_timing_get_delay(void *data);
 
 #ifdef __cplusplus
 }
@@ -113,7 +113,7 @@ extern "C" {
  *
  * \return         0 if successful, or 1 if a test failed
  */
-DLL_TLS_API int mbedtls_timing_self_test(int verbose);
+int mbedtls_timing_self_test(int verbose);
 #endif
 
 #ifdef __cplusplus

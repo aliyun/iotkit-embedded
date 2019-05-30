@@ -7,34 +7,6 @@
 extern "C" {
 #endif
 
-#ifdef _WIN32
-    #if !defined(CC_IS_MINGW32)
-        #ifdef DLL_HAL_EXPORTS
-            #define DLL_HAL_API __declspec(dllexport)
-        #else
-            #define DLL_HAL_API __declspec(dllimport)
-        #endif
-    #else
-        #define DLL_HAL_API
-    #endif
-#else
-    #define DLL_HAL_API
-#endif
-
-#ifdef _WIN32
-    #if !defined(CC_IS_MINGW32)
-        #ifdef DLL_IOT_EXPORTS
-            #define DLL_IOT_API __declspec(dllexport)
-        #else
-            #define DLL_IOT_API __declspec(dllimport)
-        #endif
-    #else
-        #define DLL_IOT_API
-    #endif
-#else
-    #define DLL_IOT_API
-#endif
-
 #define IOTX_SDK_VERSION                "3.0.1"
 #define IOTX_ALINK_VERSION              "20"
 #define IOTX_FIRMWARE_VERSION_LEN       (32)
