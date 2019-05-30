@@ -51,6 +51,23 @@ int HAL_ThreadCreate(
             hal_os_thread_param_t *hal_os_thread_param,
             int *stack_used);
 
+static int do_cmd_exec(char *cmd, char *result, int len)
+{
+    char buf[1024];
+    FILE *filp;
+    int ret = 0;
+    filp = popen(cmd, "r");
+    if (!filp) {
+        printf("cmd: %s failed\n", cmd);
+        return -1;
+    }
+    memset(buf, '\0', sizeof(buf));
+    ret = fread(buf, sizeof(char), sizeof(buf) - 1, filp);
+    pclose(filp);
+
+    return snprintf(result, len, "%s", buf);
+}
+
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
  *
@@ -348,12 +365,12 @@ int HAL_Awss_Connect_Ap(
  */
 int HAL_Sys_Net_Is_Ready()
 {
-    char buffer[256] = {0};
-    int ret = 0;
-    memset(buffer, 0, 256);
-    snprintf(buffer, 256, "ifconfig %s | grep 'inet addr'", g_ifname);
-    ret = system(buffer);
-    return (0 == ret);
+    char result_buf[1024] = {0};
+    do_cmd_exec("ifconfig", result_buf, sizeof(result_buf));
+    if (strstr(result_buf, "inet addr")) {
+        return 1;
+    }
+    return 0;
 }
 
 /**
@@ -520,17 +537,17 @@ int HAL_Wifi_Get_Ap_Info(
     char *data;
 
     if (NULL != ssid) {
-        ret = system("wpa_cli status | grep ^ssid | sed 's/^ssid=//g' | tee /tmp/ssid");
+        ret = system("wpa_cli status | grep ^ssid | sed 's/^ssid=//g' > /tmp/ssid");
         read_string_from_file(ssid, "/tmp/ssid", HAL_MAX_SSID_LEN);
     }
 
     if (NULL != passwd) {
-        ret = system("wpa_cli status | grep ^passphrase | sed 's/^passphrase=//g' | tee /tmp/passphrase");
+        ret = system("wpa_cli status | grep ^passphrase | sed 's/^passphrase=//g' > /tmp/passphrase");
         read_string_from_file(passwd, "/tmp/passphrase", HAL_MAX_PASSWD_LEN);
     }
 
     if (NULL != bssid) {
-        ret = system("wpa_cli status | grep ^bssid | sed 's/^bssid=//g' | tee /tmp/bssid");
+        ret = system("wpa_cli status | grep ^bssid | sed 's/^bssid=//g' > /tmp/bssid");
         read_string_from_file((char *)bssid, "/tmp/bssid", ETH_ALEN);
     }
 
