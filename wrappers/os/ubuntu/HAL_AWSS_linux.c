@@ -40,7 +40,7 @@
 #include "wrappers_defs.h"
 
 /* please use ifconfig to get your wireless card's name, and replace g_ifname */
-char *g_ifname = "wlx00259ce04ceb";
+char *g_ifname = "wlx00259cf84f36";
 
 char g_opened_ap[36] = {0};
 
@@ -416,6 +416,8 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
         strncpy(t_ifr.ifr_name, g_ifname, sizeof(t_ifr.ifr_name) - 1);
         if (ioctl(t_socket, SIOCGIFINDEX, &t_ifr) < 0) {
             printf("<create_raw_socket> ioctl(SIOCGIFINDEX) failed!");
+            close(t_socket);
+            t_socket = -1;
             return -1;
         }
         /* bind the raw socket to the interface */
@@ -426,6 +428,8 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
         t_sll.sll_protocol = htons(ETH_P_ALL);
         if (bind(t_socket, (struct sockaddr *)&t_sll, sizeof(t_sll)) < 0) {
             printf("<create_raw_socket> bind(ETH_P_ALL) failed!");
+            close(t_socket);
+            t_socket = -1;
             return -1;
         }
         /* open promisc */
@@ -434,6 +438,8 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
         t_mr.mr_type = PACKET_MR_PROMISC;
         if (setsockopt(t_socket, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &t_mr, sizeof(t_mr)) < 0) {
             printf("<create_raw_socket> setsockopt(PACKET_MR_PROMISC) failed!");
+            close(t_socket);
+            t_socket = -1;
             return -1;
         }
     }
@@ -446,6 +452,8 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
     t_size = write(t_socket, t_buffer, len);
     if (t_size < 0) {
         printf("<send_80211_frame> write() failed!");
+        close(t_socket);
+        t_socket = -1;
         return -1;
     }
     return t_size;
