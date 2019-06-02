@@ -8,10 +8,20 @@ extern "C" {
 #define SUCCESS_RETURN (0)
 #define FAILURE_RETURN (-1)
 static int processed_packet = 0;
-static uint8_t bssid0[ETH_ALEN] = {0};
+static uint8_t mcast_bssid_mac[ETH_ALEN] = {0};
+static uint8_t mcast_src_mac[ETH_ALEN] = {0};
 static int mcast_locked_channel = -1;
 static struct mcast_smartconfig_data_type mcast_smartconfig_data = {0};
 static uint8_t receive_record[MCAST_MAX_LEN] = {0};
+
+void reset_mcast_data() {
+    processed_packet = 0;
+    memset(mcast_bssid_mac, 0, ETH_ALEN);
+    memset(mcast_src_mac, 0, ETH_ALEN);
+    mcast_locked_channel = -1;
+    memset(&(mcast_smartconfig_data), 0, sizeof(struct mcast_smartconfig_data_type));
+    memset(receive_record, 0, MCAST_MAX_LEN);
+}
 
 int mcast_receive_done()
 {
@@ -78,9 +88,9 @@ void set_zc_ssid(int valid_bssid)
 int set_zc_bssid()
 {
     /* compare the last 3 bytes of bssid from apist with the one from app */
-    if (!memcmp(mcast_smartconfig_data.bssid, (uint8_t *)bssid0 + 3, 3)) {
-        memcpy(zc_bssid, bssid0, ETH_ALEN);
-        awss_debug("bssid0 from aplist");
+    if (!memcmp(mcast_smartconfig_data.bssid, (uint8_t *)mcast_bssid_mac + 3, 3)) {
+        memcpy(zc_bssid, mcast_bssid_mac, ETH_ALEN);
+        awss_debug("mcast_bssid_mac from aplist");
         return SUCCESS_RETURN;
     } else {
 #ifdef AWSS_SUPPORT_APLIST
@@ -171,12 +181,13 @@ int parse_result()
         awss_err("mcast: checksum mismatch\n");
         return -1;
     }
+    gen16ByteToken();
     ret = decode_passwd();
+    reset_mcast_data();
     if (SUCCESS_RETURN != ret) {
         awss_err("mcast: passwd error\n");
         return -1;
     }
-    gen16ByteToken();
     /* TODO: check channel info*/
     zconfig_set_state(STATE_RCV_DONE, 0, mcast_locked_channel);
     return SUCCESS_RETURN;
@@ -376,8 +387,23 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
 #endif
         return FAILURE_RETURN;
     }
-    /* TODO this should not execture each packet */
-    memcpy(bssid0, res->bssid, ETH_ALEN);
+    /* Filter out interference */
+    /*
+         * 1) src not equal, bssid equal, interference
+         * 2) src not equal, bssid not equal, interference
+         * 3) src equal, bssid equal, good, go on
+         * 4) src equal, bssid not equal
+    */
+
+    if (!memcmp(mcast_src_mac, zero_mac, ETH_ALEN)) {
+        memcpy(mcast_bssid_mac, res->bssid, ETH_ALEN);
+        memcpy(mcast_src_mac, res->src, ETH_ALEN);
+    } else {
+        /* case 1, 2 */
+        if(memcmp(mcast_src_mac, res->src, ETH_ALEN)) {
+            return FAILURE_RETURN;
+        }
+    }
 
     /* lock channel */
     if (0 == find_channel_from_aplist) {
