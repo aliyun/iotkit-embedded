@@ -181,8 +181,8 @@ int parse_result()
         awss_err("mcast: checksum mismatch\n");
         return -1;
     }
-    gen16ByteToken();
     ret = decode_passwd();
+    gen16ByteToken();
     reset_mcast_data();
     if (SUCCESS_RETURN != ret) {
         awss_err("mcast: passwd error\n");
