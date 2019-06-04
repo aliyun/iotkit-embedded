@@ -12,9 +12,6 @@
 extern "C" {
 #endif
 
-#ifndef 
-  #define 
-#endif
 #ifndef _IN_ 
   #define _IN_ 
 #endif
