@@ -241,7 +241,7 @@ int IOT_OTA_GetLastError(void *handle);
  * @return The error code.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_SetOnPushedCallback(void * handle, int (*cb)(void * context));
+int IOT_OTA_SetOnPushedCallback(void * handle, int (*cb)(void * context));
 /** @} */ /* end of api_ota */
 /** @} */ /* end of api */
 
