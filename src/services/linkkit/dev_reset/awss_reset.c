@@ -48,7 +48,9 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
     do {  // for new version of event
         void *cb = NULL;
         cb = (void *)iotx_event_callback(ITE_AWSS_STATUS);
-        if (cb == NULL) break;
+        if (cb == NULL) {
+            break;
+        }
         ((int (*)(int))cb)(IOTX_RESET);
     } while (0);
 
@@ -92,8 +94,8 @@ int awss_report_reset_to_cloud()
 
         snprintf(topic, topic_len, TOPIC_RESET_REPORT_REPLY, pk, dn);
 
-        ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
-                                      (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL, 1000);
+        ret = IOT_MQTT_Subscribe(NULL, topic, IOTX_MQTT_QOS0,
+                                 (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL);
         if (ret < 0) {
             goto REPORT_RST_ERR;
         }
