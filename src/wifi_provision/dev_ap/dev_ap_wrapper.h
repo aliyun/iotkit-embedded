@@ -51,5 +51,6 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ enum AWSS_ENC_TYPE encry,
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
+int HAL_Awss_Close_Ap();
 /*************************************** dev-ap special hals ***************************************/
 int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide);
