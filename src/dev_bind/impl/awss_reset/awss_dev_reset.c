@@ -101,11 +101,11 @@ int awss_report_reset_to_cloud()
         HAL_Snprintf(topic, topic_len, TOPIC_RESET_REPORT_REPLY, pk, dn);
 
 #ifdef MQTT_AUTO_SUBSCRIBE
-        ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS3_SUB_LOCAL,
-                                      (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL, 1000);
+        ret = IOT_MQTT_Subscribe(NULL, topic, IOTX_MQTT_QOS3_SUB_LOCAL,
+                                 (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL);
 #else
-        ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
-                                      (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL, 1000);
+        ret = IOT_MQTT_Subscribe(NULL, topic, IOTX_MQTT_QOS0,
+                                 (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL);
 #endif
         if (ret < 0) {
             goto REPORT_RST_ERR;
