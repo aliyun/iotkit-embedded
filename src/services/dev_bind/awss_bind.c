@@ -13,13 +13,10 @@ extern "C" {
 void *awss_token_mutex = NULL;
 extern int awss_stop_report_token();
 
+static uint8_t awss_bind_inited = 0;
+
 int awss_start_bind()
 {
-    static uint8_t awss_bind_inited = 0;
-    if(awss_bind_inited == 1) {
-        return 0;
-    }
-    awss_bind_inited = 1;
     awss_report_token();
     awss_cmp_local_init();
     awss_dev_bind_notify_stop();
@@ -35,6 +32,11 @@ int awss_start_bind()
 
 int awss_report_cloud()
 {
+    if(awss_bind_inited == 1) {
+        return 0;
+    }
+    awss_bind_inited = 1;
+
     awss_cmp_online_init();
 #ifdef DEVICE_MODEL_ENABLED
     extern int awss_check_reset();
@@ -50,10 +52,12 @@ void awss_bind_deinit()
 {
     awss_stop_report_token();
     awss_dev_bind_notify_stop();
-
+    awss_cmp_online_deinit();
+    
     if (NULL != awss_token_mutex) {
         HAL_MutexDestroy(awss_token_mutex);
     }
+    awss_bind_inited = 0;
     awss_token_mutex = NULL;
 }
 
