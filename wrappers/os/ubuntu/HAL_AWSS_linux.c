@@ -63,6 +63,10 @@ static int do_cmd_exec(char *cmd, char *result, int len)
     }
     memset(buf, '\0', sizeof(buf));
     ret = fread(buf, sizeof(buf) - 1, 1, filp);
+
+    /* add this code to pass white scan check */
+    buf[1023] = '\0';
+
     pclose(filp);
 
     return snprintf(result, len, "%s", buf);
