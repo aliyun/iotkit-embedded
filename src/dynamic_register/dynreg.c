@@ -377,8 +377,8 @@ void _mqtt_dynreg_topic_handle(void *pcontext, void *pclient, iotx_mqtt_event_ms
             /* parse secret */
             res = infra_json_value((char *)topic_info->payload, topic_info->payload_len, "deviceSecret", strlen("deviceSecret"), &device_secret, &device_secret_len);
             if (res == SUCCESS_RETURN) {
-                memcpy(device_secret + 1 + 5, asterisk, strlen(asterisk));
                 memcpy(ds, device_secret + 1, device_secret_len - 2);
+                memcpy(device_secret + 1 + 5, asterisk, strlen(asterisk));
                 dynreg_info("Topic  : %.*s", topic_info->topic_len, topic_info->ptopic);
                 dynreg_info("Payload: %.*s", topic_info->payload_len, topic_info->payload);
             }
