@@ -62,7 +62,7 @@ static int do_cmd_exec(char *cmd, char *result, int len)
         return -1;
     }
     memset(buf, '\0', sizeof(buf));
-    ret = fread(buf, sizeof(char), sizeof(buf) - 1, filp);
+    ret = fread(buf, sizeof(buf) - 1, 1, filp);
     pclose(filp);
 
     return snprintf(result, len, "%s", buf);
