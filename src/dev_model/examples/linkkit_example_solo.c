@@ -265,6 +265,7 @@ int main(int argc, char **argv)
 {
     int res = 0;
     int cnt = 0;
+    int auto_quit = 0;
     iotx_linkkit_dev_meta_info_t master_meta_info;
     int domain_type = 0, dynamic_register = 0, post_reply_need = 0, fota_timeout = 30;
 
@@ -275,6 +276,11 @@ int main(int argc, char **argv)
     }
 #endif
 
+
+    if (argc >= 2 && !strcmp("auto_quit", argv[1])) {
+        auto_quit = 1;
+        cnt = 0;
+    }
     memset(&g_user_example_ctx, 0, sizeof(user_example_ctx_t));
 
     HAL_GetProductKey(PRODUCT_KEY);
@@ -340,12 +346,11 @@ int main(int argc, char **argv)
         if ((cnt % 10) == 0) {
             /* user_post_event(); */
         }
+        cnt++;
 
-        if (++cnt > 3600) {
+        if (auto_quit == 1 && cnt > 3600) {
             break;
         }
-
-        HAL_SleepMs(1000);
     }
 
     IOT_Linkkit_Close(g_user_example_ctx.master_devid);
