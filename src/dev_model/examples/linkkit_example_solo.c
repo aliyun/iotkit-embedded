@@ -260,6 +260,11 @@ void user_deviceinfo_delete(void)
     EXAMPLE_TRACE("Device Info Delete Message ID: %d", res);
 }
 
+static int user_cloud_error_handler(const int code, const char *data, const char *detail)
+{
+    EXAMPLE_TRACE("code =%d ,data=%s, detail=%s", code, data, detail);
+    return 0;
+}
 
 int main(int argc, char **argv)
 {
@@ -306,6 +311,7 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
+    IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
 
     domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);

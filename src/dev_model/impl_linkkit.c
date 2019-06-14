@@ -46,7 +46,6 @@
 #define IOTX_LINKKIT_KEY_PRODUCT_KEY "productKey"
 #define IOTX_LINKKIT_KEY_TIME        "time"
 #define IOTX_LINKKIT_KEY_DATA        "data"
-#define IOTX_LINKKIT_KEY_DATA        "data"
 #define IOTX_LINKKIT_KEY_MESSAGE     "message"
 
 #define IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS    10000
