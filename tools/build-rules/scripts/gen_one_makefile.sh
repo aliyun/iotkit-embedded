@@ -44,7 +44,7 @@ fi
 
 ETC_OBJS=$(
 for i in ${ALL_LIBS}; do
-    j=$(grep "${i}$" ${STAMP_BLD_VAR} | cut -d' ' -f1 | sed 's|LIBA_TARGET_|LIB_OBJS_|g')
+    j=$(grep "${i}$" ${STAMP_BLD_VAR} | cut -d' ' -f1 | ${SED} 's|LIBA_TARGET_|LIB_OBJS_|g')
     k=$(grep "${j}" ${STAMP_BLD_VAR} | cut -d' ' -f3-)
     for l in ${k}; do
         echo "${j//LIB_OBJS_/}/${l}"
@@ -109,7 +109,7 @@ done
 %.o:
 	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
 	\$(Q)mkdir -p \$\$(dirname \$@)
-	\$(Q)S=\$\$(echo \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
+	\$(Q)S=\$\$(echo \$@|${SED} 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
     if echo \$\${S//.o/.c} | grep -q 'mbedtls\|HAL_\|nghttp2'; then \\
         ${CC} -c \\
             -o \$@ \\
@@ -128,7 +128,7 @@ ifneq (,\$(findstring gcc,\$(CC)))
 %.d:
 	@\\
 ( \\
-	D=\$\$(dirname \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
+	D=\$\$(dirname \$@|${SED} 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
 	F=\$\$(basename \$@); \\
 	F=\$\${F/.d/.c}; \\
 	mkdir -p \$\$(dirname \$@); \\
@@ -136,7 +136,7 @@ ifneq (,\$(findstring gcc,\$(CC)))
 	    \$(IFLAGS) \\
 	    \$(filter-out -ansi,\$(CFLAGS)) \\
 	\$\${D}/\$\${F} > \$@.\$\$\$\$; \\
-	sed -i 's!\$(shell basename \$*)\.o[ :]!\$*.o:!1' \$@.\$\$\$\$; \\
+	${SED} -i 's!\$(shell basename \$*)\.o[ :]!\$*.o:!1' \$@.\$\$\$\$; \\
 	mv \$@.\$\$\$\$ \$@; \\
 )
 endif
@@ -145,7 +145,7 @@ EOB
 
 for i in ${ALL_LIBS}; do
     n=$(basename ${i})
-    j=$(grep "${n}$" ${STAMP_BLD_VAR}|cut -d' ' -f1|sed 's:LIBA_TARGET_::1')
+    j=$(grep "${n}$" ${STAMP_BLD_VAR}|cut -d' ' -f1|${SED} 's:LIBA_TARGET_::1')
     k=$(echo 'LIB_OBJS_'"${j}")
     k=$(grep -m 1 "^${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
     k=$(for l in ${k}; do echo -n "${OUTPUT_DIR}/${j}/${l} "; done)
@@ -170,7 +170,7 @@ done
 
 for i in ${ALL_PROG}; do
     j=$(grep -w -m 1 "^SRCS_${i}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
-    k=$(grep -w -m 1 "TARGET_.* = .*${i}" ${STAMP_BLD_VAR}|cut -d' ' -f1|sed 's:TARGET_::1')
+    k=$(grep -w -m 1 "TARGET_.* = .*${i}" ${STAMP_BLD_VAR}|cut -d' ' -f1|${SED} 's:TARGET_::1')
     q=${k}
     if [ "$(grep -w -m 1 "^TARGET_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-|awk '{ print NF }')" = "1" ]; then
         k=""
@@ -189,7 +189,7 @@ for i in ${ALL_PROG}; do
 ${OUTPUT_DIR}/usr/bin/${i}: \\
     ${EXTRA_SRCS} \\
 $(for m in ${j} ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS}; do
-    echo "    ${m} \\"|sed 's!//*!/!g';
+    echo "    ${m} \\"|${SED} 's!//*!/!g';
 done)
 
 	\$(Q)\$(call Brief_Log,"LD",\$\$(basename \$@),"...")

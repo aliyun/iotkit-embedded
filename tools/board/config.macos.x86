@@ -1,5 +1,5 @@
 CONFIG_ENV_CFLAGS   += \
-    -Os -Wall -g3 --coverage 
+    -Os -g3 --coverage 
 
 CONFIG_ENV_CFLAGS   += \
     -DWITH_MQTT_DYN_TXBUF=1 \
@@ -12,6 +12,7 @@ CONFIG_ENV_CFLAGS   += \
     -DCONFIG_MBEDTLS_DEBUG_LEVEL=0 \
 
 CONFIG_src/tools/linkkit_tsl_convert :=
+CONFIG_tests :=
 
 CONFIG_ENV_LDFLAGS  += -lpthread -v
 

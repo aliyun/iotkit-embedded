@@ -17,6 +17,15 @@
 #     exit
 # fi
 
+OS=$(uname)
+if [ "Darwin" = "${OS}" ]; then
+SED="gsed"
+XARGS="gxargs"
+else
+SED="sed"
+XARGS="xargs"
+fi
+
 env_check()
 {
     if [ "${OS}" = "Linux" ]; then
@@ -106,7 +115,7 @@ fi
 env_check
 
 # Prepare Config Macro In make.settings
-MACRO_LIST=$(sed -n '/#/!{/=y/p}' make.settings | sed -n 's/=y//gp' | sed -n 's/FEATURE_//gp')
+MACRO_LIST=$(${SED} -n '/#/!{/=y/p}' make.settings | ${SED} -n 's/=y//gp' | ${SED} -n 's/FEATURE_//gp')
 
 mkdir -p ${OUTPUT_DIR} ${OUTPUT_DIR}/examples
 rm -rf $(${FIND} ${OUTPUT_DIR} -mindepth 1 -maxdepth 1|grep -v release)
@@ -115,13 +124,13 @@ rm -rf $(${FIND} ${OUTPUT_DIR} -mindepth 1 -maxdepth 1|grep -v release)
 mkdir -p ${INFRA_DIR}
 echo "#ifndef _INFRA_CONFIG_H_" > ${INFRA_DIR}/infra_config.h
 echo -e "#define _INFRA_CONFIG_H_\n" >> ${INFRA_DIR}/infra_config.h
-echo "${MACRO_LIST}" | sed -n 's/^/#define /p' >> ${INFRA_DIR}/infra_config.h
+echo "${MACRO_LIST}" | ${SED} -n 's/^/#define /p' >> ${INFRA_DIR}/infra_config.h
 echo -e "\n#endif" >> ${INFRA_DIR}/infra_config.h
 
-${FIND} ./src -name "infra_types.h" | xargs -i cp -f {} ${INFRA_DIR}
-${FIND} ./src -name "infra_defs.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
-${FIND} ./src -name "infra_list.h" | xargs -i cp -f {} ${INFRA_DIR}
-${FIND} ./src -name "infra_compat.[ch]" | xargs -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_types.h" | ${XARGS} -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_defs.[ch]" | ${XARGS} -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_list.h" | ${XARGS} -i cp -f {} ${INFRA_DIR}
+${FIND} ./src -name "infra_compat.[ch]" | ${XARGS} -i cp -f {} ${INFRA_DIR}
 
 # echo -e "${MACRO_LIST}"
 
@@ -180,7 +189,7 @@ extract_file_by()
     # echo "${DEST_DIR}"
 
     if [ "${DEST_DIR}" != "" ];then
-        mkdir -p ${DEST_DIR} && ${FIND} ${SRC_DIR} -maxdepth 1 -name *.[ch] | xargs -i cp -rf {} ${DEST_DIR}
+        mkdir -p ${DEST_DIR} && ${FIND} ${SRC_DIR} -maxdepth 1 -name *.[ch] | ${XARGS} -i cp -rf {} ${DEST_DIR}
     fi
 }
 
@@ -188,9 +197,9 @@ echo ""
 echo "Analysing extract rules for sources and wrappers ..."
 echo ""
 
-SWITCHES=$(cat make.settings | grep -v '^#' | sed '/^$/d;s:FEATURE_::g;s:=.*::g')
-SWCH_PAT="$(echo ${SWITCHES}|sed 's: :\\\|:g')"
-SPEC_PAT="$(echo ${SWITCHES}|sed 's:\([_A-Z]*\) :^\1||\\\|:g')"
+SWITCHES=$(cat make.settings | grep -v '^#' | ${SED} '/^$/d;s:FEATURE_::g;s:=.*::g')
+SWCH_PAT="$(echo ${SWITCHES}|${SED} 's: :\\\|:g')"
+SPEC_PAT="$(echo ${SWITCHES}|${SED} 's:\([_A-Z]*\) :^\1||\\\|:g')"
 SPEC_PAT="${SPEC_PAT}||"
 
 grep ${SWCH_PAT} ${XTRC_FILE_RULS} > ${TEMP_FILE_RULS}
@@ -202,21 +211,21 @@ HEADER_FILE_LIST=""
 FUNC_NAME_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|gawk -F '|' '{ print $3 }'|sort -u)
 HEADER_FILE_LIST=$(grep "${SPEC_PAT}" ${TEMP_WRAPPER_RULS}|gawk -F '|' '{ print $4 }'|sort -u)
 
-FUNC_PAT="$(echo ${FUNC_NAME_LIST}|sed 's: :\\\|:g')"
-HDER_PAT="$(echo ${HEADER_FILE_LIST}|sed 's: :\\\|:g')"
+FUNC_PAT="$(echo ${FUNC_NAME_LIST}|${SED} 's: :\\\|:g')"
+HDER_PAT="$(echo ${HEADER_FILE_LIST}|${SED} 's: :\\\|:g')"
 
-# [ "${FUNC_PAT}" != "" ] && sed -i "/${FUNC_PAT}/d" ${TEMP_WRAPPER_RULS}
-# [ "${HDER_PAT}" != "" ] && sed -i "/${HDER_PAT}/d" ${TEMP_WRAPPER_RULS}
+# [ "${FUNC_PAT}" != "" ] && ${SED} -i "/${FUNC_PAT}/d" ${TEMP_WRAPPER_RULS}
+# [ "${HDER_PAT}" != "" ] && ${SED} -i "/${HDER_PAT}/d" ${TEMP_WRAPPER_RULS}
 
 if [ "${FUNC_PAT}" != "" ] && [ "${HDER_PAT}" != "" ]; then
-    sed -i "/${FUNC_PAT}/{/${HDER_PAT}/d}" ${TEMP_WRAPPER_RULS}
+    ${SED} -i "/${FUNC_PAT}/{/${HDER_PAT}/d}" ${TEMP_WRAPPER_RULS}
 fi
 
-printf "Interpret [%03d] sources rules" $(cat ${TEMP_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')
-printf " from [%03d] base\n" $(cat ${XTRC_FILE_RULS}|wc -l|sed 's/[[:space:]]//g')
+printf "Interpret [%03d] sources rules" $(cat ${TEMP_FILE_RULS}|wc -l|${SED} 's/[[:space:]]//g')
+printf " from [%03d] base\n" $(cat ${XTRC_FILE_RULS}|wc -l|${SED} 's/[[:space:]]//g')
 
-printf "Interpret [%03d] wrapper rules" $(cat ${TEMP_WRAPPER_RULS}|wc -l|sed 's/[[:space:]]//g')
-printf " from [%03d] base" $(cat ${XTRC_WRAPPER_RULS}|wc -l|sed 's/[[:space:]]//g')
+printf "Interpret [%03d] wrapper rules" $(cat ${TEMP_WRAPPER_RULS}|wc -l|${SED} 's/[[:space:]]//g')
+printf " from [%03d] base" $(cat ${XTRC_WRAPPER_RULS}|wc -l|${SED} 's/[[:space:]]//g')
 
 echo ""
 
@@ -295,8 +304,8 @@ rm -f ${TEMP_WRAPPER_RULS}
 
 echo -e ""
 
-FUNC_NAME_LIST=$(echo -e "${FUNC_NAME_LIST}" | sed -n '/^$/!{p}' | sort -u)
-HEADER_FILE_LIST=$(echo -e "${HEADER_FILE_LIST}" | sed -n '/^$/!{p}' | sort -u)
+FUNC_NAME_LIST=$(echo -e "${FUNC_NAME_LIST}" | ${SED} -n '/^$/!{p}' | sort -u)
+HEADER_FILE_LIST=$(echo -e "${HEADER_FILE_LIST}" | ${SED} -n '/^$/!{p}' | sort -u)
 # For Debug
 if [ "${FUNC_NAME_LIST}" != "" ];then
     echo -e "\nHAL/Wrapper Function List:" && echo -e "${FUNC_NAME_LIST}" |gawk '{ printf("%03d %s\n", NR, $0); }'
@@ -307,19 +316,19 @@ if [ "${HEADER_FILE_LIST}" != "" ];then
 fi
 
 # Annotation For wrappers.c
-sed -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.c
+${SED} -n  '/WRAPPER_NOTE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | ${SED} -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.c
 
 # Output Header File Into wrappers.c
 echo -e "#include \"infra_types.h\"" >> ${WRAPPERS_DIR}/wrappers.c
 echo -e "#include \"infra_defs.h\"" >> ${WRAPPERS_DIR}/wrappers.c
 echo -e "#include \"infra_compat.h\"" >> ${WRAPPERS_DIR}/wrappers.c
 echo -e "#include \"wrappers_defs.h\"" >> ${WRAPPERS_DIR}/wrappers.c
-echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrappers.c
+echo -e "${HEADER_FILE_LIST}" | ${SED} -n '/.h/{s/^/#include "/p}' | ${SED} -n 's/$/"/p' >> ${WRAPPERS_DIR}/wrappers.c
 echo -e "" >> ${WRAPPERS_DIR}/wrappers.c
 
 # Generate Default Implenmentation For HAL/Wrapper Function
 echo ""
-TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w|sed 's/[[:space:]]//g')
+TOTAL_ITERATION=$(echo "${FUNC_NAME_LIST}"|wc -w|${SED} 's/[[:space:]]//g')
 ITER=0
 
 for func in $(echo "${FUNC_NAME_LIST}")
@@ -332,18 +341,18 @@ do
         continue
     fi
 
-    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | xargs -i cat {})
-    FUNC_DEC=$(echo "${FUNC_DEC}" | sed -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
+    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | ${XARGS} -i cat {})
+    FUNC_DEC=$(echo "${FUNC_DEC}" | ${SED} -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
     
-    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | sed s/[[:space:]]//g)
+    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | ${SED} s/[[:space:]]//g)
     # echo -e "\n${DATA_TYPE}"
 
-    sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.c
+    ${SED} -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | ${SED} -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.c
 
     if [ "${DATA_TYPE}" = "void" ];then
-        echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.c
+        echo "${FUNC_DEC}" | ${SED} -n '/;/{s/;/\n{\n\treturn;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.c
     else
-        echo "${FUNC_DEC}" | sed -n '/;/{s/;/\n{\n\treturn ('${DATA_TYPE}')1;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.c
+        echo "${FUNC_DEC}" | ${SED} -n '/;/{s/;/\n{\n\treturn ('${DATA_TYPE}')1;\n}\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.c
     fi
 done
 
@@ -359,7 +368,7 @@ echo -e "#include \"infra_types.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"infra_compat.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
-echo -e "${HEADER_FILE_LIST}" | sed -n '/.h/{s/^/#include "/p}' | sed -n 's/$/"/p' >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "${HEADER_FILE_LIST}" | ${SED} -n '/.h/{s/^/#include "/p}' | ${SED} -n 's/$/"/p' >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#define HAL_Printf printf" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 for func in $(echo "${FUNC_NAME_LIST}")
@@ -372,14 +381,14 @@ do
         continue
     fi
 
-    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | xargs -i cat {})
-    FUNC_DEC=$(echo "${FUNC_DEC}" | sed -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
+    FUNC_DEC=$(${FIND} ./${OUTPUT_DIR}/eng/wrappers/temp/ -name wrappers_*.h | ${XARGS} -i cat {})
+    FUNC_DEC=$(echo "${FUNC_DEC}" | ${SED} -n '/.*'${func}'(.*/{/.*);/ba;{:c;N;/.*);/!bc};:a;p;q}')
     
-    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | sed s/[[:space:]]//g)
+    DATA_TYPE=$(echo "${FUNC_DEC}" | head -1 | gawk -F' ' '{if ($1~/^DLL/ || $1~/extern/) {if ($3~/*/) {print $2"*";} else {print $2;}} else {if ($2~/*/) {print $1"*";} else {print $1;}}}'# | ${SED} s/[[:space:]]//g)
     # echo -e "\n${DATA_TYPE}"
 
-    sed -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | sed -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.h
-    echo "${FUNC_DEC}" | sed -n '/;/{s/;/;\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.h
+    ${SED} -n '/'${func}':/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | ${SED} -n '1d;p' >> ${WRAPPERS_DIR}/wrappers.h
+    echo "${FUNC_DEC}" | ${SED} -n '/;/{s/;/;\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.h
     
 done
 echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
@@ -397,7 +406,7 @@ echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"infra_compat.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "#include \"wrappers.h\"" >> ${OUTPUT_DIR}/eng/sdk_include.h
-find ${OUTPUT_DIR}/eng -name "*api.h" | gawk -F'/' '{print $NF}' | sed -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
+find ${OUTPUT_DIR}/eng -name "*api.h" | gawk -F'/' '{print $NF}' | ${SED} -n 's/^/#include "/g;s/$/"/gp' >> ${OUTPUT_DIR}/eng/sdk_include.h
 echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/sdk_include.h
 
 rm ./${OUTPUT_DIR}/eng/wrappers/temp/ -rf
@@ -413,7 +422,7 @@ echo ""
 
 cp tools/misc/makefile.output output/Makefile
 if [ "${1}" = "test" ];then
-    ENV_TEST=$(cat .config 2>/dev/null| sed -n '/VENDOR/{s/[[:space:]]//gp}'| gawk -F ':' '{print $2}')
+    ENV_TEST=$(cat .config 2>/dev/null| ${SED} -n '/VENDOR/{s/[[:space:]]//gp}'| gawk -F ':' '{print $2}')
     if [ "${ENV_TEST}" = "ubuntu" ];then
         rm -f ${WRAPPERS_DIR}/wrappers.c
         cp -rf wrappers/os/ubuntu ${WRAPPERS_DIR}/

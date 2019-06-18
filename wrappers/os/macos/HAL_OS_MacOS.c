@@ -24,27 +24,30 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 
-#include "iot_import.h"
-#include "iotx_hal_internal.h"
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "wrappers_defs.h"
+#include "wrappers_os.h"
 
-#if defined(SUPPORT_SINGAPORE_DOMAIN)
-static char DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN] = {"zSqW3X4e0lJ"};
-static char DEMO_CASE_DEVICE_NAME[DEVICE_NAME_MAXLEN] = {"azhan_sg"};
-static char DEMO_CASE_DEVICE_SECRET[DEVICE_SECRET_MAXLEN] = {"qUMFGaNQGjoTdDkxKppfVzQwtpnMxRBx"};
-#elif defined(ON_DAILY)
-static char DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN] = {"a1DA163qVT1"};
-static char DEMO_CASE_DEVICE_NAME[DEVICE_NAME_MAXLEN] = {"zigbee_gateway"};
-static char DEMO_CASE_DEVICE_SECRET[DEVICE_SECRET_MAXLEN] = {"oZvm6H9ydbXmVWhNl80AQjVXYJuT3s6a"};
-#elif defined(ON_PRE)
-static char DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN] = {"a1u36e7PPs1"};
-static char DEMO_CASE_DEVICE_NAME[DEVICE_NAME_MAXLEN] = {"MxFRySXtCYbcR9vsYDyd"};
-static char DEMO_CASE_DEVICE_SECRET[DEVICE_SECRET_MAXLEN] = {"5U0GSuYZHsfINMB3n9bxUT2Yo1fJyo9S"};
+#ifdef DYNAMIC_REGISTER
+    char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1ZETBPbycq";
+    char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "L68wCVXYUaNg1Ey9";
+    char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+    char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "";
 #else
-static char DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN] = {"a1jteuBmM5J"};
-static char DEMO_CASE_DEVICE_NAME[DEVICE_NAME_MAXLEN] = {"gateway_demo_parent"};
-static char DEMO_CASE_DEVICE_SECRET[DEVICE_SECRET_MAXLEN] = {"TJRahoxHu9bJG0JWzjAtQ1MkquamTkzw"};
+    #ifdef DEVICE_MODEL_ENABLED
+        char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
+        char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+        char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+        char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
+    #else
+        char _product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1MZxOdcBnO";
+        char _product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "h4I4dneEFp7EImTv";
+        char _device_name[IOTX_DEVICE_NAME_LEN + 1]       = "test_01";
+        char _device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56";
+    #endif
 #endif
-static char DEMO_CASE_PRODUCT_SECRET[PRODUCT_SECRET_MAXLEN] = {0};
 
 void *HAL_MutexCreate(void)
 {
@@ -55,7 +58,7 @@ void *HAL_MutexCreate(void)
     }
 
     if (0 != (err_num = pthread_mutex_init(mutex, NULL))) {
-        hal_err("create mutex failed");
+        printf("create mutex failed\n");
         HAL_Free(mutex);
         return NULL;
     }
@@ -67,7 +70,7 @@ void HAL_MutexDestroy(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_destroy((pthread_mutex_t *)mutex))) {
-        hal_err("destroy mutex failed");
+        printf("destroy mutex failed\n");
     }
 
     HAL_Free(mutex);
@@ -77,7 +80,7 @@ void HAL_MutexLock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
-        hal_err("lock mutex failed");
+        printf("lock mutex failed\n");
     }
 }
 
@@ -85,7 +88,7 @@ void HAL_MutexUnlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
-        hal_err("unlock mutex failed");
+        printf("unlock mutex failed\n");
     }
 }
 
@@ -194,101 +197,69 @@ int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *format, v
     return vsnprintf(str, len, format, ap);
 }
 
-void HAL_Printf(_IN_ const char *fmt, ...)
+int HAL_GetDeviceID(_OU_ char device_id[IOTX_DEVICE_ID_LEN + 1])
 {
-    va_list args;
-
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-
-    fflush(stdout);
-}
-
-int HAL_GetPartnerID(char pid_str[PID_STR_MAXLEN])
-{
-    memset(pid_str, 0x0, PID_STR_MAXLEN);
-    strcpy(pid_str, "example.demo.partner-id");
-    return strlen(pid_str);
-}
-
-int HAL_GetModuleID(char mid_str[MID_STR_MAXLEN])
-{
-    memset(mid_str, 0x0, MID_STR_MAXLEN);
-    strcpy(mid_str, "example.demo.module-id");
-    return strlen(mid_str);
-}
-
-char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
-{
-    strncpy(cid_str, "rtl8188eu 12345678", HAL_CID_LEN);
-    cid_str[HAL_CID_LEN - 1] = '\0';
-    return cid_str;
-}
-
-int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN])
-{
-    HAL_Snprintf(device_id, DEVICE_ID_MAXLEN, "%s.%s", DEMO_CASE_PRODUCT_KEY, DEMO_CASE_DEVICE_NAME);
+    HAL_Snprintf(device_id, IOTX_DEVICE_ID_LEN + 1, "%s.%s", _product_key, _device_name);
     return strlen(device_id);
 }
 
-int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_MAXLEN])
+int HAL_GetDeviceName(_OU_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
-    HAL_Snprintf(device_name, DEVICE_NAME_MAXLEN, "%s", DEMO_CASE_DEVICE_NAME);
+    HAL_Snprintf(device_name, IOTX_DEVICE_NAME_LEN + 1, "%s", _device_name);
     return strlen(device_name);
 }
 
-int HAL_SetDeviceName(_IN_ char device_name[DEVICE_NAME_MAXLEN])
+int HAL_SetDeviceName(_IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
-    HAL_Snprintf(DEMO_CASE_DEVICE_NAME, DEVICE_NAME_MAXLEN, "%s", device_name);
-    return strlen(DEMO_CASE_DEVICE_NAME);
+    HAL_Snprintf(_device_name, IOTX_DEVICE_NAME_LEN + 1, "%s", device_name);
+    return strlen(_device_name);
 }
 
-int HAL_GetDeviceSecret(_OU_ char device_secret[DEVICE_SECRET_MAXLEN])
+int HAL_GetDeviceSecret(_OU_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
-    HAL_Snprintf(device_secret, DEVICE_SECRET_MAXLEN, "%s", DEMO_CASE_DEVICE_SECRET);
+    HAL_Snprintf(device_secret, IOTX_DEVICE_SECRET_LEN + 1, "%s", _device_secret);
     return strlen(device_secret);
 }
 
-int HAL_SetDeviceSecret(_IN_ char device_secret[DEVICE_SECRET_MAXLEN])
+int HAL_SetDeviceSecret(_IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 {
-    HAL_Snprintf(DEMO_CASE_DEVICE_SECRET, DEVICE_SECRET_MAXLEN, "%s", device_secret);
-    return strlen(DEMO_CASE_DEVICE_SECRET);
+    HAL_Snprintf(_device_secret, IOTX_DEVICE_SECRET_LEN + 1, "%s", device_secret);
+    return strlen(_device_secret);
 }
 
-int HAL_GetFirmwareVersion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
+int HAL_GetFirmwareVersion(_OU_ char version[IOTX_FIRMWARE_VER_LEN + 1])
 {
-    memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
-    strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
-    version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
+    memset(version, 0x0, IOTX_FIRMWARE_VER_LEN + 1);
+    strncpy(version, "1.0", IOTX_FIRMWARE_VER_LEN + 1);
+    version[IOTX_FIRMWARE_VER_LEN] = '\0';
     return strlen(version);
 }
 
-int HAL_GetProductKey(_OU_ char product_key[PRODUCT_KEY_MAXLEN])
+int HAL_GetProductKey(_OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1])
 {
-    HAL_Snprintf(product_key, PRODUCT_KEY_MAXLEN, "%s", DEMO_CASE_PRODUCT_KEY);
+    HAL_Snprintf(product_key, IOTX_PRODUCT_KEY_LEN + 1, "%s", _product_key);
     return strlen(product_key);
 }
 
-int HAL_SetProductKey(_IN_ char product_key[PRODUCT_KEY_MAXLEN])
+int HAL_SetProductKey(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1])
 {
-    strncpy(DEMO_CASE_PRODUCT_KEY, product_key, PRODUCT_KEY_MAXLEN - 1);
-    DEMO_CASE_PRODUCT_KEY[PRODUCT_KEY_MAXLEN - 1]  = '\0';
-    return strlen(DEMO_CASE_PRODUCT_KEY);
+    strncpy(_product_key, product_key, IOTX_PRODUCT_KEY_LEN);
+    _product_key[IOTX_PRODUCT_KEY_LEN]  = '\0';
+    return strlen(_product_key);
 }
 
-int HAL_GetProductSecret(_OU_ char product_secret[PRODUCT_SECRET_MAXLEN])
+int HAL_GetProductSecret(_OU_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
 {
-    memset(product_secret, 0, PRODUCT_SECRET_MAXLEN);
-    HAL_Snprintf(product_secret, PRODUCT_SECRET_MAXLEN, "%s", DEMO_CASE_PRODUCT_SECRET);
+    memset(product_secret, 0, IOTX_PRODUCT_SECRET_LEN + 1);
+    HAL_Snprintf(product_secret, IOTX_PRODUCT_SECRET_LEN + 1, "%s", _product_secret);
     return strlen(product_secret);
 }
 
-int HAL_SetProductSecret(_IN_ char product_secret[PRODUCT_SECRET_MAXLEN])
+int HAL_SetProductSecret(_IN_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
 {
-    strncpy(DEMO_CASE_PRODUCT_SECRET, product_secret, PRODUCT_SECRET_MAXLEN - 1);
-    DEMO_CASE_PRODUCT_SECRET[PRODUCT_SECRET_MAXLEN - 1] = '\0';
-    return strlen(DEMO_CASE_PRODUCT_SECRET);
+    strncpy(_product_secret, product_secret, IOTX_PRODUCT_SECRET_LEN + 1 - 1);
+    _product_secret[IOTX_PRODUCT_SECRET_LEN] = '\0';
+    return strlen(_product_secret);
 }
 
 int HAL_Awss_Get_Conn_Encrypt_Type()
@@ -669,18 +640,3 @@ int HAL_Timer_Delete(void *timer)
 {
     return 0;
 }
-
-int HAL_GetNetifInfo(char *nif_str)
-{
-    memset(nif_str, 0x0, NIF_STRLEN_MAX);
-#ifdef __DEMO__
-    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    const char *net_info = "WiFi|03ACDEFF0032";
-    strncpy(nif_str, net_info, strlen(net_info));
-    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
-    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
-    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
-#endif
-    return strlen(nif_str);
-}
-

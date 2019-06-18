@@ -16,9 +16,12 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "iotx_hal_internal.h"
-#include "iot_import.h"
 
+#include "infra_types.h"
+#include "infra_defs.h"
+#include "infra_compat.h"
+#include "wrappers_defs.h"
+#include "wrappers_os.h"
 
 intptr_t HAL_UDP_create(char *host, unsigned short port)
 {
@@ -44,7 +47,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        hal_err("getaddrinfo error");
+        printf("getaddrinfo error\n");
         return (-1);
     }
 
@@ -56,7 +59,7 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 
             socket_id = socket(ainfo->ai_family, ainfo->ai_socktype, ainfo->ai_protocol);
             if (socket_id < 0) {
-                hal_err("create socket error");
+                printf("create socket error\n");
                 continue;
             }
             if (0 == connect(socket_id, ainfo->ai_addr, ainfo->ai_addrlen)) {
@@ -169,7 +172,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
-        hal_err("socket");
+        printf("socket\n");
         return -1;
     }
     if (0 == port) {
@@ -179,7 +182,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
     memset(&addr, 0, sizeof(struct sockaddr_in));
 
     if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
-        hal_err("setsockopt");
+        printf("setsockopt\n");
         close(sockfd);
         return -1;
     }
@@ -192,7 +195,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
         } else {
             hp = gethostbyname(host);
             if (!hp) {
-                hal_err("can't resolute the host address \n");
+                printf("can't resolute the host address \n");
                 close(sockfd);
                 return -1;
             }
@@ -207,7 +210,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
         close(sockfd);
         return -1;
     }
-    hal_info("success to establish udp, fd=%d", sockfd);
+    printf("success to establish udp, fd=%d\n", sockfd);
 
     return (intptr_t)sockfd;
 }
@@ -225,7 +228,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
         return -1;
     }
 
-    hal_info("HAL_UDP_connect, host=%s, port=%d", host, port);
+    printf("HAL_UDP_connect, host=%s, port=%d\n", host, port);
     sprintf(port_ptr, "%u", port);
     memset((char *)&hints, 0x00, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
@@ -234,7 +237,7 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
 
     rc = getaddrinfo(host, port_ptr, &hints, &res);
     if (0 != rc) {
-        hal_err("getaddrinfo error");
+        printf("getaddrinfo error\n");
         return -1;
     }
 
@@ -271,7 +274,7 @@ int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
     socket_id = (int)sockfd;
     err = setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
     if (err < 0) {
-        hal_err("setsockopt");
+        printf("setsockopt\n");
         return err;
     }
 
@@ -282,7 +285,7 @@ int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
     /*join to the multicast group*/
     err = setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if (err < 0) {
-        hal_err("setsockopt");
+        printf("setsockopt\n");
         return err;
     }
 
@@ -349,7 +352,7 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
     } else {
         hp = gethostbyname((char *)p_remote->addr);
         if (!hp) {
-            hal_err("can't resolute the host address \n");
+            printf("can't resolute the host address \n");
             return -1;
         }
         ip = *(uint32_t *)(hp->h_addr);
@@ -377,7 +380,7 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
     ret = sendto(sockfd, p_data, datalen, 0, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
 
     if (ret < 0) {
-        hal_err("sendto");
+        printf("sendto\n");
     }
 
     return (ret) > 0 ? ret : -1;
