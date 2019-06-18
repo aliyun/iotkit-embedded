@@ -364,6 +364,7 @@ fi
 
 echo -e "#ifndef _WRAPPERS_H_" > ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#define _WRAPPERS_H_\n" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#if defined(__cplusplus)\nextern \"C\" {\n#endif\n" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"infra_types.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"infra_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 echo -e "#include \"wrappers_defs.h\"" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
@@ -391,7 +392,8 @@ do
     echo "${FUNC_DEC}" | ${SED} -n '/;/{s/;/;\n\n/g};p' >> ${WRAPPERS_DIR}/wrappers.h
     
 done
-echo -e "\n#endif" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "\n#if defined(__cplusplus)\n}\n#endif\n" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
+echo -e "#endif" >> ${OUTPUT_DIR}/eng/wrappers/wrappers.h
 
 if [ "${TOTAL_ITERATION}" = "0" ]; then
     echo "Only [dev_sign] enabled, so NO function requires being implemented in [${WRAPPERS_DIR}/wrappers.h]"
