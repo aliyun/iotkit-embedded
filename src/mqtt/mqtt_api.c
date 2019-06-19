@@ -1,3 +1,4 @@
+#include <string.h>
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_string.h"

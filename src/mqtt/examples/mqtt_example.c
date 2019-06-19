@@ -1,3 +1,4 @@
+#include <string.h>
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 #include "wrappers.h"
