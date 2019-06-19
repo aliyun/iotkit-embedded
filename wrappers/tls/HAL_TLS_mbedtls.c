@@ -707,6 +707,9 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
         if (res < 0) {
             if (res != MBEDTLS_ERR_SSL_WANT_READ &&
                 res != MBEDTLS_ERR_SSL_WANT_WRITE) {
+                if (write_bytes == 0) {
+                    return -1;
+                }
                 break;
             }
         }else if (res == 0) {
@@ -842,5 +845,4 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     return (uintptr_t)pTlsData;
 }
-
 

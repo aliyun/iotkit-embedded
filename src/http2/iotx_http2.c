@@ -70,7 +70,7 @@ static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
     client = (httpclient_t *)connection->network;
     rv = client->net.write(&client->net, (char *)data, length, 5000);
     NGHTTP2_DBG("send_callback data ends len = %d!\r\n", rv);
-    if (rv < 0) {
+    if (rv < 0 || rv < length) {
         rv = NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     return rv;
