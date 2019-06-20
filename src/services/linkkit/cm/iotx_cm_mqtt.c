@@ -260,20 +260,16 @@ static int  _mqtt_connect(uint32_t timeout)
     utils_time_countdown_ms(&timer, timeout);
 
     do {
-        if (0 == IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
-            mqtt_param->port = pconn_info->port;
-            mqtt_param->host = pconn_info->host_name;
-            mqtt_param->client_id = pconn_info->client_id;
-            mqtt_param->username = pconn_info->username;
-            mqtt_param->password = pconn_info->password;
-            mqtt_param->pub_key = pconn_info->pub_key;
-            break;
-        }
-        CM_ERR("IOT_SetupConnInfo failed");
-        HAL_SleepMs(500);
-    } while (!utils_time_is_expired(&timer));
-
-    do {
+        if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
+            HAL_SleepMs(500);
+            continue;  
+        } 
+        mqtt_param->port = pconn_info->port;
+        mqtt_param->host = pconn_info->host_name;
+        mqtt_param->client_id = pconn_info->client_id;
+        mqtt_param->username = pconn_info->username;
+        mqtt_param->password = pconn_info->password;
+        mqtt_param->pub_key = pconn_info->pub_key;
         pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)_mqtt_conncection->open_params);
         if (pclient != NULL) {
             _mqtt_conncection->context = pclient;
