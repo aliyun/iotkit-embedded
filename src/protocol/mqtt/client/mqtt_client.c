@@ -1035,7 +1035,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     /* 1. read the header byte.  This has the packet type in it */
     rc = c->ipstack->read(c->ipstack, c->buf_read, 1, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer));
     if (0 == rc) { /* timeout */
-        *packet_type = 0;
+        *packet_type = MQTT_CPT_RESERVED;
         return SUCCESS_RETURN;
     } else if (1 != rc) {
         mqtt_debug("mqtt read error, rc=%d", rc);
@@ -1081,7 +1081,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
         LITE_free(remainDataBuf);
         remainDataBuf = NULL;
-
+        *packet_type = MQTT_CPT_RESERVED;
         if (NULL != c->handle_event.h_fp) {
             iotx_mqtt_event_msg_t msg;
 
