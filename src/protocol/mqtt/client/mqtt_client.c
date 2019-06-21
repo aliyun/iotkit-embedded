@@ -1155,6 +1155,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     if (!c || !timer || !packet_type) {
         return FAIL_RETURN;
     }
+    *packet_type = MQTT_CPT_RESERVED;
     HAL_MutexLock(c->lock_read_buf);
     rc = _alloc_recv_buffer(c, 0);
     if (rc < 0) {
@@ -1166,7 +1167,6 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     left_t = (left_t == 0) ? 1 : left_t;
     rc = c->ipstack->read(c->ipstack, c->buf_read, 1, left_t);
     if (0 == rc) { /* timeout */
-        *packet_type = 0;
         HAL_MutexUnlock(c->lock_read_buf);
         return SUCCESS_RETURN;
     } else if (1 != rc) {
@@ -1237,9 +1237,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
             msg.msg = "mqtt read buffer is too short";
             _handle_event(&c->handle_event, c, &msg);
         }
-
         return SUCCESS_RETURN;
-
     }
 
     /* 3. read the rest of the buffer using a callback to supply the rest of the data */
