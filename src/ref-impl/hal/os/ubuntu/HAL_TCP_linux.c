@@ -53,6 +53,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     int fd = 0;
     int rc = 0;
     char service[6];
+    uint8_t dns_retry = 0;
 
     memset(&hints, 0, sizeof(hints));
 
@@ -63,9 +64,20 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     hints.ai_protocol = IPPROTO_TCP;
     sprintf(service, "%u", port);
 
-    if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        hal_err("getaddrinfo error(%d), host = '%s', port = [%d]", rc, host, port);
-        return -1;
+     while(dns_retry++ < 8) {
+        rc = getaddrinfo(host, service, &hints, &addrInfoList);
+        if (rc != 0) {
+            printf("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(rc), host, service);
+            sleep(1);
+            continue;
+        }else{
+            break;
+        }
+    }
+
+    if (rc != 0) {
+        printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
+        return (uintptr_t)(-1);
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
