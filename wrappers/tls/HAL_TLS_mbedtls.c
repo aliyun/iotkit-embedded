@@ -300,6 +300,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
     int ret;
     struct addrinfo hints, *addr_list, *cur;
     struct timeval sendtimeout;
+    uint8_t dns_retry = 0;
 
     if ((ret = net_prepare()) != 0) {
         return (ret);
@@ -311,9 +312,20 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
     hints.ai_socktype = proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
     hints.ai_protocol = proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
 
-    if (getaddrinfo(host, port, &hints, &addr_list) != 0) {
+    while(dns_retry++ < 8) {
+        ret = getaddrinfo(host, port, &hints, &addr_list);
+        if (ret != 0) {
+            sleep(1);
+            continue;
+        }else{
+            break;
+        }
+    }
+
+    if (ret != 0) {
         return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
     }
+
 
     /* Try the sockaddrs until a connection succeeds */
     ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
