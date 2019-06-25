@@ -21,10 +21,10 @@
 #define DEFAULT_TIMEOUT_MS 5000
 
 /*  on line */
-#define IOTX_PRODUCT_KEY         "a13Npv1vjZ4"
-#define IOTX_DEVICE_NAME         "example_zc"
-#define IOTX_DEVICE_SECRET       "ZlexLJ4G0aXiSwkGmUFWuZBLLySKcG8h"
-#define IOTX_DEVICE_ID           "a13Npv1vjZ4.example_zc"
+#define IOTX_PRODUCT_KEY         "a1KqSriAwh0"
+#define IOTX_DEVICE_NAME         "basic_test_01"
+#define IOTX_DEVICE_SECRET       "5gme06iFl3W1g8non2ksVs5e8Qlus4Hw"
+#define IOTX_DEVICE_ID           "a1KqSriAwh0.basic_test_01"
 
 static char request_buf[MAX_BUF_LEN];
 static char response_buf[MAX_BUF_LEN];
@@ -43,7 +43,7 @@ void looptest(void *handle)
 
     HAL_Snprintf(request_buf, MAX_BUF_LEN, "{\"name\":\"hello world\"}");
     memset(response_buf, 0x00, MAX_BUF_LEN);
-    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/data",
+    HAL_Snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/user/update",
                  IOTX_PRODUCT_KEY,
                  IOTX_DEVICE_NAME);
     msg.request_payload = request_buf;
@@ -68,6 +68,10 @@ static int http_upload_test()
     iotx_http_param_t       http_param;
     void                   *handle = NULL;
     memset(&http_param, 0, sizeof(http_param));
+
+    HAL_SetProductKey((char *)IOTX_PRODUCT_KEY);
+    HAL_SetDeviceName((char *)IOTX_DEVICE_NAME);
+    HAL_SetDeviceSecret((char *)IOTX_DEVICE_SECRET);
 
     strncpy(device_info.product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
     strncpy(device_info.device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);
@@ -98,7 +102,6 @@ int main(int argc, char **argv)
     EXAMPLE_TRACE("the device name/device secrete/product name is only valid for ONLINE, EXIT!");
     return 0;
 #endif
-
     int ret;
     ret = http_upload_test();
     return ret;
