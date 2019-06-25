@@ -102,7 +102,7 @@ void CoAPServer_add_timer(void (*on_timer)(void *))
 }
 
 
-
+static void *coap_init_mutex = NULL;
 CoAPContext *CoAPServer_init()
 {
     CoAPInitParam param = {0};
@@ -110,6 +110,15 @@ CoAPContext *CoAPServer_init()
     int stack_used;
     hal_os_thread_param_t task_parms = {0};
 #endif
+
+    if (NULL == coap_init_mutex) {
+        coap_init_mutex = HAL_MutexCreate();
+
+        if (NULL == coap_init_mutex) {
+            return NULL;
+        }
+    }
+    HAL_MutexLock(coap_init_mutex);
 
     if (NULL == g_context) {
         param.appdata = NULL;
@@ -125,6 +134,7 @@ CoAPContext *CoAPServer_init()
         g_semphore  = HAL_SemaphoreCreate();
         if (NULL == g_semphore) {
             COAP_ERR("Semaphore Create failed");
+            HAL_MutexUnlock(coap_init_mutex);
             return NULL;
         }
 
@@ -133,6 +143,7 @@ CoAPContext *CoAPServer_init()
             COAP_ERR("coap_yield_mutex Create failed");
             HAL_SemaphoreDestroy(g_semphore);
             g_semphore = NULL;
+            HAL_MutexUnlock(coap_init_mutex);
             return NULL;
         }
 #endif
@@ -146,6 +157,7 @@ CoAPContext *CoAPServer_init()
             coap_yield_mutex = NULL;
 #endif
             COAP_ERR("CoAP Context Create failed");
+            HAL_MutexUnlock(coap_init_mutex);
             return NULL;
         }
 #ifdef COAP_SERV_MULTITHREAD
@@ -159,6 +171,7 @@ CoAPContext *CoAPServer_init()
         COAP_INFO("The CoAP Server already init");
     }
 
+    HAL_MutexUnlock(coap_init_mutex);
     return (CoAPContext *)g_context;
 }
 
@@ -168,6 +181,13 @@ void CoAPServer_deinit(CoAPContext *context)
         COAP_INFO("Invalid CoAP Server context");
         return;
     }
+
+    if (NULL == coap_init_mutex) {
+        COAP_ERR("CoAP init mutex is NULL");
+        return;
+    }
+
+    HAL_MutexLock(coap_init_mutex);
 
     COAP_INFO("CoAP Server deinit");
     g_coap_running = 0;
@@ -188,6 +208,10 @@ void CoAPServer_deinit(CoAPContext *context)
         CoAPContext_free(context);
         g_context = NULL;
     }
+
+    HAL_MutexUnlock(coap_init_mutex);
+    HAL_MutexDestroy(coap_init_mutex);
+    coap_init_mutex = NULL;
 }
 
 int CoAPServer_register(CoAPContext *context, const char *uri, CoAPRecvMsgHandler callback)
@@ -225,7 +249,9 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     CoAPServerPath_2_option((char *)uri, &message);
     CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
     CoAPMessagePayload_set(&message, buff, len);
-    if (msgid) *msgid = message.header.msgid;
+    if (msgid) {
+        *msgid = message.header.msgid;
+    }
     ret = CoAPMessage_send(context, remote, &message);
 
     CoAPMessage_destory(&message);
@@ -247,12 +273,14 @@ int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char
     }
 
     CoAPMessage_init(&response);
-    CoAPMessageType_set(&response, qos == 0 ? COAP_MESSAGE_TYPE_NON :COAP_MESSAGE_TYPE_CON);
+    CoAPMessageType_set(&response, qos == 0 ? COAP_MESSAGE_TYPE_NON : COAP_MESSAGE_TYPE_CON);
     CoAPMessageCode_set(&response, COAP_MSG_CODE_205_CONTENT);
     CoAPMessageId_set(&response, request->header.msgid);
     CoAPMessageToken_set(&response, request->token, request->header.tokenlen);
     CoAPMessageHandler_set(&response, callback);
-    if (msgid) *msgid = response.header.msgid;
+    if (msgid) {
+        *msgid = response.header.msgid;
+    }
 
     ret = CoAPUintOption_get(request, COAP_OPTION_OBSERVE, &observe);
     if (COAP_SUCCESS == ret && 0 == observe) {
