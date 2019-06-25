@@ -61,6 +61,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     while(dns_retry++ < 8) {
         rc = getaddrinfo(host, service, &hints, &addrInfoList);
         if (rc != 0) {
+            printf("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(rc), host, service);
             sleep(1);
             continue;
         }else{

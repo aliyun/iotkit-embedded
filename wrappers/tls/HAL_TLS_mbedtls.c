@@ -315,6 +315,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
     while(dns_retry++ < 8) {
         ret = getaddrinfo(host, port, &hints, &addr_list);
         if (ret != 0) {
+            printf("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(ret), host, port);
             sleep(1);
             continue;
         }else{
