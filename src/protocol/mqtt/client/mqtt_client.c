@@ -2641,6 +2641,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 int iotx_mc_connect(iotx_mc_client_t *pClient)
 {
     int rc = FAIL_RETURN;
+    int userKeepAliveInterval = 0;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2665,8 +2666,11 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
               pClient->connect_data.clientID.cstring,
               pClient->connect_data.username.cstring,
               pClient->connect_data.password.cstring);*/
+    userKeepAliveInterval = pClient->connect_data.keepAliveInterval;
+    pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MAX;
 
     rc = MQTTConnect(pClient);
+    pClient->connect_data.keepAliveInterval = userKeepAliveInterval;
     if (rc  != SUCCESS_RETURN) {
         pClient->ipstack->disconnect(pClient->ipstack);
         mqtt_err("send connect packet failed");
