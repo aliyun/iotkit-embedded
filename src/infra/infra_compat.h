@@ -2,7 +2,6 @@
 #define _INFRA_COMPAT_H_
 
 #include "infra_defs.h"
-#include "infra_list.h"
 
 #undef  being_deprecated
 #define being_deprecated
