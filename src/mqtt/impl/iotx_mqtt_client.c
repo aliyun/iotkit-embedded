@@ -767,11 +767,13 @@ static int _mqtt_connect(void *client)
     int rc = FAIL_RETURN;
     int try_count = 1;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
+    int userKeepAliveInterval = 0;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-
+    userKeepAliveInterval = pClient->connect_data.keepAliveInterval;
+    pClient->connect_data.keepAliveInterval = CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX;
     mqtt_info("connect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
               pClient->connect_data.MQTTVersion,
               pClient->connect_data.clientID.cstring,
@@ -781,6 +783,7 @@ static int _mqtt_connect(void *client)
     /* Establish TCP or TLS connection */
     do {
         rc = MQTTConnect(pClient);
+        pClient->connect_data.keepAliveInterval = userKeepAliveInterval;
 
         if (rc != SUCCESS_RETURN) {
             pClient->ipstack.disconnect(&pClient->ipstack);

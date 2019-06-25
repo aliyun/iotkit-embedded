@@ -376,7 +376,7 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
 #define CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN      (30)
 
 /* Maximum keepalive interval of MQTT request in second */
-#define CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX      (180)
+#define CONFIG_MQTT_KEEPALIVE_INTERVAL_MAX      (1200)
 
 #if defined(__cplusplus)
 }
