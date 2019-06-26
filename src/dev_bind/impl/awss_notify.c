@@ -161,6 +161,69 @@ static int awss_notify_response(int type, int result, void *message)
     return awss_notify_resp[type];
 }
 
+/**
+ * @brief alternate bcast addr
+ *
+ * @param bcast_addr[out] bcast addr output
+ * @param mask_level 0 ~ 4(255), 1 ~ 3(255), 2 ~ 2(255), 3 ~ 1(255), others ~ invalid,
+ */
+static int awss_get_broadcast_addr(platform_netaddr_t *bcast_addr)
+{
+    static uint8_t mask_level = 3;
+    char ip[20] = {0};
+    uint8_t level = 0;
+
+    if (bcast_addr == NULL) {
+        return -1;
+    }
+
+    /* update mask_level */
+    if (++mask_level >= 4) {
+        mask_level = 0;
+    }
+
+    /* setup port */
+    bcast_addr->port = AWSS_NOTIFY_PORT;
+
+    /* setup ip */
+    HAL_Wifi_Get_IP(ip, NULL);
+
+    if (ip[0] != '\0' && mask_level != 0) {
+        uint8_t i = 0;
+        for (i=0; i<strlen(ip); i++) {
+            bcast_addr->host[i] = ip[i];
+            if (ip[i] == '.') {
+                if (++level == mask_level) {
+                    break;
+                }
+            }
+        }
+
+        if (mask_level == 1) {
+            if (i + strlen("255.255.255") < 16) {
+                memcpy(bcast_addr->host + strlen(bcast_addr->host), "255.255.255", strlen("255.255.255"));
+                return 0;
+            }
+        }
+        else if (mask_level == 2) {
+            if (i + strlen("255.255") < 16) {
+                memcpy(bcast_addr->host + strlen(bcast_addr->host), "255.255", strlen("255.255"));
+                return 0;
+            }
+        }
+        else if (mask_level == 3) {
+            if (i + strlen("255") < 16) {
+                memcpy(bcast_addr->host + strlen(bcast_addr->host), "255", strlen("255"));
+                return 0;
+            }
+        }
+    }
+
+    memcpy(bcast_addr->host, AWSS_NOTIFY_HOST, strlen(AWSS_NOTIFY_HOST));
+    return 0;
+}
+
+
 int awss_notify_dev_info(int type, int count)
 {
     char *buf = NULL;
@@ -195,8 +258,8 @@ int awss_notify_dev_info(int type, int count)
         }
 
         memset(&notify_sa, 0, sizeof(notify_sa));
-        memcpy(notify_sa.host, AWSS_NOTIFY_HOST, strlen(AWSS_NOTIFY_HOST));
-        notify_sa.port = AWSS_NOTIFY_PORT;
+        awss_get_broadcast_addr(&notify_sa);
+        awss_info("bcast ip = %s\n", notify_sa.host);
 
         awss_build_dev_info(type, dev_info, DEV_INFO_LEN_MAX);
 
@@ -273,7 +336,7 @@ static int awss_process_get_devinfo()
         memset(req_msg_id, 0, sizeof(req_msg_id));
 
         if(id_len > MSG_REQ_ID_LEN) {
-            goto GET_DEV_INFO_ERR;     
+            goto GET_DEV_INFO_ERR;
         }
         memcpy(req_msg_id, id, id_len);
 
