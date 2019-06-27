@@ -429,12 +429,14 @@ int main(int argc, char **argv)
     memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
 
     /* Create Master Device Resources */
-    user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (user_example_ctx->master_devid < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
-        return -1;
-    }
-
+    do {
+        user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+        if (user_example_ctx->master_devid >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Open failed! retry after %d ms\n", 2000);
+        HAL_SleepMs(2000);
+    } while (1);
     /* Choose Login Server */
     domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
@@ -448,11 +450,14 @@ int main(int argc, char **argv)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+    do {
+        res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
+        if (res >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Connect failed! retry after %d ms\n", 5000);
+        HAL_SleepMs(5000);
+    } while (1);
 
     user_example_ctx->g_user_dispatch_thread_running = 1;
     res = HAL_ThreadCreate(&user_example_ctx->g_user_dispatch_thread, user_dispatch_yield, NULL, NULL, NULL);
@@ -509,6 +514,8 @@ int main(int argc, char **argv)
     }
 
     user_example_ctx->g_user_dispatch_thread_running = 0;
+    /*wait for  dispatch thread exit*/
+    HAL_SleepMs(1000);
     IOT_Linkkit_Close(user_example_ctx->master_devid);
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);

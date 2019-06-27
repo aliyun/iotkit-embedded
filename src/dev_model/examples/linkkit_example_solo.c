@@ -326,19 +326,23 @@ int main(int argc, char **argv)
 
     IOT_Ioctl(IOTX_IOCTL_FOTA_TIMEOUT_MS, (void *)&fota_timeout);
 
-    /* Create Master Device Resources */
-    g_user_example_ctx.master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (g_user_example_ctx.master_devid < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
-        return -1;
-    }
+    do {
+        g_user_example_ctx.master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+        if (g_user_example_ctx.master_devid >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Open failed! retry after %d ms\n", 2000);
+        HAL_SleepMs(2000);
+    } while (1);
 
-    /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(g_user_example_ctx.master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+    do {
+        res = IOT_Linkkit_Connect(g_user_example_ctx.master_devid);
+        if (res >= 0) {
+            break;
+        }
+        EXAMPLE_TRACE("IOT_Linkkit_Connect failed! retry after %d ms\n", 5000);
+        HAL_SleepMs(5000);
+    } while (1);
 
     while (1) {
         IOT_Linkkit_Yield(EXAMPLE_YIELD_TIMEOUT_MS);
