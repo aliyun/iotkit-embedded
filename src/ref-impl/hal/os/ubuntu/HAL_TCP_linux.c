@@ -19,6 +19,10 @@
 
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
+#if defined(_PLATFORM_IS_LINUX_)
+#include <arpa/nameser.h>
+#include <resolv.h>
+#endif
 
 static uint64_t _linux_get_time_ms(void)
 {
@@ -67,6 +71,13 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
      while(dns_retry++ < 8) {
         rc = getaddrinfo(host, service, &hints, &addrInfoList);
         if (rc != 0) {
+#if defined(_PLATFORM_IS_LINUX_)
+            if (rc == EAI_AGAIN) {
+                int ret = 0;
+                ret = res_init();
+                printf("getaddrinfo res_init, ret is %d, errno is %d\n", ret, errno);
+            }
+#endif
             printf("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(rc), host, service);
             sleep(1);
             continue;
