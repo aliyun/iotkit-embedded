@@ -207,7 +207,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
     }
 }
 
-
+extern sdk_impl_ctx_t g_sdk_impl_ctx;
 static int  _mqtt_connect(uint32_t timeout)
 {
     void *pclient;
@@ -250,6 +250,10 @@ static int  _mqtt_connect(uint32_t timeout)
         cm_err("IOT_SetupConnInfo failed");
         HAL_SleepMs(500);
     } while (!utils_time_is_expired(&timer));
+
+    if (g_sdk_impl_ctx.mqtt_customzie_info) {
+        ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->customize_info = g_sdk_impl_ctx.mqtt_customzie_info;
+    }
 
     do {
         pclient = IOT_MQTT_Construct((iotx_mqtt_param_t *)_mqtt_conncection->open_params);

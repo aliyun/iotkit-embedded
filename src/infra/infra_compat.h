@@ -216,6 +216,7 @@ typedef struct {
     int dynamic_register;
     char *cloud_custom_domain;
     char *http_custom_domain;
+    char *mqtt_customzie_info;
 } sdk_impl_ctx_t;
 
 typedef enum {
@@ -232,6 +233,7 @@ typedef enum {
     IOTX_IOCTL_GET_SUBDEV_LOGIN,        /* value(int*): 0 - SubDev is logout; 1 - SubDev is login */
     IOTX_IOCTL_SET_OTA_DEV_ID,          /* value(int*):     select the device to do OTA according to devid */
     IOTX_IOCTL_QUERY_DEVID,             /* value(iotx_dev_meta_info_t*): device meta info, only productKey and deviceName is required, ret value is subdev_id or -1 */
+    IOTX_IOCTL_SET_CUSTOMIZE_INFO,      /* value(char*): set mqtt clientID customize information */
 } iotx_ioctl_option_t;
 
 typedef enum {

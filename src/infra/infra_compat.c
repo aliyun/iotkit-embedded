@@ -26,7 +26,7 @@ void IOT_SetLogLevel(IOT_LogLevel level) {}
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 
-static sdk_impl_ctx_t g_sdk_impl_ctx = {0};
+sdk_impl_ctx_t g_sdk_impl_ctx = {0};
 /* global variable for mqtt construction */
 static iotx_conn_info_t g_iotx_conn_info = {0};
 static char g_empty_string[1] = "";
@@ -184,6 +184,20 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #endif
+        case IOTX_IOCTL_SET_CUSTOMIZE_INFO: {
+            if (ctx->mqtt_customzie_info) {
+                HAL_Free(ctx->mqtt_customzie_info);
+                ctx->mqtt_customzie_info = NULL;
+            }
+            ctx->mqtt_customzie_info = HAL_Malloc(strlen((char *)data) + 1);
+            if (ctx->mqtt_customzie_info == NULL) {
+                return FAIL_RETURN;
+            }
+            memset(ctx->mqtt_customzie_info, 0, strlen((char *)data) + 1);
+            memcpy(ctx->mqtt_customzie_info, data, strlen((char *)data));
+            res = SUCCESS_RETURN;
+        }
+        break;
         default: {
             res = FAIL_RETURN;
         }
