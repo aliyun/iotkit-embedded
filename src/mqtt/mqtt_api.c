@@ -146,7 +146,7 @@ static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *
 }
 #endif /* #ifdef MQTT_PRE_AUTH */
 
-extern int _sign_get_clientid(char *clientid_string, const char *device_id, const char *custom_kv);
+extern int _sign_get_clientid(char *clientid_string, const char *device_id, const char *custom_kv, uint8_t enable_itls);
 
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
@@ -157,6 +157,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
     int region = 0;
     int dynamic = 0;
+    uint8_t enalbe_itls = 0;
     int ret;
     void *callback;
 
@@ -232,9 +233,18 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     memcpy(device_id + strlen(device_id), ".", strlen("."));
     memcpy(device_id + strlen(device_id), meta_info.device_name, strlen(meta_info.device_name));
 
-    /* setup clientid */
+    /* reconfig clientid, append custome clientKV and itls switch flag */
+    if (pInitParams != NULL && pInitParams->customize_info != NULL) {
+        if (strstr(pInitParams->customize_info, "authtype=id2") != NULL) {
+            enalbe_itls = 1;
+        }
+        else {
+            enalbe_itls = 0;
+        }
+    }
+
     if (_sign_get_clientid(g_default_sign.clientid, device_id,
-                           (pInitParams != NULL) ? pInitParams->customize_info : NULL) != SUCCESS_RETURN) {
+                           (pInitParams != NULL) ? pInitParams->customize_info : NULL, enalbe_itls) != SUCCESS_RETURN) {
         return NULL;
     }
 

@@ -78,7 +78,7 @@ static void _hex2str(uint8_t *input, uint16_t input_len, char *output)
     }
 }
 
-int _sign_get_clientid(char *clientid_string, const char *device_id, const char *custom_kv)
+int _sign_get_clientid(char *clientid_string, const char *device_id, const char *custom_kv, uint8_t enable_itls)
 {
     uint8_t i;
 
@@ -89,6 +89,13 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
     memset(clientid_string, 0, DEV_SIGN_CLIENT_ID_MAXLEN);
     memcpy(clientid_string, device_id, strlen(device_id));
     memcpy(clientid_string + strlen(clientid_string), "|", 1);
+
+    if (enable_itls > 0) {
+        clientid_kv[2][1] = MODE_ITLS_DNS_ID2;
+    }
+    else {
+        clientid_kv[2][1] = SECURE_MODE;
+    }
 
     for (i = 0; i < (sizeof(clientid_kv) / (sizeof(clientid_kv[0]))); i++) {
         if ((strlen(clientid_string) + strlen(clientid_kv[i][0]) + strlen(clientid_kv[i][1]) + 2) >=
@@ -164,7 +171,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     memcpy(device_id + strlen(device_id), meta->device_name, strlen(meta->device_name));
 
     /* setup clientid */
-    if (_sign_get_clientid(signout->clientid, device_id, NULL) != SUCCESS_RETURN) {
+    if (_sign_get_clientid(signout->clientid, device_id, NULL, 0) != SUCCESS_RETURN) {
         return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
     }
 
