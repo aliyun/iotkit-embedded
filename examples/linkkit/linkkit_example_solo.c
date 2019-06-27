@@ -598,11 +598,13 @@ int linkkit_main(void *paras)
     }
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+    do {
+        res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
+        if (res < 0) {
+            EXAMPLE_TRACE("IOT_Linkkit_Connect failed, retry after 5s...\n");
+            HAL_SleepMs(5000);
+        }
+    } while (res < 0);
 
     time_begin_sec = user_update_sec();
     while (1) {
