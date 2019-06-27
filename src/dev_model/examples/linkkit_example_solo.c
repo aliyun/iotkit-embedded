@@ -26,7 +26,6 @@ int HAL_Snprintf(char *str, const int len, const char *fmt, ...);
     #include "at_api.h"
 #endif
 
-
 #define EXAMPLE_TRACE(...)                                          \
     do {                                                            \
         HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);     \
@@ -323,11 +322,13 @@ int main(int argc, char **argv)
     }
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(g_user_example_ctx.master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+    do {
+        res = IOT_Linkkit_Connect(g_user_example_ctx.master_devid);
+        if (res < 0) {
+            EXAMPLE_TRACE("IOT_Linkkit_Connect failed, retry after 5s...\n");
+            HAL_SleepMs(5000);
+        }
+    } while (res < 0);
 
     while (1) {
         IOT_Linkkit_Yield(EXAMPLE_YIELD_TIMEOUT_MS);
