@@ -43,7 +43,7 @@
 #define IOTX_MC_RECONNECT_INTERVAL_MIN_MS       (1000)
 
 /* Maximum interval of MQTT reconnect in millisecond */
-#define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (60000)
+#define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (30000)
 
 /* Max times of keepalive which has been send and did not received response package */
 #define IOTX_MC_KEEPALIVE_PROBE_MAX             (2)
@@ -68,11 +68,11 @@
     #endif
 
     #ifndef IOTX_MC_TX_MAX_LEN
-        #define IOTX_MC_TX_MAX_LEN                      (1024)
+        #define IOTX_MC_TX_MAX_LEN                      (2048)
     #endif
 
     #ifndef IOTX_MC_RX_MAX_LEN
-        #define IOTX_MC_RX_MAX_LEN                      (1024)
+        #define IOTX_MC_RX_MAX_LEN                      (2048)
     #endif
 
 #endif /* PLATFORM_HAS_DYNMEM */

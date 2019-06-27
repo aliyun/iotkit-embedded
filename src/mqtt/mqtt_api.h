@@ -345,7 +345,7 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
  */
 
 /* Default message length in bytes when PLATFORM_HAS_DYNMEM is not set */
-#define CONFIG_MQTT_MESSAGE_MAXLEN              (1024)
+#define CONFIG_MQTT_MESSAGE_MAXLEN              (3072)
 
 /* Default maximum length of topic name in byte when PLATFORM_HAS_DYNMEM is not set */
 #ifdef PLATFORM_HAS_DYNMEM
@@ -358,13 +358,13 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
 #define CONFIG_MQTT_KEEPALIVE_INTERVAL          (60)
 
 /* Default timeout interval of MQTT request in millisecond */
-#define CONFIG_MQTT_REQUEST_TIMEOUT             (2000)
+#define CONFIG_MQTT_REQUEST_TIMEOUT             (5000)
 
 /* Minimum timeout interval of MQTT request in millisecond */
-#define CONFIG_MQTT_REQ_TIMEOUT_MIN             (500)
+#define CONFIG_MQTT_REQ_TIMEOUT_MIN             (1000)
 
 /* Maximum timeout interval of MQTT request in millisecond */
-#define CONFIG_MQTT_REQ_TIMEOUT_MAX             (5000)
+#define CONFIG_MQTT_REQ_TIMEOUT_MAX             (10000)
 
 /* Minimum keepalive interval of MQTT request in second */
 #define CONFIG_MQTT_KEEPALIVE_INTERVAL_MIN      (30)
