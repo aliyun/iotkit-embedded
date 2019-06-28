@@ -1384,7 +1384,8 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     }
     topic_msg.qos = (unsigned char)qos;
     topic_msg.payload_len = payload_len;
-    if (NULL == topicName.lenstring.data) {
+
+    if (topicName.lenstring.len == 0 || topicName.lenstring.data == NULL) {
         mqtt_err("Null topicName");
         return MQTT_PUBLISH_PACKET_ERROR;
     }
