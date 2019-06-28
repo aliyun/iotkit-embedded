@@ -234,8 +234,8 @@ int awss_notify_dev_info(int type, int count)
             break;
         }
 
-        buf = os_zalloc(DEV_INFO_LEN_MAX);
-        dev_info = os_zalloc(DEV_INFO_LEN_MAX);
+        buf = awss_zalloc(DEV_INFO_LEN_MAX);
+        dev_info = awss_zalloc(DEV_INFO_LEN_MAX);
         if (buf == NULL || dev_info == NULL) {
             awss_err("alloc mem fail");
             break;
@@ -301,12 +301,12 @@ static int awss_process_get_devinfo()
         char topic[TOPIC_LEN_MAX] = { 0 };
         struct coap_session_ctx_t *ctx = (struct coap_session_ctx_t *)coap_session_ctx;
 
-        buf = os_zalloc(DEV_INFO_LEN_MAX);
+        buf = awss_zalloc(DEV_INFO_LEN_MAX);
         if (buf == NULL) {
             goto GET_DEV_INFO_ERR;
         }
 
-        dev_info = os_zalloc(DEV_INFO_LEN_MAX);
+        dev_info = awss_zalloc(DEV_INFO_LEN_MAX);
         if (dev_info == NULL) {
             goto GET_DEV_INFO_ERR;
         }

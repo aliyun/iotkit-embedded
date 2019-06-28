@@ -46,7 +46,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
     uint8_t key[AES128_KEY_LEN] = {0};
     uint8_t random[RANDOM_MAX_LEN] = {0};
 
-    uint8_t *decoded = (uint8_t *)os_zalloc(len + 1);
+    uint8_t *decoded = (uint8_t *)awss_zalloc(len + 1);
     if (decoded == NULL)
         return -1;
 

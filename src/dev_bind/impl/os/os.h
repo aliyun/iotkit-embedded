@@ -62,7 +62,7 @@ uint16_t os_get_unaligned_be16(uint8_t *ptr);
 uint16_t os_get_unaligned_le16(uint8_t *ptr);
 uint32_t os_get_unaligned_be32(uint8_t *ptr);
 uint32_t os_get_unaligned_le32(uint8_t *ptr);
-void *os_zalloc(uint32_t size);
+void *awss_zalloc(uint32_t size);
 uint32_t time_elapsed_ms_since(uint32_t start_timestamp);
 #ifdef __cplusplus
 }

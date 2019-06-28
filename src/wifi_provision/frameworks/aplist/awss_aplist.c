@@ -22,7 +22,7 @@ int awss_init_ieee80211_aplist(void)
 {
     if (zconfig_aplist)
         return 0;
-    zconfig_aplist = (struct ap_info *)os_zalloc(sizeof(struct ap_info) * MAX_APLIST_NUM);
+    zconfig_aplist = (struct ap_info *)awss_zalloc(sizeof(struct ap_info) * MAX_APLIST_NUM);
     if (zconfig_aplist == NULL)
         return -1;
     zconfig_aplist_num = 0;

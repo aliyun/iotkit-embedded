@@ -80,10 +80,10 @@ int awss_report_statis(const char *module)
     int len = 0;
     int ret;
 
-    log_content = os_zalloc(AWSS_STATIS_BUF_LEN + 1);
+    log_content = awss_zalloc(AWSS_STATIS_BUF_LEN + 1);
     if (log_content == NULL)
         goto STATIS_ERR;
-    log_buf = os_zalloc(log_buf_len + 1);
+    log_buf = awss_zalloc(log_buf_len + 1);
     if (log_buf == NULL)
         goto STATIS_ERR;
 

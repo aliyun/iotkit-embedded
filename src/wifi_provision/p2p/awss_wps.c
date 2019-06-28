@@ -187,7 +187,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         case P2P_ENCODE_TYPE_ENCRYPT: {
             /* decypt passwd using aes128-cfb */
             uint8_t passwd_cipher_len = 0;
-            uint8_t *passwd_cipher = os_zalloc(128);
+            uint8_t *passwd_cipher = awss_zalloc(128);
             if (passwd_cipher == NULL) {
                 return GOT_NOTHING;
             }

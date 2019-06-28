@@ -261,11 +261,11 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 
     AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_START);
 
-    msg = os_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
+    msg = awss_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
     if (msg == NULL) {
         goto DEV_AP_SWITCHAP_END;
     }
-    dev_info = os_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
+    dev_info = awss_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
     if (dev_info == NULL) {
         goto DEV_AP_SWITCHAP_END;
     }

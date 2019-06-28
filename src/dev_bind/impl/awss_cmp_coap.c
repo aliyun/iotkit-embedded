@@ -37,12 +37,12 @@ int awss_release_coap_ctx(void *session)
 
 void *awss_cpy_coap_ctx(void *request, void *remote, char mcast)
 {
-    struct coap_session_ctx_t *ctx = os_zalloc(sizeof(struct coap_session_ctx_t));
+    struct coap_session_ctx_t *ctx = awss_zalloc(sizeof(struct coap_session_ctx_t));
     if (ctx == NULL) {
         goto CPY_CTX_FAIL;
     }
 
-    ctx->request = os_zalloc(sizeof(struct CoAPMessage));
+    ctx->request = awss_zalloc(sizeof(struct CoAPMessage));
     if (ctx->request == NULL) {
         goto CPY_CTX_FAIL;
     }
@@ -59,7 +59,7 @@ void *awss_cpy_coap_ctx(void *request, void *remote, char mcast)
             break;
         }
 
-        req->payload = os_zalloc(len + 1);
+        req->payload = awss_zalloc(len + 1);
         if (req->payload == NULL) {
             goto CPY_CTX_FAIL;
         }
@@ -67,7 +67,7 @@ void *awss_cpy_coap_ctx(void *request, void *remote, char mcast)
         memcpy(req->payload, payload, len);
     } while (0);
 
-    ctx->remote = os_zalloc(sizeof(platform_netaddr_t));
+    ctx->remote = awss_zalloc(sizeof(platform_netaddr_t));
     if (ctx->remote == NULL) {
         goto CPY_CTX_FAIL;
     }

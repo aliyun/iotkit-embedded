@@ -357,8 +357,8 @@ rescanning:
 
         if (aws_state == AWS_SCANNING) {
             awss_debug("channel rescanning...\n");
-            if (zconfig_data != NULL) {
-                void *temp_mutex = zc_mutex;
+            if(zconfig_data != NULL) {
+                void * temp_mutex = zc_mutex;
                 memset(zconfig_data, 0, sizeof(struct zconfig_data));
                 zc_mutex = temp_mutex;
             }
@@ -447,7 +447,7 @@ int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type
 
 void aws_start(char *pk, char *dn, char *ds, char *ps)
 {
-    aws_info = os_zalloc(sizeof(struct aws_info));
+    aws_info = awss_zalloc(sizeof(struct aws_info));
     if (!aws_info) {
         return;
     }

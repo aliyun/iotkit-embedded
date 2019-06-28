@@ -86,12 +86,12 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
     char topic[TOPIC_LEN_MAX] = {0};
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
 
-    buf = os_zalloc(DEV_INFO_LEN_MAX);
+    buf = awss_zalloc(DEV_INFO_LEN_MAX);
     if (!buf) {
         goto DEV_INFO_ERR;
     }
 
-    dev_info = os_zalloc(DEV_INFO_LEN_MAX);
+    dev_info = awss_zalloc(DEV_INFO_LEN_MAX);
     if (!dev_info) {
         goto DEV_INFO_ERR;
     }

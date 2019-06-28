@@ -51,7 +51,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
         return NULL;
     }
 
-    buf = os_zalloc(DEV_INFO_LEN_MAX);
+    buf = awss_zalloc(DEV_INFO_LEN_MAX);
     if (buf == NULL) {
         return NULL;
     }
@@ -113,8 +113,8 @@ char *awss_build_sign_src(char *sign_src, int *sign_src_len)
         goto build_sign_src_err;
     }
 
-    pk = os_zalloc(IOTX_PRODUCT_KEY_LEN + 1);
-    dev_name = os_zalloc(IOTX_DEVICE_NAME_LEN + 1);
+    pk = awss_zalloc(IOTX_PRODUCT_KEY_LEN + 1);
+    dev_name = awss_zalloc(IOTX_DEVICE_NAME_LEN + 1);
     if (pk == NULL || dev_name == NULL) {
         goto build_sign_src_err;
     }

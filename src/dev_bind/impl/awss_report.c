@@ -141,7 +141,7 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
     }
 
     awss_debug("online switchap len:%u, payload:%s\r\n", payload_len, payload);
-    packet = os_zalloc(packet_len + 1);
+    packet = awss_zalloc(packet_len + 1);
     if (packet == NULL) {
         goto ONLINE_SWITCHAP_FAIL;
     }
@@ -314,7 +314,7 @@ static int awss_report_token_to_cloud()
 
     packet_len = AWSS_REPORT_LEN_MAX;
 
-    packet = os_zalloc(packet_len + 1);
+    packet = awss_zalloc(packet_len + 1);
     if (packet == NULL) {
         awss_err("alloc mem(%d) failed", packet_len);
         return -1;

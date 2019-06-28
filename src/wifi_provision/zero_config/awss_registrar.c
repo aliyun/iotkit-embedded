@@ -112,8 +112,8 @@ int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *reque
         goto CONNECTAP_MONITOR_END;
     }
 
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key) {
         goto CONNECTAP_MONITOR_END;
@@ -168,9 +168,9 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
         goto CHECKIN_FAIL;
     }
 
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    packet = os_zalloc(CHECK_IN_RSP_LEN + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    packet = awss_zalloc(CHECK_IN_RSP_LEN + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key || !packet) {
         goto CHECKIN_FAIL;
@@ -241,7 +241,7 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
             strlen(key) == enrollee_info[i].pk_len &&
             0 == memcmp(key, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
 
-            uint8_t *key_byte = os_zalloc(MAX_KEY_LEN + 1);
+            uint8_t *key_byte = awss_zalloc(MAX_KEY_LEN + 1);
             if (NULL == key_byte) {
                 goto out;
             }
@@ -313,8 +313,8 @@ static int awss_request_cipher_key(int i)
     }
 #define AWSS_DEV_CIPHER_FMT    "{\"awssVer\":%s,\"productKey\":\"%s\",\"deviceName\":\"%s\",\"cipherType\":%d, \"random\":\"%s\"}"
 
-    param = os_zalloc(AWSS_REPORT_PKT_LEN);
-    packet = os_zalloc(AWSS_REPORT_PKT_LEN);
+    param = awss_zalloc(AWSS_REPORT_PKT_LEN);
+    packet = awss_zalloc(AWSS_REPORT_PKT_LEN);
     if (param == NULL || packet == NULL) {
         goto REQ_CIPHER_ERR;
     }
@@ -367,9 +367,9 @@ void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
         goto CIPHER_ERR;
     }
 
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    cipher = os_zalloc(RANDOM_MAX_LEN * 2 + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    cipher = awss_zalloc(RANDOM_MAX_LEN * 2 + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key || !cipher) {
         goto CIPHER_ERR;
@@ -568,8 +568,8 @@ void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg)
     }
 
     awss_debug("found reply:%s\r\n", payload);
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key) {
         goto REPORT_REPLY_FAIL;
@@ -614,9 +614,9 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
     int packet_len = AWSS_REPORT_PKT_LEN - 1;
     char topic[TOPIC_LEN_MAX] = {0};
 
-    payload_str = os_zalloc(payload_len * 2 + 1);
-    param = os_zalloc(AWSS_REPORT_PKT_LEN);
-    packet = os_zalloc(AWSS_REPORT_PKT_LEN);
+    payload_str = awss_zalloc(payload_len * 2 + 1);
+    param = awss_zalloc(AWSS_REPORT_PKT_LEN);
+    packet = awss_zalloc(AWSS_REPORT_PKT_LEN);
     if (!payload_str || !param || !packet) {
         goto REPORT_FAIL;
     }

@@ -121,7 +121,7 @@ uint8_t *os_wifi_get_mac(uint8_t mac[OS_ETH_ALEN])
     return (uint8_t *)os_wifi_str2mac(mac_str, (char *)mac);
 }
 
-void *os_zalloc(uint32_t size)
+void *awss_zalloc(uint32_t size)
 {
     void *ptr = HAL_Malloc(size);
     if (ptr != NULL) {

@@ -44,11 +44,11 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     if (enrollee_frame_len)
         return;
 
-    dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
+    dev_name = awss_zalloc(OS_DEVICE_NAME_LEN + 1);
     if (NULL == dev_name) {
         return;
     }
-    pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
+    pk = awss_zalloc(OS_PRODUCT_KEY_LEN + 1);
     if (NULL == pk) {
         HAL_Free(dev_name);
         return;
@@ -61,7 +61,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     dev_name_len = strlen(dev_name);
 
     len = RANDOM_MAX_LEN + dev_name_len + pk_len;
-    text = os_zalloc(len + 1); /* +1 for string print */
+    text = awss_zalloc(len + 1); /* +1 for string print */
 
     awss_build_sign_src(text, &len);
 
@@ -77,7 +77,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     ie_len = pk_len + dev_name_len + ENROLLEE_IE_FIX_LEN;
     enrollee_frame_len = sizeof(probe_req_frame) + ie_len;
 
-    enrollee_frame = os_zalloc(enrollee_frame_len);
+    enrollee_frame = awss_zalloc(enrollee_frame_len);
 
     /* construct the enrollee frame right now */
     len = sizeof(probe_req_frame) - FCS_SIZE;

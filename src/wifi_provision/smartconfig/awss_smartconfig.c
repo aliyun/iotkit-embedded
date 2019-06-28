@@ -175,7 +175,7 @@ int zconfig_recv_completed(uint8_t tods)
                 zc_ssid_is_gbk = 0;
             }
 
-            buf = os_zalloc(ssid_encode_len + 1);
+            buf = awss_zalloc(ssid_encode_len + 1);
             if (buf == NULL) {
                 awss_crit("malloc failed!\r\n");
                 return 0;
@@ -234,12 +234,12 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         return -1;
     }
 
-    buf = os_zalloc(256);
+    buf = awss_zalloc(256);
     if (NULL == buf) {
         awss_crit("malloc failed!\r\n");
         return -1;
     }
-    tmp = os_zalloc(128);
+    tmp = awss_zalloc(128);
     if (NULL == tmp) {
         HAL_Free(buf);
         awss_crit("malloc failed!\r\n");

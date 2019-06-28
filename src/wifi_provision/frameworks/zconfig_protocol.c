@@ -71,7 +71,7 @@ void decode_chinese(uint8_t *in, uint8_t in_len,
     do {
         uint8_t i, j;
         uint8_t output_len = (in_len * bits) / 8;
-        uint8_t *bit = (uint8_t *)os_zalloc(in_len * bits);
+        uint8_t *bit = (uint8_t *)awss_zalloc(in_len * bits);
 
         if (bit == NULL) {
             awss_crit("decode malloc failed!\r\n");
@@ -266,7 +266,7 @@ void zconfig_init()
     memset(br_mac, 0xff, ETH_ALEN);
     memset(zero_mac, 0x00, ETH_ALEN);
 
-    zconfig_data = (struct zconfig_data *)os_zalloc(sizeof(struct zconfig_data));
+    zconfig_data = (struct zconfig_data *)awss_zalloc(sizeof(struct zconfig_data));
     if (zconfig_data == NULL) {
         goto ZCONFIG_INIT_FAIL;
     }
