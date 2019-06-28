@@ -18,6 +18,8 @@
     #include <signal.h>
     #include <unistd.h>
     #include <sys/time.h>
+    #include <arpa/nameser.h>
+    #include <resolv.h>
 #endif
 #include "infra_config.h"
 #include "mbedtls/error.h"
@@ -28,6 +30,7 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 #include "wrappers.h"
+#include <errno.h>
 
 #define SEND_TIMEOUT_SECONDS                (10)
 
@@ -312,13 +315,20 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
     hints.ai_socktype = proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
     hints.ai_protocol = proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
 
-    while(dns_retry++ < 8) {
+    while (dns_retry++ < 8) {
         ret = getaddrinfo(host, port, &hints, &addr_list);
         if (ret != 0) {
+#if defined(_PLATFORM_IS_LINUX_)
+            if (ret == EAI_AGAIN) {
+                int rc = res_init();
+                printf("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
+            }
+#endif
+
             printf("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(ret), host, port);
             sleep(1);
             continue;
-        }else{
+        } else {
             break;
         }
     }
@@ -721,7 +731,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
     }
 
     /* timeout */
-    timeout.tv_sec = timeout_ms/1000;
+    timeout.tv_sec = timeout_ms / 1000;
     timeout.tv_usec = (timeout_ms % 1000) * 1000;
 
     /* Start Time */
@@ -752,12 +762,12 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
                 }
                 break;
             }
-        }else if (res == 0) {
+        } else if (res == 0) {
             break;
-        }else{
+        } else {
             write_bytes += res;
         }
-    }while(((timenow_ms - timestart_ms) < timeout_ms) && (write_bytes < len));
+    } while (((timenow_ms - timestart_ms) < timeout_ms) && (write_bytes < len));
 
     return write_bytes;
 #else
