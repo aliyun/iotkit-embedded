@@ -343,8 +343,9 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             }
 #endif
             ssid_len = strlen((const char *)ap->ssid) > ssid_len ? ssid_len : strlen((const char *)ap->ssid);
-            if (is_utf8((const char *)ap->ssid, ssid_len) == 0)
-               strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
+            if (is_utf8((const char *)ap->ssid, ssid_len) == 0) {
+                strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
+            }
         } while (0);
 #endif
     } else {
@@ -361,7 +362,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len,
                            1, awss_get_encrypt_type(), 0, NULL);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
-            void * tmp_mutex = zc_mutex;
+            void *tmp_mutex = zc_mutex;
             awss_trace("passwd err\r\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
             zc_mutex = tmp_mutex;
@@ -371,15 +372,17 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             goto exit;
         }
     } else {
+        void *temp_mutex;
         memcpy((void *)tmp, (const void *)pbuf, passwd_len);
         tmp[passwd_len] = '\0';
         for (i = 0; i < passwd_len; i ++) {
             tmp[i] += 32;
         }
         strncpy((char *)zc_passwd, (const char *)tmp, ZC_MAX_PASSWD_LEN - 1);
-
         awss_trace("encrypt:%d not support\r\n", passwd_encrypt);
+        temp_mutex = zc_mutex;
         memset(zconfig_data, 0, sizeof(*zconfig_data));
+        zc_mutex = temp_mutex;
         ret = -1;
         goto exit;
     }
