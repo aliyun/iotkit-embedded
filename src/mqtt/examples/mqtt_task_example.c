@@ -103,7 +103,7 @@ void* example_task_thread(void *param)
     EXAMPLE_TRACE("task id     : %s\n", task_id->valuestring);
     EXAMPLE_TRACE("status      : %s\n", status->valuestring);
 
-    while(progress < 100) {
+    while(progress <= 100) {
         example_task_update(pclient, task_id->valuestring, TASK_STATUS_IN_PROCESS, progress);
         progress += 10;
         HAL_SleepMs(5000);
