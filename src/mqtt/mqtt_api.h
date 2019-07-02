@@ -351,7 +351,7 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
 #ifdef PLATFORM_HAS_DYNMEM
 #define CONFIG_MQTT_TOPIC_MAXLEN                (128)
 #else
-#define CONFIG_MQTT_TOPIC_MAXLEN                (50)
+#define CONFIG_MQTT_TOPIC_MAXLEN                (128)
 #endif
 
 /* Default keepalive interval of MQTT request in second */
