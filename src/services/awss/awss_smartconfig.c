@@ -365,14 +365,16 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             goto exit;
         }
     } else {
+        void *tmp_mutex;
         memcpy((void *)tmp, (const void *)pbuf, passwd_len);
         tmp[passwd_len] = '\0';
         for (i = 0; i < passwd_len; i ++)
             tmp[i] += 32;
         strncpy((char *)zc_passwd, (const char *)tmp, ZC_MAX_PASSWD_LEN - 1);
-
         awss_trace("encrypt:%d not support\r\n", passwd_encrypt);
+        tmp_mutex = zc_mutex;
         memset(zconfig_data, 0, sizeof(*zconfig_data));
+        zc_mutex = tmp_mutex;
         ret = -1;
         goto exit;
     }
