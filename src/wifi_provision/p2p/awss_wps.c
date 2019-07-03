@@ -212,10 +212,13 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             }
             break;
         }
-        default:
+        default: {
+            void *tmp_mutex = zc_mutex;
             awss_warn("p2p encypt:%d not support\r\n", encrypt);
             memset(zconfig_data, 0, sizeof(*zconfig_data));
+            zc_mutex = tmp_mutex;
             return GOT_NOTHING;
+        }
     }
 
     awss_debug("ssid:%s, tlen:%d\r\n", tmp_ssid, total_len);
