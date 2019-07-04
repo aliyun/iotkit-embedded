@@ -16,4 +16,6 @@ enum {
 
 int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc);
 
+int awss_get_encrypt_type();
+
 #endif

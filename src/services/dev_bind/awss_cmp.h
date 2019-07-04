@@ -33,12 +33,13 @@ int awss_cmp_local_init();
 int awss_cmp_local_deinit();
 int awss_cmp_online_init();
 int awss_cmp_online_deinit();
+void awss_token_initial_lifetime(void);
 int awss_token_remain_time();
 int awss_token_timeout();
 int awss_update_token();
 int awss_report_token();
 
-int awss_cmp_coap_loop(void *param);
+int awss_cmp_coap_cancel_packet(uint16_t msgid);
 int awss_cmp_coap_register_cb(char *topic, void *cb);
 int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid);
 int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void *cb);

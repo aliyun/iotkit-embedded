@@ -32,6 +32,7 @@
 #define TOPIC_ZC_CIPHER_REPLY           "/sys/%s/%s/thing/cipher/get_reply"
 #define TOPIC_MATCH_REPORT              "/sys/%s/%s/thing/awss/enrollee/match"
 #define TOPIC_MATCH_REPORT_REPLY        "/sys/%s/%s/thing/awss/enrollee/match_reply"
+#define TOPIC_AWSS_DEV_AP_SWITCHAP      "/sys/awss/device/softap/switchap"
 
 #define METHOD_DEV_INFO_NOTIFY          "device.info.notify"
 #define METHOD_AWSS_DEV_INFO_NOTIFY     "awss.device.info.notify"

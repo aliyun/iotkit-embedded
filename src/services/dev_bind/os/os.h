@@ -549,6 +549,8 @@ static inline int os_get_conn_encrypt_type(void)
  */
 char *os_wifi_get_mac_str(char mac_str[OS_MAC_LEN]);
 
+char *os_wifi_str2mac(char mac_str[OS_MAC_LEN], char mac[OS_ETH_ALEN]);
+
 /**
  * @brief Get WIFI MAC address(digital form)
  *

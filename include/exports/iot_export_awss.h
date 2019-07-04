@@ -56,6 +56,22 @@ DLL_IOT_API int awss_report_cloud();
  */
 DLL_IOT_API int awss_report_reset();
 
+/**
+ * @brief start wifi provision through device softap
+ *
+ * @retval  -1 : failure
+ * @retval  0 : sucess
+ */
+DLL_IOT_API int awss_dev_ap_start(void);
+
+/**
+ * @brief stop wifi provision through device softap
+ *
+ * @retval  -1 : failure
+ * @retval  0 : sucess
+ */
+DLL_IOT_API int awss_dev_ap_stop(void);
+
 enum awss_event_t {
     AWSS_START = 0x1000,       // AWSS start without enbale, just supports device discover
     AWSS_ENABLE,               // AWSS enable
