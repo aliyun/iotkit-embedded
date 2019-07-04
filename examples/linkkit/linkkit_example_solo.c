@@ -582,12 +582,20 @@ int linkkit_main(void *paras)
 
 /*
  * if the following conditions are met:
-      1) wifi provision is enabled,
-      2) current OS is Ubuntu,
-      4) a wireless card(Linksys思科wusb600n双频无线网卡) is inse
-      4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
-      5) the linkkit-example-solo is running with sudo rights
-   you can run wifi-provision example in Ubuntu, just to uncomment the following line
+ *    1) wifi provision is enabled,
+ *    2) current OS is Ubuntu,
+ *    3) a wireless card(Linksys思科wusb600n双频无线网卡) is inserted
+ *    4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
+ *       for example, the output of command "ifconfig" is like:
+ *         wlx00259ce04ceb Link encap:Ethernet  HWaddr 00:25:9c:e0:4c:eb
+ *         UP BROADCAST PROMISC MULTICAST  MTU:1500  Metric:1
+ *         RX packets:8709 errors:0 dropped:27 overruns:0 frame:0
+ *         TX packets:2457 errors:0 dropped:0 overruns:0 carrier:0
+ *         collisions:0 txqueuelen:1000
+ *         RX bytes:2940097 (2.9 MB)  TX bytes:382827 (382.8 KB)
+ *       then set g_ifname = "wlx00259ce04ceb"
+ *    5) the linkkit-example-solo is running with sudo permission
+ *  Then you can run wifi-provision example in Ubuntu, just to uncomment the following line
  */
 
     /* run_ubuntu_wifi_provision_example(); */
