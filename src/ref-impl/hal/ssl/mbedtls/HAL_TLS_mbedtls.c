@@ -20,6 +20,7 @@
     #include <sys/time.h>
     #include <arpa/nameser.h>
     #include <resolv.h>
+    #include "dns.h"
 #endif
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
@@ -215,6 +216,96 @@ static int net_prepare(void)
     return (0);
 }
 
+void utils_str2uint(char *input, uint8_t input_len, uint32_t *output)
+{
+    uint8_t index = 0;
+    uint32_t temp = 0;
+
+    for (index = 0; index < input_len; index++) {
+        if (input[index] < '0' || input[index] > '9') {
+            return;
+        }
+        temp = temp * 10 + input[index] - '0';
+    }
+    *output = temp;
+}
+
+static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const char *host,
+                                       const char *port, int proto, unsigned int timeout)
+{
+    int ret;
+    struct sockaddr_in address;
+    size_t addr_len;
+    struct timeval sendtimeout;
+    uint8_t dns_retry = 0, dns_count = 0;
+    uint32_t uint_port = 0;
+    char *ip[DNS_RESULT_COUNT] = {0};
+
+    utils_str2uint((char *)port, strlen(port), &uint_port);
+
+    if ((ret = net_prepare()) != 0) {
+        return (ret);
+    }
+
+    while(dns_retry++ < 8) {
+        ret = dns_getaddrinfo((char *)host, ip);
+        if (ret != 0) {
+            if (ret == EAI_AGAIN) {
+               int rc = res_init();
+               hal_info("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
+            }
+            hal_info("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(ret), host, port);
+            sleep(1);
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    if (ret != 0) {
+        return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
+    }
+
+    /* Try the sockaddrs until a connection succeeds */
+    ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
+    for (dns_count = 0;dns_count < DNS_RESULT_COUNT;dns_count++) {
+        if (ip[dns_count] == NULL || strlen(ip[dns_count]) == 0) {
+            continue;
+        }
+        hal_info("ip address: %s\n", ip[dns_count]);
+
+        ctx->fd = (int) socket(AF_INET, SOCK_STREAM, 0);
+        if (ctx->fd < 0) {
+            ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
+            continue;
+        }
+
+        sendtimeout.tv_sec = timeout;
+        sendtimeout.tv_usec = 0;
+
+        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout, sizeof(sendtimeout))) {
+            perror("setsockopt");
+            hal_err("setsockopt error");
+        }
+        hal_info("setsockopt SO_SNDTIMEO timeout: %ds", sendtimeout.tv_sec);
+
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = inet_addr(ip[dns_count]);
+        address.sin_port = htons(uint_port);
+
+        addr_len = sizeof(address);
+
+        if (connect(ctx->fd, (struct sockaddr *)&address, addr_len) == 0) {
+            ret = 0;
+            break;
+        }
+
+        close(ctx->fd);
+        ret = MBEDTLS_ERR_NET_CONNECT_FAILED;
+    }
+
+    return (ret);
+}
 
 static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *host,
                                        const char *port, int proto, unsigned int timeout)
@@ -293,6 +384,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
 
     return (ret);
 }
+
 #endif
 
 void *_SSLCalloc_wrapper(size_t n, size_t size)
@@ -386,11 +478,16 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
      */
     hal_info("Connecting to /%s/%s...", addr, port);
 #if defined(_PLATFORM_IS_LINUX_)
-    if (0 != (ret = mbedtls_net_connect_timeout(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
+    if (0 != (ret = mbedtls_net_connect_timeout_backup(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
                     SEND_TIMEOUT_SECONDS))) {
-        hal_err(" failed ! net_connect returned -0x%04x", -ret);
-        return ret;
+        hal_err(" backup failed ! net_connect returned -0x%04x", -ret);
+        if (0 != (ret = mbedtls_net_connect_timeout(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
+                        SEND_TIMEOUT_SECONDS))) {
+            hal_err(" failed ! net_connect returned -0x%04x", -ret);
+            return ret;
+        }
     }
+    
 #else
     if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP))) {
         hal_err(" failed ! net_connect returned -0x%04x", -ret);
