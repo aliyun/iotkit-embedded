@@ -13,6 +13,19 @@ extern "C" {
 #define _IN_OPT_
 #endif
 
+#ifndef DLL_HAL_API
+#define DLL_HAL_API
+#endif
+
+#ifndef _IN_
+#define _IN_
+#endif
+
+#ifndef _OU_
+#define _OU_
+#endif
+
+
 #define STR_SHORT_LEN                   (32)
 #ifndef ETH_ALEN
 #define ETH_ALEN                        (6)
