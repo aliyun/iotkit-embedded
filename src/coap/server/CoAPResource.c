@@ -152,7 +152,7 @@ int CoAPResource_register(CoAPContext *context, const char *path,
                 break;
             }
         } else if (type == PATH_FILTER && node->path_type == PATH_FILTER) {
-            if (strlen(path) == strlen(node->filter_path) && 0 == strncpy((char *)path, node->filter_path, strlen(path))) {
+            if (0 == strncmp((char *)path, node->filter_path, strlen(path))) {
                 /*Alread exist, re-write it*/
                 COAP_INFO("CoAPResource_register:Alread exist");
                 exist = 1;
@@ -189,6 +189,22 @@ int CoAPResource_unregister(CoAPContext *context, const char *path)
     return COAP_ERROR_UNSUPPORTED;
 }
 
+int CoAPResource_topicFilterMatch(const char *filter, const char *topic)
+{
+    if (filter == NULL || topic == NULL) {
+        return -1;
+    }
+    if (strncmp(filter, topic, strlen(filter) - 1) == 0) {
+        if (strlen(topic) > strlen(filter) - 1) {
+            const char *more = topic + (strlen(filter) - 1);
+            if (strstr(more, "/") == NULL) {
+                return 0;
+            }
+        }
+    }
+    return -1;
+}
+
 CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
 {
     char path_calc[COAP_PATH_DEFAULT_SUM_LEN] = {0};
@@ -210,13 +226,15 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
             COAP_DEBUG("Found the resource: %s", path);
             return node;
         }
-        if (node->path_type == PATH_FILTER && strlen(node->filter_path) > 0
-            && 0 == strncmp(path, node->filter_path, strlen(node->filter_path) - 1)) {
-            HAL_MutexUnlock(ctx->resource.list_mutex);
-            COAP_DEBUG("Found the resource: %s", path);
-            return node;
+    }
+    
+    list_for_each_entry(node, &ctx->resource.list, reslist, CoAPResource) {
+        if (node->path_type == PATH_FILTER && strlen(node->filter_path) > 0) {
+            if (CoAPResource_topicFilterMatch(node->filter_path, path) == 0) {
+                HAL_MutexUnlock(ctx->resource.list_mutex);
+                return node;
+            }
         }
-
     }
     HAL_MutexUnlock(ctx->resource.list_mutex);
 

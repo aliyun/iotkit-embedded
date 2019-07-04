@@ -38,7 +38,7 @@ int CoAPResource_register(CoAPContext *context, const char *path,
                           unsigned int maxage, CoAPRecvMsgHandler callback);
 
 CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path);
-
+int CoAPResource_topicFilterMatch(const char *filter, const char *topic);
 int CoAPResource_deinit(CoAPContext *context);
 
 #ifdef __cplusplus
