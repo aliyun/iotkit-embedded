@@ -15,8 +15,6 @@
 
 #if defined(MQTT_PRE_AUTH)
     #define SECURE_MODE             MODE_TLS_GUIDER
-#elif defined(SUPPORT_ITLS)
-    #define SECURE_MODE             MODE_ITLS_DNS_ID2
 #elif defined(SUPPORT_TLS)
     #define SECURE_MODE             MODE_TLS_DIRECT
 #else
@@ -59,11 +57,6 @@ const char *clientid_kv[][2] = {
     {
         "ext", "0"
     },
-#endif
-#ifdef SUPPORT_ITLS
-    {
-        "authtype", "id2"
-    }
 #endif
 };
 
