@@ -228,28 +228,6 @@ void start_sniff(_IN_ awss_recv_80211_frame_cb_t cb)
     HAL_ThreadCreate(&g_sniff_thread, func_Sniffer, (void *)cb, &task_parms, &stack_used);
 }
 
-void* func_stop_Sniffer(void *cb) {
-  int iter = 0;
-  int awss_stop();
-
-  while(iter < 5000) {
-     iter++;
-     usleep(1000);
-     printf("cxc iteration\n");
-  }
-  printf("cxc out stop \n");
-  awss_stop();
-  return NULL;
-}
-
-void stop_thread(_IN_ awss_recv_80211_frame_cb_t cb)
-{
-    static void *g_sniff_thread = NULL;
-    int stack_used;
-    hal_os_thread_param_t task_parms = {0};
-    HAL_ThreadCreate(&g_sniff_thread, func_stop_Sniffer, (void *)cb, &task_parms, &stack_used);
-}
-
 void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
 {
     extern void start_sniff(_IN_ awss_recv_80211_frame_cb_t cb);
@@ -274,7 +252,6 @@ void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
     printf("ret3 is %d\r\n", ret);
 
     start_sniff(cb);
-    // stop_thread(cb);
 }
 
 /**
@@ -354,10 +331,6 @@ int HAL_Awss_Connect_Ap(
     char buffer[128] = {0};
     char *wifi_name = "linkkit";
     int ret = -1;
-
-    printf("ssid  : %s\n", ssid);
-
-    printf("passwd: %s\n", passwd);
 
     /**
      * using ubuntu network manager for connecting ap

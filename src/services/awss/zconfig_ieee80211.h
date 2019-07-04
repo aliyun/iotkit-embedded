@@ -9,8 +9,7 @@
 #include "zconfig_protocol.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define WIFI_RX_SENSITIVITY   (-85)
@@ -234,7 +233,7 @@ struct ieee80211_mgmt {
             uint16_t capab_info;
             /* followed by some of SSID, Supported rates,
              * FH Params, DS Params, CF Params, IBSS Params */
-           uint8_t variable;
+            uint8_t variable;
         } probe_resp;
     } u;
 };
@@ -252,6 +251,7 @@ int ieee80211_data_extract(uint8_t *in, int len, int link_type,
                            struct parser_res *res, signed char rssi);
 
 struct ap_info *zconfig_get_apinfo(uint8_t *mac);
+struct ap_info *zconfig_get_apinfo_by_3_byte_mac(uint8_t *last_3_byte_mac);
 struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid);
 struct ap_info *zconfig_get_apinfo_by_ssid_prefix(uint8_t *ssid_prefix);
 struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix);

@@ -12,8 +12,7 @@
 #include "zconfig_protocol.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 /* invalid channel, neither 0, 0xff, nor 1-13 */
@@ -37,6 +36,9 @@ int package_save(uint8_t *package, uint8_t *src, uint8_t *dst, uint8_t tods, uin
 int awss_recv_callback_smartconfig(struct parser_res *res);
 int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_type,
                                        struct parser_res *res, signed char rssi);
+int awss_recv_callback_mcast_smartconfig(struct parser_res *res);
+int awss_ieee80211_mcast_smartconfig_process(uint8_t *ieee80211, int len, int link_type,
+        struct parser_res *res, signed char rssi);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

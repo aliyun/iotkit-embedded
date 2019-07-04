@@ -13,7 +13,7 @@ $(NAME)_SOURCES :=
 $(NAME)_SOURCES += awss.c       awss_aha.c      awss_registrar.c     zconfig_protocol.c       awss_smartconfig.c
 $(NAME)_SOURCES += awss_main.c  awss_wifimgr.c  zconfig_utils.c      zconfig_vendor_common.c  awss_aplist.c
 $(NAME)_SOURCES += awss_crypt.c awss_enrollee.c zconfig_ieee80211.c  awss_adha.c              awss_wps.c
-$(NAME)_SOURCES += awss_ht40.c
+$(NAME)_SOURCES += awss_ht40.c  awss_smartconfig_mcast.c
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 GLOBAL_DEFINES += ESP8266_CONFIG
@@ -33,6 +33,17 @@ GLOBAL_DEFINES += CONFIG_YWSS
 #  AWSS_SUPPORT_SMARTCONFIG cann't work without AWSS_SUPPORT_APLIST
 #
 GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG
+
+#
+# If chipset or die set doesn't support smartconfig with multi-cast,
+# or product doesn't need multi-cast, please remove
+# the defination of AWSS_SUPPORT_SMARCONFIG_MCAST
+#
+#Note:
+#  AWSS_SUPPORT_SMARTCONFIG_MCAST is depend on AWSS_SUPPORT_APLIST
+#  AWSS_SUPPORT_SMARTCONFIG_MCAST cann't work without AWSS_SUPPORT_APLIST
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG_MCAST
 
 #
 # If chipset or die set doesn't support smartconfig with wps,

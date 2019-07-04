@@ -184,6 +184,7 @@ void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channel)
             zconfig_callback_channel_locked(channel);
             break;
         case STATE_CHN_LOCKED_BY_BR:
+        case STATE_CHN_LOCKED_BY_MCAST:
             //locked state used by br frame
             zconfig_callback_channel_locked(zc_channel ? zc_channel : channel);
             break;
