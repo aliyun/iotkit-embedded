@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "aws_lib.h"
-#include "awss_aplist.h"
 #include "zconfig_lib.h"
 #include "zconfig_utils.h"
 #include "zconfig_protocol.h"

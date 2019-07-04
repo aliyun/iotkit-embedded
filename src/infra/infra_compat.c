@@ -7,7 +7,7 @@
 #include "infra_compat.h"
 #include "wrappers.h"
 #if defined(WIFI_PROVISION_ENABLED)
-#include "wifi_provision_internal.h"
+#include "awss_main.h"
 #endif
 
 #if !defined(INFRA_LOG)
