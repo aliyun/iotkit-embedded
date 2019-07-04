@@ -13,6 +13,26 @@
 #endif
 
 
+#if defined(__CC_ARM)
+#ifdef __BIG_ENDIAN
+#define MQTT_BIG_ENDIAN 1
+#else 
+#define MQTT_BIG_ENDIAN 0
+#endif
+#elif defined(__ICCARM__)
+#if (__LITTLE_ENDIAN__ == 0)
+#define MQTT_BIG_ENDIAN 1
+#else 
+#define MQTT_BIG_ENDIAN 0
+#endif
+#elif defined(__GNUC__)
+#if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#define MQTT_BIG_ENDIAN 1
+#else 
+#define MQTT_BIG_ENDIAN 0
+#endif
+#endif
+
 #define MQTT_CONN_FLAG_USER_NAME        (0x80)
 #define MQTT_CONN_FLAG_PASSWORD         (0x40)
 #define MQTT_CONN_FLAG_WILL_RETAIN      (0x20)
@@ -71,7 +91,7 @@ typedef struct {
 
 typedef union {
     unsigned char all;  /**< all connack flags */
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#if MQTT_BIG_ENDIAN 
     struct {
         unsigned int sessionpresent : 1;    /**< session present flag */
         unsigned int : 7;                 /**< unused */
