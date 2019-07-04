@@ -44,7 +44,7 @@ static void ssl_free(void *ptr)
 }
 #endif
 
-#if  defined(SUPPORT_TLS) || defined(SUPPORT_ITLS)
+#if  defined(SUPPORT_TLS)
 uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len);
 int32_t HAL_SSL_Destroy(uintptr_t handle);
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms);
@@ -95,22 +95,6 @@ static int connect_ssl(utils_network_pt pNetwork)
         return 1;
     }
 
-#if defined(SUPPORT_ITLS)
-    char pkps[IOTX_PRODUCT_KEY_LEN + IOTX_PRODUCT_SECRET_LEN + 3] = {0};
-
-    HAL_GetProductKey(pkps);
-    int len = strlen(pkps);
-    HAL_GetProductSecret(pkps + len + 1);
-    len += strlen(pkps + len + 1) + 2;
-
-    if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
-            pNetwork->pHostAddress,
-            pNetwork->port,
-            pkps, len))) {
-        return 0;
-    }
-#else
-
 #ifdef INFRA_MEM_STATS
     memset(&ssl_hooks, 0, sizeof(ssl_hooks_t));
     ssl_hooks.malloc = ssl_malloc;
@@ -128,7 +112,6 @@ static int connect_ssl(utils_network_pt pNetwork)
             pNetwork->ca_crt_len + 1))) {
         return 0;
     }
-#endif
     else {
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
@@ -244,11 +227,7 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
     }
 #else
     if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = read_ssl(pNetwork, buffer, len, timeout_ms);
-#else
         ret = read_tcp(pNetwork, buffer, len, timeout_ms);
-#endif
     }
 #endif
     else {
@@ -268,11 +247,7 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
     }
 #else
     if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = write_ssl(pNetwork, buffer, len, timeout_ms);
-#else
         ret = write_tcp(pNetwork, buffer, len, timeout_ms);
-#endif
     }
 #endif
 
@@ -293,11 +268,7 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
     }
 #else
     if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = disconnect_ssl(pNetwork);
-#else
         ret = disconnect_tcp(pNetwork);
-#endif
     }
 #endif
     else {
@@ -317,11 +288,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
     }
 #else
     if (NULL == pNetwork->ca_crt) {
-#ifdef SUPPORT_ITLS
-        ret = connect_ssl(pNetwork);
-#else
         ret = connect_tcp(pNetwork);
-#endif
     }
 #endif
     else {

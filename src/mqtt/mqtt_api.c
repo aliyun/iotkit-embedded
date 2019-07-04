@@ -43,6 +43,7 @@
 
 static void        *g_mqtt_client = NULL;
 iotx_sign_mqtt_t    g_default_sign;
+static char         iotx_ca_crt_itls[IOTX_PRODUCT_KEY_LEN + IOTX_PRODUCT_SECRET_LEN + 2] = {0};
 
 /* Handle structure of subscribed topic */
 typedef struct  {
@@ -466,7 +467,16 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #ifdef SUPPORT_TLS
     {
         extern const char *iotx_ca_crt;
-        mqtt_params.pub_key = iotx_ca_crt;
+        if (enalbe_itls == 0) {
+            mqtt_params.pub_key = iotx_ca_crt;
+        }
+        else {
+            memset(iotx_ca_crt_itls, 0, sizeof(iotx_ca_crt_itls));
+            HAL_GetProductKey(iotx_ca_crt_itls);
+            iotx_ca_crt_itls[strlen(iotx_ca_crt_itls)] = '.';
+            HAL_GetProductSecret(iotx_ca_crt_itls + strlen(iotx_ca_crt_itls));
+            mqtt_params.pub_key = iotx_ca_crt_itls;
+        }
     }
 #endif
     mqtt_params.request_timeout_ms    = CONFIG_MQTT_REQUEST_TIMEOUT;
