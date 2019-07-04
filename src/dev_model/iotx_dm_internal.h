@@ -48,6 +48,8 @@
 #ifdef ALCS_ENABLED
     #include "CoAPExport.h"
     #include "iotx_alcs.h"
+    #include "dm_server_adapter.h"
+    #include "dm_server.h"
 #endif
 
 /* DM Header File */
@@ -68,8 +70,6 @@
 #include "dm_manager.h"
 #include "dm_client_adapter.h"
 #include "dm_client.h"
-#include "dm_server_adapter.h"
-#include "dm_server.h"
 #include "dm_intf.h"
 
 #ifdef INFRA_MEM_STATS
