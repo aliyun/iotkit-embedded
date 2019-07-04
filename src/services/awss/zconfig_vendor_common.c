@@ -388,10 +388,8 @@ rescanning:
 
         if (aws_state == AWS_SCANNING) {
             awss_debug("channel rescanning...\n");
-            if(zconfig_data != NULL) {
-                void *tmp_mutex = zc_mutex;
+            if (zconfig_data != NULL) {
                 memset(zconfig_data, 0, sizeof(struct zconfig_data));
-                zc_mutex = tmp_mutex;
             }
             goto rescanning;
         }
@@ -406,6 +404,7 @@ timeout_scanning:
     awss_debug("aws timeout scanning!\r\n");
 timeout_recving:
     awss_debug("aws timeout recving!\r\n");
+
     if (rescan_timer == NULL) {
         rescan_timer = HAL_Timer_Create("rescan", (void(*)(void *))rescan_monitor, NULL);
     }
@@ -418,6 +417,7 @@ timeout_recving:
         }
         os_msleep(200);
     }
+
     rescan_available = 0;
     aws_stop = AWS_SCANNING;
     aws_state = AWS_SCANNING;
@@ -444,6 +444,7 @@ success:
      * Note: hiflying will reboot after calling this func, so
      *    aws_get_ssid_passwd() was called in os_awss_monitor_close()
      */
+
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     if (strcmp((const char *)aws_result_ssid, (const char *)zc_adha_ssid) == 0 ||
         strcmp((const char *)aws_result_ssid, (const char *)zc_default_ssid) == 0) {
@@ -471,6 +472,7 @@ int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type
             case PKG_START_FRAME:
             case PKG_DATA_FRAME:
             case PKG_GROUP_FRAME:
+            case PKG_MCAST_FRAME:
                 lock_start = os_get_time_ms();
                 break;
             default:
@@ -526,8 +528,8 @@ void aws_destroy(void)
     if (aws_info == NULL) {
         return;
     }
-
     aws_stop = AWS_STOPPING;
+
     while (aws_state != AWS_SUCCESS && aws_state != AWS_TIMEOUT) {
         os_msleep(100);
     }
@@ -565,6 +567,26 @@ int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
     }
     return 1;
 }
+
+#if defined(AWSS_SUPPORT_SMARTCONFIG_MCAST) || defined(AWSS_SUPPORT_SMARTCONFIG)
+const uint8_t zconfig_fixed_offset[ZC_ENC_TYPE_MAX + 1][2] = {
+    {  /* open, none, ip(20) + udp(8) + 8(LLC) */
+        36, 36
+    },
+    {  /* wep, + iv(4) + data + ICV(4) */
+        44, 44  /* feixun, wep64(10byte), wep128(26byte) */
+    },
+    {  /* tkip, + iv/keyID(4) + Ext IV(4) + data + MIC(8) + ICV(4) */
+        56, 56  /* tkip(10byte, 20byte), wpa2+tkip(20byte) */
+    },
+    {  /* aes, + ccmp header(8) + data + MIC(8) + ICV(4) */
+        52, 52
+    },
+    {  /* tkip-aes */
+        56, 52  /* fromDs==tkip,toDs==aes */
+    }
+};
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

@@ -18,6 +18,7 @@ extern "C"
 enum state_machine {
     STATE_CHN_SCANNING,
     STATE_CHN_LOCKED_BY_P2P,  // wps/action used for enrollee
+    STATE_CHN_LOCKED_BY_MCAST,   /* broadcast used for smartconfig */
     STATE_CHN_LOCKED_BY_BR,   // broadcast used for smartconfig
     STATE_GOT_BEACON,
     STATE_RCV_IN_PROGRESS,
@@ -30,6 +31,26 @@ enum _GOT_RESULT_ {
     GOT_CHN_LOCK = 1,
     GOT_SSID_PASSWD = 2,
 };
+
+#define MCAST_MAX_LEN (127)
+struct mcast_smartconfig_data_type {
+/* result, final result */
+uint8_t tlen;
+uint8_t flag;
+uint8_t passwd_len;
+uint8_t *passwd;
+uint8_t ssid_len;
+uint8_t *ssid;
+uint8_t token_len;
+uint8_t *token;
+uint8_t bssid_type_len;
+uint8_t *bssid;
+uint8_t ssid_is_gbk;
+uint8_t ssid_auto_complete_disable;
+uint8_t data[MCAST_MAX_LEN];
+uint8_t checksum;
+}
+mcast_smartconfig_data;
 
 #define PASSWD_ENCRYPT_BIT_OFFSET (1)
 #define PASSWD_ENCRYPT_MASK       (0x06)
@@ -111,6 +132,7 @@ struct zconfig_data {
 
     /* result, final result */
     uint8_t ssid[ZC_MAX_SSID_LEN];
+    uint8_t token[ZC_MAX_TOKEN_LEN];
     uint8_t passwd[ZC_MAX_PASSWD_LEN];
     uint8_t bssid[ETH_ALEN];
     uint8_t ssid_is_gbk;
@@ -143,6 +165,7 @@ struct zconfig_data {
 #define zc_channel                     zconfig_data->channel
 
 #define zc_ssid                        (&zconfig_data->ssid[0])
+#define zc_token                       (&zconfig_data->token[0])
 #define zc_passwd                      (&zconfig_data->passwd[0])
 #define zc_bssid                       (&zconfig_data->bssid[0])
 #define zc_ssid_is_gbk                 (zconfig_data->ssid_is_gbk)

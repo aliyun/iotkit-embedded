@@ -5,6 +5,11 @@
 #include "deprecated/solo.c"
 #else
 #include "stdio.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include "iot_export_linkkit.h"
 #include "cJSON.h"
 #include "app_entry.h"
@@ -34,6 +39,32 @@
         HAL_Printf(__VA_ARGS__);                                 \
         HAL_Printf("\033[0m\r\n");                                   \
     } while (0)
+
+
+void run_ubuntu_wifi_provision_example() {
+#ifdef __UBUNTU_SDK_DEMO__
+#if defined(WIFI_PROVISION_ENABLED)
+    char *wifi_name = "linkkit";
+    char buffer[128] = {0};
+    int ret;
+    extern int awss_config_press();
+    extern int awss_start();
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection down %s", wifi_name);
+    ret = system(buffer);
+
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection delete %s", wifi_name);
+    ret = system(buffer);
+    sleep(15);
+
+    awss_config_press();
+    awss_start();
+#endif
+#endif
+}
+
+
 
 typedef struct {
     int master_devid;
@@ -548,6 +579,18 @@ int linkkit_main(void *paras)
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif
+
+/*
+ * if the following conditions are met:
+      1) wifi provision is enabled,
+      2) current OS is Ubuntu,
+      4) a wireless card(Linksys思科wusb600n双频无线网卡) is inse
+      4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
+      5) the linkkit-example-solo is running with sudo rights
+   you can run wifi-provision example in Ubuntu, just to uncomment the following line
+ */
+
+    /* run_ubuntu_wifi_provision_example(); */
 
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
