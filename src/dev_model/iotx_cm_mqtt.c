@@ -199,7 +199,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         break;
 
         case IOTX_MQTT_EVENT_BUFFER_OVERFLOW:
-            cm_warning("buffer overflow", msg->msg);
+            cm_warning("buffer overflow");
             break;
 
         default:
