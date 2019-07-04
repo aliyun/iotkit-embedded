@@ -25,7 +25,7 @@
 /* dns server and resolve result */
 #define DNS_SERVER_COUNT             (3)
 
-static char g_dns_ip_list[DNS_RESULT_COUNT][16] = {0};
+static char g_dns_ip_list[DNS_RESULT_COUNT][16];
 
 static char *g_dns_server_list[DNS_SERVER_COUNT] = {
     "223.5.5.5",
@@ -265,6 +265,7 @@ int dns_getaddrinfo(char *domain, char *ip[DNS_RESULT_COUNT])
     int res = 0;
     uint8_t idx = 0;
 
+    memset(g_dns_ip_list, 0, DNS_RESULT_COUNT * 16);
     for (idx = 0;idx < DNS_SERVER_COUNT;idx++) {
         printf("[prt] dns server: %s\n", g_dns_server_list[idx]);
         res = dns_resolve(g_dns_server_list[idx], domain, ip);
