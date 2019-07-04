@@ -257,6 +257,27 @@ char *os_wifi_get_mac_str(char mac_str[OS_MAC_LEN])
 
     return mac_str;
 }
+char *os_wifi_str2mac(char mac_str[OS_MAC_LEN], char mac[OS_ETH_ALEN])
+{
+    int i = 0;
+    char *ptr = mac_str;
+    char mac_addr[OS_ETH_ALEN] = {0};
+
+    if (ptr == NULL)
+        return NULL;
+
+    while (isxdigit(*ptr) && i < OS_ETH_ALEN) {
+        mac_addr[i ++] = (uint8_t)strtol(ptr, &ptr, 16);
+        ++ ptr;
+    }
+
+    if (i < OS_ETH_ALEN)  /* don't touch mac when fail */
+        return NULL;
+
+    if (mac) memcpy(mac, mac_addr, OS_ETH_ALEN);
+
+    return mac;
+}
 
 uint8_t *os_wifi_get_mac(uint8_t mac[OS_ETH_ALEN])
 {
@@ -266,10 +287,5 @@ uint8_t *os_wifi_get_mac(uint8_t mac[OS_ETH_ALEN])
 
     os_wifi_get_mac_str(mac_str);
 
-    while('\0' != *ptr && i < OS_ETH_ALEN) {
-        mac[i++] = (uint8_t)strtol(ptr, &ptr, 16);
-        ++ptr;
-    }
-
-    return mac;
+    return (uint8_t *)os_wifi_str2mac(mac_str, (char *)mac);
 }

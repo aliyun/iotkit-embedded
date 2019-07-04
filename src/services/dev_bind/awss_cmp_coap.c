@@ -18,6 +18,10 @@
 #ifdef WIFI_PROVISION_ENABLED
 #include "awss_wifimgr.h"
 #endif
+#if (AWSS_SUPPORT_DEV_AP)
+#include "awss_dev_ap.h"
+#endif
+
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -117,11 +121,12 @@ int awss_cmp_coap_register_cb(char *topic, void* cb)
     return 0;
 }
 
-int awss_cmp_coap_loop(void *param)
+int awss_cmp_coap_cancel_packet(uint16_t msgid)
 {
-    if (g_coap_ctx == NULL)
-        g_coap_ctx = (void *)CoAPServer_init();
-    return 0;
+    if (g_coap_ctx == NULL) {
+        return -1;
+    }
+    return CoAPMessageId_cancel(g_coap_ctx, msgid);
 }
 
 int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid)
@@ -164,6 +169,9 @@ const struct awss_cmp_couple awss_local_couple[] = {
     {TOPIC_AWSS_GETDEVICEINFO_MCAST, wifimgr_process_mcast_get_device_info},
     {TOPIC_AWSS_GETDEVICEINFO_UCAST, wifimgr_process_ucast_get_device_info},
 #endif
+#if (AWSS_SUPPORT_DEV_AP)
+    {TOPIC_AWSS_DEV_AP_SWITCHAP,     wifimgr_process_dev_ap_switchap_request},
+#endif
 #ifndef AWSS_DISABLE_REGISTRAR
     {TOPIC_NOTIFY,                   online_dev_bind_monitor},
 #endif
@@ -182,8 +190,6 @@ int awss_cmp_local_init()
         awss_build_topic(awss_local_couple[i].topic, topic, TOPIC_LEN_MAX);
         awss_cmp_coap_register_cb(topic, awss_local_couple[i].cb);
     }
-
-    awss_cmp_coap_loop(NULL);
 
     return 0;
 }

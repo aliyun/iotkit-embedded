@@ -128,6 +128,11 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc
     return res;
 }
 
+int awss_get_encrypt_type()
+{
+    return 3;
+}
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
