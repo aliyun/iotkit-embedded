@@ -360,7 +360,7 @@ static int add_svr_key(CoAPContext *ctx, const char *keyprefix, const char *secr
     }
     memset(item->keyInfo.secret, 0, strlen(secret) + 1);
     strcpy(item->keyInfo.secret, secret);
-    
+
     memcpy(item->keyInfo.keyprefix, keyprefix, KEYPREFIX_LEN);
     item->keyInfo.priority = priority;
 
@@ -467,7 +467,7 @@ static secure_resource_cb_item *get_resource_by_path(const char *path)
                 return node;
             }
         } else if (strlen(node->filter_path) > 0) {
-            if (strncmp(node->filter_path, path, strlen(node->filter_path) - 1) == 0) {
+            if (CoAPResource_topicFilterMatch(node->filter_path, path) == 0) {
                 return node;
             }
         }
@@ -544,7 +544,7 @@ int alcs_resource_register_secure(CoAPContext *context, const char *pk, const ch
                 dup = 1;
             }
         } else if (item->path_type == PATH_FILTER && node->path_type == PATH_FILTER) {
-            if (strncpy(node->filter_path, path, strlen(path)) == 0) {
+            if (strncmp(node->filter_path, path, strlen(path)) == 0) {
                 dup = 1;
             }
         }

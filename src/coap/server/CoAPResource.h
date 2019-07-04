@@ -41,6 +41,7 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path);
 
 int CoAPResource_deinit(CoAPContext *context);
 
+int CoAPResource_topicFilterMatch(const char *filter, const char *topic);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
