@@ -123,10 +123,8 @@ int set_zc_bssid()
 void gen16ByteToken()
 {
     int bssid_len = mcast_smartconfig_data.bssid_type_len & 0b11111;
-#if 0
     awss_complete_token((char *)zc_passwd, mcast_smartconfig_data.bssid, bssid_len,
                         mcast_smartconfig_data.token, mcast_smartconfig_data.token_len, zc_token);
-#endif
 }
 
 int parse_result()
