@@ -72,7 +72,7 @@
 #define LITE_MAXIMUM(a, b)          (((a) >= (b)) ? (a) : (b))
 #define LITE_isdigit(c)             (((c) <= '9' && (c) >= '0') ? (LITE_TRUE) : (LITE_FALSE))
 
-#if defined(_PLATFORM_IS_LINUX_)
+#if defined(__UBUNTU_SDK_DEMO__)
 #define LITE_ASSERT(expr)           assert(expr)
 #else
 #define LITE_ASSERT(expr) \
