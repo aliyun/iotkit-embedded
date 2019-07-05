@@ -66,13 +66,7 @@ static const uint8_t aws_fixed_scanning_channels[] = {
     1, 6, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 };
 
-static void *rescan_timer = NULL;
-
-static void rescan_monitor(void);
-
 #define RESCAN_MONITOR_TIMEOUT_MS     (5 * 60 * 1000)
-static uint8_t rescan_available = 0;
-
 /*
  * sniffer result/storage
  * use global variable/buffer to keep it usable after zconfig_destroy
@@ -83,6 +77,7 @@ uint8_t aws_result_bssid[ETH_ALEN];/* mac addr */
 uint8_t aws_result_channel = 0;
 uint8_t aws_result_encry;
 uint8_t aws_result_auth;
+int aws_80211_frame_handler(char *, int, enum AWSS_LINK_TYPE, int, signed char);
 
 uint8_t zconfig_get_lock_chn(void)
 {
@@ -270,6 +265,20 @@ int zconfig_add_active_channel(int channel)
     return 0;
 }
 
+/* sleep for RESCAN_MONITOR_TIMEOUT_MS if no one interrupts */
+void zconfig_sleep_before_rescan()
+{
+    int iter = 0;
+    int count = RESCAN_MONITOR_TIMEOUT_MS / 200;
+    for (iter = 0; iter < count; iter++) {
+        if (awss_get_config_press() ||
+            aws_stop == AWS_STOPPING) {  /* user interrupt sleep */
+            break;
+        }
+        HAL_SleepMs(200);
+    }
+}
+
 /*
  * platform like mc300, 雄迈 depend on auth & encry type
  * so keep scanning if auth & encry is incomplete
@@ -339,6 +348,10 @@ rescanning:
                 break;
         }
 
+        if (aws_stop == AWS_STOPPING) { /* interrupt by user */
+            goto timeout_scanning;
+        }
+
         if (aws_state != AWS_SCANNING) {
             break;
         }
@@ -379,6 +392,11 @@ rescanning:
     while (aws_state != AWS_SUCCESS) {
         /* 80211 frame handled by callback */
         os_msleep(300);
+
+        if (aws_stop == AWS_STOPPING) {
+            goto timeout_recving;
+        }
+
 #ifdef AWSS_SUPPORT_APLIST
         aws_try_adjust_chan();
 #endif
@@ -405,21 +423,19 @@ timeout_scanning:
 timeout_recving:
     awss_debug("aws timeout recving!\r\n");
 
-    if (rescan_timer == NULL) {
-        rescan_timer = HAL_Timer_Create("rescan", (void(*)(void *))rescan_monitor, NULL);
-    }
-    HAL_Timer_Stop(rescan_timer);
-    HAL_Timer_Start(rescan_timer, RESCAN_MONITOR_TIMEOUT_MS);
-    while (rescan_available == 0) {
-        if (awss_get_config_press()) {  // user interrupt sleep
-            HAL_Timer_Stop(rescan_timer);
+    do {
+        if (aws_stop == AWS_STOPPING) {
             break;
         }
-        os_msleep(200);
+        zconfig_sleep_before_rescan();
+
+    } while (0);
+
+    if (aws_stop == AWS_STOPPING) {  /* interrupt by user */
+        aws_stop = AWS_STOPPED;
+        goto success;
     }
 
-    rescan_available = 0;
-    aws_stop = AWS_SCANNING;
     aws_state = AWS_SCANNING;
 #ifdef AWSS_SUPPORT_APLIST
     if (awss_is_ready_clr_aplist()) {
@@ -431,8 +447,6 @@ timeout_recving:
     goto rescanning;
 
 success:
-    awss_stop_timer(rescan_timer);
-    rescan_timer = NULL;
     // don't destroy zconfig_data until monitor_cb is finished.
     os_mutex_lock(zc_mutex);
     os_mutex_unlock(zc_mutex);
@@ -444,6 +458,10 @@ success:
      * Note: hiflying will reboot after calling this func, so
      *    aws_get_ssid_passwd() was called in os_awss_monitor_close()
      */
+    if (aws_stop == AWS_STOPPED) {
+        zconfig_force_destroy();
+    }
+
 
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     if (strcmp((const char *)aws_result_ssid, (const char *)zc_adha_ssid) == 0 ||
@@ -454,11 +472,6 @@ success:
     {
         zconfig_force_destroy();
     }
-}
-
-static void rescan_monitor(void)
-{
-    rescan_available = 1;
 }
 
 int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi)
@@ -524,11 +537,15 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
 
 void aws_destroy(void)
 {
-    HAL_Awss_Close_Monitor();
     if (aws_info == NULL) {
         return;
     }
+    if (aws_stop == AWS_STOPPED) {
+        return;
+    }
     aws_stop = AWS_STOPPING;
+    HAL_Awss_Close_Monitor();
+    awss_trace("aws_destroy\r\n");
 
     while (aws_state != AWS_SUCCESS && aws_state != AWS_TIMEOUT) {
         os_msleep(100);
