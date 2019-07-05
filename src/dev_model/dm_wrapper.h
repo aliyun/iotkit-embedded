@@ -9,6 +9,11 @@ int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1]);
 int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
 
+int HAL_SetDeviceName(char *device_name);
+int HAL_SetDeviceSecret(char *device_secret);
+int HAL_SetProductKey(char *product_key);
+int HAL_SetProductSecret(char *product_secret);
+
 void *HAL_MutexCreate(void);
 void HAL_MutexDestroy(void *mutex);
 void HAL_MutexLock(void *mutex);
