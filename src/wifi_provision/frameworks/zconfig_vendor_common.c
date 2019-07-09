@@ -280,8 +280,8 @@ void aws_main_thread_func(void)
     aws_start_timestamp = os_get_time_ms();
     /* channel switch init */
     aws_switch_channel();
-#ifdef AWSS_SUPPORT_BEACON_ANNOUNCE
-    aws_auto_found_init();
+#ifdef AWSS_SUPPORT_DISCOVER
+    aws_discover_init();
 #endif
 rescanning:
     /* start scaning channel */
@@ -319,8 +319,8 @@ rescanning:
         awss_broadcast_enrollee_info();
 #endif
         HAL_SleepMs(interval);
-#ifdef AWSS_SUPPORT_BEACON_ANNOUNCE
-        aws_send_beacon_announce();
+#ifdef AWSS_SUPPORT_DISCOVER
+        aws_discover_send_beacon();
 #endif
         HAL_SleepMs(interval);
 #ifdef AWSS_SUPPORT_AHA
@@ -397,8 +397,8 @@ timeout_recving:
 
 success:
 
-#ifdef AWSS_SUPPORT_BEACON_ANNOUNCE
-    aws_auto_found_deinit();
+#ifdef AWSS_SUPPORT_DISCOVER
+    aws_discover_deinit();
 #endif
     /* don't destroy zconfig_data until monitor_cb is finished. */
     HAL_MutexLock(zc_mutex);
