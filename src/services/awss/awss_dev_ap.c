@@ -103,7 +103,8 @@ extern int awss_success_notify(void);
 int awss_dev_ap_start(void)
 {
     int ret = -1;
-    ap_info_t dev_ap_info = {0};
+    ap_info_t dev_ap_info;
+    memset(&dev_ap_info, 0, sizeof(ap_info_t));
 
     if (g_awss_dev_ap_mutex || awss_dev_ap_ongoing) {
         awss_trace("dev ap already running");
