@@ -8,7 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef __UBUNTU_SDK_DEMO__
 #include <unistd.h>
+#endif
 
 #include "iot_export_linkkit.h"
 #include "cJSON.h"
