@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef __UBUNTU_SDK_DEMO__
+#include <unistd.h>
+#endif
+
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_compat.h"
@@ -30,6 +34,29 @@
         HAL_Printf(__VA_ARGS__);                                    \
         HAL_Printf("\033[0m\r\n");                                  \
     } while (0)
+
+void run_ubuntu_wifi_provision_example() {
+#ifdef __UBUNTU_SDK_DEMO__
+#if defined(WIFI_PROVISION_ENABLED)
+    char *wifi_name = "linkkit";
+    char buffer[128] = {0};
+    int ret;
+    extern int awss_config_press();
+    extern int awss_start();
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection down %s", wifi_name);
+    ret = system(buffer);
+
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection delete %s", wifi_name);
+    ret = system(buffer);
+    sleep(15);
+
+    awss_config_press();
+    awss_start();
+#endif
+#endif
+}
 
 #define EXAMPLE_MASTER_DEVID            (0)
 #define EXAMPLE_YIELD_TIMEOUT_MS        (200)
@@ -299,6 +326,27 @@ int main(int argc, char **argv)
     memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
+
+/*
+ * if the following conditions are met:
+ *    1) wifi provision is enabled,
+ *    2) current OS is Ubuntu,
+ *    3) a wireless card(Linksys思科wusb600n双频无线网卡) is inserted
+ *    4) g_ifname in HAL_AWSS_linux.c has been set to be the wireless card's name according to ifconfig
+ *       for example, the output of command "ifconfig" is like:
+ *         wlx00259ce04ceb Link encap:Ethernet  HWaddr 00:25:9c:e0:4c:eb
+ *         UP BROADCAST PROMISC MULTICAST  MTU:1500  Metric:1
+ *         RX packets:8709 errors:0 dropped:27 overruns:0 frame:0
+ *         TX packets:2457 errors:0 dropped:0 overruns:0 carrier:0
+ *         collisions:0 txqueuelen:1000
+ *         RX bytes:2940097 (2.9 MB)  TX bytes:382827 (382.8 KB)
+ *       then set g_ifname = "wlx00259ce04ceb"
+ *    5) the linkkit-example-solo is running with sudo permission
+ *  Then you can run wifi-provision example in Ubuntu, just to uncomment the following line
+ */
+
+    /* run_ubuntu_wifi_provision_example(); */
+
 
     /* Register Callback */
     IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
