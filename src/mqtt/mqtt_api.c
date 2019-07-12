@@ -155,7 +155,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     iotx_dev_meta_info_t meta_info;
     iotx_mqtt_param_t mqtt_params;
     char device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = {0};
-    int region = 0;
+    iotx_mqtt_region_types_t region = IOTX_CLOUD_REGION_SHANGHAI;
     int dynamic = 0;
     uint8_t enalbe_itls = 0;
     int ret;
@@ -237,8 +237,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (pInitParams != NULL && pInitParams->customize_info != NULL) {
         if (strstr(pInitParams->customize_info, "authtype=id2") != NULL) {
             enalbe_itls = 1;
-        }
-        else {
+        } else {
             enalbe_itls = 0;
         }
     }
