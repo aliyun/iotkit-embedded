@@ -214,7 +214,6 @@ int dm_mgr_device_query(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                         _IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1], _OU_ int *devid)
 {
     int res = 0;
-    dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
     dm_mgr_dev_node_t *node = NULL;
 
     /* duplicated parameters check is removed */

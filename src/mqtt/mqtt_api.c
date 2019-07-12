@@ -47,20 +47,14 @@ iotx_sign_mqtt_t    g_default_sign;
 /* Handle structure of subscribed topic */
 static void iotx_mqtt_report_funcs(void *pclient)
 {
-    int                 err;
-
-#ifndef ATHOST_MQTT_REPORT_DISBALED
-    iotx_set_report_func(IOT_MQTT_Publish_Simple);
-
     /* report firmware version */
-#if !defined(BUILD_AOS) && !defined(MUTE_VERSION_REPORT)
+#if !defined(ATHOST_MQTT_REPORT_DISBALED) && !defined(MUTE_VERSION_REPORT)
+    int err;
+    iotx_set_report_func(IOT_MQTT_Publish_Simple);
     err = iotx_report_firmware_version(pclient);
-
     if (SUCCESS_RETURN != err) {
         mqtt_err("failed to report firmware version");
     }
-#endif
-
 #endif
 }
 
