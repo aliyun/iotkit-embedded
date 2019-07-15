@@ -535,8 +535,17 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     aws_main_thread_func();
 }
 
+static void *aws_mutex = NULL;
+
 void aws_destroy(void)
 {
+    if (aws_mutex == NULL) {
+        aws_mutex = HAL_MutexCreate();
+    }
+    if (aws_mutex) {
+        HAL_MutexLock(aws_mutex);
+    }
+
     if (aws_info == NULL) {
         return;
     }
@@ -546,9 +555,13 @@ void aws_destroy(void)
     aws_stop = AWS_STOPPING;
     HAL_Awss_Close_Monitor();
     awss_trace("aws_destroy\r\n");
-
-    while (aws_state != AWS_SUCCESS && aws_state != AWS_TIMEOUT) {
-        os_msleep(100);
+    while (aws_stop != AWS_STOPPED) {
+        if (aws_state == AWS_SUCCESS) {
+            break;
+        }
+        HAL_MutexUnlock(aws_mutex);
+        HAL_SleepMs(100);
+        HAL_MutexLock(aws_mutex);
     }
 
     os_free(aws_info);
@@ -556,6 +569,18 @@ void aws_destroy(void)
 #ifndef AWSS_DISABLE_ENROLLEE
     awss_destroy_enrollee_info();
 #endif
+
+    if (aws_mutex) {
+        HAL_MutexUnlock(aws_mutex);
+    }
+}
+
+void aws_release_mutex()
+{
+    if (aws_mutex) {
+        HAL_MutexDestroy(aws_mutex);
+        aws_mutex = NULL;
+    }
 }
 
 int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
