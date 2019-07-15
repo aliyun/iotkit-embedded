@@ -97,7 +97,6 @@ int __awss_start(void)
             }
         }
     } while (0);
-
     awss_finished = 1;
     /* never reach here */
     return 0;
@@ -120,6 +119,7 @@ int __awss_stop(void)
         if (awss_finished) break;
         os_msleep(300);
     }
+    aws_release_mutex();
     return 0;
 }
 
