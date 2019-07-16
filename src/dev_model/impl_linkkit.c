@@ -99,6 +99,7 @@ static iotx_linkkit_ctx_t g_iotx_linkkit_ctx = {0};
 
 #ifdef ALCS_ENABLED
     extern void dm_server_free_context(_IN_ void *ctx);
+    static int awss_reported = 0;
 #endif
 
 static iotx_linkkit_ctx_t *_iotx_linkkit_get_ctx(void)
@@ -1243,7 +1244,12 @@ static int _iotx_linkkit_master_connect(void)
 
     type = IOTX_DM_EVENT_INITIALIZED;
     _iotx_linkkit_event_callback(type, "{\"devid\":0}");
-
+#ifdef DEV_BIND_ENABLED
+    if(_awss_reported == 0) {
+        awss_report_cloud();
+        _awss_reported = 1;
+    }
+#endif
     return SUCCESS_RETURN;
 }
 
@@ -1445,6 +1451,9 @@ static int _iotx_linkkit_master_close(void)
 #endif
     memset(ctx, 0, sizeof(iotx_linkkit_ctx_t));
 
+#ifdef DEV_BIND_ENABLED
+    _awss_reported = 0;
+#endif
     return SUCCESS_RETURN;
 }
 
