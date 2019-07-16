@@ -520,20 +520,64 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         return ret;
     }
 #elif defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED) /* MBEDTLS_X509_CRT_PARSE_C */
+/* identity=authType|signMethod|id|timestamp
+psk=sighMethod(secret,id+timestamp)
+authType取值：devicename; id2;
+signMethod取值：hmacmd5; hmacsha1; hmacsha256;
+其中，如果authType是devicename，id取值pk&dn */
     {
+        static const int ciphersuites[1] = {MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA};
         char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
         char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
         char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-        char psk_identity[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2] = {0};
+        char *auth_type = "devicename";
+        char *sign_method = "hmacsha256";
+        char *timestamp = "2524608000000";
+        char *psk_identity = NULL, string_to_sign[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 33] = {0};
+        uitn32_t psk_identity_len = 0;
+        uint8_t sign_hex[32] = {0};
+        char sign_string[65] = {0};
+
         HAL_GetProductKey(product_key);
         HAL_GetDeviceName(device_name);
         HAL_GetDeviceSecret(device_secret);
-        memcpy(psk_identity, product_key, strlen(product_key));
-        memcpy(psk_identity, ".", strlen("."));
-        memcpy(psk_identity, device_name, strlen(device_name));
-        mbedtls_ssl_conf_psk(&(pTlsData->conf), (const unsigned char *)device_secret, strlen(device_secret),
+
+        /* psk identity length */
+        psk_identity_len = strlen(auth_type) + strlen(sign_method) + strlen(product_key) + strlen(device_name) + strlen(timestamp) + 5;
+        psk_identity = HAL_Malloc(psk_identity_len);
+        if (psk_identity == NULL) {
+            printf("psk_identity malloc failed\n");
+            return -1;
+        }
+        memset(psk_identity, 0, psk_identity_len);
+        memcpy(psk_identity, auth_type, strlen(auth_type));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), sign_method, strlen(sign_method));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), product_key, strlen(product_key));
+        memcpy(psk_identity + strlen(psk_identity), "&", strlen("&"));
+        memcpy(psk_identity + strlen(psk_identity), device_name, strlen(device_name));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), timestamp, strlen(timestamp));
+
+        /* string to sign */
+        memcpy(string_to_sign, "id", strlen("id"));
+        memcpy(string_to_sign + strlen(string_to_sign), product_key, strlen(product_key));
+        memcpy(string_to_sign + strlen(string_to_sign), "&", strlen("&"));
+        memcpy(string_to_sign + strlen(string_to_sign), device_name, strlen(device_name));
+        memcpy(string_to_sign + strlen(string_to_sign), "timestamp", strlen("timestamp"));
+        memcpy(string_to_sign + strlen(string_to_sign), timestamp, strlen(timestamp));
+
+        utils_hmac_sha256((uint8_t *)string_to_sign, strlen(string_to_sign), (uint8_t *)device_secret,
+                      strlen(device_secret), sign_hex);
+        infra_hex2str(sign_hex, 32, sign_string);
+
+        mbedtls_ssl_conf_psk(&(pTlsData->conf), (const unsigned char *)sign_string, strlen(sign_string),
                              (const unsigned char *)psk_identity, strlen(psk_identity));
         mbedtls_ssl_conf_ciphersuites(&(pTlsData->conf), ciphersuites);
+
+        HAL_Free(psk_identity);
+
         printf("mbedtls psk config finished\n");
     }
 #endif /* MBEDTLS_KEY_EXCHANGE_PSK_ENABLED */
