@@ -23,6 +23,7 @@
 
 #ifdef DEV_BIND_ENABLED
     #include "dev_bind_api.h"
+    static int _awss_reported = 0;
 #endif
 
 #define IOTX_LINKKIT_KEY_ID          "id"
