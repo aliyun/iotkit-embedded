@@ -100,7 +100,6 @@ static iotx_linkkit_ctx_t g_iotx_linkkit_ctx = {0};
 
 #ifdef ALCS_ENABLED
     extern void dm_server_free_context(_IN_ void *ctx);
-    static int awss_reported = 0;
 #endif
 
 static iotx_linkkit_ctx_t *_iotx_linkkit_get_ctx(void)

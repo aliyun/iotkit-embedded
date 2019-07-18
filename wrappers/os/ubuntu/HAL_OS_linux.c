@@ -96,7 +96,7 @@ uint32_t HAL_Random(uint32_t region)
         return 0;
     }
     fclose(handle);
-    return (region > 0) ? (output % region) : 0;
+    return (region > 0) ? (output % region) : output;
 }
 
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...)

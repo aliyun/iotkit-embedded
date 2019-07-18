@@ -138,10 +138,29 @@ static int ssl_deserialize_session(mbedtls_ssl_session *session,
 }
 #endif
 
-static unsigned int _avRandom()
+static void _srand(unsigned int seed)
 {
-    return (unsigned int)HAL_UptimeMs();
+#ifdef HAL_KV
+#define SEED_MAGIC 0x123
+    int           ret        = 0;
+    int           seed_len   = 0;
+    unsigned int  seed_val   = 0;
+    static char  *g_seed_key = "seed_key";
+
+    seed_len = sizeof(seed_val);
+    ret = HAL_Kv_Get(g_seed_key, &seed_val, &seed_len);
+    if (ret) {
+        seed_val = SEED_MAGIC;
+    }
+    seed_val += seed;
+    HAL_Srandom(seed_val);
+    seed_val = rand();
+    HAL_Kv_Set(g_seed_key, &seed_val, sizeof(seed_val), 1);
+#else
+    HAL_Srandom(seed);
+#endif
 }
+
 
 static int _ssl_random(void *p_rng, unsigned char *output, size_t output_len)
 {
@@ -149,7 +168,7 @@ static int _ssl_random(void *p_rng, unsigned char *output, size_t output_len)
     uint8_t   rngoffset = 0;
 
     while (rnglen > 0) {
-        *(output + rngoffset) = (unsigned char)_avRandom() ;
+        *(output + rngoffset) = (unsigned char)HAL_Random(0);
         rngoffset++;
         rnglen--;
     }
@@ -217,6 +236,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     mbedtls_ssl_init(ssl);
     mbedtls_ssl_config_init(conf);
 
+    _srand(HAL_UptimeMs());
     /* Setup Client Cert/Key */
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt_init(crt509_ca);
@@ -520,11 +540,11 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         return ret;
     }
 #elif defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED) /* MBEDTLS_X509_CRT_PARSE_C */
-/* identity=authType|signMethod|id|timestamp
-psk=sighMethod(secret,id+timestamp)
-authType取值：devicename; id2;
-signMethod取值：hmacmd5; hmacsha1; hmacsha256;
-其中，如果authType是devicename，id取值pk&dn */
+    /* identity=authType|signMethod|id|timestamp
+    psk=sighMethod(secret,id+timestamp)
+    authType取值：devicename; id2;
+    signMethod取值：hmacmd5; hmacsha1; hmacsha256;
+    其中，如果authType是devicename，id取值pk&dn */
     {
         static const int ciphersuites[1] = {MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA};
         char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
@@ -543,7 +563,8 @@ signMethod取值：hmacmd5; hmacsha1; hmacsha256;
         HAL_GetDeviceSecret(device_secret);
 
         /* psk identity length */
-        psk_identity_len = strlen(auth_type) + strlen(sign_method) + strlen(product_key) + strlen(device_name) + strlen(timestamp) + 5;
+        psk_identity_len = strlen(auth_type) + strlen(sign_method) + strlen(product_key) + strlen(device_name) + strlen(
+                                       timestamp) + 5;
         psk_identity = HAL_Malloc(psk_identity_len);
         if (psk_identity == NULL) {
             printf("psk_identity malloc failed\n");
@@ -569,7 +590,7 @@ signMethod取值：hmacmd5; hmacsha1; hmacsha256;
         memcpy(string_to_sign + strlen(string_to_sign), timestamp, strlen(timestamp));
 
         utils_hmac_sha256((uint8_t *)string_to_sign, strlen(string_to_sign), (uint8_t *)device_secret,
-                      strlen(device_secret), sign_hex);
+                          strlen(device_secret), sign_hex);
         infra_hex2str(sign_hex, 32, sign_string);
 
         mbedtls_ssl_conf_psk(&(pTlsData->conf), (const unsigned char *)sign_string, strlen(sign_string),
