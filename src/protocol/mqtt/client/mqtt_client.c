@@ -2672,7 +2672,7 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
               pClient->connect_data.username.cstring,
               pClient->connect_data.password.cstring);*/
     userKeepAliveInterval = pClient->connect_data.keepAliveInterval;
-    pClient->connect_data.keepAliveInterval = KEEP_ALIVE_INTERVAL_DEFAULT_MAX;
+    pClient->connect_data.keepAliveInterval = (userKeepAliveInterval * 2);
 
     rc = MQTTConnect(pClient);
     pClient->connect_data.keepAliveInterval = userKeepAliveInterval;
