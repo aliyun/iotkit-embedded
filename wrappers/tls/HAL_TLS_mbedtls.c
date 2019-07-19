@@ -30,6 +30,8 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 #include "wrappers.h"
+#include "infra_sha256.h"
+#include "infra_string.h"
 #include <errno.h>
 
 #define SEND_TIMEOUT_SECONDS                (10)
@@ -540,11 +542,6 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         return ret;
     }
 #elif defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED) /* MBEDTLS_X509_CRT_PARSE_C */
-    /* identity=authType|signMethod|id|timestamp
-    psk=sighMethod(secret,id+timestamp)
-    authType取值：devicename; id2;
-    signMethod取值：hmacmd5; hmacsha1; hmacsha256;
-    其中，如果authType是devicename，id取值pk&dn */
     {
         static const int ciphersuites[1] = {MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA};
         char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
@@ -554,7 +551,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         char *sign_method = "hmacsha256";
         char *timestamp = "2524608000000";
         char *psk_identity = NULL, string_to_sign[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 33] = {0};
-        uitn32_t psk_identity_len = 0;
+        uint32_t psk_identity_len = 0;
         uint8_t sign_hex[32] = {0};
         char sign_string[65] = {0};
 
@@ -592,6 +589,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         utils_hmac_sha256((uint8_t *)string_to_sign, strlen(string_to_sign), (uint8_t *)device_secret,
                           strlen(device_secret), sign_hex);
         infra_hex2str(sign_hex, 32, sign_string);
+
+        /* printf("psk_identity: %s\n",psk_identity);
+        printf("psk         : %s\n",sign_string); */
 
         mbedtls_ssl_conf_psk(&(pTlsData->conf), (const unsigned char *)sign_string, strlen(sign_string),
                              (const unsigned char *)psk_identity, strlen(psk_identity));
