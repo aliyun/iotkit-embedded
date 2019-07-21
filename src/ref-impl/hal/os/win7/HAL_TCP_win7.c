@@ -57,7 +57,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
                          addrServer.sin_addr.S_un.S_un_b.s_b4);
 
     addrServer.sin_family = AF_INET;
-    addrServer.sin_port = htons((unsigned short)1883);
+    addrServer.sin_port = htons((unsigned short)port);
 
     hal_info("connecting to %s", host);
     if (connect(sockfd, (struct sockaddr *)&addrServer, sizeof(struct sockaddr))) {
