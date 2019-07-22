@@ -1,3 +1,7 @@
+# 用户手册
+
+https://code.aliyun.com/edward.yangx/public-docs/wikis/user-guide/Linkkit_User_Manual
+
 # C-SDK 简介
 
 设备厂商在设备上集成 `C-SDK` 后, 可以将设备安全的接入到阿里云IoT物联网平台, 从而使设备可以被阿里云IoT物联网平台进行管理
