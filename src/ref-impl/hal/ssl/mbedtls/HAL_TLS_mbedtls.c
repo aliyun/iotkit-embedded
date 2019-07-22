@@ -231,7 +231,7 @@ void utils_str2uint(char *input, uint8_t input_len, uint32_t *output)
 }
 
 static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const char *host,
-                                       const char *port, int proto, unsigned int timeout)
+        const char *port, int proto, unsigned int timeout)
 {
     int ret;
     struct sockaddr_in address;
@@ -247,12 +247,12 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
         return (ret);
     }
 
-    while(dns_retry++ < 8) {
+    while (dns_retry++ < 8) {
         ret = dns_getaddrinfo((char *)host, ip);
         if (ret != 0) {
             if (ret == EAI_AGAIN) {
-               int rc = res_init();
-               hal_info("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
+                int rc = res_init();
+                hal_info("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
             }
             hal_info("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(ret), host, port);
             sleep(1);
@@ -268,7 +268,7 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
 
     /* Try the sockaddrs until a connection succeeds */
     ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
-    for (dns_count = 0;dns_count < DNS_RESULT_COUNT;dns_count++) {
+    for (dns_count = 0; dns_count < DNS_RESULT_COUNT; dns_count++) {
         if (ip[dns_count] == NULL || strlen(ip[dns_count]) == 0) {
             continue;
         }
@@ -325,14 +325,14 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
     hints.ai_socktype = proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
     hints.ai_protocol = proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
 
-    while(dns_retry++ < 8) {
+    while (dns_retry++ < 8) {
         ret = getaddrinfo(host, port, &hints, &addr_list);
         if (ret != 0) {
 
 #if defined(_PLATFORM_IS_LINUX_)
             if (ret == EAI_AGAIN) {
-               int rc = res_init();
-               hal_info("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
+                int rc = res_init();
+                hal_info("getaddrinfo res_init, rc is %d, errno is %d\n", rc, errno);
             }
 #endif
             hal_info("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(ret), host, port);
@@ -462,6 +462,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
                               const char *client_pwd, size_t client_pwd_len)
 {
     int ret = -1;
+#if defined(_PLATFORM_IS_LINUX_)
+    struct in_addr in;
+#endif /* #if defined(_PLATFORM_IS_LINUX_) */
     /*
      * 0. Init
      */
@@ -487,7 +490,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
             return ret;
         }
     }
-    
+
 #else
     if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP))) {
         hal_err(" failed ! net_connect returned -0x%04x", -ret);
@@ -541,7 +544,16 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 #if defined(ON_PRE) || defined(ON_DAILY)
     hal_err("SKIPPING mbedtls_ssl_set_hostname() when ON_PRE or ON_DAILY defined!");
 #else
-    mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
+#if defined(_PLATFORM_IS_LINUX_)
+    /* only set hostname when addr isn't ip string and hostname isn't preauth_shanghai */
+    if (inet_aton(addr, &in) == 0 && strcmp("iot-auth-pre.cn-shanghai.aliyuncs.com", addr)) {
+        mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
+    }
+#else
+    if (strcmp("iot-auth-pre.cn-shanghai.aliyuncs.com", addr)) {
+        mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
+    }
+#endif /* #if defined(_PLATFORM_IS_LINUX_) */
 #endif
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
@@ -628,7 +640,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
     }
 
     /* timeout */
-    timeout.tv_sec = timeout_ms/1000;
+    timeout.tv_sec = timeout_ms / 1000;
     timeout.tv_usec = (timeout_ms % 1000) * 1000;
 
     /* Start Time */
@@ -656,12 +668,12 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
                 res != MBEDTLS_ERR_SSL_WANT_WRITE) {
                 break;
             }
-        }else if (res == 0) {
+        } else if (res == 0) {
             break;
-        }else{
+        } else {
             write_bytes += res;
         }
-    }while(((timenow_ms - timestart_ms) < timeout_ms) && (write_bytes < len));
+    } while (((timenow_ms - timestart_ms) < timeout_ms) && (write_bytes < len));
 
     return write_bytes;
 #else

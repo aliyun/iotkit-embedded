@@ -113,6 +113,7 @@ typedef enum {
     IOTX_IOCTL_SET_REGION,              /* value(int*): iotx_cloud_region_types_t */
     IOTX_IOCTL_GET_REGION,              /* value(int*) */
     IOTX_IOCTL_SET_MQTT_DOMAIN,         /* value(const char*): point to mqtt domain string */
+    IOTX_IOCTL_SET_MQTT_PORT,           /* value(const char*): point to mqtt port number*/
     IOTX_IOCTL_SET_HTTP_DOMAIN,         /* value(const char*): point to http domain string */
     IOTX_IOCTL_SET_DYNAMIC_REGISTER,    /* value(int*): 0 - Disable Dynamic Register, 1 - Enable Dynamic Register */
     IOTX_IOCTL_GET_DYNAMIC_REGISTER,    /* value(int*) */
