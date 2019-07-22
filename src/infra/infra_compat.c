@@ -7,7 +7,7 @@
 #include "infra_compat.h"
 #include "wrappers.h"
 #if defined(WIFI_PROVISION_ENABLED)
-#include "awss_main.h"
+    #include "awss_main.h"
 #endif
 
 #if !defined(INFRA_LOG)
@@ -64,7 +64,8 @@ int IOT_SetupConnInfo(const char *product_key,
 #endif
 
 #if defined(DEVICE_MODEL_GATEWAY)
-    extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+    extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+    char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 #endif
 
 int IOT_Ioctl(int option, void *data)
@@ -227,6 +228,13 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #endif
+#if defined(DEVICE_MODEL_ENABLED)
+        case IOTX_IOCTL_SUB_USER_TOPIC: {
+            iotx_user_subscribe_context *context = (iotx_user_subscribe_context *) data;
+            iotx_dm_subscribe_user_topic((char *)context->topic, (void *)context->callback);
+        }
+        break;
+#endif
         default: {
             res = FAIL_RETURN;
         }
@@ -312,7 +320,7 @@ DEFINE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const unsigned char *, const int))
 DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,      int (*callback)(const int, const char *, const int, const char *,
                       const int, char **, int *))
-DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*callback)(int, const char *, int, const char *, int, void *))
+DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*callback)(int, const char *, int, const char *, int, const char *, int, void *))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
 #ifdef DEVICE_MODEL_SHADOW
     DEFINE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*callback)(const char *, const int))
