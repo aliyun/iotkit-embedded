@@ -126,7 +126,8 @@ int IOT_SetupConnInfo(const char *product_key,
 }
 
 #if defined(DEVICE_MODEL_GATEWAY) && !defined(DEPRECATED_LINKKIT)
-    extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+    extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+    char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 #endif
 
 int IOT_Ioctl(int option, void *data)
@@ -158,6 +159,12 @@ int IOT_Ioctl(int option, void *data)
             iotx_guider_set_region(GUIDER_REGION_CUSTOM);
 
             res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_MQTT, (const char *)data);
+            ctx->use_custom_mqtt_url = 1;
+        }
+        break;
+        case IOTX_IOCTL_SET_MQTT_PORT: {
+            ctx->mqtt_port_num = *(uint16_t *)data;
+            res = SUCCESS_RETURN;
         }
         break;
         case IOTX_IOCTL_SET_HTTP_DOMAIN: {

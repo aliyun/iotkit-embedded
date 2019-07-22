@@ -3,6 +3,7 @@
  */
 
 #include "iotx_system_internal.h"
+#include "sdk-impl_internal.h"
 
 #define SYS_GUIDER_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.guider")
 #define SYS_GUIDER_FREE(ptr)    LITE_free(ptr)
@@ -553,6 +554,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
     iotx_device_info_t      dev;
     int len;
     int rc;
+    sdk_impl_ctx_t *ctx = sdk_impl_get_ctx();
     rc = iotx_device_info_get(&dev);
     if (rc < 0) {
         sys_err("get device info err");
@@ -626,15 +628,33 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #else
     conn->port = 1883;
 #endif
+    {
+        int port_num = 0;
+        if (NULL != ctx) {
+            port_num = ctx->mqtt_port_num;
+            if (0 != port_num) {
+                conn->port = port_num;
+            }
+        }
+    }
     len = strlen(dev.product_key) + 2 + strlen(iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
     conn->host_name = SYS_GUIDER_MALLOC(len);
     if (conn->host_name == NULL) {
         goto failed;
     }
-    _fill_conn_string(conn->host_name, len,
-                      "%s.%s",
-                      dev.product_key,
-                      iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
+
+    if (NULL != ctx && 1 == ctx->use_custom_mqtt_url) {
+        _fill_conn_string(conn->host_name, len,
+                          "%s",
+                          iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
+    } else {
+        _fill_conn_string(conn->host_name, len,
+                          "%s.%s",
+                          dev.product_key,
+                          iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
+    }
+
+
 #endif  /* defined(ON_DAILY) */
 #endif  /* defined(SUPPORT_ITLS) */
 
