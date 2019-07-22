@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 #define AWSS_REPORT_LEN_MAX       (256)
-#define AWSS_TOKEN_TIMEOUT_MS     (45 * 1000)
+#define AWSS_TOKEN_TIMEOUT_MS     (60 * 1000)
 #define MATCH_MONITOR_TIMEOUT_MS  (30 * 1000)
 #define MATCH_REPORT_CNT_MAX      (2)
 
@@ -60,7 +60,6 @@ int awss_token_remain_time()
 
 int awss_update_token()
 {
-    awss_report_token_time = 0;
     awss_report_token_cnt = 0;
     awss_report_token_suc = 0;
 

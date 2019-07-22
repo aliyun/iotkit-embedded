@@ -66,8 +66,16 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
         case AWSS_NOTIFY_DEV_BIND_TOKEN:
         {
             char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
+            uint32_t remain_time = awss_token_remain_time();
+            if(remain_time < 300) {
+                /*update token  */
+                log_info("dev bind", "remain_time = %d , need update token!\r\n", remain_time);
+                produce_random(aes_random, sizeof(aes_random));
+                awss_report_token();
+                remain_time = awss_token_remain_time();
+            }
             utils_hex_to_str(aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
-            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_BIND_TOKEN_FMT, rand_str, awss_token_remain_time(), 0);
+            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_BIND_TOKEN_FMT, rand_str, remain_time, 0);
             break;
         }
 #ifdef WIFI_PROVISION_ENABLED
