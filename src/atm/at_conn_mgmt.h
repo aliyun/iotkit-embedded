@@ -7,8 +7,10 @@
 
 typedef enum netconn_type {
     NETCONN_INVALID  = 0,
-    /** TCP IPv4 */
+    /** TCP IPv4   **/
     NETCONN_TCP,
+    /** SSL client **/
+    NETCONN_SSL,
     NETCONN_TYPE_NUM
 } netconn_type_t;
 
@@ -58,10 +60,11 @@ int at_conn_setup(netconn_type_t type);
  * @param[in]: connection id
  * @param[in]: remote ip address
  * @param[in]: remote port
+ * @param[in]: optional param
  *
  * @return  0 : on success, -1: error
  */
-int at_conn_start(int connid, char* remoteipaddr, uint16_t remoteport);
+int at_conn_start(int connid, char* remoteipaddr, uint16_t remoteport, void *param);
 
 /**
  * close an at connection

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
@@ -34,26 +34,34 @@ static uint64_t _time_left(uint64_t t_end, uint64_t t_now)
     return t_left;
 }
 
-uintptr_t AT_TCP_Establish(const char *host, uint16_t port)
+uintptr_t AT_SSL_Establish(const char *host,
+                           uint16_t port,
+                           const char *ca_crt,
+                           uint32_t ca_crt_len)
 {
     int fd = 0;
     int rc = 0;
     char resultip[16];
+    cert_info_t cert_info = {0};
 
-    HAL_Printf("establish tcp connection with server(host='%s', port=[%u])\n", host, port);
+    HAL_Printf("establish ssl connection with server(host='%s', port=[%u])\n", host, port);
 
     if ((rc = at_conn_getaddrinfo(host, resultip)) != 0) {
         HAL_Printf("getaddrinfo error(%d), host = '%s', port = [%d]\n", rc, host, port);
         return (uintptr_t)(-1);
     }
 
-    fd = at_conn_setup(NETCONN_TCP);
+    fd = at_conn_setup(NETCONN_SSL);
     if (fd < 0) {
         HAL_Printf("create at conn error\n");
         return (uintptr_t)(-1);
     }
 
-    if (at_conn_start(fd, resultip, port, NULL) == 0) {
+    cert_info.cert_len = ca_crt_len;
+    cert_info.cert_data = ca_crt;
+    cert_info.cert_type = ROOT_CERT;
+
+    if (at_conn_start(fd, resultip, port, &cert_info) == 0) {
         rc = fd;
     } else {
         at_conn_close(fd);
@@ -62,19 +70,19 @@ uintptr_t AT_TCP_Establish(const char *host, uint16_t port)
     }
 
     if (-1 == rc) {
-        HAL_Printf("fail to establish tcp\n");
+        HAL_Printf("fail to establish ssl\n");
     } else {
-        HAL_Printf("success to establish tcp, fd=%d\n", rc);
+        HAL_Printf("success to establish ssl, fd=%d\n", rc);
     }
 
     return (uintptr_t)rc;
 }
 
-int AT_TCP_Destroy(uintptr_t fd)
+int32_t AT_SSL_Destroy(uintptr_t handle);
 {
     int rc;
 
-    rc = at_conn_close((int) fd);
+    rc = at_conn_close((int) handle);
     if (0 != rc) {
         HAL_Printf("closesocket error\n");
         return -1;
@@ -83,7 +91,7 @@ int AT_TCP_Destroy(uintptr_t fd)
     return 0;
 }
 
-int32_t AT_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int AT_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
 {
     int ret;
     uint32_t len_sent;
@@ -95,7 +103,7 @@ int32_t AT_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeo
     ret = 1; /* send one time if timeout_ms is value 0 */
 
     do {
-        ret = at_conn_send(fd, buf + len_sent, len - len_sent);
+        ret = at_conn_send((int)handle, buf + len_sent, len - len_sent);
         if (ret > 0) {
             len_sent += ret;
         } else if (0 == ret) {
@@ -114,16 +122,15 @@ int32_t AT_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeo
     }
 }
 
-int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+int AT_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
-    int ret, err_code;
-    uint32_t len_recv;
+    int ret;
+    int err_code = 0;
+    uint32_t len_recv = 0;
     uint64_t t_end, t_left;
     int empty;
 
     t_end = _get_time_ms() + timeout_ms;
-    len_recv = 0;
-    err_code = 0;
 
     do {
         t_left = _time_left(t_end, _get_time_ms());
@@ -137,7 +144,7 @@ int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             at_yield(NULL, 0, NULL, 100);
 #endif
 #endif
-            empty = at_conn_recvbufempty(fd);
+            empty = at_conn_recvbufempty((int)handle);
             if (0 == empty) {
                 ret = 1;
                 break;
@@ -155,7 +162,7 @@ int32_t AT_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         }
 
         if (ret > 0) {
-            ret = at_conn_recv(fd, buf + len_recv, len - len_recv);
+            ret = at_conn_recv((int)handle, buf + len_recv, len - len_recv);
             if (ret > 0) {
                 len_recv += ret;
             } else if (0 == ret) {

@@ -43,6 +43,7 @@
 #define AT_CMD_BRING_UP_GPRS_CONNECT "AT+CIICR"
 #define AT_CMD_GOT_LOCAL_IP "AT+CIFSR"
 
+#define AT_CMD_ENABLE_SSL "AT+CIPSSL=1"
 #define AT_CMD_START_CLIENT_CONN "AT+CIPSTART"
 
 #define AT_CMD_CLIENT_CONNECT_OK "CONNECT OK\r\n"
@@ -787,6 +788,27 @@ int HAL_AT_CONN_Start(at_conn_t *conn)
                 goto err;
             }
             break;
+
+        case SSL_CLIENT:
+            /* enable ssl set cert */
+            at_send_wait_reply(AT_CMD_ENABLE_SSL, strlen(AT_CMD_ENABLE_SSL), true, NULL, 0,
+                               rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+            if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
+                at_conn_hal_err("%s failed rsp %s\r\n", AT_CMD_ENABLE_SSL, rsp);
+                return -1;
+            }
+
+            HAL_Snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
+                         conn->r_port);
+
+            at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN,
+                               &atcmd_config_client);
+            if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
+                at_conn_hal_err("pccmd %s fail, rsp %s \r\n", pccmd, rsp);
+                goto err;
+            }
+            break;
+
         default:
             at_conn_hal_err("sim800 gprs module connect type %d not support \r\n", conn->type);
             goto err;

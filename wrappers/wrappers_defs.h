@@ -136,6 +136,20 @@ typedef enum {
     /* Add others hereafter */
 } CONN_TYPE;
 
+#if defined(AT_SSL_ENABLED)
+typedef enum {
+    ROOT_CERT,
+    CLIENT_CERT,
+    /* add other type */
+} CERT_TYPE;
+
+typedef struct {
+    int cert_len;
+    char *cert_data;
+    CERT_TYPE cert_type;
+} cert_info_t;
+#endif
+
 /* Fill necessary fileds according to the socket type. */
 typedef struct {
     int fd; /* fd that are used in socket level */
@@ -144,6 +158,7 @@ typedef struct {
     int32_t r_port; /* remote port (set to -1 if not used) */
     int32_t l_port; /* local port (set to -1 if not used) */
     uint32_t tcp_keep_alive; /* tcp keep alive value (set to 0 if not used) */
+    void *param;
 } at_conn_t;
 
 struct at_conn_input {

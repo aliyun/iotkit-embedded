@@ -440,24 +440,25 @@ int at_conn_setup(netconn_type_t type)
     return connid;
 }
 
-int at_conn_start(int connid, char* remoteipaddr, uint16_t remoteport)
+int at_conn_start(int connid, char* remoteipaddr, uint16_t remoteport, void *param)
 {
 	char *ipv4anyadrr = AT_IP4_ANY_ADDR;
-	at_conn_t statconn = {0};
+	at_conn_t statconn = { 0 };
     struct at_conn *conn = NULL;
+    int ret = 0;
  
     HAL_MutexLock(g_atconnmutex);
     conn = get_conn(connid);
     if (NULL == conn) {
         AT_ERROR("at_startconn: invalid conn\n");
-        HAL_MutexUnlock(g_atconnmutex);
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
     if (conn->state != NETCONN_NONE) {
         AT_ERROR("at_startconn: conn %d state is %d \n", connid, conn->state);
-        HAL_MutexUnlock(g_atconnmutex);
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
     statconn.fd = connid;
@@ -471,25 +472,35 @@ int at_conn_start(int connid, char* remoteipaddr, uint16_t remoteport)
     switch (conn->type) {
         case NETCONN_TCP:
             statconn.type = TCP_CLIENT;
-            if (HAL_AT_CONN_Start(&statconn) != 0) {
-                AT_ERROR("fail to setup tcp connect, remote is %s port is %d.\n", statconn.addr, remoteport);
-                HAL_MutexUnlock(g_atconnmutex);
-                return -1;
-            }
-            memcpy(conn->remote_ip, statconn.addr, IPV4_STR_MAX_LEN);
-            conn->remote_port = remoteport;
+            statconn.param = NULL;
             break;
+
+        case NETCONN_SSL:
+            statconn.type = SSL_CLIENT;
+            statconn.param = param;
+            break;
+
         default:
             AT_ERROR("Unsupported at connection type.\n");
-            HAL_MutexUnlock(g_atconnmutex);
-            return -1;
+            ret = -1;
+            goto exit;
     }
+
+    if (HAL_AT_CONN_Start(&statconn) != 0) {
+        AT_ERROR("fail to setup tcp/ssl connect, remote is %s port is %d.\n", statconn.addr, remoteport);
+        ret = -1;
+        goto exit;
+    }
+
+    memcpy(conn->remote_ip, statconn.addr, IPV4_STR_MAX_LEN);
+    conn->remote_port = remoteport;
 
     /* Update at conn state */
     conn->state = NETCONN_CONNECT;
-    HAL_MutexUnlock(g_atconnmutex);
 
-    return 0;
+exit:
+    HAL_MutexUnlock(g_atconnmutex);
+    return ret;
 }
 
 int at_conn_close(int c)
