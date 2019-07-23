@@ -167,7 +167,7 @@ static void app_timer_expired_handle(void *ctx)
     app_post_powerswitch(app_ctx->powerSwitch_Actual, app_ctx);
 
     /* Set CountDown property then post */
-    app_post_countdown(0, 0, app_ctx->powerSwitch_Target, app_ctx->timestamp, app_ctx);
+    app_post_countdown(0, 5, app_ctx->powerSwitch_Target, app_ctx->timestamp, app_ctx);
 }
 
 static void *app_timer_open(void *ctx)
@@ -317,11 +317,10 @@ static int property_set_handle(const int devid, const char *payload, const int p
             memset(app_ctx->timestamp, 0, sizeof(app_ctx->timestamp));
             memcpy(app_ctx->timestamp, item->valuestring, len);
             EXAMPLE_TRACE("Timestamp is %s", app_ctx->timestamp);
-        }
-        else {
+        } else {
             EXAMPLE_TRACE("Timestamp string error");
             cJSON_Delete(root);
-            return ret;                    
+            return ret;
         }
     } else {
         cJSON_Delete(root);
@@ -356,7 +355,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
 }
 
 static int report_reply_handle(const int devid, const int msgid, const int code, const char *payload,
-                             const int payload_len)
+                               const int payload_len)
 {
     EXAMPLE_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", devid, msgid, code,
                   payload == NULL ? "NULL" : payload);
