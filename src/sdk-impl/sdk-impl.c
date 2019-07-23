@@ -159,11 +159,15 @@ int IOT_Ioctl(int option, void *data)
             iotx_guider_set_region(GUIDER_REGION_CUSTOM);
 
             res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_MQTT, (const char *)data);
-            ctx->use_custom_mqtt_url = 1;
         }
         break;
         case IOTX_IOCTL_SET_MQTT_PORT: {
             ctx->mqtt_port_num = *(uint16_t *)data;
+            res = SUCCESS_RETURN;
+        }
+        break;
+        case IOTX_IOCTL_SET_ENV: {
+            ctx->env = *(uint16_t *)data;
             res = SUCCESS_RETURN;
         }
         break;

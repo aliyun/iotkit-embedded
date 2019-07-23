@@ -50,7 +50,7 @@
 typedef struct {
     int domain_type;
     int mqtt_port_num;
-    int use_custom_mqtt_url;
+    int env;
     int dynamic_register;
 } sdk_impl_ctx_t;
 
