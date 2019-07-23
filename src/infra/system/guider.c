@@ -643,11 +643,13 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
         goto failed;
     }
 
-    if (NULL != ctx && 1 == ctx->use_custom_mqtt_url) {
+    if (NULL != ctx && 0 != ctx->env) {
+    /* for daily and pre env */
         _fill_conn_string(conn->host_name, len,
                           "%s",
                           iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
     } else {
+    /* for online env */
         _fill_conn_string(conn->host_name, len,
                           "%s.%s",
                           dev.product_key,
