@@ -311,7 +311,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
                                        const char *port, int proto, unsigned int timeout)
 {
     int ret;
-    struct addrinfo hints, *addr_list, *cur;
+    struct addrinfo hints, *addr_list = NULL, *cur;
     struct timeval sendtimeout;
     uint8_t dns_retry = 0;
 
@@ -336,6 +336,10 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
             }
 #endif
             hal_info("getaddrinfo error[%d], res: %s, host: %s, port: %s\n", dns_retry, gai_strerror(ret), host, port);
+            if (addr_list) {
+                freeaddrinfo(addr_list);
+                addr_list = NULL;
+            }
             sleep(1);
             continue;
         } else {
