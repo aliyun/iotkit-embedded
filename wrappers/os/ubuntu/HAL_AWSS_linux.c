@@ -315,7 +315,6 @@ int HAL_Awss_Connect_Ap(
     int ret = -1;
 
     printf("ssid  : %s\n", ssid);
-    printf("passwd: %s\n", passwd);
 
     /**
      * using ubuntu network manager for connecting ap
