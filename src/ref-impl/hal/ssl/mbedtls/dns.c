@@ -227,15 +227,18 @@ int dns_resolve(char dns[16], char *domain, char *ip[DNS_RESULT_COUNT])
     FD_SET(sock_fd, &send_recv_sets);
     res = select(sock_fd + 1, NULL, &send_recv_sets, NULL, &timeselect);
     if (res <= 0) {
+        close(sock_fd);
         return -1;
     }
     if (FD_ISSET(sock_fd, &send_recv_sets)) {
         if ((res = sendto(sock_fd, (void *)send_message, (size_t)idx, 0, (struct sockaddr*)&dest, sizeof(dest))) < 0) {
             perror("send dns request message failed: ");
+            close(sock_fd);
             return -1;
         }
 
         if (res != idx) {
+            close(sock_fd);
             return -1;
         }
     }
@@ -245,12 +248,14 @@ int dns_resolve(char dns[16], char *domain, char *ip[DNS_RESULT_COUNT])
     FD_SET(sock_fd, &send_recv_sets);
     res = select(sock_fd + 1, &send_recv_sets, NULL, NULL, &timeselect);
     if (res <= 0) {
+        close(sock_fd);
         return -1;
     }
     if (FD_ISSET(sock_fd, &send_recv_sets)) {
         dest_len = sizeof(dest);
         if ((res = recvfrom(sock_fd, (void *)recv_message, 1024, 0, (struct sockaddr*)&dest, &dest_len)) < 0) {
             perror("send dns request message failed: ");
+            close(sock_fd);
             return -1;
         }
     }
