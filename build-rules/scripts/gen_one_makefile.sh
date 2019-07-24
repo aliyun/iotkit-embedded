@@ -109,7 +109,7 @@ done
 	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
 	\$(Q)mkdir -p \$\$(dirname \$@)
 	\$(Q)S=\$\$(echo \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
-    ${CC} -c \\
+    [ -f \$\${S//.o/.c} ] && ${CC} -c \\
         -o \$@ \\
         \$(CFLAGS) \\
         \$(IFLAGS) \\
