@@ -101,6 +101,7 @@ static iotx_linkkit_ctx_t g_iotx_linkkit_ctx = {0};
 #ifdef ALCS_ENABLED
     extern void dm_server_free_context(_IN_ void *ctx);
 #endif
+extern void iotx_ioctl_clean(void);
 
 static iotx_linkkit_ctx_t *_iotx_linkkit_get_ctx(void)
 {
@@ -1439,6 +1440,7 @@ static int _iotx_linkkit_master_close(void)
     ctx->is_opened = 0;
 
     iotx_dm_close();
+    iotx_ioctl_clean();
 #ifdef DEVICE_MODEL_GATEWAY
     _iotx_linkkit_upstream_sync_callback_list_destroy();
     HAL_MutexDestroy(ctx->upstream_mutex);

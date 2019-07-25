@@ -244,6 +244,27 @@ int IOT_Ioctl(int option, void *data)
     return res;
 }
 
+/* release memory allocated in ioctl */
+void iotx_ioctl_clean(void)
+{
+    sdk_impl_ctx_t *ctx = &g_sdk_impl_ctx;
+
+    if (ctx->cloud_custom_domain) {
+        HAL_Free(ctx->cloud_custom_domain);
+        ctx->cloud_custom_domain = NULL;
+    }
+
+    if (ctx->http_custom_domain) {
+        HAL_Free(ctx->http_custom_domain);
+        ctx->http_custom_domain = NULL;
+    }
+
+    if (ctx->mqtt_customzie_info) {
+        HAL_Free(ctx->mqtt_customzie_info);
+        ctx->mqtt_customzie_info = NULL;
+    }
+}
+
 void IOT_DumpMemoryStats(IOT_LogLevel level)
 {
 #ifdef INFRA_MEM_STATS
