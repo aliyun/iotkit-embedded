@@ -23,7 +23,6 @@
 #include <net/ethernet.h>
 #include <linux/if_packet.h>
 #include <sys/ioctl.h>
-#include "iot_import_awss.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

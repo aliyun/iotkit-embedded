@@ -6,12 +6,14 @@
 #include "infra_defs.h"
 #include "infra_compat.h"
 #include "wrappers.h"
-#if defined(WIFI_PROVISION_ENABLED)
-    #include "awss_main.h"
-#endif
 
 #if !defined(INFRA_LOG)
 void IOT_SetLogLevel(IOT_LogLevel level) {}
+#endif
+
+#if defined(WIFI_PROVISION_ENABLED)
+    extern void awss_set_press_timeout_ms(unsigned int timeout_ms);
+    extern void awss_set_channel_scan_interval_ms(uint32_t timeout_ms);
 #endif
 
 #ifdef MQTT_COMM_ENABLED
@@ -64,8 +66,8 @@ int IOT_SetupConnInfo(const char *product_key,
 #endif
 
 #if defined(DEVICE_MODEL_GATEWAY)
-    extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
-    char device_name[IOTX_DEVICE_NAME_LEN + 1]);
+extern int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1],
+                                       char device_name[IOTX_DEVICE_NAME_LEN + 1]);
 #endif
 
 int IOT_Ioctl(int option, void *data)
@@ -341,7 +343,8 @@ DEFINE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const unsigned char *, const int))
 DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST,      int (*callback)(const int, const char *, const int, const char *,
                       const int, char **, int *))
-DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*callback)(int, const char *, int, const char *, int, const char *, int, void *))
+DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUEST_EXT,  int (*callback)(int, const char *, int, const char *, int, const char *,
+                      int, void *))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
 #ifdef DEVICE_MODEL_SHADOW
     DEFINE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*callback)(const char *, const int))
