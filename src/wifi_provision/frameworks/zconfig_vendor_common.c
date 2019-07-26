@@ -494,10 +494,12 @@ void aws_destroy(void)
     }
 
     if (aws_info == NULL) {
+        HAL_MutexUnlock(aws_mutex);
         return;
     }
 
     if (aws_stop == AWS_STOPPED) {
+        HAL_MutexUnlock(aws_mutex);
         return;
     }
 
