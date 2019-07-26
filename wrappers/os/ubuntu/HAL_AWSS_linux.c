@@ -220,7 +220,7 @@ void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
 
 #ifdef __UBUNTU_SDK_DEMO__
 #if defined(WIFI_PROVISION_ENABLED)
-/* reset network */
+    /* reset network */
     char *wifi_name = "linkkit";
     memset(buffer, 0, 128);
     snprintf(buffer, 128, "nmcli connection down %s", wifi_name);
@@ -389,7 +389,7 @@ int HAL_Sys_Net_Is_Ready()
 {
     char result_buf[1024] = {0};
 
-    if(g_connect_status < 0) {
+    if (g_connect_status < 0) {
         printf("error return\n");
         return 0;
     }
@@ -572,9 +572,8 @@ int HAL_Wifi_Get_Ap_Info(
     int ret = 0;
     char *data;
 
-
-    if(g_connect_status < 0) {
-       printf("error return in Apinfo\n");
+    if (g_connect_status < 0) {
+        printf("error return in Apinfo\n");
         return 0;
     }
 
