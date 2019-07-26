@@ -39,7 +39,7 @@
 #include "wrappers_defs.h"
 
 /* please use ifconfig to get your wireless card's name, and replace g_ifname */
-char *g_ifname = "wlx00259cf84f36";
+char *g_ifname = "wlx00259ce04ceb";
 
 char g_opened_ap[36] = {0};
 
@@ -112,6 +112,7 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 #define MAX_REV_BUFFER 8000
 
 static int s_enable_sniffer = 1;
+static int s_fd_socket = 0;
 extern char *g_ifname;
 static void *func_Sniffer(void *cb)
 {
@@ -162,7 +163,7 @@ static void *func_Sniffer(void *cb)
     }
 
     printf("Sniffer Thread Create\r\n");
-
+    s_fd_socket = raw_socket;
     while ((1 == s_enable_sniffer)) {
         int rev_num = recvfrom(raw_socket, rev_buffer, MAX_REV_BUFFER, 0, NULL, NULL);
         struct ieee80211_radiotap_header *pHeader = (struct ieee80211_radiotap_header *)rev_buffer;
@@ -197,6 +198,7 @@ static void *func_Sniffer(void *cb)
 void stop_sniff()
 {
     s_enable_sniffer = 0;
+    close(s_fd_socket);
 }
 
 void start_sniff(_IN_ awss_recv_80211_frame_cb_t cb)
@@ -213,9 +215,24 @@ void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
 {
     extern void start_sniff(_IN_ awss_recv_80211_frame_cb_t cb);
     char *ifname = g_ifname;
-
     char buffer[256] = {0};
     int ret = 0;
+
+#ifdef __UBUNTU_SDK_DEMO__
+#if defined(WIFI_PROVISION_ENABLED)
+/* reset network */
+    char *wifi_name = "linkkit";
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection down %s", wifi_name);
+    ret = system(buffer);
+
+    memset(buffer, 0, 128);
+    snprintf(buffer, 128, "nmcli connection delete %s", wifi_name);
+    ret = system(buffer);
+    sleep(10);
+#endif
+#endif
+    s_enable_sniffer = 1;
     memset(buffer, 0, 256);
     snprintf(buffer, 256, "ifconfig %s down", ifname);
     ret = system(buffer);
@@ -275,8 +292,8 @@ void HAL_Awss_Switch_Channel(
     char cmd[255] = {0};
     int ret = -1;
     snprintf(cmd, 255, "iwconfig %s channel %d", g_ifname, primary_channel);
-    printf("switch:%s\n", cmd);
     ret = system(cmd);
+    printf("switch:%s, ret is %d\n", cmd, ret);
     assert(0 == ret);
 }
 
@@ -300,6 +317,8 @@ void HAL_Awss_Switch_Channel(
  *      If the STA connects the old AP, HAL should disconnect from the old AP firstly.
  *      If bssid specifies the dest AP, HAL should use bssid to connect dest AP.
  */
+
+static int g_connect_status = 0;
 int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
             _IN_ char ssid[HAL_MAX_SSID_LEN],
@@ -329,9 +348,10 @@ int HAL_Awss_Connect_Ap(
     ret = system(buffer);
 
     memset(buffer, 0, 128);
-    snprintf(buffer, 128, "nmcli connection add con-name %s ifname %s type wifi ssid %s", wifi_name, g_ifname,
+    snprintf(buffer, 128, "nmcli connection add con-name %s ifname %s type wifi ssid '%s'", wifi_name, g_ifname,
              ssid);
     ret = system(buffer);
+
 
     /**
      * security reference:
@@ -353,8 +373,8 @@ int HAL_Awss_Connect_Ap(
     memset(buffer, 0, 128);
     snprintf(buffer, 128, "nmcli connection up %s", wifi_name);
     ret = system(buffer);
-
-    return 0;
+    g_connect_status = (ret == 0 ? 0 : -1);
+    return ret == 0 ? 0 : -1;
 }
 
 /**
@@ -368,6 +388,12 @@ int HAL_Awss_Connect_Ap(
 int HAL_Sys_Net_Is_Ready()
 {
     char result_buf[1024] = {0};
+
+    if(g_connect_status < 0) {
+        printf("error return\n");
+        return 0;
+    }
+
     do_cmd_exec("ifconfig", result_buf, sizeof(result_buf));
     if (strstr(result_buf, "inet addr")) {
         return 1;
@@ -545,6 +571,12 @@ int HAL_Wifi_Get_Ap_Info(
     char buffer[256] = {0};
     int ret = 0;
     char *data;
+
+
+    if(g_connect_status < 0) {
+       printf("error return in Apinfo\n");
+        return 0;
+    }
 
     if (NULL != ssid) {
         ret = system("wpa_cli status | grep ^ssid | sed 's/^ssid=//g' > /tmp/ssid");
