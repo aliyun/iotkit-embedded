@@ -46,7 +46,7 @@
     #endif
 #endif
 
-char _firmware_version[IOTX_FIRMWARE_VER_LEN] = "app-1.0.0-20180101.1000";
+static const char _firmware_version[IOTX_FIRMWARE_VER_LEN] = "app-1.0.0-20180101.1000";
 
 void *HAL_Malloc(uint32_t size)
 {
@@ -219,10 +219,9 @@ void HAL_Reboot(void)
 
 int HAL_GetFirmwareVersion(char *version)
 {
-    char *ver = "app-1.0.0-20180101.1000";
-    int len = strlen(ver);
+    int len = strlen(_firmware_version);
     memset(version, 0x0, IOTX_FIRMWARE_VER_LEN);
-    strncpy(version, ver, IOTX_FIRMWARE_VER_LEN);
+    strncpy(version, _firmware_version, IOTX_FIRMWARE_VER_LEN);
     version[len] = '\0';
     return strlen(version);
 }
