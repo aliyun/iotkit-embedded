@@ -475,11 +475,8 @@ static int __awss_dev_bind_notify()
         awss_stop_timer(dev_bind_notify_timer);
         dev_bind_notify_timer = NULL;
     }
-    if (dev_bind_notify_mutex) {
-        HAL_MutexUnlock(dev_bind_notify_mutex);
-        HAL_MutexDestroy(dev_bind_notify_mutex);
-        dev_bind_notify_mutex = NULL;
-    }
+
+    HAL_MutexUnlock(dev_bind_notify_mutex);
     return 1;
 }
 
