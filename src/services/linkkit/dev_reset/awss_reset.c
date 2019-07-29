@@ -148,7 +148,8 @@ int awss_check_reset()
     int len = 1;
     char rst = 0;
 
-    HAL_Kv_Get(AWSS_KV_RST, &rst, &len);
+    int ret = HAL_Kv_Get(AWSS_KV_RST, &rst, &len);
+    log_debug("[RST]", "need report rst\r\n");
 
     if (rst != 0x01) { // reset flag is not set
         log_debug("[RST]", "no rst\r\n");
@@ -159,6 +160,20 @@ int awss_check_reset()
 
     return 1;
 }
+
+int awss_stop_report_reset()
+{
+    if (report_reset_timer == NULL) {
+        return 0;
+    }
+
+    HAL_Timer_Stop(report_reset_timer);
+    HAL_Timer_Delete(report_reset_timer);
+    report_reset_timer = NULL;
+
+    return 0;
+}
+
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

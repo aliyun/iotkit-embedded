@@ -79,6 +79,7 @@ void *coap_yield_mutex = NULL;
 
 static void *CoAPServer_yield(void *param)
 {
+    void *cur_thread = g_coap_thread;
     CoAPContext *context = (CoAPContext *)param;
     COAP_DEBUG("Enter to CoAP daemon task");
 
@@ -89,9 +90,9 @@ static void *CoAPServer_yield(void *param)
 #ifdef COAP_SERV_MULTITHREAD
     HAL_SemaphorePost(g_semphore);
     COAP_INFO("Exit the CoAP daemon task, Post semphore");
-
-    HAL_ThreadDelete(NULL);
     g_coap_thread = NULL;
+    HAL_ThreadDelete(cur_thread);
+
 #endif
     return NULL;
 }
@@ -205,7 +206,7 @@ void CoAPServer_deinit(CoAPContext *context)
         HAL_MutexDestroy(coap_yield_mutex);
         coap_yield_mutex = NULL;
     }
-    HAL_ThreadDelete(g_coap_thread);
+
 #endif
     if (NULL != context) {
         CoAPContext_free(context);

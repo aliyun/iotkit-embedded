@@ -429,9 +429,10 @@ int HAL_ThreadCreate(
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
     if (ret != 0) {
-       printf("pthread_create failed,ret = %d", ret);
-       return -1;
+        printf("pthread_create failed,ret = %d", ret);
+        return -1;
     }
+    pthread_detach((pthread_t)*thread_handle);
     return 0;
 }
 
@@ -443,7 +444,7 @@ void HAL_ThreadDetach(_IN_ void *thread_handle)
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
     if (NULL == thread_handle) {
-        pthread_exit(0);
+
     } else {
         /*main thread delete child thread*/
         pthread_cancel((pthread_t)thread_handle);
