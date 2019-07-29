@@ -161,8 +161,14 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
 
     memset(&addr, 0, sizeof(struct sockaddr_in));
 
-    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
-        hal_err("setsockopt");
+    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &opt_val, sizeof(opt_val))) {
+        hal_err("setsockopt SO_BROADCAST failed");
+        close(sockfd);
+        return -1;
+    }
+
+    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val))) {
+        hal_err("setsockopt SO_REUSEADDR failed");
         close(sockfd);
         return -1;
     }
