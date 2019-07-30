@@ -24,6 +24,7 @@ ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_RAWDATA_SOLO)))
     CFLAGS += -DDM_MESSAGE_CACHE_DISABLED
 endif
 
+ifneq (Darwin,$(shell uname))
 ifeq (y,$(strip $(FEATURE_WIFI_PROVISION_ENABLED)))
     CFLAGS += -DAWSS_SUPPORT_APLIST
 
@@ -47,6 +48,7 @@ ifeq (y,$(strip $(FEATURE_WIFI_PROVISION_ENABLED)))
         CFLAGS += -DAWSS_DISABLE_ENROLLEE \
                   -DAWSS_DISABLE_REGISTRAR
     endif
+endif
 endif
 
 ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
