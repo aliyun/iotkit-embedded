@@ -26,16 +26,16 @@ endif
 
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/lib/*.a 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.a 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.a failed!" || true); \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.a 2>/dev/null || true; \
 	fi
 
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/bin/ 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" || true); \
+	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || true; \
 	fi
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/lib/*.so 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" || true); \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || true; \
 	fi
 
 ifeq ($(strip $(HAS_POST_HOOK)), 1)
