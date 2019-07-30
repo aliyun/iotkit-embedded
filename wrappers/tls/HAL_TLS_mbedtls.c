@@ -692,37 +692,49 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
     printf(" ok\n");
 
 #if defined(TLS_SAVE_TICKET)
-    if (NULL == saved_session) {
         do {
             size_t real_session_len = 0;
-            unsigned char *save_buf = HAL_Malloc(TLS_MAX_SESSION_BUF); //for test
-            if (save_buf ==  NULL) {
+            mbedtls_ssl_session *new_session = NULL;
+  
+            new_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
+            if (NULL == new_session) {
                 break;
             }
 
-            saved_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
-            if (NULL == saved_session) {
-                HAL_Free(save_buf);
-                break;
-            }
-            memset(save_buf, 0x00, sizeof(TLS_MAX_SESSION_BUF));
-            memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
+            memset(new_session, 0x00, sizeof(mbedtls_ssl_session));
 
-            ret = mbedtls_ssl_get_session(&(pTlsData->ssl), saved_session);
-            if (ret != 0) {
-                HAL_Free(save_buf);
-                HAL_Free(saved_session);
-                saved_session = NULL;
+            ret = mbedtls_ssl_get_session(&(pTlsData->ssl), new_session);
+            if (ret != 0) {              
+                HAL_Free(new_session);
                 break;
             }
-            ret = ssl_serialize_session(saved_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
-            printf("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, (int)real_session_len);
-            if (ret == 0) {
-                HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
+            if(saved_session == NULL) {
+                saved_session = new_session;
+                ret = 1;
+            } else {
+                ret = memcmp(new_session, saved_session, sizeof(mbedtls_ssl_session));
             }
-            HAL_Free(save_buf);
+            if(ret != 0) {
+                unsigned char *save_buf = HAL_Malloc(TLS_MAX_SESSION_BUF);
+                if (save_buf ==  NULL) {
+                    break;
+                }
+                memset(save_buf, 0x00, sizeof(TLS_MAX_SESSION_BUF));
+                ret = ssl_serialize_session(saved_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
+                printf("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, (int)real_session_len);
+                if (ret == 0) {
+                    HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
+                }
+                if(saved_session != new_session) {
+                    HAL_Free(saved_session); 
+                    saved_session = new_session; 
+                }
+                HAL_Free(save_buf);
+            } else {
+                HAL_Free(new_session); 
+            }
+
         } while (0);
-    }
 #endif
 
     /*
