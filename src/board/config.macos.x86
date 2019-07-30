@@ -13,6 +13,5 @@ CONFIG_ENV_CFLAGS   += \
 
 CONFIG_src/tools/linkkit_tsl_convert :=
 
-CONFIG_ENV_LDFLAGS  += -lpthread -v
+CONFIG_ENV_LDFLAGS  += -lpthread
 
-OVERRIDE_STRIP      := true
