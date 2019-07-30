@@ -11,6 +11,8 @@ CONFIG_ENV_CFLAGS   += \
     -DCONFIG_MQTT_RX_MAXLEN=5000 \
     -DCONFIG_MBEDTLS_DEBUG_LEVEL=0 \
 
+CONFIG_src/services/dev_bind :=
+CONFIG_src/services/awss :=
 CONFIG_src/tools/linkkit_tsl_convert :=
 
 CONFIG_ENV_LDFLAGS  += -lpthread
