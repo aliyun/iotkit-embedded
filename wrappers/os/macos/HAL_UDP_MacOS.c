@@ -210,7 +210,7 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
         close(sockfd);
         return -1;
     }
-    printf("success to establish udp, fd=%d\n", sockfd);
+    printf("success to establish udp, fd=%d\n", (int)sockfd);
 
     return (intptr_t)sockfd;
 }
