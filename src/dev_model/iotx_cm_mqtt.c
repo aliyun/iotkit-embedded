@@ -254,7 +254,7 @@ static int  _mqtt_connect(uint32_t timeout)
         HAL_SleepMs(500);
     } while (!utils_time_is_expired(&timer));
 
-    if (g_sdk_impl_ctx.mqtt_customzie_info) {
+    if (g_sdk_impl_ctx.mqtt_customzie_info[0] != '\0') {
         ((iotx_mqtt_param_t *)_mqtt_conncection->open_params)->customize_info = g_sdk_impl_ctx.mqtt_customzie_info;
     }
 
