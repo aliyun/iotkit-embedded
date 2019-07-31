@@ -846,6 +846,20 @@ int enrollee_put(struct enrollee_info *in)
                     enrollee_report();
                 }
                 if (enrollee_info[i].state != ENR_IN_QUEUE) { /* already reported */
+                    if ((0 != memcmp(&(enrollee_info[i].random[0]), &(in->random[0]), RANDOM_MAX_LEN)) &&
+                        (ENR_CHECKIN_ONGOING == enrollee_info[i].state)) {
+                        enrollee_info[i].state = ENR_CHECKIN_ENABLE;
+                        memset(&(enrollee_info[i].random[0]), 0, RANDOM_MAX_LEN);
+                        memcpy(&(enrollee_info[i].random[0]), &(in->random[0]), RANDOM_MAX_LEN);
+                        memset(&(enrollee_info[i].sign), 0, enrollee_info[i].sign_len);
+                        enrollee_info[i].sign_len = in->sign_len;
+                        memcpy(&(enrollee_info[i].sign), &(in->sign), in->sign_len);
+                        awss_trace("fix diff random, %s, %s", in->dev_name, enrollee_info[i].dev_name);
+                    } /* Fix device name not match issue.
+                      It happens only when the enrollee reboots during wifi-provision provison process, thus the random and sign changes.
+                      The registar is not aware of that, keeping on broadcasting wifi-provision info encrypted with previous random and sign.
+                      To fix this issue, the registar has to regenerate wifi-provision info when it detectes enrollee's random changes. */
+
                     return 1;
                 }
                 memcpy(&enrollee_info[i], in, ENROLLEE_INFO_HDR_SIZE);
