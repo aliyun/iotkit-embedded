@@ -686,55 +686,69 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
     while ((ret = mbedtls_ssl_handshake(&(pTlsData->ssl))) != 0) {
         if ((ret != MBEDTLS_ERR_SSL_WANT_READ) && (ret != MBEDTLS_ERR_SSL_WANT_WRITE)) {
             printf("failed  ! mbedtls_ssl_handshake returned -0x%04x\n", -ret);
+#if defined(TLS_SAVE_TICKET)
+            if (saved_session != NULL) {
+                mbedtls_ssl_session_free(saved_session);
+                HAL_Free(saved_session);
+                saved_session = NULL;
+            }
+#endif
             return ret;
         }
     }
     printf(" ok\n");
 
 #if defined(TLS_SAVE_TICKET)
-        do {
-            size_t real_session_len = 0;
-            mbedtls_ssl_session *new_session = NULL;
-  
-            new_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
-            if (NULL == new_session) {
-                break;
-            }
+    do {
+        size_t real_session_len = 0;
+        mbedtls_ssl_session *new_session = NULL;
 
-            memset(new_session, 0x00, sizeof(mbedtls_ssl_session));
+        new_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
+        if (NULL == new_session) {
+            break;
+        }
 
-            ret = mbedtls_ssl_get_session(&(pTlsData->ssl), new_session);
-            if (ret != 0) {              
+        memset(new_session, 0x00, sizeof(mbedtls_ssl_session));
+
+        ret = mbedtls_ssl_get_session(&(pTlsData->ssl), new_session);
+        if (ret != 0) {
+            HAL_Free(new_session);
+            break;
+        }
+        if (saved_session == NULL) {
+            ret = 1;
+        } else if (new_session->ticket_len != saved_session->ticket_len) {
+            ret = 1;
+        } else {
+            ret = memcmp(new_session->ticket, saved_session->ticket, new_session->ticket_len);
+        }
+        if (ret != 0) {
+            unsigned char *save_buf = HAL_Malloc(TLS_MAX_SESSION_BUF);
+            if (save_buf ==  NULL) {
+                mbedtls_ssl_session_free(new_session);
                 HAL_Free(new_session);
+                new_session = NULL;
                 break;
             }
-            if(saved_session == NULL) {
-                saved_session = new_session;
-                ret = 1;
-            } else {
-                ret = memcmp(new_session, saved_session, sizeof(mbedtls_ssl_session));
+            memset(save_buf, 0x00, sizeof(TLS_MAX_SESSION_BUF));
+            ret = ssl_serialize_session(new_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
+            printf("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, (int)real_session_len);
+            if (ret == 0) {
+                ret = HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
+                if (ret < 0) {
+                    printf("save ticket to kv failed ret =%d ,len = %d\r\n", ret, (int)real_session_len);
+                }
             }
-            if(ret != 0) {
-                unsigned char *save_buf = HAL_Malloc(TLS_MAX_SESSION_BUF);
-                if (save_buf ==  NULL) {
-                    break;
-                }
-                memset(save_buf, 0x00, sizeof(TLS_MAX_SESSION_BUF));
-                ret = ssl_serialize_session(saved_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
-                printf("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, (int)real_session_len);
-                if (ret == 0) {
-                    HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
-                }
-                if(saved_session != new_session) {
-                    HAL_Free(saved_session); 
-                    saved_session = new_session; 
-                }
-                HAL_Free(save_buf);
-            } else {
-                HAL_Free(new_session); 
-            }
-
-        } while (0);
+            HAL_Free(save_buf);
+        }
+        mbedtls_ssl_session_free(new_session);
+        HAL_Free(new_session);
+    } while (0);
+    if (saved_session != NULL) {
+        mbedtls_ssl_session_free(saved_session);
+        HAL_Free(saved_session);
+        saved_session = NULL;
+    }
 #endif
 
     /*
