@@ -5,6 +5,10 @@
 #include "infra_defs.h"
 #include "wrappers_defs.h"
 
+int HAL_SetProductKey(char *product_key);
+int HAL_SetProductSecret(char *product_secret);
+int HAL_SetDeviceName(char *device_name);
+int HAL_SetDeviceSecret(char *device_secret);
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);
 void HAL_Printf(const char *fmt, ...);
