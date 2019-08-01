@@ -450,6 +450,7 @@ success:
     // don't destroy zconfig_data until monitor_cb is finished.
     os_mutex_lock(zc_mutex);
     os_mutex_unlock(zc_mutex);
+    awss_trace("ready to call zconfig_destroy to release mem\n");
     /*
      * zconfig_destroy() after os_awss_monitor_close() beacause
      * zconfig_destroy will release mem/buffer that
@@ -460,6 +461,7 @@ success:
      */
     if (aws_stop == AWS_STOPPED) {
         zconfig_force_destroy();
+        awss_trace("zconfig mem released\n");
     }
 
 
@@ -556,16 +558,14 @@ void aws_destroy(void)
         return;
     }
 
-    aws_stop = AWS_STOPPING;
     HAL_Awss_Close_Monitor();
     awss_trace("aws_destroy\r\n");
+    aws_stop = AWS_STOPPING;
     while (aws_stop != AWS_STOPPED) {
         if (aws_state == AWS_SUCCESS) {
             break;
         }
-        HAL_MutexUnlock(aws_mutex);
         HAL_SleepMs(100);
-        HAL_MutexLock(aws_mutex);
     }
 
     os_free(aws_info);
