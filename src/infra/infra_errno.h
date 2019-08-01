@@ -74,6 +74,16 @@ extern "C" {
 
 /* Bind: 0x0800 ~ 0x08FF */
 
+/* Device Model: 0x0900 ~ 0x09FF */
+#define ERRCODE_DEV_MODEL_BASE                      (-0x0900)
+
+/* Device Model: 0x0900 ~ 0x09FF */
+
+/* SubDevice Mgmt: 0x0A00 ~ 0x0AFF */
+#define ERRCODE_SUBDEV_MGMT_BASE                    (-0x0A00)
+
+/* SubDevice Mgmt: 0x0A00 ~ 0x0AFF */
+
 #ifdef __cplusplus
 }
 #endif
