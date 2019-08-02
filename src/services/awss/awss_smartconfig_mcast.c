@@ -11,6 +11,7 @@
 #include "awss_smartconfig.h"
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
+#include "connect_ap.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
