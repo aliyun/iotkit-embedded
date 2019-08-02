@@ -38,8 +38,8 @@ static char registrar_id = 0;
 
 
 #define ALIBABA_OUI                     {0xD8, 0x96, 0xE0}
-#ifdef REGISTRAR_IDLE_DUTY
-#if REGISTRAR_IDLE_DUTY > 0
+
+#if (REGISTRAR_IDLE_DUTY > 0)
 uint32_t schedule_timestamp = 0;
 uint32_t schedule_duration = REGISTRAR_WORK_TIME;
 uint8_t last_open = 1;
@@ -64,7 +64,6 @@ void registrar_schedule()
     last_open = 1 - last_open;
 }
 #endif
-#endif
 
 void awss_registrar_init(void)
 {
@@ -78,7 +77,7 @@ void awss_registrar_init(void)
 
     HAL_Wifi_Enable_Mgmt_Frame_Filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                       (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
-#ifdef REGISTRAR_IDLE_DUTY
+#if (REGISTRAR_IDLE_DUTY > 0)
     schedule_timestamp = os_get_time_ms();
     schedule_duration = REGISTRAR_WORK_TIME;
     last_open = 1;
@@ -1067,7 +1066,7 @@ static void registrar_raw_frame_send(void)
 
 int registar_yield()
 {
-#ifdef REGISTRAR_IDLE_DUTY
+#if(REGISTRAR_IDLE_DUTY > 0)
     registrar_schedule();
 #endif
     enrollee_checkin();
