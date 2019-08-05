@@ -74,6 +74,7 @@ static const uint8_t aws_fixed_scanning_channels[] = {
 uint8_t aws_result_ssid[ZC_MAX_SSID_LEN + 1];
 uint8_t aws_result_passwd[ZC_MAX_PASSWD_LEN + 1];
 uint8_t aws_result_bssid[ETH_ALEN];/* mac addr */
+uint8_t aws_result_token[ZC_MAX_TOKEN_LEN];/* bind token */
 uint8_t aws_result_channel = 0;
 uint8_t aws_result_encry;
 uint8_t aws_result_auth;
@@ -104,7 +105,7 @@ void zconfig_channel_locked_callback(uint8_t primary_channel,
 }
 
 void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
-                                      uint8_t *bssid, uint8_t auth, uint8_t encry, uint8_t channel)
+                                      uint8_t *bssid, uint8_t *token, uint8_t auth, uint8_t encry, uint8_t channel)
 {
     if (bssid) {
         awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %s, %s, %d\r\n",
@@ -120,6 +121,9 @@ void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
                    channel);
     }
 
+    if (token) {
+        memcpy(aws_result_token, token, ZC_MAX_TOKEN_LEN);
+    }
     memset(aws_result_ssid, 0, sizeof(aws_result_ssid));
     memset(aws_result_passwd, 0, sizeof(aws_result_passwd));
     strncpy((char *)aws_result_ssid, (const char *)ssid, ZC_MAX_SSID_LEN - 1);
@@ -587,7 +591,7 @@ void aws_release_mutex()
     }
 }
 
-int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
+int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid, uint8_t *token,
                         char *auth, char *encry, uint8_t *channel)
 {
     if (aws_state != AWS_SUCCESS) {
@@ -601,6 +605,9 @@ int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
     }
     if (bssid) {
         memcpy(bssid, aws_result_bssid, ETH_ALEN);
+    }
+    if (token) {
+        memcpy(token, aws_result_token, ZC_MAX_TOKEN_LEN);
     }
     if (auth) {
         *auth = aws_result_auth;

@@ -24,6 +24,7 @@
 #include "zconfig_lib.h"
 #include "zconfig_protocol.h"
 #include "zconfig_ieee80211.h"
+#include "connect_ap.h"
 
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
 #define WIFI_APINFO_LIST_LEN    (512)
@@ -294,10 +295,12 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     char ssid[PLATFORM_MAX_SSID_LEN * 2 + 1] = {0}, passwd[PLATFORM_MAX_PASSWD_LEN + 1] = {0};
     int str_len = 0, success = 1, i  = 0, len = 0, enc_lvl = SEC_LVL_OPEN;
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
+    uint8_t token[RANDOM_MAX_LEN + 1] = {0};
     char *str = NULL, *buf = NULL;
     char msg[128] = {0};
     char ssid_found = 0;
     uint8_t *bssid = NULL;
+    char token_found = 0;
 
     static char switch_ap_parsed = 0;
     if (switch_ap_parsed != 0)
@@ -353,6 +356,13 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
             success = 0;
             snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -4, "\"security level error\"");
             break;
+        }
+
+        str_len = 0;
+        str = json_get_value_by_name(buf, len, "token", &str_len, 0);
+        if (str && str_len ==  RANDOM_MAX_LEN * 2) {  /*token len equal to random len*/
+            utils_str_to_hex(str, str_len, (unsigned char *)token, RANDOM_MAX_LEN);
+            token_found = 1;
         }
 
         str_len = 0;
@@ -430,12 +440,8 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
     } while (0);
 #endif
-    if (0 != os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT,
-                                ssid, passwd,
-                                AWSS_AUTH_TYPE_INVALID,
-                                AWSS_ENC_TYPE_INVALID,
-                                bssid, 0)) {
-    } else {
+    if (0 == awss_connect(ssid, passwd, (uint8_t *)bssid, ETH_ALEN, token_found == 1 ? token : NULL,
+                          token_found == 1 ? RANDOM_MAX_LEN : 0)) {
         switch_ap_done = 1;
         awss_close_aha_monitor();
         HAL_MutexDestroy(g_scan_mutex);
@@ -449,7 +455,9 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         void zconfig_force_destroy(void);
         zconfig_force_destroy();
 
-        produce_random(aes_random, sizeof(aes_random));
+        if (token_found == 0) {
+            produce_random(aes_random, sizeof(aes_random));
+        }
     }
     awss_debug("connect '%s' %s\r\n", ssid, switch_ap_done == 1 ? "success" : "fail");
 

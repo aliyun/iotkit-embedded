@@ -94,8 +94,8 @@ void aws_start(char *pk, char *dn, char *ds, char *ps);
 //encry defined by enum AWS_ENC_TYPE
 //
 //返回值：1--成功，0--失败
-int aws_get_ssid_passwd(char ssid[32 + 1], char passwd[64 + 1], uint8_t bssid[6],
-                        char *auth, char *encry, uint8_t *channel);
+int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid, uint8_t *token,
+                         char *auth, char *encry, uint8_t *channel);
 
 //配网结束（成功或失败）后，调用该函数，释放配网库占用的资源
 void aws_destroy(void);
