@@ -169,7 +169,7 @@ DECLARE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t cb);
 
-void iotx_state_event(const int event, const int state_code, const char * state_message);
+int iotx_state_event(const int event, const int state_code, const char * state_message);
 
 void *iotx_event_callback(int evt);
 

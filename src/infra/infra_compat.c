@@ -359,14 +359,14 @@ DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t callback)
 
 #define IOTX_STATE_EVENT_MESSAGE_MAXLEN (64)
-void iotx_state_event(const int event, const int state_code, const char * state_message)
+int iotx_state_event(const int event, const int state_code, const char * state_message)
 {
     char message[IOTX_STATE_EVENT_MESSAGE_MAXLEN + 1] = {0};
     void *everything_state_handler = iotx_event_callback(ITE_STATE_EVERYTHING);
     void *state_handler = iotx_event_callback(event);
 
     if (state_handler == NULL) {
-        return;
+        return -1;
     }
 
     if (state_message != NULL) {
@@ -382,6 +382,8 @@ void iotx_state_event(const int event, const int state_code, const char * state_
     if (everything_state_handler && everything_state_handler != state_handler) {
         ((state_handler_t)everything_state_handler)(state_code, message);
     }
+
+    return 0;
 }
 
 #endif
