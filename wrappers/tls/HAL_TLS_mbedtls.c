@@ -49,8 +49,6 @@ typedef struct _TLSDataParams {
     mbedtls_pk_context pkey;          /**< mbed TLS Client key. */
 } TLSDataParams_t, *TLSDataParams_pt;
 
-
-
 static unsigned int mbedtls_mem_used = 0;
 static unsigned int mbedtls_max_mem_used = 0;
 static ssl_hooks_t g_ssl_hooks = {HAL_Malloc, HAL_Free};
@@ -61,6 +59,13 @@ typedef struct {
     int magic;
     int size;
 } mbedtls_mem_info_t;
+
+#define TLS_AUTH_MODE_CA        0
+#define TLS_AUTH_MODE_PSK       1
+
+#ifndef TLS_AUTH_MODE
+#define TLS_AUTH_MODE           TLS_AUTH_MODE_CA
+#endif
 
 #if defined(TLS_SAVE_TICKET)
 
@@ -113,7 +118,7 @@ static int ssl_deserialize_session(mbedtls_ssl_session *session,
 
     memcpy(session, p, sizeof(mbedtls_ssl_session));
     p += sizeof(mbedtls_ssl_session);
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
     session->peer_cert = NULL;
 #endif
 
@@ -240,7 +245,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
 
     _srand(HAL_UptimeMs());
     /* Setup Client Cert/Key */
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
     mbedtls_x509_crt_init(crt509_ca);
 
     /*verify_source->trusted_ca_crt==NULL
@@ -290,7 +295,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
             return ret;
         }
     }
-#endif /* MBEDTLS_X509_CRT_PARSE_C */
+#endif /* if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA) */
 
     return 0;
 }
@@ -534,14 +539,14 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_NONE);
     }
 
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
     mbedtls_ssl_conf_ca_chain(&(pTlsData->conf), &(pTlsData->cacertl), NULL);
 
     if ((ret = mbedtls_ssl_conf_own_cert(&(pTlsData->conf), &(pTlsData->clicert), &(pTlsData->pkey))) != 0) {
         printf(" failed\n  ! mbedtls_ssl_conf_own_cert returned %d\n", ret);
         return ret;
     }
-#elif defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED) /* MBEDTLS_X509_CRT_PARSE_C */
+#elif (TLS_AUTH_MODE == TLS_AUTH_MODE_PSK)
     {
         static const int ciphersuites[1] = {MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA};
         char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
@@ -601,7 +606,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 
         printf("mbedtls psk config finished\n");
     }
-#endif /* MBEDTLS_KEY_EXCHANGE_PSK_ENABLED */
+#endif /* #elif (TLS_AUTH_MODE == TLS_AUTH_MODE_PSK) */
 
     mbedtls_ssl_conf_rng(&(pTlsData->conf), _ssl_random, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, NULL);
@@ -612,7 +617,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         return ret;
     }
 
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
 #if defined(_PLATFORM_IS_LINUX_)
     /* only set hostname when addr isn't ip string and hostname isn't preauth_shanghai */
     if (inet_aton(addr, &in) == 0 && strcmp("iot-auth-pre.cn-shanghai.aliyuncs.com", addr)) {
@@ -623,7 +628,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
     }
 #endif /* #if defined(_PLATFORM_IS_LINUX_) */
-#endif
+#endif /* #if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA) */
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
 #if defined(TLS_SAVE_TICKET)
@@ -893,7 +898,7 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
 {
     mbedtls_ssl_close_notify(&(pTlsData->ssl));
     mbedtls_net_free(&(pTlsData->fd));
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
     mbedtls_x509_crt_free(&(pTlsData->cacertl));
     if ((pTlsData->pkey).pk_info != NULL) {
         printf("need release client crt&key\n");
@@ -902,32 +907,10 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
         mbedtls_pk_free(&(pTlsData->pkey));
 #endif
     }
-#endif
+#endif /* #if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA) */
     mbedtls_ssl_free(&(pTlsData->ssl));
     mbedtls_ssl_config_free(&(pTlsData->conf));
     printf("ssl_disconnect\n");
-}
-
-int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
-{
-    return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
-}
-
-int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
-{
-    return _network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
-}
-
-int32_t HAL_SSL_Destroy(uintptr_t handle)
-{
-    if ((uintptr_t)NULL == handle) {
-        printf("handle is NULL\n");
-        return 0;
-    }
-
-    _network_ssl_disconnect((TLSDataParams_t *)handle);
-    g_ssl_hooks.free((void *)handle);
-    return 0;
 }
 
 int ssl_hooks_set(ssl_hooks_t *hooks)
@@ -980,4 +963,24 @@ uintptr_t HAL_SSL_Establish(const char *host,
     return (uintptr_t)pTlsData;
 }
 
+int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
+{
+    return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
+}
 
+int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
+{
+    return _network_ssl_write((TLSDataParams_t *)handle, buf, len, timeout_ms);
+}
+
+int32_t HAL_SSL_Destroy(uintptr_t handle)
+{
+    if ((uintptr_t)NULL == handle) {
+        printf("handle is NULL\n");
+        return 0;
+    }
+
+    _network_ssl_disconnect((TLSDataParams_t *)handle);
+    g_ssl_hooks.free((void *)handle);
+    return 0;
+}
