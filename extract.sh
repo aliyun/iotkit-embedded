@@ -261,8 +261,7 @@ echo -e ""
 
 # Generate wrappers.c
 mkdir -p ${WRAPPERS_DIR}
-cp -f wrappers/wrappers_defs.h ${WRAPPERS_DIR}/
-
+cp -f wrappers/wrappers.h wrappers/wrappers_defs.h   ${WRAPPERS_DIR}/
 # Read xtrc_wrapper_rules
 TOTAL_ITERATION=$(wc -l ${TEMP_WRAPPER_RULS}|gawk '{ print $1 }')
 ITER=0
