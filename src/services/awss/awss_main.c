@@ -11,6 +11,7 @@
 #include "awss_enrollee.h"
 #include "awss_packet.h"
 #include "awss_notify.h"
+#include "connect_ap.h"
 #include "awss_event.h"
 #include "awss_main.h"
 #include "awss_cmp.h"
@@ -31,8 +32,11 @@ int __awss_start(void)
     char ssid[OS_MAX_SSID_LEN + 1] = {0}, passwd[OS_MAX_PASSWD_LEN + 1] = {0};
     enum AWSS_AUTH_TYPE auth = AWSS_AUTH_TYPE_INVALID;
     enum AWSS_ENC_TYPE encry = AWSS_ENC_TYPE_INVALID;
+    uint8_t token[ZC_MAX_TOKEN_LEN] = {0};
     uint8_t bssid[OS_ETH_ALEN] = {0};
+    uint8_t find_token = 0;
     uint8_t channel = 0;
+    uint8_t i;
     int ret;
 
     awss_trace("%s\n", __func__);
@@ -41,11 +45,18 @@ int __awss_start(void)
     /* these params is useless, keep it for compatible reason */
     aws_start(NULL, NULL, NULL, NULL);
 
-    ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0],
-            (char *)&auth, (char *)&encry, &channel);
+    ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0], &token[0],
+                              (char *)&auth, (char *)&encry, &channel);
     if (!ret)
 	    awss_warn("awss timeout!");
 
+    for (i = 0; i < ZC_MAX_TOKEN_LEN; i++) {
+        if (token[i] != 0) {
+            find_token = 1;
+             awss_debug("found token!");
+            break;
+        }
+    }
     aws_destroy();
 
     do {
@@ -66,8 +77,8 @@ int __awss_start(void)
             awss_event_post(AWSS_CONNECT_ROUTER);
         }
 
-        ret = os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
-                                 auth, encry, bssid, channel);
+        ret = awss_connect(ssid, passwd, bssid, ETH_ALEN, find_token != 0 ? token : NULL,
+                           find_token != 0 ? ZC_MAX_TOKEN_LEN : 0);
         if (!ret) {
             awss_debug("awss connect ssid:%s success", ssid);
             awss_event_post(AWSS_GOT_IP);
@@ -83,7 +94,7 @@ int __awss_start(void)
 #endif
             {
                 awss_devinfo_notify_stop();
-                produce_random(aes_random, sizeof(aes_random));
+                /*produce_random(aes_random, sizeof(aes_random)); */
             }
         } else {
             awss_debug("awss connect ssid:%s fail", ssid);

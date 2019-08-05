@@ -196,7 +196,7 @@ int is_ascii_string(uint8_t *str);
  * [OUT] auth, encry, channel
  */
 uint8_t zconfig_get_auth_info(uint8_t *ssid, uint8_t *bssid, uint8_t *auth, uint8_t *encry, uint8_t *channel);
-uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid);
+uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid, uint8_t *token);
 
 #define MAC_FORMAT                "%02x%02x%02x%02x%02x%02x"
 #define MAC_VALUE(mac)            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]

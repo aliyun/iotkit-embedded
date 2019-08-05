@@ -15,11 +15,15 @@ extern "C"
 
 uint8_t aes_random[RANDOM_MAX_LEN] = {0};
 
+extern void awss_token_initial_lifetime(void);
 int awss_set_token(uint8_t token[RANDOM_MAX_LEN])
 {
-    if(token != NULL){
-        memcpy(aes_random, token, RANDOM_MAX_LEN);
+    if(token == NULL) {
+        return -1;
     }
+
+    memcpy(aes_random, token, RANDOM_MAX_LEN);
+    awss_token_initial_lifetime();
     return 0;
 }
 
