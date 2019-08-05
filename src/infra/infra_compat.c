@@ -288,6 +288,16 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_COTA,                 NULL},
     {ITE_MQTT_CONNECT_SUCC,    NULL},
     {ITE_CLOUD_ERROR,          NULL},
+    {ITE_STATE_EVERYTHING,     NULL},
+    {ITE_STATE_USER_INPUT,     NULL},
+    {ITE_STATE_SYS_DEPEND,     NULL},
+    {ITE_STATE_MQTT_COMM,      NULL},
+    {ITE_STATE_WIFI_PROV,      NULL},
+    {ITE_STATE_COAP_LOCAL,     NULL},
+    {ITE_STATE_HTTP_COMM,      NULL},
+    {ITE_STATE_OTA,            NULL},
+    {ITE_STATE_DEV_BIND,       NULL},
+    {ITE_STATE_DEV_MODEL,      NULL}
 };
 
 void *iotx_event_callback(int evt)
@@ -326,5 +336,52 @@ DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const
                       const char *, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*callback)(const int, const char *, const char *))
+
+int iotx_register_for_ITE_STATE_EVERYTHING(state_handler_t callback)
+{
+    int idx = 0;
+
+    for (idx = ITE_STATE_EVERYTHING;idx <= ITE_STATE_DEV_MODEL; idx++) {
+        g_impl_event_map[idx].callback = (void *)callback;
+    }
+
+    return 0;
+}
+
+DEFINE_EVENT_CALLBACK(ITE_STATE_USER_INPUT, state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_SYS_DEPEND, state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_MQTT_COMM,  state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_WIFI_PROV,  state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_COAP_LOCAL, state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_HTTP_COMM,  state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t callback)
+
+#define IOTX_STATE_EVENT_MESSAGE_MAXLEN (64)
+void iotx_state_event(const int event, const int state_code, const char * state_message)
+{
+    char message[IOTX_STATE_EVENT_MESSAGE_MAXLEN + 1] = {0};
+    void *everything_state_handler = iotx_event_callback(ITE_STATE_EVERYTHING);
+    void *state_handler = iotx_event_callback(event);
+
+    if (state_handler == NULL) {
+        return;
+    }
+
+    if (state_message != NULL) {
+        if (strlen(state_message) > IOTX_STATE_EVENT_MESSAGE_MAXLEN) {
+            memcpy(message, state_message, IOTX_STATE_EVENT_MESSAGE_MAXLEN);
+        }else{
+            memcpy(message, state_message, strlen(state_message));
+        }
+    }
+
+    ((state_handler_t)state_handler)(state_code, message);
+
+    if (everything_state_handler && everything_state_handler != state_handler) {
+        ((state_handler_t)everything_state_handler)(state_code, message);
+    }
+}
 
 #endif

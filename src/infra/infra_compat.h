@@ -115,6 +115,16 @@ typedef enum {
     ITE_COTA,
     ITE_MQTT_CONNECT_SUCC,
     ITE_CLOUD_ERROR,
+    ITE_STATE_EVERYTHING,
+    ITE_STATE_USER_INPUT,
+    ITE_STATE_SYS_DEPEND,
+    ITE_STATE_MQTT_COMM,
+    ITE_STATE_WIFI_PROV,
+    ITE_STATE_COAP_LOCAL,
+    ITE_STATE_HTTP_COMM,
+    ITE_STATE_OTA,
+    ITE_STATE_DEV_BIND,
+    ITE_STATE_DEV_MODEL
 } iotx_ioctl_event_t;
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb)
@@ -146,6 +156,20 @@ DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char
                        const char *, const char *))
 DECLARE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*callback)(const int, const char *, const char *))
+
+typedef int (*state_handler_t)(const int state_code, const char * state_message);
+DECLARE_EVENT_CALLBACK(ITE_STATE_EVERYTHING, state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_USER_INPUT, state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_SYS_DEPEND, state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_MQTT_COMM,  state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_WIFI_PROV,  state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_COAP_LOCAL, state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_HTTP_COMM,  state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t cb);
+
+void iotx_state_event(const int event, const int state_code, const char * state_message);
 
 void *iotx_event_callback(int evt);
 
