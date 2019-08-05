@@ -30,6 +30,7 @@
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 
+#include "utils_hmac.h"
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
 #include <errno.h>
@@ -57,6 +58,95 @@ typedef struct {
     int magic;
     int size;
 } mbedtls_mem_info_t;
+
+
+#define TLS_AUTH_MODE_CA        0
+#define TLS_AUTH_MODE_PSK       1
+
+/* config authentication mode */
+#ifndef TLS_AUTH_MODE
+#define TLS_AUTH_MODE           TLS_AUTH_MODE_CA
+#endif
+
+/* define TLS_SAVE_TICKET to enable support for RFC 5077 session tickets in SSL */
+#if defined(TLS_SAVE_TICKET)
+
+#define TLS_MAX_SESSION_BUF 384
+#define KV_SESSION_KEY  "TLS_SESSION"
+
+extern int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
+
+extern int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
+
+static mbedtls_ssl_session *saved_session = NULL;
+
+static int ssl_serialize_session(const mbedtls_ssl_session *session,
+                                 unsigned char *buf, size_t buf_len,
+                                 size_t *olen)
+{
+    unsigned char *p = buf;
+    size_t left = buf_len;
+
+    if (left < sizeof(mbedtls_ssl_session)) {
+        return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
+
+    memcpy(p, session, sizeof(mbedtls_ssl_session));
+    p += sizeof(mbedtls_ssl_session);
+    left -= sizeof(mbedtls_ssl_session);
+#if defined(MBEDTLS_SSL_SESSION_TICKETS) && defined(MBEDTLS_SSL_CLI_C)
+    if (left < sizeof(mbedtls_ssl_session)) {
+        return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
+    memcpy(p, session->ticket, session->ticket_len);
+    p += session->ticket_len;
+    left -= session->ticket_len;
+#endif
+
+    *olen = p - buf;
+
+    return (0);
+}
+
+static int ssl_deserialize_session(mbedtls_ssl_session *session,
+                                   const unsigned char *buf, size_t len)
+{
+    const unsigned char *p = buf;
+    const unsigned char *const end = buf + len;
+
+    if (sizeof(mbedtls_ssl_session) > (size_t)(end - p)) {
+        return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
+    }
+
+    memcpy(session, p, sizeof(mbedtls_ssl_session));
+    p += sizeof(mbedtls_ssl_session);
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
+    session->peer_cert = NULL;
+#endif
+
+#if defined(MBEDTLS_SSL_SESSION_TICKETS) && defined(MBEDTLS_SSL_CLI_C)
+    if (session->ticket_len > 0) {
+        if (session->ticket_len > (size_t)(end - p)) {
+            return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
+        }
+        session->ticket = HAL_Malloc(session->ticket_len);
+        if (session->ticket == NULL) {
+            return (MBEDTLS_ERR_SSL_ALLOC_FAILED);
+        }
+        memcpy(session->ticket, p, session->ticket_len);
+        p += session->ticket_len;
+        printf("saved ticket len = %d \r\n", (int)session->ticket_len);
+    }
+#endif
+
+    if (p != end) {
+        return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
+    }
+
+    return (0);
+}
+#endif /* #if defined(TLS_SAVE_TICKET) */
+
 
 static unsigned int _avRandom()
 {
@@ -153,7 +243,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
 
 
     /* Setup Client Cert/Key */
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
 #if defined(MBEDTLS_CERTS_C)
     mbedtls_x509_crt_init(crt509_cli);
     mbedtls_pk_init(pk_cli);
@@ -188,7 +278,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
             return ret;
         }
     }
-#endif /* MBEDTLS_X509_CRT_PARSE_C */
+#endif /* #if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA) */
 
     return 0;
 }
@@ -529,14 +619,79 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         mbedtls_ssl_conf_authmode(&(pTlsData->conf), MBEDTLS_SSL_VERIFY_NONE);
     }
 
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
     mbedtls_ssl_conf_ca_chain(&(pTlsData->conf), &(pTlsData->cacertl), NULL);
 
     if ((ret = mbedtls_ssl_conf_own_cert(&(pTlsData->conf), &(pTlsData->clicert), &(pTlsData->pkey))) != 0) {
         hal_err(" failed\n  ! mbedtls_ssl_conf_own_cert returned %d\n", ret);
         return ret;
     }
-#endif
+#elif (TLS_AUTH_MODE == TLS_AUTH_MODE_PSK)
+    {
+        static const int ciphersuites[1] = {MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA};
+        char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
+        char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+        char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+        char *auth_type = "devicename";
+        char *sign_method = "hmacsha256";
+        char *timestamp = "2524608000000";
+        char *psk_identity = NULL, string_to_sign[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 33] = {0};
+        uint32_t psk_identity_len = 0;
+        uint8_t sign_hex[32] = {0};
+        char sign_string[65] = {0};
+        int i = 0;
+
+        HAL_GetProductKey(product_key);
+        HAL_GetDeviceName(device_name);
+        HAL_GetDeviceSecret(device_secret);
+
+        /* psk identity length */
+        psk_identity_len = strlen(auth_type) + strlen(sign_method) + strlen(product_key) + strlen(device_name) + strlen(
+                                       timestamp) + 5;
+        psk_identity = HAL_Malloc(psk_identity_len);
+        if (psk_identity == NULL) {
+            printf("psk_identity malloc failed\n");
+            return -1;
+        }
+        memset(psk_identity, 0, psk_identity_len);
+        memcpy(psk_identity, auth_type, strlen(auth_type));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), sign_method, strlen(sign_method));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), product_key, strlen(product_key));
+        memcpy(psk_identity + strlen(psk_identity), "&", strlen("&"));
+        memcpy(psk_identity + strlen(psk_identity), device_name, strlen(device_name));
+        memcpy(psk_identity + strlen(psk_identity), "|", strlen("|"));
+        memcpy(psk_identity + strlen(psk_identity), timestamp, strlen(timestamp));
+
+        /* string to sign */
+        memcpy(string_to_sign, "id", strlen("id"));
+        memcpy(string_to_sign + strlen(string_to_sign), product_key, strlen(product_key));
+        memcpy(string_to_sign + strlen(string_to_sign), "&", strlen("&"));
+        memcpy(string_to_sign + strlen(string_to_sign), device_name, strlen(device_name));
+        memcpy(string_to_sign + strlen(string_to_sign), "timestamp", strlen("timestamp"));
+        memcpy(string_to_sign + strlen(string_to_sign), timestamp, strlen(timestamp));
+
+        utils_hmac_sha256(string_to_sign, strlen(string_to_sign), sign_string, device_secret, strlen(device_secret));
+
+        for (i=0; i<strlen(sign_string); i++) {
+            if (sign_string[i] >= 'a' && sign_string[i] <= 'z') {
+                sign_string[i] -= 'a' - 'A';
+            }
+        }
+        /* printf("psk_identity: %s\n",psk_identity);
+        printf("psk         : %s\n",sign_string); */
+
+        mbedtls_ssl_conf_psk(&(pTlsData->conf), (const unsigned char *)sign_string, strlen(sign_string),
+                             (uint8_t *)psk_identity, strlen(psk_identity));
+        mbedtls_ssl_conf_ciphersuites(&(pTlsData->conf), ciphersuites);
+
+        HAL_Free(psk_identity);
+
+        printf("mbedtls psk config finished\n");
+    }
+#endif /* #elif (TLS_AUTH_MODE == TLS_AUTH_MODE_PSK) */
+
     mbedtls_ssl_conf_rng(&(pTlsData->conf), _ssl_random, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, NULL);
     mbedtls_ssl_conf_dbg(&(pTlsData->conf), _ssl_debug, stdout);
@@ -545,7 +700,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         hal_err("failed! mbedtls_ssl_setup returned %d", ret);
         return ret;
     }
-#if defined(ON_PRE) || defined(ON_DAILY)
+#if (defined(ON_PRE) || defined(ON_DAILY))
     hal_err("SKIPPING mbedtls_ssl_set_hostname() when ON_PRE or ON_DAILY defined!");
 #else
 #if defined(_PLATFORM_IS_LINUX_)
@@ -561,6 +716,58 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
 #endif
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
+/* setup sessoin if sessoin ticket enabled */
+#if defined(TLS_SAVE_TICKET)
+    if (NULL == saved_session) {
+        do {
+            int len = TLS_MAX_SESSION_BUF;
+            unsigned char *save_buf = HAL_Malloc(TLS_MAX_SESSION_BUF);
+            if (save_buf ==  NULL) {
+                printf(" malloc failed\r\n");
+                break;
+            }
+
+            saved_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
+
+            if (saved_session == NULL) {
+                printf(" malloc failed\r\n");
+                HAL_Free(save_buf);
+                save_buf =  NULL;
+                break;
+            }
+
+            memset(save_buf, 0x00, TLS_MAX_SESSION_BUF);
+            memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
+
+            ret = HAL_Kv_Get(KV_SESSION_KEY, save_buf, &len);
+
+            if (ret != 0 || len == 0) {
+                printf(" kv get failed len=%d,ret = %d\r\n", len, ret);
+                HAL_Free(saved_session);
+                HAL_Free(save_buf);
+                save_buf = NULL;
+                saved_session = NULL;
+                break;
+            }
+            ret = ssl_deserialize_session(saved_session, save_buf, len);
+            if (ret < 0) {
+                printf("ssl_deserialize_session err,ret = %d\r\n", ret);
+                HAL_Free(saved_session);
+                HAL_Free(save_buf);
+                save_buf = NULL;
+                saved_session = NULL;
+                break;
+            }
+            HAL_Free(save_buf);
+        } while (0);
+    }
+
+    if (NULL != saved_session) {
+        mbedtls_ssl_set_session(&(pTlsData->ssl), saved_session);
+        printf("use saved session!!\r\n");
+    }
+#endif /* #if defined(TLS_SAVE_TICKET) */
+
     /*
       * 4. Handshake
       */
@@ -570,10 +777,72 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
     while ((ret = mbedtls_ssl_handshake(&(pTlsData->ssl))) != 0) {
         if ((ret != MBEDTLS_ERR_SSL_WANT_READ) && (ret != MBEDTLS_ERR_SSL_WANT_WRITE)) {
             hal_err("failed  ! mbedtls_ssl_handshake returned -0x%04x", -ret);
+
+#if defined(TLS_SAVE_TICKET)
+            if (saved_session != NULL) {
+                mbedtls_ssl_session_free(saved_session);
+                HAL_Free(saved_session);
+                saved_session = NULL;
+            }
+#endif
             return ret;
         }
     }
     hal_info(" ok");
+
+#if defined(TLS_SAVE_TICKET)
+    do {
+        size_t real_session_len = 0;
+        mbedtls_ssl_session *new_session = NULL;
+
+        new_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
+        if (NULL == new_session) {
+            break;
+        }
+
+        memset(new_session, 0x00, sizeof(mbedtls_ssl_session));
+
+        ret = mbedtls_ssl_get_session(&(pTlsData->ssl), new_session);
+        if (ret != 0) {
+            HAL_Free(new_session);
+            break;
+        }
+        if (saved_session == NULL) {
+            ret = 1;
+        } else if (new_session->ticket_len != saved_session->ticket_len) {
+            ret = 1;
+        } else {
+            ret = memcmp(new_session->ticket, saved_session->ticket, new_session->ticket_len);
+        }
+        if (ret != 0) {
+            unsigned char *save_buf = HAL_Malloc(TLS_MAX_SESSION_BUF);
+            if (save_buf ==  NULL) {
+                mbedtls_ssl_session_free(new_session);
+                HAL_Free(new_session);
+                new_session = NULL;
+                break;
+            }
+            memset(save_buf, 0x00, sizeof(TLS_MAX_SESSION_BUF));
+            ret = ssl_serialize_session(new_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
+            printf("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, (int)real_session_len);
+            if (ret == 0) {
+                ret = HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
+                if (ret < 0) {
+                    printf("save ticket to kv failed ret =%d ,len = %d\r\n", ret, (int)real_session_len);
+                }
+            }
+            HAL_Free(save_buf);
+        }
+        mbedtls_ssl_session_free(new_session);
+        HAL_Free(new_session);
+    } while (0);
+    if (saved_session != NULL) {
+        mbedtls_ssl_session_free(saved_session);
+        HAL_Free(saved_session);
+        saved_session = NULL;
+    }
+#endif
+
     /*
      * 5. Verify the server certificate
      */
@@ -712,7 +981,7 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
 {
     mbedtls_ssl_close_notify(&(pTlsData->ssl));
     mbedtls_net_free(&(pTlsData->fd));
-#if defined(MBEDTLS_X509_CRT_PARSE_C)
+#if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA)
     mbedtls_x509_crt_free(&(pTlsData->cacertl));
     if ((pTlsData->pkey).pk_info != NULL) {
         hal_info("need release client crt&key");
@@ -721,7 +990,7 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
         mbedtls_pk_free(&(pTlsData->pkey));
 #endif
     }
-#endif
+#endif /* #if (TLS_AUTH_MODE == TLS_AUTH_MODE_CA) */
     mbedtls_ssl_free(&(pTlsData->ssl));
     mbedtls_ssl_config_free(&(pTlsData->conf));
     hal_info("ssl_disconnect");
