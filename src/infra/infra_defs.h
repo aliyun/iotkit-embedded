@@ -341,6 +341,10 @@ typedef struct {
     uint16_t mqtt_port_num;
     char http_custom_domain[IOTX_DOMAIN_MAX_LEN + 1];
     char mqtt_customzie_info[IOTX_CUSTOMIZE_INFO_LEN + 1];
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1];
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
+    char device_name[IOTX_DEVICE_NAME_LEN + 1];
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1];
 } sdk_impl_ctx_t;
 
 #define IOTX_HTTP_DOMAIN_NUMBER (6)
