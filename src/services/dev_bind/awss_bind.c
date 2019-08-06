@@ -28,6 +28,7 @@ int awss_start_bind()
     awss_registrar_init();
 #endif
 #endif
+
     return 0;
 }
 
@@ -37,7 +38,7 @@ int awss_report_cloud()
     if (awss_bind_mutex == NULL) {
         awss_bind_mutex = HAL_MutexCreate();
         if (awss_bind_mutex == NULL) {
-            return -1;
+            return STATE_SYS_DEPEND_MUTEX_CREATE;
         }
     }
 
@@ -53,6 +54,7 @@ int awss_report_cloud()
     extern int awss_report_reset_to_cloud();
     if (awss_check_reset()) {
         ret = awss_report_reset_to_cloud();
+        iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_RST_IN_PROGRESS, NULL);
         HAL_MutexUnlock(awss_bind_mutex);
         return ret;
     }

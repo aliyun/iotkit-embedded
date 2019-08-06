@@ -21,8 +21,9 @@ static char online_init = 0;
 
 int awss_cmp_mqtt_register_cb(char *topic, void *cb)
 {
-    if (topic == NULL)
-        return -1;
+    if (topic == NULL) {
+        return STATE_USER_INPUT_NULL_POINTER;
+    }
 
     return IOT_MQTT_Subscribe(NULL, topic, 0, (iotx_mqtt_event_handle_func_fpt)cb, NULL);
 }
@@ -51,8 +52,9 @@ const struct awss_cmp_couple awss_online_couple[] = {
 
 int awss_cmp_online_init()
 {
-    if (online_init)
+    if (online_init) {
         return 0;
+    }
 
     char topic[TOPIC_LEN_MAX] = {0};
     int i;
@@ -73,8 +75,9 @@ int awss_cmp_online_deinit()
     uint8_t i;
     char topic[TOPIC_LEN_MAX] = {0};
 
-    if (!online_init)
+    if (!online_init) {
         return 0;
+    }
 
     awss_dev_bind_notify_stop();
 
@@ -91,8 +94,9 @@ int awss_cmp_online_deinit()
 
 int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len)
 {
-    if (mesg == NULL || payload == NULL || playload_len == NULL)
-        return - 1;
+    if (mesg == NULL || payload == NULL || playload_len == NULL) {
+        return STATE_USER_INPUT_NULL_POINTER;
+    }
 
     iotx_mqtt_event_msg_pt msg = (iotx_mqtt_event_msg_pt)mesg;
 
@@ -104,7 +108,8 @@ int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len
             *payload = (char *)ptopic_info->payload;
             break;
         default:
-            return -1;
+            iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_MQTT_MSG_INVALID, NULL);
+            return STATE_BIND_MQTT_MSG_INVALID;
     }
     return 0;
 }

@@ -547,6 +547,12 @@ static int user_master_dev_available(void)
     return 0;
 }
 
+
+static int user_dev_bind_event(const int state_code, const char *state_message)
+{
+    EXAMPLE_TRACE("state_code: -0x%04x, str_msg= %s",-state_code , state_message == NULL? "NULL": state_message);
+    return 0;
+}
 void set_iotx_info()
 {
     HAL_SetProductKey(PRODUCT_KEY);
@@ -619,6 +625,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
+    IOT_RegisterCallback(ITE_STATE_DEV_BIND,  user_dev_bind_event);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
