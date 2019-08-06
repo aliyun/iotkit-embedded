@@ -32,7 +32,8 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_STATE_HTTP_COMM,      NULL},
     {ITE_STATE_OTA,            NULL},
     {ITE_STATE_DEV_BIND,       NULL},
-    {ITE_STATE_DEV_MODEL,      NULL}
+    {ITE_STATE_SUB_DEVICE,     NULL},
+    {ITE_STATE_DEV_MODEL,      NULL}        /* DEV_MODEL must be last entry */
 };
 
 void *iotx_event_callback(int evt)
@@ -70,7 +71,7 @@ int iotx_register_for_ITE_STATE_EVERYTHING(state_handler_t callback)
 {
     int idx = 0;
 
-    for (idx = ITE_STATE_EVERYTHING;idx <= ITE_STATE_DEV_MODEL; idx++) {
+    for (idx = ITE_STATE_EVERYTHING; idx <= ITE_STATE_DEV_MODEL; idx++) {
         g_impl_event_map[idx].callback = (void *)callback;
     }
 
@@ -85,10 +86,11 @@ DEFINE_EVENT_CALLBACK(ITE_STATE_COAP_LOCAL, state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_HTTP_COMM,  state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t callback)
+DEFINE_EVENT_CALLBACK(ITE_STATE_SUB_DEVICE, state_handler_t callback)
 DEFINE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t callback)
 
 #define IOTX_STATE_EVENT_MESSAGE_MAXLEN (64)
-int iotx_state_event(const int event, const int state_code, const char * state_message)
+int iotx_state_event(const int event, const int state_code, const char *state_message)
 {
     char message[IOTX_STATE_EVENT_MESSAGE_MAXLEN + 1] = {0};
     void *everything_state_handler = iotx_event_callback(ITE_STATE_EVERYTHING);
@@ -101,7 +103,7 @@ int iotx_state_event(const int event, const int state_code, const char * state_m
     if (state_message != NULL) {
         if (strlen(state_message) > IOTX_STATE_EVENT_MESSAGE_MAXLEN) {
             memcpy(message, state_message, IOTX_STATE_EVENT_MESSAGE_MAXLEN);
-        }else{
+        } else {
             memcpy(message, state_message, strlen(state_message));
         }
     }
