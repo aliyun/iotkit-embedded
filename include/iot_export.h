@@ -153,7 +153,8 @@ typedef enum {
     ITE_STATE_HTTP_COMM,
     ITE_STATE_OTA,
     ITE_STATE_DEV_BIND,
-    ITE_STATE_DEV_MODEL
+    ITE_STATE_SUB_DEVICE,
+    ITE_STATE_DEV_MODEL     /* Must be last state relative event */
 } iotx_ioctl_event_t;
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
@@ -183,7 +184,7 @@ DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char
                        const char *, const char *))
 DECLARE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*cb)(void))
 
-typedef int (*state_handler_t)(const int state_code, const char * state_message);
+typedef int (*state_handler_t)(const int state_code, const char *state_message);
 DECLARE_EVENT_CALLBACK(ITE_STATE_EVERYTHING, state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_USER_INPUT, state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_SYS_DEPEND, state_handler_t cb);
@@ -193,9 +194,10 @@ DECLARE_EVENT_CALLBACK(ITE_STATE_COAP_LOCAL, state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_HTTP_COMM,  state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_OTA,        state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_BIND,   state_handler_t cb);
+DECLARE_EVENT_CALLBACK(ITE_STATE_SUB_DEVICE, state_handler_t cb);
 DECLARE_EVENT_CALLBACK(ITE_STATE_DEV_MODEL,  state_handler_t cb);
 
-int iotx_state_event(const int event, const int state_code, const char * state_message);
+int iotx_state_event(const int event, const int state_code, const char *state_message);
 
 /** @defgroup group_api api
  *  @{
