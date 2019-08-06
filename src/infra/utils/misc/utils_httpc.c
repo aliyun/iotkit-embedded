@@ -29,6 +29,9 @@
     #define DEBUG_LEVEL 2
 #endif
 
+#define httpc_malloc(size)            LITE_malloc(size, MEM_MAGIC, "httpc")
+#define httpc_free                    LITE_free
+
 static int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len);
 static int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len, char *host,
                                 uint32_t maxhost_len, int *port, char *path, uint32_t max_path_len);
@@ -224,23 +227,52 @@ extern int iotx_guider_get_region(void);
 int httpclient_send_header(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
     char scheme[8] = { 0 };
-    char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
-    char path[HTTPCLIENT_MAX_URL_LEN] = { 0 };
     int len;
-    char send_buf[HTTPCLIENT_SEND_BUF_SIZE] = { 0 };
-    char buf[HTTPCLIENT_SEND_BUF_SIZE] = { 0 };
+    int ret = 0;
+
+    char *host = NULL;
+    char *path = NULL;
+    char *send_buf = NULL ;
+    char *buf = NULL;
+
+    host = httpc_malloc(HTTPCLIENT_MAX_HOST_LEN);
+    if (host == NULL) {
+        ret = ERROR_NO_ENOUGH_MEM;
+        goto err;
+    }
+    path = httpc_malloc(HTTPCLIENT_MAX_URL_LEN);
+    if (path == NULL) {
+        ret = ERROR_NO_ENOUGH_MEM;
+        goto err;
+    }
+    send_buf = httpc_malloc(HTTPCLIENT_SEND_BUF_SIZE);
+    if (send_buf == NULL) {
+        ret = ERROR_NO_ENOUGH_MEM;
+        goto err;
+    }
+    buf = httpc_malloc(HTTPCLIENT_SEND_BUF_SIZE);
+    if (buf == NULL) {
+        ret = ERROR_NO_ENOUGH_MEM;
+        goto err;
+    }
+    memset(host, 0, HTTPCLIENT_MAX_HOST_LEN);
+    memset(path, 0, HTTPCLIENT_MAX_URL_LEN);
+    memset(send_buf, 0, HTTPCLIENT_SEND_BUF_SIZE);
+    memset(buf, 0, HTTPCLIENT_SEND_BUF_SIZE);
+
+
     char *meth = (method == HTTPCLIENT_GET) ? "GET" : (method == HTTPCLIENT_POST) ? "POST" :
                  (method == HTTPCLIENT_PUT) ? "PUT" : (method == HTTPCLIENT_DELETE) ? "DELETE" :
                  (method == HTTPCLIENT_HEAD) ? "HEAD" : "";
-    int ret;
     int port;
 
     /* First we need to parse the url (http[s]://host[:port][/[path]]) */
     /* int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &(client->remote_port), path, sizeof(path)); */
-    int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &port, path, sizeof(path));
-    if (res != SUCCESS_RETURN) {
-        utils_err("httpclient_parse_url fail returned %d", res);
-        return res;
+    ret = httpclient_parse_url(url, scheme, sizeof(scheme), host, HTTPCLIENT_MAX_HOST_LEN, &port, path,
+                               HTTPCLIENT_MAX_URL_LEN);
+    if (ret != SUCCESS_RETURN) {
+        utils_err("httpclient_parse_url fail returned %d", ret);
+        goto err;
     }
 
     /* if (client->remote_port == 0) */
@@ -252,25 +284,23 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     }
     /* } */
 
-    /* Send request */
-    memset(send_buf, 0, HTTPCLIENT_SEND_BUF_SIZE);
     len = 0; /* Reset send buffer */
 
 #ifdef ON_PRE
     if (1 == iotx_guider_get_region()) {
         utils_warning("hacking HTTP auth requeset for singapore+pre-online to 'iot-auth.ap-southeast-1.aliyuncs.com'");
-        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path,
+        HAL_Snprintf(buf, HTTPCLIENT_SEND_BUF_SIZE, "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path,
                      "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
     } else {
-        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
+        HAL_Snprintf(buf, HTTPCLIENT_SEND_BUF_SIZE, "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
     }
 #else
-    HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
+    HAL_Snprintf(buf, HTTPCLIENT_SEND_BUF_SIZE, "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
 #endif
     ret = httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
     if (ret) {
         utils_err("Could not write request");
-        return ERROR_HTTP_CONN;
+        goto err;
     }
 
     /* Send all headers */
@@ -284,18 +314,17 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     }
 
     if (client_data->post_buf != NULL) {
-        HAL_Snprintf(buf, sizeof(buf), "Content-Length: %d\r\n", client_data->post_buf_len);
+        HAL_Snprintf(buf, HTTPCLIENT_SEND_BUF_SIZE, "Content-Length: %d\r\n", client_data->post_buf_len);
         httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
 
         if (client_data->post_content_type != NULL) {
-            HAL_Snprintf(buf, sizeof(buf), "Content-Type: %s\r\n", client_data->post_content_type);
+            HAL_Snprintf(buf, HTTPCLIENT_SEND_BUF_SIZE, "Content-Type: %s\r\n", client_data->post_content_type);
             httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
         }
     }
 
     /* Close headers */
     httpclient_get_info(client, send_buf, &len, "\r\n", 0);
-
     log_multi_line(LOG_DEBUG_LEVEL, "REQUEST", "%s", send_buf, ">");
 
     /* ret = httpclient_tcp_send_all(client->net.handle, send_buf, len); */
@@ -304,13 +333,29 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
         utils_debug("Written %d bytes", ret);
     } else if (ret == 0) {
         utils_err("ret == 0,Connection was closed by server");
-        return ERROR_HTTP_CLOSED; /* Connection was closed by server */
+        ret = ERROR_HTTP_CLOSED;/* Connection was closed by server */
+        goto err;
     } else {
         utils_err("Connection error (send returned %d)", ret);
-        return ERROR_HTTP_CONN;
+        ret = ERROR_HTTP_CONN;
+        goto err;
     }
-
-    return SUCCESS_RETURN;
+    ret = SUCCESS_RETURN;
+err:
+    utils_err("err = %d", ret);
+    if (host != NULL) {
+        httpc_free(host);
+    }
+    if (path != NULL) {
+        httpc_free(path);
+    }
+    if (send_buf != NULL) {
+        httpc_free(send_buf);
+    }
+    if (buf != NULL) {
+        httpc_free(buf);
+    }
+    return ret;
 }
 
 int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_data)
@@ -333,7 +378,6 @@ int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_dat
             }
         }
     }
-
     return SUCCESS_RETURN;
 }
 
@@ -746,15 +790,21 @@ int httpclient_send_request(httpclient_t *client, const char *url, HTTPCLIENT_RE
 int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclient_data_t *client_data)
 {
     int reclen = 0, ret = ERROR_HTTP_CONN;
-    char buf[HTTPCLIENT_CHUNK_SIZE] = { 0 };
     iotx_time_t timer;
+    char *buf = httpc_malloc(HTTPCLIENT_CHUNK_SIZE);
+    if (buf == NULL) {
+        ret = ERROR_NO_ENOUGH_MEM;
+        goto err;
+    }
 
+    memset(buf, 0, HTTPCLIENT_CHUNK_SIZE);
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
 
     if (0 == client->net.handle) {
         utils_err("not connection have been established");
-        return ret;
+        ret = ERROR_HTTP_CONN;
+        goto err;
     }
 
     if (client_data->is_more) {
@@ -765,7 +815,7 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
         /* try to read header */
         ret = httpclient_recv(client, buf, 1, HTTPCLIENT_RAED_HEAD_SIZE, &reclen, iotx_time_left(&timer));
         if (ret != 0) {
-            return ret;
+            goto err;
         }
 
         buf[reclen] = '\0';
@@ -775,7 +825,12 @@ int httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclie
             ret = httpclient_response_parse(client, buf, reclen, iotx_time_left(&timer), client_data);
         }
     }
-
+    ret = SUCCESS_RETURN;
+err:
+    utils_err("err = %d", ret);
+    if (buf != NULL) {
+        httpc_free(buf);
+    }
     return ret;
 }
 
