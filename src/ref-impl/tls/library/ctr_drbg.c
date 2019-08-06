@@ -279,7 +279,8 @@ int mbedtls_ctr_drbg_reseed( mbedtls_ctr_drbg_context *ctx,
     size_t seedlen = 0;
 
     if( ctx->entropy_len > MBEDTLS_CTR_DRBG_MAX_SEED_INPUT ||
-        len > MBEDTLS_CTR_DRBG_MAX_SEED_INPUT - ctx->entropy_len )
+        len > MBEDTLS_CTR_DRBG_MAX_SEED_INPUT - ctx->entropy_len ||
+        len < 0)
         return( MBEDTLS_ERR_CTR_DRBG_INPUT_TOO_BIG );
 
     memset( seed, 0, MBEDTLS_CTR_DRBG_MAX_SEED_INPUT );
