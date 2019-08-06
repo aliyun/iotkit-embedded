@@ -199,7 +199,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #ifdef MQTT_PRE_AUTH /* preauth mode through https */
     ret = _iotx_preauth(region, &meta_info, (iotx_pre_auth_output_t *)&g_default_sign); /* type convert */
     if (ret < SUCCESS_RETURN) {
-        iotx_state_event(ITE_STATE_MQTT_COMM, res, "invalid device secret");
+        iotx_state_event(ITE_STATE_MQTT_COMM, ret, "invalid device secret");
         mqtt_err("ret = _iotx_preauth() = %d, abort", ret);
         return NULL;
     }
