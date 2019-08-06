@@ -1779,9 +1779,8 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     }
 
     /* clear ping mark when any data received from MQTT broker */
-    HAL_MutexLock(c->lock_generic);
     c->keepalive_probes = 0;
-    HAL_MutexUnlock(c->lock_generic);
+
     HAL_MutexLock(c->lock_read_buf);
     switch (packetType) {
         case CONNACK: {
@@ -2233,7 +2232,6 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
     pClient->buf_size_send_max = pInitParams->write_buf_size;
     pClient->buf_size_read_max = pInitParams->read_buf_size;
 #endif
-
     pClient->keepalive_probes = 0;
 
     pClient->handle_event.h_fp = pInitParams->handle_event.h_fp;
@@ -2676,7 +2674,9 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
         mqtt_err("wait connect ACK timeout, or receive a ACK indicating error!");
         return MQTT_CONNECT_ERROR;
     }
+
     pClient->keepalive_probes = 0;
+
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
 
     utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
@@ -2929,9 +2929,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
     mqtt_info("send MQTT ping...");
 
-    HAL_MutexLock(pClient->lock_generic);
     pClient->keepalive_probes++;
-    HAL_MutexUnlock(pClient->lock_generic);
 
     return SUCCESS_RETURN;
 }
