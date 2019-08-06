@@ -75,7 +75,7 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
     value_len = value_len > ITEM_MAX_VAL_LEN ? ITEM_MAX_VAL_LEN : value_len;
     i = hash_gen(key);
     kv_err("hash i= %d", i);
-    read_size = ITEM_MAX_LEN * TABLE_ROW_SIZE;
+    read_size = ITEM_MAX_LEN * TABLE_ROW_SIZE + 1;
     kv = malloc(read_size);
     if (kv == NULL) {
         kv_err("malloc kv err");
@@ -139,7 +139,7 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
 
     i = hash_gen(key);
 
-    read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
+    read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE + 1;
     kv = malloc(read_size);
     if (kv == NULL) {
         kv_err("malloc kv err");
@@ -185,7 +185,7 @@ static int hash_table_rm(kv_file_t *file,  const  char *key)
         return -1;
     }
     i = hash_gen(key) % TABLE_COL_SIZE;
-    read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
+    read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE + 1;
     kv = malloc(read_size);
     if (kv == NULL) {
         return -1;
