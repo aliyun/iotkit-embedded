@@ -60,8 +60,6 @@ static void iotx_mqtt_report_funcs(void *pclient)
 
 #ifdef DYNAMIC_REGISTER
 #include "dynreg_api.h"
-int HAL_SetDeviceSecret(char *device_secret);
-int HAL_GetProductSecret(char *product_secret);
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
 int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 
@@ -70,7 +68,7 @@ int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 
 static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta_info)
 {
-    char device_secret_kv[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
     int device_secret_len = IOTX_DEVICE_SECRET_LEN;
     char kv_key[IOTX_DEVICE_NAME_LEN + DYNAMIC_REG_KV_PREFIX_LEN] = DYNAMIC_REG_KV_PREFIX;
     int res = FAIL_RETURN;
@@ -78,15 +76,10 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
     memcpy(kv_key + strlen(kv_key), meta_info->device_name, strlen(meta_info->device_name));
 
     /* Check if Device Secret exist in KV */
-    if (HAL_Kv_Get(kv_key, device_secret_kv, &device_secret_len) == 0) {
-        mqtt_info("Get DeviceSecret from KV succeed");
-
-        *(device_secret_kv + device_secret_len) = 0;
-        HAL_SetDeviceSecret(device_secret_kv);
-        memset(meta_info->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
-        memcpy(meta_info->device_secret, device_secret_kv, strlen(device_secret_kv));
-    } else {
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, device_secret);
+    if (strlen(device_secret) == 0) {
         char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
+        void *callback = NULL;
 
         /* KV not exit, goto dynamic register */
         mqtt_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
@@ -103,7 +96,11 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
             return FAIL_RETURN;
         }
 
-        HAL_SetDeviceSecret(meta_info->device_secret);
+        IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, meta_info->device_secret);
+        callback = iotx_event_callback(ITE_DYNREG_DEVICE_SECRET);
+        if (callback) {
+            ((int (*)(const char *))callback)(meta_info->device_secret);
+        }
     }
 
     return SUCCESS_RETURN;
@@ -168,8 +165,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     /* get meta_info from hal */
     memset(&meta_info, 0, sizeof(iotx_dev_meta_info_t));
-    HAL_GetProductKey(meta_info.product_key);
-    HAL_GetDeviceName(meta_info.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, meta_info.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, meta_info.device_name);
 
     if (meta_info.product_key[0] == '\0' || meta_info.product_key[IOTX_PRODUCT_KEY_LEN] != '\0') {
         mqtt_err("Invalid product key, abort!");
@@ -182,7 +179,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
 #ifdef DYNAMIC_REGISTER /* get device secret through https dynamic register */
     if (dynamic) {
-        HAL_GetProductSecret(meta_info.product_secret);
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, meta_info.product_secret);
         if (meta_info.product_secret[0] == '\0' || meta_info.product_secret[IOTX_PRODUCT_SECRET_LEN] != '\0') {
             mqtt_err("Product Secret doesn't exist");
             return NULL;
@@ -194,14 +191,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             return NULL;
         }
     } else {
-        HAL_GetDeviceSecret(meta_info.device_secret);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, meta_info.device_secret);
         if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
             mqtt_err("Invalid device secret, abort!");
             return NULL;
         }
     }
 #else /* get device secret from hal */
-    HAL_GetDeviceSecret(meta_info.device_secret);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, meta_info.device_secret);
     if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
         mqtt_err("Invalid device secret, abort!");
         return NULL;

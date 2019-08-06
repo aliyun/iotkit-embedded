@@ -233,8 +233,8 @@ int iotx_alcs_adapter_deinit(void)
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
 
     HAL_MutexLock(adapter->mutex);
     _iotx_alcs_adapter_send_list_destroy(adapter);
@@ -292,14 +292,14 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
     }
     adapter->coap_ctx = coap_ctx;
 
-    res = HAL_GetProductKey(product_key);
+    res = IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
     if (res <= 0 || res > IOTX_PRODUCT_KEY_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Product Key Failed");
         return FAIL_RETURN;
     }
 
-    res = HAL_GetDeviceName(device_name);
+    res = IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
     if (res <= 0 || res > IOTX_DEVICE_NAME_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Device Name Failed");
@@ -490,14 +490,14 @@ int iotx_alcs_cloud_init(void *handle)
         return FAIL_RETURN;
     }
 
-    res = HAL_GetProductKey(product_key);
+    res = IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
     if (res <= 0 || res > IOTX_PRODUCT_KEY_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Product Key Failed");
         return FAIL_RETURN;
     }
 
-    res = HAL_GetDeviceName(device_name);
+    res = IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
     if (res <= 0 || res > IOTX_DEVICE_NAME_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Device Name Failed");

@@ -154,7 +154,7 @@ static int awss_dev_ap_setup()
         char pk[OS_PRODUCT_KEY_LEN + 1] = {0};
         char mac_str[OS_MAC_LEN + 1] = {0};
 
-        HAL_GetProductKey(pk);
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, pk);
         os_wifi_get_mac_str(mac_str);
         memmove(mac_str + 11, mac_str + 12, 2);
         memmove(mac_str + 13, mac_str + 15, 2);

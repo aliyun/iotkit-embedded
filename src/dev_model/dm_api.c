@@ -302,8 +302,8 @@ int iotx_dm_subscribe_user_topic(char *topic, void *user_callback)
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     int res = 0;
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
 
     res = dm_utils_service_name((char *)DM_URI_SYS_PREFIX, topic,
                                 product_key, device_name, &uri);

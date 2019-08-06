@@ -131,30 +131,6 @@ HAL_MutexUnlock:
  * @note None.
  */
 
-HAL_GetProductKey:
-/**
- * @brief Get product key from user's system persistent storage
- *
- * @param [ou] product_key: array to store product key, max length is IOTX_PRODUCT_KEY_LEN
- * @return  the actual length of product key
- */
-
-HAL_GetDeviceName:
-/**
- * @brief Get device name from user's system persistent storage
- *
- * @param [ou] device_name: array to store device name, max length is IOTX_DEVICE_NAME_LEN
- * @return the actual length of device name
- */
-
-HAL_GetDeviceSecret:
-/**
- * @brief Get device secret from user's system persistent storage
- *
- * @param [ou] device_secret: array to store device secret, max length is IOTX_DEVICE_SECRET_LEN
- * @return the actual length of device secret
- */
-
 HAL_GetFirmwareVersion:
 /**
  * @brief Get firmware version

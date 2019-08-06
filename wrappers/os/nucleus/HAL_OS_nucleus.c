@@ -60,22 +60,7 @@ void HAL_Free(void *ptr)
     kal_adm_free(hal_heap_adm_id, ptr);
 }
 
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN])
-{
-    return (int)1;
-}
-
 int HAL_GetFirmwareVersion(char *version)
-{
-    return (int)1;
-}
-
-int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN])
-{
-    return (int)1;
-}
-
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN])
 {
     return (int)1;
 }

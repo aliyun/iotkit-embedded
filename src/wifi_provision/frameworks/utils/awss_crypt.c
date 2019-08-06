@@ -76,7 +76,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
         case SEC_LVL_AES128_PRODUCT:
         {
             char product_sec[OS_PRODUCT_SECRET_LEN + 1] = {0};
-            HAL_GetProductSecret(product_sec);
+            IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECERT, product_sec);
             cal_passwd(product_sec, random, key);
             memcpy(iv, random, sizeof(random));
             break;
@@ -84,7 +84,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
         case SEC_LVL_AES128_DEVICE:
         {
             char dev_sec[OS_DEVICE_SECRET_LEN + 1] = {0};
-            HAL_GetDeviceSecret(dev_sec);
+            IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, dev_sec);
             cal_passwd(dev_sec, random, key);
             memcpy(iv, random, sizeof(random));
             break;

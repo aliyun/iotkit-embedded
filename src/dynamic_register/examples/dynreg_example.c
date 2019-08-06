@@ -6,6 +6,11 @@
 #include "dynreg_api.h"
 #include "wrappers.h"
 
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1ZETBPbycq";
+char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "L68wCVXYUaNg1Ey9";
+char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "";
+
 int main(int argc, char *argv[])
 {
     int32_t res = 0;
@@ -15,9 +20,9 @@ int main(int argc, char *argv[])
     HAL_Printf("dynreg example\n");
 
     memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
-    HAL_GetProductKey(meta.product_key);
-    HAL_GetProductSecret(meta.product_secret);
-    HAL_GetDeviceName(meta.device_name);
+    memcpy(meta.product_key, g_product_key, strlen(g_product_key));
+    memcpy(meta.product_secret, g_product_secret, strlen(g_product_secret));
+    memcpy(meta.device_name, g_device_name, strlen(g_device_name));
 
     res = IOT_Dynamic_Register(region, &meta);
     if (res < 0) {

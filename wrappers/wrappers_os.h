@@ -56,22 +56,6 @@ int HAL_Timer_Stop(void *timer);
 
 int HAL_Timer_Delete(void *timer);
 
-int HAL_SetProductKey(char *product_key);
-
-int HAL_SetDeviceName(char *device_name);
-
-int HAL_SetProductSecret(char *product_secret);
-
-int HAL_SetDeviceSecret(char *device_secret);
-
-int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1]);
-
-int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1]);
-
-int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1]);
-
-int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1]);
-
 int HAL_GetFirmwareVersion(char *version);
 
 void HAL_Firmware_Persistence_Start(void);

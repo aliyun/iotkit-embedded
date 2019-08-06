@@ -28,8 +28,8 @@ static void *awss_get_dev_info(void *dev_info, int len)
         return NULL;
     }
 
-    HAL_GetProductKey(pk);
-    HAL_GetDeviceName(dev_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, pk);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, dev_name);
     os_wifi_get_mac_str(mac_str);
     HAL_Wifi_Get_IP(ip_str, NULL);
 #if 0
@@ -83,9 +83,9 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
                 uint8_t sign[DEV_SIGN_SIZE + 1] = {0};
 
                 if (bind_get_encrypt_type() == 3) { /* aes-key per product */
-                    HAL_GetProductSecret(key);
+                    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECERT, key);
                 } else { /* aes-key per device */
-                    HAL_GetDeviceSecret(key);
+                    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, key);
                 }
                 awss_build_sign_src(txt, &txt_len);
                 produce_signature(sign, (uint8_t *)txt, txt_len, key);
@@ -119,8 +119,8 @@ char *awss_build_sign_src(char *sign_src, int *sign_src_len)
         goto build_sign_src_err;
     }
 
-    HAL_GetProductKey(pk);
-    HAL_GetDeviceName(dev_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, pk);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, dev_name);
 
     pk_len = strlen(pk);
     dev_name_len = strlen(dev_name);
@@ -159,8 +159,8 @@ const char *awss_build_topic(const char *topic_fmt, char *topic, uint32_t tlen)
         return NULL;
     }
 
-    HAL_GetProductKey(pk);
-    HAL_GetDeviceName(dev_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, pk);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, dev_name);
 
     HAL_Snprintf(topic, tlen - 1, topic_fmt, pk, dev_name);
 

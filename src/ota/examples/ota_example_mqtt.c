@@ -12,10 +12,10 @@
 #include "ota_api.h"
 #include "wrappers.h"
 
-char g_product_key[IOTX_PRODUCT_KEY_LEN + 1];
-char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1];
-char g_device_name[IOTX_DEVICE_NAME_LEN + 1];
-char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1];
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
+char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
 
 #define OTA_MQTT_MSGLEN         (2048)
 
@@ -128,9 +128,9 @@ static int _ota_mqtt_client(void)
     }
 
     /**< get device info*/
-    HAL_GetProductKey(g_product_key);
-    HAL_GetDeviceName(g_device_name);
-    HAL_GetDeviceSecret(g_device_secret);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, g_device_secret);
     /**< end*/
 
     /* Device AUTH */

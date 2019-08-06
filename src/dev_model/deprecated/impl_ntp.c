@@ -134,8 +134,8 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
         char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
         char dn[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-        HAL_GetProductKey(pk);
-        HAL_GetDeviceName(dn);
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, pk);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, dn);
 
         topic = (char *)IMPL_NTP_MALLOC(topic_len + 1);
         if (topic == NULL) {

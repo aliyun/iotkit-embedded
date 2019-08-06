@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "infra_compat.h"
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_string.h"
@@ -107,8 +108,8 @@ int iotx_report_devinfo(void *pclient)
         return -1;
     }
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
     VERSION_DEBUG("devinfo report");
 
     /* devinfo update topic name */
@@ -174,8 +175,8 @@ int iotx_report_firmware_version(void *pclient)
         return -1;
     }
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
 
     ret = HAL_GetFirmwareVersion(version);
     if (ret <= 0) {

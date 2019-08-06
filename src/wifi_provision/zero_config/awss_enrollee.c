@@ -54,10 +54,10 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
         return;
     }
 
-    HAL_GetProductKey(pk);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, pk);
     pk_len = strlen(pk);
 
-    HAL_GetDeviceName(dev_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, dev_name);
     dev_name_len = strlen(dev_name);
 
     len = RANDOM_MAX_LEN + dev_name_len + pk_len;
@@ -66,9 +66,9 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     awss_build_sign_src(text, &len);
 
     if (awss_get_encrypt_type() == 3) { /* aes-key per product */
-        HAL_GetProductSecret(key);
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECERT, key);
     } else { /* aes-key per device */
-        HAL_GetDeviceSecret(key);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, key);
     }
     produce_signature(sign, (uint8_t *)text, len, key);
 

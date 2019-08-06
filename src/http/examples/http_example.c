@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "infra_compat.h"
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_httpc.h"
@@ -70,9 +71,9 @@ static int http_upload_test()
     void                   *handle = NULL;
     memset(&http_param, 0, sizeof(http_param));
 
-    HAL_SetProductKey((char *)IOTX_PRODUCT_KEY);
-    HAL_SetDeviceName((char *)IOTX_DEVICE_NAME);
-    HAL_SetDeviceSecret((char *)IOTX_DEVICE_SECRET);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, (char *)IOTX_PRODUCT_KEY);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, (char *)IOTX_DEVICE_NAME);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, (char *)IOTX_DEVICE_SECRET);
 
     strncpy(device_info.product_key,  IOTX_PRODUCT_KEY, IOTX_PRODUCT_KEY_LEN);
     strncpy(device_info.device_secret, IOTX_DEVICE_SECRET, IOTX_DEVICE_SECRET_LEN);

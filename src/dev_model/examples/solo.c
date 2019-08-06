@@ -767,10 +767,10 @@ int linkkit_example()
 
 void set_iotx_info()
 {
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, PRODUCT_KEY);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_SECRET, PRODUCT_SECRET);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, DEVICE_NAME);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, DEVICE_SECRET);
 }
 
 int main(int argc, char *argv[])

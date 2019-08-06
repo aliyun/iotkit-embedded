@@ -31,8 +31,8 @@ int dm_ota_init(void)
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
     memset(ctx, 0, sizeof(dm_ota_ctx_t));
 
-    HAL_GetProductKey(ctx->product_key);
-    HAL_GetDeviceName(ctx->device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, ctx->product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, ctx->device_name);
 
     return SUCCESS_RETURN;
 }

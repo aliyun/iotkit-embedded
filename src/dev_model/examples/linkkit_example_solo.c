@@ -27,6 +27,10 @@
     #include "at_api.h"
 #endif
 
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
+char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
 
 #define EXAMPLE_TRACE(...)                                          \
     do {                                                            \
@@ -66,18 +70,6 @@ typedef struct {
     int cloud_connected;
     int master_initialized;
 } user_example_ctx_t;
-
-/**
- * These PRODUCT_KEY|PRODUCT_SECRET|DEVICE_NAME|DEVICE_SECRET are listed for demo only
- *
- * When you created your own devices on iot.console.com, you SHOULD replace them with what you got from console
- *
- */
-
-char PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-char PRODUCT_SECRET[IOTX_PRODUCT_SECRET_LEN + 1] = {0};
-char DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
-char DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
 static user_example_ctx_t g_user_example_ctx;
 
@@ -293,6 +285,12 @@ static int user_cloud_error_handler(const int code, const char *data, const char
     return 0;
 }
 
+static int dynreg_device_secret(const char *device_secret)
+{
+    EXAMPLE_TRACE("device secret: %s", device_secret);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int res = 0;
@@ -315,15 +313,11 @@ int main(int argc, char **argv)
     }
     memset(&g_user_example_ctx, 0, sizeof(user_example_ctx_t));
 
-    HAL_GetProductKey(PRODUCT_KEY);
-    HAL_GetProductSecret(PRODUCT_SECRET);
-    HAL_GetDeviceName(DEVICE_NAME);
-    HAL_GetDeviceSecret(DEVICE_SECRET);
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
-    memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
-    memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
-    memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
-    memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
+    memcpy(master_meta_info.product_key, g_product_key, strlen(g_product_key));
+    memcpy(master_meta_info.product_secret, g_product_secret, strlen(g_product_secret));
+    memcpy(master_meta_info.device_name, g_device_name, strlen(g_device_name));
+    memcpy(master_meta_info.device_secret, g_device_secret, strlen(g_device_secret));
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
@@ -360,6 +354,7 @@ int main(int argc, char **argv)
     IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
     IOT_RegisterCallback(ITE_CLOUD_ERROR, user_cloud_error_handler);
+    IOT_RegisterCallback(ITE_DYNREG_DEVICE_SECRET, dynreg_device_secret);
 
     domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);

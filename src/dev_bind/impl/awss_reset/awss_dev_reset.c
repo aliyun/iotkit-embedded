@@ -89,8 +89,8 @@ int awss_report_reset_to_cloud()
         char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
         char dn[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-        HAL_GetProductKey(pk);
-        HAL_GetDeviceName(dn);
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, pk);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, dn);
 
         topic = (char *)devrst_malloc(topic_len + 1);
         if (topic == NULL) {

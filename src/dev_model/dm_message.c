@@ -2013,8 +2013,8 @@ int dm_msg_cloud_reconnect(void)
     char product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
 
     /* Send To User */
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);

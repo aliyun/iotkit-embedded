@@ -115,6 +115,7 @@ typedef enum {
     ITE_COTA,
     ITE_MQTT_CONNECT_SUCC,
     ITE_CLOUD_ERROR,
+    ITE_DYNREG_DEVICE_SECRET,
     ITE_STATE_EVERYTHING,
     ITE_STATE_USER_INPUT,
     ITE_STATE_SYS_DEPEND,
@@ -155,7 +156,8 @@ DECLARE_EVENT_CALLBACK(ITE_FOTA,                 int (*cb)(const int, const char
 DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char *, int, const char *, const char *,
                        const char *, const char *))
 DECLARE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*cb)(void))
-DECLARE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*callback)(const int, const char *, const char *))
+DECLARE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*cb)(const int, const char *, const char *))
+DECLARE_EVENT_CALLBACK(ITE_DYNREG_DEVICE_SECRET, int (*cb)(const char *))
 
 typedef int (*state_handler_t)(const int state_code, const char * state_message);
 DECLARE_EVENT_CALLBACK(ITE_STATE_EVERYTHING, state_handler_t cb);

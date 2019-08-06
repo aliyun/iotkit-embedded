@@ -1,14 +1,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include "infra_compat.h"
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
 #include "wrappers.h"
 #include "cJSON.h"
 
-char DEMO_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-char DEMO_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1] = {0};
-char DEMO_DEVICE_SECRET[IOTX_DEVICE_SECRET_LEN + 1] = {0};
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
+char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
 
 #define TASK_STATUS_IN_PROCESS "IN_PROGRESS"
 #define TASK_STATUS_SUCCEEDED  "SUCCEEDED"
@@ -36,14 +38,14 @@ int example_task_update(void *handle, char *task_id, char *status, uint8_t progr
     cJSON          *root = NULL, *params = NULL;
 
     /* prepare topic */
-    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
+    topic_len = strlen(fmt) + strlen(g_product_key) + strlen(g_device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
         EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
-    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
+    HAL_Snprintf(topic, topic_len, fmt, g_product_key, g_device_name);
 
     /* prepare payload */
     root = cJSON_CreateObject();
@@ -168,14 +170,14 @@ int example_task_subscribe(void *handle)
     char *topic = NULL;
     int topic_len = 0;
 
-    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
+    topic_len = strlen(fmt) + strlen(g_product_key) + strlen(g_device_name) + 1;
     topic = HAL_Malloc(topic_len);
     if (topic == NULL) {
         EXAMPLE_TRACE("memory not enough");
         return -1;
     }
     memset(topic, 0, topic_len);
-    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
+    HAL_Snprintf(topic, topic_len, fmt, g_product_key, g_device_name);
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_task_notify, NULL);
     if (res < 0) {
@@ -212,9 +214,9 @@ int main(int argc, char *argv[])
     int                     loop_cnt = 0;
     iotx_mqtt_param_t       mqtt_params;
 
-    HAL_GetProductKey(DEMO_PRODUCT_KEY);
-    HAL_GetDeviceName(DEMO_DEVICE_NAME);
-    HAL_GetDeviceSecret(DEMO_DEVICE_SECRET);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, g_device_secret);
 
     EXAMPLE_TRACE("mqtt example");
 

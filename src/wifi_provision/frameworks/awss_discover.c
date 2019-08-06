@@ -267,7 +267,7 @@ static int aws_discover_send(uint8_t ftype, uint8_t dst[6])
     memset(&ap, 0, sizeof(simulate_ap_t));
 
     os_wifi_get_mac(ap.bssid);
-    HAL_GetProductKey(_product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, _product_key);
     strcpy(ssid, "adn");
     ssid_len = 3;
     strncpy(ssid + ssid_len, _product_key, IOTX_PRODUCT_KEY_LEN);

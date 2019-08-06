@@ -174,8 +174,8 @@ int dm_mgr_init(void)
     INIT_LIST_HEAD(&ctx->dev_list);
 
     /* Local Node */
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
     res = _dm_mgr_insert_dev(IOTX_DM_LOCAL_NODE_DEVID, IOTX_DM_DEVICE_TYPE, product_key, device_name);
     if (res != SUCCESS_RETURN) {
         goto ERROR;
@@ -622,8 +622,8 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_SYS_PREFIX;
     request.service_name = DM_URI_THING_SUB_REGISTER;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_thing_sub_register(node->product_key, node->device_name, &request);
@@ -671,8 +671,8 @@ int dm_mgr_upstream_thing_proxy_product_register(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_SYS_PREFIX;
     request.service_name = DM_URI_THING_PROXY_PRODUCT_REGISTER;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_thing_proxy_product_register(node->product_key, node->product_secret, node->device_name, &request);
@@ -720,8 +720,8 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_SYS_PREFIX;
     request.service_name = DM_URI_THING_SUB_UNREGISTER;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_thing_sub_unregister(node->product_key, node->device_name, &request);
@@ -769,8 +769,8 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_SYS_PREFIX;
     request.service_name = DM_URI_THING_TOPO_ADD;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_thing_topo_add(node->product_key, node->device_name, node->device_secret, &request);
@@ -818,8 +818,8 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_SYS_PREFIX;
     request.service_name = DM_URI_THING_TOPO_DELETE;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_thing_topo_delete(node->product_key, node->device_name, &request);
@@ -858,8 +858,8 @@ int dm_mgr_upstream_thing_topo_get(void)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_SYS_PREFIX;
     request.service_name = DM_URI_THING_TOPO_GET;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     res = _dm_mgr_search_dev_by_pkdn(request.product_key, request.device_name, &node);
     if (res != SUCCESS_RETURN) {
@@ -912,8 +912,8 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_SYS_PREFIX;
     request.service_name = DM_URI_THING_LIST_FOUND;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_thing_list_found(node->product_key, node->device_name, &request);
@@ -961,8 +961,8 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_EXT_SESSION_PREFIX;
     request.service_name = DM_URI_COMBINE_LOGIN;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_combine_login(node->product_key, node->device_name, node->device_secret, &request);
@@ -1014,8 +1014,8 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_EXT_SESSION_PREFIX;
     request.service_name = DM_URI_COMBINE_LOGOUT;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Get Params And Method */
     res = dm_msg_combine_logout(node->product_key, node->device_name, &request);
@@ -1494,8 +1494,8 @@ int dm_mgr_upstream_ntp_request(void)
     memset(&request, 0, sizeof(dm_msg_request_t));
     request.service_prefix = DM_URI_EXT_NTP_PREFIX;
     request.service_name = DM_URI_NTP_REQUEST;
-    HAL_GetProductKey(request.product_key);
-    HAL_GetDeviceName(request.device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, request.product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, request.device_name);
 
     /* Request URI */
     res = dm_utils_service_name(request.service_prefix, request.service_name,

@@ -133,6 +133,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_PRODUCT_KEY: {
             if ((data != NULL) && (strlen(data) <= IOTX_PRODUCT_KEY_LEN)) {
+                memset(ctx->product_key, 0, IOTX_PRODUCT_KEY_LEN + 1);
                 memcpy(ctx->product_key, data, strlen(data));
                 res = SUCCESS_RETURN;
             }else{
@@ -151,6 +152,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_PRODUCT_SECRET: {
             if ((data != NULL) && (strlen(data) <= IOTX_PRODUCT_SECRET_LEN)) {
+                memset(ctx->product_secret, 0, IOTX_PRODUCT_SECRET_LEN + 1);
                 memcpy(ctx->product_secret, data, strlen(data));
                 res = SUCCESS_RETURN;
             }else{
@@ -169,6 +171,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_DEVICE_NAME: {
             if ((data != NULL) && (strlen(data) <= IOTX_DEVICE_NAME_LEN)) {
+                memset(ctx->device_name, 0, IOTX_DEVICE_NAME_LEN + 1);
                 memcpy(ctx->device_name, data, strlen(data));
                 res = SUCCESS_RETURN;
             }else{
@@ -187,6 +190,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_DEVICE_SECRET: {
             if ((data != NULL) && (strlen(data) <= IOTX_DEVICE_SECRET_LEN)) {
+                memset(ctx->device_secret, 0, IOTX_DEVICE_SECRET_LEN + 1);
                 memcpy(ctx->device_secret, data, strlen(data));
                 res = SUCCESS_RETURN;
             }else{
@@ -360,6 +364,7 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_COTA,                 NULL},
     {ITE_MQTT_CONNECT_SUCC,    NULL},
     {ITE_CLOUD_ERROR,          NULL},
+    {ITE_DYNREG_DEVICE_SECRET, NULL},
     {ITE_STATE_EVERYTHING,     NULL},
     {ITE_STATE_USER_INPUT,     NULL},
     {ITE_STATE_SYS_DEPEND,     NULL},
@@ -408,6 +413,7 @@ DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const
                       const char *, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_CLOUD_ERROR,          int (*callback)(const int, const char *, const char *))
+DEFINE_EVENT_CALLBACK(ITE_DYNREG_DEVICE_SECRET, int (*callback)(const char *))
 
 int iotx_register_for_ITE_STATE_EVERYTHING(state_handler_t callback)
 {

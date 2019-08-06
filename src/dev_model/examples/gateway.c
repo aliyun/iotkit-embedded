@@ -19,10 +19,6 @@
 void HAL_Free(void *ptr);
 uint64_t HAL_UptimeMs(void);
 void HAL_SleepMs(uint32_t ms);
-int HAL_SetProductKey(char *product_key);
-int HAL_SetDeviceName(char *device_name);
-int HAL_SetProductSecret(char *product_secret);
-int HAL_SetDeviceSecret(char *device_secret);
 
 /* for demo only */
 #define PRODUCT_KEY      "a16UKrlKekO"
@@ -388,10 +384,10 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
 
 void set_iotx_info()
 {
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, PRODUCT_KEY);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_SECRET, PRODUCT_SECRET);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, DEVICE_NAME);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, DEVICE_SECRET);
 }
 
 int main(int argc, char **argv)

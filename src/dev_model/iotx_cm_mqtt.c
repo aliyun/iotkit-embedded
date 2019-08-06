@@ -223,9 +223,9 @@ static int  _mqtt_connect(uint32_t timeout)
         return NULL_VALUE_ERROR;
     }
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    HAL_GetDeviceSecret(device_secret);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, device_secret);
 
     if (strlen(product_key) == 0 || strlen(device_name) == 0) {
         return FAIL_RETURN;

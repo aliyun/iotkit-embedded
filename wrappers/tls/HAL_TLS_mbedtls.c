@@ -555,9 +555,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
         uint8_t sign_hex[32] = {0};
         char sign_string[65] = {0};
 
-        HAL_GetProductKey(product_key);
-        HAL_GetDeviceName(device_name);
-        HAL_GetDeviceSecret(device_secret);
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
+        IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, device_secret);
 
         /* psk identity length */
         psk_identity_len = strlen(auth_type) + strlen(sign_method) + strlen(product_key) + strlen(device_name) + strlen(

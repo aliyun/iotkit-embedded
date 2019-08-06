@@ -303,9 +303,9 @@ static int MALMQTTConnect(iotx_mc_client_t *pClient)
     char device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    HAL_GetDeviceSecret(device_secret);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, device_secret);
 
     if (0 != HAL_AT_MQTT_Connect(product_key, device_name, device_secret)) {
         return FAIL_RETURN;

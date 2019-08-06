@@ -9,6 +9,11 @@
     #include "at_api.h"
 #endif
 
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
+char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
+
 static char g_topic_name[CONFIG_MQTT_TOPIC_MAXLEN];
 
 #define EXAMPLE_TRACE(fmt, ...)  \
@@ -38,23 +43,18 @@ void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
 int example_subscribe(void *handle)
 {
     int res = 0;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
     const char *fmt = "/%s/%s/user/get";
     char *topic = NULL;
     int topic_len = 0;
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
+    topic_len = strlen(fmt) + strlen(g_product_key) + strlen(g_device_name) + 1;
     if (topic_len > CONFIG_MQTT_TOPIC_MAXLEN) {
         HAL_Printf("topic too long\n");
         return -1;
     }
     topic = g_topic_name;
     memset(topic, 0, CONFIG_MQTT_TOPIC_MAXLEN);
-    HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
+    HAL_Snprintf(topic, topic_len, fmt, g_product_key, g_device_name);
 
     res = IOT_MQTT_Subscribe(handle, topic, IOTX_MQTT_QOS0, example_message_arrive, NULL);
     if (res < 0) {
@@ -69,24 +69,19 @@ int example_publish(void *handle)
 {
     int res = 0;
     iotx_mqtt_topic_info_t topic_msg;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
     const char *fmt = "/%s/%s/user/get";
     char *topic = NULL;
     int topic_len = 0;
     char *payload = "hello,world";
 
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    topic_len = strlen(fmt) + strlen(product_key) + strlen(device_name) + 1;
+    topic_len = strlen(fmt) + strlen(g_product_key) + strlen(g_device_name) + 1;
     if (topic_len > CONFIG_MQTT_TOPIC_MAXLEN) {
         HAL_Printf("topic too long\n");
         return -1;
     }
     topic = g_topic_name;
     memset(topic, 0, CONFIG_MQTT_TOPIC_MAXLEN);
-    HAL_Snprintf(topic, topic_len, fmt, product_key, device_name);
+    HAL_Snprintf(topic, topic_len, fmt, g_product_key, g_device_name);
 
 
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
@@ -142,10 +137,13 @@ int main(int argc, char *argv[])
 #endif
     HAL_Printf("mqtt example\n");
 
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key); 
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
+
     memset(&meta, 0, sizeof(iotx_dev_meta_info_t));
-    HAL_GetProductKey(meta.product_key);
-    HAL_GetDeviceName(meta.device_name);
-    HAL_GetDeviceSecret(meta.device_secret);
+    memcpy(meta.product_key, g_product_key, strlen(g_product_key));
+    memcpy(meta.device_name, g_device_name, strlen(g_device_name));
+    memcpy(meta.device_secret, g_device_secret, strlen(g_device_secret));
 
     memset(&sign_mqtt, 0x0, sizeof(iotx_sign_mqtt_t));
 

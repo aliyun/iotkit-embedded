@@ -203,63 +203,12 @@ int HAL_GetDeviceID(_OU_ char device_id[IOTX_DEVICE_ID_LEN + 1])
     return strlen(device_id);
 }
 
-int HAL_GetDeviceName(_OU_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
-{
-    HAL_Snprintf(device_name, IOTX_DEVICE_NAME_LEN + 1, "%s", _device_name);
-    return strlen(device_name);
-}
-
-int HAL_SetDeviceName(_IN_ char device_name[IOTX_DEVICE_NAME_LEN + 1])
-{
-    HAL_Snprintf(_device_name, IOTX_DEVICE_NAME_LEN + 1, "%s", device_name);
-    return strlen(_device_name);
-}
-
-int HAL_GetDeviceSecret(_OU_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
-{
-    HAL_Snprintf(device_secret, IOTX_DEVICE_SECRET_LEN + 1, "%s", _device_secret);
-    return strlen(device_secret);
-}
-
-int HAL_SetDeviceSecret(_IN_ char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
-{
-    HAL_Snprintf(_device_secret, IOTX_DEVICE_SECRET_LEN + 1, "%s", device_secret);
-    return strlen(_device_secret);
-}
-
 int HAL_GetFirmwareVersion(_OU_ char version[IOTX_FIRMWARE_VER_LEN + 1])
 {
     memset(version, 0x0, IOTX_FIRMWARE_VER_LEN + 1);
     strncpy(version, "1.0", IOTX_FIRMWARE_VER_LEN + 1);
     version[IOTX_FIRMWARE_VER_LEN] = '\0';
     return strlen(version);
-}
-
-int HAL_GetProductKey(_OU_ char product_key[IOTX_PRODUCT_KEY_LEN + 1])
-{
-    HAL_Snprintf(product_key, IOTX_PRODUCT_KEY_LEN + 1, "%s", _product_key);
-    return strlen(product_key);
-}
-
-int HAL_SetProductKey(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1])
-{
-    strncpy(_product_key, product_key, IOTX_PRODUCT_KEY_LEN);
-    _product_key[IOTX_PRODUCT_KEY_LEN]  = '\0';
-    return strlen(_product_key);
-}
-
-int HAL_GetProductSecret(_OU_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
-{
-    memset(product_secret, 0, IOTX_PRODUCT_SECRET_LEN + 1);
-    HAL_Snprintf(product_secret, IOTX_PRODUCT_SECRET_LEN + 1, "%s", _product_secret);
-    return strlen(product_secret);
-}
-
-int HAL_SetProductSecret(_IN_ char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
-{
-    strncpy(_product_secret, product_secret, IOTX_PRODUCT_SECRET_LEN + 1 - 1);
-    _product_secret[IOTX_PRODUCT_SECRET_LEN] = '\0';
-    return strlen(_product_secret);
 }
 
 int HAL_Awss_Get_Conn_Encrypt_Type()

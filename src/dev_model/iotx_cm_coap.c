@@ -136,9 +136,9 @@ static int iotx_set_devinfo(iotx_coap_device_info_t *p_devinfo)
     memset(p_devinfo, 0x00, sizeof(iotx_coap_device_info_t));
 
     /**< get device info*/
-    HAL_GetProductKey(p_devinfo->product_key);
-    HAL_GetDeviceName(p_devinfo->device_name);
-    HAL_GetDeviceSecret(p_devinfo->device_secret);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, p_devinfo->product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, p_devinfo->device_name);
+    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, p_devinfo->device_secret);
     HAL_Snprintf(p_devinfo->device_id, IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 2, "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
     p_devinfo->device_id[IOTX_PRODUCT_KEY_LEN + IOTX_DEVICE_NAME_LEN + 1] = '\0';
     /**< end*/
@@ -162,7 +162,7 @@ static int  _coap_connect(uint32_t timeout)
         return NULL_VALUE_ERROR;
     }
 
-    HAL_GetProductKey(product_key);
+    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
     config = _coap_conncection->open_params;
     if (config == NULL) {
         return NULL_VALUE_ERROR;

@@ -236,9 +236,9 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     p_devinfo = pInitParams->device_info;
 
     /*
-        HAL_SetProductKey(p_devinfo->product_key);
-        HAL_SetDeviceName(p_devinfo->device_name);
-        HAL_SetDeviceSecret(p_devinfo->device_secret);
+        IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, p_devinfo->product_key);
+        IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, p_devinfo->device_name);
+        IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, p_devinfo->device_secret);
     */
 
     iotx_http_context = (iotx_http_t *)HTTP_API_MALLOC(sizeof(iotx_http_t));

@@ -49,8 +49,12 @@ int main(int argc, char *argv[])
     memset(&mqtt_params, 0, sizeof(iotx_mqtt_param_t));
     memset(&meta_info, 0, sizeof(iotx_dev_meta_info_t));
 
-    HAL_GetProductKey(meta_info.product_key);
-    HAL_GetDeviceName(meta_info.device_name);
+    IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, g_device_secret); 
+
+    memcpy(meta_info.product_key, g_product_key, strlen(g_product_key));
+    memcpy(meta_info.device_name, g_device_name, strlen(g_device_name));
 
     mqtt_params.handle_event.h_fp = example_event_handle;
 
