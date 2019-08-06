@@ -331,6 +331,7 @@ static int mbedtls_net_connect_timeout_backup(mbedtls_net_context *ctx, const ch
     uint32_t uint_port = 0;
     char *ip[DNS_RESULT_COUNT] = {0};
 
+    memset(&address, 0, sizeof(struct sockaddr_in));
     utils_str2uint((char *)port, strlen(port), &uint_port);
 
     if ((ret = net_prepare()) != 0) {

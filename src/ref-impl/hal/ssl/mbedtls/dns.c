@@ -45,11 +45,7 @@ static int dns_domain_check(char *domain) {
         }
     }
 
-    if (strlen(domain) >= 16) {
-        return -1;
-    }
-
-    return -2;
+    return -1;
 }
 
 static void dns_uint2str(uint8_t *input, char *output)
@@ -199,17 +195,20 @@ int dns_resolve(char dns[16], char *domain, char *ip[DNS_RESULT_COUNT])
 
     res = dns_domain_check(domain);
     if (res < 0) {
-        if (res == -2) {
-            memset(g_dns_ip_list, 0, DNS_RESULT_COUNT * 16);
-            memcpy(g_dns_ip_list[0], domain, strlen(domain));
-            ip[0] = g_dns_ip_list[0];
-            return 0;
-        }else{
+        if (strlen(domain) >= 16) {
             return -1;
         }
+        memset(g_dns_ip_list, 0, DNS_RESULT_COUNT * 16);
+        memcpy(g_dns_ip_list[0], domain, strlen(domain));
+        ip[0] = g_dns_ip_list[0];
+        return 0;
     }
 
     sock_fd = socket(AF_INET , SOCK_DGRAM , IPPROTO_UDP);
+    if (sock_fd < 0) {
+        perror("dns socket: ");
+        return -1;
+    }
 
     dest.sin_family = AF_INET;
 	dest.sin_port = htons(53);
