@@ -32,7 +32,7 @@ enum _GOT_RESULT_ {
     GOT_SSID_PASSWD = 2,
 };
 
-#define MCAST_MAX_LEN (127)
+#define MCAST_MAX_LEN (126)
 struct mcast_smartconfig_data_type {
 /* result, final result */
 uint8_t tlen;

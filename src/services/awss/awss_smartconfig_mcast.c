@@ -385,7 +385,8 @@ int awss_recv_callback_mcast_smartconfig(struct parser_res *res)
         return FAILURE_RETURN;
     }
 
-    if (index > MCAST_MAX_LEN) {
+    /* index + 1 should be <= MCAST_MAX_LEN -1 */
+    if (index > MCAST_MAX_LEN - 2) {
 #ifdef VERBOSE_MCAST_DEBUG
         awss_trace("error index\n");
 #endif
