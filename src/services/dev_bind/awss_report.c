@@ -103,6 +103,7 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     }
 
     awss_debug("%s\r\n", __func__);
+    iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_REPORT_TOKEN_SUCCESS, NULL);
     awss_report_token_suc = 1;
     HAL_MutexLock(awss_token_mutex);
     awss_stop_timer(report_token_timer);
@@ -289,12 +290,13 @@ static int awss_report_token_to_cloud()
 {
 #define REPORT_TOKEN_PARAM_LEN  (64)
     if (awss_report_token_suc) { // success ,no need to report
-        return 0;
+        iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_ALREADY_RESET, NULL);
+        return STATE_BIND_ALREADY_RESET;
     }
     if (NULL == awss_token_mutex) {
         awss_token_mutex = HAL_MutexCreate();
         if (awss_token_mutex == NULL) {
-            return -1;
+            return STATE_SYS_DEPEND_MUTEX_CREATE;
         }
     }
 
@@ -306,7 +308,8 @@ static int awss_report_token_to_cloud()
         awss_stop_timer(report_token_timer);
         report_token_timer = NULL;
         HAL_MutexUnlock(awss_token_mutex);
-        return -2;
+        iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_REPORT_TOKEN_TIMEOUT, NULL);
+        return STATE_BIND_REPORT_TOKEN_TIMEOUT;
     }
 
     if (report_token_timer == NULL) {
@@ -319,7 +322,7 @@ static int awss_report_token_to_cloud()
 
     char *packet = os_zalloc(packet_len + 1);
     if (packet == NULL) {
-        return -1;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     do {
@@ -344,6 +347,7 @@ static int awss_report_token_to_cloud()
         utils_hex_to_str(aes_random, RANDOM_MAX_LEN, token_str, sizeof(token_str) - 1);
         snprintf(param, REPORT_TOKEN_PARAM_LEN - 1, "{\"token\":\"%s\"}", token_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_MATCH_REPORT, param, 0, packet, &packet_len);
+        iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_REPORT_TOKEN, token_str);
     } while (0);
 
     awss_debug("report token:%s\r\n", packet);

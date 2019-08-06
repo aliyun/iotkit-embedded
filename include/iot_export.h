@@ -276,6 +276,7 @@ DLL_IOT_API int IOT_Ioctl(int option, void *data);
 #include "exports/iot_export_event.h"
 #include "exports/iot_export_http2.h"
 #include "exports/iot_export_http2_stream.h"
+#include "exports/iot_export_state.h"
 
 #if defined(__cplusplus)
 }

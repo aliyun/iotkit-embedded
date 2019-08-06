@@ -126,10 +126,11 @@ int awss_cmp_coap_register_cb(char *topic, void *cb)
     }
 
     if (g_coap_ctx == NULL) {
-        return -1;
+        iotx_state_event(ITE_STATE_DEV_BIND, STATE_BIND_COAP_INIT_FAIL, NULL);
+        return STATE_BIND_COAP_INIT_FAIL;
     }
     if (topic == NULL) {
-        return -1;
+        return STATE_USER_INPUT_NULL_POINTER;
     }
 
     CoAPServer_register(g_coap_ctx, (const char *)topic, (CoAPRecvMsgHandler)cb);
@@ -139,7 +140,7 @@ int awss_cmp_coap_register_cb(char *topic, void *cb)
 int awss_cmp_coap_cancel_packet(uint16_t msgid)
 {
     if (g_coap_ctx == NULL) {
-        return -1;
+        return STATE_USER_INPUT_NULL_POINTER;
     }
     return CoAPMessageId_cancel(g_coap_ctx, msgid);
 }
