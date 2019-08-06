@@ -6,6 +6,7 @@
 #include "infra_report.h"
 #include "infra_sha256.h"
 #include "infra_compat.h"
+#include "infra_state.h"
 #include "mqtt_wrapper.h"
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
@@ -52,8 +53,7 @@ static void iotx_mqtt_report_funcs(void *pclient)
     int err;
     iotx_set_report_func(IOT_MQTT_Publish_Simple);
     err = iotx_report_firmware_version(pclient);
-    if (SUCCESS_RETURN != err) {
-        mqtt_err("failed to report firmware version");
+    if (err < STATE_SUCCESS) {
     }
 #endif
 }
@@ -69,7 +69,6 @@ int HAL_Kv_Get(const char *key, void *val, int *buffer_len);
 static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_info_t *meta_info)
 {
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    int device_secret_len = IOTX_DEVICE_SECRET_LEN;
     char kv_key[IOTX_DEVICE_NAME_LEN + DYNAMIC_REG_KV_PREFIX_LEN] = DYNAMIC_REG_KV_PREFIX;
     int res = FAIL_RETURN;
 
@@ -85,15 +84,8 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
         mqtt_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
 
         res = IOT_Dynamic_Register(region, meta_info);
-        if (res != SUCCESS_RETURN) {
-            mqtt_err("Dynamic Register Failed");
-            return FAIL_RETURN;
-        }
-
-        device_secret_len = strlen(meta_info->device_secret);
-        if (HAL_Kv_Set(kv_key, meta_info->device_secret, device_secret_len, 1) != 0) {
-            mqtt_err("Save Device Secret to KV Failed");
-            return FAIL_RETURN;
+        if (res < SUCCESS_RETURN) {
+            return res;
         }
 
         IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, meta_info->device_secret);
@@ -103,7 +95,7 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
         }
     }
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 #endif /* #ifdef DYNAMIC_REGISTER */
 
@@ -153,7 +145,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     void *callback;
 
     if (g_mqtt_client != NULL) {
-        mqtt_err("Already exist default MQTT connection, won't proceed another one");
         return g_mqtt_client;
     }
 
@@ -169,11 +160,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, meta_info.device_name);
 
     if (meta_info.product_key[0] == '\0' || meta_info.product_key[IOTX_PRODUCT_KEY_LEN] != '\0') {
-        mqtt_err("Invalid product key, abort!");
+        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_PK, "invalid product key");
         return NULL;
     }
     if (meta_info.device_name[0] == '\0' || meta_info.device_name[IOTX_DEVICE_NAME_LEN] != '\0') {
-        mqtt_err("Invalid device name, abort!");
+        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_DN, "invalid device name");
         return NULL;
     }
 
@@ -181,26 +172,26 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (dynamic) {
         IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, meta_info.product_secret);
         if (meta_info.product_secret[0] == '\0' || meta_info.product_secret[IOTX_PRODUCT_SECRET_LEN] != '\0') {
-            mqtt_err("Product Secret doesn't exist");
+            iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_PS, "invalid product secret");
             return NULL;
         }
 
         ret = _iotx_dynamic_register(region, &meta_info);
         if (ret < SUCCESS_RETURN) {
-            mqtt_err("ret = _iotx_dynamic_register() = %d, abort", ret);
+            iotx_state_event(ITE_STATE_MQTT_COMM, ret, "dynamic register fail");
             return NULL;
         }
     } else {
         IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, meta_info.device_secret);
         if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
-            mqtt_err("Invalid device secret, abort!");
+            iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_DS, "invalid device secret");
             return NULL;
         }
     }
 #else /* get device secret from hal */
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, meta_info.device_secret);
     if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
-        mqtt_err("Invalid device secret, abort!");
+        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_DS, "invalid device secret");
         return NULL;
     }
 #endif /* #ifdef DYNAMIC_REGISTER */
@@ -208,13 +199,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #ifdef MQTT_PRE_AUTH /* preauth mode through https */
     ret = _iotx_preauth(region, &meta_info, (iotx_pre_auth_output_t *)&g_default_sign); /* type convert */
     if (ret < SUCCESS_RETURN) {
+        iotx_state_event(ITE_STATE_MQTT_COMM, res, "invalid device secret");
         mqtt_err("ret = _iotx_preauth() = %d, abort", ret);
         return NULL;
     }
 #else /* direct mode */
     ret = IOT_Sign_MQTT(region, &meta_info, &g_default_sign);
     if (ret < SUCCESS_RETURN) {
-        mqtt_err("ret = IOT_Sign_MQTT() = %d, abort", ret);
+        iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt sign fail");
         return NULL;
     }
 #endif /* #ifdef MQTT_PRE_AUTH */
@@ -233,8 +225,9 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         }
     }
 
-    if (_sign_get_clientid(g_default_sign.clientid, device_id,
-                           (pInitParams != NULL) ? pInitParams->customize_info : NULL, enalbe_itls) != SUCCESS_RETURN) {
+    ret = _sign_get_clientid(g_default_sign.clientid, device_id, (pInitParams != NULL) ? pInitParams->customize_info : NULL, enalbe_itls);
+    if (ret < STATE_SUCCESS) {
+        iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt sign fail");
         return NULL;
     }
 
@@ -364,14 +357,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     pclient = wrapper_mqtt_init(&mqtt_params);
     if (pclient == NULL) {
-        mqtt_err("wrapper_mqtt_init error");
+        iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_WRAPPER_INIT_FAIL, "mqtt wrapper init fail");
         return NULL;
     }
 
     ret = wrapper_mqtt_connect(pclient);
-    if (SUCCESS_RETURN != ret) {
+    if (ret < STATE_SUCCESS) {
         if (MQTT_CONNECT_BLOCK != ret) {
-            mqtt_err("wrapper_mqtt_connect failed");
+            iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt wrapper connect fail");
             wrapper_mqtt_release(&pclient);
             return NULL;
         }
@@ -403,14 +396,13 @@ int IOT_MQTT_Destroy(void **phandler)
     }
 
     if (client == NULL) {
-        mqtt_err("handler is null");
-        return NULL_VALUE_ERROR;
+        return STATE_USER_INPUT_INVALID;
     }
 
     wrapper_mqtt_release(&client);
     g_mqtt_client = NULL;
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 int IOT_MQTT_Yield(void *handle, int timeout_ms)
@@ -424,8 +416,7 @@ int IOT_MQTT_CheckStateNormal(void *handle)
 {
     void *pClient = (handle ? handle : g_mqtt_client);
     if (pClient == NULL) {
-        mqtt_err("handler is null");
-        return NULL_VALUE_ERROR;
+        return STATE_USER_INPUT_INVALID;
     }
 
     return wrapper_mqtt_check_state(pClient);
@@ -440,8 +431,7 @@ int IOT_MQTT_Subscribe(void *handle,
     void *client = handle ? handle : g_mqtt_client;
 
     if (topic_filter == NULL || strlen(topic_filter) == 0 || topic_handle_func == NULL) {
-        mqtt_err("params err");
-        return NULL_VALUE_ERROR;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (qos > IOTX_MQTT_QOS3_SUB_LOCAL) {
@@ -469,8 +459,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
     }
 
     if (topic_filter == NULL || strlen(topic_filter) == 0 || topic_handle_func == NULL) {
-        mqtt_err("params err");
-        return NULL_VALUE_ERROR;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (qos > IOTX_MQTT_QOS3_SUB_LOCAL) {
@@ -489,8 +478,7 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter)
 
 
     if (client == NULL || topic_filter == NULL || strlen(topic_filter) == 0) {
-        mqtt_err("params err");
-        return NULL_VALUE_ERROR;
+        return STATE_USER_INPUT_INVALID;
     }
 
     return wrapper_mqtt_unsubscribe(client, topic_filter);
@@ -503,7 +491,7 @@ int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_
 
     if (client == NULL || topic_name == NULL || strlen(topic_name) == 0) {
         mqtt_err("params err");
-        return NULL_VALUE_ERROR;
+        return STATE_USER_INPUT_INVALID;
     }
 
     rc = wrapper_mqtt_publish(client, topic_name, topic_msg);
@@ -514,11 +502,9 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
 {
     iotx_mqtt_topic_info_t mqtt_msg;
     void *client = handle ? handle : g_mqtt_client;
-    int rc = -1;
 
     if (client == NULL || topic_name == NULL || strlen(topic_name) == 0) {
-        mqtt_err("params err");
-        return NULL_VALUE_ERROR;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&mqtt_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
@@ -529,14 +515,7 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
     mqtt_msg.payload     = (void *)data;
     mqtt_msg.payload_len = len;
 
-    rc = wrapper_mqtt_publish(client, topic_name, &mqtt_msg);
-
-    if (rc < 0) {
-        mqtt_err("IOT_MQTT_Publish failed\n");
-        return -1;
-    }
-
-    return rc;
+    return wrapper_mqtt_publish(client, topic_name, &mqtt_msg);
 }
 
 int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_mqtt_nwk_param_t *param)
@@ -553,8 +532,7 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
     rc = wrapper_mqtt_nwk_event_handler(client, event, param);
 
     if (rc < 0) {
-        mqtt_err("IOT_MQTT_Nwk_Event_Handler failed\n");
-        return -1;
+        return rc;
     }
 
     switch (event) {
@@ -569,6 +547,6 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
 
     return rc;
 #else
-    return -1;
+    return STATE_MQTT_EVENT_HANDLE_NOT_SUPPORT;
 #endif
 }

@@ -93,6 +93,12 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
     EXAMPLE_TRACE("msg->event_type : %d", msg->event_type);
 }
 
+int everything_state_handle(const int state_code, const char * state_message)
+{
+    EXAMPLE_TRACE("code: -0x%04x, message: %s", -state_code, state_message);
+    return 0;
+}
+
 /*
  *  NOTE: About demo topic of /${productKey}/${deviceName}/user/get
  *
@@ -115,7 +121,9 @@ int main(int argc, char *argv[])
 
     IOT_Ioctl(IOTX_IOCTL_SET_PRODUCT_KEY, g_product_key);
     IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_NAME, g_device_name);
-    IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, g_device_secret);
+    IOT_Ioctl(IOTX_IOCTL_SET_DEVICE_SECRET, g_device_secret);
+
+    IOT_RegisterCallback(ITE_STATE_EVERYTHING, everything_state_handle);
 
     EXAMPLE_TRACE("mqtt example");
 

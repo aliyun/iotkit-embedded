@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "infra_state.h"
 #include "infra_defs.h"
 #include "infra_config.h"
 #include "infra_sha256.h"
@@ -76,7 +77,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
     uint8_t i;
 
     if (clientid_string == NULL || device_id == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(clientid_string, 0, DEV_SIGN_CLIENT_ID_MAXLEN);
@@ -92,7 +93,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
     for (i = 0; i < (sizeof(clientid_kv) / (sizeof(clientid_kv[0]))); i++) {
         if ((strlen(clientid_string) + strlen(clientid_kv[i][0]) + strlen(clientid_kv[i][1]) + 2) >=
             DEV_SIGN_CLIENT_ID_MAXLEN) {
-            return FAIL_RETURN;
+            return STATE_MQTT_SIGN_CLIENTID_TOO_SHORT;
         }
 
         memcpy(clientid_string + strlen(clientid_string), clientid_kv[i][0], strlen(clientid_kv[i][0]));
@@ -103,7 +104,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
 
     if (custom_kv != NULL) {
         if ((strlen(clientid_string) + strlen(custom_kv) + 1) >= DEV_SIGN_CLIENT_ID_MAXLEN) {
-            return FAIL_RETURN;
+            return STATE_MQTT_SIGN_CLIENTID_TOO_SHORT;
         }
         memcpy(clientid_string + strlen(clientid_string), custom_kv, strlen(custom_kv));
         memcpy(clientid_string + strlen(clientid_string), ",", 1);
@@ -111,7 +112,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
 
     memcpy(clientid_string + strlen(clientid_string) - 1, "|", 1);
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 #define SIGN_FMT_LEN  50  /*  "clientId%sdeviceName%sproductKey%stimestamp%s";*/
@@ -125,7 +126,7 @@ int _iotx_generate_sign_string(const char *device_id, const char *device_name, c
     signsource_len = SIGN_FMT_LEN + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(
                                  TIMESTAMP_VALUE);
     if (signsource_len >= DEV_SIGN_SOURCE_MAXLEN) {
-        return ERROR_DEV_SIGN_SOURCE_TOO_SHORT;
+        return STATE_MQTT_SIGN_SOURCE_TOO_SHORT;
     }
 
     memset(signsource, 0, DEV_SIGN_SOURCE_MAXLEN);
@@ -143,7 +144,7 @@ int _iotx_generate_sign_string(const char *device_id, const char *device_name, c
 
     _hex2str(sign_hex, 32, sign_string);
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *meta, iotx_sign_mqtt_t *signout)
@@ -153,7 +154,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     int res;
 
     if (region >= IOTX_MQTT_DOMAIN_NUMBER || meta == NULL) {
-        return -1;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(signout, 0, sizeof(iotx_sign_mqtt_t));
@@ -163,27 +164,27 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     memcpy(device_id + strlen(device_id), meta->device_name, strlen(meta->device_name));
 
     /* setup clientid */
-    if (_sign_get_clientid(signout->clientid, device_id, NULL, 0) != SUCCESS_RETURN) {
-        return ERROR_DEV_SIGN_CLIENT_ID_TOO_SHORT;
+    if (_sign_get_clientid(signout->clientid, device_id, NULL, 0) < STATE_SUCCESS) {
+        return STATE_MQTT_SIGN_CLIENTID_TOO_SHORT;
     }
 
     /* setup password */
     memset(signout->password, 0, DEV_SIGN_PASSWORD_MAXLEN);
     res = _iotx_generate_sign_string(device_id, meta->device_name, meta->product_key, meta->device_secret,
                                      signout->password);
-    if (res < SUCCESS_RETURN) {
+    if (res < STATE_SUCCESS) {
         return res;
     }
 
     /* setup hostname */
     if (IOTX_CLOUD_REGION_CUSTOM == region) {
         if (g_infra_mqtt_domain[region] == NULL) {
-            return ERROR_DEV_SIGN_CUSTOM_DOMAIN_IS_NULL;
+            return STATE_MQTT_INVALID_DOMAIN;
         }
 
         length = strlen(g_infra_mqtt_domain[region]) + 1;
         if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
-            return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
+            return STATE_MQTT_SIGN_HOSTNAME_TOO_SHORT;
         }
 
         memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
@@ -191,7 +192,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     } else {
         length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
         if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
-            return ERROR_DEV_SIGN_HOST_NAME_TOO_SHORT;
+            return STATE_MQTT_SIGN_HOSTNAME_TOO_SHORT;
         }
         memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
         memcpy(signout->hostname, meta->product_key, strlen(meta->product_key));
@@ -203,7 +204,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     /* setup username */
     length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
     if (length >= DEV_SIGN_USERNAME_MAXLEN) {
-        return ERROR_DEV_SIGN_USERNAME_TOO_SHORT;
+        return STATE_MQTT_SIGN_USERNAME_TOO_SHORT;
     }
     memset(signout->username, 0, DEV_SIGN_USERNAME_MAXLEN);
     memcpy(signout->username, meta->device_name, strlen(meta->device_name));
@@ -216,6 +217,6 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 #else
     signout->port = 1883;
 #endif /* #ifdef SUPPORT_TLS */
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 

@@ -7,6 +7,7 @@
 #ifdef INFRA_NET
 #include <stdio.h>
 #include <string.h>
+#include "infra_state.h"
 #include "infra_defs.h"
 #include "infra_net.h"
 #include "wrappers_defs.h"
@@ -27,8 +28,7 @@
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     return AT_SSL_Read((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
@@ -37,8 +37,7 @@ static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint3
 static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     return AT_SSL_Write((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
@@ -47,21 +46,19 @@ static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len
 static int disconnect_ssl(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     AT_SSL_Destroy((uintptr_t)pNetwork->handle);
     pNetwork->handle = 0;
 
-    return 0;
+    return STATE_SUCCESS;
 }
 
 static int connect_ssl(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return 1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     if (0 != (pNetwork->handle = (intptr_t)AT_SSL_Establish(
@@ -69,13 +66,13 @@ static int connect_ssl(utils_network_pt pNetwork)
             pNetwork->port,
             pNetwork->ca_crt,
             pNetwork->ca_crt_len + 1))) {
-        return 0;
+        return STATE_SUCCESS;
     }
     else {
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 }
 #else /* AT_SSL_ENABLED */
@@ -100,8 +97,7 @@ static void ssl_free(void *ptr)
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     return HAL_SSL_Read((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
@@ -110,8 +106,7 @@ static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint3
 static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     return HAL_SSL_Write((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
@@ -120,14 +115,13 @@ static int write_ssl(utils_network_pt pNetwork, const char *buffer, uint32_t len
 static int disconnect_ssl(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     HAL_SSL_Destroy((uintptr_t)pNetwork->handle);
     pNetwork->handle = 0;
 
-    return 0;
+    return STATE_SUCCESS;
 }
 
 static int connect_ssl(utils_network_pt pNetwork)
@@ -135,8 +129,7 @@ static int connect_ssl(utils_network_pt pNetwork)
     ssl_hooks_t ssl_hooks;
 
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return 1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
 #ifdef INFRA_MEM_STATS
@@ -154,13 +147,13 @@ static int connect_ssl(utils_network_pt pNetwork)
             pNetwork->port,
             pNetwork->ca_crt,
             pNetwork->ca_crt_len + 1))) {
-        return 0;
+        return STATE_SUCCESS;
     }
     else {
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 }
 #endif /* AT_SSL_ENABLED */
@@ -180,28 +173,26 @@ static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len
 static int disconnect_tcp(utils_network_pt pNetwork)
 {
     if (pNetwork->handle == (uintptr_t)(-1)) {
-        net_err("Network->handle = -1");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     AT_TCP_Destroy(pNetwork->handle);
     pNetwork->handle = (uintptr_t)(-1);
-    return 0;
+    return STATE_SUCCESS;
 }
 
 static int connect_tcp(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return 1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     pNetwork->handle = AT_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
     if (pNetwork->handle == (uintptr_t)(-1)) {
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
-    return 0;
+    return STATE_SUCCESS;
 }
 
 #else
@@ -220,28 +211,26 @@ static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len
 static int disconnect_tcp(utils_network_pt pNetwork)
 {
     if (pNetwork->handle == (uintptr_t)(-1)) {
-        net_err("Network->handle = -1");
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     HAL_TCP_Destroy(pNetwork->handle);
     pNetwork->handle = (uintptr_t)(-1);
-    return 0;
+    return STATE_SUCCESS;
 }
 
 static int connect_tcp(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
-        net_err("network is null");
-        return 1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
     pNetwork->handle = HAL_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
     if (pNetwork->handle == (uintptr_t)(-1)) {
-        return -1;
+        return STATE_SYS_DEPEND_NWK_INVALID_HANDLE;
     }
 
-    return 0;
+    return STATE_SUCCESS;
 }
 #endif  /* #ifdef SUPPORT_TLS */
 
@@ -297,8 +286,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
 int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {
     if (!pNetwork || !host) {
-        net_err("parameter error! pNetwork=%p, host = %p", pNetwork, host);
-        return -1;
+        return STATE_USER_INPUT_INVALID;
     }
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
@@ -316,7 +304,7 @@ int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, co
     pNetwork->disconnect = iotx_net_disconnect;
     pNetwork->connect = iotx_net_connect;
 
-    return 0;
+    return STATE_SUCCESS;
 }
 #endif
 

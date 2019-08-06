@@ -9,6 +9,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "infra_state.h"
+#include "infra_compat.h"
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_httpc.h"
@@ -63,13 +65,13 @@ static int _utils_parse_url(const char *url, char *host,
     char *fragment_ptr;
 
     if (host_ptr == NULL) {
-        return -1; /* URL is invalid */
+        return STATE_USER_INPUT_INVALID_HTTP_URL; /* URL is invalid */
     }
     host_ptr += 3;
 
     path_ptr = strchr(host_ptr, '/');
     if (NULL == path_ptr) {
-        return -2;
+        return STATE_USER_INPUT_INVALID_HTTP_PATH;
     }
 
     if (host_len == 0) {
@@ -88,7 +90,7 @@ static int _utils_parse_url(const char *url, char *host,
     memcpy(path, path_ptr, path_len);
     path[path_len] = '\0';
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int _utils_fill_tx_buffer(httpclient_t *client, char *send_buf, int *send_idx, char *buf,
@@ -121,7 +123,7 @@ static int _utils_fill_tx_buffer(httpclient_t *client, char *send_buf, int *send
     } while (len);
 
     *send_idx = idx;
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int _http_send_header(httpclient_t *client, const char *host, const char *path, int method,
@@ -144,7 +146,7 @@ static int _http_send_header(httpclient_t *client, const char *host, const char 
     ret = _utils_fill_tx_buffer(client, send_buf, &len, buf, strlen(buf));
     if (ret) {
         /* httpc_err("Could not write request"); */
-        return ERROR_HTTP_CONN;
+        return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 
     /* Add user header information */
@@ -173,10 +175,10 @@ static int _http_send_header(httpclient_t *client, const char *host, const char 
     ret = client->net.write(&client->net, send_buf, len, 5000);
     if (ret <= 0) {
         httpc_err("ret = client->net.write() = %d", ret);
-        return (ret == 0) ? ERROR_HTTP_CLOSED : ERROR_HTTP_CONN;
+        return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 int _http_send_userdata(httpclient_t *client, httpclient_data_t *client_data)
@@ -188,11 +190,11 @@ int _http_send_userdata(httpclient_t *client, httpclient_data_t *client_data)
         ret = client->net.write(&client->net, (char *)client_data->post_buf, client_data->post_buf_len, 5000);
         httpc_debug("client_data->post_buf: %s, ret is %d", client_data->post_buf, ret);
         if (ret <= 0) {
-            return (ret == 0) ? ERROR_HTTP_CLOSED : ERROR_HTTP_CONN; /* Connection was closed by server */
+            return STATE_SYS_DEPEND_NWK_CLOSE; /* Connection was closed by server */
         }
     }
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 /* 0 on success, err code on failure */
@@ -213,12 +215,12 @@ static int _http_recv(httpclient_t *client, char *buf, int max_len, int *p_read_
 
     if (ret > 0) {
         *p_read_len = ret;
-        return 0;
+        return STATE_SUCCESS;
     } else if (ret == 0) {
         /* timeout */
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_NWK_TIMEOUT;
     } else {
-        return ERROR_HTTP_CONN;
+        return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 }
 
@@ -237,22 +239,22 @@ static int _utils_check_deadloop(int len, iotx_time_t *timer, int ret, unsigned 
     }
 
     /* if it falls into deadloop before reconnected to internet, we just quit*/
-    if ((0 == len) && (0 == iotx_time_left(timer)) && (FAIL_RETURN == ret)) {
+    if ((0 == len) && (0 == iotx_time_left(timer)) && (STATE_SUCCESS > ret)) {
         (*dead_loop_count)++;
         if (*dead_loop_count > MAX_RETRY_COUNT) {
             httpc_err("deadloop detected, exit");
-            return ERROR_HTTP_CONN;
+            return STATE_SYS_DEPEND_NWK_CLOSE;
         }
     } else {
         *dead_loop_count = 0;
     }
 
     /*if the internet connection is fixed during the loop, the download stream might be disconnected. we have to quit */
-    if ((0 == len) && (*extend_count > 2 * MAX_RETRY_COUNT) && (FAIL_RETURN == ret)) {
+    if ((0 == len) && (*extend_count > 2 * MAX_RETRY_COUNT) && (STATE_SUCCESS > ret)) {
         httpc_err("extend timer for too many times, exit");
-        return ERROR_HTTP_CONN;
+        return STATE_SYS_DEPEND_NWK_CLOSE;
     }
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int _utils_fill_rx_buf(int *recv_count, int len_to_write_to_respons_buf, httpclient_data_t *client_data,
@@ -265,12 +267,12 @@ static int _utils_fill_rx_buf(int *recv_count, int len_to_write_to_respons_buf, 
         client_data->response_buf[count] = '\0';
         client_data->retrieve_len -= len_to_write_to_respons_buf;
         *recv_count = count;
-        return SUCCESS_RETURN;
+        return STATE_SUCCESS;
     } else {
         memcpy(client_data->response_buf + count, data, client_data->response_buf_len - 1 - count);
         client_data->response_buf[client_data->response_buf_len - 1] = '\0';
         client_data->retrieve_len -= (client_data->response_buf_len - 1 - count);
-        return HTTP_RETRIEVE_MORE_DATA;
+        return STATE_USER_INPUT_INVALID_HTTP_RECV_MOREDATA;
     }
 }
 
@@ -294,7 +296,7 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
         /* can not enter this if */
         /* TODO check the way to go into this branch */
         httpc_err("header is not received yet");
-        return ERROR_HTTP_CONN;
+        return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 
     while (1) {
@@ -306,7 +308,7 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
             len_to_write_to_respons_buf = HTTPCLIENT_MIN(data_len_actually_received, client_data->retrieve_len);
             res = _utils_fill_rx_buf(&written_response_buf_len, len_to_write_to_respons_buf, client_data, data);
             if (HTTP_RETRIEVE_MORE_DATA == res) {
-                return HTTP_RETRIEVE_MORE_DATA;
+                return STATE_USER_INPUT_INVALID_HTTP_RECV_MOREDATA;
             }
 
             /* get data from internet and put into "data" buf temporary */
@@ -335,7 +337,7 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
         break;
     }
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int _http_parse_response_header(httpclient_t *client, char *data, int len, uint32_t timeout_ms,
@@ -391,8 +393,7 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
         client_data->response_content_len = atoi(tmp_ptr + strlen("Content-Length: "));
         client_data->retrieve_len = client_data->response_content_len;
     } else {
-        httpc_err("Could not parse header");
-        return ERROR_HTTP;
+        return STATE_USER_INPUT_INVALID_HTTP_MISSING_CONTENT_LENGTH;
     }
 
     /* remove header length */
@@ -428,7 +429,7 @@ int httpclient_connect(httpclient_t *client)
         }
     } while (++retry_cnt <= retry_max);
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 int _http_send_request(httpclient_t *client, const char *host, const char *path, HTTPCLIENT_REQUEST_TYPE method,
@@ -437,7 +438,7 @@ int _http_send_request(httpclient_t *client, const char *host, const char *path,
     int ret = ERROR_HTTP_CONN;
 
     if (0 == client->net.handle) {
-        return -1;
+        return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 
     ret = _http_send_header(client, host, path, method, client_data);
@@ -511,8 +512,7 @@ static int _http_send(httpclient_t *client, const char *url, int port, const cha
 
     /* First we need to parse the url (http[s]://host[:port][/[path]]) */
     ret = _utils_parse_url(url, host, path);
-    if (ret != SUCCESS_RETURN) {
-        httpc_err("_utils_parse_url fail returned %d", ret);
+    if (ret != STATE_SUCCESS) {
         return ret;
     }
 
@@ -535,7 +535,7 @@ static int _http_send(httpclient_t *client, const char *url, int port, const cha
             return ret;
         }
     }
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt,
@@ -543,7 +543,7 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
 {
     iotx_time_t timer;
     int ret = _http_send(client, url, port, ca_crt, method, client_data);
-    if (SUCCESS_RETURN != ret) {
+    if (STATE_SUCCESS != ret) {
         httpclient_close(client);
         return ret;
     }
@@ -604,18 +604,19 @@ static int _replase_str(char **ptr, void *data)
     }
     *ptr = HAL_Malloc(strlen(data) + 1);
     if (*ptr == NULL) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*ptr, 0, strlen(data) + 1);
     memcpy(*ptr, data, strlen(data));
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 void *wrapper_http_init(void)
 {
     wrapper_http_handle_t *handle = HAL_Malloc(sizeof(wrapper_http_handle_t));
     if (handle == NULL) {
+        iotx_state_event(ITE_STATE_USER_INPUT, STATE_SYS_DEPEND_MALLOC, "malloc failed");
         return NULL;
     }
     memset(handle, 0, sizeof(wrapper_http_handle_t));
@@ -628,7 +629,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
     wrapper_http_handle_t *http_handle = (wrapper_http_handle_t *)handle;
 
     if (handle == NULL || data == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     switch (option) {
@@ -638,7 +639,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         break;
         case IOTX_HTTPOPT_PORT: {
             if (*(int *)(data) < 0) {
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID_HTTP_PORT;
             }
             http_handle->port = *(int *)(data);
         }
@@ -657,7 +658,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         break;
         case IOTX_HTTPOPT_TIMEOUT: {
             if (*(int *)(data) < 0) {
-                return FAIL_RETURN;
+                return STATE_USER_INPUT_INVALID_HTTP_TIMEOUT;
             }
             http_handle->timeout = *(int *)(data);
         }
@@ -676,11 +677,11 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         break;
         default: {
             httpc_err("Unknown Option");
-            return FAIL_RETURN;
+            return STATE_USER_INPUT_INVALID_HTTP_OPTION;
         }
     }
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 int wrapper_http_perform(void *handle, void *data, int length)
@@ -691,21 +692,21 @@ int wrapper_http_perform(void *handle, void *data, int length)
     char *response_payload = NULL;
 
     if (handle == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if ((http_handle->method == IOTX_HTTP_POST) &&
         (data == NULL || length <= 0)) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID_HTTP_POST_DATA;
     }
 
     if (http_handle->receive_maxlen <= 0) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     response_payload = HAL_Malloc(http_handle->receive_maxlen);
     if (response_payload == NULL) {
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(response_payload, 0, http_handle->receive_maxlen);
 
@@ -718,7 +719,7 @@ int wrapper_http_perform(void *handle, void *data, int length)
 
     res = _http_send(&http_handle->client, http_handle->url, http_handle->port,
                      http_handle->cert, (HTTPCLIENT_REQUEST_TYPE)http_handle->method, &http_handle->http_client_data);
-    if (SUCCESS_RETURN != res) {
+    if (res < STATE_SUCCESS) {
         HAL_Free(response_payload);
         return res;
     }
@@ -738,7 +739,7 @@ int wrapper_http_perform(void *handle, void *data, int length)
     http_handle->already_received = http_handle->http_client_data.response_content_len -
                                     http_handle->http_client_data.retrieve_len;
 
-    if (res >= SUCCESS_RETURN) {
+    if (res >= STATE_SUCCESS) {
         if (http_handle->recv_cb) {
             http_handle->recv_cb(response_payload, received_this_time, http_handle->http_client_data.response_content_len,
                                  http_handle->recv_ctx);

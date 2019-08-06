@@ -51,7 +51,7 @@ int _preauth_assemble_auth_req_string(const iotx_dev_meta_info_t *dev_meta, cons
     };
 
     if (dev_meta == NULL || sign == NULL || device_id == NULL || request_buff == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     kv[0][1] = dev_meta->product_key;
@@ -62,7 +62,7 @@ int _preauth_assemble_auth_req_string(const iotx_dev_meta_info_t *dev_meta, cons
     for (i = 0; i < (sizeof(kv) / (sizeof(kv[0]))); i++) {
         if ((strlen(request_buff) + strlen(kv[i][0]) + strlen(kv[i][1]) + 2) >=
             buff_len) {
-            return FAIL_RETURN;
+            return STATE_MQTT_PREAUTH_REQ_TOO_SHORT;
         }
 
         memcpy(request_buff + strlen(request_buff), kv[i][0], strlen(kv[i][0]));
@@ -72,7 +72,7 @@ int _preauth_assemble_auth_req_string(const iotx_dev_meta_info_t *dev_meta, cons
     }
 
     memset(request_buff + strlen(request_buff) - 1, '\0', 1);
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int _preauth_get_string_value(char *p_string, char *value_buff, uint32_t buff_len)
@@ -94,16 +94,16 @@ static int _preauth_get_string_value(char *p_string, char *value_buff, uint32_t 
     }
 
     if (p_start == NULL || p_end == NULL) {
-        return FAIL_RETURN;
+        return -1;
     }
 
     len = p_end - p_start;
     if (len > buff_len) {
-        return FAIL_RETURN;
+        return -1;
     }
 
     memcpy(value_buff, p_start, len);
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len, iotx_pre_auth_output_t *output)
@@ -118,7 +118,7 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
         while (*(++p) != ':') {
             if (p >= (json_string + string_len)) {
                 if (code != 200) {
-                    return FAIL_RETURN;
+                    return STATE_MQTT_PREAUTH_INVALID_RESP;
                 }
                 else {
                     return SUCCESS_RETURN;
@@ -140,29 +140,29 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
         }
 
         if (p_start == NULL || p_end == NULL) {
-            return FAIL_RETURN;
+            return STATE_MQTT_PREAUTH_INVALID_RESP;
         }
         len = p_end - p_start;
 
         if (strlen("code") == len && !memcmp(p_start, "code", len)) {
             infra_str2int(++p, &code);
             if (code != 200) {
-                return FAIL_RETURN;
+                return STATE_MQTT_PREAUTH_INVALID_RESP;
             }
         } else if (strlen("iotId") == len && !memcmp(p_start, "iotId", len)) {
             res = _preauth_get_string_value(p, output->username, PREAUTH_IOT_ID_MAXLEN);
             if (res < SUCCESS_RETURN) {
-                return res;
+                return STATE_MQTT_PREAUTH_INVALID_RESP;
             }
         } else if (strlen("iotToken") == len && !memcmp(p_start, "iotToken", len)) {
             res = _preauth_get_string_value(p, output->password, PREAUTH_IOT_TOKEN_MAXLEN);
             if (res < SUCCESS_RETURN) {
-                return res;
+                return STATE_MQTT_PREAUTH_INVALID_RESP;
             }
         } else if (strlen("host") == len && !memcmp(p_start, "host", len)) {
             res = _preauth_get_string_value(p, output->hostname, PREAUTH_IOT_HOST_MAXLEN);
             if (res < SUCCESS_RETURN) {
-                return res;
+                return STATE_MQTT_PREAUTH_INVALID_RESP;
             }
         } else if (strlen("port") == len && !memcmp(p_start, "port", len)) {
             int port_temp;
@@ -171,14 +171,14 @@ static int _preauth_parse_auth_rsp_string(char *json_string, uint32_t string_len
         }
     }
 
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int _preauth_recv_callback(char *ptr, int length, int total_length, void *userdata)
 {
     preauth_http_response_t *response = (preauth_http_response_t *)userdata;
     if (strlen(response->payload) + length > response->payload_len) {
-        return FAIL_RETURN;
+        return -1;
     }
     memcpy(response->payload + strlen(response->payload), ptr, length);
 
@@ -197,7 +197,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     int http_port = 80;
     char *pub_key = NULL;
 #endif
-    int res = FAIL_RETURN;
+    int res = -1;
     void *http_handle = NULL;
     iotx_http_method_t http_method = IOTX_HTTP_POST;
     int http_timeout_ms = CONFIG_GUIDER_AUTH_TIMEOUT;
@@ -209,7 +209,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     char response_buff[PREAUTH_HTTP_RSP_LEN] = {0};
 
     if (g_infra_http_domain[region] == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID_HTTP_DOMAIN;
     }
 
     memset(&response, 0, sizeof(preauth_http_response_t));
