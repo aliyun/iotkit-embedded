@@ -222,6 +222,11 @@ static int read_kv_item(const char *filename, void *buf, int location)
     struct stat st;
     int ret = 0;
     int offset;
+    if(filename == NULL || buf == NULL) {
+        kv_err("paras err");
+        return -1;
+    }
+
     int fd = open(filename, O_RDONLY);
 
     if (fd < 0) {
