@@ -233,7 +233,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     dynreg_info("Dynamic Register Code: %.*s", end - start + 1, &response_payload[start]);
 
     if (memcmp(&response_payload[start], "200", strlen("200")) != 0) {
-        iotx_state_event(STATE_HTTP_DYNREG_FAIL_RESP, &response_payload[start]);
+        iotx_state_event(ITE_STATE_HTTP_COMM, STATE_HTTP_DYNREG_FAIL_RESP, &response_payload[start]);
         return STATE_HTTP_DYNREG_FAIL_RESP;
     }
 
