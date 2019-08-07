@@ -127,6 +127,7 @@ echo -e "#define _INFRA_CONFIG_H_\n" >> ${INFRA_DIR}/infra_config.h
 echo "${MACRO_LIST}" | ${SED} -n 's/^/#define /p' >> ${INFRA_DIR}/infra_config.h
 echo -e "\n#endif" >> ${INFRA_DIR}/infra_config.h
 
+${FIND} ./src -name "infra_state.h" | ${XARGS} -i cp -f {} ${INFRA_DIR}
 ${FIND} ./src -name "infra_types.h" | ${XARGS} -i cp -f {} ${INFRA_DIR}
 ${FIND} ./src -name "infra_defs.[ch]" | ${XARGS} -i cp -f {} ${INFRA_DIR}
 ${FIND} ./src -name "infra_list.h" | ${XARGS} -i cp -f {} ${INFRA_DIR}
