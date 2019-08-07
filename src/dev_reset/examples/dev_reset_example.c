@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "infra_compat.h"
 #include "mqtt_api.h"
 #include "dev_reset_api.h"
 #include "wrappers.h"
@@ -13,6 +14,11 @@
 
 static int reset_mqtt_packet_id = 0;
 static int reset_reply_received = 0;
+
+char g_product_key[IOTX_PRODUCT_KEY_LEN + 1]       = "a1RIsMLz2BJ";
+char g_product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = "fSAF0hle6xL0oRWd";
+char g_device_name[IOTX_DEVICE_NAME_LEN + 1]       = "example1";
+char g_device_secret[IOTX_DEVICE_SECRET_LEN + 1]   = "RDXf67itLqZCwdMCRrw0N5FHbv5D7jrE";
 
 void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
