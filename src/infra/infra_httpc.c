@@ -272,7 +272,7 @@ static int _utils_fill_rx_buf(int *recv_count, int len_to_write_to_respons_buf, 
         memcpy(client_data->response_buf + count, data, client_data->response_buf_len - 1 - count);
         client_data->response_buf[client_data->response_buf_len - 1] = '\0';
         client_data->retrieve_len -= (client_data->response_buf_len - 1 - count);
-        return STATE_USER_INPUT_HTTP_RECV_MOREDATA;
+        return HTTP_RETRIEVE_MORE_DATA;
     }
 }
 
@@ -307,8 +307,8 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
             /* move previous fetched data into response_buf */
             len_to_write_to_respons_buf = HTTPCLIENT_MIN(data_len_actually_received, client_data->retrieve_len);
             res = _utils_fill_rx_buf(&written_response_buf_len, len_to_write_to_respons_buf, client_data, data);
-            if (STATE_USER_INPUT_HTTP_RECV_MOREDATA == res) {
-                return STATE_USER_INPUT_HTTP_RECV_MOREDATA;
+            if (HTTP_RETRIEVE_MORE_DATA == res) {
+                return HTTP_RETRIEVE_MORE_DATA;
             }
 
             /* get data from internet and put into "data" buf temporary */
