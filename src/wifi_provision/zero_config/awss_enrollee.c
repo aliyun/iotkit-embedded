@@ -66,7 +66,7 @@ void awss_init_enrollee_info(void) /* void enrollee_raw_frame_init(void) */
     awss_build_sign_src(text, &len);
 
     if (awss_get_encrypt_type() == 3) { /* aes-key per product */
-        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECERT, key);
+        IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, key);
     } else { /* aes-key per device */
         IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, key);
     }

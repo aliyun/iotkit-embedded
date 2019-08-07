@@ -10,6 +10,8 @@
 #include <string.h>
 #include <stddef.h>
 
+#include "infra_state.h"
+#include "infra_compat.h"
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "infra_string.h"

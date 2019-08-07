@@ -83,7 +83,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
                 uint8_t sign[DEV_SIGN_SIZE + 1] = {0};
 
                 if (bind_get_encrypt_type() == 3) { /* aes-key per product */
-                    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECERT, key);
+                    IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, key);
                 } else { /* aes-key per device */
                     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, key);
                 }
