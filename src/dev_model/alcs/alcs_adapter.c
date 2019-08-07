@@ -292,15 +292,21 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
     }
     adapter->coap_ctx = coap_ctx;
 
+    if (iotx_alcs_adapter_list_init(adapter) != SUCCESS_RETURN) {
+        iotx_alcs_adapter_deinit();
+        COAP_ERR("ALCS Linked List Init Failed");
+        return FAIL_RETURN;
+    }
+
     res = IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
-    if (res <= 0 || res > IOTX_PRODUCT_KEY_LEN + 1 - 1) {
+    if (res < 0 || res > IOTX_PRODUCT_KEY_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Product Key Failed");
         return FAIL_RETURN;
     }
 
     res = IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
-    if (res <= 0 || res > IOTX_DEVICE_NAME_LEN + 1 - 1) {
+    if (res < 0 || res > IOTX_DEVICE_NAME_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Device Name Failed");
         return FAIL_RETURN;
@@ -340,12 +346,6 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
         return FAIL_RETURN;
     }
     memcpy(adapter->alcs_event_handle, param->handle_event, sizeof(iotx_alcs_event_handle_t));
-
-    if (iotx_alcs_adapter_list_init(adapter) != SUCCESS_RETURN) {
-        iotx_alcs_adapter_deinit();
-        COAP_ERR("ALCS Linked List Init Failed");
-        return FAIL_RETURN;
-    }
 
     alcs_localsetup_init(adapter, coap_ctx, product_key, device_name);
 
@@ -491,14 +491,14 @@ int iotx_alcs_cloud_init(void *handle)
     }
 
     res = IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
-    if (res <= 0 || res > IOTX_PRODUCT_KEY_LEN + 1 - 1) {
+    if (res < 0 || res > IOTX_PRODUCT_KEY_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Product Key Failed");
         return FAIL_RETURN;
     }
 
     res = IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, device_name);
-    if (res <= 0 || res > IOTX_DEVICE_NAME_LEN + 1 - 1) {
+    if (res < 0 || res > IOTX_DEVICE_NAME_LEN + 1 - 1) {
         iotx_alcs_adapter_deinit();
         COAP_ERR("Get Device Name Failed");
         return FAIL_RETURN;
