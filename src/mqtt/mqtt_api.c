@@ -225,7 +225,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         }
     }
 
-    ret = _sign_get_clientid(g_default_sign.clientid, device_id, (pInitParams != NULL) ? pInitParams->customize_info : NULL, enalbe_itls);
+    ret = _sign_get_clientid(g_default_sign.clientid, device_id, (pInitParams != NULL) ? pInitParams->customize_info : NULL,
+                             enalbe_itls);
     if (ret < STATE_SUCCESS) {
         iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt sign fail");
         return NULL;
@@ -547,6 +548,6 @@ int IOT_MQTT_Nwk_Event_Handler(void *handle, iotx_mqtt_nwk_event_t event, iotx_m
 
     return rc;
 #else
-    return STATE_MQTT_EVENT_HANDLE_NOT_SUPPORT;
+    return STATE_MQTT_ASYNC_STACK_NOT_SUPPORT;
 #endif
 }

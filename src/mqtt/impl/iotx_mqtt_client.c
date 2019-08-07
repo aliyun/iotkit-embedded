@@ -569,7 +569,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
         int needReadLen;
 
-        iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_READ_BUFFER_TOO_SHORT, "");
+        iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_RX_BUFFER_TOO_SHORT, "");
         mqtt_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         *packet_type = 0;
         left_t = iotx_time_left(timer);
@@ -761,7 +761,7 @@ static int _mqtt_connect(void *client)
     } while (++try_count < RETRY_TIME_LIMIT);
 
     if (try_count == RETRY_TIME_LIMIT) {
-        return STATE_MQTT_CONNECT_ERROR;
+        return STATE_MQTT_CONN_RETRY_EXCEED_MAX;
     }
 
     pClient->keepalive_probes = 0;
@@ -802,7 +802,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 
     if (list_number >= IOTX_MC_REPUB_NUM_MAX) {
         mqtt_err("more than %u elements in republish list. List overflow!", list_number);
-        return STATE_MQTT_REPUB_NUM_TOO_SHORT;
+        return STATE_MQTT_QOS1_REPUB_EXCEED_MAX;
     }
 
     repubInfo = (iotx_mc_pub_info_t *)mqtt_malloc(sizeof(iotx_mc_pub_info_t) + len);
@@ -840,7 +840,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 
     mqtt_err("IOTX_MC_REPUB_NUM_MAX is too short");
 
-    return STATE_MQTT_REPUB_NUM_TOO_SHORT;
+    return STATE_MQTT_QOS1_REPUB_EXCEED_MAX;
 #endif
 }
 
@@ -1280,13 +1280,13 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
 #endif  /* #if WITH_MQTT_QOS2_PACKET */
     } else {
         HAL_MutexUnlock(c->lock_write_buf);
-        return STATE_MQTT_SERIALIZE_ACK_ERROR;
+        return STATE_MQTT_SERIALIZE_PUBACK_ERROR;
     }
 
     if (len <= 0) {
         _reset_send_buffer(c);
         HAL_MutexUnlock(c->lock_write_buf);
-        return STATE_MQTT_SERIALIZE_ACK_ERROR;
+        return STATE_MQTT_SERIALIZE_PUBACK_ERROR;
     }
 
     rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);
@@ -1405,7 +1405,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         result = MQTTPuback(c, topic_msg.packet_id, PUBREC);
     } else {
         mqtt_err("Invalid QOS, QOSvalue = %d", topic_msg.qos);
-        return STATE_MQTT_PUBLISH_QOS_ERROR;
+        return STATE_MQTT_PUB_QOS_INVALID;
     }
 
     return result;
@@ -1444,7 +1444,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 
     state = iotx_mc_get_client_state(c);
     if (state != IOTX_MC_STATE_CONNECTED) {
-        return STATE_MQTT_STATE_ERROR;
+        return STATE_MQTT_IN_OFFLINE_STATUS;
     }
 
 
@@ -1452,7 +1452,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         c->keepalive_probes = 0;
         mqtt_debug("keepalive_probes more than %u, disconnected\n", IOTX_MC_KEEPALIVE_PROBE_MAX);
-        return STATE_MQTT_STATE_ERROR;
+        return STATE_MQTT_IN_OFFLINE_STATUS;
     }
 
     /* read the socket, see what work is due */
@@ -1530,7 +1530,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
             mqtt_err("INVALID TYPE");
             _reset_recv_buffer(c);
             HAL_MutexUnlock(c->lock_read_buf);
-            return STATE_MQTT_UNKNOWN_PACKET_TYPE;
+            return STATE_MQTT_RECV_UNKNOWN_PACKET;
     }
     _reset_recv_buffer(c);
     HAL_MutexUnlock(c->lock_read_buf);
@@ -1674,7 +1674,7 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
     /* Ignoring return code. failures expected if network is disconnected */
     rc = wrapper_mqtt_connect(pClient);
 
-    if (rc < STATE_SUCCESS && rc != STATE_MQTT_CONNECT_BLOCK) {
+    if (rc < STATE_SUCCESS && rc != STATE_MQTT_ASYNC_STACK_CONN_IN_PROG) {
         mqtt_err("run iotx_mqtt_connect() error!");
     }
 
@@ -1693,7 +1693,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         HAL_SleepMs(100);
-        return STATE_TIMER_NOT_EXPIRED;
+        return STATE_MQTT_WAIT_RECONN_TIMER;
     }
 
     mqtt_info("start to reconnect");
@@ -1711,7 +1711,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
                 _conn_info_dynamic_reload_clear(pClient);
         */
         return STATE_SUCCESS;
-    } else if (STATE_MQTT_CONNECT_BLOCK == rc) {
+    } else if (STATE_MQTT_ASYNC_STACK_CONN_IN_PROG == rc) {
         return rc;
     } else {
         /* if reconnect network failed, then increase currentReconnectWaitInterval */
@@ -1785,7 +1785,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             /* Reconnection is successful, Resume regularly ping packets */
             rc = iotx_mc_handle_reconnect(pClient);
             if (rc != STATE_SUCCESS) {
-            } else if (rc == STATE_MQTT_CONNECT_BLOCK) {
+            } else if (rc == STATE_MQTT_ASYNC_STACK_CONN_IN_PROG) {
                 mqtt_debug("now using async protocol stack, wait network connected...");
             } else {
                 mqtt_info("network is reconnected!");
@@ -1927,7 +1927,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     }
 
     if (handler == NULL) {
-        return STATE_MQTT_SUBHANDLE_LIST_TOO_SHORT;
+        return STATE_MQTT_SUB_EXCEED_MAX;
     }
 #endif
 
@@ -1942,7 +1942,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 #else
     if (strlen(topicFilter) >= CONFIG_MQTT_TOPIC_MAXLEN) {
         memset(handler, 0, sizeof(iotx_mc_topic_handle_t));
-        return STATE_MQTT_TOPIC_LEN_TOO_SHORT;
+        return STATE_MQTT_TOPIC_BUF_TOO_SHORT;
     }
 
     memset((char *)handler->topic_filter, 0, CONFIG_MQTT_TOPIC_MAXLEN);
@@ -1960,7 +1960,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 #else
         if (strlen(topicFilter) >= CONFIG_MQTT_TOPIC_MAXLEN) {
             memset(handler, 0, sizeof(iotx_mc_topic_handle_t));
-            return STATE_MQTT_TOPIC_LEN_TOO_SHORT;
+            return STATE_MQTT_TOPIC_BUF_TOO_SHORT;
         }
         memset((char *)handler->topic_filter, 0, CONFIG_MQTT_TOPIC_MAXLEN);
 #endif
@@ -2191,18 +2191,18 @@ static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
             if ('+' == iterm[i] || '#' == iterm[i]) {
                 if (1 != len) {
                     mqtt_err("the character # and + is error");
-                    return STATE_MQTT_TOPIC_FORMAT_ERROR;
+                    return STATE_MQTT_UNEXP_TOPIC_FORMAT;
                 }
             }
         } else {
             if ('+' == iterm[i] || '#' == iterm[i]) {
                 mqtt_err("has character # and + is error");
-                return STATE_MQTT_TOPIC_FORMAT_ERROR;
+                return STATE_MQTT_UNEXP_TOPIC_FORMAT;
             }
         }
 
         if (iterm[i] < 32 || iterm[i] >= 127) {
-            return STATE_MQTT_TOPIC_FORMAT_ERROR;
+            return STATE_MQTT_UNEXP_TOPIC_FORMAT;
         }
     }
     return STATE_SUCCESS;
@@ -2215,12 +2215,12 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     char *iterm = NULL;
     char topicString[CONFIG_MQTT_TOPIC_MAXLEN];
     if (NULL == topicName || '/' != topicName[0]) {
-        return STATE_MQTT_TOPIC_FORMAT_ERROR;
+        return STATE_MQTT_UNEXP_TOPIC_FORMAT;
     }
 
     if (strlen(topicName) > CONFIG_MQTT_TOPIC_MAXLEN) {
         mqtt_err("len of topicName exceeds %d", CONFIG_MQTT_TOPIC_MAXLEN);
-        return STATE_MQTT_TOPIC_LEN_TOO_SHORT;
+        return STATE_MQTT_TOPIC_BUF_TOO_SHORT;
     }
 
     memset(topicString, 0x0, CONFIG_MQTT_TOPIC_MAXLEN);
@@ -2244,7 +2244,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
         /* The character '#' is not in the last */
         if (1 == mask) {
             mqtt_err("the character # is error");
-            return STATE_MQTT_TOPIC_FORMAT_ERROR;
+            return STATE_MQTT_UNEXP_TOPIC_FORMAT;
         }
 
         res = iotx_mc_check_rule(iterm, type);
@@ -2614,7 +2614,7 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
     }
 
     if (NULL == pclient) {
-        iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_CLIENT_MAX_COUNT_TOO_SHORT, "");
+        iotx_state_event(ITE_STATE_MQTT_COMM, STATE_MQTT_CLI_EXCEED_MAX, "");
         return NULL;
     }
 #endif
@@ -2669,7 +2669,7 @@ int wrapper_mqtt_connect(void *client)
 
 #ifdef ASYNC_PROTOCOL_STACK
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECT_BLOCK);
-    rc = STATE_MQTT_CONNECT_BLOCK;
+    rc = STATE_MQTT_ASYNC_STACK_CONN_IN_PROG;
 #else
     rc = _mqtt_connect(pClient);
 #endif
@@ -2807,7 +2807,7 @@ int wrapper_mqtt_subscribe(void *client,
 
     if (!wrapper_mqtt_check_state(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
-        return STATE_MQTT_STATE_ERROR;
+        return STATE_MQTT_IN_OFFLINE_STATUS;
     }
 
     rc = iotx_mc_check_topic(topicFilter, TOPIC_FILTER_TYPE);
@@ -2985,7 +2985,7 @@ int wrapper_mqtt_subscribe_sync(void *c,
 #endif
     HAL_MutexUnlock(client->lock_generic);
 
-    return STATE_MQTT_SUB_SYNC_TIMEOUT;
+    return STATE_MQTT_SYNC_SUB_TIMEOUT;
 }
 
 int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter)
@@ -3007,7 +3007,7 @@ int wrapper_mqtt_unsubscribe(void *client, const char *topicFilter)
 
     if (!wrapper_mqtt_check_state(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
-        return STATE_MQTT_STATE_ERROR;
+        return STATE_MQTT_IN_OFFLINE_STATUS;
     }
 
     rc = MQTTUnsubscribe(c, topicFilter, msgId);
@@ -3041,7 +3041,7 @@ int wrapper_mqtt_publish(void *client, const char *topicName, iotx_mqtt_topic_in
 
     if (!wrapper_mqtt_check_state(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
-        return STATE_MQTT_STATE_ERROR;
+        return STATE_MQTT_IN_OFFLINE_STATUS;
     }
 
 #if !WITH_MQTT_ONLY_QOS0
@@ -3051,7 +3051,7 @@ int wrapper_mqtt_publish(void *client, const char *topicName, iotx_mqtt_topic_in
     }
     if (topic_msg->qos == IOTX_MQTT_QOS2) {
         mqtt_err("MQTTPublish return error,MQTT_QOS2 is now not supported.");
-        return STATE_MQTT_PUBLISH_QOS_ERROR;
+        return STATE_MQTT_PUB_QOS_INVALID;
     }
 #else
     topic_msg->qos = IOTX_MQTT_QOS0;
@@ -3108,7 +3108,7 @@ int wrapper_mqtt_nwk_event_handler(void *client, iotx_mqtt_nwk_event_t event, io
         break;
         default: {
             mqtt_err("unknown event: %d", event);
-            rc = STATE_MQTT_UNKNOWN_EVENT;
+            rc = STATE_MQTT_ASYNC_STACK_UNKNOWN_EVENT;
         }
         break;
     }

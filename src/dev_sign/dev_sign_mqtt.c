@@ -93,7 +93,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
     for (i = 0; i < (sizeof(clientid_kv) / (sizeof(clientid_kv[0]))); i++) {
         if ((strlen(clientid_string) + strlen(clientid_kv[i][0]) + strlen(clientid_kv[i][1]) + 2) >=
             DEV_SIGN_CLIENT_ID_MAXLEN) {
-            return STATE_MQTT_SIGN_CLIENTID_TOO_SHORT;
+            return STATE_MQTT_SIGN_CLIENTID_BUF_SHORT;
         }
 
         memcpy(clientid_string + strlen(clientid_string), clientid_kv[i][0], strlen(clientid_kv[i][0]));
@@ -104,7 +104,7 @@ int _sign_get_clientid(char *clientid_string, const char *device_id, const char 
 
     if (custom_kv != NULL) {
         if ((strlen(clientid_string) + strlen(custom_kv) + 1) >= DEV_SIGN_CLIENT_ID_MAXLEN) {
-            return STATE_MQTT_SIGN_CLIENTID_TOO_SHORT;
+            return STATE_MQTT_SIGN_CLIENTID_BUF_SHORT;
         }
         memcpy(clientid_string + strlen(clientid_string), custom_kv, strlen(custom_kv));
         memcpy(clientid_string + strlen(clientid_string), ",", 1);
@@ -126,7 +126,7 @@ int _iotx_generate_sign_string(const char *device_id, const char *device_name, c
     signsource_len = SIGN_FMT_LEN + strlen(device_id) + strlen(device_name) + strlen(product_key) + strlen(
                                  TIMESTAMP_VALUE);
     if (signsource_len >= DEV_SIGN_SOURCE_MAXLEN) {
-        return STATE_MQTT_SIGN_SOURCE_TOO_SHORT;
+        return STATE_MQTT_SIGN_SOURCE_BUF_SHORT;
     }
 
     memset(signsource, 0, DEV_SIGN_SOURCE_MAXLEN);
@@ -165,7 +165,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
 
     /* setup clientid */
     if (_sign_get_clientid(signout->clientid, device_id, NULL, 0) < STATE_SUCCESS) {
-        return STATE_MQTT_SIGN_CLIENTID_TOO_SHORT;
+        return STATE_MQTT_SIGN_CLIENTID_BUF_SHORT;
     }
 
     /* setup password */
@@ -179,12 +179,12 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     /* setup hostname */
     if (IOTX_CLOUD_REGION_CUSTOM == region) {
         if (g_infra_mqtt_domain[region] == NULL) {
-            return STATE_MQTT_INVALID_DOMAIN;
+            return STATE_USER_INPUT_MQTT_DOMAIN;
         }
 
         length = strlen(g_infra_mqtt_domain[region]) + 1;
         if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
-            return STATE_MQTT_SIGN_HOSTNAME_TOO_SHORT;
+            return STATE_MQTT_SIGN_HOSTNAME_BUF_SHORT;
         }
 
         memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
@@ -192,7 +192,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     } else {
         length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
         if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
-            return STATE_MQTT_SIGN_HOSTNAME_TOO_SHORT;
+            return STATE_MQTT_SIGN_HOSTNAME_BUF_SHORT;
         }
         memset(signout->hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
         memcpy(signout->hostname, meta->product_key, strlen(meta->product_key));
@@ -204,7 +204,7 @@ int32_t IOT_Sign_MQTT(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *met
     /* setup username */
     length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
     if (length >= DEV_SIGN_USERNAME_MAXLEN) {
-        return STATE_MQTT_SIGN_USERNAME_TOO_SHORT;
+        return STATE_MQTT_SIGN_USERNAME_BUF_SHORT;
     }
     memset(signout->username, 0, DEV_SIGN_USERNAME_MAXLEN);
     memcpy(signout->username, meta->device_name, strlen(meta->device_name));

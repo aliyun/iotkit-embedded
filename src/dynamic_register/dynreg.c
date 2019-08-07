@@ -233,7 +233,8 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     dynreg_info("Dynamic Register Code: %.*s", end - start + 1, &response_payload[start]);
 
     if (memcmp(&response_payload[start], "200", strlen("200")) != 0) {
-        return STATE_MQTT_DYNREG_INVALID_RESPONSE;
+        iotx_state_event(STATE_HTTP_DYNREG_FAIL_RESP, &response_payload[start]);
+        return STATE_HTTP_DYNREG_FAIL_RESP;
     }
 
     _parse_dynreg_result(response_payload, "data", &data_start, &data_end);
@@ -243,7 +244,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
     dynreg_info("Dynamic Register Device Secret: %.*s", end - start + 1, &response_payload[data_start + 1 + start]);
 
     if (end - start + 1 > IOTX_DEVICE_SECRET_LEN) {
-        return STATE_MQTT_DYNREG_INVALID_DS;
+        return STATE_HTTP_DYNREG_INVALID_DS;
     }
 
     memcpy(device_secret, &response_payload[data_start + 1 + start], end - start + 1);
@@ -324,7 +325,7 @@ static int _mqtt_dynreg_sign_password(iotx_dev_meta_info_t *meta_info, iotx_sign
     signsource_len = strlen(sign_fmt) + strlen(meta_info->device_name) + 1 + strlen(meta_info->product_key) + strlen(
                                  rand) + 1;
     if (signsource_len >= DEV_SIGN_SOURCE_MAXLEN) {
-        return STATE_MQTT_SIGN_SOURCE_TOO_SHORT;
+        return STATE_MQTT_SIGN_SOURCE_BUF_SHORT;
     }
     memset(signsource, 0, signsource_len);
     memcpy(signsource, "deviceName", strlen("deviceName"));
@@ -408,12 +409,12 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     /* setup hostname */
     if (IOTX_HTTP_REGION_CUSTOM == region) {
         if (g_infra_mqtt_domain[region] == NULL) {
-            return STATE_MQTT_INVALID_DOMAIN;
+            return STATE_USER_INPUT_MQTT_DOMAIN;
         }
 
         length = strlen(g_infra_mqtt_domain[region]) + 1;
         if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
-            return STATE_MQTT_SIGN_HOSTNAME_TOO_SHORT;
+            return STATE_MQTT_SIGN_HOSTNAME_BUF_SHORT;
         }
 
         memset(signout.hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
@@ -421,7 +422,7 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     } else {
         length = strlen(meta->product_key) + strlen(g_infra_mqtt_domain[region]) + 2;
         if (length >= DEV_SIGN_HOSTNAME_MAXLEN) {
-            return STATE_MQTT_SIGN_HOSTNAME_TOO_SHORT;
+            return STATE_MQTT_SIGN_HOSTNAME_BUF_SHORT;
         }
         memset(signout.hostname, 0, DEV_SIGN_HOSTNAME_MAXLEN);
         memcpy(signout.hostname, meta->product_key, strlen(meta->product_key));
@@ -436,7 +437,7 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     /* setup username */
     length = strlen(meta->device_name) + strlen(meta->product_key) + 2;
     if (length >= DEV_SIGN_USERNAME_MAXLEN) {
-        return STATE_MQTT_SIGN_USERNAME_TOO_SHORT;
+        return STATE_MQTT_SIGN_USERNAME_BUF_SHORT;
     }
     memset(signout.username, 0, DEV_SIGN_USERNAME_MAXLEN);
     memcpy(signout.username, meta->device_name, strlen(meta->device_name));
@@ -507,7 +508,7 @@ int32_t _mqtt_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     if (strlen(device_secret) > 0) {
         res = STATE_RETURN;
     } else {
-        res = STATE_MQTT_DYNREG_INVALID_DS;
+        res = STATE_HTTP_DYNREG_INVALID_DS;
     }
 
     wrapper_mqtt_release(&pClient);
