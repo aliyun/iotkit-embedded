@@ -65,13 +65,13 @@ static int _utils_parse_url(const char *url, char *host,
     char *fragment_ptr;
 
     if (host_ptr == NULL) {
-        return STATE_USER_INPUT_INVALID_HTTP_URL; /* URL is invalid */
+        return STATE_USER_INPUT_HTTP_URL; /* URL is invalid */
     }
     host_ptr += 3;
 
     path_ptr = strchr(host_ptr, '/');
     if (NULL == path_ptr) {
-        return STATE_USER_INPUT_INVALID_HTTP_PATH;
+        return STATE_USER_INPUT_HTTP_PATH;
     }
 
     if (host_len == 0) {
@@ -272,7 +272,7 @@ static int _utils_fill_rx_buf(int *recv_count, int len_to_write_to_respons_buf, 
         memcpy(client_data->response_buf + count, data, client_data->response_buf_len - 1 - count);
         client_data->response_buf[client_data->response_buf_len - 1] = '\0';
         client_data->retrieve_len -= (client_data->response_buf_len - 1 - count);
-        return STATE_USER_INPUT_INVALID_HTTP_RECV_MOREDATA;
+        return STATE_USER_INPUT_HTTP_RECV_MOREDATA;
     }
 }
 
@@ -308,7 +308,7 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
             len_to_write_to_respons_buf = HTTPCLIENT_MIN(data_len_actually_received, client_data->retrieve_len);
             res = _utils_fill_rx_buf(&written_response_buf_len, len_to_write_to_respons_buf, client_data, data);
             if (HTTP_RETRIEVE_MORE_DATA == res) {
-                return STATE_USER_INPUT_INVALID_HTTP_RECV_MOREDATA;
+                return STATE_USER_INPUT_HTTP_RECV_MOREDATA;
             }
 
             /* get data from internet and put into "data" buf temporary */
@@ -393,7 +393,7 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
         client_data->response_content_len = atoi(tmp_ptr + strlen("Content-Length: "));
         client_data->retrieve_len = client_data->response_content_len;
     } else {
-        return STATE_USER_INPUT_INVALID_HTTP_MISSING_CONTENT_LENGTH;
+        return STATE_USER_INPUT_HTTP_CONTENT_LENGTH;
     }
 
     /* remove header length */
@@ -639,7 +639,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         break;
         case IOTX_HTTPOPT_PORT: {
             if (*(int *)(data) < 0) {
-                return STATE_USER_INPUT_INVALID_HTTP_PORT;
+                return STATE_USER_INPUT_HTTP_PORT;
             }
             http_handle->port = *(int *)(data);
         }
@@ -658,7 +658,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         break;
         case IOTX_HTTPOPT_TIMEOUT: {
             if (*(int *)(data) < 0) {
-                return STATE_USER_INPUT_INVALID_HTTP_TIMEOUT;
+                return STATE_USER_INPUT_HTTP_TIMEOUT;
             }
             http_handle->timeout = *(int *)(data);
         }
@@ -677,7 +677,7 @@ int wrapper_http_setopt(void *handle, iotx_http_option_t option, void *data)
         break;
         default: {
             httpc_err("Unknown Option");
-            return STATE_USER_INPUT_INVALID_HTTP_OPTION;
+            return STATE_USER_INPUT_HTTP_OPTION;
         }
     }
 
@@ -697,7 +697,7 @@ int wrapper_http_perform(void *handle, void *data, int length)
 
     if ((http_handle->method == IOTX_HTTP_POST) &&
         (data == NULL || length <= 0)) {
-        return STATE_USER_INPUT_INVALID_HTTP_POST_DATA;
+        return STATE_USER_INPUT_HTTP_POST_DATA;
     }
 
     if (http_handle->receive_maxlen <= 0) {

@@ -70,7 +70,7 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
 {
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
     char kv_key[IOTX_DEVICE_NAME_LEN + DYNAMIC_REG_KV_PREFIX_LEN] = DYNAMIC_REG_KV_PREFIX;
-    int res = FAIL_RETURN;
+    int res = -1;
 
     memcpy(kv_key + strlen(kv_key), meta_info->device_name, strlen(meta_info->device_name));
 
@@ -84,7 +84,7 @@ static int _iotx_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta
         mqtt_info("DeviceSecret KV not exist, Now We Need Dynamic Register...");
 
         res = IOT_Dynamic_Register(region, meta_info);
-        if (res < SUCCESS_RETURN) {
+        if (res < STATE_SUCCESS) {
             return res;
         }
 
@@ -121,7 +121,7 @@ static int _iotx_preauth(iotx_mqtt_region_types_t region, iotx_dev_meta_info_t *
 
     /* setup sign_string */
     res = _iotx_generate_sign_string(device_id, meta->device_name, meta->product_key, meta->device_secret, sign_string);
-    if (res < SUCCESS_RETURN) {
+    if (res < STATE_SUCCESS) {
         return res;
     }
 
@@ -160,11 +160,11 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_NAME, meta_info.device_name);
 
     if (meta_info.product_key[0] == '\0' || meta_info.product_key[IOTX_PRODUCT_KEY_LEN] != '\0') {
-        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_PK, "invalid product key");
+        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_PK, "invalid product key");
         return NULL;
     }
     if (meta_info.device_name[0] == '\0' || meta_info.device_name[IOTX_DEVICE_NAME_LEN] != '\0') {
-        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_DN, "invalid device name");
+        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_DN, "invalid device name");
         return NULL;
     }
 
@@ -172,40 +172,40 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     if (dynamic) {
         IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_SECRET, meta_info.product_secret);
         if (meta_info.product_secret[0] == '\0' || meta_info.product_secret[IOTX_PRODUCT_SECRET_LEN] != '\0') {
-            iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_PS, "invalid product secret");
+            iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_PS, "invalid product secret");
             return NULL;
         }
 
         ret = _iotx_dynamic_register(region, &meta_info);
-        if (ret < SUCCESS_RETURN) {
+        if (ret < STATE_SUCCESS) {
             iotx_state_event(ITE_STATE_MQTT_COMM, ret, "dynamic register fail");
             return NULL;
         }
     } else {
         IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, meta_info.device_secret);
         if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
-            iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_DS, "invalid device secret");
+            iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_DS, "invalid device secret");
             return NULL;
         }
     }
 #else /* get device secret from hal */
     IOT_Ioctl(IOTX_IOCTL_GET_DEVICE_SECRET, meta_info.device_secret);
     if (meta_info.device_secret[0] == '\0' || meta_info.device_secret[IOTX_DEVICE_SECRET_LEN] != '\0') {
-        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_INVALID_DS, "invalid device secret");
+        iotx_state_event(ITE_STATE_USER_INPUT, STATE_USER_INPUT_DS, "invalid device secret");
         return NULL;
     }
 #endif /* #ifdef DYNAMIC_REGISTER */
 
 #ifdef MQTT_PRE_AUTH /* preauth mode through https */
     ret = _iotx_preauth(region, &meta_info, (iotx_pre_auth_output_t *)&g_default_sign); /* type convert */
-    if (ret < SUCCESS_RETURN) {
+    if (ret < STATE_SUCCESS) {
         iotx_state_event(ITE_STATE_MQTT_COMM, ret, "invalid device secret");
         mqtt_err("ret = _iotx_preauth() = %d, abort", ret);
         return NULL;
     }
 #else /* direct mode */
     ret = IOT_Sign_MQTT(region, &meta_info, &g_default_sign);
-    if (ret < SUCCESS_RETURN) {
+    if (ret < STATE_SUCCESS) {
         iotx_state_event(ITE_STATE_MQTT_COMM, ret, "mqtt sign fail");
         return NULL;
     }

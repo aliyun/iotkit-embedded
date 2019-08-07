@@ -188,7 +188,7 @@ static int _fetch_dynreg_http_resp(char *request_payload, char *response_payload
 
     domain = g_infra_http_domain[region];
     if (NULL == domain) {
-        return STATE_USER_INPUT_INVALID_HTTP_DOMAIN;
+        return STATE_USER_INPUT_HTTP_DOMAIN;
     }
     url_len = strlen(url_format) + strlen(domain) + 1;
     url = (char *)dynreg_malloc(url_len);
@@ -261,15 +261,15 @@ int32_t _http_dynamic_register(iotx_http_region_types_t region, iotx_dev_meta_in
     char           *dynamic_register_response = NULL;
 
     if (strlen(meta->product_key) > IOTX_PRODUCT_KEY_LEN) {
-        return STATE_USER_INPUT_INVALID_PK;
+        return STATE_USER_INPUT_PK;
     }
 
     if (strlen(meta->product_secret) > IOTX_PRODUCT_SECRET_LEN) {
-        return STATE_USER_INPUT_INVALID_PS;
+        return STATE_USER_INPUT_PS;
     }
 
     if (strlen(meta->device_name) > IOTX_DEVICE_NAME_LEN) {
-        return STATE_USER_INPUT_INVALID_DN;
+        return STATE_USER_INPUT_DN;
     }
 
     /* Calcute Signature */

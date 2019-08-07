@@ -211,7 +211,7 @@ int preauth_get_connection_info(iotx_mqtt_region_types_t region, iotx_dev_meta_i
     char response_buff[PREAUTH_HTTP_RSP_LEN] = {0};
 
     if (g_infra_http_domain[region] == NULL) {
-        return STATE_USER_INPUT_INVALID_HTTP_DOMAIN;
+        return STATE_USER_INPUT_HTTP_DOMAIN;
     }
 
     memset(&response, 0, sizeof(preauth_http_response_t));
