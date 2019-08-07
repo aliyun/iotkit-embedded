@@ -390,11 +390,15 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
     }
 }
 
-
 static alcs_mqtt_status_e __alcs_mqtt_subscribe(void *ctx, char *topic)
 {
-    return (IOT_MQTT_Subscribe(NULL, topic, 0, __alcs_mqtt_subscribe_callback,
+#ifdef MQTT_AUTO_SUBSCRIBE
+    return (IOT_MQTT_Subscribe(NULL, topic, IOTX_MQTT_QOS3_SUB_LOCAL, __alcs_mqtt_subscribe_callback,
                                ctx) < 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
+#else
+    return (IOT_MQTT_Subscribe(NULL, topic, IOTX_MQTT_QOS0, __alcs_mqtt_subscribe_callback,
+                               ctx) < 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
+#endif /* #ifdef MQTT_AUTO_SUBSCRIBE */
 }
 
 #if 0
