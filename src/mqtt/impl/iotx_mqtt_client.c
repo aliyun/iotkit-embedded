@@ -228,7 +228,7 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
 
     rc = iotx_net_init(&pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key);
 
-    if (SUCCESS_RETURN != rc) {
+    if (STATE_SUCCESS != rc) {
         mc_state = IOTX_MC_STATE_INVALID;
         iotx_state_event(ITE_STATE_MQTT_COMM, rc, "");
         goto RETURN;
@@ -406,7 +406,7 @@ static int _alloc_recv_buffer(iotx_mc_client_t *c, int len)
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *time)
 {
-    int rc = FAIL_RETURN;
+    int rc = STATE_SUCCESS;
     int sent = 0;
     unsigned int left_t = 0;
 
@@ -448,7 +448,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     len = _get_connect_length(pConnectParams);
 
     res = _alloc_send_buffer(pClient, len);
-    if (res < SUCCESS_RETURN) {
+    if (res < STATE_SUCCESS) {
         HAL_MutexUnlock(pClient->lock_write_buf);
         return res;
     }
@@ -463,7 +463,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     iotx_time_init(&connectTimer);
     utils_time_countdown_ms(&connectTimer, pClient->request_timeout_ms);
     res = iotx_mc_send_packet(pClient, pClient->buf_send, len, &connectTimer);
-    if (res < SUCCESS_RETURN) {
+    if (res < STATE_SUCCESS) {
         _reset_send_buffer(pClient);
         HAL_MutexUnlock(pClient->lock_write_buf);
         return res;
@@ -710,7 +710,7 @@ static int _mqtt_connect(void *client)
 {
 #define RETRY_TIME_LIMIT    (8+1)
 #define RETRY_INTV_PERIOD   (2000)
-    int rc = FAIL_RETURN;
+    int rc = STATE_SUCCESS;
     int try_count = 1;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
     int userKeepAliveInterval = 0;
@@ -745,7 +745,7 @@ static int _mqtt_connect(void *client)
             return rc;
         }
 
-        if (SUCCESS_RETURN != rc) {
+        if (STATE_SUCCESS != rc) {
             mqtt_err("wait connect ACK timeout! rc = %d", rc);
             mqtt_warning("tried [%d/%d] times CONN, waiting for %d ms...", try_count, RETRY_TIME_LIMIT - 1, RETRY_INTV_PERIOD);
 
@@ -881,13 +881,13 @@ static int MQTTRePublish(iotx_mc_client_t *c, char *buf, int len)
 
     HAL_MutexLock(c->lock_write_buf);
 
-    if (iotx_mc_send_packet(c, buf, len, &timer) != SUCCESS_RETURN) {
+    if (iotx_mc_send_packet(c, buf, len, &timer) != STATE_SUCCESS) {
         HAL_MutexUnlock(c->lock_write_buf);
         return STATE_SYS_DEPEND_NWK_CLOSE;
     }
 
     HAL_MutexUnlock(c->lock_write_buf);
-    return SUCCESS_RETURN;
+    return STATE_SUCCESS;
 }
 
 static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
@@ -901,7 +901,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 #endif
 
     if (!pClient) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     HAL_MutexLock(pClient->lock_list_pub);
@@ -1436,7 +1436,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 {
     unsigned int packetType;
     iotx_mc_state_t state;
-    int rc = SUCCESS_RETURN;
+    int rc = STATE_SUCCESS;
 
     if (!c) {
         return STATE_USER_INPUT_INVALID;
@@ -1457,7 +1457,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 
     /* read the socket, see what work is due */
     rc = iotx_mc_read_packet(c, timer, &packetType);
-    if (rc != SUCCESS_RETURN) {
+    if (rc != STATE_SUCCESS) {
         HAL_MutexLock(c->lock_read_buf);
         _reset_recv_buffer(c);
         HAL_MutexUnlock(c->lock_read_buf);
@@ -1539,7 +1539,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 
 void _mqtt_cycle(void *client)
 {
-    int                 rc = SUCCESS_RETURN;
+    int                 rc = STATE_SUCCESS;
     iotx_time_t         time;
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)client;
 
@@ -1683,7 +1683,7 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 
 static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
-    int             rc = FAIL_RETURN;
+    int             rc = STATE_SUCCESS;
     uint32_t        interval_ms = 0;
 
     if (NULL == pClient) {
@@ -1699,7 +1699,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     mqtt_info("start to reconnect");
     /*
         rc = _conn_info_dynamic_reload(pClient);
-        if (SUCCESS_RETURN != rc) {
+        if (STATE_SUCCESS != rc) {
             mqtt_err("update connect info err");
             return -1;
         }
@@ -1897,7 +1897,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 #endif
 
     if (!c || !topicFilter || !messageHandler) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 #if !( WITH_MQTT_DYN_BUF)
     if (!c->buf_send) {
@@ -2086,7 +2086,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     HEXDUMP_DEBUG(c->buf_send, len);
 #endif
 
-    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
+    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != STATE_SUCCESS) { /* send the subscribe packet */
         /* If send failed, remove it */
         mqtt_err("run sendPacket error!");
 #ifdef PLATFORM_HAS_DYNMEM
@@ -2380,7 +2380,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         return STATE_MQTT_SERIALIZE_UNSUB_ERROR;
     }
 
-    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
+    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != STATE_SUCCESS) { /* send the subscribe packet */
 #ifdef PLATFORM_HAS_DYNMEM
         mqtt_free(handler->topic_filter);
         mqtt_free(handler);
@@ -2500,7 +2500,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     }
 #endif
     /* send the publish packet */
-    if (iotx_mc_send_packet(c, c->buf_send, len, &timer) != SUCCESS_RETURN) {
+    if (iotx_mc_send_packet(c, c->buf_send, len, &timer) != STATE_SUCCESS) {
 #if !WITH_MQTT_ONLY_QOS0
         if (topic_msg->qos > IOTX_MQTT_QOS0) {
             /* If not even successfully sent to IP stack, meaningless to wait QOS1 ack, give up waiting */
@@ -2536,7 +2536,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 
 static int MQTTDisconnect(iotx_mc_client_t *c)
 {
-    int             rc = FAIL_RETURN;
+    int             rc = STATE_SUCCESS;
     int             len = 0, res = 0;
     iotx_time_t     timer;     /* we might wait for incomplete incoming publishes to complete */
 
@@ -2632,7 +2632,7 @@ void *wrapper_mqtt_init(iotx_mqtt_param_t *mqtt_params)
 
 int wrapper_mqtt_connect(void *client)
 {
-    int rc = FAIL_RETURN;
+    int rc = STATE_SUCCESS;
     int retry_max = 3;
     int retry_cnt = 1;
     int retry_interval = 1000;
@@ -2647,7 +2647,7 @@ int wrapper_mqtt_connect(void *client)
         mqtt_debug("calling TCP or TLS connect HAL for [%d/%d] iteration", retry_cnt, retry_max);
 
         rc = pClient->ipstack.connect(&pClient->ipstack);
-        if (SUCCESS_RETURN != rc) {
+        if (STATE_SUCCESS != rc) {
             pClient->ipstack.disconnect(&pClient->ipstack);
             mqtt_err("TCP or TLS Connection failed");
 
@@ -3099,7 +3099,7 @@ int wrapper_mqtt_nwk_event_handler(void *client, iotx_mqtt_nwk_event_t event, io
             HAL_MutexLock(pClient->lock_yield);
             _mqtt_cycle(pClient);
             HAL_MutexUnlock(pClient->lock_yield);
-            rc = SUCCESS_RETURN;
+            rc = STATE_SUCCESS;
         }
         break;
         case IOTX_MQTT_SOC_WRITE: {
