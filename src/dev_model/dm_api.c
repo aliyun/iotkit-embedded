@@ -570,7 +570,7 @@ int iotx_dm_subdev_create(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     res = dm_mgr_device_create(IOTX_DM_DEVICE_SUBDEV, product_key, product_secret, device_name, device_secret, devid);
     _dm_api_unlock();
 
-    return SUCCESS_RETURN;
+    return res;
 }
 
 int iotx_dm_subdev_destroy(_IN_ int devid)

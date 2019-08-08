@@ -253,7 +253,7 @@ int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_K
         if (devid) {
             *devid = node->devid;
         }
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_DEVICE_ALREADY_EXIST;
     }
 
     node = DM_malloc(sizeof(dm_mgr_dev_node_t));
