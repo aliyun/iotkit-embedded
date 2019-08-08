@@ -43,7 +43,6 @@ static int _dm_mgr_search_dev_by_devid(_IN_ int devid, _OU_ dm_mgr_dev_node_t **
 
     list_for_each_entry(search_node, &ctx->dev_list, linked_list, dm_mgr_dev_node_t) {
         if (search_node->devid == devid) {
-            /* dm_log_debug("Device Found, devid: %d", devid); */
             if (node) {
                 *node = search_node;
             }
@@ -51,8 +50,7 @@ static int _dm_mgr_search_dev_by_devid(_IN_ int devid, _OU_ dm_mgr_dev_node_t **
         }
     }
 
-    dm_log_debug("Device Not Found, devid: %d", devid);
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_DEVICE_NOT_FOUND;
 }
 
 static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
@@ -66,7 +64,6 @@ static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN
             (memcmp(search_node->product_key, product_key, strlen(product_key)) == 0) &&
             (strlen(search_node->device_name) == strlen(device_name)) &&
             (memcmp(search_node->device_name, device_name, strlen(device_name)) == 0)) {
-            /* dm_log_debug("Device Found, Product Key: %s, Device Name: %s", product_key, device_name); */
             if (node) {
                 *node = search_node;
             }
@@ -74,8 +71,7 @@ static int _dm_mgr_search_dev_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN
         }
     }
 
-    dm_log_debug("Device Not Found, Product Key: %s, Device Name: %s", product_key, device_name);
-    return FAIL_RETURN;
+    return STATE_DEV_MODEL_DEVICE_NOT_FOUND;
 }
 
 static int _dm_mgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_key[IOTX_PRODUCT_KEY_LEN + 1],
@@ -85,19 +81,22 @@ static int _dm_mgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_ke
     dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
     dm_mgr_dev_node_t *node = NULL;
 
-    if (devid < 0 || product_key == NULL || strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1 ||
-        device_name == NULL || strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) {
-        return DM_INVALID_PARAMETER;
+    if (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) {
+        return STATE_USER_INPUT_PK;
+    }
+
+    if (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) {
+        return STATE_USER_INPUT_DN;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, NULL);
     if (res == SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_DEVICE_ALREADY_EXIST;
     }
 
     node = DM_malloc(sizeof(dm_mgr_dev_node_t));
     if (node == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(node, 0, sizeof(dm_mgr_dev_node_t));
 
@@ -137,7 +136,7 @@ static int _dm_mgr_legacy_thing_created(int devid)
     message_len = strlen(thing_created_fmt) + DM_UTILS_UINT32_STRLEN + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, thing_created_fmt, devid);
@@ -164,6 +163,7 @@ int dm_mgr_init(void)
     /* Create Mutex */
     ctx->mutex = HAL_MutexCreate();
     if (ctx->mutex == NULL) {
+        res = STATE_SYS_DEPEND_MUTEX_CREATE;
         goto ERROR;
     }
 
@@ -192,7 +192,7 @@ ERROR:
         HAL_MutexDestroy(ctx->mutex);
     }
     memset(ctx, 0, sizeof(dm_mgr_ctx));
-    return FAIL_RETURN;
+    return res;
 }
 
 int dm_mgr_deinit(void)
@@ -241,11 +241,11 @@ int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_K
         strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1 ||
         strlen(product_secret) >= IOTX_PRODUCT_SECRET_LEN + 1 ||
         strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (device_secret != NULL && strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN + 1) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_pkdn(product_key, device_name, &node);
@@ -258,7 +258,7 @@ int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[IOTX_PRODUCT_K
 
     node = DM_malloc(sizeof(dm_mgr_dev_node_t));
     if (node == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(node, 0, sizeof(dm_mgr_dev_node_t));
 
@@ -292,7 +292,7 @@ int dm_mgr_device_destroy(_IN_ int devid)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -341,7 +341,7 @@ int dm_mgr_get_devid_by_index(_IN_ int index, _OU_ int *devid)
     dm_mgr_dev_node_t *search_node = NULL;
 
     if (index < 0 || devid == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     list_for_each_entry(search_node, &ctx->dev_list, linked_list, dm_mgr_dev_node_t) {
@@ -362,7 +362,7 @@ int dm_mgr_get_next_devid(_IN_ int devid, _OU_ int *devid_next)
     dm_mgr_dev_node_t *next_node = NULL;
 
     if (devid < 0 || devid_next == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     list_for_each_entry(next_node, &ctx->dev_list, linked_list, dm_mgr_dev_node_t) {
@@ -386,12 +386,12 @@ int dm_mgr_search_device_by_devid(_IN_ int devid, _OU_ char product_key[IOTX_PRO
     dm_mgr_dev_node_t *node = NULL;
 
     if (product_key == NULL || device_name == NULL || device_secret == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     memcpy(product_key, node->product_key, strlen(node->product_key));
@@ -409,7 +409,7 @@ int dm_mgr_search_device_by_pkdn(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
     dm_mgr_dev_node_t *node = NULL;
 
     if (product_key == NULL || device_name == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_pkdn(product_key, device_name, &node);
@@ -447,7 +447,7 @@ int dm_mgr_get_dev_type(_IN_ int devid, _OU_ int *dev_type)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || dev_type == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -466,7 +466,7 @@ int dm_mgr_set_dev_enable(_IN_ int devid)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -485,7 +485,7 @@ int dm_mgr_set_dev_disable(_IN_ int devid)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -508,7 +508,7 @@ int dm_mgr_get_dev_avail(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     if (product_key == NULL || device_name == NULL || status == NULL ||
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_pkdn(product_key, device_name, &node);
@@ -527,7 +527,7 @@ int dm_mgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -546,7 +546,7 @@ int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || status == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -566,7 +566,7 @@ int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[IOTX_DEVICE
 
     if (devid < 0 || device_secret == NULL ||
         strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN + 1) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -589,7 +589,7 @@ int dm_mgr_dev_initialized(int devid)
     message_len = strlen(fmt) + DM_UTILS_UINT32_STRLEN + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, fmt, devid);
@@ -611,7 +611,7 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -660,7 +660,7 @@ int dm_mgr_upstream_thing_proxy_product_register(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -709,7 +709,7 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -758,7 +758,7 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -807,7 +807,7 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -863,13 +863,13 @@ int dm_mgr_upstream_thing_topo_get(void)
 
     res = _dm_mgr_search_dev_by_pkdn(request.product_key, request.device_name, &node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Params And Method */
     res = dm_msg_thing_topo_get(&request);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* Get Msg ID */
@@ -901,7 +901,7 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -950,7 +950,7 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -999,7 +999,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1054,7 +1054,7 @@ int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *pay
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1100,7 +1100,7 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1170,7 +1170,7 @@ int dm_mgr_upstream_thing_property_desired_get(_IN_ int devid, _IN_ char *payloa
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1205,7 +1205,7 @@ int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *pay
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1240,7 +1240,7 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1279,7 +1279,7 @@ int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int 
 
     if (0 == force_upload) {
         if (devid < 0 || payload == NULL || payload_len <= 0) {
-            return DM_INVALID_PARAMETER;
+            return STATE_USER_INPUT_INVALID;
         }
 
         if (log_size + payload_len < OVERFLOW_LEN) {
@@ -1324,13 +1324,13 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
 
     if (devid < 0 || identifier == NULL || identifier_len <= 0 ||
         method == NULL || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     service_name_len = strlen(DM_URI_THING_EVENT_POST) + identifier_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(service_name, 0, service_name_len);
     HAL_Snprintf(service_name, service_name_len, DM_URI_THING_EVENT_POST, identifier_len, identifier);
@@ -1369,7 +1369,7 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1399,7 +1399,7 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
     dm_msg_request_t request;
 
     if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1431,7 +1431,7 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1460,7 +1460,7 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
     dm_msg_request_t request;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1488,7 +1488,7 @@ int dm_mgr_upstream_ntp_request(void)
 {
     int res = 0;
     const char *ntp_request_fmt = "{\"deviceSendTime\":\"1234\"}";
-    char /* *cloud_payload = NULL, */ *uri = NULL;
+    char *uri = NULL;
     dm_msg_request_t request;
 
     memset(&request, 0, sizeof(dm_msg_request_t));
@@ -1501,17 +1501,12 @@ int dm_mgr_upstream_ntp_request(void)
     res = dm_utils_service_name(request.service_prefix, request.service_name,
                                 request.product_key, request.device_name, &uri);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     res = dm_client_publish(uri, (unsigned char *)ntp_request_fmt, strlen(ntp_request_fmt), dm_client_ntp_response);
-    if (res != SUCCESS_RETURN) {
-        DM_free(uri); /* DM_free(cloud_payload); */
-        return FAIL_RETURN;
-    }
-
-    DM_free(uri); /* DM_free(cloud_payload); */
-    return SUCCESS_RETURN;
+    DM_free(uri);
+    return res;
 }
 
 static int _dm_mgr_upstream_response_assemble(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
@@ -1552,14 +1547,14 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
 
     if (devid < 0 || msgid == NULL || msgid_len <= 0 || identifier == NULL || identifier_len <= 0 ||
         payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Service Name */
     service_name_len = strlen(DM_URI_THING_SERVICE_RESPONSE) + identifier_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(service_name, 0, service_name_len);
     HAL_Snprintf(service_name, service_name_len, DM_URI_THING_SERVICE_RESPONSE, identifier_len, identifier);
@@ -1596,7 +1591,7 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
 
     if (devid < 0 || msgid == NULL || msgid_len <= 0 ||
         payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     memset(&request, 0, sizeof(dm_msg_request_payload_t));
@@ -1647,14 +1642,14 @@ int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
 
     if (devid < 0 || msgid == NULL || msgid_len <= 0 ||
         rrpcid == NULL || rrpcid_len <= 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Service Name */
     service_name_len = strlen(rrpc_response_service_name) + rrpcid_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(service_name, 0, service_name_len);
     HAL_Snprintf(service_name, service_name_len, rrpc_response_service_name, rrpcid_len, rrpcid);
@@ -1681,7 +1676,7 @@ int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t t
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1700,7 +1695,7 @@ int dm_mgr_deprecated_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || tsl_source == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1737,7 +1732,7 @@ int dm_mgr_deprecated_search_devid_by_device_node(_IN_ void *node, _OU_ int *dev
     int res = 0;
 
     if (node == NULL || devid == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_mgr_deprecated_search_devid_by_node((dm_mgr_dev_node_t *)node, devid);
@@ -1754,7 +1749,7 @@ int dm_mgr_deprecated_set_tsl(int devid, iotx_dm_tsl_type_t tsl_type, const char
     dm_mgr_dev_node_t *node = NULL;
 
     if (tsl == NULL || tsl_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1776,7 +1771,7 @@ int dm_mgr_deprecated_get_property_data(_IN_ int devid, _IN_ char *key, _IN_ int
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1798,7 +1793,7 @@ int dm_mgr_deprecated_get_service_input_data(_IN_ int devid, _IN_ char *key, _IN
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1820,7 +1815,7 @@ int dm_mgr_deprecated_get_service_output_data(_IN_ int devid, _IN_ char *key, _I
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1843,7 +1838,7 @@ int dm_mgr_deprecated_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1862,7 +1857,7 @@ int dm_mgr_deprecated_get_event_output_data(_IN_ int devid, _IN_ char *key, _IN_
 int dm_mgr_deprecated_get_data_type(_IN_ void *data, _OU_ dm_shw_data_type_e *type)
 {
     if (data == NULL || type == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     return dm_shw_get_data_type(data, type);
@@ -1874,7 +1869,7 @@ int dm_mgr_deprecated_get_property_number(_IN_ int devid, _OU_ int *number)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || number == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1891,7 +1886,7 @@ int dm_mgr_deprecated_get_service_number(_IN_ int devid, _OU_ int *number)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || number == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1908,7 +1903,7 @@ int dm_mgr_deprecated_get_event_number(_IN_ int devid, _OU_ int *number)
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || number == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1925,7 +1920,7 @@ int dm_mgr_deprecated_get_property_by_index(_IN_ int devid, _IN_ int index, _OU_
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || index < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1942,7 +1937,7 @@ int dm_mgr_deprecated_get_service_by_index(_IN_ int devid, _IN_ int index, _OU_ 
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || index < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1959,7 +1954,7 @@ int dm_mgr_deprecated_get_event_by_index(_IN_ int devid, _IN_ int index, _OU_ vo
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || index < 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -1976,7 +1971,7 @@ int dm_mgr_deprecated_get_service_by_identifier(_IN_ int devid, _IN_ char *ident
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || identifier == NULL || service == NULL || *service != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
     res = _dm_mgr_search_dev_by_devid(devid, &node);
     if (res != SUCCESS_RETURN) {
@@ -1992,7 +1987,7 @@ int dm_mgr_deprecated_get_event_by_identifier(_IN_ int devid, _IN_ char *identif
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || identifier == NULL || event == NULL || *event != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2006,7 +2001,7 @@ int dm_mgr_deprecated_get_event_by_identifier(_IN_ int devid, _IN_ char *identif
 int dm_mgr_deprecated_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
 {
     if (property == NULL || identifier == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     return dm_shw_get_property_identifier(property, identifier);
@@ -2015,7 +2010,7 @@ int dm_mgr_deprecated_get_property_identifier(_IN_ void *property, _OU_ char **i
 int dm_mgr_deprecated_get_service_method(_IN_ void *service, _OU_ char **method)
 {
     if (service == NULL || method == NULL || *method != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     return dm_shw_get_service_method(service, method);
@@ -2024,7 +2019,7 @@ int dm_mgr_deprecated_get_service_method(_IN_ void *service, _OU_ char **method)
 int dm_mgr_deprecated_get_event_method(_IN_ void *event, _OU_ char **method)
 {
     if (event == NULL || method == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     return dm_shw_get_event_method(event, method);
@@ -2037,7 +2032,7 @@ int dm_mgr_deprecated_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ in
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2059,7 +2054,7 @@ int dm_mgr_deprecated_get_property_value(_IN_ int devid, _IN_ char *key, _IN_ in
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2082,7 +2077,7 @@ int dm_mgr_deprecated_set_event_output_value(_IN_ int devid, _IN_ char *key, _IN
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2104,7 +2099,7 @@ int dm_mgr_deprecated_get_event_output_value(_IN_ int devid, _IN_ char *key, _IN
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2127,7 +2122,7 @@ int dm_mgr_deprecated_set_service_input_value(_IN_ int devid, _IN_ char *key, _I
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2150,7 +2145,7 @@ int dm_mgr_deprecated_get_service_input_value(_IN_ int devid, _IN_ char *key, _I
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2174,7 +2169,7 @@ int dm_mgr_deprecated_set_service_output_value(_IN_ int devid, _IN_ char *key, _
     dm_mgr_dev_node_t *node = NULL;
 
     if (key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2197,7 +2192,7 @@ int dm_mgr_deprecated_get_service_output_value(_IN_ int devid, _IN_ char *key, _
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || key == NULL || key_len <= 0 || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2221,7 +2216,7 @@ int dm_mgr_deprecated_assemble_property(_IN_ int devid, _IN_ char *identifier, _
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2244,7 +2239,7 @@ int dm_mgr_deprecated_assemble_event_output(_IN_ int devid, _IN_ char *identifie
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2267,7 +2262,7 @@ int dm_mgr_deprecated_assemble_service_output(_IN_ int devid, _IN_ char *identif
     dm_mgr_dev_node_t *node = NULL;
 
     if (devid < 0 || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_mgr_search_dev_by_devid(devid, &node);
@@ -2296,7 +2291,7 @@ int dm_mgr_deprecated_upstream_thing_service_response(_IN_ int devid, _IN_ int m
 
     if (devid < 0 || msgid < 0 || identifier == NULL || identifier_len <= 0 ||
         payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Response Msg ID */
@@ -2312,7 +2307,7 @@ int dm_mgr_deprecated_upstream_thing_service_response(_IN_ int devid, _IN_ int m
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
         DM_free(msgid_str);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(service_name, 0, service_name_len);
     HAL_Snprintf(service_name, service_name_len, DM_URI_THING_SERVICE_RESPONSE, identifier_len, identifier);

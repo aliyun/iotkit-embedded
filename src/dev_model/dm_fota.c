@@ -43,7 +43,7 @@ static int _dm_fota_send_new_config_to_user(void *ota_handle)
 
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, fota_new_config_fmt, version);
@@ -73,7 +73,7 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
     int ret = 0;
 
     if (output == NULL || output_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Get Ota Handle */

@@ -14,7 +14,7 @@
 #include "infra_list.h"
 #include "infra_compat.h"
 #include "infra_timer.h"
-
+#include "infra_state.h"
 #include "wrappers.h"
 #include "mqtt_api.h"
 

@@ -126,12 +126,12 @@ static void _iotx_linkkit_mutex_unlock(void)
 static int _impl_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
     if (input == NULL || output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *output = IMPL_LINKKIT_MALLOC(output_len);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, output_len);
     memcpy(*output, input, input_len);
@@ -591,7 +591,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             request = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
             if (request == NULL) {
-                dm_log_err("Not Enough Memory");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_SYS_DEPEND_MALLOC, NULL);
                 return;
             }
             memset(request, 0, lite_item_payload.value_length + 1);
@@ -1135,7 +1135,7 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (ctx->is_opened) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_ALREADY_OPENED;
     }
     ctx->is_opened = 1;
 
@@ -1147,18 +1147,16 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
     /* Create Mutex */
     ctx->mutex = HAL_MutexCreate();
     if (ctx->mutex == NULL) {
-        dm_log_err("Not Enough Memory");
         ctx->is_opened = 0;
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MUTEX_CREATE;
     }
 
 #ifdef DEVICE_MODEL_GATEWAY
     ctx->upstream_mutex = HAL_MutexCreate();
     if (ctx->upstream_mutex == NULL) {
         HAL_MutexDestroy(ctx->mutex);
-        dm_log_err("Not Enough Memory");
         ctx->is_opened = 0;
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MUTEX_CREATE;
     }
 #endif
 
@@ -1167,9 +1165,8 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
     if (ctx->service_list_mutex == NULL) {
         HAL_MutexDestroy(ctx->mutex);
         HAL_MutexDestroy(ctx->upstream_mutex);
-        dm_log_err("Not Enough Memory");
         ctx->is_opened = 0;
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MUTEX_CREATE;
     }
     ctx->service_list_num = 0;
 #endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
@@ -1184,7 +1181,7 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
 #endif /* #if !defined(DEVICE_MODEL_RAWDATA_SOLO) */
         HAL_MutexDestroy(ctx->mutex);
         ctx->is_opened = 0;
-        return FAIL_RETURN;
+        return res;
     }
 
     INIT_LIST_HEAD(&ctx->upstream_sync_callback_list);
@@ -1196,20 +1193,15 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
 #ifdef DEVICE_MODEL_GATEWAY
 static int _iotx_linkkit_slave_open(iotx_linkkit_dev_meta_info_t *meta_info)
 {
-    int res = 0, devid;
+    int devid;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (!ctx->is_opened) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_OPENED;
     }
 
-    res = iotx_dm_subdev_create(meta_info->product_key, meta_info->product_secret, meta_info->device_name,
-                                meta_info->device_secret, &devid);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return devid;
+    return iotx_dm_subdev_create(meta_info->product_key, meta_info->product_secret, meta_info->device_name,
+                                 meta_info->device_secret, &devid);
 }
 #endif
 
@@ -1221,7 +1213,7 @@ static int _iotx_linkkit_master_connect(void)
     iotx_dm_event_types_t type;
 
     if (ctx->is_connected) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_ALREADY_CONNECTED;
     }
     ctx->is_connected = 1;
 
@@ -1230,16 +1222,14 @@ static int _iotx_linkkit_master_connect(void)
 
     res = iotx_dm_connect(&dm_init_params);
     if (res != SUCCESS_RETURN) {
-        dm_log_err("DM Start Failed");
         ctx->is_connected = 0;
-        return FAIL_RETURN;
+        return res;
     }
 
     res = iotx_dm_subscribe(IOTX_DM_LOCAL_NODE_DEVID);
     if (res != SUCCESS_RETURN) {
-        dm_log_err("DM Subscribe Failed");
         ctx->is_connected = 0;
-        return FAIL_RETURN;
+        return res;
     }
 
     type = IOTX_DM_EVENT_INITIALIZED;
@@ -1263,13 +1253,11 @@ static int _iotx_linkkit_slave_connect(int devid)
     void *semaphore = NULL;
 
     if (ctx->is_connected == 0) {
-        dm_log_err("master isn't start");
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
     }
 
     if (devid <= 0) {
-        dm_log_err("devid invalid");
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_DEVID;
     }
 
     res = iotx_dm_get_opt(DM_OPT_PROXY_PRODUCT_REGISTER, (void *)&proxy_product_register);
@@ -1481,9 +1469,8 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
 {
     int res = 0;
 
-    if (dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
-        dm_log_err("Invalid Parameter");
-        return FAIL_RETURN;
+    if (meta_info == NULL) {
+        return STATE_USER_INPUT_META_INFO;
     }
 
     switch (dev_type) {
@@ -1498,13 +1485,12 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
 #ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_slave_open(meta_info);
 #else
-            res = FAIL_RETURN;
+            res = STATE_DEV_MODEL_GATEWAY_NOT_ENABLED;
 #endif
         }
         break;
         default: {
-            dm_log_err("Unknown Device Type");
-            res = FAIL_RETURN;
+            res = STATE_USER_INPUT_DEVICE_TYPE;
         }
         break;
     }
@@ -1518,13 +1504,11 @@ int IOT_Linkkit_Connect(int devid)
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (devid < 0) {
-        dm_log_err("Invalid Parameter");
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (ctx->is_opened == 0) {
-
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_OPENED;
     }
 
     _iotx_linkkit_mutex_lock();
@@ -1535,7 +1519,7 @@ int IOT_Linkkit_Connect(int devid)
 #ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_connect(devid);
 #else
-        res = FAIL_RETURN;
+        res = STATE_DEV_MODEL_GATEWAY_NOT_ENABLED;
 #endif
     }
     _iotx_linkkit_mutex_unlock();
@@ -1543,25 +1527,27 @@ int IOT_Linkkit_Connect(int devid)
     return res;
 }
 
-void IOT_Linkkit_Yield(int timeout_ms)
+int IOT_Linkkit_Yield(int timeout_ms)
 {
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    int res = 0;
 
     if (timeout_ms <= 0) {
-        dm_log_err("Invalid Parameter");
-        return;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
     }
 
-    iotx_dm_yield(timeout_ms);
+    res = iotx_dm_yield(timeout_ms);
     iotx_dm_dispatch();
 
 #ifdef DEVICE_MODEL_GATEWAY
     HAL_SleepMs(timeout_ms);
 #endif
+
+    return res;
 }
 
 int IOT_Linkkit_Close(int devid)
@@ -1833,12 +1819,11 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (devid < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
-        dm_log_err("Invalid Parameter");
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
     }
 
     _iotx_linkkit_mutex_lock();
@@ -1890,12 +1875,11 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (devid < 0 || eventid == NULL || eventid_len <= 0 || payload == NULL || payload_len <= 0) {
-        dm_log_err("Invalid Parameter");
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
     }
 
     _iotx_linkkit_mutex_lock();
@@ -1920,17 +1904,16 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
 
     if (devid < 0 || serviceid == NULL || serviceid_len == 0
         || payload == NULL || payload_len == 0 || service_ctx == NULL) {
-        return FAIL_RETURN;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
     }
 
     /* check if service ctx exist */
     if (_linkkit_service_list_search(service_ctx) != SUCCESS_RETURN) {
-        dm_log_err("service ctx not exist");
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_SERVICE_CTX_NOT_EXIST;
     }
 
     /* msgid int to string */
@@ -1964,7 +1947,7 @@ int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (ctx->is_opened == 0) {
-        return res;
+        return STATE_DEV_MODEL_MASTER_NOT_OPENED;
     }
 
     iotx_dm_subdev_query(product_key, device_name, &res);

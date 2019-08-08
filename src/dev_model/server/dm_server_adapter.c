@@ -9,7 +9,7 @@
 
 const char DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY[] DM_READ_ONLY = "/dev/core/service/dev/notify";
 
-extern const char DM_MSG_REQUEST[]; 
+extern const char DM_MSG_REQUEST[];
 
 static dm_server_ctx_t g_dm_server_ctx = {0};
 
@@ -26,7 +26,7 @@ static int _dm_server_dev_notify(void *handle)
     int data_len = 0;
     int payload_len = 0;
     NetworkAddr notify_sa;
-    CoAPContext  *g_coap_ctx = CoAPServer_init();    
+    CoAPContext  *g_coap_ctx = CoAPServer_init();
 
     dm_msg_dev_core_service_dev(&data, &data_len);
 
@@ -36,18 +36,18 @@ static int _dm_server_dev_notify(void *handle)
     payload = DM_malloc(payload_len);
     if (payload == NULL) {
         DM_free(data);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(payload, 0, payload_len);
     HAL_Snprintf(payload, payload_len, DM_MSG_REQUEST, iotx_report_id(),
                  DM_MSG_VERSION, data_len, data, ALCS_NOTIFY_METHOD);
-    
+
     memset(&notify_sa, 0, sizeof(notify_sa));
     memcpy(notify_sa.addr, ALCS_NOTIFY_HOST, strlen(ALCS_NOTIFY_HOST));
     notify_sa.port = ALCS_NOTIFY_PORT;
 
     dm_log_debug("notify path:%s; payload = %s", DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, payload);
-    
+
     for (i = 0; i < 2; i++) {
         ret = CoAPServerMultiCast_send(g_coap_ctx, &notify_sa, DM_URI_DEV_CORE_SERVICE_DEV_NOTIFY, (uint8_t *)payload,
                                     (uint16_t)payload_len, NULL, NULL);
@@ -80,9 +80,10 @@ int dm_server_open(void)
 
     ctx->conn_handle  = iotx_alcs_construct(&alcs_param);
     if (ctx->conn_handle == NULL) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_ALCS_CONSTRUCT_FAILED;
     }
 
+    /* dev/core/service/dev message notify */
     _dm_server_dev_notify(ctx->conn_handle);
 
     return SUCCESS_RETURN;

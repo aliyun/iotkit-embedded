@@ -70,12 +70,12 @@ static void _linkkit_solo_upstream_mutex_unlock(void)
 static int _impl_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
     if (input == NULL || output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *output = IMPL_SOLO_MALLOC(output_len);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, output_len);
     memcpy(*output, input, input_len);

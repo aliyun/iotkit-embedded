@@ -38,7 +38,7 @@ int dm_ipc_init(int max_size)
     /* Create Mutex */
     ctx->mutex = HAL_MutexCreate();
     if (ctx->mutex == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_SYS_DEPEND_MUTEX_CREATE;
     }
 
     /* Init List */
@@ -80,7 +80,7 @@ int dm_ipc_msg_insert(void *data)
     dm_ipc_msg_node_t *node = NULL;
 
     if (data == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     _dm_ipc_lock();
@@ -94,7 +94,7 @@ int dm_ipc_msg_insert(void *data)
     node = DM_malloc(sizeof(dm_ipc_msg_node_t));
     if (node == NULL) {
         _dm_ipc_unlock();
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(node, 0, sizeof(dm_ipc_msg_node_t));
 
@@ -113,7 +113,7 @@ int dm_ipc_msg_next(void **data)
     dm_ipc_msg_node_t *node = NULL;
 
     if (data == NULL || *data != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     _dm_ipc_lock();

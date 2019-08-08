@@ -272,7 +272,7 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
     adapter->mutex = HAL_MutexCreate();
     if (adapter->mutex == NULL) {
         COAP_ERR("Mutex Init Failed");
-        return FAIL_RETURN;
+        return STATE_SYS_DEPEND_MUTEX_CREATE;
     }
 
     coap_param.send_maxcount = param->send_maxcount;
@@ -454,8 +454,6 @@ void *iotx_alcs_construct(iotx_alcs_param_t *params)
 {
     int res = 0;
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
-
-    COAP_INFO("iotx_alcs_construct enter");
 
     if (params == NULL || params->group == NULL ||
         strlen(params->group) == 0) {

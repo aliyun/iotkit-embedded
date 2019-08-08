@@ -9,12 +9,12 @@
 int dm_utils_copy_direct(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
     if (input == NULL || output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *output = HAL_Malloc(output_len);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, output_len);
     memcpy(*output, input, input_len);
@@ -25,12 +25,12 @@ int dm_utils_copy_direct(_IN_ void *input, _IN_ int input_len, _OU_ void **outpu
 int dm_utils_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
     if (input == NULL || output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *output = DM_malloc(output_len);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, output_len);
     memcpy(*output, input, input_len);
@@ -48,7 +48,7 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
     char array_index_str[10] = {0};
 
     if (input == NULL || input_len <= 1 || array_index == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < input_len; index++) {
@@ -104,7 +104,7 @@ int dm_utils_itoa_direct(_IN_ int input, _OU_ char **output)
     char temp_output[10 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = HAL_Snprintf(temp_output, 10, "%d", input);
@@ -114,7 +114,7 @@ int dm_utils_itoa_direct(_IN_ int input, _OU_ char **output)
 
     *output = HAL_Malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -128,7 +128,7 @@ int dm_utils_itoa(_IN_ int input, _OU_ char **output)
     char temp_output[10 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = HAL_Snprintf(temp_output, 10, "%d", input);
@@ -138,7 +138,7 @@ int dm_utils_itoa(_IN_ int input, _OU_ char **output)
 
     *output = DM_malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -152,7 +152,7 @@ int dm_utils_ftoa_direct(_IN_ double input, _OU_ char **output)
     char temp_output[30 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = HAL_Snprintf(temp_output, 30, "%f", input);
@@ -162,7 +162,7 @@ int dm_utils_ftoa_direct(_IN_ double input, _OU_ char **output)
 
     *output = HAL_Malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -176,7 +176,7 @@ int dm_utils_ftoa(_IN_ double input, _OU_ char **output)
     char temp_output[30 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = HAL_Snprintf(temp_output, 30, "%f", input);
@@ -186,7 +186,7 @@ int dm_utils_ftoa(_IN_ double input, _OU_ char **output)
 
     *output = DM_malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -200,13 +200,13 @@ int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char
     unsigned char iter_char = 0;
 
     if (input == NULL || input_len <= 0 || output == NULL || *output != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     output_len = input_len * 2;
     *output = DM_malloc(output_len + 1);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, output_len + 1);
 
@@ -238,13 +238,13 @@ int dm_utils_str_to_hex(_IN_ char *input, _IN_ int input_len, _OU_ unsigned char
 
     if (input == NULL || input_len <= 0 || input_len % 2 != 0 ||
         output == NULL || *output != NULL || output_len == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *output_len = input_len / 2;
     *output = DM_malloc(*output_len);
     if (*output == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*output, 0, *output_len);
 
@@ -273,7 +273,7 @@ int dm_utils_memtok(_IN_ char *input, _IN_ int input_len, _IN_ char delimiter, _
     int count = 0;
 
     if (input == NULL || input_len <= 0 || offset == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (item_index = 0; item_index < input_len; item_index++) {
@@ -294,7 +294,7 @@ int dm_utils_replace_char(_IN_ char *input, _IN_ int input_len, _IN_ char src, _
     int index = 0;
 
     if (input == NULL || input_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < input_len; index++) {
@@ -314,13 +314,13 @@ int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ c
     int service_name_len = 0;
     if ((prefix == NULL && name == NULL) || product_key == NULL || device_name == NULL ||
         service_name == NULL || *service_name != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     service_name_len = prefix_len + name_len + strlen(product_key) + strlen(device_name) + 1;
     *service_name = DM_malloc(service_name_len);
     if (*service_name == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*service_name, 0, service_name_len);
 
@@ -340,13 +340,13 @@ int dm_utils_uri_add_prefix(_IN_ const char *prefix, _IN_ char *uri, _OU_ char *
     int new_uri_len = 0;
 
     if (prefix == NULL || uri == NULL || new_uri == NULL || *new_uri != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     new_uri_len = strlen(prefix) + strlen(uri) + 1;
     *new_uri = DM_malloc(new_uri_len);
     if (*new_uri == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*new_uri, 0, new_uri_len);
 
@@ -361,7 +361,7 @@ int dm_utils_json_parse(_IN_ const char *payload, _IN_ int payload_len, _IN_ int
     int res = 0;
 
     if (payload == NULL || payload_len <= 0 || type < 0 || lite == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
     memset(lite, 0, sizeof(lite_cjson_t));
 
@@ -385,7 +385,7 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
     int res = 0;
 
     if (lite == NULL || lite->type != cJSON_Object || key == NULL || key_len <= 0 || type < 0 || lite_item == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (lite->type != cJSON_Object) {

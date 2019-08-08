@@ -478,7 +478,7 @@ int lite_cjson_parse(const char *src, int src_len, lite_cjson_t *lite)
 {
     parse_buffer buffer;
 
-    if (!lite || !src || !lite || src_len <= 0) {
+    if (!lite || !src || src_len <= 0) {
         return -1;
     }
 

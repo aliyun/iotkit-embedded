@@ -56,7 +56,7 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
     IOT_OTA_Ioctl(ota_handle, IOT_OTAG_COTA_GETTYPE, (void *)&get_type, 1);
 
     if (config_id == NULL || sign == NULL || sign_method == NULL || url == NULL || get_type == NULL) {
-        res = FAIL_RETURN;
+        res = STATE_USER_INPUT_INVALID;
         goto ERROR;
     }
 
@@ -65,7 +65,7 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
 
     message = DM_malloc(message_len);
     if (message == NULL) {
-        res = DM_MEMORY_NOT_ENOUGH;
+        res = STATE_SYS_DEPEND_MALLOC;
         goto ERROR;
     }
     memset(message, 0, message_len);
@@ -78,7 +78,6 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
         if (message) {
             DM_free(message);
         }
-        res = FAIL_RETURN;
         goto ERROR;
     }
 
@@ -114,18 +113,15 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     uint32_t ota_type = IOT_OTAT_NONE;
 
     if (output == NULL || output_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Get Ota Handle */
     res = dm_ota_get_ota_handle(&ota_handle);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+    if (res < 0) {
+        return res;
     }
 
-    if (ota_handle == NULL) {
-        return FAIL_RETURN;
-    }
     IOT_OTA_Ioctl(ota_handle, IOT_OTAG_OTA_TYPE, &ota_type, 4);
 
     if (ota_type != IOT_OTAT_COTA) {
@@ -175,7 +171,7 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
             if (file_isvalid == 0) {
                 HAL_Firmware_Persistence_Stop();
                 ctx->is_report_new_config = 0;
-                return FAIL_RETURN;
+                return STATE_DEV_MODEL_OTA_IMAGE_CHECK_FAILED;
             } else {
                 break;
             }
@@ -196,7 +192,7 @@ int dm_cota_get_config(const char *config_scope, const char *get_type, const cha
     /* Get Ota Handle */
     res = dm_ota_get_ota_handle(&ota_handle);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     return iotx_ota_get_config(ota_handle, config_scope, get_type, attribute_keys);
@@ -211,7 +207,7 @@ int dm_cota_status_check(void)
     /* Get Ota Handle */
     res = dm_ota_get_ota_handle(&ota_handle);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     if (IOT_OTA_IsFetching(ota_handle)) {

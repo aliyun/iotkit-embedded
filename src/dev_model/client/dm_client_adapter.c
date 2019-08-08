@@ -34,22 +34,14 @@ int dm_client_open(void)
     }
     ctx->fd = res;
 
-    dm_log_info("CM Fd: %d", ctx->fd);
-
     return SUCCESS_RETURN;
 }
 
 int dm_client_connect(int timeout_ms)
 {
-    int res = 0;
     dm_client_ctx_t *ctx = dm_client_get_ctx();
 
-    res = iotx_cm_connect(ctx->fd, timeout_ms);
-    if (res < SUCCESS_RETURN) {
-        return res;
-    }
-
-    return SUCCESS_RETURN;
+    return iotx_cm_connect(ctx->fd, timeout_ms);
 }
 
 int dm_client_close(void)
@@ -61,7 +53,6 @@ int dm_client_close(void)
 
 int dm_client_subscribe(char *uri, iotx_cm_data_handle_cb callback, void *context)
 {
-    int res = 0;
     uint8_t local_sub = 0;
     dm_client_ctx_t *ctx = dm_client_get_ctx();
     iotx_cm_ext_params_t sub_params;
@@ -82,26 +73,14 @@ int dm_client_subscribe(char *uri, iotx_cm_data_handle_cb callback, void *contex
     sub_params.sync_timeout = IOTX_DM_CLIENT_SUB_TIMEOUT_MS;
     sub_params.ack_cb = NULL;
 
-    res = iotx_cm_sub(ctx->fd, &sub_params, (const char *)uri, callback, NULL);
-    dm_log_info("Subscribe Result: %d", res);
-
-    if (res < SUCCESS_RETURN) {
-        return res;
-    }
-
-    return SUCCESS_RETURN;
+    return iotx_cm_sub(ctx->fd, &sub_params, (const char *)uri, callback, NULL);
 }
 
 int dm_client_unsubscribe(char *uri)
 {
-    int res = 0;
     dm_client_ctx_t *ctx = dm_client_get_ctx();
 
-    res = iotx_cm_unsub(ctx->fd, uri);
-
-    dm_log_info("Unsubscribe Result: %d", res);
-
-    return res;
+    return iotx_cm_unsub(ctx->fd, uri);
 }
 
 int dm_client_publish(char *uri, unsigned char *payload, int payload_len, iotx_cm_data_handle_cb callback)
@@ -121,14 +100,13 @@ int dm_client_publish(char *uri, unsigned char *payload, int payload_len, iotx_c
     pub_param.ack_cb = callback;
     res = dm_utils_uri_add_prefix("/topic", uri, &pub_uri);
     if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 #else
     pub_uri = uri;
 #endif
 
     res = iotx_cm_pub(ctx->fd, &pub_param, (const char *)pub_uri, (const char *)payload, (unsigned int)payload_len);
-    dm_log_info("Publish Result: %d", res);
 
 #if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
     DM_free(pub_uri);

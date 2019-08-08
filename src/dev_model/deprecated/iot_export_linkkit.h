@@ -104,10 +104,10 @@ int IOT_Linkkit_Connect(int devid);
  *
  * @param timeout_ms. timeout for waiting new message arrived
  *
- * @return void.
+ * @return state code.
  *
  */
-void IOT_Linkkit_Yield(int timeout_ms);
+int IOT_Linkkit_Yield(int timeout_ms);
 
 /**
  * @brief close device network connection and release resources.

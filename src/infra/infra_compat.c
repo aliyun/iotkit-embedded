@@ -231,7 +231,12 @@ int IOT_Ioctl(int option, void *data)
 #ifdef DEVICE_MODEL_SUBDEV_OTA
         case IOTX_IOCTL_SET_OTA_DEV_ID: {
             int devid = *(int *)(data);
-            res = iotx_dm_ota_switch_device(devid);
+            if (devid < 0) {
+                res = STATE_USER_INPUT_DEVID;
+            }
+            else {
+                res = iotx_dm_ota_switch_device(devid);
+            }
         }
         break;
 #endif
@@ -292,7 +297,7 @@ int IOT_Ioctl(int option, void *data)
 #if defined(DEVICE_MODEL_ENABLED)
         case IOTX_IOCTL_SUB_USER_TOPIC: {
             iotx_user_subscribe_context *context = (iotx_user_subscribe_context *) data;
-            iotx_dm_subscribe_user_topic((char *)context->topic, (void *)context->callback);
+            res = iotx_dm_subscribe_user_topic((char *)context->topic, (void *)context->callback);
         }
         break;
 #endif

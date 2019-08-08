@@ -164,8 +164,6 @@ typedef enum {
     DM_TSL_PROPERTY_NOT_EXIST = -6,
     DM_TSL_SERVICE_NOT_EXIST = -5,
     DM_JSON_PARSE_FAILED = -4,
-    DM_MEMORY_NOT_ENOUGH = -3,
-    DM_INVALID_PARAMETER = -2
 } dm_error_code_t;
 
 #define IOTX_DM_POST_PROPERTY_ALL (NULL)

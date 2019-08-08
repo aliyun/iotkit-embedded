@@ -24,7 +24,7 @@ static int _dm_ota_clean_state(void *context)
         fota->is_report_new_config = 0;
     }
     return 0;
-} 
+}
 
 int dm_ota_init(void)
 {
@@ -45,7 +45,7 @@ int dm_ota_sub(void)
     /* Init OTA Handle */
     handle = IOT_OTA_Init(ctx->product_key, ctx->device_name, NULL);
     if (handle == NULL) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_OTA_INIT_FAILED;
     }
     IOT_OTA_SetOnPushedCallback(handle, _dm_ota_clean_state);
     ctx->ota_handle = handle;
@@ -71,28 +71,23 @@ int dm_ota_switch_device(int devid)
     char pk[IOTX_PRODUCT_KEY_LEN + 1] = {0};
     char dn[IOTX_DEVICE_NAME_LEN + 1] = {0};
     char ds[IOTX_DEVICE_SECRET_LEN + 1] = {0};
-    int ret = dm_mgr_search_device_by_devid(devid, pk, dn, ds);
     void *ota_handle = NULL;
     int res = -1;
     dm_ota_ctx_t *ctx = NULL;
 
-    if (SUCCESS_RETURN != ret) {
-        dm_log_err("could not find device by id, ret is %d", ret);
-        return FAIL_RETURN;
+    res = dm_mgr_search_device_by_devid(devid, pk, dn, ds);
+    if (SUCCESS_RETURN != res) {
+        return res;
     }
-    dm_log_info("do subdevice ota, pk, dn is %s, %s", pk, dn);
 
-    ota_handle = NULL;
     res = dm_ota_get_ota_handle(&ota_handle);
-
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     /* if currently a device is doing OTA, do not interrupt */
     if (IOT_OTA_IsFetching(ota_handle)) {
-        dm_log_info("OTA is processing, can not switch to another device");
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_OTA_IS_ONGOING;
     }
 
     dm_ota_deinit();
@@ -101,11 +96,8 @@ int dm_ota_switch_device(int devid)
 
     memcpy(ctx->product_key, pk, strlen(pk) + 1);
     memcpy(ctx->device_name, dn, strlen(dn) + 1);
-    ret = dm_ota_sub();
-    if (ret < 0) {
-        dm_log_err("dm_ota_sub ret is %d, %s, %s\n", ret, pk, dn);
-    }
-    return ret;
+    res = dm_ota_sub();
+    return res;
 }
 #endif
 #endif
@@ -115,15 +107,14 @@ int dm_ota_get_ota_handle(void **handle)
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
 
     if (handle == NULL || *handle != NULL) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_INTERNAL_ERROR;
     }
 
     if (ctx->ota_handle == NULL) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_OTA_NOT_INITED;
     }
 
     *handle = ctx->ota_handle;
-
     return SUCCESS_RETURN;
 }
 #endif

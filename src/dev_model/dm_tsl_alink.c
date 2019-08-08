@@ -57,7 +57,7 @@ static int _dm_shw_get_type(_IN_ const char *name, _IN_ int name_len, _OU_ dm_sh
     int index = 0;
 
     if (name == NULL || name_len <= 0 || type == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < sizeof(g_dm_tsl_alink_mapping) / sizeof(dm_tsl_alink_mapping_t); index++) {
@@ -112,7 +112,7 @@ static int _dm_shw_array_int_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ li
 
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(int)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(int)));
 
@@ -133,7 +133,7 @@ static int _dm_shw_array_float_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
 
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(float)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(float)));
 
@@ -154,7 +154,7 @@ static int _dm_shw_array_double_parse(_IN_ dm_shw_data_value_t *data_value, _IN_
 
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(double)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(double)));
 
@@ -175,7 +175,7 @@ static int _dm_shw_array_text_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ l
 
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(char *)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(char *)));
 
@@ -201,7 +201,7 @@ static int _dm_shw_array_enum_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ l
 
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(int)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(int)));
 
@@ -214,7 +214,7 @@ static int _dm_shw_array_date_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ l
 
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(char *)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(char *)));
 
@@ -227,7 +227,7 @@ static int _dm_shw_array_bool_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ l
 
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(int)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(int)));
 
@@ -245,13 +245,13 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
     dm_shw_data_value_complex_t *complex_array_next_level = NULL;
 
     if (!lite_cjson_is_object(root)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Allocate Memory For Next Level Data Value And Next Level Complex Array */
     data_value_next_level = DM_malloc(sizeof(dm_shw_data_value_t));
     if (data_value_next_level == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(data_value_next_level, 0, sizeof(dm_shw_data_value_t));
     data_value_next_level->type = DM_SHW_DATA_TYPE_ARRAY;
@@ -259,7 +259,7 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
     complex_array_next_level = DM_malloc(sizeof(dm_shw_data_value_complex_t));
     if (complex_array_next_level == NULL) {
         DM_free(data_value_next_level);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array_next_level, 0, sizeof(dm_shw_data_value_complex_t));
     complex_array->value = (void *)data_value_next_level;
@@ -325,13 +325,13 @@ static int _dm_shw_array_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_
     dm_shw_data_t *data = NULL;
 
     if (!lite_cjson_is_array(root) || root->size <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     dm_log_debug("Array Struct Size: %d", complex_array->size);
     complex_array->value = DM_malloc((complex_array->size) * (sizeof(dm_shw_data_t)));
     if (complex_array->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(dm_shw_data_t)));
 
@@ -360,13 +360,13 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
     /* dm_log_debug("DM_SHW_DATA_TYPE_ARRAY"); */
 
     if (root == NULL || !lite_cjson_is_object(root)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Allocate Memory For Data Type Specs */
     complex_array = DM_malloc(sizeof(dm_shw_data_value_complex_t));
     if (complex_array == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_array, 0, sizeof(dm_shw_data_value_complex_t));
     data_value->value = (void *)complex_array;
@@ -434,7 +434,7 @@ static int _dm_shw_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_
     /* dm_log_debug("DM_SHW_DATA_TYPE_STRUCT"); */
 
     if (root == NULL || !lite_cjson_is_array(root) || root->size == 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* dm_log_debug("TSL Property Struct Size: %d",root->size); */
@@ -442,7 +442,7 @@ static int _dm_shw_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_
     /* Allocate Memory For Data Type Specs */
     complex_struct = DM_malloc(sizeof(dm_shw_data_value_complex_t));
     if (complex_struct == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_struct, 0, sizeof(dm_shw_data_value_complex_t));
     data_value->value = (void *)complex_struct;
@@ -452,7 +452,7 @@ static int _dm_shw_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_
     /* Allocate Memory For Multi Identifier */
     complex_struct->value = DM_malloc((complex_struct->size) * (sizeof(dm_shw_data_t)));
     if (complex_struct->value == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(complex_struct->value, 0, (complex_struct->size) * (sizeof(dm_shw_data_t)));
 
@@ -570,7 +570,7 @@ static int _dm_shw_properties_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *ro
     shadow->property_number = lite_properties.size;
     shadow->properties = DM_malloc(sizeof(dm_shw_data_t) * (lite_properties.size));
     if (shadow->properties == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(shadow->properties, 0, sizeof(dm_shw_data_t) * (lite_properties.size));
 
@@ -636,7 +636,7 @@ static int _dm_shw_event_outputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_ev
     /* Allocate Memory For Output Datas */
     event->output_datas = DM_malloc((event->output_data_number) * (sizeof(dm_shw_data_t)));
     if (event->output_datas == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(event->output_datas, 0, (event->output_data_number) * (sizeof(dm_shw_data_t)));
 
@@ -719,7 +719,7 @@ static int _dm_shw_events_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *root)
     shadow->event_number = lite_events.size;
     shadow->events = DM_malloc(sizeof(dm_shw_event_t) * (lite_events.size));
     if (shadow->events == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(shadow->events, 0, sizeof(dm_shw_event_t) * (lite_events.size));
 
@@ -785,7 +785,7 @@ static int _dm_shw_service_outputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_
     /* Allocate Memory For Output Datas */
     service->output_datas = DM_malloc((service->output_data_number) * (sizeof(dm_shw_data_t)));
     if (service->output_datas == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(service->output_datas, 0, (service->output_data_number) * (sizeof(dm_shw_data_t)));
 
@@ -812,7 +812,7 @@ static int _dm_shw_service_inputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_da
     lite_cjson_t lite_item;
 
     if (!lite_cjson_is_object(root)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Parse Identifier (Madantory) */
@@ -858,7 +858,7 @@ static int _dm_shw_service_inputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_s
     /* Allocate Memory For Output Datas */
     service->input_datas = DM_malloc((service->input_data_number) * (sizeof(dm_shw_data_t)));
     if (service->input_datas == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(service->input_datas, 0, (service->input_data_number) * (sizeof(dm_shw_data_t)));
 
@@ -957,7 +957,7 @@ static int _dm_shw_services_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *root
     shadow->service_number = lite_services.size;
     shadow->services = DM_malloc(sizeof(dm_shw_service_t) * (lite_services.size));
     if (shadow->services == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(shadow->services, 0, sizeof(dm_shw_service_t) * (lite_services.size));
 
@@ -983,12 +983,12 @@ int dm_tsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **
     lite_cjson_t lite_root;
 
     if (shadow == NULL || *shadow != NULL || tsl == NULL || tsl_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *shadow = DM_malloc(sizeof(dm_shw_t));
     if (*shadow == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*shadow, 0, sizeof(dm_shw_t));
 

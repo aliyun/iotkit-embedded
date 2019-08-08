@@ -37,7 +37,7 @@ int dm_msg_cache_init(void)
     /* Create Mutex */
     ctx->mutex = HAL_MutexCreate();
     if (ctx->mutex == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MUTEX_CREATE;
     }
 
     /* Init Message Cache List */
@@ -82,7 +82,7 @@ int dm_msg_cache_insert(int msgid, int devid, iotx_dm_event_types_t type, char *
 
     node = DM_malloc(sizeof(dm_msg_cache_node_t));
     if (node == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(node, 0, sizeof(dm_msg_cache_node_t));
 
@@ -107,7 +107,7 @@ int dm_msg_cache_search(_IN_ int msgid, _OU_ dm_msg_cache_node_t **node)
     dm_msg_cache_node_t *search_node = NULL;
 
     if (msgid < 0 || node == NULL || *node != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     _dm_msg_cache_mutex_lock();

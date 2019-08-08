@@ -81,7 +81,7 @@ static int _linkkit_gateway_callback_list_insert(int devid, linkkit_cbs_t *callb
 
     node = IMPL_GATEWAY_MALLOC(sizeof(linkkit_gateway_dev_callback_node_t));
     if (node == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(node, 0, sizeof(linkkit_gateway_dev_callback_node_t));
     node->devid = devid;
@@ -162,7 +162,7 @@ static int _linkkit_gateway_upstream_sync_callback_list_insert(int msgid, void *
 
     search_node = IMPL_GATEWAY_MALLOC(sizeof(linkkit_gateway_upstream_sync_callback_node_t));
     if (search_node == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(search_node, 0, sizeof(linkkit_gateway_upstream_sync_callback_node_t));
     search_node->msgid = msgid;
@@ -246,7 +246,7 @@ static int _linkkit_gateway_upstream_async_callback_list_insert(int msgid, int t
 
     node = IMPL_GATEWAY_MALLOC(sizeof(linkkit_gateway_upstream_async_callback_node_t));
     if (node == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(node, 0, sizeof(linkkit_gateway_upstream_async_callback_node_t));
     node->msgid = msgid;
@@ -1334,7 +1334,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 static void *_linkkit_gateway_dispatch(void *params)
 {
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx  = (linkkit_gateway_legacy_ctx_t *)params;
-    
+
     if (params == NULL) {
         return NULL;
     }

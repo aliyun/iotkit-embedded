@@ -268,7 +268,7 @@ static int _dm_shw_data_search(_IN_ dm_shw_data_t *input, _IN_ char *key,
     int partial_input_len = 0, array_input_len = 0, array_index = 0;
 
     if (input == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(key, key_len, DM_SHW_KEY_DELIMITER, 1, &deli_offset);
@@ -352,7 +352,7 @@ static int _dm_shw_property_search(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ i
     dm_shw_data_t *property_item = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (shadow->property_number == 0 || shadow->properties == NULL) {
@@ -377,7 +377,7 @@ static int _dm_shw_event_output_search(_IN_ dm_shw_data_t *outputdatas, _IN_ int
     dm_shw_data_t *outputdata = NULL;
 
     if (outputdatas == NULL || number <= 0 || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (item_index = 0; item_index < number; item_index++) {
@@ -397,7 +397,7 @@ static int _dm_shw_event_search(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int 
     dm_shw_event_t *dtsl_event = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->event_number; index++) {
@@ -450,7 +450,7 @@ static int _dm_shw_service_search(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
     dm_shw_service_t *dtsl_service = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->service_number; index++) {
@@ -475,7 +475,7 @@ int dm_shw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int t
     int res = 0;
 
     if (shadow == NULL || *shadow != NULL || tsl == NULL || tsl_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     switch (type) {
@@ -502,7 +502,7 @@ int dm_shw_get_property_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key
     int res = 0;
 
     if (shadow == NULL || key == NULL || key_len <= 0 || data == NULL || *data != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_shw_property_search(shadow, key, key_len, (dm_shw_data_t **)data, NULL);
@@ -524,7 +524,7 @@ int dm_shw_get_service_input_output_data(_IN_ dm_shw_data_target_e type, _IN_ dm
 
     if (type < DM_SHW_DATA_TARGET_SERVICE_INPUT_DATA || type > DM_SHW_DATA_TARGET_SERVICE_OUTPUT_DATA || shadow == NULL
         || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(key, key_len, DM_SHW_KEY_DELIMITER, 1, &offset);
@@ -563,7 +563,7 @@ int dm_shw_get_event_output_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int
     dm_shw_data_t *event_data = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(key, key_len, DM_SHW_KEY_DELIMITER, 1, &offset);
@@ -599,7 +599,7 @@ int dm_shw_get_data_type(_IN_ void *data, _OU_ dm_shw_data_type_e *type)
     dm_shw_data_t *data_item = (dm_shw_data_t *)data;
 
     if (data_item == NULL || type == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (data_item->data_value.type == DM_SHW_DATA_TYPE_ARRAY) {
@@ -618,7 +618,7 @@ int dm_shw_get_event(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _O
     dm_shw_event_t *dtsl_event = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->event_number; index++) {
@@ -641,7 +641,7 @@ int dm_shw_get_service(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, 
     dm_shw_service_t *dtsl_service = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->event_number; index++) {
@@ -661,7 +661,7 @@ int dm_shw_get_service(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, 
 int dm_shw_get_property_number(_IN_ dm_shw_t *shadow, _OU_ int *number)
 {
     if (shadow == NULL || number == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *number = shadow->property_number;
@@ -672,7 +672,7 @@ int dm_shw_get_property_number(_IN_ dm_shw_t *shadow, _OU_ int *number)
 int dm_shw_get_service_number(_IN_ dm_shw_t *shadow, _OU_ int *number)
 {
     if (shadow == NULL || number == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *number = shadow->service_number;
@@ -683,7 +683,7 @@ int dm_shw_get_service_number(_IN_ dm_shw_t *shadow, _OU_ int *number)
 int dm_shw_get_event_number(_IN_ dm_shw_t *shadow, _OU_ int *number)
 {
     if (shadow == NULL || number == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *number = shadow->event_number;
@@ -695,7 +695,7 @@ int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ voi
 {
     if (shadow == NULL || index < 0 || index >= shadow->property_number ||
         property == NULL || *property != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *property = (void *)(shadow->properties + index);
@@ -707,7 +707,7 @@ int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void
 {
     if (shadow == NULL || index < 0 || index >= shadow->service_number ||
         service == NULL || *service != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *service = (void *)(shadow->services + index);
@@ -719,7 +719,7 @@ int dm_shw_get_event_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void *
 {
     if (shadow == NULL || index < 0 || index >= shadow->event_number ||
         event == NULL || *event != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *event = (void *)(shadow->events + index);
@@ -734,7 +734,7 @@ int dm_shw_get_service_by_identifier(_IN_ dm_shw_t *shadow, _IN_ char *identifie
 
     if (shadow == NULL || identifier == NULL ||
         service == NULL || *service != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->service_number; index++) {
@@ -756,7 +756,7 @@ int dm_shw_get_event_by_identifier(_IN_ dm_shw_t *shadow, _IN_ char *identifier,
 
     if (shadow == NULL || identifier == NULL ||
         event == NULL || *event != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->event_number; index++) {
@@ -776,7 +776,7 @@ int dm_shw_get_property_identifier(_IN_ void *property, _OU_ char **identifier)
     dm_shw_data_t *property_item = (dm_shw_data_t *)property;
 
     if (property_item == NULL || identifier == NULL || *identifier != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *identifier = property_item->identifier;
@@ -791,13 +791,13 @@ int dm_shw_get_service_method(_IN_ void *service, _OU_ char **method)
     dm_shw_service_t *service_item = (dm_shw_service_t *)service;
 
     if (service_item == NULL || method == NULL || *method != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     service_method_len = (strlen(service_method_fmt) + strlen(service_item->identifier) + 1);
     *method = DM_malloc(service_method_len);
     if (*method == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*method, 0, service_method_len);
     HAL_Snprintf(*method, service_method_len, service_method_fmt, service_item->identifier);
@@ -815,7 +815,7 @@ int dm_shw_get_event_method(_IN_ void *event, _OU_ char **method)
     dm_shw_event_t *event_item = (dm_shw_event_t *)event;
 
     if (event_item == NULL || method == NULL || *method != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* God Damn It Special Case! */
@@ -829,7 +829,7 @@ int dm_shw_get_event_method(_IN_ void *event, _OU_ char **method)
     event_method_len = (strlen(event_method_fmt) + strlen(identifier) + 1);
     *method = DM_malloc(event_method_len);
     if (*method == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*method, 0, event_method_len);
     HAL_Snprintf(*method, event_method_len, event_method_fmt, identifier);
@@ -879,7 +879,7 @@ static int _dm_shw_text_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
     }
     res = dm_utils_copy(value_set, value_set_len, &data_value->value, value_set_len + 1);
     if (res != SUCCESS_RETURN) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     dm_log_debug("Current Text Value Be Set(String): %s", data_value->value);
 
@@ -910,7 +910,7 @@ static int _dm_shw_date_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
     }
     res = dm_utils_copy(value_set, value_set_len, &data_value->value, value_set_len + 1);
     if (res != SUCCESS_RETURN) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     dm_log_debug("Current Date Value Be Set(String): %s", data_value->value);
 
@@ -1044,7 +1044,7 @@ static int _dm_shw_data_array_set(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array == NULL || index < 0 || index >= complex_array->size) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (g_iotx_data_type_mapping[complex_array->type].func_array_set == NULL) {
@@ -1162,7 +1162,7 @@ static int _dm_shw_array_int_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array->value == NULL || ((int *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *((int *)value) = *((int *)(complex_array->value) + index);
@@ -1175,7 +1175,7 @@ static int _dm_shw_array_float_get(_IN_ dm_shw_data_value_t *data_value, _IN_ vo
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array->value == NULL || ((float *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *((float *)value) = *((float *)(complex_array->value) + index);
@@ -1188,7 +1188,7 @@ static int _dm_shw_array_double_get(_IN_ dm_shw_data_value_t *data_value, _IN_ v
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array->value == NULL || ((double *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *((double *)value) = *((double *)(complex_array->value) + index);
@@ -1202,7 +1202,7 @@ static int _dm_shw_array_text_get(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array->value == NULL || *((char **)(complex_array->value) + index) == NULL || *(char **)value != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_copy_direct(*((char **)(complex_array->value) + index),
@@ -1220,7 +1220,7 @@ static int _dm_shw_array_enum_get(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array->value == NULL || ((int *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *((int *)value) = *((int *)(complex_array->value) + index);
@@ -1234,7 +1234,7 @@ static int _dm_shw_array_date_get(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array->value == NULL || *((char **)(complex_array->value) + index) == NULL || *(char **)value != NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_copy_direct(*((char **)(complex_array->value) + index),
@@ -1252,7 +1252,7 @@ static int _dm_shw_array_bool_get(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
     if (complex_array->value == NULL || ((int *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     *((int *)value) = *((int *)(complex_array->value) + index);
@@ -1290,7 +1290,7 @@ int dm_shw_get_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
     dm_shw_data_t *data = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = _dm_shw_property_search(shadow, key, key_len, &data, &array_index);
@@ -1324,7 +1324,7 @@ int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
     dm_shw_data_t *event_data = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(key, key_len, DM_SHW_KEY_DELIMITER, 1, &offset);
@@ -1372,7 +1372,7 @@ int dm_shw_get_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
     dm_shw_data_t *event_data = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(key, key_len, DM_SHW_KEY_DELIMITER, 1, &offset);
@@ -1422,7 +1422,7 @@ int dm_shw_set_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ d
 
     if (type < DM_SHW_DATA_TARGET_SERVICE_INPUT_DATA || type > DM_SHW_DATA_TARGET_SERVICE_OUTPUT_DATA || shadow == NULL
         || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(key, key_len, DM_SHW_KEY_DELIMITER, 1, &offset);
@@ -1470,7 +1470,7 @@ int dm_shw_get_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ d
     dm_shw_data_t *service_data = NULL;
 
     if (shadow == NULL || key == NULL || key_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(key, key_len, DM_SHW_KEY_DELIMITER, 1, &offset);
@@ -1548,7 +1548,7 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
     dm_shw_data_value_complex_t *complex_array = NULL;
 
     if (data == NULL || lite == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     complex_array = data->data_value.value;
@@ -1556,7 +1556,7 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
     if (lite->type == cJSON_Array) {
         array = lite_cjson_create_object();
         if (array == NULL) {
-            return DM_MEMORY_NOT_ENOUGH;
+            return STATE_SYS_DEPEND_MALLOC;
         }
     }
 
@@ -1565,7 +1565,7 @@ static int _dm_shw_array_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cj
         if (array) {
             lite_cjson_delete(array);
         }
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     switch (complex_array->type) {
@@ -1673,20 +1673,20 @@ static int _dm_shw_struct_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_c
     dm_shw_data_value_complex_t *complex_struct = NULL;
 
     if (data == NULL || lite == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (lite->type == cJSON_Array) {
         lite_object = lite_cjson_create_object();
         if (lite_object == NULL) {
-            return DM_MEMORY_NOT_ENOUGH;
+            return STATE_SYS_DEPEND_MALLOC;
         }
     }
 
     lite_item = lite_cjson_create_object();
     if (lite_item == NULL) {
         lite_cjson_delete(lite_object);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     complex_struct = data->data_value.value;
@@ -1723,13 +1723,13 @@ static int _dm_shw_data_insert_json_item(_IN_ dm_shw_data_t *data, _IN_ lite_cjs
     lite_cjson_item_t *data_object = NULL;
 
     if (data == NULL || lite == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (lite->type == cJSON_Array) {
         data_object = lite_cjson_create_object();
         if (data_object == NULL) {
-            return DM_MEMORY_NOT_ENOUGH;
+            return STATE_SYS_DEPEND_MALLOC;
         }
     }
 
@@ -1827,7 +1827,7 @@ int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ 
     dm_shw_data_t *property = NULL;
 
     if (shadow == NULL || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->property_number; index++) {
@@ -1860,7 +1860,7 @@ int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _
     dm_shw_event_t *event = NULL;
 
     if (shadow == NULL || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->event_number; index++) {
@@ -1897,7 +1897,7 @@ int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier,
     dm_shw_service_t *service = NULL;
 
     if (shadow == NULL || identifier == NULL || identifier_len <= 0 || lite == NULL || lite->type != cJSON_Object) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     for (index = 0; index < shadow->service_number; index++) {

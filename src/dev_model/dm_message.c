@@ -34,7 +34,7 @@ int _dm_msg_send_to_user(iotx_dm_event_types_t type, char *message)
 
     dipc_msg = DM_malloc(sizeof(dm_ipc_msg_t));
     if (dipc_msg == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(dipc_msg, 0, sizeof(dm_ipc_msg_t));
 
@@ -44,7 +44,7 @@ int _dm_msg_send_to_user(iotx_dm_event_types_t type, char *message)
     res = dm_ipc_msg_insert((void *)dipc_msg);
     if (res != SUCCESS_RETURN) {
         DM_free(dipc_msg);
-        return FAIL_RETURN;
+        return res;
     }
 
     return SUCCESS_RETURN;
@@ -59,7 +59,7 @@ int dm_msg_send_msg_timeout_to_user(int msg_id, int devid, iotx_dm_event_types_t
     message_len = strlen(DM_MSG_SEND_MSG_TIMEOUT_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len + 1);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_SEND_MSG_TIMEOUT_FMT, msg_id, IOTX_DM_ERR_CODE_TIMEOUT, devid);
@@ -86,7 +86,7 @@ int dm_msg_thing_model_user_sub(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN],
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN) ||
         payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
@@ -117,7 +117,7 @@ int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli,
 
     if (uri == NULL || uri_len <= 0 || product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) || (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_utils_memtok(uri, uri_len, DM_URI_SERVICE_DELIMITER, start_deli, &start);
@@ -149,7 +149,7 @@ int dm_msg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_r
     lite_cjson_t lite;
 
     if (payload == NULL || payload_len <= 0 || request == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (dm_utils_json_parse(payload, payload_len, cJSON_Object, &lite) != SUCCESS_RETURN ||
@@ -176,7 +176,7 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
     lite_cjson_t lite, lite_message;
 
     if (payload == NULL || payload_len <= 0 || response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (dm_utils_json_parse(payload, payload_len, cJSON_Object, &lite) != SUCCESS_RETURN ||
@@ -209,14 +209,14 @@ int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
     lite_cjson_t lite;
 
     if (request == NULL || request->params == NULL || request->method == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Request URI */
     res = dm_utils_service_name(request->service_prefix, request->service_name,
                                 request->product_key, request->device_name, &uri);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return res;
     }
 
     payload_len = strlen(DM_MSG_REQUEST) + 10 + strlen(DM_MSG_VERSION) + request->params_len + strlen(
@@ -224,7 +224,7 @@ int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
     payload = DM_malloc(payload_len);
     if (payload == NULL) {
         DM_free(uri);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(payload, 0, payload_len);
     HAL_Snprintf(payload, payload_len, DM_MSG_REQUEST, request->msgid,
@@ -233,27 +233,27 @@ int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
     memset(&lite, 0, sizeof(lite_cjson_t));
     res = lite_cjson_parse(payload, payload_len, &lite);
     if (res < SUCCESS_RETURN) {
-        dm_log_info("Wrong JSON Format, URI: %s, Payload: %s", uri, payload);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_WRONG_JSON_FORMAT, payload);
         DM_free(uri);
         DM_free(payload);
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_WRONG_JSON_FORMAT;
     }
 
     dm_log_info("DM Send Message, URI: %s, Payload: %s", uri, payload);
 
     if (type & DM_MSG_DEST_CLOUD) {
-        dm_client_publish(uri, (unsigned char *)payload, strlen(payload), request->callback);
+        res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload), request->callback);
     }
 
 #ifdef ALCS_ENABLED
     if (type & DM_MSG_DEST_LOCAL) {
-        dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
+        res = dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
     }
 #endif
 
     DM_free(uri);
     DM_free(payload);
-    return SUCCESS_RETURN;
+    return res;
 }
 
 const char DM_MSG_RESPONSE_WITH_DATA[] DM_READ_ONLY = "{\"id\":\"%.*s\",\"code\":%d,\"data\":%.*s}";
@@ -265,7 +265,7 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
     lite_cjson_t lite;
 
     if (request == NULL || response == NULL || data == NULL || data_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Response URI */
@@ -280,7 +280,7 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
     payload = DM_malloc(payload_len);
     if (payload == NULL) {
         DM_free(uri);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(payload, 0, payload_len);
     HAL_Snprintf(payload, payload_len, DM_MSG_RESPONSE_WITH_DATA,
@@ -337,7 +337,7 @@ int dm_msg_thing_model_down_raw(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
@@ -354,7 +354,7 @@ int dm_msg_thing_model_down_raw(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     message = DM_malloc(message_len);
     if (message == NULL) {
         DM_free(hexstr);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_THING_MODEL_DOWN_FMT, devid, strlen(hexstr), hexstr);
@@ -381,7 +381,7 @@ int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN +
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
@@ -398,7 +398,7 @@ int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN +
     message = DM_malloc(message_len);
     if (message == NULL) {
         DM_free(hexstr);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_THING_MODEL_DOWN_FMT, devid, strlen(hexstr), hexstr);
@@ -428,7 +428,7 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
     message_len = strlen(DM_MSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + request->params.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
 #ifdef LOG_REPORT_TO_CLOUD
@@ -455,7 +455,7 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
 
     ctx_addr_str = DM_malloc(sizeof(uintptr_t) * 2 + 1);
     if (ctx_addr_str == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(ctx_addr_str, 0, sizeof(uintptr_t) * 2 + 1);
 
@@ -469,7 +469,7 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
     message = DM_malloc(message_len);
     if (message == NULL) {
         DM_free(ctx_addr_str);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_THING_PROPERTY_GET_FMT, request->id.value_length, request->id.value, devid,
@@ -511,7 +511,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
 
     ctx_addr_str = DM_malloc(sizeof(uintptr_t) * 2 + 1);
     if (ctx_addr_str == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(ctx_addr_str, 0, sizeof(uintptr_t) * 2 + 1);
     infra_hex2str((unsigned char *)&ctx_addr_num, sizeof(uintptr_t), ctx_addr_str);
@@ -521,7 +521,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
     message = DM_malloc(message_len);
     if (message == NULL) {
         DM_free(ctx_addr_str);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     memset(message, 0, message_len);
@@ -571,7 +571,7 @@ int dm_msg_rrpc_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                   request->params.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_RRPC_REQUEST_FMT, request->id.value_length, request->id.value, devid,
@@ -643,7 +643,7 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
     message = DM_malloc(message_len);
     if (message == NULL) {
         DM_free(str_payload);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT, id, response->code.value_int, devid,
@@ -691,7 +691,7 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
                               identifier) + response->message.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT, id, response->code.value_int, devid,
@@ -734,7 +734,7 @@ int dm_msg_thing_property_desired_get_reply(dm_msg_response_payload_t *response)
                   response->data.value_length;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_DESIRED_GET_REPLY_FMT, id, response->code.value_int,
@@ -779,7 +779,7 @@ int dm_msg_thing_property_desired_delete_reply(dm_msg_response_payload_t *respon
                   response->data.value_length;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_DESIRED_DELETE_REPLY_FMT, id, response->code.value_int,
@@ -826,7 +826,7 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT, id, response->code.value_int, devid);
@@ -870,7 +870,7 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT, id, response->code.value_int, devid);
@@ -893,7 +893,7 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
     dm_msg_cache_node_t *node = NULL;
 #endif
     if (response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Message ID */
@@ -929,7 +929,7 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
     dm_msg_cache_node_t *node = NULL;
 #endif
     if (response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Message ID */
@@ -965,7 +965,7 @@ int dm_msg_ntp_response(char *payload, int payload_len)
     const char *serverSendTime = "serverSendTime";
 
     if (payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (dm_utils_json_parse(payload, payload_len, cJSON_Object, &lite) != SUCCESS_RETURN ||
@@ -981,7 +981,7 @@ int dm_msg_ntp_response(char *payload, int payload_len)
                   1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_THING_NTP_RESPONSE_FMT, lite_item_server_send_time.value_length,
@@ -1001,13 +1001,13 @@ int dm_msg_ext_error_response(char *payload, int payload_len)
     int res = 0, message_len = 0;
     char *message = NULL;
     if (payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     message_len = payload_len + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     strncpy(message, payload, payload_len);
@@ -1089,7 +1089,7 @@ int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
                       strlen(product_key) + strlen(device_name) + 1;
         message = DM_malloc(message_len);
         if (message == NULL) {
-            ret = DM_MEMORY_NOT_ENOUGH;
+            ret = STATE_SYS_DEPEND_MALLOC;
             continue;
         }
         memset(message, 0, message_len);
@@ -1115,7 +1115,7 @@ int dm_msg_thing_disable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     if (product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
@@ -1128,7 +1128,7 @@ int dm_msg_thing_disable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     message_len = strlen(DM_MSG_EVENT_THING_DISABLE_FMT) + DM_UTILS_UINT32_STRLEN + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_DISABLE_FMT, devid);
@@ -1152,7 +1152,7 @@ int dm_msg_thing_enable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     if (product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
@@ -1168,7 +1168,7 @@ int dm_msg_thing_enable(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     message_len = strlen(DM_MSG_EVENT_THING_ENABLE_FMT) + DM_UTILS_UINT32_STRLEN + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_ENABLE_FMT, devid);
@@ -1193,7 +1193,7 @@ int dm_msg_thing_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     if (product_key == NULL || device_name == NULL ||
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
@@ -1209,7 +1209,7 @@ int dm_msg_thing_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     message_len = strlen(DM_MSG_EVENT_THING_DELETE_FMT) + strlen(product_key) + strlen(device_name) + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_DELETE_FMT, res, product_key, device_name, devid);
@@ -1230,7 +1230,7 @@ int dm_msg_thing_gateway_permit(_IN_ char *payload, _IN_ int payload_len)
     lite_cjson_t lite;
 
     if (payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = lite_cjson_parse(payload, payload_len, &lite);
@@ -1241,7 +1241,7 @@ int dm_msg_thing_gateway_permit(_IN_ char *payload, _IN_ int payload_len)
     message_len = payload_len + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memcpy(message, payload, payload_len);
 
@@ -1266,7 +1266,7 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
     char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
 
     if (response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (response->code.value_int != IOTX_DM_ERR_CODE_SUCCESS) {
@@ -1562,7 +1562,7 @@ int dm_msg_thing_proxy_product_register_reply(dm_msg_response_payload_t *respons
 
 
     if (response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     res = lite_cjson_parse(response->data.value, response->data.value_length, &lite);
@@ -1600,7 +1600,7 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
 #endif
 
     if (response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -1622,7 +1622,7 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT, id, response->code.value_int, devid);
@@ -1670,7 +1670,7 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_EVENT_THING_TOPO_ADD_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_TOPO_ADD_REPLY_FMT, id, response->code.value_int, devid);
@@ -1719,7 +1719,7 @@ int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_EVENT_THING_TOPO_DELETE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_TOPO_DELETE_REPLY_FMT, id, response->code.value_int, devid);
@@ -1741,7 +1741,7 @@ int dm_msg_topo_get_reply(dm_msg_response_payload_t *response)
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
 
     if (response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Message ID */
@@ -1756,7 +1756,7 @@ int dm_msg_topo_get_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_TOPO_GET_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + response->data.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_TOPO_GET_REPLY_FMT, id, response->code.value_int, IOTX_DM_LOCAL_NODE_DEVID,
@@ -1788,7 +1788,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
 
     if (response == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     /* Parse JSON */
@@ -1831,7 +1831,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_EVENT_COMBINE_LOGIN_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_COMBINE_LOGIN_REPLY_FMT, atoi(temp_id), response->code.value_int,
@@ -1861,7 +1861,7 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
     char temp_id[DM_UTILS_UINT32_STRLEN] = {0};
 
     if (response == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Parse JSON */
@@ -1904,7 +1904,7 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
     message_len = strlen(DM_MSG_EVENT_COMBINE_LOGOUT_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_COMBINE_LOGOUT_REPLY_FMT, atoi(temp_id), response->code.value_int,
@@ -1936,12 +1936,12 @@ int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
     uint16_t port = 5683;
 
     if (payload == NULL || *payload != NULL || payload_len == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     lite_array = lite_cjson_create_array();
     if (lite_array == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     /* Get Product Key And Device Name Of All Device */
@@ -1977,7 +1977,7 @@ int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
     device_array = lite_cjson_print_unformatted(lite_array);
     lite_cjson_delete(lite_array);
     if (device_array == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     HAL_Wifi_Get_IP(ip_addr, 0);
@@ -1987,7 +1987,7 @@ int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
     *payload = DM_malloc(*payload_len);
     if (*payload == NULL) {
         HAL_Free(device_array);
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(*payload, 0, *payload_len);
     HAL_Snprintf(*payload, *payload_len, DM_MSG_DEV_CORE_SERVICE_DEV, ip_addr, port, device_array);
@@ -2037,13 +2037,13 @@ int dm_msg_thing_sub_register(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         (strlen(request->product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(request->device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     params_len = strlen(DM_MSG_THING_SUB_REGISTER_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
     params = DM_malloc(params_len);
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_SUB_REGISTER_PARAMS, product_key, device_name);
@@ -2081,7 +2081,7 @@ int dm_msg_thing_proxy_product_register(_IN_ char product_key[IOTX_PRODUCT_KEY_L
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         (strlen(request->product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(request->device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Random */
@@ -2092,7 +2092,7 @@ int dm_msg_thing_proxy_product_register(_IN_ char product_key[IOTX_PRODUCT_KEY_L
                                   product_key) + strlen(random) + 1;
     sign_source = DM_malloc(sign_source_len);
     if (sign_source == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(sign_source, 0, sign_source_len);
     HAL_Snprintf(sign_source, sign_source_len, DM_MSG_THING_PROXY_PRODUCT_REGISTER_SIGN_SOURCE,
@@ -2110,7 +2110,7 @@ int dm_msg_thing_proxy_product_register(_IN_ char product_key[IOTX_PRODUCT_KEY_L
     params = DM_malloc(params_len);
 
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_PROXY_PRODUCT_REGISTER_PARAMS, product_key, device_name,
@@ -2136,13 +2136,13 @@ int dm_msg_thing_sub_unregister(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         (strlen(request->product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(request->device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     params_len = strlen(DM_MSG_THING_SUB_UNREGISTER_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
     params = DM_malloc(params_len);
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_SUB_UNREGISTER_PARAMS, product_key, device_name);
@@ -2183,7 +2183,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN + 1) ||
         (strlen(request->product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(request->device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* TimeStamp */
@@ -2198,7 +2198,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                       strlen(device_name) + strlen(product_key) + strlen(timestamp) + 1;
     sign_source = DM_malloc(sign_source_len);
     if (sign_source == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(sign_source, 0, sign_source_len);
     HAL_Snprintf(sign_source, sign_source_len, DM_MSG_THING_TOPO_ADD_SIGN_SOURCE, client_id,
@@ -2218,7 +2218,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     params = DM_malloc(params_len);
 
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_TOPO_ADD_PARAMS, product_key, device_name,
@@ -2245,7 +2245,7 @@ int dm_msg_thing_topo_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         (strlen(request->product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(request->device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Params */
@@ -2253,7 +2253,7 @@ int dm_msg_thing_topo_delete(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     params_len = strlen(DM_MSG_THING_TOPO_DELETE_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
     params = DM_malloc(params_len);
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_TOPO_DELETE_PARAMS, product_key, device_name);
@@ -2276,7 +2276,7 @@ int dm_msg_thing_topo_get(_OU_ dm_msg_request_t *request)
     params_len = strlen(DM_MSG_THING_TOPO_GET_PARAMS) + 1;
     params = DM_malloc(params_len);
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     memcpy(params, DM_MSG_THING_TOPO_GET_PARAMS, strlen(DM_MSG_THING_TOPO_GET_PARAMS));
@@ -2300,7 +2300,7 @@ int dm_msg_thing_list_found(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         request == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Params */
@@ -2308,7 +2308,7 @@ int dm_msg_thing_list_found(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     params_len = strlen(DM_MSG_THING_LIST_FOUND_PARAMS) + strlen(product_key) + strlen(device_name) + 1;
     params = DM_malloc(params_len);
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_THING_LIST_FOUND_PARAMS, product_key, device_name);
@@ -2346,7 +2346,7 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(device_secret) >= IOTX_DEVICE_SECRET_LEN + 1) ||
         (strlen(request->product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(request->device_name) >= IOTX_DEVICE_NAME_LEN + 1)) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* TimeStamp */
@@ -2361,7 +2361,7 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                       strlen(device_name) + strlen(product_key) + strlen(timestamp) + 1;
     sign_source = DM_malloc(sign_source_len);
     if (sign_source == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(sign_source, 0, sign_source_len);
     HAL_Snprintf(sign_source, sign_source_len, DM_MSG_COMBINE_LOGIN_SIGN_SOURCE, client_id,
@@ -2381,7 +2381,7 @@ int dm_msg_combine_login(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     params = DM_malloc(params_len);
 
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_COMBINE_LOGIN_PARAMS, product_key, device_name,
@@ -2406,7 +2406,7 @@ int dm_msg_combine_logout(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         request == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Params */
@@ -2415,7 +2415,7 @@ int dm_msg_combine_logout(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1],
     params = DM_malloc(params_len);
 
     if (params == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(params, 0, params_len);
     HAL_Snprintf(params, params_len, DM_MSG_COMBINE_LOGOUT_PARAMS, product_key, device_name);
@@ -2549,7 +2549,7 @@ static int _dm_msg_set_object(dm_msg_set_type_t type, int devid, char *key, lite
         /* dm_log_debug("new_key_len: %d", new_key_len); */
         new_key = DM_malloc(new_key_len);
         if (new_key == NULL) {
-            return DM_MEMORY_NOT_ENOUGH;
+            return STATE_SYS_DEPEND_MALLOC;
         }
         memset(new_key, 0, new_key_len);
         if (key) {
@@ -2607,7 +2607,7 @@ static int _dm_msg_set_array(dm_msg_set_type_t type, int devid, char *key, lite_
         new_key = DM_malloc(new_key_len);
         if (new_key == NULL) {
             DM_free(ascii_index);
-            return DM_MEMORY_NOT_ENOUGH;
+            return STATE_SYS_DEPEND_MALLOC;
         }
         memset(new_key, 0, new_key_len);
         if (key) {
@@ -2655,14 +2655,14 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
     lite_cjson_t lite, lite_item_key, lite_item_value;
 #endif
     if (request == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
 #ifdef DEVICE_MODEL_GATEWAY
     message_len = strlen(DM_MSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + request->params.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_PROPERTY_SET_FMT, devid, request->params.value_length, request->params.value);
@@ -2700,7 +2700,7 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
         message_len = strlen(DM_MSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + lite_item_key.value_length + 1;
         message = DM_malloc(message_len);
         if (message == NULL) {
-            return DM_MEMORY_NOT_ENOUGH;
+            return STATE_SYS_DEPEND_MALLOC;
         }
         memset(message, 0, message_len);
         HAL_Snprintf(message, message_len, DM_MSG_PROPERTY_SET_FMT, devid, lite_item_key.value_length, lite_item_key.value);
@@ -2723,12 +2723,12 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
     lite_cjson_item_t *lite_cjson_item = NULL;
 
     if (devid < 0 || request == NULL || payload == NULL || *payload != NULL || payload_len == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     lite_cjson_item = lite_cjson_create_object();
     if (lite_cjson_item == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
 
     /* Parse Root */
@@ -2793,7 +2793,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
         (strlen(product_key) >= IOTX_PRODUCT_KEY_LEN + 1) ||
         (strlen(device_name) >= IOTX_DEVICE_NAME_LEN + 1) ||
         identifier == NULL || identifier_len == 0 || request == NULL) {
-        return DM_INVALID_PARAMETER;
+        return STATE_USER_INPUT_INVALID;
     }
 
     /* Message ID */
@@ -2812,7 +2812,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
                   request->params.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier,
@@ -2820,7 +2820,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
 #else
     key = DM_malloc(identifier_len + 1);
     if (key == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(key, 0, identifier_len + 1);
     memcpy(key, identifier, identifier_len);
@@ -2846,7 +2846,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[IOTX_PRODUCT_KEY_LEN + 1]
     message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
+        return STATE_SYS_DEPEND_MALLOC;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier);

@@ -43,14 +43,12 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
     }
 
     if (connection == NULL) {
-        cm_err("cm opon failed");
-        return -1;
+        return STATE_DEV_MODEL_CM_OPEN_FAILED;
     }
     fd = _get_fd(connection);
     if (fd < 0) {
-        cm_err("get fd failed");
         connection->close_func();
-        return -1;
+        return fd;
     }
     connection->fd = fd;
     return fd;
@@ -62,9 +60,9 @@ int iotx_cm_connect(int fd, uint32_t timeout)
     int ret;
 
     if (_fd_is_valid(fd) < 0) {
-        cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return STATE_DEV_MODEL_INTERNAL_FD_ERROR;
     }
+
     HAL_MutexLock(fd_lock);
     connect_func = _cm_fd[fd]->connect_func;
     HAL_MutexUnlock(fd_lock);
@@ -94,7 +92,6 @@ int iotx_cm_connect(int fd, uint32_t timeout)
         iotx_event_post(IOTX_CONN_CLOUD_FAIL);
     }
 
-
     return ret;
 }
 
@@ -103,7 +100,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     iotx_cm_yield_fp yield_func;
 
     if (fd_lock == NULL) {
-        return NULL_VALUE_ERROR;
+        return STATE_DEV_MODEL_INTERNAL_ERROR;
     }
 
     if (fd == -1) {
@@ -112,27 +109,27 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
             yield_func = NULL;
             HAL_MutexLock(fd_lock);
             if (_cm_fd[i] != NULL) {
-                yield_func =  _cm_fd[i]->yield_func;
+                yield_func = _cm_fd[i]->yield_func;
             }
             HAL_MutexUnlock(fd_lock);
             if (yield_func != NULL) {
                 yield_func(timeout);
             }
         }
-        return 0;
+        return STATE_SUCCESS;
     }
 
     if (_fd_is_valid(fd) < 0) {
         cm_err(ERR_INVALID_PARAMS);
-        return -1;
+        return STATE_DEV_MODEL_INTERNAL_FD_ERROR;
     }
 
     HAL_MutexLock(fd_lock);
-    yield_func =  _cm_fd[fd]->yield_func;
+    yield_func = _cm_fd[fd]->yield_func;
     HAL_MutexUnlock(fd_lock);
     return yield_func(timeout);
-
 }
+
 #ifdef DEVICE_MODEL_GATEWAY
 static void *_iotx_cm_yield_thread_func(void *params)
 {
@@ -148,12 +145,11 @@ static void *_iotx_cm_yield_thread_func(void *params)
 int iotx_cm_yield(int fd, unsigned int timeout)
 {
 #ifdef DEVICE_MODEL_GATEWAY
-    return 0;
+    return STATE_SUCCESS;
 #else
     return _iotx_cm_yield(fd, timeout);
 #endif
 }
-
 
 int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
                 iotx_cm_data_handle_cb topic_handle_func, void *pcontext)
@@ -290,7 +286,7 @@ static int _get_fd(iotx_cm_connection_t *handle)
     if (fd_lock == NULL) {
         fd_lock = HAL_MutexCreate();
         if (fd_lock == NULL) {
-            return -1;
+            return STATE_SYS_DEPEND_MUTEX_CREATE;
         }
     }
 
@@ -303,6 +299,6 @@ static int _get_fd(iotx_cm_connection_t *handle)
         }
     }
     HAL_MutexUnlock(fd_lock);
-    cm_err("cm fd reached the limit");
-    return -1;
+
+    return STATE_DEV_MODEL_CM_FD_COUNT_LIMITED;
 }

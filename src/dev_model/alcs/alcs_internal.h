@@ -7,6 +7,7 @@
 #include "infra_md5.h"
 #include "infra_sha1.h"
 #include "infra_json_parser.h"
+#include "infra_state.h"
 #include "alcs_base64.h"
 #include "wrappers.h"
 

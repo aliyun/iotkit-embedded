@@ -60,7 +60,7 @@ static int _dm_client_subscribe_filter(char *uri, iotx_cm_data_handle_cb cb)
 
     if (event_post_reply_opt == 0) {
         res = dm_client_unsubscribe(uri);
-        return (res >= 0)? SUCCESS_RETURN: FAIL_RETURN;
+        return res;
     }
     else {
         res = FAIL_RETURN;
@@ -141,14 +141,11 @@ int dm_client_subscribe_all(int devid, char product_key[IOTX_PRODUCT_KEY_LEN + 1
 
 static void _dm_client_event_cloud_connected_handle(void)
 {
-    dm_log_info("IOTX_CM_EVENT_CLOUD_CONNECTED");
     dm_msg_cloud_connected();
 }
 
 static void _dm_client_event_cloud_disconnect_handle(void)
 {
-    dm_log_info("IOTX_CM_EVENT_CLOUD_DISCONNECT");
-
     dm_msg_cloud_disconnect();
 }
 

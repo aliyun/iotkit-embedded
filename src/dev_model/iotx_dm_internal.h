@@ -17,10 +17,10 @@
 #include "infra_cjson.h"
 #include "infra_report.h"
 #include "infra_string.h"
+#include "infra_state.h"
 #if defined(DEVICE_MODEL_GATEWAY)
     #include "infra_sha256.h"
 #endif
-
 
 #ifndef _IN_
     #define _IN_
