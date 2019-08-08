@@ -393,7 +393,7 @@ static int _http_parse_response_header(httpclient_t *client, char *data, int len
         client_data->response_content_len = atoi(tmp_ptr + strlen("Content-Length: "));
         client_data->retrieve_len = client_data->response_content_len;
     } else {
-        return STATE_USER_INPUT_HTTP_CONTENT_LEN;
+        return STATE_HTTP_RESP_MISSING_CONTENT_LEN;
     }
 
     /* remove header length */

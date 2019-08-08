@@ -65,17 +65,17 @@ extern "C" {
 #define STATE_USER_INPUT_HTTP_PATH                  (STATE_USER_INPUT_BASE - 0x000E)
 /* User input parameters contain unacceptable PK/PS/DN/DS */
 /* 用户传递给API的参数中含有不合理的产品标识/密钥或设备名称/密钥 */
-#define STATE_USER_INPUT_META_INFO                  (STATE_USER_INPUT_BASE - 0x0010)
+#define STATE_USER_INPUT_META_INFO                  (STATE_USER_INPUT_BASE - 0x000F)
 /* User input parameters contain unacceptable deviceID */
 /* 用户传递给API的参数中含有不合理的 deviceID 设备标识符 */
-#define STATE_USER_INPUT_DEVID                      (STATE_USER_INPUT_BASE - 0x0011)
+#define STATE_USER_INPUT_DEVID                      (STATE_USER_INPUT_BASE - 0x0010)
 /* User input parameters contain unacceptable device type */
 /* 用户传递给API的参数中含有不合理的设备类型, 既不是master又不是slave */
-#define STATE_USER_INPUT_DEVICE_TYPE                (STATE_USER_INPUT_BASE - 0x0012)
+#define STATE_USER_INPUT_DEVICE_TYPE                (STATE_USER_INPUT_BASE - 0x0011)
 
 /* User input parameters contain unacceptable value */
 /* 用户传递给API的参数中含有其它不合理的取值 */
-#define STATE_USER_INPUT_INVALID                    (STATE_USER_INPUT_BASE - 0x0013)
+#define STATE_USER_INPUT_INVALID                    (STATE_USER_INPUT_BASE - 0x0012)
 /* User Input: 0x0100 ~ 0x01FF */
 
 /* System: 0x0200 ~ 0x02FF */
@@ -170,22 +170,22 @@ extern "C" {
 #define STATE_MQTT_SERIALIZE_CONN_ERROR             (STATE_MQTT_BASE - 0x000C)
 /* Failed to serialize acknowledge message of publish */
 /* 序列化对服务器下推报文的应答消息异常 */
-#define STATE_MQTT_SERIALIZE_PUBACK_ERROR           (STATE_MQTT_BASE - 0x000E)
+#define STATE_MQTT_SERIALIZE_PUBACK_ERROR           (STATE_MQTT_BASE - 0x000D)
 /* Failed to serialize ping request */
 /* 序列化MQTT心跳请求报文异常 */
-#define STATE_MQTT_SERIALIZE_PINGREQ_ERROR          (STATE_MQTT_BASE - 0x000F)
+#define STATE_MQTT_SERIALIZE_PINGREQ_ERROR          (STATE_MQTT_BASE - 0x000E)
 /* Failed to serialize subscribe request */
 /* 序列化MQTT订阅请求报文异常 */
-#define STATE_MQTT_SERIALIZE_SUB_ERROR              (STATE_MQTT_BASE - 0x0010)
+#define STATE_MQTT_SERIALIZE_SUB_ERROR              (STATE_MQTT_BASE - 0x000F)
 /* Failed to serialize unsubscribe request */
 /* 序列化MQTT取消订阅请求报文异常 */
-#define STATE_MQTT_SERIALIZE_UNSUB_ERROR            (STATE_MQTT_BASE - 0x0011)
+#define STATE_MQTT_SERIALIZE_UNSUB_ERROR            (STATE_MQTT_BASE - 0x0010)
 /* Failed to serialize publish message */
 /* 序列化MQTT上报消息报文异常 */
-#define STATE_MQTT_SERIALIZE_PUB_ERROR              (STATE_MQTT_BASE - 0x0012)
+#define STATE_MQTT_SERIALIZE_PUB_ERROR              (STATE_MQTT_BASE - 0x0011)
 /* Failed to deserialize connect response */
 /* 反序列化MQTT服务器返回的建连应答报文异常 */
-#define STATE_MQTT_SERIALIZE_CONNACK_ERROR          (STATE_MQTT_BASE - 0x000D)
+#define STATE_MQTT_DESERIALIZE_CONNACK_ERROR        (STATE_MQTT_BASE - 0x0012)
 /* Failed to deserialize subscribe response */
 /* 反序列化MQTT服务器返回的订阅应答报文异常 */
 #define STATE_MQTT_DESERIALIZE_SUBACK_ERROR         (STATE_MQTT_BASE - 0x0013)
@@ -275,7 +275,7 @@ extern "C" {
 #define STATE_HTTP_PREAUTH_INVALID_RESP             (STATE_HTTP_BASE - 0x0004)
 /* Content length field does not exist in HTTP response from server */
 /* 从HTTP服务器返回的报文中, 没有找到 Content-Length 字段 */
-#define STATE_USER_INPUT_HTTP_CONTENT_LEN           (STATE_HTTP_BASE - 0x000F)
+#define STATE_HTTP_RESP_MISSING_CONTENT_LEN         (STATE_HTTP_BASE - 0x0005)
 
 /* HTTP: 0x0600 ~ 0x06FF */
 
@@ -318,10 +318,10 @@ extern "C" {
 #define STATE_BIND_RST_IN_PROGRESS                  (STATE_BIND_BASE - 0x000A)
 /* Got invalid MQTT respond from server after token report */
 /* 将绑定token上报给服务端后, 接收到的回应报文不合法 */
-#define STATE_BIND_MQTT_MSG_INVALID                 (STATE_BIND_BASE - 0x000B)
+#define STATE_BIND_MQTT_RSP_INVALID                 (STATE_BIND_BASE - 0x000B)
 /* Got invalid CoAP request from external devices in same LAN */
 /* 接收到来自同一局域网内其它电子设备的token查询请求, 但请求报文不合法 */
-#define STATE_BIND_COAP_MSG_INVALID                 (STATE_BIND_BASE - 0x000C)
+#define STATE_BIND_COAP_REQ_INVALID                 (STATE_BIND_BASE - 0x000C)
 
 /* Bind: 0x0800 ~ 0x08FF */
 

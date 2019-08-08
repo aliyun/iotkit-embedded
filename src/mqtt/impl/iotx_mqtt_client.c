@@ -634,7 +634,7 @@ static int iotx_mc_handle_recv_CONNACK(iotx_mc_client_t *c)
 
     if (MQTTDeserialize_connack((unsigned char *)&sessionPresent, &connack_rc, (unsigned char *)c->buf_read,
                                 c->buf_size_read) != 1) {
-        return STATE_MQTT_SERIALIZE_CONNACK_ERROR;
+        return STATE_MQTT_DESERIALIZE_CONNACK_ERROR;
     }
 
     switch (connack_rc) {
