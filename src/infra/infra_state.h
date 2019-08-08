@@ -380,7 +380,7 @@ extern "C" {
 /* 物模型模块中发现OTA功能未开启 */
 #define STATE_DEV_MODEL_OTA_NOT_ENABLED             (STATE_DEV_MODEL_BASE - 0x0011)
 /* OTA service is not initialized correctly in device model */
-/* 物模型模块中发现OTA功能正确初始化 */
+/* 物模型模块中发现OTA功能未能正确初始化 */
 #define STATE_DEV_MODEL_OTA_NOT_INITED              (STATE_DEV_MODEL_BASE - 0x0012)
 /* OTA service is initialized but failed in device model */
 /* 物模型模块中发现对OTA功能初始化失败 */
