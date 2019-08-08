@@ -208,7 +208,7 @@ extern "C" {
 /* 组装MQTT上报消息准备发给网络协议栈时, 为报文内容预留的缓冲区太短, 不足容纳待发送内容 */
 #define STATE_MQTT_TX_BUFFER_TOO_SHORT              (STATE_MQTT_BASE - 0x0019)
 /* Reserved buffer is too short when compose topic for MQTT outgoing message */
-/* 组装MQTT上报消息准备发给网络协议栈时, 为Topic字段预留的缓冲区太短, 不足容纳待发送内容 */
+/* 组装Topic准备进行MQTT发布或者订阅时, 为Topic字段预留的缓冲区太短, 不足容纳组装内容 */
 #define STATE_MQTT_TOPIC_BUF_TOO_SHORT              (STATE_MQTT_BASE - 0x001A)
 /* Retried time exceeds maximum when perform IOT_MQTT_Construct() */
 /* 单独的一次 IOT_MQTT_Construct() 接口工作中, 已多次重试仍未连上服务端, 停止尝试返回 */
