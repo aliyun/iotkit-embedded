@@ -184,9 +184,6 @@ extern "C" {
 
 /* Device Model: 0x0900 ~ 0x09FF */
 
-
-/* SubDevice Mgmt: 0x0A00 ~ 0x0AFF */
-
 #ifdef __cplusplus
 }
 #endif
