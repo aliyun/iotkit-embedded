@@ -19,7 +19,7 @@ iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
     iotx_mqtt_param_t *mqtt_param = NULL;
 
     if (_mqtt_conncection != NULL) {
-        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_INTERNAL_DUPLICATED_OPENED, NULL);
+        iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_INTERNAL_MQTT_DUP_INIT, NULL);
         return _mqtt_conncection;
     }
 
@@ -169,7 +169,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             char *topic = NULL;
 
             if (topic_handle_func == NULL) {
-                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_MQTT_EXCEPTION, "unexpected pub message received");
+                iotx_state_event(ITE_STATE_DEV_MODEL, STATE_DEV_MODEL_RECV_UNEXP_MQTT_PUB, "unexpected pub message received");
                 return;
             }
 
@@ -208,7 +208,7 @@ static int _mqtt_connect(uint32_t timeout)
     char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
     if (_mqtt_conncection == NULL) {
-        return STATE_DEV_MODEL_INTERNAL_NOT_OPENED;
+        return STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET;
     }
 
     IOT_Ioctl(IOTX_IOCTL_GET_PRODUCT_KEY, product_key);
@@ -263,7 +263,7 @@ static int _mqtt_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
     int qos = 0;
 
     if (_mqtt_conncection == NULL) {
-        return STATE_DEV_MODEL_INTERNAL_NOT_OPENED;
+        return STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET;
     }
 
     if (ext != NULL) {
@@ -275,7 +275,7 @@ static int _mqtt_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
 static int _mqtt_yield(uint32_t timeout)
 {
     if (_mqtt_conncection == NULL) {
-        return STATE_DEV_MODEL_INTERNAL_NOT_OPENED;
+        return STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET;
     }
 
     return IOT_MQTT_Yield(_mqtt_conncection->context, timeout);
@@ -290,7 +290,7 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
     int ret;
 
     if (_mqtt_conncection == NULL) {
-        return STATE_DEV_MODEL_INTERNAL_NOT_OPENED;
+        return STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET;
     }
 
     if (ext != NULL) {
@@ -324,7 +324,7 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
 static int _mqtt_unsub(const char *topic)
 {
     if (_mqtt_conncection == NULL) {
-        return STATE_DEV_MODEL_INTERNAL_NOT_OPENED;
+        return STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET;
     }
 
     return IOT_MQTT_Unsubscribe(_mqtt_conncection->context, topic);
@@ -333,7 +333,7 @@ static int _mqtt_unsub(const char *topic)
 static int _mqtt_close()
 {
     if (_mqtt_conncection == NULL) {
-        return STATE_DEV_MODEL_INTERNAL_NOT_OPENED;
+        return STATE_DEV_MODEL_INTERNAL_MQTT_NOT_INIT_YET;
     }
 
     cm_free(_mqtt_conncection->open_params);

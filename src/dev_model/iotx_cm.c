@@ -300,5 +300,5 @@ static int _get_fd(iotx_cm_connection_t *handle)
     }
     HAL_MutexUnlock(fd_lock);
 
-    return STATE_DEV_MODEL_CM_FD_COUNT_LIMITED;
+    return STATE_DEV_MODEL_CM_FD_NOT_FOUND;
 }

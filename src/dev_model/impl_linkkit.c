@@ -619,9 +619,11 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_GENERAL, lite_item_id.value, NULL, 0, property_get_ctx,
                                              &service_ctx);
                 if (service_ctx != NULL) {
-                    res = ((int (*)(int, const char *, int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
-                            lite_item_serviceid.value,
-                            lite_item_serviceid.value_length, lite_item_id.value, lite_item_id.value_length, request, lite_item_payload.value_length, service_ctx);
+                    res = ((int (*)(int, const char *, int, const char *, int, const char *, int,
+                                    void *))callback)(lite_item_devid.value_int,
+                                                      lite_item_serviceid.value,
+                                                      lite_item_serviceid.value_length, lite_item_id.value, lite_item_id.value_length, request,
+                                                      lite_item_payload.value_length, service_ctx);
                 }
             }
 
@@ -901,9 +903,11 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 _linkkit_service_list_insert(IOTX_SERVICE_REQ_TYPE_RRPC, lite_item_id.value, lite_item_rrpcid.value,
                                              lite_item_rrpcid.value_length, NULL, &service_ctx);
                 if (service_ctx != NULL) {
-                    res = ((int (*)(int, const char *, int, const char *, int, const char *, int, void *))callback)(lite_item_devid.value_int,
-                            lite_item_serviceid.value,
-                            lite_item_serviceid.value_length, lite_item_id.value, lite_item_id.value_length, rrpc_request, lite_item_payload.value_length, service_ctx);
+                    res = ((int (*)(int, const char *, int, const char *, int, const char *, int,
+                                    void *))callback)(lite_item_devid.value_int,
+                                                      lite_item_serviceid.value,
+                                                      lite_item_serviceid.value_length, lite_item_id.value, lite_item_id.value_length, rrpc_request,
+                                                      lite_item_payload.value_length, service_ctx);
                 }
             }
 
@@ -1135,7 +1139,7 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (ctx->is_opened) {
-        return STATE_DEV_MODEL_MASTER_ALREADY_OPENED;
+        return STATE_DEV_MODEL_MASTER_ALREADY_OPEN;
     }
     ctx->is_opened = 1;
 
@@ -1197,7 +1201,7 @@ static int _iotx_linkkit_slave_open(iotx_linkkit_dev_meta_info_t *meta_info)
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (!ctx->is_opened) {
-        return STATE_DEV_MODEL_MASTER_NOT_OPENED;
+        return STATE_DEV_MODEL_MASTER_NOT_OPEN_YET;
     }
 
     return iotx_dm_subdev_create(meta_info->product_key, meta_info->product_secret, meta_info->device_name,
@@ -1213,7 +1217,7 @@ static int _iotx_linkkit_master_connect(void)
     iotx_dm_event_types_t type;
 
     if (ctx->is_connected) {
-        return STATE_DEV_MODEL_MASTER_ALREADY_CONNECTED;
+        return STATE_DEV_MODEL_MASTER_ALREADY_CONNECT;
     }
     ctx->is_connected = 1;
 
@@ -1235,7 +1239,7 @@ static int _iotx_linkkit_master_connect(void)
     type = IOTX_DM_EVENT_INITIALIZED;
     _iotx_linkkit_event_callback(type, "{\"devid\":0}");
 #ifdef DEV_BIND_ENABLED
-    if(_awss_reported == 0) {
+    if (_awss_reported == 0) {
         awss_report_cloud();
         _awss_reported = 1;
     }
@@ -1253,7 +1257,7 @@ static int _iotx_linkkit_slave_connect(int devid)
     void *semaphore = NULL;
 
     if (ctx->is_connected == 0) {
-        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
     if (devid <= 0) {
@@ -1508,7 +1512,7 @@ int IOT_Linkkit_Connect(int devid)
     }
 
     if (ctx->is_opened == 0) {
-        return STATE_DEV_MODEL_MASTER_NOT_OPENED;
+        return STATE_DEV_MODEL_MASTER_NOT_OPEN_YET;
     }
 
     _iotx_linkkit_mutex_lock();
@@ -1537,7 +1541,7 @@ int IOT_Linkkit_Yield(int timeout_ms)
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
     res = iotx_dm_yield(timeout_ms);
@@ -1823,7 +1827,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
     _iotx_linkkit_mutex_lock();
@@ -1879,7 +1883,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
     _iotx_linkkit_mutex_lock();
@@ -1908,7 +1912,7 @@ int IOT_Linkkit_AnswerService(int devid, char *serviceid, int serviceid_len, cha
     }
 
     if (ctx->is_opened == 0 || ctx->is_connected == 0) {
-        return STATE_DEV_MODEL_MASTER_NOT_CONNECTED;
+        return STATE_DEV_MODEL_MASTER_NOT_CONNECT_YET;
     }
 
     /* check if service ctx exist */
@@ -1947,7 +1951,7 @@ int iot_linkkit_subdev_query_id(char product_key[IOTX_PRODUCT_KEY_LEN + 1], char
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (ctx->is_opened == 0) {
-        return STATE_DEV_MODEL_MASTER_NOT_OPENED;
+        return STATE_DEV_MODEL_MASTER_NOT_OPEN_YET;
     }
 
     iotx_dm_subdev_query(product_key, device_name, &res);

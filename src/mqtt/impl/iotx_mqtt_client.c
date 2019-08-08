@@ -1335,7 +1335,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 
     if (topicName.lenstring.len == 0 || topicName.lenstring.data == NULL) {
         mqtt_err("Null topicName");
-        return STATE_MQTT_DESERIALIZE_PUBLISH_ERROR;
+        return STATE_MQTT_DESERIALIZE_PUB_ERROR;
     }
 
 #ifdef INFRA_LOG_NETWORK_PAYLOAD
@@ -1419,7 +1419,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     }
 
     if (MQTTDeserialize_unsuback(&mypacketid, (unsigned char *)c->buf_read, c->buf_size_read) != 1) {
-        return STATE_MQTT_DESERIALIZE_UBSUBACK_ERROR;
+        return STATE_MQTT_DESERIALIZE_UNSUBACK_ERROR;
     }
 
     if (NULL != c->handle_event.h_fp) {
@@ -2481,7 +2481,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         _reset_send_buffer(c);
         HAL_MutexUnlock(c->lock_write_buf);
         HAL_MutexUnlock(c->lock_list_pub);
-        return STATE_MQTT_SERIALIZE_PUBLISH_ERROR;
+        return STATE_MQTT_SERIALIZE_PUB_ERROR;
     }
 
 #if !WITH_MQTT_ONLY_QOS0

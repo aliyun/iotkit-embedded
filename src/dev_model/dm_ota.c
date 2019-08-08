@@ -16,11 +16,11 @@ static int _dm_ota_clean_state(void *context)
 {
     dm_cota_ctx_t *cota = dm_cota_get_ctx();
     dm_fota_ctx_t *fota = dm_fota_get_ctx();
-    if(cota != NULL) {
+    if (cota != NULL) {
         cota->is_report_new_config = 0;
     }
 
-    if(fota != NULL) {
+    if (fota != NULL) {
         fota->is_report_new_config = 0;
     }
     return 0;
@@ -87,7 +87,7 @@ int dm_ota_switch_device(int devid)
 
     /* if currently a device is doing OTA, do not interrupt */
     if (IOT_OTA_IsFetching(ota_handle)) {
-        return STATE_DEV_MODEL_OTA_IS_ONGOING;
+        return STATE_DEV_MODEL_OTA_STILL_IN_PROGRESS;
     }
 
     dm_ota_deinit();
