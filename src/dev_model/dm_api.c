@@ -631,7 +631,7 @@ int iotx_dm_subdev_proxy_register(_IN_ int devid)
     res = dm_mgr_search_device_node_by_devid(devid, (void **)&search_node);
     if (res != SUCCESS_RETURN) {
         _dm_api_unlock();
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_DEVICE_NOT_FOUND;
     }
 
     if ((strlen(search_node->device_secret) > 0) && (strlen(search_node->device_secret) < IOTX_DEVICE_SECRET_LEN + 1)) {

@@ -1197,15 +1197,21 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
 #ifdef DEVICE_MODEL_GATEWAY
 static int _iotx_linkkit_slave_open(iotx_linkkit_dev_meta_info_t *meta_info)
 {
-    int devid;
+    int res, devid;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
     if (!ctx->is_opened) {
         return STATE_DEV_MODEL_MASTER_NOT_OPEN_YET;
     }
 
-    return iotx_dm_subdev_create(meta_info->product_key, meta_info->product_secret, meta_info->device_name,
+    res = iotx_dm_subdev_create(meta_info->product_key, meta_info->product_secret, meta_info->device_name,
                                  meta_info->device_secret, &devid);
+    if (res < 0) {
+        return res;
+    }
+    else {
+        return devid;
+    }
 }
 #endif
 

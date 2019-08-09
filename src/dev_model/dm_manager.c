@@ -431,7 +431,7 @@ int dm_mgr_search_device_node_by_devid(_IN_ int devid, _OU_ void **node)
 
     res = _dm_mgr_search_dev_by_devid(devid, &search_node);
     if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
+        return STATE_DEV_MODEL_DEVICE_NOT_FOUND;
     }
 
     if (node) {
