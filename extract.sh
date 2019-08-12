@@ -349,7 +349,10 @@ do
     # echo -e "\n${DATA_TYPE}"
     # echo -e "\n${FUNC_DEC}"
 
-    FUNC_FILE=$(grep ${func} ./wrappers/os/ubuntu/* | gawk -F':' '{print $1}' | gawk -F'/' '{print $NF}' | sed -n '1,1p')
+    FUNC_FILE=$(grep ${func} ./wrappers/os/ubuntu/* | gawk -F':' '{print $1}' | ${SED} -n 's/.\/wrappers\///g;s/\//\\\//g;p' | ${SED} -n '1,1p')
+    if [ "${FUNC_FILE}" = "" ];then
+        FUNC_FILE=$(grep ${func} ./wrappers/tls/* | gawk -F':' '{print $1}' | ${SED} -n 's/.\/wrappers\///g;s/\//\\\//g;p' | ${SED} -n '1,1p')
+    fi
     # echo -e "\n${FUNC_FILE}"
 
     ${SED} -n '/WRAPPER_FUNC_REFERENCE:/{:a;N;/*\//!ba;p}' ${WRAPPER_DOC} | ${SED} -n '1d;s/FUNC_NAME/'${func}'/g;s/FUNC_FILE/'${FUNC_FILE}'/g;p' >> ${WRAPPERS_DIR}/wrappers.c
