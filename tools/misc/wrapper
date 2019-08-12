@@ -17,7 +17,7 @@ WRAPPER_FUNC_REFERENCE:
  * ---
  * If you need guidance about how to implement FUNC_NAME, you can check its reference implementation for Ubuntu platform
  *
- * https://code.aliyun.com/linkkit/c-sdk/blob/v3.0.1/wrappers/os/ubuntu/FUNC_FILE
+ * https://code.aliyun.com/linkkit/c-sdk/blob/v3.0.1/wrappers/FUNC_FILE
  *
  *
  * 注意! HAL_XXX() 系列的函数虽然有阿里提供的对应参考实现, 但不建议您不做任何修改/检视的应用于您的商用设备!
