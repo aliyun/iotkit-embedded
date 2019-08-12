@@ -76,14 +76,6 @@ intptr_t HAL_UDP_create(char *host, unsigned short port)
 #undef NETWORK_ADDR_LEN
 }
 
-void HAL_UDP_close(intptr_t p_socket)
-{
-    long            socket_id = -1;
-
-    socket_id = (long)p_socket;
-    close(socket_id);
-}
-
 int HAL_UDP_write(intptr_t p_socket,
                   const unsigned char *p_data,
                   unsigned int datalen)
@@ -98,23 +90,6 @@ int HAL_UDP_write(intptr_t p_socket,
     }
 
     return rc;
-}
-
-int HAL_UDP_read(intptr_t p_socket,
-                 unsigned char *p_data,
-                 unsigned int datalen)
-{
-    long            socket_id = -1;
-    int             count = -1;
-
-    if (NULL == p_data || 0 == p_socket) {
-        return -1;
-    }
-
-    socket_id = (long)p_socket;
-    count = (int)read(socket_id, p_data, datalen);
-
-    return count;
 }
 
 int HAL_UDP_readTimeout(intptr_t p_socket,
@@ -158,7 +133,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket,
     }
 
     /* This call will not block */
-    return HAL_UDP_read(p_socket, p_data, datalen);
+    return read(p_socket, p_data, datalen);
 }
 
 intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
